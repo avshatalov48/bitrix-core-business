@@ -12,7 +12,10 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	return false;
 
-if ($arGadgetParams["SITE_ID"] <> '')
+$arGadgetParams["SITE_ID"] = (string)($arGadgetParams["SITE_ID"] ?? '');
+$arGadgetParams["PERIOD"] = (string)($arGadgetParams["PERIOD"] ?? '');
+
+if ($arGadgetParams["SITE_ID"] !== '')
 {
 	if ($arGadgetParams["TITLE_STD"] == '')
 	{
@@ -25,7 +28,7 @@ if ($arGadgetParams["SITE_ID"] <> '')
 $arGadgetParams["RND_STRING"] = randString(8);
 
 $arFilter = array();
-if ($arGadgetParams["SITE_ID"] <> '')
+if ($arGadgetParams["SITE_ID"] !== '')
 {
 	$arFilter["LID"] = $arGadgetParams["SITE_ID"];
 	$arGadgetParams["RND_STRING"] = $arGadgetParams["SITE_ID"].'_'.$arGadgetParams["RND_STRING"];

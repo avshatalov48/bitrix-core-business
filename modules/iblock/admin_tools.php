@@ -813,13 +813,14 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 
 			foreach($arActualRights as $RIGHT_ID => $arRightSet)
 			{
-				if($bForceInherited || $arRightSet["IS_INHERITED"] == "Y")
+				if($bForceInherited || $arRightSet["IS_INHERITED"] === "Y")
 				{
+					$arRightSet["IS_OVERWRITED"] ??= null;
 					?>
-					<tr class="<?echo $html_var_name?>_row_for_<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?><?if($arRightSet["IS_OVERWRITED"] == "Y") echo " iblock-strike-out";?>">
+					<tr class="<?echo $html_var_name?>_row_for_<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?><?if($arRightSet["IS_OVERWRITED"] === "Y") echo " iblock-strike-out";?>">
 						<td style="width:40%!important; text-align:right"><?echo htmlspecialcharsex($arNames[$arRightSet["GROUP_CODE"]]["provider"]." ".$arNames[$arRightSet["GROUP_CODE"]]["name"])?>:</td>
 						<td align="left">
-							<?if($arRightSet["IS_OVERWRITED"] != "Y"):?>
+							<?if($arRightSet["IS_OVERWRITED"] !== "Y"):?>
 							<input type="hidden" name="<?echo $html_var_name?>[][RIGHT_ID]" value="<?echo htmlspecialcharsbx($RIGHT_ID)?>">
 							<input type="hidden" name="<?echo $html_var_name?>[][GROUP_CODE]" value="<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?>">
 							<input type="hidden" name="<?echo $html_var_name?>[][TASK_ID]" value="<?echo htmlspecialcharsbx($arRightSet["TASK_ID"])?>">
@@ -970,9 +971,10 @@ function IBlockGetWatermarkPositions()
 	return $rs;
 }
 
-function IBlockInheritedPropertyInput($iblock_id, $id, $data, $type, $checkboxLabel = "")
+function IBlockInheritedPropertyInput($iblock_id, $id, $data, $type, $checkboxLabel = ""): string
 {
-	$inherited = ($data[$id]["INHERITED"] !== "N") && ($checkboxLabel !== "");
+	$inheritedValue = (string)($data[$id]["INHERITED"] ?? 'Y');
+	$inherited = ($inheritedValue !== "N") && ($checkboxLabel !== "");
 	$inputId = "IPROPERTY_TEMPLATES_".$id;
 	$inputName = "IPROPERTY_TEMPLATES[".$id."][TEMPLATE]";
 	$menuId = "mnu_IPROPERTY_TEMPLATES_".$id;
@@ -984,6 +986,7 @@ function IBlockInheritedPropertyInput($iblock_id, $id, $data, $type, $checkboxLa
 	else
 		$menuItems= CIBlockParameters::GetInheritedPropertyTemplateElementMenuItems($iblock_id, "InheritedPropertiesTemplates.insertIntoInheritedPropertiesTemplate", $menuId, $inputId);
 
+	$templateValue = (string)($data[$id]["TEMPLATE"] ?? '');
 	$u = new CAdminPopupEx($menuId, $menuItems, array("zIndex" => 2000));
 	$result = $u->Show(true)
 		.'<script>
@@ -994,9 +997,9 @@ function IBlockInheritedPropertyInput($iblock_id, $id, $data, $type, $checkboxLa
 			"TEMPLATE": ""
 			};
 		</script>'
-		.'<input type="hidden" name="'.$inputName.'" value="'.htmlspecialcharsbx($data[$id]["TEMPLATE"]).'" />'
+		.'<input type="hidden" name="'.$inputName.'" value="'.htmlspecialcharsbx($templateValue).'" />'
 		.'<textarea onclick="InheritedPropertiesTemplates.enableTextArea(\''.$inputId.'\')" name="'.$inputName.'" id="'.$inputId.'" '.($inherited? 'readonly="readonly"': '').' cols="55" rows="1" style="width:90%">'
-		.htmlspecialcharsbx($data[$id]["TEMPLATE"])
+		.htmlspecialcharsbx($templateValue)
 		.'</textarea>'
 		.'<input style="float:right" type="button" id="'.$menuId.'" '.($inherited? 'disabled="disabled"': '').' value="...">'
 		.'<br>'
@@ -1030,16 +1033,18 @@ function IBlockInheritedPropertyInput($iblock_id, $id, $data, $type, $checkboxLa
 	return $result;
 }
 
-function IBlockInheritedPropertyHidden($iblock_id, $id, $data, $type, $checkboxLabel = "")
+function IBlockInheritedPropertyHidden($iblock_id, $id, $data, $type, $checkboxLabel = ""): string
 {
-	$inherited = ($data[$id]["INHERITED"] !== "N") && ($checkboxLabel !== "");
+	$inheritedValue = (string)($data[$id]["INHERITED"] ?? 'Y');
+	$inherited = ($inheritedValue !== "N") && ($checkboxLabel !== "");
 	$inputId = "IPROPERTY_TEMPLATES_".$id;
 	$inputName = "IPROPERTY_TEMPLATES[".$id."][TEMPLATE]";
 	$menuId = "mnu_IPROPERTY_TEMPLATES_".$id;
 	$resultId = "result_IPROPERTY_TEMPLATES_".$id;
 	$checkboxId = "ck_IPROPERTY_TEMPLATES_".$id;
 
-	$result = '<input type="hidden" name="'.$inputName.'" value="'.htmlspecialcharsbx($data[$id]["TEMPLATE"]).'" />';
+	$templateValue = (string)($data[$id]["TEMPLATE"] ?? '');
+	$result = '<input type="hidden" name="'.$inputName.'" value="'.htmlspecialcharsbx($templateValue).'" />';
 
 	if ($checkboxLabel != "")
 	{

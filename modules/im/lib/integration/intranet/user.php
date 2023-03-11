@@ -210,7 +210,7 @@ class User
 			return false;
 		}
 
-		\CIMContactList::SetRecent(Array('ENTITY_ID' => $userId));
+		\CIMContactList::SetRecent(['ENTITY_ID' => $userId]);
 
 		return true;
 	}

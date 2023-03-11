@@ -28,7 +28,7 @@ export default class Automation extends EventEmitter
 
 	#workflowId: string;
 	#workflowStatus: number;
-	#workflowEvents: Array = [];
+	#workflowEvents: Array<{name: string, sourceId: string}> = [];
 	#workflowTrack: Array = [];
 	#debuggerState: number;
 
@@ -322,10 +322,14 @@ export default class Automation extends EventEmitter
 		});
 	}
 
-	emulateExternalEvent()
+	emulateExternalEvent(robotId: ?string)
 	{
 		return new Promise(resolve => {
-			const eventId = this.#workflowEvents[0];
+			let eventId = this.#workflowEvents[0]?.name;
+			if (Type.isStringFilled(robotId))
+			{
+				eventId = this.#workflowEvents.find(({sourceId: eventRobotId}) => eventRobotId === robotId)?.name;
+			}
 
 			if (!eventId)
 			{
@@ -525,10 +529,11 @@ export default class Automation extends EventEmitter
 	handleExternalWorkflowEventAdd(event: BaseEvent)
 	{
 		const eventName: string = event.getData().eventName;
+		const robotId: ?string = event.getData().sourceId;
 
 		console.info('workflow event added: ' + eventName);
-		this.#workflowEvents.push(eventName);
-		console.info('workflow events: ' + this.#workflowEvents.join(', '));
+		this.#workflowEvents.push({ name: eventName, sourceId: robotId });
+		console.info('workflow events: ' + this.#workflowEvents.map(event => event.name).join(', '));
 		this.emit('onWorkflowEventsChanged', {events: this.#workflowEvents});
 	}
 
@@ -537,8 +542,8 @@ export default class Automation extends EventEmitter
 		const eventName: string = event.getData().eventName;
 
 		console.info('workflow event removed: ' + eventName);
-		this.#workflowEvents = this.#workflowEvents.filter(value => value !== eventName);
-		console.info('workflow events: ' + this.#workflowEvents.join(', '));
+		this.#workflowEvents = this.#workflowEvents.filter(({name: value}) => value !== eventName);
+		console.info('workflow events: ' + this.#workflowEvents.map(({name}) => name).join(', '));
 		this.emit('onWorkflowEventsChanged', {events: this.#workflowEvents});
 	}
 

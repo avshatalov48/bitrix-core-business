@@ -28,6 +28,7 @@ if($arResult['ERROR'])
 			'APP' => $arResult['VARIABLES']['APP'],
 			'SET_TITLE' => 'Y',
 			'ADDITIONAL' => $arResult['VARIABLES']['ADDITIONAL_PARAMS'],
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

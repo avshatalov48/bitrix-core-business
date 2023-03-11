@@ -129,7 +129,6 @@ $arDefaultUrlTemplates404 = array(
 	"group_tasks_report" => "group/#group_id#/tasks/report/",
 	"group_tasks_report_construct" => "group/#group_id#/tasks/report/construct/#report_id#/#action#/",
 	"group_tasks_report_view" => "group/#group_id#/tasks/report/view/#report_id#/",
-
 	//"group_tasks_import" => "group/#group_id#/tasks/import/",
 
 	"group_log" => "group/#group_id#/log/",

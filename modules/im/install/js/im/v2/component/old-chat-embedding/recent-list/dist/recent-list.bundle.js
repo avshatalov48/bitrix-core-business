@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
+(function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_oldChatEmbedding_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
 	const NewUserPopup = {
@@ -1096,7 +1096,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	  created() {
 	    this.recentService = im_v2_provider_service.RecentService.getInstance(this.$Bitrix);
-	    this.contextMenuManager = new im_v2_lib_menu.RecentMenu(this.$Bitrix);
+	    this.contextMenuManager = new im_v2_lib_oldChatEmbedding_menu.RecentMenu(this.$Bitrix);
 	    CallManager.init(this.$Bitrix);
 	    EventHandler.init(this.$Bitrix);
 	    SettingsManager.init(this.$Bitrix);
@@ -1284,5 +1284,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.LibLegacy,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

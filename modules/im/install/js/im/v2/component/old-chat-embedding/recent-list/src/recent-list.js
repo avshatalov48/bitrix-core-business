@@ -7,7 +7,7 @@ import {ChatTypes, EventType, RecentSettings, OpenTarget} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 import {RecentService} from 'im.v2.provider.service';
 import {RecentLoadingState} from 'im.v2.component.old-chat-embedding.elements';
-import {RecentMenu} from 'im.v2.lib.menu';
+import {RecentMenu} from 'im.v2.lib.old-chat-embedding.menu';
 
 import {RecentItem} from './components/recent-item';
 import {ActiveCall} from './components/active-call';

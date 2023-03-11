@@ -542,8 +542,13 @@ class Manager
 
 		$result = self::getExtraServicesList($deliveryId, true);
 
-		if($onlyActive && $result['ACTIVE'] != 'Y')
-			return array();
+		if(
+			$onlyActive
+			&& (empty($result['ACTIVE']) || $result['ACTIVE'] !== 'Y')
+		)
+		{
+			return [];
+		}
 
 		return $result;
 	}

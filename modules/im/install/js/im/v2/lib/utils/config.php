@@ -9,9 +9,9 @@ return [
 		'./dist/utils.bundle.js',
 	],
 	'rel' => [
-		'im.v2.const',
-		'main.core',
 		'main.date',
+		'main.core',
+		'im.v2.const',
 	],
 	'skip_core' => false,
 ];

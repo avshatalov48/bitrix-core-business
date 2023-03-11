@@ -53,7 +53,7 @@ class Promotion
 		];
 
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
-		if (is_array($settings['promotion']))
+		if (isset($settings['promotion']) && is_array($settings['promotion']))
 		{
 			$result = $settings['promotion'];
 		}

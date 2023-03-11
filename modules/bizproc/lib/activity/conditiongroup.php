@@ -37,8 +37,8 @@ class ConditionGroup
 		{
 			$this->items[] = [
 				'condition' => new Condition($item),
-				'joiner' => $item['joiner'] === 0 ? static::JOINER_AND : self::JOINER_OR,
-				'valueToCheck' => $item['valueToCheck'],
+				'joiner' => isset($item['joiner']) && $item['joiner'] === 0 ? static::JOINER_AND : self::JOINER_OR,
+				'valueToCheck' => $item['valueToCheck'] ?? null,
 				'fieldType' => $item['fieldType'] ?? new FieldType([], [], 'Bitrix\Bizproc\BaseType\StringType')
 			];
 		}

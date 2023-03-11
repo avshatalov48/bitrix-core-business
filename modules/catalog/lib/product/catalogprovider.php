@@ -2078,10 +2078,10 @@ if (Main\Loader::includeModule('sale'))
 			}
 
 			$setQuantityReserved = $catalogReservedQuantity;
-			$shipmentItemList = $productData['SHIPMENT_ITEM_DATA_LIST'];
 
-			if (!empty($needShipList))
+			if (!empty($needShipList) && !empty($productData['SHIPMENT_ITEM_DATA_LIST']))
 			{
+				$shipmentItemList = $productData['SHIPMENT_ITEM_DATA_LIST'];
 				foreach ($needShipList as $shipmentItemIndex => $isNeedShip)
 				{
 					if ($setQuantityReserved <= 0)

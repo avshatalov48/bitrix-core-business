@@ -50,7 +50,8 @@ class DocumentDataProvider extends EntityDataProvider
 			'CREATED_BY',
 			'MODIFIED_BY',
 			'TOTAL',
-			'STORES',
+			'STORES_FROM',
+			'STORES_TO',
 		],
 		\CatalogStoreDocumentListComponent::DEDUCT_MODE => [
 			'ID',
@@ -194,6 +195,20 @@ class DocumentDataProvider extends EntityDataProvider
 				'sort' => false,
 				'type' => Column\Type::LABELS,
 			],
+			'STORES_FROM' => [
+				'id' => 'STORES_FROM',
+				'name' => Loc::getMessage('DOCUMENT_STORES_FROM_NAME'),
+				'default' => true,
+				'sort' => false,
+				'type' => Column\Type::LABELS,
+			],
+			'STORES_TO' => [
+				'id' => 'STORES_TO',
+				'name' => Loc::getMessage('DOCUMENT_STORES_TO_NAME'),
+				'default' => true,
+				'sort' => false,
+				'type' => Column\Type::LABELS,
+			],
 		];
 	}
 
@@ -259,10 +274,27 @@ class DocumentDataProvider extends EntityDataProvider
 		if ($this->mode !== \CatalogStoreDocumentListComponent::OTHER_MODE)
 		{
 			$fields['DOC_NUMBER'] = $this->createField('DOC_NUMBER');
-			$fields['STORES'] = $this->createField('STORES', [
-				'partial' => true,
-				'type' => 'entity_selector',
-			]);
+
+			if ($this->mode === \CatalogStoreDocumentListComponent::MOVING_MODE)
+			{
+				$fields['STORES_FROM'] = $this->createField('STORES_FROM', [
+					'partial' => true,
+					'default' => true,
+					'type' => 'entity_selector',
+				]);
+				$fields['STORES_TO'] = $this->createField('STORES_TO', [
+					'partial' => true,
+					'default' => true,
+					'type' => 'entity_selector',
+				]);
+			}
+			else
+			{
+				$fields['STORES'] = $this->createField('STORES', [
+					'partial' => true,
+					'type' => 'entity_selector',
+				]);
+			}
 		}
 
 		if ($this->mode === \CatalogStoreDocumentListComponent::ARRIVAL_MODE)
@@ -339,7 +371,7 @@ class DocumentDataProvider extends EntityDataProvider
 			return $this->getUserEntitySelectorParams($this->mode . '_' . $fieldID . '_filter', ['fieldName' => $fieldID]);
 		}
 
-		if ($fieldID === 'STORES')
+		if (in_array($fieldID, ['STORES', 'STORES_FROM', 'STORES_TO'], true))
 		{
 			return [
 				'params' => [

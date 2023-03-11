@@ -422,6 +422,11 @@ export class ProductSelector extends EventEmitter
 		const errors = this.model.getErrorCollection().getErrors();
 		for (const code in errors)
 		{
+			if (!ProductSelector.ErrorCodes.getCodes().includes(code))
+			{
+				continue;
+			}
+
 			if (code === 'EMPTY_IMAGE')
 			{
 				this.setImageErrorBorder();
@@ -853,6 +858,16 @@ export class ProductSelector extends EventEmitter
 		const data = response?.data || null;
 		this.#inAjaxProcess = false;
 
+		const fields = data?.fields || [];
+		if (Type.isArray(config.immutableFields))
+		{
+			config.immutableFields.forEach((field) => {
+				fields[field] = this.getModel().getField(field);
+			});
+
+			data.fields = fields;
+		}
+
 		if (isProductAction)
 		{
 			this.clearState();
@@ -875,14 +890,6 @@ export class ProductSelector extends EventEmitter
 			this.layout();
 		}
 
-		const fields = data?.fields || null;
-		if (Type.isArray(config.immutableFields))
-		{
-			config.immutableFields.forEach((field) => {
-				fields[field] = this.getModel().getField(field);
-			});
-		}
-
 		this.emit('onChange', {
 			selectorId: this.id,
 			rowId: this.getRowId(),
@@ -903,20 +910,6 @@ export class ProductSelector extends EventEmitter
 			this.getModel().setOption('skuId', Text.toInteger(data.skuId));
 			this.getModel().setOption('isSimpleModel', false);
 			this.getModel().setOption('isNew', config.isNew);
-		}
-
-		if (Type.isArray(this.options.immutableFields))
-		{
-			this.options.immutableFields.forEach((field) => {
-				data.fields[field] = this.getModel().getField(field);
-			});
-		}
-
-		if (Type.isArray(config.immutableFields))
-		{
-			config.immutableFields.forEach((field) => {
-				data.fields[field] = this.getModel().getField(field);
-			});
 		}
 
 		this.getModel().initFields(data.fields);

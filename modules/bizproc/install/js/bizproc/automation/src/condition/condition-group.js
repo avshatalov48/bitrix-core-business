@@ -1,5 +1,7 @@
 import { Type, Loc } from 'main.core';
 import { Condition } from './condition';
+import { ConditionNames } from './types';
+import { Operator } from 'bizproc.condition';
 
 export class ConditionGroup
 {
@@ -24,6 +26,7 @@ export class ConditionGroup
 
 	#type: string;
 	#items: Array<[Condition, string]>;
+	#activityNames: ?ConditionNames;
 
 	constructor(params: ?Object)
 	{
@@ -43,6 +46,10 @@ export class ConditionGroup
 					this.addItem(condition, item[1]);
 				});
 			}
+			if (Type.isPlainObject(params['activityNames']))
+			{
+				this.#activityNames = params['activityNames'];
+			}
 		}
 	}
 
@@ -57,6 +64,20 @@ export class ConditionGroup
 		});
 
 		return clonedGroup;
+	}
+
+	get conditionNamesList(): Array<string>
+	{
+		if (Type.isPlainObject(this.#activityNames))
+		{
+			return [
+				this.#activityNames.Activity,
+				this.#activityNames.Branch1,
+				this.#activityNames.Branch2,
+			];
+		}
+
+		return [];
 	}
 
 	get type()
@@ -89,7 +110,7 @@ export class ConditionGroup
 
 		if (Type.isArray(formFields[prefix + 'field']))
 		{
-			for (let i = 0; i < formFields[prefix + 'field'].length; ++i)
+			for (let i = 0, valueIndex = 0; i < formFields[prefix + 'field'].length; ++i, ++valueIndex)
 			{
 				if (formFields[prefix + 'field'][i] === '')
 				{
@@ -100,12 +121,23 @@ export class ConditionGroup
 				condition.setObject(formFields[prefix + 'object'][i]);
 				condition.setField(formFields[prefix + 'field'][i]);
 				condition.setOperator(formFields[prefix + 'operator'][i]);
-				condition.setValue(formFields[prefix + 'value'][i]);
+
+				const value =
+					condition.operator === Operator.BETWEEN
+						? [formFields[prefix + 'value'][valueIndex], formFields[prefix + 'value'][valueIndex + 1]]
+						: formFields[prefix + 'value'][valueIndex]
+				;
+				condition.setValue(value);
 
 				let joiner = ConditionGroup.JOINER.And;
 				if (formFields[prefix + 'joiner'] && formFields[prefix + 'joiner'][i] === ConditionGroup.JOINER.Or)
 				{
 					joiner = ConditionGroup.JOINER.Or;
+				}
+
+				if (condition.operator === Operator.BETWEEN)
+				{
+					valueIndex++;
 				}
 
 				conditionGroup.addItem(condition, joiner);
@@ -138,7 +170,8 @@ export class ConditionGroup
 
 		return {
 			type: this.#type,
-			items: itemsArray
+			items: itemsArray,
+			activityNames: this.#activityNames,
 		};
 	}
 }

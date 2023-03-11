@@ -1087,7 +1087,7 @@
 					width: 400,
 					height: 200,
 					padding: 10,
-					closeByEsc: true,
+					closeByEsc: false,
 					contentColor: 'white',
 					angle: false,
 					buttons: [

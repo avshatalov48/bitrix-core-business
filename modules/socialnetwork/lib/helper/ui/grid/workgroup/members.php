@@ -9,6 +9,8 @@
 
 namespace Bitrix\Socialnetwork\Helper\UI\Grid\Workgroup;
 
+use Bitrix\Main\Web\Uri;
+
 class Members
 {
 	public static function getValue(array $users = [], array $params = []): string
@@ -93,7 +95,7 @@ class Members
 		{
 			$style = (
 				$user['PHOTO']
-					? 'style="background-image: url(\'' . $user['PHOTO'] . '\')"'
+					? 'style="background-image: url(\'' . Uri::urnEncode($user['PHOTO']) . '\')"'
 					: ''
 			);
 

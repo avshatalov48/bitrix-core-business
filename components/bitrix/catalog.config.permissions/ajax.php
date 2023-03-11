@@ -4,9 +4,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-define('STOP_STATISTICS', true);
-define('BX_SECURITY_SHOW_MESSAGE', true);
-
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;

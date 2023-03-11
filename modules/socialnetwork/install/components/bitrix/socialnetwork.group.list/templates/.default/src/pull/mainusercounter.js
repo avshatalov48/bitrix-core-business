@@ -65,7 +65,7 @@ export class PullControllerMainUserCounter
 	freeCounterQueue()
 	{
 		this.queueCounterData.forEach((counterData, groupId) => {
-			this.userCounterManager.processCounterItem(counterData, groupId);
+			// todo oh this.userCounterManager.processCounterItem(counterData, groupId);
 		});
 
 		this.queueCounterData.clear();

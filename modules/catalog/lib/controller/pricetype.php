@@ -132,13 +132,13 @@ final class PriceType extends Controller implements EventBindInterface
 	 * @param array $select
 	 * @param array $filter
 	 * @param array $order
-	 * @param PageNavigation $pageNavigation
+	 * @param PageNavigation|null $pageNavigation
 	 * @return Page
-	 * @noinspection PhpOptionalBeforeRequiredParametersInspection
 	 */
-	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		return new Page('PRICE_TYPES',
+		return new Page(
+			'PRICE_TYPES',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

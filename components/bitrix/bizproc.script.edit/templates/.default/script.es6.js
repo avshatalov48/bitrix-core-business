@@ -117,6 +117,11 @@ class ScriptEditComponent
 			}
 		}).then((result) =>
 		{
+			if (result.status === 'success' && !Type.isArrayFilled(result.errors))
+			{
+				robotsTemplate.markModified(false);
+			}
+
 			if (Type.isFunction(this.saveCallback))
 			{
 				this.saveCallback(result);
@@ -254,7 +259,7 @@ class ScriptEditComponent
 			);
 		}
 	}
-	
+
 	renderRobotConfigBlock(robot, constants, parameters): ?HTMLElement
 	{
 		const usages = robot.collectUsages();
@@ -304,11 +309,11 @@ class ScriptEditComponent
 			</div>`
 		;
 	}
-	
+
 	renderPropertyBlock(property: {}, prefix: string)
 	{
 		const control = BX.Bizproc.FieldType.renderControlPublic(
-			this.automationDesigner.documentType,
+			this.automationDesigner.document.getRawType(),
 			property,
 			prefix + property.Id,
 			property.Default,

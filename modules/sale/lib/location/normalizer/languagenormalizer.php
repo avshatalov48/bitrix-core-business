@@ -141,17 +141,17 @@ class LanguageNormalizer implements INormalizer
 	 */
 	public function setLangData($langData)
 	{
-		if(is_array($langData['LETTERS']))
+		if (isset($langData['LETTERS']) && is_array($langData['LETTERS']))
 		{
 			$this->letters = $langData['LETTERS'];
 		}
 
-		if(is_array($langData['ALIASES']))
+		if (isset($langData['ALIASES']) && is_array($langData['ALIASES']))
 		{
 			$this->aliases = $langData['ALIASES'];
 		}
 
-		if(is_array($langData['TITLES']))
+		if (isset($langData['TITLES']) && is_array($langData['TITLES']))
 		{
 			$this->titles = $langData['TITLES'];
 		}

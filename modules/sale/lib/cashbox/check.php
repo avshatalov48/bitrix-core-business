@@ -892,7 +892,7 @@ abstract class Check extends AbstractCheck
 			$vatId = $this->getVatIdByProductId($basketItem->getProductId());
 			if ($vatId === 0)
 			{
-				$vatRate = (int)($basketItem->getVatRate() * 100);
+				$vatRate = (int)((float)$basketItem->getVatRate() * 100);
 				if ($vatRate > 0)
 				{
 					$vatId = $this->getVatIdByVatRate($vatRate);

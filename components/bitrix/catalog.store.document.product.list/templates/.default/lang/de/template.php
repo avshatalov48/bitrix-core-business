@@ -12,6 +12,7 @@ $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT"] = "Produkt erstellen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT_TITLE"] = "Einen neuen Produktkatalog erstellen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION"] = "Löschen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_2"] = "Geben Sie die Produktmenge ein, um das Bestandselement zu verarbeiten";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_REALIZATION"] = "Produktmenge eingeben";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY"] = "Geben Sie mindestens ein Produkt ein";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_NEGATIVE_PRICE_NOTICE"] = "Preis kann nicht negativ sein.";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_DISABLED"] = "Parameter \"#NAME#\" deaktiviert.";

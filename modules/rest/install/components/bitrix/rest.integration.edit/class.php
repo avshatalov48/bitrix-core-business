@@ -112,7 +112,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			throw new SystemException(Loc::getMessage('REST_INTEGRATION_EDIT_ERROR_ACCESS_DENIED'));
 		}
 
-		if ($presetData['REQUIRED_MODULES'])
+		if (isset($presetData['REQUIRED_MODULES']) && $presetData['REQUIRED_MODULES'])
 		{
 			foreach ($presetData['REQUIRED_MODULES'] as $val)
 			{
@@ -135,9 +135,9 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			$result['TITLE'] = $presetData['TITLE'];
 			$result['ELEMENT_CODE'] = $presetData['ELEMENT_CODE'];
 			$result['DESCRIPTION'] = $presetData['DESCRIPTION'];
-			$result['DESCRIPTION_FULL'] = $presetData['DESCRIPTION_FULL'];
+			$result['DESCRIPTION_FULL'] = $presetData['DESCRIPTION_FULL'] ?? null;
 
-			if ($presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
+			if (!isset($presetData['OPTIONS']['QUERY_NEEDED']) || $presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
 			{
 				$result['QUERY_NEEDED'] = $presetData['OPTIONS']['QUERY_NEEDED'];
 				$result['ERROR_MESSAGE'][] = Loc::getMessage(
@@ -216,7 +216,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			}
 			$blockList[] = 'BOT';
 		}
-		if ($presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
+		if (!isset($presetData['OPTIONS']['QUERY_NEEDED']) || $presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
 		{
 			$blockList[] = 'INCOMING';
 		}
@@ -240,7 +240,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		}
 		$result['BLOCK_LIST'] = $blockList;
 
-		$result['SCOPE_NEEDED'] = $presetData['OPTIONS']['SCOPE_NEEDED'] !== 'D' ? 'Y' : 'N';
+		$result['SCOPE_NEEDED'] = (!isset($presetData['OPTIONS']['SCOPE_NEEDED']) || $presetData['OPTIONS']['SCOPE_NEEDED'] !== 'D') ? 'Y' : 'N';
 
 		if ($presetData['OPTIONS']['APPLICATION_NEEDED'] !== 'D' || $presetData['OPTIONS']['WIDGET_NEEDED'] !== 'D')
 		{
@@ -462,13 +462,13 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 				$saveData = [
 					'ELEMENT_CODE' => $presetData['ELEMENT_CODE'],
 					'TITLE' => $presetData['TITLE'],
-					'PASSWORD_ID' => $presetData['WEBHOOK']['ID'],
+					'PASSWORD_ID' => $presetData['WEBHOOK']['ID'] ?? null,
 					'SCOPE' => $presetData['OPTIONS']['SCOPE'],
 					'QUERY' => $this->prepareQuery(null, $presetData['OPTIONS']['QUERY']),
-					'OUTGOING_EVENTS' => $presetData['OPTIONS']['OUTGOING_EVENTS'],
-					'OUTGOING_NEEDED' => $presetData['OPTIONS']['OUTGOING_NEEDED'],
-					'WIDGET_LIST' => $presetData['OPTIONS']['WIDGET_LIST'],
-					'WIDGET_NEEDED' => $presetData['OPTIONS']['WIDGET_NEEDED'],
+					'OUTGOING_EVENTS' => $presetData['OPTIONS']['OUTGOING_EVENTS']  ?? null,
+					'OUTGOING_NEEDED' => $presetData['OPTIONS']['OUTGOING_NEEDED'] ?? null,
+					'WIDGET_LIST' => $presetData['OPTIONS']['WIDGET_LIST'] ?? null,
+					'WIDGET_NEEDED' => $presetData['OPTIONS']['WIDGET_NEEDED'] ?? null,
 				];
 
 				$data = Provider::saveIntegration($saveData, $saveData['ELEMENT_CODE']);

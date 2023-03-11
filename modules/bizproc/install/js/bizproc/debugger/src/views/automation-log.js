@@ -98,19 +98,11 @@ export default class AutomationLogView
 				const robot = new Robot({});
 				robot.init(workflowRobots[i], ViewMode.none());
 
-				const conditionNames = [];
-				if (Type.isPlainObject(robot.data.Condition))
-				{
-					conditionNames.push(robot.data.Condition['activityNames']['Activity']);
-					conditionNames.push(robot.data.Condition['activityNames']['Branch1']);
-					conditionNames.push(robot.data.Condition['activityNames']['Branch2']);
-				}
-
 				const robotLogger = new RobotLog(this, {
 					name: robot.getId(),
 					title: robot.getTitle(),
 					delayName: robot.data.DelayName ?? null,
-					conditionNames: conditionNames
+					conditionNames: robot.getCondition().conditionNamesList,
 				});
 
 				if (robot.isExecuteAfterPrevious() && prevRobotTitle)
@@ -399,7 +391,7 @@ export default class AutomationLogView
 						${AutomationLogView.renderTime(track.datetime)}
 						<div>
 							${Text.encode(Loc.getMessage(
-								'BIZPROC_JS_DEBUGGER_CATEGORY_CHANGE',
+								'BIZPROC_JS_DEBUGGER_CATEGORY_CHANGE_MSGVER_1',
 								{
 									'#SOURCE_CATEGORY#': this.#categoryName,
 									'#DESTINATION_CATEGORY#': categoryName

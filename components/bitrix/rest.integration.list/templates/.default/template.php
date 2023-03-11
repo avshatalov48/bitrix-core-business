@@ -11,7 +11,12 @@ Loc::loadMessages(__FILE__);
 
 \Bitrix\Main\UI\Extension::load('ui.design-tokens');
 
-if ($arParams['SHOW_MENU'] == 'Y' && isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
+if (
+	isset ($arParams['SHOW_MENU'])
+	&& $arParams['SHOW_MENU'] == 'Y'
+	&& isset($_REQUEST['IFRAME'])
+	&& $_REQUEST['IFRAME'] === 'Y'
+)
 {
 	$this->setViewTarget('above_pagetitle');
 	$APPLICATION->IncludeComponent(

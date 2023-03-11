@@ -486,10 +486,10 @@ class Document extends Controller
 	 * @return array
 	 */
 	public function listAction(
+		PageNavigation $pageNavigation,
 		array $order = [],
 		array $filter = [],
-		array $select = [],
-		PageNavigation $pageNavigation
+		array $select = []
 	): Page
 	{
 		// set available types for REST

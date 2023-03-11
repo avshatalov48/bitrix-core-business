@@ -510,7 +510,7 @@ class StoreDocumentProvider extends BaseProvider
 			$document = $this->document;
 		}
 
-		$currency = $this->document['CURRENCY'];
+		$currency = $this->document['CURRENCY'] ?? null;
 		if (!$currency)
 		{
 			$currency = CurrencyManager::getBaseCurrency();
@@ -615,7 +615,7 @@ class StoreDocumentProvider extends BaseProvider
 
 			if ($fieldType === 'user')
 			{
-				$userId = $document[$field['name']];
+				$userId = $document[$field['name']] ?? null;
 				if (!$userId && $fieldName === 'CREATED_BY')
 				{
 					$userId = CurrentUser::get()->getId();

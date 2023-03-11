@@ -1,5 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,130 +14,198 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CMain $APPLICATION */
 
 
-if(!CModule::IncludeModule("iblock"))
+if (!CModule::IncludeModule("iblock"))
 {
 	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+
 	return;
 }
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-if(!isset($arParams["CACHE_TIME"]))
-	$arParams["CACHE_TIME"] = 36000000;
-
-unset($arParams["IBLOCK_TYPE"]); //was used only for IBLOCK_ID setup with Editor
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-
-if (empty($arParams["ELEMENT_SORT_FIELD"]))
-	$arParams["ELEMENT_SORT_FIELD"] = "sort";
-if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	$arParams["ELEMENT_SORT_ORDER"]="asc";
-if (empty($arParams["ELEMENT_SORT_FIELD2"]))
-	$arParams["ELEMENT_SORT_FIELD2"] = "id";
-if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER2"]))
-	$arParams["ELEMENT_SORT_ORDER2"] = "desc";
-
-if($arParams["SECTION_SORT_FIELD"] == '')
-	$arParams["SECTION_SORT_FIELD"]="sort";
-$arParams["SECTION_SORT_ORDER"] = mb_strtolower($arParams["SECTION_SORT_ORDER"]);
-if($arParams["SECTION_SORT_ORDER"]!="desc")
-	$arParams["SECTION_SORT_ORDER"]="asc";
-
-$arrFilter=array();
-if($arParams["FILTER_NAME"] <> '')
+if (!isset($arParams["CACHE_TIME"]))
 {
-	global ${$arParams["FILTER_NAME"]};
-	if (is_array(${$arParams["FILTER_NAME"]}))
-		$arrFilter = ${$arParams["FILTER_NAME"]};
+	$arParams["CACHE_TIME"] = 36000000;
 }
 
-$arParams["SECTION_URL"]=trim($arParams["SECTION_URL"]);
-$arParams["DETAIL_URL"]=trim($arParams["DETAIL_URL"]);
-$arParams["BASKET_URL"]=trim($arParams["BASKET_URL"]);
-if($arParams["BASKET_URL"] == '')
+unset($arParams["IBLOCK_TYPE"]); //was used only for IBLOCK_ID setup with Editor
+$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
+$arParams["SECTION_ID"] = (int)($arParams["SECTION_ID"] ?? 0);
+
+if (empty($arParams["ELEMENT_SORT_FIELD"]))
+{
+	$arParams["ELEMENT_SORT_FIELD"] = "sort";
+}
+if (!isset($arParams["ELEMENT_SORT_ORDER"]) || !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
+{
+	$arParams["ELEMENT_SORT_ORDER"] = "asc";
+}
+if (empty($arParams["ELEMENT_SORT_FIELD2"]))
+{
+	$arParams["ELEMENT_SORT_FIELD2"] = "id";
+}
+if (!isset($arParams["ELEMENT_SORT_ORDER2"]) || !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER2"]))
+{
+	$arParams["ELEMENT_SORT_ORDER2"] = "desc";
+}
+
+if (empty($arParams["SECTION_SORT_FIELD"]))
+{
+	$arParams["SECTION_SORT_FIELD"] = "sort";
+}
+
+$arParams["SECTION_SORT_ORDER"] = mb_strtolower($arParams["SECTION_SORT_ORDER"] ?? '');
+if (empty($arParams["SECTION_SORT_ORDER"]) || $arParams["SECTION_SORT_ORDER"] !== "desc")
+{
+	$arParams["SECTION_SORT_ORDER"] = "asc";
+}
+
+$arrFilter = [];
+if (isset($arParams["FILTER_NAME"]) && $arParams["FILTER_NAME"] <> '')
+{
+	global ${$arParams["FILTER_NAME"]};
+	if (!empty(${$arParams["FILTER_NAME"]}) && is_array(${$arParams["FILTER_NAME"]}))
+	{
+		$arrFilter = ${$arParams["FILTER_NAME"]};
+	}
+}
+
+$arParams["SECTION_URL"] = trim($arParams["SECTION_URL"] ?? '');
+$arParams["DETAIL_URL"] = trim($arParams["DETAIL_URL"] ?? '');
+$arParams["BASKET_URL"] = trim($arParams["BASKET_URL"] ?? '');
+if (empty($arParams["BASKET_URL"]))
+{
 	$arParams["BASKET_URL"] = "/personal/basket.php";
+}
 
-$arParams["ACTION_VARIABLE"]=trim($arParams["ACTION_VARIABLE"]);
-if($arParams["ACTION_VARIABLE"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["ACTION_VARIABLE"]))
+$arParams["ACTION_VARIABLE"] = trim($arParams["ACTION_VARIABLE"] ?? '');
+if (empty($arParams["ACTION_VARIABLE"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["ACTION_VARIABLE"]))
+{
 	$arParams["ACTION_VARIABLE"] = "action";
+}
 
-$arParams["PRODUCT_ID_VARIABLE"]=trim($arParams["PRODUCT_ID_VARIABLE"]);
-if($arParams["PRODUCT_ID_VARIABLE"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_ID_VARIABLE"]))
+$arParams["PRODUCT_ID_VARIABLE"] = trim($arParams["PRODUCT_ID_VARIABLE"] ?? '');
+if (empty($arParams["PRODUCT_ID_VARIABLE"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_ID_VARIABLE"]))
+{
 	$arParams["PRODUCT_ID_VARIABLE"] = "id";
+}
 
-$arParams["PRODUCT_QUANTITY_VARIABLE"]=trim($arParams["PRODUCT_QUANTITY_VARIABLE"]);
-if($arParams["PRODUCT_QUANTITY_VARIABLE"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_QUANTITY_VARIABLE"]))
+$arParams["PRODUCT_QUANTITY_VARIABLE"] = trim($arParams["PRODUCT_QUANTITY_VARIABLE"] ?? '');
+if (
+	empty($arParams["PRODUCT_QUANTITY_VARIABLE"])
+	|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_QUANTITY_VARIABLE"])
+)
+{
 	$arParams["PRODUCT_QUANTITY_VARIABLE"] = "quantity";
+}
 
-$arParams["PRODUCT_PROPS_VARIABLE"]=trim($arParams["PRODUCT_PROPS_VARIABLE"]);
-if($arParams["PRODUCT_PROPS_VARIABLE"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_PROPS_VARIABLE"]))
+$arParams["PRODUCT_PROPS_VARIABLE"] = trim($arParams["PRODUCT_PROPS_VARIABLE"] ?? '');
+if (
+	empty($arParams["PRODUCT_PROPS_VARIABLE"])
+	|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_PROPS_VARIABLE"])
+)
+{
 	$arParams["PRODUCT_PROPS_VARIABLE"] = "prop";
+}
 
-$arParams["SECTION_ID_VARIABLE"]=trim($arParams["SECTION_ID_VARIABLE"]);
-if($arParams["SECTION_ID_VARIABLE"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["SECTION_ID_VARIABLE"]))
+$arParams["SECTION_ID_VARIABLE"] = trim($arParams["SECTION_ID_VARIABLE"] ?? '');
+if (
+	empty($arParams["SECTION_ID_VARIABLE"])
+	|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["SECTION_ID_VARIABLE"])
+)
+{
 	$arParams["SECTION_ID_VARIABLE"] = "SECTION_ID";
+}
 
-$arParams["SET_TITLE"] = $arParams["SET_TITLE"]!="N";
-$arParams["DISPLAY_COMPARE"] = $arParams["DISPLAY_COMPARE"]=="Y";
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? '') !== "N";
+$arParams["DISPLAY_COMPARE"] = ($arParams["DISPLAY_COMPARE"] ?? '') === "Y";
 
-$arParams["SECTION_COUNT"] = intval($arParams["SECTION_COUNT"]);
-if($arParams["SECTION_COUNT"]<=0)
+$arParams["SECTION_COUNT"] = (int)($arParams["SECTION_COUNT"] ?? 0);
+if ($arParams["SECTION_COUNT"] <= 0)
+{
 	$arParams["SECTION_COUNT"]=20;
-$arParams["ELEMENT_COUNT"] = intval($arParams["ELEMENT_COUNT"]);
-if($arParams["ELEMENT_COUNT"]<=0)
-	$arParams["ELEMENT_COUNT"]=20;
-$arParams["LINE_ELEMENT_COUNT"] = intval($arParams["LINE_ELEMENT_COUNT"]);
-if($arParams["LINE_ELEMENT_COUNT"]<=0)
-	$arParams["LINE_ELEMENT_COUNT"]=3;
+}
+$arParams["ELEMENT_COUNT"] = (int)($arParams["ELEMENT_COUNT"] ?? 0);
+if ($arParams["ELEMENT_COUNT"] <= 0)
+{
+	$arParams["ELEMENT_COUNT"] = 20;
+}
+$arParams["LINE_ELEMENT_COUNT"] = (int)($arParams["LINE_ELEMENT_COUNT"] ?? 0);
+if ($arParams["LINE_ELEMENT_COUNT"]<=0)
+{
+	$arParams["LINE_ELEMENT_COUNT"] = 3;
+}
 
-if(!is_array($arParams["PROPERTY_CODE"]))
-	$arParams["PROPERTY_CODE"] = array();
-foreach($arParams["PROPERTY_CODE"] as $k=>$v)
-	if($v==="")
+if (empty($arParams["PROPERTY_CODE"]) || !is_array($arParams["PROPERTY_CODE"]))
+{
+	$arParams["PROPERTY_CODE"] = [];
+}
+foreach ($arParams["PROPERTY_CODE"] as $k => $v)
+{
+	if ($v === "")
+	{
 		unset($arParams["PROPERTY_CODE"][$k]);
-if(!is_array($arParams["PRICE_CODE"]))
-	$arParams["PRICE_CODE"] = array();
+	}
+}
 
-if (empty($arParams['HIDE_NOT_AVAILABLE']))
+if (empty($arParams["PRICE_CODE"]) || !is_array($arParams["PRICE_CODE"]))
+{
+	$arParams["PRICE_CODE"] = [];
+}
+
+if (empty($arParams['HIDE_NOT_AVAILABLE']) || $arParams['HIDE_NOT_AVAILABLE'] !== 'Y')
+{
 	$arParams['HIDE_NOT_AVAILABLE'] = 'N';
-elseif ('Y' != $arParams['HIDE_NOT_AVAILABLE'])
-	$arParams['HIDE_NOT_AVAILABLE'] = 'N';
+}
 
-$arParams["USE_PRICE_COUNT"] = $arParams["USE_PRICE_COUNT"]=="Y";
-$arParams["SHOW_PRICE_COUNT"] = intval($arParams["SHOW_PRICE_COUNT"]);
-if($arParams["SHOW_PRICE_COUNT"]<=0)
-	$arParams["SHOW_PRICE_COUNT"]=1;
-$arParams["USE_PRODUCT_QUANTITY"] = $arParams["USE_PRODUCT_QUANTITY"]==="Y";
+$arParams["USE_PRICE_COUNT"] = ($arParams["USE_PRICE_COUNT"] ?? '') === "Y";
+$arParams["SHOW_PRICE_COUNT"] = (int)($arParams["SHOW_PRICE_COUNT"] ?? 0);
+if ($arParams["SHOW_PRICE_COUNT"] <= 0)
+{
+	$arParams["SHOW_PRICE_COUNT"] = 1;
+}
+$arParams["USE_PRODUCT_QUANTITY"] = ($arParams["USE_PRODUCT_QUANTITY"] ?? '') === "Y";
 
-if(!is_array($arParams["PRODUCT_PROPERTIES"]))
+if (empty($arParams["PRODUCT_PROPERTIES"]) || !is_array($arParams["PRODUCT_PROPERTIES"]))
+{
 	$arParams["PRODUCT_PROPERTIES"] = array();
-foreach($arParams["PRODUCT_PROPERTIES"] as $k=>$v)
-	if($v==="")
+}
+
+foreach ($arParams["PRODUCT_PROPERTIES"] as $k => $v)
+{
+	if ($v==="")
+	{
 		unset($arParams["PRODUCT_PROPERTIES"][$k]);
+	}
+}
 
-$arParams["PRICE_VAT_INCLUDE"] = $arParams["PRICE_VAT_INCLUDE"] !== "N";
-
-$arParams['CONVERT_CURRENCY'] = (isset($arParams['CONVERT_CURRENCY']) && 'Y' == $arParams['CONVERT_CURRENCY'] ? 'Y' : 'N');
-$arParams['CURRENCY_ID'] = trim(strval($arParams['CURRENCY_ID']));
-if ('' == $arParams['CURRENCY_ID'])
+$arParams["PRICE_VAT_INCLUDE"] = empty($arParams["PRICE_VAT_INCLUDE"]) || $arParams["PRICE_VAT_INCLUDE"] !== "N";
+$arParams['CONVERT_CURRENCY'] = ($arParams['CONVERT_CURRENCY'] ?? '') === 'Y' ? 'Y' : 'N';
+$arParams['CURRENCY_ID'] = trim((string)($arParams['CURRENCY_ID'] ?? ''));
+if (empty($arParams['CURRENCY_ID']))
 {
 	$arParams['CONVERT_CURRENCY'] = 'N';
 }
-elseif ('N' == $arParams['CONVERT_CURRENCY'])
+elseif ($arParams['CONVERT_CURRENCY'] === 'N')
 {
 	$arParams['CURRENCY_ID'] = '';
 }
 
-$arParams["CACHE_FILTER"]=$arParams["CACHE_FILTER"]=="Y";
-if(!$arParams["CACHE_FILTER"] && count($arrFilter)>0)
+$arParams["CACHE_FILTER"]= isset($arParams["CACHE_FILTER"]) && $arParams["CACHE_FILTER"] === "Y";
+if (!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 
-$arParams['CACHE_GROUPS'] = trim($arParams['CACHE_GROUPS']);
-if ('N' != $arParams['CACHE_GROUPS'])
+$arParams['CACHE_GROUPS'] = trim($arParams['CACHE_GROUPS'] ?? '');
+if ($arParams['CACHE_GROUPS'] !== 'N')
+{
 	$arParams['CACHE_GROUPS'] = 'Y';
+}
 
-$arParams["USE_MAIN_ELEMENT_SECTION"] = $arParams["USE_MAIN_ELEMENT_SECTION"]==="Y";
+$arParams["USE_MAIN_ELEMENT_SECTION"] = ($arParams["USE_MAIN_ELEMENT_SECTION"] ?? '') === "Y";
+$arParams["PAGE_ELEMENT_COUNT"] ??= 0;
+$arParams["SHOW_DESCRIPTION"] ??= false;
 /*************************************************************************
 			Processing of the Buy link
 *************************************************************************/
@@ -149,7 +220,7 @@ if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exist
 		$action = mb_strtoupper($_REQUEST[$arParams["ACTION_VARIABLE"]]);
 
 	$productID = intval($_REQUEST[$arParams["PRODUCT_ID_VARIABLE"]]);
-	if (($action == "ADD2BASKET" || $action == "BUY") && $productID > 0)
+	if (($action === "ADD2BASKET" || $action === "BUY") && $productID > 0)
 	{
 		if (CModule::IncludeModule("sale") && CModule::IncludeModule("catalog"))
 		{

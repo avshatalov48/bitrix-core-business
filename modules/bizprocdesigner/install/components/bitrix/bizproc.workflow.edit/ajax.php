@@ -83,15 +83,19 @@ class BizprocWorkflowEditAjaxController extends Main\Engine\Controller
 
 	private function saveUserParamsAction()
 	{
-		$d = serialize($_POST['USER_PARAMS']);
+		$userParams = is_array($_POST['USER_PARAMS']) ? $_POST['USER_PARAMS'] : [];
+		\Bitrix\Bizproc\Activity\Settings::encodeSettings($userParams);
+		$serializedUserParams = serialize($userParams);
+
 		$maxLength = 16777215;//pow(2, 24) - 1; //mysql mediumtext column length
-		if (Main\Text\BinaryString::getLength($d) > $maxLength)
+		if (Main\Text\BinaryString::getLength($serializedUserParams) > $maxLength)
 		{
 			return AjaxJson::createError(new Main\ErrorCollection([
 				new Main\Error(Main\Localization\Loc::getMessage('BIZPROC_USER_PARAMS_SAVE_ERROR'))
 			]));
 		}
-		CUserOptions::SetOption('~bizprocdesigner', 'activity_settings', $d);
+		$activitySettings = new \Bitrix\Bizproc\Activity\Settings('~bizprocdesigner');
+		$activitySettings->save($userParams);
 
 		return true;
 	}

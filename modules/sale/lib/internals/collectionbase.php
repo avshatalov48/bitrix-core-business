@@ -19,7 +19,7 @@ abstract class CollectionBase
 	/**
 	 * @return \ArrayIterator
 	 */
-	public function getIterator()
+	public function getIterator(): \Traversable
 	{
 		return new \ArrayIterator($this->collection);
 	}
@@ -28,7 +28,7 @@ abstract class CollectionBase
 	/**
 	 * Whether a offset exists
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->collection[$offset]) || array_key_exists($offset, $this->collection);
 	}
@@ -36,6 +36,7 @@ abstract class CollectionBase
 	/**
 	 * Offset to retrieve
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		if (isset($this->collection[$offset]) || array_key_exists($offset, $this->collection))
@@ -49,7 +50,7 @@ abstract class CollectionBase
 	/**
 	 * Offset to set
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if($offset === null)
 		{
@@ -64,7 +65,7 @@ abstract class CollectionBase
 	/**
 	 * Offset to unset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->collection[$offset]);
 	}
@@ -72,7 +73,7 @@ abstract class CollectionBase
 	/**
 	 * Count elements of an object
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->collection);
 	}

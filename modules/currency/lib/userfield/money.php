@@ -55,7 +55,7 @@ class Money extends TypeBase
 	 * @param $fromForm
 	 * @return string
 	 */
-	public static function getSettingsHtml($userField = false, $additionalParameters, $fromForm)
+	public static function getSettingsHtml($userField, $additionalParameters, $fromForm)
 	{
 		return MoneyType::renderSettings($userField, $additionalParameters, $fromForm);
 	}

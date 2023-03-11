@@ -548,7 +548,7 @@ class ProviderCreator
 		{
 			$providerClass = null;
 
-			if (class_exists($providerName))
+			if (!empty($providerName) && class_exists($providerName))
 			{
 				$providerClass = new $providerName($this->getContext());
 			}

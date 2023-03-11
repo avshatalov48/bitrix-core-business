@@ -158,12 +158,13 @@ class PropertiesDialog
 	 */
 	public function getCurrentValues($compatible = false)
 	{
+		$workflowTemplate = $this->getWorkflowTemplate();
 		if (!is_array($this->currentValues))
 		{
 			// Get current values from saved activity properties.
 			$this->currentValues = array();
 			$currentActivity = \CBPWorkflowTemplateLoader::findActivityByName(
-				$this->getWorkflowTemplate(),
+				$workflowTemplate,
 				$this->getActivityName()
 			);
 
@@ -225,7 +226,7 @@ class PropertiesDialog
 				{
 					$compatibleValues[$property['FieldName']] = \CBPHelper::usersArrayToString(
 						$compatibleValues[$property['FieldName']],
-						$this->getWorkflowTemplate(),
+						$workflowTemplate,
 						$this->getDocumentType()
 					);
 				}
@@ -380,7 +381,7 @@ class PropertiesDialog
 
 		if ($value === null)
 		{
-			$value = $this->getCurrentValue($field, $field['Default']);
+			$value = $this->getCurrentValue($field, $field['Default'] ?? null);
 		}
 
 		return $fieldType->renderControl(

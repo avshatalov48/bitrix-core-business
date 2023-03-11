@@ -54,6 +54,11 @@ class CAllSaleOrder
 
 		$arOrder = static::makeOrderArray($siteId, $userId, $arShoppingCart, $arOptions);
 
+		// init defaults
+		$arOrder["TAX_PRICE"] ??= 0.0;
+		$arOrder["DELIVERY_PRICE"] ??= 0.0;
+		$arOrder["DISCOUNT_PRICE"] ??= 0.0;
+
 		foreach(GetModuleEvents("sale", "OnSaleCalculateOrderShoppingCart", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$arOrder));
 
@@ -167,7 +172,7 @@ class CAllSaleOrder
 	 *
 	 * @return array
 	 */
-	public static function makeOrderArray($siteId, $userId = null, array $shoppingCart, array $options = array())
+	public static function makeOrderArray($siteId, $userId = null, array $shoppingCart = [], array $options = [])
 	{
 		// calculate weight for set parent
 		$parentWeight = array();
@@ -206,16 +211,20 @@ class CAllSaleOrder
 			"DELIVERY_ID" => false,
 		);
 
-		if(isset($options["DELIVERY_EXTRA_SERVICES"]))
+		if (isset($options["DELIVERY_EXTRA_SERVICES"]))
+		{
 			$arOrder["DELIVERY_EXTRA_SERVICES"] = $options["DELIVERY_EXTRA_SERVICES"];
+		}
 
 		$orderPrices = CSaleOrder::CalculateOrderPrices($shoppingCart);
-
-		$arOrder['ORDER_PRICE'] = $orderPrices['ORDER_PRICE'];
-		$arOrder['ORDER_WEIGHT'] = $orderPrices['ORDER_WEIGHT'];
-		$arOrder['VAT_RATE'] = $orderPrices['VAT_RATE'];
-		$arOrder['VAT_SUM'] = $orderPrices['VAT_SUM'];
-		$arOrder["USE_VAT"] = ($orderPrices['USE_VAT'] == "Y");
+		if (is_array($orderPrices))
+		{
+			$arOrder['ORDER_PRICE'] = $orderPrices['ORDER_PRICE'];
+			$arOrder['ORDER_WEIGHT'] = $orderPrices['ORDER_WEIGHT'];
+			$arOrder['VAT_RATE'] = $orderPrices['VAT_RATE'];
+			$arOrder['VAT_SUM'] = $orderPrices['VAT_SUM'];
+			$arOrder["USE_VAT"] = ($orderPrices['USE_VAT'] == "Y");
+		}
 
 		return $arOrder;
 	}
@@ -245,18 +254,24 @@ class CAllSaleOrder
 			{
 				if (array_key_exists('CUSTOM_PRICE', $arItem) && $arItem['CUSTOM_PRICE'] == 'Y')
 				{
-					$arItem['DISCOUNT_PRICE'] = $arItem['DEFAULT_PRICE'] - $arItem['PRICE'];
+					$defaultPrice = (float)($arItem['DEFAULT_PRICE'] ?? 0.0);
+					$arItem['DISCOUNT_PRICE'] = $defaultPrice - $arItem['PRICE'];
 
 					if ($arItem['DISCOUNT_PRICE'] < 0)
+					{
 						$arItem['DISCOUNT_PRICE'] = 0;
+					}
 
-					if (doubleval($arItem['DEFAULT_PRICE']) > 0)
-						$arItem['DISCOUNT_PRICE_PERCENT'] = $arItem['DISCOUNT_PRICE'] * 100 / $arItem['DEFAULT_PRICE'];
+					if ($defaultPrice > 0)
+					{
+						$arItem['DISCOUNT_PRICE_PERCENT'] = $arItem['DISCOUNT_PRICE'] * 100 / $defaultPrice;
+					}
 					else
+					{
 						$arItem['DISCOUNT_PRICE_PERCENT'] = 0;
+					}
 
 					$arItem["DISCOUNT_PRICE_PERCENT_FORMATED"] = roundEx($arItem["DISCOUNT_PRICE_PERCENT"], SALE_VALUE_PRECISION)."%";
-
 				}
 
 				if (isset($arItem['CURRENCY']) && $arItem['CURRENCY'] <> '' )
@@ -537,7 +552,7 @@ class CAllSaleOrder
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
-		
+
 		$permList = self::checkUserPermissionOrderList(array($ID), 'mark', $arUserGroups, $userID);
 		return (isset($permList[$ID]) && $permList[$ID] === true);
 	}
@@ -1560,7 +1575,7 @@ class CAllSaleOrder
 	public static function GetByID($ID)
 	{
 		global $DB;
-		
+
 		if (intval($ID) <= 0)
 			return false;
 
@@ -1807,7 +1822,7 @@ class CAllSaleOrder
 		}
 
 		unset($GLOBALS["SALE_ORDER"]["SALE_ORDER_CACHE_".$ID]);
-			
+
 		if ($val == "Y")
 		{
 			CTimeZone::Disable();
@@ -2541,14 +2556,17 @@ class CAllSaleOrder
 			$minDay = time();
 			foreach($arReminder as $key => $val)
 			{
-				if($val["use"] == "Y" && $val["frequency"] > 0)
+				$use = $val["use"] ?? null;
+				$frequency = (float)($val["frequency"] ?? 0.0);
+
+				if ($use === "Y" && $frequency > 0)
 				{
 					$arSites[] = $key;
 					$days = Array();
 
-					for($i=0; $i <= floor($val["period"] / $val["frequency"]); $i++)
+					for($i=0; $i <= floor($val["period"] / $frequency); $i++)
 					{
-						$day = AddToTimeStamp(Array("DD" => -($val["after"] + $val["period"] - $val["frequency"]*$i)));
+						$day = AddToTimeStamp(Array("DD" => -($val["after"] + $val["period"] - $frequency*$i)));
 						if($day < time())
 						{
 							if($minDay > $day)

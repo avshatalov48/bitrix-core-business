@@ -774,16 +774,39 @@ class CAllSaleDiscount
 		}
 		unset($fieldName, $clearFields);
 
-		if ((is_set($arFields, "ACTIVE") || $ACTION=="ADD") && $arFields["ACTIVE"]!="Y")
+		if ($ACTION === "ADD")
+		{
+			$arFields["ACTIVE"] ??= 'N';
+			$arFields["DISCOUNT_TYPE"] ??= self::OLD_DSC_TYPE_FIX;
+			$arFields["DISCOUNT_VALUE"] ??= '';
+			$arFields["SORT"] ??= 100;
+			$arFields["LID"] ??= '';
+			$arFields["CURRENCY"] ??= '';
+			$arFields["ACTIVE_FROM"] ??= '';
+			$arFields["ACTIVE_TO"] ??= '';
+			$arFields["PRIORITY"] ??= 1;
+			$arFields["LAST_DISCOUNT"] ??= 'Y';
+			$arFields["USE_COUPONS"] ??= 'N';
+		}
+
+		if (is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
+		{
 			$arFields["ACTIVE"] = "N";
-		if ((is_set($arFields, "DISCOUNT_TYPE") || $ACTION=="ADD") && $arFields["DISCOUNT_TYPE"] != self::OLD_DSC_TYPE_PERCENT)
+		}
+		if (is_set($arFields, "DISCOUNT_TYPE") && $arFields["DISCOUNT_TYPE"] != self::OLD_DSC_TYPE_PERCENT)
+		{
 			$arFields["DISCOUNT_TYPE"] = self::OLD_DSC_TYPE_FIX;
+		}
 
-		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"])<=0)
+		if (is_set($arFields, "SORT") && intval($arFields["SORT"])<=0)
+		{
 			$arFields["SORT"] = 100;
+		}
 
-		if ((is_set($arFields, "LID") || $ACTION=="ADD") && $arFields["LID"] == '')
+		if (is_set($arFields, "LID") && $arFields["LID"] == '')
+		{
 			return false;
+		}
 
 		if (is_set($arFields, "LID"))
 		{
@@ -802,8 +825,10 @@ class CAllSaleDiscount
 			$arFields['CURRENCY'] = CSaleLang::GetLangCurrency($arFields["LID"]);
 		}
 
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
+		if (is_set($arFields, "CURRENCY") && $arFields["CURRENCY"] == '')
+		{
 			return false;
+		}
 
 		if (is_set($arFields, "CURRENCY"))
 		{
@@ -820,7 +845,7 @@ class CAllSaleDiscount
 			}
 		}
 
-		if (is_set($arFields, "DISCOUNT_VALUE") || $ACTION=="ADD")
+		if (is_set($arFields, "DISCOUNT_VALUE"))
 		{
 			if (!is_set($arFields["DISCOUNT_VALUE"]))
 				$arFields["DISCOUNT_VALUE"] = '';
@@ -840,21 +865,29 @@ class CAllSaleDiscount
 			$arFields["PRICE_TO"] = doubleval($arFields["PRICE_TO"]);
 		}
 
-		if ((is_set($arFields, "ACTIVE_FROM") || $ACTION=="ADD") && (!$DB->IsDate($arFields["ACTIVE_FROM"], false, LANGUAGE_ID, "FULL")))
+		if (is_set($arFields, "ACTIVE_FROM") && (!$DB->IsDate($arFields["ACTIVE_FROM"], false, LANGUAGE_ID, "FULL")))
+		{
 			$arFields["ACTIVE_FROM"] = null;
-		if ((is_set($arFields, "ACTIVE_TO") || $ACTION=="ADD") && (!$DB->IsDate($arFields["ACTIVE_TO"], false, LANGUAGE_ID, "FULL")))
+		}
+		if (is_set($arFields, "ACTIVE_TO") && (!$DB->IsDate($arFields["ACTIVE_TO"], false, LANGUAGE_ID, "FULL")))
+		{
 			$arFields["ACTIVE_TO"] = null;
+		}
 
-		if ((is_set($arFields, 'PRIORITY') || $ACTION == 'ADD') && intval($arFields['PRIORITY']) <= 0)
+		if (is_set($arFields, 'PRIORITY') && intval($arFields['PRIORITY']) <= 0)
+		{
 			$arFields['PRIORITY'] = 1;
-		if ((is_set($arFields, 'LAST_DISCOUNT') || $ACTION == 'ADD') && $arFields["LAST_DISCOUNT"] != "N")
+		}
+		if (is_set($arFields, 'LAST_DISCOUNT') && $arFields["LAST_DISCOUNT"] != "N")
+		{
 			$arFields["LAST_DISCOUNT"] = 'Y';
+		}
 
 		$arFields['VERSION'] = self::VERSION_15;
 
-		$useConditions = array_key_exists('CONDITIONS', $arFields) || $ACTION == 'ADD';
-		$useActions = array_key_exists('ACTIONS', $arFields) || $ACTION == 'ADD';
-		$usePredictions = array_key_exists('PREDICTIONS', $arFields) || $ACTION == 'ADD';
+		$useConditions = array_key_exists('CONDITIONS', $arFields) || $ACTION === 'ADD';
+		$useActions = array_key_exists('ACTIONS', $arFields) || $ACTION === 'ADD';
+		$usePredictions = array_key_exists('PREDICTIONS', $arFields) || $ACTION === 'ADD';
 		$updateData = $useConditions || $useActions || $usePredictions;
 		$discountSite = (isset($arFields['LID']) ? trim($arFields['LID']) : '');
 		$usedHandlers = array();
@@ -979,7 +1012,7 @@ class CAllSaleDiscount
 			if ($usePredictions)
 			{
 				$arFields['PREDICTIONS_APP'] = '';
-				if ($arFields['PREDICTIONS'])
+				if (isset($arFields['PREDICTIONS']))
 				{
 					if (!self::prepareDiscountConditions(
 						$arFields['PREDICTIONS'],
@@ -993,7 +1026,11 @@ class CAllSaleDiscount
 			}
 			else
 			{
-				if ($discountInfo['PREDICTIONS_LIST'])
+				if (
+					isset($discountInfo['PREDICTIONS_LIST'])
+					&& $discountInfo['PREDICTIONS_LIST'] !== ''
+					&& $discountInfo['PREDICTIONS_LIST'] !== false
+				)
 				{
 					$discountInfo['PREDICTIONS_APP'] = '';
 					if (!self::prepareDiscountConditions(
@@ -1009,13 +1046,13 @@ class CAllSaleDiscount
 
 			if (!empty($conditionData['HANDLERS']) || !empty($actionData['HANDLERS']) || !empty($predictionData['HANDLERS']))
 			{
-				$conditionData['HANDLERS']['MODULES'] = $conditionData['HANDLERS']['MODULES']?: array();
-				$actionData['HANDLERS']['MODULES'] = $actionData['HANDLERS']['MODULES']?: array();
-				$predictionData['HANDLERS']['MODULES'] = $predictionData['HANDLERS']['MODULES']?: array();
+				$conditionData['HANDLERS']['MODULES'] = $conditionData['HANDLERS']['MODULES'] ?? [];
+				$actionData['HANDLERS']['MODULES'] = $actionData['HANDLERS']['MODULES'] ?? [];
+				$predictionData['HANDLERS']['MODULES'] = $predictionData['HANDLERS']['MODULES'] ?? [];
 
-				$conditionData['HANDLERS']['EXT_FILES'] = $conditionData['HANDLERS']['EXT_FILES']?: array();
-				$actionData['HANDLERS']['EXT_FILES'] = $actionData['HANDLERS']['EXT_FILES']?: array();
-				$predictionData['HANDLERS']['EXT_FILES'] = $predictionData['HANDLERS']['EXT_FILES']?: array();
+				$conditionData['HANDLERS']['EXT_FILES'] = $conditionData['HANDLERS']['EXT_FILES'] ?? [];
+				$actionData['HANDLERS']['EXT_FILES'] = $actionData['HANDLERS']['EXT_FILES'] ?? [];
+				$predictionData['HANDLERS']['EXT_FILES'] = $predictionData['HANDLERS']['EXT_FILES'] ?? [];
 
 				$usedHandlers = array(
 					'MODULES' => array_unique(array_merge(
@@ -1033,9 +1070,9 @@ class CAllSaleDiscount
 
 			if (!empty($conditionData['EXECUTE_MODULE']) || !empty($actionData['EXECUTE_MODULE']) || !empty($predictionData['EXECUTE_MODULE']))
 			{
-				$conditionData['EXECUTE_MODULE'] = $conditionData['EXECUTE_MODULE']?: array();
-				$actionData['EXECUTE_MODULE'] = $actionData['EXECUTE_MODULE']?: array();
-				$predictionData['EXECUTE_MODULE'] = $predictionData['EXECUTE_MODULE']?: array();
+				$conditionData['EXECUTE_MODULE'] = $conditionData['EXECUTE_MODULE'] ?? [];
+				$actionData['EXECUTE_MODULE'] = $actionData['EXECUTE_MODULE'] ?? [];
+				$predictionData['EXECUTE_MODULE'] = $predictionData['EXECUTE_MODULE'] ?? [];
 
 				$executeModuleList = array_merge(
 					$conditionData['EXECUTE_MODULE'],
@@ -1053,9 +1090,9 @@ class CAllSaleDiscount
 
 			if (!empty($conditionData['ENTITY']) || !empty($actionData['ENTITY']) || !empty($predictionData['ENTITY']))
 			{
-				$conditionData['ENTITY'] = $conditionData['ENTITY']?: array();
-				$actionData['ENTITY'] = $actionData['ENTITY']?: array();
-				$predictionData['ENTITY'] = $predictionData['ENTITY']?: array();
+				$conditionData['ENTITY'] = $conditionData['ENTITY'] ?? [];
+				$actionData['ENTITY'] = $actionData['ENTITY'] ?? [];
+				$predictionData['ENTITY'] = $predictionData['ENTITY'] ?? [];
 
 				$usedEntities = array_merge(
 					$conditionData['ENTITY'],
@@ -1075,8 +1112,10 @@ class CAllSaleDiscount
 			$arFields['ENTITIES'] = $usedEntities;
 		}
 
-		if ((is_set($arFields, 'USE_COUPONS') || $ACTION == 'ADD') && ('Y' != $arFields['USE_COUPONS']))
+		if (is_set($arFields, 'USE_COUPONS') && ('Y' != $arFields['USE_COUPONS']))
+		{
 			$arFields['USE_COUPONS'] = 'N';
+		}
 
 		if (array_key_exists('USER_GROUPS', $arFields) || $ACTION=="ADD")
 		{

@@ -1373,13 +1373,14 @@ class TranslateListComponent extends Translate\ComponentBase
 		$isTopLang =  ($topFolder->getName() == 'lang') || Translate\IO\Path::isLangDir($topFolder->getPath());
 
 		// settings
+		$langSettings = null;
 		if ($isTopLang)
 		{
 			if ($langSettings = Translate\Settings::instantiateByPath($topFolder->getPath()))
 			{
 				if (!$langSettings->load())
 				{
-					unset($langSettings);
+					$langSettings = null;
 				}
 			}
 		}

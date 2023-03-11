@@ -380,6 +380,7 @@ class CIBlockSectionPropertyLink
 					"SMART_FILTER" => "N",
 					"DISPLAY_TYPE" => $DISPLAY_TYPE,
 					"DISPLAY_EXPANDED" => $ar["DISPLAY_EXPANDED"],
+					"FILTER_HINT" => $ar["FILTER_HINT"],
 					"INHERITED" => $SECTION_ID == 0 && !$bNewSection? "N" : "Y",
 					"INHERITED_FROM" => 0,
 					"SORT" => $ar["SORT"],

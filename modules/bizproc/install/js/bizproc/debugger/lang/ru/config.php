@@ -10,6 +10,7 @@ $MESS['BIZPROC_DEBUGGER_AUTOMATION_ACTION_PAUSE'] = 'Пауза';
 $MESS['BIZPROC_JS_DEBUGGER_VIEWS_MENU_SUBTITLE'] = 'Отладчик находится в свёрнутом виде, но процесс отладки продолжается. Вы можете развернуть окно в любой момент';
 $MESS['BIZPROC_JS_DEBUGGER_VIEWS_MENU_FINISH_SESSION'] = 'Завершить отладку';
 $MESS['BIZPROC_JS_DEBUGGER_CONFIRM_FINISH_SESSION'] = 'Вы действительно хотите завершить отладку?';
+$MESS['BIZPROC_JS_DEBUGGER_DELETE_SESSION_DOCUMENT'] = 'удалить тестовый элемент';
 $MESS['BIZPROC_JS_DEBUGGER_CONFIRM_ON_DOCUMENT_DELETE'] = 'Элемент был удален. Хотите завершить отладку?';
 
 $MESS['BIZPROC_JS_DEBUGGER_VIEWS_ADD_FIELD'] = 'Добавить поле';
@@ -59,7 +60,7 @@ $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_LOG'] = 'Логи помогут отслед
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_FIELD'] = 'Выберите поля, значения которых хотите отслеживать в процессе отладки';
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_ROBOT'] = 'Роботы возьмут на себя рутинные задачи и помогут автоматизировать процесс работы с клиентами и сотрудниками';
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_TRIGGER'] = 'Отслеживают действия со стороны клиентов и некоторые изменения в CRM. Как только сработает триггер, элемент сразу перейдет на указанную стадию';
-$MESS['BIZPROC_JS_DEBUGGER_CATEGORY_CHANGE'] = 'Смена воронки с "#SOURCE_CATEGORY#" на "#DESTINATION_CATEGORY#"';
+$MESS['BIZPROC_JS_DEBUGGER_CATEGORY_CHANGE_MSGVER_1'] = 'Смена воронки с "#SOURCE_CATEGORY#" на "#DESTINATION_CATEGORY#"';
 
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TITLE'] = 'Не переживайте, все ваши сделки на месте';
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'] = 'Сейчас активен фильтр [b]Сделки в отладке[/b]. Здесь отображаются ваши сделки для отладки роботов';

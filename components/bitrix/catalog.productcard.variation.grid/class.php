@@ -667,7 +667,13 @@ class CatalogProductVariationGridComponent
 
 	private function getDomElementForPopupQuantity($quantity): string
 	{
-		return '<a class="main-grid-cell-content-catalog-quantity-inventory-management">' . $quantity . '</a>';
+		$className = 'main-grid-cell-content-catalog-quantity-inventory-management';
+		if ($quantity <= 0)
+		{
+			$className .= ' text--danger';
+		}
+
+		return "<a class=\"{$className}\">{$quantity}</a>";
 	}
 
 	private function getDomElementForReservedQuantity($quantity): string

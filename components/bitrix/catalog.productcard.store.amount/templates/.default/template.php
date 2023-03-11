@@ -87,11 +87,11 @@ Extension::load([
 	BX.ready(function () {
 		BX.Catalog.ProductStoreGridManager.Instance = new BX.Catalog.ProductStoreGridManager(<?=CUtil::PhpToJSObject([
 			'gridId' => $arResult['GRID']['GRID_ID'],
-			'totalWrapperId' => $arResult['TOTAL_WRAPPER_ID'],
 			'signedParameters' => $arResult['SIGNED_PARAMS'],
-			'inventoryManagementLink' => $arResult['IM_LINK'],
 			'productId' => $arResult['PRODUCT_ID'],
-			'reservedDealsSliderLink' => $arResult['RESERVED_DEALS_SLIDER_LINK'],
+			'totalWrapperId' => $arResult['TOTAL_WRAPPER_ID'] ?? null,
+			'inventoryManagementLink' => $arResult['IM_LINK'] ?? null,
+			'reservedDealsSliderLink' => $arResult['RESERVED_DEALS_SLIDER_LINK'] ?? null,
 		])?>);
 	});
 </script>

@@ -115,7 +115,11 @@ abstract class Base
 		if(isset($initParams["RESTRICTED"]))
 			$this->restricted = $initParams["RESTRICTED"];
 
-		$this->trackingParams = is_array($initParams["TRACKING_PARAMS"]) ? $initParams["TRACKING_PARAMS"] : array();
+		$this->trackingParams =
+			isset($initParams["TRACKING_PARAMS"]) && is_array($initParams["TRACKING_PARAMS"])
+				? $initParams["TRACKING_PARAMS"]
+				: []
+		;
 
 		if(isset($initParams["EXTRA_SERVICES"]))
 			$this->extraServices = new \Bitrix\Sale\Delivery\ExtraServices\Manager($initParams["EXTRA_SERVICES"], $this->currency);
@@ -857,7 +861,7 @@ abstract class Base
 				$deliveryServiceClone->extraServices = $cloneEntity[$extraServices];
 			}
 		}
-		
+
 		return $deliveryServiceClone;
 	}
 

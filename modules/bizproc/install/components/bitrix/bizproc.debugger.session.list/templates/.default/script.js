@@ -40,6 +40,17 @@
 	      bizproc_debugger.Manager.Instance.openSessionLog(sessionId).then();
 	    }
 	  }, {
+	    key: "renameSession",
+	    value: function renameSession(sessionId) {
+	      var _grid$getRows$getById;
+
+	      var grid = this.getGrid();
+	      (_grid$getRows$getById = grid.getRows().getById(sessionId)) === null || _grid$getRows$getById === void 0 ? void 0 : _grid$getRows$getById.select();
+	      grid.getActionsPanel().getPanel().querySelector('#grid_edit_button > .edit').click();
+	      grid.enableActionsPanel();
+	      grid.getPinPanel().pinPanel(true);
+	    }
+	  }, {
 	    key: "deleteChosenSessions",
 	    value: function deleteChosenSessions() {
 	      var grid = this.getGrid();

@@ -132,44 +132,30 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 	// in CRM user cannot select user groups
 	if ($isCrmPublicSide)
 	{
-		if ($isNewRecord)
+		$groupUserBuyList = [];
+		$groupUserList = [];
+
+		$iterator = Catalog\GroupAccessTable::getList([
+			'select' => ['GROUP_ID', 'ACCESS']
+		]);
+		while ($row = $iterator->fetch())
 		{
-			$arGroupID = array_column($arUserGroupList, 'ID');
-			$arGroupBuyID = array_column($arUserGroupList, 'ID');
-
-			if ($arGroupID || $arGroupBuyID)
+			$row['GROUP_ID'] = (int)$row['GROUP_ID'];
+			if ($row['ACCESS'] === Catalog\GroupAccessTable::ACCESS_BUY)
 			{
-				$groupUserBuyList = [];
-				$groupUserList = [];
-
-				$iterator = Catalog\GroupAccessTable::getList([
-					'select' => ['GROUP_ID', 'ACCESS']
-				]);
-				while ($row = $iterator->fetch())
-				{
-					$row['GROUP_ID'] = (int)$row['GROUP_ID'];
-					if ($row['ACCESS'] === Catalog\GroupAccessTable::ACCESS_BUY)
-					{
-						$groupUserBuyList[] = $row['GROUP_ID'];
-					}
-					else
-					{
-						$groupUserList[] = $row['GROUP_ID'];
-					}
-				}
-				unset($row, $iterator);
-
-				$arGroupID = Order\BuyerGroup::prepareGroupIds($groupUserList, $arGroupID);
-				$arGroupBuyID = Order\BuyerGroup::prepareGroupIds($groupUserBuyList, $arGroupBuyID);
-
-				unset($groupUserBuyList, $groupUserList);
+				$groupUserBuyList[] = $row['GROUP_ID'];
+			}
+			else
+			{
+				$groupUserList[] = $row['GROUP_ID'];
 			}
 		}
-		else
-		{
-			$arGroupID = null;
-			$arGroupBuyID = null;
-		}
+		unset($row, $iterator);
+
+		$arGroupID = Order\BuyerGroup::prepareGroupIds($groupUserList, $arGroupID);
+		$arGroupBuyID = Order\BuyerGroup::prepareGroupIds($groupUserBuyList, $arGroupBuyID);
+
+		unset($groupUserBuyList, $groupUserList);
 	}
 
 	$arUserLang = array();
@@ -184,18 +170,10 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 		'BASE' => (isset($_POST['BASE']) && 'Y' == $_POST['BASE'] ? 'Y' : 'N'),
 		'SORT' => intval(isset($_POST['SORT']) ? $_POST['SORT'] : 100),
 		'XML_ID' => (isset($_POST['XML_ID']) ? $_POST['XML_ID'] : ''),
+		'USER_GROUP' => $arGroupID,
+		'USER_GROUP_BUY' => $arGroupBuyID,
 		'USER_LANG' => $arUserLang,
 	);
-
-	if (isset($arGroupID))
-	{
-		$arFields['USER_GROUP'] = $arGroupID;
-	}
-
-	if (isset($arGroupBuyID))
-	{
-		$arFields['USER_GROUP_BUY'] = $arGroupBuyID;
-	}
 
 	$DB->StartTransaction();
 	if ($isNewRecord)
@@ -443,9 +421,6 @@ $tabControl->BeginNextTab();
 		unset($arOneLang);
 	?>
 
-	<?php
-	if (!$isCrmPublicSide):
-	?>
 	<tr class="adm-detail-required-field">
 		<td valign="top" width="40%">
 			<?echo GetMessage('CAT_GROUPS');?>
@@ -480,9 +455,6 @@ $tabControl->BeginNextTab();
 			</select>
 		</td>
 	</tr>
-	<?php
-	endif;
-	?>
 <?
 $tabControl->EndTab();
 if (!$bReadOnly)

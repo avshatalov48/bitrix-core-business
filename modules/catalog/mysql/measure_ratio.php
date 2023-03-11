@@ -15,7 +15,7 @@ class CCatalogMeasureRatio extends CCatalogMeasureRatioAll
 	{
 		global $DB;
 		if (empty($arSelectFields))
-			$arSelectFields = array("ID", "PRODUCT_ID", "RATIO");
+			$arSelectFields = array("ID", "PRODUCT_ID", "RATIO", "IS_DEFAULT");
 		$arFields = array(
 			"ID" => array("FIELD" => "MR.ID", "TYPE" => "int"),
 			"PRODUCT_ID" => array("FIELD" => "MR.PRODUCT_ID", "TYPE" => "int"),

@@ -1,7 +1,17 @@
 import { NotificationTypesCodes } from 'im.const';
 
+// @vue/component
 export const NotificationItemHeader = {
-	props: ['listItem'],
+	props: {
+		listItem: {
+			type: Object,
+			required: true
+		},
+		isExtranet: {
+			type: Boolean,
+			default: false
+		}
+	},
 	computed:
 	{
 		moreUsers()
@@ -11,7 +21,7 @@ export const NotificationItemHeader = {
 			return {
 				start: phrase[0],
 				end: this.listItem.params.USERS.length + phrase[1]
-			}
+			};
 		},
 		isMoreUsers()
 		{
@@ -60,6 +70,7 @@ export const NotificationItemHeader = {
 					v-if="!listItem.systemType"
 					@click.prevent="onUserTitleClick({userId: listItem.authorId, event: $event})"
 					class="bx-im-notifications-item-header-title-text-link"
+					:class="[isExtranet ? '--extranet' : '']"
 				>
 					{{ listItem.title.value }}
 				</span>

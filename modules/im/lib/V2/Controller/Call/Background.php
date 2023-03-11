@@ -2,15 +2,13 @@
 
 namespace Bitrix\Im\V2\Controller\Call;
 
-use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Loader;
 use Bitrix\UI\InfoHelper;
 
 class Background extends Controller
 {
 	/**
-	 * @restMethod im.v2.call.background.get
+	 * @restMethod im.v2.Call.Background.get
 	 */
 	public function getAction()
 	{
@@ -32,7 +30,7 @@ class Background extends Controller
 	}
 
 	/**
-	 * @restMethod im.v2.call.background.commit
+	 * @restMethod im.v2.Call.Background.commit
 	 */
 	public function commitAction(int $fileId)
 	{
@@ -57,7 +55,7 @@ class Background extends Controller
 	}
 
 	/**
-	 * @restMethod im.v2.call.background.delete
+	 * @restMethod im.v2.Call.Background.delete
 	 */
 	public function deleteAction(int $fileId)
 	{

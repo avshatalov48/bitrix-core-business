@@ -255,7 +255,12 @@ this.BX = this.BX || {};
 
 	}
 
-	class SelectorErrorCode {}
+	class SelectorErrorCode {
+	  static getCodes() {
+	    return [SelectorErrorCode.NOT_SELECTED_PRODUCT, SelectorErrorCode.FAILED_PRODUCT];
+	  }
+
+	}
 	SelectorErrorCode.NOT_SELECTED_PRODUCT = 'NOT_SELECTED_PRODUCT';
 	SelectorErrorCode.FAILED_PRODUCT = 'FAILED_PRODUCT';
 
@@ -631,6 +636,10 @@ this.BX = this.BX || {};
 	  }
 
 	  handleClearIconClick(event) {
+	    this.selector.emit('onBeforeClear', {
+	      selectorId: this.selector.getId(),
+	      rowId: this.selector.getRowId()
+	    });
 	    this.loadedSelectedItem = null;
 
 	    if (this.selector.isProductSearchEnabled() && !this.model.isEmpty()) {
@@ -784,7 +793,7 @@ this.BX = this.BX || {};
 	    const item = event.getData().item;
 	    this.setInputValueOnProductSelect(item);
 	    this.toggleIcon(this.getSearchIcon(), 'none');
-	    this.model.getErrorCollection().clearErrors();
+	    this.clearErrors();
 
 	    if (this.selector) {
 	      const isNew = item.getCustomData().get('isNew');
@@ -806,6 +815,16 @@ this.BX = this.BX || {};
 	    this.dialogMode = DialogMode.SHOW_PRODUCT_ITEM;
 	    this.loadedSelectedItem = item;
 	    this.cache.delete('dialog');
+	  }
+
+	  clearErrors() {
+	    const errors = this.model.getErrorCollection().getErrors();
+
+	    for (const code in errors) {
+	      if (catalog_productSelector.ProductSelector.ErrorCodes.getCodes().includes(code)) {
+	        this.model.getErrorCollection().removeError(code);
+	      }
+	    }
 	  }
 
 	  createProductModelFromSearchQuery(searchQuery) {
@@ -1120,6 +1139,7 @@ this.BX = this.BX || {};
 	  constructor(id, options = {}) {
 	    super(id, options);
 	    this.isEmptyBarcode = options.isEmptyBarcode;
+	    this.getDialog().subscribe('SearchTab:onLoad', this.handleOnSearchLoad.bind(this));
 	  }
 
 	  getContent() {
@@ -1202,6 +1222,17 @@ this.BX = this.BX || {};
 
 	    this.getQueryContainer().textContent = " " + query;
 	    this.getScannerQueryContainer().textContent = " " + query;
+	  }
+
+	  handleOnSearchLoad(event) {
+	    const {
+	      searchTab
+	    } = event.getData();
+	    this.getDialog().getItems().forEach(item => {
+	      if (item.getCustomData().get('BARCODE') === searchTab.getLastSearchQuery().getQuery()) {
+	        this.hide();
+	      }
+	    });
 	  }
 
 	}
@@ -1613,7 +1644,7 @@ this.BX = this.BX || {};
 
 	  selectScannedBarcodeProduct(productId) {
 	    this.toggleIcon(this.getSearchIcon(), 'none');
-	    this.model.getErrorCollection().clearErrors();
+	    this.clearErrors();
 
 	    if (this.selector) {
 	      this.selector.onProductSelect(productId, {
@@ -2026,6 +2057,10 @@ this.BX = this.BX || {};
 	    const errors = this.model.getErrorCollection().getErrors();
 
 	    for (const code in errors) {
+	      if (!ProductSelector.ErrorCodes.getCodes().includes(code)) {
+	        continue;
+	      }
+
 	      if (code === 'EMPTY_IMAGE') {
 	        this.setImageErrorBorder();
 	      } else {
@@ -2355,6 +2390,14 @@ this.BX = this.BX || {};
 	  processResponse(response, config = {}, isProductAction = false) {
 	    const data = (response == null ? void 0 : response.data) || null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _inAjaxProcess)[_inAjaxProcess] = false;
+	    const fields = (data == null ? void 0 : data.fields) || [];
+
+	    if (main_core.Type.isArray(config.immutableFields)) {
+	      config.immutableFields.forEach(field => {
+	        fields[field] = this.getModel().getField(field);
+	      });
+	      data.fields = fields;
+	    }
 
 	    if (isProductAction) {
 	      this.clearState();
@@ -2371,14 +2414,6 @@ this.BX = this.BX || {};
 	    if (this.isEnabledChangesRendering()) {
 	      this.clearLayout();
 	      this.layout();
-	    }
-
-	    const fields = (data == null ? void 0 : data.fields) || null;
-
-	    if (main_core.Type.isArray(config.immutableFields)) {
-	      config.immutableFields.forEach(field => {
-	        fields[field] = this.getModel().getField(field);
-	      });
 	    }
 
 	    this.emit('onChange', {
@@ -2399,18 +2434,6 @@ this.BX = this.BX || {};
 	      this.getModel().setOption('skuId', main_core.Text.toInteger(data.skuId));
 	      this.getModel().setOption('isSimpleModel', false);
 	      this.getModel().setOption('isNew', config.isNew);
-	    }
-
-	    if (main_core.Type.isArray(this.options.immutableFields)) {
-	      this.options.immutableFields.forEach(field => {
-	        data.fields[field] = this.getModel().getField(field);
-	      });
-	    }
-
-	    if (main_core.Type.isArray(config.immutableFields)) {
-	      config.immutableFields.forEach(field => {
-	        data.fields[field] = this.getModel().getField(field);
-	      });
 	    }
 
 	    this.getModel().initFields(data.fields);

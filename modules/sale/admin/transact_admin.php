@@ -87,15 +87,15 @@ $filterFields = array(
 
 $arFilter = array();
 
-if ($_GET["filter_user_id"])
+if (!empty($_GET["filter_user_id"]))
 {
 	$arFilter["USER_ID"] = intval($_GET["filter_user_id"]);
 }
-if ($_GET["USER_ID"])
+if (!empty($_GET["USER_ID"]))
 {
 	$arFilter["USER_ID"] = intval($_GET["USER_ID"]);
 }
-if ($_GET["filter_currency"])
+if (!empty($_GET["filter_currency"]))
 {
 	$arFilter["CURRENCY"] = $_GET["filter_currency"];
 }

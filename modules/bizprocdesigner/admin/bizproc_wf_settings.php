@@ -54,7 +54,7 @@ if (!$canWrite || !check_bitrix_sessid())
 	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
-if ($_POST["save"] == "Y")
+if (!empty($_POST["save"]))
 {
 	$perms = array();
 	$errorMessage = '';
@@ -962,7 +962,7 @@ if (!empty($arAllowableOperations)):
 			<td valign="top"><?=htmlspecialcharsbx($op_name)?>:</td>
 			<td valign="top"><?
 					$usersP = htmlspecialcharsbx(CBPHelper::UsersArrayToString(
-								$permissions[$op_id],
+								$permissions[$op_id] ?? null,
 								$_POST['arWorkflowTemplate'],
 						$documentType
 					));

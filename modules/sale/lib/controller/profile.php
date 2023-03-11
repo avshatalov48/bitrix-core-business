@@ -8,6 +8,7 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
+use Bitrix\Main\UI\PageNavigation;
 
 Loc::loadMessages(__FILE__);
 
@@ -24,14 +25,14 @@ class Profile extends ControllerBase
 		)];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], $start=0)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = [])
 	{
 		$result = [];
 
 		$select = empty($select)? ['*']:$select;
 		$order = empty($order)? ['ID'=>'ASC']:$order;
 
-		$r = \CSaleOrderUserProps::GetList($order, $filter, false, self::getNavData($start), $select);
+		$r = \CSaleOrderUserProps::GetList($order, $filter, false, self::getNavData($pageNavigation->getOffset()), $select);
 		while ($l = $r->fetch())
 			$result[] = $l;
 

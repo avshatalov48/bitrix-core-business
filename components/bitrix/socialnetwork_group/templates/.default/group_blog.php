@@ -1,12 +1,9 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-
-use Bitrix\Main\Loader;
-use Bitrix\Blog\Copy\Integration\Group;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -15,7 +12,8 @@ use Bitrix\Blog\Copy\Integration\Group;
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-?><div class="feed-blog-post-list"><?php
+?>
+	<div class="feed-blog-post-list"><?php
 
 $pageId = "group_blog";
 $blogPageId = '';
@@ -32,7 +30,8 @@ if (
 {
 	?>
 	<div class="feed-add-error">
-		<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=GetMessage("BLG_SOCNET_REINDEX", Array("#url#" => $arResult["PATH_TO_GROUP_REINDEX"]))?></span>
+		<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?= GetMessage("BLG_SOCNET_REINDEX",
+				["#url#" => $arResult["PATH_TO_GROUP_REINDEX"]]) ?></span>
 	</div>
 	<?
 }
@@ -87,12 +86,14 @@ $componentParameters = [
 	"SET_LOG_CACHE" => "Y",
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
-	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y" ? "Y" : "N"),
+	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y"
+		? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
 ];
 
-?><div id="log_external_container"></div><?php
+?>
+	<div id="log_external_container"></div><?php
 
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
@@ -110,4 +111,4 @@ $APPLICATION->IncludeComponent(
 	]
 );
 
-?></div>
+?></div><?php

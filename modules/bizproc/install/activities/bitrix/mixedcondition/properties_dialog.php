@@ -8,10 +8,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @var CBPDocumentService $documentService */
 /** @var array $arCurrentValues */
 
-\Bitrix\Main\UI\Extension::load(['bizproc.mixed-selector']);
+\Bitrix\Main\UI\Extension::load(['bizproc.mixed-selector', 'bizproc.condition']);
 \Bitrix\Main\Page\Asset::getInstance()->addJs(getLocalPath('activities/bitrix/mixedcondition/script.js'));
-
-$arC = \Bitrix\Bizproc\Activity\Condition::getOperatorList();
 
 $conditions = (array)$arCurrentValues['conditions'];
 if (!$conditions)
@@ -19,14 +17,11 @@ if (!$conditions)
 	$condition[] = ['operator' => '!empty'];
 }?>
 
-<?= $javascriptFunctions ?>
-
 <script>
 	BX.ready(function () {
 		BX.Loc.setMessage(<?= \Bitrix\Main\Web\Json::encode(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)) ?>);
 
 		var script = new BX.Bizproc.Activity.MixedCondition({
-			operatorList: <?= CUtil::PhpToJSObject(\Bitrix\Bizproc\Activity\Condition::getOperatorList()) ?>,
 			conditions: <?= CUtil::PhpToJSObject($conditions) ?>,
 			table: document.getElementById('id_bwfiba_type_mixedcondition'),
 			objectTabs: {
@@ -39,7 +34,7 @@ if (!$conditions)
 				Activity: arAllActivities ?? []
 			},
 			template: [rootActivity.Serialize()],
-			formName: '<?= CUtil::JSEscape($formName) ?>'
+			documentType: <?= CUtil::PhpToJSObject($documentType) ?>,
 		});
 
 		script.init();

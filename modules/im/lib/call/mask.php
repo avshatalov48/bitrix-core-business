@@ -19,10 +19,6 @@ class Mask
 	{
 		$result = [
 			[
-				'id' => 'santa2',
-				'active' => true,
-			],
-			[
 				'id' => 'bear1',
 				'active' => true,
 			],
@@ -35,7 +31,15 @@ class Mask
 				'active' => true,
 			],
 			[
-				'id' => 'santa4',
+				'id' => 'panther1',
+				'active' => true,
+			],
+			[
+				'id' => 'polebear1',
+				'active' => true,
+			],
+			[
+				'id' => 'santa2',
 				'active' => true,
 			],
 			[
@@ -51,7 +55,15 @@ class Mask
 				'active' => true,
 			],
 			[
-				'id' => 'santa1',
+				'id' => 'panther2',
+				'active' => true,
+			],
+			[
+				'id' => 'polebear2',
+				'active' => true,
+			],
+			[
+				'id' => 'santa4',
 				'active' => true,
 			],
 			[
@@ -67,7 +79,15 @@ class Mask
 				'active' => true,
 			],
 			[
-				'id' => 'santa3',
+				'id' => 'panther4',
+				'active' => true,
+			],
+			[
+				'id' => 'polebear4',
+				'active' => true,
+			],
+			[
+				'id' => 'santa1',
 				'active' => true,
 			],
 			[
@@ -78,30 +98,17 @@ class Mask
 				'id' => 'fox4',
 				'active' => true,
 			],
-			// release 30.12.2022
-			[
-				'id' => 'panther1',
-				'active' => false,
-			],
-			[
-				'id' => 'polebear1',
-				'active' => false,
-			],
-			[
-				'id' => 'panther2',
-				'active' => false,
-			],
-			[
-				'id' => 'polebear2',
-				'active' => false,
-			],
 			[
 				'id' => 'panther3',
-				'active' => false,
+				'active' => true,
 			],
 			[
 				'id' => 'polebear3',
-				'active' => false,
+				'active' => true,
+			],
+			[
+				'id' => 'santa3',
+				'active' => true,
 			],
 		];
 

@@ -12,6 +12,11 @@ class Recent
 
 	public static function get($userId = null, $options = [])
 	{
+		$onlyOpenlinesOption = $options['ONLY_OPENLINES'] ?? null;
+		$skipOpenlinesOption = $options['SKIP_OPENLINES'] ?? null;
+		$skipChat = $options['SKIP_CHAT'] ?? null;
+		$skipDialog = $options['SKIP_DIALOG'] ?? null;
+
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
 		{
@@ -20,10 +25,7 @@ class Recent
 
 		$showOpenlines = (
 			\Bitrix\Main\Loader::includeModule('imopenlines')
-			&& (
-				$options['ONLY_OPENLINES'] === 'Y'
-				|| $options['SKIP_OPENLINES'] !== 'Y'
-			)
+			&& ($onlyOpenlinesOption === 'Y' || $skipOpenlinesOption !== 'Y')
 		);
 
 		$generalChatId = \CIMChat::GetGeneralChatId();
@@ -34,7 +36,8 @@ class Recent
 			'WITHOUT_COMMON_USERS' => true,
 		]);
 
-		if ($options['LAST_SYNC_DATE'])
+		$lastSyncDateOption = $options['LAST_SYNC_DATE'] ?? null;
+		if ($lastSyncDateOption)
 		{
 			$maxLimit = (new \Bitrix\Main\Type\DateTime())->add('-7 days');
 			if ($maxLimit > $options['LAST_SYNC_DATE'])
@@ -49,7 +52,7 @@ class Recent
 		}
 
 		$skipTypes = [];
-		if ($options['ONLY_OPENLINES'] === 'Y')
+		if ($onlyOpenlinesOption === 'Y')
 		{
 			$ormParams['filter'][] = [
 				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
@@ -61,12 +64,12 @@ class Recent
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
 			}
-			if ($options['SKIP_CHAT'] === 'Y')
+			if ($skipChat === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN;
 				$skipTypes[] = IM_MESSAGE_CHAT;
 			}
-			if ($options['SKIP_DIALOG'] === 'Y')
+			if ($skipDialog === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_PRIVATE;
 			}
@@ -160,12 +163,17 @@ class Recent
 		$generalChatId = \CIMChat::GetGeneralChatId();
 
 		$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers');
-		$withoutCommonUsers = !$viewCommonUsers || $options['ONLY_OPENLINES'] === 'Y';
+
+		$onlyOpenlinesOption = $options['ONLY_OPENLINES'] ?? null;
+		$skipChatOption = $options['SKIP_CHAT'] ?? null;
+		$skipDialogOption = $options['SKIP_DIALOG'] ?? null;
+		$lastMessageDateOption = $options['LAST_MESSAGE_DATE'] ?? null;
+		$withoutCommonUsers = !$viewCommonUsers || $onlyOpenlinesOption === 'Y';
 
 		$showOpenlines = (
 			\Bitrix\Main\Loader::includeModule('imopenlines')
 			&& (
-				$options['ONLY_OPENLINES'] === 'Y'
+				$onlyOpenlinesOption === 'Y'
 				|| $options['SKIP_OPENLINES'] !== 'Y'
 			)
 		);
@@ -176,7 +184,7 @@ class Recent
 			'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
 		]);
 
-		if ($options['ONLY_OPENLINES'] === 'Y')
+		if ($onlyOpenlinesOption === 'Y')
 		{
 			$ormParams['filter'][] = [
 				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
@@ -189,12 +197,12 @@ class Recent
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
 			}
-			if ($options['SKIP_CHAT'] === 'Y')
+			if ($skipChatOption === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN;
 				$skipTypes[] = IM_MESSAGE_CHAT;
 			}
-			if ($options['SKIP_DIALOG'] === 'Y')
+			if ($skipDialogOption === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_PRIVATE;
 			}
@@ -206,9 +214,9 @@ class Recent
 			}
 		}
 
-		if ($options['LAST_MESSAGE_DATE'] instanceof \Bitrix\Main\Type\DateTime)
+		if ($lastMessageDateOption instanceof \Bitrix\Main\Type\DateTime)
 		{
-			$ormParams['filter']['<=DATE_MESSAGE'] = $options['LAST_MESSAGE_DATE'];
+			$ormParams['filter']['<=DATE_MESSAGE'] = $lastMessageDateOption;
 		}
 		else if (isset($options['OFFSET']))
 		{
@@ -488,10 +496,12 @@ class Recent
 		];
 	}
 
-	private static function formatRow($row, $options = []):? array
+	private static function formatRow($row, $options = []): ?array
 	{
 		$generalChatId = (int)$options['GENERAL_CHAT_ID'];
-		$withoutCommonUsers = $options['WITHOUT_COMMON_USERS'] === true;
+		$withoutCommonUsers = isset($options['WITHOUT_COMMON_USERS']) && $options['WITHOUT_COMMON_USERS'] === true;
+
+		$chatOwner = $row['CHAT_OWNER'] ?? null;
 
 		$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 		$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
@@ -504,7 +514,8 @@ class Recent
 		if ($row['ITEM_MID'] > 0)
 		{
 			$text = str_replace("\n", " ", $row['MESSAGE_TEXT']);
-			if ($options['GET_ORIGINAL_TEXT'] === 'Y')
+			$getOriginalTextOption = $options['GET_ORIGINAL_TEXT'] ?? null;
+			if ($getOriginalTextOption === 'Y')
 			{
 				$text = Text::populateUserBbCode($text);
 			}
@@ -597,7 +608,7 @@ class Recent
 
 			$managerList = [];
 			if (
-				$row['CHAT_OWNER'] == $row['RELATION_USER_ID']
+				$chatOwner == $row['RELATION_USER_ID']
 				|| $row['RELATION_IS_MANAGER'] == 'Y'
 			)
 			{

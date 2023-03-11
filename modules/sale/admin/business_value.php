@@ -38,7 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'
 		$businessValueControl->saveMap();
 }
 
-$filter = BusinessValueControl::getFilter(isset($_GET['del_filter']) ? null : ($_GET['FILTER'] ?: $_POST['FILTER']));
+if (isset($_GET['del_filter']))
+{
+	$requestFilter = null;
+}
+else
+{
+	$requestFilter = $_GET['FILTER'] ?? $_POST['FILTER'] ?? [];
+}
+
+$filter = BusinessValueControl::getFilter($requestFilter);
 $filter['HIDE_FILLED_CODES'] = false;
 
 // VIEW ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +129,7 @@ if ($adminSidePanelHelper->isSidePanel())
 		<div class="adm-detail-content-btns-wrap">
 			<div class="adm-detail-content-btns">
 				<?
-				echo '<input'.($aParams["disabled"] === true? " disabled":"")
+				echo '<input'
 						.' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'
 						.GetMessage("admin_lib_edit_apply_title").'" class="adm-btn-save" />';
 

@@ -25,7 +25,8 @@ if($arResult['ERROR'])
 		'bitrix:rest.configuration.export',
 		'',
 		array(
-			'MANIFEST_CODE' => $arResult['MANIFEST_CODE']
+			'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

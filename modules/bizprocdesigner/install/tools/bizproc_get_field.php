@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @deprecated
+ * Now use \Bitrix\Bizproc\Controller\FieldType
+ */
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
 \Bitrix\Main\Loader::includeModule('bizproc');
 
@@ -49,7 +52,7 @@ $runtime->StartRuntime();
 $documentService = $runtime->GetService("DocumentService");
 
 $type = $_REQUEST['Type'];
-$value = $_REQUEST['Value'];
+$value = $_REQUEST['Value'] ?? null;
 $publicMode = (!empty($_REQUEST['RenderMode']) && $_REQUEST['RenderMode'] === 'public');
 
 if ($_REQUEST['Mode'] == "Type")

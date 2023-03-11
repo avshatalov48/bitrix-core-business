@@ -602,13 +602,9 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 			$strLabel = $arUserField["EDIT_FORM_LABEL"]?: $arUserField["FIELD_NAME"];
 			$arUserField["EDIT_FORM_LABEL"] = $strLabel;
 
-			echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
+			$form_value = $GLOBALS[$FIELD_NAME] ?? null;
 
-			$form_value = $GLOBALS[$FIELD_NAME];
-			if(!$bVarsFromForm)
-				$form_value = $arUserField["VALUE"];
-			elseif($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
-				$form_value = $GLOBALS[$arUserField["FIELD_NAME"]."_old_id"];
+			echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $form_value, $arUserField);
 		}
 
 	$tabControl->EndTab();

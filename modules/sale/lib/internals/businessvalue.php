@@ -99,4 +99,32 @@ class BusinessValueTable extends Main\Entity\DataManager
 
 		);
 	}
+
+	/**
+	 * Deletes all business values by CODE_KEY (including COMMON)
+	 *
+	 * @param string $codeKey
+	 * @return void
+	 */
+	public static function deleteByCodeKey(string $codeKey): void
+	{
+		$businessValueIterator = static::getList([
+			'filter' => [
+				'=CODE_KEY' => $codeKey,
+			],
+		]);
+		while ($businessValue = $businessValueIterator->fetch())
+		{
+			if ($businessValue['PROVIDER_KEY'] === 'FILE')
+			{
+				\CFile::Delete($businessValue['PROVIDER_VALUE']);
+			}
+
+			static::delete([
+				'CODE_KEY' => $businessValue['CODE_KEY'],
+				'CONSUMER_KEY' => $businessValue['CONSUMER_KEY'] ?? static::COMMON_CONSUMER_KEY,
+				'PERSON_TYPE_ID' => $businessValue['PERSON_TYPE_ID'] ?? static::COMMON_PERSON_TYPE_ID,
+			]);
+		}
+	}
 }

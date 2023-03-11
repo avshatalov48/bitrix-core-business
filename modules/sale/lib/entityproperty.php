@@ -38,7 +38,7 @@ abstract class EntityProperty
 	 */
 	public function getField($name)
 	{
-		return $this->fields[$name];
+		return $this->fields[$name] ?? null;
 	}
 
 	/**
@@ -136,7 +136,7 @@ abstract class EntityProperty
 	 */
 	public function __construct(array $property, array $relation = null)
 	{
-		if (is_array($property['SETTINGS']))
+		if (isset($property['SETTINGS']) && is_array($property['SETTINGS']))
 		{
 			$property += $property['SETTINGS'];
 			unset ($property['SETTINGS']);
@@ -383,11 +383,11 @@ abstract class EntityProperty
 			}
 		}
 
-		if (!is_array($value) && trim($value) !== '')
+		if (!is_array($value) && isset($value))
 		{
-			$value = trim($value);
+			$value = trim((string)$value);
 
-			if ($this->getField('IS_EMAIL') === 'Y')
+			if ($value !== '' && $this->getField('IS_EMAIL') === 'Y')
 			{
 				if (!check_email($value, true))
 				{
@@ -397,7 +397,7 @@ abstract class EntityProperty
 						)
 					);
 				}
-			}	
+			}
 		}
 
 		return $result;

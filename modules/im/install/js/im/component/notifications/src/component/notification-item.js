@@ -112,6 +112,10 @@ export const NotificationItem = {
 		{
 			return this.$store.getters['users/get'](this.rawListItem.authorId, true);
 		},
+		isExtranet(): boolean
+		{
+			return this.userData.extranet;
+		},
 		avatarStyles()
 		{
 			return {
@@ -251,6 +255,7 @@ export const NotificationItem = {
 				<div class="bx-im-notifications-item-content" @click="onContentClick">
 					<NotificationItemHeader 
 						:listItem="listItem"
+						:isExtranet="isExtranet"
 						@deleteClick="onDeleteClick"
 						@moreUsersClick="onMoreUsersClick"
 					/>

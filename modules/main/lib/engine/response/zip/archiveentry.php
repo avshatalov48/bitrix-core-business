@@ -1,9 +1,12 @@
 <?php
 namespace Bitrix\Main\Engine\Response\Zip;
 
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Text\Encoding;
-use \Bitrix\Main\Config\Option;
+use Bitrix\Main\Application;
+use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Web\Uri;
+use CFile;
+use CMain;
 
 class ArchiveEntry
 {
@@ -92,9 +95,9 @@ class ArchiveEntry
 	 */
 	public static function createFromFilePath($filePath, $name = null)
 	{
-		$fileArray = \CFile::MakeFileArray($filePath);
+		$fileArray = CFile::MakeFileArray($filePath);
 
-		if ($fileArray)
+		if (\is_array($fileArray))
 		{
 			return self::createFromFile([
 				'ID' => 0,
@@ -115,10 +118,10 @@ class ArchiveEntry
 	 */
 	public static function createFromFileId($fileId, $moduleId = null)
 	{
-		$fileArray = \CFile::getFileArray($fileId);
+		$fileArray = CFile::getFileArray($fileId);
 
 		// check file exists
-		if (!$fileArray || empty($fileArray['SRC']))
+		if (!\is_array($fileArray) || empty($fileArray['SRC']))
 		{
 			return null;
 		}
@@ -128,7 +131,7 @@ class ArchiveEntry
 			$moduleId !== null &&
 			(
 				!isset($fileArray['MODULE_ID']) ||
-				$fileArray['MODULE_ID'] != $moduleId
+				$fileArray['MODULE_ID'] !== $moduleId
 			)
 		)
 		{
@@ -146,13 +149,13 @@ class ArchiveEntry
 	 */
 	protected static function createFromFile(array $fileArray, $name = null)
 	{
-		$zipEntry = new static;
+		$zipEntry = new static();
 		$zipEntry->setName($name?: $fileArray['ORIGINAL_NAME']);
 		$zipEntry->size = (int)$fileArray['FILE_SIZE'];
 
 		if (empty($fileArray['SRC']))
 		{
-			$fileArray['SRC'] = \CFile::getFileSrc($fileArray);
+			$fileArray['SRC'] = CFile::getFileSrc($fileArray);
 		}
 
 		$fromClouds = false;
@@ -174,17 +177,16 @@ class ArchiveEntry
 		}
 		else
 		{
-			$zipEntry->path = self::encodeUrn(
-				Encoding::convertEncoding($filename, LANG_CHARSET, 'UTF-8')
-			);
+			$zipEntry->path = $filename;
 		}
+		$zipEntry->path = Uri::urnEncode($zipEntry->path, 'UTF-8');
 
 		return $zipEntry;
 	}
 
 	/**
 	 * Get main instance of \CMain.
-	 * @return \CMain
+	 * @return CMain
 	 */
 	protected static function getApplication()
 	{
@@ -207,33 +209,6 @@ class ArchiveEntry
 		}
 
 		return $docRoot;
-	}
-
-	/**
-	 * Encodes uri: explodes uri by / and encodes in UTF-8 and rawurlencodes.
-	 * @param string $uri Uri.
-	 * @return string
-	 */
-	protected static function encodeUrn($uri)
-	{
-		$result = '';
-		$parts = preg_split(
-			"#(://|:\\d+/|/|\\?|=|&)#", $uri, -1, PREG_SPLIT_DELIM_CAPTURE
-		);
-
-		foreach ($parts as $i => $part)
-		{
-			$part = Encoding::convertEncoding(
-				$part,
-				LANG_CHARSET,
-				'UTF-8'
-			);
-			$result .= ($i % 2)
-				? $part
-				: rawurlencode($part);
-		}
-
-		return $result;
 	}
 
 	/**

@@ -363,3 +363,7 @@ select.catalog-document-product-control-select-field:hover {
 	border-color: var(--ui-field-color-danger) !important;
 }
 
+.main-grid-cell .text--danger {
+	color: var(--ui-color-palette-red-70, #e92f2a);
+}
+

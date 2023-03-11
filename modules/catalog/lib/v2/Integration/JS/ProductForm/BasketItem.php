@@ -61,6 +61,8 @@ class BasketItem
 			'additionalFields' => [],
 			'properties' => [],
 			'brands' => '',
+			'weight' => 0,
+			'dimensions' => [],
 		];
 
 		$this->setDetailUrlManagerType(ShopBuilder::TYPE_ID);
@@ -201,6 +203,7 @@ class BasketItem
 		$this->fillMeasureFields();
 		$this->fillTaxFields();
 		$this->fillPriceFields();
+		$this->fillDeliveryFields();
 	}
 
 	private function fillProperties(): void
@@ -292,11 +295,10 @@ class BasketItem
 			$displayProperty = array_merge(
 				$propertySettings,
 				[
-					'DESCRIPTION' => $valueInfo['DESCRIPTION'],
-					'~DESCRIPTION' => $valueInfo['DESCRIPTION'],
+					'DESCRIPTION' => $valueInfo['DESCRIPTION'] ?? null,
+					'~DESCRIPTION' => $valueInfo['DESCRIPTION'] ?? null,
 					'VALUE' => $value,
 					'~VALUE' => $value,
-					'~PROPERTY_VALUE_ID' => $valueInfo['PROPERTY_VALUE_ID'],
 				]
 			);
 
@@ -375,6 +377,17 @@ class BasketItem
 				->setPriceExclusive($price)
 			;
 		}
+	}
+
+	private function fillDeliveryFields(): void
+	{
+		$this->fields['weight'] = $this->sku->getField('WEIGHT');
+
+		$this->fields['dimensions'] = [
+			'LENGTH' => $this->sku->getField('LENGTH'),
+			'WIDTH' => $this->sku->getField('WIDTH'),
+			'HEIGHT' => $this->sku->getField('HEIGHT'),
+		];
 	}
 
 	private function hasEditRights(): bool

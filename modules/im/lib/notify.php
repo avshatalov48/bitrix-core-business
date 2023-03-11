@@ -23,14 +23,14 @@ class Notify
 
 	public function __construct($options = [])
 	{
-		$this->convertText = $options['CONVERT_TEXT'];
-		$this->searchText = $options['SEARCH_TEXT'];
-		$this->searchType = $options['SEARCH_TYPE'];
-		$this->searchDate = $options['SEARCH_DATE'];
-		$this->pageLimit = $options['LIMIT'];
-		$this->lastType = $options['LAST_TYPE'];
-		$this->lastId = $options['LAST_ID'];
-		$this->firstPage = !$options['LAST_ID'] && !$options['LAST_TYPE'];
+		$this->convertText = $options['CONVERT_TEXT'] ?? null;
+		$this->searchText = $options['SEARCH_TEXT'] ?? null;
+		$this->searchType = $options['SEARCH_TYPE'] ?? null;
+		$this->searchDate = $options['SEARCH_DATE'] ?? null;
+		$this->pageLimit = $options['LIMIT'] ?? null;
+		$this->lastType = $options['LAST_TYPE'] ?? null;
+		$this->lastId = $options['LAST_ID'] ?? null;
+		$this->firstPage = !$this->lastId && !$this->lastType;
 
 		$chatData = $this->getChatData();
 		if ($chatData !== null)

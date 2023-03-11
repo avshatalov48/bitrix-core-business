@@ -12,6 +12,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, \Bitrix\Main\Engine\Contract\Controllerable
 {
@@ -97,6 +98,11 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		$APPLICATION->SetTitle(Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_TITLE'));
 
 		$this->init();
+
+		if (!$this->hasErrors())
+		{
+			$this->updateSessions();
+		}
 
 		if (!$this->hasErrors())
 		{
@@ -187,6 +193,42 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		return \Bitrix\Main\Engine\CurrentUser::get()->getId();
 	}
 
+	private function updateSessions(): void
+	{
+		$updatedSessions = is_array($this->request['FIELDS']) ? $this->request['FIELDS'] : [];
+		if ($this->request->isAjaxRequest())
+		{
+			$updatedSessions = \Bitrix\Main\Text\Encoding::convertEncoding($updatedSessions, 'UTF-8', LANG_CHARSET);
+		}
+
+		foreach ($updatedSessions as $sessionId => $updatedFields)
+		{
+			if (is_string($updatedFields['NAME'] ?? null) && $updatedFields['NAME'] !== '')
+			{
+				$this->renameSession($sessionId, $updatedFields['NAME']);
+			}
+		}
+	}
+
+	public function renameSession(string $sessionId, string $newName): void
+	{
+		$session = \Bitrix\Bizproc\Debugger\Session\Entity\DebuggerSessionTable::query()
+			->addFilter('ID', $sessionId)
+			->setLimit(1)
+			->exec()
+			->fetchObject();
+
+		if (!$session)
+		{
+			return;
+		}
+
+		$session->setTitle($newName);
+		$result = $session->save();
+
+		$this->addErrors($result->getErrors());
+	}
+
 	private function fillGridInfo(): void
 	{
 		$this->arResult['gridId'] = static::GRID_ID;
@@ -202,6 +244,9 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 				'id' => 'NAME',
 				'name' => Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_GRID_COLUMN_NAME'),
 				'default' => true,
+				'editable' => [
+					'TYPE' => \Bitrix\Main\Grid\Editor\Types::TEXT,
+				],
 			],
 			[
 				'id' => 'STARTED_BY',
@@ -259,7 +304,7 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		$filter = array_merge($this->getUserFilter(), $defaultFilter);
 
 		$sessionListIterator = \Bitrix\Bizproc\Debugger\Session\Entity\DebuggerSessionTable::query()
-			->setSelect(['ID', 'STARTED_BY', 'DOCUMENT_CATEGORY_ID', 'STARTED_DATE'])
+			->setSelect(['ID', 'TITLE', 'STARTED_BY', 'DOCUMENT_CATEGORY_ID', 'STARTED_DATE'])
 			->setFilter($filter)
 			->setOrder($this->getGridOrder())
 			->setLimit($pageNav->getLimit())
@@ -277,25 +322,36 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		$gridData = [];
 		while ($session = $sessionListIterator->fetchObject())
 		{
-			$sessionLoc = Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_DEBUGGER_SESSION');
-			$sessionName = $sessionLoc . ' ' . $session->getStartedDate()->format('d.m');
+			$sessionName = $session->getTitle();
+			if (!is_string($sessionName) || $sessionName === '')
+			{
+				$sessionLoc = Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_DEBUGGER_SESSION');
+				$sessionName = $sessionLoc . ' ' . $session->getStartedDate()->format('d.m');
+			}
 
 			$documentCategoryId = $session->getDocumentCategoryId();
 
 			$gridData[] = [
 				'id' => $session->getId(),
-				'data' => [
+				'columns' => [
 					'NAME' => $this->renderLinkTag($sessionName, sprintf($jsHandlerShowSession, $session->getId())),
 					'STARTED_BY' => $this->renderUserName($session->getStartedBy()),
 					'STARTED_CATEGORY_ID' => htmlspecialcharsbx($this->getCategoryName($documentCategoryId)),
 					'STARTED_DATE' => FormatDate('d M Y H:i', $session->getStartedDate()),
 				],
+				'data' => [
+					'NAME' => $sessionName,
+				],
 				'actions' => [
+					[
+						'text' => Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_GRID_ROW_ACTION_RENAME'),
+						'onclick' => "BX.Bizproc.Component.DebuggerSessionList.Instance.renameSession('{$session->getId()}');",
+					],
 					[
 						'text' => Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_GRID_ROW_ACTION_DELETE'),
 						'onclick' => "BX.Bizproc.Component.DebuggerSessionList.Instance.deleteSessions(['{$session->getId()}']);",
 					],
-				]
+				],
 			];
 		}
 
@@ -387,16 +443,15 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		$userAvatar = $this->getUserAvatarUrl($user->getPersonalPhoto());
 
 		$userAvatarElement = sprintf(
-			'<span class="%s"><i style=\'background-image: %s\'></i></span>',
+			'<span class="%s"><i style="background-image: %s"></i></span>',
 			'bizproc-debugger-session-list-grid-avatar ui-icon ui-icon-common-user',
-			$userAvatar ? "url(\"{$userAvatar}\")" : ''
+			$userAvatar ? 'url(\''. Uri::urnEncode($userAvatar) . '\')' : ''
 		);
 
 		$userNameElement = sprintf(
-			'<span class="%s">%s %s</span>',
+			'<span class="%s">%s</span>',
 			'bizproc-debugger-session-list-grid-username-inner',
-			htmlspecialcharsbx($user->getLastName()),
-			htmlspecialcharsbx($user->getName())
+			CUser::FormatName(CSite::GetNameFormat(false), $user, false, true),
 		);
 
 		return sprintf(
@@ -457,6 +512,7 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 				[
 					'ITEMS' => [
 						$deleteBtn,
+						$snippet->getEditButton(),
 					],
 				],
 			],

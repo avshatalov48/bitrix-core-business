@@ -69,9 +69,9 @@ class CRestServer
 		$this->method = $toLowerMethod ? ToLower($params['METHOD']) : $params['METHOD'];
 		$this->query = $params['QUERY'];
 
-		$this->transport = $params['TRANSPORT'];
+		$this->transport = $params['TRANSPORT'] ?? null;
 
-		$this->securityClientState = $params['STATE'];
+		$this->securityClientState = $params['STATE'] ?? null;
 
 		if(!$this->transport)
 		{
@@ -610,7 +610,7 @@ class CRestServer
 			$this->authData  = $res;
 
 			if(
-				$this->authData['auth_connector']
+				(isset($this->authData['auth_connector']))
 				&& !$this->canUseConnectors()
 			)
 			{
@@ -629,7 +629,7 @@ class CRestServer
 				}
 			}
 
-			$arAdditionalParams = $res['parameters'];
+			$arAdditionalParams = $res['parameters'] ?? null;
 			if(isset($arAdditionalParams[\Bitrix\Rest\Event\Session::PARAM_SESSION]))
 			{
 				\Bitrix\Rest\Event\Session::set($arAdditionalParams[\Bitrix\Rest\Event\Session::PARAM_SESSION]);
@@ -733,7 +733,10 @@ class CRestServer
 		\Bitrix\Rest\LogTable::log($this, $data);
 		\Bitrix\Rest\UsageStatTable::finalize();
 
-		if (is_object($data['result']) && $data['result'] instanceof \Bitrix\Main\Engine\Response\BFile)
+		if (
+			isset($data['result'])
+			&& $data['result'] instanceof \Bitrix\Main\Engine\Response\BFile
+		)
 		{
 			return $data['result'];
 		}

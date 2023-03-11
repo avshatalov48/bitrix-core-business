@@ -174,7 +174,7 @@
 						{
 							BX.Sale.PaySystem.insertAjaxRestrictionHtml(result.HTML);
 						}
-						
+
 						if (result.ERROR)
 						{
 							alert(result.ERROR);

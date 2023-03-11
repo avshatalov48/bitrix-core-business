@@ -143,14 +143,14 @@ while ($record = $dbRecords->Fetch())
 	if ($saleModulePermissions >= "U")
 	{
 		$arActions = Array();
-		
+
 		$arActions[] = 	array(
 			"ICON" => "view",
 			"DEFAULT" => true,
 			"TEXT" => Loc::getMessage('SALE_DELIVERY_REQ_DRS_CONTENT'),
 			"ACTION" => "javascript:BX.Sale.Delivery.Request.showShipmentContent(".$record['REQUEST_ID'].", ".$record['SHIPMENT_ID'].");"
 		);
-		
+
 		$arActions[] = array(
 			"ICON" => "delete",
 			"TEXT" => Loc::getMessage('SALE_DELIVERY_REQ_DRS_DEL'),
@@ -165,8 +165,10 @@ while ($record = $dbRecords->Fetch())
 	}
 }
 
-if($_REQUEST['table_id'] == $tableId)
+if (isset($_REQUEST['table_id']) && $_REQUEST['table_id'] === $tableId)
+{
 	$lAdmin->CheckListMode();
+}
 
 if(!empty($adminErrorMessages))
 {

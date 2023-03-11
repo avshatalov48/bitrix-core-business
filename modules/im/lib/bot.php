@@ -955,7 +955,7 @@ class Bot
 		}
 
 		$isPrivateSystem = false;
-		if ($messageFields['FROM_USER_ID'] && $messageFields['TO_USER_ID'])
+		if (($messageFields['FROM_USER_ID'] ?? null) && ($messageFields['TO_USER_ID'] ?? null))
 		{
 			$messageFields['SYSTEM'] = 'Y';
 			$messageFields['DIALOG_ID'] = $messageFields['TO_USER_ID'];
@@ -966,10 +966,10 @@ class Bot
 			return false;
 		}
 
-		$messageFields['MENU'] = $messageFields['MENU'] ?: null;
-		$messageFields['ATTACH'] = $messageFields['ATTACH'] ?: null;
-		$messageFields['KEYBOARD'] = $messageFields['KEYBOARD'] ?: null;
-		$messageFields['PARAMS'] = $messageFields['PARAMS'] ?: [];
+		$messageFields['MENU'] ??= null;
+		$messageFields['ATTACH'] ??= null;
+		$messageFields['KEYBOARD'] ??= null;
+		$messageFields['PARAMS'] ??= [];
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
@@ -1563,7 +1563,7 @@ class Bot
 			return [];
 		}
 
-		if (isset($bots[$messageFields['FROM_USER_ID']]))
+		if (isset($messageFields['FROM_USER_ID'], $bots[$messageFields['FROM_USER_ID']]))
 		{
 			return [];
 		}
@@ -1587,6 +1587,7 @@ class Bot
 		else
 		{
 			$botFound = [];
+			$message = $messageFields['MESSAGE'] ?? null;
 			if (
 				$messageFields['CHAT_ENTITY_TYPE'] === 'LINES'
 				|| $messageFields['CHAT_ENTITY_TYPE'] === 'SUPPORT24_QUESTION' /** @see \Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE */
@@ -1594,7 +1595,7 @@ class Bot
 			{
 				$botFound = $messageFields['BOT_IN_CHAT'];
 			}
-			else if (preg_match_all("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $messageFields['MESSAGE'], $matches))
+			else if (preg_match_all("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $message, $matches))
 			{
 				foreach ($matches[1] as $userId)
 				{

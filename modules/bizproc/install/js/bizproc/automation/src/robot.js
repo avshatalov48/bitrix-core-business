@@ -1,4 +1,4 @@
-import { Dom, Type, Event, Text, Loc } from 'main.core';
+import { Dom, Type, Event, Text, Loc, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Document } from './document/document';
 import { Template } from './template';
@@ -55,7 +55,11 @@ export class Robot extends EventEmitter
 
 	get data()
 	{
-		return this.#data;
+		return {
+			...this.#data,
+			Condition: this.#condition.serialize(),
+			Delay: this.#delay.serialize(),
+		};
 	}
 
 	get draft()
@@ -108,10 +112,10 @@ export class Robot extends EventEmitter
 		});
 
 		const robotData = {
+			...BX.clone(this.#data),
 			Name: Robot.generateName(),
 			Delay: this.getDelayInterval().serialize(),
 			Condition: this.getCondition().serialize(),
-			...BX.clone(this.#data)
 		};
 		clonedRobot.init(robotData, this.#viewMode);
 
@@ -127,7 +131,7 @@ export class Robot extends EventEmitter
 	{
 		if (Type.isPlainObject(data))
 		{
-			this.#data = data;
+			this.#data = Object.assign({}, data);
 		}
 		if (!this.#data.Name)
 		{
@@ -140,6 +144,10 @@ export class Robot extends EventEmitter
 		{
 			this.#condition.type = ConditionGroup.CONDITION_TYPE.Mixed;
 		}
+
+		delete this.#data.Condition;
+		delete this.#data.Delay;
+
 		this.#viewMode = Type.isNil(viewMode) ? ViewMode.edit() : viewMode;
 		if (!this.#viewMode.isNone())
 		{
@@ -373,6 +381,20 @@ export class Robot extends EventEmitter
 				});
 			}
 
+			if (labelText.indexOf('{=GlobalVar:') >= 0 && Type.isArrayFilled(this.#template.globalVariables))
+			{
+				this.#template.globalVariables.forEach(variable => {
+					labelText = labelText.replace(variable.SystemExpression, variable.Name);
+				});
+			}
+
+			if (labelText.indexOf('{=GlobalConst:') >= 0 && Type.isArrayFilled(this.#template.globalConstants))
+			{
+				this.#template.globalConstants.forEach(constant => {
+					labelText = labelText.replace(constant.SystemExpression, constant.Name);
+				});
+			}
+
 			targetNode.textContent = labelText;
 			targetNode.setAttribute('title', labelText);
 
@@ -495,7 +517,8 @@ export class Robot extends EventEmitter
 							children: [
 								Dom.create("div", {
 									attrs: {
-										className: titleClassName
+										className: titleClassName,
+										title: this.getTitle(),
 									},
 									html: this.clipTitle(this.getTitle()),
 									events: {
@@ -1006,6 +1029,7 @@ export class Robot extends EventEmitter
 						ObjectName: this.getTitle(),
 						Name: field['NAME'],
 						Type: field['TYPE'],
+						Options: field['OPTIONS'] || null,
 						Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['NAME']+'}}',
 						SystemExpression: '{='+this.getId()+':'+fieldId+'}'
 					});

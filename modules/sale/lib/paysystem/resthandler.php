@@ -19,7 +19,7 @@ use Bitrix\Sale\Helpers\Rest;
  */
 class RestHandler extends PaySystem\ServiceHandler
 {
-	private $handlerSettings = array();
+	private $handlerFields = array();
 
 	private const FORM_MODE = 'form';
 	private const CHECKOUT_MODE = 'checkout';
@@ -731,36 +731,44 @@ class RestHandler extends PaySystem\ServiceHandler
 		return parent::getClientType($psMode);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getDescription()
+	protected function includeDescription(): array
 	{
+		$fields = $this->getHandlerFields();
 		$settings = $this->getHandlerSettings();
 
-		return array(
-			'NAME' => $settings['NAME'],
+		return [
+			'NAME' => $fields['NAME'] ?? '',
+			'SORT' => $fields['SORT'] ?? 100,
 			'CODES' => $settings['CODES'] ?: []
-		);
+		];
+	}
+
+	private function getHandlerFields(): array
+	{
+		if (!$this->handlerFields)
+		{
+			$handler = $this->service->getField('ACTION_FILE');
+			$dbRes = PaySystemRestHandlersTable::getList([
+				'filter' => ['CODE' => $handler]
+			]);
+			$data = $dbRes->fetch();
+
+			if ($data)
+			{
+				$this->handlerFields = $data;
+			}
+		}
+
+		return $this->handlerFields;
 	}
 
 	/**
 	 * @return array
 	 */
-	private function getHandlerSettings()
+	private function getHandlerSettings(): array
 	{
-		if (!$this->handlerSettings)
-		{
-			$handler = $this->service->getField('ACTION_FILE');
-			$dbRes = PaySystemRestHandlersTable::getList(array('filter' => array('CODE' => $handler)));
-			$data = $dbRes->fetch();
-			if ($data)
-			{
-				$this->handlerSettings = $data['SETTINGS'];
-			}
-		}
-
-		return $this->handlerSettings;
+		$handlerFields = $this->getHandlerFields();
+		return $handlerFields['SETTINGS'] ?? [];
 	}
 
 	private function getMode(): string

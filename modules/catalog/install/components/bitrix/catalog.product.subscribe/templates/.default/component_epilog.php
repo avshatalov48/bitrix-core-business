@@ -9,7 +9,7 @@ if($templateData['jsObject']): ?>
 	BX.ready(BX.defer(function(){
 		if (!!window.<?= $templateData['jsObject']; ?>)
 		{
-			window.<?= $templateData['jsObject']; ?>.setIdAlreadySubscribed(<?=Bitrix\Main\Web\Json::encode($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'])?>);
+			window.<?= $templateData['jsObject']; ?>.setIdAlreadySubscribed(<?=Bitrix\Main\Web\Json::encode($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'] ?? [])?>);
 		}
 	}));
 </script>

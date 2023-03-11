@@ -23,7 +23,7 @@ abstract class GlobalsManager
 	{
 		$cacheId = static::getCacheId();
 
-		if (static::$allSortByVisibilityCache[$cacheId] === null)
+		if (!isset(static::$allSortByVisibilityCache[$cacheId]))
 		{
 			$all = static::getAllRows();
 			$allSortByVisibility = [];
@@ -65,7 +65,7 @@ abstract class GlobalsManager
 	{
 		$cacheId = static::getCacheId();
 
-		if (static::$allCache[$cacheId] === null)
+		if (!isset(static::$allCache[$cacheId]))
 		{
 			$all = [];
 			$table = static::getTableEntity();

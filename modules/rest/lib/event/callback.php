@@ -78,14 +78,29 @@ class Callback
 		}
 
 		$handlerFound = false;
+		$appHoldExceptId = 0;
+		if (!empty($arguments[1]['REST_EVENT_HOLD_EXCEPT_APP']))
+		{
+			$app = AppTable::getByClientId($arguments[1]['REST_EVENT_HOLD_EXCEPT_APP']);
+			if ($app['ID'] > 0)
+			{
+				$appHoldExceptId = $app['ID'];
+			}
+		}
 
 		if(array_key_exists('EVENT_REST', $event))
 		{
+			$filter = [
+				'=EVENT_NAME' => mb_strtoupper($event['EVENT_REST']['EVENT']),
+			];
+			if ($appHoldExceptId > 0)
+			{
+				$filter['=APP_ID'] = $appHoldExceptId;
+			}
+
 			$dbRes = EventTable::getList(
 				[
-					'filter' => [
-						'=EVENT_NAME' => toUpper($event['EVENT_REST']['EVENT']),
-					],
+					'filter' => $filter,
 					'select' => [
 						'*',
 						'APP_CODE' => 'REST_APP.CLIENT_ID',

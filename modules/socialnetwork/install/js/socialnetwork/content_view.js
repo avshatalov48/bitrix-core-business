@@ -651,7 +651,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 			{
 				avatarNode = BX.create('IMG', {
 					attrs: {
-						src: data.items[i]['PHOTO_SRC'],
+						src: encodeURI(data.items[i]['PHOTO_SRC']),
 					},
 					props: {
 						className: 'bx-contentview-popup-avatar-img',

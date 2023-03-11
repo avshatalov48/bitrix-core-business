@@ -197,7 +197,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  button.setWaiting(true);
 
 	  if (top.BX.Bizproc.Debugger) {
-	    top.BX.Bizproc.Debugger.Manager.Instance.finishSession(babelHelpers.classPrivateFieldGet(this, _activeSession)).then(_classPrivateMethodGet(this, _onAfterFinishSession, _onAfterFinishSession2).bind(this), function (response) {
+	    top.BX.Bizproc.Debugger.Manager.Instance.askFinishSession(babelHelpers.classPrivateFieldGet(this, _activeSession)).then(_classPrivateMethodGet(this, _onAfterFinishSession, _onAfterFinishSession2).bind(this), function (response) {
 	      _classPrivateMethodGet(_this4, _reject, _reject2).call(_this4, response, function () {
 	        button.setDisabled(false);
 	        button.setWaiting(false);
@@ -235,13 +235,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  this.init();
 	}
 
-	function _reject2(response, onAfterCloseAlert) {
+	function _reject2(response, callback) {
 	  if (main_core.Type.isArrayFilled(response.errors)) {
 	    var message = '';
 	    response.errors.forEach(function (error) {
 	      message = message + '\n' + error.message;
 	    });
-	    ui_dialogs_messagebox.MessageBox.alert(message, onAfterCloseAlert);
+	    ui_dialogs_messagebox.MessageBox.alert(message, callback);
+	  } else if (main_core.Type.isFunction(callback)) {
+	    callback();
 	  }
 	}
 

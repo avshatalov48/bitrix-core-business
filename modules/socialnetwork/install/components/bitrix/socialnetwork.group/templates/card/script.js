@@ -375,7 +375,7 @@ this.BX = this.BX || {};
 
 	          if (main_core.Type.isStringFilled(response.data.imageSrc)) {
 	            boxNode.className += ' ui-icon ui-icon-common-user-group';
-	            avatarNode.style = "background: url('".concat(response.data.imageSrc, "') no-repeat center center; background-size: cover;");
+	            avatarNode.style = "background: url('".concat(encodeURI(response.data.imageSrc), "') no-repeat center center; background-size: cover;");
 	          } else {
 	            avatarNode.style = 'background: none;';
 	          }

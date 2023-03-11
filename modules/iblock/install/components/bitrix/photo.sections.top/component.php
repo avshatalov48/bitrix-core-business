@@ -1,5 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -14,89 +17,123 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-if(!isset($arParams["CACHE_TIME"]))
-	$arParams["CACHE_TIME"] = 36000000;
-
-$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-
-$arParams["SECTION_SORT_FIELD"]=trim($arParams["SECTION_SORT_FIELD"]);
-$arParams["SECTION_SORT_ORDER"] = mb_strtolower($arParams["SECTION_SORT_ORDER"]);
-if($arParams["SECTION_SORT_ORDER"]!="desc")
-	$arParams["SECTION_SORT_ORDER"]="asc";
-$arParams["SECTION_COUNT"] = intval($arParams["SECTION_COUNT"]);
-if($arParams["SECTION_COUNT"]<=0)
-	$arParams["SECTION_COUNT"]=20;
-
-$arParams["ELEMENT_COUNT"] = intval($arParams["ELEMENT_COUNT"]);
-if($arParams["ELEMENT_COUNT"]<=0)
-	$arParams["ELEMENT_COUNT"]=9;
-$arParams["LINE_ELEMENT_COUNT"] = intval($arParams["LINE_ELEMENT_COUNT"]);
-if($arParams["LINE_ELEMENT_COUNT"]<=0)
-	$arParams["LINE_ELEMENT_COUNT"]=3;
-$arParams["ELEMENT_SORT_FIELD"]=trim($arParams["ELEMENT_SORT_FIELD"]);
-if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	$arParams["ELEMENT_SORT_ORDER"]="asc";
-
-if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if (!isset($arParams["CACHE_TIME"]))
 {
-	$arrFilter = array();
+	$arParams["CACHE_TIME"] = 36000000;
 }
-else
+
+$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
+$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
+
+$arParams["SECTION_SORT_FIELD"] = trim($arParams["SECTION_SORT_FIELD"] ?? '');
+$arParams["SECTION_SORT_ORDER"] = mb_strtolower($arParams["SECTION_SORT_ORDER"] ?? '');
+if ($arParams["SECTION_SORT_ORDER"] !== "desc")
+{
+	$arParams["SECTION_SORT_ORDER"] = "asc";
+}
+$arParams["SECTION_COUNT"] = (int)($arParams["SECTION_COUNT"] ?? 0);
+if ($arParams["SECTION_COUNT"] <= 0)
+{
+	$arParams["SECTION_COUNT"] = 20;
+}
+
+$arParams["ELEMENT_COUNT"] = (int)($arParams["ELEMENT_COUNT"] ?? 0);
+if ($arParams["ELEMENT_COUNT"] <= 0)
+{
+	$arParams["ELEMENT_COUNT"] = 9;
+}
+$arParams["LINE_ELEMENT_COUNT"] = (int)($arParams["LINE_ELEMENT_COUNT"] ?? 0);
+if ($arParams["LINE_ELEMENT_COUNT"] <= 0)
+{
+	$arParams["LINE_ELEMENT_COUNT"] = 3;
+}
+$arParams["ELEMENT_SORT_FIELD"] = trim($arParams["ELEMENT_SORT_FIELD"] ?? '');
+if (
+	!isset($arParams["ELEMENT_SORT_ORDER"])
+	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"])
+)
+{
+	$arParams["ELEMENT_SORT_ORDER"] = "asc";
+}
+
+$arrFilter = [];
+if (!empty($arParams["FILTER_NAME"]) && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
 	global ${$arParams["FILTER_NAME"]};
-	$arrFilter = ${$arParams["FILTER_NAME"]};
-	if(!is_array($arrFilter))
-		$arrFilter = array();
+	$arrFilter = ${$arParams["FILTER_NAME"]} ?? [];
+	if (!is_array($arrFilter))
+	{
+		$arrFilter = [];
+	}
 }
 
-if(!is_array($arParams["FIELD_CODE"]))
-	$arParams["FIELD_CODE"] = array();
-foreach($arParams["FIELD_CODE"] as $key=>$val)
-	if($val==="")
+if (empty($arParams["FIELD_CODE"]) || !is_array($arParams["FIELD_CODE"]))
+{
+	$arParams["FIELD_CODE"] = [];
+}
+foreach ($arParams["FIELD_CODE"] as $key => $val)
+{
+	if ($val === "")
+	{
 		unset($arParams["FIELD_CODE"][$key]);
-if(!is_array($arParams["PROPERTY_CODE"]))
-	$arParams["PROPERTY_CODE"] = array();
-foreach($arParams["PROPERTY_CODE"] as $key=>$val)
-	if($val==="")
+	}
+}
+
+if (empty($arParams["PROPERTY_CODE"]) || !is_array($arParams["PROPERTY_CODE"]))
+{
+	$arParams["PROPERTY_CODE"] = [];
+}
+foreach ($arParams["PROPERTY_CODE"] as $key=>$val)
+{
+	if ($val === "")
+	{
 		unset($arParams["PROPERTY_CODE"][$key]);
+	}
+}
 
-$arParams["SECTION_URL"]=trim($arParams["SECTION_URL"]);
-$arParams["DETAIL_URL"]=trim($arParams["DETAIL_URL"]);
+$arParams["SECTION_URL"] = trim($arParams["SECTION_URL"] ?? '');
+$arParams["DETAIL_URL"] = trim($arParams["DETAIL_URL"] ?? '');
 
-$arParams["CACHE_FILTER"]=$arParams["CACHE_FILTER"]=="Y";
-if(!$arParams["CACHE_FILTER"] && count($arrFilter)>0)
+$arParams["CACHE_FILTER"] = ($arParams["CACHE_FILTER"] ?? '') === "Y";
+if (!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 //"hidden" parameter
-$arParams["USE_RATING"] = $arParams["USE_RATING"]=="Y";
+$arParams["USE_RATING"] = ($arParams["USE_RATING"] ?? '') === "Y";
 
-$arResult["SECTIONS"]=array();
+$arResult["SECTIONS"] = [];
 
-$arParams["USE_PERMISSIONS"] = $arParams["USE_PERMISSIONS"]=="Y";
-if(!is_array($arParams["GROUP_PERMISSIONS"]))
-	$arParams["GROUP_PERMISSIONS"] = array(1);
+$arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"] ?? '') === "Y";
+if (empty($arParams["GROUP_PERMISSIONS"]) || !is_array($arParams["GROUP_PERMISSIONS"]))
+{
+	$adminGroupId = 1;
+	$arParams["GROUP_PERMISSIONS"] = [$adminGroupId];
+}
 
 $bUSER_HAVE_ACCESS = !$arParams["USE_PERMISSIONS"];
-if($arParams["USE_PERMISSIONS"] && isset($USER) && is_object($USER))
+if ($arParams["USE_PERMISSIONS"] && isset($USER) && is_object($USER))
 {
 	$arUserGroupArray = $USER->GetUserGroupArray();
-	foreach($arParams["GROUP_PERMISSIONS"] as $PERM)
+	foreach ($arParams["GROUP_PERMISSIONS"] as $PERM)
 	{
-		if(in_array($PERM, $arUserGroupArray))
+		if (in_array($PERM, $arUserGroupArray))
 		{
 			$bUSER_HAVE_ACCESS = true;
+
 			break;
 		}
 	}
 }
 $arResult["USER_HAVE_ACCESS"] = $bUSER_HAVE_ACCESS;
-
-if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()), $bUSER_HAVE_ACCESS)))
+$arParams["CACHE_GROUPS"] ??= '';
+if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()), $bUSER_HAVE_ACCESS)))
 {
-	if(!CModule::IncludeModule("iblock"))
+	if (!CModule::IncludeModule("iblock"))
 	{
 		$this->AbortResultCache();
 		ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+
 		return;
 	}
 	//WHERE

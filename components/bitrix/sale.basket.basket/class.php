@@ -188,7 +188,15 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$params['PATH_TO_ORDER'] = '/personal/order/make/';
 		}
 
-		$params['PATH_TO_BASKET'] = trim((string)$params['PATH_TO_BASKET']);
+		if (isset($params['PATH_TO_BASKET']))
+		{
+			$params['PATH_TO_BASKET'] = trim((string)$params['PATH_TO_BASKET']);
+		}
+		else
+		{
+			$params['PATH_TO_BASKET'] = '';
+		}
+
 		if (empty($params['PATH_TO_BASKET']))
 		{
 			$params['PATH_TO_BASKET'] = '/personal/cart/';
@@ -201,7 +209,12 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$params['USE_PREPAYMENT'] = isset($params['USE_PREPAYMENT']) && $params['USE_PREPAYMENT'] === 'Y' ? 'Y' : 'N';
 		$params['AUTO_CALCULATION'] = isset($params['AUTO_CALCULATION']) && $params['AUTO_CALCULATION'] === 'N' ? 'N' : 'Y';
 
-		$params['WEIGHT_KOEF'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_koef', 1, $this->getSiteId()));
+		$params['WEIGHT_KOEF'] = (float)COption::GetOptionString('sale', 'weight_koef', 1, $this->getSiteId());
+		if ($params['WEIGHT_KOEF'] === 0.0)
+		{
+			$params['WEIGHT_KOEF'] = 1;
+		}
+
 		$params['WEIGHT_UNIT'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_unit', '', $this->getSiteId()));
 
 		// default columns
@@ -342,10 +355,27 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$params['LABEL_PROP_MOBILE'] = array_fill_keys($params['LABEL_PROP_MOBILE'], true);
 		}
 
-		$params['LABEL_PROP_POSITION'] = trim((string)$params['LABEL_PROP_POSITION']) ?: 'top-left';
+		if (isset($params['LABEL_PROP_POSITION']))
+		{
+			$params['LABEL_PROP_POSITION'] = trim((string)$params['LABEL_PROP_POSITION']);
+		}
+
+		if (empty($params['LABEL_PROP_POSITION']))
+		{
+			$params['LABEL_PROP_POSITION'] = 'top-left';
+		}
 
 		$params['SHOW_DISCOUNT_PERCENT'] = !isset($params['SHOW_DISCOUNT_PERCENT']) || $params['SHOW_DISCOUNT_PERCENT'] === 'Y' ? 'Y' : 'N';
-		$params['DISCOUNT_PERCENT_POSITION'] = trim((string)$params['DISCOUNT_PERCENT_POSITION']) ?: 'bottom-right';
+
+		if (isset($params['DISCOUNT_PERCENT_POSITION']))
+		{
+			$params['DISCOUNT_PERCENT_POSITION'] = trim((string)$params['DISCOUNT_PERCENT_POSITION']);
+		}
+
+		if (empty($params['LABEL_PROP_POSITION']))
+		{
+			$params['DISCOUNT_PERCENT_POSITION'] = 'bottom-right';
+		}
 
 		$params['BASKET_WITH_ORDER_INTEGRATION'] = isset($params['BASKET_WITH_ORDER_INTEGRATION']) && $params['BASKET_WITH_ORDER_INTEGRATION'] === 'Y' ? 'Y' : 'N';
 		$params['BASKET_MAX_COUNT_TO_SHOW'] = isset($params['BASKET_MAX_COUNT_TO_SHOW']) ? (int)$params['BASKET_MAX_COUNT_TO_SHOW'] : 5;
@@ -2881,13 +2911,13 @@ class CBitrixBasketComponent extends CBitrixComponent
 								continue;
 
 							$currentSkuPropValues[$propName] = [
-								'~CODE' => $property['~CODE'],
+								'~CODE' => $property['~CODE'] ?? $property['CODE'],
 								'CODE' => $property['CODE'],
 								'~NAME' => $property['~NAME'],
 								'NAME' => $property['NAME'],
 								'~VALUE' => $property['~VALUE'],
 								'VALUE' => $property['VALUE'],
-								'~SORT' => $property['~SORT'],
+								'~SORT' => $property['~SORT'] ?? $property['SORT'],
 								'SORT' => $property['SORT'],
 							];
 						}

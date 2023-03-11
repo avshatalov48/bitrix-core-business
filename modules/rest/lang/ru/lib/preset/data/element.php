@@ -55,7 +55,7 @@ $MESS['REST_INTEGRATION_PATTERNS_6_DESCRIPTION_SCOPE_DESCRIPTION'] = '<p>Для 
 
 $MESS['REST_INTEGRATION_PATTERNS_7_TITLE'] = 'Послать нотификацию';
 $MESS['REST_INTEGRATION_PATTERNS_7_DESCRIPTION'] = 'Пошлите нотификацию о важной информации или событии нужному сотруднику';
-$MESS['REST_INTEGRATION_PATTERNS_7_INCOMING_QUERY_INFORMATION_URL'] = 'https://dev.1c-bitrix.ru/rest_help/im/im_notify.php';
+$MESS['REST_INTEGRATION_PATTERNS_7_INCOMING_QUERY_INFORMATION_URL'] = 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=93&CHAPTER_ID=07693';
 $MESS['REST_INTEGRATION_PATTERNS_7_INCOMING_QUERY_TITLE'] = 'Параметры';
 $MESS['REST_INTEGRATION_PATTERNS_7_INCOMING_QUERY_ITEMS_VALUE_0'] = 'Текст нотификации';
 $MESS['REST_INTEGRATION_PATTERNS_7_DESCRIPTION_METHOD_DESCRIPTION'] = 'Отправляет нотификацию указанному сотруднику';

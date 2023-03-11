@@ -2,12 +2,11 @@
 
 require_once __DIR__.'/autoload.php';
 
-
 class CRestEventHandlers
 {
 	public static function OnBeforeProlog()
 	{
-		if($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+		if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
 		{
 			$p = COption::GetOptionString("rest", "server_path", "/rest")."/";
 			if(mb_substr(mb_strtolower($_SERVER['REQUEST_URI']), 0, mb_strlen($p)) === $p)
@@ -45,7 +44,7 @@ CJSCore::registerExt('applayout', array(
 		'REST_APPLICATION_VIEW_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementViewUrl(),
 		'REST_PLACEMENT_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementUrl()
 	),
-	'rel' => array('ajax', 'popup', 'sidepanel'),
+	'rel' => array('ui.design-tokens', 'ajax', 'popup', 'sidepanel'),
 ));
 
 CJSCore::registerExt('appplacement', array(

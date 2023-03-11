@@ -3,6 +3,7 @@ import {Dialog} from 'ui.entity-selector';
 import './component.css';
 import {StoreSelector} from 'catalog.store-selector';
 import 'ui.notification';
+import {SelectorErrorCode} from "./selector-error-code";
 
 export class StoreSearchInput
 {
@@ -194,6 +195,13 @@ export class StoreSearchInput
 
 	handleNameInput(event: UIEvent)
 	{
+		if (!Type.isStringFilled(event.target.value))
+		{
+			this.selector.onClear();
+
+			return;
+		}
+
 		this.searchInDialog(event.target.value);
 		this.handleIconsSwitchingOnNameInput(event);
 	}
@@ -330,6 +338,21 @@ export class StoreSearchInput
 				this.toggleIcon(this.getSearchIcon(), 'block');
 			}
 		}, 200);
+
+		if (this.selector.isDisabledEmpty())
+		{
+			setTimeout(() => {
+				if (this.selector.getStoreId() === '')
+				{
+					this.selector.setEmptyError();
+				}
+				else
+				{
+					this.selector.clearErrorLayout();
+					this.selector.clearEmptyError();
+				}
+			}, 200);
+		}
 	}
 
 	handleSearchIconClick(event: UIEvent)

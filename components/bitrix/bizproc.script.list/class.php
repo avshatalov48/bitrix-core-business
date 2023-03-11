@@ -25,7 +25,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 	{
 		global $APPLICATION;
 
-		if (!Main\Loader::includeModule('bizproc'))
+		if (!Main\Loader::includeModule('bizproc') || !is_array($this->arParams['DOCUMENT_TYPE']))
 		{
 			return false;
 		}

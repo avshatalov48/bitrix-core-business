@@ -70,7 +70,7 @@ abstract class BaseRefreshStrategy
 		{
 			$providerName = $basketItem->getProviderName();
 
-			if (strval(trim($providerName)) == '')
+			if (trim((string)$providerName) === '')
 			{
 				$callbackFunction = $basketItem->getCallbackFunction();
 				if (!empty($callbackFunction))
@@ -308,11 +308,15 @@ abstract class BaseRefreshStrategy
 			$reserveQuantityList = $pool->getQuantities(PoolQuantity::POOL_RESERVE_TYPE);
 			$quantityList = $pool->getQuantities(PoolQuantity::POOL_QUANTITY_TYPE);
 
-			if ($quantityList[$productId])
+			if (isset($quantityList[$productId]))
+			{
 				$poolQuantity += $quantityList[$productId];
+			}
 
-			if ($reserveQuantityList[$productId])
+			if (isset($reserveQuantityList[$productId]))
+			{
 				$poolQuantity += $reserveQuantityList[$productId];
+			}
 
 			if ($poolQuantity < 0)
 			{

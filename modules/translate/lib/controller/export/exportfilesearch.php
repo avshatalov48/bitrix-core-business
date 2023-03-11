@@ -123,7 +123,6 @@ class ExportFileSearch
 			'filter' => $pathFilter,
 			'order' => ['PATH_ID' => 'ASC'],
 			'select' => $select,
-			//todo: add limit here
 		));
 
 		$processedItemCount = 0;

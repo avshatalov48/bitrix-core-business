@@ -9,6 +9,7 @@ Loc::loadMessages(__FILE__);
 class OrderBasketSettings
 {
 	protected $idPrefix = "";
+	protected $settingsDlgObjectName = '';
 	protected $allColumns = array();
 	protected $visibleColumns = array();
 	protected $isShowPropsRawVisible = false;
@@ -108,7 +109,7 @@ class OrderBasketSettings
 										<div style="margin-bottom:5px"><input type="button" name="down_btn" value="'.Loc::getMessage("SALE_ORDER_BASKET_SETTINGS_DOWN").'" title="'.Loc::getMessage("SALE_ORDER_BASKET_SETTINGS_MOVE_DOWN").'" class="bx-grid-btn" style="width:60px;" disabled onclick="jsSelectUtils.moveOptionsDown(this.form.columns)"></div>
 									</td>
 								</tr>
-								' . ($this->isShowPropsRawVisible ? $this->getShowPropsRowHtml() : '') . '								
+								' . ($this->isShowPropsRawVisible ? $this->getShowPropsRowHtml() : '') . '
 							</table>
 						</td>
 					</tr>

@@ -8,6 +8,7 @@ export class BarcodeSearchSelectorFooter extends ProductSearchSelectorFooter
 	{
 		super(id, options);
 		this.isEmptyBarcode = options.isEmptyBarcode;
+		this.getDialog().subscribe('SearchTab:onLoad', this.handleOnSearchLoad.bind(this));
 	}
 
 	getContent(): HTMLElement
@@ -102,5 +103,16 @@ export class BarcodeSearchSelectorFooter extends ProductSearchSelectorFooter
 
 		this.getQueryContainer().textContent = " " + query;
 		this.getScannerQueryContainer().textContent = " " + query;
+	}
+
+	handleOnSearchLoad(event: BaseEvent): void
+	{
+		const {searchTab} = event.getData();
+		this.getDialog().getItems().forEach(item => {
+			if (item.getCustomData().get('BARCODE') === searchTab.getLastSearchQuery().getQuery())
+			{
+				this.hide();
+			}
+		});
 	}
 }

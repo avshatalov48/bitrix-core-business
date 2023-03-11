@@ -38,7 +38,7 @@ class Statistic extends Base
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation = null): Page
 	{
 		return new Page('STATISTIC',
 			$this->getList($select, $filter, $order, $pageNavigation),

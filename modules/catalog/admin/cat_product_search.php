@@ -37,7 +37,7 @@ $oSort = new CAdminSorting($sTableID, "ID", "asc");
 
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-$IBLOCK_ID = intval($IBLOCK_ID);
+$IBLOCK_ID = (int)($IBLOCK_ID ?? 0);
 
 $dbIBlock = CIBlock::GetByID($IBLOCK_ID);
 if (!($arIBlock = $dbIBlock->Fetch()))
@@ -96,8 +96,7 @@ if (!$bBadBlock)
 		array($by => $order),
 		$arFilter,
 		false,
-		array("nPageSize" => 20),
-		${"filter_count_for_show"}
+		array("nPageSize" => 20)
 	);
 
 	$dbResultList = new CAdminResult($dbResultList, $sTableID);
@@ -147,12 +146,12 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(GetMessage("SPS_SEARCH_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 
-$func_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['func_name']);
-$form_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['form_name']);
-$field_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name']);
-$field_name_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name_name']);
-$field_name_url = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name_url']);
-$alt_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['alt_name']);
+$func_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['func_name'] ?? '');
+$form_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['form_name'] ?? '');
+$field_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name'] ?? '');
+$field_name_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name_name'] ?? '');
+$field_name_url = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['field_name_url'] ?? '');
+$alt_name = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST['alt_name'] ?? '');
 ?>
 
 <script type="text/javascript">

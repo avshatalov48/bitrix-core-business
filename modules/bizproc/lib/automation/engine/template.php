@@ -22,7 +22,9 @@ class Template
 {
 	protected static $parallelActivityType = 'ParallelActivity';
 	protected static $sequenceActivityType = 'SequenceActivity';
+	/** @deprecated @var string $delayActivityType  */
 	protected static $delayActivityType = 'DelayActivity';
+	protected static $robotDelayActivityType = 'RobotDelayActivity';
 	protected static $conditionActivityType = 'IfElseActivity';
 	protected static $availableActivities = [];
 	protected static $availableActivityClasses = [];
@@ -212,7 +214,10 @@ class Template
 		{
 			foreach ($robotErrors as $i => $error)
 			{
-				$saveResult->addError(new Error($error['message'], $error['code'], ['parameter' => $error['parameter']]));
+				$errorMessage = $error['message'] ?? null;
+				$errorCode = $error['code'] ?? null;
+				$errorParameter = $error['parameter'] ?? null;
+				$saveResult->addError(new Error($errorMessage, $errorCode, ['parameter' => $errorParameter]));
 			}
 		}
 
@@ -294,7 +299,7 @@ class Template
 			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS'],
 			'PARAMETERS' => $this->template['PARAMETERS'],
 			'CONSTANTS' => $this->template['CONSTANTS'],
-			'VARIABLES' => $this->template['VARIABLES'] ,
+			'VARIABLES' => $this->template['VARIABLES'] ?? [],
 		];
 
 		$result['IS_EXTERNAL_MODIFIED'] = $this->isExternalModified();
@@ -562,7 +567,9 @@ class Template
 			$robotsCnt = 0;
 			foreach ($sequence['Children'] as $activity)
 			{
-				if ($activity['Type'] === static::$delayActivityType)
+				if (
+					$activity['Type'] === static::$delayActivityType
+					|| $activity['Type'] === static::$robotDelayActivityType)
 				{
 					$delay = $activity;
 					continue;
@@ -882,10 +889,12 @@ class Template
 	private function createDelayActivity(array $delayProperties, $delayName)
 	{
 		if (!isset($delayProperties['Title']))
-			$delayProperties['Title'] = Loc::getMessage('BIZPROC_AUTOMATION_DELAY_ACTIVITY');
+		{
+			$delayProperties['Title'] = Loc::getMessage('BIZPROC_AUTOMATION_ROBOT_DELAY_ACTIVITY');
+		}
 
 		return array(
-			'Type' => static::$delayActivityType,
+			'Type' => static::$robotDelayActivityType,
 			'Name' => $delayName,
 			'Properties' => $delayProperties,
 			'Children' => [],

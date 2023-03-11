@@ -63,11 +63,6 @@ class Internalizer extends ModificationFieldsBase
 		$controller = $this->getController();
 		$entity = $this->getEntity($controller);
 
-		LoggerDiag::addMessage('INTERNALIZER_RESOLVE_PARAMS_CAMEL2SNAKE_FIELDS_BEFORE', var_export([
-			'name'=>$name,
-			'fields'=>$arguments['fields']
-		], true));
-
 		if ($name == 'list')
 		{
 			if(isset($arguments['select']))
@@ -113,11 +108,6 @@ class Internalizer extends ModificationFieldsBase
 			$arguments = $entity->convertKeysToSnakeCaseArguments($name, $arguments);
 		}
 
-		LoggerDiag::addMessage('INTERNALIZER_RESOLVE_PARAMS_CAMEL2SNAKE_FIELDS_AFTER', var_export([
-			'name'=>$name,
-			'fields'=>$arguments['fields']
-		], true));
-
 		return $arguments;
 	}
 
@@ -127,11 +117,6 @@ class Internalizer extends ModificationFieldsBase
 		/** @var Controller $controller */
 		$controller = $this->getController();
 		$entity = $this->getEntity($controller);
-
-		LoggerDiag::addMessage('INTERNALIZER_RESOLVE_PARAMS_PREPARE_FIELDS_BEFORE', var_export([
-			'name'=>$name,
-			'fields'=>$arguments['fields']
-		], true));
 
 		if($name == 'add')
 		{
@@ -194,11 +179,6 @@ class Internalizer extends ModificationFieldsBase
 		{
 			$arguments = $entity->internalizeArguments($name, $arguments);
 		}
-
-		LoggerDiag::addMessage('INTERNALIZER_RESOLVE_PARAMS_PREPARE_FIELDS_AFTER', var_export([
-			'name'=>$name,
-			'fields'=>$arguments['fields']
-		], true));
 
 		return $arguments;
 	}

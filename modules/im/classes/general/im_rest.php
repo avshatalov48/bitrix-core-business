@@ -848,16 +848,19 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
+		$skipChatParam = $arParams['SKIP_CHAT'] ?? null;
+		$skipDialogParam = $arParams['SKIP_DIALOG'] ?? null;
+
 		$config = Array('JSON' => 'Y');
 		if ($arParams['SKIP_OPENLINES'] === 'Y')
 		{
 			$config['SKIP_OPENLINES'] = 'Y';
 		}
-		if ($arParams['SKIP_CHAT'] === 'Y')
+		if ($skipChatParam === 'Y')
 		{
 			$config['SKIP_CHAT'] = 'Y';
 		}
-		if ($arParams['SKIP_DIALOG'] === 'Y')
+		if ($skipDialogParam === 'Y')
 		{
 			$config['SKIP_DIALOG'] = 'Y';
 		}
@@ -2660,13 +2663,15 @@ class CIMRestService extends IRestService
 		{
 			$CIMNotify = new CIMNotify();
 
+			$onlyCurrent = $arParams['ONLY_CURRENT'] ?? null;
+			$readAllFromId = $onlyCurrent !== 'Y';
 			if ($arParams['ACTION'] === 'Y')
 			{
-				$CIMNotify->MarkNotifyRead($arParams['ID'], $arParams['ONLY_CURRENT'] != 'Y');
+				$CIMNotify->MarkNotifyRead($arParams['ID'], $readAllFromId);
 			}
 			else
 			{
-				$CIMNotify->MarkNotifyUnRead($arParams['ID'], $arParams['ONLY_CURRENT'] != 'Y');
+				$CIMNotify->MarkNotifyUnRead($arParams['ID'], $readAllFromId);
 			}
 		}
 
@@ -2785,7 +2790,11 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if (!$arParams['SEARCH_TYPE'] && !$arParams['SEARCH_DATE'] && mb_strlen(trim($arParams['SEARCH_TEXT'])) < 3)
+		if (
+			!isset($arParams['SEARCH_TYPE'])
+			&& !isset($arParams['SEARCH_DATE'])
+			&& mb_strlen(trim($arParams['SEARCH_TEXT'])) < 3
+		)
 		{
 			throw new Bitrix\Rest\RestException("SEARCH_TEXT can't be less then 3 symbols", "SEARCH_TEXT_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
@@ -3116,12 +3125,15 @@ class CIMRestService extends IRestService
 	{
 		$counters = \Bitrix\Im\Counter::get();
 
-		if ($arParams['ONLY_COUNTER'])
+		$onlyCounterParam = $arParams['ONLY_COUNTER'] ?? null;
+		$jsonParam = $arParams['JSON'] ?? null;
+
+		if ($onlyCounterParam)
 		{
 			$counters = $counters['TYPE'];
 		}
 
-		if ($arParams['JSON'] === 'Y')
+		if ($jsonParam === 'Y')
 		{
 			$counters = \Bitrix\Im\Common::toJson($counters);
 		}

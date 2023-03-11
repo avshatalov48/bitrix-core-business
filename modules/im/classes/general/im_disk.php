@@ -500,13 +500,13 @@ class CIMDisk
 			}
 		}
 
-		$skipUserCheck = $options['SKIP_USER_CHECK'] === true;
-		$linesSilentMode = $options['LINES_SILENT_MODE'] === true;
-		$makeSymlink = $options['SYMLINK'] === true;
-		$templateId = $options['TEMPLATE_ID'] <> ''? $options['TEMPLATE_ID']: '';
-		$fileTemplateId = $options['FILE_TEMPLATE_ID'] <> ''? $options['FILE_TEMPLATE_ID']: '';
-		$attach = isset($options['ATTACH'])? $options['ATTACH']: null;
-		$params = isset($options['PARAMS']) && is_array($options['PARAMS'])? $options['PARAMS']: null;
+		$skipUserCheck = isset($options['SKIP_USER_CHECK']) && $options['SKIP_USER_CHECK'] === true;
+		$linesSilentMode = isset($options['LINES_SILENT_MODE']) && $options['LINES_SILENT_MODE'] === true;
+		$makeSymlink = isset($options['SYMLINK']) && $options['SYMLINK'] === true;
+		$templateId = isset($options['TEMPLATE_ID']) && $options['TEMPLATE_ID'] <> '' ? $options['TEMPLATE_ID'] : '';
+		$fileTemplateId = isset($options['FILE_TEMPLATE_ID']) && $options['FILE_TEMPLATE_ID'] <> '' ? $options['FILE_TEMPLATE_ID'] : '';
+		$attach = $options['ATTACH'] ?? null;
+		$params = isset($options['PARAMS']) && is_array($options['PARAMS']) ? $options['PARAMS'] : null;
 
 		$chatRelation = \CIMChat::GetRelationById($chatId);
 
@@ -1556,18 +1556,22 @@ class CIMDisk
 		{
 			$contentType = 'image';
 			$params = $fileModel->getFile();
+			$width = isset($params['WIDTH']) ? (int)$params['WIDTH'] : 0;
+			$height = isset($params['HEIGHT']) ? (int)$params['HEIGHT'] : 0;
 			$imageParams = Array(
-				'width' => (int)$params['WIDTH'],
-				'height' => (int)$params['HEIGHT'],
+				'width' => $width,
+				'height' => $height,
 			);
 		}
 		else if (\Bitrix\Disk\TypeFile::isVideo($fileModel->getName()))
 		{
 			$contentType = 'video';
 			$params = $fileModel->getView()->getPreviewData();
+			$width = isset($params['WIDTH']) ? (int)$params['WIDTH'] : 0;
+			$height = isset($params['HEIGHT']) ? (int)$params['HEIGHT'] : 0;
 			$imageParams = Array(
-				'width' => (int)$params['WIDTH'],
-				'height' => (int)$params['HEIGHT'],
+				'width' => $width,
+				'height' => $height,
 			);
 		}
 		else if (\Bitrix\Disk\TypeFile::isAudio($fileModel->getName()))

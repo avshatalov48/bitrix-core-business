@@ -20,7 +20,7 @@ final class StoreProduct extends Controller
 		return [self::ITEM => $this->getViewFields()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
 		$accessFilter = $this->accessController->getEntityFilter(
 			ActionDictionary::ACTION_STORE_VIEW,
@@ -34,7 +34,8 @@ final class StoreProduct extends Controller
 			];
 		}
 
-		return new Page(self::LIST,
+		return new Page(
+			self::LIST,
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

@@ -132,7 +132,7 @@ abstract class CListField
 		$arField = $this->_read_from_cache($this->_field_id);
 		if($arField)
 		{
-			$res = unserialize($arField["SETTINGS"]);
+			$res = unserialize($arField["SETTINGS"], ['allowed_classes' => false]);
 			if(is_array($res))
 				return $res;
 		}
@@ -265,7 +265,7 @@ class CListElementField extends CListField
 			"NAME" => $this->_label,
 			"IS_REQUIRED" => $this->_iblock_field["IS_REQUIRED"],
 			"MULTIPLE" => "N",
-			"DEFAULT_VALUE" => $this->_iblock_field["DEFAULT_VALUE"],
+			"DEFAULT_VALUE" => $this->_iblock_field["DEFAULT_VALUE"] ?? null,
 			"TYPE" => $this->GetTypeID(),
 			"PROPERTY_TYPE" => false,
 			"PROPERTY_USER_TYPE" => false,

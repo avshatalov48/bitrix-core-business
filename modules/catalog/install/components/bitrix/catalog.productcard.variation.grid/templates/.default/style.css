@@ -513,6 +513,11 @@
 	cursor: pointer;
 }
 
+.main-grid-cell-content-catalog-quantity-inventory-management.text--danger {
+	color: var(--ui-color-palette-red-70, #e92f2a);
+	border-bottom: 1px dashed var(--ui-color-palette-red-70, #e92f2a);
+}
+
 .main-grid-cell-content-catalog-quantity-inventory-management:hover,
 .main-grid-cell-content-catalog-reserved-quantity:hover {
 	text-decoration: none !important;

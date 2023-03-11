@@ -25,7 +25,10 @@ $messages = Loc::loadLanguageFile(__FILE__);
 ]);
 
 CJSCore::Init(array('marketplace'));
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'catalog-warehouse-master-clear');
+$APPLICATION->SetPageProperty(
+	'BodyClass',
+	$APPLICATION->GetPageProperty('BodyClass') . ' catalog-warehouse-master-clear'
+);
 ?>
 
 <div class="catalog-warehouse__master-clear--content">

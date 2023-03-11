@@ -60,27 +60,30 @@ if (empty($arError))
 			"text" => GetMessage("BPATT_NO_PERMS"));
 	}
 }
+$requestAction = $_REQUEST['action'] ?? null;
+$requestId = $_REQUEST['ID'] ?? 0;
+
 if (!empty($arError))
 {
 	$e = new CAdminException($arError);
 	ShowError($e->GetString());
 	return false;
 }
-elseif (!empty($_REQUEST['action']) && !check_bitrix_sessid())
+elseif (!empty($requestAction) && !check_bitrix_sessid())
 {
 }
-elseif ($_REQUEST['action'] == 'create_default')
+elseif ($requestAction == 'create_default')
 {
 	CBPDocument::AddDefaultWorkflowTemplates($documentType);
 	LocalRedirect($APPLICATION->GetCurPageParam("", array("action", "sessid")));
 }
-elseif ($_REQUEST['ID'] <= 0)
+elseif ($requestId <= 0)
 {
 }
-elseif ($_REQUEST['action'] == 'delete')
+elseif ($requestAction == 'delete')
 {
 	$arErrorsTmp = array();
-	CBPDocument::DeleteWorkflowTemplate($_REQUEST['ID'], $documentType, $arErrorsTmp);
+	CBPDocument::DeleteWorkflowTemplate($requestId, $documentType, $arErrorsTmp);
 	if (empty($arErrorsTmp))
 	{	
 		$url = (!empty($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : $APPLICATION->GetCurPageParam("", ["action", "sessid", "ID", 'bxajaxid']));
@@ -96,7 +99,7 @@ elseif ($_REQUEST['action'] == 'delete')
 		ShowError($e->GetString());
 	}
 }
-elseif (mb_strpos($_REQUEST['action'], "autoload_") !== false)
+elseif (mb_strpos($requestAction, "autoload_") !== false)
 {
 	$db_res = CBPWorkflowTemplateLoader::GetList(
 		array('ID' => 'DESC'),
@@ -108,16 +111,16 @@ elseif (mb_strpos($_REQUEST['action'], "autoload_") !== false)
 	{
 		$arFields = array("AUTO_EXECUTE" => $res["AUTO_EXECUTE"]);
 		$tmp = false; 
-		if (mb_strpos($_REQUEST['action'], "create") !== false)
+		if (mb_strpos($requestAction, "create") !== false)
 			$tmp = CBPDocumentEventType::Create;
-		elseif (mb_strpos($_REQUEST['action'], "edit") !== false)
+		elseif (mb_strpos($requestAction, "edit") !== false)
 			$tmp = CBPDocumentEventType::Edit;
-		elseif (mb_strpos($_REQUEST['action'], "delete") !== false)
+		elseif (mb_strpos($requestAction, "delete") !== false)
 			$tmp = CBPDocumentEventType::Delete;
 
 		if ($tmp != false)
 		{
-			if (mb_strpos($_REQUEST['action'], "_n") !== false)
+			if (mb_strpos($requestAction, "_n") !== false)
 				$arFields["AUTO_EXECUTE"] = ((($arFields["AUTO_EXECUTE"] & $tmp) != 0) ? $arFields["AUTO_EXECUTE"] ^ $tmp : $arFields["AUTO_EXECUTE"]);
 			else 
 				$arFields["AUTO_EXECUTE"] = ((($arFields["AUTO_EXECUTE"] & $tmp) == 0) ? $arFields["AUTO_EXECUTE"] ^ $tmp : $arFields["AUTO_EXECUTE"]);
@@ -164,7 +167,7 @@ if ($db_res)
 	$arResult["NAV_STRING"] = $db_res->GetPageNavStringEx($navComponentObject, GetMessage("BPATT_NAV"), "");
 
 	$adminPage = $APPLICATION->GetCurPageParam(
-		'back_url='.urlencode($back_url).'&action=delete&'.bitrix_sessid_get(),
+		'back_url='.urlencode($back_url ?? '').'&action=delete&'.bitrix_sessid_get(),
 		array('back_url', 'action', 'ID', 'sessid'));
 
 	while ($res = $db_res->GetNext())
@@ -277,4 +280,3 @@ if($arParams["SET_TITLE"] == "Y")
 /********************************************************************
 				/Standart operations
 ********************************************************************/
-?>

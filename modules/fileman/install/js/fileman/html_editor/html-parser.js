@@ -3743,6 +3743,7 @@
 			isTableTag = BX.util.in_array(nodeName, this.editor.TABLE_TAGS);
 			isAlign = this.parseAlign && (oNode.node.style.textAlign || oNode.node.align) && !isTableTag;
 
+			const bodyFontFamily = 'var(--ui-font-family-primary, var(--ui-font-family-helvetica))';
 			if(nodeName == 'STRONG' || nodeName == 'B')
 			{
 				oNode.bbTag = 'B';
@@ -3798,7 +3799,7 @@
 				}
 			}
 			// Font family
-			else if(oNode.node.style.fontFamily && !isTableTag)
+			else if(oNode.node.style.fontFamily && oNode.node.style.fontFamily !== bodyFontFamily && !isTableTag)
 			{
 				oNode.bbTag = 'FONT';
 				oNode.bbValue = oNode.node.style.fontFamily;

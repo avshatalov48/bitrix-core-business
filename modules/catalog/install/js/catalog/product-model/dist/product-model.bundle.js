@@ -264,20 +264,35 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(RightActionDictionary, "ACTION_PRODUCT_EDIT", 'catalog_product_edit');
 	babelHelpers.defineProperty(RightActionDictionary, "ACTION_PRODUCT_ADD", 'catalog_product_add');
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
 
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
 	var _map = /*#__PURE__*/new WeakMap();
+
+	var _inited = /*#__PURE__*/new WeakMap();
+
+	var _setInited = /*#__PURE__*/new WeakSet();
 
 	var StoreCollection = /*#__PURE__*/function () {
 	  function StoreCollection() {
 	    var model = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, StoreCollection);
 
+	    _classPrivateMethodInitSpec(this, _setInited);
+
 	    _classPrivateFieldInitSpec$1(this, _map, {
 	      writable: true,
 	      value: new Map()
+	    });
+
+	    _classPrivateFieldInitSpec$1(this, _inited, {
+	      writable: true,
+	      value: false
 	    });
 
 	    this.model = model;
@@ -287,6 +302,8 @@ this.BX = this.BX || {};
 	    key: "init",
 	    value: function init(map) {
 	      var _this = this;
+
+	      _classPrivateMethodGet(this, _setInited, _setInited2).call(this, true);
 
 	      Object.keys(map).forEach(function (key) {
 	        var item = map[key];
@@ -314,6 +331,8 @@ this.BX = this.BX || {};
 	            productId: this.model.getSkuId()
 	          }
 	        }).then(function (response) {
+	          _classPrivateMethodGet(_this2, _setInited, _setInited2).call(_this2, true);
+
 	          response.data.forEach(function (item) {
 	            if (!main_core.Type.isNil(item['STORE_ID'])) {
 	              babelHelpers.classPrivateFieldGet(_this2, _map).set(main_core.Text.toNumber(item['STORE_ID']), {
@@ -363,24 +382,36 @@ this.BX = this.BX || {};
 	      return result;
 	    }
 	  }, {
+	    key: "isInited",
+	    value: function isInited() {
+	      return babelHelpers.classPrivateFieldGet(this, _inited);
+	    }
+	  }, {
 	    key: "clear",
 	    value: function clear() {
 	      babelHelpers.classPrivateFieldGet(this, _map).clear();
+
+	      _classPrivateMethodGet(this, _setInited, _setInited2).call(this, false);
+
 	      return this;
 	    }
 	  }]);
 	  return StoreCollection;
 	}();
 
+	function _setInited2(inited) {
+	  babelHelpers.classPrivateFieldSet(this, _inited, inited);
+	}
+
 	var _templateObject;
 
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
 
 	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
 
 	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var instances = new Map();
 
 	var _fieldCollection = /*#__PURE__*/new WeakMap();
@@ -417,11 +448,11 @@ this.BX = this.BX || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ProductModel);
 
-	    _classPrivateMethodInitSpec(this, _createProduct);
+	    _classPrivateMethodInitSpec$1(this, _createProduct);
 
-	    _classPrivateMethodInitSpec(this, _updateProduct);
+	    _classPrivateMethodInitSpec$1(this, _updateProduct);
 
-	    _classPrivateMethodInitSpec(this, _getDefaultCalculationFields);
+	    _classPrivateMethodInitSpec$1(this, _getDefaultCalculationFields);
 
 	    _classPrivateFieldInitSpec$2(this, _fieldCollection, {
 	      writable: true,
@@ -488,7 +519,7 @@ this.BX = this.BX || {};
 
 	    if (main_core.Type.isObject(options.imageInfo)) ;
 
-	    babelHelpers.classPrivateFieldSet(this, _calculator, new catalog_productCalculator.ProductCalculator(_classPrivateMethodGet(this, _getDefaultCalculationFields, _getDefaultCalculationFields2).call(this), {
+	    babelHelpers.classPrivateFieldSet(this, _calculator, new catalog_productCalculator.ProductCalculator(_classPrivateMethodGet$1(this, _getDefaultCalculationFields, _getDefaultCalculationFields2).call(this), {
 	      currencyId: this.options.currency,
 	      pricePrecision: this.options.pricePrecision || 2,
 	      commonPrecision: this.options.pricePrecision || 2
@@ -756,9 +787,9 @@ this.BX = this.BX || {};
 	        var ajaxResult;
 
 	        if (_this2.isSimple()) {
-	          ajaxResult = _classPrivateMethodGet(_this2, _createProduct, _createProduct2).call(_this2);
+	          ajaxResult = _classPrivateMethodGet$1(_this2, _createProduct, _createProduct2).call(_this2);
 	        } else {
-	          ajaxResult = _classPrivateMethodGet(_this2, _updateProduct, _updateProduct2).call(_this2, savingFieldNames);
+	          ajaxResult = _classPrivateMethodGet$1(_this2, _updateProduct, _updateProduct2).call(_this2, savingFieldNames);
 	        }
 
 	        ajaxResult.then(function (event) {

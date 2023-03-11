@@ -426,7 +426,7 @@ class Element extends Base
 								'value' => 'SYSTEM',
 							],
 						],
-						'QUERY_INFORMATION_URL' => 'https://dev.1c-bitrix.ru/rest_help/im/im_notify.php',
+						'QUERY_INFORMATION_URL' => 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=93&CHAPTER_ID=07693',
 					],
 				],
 				'OUTGOING_NEEDED' => 'D',

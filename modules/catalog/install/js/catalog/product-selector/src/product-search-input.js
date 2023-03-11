@@ -413,6 +413,11 @@ export class ProductSearchInput
 
 	handleClearIconClick(event: UIEvent)
 	{
+		this.selector.emit('onBeforeClear', {
+			selectorId: this.selector.getId(),
+			rowId: this.selector.getRowId()
+		});
+
 		this.loadedSelectedItem = null;
 		if (this.selector.isProductSearchEnabled() && !this.model.isEmpty())
 		{
@@ -710,7 +715,7 @@ export class ProductSearchInput
 		this.setInputValueOnProductSelect(item);
 
 		this.toggleIcon(this.getSearchIcon(), 'none');
-		this.model.getErrorCollection().clearErrors();
+		this.clearErrors();
 		if (this.selector)
 		{
 			const isNew = item.getCustomData().get('isNew');
@@ -738,6 +743,18 @@ export class ProductSearchInput
 		this.dialogMode = DialogMode.SHOW_PRODUCT_ITEM;
 		this.loadedSelectedItem = item;
 		this.cache.delete('dialog');
+	}
+
+	clearErrors()
+	{
+		const errors = this.model.getErrorCollection().getErrors();
+		for (const code in errors)
+		{
+			if (ProductSelector.ErrorCodes.getCodes().includes(code))
+			{
+				this.model.getErrorCollection().removeError(code);
+			}
+		}
 	}
 
 	createProductModelFromSearchQuery(searchQuery: string): ProductModel

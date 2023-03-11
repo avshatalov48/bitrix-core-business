@@ -53,6 +53,7 @@
 	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 	vertical-align: top;
+	word-break: break-all;
 }
 
 .bp-task-page .bp-title-desc {
@@ -64,6 +65,7 @@
 	padding-left: 45px;
 	min-height: 34px;
 	margin: 15px 0 5px;
+	word-break: break-all;
 }
 
 .bp-task-page .bp-title-desc .bold {
@@ -263,7 +265,7 @@
 }
 
 .bizproc-task-table td:first-child {
-	padding: 0 5px 0 0;
+	padding: 7px 5px 7px 0;
 	font-weight: var(--ui-font-weight-bold);
 	text-align: left;
 }

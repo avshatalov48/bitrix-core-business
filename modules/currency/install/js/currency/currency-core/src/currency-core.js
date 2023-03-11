@@ -126,6 +126,19 @@ export class CurrencyCore
 		return result;
 	}
 
+	static getPriceControl(control: Element, currency: string)
+	{
+		let result = '';
+
+		const format = this.getCurrencyFormat(currency);
+		if (Type.isObject(format))
+		{
+			result = format.FORMAT_STRING.replace(/(^|[^&])#/, '$1' + control.outerHTML);
+		}
+
+		return result;
+	}
+
 	static loadCurrencyFormat(currency)
 	{
 		return new Promise((resolve, reject) => {

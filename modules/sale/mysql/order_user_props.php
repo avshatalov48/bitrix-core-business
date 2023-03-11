@@ -82,7 +82,7 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
+		if (!empty($arNavStartParams) && is_array($arNavStartParams) && (int)($arNavStartParams["nTopCount"] ?? 0) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
@@ -116,8 +116,10 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
+			if (!empty($arNavStartParams) && is_array($arNavStartParams) && (int)($arNavStartParams["nTopCount"] ?? 0) > 0)
+			{
+				$strSql .= "LIMIT " . (int)($arNavStartParams["nTopCount"] ?? 0);
+			}
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 

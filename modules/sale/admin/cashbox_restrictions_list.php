@@ -25,7 +25,7 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Restrictions
 
 	$id = (int)$_GET['ID'];
 	$tableId = 'table_cashbox_restrictions';
-	$oSort = new \CAdminSorting($tableId);
+	$oSort = new \CAdminSubSorting($tableId);
 	$lAdmin = new \CAdminSubList($tableId, $oSort, '/bitrix/admin/sale_cashbox_restriction_list.php?ID='.$id);
 
 	$restrictionClassNames = Manager::getClassesList();
@@ -156,8 +156,10 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Restrictions
 		$lAdmin->AddAdminContextMenu($aContext, false);
 	}
 
-	if($_REQUEST['table_id'] == $tableId)
+	if (isset($_REQUEST['table_id']) && $_REQUEST['table_id'] === $tableId)
+	{
 		$lAdmin->CheckListMode();
+	}
 
 	$lAdmin->DisplayList();
 }

@@ -18,6 +18,8 @@ $bVarsFromForm = false;
 
 ClearVars();
 
+$ID = (int)($ID ?? 0);
+
 if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
@@ -62,8 +64,21 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" &&
 }
 
 if ($bVarsFromForm)
+{
 	$DB->InitTableVarsForEdit("b_sale_user_transact", "", "str_");
+}
+else
+{
+	$columns = $DB->GetTableFieldsList("b_sale_user_transact");
+	foreach ($columns as $column)
+	{
+		${"str_{$column}"} ??= null;
+	}
 
+	$str_USER_LOGIN ??= null;
+	$str_USER_NAME ??= null;
+	$str_USER_LAST_NAME ??= null;
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
@@ -114,7 +129,7 @@ $tabControl->BeginNextTab();
 			if ($ID > 0)
 			{
 				$urlToUser = $selfFolderUrl."user_edit.php?ID=".$str_USER_ID."&lang=".LANGUAGE_ID;
-				if ($publicMode)
+				if (!empty($publicMode))
 				{
 					$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$str_USER_ID."&lang=".LANGUAGE_ID;
 					$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);

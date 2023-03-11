@@ -1,7 +1,13 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+/**
+ * @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog
+ * @var array $documentFields
+ * @var array $listsDocumentType
+ * @var \CBPDocumentService $documentService
+ * @var string $formName
+ */
 $docType = $dialog->getMap()['DocumentType'];
 ?>
 
@@ -49,30 +55,30 @@ $docType = $dialog->getMap()['DocumentType'];
 						return;
 					}
 
-					BX.ajax({
-						method: 'POST',
-						dataType: 'json',
-						url: '/bitrix/tools/bizproc_activity_ajax.php',
-						data:  {
-							'site_id': BX.message('SITE_ID'),
-							'sessid' : BX.bitrix_sessid(),
-							'document_type' : <?=Cutil::PhpToJSObject($dialog->getDocumentType())?>,
-							'activity': 'CreateListsDocumentActivity',
-							'lists_document_type': documentType,
-							'form_name': <?=Cutil::PhpToJSObject($formName)?>,
-							'public_mode': 'Y'
-						},
-						onsuccess: function(response)
+					BX.ajax.runAction(
+						'bizproc.activity.request',
 						{
-							if (response && BX.type.isArray(response))
-							{
-								response.forEach(function(field)
-								{
-									renderer(field, documentType.split('@'));
-								});
+							data: {
+								documentType: <?= Cutil::PhpToJSObject($dialog->getDocumentType()) ?>,
+								activity: 'CreateListsDocumentActivity',
+								params: {
+									lists_document_type: documentType,
+									form_name: <?= Cutil::PhpToJSObject($formName) ?>,
+									public_mode: 'Y',
+								}
 							}
 						}
-					});
+					).then(
+						(response) => {
+							response.data.forEach(function(field)
+							{
+								renderer(field, documentType.split('@'));
+							});
+						},
+						(response) => {
+							BX.UI.Dialogs.MessageBox.alert(response.errors[0].message);
+						}
+					);
 				}
 			);
 

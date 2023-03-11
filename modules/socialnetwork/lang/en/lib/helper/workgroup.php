@@ -33,6 +33,7 @@ $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_OPEN_DESC3"] = "Team is public: any 
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET"] = "Secret";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_1"] = "Hidden";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_DESC3"] = "Nobody can view this team in the list. Team membership is by invitation only.";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_DESC3_1"] = "Team is not listed or visible anywhere. Team membership is by invitation only.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED"] = "Private Workgroup";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC"] = "The workgroup is visible only to workgroup members. Invitation is required to become a workgroup member.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE"] = "Private workgroup (visible)";

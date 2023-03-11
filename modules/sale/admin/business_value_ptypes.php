@@ -192,7 +192,7 @@ if ($adminSidePanelHelper->isSidePanel())
 		<div class="adm-detail-content-btns-wrap">
 			<div class="adm-detail-content-btns">
 				<?
-				echo '<input'.($aParams["disabled"] === true? " disabled":"")
+				echo '<input'
 					.' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'
 					.GetMessage("admin_lib_edit_apply_title").'" class="adm-btn-save" />';
 

@@ -63,17 +63,17 @@ class Manager
 
 		self::disableUserSearch($userId, $settings['general']);
 
-		$userPresetId =
-			\Bitrix\Im\Model\OptionGroupTable::query()
-				->addSelect('ID')
-				->where('USER_ID', $userId)
-				->fetch()['ID']
-		;
-
 		if (isset($settings['general']['notifyScheme']) && $settings['general']['notifyScheme'] === 'simple')
 		{
 			$settings['notify'] = self::getSimpleNotifySettings($settings['general']);
 		}
+
+		$userPresetId =
+			\Bitrix\Im\Model\OptionGroupTable::query()
+				->addSelect('ID')
+				->where('USER_ID', $userId)
+				->fetch()
+		;
 
 		if (!$userPresetId)
 		{
@@ -81,6 +81,7 @@ class Manager
 		}
 		else
 		{
+			$userPresetId = $userPresetId['ID'];
 			Configuration::updatePresetSettings($userPresetId, $userId, $settings);
 			Configuration::chooseExistingPreset($userPresetId, $userId);
 		}
@@ -104,8 +105,9 @@ class Manager
 			\Bitrix\Im\Model\OptionGroupTable::query()
 				->addSelect('ID')
 				->where('USER_ID', $userId)
-				->fetch()['ID']
+				->fetch()
 		;
+		$userPresetId = $userPresetId['ID'] ?? null;
 
 		if ($type === self::NOTIFY)
 		{

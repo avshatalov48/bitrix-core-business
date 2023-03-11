@@ -1948,7 +1948,12 @@ class CTextParser
 		else
 		{
 			$url = $this->defended_tags(htmlspecialcharsbx($url, ENT_COMPAT, false), 'replace');
-			$text = htmlspecialcharsbx($text, ENT_COMPAT, false);
+
+			if (strpos($text, "<\017") === false)
+			{
+				// it could be "defended" tag inside URL code
+				$text = htmlspecialcharsbx($text, ENT_COMPAT, false);
+			}
 
 			$noFollowAttribute = $this->parser_nofollow == "Y"? ' rel="nofollow"': '';
 

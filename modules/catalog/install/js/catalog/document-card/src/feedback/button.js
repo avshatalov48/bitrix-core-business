@@ -21,16 +21,7 @@ export default class Button
 		}
 
 		button.addEventListener('click', () => {
-			BX.UI.Feedback.Form.open({
-				id: 'catalog-store-document-card-feedback',
-				forms: [
-					{'id': 384, 'lang': 'ru', 'sec': '0pskpd', 'zones': ['ru', 'by', 'kz']},
-					{'id': 392, 'lang': 'en', 'sec': 'siqjqa', 'zones': ['en', 'ua']},
-					{'id': 388, 'lang': 'es', 'sec': '53t2bu', 'zones': ['es']},
-					{'id': 390, 'lang': 'de', 'sec': 'mhglfc', 'zones': ['de']},
-					{'id': 386, 'lang': 'com.br', 'sec': 't6tdpy', 'zones': ['com.br']},
-				],
-			});
+			BX.Catalog.DocumentCard.Slider.openFeedbackForm();
 		});
 
 		parentNode.appendChild(button);

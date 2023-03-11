@@ -224,13 +224,13 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			{
 				$this->setFilterKey('USER_ID', $result['currentUserId']);
 			}
-			elseif ($params['DISPLAY'] > 0)
+			elseif (is_numeric($params['DISPLAY']))
 			{
 				$this->setFilterKey('USER_ID', (int)$params['DISPLAY']);
 			}
 
 			if (
-				$params['DISPLAY'] > 0
+				is_numeric($params['DISPLAY'])
 				|| in_array($params['DISPLAY'], [ 'forme', 'mine'])
 			)
 			{

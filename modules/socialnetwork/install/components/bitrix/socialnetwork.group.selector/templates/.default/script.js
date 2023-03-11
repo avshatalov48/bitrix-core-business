@@ -27,9 +27,9 @@
 		this.lastGroups = [];
 		this.myGroups = [];
 		this.featuresPerms = null;
-		
+
 		var mainChildren = [];
-		
+
 		if (params)
 		{
 			if (params.lastGroups)
@@ -73,7 +73,7 @@
 				}));
 			}
 		}
-		
+
 		BX.adjust(this.searchInput, {
 			events: {
 				keyup: BX.proxy(
@@ -104,29 +104,29 @@
 				)
 			}
 		});
-		
+
 		this.ajaxURL = "/bitrix/components/bitrix/socialnetwork.group.selector/ajax.php";
-		
+
 		if (this.lastGroups.length > 0)
 		{
 			this.addTab("last", this.lastGroups);
 		}
-		
+
 		if (this.myGroups.length > 0)
 		{
 			this.addTab("my", this.myGroups);
 		}
-		
+
 		this.addTab("search");
-		
+
 		this.tabsOuter = BX.create("div", {props: {className: "bx-finder-box-tabs"}});
-		
+
 		this.tabsContentOuter = BX.create("td", {
 			props: {
 				className: "bx-finder-box-tabs-content-cell"
 			}
 		});
-		
+
 		mainChildren.splice(mainChildren.length, 0,
 			this.tabsOuter,
 			BX.create("div", {
@@ -153,7 +153,7 @@
 				]
 			})
 		);
-		
+
 		this.content = BX.create("div", {
 			props: {className: "bx-finder-box bx-lm-box sonet-groups-finder-box"},
 			style : { padding: "2px 6px 6px 6px", minWidth: "500px"},
@@ -202,11 +202,11 @@
 				BX.adjust(this.tabs[i].content, {style: {display: "none"}});
 			}
 		}
-		
+
 		BX.addClass(tab.tab, "bx-finder-box-tab-selected");
 		BX.adjust(tab.content, {style: {display: "block"}});
 	};
-	
+
 	GroupsPopup.prototype.addTab = function(code, items, selected) {
 		var content = BX.create("div", {
 			props: {className: "bx-finder-box-tab-content bx-lm-box-tab-content-sonetgroup"}
@@ -215,14 +215,14 @@
 		{
 			BX.adjust(content, {style: {display: "block"}});
 		}
-		
+
 		var tab = BX.create("span", {
 			props: {className: "bx-finder-box-tab" + (selected ? " bx-finder-box-tab-selected" : "")},
 			text: BX.message("SONET_GROUP_TABS_" + code.toUpperCase())
 		});
-		
+
 		this.tabs[code] = {tab: tab, content: content};
-		
+
 		BX.adjust(this.tabs[code].tab, {
 			events: {
 				click: BX.proxy(
@@ -233,13 +233,13 @@
 				)
 			}
 		});
-		
+
 		if (items)
 		{
 			this.setItems(this.tabs[code], items);
 		}
 	};
-	
+
 	GroupsPopup.prototype.setItems = function(tab, items) {
 		BX.cleanNode(tab.content);
 
@@ -251,7 +251,7 @@
 			}
 		}
 	};
-	
+
 	GroupsPopup.prototype.select = function(item) {
 
 		this.selected = [item];
@@ -287,7 +287,7 @@
 
 		this.popupWindow.close();
 	};
-	
+
 	GroupsPopup.prototype.deselect = function(itemId) {
 		this.selected = [];
 		if (itemId && this.items2Objects[itemId])
@@ -299,7 +299,7 @@
 		}
 		this.searchInput.value = "";
 	};
-	
+
 	GroupsPopup.prototype.search = function(query) {
 		if (query.length > 0)
 		{
@@ -333,7 +333,7 @@
 
 	GroupsPopup.prototype.__render = function() {
 		var selected = false;
-		
+
 		BX.cleanNode(this.tabsOuter);
 		BX.cleanNode(this.tabsContentOuter);
 		for(var i in this.tabs)
@@ -359,9 +359,9 @@
 		var avatar = BX.create("div", { props: {className: "bx-finder-box-item-t7-avatar bx-finder-box-item-t7-group-avatar"}});
 		if (item.image)
 		{
-			BX.adjust(avatar, { style: { background: "url('" + item.image + "') no-repeat center center", backgroundSize : "24px 24px" }});
+			BX.adjust(avatar, { style: { background: "url('" + encodeURI(item.image) + "') no-repeat center center", backgroundSize : "24px 24px" }});
 		}
-		
+
 		var isSelected = false;
 		for(var i=0; i<this.selected.length; i++)
 		{
@@ -387,9 +387,9 @@
 					props: {className: "bx-finder-box-item-t7-info"},
 					children: [
 						BX.create("div", {
-							text: item.title, 
-							props : { 
-								className : "bx-finder-box-item-t7-name" 
+							text: item.title,
+							props : {
+								className : "bx-finder-box-item-t7-name"
 							}
 						})
 					]
@@ -405,7 +405,7 @@
 				)
 			}
 		});
-		
+
 		if (!this.items2Objects[item.id])
 		{
 			this.items2Objects[item.id] = [itemNode];
@@ -414,7 +414,7 @@
 		{
 			this.items2Objects[item.id].push(itemNode);
 		}
-		
+
 		return itemNode;
 	};
 

@@ -12,7 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $visibilityMessages */
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs(getLocalPath('activities/bitrix/setglobalvariableactivity/script.js'));
-\Bitrix\Main\Page\Asset::getInstance()->addCss(getLocalPath('activities/bitrix/setglobalvariableactivity/setglobalvariableactivity.css'));
+\Bitrix\Main\Page\Asset::getInstance()->addCss(getLocalPath('activities/bitrix/setglobalvariableactivity/style.css'));
 
 //$formatName = \Bitrix\Main\Application::getInstance()->getContext()->getCulture()->getFormatName();
 

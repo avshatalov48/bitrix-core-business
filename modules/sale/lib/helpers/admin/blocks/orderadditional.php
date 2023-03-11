@@ -278,7 +278,10 @@ class OrderAdditional
 
 	protected static function renderResponsibleLink($data)
 	{
-		return '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='. $data["RESPONSIBLE_ID"].'" id="order_additional_info_responsible">'.htmlspecialcharsbx($data['RESPONSIBLE']).'</a>';
+		$responsible = $data['RESPONSIBLE'] ?? '';
+		$responsibleId = $data['RESPONSIBLE_ID'] ?? 0;
+
+		return '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID=' . $responsibleId . '" id="order_additional_info_responsible">' . htmlspecialcharsbx($responsible) . '</a>';
 	}
 
 	public static function getScripts()
@@ -328,7 +331,7 @@ class OrderAdditional
 		if(in_array("ADDITIONAL_INFO", $collection->getAvailableFields()))
 			if($collection->getField("ADDITIONAL_INFO") <> '')
 				$data["ADDITIONAL_INFO"] = $collection->getField("ADDITIONAL_INFO");
-		
+
 		if(in_array("COMPANY_ID", $collection->getAvailableFields()))
 		{
 			if(strval($collection->getField("COMPANY_ID")) != '')

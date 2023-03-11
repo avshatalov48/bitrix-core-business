@@ -785,8 +785,20 @@ if(!\Bitrix\Main\ModuleManager::isModuleInstalled("sale"))
 }
 else
 {
-	$useGiftsDetail = $arCurrentValues["USE_GIFTS_DETAIL"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS_DETAIL']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS_DETAIL"] == "Y";
-	$useGiftsMainPrSectionList = $arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS_MAIN_PR_SECTION_LIST']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"] == "Y";
+	$useGiftsDetail =
+		(
+			!isset($arCurrentValues["USE_GIFTS_DETAIL"])
+			&& $arComponentParameters['PARAMETERS']['USE_GIFTS_DETAIL']['DEFAULT'] === 'Y'
+		)
+		|| $arCurrentValues["USE_GIFTS_DETAIL"] === "Y"
+	;
+	$useGiftsMainPrSectionList =
+		(
+			!isset($arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"])
+			&& $arComponentParameters['PARAMETERS']['USE_GIFTS_MAIN_PR_SECTION_LIST']['DEFAULT'] === 'Y'
+		)
+		|| $arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"] === "Y"
+	;
 	if($useGiftsDetail || $useGiftsMainPrSectionList)
 	{
 		if($useGiftsDetail)

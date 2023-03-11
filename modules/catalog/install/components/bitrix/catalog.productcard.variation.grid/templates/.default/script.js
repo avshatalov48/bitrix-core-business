@@ -484,7 +484,10 @@
 
 	          _this5.addCellToTable(tableRow, quantityReservedNode, false);
 
-	          _this5.addCellToTable(tableRow, store.quantityAvailable, false);
+	          var quantityAvailable = parseInt(store.quantityAvailable, 10);
+	          var viewQuantityAvailable = quantityAvailable <= 0 ? "<span class=\"text--danger\">".concat(quantityAvailable, "</span>") : quantityAvailable;
+
+	          _this5.addCellToTable(tableRow, viewQuantityAvailable, false);
 	        }
 	      });
 	      return table;

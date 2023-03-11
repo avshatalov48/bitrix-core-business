@@ -30,12 +30,19 @@ class ToggleCashboxesOnUpdatePaySystem implements IExecuteEvent
 	{
 		$result = new Sale\Result();
 
-		if (!$this->service->isSupportPrintCheck())
+		if (!$this->service || !$this->service->isSupportPrintCheck())
 		{
 			return $result;
 		}
 
-		if (isset($this->oldFields['ACTIVE']) && $this->oldFields['ACTIVE'] === $this->newFields['ACTIVE'])
+		if (
+			!isset($this->oldFields['ACTIVE'], $this->newFields['ACTIVE'])
+			||
+			(
+				isset($this->oldFields['ACTIVE'], $this->newFields['ACTIVE'])
+				&& $this->oldFields['ACTIVE'] === $this->newFields['ACTIVE']
+			)
+		)
 		{
 			return $result;
 		}

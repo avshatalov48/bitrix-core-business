@@ -75,6 +75,7 @@ td.statset {background: url(/bitrix/images/bizproc/stat_sett.gif) 50% center no-
 {
 	width: 100%;
 	position: relative;
+	table-layout: fixed;
 }
 
 .bizprocdesigner-properties-dialog-table .adm-detail-content-cell-l
@@ -84,6 +85,10 @@ td.statset {background: url(/bitrix/images/bizproc/stat_sett.gif) 50% center no-
 .bizprocdesigner-properties-dialog-table .adm-detail-content-cell-r
 {
 	width: 75%;
+}
+.bizprocdesigner-properties-dialog-table .adm-detail-content-cell-r select
+{
+	max-width: 100%;
 }
 
 .adm-detail-content-table  .bxhtmled-area-cnt,

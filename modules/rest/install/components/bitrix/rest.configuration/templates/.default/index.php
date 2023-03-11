@@ -49,7 +49,8 @@ $APPLICATION->IncludeComponent(
 		'SECTION_TITLE' => Loc::getMessage('REST_CONFIGURATION_APP_SECTION_TITLE_2'),
 		'HOLD_BANNER_ITEMS' => 'Y',
 		'DETAIL_URL_TPL' => $arResult['MP_DETAIL_URL_TPL'],
-		'MP_TAG_PATH' => $arResult['MP_TAG_PATH']
+		'MP_TAG_PATH' => $arResult['MP_TAG_PATH'],
+		'FROM' => $arResult['FROM'],
 	)
 );
 ?>
@@ -68,6 +69,7 @@ $haveItems = $APPLICATION->IncludeComponent(
 		'SECTION_URL_PATH' => $arResult['MP_TAG_PATH'],
 		'SECTION_TITLE' => Loc::getMessage("REST_CONFIGURATION_TITLE_NEW_APP"),
 		'SECTION_SHOW_ALL_BTN_NAME' => Loc::getMessage("REST_CONFIGURATION_BTN_SHOW_ALL"),
+		'FROM' => $arResult['FROM'],
 		)
 );
 ?>

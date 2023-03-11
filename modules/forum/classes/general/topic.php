@@ -412,13 +412,14 @@ class CAllForumTopic
 
 	public static function Delete($ID)
 	{
+		$arTopic = [];
 		if ($topic = \Bitrix\Forum\Topic::getById($ID))
 		{
+			$arTopic = $topic->getData();
 			$topic->remove();
 		}
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC"][$ID]);
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][$ID]);
-
 
 /***************** Event onAfterTopicDelete ************************/
 		foreach(GetModuleEvents("forum", "onAfterTopicDelete", true) as $arEvent)

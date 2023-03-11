@@ -244,7 +244,7 @@ if (!$readOnly && $adminList->EditAction())
 
 if (!$readOnly && ($listID = $adminList->GroupAction()))
 {
-	if ($_REQUEST['action_target'] == 'selected')
+	if ($adminList->IsGroupActionToAll())
 	{
 		$listID = array();
 		$discountIterator = Sale\Internals\DiscountTable::getList(array(

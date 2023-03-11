@@ -26,6 +26,7 @@ final class StoreDocumentProductPositionRepository
 	private static $instance;
 
 	private array $documentProductPositionListCollection = [];
+	private int $catalogId;
 
 	/**
 	 * @return StoreDocumentProductPositionRepository
@@ -72,7 +73,7 @@ final class StoreDocumentProductPositionRepository
 			return [];
 		}
 
-		if ($this->documentProductPositionListCollection[$documentId])
+		if (!empty($this->documentProductPositionListCollection[$documentId]))
 		{
 			return $this->documentProductPositionListCollection[$documentId];
 		}
@@ -140,7 +141,7 @@ final class StoreDocumentProductPositionRepository
 			$this->catalogId = 0;
 			if (\Bitrix\Main\Loader::includeModule('crm'))
 			{
-				$this->catalogId = \Bitrix\Crm\Product\Catalog::getDefaultId();
+				$this->catalogId = \Bitrix\Crm\Product\Catalog::getDefaultId() ?? 0;
 			}
 		}
 

@@ -24,6 +24,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'bizproc.local-settings',
 	'bizproc.automation',
 	'bizproc.automation.robot-selector',
+	'bizproc.automation.guide',
 	'bizproc.globals',
 	'bizproc.debugger',
 	'sidepanel',
@@ -75,7 +76,7 @@ $getMessage = function ($messageCode) use ($messages)
 	return isset($messages[$messageCode]) ? $messages[$messageCode] : GetMessage($messageCode);
 };
 
-if ($arParams['HIDE_TOOLBAR'] !== 'Y'):
+if (!isset($arParams['HIDE_TOOLBAR']) || $arParams['HIDE_TOOLBAR'] !== 'Y'):
 	$this->SetViewTarget('pagetitle') ?>
 	<div class="ui-btn-container">
 		<?php
@@ -160,7 +161,7 @@ endif;
 ?>
 
 <div class="automation-base<?=(count($arResult['TEMPLATES']) <= 1 ?'automation-base-script-mode':'')?>" data-role="automation-base-node">
-		<?php if ($arParams['HIDE_TOOLBAR'] !== 'Y'):?>
+		<?php if (!isset($arParams['HIDE_TOOLBAR']) || $arParams['HIDE_TOOLBAR'] !== 'Y'):?>
 		<div class="automation-base-node-top" data-role="automation-actionpanel">
 			<div class="automation-base-node-title">
 				<?=GetMessage('BIZPROC_AUTOMATION_CMP_SUBTITLE')?>
@@ -261,7 +262,7 @@ endif;
 			</div>
 		</div>
 	</div>
-	<?php if ($arParams['HIDE_SAVE_CONTROLS'] !== 'Y'):?>
+	<?php if (!isset($arParams['HIDE_SAVE_CONTROLS']) || $arParams['HIDE_SAVE_CONTROLS'] !== 'Y'):?>
 	<div class="bizproc-automation-buttons" data-role="automation-buttons" style="display: none">
 		<?php $APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 			'BUTTONS' =>
@@ -328,17 +329,18 @@ endif;
 					'G_VARIABLES_VISIBILITY' => $arResult['G_VARIABLES_VISIBILITY'],
 					'LOG' => $arResult['LOG'],
 
-					'B24_TARIF_ZONE' => $arResult['B24_TARIF_ZONE'],
+					'B24_TARIF_ZONE' => $arResult['B24_TARIF_ZONE'] ?? '',
 					'USER_OPTIONS' => $arResult['USER_OPTIONS'],
 					'FRAME_MODE' => $arResult['FRAME_MODE'],
 					'IS_EMBEDDED' => $arResult['IS_EMBEDDED'],
 					'SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING' => $arResult['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'],
 
 					'MARKETPLACE_ROBOT_CATEGORY' => 'crm_bots', //$arParams['MARKETPLACE_ROBOT_CATEGORY'],
-					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT'],
+					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT'] ?? '',
 					'ROBOTS_LIMIT' => $robotsLimit,
 
-					'DELAY_MIN_LIMIT_M' => $arResult['DELAY_MIN_LIMIT_M']
+					'DELAY_MIN_LIMIT_M' => $arResult['DELAY_MIN_LIMIT_M'],
+					'IS_WORKTIME_AVAILABLE' => $arResult['IS_WORKTIME_AVAILABLE'],
 				))?>, viewMode);
 		}
 	});

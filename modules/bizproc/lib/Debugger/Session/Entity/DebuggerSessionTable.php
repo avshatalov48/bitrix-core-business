@@ -3,7 +3,9 @@
 namespace Bitrix\Bizproc\Debugger\Session\Entity;
 
 use Bitrix\Bizproc\Debugger\Session\Session;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 use Bitrix\Main\ORM\Query\Join;
 
 /**
@@ -59,6 +61,12 @@ class DebuggerSessionTable extends \Bitrix\Main\ORM\Data\DataManager
 			'MODE' => [
 				'data_type' => 'integer',
 				'required' => true,
+			],
+			'TITLE' => [
+				'data_type' => 'string',
+				'title' => Loc::getMessage('BIZPROC_DEBUGGER_SESSION_ENTITY_DEBUGGER_SESSION_FIELD_TITLE'),
+				'required' => false,
+				'validation' => fn () => [new LengthValidator(1, 255)],
 			],
 			'STARTED_BY' => [
 				'data_type' => 'integer',

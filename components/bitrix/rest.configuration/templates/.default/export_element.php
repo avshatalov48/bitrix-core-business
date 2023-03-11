@@ -27,6 +27,7 @@ if($arResult['ERROR'])
 		array(
 			'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
 			'ITEM_CODE' => $arResult['VARIABLES']['ITEM_CODE'],
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

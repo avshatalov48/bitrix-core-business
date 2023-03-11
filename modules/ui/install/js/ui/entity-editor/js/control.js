@@ -3189,6 +3189,13 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				text: title
 			});
 
+			var hint = this.createTitleHint();
+			if (hint)
+			{
+				this._titleView.appendChild(hint);
+				BX.UI.Hint.init(this._titleView);
+			}
+
 			this._titleInput = BX.create("input",
 			{
 				props: { className: "ui-entity-editor-header-title-text" },
@@ -5276,6 +5283,21 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			this._contentContainer.appendChild(this._buttonPanelWrapper);
 		}
 		return this._buttonPanelWrapper;
+	};
+	BX.UI.EntityEditorSection.prototype.createTitleHint = function()
+	{
+		var hint = this._schemeElement ? this._schemeElement.getHint() : null;
+		if(hint)
+		{
+			return BX.create("span", {
+				dataset: {
+					hint,
+					hintHtml: true,
+					hintInteractivity: true,
+				}
+			});
+		}
+		return null;
 	};
 	BX.UI.EntityEditorSection.create = function(id, settings)
 	{

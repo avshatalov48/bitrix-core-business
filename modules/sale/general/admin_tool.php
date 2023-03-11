@@ -994,7 +994,7 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
  *
  * Currently is used to show order properties related to payment/delivery systems in the order_new form
  */
-function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $USER_ID = '', $ORDER_ID = 0, $formVarsSubmit = false)
+function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID = '', $USER_ID = '', $ORDER_ID = 0, $formVarsSubmit = false)
 {
 	$propertyGroupID = -1;
 	$arDisableFieldForLocation = array();

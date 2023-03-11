@@ -89,3 +89,5 @@ $MESS["REST_SCOPE_USERFIELDCONFIG"] = "Настройки пользовател
 $MESS["REST_SCOPE_USERFIELDCONFIG_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление настроек пользовательских полей некоторых модулей";
 $MESS["REST_SCOPE_CONFIGURATION.IMPORT"] = "Импорт отраслевых решений";
 $MESS["REST_SCOPE_CONFIGURATION.IMPORT_DESCRIPTION"] = "Доступ к импорту отраслевых решений";
+$MESS["REST_SCOPE_BICONNECTOR"] = "Коннектор BI-аналитики";
+

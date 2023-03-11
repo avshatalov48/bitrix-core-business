@@ -97,7 +97,6 @@ $MESS["IBLIST_A_MODIFIED_BY"] = "By";
 $MESS["IBLIST_A_MOVE_TO_SECTION"] = "move to section";
 $MESS["IBLIST_A_NAME"] = "Name";
 $MESS["IBLIST_A_NO_BASE_PRICE"] = "BASE price is not specified for the element ##ID#.";
-$MESS["IBLIST_A_OFFERS"] = "SKU";
 $MESS["IBLIST_A_ORIG_ED"] = "Edit original";
 $MESS["IBLIST_A_ORIG_ED_TITLE"] = "Edit published version";
 $MESS["IBLIST_A_PARENT"] = "Parent section";

@@ -68,7 +68,7 @@ class ByTradeBinding extends Base
 			/** @var Sale\TradingPlatform\Platform $platformClassName */
 			$platformClassName = $data['CLASS'];
 
-			if (class_exists($platformClassName))
+			if (!empty($platformClassName) && class_exists($platformClassName))
 			{
 				$platform = $platformClassName::getInstanceByCode($data['CODE']);
 				if ($platform
@@ -174,4 +174,4 @@ class ByTradeBinding extends Base
 		return count(static::getTradePlatformList()) > 0;
 	}
 
-} 
+}

@@ -613,7 +613,7 @@
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input {
-	border-radius: 2px;
+	/*border-radius: 2px;*/
 	border-color: rgba(255, 255, 255, .44);
 	background-color: rgba(255, 255, 255, .143824);
 	color: #fff;
@@ -624,23 +624,23 @@
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input::-webkit-input-placeholder {
-	color: #fff;
+	color:#bdc0c4
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input::-moz-placeholder {
-	color: #fff;
+	color:#bdc0c4
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input:-ms-input-placeholder {
-	color: #fff;
+	color:#bdc0c4
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input::-ms-input-placeholder {
-	color: #fff;
+	color:#bdc0c4
 }
 
 .bitrix24-light-theme .automation-toolbar-search .automation-toolbar-search-input::placeholder {
-	color: #fff;
+	color:#bdc0c4
 }
 
 .bitrix24-dark-theme .automation-toolbar-search .automation-toolbar-search-input {

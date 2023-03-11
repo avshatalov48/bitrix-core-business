@@ -881,8 +881,10 @@ class CIBlockPropertyElementAutoComplete
 
 	protected static function GetSymbols($arSettings)
 	{
-		$strBanSym = $arSettings['BAN_SYM'];
-		$strRepSym = (BT_UT_AUTOCOMPLETE_REP_SYM_OTHER == $arSettings['REP_SYM'] ? $arSettings['OTHER_REP_SYM'] : $arSettings['REP_SYM']);
+		$strBanSym = $arSettings['BAN_SYM'] ?? '';
+		$repSym = $arSettings['REP_SYM'] ?? '';
+		$otherRepSym = $arSettings['OTHER_REP_SYM'] ?? '';
+		$strRepSym = (BT_UT_AUTOCOMPLETE_REP_SYM_OTHER == $repSym ? $otherRepSym : $repSym);
 		$arBanSym = str_split($strBanSym,1);
 		$arResult = array(
 			'BAN_SYM' => $arBanSym,

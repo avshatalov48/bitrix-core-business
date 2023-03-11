@@ -21,6 +21,7 @@
 			this.id = params.id;
 			this.importByProcessId = params.importByProcessId;
 			this.signedParameters = params.signedParameters;
+			this.from = params.from;
 			this.next = '';
 			this.section = [];
 			this.progressDescriptionContainer = BX.findChildByClassName( BX(this.id), 'rest-configuration-info');
@@ -420,6 +421,7 @@
 							finishResponse: result,
 							errors: this.errors,
 							elementList: elementList,
+							from: this.from,
 						},
 					}
 				)
@@ -811,7 +813,11 @@
 				{
 					mode: 'class',
 					signedParameters: this.signedParameters,
-					data: data
+					data: data,
+					analyticsLabel: {
+						from: this.from,
+						hasErrors: this.errors.length !== 0
+					}
 				}
 			).then(
 				BX.delegate(

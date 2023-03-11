@@ -360,7 +360,16 @@ if(!Loader::includeModule('catalog'))
 	unset($arComponentParameters["PARAMETERS"]["USE_GIFTS"]);
 	unset($arComponentParameters["GROUPS"]["GIFTS"]);
 }
-elseif($arCurrentValues["USE_GIFTS"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS"] == "Y")
+elseif(
+	(
+		!isset($arCurrentValues["USE_GIFTS"])
+		&& $arComponentParameters['PARAMETERS']['USE_GIFTS']['DEFAULT'] == 'Y'
+	)
+	|| (
+		isset($arCurrentValues["USE_GIFTS"])
+		&& $arCurrentValues["USE_GIFTS"] == "Y"
+	)
+)
 {
 	$arComponentParameters['PARAMETERS'] = array_merge(
 		$arComponentParameters['PARAMETERS'],

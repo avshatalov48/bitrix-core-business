@@ -1130,7 +1130,8 @@ class CIMMessage
 				'USE_CACHE' => 'N',
 			));
 
-			if (!empty($arUsers['users']) && $arParams['EXTRA_PARAMS']['CONTEXT'] == 'LIVECHAT' && CModule::IncludeModule('imopenlines'))
+			$extraParamContext = $arParams['EXTRA_PARAMS']['CONTEXT'] ?? null;
+			if (!empty($arUsers['users']) && $extraParamContext == 'LIVECHAT' && CModule::IncludeModule('imopenlines'))
 			{
 				list($lineId, $userId) = explode('|', $arChat['chat'][$arParams['TO_CHAT_ID']]['entity_id']);
 				$userCode = 'livechat|' . $lineId . '|' . $arParams['TO_CHAT_ID'] . '|' . $userId;
@@ -1164,11 +1165,11 @@ class CIMMessage
 		return Array(
 			'chatId' => $arParams['CHAT_ID'],
 			'dialogId' => isset($arParams['TO_CHAT_ID'])? 'chat'.$arParams['TO_CHAT_ID']: 0,
-			'chat' => isset($arChat['chat'])? $arChat['chat']: [],
-			'lines' => isset($arChat['lines'])? $arChat['lines'][$arParams['CHAT_ID']]: null,
-			'userInChat' => isset($arChat['userInChat'])? $arChat['userInChat']: [],
-			'userBlockChat' => $arChat['userChatBlockStatus']? $arChat['userChatBlockStatus']: [],
-			'users' => $arUsers['users'],
+			'chat' => $arChat['chat'] ?? [],
+			'lines' => $arChat['lines'][$arParams['CHAT_ID']] ?? null,
+			'userInChat' => $arChat['userInChat'] ?? [],
+			'userBlockChat' => $arChat['userChatBlockStatus'] ?? [],
+			'users' => (is_array($arUsers) && is_array($arUsers['users'])) ? $arUsers['users'] : null,
 			'message' => Array(
 				'id' => $arParams['ID'],
 				'templateId' => $arParams['TEMPLATE_ID'],
@@ -1182,14 +1183,14 @@ class CIMMessage
 				'text' => \Bitrix\Im\Text::parse($arParams['MESSAGE']),
 				'textOriginal' => $arParams['MESSAGE'],
 				'params' => $arParams['PARAMS'],
-				'counter' => intval($arParams['COUNTER']) > 0 ? intval($arParams['COUNTER']) : 0
+				'counter' => isset($arParams['COUNTER']) && (int)$arParams['COUNTER'] > 0 ? (int)$arParams['COUNTER'] : 0
 			),
 			'files' => isset($arParams['FILES'])? $arParams['FILES']: [],
 			'notify' => $arParams['NOTIFY'],
 		);
 	}
 
-	public static function GetChatId($fromUserId, $toUserId)
+	public static function GetChatId($fromUserId, $toUserId, $createIfNotExists = true)
 	{
 		global $DB;
 
@@ -1236,6 +1237,11 @@ class CIMMessage
 		}
 		if ($chatId <= 0)
 		{
+			if (!$createIfNotExists)
+			{
+				return 0;
+			}
+
 			if (!\Bitrix\Im\Dialog::hasAccess($fromUserId, $toUserId))
 			{
 				return 0;

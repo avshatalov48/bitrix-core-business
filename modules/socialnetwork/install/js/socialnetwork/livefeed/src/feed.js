@@ -464,6 +464,7 @@ const PinnedPanelInstance = new PinnedPanel();
 const InformerInstance = new Informer();
 const FilterInstance = new Filter();
 const PageInstance = new Page();
+const MoreButtonInstance = new MoreButton();
 new TaskCreator();
 
 export {
@@ -472,6 +473,7 @@ export {
 	InformerInstance,
 	FilterInstance,
 	PageInstance,
+	MoreButtonInstance,
 	Post,
 	TaskCreator,
 	Loader,

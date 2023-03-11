@@ -92,10 +92,20 @@ class PaymentItemShipment extends ControllerBase
 		return ['PAYMENT_ITEM_SHIPMENT'=>$paymentItem->toArray()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation): Page
+	/**
+	 * @param $select
+	 * @param $filter
+	 * @param $order
+	 * @param PageNavigation $pageNavigation
+	 * @return Page
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
 
 		$filter['ENTITY_TYPE'] = PayableShipmentItem::getEntityType();
 
@@ -104,11 +114,11 @@ class PaymentItemShipment extends ControllerBase
 		$payableItemCollection = $registry->get(Registry::ENTITY_PAYABLE_ITEM_COLLECTION);
 		$paymentItems = $payableItemCollection::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 
@@ -120,7 +130,7 @@ class PaymentItemShipment extends ControllerBase
 
 			return (int) $payableItemCollection::getList([
 				'select' => ['CNT'],
-				'filter'=>$filter,
+				'filter' => $filter,
 				'runtime' => [
 					new ExpressionField('CNT', 'COUNT(ID)')
 				]

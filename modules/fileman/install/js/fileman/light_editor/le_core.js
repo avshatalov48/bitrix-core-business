@@ -33,7 +33,6 @@ Init: function(arConfig)
 	this.sEditorMode = 'html';
 	this.toolbarLineCount = 1;
 
-	console.log('arConfig', arConfig);
 	this.CACHE = {};
 	this.arVideos = {};
 
@@ -335,7 +334,7 @@ SetConstants: function()
 	];
 
 	this.systemCSS = "img.bxed-anchor{background-image: url(" + this.imagePath + "lhe_iconkit.gif)!important; background-position: -260px 0!important; height: 20px!important; width: 20px!important;}\n" +
-		"body{font-family:" + this.arConfig.fontFamily + "; font-size: " + this.arConfig.fontSize + "; line-height:" + this.arConfig.lineHeight + "}\n" +
+		"body{font-family:" + this.arConfig.fontFamily + "; font-size: " + this.arConfig.fontSize + "; line-height:" + this.arConfig.lineHeight + "; color: #151515;}\n" +
 		"p{padding:0!important; margin: 0!important;}\n" +
 		"span.bxed-noscript{color: #0000a0!important; padding: 2px!important; font-style:italic!important; font-size: 90%!important;}\n" +
 		"span.bxed-noindex{color: #004000!important; padding: 2px!important; font-style:italic!important; font-size: 90%!important;}\n" +

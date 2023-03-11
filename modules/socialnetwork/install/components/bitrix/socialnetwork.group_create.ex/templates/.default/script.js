@@ -693,7 +693,7 @@ this.BX = this.BX || {};
 
 	          _this2.inputNode.value = parseInt(response.data.fileId);
 	          _this2.typeInputNode.value = '';
-	          _this2.imageNode.style = "background-image: url('".concat(response.data.fileUri, "'); background-size: cover;");
+	          _this2.imageNode.style = "background-image: url('".concat(encodeURI(response.data.fileUri), "'); background-size: cover;");
 
 	          _this2.recalc();
 	        }
@@ -1609,6 +1609,7 @@ this.BX = this.BX || {};
 
 	  function TeamManager$$1(params) {
 	    babelHelpers.classCallCheck(this, TeamManager$$1);
+	    this.groupId = parseInt(params.groupId, 10);
 	    this.ownerSelector = null;
 	    this.scrumMasterSelector = null;
 	    this.moderatorsSelector = null;
@@ -1658,7 +1659,8 @@ this.BX = this.BX || {};
 	              intranetUsersOnly: !this.allowExtranet,
 	              inviteEmployeeLink: true,
 	              inviteExtranetLink: true,
-	              checkWorkgroupWhenInvite: false
+	              groupId: this.groupId,
+	              checkWorkgroupWhenInvite: true
 	            }
 	          }, {
 	            id: 'department',
@@ -1736,7 +1738,8 @@ this.BX = this.BX || {};
 	            options: {
 	              intranetUsersOnly: !this.allowExtranet,
 	              inviteEmployeeLink: true,
-	              checkWorkgroupWhenInvite: false
+	              groupId: this.groupId,
+	              checkWorkgroupWhenInvite: true
 	            }
 	          }, {
 	            id: 'department',
@@ -1777,7 +1780,8 @@ this.BX = this.BX || {};
 	              inviteEmployeeLink: true,
 	              '!userId': this.isCurrentUserAdmin ? [parseInt(main_core.Loc.getMessage('USER_ID'))] : [],
 	              intranetUsersOnly: !this.allowExtranet,
-	              checkWorkgroupWhenInvite: false
+	              groupId: this.groupId,
+	              checkWorkgroupWhenInvite: true
 	            }
 	          }, {
 	            id: 'department',

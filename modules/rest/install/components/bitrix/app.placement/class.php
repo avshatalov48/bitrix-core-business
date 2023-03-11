@@ -42,17 +42,17 @@ class CAPConnectComponent extends \CBitrixComponent
 	{
 		$arParams['PLACEMENT'] = trim($arParams['PLACEMENT']);
 
-		if(!isset($arParams['PLACEMENT_OPTIONS']) || !is_array($arParams['PLACEMENT_OPTIONS']))
+		if (!isset($arParams['PLACEMENT_OPTIONS']) || !is_array($arParams['PLACEMENT_OPTIONS']))
 		{
 			$arParams['PLACEMENT_OPTIONS'] = array();
 		}
 
-		if(isset($arParams['INTERFACE_EVENT']))
+		if (isset($arParams['INTERFACE_EVENT']))
 		{
 			$arParams['INTERFACE_EVENT'] = trim($arParams['INTERFACE_EVENT']);
 		}
 
-		if(!isset($arParams['SAVE_LAST_APP']))
+		if (!isset($arParams['SAVE_LAST_APP']))
 		{
 			$arParams['SAVE_LAST_APP'] = 'Y';
 		}
@@ -61,7 +61,7 @@ class CAPConnectComponent extends \CBitrixComponent
 			$arParams['SAVE_LAST_APP'] = $arParams['SAVE_LAST_APP'] == 'N' ? 'N' : 'Y';
 		}
 
-		if($arParams['PLACEMENT_APP'] > 0)
+		if (isset($arParams['PLACEMENT_APP']) && $arParams['PLACEMENT_APP'] > 0)
 		{
 			$this->currentApp = intval($arParams['PLACEMENT_APP']);
 		}
@@ -176,14 +176,14 @@ class CAPConnectComponent extends \CBitrixComponent
 		$this->arResult['PLACEMENT'] = $this->placementId;
 		$this->arResult['APPLICATION_LIST'] = $this->appList;
 		$this->arResult['APPLICATION_CURRENT'] = (int) $this->currentApp;
-		$this->arResult['SHOW_MARKET_EMPTY_COUNT'] = (int) $this->arParams['SHOW_MARKET_EMPTY_COUNT'];
+		$this->arResult['SHOW_MARKET_EMPTY_COUNT'] = (int) $this->arParams['SHOW_MARKET_EMPTY_COUNT'] ?? 0;
 
 		$this->arResult["IS_SLIDER"] =  isset($this->arParams['IS_SLIDER']) && $this->arParams['IS_SLIDER'] === 'Y';
 		$this->arResult['APPLICATION_TAGS'] = [
 			'placement',
 			$this->placementId
 		];
-		if($this->arResult['APPLICATION_CURRENT'] <= 0)
+		if($this->arResult['APPLICATION_CURRENT'] <= 0 && isset($this->appList[0]['ID']))
 		{
 			$this->arResult['APPLICATION_CURRENT'] = $this->appList[0]['ID'];
 		}

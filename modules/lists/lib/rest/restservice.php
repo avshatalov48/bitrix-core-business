@@ -113,7 +113,7 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
-		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		if (!\CLists::isListFeatureEnabled((string)$rightParam->getIblockTypeId()))
 		{
 			throw new AccessException('Available only on extended plans');
 		}

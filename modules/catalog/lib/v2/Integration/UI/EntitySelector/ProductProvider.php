@@ -426,7 +426,7 @@ class ProductProvider extends BaseProvider
 
 		$products = $this->loadPrices($products);
 
-		if ($parameters['searchString'])
+		if (!empty($parameters['searchString']))
 		{
 			$products = $this->loadBarcodes($products, $parameters['searchString']);
 		}

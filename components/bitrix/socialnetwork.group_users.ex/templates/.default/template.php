@@ -14,6 +14,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
+use Bitrix\Main\Web\Uri;
 
 UI\Extension::load(["socialnetwork.common", "ui.icons.b24", "ui.buttons.icons", "ui.alerts", "ui.tooltip"]);
 
@@ -251,7 +252,7 @@ else
 					?><span class="sonet-members-member-block" id="sonet-members-member-block-owner"><?php
 						?><span class="sonet-members-member-img-wrap"><?php
 							?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
-									<i style="<?=(is_array($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]) && $arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+									<i style="<?=(is_array($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]) && $arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".Uri::urnEncode($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"])."') no-repeat 0 0;" : "")?>"></i>
 								</span><?php
 						?></span><?php
 
@@ -403,7 +404,7 @@ else
 
 							?><span class="sonet-members-member-img-wrap"><?php
 								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
-									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('". Uri::urnEncode($arMember["USER_PERSONAL_PHOTO_IMG"]["src"])."') no-repeat 0 0;" : "")?>"></i>
 								</span><?php
 							?></span><?php
 
@@ -484,7 +485,7 @@ else
 							}
 							?><span class="sonet-members-member-img-wrap"><?php
 								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
-									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".Uri::urnEncode($arMember["USER_PERSONAL_PHOTO_IMG"]["src"])."') no-repeat 0 0;" : "")?>"></i>
 								</span><?php
 							?></span><?php
 							if ($canUnban)
@@ -638,7 +639,7 @@ else
 
 							?><span class="sonet-members-member-img-wrap"><?php
 								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
-									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('". Uri::urnEncode($arMember["USER_PERSONAL_PHOTO_IMG"]["src"])."') no-repeat 0 0;" : "")?>"></i>
 								</span><?php
 							?></span><?php
 
@@ -714,7 +715,7 @@ else
 						?><span class="sonet-members-member-block"><?php
 							?><span class="sonet-members-member-img-wrap"><?php
 							?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
-								<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+								<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('". Uri::urnEncode($arMember["USER_PERSONAL_PHOTO_IMG"]["src"])."') no-repeat 0 0;" : "")?>"></i>
 							</span>
 							</span><?php
 							?><span class="sonet-members-member-text"><?php

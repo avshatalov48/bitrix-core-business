@@ -21,11 +21,13 @@ class InventoryManagementSourceBuilder
 
 	public function __construct()
 	{
-		$this->inventoryManagementSource =
+		$param =
 			\Bitrix\Main\Context::getCurrent()
 				->getRequest()
 				->get(self::INVENTORY_MANAGEMENT_SOURCE_PARAM_NAME)
 		;
+
+		$this->inventoryManagementSource = $param ? urlencode((string)$param) : null;
 	}
 
 	/**

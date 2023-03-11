@@ -260,7 +260,7 @@
 					content: wrapper,
 					width: 600,
 					closeIcon: true,
-					titleBar: params.title || '',
+					titleBar: params.title ? BX.Text.decode(params.title) : '',
 					closeByEsc: true,
 					draggable: {restrict: false},
 					events: {

@@ -37,21 +37,17 @@
     opacity: 1;
     transition: color 270ms ease;
 }
+
 .social-group-copy-name-title input:focus:-moz-placeholder,
 .social-group-copy-name-title input:focus::-moz-placeholder { color: rgba(0, 0, 0, 0) }
-.bx-ie .social-group-copy-name-title input:-ms-input-placeholder {
-    color: #a8a8a8;
-    text-overflow: ellipsis;
-    opacity: 1;
-    transition: color 270ms ease;
-}
-.bx-ie .social-group-copy-name-title input:focus:-ms-input-placeholder { color: rgba(0, 0, 0, 0) }
+
 .bx-chrome .social-group-copy-name-title input::-webkit-input-placeholder {
     color: #a8a8a8;
     text-overflow: ellipsis;
     opacity: 1;
     transition: color 270ms ease;
 }
+
 .social-group-copy-name-title input:focus::-moz-placeholder {
 	color: rgba(0, 0, 0, 0);
 }

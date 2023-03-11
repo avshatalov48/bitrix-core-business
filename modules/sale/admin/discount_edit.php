@@ -821,7 +821,7 @@ $control->BeginNextFormTab();
 		</tr>
 		<tr id="tr_COUPON_MAX_USE" style="display: <? echo ($coupons['COUPON_ADD'] == 'Y' ? 'table-row' : 'none'); ?>;">
 			<td width="40%"><? echo GetMessage('BX_SALE_DISCOUNT_EDIT_FIELDS_COUPON_MAX_USE'); ?></td>
-			<td width="60%"><input type="text" name="COUPON[MAX_USE]" value="<? echo ($coupons['COUPON_MAX_USE'] > 0 ? $coupons['COUPON_MAX_USE'] : ''); ?>"></td>
+			<td width="60%"><input type="text" name="COUPON[MAX_USE]" value="<? echo (isset($coupons['COUPON_MAX_USE']) && $coupons['COUPON_MAX_USE'] > 0 ? $coupons['COUPON_MAX_USE'] : ''); ?>"></td>
 		</tr><?
 	}
 	$control->EndCustomField('COUPONS');

@@ -2,6 +2,7 @@ import AutomationLogView from "../views/automation-log";
 import {TrackingEntry} from "bizproc.automation";
 import {Dom, Loc, Tag, Text} from 'main.core';
 import {Helper} from "../helper";
+import {Operator} from 'bizproc.condition';
 
 export default class TriggerLog
 {
@@ -95,7 +96,8 @@ export default class TriggerLog
 					? String(note[key]['fieldValue'])
 					: ''
 			;
-			const operator = Helper.getOperatorLabel(condition['operator']);
+
+			const operator = Operator.getOperatorLabel(condition['operator']);
 			const value = condition['value'];
 			const joiner = Helper.getJoinerLabel(note[key]['joiner']);
 

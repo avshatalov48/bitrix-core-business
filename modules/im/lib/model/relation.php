@@ -5,6 +5,8 @@ use Bitrix\Im\Internals\Query;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -49,6 +51,8 @@ Loc::loadMessages(__FILE__);
 
 class RelationTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *

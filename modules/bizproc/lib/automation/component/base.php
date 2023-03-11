@@ -53,7 +53,7 @@ abstract class Base extends \CBitrixComponent implements Errorable
 		{
 			$settings = $availableRobots[$type]['ROBOT_SETTINGS'];
 
-			if ($settings['RESPONSIBLE_TO_HEAD'] && $robot['Properties'][$settings['RESPONSIBLE_TO_HEAD']] === 'Y')
+			if (!empty($settings['RESPONSIBLE_TO_HEAD']) && $robot['Properties'][$settings['RESPONSIBLE_TO_HEAD']] === 'Y')
 			{
 				$result['responsibleLabel'] = Loc::getMessage('BIZPROC_AUTOMATION_COMPONENT_BASE_TO_HEAD');
 			}

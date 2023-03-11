@@ -131,7 +131,7 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 			$propertyClass = static::getPropertyClassName();
 			/** @var EntityProperty $property */
 			$property = $propertyClass::getObjectById($value['ORDER_PROPS_ID']);
-			if ($property)
+			if ($property && isset($value['VALUE']))
 			{
 				$property->onValueDelete($value['VALUE']);
 			}

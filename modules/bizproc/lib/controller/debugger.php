@@ -10,12 +10,24 @@ use Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Debugger\Session\DebuggerState;
+use Bitrix\Main\Engine\ActionFilter\ContentType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Error;
 use Bitrix\Bizproc\Debugger\Session\Manager;
 
 class Debugger extends Base
 {
+	public function configureActions()
+	{
+		return [
+			'finishDebugSession' => [
+				'+prefilters' => [
+					new ContentType([ContentType::JSON])
+				],
+			],
+		];
+	}
+
 	public function fillAutomationViewAction(string $sessionId): ?array
 	{
 		$session = $this->getSession($sessionId);
@@ -66,7 +78,20 @@ class Debugger extends Base
 		{
 			/** @var DebugWorkflow $workflow */
 			$workflow = \CBPRuntime::GetRuntime(true)->getWorkflow($workflowId, true);
-			$workflowEvents = $workflow->getDebugEventIds();
+			foreach ($workflow->getDebugEventIds() as $eventName)
+			{
+				foreach ($template->getRobots() as $robot)
+				{
+					if ($robot->getDelayName() === $eventName)
+					{
+						$workflowEvents[] = [
+							'name' => $eventName,
+							'sourceId' => $robot->getName(),
+						];
+						break;
+					}
+				}
+			}
 		}
 
 		$documentCategoryId =
@@ -260,7 +285,7 @@ class Debugger extends Base
 	}
 
 	/** ends debug session */
-	public function finishDebugSessionAction(string $sessionId): ?array
+	public function finishDebugSessionAction(string $sessionId, bool $deleteDocument = false): ?array
 	{
 		$session = $this->getSession($sessionId);
 
@@ -276,6 +301,8 @@ class Debugger extends Base
 			return null;
 		}
 
+		$toDeleteDocument = $session->isExperimentalMode() && $deleteDocument ? $session->getFixedDocument() : null;
+
 		$result = Manager::finishSession($session);
 		if (!$result->isSuccess())
 		{
@@ -284,6 +311,12 @@ class Debugger extends Base
 		else
 		{
 			Listener::getInstance()->onSessionFinished($sessionId);
+
+			if ($toDeleteDocument)
+			{
+				$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+				$documentService->deleteDocument($toDeleteDocument->getParameterDocumentId());
+			}
 		}
 
 		return null;
@@ -309,10 +342,15 @@ class Debugger extends Base
 		}
 
 		$logs = [];
-		foreach ($session->getLogs() as $log)
+
+		$trackingResult = new \CBPTrackingServiceResult();
+		$trackingResult->InitFromArray($session->getLogs());
+
+		while ($log = $trackingResult->fetch())
 		{
+			/** @var $log \Bitrix\Bizproc\Service\Entity\EO_Tracking*/
 			$values = $log->collectValues();
-			$values['MODIFIED'] = (string)($values['MODIFIED'])->getTimestamp();
+			$values['MODIFIED'] = (string)($values['MODIFIED']);
 			$logs[] = $values;
 		}
 

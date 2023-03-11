@@ -316,10 +316,7 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 		return false;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getDescription()
+	protected function includeDescription(): array
 	{
 		$data = array();
 

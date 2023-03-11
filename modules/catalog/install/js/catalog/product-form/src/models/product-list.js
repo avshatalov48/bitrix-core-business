@@ -64,6 +64,8 @@ export class ProductList extends VuexBuilderModel
 				additionalFields: [],
 				properties: [],
 				brands: [],
+				weight: 0,
+				dimensions: {},
 			},
 			calculatedFields: [],
 			catalogFields: {},

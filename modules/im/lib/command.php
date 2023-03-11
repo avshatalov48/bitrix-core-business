@@ -294,7 +294,10 @@ class Command
 
 	public static function onCommandAdd($messageId, $messageFields)
 	{
-		if ($messageFields['SKIP_COMMAND'] == 'Y' || $messageFields['SYSTEM'] == 'Y')
+		$skipCommand = $messageFields['SKIP_COMMAND'] ?? null;
+		$isSystem = $messageFields['SYSTEM'] ?? null;
+
+		if ($skipCommand === 'Y' || $isSystem === 'Y')
 		{
 			return true;
 		}
@@ -306,7 +309,8 @@ class Command
 		}
 
 		$commandList = Array();
-		if (preg_match_all("/^\\/(?P<COMMAND>[^\\040\\n]*)(\\040?)(?P<PARAMS>.*)$/m", $messageFields['MESSAGE'], $matches))
+		$message = $messageFields['MESSAGE'] ?? null;
+		if (preg_match_all("/^\\/(?P<COMMAND>[^\\040\\n]*)(\\040?)(?P<PARAMS>.*)$/m", $message, $matches))
 		{
 			foreach($matches['COMMAND'] as $idx => $cmd)
 			{
@@ -341,7 +345,7 @@ class Command
 				continue;
 			}
 			$hash = md5($params['EXEC_PARAMS'].$params['COMMAND_ID']);
-			if ($executed[$hash])
+			if (isset($executed[$hash]) && $executed[$hash])
 			{
 				continue;
 			}
@@ -628,7 +632,11 @@ class Command
 		$bots = Bot::getListCache();
 		foreach ($commands as $value)
 		{
-			if ($messageFields['CHAT_ENTITY_TYPE'] == 'LIVECHAT' || $messageFields['CHAT_ENTITY_TYPE'] == 'LINES' && $bots[$value['BOT_ID']]['OPENLINE'] != 'Y')
+			$chatEntityType = $messageFields['CHAT_ENTITY_TYPE'] ?? null;
+			if (
+				$chatEntityType === 'LIVECHAT'
+				|| ($chatEntityType === 'LINES' && $bots[$value['BOT_ID']]['OPENLINE'] !== 'Y')
+			)
 			{
 				continue;
 			}

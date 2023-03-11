@@ -27,5 +27,5 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td width="60%">
 		<?=CBPDocument::ShowParameterField("text", 'message_text', $arCurrentValues['message_text'], Array('rows'=> 7))?>
 	</td>
-	<input type="hidden" name="message_format" value="<?=htmlspecialcharsbx($arCurrentValues['message_format'])?>">
+	<input type="hidden" name="message_format" value="<?=htmlspecialcharsbx($arCurrentValues['message_format'] ?? '')?>">
 </tr>

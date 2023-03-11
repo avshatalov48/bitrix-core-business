@@ -9,6 +9,7 @@
 
 namespace Bitrix\Socialnetwork\Helper\UI\Grid\Workgroup;
 
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\Helper;
 
@@ -43,7 +44,7 @@ class Avatar
 				);
 
 				$classList[] = 'ui-icon';
-				$avatar = "<i style=\"background-image: url('" . htmlspecialcharsbx($fileResized['src']) . "'); background-size: cover\"></i>";
+				$avatar = "<i style=\"background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($fileResized['src'])) . "'); background-size: cover\"></i>";
 			}
 		}
 		else

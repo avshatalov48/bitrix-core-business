@@ -4,6 +4,7 @@ namespace Bitrix\Sale;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Text\Encoding;
+use Serializable;
 
 /**
  * Class ResultSerializable
@@ -13,12 +14,20 @@ use Bitrix\Main\Text\Encoding;
  */
 class ResultSerializable
 	extends Result
-	implements \Serializable
+	implements Serializable
 {
-	/**
-	 * @return string
-	 */
-	public function serialize()
+	public function serialize(): ?string
+	{
+		return serialize($this);
+	}
+
+	public function unserialize($data): void
+	{
+		$vars = unserialize($data, ['allowed_classes' => [static::class]]);
+		$this->__unserialize($vars);
+	}
+
+	public function __serialize(): array
 	{
 		$result = get_object_vars($this);
 
@@ -42,15 +51,11 @@ class ResultSerializable
 
 		$result['CHARSET'] = ToUpper(SITE_CHARSET);
 
-		return serialize($result);
+		return $result;
 	}
 
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data)
+	public function __unserialize(array $vars): void
 	{
-		$vars = unserialize($data, ['allowed_classes' => [static::class]]);
 		$isNeedRecode = !empty($vars['CHARSET']) && $vars['CHARSET'] != ToUpper(SITE_CHARSET);
 		$this->errors = new ErrorCollection();
 

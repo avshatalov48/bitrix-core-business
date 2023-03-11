@@ -1,5 +1,6 @@
 import {Loc, Text, Type} from 'main.core';
 import {DateTimeFormat} from 'main.date';
+import {Operator} from "bizproc.condition";
 
 export class Helper
 {
@@ -54,6 +55,11 @@ export class Helper
 			return new Date(date);
 		}
 
+		if (DateTimeFormat.parse(date))
+		{
+			return DateTimeFormat.parse(date, false);
+		}
+
 		if (!Helper.isDate(date))
 		{
 			return null;
@@ -81,26 +87,13 @@ export class Helper
 	/** return condition operators label */
 	static getOperatorsLabel(): object
 	{
-		return {
-			'!empty': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_EMPTY'),
-			'empty': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_EMPTY'),
-			'=': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_EQ'),
-			'!=': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_NE'),
-			'in': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_IN'),
-			'!in': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_IN'),
-			'contain': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_CONTAIN'),
-			'!contain': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_CONTAIN'),
-			'>': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_GT'),
-			'>=': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_GTE'),
-			'<': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_LT'),
-			'<=': Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_CONDITION_LTE'),
-		};
+		return Operator.getAllLabels();
 	}
 
 	/** return condition operator label */
 	static getOperatorLabel(operator: string): string
 	{
-		return Helper.getOperatorsLabel()[operator];
+		return Operator.getOperatorLabel([operator]);
 	}
 
 	/** return joiner label */

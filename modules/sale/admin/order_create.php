@@ -19,7 +19,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 Bitrix\Main\Loader::includeModule('sale');
 Loc::loadMessages(__FILE__);
-$ID = isset($_REQUEST["ID"]) ? intval($_REQUEST["ID"]) : 0;
+
+$ID = (int)($_REQUEST["ID"] ?? 0);
+$RESTORE_ID = (int)($_GET['restoreID'] ?? 0);
 
 $isSavingOperation = (
 	$_SERVER["REQUEST_METHOD"] == "POST"
@@ -32,7 +34,7 @@ $isSavingOperation = (
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $needFieldsRestore = $_SERVER["REQUEST_METHOD"] == "POST" && !$isSavingOperation;
 $isCopyingOrderOperation = $ID > 0;
-$isRestoringOrderOperation = ((int)$_GET['restoreID'] > 0);
+$isRestoringOrderOperation = $RESTORE_ID > 0;
 $createWithProducts = (isset($_GET["USER_ID"]) && isset($_GET["SITE_ID"]) || isset($_GET["product"]));
 $showProfiles = false;
 $profileId = 0;
@@ -69,6 +71,7 @@ $result = new \Bitrix\Sale\Result();
 $customTabber = new CAdminTabEngine("OnAdminSaleOrderCreate");
 $customDraggableBlocks = new CAdminDraggableBlockEngine('OnAdminSaleOrderCreateDraggable');
 
+$errorMessage = '';
 
 /** @var Sale\DiscountCouponsManager $discountCouponsClass */
 $discountCouponsClass = $registry->getDiscountCouponClassName();
@@ -88,8 +91,6 @@ if($isSavingOperation || $needFieldsRestore)
 
 	if($order && $result->isSuccess())
 	{
-		$errorMessage = '';
-
 		if (!$customTabber->Check())
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -505,7 +506,7 @@ elseif($isRestoringOrderOperation) // Restore order from archive
 {
 	$profileList = array();
 
-	$archivedOrder = Sale\Archive\Manager::returnArchivedOrder((int)$_GET['restoreID']);
+	$archivedOrder = Sale\Archive\Manager::returnArchivedOrder($RESTORE_ID);
 
 	/** @var Sale\OrderStatus $orderStatusClass */
 	$orderStatusClass = $registry->getOrderStatusClassName();
@@ -932,7 +933,7 @@ foreach($blocksOrder as $item)
 	<input type="hidden" id="OLD_USER_ID" name="OLD_USER_ID" value="0">
 	<input type="hidden" name="BASKET_PREFIX" value="<?=$basketPrefix?>">
 	<?
-	if ($_REQUEST["ABANDONED"] === 'Y')
+	if (isset($_REQUEST["ABANDONED"]) && $_REQUEST["ABANDONED"] === 'Y')
 	{
 		?>
 		<input type="hidden" id="ABANDONED_USER_ID" name="ABANDONED_USER_ID" value="<?=(int)$_REQUEST["USER_ID"]?>">
@@ -951,7 +952,7 @@ foreach($blocksOrder as $item)
 			switch ($blockCode)
 			{
 				case "basket":
-					if($errorAbsentProductMessage <> '')
+					if(!empty($errorAbsentProductMessage))
 					{
 						$admMessage = new CAdminMessage($errorAbsentProductMessage);
 						echo $admMessage->Show();
@@ -971,7 +972,9 @@ foreach($blocksOrder as $item)
 					/** @var \Bitrix\Sale\Shipment  $shipment*/
 					foreach ($shipments as $shipment)
 						if (!$shipment->isSystem())
-							echo Blocks\OrderShipment::getEdit($shipment, 0, '', $_POST['SHIPMENT'][1]);
+						{
+							echo Blocks\OrderShipment::getEdit($shipment, 0, '', $_POST['SHIPMENT'][1] ?? null);
+						}
 
 					break;
 				case "payment":
@@ -982,7 +985,7 @@ foreach($blocksOrder as $item)
 
 					$index = 0;
 					foreach ($payments as $payment)
-						echo Blocks\OrderPayment::getEdit($payment, ++$index, $_POST['PAYMENT'][$index]);
+						echo Blocks\OrderPayment::getEdit($payment, ++$index, $_POST['PAYMENT'][$index] ?? null);
 
 					echo Blocks\OrderPayment::createButtonAddPayment(['formType'=>'edit']);
 					break;

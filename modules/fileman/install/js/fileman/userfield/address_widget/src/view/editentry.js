@@ -91,12 +91,21 @@ export class EditEntry extends EventEmitter
 			</div>
 		`;
 
+		// a workaround for bizproc conditionals; their conditionals popup seems to use the topmost <input>'s value
+		const hiddenFormattedInputValue = this.#address ? this.getRawValueForHiddenFormattedInput(this.#address) : '';
+		this.#nodes.hiddenFormattedAddressInput = Tag.render`<input type="hidden" name="${this.#fieldName}_formatted" value="${hiddenFormattedInputValue}" />`;
+
+		// a flag used to identify values set manually by the user
+		const manualEditFlagNode = Tag.render`<input type="hidden" name="${this.#fieldName}_manual_edit" value="Y">`;
+
 		this.#nodes.layout = Tag.render`
 			<div class="edit-entry-layout-wrapper ${this.getLayoutSizeClass()}">
 				<div class="address-control-mode-switch-wrapper">
 					${this.#nodes.detailsToggle}
 				</div>
+				${this.#nodes.hiddenFormattedAddressInput}
 				${this.#nodes.entryWrapper}
+				${manualEditFlagNode}
 			</div>
 		`;
 
@@ -191,6 +200,8 @@ export class EditEntry extends EventEmitter
 
 		this.#nodes.fieldValueInput.value = this.getChangedAddressFieldValue(address);
 
+		this.#nodes.hiddenFormattedAddressInput.value = this.getRawValueForHiddenFormattedInput(address);
+
 		this.emitFieldChangedEvent();
 	}
 
@@ -270,6 +281,11 @@ export class EditEntry extends EventEmitter
 	{
 		const format = new Format(JSON.parse(BX.message('LOCATION_WIDGET_DEFAULT_FORMAT')));
 		return address.toString(format, AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA) ?? '';
+	}
+
+	getRawValueForHiddenFormattedInput(address: AddressEntity): string
+	{
+		return `${this.getFormattedAddress(address)}|${address.latitude};${address.longitude}`;
 	}
 
 	onInputIconClick()

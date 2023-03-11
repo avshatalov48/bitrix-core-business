@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\Component\WorkgroupUserList;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Main\Localization\Loc;
@@ -105,7 +106,7 @@ class WorkgroupUserListTemplate
 				]
 			);
 
-			$result = "<div class=\"sonet-group-user-grid-avatar ui-icon ui-icon-common-user\"><i style=\"background-image: url('" . $fileResized['src'] . "'); background-size: cover\"></i></div>";
+			$result = "<div class=\"sonet-group-user-grid-avatar ui-icon ui-icon-common-user\"><i style=\"background-image: url('" . Uri::urnEncode($fileResized['src']) . "'); background-size: cover\"></i></div>";
 		}
 
 		return $result;

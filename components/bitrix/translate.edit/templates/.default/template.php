@@ -144,7 +144,7 @@ $formatDeficiencyExcessRounded = static function ($deficiency, $excess, $isOblig
 	id="bx-translate-editor-<?= $arParams['TAB_ID'] ?>"
 	method="post"
 	accept-charset="<?= $arParams['CURRENT_LANG'] ?>"
-	action="<?=$APPLICATION->GetCurPage()?>?viewMode=<?=$arResult['VIEW_MODE']?>&file=<?=htmlspecialcharsbx($arResult['PATH'])?>&lang=<?=$arParams['CURRENT_LANG']?>">
+	action="<?=$APPLICATION->GetCurPage()?>?viewMode=<?=$arParams['VIEW_MODE']?>&file=<?=htmlspecialcharsbx($arResult['PATH'])?>&lang=<?=$arParams['CURRENT_LANG']?>">
 	<?=bitrix_sessid_post()?>
 
 	<div class="translate-edit">

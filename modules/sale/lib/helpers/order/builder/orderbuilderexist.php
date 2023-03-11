@@ -39,14 +39,16 @@ final class OrderBuilderExist implements IOrderBuilderDelegate
 		$currentUserId = 0;
 		$oldUserId = null;
 
-		if ((int)$data["USER_ID"] > 0)
+		$dataUserId = (int)($data["USER_ID"] ?? 0);
+		if ($dataUserId > 0)
 		{
-			$currentUserId = (int)$data["USER_ID"];
+			$currentUserId = $dataUserId;
 		}
 
-		if ((int)$data["OLD_USER_ID"] > 0)
+		$dataOldUserId = (int)($data["OLD_USER_ID"] ?? 0);
+		if ($dataOldUserId > 0)
 		{
-			$oldUserId = (int)$data["OLD_USER_ID"];
+			$oldUserId = $dataOldUserId;
 		}
 
 		//If buyer changed - discount also can be changed
@@ -64,10 +66,10 @@ final class OrderBuilderExist implements IOrderBuilderDelegate
 
 	public function setUser()
 	{
-		$currentUserId = $this->builder->getOrder()->getUserId();
+		$currentUserId = (int)$this->builder->getOrder()->getUserId();
 
-		$formDataUserId = (int)$this->builder->getFormData()['USER_ID'];
-		$isChanged = ($formDataUserId > 0) && ((int)$currentUserId !== $formDataUserId);
+		$formDataUserId = (int)($this->builder->getFormData()['USER_ID'] ?? 0);
+		$isChanged = ($formDataUserId > 0) && ($currentUserId !== $formDataUserId);
 		if ($currentUserId && $isChanged)
 		{
 			$paymentCollection = $this->builder->getOrder()->getPaymentCollection();

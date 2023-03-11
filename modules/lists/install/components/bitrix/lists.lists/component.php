@@ -32,7 +32,8 @@ else
 $APPLICATION->SetTitle($title);
 
 if (
-	(int)$arParams['SOCNET_GROUP_ID'] > 0
+	isset($arParams['SOCNET_GROUP_ID'])
+	&& (int)$arParams['SOCNET_GROUP_ID'] > 0
 	&& \Bitrix\Main\Loader::includeModule('socialnetwork')
 	&& method_exists(Bitrix\Socialnetwork\ComponentHelper::class, 'getWorkgroupPageTitle')
 )
@@ -53,7 +54,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	false,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 {

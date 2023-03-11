@@ -2,20 +2,24 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
-	var _currency = new WeakMap();
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 
-	var _format = new WeakMap();
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _currency = /*#__PURE__*/new WeakMap();
+
+	var _format = /*#__PURE__*/new WeakMap();
 
 	var CurrencyItem = /*#__PURE__*/function () {
 	  function CurrencyItem(currency, format) {
 	    babelHelpers.classCallCheck(this, CurrencyItem);
 
-	    _currency.set(this, {
+	    _classPrivateFieldInitSpec(this, _currency, {
 	      writable: true,
 	      value: ''
 	    });
 
-	    _format.set(this, {
+	    _classPrivateFieldInitSpec(this, _format, {
 	      writable: true,
 	      value: {}
 	    });
@@ -43,6 +47,9 @@ this.BX = this.BX || {};
 	  return CurrencyItem;
 	}();
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var CurrencyCore = /*#__PURE__*/function () {
 	  function CurrencyCore() {
 	    babelHelpers.classCallCheck(this, CurrencyCore);
@@ -66,7 +73,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var innerFormat = babelHelpers.objectSpread({}, this.defaultFormat, format);
+	      var innerFormat = _objectSpread(_objectSpread({}, this.defaultFormat), format);
 
 	      if (index === -1) {
 	        this.currencies.push(new CurrencyItem(currency, innerFormat));
@@ -143,6 +150,18 @@ this.BX = this.BX || {};
 	      return result;
 	    }
 	  }, {
+	    key: "getPriceControl",
+	    value: function getPriceControl(control, currency) {
+	      var result = '';
+	      var format = this.getCurrencyFormat(currency);
+
+	      if (main_core.Type.isObject(format)) {
+	        result = format.FORMAT_STRING.replace(/(^|[^&])#/, '$1' + control.outerHTML);
+	      }
+
+	      return result;
+	    }
+	  }, {
 	    key: "loadCurrencyFormat",
 	    value: function loadCurrencyFormat(currency) {
 	      var _this = this;
@@ -163,7 +182,7 @@ this.BX = this.BX || {};
 	            _this.setCurrencyFormat(currency, format);
 
 	            resolve(format);
-	          }).catch(function (response) {
+	          })["catch"](function (response) {
 	            reject(response.errors);
 	          });
 	        }

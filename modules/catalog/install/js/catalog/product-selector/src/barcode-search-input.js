@@ -511,7 +511,7 @@ export class BarcodeSearchInput extends ProductSearchInput
 	selectScannedBarcodeProduct(productId)
 	{
 		this.toggleIcon(this.getSearchIcon(), 'none');
-		this.model.getErrorCollection().clearErrors();
+		this.clearErrors();
 		if (this.selector)
 		{
 			this.selector.onProductSelect(

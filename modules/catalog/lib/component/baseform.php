@@ -126,6 +126,7 @@ abstract class BaseForm
 			$params['SCOPE'] = self::SCOPE_SHOP;
 		}
 
+		$params['MODE'] = $params['MODE'] ?? '';
 		if ($params['MODE'] !== self::CREATION_MODE && $params['MODE'] !== self::EDIT_MODE)
 		{
 			$params['MODE'] = $this->entity->isNew() ? self::CREATION_MODE : self::EDIT_MODE;
@@ -489,7 +490,7 @@ abstract class BaseForm
 				);
 			}
 
-			$propertySettings = $description['settings'];
+			$propertySettings = $description['settings'] ?? [];
 
 			if ($description['type'] === 'custom')
 			{
@@ -530,12 +531,7 @@ abstract class BaseForm
 						$editValue = $value;
 					}
 
-					$imageExtensions = explode(',', \CFile::GetImageExtensions());
-					$fileExtensions = explode(',', $description['settings']['FILE_TYPE']);
-					$fileExtensions = array_map('trim', $fileExtensions);
-
-					$diffExtensions = array_diff($fileExtensions, $imageExtensions);
-					$isImageInput = empty($diffExtensions);
+					$isImageInput = $this->isImageProperty($description['settings']);
 
 					$descriptionSingle = $description;
 					$descriptionSingle['settings']['MULTIPLE'] = false;
@@ -545,20 +541,15 @@ abstract class BaseForm
 					if ($isImageInput)
 					{
 						$additionalValues[$descriptionData['view']] = $this->getImagePropertyViewHtml($value);
-						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getImagePropertyViewHtml(is_array($value) ? $value[0] : $value);
+						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getImagePropertyViewHtml(is_array($value) ? $value[0] ?? null : $value);
 						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getImagePropertyViewHtml(is_array($value) ? $value : [$value]);
 						$additionalValues[$descriptionData['edit']] = $this->getImagePropertyEditHtml($description, $editValue);
-						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getImagePropertyEditHtml($descriptionSingle, is_array($editValue) ? $editValue[0] : $editValue);
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getImagePropertyEditHtml($descriptionSingle, is_array($editValue) ? $editValue[0] ?? null : $editValue);
 						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $this->getImagePropertyEditHtml($descriptionMultiple, is_array($editValue) ? $editValue : [$editValue]);
 					}
 					else
 					{
-						$controlId = FileInputUtility::instance()->getUserFieldCid([
-							'ID' => $description['settings']['ID'],
-							'ENTITY_ID' => $description['propertyId'],
-							'MULTIPLE' => $description['settings']['MULTIPLE'],
-							'FIELD_NAME' => $description['name'],
-						]);
+						$controlId = $description['name'] . '_uploader_' . $this->entity->getId();
 
 						$additionalValues[$descriptionData['view']] = '';
 						$additionalValues[$descriptionData['viewList']]['SINGLE'] = '';
@@ -567,12 +558,12 @@ abstract class BaseForm
 						if (!empty($value))
 						{
 							$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($description, $value, $controlId);
-							$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] : $value, $controlId, false);
+							$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
 							$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value : [$value], $controlId, true);
 						}
 
 						$additionalValues[$descriptionData['edit']] = $this->getFilePropertyEditHtml($description, $value, $controlId);
-						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getFilePropertyEditHtml($description, is_array($value) ? $value[0] : $value, $controlId, false);
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getFilePropertyEditHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
 						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $this->getFilePropertyEditHtml($description, is_array($value) ? $value : [$value], $controlId, true);
 					}
 				}
@@ -718,6 +709,17 @@ abstract class BaseForm
 		}
 
 		return $additionalValues;
+	}
+
+	public function isImageProperty(array $propertySettings): bool
+	{
+		$fileTypes = (string)$propertySettings['FILE_TYPE'];
+		$imageExtensions = explode(',', \CFile::GetImageExtensions());
+		$fileExtensions = explode(',', $fileTypes);
+		$fileExtensions = array_map('trim', $fileExtensions);
+
+		$diffExtensions = array_diff($fileExtensions, $imageExtensions);
+		return empty($diffExtensions);
 	}
 
 	private function getAdditionalMoneyValues(string $value, callable $formatMethod): array
@@ -2204,12 +2206,15 @@ abstract class BaseForm
 				$val = $val['VALUE'];
 			}
 
-			$elementData = ElementTable::getList([
-				'filter' => ['ID' => $val],
-				'limit' => 1,
-				'select' => ['NAME'],
+			$element = ElementTable::getRow([
+				'select' => [
+					'NAME',
+				],
+				'filter' => [
+					'=ID' => $val
+				],
 			]);
-			$element = $elementData->fetch();
+			$elementName = $element === null ? '' : $element['NAME'];
 
 			$currentSearchParams = $searchParams;
 			$currentSearchParams['k'] = $key;
@@ -2218,7 +2223,7 @@ abstract class BaseForm
 			$result .= '<tr><td>'
 				. '<input name="' . $name . '[' . $key . ']" id="' . $name . '[' . $key . ']" value="' . htmlspecialcharsbx($val) . '" size="5" type="text">'
 				. '<input type="button" value="..." onClick="jsUtils.OpenWindow(\'' . $searchUrl . '\', 900, 700);">'
-				. '&nbsp;<span id="sp_' . md5($name) . '_' . $key . '" >' . htmlspecialcharsbx($element['NAME']) . '</span>'
+				. '&nbsp;<span id="sp_' . md5($name) . '_' . $key . '" >' . htmlspecialcharsbx($elementName) . '</span>'
 				. '</td></tr>';
 			unset($searchUrl, $currentSearchParams);
 

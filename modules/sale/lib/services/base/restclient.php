@@ -384,6 +384,8 @@ class RestClient
 	protected function getLastUnSuccessCount()
 	{
 		$last = static::getLastUnSuccessCallInfo();
-		return intval($last['COUNT']) > 0 ? intval($last['COUNT']) : 0;
+		$count = (int)($last['COUNT'] ?? 0);
+
+		return max(0, $count);
 	}
 }

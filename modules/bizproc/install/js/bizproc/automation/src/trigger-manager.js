@@ -1,12 +1,11 @@
-import { Type, Event, Loc, Dom, Text, Reflection, Uri, ajax } from "main.core";
-import { MenuManager } from "main.popup";
+import { Type, Event, Loc, Dom, Text, Uri, ajax } from "main.core";
 import { EventEmitter } from "main.core.events";
 import { ViewMode } from "./view-mode";
 import { Trigger } from "./trigger";
-import { HelpHint } from "./help-hint";
 import { Helper } from "./helper";
 import { Designer } from "./designer";
 import { getGlobalContext, ConditionGroup, ConditionGroupSelector } from "bizproc.automation";
+import { Alert, AlertColor, AlertIcon } from "ui.alerts";
 
 export class TriggerManager extends EventEmitter
 {
@@ -135,6 +134,7 @@ export class TriggerManager extends EventEmitter
 		{
 			callback.call(this, trigger);
 		}
+		this.emit('TriggerManager:trigger:add', {trigger});
 	}
 
 	deleteTrigger(trigger: Trigger, callback)
@@ -158,6 +158,8 @@ export class TriggerManager extends EventEmitter
 		{
 			callback(trigger);
 		}
+
+		this.emit('TriggerManager:trigger:delete', { trigger });
 
 		this.markModified();
 	}
@@ -189,7 +191,7 @@ export class TriggerManager extends EventEmitter
 		const listNode = this.#triggersContainerNode.querySelector('[data-role="trigger-list"][data-status-id="'+documentStatus+'"]');
 		if (listNode)
 		{
-			listNode.appendChild(triggerNode);
+			Dom.append(triggerNode, listNode);
 		}
 	}
 
@@ -268,22 +270,22 @@ export class TriggerManager extends EventEmitter
 			style: {"min-width": '540px'}
 		});
 
-		form.appendChild(this.renderConditionSettings(trigger));
+		Dom.append(this.renderConditionSettings(trigger), form);
 
 		const iconHelp = Dom.create('div', {
 			attrs: { className: 'bizproc-automation-robot-help' },
 			events: {click: (event) => this.emit('TriggerManager:onHelpClick', event)}
 		});
-		form.appendChild(iconHelp);
+		Dom.append(iconHelp, form);
 
 		const title = this.getTriggerName(trigger.getCode());
 
-		form.appendChild(Dom.create("span", {
+		Dom.append(Dom.create("span", {
 			attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
 			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_NAME') + ':'
-		}));
+		}), form);
 
-		form.appendChild(Dom.create("div", {
+		Dom.append(Dom.create("div", {
 			attrs: { className: "bizproc-automation-popup-settings" },
 			children: [
 				Dom.create("input", {
@@ -295,318 +297,13 @@ export class TriggerManager extends EventEmitter
 					}
 				}),
 			],
-		}));
+		}), form);
 
-		//TODO: refactoring
 		const triggerData = this.getAvailableTrigger(trigger.getCode());
-		if (trigger.getCode() === 'WEBHOOK')
+
+		if (triggerData && triggerData['SETTINGS'])
 		{
-			if (!trigger.getApplyRules()['code'])
-			{
-				trigger.getApplyRules()['code'] = Text.getRandom(5);
-			}
-
-			form.appendChild(Dom.create("span", {
-				attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
-				text: "URL:"
-			}));
-
-			form.appendChild(Dom.create('input', {
-				props: {
-					type: 'hidden',
-					value: trigger.getApplyRules()['code'],
-					name: 'code'
-				}
-			}));
-
-			const hookLinkTextarea = Dom.create("textarea", {
-				attrs: {
-					className: "bizproc-automation-popup-textarea",
-					placeholder: "...",
-					readonly: 'readonly',
-					name: 'webhook_handler'
-				},
-				events: {
-					click(e)
-					{
-						this.select();
-					}
-				}
-			});
-
-			form.appendChild(Dom.create("div", {
-				attrs: { className: "bizproc-automation-popup-settings" },
-				children: [hookLinkTextarea]
-			}));
-
-			form.appendChild(Dom.create("span", {
-				attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
-				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_WEBHOOK_ID'),
-			}));
-
-			if (triggerData && triggerData['HANDLER'])
-			{
-				let url = window.location.protocol + '//' + window.location.host + triggerData['HANDLER'];
-				url = Uri.addParam(url, {code: trigger.getApplyRules()['code']});
-				url = url.replace('{{DOCUMENT_TYPE}}', getGlobalContext().document.getRawType()[2]);
-				hookLinkTextarea.value = url;
-			}
-		}
-		else if (trigger.getCode() === 'EMAIL_LINK')
-		{
-			form.appendChild(Dom.create("span", {
-				attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
-				text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_EMAIL_LINK_URL') + ':',
-			}));
-
-			form.appendChild(Dom.create("div", {
-				attrs: { className: "bizproc-automation-popup-settings" },
-				children: [
-					Dom.create("textarea", {
-						attrs: {
-							className: "bizproc-automation-popup-textarea",
-							placeholder: "https://example.com"
-						},
-						props: {name: 'url'},
-						text: trigger.getApplyRules()['url'] || ''
-					}),
-				],
-			}));
-		}
-		else if (trigger.getCode() === 'WEBFORM')
-		{
-			if (triggerData && triggerData['WEBFORM_LIST'])
-			{
-				const select = Dom.create('select', {
-					attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-					props: {
-						name: 'form_id',
-						value: ''
-					},
-					children: [
-						Dom.create('option', {
-							props: {value: ''},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_ANY')
-						}),
-					],
-				});
-
-				for (let i = 0; i < triggerData['WEBFORM_LIST'].length; ++i)
-				{
-					const item = triggerData['WEBFORM_LIST'][i];
-					select.appendChild(Dom.create('option', {
-						props: {value: item['ID']},
-						text: item['NAME']
-					}));
-				}
-				if (Type.isPlainObject(trigger.getApplyRules()) && trigger.getApplyRules()['form_id'])
-				{
-					select.value = trigger.getApplyRules()['form_id'];
-				}
-
-				const div = Dom.create('div', {
-					attrs: {
-						className: 'bizproc-automation-popup-settings'
-					},
-					children: [
-						Dom.create('span', {
-							attrs: {
-								className: 'bizproc-automation-popup-settings-title'
-							},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_LABEL') + ':'
-						}),
-						select,
-					],
-				});
-				form.appendChild(div);
-			}
-		}
-		else if (trigger.getCode() === 'CALLBACK')
-		{
-			if (triggerData && triggerData['WEBFORM_LIST'])
-			{
-				const select = Dom.create('select', {
-					attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-					props: {
-						name: 'form_id',
-						value: ''
-					},
-					children: [
-						Dom.create('option', {
-							props: {value: ''},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_ANY'),
-						}),
-					],
-				});
-
-				for (let i = 0; i < triggerData['WEBFORM_LIST'].length; ++i)
-				{
-					const item = triggerData['WEBFORM_LIST'][i];
-					select.appendChild(
-						Dom.create('option', {
-							props: {value: item['ID']},
-							text: item['NAME']
-						})
-					);
-				}
-				if (Type.isPlainObject(trigger.getApplyRules()) && trigger.getApplyRules()['form_id'])
-				{
-					select.value = trigger.getApplyRules()['form_id'];
-				}
-
-				const div = Dom.create('div', {
-					attrs: {
-						className: 'bizproc-automation-popup-settings'
-					},
-					children: [
-						Dom.create('span', {
-							attrs: {
-								className: 'bizproc-automation-popup-settings-title'
-							},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_LABEL') + ':'}),
-						select
-					],
-				});
-				form.appendChild(div);
-			}
-		}
-		else if (trigger.getCode() === 'STATUS')
-		{
-			if (triggerData && triggerData['STATUS_LIST'])
-			{
-				const select = Dom.create('select', {
-					attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-					props: {
-						name: 'STATUS',
-						value: ''
-					},
-					children: [
-						Dom.create('option', {
-							props: {value: ''},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_STATUS_ANY'),
-						}),
-					],
-				});
-
-				for (let i = 0; i < triggerData['STATUS_LIST'].length; ++i)
-				{
-					const item = triggerData['STATUS_LIST'][i];
-					select.appendChild(Dom.create('option', {
-						props: {value: item['ID']},
-						text: item['NAME']
-					}));
-				}
-				if (Type.isPlainObject(trigger.getApplyRules()) && trigger.getApplyRules()['STATUS'])
-				{
-					select.value = trigger.getApplyRules()['STATUS'];
-				}
-
-				const div = Dom.create('div', {
-					attrs: {className: 'bizproc-automation-popup-settings'},
-					children: [
-						Dom.create('span', {
-							attrs: {
-								className: 'bizproc-automation-popup-settings-title'
-							},
-							text: triggerData['STATUS_LABEL'] + ':'}
-						),
-						select
-					],
-				});
-				form.appendChild(div);
-			}
-		}
-		else if (trigger.getCode() == 'CALL')
-		{
-			if (triggerData && triggerData['LINES'])
-			{
-				const select = Dom.create('select', {
-					attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-					props: {
-						name: 'LINE_NUMBER',
-						value: ''
-					},
-					children: [
-						Dom.create('option', {
-							props: {value: ''},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_ANY'),
-						}),
-					],
-				});
-
-				for (let i = 0; i < triggerData['LINES'].length; ++i)
-				{
-					const item = triggerData['LINES'][i];
-					select.appendChild(Dom.create('option', {
-						props: {value: item['LINE_NUMBER']},
-						text: item['SHORT_NAME']
-					}));
-				}
-				if (trigger.getApplyRules()['LINE_NUMBER'])
-				{
-					select.value = trigger.getApplyRules()['LINE_NUMBER'];
-				}
-
-				const div = Dom.create('div', {
-					attrs: {className: 'bizproc-automation-popup-settings'},
-					children: [
-						Dom.create('span', {
-							attrs: {
-								className: 'bizproc-automation-popup-settings-title'
-							},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_CALL_LABEL') + ':'
-						}),
-						select,
-					],
-				});
-				form.appendChild(div);
-			}
-		}
-		else if (trigger.getCode() == 'OPENLINE' || trigger.getCode() == 'OPENLINE_MSG')
-		{
-			if (triggerData && triggerData['CONFIG_LIST'])
-			{
-				const select = Dom.create('select', {
-					attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-					props: {
-						name: 'config_id',
-						value: ''
-					},
-					children: [
-						Dom.create('option', {
-							props: {value: ''},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_WEBFORM_ANY')
-						}),
-					],
-				});
-
-				for (let i = 0; i < triggerData['CONFIG_LIST'].length; ++i)
-				{
-					const item = triggerData['CONFIG_LIST'][i];
-					select.appendChild(Dom.create('option', {
-						props: {value: item['ID']},
-						text: item['NAME']
-					}));
-				}
-				if (Type.isPlainObject(trigger.getApplyRules()) && trigger.getApplyRules()['config_id'])
-				{
-					select.value = trigger.getApplyRules()['config_id'];
-				}
-
-				const div = Dom.create('div', {
-					attrs: {className: 'bizproc-automation-popup-settings'},
-					children: [
-						Dom.create('span', {
-							attrs: {
-								className: 'bizproc-automation-popup-settings-title'
-							},
-							text: Loc.getMessage('BIZPROC_AUTOMATION_TRIGGER_OPENLINE_LABEL') + ':'
-						}),
-						select,
-					],
-				});
-				form.appendChild(div);
-			}
+			this.#renderTriggerProperties(trigger, triggerData['SETTINGS']['Properties'], form);
 		}
 
 		BX.onCustomEvent(
@@ -653,40 +350,13 @@ export class TriggerManager extends EventEmitter
 					text : Loc.getMessage('JS_CORE_WINDOW_SAVE'),
 					className : "popup-window-button-accept",
 					events : {
-						click() {
+						click: () => {
 							const formData = BX.ajax.prepareForm(form);
 							trigger.setName(formData['data']['name']);
 
-							//TODO: refactoring
-							if (trigger.getCode() === 'WEBFORM')
+							if (triggerData['SETTINGS'])
 							{
-								trigger.setApplyRules({form_id:  formData['data']['form_id']});
-							}
-							if (trigger.getCode() === 'CALLBACK')
-							{
-								trigger.setApplyRules({form_id: formData['data']['form_id']});
-							}
-							if (trigger.getCode() === 'STATUS')
-							{
-								trigger.setApplyRules({STATUS: formData['data']['STATUS']});
-							}
-							if (trigger.getCode() === 'CALL' && 'LINE_NUMBER' in formData['data'])
-							{
-								trigger.setApplyRules({LINE_NUMBER: formData['data']['LINE_NUMBER']});
-							}
-							if (trigger.getCode() === 'OPENLINE' || trigger.getCode() === 'OPENLINE_MSG')
-							{
-								trigger.setApplyRules({config_id: formData['data']['config_id']});
-							}
-
-							if (trigger.getCode() === 'WEBHOOK')
-							{
-								trigger.setApplyRules({code: formData['data']['code']});
-							}
-
-							if (trigger.getCode() === 'EMAIL_LINK')
-							{
-								trigger.setApplyRules({url: formData['data']['url']});
+								this.#setTriggerProperties(trigger, triggerData['SETTINGS']['Properties'], form);
 							}
 
 							BX.onCustomEvent(
@@ -722,7 +392,7 @@ export class TriggerManager extends EventEmitter
 
 							trigger.reInit();
 							self.markModified();
-							this.popupWindow.close();
+							popup.close();
 						}
 					}
 				}),
@@ -749,6 +419,117 @@ export class TriggerManager extends EventEmitter
 				analyticsLabel: `automation_trigger${trigger.draft ? '_draft' : ''}_settings_${trigger.getCode().toLowerCase()}`
 			}
 		);
+	}
+
+	#renderTriggerProperties(trigger: Trigger, properties: [], form: Element)
+	{
+		properties.forEach((property) => {
+
+			const value = trigger.getApplyRules()[property.Id];
+
+			if (property.Type === '@condition-group-selector')
+			{
+				this.#renderConditionGroupSelector(property, value, form);
+
+				return;
+			}
+
+			if (property.Type === '@webhook-code')
+			{
+				this.#renderWebhookCodeProperty(property, value, form);
+
+				return;
+			}
+
+			if (property.Type === '@field-selector')
+			{
+				this.#renderFieldSelectorProperty(property, value, form);
+
+				return;
+			}
+
+			const toRenderProperty = {AllowSelection: false, ...property};
+
+			if (toRenderProperty.Type === '@robot-select')
+			{
+				this.#prepareRobotSelectProperty(toRenderProperty);
+			}
+
+			Dom.append(Dom.create("span", {
+				attrs: {
+					className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete",
+				},
+				text: property.Name + ':',
+			}), form);
+
+			Dom.append(Dom.create("div", {
+				attrs: { className: "bizproc-automation-popup-settings" },
+				children: [
+					BX.Bizproc.FieldType.renderControl(
+						[
+							...getGlobalContext().document.getRawType(),
+							getGlobalContext().document.getCategoryId(),
+						],
+						toRenderProperty,
+						property.Id,
+						value || ''
+					)
+				],
+			}), form);
+		});
+	}
+
+	#prepareRobotSelectProperty(property)
+	{
+		const cmp = Designer.getInstance().component;
+		property.Options = [];
+		const filter = property.Settings.Filter;
+		const check = (robot) =>
+		{
+			for (const field in filter)
+			{
+				if (robot.data[field] !== filter[field])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		};
+
+		cmp.templateManager.templates.forEach((template) => {
+			template.robots.forEach((robot) => {
+				if (check(robot))
+				{
+					property.Options.push(
+						{value: robot.getId(), name: robot.getProperty(property.Settings.OptionNameProperty)}
+					);
+				}
+			});
+		});
+
+		delete property.Settings;
+		property.Type = 'select';
+	}
+
+	#setTriggerProperties(trigger: Trigger, properties: [], form: Element)
+	{
+		const values = {};
+
+		properties.forEach((property) => {
+
+			if (property.Type === '@condition-group-selector')
+			{
+				values[property.Id] = this.#setConditionGroupValue(property, form);
+
+				return;
+			}
+
+			const formData = BX.ajax.prepareForm(form);
+			values[property.Id] = formData.data[property.Id];
+		});
+
+		trigger.setApplyRules(values);
 	}
 
 	renderConditionSettings(trigger: Trigger)
@@ -778,16 +559,338 @@ export class TriggerManager extends EventEmitter
 		});
 	}
 
+	#renderConditionGroupSelector(property, value, form)
+	{
+		const selector = new ConditionGroupSelector(new ConditionGroup(value), {
+			fields: property.Settings.Fields,
+			fieldPrefix: property.Id,
+		});
+
+		Dom.append(
+			Dom.create("div", {
+				attrs: { className: "bizproc-automation-popup-settings" },
+				children: [
+					Dom.create("div", {
+						attrs: { className: "bizproc-automation-popup-settings-block" },
+						children: [
+							Dom.create("span", {
+								attrs: { className: "bizproc-automation-popup-settings-title" },
+								text: property.Name + ":"
+							}),
+							selector.createNode()
+						]
+					})
+				],
+			}),
+			form
+		);
+	}
+
+	#setConditionGroupValue(property, form)
+	{
+		const formData = BX.ajax.prepareForm(form);
+		const conditionGroup = ConditionGroup.createFromForm(
+			formData['data'],
+			property.Id
+		);
+
+		return conditionGroup.serialize();
+	}
+
+	#renderWebhookCodeProperty(property, value, form)
+	{
+		if (!value)
+		{
+			value = Text.getRandom(5);
+		}
+
+		Dom.append(Dom.create("span", {
+			attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
+			text: property.Name + ':'
+		}), form);
+
+		Dom.append(Dom.create('input', {
+			props: {
+				type: 'hidden',
+				value: value,
+				name: 'code'
+			}
+		}), form);
+
+		const hookLinkTextarea = Dom.create("textarea", {
+			attrs: {
+				className: "bizproc-automation-popup-textarea",
+				placeholder: "...",
+				readonly: 'readonly',
+				name: 'webhook_handler'
+			},
+			events: {
+				click()
+				{
+					this.select();
+				}
+			}
+		});
+
+		Dom.append(Dom.create("div", {
+			attrs: { className: "bizproc-automation-popup-settings" },
+			children: [hookLinkTextarea]
+		}), form);
+
+		Dom.append(Dom.create("span", {
+			attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
+			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_WEBHOOK_ID'),
+		}), form);
+
+		if (property.Settings.Handler)
+		{
+			let url = window.location.protocol + '//' + window.location.host + property.Settings.Handler;
+			url = Uri.addParam(url, {code: value});
+			url = url.replace('{{DOCUMENT_TYPE}}', getGlobalContext().document.getRawType()[2]);
+			url = url.replace('{{USER_ID}}', Loc.getMessage('USER_ID'));
+
+			if (property.Settings.Password)
+			{
+				url = url.replace('{{PASSWORD}}', property.Settings.Password);
+			}
+
+			hookLinkTextarea.value = url;
+		}
+
+		if (!property.Settings.Password && property.Settings.PasswordLoader)
+		{
+			const myAlertText =
+				Loc.getMessage('BIZPROC_AUTOMATION_WEBHOOK_PASSWORD_ALERT')
+					.replace(
+						'#A1#',
+						'<a class="bizproc-automation-popup-settings-link '
+						+ 'bizproc-automation-popup-settings-link-light" data-role="token-gen">'
+					)
+					.replace('#A2#', '</a>')
+			;
+
+			const passwordAlert = new Alert({
+				color: AlertColor.WARNING,
+				icon: AlertIcon.WARNING,
+				text: myAlertText
+			});
+
+			Event.bind(
+				passwordAlert.getTextContainer().querySelector('[data-role="token-gen"]'),
+				'click',
+				() =>
+				{
+					const loaderConfig = property.Settings.PasswordLoader;
+
+					BX.ajax.runComponentAction(
+						loaderConfig.component,
+						loaderConfig.action,
+						{
+							mode: loaderConfig.mode || undefined,
+							data: {
+								documentType: [
+									...getGlobalContext().document.getRawType(),
+									getGlobalContext().document.getCategoryId(),
+								],
+							}
+						}
+					).then(
+						function(response)
+						{
+							if (response.data.error)
+							{
+								window.alert(response.data.error);
+							}
+							else if (response.data.password)
+							{
+								property.Settings.Password = response.data.password;
+								hookLinkTextarea.value = hookLinkTextarea
+									.value.replace('{{PASSWORD}}', property.Settings.Password)
+								;
+								passwordAlert.handleCloseBtnClick();
+							}
+						}
+					);
+				}
+			);
+
+			Dom.append(passwordAlert.getContainer(), form);
+		}
+	}
+
+	#renderFieldSelectorProperty(property, value, form)
+	{
+		const menuId = '@field-selector' + Math.random();
+		const fieldName = property.Id + '[]';
+
+		const fieldsList = property.Settings.Fields;
+
+		const renderFieldCheckbox = function(field, listNode)
+		{
+			const exists = listNode.querySelector('[data-field="' + field['Id'] + '"]');
+			if (exists)
+			{
+				return;
+			}
+
+			Dom.append(
+				Dom.create(
+					'div',
+					{
+						attrs: {
+							className: 'bizproc-automation-popup-checkbox-item',
+							'data-field': field['Id']
+						},
+						children: [
+							Dom.create(
+								'label',
+								{
+									attrs: {
+										className: 'bizproc-automation-popup-chk-label'
+									},
+									children: [
+										Dom.create(
+											'input', {
+												attrs: {
+													className: 'bizproc-automation-popup-chk',
+													type: 'checkbox',
+													name: fieldName,
+													value: field['Id'],
+												},
+												props: {
+													checked: true
+												}
+											}
+										),
+										document.createTextNode(field['Name']),
+									]
+								}
+							),
+						]
+					}
+				),
+				listNode
+			);
+		}
+
+		const fieldSelectorHandler = function(targetNode, listNode)
+		{
+			if (BX.Main.MenuManager.getMenuById(menuId))
+			{
+				return BX.Main.MenuManager.getMenuById(menuId).show();
+			}
+
+			const menuItems = [];
+
+			fieldsList.forEach(function(field)
+			{
+				menuItems.push({
+					text: BX.Text.encode(field['Name']),
+					field: field,
+					onclick: function(event, item)
+					{
+						renderFieldCheckbox(item.field, listNode);
+						this.popupWindow.close();
+					}
+				});
+			});
+
+			BX.Main.MenuManager.show(
+				menuId,
+				targetNode,
+				menuItems,
+				{
+					autoHide: true,
+					offsetLeft: (BX.pos(this)['width'] / 2),
+					angle: { position: 'top', offset: 0 },
+					zIndex: 200,
+					className: 'bizproc-automation-inline-selector-menu',
+					events: {
+						onPopupClose: function(popup)
+						{
+							popup.destroy();
+						}
+					}
+				}
+			);
+		}
+
+		Dom.append(
+			Dom.create(
+				'span',
+				{
+					attrs: {
+						className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete"
+					},
+					text: property.Name + ':',
+				}
+			),
+			form
+		);
+
+		const fieldListNode = Dom.create(
+			'div',
+			{
+				attrs: {
+					className: 'bizproc-automation-popup-checkbox',
+				},
+				children: [],
+			}
+		);
+		Dom.append(fieldListNode, form);
+
+		Dom.append(
+			Dom.create(
+				'div',
+				{
+					attrs: {
+						className: 'bizproc-automation-popup-settings bizproc-automation-popup-settings-text',
+					},
+					children: [
+						Dom.create(
+							'span',
+							{
+								attrs: {
+									className: "bizproc-automation-popup-settings-link"
+								},
+								text: property.Settings.ChooseFieldLabel,
+								events: {
+									click: function()
+									{
+										fieldSelectorHandler(this, fieldListNode);
+									}
+								}
+							}
+						),
+					]
+				}
+			),
+			form
+		);
+
+		if (Type.isArray(value))
+		{
+			value.forEach(function(field)
+			{
+				const foundField = fieldsList.find((fld) => fld.Id === field);
+				if (foundField)
+				{
+					renderFieldCheckbox(foundField, fieldListNode);
+				}
+			});
+		}
+	}
+
 	renderExecuteByControl(trigger, form)
 	{
-		form.appendChild(Dom.create("span", {
+		Dom.append(Dom.create("span", {
 			attrs: {
 				className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete",
 			},
 			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY') + ':',
-		}));
+		}), form);
 
-		form.appendChild(Dom.create("div", {
+		Dom.append(Dom.create("div", {
 			attrs: { className: "bizproc-automation-popup-settings" },
 			children: [
 				BX.Bizproc.FieldType.renderControl(
@@ -801,12 +904,12 @@ export class TriggerManager extends EventEmitter
 						: trigger.getExecuteBy()
 				),
 			],
-		}));
+		}), form);
 	}
 
 	renderAllowBackwardsControl(trigger, form)
 	{
-		form.appendChild(Dom.create("div", {
+		Dom.append(Dom.create("div", {
 			attrs: { className: "bizproc-automation-popup-checkbox" },
 			children: [
 				Dom.create("div", {
@@ -832,7 +935,7 @@ export class TriggerManager extends EventEmitter
 					],
 				}),
 			],
-		}));
+		}), form);
 	}
 
 	setConditionSettingsFromForm(formFields: Object,  trigger: Trigger): this

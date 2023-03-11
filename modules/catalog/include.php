@@ -446,7 +446,7 @@ function CatalogViewedProductCallback($productID, $UserID, $strSiteID = SITE_ID)
 	{
 		$arPrice = CCatalogProduct::GetOptimalPrice($productID, 1, ($UserID > 0 ? $arUserCache[$UserID] : $USER->GetUserGroupArray()), "N", array(), ($UserID > 0 ? $strSiteID : false), array());
 
-		if (count($arPrice) > 0)
+		if (!empty($arPrice) && is_array($arPrice))
 		{
 			$currentPrice = $arPrice["PRICE"]["PRICE"];
 			$currentDiscount = 0.0;

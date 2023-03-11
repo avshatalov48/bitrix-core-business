@@ -1,7 +1,8 @@
-import { Type, Loc, Event, Dom, Text } from 'main.core';
+import { Type, Loc, Event, Dom, Text, Tag } from 'main.core';
 import { Helper } from './helper';
 import { DelayInterval } from './delay-interval';
 import { MenuManager } from 'main.popup';
+import { getGlobalContext } from "./automation";
 
 export class DelayIntervalSelector
 {
@@ -9,7 +10,8 @@ export class DelayIntervalSelector
 	onchange: () => void;
 	labelNode;
 	useAfterBasis;
-	minLimitH;
+	minLimitM;
+	showWaitWorkDay;
 
 	delay;
 
@@ -29,6 +31,7 @@ export class DelayIntervalSelector
 			}
 			this.onchange = options.onchange;
 			this.minLimitM = options.minLimitM;
+			this.showWaitWorkDay = options.showWaitWorkDay;
 		}
 	}
 
@@ -138,7 +141,7 @@ export class DelayIntervalSelector
 		const workTimeHelpNode = Dom.create('span', {
 			attrs: {
 				className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-				'data-hint': Loc.getMessage('BIZPROC_AUTOMATION_CMP_DELAY_WORKTIME_HELP_2')
+				'data-hint': Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_HELP')
 			}
 		});
 
@@ -151,11 +154,16 @@ export class DelayIntervalSelector
 						className: "bizproc-automation-popup-settings-lbl",
 						for: uid + "worktime"
 					},
-					text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_WORK_TIME')
+					text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME')
 				}),
 				workTimeHelpNode
 			]
 		}));
+
+		if (this.showWaitWorkDay)
+		{
+			form.appendChild(this.#createWaitWorkDayNode());
+		}
 
 		const self = this;
 		//init modern Help tips
@@ -175,8 +183,7 @@ export class DelayIntervalSelector
 					events: {
 						click()
 						{
-							const formData = BX.ajax.prepareForm(form);
-							self.saveFormData(formData['data']);
+							self.saveFormData(new FormData(form));
 							this.popupWindow.close();
 						}}
 				})
@@ -201,30 +208,33 @@ export class DelayIntervalSelector
 		popup.show();
 	}
 
-	saveFormData(formData)
+	saveFormData(formData: FormData)
 	{
-		if (formData['type'] === 'now')
+		const type = formData.get('type');
+
+		if (type === 'now')
 		{
 			this.delay.setNow();
 		}
-		else if (formData['type'] === DelayInterval.DELAY_TYPE.In)
+		else if (type === DelayInterval.DELAY_TYPE.In)
 		{
 			this.delay.setType(DelayInterval.DELAY_TYPE.In);
 			this.delay.setValue(0);
 			this.delay.setValueType('i');
-			this.delay.setBasis(formData['basis_in']);
+			this.delay.setBasis(formData.get('basis_in'));
+			this.delay.setInTime(formData.get('basis_in_time') ? formData.get('basis_in_time').split(':') : null);
 		}
 		else
 		{
-			this.delay.setType(formData['type']);
-			this.delay.setValue(formData['value_' + formData['type']]);
-			this.delay.setValueType(formData['value_type_'+formData['type']]);
+			this.delay.setType(type);
+			this.delay.setValue(formData.get('value_' + type));
+			this.delay.setValueType(formData.get('value_type_' + type));
 
-			if (formData['type'] === DelayInterval.DELAY_TYPE.After)
+			if (type === DelayInterval.DELAY_TYPE.After)
 			{
 				if (this.useAfterBasis)
 				{
-					this.delay.setBasis(formData['basis_after']);
+					this.delay.setBasis(formData.get('basis_after'));
 				}
 				else
 				{
@@ -245,11 +255,12 @@ export class DelayIntervalSelector
 			}
 			else
 			{
-				this.delay.setBasis(formData['basis_before']);
+				this.delay.setBasis(formData.get('basis_before'));
 			}
 		}
 
-		this.delay.setWorkTime(formData['worktime']);
+		this.delay.setWorkTime(formData.get('worktime'));
+		this.delay.setWaitWorkDay(formData.get('wait_workday'));
 		this.setLabelText();
 
 		if (this.onchange)
@@ -493,7 +504,6 @@ export class DelayIntervalSelector
 			radioIn.setAttribute('checked', 'checked');
 		}
 
-
 		const labelIn = Dom.create("label", {
 			attrs: {
 				className: "bizproc-automation-popup-select-wrapper",
@@ -507,7 +517,7 @@ export class DelayIntervalSelector
 			]
 		});
 
-		let basisField = this.getBasisField(delay.basis);
+		let basisField = this.getBasisField(delay.basis, true);
 		let basisValue = delay.basis;
 		if (!basisField)
 		{
@@ -538,8 +548,9 @@ export class DelayIntervalSelector
 						field => {
 							inBasisNode.textContent = field.Name;
 							inBasisValueNode.value = field.SystemExpression;
-						}
-					)
+						},
+						DelayInterval.DELAY_TYPE.In
+					);
 				},
 			}
 		});
@@ -555,6 +566,14 @@ export class DelayIntervalSelector
 			});
 			labelIn.appendChild(helpNode);
 		}
+
+		const inTime = Tag.render`
+			 <span>
+			 	Time: <input type="time" value="${delay.inTimeString}" name="basis_in_time"/>
+			</span>
+		`;
+
+		// Dom.append(inTime, labelIn); // TODO interface
 
 		return Dom.create("div", {
 			attrs: {className: "bizproc-automation-popup-select-item"},
@@ -647,7 +666,7 @@ export class DelayIntervalSelector
 	{
 		const menuItems = [];
 
-		if (delayType === DelayInterval.DELAY_TYPE.After)
+		if (delayType === DelayInterval.DELAY_TYPE.After || delayType === DelayInterval.DELAY_TYPE.In)
 		{
 			menuItems.push(
 				{
@@ -781,5 +800,73 @@ export class DelayIntervalSelector
 		}
 
 		this.basisFields = fields;
+	}
+
+	#createWaitWorkDayNode()
+	{
+		const delay = this.delay;
+		const uid = Helper.generateUniqueId();
+		const isAvailable = this.#isWorkTimeAvailable();
+
+		const workDayRadio = Dom.create("input", {
+			attrs: {
+				type: "checkbox",
+				id: uid + "wait_workday",
+				name: "wait_workday",
+				value: '1',
+				style: 'vertical-align: middle'
+			},
+			props: {
+				checked: delay.waitWorkDay && isAvailable
+			}
+		});
+
+		if (!isAvailable)
+		{
+			workDayRadio.disabled = true;
+		}
+
+		const workDayHelpNode = Dom.create('span', {
+			attrs: {
+				className: "bizproc-automation-status-help bizproc-automation-status-help-right",
+				'data-hint': Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_HELP')
+			}
+		});
+
+		const events = {};
+
+		if (!isAvailable)
+		{
+			events.click = () => {
+				if (top.BX.UI && top.BX.UI.InfoHelper)
+				{
+					top.BX.UI.InfoHelper.show('limit_office_worktime_responsible');
+				}
+			};
+		}
+
+		return Dom.create("div", {
+			attrs: { className: "bizproc-automation-popup-select-item" },
+			children: [ Dom.create("div", {
+				attrs: { className: "bizproc-automation-popup-settings-title" },
+				children: [
+					workDayRadio,
+					Dom.create("label", {
+						attrs: {
+							className: `bizproc-automation-popup-settings-lbl ${!isAvailable? 'bizproc-automation-robot-btn-set-locked' : ''}`,
+							for: uid + "wait_workday"
+						},
+						text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY')
+					}),
+					workDayHelpNode
+				]
+			})],
+			events,
+		});
+	}
+
+	#isWorkTimeAvailable(): boolean
+	{
+		return getGlobalContext().get('IS_WORKTIME_AVAILABLE') ?? false;
 	}
 }

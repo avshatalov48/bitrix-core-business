@@ -29,13 +29,19 @@ class UserSchedule
 
 	public function isWorkDayClosed(): bool
 	{
+		return ($this->getWorkDayStatus() === 'CLOSED');
+	}
+
+	public function getWorkDayStatus(): string
+	{
 		if ($this->canUseTimeman())
 		{
 			$tmUser = new \CTimeManUser($this->userId);
-			return ($tmUser->State() == 'CLOSED');
+
+			return $tmUser->state();
 		}
 
-		return false;
+		return 'UNDEFINED';
 	}
 
 	private function canUseIntranet()

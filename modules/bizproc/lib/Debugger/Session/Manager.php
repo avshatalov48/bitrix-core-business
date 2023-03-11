@@ -16,11 +16,22 @@ class Manager
 	private static ?Session $activeSession = null;
 	private static bool $isActiveSessionChecked = false;
 
+	private const CACHE_TTL = 3600;
+
 	private static function getList(array $filter = []): ?Session
 	{
 		return DebuggerSessionTable::getList([
 			'select' => ['*', 'DOCUMENTS', 'WORKFLOW_CONTEXTS'],
 			'filter' => $filter,
+		])->fetchObject();
+	}
+
+	public static function getCachedSession(): ?Session
+	{
+		return DebuggerSessionTable::getList([
+			'select' => ['*'],
+			'filter' => ['=ACTIVE' => 'Y'],
+			'cache' => ['ttl' => self::CACHE_TTL],
 		])->fetchObject();
 	}
 

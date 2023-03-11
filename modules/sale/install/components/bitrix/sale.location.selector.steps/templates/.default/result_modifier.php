@@ -55,8 +55,13 @@ if(is_array($arResult['TREE_TRUNK']) && !empty($arResult['TREE_TRUNK']))
 
 // modes
 $modes = array();
-if($arResult['ADMIN_MODE'] || $arParams['ADMIN_MODE'] == 'Y')
+if(
+	$arResult['ADMIN_MODE']
+	|| (isset($arParams['ADMIN_MODE']) && $arParams['ADMIN_MODE'] == 'Y')
+)
+{
 	$modes[] = 'admin';
+}
 
 foreach($modes as &$mode)
 	$mode = 'bx-'.$mode.'-mode';

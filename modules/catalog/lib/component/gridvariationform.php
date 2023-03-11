@@ -229,11 +229,18 @@ class GridVariationForm extends VariationForm
 					];
 					break;
 				case 'custom':
-					$description['editable'] = [
-						'TYPE' => Types::CUSTOM,
-						'NAME' => $description['data']['edit'] ?? $description['name'],
-						// 'HTML' => $description['data']['edit'] ?? $description['name'],
-					];
+					if ($description['multiple'] === true && $description['propertyCode'] !== 'MORE_PHOTO')
+					{
+						$description['editable'] = false;
+					}
+					else
+					{
+						$description['editable'] = [
+							'TYPE' => Types::CUSTOM,
+							'NAME' => $description['data']['edit'] ?? $description['name'],
+							// 'HTML' => $description['data']['edit'] ?? $description['name'],
+						];
+					}
 					break;
 				case 'boolean':
 					$description['editable'] = ['TYPE' => Types::CHECKBOX];
@@ -647,7 +654,11 @@ class GridVariationForm extends VariationForm
 			;
 
 			$sortField = "PROPERTY_{$property['propertyCode']}";
-			if ($property['multiple'] || $property['propertyCode'] === 'CML2_LINK')
+			if (
+				$property['multiple']
+				|| $property['propertyCode'] === 'CML2_LINK'
+				|| $property['settings']['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE
+			)
 			{
 				$sortField = false;
 			}
@@ -668,6 +679,16 @@ class GridVariationForm extends VariationForm
 			{
 				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_OFFER_TREE_HINT');
 			}
+
+			if (
+				$property['settings']['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE
+				&& $property['multiple'] === true
+				&& $property['propertyCode'] !== 'MORE_PHOTO'
+			)
+			{
+				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_FILE_MULTIPLE_HINT');
+			}
+
 			$headers[] = $header;
 		}
 

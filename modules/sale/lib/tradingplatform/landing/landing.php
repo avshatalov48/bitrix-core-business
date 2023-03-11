@@ -132,7 +132,7 @@ class Landing
 	public static function onLandingSiteUpdate(Main\Event $event)
 	{
 		$fields = $event->getParameter('fields');
-		if ($fields['TYPE'] !== 'STORE')
+		if (empty($fields['TYPE']) || $fields['TYPE'] !== 'STORE')
 		{
 			return;
 		}

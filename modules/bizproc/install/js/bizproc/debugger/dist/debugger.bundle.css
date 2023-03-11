@@ -419,6 +419,11 @@
 	transition: opacity .2s;
 }
 
+.bizproc-debugger-automation-robot-info-container {
+	display: flex;
+	align-items: center;
+}
+
 .bizproc-debugger-automation__link {
 	display: inline-block;
 	margin-top: 10px;
@@ -427,6 +432,11 @@
 	border-bottom: 1px dashed var(--bizproc-debugger__blue_light_alpha_40);
 	transition: .2s;
 	cursor: pointer;
+}
+
+.bizproc-debugger-automation__link.--inside-robot {
+	margin-top: 0;
+	margin-left: 5px;
 }
 
 .bizproc-debugger-automation__link:hover {

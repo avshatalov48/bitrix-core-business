@@ -884,30 +884,40 @@ class CTranslateEventHandlers
  */
 class CTranslateUtils
 {
-	const LANGUAGES_DEFAULT = 0;
-	const LANGUAGES_EXIST = 1;
-	const LANGUAGES_ACTIVE = 2;
-	const LANGUAGES_CUSTOM = 3;
+	public const LANGUAGES_DEFAULT = 0;
+	public const LANGUAGES_EXIST = 1;
+	public const LANGUAGES_ACTIVE = 2;
+	public const LANGUAGES_CUSTOM = 3;
 
-	protected static $languageList = array("ru", "en", "de", "ua");
+	protected static array $languageList = [
+		'ru',
+		'en',
+		'de',
+	];
 
-	public static function setLanguageList($languages = self::LANGUAGES_DEFAULT, $customList = array())
+	public static function setLanguageList(int $languages = self::LANGUAGES_DEFAULT, $customList = [])
 	{
 		if ($languages == self::LANGUAGES_ACTIVE || $languages == self::LANGUAGES_EXIST)
 		{
-			self::$languageList = array();
-			if ($languages == self::LANGUAGES_ACTIVE)
+			self::$languageList = [];
+			if ($languages === self::LANGUAGES_ACTIVE)
 			{
-				$languageIterator = LanguageTable::getList(array(
-					'select' => array('ID'),
-					'filter' => array('ACTIVE' => 'Y'),
-				));
+				$languageIterator = LanguageTable::getList([
+					'select' => [
+						'ID',
+					],
+					'filter' => [
+						'=ACTIVE' => 'Y',
+					],
+				]);
 			}
 			else
 			{
-				$languageIterator = LanguageTable::getList(array(
-					'select' => array('ID'),
-				));
+				$languageIterator = LanguageTable::getList([
+					'select' => [
+						'ID',
+					],
+				]);
 			}
 			while ($lang = $languageIterator->fetch())
 			{
@@ -915,15 +925,21 @@ class CTranslateUtils
 			}
 			unset($lang, $languageIterator);
 		}
-		elseif ($languages == self::LANGUAGES_CUSTOM)
+		elseif ($languages === self::LANGUAGES_CUSTOM)
 		{
 			if (!is_array($customList))
-				$customList = array($customList);
+			{
+				$customList = [$customList];
+			}
 			self::$languageList = $customList;
 		}
 		else
 		{
-			self::$languageList = array("ru", "en", "de", "ua");
+			self::$languageList = [
+				'ru',
+				'en',
+				'de',
+			];
 		}
 
 	}
@@ -985,7 +1001,7 @@ class CTranslateUtils
 							$s = "<?php\n";
 							foreach($MESS as $c => $m)
 							{
-								$s .= "\$MESS[\"".EscapePHPString($c)."\"] = \"".EscapePHPString($m)."\";\n";
+								$s .= "\$MESS['".EscapePHPString($c)."'] = \"".EscapePHPString($m)."\";\n";
 							}
 							file_put_contents($langDirTo."/".$lang.$fileNameTo, $s);
 						}
@@ -1085,12 +1101,11 @@ class CTranslateUtils
 							}
 						}
 
-						$s = "<?\n";
+						$s = "<?php\n";
 						foreach($MESS as $c => $m)
 						{
-							$s .= "\$MESS[\"".EscapePHPString($c)."\"] = \"".EscapePHPString($m)."\";\n";
+							$s .= "\$MESS['".EscapePHPString($c)."'] = \"".EscapePHPString($m)."\";\n";
 						}
-						$s .= "?>";
 						file_put_contents($destFile, $s);
 					}
 				}

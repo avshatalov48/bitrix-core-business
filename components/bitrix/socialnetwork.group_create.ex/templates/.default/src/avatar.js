@@ -131,7 +131,7 @@ export class Avatar
 				this.clearType();
 				this.inputNode.value = parseInt(response.data.fileId);
 				this.typeInputNode.value = '';
-				this.imageNode.style = `background-image: url('${response.data.fileUri}'); background-size: cover;`;
+				this.imageNode.style = `background-image: url('${encodeURI(response.data.fileUri)}'); background-size: cover;`;
 				this.recalc();
 			}
 

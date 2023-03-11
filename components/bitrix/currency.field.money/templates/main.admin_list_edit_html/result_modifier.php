@@ -18,9 +18,11 @@ foreach($currencyList as $currency => $currencyInfo)
 	$arResult['CURRENCY_LIST'][$currency] = $currencyInfo['NAME'];
 }
 
+$arResult['VALUE_NUMBER'] = '';
+$arResult['VALUE_CURRENCY'] = '';
 if(!empty($arResult['additionalParameters']['VALUE']))
 {
 	$explode = MoneyType::unFormatFromDb($arResult['additionalParameters']['VALUE']);
 	$arResult['VALUE_NUMBER'] = htmlspecialcharsbx($explode[0]);
-	$arResult['VALUE_CURRENCY'] = htmlspecialcharsbx($explode[1]);
+	$arResult['VALUE_CURRENCY'] = htmlspecialcharsbx($explode[1] ?? '');
 }

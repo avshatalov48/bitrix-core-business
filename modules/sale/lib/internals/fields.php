@@ -221,6 +221,7 @@ class Fields
 	/**
 	 * Return the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return current($this->values);
@@ -229,14 +230,15 @@ class Fields
 	/**
 	 * Move forward to next element
 	 */
-	public function next()
+	public function next(): void
 	{
-		return next($this->values);
+		next($this->values);
 	}
 
 	/**
 	 * Return the key of the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->values);
@@ -245,7 +247,7 @@ class Fields
 	/**
 	 * Checks if current position is valid
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		$key = $this->key();
 		return ($key != null);
@@ -254,9 +256,9 @@ class Fields
 	/**
 	 * Rewind the Iterator to the first element
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
-		return reset($this->values);
+		reset($this->values);
 	}
 
 	/**
@@ -266,7 +268,7 @@ class Fields
 	 *
 	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->values[$offset]) || array_key_exists($offset, $this->values);
 	}
@@ -278,6 +280,7 @@ class Fields
 	 *
 	 * @return null|string
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return $this->get($offset);
@@ -289,7 +292,7 @@ class Fields
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->set($offset, $value);
 	}
@@ -299,7 +302,7 @@ class Fields
 	 *
 	 * @param mixed $offset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->values[$offset]);
 		if (isset($this->changedValues[$offset]))
@@ -309,7 +312,7 @@ class Fields
 	/**
 	 * Count elements of an object
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->values);
 	}
@@ -320,7 +323,7 @@ class Fields
 	 *
 	 * @return Fields
 	 */
-	public function createClone(\SplObjectStorage $cloneEntity)
+	public function createClone(\SplObjectStorage $cloneEntity): Fields
 	{
 		if ($this->isClone() && $cloneEntity->contains($this))
 		{
@@ -334,7 +337,7 @@ class Fields
 		{
 			$cloneEntity[$this] = $fieldsClone;
 		}
-		
+
 		return $fieldsClone;
 	}
 

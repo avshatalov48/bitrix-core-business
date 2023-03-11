@@ -3,12 +3,14 @@
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
+use Bitrix\Tasks\Control\Tag;
 use Bitrix\Socialnetwork\Internals\EventService;
 
 class CAllSocNetGroup
@@ -398,6 +400,12 @@ class CAllSocNetGroup
 		if ($bSuccess)
 		{
 			$USER_FIELD_MANAGER->Delete("SONET_GROUP", $ID);
+		}
+
+		if (Loader::includeModule('tasks'))
+		{
+			$tagService = new Tag(0);
+			$tagService->deleteGroupTags($ID);
 		}
 
 		return $bSuccess;

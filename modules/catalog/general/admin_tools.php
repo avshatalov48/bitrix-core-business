@@ -2013,7 +2013,8 @@ class CCatalogAdminProductSetEdit
 						'DISCOUNT_PERCENT' => '',
 						'SORT' => 100,
 						'NEW_ITEM' => true,
-						'EMPTY_ITEM' => true
+						'EMPTY_ITEM' => true,
+						'ITEM_NAME' => '',
 					);
 				}
 				break;
@@ -2025,7 +2026,8 @@ class CCatalogAdminProductSetEdit
 						'QUANTITY' => '',
 						'SORT' => 100,
 						'NEW_ITEM' => true,
-						'EMPTY_ITEM' => true
+						'EMPTY_ITEM' => true,
+						'ITEM_NAME' => '',
 					);
 				}
 				break;

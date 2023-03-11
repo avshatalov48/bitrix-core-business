@@ -228,8 +228,6 @@ class Settings
 	//region ArrayAccess
 
 	/**
-	 * Checks existence of the phrase by its code.
-	 *
 	 * @param string $code Phrase code.
 	 *
 	 * @return boolean
@@ -240,13 +238,12 @@ class Settings
 	}
 
 	/**
-	 * Returns phrase by its code.
-	 *
 	 * @param string $code Phrase code.
 	 *
 	 * @return string|null
 	 */
-	public function offsetGet($code): ?string
+	#[\ReturnTypeWillChange]
+	public function offsetGet($code)
 	{
 		if (isset($this->options[$code]))
 		{
@@ -290,6 +287,7 @@ class Settings
 	 *
 	 * @return array|null
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		$code = $this->optionCodes[$this->dataPosition];

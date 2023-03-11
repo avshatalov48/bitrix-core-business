@@ -677,12 +677,12 @@ CIBlockParameters::AddPagerSettings(
 	true, //$bDescNumbering
 	true, //$bShowAllParam
 	true, //$bBaseLink
-	$arCurrentValues['PAGER_BASE_LINK_ENABLE'] === 'Y' //$bBaseLinkEnabled
+	(isset($arCurrentValues['PAGER_BASE_LINK_ENABLE']) && $arCurrentValues['PAGER_BASE_LINK_ENABLE'] === 'Y') //$bBaseLinkEnabled
 );
 
 CIBlockParameters::Add404Settings($arComponentParameters, $arCurrentValues);
 
-if ($arCurrentValues['SEF_MODE'] === 'Y')
+if (isset($arCurrentValues['SEF_MODE']) && $arCurrentValues['SEF_MODE'] === 'Y')
 {
 	$arComponentParameters['PARAMETERS']['SECTION_CODE_PATH'] = array(
 		'NAME' => GetMessage('CP_BCS_SECTION_CODE_PATH'),

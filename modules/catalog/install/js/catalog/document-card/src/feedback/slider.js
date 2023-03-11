@@ -2,6 +2,14 @@ import {Type, Uri} from "main.core";
 
 export default class Slider
 {
+	static openFeedbackForm()
+	{
+		const url = new Uri('/bitrix/components/bitrix/catalog.feedback/slider.php');
+		url.setQueryParams({feedback_type: 'feedback'});
+
+		return Slider.open(url.toString(), {width: 735});
+	}
+
 	static openIntegrationRequestForm(event, params={})
 	{
 		if (event && Type.isFunction(event.preventDefault))

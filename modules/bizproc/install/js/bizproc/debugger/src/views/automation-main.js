@@ -1,7 +1,17 @@
-import {Dom, Loc, Tag, Text, Type} from 'main.core';
+import { Dom, Loc, Runtime, Tag, Text, Type } from 'main.core';
 import Automation from "../automation";
 import {Menu, MenuItem, Popup} from "main.popup";
-import {getGlobalContext, Template, Tracker, ViewMode, TriggerManager, HelpHint, WorkflowStatus } from 'bizproc.automation';
+import {
+	getGlobalContext,
+	Template,
+	Robot,
+	Tracker,
+	ViewMode,
+	TriggerManager,
+	HelpHint,
+	WorkflowStatus,
+	TrackingStatus,
+} from 'bizproc.automation';
 import {BaseEvent, EventEmitter} from "main.core.events";
 import { Button, ButtonSize, ButtonColor, ButtonIcon} from 'ui.buttons';
 import 'ui.buttons.icons';
@@ -217,12 +227,7 @@ export default class AutomationMainView extends EventEmitter
 
 	#handleClose()
 	{
-		MessageBox.show({
-			message: Loc.getMessage('BIZPROC_JS_DEBUGGER_CONFIRM_FINISH_SESSION'),
-			okCaption: Loc.getMessage('BIZPROC_JS_DEBUGGER_VIEWS_MENU_FINISH_SESSION'),
-			onOk: () => Manager.Instance.finishSession(this.debugger.session),
-			buttons: MessageBoxButtons.OK_CANCEL,
-		});
+		Manager.Instance.askFinishSession(this.debugger.session).catch(() => {/*do nth*/});
 	}
 
 	#getNode(): Element
@@ -609,6 +614,7 @@ export default class AutomationMainView extends EventEmitter
 
 		template.init(templateData, ViewMode.view().intoRaw());
 		this.#updateTemplate(template);
+		this.#renderPausedRobots();
 
 		return node;
 	}
@@ -671,7 +677,7 @@ export default class AutomationMainView extends EventEmitter
 	{
 		const infoNode = this.#getNode().querySelector('[data-role="external-event-info"]');
 		Dom.removeClass(infoNode, '--active');
-		this.debugger.emulateExternalEvent();
+		this.debugger.emulateExternalEvent(event.target.dataset.sourceId);
 	}
 
 	#updateTracker(data: Array)
@@ -683,7 +689,36 @@ export default class AutomationMainView extends EventEmitter
 
 			this.#tracker.reInit(logs);
 			this.#template.reInit(null, ViewMode.view().intoRaw());
+
+			this.#renderPausedRobots();
 		}
+	}
+
+	#renderPausedRobots(): void
+	{
+		const pausedRobots = this.#template.robots.filter(robot => robot.getLogStatus() === TrackingStatus.RUNNING);
+
+		pausedRobots.forEach((robot) => {
+			const loader = robot.node.lastChild.lastChild;
+			const clonedLoader = Runtime.clone(loader);
+			HelpHint.bindToNode(clonedLoader);
+
+			Dom.replace(
+				loader,
+				Tag.render`
+					<div class="bizproc-debugger-automation-robot-info-container">
+						${clonedLoader}
+						<a 
+							onclick="${this.#handleEmulateExternalEvent.bind(this)}"
+							data-source-id="${robot.getId()}"
+							class="bizproc-debugger-automation__link --inside-robot"
+						>
+							${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_TITLE'))}
+						</a>
+					</div>
+				`
+			);
+		});
 	}
 
 	#createStageNode(): Element

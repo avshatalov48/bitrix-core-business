@@ -1,5 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,7 +14,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CMain $APPLICATION */
 $this->setFrameMode(false);
 
-if(!CModule::IncludeModule("iblock"))
+if (!CModule::IncludeModule("iblock"))
 {
 	return;
 }
@@ -19,49 +22,66 @@ if(!CModule::IncludeModule("iblock"))
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-if(!isset($arParams["CACHE_TIME"]))
+if (!isset($arParams["CACHE_TIME"]))
+{
 	$arParams["CACHE_TIME"] = 3600;
+}
 
 unset($arParams["IBLOCK_TYPE"]); //was used only for IBLOCK_ID setup with Editor
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"]);
-$arParams["NUM_DAYS"] = intval($arParams["NUM_DAYS"]);
-$arParams["NUM_NEWS"] = intval($arParams["NUM_NEWS"]);
+$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
+$arParams["SECTION_ID"] = (int)($arParams["SECTION_ID"] ?? 0);
+$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"] ?? '');
+$arParams["NUM_DAYS"] = (int)($arParams["NUM_DAYS"] ?? 0);
+$arParams["NUM_NEWS"] = (int)($arParams["NUM_NEWS"] ?? 0);
 
-if(!array_key_exists("RSS_TTL", $arParams))
-	$arParams["RSS_TTL"] = 60;
-$arParams["RSS_TTL"] = intval($arParams["RSS_TTL"]);
+$arParams["RSS_TTL"] = (int)($arParams["RSS_TTL"] ?? 60);
+$arParams["DETAIL_URL"] ??= '';
 
-$arParams["YANDEX"] = $arParams["YANDEX"]=="Y";
+$arParams["YANDEX"] = ($arParams["YANDEX"] ?? '') === "Y";
 
-$arParams["CHECK_DATES"] = $arParams["CHECK_DATES"]!="N";
+$arParams["CHECK_DATES"] = ($arParams["CHECK_DATES"] ?? '') !== "N";
+$arParams["INCLUDE_SUBSECTIONS"] ??= false;
 
-$arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
-if($arParams["SORT_BY1"] == '')
+$arParams["SORT_BY1"] = trim($arParams["SORT_BY1"] ?? '');
+if ($arParams["SORT_BY1"] === '')
+{
 	$arParams["SORT_BY1"] = "ACTIVE_FROM";
-if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	$arParams["SORT_ORDER1"]="DESC";
+}
+if (
+	!isset($arParams["SORT_ORDER1"])
+	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"])
+)
+{
+	$arParams["SORT_ORDER1"] = "DESC";
+}
 
-if($arParams["SORT_BY2"] == '')
+if (empty($arParams["SORT_BY2"]))
+{
 	$arParams["SORT_BY2"] = "SORT";
-if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
-	$arParams["SORT_ORDER2"]="ASC";
-
-if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
-{
-	$arrFilter = array();
 }
-else
+if (
+	!isset($arParams["SORT_ORDER2"])
+	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"])
+)
 {
-	$arrFilter = $GLOBALS[$arParams["FILTER_NAME"]];
-	if(!is_array($arrFilter))
-		$arrFilter = array();
+	$arParams["SORT_ORDER2"] = "ASC";
 }
 
-$arParams["CACHE_FILTER"] = $arParams["CACHE_FILTER"]=="Y";
-if(!$arParams["CACHE_FILTER"] && count($arrFilter)>0)
+$arrFilter = [];
+if (!empty($arParams["FILTER_NAME"]) && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+{
+	$arrFilter = $GLOBALS[$arParams["FILTER_NAME"]] ?? [];
+	if (!is_array($arrFilter))
+	{
+		$arrFilter = [];
+	}
+}
+
+$arParams["CACHE_FILTER"] = ($arParams["CACHE_FILTER"] ?? '') === "Y";
+if (!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 
 $bDesignMode = $APPLICATION->GetShowIncludeAreas() && is_object($USER) && $USER->IsAdmin();
 
@@ -78,7 +98,7 @@ else
 /*************************************************************************
 	Start caching
 *************************************************************************/
-
+$arParams["CACHE_GROUPS"] ??= '';
 if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups(), $arrFilter)))
 {
 	$rsResult = CIBlock::GetList(array(), array(

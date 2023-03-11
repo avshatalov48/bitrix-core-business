@@ -328,6 +328,18 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$filteredStores = $listFilter['STORES'];
 			unset($listFilter['STORES']);
 		}
+		$filteredStoresFrom = [];
+		if (!empty($listFilter['STORES_FROM']))
+		{
+			$filteredStoresFrom = $listFilter['STORES_FROM'];
+			unset($listFilter['STORES_FROM']);
+		}
+		$filteredStoresTo = [];
+		if (!empty($listFilter['STORES_TO']))
+		{
+			$filteredStoresTo = $listFilter['STORES_TO'];
+			unset($listFilter['STORES_TO']);
+		}
 		$select = array_merge(['*'], $this->getUserSelectColumns($this->getUserReferenceColumns()));
 		$query = StoreDocumentTable::query()
 			->setOrder($gridSort['sort'])
@@ -343,11 +355,19 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		{
 			$query->withStoreList($filteredStores);
 		}
+		if (!empty($filteredStoresFrom))
+		{
+			$query->withStoreFromList($filteredStoresFrom);
+		}
+		if (!empty($filteredStoresTo))
+		{
+			$query->withStoreToList($filteredStoresTo);
+		}
 		$list = $query->fetchAll();
 		$totalCount = $query->queryCountTotal();
 		if($totalCount > 0)
 		{
-			$this->getDocumentStores(array_column($list, 'ID'));
+			$this->loadDocumentStores(array_column($list, 'ID'));
 			foreach($list as $item)
 			{
 				$result['ROWS'][] = [
@@ -711,27 +731,46 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$column['DATE_DOCUMENT'] = (new \Bitrix\Main\Type\Date($column['DATE_DOCUMENT']))->toString();
 		}
 
-		$stores = $this->documentStores[$column['ID']];
+		$storesFrom = $this->documentStores[$column['ID']]['STORES_FROM'] ?? [];
+		$storesTo = $this->documentStores[$column['ID']]['STORES_TO'] ?? [];
+		$stores = array_unique(array_merge($storesFrom, $storesTo));
 		if (!empty($stores))
 		{
-			$existingStores = $this->getStores();
-			foreach ($stores as $store)
+			if ($this->mode === self::MOVING_MODE)
 			{
-				$encodedFilter = Json::encode([
-					'STORES' => [$store],
-					'STORES_label' => [$existingStores[$store]['TITLE']],
-				]);
-				$column['STORES']['STORE_LABEL_' . $store] = [
-					'text' => $existingStores[$store]['TITLE'] ?: Loc::getMessage('DOCUMENT_LIST_EMPTY_STORE_TITLE'),
-					'color' => 'ui-label-light',
-					'events' => [
-						'click' => 'BX.delegate(function() {BX.Catalog.DocumentGridManager.Instance.applyFilter(' . $encodedFilter . ')})',
-					],
-				];
+				$column = $this->addStoresToColumn($column, $storesFrom, 'STORES_FROM');
+				$column = $this->addStoresToColumn($column, $storesTo, 'STORES_TO');
+			}
+			else
+			{
+				$column = $this->addStoresToColumn($column, $stores, 'STORES');
 			}
 		}
 
 		return $column;
+	}
+
+	private function addStoresToColumn(array $column, array $stores, string $fieldName): array
+	{
+		$existingStores = $this->getStores();
+
+		$resultColumn = $column;
+		foreach ($stores as $store)
+		{
+			$encodedFilter = Json::encode([
+				$fieldName => [$store],
+				$fieldName . '_label' => [$existingStores[$store]['TITLE']],
+			]);
+			$resultColumn[$fieldName][$fieldName . '_LABEL_' . $store] = [
+				'text' => $existingStores[$store]['TITLE'] ?: Loc::getMessage('DOCUMENT_LIST_EMPTY_STORE_TITLE'),
+				'color' => 'ui-label-light',
+				'events' => [
+					'click' => 'BX.delegate(function() {BX.Catalog.DocumentGridManager.Instance.applyFilter(' . $encodedFilter . ')})',
+				],
+			];
+		}
+
+		return $resultColumn;
 	}
 
 	private function prepareTitleView($column): string
@@ -795,7 +834,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $this->stores;
 	}
 
-	private function getDocumentStores($documentIds): array
+	private function loadDocumentStores($documentIds): array
 	{
 		if (!is_null($this->documentStores))
 		{
@@ -812,25 +851,23 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		]);
 		while ($store = $storesResult->fetch())
 		{
-			if (
-				(
-					!is_array($this->documentStores[$store['DOC_ID']])
-					|| !in_array($store['STORE_FROM'], $this->documentStores[$store['DOC_ID']])
-				)
-				&& isset($store['STORE_FROM']))
+			$documentId = $store['DOC_ID'];
+			if (!isset($this->documentStores[$documentId]))
 			{
-				$this->documentStores[$store['DOC_ID']][] = $store['STORE_FROM'];
+				$this->documentStores[$documentId] = [
+					'STORES_FROM' => [],
+					'STORES_TO' => [],
+				];
 			}
 
-			if (
-				(
-					!is_array($this->documentStores[$store['DOC_ID']])
-					|| !in_array($store['STORE_TO'], $this->documentStores[$store['DOC_ID']])
-				)
-				&& isset($store['STORE_TO'])
-			)
+			if ($store['STORE_FROM'] && !in_array($store['STORE_FROM'], $this->documentStores[$documentId]['STORES_FROM'], true))
 			{
-				$this->documentStores[$store['DOC_ID']][] = $store['STORE_TO'];
+				$this->documentStores[$documentId]['STORES_FROM'][] = $store['STORE_FROM'];
+			}
+
+			if ($store['STORE_TO'] && !in_array($store['STORE_TO'], $this->documentStores[$documentId]['STORES_TO'], true))
+			{
+				$this->documentStores[$documentId]['STORES_TO'][] = $store['STORE_TO'];
 			}
 		}
 
@@ -862,7 +899,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		{
 			$userEmptyAvatar = '';
 			$photoUrl = $fileInfo['src'];
-			$userAvatar = " style='background-image: url(\"{$photoUrl}\")'";
+			$userAvatar = ' style="background-image: url(\'' . Uri::urnEncode($photoUrl) . '\')"';
 		}
 
 		$userNameElement = "<span class='documents-grid-avatar ui-icon ui-icon-common-user{$userEmptyAvatar}'><i{$userAvatar}></i></span>"

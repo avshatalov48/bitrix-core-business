@@ -17,6 +17,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
+use Bitrix\Main\Web\Uri;
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
@@ -290,7 +291,7 @@ else
 
 						?><div class="sonet-groups-group-block"><?php
 							?><span class="<?= implode(' ', $classList) ?>">
-								<i <?= ($group["GROUP_PHOTO_RESIZED_COMMON"] ? " style=\"background:#fff url('".$group["GROUP_PHOTO_RESIZED_COMMON"]["src"]."') no-repeat; background-size: cover;\"" : "") ?>></i>
+								<i <?= ($group["GROUP_PHOTO_RESIZED_COMMON"] ? " style=\"background:#fff url('".Uri::urnEncode($group["GROUP_PHOTO_RESIZED_COMMON"]["src"])."') no-repeat; background-size: cover;\"" : "") ?>></i>
 							</span><?php
 							?><span class="sonet-groups-group-text"><?php
 								?><span class="sonet-groups-group-title<?= ($group["IS_EXTRANET"] === "Y" ? " sonet-groups-group-title-extranet" : "") ?>"><?php
@@ -463,7 +464,7 @@ else
 						}
 
 						?><span class="<?= implode(' ', $classList)?>">
-								<i <?=($group["IMAGE_RESIZED"] ? " style=\"background:#fff url('".$group["IMAGE_RESIZED"]["src"]."') no-repeat; background-size: cover;\"" : "") ?>></i>
+								<i <?=($group["IMAGE_RESIZED"] ? " style=\"background:#fff url('". Uri::urnEncode($group["IMAGE_RESIZED"]["src"])."') no-repeat; background-size: cover;\"" : "") ?>></i>
 							</span><?php
 							?><span class="sonet-groups-group-text"><?php
 								?><span class="sonet-groups-group-title<?=($group["IS_EXTRANET"] === "Y" ? " sonet-groups-group-title-extranet" : "") ?>"><?php

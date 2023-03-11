@@ -267,7 +267,7 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 				);
 			}
 
-			if ($r != null)
+			if (!CBPHelper::isEmptyValue($r))
 			{
 				$arProperties["Fields"][$fieldKey] = $r;
 			}

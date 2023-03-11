@@ -40,6 +40,7 @@ class WorkgroupList extends \CBitrixComponent implements \Bitrix\Main\Engine\Con
 	public const GROUP_ACTION_DELETE = 'delete';
 
 	public const MODE_COMMON = '';
+	public const MODE_USER = 'user_groups';
 	public const MODE_TASKS_PROJECT = 'tasks_project';
 	public const MODE_TASKS_SCRUM = 'tasks_scrum';
 

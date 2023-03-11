@@ -29,7 +29,7 @@ else
 	$section_id = intval($arParams["~SECTION_ID"]);
 
 if (
-	intval($arParams["~SOCNET_GROUP_ID"]) > 0
+	intval($arParams["~SOCNET_GROUP_ID"] ?? null) > 0
 	&& CModule::IncludeModule("socialnetwork")
 )
 {
@@ -52,7 +52,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	$IBLOCK_ID,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 {

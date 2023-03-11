@@ -1,4 +1,5 @@
 <?
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
 
@@ -20,6 +21,9 @@ global $USER_FIELD_MANAGER;
 global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
 global $adminSidePanelHelper;
+
+$request = Context::getCurrent()->getRequest();
+$return_url = (string)($request->get('return_url') ?? '');
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
@@ -200,24 +204,41 @@ if(
 	$DB->StartTransaction();
 	$bs = new CIBlockSection;
 
-	$useFileUpload = array_key_exists("PICTURE", $_FILES);
+	$picture = $_REQUEST["PICTURE"] ?? null;
+	$pictureDescription = $_REQUEST["PICTURE_descr"] ?? null;
+	if (array_key_exists("PICTURE", $_FILES))
+	{
+		$picture = $_FILES["PICTURE"];
+		$pictureDescription = null;
+	}
+
 	$arPICTURE = CIBlock::makeFileArray(
-		$useFileUpload? $_FILES["PICTURE"]: $_REQUEST["PICTURE"],
-		${"PICTURE_del"} === "Y",
-		$useFileUpload ? null : $_REQUEST['PICTURE_descr']
+		$picture,
+		isset(${"PICTURE_del"}) && ${"PICTURE_del"} === "Y",
+		$pictureDescription
 	);
 	if ($arPICTURE["error"] == 0)
+	{
 		$arPICTURE["COPY_FILE"] = "Y";
+	}
 
-	$useFileUpload = array_key_exists('DETAIL_PICTURE', $_FILES);
+	$detailPicture = $_REQUEST["DETAIL_PICTURE"] ?? null;
+	$detailPictureDescription = $_REQUEST["DETAIL_PICTURE_descr"] ?? null;
+	if (array_key_exists("DETAIL_PICTURE", $_FILES))
+	{
+		$detailPicture = $_FILES["DETAIL_PICTURE"];
+		$detailPictureDescription = null;
+	}
+
 	$arDETAIL_PICTURE = CIBlock::makeFileArray(
-		$useFileUpload? $_FILES["DETAIL_PICTURE"]: $_REQUEST["DETAIL_PICTURE"],
-		${"DETAIL_PICTURE_del"} === "Y",
-		$useFileUpload ? null : $_REQUEST['DETAIL_PICTURE_descr']
+		$detailPicture,
+		isset(${"DETAIL_PICTURE_del"}) && ${"DETAIL_PICTURE_del"} === "Y",
+		$detailPictureDescription
 	);
 	if ($arDETAIL_PICTURE["error"] == 0)
+	{
 		$arDETAIL_PICTURE["COPY_FILE"] = "Y";
-	unset($useFileUpload);
+	}
 
 	$arFields = array(
 		"ACTIVE" => $_POST["ACTIVE"],
@@ -248,10 +269,10 @@ if(
 			if($arLink["SHOW"] === "Y")
 			{
 				$arFields["SECTION_PROPERTY"][$PID] = array(
-					"SMART_FILTER" => $arLink["SMART_FILTER"],
-					"DISPLAY_TYPE" => $arLink["DISPLAY_TYPE"],
-					"DISPLAY_EXPANDED" => $arLink["DISPLAY_EXPANDED"],
-					"FILTER_HINT" => $arLink["FILTER_HINT"],
+					"SMART_FILTER" => $arLink["SMART_FILTER"] ?? null,
+					"DISPLAY_TYPE" => $arLink["DISPLAY_TYPE"] ?? null,
+					"DISPLAY_EXPANDED" => $arLink["DISPLAY_EXPANDED"] ?? null,
+					"FILTER_HINT" => $arLink["FILTER_HINT"] ?? null,
 				);
 			}
 		}
@@ -453,7 +474,7 @@ if(
 	}
 	else
 	{
-		if ($_POST["IPROPERTY_CLEAR_VALUES"] === "Y")
+		if (isset($_POST["IPROPERTY_CLEAR_VALUES"]) && $_POST["IPROPERTY_CLEAR_VALUES"] === "Y")
 		{
 			$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($IBLOCK_ID, $ID);
 			$ipropValues->clearValues();
@@ -587,10 +608,17 @@ if($bVarsFromForm)
 else
 {
 	$str_IPROPERTY_TEMPLATES = $ipropTemlates->findTemplates();
-	$str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"]);
-	$str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"]);
-	$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"]);
-	$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"]);
+	$str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] ?? null);
+
+	// default values
+	$columns = $DB->GetTableFieldsList("b_iblock_section");
+	foreach ($columns as $column)
+	{
+		${"str_{$column}"} ??= null;
+	}
 }
 
 if($ID>0)
@@ -684,7 +712,7 @@ $nameFormat = CSite::GetNameFormat();
 $bFileman = Loader::includeModule("fileman");
 
 $arTranslit = $arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"];
-$bLinked = !$ID && $_POST["linked_state"]!=='N';
+$bLinked = !$ID && (empty($_POST["linked_state"]) || $_POST["linked_state"] !== 'N');
 
 $tabControl->BeginPrologContent();
 ?>
@@ -1345,10 +1373,10 @@ if(
 		$arUserField["EDIT_FORM_LABEL"] = $strLabel;
 
 		$tabControl->BeginCustomField($FIELD_NAME, $strLabel, $arUserField["MANDATORY"]=="Y");
-			echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
+			echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME] ?? '', $arUserField);
 
 
-		$form_value = $GLOBALS[$FIELD_NAME];
+		$form_value = $GLOBALS[$FIELD_NAME] ?? '';
 		if(!$bVarsFromForm)
 			$form_value = $arUserField["VALUE"];
 		elseif($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
@@ -1584,17 +1612,32 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 						echo GetMessage("IBSEC_E_PROP_TYPE_S");
 				?></td>
 				<td style="text-align:center"><?
-					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.($arLink["SMART_FILTER"] == "Y"? 'checked="checked"': '').'>';
+					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.(is_array($arLink) && $arLink["SMART_FILTER"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
 					<?
 					$displayTypes = CIBlockSectionPropertyLink::getDisplayTypes($arProp["PROPERTY_TYPE"], $arProp["USER_TYPE"]);
 					if ($displayTypes)
 					{
-						echo SelectBoxFromArray('SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_TYPE]', array(
-							"REFERENCE_ID" => array_keys($displayTypes),
-							"REFERENCE" => array_values($displayTypes),
-						), $arLink["DISPLAY_TYPE"], '', ((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': ''));
+						$displayType = null;
+						$field1 = '';
+
+						if (is_array($arLink))
+						{
+							$displayType = $arLink["DISPLAY_TYPE"];
+							$field1 = $arLink["INHERITED"] === "Y" ? 'disabled="disabled"' : '';
+						}
+
+						echo SelectBoxFromArray(
+							'SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_TYPE]',
+							[
+								"REFERENCE_ID" => array_keys($displayTypes),
+								"REFERENCE" => array_values($displayTypes),
+							],
+							$displayType,
+							'',
+							$field1
+						);
 					}
 					else
 					{
@@ -1603,7 +1646,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					?>
 				</td>
 				<td style="text-align:center"><?
-					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.($arLink["DISPLAY_EXPANDED"] == "Y"? 'checked="checked"': '').'>';
+					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.(is_array($arLink) && $arLink["DISPLAY_EXPANDED"] == "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
 				<?
@@ -1906,7 +1949,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 			}
 			<?
 			$userSettings = CUserOptions::getOption('iblock', 'section_property');
-			if ($userSettings["mode"] === "tree"):
+			if (isset($userSettings["mode"]) && $userSettings["mode"] === "tree"):
 			?>
 			BX.ready(function(){
 				setMode(BX('table_SECTION_PROPERTY'), 'tree');
@@ -2006,17 +2049,32 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 						echo GetMessage("IBSEC_E_PROP_TYPE_S");
 				?></td>
 				<td align="center"><?
-					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.($arLink["SMART_FILTER"] == "Y"? 'checked="checked"': '').'>';
+					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.(is_array($arLink) && $arLink["SMART_FILTER"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
 					<?
 					$displayTypes = CIBlockSectionPropertyLink::getDisplayTypes($arProp["PROPERTY_TYPE"], $arProp["USER_TYPE"]);
 					if ($displayTypes)
 					{
-						echo SelectBoxFromArray('SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_TYPE]', array(
-							"REFERENCE_ID" => array_keys($displayTypes),
-							"REFERENCE" => array_values($displayTypes),
-						), $arLink["DISPLAY_TYPE"], '', ((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': ''));
+						$displayType = null;
+						$field1 = '';
+
+						if (is_array($arLink))
+						{
+							$displayType = $arLink["DISPLAY_TYPE"];
+							$field1 = $arLink["INHERITED"] === "Y" ? 'disabled="disabled"' : '';
+						}
+
+						echo SelectBoxFromArray(
+							'SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_TYPE]',
+							[
+								"REFERENCE_ID" => array_keys($displayTypes),
+								"REFERENCE" => array_values($displayTypes),
+							],
+							$displayType,
+							'',
+							$field1
+						);
 					}
 					else
 					{
@@ -2025,7 +2083,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					?>
 				</td>
 				<td align="center"><?
-					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.($arLink["DISPLAY_EXPANDED"] == "Y"? 'checked="checked"': '').'>';
+					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.(is_array($arLink) && $arLink["DISPLAY_EXPANDED"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td><?
 					if (!is_array($arLink) || $arLink["INHERITED"] == "N")

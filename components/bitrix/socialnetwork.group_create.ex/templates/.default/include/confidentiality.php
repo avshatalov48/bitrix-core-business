@@ -33,7 +33,7 @@ if (
 	];
 
 	?>
-	<div class="socialnetwork-group-create-ex__content-title --without-margin"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_SLIDE_CONFIDENTIALITY_TITLE')) ?></div>
+	<div class="socialnetwork-group-create-ex__content-title --without-margin"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_SLIDE_CONFIDENTIALITY_TITLE_1')) ?></div>
 	<div class="<?= implode(' ', $projectSwitchClassList) ?>">
 		<div class="socialnetwork-group-create-ex__text --m ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_SLIDE_CONFIDENTIALITY_SUBTITLE')?></div>
 	</div>

@@ -27,7 +27,7 @@ final class BusinessValueControl
 		if ($this->consumerCodePersonMapping)
 			throw new SystemException('Map is already set from post!');
 
-		if (is_array($_POST[$this->name]['MAP']))
+		if (isset($_POST[$this->name]['MAP']) && is_array($_POST[$this->name]['MAP']))
 		{
 			$_POST = Input\File::getPostWithFiles($_POST, $_FILES);
 			$consumerCodePersonMapping = $_POST[$this->name]['MAP'];
@@ -55,14 +55,20 @@ final class BusinessValueControl
 				if (! (($codes = $consumer['CODES']) && is_array($codes)))
 					$codes = array();
 
-				$skipNewCodeSanitation = $consumer['SKIP_NEW_CODE_SANITATION'];
+				$skipNewCodeSanitation = $consumer['SKIP_NEW_CODE_SANITATION'] ?? false;
 
-				if (! (($sanitizeMapping = $consumer['SANITIZE_MAPPING']) && is_callable($sanitizeMapping)))
+				$sanitizeMapping = $consumer['SANITIZE_MAPPING'] ?? null;
+				if (!is_callable($sanitizeMapping))
+				{
 					$sanitizeMapping = null;
+				}
 
-				if (   (! $codes && ! $skipNewCodeSanitation)
+				$renderColumns = $consumer['RENDER_COLUMNS'] ?? null;
+				if (
+					(! $codes && ! $skipNewCodeSanitation)
 					|| ($skipNewCodeSanitation && ! $sanitizeMapping)
-					|| (is_callable($consumer['RENDER_COLUMNS']) && ! $sanitizeMapping))
+					|| (is_callable($renderColumns) && ! $sanitizeMapping)
+				)
 				{
 					unset($consumerCodePersonMapping[$consumerKey]);
 					continue;
@@ -87,14 +93,16 @@ final class BusinessValueControl
 							unset($personMapping[BusinessValueTable::COMMON_PERSON_TYPE_ID]);
 						}
 
+						$codeDomains = $code['DOMAINS'] ?? null;
+						$personType = self::$personTypes[$personTypeId] ?? null;
+
 						if (! is_array($code) && $skipNewCodeSanitation)
 						{
 							//$skipNewCodeSanitation
 						}
 						elseif (! (is_array($code)
-							&& ($personType = self::$personTypes[$personTypeId])
 							&& (! isset($code['PERSON_TYPE_ID']) || $code['PERSON_TYPE_ID'] == $personTypeId)
-							&& (! is_array($code['DOMAINS']) || in_array($personType['DOMAIN'], $code['DOMAINS'], true))
+							&& (! is_array($codeDomains) || in_array($personType['DOMAIN'], $codeDomains, true))
 							&& is_array($mapping)))
 						{
 							unset($personMapping[$personTypeId]);
@@ -102,7 +110,11 @@ final class BusinessValueControl
 						}
 
 						// delete record
-						if ($mapping['DELETE'] || ! ($mapping['PROVIDER_KEY'] && $mapping['PROVIDER_VALUE']))
+						if (
+							!empty($mapping['DELETE'])
+							|| empty($mapping['PROVIDER_KEY'])
+							|| empty($mapping['PROVIDER_VALUE'])
+						)
 						{
 							continue;
 						}
@@ -112,16 +124,16 @@ final class BusinessValueControl
 							if ($e = call_user_func_array($sanitizeMapping, array($codeKey, $personTypeId, &$mapping)))
 								$errors[$consumerKey][$codeKey][$personTypeId] = $e;
 						}
-						elseif (is_array($code['INPUT']))
+						elseif (isset($code['INPUT']) && is_array($code['INPUT']))
 						{
 							$mapping['PROVIDER_KEY'] = 'INPUT';
 
-							if ($e = Input\Manager::getError($code['INPUT'], $mapping['PROVIDER_VALUE']))
+							if ($e = Input\Manager::getError($code['INPUT'], $mapping['PROVIDER_VALUE'] ?? []))
 								$errors[$consumerKey][$codeKey][$personTypeId]['PROVIDER_VALUE'] = $e;
 						}
 						else
 						{
-							if ($e = self::sanitizeMapping($personTypeId, $mapping, $code['PROVIDERS'] ?: $consumer['PROVIDERS']))
+							if ($e = self::sanitizeMapping($personTypeId, $mapping, $code['PROVIDERS'] ?? $consumer['PROVIDERS'] ?? []))
 								$errors[$consumerKey][$codeKey][$personTypeId] = $e;
 						}
 
@@ -154,10 +166,10 @@ final class BusinessValueControl
 			else
 				$mapping['PROVIDER_KEY'] = Input\Manager::getValue($providerInput, $mapping['PROVIDER_KEY']);
 
-			if ($e = Input\Manager::getError($valueInput, $mapping['PROVIDER_VALUE']))
+			if ($e = Input\Manager::getError($valueInput, $mapping['PROVIDER_VALUE'] ?? []))
 				$error['PROVIDER_VALUE'] = $e;
 			else
-				$mapping['PROVIDER_VALUE'] = Input\Manager::getValue($valueInput, $mapping['PROVIDER_VALUE']);
+				$mapping['PROVIDER_VALUE'] = Input\Manager::getValue($valueInput, $mapping['PROVIDER_VALUE'] ?? []);
 		}
 		else
 		{
@@ -187,16 +199,23 @@ final class BusinessValueControl
 
 		foreach ($this->consumerCodePersonMapping as $consumerKey => $codePersonMapping)
 		{
-			$consumer = $consumers[$consumerKey] ?: array();
-			$setMapping = is_callable($consumer['SET_MAPPING']) ? $consumer['SET_MAPPING'] : null;
-			$codes = $consumer['CODES'] ?: array();
+			$consumer = $consumers[$consumerKey] ?? [];
+			$setMapping =
+				isset($consumer['SET_MAPPING']) && is_callable($consumer['SET_MAPPING'])
+					? $consumer['SET_MAPPING']
+					: null
+			;
+			$codes = $consumer['CODES'] ?? [];
 
 			foreach ($codePersonMapping as $codeKey => $personMapping)
 			{
-				$code = $codes[$codeKey] ?: array();
-				$fileInput = $code['INPUT'];
-				if (!(is_array($fileInput) && ($fileInput['TYPE'] == 'FILE' || $fileInput['TYPE'] == 'DATABASE_FILE')))
-					$fileInput = null;
+				$code = $codes[$codeKey] ?? [];
+				$fileInput = $code['INPUT'] ?? [];
+				$fileType = $fileInput['TYPE'] ?? '';
+				if (!(is_array($fileInput) && ($fileType == 'FILE' || $fileType == 'DATABASE_FILE')))
+				{
+					$fileInput = [];
+				}
 
 				foreach ($personMapping as $personTypeId => $mapping)
 				{
@@ -256,7 +275,7 @@ final class BusinessValueControl
 								$file = $file['ID'];
 							}
 						}
-						elseif ($fileInput['TYPE'] == 'FILE')
+						elseif (isset($fileInput['TYPE']) && is_array($fileInput) && $fileInput['TYPE'] === 'FILE')
 						{
 							if (isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]))
 							{
@@ -309,31 +328,49 @@ final class BusinessValueControl
 
 	private static function getPersonGroupCodes(array $consumers, array $filter)
 	{
-		$personGroupCodes = array();
+		$personGroupCodes = [];
 
 		$consumerCodePersonMapping = BusinessValue::getConsumerCodePersonMapping();
 
 		$consumer = $consumers[$filter['CONSUMER_KEY']];
 
-		if ((! $filter['PROVIDER_KEY'] && ! $filter['CODE_KEY']) || $filter['CONSUMER_KEY'])
-			$consumers = array($filter['CONSUMER_KEY'] => $consumer);
+		if (
+			(empty($filter['PROVIDER_KEY']) && empty($filter['CODE_KEY']))
+			|| !empty($filter['CONSUMER_KEY'])
+		)
+		{
+			$consumers = [
+				$filter['CONSUMER_KEY'] => $consumer,
+			];
+		}
 
 		foreach (self::$personTypes as $personTypeId => $personType)
 		{
 			foreach ($consumers as $consumerKey => $consumer)
 			{
-				if (is_array($consumer) && ($consumerCodes = $consumer['CODES']) && is_array($consumerCodes))
+				if (is_array($consumer) && isset($consumer['CODES']) && is_array($consumer['CODES']))
 				{
+					$consumerCodes = $consumer['CODES'];
 					foreach ($consumerCodes as $codeKey => $code)
 					{
-						if (is_array($code)
-							&& (! $filter['CODE_KEY'] || $filter['CODE_KEY'] == $codeKey)
-							&& (! isset($code['PERSON_TYPE_ID']) || $code['PERSON_TYPE_ID'] == $personTypeId)
-							&& (! is_array($code['DOMAINS']) || in_array($personType['DOMAIN'], $code['DOMAINS'], true)))
+						$needCodeKey = !isset($filter['CODE_KEY']) || (string)$filter['CODE_KEY'] === (string)$codeKey;
+						$needPersonTypeId = !isset($code['PERSON_TYPE_ID']) || (int)$code['PERSON_TYPE_ID'] === (int)$personTypeId;
+						$needDomains =
+							!isset($code['DOMAINS'])
+							|| !is_array($code['DOMAINS'])
+							|| in_array($personType['DOMAIN'], $code['DOMAINS'], true)
+						;
+
+						if (
+							is_array($code)
+							&& $needCodeKey
+							&& $needPersonTypeId
+							&& $needDomains
+						)
 						{
 							$code['CONSUMER_KEY'] = $consumerKey;
 
-							if ($filter['PROVIDER_KEY'])
+							if (!empty($filter['PROVIDER_KEY']))
 							{
 								if (isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]))
 								{
@@ -342,25 +379,28 @@ final class BusinessValueControl
 									if ($mapping['PROVIDER_KEY'  ] == $filter['PROVIDER_KEY'  ] &&
 										$mapping['PROVIDER_VALUE'] == $filter['PROVIDER_VALUE'])
 									{
-										$personGroupCodes[$personTypeId][$consumer['NAME'] ?: $consumerKey][$codeKey] = $code; // CONSUMER
+										$personGroupCodes[$personTypeId][$consumer['NAME'] ?? $consumerKey][$codeKey] = $code; // CONSUMER
 									}
 								}
 							}
-							elseif ($filter['CODE_KEY'])
+							elseif (!empty($filter['CODE_KEY']))
 							{
-								$personGroupCodes[$personTypeId][$consumer['NAME'] ?: $consumerKey][$codeKey] = $code; // CONSUMER
+								$personGroupCodes[$personTypeId][$consumer['NAME'] ?? $consumerKey][$codeKey] = $code; // CONSUMER
 							}
 							else
 							{
-								$personGroupCodes[$personTypeId][$code['GROUP']][$codeKey] = $code; // GROUP
+								$codeGroup = $code['GROUP'] ?? '';
+								$personGroupCodes[$personTypeId][$codeGroup][$codeKey] = $code; // GROUP
 							}
 						}
 					}
 				}
 			}
 
-			if (isset($personGroupCodes[$personTypeId]) && ! $filter['PROVIDER_KEY'] && ! $filter['CODE_KEY']) // GROUP
+			if (isset($personGroupCodes[$personTypeId]) && empty($filter['PROVIDER_KEY']) && empty($filter['CODE_KEY'])) // GROUP
+			{
 				self::sortRenameGroups($personGroupCodes[$personTypeId], self::$groups);
+			}
 		}
 
 		return $personGroupCodes;
@@ -368,7 +408,11 @@ final class BusinessValueControl
 
 	public function renderMap(array $options = array())
 	{
-		$hideFilledCodes = $options['HIDE_FILLED_CODES'] === false ? false : true;
+		$hideFilledCodes =
+			isset($options['HIDE_FILLED_CODES']) && $options['HIDE_FILLED_CODES'] === false
+				? false
+				: true
+		;
 
 		$consumers = BusinessValue::getConsumers();
 		$personGroupCodes = self::getPersonGroupCodes($consumers, $options);
@@ -452,7 +496,7 @@ final class BusinessValueControl
 //								'EXACT' => isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId])
 //									? $consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]
 //									: array(),
-//								'COMMON' => BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_COMMON, $consumerCodePersonMapping) ?: array(),
+//								'COMMON' => BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_COMMON, $consumerCodePersonMapping) ?? array(),
 //								'DEFAULT' => is_array($code['DEFAULT']) ? $code['DEFAULT'] : array(),
 //							);
 
@@ -482,7 +526,7 @@ final class BusinessValueControl
 
 							ob_start(); // $columnsHTML
 
-							if (is_callable($consumer['RENDER_COLUMNS']))
+							if (isset($consumer['RENDER_COLUMNS']) && is_callable($consumer['RENDER_COLUMNS']))
 							{
 								$hideCode = call_user_func($consumer['RENDER_COLUMNS'], $codeKey, $personTypeId, $mappings, $inputNamePrefix);
 							}
@@ -492,7 +536,7 @@ final class BusinessValueControl
 								<td>
 									<?
 
-									if (is_array($code['CONSUMERS']) && count($code['CONSUMERS']) > 1)
+									if (isset($code['CONSUMERS']) && is_array($code['CONSUMERS']) && count($code['CONSUMERS']) > 1)
 									{
 										echo implode(', ', array_map(function ($i) {return htmlspecialcharsbx($i);}, array_flip($code['NAMES'])));
 
@@ -503,10 +547,10 @@ final class BusinessValueControl
 									}
 									else
 									{
-										echo htmlspecialcharsbx($code['NAME'] ?: $codeKey);
+										echo htmlspecialcharsbx($code['NAME'] ?? $codeKey);
 									}
 
-									if (is_string($code['DESCRIPTION']))
+									if (isset($code['DESCRIPTION']) && is_string($code['DESCRIPTION']))
 									{
 										?>
 										<div style="font-size:10px;"><?=htmlspecialcharsbx($code['DESCRIPTION'])?></div>
@@ -520,7 +564,7 @@ final class BusinessValueControl
 
 									$commonProviderInput = $commonProviderValueInput = null;
 
-									if (is_array($code['INPUT']))
+									if (isset($code['INPUT']) && is_array($code['INPUT']))
 									{
 										$providerInput = array('TYPE' => 'ENUM', 'HIDDEN' => true, 'OPTIONS' => array('INPUT' => ''));
 										$providerValueInput = array(
@@ -533,12 +577,14 @@ final class BusinessValueControl
 									}
 									else
 									{
-										$providerInput = self::getProviderInput($personTypeId, $code['PROVIDERS'] ?: $consumer['PROVIDERS']);
+										$providersValues = $code['PROVIDERS'] ?? $consumer['PROVIDERS'] ?? [];
+
+										$providerInput = self::getProviderInput($personTypeId, $providersValues);
 										$providerValueInput = self::getValueInput($personTypeId);
 
 										if ($personTypeId)
 										{
-											$commonProviderInput = self::getProviderInput('', $code['PROVIDERS'] ?: $consumer['PROVIDERS']);
+											$commonProviderInput = self::getProviderInput('', $providersValues);
 											$commonProviderValueInput = self::getValueInput('');
 										}
 									}
@@ -634,6 +680,10 @@ final class BusinessValueControl
 			$m = self::correctMapping($providerInput, $providerValueInput, $m);
 		unset($m);
 
+		$mappings['EXACT'] ??= [];
+		$mappings['COMMON'] ??= [];
+		$mappings['DEFAULT'] ??= [];
+
 		if ($m = ($mappings['EXACT'] ?: $mappings['COMMON'] ?: $mappings['DEFAULT']))
 		{
 			$providerKey   = $m['PROVIDER_KEY'  ];
@@ -644,7 +694,7 @@ final class BusinessValueControl
 		{
 			$providerKey   = is_array($providerInput['OPTIONS']) ? key($providerInput['OPTIONS']) : null;
 			$providerValue = null;
-			$valueInput    = $providerValueInput[$providerKey] ?: array('TYPE' => 'STRING', 'HIDDEN' => true);
+			$valueInput    = $providerValueInput[$providerKey] ?? array('TYPE' => 'STRING', 'HIDDEN' => true);
 		}
 
 		if ($providerKey == 'INPUT')
@@ -731,9 +781,16 @@ final class BusinessValueControl
 
 	private static function correctMapping(array $providerInput, array $providerValueInput, array $mapping)
 	{
-		if (! (! Input\Manager::getError($providerInput, $mapping['PROVIDER_KEY'])
-			&& ($valueInput = $providerValueInput[$mapping['PROVIDER_KEY']])
-			&& ! Input\Manager::getError($valueInput, $mapping['PROVIDER_VALUE'])))
+		$key = $mapping['PROVIDER_KEY'] ?? null;
+		$value = $mapping['PROVIDER_VALUE'] ?? null;
+
+		$isValid =
+			!Input\Manager::getError($providerInput, $key)
+			&& isset($providerValueInput[$key])
+			&& !Input\Manager::getError($providerValueInput[$key], $value)
+		;
+
+		if (!$isValid)
 		{
 			$mapping = array();
 		}
@@ -1002,8 +1059,12 @@ final class BusinessValueControl
 			<?
 
 			foreach (BusinessValue::getConsumers() as $consumerKey => $consumer)
-				if (is_callable($consumer['GET_JAVASCRIPT']))
+			{
+				if (isset($consumer['GET_JAVASCRIPT']) && is_callable($consumer['GET_JAVASCRIPT']))
+				{
 					echo call_user_func($consumer['GET_JAVASCRIPT']);
+				}
+			}
 
 			?>
 		</script>
@@ -1013,35 +1074,45 @@ final class BusinessValueControl
 	/** @internal */
 	public static function getFilter($filter)
 	{
-		$filter = is_array($filter)
-			? array_intersect_key($filter, array('CODE_KEY'=>1,'CONSUMER_KEY'=>1,'PROVIDER_KEY'=>1,'PROVIDER_VALUE'=>1))
-			: array();
+		$filter =
+			is_array($filter)
+				? array_intersect_key($filter, array('CODE_KEY'=>1,'CONSUMER_KEY'=>1,'PROVIDER_KEY'=>1,'PROVIDER_VALUE'=>1))
+				: array()
+		;
 
 		if (self::$consumerInput['OPTIONS'])
 		{
-			$filter['CONSUMER_KEY'] = ! Input\Manager::getError(self::$consumerInput, $filter['CONSUMER_KEY'])
-				? Input\Manager::getValue(self::$consumerInput, $filter['CONSUMER_KEY'])
-				: key(self::$consumerInput['OPTIONS']); // REQUIRED
+			$value = $filter['CONSUMER_KEY'] ?? null;
+			$filter['CONSUMER_KEY'] =
+				! Input\Manager::getError(self::$consumerInput, $value)
+					? Input\Manager::getValue(self::$consumerInput, $value)
+					: key(self::$consumerInput['OPTIONS']) // REQUIRED
+			;
 		}
 
 		if (is_array(self::$consumerCodeInput[$filter['CONSUMER_KEY']]))
 		{
-			$filter['CODE_KEY'] = ! Input\Manager::getError(self::$consumerCodeInput[$filter['CONSUMER_KEY']], $filter['CODE_KEY'])
-				? Input\Manager::getValue(self::$consumerCodeInput[$filter['CONSUMER_KEY']], $filter['CODE_KEY'])
-				: null;
+			$value = $filter['CODE_KEY'] ?? null;
+			$filter['CODE_KEY'] =
+				! Input\Manager::getError(self::$consumerCodeInput[$filter['CONSUMER_KEY']], $value)
+					? Input\Manager::getValue(self::$consumerCodeInput[$filter['CONSUMER_KEY']], $value)
+					: null
+			;
 		}
 
 
 		// TODO null - personTypeId
+		$value = $filter['PROVIDER_KEY'] ?? null;
 		$filter['PROVIDER_KEY'] =
-			! Input\Manager::getError(self::$personProviderInput[null], $filter['PROVIDER_KEY'])
-				? Input\Manager::getValue(self::$personProviderInput[null], $filter['PROVIDER_KEY'])
+			! Input\Manager::getError(self::$personProviderInput[null], $value)
+				? Input\Manager::getValue(self::$personProviderInput[null], $value)
 				: null;
 
 		// TODO null - personTypeId
+		$value = $filter['PROVIDER_VALUE'] ?? null;
 		$filter['PROVIDER_VALUE'] = $filter['PROVIDER_KEY']
-			&& ! Input\Manager::getError(self::$personProviderValueInput[null][$filter['PROVIDER_KEY']], $filter['PROVIDER_VALUE'])
-				? Input\Manager::getValue(self::$personProviderValueInput[null][$filter['PROVIDER_KEY']], $filter['PROVIDER_VALUE'])
+			&& ! Input\Manager::getError(self::$personProviderValueInput[null][$filter['PROVIDER_KEY']], $value)
+				? Input\Manager::getValue(self::$personProviderValueInput[null][$filter['PROVIDER_KEY']], $value)
 				: null;
 
 		return $filter;
@@ -1108,22 +1179,31 @@ final class BusinessValueControl
 
 			foreach ($providers as $providerKey => $provider)
 			{
-				if (is_array($provider['INPUT']))
+				if (isset($provider['INPUT']) && is_array($provider['INPUT']))
 				{
 					$provider['INPUT']['REQUIRED'] = true;
 					$provider['INPUT']['ONCHANGE'] = $onChange;
 
-					$providerOptions[$providerKey] = $provider['NAME'] ?: $providerKey;
+					$providerOptions[$providerKey] = $provider['NAME'] ?? $providerKey;
 					$personProviderValueInput[$personTypeId][$providerKey] = $provider['INPUT'];
 				}
-				elseif (($fields = $provider['FIELDS']) && is_array($fields))
+				elseif (isset($provider['FIELDS']) && is_array($provider['FIELDS']))
 				{
+					$fields = $provider['FIELDS'];
 					$fieldOptions = array();
 
 					// group fields
 					foreach ($fields as $fieldKey => $field)
-						if (is_array($field) && (! $field['PERSON_TYPE_ID'] || $field['PERSON_TYPE_ID'] == $personTypeId))
-							$fieldOptions[$field['GROUP']][$fieldKey] = $field['NAME'] ?: $fieldKey;
+					{
+						if (
+							is_array($field)
+							&& (empty($field['PERSON_TYPE_ID']) || $field['PERSON_TYPE_ID'] == $personTypeId)
+						)
+						{
+							$group = $field['GROUP'] ?? null; // null is GENERAL
+							$fieldOptions[$group][$fieldKey] = $field['NAME'] ?? $fieldKey;
+						}
+					}
 
 					if (count($fieldOptions) == 1)
 					{
@@ -1136,13 +1216,13 @@ final class BusinessValueControl
 
 					if (! empty($fieldOptions))
 					{
-						$providerOptions[$providerKey] = $provider['NAME'] ?: $providerKey;
+						$providerOptions[$providerKey] = $provider['NAME'] ?? $providerKey;
 						$personProviderValueInput[$personTypeId][$providerKey] = array('TYPE' => 'ENUM', 'OPTIONS' => $fieldOptions, 'ONCHANGE' => $onChange);
 					}
 				}
 				else
 				{
-					$providerOptions[$providerKey] = $provider['NAME'] ?: $providerKey;
+					$providerOptions[$providerKey] = $provider['NAME'] ?? $providerKey;
 					$personProviderValueInput[$personTypeId][$providerKey] = array('TYPE' => 'STRING', 'SIZE' => 30, 'ONCHANGE' => $onChange);
 				}
 			}
@@ -1177,20 +1257,31 @@ final class BusinessValueControl
 
 		foreach ($consumers as $consumerKey => $consumer)
 		{
-			if (is_array($consumer) && ($consumerCodes = $consumer['CODES']) && is_array($consumerCodes))
+			if (is_array($consumer) && isset($consumer['CODES']) && is_array($consumer['CODES']))
 			{
-				$consumerOptions[$consumer['GROUP']][$consumerKey] = $consumer['NAME'] ?: $consumerKey;
+				$consumerCodes = $consumer['CODES'];
+				$consumerGroup = $consumer['GROUP'] ?? null; // null is GENERAL
+
+				$consumerOptions[$consumerGroup][$consumerKey] = $consumer['NAME'] ?? $consumerKey;
 
 				$codeOptions = array();
 
 				foreach ($consumerCodes as $codeKey => $code)
-					if (is_array($code))
-						$codeOptions[$code['GROUP']][$codeKey] = $code['NAME'] ?: $codeKey;
+				{
+					if (is_array($code) && isset($code['GROUP']))
+					{
+						$codeOptions[$code['GROUP']][$codeKey] = $code['NAME'] ?? $codeKey;
+					}
+				}
 
 				if (count($codeOptions) == 1)
+				{
 					$codeOptions = reset($codeOptions);
+				}
 				else
+				{
 					self::sortRenameGroups($codeOptions, $groups, true);
+				}
 
 				$consumerCodeInput[$consumerKey] = array(
 					'TYPE' => 'ENUM',
@@ -1222,7 +1313,7 @@ final class BusinessValueControl
 		{
 			if (is_array($group) && isset($groupedItems[$groupKey]))
 			{
-				$sortedItems[$group['NAME'] ?: $groupKey] = $groupedItems[$groupKey];
+				$sortedItems[$group['NAME'] ?? $groupKey] = $groupedItems[$groupKey];
 				unset($groupedItems[$groupKey]);
 			}
 		}

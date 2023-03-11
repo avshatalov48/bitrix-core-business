@@ -1,5 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -18,14 +21,20 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-if(!isset($arParams["CACHE_TIME"]))
+if (!isset($arParams["CACHE_TIME"]))
+{
 	$arParams["CACHE_TIME"] = 36000000;
+}
 
-$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
+$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
+$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
 
-$arParams["SECTION_ID"] = intval($arParams["~SECTION_ID"]);
-if($arParams["SECTION_ID"] > 0 && $arParams["SECTION_ID"]."" != $arParams["~SECTION_ID"])
+$arParams["SECTION_ID"] = (int)($arParams["~SECTION_ID"] ?? 0);
+$arParams["MESSAGE_404"] ??= '';
+$arParams["SET_STATUS_404"] ??= 'N';
+$arParams["SHOW_404"] ??= 'N';
+$arParams["FILE_404"] ??= '';
+if ($arParams["SECTION_ID"] > 0 && $arParams["SECTION_ID"]."" != $arParams["~SECTION_ID"])
 {
 	if (CModule::IncludeModule("iblock"))
 	{
@@ -40,60 +49,82 @@ if($arParams["SECTION_ID"] > 0 && $arParams["SECTION_ID"]."" != $arParams["~SECT
 	return;
 }
 
-$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"]);
+$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"] ?? '');
 
-$arParams["ELEMENT_SORT_FIELD"] = trim($arParams["ELEMENT_SORT_FIELD"]);
-if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	$arParams["ELEMENT_SORT_ORDER"]="asc";
-
-if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+$arParams["ELEMENT_SORT_FIELD"] = trim($arParams["ELEMENT_SORT_FIELD"] ?? '');
+if (!isset($arParams["ELEMENT_SORT_ORDER"]) || !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
 {
-	$arrFilter = array();
+	$arParams["ELEMENT_SORT_ORDER"]="asc";
 }
-else
+
+$arrFilter = [];
+if (!empty($arParams["FILTER_NAME"]) && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
 	global ${$arParams["FILTER_NAME"]};
-	$arrFilter = ${$arParams["FILTER_NAME"]};
-	if(!is_array($arrFilter))
-		$arrFilter = array();
+	$arrFilter = ${$arParams["FILTER_NAME"]} ?? [];
+	if (!is_array($arrFilter))
+	{
+		$arrFilter = [];
+	}
 }
 
-if(!is_array($arParams["FIELD_CODE"]))
-	$arParams["FIELD_CODE"] = array();
-foreach($arParams["FIELD_CODE"] as $key=>$val)
-	if(!$val)
+if (empty($arParams["FIELD_CODE"]) || !is_array($arParams["FIELD_CODE"]))
+{
+	$arParams["FIELD_CODE"] = [];
+}
+foreach ($arParams["FIELD_CODE"] as $key => $value)
+{
+	if (!$value)
+	{
 		unset($arParams["FIELD_CODE"][$key]);
-if(!is_array($arParams["PROPERTY_CODE"]))
-	$arParams["PROPERTY_CODE"] = array();
-foreach($arParams["PROPERTY_CODE"] as $key=>$val)
-	if($val==="")
+	}
+}
+
+if (empty($arParams["PROPERTY_CODE"]) || !is_array($arParams["PROPERTY_CODE"]))
+{
+	$arParams["PROPERTY_CODE"] = [];
+}
+foreach ($arParams["PROPERTY_CODE"] as $key => $value)
+{
+	if ($value === "")
+	{
 		unset($arParams["PROPERTY_CODE"][$key]);
+	}
+}
 
-$arParams["SECTION_URL"]=trim($arParams["SECTION_URL"]);
-$arParams["DETAIL_URL"]=trim($arParams["DETAIL_URL"]);
 
-$arParams["PAGE_ELEMENT_COUNT"] = intval($arParams["PAGE_ELEMENT_COUNT"]);
-if($arParams["PAGE_ELEMENT_COUNT"]<=0)
-	$arParams["PAGE_ELEMENT_COUNT"]=20;
-$arParams["LINE_ELEMENT_COUNT"] = intval($arParams["LINE_ELEMENT_COUNT"]);
-if($arParams["LINE_ELEMENT_COUNT"]<=0)
-	$arParams["LINE_ELEMENT_COUNT"]=3;
+$arParams["SECTION_URL"] = trim($arParams["SECTION_URL"] ?? '');
+$arParams["DETAIL_URL"] = trim($arParams["DETAIL_URL"] ?? '');
 
-$arParams["ADD_SECTIONS_CHAIN"] = $arParams["ADD_SECTIONS_CHAIN"]!="N"; //Turn on by default
-$arParams["SET_TITLE"] = $arParams["SET_TITLE"]!="N"; //Turn on by default
-$arParams["SET_LAST_MODIFIED"] = $arParams["SET_LAST_MODIFIED"]==="Y";
-$arParams["CACHE_FILTER"]=$arParams["CACHE_FILTER"]=="Y";
-if(!$arParams["CACHE_FILTER"] && count($arrFilter)>0)
+$arParams["PAGE_ELEMENT_COUNT"] = (int)($arParams["PAGE_ELEMENT_COUNT"] ?? 0);
+if ($arParams["PAGE_ELEMENT_COUNT"] <= 0)
+{
+	$arParams["PAGE_ELEMENT_COUNT"] = 20;
+}
+$arParams["LINE_ELEMENT_COUNT"] = (int)($arParams["LINE_ELEMENT_COUNT"] ?? 0);
+if ($arParams["LINE_ELEMENT_COUNT"] <= 0)
+{
+	$arParams["LINE_ELEMENT_COUNT"] = 3;
+}
+
+$arParams["ADD_SECTIONS_CHAIN"] = ($arParams["ADD_SECTIONS_CHAIN"] ?? '') !== "N"; //Turn on by default
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? '') !== "N"; //Turn on by default
+$arParams["SET_LAST_MODIFIED"] = ($arParams["SET_LAST_MODIFIED"] ?? '') === "Y";
+$arParams["CACHE_FILTER"] = ($arParams["CACHE_FILTER"] ?? '') === "Y";
+if (!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 
-$arParams["DISPLAY_TOP_PAGER"] = $arParams["DISPLAY_TOP_PAGER"]=="Y";
-$arParams["DISPLAY_BOTTOM_PAGER"] = $arParams["DISPLAY_BOTTOM_PAGER"]!="N";
-$arParams["PAGER_TITLE"] = trim($arParams["PAGER_TITLE"]);
-$arParams["PAGER_SHOW_ALWAYS"] = $arParams["PAGER_SHOW_ALWAYS"]!="N";
-$arParams["PAGER_TEMPLATE"] = trim($arParams["PAGER_TEMPLATE"]);
-$arParams["PAGER_DESC_NUMBERING"] = $arParams["PAGER_DESC_NUMBERING"]=="Y";
-$arParams["PAGER_DESC_NUMBERING_CACHE_TIME"] = intval($arParams["PAGER_DESC_NUMBERING_CACHE_TIME"]);
-$arParams["PAGER_SHOW_ALL"] = $arParams["PAGER_SHOW_ALL"]!=="N";
+$arParams["DISPLAY_TOP_PAGER"] = ($arParams["DISPLAY_TOP_PAGER"] ?? '') === "Y";
+$arParams["DISPLAY_BOTTOM_PAGER"] = ($arParams["DISPLAY_BOTTOM_PAGER"] ?? '') !== "N";
+$arParams["PAGER_TITLE"] = trim($arParams["PAGER_TITLE"] ?? '');
+$arParams["PAGER_SHOW_ALWAYS"] = ($arParams["PAGER_SHOW_ALWAYS"] ?? '') !== "N";
+$arParams["PAGER_BASE_LINK_ENABLE"] ??= '';
+$arParams["PAGER_TEMPLATE"] = trim($arParams["PAGER_TEMPLATE"] ?? '');
+$arParams["PAGER_DESC_NUMBERING"] = ($arParams["PAGER_DESC_NUMBERING"] ?? '') === "Y";
+$arParams["PAGER_DESC_NUMBERING_CACHE_TIME"] = (int)($arParams["PAGER_DESC_NUMBERING_CACHE_TIME"] ?? 0);
+$arParams["PAGER_SHOW_ALL"] = ($arParams["PAGER_SHOW_ALL"] ?? '') !== "N";
 
 $arNavParams = array(
 	"nPageSize" => $arParams["PAGE_ELEMENT_COUNT"],
@@ -101,23 +132,27 @@ $arNavParams = array(
 	"bShowAll" => $arParams["PAGER_SHOW_ALL"],
 );
 $arNavigation = CDBResult::GetNavParams($arNavParams);
-if($arNavigation["PAGEN"]==0 && $arParams["PAGER_DESC_NUMBERING_CACHE_TIME"]>0)
+if ((int)$arNavigation["PAGEN"] === 0 && $arParams["PAGER_DESC_NUMBERING_CACHE_TIME"] > 0)
+{
 	$arParams["CACHE_TIME"] = $arParams["PAGER_DESC_NUMBERING_CACHE_TIME"];
-
-if (empty($arParams["PAGER_PARAMS_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PAGER_PARAMS_NAME"]))
-{
-	$pagerParameters = array();
 }
-else
+
+$pagerParameters = [];
+if (!empty($arParams["PAGER_PARAMS_NAME"]) && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PAGER_PARAMS_NAME"]))
 {
-	$pagerParameters = $GLOBALS[$arParams["PAGER_PARAMS_NAME"]];
+	$pagerParameters = $GLOBALS[$arParams["PAGER_PARAMS_NAME"]] ?? [];
 	if (!is_array($pagerParameters))
-		$pagerParameters = array();
+	{
+		$pagerParameters = [];
+	}
 }
 
-$arParams["USE_PERMISSIONS"] = $arParams["USE_PERMISSIONS"]=="Y";
-if(!is_array($arParams["GROUP_PERMISSIONS"]))
-	$arParams["GROUP_PERMISSIONS"] = array(1);
+$arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"] ?? '') === "Y";
+if (empty($arParams["GROUP_PERMISSIONS"]) || !is_array($arParams["GROUP_PERMISSIONS"]))
+{
+	$adminGroupId = 1;
+	$arParams["GROUP_PERMISSIONS"] = [$adminGroupId];
+}
 
 $bUSER_HAVE_ACCESS = !$arParams["USE_PERMISSIONS"];
 if($arParams["USE_PERMISSIONS"] && isset($GLOBALS["USER"]) && is_object($GLOBALS["USER"]))
@@ -133,6 +168,11 @@ if($arParams["USE_PERMISSIONS"] && isset($GLOBALS["USER"]) && is_object($GLOBALS
 	}
 }
 
+$arParams["META_KEYWORDS"] ??= '';
+$arParams["META_DESCRIPTION"] ??= '';
+$arParams["BROWSER_TITLE"] ??= '';
+
+$arParams["CACHE_GROUPS"] ??= '';
 if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()), $arNavigation, $bUSER_HAVE_ACCESS, $pagerParameters)))
 {
 	if(!CModule::IncludeModule("iblock"))

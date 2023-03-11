@@ -1,19 +1,22 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPCreateDocumentActivity
-	extends CBPActivity
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPCreateDocumentActivity extends CBPActivity
 {
 	const EXECUTION_MAX_DEPTH = 1;
-	private static $executionDepth = array();
+	private static $executionDepth = [];
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
+		$this->arProperties = [
 			"Title" => "",
 			"Fields" => null,
-		);
+		];
 	}
 
 	public function Execute()
@@ -22,31 +25,13 @@ class CBPCreateDocumentActivity
 		$documentType = $this->GetDocumentType();
 
 		$fieldValue = $this->Fields;
+		if (!is_array($fieldValue))
+		{
+			$fieldValue = [];
+		}
 
 		$documentService = $this->workflow->GetService("DocumentService");
-		$documentFields = $documentService->GetDocumentFields($documentType);
-		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-
-		$resultFields = [];
-		foreach ($fieldValue as $key => $value)
-		{
-			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
-			{
-				$key = $documentFieldsAliasesMap[$key];
-			}
-
-			if (($property = $documentFields[$key]) && $value)
-			{
-				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
-				if ($fieldTypeObject)
-				{
-					$fieldTypeObject->setDocumentId($documentId);
-					$value = $fieldTypeObject->externalizeValue('Document', $value);
-				}
-			}
-
-			$resultFields[$key] = $value;
-		}
+		$resultFields = $this->prepareFieldsValues($documentType, $fieldValue);
 
 		$executionKey = $this->GetWorkflowTemplateId();
 
@@ -64,14 +49,27 @@ class CBPCreateDocumentActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = "",
+		$popupWindow = null
+	)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 
 		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
+		{
+			$arWorkflowParameters = [];
+		}
 		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
+		{
+			$arWorkflowVariables = [];
+		}
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
@@ -82,30 +80,38 @@ class CBPCreateDocumentActivity
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array();
+			$arCurrentValues = [];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"])
+			if (
+				is_array($arCurrentActivity["Properties"])
 				&& array_key_exists("Fields", $arCurrentActivity["Properties"])
-				&& is_array($arCurrentActivity["Properties"]["Fields"]))
+				&& is_array($arCurrentActivity["Properties"]["Fields"])
+			)
 			{
 				foreach ($arCurrentActivity["Properties"]["Fields"] as $k => $v)
 				{
 					if (!isset($arDocumentFieldsTmp[$k]) && isset($documentFieldsAliasesMap[$k]))
+					{
 						$k = $documentFieldsAliasesMap[$k];
+					}
 
 					$arCurrentValues[$k] = $v;
 
 					if ($arDocumentFieldsTmp[$k]["BaseType"] == "user")
 					{
 						if (!is_array($arCurrentValues[$k]))
-							$arCurrentValues[$k] = array($arCurrentValues[$k]);
+						{
+							$arCurrentValues[$k] = [$arCurrentValues[$k]];
+						}
 
-						$ar = array();
+						$ar = [];
 						foreach ($arCurrentValues[$k] as $v)
 						{
-							if (intval($v)."!" == $v."!")
-								$v = "user_".$v;
+							if (intval($v) . "!" == $v . "!")
+							{
+								$v = "user_" . $v;
+							}
 							$ar[] = $v;
 						}
 
@@ -118,43 +124,40 @@ class CBPCreateDocumentActivity
 		{
 			foreach ($arDocumentFieldsTmp as $key => $value)
 			{
-				if (!$value["Editable"])
+				if (empty($value["Editable"]))
+				{
 					continue;
+				}
 
-				$arErrors = array();
-				$arCurrentValues[$key] = $documentService->GetFieldInputValue($documentType, $value, $key, $arCurrentValues, $arErrors);
+				$arErrors = [];
+				$arCurrentValues[$key] = $documentService->GetFieldInputValue($documentType, $value, $key,
+					$arCurrentValues, $arErrors);
 			}
 		}
 
-		$arDocumentFields = array();
+		$arDocumentFields = [];
 		$defaultFieldValue = "";
 		foreach ($arDocumentFieldsTmp as $key => $value)
 		{
-			if (!$value["Editable"])
+			if (empty($value["Editable"]))
+			{
 				continue;
+			}
 
 			$arDocumentFields[$key] = $value;
 			if ($defaultFieldValue == '')
-				$defaultFieldValue = $key;
-
-			/*if ($value["BaseType"] == "select" || $value["BaseType"] == "bool")
 			{
-				if (array_key_exists($key."_text", $arCurrentValues)
-					&& ($value["Multiple"] && count($arCurrentValues[$key."_text"]) > 0
-						|| !$value["Multiple"] && strlen($arCurrentValues[$key."_text"]) > 0)
-					)
-				{
-					$arCurrentValues[$key] = $arCurrentValues[$key."_text"];
-				}
-			}*/
+				$defaultFieldValue = $key;
+			}
 		}
 
-		$javascriptFunctions = $documentService->GetJSFunctionsForFields($documentType, "objFieldsCD", $arDocumentFields, $arFieldTypes);
+		$javascriptFunctions = $documentService->GetJSFunctionsForFields($documentType, "objFieldsCD",
+			$arDocumentFields, $arFieldTypes);
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
 			"properties_dialog.php",
-			array(
+			[
 				"arCurrentValues" => $arCurrentValues,
 				"arDocumentFields" => $arDocumentFields,
 				"formName" => $formName,
@@ -163,30 +166,41 @@ class CBPCreateDocumentActivity
 				"javascriptFunctions" => $javascriptFunctions,
 				"documentType" => $documentType,
 				"popupWindow" => &$popupWindow,
-			)
+			]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		$runtime = CBPRuntime::GetRuntime();
 
-		$arProperties = array("Fields" => array());
+		$arProperties = ["Fields" => []];
 
 		$documentService = $runtime->GetService("DocumentService");
 		$arDocumentFields = $documentService->GetDocumentFields($documentType);
 
 		foreach ($arDocumentFields as $fieldKey => $fieldValue)
 		{
-			if (!$fieldValue["Editable"])
+			if (empty($fieldValue["Editable"]))
+			{
 				continue;
+			}
 
-			$arFieldErrors = array();
-			$r = $documentService->GetFieldInputValue($documentType, $fieldValue, $fieldKey, $arCurrentValues, $arFieldErrors);
+			$arFieldErrors = [];
+			$r = $documentService->GetFieldInputValue($documentType, $fieldValue, $fieldKey, $arCurrentValues,
+				$arFieldErrors);
 
-			if(is_array($arFieldErrors) && !empty($arFieldErrors))
+			if (is_array($arFieldErrors) && !empty($arFieldErrors))
 			{
 				$arErrors = array_merge($arErrors, $arFieldErrors);
 			}
@@ -212,25 +226,66 @@ class CBPCreateDocumentActivity
 				}
 			}
 
-			if ($fieldValue["Required"] && ($r == null))
+			if (!empty($fieldValue["Required"]) && ($r == null))
 			{
-				$arErrors[] = array(
+				$arErrors[] = [
 					"code" => "emptyRequiredField",
-					"message" => str_replace("#FIELD#", $fieldValue["Name"], GetMessage("BPCDA_FIELD_REQUIED")),
-				);
+					"message" => GetMessage("BPCDA_FIELD_REQUIED", ["#FIELD#" => $fieldValue["Name"]]),
+				];
 			}
 
 			if ($r != null)
+			{
 				$arProperties["Fields"][$fieldKey] = $r;
+			}
 		}
 
 		if (count($arErrors) > 0)
+		{
 			return false;
+		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 		$arCurrentActivity["Properties"] = $arProperties;
 
 		return true;
+	}
+
+	protected function prepareFieldsValues(array $documentType, array $values): array
+	{
+		$documentService = $this->workflow->getRuntime()->getDocumentService();
+
+		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
+
+		$resultFields = [];
+		foreach ($values as $key => $value)
+		{
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
+			{
+				$key = $documentFieldsAliasesMap[$key];
+			}
+
+			$property = $documentFields[$key] ?? null;
+
+			if ($property && $value)
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$value = $fieldTypeObject->externalizeValue('Document', $value);
+				}
+			}
+
+			if (is_null($value))
+			{
+				$value = '';
+			}
+
+			$resultFields[$key] = $value;
+		}
+
+		return $resultFields;
 	}
 
 	private static function increaseExecutionDepth($key)
@@ -242,8 +297,11 @@ class CBPCreateDocumentActivity
 		self::$executionDepth[$key]++;
 
 		if (self::$executionDepth[$key] > self::EXECUTION_MAX_DEPTH)
+		{
 			throw new Exception(GetMessage('BPCDA_RECURSION_ERROR_1'));
+		}
 	}
+
 	private static function resetExecutionDepth($key)
 	{
 		self::$executionDepth[$key] = 0;

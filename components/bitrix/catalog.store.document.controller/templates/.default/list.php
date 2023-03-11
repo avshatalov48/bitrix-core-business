@@ -13,10 +13,10 @@ use Bitrix\Main;
 
 global $APPLICATION;
 
-$documentType = $arResult['VARIABLES']['DOCUMENT_TYPE'];
+$documentType = $arResult['VARIABLES']['DOCUMENT_TYPE'] ?? null;
 
 $componentParams = [
-	'MODE' => $arResult['VARIABLES']['DOCUMENT_TYPE'],
+	'MODE' => $documentType,
 	'PATH_TO' => $arResult['PATH_TO'],
 ];
 

@@ -1,10 +1,11 @@
-import {Type, Reflection} from 'main.core';
+import {Type, Reflection, Loc, Tag} from 'main.core';
 import Automation from "./automation";
 import Session from './session/session';
 import {CommandHandler} from "./pull/command-handler";
 import { Settings } from 'bizproc.local-settings';
 import {Mode} from "./session/mode";
 import {CrmDebuggerGuide} from "./tourguide/crm-debugger-guide";
+import {MessageBox, MessageBoxButtons} from "ui.dialogs.messagebox";
 
 let instance = null;
 
@@ -62,16 +63,53 @@ export default class Manager
 		});
 	}
 
-	finishSession(session: Session): Promise
+	finishSession(session: Session, deleteDocument: boolean = false): Promise
 	{
 		return new Promise((resolve, reject) => {
-			session.finish().then(
+			session.finish({deleteDocument}).then(
 				(response) => {
 					this.#removeDebugFilter(session);
 					resolve(response);
 				},
 				reject
 			);
+		});
+	}
+
+	askFinishSession(session: Session): Promise
+	{
+		const checkboxElement = Tag.render`<input type="checkbox" class="ui-ctl-element">`;
+		const boxOptions = {
+			message: Loc.getMessage('BIZPROC_JS_DEBUGGER_CONFIRM_FINISH_SESSION'),
+			okCaption: Loc.getMessage('BIZPROC_JS_DEBUGGER_VIEWS_MENU_FINISH_SESSION'),
+			buttons: MessageBoxButtons.OK_CANCEL,
+			popupOptions: {
+				zIndexOptions: {
+					alwaysOnTop: true
+				},
+			}
+		};
+
+		if (session.isExperimentalMode())
+		{
+			boxOptions.title = Loc.getMessage('BIZPROC_JS_DEBUGGER_CONFIRM_FINISH_SESSION');
+			boxOptions.message = Tag.render`
+				<label class="ui-ctl ui-ctl-checkbox">
+					${checkboxElement}
+					<div class="ui-ctl-label-text">${Loc.getMessage('BIZPROC_JS_DEBUGGER_DELETE_SESSION_DOCUMENT')}</div>
+				</label>
+			`;
+		}
+
+		return new Promise((resolve, reject) => {
+
+			boxOptions.onOk = () => Manager.Instance.finishSession(session, checkboxElement?.checked).then(resolve, reject);
+			boxOptions.onCancel = () => {
+				reject({cancel: true});
+				return true;
+			};
+
+			MessageBox.show(boxOptions);
 		});
 	}
 

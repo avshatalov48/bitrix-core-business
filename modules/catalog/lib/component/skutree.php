@@ -133,8 +133,8 @@ class SkuTree
 				}
 
 				$result[$productId][$offerId] = [
-					'SELECTED_VALUES' => $offerData['SELECTED_VALUES'],
-					'EXISTING_VALUES_JSON' => Json::encode($offerData['EXISTING_VALUES']),
+					'SELECTED_VALUES' => $offerData['SELECTED_VALUES'] ?? null,
+					'EXISTING_VALUES_JSON' => Json::encode($offerData['EXISTING_VALUES'] ?? null),
 					'OFFERS_JSON' => Json::encode($offers),
 					'IBLOCK_ID' => $this->iblockInfo->getProductIblockId(),
 				];

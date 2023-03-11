@@ -16,6 +16,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\UI;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 UI\Extension::load([
 	'ui.animations',
@@ -343,7 +344,7 @@ else
 					$avatar = $arEvent["AVATAR_SRC"];
 				}
 
-				$style = ($avatar ? "background: url('" . $avatar . "'); background-size: cover;" : "");
+				$style = ($avatar ? "background: url('" . Uri::urnEncode($avatar) . "'); background-size: cover;" : "");
 
 				?><div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?php
 
@@ -1597,7 +1598,7 @@ else
 					);
 				}
 
-				$commentUrl = (new \Bitrix\Main\Web\Uri($commentUrl))->deleteParams([
+				$commentUrl = (new Uri($commentUrl))->deleteParams([
 					'sessid',
 					'AJAX_POST',
 					'ENTITY_XML_ID',

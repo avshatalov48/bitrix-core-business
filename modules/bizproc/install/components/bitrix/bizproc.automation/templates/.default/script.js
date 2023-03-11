@@ -56,12 +56,12 @@
 	{
 		init: function(data, viewMode)
 		{
-			var me = this;
-
 			this.viewMode = viewMode || Component.ViewMode.Edit;
 
-			if (typeof data === 'undefined')
+			if (BX.Type.isUndefined(data))
+			{
 				data = {};
+			}
 
 			this.data = data;
 			this.initData();
@@ -80,15 +80,21 @@
 
 			this.initRobotSelector();
 
+			this.initHowCheckAutomationTourGuide();
+
 			if (!this.embeddedMode)
 			{
 				window.onbeforeunload = () =>
 				{
 					if (this.isNeedSave())
 					{
-						return BX.message('BIZPROC_AUTOMATION_CMP_NEED_SAVE');
+						return BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_NEED_SAVE');
 					}
 				};
+			}
+			if (this.frameMode)
+			{
+				this.subscribeOnSliderClose();
 			}
 		},
 		isNeedSave: function()
@@ -144,6 +150,7 @@
 				showTemplatePropertiesMenuOnSelecting: this.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true
 			});
 			context.set('TRIGGER_CAN_SET_EXECUTE_BY', this.data['TRIGGER_CAN_SET_EXECUTE_BY']);
+			context.set('IS_WORKTIME_AVAILABLE', this.data['IS_WORKTIME_AVAILABLE']);
 
 			BX.Bizproc.Automation.setGlobalContext(context);
 		},
@@ -448,6 +455,21 @@
 			{
 				self.markModified();
 			});
+			this.triggerManager.subscribe('TriggerManager:trigger:delete', function (event)
+			{
+				const deletedTrigger = event.getData().trigger;
+
+				//analytics
+				BX.ajax.runAction(
+					'bizproc.analytics.push',
+					{
+						analyticsLabel: {
+							automation_trigger_delete: 'Y',
+							delete_trigger: deletedTrigger.getCode().toLowerCase(),
+						}
+					}
+				);
+			});
 		},
 		reInitTriggerManager: function(triggers)
 		{
@@ -733,19 +755,24 @@
 		},
 		bindCancelButton: function()
 		{
-			var me = this, button = this.node.querySelector('[data-role="automation-btn-cancel"]');
+			const button = this.node.querySelector('[data-role="automation-btn-cancel"]');
 
 			if (button)
 			{
-				BX.bind(button, 'click', function(e)
-				{
-					e.preventDefault();
-					me.reInitTriggerManager();
-					me.reInitTemplateManager();
-					me.reInitSearch();
-					me.markModified(false);
-				});
+				BX.bind(button, 'click', this.onCancelButtonClick.bind(this));
 			}
+		},
+		onCancelButtonClick: function (event)
+		{
+			if (event)
+			{
+				event.preventDefault();
+			}
+
+			this.reInitTriggerManager();
+			this.reInitTemplateManager();
+			this.reInitSearch();
+			this.markModified(false);
 		},
 		bindCreationButton: function()
 		{
@@ -779,14 +806,14 @@
 		},
 		getLimits: function()
 		{
-			var limit = this.data['ROBOTS_LIMIT'];
+			const limit = this.data['ROBOTS_LIMIT'];
 			if (limit <= 0)
 			{
 				return false;
 			}
 
-			var triggersCnt = this.triggerManager.countAllTriggers();
-			var robotsCnt = this.templateManager.countAllRobots();
+			const triggersCnt = this.triggerManager.countAllTriggers();
+			const robotsCnt = this.templateManager.countAllRobots();
 
 			return (triggersCnt + robotsCnt > limit) ? [limit, triggersCnt, robotsCnt] : false;
 		},
@@ -797,48 +824,59 @@
 				return;
 			}
 
-			var limits = this.getLimits();
+			const limits = this.getLimits();
 
 			if (limits)
 			{
 				if (top.BX.UI && top.BX.UI.InfoHelper)
 				{
 					top.BX.UI.InfoHelper.show('limit_crm_robots');
+
 					return;
 				}
 
 				BX.UI.Dialogs.MessageBox.show({
-					title: BX.message('BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE'),
-					message: BX.message('BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT')
+					title: BX.Loc.getMessage('BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE'),
+					message: BX.Loc.getMessage('BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT')
 								.replace('#LIMIT#', limits[0])
 								.replace('#SUM#', limits[1] + limits[2])
 								.replace('#TRIGGERS#', limits[1])
 								.replace('#ROBOTS#', limits[2]),
 					modal: true,
 					buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
-					okCaption: BX.message('BIZPROC_AUTOMATION_CLOSE_CAPTION')
+					okCaption: BX.Loc.getMessage('BIZPROC_AUTOMATION_CLOSE_CAPTION')
 				});
+
 				return;
 			}
 
-			var me = this, data = {
+			const me = this;
+			const data = {
 				ajax_action: 'save_automation',
 				document_signed: this.documentSigned,
 				triggers_json: Helper.toJsonString(this.triggerManager.serialize()),
 				templates_json: Helper.toJsonString(this.templateManager.serializeModified())
 			};
 
+			const analyticsLabel = {
+				'automation_save': 'Y',
+				'robots_count': this.templateManager.countAllRobots(),
+				'triggers_count': this.triggerManager.countAllTriggers(),
+				'automation_module': this.document.getRawType()[0],
+				'automation_entity': this.document.getRawType()[2] + '_' + this.document.getCategoryId()
+			};
+
 			this.savingAutomation = true;
 			return BX.ajax({
 				method: 'POST',
 				dataType: 'json',
-				url: this.getAjaxUrl(),
+				url: BX.Uri.addParam(this.getAjaxUrl(), {analyticsLabel}),
 				data: data,
 				onsuccess: function(response)
 				{
 					me.savingAutomation = null;
 					response.DATA.templates.forEach(function (updatedTemplate) {
-						var updatedTemplateIndex = me.data.TEMPLATES.findIndex(function (template) {
+						const updatedTemplateIndex = me.data.TEMPLATES.findIndex(function (template) {
 							return template.ID === updatedTemplate.ID;
 						});
 
@@ -850,6 +888,10 @@
 						me.reInitTemplateManager();
 						me.reInitSearch();
 						me.markModified(false);
+						BX.Event.EventEmitter.emit(
+							'BX.Bizproc.Component.Automation.Component:onSuccessAutomationSave',
+							new BX.Event.BaseEvent({data: {analyticsLabel}})
+						);
 						if (callback)
 						{
 							callback(response.DATA)
@@ -861,6 +903,72 @@
 					}
 				}
 			});
+		},
+		subscribeOnSliderClose: function()
+		{
+			const slider = BX.SidePanel.Instance.getSliderByWindow(window);
+			if (slider)
+			{
+				const dialog = BX.UI.Dialogs.MessageBox.create({
+					message: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ON_CLOSE_SLIDER_MESSAGE'),
+					okCaption: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ON_CLOSE_SLIDER_OK_TITLE'),
+					onOk: () => {
+						if (slider.isCacheable())
+						{
+							this.onCancelButtonClick();
+						}
+
+						slider.getData().set('ignoreChanges', true);
+						slider.close();
+
+						return true;
+					},
+					buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+				});
+
+				BX.addCustomEvent(slider, 'SidePanel.Slider:onClose', (event) => {
+					if (this.isNeedSave() && slider.getData()?.get('ignoreChanges') !== true)
+					{
+						event.denyAction();
+						dialog.show();
+
+						return;
+					}
+
+					slider.getData()?.set('ignoreChanges', false);
+				});
+			}
+		},
+		initHowCheckAutomationTourGuide()
+		{
+			const documentRawType = this.document.getRawType();
+			const module = documentRawType[0];
+			const documentType = documentRawType[2];
+			const categoryId = this.document.getCategoryId();
+			const documentId = this.data['DOCUMENT_ID'];
+
+			if (module === 'crm')
+			{
+				const rawUserOptions = BX.Type.isPlainObject(this.data.USER_OPTIONS) ? this.data.USER_OPTIONS : {};
+				const hasCrmCheckAutomationOption =
+					BX.Type.isPlainObject(rawUserOptions['crm_check_automation'])
+						? Object.keys(rawUserOptions['crm_check_automation']).length > 0
+						: false
+				;
+				if (this.canEdit() && !hasCrmCheckAutomationOption)
+				{
+					BX.Bizproc.Automation.CrmCheckAutomationGuide.startCheckAutomationTour(documentType, Number(categoryId));
+				}
+
+				if (hasCrmCheckAutomationOption && BX.Type.isStringFilled(documentId))
+				{
+					BX.Bizproc.Automation.CrmCheckAutomationGuide.showSuccessAutomation(
+						documentType,
+						categoryId,
+						rawUserOptions['crm_check_automation']
+					);
+				}
+			}
 		},
 		saveTemplates: function(templatesData)
 		{
@@ -1174,6 +1282,23 @@
 						},
 						onAfterShow: () => {
 							BX.Dom.addClass(this.node, 'automation-base-blocked');
+
+							if (!this.isOpenRobotSelectorAnalyticsPushed)
+							{
+								const document = this.document;
+								//analytics
+								BX.ajax.runAction(
+									'bizproc.analytics.push',
+									{
+										analyticsLabel: {
+											automation_enter_dialog: 'Y',
+											start_module: document.getRawType()[0],
+											start_entity: document.getRawType()[2] + '_' + document.getCategoryId()
+										}
+									}
+								);
+								this.isOpenRobotSelectorAnalyticsPushed = true;
+							}
 						},
 						onAfterClose: () => {
 							BX.Dom.removeClass(this.node, 'automation-base-blocked');
@@ -1447,6 +1572,24 @@
 						this.getRobotEventListeners(template).forEach(function (eventListener) {
 							draftRobot.subscribe(eventListener.eventName, eventListener.listener);
 						});
+					}.bind(this)
+				},
+				{
+					eventName: 'Template:robot:delete',
+					listener: function (event) {
+						const deletedRobot = event.getData().robot;
+
+						//analytics
+						BX.ajax.runAction(
+							'bizproc.analytics.push',
+							{
+								analyticsLabel: {
+									automation_robot_delete: 'Y',
+									delete_robot: deletedRobot.data.Type.toLowerCase(),
+								}
+							}
+						);
+
 					}.bind(this)
 				},
 				{

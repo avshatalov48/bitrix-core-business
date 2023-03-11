@@ -219,7 +219,7 @@ class PropertyRepository implements PropertyRepositoryContract
 						{
 							$fields = [
 								'VALUE' => $item ?? '',
-								'DESCRIPTION' => $description[$key] ?: null,
+								'DESCRIPTION' => empty($description[$key]) ? null : $description[$key],
 							];
 
 							if (isset($propertyValueIds[$id][$key]))
@@ -234,7 +234,7 @@ class PropertyRepository implements PropertyRepositoryContract
 					{
 						$fields = [
 							'VALUE' => $value ?? '',
-							'DESCRIPTION' => $descriptions[$id] ?: null,
+							'DESCRIPTION' => empty($descriptions[$id]) ? null : $descriptions[$id],
 						];
 
 						if (isset($propertyValueIds[$id]))

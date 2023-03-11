@@ -332,6 +332,11 @@ class Discount extends DiscountBase
 	{
 		parent::normalizeDiscountResult();
 
+		if (empty($this->orderData))
+		{
+			return;
+		}
+
 		$customPrice = isset($this->orderData['CUSTOM_PRICE_DELIVERY']) && $this->orderData['CUSTOM_PRICE_DELIVERY'] == 'Y';
 		$this->orderData['PRICE_DELIVERY_DIFF'] = (!$customPrice
 			? PriceMaths::roundPrecision($this->orderData['PRICE_DELIVERY_DIFF'])
@@ -404,9 +409,9 @@ class Discount extends DiscountBase
 	protected function getApplyDeliveryPrice()
 	{
 		return array(
-			'BASE_PRICE' => $this->orderData['BASE_PRICE_DELIVERY'],
-			'PRICE' => $this->orderData['PRICE_DELIVERY'],
-			'DISCOUNT' => $this->orderData['PRICE_DELIVERY_DIFF']
+			'BASE_PRICE' => $this->orderData['BASE_PRICE_DELIVERY'] ?? 0.0,
+			'PRICE' => $this->orderData['PRICE_DELIVERY'] ?? 0.0,
+			'DISCOUNT' => $this->orderData['PRICE_DELIVERY_DIFF'] ?? 0.0,
 		);
 	}
 

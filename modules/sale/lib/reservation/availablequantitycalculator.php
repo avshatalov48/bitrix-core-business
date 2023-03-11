@@ -4,18 +4,18 @@ namespace Bitrix\Sale\Reservation;
 
 /**
  * Calculation of balances based on the reservation history.
- * 
+ *
  * For example:
  * ```php
  * $calculator = new \Bitrix\Sale\Reservation\AvailableQuantityCalculator();
- * 
+ *
  * // load store balance
  * $rows = StoreProductTable::getList([...]);
  * foreach ($rows as $row)
  * {
  *     $calculator->setStoreQuantity($row['STORE_ID'], $row['PRODUCT_ID'], $row['AMOUNT']);
  * }
- * 
+ *
  * // load history
  * $rows = BasketReservationHistoryTable::getList([...]);
  * foreach ($rows as $row)
@@ -27,7 +27,7 @@ namespace Bitrix\Sale\Reservation;
  *         $row['QUANTITY']
  *     );
  * }
- * 
+ *
  * // get count
  * $calculator->getQuantityForBatch([
  *     $basketId => $productId,
@@ -51,7 +51,7 @@ class AvailableQuantityCalculator
 	 * @var array
 	 */
 	private $reservationHistory = [];
-	
+
 	/**
 	 * Set product store quantity.
 	 *
@@ -64,7 +64,7 @@ class AvailableQuantityCalculator
 	{
 		$this->storeProductQuantity[$storeId][$productId] = $quantity;
 	}
-	
+
 	/**
 	 * Add an item reservation history.
 	 * The order of addition is IMPORTANT!
@@ -84,10 +84,10 @@ class AvailableQuantityCalculator
 			'quantity',
 		);
 	}
-	
+
 	/**
 	 * Prepared reservation history.
-	 * 
+	 *
 	 * Actions:
 	 * 1. collapse negative reservations;
 	 *
@@ -97,7 +97,7 @@ class AvailableQuantityCalculator
 	{
 		$reverseHistory = array_reverse($this->reservationHistory);
 		$negativeReservations = [];
-		
+
 		$tmp = [];
 		foreach ($reverseHistory as $item)
 		{
@@ -105,13 +105,13 @@ class AvailableQuantityCalculator
 			$productId = $item['productId'];
 			$basketId = $item['basketId'];
 			$quantity = $item['quantity'];
-			
+
 			$key = join("_", [
 				$storeId,
 				$productId,
 				$basketId,
 			]);
-			
+
 			if ($quantity < 0.0)
 			{
 				$negativeReservations[$key] = $negativeReservations[$key] ?? 0.0;
@@ -140,13 +140,13 @@ class AvailableQuantityCalculator
 					unset($negativeReservations[$key]);
 				}
 			}
-			
+
 			$tmp[] = $item;
 		}
-		
+
 		return array_reverse($tmp);
 	}
-	
+
 	/**
 	 * Get available for debit product quantity for store.
 	 *
@@ -162,7 +162,7 @@ class AvailableQuantityCalculator
 		]);
 		return $basketItemsStoreQuantity[$basketId][$storeId] ?? 0.0;
 	}
-	
+
 	/**
 	 * Get available for debit product quantity for batch with basket items.
 	 *
@@ -174,31 +174,32 @@ class AvailableQuantityCalculator
 		$basketItemsStoreQuantity = [];
 		$currentStoreProductQuantity = $this->storeProductQuantity;
 		$preparedReservationHistory = $this->getPreparedReservationHistory();
-		
+
 		foreach ($preparedReservationHistory as $item)
 		{
 			$storeId = $item['storeId'];
 			$productId = $item['productId'];
 			$basketId = $item['basketId'];
-			
+
 			$reservationQuantity = $item['quantity'];
 			$storeQuantity = $currentStoreProductQuantity[$storeId][$productId] ?? 0.0;
-			
+
 			$isNeedBasketReservation = isset($basket2productId[$basketId]);
 			if ($isNeedBasketReservation)
 			{
 				if ($storeQuantity > 0)
 				{
+					$basketItemsStoreQuantity[$basketId][$storeId] ??= 0.0;
 					$basketItemsStoreQuantity[$basketId][$storeId] += min($storeQuantity, $reservationQuantity);
 				}
 			}
-			
+
 			if (isset($currentStoreProductQuantity[$storeId][$productId]))
 			{
-				$currentStoreProductQuantity[$storeId][$productId] -= $reservationQuantity;	
+				$currentStoreProductQuantity[$storeId][$productId] -= $reservationQuantity;
 			}
 		}
-		
+
 		foreach ($basket2productId as $basketId => $productId)
 		{
 			foreach ($currentStoreProductQuantity as $storeId => $quantities)
@@ -206,11 +207,12 @@ class AvailableQuantityCalculator
 				$storeQuantity = $quantities[$productId] ?? 0.0;
 				if ($storeQuantity > 0.0)
 				{
+					$basketItemsStoreQuantity[$basketId][$storeId] ??= 0.0;
 					$basketItemsStoreQuantity[$basketId][$storeId] += $storeQuantity;
 				}
 			}
 		}
-		
+
 		return $basketItemsStoreQuantity;
 	}
 }

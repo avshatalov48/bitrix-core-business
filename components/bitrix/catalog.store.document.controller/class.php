@@ -22,6 +22,18 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 
 	private $isIframe = false;
 
+	public function onPrepareComponentParams($params)
+	{
+		if (!is_array($params))
+		{
+			$params = [];
+		}
+		$params['SEF_URL_TEMPLATES'] = $params['SEF_URL_TEMPLATES'] ?? [];
+		$params['VARIABLE_ALIASES'] = $params['VARIABLE_ALIASES'] ?? [];
+
+		return $params;
+	}
+
 	public function executeComponent()
 	{
 		if (Loader::includeModule('catalog'))

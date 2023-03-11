@@ -497,7 +497,11 @@ class CBPWorkflow
 							$analyticsService = $this->GetService("AnalyticsService");
 							if ($analyticsService->isEnabled())
 							{
-								$analyticsService->write($activity->GetDocumentId(), 'robot_run', $activityType);
+								$analyticsService->write(
+									$activity->GetDocumentId(),
+									'robot_run',
+									$activityType
+								);
 							}
 						}
 					}

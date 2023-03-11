@@ -124,10 +124,10 @@ class BizprocDocumentLists extends \BizprocDocument
 				}
 				elseif($property['USER_TYPE'] == 'DiskFile')
 				{
-					$diskValues = current($property['VALUE']);
-					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
-					if(is_array($diskValues))
+					if (is_array($property['VALUE']))
 					{
+						$diskValues = current($property['VALUE']);
+						$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
 						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 						foreach($diskValues as $attachedId)

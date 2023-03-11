@@ -149,7 +149,11 @@ class Product extends Entity
 				'BUNDLE' => Catalog\ProductTable::STATUS_NO,
 				'PURCHASING_PRICE' => null,
 				'PURCHASING_CURRENCY' => null,
-				'TMP_ID' => null
+				'TMP_ID' => null,
+				'MEASURE' => null,
+				'WIDTH' => null,
+				'LENGTH' => null,
+				'HEIGHT' => null,
 			];
 
 			$blackList = [
@@ -477,23 +481,24 @@ class Product extends Entity
 		}
 		foreach ($nullFields as $fieldName)
 		{
-			if (array_key_exists($fieldName, $fields))
+			if (isset($fields[$fieldName]))
 			{
-				if ($fields[$fieldName] !== null)
+				$fields[$fieldName] = (int)$fields[$fieldName];
+				if ($fields[$fieldName] <= 0)
 				{
-					$fields[$fieldName] = (int)$fields[$fieldName];
-					if ($fields[$fieldName] <= 0)
-						$fields[$fieldName] = null;
+					$fields[$fieldName] = null;
 				}
 			}
 		}
 		foreach ($sizeFields as $fieldName)
 		{
-			if ($fields[$fieldName] !== null)
+			if (isset($fields[$fieldName]))
 			{
 				$fields[$fieldName] = (float)$fields[$fieldName];
 				if ($fields[$fieldName] <= 0)
+				{
 					$fields[$fieldName] = null;
+				}
 			}
 		}
 		unset($fieldName);

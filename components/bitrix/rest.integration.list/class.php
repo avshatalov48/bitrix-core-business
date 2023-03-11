@@ -33,12 +33,12 @@ class RestIntegratorsListComponent extends CBitrixComponent
 
 	protected function initParams() : void
 	{
-		if ($this->arParams['PATH_TO_SECTION'])
+		if (isset($this->arParams['PATH_TO_SECTION']) && $this->arParams['PATH_TO_SECTION'])
 		{
 			$this->arParams['PATH_TO'] = $this->arParams['PATH_TO_SECTION'];
 			$this->arParams['ADD_INTEGRATION_MODE'] = 'N';
 		}
-		elseif ($this->arParams['PATH_TO_ADD'])
+		elseif (isset($this->arParams['PATH_TO_ADD']) && $this->arParams['PATH_TO_ADD'])
 		{
 			$this->arParams['PATH_TO'] = $this->arParams['PATH_TO_ADD'];
 			$this->arParams['ADD_INTEGRATION_MODE'] = 'Y';
@@ -129,7 +129,7 @@ class RestIntegratorsListComponent extends CBitrixComponent
 
 		foreach($items as $item)
 		{
-			if(is_array($item['REQUIRED_MODULES']))
+			if(isset($item['REQUIRED_MODULES']) && is_array($item['REQUIRED_MODULES']))
 			{
 				foreach($item['REQUIRED_MODULES'] as $module)
 				{
@@ -149,11 +149,11 @@ class RestIntegratorsListComponent extends CBitrixComponent
 				'id' => $item['CODE'],
 				'code' => $item['CODE'],
 				'title' => $item['TITLE'],
-				'description' => $item['DESCRIPTION'],
-				'iconClass' => $item['ICON_CLASS'],
-				'iconIClass' => $item['ICON_I_CLASS'],
-				'iconIBgColor' => $item['ICON_I_BG_COLOR'],
-				'iconColor' => $item['ICON_COLOR'],
+				'description' => $item['DESCRIPTION'] ?? '',
+				'iconClass' => $item['ICON_CLASS'] ?? null,
+				'iconIClass' => $item['ICON_I_CLASS'] ?? null,
+				'iconIBgColor' => $item['ICON_I_BG_COLOR'] ?? null,
+				'iconColor' => $item['ICON_COLOR'] ?? null,
 			];
 			if (isset($this->arParams['ADD_INTEGRATION_MODE']) && $this->arParams['ADD_INTEGRATION_MODE'] == 'Y')
 			{
@@ -176,8 +176,8 @@ class RestIntegratorsListComponent extends CBitrixComponent
 					],
 					[
 						$item['SECTION_CODE'],
-						$item['ELEMENT_CODE'],
-						$item['ID']
+						$item['ELEMENT_CODE'] ?? '',
+						$item['ID'] ?? ''
 					],
 					$url
 				);

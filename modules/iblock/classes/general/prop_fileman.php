@@ -1,12 +1,13 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 Loc::loadMessages(__FILE__);
 
 class CIBlockPropertyFileMan
 {
-	const USER_TYPE = 'FileMan';
+	public const USER_TYPE = 'FileMan';
 
 	public static function GetUserTypeDescription()
 	{
@@ -88,14 +89,16 @@ class CIBlockPropertyFileMan
 	{
 		global $APPLICATION;
 
-		if (trim($strHTMLControlName["FORM_NAME"]) == '')
-			$strHTMLControlName["FORM_NAME"] = "form_element";
-		$name = preg_replace("/[^a-zA-Z0-9_]/i", "x", htmlspecialcharsbx($strHTMLControlName["VALUE"]));
-
-		if(is_array($value["VALUE"]))
+		if (!isset($strHTMLControlName['FORM_NAME']) || trim($strHTMLControlName['FORM_NAME']) === '')
 		{
-			$value["VALUE"] = $value["VALUE"]["VALUE"];
-			$value["DESCRIPTION"] = $value["DESCRIPTION"]["VALUE"];
+			$strHTMLControlName['FORM_NAME'] = 'form_element';
+		}
+		$name = preg_replace("/[^a-zA-Z0-9_]/i", "x", htmlspecialcharsbx($strHTMLControlName['VALUE']));
+
+		if (isset($value['VALUE']) && is_array($value['VALUE']))
+		{
+			$value['VALUE'] = $value['VALUE']['VALUE'];
+			$value['DESCRIPTION'] = $value['DESCRIPTION']['VALUE'];
 		}
 
 		if($strHTMLControlName["MODE"]=="FORM_FILL" && CModule::IncludeModule('fileman'))
@@ -146,7 +149,7 @@ class CIBlockPropertyFileMan
 		else
 		{
 			$result["VALUE"] = $value["VALUE"];
-			$result["DESCRIPTION"] = $value["DESCRIPTION"];
+			$result["DESCRIPTION"] = $value["DESCRIPTION"] ?? '';
 		}
 		$return["VALUE"] = trim($result["VALUE"]);
 		$return["DESCRIPTION"] = trim($result["DESCRIPTION"]);
@@ -179,18 +182,29 @@ class CIBlockPropertyFileMan
 		];
 	}
 
-	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []): string
 	{
 		$settings = $params['SETTINGS'] ?? [];
 		$value = $params['VALUE'] ?? '';
+		if (!is_array($value))
+		{
+			$value = ['VALUE' => $value];
+		}
 		$paramsHTMLControl = [
 			'MODE' => 'iblock_element_admin',
 			'VALUE' => $params['FIELD_NAME'] ?? '',
 		];
-		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+		if (array_key_exists('VALUE', $value))
+		{
+			return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+		}
+		else
+		{
+			return self::GetPropertyFieldHtmlMulty($settings, $value, $paramsHTMLControl);
+		}
 	}
 
-	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []): string
 	{
 		$result = '';
 		if(!empty($params['VALUE']))

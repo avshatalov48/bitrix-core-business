@@ -1074,6 +1074,7 @@
 
 				//fix parent styles for correct positioning
 				this.savedParentOpacity = [];
+				this.savedParentPosition = [];
 				let parent = this.dom.cont.parentNode;
 				while (parent && parent !== document) {
 					if (parseInt(window.getComputedStyle(parent).getPropertyValue('opacity')) < 1)
@@ -1093,6 +1094,15 @@
 					if (window.getComputedStyle(parent).getPropertyValue('position') === 'relative'
 						&& parseInt(window.getComputedStyle(parent).getPropertyValue('z-index')) > 0)
 					{
+						let position = '';
+						if (parent.style.position === 'relative')
+						{
+							position = parent.style.position;
+						}
+						this.savedParentPosition.push({
+							parent: parent,
+							position: position
+						})
 						parent.style.position = 'static';
 					}
 					//will-change property (it is experimental) breaks positioning, so we also disable this
@@ -1168,11 +1178,6 @@
 					{
 						let parent = _this.dom.cont.parentNode;
 						while (parent && parent !== document) {
-							if (window.getComputedStyle(parent).getPropertyValue('position') === 'relative'
-								&& parseInt(window.getComputedStyle(parent).getPropertyValue('z-index')) > 0)
-							{
-								parent.style.position = '';
-							}
 							if (parent.style.willChange === 'unset')
 							{
 								parent.style.willChange = '';
@@ -1182,6 +1187,10 @@
 						for (const parentOpacity of _this.savedParentOpacity)
 						{
 							parentOpacity.parent.style.opacity = parentOpacity.opacity;
+						}
+						for (const parentPosition of _this.savedParentPosition)
+						{
+							parentPosition.parent.style.position = parentPosition.position;
 						}
 						_this.dummieDiv.remove();
 						_this.dom.cont.style.position = _this.savedStyle.position;
@@ -1233,20 +1242,29 @@
 					this.overlay.bShown);
 		},
 
-		ReInitIframe: function()
+		ReInitIframe: function(callback)
 		{
-			this.sandbox.InitIframe();
-			this.iframeView.OnCreateIframe();
-			this.synchro.StopSync();
-			this.synchro.lastTextareaValue = '';
-			this.synchro.FromTextareaToIframe(true);
-			this.synchro.StartSync();
-			this.iframeView.ReInit();
-			this.selection.lastCheckedRange = null;
-			if (this.config.setFocusAfterShow !== false)
-			{
-				this.Focus();
-			}
+			this.sandbox.InitIframe(null, () => {
+				this.iframeView.OnCreateIframe();
+
+				this.synchro.StopSync();
+				this.synchro.lastTextareaValue = '';
+				this.synchro.FromTextareaToIframe(true);
+				this.synchro.StartSync();
+				this.iframeView.ReInit();
+				this.selection.lastCheckedRange = null;
+				if (this.config.setFocusAfterShow !== false)
+				{
+					this.Focus();
+				}
+
+				if (typeof callback === 'function')
+				{
+					callback();
+				}
+
+				this.On('OnAfterIframeInit', [this]);
+			});
 		},
 
 		CheckAndReInit: function(content)
@@ -1261,7 +1279,13 @@
 					{
 						this.iframeView.document = doc;
 						this.iframeView.element = doc.body;
-						this.ReInitIframe();
+						this.ReInitIframe(() => {
+							if (content !== undefined)
+							{
+								this.SetContent(content, true);
+								this.CheckBodyHeight();
+							}
+						});
 					}
 					else if(doc.body)
 					{
@@ -3173,48 +3197,45 @@
 		{
 			if (BX.isNodeInDom(iframe))
 			{
-				var
-					_this = this,
-					iframeWindow = iframe.contentWindow,
-					iframeDocument = iframeWindow.document;
+				this.InitIframe(iframe, () => {
+					var iframeWindow = iframe.contentWindow;
+					var iframeDocument = iframeWindow.document;
 
-				this.InitIframe(iframe);
+					iframeWindow.onerror = function(errorMessage, fileName, lineNumber) {
+						throw new Error("Sandbox: " + errorMessage, fileName, lineNumber);
+					};
 
-				iframeWindow.onerror = function(errorMessage, fileName, lineNumber) {
-					throw new Error("Sandbox: " + errorMessage, fileName, lineNumber);
-				};
-
-				if (this.bSandbox)
-				{
-					var i, length;
-					for (i = 0, length = this.windowProperties.length; i < length; i++)
+					if (this.bSandbox)
 					{
-						this._unset(iframeWindow, this.windowProperties[i]);
+						var i, length;
+						for (i = 0, length = this.windowProperties.length; i < length; i++)
+						{
+							this._unset(iframeWindow, this.windowProperties[i]);
+						}
+
+						for (i=0, length = this.windowProperties2.length; i < length; i++)
+						{
+							this._unset(iframeWindow, this.windowProperties2[i], BX.DoNothing());
+						}
+
+						for (i = 0, length = this.documentProperties.length; i < length; i++)
+						{
+							this._unset(iframeDocument, this.documentProperties[i]);
+						}
+
+						this._unset(iframeDocument, "cookie", "", true);
 					}
 
-					for (i=0, length = this.windowProperties2.length; i < length; i++)
-					{
-						this._unset(iframeWindow, this.windowProperties2[i], BX.DoNothing());
-					}
+					this.loaded = true;
 
-					for (i = 0, length = this.documentProperties.length; i < length; i++)
-					{
-						this._unset(iframeDocument, this.documentProperties[i]);
-					}
+					this.callback(this);
 
-					this._unset(iframeDocument, "cookie", "", true);
-				}
-
-				this.loaded = true;
-				// Trigger the callback
-				setTimeout(function()
-				{
-					_this.callback(_this);
-				}, 0);
+					this.editor.On('OnAfterIframeInit', [this.editor]);
+				});
 			}
 		},
 
-		InitIframe: function(iframe)
+		InitIframe: function(iframe, callback)
 		{
 			iframe = this.iframe || iframe;
 			var
@@ -3235,19 +3256,31 @@
 				return iframe.contentWindow.document;
 			};
 
-			this.editor.On("OnIframeInit");
+			const triggerCallback = () => {
+				if (iframeDocument.body)
+				{
+					this.editor.On('OnIframeInit');
+
+					if (typeof callback === 'function')
+					{
+						callback();
+					}
+				}
+				else
+				{
+					setTimeout(triggerCallback, 0);
+				}
+			};
+
+			setTimeout(triggerCallback, 0);
 		},
 
 		GetHtml: function(css, cssText)
 		{
-			var
-				bodyParams = '',
-				headHtml = "",
-				i;
-
+			let bodyParams = '';
 			if (this.editor.config.bodyClass || this.editor.IsExpanded())
 			{
-				var bodyClass = this.editor.config.bodyClass || '';
+				let bodyClass = this.editor.config.bodyClass || '';
 				if (this.editor.IsExpanded())
 					bodyClass += ' fullscreen';
 				bodyParams += ' class="' + BX.util.trim(bodyClass) + '"';
@@ -3257,10 +3290,22 @@
 				bodyParams += ' id="' + this.editor.config.bodyId + '"';
 			}
 
-			var templ = this.editor.GetTemplateParams();
+			let headHtml = '';
+			if (BX.Type.isStringFilled(this.editor.config.designTokens))
+			{
+
+				headHtml += this.editor.config.designTokens;
+			}
+
+			if (BX.Type.isStringFilled(this.editor.config.headHtml))
+			{
+				headHtml += this.editor.config.headHtml;
+			}
+
+			const templ = this.editor.GetTemplateParams();
 			if (templ && templ['EDITOR_STYLES'])
 			{
-				for (i = 0; i < templ['EDITOR_STYLES'].length; i++)
+				for (let i = 0; i < templ['EDITOR_STYLES'].length; i++)
 				{
 					headHtml += '<link data-bx-template-style="Y" rel="stylesheet" href="' + templ['EDITOR_STYLES'][i] + '_' + this.editor.cssCounter++ + '">';
 				}
@@ -3269,7 +3314,7 @@
 			css = typeof css === "string" ? [css] : css;
 			if (css)
 			{
-				for (i = 0; i < css.length; i++)
+				for (let i = 0; i < css.length; i++)
 				{
 					headHtml += '<link rel="stylesheet" href="' + css[i] + '">';
 				}
@@ -3280,32 +3325,6 @@
 			if (typeof cssText === "string")
 			{
 				headHtml += '<style type="text/css" data-bx-template-style="Y">' + cssText + '</style>';
-			}
-
-			const primaryFont = BX.Dom.style(this.editor.dom.cont, '--ui-font-family-primary');
-			const fallbackFont = BX.Dom.style(this.editor.dom.cont, '--ui-font-family-helvetica');
-			const currentFont = BX.Type.isStringFilled(primaryFont) ? primaryFont : fallbackFont;
-
-			if (BX.Type.isStringFilled(currentFont))
-			{
-				headHtml += `<style>body { font-family: ${currentFont}; }</style>`;
-			}
-
-			// other design tokens
-			if (BX.Type.isElementNode(this.editor.dom.cont))
-			{
-				const prefixes = ['--ui-font-', '--ui-border'];
-				const tokens = this.getDesignTokens(this.editor.dom.cont.ownerDocument, prefixes);
-
-				let tokenStyles = '';
-				tokens.forEach(token => {
-					tokenStyles += `${token}: ${BX.Dom.style(this.editor.dom.cont, token)};\n`;
-				});
-
-				if (tokenStyles.length > 0)
-				{
-					headHtml += `<style>:root { ${tokenStyles} }</style>`;
-				}
 			}
 
 			if (BX.Type.isStringFilled(this.editor.config.fontSize))
@@ -3319,41 +3338,6 @@
 			}
 
 			return '<!DOCTYPE html><html><head>' + headHtml + '</head><body' + bodyParams + '></body></html>';
-		},
-
-		getDesignTokens: function(doc, prefixes)
-		{
-			const sheets =
-				Array.from(doc.styleSheets)
-					.filter(sheet => {
-						return sheet.href === null || sheet.href.startsWith(doc.defaultView.location.origin);
-					}
-				)
-			;
-
-			const vars = new Set();
-			sheets.forEach(sheet => {
-				try
-				{
-					const cssRules = Array.from(sheet.cssRules);
-					cssRules.forEach(rule => {
-						if (rule.selectorText === ":root")
-						{
-							const styles = Array.from(rule.style);
-							styles.forEach(name => {
-								if (prefixes.some(prefix => name.startsWith(prefix)))
-								{
-									vars.add(name);
-								}
-							});
-						}
-					});
-				}
-				catch (e)
-				{}
-			});
-
-			return Array.from(vars);
 		},
 
 		/**

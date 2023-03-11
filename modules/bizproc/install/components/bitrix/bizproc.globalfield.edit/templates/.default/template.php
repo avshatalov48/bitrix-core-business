@@ -33,7 +33,6 @@ CUtil::InitJSCore([
 <?php $this->EndViewTarget() ?>
 
 <form id="bizproc.globalfield.edit-form">
-	<input type="hidden" name="ID" value="<?= htmlspecialcharsbx($arResult['fieldInfo']['id'])?>">
 	<div class="ui-form">
 		<div class="ui-form-row">
 			<div class="ui-form-label">
@@ -46,7 +45,7 @@ CUtil::InitJSCore([
 						type="text"
 						class="ui-ctl-element"
 						placeholder="<?= GetMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY') ?>"
-						value="<?= htmlspecialcharsbx($arResult['fieldInfo']['Name']) ?>"
+						value="<?= htmlspecialcharsbx($arResult['fieldInfo']['Name'] ?? null) ?>"
 					>
 				</div>
 			</div>
@@ -60,17 +59,17 @@ CUtil::InitJSCore([
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 					<select
 						class="ui-ctl-element"
-						<?= $arResult['disabled']?>
+						<?= $arResult['disabled'] ?>
 						name="TYPE"
 						onchange="BX.Bizproc.Component.GlobalFieldEditComponent.Instance.editInputValue(
 							this.value,
-							<?= CUtil::PhpToJSObject($arResult['fieldInfo']) ?>
+							<?= htmlspecialcharsbx(CUtil::PhpToJSObject($arResult['fieldInfo'])) ?>
 							)"
 					>
 						<?php foreach ($arResult['fieldTypes'] as $key => $value): ?>
 							<option
 								value="<?= htmlspecialcharsbx($key) ?>"
-								<?= $key === $arResult['fieldInfo']['Type'] ? ' selected' : '' ?>
+								<?= (isset($arResult['fieldInfo']['Type']) && $key === $arResult['fieldInfo']['Type']) ? ' selected' : '' ?>
 							>
 								<?= htmlspecialcharsbx($value) ?>
 							</option>
@@ -96,10 +95,10 @@ CUtil::InitJSCore([
 							{Multiple: this.value}
 						)"
 					>
-						<option value="N" <?= ($arResult['fieldInfo']['Multiple'] === false) ? ' selected' : '' ?>>
+						<option value="N" <?= (isset($arResult['fieldInfo']['Multiple']) && $arResult['fieldInfo']['Multiple'] === false) ? ' selected' : '' ?>>
 							<?= \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_NO') ?>
 						</option>
-						<option value="Y" <?= ($arResult['fieldInfo']['Multiple'] === true) ? ' selected' : ''?>>
+						<option value="Y" <?= (isset($arResult['fieldInfo']['Multiple']) && $arResult['fieldInfo']['Multiple'] === true) ? ' selected' : ''?>>
 							<?= \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_YES') ?>
 						</option>
 					</select>
@@ -133,7 +132,7 @@ CUtil::InitJSCore([
 						<?php foreach ($arResult['visibilityTypes'] as $key => $value): ?>
 							<option
 								value="<?= htmlspecialcharsbx($key) ?>"
-								<?= mb_strtoupper($key) === $arResult['fieldInfo']['Visibility'] ? ' selected' : '' ?>
+								<?= isset($arResult['fieldInfo']['Visibility']) && mb_strtoupper($key) === $arResult['fieldInfo']['Visibility'] ? ' selected' : '' ?>
 							>
 								<?= htmlspecialcharsbx($value) ?>
 							</option>
@@ -148,7 +147,7 @@ CUtil::InitJSCore([
 			</div>
 			<div class="ui-form-content">
 				<div class="ui-ctl ui-ctl-textarea ui-ctl-resize-y ui-ctl-w100" style="height: auto">
-					<textarea class="ui-ctl-element ui-ctl-resize-y" name="DESCRIPTION"><?= htmlspecialcharsbx($arResult['fieldInfo']['Description']) ?></textarea>
+					<textarea class="ui-ctl-element ui-ctl-resize-y" name="DESCRIPTION"><?= htmlspecialcharsbx($arResult['fieldInfo']['Description'] ?? null) ?></textarea>
 				</div>
 			</div>
 		</div>

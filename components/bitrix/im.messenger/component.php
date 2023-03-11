@@ -21,6 +21,8 @@ $arParams["DESKTOP"] = isset($arParams['DESKTOP']) && $arParams['DESKTOP'] == 'Y
 
 $arResult = Array();
 
+$isFullscreen = $arParams['FULLSCREEN'] ?? null;
+
 if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 {
 	$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark')? 'bx-messenger-dark': '';
@@ -35,7 +37,7 @@ if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 	$event = new \Bitrix\Main\Event("im", "onDesktopStart", array('USER_ID' => $USER->GetID()));
 	$event->send();
 }
-else if ($arParams["CONTEXT"] == "FULLSCREEN" || $arParams['FULLSCREEN'] == 'Y')
+else if ($arParams["CONTEXT"] == "FULLSCREEN" || $isFullscreen)
 {
 	$APPLICATION->SetPageProperty("BodyClass", "bx-im-fullscreen bx-language-".LANGUAGE_ID);
 	if (!isset($arParams["DESIGN"]))
@@ -93,8 +95,8 @@ if ($arParams["INIT"] == 'Y')
 {
 	if (CIMMail::IsExternalMailAvailable())
 	{
-		$arResult["PATH_TO_USER_MAIL"] = $arParams['PATH_TO_SONET_EXTMAIL'];
-		$arResult["MAIL_COUNTER"] = intval($arResult["COUNTERS"]["mail_unseen"]);
+		$arResult["PATH_TO_USER_MAIL"] = $arParams['PATH_TO_SONET_EXTMAIL'] ?? null;
+		$arResult["MAIL_COUNTER"] = (int)($arResult["COUNTERS"]["mail_unseen"] ?? null);
 	}
 	else if (CModule::IncludeModule("dav"))
 	{

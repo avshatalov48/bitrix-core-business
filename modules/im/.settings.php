@@ -10,7 +10,8 @@ return [
 			],
 			'defaultNamespace' => '\\Bitrix\\Im\\Controller',
 			'restIntegration' => [
-				'enabled' => true
+				'enabled' => true,
+				'scopes' => ['im.import']
 			]
 		],
 		'readonly' => true,

@@ -177,8 +177,10 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 		$lAdmin->AddAdminContextMenu($aContext, false);
 	}
 
-	if($_REQUEST['table_id'] == $tableId)
+	if (isset($_REQUEST['table_id']) && $_REQUEST['table_id'] === $tableId)
+	{
 		$lAdmin->CheckListMode();
+	}
 
 	$lAdmin->DisplayList();
 }

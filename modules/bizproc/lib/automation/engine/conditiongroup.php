@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation\Engine;
 
+use Bitrix\Bizproc;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Automation\Helper;
@@ -213,7 +214,7 @@ class ConditionGroup
 		$mixedCondition = [];
 		$bizprocJoiner = 0;
 
-		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+		$documentService = \CBPRuntime::GetRuntime()->getDocumentService();
 
 		/** @var Condition $condition */
 		foreach ($this->getItems() as [$condition, $joiner])
@@ -222,15 +223,53 @@ class ConditionGroup
 			$field = $condition->getField();
 			$value = $condition->getValue();
 			$property = $template->getProperty($object, $field);
-			if ($property && !in_array($condition->getOperator(), ['empty', '!empty']))
+
+			$operator = $condition->getOperator();
+			$isOperatorWithValue = !in_array(
+				$operator,
+				[Bizproc\Activity\Operator\EmptyOperator::getCode(), Bizproc\Activity\Operator\NotEmptyOperator::getCode()],
+				true
+			);
+			if ($property && $isOperatorWithValue)
 			{
-				$valueInternal = $documentService->GetFieldInputValue(
-					$documentType,
-					$property,
-					'field',
-					['field' => $value],
-					$errors
-				);
+				$currentValues = ['field' => $value];
+				$errors = [];
+
+				$isBetweenOperator = $operator === \Bitrix\Bizproc\Activity\Operator\BetweenOperator::getCode();
+				$valueInternal =
+					$isBetweenOperator
+						? []
+						: $documentService->getFieldInputValue(
+							$documentType,
+							$property,
+							'field',
+							$currentValues,
+							$errors
+					)
+				;
+				if ($isBetweenOperator)
+				{
+					$currentValues['field_greater_then'] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+					$currentValues['field_less_then'] = is_array($value) && isset($value[1]) ? $value[1] : '';
+
+					$property['Multiple'] = false;
+					$valueInternal1 = $documentService->getFieldInputValue(
+						$documentType,
+						$property,
+						'field_greater_then',
+						$currentValues,
+						$errors
+					);
+					$valueInternal2 = $documentService->getFieldInputValue(
+						$documentType,
+						$property,
+						'field_less_then',
+						$currentValues,
+						$errors
+					);
+
+					$valueInternal = [$valueInternal1 ?? '', $valueInternal2 ?? ''];
+				}
 
 				if (!$errors)
 				{

@@ -23,7 +23,7 @@ final class ObjectPool
 		$result = null;
 		$index = $this->createIndex($fields);
 
-		if(!$this->objects[$index])
+		if(!isset($this->objects[$index]))
 		{
 			if($this->maxObjectsCount > 0 && count($this->objects) > $this->maxObjectsCount)
 				$this->deleteOutdatedObject();

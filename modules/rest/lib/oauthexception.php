@@ -16,7 +16,7 @@ class OAuthException
 		$this->result = $oauthResult;
 
 		parent::__construct(
-			$this->result['error_description'],
+			$this->result['error_description'] ?? '',
 			static::ERROR_OAUTH,
 			isset($oauthResult["error_status"])
 				? $oauthResult["error_status"]
@@ -24,7 +24,7 @@ class OAuthException
 			$previous
 		);
 
-		if($oauthResult['additional'] && is_array($oauthResult['additional']))
+		if(isset($oauthResult['additional']) && is_array($oauthResult['additional']))
 		{
 			$this->setAdditional($oauthResult['additional']);
 		}

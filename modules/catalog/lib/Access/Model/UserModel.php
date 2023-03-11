@@ -64,12 +64,18 @@ class UserModel extends Main\Access\User\UserModel
 	{
 		$permissions = $this->getPermissions();
 
+		$permissions[$permissionId] = $permissions[$permissionId] ?? null;
+
 		if (is_array($permissions[$permissionId]))
 		{
-			$permissions[$permissionId] = $permissions[$permissionId][0];
+			$permissions[$permissionId] =
+				isset($permissions[$permissionId][0])
+					? (int)$permissions[$permissionId][0]
+					: null
+			;
 		}
 
-		return $permissions[$permissionId] ?? null;
+		return $permissions[$permissionId];
 	}
 
 	/**
@@ -90,6 +96,7 @@ class UserModel extends Main\Access\User\UserModel
 		}
 
 		$permissions = $this->getPermissions();
+		$permissions[$permissionId] = $permissions[$permissionId] ?? null;
 
 		return is_array($permissions[$permissionId]) ? $permissions[$permissionId] : null;
 	}

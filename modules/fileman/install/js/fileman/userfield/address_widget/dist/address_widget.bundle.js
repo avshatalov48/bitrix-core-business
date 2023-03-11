@@ -115,7 +115,9 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    _t6,
 	    _t7,
 	    _t8,
-	    _t9;
+	    _t9,
+	    _t10,
+	    _t11;
 
 	var _widget = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("widget");
 
@@ -263,15 +265,22 @@ this.BX.Fileman = this.BX.Fileman || {};
 					${0}
 				</div>
 			</div>
-		`), this.getUserInputSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].userInput, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].fieldsContainer, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].inputIcon);
-	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout = main_core.Tag.render(_t7 || (_t7 = _$1`
+		`), this.getUserInputSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].userInput, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].fieldsContainer, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].inputIcon); // a workaround for bizproc conditionals; their conditionals popup seems to use the topmost <input>'s value
+
+	    const hiddenFormattedInputValue = babelHelpers.classPrivateFieldLooseBase(this, _address)[_address] ? this.getRawValueForHiddenFormattedInput(babelHelpers.classPrivateFieldLooseBase(this, _address)[_address]) : '';
+	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].hiddenFormattedAddressInput = main_core.Tag.render(_t7 || (_t7 = _$1`<input type="hidden" name="${0}_formatted" value="${0}" />`), babelHelpers.classPrivateFieldLooseBase(this, _fieldName)[_fieldName], hiddenFormattedInputValue); // a flag used to identify values set manually by the user
+
+	    const manualEditFlagNode = main_core.Tag.render(_t8 || (_t8 = _$1`<input type="hidden" name="${0}_manual_edit" value="Y">`), babelHelpers.classPrivateFieldLooseBase(this, _fieldName)[_fieldName]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout = main_core.Tag.render(_t9 || (_t9 = _$1`
 			<div class="edit-entry-layout-wrapper ${0}">
 				<div class="address-control-mode-switch-wrapper">
 					${0}
 				</div>
 				${0}
+				${0}
+				${0}
 			</div>
-		`), this.getLayoutSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper);
+		`), this.getLayoutSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].hiddenFormattedAddressInput, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper, manualEditFlagNode);
 
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _enableRemoveButton)[_enableRemoveButton]) {
 	      main_core.Dom.append(this.getRemoveInputButton(babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper);
@@ -298,7 +307,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	  }
 
 	  getRemoveInputButton(layout) {
-	    const removeInputButton = main_core.Tag.render(_t8 || (_t8 = _$1`
+	    const removeInputButton = main_core.Tag.render(_t10 || (_t10 = _$1`
 			<span class="uf-address-search-input-remove"></span>
 		`));
 	    main_core.Event.bind(removeInputButton, 'click', event => {
@@ -318,7 +327,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _address)[_address] && babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].id > 0) {
 	      main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout);
-	      const input = main_core.Tag.render(_t9 || (_t9 = _$1`<input type="hidden" name="${0}" value="${0}_del" />`), babelHelpers.classPrivateFieldLooseBase(this, _fieldFormName)[_fieldFormName], babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].id);
+	      const input = main_core.Tag.render(_t11 || (_t11 = _$1`<input type="hidden" name="${0}" value="${0}_del" />`), babelHelpers.classPrivateFieldLooseBase(this, _fieldFormName)[_fieldFormName], babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].id);
 	      main_core.Dom.append(input, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout);
 	      this.emitFieldChangedEvent();
 	    } else {
@@ -349,6 +358,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    }
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].fieldValueInput.value = this.getChangedAddressFieldValue(address);
+	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].hiddenFormattedAddressInput.value = this.getRawValueForHiddenFormattedInput(address);
 	    this.emitFieldChangedEvent();
 	  }
 
@@ -412,6 +422,10 @@ this.BX.Fileman = this.BX.Fileman || {};
 
 	    const format = new location_core.Format(JSON.parse(BX.message('LOCATION_WIDGET_DEFAULT_FORMAT')));
 	    return (_address$toString = address.toString(format, location_core.AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA)) != null ? _address$toString : '';
+	  }
+
+	  getRawValueForHiddenFormattedInput(address) {
+	    return `${this.getFormattedAddress(address)}|${address.latitude};${address.longitude}`;
 	  }
 
 	  onInputIconClick() {

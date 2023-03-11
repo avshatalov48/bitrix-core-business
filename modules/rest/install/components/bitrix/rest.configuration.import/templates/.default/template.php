@@ -78,7 +78,8 @@ else
 							'APP' => $arResult['APP'],
 							'MODE' => $arParams['MODE'],
 							'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
-							'UNINSTALL_APP_ON_FINISH' => $arResult['UNINSTALL_APP_ON_FINISH']
+							'UNINSTALL_APP_ON_FINISH' => $arResult['UNINSTALL_APP_ON_FINISH'],
+							'FROM' => $arResult['FROM'],
 						),
 						$component,
 						array('HIDE_ICONS' => 'Y')
@@ -95,7 +96,8 @@ else
 							'MODE' => $arParams['MODE'],
 							'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
 							'IMPORT_MANIFEST' => $arResult['IMPORT_MANIFEST_FILE'],
-							'UNINSTALL_APP_ON_FINISH' => $arResult['UNINSTALL_APP_ON_FINISH']
+							'UNINSTALL_APP_ON_FINISH' => $arResult['UNINSTALL_APP_ON_FINISH'],
+							'FROM' => $arResult['FROM'],
 						),
 						$component,
 						array('HIDE_ICONS' => 'Y')
@@ -136,6 +138,7 @@ else
 						'PROCESS_ID' => $arResult['IMPORT_PROCESS_ID'],
 						'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
 						'APP' => $arResult['APP'],
+						'FROM' => $arResult['FROM'],
 					),
 					$component,
 					array(
@@ -153,6 +156,7 @@ else
 						'IMPORT_MANIFEST' => $arResult['IMPORT_MANIFEST_FILE'],
 						'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
 						'APP' => $arResult['APP'],
+						'FROM' => $arResult['FROM'],
 					),
 					$component,
 					array(
@@ -194,6 +198,7 @@ else
 				array(
 					'APP_CODE' => $arResult['INSTALL_APP'],
 					'IFRAME' => 'Y',
+					'FROM' => $arResult['FROM'],
 				),
 				$component,
 				array('HIDE_ICONS' => 'Y')

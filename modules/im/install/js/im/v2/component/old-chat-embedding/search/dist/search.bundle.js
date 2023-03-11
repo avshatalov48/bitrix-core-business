@@ -1,10 +1,10 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,im_v2_lib_menu,ui_fonts_opensans,im_v2_lib_logger,ui_dexie,im_v2_lib_utils,im_v2_component_oldChatEmbedding_elements,main_core,main_core_events,im_v2_const) {
+(function (exports,ui_designTokens,im_v2_lib_oldChatEmbedding_menu,ui_fonts_opensans,im_v2_lib_logger,ui_dexie,im_v2_lib_utils,im_v2_component_oldChatEmbedding_elements,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
-	class SearchContextMenu extends im_v2_lib_menu.RecentMenu {
+	class SearchContextMenu extends im_v2_lib_oldChatEmbedding_menu.RecentMenu {
 	  getMenuItems() {
 	    return [this.getSendMessageItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem()];
 	  }
@@ -268,6 +268,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 
 	  prepareRecentItems(recentItems) {
+	    if (!recentItems) {
+	      return [];
+	    }
+
 	    return recentItems.map(item => {
 	      const [entityId, id] = item;
 	      const type = SearchUtils.getTypeByEntityId(entityId);
@@ -1381,10 +1385,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 
 	  loadRecentSearchFromServer() {
-	    return this.loadRecentFromServer().then(responseFromCache => {
+	    return this.loadRecentFromServer().then(responseFromServer => {
 	      im_v2_lib_logger.Logger.warn('Im.Search: Recent search loaded from server');
-	      const items = SearchUtils.createItemMap(responseFromCache.items);
-	      const recentItems = SearchUtils.prepareRecentItems(responseFromCache.recentItems);
+	      const items = SearchUtils.createItemMap(responseFromServer.items);
+	      const recentItems = SearchUtils.prepareRecentItems(responseFromServer.recentItems);
 	      return this.updateModels(items, true).then(() => {
 	        return this.getItemsFromRecentItems(recentItems, items);
 	      });
@@ -2017,6 +2021,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      currentServerQueries: 0,
 	      isNetworkButtonClicked: false,
 	      isNetworkAvailable: false,
+	      isNetworkSearchEnabled: true,
 	      result: {
 	        recent: new Map(),
 	        usersAndChats: new Map(),
@@ -2054,6 +2059,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	    showSearchResult() {
 	      return this.searchQuery.trim().length > 0;
+	    },
+
+	    isNetworkSearchCode() {
+	      return !!(this.searchQuery.length === 32 && /[\da-f]{32}/.test(this.searchQuery));
+	    },
+
+	    isNetworkAvailableForSearch() {
+	      if (!this.isNetworkAvailable) {
+	        return false;
+	      }
+
+	      return this.isNetworkSearchEnabled || this.isNetworkSearchCode;
 	    },
 
 	    itemComponent: () => SearchResultItem,
@@ -2130,6 +2147,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const defaultMinTokenSize = 3;
 	      this.minTokenSize = settings.get('minTokenSize', defaultMinTokenSize);
 	      this.isNetworkAvailable = settings.get('isNetworkAvailable', false);
+	      this.isNetworkSearchEnabled = settings.get('isNetworkSearchEnabled', true);
 	      this.isDepartmentsAvailable = settings.get('isDepartmentsAvailable', false);
 	    },
 
@@ -2172,7 +2190,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.currentServerQueries++;
 	      this.isNetworkLoading = this.isNetworkButtonClicked;
 	      const config = {
-	        network: this.isNetworkAvailable && this.isNetworkButtonClicked,
+	        network: this.isNetworkAvailableForSearch && this.isNetworkButtonClicked,
 	        departments: !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable
 	      };
 	      const queryBeforeRequest = query;
@@ -2369,7 +2387,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 							:min-items:="5"
 							:max-items="20"
 						/>
-						<template v-if="isNetworkAvailable">
+						<template v-if="isNetworkAvailableForSearch">
 							<SearchResultSection
 								v-if="needToShowNetworkSection"
 								:component="itemNetworkComponent"
@@ -2408,5 +2426,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Search = Search;
 
-}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Dexie3,BX.Messenger.v2.Lib,BX.Messenger.v2.ComponentLegacy,BX,BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.LibLegacy,BX,BX.Messenger.v2.Lib,BX.Dexie3,BX.Messenger.v2.Lib,BX.Messenger.v2.ComponentLegacy,BX,BX.Event,BX.Messenger.v2.Const));
 //# sourceMappingURL=search.bundle.js.map

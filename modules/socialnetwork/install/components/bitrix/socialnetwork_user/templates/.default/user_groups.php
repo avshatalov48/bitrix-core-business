@@ -29,6 +29,7 @@ $componentParams = [
 	'PAGE' => $pageId,
 	'SET_TITLE' => $arResult['SET_TITLE'],
 	'SET_NAV_CHAIN' => $arResult['SET_NAV_CHAIN'],
+	'MODE' => \Bitrix\Socialnetwork\Component\WorkgroupList::MODE_USER,
 ];
 
 $APPLICATION->IncludeComponent(

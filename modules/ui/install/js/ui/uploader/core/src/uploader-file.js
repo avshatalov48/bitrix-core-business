@@ -177,6 +177,11 @@ export default class UploaderFile extends EventEmitter
 		this.emit('onCancel');
 	}
 
+	getUploadController(): ?AbstractUploadController
+	{
+		return this.#uploadController;
+	}
+
 	setUploadController(controller: AbstractUploadController): void
 	{
 		if (controller instanceof AbstractUploadController)

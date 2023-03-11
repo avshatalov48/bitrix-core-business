@@ -253,3 +253,19 @@
 	color: var(--ui-color-base-60, #959ca4);
 	max-width: calc(100% - 186px);
 }
+
+.bizproc-creating-robot__help-link {
+	margin-left: auto;
+	margin-right: 12px;
+	border-bottom: 1px dashed rgba(130,139,149,.4);
+	font-size: var(--ui-font-size-md, 14px);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	line-height: var(--ui-font-line-height-2xs, 1.3);
+	color: #828b95;
+	transition: .2s;
+}
+
+.bizproc-creating-robot__help-link:hover {
+	color: #828b95;
+	border-color: rgba(130,139,149,1);
+}

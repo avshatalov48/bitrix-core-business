@@ -20,6 +20,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
@@ -482,7 +483,7 @@ else
 				$avatar = $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"];
 			}
 
-			$style = ($avatar ? "background: url('" . $avatar . "'); background-size: cover;" : "");
+			$style = ($avatar ? "background: url('" . Uri::urnEncode($avatar) . "'); background-size: cover;" : "");
 
 			?><div class="<?=implode(' ', $aditStylesList)?>" id="blg-post-img-<?=$arResult["Post"]["ID"]?>">
 				<div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?php

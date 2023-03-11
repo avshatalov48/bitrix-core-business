@@ -48,6 +48,56 @@ abstract class CBPActivityCondition
 		return call_user_func_array(array($classname, $method), $arParameters);
 	}
 
+	protected static function getConditionFieldInputValue(string $operator, $parameterDocumentType, $property, $fieldName, $request): Bitrix\Main\Result
+	{
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
+
+		$result = new Bitrix\Main\Result();
+		$isBetweenOperator = $operator === \Bitrix\Bizproc\Activity\Operator\BetweenOperator::getCode();
+
+		$errors = [];
+		$value =
+			$isBetweenOperator
+				? []
+				: $documentService->getFieldInputValue($parameterDocumentType, $property, $fieldName, $request, $errors)
+		;
+
+		if ($isBetweenOperator)
+		{
+			$property['Multiple'] = false;
+
+			$value1 = $documentService->getFieldInputValue(
+				$parameterDocumentType,
+				$property,
+				$fieldName . '_greater_then',
+				$request,
+				$errors
+			);
+
+			$value2 = $documentService->getFieldInputValue(
+				$parameterDocumentType,
+				$property,
+				$fieldName . '_less_then',
+				$request,
+				$errors
+			);
+
+			$value = [$value1 ?? '', $value2 ?? ''];
+		}
+
+		if (!empty($errors))
+		{
+			foreach ($errors as $error)
+			{
+				$result->addError(new \Bitrix\Main\Error((string)$error['message'], (string)$error['code']));
+			}
+		}
+
+		$result->setData(['value' => $value]);
+
+		return $result;
+	}
+
 	protected function getFieldTypeObject(CBPActivity $rootActivity, $property): ?\Bitrix\Bizproc\FieldType
 	{
 		$fieldType = $rootActivity->workflow
@@ -78,7 +128,7 @@ abstract class CBPActivityCondition
 
 	protected function conditionGroupToArray()
 	{
-		if (!is_array($this->condition[0]))
+		if (!isset($this->condition[0]) || !is_array($this->condition[0]))
 		{
 			$this->condition = [$this->condition];
 		}

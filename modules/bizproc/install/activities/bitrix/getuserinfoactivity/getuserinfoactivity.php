@@ -1,104 +1,37 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPGetUserInfoActivity
-	extends CBPActivity
+use Bitrix\Main\Localization\Loc;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPGetUserInfoActivity extends CBPActivity
 {
 	private $userFields;
 
 	protected static function getUserFields()
 	{
-		return [
-			'USER_ACTIVE' => [
-				'Name' => GetMessage('BPGUIA_USER_ACTIVE'),
-				'Type' => 'bool',
-			],
-			'USER_EMAIL' => [
-				'Name' => GetMessage('BPGUIA_USER_EMAIL'),
-				'Type' => 'string',
-			],
-			'USER_WORK_PHONE' => [
-				'Name' => GetMessage('BPGUIA_USER_WORK_PHONE'),
-				'Type' => 'string',
-			],
-			'USER_PERSONAL_MOBILE' => [
-				'Name' => GetMessage('BPGUIA_USER_PERSONAL_MOBILE'),
-				'Type' => 'string',
-			],
-			'USER_UF_PHONE_INNER' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_PHONE_INNER'),
-				'Type' => 'string',
-			],
-			'USER_LOGIN' => [
-				'Name' => GetMessage('BPGUIA_USER_LOGIN'),
-				'Type' => 'string',
-			],
-			'USER_LAST_NAME' => [
-				'Name' => GetMessage('BPGUIA_USER_LAST_NAME'),
-				'Type' => 'string',
-			],
-			'USER_NAME' => [
-				'Name' => GetMessage('BPGUIA_USER_NAME'),
-				'Type' => 'string',
-			],
-			'USER_SECOND_NAME' => [
-				'Name' => GetMessage('BPGUIA_USER_SECOND_NAME'),
-				'Type' => 'string',
-			],
-			'USER_WORK_POSITION' => [
-				'Name' => GetMessage('BPGUIA_USER_WORK_POSITION'),
-				'Type' => 'string',
-			],
-			'USER_PERSONAL_BIRTHDAY' => [
-				'Name' => GetMessage('BPGUIA_USER_PERSONAL_BIRTHDAY'),
-				'Type' => 'date',
-			],
-			'USER_PERSONAL_WWW' => [
-				'Name' => GetMessage('BPGUIA_USER_PERSONAL_WWW'),
-				'Type' => 'string',
-			],
-			'USER_PERSONAL_CITY' => [
-				'Name' => GetMessage('BPGUIA_USER_PERSONAL_CITY'),
-				'Type' => 'string',
-			],
-			'USER_UF_SKYPE' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_SKYPE'),
-				'Type' => 'string',
-			],
-			'USER_UF_TWITTER' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_TWITTER'),
-				'Type' => 'string',
-			],
-			'USER_UF_FACEBOOK' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_FACEBOOK'),
-				'Type' => 'string',
-			],
-			'USER_UF_LINKEDIN' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_LINKEDIN'),
-				'Type' => 'string',
-			],
-			'USER_UF_XING' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_XING'),
-				'Type' => 'string',
-			],
-			'USER_UF_WEB_SITES' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_WEB_SITES'),
-				'Type' => 'string',
-			],
-			'USER_UF_DEPARTMENT' => [
-				'Name' => GetMessage('BPGUIA_USER_UF_DEPARTMENT'),
-				'Type' => 'int',
-				'Multiple' => true
-			],
-			'IS_ABSENT' => [
-				'Name' => GetMessage('BPGUIA_IS_ABSENT'),
-				'Type' => 'bool',
-			],
-			'TIMEMAN_STATUS' => [
-				'Name' => GetMessage('BPGUIA_TIMEMAN_STATUS'),
-				'Type' => 'string',
-			],
+		$userService = CBPRuntime::getRuntime()->getUserService();
+		$fieldsFromService = $userService->getUserBaseFields();
+		$fields = [];
+		foreach ($fieldsFromService as $key => $property)
+		{
+			$fields['USER_' . $key] = $property;
+		}
+
+		// compatibility
+		$fields['IS_ABSENT'] = [
+			'Name' => Loc::getMessage('BPGUIA_IS_ABSENT'),
+			'Type' => 'bool',
 		];
+		$fields['TIMEMAN_STATUS'] = [
+			'Name' => Loc::getMessage('BPGUIA_TIMEMAN_STATUS'),
+			'Type' => 'string',
+		];
+
+		return $fields;
 	}
 
 	public function __construct($name)
@@ -110,7 +43,7 @@ class CBPGetUserInfoActivity
 			'UserFields' => null
 		];
 
-		$this->userFields = array_merge(self::getUserFields(), self::getFieldsCreatedByUser());
+		$this->userFields = array_merge(self::getUserFields(), self::getUserExtendedFields());
 
 		foreach (array_keys($this->userFields) as $uf)
 		{
@@ -134,32 +67,15 @@ class CBPGetUserInfoActivity
 	{
 		$userId = CBPHelper::ExtractUsers($this->GetUser, $this->GetDocumentId(), true);
 
-		$this->writeDebugInfo($this->getDebugInfo(['GetUser' => $userId]));
+		$this->writeDebugInfo($this->getDebugInfo(['GetUser' => $userId ? 'user_' . $userId : '']));
 		if (!$userId)
 		{
 			$this->WriteToTrackingService(GetMessage('BPGUIA_ERROR_1'), 0, CBPTrackingType::Error);
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$defaultUserFields = [
-			'EMAIL',
-			'UF_SKYPE',
-			'UF_TWITTER',
-			'UF_FACEBOOK',
-			'UF_LINKEDIN',
-			'UF_XING',
-			'UF_WEB_SITES',
-			'UF_PHONE_INNER',
-			'UF_DEPARTMENT'
-		];
-
-		$dbUsers = CUser::GetList(
-			'id', 'asc',
-			array('ID' => $userId),
-			array('SELECT' => array_merge($defaultUserFields, array_keys(self::getFieldsCreatedByUser())))
-		);
-
-		$user = $dbUsers ? $dbUsers->Fetch() : null;
+		$userService = $this->workflow->getRuntime()->getUserService();
+		$user = $userService->getUserInfo($userId);
 
 		if (!$user)
 		{
@@ -167,31 +83,18 @@ class CBPGetUserInfoActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		foreach ($this->userFields as $uf => $fieldMap)
+		foreach (array_keys($this->userFields) as $key)
 		{
-			if (mb_strpos($uf, 'USER_') !== 0 && $this->isCreatedByUser($uf) === false)
-			{
-				continue;
-			}
+			$fieldId = str_replace('USER_', '', $key);
 
-			$ufMap = str_replace('USER_', '', $uf);
-			if($fieldMap['Type'] === 'bool')
+			if (isset($user[$fieldId]))
 			{
-				$user[$ufMap] = CBPHelper::getBool($user[$ufMap]) ? 'Y' : 'N';
+				$this->__set($key, $user[$fieldId]);
 			}
-			else if($fieldMap['Type'] === 'select')
-			{
-				$user[$ufMap] = $this->convertSelectValue($user[$ufMap], $fieldMap);
-			}
-			$this->__set($uf, $user[$ufMap]);
 		}
 
-		if (CModule::IncludeModule('intranet'))
-		{
-			$this->__set('IS_ABSENT', CIntranetUtils::IsUserAbsent($userId) ? 'Y' : 'N');
-		}
-
-		if (CModule::IncludeModule('timeman'))
+		//compatible, without new b24 editions checking
+		if (!isset($user['TIMEMAN_STATUS']) && CModule::IncludeModule('timeman'))
 		{
 			$tmUser = new CTimeManUser($userId);
 			$this->__set('TIMEMAN_STATUS', $tmUser->State());
@@ -204,7 +107,7 @@ class CBPGetUserInfoActivity
 	private function logUserFields(): void
 	{
 		$map = array_filter(
-			array_merge(self::getUserFields(), self::getFieldsCreatedByUser()),
+			array_merge(self::getUserFields(), self::getUserExtendedFields()),
 			fn ($fieldId) => !CBPHelper::isEmptyValue($this->__get($fieldId)),
 			ARRAY_FILTER_USE_KEY,
 		);
@@ -213,120 +116,18 @@ class CBPGetUserInfoActivity
 		$this->writeDebugInfo($debugInfo);
 	}
 
-	protected function convertSelectValue($value, $fieldMap)
-	{
-		if(is_array($value))
-		{
-			$xmlIds = array();
-			foreach ($value as $i => $val)
-			{
-				$xmlIds[$i] = $this->convertSelectValue($val, $fieldMap);
-			}
-			return $xmlIds;
-		}
-
-		foreach ($fieldMap['Settings']['ENUM'] as $enum)
-		{
-			if((int) $enum['ID'] === (int) $value)
-			{
-				return $enum['XML_ID'];
-			}
-		}
-	}
-
-	protected function isCreatedByUser($fieldName)
-	{
-		return array_key_exists($fieldName, self::getFieldsCreatedByUser());
-	}
-
 	protected static function getFieldsCreatedByUser()
 	{
-		static $fieldsCreatedByUser = null;
-		if(isset($fieldsCreatedByUser))
-		{
-			return $fieldsCreatedByUser;
-		}
-		$fieldsCreatedByUser = [];
+		$userService = CBPRuntime::getRuntime()->getUserService();
 
-		$userFieldIds = \Bitrix\Main\UserFieldTable::getList(array(
-			'select' => array('ID'),
-			'filter' => [
-				'ENTITY_ID' => 'USER',
-				'%=FIELD_NAME' => 'UF_USR_%',
-		   ]
-	   ))->fetchAll();
-
-		foreach ($userFieldIds as $fieldId)
-		{
-			$field = \Bitrix\Main\UserFieldTable::getFieldData($fieldId['ID']);
-			$fieldName = $field['FIELD_NAME'];
-
-			$name = in_array(LANGUAGE_ID, $field['LANGUAGE_ID']) ? $field['LIST_COLUMN_LABEL'][LANGUAGE_ID] : $field['FIELD_NAME'];
-
-			$fieldsCreatedByUser[$fieldName] = array(
-				'Name' => $name,
-				'Type' => self::resolveUserFieldType($field['USER_TYPE_ID']),
-				'Multiple' => $field['MULTIPLE'] === 'Y'
-			);
-			if($fieldsCreatedByUser[$fieldName]['Type'] === 'select')
-			{
-				$fieldsCreatedByUser[$fieldName]['Options'] = self::getOptionsFromFieldEnum($field);
-				$fieldsCreatedByUser[$fieldName]['Settings'] = isset($field['ENUM']) ? ['ENUM' => $field['ENUM']] : array();
-			}
-		}
-
-		return $fieldsCreatedByUser;
+		return $userService->getUserUserFields();
 	}
 
-	protected static function resolveUserFieldType(string $type): ?string
+	protected static function getUserExtendedFields(): array
 	{
-		$bpType = null;
-		switch ($type)
-		{
-			case 'string':
-			case 'datetime':
-			case 'date':
-			case 'double':
-			case 'file':
-				$bpType = $type;
-				break;
-			case 'integer':
-				$bpType = 'int';
-				break;
-			case 'boolean':
-				$bpType = 'bool';
-				break;
-			case 'employee':
-				$bpType = 'user';
-				break;
-			case 'enumeration':
-				$bpType = 'select';
-				break;
-			case 'money':
-			case 'url':
-			case 'address':
-			case 'resourcebooking':
-			case 'crm_status':
-			case 'iblock_section':
-			case 'iblock_element':
-			case 'crm':
-				$bpType = "UF:{$type}";
-				break;
-		}
-		return $bpType;
-	}
+		$userService = CBPRuntime::getRuntime()->getUserService();
 
-	protected static function getOptionsFromFieldEnum($field)
-	{
-		$options = [];
-		if(isset($field['ENUM']))
-		{
-			foreach ($field['ENUM'] as $enum)
-			{
-				$options[$enum['XML_ID']] = $enum['VALUE'];
-			}
-		}
-		return $options;
+		return $userService->getUserExtendedFields();
 	}
 
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
@@ -383,7 +184,7 @@ class CBPGetUserInfoActivity
 		{
 			$properties["GetUser"] = $user->getBizprocId();
 		}
-		$properties['UserFields'] = array_merge(self::getUserFields(), self::getFieldsCreatedByUser());
+		$properties['UserFields'] = array_merge(self::getUserFields(), self::getUserExtendedFields());
 
 		$errors = self::ValidateProperties($properties, $user);
 		if (count($errors) > 0)

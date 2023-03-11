@@ -181,7 +181,6 @@
 }
 .bx-lists-table-content textarea {
 	max-width: 492px;
-	color: #80868e;
 	line-height: 18px;
 	min-height: 125px;
 }
@@ -543,10 +542,6 @@ td .bx-lists-required {color:red;}
 	padding: 20px 20px 20px;
 	font-size: 14px;
 }
-.bx-lists-div-list .bx-lists-bizproc-parameters-title p {margin: 0 0 10px;}
-.bx-lists-div-list .bx-lists-bizproc-parameters-title:before {display: none;}
-.bx-ie .bx-bp-select select {padding-right: 0;}
-.bx-ie .bx-bp-select:after, .bx-ie .bx-bp-select:before {content: none;}
 
 .file-wrapper {display: block; text-align: left;}
 

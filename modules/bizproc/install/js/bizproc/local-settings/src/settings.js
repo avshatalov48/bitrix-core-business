@@ -1,21 +1,15 @@
-import "ls";
+import {Cache, Type} from 'main.core';
 
 export class Settings
 {
-	#ttl = 365 * 86400;
-	#prefix = 'bp-'
+	#prefix = 'bp'
 
 	constructor(section: string)
 	{
 		if (section)
 		{
-			this.#prefix += section + '-';
+			this.#prefix += ('-' + section);
 		}
-	}
-
-	#getName(name: string): string
-	{
-		return this.#prefix + name;
 	}
 
 	getSet(name: string): Set
@@ -27,7 +21,9 @@ export class Settings
 
 	get(name: string): any
 	{
-		return BX.localStorage.get(this.#getName(name));
+		const settings = (new Cache.LocalStorageCache()).remember(this.#prefix, {});
+
+		return settings.hasOwnProperty(name) ? settings[name] : null;
 	}
 
 	set(name: string, value: any): this
@@ -37,8 +33,37 @@ export class Settings
 			value = Array.from(value);
 		}
 
-		BX.localStorage.set(this.#getName(name), value, this.#ttl);
+		const cache = new Cache.LocalStorageCache();
+		const settings = cache.remember(this.#prefix, {});
+		settings[name] = value;
+
+		cache.set(this.#prefix, settings);
 
 		return this;
+	}
+
+	remember(key: string, defaultValue)
+	{
+		const cacheValue = this.get(key);
+
+		if (!Type.isNull(cacheValue))
+		{
+			return cacheValue;
+		}
+
+		this.set(key, defaultValue);
+
+		return this.get(key);
+	}
+
+	getAll(): {}
+	{
+		return (new Cache.LocalStorageCache()).remember(this.#prefix, {});
+	}
+
+	deleteAll()
+	{
+		const cache = new Cache.LocalStorageCache();
+		cache.set(this.#prefix, {});
 	}
 }

@@ -118,7 +118,7 @@ class ProviderBuilder extends ProviderBuilderBase
 			'BUNDLE_PARENT' => $basketItem->isBundleParent(),
 			'BUNDLE_CHILD' => $basketItem->isBundleChild(),
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
-			'RESERVED_QUANTITY' => $productData['RESERVED_QUANTITY'],
+			'RESERVED_QUANTITY' => $productData['RESERVED_QUANTITY'] ?? 0.0,
 		];
 
 		if ($shipmentItem)

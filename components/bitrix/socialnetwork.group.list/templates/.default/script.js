@@ -540,10 +540,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "freeCounterQueue",
 	    value: function freeCounterQueue() {
-	      var _this2 = this;
-
-	      this.queueCounterData.forEach(function (counterData, groupId) {
-	        _this2.userCounterManager.processCounterItem(counterData, groupId);
+	      this.queueCounterData.forEach(function (counterData, groupId) {// todo oh this.userCounterManager.processCounterItem(counterData, groupId);
 	      });
 	      this.queueCounterData.clear();
 	      this.timer = null;
@@ -797,10 +794,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "freeCounterQueue",
 	    value: function freeCounterQueue() {
-	      var _this4 = this;
-
-	      this.queueCounterData.forEach(function (counterData) {
-	        _this4.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
+	      this.queueCounterData.forEach(function (counterData) {// todo oh this.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
 	      });
 	      this.queueCounterData.clear();
 	      this.timer = null;

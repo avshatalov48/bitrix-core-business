@@ -400,7 +400,7 @@ class AppTable extends Main\Entity\DataManager
 			}
 		}
 
-		if($data['fields']['STATUS'] !== static::STATUS_LOCAL)
+		if(isset($data['fields']['STATUS']) && $data['fields']['STATUS'] !== static::STATUS_LOCAL)
 		{
 			\Bitrix\Rest\Engine\Access::getActiveEntity(true);
 		}

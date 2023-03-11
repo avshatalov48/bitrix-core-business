@@ -1,4 +1,6 @@
 <?php
+
+use Bitrix\Main;
 use Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store.php");
@@ -52,82 +54,160 @@ class CCatalogStore extends CAllCatalogStore
 	{
 		global $DB;
 
+		$defaultList = [
+			'ID',
+			'ACTIVE',
+			'TITLE',
+			'PHONE',
+			'SCHEDULE',
+			'ADDRESS',
+			'DESCRIPTION',
+			'GPS_N',
+			'GPS_S',
+			'IMAGE_ID',
+			'DATE_CREATE',
+			'DATE_MODIFY',
+			'USER_ID',
+			'XML_ID',
+			'SORT',
+			'EMAIL',
+			'ISSUING_CENTER',
+			'SHIPPING_CENTER',
+			'SITE_ID',
+			'CODE',
+			'IS_DEFAULT',
+		];
+
+		if (!is_array($arSelectFields))
+		{
+			$arSelectFields = [];
+		}
+
+		$productIds = [];
+		$productFilterExists = array_key_exists('PRODUCT_ID', $arFilter);
+		if ($productFilterExists)
+		{
+			$productIds = is_array($arFilter['PRODUCT_ID']) ? $arFilter['PRODUCT_ID'] : [$arFilter['PRODUCT_ID']];
+			Main\Type\Collection::normalizeArrayValuesByInt($productIds);
+			$productFilterExists = !empty($productIds);
+			unset($arFilter['PRODUCT_ID']);
+		}
+
 		if (empty($arSelectFields))
-			$arSelectFields = array(
-				"ID",
-				"ACTIVE",
-				"TITLE",
-				"PHONE",
-				"SCHEDULE",
-				"ADDRESS",
-				"DESCRIPTION",
-				"GPS_N",
-				"GPS_S",
-				"IMAGE_ID",
-				"DATE_CREATE",
-				"DATE_MODIFY",
-				"USER_ID",
-				"XML_ID",
-				"SORT",
-				"EMAIL",
-				"ISSUING_CENTER",
-				"SHIPPING_CENTER",
-				"SITE_ID",
-				"CODE",
-				"IS_DEFAULT",
-			);
-
-		$keyForDelete = array_search("PRODUCT_AMOUNT", $arSelectFields);
-
-		if (!isset($arFilter["PRODUCT_ID"]) && $keyForDelete !== false)
-			unset($arSelectFields[$keyForDelete]);
-
-		if ($keyForDelete == false)
 		{
-			$keyForDelete = array_search("ELEMENT_ID", $arSelectFields);
-			if($keyForDelete !== false)
-				unset($arSelectFields[$keyForDelete]);
-		}
-		$productID = '(';
-
-		if (is_array($arFilter["PRODUCT_ID"]))
-		{
-			foreach($arFilter["PRODUCT_ID"] as $id)
-				$productID .= intval($id).',';
-			$productID = rtrim($productID, ',').')';
-		}
-		else
-		{
-			$productID .= intval($arFilter["PRODUCT_ID"]) . ')';
+			$arSelectFields = $defaultList;
 		}
 
-		$arFields = array(
-			"ID" => array("FIELD" => "CS.ID", "TYPE" => "int"),
-			"ACTIVE" => array("FIELD" => "CS.ACTIVE", "TYPE" => "string"),
-			"TITLE" => array("FIELD" => "CS.TITLE", "TYPE" => "string"),
-			"PHONE" => array("FIELD" => "CS.PHONE", "TYPE" => "string"),
-			"SCHEDULE" => array("FIELD" => "CS.SCHEDULE", "TYPE" => "string"),
-			"ADDRESS" => array("FIELD" => "CS.ADDRESS", "TYPE" => "string"),
-			"DESCRIPTION" => array("FIELD" => "CS.DESCRIPTION", "TYPE" => "string"),
-			"GPS_N" => array("FIELD" => "CS.GPS_N", "TYPE" => "string"),
-			"GPS_S" => array("FIELD" => "CS.GPS_S", "TYPE" => "string"),
-			"IMAGE_ID" => array("FIELD" => "CS.IMAGE_ID", "TYPE" => "int"),
-			"LOCATION_ID" => array("FIELD" => "CS.LOCATION_ID", "TYPE" => "int"),
-			"DATE_CREATE" => array("FIELD" => "CS.DATE_CREATE", "TYPE" => "datetime"),
-			"DATE_MODIFY" => array("FIELD" => "CS.DATE_MODIFY", "TYPE" => "datetime"),
-			"USER_ID" => array("FIELD" => "CS.USER_ID", "TYPE" => "int"),
-			"MODIFIED_BY" => array("FIELD" => "CS.MODIFIED_BY", "TYPE" => "int"),
-			"XML_ID" => array("FIELD" => "CS.XML_ID", "TYPE" => "string"),
-			"SORT" => array("FIELD" => "CS.SORT", "TYPE" => "int"),
-			"EMAIL" => array("FIELD" => "CS.EMAIL", "TYPE" => "string"),
-			"ISSUING_CENTER" => array("FIELD" => "CS.ISSUING_CENTER", "TYPE" => "char"),
-			"SHIPPING_CENTER" => array("FIELD" => "CS.SHIPPING_CENTER", "TYPE" => "char"),
-			"SITE_ID" => array("FIELD" => "CS.SITE_ID", "TYPE" => "string"),
-			"CODE" => array("FIELD" => "CS.CODE", "TYPE" => "string"),
-			"IS_DEFAULT" => array("FIELD" => "CS.IS_DEFAULT", "TYPE" => "char"),
-			"PRODUCT_AMOUNT" => array("FIELD" => "CP.AMOUNT", "TYPE" => "double", "FROM" => "LEFT JOIN b_catalog_store_product CP ON (CS.ID = CP.STORE_ID AND CP.PRODUCT_ID IN ".$productID.")"),
-			"ELEMENT_ID" => array("FIELD" => "CP.PRODUCT_ID", "TYPE" => "int")
-		);
+		$arFields = [];
+		$arFields["ID"] = [
+			"FIELD" => "CS.ID",
+			"TYPE" => "int",
+		];
+		$arFields["ACTIVE"] = [
+			"FIELD" => "CS.ACTIVE",
+			"TYPE" => "string",
+		];
+		$arFields["TITLE"] = [
+			"FIELD" => "CS.TITLE",
+			"TYPE" => "string",
+		];
+		$arFields["PHONE"] = [
+			"FIELD" => "CS.PHONE",
+			"TYPE" => "string",
+		];
+		$arFields["SCHEDULE"] = [
+			"FIELD" => "CS.SCHEDULE",
+			"TYPE" => "string",
+		];
+		$arFields["ADDRESS"] = [
+			"FIELD" => "CS.ADDRESS",
+			"TYPE" => "string",
+		];
+		$arFields["DESCRIPTION"] = [
+			"FIELD" => "CS.DESCRIPTION",
+			"TYPE" => "string",
+		];
+		$arFields["GPS_N"] = [
+			"FIELD" => "CS.GPS_N",
+			"TYPE" => "string",
+		];
+		$arFields["GPS_S"] = [
+			"FIELD" => "CS.GPS_S",
+			"TYPE" => "string",
+		];
+		$arFields["IMAGE_ID"] = [
+			"FIELD" => "CS.IMAGE_ID",
+			"TYPE" => "int",
+		];
+		$arFields["LOCATION_ID"] = [
+			"FIELD" => "CS.LOCATION_ID",
+			"TYPE" => "int",
+		];
+		$arFields["DATE_CREATE"] = [
+			"FIELD" => "CS.DATE_CREATE",
+			"TYPE" => "datetime",
+		];
+		$arFields["DATE_MODIFY"] = [
+			"FIELD" => "CS.DATE_MODIFY",
+			"TYPE" => "datetime",
+		];
+		$arFields["USER_ID"] = [
+			"FIELD" => "CS.USER_ID",
+			"TYPE" => "int",
+		];
+		$arFields["MODIFIED_BY"] = [
+			"FIELD" => "CS.MODIFIED_BY",
+			"TYPE" => "int",
+		];
+		$arFields["XML_ID"] = [
+			"FIELD" => "CS.XML_ID",
+			"TYPE" => "string",
+		];
+		$arFields["SORT"] = [
+			"FIELD" => "CS.SORT",
+			"TYPE" => "int",
+		];
+		$arFields["EMAIL"] = [
+			"FIELD" => "CS.EMAIL",
+			"TYPE" => "string",
+		];
+		$arFields["ISSUING_CENTER"] = [
+			"FIELD" => "CS.ISSUING_CENTER",
+			"TYPE" => "char",
+		];
+		$arFields["SHIPPING_CENTER"] = [
+			"FIELD" => "CS.SHIPPING_CENTER",
+			"TYPE" => "char",
+		];
+		$arFields["SITE_ID"] = [
+			"FIELD" => "CS.SITE_ID",
+			"TYPE" => "string",
+		];
+		$arFields["CODE"] = [
+			"FIELD" => "CS.CODE",
+			"TYPE" => "string",
+		];
+		$arFields["IS_DEFAULT"] = [
+			"FIELD" => "CS.IS_DEFAULT",
+			"TYPE" => "char",
+		];
+		if ($productFilterExists)
+		{
+			$arFields["PRODUCT_AMOUNT"] = [
+				"FIELD" => "CP.AMOUNT",
+				"TYPE" => "double",
+				"FROM" => "LEFT JOIN b_catalog_store_product CP ON "
+					. "(CS.ID = CP.STORE_ID AND CP.PRODUCT_ID IN (" . implode(',', $productIds) . "))"
+				,
+			];
+			if (in_array('*', $arSelectFields) || in_array('PRODUCT_AMOUNT', $arSelectFields))
+			{
+				$arFields["ELEMENT_ID"] = [
+					"FIELD" => "CP.PRODUCT_ID",
+					"TYPE" => "int",
+				];
+			}
+		}
 
 		if (!is_array($arOrder))
 		{

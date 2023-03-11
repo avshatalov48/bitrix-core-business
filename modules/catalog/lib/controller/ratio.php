@@ -19,9 +19,21 @@ final class Ratio extends Controller
 		return ['RATIO' => $this->getViewFields()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	/**
+	 * @param $select
+	 * @param $filter
+	 * @param $order
+	 * @param PageNavigation $pageNavigation
+	 * @return Page
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\NotImplementedException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		return new Page('RATIOS',
+		return new Page(
+			'RATIOS',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

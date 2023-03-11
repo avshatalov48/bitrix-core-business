@@ -23,14 +23,14 @@ final class ProductPropertySection extends ProductPropertyBase
 	 * @param array $order
 	 * @param PageNavigation $pageNavigation
 	 * @return Page
-	 * @noinspection PhpOptionalBeforeRequiredParametersInspection
 	 */
-	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
 		$filter['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
 		$order = empty($order) ? ['IBLOCK_ID' => 'ASC'] : $order;
 
-		return new Page('PRODUCT_PROPERTY_SECTIONS',
+		return new Page(
+			'PRODUCT_PROPERTY_SECTIONS',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

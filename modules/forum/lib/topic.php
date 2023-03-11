@@ -748,7 +748,6 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 		/***************** /Event ******************************************/
 
 		Forum\Internals\MessageCleaner::runForTopic($id);
-		Forum\FileTable::deleteBatch(['TOPIC_ID' => $id]);
 		Main\Application::getConnection()->queryExecute("DELETE FROM b_forum_subscribe WHERE TOPIC_ID = ".$id);
 		Main\Application::getConnection()->queryExecute("DELETE FROM b_forum_message WHERE TOPIC_ID = ".$id);
 		Main\Application::getConnection()->queryExecute("DELETE FROM b_forum_user_topic WHERE TOPIC_ID = ".$id);

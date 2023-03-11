@@ -14,77 +14,82 @@ class FieldType
 	/**
 	 * Base type BOOL
 	 */
-	const BOOL = 'bool';
+	public const BOOL = 'bool';
 
 	/**
 	 * Base type DATE
 	 */
-	const DATE = 'date';
+	public const DATE = 'date';
 
 	/**
 	 * Base type DATETIME
 	 */
-	const DATETIME = 'datetime';
+	public const DATETIME = 'datetime';
 
 	/**
 	 * Base type DOUBLE
 	 */
-	const DOUBLE = 'double';
+	public const DOUBLE = 'double';
 
 	/**
 	 * Base type FILE
 	 */
-	const FILE = 'file';
+	public const FILE = 'file';
 
 	/**
 	 * Base type INT
 	 */
-	const INT = 'int';
+	public const INT = 'int';
 
 	/**
 	 * Base type SELECT
 	 */
-	const SELECT = 'select';
+	public const SELECT = 'select';
 
 	/**
 	 * Base type INTERNALSELECT
 	 */
-	const INTERNALSELECT = 'internalselect';
+	public const INTERNALSELECT = 'internalselect';
 
 	/**
 	 * Base type STRING
 	 */
-	const STRING = 'string';
+	public const STRING = 'string';
 
 	/**
 	 * Base type TEXT
 	 */
-	const TEXT = 'text';
+	public const TEXT = 'text';
 
 	/**
 	 * Base type USER
 	 */
-	const USER = 'user';
+	public const USER = 'user';
+
+	/**
+	 * Base type TIME
+	 */
+	public const TIME = 'time';
 
 	/**
 	 * Control render mode - Bizproc Designer
 	 */
-	const RENDER_MODE_DESIGNER = 1;
+	public const RENDER_MODE_DESIGNER = 1;
 
 	/**
 	 * Control render mode - Admin panel
 	 */
-	const RENDER_MODE_ADMIN = 2;
+	public const RENDER_MODE_ADMIN = 2;
 
 	/**
 	 * Control render mode - Mobile application
 	 */
-	const RENDER_MODE_MOBILE = 4;
+	public const RENDER_MODE_MOBILE = 4;
 
 	/**
 	 * Control render mode - Automation designer
 	 */
-	const RENDER_MODE_PUBLIC = 8;
+	public const RENDER_MODE_PUBLIC = 8;
 
 	/** @var \Bitrix\Bizproc\BaseType\Base $typeClass */
 	protected $typeClass;
@@ -478,12 +483,52 @@ class FieldType
 			static::TEXT => BaseType\Text::class,
 			static::USER => BaseType\User::class,
 			static::INTERNALSELECT => BaseType\InternalSelect::class,
+			static::TIME => BaseType\Time::class,
 		);
 	}
 
 	public static function isBaseType(string $type): bool
 	{
 		return array_key_exists($type, static::getBaseTypesMap());
+	}
+
+	public static function convertUfType(string $type): ?string
+	{
+		$bpType = null;
+		switch ($type)
+		{
+			case 'string':
+			case 'datetime':
+			case 'date':
+			case 'double':
+			case 'file':
+				$bpType = $type;
+				break;
+			case 'integer':
+				$bpType = 'int';
+				break;
+			case 'boolean':
+				$bpType = 'bool';
+				break;
+			case 'employee':
+				$bpType = 'user';
+				break;
+			case 'enumeration':
+				$bpType = 'select';
+				break;
+			case 'money':
+			case 'url':
+			case 'address':
+			case 'resourcebooking':
+			case 'crm_status':
+			case 'iblock_section':
+			case 'iblock_element':
+			case 'crm':
+				$bpType = "UF:{$type}";
+				break;
+		}
+
+		return $bpType;
 	}
 
 	/**

@@ -55,12 +55,16 @@ class CIBlockSection extends CAllIBlockSection
 			unset($userFieldsSelect);
 		}
 
+		$useSubsections = !(isset($arFilter["ELEMENT_SUBSECTIONS"]) && $arFilter["ELEMENT_SUBSECTIONS"]=="N");
+		$allElements = (isset($arFilter['CNT_ALL']) && $arFilter['CNT_ALL'] == 'Y');
+		$activeElements = (isset($arFilter['CNT_ACTIVE']) && $arFilter['CNT_ACTIVE'] == 'Y');
+
 		$arJoinProps = array();
 		$bJoinFlatProp = false;
 
 		$arSqlSearch = CIBlockSection::GetFilter($arFilter);
 
-		$bCheckPermissions = !array_key_exists("CHECK_PERMISSIONS", $arFilter) || $arFilter["CHECK_PERMISSIONS"]!=="N";
+		$bCheckPermissions = !(isset($arFilter["CHECK_PERMISSIONS"]) && $arFilter["CHECK_PERMISSIONS"] === "N");
 		$bIsAdmin = is_object($USER) && $USER->IsAdmin();
 		$permissionsBy = null;
 		if ($bCheckPermissions && isset($arFilter['PERMISSIONS_BY']))
@@ -343,8 +347,8 @@ class CIBlockSection extends CAllIBlockSection
 						LEFT JOIN b_iblock_element BE ON (BSE.IBLOCK_ELEMENT_ID=BE.ID
 							AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
 							AND BE.IBLOCK_ID = BS.IBLOCK_ID
-					".($arFilter["CNT_ALL"]=="Y"?" OR BE.WF_NEW='Y' ":"").")
-					".($arFilter["CNT_ACTIVE"]=="Y"?
+					".($allElements ?" OR BE.WF_NEW='Y' ":"").")
+					".($activeElements ?
 						" AND BE.ACTIVE='Y'
 						AND (BE.ACTIVE_TO >= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_TO IS NULL)
 						AND (BE.ACTIVE_FROM <= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_FROM IS NULL)"
@@ -368,7 +372,7 @@ class CIBlockSection extends CAllIBlockSection
 				FROM b_iblock_section BS
 					INNER JOIN b_iblock B ON BS.IBLOCK_ID = B.ID
 					".(isset($obUserFieldsSql)? $obUserFieldsSql->GetJoin("BS.ID"): "")."
-				".($arFilter["ELEMENT_SUBSECTIONS"]=="N"?
+				".(!$useSubsections ?
 					"	LEFT JOIN b_iblock_section_element BSE ON BSE.IBLOCK_SECTION_ID=BS.ID "
 				:
 					"	INNER JOIN b_iblock_section BSTEMP ON BSTEMP.IBLOCK_ID = BS.IBLOCK_ID
@@ -377,22 +381,22 @@ class CIBlockSection extends CAllIBlockSection
 					LEFT JOIN b_iblock_element BE ON (BSE.IBLOCK_ELEMENT_ID=BE.ID
 						AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
 						AND BE.IBLOCK_ID = BS.IBLOCK_ID
-				".($arFilter["CNT_ALL"]=="Y"?" OR BE.WF_NEW='Y' ":"").")
-				".($arFilter["CNT_ACTIVE"]=="Y"?
+				".($allElements ?" OR BE.WF_NEW='Y' ":"").")
+				".($activeElements?
 					" AND BE.ACTIVE='Y'
 					AND (BE.ACTIVE_TO >= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_TO IS NULL)
 					AND (BE.ACTIVE_FROM <= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_FROM IS NULL)"
 				:"").")
 					".$strProp1."
 				WHERE 1=1
-				".($arFilter["ELEMENT_SUBSECTIONS"]=="N"
+				".(!$useSubsections
 				?
 					"	"
 				:
 					"	AND BSTEMP.IBLOCK_ID = BS.IBLOCK_ID
 						AND BSTEMP.LEFT_MARGIN >= BS.LEFT_MARGIN
 						AND BSTEMP.RIGHT_MARGIN <= BS.RIGHT_MARGIN
-						".($arFilter["CNT_ACTIVE"]=="Y"? "AND BSTEMP.GLOBAL_ACTIVE = 'Y'": "")."
+						".($activeElements ? "AND BSTEMP.GLOBAL_ACTIVE = 'Y'": "")."
 					"
 				)."
 				".$strSqlSearch."

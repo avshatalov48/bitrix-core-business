@@ -122,4 +122,4 @@ $MESS["SPS_FISCALIZATION_TAB"] = "Фискализация";
 $MESS["SPS_FISCALIZATION_TAB_TITLE"] = "Настройка кассы";
 $MESS["SPS_FISCALIZATION_TAB_CASHBOXROBOKASSA"] = "Робочеки";
 $MESS["SPS_FISCALIZATION_TAB_TITLE_CASHBOXROBOKASSA"] = "Настройка Робочеков";
-?>
+$MESS['SPSN_NOT_FOUND_PAYSYSTEM'] = 'Платежная система не найдена';

@@ -556,7 +556,7 @@ class CSecurityAntiVirus
 
 		$arData = preg_split("/(<script.*?>.*?<\\/script.*?>|<iframe.*?>.*?<\\/iframe.*?>)/is", $content, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		$cData = count($arData);
+		$cData = is_array($arData) ? count($arData) : 0;
 
 		if($cData < 2)
 			return;

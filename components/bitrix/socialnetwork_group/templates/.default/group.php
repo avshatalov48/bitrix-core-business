@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -10,6 +10,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
+
 /** @global CMain $APPLICATION */
 
 $component = $this->getComponent();
@@ -97,12 +98,10 @@ $componentParams = [
 include('util_copy_blog.php');
 include('util_copy_landing.php');
 include('util_group_menu.php');
-
 if (SITE_TEMPLATE_ID === 'bitrix24')
 {
 	include('util_group_blog_menu.php');
 }
-
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',

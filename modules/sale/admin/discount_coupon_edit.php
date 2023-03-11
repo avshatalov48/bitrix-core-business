@@ -398,22 +398,25 @@ if (!$multiCoupons && $couponID > 0)
 if ($couponID == 0)
 	$coupon = $defaultValues;
 
-if (!$multiCoupons)
+if (!empty($coupon))
 {
-	$coupon['DISCOUNT_NAME'] = (string)$coupon['DISCOUNT_NAME'];
-	$coupon['DISCOUNT_ID'] = (int)$coupon['DISCOUNT_ID'];
-	$coupon['TYPE'] = (int)$coupon['TYPE'];
-	$coupon['USE_COUNT'] = (int)$coupon['USE_COUNT'];
-	$coupon['MAX_USE'] = (int)$coupon['MAX_USE'];
-	$coupon['USER_ID'] = (int)$coupon['USER_ID'];
-	$coupon['DESCRIPTION'] = (string)$coupon['DESCRIPTION'];
-}
-else
-{
-	$coupon['COUNT'] = (int)$coupon['COUNT'];
-	$coupon['COUPON']['DISCOUNT_ID'] = (int)$coupon['COUPON']['DISCOUNT_ID'];
-	$coupon['COUPON']['TYPE'] = (int)$coupon['COUPON']['TYPE'];
-	$coupon['COUPON']['MAX_USE'] = (int)$coupon['COUPON']['MAX_USE'];
+	if (!$multiCoupons)
+	{
+		$coupon['DISCOUNT_NAME'] = (string)($coupon['DISCOUNT_NAME'] ?? '');
+		$coupon['DISCOUNT_ID'] = (int)($coupon['DISCOUNT_ID'] ?? 0);
+		$coupon['TYPE'] = (int)($coupon['TYPE'] ?? 0);
+		$coupon['USE_COUNT'] = (int)($coupon['USE_COUNT'] ?? 0);
+		$coupon['MAX_USE'] = (int)($coupon['MAX_USE'] ?? 0);
+		$coupon['USER_ID'] = (int)($coupon['USER_ID'] ?? 0);
+		$coupon['DESCRIPTION'] = (string)($coupon['DESCRIPTION'] ?? '');
+	}
+	else
+	{
+		$coupon['COUNT'] = (int)($coupon['COUNT'] ?? 0);
+		$coupon['COUPON']['DISCOUNT_ID'] = (int)($coupon['COUPON']['DISCOUNT_ID'] ?? 0);
+		$coupon['COUPON']['TYPE'] = (int)($coupon['COUPON']['TYPE'] ?? 0);
+		$coupon['COUPON']['MAX_USE'] = (int)($coupon['COUPON']['MAX_USE'] ?? 0);
+	}
 }
 
 if (!empty($errors))

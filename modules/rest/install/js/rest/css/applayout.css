@@ -2,6 +2,7 @@
 {
 	width: 100%;
 	height: 100%;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .app-frame-layout
@@ -17,6 +18,7 @@
 	-ms-transition: opacity 0.25s ease-in;
 	-o-transition: opacity 0.25s ease-in;
 	transition: opacity 0.25s ease-in;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .app-loading
@@ -24,18 +26,27 @@
 	opacity: 0;
 }
 
-.app-loading-msg
-{
-	background: url("/bitrix/js/main/core/images/wait-big.gif") no-repeat scroll center center transparent;;
-	color: #555555;
-	height: 300px;
-	width: 100%;
+.app-loading-msg:before {
+	display: inline-block;
+	content: '';
+	min-width: 29px;
+	min-height: 29px;
+	background: url(/bitrix/js/main/core/images/wait-big.gif) no-repeat scroll center center transparent;
+	margin-right: 10px;
+}
+
+.app-loading-msg {
+	color: #555;
 	font-size: 20px;
-	text-align: center;
-	margin-top: -600px;
-	padding-top: 100px;
-	position: relative;
+	position: absolute;
 	z-index: 1;
+	left: 10px;
+	right: 10px;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .app-expand-popup .app-loading-msg

@@ -35,7 +35,7 @@ if(!isset($by))
 if(!isset($order))
 	$order = 'ASC';
 
-$groupId = intval(isset($filter_group) && (isset($apply_filter) ||  $apply_filter == 'Y') ? $filter_group : -1);
+$groupId = isset($filter_group) && (empty($apply_filter) || $apply_filter === 'Y') ? $filter_group : -1;
 
 $handlersList = \Bitrix\Sale\Delivery\Services\Manager::getHandlersList();
 $listTypes = array();
@@ -228,7 +228,7 @@ if(\Bitrix\Main\Loader::includeModule('catalog'))
 }
 
 $siteId = "";
-if ($filter["LID"] <> '')
+if (!empty($filter["LID"]))
 {
 	$siteId = $filter["LID"];
 	unset($filter["LID"]);

@@ -92,18 +92,18 @@ class PropertyRelation extends ControllerBase
 		}
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['PROPERTY_ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*']:$select;
+		$order = empty($order) ? ['PROPERTY_ID'=>'ASC']:$order;
 
 		$items = $this->getEntityTable()::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 

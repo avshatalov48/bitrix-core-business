@@ -407,7 +407,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 			return $this->getReplaced($this->getPage('import_rollback'), $replace, $subject);
 		}
 
-		public function getImportZip($zipId)
+		public function getImportZip($zipId, $from)
 		{
 			$replace = [
 				'#ZIP_ID#'
@@ -415,8 +415,9 @@ namespace Bitrix\Rest\Marketplace\Urls
 			$subject = [
 				(int) $zipId
 			];
+			$url = $this->getReplaced($this->getPage('import_zip'), $replace, $subject);
 
-			return $this->getReplaced($this->getPage('import_zip'), $replace, $subject);
+			return $this->addUrlFrom($url, $from);
 		}
 
 		public function getExport($manifestCode = null)
@@ -569,9 +570,9 @@ namespace Bitrix\Rest\Marketplace
 			return Configuration::getInstance()->getImportRollback($appCode);
 		}
 
-		public static function getConfigurationImportZipUrl($zipId)
+		public static function getConfigurationImportZipUrl($zipId, $from = '')
 		{
-			return Configuration::getInstance()->getImportZip($zipId);
+			return Configuration::getInstance()->getImportZip($zipId, $from);
 		}
 
 		public static function getConfigurationExportUrl($manifestCode = null)

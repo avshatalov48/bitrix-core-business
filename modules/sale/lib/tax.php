@@ -137,7 +137,7 @@ class Tax
 		$taxResult = array();
 
 		$taxList = $this->getTaxList();
-		
+
 		$taxExempt = static::loadExemptList($order->getUserId());
 
 		$fields = array(
@@ -178,7 +178,7 @@ class Tax
 		$className = static::getTaxClassName();
 		$className::calculateTax($fields, array());
 
-		if (!$order->isUsedVat() && is_array($fields['TAX_LIST']))
+		if (!$order->isUsedVat() && isset($fields['TAX_LIST']) && is_array($fields['TAX_LIST']))
 		{
 			$taxResult['TAX_LIST'] = $fields['TAX_LIST'];
 		}
@@ -228,7 +228,7 @@ class Tax
 		{
 			throw new Main\ObjectNotFoundException('Entity "Order" not found');
 		}
-		
+
 		if ($order->getId() > 0 || (!empty($this->list) && is_array($this->list)))
 		{
 			$taxList = $this->getTaxList();

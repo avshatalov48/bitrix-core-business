@@ -379,9 +379,9 @@ while($arRes = $rsData->GetNext())
 {
 	$index = ($get_xml_id ? $arRes["XML_ID"]: $arRes["ID"]);
 
-	$arRes["MODIFIED_BY"] = (int)$arRes["MODIFIED_BY"];
-	$arRes["CREATED_BY"] = (int)$arRes["CREATED_BY"];
-	$arRes["WF_LOCKED_BY"] = (int)$arRes["WF_LOCKED_BY"];
+	$arRes["MODIFIED_BY"] = (int)($arRes["MODIFIED_BY"] ?? 0);
+	$arRes["CREATED_BY"] = (int)($arRes["CREATED_BY"] ?? 0);
+	$arRes["WF_LOCKED_BY"] = (int)($arRes["WF_LOCKED_BY"] ?? 0);
 	foreach($arSelectedProps as $aProp)
 	{
 		if($arRes["PROPERTY_".$aProp['ID'].'_ENUM_ID']>0)

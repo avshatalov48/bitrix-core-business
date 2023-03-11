@@ -74,18 +74,18 @@ class BasketProperties extends Controller
 		)];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
 
 		$items = \Bitrix\Sale\Internals\BasketPropertyTable::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 

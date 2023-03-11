@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Forum\Internals;
 
 use \Bitrix\Main;
@@ -6,10 +7,10 @@ use \Bitrix\Forum;
 
 class MessageCleaner extends Main\Update\Stepper
 {
-	protected static $limit = 10;
+	protected static int $limit = 10;
 	protected static $moduleId = "forum";
 
-	public static function getTitle()
+	public static function getTitle(): string
 	{
 		return 'Message cleaner';
 	}
@@ -29,7 +30,7 @@ class MessageCleaner extends Main\Update\Stepper
 	{
 		$limit = self::$limit;
 		$dbRes = Main\Application::getConnection()->query(<<<SQL
-SELECT * 
+SELECT ID, FORUM_ID, TOPIC_ID, MESSAGE_ID, NEW_TOPIC, APPROVED, PARAM1, PARAM2, AUTHOR_ID
 FROM b_forum_service_deleted_message
 ORDER BY ID ASC
 LIMIT {$limit}
@@ -38,15 +39,31 @@ SQL
 		$votes = [];
 		global $USER_FIELD_MANAGER;
 		$last = null;
-		while ($res = $dbRes->fetch())
+		while ($message = $dbRes->fetch())
 		{
-			if ($res["PARAM1"] == 'VT')
+			if ($message["PARAM1"] == 'VT')
 			{
-				$votes[] = $res["PARAM2"];
+				$votes[] = $message["PARAM2"];
 			}
-			$USER_FIELD_MANAGER->Delete("FORUM_MESSAGE", $res["ID"]);
+
+			$selectSql = "SELECT * FROM b_forum_file where MESSAGE_ID=" . intval($message['MESSAGE_ID']) . " ORDER BY ID ASC";
+
+			$dbFileRes = Main\Application::getConnection()->query($selectSql);
+
+			if ($dbFileRes && ($file = $dbFileRes->fetch()))
+			{
+				do
+				{
+					\CFile::Delete($file["FILE_ID"]);
+				}
+				while ($file = $dbFileRes->fetch());
+				$deleteSql = "DELETE FROM b_forum_file where MESSAGE_ID=" . intval($message['MESSAGE_ID']);
+				Main\Application::getConnection()->queryExecute($deleteSql);
+			}
+
+			$USER_FIELD_MANAGER->Delete("FORUM_MESSAGE", $message["MESSAGE_ID"]);
 			$limit--;
-			$last = $res;
+			$last = $message;
 		}
 
 		if (!empty($votes) && IsModuleInstalled("vote") && \CModule::IncludeModule("vote"))

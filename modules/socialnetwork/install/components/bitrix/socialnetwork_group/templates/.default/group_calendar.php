@@ -1,9 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
-};
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var CBitrixComponent $component */
@@ -11,9 +11,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
+
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\Application;
+
 $pageId = "group_calendar";
+
 include("util_group_menu.php");
 include("util_group_profile.php");
 
@@ -35,10 +39,10 @@ if (
 		$APPLICATION->IncludeComponent(
 			"bitrix:ui.sidepanel.wrapper",
 			"",
-			array(
+			[
 				'POPUP_COMPONENT_NAME' => "bitrix:calendar.grid",
 				"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-				"POPUP_COMPONENT_PARAMS" => array(
+				"POPUP_COMPONENT_PARAMS" => [
 					"CALENDAR_TYPE" => 'group',
 					"OWNER_ID" => $ownerId,
 					"ALLOW_SUPERPOSE" => $arParams['CALENDAR_ALLOW_SUPERPOSE'],
@@ -50,29 +54,32 @@ if (
 					'PATH_TO_COMPANY_DEPARTMENT' => $arParams['PATH_TO_CONPANY_DEPARTMENT'],
 					'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
 					'PATH_TO_USER_TASK' => $arResult["PATH_TO_USER_TASKS_TASK"],
-					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"]
-				),
+					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"],
+				],
 				"POPUP_COMPONENT_PARENT" => $component,
 				'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 				'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 				'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
 				'USE_PADDING' => false,
 				'USE_UI_TOOLBAR' => 'Y',
-				'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''),
-			)
+				'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => (isset($arParams['HIDE_OWNER_IN_TITLE'])
+				&& $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''),
+			]
 		);
 
-		$APPLICATION->SetPageProperty('FavoriteTitleTemplate', (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''));
+		$APPLICATION->SetPageProperty('FavoriteTitleTemplate',
+			(isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y'
+				? $arResult['PAGES_TITLE_TEMPLATE'] : ''));
 	}
 	else
 	{
 		$APPLICATION->IncludeComponent(
 			"bitrix:ui.sidepanel.wrapper",
 			"",
-			array(
+			[
 				'POPUP_COMPONENT_NAME' => "bitrix:intranet.event_calendar",
 				"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-				"POPUP_COMPONENT_PARAMS" => array(
+				"POPUP_COMPONENT_PARAMS" => [
 					"IBLOCK_TYPE" => $arParams['CALENDAR_IBLOCK_TYPE'],
 					"IBLOCK_ID" => $arParams['CALENDAR_GROUP_IBLOCK_ID'],
 					"OWNER_ID" => $ownerId,
@@ -111,13 +118,13 @@ if (
 					"PATH_TO_VIDEO_MEETING" => $arParams["CALENDAR_PATH_TO_VIDEO_MEETING"],
 					"PATH_TO_VIDEO_MEETING_DETAIL" => $arParams["CALENDAR_PATH_TO_VIDEO_MEETING_DETAIL"],
 					"VIDEO_MEETING_USERGROUPS" => $arParams["CALENDAR_VIDEO_MEETING_USERGROUPS"],
-				),
+				],
 				"POPUP_COMPONENT_PARENT" => $component,
 				'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 				'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 				'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
 				'USE_UI_TOOLBAR' => 'Y',
-			)
+			]
 		);
 	}
 }

@@ -229,7 +229,10 @@ abstract class CBPActivity
 		{
 			foreach ($rootActivity->arVariablesTypes as $key => $value)
 			{
-				if ($rootActivity->arFieldTypes[$value["Type"]]["BaseType"] == "file")
+				if (
+					isset($rootActivity->arFieldTypes[$value["Type"]])
+					&& $rootActivity->arFieldTypes[$value["Type"]]["BaseType"] === "file"
+				)
 				{
 					foreach ((array) $rootActivity->arVariables[$key] as $v)
 					{
@@ -457,7 +460,7 @@ abstract class CBPActivity
 		$stateService->SetStateTitle($this->GetWorkflowInstanceId(), $result);
 	}
 
-	private function getPropertyValueRecursive($val, $convertToType = null)
+	private function getPropertyValueRecursive($val, $convertToType = null, ?callable $decorator = null)
 	{
 		// array(2, 5, array("SequentialWorkflowActivity1", "DocumentApprovers"))
 		// array("Document", "IBLOCK_ID")
@@ -470,7 +473,13 @@ abstract class CBPActivity
 			$result = null;
 			if ($convertToType)
 				$parsed['modifiers'][] = $convertToType;
-			$this->GetRealParameterValue($parsed['object'], $parsed['field'], $result, $parsed['modifiers']);
+			$this->getRealParameterValue(
+				$parsed['object'],
+				$parsed['field'],
+				$result,
+				$parsed['modifiers'],
+				$decorator
+			);
 			return array(1, $result);
 		}
 		elseif (is_array($val))
@@ -493,7 +502,7 @@ abstract class CBPActivity
 
 			foreach ($keys as $key)
 			{
-				[$t, $a] = $this->GetPropertyValueRecursive($val[$key], $convertToType);
+				[$t, $a] = $this->GetPropertyValueRecursive($val[$key], $convertToType, $decorator);
 				if ($b)
 				{
 					if ($t == 1 && is_array($a))
@@ -514,7 +523,7 @@ abstract class CBPActivity
 				{
 					$result = null;
 					$modifiers = $convertToType ? array($convertToType) : array();
-					if ($this->GetRealParameterValue($r[0], $r[1], $result, $modifiers))
+					if ($this->GetRealParameterValue($r[0], $r[1], $result, $modifiers, $decorator))
 						return array(1, $result);
 				}
 			}
@@ -544,7 +553,7 @@ abstract class CBPActivity
 					}
 				}
 
-				$calc = new CBPCalc($this);
+				$calc = new Bizproc\Calc\Parser($this);
 				if (preg_match(self::CalcPattern, $val))
 				{
 					$r = $calc->Calculate($val);
@@ -576,7 +585,7 @@ abstract class CBPActivity
 				//parse properties
 				$val = preg_replace_callback(
 					static::ValueInlinePattern,
-					array($this, "ParseStringParameter"),
+					fn($matches) => $this->parseStringParameter($matches, $convertToType, $decorator),
 					$val
 				);
 
@@ -591,7 +600,13 @@ abstract class CBPActivity
 		}
 	}
 
-	private function getRealParameterValue($objectName, $fieldName, &$result, array $modifiers = null)
+	private function getRealParameterValue(
+		$objectName,
+		$fieldName,
+		&$result,
+		array $modifiers = null,
+		?callable $decorator = null
+	)
 	{
 		$return = true;
 		$property = null;
@@ -767,7 +782,14 @@ abstract class CBPActivity
 		}
 
 		if ($return)
+		{
 			$result = $this->applyPropertyValueModifiers($fieldName, $property, $result, $modifiers);
+
+			if ($decorator)
+			{
+				$result = $decorator($objectName, $fieldName, $property, $result);
+			}
+		}
 		return $return;
 	}
 
@@ -839,7 +861,10 @@ abstract class CBPActivity
 		if (empty($property) || empty($modifiers) || !is_array($property))
 			return $value;
 
-		$typeName = $typeClass = $format = null;
+		$typeName = null;
+		$typeClass = null;
+		$format = null;
+		$modifiers = array_slice($modifiers, 0, 2);
 
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
@@ -862,6 +887,8 @@ abstract class CBPActivity
 			}
 		}
 
+		$priority = $format && array_search($format, $modifiers) === 0 ? 'format' : 'type';
+
 		if ($typeName === \Bitrix\Bizproc\FieldType::STRING && $format === 'printable')
 		{
 			$typeClass = null;
@@ -874,10 +901,21 @@ abstract class CBPActivity
 			if ($fieldTypeObject)
 			{
 				$fieldTypeObject->setDocumentId($documentId);
-				if ($typeClass)
-					$value = $fieldTypeObject->convertValue($value, $typeClass);
-				if ($format)
+
+				if ($format && $priority === 'format')
+				{
 					$value = $fieldTypeObject->formatValue($value, $format);
+				}
+
+				if ($typeClass)
+				{
+					$value = $fieldTypeObject->convertValue($value, $typeClass);
+				}
+
+				if ($format && $priority !== 'format')
+				{
+					$value = $fieldTypeObject->formatValue($value, $format);
+				}
 			}
 			elseif ($format == 'printable') // compatibility: old printable style
 			{
@@ -893,25 +931,38 @@ abstract class CBPActivity
 					$value = implode(", ", CBPHelper::MakeArrayFlat($value));
 			}
 		}
+
 		return $value;
 	}
 
-	private function parseStringParameter($matches)
+	private function parseStringParameter($matches, $convertToType = null, ?callable $decorator = null)
 	{
 		$result = "";
-		$modifiers = array();
+		$modifiers = [];
 		if (!empty($matches['mod1']))
+		{
 			$modifiers[] = $matches['mod1'];
+		}
 		if (!empty($matches['mod2']))
+		{
 			$modifiers[] = $matches['mod2'];
+		}
+		if ($convertToType)
+		{
+			$modifiers[] = $convertToType;
+		}
 
 		if (empty($modifiers))
+		{
 			$modifiers[] = \Bitrix\Bizproc\FieldType::STRING;
+		}
 
-		if ($this->GetRealParameterValue($matches['object'], $matches['field'], $result, $modifiers))
+		if ($this->getRealParameterValue($matches['object'], $matches['field'], $result, $modifiers, $decorator))
 		{
 			if (is_array($result))
+			{
 				$result = implode(", ", CBPHelper::MakeArrayFlat($result));
+			}
 		}
 		else
 		{
@@ -921,9 +972,9 @@ abstract class CBPActivity
 		return $result;
 	}
 
-	public function parseValue($value, $convertToType = null)
+	public function parseValue($value, $convertToType = null, ?callable $decorator = null)
 	{
-		[$t, $r] = $this->GetPropertyValueRecursive($value, $convertToType);
+		[$t, $r] = $this->getPropertyValueRecursive($value, $convertToType, $decorator);
 		return $r;
 	}
 
@@ -1360,6 +1411,11 @@ abstract class CBPActivity
 		$trackingService->Write($this->GetWorkflowInstanceId(), $trackingType, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""), $message, $modifiedBy);
 	}
 
+	protected function trackError(string $errorMsg)
+	{
+		$this->writeToTrackingService($errorMsg, 0, \CBPTrackingType::Error);
+	}
+
 	protected function getDebugInfo(array $values = [], array $map = []): array
 	{
 		if (count($map) <= 0)
@@ -1439,14 +1495,14 @@ abstract class CBPActivity
 				$this->getName(),
 				$this->executionStatus,
 				$this->executionResult,
-				$this->getActivityTitle(),
+				$this->getTitle(),
 				$this->preparePropertyForWritingToTrack($value, $property['Name'] ?? ''),
 				$property['TrackType'] ?? \CBPTrackingType::Debug
 			);
 		}
 	}
 
-	private function getActivityTitle(): string
+	protected function getTitle(): string
 	{
 		$activityTitle = $this->isPropertyExists('Title') ? $this->Title : '';
 

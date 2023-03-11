@@ -10,6 +10,7 @@ namespace Bitrix\Rest\OAuth;
 
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main;
 
 class Engine
 {
@@ -58,8 +59,18 @@ class Engine
 
 	public function setAccess(array $accessParams)
 	{
-		Option::set("rest", "service_client_id", $accessParams["client_id"]);
-		Option::set("rest", "service_client_secret", $accessParams["client_secret"]);
+		$connection = Main\Application::getInstance()->getConnection();
+		$connection->startTransaction();
+		try
+		{
+			Option::set("rest", "service_client_id", $accessParams["client_id"]);
+			Option::set("rest", "service_client_secret", $accessParams["client_secret"]);
+			$connection->commitTransaction();
+		}
+		catch (Main\ArgumentNullException $e)
+		{
+			$connection->rollbackTransaction();
+		}
 
 		$this->client = null;
 	}

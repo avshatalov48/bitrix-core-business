@@ -181,6 +181,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			'IMPORT_MANIFEST_FILE' => [],
 			'MANIFEST' => [],
 			'MANIFEST_CODE' => '',
+			'FROM' => $this->arParams['FROM'] ?? '',
 		];
 		$title = '';
 

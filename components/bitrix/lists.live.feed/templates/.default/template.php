@@ -58,7 +58,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 		BX.Lists['LiveFeedClass_<?= $arResult['RAND_STRING']?>'] = new BX.Lists.LiveFeedClass({
 			socnetGroupId: '<?= $arResult['SOCNET_GROUP_ID'] ?>',
 			randomString: '<?= $arResult['RAND_STRING'] ?>',
-			listData: <?= \Bitrix\Main\Web\Json::encode($arResult['LIST_DATA']) ?>
+			listData: <?= \Bitrix\Main\Web\Json::encode($arResult['LIST_DATA'] ?? null) ?>
 		});
 		BX.bind(BX('bx-lists-settings-btn'), 'click', function(e) {
 			BX.Lists['LiveFeedClass_<?= $arResult['RAND_STRING']?>'].createSettingsDropdown(e);

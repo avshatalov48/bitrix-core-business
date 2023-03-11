@@ -10,6 +10,7 @@ namespace Bitrix\Socialnetwork\Integration\Main\UIFilter;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Component\WorkgroupList;
 
 Loc::loadMessages(__FILE__);
 
@@ -19,24 +20,39 @@ class Workgroup
 	{
 		$result = [];
 
-		$currentUserId = (int)($params['currentUserId'] ?? 0);
-		$mode = (string)($params['mode'] ?? '');
+		$currentUserId = (int) ($params['currentUserId'] ?? 0);
+		$contextUserId = (int) ($params['contextUserId'] ?? 0);
+		$mode = (string) ($params['mode'] ?? '');
+
+		$renderPartsUser = new \Bitrix\Socialnetwork\Livefeed\RenderParts\User(['skipLink' => true]);
 
 		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y')
 		{
+			$activeFields = [
+				'CLOSED' => 'N',
+			];
+
+			if ($mode === WorkgroupList::MODE_USER && $currentUserId !== $contextUserId)
+			{
+				$userLabel = '';
+				if ($renderData = $renderPartsUser->getData($contextUserId))
+				{
+					$userLabel = $renderData['name'];
+				}
+				$activeFields['MEMBER'] = 'U' . $contextUserId;
+				$activeFields['MEMBER_label'] = $userLabel;
+			}
+
 			$result['active'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_ACTIVE'),
-				'fields' => [
-					'CLOSED' => 'N',
-				],
-				'default' => ($mode === ''),
+				'fields' => $activeFields,
+				'default' => ($mode === WorkgroupList::MODE_COMMON),
 			];
 		}
 
 		if ($currentUserId > 0)
 		{
 			$userLabel = '';
-			$renderPartsUser = new \Bitrix\Socialnetwork\Livefeed\RenderParts\User([ 'skipLink' => true ]);
 			if ($renderData = $renderPartsUser->getData($currentUserId))
 			{
 				$userLabel = $renderData['name'];
@@ -48,7 +64,15 @@ class Workgroup
 					'MEMBER' => 'U' . $currentUserId,
 					'MEMBER_label' => $userLabel,
 				],
-				'default' => (in_array($mode, \Bitrix\Socialnetwork\Component\WorkgroupList::getTasksModeList(), true)),
+				'disallow_for_all' => true,
+				'default' => (
+					$mode === WorkgroupList::MODE_USER
+					|| in_array(
+						$mode,
+						WorkgroupList::getTasksModeList(),
+						true
+					)
+				),
 			];
 			$result['favorites'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_FAVORITES'),

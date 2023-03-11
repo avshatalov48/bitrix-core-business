@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -12,11 +12,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-use Bitrix\Main\Loader;
-use Bitrix\Blog\Copy\Integration\Group;
-
 $pageId = "group_general";
 $blogPageId = '';
+
 include("util_group_menu.php");
 include("util_copy_blog.php");
 

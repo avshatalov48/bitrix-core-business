@@ -46,6 +46,7 @@ $APPLICATION->IncludeComponent(
 			'ACTION_NAME' => 'save',
 			'SIGNED_PARAMETERS' => $component->getSignedParameters(),
 		],
+		'DISABLED_HTML_CONTROLS' => $arResult['DISABLED_HTML_CONTROLS'],
 	],
 	$component
 );

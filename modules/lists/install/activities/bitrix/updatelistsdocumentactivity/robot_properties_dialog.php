@@ -82,27 +82,27 @@ $docType = $dialog->getMap()['DocumentType'];
 					return;
 				}
 
-				BX.ajax({
-					method: 'POST',
-					dataType: 'json',
-					url: '/bitrix/tools/bizproc_activity_ajax.php',
-					data:  {
-						'site_id': BX.message('SITE_ID'),
-						'sessid' : BX.bitrix_sessid(),
-						'document_type' : <?=Cutil::PhpToJSObject($dialog->getDocumentType())?>,
-						'activity': 'UpdateListsDocumentActivity',
-						'lists_document_type': documentType,
-						'form_name': <?=Cutil::PhpToJSObject($formName)?>
-					},
-					onsuccess: function(response)
+				BX.ajax.runAction(
+					'bizproc.activity.request',
 					{
-						if (response)
-						{
-							fields = response.fields;
-							BX.show(addFieldButton, 'table-row');
+						data: {
+							documentType: <?= Cutil::PhpToJSObject($dialog->getDocumentType()) ?>,
+							activity: 'UpdateListsDocumentActivity',
+							params: {
+								lists_document_type: documentType,
+								form_name: <?= Cutil::PhpToJSObject($dialog->getFormName()) ?>,
+							}
 						}
 					}
-				});
+				).then(
+					(response) => {
+						fields = response.data.fields;
+						BX.show(addFieldButton, 'table-row');
+					},
+					(response) => {
+						BX.UI.Dialogs.MessageBox.alert(response.errors[0].message);
+					}
+				);
 			}
 		);
 

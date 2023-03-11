@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Debugger;
 
+use Bitrix\Bizproc\Automation\Engine\Template;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Engine\CurrentUser;
 
@@ -24,9 +25,34 @@ class Listener
 
 	public function onWorkflowEventAdded(string $workflowId, string $eventName)
 	{
+		$session = Session\Manager::getActiveSession();
+		$template = null;
+		foreach ($session->getWorkflowContexts() as $workflowContext)
+		{
+			if ($workflowContext->getWorkflowId() === $workflowId)
+			{
+				$template = Template::createByTpl($workflowContext->fillTemplateShards()->fillTemplate());
+				break;
+			}
+		}
+
+		$robotId = null;
+		if ($template)
+		{
+			foreach ($template->getRobots() as $robot)
+			{
+				if ($robot->getDelayName() === $eventName)
+				{
+					$robotId = $robot->getName();
+					break;
+				}
+			}
+		}
+
 		$this->pushEvent('workflowEventAdd', [
 			'workflowId' => $workflowId,
 			'eventName' => $eventName,
+			'sourceId' => $robotId,
 		]);
 	}
 
@@ -61,7 +87,7 @@ class Listener
 
 		foreach ($changedFields as $fieldId)
 		{
-			$property = $documentFields[$fieldId];
+			$property = $documentFields[$fieldId] ?? null;
 
 			if (!$property)
 			{

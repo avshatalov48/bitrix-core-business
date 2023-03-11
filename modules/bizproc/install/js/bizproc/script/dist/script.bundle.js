@@ -3,68 +3,41 @@ this.BX = this.BX || {};
 	'use strict';
 
 	var _templateObject;
-
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var instance = null;
-
 	var _startScriptInternal = /*#__PURE__*/new WeakSet();
-
 	var _keepAliveQueue = /*#__PURE__*/new WeakSet();
-
 	var _showFillParametersPopup = /*#__PURE__*/new WeakSet();
-
 	var _findGridInstance = /*#__PURE__*/new WeakSet();
-
 	var Manager = /*#__PURE__*/function () {
 	  function Manager() {
 	    babelHelpers.classCallCheck(this, Manager);
-
 	    _classPrivateMethodInitSpec(this, _findGridInstance);
-
 	    _classPrivateMethodInitSpec(this, _showFillParametersPopup);
-
 	    _classPrivateMethodInitSpec(this, _keepAliveQueue);
-
 	    _classPrivateMethodInitSpec(this, _startScriptInternal);
-
 	    babelHelpers.defineProperty(this, "scriptEditUrl", '/bitrix/components/bitrix/bizproc.script.edit/');
 	    babelHelpers.defineProperty(this, "scriptListUrl", '/bitrix/components/bitrix/bizproc.script.list/');
 	    babelHelpers.defineProperty(this, "scriptQueueListUrl", '/bitrix/components/bitrix/bizproc.script.queue.list/');
 	    babelHelpers.defineProperty(this, "scriptQueueDocumentListUrl", '/bitrix/components/bitrix/bizproc.script.queue.document.list/');
 	  }
-
 	  babelHelpers.createClass(Manager, [{
 	    key: "startScript",
 	    value: function startScript(scriptId, placement) {
 	      var _this = this;
-
 	      var documentIds = this.getDocumentIds.apply(this, babelHelpers.toConsumableArray(placement.split(':')));
-
 	      if (!documentIds.length) {
 	        ui_dialogs_messagebox.MessageBox.alert(main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_NOTHING_SELECTED'));
 	        return;
 	      }
-
 	      var startCallback = function startCallback() {
 	        _classPrivateMethodGet(_this, _startScriptInternal, _startScriptInternal2).call(_this, scriptId, documentIds);
-
 	        return true;
 	      };
-
 	      if (documentIds.length > 1) {
 	        ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_TEXT_START').replace('#CNT#', documentIds.length), startCallback, main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_START'));
 	      } else {
@@ -95,10 +68,8 @@ this.BX = this.BX || {};
 	    key: "getDocumentIds",
 	    value: function getDocumentIds(section, entity) {
 	      var ids = [];
-
 	      if (section === 'crm_switcher') {
 	        var grid = _classPrivateMethodGet(this, _findGridInstance, _findGridInstance2).call(this, entity);
-
 	        if (grid) {
 	          ids = grid.getRows().getSelectedIds();
 	        } else if (BX.CRM && BX.CRM.Kanban && BX.CRM.Kanban.Grid && BX.CRM.Kanban.Grid.Instance) {
@@ -106,15 +77,14 @@ this.BX = this.BX || {};
 	        }
 	      } else if (section === 'crm_detail') {
 	        ids = [BX.Crm.EntityEditor.getDefault().getEntityId()];
-	      } //Prepare crm document ids
+	      }
 
-
+	      //Prepare crm document ids
 	      if (main_core.Type.isArrayFilled(ids)) {
 	        ids = ids.map(function (id) {
 	          return "".concat(entity.toUpperCase(), "_").concat(id);
 	        });
 	      }
-
 	      return ids;
 	    }
 	  }, {
@@ -238,7 +208,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(options)) {
 	        options = {};
 	      }
-
 	      options = _objectSpread(_objectSpread({}, {
 	        cacheable: false,
 	        allowChangeHistory: true,
@@ -249,7 +218,6 @@ this.BX = this.BX || {};
 	          options.events.onClose = function (event) {
 	            resolve(event.getSlider());
 	          };
-
 	          BX.SidePanel.Instance.open(url, options);
 	        } else {
 	          resolve();
@@ -262,49 +230,51 @@ this.BX = this.BX || {};
 	      if (instance === null) {
 	        instance = new Manager();
 	      }
-
 	      return instance;
 	    }
 	  }]);
 	  return Manager;
 	}();
-
 	function _startScriptInternal2(scriptId, documentIds) {
 	  var _this2 = this;
-
 	  var parameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	  var popup = arguments.length > 3 ? arguments[3] : undefined;
+	  var data = {
+	    scriptId: scriptId,
+	    documentIds: documentIds,
+	    parameters: parameters
+	  };
+	  if (parameters instanceof FormData) {
+	    data = parameters;
+	    data.set('scriptId', scriptId);
+	    documentIds.forEach(function (id) {
+	      return data.append('documentIds[]', id);
+	    });
+	  }
 	  main_core.ajax.runAction('bizproc.script.start', {
 	    analyticsLabel: 'bizprocScriptStart',
-	    data: {
-	      scriptId: scriptId,
-	      documentIds: documentIds,
-	      parameters: parameters
-	    }
+	    data: data
 	  }).then(function (response) {
 	    if (response.data.error) {
 	      ui_dialogs_messagebox.MessageBox.alert(response.data.error);
 	    }
-
 	    if (response.data.status === 'FILL_PARAMETERS') {
 	      _classPrivateMethodGet(_this2, _showFillParametersPopup, _showFillParametersPopup2).call(_this2, scriptId, documentIds, response.data);
 	    } else if (response.data.status === 'INVALID_PARAMETERS') ; else if (response.data.status === 'QUEUED') {
 	      if (popup) {
 	        popup.close();
 	      }
-
 	      ui_notification.UI.Notification.Center.notify({
 	        content: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_QUEUED')
 	      });
-
 	      _classPrivateMethodGet(_this2, _keepAliveQueue, _keepAliveQueue2).call(_this2, response.data.queueId);
 	    }
+	  })["catch"](function (response) {
+	    return ui_dialogs_messagebox.MessageBox.alert(response.errors.pop().message);
 	  });
 	}
-
 	function _keepAliveQueue2(queueId) {
 	  var _this3 = this;
-
 	  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
 	  setTimeout(function () {
 	    main_core.ajax.runAction('bizproc.script.execQueue', {
@@ -322,13 +292,11 @@ this.BX = this.BX || {};
 	    });
 	  }, delay);
 	}
-
 	function _showFillParametersPopup2(scriptId, documentIds, _ref) {
 	  var _this4 = this;
-
 	  var parameters = _ref.parameters,
-	      documentType = _ref.documentType,
-	      scriptName = _ref.scriptName;
+	    documentType = _ref.documentType,
+	    scriptName = _ref.scriptName;
 	  var form = this.renderParametersPopupContent(parameters, documentType);
 	  var popup = new main_popup.Popup(null, null, {
 	    events: {
@@ -345,22 +313,11 @@ this.BX = this.BX || {};
 	      color: ui_buttons.Button.Color.SUCCESS,
 	      onclick: function onclick() {
 	        var paramFields = {};
-
-	        var _iterator = _createForOfIteratorHelper(new FormData(form).entries()),
-	            _step;
-
-	        try {
-	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-	            var field = _step.value;
-	            paramFields[field[0]] = field[1];
-	          }
-	        } catch (err) {
-	          _iterator.e(err);
-	        } finally {
-	          _iterator.f();
-	        }
-
-	        _classPrivateMethodGet(_this4, _startScriptInternal, _startScriptInternal2).call(_this4, scriptId, documentIds, paramFields, popup);
+	        var formData = new FormData(form);
+	        parameters.forEach(function (param) {
+	          paramFields[param.Id] = param.Multiple ? formData.getAll(param.Id + '[]') : formData.get(param.Id);
+	        });
+	        _classPrivateMethodGet(_this4, _startScriptInternal, _startScriptInternal2).call(_this4, scriptId, documentIds, formData, popup);
 	      }
 	    }), new BX.UI.Button({
 	      text: main_core.Loc.getMessage('UI_MESSAGE_BOX_CANCEL_CAPTION'),
@@ -372,12 +329,10 @@ this.BX = this.BX || {};
 	  });
 	  popup.show();
 	}
-
 	function _findGridInstance2(entity) {
 	  if (!BX.Main.gridManager) {
 	    return null;
 	  }
-
 	  var gridId = "CRM_".concat(entity.toUpperCase(), "_LIST");
 	  var grid = BX.Main.gridManager.data.find(function (current) {
 	    return current.id.indexOf(gridId) === 0 || current.id.indexOf('crm-type-item-list') === 0;
@@ -386,12 +341,10 @@ this.BX = this.BX || {};
 	}
 
 	var instance$1 = null;
-
 	var Market = /*#__PURE__*/function () {
 	  function Market() {
 	    babelHelpers.classCallCheck(this, Market);
 	  }
-
 	  babelHelpers.createClass(Market, [{
 	    key: "showForPlacement",
 	    value: function showForPlacement(placement) {
@@ -407,7 +360,6 @@ this.BX = this.BX || {};
 	      if (instance$1 === null) {
 	        instance$1 = new Market();
 	      }
-
 	      return instance$1;
 	    }
 	  }]);

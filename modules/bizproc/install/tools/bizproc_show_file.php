@@ -22,7 +22,7 @@ if (!$USER->IsAuthorized())
 $fileName = preg_replace("/[^A-Za-z0-9_.-]+/i", "", trim($_REQUEST["f"]));
 $fileNameHash = isset($_REQUEST['hash']) ? preg_replace("/[^A-Za-z0-9_.-]+/i", "", trim($_REQUEST["hash"])) : '';
 $fileId = intval($_REQUEST["i"]);
-$fileAction = ($_REQUEST["act"] == "v" ? "view" : "download");
+$fileAction = (isset($_REQUEST["act"]) && $_REQUEST["act"] == "v" ? "view" : "download");
 $filePathHash = trim($_REQUEST["h"]);
 
 if ($fileId <= 0 || $fileName == '' && $fileNameHash == '')
@@ -66,7 +66,7 @@ if ($bpId > 0 && $iblockId > 0 && $fileName !== '')
 }
 $arImg = CFile::GetFileArray($fileId);
 if (!$arImg)
-	die("Error2");
+	die("Error2: File not found");
 
 if ($fileNameHash)
 {

@@ -43,12 +43,12 @@ if (!array_key_exists('SKIP_BP_TEMPLATES_LIST', $arParams) || $arParams['SKIP_BP
 {
 	$listMenuItem = [
 		"TEXT" => (
-			($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"] <> '')
+			(!empty($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"]))
 				? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"])
 				: GetMessage("BIZPROC_WFEDIT_MENU_LIST")
 		),
 		"TITLE" => (
-			($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"] <> '')
+			(!empty($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"]))
 				? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"])
 				: GetMessage("BIZPROC_WFEDIT_MENU_LIST_TITLE")
 		),
@@ -266,7 +266,7 @@ $aMenu[] = [
 	});
 
 </script>
-<?php if ($arParams['SHOW_ADMIN_TOOLBAR'] == 'Y')
+<?php if (isset($arParams['SHOW_ADMIN_TOOLBAR']) && $arParams['SHOW_ADMIN_TOOLBAR'] == 'Y')
 {
 	$context = new CAdminContextMenu($aMenu);
 	$context->Show();

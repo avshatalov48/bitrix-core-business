@@ -239,8 +239,12 @@ class CAdminSubList extends CAdminList
 		$hiddenColumns = (!empty($this->arHideHeaders) ? array_fill_keys($this->arHideHeaders, true) : array());
 
 		$aOptions = CUserOptions::GetOption("list", $this->table_id, array());
+		if (!is_array($aOptions))
+		{
+			$aOptions = [];
+		}
 
-		$aColsTmp = explode(",", $aOptions["columns"]);
+		$aColsTmp = explode(",", $aOptions["columns"] ?? '');
 		$aCols = array();
 		$userColumns = array();
 
@@ -259,12 +263,13 @@ class CAdminSubList extends CAdminList
 		foreach ($aParams as $param)
 		{
 			$param["__sort"] = -1;
+			$param['default'] = $param['default'] ?? false;
 			if (!isset($hiddenColumns[$param["id"]]))
 			{
 				$this->aHeaders[$param["id"]] = $param;
 				if (
 					$showAll
-					|| ($bEmptyCols && $param["default"] == true)
+					|| ($bEmptyCols && ($param["default"] === true))
 					|| isset($userColumns[$param["id"]])
 				)
 				{
@@ -493,13 +498,22 @@ echo '<table class="adm-list-table" id="'.$this->table_id.'">
 			if(!in_array($column_id, $this->arVisibleColumns))
 				continue;
 
+			$header['title'] = (string)($header['title'] ?? '');
 			$bSort = $this->sort && !empty($header["sort"]);
 
 			if ($bSort)
-				//$attrs = $this->sort->Show($header["content"], $header["sort"], $header["title"], "adm-list-table-cell");
-				$attrs = $this->sort->Show($header["content"], $header["sort"], $header["title"], "adm-list-table-cell");
+			{
+				$attrs = $this->sort->Show(
+					$header["content"],
+					$header["sort"],
+					$header["title"],
+					"adm-list-table-cell"
+				);
+			}
 			else
+			{
 				$attrs = 'class="adm-list-table-cell"';
+			}
 
 
 			echo '<td '.$attrs.'>
@@ -684,9 +698,14 @@ echo '<table class="adm-list-table" id="'.$this->table_id.'">
 
 		$tbl = CUtil::JSEscape($this->table_id);
 		$aUserOpt = CUserOptions::GetOption("global", "settings");
+		if (!is_array($aUserOpt))
+		{
+			$aUserOpt = [];
+		}
+		$aUserOpt['context_ctrl'] = (string)($aUserOpt['context_ctrl'] ?? 'N');
 		echo '
 <script type="text/javascript">
-var '.$this->table_id.'= new BX.adminSubList("'.$tbl.'", {context_ctrl: '.($aUserOpt["context_ctrl"] == "Y"? "true":"false").'}, "'.$this->GetListUrl(true).'");
+var '.$this->table_id.'= new BX.adminSubList("'.$tbl.'", {context_ctrl: '.($aUserOpt["context_ctrl"] === "Y"? "true":"false").'}, "'.$this->GetListUrl(true).'");
 function ReloadSubList()
 {
 	'.$this->ActionAjaxReload($this->GetListUrl(true)).'
@@ -1126,15 +1145,19 @@ class CAdminSubListRow extends CAdminListRow
 		$bVarsFromForm = ($this->bEditMode && is_array($this->pList->arUpdateErrorIDs) && in_array($this->id, $this->pList->arUpdateErrorIDs));
 		foreach($this->pList->aVisibleHeaders as $id=>$header_props)
 		{
-			$field = $this->aFields[$id];
-			if($this->bEditMode && isset($field["edit"]))
+			$field = $this->aFields[$id] ?? [];
+			if ($this->bEditMode && isset($field["edit"]))
 			{
-				if($bVarsFromForm && $_REQUEST["FIELDS"])
-					$val = $_REQUEST["FIELDS"][$this->id][$id];
+				if ($bVarsFromForm && isset($_REQUEST["FIELDS"]))
+				{
+					$val = $_REQUEST["FIELDS"][$this->id][$id] ?? '';
+				}
 				else
-					$val = $this->arRes[$id];
+				{
+					$val = $this->arRes[$id] ?? '';
+				}
 
-				$val_old = $this->arRes[$id];
+				$val_old = $this->arRes[$id] ?? '';
 
 				echo '<td class="adm-list-table-cell',
 					(isset($header_props['align']) && $header_props['align']? ' align-'.$header_props['align']: ''),
@@ -1194,10 +1217,14 @@ class CAdminSubListRow extends CAdminListRow
 			}
 			else
 			{
-				if(is_string($this->arRes[$id]))
-					$val = trim($this->arRes[$id]);
-				else
-					$val = $this->arRes[$id];
+				$val = '';
+				if (isset($this->arRes[$id]))
+				{
+					if(is_string($this->arRes[$id]))
+						$val = trim($this->arRes[$id]);
+					else
+						$val = $this->arRes[$id];
+				}
 
 				if(isset($field["view"]))
 				{
@@ -1410,6 +1437,14 @@ class CAdminSubForm extends CAdminForm
 		CJSCore::RegisterExt('subelementdet', $arJSDescr);
 
 		CUtil::InitJSCore(array("subelementdet"));
+
+		if (is_array($tabs))
+		{
+			foreach (array_keys($tabs) as $index)
+			{
+				$tabs[$index]['ONSELECT'] = (string)($tabs[$index]['ONSELECT'] ?? '');
+			}
+		}
 
 		parent::__construct($name, $tabs, $bCanExpand, $bDenyAutosave);
 

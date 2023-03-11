@@ -32,7 +32,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	$arParams["~IBLOCK_ID"] > 0? $arParams["~IBLOCK_ID"]: false,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 {
@@ -174,7 +174,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		if(isset($_POST["PICTURE_del"]))
 			$arFields["PICTURE"]["del"] = "Y";
 
-		if(is_array($_POST["RIGHTS"]))
+		if(is_array($_POST["RIGHTS"] ?? null))
 			$postRights = CIBlockRights::Post2Array($_POST["RIGHTS"]);
 		else
 			$postRights = array();
@@ -272,7 +272,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				}
 			}
 
-			if (($arFields["SOCNET_GROUP_ID"] <> '') && CModule::IncludeModule('socialnetwork'))
+			if (
+				isset($arFields["SOCNET_GROUP_ID"])
+				&& ($arFields["SOCNET_GROUP_ID"] <> '')
+				&& CModule::IncludeModule('socialnetwork')
+			)
 			{
 				CSocNetGroup::SetLastActivity($arFields["SOCNET_GROUP_ID"]);
 			}

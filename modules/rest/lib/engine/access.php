@@ -131,7 +131,7 @@ class Access
 							$entity = $appInfo['CODE'];
 						}
 
-						$entityList = static::getActiveEntity();
+						$entityList = static::getActiveEntity(true);
 						if ($entityList[static::ENTITY_COUNT] > $maxCount)
 						{
 							static::$availableAppCount[$key] = false;

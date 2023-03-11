@@ -306,7 +306,7 @@
 		},
 		getItemName(item)
 		{
-			return item.getTitle().replace(/[,\.\-\_\>\<\"]/g, '');
+			return item.getTitle().replace(/[,\.\_\>\<\"]/g, '');
 		},
 		getValue: function()
 		{

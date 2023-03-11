@@ -136,7 +136,11 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 		}
 
 		$this->arParams['RAND_STRING'] = $this->randString();
-		$this->arParams['JS_OBJECT'] = 'ListsElementAttachedCrm_'.$this->arParams['RAND_STRING'];
+		$this->arParams['JS_OBJECT'] = sprintf(
+			'ListsElementAttachedCrm_%d%s',
+			(int)$this->arParams['IBLOCK_ID'],
+			$this->arParams['RAND_STRING']
+		);
 
 		if(!empty($this->arParams['LIST_ELEMENT_DATA']))
 			$this->listElementData = $this->arParams['LIST_ELEMENT_DATA'];
@@ -279,7 +283,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 		));
 		while($property = $propertyObject->fetch())
 		{
-			$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS']);
+			$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
 			if(is_array($property['USER_TYPE_SETTINGS']))
 			{
 				if(array_key_exists('VISIBLE', $property['USER_TYPE_SETTINGS']))

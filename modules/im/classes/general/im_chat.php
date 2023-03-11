@@ -1207,7 +1207,7 @@ class CIMChat
 			{
 				$arManagerList[$arRes["CHAT_ID"]][] = (int)$arRes["RELATION_USER_ID"];
 			}
-			$arChat[$arRes["CHAT_ID"]]['manager_list'] = $arManagerList[$arRes["CHAT_ID"]];
+			$arChat[$arRes["CHAT_ID"]]['manager_list'] = $arManagerList[$arRes["CHAT_ID"]] ?? null;
 		}
 
 		$lines = Array();
@@ -1338,14 +1338,14 @@ class CIMChat
 			}
 			$arUserChatBlockStatus[$arRes["CHAT_ID"]][$arRes["RELATION_USER_ID"]] = $arRes['RELATION_NOTIFY_BLOCK'] == 'Y';
 			$arUserInChat[$arRes["CHAT_ID"]][] = $arRes["RELATION_USER_ID"];
-			$arUserCallStatus[$arRes["CHAT_ID"]][$arRes["RELATION_USER_ID"]] = trim($arRes["CALL_STATUS"]);
+			$arUserCallStatus[$arRes["CHAT_ID"]][$arRes["RELATION_USER_ID"]] = trim($arRes["CALL_STATUS"] ?? '');
 			$arChat[$arRes["CHAT_ID"]]['mute_list'] = $arUserChatBlockStatus[$arRes["CHAT_ID"]];
 
 			if ($arRes["RELATION_MANAGER"] == 'Y')
 			{
 				$arManagerList[$arRes["CHAT_ID"]][] = (int)$arRes["RELATION_USER_ID"];
 			}
-			$arChat[$arRes["CHAT_ID"]]['manager_list'] = $arManagerList[$arRes["CHAT_ID"]];
+			$arChat[$arRes["CHAT_ID"]]['manager_list'] = $arManagerList[$arRes["CHAT_ID"]] ?? null;
 		}
 
 		$result = array(
@@ -1484,7 +1484,7 @@ class CIMChat
 				'CHAT_ENTITY_ID' => $arRes['CHAT_ENTITY_ID'],
 				'START_ID' => $arRes['START_ID'],
 				'END_ID' => $arRes['END_ID'],
-				'COUNT' => $relation['COUNT'],
+				'COUNT' => $relation['COUNTER'],
 				'USER_ID' => $this->user_id,
 				'BY_EVENT' => $byEvent
 			)));
@@ -2576,7 +2576,7 @@ class CIMChat
 					"MESSAGE_TYPE" => $params['TYPE'],
 					"USER_ID" => $userId,
 					"STATUS" => IM_STATUS_READ,
-					"MANAGER" => $authorId == $userId || $managers[$userId]? 'Y': 'N',
+					"MANAGER" => $authorId == $userId || isset($managers[$userId]) ? 'Y' : 'N',
 				));
 
 				if ($params['TYPE'] != IM_MESSAGE_OPEN)
@@ -3809,7 +3809,7 @@ class CIMChat
 			'CALL' => true,
 			'LEAVE' => false,
 			'LEAVE_OWNER' => false,
-			'SEND' => CIMChat::CanSendMessageToGeneralChat($userId)
+			'SEND' => CIMChat::CanSendMessageToGeneralChat((int)$USER->GetID())
 		];
 
 		if (\Bitrix\Main\Loader::includeModule('imbot'))
@@ -4008,6 +4008,13 @@ class CIMChat
 			return false;
 		}
 
+		self::deleteChat($chatData);
+
+		return true;
+	}
+
+	public static function deleteChat(array $chatData): void
+	{
 		global $DB;
 
 		self::hide($chatData['ID']);
@@ -4029,8 +4036,6 @@ class CIMChat
 				$folderModel->deleteTree(\Bitrix\Disk\SystemUser::SYSTEM_USER_ID);
 			}
 		}
-
-		return true;
 	}
 
 	public static function hide($chatId)

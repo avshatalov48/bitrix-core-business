@@ -72,3 +72,7 @@ td {
 .main-grid-cell-content-store-amount-reserved-quantity:hover {
 	text-decoration: none !important;
 }
+
+.text--danger {
+	color: var(--ui-color-palette-red-70, #e92f2a);
+}

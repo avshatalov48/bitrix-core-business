@@ -41,7 +41,7 @@ class IblockElementSelector extends CBitrixComponent
 		$params['ON_CHANGE'] = !empty($params['ON_CHANGE']) ? $params['ON_CHANGE'] : '';
 		$params['ON_SELECT'] = !empty($params['ON_SELECT']) ? $params['ON_SELECT'] : '';
 		$params['ON_UNSELECT'] = !empty($params['ON_UNSELECT']) ? $params['ON_UNSELECT'] : '';
-		$params['TEMPLATE_URL'] = $params['TEMPLATE_URL'] ?: '';
+		$params['TEMPLATE_URL'] = $params['TEMPLATE_URL'] ?? '';
 
 		return $params;
 	}

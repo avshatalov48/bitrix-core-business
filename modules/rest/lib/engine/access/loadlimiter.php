@@ -23,8 +23,8 @@ class LoadLimiter
 	private static int $version = 2;
 	private static int $bucketSize = 60; //sec
 	private static int $bucketCount = 10;
-	private static int $limitTime = 480; // total hits duration per 10 min
-	private static float $minimalFixTime = 0.5;
+	private static int $limitTime = 420; // total hits duration per 10 min
+	private static float $minimalFixTime = 0.1;
 	private static string $domain = '';
 	private static ?bool $isActive = null;
 	private static bool $isFinaliseInit = false;
@@ -117,7 +117,7 @@ class LoadLimiter
 		)
 		{
 			$key = static::getKey($entityType, $entity, $method);
-			if (!static::$timeRegistered[$key])
+			if (!(static::$timeRegistered[$key] ?? null))
 			{
 				static::$timeRegistered[$key] = [
 					'entityType' => $entityType,
@@ -289,7 +289,7 @@ class LoadLimiter
 			{
 				foreach (static::$timeRegistered[$key]['timeStart'] as $k => $timeStart)
 				{
-					if (static::$timeRegistered[$key]['timeFinish'][$k])
+					if (static::$timeRegistered[$key]['timeFinish'][$k] ?? null)
 					{
 						$time = static::$timeRegistered[$key]['timeFinish'][$k] - $timeStart;
 						if ($time > static::$minimalFixTime)

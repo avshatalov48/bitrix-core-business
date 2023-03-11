@@ -124,10 +124,6 @@ if ($boolSubCatalog)
 }
 $changeUserByActive = Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
-const MODULE_ID = "iblock";
-const ENTITY = "CIBlockDocument";
-define("DOCUMENT_TYPE", "iblock_".$intSubIBlockID);
-
 $currentUser = array(
 	'ID' => $USER->GetID(),
 	'GROUPS' => $USER->GetUserGroupArray()
@@ -139,9 +135,6 @@ if ($boolSubBizproc)
 {
 	$iblockDocument = new CIBlockDocument();
 }
-
-if (isset($_REQUEST['mode']) && ($_REQUEST['mode']=='list' || $_REQUEST['mode']=='frame'))
-	CFile::DisableJSFunction(true);
 
 $intSubPropValue = (int)$intSubPropValue;
 
@@ -177,6 +170,10 @@ $sTableID = "tbl_iblock_sub_element_".md5($strSubIBlockType.".".$intSubIBlockID)
 
 $arHideFields = array('PROPERTY_'.$arSubCatalog['SKU_PROPERTY_ID']);
 $lAdmin = new CAdminSubList($sTableID,false,$strSubElementAjaxPath,$arHideFields);
+if ($lAdmin->isAjaxMode())
+{
+	CFile::DisableJSFunction(true);
+}
 if (!$allowProductEdit)
 {
 	$lAdmin->setReadDialogButtons();
@@ -1300,7 +1297,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 						if ($elementAccess)
 						{
 							if ($boolSubBizproc)
-								call_user_func(array(ENTITY, "UnlockDocument"), $subID, "");
+								call_user_func(array('CIBlockDocument', "UnlockDocument"), $subID, "");
 							else
 								CIBlockElement::WF_UnLock($subID);
 						}
@@ -2252,14 +2249,18 @@ if (!empty($arRows))
 			$row->AddInputField("SORT", array('size'=>'3'));
 			$row->AddInputField("CODE");
 			$row->AddInputField("EXTERNAL_ID");
-			if ($boolSubSearch)
+			if (isset($arSelectedFieldsMap['TAGS']))
 			{
-				$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
-				$row->AddEditField("TAGS", InputTags("FIELDS[".$itemId."][TAGS]", $row->arRes["TAGS"], $arSubIBlock["SITE_ID"]));
-			}
-			else
-			{
-				$row->AddInputField("TAGS");
+				if ($boolSubSearch)
+				{
+					$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+					$row->AddEditField("TAGS",
+						InputTags("FIELDS[" . $itemId . "][TAGS]", $row->arRes["TAGS"], $arSubIBlock["SITE_ID"]));
+				}
+				else
+				{
+					$row->AddInputField("TAGS");
+				}
 			}
 			if ($arWFStatus)
 			{
@@ -2318,7 +2319,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_LENGTH');
 				$row->AddCheckField("CATALOG_VAT_INCLUDED");
 				$row->AddSelectField('VAT_ID', $vatList);
-				if ($boolCatalogPurchasInfo)
+				if ($boolCatalogPurchasInfo && isset($arSelectedFieldsMap["CATALOG_PURCHASING_PRICE"]))
 				{
 					$price = '&nbsp;';
 					if ((float)$row->arRes['CATALOG_PURCHASING_PRICE'] > 0)
@@ -2363,7 +2364,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_LENGTH', false);
 				$row->AddCheckField("CATALOG_VAT_INCLUDED", false);
 				$row->AddSelectField('VAT_ID', $vatList, false);
-				if ($boolCatalogPurchasInfo)
+				if ($boolCatalogPurchasInfo && isset($arSelectedFieldsMap["CATALOG_PURCHASING_PRICE"]))
 				{
 					$price = '&nbsp;';
 					if ((float)$row->arRes["CATALOG_PURCHASING_PRICE"] > 0)
@@ -2386,7 +2387,10 @@ if (!empty($arRows))
 			$row->AddInputField("SORT", false);
 			$row->AddInputField("CODE", false);
 			$row->AddInputField("EXTERNAL_ID", false);
-			$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+			if (isset($arSelectedFieldsMap['TAGS']))
+			{
+				$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+			}
 			if ($arWFStatus)
 			{
 				$row->AddViewField("WF_STATUS_ID", htmlspecialcharsEx($arWFStatus[$row->arRes['WF_STATUS_ID']]));
@@ -2403,7 +2407,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_LENGTH', false);
 				$row->AddCheckField("CATALOG_VAT_INCLUDED", false);
 				$row->AddSelectField('VAT_ID', $vatList, false);
-				if ($boolCatalogPurchasInfo)
+				if ($boolCatalogPurchasInfo && isset($arSelectedFieldsMap["CATALOG_PURCHASING_PRICE"]))
 				{
 					$price = '&nbsp;';
 					if ((float)$row->arRes["CATALOG_PURCHASING_PRICE"] > 0)
@@ -2782,7 +2786,7 @@ if (!empty($arRows))
 					$priceControl .= '<input type="hidden" name="CATALOG_old_CURRENCY['.$productId.']['.$priceType.']" value="'.htmlspecialcharsbx($row['CURRENCY']).'">';
 					$priceControl .= '<input type="hidden" name="CATALOG_PRICE_ID['.$productId.']['.$priceType.']" value="'.htmlspecialcharsbx($row['ID']).'">';
 					$priceControl .= '<input type="hidden" name="CATALOG_QUANTITY_FROM['.$productId.']['.$priceType.']" value="'.htmlspecialcharsbx($row['QUANTITY_FROM']).'">';
-					$priceControl .= '<input type="hidden" name="CATALOG_QUANTITY_TO['.$productId.']['.$priceType.']" value="'.htmlspecialcharsbx($arRes['QUANTITY_TO']).'">';
+					$priceControl .= '<input type="hidden" name="CATALOG_QUANTITY_TO['.$productId.']['.$priceType.']" value="'.htmlspecialcharsbx($row['QUANTITY_TO']).'">';
 
 					$arRows[$productId]->AddEditField('CATALOG_GROUP_'.$priceType, $priceControl);
 					unset($priceControl, $currencyControl);
@@ -3094,7 +3098,7 @@ function ShowSkuGenerator(id)
 }
 </script><?php
 	//We need javascript not in excel mode
-	if (($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame') && $boolSubCatalog && $boolSubCurrency)
+	if ($lAdmin->isAjaxMode() && $boolSubCatalog && $boolSubCurrency)
 	{
 		?><script type="text/javascript">
 		top.arSubCatalogShowedGroups = [];

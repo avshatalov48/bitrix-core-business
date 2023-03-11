@@ -39,6 +39,7 @@ $APPLICATION->IncludeComponent(
 		'ALLOW_COLUMNS_SORT' => true,
 		'ALLOW_COLUMNS_RESIZE' => true,
 		'ALLOW_HORIZONTAL_SCROLL' => true,
+		'ALLOW_INLINE_EDIT' => true,
 		'ALLOW_SORT' => true,
 		'ALLOW_PIN_HEADER' => true,
 		'AJAX_OPTION_HISTORY' => 'N'

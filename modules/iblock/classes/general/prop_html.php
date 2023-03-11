@@ -240,20 +240,39 @@ class CIBlockPropertyHTML
 		$return = false;
 		if (!is_array($value["VALUE"]))
 		{
-			$return = array(
-				"VALUE" => unserialize($value["VALUE"], ['allowed_classes' => false]),
-			);
-			if ($return['VALUE'] === false && $value['VALUE'] <> '')
+			$value['VALUE'] = (string)$value['VALUE'];
+			if ($value['VALUE'] === '')
 			{
-				$return = array(
-					"VALUE" => array(
+				$return = [
+					"VALUE" => [
 						'TEXT' => $value["VALUE"],
-						'TYPE' => 'TEXT'
-					)
-				);
+						'TYPE' => 'TEXT',
+					]
+				];
 			}
-			if($value["DESCRIPTION"])
-				$return["DESCRIPTION"] = trim($value["DESCRIPTION"]);
+			else
+			{
+				$return = [
+					"VALUE" => unserialize($value["VALUE"], ['allowed_classes' => false]),
+				];
+				if ($return['VALUE'] === false)
+				{
+					$return = [
+						"VALUE" => [
+							'TEXT' => $value["VALUE"],
+							'TYPE' => 'TEXT',
+						]
+					];
+				}
+			}
+			if (isset($value['DESCRIPTION']))
+			{
+				$value['DESCRIPTION'] = (string)$value['DESCRIPTION'];
+				if ($value['DESCRIPTION'] !== '')
+				{
+					$return["DESCRIPTION"] = trim($value["DESCRIPTION"]);
+				}
+			}
 		}
 		return $return;
 	}

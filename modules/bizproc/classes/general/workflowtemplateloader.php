@@ -777,6 +777,7 @@ class CBPWorkflowTemplateLoader
 
 	public static function &FindActivityByName(&$arWorkflowTemplate, $activityName)
 	{
+		$res = null;
 		foreach ($arWorkflowTemplate as $key => $value)
 		{
 			if ($value["Name"] == $activityName)
@@ -788,7 +789,8 @@ class CBPWorkflowTemplateLoader
 					return $res;
 			}
 		}
-		return null;
+
+		return $res;
 	}
 
 	public static function &FindParentActivityByName(&$arWorkflowTemplate, $activityName)

@@ -52,7 +52,7 @@ class OrderPayment
 		$fields['EMP_PAID_ID_NAME'] = '';
 		$fields['EMP_PAID_ID_LAST_NAME'] = '';
 
-		$empPaidId = $fields['EMP_PAID_ID'];
+		$empPaidId = (int)($fields['EMP_PAID_ID'] ?? 0);
 		if ($empPaidId > 0)
 		{
 			if (!array_key_exists($item->getField('EMP_PAID_ID'), $users))
@@ -110,7 +110,8 @@ class OrderPayment
 
 		$fields['CHECK'] = CheckManager::getCheckInfo($item);
 
-		$fields['CAN_PRINT_CHECK'] = $fields['PAY_SYSTEM_LIST'][$fields['PAY_SYSTEM_ID']]['CAN_PRINT_CHECK'];
+		$paySystemId = (int)($fields['PAY_SYSTEM_ID'] ?? 0);
+		$fields['CAN_PRINT_CHECK'] = $fields['PAY_SYSTEM_LIST'][$paySystemId]['CAN_PRINT_CHECK'] ?? 'N';
 		if (Sale\Cashbox\Manager::isEnabledPaySystemPrint())
 		{
 			$fields['CAN_PRINT_CHECK'] = 'N';
@@ -156,11 +157,12 @@ class OrderPayment
 
 			$result[$paySystemId] =  $data;
 
-			if(intval($data["LOGOTIP"]) > 0)
+			$logotip = (int)($data["LOGOTIP"] ?? 0);
+			if($logotip > 0)
 			{
-				$tmp = \CFile::ResizeImageGet($data["LOGOTIP"], array('width' => 100, 'height' => 60));
+				$tmp = \CFile::ResizeImageGet($logotip, array('width' => 100, 'height' => 60));
 				$result[$paySystemId]["LOGOTIP_PATH"] = $tmp['src'];
-				$tmp = \CFile::ResizeImageGet($data["LOGOTIP"], array('width' => 80, 'height' => 50));
+				$tmp = \CFile::ResizeImageGet($logotip, array('width' => 80, 'height' => 50));
 				$result[$paySystemId]["LOGOTIP_SHORT_PATH"] = $tmp['src'];
 			}
 			else
@@ -303,8 +305,8 @@ class OrderPayment
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
 		$paid = ($post) ? htmlspecialcharsbx($post['PAID']) : $data['PAID'];
-		$id = ($post) ? (int)$post['PAYMENT_ID'] : $data['ID'];
-		$priceCod = ($post) ? htmlspecialcharsbx($post['PRICE_COD']) : $data['PRICE_COD'];
+		$id = ($post) ? (int)$post['PAYMENT_ID'] : ($data['ID'] ?? 0);
+		$priceCod = ($post) ? htmlspecialcharsbx($post['PRICE_COD']) : ($data['PRICE_COD'] ?? 0);
 		$paidString = ($paid == 'Y') ? 'YES' : 'NO';
 		if (!$post)
 		{
@@ -319,7 +321,7 @@ class OrderPayment
 		}
 
 		$psData = self::getPaySystemParams(
-			(isset($post['PAY_SYSTEM_ID'])) ? $post['PAY_SYSTEM_ID'] : $data['PAY_SYSTEM_ID']
+			(isset($post['PAY_SYSTEM_ID'])) ? $post['PAY_SYSTEM_ID'] : ($data['PAY_SYSTEM_ID'] ?? 0)
 		);
 
 		if (isset($psData["LOGOTIP_PATH"]))
@@ -343,17 +345,21 @@ class OrderPayment
 
 		$notPaidBlock = ($paid == 'N' && !empty($data['EMP_PAID_ID'])) ? '' : 'style="display:none;"';
 
-		$return = ($post['IS_RETURN'] == 'Y') ? '' : 'style="display:none;"';
+		$return = isset($post['IS_RETURN']) && $post['IS_RETURN'] === 'Y' ? '' : 'style="display:none;"';
 
 		$option = '<option value="Y">'.Loc::getMessage('SALE_ORDER_PAYMENT_RETURN_ACCOUNT').'</option>';
 
-		if ($data['PAY_SYSTEM_ID'] != PaySystem\Manager::getInnerPaySystemId())
+		if (isset($data['PAY_SYSTEM_ID']) && $data['PAY_SYSTEM_ID'] != PaySystem\Manager::getInnerPaySystemId())
 		{
 			/** @var \Bitrix\Sale\PaySystem\Service $service */
 			$service = PaySystem\Manager::getObjectById($data['PAY_SYSTEM_ID']);
 			if ($service && $service->isRefundable())
 				$option .= '<option value="P">'.htmlspecialcharsbx($service->getField('NAME')).'</option>';
 		}
+
+		$payReturnNum = $post['PAY_RETURN_NUM'] ?? $data['PAY_RETURN_NUM'] ?? '';
+		$payReturnDate = $post['PAY_RETURN_DATE'] ?? $data['PAY_RETURN_DATE'] ?? '';
+		$payReturnComment = $post['PAY_RETURN_COMMENT'] ?? $data['PAY_RETURN_COMMENT'] ?? '';
 
 		$returnInformation = '
 		<tr '.$return.' class="return">
@@ -371,14 +377,14 @@ class OrderPayment
 			<td class="adm-detail-content-cell-l" width="40%"><br>'.Loc::getMessage('SALE_ORDER_PAYMENT_PAY_RETURN_NUM').':</td>
 			<td class="adm-detail-content-cell-r tal">
 				<br>
-				<input type="text" class="adm-bus-input" name="PAYMENT['.$index.'][PAY_RETURN_NUM]" id="PAYMENT_RETURN_NUM_'.$index.'" value="'.htmlspecialcharsbx(($post['PAY_RETURN_NUM']) ? $post['PAY_RETURN_NUM'] : $data['PAY_RETURN_NUM']).'" maxlength="20">
+				<input type="text" class="adm-bus-input" name="PAYMENT['.$index.'][PAY_RETURN_NUM]" id="PAYMENT_RETURN_NUM_'.$index.'" value="'.htmlspecialcharsbx($payReturnNum).'" maxlength="20">
 			</td>
 		</tr>
 		<tr '.$notPaidBlock.' class="not_paid">
 			<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_PAY_RETURN_DATE').':</td>
 			<td class="adm-detail-content-cell-r tal">
 				<div class="adm-input-wrap adm-calendar-second" style="display: inline-block;">
-					<input type="text" class="adm-input adm-calendar-to" name="PAYMENT['.$index.'][PAY_RETURN_DATE]" id="PAYMENT_RETURN_DATE_'.$index.'" size="15" value="'.htmlspecialcharsbx(($post['PAY_RETURN_DATE']) ? $post['PAY_RETURN_DATE'] : $data['PAY_RETURN_DATE']).'">
+					<input type="text" class="adm-input adm-calendar-to" name="PAYMENT['.$index.'][PAY_RETURN_DATE]" id="PAYMENT_RETURN_DATE_'.$index.'" size="15" value="'.htmlspecialcharsbx($payReturnDate).'">
 					<span class="adm-calendar-icon" title="'.Loc::getMessage('SALE_ORDER_PAYMENT_CHOOSE_DATE').'" onclick="BX.calendar({node:this, field:\'PAYMENT_RETURN_DATE_'.$index.'\', form: \'\', bTime: false, bHideTime: false});"></span>
 				</div>
 			</td>
@@ -387,7 +393,7 @@ class OrderPayment
 			<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_RETURN_COMMENT').':</td>
 			<td class="adm-detail-content-cell-r tal">
 				<div class="adm-input-wrap adm-calendar-second" style="display: inline-block;">
-					<textarea name="PAYMENT['.$index.'][PAY_RETURN_COMMENT]" id="PAYMENT_RETURN_COMMENTS_'.$index.'">'.htmlspecialcharsbx(isset($post['PAY_RETURN_COMMENT']) ? $post['PAY_RETURN_COMMENT'] : $data['PAY_RETURN_COMMENT']).'</textarea>
+					<textarea name="PAYMENT['.$index.'][PAY_RETURN_COMMENT]" id="PAYMENT_RETURN_COMMENTS_'.$index.'">'.htmlspecialcharsbx($payReturnComment).'</textarea>
 				</div>
 			</td>
 		</tr>';
@@ -404,7 +410,7 @@ class OrderPayment
 			$title = Loc::getMessage('SALE_ORDER_PAYMENT_BLOCK_NEW_PAYMENT_TITLE');
 		}
 
-		$disabled = ($data['PAID'] == 'Y') ? 'readonly' : '';
+		$disabled = isset($data['PAID']) && $data['PAID'] === 'Y' ? 'readonly' : '';
 
 		$companyList = $data['COMPANIES'];
 		$companies = '';
@@ -476,7 +482,7 @@ class OrderPayment
 		}
 
 		$checkLink = '';
-		$checkLink .= '<tr><td class="tac" id="PAYMENT_CHECK_LIST_ID_'.$data['ID'].'">';
+		$checkLink .= '<tr><td class="tac" id="PAYMENT_CHECK_LIST_ID_'.($data['ID'] ?? 0).'">';
 		if (!empty($data['CHECK']))
 		{
 			$checkLink .= static::buildCheckHtml($data['CHECK']);
@@ -487,12 +493,22 @@ class OrderPayment
 			$checkLink .= '<tr><td class="adm-detail-content-cell-r tac"><a href="javascript:void(0);" onclick="BX.Sale.Admin.OrderPayment.prototype.showCreateCheckWindow('.$data['ID'].');">'.Loc::getMessage('SALE_ORDER_PAYMENT_CHECK_ADD').'</a></td></tr>';
 		}
 
+		$isReturn = $post['IS_RETURN'] ?? 'N';
+		$paySystemId = $post['PAY_SYSTEM_ID'] ?? $data['PAY_SYSTEM_ID'] ?? 0;
+		$payVoucherNum = $post['PAY_VOUCHER_NUM'] ?? $data['PAY_VOUCHER_NUM'] ?? '';
+		$payVoucherDate = $post['PAY_VOUCHER_DATE'] ?? $data['PAY_VOUCHER_DATE'] ?? '';
+
+		$data['DATE_PAID'] ??= '';
+		$data['EMP_PAID_ID'] ??= '';
+		$data['EMP_PAID_ID_NAME'] ??= '';
+		$data['EMP_PAID_ID_LAST_NAME'] ??= '';
+
 		$result = '<div>
 			<div class="adm-bus-pay" id="payment_container_'.$index.'">
 				<input type="hidden" name="PAYMENT['.$index.'][PAYMENT_ID]" id="payment_id_'.$index.'" value="'.$id.'">
 				<input type="hidden" name="PAYMENT['.$index.'][INDEX]" value="'.$index.'" class="index">
 				<input type="hidden" name="PAYMENT['.$index.'][PAID]" id="PAYMENT_PAID_'.$index.'" value="'.(empty($paid) ? 'N' : $paid).'">
-				<input type="hidden" name="PAYMENT['.$index.'][IS_RETURN]" id="PAYMENT_IS_RETURN_'.$index.'" value="'.($post['IS_RETURN'] ? htmlspecialcharsbx($post['IS_RETURN']) : 'N').'">
+				<input type="hidden" name="PAYMENT['.$index.'][IS_RETURN]" id="PAYMENT_IS_RETURN_'.$index.'" value="'.(htmlspecialcharsbx($isReturn)).'">
 				<input type="hidden" name="PAYMENT['.$index.'][IS_RETURN_CHANGED]" id="PAYMENT_IS_RETURN_CHANGED_'.$index.'" value="N">
 				'.$hiddenPaySystemInnerId.'
 				<div class="adm-bus-component-content-container">
@@ -518,7 +534,7 @@ class OrderPayment
 												OrderEdit::makeSelectHtmlWithRestricted(
 													'PAYMENT['.$index.'][PAY_SYSTEM_ID]',
 													$data['PAY_SYSTEM_LIST'],
-													(isset($post['PAY_SYSTEM_ID'])) ? $post['PAY_SYSTEM_ID'] : $data['PAY_SYSTEM_ID'],
+													$paySystemId,
 													false,
 													array(
 														"class" => "adm-bus-select",
@@ -575,14 +591,14 @@ class OrderPayment
 											<tr>
 												<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_PAY_VOUCHER_NUM').':</td>
 												<td class="adm-detail-content-cell-r tal">
-													<input type="text" class="adm-bus-input" id="PAYMENT_NUM" name="PAYMENT['.$index.'][PAY_VOUCHER_NUM]" value="'.htmlspecialcharsbx(isset($post['PAY_VOUCHER_NUM']) ? $post['PAY_VOUCHER_NUM'] : $data['PAY_VOUCHER_NUM']).'" maxlength="20">
+													<input type="text" class="adm-bus-input" id="PAYMENT_NUM" name="PAYMENT['.$index.'][PAY_VOUCHER_NUM]" value="'.htmlspecialcharsbx($payVoucherNum).'" maxlength="20">
 												</td>
 											</tr>
 											<tr>
 												<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_PAY_VOUCHER_DATE').':</td>
 												<td class="adm-detail-content-cell-r tal">
 													<div class="adm-input-wrap adm-calendar-second" style="display: inline-block;">
-														<input type="text" class="adm-input adm-calendar-to" id="PAYMENT_DATE_'.$index.'" name="PAYMENT['.$index.'][PAY_VOUCHER_DATE]" size="15" value="'.htmlspecialcharsbx(($post['PAY_VOUCHER_DATE']) ? $post['PAY_VOUCHER_DATE'] : $data['PAY_VOUCHER_DATE']).'">
+														<input type="text" class="adm-input adm-calendar-to" id="PAYMENT_DATE_'.$index.'" name="PAYMENT['.$index.'][PAY_VOUCHER_DATE]" size="15" value="'.htmlspecialcharsbx($payVoucherDate).'">
 														<span class="adm-calendar-icon" title="'.Loc::getMessage('SALE_ORDER_PAYMENT_CHOOSE_DATE').'" onclick="BX.calendar({node:this, field:\'PAYMENT_DATE_'.$index.'\', form: \'\', bTime: false, bHideTime: false});"></span>
 													</div>
 												</td>
@@ -659,7 +675,7 @@ class OrderPayment
 		$result .= '</div><div class="clb"></div></div></div></div></div></div>';
 
 		$refundablePs = array();
-		if ($data['ID'] > 0)
+		if (isset($data['ID']) && $data['ID'] > 0)
 		{
 			$innerService = PaySystem\Manager::getObjectById(PaySystem\Manager::getInnerPaySystemId());
 			$refundablePs[Payment::RETURN_INNER] = $innerService->getField('NAME');
@@ -674,7 +690,7 @@ class OrderPayment
 		$params = array(
 			'index' => $index,
 			'functionOnSave' => 'saveInHiddenFields',
-			'isPaid' => ($data['PAID'] == 'Y'),
+			'isPaid' => isset($data['PAID']) && $data['PAID'] === 'Y',
 			'viewForm' => false,
 			'isAvailableChangeStatus' => $isAllowPayment,
 			'psToReturn' => $refundablePs

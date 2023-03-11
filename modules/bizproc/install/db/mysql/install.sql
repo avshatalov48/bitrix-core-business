@@ -304,6 +304,7 @@ CREATE TABLE b_bp_debugger_session (
 	DOCUMENT_TYPE varchar(128) NOT NULL,
 	DOCUMENT_CATEGORY_ID int NULL,
 	MODE tinyint unsigned NOT NULL,
+	TITLE varchar(256) NULL,
 	STARTED_BY int NOT NULL,
 	STARTED_DATE datetime NOT NULL,
 	FINISHED_DATE datetime,

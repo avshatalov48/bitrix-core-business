@@ -502,7 +502,7 @@ class User extends \IRestService
 
 		$server->setSecurityState(array(
 			"ID" => $result['ID'],
-			"EMAIL" => $result['EMAIL'],
+			"EMAIL" => $result['EMAIL'] ?? '',
 			"NAME" => $result['NAME'],
 		));
 
@@ -1312,7 +1312,7 @@ class User extends \IRestService
 						}
 					}
 
-					if (!isset($res[$key]))
+					if (!isset($res[$key]) && isset($userFields[$key]))
 					{
 						$res[$key] = $userFields[$key];
 					}

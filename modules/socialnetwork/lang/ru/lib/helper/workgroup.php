@@ -45,6 +45,7 @@ $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_VISIBLE_DESC"] = "Налич�
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET"] = "Секретный";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_1"] = "Секретный";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_DESC3"] = "Команда никому не видна в списке, присоединиться к ней можно только по запросу";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_SECRET_DESC3_1"] = "Команда никому не видна, присоединиться к ней можно только по запросу";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_SECRET"] = "Секретная группа";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_SECRET_1"] = "Секретная группа";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM"] = "Скрам-команда";

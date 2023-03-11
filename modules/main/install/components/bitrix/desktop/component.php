@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 /**
@@ -24,7 +24,9 @@ $this->setFrameMode(false);
 $arParams["ID"] = (isset($arParams["ID"])? preg_replace("/[^a-z0-9_]/i", "", $arParams["ID"]) : "gdholder1");
 
 if ($arParams["MULTIPLE"] == "Y")
-	$arParams["DESKTOP_PAGE"] = intval($_REQUEST["dt_page"]);
+{
+	$arParams["DESKTOP_PAGE"] = (int)($_REQUEST['dt_page'] ?? 0);
+}
 
 if (
 	in_array($arParams["MODE"], array("SU", "SG"))
@@ -40,7 +42,9 @@ if (
 			$DefaultIDWOS = implode("_", array_slice($arTmp, 0, 2));
 			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$DefaultIDWOS, false, 0);
 			if ($arUserOptionsDefaultWOS)
+			{
 				CUserOptions::SetOption("intranet", "~gadgets_".$arParams["DEFAULT_ID"], $arUserOptionsDefaultWOS, false, 0);
+			}
 		}
 	}
 
@@ -54,7 +58,9 @@ if (
 
 			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$IDWOS, false, 0);
 			if ($arUserOptionsDefaultWOS)
+			{
 				CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefaultWOS, false, 0);
+			}
 		}
 	}
 }
@@ -73,9 +79,16 @@ else
 
 if (IsModuleInstalled('intranet'))
 {
-	if (trim($arParams["NAME_TEMPLATE"]) == '')
-		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
-	$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
+	$arParams['NAME_TEMPLATE'] = trim((string)($arParams['NAME_TEMPLATE'] ?? ''));
+	if ($arParams['NAME_TEMPLATE'] === '')
+	{
+		$arParams['NAME_TEMPLATE'] = CSite::GetNameFormat();
+	}
+	$arParams['SHOW_LOGIN'] = (string)($arParams['SHOW_LOGIN'] ?? 'Y');
+	if ($arParams['SHOW_LOGIN'] !== 'N')
+	{
+		$arParams['SHOW_LOGIN'] = 'Y';
+	}
 
 	if (!array_key_exists("PM_URL", $arParams))
 		$arParams["PM_URL"] = "/company/personal/messages/chat/#USER_ID#/";
@@ -93,8 +106,17 @@ if (
 	$arParams["GADGETS_FIXED"] = array();
 }
 
-$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
+$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
+
+$arParams['DATE_TIME_FORMAT'] = $arParams['DATE_TIME_FORMAT'] ?? $culture->getFullDateFormat();
+$arParams['DATE_FORMAT'] = $arParams['DATE_FORMAT'] ?? $culture->getLongDateFormat();
+$arParams['DATE_FORMAT_NO_YEAR'] = $arParams['DATE_FORMAT_NO_YEAR'] ?? $culture->getDayMonthFormat();
+
+$arParams['G_LIFE_ACTIVE_DATE_FORMAT'] = $arParams['G_LIFE_ACTIVE_DATE_FORMAT'] ?? $culture->getLongDateFormat();
+$arParams['G_OFFICIAL_ACTIVE_DATE_FORMAT'] = $arParams['G_OFFICIAL_ACTIVE_DATE_FORMAT'] ?? $culture->getLongDateFormat();
+$arParams['GU_BLOG_DATE_TIME_FORMAT'] = $arParams['GU_BLOG_DATE_TIME_FORMAT'] ?? $culture->getDayMonthFormat();
+$arParams['GU_FORUM_DATE_TIME_FORMAT'] = $arParams['GU_FORUM_DATE_TIME_FORMAT'] ?? $culture->getDayMonthFormat();
+$arParams['GU_WORKGROUPS_DATE_TIME_FORMAT'] = $arParams['GU_WORKGROUPS_DATE_TIME_FORMAT'] ?? $culture->getDayMonthFormat();
 
 $arResult = Array();
 
@@ -131,9 +153,9 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 {
 	if($_SERVER['REQUEST_METHOD']=='POST')
 	{
-		if($_POST['holderid'] == $arParams["ID"])
+		if(isset($_POST['holderid']) && $_POST['holderid'] == $arParams["ID"])
 		{
-			$gdid = $_POST['gid'];
+			$gdid = $_POST['gid'] ?? '';
 			$p = mb_strpos($gdid, "@");
 			if($p === false)
 			{
@@ -147,10 +169,10 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 
 			$arGadget = BXGadget::GetById($gadget_id);
 			if (
-				$arGadget 
+				$arGadget
 				&& (
-					!is_array($arParams["GADGETS"]) 
-					|| in_array($arGadget["ID"], $arParams["GADGETS"]) 
+					!is_array($arParams["GADGETS"])
+					|| in_array($arGadget["ID"], $arParams["GADGETS"])
 					|| in_array("ALL", $arParams["GADGETS"])
 				)
 			)
@@ -185,22 +207,23 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 
 						if ($tmp_desktop_id)
 						{
-							$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$tmp_desktop_id, false, false);
+							$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$tmp_desktop_id);
 						}
 					}
-					if (!is_array($arUserOptions["GADGETS"]))
+					if (!isset($arUserOptions["GADGETS"]) || !is_array($arUserOptions["GADGETS"]))
 					{
 						$arUserOptions["GADGETS"] = Array();
 					}
 				}
 
-				if ($_POST['action'] == 'add')
+				if (isset($_POST['action']) && $_POST['action'] === 'add')
 				{
+					$bUniqueGadgetAlreadyUsed = false;
 					foreach($arUserOptions["GADGETS"] as $tempid => $tempgadget)
 					{
 						$p = mb_strpos($tempid, "@");
 						$gadget_id_tmp = ($p === false? $tempid : mb_substr($tempid, 0, $p));
-			
+
 						if ($gadget_id_tmp == $gadget_id)
 						{
 							$arGadget = BXGadget::GetById($gadget_id_tmp);
@@ -232,7 +255,7 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 					}
 					LocalRedirect($_SERVER['REQUEST_URI']);
 				}
-				elseif ($_POST['action'] == 'update')
+				elseif (isset($_POST['action']) && $_POST['action'] == 'update')
 				{
 					$arUserOptions["GADGETS"][$gdid]["SETTINGS"] = $_POST["settings"];
 
@@ -251,66 +274,56 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 	}
 }
 
-if($_REQUEST['gd_ajax']==$arParams["ID"])
+$gdAjax = (string)($_REQUEST['gd_ajax'] ?? '');
+if ($gdAjax === $arParams['ID'])
 {
-	if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid())
+	if ($USER->IsAuthorized() && $arResult["PERMISSION"] > "R" && check_bitrix_sessid())
 	{
 		$APPLICATION->RestartBuffer();
-		switch($_REQUEST['gd_ajax_action'])
+
+		$gdAjaxAction = (string)($_REQUEST['gd_ajax_action'] ?? '');
+		switch ($gdAjaxAction)
 		{
 			case 'get_settings':
 				$gdid = $_REQUEST['gid'];
 
-				$p = mb_strpos($gdid, "@");
-				if($p === false)
+				$p = strpos($gdid, "@");
+				if ($p === false)
+				{
 					break;
+				}
 
 				$gadget_id = mb_substr($gdid, 0, $p);
 
 				// closed by an admin
-				if(is_array($arParams["GADGETS"]) && !in_array($gadget_id, $arParams["GADGETS"]) && !in_array("ALL", $arParams["GADGETS"]))
+				if (is_array($arParams["GADGETS"]) && !in_array($gadget_id, $arParams["GADGETS"]) && !in_array("ALL", $arParams["GADGETS"]))
+				{
 					break;
+				}
 
 				// get user settings of the gadget
 				$arGadget = BXGadget::GetById($gadget_id, true, $arParams);
-				if($arGadget)
+
+				if ($arGadget)
 				{
 					// get params values
 					$arGadgetParams = $arGadget["USER_PARAMETERS"];
-					foreach($arParams as $id=>$p)
+					foreach ($arParams as $id => $p)
 					{
-						$pref = "GU_".$gadget_id."_";
-						if(mb_strpos($id, $pref) === 0 && is_set($arGadgetParams, mb_substr($id, mb_strlen($pref))))
-							$arGadgetParams[mb_substr($id, mb_strlen($pref))]["VALUE"] = $p;
+						$pref = "GU_" . $gadget_id . "_";
+						$idParam = substr($id, strlen($pref));
+						if (strpos($id, $pref) === 0 && isset($arGadgetParams[$idParam]))
+						{
+							$arGadgetParams[$idParam]["VALUE"] = $p;
+						}
 					}
 
-					$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefault, $user_option_id);
-
-					if (
-						$arParams["MULTIPLE"] == "Y"
-						&& array_key_exists($arParams["DESKTOP_PAGE"], $arUserOptions)
-					)
+					foreach (BXGadget::getGadgetSettings($gadget_id, $arParams) as $p => $v)
 					{
-						$arUserOptionsTmp = $arUserOptions;
-						$arUserOptions = $arUserOptions[$arParams["DESKTOP_PAGE"]];
-					}
-
-					if (!$arUserOptions && !$user_option_id)
-					{
-						if (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."index.php", SITE_DIR, "/")))
-							$tmp_desktop_id = "mainpage";
-						elseif (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."desktop.php", "/desktop.php")))
-							$tmp_desktop_id = "dashboard";
-
-						if ($tmp_desktop_id)
-							$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$tmp_desktop_id, false, false);
-					}
-
-					if(is_array($arUserOptions) && is_array($arUserOptions["GADGETS"]) && is_array($arUserOptions["GADGETS"][$gdid]) && is_array($arUserOptions["GADGETS"][$gdid]["SETTINGS"]))
-					{
-						foreach($arUserOptions["GADGETS"][$gdid]["SETTINGS"] as $p=>$v)
-							if(is_set($arGadgetParams, $p))
-								$arGadgetParams[$p]["VALUE"] = $v;
+						if (isset($arGadgetParams[$p]))
+						{
+							$arGadgetParams[$p]["VALUE"] = $v;
+						}
 					}
 
 					echo CUtil::PhpToJSObject($arGadgetParams);
@@ -334,37 +347,39 @@ if($_REQUEST['gd_ajax']==$arParams["ID"])
 				break;
 
 			case 'save_default':
-				BXGadget::SavePositions($arParams, $_REQUEST['POS']);
+				if (isset($_REQUEST['POS']) && is_array($_REQUEST['POS']))
+				{
+					BXGadget::SavePositions($arParams, $_REQUEST['POS']);
+				}
 
 				if ($arResult["PERMISSION"] > "W")
 				{
-					$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefault, $user_option_id);
-					if (!$arUserOptions && !$user_option_id)
+					$arUserOptions = BXGadget::readSettings($arParams);
+
+					if (isset($arParams["DEFAULT_ID"]) && trim($arParams["DEFAULT_ID"]) <> '')
 					{
-						if (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."index.php", SITE_DIR, "/")))
-							$tmp_desktop_id = "mainpage";
-						elseif (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."desktop.php", "/desktop.php")))
-							$tmp_desktop_id = "dashboard";
-
-						if ($tmp_desktop_id)
-							$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$tmp_desktop_id, false, false);
-					}
-
-					if (array_key_exists("DEFAULT_ID", $arParams) && trim($arParams["DEFAULT_ID"]) <> '')
 						CUserOptions::SetOption("intranet", "~gadgets_".$arParams["DEFAULT_ID"], $arUserOptions, false, 0);
+					}
 					else
+					{
 						CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptions, true);
+					}
 				}
 				break;
 
 			case 'update_position':
-				BXGadget::SavePositions($arParams, $_REQUEST['POS']);
+				if (isset($_REQUEST['POS']) && is_array($_REQUEST['POS']))
+				{
+					BXGadget::SavePositions($arParams, $_REQUEST['POS']);
+				}
 				break;
 		}
 	}
 	else
+	{
 		echo GetMessage("CMDESKTOP_AUTH_ERR");
-	die();
+	}
+	CMain::FinalActions();
 }
 
 $arResult["GADGETS"] = Array();
@@ -427,20 +442,31 @@ if ($arParams["MULTIPLE"] == "Y")
 	$arUserOptions = $arUserOptions[$arParams["DESKTOP_PAGE"]];
 
 	if (is_array($arUserOptions))
-		foreach($arUserOptionsTmp as $i => $arDesktop)
-			$arResult["DESKTOPS"][] = array("NAME" => $arDesktop["NAME"]);
+	{
+		foreach ($arUserOptionsTmp as $i => $arDesktop)
+		{
+			$arResult['DESKTOPS'][] = [
+				'NAME' => ($arDesktop['NAME'] ?? '')
+			];
+		}
+	}
 }
 
-if (is_array($arUserOptions) && array_key_exists("COLS", $arUserOptions))
-	$arResult["COLS"] = $arUserOptions["COLS"];
+$arResult['COLS'] = 0;
+if (is_array($arUserOptions) && array_key_exists('COLS', $arUserOptions))
+{
+	$arResult['COLS'] = (int)$arUserOptions['COLS'];
+}
 
-if	(intval($arResult["COLS"]) <= 0)
+if ($arResult["COLS"] <= 0)
+{
 	$arResult["COLS"] = (
-			intval($arParams["COLUMNS"])>0
-			&& intval($arParams["COLUMNS"])<10
-		)
+		intval($arParams["COLUMNS"]) > 0
+		&& intval($arParams["COLUMNS"]) < 10
+	)
 		? intval($arParams["COLUMNS"])
 		: 3;
+}
 
 if (
 	is_array($arUserOptions)
@@ -538,7 +564,7 @@ foreach (GetModuleEvents("main", "OnFillGadgetGroups", true) as $arEvent)
 {
 	ExecuteModuleEventEx($arEvent, array(&$arGroups));
 }
-	
+
 $arResult["ALL_GADGETS"] = Array();
 $arGadgets = BXGadget::GetList();
 foreach($arGadgets as $gadget)
@@ -547,9 +573,9 @@ foreach($arGadgets as $gadget)
 	if(is_array($arParams["GADGETS"]) && !in_array($gadget["ID"], $arParams["GADGETS"]) && !in_array("ALL", $arParams["GADGETS"]))
 		continue;
 
-	if ($arParams["MODE"] != "SU" && $arParams["MODE"] != "SG" && ($gadget["SU_ONLY"] == true || $gadget["SG_ONLY"] == true))
+	if ($arParams["MODE"] != "SU" && $arParams["MODE"] != "SG" && ((isset($gadget["SU_ONLY"]) && $gadget["SU_ONLY"] == true) || (isset($gadget["SG_ONLY"]) && $gadget["SG_ONLY"] == true)))
 		continue;
-	if ($gadget["OO_ONLY"] == true && !$USER->CanDoOperation('view_other_settings'))
+	if (isset($gadget["OO_ONLY"]) && $gadget["OO_ONLY"] == true && !$USER->CanDoOperation('view_other_settings'))
 		continue;
 	if ($arParams["MODE"] != "AI" && $gadget["AI_ONLY"] == true)
 		continue;
@@ -560,40 +586,40 @@ foreach($arGadgets as $gadget)
 	if ($arParams["MODE"] == "SG" && $gadget["SG_ONLY"] != true && $gadget["SG"] != true)
 		continue;
 
-	if ($arParams["MODE"] == "AI" && $gadget["AI_ONLY"] != true && $gadget["AI"] != true)
+	if ($arParams["MODE"] == "AI" && isset($gadget["AI_ONLY"]) && $gadget["AI_ONLY"] != true && $gadget["AI"] != true)
 		continue;
 
-	if ($gadget["DISABLED"] === true)
+	if (isset($gadget["DISABLED"]) && $gadget["DISABLED"] === true)
 	{
 		continue;
 	}
-	if ($gadget["EXTRANET_ONLY"] == true && (!CModule::IncludeModule('extranet') || !CExtranet::IsExtranetSite()))
+	if (isset($gadget["EXTRANET_ONLY"]) && $gadget["EXTRANET_ONLY"] == true && (!CModule::IncludeModule('extranet') || !CExtranet::IsExtranetSite()))
 		continue;
-	if ($gadget["SEARCH_ONLY"] == true && !IsModuleInstalled("search"))
+	if (isset($gadget["SEARCH_ONLY"]) && $gadget["SEARCH_ONLY"] == true && !IsModuleInstalled("search"))
 		continue;
-	if ($gadget["FORUM_ONLY"] == true && !IsModuleInstalled("forum"))
+	if (isset($gadget["FORUM_ONLY"]) && $gadget["FORUM_ONLY"] == true && !IsModuleInstalled("forum"))
 		continue;
-	if ($gadget["BLOG_ONLY"] == true && !IsModuleInstalled("blog"))
+	if (isset($gadget["BLOG_ONLY"]) && $gadget["BLOG_ONLY"] == true && !IsModuleInstalled("blog"))
 		continue;
-	if ($gadget["PHOTOGALLERY_ONLY"] == true && !IsModuleInstalled("photogallery"))
+	if (isset($gadget["PHOTOGALLERY_ONLY"]) && $gadget["PHOTOGALLERY_ONLY"] == true && !IsModuleInstalled("photogallery"))
 		continue;
-	if ($gadget["WEBDAV_ONLY"] == true && !IsModuleInstalled("webdav"))
+	if (isset($gadget["WEBDAV_ONLY"]) && $gadget["WEBDAV_ONLY"] == true && !IsModuleInstalled("webdav"))
 		continue;
-	if ($gadget["DISK_ONLY"] == true && !IsModuleInstalled("disk"))
+	if (isset($gadget["DISK_ONLY"]) && $gadget["DISK_ONLY"] == true && !IsModuleInstalled("disk"))
 		continue;
-	if ($gadget["SALE_ONLY"] == true && !IsModuleInstalled("sale"))
+	if (isset($gadget["SALE_ONLY"]) && $gadget["SALE_ONLY"] == true && !IsModuleInstalled("sale"))
 		continue;
-	if ($gadget["SALE_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("sale") == "D")
+	if (isset($gadget["SALE_ONLY"]) && $gadget["SALE_ONLY"] == true && isset($gadget["AI_ONLY"]) && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("sale") == "D")
 		continue;
-	if ($gadget["STATISTIC_ONLY"] == true && !IsModuleInstalled("statistic"))
+	if (isset($gadget["STATISTIC_ONLY"]) && $gadget["STATISTIC_ONLY"] == true && !IsModuleInstalled("statistic"))
 		continue;
-	if ($gadget["STATISTIC_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("statistic") == "D")
+	if (isset($gadget["STATISTIC_ONLY"]) && $gadget["STATISTIC_ONLY"] == true && isset($gadget["AI_ONLY"]) && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("statistic") == "D")
 		continue;
-	if ($gadget["IBLOCK_ONLY"] == true && !IsModuleInstalled("iblock"))
+	if (isset($gadget["IBLOCK_ONLY"]) && $gadget["IBLOCK_ONLY"] == true && !IsModuleInstalled("iblock"))
 		continue;
-	if ($gadget["LANGUAGE_ONLY_RU"] == true && LANGUAGE_ID != "ru")
+	if (isset($gadget["LANGUAGE_ONLY_RU"]) && $gadget["LANGUAGE_ONLY_RU"] == true && LANGUAGE_ID != "ru")
 		continue;
-	if ($gadget["IBLOCK_ONLY"] == true && $gadget["AI_ONLY"] == true)
+	if (isset($gadget["IBLOCK_ONLY"]) && $gadget["IBLOCK_ONLY"] == true && isset($gadget["AI_ONLY"]) && $gadget["AI_ONLY"] == true)
 	{
 		if(CModule::IncludeModule('iblock'))
 		{
@@ -607,7 +633,7 @@ foreach($arGadgets as $gadget)
 			continue;
 	}
 	if (
-		$gadget["SUPPORT_ONLY"] == true
+		isset($gadget["SUPPORT_ONLY"]) && $gadget["SUPPORT_ONLY"] == true
 		&&
 		(
 			!CModule::IncludeModule("support")
@@ -616,61 +642,64 @@ foreach($arGadgets as $gadget)
 		)
 	)
 		continue;
-	if ($gadget["WIKI_ONLY"] == true && !IsModuleInstalled("wiki"))
+	if (isset($gadget["WIKI_ONLY"]) && $gadget["WIKI_ONLY"] == true && !IsModuleInstalled("wiki"))
 		continue;
-	if ($gadget["CRM_ONLY"] == true && !IsModuleInstalled("crm"))
+	if (isset($gadget["CRM_ONLY"]) && $gadget["CRM_ONLY"] == true && !IsModuleInstalled("crm"))
 		continue;
-	if ($gadget["VOTE_ONLY"] == true && (!IsModuleInstalled("vote") || !CBXFeatures::IsFeatureEnabled("Vote")))
+	if (isset($gadget["VOTE_ONLY"]) && $gadget["VOTE_ONLY"] == true && (!IsModuleInstalled("vote") || !CBXFeatures::IsFeatureEnabled("Vote")))
 		continue;
-	if ($gadget["TASKS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Tasks"))
+	if (isset($gadget["TASKS_ONLY"]) && $gadget["TASKS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Tasks"))
 		continue;
-	if ($gadget["MESSENGER_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("WebMessenger"))
+	if (isset($gadget["MESSENGER_ONLY"]) && $gadget["MESSENGER_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("WebMessenger"))
 		continue;
-	if ($gadget["ABSENCE_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("StaffAbsence"))
+	if (isset($gadget["ABSENCE_ONLY"]) && $gadget["ABSENCE_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("StaffAbsence"))
 		continue;
-	if ($gadget["STAFF_CHANGES_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("StaffChanges"))
+	if (isset($gadget["STAFF_CHANGES_ONLY"]) && $gadget["STAFF_CHANGES_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("StaffChanges"))
 		continue;
-	if ($gadget["COMMON_DOCS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CommonDocuments"))
+	if (isset($gadget["COMMON_DOCS_ONLY"]) && $gadget["COMMON_DOCS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CommonDocuments"))
 		continue;
-	if ($gadget["COMPANY_PHOTO_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyPhoto"))
+	if (isset($gadget["COMPANY_PHOTO_ONLY"]) && $gadget["COMPANY_PHOTO_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyPhoto"))
 		continue;
-	if ($gadget["COMPANY_CALENDAR_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyCalendar"))
+	if (isset($gadget["COMPANY_CALENDAR_ONLY"]) && $gadget["COMPANY_CALENDAR_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyCalendar"))
 		continue;
-	if ($gadget["CALENDAR_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Calendar"))
+	if (isset($gadget["CALENDAR_ONLY"]) && $gadget["CALENDAR_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Calendar"))
 		continue;
-	if ($gadget["COMPANY_VIDEO_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyVideo"))
+	if (isset($gadget["COMPANY_VIDEO_ONLY"]) && $gadget["COMPANY_VIDEO_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("CompanyVideo"))
 		continue;
-	if ($gadget["WORKGROUPS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Workgroups"))
+	if (isset($gadget["WORKGROUPS_ONLY"]) && $gadget["WORKGROUPS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Workgroups"))
 		continue;
-	if ($gadget["FRIENDS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Friends"))
+	if (isset($gadget["FRIENDS_ONLY"]) && $gadget["FRIENDS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Friends"))
 		continue;
 
 	if ($USER->IsAuthorized() && $arResult["PERMISSION"] < "W" && $gadget["SELF_PROFILE_ONLY"] == true && $arParams["MODE"] == "SU" && intval($arParams["USER_ID"]) > 0 && $arParams["USER_ID"] != $USER->GetID())
 		continue;
 
-	if ($gadget["BLOG_ONLY"] == true && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "blog"))
+	if (isset($gadget["BLOG_ONLY"]) && $gadget["BLOG_ONLY"] == true && isset($gadget["SU_ONLY"]) && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "blog"))
 		continue;
 
-	if ($gadget["BLOG_ONLY"] == true && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog"))
+	if (isset($gadget["BLOG_ONLY"]) && $gadget["BLOG_ONLY"] == true && isset($gadget["SG_ONLY"]) && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog"))
 		continue;
 
-	if ($gadget["FORUM_ONLY"] == true && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "forum"))
+	if (isset($gadget["FORUM_ONLY"]) && $gadget["FORUM_ONLY"] == true && isset($gadget["SU_ONLY"]) && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "forum"))
 		continue;
 
-	if ($gadget["FORUM_ONLY"] == true && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum"))
+	if (isset($gadget["FORUM_ONLY"]) && $gadget["FORUM_ONLY"] == true && isset($gadget["SG_ONLY"]) && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum"))
 		continue;
 
-	if ($gadget["SEARCH_ONLY"] == true && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "search"))
+	if (isset($gadget["SEARCH_ONLY"]) && $gadget["SEARCH_ONLY"] == true && isset($gadget["SU_ONLY"]) && $gadget["SU_ONLY"] == true && intval($arParams["USER_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "search"))
 		continue;
 
-	if ($gadget["SEARCH_ONLY"] == true && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "search"))
+	if (isset($gadget["SEARCH_ONLY"]) && $gadget["SEARCH_ONLY"] == true && isset($gadget["SG_ONLY"]) && $gadget["SG_ONLY"] == true && intval($arParams["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule('socialnetwork') && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "search"))
 		continue;
 
 	if (
-		$gadget["WIKI_ONLY"] == true 
-		&& $gadget["SG_ONLY"] == true 
-		&& intval($arParams["SOCNET_GROUP_ID"]) > 0 
-		&& CModule::IncludeModule('socialnetwork') 
+		isset($gadget["WIKI_ONLY"])
+		&& $gadget["WIKI_ONLY"] == true
+		&& isset($gadget["SG_ONLY"])
+		&& $gadget["SG_ONLY"] == true
+		&& isset($arParams["SOCNET_GROUP_ID"])
+		&& intval($arParams["SOCNET_GROUP_ID"]) > 0
+		&& CModule::IncludeModule('socialnetwork')
 		&& (
 			!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "wiki")
 			|| !CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "wiki", "view", CSocNetUser::IsCurrentUserModuleAdmin())
@@ -680,17 +709,17 @@ foreach($arGadgets as $gadget)
 		continue;
 	}
 
-	if($gadget["GROUP"]["ID"] == "")
+	if(!isset($gadget["GROUP"]["ID"]) || $gadget["GROUP"]["ID"] == "")
 	{
 		$gadget["GROUP"]["ID"] = "other";
 	}
 
 	if (
-		!isset($gadget["TOTALLY_FIXED"]) 
+		!isset($gadget["TOTALLY_FIXED"])
 		|| !$gadget["TOTALLY_FIXED"]
 	)
 	{
-		if (!is_array($gadget["GROUP"]["ID"]))
+		if (!isset($gadget["GROUP"]["ID"]) || !is_array($gadget["GROUP"]["ID"]))
 		{
 			$arGroups[$gadget["GROUP"]["ID"]]["GADGETS"][] = $gadget["ID"];
 		}
@@ -708,11 +737,11 @@ foreach($arGadgets as $gadget)
 						&& $group_id == "sonet"
 					)
 					|| (
-						$arParams["MODE"] == "AI" 
+						$arParams["MODE"] == "AI"
 						&& $group_id != "admin"
 					)
 					|| (
-						$arParams["MODE"] != "AI" 
+						$arParams["MODE"] != "AI"
 						&& $group_id == "admin"
 					)
 				)
@@ -763,7 +792,7 @@ if(is_array($arUserOptions))
 				$gadget_id = mb_substr($gdid, 0, $p);
 			}
 
-			if($arResult["ALL_GADGETS"][$gadget_id])
+			if (isset($arResult["ALL_GADGETS"][$gadget_id]) && $arResult["ALL_GADGETS"][$gadget_id])
 			{
 				$arGadgetParams = $gadgetUserSettings["SETTINGS"] ?? [];
 
@@ -807,7 +836,7 @@ if(is_array($arUserOptions))
 					$arGadget["TITLE"] = htmlspecialcharsbx($arGadgetParams["TITLE_STD"]);
 				}
 
-				$arGadget["HIDE"] = $gadgetUserSettings["HIDE"];
+				$arGadget["HIDE"] = $gadgetUserSettings["HIDE"] ?? false;
 				if($arParams["PERMISSION"]>"R")
 					$arGadget["USERDATA"] = &$arUserOptions["GADGETS"][$gdid]["USERDATA"];
 				else

@@ -70,6 +70,8 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 
 		$arParams['SEF_MODE'] = 'Y';
 		$arParams['SEF_FOLDER'] = (string)($arParams['SEF_FOLDER'] ?? '/shop/documents-catalog/');
+		$arParams['SEF_URL_TEMPLATES'] = $arParams['SEF_URL_TEMPLATES'] ?? [];
+		$arParams['VARIABLE_ALIASES'] = $arParams['VARIABLE_ALIASES'] ?? [];
 
 		if (empty($arParams['PATH_TO']) || !is_array($arParams['PATH_TO']))
 		{

@@ -132,7 +132,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 				$i = 0;
 				foreach ($defaultValue as $value)
 				{
-					if ($arCurrentValues["variable_condition_count"] <> '')
+					if (!CBPHelper::isEmptyValue($arCurrentValues["variable_condition_count"]))
 					{
 						$arCurrentValues["variable_condition_count"] .= ",";
 					}
@@ -152,35 +152,43 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 			$arVariableConditionCount = explode(",", $arCurrentValues["variable_condition_count"]);
 			foreach ($arVariableConditionCount as $i)
 			{
-				if (intval($i)."!" != $i."!")
+				if (!is_numeric($i))
+				{
+					continue;
+				}
+				$i = (int)$i;
+
+				$fieldId = $arCurrentValues['variable_condition_field_' . $i] ?? null;
+				if (CBPHelper::isEmptyValue($fieldId))
 				{
 					continue;
 				}
 
-				$i = intval($i);
-
-				if (
-					!array_key_exists("variable_condition_field_" . $i, $arCurrentValues)
-					|| $arCurrentValues["variable_condition_field_".$i] == ''
-				)
+				$operator = $arCurrentValues['field_condition_condition_' . $i] ?? '=';
+				$property = [];
+				if (array_key_exists($fieldId, $arWorkflowParameters))
 				{
-					continue;
+					$property = $arWorkflowParameters[$fieldId];
+				}
+				elseif (array_key_exists($fieldId, $arWorkflowVariables))
+				{
+					$property = $arWorkflowVariables[$fieldId];
 				}
 
-				$n = $arCurrentValues["variable_condition_field_" . $i];
+				$value =
+					static::getConditionFieldInputValue(
+						(string)$operator,
+						$documentType,
+						$property,
+						"variable_condition_value_" . $i,
+						$arCurrentValues
+					)
+						->getData()['value']
+				;
 
-				$errors = [];
-				$arCurrentValues["variable_condition_value_" . $i] = $documentService->GetFieldInputValue(
-					$documentType,
-					array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
-					"variable_condition_value_" . $i,
-					$arCurrentValues,
-					$errors
-				);
+				$arCurrentValues["variable_condition_value_" . $i] = $value ?? '';
 			}
 		}
-
-		$javascriptFunctions = $documentService->GetJSFunctionsForFields($documentType, "objFieldsPVC", $arWorkflowParameters + $arWorkflowVariables, $arFieldTypes);
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
@@ -191,7 +199,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 				"arVariables" => $arWorkflowVariables,
 				"formName" => $formName,
 				"arFieldTypes" => $arFieldTypes,
-				"javascriptFunctions" => $javascriptFunctions,
+				'documentType' => $documentType,
 			]
 		);
 	}
@@ -207,10 +215,8 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 	{
 		$errors = [];
 
-		if (
-			!array_key_exists("variable_condition_count", $arCurrentValues)
-			|| $arCurrentValues["variable_condition_count"] == ''
-		)
+		$variableConditionCount = $arCurrentValues['variable_condition_count'] ?? null;
+		if (CBPHelper::isEmptyValue($variableConditionCount))
 		{
 			$errors[] = [
 				"code" => "",
@@ -220,46 +226,55 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 			return null;
 		}
 
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
-
 		$result = [];
 
-		$arVariableConditionCount = explode(",", $arCurrentValues["variable_condition_count"]);
+		$arVariableConditionCount = explode(",", (string)$variableConditionCount);
 		foreach ($arVariableConditionCount as $i)
 		{
-			if (intval($i)."!" != $i."!")
+			if (!is_numeric($i))
+			{
+				continue;
+			}
+			$i = (int)$i;
+
+			$fieldId = $arCurrentValues['variable_condition_field_' . $i] ?? null;
+			if (CBPHelper::isEmptyValue($fieldId))
 			{
 				continue;
 			}
 
-			$i = intval($i);
-
-			if (
-				!array_key_exists("variable_condition_field_" . $i, $arCurrentValues)
-				|| $arCurrentValues["variable_condition_field_" . $i] == ''
-			)
+			$property = [];
+			if (array_key_exists($fieldId, $arWorkflowParameters))
 			{
-				continue;
+				$property = $arWorkflowParameters[$fieldId];
+			}
+			elseif (array_key_exists($fieldId, $arWorkflowVariables))
+			{
+				$property = $arWorkflowVariables[$fieldId];
 			}
 
-			$n = $arCurrentValues["variable_condition_field_" . $i];
-
-			$errors = [];
-			$arCurrentValues["variable_condition_value_" . $i] = $documentService->GetFieldInputValue(
+			$operator = htmlspecialcharsback($arCurrentValues["variable_condition_condition_" . $i]);
+			$inputResult = static::getConditionFieldInputValue(
+				(string)$operator,
 				$documentType,
-				array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
-				"variable_condition_value_".$i,
+				$property,
+				"variable_condition_value_" . $i,
 				$arCurrentValues,
-				$errors
 			);
 
-			$result[] = [
-				$arCurrentValues["variable_condition_field_" . $i],
-				htmlspecialcharsback($arCurrentValues["variable_condition_condition_" . $i]),
-				$arCurrentValues["variable_condition_value_" . $i],
-				(int) $arCurrentValues["variable_condition_joiner_" . $i],
-			];
+			if (!$inputResult->isSuccess())
+			{
+				foreach ($inputResult->getErrors() as $error)
+				{
+					$errors[] = [
+						'message' => $error->getMessage(),
+						'code' => $error->getCode(),
+					];
+				}
+			}
+			$joiner = (int)$arCurrentValues["variable_condition_joiner_" . $i];
+
+			$result[] = [$fieldId, $operator, $inputResult->getData()['value'] ?? '', $joiner];
 		}
 
 		if (count($result) <= 0)

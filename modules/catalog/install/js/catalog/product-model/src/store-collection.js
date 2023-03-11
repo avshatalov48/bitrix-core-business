@@ -5,6 +5,7 @@ import {RightActionDictionary} from "./right-action-dictionary";
 export class StoreCollection
 {
 	#map: Map = new Map();
+	#inited: boolean = false;
 
 	constructor(model: ProductModel = {})
 	{
@@ -13,6 +14,7 @@ export class StoreCollection
 
 	init(map: {})
 	{
+		this.#setInited(true);
 		Object.keys(map).forEach((key) => {
 			const item = map[key];
 			if (item['STORE_ID'] > 0)
@@ -44,6 +46,7 @@ export class StoreCollection
 				}
 			)
 				.then((response) => {
+					this.#setInited(true);
 					response.data.forEach((item) => {
 						if (!Type.isNil(item['STORE_ID']))
 						{
@@ -98,9 +101,20 @@ export class StoreCollection
 		return result;
 	}
 
+	#setInited(inited: boolean): void
+	{
+		this.#inited = inited;
+	}
+
+	isInited(): boolean
+	{
+		return this.#inited;
+	}
+
 	clear(): StoreCollection
 	{
 		this.#map.clear();
+		this.#setInited(false);
 
 		return this;
 	}

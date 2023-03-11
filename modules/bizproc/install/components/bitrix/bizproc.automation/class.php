@@ -340,7 +340,13 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			'STATUSES_EDIT_URL' => $this->getStatusesEditUrl(),
 			'USER_OPTIONS' => [
 				'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', []),
-				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', [])
+				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', []),
+				'crm_check_automation' => \CUserOptions::GetOption(
+					'bizproc.automation.guide',
+					'crm_check_automation',
+					[],
+					$tplUser->getId()
+				),
 			],
 			'FRAME_MODE' => $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER',
 			'USE_DISK' => Main\Loader::includeModule('disk'),
@@ -348,7 +354,8 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			'SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING' => (
 				isset($this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'])
 				&& $this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === 'Y'
-			)
+			),
+			'IS_WORKTIME_AVAILABLE' => \CBPHelper::isWorkTimeAvailable(),
 		);
 
 		$this->prepareDelayMinLimitResult();

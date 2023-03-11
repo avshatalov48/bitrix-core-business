@@ -81,7 +81,7 @@ class CAllSaleOrderPropsValue
 
 		$relationFilter = array();
 
-		if ($arFilter['PAYSYSTEM_ID'])
+		if (!empty($arFilter['PAYSYSTEM_ID']))
 		{
 			$relationFilter []= array(
 				'=PROPERTY.Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_TYPE' => 'P',
@@ -89,7 +89,7 @@ class CAllSaleOrderPropsValue
 			);
 		}
 
-		if ($arFilter['DELIVERY_ID'])
+		if (!empty($arFilter['DELIVERY_ID']))
 		{
 			$relationFilter['LOGIC'] = 'OR';
 			$relationFilter []= array(
@@ -99,7 +99,9 @@ class CAllSaleOrderPropsValue
 		}
 
 		if ($relationFilter)
+		{
 			$query->addFilter(null, $relationFilter);
+		}
 
 		$arFilter['ENTITY_TYPE'] = \Bitrix\Sale\Registry::ENTITY_ORDER;
 
@@ -184,7 +186,7 @@ class CAllSaleOrderPropsValue
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPV_EMPTY_ORDER_ID"), "EMPTY_ORDER_ID");
 			return false;
 		}
-		
+
 		if ((is_set($arFields, "ORDER_PROPS_ID") || $ACTION=="ADD") && intval($arFields["ORDER_PROPS_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPV_EMPTY_PROP_ID"), "EMPTY_ORDER_PROPS_ID");
@@ -378,6 +380,7 @@ class CAllSaleOrderPropsValue
 final class CSaleOrderPropsValueAdapter implements Compatible\FetchAdapter
 {
 	private $fieldProxy = array();
+	private array $select;
 
 	function __construct(array $select)
 	{

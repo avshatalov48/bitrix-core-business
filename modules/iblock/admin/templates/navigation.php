@@ -111,7 +111,7 @@ if($this->NavRecordCount>0)
 	$aSizes = array(10, 20, 50, 100, 200, 500);
 	if($this->nInitialSize > 0 && !in_array($this->nInitialSize, $aSizes))
 		array_unshift($aSizes, $this->nInitialSize);
-	$reqSize = intval($_REQUEST["SIZEN_".$this->NavNum]);
+	$reqSize = (int)($_REQUEST["SIZEN_".$this->NavNum] ?? 0);
 	if($reqSize > 0 && !in_array($reqSize, $aSizes))
 		array_unshift($aSizes, $reqSize);
 	foreach($aSizes as $size)

@@ -9,3 +9,4 @@ class_alias('CBPStateService', 'CBPAllStateService');
 class_alias('CBPTaskService', 'CBPAllTaskService');
 class_alias('CBPTrackingService', 'CBPAllTrackingService');
 class_alias('CBPWorkflowTemplateLoader', 'CAllBPWorkflowTemplateLoader');
+class_alias('Bitrix\Bizproc\Calc\Parser', 'CBPCalc');

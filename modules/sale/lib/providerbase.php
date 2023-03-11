@@ -5608,7 +5608,8 @@ abstract class ProviderBase
 			{
 				if (isset($providerData['AVAILABLE_QUANTITY']))
 				{
-					$availableQuantityList[$productId] += floatval($providerData['AVAILABLE_QUANTITY']);
+					$availableQuantityList[$productId] ??= 0;
+					$availableQuantityList[$productId] += (float)$providerData['AVAILABLE_QUANTITY'];
 				}
 				else
 				{

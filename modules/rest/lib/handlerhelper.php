@@ -57,7 +57,7 @@ class HandlerHelper
 
 	public static function getApplicationList($PLACEMENT)
 	{
-		return is_array(static::$applicationList[$PLACEMENT])
+		return isset(static::$applicationList[$PLACEMENT]) && is_array(static::$applicationList[$PLACEMENT])
 			? static::$applicationList[$PLACEMENT]
 			: array();
 	}

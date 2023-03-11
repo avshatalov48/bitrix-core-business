@@ -222,7 +222,10 @@ class OrderPropsTable extends DataManager
 	public static function validateValue($value, $primary, array $row, $field)
 	{
 		$maxlength = 500;
-		$length = mb_strlen(self::modifyValueForSave($value, $row));
+
+		$valueForSave = self::modifyValueForSave($value, $row);
+		$length = isset($valueForSave) ? mb_strlen($valueForSave) : 0;
+
 		return $length > $maxlength
 			? Loc::getMessage('SALE_ORDER_PROPS_DEFAULT_ERROR', array('#PROPERTY_NAME#'=> $row['NAME'],'#FIELD_LENGTH#' => $length, '#MAX_LENGTH#' => $maxlength))
 			: true;
@@ -309,6 +312,11 @@ class OrderPropsTable extends DataManager
 	}
 	public static function modifySettingsForFetch($value)
 	{
+		if (empty($value))
+		{
+			return [];
+		}
+
 		$v = @unserialize($value, ['allowed_classes' => false]);
 		return is_array($v) ? $v : array();
 	}

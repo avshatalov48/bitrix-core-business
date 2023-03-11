@@ -158,7 +158,7 @@ function BPSHideShow(id)
 </script>
 
 <table class="dialogt" cellpadding="0" cellspacing="0" border="0">
-<?if($_REQUEST['only_users']!='Y'):?>
+<?php if(!isset($_REQUEST['only_users']) || $_REQUEST['only_users'] !== 'Y'): ?>
 	<tr>
 		<td>
 			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId1')"><b><?echo GetMessage("BIZPROC_SEL_PARAMS_TAB")?></b></a>
@@ -247,7 +247,13 @@ function BPSHideShow(id)
 		<td>
 			<select id="BPSId31S" size="13" style="width: 100%" ondblclick="BPSVInsert(this.value)">
 				<?php foreach ($arGlobalVariables as $fieldId => $property):
-					if ($arFilter === false || in_array($documentFieldTypes[$property['Type']]['BaseType'], $arFilter)):
+					if (
+						$arFilter === false
+						|| (
+							isset($documentFieldTypes[$property['Type']]['BaseType'])
+							&& in_array($documentFieldTypes[$property['Type']]['BaseType'], $arFilter)
+						)
+					):
 						$expr = sprintf('{{%s: %s}}', $gVarVisibility[$property['Visibility']], $property['Name']);
 						if ($_POST['fieldType'] === 'text'):
 							$fieldId .= ' > printable';
@@ -296,9 +302,13 @@ function _RecFindParams($act, $arFilter)
 	foreach($act as $key => $value)
 	{
 		$value["Type"] = mb_strtolower($value["Type"]);
-		if(is_array($arAllActivities[$value["Type"]]['RETURN']) && count($arAllActivities[$value["Type"]]['RETURN'])>0)
+		if(
+			isset($arAllActivities[$value["Type"]]['RETURN'])
+			&& is_array($arAllActivities[$value["Type"]]['RETURN'])
+			&& count($arAllActivities[$value["Type"]]['RETURN']) > 0
+		)
 		{
-			$arResultTmp = Array();
+			$arResultTmp = [];
 			foreach($arAllActivities[$value["Type"]]['RETURN'] as $return_name=>$return_props)
 			{
 				if($arFilter!==false && !in_array($return_props['TYPE'], $arFilter))
@@ -320,9 +330,12 @@ function _RecFindParams($act, $arFilter)
 				);
 			}
 		}
-		elseif(is_array($arAllActivities[$value['Type']]['ADDITIONAL_RESULT']))
+		elseif(
+			isset($arAllActivities[$value['Type']]['ADDITIONAL_RESULT'])
+			&& is_array($arAllActivities[$value['Type']]['ADDITIONAL_RESULT'])
+		)
 		{
-			$resultTmp = array();
+			$resultTmp = [];
 			foreach($arAllActivities[$value['Type']]['ADDITIONAL_RESULT'] as $propertyKey)
 			{
 				if(!is_array($value['Properties'][$propertyKey]))
@@ -408,7 +421,7 @@ $renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter
 	<?if ($selectorMode != 'employee'):?>
 	<tr>
 		<td>
-			<a href="javascript:void(0)" <?if($_REQUEST['only_users']!="Y"):?> onclick="BPSHideShow('BPSId5')"<?endif?>><b><?echo GetMessage("BIZPROC_SEL_USERS_TAB")?></b></a>
+			<a href="javascript:void(0)" <?php if(!isset($_REQUEST['only_users']) || $_REQUEST['only_users'] !== "Y"):?> onclick="BPSHideShow('BPSId5')"<?endif?>><b><?echo GetMessage("BIZPROC_SEL_USERS_TAB")?></b></a>
 		</td>
 	</tr>
 	<tr id="BPSId5" style="display:none">
@@ -469,7 +482,7 @@ $renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter
 		}
 		</script>
 			<input type="text" id="BPSId5I" style="width:100%" onkeyup="BPSlookup(this.value)" onkeydown="return BPSKeyd(event)">
-			<select id="BPSId5S" size="<?=($_REQUEST['only_users'] == 'Y' ? 14 : 11)?>" style="width:100%" ondblclick="BPSVInsert(this.value, true)">
+			<select id="BPSId5S" size="<?= (isset($_REQUEST['only_users']) && $_REQUEST['only_users'] === 'Y' ? 14 : 11)?>" style="width:100%" ondblclick="BPSVInsert(this.value, true)">
 				<option value="" style="background-color: #eeeeff" selected><?echo GetMessage("BIZPROC_SEL_USERS_TAB_GROUPS")?></option>
 				<?foreach($arAllowableUserGroups as $groupId => $groupName):
 					if ($groupName === "" || mb_strpos($groupId, 'group_u') === 0)

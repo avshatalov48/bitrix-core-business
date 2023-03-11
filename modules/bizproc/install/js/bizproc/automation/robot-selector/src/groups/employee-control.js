@@ -21,6 +21,6 @@ export class EmployeeControl extends Group
 
 	getAdviceTitle(): string
 	{
-		return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_EMPLOYEE_CONTROL');
+		return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_EMPLOYEE_CONTROL_1');
 	}
 }

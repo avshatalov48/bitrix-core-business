@@ -45,6 +45,15 @@ class CRestProvider
 		"ent250" => "ent250",
 		"ent500" => "ent500",
 		"ent1000" => "ent1000",
+		"ent2000" => "ent2000",
+		"ent3000" => "ent3000",
+		"ent4000" => "ent4000",
+		"ent5000" => "ent5000",
+		"ent6000" => "ent6000",
+		"ent7000" => "ent7000",
+		"ent8000" => "ent8000",
+		"ent9000" => "ent9000",
+		"ent10000" => "ent10000",
 	);
 
 	protected static $arApp = null;
@@ -254,7 +263,7 @@ class CRestProvider
 	{
 		$arQuery = array_change_key_case($arQuery, CASE_UPPER);
 
-		$bHalt = (bool)$arQuery['HALT'];
+		$bHalt = (isset($arQuery['HALT'])) ? ((bool) $arQuery['HALT']) : false;
 
 		$arResult = array(
 			'result' => array(),
@@ -272,6 +281,10 @@ class CRestProvider
 			{
 				if(($cnt++) < \CRestUtil::BATCH_MAX_LENGTH)
 				{
+					if (!is_string($call))
+					{
+						continue;
+					}
 					$queryData = parse_url($call);
 
 					$method = $queryData['path'];
@@ -341,7 +354,7 @@ class CRestProvider
 					}
 				}
 
-				if($res['error'] && $bHalt)
+				if(isset($res['error']) && $res['error'] && $bHalt)
 				{
 					break;
 				}

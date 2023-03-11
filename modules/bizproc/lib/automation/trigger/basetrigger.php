@@ -168,6 +168,7 @@ class BaseTrigger
 			'RETURN' => static::getReturnProperties(),
 			'DESCRIPTION' => static::getDescription(),
 			'GROUP' => static::getGroup(),
+			'SETTINGS' => static::getSettings(),
 		];
 	}
 
@@ -177,6 +178,22 @@ class BaseTrigger
 	}
 
 	public static function getGroup(): array
+	{
+		return [];
+	}
+
+	protected static function getSettings(): ?array
+	{
+		$map = static::getPropertiesMap();
+		if ($map)
+		{
+			return ['Properties' => array_values($map)];
+		}
+
+		return null;
+	}
+
+	protected static function getPropertiesMap(): array
 	{
 		return [];
 	}

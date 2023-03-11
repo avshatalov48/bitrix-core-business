@@ -1174,7 +1174,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (typeof fields.id === "number") {
 	      result.id = fields.id;
 	    } else if (typeof fields.id === "string") {
-	      if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || im_v2_lib_utils.Utils.types.isUuidV4(fields.id)) {
+	      if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || im_v2_lib_utils.Utils.text.isUuidV4(fields.id)) {
 	        result.id = fields.id;
 	      } else {
 	        result.id = parseInt(fields.id);
@@ -1186,7 +1186,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else if (typeof fields.templateId === "number") {
 	      result.templateId = fields.templateId;
 	    } else if (typeof fields.templateId === "string") {
-	      if (fields.templateId.startsWith('temporary') || im_v2_lib_utils.Utils.types.isUuidV4(fields.templateId)) {
+	      if (fields.templateId.startsWith('temporary') || im_v2_lib_utils.Utils.text.isUuidV4(fields.templateId)) {
 	        result.templateId = fields.templateId;
 	      } else {
 	        result.templateId = parseInt(fields.templateId);
@@ -1687,7 +1687,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 
 	  static isTemporaryMessage(element) {
-	    return element.id && (im_v2_lib_utils.Utils.types.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
+	    return element.id && (im_v2_lib_utils.Utils.text.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
 	  }
 
 	  static getPayloadWithTempMessages(state, payload) {

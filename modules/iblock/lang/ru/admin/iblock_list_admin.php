@@ -112,7 +112,6 @@ $MESS["IBLIST_A_MOVE_TO_SECTION"] = "перенести в раздел";
 $MESS["IBLIST_A_ADD_TO_SECTION"] = "добавить привязку к разделу";
 $MESS["IBLIST_A_WF_STATUS_CHANGE"] = "изменить статус";
 $MESS["IBLIST_A_ACCESS_DENIED_STATUS"] = "У вас нет прав на редактирование данной записи в ее текущем статусе";
-$MESS["IBLIST_A_OFFERS"] = "Торговые предложения";
 $MESS["IBLIST_NOT_SET"] = "(не установлено)";
 $MESS["IBLIST_A_DEACTIVATE"] = "Деактивировать";
 $MESS["IBLIST_A_ACTIVATE"] = "Активировать";

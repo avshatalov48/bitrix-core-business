@@ -109,10 +109,10 @@ class PropertyValue extends ControllerBase
 		return ['PROPERTY_VALUE'=>$this->getItem($propertyValue)];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID'=>'ASC'] : $order;
 		$runtime = [
 			new \Bitrix\Main\Entity\ReferenceField(
 				'ORDER_PROPS',
@@ -123,12 +123,12 @@ class PropertyValue extends ControllerBase
 
 		$payments = \Bitrix\Sale\PropertyValue::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
 				'limit' => $pageNavigation->getLimit(),
-				'runtime' => $runtime
+				'runtime' => $runtime,
 			]
 		)->fetchAll();
 
@@ -136,7 +136,7 @@ class PropertyValue extends ControllerBase
 		{
 			return (int) \Bitrix\Sale\PropertyValue::getList([
 				'select' => ['CNT'],
-				'filter'=>$filter,
+				'filter' => $filter,
 				'runtime' => [new ExpressionField('CNT', 'COUNT(ID)')]
 			])->fetch()['CNT'];
 		});

@@ -44,7 +44,7 @@ class File extends Input\Base
 			"var anchor = this.previousElementSibling.previousElementSibling;".
 			"if (anchor.firstChild) anchor.removeChild(anchor.firstChild);".
 			"anchor.appendChild(document.createTextNode(this.value.split(/(\\\\|\\/)/g).pop()));".
-			$input['ONCHANGE'];
+			($input['ONCHANGE'] ?? '');
 
 		$fileAttributes = static::extractAttributes($input,
 			array('DISABLED'=>'', 'AUTOFOCUS'=>'', 'REQUIRED'=>''),

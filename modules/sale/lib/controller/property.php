@@ -143,21 +143,21 @@ class Property extends Controller
 		}
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, $select=[], $filter=[], $order=[]): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
 
 		/** @var EntityProperty $propertyClassName */
 		$propertyClassName = $this->getPropertyClassName();
 
 		$items = $propertyClassName::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 
@@ -168,7 +168,7 @@ class Property extends Controller
 
 			return (int) $propertyClassName::getList([
 				'select' => ['CNT'],
-				'filter'=>$filter,
+				'filter' => $filter,
 				'runtime' => [
 					new ExpressionField('CNT', 'COUNT(ID)')
 				]

@@ -8,7 +8,6 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\Component\WorkgroupList;
 use Bitrix\Socialnetwork\Helper;
-use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
 use Bitrix\Tasks\Internals\Counter\Template\ProjectCounter;
 use Bitrix\Tasks\Internals\Counter\Template\ScrumCounter;
 use Bitrix\Tasks\Internals\Counter as TasksCounter;
@@ -36,6 +35,12 @@ class Counter
 			return $result;
 		}
 
+		$scrumIdList = [];
+		if (isset($params['scrumIdList']))
+		{
+			$scrumIdList = Util::filterNumericIdList($params['scrumIdList']);
+		}
+
 		$currentUserId = static::getCurrentUserId();
 		if ($currentUserId <= 0)
 		{
@@ -52,6 +57,7 @@ class Counter
 				'mode' => $mode,
 				'groupUrl' => $groupUrlTemplate,
 				'groupIdList' => $groupIdList,
+				'scrumIdList' => $scrumIdList,
 			]);
 		}
 		else
@@ -60,6 +66,7 @@ class Counter
 				'counterData' => $counterData,
 				'groupUrl' => Helper\Path::get('group_livefeed_path_template'),
 				'groupIdList' => $groupIdList,
+				'scrumIdList' => $scrumIdList,
 				'livefeedCounterSliderOptions' => $params['livefeedCounterSliderOptions'],
 			]);
 		}
@@ -169,6 +176,8 @@ class Counter
 
 		$counterData = $params['counterData'] ?? [];
 
+		$scrumIdList = $params['scrumIdList'] ?? [];
+
 		$groupUrlTemplate = ($params['groupUrl'] ?? Helper\Path::get('group_path_template'));
 
 		$colorMap = [
@@ -177,20 +186,27 @@ class Counter
 			Helper\UI\Grid\CounterStyle::STYLE_RED => Grid\Counter\Color::DANGER,
 		];
 
-		$sliderOptions = Json::encode([
+		$sliderOptionsData = [
 			'contentClassName' => 'bitrix24-group-slider-content',
 			'loader' => 'intranet:tasklist',
 			'cacheable' => false,
 			'customLeftBoundary' => 0,
 			'newWindowLabel' => true,
 			'copyLinkLabel' => true,
-		]);
+		];
 
 		foreach ($groupIdList as $groupId)
 		{
 			$groupCounterData = ($counterData[$groupId] ?? []);
 
 			$groupUrl = str_replace([ '#id#', '#ID#', '#GROUP_ID#', '#group_id#' ], $groupId, $groupUrlTemplate);
+
+			if (in_array($groupId, $scrumIdList, true))
+			{
+				$sliderOptionsData['loader'] = 'intranet:scrum';
+			}
+
+			$sliderOptions = Json::encode($sliderOptionsData);
 
 			$result[$groupId] = [
 				'ACTIVITY_DATE' => [
@@ -220,9 +236,10 @@ class Counter
 
 		$counterData = $params['counterData'] ?? [];
 
+		$scrumIdList = $params['scrumIdList'] ?? [];
+
 		$groupUrlTemplate = ($params['groupUrl'] ?? Helper\Path::get('group_livefeed_path_template'));
-		$sliderOptions = ($params['sliderOptions'] ?? static::getLivefeedCounterSliderOptions());
-		$sliderOptions = Json::encode($sliderOptions);
+		$sliderOptionsData = ($params['sliderOptions'] ?? static::getLivefeedCounterSliderOptions());
 
 		$tasksModuleInstalled = ModuleManager::isModuleInstalled('tasks');
 
@@ -239,6 +256,13 @@ class Counter
 			);
 
 			$groupUrl = str_replace([ '#id#', '#ID#', '#GROUP_ID#', '#group_id#' ], $groupId, $groupUrlTemplate);
+
+			if (in_array($groupId, $scrumIdList, true))
+			{
+				$sliderOptionsData['loader'] = 'intranet:scrum';
+			}
+
+			$sliderOptions = Json::encode($sliderOptionsData);
 
 			$result[$groupId] = [
 				static::getLivefeedCounterColumnId() => [

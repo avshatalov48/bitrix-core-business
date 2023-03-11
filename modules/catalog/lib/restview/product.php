@@ -341,17 +341,17 @@ final class Product extends Base
 	private function getFieldsCatalogProduct(): array
 	{
 		$fieldList = [
-			'TYPE'=>[
-				'TYPE'=>DataType::TYPE_INT,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
+			'TYPE' => [
+				'TYPE' => DataType::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
-			'AVAILABLE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
+			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
 			'BUNDLE' => [
 				'TYPE' => DataType::TYPE_CHAR,
@@ -359,62 +359,62 @@ final class Product extends Base
 					Attributes::READONLY,
 				],
 			],
-			'QUANTITY'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'QUANTITY' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'QUANTITY_RESERVED'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'QUANTITY_RESERVED' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'QUANTITY_TRACE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'QUANTITY_TRACE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'CAN_BUY_ZERO'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'CAN_BUY_ZERO' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'SUBSCRIBE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'SUBSCRIBE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'VAT_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'VAT_ID' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'VAT_INCLUDED'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'VAT_INCLUDED' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'PURCHASING_PRICE'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'PURCHASING_PRICE' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'PURCHASING_CURRENCY'=>[
-				'TYPE'=>DataType::TYPE_STRING,
+			'PURCHASING_CURRENCY' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'BARCODE_MULTI'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'BARCODE_MULTI' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'WEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'WEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'LENGTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'LENGTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'WIDTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'WIDTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'HEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'HEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'MEASURE'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'MEASURE' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'RECUR_SCHEME_LENGTH'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'RECUR_SCHEME_LENGTH' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'RECUR_SCHEME_TYPE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'RECUR_SCHEME_TYPE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'TRIAL_PRICE_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'TRIAL_PRICE_ID' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'WITHOUT_ORDER'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'WITHOUT_ORDER' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
 		];
 
@@ -483,8 +483,8 @@ final class Product extends Base
 	private function getFieldsCatalogProductByTypeService(): array
 	{
 		$fieldList = [
-			'AVAILABLE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
 		];
 
@@ -497,59 +497,59 @@ final class Product extends Base
 	private function getFieldsCatalogProductByTypeProduct(): array
 	{
 		$fieldList = [
-			'AVAILABLE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
+			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
-			'PURCHASING_PRICE'=>[
-				'TYPE'=>DataType::TYPE_STRING,
+			'PURCHASING_PRICE' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'PURCHASING_CURRENCY'=>[
-				'TYPE'=>DataType::TYPE_STRING,
+			'PURCHASING_CURRENCY' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'VAT_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'VAT_ID' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'VAT_INCLUDED'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'VAT_INCLUDED' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'QUANTITY'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'QUANTITY' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'QUANTITY_RESERVED'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'QUANTITY_RESERVED' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'MEASURE'=>[
-				'TYPE'=>DataType::TYPE_INT,
+			'MEASURE' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'QUANTITY_TRACE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'QUANTITY_TRACE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'CAN_BUY_ZERO'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'CAN_BUY_ZERO' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'NEGATIVE_AMOUNT_TRACE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
+			'NEGATIVE_AMOUNT_TRACE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
-			'SUBSCRIBE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
+			'SUBSCRIBE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'WEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'WEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'LENGTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'LENGTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'WIDTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'WIDTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'HEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'HEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
 		];
 
@@ -562,11 +562,11 @@ final class Product extends Base
 	private function getFieldsCatalogProductByTypeSKU(): array
 	{
 		return [
-			'AVAILABLE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
+			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
 		];
 	}
@@ -585,71 +585,71 @@ final class Product extends Base
 	private function getFieldsCatalogProductByTypeSet(): array
 	{
 		$fieldList = [
-			'AVAILABLE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
-				]
-			],
-			'PURCHASING_PRICE'=>[
-				'TYPE'=>DataType::TYPE_STRING,
-			],
-			'PURCHASING_CURRENCY'=>[
-				'TYPE'=>DataType::TYPE_STRING,
-			],
-			'VAT_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
-			],
-			'VAT_INCLUDED'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-			],
-			'QUANTITY'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
-				'ATTRIBUTES'=>[
+			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'MEASURE'=>[
-				'TYPE'=>DataType::TYPE_INT,
-				'ATTRIBUTES'=>[
+			'PURCHASING_PRICE' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
+			'PURCHASING_CURRENCY' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
+			'VAT_ID' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'VAT_INCLUDED' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'QUANTITY' => [
+				'TYPE' => DataType::TYPE_FLOAT,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'QUANTITY_TRACE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
+			'MEASURE' => [
+				'TYPE' => DataType::TYPE_INT,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'CAN_BUY_ZERO'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
+			'QUANTITY_TRACE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'NEGATIVE_AMOUNT_TRACE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-				'ATTRIBUTES'=>[
+			'CAN_BUY_ZERO' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'SUBSCRIBE'=>[
-				'TYPE'=>DataType::TYPE_CHAR,
-			],
-			'WEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
-				'ATTRIBUTES'=>[
+			'NEGATIVE_AMOUNT_TRACE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+				'ATTRIBUTES' => [
 					Attributes::READONLY,
 				],
 			],
-			'LENGTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'SUBSCRIBE' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'WIDTH'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'WEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
-			'HEIGHT'=>[
-				'TYPE'=>DataType::TYPE_FLOAT,
+			'LENGTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
+			],
+			'WIDTH' => [
+				'TYPE' => DataType::TYPE_FLOAT,
+			],
+			'HEIGHT' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
 		];
 

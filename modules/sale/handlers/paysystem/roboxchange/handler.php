@@ -18,7 +18,9 @@ Loc::loadMessages(__FILE__);
  * Class RoboxchangeHandler
  * @package Sale\Handlers\PaySystem
  */
-class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\Cashbox\ISupportPrintCheck
+class RoboxchangeHandler
+	extends PaySystem\ServiceHandler
+	implements PaySystem\Cashbox\ISupportPrintCheck
 {
 	use PaySystem\Cashbox\CheckTrait;
 

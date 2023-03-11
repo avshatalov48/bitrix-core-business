@@ -116,6 +116,7 @@ $enableSelectDepartment = (isset($arResult['GROUP_PROPERTIES']['UF_SG_DEPT']) &&
 
 	BX.ready(function() {
 		new BX.Socialnetwork.WorkgroupFormTeamManager({
+			groupId: <?= (int) $arResult['GROUP_ID'] ?>,
 			extranetInstalled: <?= ($arResult['bExtranetInstalled'] ? 'true' : 'false') ?>,
 			allowExtranet: <?= (
 				$arResult['bExtranetInstalled']

@@ -164,6 +164,15 @@ $map = $dialog->getMap();
 			{
 				if (response)
 					container.innerHTML = response;
+
+				if (BX.getClass('BX.Bizproc.Automation.Designer'))
+				{
+					var dlg = BX.Bizproc.Automation.Designer.getInstance().getRobotSettingsDialog();
+					if (dlg)
+					{
+						dlg.template.initRobotSettingsControls(dlg.robot, container);
+					}
+				}
 			}
 		);
 	};

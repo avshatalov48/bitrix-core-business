@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 if (!CModule::IncludeModule("bizproc"))
 	return false;
@@ -25,13 +30,17 @@ if (
 	return false;
 }
 
-$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? $_REQUEST["WORKFLOW_ID"] : $arParams["WORKFLOW_ID"]);
+$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? ($_REQUEST["WORKFLOW_ID"] ?? '') : $arParams["WORKFLOW_ID"]);
 
 $arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 
 $arResult['back_url'] = urlencode(empty($_REQUEST['back_url']) ? $APPLICATION->GetCurPage() : $_REQUEST['back_url']);
 
-$arParams["TASK_EDIT_URL"] = trim($arParams["TASK_EDIT_URL"]);
+$arParams["TASK_EDIT_URL"] =
+	isset($arParams["TASK_EDIT_URL"]) && is_string($arParams["TASK_EDIT_URL"])
+		? trim($arParams["TASK_EDIT_URL"])
+		: ''
+;
 if (empty($arParams["TASK_EDIT_URL"]))
 	$arParams["TASK_EDIT_URL"] = $APPLICATION->GetCurPage()."?PAGE_NAME=task_edit&ID=#ID#&back_url=".$arResult["back_url"];
 else
@@ -40,12 +49,21 @@ else
 $arParams["~TASK_EDIT_URL"] = $arParams["TASK_EDIT_URL"];
 $arParams["TASK_EDIT_URL"] = htmlspecialcharsbx($arParams["~TASK_EDIT_URL"]);
 
-$arParams["PAGE_ELEMENTS"] = intval(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
-$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-$arParams["SHOW_TRACKING"] = ($arParams["SHOW_TRACKING"] == "Y" ? "Y" : "N");
+$arParams['PAGE_ELEMENTS'] =
+	(isset($arParams['PAGE_ELEMENTS']) && intval($arParams['PAGE_ELEMENTS']) > 0)
+		? intval($arParams['PAGE_ELEMENTS'])
+		: 50
+;
 
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
+$arParams["PAGE_NAVIGATION_TEMPLATE"] =
+	isset($arParams["PAGE_NAVIGATION_TEMPLATE"]) && is_string($arParams["PAGE_NAVIGATION_TEMPLATE"])
+		? trim($arParams["PAGE_NAVIGATION_TEMPLATE"])
+		: ''
+;
+$arParams["SHOW_TRACKING"] = isset($arParams['SHOW_TRACKING']) && $arParams['SHOW_TRACKING'] === 'Y' ? 'Y' : 'N';
+
+$arParams["SET_TITLE"] = isset($arParams['SET_TITLE']) && $arParams['SET_TITLE'] === 'N' ? 'N' : 'Y'; //Turn on by default
+$arParams["SET_NAV_CHAIN"] = isset($arParams['SET_NAV_CHAIN']) && $arParams['SET_NAV_CHAIN'] === 'N' ? 'N' : 'Y'; //Turn on by default
 $arParams['COUNTERS_ONLY'] = (isset($arParams['COUNTERS_ONLY']) && $arParams['COUNTERS_ONLY'] == 'Y');
 
 $arResult["FatalErrorMessage"] = "";
@@ -314,18 +332,23 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 			$arRecord['DOCUMENT_NAME'] = GetMessage("BPATL_DOCUMENT_NAME");
 		}
 
+		$taskUrlParams = ["ID" => $arRecord["ID"], "task_id" => $arRecord["ID"]];
 		if (!empty($arRecord["PARAMETERS"]["TASK_EDIT_URL"]))
 		{
 			$arRecord["URL"] = array(
-				"~TASK" => CComponentEngine::MakePathFromTemplate($arRecord["PARAMETERS"]["TASK_EDIT_URL"], $arRecord),
-				"TASK" => CComponentEngine::MakePathFromTemplate($arRecord["PARAMETERS"]["TASK_EDIT_URL"], $arRecord)
+				"~TASK" => CComponentEngine::MakePathFromTemplate(
+					$arRecord["PARAMETERS"]["TASK_EDIT_URL"], $taskUrlParams
+				),
+				"TASK" => CComponentEngine::MakePathFromTemplate(
+					$arRecord["PARAMETERS"]["TASK_EDIT_URL"], $taskUrlParams
+				)
 			);
 		}
 		else
 		{
 			$arRecord["URL"] = array(
-				"~TASK" => CComponentEngine::MakePathFromTemplate($arParams["~TASK_EDIT_URL"], $arRecord),
-				"TASK" => CComponentEngine::MakePathFromTemplate($arParams["TASK_EDIT_URL"], $arRecord)
+				"~TASK" => CComponentEngine::MakePathFromTemplate($arParams["~TASK_EDIT_URL"], $taskUrlParams),
+				"TASK" => CComponentEngine::MakePathFromTemplate($arParams["TASK_EDIT_URL"], $taskUrlParams)
 			);
 		}
 
@@ -429,7 +452,7 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 			}
 			catch (Exception $e)
 			{
-				
+
 			}
 
 			$arRecord["ACTION_NOTE"] = CBPTrackingService::parseStringParameter($arRecord["ACTION_NOTE"], $dt);

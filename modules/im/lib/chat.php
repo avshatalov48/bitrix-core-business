@@ -31,8 +31,8 @@ class Chat
 
 	public static function getType($chatData)
 	{
-		$messageType = isset($chatData["TYPE"])? $chatData["TYPE"]: $chatData["CHAT_TYPE"];
-		$entityType = isset($chatData["ENTITY_TYPE"])? $chatData["ENTITY_TYPE"]: $chatData["CHAT_ENTITY_TYPE"];
+		$messageType = $chatData["TYPE"] ?? $chatData["CHAT_TYPE"];
+		$entityType = $chatData["ENTITY_TYPE"] ?? ($chatData["CHAT_ENTITY_TYPE"] ?? null);
 
 		$messageType = trim($messageType);
 		$entityType = trim($entityType);
@@ -116,14 +116,14 @@ class Chat
 		}
 		$skipUsers = false;
 		$skipUserInactiveSql = '';
-		if ($params['SKIP_INACTIVE_USER'] === 'Y')
+		if (isset($params['SKIP_INACTIVE_USER']) && $params['SKIP_INACTIVE_USER'] === 'Y')
 		{
 			$skipUsers = true;
 			$skipUserInactiveSql = "AND U.ACTIVE = 'Y'";
 		}
 
 		$skipUserTypes = $params['SKIP_USER_TYPES'] ?? [];
-		if ($params['SKIP_CONNECTOR'] === 'Y')
+		if (isset($params['SKIP_CONNECTOR']) && $params['SKIP_CONNECTOR'] === 'Y')
 		{
 			$skipUserTypes[] = 'imconnector';
 		}
@@ -775,9 +775,10 @@ class Chat
 			return false;
 		}
 
+		$checkAccessParam = $params['CHECK_ACCESS'] ?? null;
 		$chats = self::getList(Array(
 			'FILTER' => Array('ID' => $id),
-			'SKIP_ACCESS_CHECK' => $params['CHECK_ACCESS'] === 'Y'? 'N': 'Y',
+			'SKIP_ACCESS_CHECK' => $checkAccessParam === 'Y'? 'N': 'Y',
  		));
 		if ($chats)
 		{
@@ -826,7 +827,7 @@ class Chat
 			}
 		}
 
-		if ($params['JSON'])
+		if ($params['JSON'] ?? null)
 		{
 			$chat = self::toJson($chat);
 		}
@@ -891,7 +892,7 @@ class Chat
 			$chats[] = self::formatChatData($row);
 		}
 
-		if ($params['JSON'])
+		if (isset($params['JSON']) && $params['JSON'])
 		{
 			$chats = self::toJson($chats);
 		}

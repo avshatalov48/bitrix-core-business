@@ -19,7 +19,7 @@ final class Store extends Controller
 		return ['STORE' => $this->getViewFields()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
 		$accessFilter = $this->accessController->getEntityFilter(
 			ActionDictionary::ACTION_STORE_VIEW,
@@ -33,7 +33,8 @@ final class Store extends Controller
 			];
 		}
 
-		return new Page('STORES',
+		return new Page(
+			'STORES',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

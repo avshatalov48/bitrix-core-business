@@ -2185,14 +2185,6 @@ a.feed-post-more-link:hover {
 	color: #5e5e5e;
 }
 
-.bx-ie8 .feed-com-file-wrap, .bx-ie9 .feed-com-file-wrap {
-	white-space: nowrap;
-}
-
-.bx-ie8 .feed-com-file-wrap {
-	max-width: 95%;
-}
-
 .feed-com-files-photo {
 	border: 1px solid #eeeeee;
 	display: inline-block;

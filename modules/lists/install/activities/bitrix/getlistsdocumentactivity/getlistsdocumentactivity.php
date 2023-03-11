@@ -214,7 +214,7 @@ class CBPGetListsDocumentActivity extends CBPActivity
 
 	protected static function getPropertiesMap(array $documentType, array $context = []): array
 	{
-		$fieldList = $context['listsDocumentType'] ? self::getDocumentFieldsOptions($context['listsDocumentType']) : [];
+		$fieldList = isset($context['listsDocumentType']) ? self::getDocumentFieldsOptions($context['listsDocumentType']) : [];
 
 		return [
 			'ElementId' => [

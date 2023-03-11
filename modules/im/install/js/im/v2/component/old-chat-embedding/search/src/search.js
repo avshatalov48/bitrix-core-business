@@ -56,6 +56,7 @@ export const Search = {
 			currentServerQueries: 0,
 			isNetworkButtonClicked: false,
 			isNetworkAvailable: false,
+			isNetworkSearchEnabled: true,
 			result: {
 				recent: new Map(),
 				usersAndChats: new Map(),
@@ -101,6 +102,19 @@ export const Search = {
 		showSearchResult()
 		{
 			return this.searchQuery.trim().length > 0;
+		},
+		isNetworkSearchCode(): boolean
+		{
+			return !!(this.searchQuery.length === 32 && /[\da-f]{32}/.test(this.searchQuery));
+		},
+		isNetworkAvailableForSearch(): boolean
+		{
+			if (!this.isNetworkAvailable)
+			{
+				return false;
+			}
+
+			return this.isNetworkSearchEnabled || this.isNetworkSearchCode;
 		},
 		itemComponent: () => SearchResultItem,
 		itemDepartmentComponent: () => SearchResultDepartmentItem,
@@ -183,6 +197,7 @@ export const Search = {
 			const defaultMinTokenSize = 3;
 			this.minTokenSize = settings.get('minTokenSize', defaultMinTokenSize);
 			this.isNetworkAvailable = settings.get('isNetworkAvailable', false);
+			this.isNetworkSearchEnabled = settings.get('isNetworkSearchEnabled', true);
 			this.isDepartmentsAvailable = settings.get('isDepartmentsAvailable', false);
 		},
 		startSearch(searchQuery: string)
@@ -231,7 +246,7 @@ export const Search = {
 			this.isNetworkLoading = this.isNetworkButtonClicked;
 
 			const config = {
-				network: this.isNetworkAvailable && this.isNetworkButtonClicked,
+				network: this.isNetworkAvailableForSearch && this.isNetworkButtonClicked,
 				departments: !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable,
 			};
 
@@ -434,7 +449,7 @@ export const Search = {
 							:min-items:="5"
 							:max-items="20"
 						/>
-						<template v-if="isNetworkAvailable">
+						<template v-if="isNetworkAvailableForSearch">
 							<SearchResultSection
 								v-if="needToShowNetworkSection"
 								:component="itemNetworkComponent"

@@ -18,10 +18,10 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_PARAMS' => [
 			'ID' => $arResult['ID'],
 			'ELEMENT_CODE' => $arResult['ELEMENT_CODE'],
-			'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-			'PATH_TO_IFRAME' => $arResult['PATH_TO_IFRAME'],
-			'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-			'PATH_TO_GRID' => $arResult['PATH_TO_GRID']
+			'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'] ?? null,
+			'PATH_TO_IFRAME' => $arResult['PATH_TO_IFRAME'] ?? null,
+			'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? null,
+			'PATH_TO_GRID' => $arResult['PATH_TO_GRID'] ?? null
 		],
 		'USE_PADDING' => true,
 		'EDITABLE_TITLE_SELECTOR'=>'#integrationEditTitle',

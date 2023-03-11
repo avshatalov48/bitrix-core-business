@@ -138,8 +138,9 @@ class User extends Base
 	{
 		if ($value !== null && !is_array($value))
 		{
-			if (strpos($value, '[') !== false || strpos($value, '{') !== false)
+			if (self::isRawValue($value))
 			{
+				$errors = [];
 				$value = \CBPHelper::UsersStringToArray($value, $fieldType->getDocumentType(), $errors);
 			}
 			else
@@ -211,7 +212,7 @@ class User extends Base
 						var c = document.getElementById('{$controlIdJs}');
 						if (c)
 						{
-							BX.Bizproc.UserSelector.decorateNode(c);
+							BX.Bizproc.FieldType.initControl(c.parentNode, JSON.parse(c.dataset.property));
 						}
 					});
 				</script>
@@ -333,11 +334,11 @@ HTML;
 
 		$mapCallback = function ($value)
 		{
-			if (strpos($value, 'user_') === 0)
+			if ($value && strpos($value, 'user_') === 0)
 			{
 				return ['user', \CBPHelper::StripUserPrefix($value)];
 			}
-			if (strpos($value, 'group_d') === 0)
+			if ($value && strpos($value, 'group_d') === 0)
 			{
 				return ['department', preg_replace('|[^0-9]+|', '', $value)];
 			}
@@ -409,5 +410,15 @@ HTML;
 		$value = array_filter($value, fn($v) => (!is_null($v)));
 
 		return array_unique($value);
+	}
+
+	private static function isRawValue($value): bool
+	{
+		return (
+			is_string($value)
+			&& !is_numeric($value)
+			&& strpos($value, 'user_') === false
+			&& strpos($value, 'group_') === false
+		);
 	}
 }

@@ -29,6 +29,7 @@ if($arResult['ERROR'])
 			'ADDITIONAL' => $arResult['VARIABLES']['ADDITIONAL_PARAMS'],
 			'MODE' => 'ZIP',
 			'SET_TITLE' => 'Y',
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

@@ -155,8 +155,10 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemRestrictions
 		$lAdmin->AddAdminContextMenu($aContext, false);
 	}
 
-	if($_REQUEST['table_id'] == $tableId)
+	if (isset($_REQUEST['table_id']) && $_REQUEST['table_id'] === $tableId)
+	{
 		$lAdmin->CheckListMode();
+	}
 
 	$lAdmin->DisplayList();
 }

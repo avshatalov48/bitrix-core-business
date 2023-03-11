@@ -206,7 +206,7 @@ abstract class OrderBuilder
 
 	public function setProperties()
 	{
-		if(!$this->formData["PROPERTIES"])
+		if (empty($this->formData["PROPERTIES"]))
 		{
 			return $this;
 		}
@@ -227,7 +227,7 @@ abstract class OrderBuilder
 
 	public function setRelatedProperties()
 	{
-		if (!$this->formData["PROPERTIES"])
+		if (empty($this->formData["PROPERTIES"]))
 		{
 			return $this;
 		}
@@ -403,7 +403,7 @@ abstract class OrderBuilder
 
 		foreach($this->formData["SHIPMENT"] as $item)
 		{
-			$shipmentId = intval($item['ID']);
+			$shipmentId = intval($item['ID'] ?? 0);
 			$isNew = ($shipmentId <= 0);
 			$deliveryService = null;
 			$storeId = null;
@@ -1449,16 +1449,17 @@ abstract class OrderBuilder
 
 			foreach($this->formData["TRADE_BINDINGS"] as $fields)
 			{
-				if ((int)$fields['TRADING_PLATFORM_ID'] === 0)
+				$tradingPlatformId = (int)($fields['TRADING_PLATFORM_ID'] ?? 0);
+				if ($tradingPlatformId === 0)
 				{
 					continue;
 				}
 
-				$r = $this->tradingPlatformExists($fields['TRADING_PLATFORM_ID']);
+				$r = $this->tradingPlatformExists($tradingPlatformId);
 
 				if($r->isSuccess())
 				{
-					$id = intval($fields['ID']);
+					$id = (int)($fields['ID'] ?? 0);
 					$isNew = ($id <= 0);
 
 					if($isNew)
@@ -1621,25 +1622,22 @@ abstract class OrderBuilder
 
 	public function getUserId()
 	{
-		if((int)$this->formData["USER_ID"] > 0)
+		$userId = (int)($this->formData["USER_ID"] ?? 0);
+		if($userId > 0)
 		{
-			return (int)$this->formData["USER_ID"];
+			return $userId;
 		}
 
 		$userId = 0;
 
-		if (!isset($this->formData["USER_ID"]) || (int)($this->formData["USER_ID"]) <= 0)
+		$settingValue = (int)$this->getSettingsContainer()->getItemValue('createUserIfNeed');
+		if ($settingValue === \Bitrix\Sale\Helpers\Order\Builder\SettingsContainer::SET_ANONYMOUS_USER)
 		{
-			$settingValue = (int)$this->getSettingsContainer()->getItemValue('createUserIfNeed');
-
-			if ($settingValue === \Bitrix\Sale\Helpers\Order\Builder\SettingsContainer::SET_ANONYMOUS_USER)
-			{
-				$userId = \CSaleUser::GetAnonymousUserID();
-			}
-			elseif ($settingValue === \Bitrix\Sale\Helpers\Order\Builder\SettingsContainer::ALLOW_NEW_USER_CREATION)
-			{
-				$userId = $this->createUserFromFormData();
-			}
+			$userId = \CSaleUser::GetAnonymousUserID();
+		}
+		elseif ($settingValue === \Bitrix\Sale\Helpers\Order\Builder\SettingsContainer::ALLOW_NEW_USER_CREATION)
+		{
+			$userId = $this->createUserFromFormData();
 		}
 
 		if ($userId > 0 && empty($this->formData["USER_ID"]))

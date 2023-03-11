@@ -606,13 +606,16 @@ class CIMSettings
 				$formattedSettings[$xmppName] = $eventValue['XMPP'];
 				$formattedSettings[$pushName] = $eventValue['PUSH'];
 
-				$formattedSettings['disabled|'.$siteName] = $eventValue['DISABLED']['SITE'];
-				$formattedSettings['disabled|'.$mailName] = $eventValue['DISABLED']['MAIL'];
-				$formattedSettings['disabled|'.$xmppName] = $eventValue['DISABLED']['XMPP'];
-				$formattedSettings['disabled|'.$pushName] = $eventValue['DISABLED']['PUSH'];
+				if (isset($eventValue['DISABLED']))
+				{
+					$formattedSettings['disabled|'.$siteName] = $eventValue['DISABLED']['SITE'];
+					$formattedSettings['disabled|'.$mailName] = $eventValue['DISABLED']['MAIL'];
+					$formattedSettings['disabled|'.$xmppName] = $eventValue['DISABLED']['XMPP'];
+					$formattedSettings['disabled|'.$pushName] = $eventValue['DISABLED']['PUSH'];
+				}
 
 				$formattedSettings['important|'.$moduleId.'|'.$eventName] =
-					is_bool($eventValue['IMPORTANT'])
+					isset($eventValue['IMPORTANT']) && is_bool($eventValue['IMPORTANT'])
 						? $eventValue['IMPORTANT']
 						: true;
 			}

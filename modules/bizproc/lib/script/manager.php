@@ -13,6 +13,8 @@ use Bitrix\Main\Localization\Loc;
 
 class Manager
 {
+	private const CACHE_TTL = 3600;
+
 	public static function getListByDocument(array $documentType, $showInactive = false)
 	{
 
@@ -38,6 +40,7 @@ class Manager
 					'SORT' => 'ASC',
 					'NAME' => 'ASC'
 				],
+				'cache' => ['ttl' => self::CACHE_TTL],
 			]
 		)->fetchAll();
 

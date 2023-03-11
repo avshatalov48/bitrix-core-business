@@ -2682,10 +2682,10 @@
 		this.BXIM.messenger.realSearch = !this.BXIM.options.contactListLoad;
 		this.BXIM.messenger.realSearchFound = true;
 
-		if (BX.MessengerWindow && BX.MessengerProxy && this.BXIM.newSearchEnabled)
+		if (BX.MessengerProxy && this.BXIM.newSearchEnabled)
 		{
 			BX.MessengerProxy.sendCloseSearchEvent();
-			if (BX.MessengerWindow.currentTab === 'im-ol')
+			if (BX.MessengerWindow && BX.MessengerWindow.currentTab === 'im-ol')
 			{
 				this.BXIM.messenger.hideNewRecent();
 			}
@@ -2751,7 +2751,7 @@
 		{
 			if (event.keyCode == 27) //Esc
 			{
-				if (BX.MessengerWindow && BX.MessengerProxy && this.BXIM.newSearchEnabled)
+				if (BX.MessengerProxy && this.BXIM.newSearchEnabled)
 				{
 					BX.MessengerProxy.sendCloseSearchEvent();
 				}
@@ -2785,8 +2785,7 @@
 		}
 
 		if (
-			BX.MessengerWindow
-			&& BX.MessengerProxy
+			BX.MessengerProxy
 			&& this.BXIM.newSearchEnabled
 			&& event.keyCode === 13 //enter
 		)
@@ -2845,11 +2844,7 @@
 
 	MessengerCommon.prototype.handleInputEvent = function(event)
 	{
-		if (
-			BX.MessengerWindow
-			&& BX.MessengerProxy
-			&& this.BXIM.newSearchEnabled
-		)
+		if (BX.MessengerProxy && this.BXIM.newSearchEnabled)
 		{
 			BX.MessengerProxy.sendUpdateSearchEvent(this.BXIM.messenger.popupContactListSearchInput.value, event.keyCode);
 			this.BXIM.messenger.showNewRecent();
@@ -4337,7 +4332,7 @@
 		}
 
 		this.BXIM.messenger.showNewRecent();
-		if (BX.MessengerWindow && BX.MessengerProxy)
+		if (BX.MessengerProxy)
 		{
 			BX.MessengerProxy.sendOpenSearchEvent(this.BXIM.messenger.contactListSearchText);
 		}

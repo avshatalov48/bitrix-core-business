@@ -499,6 +499,13 @@ function toggleSubPriceType()
 				$arPriceBoundaries[0]['TO'] = false;
 			}
 		}
+		else
+		{
+			$arPriceBoundaries[] = [
+				'FROM' => false,
+				'TO' => false
+			];
+		}
 
 // prices tab
 		$subtabControl1->BeginNextTab();

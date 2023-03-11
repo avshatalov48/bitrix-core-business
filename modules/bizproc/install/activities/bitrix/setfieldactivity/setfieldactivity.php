@@ -218,11 +218,11 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 				}
 			}
 
-			if ($arCurrentActivity['Properties']['ModifiedBy'])
+			if (isset($arCurrentActivity['Properties']['ModifiedBy']))
 			{
 				$modifiedBy = $arCurrentActivity['Properties']['ModifiedBy'];
 			}
-			if ($arCurrentActivity['Properties']['MergeMultipleFields'])
+			if (isset($arCurrentActivity['Properties']['MergeMultipleFields']))
 			{
 				$arCurrentValues['merge_multiple_fields'] = $arCurrentActivity['Properties']['MergeMultipleFields'];
 			}
@@ -265,7 +265,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 		$defaultFieldValue = '';
 		foreach ($arDocumentFieldsTmp as $key => $value)
 		{
-			if (!$value['Editable'])
+			if (empty($value['Editable']))
 			{
 				continue;
 			}

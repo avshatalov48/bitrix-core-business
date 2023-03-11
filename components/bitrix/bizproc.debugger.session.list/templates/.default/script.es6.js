@@ -1,4 +1,4 @@
-import { Reflection, ajax, Type, Event, Uri } from 'main.core';
+import { Reflection, ajax, Type, Event } from 'main.core';
 import { Alert, AlertColor } from 'ui.alerts';
 import { Manager } from 'bizproc.debugger';
 
@@ -37,12 +37,22 @@ class DebuggerSessionList
 		Manager.Instance.openDebuggerStartPage(this.documentSigned, {analyticsStartType: 'session_list'}).then();
 	}
 
-	showSession(sessionId: string)
+	showSession(sessionId: string): void
 	{
 		Manager.Instance.openSessionLog(sessionId).then();
 	}
 
-	deleteChosenSessions()
+	renameSession(sessionId: string): void
+	{
+		const grid = this.getGrid();
+
+		grid.getRows().getById(sessionId)?.select();
+		grid.getActionsPanel().getPanel().querySelector('#grid_edit_button > .edit').click();
+		grid.enableActionsPanel();
+		grid.getPinPanel().pinPanel(true);
+	}
+
+	deleteChosenSessions(): void
 	{
 		const grid = this.getGrid();
 		if (grid)
@@ -51,7 +61,7 @@ class DebuggerSessionList
 		}
 	}
 
-	deleteSessions(sessionIds: Array<string>)
+	deleteSessions(sessionIds: Array<string>): void
 	{
 		ajax.runComponentAction('bitrix:bizproc.debugger.session.list', 'deleteSessions', {
 			mode: 'class',

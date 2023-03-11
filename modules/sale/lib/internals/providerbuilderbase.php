@@ -467,11 +467,11 @@ abstract class ProviderBuilderBase
 
 		if (isset($fields['QUANTITY_LIST'][$productData['BASKET_CODE']]))
 		{
-			$fields['QUANTITY_LIST'][$productData['BASKET_CODE']] += floatval($productData['QUANTITY']);
+			$fields['QUANTITY_LIST'][$productData['BASKET_CODE']] += (float)$productData['QUANTITY'];
 		}
 		else
 		{
-			$fields['QUANTITY_LIST'][$productData['BASKET_CODE']] = floatval($productData['QUANTITY']);
+			$fields['QUANTITY_LIST'][$productData['BASKET_CODE']] = (float)$productData['QUANTITY'];
 		}
 
 		unset($fields['QUANTITY']);
@@ -490,18 +490,18 @@ abstract class ProviderBuilderBase
 		}
 		else
 		{
-			$fields['QUANTITY_LIST_BY_STORE'][$productData['BASKET_CODE']] = $productData['QUANTITY_BY_STORE'];
+			$fields['QUANTITY_LIST_BY_STORE'][$productData['BASKET_CODE']] = $productData['QUANTITY_BY_STORE'] ?? [];
 		}
 
 		unset($fields['QUANTITY_BY_STORE']);
 
 		if (isset($fields['RESERVED_QUANTITY_LIST'][$productData['BASKET_CODE']]))
 		{
-			$fields['RESERVED_QUANTITY_LIST'][$productData['BASKET_CODE']] += floatval($productData['RESERVED_QUANTITY']);
+			$fields['RESERVED_QUANTITY_LIST'][$productData['BASKET_CODE']] += (float)$productData['RESERVED_QUANTITY'];
 		}
 		else
 		{
-			$fields['RESERVED_QUANTITY_LIST'][$productData['BASKET_CODE']] = floatval($productData['RESERVED_QUANTITY']);
+			$fields['RESERVED_QUANTITY_LIST'][$productData['BASKET_CODE']] = (float)($productData['RESERVED_QUANTITY'] ?? 0.0);
 		}
 
 		unset($fields['RESERVED_QUANTITY']);
@@ -520,7 +520,7 @@ abstract class ProviderBuilderBase
 		}
 		else
 		{
-			$fields['RESERVED_QUANTITY_LIST_BY_STORE'][$productData['BASKET_CODE']] = $productData['RESERVED_QUANTITY_BY_STORE'];
+			$fields['RESERVED_QUANTITY_LIST_BY_STORE'][$productData['BASKET_CODE']] = $productData['RESERVED_QUANTITY_BY_STORE'] ?? [];
 		}
 
 		unset($fields['RESERVED_QUANTITY_BY_STORE']);
@@ -532,7 +532,7 @@ abstract class ProviderBuilderBase
 			unset($fields['SHIPMENT_ITEM']);
 
 			$fields['SHIPMENT_ITEM_LIST'][$shipmentItem->getInternalIndex()] = $shipmentItem;
-			$fields['SHIPMENT_ITEM_QUANTITY_LIST'][$shipmentItem->getInternalIndex()] = floatval($productData['QUANTITY']);
+			$fields['SHIPMENT_ITEM_QUANTITY_LIST'][$shipmentItem->getInternalIndex()] = (float)$productData['QUANTITY'];
 		}
 
 		if (isset($productData['STORE_DATA']))

@@ -459,6 +459,10 @@ this.BX.UI = this.BX.UI || {};
 	    this.emit('onCancel');
 	  }
 
+	  getUploadController() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController];
+	  }
+
 	  setUploadController(controller) {
 	    if (controller instanceof AbstractUploadController) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] = controller;

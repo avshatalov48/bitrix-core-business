@@ -24,8 +24,8 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 	if (isset($cashbox))
 	{
 		/** @var Cashbox\Cashbox $handler */
-		$handler = $cashbox['HANDLER'];
-		$cashboxSettings = $cashbox['SETTINGS'];
+		$handler = $cashbox['HANDLER'] ?? '';
+		$cashboxSettings = $cashbox['SETTINGS'] ?? [];
 		if (class_exists($handler))
 		{
 			$settings = [];
@@ -60,8 +60,13 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 					foreach ($block['ITEMS'] as $code => $item)
 					{
 						$itemClassName = $className;
-						if ($item['REQUIRED'] === 'Y'
-							&& $block['REQUIRED'] !== 'Y'
+						if (
+							isset($item['REQUIRED'])
+							&& $item['REQUIRED'] === 'Y'
+							&& (
+								empty($block['REQUIRED'])
+								|| $block['REQUIRED'] !== 'Y'
+							)
 						)
 						{
 							$itemClassName .= ' adm-required-field';

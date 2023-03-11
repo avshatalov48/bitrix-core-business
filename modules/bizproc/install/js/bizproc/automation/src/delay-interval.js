@@ -14,22 +14,16 @@ export class DelayInterval
 		In: 'in',
 	};
 
-	#basis: string;
-	#type: string;
-	#value: number;
-	#valueType: string;
-	#workTime: boolean;
-	#localTime: boolean;
+	#basis: string = DelayInterval.BASIS_TYPE.CurrentDateTime;
+	#type: string = DelayInterval.DELAY_TYPE.After;
+	#value: number = 0;
+	#valueType: string = 'i';
+	#workTime: boolean = false;
+	#waitWorkDay: boolean = false;
+	#inTime: ?Array<[number, number]>;
 
 	constructor(params: ?Object)
 	{
-		this.#basis = DelayInterval.BASIS_TYPE.CurrentDateTime;
-		this.#type = DelayInterval.DELAY_TYPE.After;
-		this.#value = 0;
-		this.#valueType = 'i';
-		this.#workTime = false;
-		this.#localTime = false;
-
 		if (Type.isPlainObject(params))
 		{
 			if (params['type'])
@@ -52,9 +46,13 @@ export class DelayInterval
 			{
 				this.setWorkTime(params['workTime']);
 			}
-			if (params['localTime'])
+			if (params['waitWorkDay'])
 			{
-				this.setLocalTime(params['localTime']);
+				this.setWaitWorkDay(params['waitWorkDay']);
+			}
+			if (params['inTime'])
+			{
+				this.setInTime(params['inTime']);
 			}
 		}
 	}
@@ -84,9 +82,24 @@ export class DelayInterval
 		return this.#workTime;
 	}
 
-	get localTime()
+	get waitWorkDay()
 	{
-		return this.#localTime;
+		return this.#waitWorkDay;
+	}
+
+	get inTime()
+	{
+		return this.#inTime;
+	}
+
+	get inTimeString(): string
+	{
+		if (!this.#inTime)
+		{
+			return ''
+		}
+
+		return ('0' + this.#inTime[0]).slice(-2) + ':' + ('0' + this.#inTime[1]).slice(-2);
 	}
 
 	clone()
@@ -97,7 +110,8 @@ export class DelayInterval
 			valueType: this.#valueType,
 			basis: this.#basis,
 			workTime: this.#workTime,
-			localTime: this.#localTime,
+			waitWorkDay: this.#waitWorkDay,
+			inTime: this.#inTime,
 		});
 	}
 
@@ -112,38 +126,58 @@ export class DelayInterval
 
 	static fromString(intervalString, basisFields): this
 	{
-		intervalString = intervalString.toString();
+		if (!intervalString)
+		{
+			return new DelayInterval();
+		}
+
+		intervalString = intervalString.toString().trimStart().replace(/^=/, '');
 		const params = {
 			basis: DelayInterval.BASIS_TYPE.CurrentDateTime,
+			workTime: false,
+			inTime: null,
+		};
+
+		const values = {
 			i: 0,
 			h: 0,
 			d: 0,
-			workTime: false,
-			localTime: false
 		};
 
-		if (intervalString.indexOf('=dateadd(') === 0 || intervalString.indexOf('=workdateadd(') === 0)
+		if (intervalString.indexOf('settime(') === 0)
 		{
-			if (intervalString.indexOf('=workdateadd(') === 0)
+			intervalString = intervalString.substring(8, intervalString.length - 1);
+
+			const setTimeArgs = intervalString.split(',');
+			const minute = parseInt(setTimeArgs.pop().trim());
+			const hour = parseInt(setTimeArgs.pop().trim());
+
+			params.inTime = [hour || 0, minute || 0];
+			intervalString = setTimeArgs.join(',');
+		}
+
+		if (intervalString.indexOf('dateadd(') === 0 || intervalString.indexOf('workdateadd(') === 0)
+		{
+			if (intervalString.indexOf('workdateadd(') === 0)
 			{
-				intervalString = intervalString.substring(13);
+				intervalString = intervalString.substring(12, intervalString.length - 1);
 				params['workTime'] = true;
 			}
 			else
 			{
-				intervalString = intervalString.substring(9);
+				intervalString = intervalString.substring(8, intervalString.length - 1);
 			}
 
 			const fnArgs = intervalString.split(',');
 			params['basis'] = fnArgs[0].trim();
-			fnArgs[1] = fnArgs[1].replace(/['")]+/g, '');
+			fnArgs[1] = (fnArgs[1] || '').replace(/['")]+/g, '');
 			params['type'] = fnArgs[1].indexOf('-') === 0 ? DelayInterval.DELAY_TYPE.Before : DelayInterval.DELAY_TYPE.After;
 
 			let match;
 			const re = /s*([\d]+)\s*(i|h|d)\s*/ig;
 			while (match = re.exec(fnArgs[1]))
 			{
-				params[match[2]] = parseInt(match[1]);
+				values[match[2]] = parseInt(match[1]);
 			}
 		}
 		else
@@ -169,7 +203,7 @@ export class DelayInterval
 			}
 		}
 
-		const minutes = params['i'] + params['h'] * 60 + params['d'] * 60 * 24;
+		const minutes = values['i'] + values['h'] * 60 + values['d'] * 60 * 24;
 
 		if (minutes % 1440 === 0)
 		{
@@ -187,7 +221,14 @@ export class DelayInterval
 			params['valueType'] = 'i';
 		}
 
-		if (!params['value'] && params['basis'] !== DelayInterval.BASIS_TYPE.CurrentDateTime && params['basis'])
+		if (
+			!params['value']
+			&& (
+				params['basis'] !== DelayInterval.BASIS_TYPE.CurrentDateTime
+				|| params.inTime
+			)
+			&& params['basis']
+		)
 		{
 			params['type'] = DelayInterval.DELAY_TYPE.In;
 		}
@@ -291,9 +332,16 @@ export class DelayInterval
 		return this;
 	}
 
-	setLocalTime(flag): this
+	setWaitWorkDay(flag): this
 	{
-		this.#localTime = !!flag;
+		this.#waitWorkDay = !!flag;
+
+		return this;
+	}
+
+	setInTime(value: ?Array<[number, number]>): this
+	{
+		this.#inTime = value;
 
 		return this;
 	}
@@ -304,6 +352,8 @@ export class DelayInterval
 			this.#type === DelayInterval.DELAY_TYPE.After
 			&& this.#basis === DelayInterval.BASIS_TYPE.CurrentDateTime
 			&& !this.#value
+			&& !this.workTime
+			&& !this.inTime
 		);
 	}
 
@@ -313,6 +363,7 @@ export class DelayInterval
 		this.setValue(0);
 		this.setValueType('i');
 		this.setBasis(DelayInterval.BASIS_TYPE.CurrentDateTime);
+		this.setInTime(null);
 	}
 
 	serialize(): Object
@@ -322,7 +373,9 @@ export class DelayInterval
 			value: this.#value,
 			valueType: this.#valueType,
 			basis: this.#basis,
-			workTime: this.#workTime ? 1 : 0
+			workTime: this.#workTime ? 1 : 0,
+			waitWorkDay: this.#waitWorkDay ? 1 : 0,
+			inTime: this.#inTime || null,
 		}
 	}
 
@@ -342,7 +395,7 @@ export class DelayInterval
 			}
 		}
 
-		if (!this.#workTime && (this.#type === DelayInterval.DELAY_TYPE.In || this.isNow()))
+		if (this.isNow() || this.#type === DelayInterval.DELAY_TYPE.In && !this.#workTime && !this.#inTime)
 		{
 			return basis;
 		}
@@ -397,7 +450,19 @@ export class DelayInterval
 			worker = workerExpression;
 		}
 
-		return '='+ fn + '(' + basis + ',"' + add + '"' + (worker ? ',' + worker : '') + ')';
+		let result = fn + '(' + basis + ',"' + add + '"' + (worker ? ',' + worker : '') + ')'
+
+		if (this.#type === DelayInterval.DELAY_TYPE.In && this.#inTime)
+		{
+			if (!this.#workTime)
+			{
+				result = basis;
+			}
+
+			result = `settime(${result}, ${this.#inTime[0] || 0}, ${this.#inTime[1] || 0})`;
+		}
+
+		return '=' + result;
 	}
 
 	format(emptyText, fields)
@@ -417,6 +482,10 @@ export class DelayInterval
 						break;
 					}
 				}
+			}
+			if (this.inTime)
+			{
+				str += ' ' + this.inTimeString;
 			}
 		}
 		else if (this.#value)

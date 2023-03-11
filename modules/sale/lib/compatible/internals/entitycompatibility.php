@@ -199,16 +199,19 @@ abstract class EntityCompatibility
 			else
 			{
 				if (!$this->checkWhiteListFields($fieldClearName))
+				{
 					continue;
+				}
 
-				if (!is_array($aliasFields[$fieldClearName]))
+				$aliasFieldsValue = $aliasFields[$fieldClearName] ?? null;
+				if (!is_array($aliasFieldsValue))
 				{
 					$this->addFilter($fieldName, $fieldValue);
 				}
 				else
 				{
-					$this->addFilterForAlias($aliasFields[$fieldClearName], $fieldName, $fieldValue);
-					$this->addSelectForAlias($aliasFields[$fieldClearName]);
+					$this->addFilterForAlias($aliasFieldsValue, $fieldName, $fieldValue);
+					$this->addSelectForAlias($aliasFieldsValue);
 				}
 			}
 		}
@@ -254,13 +257,14 @@ abstract class EntityCompatibility
 			}
 			else
 			{
-				if (!is_array($aliasFields[$fieldName]))
+				$aliasFieldsValue = $aliasFields[$fieldName] ?? null;
+				if (!is_array($aliasFieldsValue))
 				{
 					$this->addSelect($fieldName);
 				}
 				else
 				{
-					$this->addSelectForAlias($aliasFields[$fieldName]);
+					$this->addSelectForAlias($aliasFieldsValue);
 				}
 			}
 		}

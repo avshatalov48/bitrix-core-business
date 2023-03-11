@@ -234,8 +234,8 @@ while ($l_res = $l->Fetch())
 	}
 	?>
 <script type="text/javascript">
-const allowPriceEdit = <?= ($allowEditPrices ? 'true' : 'false'); ?>;
-const allowEdit = <?= ($allowEdit ? 'true' : 'false'); ?>;
+var allowPriceEdit = <?= ($allowEditPrices ? 'true' : 'false'); ?>;
+var allowEdit = <?= ($allowEdit ? 'true' : 'false'); ?>;
 
 function getElementForm()
 {
@@ -517,6 +517,13 @@ function togglePriceType()
 			$arPriceBoundaries[0]['FROM'] = false;
 			$arPriceBoundaries[0]['TO'] = false;
 		}
+	}
+	else
+	{
+		$arPriceBoundaries[] = [
+			'FROM' => false,
+			'TO' => false
+		];
 	}
 
 // prices tab

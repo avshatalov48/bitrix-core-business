@@ -1,626 +1,298 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_const,main_core) {
+(function (exports,main_date,main_core,im_v2_const) {
 	'use strict';
 
-	const Utils = {
-	  browser: {
-	    isSafari() {
-	      if (this.isChrome()) {
-	        return false;
-	      }
+	const UA = navigator.userAgent.toLowerCase();
+	const BrowserUtil = {
+	  isChrome() {
+	    return main_core.Browser.isChrome();
+	  },
 
-	      if (!navigator.userAgent.toLowerCase().includes('safari')) {
-	        return false;
-	      }
+	  isFirefox() {
+	    return main_core.Browser.isFirefox();
+	  },
 
-	      return !this.isSafariBased();
-	    },
+	  isIe() {
+	    return main_core.Browser.isIE();
+	  },
 
-	    isSafariBased() {
-	      if (!navigator.userAgent.toLowerCase().includes('applewebkit')) {
-	        return false;
-	      }
+	  isSafari() {
+	    if (this.isChrome()) {
+	      return false;
+	    }
 
-	      return navigator.userAgent.toLowerCase().includes('yabrowser') || navigator.userAgent.toLowerCase().includes('yaapp_ios_browser') || navigator.userAgent.toLowerCase().includes('crios');
-	    },
+	    if (!UA.includes('safari')) {
+	      return false;
+	    }
 
-	    isChrome() {
-	      return navigator.userAgent.toLowerCase().includes('chrome');
-	    },
+	    return !this.isSafariBased();
+	  },
 
-	    isFirefox() {
-	      return navigator.userAgent.toLowerCase().includes('firefox');
-	    },
+	  isSafariBased() {
+	    if (!UA.includes('applewebkit')) {
+	      return false;
+	    }
 
-	    isIe() {
-	      return navigator.userAgent.match(/(Trident\/|MSIE\/)/) !== null;
-	    },
+	    return UA.includes('yabrowser') || UA.includes('yaapp_ios_browser') || UA.includes('crios');
+	  },
 
-	    findParent(item, findTag) {
-	      const isHtmlElement = findTag instanceof HTMLElement;
+	  findParent(item, findTag) {
+	    const isHtmlElement = findTag instanceof HTMLElement;
 
-	      if (!findTag || typeof findTag !== 'string' && !isHtmlElement) {
-	        return null;
-	      }
-
-	      for (; item && item !== document; item = item.parentNode) {
-	        if (typeof findTag === 'string') {
-	          if (item.classList.contains(findTag)) {
-	            return item;
-	          }
-	        } else if (isHtmlElement && item === findTag) {
-	          return item;
-	        }
-	      }
-
+	    if (!findTag || !main_core.Type.isString(findTag) && !isHtmlElement) {
 	      return null;
 	    }
 
-	  },
-	  platform: {
-	    isMac() {
-	      return navigator.userAgent.toLowerCase().includes('macintosh');
-	    },
-
-	    isLinux() {
-	      return navigator.userAgent.toLowerCase().includes('linux');
-	    },
-
-	    isWindows() {
-	      return navigator.userAgent.toLowerCase().includes('windows') || !this.isMac() && !this.isLinux();
-	    },
-
-	    isBitrixMobile() {
-	      return navigator.userAgent.toLowerCase().includes('bitrixmobile');
-	    },
-
-	    isBitrixDesktop() {
-	      return navigator.userAgent.toLowerCase().includes('bitrixdesktop');
-	    },
-
-	    getDesktopVersion() {
-	      if (typeof this.getDesktopVersionStatic !== 'undefined') {
-	        return this.getDesktopVersionStatic;
-	      }
-
-	      if (typeof BXDesktopSystem === 'undefined') {
-	        return 0;
-	      }
-
-	      const version = BXDesktopSystem.GetProperty('versionParts');
-	      this.getDesktopVersionStatic = version[3];
-	      return this.getDesktopVersionStatic;
-	    },
-
-	    isDesktopFeatureEnabled(code) {
-	      if (!this.isBitrixDesktop() || !main_core.Type.isFunction(BXDesktopSystem.FeatureEnabled)) {
-	        return false;
-	      }
-
-	      return !!BXDesktopSystem.FeatureEnabled(code);
-	    },
-
-	    isMobile() {
-	      return this.isAndroid() || this.isIos() || this.isBitrixMobile();
-	    },
-
-	    isIos() {
-	      return navigator.userAgent.toLowerCase().includes('iphone') || navigator.userAgent.toLowerCase().includes('ipad');
-	    },
-
-	    getIosVersion() {
-	      if (!this.isIos()) {
-	        return null;
-	      }
-
-	      let matches = navigator.userAgent.toLowerCase().match(/(iphone|ipad)(.+)(OS\s([0-9]+)([_.]([0-9]+))?)/i);
-
-	      if (!matches || !matches[4]) {
-	        return null;
-	      }
-
-	      return parseFloat(matches[4] + '.' + (matches[6] ? matches[6] : 0));
-	    },
-
-	    isAndroid() {
-	      return navigator.userAgent.toLowerCase().includes('android');
-	    },
-
-	    openNewPage(url) {
-	      if (!url) {
-	        return false;
-	      }
-
-	      if (this.isBitrixMobile()) {
-	        if (typeof BX.MobileTools !== 'undefined') {
-	          let openWidget = BX.MobileTools.resolveOpenFunction(url);
-
-	          if (openWidget) {
-	            openWidget();
-	            return true;
-	          }
+	    for (; item && item !== document; item = item.parentNode) {
+	      if (main_core.Type.isString(findTag)) {
+	        if (main_core.Dom.hasClass(findTag)) {
+	          return item;
 	        }
+	      } else if (isHtmlElement && item === findTag) {
+	        return item;
+	      }
+	    }
 
-	        app.openNewPage(url);
-	      } else {
-	        window.open(url, '_blank');
+	    return null;
+	  }
+
+	};
+
+	const DateUtil = {
+	  getFormatType(type = im_v2_const.DateFormat.default) {
+	    let format = [];
+
+	    if (type === im_v2_const.DateFormat.groupTitle) {
+	      format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE")]];
+	    } else if (type === im_v2_const.DateFormat.message) {
+	      format = [["", main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")]];
+	    } else if (type === im_v2_const.DateFormat.recentTitle) {
+	      format = [["tommorow", "today"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_RECENT")]];
+	    } else if (type === im_v2_const.DateFormat.recentLinesTitle) {
+	      format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_RECENT")]];
+	    } else if (type === im_v2_const.DateFormat.readedTitle) {
+	      format = [["tommorow", "tommorow, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["today", "today, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["yesterday", "yesterday, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_READED")]];
+	    } else if (type === im_v2_const.DateFormat.vacationTitle) {
+	      format = [["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_SHORT")]];
+	    } else {
+	      format = [["tommorow", "tommorow, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["today", "today, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["yesterday", "yesterday, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_TIME")]];
+	    }
+
+	    return format;
+	  },
+
+	  getDateFunction(localize = null) {
+	    if (this.dateFormatFunction) {
+	      return this.dateFormatFunction;
+	    }
+
+	    this.dateFormatFunction = Object.create(BX.Main.Date);
+
+	    if (localize) {
+	      // eslint-disable-next-line bitrix-rules/no-pseudo-private
+	      this.dateFormatFunction._getMessage = phrase => localize[phrase];
+	    }
+
+	    return this.dateFormatFunction;
+	  },
+
+	  format(timestamp, format = null, localize = null) {
+	    if (!format) {
+	      format = this.getFormatType(im_v2_const.DateFormat.default, localize);
+	    }
+
+	    return this.getDateFunction(localize).format(format, timestamp);
+	  },
+
+	  cast(date, def = new Date()) {
+	    let result = def;
+
+	    if (date instanceof Date) {
+	      result = date;
+	    } else if (main_core.Type.isString(date)) {
+	      result = new Date(date);
+	    } else if (main_core.Type.isNumber(date)) {
+	      result = new Date(date * 1000);
+	    }
+
+	    if (result instanceof Date && Number.isNaN(result.getTime())) {
+	      result = def;
+	    }
+
+	    return result;
+	  },
+
+	  getTimeToNextMidnight() {
+	    const nextMidnight = new Date(new Date().setHours(24, 0, 0)).getTime();
+	    return nextMidnight - Date.now();
+	  },
+
+	  getStartOfTheDay() {
+	    return new Date(new Date().setHours(0, 0));
+	  },
+
+	  isToday(date) {
+	    return this.cast(date).toDateString() === new Date().toDateString();
+	  }
+
+	};
+
+	const UA$1 = navigator.userAgent.toLowerCase();
+	const DeviceUtil = {
+	  isDesktop() {
+	    return !this.isMobile();
+	  },
+
+	  isMobile() {
+	    if (!main_core.Type.isUndefined(this.isMobileStatic)) {
+	      return this.isMobileStatic;
+	    }
+
+	    this.isMobileStatic = UA$1.includes('android') || UA$1.includes('webos') || UA$1.includes('iphone') || UA$1.includes('ipad') || UA$1.includes('ipod') || UA$1.includes('blackberry') || UA$1.includes('windows phone');
+	    return this.isMobileStatic;
+	  },
+
+	  orientationHorizontal: 'horizontal',
+	  orientationPortrait: 'portrait',
+
+	  getOrientation() {
+	    if (!this.isMobile()) {
+	      return this.orientationHorizontal;
+	    }
+
+	    return Math.abs(window.orientation) === 0 ? this.orientationPortrait : this.orientationHorizontal;
+	  }
+
+	};
+
+	const UA$2 = navigator.userAgent.toLowerCase();
+	const PlatformUtil = {
+	  isMac() {
+	    return main_core.Browser.isMac();
+	  },
+
+	  isLinux() {
+	    return main_core.Browser.isLinux();
+	  },
+
+	  isWindows() {
+	    return main_core.Browser.isWin() || !this.isMac() && !this.isLinux();
+	  },
+
+	  isBitrixMobile() {
+	    return UA$2.includes('bitrixmobile');
+	  },
+
+	  isBitrixDesktop() {
+	    return UA$2.includes('bitrixdesktop');
+	  },
+
+	  getDesktopVersion() {
+	    if (!main_core.Type.isUndefined(this.getDesktopVersionStatic)) {
+	      return this.getDesktopVersionStatic;
+	    }
+
+	    if (main_core.Type.isUndefined(window.BXDesktopSystem)) {
+	      return 0;
+	    }
+
+	    const version = window.BXDesktopSystem.GetProperty('versionParts');
+	    this.getDesktopVersionStatic = version[3];
+	    return this.getDesktopVersionStatic;
+	  },
+
+	  isDesktopFeatureEnabled(code) {
+	    if (!this.isBitrixDesktop() || !main_core.Type.isFunction(BXDesktopSystem.FeatureEnabled)) {
+	      return false;
+	    }
+
+	    return !!BXDesktopSystem.FeatureEnabled(code);
+	  },
+
+	  isMobile() {
+	    return this.isAndroid() || this.isIos() || this.isBitrixMobile();
+	  },
+
+	  isIos() {
+	    return main_core.Browser.isIOS();
+	  },
+
+	  getIosVersion() {
+	    if (!this.isIos()) {
+	      return null;
+	    }
+
+	    const matches = UA$2.match(/(iphone|ipad)(.+)(OS\s([0-9]+)([_.]([0-9]+))?)/i);
+
+	    if (!matches || !matches[4]) {
+	      return null;
+	    }
+
+	    return parseFloat(matches[4] + '.' + (matches[6] ? matches[6] : 0));
+	  },
+
+	  isAndroid() {
+	    return main_core.Browser.isAndroid();
+	  },
+
+	  openNewPage(url) {
+	    if (!url) {
+	      return false;
+	    }
+
+	    if (this.isBitrixMobile()) {
+	      const MobileTools = window.BX.MobileTools;
+
+	      if (main_core.Type.isUndefined()) {
+	        const openWidget = MobileTools.resolveOpenFunction(url);
+
+	        if (openWidget) {
+	          openWidget();
+	          return true;
+	        }
 	      }
 
+	      window.app.openNewPage(url);
 	      return true;
 	    }
 
-	  },
-	  device: {
-	    isDesktop() {
-	      return !this.isMobile();
-	    },
+	    window.open(url, '_blank');
+	    return true;
+	  }
 
-	    isMobile() {
-	      if (typeof this.isMobileStatic !== 'undefined') {
-	        return this.isMobileStatic;
-	      }
+	};
 
-	      this.isMobileStatic = navigator.userAgent.toLowerCase().includes('android') || navigator.userAgent.toLowerCase().includes('webos') || navigator.userAgent.toLowerCase().includes('iphone') || navigator.userAgent.toLowerCase().includes('ipad') || navigator.userAgent.toLowerCase().includes('ipod') || navigator.userAgent.toLowerCase().includes('blackberry') || navigator.userAgent.toLowerCase().includes('windows phone');
-	      return this.isMobileStatic;
-	    },
-
-	    orientationHorizontal: 'horizontal',
-	    orientationPortrait: 'portrait',
-
-	    getOrientation() {
-	      if (!this.isMobile()) {
-	        return this.orientationHorizontal;
-	      }
-
-	      return Math.abs(window.orientation) === 0 ? this.orientationPortrait : this.orientationHorizontal;
-	    }
-
-	  },
-	  text: {
-	    quote(text, params, files = {}, localize = null) {
-	      if (typeof text !== 'string') {
-	        return text.toString();
-	      }
-
-	      if (!localize) {
-	        localize = BX.message;
-	      }
-
-	      text = text.replace(/\[USER=([0-9]{1,})](.*?)\[\/USER]/ig, (whole, userId, text) => text);
-	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})](.*?)[\/CHAT]/ig, (whole, imol, chatId, text) => text);
-	      text = text.replace(/\[CALL(?:=(.+?))?](.+?)?\[\/CALL]/ig, (whole, command, text) => text ? text : command);
-	      text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, (whole, command, text) => command === 10000 ? '' : '[' + localize['IM_UTILS_TEXT_ATTACH'] + '] ');
-	      text = text.replace(/\[RATING=([1-5]{1})]/ig, (whole, rating) => '[' + localize.IM_F_RATING + '] ');
-	      text = text.replace(/&nbsp;/ig, " ");
-	      text = text.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmis, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "]");
-	      text = text.replace(/^(>>(.*)\n)/gi, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "]\n");
-
-	      if (params && params.FILE_ID && params.FILE_ID.length > 0) {
-	        let filesText = [];
-	        params.FILE_ID.forEach(fileId => {
-	          if (files[fileId].type === 'image') {
-	            filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
-	          } else if (files[fileId].type === 'audio') {
-	            filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
-	          } else if (files[fileId].type === 'video') {
-	            filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
-	          } else {
-	            filesText.push(files[fileId].name);
-	          }
-	        });
-
-	        if (filesText.length <= 0) {
-	          filesText.push(localize['IM_UTILS_TEXT_FILE']);
-	        }
-
-	        text = filesText.join('\n') + text;
-	      } else if (params && params.ATTACH && params.ATTACH.length > 0) {
-	        text = '[' + localize['IM_UTILS_TEXT_ATTACH'] + ']\n' + text;
-	      }
-
-	      if (text.length <= 0) {
-	        text = localize['IM_UTILS_TEXT_DELETED'];
-	      }
-
-	      return text.trim();
-	    },
-
-	    purify(text, params, files = {}, localize = null) {
-	      if (typeof text !== 'string') {
-	        return text.toString();
-	      }
-
-	      if (!localize) {
-	        localize = BX.message;
-	      }
-
-	      text = text.trim();
-
-	      if (text.startsWith('/me')) {
-	        text = text.substr(4);
-	      } else if (text.startsWith('/loud')) {
-	        text = text.substr(6);
-	      }
-
-	      text = text.replace(/<br><br \/>/ig, '<br />');
-	      text = text.replace(/<br \/><br>/ig, '<br />');
-	      const codeReplacement = [];
-	      text = text.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/ig, function (whole, text) {
-	        const id = codeReplacement.length;
-	        codeReplacement.push(text);
-	        return '####REPLACEMENT_CODE_' + id + '####';
-	      });
-	      text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function (match) {
-	        return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function (whole, command, text) {
-	          return text ? text : command;
-	        });
-	      });
-	      text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function (match) {
-	        return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function (whole, command, text) {
-	          return text ? text : command;
-	        });
-	      });
-	      text = text.replace(/\[[buis]](.*?)\[\/[buis]]/ig, '$1');
-	      text = text.replace(/\[url](.*?)\[\/url]/ig, '$1');
-	      text = text.replace(/\[RATING=([1-5]{1})]/ig, () => '[' + localize['IM_UTILS_TEXT_RATING'] + '] ');
-	      text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, () => '[' + localize['IM_UTILS_TEXT_ATTACH'] + '] ');
-	      text = text.replace(/\[USER=([0-9]{1,})](.*?)\[\/USER]/ig, '$2');
-	      text = text.replace(/\[CHAT=([0-9]{1,})](.*?)\[\/CHAT]/ig, '$2');
-	      text = text.replace(/\[SEND(?:=(?:.+?))?\](.+?)?\[\/SEND]/ig, '$1');
-	      text = text.replace(/\[PUT(?:=(?:.+?))?\](.+?)?\[\/PUT]/ig, '$1');
-	      text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/ig, '$2');
-	      text = text.replace(/\[PCH=([0-9]{1,})](.*?)\[\/PCH]/ig, '$2');
-	      text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
-	      text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/ig, '($1)');
-	      text = text.replace(/<img.*?title="([^"]*)".*?>/ig, '($1)');
-	      text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, (whole, command, text) => command === 10000 ? '' : '[' + localize['IM_UTILS_TEXT_ATTACH'] + '] ');
-	      text = text.replace(/<s>([^"]*)<\/s>/ig, ' ');
-	      text = text.replace(/\[s]([^"]*)\[\/s]/ig, ' ');
-	      text = text.replace(/\[icon=([^\]]*)]/ig, whole => {
-	        let title = whole.match(/title=(.*[^\s\]])/i);
-
-	        if (title && title[1]) {
-	          title = title[1];
-
-	          if (title.indexOf('width=') > -1) {
-	            title = title.substr(0, title.indexOf('width='));
-	          }
-
-	          if (title.indexOf('height=') > -1) {
-	            title = title.substr(0, title.indexOf('height='));
-	          }
-
-	          if (title.indexOf('size=') > -1) {
-	            title = title.substr(0, title.indexOf('size='));
-	          }
-
-	          if (title) {
-	            title = '(' + title.trim() + ')';
-	          }
-	        } else {
-	          title = '(' + localize['IM_UTILS_TEXT_ICON'] + ')';
-	        }
-
-	        return title;
-	      });
-	      codeReplacement.forEach((element, index) => {
-	        text = text.replace('####REPLACEMENT_CODE_' + index + '####', element);
-	      });
-	      text = text.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmis, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "] ");
-	      text = text.replace(/^(>>(.*)(\n)?)/gmi, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "] ");
-	      text = text.replace(/<\/?[^>]+>/gi, '');
-
-	      if (params && params.FILE_ID && params.FILE_ID.length > 0) {
-	        let filesText = [];
-
-	        if (typeof files === 'object') {
-	          params.FILE_ID.forEach(fileId => {
-	            if (typeof files[fileId] === 'undefined') ; else if (files[fileId].type === 'image') {
-	              filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
-	            } else if (files[fileId].type === 'audio') {
-	              filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
-	            } else if (files[fileId].type === 'video') {
-	              filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
-	            } else {
-	              filesText.push(files[fileId].name);
-	            }
-	          });
-	        }
-
-	        if (filesText.length <= 0) {
-	          filesText.push(localize['IM_UTILS_TEXT_FILE']);
-	        }
-
-	        text = filesText.join(' ') + text;
-	      } else if (params && (params.WITH_ATTACH || params.ATTACH && params.ATTACH.length > 0)) {
-	        text = '[' + localize['IM_UTILS_TEXT_ATTACH'] + '] ' + text;
-	      } else if (params && params.WITH_FILE) {
-	        text = '[' + localize['IM_UTILS_TEXT_FILE'] + '] ' + text;
-	      }
-
-	      if (text.length <= 0) {
-	        text = localize['IM_UTILS_TEXT_DELETED'];
-	      }
-
-	      return text.replace('\n', ' ').trim();
-	    },
-
-	    htmlspecialchars(text) {
-	      if (typeof text !== 'string') {
-	        return text;
-	      }
-
-	      return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-	    },
-
-	    htmlspecialcharsback(text) {
-	      if (typeof text !== 'string') {
-	        return text;
-	      }
-
-	      return text.replace(/\&quot;/g, '"').replace(/&#039;/g, "'").replace(/\&lt;/g, '<').replace(/\&gt;/g, '>').replace(/\&amp;/g, '&').replace(/\&nbsp;/g, ' ');
-	    },
-
-	    getLocalizeForNumber(phrase, number, language = 'en', localize = null) {
-	      if (!localize) {
-	        localize = BX.message;
-	      }
-
-	      let pluralFormType = 1;
-	      number = parseInt(number);
-
-	      if (number < 0) {
-	        number = number * -1;
-	      }
-
-	      if (language) {
-	        switch (language) {
-	          case 'de':
-	          case 'en':
-	            pluralFormType = number !== 1 ? 1 : 0;
-	            break;
-
-	          case 'ru':
-	          case 'ua':
-	            pluralFormType = number % 10 === 1 && number % 100 !== 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
-	            break;
-	        }
-	      }
-
-	      return localize[phrase + '_PLURAL_' + pluralFormType];
-	    },
-
-	    getFirstLetters(text) {
-	      const validSymbolsPattern = /[\p{L}\p{N} ]/u;
-	      const words = text.split(/[\s,]/).filter(word => {
-	        const firstLetter = word.charAt(0);
-	        return validSymbolsPattern.test(firstLetter);
-	      });
-
-	      if (words.length === 0) {
-	        return '';
-	      }
-
-	      if (words.length > 1) {
-	        return words[0].charAt(0) + words[1].charAt(0);
-	      }
-
-	      return words[0].charAt(0);
-	    },
-
-	    convertSnakeToCamelCase(text) {
-	      return text.replace(/(_[a-z])/gi, $1 => {
-	        return $1.toUpperCase().replace('_', '');
-	      });
-	    }
-
-	  },
-	  date: {
-	    getFormatType(type = im_v2_const.DateFormat.default, localize = null) {
-	      if (!localize) {
-	        localize = BX.message;
-	      }
-
-	      let format = [];
-
-	      if (type === im_v2_const.DateFormat.groupTitle) {
-	        format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", localize["IM_UTILS_FORMAT_DATE"]]];
-	      } else if (type === im_v2_const.DateFormat.message) {
-	        format = [["", localize["IM_UTILS_FORMAT_TIME"]]];
-	      } else if (type === im_v2_const.DateFormat.recentTitle) {
-	        format = [["tommorow", "today"], ["today", "today"], ["yesterday", "yesterday"], ["", localize["IM_UTILS_FORMAT_DATE_RECENT"]]];
-	      } else if (type === im_v2_const.DateFormat.recentLinesTitle) {
-	        format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", localize["IM_UTILS_FORMAT_DATE_RECENT"]]];
-	      } else if (type === im_v2_const.DateFormat.readedTitle) {
-	        format = [["tommorow", "tommorow, " + localize["IM_UTILS_FORMAT_TIME"]], ["today", "today, " + localize["IM_UTILS_FORMAT_TIME"]], ["yesterday", "yesterday, " + localize["IM_UTILS_FORMAT_TIME"]], ["", localize["IM_UTILS_FORMAT_READED"]]];
-	      } else if (type === im_v2_const.DateFormat.vacationTitle) {
-	        format = [["", localize["IM_UTILS_FORMAT_DATE_SHORT"]]];
-	      } else {
-	        format = [["tommorow", "tommorow, " + localize["IM_UTILS_FORMAT_TIME"]], ["today", "today, " + localize["IM_UTILS_FORMAT_TIME"]], ["yesterday", "yesterday, " + localize["IM_UTILS_FORMAT_TIME"]], ["", localize["IM_UTILS_FORMAT_DATE_TIME"]]];
-	      }
-
-	      return format;
-	    },
-
-	    getDateFunction(localize = null) {
-	      if (this.dateFormatFunction) {
-	        return this.dateFormatFunction;
-	      }
-
-	      this.dateFormatFunction = Object.create(BX.Main.Date);
-
-	      if (localize) {
-	        this.dateFormatFunction._getMessage = phrase => localize[phrase];
-	      }
-
-	      return this.dateFormatFunction;
-	    },
-
-	    format(timestamp, format = null, localize = null) {
-	      if (!format) {
-	        format = this.getFormatType(im_v2_const.DateFormat.default, localize);
-	      }
-
-	      return this.getDateFunction(localize).format(format, timestamp);
-	    },
-
-	    cast(date, def = new Date()) {
-	      let result = def;
-
-	      if (date instanceof Date) {
-	        result = date;
-	      } else if (typeof date === 'string') {
-	        result = new Date(date);
-	      } else if (typeof date === 'number') {
-	        result = new Date(date * 1000);
-	      }
-
-	      if (result instanceof Date && Number.isNaN(result.getTime())) {
-	        result = def;
-	      }
-
-	      return result;
-	    },
-
-	    getTimeToNextMidnight() {
-	      const nextMidnight = new Date(new Date().setHours(24, 0, 0)).getTime();
-	      return nextMidnight - Date.now();
-	    },
-
-	    getStartOfTheDay() {
-	      return new Date(new Date().setHours(0, 0));
-	    },
-
-	    isToday(date) {
-	      return this.cast(date).toDateString() === new Date().toDateString();
-	    }
-
-	  },
-	  user: {
-	    getLastDateText(params = {}) {
-	      if (params.bot || params.network || !params.lastActivityDate) {
-	        return '';
-	      }
-
-	      const isOnline = this.isOnline(params.lastActivityDate);
-	      const isMobileOnline = this.isMobileOnline(params.lastActivityDate, params.mobileLastDate);
-	      let text = ''; // "away for X minutes"
-
-	      if (isOnline && params.idle && !isMobileOnline) {
-	        text = main_core.Loc.getMessage('IM_STATUS_AWAY_TITLE').replace('#TIME#', this.getIdleText(params.idle));
-	      }
-
-	      const lastSeenText = this.getLastSeenText(params.lastActivityDate); // truly online, last activity date < 5 minutes ago - show status text
-
-	      if (isOnline && !lastSeenText) {
-	        text = this.getStatusText(params.status);
-	      } // last activity date > 5 minutes ago - "Was online X minutes ago"
-
-
-	      if (lastSeenText) {
-	        const phraseCode = `IM_LAST_SEEN_${params.gender}`;
-	        text = main_core.Loc.getMessage(phraseCode).replace('#POSITION#. ', '').replace('#LAST_SEEN#', lastSeenText);
-	      } // if on vacation - add postfix with vacation info
-
-
-	      if (params.absent) {
-	        const dateFunction = Utils.date.getDateFunction();
-	        const vacationFormat = Utils.date.getFormatType(im_v2_const.DateFormat.vacationTitle);
-	        const vacationText = main_core.Loc.getMessage('IM_STATUS_VACATION_TITLE').replace('#DATE#', dateFunction.format(vacationFormat, params.absent.getTime() / 1000));
-	        text = text ? `${text}. ${vacationText}` : vacationText;
-	      }
-
-	      return text;
-	    },
-
-	    getIdleText(idle = '') {
-	      if (!idle) {
-	        return '';
-	      }
-
-	      return Utils.date.getDateFunction().format([['s60', 'sdiff'], ['i60', 'idiff'], ['H24', 'Hdiff'], ['', 'ddiff']], idle);
-	    },
-
-	    isOnline(lastActivityDate) {
-	      if (!lastActivityDate) {
-	        return false;
-	      }
-
-	      return Date.now() - lastActivityDate.getTime() <= this.getOnlineLimit() * 1000;
-	    },
-
-	    isMobileOnline(lastActivityDate, mobileLastDate) {
-	      if (!lastActivityDate || !mobileLastDate) {
-	        return false;
-	      }
-
-	      const FIVE_MINUTES = 5 * 60 * 1000;
-	      return Date.now() - mobileLastDate.getTime() < this.getOnlineLimit() * 1000 && lastActivityDate - mobileLastDate < FIVE_MINUTES;
-	    },
-
-	    getStatusText(status) {
-	      var _localize$phraseCode;
-
-	      const localize = BX.message || {};
-	      status = status.toUpperCase();
-	      const phraseCode = `IM_STATUS_${status}`;
-	      return (_localize$phraseCode = localize[phraseCode]) != null ? _localize$phraseCode : status;
-	    },
-
-	    getLastSeenText(lastActivityDate) {
-	      if (!lastActivityDate) {
-	        return '';
-	      }
-
-	      const FIVE_MINUTES = 5 * 60 * 1000;
-
-	      if (Date.now() - lastActivityDate.getTime() > FIVE_MINUTES) {
-	        return Utils.date.getDateFunction().formatLastActivityDate(lastActivityDate);
-	      }
-
-	      return '';
-	    },
-
-	    isBirthdayToday(birthday) {
-	      return birthday === Utils.date.format(new Date(), 'd-m');
-	    },
-
-	    getOnlineLimit() {
-	      const localize = BX.message || {};
-	      const FIFTEEN_MINUTES = 15 * 60;
-	      return localize.LIMIT_ONLINE ? Number.parseInt(localize.LIMIT_ONLINE, 10) : FIFTEEN_MINUTES;
-	    }
-
-	  },
-
+	const RestUtil = {
 	  getLogTrackingParams(params = {}) {
-	    let result = [];
+	    const result = [];
 	    let {
 	      name = 'tracking',
-	      data = [],
+	      data = []
+	    } = params;
+	    const {
 	      dialog = null,
 	      message = null,
 	      files = null
 	    } = params;
 	    name = encodeURIComponent(name);
 
-	    if (data && !(data instanceof Array) && typeof data === 'object') {
-	      let dataArray = [];
+	    if (main_core.Type.isPlainObject(data)) {
+	      const dataArray = [];
 
-	      for (let name in data) {
+	      for (const name in data) {
 	        if (data.hasOwnProperty(name)) {
 	          dataArray.push(encodeURIComponent(name) + "=" + encodeURIComponent(data[name]));
 	        }
 	      }
 
 	      data = dataArray;
-	    } else if (!data instanceof Array) {
+	    } else if (!main_core.Type.isArray(data)) {
 	      data = [];
 	    }
 
-	    if (dialog) {
+	    if (main_core.Type.isObjectLike(dialog)) {
 	      result.push('timType=' + dialog.type);
 
 	      if (dialog.type === 'lines') {
@@ -628,47 +300,481 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    }
 
-	    if (files) {
+	    if (!main_core.Type.isNull(files)) {
 	      let type = 'file';
 
-	      if (files instanceof Array && files[0]) {
+	      if (main_core.Type.isArray(files) && files[0]) {
 	        type = files[0].type;
-	      } else {
+	      } else if (main_core.Type.isObjectLike(files)) {
 	        type = files.type;
 	      }
 
 	      result.push('timMessageType=' + type);
-	    } else if (message) {
+	    } else if (!main_core.Type.isNull(message)) {
 	      result.push('timMessageType=text');
 	    }
 
-	    if (this.platform.isBitrixMobile()) {
+	    if (PlatformUtil.isBitrixMobile()) {
 	      result.push('timDevice=bitrixMobile');
-	    } else if (this.platform.isBitrixDesktop()) {
+	    } else if (PlatformUtil.isBitrixDesktop()) {
 	      result.push('timDevice=bitrixDesktop');
-	    } else if (this.platform.isIos() || this.platform.isAndroid()) {
+	    } else if (PlatformUtil.isIos() || PlatformUtil.isAndroid()) {
 	      result.push('timDevice=mobile');
 	    } else {
 	      result.push('timDevice=web');
 	    }
 
 	    return name + (data.length ? '&' + data.join('&') : '') + (result.length ? '&' + result.join('&') : '');
+	  }
+
+	};
+
+	const TextUtil = {
+	  convertHtmlEntities(text) {
+	    return main_core.Dom.create({
+	      tag: 'span',
+	      html: text
+	    }).innerText;
 	  },
 
-	  types: {
-	    isUuidV4(uuid) {
-	      if (typeof uuid !== 'string') {
-	        return false;
-	      }
+	  convertSnakeToCamelCase(text) {
+	    return text.replace(/(_[a-z])/gi, $1 => {
+	      return $1.toUpperCase().replace('_', '');
+	    });
+	  },
 
-	      const uuidV4pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
-	      return uuid.search(uuidV4pattern) === 0;
+	  escapeRegex(string) {
+	    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	  },
+
+	  getLocalizeForNumber(phrase, number, language = 'en') {
+	    let pluralFormType = 1;
+	    number = parseInt(number);
+
+	    if (number < 0) {
+	      number = number * -1;
 	    }
 
+	    if (language) {
+	      switch (language) {
+	        case 'de':
+	        case 'en':
+	          pluralFormType = number !== 1 ? 1 : 0;
+	          break;
+
+	        case 'ru':
+	        case 'ua':
+	          pluralFormType = number % 10 === 1 && number % 100 !== 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
+	          break;
+	      }
+	    }
+
+	    return main_core.Loc.getMessage(phrase + '_PLURAL_' + pluralFormType);
+	  },
+
+	  getFirstLetters(text) {
+	    const validSymbolsPattern = /[\p{L}\p{N} ]/u;
+	    const words = text.split(/[\s,]/).filter(word => {
+	      const firstLetter = word.charAt(0);
+	      return validSymbolsPattern.test(firstLetter);
+	    });
+
+	    if (words.length === 0) {
+	      return '';
+	    }
+
+	    if (words.length > 1) {
+	      return words[0].charAt(0) + words[1].charAt(0);
+	    }
+
+	    return words[0].charAt(0);
+	  },
+
+	  insertUnseenWhitespace(text, splitIndex) {
+	    if (text.length <= splitIndex) {
+	      return text;
+	    }
+
+	    const UNSEEN_SPACE = '\u200B';
+	    let firstPart = text.slice(0, splitIndex + 1);
+	    const secondPart = text.slice(splitIndex + 1);
+	    const hasWhitespace = /\s/.test(firstPart);
+	    const hasUserCode = /\[user=(\d+)(\s)?(replace)?](.*?)\[\/user]/ig.test(text);
+
+	    if (firstPart.length === splitIndex + 1 && !hasWhitespace && !hasUserCode) {
+	      firstPart += UNSEEN_SPACE;
+	    }
+
+	    return firstPart + secondPart;
+	  },
+
+	  isUuidV4(uuid) {
+	    if (!main_core.Type.isString(uuid)) {
+	      return false;
+	    }
+
+	    const uuidV4pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+	    return uuid.search(uuidV4pattern) === 0;
+	  },
+
+	  checkUrl(url) {
+	    const allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
+	    const checkCorrectStartLink = ['/', ...allowList].find(protocol => {
+	      return url.startsWith(protocol);
+	    });
+
+	    if (!checkCorrectStartLink) {
+	      return false;
+	    }
+
+	    const element = main_core.Dom.create({
+	      tag: 'a',
+	      attrs: {
+	        href: url
+	      }
+	    });
+	    return allowList.indexOf(element.protocol) > -1;
+	  },
+
+	  /**
+	   * @deprecated
+	   * @use Text.encode from main.core
+	   */
+	  htmlspecialchars(text) {
+	    return main_core.Text.encode(text);
+	  },
+
+	  /**
+	   * @deprecated
+	   * @use Text.decode from main.core
+	   */
+	  htmlspecialcharsback(text) {
+	    return main_core.Text.decode(text);
 	  }
+
+	};
+
+	const settings = main_core.Extension.getSettings('im.v2.lib.utils');
+	const UserUtil = {
+	  getLastDateText(params = {}) {
+	    if (params.bot || params.network || !params.lastActivityDate) {
+	      return '';
+	    }
+
+	    const isOnline = this.isOnline(params.lastActivityDate);
+	    const isMobileOnline = this.isMobileOnline(params.lastActivityDate, params.mobileLastDate);
+	    let text = ''; // "away for X minutes"
+
+	    if (isOnline && params.idle && !isMobileOnline) {
+	      text = main_core.Loc.getMessage('IM_STATUS_AWAY_TITLE').replace('#TIME#', this.getIdleText(params.idle));
+	    }
+
+	    const lastSeenText = this.getLastSeenText(params.lastActivityDate); // truly online, last activity date < 5 minutes ago - show status text
+
+	    if (isOnline && !lastSeenText) {
+	      text = this.getStatusTextForLastDate(params.status);
+	    } // last activity date > 5 minutes ago - "Was online X minutes ago"
+
+
+	    if (lastSeenText) {
+	      const phraseCode = `IM_LAST_SEEN_${params.gender}`;
+	      text = main_core.Loc.getMessage(phraseCode).replace('#POSITION#. ', '').replace('#LAST_SEEN#', lastSeenText);
+	    } // if on vacation - add postfix with vacation info
+
+
+	    if (params.absent) {
+	      const dateFunction = DateUtil.getDateFunction();
+	      const vacationFormat = DateUtil.getFormatType(im_v2_const.DateFormat.vacationTitle);
+	      const vacationText = main_core.Loc.getMessage('IM_STATUS_VACATION_TITLE').replace('#DATE#', dateFunction.format(vacationFormat, params.absent.getTime() / 1000));
+	      text = text ? `${text}. ${vacationText}` : vacationText;
+	    }
+
+	    return text;
+	  },
+
+	  getIdleText(idle = '') {
+	    if (!idle) {
+	      return '';
+	    }
+
+	    return DateUtil.getDateFunction().format([['s60', 'sdiff'], ['i60', 'idiff'], ['H24', 'Hdiff'], ['', 'ddiff']], idle);
+	  },
+
+	  isOnline(lastActivityDate) {
+	    if (!lastActivityDate) {
+	      return false;
+	    }
+
+	    return Date.now() - lastActivityDate.getTime() <= this.getOnlineLimit() * 1000;
+	  },
+
+	  isMobileOnline(lastActivityDate, mobileLastDate) {
+	    if (!lastActivityDate || !mobileLastDate) {
+	      return false;
+	    }
+
+	    const FIVE_MINUTES = 5 * 60 * 1000;
+	    return Date.now() - mobileLastDate.getTime() < this.getOnlineLimit() * 1000 && lastActivityDate - mobileLastDate < FIVE_MINUTES;
+	  },
+
+	  getStatusTextForLastDate(status) {
+	    var _Loc$getMessage;
+
+	    status = status.toUpperCase();
+	    return (_Loc$getMessage = main_core.Loc.getMessage(`IM_STATUS_${status}`)) != null ? _Loc$getMessage : status;
+	  },
+
+	  getStatusText(status) {
+	    var _Loc$getMessage2;
+
+	    status = status.toUpperCase();
+	    return (_Loc$getMessage2 = main_core.Loc.getMessage(`IM_STATUS_TEXT_${status}`)) != null ? _Loc$getMessage2 : status;
+	  },
+
+	  getLastSeenText(lastActivityDate) {
+	    if (!lastActivityDate) {
+	      return '';
+	    }
+
+	    const FIVE_MINUTES = 5 * 60 * 1000;
+
+	    if (Date.now() - lastActivityDate.getTime() > FIVE_MINUTES) {
+	      return DateUtil.getDateFunction().formatLastActivityDate(lastActivityDate);
+	    }
+
+	    return '';
+	  },
+
+	  isBirthdayToday(birthday) {
+	    return birthday === DateUtil.format(new Date(), 'd-m');
+	  },
+
+	  getOnlineLimit() {
+	    const limitOnline = settings.get('limitOnline', false);
+	    const FIFTEEN_MINUTES = 15 * 60;
+	    return limitOnline ? Number.parseInt(limitOnline, 10) : FIFTEEN_MINUTES;
+	  },
+
+	  getProfileLink(userId) {
+	    if (main_core.Type.isString(userId)) {
+	      userId = Number.parseInt(userId, 10);
+	    }
+
+	    return `/company/personal/user/${userId}/`;
+	  },
+
+	  getCalendarLink(userId) {
+	    if (main_core.Type.isString(userId)) {
+	      userId = Number.parseInt(userId, 10);
+	    }
+
+	    return `/company/personal/user/${userId}/calendar/`;
+	  },
+
+	  getMentionBbCode(userId, name) {
+	    if (main_core.Type.isString(userId)) {
+	      userId = Number.parseInt(userId, 10);
+	    }
+
+	    return `[USER=${userId}]${name}[/USER]`;
+	  }
+
+	};
+
+	const FileUtil = {
+	  getFileExtension(fileName) {
+	    return fileName.split('.').splice(-1)[0];
+	  },
+
+	  getIconTypeByFilename(fileName) {
+	    const extension = this.getFileExtension(fileName);
+	    return this.getIconTypeByExtension(extension);
+	  },
+
+	  getIconTypeByExtension(extension) {
+	    let icon = 'empty';
+
+	    switch (extension.toString()) {
+	      case 'png':
+	      case 'jpe':
+	      case 'jpg':
+	      case 'jpeg':
+	      case 'gif':
+	      case 'heic':
+	      case 'bmp':
+	      case 'webp':
+	        icon = 'img';
+	        break;
+
+	      case 'mp4':
+	      case 'mkv':
+	      case 'webm':
+	      case 'mpeg':
+	      case 'hevc':
+	      case 'avi':
+	      case '3gp':
+	      case 'flv':
+	      case 'm4v':
+	      case 'ogg':
+	      case 'wmv':
+	      case 'mov':
+	        icon = 'mov';
+	        break;
+
+	      case 'txt':
+	        icon = 'txt';
+	        break;
+
+	      case 'doc':
+	      case 'docx':
+	        icon = 'doc';
+	        break;
+
+	      case 'xls':
+	      case 'xlsx':
+	        icon = 'xls';
+	        break;
+
+	      case 'php':
+	        icon = 'php';
+	        break;
+
+	      case 'pdf':
+	        icon = 'pdf';
+	        break;
+
+	      case 'ppt':
+	      case 'pptx':
+	        icon = 'ppt';
+	        break;
+
+	      case 'rar':
+	        icon = 'rar';
+	        break;
+
+	      case 'zip':
+	      case '7z':
+	      case 'tar':
+	      case 'gz':
+	      case 'gzip':
+	        icon = 'zip';
+	        break;
+
+	      case 'set':
+	        icon = 'set';
+	        break;
+
+	      case 'conf':
+	      case 'ini':
+	      case 'plist':
+	        icon = 'set';
+	        break;
+	    }
+
+	    return icon;
+	  },
+
+	  getFileTypeByExtension(extension) {
+	    let type = im_v2_const.FileType.file;
+
+	    switch (extension) {
+	      case 'png':
+	      case 'jpe':
+	      case 'jpg':
+	      case 'jpeg':
+	      case 'gif':
+	      case 'heic':
+	      case 'bmp':
+	      case 'webp':
+	        type = im_v2_const.FileType.image;
+	        break;
+
+	      case 'mp4':
+	      case 'mkv':
+	      case 'webm':
+	      case 'mpeg':
+	      case 'hevc':
+	      case 'avi':
+	      case '3gp':
+	      case 'flv':
+	      case 'm4v':
+	      case 'ogg':
+	      case 'wmv':
+	      case 'mov':
+	        type = im_v2_const.FileType.video;
+	        break;
+
+	      case 'mp3':
+	        type = im_v2_const.FileType.audio;
+	        break;
+	    }
+
+	    return type;
+	  },
+
+	  formatFileSize(fileSize) {
+	    if (!fileSize || fileSize <= 0) {
+	      fileSize = 0;
+	    }
+
+	    const sizes = ['BYTE', 'KB', 'MB', 'GB', 'TB'];
+	    const KILOBYTE_SIZE = 1024;
+	    let position = 0;
+
+	    while (fileSize >= KILOBYTE_SIZE && position < sizes.length - 1) {
+	      fileSize /= KILOBYTE_SIZE;
+	      position++;
+	    }
+
+	    const phrase = main_core.Loc.getMessage(`IM_UTILS_FILE_SIZE_${sizes[position]}`);
+	    const roundedSize = Math.round(fileSize);
+	    return `${roundedSize} ${phrase}`;
+	  },
+
+	  getShortFileName(fileName, maxLength) {
+	    if (!fileName || fileName.length < maxLength) {
+	      return fileName;
+	    }
+
+	    const DOT_LENGTH = 1;
+	    const SYMBOLS_TO_TAKE_BEFORE_EXTENSION = 10;
+	    const extension = this.getFileExtension(fileName);
+	    const symbolsToTakeFromEnd = extension.length + DOT_LENGTH + SYMBOLS_TO_TAKE_BEFORE_EXTENSION;
+	    const secondPart = fileName.slice(-symbolsToTakeFromEnd);
+	    const firstPart = fileName.slice(0, maxLength - secondPart.length - DOT_LENGTH * 3);
+	    return `${firstPart.trim()}...${secondPart.trim()}`;
+	  },
+
+	  getViewerDataAttributes(viewerAttributes) {
+	    if (!viewerAttributes) {
+	      return {};
+	    }
+
+	    return {
+	      'data-viewer': true,
+	      'data-viewer-type': viewerAttributes.viewerType,
+	      'data-object-id': viewerAttributes.objectId,
+	      'data-src': viewerAttributes.src,
+	      'data-viewer-group-by': viewerAttributes.viewerGroupBy,
+	      'data-title': viewerAttributes.title,
+	      'data-actions': viewerAttributes.actions
+	    };
+	  }
+
+	};
+
+	const Utils = {
+	  browser: BrowserUtil,
+	  date: DateUtil,
+	  device: DeviceUtil,
+	  platform: PlatformUtil,
+	  rest: RestUtil,
+	  text: TextUtil,
+	  user: UserUtil,
+	  file: FileUtil
 	};
 
 	exports.Utils = Utils;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Const,BX));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main,BX,BX.Messenger.v2.Const));
 //# sourceMappingURL=utils.bundle.js.map

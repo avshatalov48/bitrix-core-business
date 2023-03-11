@@ -19,8 +19,23 @@ class CAllCatalog
 		$arMsg = array();
 		$boolResult = true;
 
+		if (!is_array($arFields))
+		{
+			return false;
+		}
 		if (array_key_exists('OFFERS', $arFields))
+		{
 			unset($arFields['OFFERS']);
+		}
+
+		$defaultFields = [
+			'YANDEX_EXPORT' => 'N',
+			'SUBSCRIPTION' => 'N',
+			'VAT_ID' => 0,
+			'PRODUCT_IBLOCK_ID' => 0,
+			'SKU_PROPERTY_ID' => 0,
+		];
+
 		$ID = (int)$ID;
 		$arCatalog = false;
 		if (0 < $ID)
@@ -36,6 +51,10 @@ class CAllCatalog
 
 		if ($boolResult)
 		{
+			if ($ACTION === 'ADD')
+			{
+				$arFields = array_merge($defaultFields, $arFields);
+			}
 			if ('ADD' == $ACTION || is_set($arFields,'IBLOCK_ID'))
 			{
 				if (!is_set($arFields,'IBLOCK_ID'))

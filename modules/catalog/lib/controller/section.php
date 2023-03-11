@@ -18,7 +18,14 @@ final class Section extends Controller
 		return ['SECTION' => $this->getViewFields()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	/**
+	 * @param $select
+	 * @param $filter
+	 * @param $order
+	 * @param PageNavigation $pageNavigation
+	 * @return Page|null
+	 */
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): ?Page
 	{
 		$r = $this->checkPermissionIBlockSectionList($filter['IBLOCK_ID']);
 		if($r->isSuccess())

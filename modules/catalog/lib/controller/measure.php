@@ -133,9 +133,10 @@ final class Measure extends Controller implements EventBindInterface
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function listAction(array $select = [], array $filter = [], array $order = [], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		return new Page('MEASURES',
+		return new Page(
+			'MEASURES',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

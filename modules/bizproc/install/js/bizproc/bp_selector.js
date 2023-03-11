@@ -17,6 +17,15 @@
 		activitiesItemsCache: null
 	};
 
+	const functions = BX.Extension.getSettings('bp_selector').get('functions');
+	const functionItems = !functions ? [] : functions.map(func => {
+		return {
+			text: func.name,
+			description: func.description,
+			value: '{{=' + func.name + '(' + (func.args? ',' : '') + ')}}',
+		};
+	});
+	Object.freeze(functionItems);
 
 	BX.Bizproc.Selector.initSelectors = function(globalScope)
 	{
@@ -93,7 +102,8 @@
 						propertyField: key,
 						property: {
 							Name: activityData['RETURN'][key].NAME,
-							Type: activityData['RETURN'][key].TYPE
+							Type: activityData['RETURN'][key].TYPE,
+							Options: activityData['RETURN'][key].OPTIONS || null,
 						}
 					});
 				}
@@ -476,163 +486,7 @@
 		result.push({
 			tabName: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTIONS'),
 			tabId: 'functions',
-			items: this.filterItems([{
-				text: 'abs',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ABS_DESCRIPTION'),
-				value: '{{=abs()}}'
-			},{
-				text: 'dateadd',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATEADD_DESCRIPTION'),
-				value: '{{=dateadd(,)}}'
-			},{
-				text: 'datediff',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATEDIFF_DESCRIPTION'),
-				value: '{{=datediff(,,)}}'
-			},{
-				text: 'date',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATE_DESCRIPTION'),
-				value: '{{=date(,)}}'
-			},{
-				text: 'workdateadd',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_WORKDATEADD_DESCRIPTION'),
-				value: '{{=workdateadd(,)}}'
-			},{
-				text: 'addworkdays',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ADDWORKDAYS_DESCRIPTION'),
-				value: '{{=addworkdays(,)}}'
-			},{
-				text: 'isworkday',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKDAY_DESCRIPTION'),
-				value: '{{=isworkday()}}'
-			},{
-				text: 'isworktime',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKTIME_DESCRIPTION'),
-				value: '{{=isworktime()}}'
-			},{
-				text: 'touserdate',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_TOUSERDATE_DESCRIPTION'),
-				value: '{{=touserdate()}}'
-			},{
-				text: 'getuserdateoffset',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_GETUSERDATEOFFSET_DESCRIPTION'),
-				value: '{{=getuserdateoffset()}}'
-			},{
-				text: 'if',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_IF_DESCRIPTION'),
-				value: '{{=if(,,)}}'
-			},{
-				text: 'intval',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_INTVAL_DESCRIPTION'),
-				value: '{{=intval()}}'
-			},{
-				text: 'floatval',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOATVAL_DESCRIPTION'),
-				value: '{{=floatval()}}'
-			},{
-				text: 'numberformat',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_NUMBER_FORMAT_DESCRIPTION'),
-				value: '{{=numberformat(,)}}'
-			},{
-				text: 'min',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MIN_DESCRIPTION'),
-				value: '{{=min(,)}}'
-			},{
-				text: 'max',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MAX_DESCRIPTION'),
-				value: '{{=max(,)}}'
-			},{
-				text: 'rand',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_RAND_DESCRIPTION'),
-				value: '{{=rand(0,)}}'
-			},{
-				text: 'round',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ROUND_DESCRIPTION'),
-				value: '{{=round(,)}}'
-			},{
-				text: 'ceil',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_CEIL_DESCRIPTION'),
-				value: '{{=ceil()}}'
-			},{
-				text: 'floor',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOOR_DESCRIPTION'),
-				value: '{{=floor()}}'
-			},{
-				text: 'substr',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SUBSTR_DESCRIPTION'),
-				value: '{{=substr(,,)}}'
-			},{
-				text: 'strpos',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRPOS_DESCRIPTION'),
-				value: '{{=strpos(,)}}'
-			},{
-				text: 'strlen',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRLEN_DESCRIPTION'),
-				value: '{{=strlen()}}'
-			},{
-				text: 'implode',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_IMPLODE_DESCRIPTION'),
-				value: '{{=implode(,)}}'
-			},{
-				text: 'explode',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_EXPLODE_DESCRIPTION'),
-				value: '{{=explode(,)}}'
-			},{
-				text: 'randstring',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_RANDSTRING_DESCRIPTION'),
-				value: '{{=randstring(10)}}'
-			},{
-				text: 'merge',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MERGE_DESCRIPTION'),
-				value: '{{=merge(,)}}'
-			},{
-				text: 'urlencode',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_URLENCODE_DESCRIPTION'),
-				value: '{{=urlencode()}}'
-			},{
-				text: 'strtolower',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOLOWER_DESCRIPTION'),
-				value: '{{=strtolower()}}'
-			},{
-				text: 'strtoupper',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOUPPER_DESCRIPTION'),
-				value: '{{=strtoupper()}}'
-			},{
-				text: 'ucwords',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_UCWORDS_DESCRIPTION'),
-				value: '{{=ucwords()}}'
-			},{
-				text: 'ucfirst',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_UCFIRST_DESCRIPTION'),
-				value: '{{=ucfirst()}}'
-			},{
-				text: 'strtotime',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOTIME_DESCRIPTION'),
-				value: '{{=strtotime()}}'
-			},{
-				text: 'locdate',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_LOCDATE_DESCRIPTION'),
-				value: '{{=locdate(,)}}'
-			},{
-				text: 'shuffle',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SHUFFLE_DESCRIPTION'),
-				value: '{{=shuffle()}}'
-			},{
-				text: 'firstvalue',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION'),
-				value: '{{=firstvalue()}}'
-			},{
-				text: 'swirl',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION'),
-				value: '{{=swirl()}}'
-			},{
-				text: 'getdocumenturl',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION'),
-				value: '{{=getdocumenturl()}}'
-			}, {
-				text: 'trim',
-				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_TRIM_DESCRIPTION'),
-				value: '{{=trim()}}'
-			}], query)
+			items: this.filterItems(functionItems, query)
 		});
 
 		this.currentData = result;

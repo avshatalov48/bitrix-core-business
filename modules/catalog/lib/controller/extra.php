@@ -19,9 +19,10 @@ final class Extra extends Controller
 		return ['EXTRA' => $this->getViewFields()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		return new Page('EXTRAS',
+		return new Page(
+			'EXTRAS',
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
 		);

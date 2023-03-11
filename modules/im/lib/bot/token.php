@@ -12,7 +12,7 @@ class Token
 {
 	const CACHE_TOKEN_TTL = 86400;
 	const CACHE_TOKEN_PATH = '/bx/im/token/';
-	
+
 	public static function isActive($botId, $dialogId)
 	{
 		if ($botId == $dialogId)
@@ -37,7 +37,7 @@ class Token
 		$result = self::getFromCache($botId);
 
 		$date = new \Bitrix\Main\Type\DateTime();
-		if (!$result[$dialogId] || $result[$dialogId]['DATE_EXPIRE'] < $date->getTimestamp())
+		if (!isset($result[$dialogId]) || !$result[$dialogId] || $result[$dialogId]['DATE_EXPIRE'] < $date->getTimestamp())
 		{
 			$cache = \Bitrix\Main\Data\Cache::createInstance();
 			$cache->clean('token_'.$botId, self::CACHE_TOKEN_PATH);

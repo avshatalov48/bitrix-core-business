@@ -14,7 +14,7 @@ global $APPLICATION;
 use \Bitrix\UI\Toolbar\Facade\Toolbar;
 
 $APPLICATION->SetTitle($arResult['TITLE']);
-if ($arResult['TOOLBAR'])
+if (isset($arResult['TOOLBAR']) && $arResult['TOOLBAR'])
 {
 	Toolbar::addButton($arResult['TOOLBAR']);
 }
@@ -29,7 +29,7 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_PARAMS' => [
 			'CACHE_TIME' => '3600',
 			'CACHE_TYPE' => 'Y',
-			'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
+			'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'] ?? '',
 			'TYPE' => 'INDEX',
 			'SET_TITLE' => 'N',
 			'CODE' => '',

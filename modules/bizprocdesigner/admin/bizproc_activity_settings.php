@@ -88,8 +88,9 @@ $wfGlobalVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentTy
 $documentFields = \Bitrix\Bizproc\Automation\Helper::getDocumentFields($documentType);
 
 $arErrors = [];
+$bShowId = false;
 
-if ($_POST["save"] === "Y" && check_bitrix_sessid())
+if (!empty($_POST["save"]) && check_bitrix_sessid())
 {
 	//TODO: Experimental
 	$currentRequest = $_POST;
@@ -119,7 +120,6 @@ if ($_POST["save"] === "Y" && check_bitrix_sessid())
 		)
 	);
 
-	$bShowId = false;
 	if($_POST["activity_id"] != $activityName)
 	{
 		$bShowId = true;
@@ -200,7 +200,7 @@ if(count($arErrors)>0)
 
 $arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 $hasBrokenLink = false;
-if ($_POST["postback"] === "Y")
+if (!empty($_POST["postback"]))
 {
 	$activityTitle = $_POST["title"];
 	$editorComment = $_POST["activity_editor_comment"];
@@ -209,7 +209,7 @@ if ($_POST["postback"] === "Y")
 else
 {
 	$activityTitle = $arCurrentActivity["Properties"]["Title"];
-	$editorComment = $arCurrentActivity["Properties"]["EditorComment"];
+	$editorComment = $arCurrentActivity["Properties"]["EditorComment"] ?? '';
 	$activity_id = $activityName;
 
 	$usages = [];
@@ -256,7 +256,7 @@ else
 	{
 		$object = $usage[0];
 		$field = $usage[1];
-		$returnField = $usage[2];
+		$returnField = $usage[2] ?? null;
 
 		if (array_key_exists($object, $checkMap))
 		{
@@ -346,7 +346,7 @@ $z = CBPActivity::CallStaticMethod(
 		$arWorkflowTemplate,
 		$arWorkflowParameters,
 		$arWorkflowVariables,
-		($_POST["postback"] == "Y" ? $_POST : null),
+		(!empty($_POST["postback"]) ? $_POST : null),
 		$popupWindow->GetFormName(),
 		$popupWindow,
 		$currentSiteId,

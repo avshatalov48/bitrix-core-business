@@ -210,11 +210,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ProductListController;
 	}(BX.UI.EntityEditorController);
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-	var _subscribeToEvents = new WeakSet();
+	var _subscribeToEvents = /*#__PURE__*/new WeakSet();
 
-	var _subscribeToProductRowSummaryEvents = new WeakSet();
+	var _subscribeToProductRowSummaryEvents = /*#__PURE__*/new WeakSet();
 
 	var DocumentCardController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(DocumentCardController, _BX$UI$EntityEditorCo);
@@ -225,9 +229,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    babelHelpers.classCallCheck(this, DocumentCardController);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DocumentCardController).call(this));
 
-	    _subscribeToProductRowSummaryEvents.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _subscribeToProductRowSummaryEvents);
 
-	    _subscribeToEvents.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _subscribeToEvents);
 
 	    _this.initialize(id, settings);
 
@@ -259,11 +263,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return DocumentCardController;
 	}(BX.UI.EntityEditorController);
 
-	var _subscribeToEvents2 = function _subscribeToEvents2() {
+	function _subscribeToEvents2() {
 	  _classPrivateMethodGet(this, _subscribeToProductRowSummaryEvents, _subscribeToProductRowSummaryEvents2).call(this);
-	};
+	}
 
-	var _subscribeToProductRowSummaryEvents2 = function _subscribeToProductRowSummaryEvents2() {
+	function _subscribeToProductRowSummaryEvents2() {
 	  main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorProductRowSummary:onDetailProductListLinkClick', function () {
 	    main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {
 	      tabId: 'tab_products'
@@ -277,7 +281,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.emit('onFocusToProductList');
 	    }, 500);
 	  });
-	};
+	}
 
 	var ControllersFactory = /*#__PURE__*/function () {
 	  function ControllersFactory(eventName) {
@@ -614,45 +618,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ProductRowSummary;
 	}(BX.UI.EntityEditorField);
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
 	var Contractor = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(Contractor, _BX$UI$EntityEditorFi);
@@ -707,11 +673,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        this.currentContractorName = this.getContractorNameFromModel();
 	      }
 
-	      this._input = main_core.Tag.render(_templateObject(), name, value);
+	      this._input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"])), name, value);
 
 	      this._wrapper.appendChild(this._input);
 
-	      this.innerWrapper = main_core.Tag.render(_templateObject2());
+	      this.innerWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"])));
 
 	      this._wrapper.appendChild(this.innerWrapper);
 
@@ -772,9 +738,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      } else // if(this._mode === BX.UI.EntityEditorMode.view)
 	        {
 	          if (this.hasContentToDisplay()) {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject3(), BX.util.htmlspecialchars(this.currentContractorName));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), BX.util.htmlspecialchars(this.currentContractorName));
 	          } else {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
 	          }
 
 	          this.innerWrapper.appendChild(this.viewModeDisplay);
@@ -867,7 +833,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          dialog.hide();
 	          resolve();
-	        }).catch(function () {
+	        })["catch"](function () {
 	          dialog.hideLoader();
 	          BX.UI.Notification.Center.notify({
 	            content: main_core.Loc.getMessage('DOCUMENT_ADD_CONTRACTOR_ERROR')
@@ -918,9 +884,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
 
 	var DocumentCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(DocumentCard, _BaseCard);
@@ -1540,15 +1514,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  value: void 0
 	};
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 
 	var Button = /*#__PURE__*/function () {
 	  function Button() {
@@ -1559,7 +1525,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "render",
 	    value: function render(parentNode, highlight) {
 	      var buttonTitle = main_core.Loc.getMessage('FEEDBACK_BUTTON_TITLE');
-	      var button = main_core.Tag.render(_templateObject$1(), buttonTitle, buttonTitle);
+	      var button = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"])), buttonTitle, buttonTitle);
 
 	      if (highlight) {
 	        button.style.zIndex = 140;
@@ -1567,35 +1533,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }
 
 	      button.addEventListener('click', function () {
-	        BX.UI.Feedback.Form.open({
-	          id: 'catalog-store-document-card-feedback',
-	          forms: [{
-	            'id': 384,
-	            'lang': 'ru',
-	            'sec': '0pskpd',
-	            'zones': ['ru', 'by', 'kz']
-	          }, {
-	            'id': 392,
-	            'lang': 'en',
-	            'sec': 'siqjqa',
-	            'zones': ['en', 'ua']
-	          }, {
-	            'id': 388,
-	            'lang': 'es',
-	            'sec': '53t2bu',
-	            'zones': ['es']
-	          }, {
-	            'id': 390,
-	            'lang': 'de',
-	            'sec': 'mhglfc',
-	            'zones': ['de']
-	          }, {
-	            'id': 386,
-	            'lang': 'com.br',
-	            'sec': 't6tdpy',
-	            'zones': ['com.br']
-	          }]
-	        });
+	        BX.Catalog.DocumentCard.Slider.openFeedbackForm();
 	      });
 	      parentNode.appendChild(button);
 	      return button;
@@ -1604,12 +1542,27 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Button;
 	}();
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var Slider = /*#__PURE__*/function () {
 	  function Slider() {
 	    babelHelpers.classCallCheck(this, Slider);
 	  }
 
 	  babelHelpers.createClass(Slider, null, [{
+	    key: "openFeedbackForm",
+	    value: function openFeedbackForm() {
+	      var url = new main_core.Uri('/bitrix/components/bitrix/catalog.feedback/slider.php');
+	      url.setQueryParams({
+	        feedback_type: 'feedback'
+	      });
+	      return Slider.open(url.toString(), {
+	        width: 735
+	      });
+	    }
+	  }, {
 	    key: "openIntegrationRequestForm",
 	    value: function openIntegrationRequestForm(event) {
 	      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1638,11 +1591,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        options = {};
 	      }
 
-	      options = babelHelpers.objectSpread({}, {
+	      options = _objectSpread(_objectSpread({}, {
 	        cacheable: false,
 	        allowChangeHistory: false,
 	        events: {}
-	      }, options);
+	      }), options);
 	      return new Promise(function (resolve) {
 	        if (main_core.Type.isString(url) && url.length > 1) {
 	          options.events.onClose = function (event) {

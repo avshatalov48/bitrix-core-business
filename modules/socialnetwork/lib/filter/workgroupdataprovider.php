@@ -277,8 +277,8 @@ class WorkgroupDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 				if (
 					is_array($this->additionalParams)
 					&& isset($this->additionalParams['MODE'])
-					&& $this->additionalParams['MODE'] === WorkgroupList::MODE_TASKS_SCRUM
 					&& in_array($column, ['SCRUM', 'PROJECT'], true)
+					&& in_array($this->additionalParams['MODE'], WorkgroupList::getTasksModeList(), true)
 				)
 				{
 					continue;

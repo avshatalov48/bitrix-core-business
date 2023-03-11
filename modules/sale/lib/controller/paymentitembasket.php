@@ -94,10 +94,10 @@ class PaymentItemBasket extends ControllerBase
 		return ['PAYMENT_ITEM_BASKET'=>$paymentItem->toArray()];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID'=>'ASC'] : $order;
 
 		$filter['ENTITY_TYPE'] = PayableBasketItem::getEntityType();
 
@@ -106,11 +106,11 @@ class PaymentItemBasket extends ControllerBase
 		$payableItemCollection = $registry->get(Registry::ENTITY_PAYABLE_ITEM_COLLECTION);
 		$paymentItems = $payableItemCollection::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 

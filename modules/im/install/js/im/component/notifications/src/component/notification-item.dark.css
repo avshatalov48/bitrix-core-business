@@ -49,6 +49,12 @@
 .bx-messenger-dark .bx-im-notifications-item-header-title-text-link {
 	color: #bde0ff;
 }
+
+.bx-messenger-dark .bx-im-notifications-item-header-title-text-link.--extranet:hover,
+.bx-messenger-dark .bx-im-notifications-item-header-title-text-link.--extranet {
+	color: #ff9b00;
+}
+
 .bx-messenger-dark .bx-im-notifications-item-header-title-text-link:hover {
 	color: #bde0ff;
 }

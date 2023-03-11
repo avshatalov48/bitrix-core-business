@@ -141,7 +141,6 @@ $APPLICATION->IncludeComponent(
 		var component = new BX.Bizproc.Component.Scheme({
 			scheme: <?= \Bitrix\Main\Web\Json::encode($arResult['templatesScheme']) ?>,
 			signedParameters: '<?= $component->getSignedParameters() ?>',
-			robotNames: <?= \Bitrix\Main\Web\Json::encode($arResult['robotNames']) ?>,
 			action: '<?=CUtil::JSEscape($arResult['action'])?>',
 
 			errorsContainer: document.querySelector('[data-role="errors-container"]'),

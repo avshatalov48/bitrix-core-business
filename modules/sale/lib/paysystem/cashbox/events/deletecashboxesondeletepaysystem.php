@@ -21,7 +21,7 @@ class DeleteCashboxesOnDeletePaySystem implements IExecuteEvent
 	{
 		$result = new Sale\Result();
 
-		if (!$this->service->isSupportPrintCheck())
+		if (!$this->service || !$this->service->isSupportPrintCheck())
 		{
 			return $result;
 		}

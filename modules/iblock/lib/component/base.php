@@ -3907,7 +3907,7 @@ abstract class Base extends \CBitrixComponent
 				$loadPropertyCodes = ($iblockParams['OFFERS_PROPERTY_CODE'] ?? []);
 				if (Iblock\Model\PropertyFeature::isEnabledFeatures())
 				{
-					$loadPropertyCodes = array_merge($loadPropertyCodes, $iblockParams['OFFERS_TREE_PROPS']);
+					$loadPropertyCodes = array_merge($loadPropertyCodes, $iblockParams['OFFERS_TREE_PROPS'] ?? []);
 				}
 
 				$propertyList = $this->getPropertyList($catalog['IBLOCK_ID'], $loadPropertyCodes);

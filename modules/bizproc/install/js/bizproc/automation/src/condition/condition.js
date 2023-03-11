@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { Operator } from 'bizproc.condition';
 
 export class Condition
 {
@@ -86,7 +87,7 @@ export class Condition
 	{
 		if (!operator)
 		{
-			operator = '=';
+			operator = Operator.EQUAL;
 		}
 
 		this.#operator = operator;
@@ -100,11 +101,11 @@ export class Condition
 	setValue(value)
 	{
 		this.#value = value;
-		if (this.#operator === '=' && this.#value === '')
+		if (this.#operator === Operator.EQUAL && this.#value === '')
 		{
 			this.#operator = 'empty';
 		}
-		else if (this.#operator === '!=' && this.#value === '')
+		else if (this.#operator === Operator.NOT_EQUAL && this.#value === '')
 		{
 			this.#operator = '!empty';
 		}

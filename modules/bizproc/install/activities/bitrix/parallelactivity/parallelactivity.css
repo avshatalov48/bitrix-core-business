@@ -1,0 +1,52 @@
+.swfworkspace * {
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+
+.parallelcontainer .trLine>td::before {
+	display: block;
+	font-size: 1px;
+	content: ' ';
+	height: 2px;
+	background: url("/bitrix/images/bizproc/act_line_bg.gif") repeat-x scroll 50% bottom;
+}
+.parallelcontainer .trLine>td:first-child::before {
+	width: 50%;
+	float: right;
+}
+
+.parallelcontainer .trLine>td:last-child::before {
+	width: 50%;
+	float: left;
+}
+
+.move-thread {
+	justify-content: center;
+	display: flex;
+}
+.move-thread .to-left,
+.move-thread .to-right {
+	margin: 0 5px;
+	height: 14px;
+	width: 14px;
+	cursor: pointer;
+	background-image: url(/bitrix/images/bizproc/arr_l2.gif);
+	opacity: 0.8;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.move-thread .to-right {
+	background-image: url(/bitrix/images/bizproc/arr_l1.gif);
+}
+.move-thread .to-left:hover,
+.move-thread .to-right:hover {
+	opacity: 1;
+	background-size: cover;
+}
+.parallelcontainer td:first-child>.move-thread .to-left {
+	visibility: hidden;
+}
+.parallelcontainer td:last-child>.move-thread .to-right {
+	visibility: hidden;
+}

@@ -108,16 +108,26 @@ class CIBlock extends CAllIBlock
 					AND (IBG.PERMISSION='X' OR B.ACTIVE='Y')
 				";
 
-			if ($arFilter["OPERATION"] <> '')
+			if (!empty($arFilter["OPERATION"]))
+			{
 				$operation  = "'".$DB->ForSql($arFilter["OPERATION"])."'";
+			}
 			elseif($min_permission >= "X")
+			{
 				$operation = "'iblock_edit'";
+			}
 			elseif($min_permission >= "U")
+			{
 				$operation = "'element_edit'";
+			}
 			elseif($min_permission >= "S")
+			{
 				$operation = "'iblock_admin_display'";
+			}
 			else
+			{
 				$operation = "'section_read', 'element_read', 'section_element_bind', 'section_section_bind'";
+			}
 
 			if($operation)
 			{

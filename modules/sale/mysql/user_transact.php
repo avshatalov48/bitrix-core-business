@@ -11,7 +11,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		if ($ID <= 0)
 			return false;
 
-		$strSql = 
+		$strSql =
 			"SELECT UT.ID, UT.USER_ID, UT.AMOUNT, UT.CURRENCY, UT.DEBIT, UT.DESCRIPTION, ".
 			"	UT.ORDER_ID, UT.NOTES, UT.EMPLOYEE_ID, ".
 			"	".$DB->DateToCharFunction("UT.TIMESTAMP_X", "FULL")." as TIMESTAMP_X, ".
@@ -79,7 +79,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 				return False;
 		}
 
-		$strSql = 
+		$strSql =
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sale_user_transact UT ".
 			"	".$arSqls["FROM"]." ";
@@ -90,7 +90,12 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
+		$nTopCount =
+			is_array($arNavStartParams) && isset($arNavStartParams["nTopCount"])
+				? (int)$arNavStartParams["nTopCount"]
+				: 0
+		;
+		if ($nTopCount <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
@@ -124,8 +129,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
+			$strSql .= "LIMIT " . $nTopCount;
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 

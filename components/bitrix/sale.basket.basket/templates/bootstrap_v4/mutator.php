@@ -52,7 +52,7 @@ foreach ($this->basketItems as $row)
 		'CHECK_MAX_QUANTITY' => $row['CHECK_MAX_QUANTITY'],
 		'MODULE' => $row['MODULE'],
 		'PRODUCT_PROVIDER_CLASS' => $row['PRODUCT_PROVIDER_CLASS'],
-		'NOT_AVAILABLE' => $row['NOT_AVAILABLE'] === true,
+		'NOT_AVAILABLE' => isset($row['NOT_AVAILABLE']) && $row['NOT_AVAILABLE'] === true,
 		'DELAYED' => $row['DELAY'] === 'Y',
 		'SKU_BLOCK_LIST' => array(),
 		'COLUMN_LIST' => array(),
@@ -144,12 +144,13 @@ foreach ($this->basketItems as $row)
 					$valueId = $skuItem['NAME'];
 				}
 
+				$xmlId = !empty($skuItem['XML_ID']) ? $skuItem['XML_ID'] : false;
 				$skuValue = array(
 					'ID' => $skuItem['ID'],
 					'NAME' => $skuItem['NAME'],
 					'SORT' => $skuItem['SORT'],
 					'PICT' => !empty($skuItem['PICT']) ? $skuItem['PICT']['SRC'] : false,
-					'XML_ID' => !empty($skuItem['XML_ID']) ? $skuItem['XML_ID'] : false,
+					'XML_ID' => $xmlId,
 					'VALUE_ID' => $valueId,
 					'PROP_ID' => $skuBlock['ID'],
 					'PROP_CODE' => $skuBlock['CODE']
@@ -157,7 +158,7 @@ foreach ($this->basketItems as $row)
 
 				if (
 					!empty($propMap[$skuBlockData['CODE']])
-					&& ($propMap[$skuBlockData['CODE']] == $skuItem['NAME'] || $propMap[$skuBlockData['CODE']] == $skuItem['XML_ID'])
+					&& ($propMap[$skuBlockData['CODE']] == $skuItem['NAME'] || $propMap[$skuBlockData['CODE']] == $xmlId)
 				)
 				{
 					$skuValue['SELECTED'] = true;
@@ -179,7 +180,7 @@ foreach ($this->basketItems as $row)
 		}
 	}
 
-	if ($row['NOT_AVAILABLE'])
+	if (!empty($row['NOT_AVAILABLE']))
 	{
 		foreach ($rowData['SKU_BLOCK_LIST'] as $blockKey => $skuBlock)
 		{

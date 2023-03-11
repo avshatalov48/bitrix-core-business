@@ -1656,20 +1656,6 @@ var focusWithoutScrolling = function(element)
 
 	BXEditorIframeView.prototype.OnPasteHandler = function(e)
 	{
-		let pasteHandlerTime = 10;
-		if (BX.Loader)
-		{
-			if (!this.pasteLoader)
-			{
-				this.pasteLoader = new BX.Loader({
-					target: this.editor.dom.cont
-				});
-				this.pasteLoader.data.container.style.zIndex = 999;
-			}
-			this.pasteLoader.show();
-			pasteHandlerTime = 1000;
-		}
-
 		if (!this.editor.skipPasteHandler)
 		{
 			this.editor.skipPasteHandler = true;
@@ -1765,15 +1751,11 @@ var focusWithoutScrolling = function(element)
 					_this.editor.synchro.StartSync();
 				}
 
-				if (_this.pasteLoader)
-				{
-					_this.pasteLoader.hide();
-				}
 				if (window.scrollTo)
 				{
 					window.scrollTo(originalScrollLeft, originalScrollTop);
 				}
-			}, pasteHandlerTime);
+			}, 0);
 		}
 	};
 

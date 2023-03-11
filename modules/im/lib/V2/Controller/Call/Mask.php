@@ -2,15 +2,12 @@
 
 namespace Bitrix\Im\V2\Controller\Call;
 
-use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Loader;
-use Bitrix\UI\InfoHelper;
 
 class Mask extends Controller
 {
 	/**
-	 * @restMethod im.v2.call.mask.get
+	 * @restMethod im.v2.Call.Mask.get
 	 */
 	public function getAction()
 	{

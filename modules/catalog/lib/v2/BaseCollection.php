@@ -249,7 +249,7 @@ abstract class BaseCollection implements \IteratorAggregate, \Countable
 	/**
 	 * @return \ArrayIterator|\Traversable|\Bitrix\Catalog\v2\BaseEntity[]
 	 */
-	public function getIterator()
+	public function getIterator(): \Traversable
 	{
 		$this->loadItems();
 

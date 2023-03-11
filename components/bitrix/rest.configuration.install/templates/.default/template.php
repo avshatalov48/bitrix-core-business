@@ -152,6 +152,7 @@ if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE'])
 				'needClearFullConfirm' => $arResult['NEED_CLEAR_FULL_CONFIRM'],
 				'importByProcessId' => $arResult['IMPORT_BY_PROCESS_ID'],
 				'skipClearing' => $arResult['SKIP_CLEARING'],
+				'from' => $arResult['FROM'],
 			])?>);
 		});
 		BX.message(<?=Json::encode($messageList)?>);

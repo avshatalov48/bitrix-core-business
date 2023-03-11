@@ -163,11 +163,17 @@ class SkuProps
 		{
 			foreach($offers as $productId => $items)
 			{
+				$result[$productId] ??= [];
+
 				if(!is_array($result[$productId]))
-					$result[$productId] = array();
+				{
+					$result[$productId] = [];
+				}
 
 				foreach($items as $item)
+				{
 					$result[$productId][] = $item['ID'];
+				}
 			}
 		}
 
@@ -261,8 +267,11 @@ class SkuProps
 
 			$offerId = intval($param['OFFER_ID']);
 
-			if(!is_array($result[$offerId]))
-				$result[$offerId] = array();
+			$result[$offerId] ??= [];
+			if (!is_array($result[$offerId]))
+			{
+				$result[$offerId] = [];
+			}
 
 			if(empty($param['SKU_PROPS']) || empty($param['SKU_ORDER']))
 				continue;

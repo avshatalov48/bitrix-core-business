@@ -18,7 +18,7 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 			"statistic" => "statistic/"
 		)
 	),
-	$component
+	$component ?? null
 );
 ?>
 <? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");

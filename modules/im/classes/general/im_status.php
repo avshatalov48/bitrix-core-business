@@ -94,8 +94,8 @@ class CIMStatus
 					'users' => Array(
 						$userId => Array(
 							'id' => $userId,
-							'status' => $status['STATUS'],
-							'color' => $status['COLOR']? \Bitrix\Im\Color::getColor($status['COLOR']): \Bitrix\Im\Color::getColorByNumber($userId),
+							'status' => $status['STATUS'] ?? null,
+							'color' => ($status['COLOR'] ?? null) ? \Bitrix\Im\Color::getColor($status['COLOR']) : \Bitrix\Im\Color::getColorByNumber($userId),
 							'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['IDLE']->getTimestamp()): false,
 							'mobile_last_date' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['MOBILE_LAST_DATE']->getTimestamp()): false,
 							'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp()): false,

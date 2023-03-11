@@ -2,7 +2,9 @@
 
 namespace Bitrix\Bizproc\Workflow\Type\Entity;
 
+use Bitrix\Bizproc\FieldType;
 use Bitrix\Main;
+use Bitrix\Main\ORM\Event;
 
 /**
  * Class GlobalVarTable
@@ -106,26 +108,25 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 			'MODIFIED_BY' => $property['ModifiedBy'],
 		];
 
-		if ($fields['CREATED_BY'] === null)
+		if ($userId === null) // update by robot
 		{
-			unset($fields['CREATED_BY']);
-			unset($fields['CREATED_DATE']);
+			unset($fields['CREATED_BY'], $fields['CREATED_DATE'], $fields['MODIFIED_BY'], $fields['MODIFIED_DATE']);
 		}
 
-		if ($fields['MODIFIED_BY'] === null)
+		$oldProperty = static::getByPrimary($varId)->fetch();
+		if ($oldProperty)
 		{
-			unset($fields['MODIFIED_BY']);
-			unset($fields['MODIFIED_DATE']);
-		}
+			if (isset($oldProperty['CREATED_BY']))
+			{
+				unset($fields['CREATED_BY'], $fields['CREATED_DATE']);
+			}
 
-		$count = static::getCount(['=ID' => $varId]);
-		if ($count > 0)
-		{
 			$result = static::update($varId, $fields);
 		}
 		else
 		{
-			$result = static::add(['ID' => $varId] + $fields);
+			$fields['ID'] = $varId;
+			$result = static::add($fields);
 		}
 
 		return $result;
@@ -153,24 +154,22 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 	private static function normalizePropertyForUpsert($property, int $userId = null): array
 	{
 		$normalized = [];
-		$normalizedAsField = \Bitrix\Bizproc\FieldType::normalizeProperty($property);
+		$normalizedAsField = FieldType::normalizeProperty($property);
 
-		$normalized['Visibility'] = $property['Visibility'] ? (string)$property['Visibility'] : 'GLOBAL';
-		$normalized['CreatedBy'] = ((int)$property['CreatedBy'] !== 0) ? (int)$property['CreatedBy'] : $userId;
-		try
-		{
-			$normalized['CreatedDate'] = $property['CreatedDate']
-				? new Main\Type\DateTime($property['CreatedDate'])
-				: new Main\Type\DateTime()
-			;
-		}
-		catch (\Bitrix\Main\ObjectException $e)
-		{
-		}
-
+		$normalized['Visibility'] = isset($property['Visibility']) ? (string)$property['Visibility'] : 'GLOBAL';
 		$normalized['ModifiedBy'] = $userId;
+		$normalized['CreatedBy'] = $userId;
 		$normalized['ModifiedDate'] = new Main\Type\DateTime();
+		$normalized['CreatedDate'] = $normalized['ModifiedDate'];
 
 		return array_merge($normalized, $normalizedAsField);
+	}
+
+	public static function onBeforeUpdate(Event $event)
+	{
+		$result = new Main\ORM\EventResult();
+		$result->unsetFields(['PROPERTY_TYPE', 'IS_REQUIRED', 'IS_MULTIPLE', 'VISIBILITY']);
+
+		return $result;
 	}
 }

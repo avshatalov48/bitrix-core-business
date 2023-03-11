@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\MessageService\Integration;
 
 use Bitrix\Main\Loader;
@@ -6,6 +7,9 @@ use Bitrix\Main\Type\DateTime;
 
 class Pull
 {
+	public const TAG = 'MESSAGESERVICE';
+	public const COMMAND = 'message_update';
+
 	private static $canUse;
 
 	public static function canUse()
@@ -24,9 +28,12 @@ class Pull
 			return false;
 		}
 
-		return static::addToStack('message_update', [
-			'messages' => static::convertData($messages)
-		]);
+		return static::addToStack(
+			self::COMMAND,
+			[
+				'messages' => static::convertData($messages)
+			]
+		);
 	}
 
 	/**
@@ -42,7 +49,7 @@ class Pull
 		}
 
 		return \CPullWatch::addToStack(
-			'MESSAGESERVICE',
+			self::TAG,
 			array(
 				'module_id' => 'messageservice',
 				'command' => $command,

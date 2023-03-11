@@ -309,11 +309,7 @@
 				{
 					BX.addClass(loader, 'app-loading-msg-loaded');
 					BX.removeClass(this, 'app-loading');
-
-					setTimeout(function()
-					{
-						BX.remove(loader);
-					}, 300);
+					BX.remove(loader);
 				});
 
 				if(this.params.staticHtml)

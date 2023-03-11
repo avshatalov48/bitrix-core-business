@@ -948,7 +948,7 @@ class File
 	 *
 	 * @return boolean
 	 */
-	public function offsetExists($code)
+	public function offsetExists($code): bool
 	{
 		return isset($this->messages[$code]);
 	}
@@ -960,7 +960,7 @@ class File
 	 *
 	 * @return string|null
 	 */
-	public function offsetGet($code)
+	public function offsetGet($code): ?string
 	{
 		if (isset($this->messages[$code]))
 		{
@@ -978,7 +978,7 @@ class File
 	 *
 	 * @return void
 	 */
-	public function offsetSet($code, $phrase)
+	public function offsetSet($code, $phrase): void
 	{
 		if (!isset($this->messages[$code]))
 		{
@@ -1002,7 +1002,7 @@ class File
 	 *
 	 * @return void
 	 */
-	public function offsetUnset($code)
+	public function offsetUnset($code): void
 	{
 		if (isset($this->messages[$code]))
 		{
@@ -1071,7 +1071,7 @@ class File
 	 *
 	 * @return string|null
 	 */
-	public function current()
+	public function current(): ?string
 	{
 		$code = $this->messageCodes[$this->dataPosition];
 
@@ -1088,7 +1088,7 @@ class File
 	 *
 	 * @return void
 	 */
-	public function next()
+	public function next(): void
 	{
 		++ $this->dataPosition;
 	}
@@ -1098,6 +1098,7 @@ class File
 	 *
 	 * @return int|null
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->messageCodes[$this->dataPosition] ?: null;
@@ -1106,9 +1107,9 @@ class File
 	/**
 	 * Checks if current position is valid.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return isset($this->messageCodes[$this->dataPosition], $this->messages[$this->messageCodes[$this->dataPosition]]);
 	}
@@ -1118,7 +1119,7 @@ class File
 	 *
 	 * @return void
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->dataPosition = 0;
 		$this->messageCodes = \array_keys($this->messages);
@@ -1135,7 +1136,7 @@ class File
 	 *
 	 * @return int
 	 */
-	public function count($allowDirectFileAccess = false)
+	public function count($allowDirectFileAccess = false): int
 	{
 		if ($this->messagesCount === null)
 		{

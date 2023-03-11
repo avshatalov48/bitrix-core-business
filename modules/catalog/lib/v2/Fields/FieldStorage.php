@@ -171,6 +171,7 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Return the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return current($this->fields);
@@ -179,14 +180,15 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Move forward to next element
 	 */
-	public function next()
+	public function next(): void
 	{
-		return next($this->fields);
+		next($this->fields);
 	}
 
 	/**
 	 * Return the key of the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->fields);
@@ -203,9 +205,9 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Rewind the Iterator to the first element
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
-		return reset($this->fields);
+		reset($this->fields);
 	}
 
 	/**
@@ -227,6 +229,7 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @return null|mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return $this->getField($offset);
@@ -238,7 +241,7 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->setField($offset, $value);
 	}

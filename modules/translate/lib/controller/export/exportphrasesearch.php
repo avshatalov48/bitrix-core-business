@@ -130,9 +130,8 @@ class ExportPhraseSearch
 		/** @var Main\ORM\Query\Result $cachePathRes */
 		$phraseInxRes = Index\PhraseIndexSearch::getList(array(
 			'filter' => $phraseFilter,
-			'order' => ['TITLE' => 'ASC', 'PATH_ID' => 'ASC'],
+			'order' => ['PATH_ID' => 'ASC'],
 			'select' => $select,
-			//todo: add limit here
 		));
 
 		$processedItemCount = 0;

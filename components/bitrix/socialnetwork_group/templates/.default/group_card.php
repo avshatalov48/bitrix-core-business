@@ -1,8 +1,6 @@
 <?php
 
-use Bitrix\Socialnetwork\ComponentHelper;
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -15,6 +13,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CMain $APPLICATION */
 
 $pageId = "group_card";
+
 include("util_group_menu.php");
 
 $componentParameters = [

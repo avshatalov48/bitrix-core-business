@@ -471,7 +471,7 @@ class RestService extends \IRestService
 
 		if (isset($fields['PLACEMENT_HANDLER']))
 		{
-			self::validateActivityHandler($params['PLACEMENT_HANDLER'], $server);
+			self::validateActivityHandler($fields['PLACEMENT_HANDLER'], $server);
 			self::upsertAppPlacement(self::getAppId($params['APP_ID']), $params['CODE'], $fields['PLACEMENT_HANDLER']);
 		}
 
@@ -1653,20 +1653,16 @@ class RestService extends \IRestService
 
 	private static function getDocumentId($documentId): ?array
 	{
-		if (is_array($documentId))
+		$documentId = \CBPHelper::parseDocumentId($documentId);
+		$documentService = \CBPRuntime::getRuntime(true)->getDocumentService();
+		$documentId = $documentService->normalizeDocumentId($documentId);
+
+		if (!$documentService->getDocument($documentId))
 		{
-			$documentService = \CBPRuntime::getRuntime(true)->getDocumentService();
-			$documentId = $documentService->normalizeDocumentId($documentId);
-
-			if (!$documentService->getDocument($documentId))
-			{
-				return null;
-			}
-
-			return $documentId;
+			return null;
 		}
 
-		return null;
+		return $documentId;
 	}
 
 	private static function getDocumentType(array $documentId): ?array

@@ -184,9 +184,9 @@ $productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
 			</table>
 		</div>
 	</div>
-	<input type="hidden" name="<?=htmlspecialcharsbx($arResult['PRODUCT_DATA_FIELD_NAME'])?>" value="" />
+	<input type="hidden" name="<?=htmlspecialcharsbx($arParams['PRODUCT_DATA_FIELD_NAME'])?>" value="" />
 	<input type="hidden"
-			name="<?=htmlspecialcharsbx($arResult['PRODUCT_DATA_FIELD_NAME'].'_SETTINGS')?>"
+			name="<?=htmlspecialcharsbx($arParams['PRODUCT_DATA_FIELD_NAME'].'_SETTINGS')?>"
 			value="" />
 </div>
 <script>

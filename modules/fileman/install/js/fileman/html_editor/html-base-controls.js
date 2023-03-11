@@ -439,10 +439,14 @@
 
 		BuildElement: function(element)
 		{
-			var
-				_this = this,
-				parentCont = this.GetSectionContByPath(element.key || element.path, true),
-				pElement = BX.create("DIV", {props: {className: "bxhtmled-tskbr-element"}, html: '<span class="bxhtmled-tskbr-element-icon"></span><span class="bxhtmled-tskbr-element-text">' + element.title + '</span>'});
+			const _this = this;
+			const parentCont = this.GetSectionContByPath(element.key || element.path, true);
+			const pElement = BX.create('DIV', {
+				props: { className: 'bxhtmled-tskbr-element' },
+				html: '<span class="bxhtmled-tskbr-element-icon"></span><span class="bxhtmled-tskbr-element-text">'
+					+ BX.Text.encode(element.title)
+				+ '</span>',
+			});
 
 			var dd = pElement.appendChild(BX.create("IMG", {props: {
 				src: this.editor.util.GetEmptyImage(),
@@ -452,7 +456,7 @@
 			this.HandleElementEx(pElement, dd, element);
 
 			this.searchIndex.push({
-				content: (element.title + ' ' + element.name).toLowerCase(),
+				content: (BX.Text.encode(element.title) + ' ' + element.name).toLowerCase(),
 				element: pElement
 			});
 

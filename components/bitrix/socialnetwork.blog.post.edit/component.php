@@ -692,13 +692,33 @@ if (
 				CUtil::JSPostUnescape();
 			}
 
-			if (
-				empty($arBlog)
-				&& !empty($arParams["GROUP_ID"])
-			)
+			if (empty($arBlog))
 			{
+				if (empty($arParams["GROUP_ID"]))
+				{
+					$blogGroupId = Option::get('socialnetwork', 'userbloggroup_id', false, SITE_ID);
+					if (empty($blogGroupId))
+					{
+						$blogGroupIdList = ComponentHelper::getSonetBlogGroupIdList([
+							'SITE_ID' => SITE_ID
+						]);
+						if (!empty($blogGroupIdList))
+						{
+							$blogGroupId = array_shift($blogGroupIdList);
+						}
+					}
+				}
+				else
+				{
+					$blogGroupId = (
+						(is_array($arParams['GROUP_ID']))
+							? (int) $arParams['GROUP_ID'][0]
+							: (int) $arParams['GROUP_ID']
+					);
+				}
+
 				$arBlog = ComponentHelper::createUserBlog(array(
-					'BLOG_GROUP_ID' => (is_array($arParams['GROUP_ID'])) ? (int)$arParams['GROUP_ID'][0] : (int)$arParams['GROUP_ID'],
+					'BLOG_GROUP_ID' => $blogGroupId,
 					"USER_ID" => $arParams["USER_ID"],
 					"SITE_ID" => SITE_ID,
 					"PATH_TO_BLOG" => $arParams["PATH_TO_BLOG"]

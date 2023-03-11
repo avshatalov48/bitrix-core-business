@@ -371,8 +371,10 @@ class CIBlockElement extends CAllIBlockElement
 						" FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
 					);
 
-			if(isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["FPV"] as $propID => $db_prop)
@@ -392,8 +394,10 @@ class CIBlockElement extends CAllIBlockElement
 			else
 				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." FPV".$i." ON FPV".$i.".IBLOCK_PROPERTY_ID = FP".$db_prop["JOIN"].".ID AND FPV".$i.".IBLOCK_ELEMENT_ID = BE.ID\n";
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["FPEN"] as $propID => $db_prop)
@@ -415,8 +419,10 @@ class CIBlockElement extends CAllIBlockElement
 					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = FPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND FPV".$db_prop["JOIN"].".VALUE_ENUM = FPEN".$i.".ID\n";
 			}
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		$showHistory = isset($arFilter["SHOW_HISTORY"]) && $arFilter["SHOW_HISTORY"] === 'Y';
@@ -454,8 +460,10 @@ class CIBlockElement extends CAllIBlockElement
 			[$iblock_id, $link] = explode("~", $iblock_id, 2);
 			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element_prop_s".$iblock_id." JFPS".$db_prop["CNT"]." ON JFPS".$db_prop["CNT"].".IBLOCK_ELEMENT_ID = BE".$db_prop["JOIN"].".ID\n";
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["BE_FP"] as $propID => $db_prop)
@@ -478,8 +486,10 @@ class CIBlockElement extends CAllIBlockElement
 						" JFP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
 					);
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["BE_FPV"] as $propID => $db_prop)
@@ -500,8 +510,10 @@ class CIBlockElement extends CAllIBlockElement
 			else
 				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." JFPV".$i." ON JFPV".$i.".IBLOCK_PROPERTY_ID = JFP".$db_prop["JOIN"].".ID AND JFPV".$i.".IBLOCK_ELEMENT_ID = BE".$db_prop["BE_JOIN"].".ID\n";
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["BE_FPEN"] as $propID => $db_prop)
@@ -524,8 +536,10 @@ class CIBlockElement extends CAllIBlockElement
 					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = JFPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND JFPV".$db_prop["JOIN"].".VALUE_ENUM = JFPEN".$i.".ID\n";
 			}
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		if($arJoinProps["BES"] <> '')
@@ -2145,14 +2159,14 @@ class CIBlockElement extends CAllIBlockElement
 			elseif ($prop["PROPERTY_TYPE"] == "E")
 			{
 				$arWas = array();
-				if ($arDBProps[$prop["ID"]])
+				if (isset($arDBProps[$prop["ID"]]))
 				{
 					foreach($arDBProps[$prop["ID"]] as $res)
 					{
-						$val = $PROP[$res["ID"]];
+						$val = $PROP[$res["ID"]] ?? null;
 						if (is_array($val))
 						{
-							$val_desc = $val["DESCRIPTION"];
+							$val_desc = $val["DESCRIPTION"] ?? '';
 							$val = $val["VALUE"];
 						}
 						else
@@ -2234,7 +2248,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					if (is_array($val))
 					{
-						$val_desc = $val["DESCRIPTION"];
+						$val_desc = $val["DESCRIPTION"] ?? '';
 						$val = $val["VALUE"];
 					}
 					else
@@ -2300,7 +2314,7 @@ class CIBlockElement extends CAllIBlockElement
 				else
 					$orderedPROP = $PROP;
 
-				if ($arDBProps[$prop["ID"]])
+				if (isset($arDBProps[$prop["ID"]]))
 				{
 					//Go from high ID to low
 					foreach (array_reverse($arDBProps[$prop["ID"]], true) as $res)
@@ -2362,11 +2376,11 @@ class CIBlockElement extends CAllIBlockElement
 
 				$preserveID = array();
 				//Now delete from database all marked for deletion  records
-				if ($arDBProps[$prop["ID"]])
+				if (isset($arDBProps[$prop["ID"]]))
 				{
 					foreach ($arDBProps[$prop["ID"]] as $res)
 					{
-						$val = $orderedPROP[$res["ID"]];
+						$val = $orderedPROP[$res["ID"]] ?? null;
 						if (
 							is_array($val)
 							&& !array_key_exists("tmp_name", $val)
@@ -2376,7 +2390,11 @@ class CIBlockElement extends CAllIBlockElement
 							$val = $val["VALUE"];
 						}
 
-						if (is_array($val) && mb_strlen($val["del"]))
+						if (
+							is_array($val)
+							&& array_key_exists('del', $val)
+							&& mb_strlen($val["del"])
+						)
 						{
 							unset($orderedPROP[$res["ID"]]);
 							$arFilesToDelete[$res["VALUE"]] = array(
@@ -2433,7 +2451,7 @@ class CIBlockElement extends CAllIBlockElement
 						&& !array_key_exists("tmp_name", $val)
 					)
 					{
-						$val_desc = $val["DESCRIPTION"];
+						$val_desc = $val["DESCRIPTION"] ?? '';
 						$val = $val["VALUE"];
 					}
 					else
@@ -2521,14 +2539,14 @@ class CIBlockElement extends CAllIBlockElement
 			}
 			else //if($prop["PROPERTY_TYPE"] == "S" || $prop["PROPERTY_TYPE"] == "N")
 			{
-				if ($arDBProps[$prop["ID"]])
+				if (isset($arDBProps[$prop["ID"]]))
 				{
 					foreach ($arDBProps[$prop["ID"]] as $res)
 					{
-						$val = $PROP[$res["ID"]];
+						$val = $PROP[$res["ID"]] ?? null;
 						if (is_array($val))
 						{
-							$val_desc = $val["DESCRIPTION"];
+							$val_desc = $val["DESCRIPTION"] ?? '';
 							$val = $val["VALUE"];
 						}
 						else
@@ -2602,7 +2620,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					if(is_array($val) && !is_set($val, "tmp_name"))
 					{
-						$val_desc = $val["DESCRIPTION"];
+						$val_desc = $val["DESCRIPTION"] ?? '';
 						$val = $val["VALUE"];
 					}
 					else

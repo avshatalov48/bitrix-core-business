@@ -10,6 +10,16 @@ use Bitrix\Catalog\Config\Feature;
 
 class CatalogStoreEntityController extends CBitrixComponent
 {
+	public function onPrepareComponentParams($arParams)
+	{
+		$arParams['SEF_MODE'] ??= 'Y';
+		$arParams['SEF_FOLDER'] ??= '/';
+		$arParams['SEF_URL_TEMPLATES'] ??= [];
+		$arParams['VARIABLE_ALIASES'] ??= [];
+
+		return $arParams;
+	}
+
 	public function executeComponent()
 	{
 		if (Loader::includeModule('catalog'))

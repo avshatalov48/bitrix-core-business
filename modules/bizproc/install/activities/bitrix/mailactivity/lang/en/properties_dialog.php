@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BPMA_PD_BODY"] = "Message Text";
 $MESS["BPMA_PD_CP"] = "Encoding";
 $MESS["BPMA_PD_DIRRECT_MAIL"] = "Message send mode";
@@ -15,4 +15,4 @@ $MESS["BPMA_PD_MESS_TYPE"] = "Message Type";
 $MESS["BPMA_PD_SUBJECT"] = "Subject";
 $MESS["BPMA_PD_TEXT"] = "Text";
 $MESS["BPMA_PD_TO"] = "Recipient";
-?>
+$MESS["BPMA_PD_TO_LIMITATION"] = "Message will be sent to maximum of 10 recipients";

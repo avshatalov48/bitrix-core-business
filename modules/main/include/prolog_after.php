@@ -11,7 +11,6 @@
  * Bitrix vars
  * @global CUser $USER
  * @global CMain $APPLICATION
- * @global $SiteExpireDate
  */
 
 use Bitrix\Main;
@@ -34,7 +33,7 @@ if(defined("DEMO") && DEMO=="Y")
 	if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
 		include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
 
-	$delta = $SiteExpireDate-time();
+	$delta = $GLOBALS['SiteExpireDate'] - time();
 	$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
 	$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
@@ -73,7 +72,7 @@ elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
 	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
 		die(GetMessage("expire_mess2"));
 
-	if ($SiteExpireDate < time())
+	if (isset($GLOBALS['SiteExpireDate']) && $GLOBALS['SiteExpireDate'] < time())
 	{
 		echo GetMessage("expire_mess_timelicense1");
 	}

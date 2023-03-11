@@ -126,7 +126,7 @@ else
 
 		$avatarStyle = (
 			!empty($arResult['Group']['IMAGE_ID_FILE']['SRC'])
-				? 'style="background:url(\'' . $arResult['Group']['IMAGE_ID_FILE']['SRC'] . '\') no-repeat center center; background-size: cover;"'
+				? 'style="background:url(\'' . Uri::urnEncode($arResult['Group']['IMAGE_ID_FILE']['SRC']) . '\') no-repeat center center; background-size: cover;"'
 				: ''
 		);
 
@@ -307,7 +307,7 @@ else
 
 					$avatarStyle = (
 						!empty($arResult['Group']['IMAGE_ID_FILE']['SRC'])
-							? 'style="background: url(\'' . $arResult['Group']['IMAGE_ID_FILE']['SRC'] . '\') no-repeat center center; background-size: cover;"'
+							? 'style="background: url(\'' . Uri::urnEncode($arResult['Group']['IMAGE_ID_FILE']['SRC']). '\') no-repeat center center; background-size: cover;"'
 							: ''
 					);
 
@@ -390,7 +390,7 @@ else
 				$ownerBackgroundStyle = (
 					!empty($ownerData['USER_PERSONAL_PHOTO_FILE'])
 					&& !empty($ownerData['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])
-						? "background-image: url('" . htmlspecialcharsbx($ownerData['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED']) . "'); background-size: cover;"
+						? "background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($ownerData['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])) . "'); background-size: cover;"
 						: ''
 				);
 
@@ -417,7 +417,7 @@ else
 					$backgroundStyle = (
 						!empty($scrumMaster['USER_PERSONAL_PHOTO_FILE'])
 						&& !empty($scrumMaster['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])
-							? "background-image: url('" . htmlspecialcharsbx($scrumMaster['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED']) . "'); background-size: cover;"
+							? "background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($scrumMaster['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])) . "'); background-size: cover;"
 							: ''
 					);
 
@@ -501,7 +501,7 @@ else
 								$backgroundStyle = (
 									!empty($moderator['USER_PERSONAL_PHOTO_FILE'])
 									&& !empty($moderator['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])
-										? "background-image: url('" . htmlspecialcharsbx($moderator['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED']) . "'); background-size: cover;"
+										? "background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($moderator['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])) . "'); background-size: cover;"
 										: ''
 								);
 
@@ -615,7 +615,7 @@ else
 								$backgroundStyle = (
 									!empty($member['USER_PERSONAL_PHOTO_FILE'])
 									&& !empty($member['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])
-										? "background-image: url('" . htmlspecialcharsbx($member['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED']) . "'); background-size: cover;"
+										? "background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($member['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'])) . "'); background-size: cover;"
 										: ''
 								);
 

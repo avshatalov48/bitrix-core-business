@@ -16,6 +16,36 @@ export class MoreButton
 		comment: 'feed-com-text',
 	};
 
+	constructor()
+	{
+		EventEmitter.subscribe(
+			'BX.Livefeed:recalculateComments',
+			this.onRecalculateLivefeedComments.bind(this)
+		);
+	}
+
+	onRecalculateLivefeedComments(baseEvent: BaseEvent)
+	{
+		const [ data ] = baseEvent.getCompatData();
+		if (!Type.isDomNode(data.rootNode))
+		{
+			return;
+		}
+
+		const informerBlock = data.rootNode;
+
+		const moreBlock = informerBlock.querySelector(`.${MoreButton.cssClass.more}`);
+		if (moreBlock)
+		{
+			informerBlock.classList.remove(MoreButton.cssClass.postSeparator);
+		}
+
+		MoreButton.recalcPost({
+			arPos: { height: (data.rootNode.offsetHeight + data.rootNode.offsetTop) },
+			informerBlock
+		});
+	}
+
 	static recalcPost(params)
 	{
 		if (!Type.isDomNode(params.informerBlock))

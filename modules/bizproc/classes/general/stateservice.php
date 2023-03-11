@@ -233,11 +233,10 @@ class CBPStateService extends CBPRuntimeService
 	{
 		global $DB;
 
-		$arDocumentId = CBPHelper::ParseDocumentId($documentId);
+		[$moduleId, $entity, $ids] = $documentId;
 
-		$ids = (array) $arDocumentId[2];
-		$idsCondition = array();
-		foreach ($ids as $id)
+		$idsCondition = [];
+		foreach ((array)$ids as $id)
 		{
 			$idsCondition[] = 'WS.DOCUMENT_ID = \''.$DB->ForSql($id).'\'';
 		}
@@ -273,8 +272,8 @@ class CBPStateService extends CBPRuntimeService
 			"	LEFT JOIN b_bp_workflow_template WT ON (WS.WORKFLOW_TEMPLATE_ID = WT.ID) ".
 			"	LEFT JOIN b_bp_workflow_instance WI ON (WS.ID = WI.ID) ".
 			"WHERE (".implode(' OR ', $idsCondition).") ".
-			"	AND WS.ENTITY = '".$DB->ForSql($arDocumentId[1])."' ".
-			"	AND WS.MODULE_ID ".(($arDocumentId[0] <> '') ? "= '".$DB->ForSql($arDocumentId[0])."'" : "IS NULL")." ".
+			"	AND WS.ENTITY = '" . $DB->ForSql($entity) . "' " .
+			"	AND WS.MODULE_ID " . ($moduleId ? "= '" . $DB->ForSql($moduleId) . "'" : "IS NULL") . " ".
 			$sqlAdditionalFilter
 		);
 

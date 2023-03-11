@@ -399,15 +399,23 @@ class DiscountManager
 			foreach ($basket as $basketCode => $basketItem)
 			{
 				if (!empty($basketRoundData[$basketCode]))
+				{
 					$roundData = $basketRoundData[$basketCode];
+				}
 				else
+				{
 					$roundData = Catalog\Product\Price::searchRoundRule(
 						$basketItem['PRICE_TYPE_ID'],
 						$basketItem['PRICE'],
 						$basketItem['CURRENCY']
 					);
+				}
+
 				if (empty($roundData))
+				{
 					continue;
+				}
+
 				$result[$basketCode] = self::getRoundResult($basketItem, $roundData);
 			}
 			unset($roundData, $basketCode, $basketItem, $basketRoundData);
@@ -729,9 +737,15 @@ class DiscountManager
 					$basketItem['PRODUCT_ID'] = (int)$basketItem['PRODUCT_ID'];
 					$productList[] = $basketItem['PRODUCT_ID'];
 					if (!isset($productMap[$basketItem['PRODUCT_ID']]))
+					{
 						$productMap[$basketItem['PRODUCT_ID']] = [];
+					}
 					$productMap[$basketItem['PRODUCT_ID']][] = &$basket[$basketCode];
-					$priceList[] = $basketItem['PRODUCT_PRICE_ID'];
+
+					if (isset($basketItem['PRODUCT_PRICE_ID']))
+					{
+						$priceList[] = $basketItem['PRODUCT_PRICE_ID'];
+					}
 				}
 				unset($basketItem, $basketCode);
 

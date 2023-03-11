@@ -455,6 +455,11 @@ class User
 			return null;
 		}
 
+		$hrPhotoOption = $options['HR_PHOTO'] ?? null;
+		$livechatOption = $options['LIVECHAT'] ?? null;
+		$jsonOption = $options['JSON'] ?? null;
+		$skipOnlineOption = $options['SKIP_ONLINE'] ?? null;
+
 		$result = [
 			'ID' => $this->getId(),
 			'ACTIVE' => $this->isActive(),
@@ -472,23 +477,23 @@ class User
 			'CONNECTOR' => $this->isConnector(),
 			'EXTERNAL_AUTH_ID' => $this->getExternalAuthId(),
 			'STATUS' => $this->getStatus(),
-			'IDLE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getIdle(),
-			'LAST_ACTIVITY_DATE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getLastActivityDate(),
-			'MOBILE_LAST_DATE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getMobileLastDate(),
+			'IDLE' => $skipOnlineOption === 'Y' ? false: $this->getIdle(),
+			'LAST_ACTIVITY_DATE' => $skipOnlineOption === 'Y' ? false: $this->getLastActivityDate(),
+			'MOBILE_LAST_DATE' => $skipOnlineOption === 'Y' ? false: $this->getMobileLastDate(),
 			'ABSENT' => $this->isAbsent(),
 			'DEPARTMENTS' => $this->getDepartments(),
 			'PHONES' => $this->getPhones(),
 		];
-		if ($options['HR_PHOTO'])
+		if ($hrPhotoOption)
 		{
 			$result['AVATAR_HR'] = $this->getAvatarHr();
 		}
 
 		//TODO: Live chat, open lines
 		//Just one call, here: \Bitrix\ImOpenLines\Connector::onStartWriting and \Bitrix\Im\Chat::getMessages
-		if ($options['LIVECHAT'] && !$this->isConnector())
+		if ($livechatOption && !$this->isConnector())
 		{
-			$lineId = \Bitrix\ImOpenLines\Queue::getActualLineId(['LINE_ID' => $options['LIVECHAT'], 'USER_CODE' => $options['USER_CODE']]);
+			$lineId = \Bitrix\ImOpenLines\Queue::getActualLineId(['LINE_ID' => $livechatOption, 'USER_CODE' => $options['USER_CODE']]);
 
 			$imolUserData = \Bitrix\ImOpenLines\Queue::getUserData($lineId, $this->getId());
 			if ($imolUserData)
@@ -499,7 +504,7 @@ class User
 		}
 		//TODO: END: Live chat, open lines
 
-		if ($options['JSON'])
+		if ($jsonOption)
 		{
 			foreach ($result as $key => $value)
 			{

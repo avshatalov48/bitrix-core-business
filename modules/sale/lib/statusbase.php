@@ -164,7 +164,7 @@ abstract class StatusBase
 		if (! is_array($groupId))
 			$groupId = array($groupId);
 
-		$cacheKey = md5($groupId."_".(is_array($fromStatus) ? join('|', $fromStatus) : $fromStatus));
+		$cacheKey = md5(join('|', $groupId) . "_".(is_array($fromStatus) ? join('|', $fromStatus) : $fromStatus));
 
 		if (in_array('1', $groupId, true) || \CMain::GetUserRight('sale', $groupId) >= 'W') // Admin
 		{

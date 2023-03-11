@@ -22,6 +22,17 @@ Loc::loadMessages(__FILE__);
 
 class Application
 {
+	/**
+	 * Id of user on whose behalf are the actions do. If not set - use current system user
+	 * @var null
+	 */
+	protected static ?int $contextUserId = null;
+
+	public static function setContextUserId(int $id): void
+	{
+		self::$contextUserId = $id;
+	}
+
 	public static function install($code, $version = false, $checkHash = false, $installHash = false, $from = null) : array
 	{
 		$result = [];
@@ -85,7 +96,7 @@ class Application
 			}
 			elseif ($appDetailInfo)
 			{
-				if (CRestUtil::canInstallApplication($appDetailInfo))
+				if (CRestUtil::canInstallApplication($appDetailInfo, self::$contextUserId))
 				{
 					$queryFields = [
 						'CLIENT_ID' => $appDetailInfo['APP_CODE'],
@@ -93,7 +104,7 @@ class Application
 						'BY_SUBSCRIPTION' => $appDetailInfo['BY_SUBSCRIPTION'] === 'Y' ? 'Y' : 'N',
 					];
 
-					if (isset($checkHash, $installHash))
+					if (!empty($checkHash) && !empty($installHash))
 					{
 						$queryFields['CHECK_HASH'] = $checkHash;
 						$queryFields['INSTALL_HASH'] = $installHash;
@@ -201,7 +212,7 @@ class Application
 								AppLogTable::log($appId, AppLogTable::ACTION_TYPE_INSTALL);
 							}
 
-							if (!CRestUtil::isAdmin())
+							if (!CRestUtil::isAdmin(self::$contextUserId))
 							{
 								CRestUtil::notifyInstall($appFields);
 							}
@@ -335,7 +346,7 @@ class Application
 
 	public static function uninstall($code, bool $clean = false, $from = null) : array
 	{
-		if (CRestUtil::isAdmin())
+		if (CRestUtil::isAdmin(self::$contextUserId))
 		{
 			$res = AppTable::getList(
 				[
@@ -412,7 +423,7 @@ class Application
 	public static function reinstall($id) : array
 	{
 		$result = [];
-		if (CRestUtil::isAdmin())
+		if (CRestUtil::isAdmin(self::$contextUserId))
 		{
 			$appInfo = AppTable::getByClientId($id);
 			if (
@@ -462,6 +473,7 @@ class Application
 	public static function setRights($appId, $rights) : array
 	{
 		$result = [];
+		// todo: maybe can add self::$contextUser to isAdmin check
 		if (CRestUtil::isAdmin())
 		{
 			if ($appId > 0)
@@ -490,6 +502,7 @@ class Application
 
 	public static function getRights($appId)
 	{
+		// todo: maybe can add self::$contextUser to isAdmin check
 		if (CRestUtil::isAdmin())
 		{
 			if ($appId > 0)

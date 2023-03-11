@@ -37,10 +37,7 @@ class Access
 			return false;
 		}
 
-		if (
-			$groupId <= 0
-			|| $currentUserId <= 0
-		)
+		if ($currentUserId <= 0)
 		{
 			return false;
 		}
@@ -51,6 +48,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID', 'VISIBLE' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$currentUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -147,6 +148,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -194,6 +199,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -241,6 +250,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID', 'INITIATE_PERMS' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -288,6 +301,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -335,6 +352,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID', 'INITIATE_PERMS' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -373,6 +394,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID', 'INITIATE_PERMS' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -418,6 +443,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'VISIBLE' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$currentUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -455,6 +484,10 @@ class Access
 			],
 			'select' => [ 'ID', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$currentUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -494,6 +527,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [
@@ -541,6 +578,10 @@ class Access
 			],
 			'select' => [ 'ID', 'CLOSED', 'PROJECT', 'SCRUM_MASTER_ID' ],
 		])->fetchObject();
+		if (!$group)
+		{
+			return false;
+		}
 
 		$targetUserRelation = UserToGroupTable::getList([
 			'filter' => [

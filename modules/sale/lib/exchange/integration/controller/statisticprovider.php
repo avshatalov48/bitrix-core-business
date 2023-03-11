@@ -30,14 +30,14 @@ class StatisticProvider extends Base
 	 * @param array $select
 	 * @param array $filter
 	 * @param array $order
-	 * @param PageNavigation $pageNavigation
+	 * @param PageNavigation|null $pageNavigation
 	 * @return Page
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\NotImplementedException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation = null): Page
 	{
 		return new Page('STATISTIC_PROVIDERS',
 			$this->getList($select, $filter, $order, $pageNavigation),

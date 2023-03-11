@@ -20,14 +20,14 @@ class BXGadget
 
 	public static function GetList($bWithParameters = false, $arAllCurrentValues = false)
 	{
-		$arGadgets = array();
+		$arGadgets = [];
 
-		$folders = array(
+		$folders = [
 			"/bitrix/gadgets",
 			"/local/gadgets",
-		);
+		];
 
-		foreach($folders as $folder)
+		foreach ($folders as $folder)
 		{
 			// Find all namespaces of gadgets
 			$arGdNS = static::getNamespaces($_SERVER["DOCUMENT_ROOT"] . $folder);
@@ -53,14 +53,14 @@ class BXGadget
 			}
 		}
 
-		uasort($arGadgets, array("BXGadget", "_sort"));
+		uasort($arGadgets, ["BXGadget", "_sort"]);
 
 		return $arGadgets;
 	}
 
 	protected static function getNamespaces($gdDir)
 	{
-		$arGdNS = array("bitrix");
+		$arGdNS = ["bitrix"];
 		if (is_dir($gdDir) && ($handle = opendir($gdDir)))
 		{
 			while (($item = readdir($handle)) !== false)
@@ -84,10 +84,10 @@ class BXGadget
 	{
 		$id = _normalizePath(mb_strtolower($id));
 
-		$folders = array(
+		$folders = [
 			"/bitrix/gadgets",
 			"/local/gadgets",
-		);
+		];
 
 		$namespace = '';
 		if (($p = mb_strpos($id, "/")) > 0)
@@ -117,7 +117,7 @@ class BXGadget
 				$gdDirSiteRoot = $folder."/".$NS;
 				if (is_dir($gdDir."/".$id))
 				{
-					$arDescription = array();
+					$arDescription = [];
 
 					CComponentUtil::__IncludeLang($gdDirSiteRoot."/".$id, "/.description.php");
 
@@ -138,10 +138,10 @@ class BXGadget
 
 					if ($bWithParameters)
 					{
-						$arCurrentValues = array();
-						if(is_array($arAllCurrentValues))
+						$arCurrentValues = [];
+						if (is_array($arAllCurrentValues))
 						{
-							foreach($arAllCurrentValues as $k=>$v)
+							foreach ($arAllCurrentValues as $k => $v)
 							{
 								$pref = "G_".mb_strtoupper($id)."_";
 								if(mb_substr($k, 0, mb_strlen($pref)) == $pref)
@@ -157,10 +157,12 @@ class BXGadget
 
 						CComponentUtil::__IncludeLang($gdDirSiteRoot."/".$id, "/.parameters.php");
 
-						$arParameters = array();
+						$arParameters = [];
 
-						if(file_exists($gdDir."/".$id."/.parameters.php"))
+						if (file_exists($gdDir."/".$id."/.parameters.php"))
+						{
 							include($gdDir."/".$id."/.parameters.php");
+						}
 						$arDescription["PARAMETERS"] = $arParameters["PARAMETERS"];
 						$arDescription["USER_PARAMETERS"] = array(
 							"TITLE_STD" => array(
@@ -169,8 +171,10 @@ class BXGadget
 								"DEFAULT" => ""
 							)
 						);
-						if (array_key_exists("USER_PARAMETERS", $arParameters) && is_array($arParameters["USER_PARAMETERS"]))
+						if (isset($arParameters["USER_PARAMETERS"]) && is_array($arParameters["USER_PARAMETERS"]))
+						{
 							$arDescription["USER_PARAMETERS"] = array_merge($arDescription["USER_PARAMETERS"], $arParameters["USER_PARAMETERS"]);
+						}
 					}
 					$arDescription["PATH"] = $gdDir."/".$id;
 					$arDescription["PATH_SITEROOT"] = $gdDirSiteRoot."/".$id;
@@ -188,51 +192,65 @@ class BXGadget
 		return $arGadget;
 	}
 
-	public static function SavePositions($arParams, $POS)
+	public static function SavePositions($arParams, $positions)
 	{
-		$arUserOptions = static::readSettings($arParams);
+		$allOptions = static::readSettings($arParams);
 
-		$arNewUserOptions = array("GADGETS"=>array());
+		$arUserOptions = ($arParams["MULTIPLE"] == "Y" ? $allOptions[$arParams["DESKTOP_PAGE"]] : $allOptions);
 
-		if (array_key_exists("COLS", $arUserOptions))
-			$arNewUserOptions["COLS"] = $arUserOptions["COLS"];
-		if (array_key_exists("arCOLUMN_WIDTH", $arUserOptions))
-			$arNewUserOptions["arCOLUMN_WIDTH"] = $arUserOptions["arCOLUMN_WIDTH"];
-		if (array_key_exists("NAME", $arUserOptions))
-			$arNewUserOptions["NAME"] = $arUserOptions["NAME"];
+		$arNewUserOptions = ["GADGETS" => []];
 
-		foreach($POS as $col=>$items)
+		if (isset($arUserOptions["COLS"]))
 		{
-			foreach($items as $row=>$gdId)
+			$arNewUserOptions["COLS"] = $arUserOptions["COLS"];
+		}
+		if (isset($arUserOptions["arCOLUMN_WIDTH"]))
+		{
+			$arNewUserOptions["arCOLUMN_WIDTH"] = $arUserOptions["arCOLUMN_WIDTH"];
+		}
+		if (isset($arUserOptions["NAME"]))
+		{
+			$arNewUserOptions["NAME"] = $arUserOptions["NAME"];
+		}
+
+		foreach ($positions as $col => $items)
+		{
+			foreach ($items as $row => $gdId)
 			{
 				if(mb_substr($gdId, -2, 2) == "*H")
 				{
 					$gdId = mb_substr($gdId, 0, -2);
-					$bHided = true;
+					$hidden = true;
 				}
 				else
-					$bHided = false;
+				{
+					$hidden = false;
+				}
 
-				if(is_array($arUserOptions["GADGETS"][$gdId]))
-					$arNewUserOptions["GADGETS"][$gdId] = $arUserOptions["GADGETS"][$gdId];
-				else
-					$arNewUserOptions["GADGETS"][$gdId] = array();
-
+				$arNewUserOptions["GADGETS"][$gdId] = $arUserOptions["GADGETS"][$gdId] ?? [];
 				$arNewUserOptions["GADGETS"][$gdId]["COLUMN"] = $col;
 				$arNewUserOptions["GADGETS"][$gdId]["ROW"] = $row;
-				$arNewUserOptions["GADGETS"][$gdId]["HIDE"] = ($bHided?"Y":"N");
+				$arNewUserOptions["GADGETS"][$gdId]["HIDE"] = ($hidden? "Y" : "N");
 			}
 		}
 
 		if ($arParams["MULTIPLE"] == "Y")
 		{
-			$arUserOptionsTmp[$arParams["DESKTOP_PAGE"]] = $arNewUserOptions;
-			$arNewUserOptions = $arUserOptionsTmp;
+			$allOptions[$arParams["DESKTOP_PAGE"]] = $arNewUserOptions;
+		}
+		else
+		{
+			$allOptions = $arNewUserOptions;
 		}
 
-		$user_option_id = ($arParams["DEFAULT_ID"] ? 0 : false);
+		static::writeSettings($allOptions, $arParams);
+	}
 
-		CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $arNewUserOptions, false, $user_option_id);
+	public static function writeSettings(array $options, array $arParams): void
+	{
+		$userId = ($arParams["DEFAULT_ID"] ? 0 : false);
+
+		CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $options, false, $userId);
 	}
 
 	public static function readSettings(array $arParams): array
@@ -254,30 +272,26 @@ class BXGadget
 
 		if (!$arUserOptions)
 		{
-			$tmp_desktop_id = false;
-			if (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."index.php", SITE_DIR, "/")))
+			$desktopId = false;
+			$page = $APPLICATION->GetCurPage();
+			if (in_array($page, array(SITE_DIR."index.php", SITE_DIR, "/")))
 			{
-				$tmp_desktop_id = "mainpage";
+				$desktopId = "mainpage";
 			}
-			elseif (in_array($APPLICATION->GetCurPage(), array(SITE_DIR."desktop.php", "/desktop.php")))
+			elseif (in_array($page, array(SITE_DIR."desktop.php", "/desktop.php")))
 			{
-				$tmp_desktop_id = "dashboard";
+				$desktopId = "dashboard";
 			}
 
-			if ($tmp_desktop_id !== false)
+			if ($desktopId !== false)
 			{
-				$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$tmp_desktop_id, false, false);
+				$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$desktopId);
 			}
 		}
 
-		if ($arParams["MULTIPLE"] == "Y")
+		if (!is_array($arUserOptions))
 		{
-			$arUserOptions = $arUserOptions[$arParams["DESKTOP_PAGE"]];
-		}
-
-		if(!is_array($arUserOptions))
-		{
-			$arUserOptions = ["GADGETS" => []];
+			$arUserOptions = [];
 		}
 
 		return $arUserOptions;
@@ -286,6 +300,11 @@ class BXGadget
 	public static function getGadgetSettings($id, $arParams)
 	{
 		$arUserOptions = static::readSettings($arParams);
+
+		if ($arParams["MULTIPLE"] == "Y")
+		{
+			$arUserOptions = $arUserOptions[$arParams["DESKTOP_PAGE"]];
+		}
 
 		return $arUserOptions["GADGETS"][$id]["SETTINGS"] ?? [];
 	}

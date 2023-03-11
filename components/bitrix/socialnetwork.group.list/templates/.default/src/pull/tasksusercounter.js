@@ -123,7 +123,7 @@ export class PullControllerTasksUserCounter
 	freeCounterQueue()
 	{
 		this.queueCounterData.forEach((counterData) => {
-			this.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
+			// todo oh this.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
 		});
 
 		this.queueCounterData.clear();

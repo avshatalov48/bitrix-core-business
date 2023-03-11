@@ -1,4 +1,4 @@
-import {RecentMenu} from 'im.v2.lib.menu';
+import {RecentMenu} from 'im.v2.lib.old-chat-embedding.menu';
 
 export class SearchContextMenu extends RecentMenu
 {

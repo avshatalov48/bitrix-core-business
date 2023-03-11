@@ -96,19 +96,19 @@ if($arParams["SEF_MODE"] == "Y")
 	$arVariables = array();
 
 	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"]);
-	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"]);
+	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"] ?? []);
 
-	if($_GET['livefeed'] == 'y')
+	if(isset($_GET['livefeed']) && $_GET['livefeed'] == 'y')
 	{
 		$componentPage = 'list_element_edit';
 		$arVariables = array('list_id' => $_GET['list_id'], 'element_id' => $_GET['element_id'], 'section_id' => 0);
 	}
-	elseif($_GET['bp_constants'] == 'y')
+	elseif(isset($_GET['bp_constants']) && $_GET['bp_constants'] == 'y')
 	{
 		$componentPage = "bizproc_workflow_constants";
 		$arVariables = array('list_id' => $_GET['list_id'], 'ID' => $_GET['id']);
 	}
-	elseif($processes && $_GET["bp_catalog"] == "y")
+	elseif($processes && isset($_GET["bp_catalog"]) && $_GET["bp_catalog"] == "y")
 	{
 		$componentPage = "catalog_processes";
 	}
@@ -330,6 +330,8 @@ else
 	if($processes)
 		$arResult["URL_TEMPLATES"]["catalog_processes"] = $APPLICATION->GetCurPage()."?mode=catalog";
 }
+
+$arResult['URL_TEMPLATES']['bizproc_workflow_delete'] = $arResult['URL_TEMPLATES']['bizproc_workflow_delete'] ?? '';
 
 $p = mb_strpos($arResult["URL_TEMPLATES"]["bizproc_workflow_delete"], "?");
 if($p === false)

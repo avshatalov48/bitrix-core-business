@@ -40,6 +40,9 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 		// about preloading
 		self::tryParseBoolean($arParams['PRECACHE_LAST_LEVEL']);
 
+		$arParams['INITIALIZE_BY_GLOBAL_EVENT'] ??= null;
+		$arParams['GLOBAL_EVENT_SCOPE'] ??= null;
+
 		return $arParams;
 	}
 
@@ -490,11 +493,11 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 	protected static function getPathToNodes($list)
 	{
 		$res = Location\LocationTable::getPathToMultipleNodes(
-			$list, 
+			$list,
 			array(
 				'select' => (
-					!!$_REQUEST['BEHAVIOUR']['PREFORMAT'] ? 
-					array('ID', 'VALUE' => 'ID', 'DISPLAY' => 'NAME.NAME', 'CODE') : 
+					!!$_REQUEST['BEHAVIOUR']['PREFORMAT'] ?
+					array('ID', 'VALUE' => 'ID', 'DISPLAY' => 'NAME.NAME', 'CODE') :
 					array('ID', 'LNAME' => 'NAME.NAME', 'CODE')
 				),
 				'filter' => array('=NAME.LANGUAGE_ID' => LANGUAGE_ID)

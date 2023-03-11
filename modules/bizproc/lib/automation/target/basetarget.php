@@ -8,6 +8,8 @@ use Bitrix\Bizproc\Automation\Trigger\Entity\TriggerTable;
 
 abstract class BaseTarget
 {
+	private const CACHE_TTL = 7200;
+
 	protected $runtime;
 	protected $appliedTrigger;
 	protected $documentId;
@@ -76,7 +78,10 @@ abstract class BaseTarget
 				'=ENTITY' => $documentType[1],
 				'=DOCUMENT_TYPE' => $documentType[2],
 				'@DOCUMENT_STATUS' => $statuses
-			)
+			),
+			'cache' => [
+				'ttl' => self::CACHE_TTL
+			]
 		));
 
 		while ($row = $iterator->fetch())

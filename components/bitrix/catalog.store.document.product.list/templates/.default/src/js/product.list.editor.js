@@ -71,6 +71,7 @@ export class Editor
 	onScanEmitHandler = this.handleMobileScanEvent.bind(this);
 
 	changeProductFieldHandler = this.handleFieldChange.bind(this);
+	blurProductFieldHandler = this.handleFieldBlur.bind(this);
 	updateTotalDataDelayedHandler = Runtime.debounce(this.updateTotalDataDelayed, 100, this);
 
 	constructor(id)
@@ -1168,6 +1169,28 @@ export class Editor
 		}
 	}
 
+	handleFieldBlur(event)
+	{
+		const row = event.target.closest('tr');
+		const value = event.target.value;
+		let fieldCode = event.target.getAttribute('data-name');
+		if (!Type.isStringFilled(fieldCode))
+		{
+			const cell = event.target.closest('td');
+			fieldCode = this.getFieldCodeByGridCell(row, cell);
+		}
+
+		if (this.settings.documentType === 'REALIZATION' && fieldCode === 'AMOUNT' && value <= 0)
+		{
+			event.target.value = 1;
+			this.handleFieldChange(event);
+			BX.UI.Notification.Center.notify({
+				width: 'auto',
+				content: Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_REALIZATION'),
+			});
+		}
+	}
+
 	handleDropdownChange(event: BaseEvent)
 	{
 		const [dropdownId, , , , value] = event.getData();
@@ -1476,6 +1499,11 @@ export class Editor
 			productRow.layoutStoreSelector(productRow.getSettingValue('storeHeaderMap', {}));
 			productRow.layoutBarcode();
 			productRow.executeExternalActions();
+
+			if (this.settings.documentType === 'REALIZATION')
+			{
+				productRow.changeAmount(productRow.getAmount() > 0 ? productRow.getAmount() : 1);
+			}
 			this.getGrid().tableUnfade();
 		}
 		else

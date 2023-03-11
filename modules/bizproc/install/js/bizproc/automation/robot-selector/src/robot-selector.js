@@ -1,8 +1,9 @@
-import { Type, Loc, Runtime, Text, Event, Tag, Dom, Cache } from 'main.core';
+import { Type, Loc, Runtime, Text, Event, Tag, Dom } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { MenuManager, PopupOptions } from 'main.popup';
 import { Context } from 'bizproc.automation';
 import { EntityCatalog, GroupData, ItemData } from 'ui.entity-catalog';
+import { Settings } from 'bizproc.local-settings';
 
 import './css/robot-selector.css';
 import GroupIcon from './groups/group-icon';
@@ -10,6 +11,8 @@ import { Manager as GroupManager } from './groups/manager';
 import { B24Robots as B24RobotsFilter } from './filters/b24-robots';
 import { B24Triggers as B24TriggersFilter } from './filters/b24-triggers';
 import { RecentGroup } from './groups/recent-group';
+
+import { EmptyGroupStub } from './stubs/empty-group-stub';
 
 export class RobotSelector extends EventEmitter
 {
@@ -21,7 +24,7 @@ export class RobotSelector extends EventEmitter
 	#context: Context;
 	#stageId: string;
 	#catalog: ?EntityCatalog;
-	#cache: Cache.LocalStorageCache;
+	#cache: Settings;
 
 	#showNewGroups: boolean = false;
 
@@ -39,7 +42,7 @@ export class RobotSelector extends EventEmitter
 
 		this.#context = props.context;
 		this.#stageId = props.stageId;
-		this.#cache = new Cache.LocalStorageCache();
+		this.#cache = new Settings('robot-selector');
 		this.recentGroupIdsSort = new Map(this.#getRecentEntitiesIds().map((id, index) => [id, index]));
 
 		this.#context.set('recentAutomationEntities', new Map());
@@ -50,7 +53,7 @@ export class RobotSelector extends EventEmitter
 
 		this.subscribeFromOptions(props.events);
 
-		if (['CCrmDocumentLead', 'CCrmDocumentDeal'].includes(this.#context.document.getRawType()[1]))
+		if (this.#context.document.getRawType()[0] === 'crm')
 		{
 			this.#showNewGroups = true;
 		}
@@ -115,6 +118,7 @@ export class RobotSelector extends EventEmitter
 				showSearch: true,
 				filterOptions: this.#getFilterOptions(),
 				popupOptions: this.#getPopupOptions(),
+				customComponents: {EmptyGroupStub},
 			});
 		}
 
@@ -515,7 +519,8 @@ export class RobotSelector extends EventEmitter
 			[EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]: this.#getItemsStub(),
 			[EntityCatalog.SLOT_GROUP_LIST_FOOTER]: this.#getGroupsFooter(),
 			[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]: this.#getSearchNotFoundStub(),
-			[EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_EMPTY_GROUP_STUB_TITLE'),
+			[EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: `<EmptyGroupStub/>`,
+			[EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_EMPTY_GROUP_STUB_TITLE'),
 		};
 	}
 
@@ -533,10 +538,27 @@ export class RobotSelector extends EventEmitter
 
 	#getItemsHeader(): string
 	{
+		const helpFeedbackParams = {
+			id: String(Math.random()),
+			portalUri: 'https://bitrix24.team',
+			forms: [
+				{zones: ['ru'], id: 1922, lang: 'ru', sec: 'frsxzd'},
+				{zones: ['kz'], id: 1923, lang: 'ru', sec: 'skbmjc'},
+				{zones: ['by'], id: 1931, lang: 'ru', sec: 'om1f4c'},
+				{zones: ['en'], id: 1937, lang: 'en', sec: 'yu3ljc'},
+				{zones: ['es'], id: 1947, lang: 'es', sec: 'wuezi9'},
+				{zones: ['br'], id: 1948, lang: 'br', sec: 'j5gglp'},
+				{zones: ['de'], id: 1946, lang: 'de', sec: '6tpoy4'},
+			],
+		};
+
 		return `
 			<div class="bizproc-creating-robot__head_title">
-				<div class="bizproc-creating-robot__head_name">${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE')}</div>
-				<Hint text="${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_HINT')}"/>
+				<div class="bizproc-creating-robot__head_name">${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_1')}</div>
+				<Hint text="${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_HINT_1')}"/>
+				<a class="bizproc-creating-robot__help-link" v-feedback="${Text.encode(JSON.stringify(helpFeedbackParams))}" href="javascipt:none">
+					${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_HELP_SET_UP_AUTOMATION')}
+				</a>
 			</div>
 		`;
 	}
@@ -564,6 +586,7 @@ export class RobotSelector extends EventEmitter
 
 		const feedbackParams = {
 			id: Math.random()+'',
+			portalUri: 'https://product-feedback.bitrix24.com/',
 			forms: [
 				{zones: ['by', 'kz', 'ru'], id: 438, lang: 'ru', sec: 'odyyl1'},
 				{zones: ['com.br'], id: 436, lang: 'br', sec: '8fb4et'},
@@ -606,14 +629,14 @@ export class RobotSelector extends EventEmitter
 		{
 			return Tag.render`
 				<div>
-					${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE')}
+					${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE_1')}
 				</div>
 			`;
 		}
 
 		return Tag.render`
 			<div>
-				${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE')}
+				${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE_1')}
 			</div>
 			<div class="bizproc-creating-robot__titlebar_subtitle">
 				${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_SUBTITLE')}

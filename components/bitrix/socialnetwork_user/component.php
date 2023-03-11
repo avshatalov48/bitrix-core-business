@@ -160,6 +160,7 @@ $arDefaultUrlTemplates404 = array(
 	"user_tasks_report_view" => "user/#user_id#/tasks/report/view/#report_id#/",
 	"user_tasks_templates" => "user/#user_id#/tasks/templates/",
 	"user_templates_template" => "user/#user_id#/tasks/templates/template/#action#/#template_id#/",
+	"user_tasks_tags" => "user/#user_id#/tasks/tags/",
 
 	"user_forum" => "user/#user_id#/forum/",
 	"user_forum_topic" => "user/#user_id#/forum/#topic_id#/",

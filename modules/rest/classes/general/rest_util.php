@@ -107,25 +107,42 @@ class CRestUtil
 		return $query;
 	}
 
-	public static function isAdmin()
+	/**
+	 * @param int|null $userId - if not set - check system user
+	 * @return bool
+	 */
+	public static function isAdmin(?int $userId = null): bool
 	{
 		global $USER;
 
-		if(ModuleManager::isModuleInstalled('bitrix24'))
+		if ($userId > 0)
+		{
+			if (ModuleManager::isModuleInstalled('bitrix24'))
+			{
+				return $USER->CanDoOperation('bitrix24_config', $userId);
+			}
+
+			return in_array(1, \CUser::GetUserGroup($userId));
+		}
+
+		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			return $USER->CanDoOperation('bitrix24_config');
 		}
-		else
-		{
-			return $USER->IsAdmin();
-		}
+
+		return $USER->IsAdmin();
 	}
 
-	public static function canInstallApplication($appInfo = null)
+	/**
+	 * @param $appInfo
+	 * @param int|null $userId - if not set - check system user
+	 * @return bool|mixed
+	 */
+	public static function canInstallApplication($appInfo = null, ?int $userId = null)
 	{
 		global $USER;
 
-		if(static::isAdmin())
+		if (static::isAdmin($userId))
 		{
 			return true;
 		}
@@ -145,7 +162,7 @@ class CRestUtil
 		}
 
 		$hasAccess = $USER->CanAccess(static::getInstallAccessList());
-		if($hasAccess && is_array($appInfo))
+		if ($hasAccess && is_array($appInfo))
 		{
 			return static::appCanBeInstalledByUser($appInfo);
 		}
@@ -183,7 +200,7 @@ class CRestUtil
 	{
 		global $USER;
 
-		if(Loader::includeModule('im'))
+		if (Loader::includeModule('im'))
 		{
 			$userName = \CUser::FormatName("#NAME# #LAST_NAME#", array(
 				"NAME" => $USER->GetFirstName(),

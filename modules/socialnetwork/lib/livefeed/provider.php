@@ -82,6 +82,32 @@ abstract class Provider
 		return static::class;
 	}
 
+	/**
+	 * @return string[]
+	 */
+	public static function getEntityTypes(): array
+	{
+		return [
+			self::DATA_ENTITY_TYPE_BLOG_POST,
+			self::DATA_ENTITY_TYPE_BLOG_COMMENT,
+			self::DATA_ENTITY_TYPE_TASKS_TASK,
+			self::DATA_ENTITY_TYPE_FORUM_TOPIC,
+			self::DATA_ENTITY_TYPE_FORUM_POST,
+			self::DATA_ENTITY_TYPE_CALENDAR_EVENT,
+			self::DATA_ENTITY_TYPE_LOG_ENTRY,
+			self::DATA_ENTITY_TYPE_LOG_COMMENT,
+			self::DATA_ENTITY_TYPE_RATING_LIST,
+			self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM,
+			self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO,
+			self::DATA_ENTITY_TYPE_LISTS_ITEM,
+			self::DATA_ENTITY_TYPE_WIKI,
+			self::DATA_ENTITY_TYPE_TIMEMAN_ENTRY,
+			self::DATA_ENTITY_TYPE_TIMEMAN_REPORT,
+			self::DATA_ENTITY_TYPE_INTRANET_NEW_USER,
+			self::DATA_ENTITY_TYPE_BITRIX24_NEW_USER,
+		];
+	}
+
 	public function setSiteId($siteId): void
 	{
 		$this->siteId = $siteId;

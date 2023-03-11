@@ -2,6 +2,11 @@ this.BX = this.BX || {};
 (function (exports,ui_forms,main_core_events,main_core,ui_entitySelector,catalog_storeSelector,ui_notification,catalog_productModel) {
 	'use strict';
 
+	var SelectorErrorCode = function SelectorErrorCode() {
+	  babelHelpers.classCallCheck(this, SelectorErrorCode);
+	};
+	babelHelpers.defineProperty(SelectorErrorCode, "NOT_SELECTED_STORE", 'NOT_SELECTED_STORE');
+
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
 	var StoreSearchInput = /*#__PURE__*/function () {
 	  function StoreSearchInput(id) {
@@ -146,6 +151,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleNameInput",
 	    value: function handleNameInput(event) {
+	      if (!main_core.Type.isStringFilled(event.target.value)) {
+	        this.selector.onClear();
+	        return;
+	      }
+
 	      this.searchInDialog(event.target.value);
 	      this.handleIconsSwitchingOnNameInput(event);
 	    }
@@ -285,6 +295,18 @@ this.BX = this.BX || {};
 	          _this9.toggleIcon(_this9.getSearchIcon(), 'block');
 	        }
 	      }, 200);
+
+	      if (this.selector.isDisabledEmpty()) {
+	        setTimeout(function () {
+	          if (_this9.selector.getStoreId() === '') {
+	            _this9.selector.setEmptyError();
+	          } else {
+	            _this9.selector.clearErrorLayout();
+
+	            _this9.selector.clearEmptyError();
+	          }
+	        }, 200);
+	      }
 	    }
 	  }, {
 	    key: "handleSearchIconClick",
@@ -384,7 +406,7 @@ this.BX = this.BX || {};
 	  return StoreSearchInput;
 	}();
 
-	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1;
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1;
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 
@@ -429,6 +451,7 @@ this.BX = this.BX || {};
 	    _this.id = id || main_core.Text.getRandom();
 	    options.inputFieldTitle = options.inputFieldTitle || StoreSelector.INPUT_FIELD_TITLE;
 	    options.inputFieldId = options.inputFieldId || StoreSelector.INPUT_FIELD_ID;
+	    options.isDisabledEmpty = !!options.isDisabledEmpty;
 	    _this.options = options || {};
 
 	    _this.setMode(options.mode);
@@ -495,9 +518,9 @@ this.BX = this.BX || {};
 	      return this.mode === StoreSelector.MODE_VIEW;
 	    }
 	  }, {
-	    key: "isSaveable",
-	    value: function isSaveable() {
-	      return !this.isViewMode() && this.isSaveable();
+	    key: "isDisabledEmpty",
+	    value: function isDisabledEmpty() {
+	      return this.options.isDisabledEmpty;
 	    }
 	  }, {
 	    key: "getId",
@@ -546,8 +569,44 @@ this.BX = this.BX || {};
 
 	      this.defineWrapperClass(wrapper);
 	      var block = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-inner\"></div>"])));
-	      wrapper.appendChild(block);
-	      block.appendChild(this.layoutNameBlock());
+	      main_core.Dom.append(block, wrapper);
+	      main_core.Dom.append(this.getNameBlock(), block);
+	      main_core.Dom.append(this.getErrorBlock(), block);
+
+	      if (this.getStoreId() === '') {
+	        this.layoutEmptyError();
+	      }
+	    }
+	  }, {
+	    key: "setEmptyError",
+	    value: function setEmptyError() {
+	      babelHelpers.classPrivateFieldGet(this, _model).getErrorCollection().setError(SelectorErrorCode.NOT_SELECTED_STORE, main_core.Loc.getMessage('CATALOG_STORE_SELECTOR_UNSELECTED'));
+	      this.layoutEmptyError();
+	    }
+	  }, {
+	    key: "clearEmptyError",
+	    value: function clearEmptyError() {
+	      babelHelpers.classPrivateFieldGet(this, _model).getErrorCollection().removeError(SelectorErrorCode.NOT_SELECTED_STORE);
+	      return this;
+	    }
+	  }, {
+	    key: "layoutEmptyError",
+	    value: function layoutEmptyError() {
+	      this.getErrorBlock().innerHTML = '';
+	      main_core.Dom.append(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-error\">", "</div>"])), main_core.Loc.getMessage('CATALOG_STORE_SELECTOR_UNSELECTED')), this.getErrorBlock());
+
+	      if (this.searchInput) {
+	        main_core.Dom.addClass(this.getNameBlock(), 'ui-ctl-danger');
+	      }
+
+	      return this;
+	    }
+	  }, {
+	    key: "clearErrorLayout",
+	    value: function clearErrorLayout() {
+	      this.getErrorBlock().innerHTML = '';
+	      main_core.Dom.removeClass(this.getNameBlock(), 'ui-ctl-danger');
+	      return this;
 	    }
 	  }, {
 	    key: "focusName",
@@ -568,7 +627,14 @@ this.BX = this.BX || {};
 	      this.focusName();
 	      this.emit('onClear', {
 	        selectorId: this.getId(),
-	        rowId: this.getRowId()
+	        rowId: this.getRowId(),
+	        fields: [{
+	          NAME: this.options.inputFieldId,
+	          VALUE: null
+	        }, {
+	          NAME: this.options.inputFieldTitle,
+	          VALUE: ''
+	        }]
 	      });
 	    }
 	  }, {
@@ -584,6 +650,9 @@ this.BX = this.BX || {};
 	      if (wrapper) {
 	        wrapper.innerHTML = '';
 	      }
+
+	      this.nameBlock = null;
+	      this.clearErrorLayout();
 	    }
 	  }, {
 	    key: "unsubscribeEvents",
@@ -606,23 +675,37 @@ this.BX = this.BX || {};
 	      var titlePlaceholder = main_core.Loc.getMessage('CATALOG_STORE_SELECTOR_VIEW_NAME_TITLE');
 
 	      if (this.getDetailPath()) {
-	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"])), this.getDetailPath(), titlePlaceholder, storeTitle);
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"])), this.getDetailPath(), titlePlaceholder, storeTitle);
 	      }
 
-	      return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"])), titlePlaceholder, storeTitle);
+	      return main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"])), titlePlaceholder, storeTitle);
 	    }
 	  }, {
-	    key: "layoutNameBlock",
-	    value: function layoutNameBlock() {
-	      var block = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-input\"></div>"])));
-
-	      if (this.isViewMode()) {
-	        block.appendChild(this.getViewHtml());
-	      } else {
-	        block.appendChild(this.searchInput.layout());
+	    key: "getNameBlock",
+	    value: function getNameBlock() {
+	      if (this.nameBlock) {
+	        return this.nameBlock;
 	      }
 
-	      return block;
+	      var block = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-input\"></div>"])));
+
+	      if (this.isViewMode()) {
+	        main_core.Dom.append(this.getViewHtml(), block);
+	      } else {
+	        main_core.Dom.append(this.searchInput.layout(), block);
+	      }
+
+	      this.nameBlock = block;
+	      return this.nameBlock;
+	    }
+	  }, {
+	    key: "getErrorBlock",
+	    value: function getErrorBlock() {
+	      if (!this.errorBlock) {
+	        this.errorBlock = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-error\"></div>"])));
+	      }
+
+	      return this.errorBlock;
 	    }
 	  }, {
 	    key: "getStoreTitle",
@@ -644,6 +727,7 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldGet(this, _storeInfo).set('id', storeId);
 	      babelHelpers.classPrivateFieldGet(this, _storeInfo).set('title', storeTitle);
 	      this.clearLayout();
+	      this.clearEmptyError();
 	      this.layout();
 	      this.emit('onChange', {
 	        selectorId: this.id,
@@ -669,6 +753,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(StoreSelector, "MODE_EDIT", 'edit');
 	babelHelpers.defineProperty(StoreSelector, "INPUT_FIELD_TITLE", 'STORE_TITLE');
 	babelHelpers.defineProperty(StoreSelector, "INPUT_FIELD_ID", 'STORE_ID');
+	babelHelpers.defineProperty(StoreSelector, "ErrorCodes", SelectorErrorCode);
 
 	exports.StoreSelector = StoreSelector;
 

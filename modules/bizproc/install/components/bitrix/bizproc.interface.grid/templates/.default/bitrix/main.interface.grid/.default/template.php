@@ -44,7 +44,7 @@ if($arParams["SHOW_FORM_TAG"]):?>
 <?endif?>
 		<td><div class="empty"></div></td>
 <?foreach($arResult["HEADERS"] as $header):?>
-		<td<?=($header["sort_state"] <> ''? ' class="bx-bizproc-sorted"':'')?>><div class="empty"></div></td>
+		<td<?=(!empty($header["sort_state"]) ? ' class="bx-bizproc-sorted"':'')?>><div class="empty"></div></td>
 <?endforeach?>
 	</tr>
 	<tr class="bx-bizproc bx-bizproc-grid-head" oncontextmenu="return bxGrid_<?=$arParams["GRID_ID"]?>.settingsMenu"<?if($GLOBALS['USER']->IsAuthorized()):?> ondblclick="bxGrid_<?=$arParams["GRID_ID"]?>.EditCurrentView()"<?endif?>>
@@ -274,7 +274,7 @@ if($arParams["ACTION_ALL_ROWS"]):
 	$bNeedSep = true;
 endif;
 ?>
-<?if($arParams["ACTIONS"]["delete"] == true):?>
+<?if(!empty($arParams["ACTIONS"]["delete"])):?>
 	<?if($bNeedSep && !$arResult["ALLOW_INLINE_EDIT"]):?>
 		<td><div class="bx-bizproc-separator"></div></td>
 	<?endif?>
@@ -463,7 +463,7 @@ endforeach;
 	</tr>
 <?
 foreach($arParams["FILTER"] as $field):
-	if($field["enable_settings"] === false)
+	if(isset($field["enable_settings"]) && $field["enable_settings"] === false)
 		continue;
 ?>
 	<tr>
@@ -471,17 +471,21 @@ foreach($arParams["FILTER"] as $field):
 		<td>
 <?
 	//default attributes
-	if(!is_array($field["params"]))
-		$field["params"] = array();
-	if($field["type"] == '' || $field["type"] == 'text')
+	if(!isset($field["params"]) || !is_array($field["params"]))
+	{
+		$field["params"] = [];
+	}
+if ($field["type"] == '' || $field["type"] == 'text')
 	{
 		if($field["params"]["size"] == '')
 			$field["params"]["size"] = "30";
 	}
 	elseif($field["type"] == 'date')
 	{
-		if($field["params"]["size"] == '')
+		if (empty($field["params"]["size"]))
+		{
 			$field["params"]["size"] = "10";
+		}
 	}
 	elseif($field["type"] == 'number')
 	{
@@ -627,7 +631,7 @@ $variables = array(
 	),
 	"ajax"=>array(
 		"AJAX_ID"=>$arParams["AJAX_ID"],
-		"AJAX_OPTION_SHADOW"=>($arParams["AJAX_OPTION_SHADOW"] == "Y"),
+		"AJAX_OPTION_SHADOW"=> (isset($arParams["AJAX_OPTION_SHADOW"]) && $arParams["AJAX_OPTION_SHADOW"] == "Y"),
 	),
 	"settingWndSize"=>CUtil::GetPopupSize("InterfaceGridSettingWnd"),
 	"viewsWndSize"=>CUtil::GetPopupSize("InterfaceGridViewsWnd", array('height' => 350, 'width' => 500)),

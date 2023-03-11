@@ -90,23 +90,25 @@ class Keyboard
 			return false;
 		}
 
-		$button['TEXT'] = trim($params['TEXT']);
+		$button['TEXT'] = trim($params['TEXT'] ?? '');
 
-		$button['VOTE'] = $this->voteMode? 'Y': 'N';
+		$button['VOTE'] = $this->voteMode ? 'Y': 'N';
 
-		$button['BLOCK'] = $params['BLOCK'] == 'Y'? 'Y': 'N';
+		$blockParam = $params['BLOCK'] ?? null;
+		$button['BLOCK'] = $blockParam === 'Y'? 'Y': 'N';
 
 		$button['WAIT'] = 'N';
 
-		$button['CONTEXT'] = in_array($params['CONTEXT'], Array('MOBILE', 'DESKTOP'))? $params['CONTEXT']: 'ALL';
+		$button['CONTEXT'] = in_array(($params['CONTEXT'] ?? null), ['MOBILE', 'DESKTOP'])? $params['CONTEXT']: 'ALL';
 
-		$button['DISABLED'] = $params['DISABLED'] == 'Y'? 'Y': 'N';
+		$disabledParam = $params['DISABLED'] ?? null;
+		$button['DISABLED'] = $disabledParam === 'Y'? 'Y': 'N';
 
-		$button['DISPLAY'] = in_array($params['DISPLAY'], Array('BLOCK', 'LINE'))? $params['DISPLAY']: 'BLOCK';
+		$button['DISPLAY'] = in_array(($params['DISPLAY'] ?? null), ['BLOCK', 'LINE'])? $params['DISPLAY']: 'BLOCK';
 
-		if (isset($params['WIDTH']) && intval($params['WIDTH']) > 0)
+		if (isset($params['WIDTH']) && (int)$params['WIDTH'] > 0)
 		{
-			$button['WIDTH'] = intval($params['WIDTH']);
+			$button['WIDTH'] = (int)$params['WIDTH'];
 		}
 
 		if (isset($params['BG_COLOR']) && preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $params['BG_COLOR']))

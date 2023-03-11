@@ -135,6 +135,7 @@ export class Row
 			Event.bind(node, 'change', editor.changeProductFieldHandler);
 			// disable drag-n-drop events for text fields
 			Event.bind(node, 'mousedown', (event) => event.stopPropagation());
+			Event.bind(node, 'blur', editor.blurProductFieldHandler)
 		});
 		this.getNode().querySelectorAll('select').forEach((node) => {
 			Event.bind(node, 'change', editor.changeProductFieldHandler);
@@ -405,6 +406,7 @@ export class Row
 			const selectorOptions = {
 				inputFieldId: fieldNames[rowName],
 				inputFieldTitle: fieldNames[rowName] + '_TITLE',
+				isDisabledEmpty: true,
 				config: {
 					ENABLE_SEARCH: true,
 					ENABLE_INPUT_DETAIL_LINK: false,
@@ -419,6 +421,12 @@ export class Row
 			EventEmitter.subscribe(
 				storeSelector,
 				'onChange',
+				Runtime.debounce(this.#onStoreFieldChange.bind(this), 500, this)
+			);
+
+			EventEmitter.subscribe(
+				storeSelector,
+				'onClear',
 				Runtime.debounce(this.#onStoreFieldChange.bind(this), 500, this)
 			);
 
@@ -1000,7 +1008,7 @@ export class Row
 		const errors = this.getModel().getErrorCollection().getErrors();
 		for (const code in errors)
 		{
-			if (code === ProductSelector.ErrorCodes.NOT_SELECTED_PRODUCT)
+			if (code === ProductSelector.ErrorCodes.NOT_SELECTED_PRODUCT || code === StoreSelector.ErrorCodes.NOT_SELECTED_STORE)
 			{
 				this.getSelector().layoutErrors();
 			}
@@ -1030,7 +1038,7 @@ export class Row
 	{
 		this.editor.enableSendBarcodeMobilePush();
 	}
-	
+
 	#handleBarcodeChange(event: BaseEvent): void
 	{
 		const {value} = event.getData();
@@ -1115,6 +1123,11 @@ export class Row
 
 	setStoreAmount(value, fieldName, mode = MODE_SET)
 	{
+		if (!this.model.getStoreCollection().isInited())
+		{
+			return;
+		}
+
 		// price can't be less than zero
 		if (mode === MODE_SET)
 		{
@@ -1135,7 +1148,20 @@ export class Row
 						if (this.#needInventory())
 						{
 							amount = amounts[postfix]() || 0;
-							wrapper.innerHTML = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+
+							const amountWithMeasure = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+							let htmlAmount = amountWithMeasure;
+
+							if (postfix === '_AVAILABLE_AMOUNT')
+							{
+								htmlAmount =
+									amount > 0
+										? amountWithMeasure
+										: `<span class="text--danger">${amountWithMeasure}</span>`
+								;
+							}
+
+							wrapper.innerHTML = htmlAmount;
 						}
 					}
 				}

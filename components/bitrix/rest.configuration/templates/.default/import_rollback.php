@@ -27,7 +27,8 @@ if($arResult['ERROR'])
 		array(
 			'ROLLBACK_APP' => $arResult['VARIABLES']['APP'],
 			'MODE' => 'ROLLBACK',
-			'SET_TITLE' => 'Y'
+			'SET_TITLE' => 'Y',
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

@@ -130,11 +130,14 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 		);
 
 		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$variableValuesTmp =
-			is_array($currentActivity['Properties']['GlobalVariableValue'])
-				? $currentActivity['Properties']['GlobalVariableValue']
-				: []
-		;
+		$variableValuesTmp = [];
+		if (
+			isset($currentActivity['Properties']['GlobalVariableValue'])
+			&& is_array($currentActivity['Properties']['GlobalVariableValue'])
+		)
+		{
+			$variableValuesTmp = $currentActivity['Properties']['GlobalVariableValue'];
+		}
 
 		$variableValues = [];
 		foreach ($variableValuesTmp as $varId => $value)
@@ -214,7 +217,7 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 		foreach ($globals as $id => $property)
 		{
 			$visibility = $property['Visibility'];
-			if (!$result[$visibility])
+			if (!isset($result[$visibility]))
 			{
 				$result[$visibility] = [];
 			}
@@ -285,7 +288,7 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 				$fieldName = mb_ereg_replace(')', '', $fieldName);
 			}
 
-			if (!$result[$groupKey])
+			if (!isset($result[$groupKey]))
 			{
 				$result[$groupKey] = [
 					'title' => $groupName,
@@ -317,7 +320,7 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 
 	private static function getVisibilityMessages(array $documentType): array
 	{
-		if (self::$visibilityMessages[implode('@', $documentType)])
+		if (isset(self::$visibilityMessages[implode('@', $documentType)]))
 		{
 			return self::$visibilityMessages[implode('@', $documentType)];
 		}

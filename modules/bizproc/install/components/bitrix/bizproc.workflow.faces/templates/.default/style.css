@@ -112,11 +112,6 @@ a.process-step-more {
 	background: #525b69 url(images/bp-sprite.png) no-repeat -17px -496px;
 }
 
-.bx-ie .ui-icon.bp-short-process-step-inner
-{
-	width: auto;
-}
-
 .bp-short-process-step img {
 	width: 43px;
 	height: 43px;

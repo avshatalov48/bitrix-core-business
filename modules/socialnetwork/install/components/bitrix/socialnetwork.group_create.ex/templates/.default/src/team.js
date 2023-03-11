@@ -23,6 +23,8 @@ export class TeamManager
 
 	constructor(params)
 	{
+		this.groupId = parseInt(params.groupId, 10);
+
 		this.ownerSelector = null;
 		this.scrumMasterSelector = null;
 		this.moderatorsSelector = null;
@@ -81,7 +83,8 @@ export class TeamManager
 							intranetUsersOnly: !this.allowExtranet,
 							inviteEmployeeLink: true,
 							inviteExtranetLink: true,
-							checkWorkgroupWhenInvite: false,
+							groupId: this.groupId,
+							checkWorkgroupWhenInvite: true,
 						},
 					},
 					{
@@ -174,7 +177,8 @@ export class TeamManager
 						options: {
 							intranetUsersOnly: !this.allowExtranet,
 							inviteEmployeeLink: true,
-							checkWorkgroupWhenInvite: false,
+							groupId: this.groupId,
+							checkWorkgroupWhenInvite: true,
 						},
 					},
 					{
@@ -222,7 +226,8 @@ export class TeamManager
 							inviteEmployeeLink: true,
 							'!userId': (this.isCurrentUserAdmin ? [ parseInt(Loc.getMessage('USER_ID')) ] : []),
 							intranetUsersOnly: !this.allowExtranet,
-							checkWorkgroupWhenInvite: false,
+							groupId: this.groupId,
+							checkWorkgroupWhenInvite: true,
 						}
 					},
 					{

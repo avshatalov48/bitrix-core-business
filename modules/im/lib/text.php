@@ -12,7 +12,17 @@ class Text
 
 	public static function parse($text, $params = Array())
 	{
-		if (!isset($params['SAFE']) || $params['SAFE'] == 'Y')
+		$safeParam = $params['SAFE'] ?? null;
+		$linkParam = $params['LINK'] ?? null;
+		$fontParam = $params['FONT'] ?? null;
+		$smilesParam = $params['SMILES'] ?? null;
+		$textAnchorParam = $params['TEXT_ANCHOR'] ?? null;
+		$linkLimitParam = $params['LINK_LIMIT'] ?? null;
+		$textLimitParam = $params['TEXT_LIMIT'] ?? null;
+		$linkTargetSelfParam = $params['LINK_TARGET_SELF'] ?? null;
+		$cutStrikeParam = $params['CUT_STRIKE'] ?? null;
+
+		if (!$safeParam || $safeParam === 'Y')
 		{
 			$text = htmlspecialcharsbx($text);
 		}
@@ -20,15 +30,15 @@ class Text
 		$allowTags = [
 			'HTML' => 'N',
 			'USER' => 'N',
-			'ANCHOR' => $params['LINK'] === 'N' ? 'N' : 'Y',
+			'ANCHOR' => $linkParam === 'N' ? 'N' : 'Y',
 			'BIU' => 'Y',
 			'IMG' => 'N',
 			'QUOTE' => 'N',
 			'CODE' => 'N',
-			'FONT' => $params['FONT'] === 'Y' ? 'Y' : 'N',
+			'FONT' => $fontParam === 'Y' ? 'Y' : 'N',
 			'LIST' => 'N',
 			'SPOILER' => 'N',
-			'SMILES' => $params['SMILES'] === 'N' ? 'N' : 'Y',
+			'SMILES' => $smilesParam === 'N' ? 'N' : 'Y',
 			'EMOJI' => 'Y',
 			'NL2BR' => 'Y',
 			'VIDEO' => 'N',
@@ -36,10 +46,10 @@ class Text
 			'CUT_ANCHOR' => 'N',
 			'SHORT_ANCHOR' => 'N',
 			'ALIGN' => 'N',
-			'TEXT_ANCHOR' => $params['TEXT_ANCHOR'] === 'N' ? 'N' : 'Y',
+			'TEXT_ANCHOR' => $textAnchorParam === 'N' ? 'N' : 'Y',
 		];
 
-		$parseId = md5($params['LINK'].$params['SMILES'].$params['LINK_LIMIT'].$params['TEXT_LIMIT']);
+		$parseId = md5($linkParam.$smilesParam.$linkLimitParam.$textLimitParam);
 		if (isset(self::$parsers[$parseId]))
 		{
 			$parser = self::$parsers[$parseId];
@@ -48,10 +58,10 @@ class Text
 		{
 			$parser = new \CTextParser();
 			$parser->serverName = Common::getPublicDomain();
-			$parser->maxAnchorLength = intval($params['LINK_LIMIT'])? $params['LINK_LIMIT']: 55;
-			$parser->maxStringLen = intval($params['TEXT_LIMIT']);
+			$parser->maxAnchorLength = intval($linkLimitParam)? $linkLimitParam: 55;
+			$parser->maxStringLen = intval($textLimitParam);
 			$parser->allow = $allowTags;
-			if ($params['LINK_TARGET_SELF'] === 'Y')
+			if ($linkTargetSelfParam === 'Y')
 			{
 				$parser->link_target = "_self";
 			}
@@ -65,7 +75,7 @@ class Text
 		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
 
-		if (isset($params['CUT_STRIKE']) && $params['CUT_STRIKE'] == 'Y')
+		if ($cutStrikeParam === 'Y')
 		{
 			$text = preg_replace("/\[s\].*?\[\/s\]/i", "", $text);
 		}

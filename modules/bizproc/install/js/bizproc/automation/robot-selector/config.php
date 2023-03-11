@@ -12,8 +12,10 @@ return [
 		'main.core.events',
 		'main.popup',
 		'bizproc.automation',
-		'ui.entity-catalog',
+		'bizproc.local-settings',
 		'main.core',
+		'ui.entity-catalog',
+		'ui.vue3.pinia',
 	],
 	'skip_core' => false,
 ];

@@ -20,7 +20,8 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = intval($ID);
+$ID = (int)($ID ?? 0);
+$CHANGE_REASON ??= null;
 
 if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermissions>="U" && check_bitrix_sessid())
 {
@@ -72,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 			$OLD_BUDGET = DoubleVal($arOldUserAccount["CURRENT_BUDGET"]);
 		}
 	}
-	
+
 	$currentLocked = "";
 	if ($errorMessage == '')
 	{
@@ -115,11 +116,11 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 	{
 		if($_POST["UNLOCK"] == "Y")
 			CSaleUserAccount::UnLock($USER_ID, $CURRENCY);
-		
-		if($_POST["UNLOCK"] == "N" OR ($currentLocked == "Y" AND !isset($_POST["UNLOCK"]))) 
-			CSaleUserAccount::Lock($USER_ID, $CURRENCY); 
+
+		if($_POST["UNLOCK"] == "N" OR ($currentLocked == "Y" AND !isset($_POST["UNLOCK"])))
+			CSaleUserAccount::Lock($USER_ID, $CURRENCY);
 	}
-	
+
 	if ($errorMessage == '')
 	{
 		$arUserAccount = CSaleUserAccount::GetByUserID($USER_ID, $CURRENCY);
@@ -182,7 +183,17 @@ if (!$dbAccount->ExtractFields("str_"))
 }
 
 if ($bVarsFromForm)
+{
 	$DB->InitTableVarsForEdit("b_sale_user_account", "", "str_");
+}
+else
+{
+	$columns = $DB->GetTableFieldsList("b_sale_user_account");
+	foreach ($columns as $column)
+	{
+		${"str_{$column}"} ??= null;
+	}
+}
 
 $aMenu = array(
 	array(
@@ -299,7 +310,7 @@ $tabControl->BeginNextTab();
 			</td>
 		</tr>
 	<?endif;
-		
+
 	if ($ID > 0 && $str_LOCKED=="N"):?>
 		<tr>
 			<td><?echo GetMessage("SAE_LOCK")?></td>
@@ -307,7 +318,7 @@ $tabControl->BeginNextTab();
 				<input type="checkbox" name="UNLOCK" value="N"<?if ($str_LOCKED != "N") echo " disabled"?>>
 			</td>
 		</tr>
-	<?endif;?>	
+	<?endif;?>
 	<tr>
 		<td valign="top"><?echo GetMessage("SAE_NOTES")?></td>
 		<td valign="top">

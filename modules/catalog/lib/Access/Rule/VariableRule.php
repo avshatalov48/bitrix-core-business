@@ -62,7 +62,7 @@ class VariableRule extends BaseRule
 		}
 
 		if (
-			($params['value'] === null && count($values) > 0)
+			(!isset($params['value']) && count($values) > 0)
 			|| in_array($this->getAllValue(), $values, true)
 		)
 		{

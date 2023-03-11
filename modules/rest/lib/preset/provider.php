@@ -347,7 +347,7 @@ class Provider
 		];
 		$itemsEvent = [];
 		$errorList = [];
-		$id = (intVal($requestData['ID']) > 0) ? intVal($requestData['ID']) : $id;
+		$id = (isset($requestData['ID']) && intVal($requestData['ID']) > 0) ? intVal($requestData['ID']) : $id;
 		$userId = $GLOBALS['USER']->getID();
 		$isAdmin = \CRestUtil::isAdmin();
 
@@ -391,17 +391,17 @@ class Provider
 			'TITLE' => $requestData['TITLE'],
 			'SCOPE' => is_array($requestData['SCOPE']) ? $requestData['SCOPE'] : [],
 			'QUERY' => $requestData['QUERY'],
-			'OUTGOING_HANDLER_URL' => trim($requestData['OUTGOING_HANDLER_URL']),
+			'OUTGOING_HANDLER_URL' => trim($requestData['OUTGOING_HANDLER_URL'] ?? null),
 			'OUTGOING_EVENTS' => is_array($requestData['OUTGOING_EVENTS']) ? $requestData['OUTGOING_EVENTS'] : [],
-			'APPLICATION_ONLY_API' => ($requestData['APPLICATION_ONLY_API'] === 'Y') ? 'Y' : 'N',
-			'APPLICATION_NEEDED' => ($requestData['APPLICATION_NEEDED'] === 'Y') ? 'Y' : 'N',
-			'APPLICATION_EVENTS' => is_array($requestData['APPLICATION_EVENTS']) ? $requestData['APPLICATION_EVENTS'] : [],
+			'APPLICATION_ONLY_API' => (isset($requestData['APPLICATION_ONLY_API']) && $requestData['APPLICATION_ONLY_API'] === 'Y') ? 'Y' : 'N',
+			'APPLICATION_NEEDED' => (isset($requestData['APPLICATION_NEEDED']) && $requestData['APPLICATION_NEEDED'] === 'Y') ? 'Y' : 'N',
+			'APPLICATION_EVENTS' => (isset($requestData['APPLICATION_EVENTS']) && is_array($requestData['APPLICATION_EVENTS'])) ? $requestData['APPLICATION_EVENTS'] : [],
 			'OUTGOING_NEEDED' => ($requestData['OUTGOING_NEEDED'] === 'Y') ? 'Y' : 'N',
 			'WIDGET_NEEDED' => ($requestData['WIDGET_NEEDED'] === 'Y') ? 'Y' : 'N',
-			'WIDGET_HANDLER_URL' => trim($requestData['WIDGET_HANDLER_URL']),
+			'WIDGET_HANDLER_URL' => trim($requestData['WIDGET_HANDLER_URL'] ?? null),
 			'WIDGET_LIST' => $requestData['WIDGET_LIST'],
-			'WIDGET_LANG_LIST' => is_array($requestData['WIDGET_LANG_LIST']) ? $requestData['WIDGET_LANG_LIST'] : [],
-			'BOT_HANDLER_URL' => trim($requestData['BOT_HANDLER_URL'])
+			'WIDGET_LANG_LIST' => (isset($requestData['WIDGET_LANG_LIST']) && is_array($requestData['WIDGET_LANG_LIST'])) ? $requestData['WIDGET_LANG_LIST'] : [],
+			'BOT_HANDLER_URL' => trim($requestData['BOT_HANDLER_URL'] ?? null)
 		];
 
 		if ($id > 0)
@@ -644,9 +644,9 @@ class Provider
 				}
 			}
 
-			if ($presetData['QUERY_NEEDED'] !== 'D')
+			if (!isset($presetData['QUERY_NEEDED']) || $presetData['QUERY_NEEDED'] !== 'D')
 			{
-				$webhook = static::getWebHook($saveData['SCOPE'], $saveData['PASSWORD_ID'], $title);
+				$webhook = static::getWebHook($saveData['SCOPE'], $saveData['PASSWORD_ID'] ?? null, $title);
 				$saveData['PASSWORD_ID'] = $webhook['ID'];
 			}
 
@@ -804,7 +804,7 @@ class Provider
 					$errorList = array_merge($errorList, $app['errors']);
 				}
 			}
-			elseif ($saveData['APP_ID'] > 0)
+			elseif (isset($saveData['APP_ID']) && $saveData['APP_ID'] > 0)
 			{
 				$res = AppTable::getList(
 					[

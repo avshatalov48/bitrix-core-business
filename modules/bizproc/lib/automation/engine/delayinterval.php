@@ -14,7 +14,8 @@ class DelayInterval
 	protected $valueType;
 	protected $basis;
 	protected $workTime = false;
-	protected $localTime = false;
+	protected bool $waitWorkDay = false;
+	protected ?array $inTime = null;
 
 	/**
 	 * DelayInterval constructor.
@@ -43,9 +44,15 @@ class DelayInterval
 			{
 				$this->setWorkTime($params['workTime']);
 			}
-			if (isset($params['localTime']))
+
+			if (isset($params['waitWorkDay']))
 			{
-				$this->setLocalTime($params['localTime']);
+				$this->setWaitWorkDay($params['waitWorkDay']);
+			}
+
+			if (isset($params['inTime']) && is_array($params['inTime']))
+			{
+				$this->setInTime($params['inTime']);
 			}
 		}
 	}
@@ -82,9 +89,9 @@ class DelayInterval
 				);
 			}
 
-			if (isset($properties['TimeoutTimeIsLocal']))
+			if (!empty($properties['WaitWorkDayUser']))
 			{
-				$params['localTime'] = ($properties['TimeoutTimeIsLocal'] === 'Y');
+				$params['waitWorkDay'] = true;
 			}
 		}
 
@@ -192,22 +199,34 @@ class DelayInterval
 		return $this;
 	}
 
-	/**
-	 * @return mixed
-	 */
-	public function isLocalTime()
+	public function isWaitWorkDay(): bool
 	{
-		return $this->localTime;
+		return $this->waitWorkDay;
 	}
 
 	/**
-	 * @param bool $flag True or false.
 	 * @return $this
 	 */
-	public function setLocalTime($flag)
+	public function setWaitWorkDay(bool $flag)
 	{
-		$this->localTime = (bool)$flag;
+		$this->waitWorkDay = $flag;
+
 		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setInTime(?array $inTime)
+	{
+		$this->inTime = $inTime;
+
+		return $this;
+	}
+
+	public function getInTime(): ?array
+	{
+		return $this->inTime;
 	}
 
 	/**
@@ -222,7 +241,8 @@ class DelayInterval
 			'valueType' => $this->getValueType(),
 			'basis' => $this->getBasis(),
 			'workTime' => $this->isWorkTime(),
-			'localTime' => $this->isLocalTime(),
+			'waitWorkDay' => $this->isWaitWorkDay(),
+			'inTime' => $this->getInTime(),
 		);
 	}
 
@@ -231,11 +251,13 @@ class DelayInterval
 	 * @param array $documentType Document type.
 	 * @return array
 	 */
-	public function toActivityProperties(array $documentType = null)
+	public function toActivityProperties(array $documentType)
 	{
 		$properties = [
-			'TimeoutTimeIsLocal' => 'N',//$this->isLocalTime() ? 'Y' : 'N'
+			'TimeoutTimeIsLocal' => 'N',
 		];
+
+		$worker = Helper::getResponsibleUserExpression($documentType);
 
 		if (
 			$this->getBasis() === Helper::CURRENT_DATETIME_BASIS
@@ -249,21 +271,24 @@ class DelayInterval
 				$valueType = 'm';
 			}
 
-			return ['TimeoutDuration' => $this->getValue(), 'TimeoutDurationType' => $valueType];
+			$properties['TimeoutDuration'] = $this->getValue();
+			$properties['TimeoutDurationType'] = $valueType;
 		}
-		elseif ($this->getType() === static::TYPE_IN && !$this->isWorkTime())
+		elseif ($this->getType() === static::TYPE_IN && !$this->isWorkTime() && !$this->getInTime())
 		{
 			$properties['TimeoutTime'] = $this->getBasis();
 		}
 		else
 		{
 			$intervalProperties = $this->toArray();
-			if ($documentType)
-			{
-				$intervalProperties['worker'] = Helper::getResponsibleUserExpression($documentType);
-			}
+			$intervalProperties['worker'] = $worker;
 
 			$properties['TimeoutTime'] = Helper::getDateTimeIntervalString($intervalProperties);
+		}
+
+		if ($this->isWaitWorkDay())
+		{
+			$properties['WaitWorkDayUser'] = $worker;
 		}
 
 		return $properties;
@@ -277,6 +302,8 @@ class DelayInterval
 	{
 		return (
 			!$this->isWorkTime()
+			&& !$this->isWaitWorkDay()
+			&& !$this->getInTime()
 			&& $this->getBasis() === Helper::CURRENT_DATETIME_BASIS
 			&& $this->getValue() === 0
 		);

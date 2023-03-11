@@ -321,14 +321,25 @@ class CBPDocumentService extends CBPRuntimeService
 					}
 					if (empty($prop['BaseType']))
 					{
-						if (in_array($prop["Type"], ["int", "double", "date", "datetime", "user", "string", "bool", "file", "text", "select"]))
-						{
-							$fields[$key]["BaseType"] = $prop["Type"];
-						}
-						else
-						{
-							$fields[$key]["BaseType"] = "string";
-						}
+						$baseTypes = [
+							"int",
+							"double",
+							"date",
+							"datetime",
+							"user",
+							"string",
+							"bool",
+							"file",
+							"text",
+							"select",
+							'time',
+						];
+
+						$fields[$key]["BaseType"] =
+							in_array($prop["Type"], $baseTypes, true)
+								? $prop["Type"]
+								: 'string'
+						;
 					}
 				}
 			}
@@ -418,8 +429,8 @@ class CBPDocumentService extends CBPRuntimeService
 
 			$documentFieldsString .= "'Name':'".CUtil::JSEscape($arFieldValue["Name"])."',";
 			$documentFieldsString .= "'Type':'".CUtil::JSEscape($arFieldValue["Type"])."',";
-			$documentFieldsString .= "'Multiple':'".CUtil::JSEscape($arFieldValue["Multiple"] ? "Y" : "N")."',";
-			$documentFieldsString .= "'Complex':'".CUtil::JSEscape($arFieldValue["Complex"] ? "Y" : "N")."',";
+			$documentFieldsString .= "'Multiple':'".CUtil::JSEscape(!empty($arFieldValue["Multiple"]) ? "Y" : "N")."',";
+			$documentFieldsString .= "'Complex':'".CUtil::JSEscape(!empty($arFieldValue["Complex"]) ? "Y" : "N")."',";
 
 			$documentFieldsString .= "'Options':";
 			if (array_key_exists("Options", $arFieldValue))
@@ -430,6 +441,11 @@ class CBPDocumentService extends CBPRuntimeService
 					$flTmp = false;
 					foreach ($arFieldValue["Options"] as $k => $v)
 					{
+						if (!is_scalar($v))
+						{
+							continue;
+						}
+
 						if ($flTmp)
 							$documentFieldsString .= ",";
 						$documentFieldsString .= "'".CUtil::JSEscape($k)."':'".CUtil::JSEscape($v)."'";
@@ -474,7 +490,7 @@ class CBPDocumentService extends CBPRuntimeService
 
 			$fieldTypesString .= "'Name':'".CUtil::JSEscape($arTypeValue["Name"])."',";
 			$fieldTypesString .= "'BaseType':'".CUtil::JSEscape($arTypeValue["BaseType"])."',";
-			$fieldTypesString .= "'Complex':'".CUtil::JSEscape($arTypeValue["Complex"] ? "Y" : "N")."',";
+			$fieldTypesString .= "'Complex':'".CUtil::JSEscape(!empty($arTypeValue["Complex"]) ? "Y" : "N")."',";
 			$fieldTypesString .= "'Index':".$ind."";
 
 			$fieldTypesString .= "}";

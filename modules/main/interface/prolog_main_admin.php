@@ -14,7 +14,6 @@
  * @global CAdminPage $adminPage
  * @global CAdminMenu $adminMenu
  * @global CAdminMainChain $adminChain
- * @global string $SiteExpireDate
  */
 
 use Bitrix\Main\Web\Uri;
@@ -346,7 +345,7 @@ if ($curPage != "/bitrix/admin/index.php" && !$adminPage->isHideTitle())
 if($USER->IsAuthorized()):
 	if(defined("DEMO") && DEMO == "Y"):
 		$vendor = COption::GetOptionString("main", "vendor", "1c_bitrix");
-		$delta = $SiteExpireDate-time();
+		$delta = $GLOBALS['SiteExpireDate'] - time();
 		$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
 		$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
@@ -396,9 +395,9 @@ if($USER->IsAuthorized()):
 
 	elseif(defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y"):
 
-		$delta = $SiteExpireDate - time();
+		$delta = $GLOBALS['SiteExpireDate'] - time();
 		$daysToExpire = ceil($delta / 86400);
-		$sWarnDate = ConvertTimeStamp($SiteExpireDate, "SHORT");
+		$sWarnDate = ConvertTimeStamp($GLOBALS['SiteExpireDate'], "SHORT");
 
 		if ($daysToExpire >= 0 && $daysToExpire < 60)
 		{

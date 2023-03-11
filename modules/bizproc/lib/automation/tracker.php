@@ -34,9 +34,10 @@ class Tracker
 
 		if ($states)
 		{
-			$trackIterator = \CBPTrackingService::GetList(array('ID' => 'DESC'), array(
-				'@WORKFLOW_ID' => array_keys($states)
-			));
+			$trackIterator = \CBPTrackingService::GetList(
+				['ID' => 'ASC'],
+				['@WORKFLOW_ID' => array_keys($states)]
+			);
 
 			$workflowStatuses = [];
 

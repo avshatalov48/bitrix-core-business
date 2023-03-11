@@ -223,7 +223,11 @@ class RestrictionManager
 			return;
 
 		$serviceType = static::getServiceType();
-		$cachedServices = is_array(static::$cachedFields[$serviceType]) ? array_keys(static::$cachedFields[$serviceType]) : array();
+		$cachedServices =
+			isset(static::$cachedFields[$serviceType]) && is_array(static::$cachedFields[$serviceType])
+				? array_keys(static::$cachedFields[$serviceType])
+				: []
+		;
 		$ids = array_diff($servicesIds, $cachedServices);
 		$idsForDb = array_diff($ids, array_keys($fields));
 

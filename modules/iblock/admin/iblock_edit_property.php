@@ -228,11 +228,11 @@ if ($str_PROPERTY_ID == '')
 }
 
 $listUrl = $selfFolderUrl.'iblock_property_admin.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.
-	($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
+	(isset($_REQUEST["admin"]) && $_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
 if ($adminSidePanelHelper->isPublicFrame())
 {
 	$listUrl = $selfFolderUrl.'menu_catalog_attributes_'.$intIBlockID.'/?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.
-		($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
+		(isset($_REQUEST["admin"]) && $_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
 }
 
 $propertyBaseTypes = Iblock\Helpers\Admin\Property::getBaseTypeList(true);
@@ -615,23 +615,23 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 	$arFields = array(
 		"ACTIVE" => $_POST["PROPERTY_ACTIVE"],
 		"IBLOCK_ID" => $_POST["IBLOCK_ID"],
-		"LINK_IBLOCK_ID" => $_POST["PROPERTY_LINK_IBLOCK_ID"],
+		"LINK_IBLOCK_ID" => $_POST["PROPERTY_LINK_IBLOCK_ID"] ?? 0,
 		"NAME" => $_POST["PROPERTY_NAME"],
 		"SORT" => $_POST["PROPERTY_SORT"],
 		"CODE" => $_POST["PROPERTY_CODE"],
-		"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"],
-		"IS_REQUIRED" => $_POST["PROPERTY_IS_REQUIRED"],
-		"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"],
-		"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"],
-		"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"],
-		"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"],
-		"HINT" => $_POST["PROPERTY_HINT"],
-		"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"],
-		"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"],
-		"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"],
-		"LIST_TYPE" => $_POST["PROPERTY_LIST_TYPE"],
-		"USER_TYPE_SETTINGS" => $_POST["PROPERTY_USER_TYPE_SETTINGS"],
-		"FILE_TYPE" => $_POST["PROPERTY_FILE_TYPE"],
+		"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"] ?? 'N',
+		"IS_REQUIRED" => $_POST["PROPERTY_IS_REQUIRED"] ?? 'N',
+		"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"] ?? 'N',
+		"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"] ?? 'N',
+		"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"] ?? 'N',
+		"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"] ?? 0,
+		"HINT" => $_POST["PROPERTY_HINT"] ?? '',
+		"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"] ?? 1,
+		"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"] ?? 30,
+		"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"] ?? '',
+		"LIST_TYPE" => $_POST["PROPERTY_LIST_TYPE"] ?? \Bitrix\Iblock\PropertyTable::LISTBOX,
+		"USER_TYPE_SETTINGS" => $_POST["PROPERTY_USER_TYPE_SETTINGS"] ?? '',
+		"FILE_TYPE" => $_POST["PROPERTY_FILE_TYPE"] ?? '',
 	);
 
 	if(isset($_POST["PROPERTY_SECTION_PROPERTY"]))
@@ -742,7 +742,7 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 	}
 	if ($strWarning == '')
 	{
-		if($apply == '')
+		if (!isset($_REQUEST['apply']) || $_REQUEST['apply'] == '')
 		{
 			if($bSectionPopup)
 			{

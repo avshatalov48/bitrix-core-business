@@ -9,7 +9,7 @@ use Bitrix\Main\Localization\Loc;
 
 $arActivityDescription = [
 	'NAME' => Loc::getMessage('BPGLDA_DESCR_NAME_1'),
-	'DESCRIPTION' => Loc::getMessage('BPGLDA_DESCR_DESCR_1'),
+	'DESCRIPTION' => Loc::getMessage('BPGLDA_DESCR_DESCR_MSGVER_1'),
 	'TYPE' => ['activity', 'robot_activity'],
 	'CLASS' => 'GetListsDocumentActivity',
 	'JSCLASS' => 'BizProcActivity',

@@ -1432,7 +1432,7 @@ class CAllCatalogProduct
 					}
 
 					$quantityList = array();
-					if (!isset($productData['QUANTITY']))
+					if (!empty($productData['QUANTITY']))
 					{
 						$quantityList = array($productData['QUANTITY']);
 					}

@@ -13,11 +13,11 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$pageId = "group_wiki";
-include($_SERVER["DOCUMENT_ROOT"] . "/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_menu.php");
-include($_SERVER["DOCUMENT_ROOT"] . "/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_profile.php");
+$pageId = 'group_wiki';
+include($_SERVER['DOCUMENT_ROOT'] . '/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_menu.php');
+include($_SERVER['DOCUMENT_ROOT'] . '/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_profile.php');
 
-$componentParams = 	Array(
+$componentParams = [
 	'WIKI_MENU_PARAMS' => [
 		'IBLOCK_TYPE' => COption::GetOptionString('wiki', 'socnet_iblock_type_id'),
 		'IBLOCK_ID' => COption::GetOptionString('wiki', 'socnet_iblock_id'),
@@ -82,20 +82,23 @@ $componentParams = 	Array(
 		'RATING_TYPE' => $arResult['RATING_TYPE'],
 		'PATH_TO_USER' => $arResult['PATH_TO_USER'],
 		'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE']
-	]
-);
+	],
+];
 
 $APPLICATION->IncludeComponent(
-	"bitrix:ui.sidepanel.wrapper",
-	"",
-	array(
-		'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.wiki.wrapper",
-		"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-		"POPUP_COMPONENT_PARAMS" => $componentParams,
-		"POPUP_COMPONENT_PARENT" => $component,
-		"USE_UI_TOOLBAR" => "Y",
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.wiki.wrapper',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => $componentParams,
+		'POPUP_COMPONENT_PARENT' => $component,
+		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
 		'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''),
-	)
+	]
 );
 
 $APPLICATION->SetPageProperty('FavoriteTitleTemplate', (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''));

@@ -184,6 +184,7 @@
 	padding-right: 12px;
 	overflow-y: scroll;
 	position: relative;
+	padding-bottom: 20px;
 }
 
 .bx-im-call-background__list::-webkit-scrollbar {

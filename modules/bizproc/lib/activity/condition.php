@@ -1,8 +1,22 @@
 <?php
+
 namespace Bitrix\Bizproc\Activity;
 
+use Bitrix\Bizproc\Activity\Operator\BaseOperator;
+use Bitrix\Bizproc\Activity\Operator\BetweenOperator;
+use Bitrix\Bizproc\Activity\Operator\ContainOperator;
+use Bitrix\Bizproc\Activity\Operator\EmptyOperator;
+use Bitrix\Bizproc\Activity\Operator\EqualOperator;
+use Bitrix\Bizproc\Activity\Operator\GreaterThenOperator;
+use Bitrix\Bizproc\Activity\Operator\GreaterThenOrEqualOperator;
+use Bitrix\Bizproc\Activity\Operator\InOperator;
+use Bitrix\Bizproc\Activity\Operator\LessThenOperator;
+use Bitrix\Bizproc\Activity\Operator\LessThenOrEqualOperator;
+use Bitrix\Bizproc\Activity\Operator\NotContainOperator;
+use Bitrix\Bizproc\Activity\Operator\NotEmptyOperator;
+use Bitrix\Bizproc\Activity\Operator\NotEqualOperator;
+use Bitrix\Bizproc\Activity\Operator\NotInOperator;
 use Bitrix\Bizproc\FieldType;
-use Bitrix\Main\Localization\Loc;
 
 class Condition
 {
@@ -68,213 +82,55 @@ class Condition
 	 */
 	public function checkValue($valueToCheck, FieldType $fieldType, array $documentId)
 	{
-		$operator = $this->getOperator();
+		$fieldType = clone($fieldType);
+		$fieldType->setDocumentId($documentId);
 
-		if ($operator === 'empty')
+		switch ($this->getOperator())
 		{
-			return \CBPHelper::isEmptyValue($valueToCheck);
-		}
-		elseif ($operator === '!empty')
-		{
-			return !\CBPHelper::isEmptyValue($valueToCheck);
-		}
-
-		$result = false;
-		$value = $this->getValue();
-
-		$baseType = $fieldType->getBaseType();
-
-		if ($baseType === 'user')
-		{
-			$valueToCheck = \CBPHelper::extractUsers($valueToCheck, $documentId);
-			$value = \CBPHelper::extractUsers($value, $documentId);
-		}
-		elseif ($baseType === 'select')
-		{
-			if (is_array($valueToCheck) && \CBPHelper::isAssociativeArray($valueToCheck))
-			{
-				$valueToCheck = array_keys($valueToCheck);
-			}
-		}
-
-		if (!is_array($valueToCheck))
-		{
-			$valueToCheck = [$valueToCheck];
-		}
-
-		if ($operator === 'in' || $operator === '!in')
-		{
-			$result = $this->checkInOperation($valueToCheck, $value, $baseType);
-			return $operator === 'in' ? $result : !$result;
-		}
-
-		if (!is_array($value))
-		{
-			$value = [$value];
-		}
-
-		if ($operator === 'contain' || $operator === '!contain')
-		{
-			$result = $this->checkContainOperation($valueToCheck, $value, $baseType);
-			return $operator === 'contain' ? $result : !$result;
-		}
-
-		if (\CBPHelper::isAssociativeArray($valueToCheck))
-		{
-			$valueToCheck = array_keys($valueToCheck);
-		}
-		if (\CBPHelper::isAssociativeArray($value))
-		{
-			$value = array_keys($value);
-		}
-
-		if (count($valueToCheck) === 0)
-		{
-			$valueToCheck = [null];
-		}
-
-		if (count($value) === 0)
-		{
-			$value = [null];
-		}
-
-		$i = 0;
-		$fieldCount = count($valueToCheck);
-		$valueCount = count($value);
-		$iMax = max($fieldCount, $valueCount);
-		while ($i < $iMax)
-		{
-			$f1 = ($fieldCount > $i) ? $valueToCheck[$i] : $valueToCheck[$fieldCount - 1];
-			$v1 = ($valueCount > $i) ? $value[$i] : $value[$valueCount - 1];
-
-			if ($baseType === 'datetime' || $baseType === 'date')
-			{
-				$f1 = \CBPHelper::makeTimestamp($f1);
-				$v1 = \CBPHelper::makeTimestamp($v1);
-			}
-
-			if ($baseType === 'bool')
-			{
-				$f1 = \CBPHelper::getBool($f1);
-				$v1 = \CBPHelper::getBool($v1);
-			}
-
-			//normalize "0" == "" comparing
-			if ($v1 === '' && $f1 === '0' || $f1 === '' && $v1 === '0')
-			{
-				$f1 = $v1 = null;
-			}
-
-			/** @var \Bitrix\Bizproc\BaseType\Base $classType */
-			$classType = \Bitrix\Bizproc\BaseType\Base::class;
-			if ($fieldType)
-			{
-				$classType = $fieldType->getTypeClass();
-			}
-			$compareResult = $classType::compareValues($f1, $v1);
-
-			$breakFlag = true;
-			switch ($operator)
-			{
-				case '>':
-					$result = ($compareResult === 1);
-					break;
-				case '>=':
-					$result = ($compareResult >= 0);
-					break;
-				case '<':
-					$result = ($compareResult === -1);
-					break;
-				case '<=':
-					$result = ($compareResult <= 0);
-					break;
-				case '!=':
-					$result = ($compareResult !== 0);
-
-					$i = ($result === true) ? $iMax : $i;
-					if (
-						$result === false
-						&& (array_key_exists($i + 1, $valueToCheck) || array_key_exists($i + 1, $value))
-					)
-					{
-						$breakFlag = false;
-					}
-
-					break;
-				default:
-					$result = ($compareResult === 0);
-			}
-
-			if (!$result && $breakFlag)
-			{
+			case EmptyOperator::getCode():
+				$operator = new EmptyOperator($valueToCheck, $this->value, $fieldType);
 				break;
-			}
-
-			$i++;
-		}
-
-		return $result;
-	}
-
-	private function checkInOperation($toCheck, $base, $baseType): bool
-	{
-		$result = false;
-
-		foreach (\CBPHelper::makeArrayFlat($toCheck) as $f)
-		{
-			if (is_array($base))
-			{
-				$result = in_array($f, $base);
-			}
-			elseif ($f)
-			{
-				$result = (mb_strpos($base, $f) !== false);
-			}
-
-			if (!$result)
-			{
+			case NotEmptyOperator::getCode():
+				$operator = new NotEmptyOperator($valueToCheck, $this->value, $fieldType);
 				break;
-			}
-		}
-
-		return $result;
-	}
-
-	private function checkContainOperation($toCheck, $base, $baseType): bool
-	{
-		$result = false;
-
-		if ($baseType === 'user')
-		{
-			return count(array_diff($base, $toCheck)) === 0;
-		}
-
-		foreach (\CBPHelper::makeArrayFlat($base) as $v)
-		{
-			foreach ($toCheck as $f)
-			{
-				if (is_array($f))
-				{
-					$result = in_array($v, $f);
-				}
-				else
-				{
-					$result = (mb_strpos($f, $v) !== false);
-				}
-
-				if ($result)
-				{
-					break;
-				}
-			}
-
-			if (!$result)
-			{
+			case ContainOperator::getCode():
+				$operator = new ContainOperator($valueToCheck, $this->value, $fieldType);
 				break;
-			}
+			case NotContainOperator::getCode():
+				$operator = new NotContainOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case InOperator::getCode():
+				$operator = new InOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case NotInOperator::getCode():
+				$operator = new NotInOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case BetweenOperator::getCode():
+				$operator = new BetweenOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case GreaterThenOperator::getCode():
+				$operator = new GreaterThenOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case GreaterThenOrEqualOperator::getCode():
+				$operator = new GreaterThenOrEqualOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case LessThenOperator::getCode():
+				$operator = new LessThenOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case LessThenOrEqualOperator::getCode():
+				$operator = new LessThenOrEqualOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case EqualOperator::getCode():
+				$operator = new EqualOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			case NotEqualOperator::getCode():
+				$operator = new NotEqualOperator($valueToCheck, $this->value, $fieldType);
+				break;
+			default:
+				$operator = new BaseOperator($valueToCheck, $this->value, $fieldType);
 		}
 
-		return $result;
+		return $operator->check();
 	}
 
 	/**
@@ -290,24 +146,36 @@ class Condition
 
 	public static function getOperatorList(): array
 	{
-		return [
-			"=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_EQ"),
-			"!=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NE"),
+		$operators = [
+			Operator\EqualOperator::class,
+			Operator\NotEqualOperator::class,
 
-			">" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_GT"),
-			">=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_GE"),
+			Operator\GreaterThenOperator::class,
+			Operator\GreaterThenOrEqualOperator::class,
 
-			"<" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_LT"),
-			"<=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_LE"),
+			Operator\LessThenOperator::class,
+			Operator\LessThenOrEqualOperator::class,
 
-			"in" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_IN"),
-			"!in" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_IN"),
+			Operator\InOperator::class,
+			Operator\NotInOperator::class,
 
-			"contain" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_CONTAIN"),
-			"!contain" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_CONTAIN"),
+			Operator\ContainOperator::class,
+			Operator\NotContainOperator::class,
 
-			"!empty" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_EMPTY"),
-			"empty" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_EMPTY"),
+			Operator\NotEmptyOperator::class,
+			Operator\EmptyOperator::class,
+
+			Operator\BetweenOperator::class,
 		];
+
+		$operatorList = [];
+
+		/** @var $operator BaseOperator */
+		foreach ($operators as $operator)
+		{
+			$operatorList[$operator::getCode()] = $operator::getTitle();
+		}
+
+		return $operatorList;
 	}
 }

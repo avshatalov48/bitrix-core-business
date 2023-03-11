@@ -45,7 +45,7 @@ $URL_NAME_DEFAULT = [
 
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	$arParams[mb_strtoupper($URL) . "_URL"] = trim($arParams[mb_strtoupper($URL) . "_URL"]);
+	$arParams[mb_strtoupper($URL) . "_URL"] = trim($arParams[mb_strtoupper($URL) . "_URL"] ?? '');
 	if (empty($arParams[mb_strtoupper($URL) . "_URL"])):
 		$arParams[mb_strtoupper($URL) . "_URL"] = $APPLICATION->GetCurPage();
 	endif;
@@ -54,7 +54,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 }
 /***************** ADDITIONAL **************************************/
 /***************** STANDART ****************************************/
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
+$arParams["SET_TITLE"] = (isset($arParams["SET_TITLE"]) && $arParams["SET_TITLE"] === "N" ? "N" : "Y");
 /********************************************************************
  * /Input params
  ********************************************************************/
@@ -170,7 +170,7 @@ elseif (!empty($_POST["cancel"]) && !empty($arParams["back_url"]))
 }
 else
 {
-	if ($_REQUEST["action"] == "stop_bizproc")
+	if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "stop_bizproc")
 	{
 		if ($arParams["StopWorkflowPermission"] != "Y")
 		{
@@ -198,7 +198,7 @@ else
 			}
 		}
 	}
-	elseif ($_REQUEST["action"] == "del_bizproc")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "del_bizproc")
 	{
 		if ($arParams["DropWorkflowPermission"] != "Y")
 		{
@@ -222,7 +222,11 @@ else
 			}
 		}
 	}
-	elseif ($_SERVER['REQUEST_METHOD'] == "POST" && intval($_REQUEST["bizproc_index"]) > 0)
+	elseif (
+		$_SERVER['REQUEST_METHOD'] === "POST"
+		&& isset($_REQUEST["bizproc_index"])
+		&& intval($_REQUEST["bizproc_index"]) > 0
+	)
 	{
 		$arBizProcWorkflowId = [];
 		$bizprocIndex = intval($_REQUEST["bizproc_index"]);

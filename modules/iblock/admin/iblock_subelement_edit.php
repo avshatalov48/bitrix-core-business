@@ -1,10 +1,11 @@
 <?
 
 use Bitrix\Main;
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
-use Bitrix\Iblock;
-use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Iblock;
 
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -13,7 +14,14 @@ use Bitrix\Catalog\Access\AccessController;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 Loader::includeModule('iblock');
+
+$request = Context::getCurrent()->getRequest();
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $publicMode = defined("SELF_FOLDER_URL");
@@ -106,7 +114,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'copy')
 	$bSubCopy = true;
 $copyID = (isset($_REQUEST['copyID']) ? (int)$_REQUEST['copyID'] : 0);
 
-$PREV_ID = intval($PREV_ID);
+$PREV_ID = (int)$request->get('PREV_ID');
 
 $WF_ID = $ID; 		//This is ID of the current copy
 
@@ -124,24 +132,30 @@ if($ID <= 0 && $bWorkflow)
 elseif(!$bWorkflow)
 	$WF = "N";
 
+$view = (string)$request->get('view');
 $historyId = 0;
 if (isset($_REQUEST['history_id']) && is_string($_REQUEST['history_id']))
+{
 	$historyId = (int)$_REQUEST['history_id'];
+}
 if ($historyId > 0 && $bBizproc)
+{
 	$view = "Y";
+}
 else
+{
 	$historyId = 0;
+}
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
 $error = false;
 
 $WF = ($WF=="Y") ? "Y" : "N";	//workflow mode
-$view = ($view=="Y") ? "Y" : "N"; //view mode
+$view = ($view === "Y") ? "Y" : "N"; //view mode
 
 $return_url = '';
 
-$request = Main\Context::getCurrent()->getRequest();
 // TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
 $urlBuilderManager = Iblock\Url\AdminPage\BuilderManager::getInstance();
 $urlBuilder = null;
@@ -523,7 +537,7 @@ do{ //one iteration loop
 
 	//transpose files array
 	// [property id] [value id] = file array (name, type, tmp_name, error, size)
-	$files = $_FILES["PROP"];
+	$files = $_FILES["PROP"] ?? null;
 	if(is_array($files))
 	{
 		if(!is_array($PROP))
@@ -549,7 +563,7 @@ do{ //one iteration loop
 				$PROP[$k1][$prop_value_id] = CIBlock::makeFilePropArray(
 					$PROP[$k1][$prop_value_id],
 					$PROP_del[$k1][$prop_value_id] === "Y",
-					isset($_POST["DESCRIPTION_PROP"][$k1][$prop_value_id])? $_POST["DESCRIPTION_PROP"][$k1][$prop_value_id]: $_POST["PROP_descr"][$k1][$prop_value_id]
+					$_POST["DESCRIPTION_PROP"][$k1][$prop_value_id] ?? $_POST["PROP_descr"][$k1][$prop_value_id]
 				);
 			}
 		}
@@ -559,7 +573,7 @@ do{ //one iteration loop
 		}
 	}
 
-	$DESCRIPTION_PROP = $_POST["DESCRIPTION_PROP"];
+	$DESCRIPTION_PROP = $_POST["DESCRIPTION_PROP"] ?? null;
 	if(is_array($DESCRIPTION_PROP))
 	{
 		foreach($DESCRIPTION_PROP as $k1=>$val1)
@@ -1056,7 +1070,12 @@ else
 	$str_NAME = htmlspecialcharsbx($arIBlock["FIELDS"]["NAME"]["DEFAULT_VALUE"]);
 	if ('' != $strProductName)
 		$str_NAME = htmlspecialcharsbx($strProductName);
+	$str_CODE = '';
+	$str_XML_ID = '';
+	$str_TAGS = '';
 
+	$str_ACTIVE_FROM = '';
+	$str_ACTIVE_TO = '';
 	$currentTime = time() + CTimeZone::GetOffset();
 	if ($arIBlock["FIELDS"]["ACTIVE_FROM"]["DEFAULT_VALUE"] === "=now")
 		$str_ACTIVE_FROM = ConvertTimeStamp($currentTime, "FULL");
@@ -1230,7 +1249,7 @@ else
 
 	$bFileman = CModule::IncludeModule("fileman");
 	$arTranslit = $arIBlock["FIELDS"]["CODE"]["DEFAULT_VALUE"];
-	$bLinked = (!mb_strlen($str_TIMESTAMP_X) || $bSubCopy) && $_POST["linked_state"]!=='N';
+	$bLinked = (!isset($str_TIMESTAMP_X) || $bSubCopy) && (!isset($_POST["linked_state"]) || $_POST["linked_state"]!=='N');
 
 	//////////////////////////
 	//START of the custom form
@@ -1340,7 +1359,6 @@ echo bitrix_sessid_post();
 echo GetFilterHiddens("find_");?>
 <input type="hidden" name="linked_state" id="linked_state" value="<?if($bLinked) echo 'Y'; else echo 'N';?>">
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
 <input type="hidden" name="WF" value="<?echo htmlspecialcharsbx($WF)?>">
 <input type="hidden" name="return_url" value="<?echo htmlspecialcharsbx($return_url)?>">
 <?if ($ID>0 && !$bSubCopy)
@@ -1352,7 +1370,6 @@ if ($bSubCopy)
 	?><input type="hidden" name="copyID" value="<? echo $ID; ?>">
 	<input type="hidden" name="action" value="copy"><?
 }?>
-<input type="hidden" name="IBLOCK_SECTION_ID" value="<?echo intval($IBLOCK_SECTION_ID)?>">
 <input type="hidden" name="PRODUCT_ID" value="<? echo $intProductID; ?>">
 <input type="hidden" name="TMP_ID" value="<?echo htmlspecialcharsbx($strSubTMP_ID)?>">
 <?
@@ -1365,7 +1382,7 @@ $strFormAction = CIBlock::GetAdminSubElementEditLink(
 	$IBLOCK_ID,
 	$intProductID,
 	($ID>0 && !$bSubCopy ? $ID : 0),
-	array('WF' => $WF, 'find_section_section' => (int)$find_section_section),
+	array('WF' => $WF,),
 	'',
 	!BX_SUB_SETTINGS
 );
@@ -1575,7 +1592,7 @@ if(!empty($PROP)):
 				if(is_array($val) && array_key_exists("VALUE",$val))
 				{
 					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][VALUE]', $val["VALUE"]);
-					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][DESCRIPTION]', $val["DESCRIPTION"]);
+					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][DESCRIPTION]', $val["DESCRIPTION"] ?? '');
 				}
 				else
 				{
@@ -2011,7 +2028,6 @@ if ($arShowTabs['bizproc']):
 							<?if ($arDocumentState["ID"] <> '' && $arDocumentState["WORKFLOW_STATUS"] <> ''):?>
 							(<a href="<?echo htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
 								"WF"=>$WF,
-								"find_section_section" => $find_section_section,
 								"stop_bizproc" => $arDocumentState["ID"],
 								"replace_script_name" => true,
 							),  "&".bitrix_sessid_get()))?>"><?echo GetMessage("IBEL_BIZPROC_STOP")?></a>)

@@ -118,11 +118,14 @@ class CBPMathOperationActivity extends CBPActivity
 		);
 
 		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$currentValuesTmp =
-			is_array($currentActivity['Properties']['Conditions'])
-				? $currentActivity['Properties']['Conditions']
-				: []
-		;
+		$currentValuesTmp = [];
+		if (
+			isset($currentActivity['Properties']['Conditions'])
+			&& is_array($currentActivity['Properties']['Conditions'])
+		)
+		{
+			$currentValuesTmp = $currentActivity['Properties']['Conditions'];
+		}
 
 		$currentValues = [];
 		foreach ($currentValuesTmp as $varId => $condition)
@@ -147,7 +150,7 @@ class CBPMathOperationActivity extends CBPActivity
 
 	private static function getVisibilityMessages(array $documentType): array
 	{
-		if (self::$visibilityMessages[implode('@', $documentType)])
+		if (isset(self::$visibilityMessages[implode('@', $documentType)]))
 		{
 			return self::$visibilityMessages[implode('@', $documentType)];
 		}
@@ -207,7 +210,7 @@ class CBPMathOperationActivity extends CBPActivity
 		foreach ($globals as $id => $property)
 		{
 			$visibility = $property['Visibility'];
-			if (!$result[$visibility])
+			if (!isset($result[$visibility]))
 			{
 				$result[$visibility] = [];
 			}
@@ -299,7 +302,7 @@ class CBPMathOperationActivity extends CBPActivity
 				$fieldName = mb_ereg_replace(')', '', $fieldName);
 			}
 
-			if (!$result[$groupKey])
+			if (!isset($result[$groupKey]))
 			{
 				$result[$groupKey] = [
 					'title' => $groupName,
@@ -484,7 +487,7 @@ class CBPMathOperationActivity extends CBPActivity
 		$result = CBPActivity::parseExpression($text);
 		if ($result === null)
 		{
-			return [];
+			return [null, null];
 		}
 
 		return [$result['object'], $result['field']];

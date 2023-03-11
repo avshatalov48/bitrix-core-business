@@ -98,7 +98,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td>
 		<select name="delegation_type">
 			<?foreach (CBPTaskDelegationType::getSelectList() as $key => $label):?>
-				<option value="<?=htmlspecialcharsbx($key)?>>"<?= $arCurrentValues["delegation_type"] == $key ? " selected" : "" ?>><?=htmlspecialcharsbx($label)?></option>
+				<option value="<?= htmlspecialcharsbx($key) ?>"<?= $arCurrentValues["delegation_type"] == $key ? " selected" : "" ?>><?= htmlspecialcharsbx($label) ?></option>
 			<?endforeach;?>
 		</select>
 	</td>

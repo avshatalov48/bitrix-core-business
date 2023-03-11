@@ -32,7 +32,13 @@ class ChatUserProvider extends ChatProvider
 
 	public static function getChats(array $options = []): array
 	{
-		$options['searchQuery'] = trim($options['searchQuery']);
+		$searchQueryOption = $options['searchQuery'] ?? null;
+		if (!is_string($searchQueryOption))
+		{
+			return [];
+		}
+
+		$options['searchQuery'] = trim($searchQueryOption);
 		if (
 			!isset($options['searchableChatTypes'])
 			|| !is_array($options['searchableChatTypes'])

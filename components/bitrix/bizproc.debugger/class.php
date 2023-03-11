@@ -16,9 +16,17 @@ class BizprocDebuggerComponent extends CBitrixComponent
 			return $this->includeComponentTemplate();
 		}
 
-		$session = \Bitrix\Bizproc\Debugger\Session\Manager::getActiveSession();
+		$cachedSession = \Bitrix\Bizproc\Debugger\Session\Manager::getCachedSession();
 		$userId = (int)(\Bitrix\Main\Engine\CurrentUser::get()->getId());
-		if (!$session || !$session->isStartedByUser($userId))
+		if (!$cachedSession || !$cachedSession->isStartedByUser($userId))
+		{
+			$this->arResult['shouldShowDebugger'] = false;
+
+			return $this->includeComponentTemplate();
+		}
+
+		$session = \Bitrix\Bizproc\Debugger\Session\Manager::getActiveSession();
+		if (!$session)
 		{
 			$this->arResult['shouldShowDebugger'] = false;
 

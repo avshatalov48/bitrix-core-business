@@ -23,7 +23,6 @@ global $APPLICATION;
 				'COMPONENT_NAME' => $component->getName(),
 				'ACTION_NAME' => 'save',
 				'SIGNED_PARAMETERS' => $component->getSignedParameters(),
-				'ADDITIONAL_ACTIONS' => $arResult['FORM']['ADDITIONAL_ACTIONS'],
 			],
 		]),
 		$component

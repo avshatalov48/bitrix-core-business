@@ -2193,9 +2193,35 @@ this.BX = this.BX || {};
 	var MoreButton$$1 = /*#__PURE__*/function () {
 	  function MoreButton$$1() {
 	    babelHelpers.classCallCheck(this, MoreButton$$1);
+	    main_core_events.EventEmitter.subscribe('BX.Livefeed:recalculateComments', this.onRecalculateLivefeedComments.bind(this));
 	  }
 
-	  babelHelpers.createClass(MoreButton$$1, null, [{
+	  babelHelpers.createClass(MoreButton$$1, [{
+	    key: "onRecalculateLivefeedComments",
+	    value: function onRecalculateLivefeedComments(baseEvent) {
+	      var _baseEvent$getCompatD = baseEvent.getCompatData(),
+	          _baseEvent$getCompatD2 = babelHelpers.slicedToArray(_baseEvent$getCompatD, 1),
+	          data = _baseEvent$getCompatD2[0];
+
+	      if (!main_core.Type.isDomNode(data.rootNode)) {
+	        return;
+	      }
+
+	      var informerBlock = data.rootNode;
+	      var moreBlock = informerBlock.querySelector(".".concat(MoreButton$$1.cssClass.more));
+
+	      if (moreBlock) {
+	        informerBlock.classList.remove(MoreButton$$1.cssClass.postSeparator);
+	      }
+
+	      MoreButton$$1.recalcPost({
+	        arPos: {
+	          height: data.rootNode.offsetHeight + data.rootNode.offsetTop
+	        },
+	        informerBlock: informerBlock
+	      });
+	    }
+	  }], [{
 	    key: "recalcPost",
 	    value: function recalcPost(params) {
 	      if (!main_core.Type.isDomNode(params.informerBlock)) {
@@ -3523,6 +3549,7 @@ this.BX = this.BX || {};
 	var InformerInstance = new Informer();
 	var FilterInstance = new Filter();
 	var PageInstance = new Page();
+	var MoreButtonInstance = new MoreButton$$1();
 	new TaskCreator();
 
 	exports.FeedInstance = FeedInstance;
@@ -3530,6 +3557,7 @@ this.BX = this.BX || {};
 	exports.InformerInstance = InformerInstance;
 	exports.FilterInstance = FilterInstance;
 	exports.PageInstance = PageInstance;
+	exports.MoreButtonInstance = MoreButtonInstance;
 	exports.Post = Post$$1;
 	exports.TaskCreator = TaskCreator;
 	exports.Loader = Loader;

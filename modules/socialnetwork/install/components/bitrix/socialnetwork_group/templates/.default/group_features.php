@@ -1,11 +1,9 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
-};
-
-use Bitrix\Socialnetwork\ComponentHelper;
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -15,6 +13,7 @@ use Bitrix\Socialnetwork\ComponentHelper;
 /** @global CMain $APPLICATION */
 
 $pageId = '';
+
 include('util_group_menu.php');
 
 $componentParameters = [
@@ -29,18 +28,6 @@ $componentParameters = [
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"PAGE_ID" => "group_features",
 ];
-/*
-$APPLICATION->IncludeComponent(
-	'bitrix:socialnetwork.group.card.menu',
-	'',
-	[
-		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
-		'TAB' => 'features',
-		'URLS' => ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
-		'SIGNED_PARAMETERS' => ComponentHelper::listWorkgroupSliderMenuSignedParameters($componentParameters),
-	]
-);
-*/
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',

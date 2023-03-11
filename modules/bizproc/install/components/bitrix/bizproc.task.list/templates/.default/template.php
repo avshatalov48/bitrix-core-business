@@ -49,7 +49,7 @@ else
 										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"]['*']?></span>
 										<?elseif (!empty($dt['FILTER']['ENTITY']) && !empty($arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']][$dt['FILTER']['ENTITY']])):?>
 										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']][$dt['FILTER']['ENTITY']]?></span>
-										<?elseif (empty($dt['FILTER']['ENTITY']) && !empty($arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']]['*'])):?>
+										<?elseif (empty($dt['FILTER']['ENTITY']) && isset($dt['FILTER']) && !empty($arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']]['*'])):?>
 										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']]['*']?></span>
 										<?endif?>
 									</a>
@@ -216,7 +216,7 @@ else
 			"ACTION_DELEGATE_TO_ID",
 			"ACTION_DELEGATE_TO",
 			SITE_ID,
-			$arParams['~NAME_TEMPLATE'],
+			$arParams['~NAME_TEMPLATE'] ?? '',
 			500
 		);
 		$actionHtml .= '<div id="ACTION_DELEGATE_TO_WRAPPER" style="display:none;">'.ob_get_clean().'</div>';

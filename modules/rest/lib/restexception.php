@@ -24,6 +24,8 @@ class RestException
 	{
 		$this->status = $status;
 		$this->error_code = $code;
+		$message = strval($message);
+
 		parent::__construct($message, intval($code), $previous);
 	}
 

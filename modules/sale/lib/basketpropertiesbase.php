@@ -454,23 +454,24 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 		if (array_key_exists('VALUE', $value))
 		{
 			$propID = '';
-			if (array_key_exists('CODE', $value) && strval($value["CODE"]) != '')
+			if (array_key_exists('CODE', $value) && (string)$value["CODE"] !== '')
 			{
 				$propID = $value["CODE"];
 			}
-			elseif (array_key_exists('NAME', $value) && strval($value["NAME"]) != '')
+			elseif (array_key_exists('NAME', $value) && (string)$value["NAME"] !== '')
 			{
 				$propID = $value["NAME"];
 			}
 
-			if (strval($propID) != '')
+			$propID = (string)$propID;
+			if ($propID !== '')
 			{
 				$result = array(
 					'CODE' => $propID,
-					'ID' => $value["ID"],
-					'VALUE' => $value["VALUE"],
-					'SORT' => $value["SORT"],
-					'NAME' => $value["NAME"],
+					'VALUE' => $value['VALUE'],
+					'NAME' => $value['NAME'] ?? null,
+					'SORT' => $value['SORT'] ?? null,
+					'ID' => $value['ID'] ?? null,
 				);
 			}
 		}

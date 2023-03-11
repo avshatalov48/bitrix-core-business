@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $CURRENCY_RIGHT=="W" && !empty($_POS
 	if (!isset($_POST['BASE']) || $_POST['BASE'] != 'Y')
 	{
 		$arFields = array(
-			'AMOUNT' => (isset($_POST['AMOUNT']) ? $_POST['AMOUNT'] : ''),
-			'AMOUNT_CNT' => (isset($_POST['AMOUNT_CNT']) ? $_POST['AMOUNT_CNT'] : ''),
-			'SORT' => (isset($_POST['SORT']) ? $_POST['SORT'] : ''),
-			'NUMCODE' => (isset($_POST['NUMCODE']) ? $_POST['NUMCODE'] : '')
+			'AMOUNT' => ($_POST['AMOUNT'] ?? ''),
+			'AMOUNT_CNT' => ($_POST['AMOUNT_CNT'] ?? ''),
+			'SORT' => ($_POST['SORT'] ?? ''),
+			'NUMCODE' => ($_POST['NUMCODE'] ?? '')
 		);
 	}
 	else
@@ -53,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $CURRENCY_RIGHT=="W" && !empty($_POS
 		$arFields = array(
 			'AMOUNT' => 1,
 			'AMOUNT_CNT' => 1,
-			'SORT' => (isset($_POST['SORT']) ? $_POST['SORT'] : ''),
-			'NUMCODE' => (isset($_POST['NUMCODE']) ? $_POST['NUMCODE'] : '')
+			'SORT' => ($_POST['SORT'] ?? ''),
+			'NUMCODE' => ($_POST['NUMCODE'] ?? '')
 		);
 	}
 	if (!$ID && isset($_POST['CURRENCY']))
@@ -281,6 +281,10 @@ $tabControl->Begin();?>
 <?$tabControl->BeginNextTab();
 	foreach ($currencyLangs as $languageId => $settings)
 	{
+		if (!isset($langList[$languageId]))
+		{
+			continue;
+		}
 		$fieldPrefix = 'LANG_'.htmlspecialcharsbx($languageId);
 		$scriptLanguageId = CUtil::JSEscape(htmlspecialcharsbx($languageId));
 		?><tr class="heading"><td colspan="2"><?=htmlspecialcharsbx($langList[$languageId]); ?></td></tr>

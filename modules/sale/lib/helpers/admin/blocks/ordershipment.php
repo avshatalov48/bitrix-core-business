@@ -49,6 +49,8 @@ class OrderShipment
 		if (is_null($items))
 			$items = self::getDeliveryServiceList();
 
+		$data['DELIVERY_ID'] ??= 0;
+
 		if (!isset($items[$data['DELIVERY_ID']]))
 		{
 			$delivery = self::getDeliveryServiceInfoById($data['DELIVERY_ID']);
@@ -70,6 +72,17 @@ class OrderShipment
 			else
 				$data['DELIVERY_ID'] = $post['DELIVERY_ID'];
 		}
+
+		// default
+		$data['ID'] ??= 0;
+		$data['TRACKING_NUMBER'] ??= null;
+		$data['BASE_PRICE_DELIVERY'] ??= null;
+		$data['CALCULATED_PRICE'] ??= null;
+		$data['CALCULATED_WEIGHT'] ??= null;
+		$data['DEDUCTED'] ??= 'N';
+		$data['ALLOW_DELIVERY'] ??= 'N';
+		$data['DELIVERY_DOC_NUM'] ??= null;
+		$data['DELIVERY_DOC_DATE'] ??= null;
 
 		$profiles = array();
 		if ($data['DELIVERY_ID'])
@@ -95,7 +108,7 @@ class OrderShipment
 			$data['ALLOW_DELIVERY'] = $post['ALLOW_DELIVERY'];
 
 		$allowedStatusesDelivery = DeliveryStatus::getStatusesUserCanDoOperations($USER->GetID(), array('delivery'));
-		$isAllowDelivery = in_array($data["STATUS_ID"], $allowedStatusesDelivery);
+		$isAllowDelivery = isset($data["STATUS_ID"]) && in_array($data["STATUS_ID"], $allowedStatusesDelivery);
 
 		$class = ($data['ALLOW_DELIVERY'] == 'Y') ? '' : 'notdelivery';
 		$class .= ($isAllowDelivery) ? '' : ' not_active';
@@ -105,7 +118,7 @@ class OrderShipment
 		$allowDelivery = '<span><span id="BUTTON_ALLOW_DELIVERY_'.$index.'" class="'.$class.'">'.Loc::getMessage('SALE_ORDER_SHIPMENT_ALLOW_DELIVERY_'.$status).'</span>'.$triangle.'</span>';
 
 		$allowedStatusesDeduction = DeliveryStatus::getStatusesUserCanDoOperations($USER->GetID(), array('deduction'));
-		$isAllowDeduction = in_array($data["STATUS_ID"], $allowedStatusesDeduction);
+		$isAllowDeduction = isset($data["STATUS_ID"]) && in_array($data["STATUS_ID"], $allowedStatusesDeduction);
 
 		if (isset($post['DEDUCTED']) && $isAllowDeduction)
 			$data['DEDUCTED'] = $post['DEDUCTED'];
@@ -123,12 +136,20 @@ class OrderShipment
 		$extraServiceManager = new \Bitrix\Sale\Delivery\ExtraServices\Manager($data['DELIVERY_ID']);
 		$extraServiceManager->setOperationCurrency($data['CURRENCY']);
 		if (isset($post['EXTRA_SERVICES']))
+		{
 			$data['EXTRA_SERVICES'] = $post['EXTRA_SERVICES'];
-		if (isset($post['EXTRA_SERVICES']))
-			$data['DELIVERY_STORE_ID'] = $post['DELIVERY_STORE_ID'];
+		}
 
-		if ($data['EXTRA_SERVICES'])
+		if (isset($post['EXTRA_SERVICES']))
+		{
+			$data['DELIVERY_STORE_ID'] = $post['DELIVERY_STORE_ID'];
+		}
+
+		if (!empty($data['EXTRA_SERVICES']))
+		{
 			$extraServiceManager->setValues($data['EXTRA_SERVICES']);
+		}
+
 		$extraService = $extraServiceManager->getItems();
 		if ($extraService)
 			$extraServiceHTML = self::getExtraServiceEditControl($extraService, $index, false, self::$shipment);
@@ -136,10 +157,11 @@ class OrderShipment
 		if ($data['DELIVERY_ID'] > 0)
 			$map = self::getMap($data['DELIVERY_ID'], $index, $data['DELIVERY_STORE_ID']);
 
-		if ($data['ID'] > 0)
+		$dataId = (int)($data['ID'] ?? 0);
+		if ($dataId > 0)
 		{
 			$dateInsert = new Date($data['DATE_INSERT']);
-			$title = Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_EDIT_SHIPMENT_TITLE', array("#ID#" => $data['ID'], '#DATE_INSERT#' => $dateInsert));
+			$title = Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_EDIT_SHIPMENT_TITLE', array("#ID#" => $dataId, '#DATE_INSERT#' => $dateInsert));
 		}
 		else
 		{
@@ -149,10 +171,16 @@ class OrderShipment
 		$customPriceDelivery = isset($post['CUSTOM_PRICE_DELIVERY']) ? htmlspecialcharsbx($post['CUSTOM_PRICE_DELIVERY']) : $data['CUSTOM_PRICE_DELIVERY'];
 		$customWeightDelivery = isset($post['CUSTOM_WEIGHT_DELIVERY']) ? htmlspecialcharsbx($post['CUSTOM_WEIGHT_DELIVERY']) : $data['CUSTOM_WEIGHT_DELIVERY'];
 
-		$basePriceDelivery = round((isset($post['BASE_PRICE_DELIVERY']) ? $post['BASE_PRICE_DELIVERY'] : $data['BASE_PRICE_DELIVERY']), 2);
-		$priceDelivery = round((isset($post['PRICE_DELIVERY']) ? $post['PRICE_DELIVERY'] : $data['PRICE_DELIVERY']), 2);
+		$basePriceDelivery = round(
+			(float)($post['BASE_PRICE_DELIVERY'] ?? $data['BASE_PRICE_DELIVERY'] ?? 0.0),
+			2
+		);
+		$priceDelivery = round(
+			(float)($post['PRICE_DELIVERY'] ?? $data['PRICE_DELIVERY'] ?? 0.0),
+			2
+		);
 
-		$weight = isset($post['WEIGHT']) ? $post['WEIGHT'] : $data['WEIGHT'];
+		$weight = $post['WEIGHT'] ?? $data['WEIGHT'] ?? 0;
 		$weight = roundEx(
 			floatval(
 				$weight/self::getWeightKoef($data['SITE_ID'])
@@ -523,7 +551,7 @@ class OrderShipment
 			'canChangeStatus' => false,
 			'src_list' => $srcList,
 			'active' => true,
-			'discounts' => $data["DISCOUNTS"],
+			'discounts' => $data["DISCOUNTS"] ?? [],
 			'discountsMode' =>  ($formType == "edit" ? "view" : "edit"),
 			'templateType' => 'edit',
 			'weightKoef' => self::getWeightKoef($data['SITE_ID']),
@@ -870,7 +898,7 @@ class OrderShipment
 		return $map;
 	}
 
-	private static function getDeliverySelectHtml($deliveryServices, $selected='', $index)
+	private static function getDeliverySelectHtml($deliveryServices, $selected, $index)
 	{
 		$result = '<select class="adm-bus-select" name="SHIPMENT['.$index.'][DELIVERY_ID]" id="DELIVERY_'.$index.'">';
 		$result .= self::getTemplate($deliveryServices, $selected);
@@ -982,19 +1010,40 @@ class OrderShipment
 
 		foreach ($deliveries as $id => $delivery)
 		{
-			if (is_callable($deliveries[$delivery['PARENT_ID']]['CLASS_NAME'].'::canHasProfiles') && $deliveries[$delivery['PARENT_ID']]['CLASS_NAME']::canHasProfiles())
+			$className = $deliveries[$delivery['PARENT_ID']]['CLASS_NAME'] ?? null;
+
+			if (
+				$className
+				&& is_callable($className . '::canHasProfiles')
+				&& $className::canHasProfiles()
+			)
+			{
 				continue;
-			if ($delivery['PARENT_ID'])
+			}
+
+			if (!empty($delivery['PARENT_ID']))
+			{
 				$deliveries[$delivery['PARENT_ID']]['SUBMENU'][$id] = & $deliveries[$id];
+			}
 			else
+			{
 				$rootId[] = $id;
+			}
 		}
 
-		$result = array();
+		$result = [];
 		foreach ($rootId as $id)
 		{
-			if (is_callable($deliveries[$id]['CLASS_NAME'].'::canHasChildren') && $deliveries[$id]['CLASS_NAME']::canHasChildren() && !isset($deliveries[$id]['SUBMENU']))
+			$className = $deliveries[$id]['CLASS_NAME'] ?? null;
+			if (
+				$className
+				&& is_callable($className.'::canHasChildren')
+				&& $className::canHasChildren()
+				&& !isset($deliveries[$id]['SUBMENU'])
+			)
+			{
 				continue;
+			}
 
 			$result[$id] = $deliveries[$id];
 		}
@@ -1298,7 +1347,7 @@ class OrderShipment
 				<div class="adm-bus-pay-section">
 					<div class="adm-bus-pay-section-title-container">
 						<div class="adm-bus-pay-section-title" id="shipment_'.$data['ID'].'">'.Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_EDIT_SHIPMENT_TITLE', array("#ID#" => $data['ID'], '#DATE_INSERT#' => $dateInsert)).'</div>
-						<div class="adm-bus-pay-section-action-block">'.$sectionDelete.$sectionEdit.'						
+						<div class="adm-bus-pay-section-action-block">'.$sectionDelete.$sectionEdit.'
 							<div class="adm-bus-pay-section-action" id="SHIPMENT_SECTION_'.$index.'_TOGGLE">'.Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_SHIPMENT_TOGGLE_UP').'</div>
 						</div>
 					</div>
@@ -1315,7 +1364,7 @@ class OrderShipment
 										<tr>
 											<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_DELIVERY_SERVICE').':</td>
 											<td class="adm-detail-content-cell-r">
-												'.(($isAllowCompany === false && $isUserResponsible === false) ? Loc::getMessage('SALE_ORDER_SHIPMENT_HIDDEN') : htmlspecialcharsbx($data['DELIVERY_NAME']).' ['.$data['DELIVERY_ID'].']'). ' 
+												'.(($isAllowCompany === false && $isUserResponsible === false) ? Loc::getMessage('SALE_ORDER_SHIPMENT_HIDDEN') : htmlspecialcharsbx($data['DELIVERY_NAME']).' ['.$data['DELIVERY_ID'].']'). '
 											</td>
 										</tr>
 									</tbody>
@@ -1457,7 +1506,7 @@ class OrderShipment
 					</tr>';
 			}
 
-			$result.='						
+			$result.='
 					</tbody>
 				</table>
 			</div>';
@@ -1698,13 +1747,13 @@ class OrderShipment
 			}
 		}
 
-		if ($fields['DELIVERY_DOC_DATE'])
+		if (!empty($fields['DELIVERY_DOC_DATE']))
 		{
 			$date = new Date($fields['DELIVERY_DOC_DATE']);
 			$fields['DELIVERY_DOC_DATE'] = $date->toString();
 		}
 
-		$empDeductedId = $fields['EMP_DEDUCTED_ID'];
+		$empDeductedId = (int)($fields['EMP_DEDUCTED_ID'] ?? 0);
 		if ($empDeductedId > 0)
 		{
 			if (!array_key_exists($empDeductedId, $users))
@@ -1713,7 +1762,7 @@ class OrderShipment
 			$fields['EMP_DEDUCTED_ID_LAST_NAME'] = $users[$empDeductedId]['LAST_NAME'];
 		}
 
-		$empAllowDeliveryId = $fields['EMP_ALLOW_DELIVERY_ID'];
+		$empAllowDeliveryId = (int)($fields['EMP_ALLOW_DELIVERY_ID'] ?? 0);
 		if ($empAllowDeliveryId > 0)
 		{
 			if (!array_key_exists($empAllowDeliveryId, $users))
@@ -1722,7 +1771,7 @@ class OrderShipment
 			$fields['EMP_ALLOW_DELIVERY_ID_LAST_NAME'] = $users[$empAllowDeliveryId]['LAST_NAME'];
 		}
 
-		$empCanceledId = $fields['EMP_CANCELED_ID'];
+		$empCanceledId = (int)($fields['EMP_CANCELED_ID'] ?? 0);
 		if ($empCanceledId > 0)
 		{
 			if (!array_key_exists($empCanceledId, $users))
@@ -1731,7 +1780,7 @@ class OrderShipment
 			$fields['EMP_CANCELLED_ID_LAST_NAME'] = $users[$empCanceledId]['LAST_NAME'];
 		}
 
-		$empMarkedId = $fields['EMP_MARKED_ID'];
+		$empMarkedId = (int)($fields['EMP_MARKED_ID'] ?? 0);
 		if ($empMarkedId > 0)
 		{
 			if (!array_key_exists($empMarkedId, $users))
@@ -1750,8 +1799,14 @@ class OrderShipment
 
 		$fields['CALCULATED_WEIGHT'] = self::$shipment->getShipmentItemCollection()->getWeight() / self::getWeightKoef($order->getSiteId());
 
-		if ($fields['CUSTOM_PRICE_DELIVERY'] == 'Y' && $fields['ID'] <= 0)
+		if (
+			isset($fields['CUSTOM_PRICE_DELIVERY'])
+			&& $fields['CUSTOM_PRICE_DELIVERY'] === 'Y'
+			&& $fields['ID'] <= 0
+		)
+		{
 			$fields['BASE_PRICE_DELIVERY'] = self::$shipment->getField('BASE_PRICE_DELIVERY');
+		}
 
 		$discounts = OrderEdit::getDiscountsApplyResult($order, $needRecalculate);
 
@@ -1834,7 +1889,7 @@ class OrderShipment
 		/** @var Sale\Order $orderClass */
 		$orderClass = $registry->getOrderClassName();
 
-		$fields['ORDER_LOCKED'] = $orderClass::isLocked($fields['ORDER_ID']);
+		$fields['ORDER_LOCKED'] = $orderClass::isLocked($fields['ORDER_ID'] ?? 0);
 		$fields['SITE_ID'] = $order->getSiteId();
 		$fields['CUSTOM_WEIGHT_DELIVERY'] = self::$shipment->isMarkedFieldCustom('WEIGHT') ? 'Y' : 'N';
 

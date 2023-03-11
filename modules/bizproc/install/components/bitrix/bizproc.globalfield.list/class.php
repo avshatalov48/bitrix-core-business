@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Web\Uri;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -785,7 +787,7 @@ HTML;
 		$userEmptyAvatarHTMLClass = ' bizproc-grid-avatar-empty';
 		if ($userInfo['AVATAR'])
 		{
-			$userAvatar =" style='background-image: url(\"{$userInfo['AVATAR']}\")'";
+			$userAvatar =' style="background-image: url(\'' . Uri::urnEncode($userInfo['AVATAR']) .'\')"';
 			$userEmptyAvatarHTMLClass = '';
 		}
 
@@ -810,7 +812,7 @@ HTML;
 			'URL' => null,
 		];
 
-		$usersInfo =  \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
+		$usersInfo = \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
 			$this->arParams['DOCUMENT_TYPE'],
 			'user_' . $userId
 		);
@@ -819,7 +821,7 @@ HTML;
 		{
 			return $user;
 		}
-		if ($this->usersInfo[$userId])
+		if (isset($this->usersInfo[$userId]))
 		{
 			return $this->usersInfo[$userId];
 		}

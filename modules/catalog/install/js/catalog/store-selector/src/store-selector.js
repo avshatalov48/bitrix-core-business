@@ -5,6 +5,7 @@ import {EventEmitter} from 'main.core.events';
 import {StoreSearchInput} from "./store-search-input";
 import './component.css';
 import {ProductModel} from "catalog.product-model";
+import {SelectorErrorCode} from "./selector-error-code";
 
 const instances = new Map();
 
@@ -15,6 +16,7 @@ export class StoreSelector extends EventEmitter
 	static INPUT_FIELD_TITLE = 'STORE_TITLE';
 	static INPUT_FIELD_ID = 'STORE_ID';
 
+	static ErrorCodes = SelectorErrorCode;
 	mode: StoreSelector.MODE_EDIT | StoreSelector.MODE_VIEW = StoreSelector.MODE_EDIT;
 	productId: number = null;
 	cache = new Cache.MemoryCache();
@@ -36,6 +38,7 @@ export class StoreSelector extends EventEmitter
 		this.id = id || Text.getRandom();
 		options.inputFieldTitle = options.inputFieldTitle || StoreSelector.INPUT_FIELD_TITLE;
 		options.inputFieldId = options.inputFieldId || StoreSelector.INPUT_FIELD_ID;
+		options.isDisabledEmpty = !!options.isDisabledEmpty;
 		this.options = options || {};
 
 		this.setMode(options.mode);
@@ -111,9 +114,9 @@ export class StoreSelector extends EventEmitter
 		return this.mode === StoreSelector.MODE_VIEW;
 	}
 
-	isSaveable(): boolean
+	isDisabledEmpty(): boolean
 	{
-		return !this.isViewMode() && this.isSaveable();
+		return this.options.isDisabledEmpty;
 	}
 
 	getId(): string
@@ -163,8 +166,54 @@ export class StoreSelector extends EventEmitter
 
 		this.defineWrapperClass(wrapper);
 		const block = Tag.render`<div class="catalog-store-field-inner"></div>`;
-		wrapper.appendChild(block);
-		block.appendChild(this.layoutNameBlock());
+		Dom.append(block, wrapper);
+		Dom.append(this.getNameBlock(), block);
+		Dom.append(this.getErrorBlock(), block);
+		if (this.getStoreId() === '')
+		{
+			this.layoutEmptyError();
+		}
+	}
+
+	setEmptyError()
+	{
+		this.#model.getErrorCollection().setError(
+			SelectorErrorCode.NOT_SELECTED_STORE,
+			Loc.getMessage('CATALOG_STORE_SELECTOR_UNSELECTED')
+		);
+
+		this.layoutEmptyError();
+	}
+
+	clearEmptyError(): this
+	{
+		this.#model.getErrorCollection().removeError(SelectorErrorCode.NOT_SELECTED_STORE);
+
+		return this;
+	}
+
+	layoutEmptyError(): this
+	{
+		this.getErrorBlock().innerHTML = '';
+		Dom.append(
+			Tag.render`<div class="catalog-store-field-error">${Loc.getMessage('CATALOG_STORE_SELECTOR_UNSELECTED')}</div>`,
+			this.getErrorBlock()
+		);
+
+		if (this.searchInput)
+		{
+			Dom.addClass(this.getNameBlock(), 'ui-ctl-danger');
+		}
+
+		return this;
+	}
+
+	clearErrorLayout(): this
+	{
+		this.getErrorBlock().innerHTML = '';
+		Dom.removeClass(this.getNameBlock(), 'ui-ctl-danger');
+
+		return this;
 	}
 
 	focusName(): this
@@ -187,7 +236,17 @@ export class StoreSelector extends EventEmitter
 
 		this.emit('onClear', {
 			selectorId: this.getId(),
-			rowId: this.getRowId()
+			rowId: this.getRowId(),
+			fields: [
+				{
+					NAME: this.options.inputFieldId,
+					VALUE: null,
+				},
+				{
+					NAME: this.options.inputFieldTitle,
+					VALUE: '',
+				},
+			],
 		});
 	}
 
@@ -203,6 +262,10 @@ export class StoreSelector extends EventEmitter
 		{
 			wrapper.innerHTML = '';
 		}
+
+		this.nameBlock = null;
+
+		this.clearErrorLayout();
 	}
 
 	unsubscribeEvents()
@@ -239,20 +302,37 @@ export class StoreSelector extends EventEmitter
 
 	}
 
-	layoutNameBlock(): HTMLElement
+	getNameBlock(): HTMLElement
 	{
+		if (this.nameBlock)
+		{
+			return this.nameBlock;
+		}
+
 		const block = Tag.render`<div class="catalog-store-field-input"></div>`;
 
 		if (this.isViewMode())
 		{
-			block.appendChild(this.getViewHtml());
+			Dom.append(this.getViewHtml(), block);
 		}
 		else
 		{
-			block.appendChild(this.searchInput.layout());
+			Dom.append(this.searchInput.layout(), block);
 		}
 
-		return block;
+		this.nameBlock = block;
+
+		return this.nameBlock;
+	}
+
+	getErrorBlock(): HTMLElement
+	{
+		if (!this.errorBlock)
+		{
+			this.errorBlock = Tag.render`<div class="catalog-store-field-error"></div>`;
+		}
+
+		return this.errorBlock;
 	}
 
 	getStoreTitle()
@@ -274,6 +354,7 @@ export class StoreSelector extends EventEmitter
 		this.#storeInfo.set('id', storeId);
 		this.#storeInfo.set('title', storeTitle);
 		this.clearLayout();
+		this.clearEmptyError();
 		this.layout();
 
 		this.emit('onChange', {

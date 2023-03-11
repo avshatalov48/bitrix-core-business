@@ -79,6 +79,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemCashbox
 			'HANDLER' => $cashboxClass,
 			'OFD' => '',
 			'KKM_ID' => $kkmId,
+			'SETTINGS' => [],
 		];
 	}
 
@@ -220,7 +221,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemCashbox
 				</td>
 				<td width="60%" class="adm-detail-content-cell-r">
 					<?php
-					$email = $request->get('CASHBOX')['EMAIL'] ?: $cashbox['EMAIL'];
+					$email = $request->get('CASHBOX')['EMAIL'] ?? $cashbox['EMAIL'] ?? '';
 					?>
 					<input type="text" name="CASHBOX[EMAIL]" value="<?= htmlspecialcharsbx($email) ?>" size="40">
 					<span id="hint_EMAIL"></span>

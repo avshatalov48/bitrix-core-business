@@ -6,6 +6,7 @@ IfElseActivity = function()
 {
 	var ob = new ParallelActivity();
 	ob.Type = 'IfElseActivity';
+	ob.allowSort = true;
 	ob.childActivities = [];
 	ob.__parallelActivityInitType = 'IfElseBranchActivity';
 

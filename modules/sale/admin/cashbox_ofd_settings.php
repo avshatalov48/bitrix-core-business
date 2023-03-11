@@ -23,8 +23,8 @@ namespace Bitrix\Sale\Cashbox\AdminPage\OfdSettings
 	if (isset($cashbox))
 	{
 		/** @var Cashbox\Ofd $handler */
-		$handler = $cashbox['OFD'];
-		$cashboxSettings = $cashbox['OFD_SETTINGS'];
+		$handler = $cashbox['OFD'] ?? '';
+		$cashboxSettings = $cashbox['OFD_SETTINGS'] ?? [];
 		if (class_exists($handler))
 		{
 			$settings = $handler::getSettings();

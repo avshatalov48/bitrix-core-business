@@ -89,7 +89,6 @@ final class CheckManager
 						'SETTINGS' => [
 							'FAILURE' => 'Y',
 							'PRINTED' => 'N',
-							'ERROR_TEXT' => Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_CREATED'),
 						],
 						'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
 					]

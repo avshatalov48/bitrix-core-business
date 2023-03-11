@@ -55,7 +55,7 @@ class Service
 	 */
 	public function __construct($fields)
 	{
-		[$className, $handlerType] = Manager::includeHandler($fields["ACTION_FILE"]);
+		[$className, $handlerType] = Manager::includeHandler($fields['ACTION_FILE']);
 
 		$this->fields = $fields;
 		$this->handler = new $className($handlerType, $this);
@@ -412,7 +412,9 @@ class Service
 	 */
 	public function getConsumerName()
 	{
-		return static::PAY_SYSTEM_PREFIX.$this->fields['ID'];
+		$id = $this->fields['ID'] ?? 0;
+
+		return static::PAY_SYSTEM_PREFIX.$id;
 	}
 
 	/**
@@ -477,7 +479,7 @@ class Service
 	 */
 	public function getField($name)
 	{
-		return $this->fields[$name];
+		return $this->fields[$name] ?? null;
 	}
 
 	/**
@@ -499,7 +501,7 @@ class Service
 			$this->fields['PS_MODE'] ?? null
 		);
 	}
-	
+
 	/**
 	 * The type of client that the payment system can work with
 	 *

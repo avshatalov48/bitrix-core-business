@@ -191,7 +191,7 @@ class Select extends Base
 			$renderResult .= '<option value="">['.Loc::getMessage('BPDT_SELECT_NOT_SET').']</option>';
 		}
 
-		$groups = $settings['Groups'] ?: null;
+		$groups = $settings['Groups'] ?? null;
 
 		if(is_array($groups) && !empty($groups))
 		{
@@ -539,6 +539,11 @@ class Select extends Base
 	public static function validateValueSingle($value, FieldType $fieldType)
 	{
 		$options = static::getFieldOptions($fieldType);
+
+		if (\CBPActivity::isExpression($value))
+		{
+			return $value;
+		}
 
 		if ($value === '' || empty($options))
 		{

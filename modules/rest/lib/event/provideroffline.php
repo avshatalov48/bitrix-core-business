@@ -118,12 +118,12 @@ class ProviderOffline implements ProviderOfflineInterface
 			}
 		}
 
-		if (count($offlineEventsCount) > 0)
+		if (!empty($offlineEventsCount))
 		{
 			$this->notifyApplications($offlineEventsCount);
 		}
 
-		if (count($offlineEventsApp) > 0)
+		if (!empty($offlineEventsApp))
 		{
 			$this->sendOfflineEvent(array_keys($offlineEventsApp));
 		}
@@ -162,7 +162,7 @@ class ProviderOffline implements ProviderOfflineInterface
 	{
 		foreach($counters as $clientId => $connectorCounters)
 		{
-			if(is_array($connectorCounters) && count($connectorCounters) > 0)
+			if(is_array($connectorCounters) && !empty($connectorCounters))
 			{
 				$this->notifyApplication($clientId, $connectorCounters);
 			}

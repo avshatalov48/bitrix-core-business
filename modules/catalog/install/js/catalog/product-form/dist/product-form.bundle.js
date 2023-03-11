@@ -58,7 +58,9 @@ this.BX = this.BX || {};
 	        isCustomPrice: 'N',
 	        additionalFields: [],
 	        properties: [],
-	        brands: []
+	        brands: [],
+	        weight: 0,
+	        dimensions: {}
 	      },
 	      calculatedFields: [],
 	      catalogFields: {},
@@ -3175,11 +3177,6 @@ this.BX = this.BX || {};
 	    this.options.showResults = false;
 	  } else if (mode === FormMode.COMPILATION) {
 	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.BRAND];
-
-	    if (this.options.isCatalogPriceSaveEnabled) {
-	      this.options.editableFields.push(FormInputCode.PRICE);
-	    }
-
 	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 
 	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {

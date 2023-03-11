@@ -23,20 +23,32 @@ $file = $map['File'];
 		<?=CBPDocument::ShowParameterField("string", 'mail_user_from', $arCurrentValues['mail_user_from'], Array('size'=> 50))?>
 	</td>
 </tr>
-<?if (isModuleInstalled('bitrix24')):?>
+<?php if (isModuleInstalled('bitrix24')):?>
 <tr>
 	<td align="right" width="40%"></td>
 	<td width="60%" valign="top">
-		<?= GetMessage("BPMA_PD_FROM_LIMITATION") ?>
+		<div class="ui-alert ui-alert-warning ui-alert-icon-info ui-alert-xs" style="box-sizing: border-box">
+			<span class="ui-alert-message"><?= GetMessage("BPMA_PD_FROM_LIMITATION") ?></span>
+		</div>
 	</td>
 </tr>
-<?endif;?>
+<?php endif; ?>
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPMA_PD_TO") ?>:</span></td>
 	<td width="60%">
 		<?=CBPDocument::ShowParameterField("string", 'mail_user_to', $arCurrentValues['mail_user_to'], Array('size'=> 50))?>
 	</td>
 </tr>
+<?php if (isModuleInstalled('bitrix24')):?>
+	<tr>
+		<td align="right" width="40%"></td>
+		<td width="60%" valign="top">
+			<div class="ui-alert ui-alert- ui-alert-icon-info ui-alert-xs" style="box-sizing: border-box">
+				<span class="ui-alert-message"><?= GetMessage("BPMA_PD_TO_LIMITATION") ?></span>
+			</div>
+		</td>
+	</tr>
+<?php endif; ?>
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPMA_PD_SUBJECT") ?>:</span></td>
 	<td width="60%">

@@ -741,7 +741,7 @@ class CAllIBlockElement
 			$Logic = "AND";
 		}
 
-		if ($Logic === "AND" && $level === 0)
+		if ($Logic === "AND" && $level === 0 && isset($arFilter["IBLOCK_ID"]))
 		{
 			$f = new \Bitrix\Iblock\PropertyIndex\QueryBuilder($arFilter["IBLOCK_ID"]);
 			if ($f->isValid())
@@ -1259,9 +1259,17 @@ class CAllIBlockElement
 					$res = CIBlock::MkOperationFilter($propID);
 					$res["LOGIC"] = $Logic;
 					$res["LEFT_JOIN"] = $bPropertyLeftJoin;
+
+					$iblockIds = CIBlock::_MergeIBArrays(
+						$arFilter["IBLOCK_ID"] ?? false,
+						$arFilter["IBLOCK_CODE"] ?? false,
+						$arFilter["~IBLOCK_ID"] ?? false,
+						$arFilter["~IBLOCK_CODE"] ?? false
+					);
+
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $res["FIELD"], $arMatch))
 					{
-						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"], $arFilter["~IBLOCK_ID"], $arFilter["~IBLOCK_CODE"]));
+						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], $iblockIds);
 						if(is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
 						{
 							$res["FIELD"] = $arMatch;
@@ -1270,7 +1278,7 @@ class CAllIBlockElement
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($res["FIELD"], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false, $arFilter["~IBLOCK_ID"] ?? false, $arFilter["~IBLOCK_CODE"] ?? false)))
+						if($db_prop = CIBlockProperty::GetPropertyArray($res["FIELD"], $iblockIds))
 							CIBlockElement::MkPropertyFilter($res, $cOperationType, $propVAL, $db_prop, $arJoinProps, $arSqlSearch);
 					}
 				}
@@ -2780,13 +2788,13 @@ class CAllIBlockElement
 					$propID = mb_strtoupper(mb_substr($by_orig, 9));
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $propID, $arMatch))
 					{
-						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"]));
+						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false));
 						if(is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
 							CIBlockElement::MkPropertyOrder($arMatch, $order, false, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($propID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"])))
+						if($db_prop = CIBlockProperty::GetPropertyArray($propID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false)))
 							CIBlockElement::MkPropertyOrder($by, $order, false, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 				}
@@ -2989,16 +2997,26 @@ class CAllIBlockElement
 					$arDisplayedColumns[$PR_ID] = true;
 					$PR_ID = mb_substr($PR_ID, 9);
 
+					$iblockIds = CIBlock::_MergeIBArrays(
+						$arFilter["IBLOCK_ID"] ?? false,
+						$arFilter["IBLOCK_CODE"] ?? false
+					);
+
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $PR_ID, $arMatch))
 					{
-						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false));
-						if(is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
+						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], $iblockIds);
+						if (is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
+						{
 							$this->MkPropertySelect($arMatch, $db_prop, $arJoinProps, $bWasGroup, $sGroupBy, $sSelect);
+						}
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false)))
+						$db_prop = CIBlockProperty::GetPropertyArray($PR_ID, $iblockIds);
+						if ($db_prop)
+						{
 							$this->MkPropertySelect($PR_ID, $db_prop, $arJoinProps, $bWasGroup, $sGroupBy, $sSelect);
+						}
 					}
 				}
 				elseif(mb_substr($val, 0, 13) == "PROPERTYSORT_")
@@ -3518,7 +3536,7 @@ class CAllIBlockElement
 			foreach (GetModuleEvents("iblock", "OnIBlockElementAdd", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($arFields));
 
-			$IBLOCK_SECTION_ID = $arFields["IBLOCK_SECTION_ID"];
+			$IBLOCK_SECTION_ID = $arFields["IBLOCK_SECTION_ID"] ?? null;
 			unset($arFields["IBLOCK_SECTION_ID"]);
 
 			$ID = $DB->Add("b_iblock_element", $arFields, array("DETAIL_TEXT", "SEARCHABLE_CONTENT"), "iblock");
@@ -4655,16 +4673,23 @@ class CAllIBlockElement
 					{
 						if(
 							!is_array($property_value)
-							&& intval($property_value) > 0
-							&& intval($arFields["WF_PARENT_ELEMENT_ID"]) > 0
+							&& (int)$property_value > 0
+							&& isset($arFields['WF_PARENT_ELEMENT_ID'])
+							&& (int)$arFields['WF_PARENT_ELEMENT_ID'] > 0
 						)
 						{
-							if(CIBlockElement::DeleteFile($property_value, $ID, "PROPERTY", intval($arFields["WF_PARENT_ELEMENT_ID"]), $arFields["IBLOCK_ID"], true) <= 0)
+							if (CIBlockElement::DeleteFile($property_value, $ID, "PROPERTY",
+									(int)$arFields["WF_PARENT_ELEMENT_ID"], $arFields["IBLOCK_ID"], true) <= 0)
+							{
 								$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_FILE_PROPERTY")."<br>";
+							}
 						}
 						elseif(is_array($property_value))
 						{
-							if(is_object($property_value["bucket"]))
+							if (
+								array_key_exists('bucket', $property_value)
+								&& is_object($property_value["bucket"])
+							)
 							{
 								//This is trusted image from xml import
 								$error = "";
@@ -5631,14 +5656,25 @@ class CAllIBlockElement
 					}
 				}
 			}
-			if ($property['USER_TYPE_SETTINGS'] !== '' || $property['USER_TYPE_SETTINGS'] !== null)
+
+			if (!empty($property['USER_TYPE_SETTINGS']))
+			{
 				$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
+			}
 
 			if (!$getRawData)
 			{
 				$property['~DEFAULT_VALUE'] = $property['DEFAULT_VALUE'];
-				if (is_array($property['DEFAULT_VALUE']) || preg_match("/[;&<>\"]/", $property['DEFAULT_VALUE']))
+				if (
+					isset($property['DEFAULT_VALUE'])
+					&& (
+						is_array($property['DEFAULT_VALUE'])
+						|| preg_match("/[;&<>\"]/", $property['DEFAULT_VALUE'])
+					)
+				)
+				{
 					$property['DEFAULT_VALUE'] = htmlspecialcharsEx($property['DEFAULT_VALUE']);
+				}
 			}
 
 			$propertiesList[$code] = $property;

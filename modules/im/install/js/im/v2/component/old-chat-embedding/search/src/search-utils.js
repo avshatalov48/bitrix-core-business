@@ -84,6 +84,11 @@ export const SearchUtils = {
 
 	prepareRecentItems(recentItems: Array<string, number>): Array<Object>
 	{
+		if (!recentItems)
+		{
+			return [];
+		}
+
 		return recentItems.map(item => {
 			const [entityId, id] = item;
 			const type = SearchUtils.getTypeByEntityId(entityId);

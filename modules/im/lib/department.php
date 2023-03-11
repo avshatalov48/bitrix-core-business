@@ -63,12 +63,15 @@ class Department
 
 		$list = array_slice($list, $offset, $limit);
 
-		if ($options['USER_DATA'] == 'Y')
+		$jsonOption = $options['JSON'] ?? null;
+		$userDataOption = $options['USER_DATA'] ?? null;
+
+		if ($userDataOption === 'Y')
 		{
 			$result = Array();
 
 			$getOptions = Array();
-			if ($options['JSON'] == 'Y')
+			if ($jsonOption === 'Y')
 			{
 				$getOptions['JSON'] = 'Y';
 			}
@@ -84,7 +87,7 @@ class Department
 		}
 
 
-		if ($options['JSON'] == 'Y')
+		if ($jsonOption === 'Y')
 		{
 			$result = $pagination? Array('total' => $count, 'result' => $result): $result;
 		}
@@ -104,25 +107,28 @@ class Department
 			return false;
 		}
 
+		$jsonOption = $options['JSON'] ?? null;
+		$userDataOption = $options['USER_DATA'] ?? null;
+
 		$list = \Bitrix\Im\Integration\Intranet\Department::getList();
 
 		$result = Array();
 		foreach ($list as $key => $department)
 		{
-			if ($department['MANAGER_USER_ID'] != $userId)
+			if ((int)$department['MANAGER_USER_ID'] !== $userId)
 			{
 				continue;
 			}
-			if ($options['USER_DATA'] == 'Y')
+			if ($userDataOption === 'Y')
 			{
 				$userData = \Bitrix\Im\User::getInstance($department['MANAGER_USER_ID']);
-				$department['MANAGER_USER_DATA'] = $options['JSON'] == 'Y'? $userData->getArray(Array('JSON' => 'Y')): $userData;
+				$department['MANAGER_USER_DATA'] = $jsonOption === 'Y'? $userData->getArray(Array('JSON' => 'Y')): $userData;
 			}
 
-			$result[$key] = $options['JSON'] == 'Y'? array_change_key_case($department, CASE_LOWER): $department;
+			$result[$key] = $jsonOption === 'Y'? array_change_key_case($department, CASE_LOWER): $department;
 		}
 
-		if ($options['JSON'] == 'Y')
+		if ($jsonOption === 'Y')
 		{
 			$result = array_values($result);
 		}
@@ -216,7 +222,10 @@ class Department
 		$list = \Bitrix\Im\Integration\Intranet\Department::getList();
 
 		$userOptions = Array();
-		if ($options['JSON'])
+		$jsonOption = $options['JSON'] ?? null;
+		$userDataOption = $options['USER_DATA'] ?? null;
+
+		if ($jsonOption)
 		{
 			$userOptions['JSON'] = 'Y';
 		}
@@ -230,7 +239,7 @@ class Department
 			if (is_array($ids) && !in_array($department['ID'], $ids))
 				continue;
 
-			if ($options['USER_DATA'] == 'Y')
+			if ($userDataOption === 'Y')
 			{
 				$managers[$department['ID']][] = \Bitrix\Im\User::getInstance($department['MANAGER_USER_ID'])->getArray($userOptions);
 			}
@@ -284,7 +293,11 @@ class Department
 		$list = self::getEmployeesList();
 
 		$userOptions = Array();
-		if ($options['JSON'])
+
+		$jsonOption = $options['JSON'] ?? null;
+		$userDataOption = $options['USER_DATA'] ?? null;
+
+		if ($jsonOption)
 		{
 			$userOptions['JSON'] = 'Y';
 		}
@@ -297,7 +310,7 @@ class Department
 
 			foreach ($users as $employeeId)
 			{
-				if ($options['USER_DATA'] == 'Y')
+				if ($userDataOption === 'Y')
 				{
 					$employees[$departmentId][] = \Bitrix\Im\User::getInstance($employeeId)->getArray($userOptions);
 				}

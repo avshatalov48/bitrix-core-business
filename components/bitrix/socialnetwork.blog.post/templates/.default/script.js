@@ -988,7 +988,7 @@ function __blogPostSetFollow(log_id)
 						if (data[i]['PHOTO_SRC'].length > 0)
 						{
 							avatarNode = BX.create("IMG", {
-								attrs: {src: data[i]['PHOTO_SRC']},
+								attrs: {src: encodeURI(data[i]['PHOTO_SRC'])},
 								props: {className: "bx-ilike-popup-avatar-img"}
 							});
 						}

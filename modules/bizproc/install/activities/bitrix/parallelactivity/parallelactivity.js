@@ -8,10 +8,37 @@ ParallelActivity = function()
 	ob.Type = 'ParallelActivity';
 	ob.childActivities = [];
 	ob.__parallelActivityInitType = 'SequenceActivity';
+	ob.allowSort = false;
+
+	function isEventWithCtrlKey(e)
+	{
+		return (e.ctrlKey == true || e.metaKey == true);
+	}
+
+	function swapNodes(node1, node2)
+	{
+		const beforeNode = node2.nextElementSibling;
+		const parent = node2.parentNode;
+		node1.replaceWith(node2);
+		parent.insertBefore(node1, beforeNode);
+	}
+
+	ob.copyBranch = function (nCell)
+	{
+		ob.createBranch(ob.childActivities[nCell], nCell);
+	}
 
 	ob.addBranch = function ()
 	{
-		var i, c, oNewBranch = CreateActivity(ob.__parallelActivityInitType), nCell = ob.childsContainer.rows[2].cells.length-1;
+		var nCell = ob.childsContainer.rows[2].cells.length-1;
+		ob.createBranch(ob.__parallelActivityInitType, nCell);
+	}
+
+	ob.createBranch = function (objType, nCell)
+	{
+		var i;
+		var c;
+		var oNewBranch = CreateActivity(objType);
 		oNewBranch.parentActivity = ob;
 
 		ob.childActivities.push([]);
@@ -20,7 +47,6 @@ ParallelActivity = function()
 
 		ob.childActivities[nCell] = oNewBranch;
 
-		//
 		for(i=0; i<ob.childsContainer.rows.length; i++)
 		{
 			c = ob.childsContainer.rows[i].insertCell(nCell);
@@ -37,50 +63,14 @@ ParallelActivity = function()
 
 	ob.delBranch = function (e)
 	{
-		ob.RemoveChild(ob.childActivities[this.ind]);
-
-		var tt;
-		if(this.ind == 0)
-		{
-			tt = ob.childsContainer.rows[0].cells[0].appendChild(_crt(1, 2));
-			tt.rows[0].cells[0].width = "50%";
-			tt.rows[0].cells[1].width = "50%";
-			tt.rows[0].cells[1].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			tt.rows[0].cells[1].style.height = '2px';
-
-			tt = ob.childsContainer.rows[3].cells[0].appendChild(_crt(1, 2));
-			tt.rows[0].cells[0].width = "50%";
-			tt.rows[0].cells[1].width = "50%";
-			tt.rows[0].cells[1].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			tt.rows[0].cells[1].style.height = '2px';
-		}
-
-		if(this.ind == ob.childActivities.length)
-		{
-			tt = ob.childsContainer.rows[0].cells[ob.childActivities.length-1].appendChild(_crt(1, 2));
-			tt.rows[0].cells[0].width = "50%";
-			tt.rows[0].cells[1].width = "50%";
-			tt.rows[0].cells[0].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			tt.rows[0].cells[0].style.height = '2px';
-
-			tt = ob.childsContainer.rows[3].cells[ob.childActivities.length-1].appendChild(_crt(1, 2));
-			tt.rows[0].cells[0].width = "50%";
-			tt.rows[0].cells[1].width = "50%";
-			tt.rows[0].cells[0].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			tt.rows[0].cells[0].style.height = '2px';
-		}
-
+		var i = this.parentNode.parentNode.ind;
+		ob.RemoveChild(ob.childActivities[i]);
 	}
 
 	ob.DrawVLine = function (i)
 	{
-		if(i!=0 && i!=ob.childActivities.length-1)
-		{
-			ob.childsContainer.rows[0].cells[i].style.height = '2px';
-			ob.childsContainer.rows[0].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			ob.childsContainer.rows[3].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-		}
-
+		ob.childsContainer.rows[0].className = 'trLine';
+		ob.childsContainer.rows[3].className = 'trLine';
 		ob.childsContainer.rows[1].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% top repeat-y';
 		ob.childsContainer.rows[2].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% top repeat-y';
 
@@ -101,7 +91,11 @@ ParallelActivity = function()
 		im.style.cursor = 'pointer';
 		im.onclick = ob.delBranch;
 		im.title = BPMESS['PARA_DEL'];
-		im.ind = i;
+
+		if (ob.allowSort)
+		{
+			ob.drawMoveElement(i, cell);
+		}
 /*
 		im.onmouseover = function ()
 		{
@@ -118,29 +112,16 @@ ParallelActivity = function()
 	ob.RefreshDelButton = function ()
 	{
 		var i;
-		for(i = 0; i < ob.childActivities.length; i++)
+		var maxLen = ob.childActivities.length;
+
+		for (i = 0; i < maxLen; i++)
 		{
 			if(ob.childActivities.length>2)
 				ob.childsContainer.rows[1].cells[i].childNodes[0].style.display = 'block';
 			else
 				ob.childsContainer.rows[1].cells[i].childNodes[0].style.display = 'none';
 
-			ob.childsContainer.rows[1].cells[i].childNodes[0].childNodes[0].ind = i;
-
-			if(i!=0 && i!=ob.childActivities.length-1)
-			{
-				ob.childsContainer.rows[0].cells[i].style.height = '2px';
-				ob.childsContainer.rows[0].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-				ob.childsContainer.rows[3].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-			}
-			else
-			{
-				ob.childsContainer.rows[0].cells[i].style.background = '';
-				ob.childsContainer.rows[3].cells[i].style.background = '';
-			}
-
-			ob.childsContainer.rows[1].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% top repeat-y';
-			ob.childsContainer.rows[2].cells[i].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% top repeat-y';
+			ob.childsContainer.rows[1].cells[i].ind = i;
 		}
 	}
 
@@ -224,31 +205,6 @@ ParallelActivity = function()
 			ob.hideContainer.style.display = 'none';
 		}
 
-		var tt = this.childsContainer.rows[0].cells[0].appendChild(_crt(1, 2));
-		tt.rows[0].cells[0].width = "50%";
-		tt.rows[0].cells[1].width = "50%";
-		tt.rows[0].cells[1].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-		tt.rows[0].cells[1].style.height = '2px';
-
-		tt = this.childsContainer.rows[3].cells[0].appendChild(_crt(1, 2));
-		tt.rows[0].cells[0].width = "50%";
-		tt.rows[0].cells[1].width = "50%";
-		tt.rows[0].cells[1].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-		tt.rows[0].cells[1].style.height = '2px';
-
-
-		tt = this.childsContainer.rows[0].cells[this.childActivities.length-1].appendChild(_crt(1, 2));
-		tt.rows[0].cells[0].width = "50%";
-		tt.rows[0].cells[1].width = "50%";
-		tt.rows[0].cells[0].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-		tt.rows[0].cells[0].style.height = '2px';
-
-		tt = this.childsContainer.rows[3].cells[this.childActivities.length-1].appendChild(_crt(1, 2));
-		tt.rows[0].cells[0].width = "50%";
-		tt.rows[0].cells[1].width = "50%";
-		tt.rows[0].cells[0].style.background = 'url(/bitrix/images/bizproc/act_line_bg.gif) 50% bottom repeat-x';
-		tt.rows[0].cells[0].style.height = '2px';
-
 		for(var i in this.childActivities)
 		{
 			if (!this.childActivities.hasOwnProperty(i))
@@ -295,6 +251,82 @@ ParallelActivity = function()
 		{
 			ob.container.parentNode.removeChild(ob.container);
 			ob.container = null;
+		}
+	}
+
+	ob.drawMoveElement = function (i, cell)
+	{
+		var dDx = cell.appendChild(document.createElement('DIV'));
+		dDx.className = 'move-thread';
+
+		var im = dDx.appendChild(document.createElement('DIV'));
+		im.className="to-left";
+		im.onclick = ob.moveToLeft;
+		im.title = BPMESS['PARA_MOVE_LEFT'];
+
+		var im2 = dDx.appendChild(document.createElement('DIV'));
+		im2.className="to-right";
+		im2.onclick = ob.moveToRight;
+		im2.title = BPMESS['PARA_MOVE_RIGHT'];
+	}
+
+	ob.moveToRight = function (e)
+	{
+		var i = this.parentNode.parentNode.ind;
+
+		if (i === ob.childActivities.length)
+		{
+			return;
+		}
+
+		if (isEventWithCtrlKey(e))
+		{
+			ob.copyBranch(i);
+		}
+		else
+		{
+			ob.swapBranch(i, i+1);
+		}
+
+		BPTemplateIsModified = true;
+
+		return false;
+	}
+
+	ob.moveToLeft = function (e)
+	{
+		var i = this.parentNode.parentNode.ind;
+
+		if (i === 0)
+		{
+			return;
+		}
+
+		if (isEventWithCtrlKey(e))
+		{
+			ob.copyBranch(i);
+		}
+		else
+		{
+			ob.swapBranch(i - 1, i);
+		}
+
+		BPTemplateIsModified = true;
+
+		return false;
+	}
+
+	ob.swapBranch = function (i1, i2)
+	{
+		var tmp = ob.childActivities[i1];
+		ob.childActivities[i1] = ob.childActivities[i2];
+		ob.childActivities[i2] = tmp;
+
+		for (var k = 1; k < 3; k++)
+		{
+			ob.childsContainer.rows[k].cells[i1].ind = i2;
+			ob.childsContainer.rows[k].cells[i2].ind = i1;
+			swapNodes(ob.childsContainer.rows[k].cells[i1], ob.childsContainer.rows[k].cells[i2]);
 		}
 	}
 

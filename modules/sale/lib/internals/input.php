@@ -377,10 +377,12 @@ abstract class Base
 
 	public static function getViewHtml(array $input, $value = null)
 	{
-		if ($value === null)
+		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
-		if ($input['MULTIPLE'] == 'Y')
+		if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 		{
 			$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
 			[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
@@ -401,7 +403,7 @@ abstract class Base
 	public static function getViewHtmlSingle(array $input, $value)
 	{
 		$output = $valueText = htmlspecialcharsbx($value);
-		if ($input['IS_EMAIL'] == 'Y')
+		if (isset($input['IS_EMAIL']) && $input['IS_EMAIL'] === 'Y')
 		{
 			$output = '<a href="mailto:'.$valueText.'">'.$valueText.'</a>';
 		}
@@ -413,20 +415,22 @@ abstract class Base
 	{
 		$name = htmlspecialcharsbx($name);
 
-		if ($value === null)
+		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
 		$html = '';
 
-		if ($input['HIDDEN'] == 'Y')
+		if (isset($input['HIDDEN']) && ($input['HIDDEN'] === 'Y' || $input['HIDDEN'] === true))
 		{
 			$html .= static::getHiddenRecursive($name
-				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y') ? static::asMultiple($value) : static::asSingle($value)
 				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>''), false));
 		}
 		else
 		{
-			if ($input['MULTIPLE'] == 'Y')
+			if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
 				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
@@ -455,10 +459,10 @@ abstract class Base
 			}
 		}
 
-		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
+		if (isset($input['ADDITIONAL_HIDDEN']) && $input['ADDITIONAL_HIDDEN'] === 'Y')
 		{
 			$html .= static::getHiddenRecursive($name
-				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y') ? static::asMultiple($value) : static::asSingle($value)
 				, static::extractAttributes($input, array(), array('FORM'=>''), false));
 		}
 
@@ -503,10 +507,12 @@ abstract class Base
 	public static function getError(array $input, $value)
 	{
 		$errors = array();
-		if ($value === null)
+		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
-		if ($input['MULTIPLE'] == 'Y')
+		if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 		{
 
 			$index = -1;
@@ -542,10 +548,12 @@ abstract class Base
 	{
 		$errors = array();
 
-		if ($value === null)
+		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
-		if ($input['MULTIPLE'] == 'Y')
+		if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 		{
 			$index = -1;
 			foreach (static::asMultiple($value) as $value)
@@ -585,13 +593,17 @@ abstract class Base
 
 	public static function getValue(array $input, $value)
 	{
-		if ($input['DISABLED'] == 'Y')
+		if (isset($input['DISABLED']) && $input['DISABLED'] === 'Y')
+		{
 			return null; // TODO maybe??
+		}
 
 		if ($value === null)
-			$value = $input['VALUE'];
+		{
+			$value = $input['VALUE'] ?? null;
+		}
 
-		if ($input['MULTIPLE'] == 'Y')
+		if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 		{
 			$values = array();
 
@@ -696,10 +708,12 @@ abstract class Base
 				$string .= ' '.mb_strtolower($k).'="'.htmlspecialcharsbx($v).'"';
 
 		// add data attributes
-		if ($withGlobal && is_array($input['DATA']))
+		if ($withGlobal && isset($input['DATA']) && is_array($input['DATA']))
 		{
 			foreach ($input['DATA'] as $k => $v)
+			{
 				$string .= ' data-'.htmlspecialcharsbx($k).'="'.htmlspecialcharsbx($v).'"';
+			}
 		}
 
 		return $string;
@@ -724,7 +738,7 @@ class StringInput extends Base // String reserved in php 7
 	public static function getEditHtmlSingle($name, array $input, $value)
 	{
 		$input = self::prepareIntFields($input);
-		if ($input['MULTILINE'] == 'Y')
+		if (isset($input['MULTILINE']) && $input['MULTILINE'] === 'Y')
 		{
 			$attributes = static::extractAttributes($input,
 				array('DISABLED'=>'', 'READONLY'=>'', 'AUTOFOCUS'=>'', 'REQUIRED'=>''),
@@ -786,10 +800,12 @@ class StringInput extends Base // String reserved in php 7
 			$errors['MAXLENGTH'] = Loc::getMessage('INPUT_STRING_MAXLENGTH_ERROR', ['#NUM#' => $maxLength]);
 		}
 
-		if (strval(trim($input['PATTERN'])) != "")
+		$pattern = trim(
+			(string)($input['PATTERN'] ?? '')
+		);
+		if ($pattern !== "")
 		{
 			$issetDelimiter = false;
-			$pattern = trim($input['PATTERN']);
 
 			if (isset($pattern[0]) && in_array($pattern[0], static::$patternDelimiters) && mb_strrpos($pattern, $pattern[0]) !== false)
 			{
@@ -851,7 +867,7 @@ class StringInput extends Base // String reserved in php 7
 	 */
 	public static function isDeletedSingle($value)
 	{
-		return is_array($value) && $value['DELETE'];
+		return is_array($value) && isset($value['DELETE']);
 	}
 
 }
@@ -872,14 +888,29 @@ class Number extends Base
 
 		$size = 5;
 
-		if (($s = mb_strlen(strval($input['MIN']))) && $s > $size)
+		$s = mb_strlen(
+			(string)($input['MIN'] ?? '')
+		);
+		if ($s > $size)
+		{
 			$size = $s;
+		}
 
-		if (($s = mb_strlen(strval($input['MAX']))) && $s > $size)
+		$s = mb_strlen(
+			(string)($input['MAX'] ?? '')
+		);
+		if ($s > $size)
+		{
 			$size = $s;
+		}
 
-		if (($s = mb_strlen(strval($input['STEP']))) && $s > $size)
+		$s = mb_strlen(
+			(string)($input['STEP'] ?? '')
+		);
+		if ($s > $size)
+		{
 			$size = $s;
+		}
 
 		$input['SIZE'] = $size;
 
@@ -915,7 +946,7 @@ class Number extends Base
 			if (!empty($input['MAX']) && $value > $input['MAX'])
 				$errors['MAX'] = Loc::getMessage('INPUT_NUMBER_MAX_ERROR', array("#NUM#" => $input['MAX']));
 
-			if ($input['STEP'])
+			if (!empty($input['STEP']))
 			{
 				$step = (double) $input['STEP'];
 
@@ -1003,12 +1034,22 @@ class EitherYN extends Base
 
 	public static function getErrorSingle(array $input, $value)
 	{
-		if ($input['REQUIRED'] == 'Y' && ($value === '' || $value === null))
-			return array('REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR'));
+		if (
+			isset($input['REQUIRED'])
+			&& $input['REQUIRED'] === 'Y'
+			&& ($value === '' || $value === null)
+		)
+		{
+			return [
+				'REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR'),
+			];
+		}
 
-		return ($value == 'N' || $value == 'Y')
-			? array()
-			: array('INVALID' => Loc::getMessage('INPUT_INVALID_ERROR'));
+		return
+			($value === 'N' || $value === 'Y')
+				? []
+				: ['INVALID' => Loc::getMessage('INPUT_INVALID_ERROR')]
+		;
 	}
 
 	public static function getValueSingle(array $input, $value)
@@ -1095,17 +1136,19 @@ class Enum extends Base
 		if (! is_array($options))
 			return Loc::getMessage('INPUT_ENUM_OPTIONS_ERROR');
 
-		$multiple = $input['MULTIPLE'] == 'Y';
+		$multiple = isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y';
 
 		$name = htmlspecialcharsbx($name);
 
 		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
 		$originalValue = $value;
 		$html = '';
 
-		if ($input['HIDDEN'] == 'Y')
+		if (isset($input['HIDDEN']) && ($input['HIDDEN'] === 'Y' || $input['HIDDEN'] === true))
 		{
 			$html .= static::getHiddenRecursive($name
 				, $multiple ? static::asMultiple($value) : static::asSingle($value)
@@ -1118,7 +1161,7 @@ class Enum extends Base
 			else
 				$value = $multiple ? array_flip(static::asMultiple($value)) : array(static::asSingle($value) => true);
 
-			if ($input['MULTIELEMENT'] == 'Y')
+			if (isset($input['MULTIELEMENT']) && $input['MULTIELEMENT'] === 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
 				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
@@ -1153,7 +1196,7 @@ class Enum extends Base
 			}
 		}
 
-		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
+		if (isset($input['ADDITIONAL_HIDDEN']) && $input['ADDITIONAL_HIDDEN'] === 'Y')
 		{
 			$html .= static::getHiddenRecursive($name
 				, $multiple ? static::asMultiple($originalValue) : static::asSingle($originalValue)
@@ -1275,15 +1318,21 @@ class File extends Base
 	{
 		foreach ($files as $key => $file)
 		{
-			if (! is_array($post[$key]))
-				$post[$key] = array();
+			if (!isset($post[$key]) || !is_array($post[$key]))
+			{
+				$post[$key] = [];
+			}
 
 			foreach ($file as $property => $value)
 			{
 				if (is_array($value))
+				{
 					self::getPostWithFilesRecursive($post[$key], $value, $property);
+				}
 				else
+				{
 					$post[$key][$property] = $value;
+				}
 			}
 		}
 
@@ -1325,8 +1374,10 @@ class File extends Base
 	{
 		if (is_array($file))
 		{
-			if ($file['SRC'])
+			if (isset($file['SRC']) && $file['SRC'])
+			{
 				return $file; // already loaded
+			}
 
 			$fileId = $file['ID'];
 		}
@@ -1349,7 +1400,7 @@ class File extends Base
 	 */
 	static function isDeletedSingle($value)
 	{
-		return is_array($value) && $value['DELETE'];
+		return is_array($value) && isset($value['DELETE']);
 	}
 
 	/** Check if file is uploaded.
@@ -1389,7 +1440,10 @@ class File extends Base
 		if (! is_array($value))
 			$value = array('ID' => $value);
 
-		if ($src = $value['SRC'])
+		$src = $value['SRC'] ?? null;
+		$originalName = $value['ORIGINAL_NAME'] ?? '';
+
+		if ($src)
 		{
 			$attributes = ' href="'.htmlspecialcharsbx($src).'" title="'.htmlspecialcharsbx(Loc::getMessage('INPUT_FILE_DOWNLOAD')).'"';
 
@@ -1402,19 +1456,23 @@ class File extends Base
 
 			$content = \CFile::IsImage($value['SRC'], $value['CONTENT_TYPE'])
 				? '<img src="'.$src.'" border="0" alt="" style="max-height:100px; max-width:100px">'
-				: htmlspecialcharsbx($value['ORIGINAL_NAME']);
+				: htmlspecialcharsbx($originalName);
 		}
 		else
 		{
 			$attributes = '';
-			$content = htmlspecialcharsbx($value['ORIGINAL_NAME']);
+			$content = htmlspecialcharsbx($originalName);
 		}
 
-		if (! $content)
-			$content = $value['FILE_NAME'];
+		if (!$content)
+		{
+			$content = $value['FILE_NAME'] ?? null;
+		}
 
-		if (! $content)
-			$content = $value['ID'];
+		if (!$content)
+		{
+			$content = $value['ID'] ?? null;
+		}
 
 		return "<a$attributes>$content</a>";
 	}
@@ -1437,7 +1495,7 @@ class File extends Base
 			$value = array('ID' => $value);
 		}
 
-		if ($value['DELETE'])
+		if (isset($value['DELETE']))
 		{
 			unset($value['ID']);
 		}
@@ -1460,7 +1518,7 @@ class File extends Base
 			.'<input type="file" name="'.$name.'" style="position:absolute; visibility:hidden"'.$fileAttributes.'>'
 			.'<input type="button" value="'.Loc::getMessage('INPUT_FILE_BROWSE').'" onclick="this.previousSibling.click()">'
 			.(
-			$input['NO_DELETE']
+			isset($input['NO_DELETE'])
 				? ''
 				: '<label> '.Loc::getMessage('INPUT_DELETE').' <input type="checkbox" name="'.$name.'[DELETE]" onclick="'
 
@@ -1480,7 +1538,7 @@ class File extends Base
 	{
 		if (is_array($value))
 		{
-			if ($value['DELETE'])
+			if (isset($value['DELETE']))
 			{
 				return $input['REQUIRED'] == 'Y'
 					? array('REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR'))
@@ -1514,7 +1572,7 @@ class File extends Base
 
 					case UPLOAD_ERR_NO_FILE:
 
-						return $input['REQUIRED'] == 'Y' && (! is_numeric($value['ID']) || $value['DELETE'])
+						return $input['REQUIRED'] == 'Y' && (! is_numeric($value['ID']) || isset($value['DELETE']))
 							? array('REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR'))
 							: array();
 
@@ -1538,8 +1596,10 @@ class File extends Base
 	{
 		if (is_array($value))
 		{
-			if ($value['DELETE'])
+			if (isset($value['DELETE']))
+			{
 				return null;
+			}
 
 			$value = $value['ID'];
 		}
@@ -1673,15 +1733,17 @@ class Location extends Base
 	{
 		$name = htmlspecialcharsbx($name);
 
-		if ($value === null)
+		if ($value === null && isset($input['VALUE']))
+		{
 			$value = $input['VALUE'];
+		}
 
 		$html = '';
 
-		if ($input['HIDDEN'] == 'Y')
+		if (isset($input['HIDDEN']) && ($input['HIDDEN'] === 'Y' || $input['HIDDEN'] === true))
 		{
 			$html .= static::getHiddenRecursive($name
-				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y') ? static::asMultiple($value) : static::asSingle($value)
 				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false));
 		}
 		else
@@ -1700,7 +1762,7 @@ class Location extends Base
 				$input['JS_CALLBACK'] = null;
 			}
 
-			if ($input['MULTIPLE'] == 'Y')
+			if (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
 				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
@@ -1733,10 +1795,10 @@ class Location extends Base
 			}
 		}
 
-		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
+		if (isset($input['ADDITIONAL_HIDDEN']) && $input['ADDITIONAL_HIDDEN'] === 'Y')
 		{
 			$html .= static::getHiddenRecursive($name
-				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, (isset($input['MULTIPLE']) && $input['MULTIPLE'] === 'Y') ? static::asMultiple($value) : static::asSingle($value)
 				, static::extractAttributes($input, array(), array('FORM'=>1), false));
 		}
 
@@ -1989,10 +2051,10 @@ class ProductCategories extends Base
 
 		$editSection = "
             <br>
-            <a 
-                class='adm-s-restriction-open-dialog-link' 
-                href='javascript:void(0);' 
-                id='{$openFilterButtonId}' 
+            <a
+                class='adm-s-restriction-open-dialog-link'
+                href='javascript:void(0);'
+                id='{$openFilterButtonId}'
                 onclick=\"window.open('{$url}','choose category', 'width=850, height=600');\"
             >
                 {$addInputTranslate}
@@ -2026,12 +2088,12 @@ class ProductCategories extends Base
                     </td>
                     <td align='right'>
                         &nbsp;
-                        <a 
-                            class='adm-s-bus-morelinkqhsw' 
-                            href='javascript:void(0);' 
+                        <a
+                            class='adm-s-bus-morelinkqhsw'
+                            href='javascript:void(0);'
                             onclick=\"{$deleteNodeScript}\"
                         >
-                            {$deleteInputTranslate}                        
+                            {$deleteInputTranslate}
                         </a>
                     </td>
                 </tr>
@@ -2145,9 +2207,9 @@ class ConcreteProduct extends Base
 
         $editSection = "
             <br>
-            <a 
-                class='adm-s-restriction-open-dialog-link' 
-                href='javascript:void(0);' 
+            <a
+                class='adm-s-restriction-open-dialog-link'
+                href='javascript:void(0);'
                 id='{$input["ID"]}'
                 onclick=\"window.open('{$url}', 'choose product', 'width=850,height=600');\"
             >
@@ -2172,8 +2234,8 @@ class ConcreteProduct extends Base
                 </td>
                 <td align='right'>
                     &nbsp;
-                    <a 
-                        class='adm-s-bus-morelinkqhsw' href='javascript:void(0);' 
+                    <a
+                        class='adm-s-bus-morelinkqhsw' href='javascript:void(0);'
                         onclick=\"{$input["JS_HANDLER"]}.deleteRestrictionByConcreteProduct('{$nodeId}', '{$productId}');\"
                     >
                         {$deleteInputTranslate}

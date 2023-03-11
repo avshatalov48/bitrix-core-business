@@ -10,6 +10,7 @@ use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Tasks\Access\ActionDictionary;
 use Bitrix\Tasks\Access\TaskAccessController;
+use Bitrix\Socialnetwork\Livefeed\Provider;
 
 class VoteAccessController
 {
@@ -151,10 +152,20 @@ class VoteAccessController
 			return false;
 		}
 
+		// $types = Provider::getEntityTypes();
+
 		$logId = $this->getLogId($typeId, $entityId);
+		// if (
+		// 	!in_array($typeId, $types)
+		// 	&& !$logId
+		// )
+		// {
+		// 	// do nothing if there is no record
+		// 	return true;
+		// }
+
 		if (!$logId)
 		{
-			// do nothing if there is no record
 			return true;
 		}
 

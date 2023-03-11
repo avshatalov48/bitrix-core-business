@@ -386,7 +386,7 @@ abstract class ExportOneCPackage extends ExportOneCBase
 			/** @var BasketItem $basket */
 			foreach ($order->getBasket() as $basket)
 			{
-				$vatRate = $basket->getVatRate();
+				$vatRate = (float)$basket->getVatRate();
 				$basketVatSum = $basket->getPrice()/($vatRate+1) * $vatRate;
 				$vatSum += roundEx($basketVatSum * $basket->getQuantity(), 2);
 			}

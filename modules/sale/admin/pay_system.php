@@ -283,7 +283,7 @@ while ($arCCard = $dbRes->NavNext(false))
 	$row->AddField("LID", $pSite);
 
 	$description = \Bitrix\Sale\PaySystem\Manager::getHandlerDescription($arCCard["ACTION_FILE"], $arCCard["PS_MODE"]);
-	$row->AddField("ACTION_FILE", $description['NAME']);
+	$row->AddField("ACTION_FILE", $description['NAME'] ?? null);
 
 	$arActions = array(
 		array(

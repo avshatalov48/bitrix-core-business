@@ -230,6 +230,7 @@ SequentialWorkflowActivity = function()
 
 		t.rows[0].style.height = '30px';
 		t.rows[0].cells[0].style.width = '30px';
+		t.rows[0].cells[0].style.minWidth = '30px';
 
 		if(!dCont.activityTemplate['Icon'] && arAllActivities[dCont.activityTemplate['Type'].toLowerCase()])
 			dCont.activityTemplate['Icon'] = arAllActivities[dCont.activityTemplate['Type'].toLowerCase()]['ICON'];

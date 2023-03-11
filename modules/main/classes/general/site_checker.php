@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CSiteCheckerTest
 {
 	var $arTestVars;
@@ -1008,15 +1009,14 @@ class CSiteCheckerTest
 
 		$ok = false;
 		$res = GetMessage('SC_NOT_LESS',array('#VAL#' => $last_success));
-		if (intval($last_success) > 32)
+		$last_success = (int)$last_success;
+		if ($last_success > 32)
 		{
 			$ok = true;
-			$cur = ini_get('memory_limit');
-			if (preg_match('#([0-9]+) *G#i', $cur, $regs))
-				$cur = $regs[1] * 1024;
-			if ($cur > 0 && $cur < $last_success)
+			$cur = \Bitrix\Main\Config\Ini::getInt('memory_limit');
+			if ($cur > 0 && $cur < $last_success * 1024 * 1024)
 			{
-				$res .= '<br> '.GetMessage('SC_MEMORY_CHANGED', array('#VAL0#' => $cur, '#VAL1#' => '512M'));
+				$res .= '<br> '.GetMessage('SC_MEMORY_CHANGED', array('#VAL0#' => ini_get('memory_limit'), '#VAL1#' => '512M'));
 				$ok = null;
 			}
 		}
@@ -3150,5 +3150,3 @@ function PrintHTTP($strRequest, $strHeaders, $strRes)
 	(($l = strlen($strRes)) > 1000 ? substr($strRes, 0, 1000).' ... ('.$l.' bytes)' : $strRes)."\n".
 	"==========\n";
 }
-
-?>

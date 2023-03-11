@@ -10,14 +10,14 @@ foreach ($arDocumentFields as $fieldKey => $fieldValue)
 {
 	?>
 	<tr>
-		<td align="right" width="40%" valign="top"><?= ($fieldValue["Required"]) ? "<span class=\"adm-required-field\">".htmlspecialcharsbx($fieldValue["Name"]).":</span>" : htmlspecialcharsbx($fieldValue["Name"]).":" ?></td>
+		<td align="right" width="40%" valign="top"><?= (!empty($fieldValue["Required"])) ? "<span class=\"adm-required-field\">".htmlspecialcharsbx($fieldValue["Name"]).":</span>" : htmlspecialcharsbx($fieldValue["Name"]).":" ?></td>
 		<td width="60%" id="td_<?= htmlspecialcharsbx($fieldKey) ?>">
 			<?
 			echo $documentService->GetFieldInputControl(
 				$documentType,
 				$fieldValue,
 				array($formName, $fieldKey),
-				$arCurrentValues[$fieldKey],
+				$arCurrentValues[$fieldKey] ?? null,
 				true,
 				false
 			);

@@ -157,6 +157,8 @@ class AppConfiguration
 					],
 				];
 			}
+
+			Application::setContextUserId((int)$item['USER_ID']);
 			$result = Application::install($code);
 			if ($result['success'])
 			{

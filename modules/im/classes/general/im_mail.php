@@ -205,18 +205,18 @@ class CIMMail
 				$arNotify["USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
 					"NAME" => $arMessage["TO_USER_NAME"],
 					"LAST_NAME" => $arMessage["TO_USER_LAST_NAME"],
-					"SECOND_NAME" => $arMessage["TO_USER_SECOND_NAME"],
+					"SECOND_NAME" => $arMessage["TO_USER_SECOND_NAME"] ?? null,
 					"LOGIN" => $arMessage["TO_USER_LOGIN"],
 					"EXTERNAL_AUTH_ID" => $arMessage["TO_EXTERNAL_AUTH_ID"],
 				));
 
 				$arToUser[$arMessage["TO_USER_ID"]] = Array(
-					"USER" => $arMessage["USER"],
+					"USER" => $arMessage['USER'] ?? null,
 					"USER_ID" => $arMessage["TO_USER_ID"],
 					"USER_LOGIN" => $arMessage["TO_USER_LOGIN"],
 					"USER_NAME" => $arMessage["TO_USER_NAME"],
 					"USER_LAST_NAME" => $arMessage["TO_USER_LAST_NAME"],
-					"USER_SECOND_NAME" => $arMessage["TO_USER_SECOND_NAME"],
+					"USER_SECOND_NAME" => $arMessage["TO_USER_SECOND_NAME"] ?? null,
 					"TO_USER_LID" => $siteID,
 					"EMAIL_TO" => $arMessage["TO_USER_EMAIL"],
 				);
@@ -232,7 +232,7 @@ class CIMMail
 					$arMessage["FROM_USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
 						"NAME" => $arMessage["FROM_USER_NAME"],
 						"LAST_NAME" => $arMessage["FROM_USER_LAST_NAME"],
-						"SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"],
+						"SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"] ?? null,
 						"LOGIN" => $arMessage["FROM_USER_LOGIN"],
 						"EXTERNAL_AUTH_ID" => $arMessage["FROM_EXTERNAL_AUTH_ID"],
 					));
@@ -244,7 +244,7 @@ class CIMMail
 					"FROM_USER_LOGIN" => $arMessage["FROM_USER_LOGIN"],
 					"FROM_USER_NAME" => $arMessage["FROM_USER_NAME"],
 					"FROM_USER_LAST_NAME" => $arMessage["FROM_USER_LAST_NAME"],
-					"FROM_USER_SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"],
+					"FROM_USER_SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"] ?? null,
 				);
 			}
 
@@ -292,15 +292,17 @@ class CIMMail
 			if ($bHeader)
 				$message .= "\n".GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_FOOTER');
 
+			$fromUserId = $arToInfo["FROM_USER_ID"] ?? null;
+
 			$arFields = array(
 				"USER" => $arToInfo["USER_ID"],
-				"USER_ID" => count($arNames) > 1? $arToInfo["USER_ID"]: $arToInfo["FROM_USER_ID"],
+				"USER_ID" => count($arNames) > 1? $arToInfo["USER_ID"]: $fromUserId,
 				"USER_LOGIN" => $arToInfo["USER_LOGIN"],
 				"USER_NAME" => $arToInfo["USER_NAME"],
 				"USER_LAST_NAME" => $arToInfo["USER_LAST_NAME"],
 				"USER_SECOND_NAME" => $arToInfo["USER_SECOND_NAME"],
 				"EMAIL_TO" => $arToInfo["EMAIL_TO"],
-				"TITLE" => $arToInfo["TITLE"],
+				"TITLE" => $arToInfo["TITLE"] ?? null,
 				"MESSAGES" => $message,
 				"MESSAGES_FROM_USERS" => serialize($messagesFromUsers)
 			);

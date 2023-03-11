@@ -82,7 +82,8 @@ class CBPMailActivity extends CBPActivity
 		}
 
 		$charset = $this->MailCharset;
-		$mailText = $this->getMailText();
+		$mailMessageType = $this->MailMessageType;
+		$mailText = $this->getMailText($mailMessageType);
 		$mailSubject = $this->MailSubject;
 
 		if ($this->workflow->isDebug())
@@ -114,7 +115,7 @@ class CBPMailActivity extends CBPActivity
 
 			Main\Mail\Mail::send([
 				'CHARSET' => $charset,
-				'CONTENT_TYPE' => $this->MailMessageType == 'html' ? 'html' : 'plain',
+				'CONTENT_TYPE' => $mailMessageType === 'html' ? 'html' : 'plain',
 				'ATTACHMENT' => $this->getAttachments(),
 				'TO' => $strMailUserTo,
 				'SUBJECT' => $mailSubject,
@@ -148,7 +149,7 @@ class CBPMailActivity extends CBPActivity
 
 			$files = $this->getFileIds();
 
-			$eventName = ($this->MailMessageType == 'html') ? 'BIZPROC_HTML_MAIL_TEMPLATE' : 'BIZPROC_MAIL_TEMPLATE';
+			$eventName = ($mailMessageType === 'html') ? 'BIZPROC_HTML_MAIL_TEMPLATE' : 'BIZPROC_MAIL_TEMPLATE';
 			$event = new CEvent;
 			$event->Send($eventName, $siteId, $arFields, 'N', '', $files);
 		}
@@ -402,7 +403,7 @@ class CBPMailActivity extends CBPActivity
 			{
 				continue;
 			}
-			$properties[$value] = $arCurrentValues[$key];
+			$properties[$value] = $arCurrentValues[$key] ?? null;
 		}
 
 		if ($properties['FileType'] === static::FILE_TYPE_DISK)
@@ -419,7 +420,15 @@ class CBPMailActivity extends CBPActivity
 		}
 		else
 		{
-			$properties['File'] = $arCurrentValues['file'] ?? $arCurrentValues['file_text'];
+			$properties['File'] = null;
+			if (isset($arCurrentValues['file']))
+			{
+				$properties['File'] = $arCurrentValues['file'];
+			}
+			elseif (isset($arCurrentValues['file_text']))
+			{
+				$properties['File'] = $arCurrentValues['file_text'];
+			}
 		}
 
 		if ($properties['MailSite'] == '')
@@ -767,6 +776,16 @@ class CBPMailActivity extends CBPActivity
 		return array_values($fromList);
 	}
 
+	private function filterToList(array $toList): array
+	{
+		if (!Loader::includeModule('bitrix24'))
+		{
+			return $toList;
+		}
+
+		return array_slice($toList, 0, 10);
+	}
+
 	private function getConfirmedEmails(array $emailsToCheck): array
 	{
 		$result = [];
@@ -861,17 +880,39 @@ class CBPMailActivity extends CBPActivity
 			}
 		}
 
-		return implode($separator, $result);
+		return implode($separator, $this->filterToList($result));
 	}
 
-	private function getMailText()
+	private function getMailText($mailMessageType)
 	{
 		$mailText = $this->getRawProperty('MailText');
 		if ($this->MailMessageEncoded)
 		{
 			$mailText = self::decodeMailText($mailText);
 		}
-		$mailText = $this->ParseValue($mailText, 'text');
+
+		$mailText = $this->ParseValue(
+			$mailText,
+			'text',
+			function($objectName, $fieldName, $property, $result) use ($mailMessageType)
+			{
+				if (is_array($result))
+				{
+					$result = implode(', ', CBPHelper::makeArrayFlat($result));
+				}
+
+				if (
+					$mailMessageType === 'html'
+					&& $property['ValueContentType'] !== 'html'
+					&& $property['Type'] !== 'S:HTML'
+				)
+				{
+					$result = htmlspecialcharsbx($result);
+				}
+
+				return $result;
+			}
+		);
 
 		return $mailText;
 	}

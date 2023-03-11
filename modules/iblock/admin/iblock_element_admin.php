@@ -239,7 +239,6 @@ $bCatalog = Loader::includeModule("catalog");
 $arCatalog = false;
 $boolSKU = false;
 $boolSKUFiltrable = false;
-$strSKUName = '';
 $uniq_id = 0;
 $useStoreControl = false;
 $strSaveWithoutPrice = '';
@@ -294,7 +293,6 @@ if ($bCatalog)
 			if (CIBlockRights::UserHasRightTo($arCatalog['IBLOCK_ID'], $arCatalog['IBLOCK_ID'], "iblock_admin_display"))
 			{
 				$boolSKU = true;
-				$strSKUName = GetMessage('IBEL_A_OFFERS');
 			}
 		}
 		if (!$boolCatalogRead && !$boolCatalogPrice)
@@ -693,9 +691,9 @@ if ($boolSKU)
 		$propertySKUManager->AddFilter($sTableID, $arSubQuery);
 	}
 }
-if (!is_null($arFilter["SECTION_ID"]))
+if (isset($arFilter["SECTION_ID"]))
 {
-	$find_section_section = intval($arFilter["SECTION_ID"]);
+	$find_section_section = (int)$arFilter["SECTION_ID"];
 }
 
 if ($bBizproc && "E" != $arIBlock["RIGHTS_MODE"])
@@ -1328,6 +1326,7 @@ foreach($arProps as $arProperty)
 }
 
 $arSelectedFieldsMap["ID"] = true;
+$arSelectedFieldsMap["NAME"] = true;
 $arSelectedFieldsMap["CREATED_BY"] = true;
 $arSelectedFieldsMap["LANG_DIR"] = true;
 $arSelectedFieldsMap["LID"] = true;
@@ -2829,8 +2828,6 @@ foreach (array_keys($rawRows) as $rowId)
 	{
 		$arRes['CATALOG_TYPE'] = (int)$arRes['CATALOG_TYPE'];
 
-		$arRes['TAGS'] = $arRes['TAGS'] ?? '';
-
 		if (isset($clearedGridFields[$arRes['CATALOG_TYPE']]))
 		{
 			foreach ($clearedGridFields[$arRes['CATALOG_TYPE']] as $fieldName)
@@ -3891,14 +3888,18 @@ foreach($arRows as $idRow => $row)
 		$row->AddInputField("SORT", array('size'=>'3'));
 		$row->AddInputField("CODE");
 		$row->AddInputField("EXTERNAL_ID");
-		if ($bSearch)
+		if (isset($arSelectedFieldsMap['TAGS']))
 		{
-			$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
-			$row->AddEditField("TAGS", InputTags("FIELDS[".$idRow."][TAGS]", $row->arRes["TAGS"], $arIBlock["SITE_ID"]));
-		}
-		else
-		{
-			$row->AddInputField("TAGS");
+			if ($bSearch)
+			{
+				$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+				$row->AddEditField("TAGS",
+					InputTags("FIELDS[" . $idRow . "][TAGS]", $row->arRes["TAGS"], $arIBlock["SITE_ID"]));
+			}
+			else
+			{
+				$row->AddInputField("TAGS");
+			}
 		}
 		$row->AddCalendarField("DATE_ACTIVE_FROM", array(), $useCalendarTime);
 		$row->AddCalendarField("DATE_ACTIVE_TO", array(), $useCalendarTime);
@@ -4231,7 +4232,10 @@ foreach($arRows as $idRow => $row)
 		$row->AddInputField("SORT", false);
 		$row->AddInputField("CODE", false);
 		$row->AddInputField("EXTERNAL_ID", false);
-		$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+		if (isset($arSelectedFieldsMap['TAGS']))
+		{
+			$row->AddViewField("TAGS", htmlspecialcharsEx($row->arRes["TAGS"]));
+		}
 		$row->AddCalendarField("DATE_ACTIVE_FROM", false);
 		$row->AddCalendarField("DATE_ACTIVE_TO", false);
 		if ($bWorkFlow)

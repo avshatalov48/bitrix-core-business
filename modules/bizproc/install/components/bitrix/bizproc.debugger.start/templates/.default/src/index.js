@@ -153,7 +153,7 @@ class DebuggerStartComponent
 
 		if (top.BX.Bizproc.Debugger)
 		{
-			top.BX.Bizproc.Debugger.Manager.Instance.finishSession(this.#activeSession)
+			top.BX.Bizproc.Debugger.Manager.Instance.askFinishSession(this.#activeSession)
 				.then(
 					this.#onAfterFinishSession.bind(this),
 					(response) => {
@@ -216,7 +216,7 @@ class DebuggerStartComponent
 		this.init();
 	}
 
-	#reject(response, onAfterCloseAlert: Function)
+	#reject(response, callback: Function)
 	{
 		if (Type.isArrayFilled(response.errors))
 		{
@@ -225,7 +225,11 @@ class DebuggerStartComponent
 				message = message + '\n' + error.message;
 			});
 
-			MessageBox.alert(message, onAfterCloseAlert);
+			MessageBox.alert(message, callback);
+		}
+		else if (Type.isFunction(callback))
+		{
+			callback();
 		}
 	}
 }

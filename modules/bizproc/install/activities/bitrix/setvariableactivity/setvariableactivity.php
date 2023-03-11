@@ -21,8 +21,12 @@ class CBPSetVariableActivity
 
 		foreach ($variables as $name => $value)
 		{
-			$property = $this->getVariableType($name);
-			$value = $this->ParseValue($value, isset($property['Type']) ? $property['Type'] : null);
+			if ($value !== '')
+			{
+				$property = $this->getVariableType($name);
+				$value = $this->ParseValue($value, isset($property['Type']) ? $property['Type'] : null);
+			}
+
 			$this->SetVariable($name, $value);
 		}
 

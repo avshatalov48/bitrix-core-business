@@ -1279,7 +1279,8 @@ class CAllIBlock
 		}
 
 		if(
-			is_array($arFields["PICTURE"])
+			isset($arFields["PICTURE"])
+			&& is_array($arFields["PICTURE"])
 			&& array_key_exists("bucket", $arFields["PICTURE"])
 			&& is_object($arFields["PICTURE"]["bucket"])
 		)
@@ -2885,15 +2886,21 @@ REQ
 			if((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"))
 			{
 				static $cache = array();
-				if(!isset($cache[$arr["LID"]]))
+				if (isset($arr["LID"]))
 				{
-					$db_lang = CLang::GetByID($arr["LID"]);
-					$arLang = $db_lang->Fetch();
-					$cache[$arr["LID"]] = $arLang;
+					if (!isset($cache[$arr["LID"]]))
+					{
+						$db_lang = CLang::GetByID($arr["LID"]);
+						$arLang = $db_lang->Fetch();
+						$cache[$arr["LID"]] = $arLang;
+					}
+					$arLang = $cache[$arr["LID"]];
+					if (!empty($arLang))
+					{
+						$url = str_replace("#SITE_DIR#", $arLang["DIR"], $url);
+						$url = str_replace("#SERVER_NAME#", $arLang["SERVER_NAME"], $url);
+					}
 				}
-				$arLang = $cache[$arr["LID"]];
-				$url = str_replace("#SITE_DIR#", $arLang["DIR"], $url);
-				$url = str_replace("#SERVER_NAME#", $arLang["SERVER_NAME"], $url);
 			}
 			else
 			{
@@ -2939,7 +2946,9 @@ REQ
 		if($arrType === "E")
 		{
 			$arReplace[] = $preparedId;
-			$arReplace[] = rawurlencode(isset($arr["~CODE"])? $arr["~CODE"]: $arr["CODE"]);
+			$arReplace[] = rawurlencode(
+				(string)($arr["~CODE"] ?? $arr["CODE"])
+			);
 			#Deal with symbol codes
 			$SECTION_ID = intval($arr["IBLOCK_SECTION_ID"]);
 
@@ -2979,7 +2988,7 @@ REQ
 			$arReplace[] = "";
 			$arReplace[] = "";
 			$arReplace[] = $SECTION_ID > 0? $SECTION_ID: "";
-			$arReplace[] = rawurlencode(isset($arr["~CODE"])? $arr["~CODE"]: $arr["CODE"]);
+			$arReplace[] = rawurlencode($arr["~CODE"] ?? $arr["CODE"] ?? '');
 			$arReplace[] = $SECTION_CODE_PATH;
 		}
 		else
@@ -3749,7 +3758,7 @@ REQ
 			if (isset($value))
 				$url.= '&'.urlencode($name).'='.urlencode($value);
 
-		if ($arParams["replace_script_name"])
+		if (isset($arParams["replace_script_name"]) && $arParams["replace_script_name"])
 		{
 			$url = self::replaceScriptName($url);
 		}
@@ -3895,8 +3904,14 @@ REQ
 
 	private static function isPublicSidePanel()
 	{
-		return ((isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y") && ($_REQUEST["publicSidePanel"] === "Y"
-			|| $_REQUEST["IFRAME_TYPE"] == "PUBLIC_FRAME"));
+		$iframe = $_REQUEST["IFRAME"] ?? null;
+		$iframeType = $_REQUEST["IFRAME_TYPE"] ?? null;
+		$publicSidePanel = $_REQUEST["publicSidePanel"] ?? null;
+
+		return
+			$iframe === "Y"
+			&& ($publicSidePanel === "Y" || $iframeType === "PUBLIC_FRAME")
+		;
 	}
 
 	private static function replaceScriptName($url)

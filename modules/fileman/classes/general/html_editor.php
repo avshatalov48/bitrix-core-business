@@ -4,6 +4,9 @@
  * @global CUser $USER
  */
 
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
+
 IncludeModuleLangFile(__FILE__);
 class CHTMLEditor
 {
@@ -15,7 +18,7 @@ class CHTMLEditor
 		$content,
 		$id,
 		$name,
-		$jsConfig,
+		$jsConfig = [],
 		$cssIframePath,
 		$bAutorized,
 		$bAllowPhp,
@@ -387,6 +390,7 @@ class CHTMLEditor
 			'bodyClass' => $arParams["bodyClass"],
 			'fontSize' => isset($arParams['fontSize']) && is_string($arParams['fontSize']) ? $arParams['fontSize'] : '14px',
 			'bodyId' => $arParams["bodyId"],
+			'designTokens' => \Bitrix\Main\UI\Extension::getHtml('ui.design-tokens'),
 			'spellcheck_path' => $basePath.'html-spell.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].$basePath.'html-spell.js'),
 			'usePspell' => $arParams["usePspell"],
 			'useCustomSpell' => $arParams["useCustomSpell"],
@@ -500,6 +504,14 @@ class CHTMLEditor
 		if ($arParams["uploadImagesFromClipboard"] !== false)
 			CJSCore::Init(array("uploader"));
 
+		$event = new Event(
+			'fileman',
+			'HtmlEditor:onBeforeBuild',
+			[$this]
+		);
+
+		EventManager::getInstance()->send($event);
+
 		// Display all DOM elements, dialogs
 		$this->BuildSceleton($this->display);
 		$this->Run($this->display);
@@ -598,6 +610,16 @@ class CHTMLEditor
 	{
 		$mess_lang = \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/classes/general/html_editor_js.php');
 		?><script>BX.message(<?=CUtil::PhpToJSObject($mess_lang, false);?>);</script><?
+	}
+
+	public function getConfig(): array
+	{
+		return $this->jsConfig;
+	}
+
+	public function setOption(string $option, $value): void
+	{
+		$this->jsConfig[$option] = $value;
 	}
 
 	public static function GetSnippets($templateId, $bClearCache = false)

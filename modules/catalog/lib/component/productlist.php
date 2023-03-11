@@ -41,7 +41,7 @@ abstract class ProductList extends \CBitrixComponent
 			$fields['DETAIL_URL'] = $this->getElementDetailUrl($product->getIblockId(), $product->getId());
 			$fields['TYPE'] = (int)$fields['TYPE'];
 
-			$measure = $this->measures[$sku->getField('MEASURE')];
+			$measure = $this->measures[$sku->getField('MEASURE')] ?? null;
 			if (!$measure)
 			{
 				$measure = $this->getDefaultMeasure();

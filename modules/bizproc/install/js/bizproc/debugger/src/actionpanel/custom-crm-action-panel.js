@@ -47,7 +47,7 @@ export class CustomCrmActionPanel
 			id: 'finish_debug',
 			text: Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FINISH_DEBUG_ACTION'),
 			onclick: function () {
-				Manager.Instance.finishSession(this.#debuggerInstance.session).then(
+				Manager.Instance.askFinishSession(this.#debuggerInstance.session).then(
 					() => {
 						this.stopActionPanel();
 					},
@@ -143,8 +143,13 @@ export class CustomCrmActionPanel
 
 	#handleRejectResponse(response, actionId)
 	{
+		if (!response.errors)
+		{
+			return;
+		}
+
 		let message = '';
-		response.errors.forEach((error)=>{
+		response.errors.forEach((error) => {
 			message = message + '\n' + error.message;
 		});
 

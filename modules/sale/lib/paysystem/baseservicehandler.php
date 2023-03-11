@@ -31,6 +31,8 @@ abstract class BaseServiceHandler
 	/** @var bool */
 	protected $isClone = false;
 
+	private array $businessCodes = [];
+
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
@@ -116,23 +118,32 @@ abstract class BaseServiceHandler
 
 		$folders = array();
 
-		$folders[] = '/local/templates/'.$siteTemplate.'/payment/'.$handlerName.'/template';
+		$folders[] = '/local/templates/' . $siteTemplate . '/payment/' . $handlerName . '/template';
 		if ($siteTemplate !== '.default')
-			$folders[] = '/local/templates/.default/payment/'.$handlerName.'/template';
+		{
+			$folders[] = '/local/templates/.default/payment/' . $handlerName . '/template';
+		}
 
-		$folders[] = '/bitrix/templates/'.$siteTemplate.'/payment/'.$handlerName.'/template';
+		$folders[] = '/bitrix/templates/' . $siteTemplate . '/payment/' . $handlerName . '/template';
 		if ($siteTemplate !== '.default')
-			$folders[] = '/bitrix/templates/.default/payment/'.$handlerName.'/template';
+		{
+			$folders[] = '/bitrix/templates/.default/payment/' . $handlerName . '/template';
+		}
 
 		$baseFolders = Manager::getHandlerDirectories();
-		$folders[] = $baseFolders[$this->handlerType].$handlerName.'/template';
+		if (isset($baseFolders[$this->handlerType]))
+		{
+			$folders[] = $baseFolders[$this->handlerType] . $handlerName . '/template';
+		}
 
 		foreach ($folders as $folder)
 		{
-			$templatePath = $documentRoot.$folder.'/'.$template.'.php';
+			$templatePath = $documentRoot . $folder . '/' . $template . '.php';
 
 			if (IO\File::isFileExists($templatePath))
+			{
 				return $templatePath;
+			}
 		}
 
 		return '';
@@ -186,23 +197,14 @@ abstract class BaseServiceHandler
 	 */
 	public function getDescription()
 	{
-		$data = array();
-		$documentRoot = Application::getDocumentRoot();
-		$dirs = Manager::getHandlerDirectories();
-		$handlerDir = $dirs[$this->handlerType];
-		$file = $documentRoot.$handlerDir.static::getName().'/.description.php';
+		$description = $this->includeDescription();
 
-		if (IO\File::isFileExists($file))
+		if (isset($description['CODES']) && is_array($description['CODES']))
 		{
-			require $file;
+			$description['CODES'] = $this->filterDescriptionCodes($description['CODES']);
 		}
 
-		if (isset($data["CODES"]) && is_array($data["CODES"]))
-		{
-			$data["CODES"] = $this->filterDescriptionCodes($data["CODES"]);
-		}
-
-		return $data;
+		return $description;
 	}
 
 	/**
@@ -211,21 +213,26 @@ abstract class BaseServiceHandler
 	 */
 	protected function filterDescriptionCodes($codes)
 	{
-		$psMode = $this->service->getField("PS_MODE");
-		return array_filter($codes, static function ($code) use ($psMode) {
-			if (!isset($code["HANDLER_MODE"]))
-			{
-				return true;
-			}
+		$psMode = $this->service->getField('PS_MODE');
 
-			if (isset($code["HANDLER_MODE"]) && !is_array($code["HANDLER_MODE"]))
-			{
-				trigger_error("HANDLER_MODE must be an array", E_USER_WARNING);
-				return false;
-			}
+		return array_filter(
+			$codes,
+			static function ($code, $key) use ($psMode) {
+				if (!isset($code['HANDLER_MODE']))
+				{
+					return true;
+				}
 
-			return in_array($psMode, $code["HANDLER_MODE"], true);
-		});
+				if (!is_array($code['HANDLER_MODE']))
+				{
+					trigger_error('HANDLER_MODE must be an array', E_USER_WARNING);
+					return false;
+				}
+
+				return in_array($psMode, $code['HANDLER_MODE'], true);
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
 	}
 
 	/**
@@ -233,16 +240,17 @@ abstract class BaseServiceHandler
 	 */
 	protected function getBusinessCodes()
 	{
-		static $data = array();
-
-		if (!$data)
+		if (!$this->businessCodes)
 		{
-			$result = $this->getDescription();
-			if ($result['CODES'])
-				$data = array_keys($result['CODES']);
+			$description = $this->includeDescription();
+
+			if (isset($description['CODES']) && is_array($description['CODES']))
+			{
+				$this->businessCodes = array_keys($description['CODES']);
+			}
 		}
 
-		return $data;
+		return $this->businessCodes;
 	}
 
 	/**
@@ -268,10 +276,10 @@ abstract class BaseServiceHandler
 
 	/**
 	 * The type of client that the handler can work with
-	 * 
+	 *
 	 * If, depending on PS_MODE, the handler can work with different types of clients,
 	 * then you can implement validation in a similar way:
-	 * 
+	 *
 	 * ```php
 	 * 	public function getClientType($psMode)
 	 * 	{
@@ -449,5 +457,22 @@ abstract class BaseServiceHandler
 	public function isTuned()
 	{
 		return true;
+	}
+
+	protected function includeDescription(): array
+	{
+		$data = null;
+
+		$documentRoot = Application::getDocumentRoot();
+		$dirs = Manager::getHandlerDirectories();
+		$handlerDir = $dirs[$this->handlerType];
+		$file = $documentRoot . $handlerDir . static::getName() . '/.description.php';
+
+		if (IO\File::isFileExists($file))
+		{
+			require $file;
+		}
+
+		return (isset($data) && is_array($data)) ? $data : [];
 	}
 }

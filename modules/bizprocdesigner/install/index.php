@@ -52,7 +52,7 @@ Class bizprocdesigner extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if(!isset($_ENV["COMPUTERNAME"]) || $_ENV["COMPUTERNAME"] !== 'BX')
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
@@ -67,7 +67,7 @@ Class bizprocdesigner extends CModule
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if(!isset($_ENV["COMPUTERNAME"]) || $_ENV["COMPUTERNAME"] !== 'BX')
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools");
@@ -96,7 +96,7 @@ Class bizprocdesigner extends CModule
 			CBXFeatures::SetFeatureEnabled("BizProc", true);
 		}
 
-		$GLOBALS["errors"] = $this->errors;
+		$GLOBALS["errors"] = $this->errors ?? null;
 		$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/step2.php");
 	}
 
@@ -113,7 +113,7 @@ Class bizprocdesigner extends CModule
 			$this->UnInstallFiles();
 			$this->UnInstallDB(false);
 			CBXFeatures::SetFeatureEnabled("BizProc", false);
-			$GLOBALS["errors"] = $this->errors;
+			$GLOBALS["errors"] = $this->errors ?? null;
 
 			$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/unstep2.php");
 		}

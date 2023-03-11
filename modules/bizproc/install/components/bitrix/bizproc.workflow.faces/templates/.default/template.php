@@ -1,5 +1,13 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 \Bitrix\Main\UI\Extension::load(["ui.tooltip", "ui.icons.b24", "ui.design-tokens", "ui.fonts.opensans"]);
+
+use Bitrix\Main\Web\Uri;
 
 $cmpId = RandString();
 if (empty($arResult['WORKFLOW_ID'])):?>
@@ -20,7 +28,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				if ($startedPhoto = CBPViewHelper::getUserPhotoSrc($arResult['STARTED_BY']))
 				{
 					?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
-						<i bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" style="background-image: url('<?=htmlspecialcharsbx($startedPhoto)?>')"></i>
+						<i bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" style="background-image: url('<?= htmlspecialcharsbx(Uri::urnEncode($startedPhoto)) ?>')"></i>
 					</div><?
 				}
 				else
@@ -48,7 +56,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				$face = $task['USERS'][0]?>
 			<span class="bp-short-prosess-steps-arrow bp-short-prosess-steps-arrow-ready">
 				<?if ( $arResult['TASKS']['COMPLETED_CNT'] >= 2):?>
-						<a id="<?=$cmpId?>_bp_more_cts" href="#" class="process-step-more"><?=GetMessage('BPWLFC_MORE')?> <?=($arResult['TASKS']['COMPLETED_CNT']-1)?></a>
+						<a id="<?=$cmpId?>_bp_more_cts" href="#" class="process-step-more"><?=GetMessage('BPWLFC_MORE_1', ['#N#' => $arResult['TASKS']['COMPLETED_CNT'] - 1])?></a>
 				<?endif?>
 			</span>
 
@@ -58,7 +66,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 					{
 						?>
 						<div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
-							<i style="background-image: url('<?=htmlspecialcharsbx($face['PHOTO_SRC'])?>')" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
+							<i style="background-image: url('<?= htmlspecialcharsbx(Uri::urnEncode($face['PHOTO_SRC'])) ?>')" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
 						</div>
 						<?
 					}
@@ -71,7 +79,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				?></a>
 				<?if ($task['USERS_CNT'] > 1):?>
 				<a id="<?=$cmpId?>_bp_more_cfs" href="#" class="process-step-more process-step-more-complete">
-					<span class=""><?=GetMessage('BPWLFC_TOTAL')?> <?=$task['USERS_CNT']?></span>
+					<span class=""><?=GetMessage('BPWLFC_TOTAL_1', ['#N#' => $task['USERS_CNT']])?></span>
 				</a>
 				<?endif?>
 			</div>
@@ -108,11 +116,11 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 			?><a href="javascript:void(0)" class="bp-short-process-step <?if ($face['STATUS'] == CBPTaskUserStatus::Ok || $face['STATUS'] == CBPTaskUserStatus::Yes) echo 'bp-short-process-step-ready'?>
 			<?if ($face['STATUS'] == CBPTaskUserStatus::No || $face['STATUS'] == CBPTaskUserStatus::Cancel) echo 'bp-short-process-step-cancel'?> <?if ($task['USERS_CNT'] > 1) echo 'bp-short-process-step-more'?>">
 				<div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
-					<i id="<?=$cmpId?>_face_3_photo_src" <?if ($photoSrc):?>style="background-image: url('<?=htmlspecialcharsbx($photoSrc)?>')" border="0"<?endif;?> bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
+					<i id="<?=$cmpId?>_face_3_photo_src" <?if ($photoSrc):?>style="background-image: url('<?= htmlspecialcharsbx(Uri::urnEncode($photoSrc)) ?>')" border="0"<?endif;?> bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
 				</div>
 			</a>
 			<? if ($allFaces >= 2):?>
-			<a id="<?=$cmpId?>_bp_more_rf" href="#" class="process-step-more process-step-more-running"><span><?=GetMessage('BPWLFC_TOTAL')?> <?=$allFaces?></span></a>
+			<a id="<?=$cmpId?>_bp_more_rf" href="#" class="process-step-more process-step-more-running"><span><?=GetMessage('BPWLFC_TOTAL_1', ['#N#' => $allFaces])?></span></a>
 			<?endif?>
 		</span>
 		<script>

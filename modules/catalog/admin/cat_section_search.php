@@ -23,15 +23,15 @@ if (
 
 IncludeModuleLangFile(__FILE__);
 
-$n = preg_replace("/[^a-zA-Z0-9_\\[\\]]/", "", $_GET["n"]);
-$k = preg_replace("/[^a-zA-Z0-9_:]/", "", $_GET["k"]);
-$m = $_GET["m"] === "y";
+$n = preg_replace("/[^a-zA-Z0-9_\\[\\]]/", "", $_GET["n"] ?? '');
+$k = preg_replace("/[^a-zA-Z0-9_:]/", "", $_GET["k"] ?? '');
+$m = isset($_GET["m"]) && $_GET["m"] === "y";
 
 $APPLICATION->SetTitle(GetMessage("BX_MOD_CATALOG_ADMIN_CSS_TITLE"));
 
 $entity_id = false;
 
-$sTableID = "tbl_iblock_section_search_".intval($arIBlock["ID"]);
+$sTableID = 'tbl_iblock_section_search_';
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
@@ -53,25 +53,29 @@ $arFilterFields = Array(
 if($entity_id)
 	$USER_FIELD_MANAGER->AdminListAddFilterFields($entity_id, $arFilterFields);
 
-$section_id = intval($find_section_section);
+$section_id = (int)($find_section_section ?? 0);
 $lAdmin->InitFilter($arFilterFields);
 $find_section_section = $section_id;
 if($find_section_section<=0)
 	$find_section_section=-1;
 
 $IBLOCK_ID = 0;
-if (0 == $IBLOCK_ID && isset($find_iblock_id))
+if (0 === $IBLOCK_ID && isset($find_iblock_id))
 {
 	$IBLOCK_ID = intval($find_iblock_id);
 	if (0 >= $IBLOCK_ID)
+	{
 		$IBLOCK_ID = 0;
+	}
 }
 
-if (0 == $IBLOCK_ID)
+if (0 === $IBLOCK_ID)
 {
-	$IBLOCK_ID = intval($_REQUEST["IBLOCK_ID"]);
+	$IBLOCK_ID = intval($_REQUEST["IBLOCK_ID"] ?? 0);
 	if (0 >= $IBLOCK_ID)
+	{
 		$IBLOCK_ID = 0;
+	}
 }
 
 $arIBTYPE = false;
@@ -110,10 +114,10 @@ $arFilter = array(
 	"ID"		=> $find_section_id,
 	">=TIMESTAMP_X"	=> $find_section_timestamp_1,
 	"<=TIMESTAMP_X"	=> $find_section_timestamp_2,
-	"MODIFIED_BY"	=> $find_section_modified_user_id? $find_section_modified_user_id: $find_section_modified_by,
+	"MODIFIED_BY"	=> !empty($find_section_modified_user_id) ? $find_section_modified_user_id : $find_section_modified_by,
 	">=DATE_CREATE"	=> $find_section_date_create_1,
 	"<=DATE_CREATE"	=> $find_section_date_create_2,
-	"CREATED_BY"	=> $find_section_created_user_id? $find_section_created_user_id: $find_section_created_by,
+	"CREATED_BY"	=> !empty($find_section_created_user_id) ? $find_section_created_user_id : $find_section_created_by,
 	"ACTIVE"	=> $find_section_active,
 	"CODE"		=> $find_section_code,
 	"EXTERNAL_ID"	=> $find_section_external_id,
@@ -300,7 +304,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		array(
 			"DEFAULT" => "Y",
 			"TEXT" => GetMessage("BX_MOD_CATALOG_ADMIN_CSS_SELECT"),
-			"ACTION"=>"javascript:SelEl('".($get_xml_id? $f_XML_ID: $f_ID)."', '".$jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;"."')"
+			"ACTION"=>"javascript:SelEl('".(!empty($get_xml_id) ? $f_XML_ID : $f_ID)."', '".$jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;"."')"
 		),
 	));
 }

@@ -1938,14 +1938,12 @@ class CIBlockDocument
 			}
 		}
 
-		if (count($arFieldsPropertyValues) > 0)
-			$arFields["PROPERTY_VALUES"] = $arFieldsPropertyValues;
-
 		$iblockElement = new CIBlockElement();
-		if (count($arFields["PROPERTY_VALUES"]) > 0)
-			$iblockElement->SetPropertyValuesEx($documentId, $arResult["IBLOCK_ID"], $arFields["PROPERTY_VALUES"]);
+		if (!empty($arFieldsPropertyValues))
+		{
+			$iblockElement->SetPropertyValuesEx($documentId, $arResult["IBLOCK_ID"], $arFieldsPropertyValues);
+		}
 
-		UnSet($arFields["PROPERTY_VALUES"]);
 		$res = $iblockElement->Update($documentId, $arFields, false, true, true);
 		if (!$res)
 			throw new Exception($iblockElement->LAST_ERROR);

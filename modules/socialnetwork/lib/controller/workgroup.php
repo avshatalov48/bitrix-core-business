@@ -966,17 +966,23 @@ class Workgroup extends Base
 				&& !$pin
 			)
 			{
-				$tableAddResult = WorkgroupPinTable::add([
-					'GROUP_ID' => $groupId,
-					'USER_ID' => $currentUserId,
-					'CONTEXT' => $mode,
-				]);
-				if (!$tableAddResult->isSuccess())
+				try
 				{
-					$this->addError(new Error(
-						Loc::getMessage('SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'),
-						'SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'
-					));
+					WorkgroupPinTable::add([
+						'GROUP_ID' => $groupId,
+						'USER_ID' => $currentUserId,
+						'CONTEXT' => $mode,
+					]);
+				}
+				catch (\Exception $e)
+				{
+					$this->addError(
+						new Error(
+							Loc::getMessage('SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'),
+							'SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'
+						)
+					);
+
 					return null;
 				}
 

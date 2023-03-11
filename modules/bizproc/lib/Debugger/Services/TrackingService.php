@@ -11,13 +11,6 @@ class TrackingService extends \CBPTrackingService
 {
 	use WriterDebugTrack;
 
-	public const DEBUG_TRACK_TYPES = [
-		\CBPTrackingType::Debug,
-		\CBPTrackingType::DebugAutomation,
-		\CBPTrackingType::DebugDesigner,
-		\CBPTrackingType::DebugLink
-	];
-
 	public function canWrite($type, $workflowId)
 	{
 		$session = Manager::getActiveSession();
@@ -40,7 +33,7 @@ class TrackingService extends \CBPTrackingService
 		$modifiedBy = 0
 	): ?int
 	{
-		if (in_array($type, self::DEBUG_TRACK_TYPES))
+		if (in_array((int)$type, self::DEBUG_TRACK_TYPES, true))
 		{
 			if (!is_array($actionNote))
 			{
@@ -61,15 +54,21 @@ class TrackingService extends \CBPTrackingService
 			$modifiedBy
 		);
 
-		Listener::getInstance()->onTrackWrite([
-			'ID' => $id,
-			'WORKFLOW_ID' => $workflowId,
-			'TYPE' => $type,
-			'ACTION_NAME' => $actionName,
-			'ACTION_TITLE' => $actionTitle,
-			'ACTION_NOTE' => $actionNote,
-			'MODIFIED' => (string)(new DateTime())
+		$trackingResult = new \CBPTrackingServiceResult();
+		$trackingResult->InitFromArray([
+			$id => [
+				'ID' => $id,
+				'WORKFLOW_ID' => $workflowId,
+				'TYPE' => $type,
+				'ACTION_NAME' => $actionName,
+				'ACTION_TITLE' => $actionTitle,
+				'ACTION_NOTE' => $actionNote,
+				'MODIFIED' => (string)(new DateTime()),
+			]
 		]);
+
+		$result = $trackingResult->fetch();
+		Listener::getInstance()->onTrackWrite($result);
 
 		return $id;
 	}

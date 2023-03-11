@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\v2\IoC;
 
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\ObjectNotFoundException;
+use ReflectionNamedType;
 
 /**
  * Class Container
@@ -148,8 +149,8 @@ final class Container implements ContainerContract
 
 	private function resolveParameter(\ReflectionParameter $parameter, array $args = [])
 	{
-		// ToDo check all the interfaces and parent classes?
-		if ($parameter->getClass())
+		$type = $parameter->getType();
+		if (($type instanceof ReflectionNamedType) && !$type->isBuiltin())
 		{
 			return $this->resolveClassParameter($parameter, $args);
 		}
@@ -161,7 +162,15 @@ final class Container implements ContainerContract
 	{
 		try
 		{
-			$className = $parameter->getClass()->getName();
+			$type = $parameter->getType();
+			if (($type instanceof ReflectionNamedType) && !$type->isBuiltin())
+			{
+				$className = $type->getName();
+			}
+			else
+			{
+				throw new ObjectNotFoundException('Not class type');
+			}
 
 			if ($className === static::class || is_subclass_of(static::class, $className))
 			{

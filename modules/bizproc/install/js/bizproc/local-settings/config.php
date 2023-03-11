@@ -9,7 +9,7 @@ return [
 	'css' => 'dist/local-settings.bundle.css',
 	'js' => 'dist/local-settings.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

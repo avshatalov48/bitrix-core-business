@@ -3,7 +3,10 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 if(!Main\Loader::includeModule('bizproc') || !Main\Loader::includeModule('bizprocdesigner'))
 {
@@ -14,7 +17,16 @@ Loc::loadMessages(__FILE__);
 
 class BizprocWorkflowEditComponent extends \CBitrixComponent
 {
-	protected function listKeysSignedParameters()
+	private \Bitrix\Bizproc\Activity\Settings $activitySettings;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->activitySettings = new \Bitrix\Bizproc\Activity\Settings('~bizprocdesigner');
+	}
+
+protected function listKeysSignedParameters()
 	{
 		return ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'];
 	}
@@ -34,7 +46,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 				'filter' => ['=ID' => $params['ID']],
 				'select' => ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE']
 			])->fetch();
-			list($params['MODULE_ID'], $params['ENTITY'], $params['DOCUMENT_TYPE']) = array_values($tpl);
+			[$params['MODULE_ID'], $params['ENTITY'], $params['DOCUMENT_TYPE']] = array_values($tpl);
 		}
 
 		if (!isset($params['MODULE_ID']) && defined('MODULE_ID'))
@@ -145,7 +157,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$workflowTemplateIsSystem = 'N';
 			$workflowTemplateSort = 10;
 
-			if ($_GET['init'] == 'statemachine')
+			if (isset($_GET['init']) && $_GET['init'] == 'statemachine')
 			{
 				$arWorkflowTemplate = [
 					[
@@ -187,12 +199,12 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$this->arResult['BACK_URL'] = $backUrl;
 		}
 
-		if($_SERVER['REQUEST_METHOD']=='POST' && $_REQUEST['saveajax']=='Y' && check_bitrix_sessid())
+		if($_SERVER['REQUEST_METHOD']=='POST' && isset($_REQUEST['saveajax']) && $_REQUEST['saveajax'] === 'Y' && check_bitrix_sessid())
 		{
 			$APPLICATION->RestartBuffer();
 			CBPHelper::decodeTemplatePostData($_POST);
 
-			if($_REQUEST['saveuserparams']=='Y')
+			if (!empty($_REQUEST['saveuserparams']))
 			{
 				$d = is_array($_POST['USER_PARAMS']) ? $_POST['USER_PARAMS'] : null;
 				$maxLength = 16777215;//pow(2, 24) - 1; //mysql mediumtext column length
@@ -203,7 +215,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 				</script><?
 				die();
 				}
-				CUserOptions::SetOption("~bizprocdesigner", "activity_settings", $d);
+				$this->activitySettings->save($d);
 				die('<!--SUCCESS-->');
 			}
 
@@ -224,9 +236,43 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			];
 
 			if(!is_array($arFields["VARIABLES"]))
+			{
 				$arFields["VARIABLES"] = [];
+			}
 			if(!is_array($arFields["CONSTANTS"]))
+			{
 				$arFields["CONSTANTS"] = [];
+			}
+
+			if (!empty($arFields['PARAMETERS']))
+			{
+				$maxParametersLength = 65535;
+				if (self::getCompressedFieldLength($arFields['PARAMETERS']) > $maxParametersLength)
+				{
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR'));
+					die('<!--SUCCESS-->');
+				}
+			}
+
+			if (!empty($arFields['VARIABLES']))
+			{
+				$maxVariablesLength = 65535;
+				if (self::getCompressedFieldLength($arFields['VARIABLES']) > $maxVariablesLength)
+				{
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_VARIABLES_SAVE_ERROR'));
+					die('<!--SUCCESS-->');
+				}
+			}
+
+			if (!empty($arFields['CONSTANTS']))
+			{
+				$maxConstantsLength = 16777215;
+				if (self::getCompressedFieldLength($arFields['CONSTANTS']) > $maxConstantsLength)
+				{
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR'));
+					die('<!--SUCCESS-->');
+				}
+			}
 
 			try
 			{
@@ -286,12 +332,12 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			}
 			?><!--SUCCESS--><script>
 				BPTemplateIsModified = false;
-				window.location = '<?=($_REQUEST["apply"]=="Y"? CUtil::JSEscape($applyUrl) : CUtil::JSEscape($saveUrl))?>';
+				window.location = '<?=(!empty($_REQUEST["apply"])? CUtil::JSEscape($applyUrl) : CUtil::JSEscape($saveUrl))?>';
 			</script><?
 			die();
 		}
 
-		if($_SERVER['REQUEST_METHOD']=='GET' && $_REQUEST['export_template']=='Y' && check_bitrix_sessid())
+		if($_SERVER['REQUEST_METHOD']=='GET' && !empty($_REQUEST['export_template']) && check_bitrix_sessid())
 		{
 			$APPLICATION->RestartBuffer();
 			if ($ID > 0)
@@ -416,7 +462,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		$this->arResult["ID"] = $ID;
 
-		$userParamsStr = CUserOptions::GetOption('~bizprocdesigner', 'activity_settings');
+		$userParamsStr = $this->activitySettings->get();
 		if (is_array($userParamsStr))
 		{
 			$userParams = $userParamsStr;
@@ -442,5 +488,25 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		}
 
 		$this->includeComponentTemplate();
+	}
+
+	private static function getCompressedFieldLength($field)
+	{
+		if (CBPWorkflowTemplateLoader::useGZipCompression())
+		{
+			return mb_strlen(gzcompress(serialize($field), 9));
+		}
+
+		return mb_strlen(serialize($field));
+	}
+
+	private static function showError($message): void
+	{
+		$message = htmlspecialcharsbx($message);
+
+		echo <<<HTML
+			<script>alert('$message');</script>
+			HTML
+		;
 	}
 }

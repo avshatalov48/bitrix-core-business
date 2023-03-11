@@ -17,6 +17,7 @@ use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Sale\Internals\PaySystemRestHandlersTable;
 use Bitrix\Sale\Internals\ServiceRestrictionTable;
+use Bitrix\Sale\Internals\BusinessValueTable;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Registry;
@@ -128,12 +129,11 @@ final class Manager
 		if ($oldFields)
 		{
 			$newFields = array_merge($oldFields, $data);
-			
-			$data['PS_CLIENT_TYPE'] = (new Service($newFields))->getClientTypeFromHandler();	
+			$data['PS_CLIENT_TYPE'] = (new Service($newFields))->getClientTypeFromHandler();
 		}
-		
+
 		$updateResult = PaySystemActionTable::update($primary, $data);
-		if ($updateResult->isSuccess())
+		if ($oldFields && $updateResult->isSuccess())
 		{
 			$oldFields = array_intersect_key($oldFields, $data);
 			$eventParams = [
@@ -197,7 +197,7 @@ final class Manager
 				$className = '';
 				if (File::isFileExists($documentRoot.$path.$name.'/handler.php'))
 				{
-					list($className) = self::includeHandler($item['ACTION_FILE']);
+					[$className] = self::includeHandler($item['ACTION_FILE']);
 				}
 
 				if (class_exists($className) && is_callable(array($className, 'isMyResponse')))
@@ -556,7 +556,18 @@ final class Manager
 		}
 
 		if (isset($data['CODES']) && is_array($data['CODES']))
-			uasort($data['CODES'], function ($a, $b) { return ($a['SORT'] < $b['SORT']) ? -1 : 1;});
+		{
+			uasort(
+				$data['CODES'],
+				function ($a, $b)
+				{
+					$sortA = $a['SORT'] ?? 0;
+					$sortB = $b['SORT'] ?? 0;
+
+					return ($sortA < $sortB) ? -1 : 1;
+				}
+			);
+		}
 
 		return $data;
 	}
@@ -791,25 +802,13 @@ final class Manager
 			\CFile::Delete($paySystemInfo['LOGOTIP']);
 		}
 
-		$restrictionList =  Restrictions\Manager::getRestrictionsList($primary);
-		if ($restrictionList)
-		{
-			Restrictions\Manager::getClassesList();
-
-			foreach ($restrictionList as $restriction)
-			{
-				/** @var Restriction $className */
-				$className = $restriction["CLASS_NAME"];
-				if (is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction'))
-				{
-					$className::delete($restriction['ID'], $primary);
-				}
-			}
-		}
-
-		BusinessValue::delete(Service::PAY_SYSTEM_PREFIX.$primary);
+		self::deleteRestrictions($primary);
 
 		$service = Manager::getObjectById($primary);
+		if ($service)
+		{
+			self::deleteBusinessValues($service);
+		}
 
 		$deleteResult = PaySystemActionTable::delete($primary);
 		if ($deleteResult->isSuccess())
@@ -825,6 +824,60 @@ final class Manager
 		}
 
 		return $deleteResult;
+	}
+
+	/**
+	 * Deletes restrictions
+	 *
+	 * @param int $paySystemId
+	 * @return void
+	 */
+	private static function deleteRestrictions(int $paySystemId): void
+	{
+		$restrictionList =  Restrictions\Manager::getRestrictionsList($paySystemId);
+		if ($restrictionList)
+		{
+			Restrictions\Manager::getClassesList();
+
+			foreach ($restrictionList as $restriction)
+			{
+				/** @var Restriction $className */
+				$className = $restriction['CLASS_NAME'];
+				if (is_subclass_of($className, Restriction::class))
+				{
+					$className::delete($restriction['ID'], $paySystemId);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Deletes business value with prefix
+	 * Also if there is only 1 paysystem (before delete), deletes all business value including COMMON
+	 *
+	 * @param Service $service
+	 * @return void
+	 */
+	private static function deleteBusinessValues(Service $service): void
+	{
+		BusinessValue::delete(Service::PAY_SYSTEM_PREFIX . $service->getField('ID'));
+
+		$paySystemCount = PaySystemActionTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'ACTION_FILE' => $service->getField('ACTION_FILE'),
+			],
+			'count_total' => true,
+		])->getCount();
+		if ($paySystemCount === 1)
+		{
+			$handlerDescription = $service->getHandlerDescription();
+			$handlerDescriptionCodes = array_keys($handlerDescription['CODES'] ?? []);
+			foreach ($handlerDescriptionCodes as $code)
+			{
+				BusinessValueTable::deleteByCodeKey($code);
+			}
+		}
 	}
 
 	/**

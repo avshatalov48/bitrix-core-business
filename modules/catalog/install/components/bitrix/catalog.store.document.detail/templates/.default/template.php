@@ -10,16 +10,15 @@ use Bitrix\Main\IO\File;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Loader;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 global $APPLICATION;
 
-if ($arResult['DOCUMENT']['TITLE'])
+if (isset($arResult['DOCUMENT']['TITLE']))
 {
 	$APPLICATION->SetTitle($arResult['DOCUMENT']['TITLE']);
 }
-elseif (!$arResult['DOCUMENT'] && empty($arResult['ERROR_MESSAGES']))
+elseif (empty($arResult['DOCUMENT']) && empty($arResult['ERROR_MESSAGES']))
 {
 	$APPLICATION->SetTitle(Loc::getMessage('DOC_TYPE_CREATION_PAGE_TITLE_' . $arResult['DOCUMENT_TYPE']));
 }
@@ -80,7 +79,8 @@ if (isset($arResult['TOOLBAR_ID']))
 	);
 }
 
-if ((int)$arResult['DOCUMENT']['ID'] > 0)
+$documentId = (int)($arResult['DOCUMENT']['ID'] ?? 0);
+if ($documentId > 0)
 {
 	$labelColorClass = 'ui-label-light';
 	$isDocumentCancelled = $arResult['DOCUMENT']['WAS_CANCELLED'] === 'Y' && $arResult['DOCUMENT']['STATUS'] === 'N';
@@ -226,7 +226,7 @@ $wrapperClassNames[] = $arResult['INCLUDE_CRM_ENTITY_EDITOR'] ? 'catalog-entity-
 	BX.Catalog.DocumentCard.Instance = new BX.Catalog.DocumentCard.DocumentCard(
 		'<?=CUtil::JSEscape($guid)?>',
 		{
-			entityId: '<?=CUtil::JSEscape($arResult['DOCUMENT']['ID'])?>',
+			entityId: '<?=CUtil::JSEscape($documentId)?>',
 			documentType: '<?=CUtil::JSEscape($arResult['DOCUMENT_TYPE'])?>',
 			documentStatus: '<?= CUtil::JSEscape($arResult['DOCUMENT']['STATUS'] ?? 'N') ?>',
 			tabs: <?=CUtil::PhpToJSObject($tabs)?>,
@@ -250,7 +250,7 @@ $wrapperClassNames[] = $arResult['INCLUDE_CRM_ENTITY_EDITOR'] ? 'catalog-entity-
 		<?php if (isset($arResult['TOOLBAR_ID'])):?>
 		BX.Catalog.DocumentCard.FeedbackButton.render(
 			document.getElementById('<?=CUtil::JSEscape($arResult['TOOLBAR_ID'])?>'),
-			<?=CUtil::JSEscape(((int)$arResult['DOCUMENT']['ID'] <= 0))?>
+			<?=CUtil::JSEscape($documentId <= 0)?>
 		);
 		<?php endif; ?>
 

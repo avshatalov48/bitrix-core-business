@@ -25,7 +25,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	const COMPONENT_CACHE_DIR = '/sale/location/links';
 
 	/**
-	 * Fatal error list. Any fatal error makes useless further execution of a component code. 
+	 * Fatal error list. Any fatal error makes useless further execution of a component code.
 	 * In most cases, there will be only one error in a list according to the scheme "one shot - one dead body"
 	 *
 	 * @var array Array of fatal errors.
@@ -107,10 +107,14 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		self::tryParseBoolean($arParams['SEARCH_BY_PRIMARY']);
 
 		// which site it is
-		if(!is_string($arParams['FILTER_SITE_ID']) || empty($arParams['FILTER_SITE_ID']) || $arParams['FILTER_SITE_ID'] == 'current')
+		if(empty($arParams['FILTER_SITE_ID']) || !is_string($arParams['FILTER_SITE_ID']) || $arParams['FILTER_SITE_ID'] === 'current')
+		{
 			$arParams['FILTER_SITE_ID'] = SITE_ID; //todo: it looks like a bug for admin pages, where SITE_ID == 'ru'.
+		}
 		else
+		{
 			$arParams['FILTER_SITE_ID'] = mb_substr(self::tryParseStringStrict($arParams['FILTER_SITE_ID']), 0, 2);
+		}
 
 		self::tryParseBoolean($arParams['FILTER_BY_SITE']);
 		self::tryParseBoolean($arParams['SHOW_DEFAULT_LOCATIONS']);
@@ -185,7 +189,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		$fld = intval($fld);
 		if(!$allowZero && !$fld && $default !== false)
 			$fld = $default;
-			
+
 		return $fld;
 	}
 
@@ -514,12 +518,16 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		$this->arResult =& $this->dbResult;
 		$this->arResult['ERRORS'] =& $this->errors;
 
-		if(is_array($this->arResult['LOCATION']))
+		if(!empty($this->arResult['LOCATION']) && is_array($this->arResult['LOCATION']))
 		{
 			if($this->arParams['PROVIDE_LINK_BY'] == 'code')
+			{
 				$this->arResult['VALUE'] = $this->arResult['LOCATION']['CODE'];
+			}
 			else
+			{
 				$this->arResult['VALUE'] = $this->arResult['LOCATION']['ID'];
+			}
 		}
 		else
 			$this->arResult['VALUE'] = '';
@@ -817,7 +825,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		try
 		{
 			$res = Location\LocationTable::getPathToMultipleNodes(
-				$list, 
+				$list,
 				array(
 					'select' => $select,
 					'filter' => array('=NAME.LANGUAGE_ID' => (string) $parameters['filter']['=NAME.LANGUAGE_ID'] != '' ? $parameters['filter']['=NAME.LANGUAGE_ID'] : LANGUAGE_ID)
@@ -1026,7 +1034,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	protected static function getPathToNodes($list)
 	{
 		$res = Location\LocationTable::getPathToMultipleNodes(
-			$list, 
+			$list,
 			array(
 				'select' => array('ID', 'LNAME' => 'NAME.NAME'),
 				'filter' => array('=NAME.LANGUAGE_ID' => LANGUAGE_ID)

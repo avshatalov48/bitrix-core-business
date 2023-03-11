@@ -38,7 +38,8 @@ class EventHandler
 			return;
 		}
 
-		if (in_array($fields['EXTERNAL_AUTH_ID'], UserTable::getExternalUserTypes(), true))
+		$externalAuthId = $fields['EXTERNAL_AUTH_ID'] ?? null;
+		if (in_array($externalAuthId, UserTable::getExternalUserTypes(), true))
 		{
 			return;
 		}

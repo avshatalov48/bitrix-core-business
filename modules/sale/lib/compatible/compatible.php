@@ -720,17 +720,25 @@ class OrderQueryLocation extends OrderQuery
 		{
 			$parsed = static::explodeFilterKey($field);
 
-			if($this->locationFieldMap[$parsed['alias']])
+			if (isset($this->locationFieldMap[$parsed['alias']]))
+			{
 				return $parsed['modifier'].$parsed['operator'].'PROXY_'.$parsed['alias'];
+			}
 			else
+			{
 				return $field;
+			}
 		}
 		else
 		{
-			if($this->locationFieldMap[$field])
+			if (isset($this->locationFieldMap[$field]))
+			{
 				return 'PROXY_'.$field;
+			}
 			else
+			{
 				return $field;
+			}
 		}
 	}
 }

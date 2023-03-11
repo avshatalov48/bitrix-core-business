@@ -190,20 +190,26 @@ export default class Session extends EventEmitter
 		});
 	}
 
-	finish(): Promise
+	finish(options: Object = {}): Promise
 	{
-		return ajax.runAction(
-			'bizproc.debugger.finishDebugSession',
-			{
-				data: {
-					sessionId: this.id,
-				}
-			}
-		).then(response => {
+		return this.#innerFinish(options).then(response => {
 			this.#handleFinish();
 
 			return response;
 		});
+	}
+
+	#innerFinish(options: Object = {}): Promise
+	{
+		return ajax.runAction(
+			'bizproc.debugger.finishDebugSession',
+			{
+				json: {
+					sessionId: this.id,
+					...options
+				}
+			}
+		);
 	}
 
 	fixateDocument(id: number): Promise

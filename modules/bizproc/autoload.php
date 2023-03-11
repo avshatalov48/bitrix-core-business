@@ -40,7 +40,6 @@ $arClasses = array(
 	"CBPWorkflowTemplateResult" => "classes/general/workflowtemplateloader.php",
 	"CBPWorkflowTemplateUser" => "classes/general/workflowtemplateloader.php",
 	"CBPWorkflowTemplateValidationException" => "classes/general/workflowtemplateloader.php",
-	"CBPCalc" => "classes/general/calc.php",
 	"CBPViewHelper" => "classes/general/viewhelper.php",
 	'CBPTaskChangedStatus' => "classes/general/constants.php",
 	'CBPRestActivity' => 'classes/general/restactivity.php',

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Catalog;
 
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main;
 use Bitrix\Main\ORM\Data\DataManager;
@@ -12,6 +13,7 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\UserTable;
 
 /**
@@ -517,5 +519,37 @@ class StoreDocumentTable extends DataManager
 				END
 			) = 1
 		", ['ID']);
+	}
+
+	public static function withStoreFromList(Main\ORM\Query\Query $query, array $storeIds)
+	{
+		static::addSingleStoreFilterToQuery($query, 'STORE_FROM', $storeIds);
+	}
+
+	public static function withStoreToList(Main\ORM\Query\Query $query, array $storeIds)
+	{
+		static::addSingleStoreFilterToQuery($query, 'STORE_TO', $storeIds);
+	}
+
+	protected static function addSingleStoreFilterToQuery(Main\ORM\Query\Query $query, string $fieldName, array $storeIds): void
+	{
+		Main\Type\Collection::normalizeArrayValuesByInt($storeIds);
+		if (empty($storeIds))
+		{
+			return;
+		}
+
+		$filter = new Main\ORM\Query\Filter\ConditionTree();
+		$filter
+			->whereIn('ref.' . $fieldName, $storeIds)
+		;
+		$query->registerRuntimeField(
+			new ReferenceField(
+				'FILTER_' . $fieldName . '_DOC_ID',
+				StoreDocumentElementTable::getEntity(),
+				Join::on('ref.DOC_ID', 'this.ID')->where($filter),
+				['join_type' => 'INNER']
+			)
+		);
 	}
 }

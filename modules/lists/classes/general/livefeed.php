@@ -279,11 +279,12 @@ class CListsLiveFeed
 				$url = str_replace('#SITE_DIR#', $siteDir, $url);
 				$url .= ''.$fields['ID'].'/';
 
+				$componentResultMessage = $componentResult ? $componentResult['MESSAGE'] : null;
 				$element = array(
 					'EVENT' => $fields,
 					'EVENT_FORMATTED' => array(
 						'TITLE_24' => '<a href="'.$fields['TITLE_TEMPLATE'].'" class="bx-lists-live-feed-title-link">'.$fields['TITLE'].'</a>',
-						'MESSAGE' => $fields['TEXT_MESSAGE'].$componentResult['MESSAGE'],
+						'MESSAGE' => $fields['TEXT_MESSAGE'] . $componentResultMessage,
 						'IS_IMPORTANT' => false,
 						'STYLE' => 'new-employee',
 						'AVATAR_STYLE' => 'avatar-info',
@@ -292,10 +293,10 @@ class CListsLiveFeed
 					),
 					'CREATED_BY' => CSocNetLogTools::formatEvent_GetCreatedBy($fields, $params, $mail),
 					'AVATAR_SRC' => CSocNetLog::formatEvent_CreateAvatar($fields, $params),
-					'CACHED_JS_PATH' => $componentResult['CACHED_JS_PATH'],
-					'CACHED_CSS_PATH' => $componentResult['CACHED_CSS_PATH']
+					'CACHED_JS_PATH' => $componentResult['CACHED_JS_PATH'] ?? null,
+					'CACHED_CSS_PATH' => $componentResult['CACHED_CSS_PATH'] ?? null,
 				);
-				if ($params['MOBILE'] == 'Y')
+				if (isset($params['MOBILE']) && $params['MOBILE'] == 'Y')
 				{
 					$element['EVENT_FORMATTED']['TITLE_24'] = Loc::getMessage('LISTS_LF_MOBILE_DESTINATION');
 					$element['EVENT_FORMATTED']['TITLE_24_2'] = $fields['TITLE'];
@@ -725,7 +726,7 @@ class CListsLiveFeed
 
 		if (($log = $logQuery->fetch()) && (intval($log["SOURCE_ID"]) > 0))
 		{
-			$params = unserialize($log["PARAMS"]);
+			$params = unserialize($log["PARAMS"], ['allowed_classes' => false]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
 			CListsLiveFeed::notifyComment(
 				array(
@@ -764,7 +765,7 @@ class CListsLiveFeed
 
 		if (($log = $logQuery->fetch()) && (intval($log["SOURCE_ID"]) > 0))
 		{
-			$params = unserialize($log["PARAMS"]);
+			$params = unserialize($log["PARAMS"], ['allowed_classes' => false]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
 			CListsLiveFeed::notifyComment(
 				array(
@@ -857,7 +858,7 @@ class CListsLiveFeed
 				$genderSuffix = $user["PERSONAL_GENDER"];
 			}
 
-			$params = unserialize($log["~PARAMS"]);
+			$params = unserialize($log["~PARAMS"], ['allowed_classes' => false]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
 			$entityName = GetMessage("LISTS_LF_COMMENT_MENTION_TITLE", Array("#PROCESS#" => $title));
 			$notifyMessage = GetMessage("LISTS_LF_COMMENT_MENTION" . ($genderSuffix <> '' ? "_" . $genderSuffix : ""), Array("#title#" => "<a href=\"#url#\" class=\"bx-notifier-item-action\">".$entityName."</a>"));

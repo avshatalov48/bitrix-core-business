@@ -25,7 +25,8 @@ class StoreProvider extends BaseProvider
 	{
 		$this->options['searchDisabledStores'] = $options['searchDisabledStores'] ?? true;
 		$this->options['useAddressAsTitle'] = $options['useAddressAsTitle'] ?? true;
-		$this->options['productId'] = (int)$options['productId'];
+		$this->options['productId'] = (int)($options['productId'] ?? 0);
+
 		if ($this->options['productId'] > 0)
 		{
 			$product = ProductTable::getRow([
@@ -34,6 +35,10 @@ class StoreProvider extends BaseProvider
 			]);
 
 			$this->options['measureSymbol'] = $this->getMeasureSymbol((int)$product['MEASURE']);
+		}
+		else
+		{
+			$this->options['measureSymbol'] = '';
 		}
 
 		parent::__construct();

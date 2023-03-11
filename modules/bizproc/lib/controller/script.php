@@ -27,15 +27,6 @@ class Script extends Base
 	public function startAction($scriptId, array $documentIds, array $parameters = [])
 	{
 		$userId = $this->getCurrentUser()->getId();
-
-		if (!Manager::canUserStartScript($scriptId, $userId))
-		{
-			return [
-				'status' => static::START_STATUS_NOT_PERMITTED,
-				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_CANT_START')
-			];
-		}
-
 		$documentIds = array_unique($documentIds);
 
 		if (count($documentIds) > $this->getDocumentIdLimit())
@@ -102,6 +93,8 @@ class Script extends Base
 
 		if ($templateParameters)
 		{
+			$parameters = $this->grabParameters($templateParameters, $parameters);
+
 			if (empty($parameters))
 			{
 				return [
@@ -112,6 +105,7 @@ class Script extends Base
 				];
 			}
 
+			$errors = [];
 			$parameters = \CBPWorkflowTemplateLoader::CheckWorkflowParameters(
 				$templateParameters,
 				$parameters,
@@ -243,7 +237,7 @@ class Script extends Base
 
 	public function terminateQueueAction(int $queueId)
 	{
-		$userId = $this->getCurrentUser()->getId();
+		$userId = (int)$this->getCurrentUser()->getId();
 		$queue = Manager::getQueueById($queueId);
 
 		if (!$queue)
@@ -253,7 +247,7 @@ class Script extends Base
 			];
 		}
 
-		if (!Manager::canUserStartScript($queue->getScriptId(), $userId))
+		if ($userId !== $queue->getStartedBy() && !Manager::canUserStartScript($queue->getScriptId(), $userId))
 		{
 			return [
 				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_CANT_TERMINATE')
@@ -293,7 +287,7 @@ class Script extends Base
 
 	public function deleteQueueAction(int $queueId)
 	{
-		$userId = $this->getCurrentUser()->getId();
+		$userId = (int)$this->getCurrentUser()->getId();
 		$queue = Manager::getQueueById($queueId);
 
 		if (!$queue)
@@ -303,7 +297,7 @@ class Script extends Base
 			];
 		}
 
-		if (!Manager::canUserStartScript($queue->getScriptId(), $userId))
+		if ($userId !== $queue->getStartedBy() && !Manager::canUserStartScript($queue->getScriptId(), $userId))
 		{
 			return [
 				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_CANT_DELETE_QUEUE')
@@ -342,5 +336,54 @@ class Script extends Base
 			$result[] = $parameter;
 		}
 		return $result;
+	}
+
+	private function getFileParameters(): array
+	{
+		$parameters = [];
+
+		foreach ($this->request->getFileList()->getValues() as $key => $value)
+		{
+			if (array_key_exists('name', $value))
+			{
+				if (is_array($value['name']))
+				{
+					$ks = array_keys($value["name"]);
+					for ($i = 0, $cnt = count($ks); $i < $cnt; $i++)
+					{
+						$ar = array();
+						foreach ($value as $k1 => $v1)
+							$ar[$k1] = $v1[$ks[$i]];
+
+						$parameters[$key][] = $ar;
+					}
+				}
+				else
+				{
+					$parameters[$key] = $value;
+				}
+			}
+		}
+
+		return $parameters;
+	}
+
+	/**
+	 * @param array $parameters
+	 * @return array
+	 */
+	private function grabParameters(array $templateParameters, array $parameters): array
+	{
+		$parameters += $this->getFileParameters();
+
+		foreach (array_keys($templateParameters) as $paramId)
+		{
+			if (!array_key_exists($paramId, $parameters) && $this->request->getPost($paramId))
+			{
+				$parameters[$paramId] = $this->request->getPost($paramId);
+			}
+		}
+
+		return $parameters;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+$MESS["REST_SCOPE_BICONNECTOR"] = "BI analytics connector";
 $MESS["REST_SCOPE_BIZPROC"] = "Business Processes";
 $MESS["REST_SCOPE_BIZPROC_DESCRIPTION"] = "full access: view, create, edit and delete workflow actions, automation rules and triggers; view task list; run workflows";
 $MESS["REST_SCOPE_CALENDAR"] = "Calendar";

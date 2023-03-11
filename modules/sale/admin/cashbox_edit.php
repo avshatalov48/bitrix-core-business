@@ -44,7 +44,19 @@ if (!$isCloud && Loader::includeModule('intranet'))
 $id = (int)$request->get('ID');
 
 $cashboxObject = null;
-$cashbox = array();
+$cashbox = [
+	'ID' => null,
+	'NAME' => null,
+	'HANDLER' => '',
+	'OFD' => null,
+	'EMAIL' => null,
+	'NUMBER_KKM' => null,
+	'KKM_ID' => null,
+	'ACTIVE' => null,
+	'USE_OFFLINE' => null,
+	'SORT' => null,
+	'OFD_SETTINGS' => null,
+];
 $errorMessage = '';
 
 if ($server->getRequestMethod() == "POST"

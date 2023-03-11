@@ -326,7 +326,7 @@ class SmsManager
 
 			if ($sender === null)
 			{
-				(new AddResult())->addError(new Main\Error('Incorrect sender id.'));
+				return (new AddResult())->addError(new Main\Error('Incorrect sender id.'));
 			}
 		}
 		$message = static::createMessage($messageFields, $sender);

@@ -53,7 +53,7 @@ export class ScrumMembersPopup extends MembersPopup
 						onclick="${this.changeType.bind(this, 'scrumTeam')}"
 					>
 						<span class="sonet-ui-members-popup-head-text">
-							${Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS_SCRUM')}
+							${Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS_SCRUM_1')}
 						</span>
 					</span>
 				`,
@@ -142,8 +142,15 @@ export class ScrumMembersPopup extends MembersPopup
 
 		if (hasOwner)
 		{
-			this.getCurrentPopupData().innerContainer.appendChild(
-				Tag.render`
+			if (
+				Type.isNull(
+					this.getCurrentPopupData().innerContainer
+						.querySelector('.sonet-ui-scrum-members-popup-owner-container')
+				)
+			)
+			{
+				this.getCurrentPopupData().innerContainer.appendChild(
+					Tag.render`
 					<div class="sonet-ui-scrum-members-popup-owner-container">
 						<span class="sonet-ui-scrum-members-popup-label">
 							<span class="sonet-ui-scrum-members-popup-label-text">
@@ -152,13 +159,21 @@ export class ScrumMembersPopup extends MembersPopup
 						</span>
 					</div>
 				`
-			);
+				);
+			}
 		}
 
 		if (hasMaster)
 		{
-			this.getCurrentPopupData().innerContainer.appendChild(
-				Tag.render`
+			if (
+				Type.isNull(
+					this.getCurrentPopupData().innerContainer
+						.querySelector('.sonet-ui-scrum-members-popup-master-container')
+				)
+			)
+			{
+				this.getCurrentPopupData().innerContainer.appendChild(
+					Tag.render`
 					<div class="sonet-ui-scrum-members-popup-master-container">
 						<span class="sonet-ui-scrum-members-popup-label">
 							<span class="sonet-ui-scrum-members-popup-label-text">
@@ -167,13 +182,21 @@ export class ScrumMembersPopup extends MembersPopup
 						</span>
 					</div>
 				`
-			);
+				);
+			}
 		}
 
 		if (hasTeam)
 		{
-			this.getCurrentPopupData().innerContainer.appendChild(
-				Tag.render`
+			if (
+				Type.isNull(
+					this.getCurrentPopupData().innerContainer
+						.querySelector('.sonet-ui-scrum-members-popup-team-container')
+				)
+			)
+			{
+				this.getCurrentPopupData().innerContainer.appendChild(
+					Tag.render`
 					<div class="sonet-ui-scrum-members-popup-team-container">
 						<span class="sonet-ui-scrum-members-popup-label">
 							<span class="sonet-ui-scrum-members-popup-label-text">
@@ -182,7 +205,8 @@ export class ScrumMembersPopup extends MembersPopup
 						</span>
 					</div>
 				`
-			);
+				);
+			}
 		}
 	}
 }

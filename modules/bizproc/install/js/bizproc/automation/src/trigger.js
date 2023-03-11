@@ -242,7 +242,10 @@ export class Trigger extends EventEmitter
 					},
 					children: [
 						Dom.create("div", {
-							attrs: { className: "bizproc-automation-trigger-item-wrapper-text" },
+							attrs: {
+								className: "bizproc-automation-trigger-item-wrapper-text",
+								title: triggerName,
+							},
 							text: triggerName
 						})
 					]
@@ -306,11 +309,14 @@ export class Trigger extends EventEmitter
 			const trigger = new Trigger();
 			const initData = this.serialize();
 			delete initData['ID'];
-			//TODO: refactoring
-			if (initData['CODE'] === 'WEBHOOK')
-			{
-				initData['APPLY_RULES'] = {};
-			}
+
+			const clearRules = this.getSettingProperties()
+				.filter((property) => property.Copyable === false)
+				.map((property) => property.Id)
+			;
+
+			clearRules.forEach(key => delete initData['APPLY_RULES'][key]);
+
 			trigger.init(initData, this.#viewMode);
 			this.emit('Trigger:copied', {trigger});
 		}
@@ -424,11 +430,14 @@ export class Trigger extends EventEmitter
 			const trigger = new Trigger();
 			const initData = parent.serialize();
 			delete initData['ID'];
-			//TODO: refactoring
-			if (initData['CODE'] === 'WEBHOOK')
-			{
-				initData['APPLY_RULES'] = {};
-			}
+
+			const clearRules = this.getSettingProperties()
+				.filter((property) => property.Copyable === false)
+				.map((property) => property.Id)
+			;
+
+			clearRules.forEach(key => delete initData['APPLY_RULES'][key]);
+
 			initData['DOCUMENT_STATUS'] = statusId;
 			trigger.init(initData, parent.#viewMode);
 
@@ -552,5 +561,17 @@ export class Trigger extends EventEmitter
 		const triggerData = getGlobalContext().availableTriggers.find(trigger => trigger['CODE'] === this.getCode());
 
 		return triggerData && Type.isArray(triggerData.RETURN) ? triggerData.RETURN : [];
+	}
+
+	getSettingProperties(): Array
+	{
+		const triggerData = getGlobalContext().availableTriggers.find(trigger => trigger['CODE'] === this.getCode());
+
+		if (triggerData.SETTINGS && triggerData.SETTINGS.Properties)
+		{
+			return triggerData.SETTINGS.Properties;
+		}
+
+		return [];
 	}
 }

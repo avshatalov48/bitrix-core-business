@@ -36,7 +36,7 @@ Loc::loadMessages(__FILE__);
 
 		<?endif?>
 
-		<?if(is_array($arResult['TRUNK_NAMES']) && !empty($arResult['TRUNK_NAMES'])):?>
+		<?if(!empty($arResult['TRUNK_NAMES']) && is_array($arResult['TRUNK_NAMES'])):?>
 			<div class="bx-ui-sls-tree-trunk">
 				<?=htmlspecialcharsbx(implode(', ', $arResult['TRUNK_NAMES']))?>
 			</div>
@@ -119,7 +119,7 @@ Loc::loadMessages(__FILE__);
 					),
 				),
 
-				'selectedItem' => intval($arResult['LOCATION']['ID']),
+				'selectedItem' => (int)($arResult['LOCATION']['ID'] ?? 0),
 				'knownBundles' => $arResult['PRECACHED_POOL_JSON'],
 				'provideLinkBy' => $arParams['PROVIDE_LINK_BY'],
 
@@ -143,12 +143,12 @@ Loc::loadMessages(__FILE__);
 				// a trouble of BX.merge() array over object. will be fixed later, but for now as a hotfix
 				'bundlesIncomplete' => array('a' => true) + (is_array($arResult['BUNDLES_INCOMPLETE']) ? $arResult['BUNDLES_INCOMPLETE'] : array()),
 
-				'autoSelectWhenSingle' => $arParams['SELECT_WHEN_SINGLE'] != 'N',
-				'types' => $arResult['TYPES'],
+				'autoSelectWhenSingle' => empty($arParams['SELECT_WHEN_SINGLE']) || $arParams['SELECT_WHEN_SINGLE'] !== 'N',
+				'types' => $arResult['TYPES'] ?? [],
 
 				// spike for sale.order.ajax
-				'disableKeyboardInput' => $arParams['DISABLE_KEYBOARD_INPUT'] == 'Y',
-				'dontShowNextChoice' => $arParams['DISABLE_KEYBOARD_INPUT'] == 'Y',
+				'disableKeyboardInput' => isset($arParams['DISABLE_KEYBOARD_INPUT']) && $arParams['DISABLE_KEYBOARD_INPUT'] === 'Y',
+				'dontShowNextChoice' => isset($arParams['DISABLE_KEYBOARD_INPUT']) && $arParams['DISABLE_KEYBOARD_INPUT'] === 'Y',
 
 			), false, false, true)?>);
 

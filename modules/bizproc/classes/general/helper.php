@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main;
+use Bitrix\Bitrix24;
 use Bitrix\Bizproc;
 
 class CBPHelper
@@ -792,7 +794,7 @@ class CBPHelper
 		foreach ($arOrder as $by => $order)
 		{
 			$by = mb_strtoupper($by);
-			$order = mb_strtoupper($order);
+			$order = $order ? mb_strtoupper($order) : '';
 
 			if ($order != "ASC")
 				$order = "DESC";
@@ -866,18 +868,9 @@ class CBPHelper
 			$entity = $parameterDocumentId[0];
 		}
 
-		if (is_scalar($moduleId))
-		{
-			$moduleId = trim($moduleId);
-		}
-		if (is_scalar($entity))
-		{
-			$entity = trim($entity);
-		}
-		if (is_scalar($documentId))
-		{
-			$documentId = trim($documentId);
-		}
+		$moduleId = is_scalar($moduleId) ? trim($moduleId) : '';
+		$entity = is_scalar($entity) ? trim($entity) : '';
+		$documentId = is_scalar($documentId) ? trim($documentId) : '';
 
 		if ($documentId === '')
 		{
@@ -1007,7 +1000,7 @@ class CBPHelper
 		return $newResult;
 	}
 
-	public static function convertUserToPrintableForm($userId, $nameTemplate = "")
+	public static function convertUserToPrintableForm($userId, $nameTemplate = "", $htmlSpecialChars = true)
 	{
 		if (mb_substr($userId, 0, mb_strlen("user_")) == "user_")
 		{
@@ -1041,7 +1034,7 @@ class CBPHelper
 		$str = "";
 		if ($ar = $db->Fetch())
 		{
-			$str = CUser::FormatName($nameTemplate, $ar, true);
+			$str = CUser::FormatName($nameTemplate, $ar, true, $htmlSpecialChars);
 			$str = $str." [".$ar["ID"]."]";
 			$str = str_replace(",", " ", $str);
 		}
@@ -2175,6 +2168,11 @@ class CBPHelper
 		return null;
 	}
 
+	public static function extractFirstUser($userGroups, $documentId): ?int
+	{
+		return static::extractUsers($userGroups, $documentId, true);
+	}
+
 	public static function makeArrayFlat($ar)
 	{
 		if (!is_array($ar))
@@ -2205,6 +2203,29 @@ class CBPHelper
 		}
 
 		return $result;
+	}
+
+	public static function flatten($array): array
+	{
+		if (!is_array($array))
+		{
+			return [$array];
+		}
+
+		$result = [];
+		array_walk_recursive($array, function($a) use (&$result) { $result[] = $a; });
+
+		return $result;
+	}
+
+	public static function stringify($mixed): string
+	{
+		if (is_array($mixed))
+		{
+			return implode(', ', static::flatten($mixed));
+		}
+
+		return (string)$mixed;
 	}
 
 	public static function getBool($value)
@@ -2536,5 +2557,25 @@ class CBPHelper
 			}
 		}
 		return (int) $result;
+	}
+
+	public static function isWorkTimeAvailable(): bool
+	{
+		if (
+			Main\Loader::includeModule('bitrix24')
+			&& !Bitrix24\Feature::isFeatureEnabled('bizproc_timeman')
+		)
+		{
+			return false;
+		}
+
+		if (Main\Loader::includeModule('intranet'))
+		{
+			$workTime = \Bitrix\Intranet\Site\Sections\TimemanSection::getWorkTime();
+
+			return $workTime['available'] && \Bitrix\Main\Loader::includeModule('timeman');
+		}
+
+		return false;
 	}
 }

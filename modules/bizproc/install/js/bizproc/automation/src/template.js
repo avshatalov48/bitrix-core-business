@@ -45,9 +45,9 @@ export class Template extends EventEmitter
 		context: ?Context,
 		templateContainerNode: Element,
 		constants: Object<string, any>,
-		globalConstants: Array<Object>,
+		globalConstants: ?Array<Object>,
 		variables: Object<string, any>,
-		globalVariables: Array<Object>,
+		globalVariables: ?Array<Object>,
 		userOptions: ?UserOptions,
 		delayMinLimitM: number,
 	})
@@ -57,9 +57,9 @@ export class Template extends EventEmitter
 
 		this.#context = params.context ?? getGlobalContext();
 		this.constants = params.constants;
-		this.globalConstants = params.globalConstants;
+		this.globalConstants = Type.isArray(params.globalConstants) ? params.globalConstants : [];
 		this.variables = params.variables;
-		this.globalVariables = params.globalVariables;
+		this.globalVariables = Type.isArray(params.globalVariables) ? params.globalVariables : [];
 
 		this.#templateContainerNode = params.templateContainerNode;
 		this.#delayMinLimitM = params.delayMinLimitM;
@@ -86,6 +86,10 @@ export class Template extends EventEmitter
 			if (!Type.isPlainObject(this.#data.VARIABLES))
 			{
 				this.#data.VARIABLES = {};
+			}
+			if (!Type.isNil(this.#data.DOCUMENT_STATUS))
+			{
+				this.#data.DOCUMENT_STATUS = String(this.#data.DOCUMENT_STATUS);
 			}
 
 			this.markExternalModified(this.#data['IS_EXTERNAL_MODIFIED']);
@@ -631,16 +635,17 @@ export class Template extends EventEmitter
 			if (this.#robots[i].isEqual(robot))
 			{
 				this.#robots.splice(i, 1);
+
+				if (callback)
+				{
+					callback(robot);
+				}
+
+				this.markModified();
+				this.emit('Template:robot:delete', { robot });
 				break;
 			}
 		}
-
-		if (callback)
-		{
-			callback(robot);
-		}
-
-		this.markModified();
 	}
 
 	insertRobotNode(robotNode, beforeNode)
@@ -884,7 +889,17 @@ export class Template extends EventEmitter
 		if (role === SelectorManager.SELECTOR_ROLE_USER)
 		{
 			const fieldProperty = JSON.parse(controlNode.getAttribute('data-property'));
-			controlProps.context.set('additionalUserFields', this.#getUserSelectorAdditionalFields(fieldProperty));
+			controlProps.context.set('additionalUserFields', [
+				...this.#getUserSelectorAdditionalFields(fieldProperty),
+				...this.globalConstants.filter(constant => constant['Type'] === 'user').map(constant => ({
+					id: constant['Expression'],
+					title: constant['Name'],
+				})),
+				...this.globalVariables.filter(variable => variable['Type'] === 'user').map(variable => ({
+					id: variable['Expression'],
+					title: variable['Name'],
+				})),
+			]);
 		}
 		else if (role === SelectorManager.SELECTOR_ROLE_FILE)
 		{
@@ -1107,6 +1122,22 @@ export class Template extends EventEmitter
 			}
 		});
 
+		const delayWaitWorkDayNode = Dom.create("input", {
+			attrs: {
+				type: "hidden",
+				name: "delay_wait_workday",
+				value: delay.waitWorkDay ? 1 : 0
+			}
+		});
+
+		const delayInTimeNode = Dom.create("input", {
+			attrs: {
+				type: "hidden",
+				name: "delay_in_time",
+				value: delay.inTimeString,
+			}
+		});
+
 		const delayIntervalLabelNode = Dom.create("span", {
 			attrs: {
 				className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
@@ -1123,7 +1154,7 @@ export class Template extends EventEmitter
 			for (let i = 0; i < docFields.length; ++i)
 			{
 				const field = docFields[i];
-				if (field['Type'] == 'date' || field['Type'] == 'datetime')
+				if (field['Type'] === 'date' || field['Type'] === 'datetime')
 				{
 					basisFields.push(field);
 				}
@@ -1138,10 +1169,13 @@ export class Template extends EventEmitter
 				delayValueTypeNode.value = delay.valueType;
 				delayBasisNode.value = delay.basis;
 				delayWorkTimeNode.value = delay.workTime ? 1 : 0;
+				delayWaitWorkDayNode.value = delay.waitWorkDay ? 1 : 0;
+				delayInTimeNode.value = delay.inTimeString;
 			},
 			basisFields: basisFields,
 			minLimitM: minLimitM,
-			useAfterBasis: true
+			useAfterBasis: true,
+			showWaitWorkDay: true,
 		});
 
 		let executeAfterPreviousBlock = null;
@@ -1189,6 +1223,8 @@ export class Template extends EventEmitter
 								delayValueTypeNode,
 								delayBasisNode,
 								delayWorkTimeNode,
+								delayWaitWorkDayNode,
+								delayInTimeNode,
 								Dom.create("span", {
 									attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left" },
 									text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO_EXECUTE') + ":"
@@ -1215,6 +1251,8 @@ export class Template extends EventEmitter
 		delay.setValueType(formFields['delay_value_type']);
 		delay.setBasis(formFields['delay_basis']);
 		delay.setWorkTime(formFields['delay_worktime'] === '1');
+		delay.setWaitWorkDay(formFields['delay_wait_workday'] === '1');
+		delay.setInTime(formFields['delay_in_time'] ? formFields['delay_in_time'].split(':') : null);
 		robot.setDelayInterval(delay);
 
 		if (robot.hasTemplate())
@@ -1338,13 +1376,6 @@ export class Template extends EventEmitter
 					this.setDelaySettingsFromForm(formData['data'], robot);
 					this.setConditionSettingsFromForm(formData['data'], robot);
 
-					if (robot.draft)
-					{
-						// remove yellow/orange color
-
-						//this.#robots.push(robot);
-						//this.insertRobotNode(robot.node);
-					}
 					robot.draft = false;
 
 					robot.reInit();

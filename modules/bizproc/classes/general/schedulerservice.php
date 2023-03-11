@@ -108,8 +108,9 @@ class CBPSchedulerService extends CBPRuntimeService
 		}
 	}
 
-	public function subscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
+	public function subscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null): ?int
 	{
+		$resultId = null;
 		$entityKey = null;
 		if (is_array($entityId))
 		{
@@ -128,13 +129,14 @@ class CBPSchedulerService extends CBPRuntimeService
 
 		if (!SchedulerEventTable::isSubscribed($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId))
 		{
-			SchedulerEventTable::add(array(
+			$result = SchedulerEventTable::add(array(
 				'WORKFLOW_ID' => (string)$workflowId,
 				'HANDLER' => (string)$eventHandlerName,
 				'EVENT_MODULE' => (string)$eventModule,
 				'EVENT_TYPE' => (string)$eventName,
 				'ENTITY_ID' => (string)$entityId
 			));
+			$resultId = (int)$result->getId();
 		}
 
 		RegisterModuleDependences(
@@ -147,6 +149,8 @@ class CBPSchedulerService extends CBPRuntimeService
 			'',
 			array($eventModule, $eventName, $entityKey)
 		);
+
+		return $resultId;
 	}
 
 	public function unSubscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
@@ -190,6 +194,25 @@ class CBPSchedulerService extends CBPRuntimeService
 				'sendEvents',
 				'',
 				array($eventModule, $eventName, $entityKey)
+			);
+		}
+	}
+
+	public function unSubscribeByEventId(int $eventId, $entityKey = null)
+	{
+		$event = SchedulerEventTable::getList([
+			'select' => ['WORKFLOW_ID', 'HANDLER','EVENT_MODULE', 'EVENT_TYPE', 'ENTITY_ID'],
+			'filter' => ['=ID' => $eventId]
+		])->fetch();
+
+		if ($event)
+		{
+			$this->unSubscribeOnEvent(
+				$event['WORKFLOW_ID'],
+				$event['HANDLER'],
+				$event['EVENT_MODULE'],
+				$event['EVENT_TYPE'],
+				$entityKey ? [$entityKey => $event['ENTITY_ID']] : $event['ENTITY_ID']
 			);
 		}
 	}

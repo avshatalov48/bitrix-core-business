@@ -400,9 +400,10 @@ while ($check = $dbResultList->Fetch())
 			: (int)$check['PAYMENT_ID'];
 	}
 
-	if ($relatedEntities[$check['ID']]['P'])
+	$paymentEntityIds = $relatedEntities[$check['ID']]['P'] ?? null;
+	if (is_array($paymentEntityIds))
 	{
-		foreach ($relatedEntities[$check['ID']]['P'] as $entityId)
+		foreach ($paymentEntityIds as $entityId)
 		{
 			if ($paymentIdField)
 				$paymentIdField .= "<br>";
@@ -419,10 +420,11 @@ while ($check = $dbResultList->Fetch())
 
 	$row->AddField("PAYMENT_ID",  $paymentIdField);
 
-	$paymentField = $paymentRows[(int)$check['PAYMENT_ID']];
-	if ($relatedEntities[$check['ID']]['P'])
+	$paymentId = (int)($check['PAYMENT_ID'] ?? 0);
+	$paymentField = $paymentRows[$paymentId] ?? null;
+	if (is_array($paymentEntityIds))
 	{
-		foreach ($relatedEntities[$check['ID']]['P'] as $entityId)
+		foreach ($paymentEntityIds as $entityId)
 		{
 			if ($paymentField)
 				$paymentField .= "<br>";
@@ -442,9 +444,11 @@ while ($check = $dbResultList->Fetch())
 			? '[<a href="'.$shipmentIdUrl.'">'.(int)$check['SHIPMENT_ID'].'</a>]'
 			: '[' . (int)$check['SHIPMENT_ID'] . ']';
 	}
-	if ($relatedEntities[$check['ID']]['S'])
+
+	$shipmentEntityIds = $relatedEntities[$check['ID']]['S'] ?? null;
+	if (is_array($shipmentEntityIds))
 	{
-		foreach ($relatedEntities[$check['ID']]['S'] as $entityId)
+		foreach ($shipmentEntityIds as $entityId)
 		{
 			if ($shipmentIdField)
 				$shipmentIdField .= "<br>";
@@ -460,10 +464,11 @@ while ($check = $dbResultList->Fetch())
 	}
 	$row->AddField("SHIPMENT_ID",  $shipmentIdField);
 
-	$shipmentField = $shipmentRows[(int)$check['SHIPMENT_ID']];
-	if ($relatedEntities[$check['ID']]['S'])
+	$shipmentId = (int)($check['SHIPMENT_ID'] ?? 0);
+	$shipmentField = $shipmentRows[$shipmentId] ?? '';
+	if (is_array($shipmentEntityIds))
 	{
-		foreach ($relatedEntities[$check['ID']]['S'] as $entityId)
+		foreach ($shipmentEntityIds as $entityId)
 		{
 			if ($shipmentField)
 				$shipmentField .= "<br>";
@@ -474,7 +479,9 @@ while ($check = $dbResultList->Fetch())
 
 	$row->AddField("DATE_CREATE", $check['DATE_CREATE']);
 	$row->AddField("SUM", SaleFormatCurrency($check['SUM'], $check['CURRENCY']));
-	$row->AddField("CASHBOX_ID", htmlspecialcharsbx($cashboxList[$check['CASHBOX_ID']]['NAME']));
+
+	$cashboxName = $cashboxList[$check['CASHBOX_ID']]['NAME'] ?? null;
+	$row->AddField("CASHBOX_ID", htmlspecialcharsbx($cashboxName));
 
 	$cashbox = null;
 	$checkLink = '';

@@ -162,7 +162,7 @@ Loc::loadMessages(__FILE__);
 										</a>
 									</div>
 								<? endif; ?>
-								<? if ($arResult['DESCRIPTION_BOT']): ?>
+								<? if (isset($arResult['DESCRIPTION_BOT']) && $arResult['DESCRIPTION_BOT']): ?>
 									<div class="integration-row integration-row-padding-right">
 										<? if (!empty($arResult['DESCRIPTION_BOT']['TITLE'])): ?>
 											<div class="integration-row-container-title-text">
@@ -218,7 +218,7 @@ Loc::loadMessages(__FILE__);
 										false
 									);
 									?>
-									<? if ($data['METHOD_URL_NEEDED'] != 'N'): ?>
+									<? if (isset($data['METHOD_URL_NEEDED']) && $data['METHOD_URL_NEEDED'] !== 'N'): ?>
 										<div class="integration-method-href">
 											<a
 												href="" target="_blank" data-key="<?=$data['CODE']?>"
@@ -244,7 +244,7 @@ Loc::loadMessages(__FILE__);
 									<? endif; ?>
 								</div>
 							</div>
-							<? if ($data['DESCRIPTION_METHOD']): ?>
+							<? if (isset($data['DESCRIPTION_METHOD']) && $data['DESCRIPTION_METHOD']): ?>
 								<div class="integration-row integration-row-padding-right">
 									<? if (!empty($data['DESCRIPTION_METHOD']['TITLE'])): ?>
 										<div class="integration-row-container-title-text">
@@ -401,7 +401,7 @@ Loc::loadMessages(__FILE__);
 										);
 										?>
 									</div>
-									<? if ($arResult['DESCRIPTION_' . $block]): ?>
+									<? if (isset($arResult['DESCRIPTION_' . $block]) && $arResult['DESCRIPTION_' . $block]): ?>
 										<div class="integration-row integration-row-padding-right">
 											<? if (!empty($arResult['DESCRIPTION_' . $block]['TITLE'])): ?>
 												<div class="integration-row-container-title-text">
@@ -710,7 +710,7 @@ Loc::loadMessages(__FILE__);
 										<?php
 										$needShowMoreBtn = false;
 										foreach ($arResult['LANG_LIST_AVAILABLE'] as $lid => $lang):
-											$value = $arResult['WIDGET_LANG_LIST'][$lid]['TITLE'];
+											$value = $arResult['WIDGET_LANG_LIST'][$lid]['TITLE'] ?? null;
 											$required = in_array($lid, $arResult['LANG_LIST'], true);
 											$hidden = empty($value) && !$required;
 											if ($hidden)
@@ -783,7 +783,7 @@ Loc::loadMessages(__FILE__);
 											</a>
 										</div>
 									<? endif; ?>
-									<? if ($arResult['DESCRIPTION_' . $block]): ?>
+									<? if (isset($arResult['DESCRIPTION_' . $block]) && $arResult['DESCRIPTION_' . $block]): ?>
 										<div class="integration-row integration-row-padding-right">
 											<? if (!empty($arResult['DESCRIPTION_' . $block]['TITLE'])): ?>
 												<div
@@ -856,7 +856,7 @@ Loc::loadMessages(__FILE__);
 						);
 						?>
 					</div>
-					<? if ($arResult['DESCRIPTION_SCOPE']): ?>
+					<? if (isset($arResult['DESCRIPTION_SCOPE']) && $arResult['DESCRIPTION_SCOPE']): ?>
 						<div class="integration-row integration-row-padding-right">
 							<? if (!empty($arResult['DESCRIPTION_SCOPE']['TITLE'])): ?>
 								<div class="integration-row-container-title-text">
@@ -877,7 +877,7 @@ Loc::loadMessages(__FILE__);
 </form>
 <?
 $actionBtn = [];
-if ($arResult['READ_ONLY'] == 'Y')
+if (isset($arResult['READ_ONLY']) && $arResult['READ_ONLY'] === 'Y')
 {
 	if ($arResult['QUERY_NEEDED'] != 'D')
 	{

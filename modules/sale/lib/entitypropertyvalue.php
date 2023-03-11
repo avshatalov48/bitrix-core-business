@@ -401,6 +401,29 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'PROPS_GROUP_ID' => 0,
 				'NAME' => $value['NAME'],
 				'CODE' => $value['CODE'],
+				// defaults
+				'PERSON_TYPE_ID' => null,
+				'DESCRIPTION' => null,
+				'REQUIRED' => null,
+				'DEFAULT_VALUE' => null,
+				'SORT' => null,
+				'USER_PROPS' => null,
+				'IS_LOCATION' => 'N',
+				'IS_EMAIL' => 'N',
+				'IS_PROFILE_NAME' => 'N',
+				'IS_PAYER' => 'N',
+				'IS_LOCATION4TAX' => 'N',
+				'IS_FILTERED' => 'N',
+				'IS_ZIP' => 'N',
+				'IS_PHONE' => 'N',
+				'IS_ADDRESS' => 'N',
+				'IS_ADDRESS_FROM' => 'N',
+				'IS_ADDRESS_TO' => 'N',
+				'ACTIVE' => null,
+				'UTIL' => null,
+				'INPUT_FIELD_LOCATION' => null,
+				'MULTIPLE' => null,
+				'ENTITY_TYPE' => null,
 			];
 		}
 
@@ -476,24 +499,20 @@ abstract class EntityPropertyValue extends CollectableEntity
 	/**
 	 * @param $name
 	 * @param $value
-	 * @return Result
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws \Exception
+	 * @return mixed
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
-	public function setField($name, $value)
+	public function normalizeValue($name, $value)
 	{
-		$result = new Result();
-
-		$value = $this->property->normalizeValue($value);
-
-		$res = parent::setField($name, $value);
-		if (!$res->isSuccess())
+		if ($name === 'VALUE')
 		{
-			$result->addErrors($res->getErrors());
+			$value = $this->property->normalizeValue($value);
 		}
 
-		return $result;
+		return parent::normalizeValue($name, $value);
 	}
 
 	/**

@@ -7,10 +7,11 @@ import {
 	SelectorContext,
 	SelectorManager,
 } from 'bizproc.automation';
-import { Dom, Type, Event, Loc, Runtime } from 'main.core';
+import { Dom, Type, Event, Loc, Runtime, Tag, Text} from 'main.core';
 
 import type { ConditionSelectorOptions } from './types';
 import { BaseEvent } from 'main.core.events';
+import { Operator } from "bizproc.condition";
 
 export class ConditionSelector
 {
@@ -27,9 +28,12 @@ export class ConditionSelector
 	fieldNode: ?HTMLElement;
 	joinerNode: ?HTMLElement;
 	labelNode: ?HTMLElement;
+	valueNode: ?HTMLElement;
+	#valueNode2: ?HTMLElement = null;
 
 	popup: BX.PopupWindow;
 	fieldDialog: ?InlineSelectorCondition;
+	#selectedField;
 
 	constructor(condition, options: ?ConditionSelectorOptions)
 	{
@@ -87,13 +91,23 @@ export class ConditionSelector
 				value: this.#condition.operator
 			}
 		});
-		const conditionValueNode = this.valueNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: this.#fieldPrefix + "value[]",
-				value: this.#condition.value
-			}
-		});
+
+		const value = Type.isArrayFilled(this.#condition.value) ? this.#condition.value[0] : this.#condition.value;
+		this.valueNode = this.#createValueNode(value)
+		const conditionValueNode = this.valueNode;
+
+		let conditionValueNode2;
+		if (this.#condition.operator === Operator.BETWEEN)
+		{
+			const value2 =
+				(Type.isArrayFilled(this.#condition.value) && this.#condition.value.length > 1)
+					? this.#condition.value[1]
+					: ''
+			;
+
+			this.#valueNode2 = this.#createValueNode(value2);
+			conditionValueNode2 = this.#valueNode2;
+		}
 
 		const conditionJoinerNode = this.joinerNode = Dom.create("input", {
 			attrs: {
@@ -137,6 +151,7 @@ export class ConditionSelector
 				conditionFieldNode,
 				conditionOperatorNode,
 				conditionValueNode,
+				conditionValueNode2,
 				conditionJoinerNode,
 				labelNode,
 				removeButtonNode,
@@ -145,6 +160,17 @@ export class ConditionSelector
 		});
 
 		return this.node;
+	}
+
+	#createValueNode(value: string): HTMLElement
+	{
+		return Tag.render`
+			<input
+				type="hidden"
+				name="${Text.encode(this.#fieldPrefix + 'value[]')}"
+				value="${Text.encode(value)}"
+			>
+		`;
 	}
 
 	init(condition: Condition)
@@ -166,43 +192,72 @@ export class ConditionSelector
 		if (this.#condition.field !== '')
 		{
 			const field = this.getField(this.#condition.object, this.#condition.field) || '?';
-			const valueLabel =
-				(this.#condition.operator.indexOf('empty') < 0)
-					? BX.Bizproc.FieldType.formatValuePrintable(field, this.#condition.value)
-					: null
-			;
+			const valueLabel = this.#getValueLabel(field);
 
-			this.labelNode.appendChild(Dom.create("span", {
-				attrs: {
-					className: "bizproc-automation-popup-settings-link"
-				},
-				text: field.Name
-			}));
-			this.labelNode.appendChild(Dom.create("span", {
-				attrs: {
-					className: "bizproc-automation-popup-settings-link"
-				},
-				text: this.getOperatorLabel(this.#condition.operator)
-			}));
+			Dom.append(
+				Tag.render`<span class="bizproc-automation-popup-settings-link">${Text.encode(field.Name)}</span>`,
+				this.labelNode
+			);
+			Dom.append(
+				Tag.render`
+					<span class="bizproc-automation-popup-settings-link">
+						${Text.encode(this.getOperatorLabel(this.#condition.operator))}
+					</span>
+				`,
+				this.labelNode
+			);
+
 			if (valueLabel)
 			{
-				this.labelNode.appendChild(Dom.create("span", {
-					attrs: {
-						className: "bizproc-automation-popup-settings-link"
-					},
-					text: valueLabel
-				}));
+				Dom.append(
+					Tag.render`<span class="bizproc-automation-popup-settings-link">${Text.encode(valueLabel)}</span>`,
+					this.labelNode
+				);
 			}
 		}
 		else
 		{
-			this.labelNode.appendChild(Dom.create("span", {
-				attrs: {
-					className: "bizproc-automation-popup-settings-link"
-				},
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY')
-			}));
+			Dom.append(
+				Tag.render`
+					<span class="bizproc-automation-popup-settings-link">
+						${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY')}
+					</span>
+				`,
+				this.labelNode
+			);
 		}
+	}
+
+	#getValueLabel(field): ?string
+	{
+		const operator = this.#condition.operator;
+		const value = this.#condition.value;
+
+		if (operator === 'between')
+		{
+			return (
+				Loc.getMessage(
+				'BIZPROC_AUTOMATION_ROBOT_CONDITION_BETWEEN_VALUE',
+					{
+						'#VALUE_1#': BX.Bizproc.FieldType.formatValuePrintable(
+							field,
+							Type.isArrayFilled(value) ? value[0] : value
+						),
+						'#VALUE_2#': BX.Bizproc.FieldType.formatValuePrintable(
+							field,
+							Type.isArrayFilled(value) ? value[1] : ''
+						)
+					}
+				)
+				?? ''
+			);
+		}
+		else if(operator.indexOf('empty') < 0)
+		{
+			return BX.Bizproc.FieldType.formatValuePrintable(field, value);
+		}
+
+		return null;
 	}
 
 	bindLabelNode()
@@ -259,12 +314,14 @@ export class ConditionSelector
 		{
 			selectedField = fields[0];
 		}
+
+		this.#selectedField = selectedField;
+
 		fieldSelect.value = selectedField.Id;
 		objectSelect.value = selectedField.ObjectId;
 		fieldSelectLabel.textContent = selectedField.Name;
 
-		const valueInput = (this.#condition.operator.indexOf('empty') < 0)
-			? this.createValueNode(selectedField, this.#condition.value) : null;
+		const valueInput = this.#getValueNode(selectedField, this.#condition.value, this.#condition.operator);
 
 		const valueWrapper = Dom.create('div', {
 			attrs: {
@@ -330,11 +387,18 @@ export class ConditionSelector
 							self.#condition.setField(fieldSelect.value);
 							self.#condition.setOperator(operatorWrapper.firstChild.value);
 
-							const valueInput = valueWrapper.querySelector('[name^="' + self.#fieldPrefix + 'value"]');
+							const valueInputs = valueWrapper.querySelectorAll('[name^="' + self.#fieldPrefix + 'value"]');
 
-							if (valueInput)
+							if (valueInputs.length > 0)
 							{
-								self.#condition.setValue(valueInput.value);
+								let value = valueInputs[0].value;
+
+								if (self.#condition.operator === Operator.BETWEEN && valueInputs.length > 1)
+								{
+									value = [valueInputs[0].value, valueInputs[1].value];
+								}
+
+								self.#condition.setValue(value);
 							}
 							else
 							{
@@ -342,6 +406,13 @@ export class ConditionSelector
 							}
 
 							self.setLabelText();
+
+							const field = self.getField(self.#condition.object, self.#condition.field);
+							if (field && field.Type === 'UF:address')
+							{
+								const input = valueWrapper.querySelector('[name="' + self.#fieldPrefix + 'value"]');
+								self.#condition.setValue(input ? input.value : '');
+							}
 							self.updateValueNode();
 							this.popupWindow.close();
 						}
@@ -429,7 +500,26 @@ export class ConditionSelector
 			}
 			if (this.valueNode)
 			{
-				this.valueNode.value = this.#condition.value;
+				this.valueNode.value = Type.isArrayFilled(this.#condition.value) ? this.#condition.value[0] : this.#condition.value;
+			}
+
+			if (this.#condition.operator === Operator.BETWEEN)
+			{
+				const value2 = this.#condition.value[1] || '';
+				if (this.#valueNode2)
+				{
+					this.#valueNode2.value = value2;
+				}
+				else
+				{
+					this.#valueNode2 = this.#createValueNode(value2);
+					Dom.append(this.#valueNode2, this.node);
+				}
+			}
+			else if (Type.isDomNode(this.#valueNode2))
+			{
+				Dom.remove(this.#valueNode2);
+				this.#valueNode2 = null;
 			}
 		}
 	}
@@ -438,19 +528,56 @@ export class ConditionSelector
 	{
 		const field = this.getField(objectSelect.value, selectNode.value);
 		const operatorNode = this.createOperatorNode(field, valueWrapper);
+
+		//clean value if field types are different
+		if (field.Type !== this.#selectedField?.Type)
+		{
+			Dom.clean(valueWrapper);
+		}
+		this.#selectedField = field;
+
+		//keep selected operator if possible
+		if (this.getOperators(field['Type'], field['Multiple'])[conditionWrapper.firstChild.value])
+		{
+			operatorNode.value = conditionWrapper.firstChild.value;
+		}
+
 		conditionWrapper.replaceChild(operatorNode, conditionWrapper.firstChild);
 		this.onOperatorChange(operatorNode, field, valueWrapper);
 	}
 
-	onOperatorChange(selectNode: Node, field: Object, valueWrapper: Node)
+	onOperatorChange(selectNode: Node, field: Object, valueWrapper: HTMLElement)
 	{
+		const valueInput = valueWrapper.querySelector('[name^="' + this.#fieldPrefix + 'value"]');
 		Dom.clean(valueWrapper);
 
-		if (selectNode.value.indexOf('empty') < 0)
+		Dom.append(
+			this.#getValueNode(field, valueInput?.value || this.#condition.value, selectNode.value),
+			valueWrapper
+		);
+	}
+
+	#getValueNode(field: {}, value, operator: string): any
+	{
+		if (operator === Operator.BETWEEN)
 		{
-			const valueNode = this.createValueNode(field);
-			valueWrapper.appendChild(valueNode);
+			const valueNode1 = this.createValueNode(field, Type.isArrayFilled(value) ? value[0] : value);
+			const valueNode2 = this.createValueNode(field, Type.isArrayFilled(value) ? value[1] : '');
+
+			return Tag.render`
+				<div>
+					${valueNode1}
+					<div>${ConditionGroup.JOINER.message('AND')}</div>
+					${valueNode2}
+				</div>
+			`;
 		}
+		else if (operator.indexOf('empty') < 0)
+		{
+			return this.createValueNode(field, value);
+		}
+
+		return '';
 	}
 
 	// TODO - fix this method
@@ -515,13 +642,15 @@ export class ConditionSelector
 		};
 	}
 
-	getOperators(fieldType, multiple)
+	getOperators(fieldType, multiple): {}
 	{
+		const allLabels = Operator.getAllLabels();
+
 		let list = {
-			'!empty': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_EMPTY'),
-			'empty': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY'),
-			'=': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_EQ'),
-			'!=': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NE')
+			'!empty': allLabels[Operator.NOT_EMPTY],
+			'empty': allLabels[Operator.EMPTY],
+			'=': allLabels[Operator.EQUAL],
+			'!=': allLabels[Operator.NOT_EQUAL],
 		};
 		switch (fieldType)
 		{
@@ -529,16 +658,16 @@ export class ConditionSelector
 			case 'UF:crm':
 			case 'UF:resourcebooking':
 				list = {
-					'!empty': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_EMPTY'),
-					'empty': Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY')
+					'!empty': allLabels[Operator.NOT_EMPTY],
+					'empty': allLabels[Operator.EMPTY],
 				};
 				break;
 			case 'bool':
 			case 'select':
 				if (multiple)
 				{
-					list['contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
-					list['!contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
+					list[Operator.CONTAIN] = allLabels[Operator.CONTAIN];
+					list[Operator.NOT_CONTAIN] = allLabels[Operator.NOT_CONTAIN];
 				}
 				else
 				{
@@ -547,28 +676,34 @@ export class ConditionSelector
 				}
 				break;
 			case 'user':
-				list['in'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
-				list['!in'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_IN');
-				list['contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
-				list['!contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
+				list[Operator.IN] = allLabels[Operator.IN];
+				list[Operator.NOT_IN] = allLabels[Operator.NOT_IN];
+				list[Operator.CONTAIN] = allLabels[Operator.CONTAIN];
+				list[Operator.NOT_CONTAIN] = allLabels[Operator.NOT_CONTAIN];
 				break;
 			default:
-				list['in'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
-				list['!in'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_IN');
-				list['contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
-				list['!contain'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
-				list['>'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_GT');
-				list['>='] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_GTE');
-				list['<'] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_LT');
-				list['<='] = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_LTE');
+				list[Operator.IN] = allLabels[Operator.IN];
+				list[Operator.NOT_IN] = allLabels[Operator.NOT_IN];
+				list[Operator.CONTAIN] = allLabels[Operator.CONTAIN];
+				list[Operator.NOT_CONTAIN] = allLabels[Operator.NOT_CONTAIN];
+				list[Operator.GREATER_THEN] = allLabels[Operator.GREATER_THEN];
+				list[Operator.GREATER_THEN_OR_EQUAL] = allLabels[Operator.GREATER_THEN_OR_EQUAL];
+				list[Operator.LESS_THEN] = allLabels[Operator.LESS_THEN];
+				list[Operator.LESS_THEN_OR_EQUAL] = allLabels[Operator.LESS_THEN_OR_EQUAL];
 		}
+
+		// todo: interface
+		// if (['time', 'date', 'datetime', 'int', 'double'].includes(fieldType) || Type.isUndefined(fieldType))
+		// {
+		// 	list[Operator.BETWEEN] = allLabels[Operator.BETWEEN];
+		// }
 
 		return list;
 	}
 
-	getOperatorLabel(id)
+	getOperatorLabel(id): string
 	{
-		return this.getOperators()[id];
+		return Operator.getOperatorLabel(id);
 	}
 
 	filterFields()
@@ -680,7 +815,13 @@ export class ConditionSelector
 	{
 		this.#condition = null;
 		Dom.remove(this.node);
-		this.labelNode = this.fieldNode = this.operatorNode = this.valueNode = this.node = null;
+
+		this.labelNode = null;
+		this.fieldNode = null;
+		this.operatorNode = null;
+		this.valueNode = null;
+		this.#valueNode2 = null;
+		this.node = null;
 
 		event.stopPropagation();
 	}

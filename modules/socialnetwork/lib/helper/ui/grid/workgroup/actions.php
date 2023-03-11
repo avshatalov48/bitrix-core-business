@@ -10,6 +10,7 @@
 namespace Bitrix\Socialnetwork\Helper\UI\Grid\Workgroup;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_UserToGroup;
 use Bitrix\Socialnetwork\Component\WorkgroupList;
@@ -42,10 +43,23 @@ class Actions
 				$title = Loc::getMessage('SOCIALNETWORK_HELPER_UI_GRID_ACTION_VIEW_TITLE_PROJECT');
 			}
 
+			$groupUrl = str_replace(
+				[ '#id#', '#ID#', '#GROUP_ID#', '#group_id#' ],
+				$group->getId(),
+				$params['PATH_TO_GROUP']
+			);
+			if ($isScrum)
+			{
+				$groupUrl = (new Uri($groupUrl))
+					->addParams(['scrum' => 'Y'])
+					->getUri()
+				;
+			}
+
 			$result[] = [
 				'text' => $text,
 				'title' => $title,
-				'href' => str_replace([ '#id#', '#ID#', '#GROUP_ID#', '#group_id#' ], $group->getId(), $params['PATH_TO_GROUP']),
+				'href' => $groupUrl,
 				'default' => true
 			];
 		}

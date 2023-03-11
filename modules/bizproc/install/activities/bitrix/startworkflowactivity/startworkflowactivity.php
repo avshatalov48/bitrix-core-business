@@ -232,6 +232,7 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 
 		$parameters[CBPDocument::PARAM_TAGRET_USER] = $this->GetRootActivity()->{CBPDocument::PARAM_TAGRET_USER};
 
+		$errors = [];
 		$this->wfId = CBPDocument::StartWorkflow(
 			$template['ID'],
 			$documentId,
@@ -396,7 +397,7 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			'templates' => $templates,
 
 			'documentId' => !empty($currentValues['document_id']) ? $currentValues['document_id'] : null,
-			'useSubscription' => $currentValues['use_subscription'],
+			'useSubscription' => $currentValues['use_subscription'] ?? 'N',
 			'currentEntity' => $currentEntity,
 			'currentType' => $currentType,
 			'currentTemplateId' => $currentTemplateId,
@@ -560,8 +561,8 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 		return new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $dialog['documentType'],
 			'activityName' => $dialog['activityName'],
-			'workflowTemplate' => $dialog['workflowTemplate'],
-			'workflowParameters' => $dialog['workflowParameters'],
+			'workflowTemplate' => $dialog['workflowTemplate'] ?? [],
+			'workflowParameters' => $dialog['workflowParameters'] ?? [],
 			'currentValues' => isset($dialog['currentValues']) ? $dialog['currentValues'] : [],
 			'formName' => $dialog['formName'],
 			'siteId' => $dialog['siteId'],
@@ -723,7 +724,7 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 					$result .= '<div class="bizproc-automation-popup-settings">';
 					$result .= "<span class=bizproc-automation-popup-settings-title>{$field['Name']}: </span>";
 
-					$result .= $dialog->renderFieldControl($field, $currentValues[$fieldId]);
+					$result .= $dialog->renderFieldControl($field, $currentValues[$fieldId] ?? null);
 
 					$result .= '</div>';
 				}
@@ -739,8 +740,8 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
 
-		$currentEntity = $context['currentEntity'];
-		$currentType = $context['currentType'];
+		$currentEntity = $context['currentEntity'] ?? null;
+		$currentType = $context['currentType'] ?? null;
 
 		return [
 			'DocumentId' => [

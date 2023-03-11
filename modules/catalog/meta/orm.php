@@ -6749,6 +6749,10 @@ namespace Bitrix\Catalog {
 	 * @method EO_StoreDocument_Query withStore($storeId)
 	 * @see \Bitrix\Catalog\StoreDocumentTable::withStoreList()
 	 * @method EO_StoreDocument_Query withStoreList($storeIds)
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withStoreFromList()
+	 * @method EO_StoreDocument_Query withStoreFromList($storeIds)
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withStoreToList()
+	 * @method EO_StoreDocument_Query withStoreToList($storeIds)
 	 */
 	class EO_StoreDocument_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**

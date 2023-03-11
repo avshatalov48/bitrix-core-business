@@ -218,4 +218,12 @@ class BoolType extends Base
 
 		return parent::externalizeValue($fieldType, $context, $value);
 	}
+
+	public static function compareValues($valueA, $valueB)
+	{
+		$valueA = \CBPHelper::getBool($valueA);
+		$valueB = \CBPHelper::getBool($valueB);
+
+		return parent::compareValues($valueA, $valueB);
+	}
 }

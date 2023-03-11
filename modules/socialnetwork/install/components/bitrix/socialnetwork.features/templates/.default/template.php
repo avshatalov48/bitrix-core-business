@@ -162,7 +162,10 @@ else
 									: Loc::getMessage("SONET_FEATURES_".$feature)
 						);
 
-						?><div class="<?=$featureBlockClass?>">
+						?>
+						<div class="<?= $featureBlockClass ?>"
+							 onclick="BX.UI.InfoHelper.show('<?= $arFeature['limit'] ?>',{isLimit: true,limitAnalyticsLabels: {module: 'socialnetwork',source: 'features',feature: 'tasks',}})"
+							 style="cursor:pointer;">
 							<div class="sn-features-title-box">
 								<h4 class="sn-features-title"><?=$featureName?></h4>
 								<span class="sn-features-subtitle"><?=$featureSubTitleText?></span>

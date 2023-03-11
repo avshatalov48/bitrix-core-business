@@ -417,7 +417,7 @@ class CBPTaskService extends CBPRuntimeService
 
 		if (is_set($arFields, "NAME") || $addMode)
 		{
-			$arFields["NAME"] = trim($arFields["NAME"]);
+			$arFields["NAME"] = is_scalar($arFields["NAME"]) ? trim($arFields["NAME"]) : '';
 			if ($arFields["NAME"] == '')
 				throw new Exception("NAME");
 
@@ -425,7 +425,9 @@ class CBPTaskService extends CBPRuntimeService
 		}
 
 		if (is_set($arFields, "DESCRIPTION"))
-			$arFields["DESCRIPTION"] = htmlspecialcharsback($arFields["DESCRIPTION"]);
+		{
+			$arFields["DESCRIPTION"] = htmlspecialcharsback(CBPHelper::stringify($arFields["DESCRIPTION"]));
+		}
 
 		if (is_set($arFields, "PARAMETERS"))
 		{
@@ -697,7 +699,7 @@ class CBPTaskService extends CBPRuntimeService
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && empty($arNavStartParams["nTopCount"]))
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".

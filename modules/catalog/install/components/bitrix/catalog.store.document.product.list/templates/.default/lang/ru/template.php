@@ -12,6 +12,7 @@ $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT_TITLE"] = "Наст
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION"] = "Удалить";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_COPY_ACTION"] = "Копировать";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_2"] = "Укажите количество товара, чтобы провести документ";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_REALIZATION"] = "Количество товара не может быть меньше 1";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY"] = "Введите хотя бы один товар, чтобы провести документ";
 $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_TEXT'] = 'Недостаточно прав';
 $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_STORE_HINT'] = 'У вас нет доступа к складу на который был принят товар. Запросите доступ у руководителя или администратора чтобы просматривать информацию по складу';

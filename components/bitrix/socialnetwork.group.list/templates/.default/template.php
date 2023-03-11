@@ -43,6 +43,7 @@ Extension::load([
 	'ui.buttons',
 	'ui.buttons.icons',
 	'ui.notification',
+	'tasks.tour',
 ]);
 
 $messages = Loc::loadLanguageFile(__FILE__);
@@ -62,10 +63,6 @@ if (
 			? ScopeDictionary::SCOPE_SCRUM_PROJECTS_GRID
 			: ScopeDictionary::SCOPE_PROJECTS_GRID
 	);
-
-	Extension::load([
-		'tasks.tour',
-	]);
 
 	$APPLICATION->IncludeComponent(
 		'bitrix:tasks.interface.topmenu',
@@ -153,8 +150,6 @@ else
 
 	?><div class="<?= implode(' ', $classList)?>">
 		<?php
-		if ($arParams['USER_ID'] === $arResult['CURRENT_USER_ID'])
-		{
 			$counters = [
 				CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED,
 			];
@@ -175,7 +170,6 @@ else
 				],
 				$component
 			);
-		}
 		?>
 	</div><?php
 
@@ -395,4 +389,4 @@ $removeButton = [
 
 	BX.message(<?= Json::encode($messages) ?>);
 
-</script><?php
+</script>

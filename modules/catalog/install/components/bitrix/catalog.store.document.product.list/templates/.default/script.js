@@ -405,6 +405,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        main_core.Event.bind(node, 'mousedown', function (event) {
 	          return event.stopPropagation();
 	        });
+	        main_core.Event.bind(node, 'blur', editor.blurProductFieldHandler);
 	      });
 	      this.getNode().querySelectorAll('select').forEach(function (node) {
 	        main_core.Event.bind(node, 'change', editor.changeProductFieldHandler); // disable drag-n-drop events for select fields
@@ -1030,7 +1031,11 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	      var mode = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : MODE_SET;
 
-	      // price can't be less than zero
+	      if (!this.model.getStoreCollection().isInited()) {
+	        return;
+	      } // price can't be less than zero
+
+
 	      if (mode === MODE_SET) {
 	        var amount;
 	        var amounts = {
@@ -1054,7 +1059,14 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	              if (_classPrivateMethodGet(this, _needInventory, _needInventory2).call(this)) {
 	                amount = amounts[postfix]() || 0;
-	                wrapper.innerHTML = amount + ' ' + main_core.Text.encode(this.getField('MEASURE_NAME'));
+	                var amountWithMeasure = amount + ' ' + main_core.Text.encode(this.getField('MEASURE_NAME'));
+	                var htmlAmount = amountWithMeasure;
+
+	                if (postfix === '_AVAILABLE_AMOUNT') {
+	                  htmlAmount = amount > 0 ? amountWithMeasure : "<span class=\"text--danger\">".concat(amountWithMeasure, "</span>");
+	                }
+
+	                wrapper.innerHTML = htmlAmount;
 	              }
 	            }
 	          }
@@ -1531,6 +1543,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    var selectorOptions = {
 	      inputFieldId: fieldNames[rowName],
 	      inputFieldTitle: fieldNames[rowName] + '_TITLE',
+	      isDisabledEmpty: true,
 	      config: {
 	        ENABLE_SEARCH: true,
 	        ENABLE_INPUT_DETAIL_LINK: false,
@@ -1541,6 +1554,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    };
 	    var storeSelector = new catalog_storeSelector.StoreSelector(_this12.getId() + '_' + rowName, selectorOptions);
 	    main_core_events.EventEmitter.subscribe(storeSelector, 'onChange', main_core.Runtime.debounce(_classPrivateMethodGet(_this12, _onStoreFieldChange, _onStoreFieldChange2).bind(_this12), 500, _this12));
+	    main_core_events.EventEmitter.subscribe(storeSelector, 'onClear', main_core.Runtime.debounce(_classPrivateMethodGet(_this12, _onStoreFieldChange, _onStoreFieldChange2).bind(_this12), 500, _this12));
 
 	    _this12.storeSelectors.push(storeSelector);
 	  });
@@ -1592,7 +1606,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  var errors = this.getModel().getErrorCollection().getErrors();
 
 	  for (var code in errors) {
-	    if (code === catalog_productSelector.ProductSelector.ErrorCodes.NOT_SELECTED_PRODUCT) {
+	    if (code === catalog_productSelector.ProductSelector.ErrorCodes.NOT_SELECTED_PRODUCT || code === catalog_storeSelector.StoreSelector.ErrorCodes.NOT_SELECTED_STORE) {
 	      this.getSelector().layoutErrors();
 	    }
 	  }
@@ -2382,6 +2396,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    babelHelpers.defineProperty(this, "dropdownChangeHandler", this.handleDropdownChange.bind(this));
 	    babelHelpers.defineProperty(this, "onScanEmitHandler", this.handleMobileScanEvent.bind(this));
 	    babelHelpers.defineProperty(this, "changeProductFieldHandler", this.handleFieldChange.bind(this));
+	    babelHelpers.defineProperty(this, "blurProductFieldHandler", this.handleFieldBlur.bind(this));
 	    babelHelpers.defineProperty(this, "updateTotalDataDelayedHandler", main_core.Runtime.debounce(this.updateTotalDataDelayed, 100, this));
 	    this.setId(id);
 	  }
@@ -3474,6 +3489,27 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      }
 	    }
 	  }, {
+	    key: "handleFieldBlur",
+	    value: function handleFieldBlur(event) {
+	      var row = event.target.closest('tr');
+	      var value = event.target.value;
+	      var fieldCode = event.target.getAttribute('data-name');
+
+	      if (!main_core.Type.isStringFilled(fieldCode)) {
+	        var cell = event.target.closest('td');
+	        fieldCode = this.getFieldCodeByGridCell(row, cell);
+	      }
+
+	      if (this.settings.documentType === 'REALIZATION' && fieldCode === 'AMOUNT' && value <= 0) {
+	        event.target.value = 1;
+	        this.handleFieldChange(event);
+	        BX.UI.Notification.Center.notify({
+	          width: 'auto',
+	          content: main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_REALIZATION')
+	        });
+	      }
+	    }
+	  }, {
 	    key: "handleDropdownChange",
 	    value: function handleDropdownChange(event) {
 	      var _event$getData = event.getData(),
@@ -3750,6 +3786,11 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        productRow.layoutStoreSelector(productRow.getSettingValue('storeHeaderMap', {}));
 	        productRow.layoutBarcode();
 	        productRow.executeExternalActions();
+
+	        if (this.settings.documentType === 'REALIZATION') {
+	          productRow.changeAmount(productRow.getAmount() > 0 ? productRow.getAmount() : 1);
+	        }
+
 	        this.getGrid().tableUnfade();
 	      } else {
 	        this.getGrid().tableUnfade();

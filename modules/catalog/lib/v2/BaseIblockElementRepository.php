@@ -75,7 +75,8 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 
 		foreach ($entities as $entity)
 		{
-			if ($entityId = $entity->getId())
+			$entityId = $entity->getId();
+			if ($entityId !== null)
 			{
 				$res = $this->updateInternal($entityId, $entity->getChangedFields());
 
@@ -117,6 +118,11 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 			foreach ($entities as $entity)
 			{
 				$entityFields = $fields[$entity->getId()] ?? null;
+				if (!is_array($entityFields))
+				{
+					AddMessage2Log('Cannot load product ' . $entity->getId(), 'catalog');
+					continue;
+				}
 				$entityFields = array_diff_key($entityFields, ['TYPE' => true]);
 
 				if ($entityFields)

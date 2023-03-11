@@ -1,11 +1,12 @@
 <?
 
-use Bitrix\Main\Loader;
 use Bitrix\Main;
-use Bitrix\Iblock;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Iblock;
 
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -20,6 +21,8 @@ global $adminPage;
 global $adminSidePanelHelper;
 
 Loader::includeModule('iblock');
+
+$request = Context::getCurrent()->getRequest();
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
@@ -98,7 +101,7 @@ $copyID = (isset($_REQUEST['copyID']) ? (int)$_REQUEST['copyID'] : 0);
 if ($ID <= 0 && isset($PID) && (int)$PID > 0)
 	$ID = (int)$PID;
 
-$PREV_ID = (int)($PREV_ID ?? 0);
+$PREV_ID = (int)$request->get('PREV_ID');
 
 $WF_ID = $ID; //This is ID of the current copy
 
@@ -175,22 +178,30 @@ elseif(!$bWorkflow)
 else
 	$WF = ($_REQUEST["WF"] === "Y")? "Y": "N";
 
+$view = (string)$request->get('view');
 $historyId = 0;
 if (isset($_REQUEST['history_id']) && is_string($_REQUEST['history_id']))
+{
 	$historyId = (int)$_REQUEST['history_id'];
+}
 if ($historyId > 0 && $bBizproc)
-	$view = "Y";
+{
+	$view = 'Y';
+}
 else
+{
 	$historyId = 0;
+}
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
 $error = false;
 
-$view = ($view=="Y") ? "Y" : "N"; //view mode
+$view = ($view === 'Y') ? 'Y' : 'N'; //view mode
 
-$return_url = (isset($return_url) ? (string)$return_url : '');
+$return_url = (string)($request->get('return_url') ?? '');
 
+$from = (string)($request->get('from') ?? '');
 if ($bAutocomplete)
 {
 	$return_url = '';
@@ -201,9 +212,13 @@ else
 		$return_url = '';
 	if ($return_url == '')
 	{
-		if ($from=="iblock_section_admin")
-			$return_url = CIBlock::GetAdminSectionListLink($IBLOCK_ID, array(
-				"find_section_section" => $find_section_section, "SECTION_ID" => intval($find_section_section)));
+		if ($from == 'iblock_section_admin')
+		{
+			$return_url = CIBlock::GetAdminSectionListLink($IBLOCK_ID, [
+				"find_section_section" => $find_section_section,
+				"SECTION_ID" => intval($find_section_section)
+			]);
+		}
 	}
 }
 
@@ -256,7 +271,8 @@ do{ //one iteration loop
 		break;
 	}
 
-	$MENU_SECTION_ID = intval($IBLOCK_SECTION_ID)? intval($IBLOCK_SECTION_ID): $find_section_section;
+	//TODO: $IBLOCK_SECTION_ID - it's crutch
+	$MENU_SECTION_ID = intval($IBLOCK_SECTION_ID ?? 0)? intval($IBLOCK_SECTION_ID): $find_section_section;
 
 	$bBadBlock = true;
 	$arIBlock = CIBlock::GetArrayByID($IBLOCK_ID);
@@ -640,7 +656,7 @@ do{ //one iteration loop
 
 		//transpose files array
 		// [property id] [value id] = file array (name, type, tmp_name, error, size)
-		$files = $_FILES["PROP"];
+		$files = $_FILES['PROP'] ?? null;
 		if(is_array($files))
 		{
 			if(!is_array($PROP))
@@ -678,7 +694,7 @@ do{ //one iteration loop
 			}
 		}
 
-		$DESCRIPTION_PROP = $_POST["DESCRIPTION_PROP"];
+		$DESCRIPTION_PROP = $_POST['DESCRIPTION_PROP'] ?? null;
 		if(is_array($DESCRIPTION_PROP))
 		{
 			foreach($DESCRIPTION_PROP as $k1=>$val1)
@@ -1580,7 +1596,12 @@ else
 	$str_IBLOCK_ELEMENT_SECTION = Array();
 	$str_ACTIVE = $arIBlock["FIELDS"]["ACTIVE"]["DEFAULT_VALUE"] === "N"? "N": "Y";
 	$str_NAME = htmlspecialcharsbx($arIBlock["FIELDS"]["NAME"]["DEFAULT_VALUE"]);
+	$str_CODE = '';
+	$str_XML_ID = '';
+	$str_TAGS = '';
 
+	$str_ACTIVE_FROM = '';
+	$str_ACTIVE_TO = '';
 	$currentTime = time() + CTimeZone::GetOffset();
 	if ($arIBlock["FIELDS"]["ACTIVE_FROM"]["DEFAULT_VALUE"] === "=now")
 		$str_ACTIVE_FROM = ConvertTimeStamp($currentTime, "FULL");
@@ -1640,8 +1661,8 @@ else
 			$ipropTemlates->getValuesEntity()->setParents($str_IBLOCK_ELEMENT_SECTION);
 		}
 		$str_IPROPERTY_TEMPLATES = $ipropTemlates->findTemplates();
-		$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"]);
-		$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"]);
+		$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] ?? null);
+		$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] ?? null);
 	}
 
 	if($bCopy)
@@ -1712,7 +1733,14 @@ else
 
 		if($find_section_section > 0)
 		{
-			$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
+			$nav = CIBlockSection::GetNavChain(
+				$IBLOCK_ID,
+				$find_section_section,
+				[
+					'ID',
+					'NAME',
+				]
+			);
 			while($ar_nav = $nav->GetNext())
 			{
 				$sSectionUrl = CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>$ar_nav["ID"]));
@@ -2015,7 +2043,7 @@ else
 
 	$bFileman = Loader::includeModule("fileman");
 	$arTranslit = $arIBlock["FIELDS"]["CODE"]["DEFAULT_VALUE"];
-	$bLinked = (!mb_strlen($str_TIMESTAMP_X) || $bCopy) && $_POST["linked_state"]!=='N';
+	$bLinked = (!isset($str_TIMESTAMP_X) || $bCopy) && (!isset($_POST["linked_state"]) || $_POST["linked_state"]!=='N');
 
 if($customFormFile):
 	include($_SERVER["DOCUMENT_ROOT"].$customFormFile);
@@ -2154,9 +2182,12 @@ elseif ($copyID > 0)
 }
 
 if ($bCatalog)
+{
 	CCatalogAdminTools::showFormParams();
+}
+//TODO: $IBLOCK_SECTION_ID - it's crutch
 ?>
-<input type="hidden" name="IBLOCK_SECTION_ID" value="<?echo intval($IBLOCK_SECTION_ID)?>">
+<input type="hidden" name="IBLOCK_SECTION_ID" value="<?echo intval($IBLOCK_SECTION_ID ?? 0)?>">
 <input type="hidden" name="TMP_ID" value="<?echo intval($TMP_ID)?>">
 <?
 $tabControl->EndEpilogContent();
@@ -2482,7 +2513,7 @@ if(!empty($PROP)):
 				if(is_array($val) && array_key_exists("VALUE",$val))
 				{
 					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][VALUE]', $val["VALUE"]);
-					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][DESCRIPTION]', $val["DESCRIPTION"]);
+					$hidden .= _ShowHiddenValue('PROP['.$prop_fields["ID"].']['.$key.'][DESCRIPTION]', $val["DESCRIPTION"] ?? '');
 				}
 				else
 				{

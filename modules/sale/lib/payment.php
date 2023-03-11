@@ -28,26 +28,6 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	protected $payableItemCollection;
 
 	/**
-	 * Payment constructor.
-	 * @param array $fields
-	 * @throws Main\ArgumentNullException
-	 */
-	protected function __construct(array $fields = [])
-	{
-		$priceFields = ['SUM', 'PRICE_COD'];
-
-		foreach ($priceFields as $code)
-		{
-			if (isset($fields[$code]))
-			{
-				$fields[$code] = PriceMaths::roundPrecision($fields[$code]);
-			}
-		}
-
-		parent::__construct($fields);
-	}
-
-	/**
 	 * @return string|void
 	 */
 	public static function getRegistryEntity()
@@ -1044,7 +1024,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	 */
 	public function isInner()
 	{
-		return (int)$this->getPaymentSystemId() === (int)Sale\PaySystem\Manager::getInnerPaySystemId();
+		return $this->getPaymentSystemId() === Sale\PaySystem\Manager::getInnerPaySystemId();
 	}
 
 	/**
@@ -1055,23 +1035,22 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	 * @throws Main\NotImplementedException
 	 * @throws \Exception
 	 */
-	public function setField($name, $value)
+	protected function normalizeValue($name, $value)
 	{
-		$priceFields = [
-			'SUM' => 'SUM',
-			'PRICE_COD' => 'PRICE_COD',
-		];
-		if (isset($priceFields[$name]))
+		if ($this->isPriceField($name))
 		{
 			$value = PriceMaths::roundPrecision($value);
 		}
-
-		if ($name === 'REASON_MARKED' && mb_strlen($value) > 255)
+		elseif ($name === 'REASON_MARKED')
 		{
-			$value = mb_substr($value, 0, 255);
+			$value = (string)$value;
+			if (mb_strlen($value) > 255)
+			{
+				$value = mb_substr($value, 0, 255);
+			}
 		}
 
-		return parent::setField($name, $value);
+		return parent::normalizeValue($name, $value);
 	}
 
 	/**
@@ -1114,34 +1093,6 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @internal
-	 *
-	 * @param $name
-	 * @param $value
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	public function setFieldNoDemand($name, $value)
-	{
-		$priceFields = [
-			'SUM' => 'SUM',
-			'PRICE_COD' => 'PRICE_COD',
-		];
-		if (isset($priceFields[$name]))
-		{
-			$value = PriceMaths::roundPrecision($value);
-		}
-
-		if ($name === 'REASON_MARKED'
-			&& mb_strlen($value) > 255)
-		{
-			$value = mb_substr($value, 0, 255);
-		}
-
-		parent::setFieldNoDemand($name, $value);
 	}
 
 	/**
@@ -1409,6 +1360,14 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	public function getMarkField()
 	{
 		return 'MARKED';
+	}
+
+	protected function isPriceField(string $name) : bool
+	{
+		return
+			$name === 'PRICE_COD'
+			|| $name === 'SUM'
+		;
 	}
 
 	/**

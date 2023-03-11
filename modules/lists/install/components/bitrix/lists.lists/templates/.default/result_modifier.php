@@ -22,8 +22,10 @@ foreach($arResult["ITEMS"] as $key => $item)
 			$arResult["ITEMS"][$key]["IMAGE"] = CFile::ShowImage($imageFile['src'], 36, 30, 'border=0');
 		}
 	}
-	if(!$arResult["ITEMS"][$key]["IMAGE"])
+	if(!isset($arResult["ITEMS"][$key]["IMAGE"]))
+	{
 		$arResult["ITEMS"][$key]["IMAGE"] = $defaultImg;
+	}
 
 	if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
 	{

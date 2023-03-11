@@ -27,7 +27,8 @@ if($arResult['ERROR'])
 		'',
 		array(
 			'SET_TITLE' => 'Y',
-			'MANIFEST_CODE' => $arResult['MANIFEST_CODE']
+			'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

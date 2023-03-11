@@ -259,7 +259,13 @@ class Notification extends Base
 	 */
 	public function checkDisableFeature(string $feature): bool
 	{
-		return (bool)self::getDefaultSettings()[$this->module]['NOTIFY'][$this->name]['DISABLED'][mb_strtoupper($feature)];
+		$defaultSettings = self::getDefaultSettings();
+		if (isset($defaultSettings[$this->module]['NOTIFY'][$this->name]['DISABLED'][mb_strtoupper($feature)]))
+		{
+			return (bool)$defaultSettings[$this->module]['NOTIFY'][$this->name]['DISABLED'][mb_strtoupper($feature)];
+		}
+
+		return false;
 	}
 
 	public function getDefaultFeature(string $feature): bool
@@ -381,7 +387,7 @@ class Notification extends Base
 					$config['XMPP'] = !isset($config['XMPP']) || $config['XMPP'] == 'Y';
 					$config['PUSH'] = isset($config['PUSH']) && $config['PUSH'] == 'Y';
 
-					$config['LIFETIME'] = (int)$config['LIFETIME'];
+					$config['LIFETIME'] = isset($config['LIFETIME']) ? (int)$config['LIFETIME'] : 0;
 
 					self::$defaultSettings[$moduleId]['NOTIFY'][$notifyEvent] = $config;
 				}
@@ -765,7 +771,7 @@ class Notification extends Base
 	 */
 	private static function getPostfix(string $type): ?int
 	{
-		return self::$types[mb_strtoupper($type)];
+		return self::$types[mb_strtoupper($type)] ?? null;
 	}
 
 	/**

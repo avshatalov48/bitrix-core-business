@@ -346,12 +346,13 @@ if($ID > 0 && ($_SERVER['REQUEST_METHOD'] != "POST" || $isItSavingProcess))
 }
 
 /* If action is copying */
-if($_REQUEST["action"] == "copy")
+$action = $_REQUEST["action"] ?? null;
+if ($action === "copy")
 {
 	$ID = 0;
 	unset($fields["ID"]);
 }
-elseif($_REQUEST["action"] == "profile_delete")
+elseif ($action === "profile_delete")
 {
 	$idProf = isset($_REQUEST["ID_PROF"]) ? intval($_REQUEST["ID_PROF"]) : 0;
 

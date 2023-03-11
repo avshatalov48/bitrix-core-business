@@ -5,6 +5,7 @@ import { EventEmitter } from "main.core.events";
 import { Field, MenuGroupItem }  from "./types";
 import { MenuManager, Menu } from 'main.popup';
 import { Dialog } from 'ui.entity-selector';
+import {InlineTimeSelector} from "./inline-time-selector";
 
 export class InlineSelector extends EventEmitter
 {
@@ -151,6 +152,14 @@ export class InlineSelector extends EventEmitter
 
 			delayIntervalSelector.init(DelayInterval.fromString(this.targetInput.value, this.basisFields));
 		}
+		else if (type === 'time')
+		{
+			this.replaceOnWrite = true;
+
+			const timeSelector = new InlineTimeSelector({labelNode: this.targetInput});
+
+			timeSelector.init(this.targetInput.value);
+		}
 	}
 
 	#shouldShowField(field: Field): boolean
@@ -163,6 +172,10 @@ export class InlineSelector extends EventEmitter
 		else if (fieldType === 'date' || fieldType === 'datetime')
 		{
 			return field.Type === 'date' || field.Type === 'datetime';
+		}
+		else if (fieldType === 'time')
+		{
+			return field.Type === 'date' || field.Type === 'datetime' || field.Type === 'time';
 		}
 
 		return true;
@@ -531,7 +544,7 @@ export class InlineSelector extends EventEmitter
 					fields.push(printableField);
 				}
 			}
-			if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime')
+			if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime' || field['BaseType'] === 'time')
 			{
 				const serverField = BX.clone(field);
 				serverField['Name'] += ' ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER');

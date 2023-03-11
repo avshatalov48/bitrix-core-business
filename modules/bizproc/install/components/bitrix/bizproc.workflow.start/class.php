@@ -14,7 +14,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		$arParams["TEMPLATE_ID"] = isset($arParams["TEMPLATE_ID"]) ? (int)$arParams["TEMPLATE_ID"] : (int)$_REQUEST["workflow_template_id"];
 		$arParams["AUTO_EXECUTE_TYPE"] = isset($arParams["AUTO_EXECUTE_TYPE"]) ? (int)$arParams["AUTO_EXECUTE_TYPE"] : null;
 
-		$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
+		$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? 'Y') == "N" ? "N" : "Y");
 
 		return $arParams;
 	}
@@ -141,7 +141,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 					Array("workflow_template_id", "sessid")));
 		}
 
-		if ($this->arParams["TEMPLATE_ID"] > 0 && $_POST["CancelStartParamWorkflow"] == ''
+		if ($this->arParams["TEMPLATE_ID"] > 0 && empty($_POST["CancelStartParamWorkflow"])
 			&& array_key_exists($this->arParams["TEMPLATE_ID"], $this->arResult["TEMPLATES"]))
 		{
 			$arWorkflowTemplate = $this->arResult["TEMPLATES"][$this->arParams["TEMPLATE_ID"]];

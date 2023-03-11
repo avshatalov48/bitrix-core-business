@@ -92,7 +92,7 @@ class WorkgroupCardAvatar
 				if (Type.isStringFilled(response.data.imageSrc))
 				{
 					boxNode.className += ' ui-icon ui-icon-common-user-group';
-					avatarNode.style = `background: url('${response.data.imageSrc}') no-repeat center center; background-size: cover;`;
+					avatarNode.style = `background: url('${encodeURI(response.data.imageSrc)}') no-repeat center center; background-size: cover;`;
 				}
 				else
 				{

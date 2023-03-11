@@ -56,7 +56,7 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			$fields['IS_BUNDLE_CHILD'] = $basketItem->isBundleChild();
 		}
 
-		if (strval(trim($providerName)) == '')
+		if (trim((string)$providerName) === '')
 		{
 			$callbackFunction = $basketItem->getCallbackFunction();
 			if (!empty($callbackFunction))
@@ -111,9 +111,6 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			return;
 		}
 
-		/** @var Sale\ShipmentItem $shipmentItem */
-		$shipmentItem = $productData['SHIPMENT_ITEM'];
-
 		$basketItem = $productData['BASKET_ITEM'];
 
 		$productId = $basketItem->getProductId();
@@ -127,6 +124,8 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			'MODULE' => $basketItem->getField('MODULE'),
 		];
 
+		/** @var Sale\ShipmentItem $shipmentItem */
+		$shipmentItem = $productData['SHIPMENT_ITEM'] ?? null;
 		if ($shipmentItem)
 		{
 			$fields['SHIPMENT_ITEM'] = $shipmentItem;

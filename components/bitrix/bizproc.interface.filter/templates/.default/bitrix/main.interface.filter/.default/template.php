@@ -125,7 +125,7 @@ if(!function_exists('__BizprocInterfaceFilterRenderField'))
 		);
 
 		//Setup default attributes
-		if(!is_array($field['params']))
+		if(!isset($field['params']) || !is_array($field['params']))
 		{
 			$field['params'] = array();
 		}
@@ -139,7 +139,7 @@ if(!function_exists('__BizprocInterfaceFilterRenderField'))
 		}
 		elseif($field['type'] == 'date')
 		{
-			if($field['params']['size'] == '')
+			if (empty($field['params']['size']))
 			{
 				$field['params']['size'] = '10';
 			}

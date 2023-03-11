@@ -39,6 +39,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 	public function onPrepareComponentParams($params): array
 	{
 		$params['IFRAME'] = (bool)($params['IFRAME'] ?? $this->request->get('IFRAME') === 'Y');
+		$params['SEF_URL_TEMPLATES'] = $params['SEF_URL_TEMPLATES'] ?? [];
+		$params['VARIABLE_ALIASES'] = $params['VARIABLE_ALIASES'] ?? [];
 		$params = $this->getPreparedParams($params);
 
 		return parent::onPrepareComponentParams($params);

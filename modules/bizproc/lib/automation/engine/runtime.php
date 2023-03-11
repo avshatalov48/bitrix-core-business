@@ -161,6 +161,7 @@ class Runtime
 				if ($trigger)
 				{
 					$this->writeTriggerTracking($workflowId, $trigger);
+					$this->writeTriggerAnalytics($documentComplexId, $trigger);
 				}
 			}
 		}
@@ -181,6 +182,15 @@ class Runtime
 			'',
 			$trigger['ID']
 		);
+	}
+
+	protected function writeTriggerAnalytics(array $documentId, array $trigger)
+	{
+		$analyticsService = \CBPRuntime::getRuntime(true)->getAnalyticsService();
+		if ($analyticsService->isEnabled())
+		{
+			$analyticsService->write($documentId, 'trigger_run', $trigger['CODE']);
+		}
 	}
 
 	protected function stopTemplates()

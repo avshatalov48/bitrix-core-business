@@ -24,22 +24,22 @@ class TradeBinding extends ControllerBase
 		)];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
 
 		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 		/** @var TradeBindingCollection $tradeBindingCollection */
 		$tradeBindingCollection = $registry->get(Registry::ENTITY_TRADE_BINDING_COLLECTION);
-// print_r($select);die;
+
 		$tradeBindings = $tradeBindingCollection::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 
@@ -51,7 +51,7 @@ class TradeBinding extends ControllerBase
 
 			return (int) $tradeBindingCollection::getList([
 				'select' => ['CNT'],
-				'filter'=>$filter,
+				'filter' => $filter,
 				'runtime' => [
 					new ExpressionField('CNT', 'COUNT(ID)')
 				]

@@ -893,8 +893,8 @@ class CAllSalePaySystemAction
 				else
 				{
 					$params[$key] = array(
-						"TYPE" => $val['TYPE'],
-						"VALUE" => $val["VALUE"]
+						'TYPE' => $val['TYPE'] ?? null,
+						'VALUE' => $val['VALUE'] ?? null,
 					);
 				}
 			}

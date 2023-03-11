@@ -87,11 +87,10 @@ final class ProductPropertyFeature extends ProductPropertyBase
 	 * @param array $select
 	 * @param array $filter
 	 * @param array $order
-	 * @param PageNavigation $pageNavigation
+	 * @param PageNavigation|null $pageNavigation
 	 * @return Page
-	 * @noinspection PhpOptionalBeforeRequiredParametersInspection
 	 */
-	public function listAction(array $select = [], array $filter = [], array $order = [], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
 		$filter['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
 

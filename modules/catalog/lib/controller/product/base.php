@@ -83,7 +83,14 @@ abstract class Base extends Product
 		return $this->fillKeyResponse($result);
 	}
 
-	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation): ?Page
+	/**
+	 * @param array $select
+	 * @param array $filter
+	 * @param array $order
+	 * @param PageNavigation $pageNavigation
+	 * @return Page|null
+	 */
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): ?Page
 	{
 		/** @var \Bitrix\Catalog\RestView\Product $view */
 		$view = $this->getViewManager()->getView($this);
@@ -91,6 +98,7 @@ abstract class Base extends Product
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 
@@ -98,14 +106,14 @@ abstract class Base extends Product
 
 		if (isset($filter['TYPE']))
 		{
-			$filter['TYPE']  = in_array($filter['TYPE'], $list) ? $filter['TYPE'] : $list;
+			$filter['TYPE']  = in_array($filter['TYPE'], $list, true) ? $filter['TYPE'] : $list;
 		}
 		else
 		{
 			$filter['TYPE'] = $list;
 		}
 
-		return parent::listAction($select, $filter, $order, $pageNavigation);
+		return parent::listAction($pageNavigation, $select, $filter, $order);
 	}
 
 	protected function get($id)

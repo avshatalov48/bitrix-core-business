@@ -476,7 +476,7 @@ class CAllCatalogDocs
 		}
 		if ($action == 'ADD' || array_key_exists('STATUS', $arFields))
 		{
-			$arFields['STATUS'] = ('Y' == $arFields['STATUS'] ? 'Y' : 'N');
+			$arFields['STATUS'] = (isset($arFields['STATUS']) && 'Y' === $arFields['STATUS'] ? 'Y' : 'N');
 		}
 		if(isset($arFields["STATUS"]))
 		{

@@ -61,10 +61,10 @@ export class SearchService
 
 	loadRecentSearchFromServer(): Promise
 	{
-		return this.loadRecentFromServer().then(responseFromCache => {
+		return this.loadRecentFromServer().then(responseFromServer => {
 			Logger.warn('Im.Search: Recent search loaded from server');
-			const items = SearchUtils.createItemMap(responseFromCache.items);
-			const recentItems = SearchUtils.prepareRecentItems(responseFromCache.recentItems);
+			const items = SearchUtils.createItemMap(responseFromServer.items);
+			const recentItems = SearchUtils.prepareRecentItems(responseFromServer.recentItems);
 
 			return this.updateModels(items, true).then(() => {
 				return this.getItemsFromRecentItems(recentItems, items);

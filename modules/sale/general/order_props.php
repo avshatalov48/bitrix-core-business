@@ -186,13 +186,22 @@ class CSaleOrderProps
 
 			if ($arOrderProp["TYPE"] == "LOCATION" && ($arOrderProp["IS_LOCATION"] == "Y" || $arOrderProp["IS_LOCATION4TAX"] == "Y"))
 			{
-				if ($arOrderProp["IS_LOCATION"] == "Y")
+				$locId ??= null;
+
+				if ($arOrderProp["IS_LOCATION"] === "Y")
+				{
 					$arOrder["DELIVERY_LOCATION"] = $locId;
-				if ($arOrderProp["IS_LOCATION4TAX"] == "Y")
+				}
+
+				if ($arOrderProp["IS_LOCATION4TAX"] === "Y")
+				{
 					$arOrder["TAX_LOCATION"] = $locId;
+				}
 
 				if (!$locId)
+				{
 					$bErrorField = true;
+				}
 			}
 			elseif ($arOrderProp["IS_PROFILE_NAME"] == "Y" || $arOrderProp["IS_PAYER"] == "Y" || $arOrderProp["IS_EMAIL"] == "Y" || $arOrderProp["IS_ZIP"] == "Y")
 			{
@@ -248,7 +257,7 @@ class CSaleOrderProps
 				}
 			}
 
-			if ($bErrorField)
+			if ($bErrorField ?? false)
 			{
 				$arWarnings[] = array("CODE" => "PARAM", "TEXT" => str_replace("#NAME#", htmlspecialcharsbx($arOrderProp["NAME"]), GetMessage("SALE_GOPE_FIELD_EMPTY")));
 				$bErrorField = false;
@@ -1050,16 +1059,16 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 			{
 				case 'STRING':
 
-					if ($settings['MULTILINE'] == 'Y')
+					if (isset($settings['MULTILINE']) && $settings['MULTILINE'] === 'Y')
 					{
 						$property['TYPE'] = 'TEXTAREA';
-						$property['SIZE1'] = $settings['COLS'];
-						$property['SIZE2'] = $settings['ROWS'];
+						$property['SIZE1'] = $settings['COLS'] ?? null;
+						$property['SIZE2'] = $settings['ROWS'] ?? null;
 					}
 					else
 					{
 						$property['TYPE'] = 'TEXT';
-						$property['SIZE1'] = $settings['SIZE'];
+						$property['SIZE1'] = $settings['SIZE'] ?? null;
 					}
 
 					break;
@@ -1093,7 +1102,7 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 					if ($property['MULTIPLE'] == 'Y')
 					{
 						$property['TYPE'] = 'MULTISELECT';
-						$property['SIZE1'] = $settings['SIZE'];
+						$property['SIZE1'] = $settings['SIZE'] ?? null;
 					}
 					elseif ($settings['MULTIELEMENT'] == 'Y')
 					{
@@ -1102,14 +1111,14 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 					else
 					{
 						$property['TYPE'] = 'SELECT';
-						$property['SIZE1'] = $settings['SIZE'];
+						$property['SIZE1'] = $settings['SIZE'] ?? null;
 					}
 
 					break;
 
 				case 'LOCATION':
 
-					$property['SIZE1'] = $settings['SIZE'];
+					$property['SIZE1'] = $settings['SIZE'] ?? null;
 
 					break;
 

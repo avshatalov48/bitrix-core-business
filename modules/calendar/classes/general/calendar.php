@@ -516,7 +516,7 @@ class CCalendar
 
 		if(self::$type === 'location')
 		{
-			$sectionList = $roomsList;
+			$sectionList = $roomsList ?? [];
 		}
 		else
 		{
@@ -607,7 +607,8 @@ class CCalendar
 			if (
 				$groupOrUser
 				&& $sections[$i]['CAL_TYPE'] === self::$type
-				&& (int)$sections[$i]['OWNER_ID'] === (int)self::$ownerId)
+				&& (int)$sections[$i]['OWNER_ID'] === (int)self::$ownerId
+			)
 			{
 				if ($noEditAccessedCalendars && $section['PERM']['edit'])
 				{

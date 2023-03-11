@@ -254,6 +254,7 @@ class CWiki
 					$arFilter['<RIGHT_BORDER'] = CWikiSocnet::$iCatRightBorder;
 				}
 				$rsCats = CIBlockSection::GetList(array(), $arFilter);
+				$arExiststInBlockCats = [];
 				while($arCat = $rsCats->GetNext())
 				{
 					$arExiststInBlockCats[] = $arCat['~NAME'];
@@ -1008,8 +1009,10 @@ class CWiki
 
 		$cacheId = self::GetCacheIdForPageUpdated($iBlockId, $iSocCatId, $name);
 
-		if($CACHE_MANAGER->Read($cacheTime, $cacheID))
+		if ($CACHE_MANAGER->Read($cacheTime, $cacheId))
+		{
 			return ($CACHE_MANAGER->Get($cacheId) == "Y");
+		}
 
 		return false;
 	}

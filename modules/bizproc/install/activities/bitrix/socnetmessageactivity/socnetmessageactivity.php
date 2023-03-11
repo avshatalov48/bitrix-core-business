@@ -259,7 +259,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 
 	protected static function getPropertiesMap(array $documentType, array $context = []): array
 	{
-		$fromDefault = $context['fromDefault'];
+		$fromDefault = $context['fromDefault'] ?? null;
 
 		return [
 			'MessageUserFrom' => [

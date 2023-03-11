@@ -1,7 +1,8 @@
 import {Loc, Tag, Text, Type, Dom} from 'main.core';
 import {DelayInterval, DelayIntervalSelector, TrackingEntry} from "bizproc.automation";
 import AutomationLogView from "../views/automation-log";
-import {Helper} from "../helper";
+import { Helper } from "../helper";
+import { Operator } from 'bizproc.condition';
 
 export type RobotInfo = {
 	name: string,
@@ -316,10 +317,9 @@ export default class RobotLog
 					? String(note[key]['fieldValue'])
 					: ''
 			;
-			const operator = Helper.getOperatorLabel(condition['operator']);
+			const operator = Operator.getOperatorLabel(condition['operator'])
 			const value = condition['value'];
 			const joiner = Helper.getJoinerLabel(note[key]['joiner']);
-
 
 			Dom.append(
 				Tag.render`

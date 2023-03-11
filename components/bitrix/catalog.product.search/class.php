@@ -1361,7 +1361,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		if ($this->isAdminSection())
 		{
 			$aOptions = CUserOptions::GetOption("list", $this->getTableId(), array());
-			$aColsTmp = explode(",", $aOptions["columns"]);
+			$aColsTmp = explode(",", $aOptions["columns"] ?? '');
 		}
 		else
 		{

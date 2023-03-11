@@ -26,13 +26,15 @@ class ClassConstant
 	 */
 	public static function getName($id)
 	{
-		static $integration = null;
-		if ($integration === null)
+		static $integration = [];
+		$integration[static::class] ??= null;
+
+		if ($integration[static::class] === null)
 		{
-			$integration = Integration\EventHandler::onConstantList(get_called_class());
+			$integration[static::class] = Integration\EventHandler::onConstantList(get_called_class());
 		}
 
-		foreach ($integration as $item)
+		foreach ($integration[static::class] as $item)
 		{
 			if ($item['id'] === $id)
 			{
@@ -50,8 +52,10 @@ class ClassConstant
 	 */
 	protected static function getConstants()
 	{
-		static $constants = null;
-		if ($constants === null)
+		static $constants = [];
+		$constants[static::class] ??= null;
+
+		if ($constants[static::class] === null)
 		{
 			$class = new \ReflectionClass(get_called_class());
 			$list = $class->getConstants();
@@ -62,10 +66,10 @@ class ClassConstant
 				$list[$item['code']] = $item['id'];
 			}
 
-			$constants = $list;
+			$constants[static::class] = $list;
 		}
 
-		return $constants;
+		return $constants[static::class];
 	}
 
 	/**

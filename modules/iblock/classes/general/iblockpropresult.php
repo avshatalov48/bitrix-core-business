@@ -44,7 +44,7 @@ class CIBlockPropertyResult extends CDBResult
 				{
 					$value = array("VALUE"=>$res["DEFAULT_VALUE"],"DESCRIPTION"=>"");
 					$value = call_user_func_array($arUserType["ConvertFromDB"],array($res,$value));
-					$res["DEFAULT_VALUE"] = $value["VALUE"];
+					$res["DEFAULT_VALUE"] = $value["VALUE"] ?? null;
 				}
 			}
 			if($res["USER_TYPE_SETTINGS"] <> '')
@@ -275,7 +275,7 @@ class CIBlockPropertyResult extends CDBResult
 						{
 							$value = array("VALUE" => $property["DEFAULT_VALUE"], "DESCRIPTION" => "");
 							$value = call_user_func_array($userType["ConvertFromDB"], array($property, $value));
-							$property["DEFAULT_VALUE"] = $value["VALUE"];
+							$property["DEFAULT_VALUE"] = $value["VALUE"] ?? null;
 						}
 					}
 				}

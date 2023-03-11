@@ -34,8 +34,11 @@ class UpdateCashboxesOnBusinessValueUpdate implements IExecuteEvent
 	 */
 	public function executeEvent(): Sale\Result
 	{
-		$valueUnchanged = $this->oldMapping['PROVIDER_VALUE'] ===  $this->newMapping['PROVIDER_VALUE'];
-		$isPaySystemValue = mb_strpos($this->consumerKey, Service::PAY_SYSTEM_PREFIX) === 0;
+		$valueUnchanged =
+			isset($this->oldMapping['PROVIDER_VALUE'], $this->newMapping['PROVIDER_VALUE'])
+			&& $this->oldMapping['PROVIDER_VALUE'] === $this->newMapping['PROVIDER_VALUE']
+		;
+		$isPaySystemValue = isset($this->consumerKey) && mb_strpos($this->consumerKey, Service::PAY_SYSTEM_PREFIX) === 0;
 
 		if (empty($this->oldMapping) || $valueUnchanged || !$isPaySystemValue)
 		{

@@ -2803,7 +2803,7 @@ BX.SocNetLogDestination.getItemDepartmentHtml = function(name, relation, categor
 						<div class="bx-finder-company-department-employee-name">'+user.name+'</div>\
 						<div class="bx-finder-company-department-employee-position">'+user.desc+'</div>\
 					</div>\
-					<div style="'+(user.avatar? 'background:url(\''+user.avatar+'\') no-repeat center center; background-size: cover;': '')+'" class="bx-finder-company-department-employee-avatar"></div>\
+					<div style="'+(user.avatar? 'background:url(\''+encodeURI(user.avatar)+'\') no-repeat center center; background-size: cover;': '')+'" class="bx-finder-company-department-employee-avatar"></div>\
 				</a>';
 				userCount++;
 			}
@@ -2962,7 +2962,7 @@ BX.SocNetLogDestination.getDepartmentRelation = function(name, departmentId)
 								<div class="bx-finder-company-department-employee-name">'+data.USERS[i].name+'</div>\
 								<div class="bx-finder-company-department-employee-position">'+data.USERS[i].desc+'</div>\
 							</div>\
-							<div style="'+(data.USERS[i].avatar? 'background:url(\''+data.USERS[i].avatar+'\') no-repeat center center; background-size: cover;': '')+'" class="bx-finder-company-department-employee-avatar"></div>\
+							<div style="'+(data.USERS[i].avatar? 'background:url(\''+encodeURI(data.USERS[i].avatar)+'\') no-repeat center center; background-size: cover;': '')+'" class="bx-finder-company-department-employee-avatar"></div>\
 						</a>';
 					}
 				}
@@ -3033,7 +3033,7 @@ BX.SocNetLogDestination.getHtmlByTemplate3 = function(name, item, params)
 	var hoverClass = params.itemHover? 'bx-finder-box-item-t3-hover': '';
 
 	return '<a id="' + name + '_' + item.id + '" hidefocus="true" onclick="return BX.SocNetLogDestination.selectItem(\''+name+'\', this, 3, \''+item.id+'\', \''+(params.itemType? params.itemType: 'item')+'\', '+(params.search? true: false)+')" rel="'+item.id+'" class="' + BX.SocNetLogDestination.obTemplateClass[3] + ' '+activeClass+' '+hoverClass+' bx-finder-element'+(params.className? ' '+params.className: '')+'" href="#'+item.id+'">'+
-		'<div class="bx-finder-box-item-t3-avatar" '+(item.avatar? 'style="background:url(\''+item.avatar+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
+		'<div class="bx-finder-box-item-t3-avatar" '+(item.avatar? 'style="background:url(\''+encodeURI(item.avatar)+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
 		'<div class="bx-finder-box-item-t3-info">'+
 			'<div class="bx-finder-box-item-t3-name">'+item.name+'</div>'+
 			(item.desc? '<div class="bx-finder-box-item-t3-desc">'+item.desc+'</div>': '')+
@@ -3056,7 +3056,7 @@ BX.SocNetLogDestination.getHtmlByTemplate5 = function(name, item, params)
 	);
 	var hoverClass = params.itemHover? 'bx-finder-box-item-t5-hover': '';
 	return '<a id="' + name + '_' + item.id + '" hidefocus="true" onclick="return BX.SocNetLogDestination.selectItem(\''+name+'\', this, 5, \''+item.id+'\', \''+(params.itemType? params.itemType: 'item')+'\', '+(params.search? true: false)+')" rel="'+item.id+'" class="' + BX.SocNetLogDestination.obTemplateClass[5] + ' '+activeClass+' '+hoverClass+' bx-finder-element'+(params.className? ' '+params.className: '')+'" href="#'+item.id+'">'+
-		'<div class="bx-finder-box-item-t5-avatar" '+(item.avatar? 'style="background:url(\''+item.avatar+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
+		'<div class="bx-finder-box-item-t5-avatar" '+(item.avatar? 'style="background:url(\''+encodeURI(item.avatar)+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
 		'<div class="bx-finder-box-item-t5-info">'+
 			'<div class="bx-finder-box-item-t5-name">'+item.name+'</div>'+
 			(item.desc? '<div class="bx-finder-box-item-t5-desc">'+item.desc+'</div>': '')+
@@ -3079,7 +3079,7 @@ BX.SocNetLogDestination.getHtmlByTemplate6 = function(name, item, params)
 	);
 	var hoverClass = params.itemHover? 'bx-finder-box-item-t6-hover': '';
 	return '<a id="' + name + '_' + item.id + '" hidefocus="true" onclick="return BX.SocNetLogDestination.selectItem(\''+name+'\', this, 6, \''+item.id+'\', \''+(params.itemType? params.itemType: 'item')+'\', '+(params.search? true: false)+')" rel="'+item.id+'" class="' + BX.SocNetLogDestination.obTemplateClass[6] + ' '+activeClass+' '+hoverClass+' bx-finder-element'+(params.className? ' '+params.className: '')+'" href="#'+item.id+'">'+
-		'<div class="bx-finder-box-item-t6-avatar" '+(item.avatar? 'style="background:url(\''+item.avatar+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
+		'<div class="bx-finder-box-item-t6-avatar" '+(item.avatar? 'style="background:url(\''+encodeURI(item.avatar)+'\') no-repeat center center; background-size: cover;"':'')+'></div>'+
 		'<div class="bx-finder-box-item-t6-info">'+
 			'<div class="bx-finder-box-item-t6-name">'+item.name+'</div>'+
 			(item.desc? '<div class="bx-finder-box-item-t6-desc">'+item.desc+'</div>': '')+
@@ -3199,7 +3199,7 @@ BX.SocNetLogDestination.getHtmlByTemplate7 = function(name, item, params, type)
 	return '<a id="' + name + '_' + type + '_' + item.id + '" hidefocus="true" onclick="return BX.SocNetLogDestination.selectItem(\''+name+'\', this, 7, \''+item.id+'\', \''+(params.itemType? params.itemType: 'item')+'\', '+(params.search? true: false)+')" rel="'+item.id+'" class="' + itemClass + '" href="#'+item.id+'">'+
 		(
 			item.avatar
-				? '<div class="bx-finder-box-item-t7-avatar"><img bx-lm-item-id="' + item.id + '" bx-lm-item-type="' + params.itemType + '" class="bx-finder-box-item-t7-avatar-img" src="' + item.avatar + '" onerror="BX.onCustomEvent(\'removeClientDbObject\', [BX.SocNetLogDestination, this.getAttribute(\'bx-lm-item-id\'), this.getAttribute(\'bx-lm-item-type\')]); BX.cleanNode(this, true);"><span class="bx-finder-box-item-avatar-status"></span></div>'
+				? '<div class="bx-finder-box-item-t7-avatar"><img bx-lm-item-id="' + item.id + '" bx-lm-item-type="' + params.itemType + '" class="bx-finder-box-item-t7-avatar-img" src="' + encodeURI(item.avatar) + '" onerror="BX.onCustomEvent(\'removeClientDbObject\', [BX.SocNetLogDestination, this.getAttribute(\'bx-lm-item-id\'), this.getAttribute(\'bx-lm-item-type\')]); BX.cleanNode(this, true);"><span class="bx-finder-box-item-avatar-status"></span></div>'
 				: '<div class="' + classAvatarWrapper + '">' + (item.iconCustom ? item.iconCustom : '')
 				+ '<span class="bx-finder-box-item-avatar-status"></span></div>'
 		) +

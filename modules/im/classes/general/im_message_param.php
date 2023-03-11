@@ -1046,7 +1046,7 @@ class CIMMessageParamAttach
 			$grid['VALUE'] = str_replace(array("\r\n", "\r", "\n"), '<br />', $grid['VALUE']);
 			$result['VALUE'] = (str_replace(Array('<br>', '<br/>', '<br />', '#BR#'), '[BR]', trim($grid['VALUE'])));
 
-			if (preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $grid['COLOR']))
+			if (isset($grid['COLOR']) && preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $grid['COLOR']))
 			{
 				$result['COLOR'] = $grid['COLOR'];
 			}
@@ -1168,7 +1168,7 @@ class CIMMessageParamAttach
 			$add['SIZE'] = 200;
 		}
 
-		if (preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $params['COLOR']))
+		if (isset($params['COLOR']) && preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $params['COLOR']))
 		{
 			$add['COLOR'] = $params['COLOR'];
 		}
@@ -1526,7 +1526,10 @@ class CIMMessageLink
 	public static function formatAttach($linkParam)
 	{
 		$attach = null;
-		if ($linkParam['TYPE'] == UrlPreview\UrlMetadataTable::TYPE_STATIC)
+		$typeLinkParam = $linkParam['TYPE'] ?? null;
+		$extraImageLinkParam = $linkParam['EXTRA_IMAGE'] ?? null;
+
+		if ($typeLinkParam == UrlPreview\UrlMetadataTable::TYPE_STATIC)
 		{
 			if ($linkParam['EXTRA']['PEER_IP_PRIVATE'] && IM\User::getInstance()->isExtranet())
 			{
@@ -1564,7 +1567,7 @@ class CIMMessageLink
 				"DESC" => $linkParam['DESCRIPTION'],
 				"LINK" => $linkParam['URL'],
 				"PREVIEW" => $linkParam['IMAGE_ID'],
-				"EXTRA_IMAGE" => $linkParam['EXTRA_IMAGE'],
+				"EXTRA_IMAGE" => $extraImageLinkParam,
 			));
 		}
 		else if ($linkParam['TYPE'] == UrlPreview\UrlMetadataTable::TYPE_DYNAMIC)

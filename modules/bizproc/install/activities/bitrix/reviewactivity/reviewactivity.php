@@ -319,8 +319,12 @@ class CBPReviewActivity
 
 		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
 		{
-			$messageTemplate = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
-			$votedPercent = intval($this->ReviewedCount / $this->TotalCount * 100);
+			$messageTemplate = \CBPHelper::stringify($this->StatusMessage);
+			if (!$messageTemplate)
+			{
+				$messageTemplate = GetMessage("BPAR_ACT_INFO");
+			}
+			$votedPercent = (int)($this->ReviewedCount / $this->TotalCount * 100);
 			$votedCount = $this->ReviewedCount;
 			$totalCount = $this->TotalCount;
 

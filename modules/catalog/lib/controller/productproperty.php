@@ -30,9 +30,8 @@ final class ProductProperty extends ProductPropertyBase
 	 * @param array $order
 	 * @param PageNavigation $pageNavigation
 	 * @return Page
-	 * @noinspection PhpOptionalBeforeRequiredParametersInspection
 	 */
-	public function listAction(array $select = [], array $filter = [], array $order = [], PageNavigation $pageNavigation): Page
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
 		if (!isset($filter['IBLOCK_ID']))
 		{

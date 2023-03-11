@@ -122,7 +122,7 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				{
 					$arResult["ERROR"] .= implode(".", $res->getErrorMessages());
 				}
-				
+
 				$arResult["HTML"] = getRestrictionHtml($paySystemId);
 			}
 
@@ -166,13 +166,13 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			if (isset($map[$handler]))
 				$handler = $map[$handler];
 
-			$className = \Bitrix\Sale\PaySystem\Manager::getClassNameFromPath($handler);
-
 			$path = \Bitrix\Sale\PaySystem\Manager::getPathToHandlerFolder($handler);
-			list($className) = \Bitrix\Sale\PaySystem\Manager::includeHandler($handler);
+			[$className] = \Bitrix\Sale\PaySystem\Manager::includeHandler($handler);
 
 			if (class_exists($className))
 			{
+				$arResult['CLASS_NAME'] = $className;
+
 				$modeList = $className::getHandlerModeList();
 				$isOrderHandler = mb_strpos($handler, 'orderdocument') === 0;
 				if ($modeList || $isOrderHandler)
@@ -333,6 +333,8 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				$arResult["DOMAIN_VERIFICATION"]["FORM_LINK"] = $domainVerificationFormUrl;
 			}
 
+			$arResult = array_merge($arResult, getPaySystemRobokassaSettingsJsData($className));
+
 			ob_start();
 			$businessValueControl->renderMap(array('CONSUMER_KEY' => $consumerKey));
 			$arResult["BUS_VAL"] = ob_get_contents();
@@ -354,6 +356,17 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			{
 				$arResult['CHECK_STATUS'] =  'OK';
 				$arResult['CHECK_MESSAGE'] =  Loc::getMessage('SALE_PS_SSL_CHECK_MESSAGE');
+			}
+			break;
+		case 'getPaySystemSettings':
+			$handler = $request->get('handler');
+
+			$path = \Bitrix\Sale\PaySystem\Manager::getPathToHandlerFolder($handler);
+			[$className] = \Bitrix\Sale\PaySystem\Manager::includeHandler($handler);
+
+			if (class_exists($className))
+			{
+				$arResult = getPaySystemRobokassaSettingsJsData($className);
 			}
 			break;
 		default:
@@ -395,4 +408,40 @@ function getRestrictionHtml($paySystemId)
 	ob_end_clean();
 
 	return $restrictionsHtml;
+}
+
+function getPaySystemRobokassaSettingsJsData(string $className)
+{
+	$handler = \Bitrix\Sale\PaySystem\Manager::getFolderFromClassName($className);
+	$service = new \Bitrix\Sale\PaySystem\Service([
+		'ACTION_FILE' => $handler,
+	]);
+
+	$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['NEED_SETTINGS'] = strcasecmp($className, \Sale\Handlers\PaySystem\RoboxchangeHandler::class) === 0;
+	if ($arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['NEED_SETTINGS'])
+	{
+		$shopSettings = new \Bitrix\Sale\PaySystem\Robokassa\ShopSettings();
+		$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['IS_ONLY_COMMON_SETTINGS_EXISTS'] = $shopSettings->isOnlyCommonSettingsExists();
+		$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['IS_SETTINGS_EXISTS'] = $shopSettings->isAnySettingsExists();
+		$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['HANDLER_NAME'] = $service->getHandlerDescription()['NAME'] ?? '';
+
+		$settingsFormUrl = \CComponentEngine::makeComponentPath('bitrix:sale.paysystem.settings.robokassa');
+		$settingsFormUrl = getLocalPath('components' . $settingsFormUrl . '/slider.php');
+		$settingsFormUrl = new \Bitrix\Main\Web\Uri($settingsFormUrl);
+		$settingsFormUrl->addParams([
+			'analyticsLabel' => 'paySystemSettings',
+		]);
+
+		$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['FORM_LINK'] = $settingsFormUrl;
+
+		ob_start();
+		global $APPLICATION;
+		$APPLICATION->IncludeComponent(
+			'bitrix:sale.paysystem.registration.robokassa',
+			'.default'
+		);
+		$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['REGISTER_LINK'] = ob_get_clean();
+	}
+
+	return $arResult;
 }

@@ -2569,7 +2569,16 @@ class _CMailAttachmentDBRes extends CDBResult
 		if (($res = parent::fetch()) && $res['FILE_ID'] > 0)
 		{
 			if ($file = \CFile::makeFileArray($res['FILE_ID']))
-				$res['FILE_DATA'] = file_get_contents($file['tmp_name']);
+			{
+				if (!empty($file['tmp_name']) && \Bitrix\Main\IO\File::isFileExists($file['tmp_name']))
+				{
+					$res['FILE_DATA'] = \Bitrix\Main\IO\File::getFileContents($file['tmp_name']);
+				}
+				else
+				{
+					$res['FILE_DATA'] = false;
+				}
+			}
 		}
 
 		return $res;
@@ -2726,7 +2735,12 @@ class CMailAttachment
 			if ($attachment['FILE_ID'] > 0)
 			{
 				if ($file = \CFile::makeFileArray($attachment['FILE_ID']))
-					return file_get_contents($file['tmp_name']);
+				{
+					return (!empty($file['tmp_name'])
+						&& \Bitrix\Main\IO\File::isFileExists($file['tmp_name']))
+							? \Bitrix\Main\IO\File::getFileContents($file['tmp_name'])
+							: false;
+				}
 			}
 		}
 

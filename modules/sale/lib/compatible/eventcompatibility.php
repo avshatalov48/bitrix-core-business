@@ -949,7 +949,7 @@ class EventCompatibility extends Sale\Compatible\Internals\EntityCompatibility
 
 		/** @var Sale\BasketItem $basketItem */
 		$basketItem = $parameters['ENTITY'];
-		$isNew = $parameters['IS_NEW'];
+		$isNew = $parameters['IS_NEW'] ?? false;
 		$oldValues = $parameters['VALUES'];
 		if (!$basketItem instanceof Sale\BasketItem)
 		{
@@ -1426,17 +1426,17 @@ class EventCompatibility extends Sale\Compatible\Internals\EntityCompatibility
 		RegisterModuleDependences("sale", "OnOrderCancelSendEmail", "sale", "\\Bitrix\\Sale\\Compatible\\EventCompatibility", "onCallOrderCancelSendEmail", 500);
 
 		$eventManager->registerEventHandler('sale', 'OnSaleOrderSaved', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleOrderAddEvent');
-		
+
 		$eventManager->registerEventHandler('sale', 'OnSaleStatusOrderChange', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleStatusOrderHandlerEvent');
-		
+
 		$eventManager->registerEventHandler('sale', 'OnShipmentAllowDelivery', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleDeliveryOrderHandlerEvent');
-		
+
 		$eventManager->registerEventHandler('sale', 'OnShipmentDeducted', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleDeductOrderHandlerEvent');
-		
+
 		$eventManager->registerEventHandler('sale', 'OnSaleOrderCanceled', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleCancelOrderHandlerEvent');
-		
+
 		$eventManager->registerEventHandler('sale', 'OnSaleOrderPaid', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSalePayOrderHandlerEvent');
-		
+
 		UnRegisterModuleDependences("sale", "OnBasketOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleOrderAdd", 100);
 		UnRegisterModuleDependences("sale", "OnSaleStatusOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleStatusOrderHandler", 100);
 		UnRegisterModuleDependences("sale", "OnSaleDeliveryOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleDeliveryOrderHandler", 100);
@@ -1510,7 +1510,7 @@ class EventCompatibility extends Sale\Compatible\Internals\EntityCompatibility
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleOrderCanceled', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSaleCancelOrderHandlerEvent');
 
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleOrderPaid', 'sale', '\Bitrix\Sale\Product2ProductTable', 'onSalePayOrderHandlerEvent');
-		
+
 		RegisterModuleDependences("sale", "OnBasketOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleOrderAdd", 100);
 		RegisterModuleDependences("sale", "OnSaleStatusOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleStatusOrderHandler", 100);
 		RegisterModuleDependences("sale", "OnSaleDeliveryOrder", "sale", "\\Bitrix\\Sale\\Product2ProductTable", "onSaleDeliveryOrderHandler", 100);

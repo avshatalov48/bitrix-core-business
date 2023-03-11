@@ -1,4 +1,4 @@
-import { Dom, Event, Reflection, Type, Tag } from 'main.core';
+import { Dom, Event, Reflection, Type, Tag, Text } from 'main.core';
 import { TemplatesScheme } from 'bizproc.automation';
 import { Menu } from 'main.popup';
 
@@ -85,7 +85,7 @@ class Scheme
 			},
 			children: [
 				Tag.render`<div class="ui-ctl-after ui-ctl-icon-angle"></div>`,
-				Tag.render`<div class="ui-ctl-element">${text}</div>`,
+				Tag.render`<div class="ui-ctl-element">${Text.encode(text)}</div>`,
 			],
 		});
 
@@ -104,7 +104,7 @@ class Scheme
 			Tag.render`
 				<div class="bizproc-automation-scheme__content">
 					<div class="ui-alert ui-alert-success">
-						<span class="ui-alert-message">${text}</span>
+						<span class="ui-alert-message">${Text.encode(text)}</span>
 					</div>
 				</div>
 			`

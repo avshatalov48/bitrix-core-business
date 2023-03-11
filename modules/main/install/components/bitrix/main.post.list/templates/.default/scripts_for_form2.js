@@ -167,86 +167,104 @@
 			this.entities.set(entity.getId(), entity);
 			this.xmls.set(entity.getXmlId(), entity);
 		},
+		onInitEditorFrame: function(callback)
+		{
+			this.getLHE().exec(function() {
+				BX.addCustomEvent(this.getLHE().oEditor, 'OnAfterIframeInit', () => {
+					callback();
+					BX.removeAllCustomEvents(this.getLHE().oEditor, 'OnAfterIframeInit');
+				});
+			}.bind(this));
+		},
 		onQuote : function(entity, author, text, safeEdit, loaded) {
 			if (this.isFormOccupied(entity))
 			{
 				return;
 			}
-			var origRes = BX.util.htmlspecialchars(text);
-			this.show(entity);
-			if (loaded !== true)
-			{
-				this.getLHE().exec(this.privateEvents.onQuote, [entity, author, text, safeEdit, true]);
-			}
-			else if (!this.getLHE().oEditor.toolbar.controls.Quote)
-			{
-				BX.DoNothing();
-			}
-			else if (!author && !text)
-			{
-				this.getLHE().oEditor.action.Exec("quote");
-			}
-			else
-			{
-				text = origRes;
-				var haveWrittenText = author && author.gender ?
-					BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
-				if (this.getLHE().oEditor.GetViewMode() == "wysiwyg") // BB Codes
-				{
-					text = text.replace(/\n/g, "<br/>");
-					if (author)
-					{
-						if (author.id > 0)
-						{
-							author = '<span id="' + this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name}) +
-								'" class="bxhtmled-metion">' + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
-						}
-						else
-						{
-							author = "<span>" + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
-						}
-						author = (author !== "" ? (author + haveWrittenText + "<br/>") : "");
 
-						text = author + text;
-					}
-				}
-				else if(this.getLHE().oEditor.bbCode)
+			const quote = () => {
+				var origRes = BX.util.htmlspecialchars(text);
+				if (!this.getLHE().oEditor.toolbar.controls.Quote)
 				{
-					if (author)
-					{
-						if (author.id > 0)
-						{
-							author = "[USER=" + author.id + "]" + author.name + "[/USER]";
-						}
-						else
-						{
-							author = author.name;
-						}
-						author = (author !== "" ? (author + haveWrittenText + "\n") : "");
-						text = author + text;
-					}
+					BX.DoNothing();
 				}
-
-				if (this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange)
+				else if (!author && !text)
 				{
-					// Here we take selected text via editor tools
-					// we don't use "res"
-					this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange();
-					var extSel = this.getLHE().oEditor.action.actions.quote.getExternalSelection();
-					if (extSel === "" && origRes !== "")
-					{
-						extSel = origRes;
-					}
-					extSel = (BX.type.isNotEmptyString(author) ? author : "") + extSel;
-					if (BX.type.isNotEmptyString(extSel))
-						this.getLHE().oEditor.action.actions.quote.setExternalSelection(extSel);
+					this.getLHE().oEditor.action.Exec("quote");
 				}
 				else
 				{
-					// For compatibility with old fileman (< 16.0.1)
-					this.getLHE().oEditor.action.actions.quote.setExternalSelection(text);
+					text = origRes;
+					var haveWrittenText = author && author.gender ?
+						BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
+					if (this.getLHE().oEditor.GetViewMode() == "wysiwyg") // BB Codes
+					{
+						text = text.replace(/\n/g, "<br/>");
+						if (author)
+						{
+							if (author.id > 0)
+							{
+								author = '<span id="' + this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name}) +
+									'" class="bxhtmled-metion">' + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
+							}
+							else
+							{
+								author = "<span>" + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
+							}
+							author = (author !== "" ? (author + haveWrittenText + "<br/>") : "");
+
+							text = author + text;
+						}
+					}
+					else if(this.getLHE().oEditor.bbCode)
+					{
+						if (author)
+						{
+							if (author.id > 0)
+							{
+								author = "[USER=" + author.id + "]" + author.name + "[/USER]";
+							}
+							else
+							{
+								author = author.name;
+							}
+							author = (author !== "" ? (author + haveWrittenText + "\n") : "");
+							text = author + text;
+						}
+					}
+
+					if (this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange)
+					{
+						// Here we take selected text via editor tools
+						// we don't use "res"
+						this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange();
+						var extSel = this.getLHE().oEditor.action.actions.quote.getExternalSelection();
+						if (extSel === "" && origRes !== "")
+						{
+							extSel = origRes;
+						}
+						extSel = (BX.type.isNotEmptyString(author) ? author : "") + extSel;
+						if (BX.type.isNotEmptyString(extSel))
+							this.getLHE().oEditor.action.actions.quote.setExternalSelection(extSel);
+					}
+					else
+					{
+						// For compatibility with old fileman (< 16.0.1)
+						this.getLHE().oEditor.action.actions.quote.setExternalSelection(text);
+					}
+					this.getLHE().oEditor.action.Exec("quote");
 				}
-				this.getLHE().oEditor.action.Exec("quote");
+			}
+
+			if (this.currentEntity)
+			{
+				this.show(entity);
+				quote();
+			}
+			else
+			{
+				this.show(entity);
+				this.onInitEditorFrame(quote);
 			}
 		},
 		onReply : function(entity, author) {
@@ -254,8 +272,17 @@
 			{
 				return;
 			}
-			this.show(entity);
-			this.insertMention(author);
+
+			if (this.currentEntity)
+			{
+				this.show(entity);
+				this.insertMention(author);
+			}
+			else
+			{
+				this.show(entity);
+				this.onInitEditorFrame(this.insertMention.bind(this, author));
+			}
 		},
 		onEdit : function(entity, messageId, data, act) {
 			if (act === "EDIT")

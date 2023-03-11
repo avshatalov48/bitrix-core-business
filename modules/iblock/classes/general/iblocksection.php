@@ -1487,8 +1487,9 @@ class CAllIBlockSection
 		if(($ID===false || array_key_exists("NAME", $arFields)) && (string)$arFields["NAME"] === '')
 			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_SECTION")."<br>";
 
-		if(
-			is_array($arFields["PICTURE"])
+		$pictureIsArray = isset($arFields["PICTURE"]) && is_array($arFields["PICTURE"]);
+		if (
+			$pictureIsArray
 			&& array_key_exists("bucket", $arFields["PICTURE"])
 			&& is_object($arFields["PICTURE"]["bucket"])
 		)
@@ -1496,8 +1497,7 @@ class CAllIBlockSection
 			//This is trusted image from xml import
 		}
 		elseif(
-			isset($arFields["PICTURE"])
-			&& is_array($arFields["PICTURE"])
+			$pictureIsArray
 			&& isset($arFields["PICTURE"]["name"])
 		)
 		{
@@ -1506,8 +1506,9 @@ class CAllIBlockSection
 				$this->LAST_ERROR .= $error."<br>";
 		}
 
+		$detailPictureIsArray = isset($arFields["DETAIL_PICTURE"]) && is_array($arFields["DETAIL_PICTURE"]);
 		if(
-			is_array($arFields["DETAIL_PICTURE"])
+			$detailPictureIsArray
 			&& array_key_exists("bucket", $arFields["DETAIL_PICTURE"])
 			&& is_object($arFields["DETAIL_PICTURE"]["bucket"])
 		)
@@ -1515,8 +1516,7 @@ class CAllIBlockSection
 			//This is trusted image from xml import
 		}
 		elseif(
-			isset($arFields["DETAIL_PICTURE"])
-			&& is_array($arFields["DETAIL_PICTURE"])
+			$detailPictureIsArray
 			&& isset($arFields["DETAIL_PICTURE"]["name"])
 		)
 		{
@@ -2196,6 +2196,9 @@ class CAllIBlockSection
 				INNER JOIN b_iblock_element_prop_s".$bJoinFlatProp." FPS ON FPS.IBLOCK_ELEMENT_ID = BE.ID
 			";
 
+		$allElements = (isset($arFilter['CNT_ALL']) && $arFilter['CNT_ALL'] == 'Y');
+		$activeElements = (isset($arFilter['CNT_ACTIVE']) && $arFilter['CNT_ACTIVE'] == 'Y');
+
 		$strHint = $DB->type=="MYSQL"?"STRAIGHT_JOIN":"";
 		$strSql = "
 			SELECT ".$strHint." COUNT(DISTINCT BE.ID) as CNT
@@ -2208,8 +2211,8 @@ class CAllIBlockSection
 			".$strSqlSearchProp."
 			WHERE BS.ID=".intval($ID)."
 				AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
-				".($arFilter["CNT_ALL"]=="Y"?" OR BE.WF_NEW='Y' ":"").")
-				".($arFilter["CNT_ACTIVE"]=="Y"?
+				".($allElements ?" OR BE.WF_NEW='Y' ":"").")
+				".($activeElements ?
 					" AND BE.ACTIVE='Y'
 					AND (BE.ACTIVE_TO >= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_TO IS NULL)
 					AND (BE.ACTIVE_FROM <= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_FROM IS NULL)"

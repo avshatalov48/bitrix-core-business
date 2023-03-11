@@ -1064,7 +1064,7 @@ export class MessagesModel extends BuilderModel
 		}
 		else if (typeof fields.id === "string")
 		{
-			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || Utils.types.isUuidV4(fields.id))
+			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || Utils.text.isUuidV4(fields.id))
 			{
 				result.id = fields.id;
 			}
@@ -1084,7 +1084,7 @@ export class MessagesModel extends BuilderModel
 		}
 		else if (typeof fields.templateId === "string")
 		{
-			if (fields.templateId.startsWith('temporary') || Utils.types.isUuidV4(fields.templateId))
+			if (fields.templateId.startsWith('temporary') || Utils.text.isUuidV4(fields.templateId))
 			{
 				result.templateId = fields.templateId;
 			}
@@ -1763,7 +1763,7 @@ export class MessagesModel extends BuilderModel
 	static isTemporaryMessage(element)
 	{
 		return element.id
-			&& (Utils.types.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
+			&& (Utils.text.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
 	}
 
 	static getPayloadWithTempMessages(state, payload)

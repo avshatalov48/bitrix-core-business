@@ -22,8 +22,15 @@ class CAllSaleTax
 	 */
 	public static function calculateTax(&$arOrder, $arOptions, &$arErrors = [])
 	{
-		if ((!array_key_exists("TAX_LOCATION", $arOrder) || strval(trim($arOrder["TAX_LOCATION"])) == "") && (!$arOrder["USE_VAT"] || $arOrder["USE_VAT"]!="Y"))
+		if (
+			(!array_key_exists("TAX_LOCATION", $arOrder) || trim((string)$arOrder["TAX_LOCATION"]) === "")
+			&& (!$arOrder["USE_VAT"] || $arOrder["USE_VAT"] != "Y")
+		)
+		{
 			return;
+		}
+
+		$arOrder["TAX_PRICE"] = 0.0;
 
 		if (!$arOrder["USE_VAT"])
 		{
@@ -143,7 +150,8 @@ class CAllSaleTax
 					"VALUE_MONEY_FORMATED" => SaleFormatCurrency($arOrder["VAT_SUM"], $arOrder["CURRENCY"]),
 					"APPLY_ORDER" => 100,
 					"IS_IN_PRICE" => "Y",
-					"CODE" => "VAT"
+					"CODE" => "VAT",
+					'TAX_VAL' => $arOrder['VAT_SUM'],
 				);
 			}
 		}
@@ -169,14 +177,24 @@ class CAllSaleTax
 	 */
 	public static function calculateDeliveryTax(&$arOrder, $arOptions, &$arErrors = [])
 	{
-		if ((!array_key_exists("TAX_LOCATION", $arOrder) || strval(trim($arOrder["TAX_LOCATION"])) == "") && (!$arOrder["USE_VAT"] || $arOrder["USE_VAT"]!="Y"))
+		// don't change `$arOrder["USE_VAT"] != "Y"` comparison, may be values: 1, true, etc
+		if (
+			(!array_key_exists("TAX_LOCATION", $arOrder) || trim((string)$arOrder["TAX_LOCATION"]) === "")
+			&& (empty($arOrder["USE_VAT"]) || $arOrder["USE_VAT"] != "Y")
+		)
+		{
 			return;
+		}
 
 		if (!array_key_exists("COUNT_DELIVERY_TAX", $arOptions))
+		{
 			$arOptions["COUNT_DELIVERY_TAX"] = COption::GetOptionString("sale", "COUNT_DELIVERY_TAX", "N");
+		}
 
-		if (doubleval($arOrder["DELIVERY_PRICE"]) <= 0 || $arOptions["COUNT_DELIVERY_TAX"] != "Y")
+		if ((double)$arOrder["DELIVERY_PRICE"] <= 0 || $arOptions["COUNT_DELIVERY_TAX"] != "Y")
+		{
 			return;
+		}
 
 		if (!$arOrder["USE_VAT"] || $arOrder["USE_VAT"] != "Y")
 		{
@@ -500,10 +518,14 @@ class CAllSaleTax
 		global $DB;
 		$arSqlSearch = Array();
 
-		if (!is_array($arFilter)) 
-			$filter_keys = Array();
+		if (!is_array($arFilter))
+		{
+			$filter_keys = [];
+		}
 		else
+		{
 			$filter_keys = array_keys($arFilter);
+		}
 
 		$countFiltersKeys = count($filter_keys);
 		for ($i=0; $i<$countFiltersKeys; $i++)
@@ -542,7 +564,7 @@ class CAllSaleTax
 			$strSqlSearch .= " (".$arSqlSearch[$i].") ";
 		}
 
-		$strSql = 
+		$strSql =
 			"SELECT T.ID, T.LID, T.NAME, T.CODE, T.DESCRIPTION, ".$DB->DateToCharFunction("T.TIMESTAMP_X", "FULL")." as TIMESTAMP_X ".
 			"FROM b_sale_tax T ".
 			"WHERE 1 = 1 ".
@@ -588,10 +610,14 @@ class CAllSaleTax
 		global $DB;
 		$arSqlSearch = Array();
 
-		if (!is_array($arFilter)) 
-			$filter_keys = Array();
+		if (!is_array($arFilter))
+		{
+			$filter_keys = [];
+		}
 		else
+		{
 			$filter_keys = array_keys($arFilter);
+		}
 
 		$countFilterKeys = count($filter_keys);
 		for ($i = 0; $i < $countFilterKeys; $i++)
@@ -648,14 +674,11 @@ class CAllSaleTax
 			$strSqlSearch .= " (".$arSqlSearch[$i].") ";
 		}
 
-		$strSql = 
+		$strSql =
 			"SELECT TE2G.GROUP_ID, TE2G.TAX_ID ".
 			"FROM b_sale_tax_exempt2group TE2G ".
 			"WHERE 1 = 1 ".
 			"	".$strSqlSearch." ";
-
-		$strSql .= $strSqlOrder;
-		//echo "!1!=".$strSql.";<br>";
 
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $db_res;
@@ -706,7 +729,7 @@ class CAllSaleTax
 			return False;
 
 		$strSqlSearch = "";
-		
+
 		for ($i=0; $i<$countSqlSearch; $i++)
 		{
 			if ($i==0) $strSqlSearch .= " ";

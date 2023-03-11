@@ -25,7 +25,8 @@ if($arResult['ERROR'])
 		'bitrix:rest.configuration.import',
 		'',
 		array(
-			'SET_TITLE' => 'Y'
+			'SET_TITLE' => 'Y',
+			'FROM' => $arResult['FROM'],
 		)
 	);
 ?>

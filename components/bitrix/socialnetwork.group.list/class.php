@@ -13,6 +13,7 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\Component\WorkgroupList;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
@@ -271,18 +272,23 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 					'default' => true,
 					'editable' => false,
 				],
-				[
+			];
+
+			if ($this->arParams['MODE'] !== self::MODE_TASKS_SCRUM)
+			{
+				$columns[] = [
 					'id' => 'EFFICIENCY',
 					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_LIST_COLUMN_EFFICIENCY'),
 					'default' => true,
 					'editable' => false,
-				],
-				[
-					'id' => 'MEMBERS',
-					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_LIST_COLUMN_MEMBERS'),
-					'default' => true,
-					'editable' => false,
-				],
+				];
+			}
+
+			$columns[] = [
+				'id' => 'MEMBERS',
+				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_LIST_COLUMN_MEMBERS'),
+				'default' => true,
+				'editable' => false,
 			];
 
 			if ($this->arParams['USER_ID'] > 0)
@@ -460,20 +466,6 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		];
 	}
 
-	private function getCurrentPresetId(): string
-	{
-		switch ($this->arParams['MODE'])
-		{
-			case 'NO_MODE':
-//				$result = self::PRESET_COMPANY;
-				break;
-			default:
-				$result = 'tmp_filter';
-		}
-
-		return $result;
-	}
-
 	private function getCounter(): string
 	{
 		return '';
@@ -486,6 +478,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 		return \Bitrix\Socialnetwork\Integration\Main\UIFilter\Workgroup::getFilterPresetList([
 			'currentUserId' => $this->currentUserId,
+			'contextUserId' => $this->arParams['USER_ID'],
 			'extranetSiteId' => $extranetSiteId,
 			'mode' => $this->arParams['MODE'],
 		]);
@@ -569,7 +562,10 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			$this->runtimeFieldsManager->add('SCRUM');
 		}
 
-		if ($this->currentUserId > 0)
+		if (
+			$this->currentUserId > 0
+			&& $userId === $this->currentUserId
+		)
 		{
 			$this->query->registerRuntimeField(
 				new Reference(
@@ -982,13 +978,9 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			$params['SET_TITLE'] = 'Y';
 		}
 
-		if (
-			!isset($params['MODE'])
-			|| !ModuleManager::isModuleInstalled('tasks')
-			|| !in_array($params['MODE'], self::getTasksModeList(), true)
-		)
+		if (!isset($params['MODE']))
 		{
-			$params['MODE'] = '';
+			$params['MODE'] = self::MODE_COMMON;
 		}
 
 		if (
@@ -998,6 +990,9 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		{
 			switch ($params['MODE'])
 			{
+				case self::MODE_USER:
+					$params['GRID_ID'] = 'SONET_GROUP_LIST_USER';
+					break;
 				case self::MODE_TASKS_PROJECT:
 					$params['GRID_ID'] = 'SONET_GROUP_LIST_PROJECT';
 					break;
@@ -1370,16 +1365,6 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		}
 	}
 
-	private function getGridFilter(array $params = []): array
-	{
-		$filterPresets = ($params['FILTER_PRESETS'] ?? []);
-		$filter = ($params['FILTER'] ?? []);
-
-		$this->filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $filterPresets);
-
-		return $this->filterOptions->getFilter($filter);
-	}
-
 	private static function extranetSite(): bool
 	{
 		static $result = null;
@@ -1683,7 +1668,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 	private function init(): void
 	{
-		$this->currentPresetId = $this->getCurrentPresetId();
+		$this->currentPresetId = 'tmp_filter';
 		$this->isExtranetSite = static::extranetSite();
 
 		$entityFilter = Filter\Factory::createEntityFilter(
@@ -1701,10 +1686,24 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$this->filterPresets = $this->getFilterPresets();
 		$this->hasAccessToTasksCounters = $this->getAccessToTasksCounters();
 
-		$this->gridFilter = $this->getGridFilter([
-			'FILTER_PRESETS' => $this->filterPresets,
-			'FILTER' => $this->filter,
-		]);
+		$this->filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $this->filterPresets);
+
+		if (
+			$this->arParams['MODE'] === WorkgroupList::MODE_USER
+			&& $this->request->get('grid_id') === null
+		)
+		{
+			if ($this->arParams['USER_ID'] === $this->currentUserId)
+			{
+				$this->setMyPresetToCurrent($this->filterPresets);
+			}
+			else
+			{
+				$this->setActivePresetToCurrent($this->filterPresets);
+			}
+		}
+
+		$this->gridFilter = $this->filterOptions->getFilter($this->filter);
 
 		$this->query = new Query(WorkgroupTable::getEntity());
 		$this->addQueryRuntime();
@@ -1740,6 +1739,40 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 		$navParams = $this->gridOptions->getNavParams();
 		$this->pageSize = (int)$navParams['nPageSize'];
+	}
+
+	private function setMyPresetToCurrent(array $filterPresets): void
+	{
+		$myPreset = ($filterPresets['my'] ?? []);
+
+		if (!empty($myPreset))
+		{
+			$this->filterOptions->setFilterSettings(
+				'my',
+				$myPreset,
+				true,
+				false
+			);
+
+			$this->filterOptions->save();
+		}
+	}
+
+	private function setActivePresetToCurrent(array $filterPresets): void
+	{
+		$activePreset = ($filterPresets['active'] ?? []);
+
+		if (!empty($activePreset))
+		{
+			$this->filterOptions->setFilterSettings(
+				'active',
+				$activePreset,
+				true,
+				false
+			);
+
+			$this->filterOptions->save();
+		}
 	}
 
 	private function prepareRowList(array $records): array
@@ -1891,6 +1924,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 					$counters = WorkgroupList\Counter::fillCounters([
 						'counterData' => $this->counterData,
 						'groupIdList' => $groupIdList,
+						'scrumIdList' => $scrumIdList,
 						'mode' => $this->arParams['MODE'],
 						'groupUrl' => $groupUrl,
 						'livefeedCounterSliderOptions' => WorkgroupList\Counter::getLivefeedCounterSliderOptions(),
@@ -1971,6 +2005,14 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 				{
 					$groupType = 'scrum';
 				}
+			}
+
+			if ($groupType === 'scrum')
+			{
+				$groupUrl = (new Uri($groupUrl))
+					->addParams(['scrum' => 'Y'])
+					->getUri()
+				;
 			}
 
 			foreach ($this->gridColumns as $column)

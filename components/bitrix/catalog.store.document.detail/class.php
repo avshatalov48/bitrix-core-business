@@ -191,7 +191,7 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 					$this->arResult['DOCUMENT']['ID']
 				),
 			];
-		} 
+		}
 
 		return $result;
 	}
@@ -807,7 +807,8 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		{
 			unset($preparedFields['TOTAL']);
 		}
-		if (!$preparedFields['CURRENCY'])
+
+		if (empty($preparedFields['CURRENCY']))
 		{
 			if ($this->isNew() && isset($preparedFields['TOTAL_WITH_CURRENCY']))
 			{
@@ -1414,6 +1415,10 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
 			$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 			$this->arResult['MASTER_SLIDER_URL'] = $sliderPath;
+		}
+		else
+		{
+			$this->arResult['MASTER_SLIDER_URL'] = null;
 		}
 	}
 

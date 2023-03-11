@@ -528,7 +528,7 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "getAvatar",
 	    value: function getAvatar(user) {
 	      if (main_core.Type.isStringFilled(user['PHOTO'])) {
-	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-icon ui-icon-common-user sonet-ui-members-popup-avatar-img\">\n\t\t\t\t\t<i style=\"background-image: url('", "')\"></i>\n\t\t\t\t</div>\n\t\t\t"])), user['PHOTO']);
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-icon ui-icon-common-user sonet-ui-members-popup-avatar-img\">\n\t\t\t\t\t<i style=\"background-image: url('", "')\"></i>\n\t\t\t\t</div>\n\t\t\t"])), encodeURI(user['PHOTO']));
 	      }
 
 	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-icon ui-icon-common-user sonet-ui-members-popup-avatar-img\"><i></i></div>\n\t\t"])));
@@ -641,7 +641,7 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	        scrumTeam: {
 	          currentPage: 1,
 	          renderedUsers: [],
-	          tab: main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span\n\t\t\t\t\t\tclass=\"sonet-ui-members-popup-head-item\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-head-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.changeType.bind(this, 'scrumTeam'), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS_SCRUM')),
+	          tab: main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span\n\t\t\t\t\t\tclass=\"sonet-ui-members-popup-head-item\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-head-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.changeType.bind(this, 'scrumTeam'), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS_SCRUM_1')),
 	          innerContainer: main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-ui-members-popup-inner\"></div>"])))
 	        },
 	        members: {
@@ -695,15 +695,21 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      });
 
 	      if (hasOwner) {
-	        this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-owner-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_OWNER')));
+	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-owner-container'))) {
+	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-owner-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_OWNER')));
+	        }
 	      }
 
 	      if (hasMaster) {
-	        this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-master-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_MASTER')));
+	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-master-container'))) {
+	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-master-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_MASTER')));
+	        }
 	      }
 
 	      if (hasTeam) {
-	        this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-team-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_TEAM')));
+	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-team-container'))) {
+	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-team-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_TEAM')));
+	        }
 	      }
 	    }
 	  }]);

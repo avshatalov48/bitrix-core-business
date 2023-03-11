@@ -2345,8 +2345,12 @@ BX.IM.prototype.showHardwareSettings = function()
 				constraints.video = true;
 		}
 
-		if (constraints.video)
+		if (constraints.video !== false)
 		{
+			if (constraints.video === true)
+			{
+				constraints.video = {};
+			}
 			constraints.video.width = {ideal: 1280};
 			constraints.video.height = {ideal: 720};
 		}
@@ -15679,7 +15683,7 @@ BX.MessengerChat.prototype.openFrameDialog = function(params)
 				]})
 			]}),
 			this.openFrameDialogFrame = BX.create("iframe", {
-				attrs : { frameborder: 0, src: iframeUrl, style: 'min-width: '+parseInt(params.iframe.width)+'px; min-height: '+parseInt(params.iframe.height)+'px; max-height: 100%; max-width: 100%;', sandbox: "allow-same-origin allow-forms allow-scripts allow-popups", allow: "geolocation *; microphone *; camera *"},
+				attrs : { frameborder: 0, src: iframeUrl, style: 'min-width: '+parseInt(params.iframe.width)+'px; min-height: '+parseInt(params.iframe.height)+'px; max-height: 100%; max-width: 100%;', sandbox: "allow-same-origin allow-forms allow-scripts allow-popups allow-modals", allow: "geolocation *; microphone *; camera *"},
 				props : { className : "bx-messenger-iframe-element"+(BX.browser.IsMac()? '': ' bx-messenger-custom-scroll')}
 			})
 		]})

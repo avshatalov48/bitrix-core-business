@@ -187,10 +187,10 @@ class Element extends Controller
 	 * @return Page
 	 */
 	public function listAction(
+		PageNavigation $pageNavigation,
 		array $order = [],
 		array $filter = [],
-		array $select = [],
-		PageNavigation $pageNavigation
+		array $select = []
 	): Page
 	{
 		$filter['@DOCUMENT.DOC_TYPE'] = array_keys(Catalog\Controller\Document::getAvailableRestDocumentTypes());

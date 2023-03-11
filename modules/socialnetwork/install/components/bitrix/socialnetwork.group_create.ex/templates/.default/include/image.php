@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -80,7 +81,7 @@ Loc::loadMessages(__FILE__);
 		if (!empty($arResult['POST']['IMAGE_SRC']))
 		{
 			$classList[] = '--selected';
-			$style = "background-image: url('" . htmlspecialcharsbx($arResult['POST']['IMAGE_SRC']) . "'); background-size: cover;";
+			$style = "background-image: url('" . Uri::urnEncode(htmlspecialcharsbx($arResult['POST']['IMAGE_SRC'])) . "'); background-size: cover;";
 		}
 		else
 		{

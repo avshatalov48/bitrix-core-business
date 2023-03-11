@@ -243,7 +243,6 @@ $bCatalog = Loader::includeModule("catalog");
 $arCatalog = false;
 $boolSKU = false;
 $boolSKUFiltrable = false;
-$strSKUName = '';
 $uniq_id = 0;
 $useStoreControl = false;
 $strSaveWithoutPrice = '';
@@ -297,7 +296,6 @@ if ($bCatalog)
 			if (CIBlockRights::UserHasRightTo($arCatalog['IBLOCK_ID'], $arCatalog['IBLOCK_ID'], "iblock_admin_display"))
 			{
 				$boolSKU = true;
-				$strSKUName = GetMessage('IBLIST_A_OFFERS');
 			}
 		}
 		if (!$boolCatalogRead && !$boolCatalogPrice)
@@ -664,7 +662,7 @@ if ($boolSKU)
 	}
 }
 
-if (!is_null($arFilter["SECTION_ID"]))
+if (isset($arFilter["SECTION_ID"]))
 {
 	$find_section_section = intval($arFilter["SECTION_ID"]);
 }
@@ -1602,8 +1600,11 @@ if($lAdmin->EditAction())
 				);
 			}
 
-			if(!is_array($arFields["PROPERTY_VALUES"]))
+			if (!isset($arFields["PROPERTY_VALUES"]) || !is_array($arFields["PROPERTY_VALUES"]))
+			{
 				$arFields["PROPERTY_VALUES"] = array();
+			}
+
 			$bFieldProps = array();
 
 			foreach ($arFields as $k=>$v)
@@ -3238,8 +3239,6 @@ foreach (array_keys($rawRows) as $rowId)
 	{
 		$arRes['CATALOG_TYPE'] = (int)$arRes['CATALOG_TYPE'];
 
-		$arRes['TAGS'] = $arRes['TAGS'] ?? '';
-
 		if (isset($clearedGridFields[$arRes['CATALOG_TYPE']]))
 		{
 			foreach ($clearedGridFields[$arRes['CATALOG_TYPE']] as $fieldName)
@@ -3552,7 +3551,9 @@ foreach (array_keys($rawRows) as $rowId)
 				$row->AddViewField("WF_STATUS_ID", $arWFStatusAll[$arRes['WF_STATUS_ID']]);
 			}
 			if (isset($arVisibleColumnsMap["TAGS"]))
+			{
 				$row->AddViewField("TAGS", htmlspecialcharsEx($arRes['TAGS']));
+			}
 		}
 
 		if ($bCatalog && $pageConfig['USE_NEW_CARD'] && isset($arVisibleColumnsMap['MORE_PHOTO']))

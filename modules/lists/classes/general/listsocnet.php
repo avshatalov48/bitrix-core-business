@@ -71,7 +71,7 @@ waiting for integration lists into events_user_view
 		if (!array_key_exists("SEF_MODE", $arResult) || $arResult["SEF_MODE"] != "N")
 		{
 			if(isset($arResult["Urls"]))
-				$arResult["Urls"]["group_lists"] = $arResult["Urls"]["view"]."lists/";
+				$arResult["Urls"]["group_lists"] = ($arResult["Urls"]["view"] ?? '') . "lists/";
 		}
 		else
 		{

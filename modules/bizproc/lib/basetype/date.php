@@ -2,7 +2,6 @@
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Main;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\FieldType;
@@ -79,6 +78,17 @@ class Date extends Base
 						$value = date(Type\Date::convertFormatToPhp($format), strtotime($value));
 					}
 				}
+				break;
+			case FieldType::TIME:
+				if ($value instanceof Value\Date)
+				{
+					$systemObject = $value->toSystemObject();
+					$value = new \Bitrix\Bizproc\BaseType\Value\Time(
+						$systemObject->format(\Bitrix\Bizproc\BaseType\Value\Time::getFormat()),
+						$value->getOffset()
+					);
+				}
+
 				break;
 			default:
 				$value = null;
@@ -534,5 +544,13 @@ class Date extends Base
 		}
 
 		return $result;
+	}
+
+	public static function compareValues($valueA, $valueB)
+	{
+		$valueA = \CBPHelper::makeTimestamp($valueA);
+		$valueB = \CBPHelper::makeTimestamp($valueB);
+
+		return parent::compareValues($valueA, $valueB);
 	}
 }

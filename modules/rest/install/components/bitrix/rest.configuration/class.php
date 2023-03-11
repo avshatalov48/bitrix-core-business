@@ -196,9 +196,10 @@ class RestConfigurationComponent extends CBitrixComponent
 				'APP' => isset($variableList['APP']) ? strval($variableList['APP']) : '',
 				'MP_DETAIL_URL_TPL' => \Bitrix\Rest\Marketplace\Url::getApplicationDetailUrl(null, $analyticFrom),
 				'MP_INDEX_PATH' => \Bitrix\Rest\Marketplace\Url::getMarketplaceUrl($analyticFrom),
+				'FROM' => $analyticFrom,
 				'MP_TAG_PATH' => $pathTag,
 				'TAG' => $appTag,
-				'TAG_BANNER' => $appTagBanner
+				'TAG_BANNER' => $appTagBanner,
 			],
 			$this->arResult
 		);

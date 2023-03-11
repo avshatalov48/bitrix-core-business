@@ -245,10 +245,10 @@ class Order extends Controller
 		}
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation=null)
+	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
 	{
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
 		$runtime = [
 			new \Bitrix\Main\Entity\ReferenceField(
 				'PERSON_TYPE',

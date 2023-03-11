@@ -60,7 +60,16 @@ this.BX = this.BX || {};
 	};
 
 	var NotificationItemHeader = {
-	  props: ['listItem'],
+	  props: {
+	    listItem: {
+	      type: Object,
+	      required: true
+	    },
+	    isExtranet: {
+	      type: Boolean,
+	      "default": false
+	    }
+	  },
 	  computed: {
 	    moreUsers: function moreUsers() {
 	      var phrase = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_MORE_USERS').split('#COUNT#');
@@ -100,7 +109,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  //language=Vue
-	  template: "\n\t\t<div class=\"bx-im-notifications-item-content-header\">\n\t\t\t<div v-if=\"listItem.title\" class=\"bx-im-notifications-item-header-title\">\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"!listItem.systemType\"\n\t\t\t\t\t@click.prevent=\"onUserTitleClick({userId: listItem.authorId, event: $event})\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-title-text-link\"\n\t\t\t\t>\n\t\t\t\t\t{{ listItem.title.value }}\n\t\t\t\t</span>\n\t\t\t\t<span v-else class=\"bx-im-notifications-item-header-title-text\">{{ listItem.title.value }}</span>\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"isMoreUsers && !listItem.systemType\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-more-users\"\n\t\t\t\t>\n\t\t\t\t\t{{ moreUsers.start }}\n\t\t\t\t\t<span class=\"bx-messenger-ajax\" @click=\"onMoreUsersClick({users: listItem.params.USERS, event: $event})\">\n\t\t\t\t\t\t{{ moreUsers.end }}\n\t\t\t\t\t</span>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-notifications-item-content-header-right\">\n\t\t\t\t<div class=\"bx-im-notifications-item-header-date\">\n\t\t\t\t\t{{ listItem.date.value }}\n\t\t\t\t</div>\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"isAbleToDelete\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-delete\"\n\t\t\t\t\t@click=\"onDeleteClick({item: listItem, event: $event})\">\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-notifications-item-content-header\">\n\t\t\t<div v-if=\"listItem.title\" class=\"bx-im-notifications-item-header-title\">\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"!listItem.systemType\"\n\t\t\t\t\t@click.prevent=\"onUserTitleClick({userId: listItem.authorId, event: $event})\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-title-text-link\"\n\t\t\t\t\t:class=\"[isExtranet ? '--extranet' : '']\"\n\t\t\t\t>\n\t\t\t\t\t{{ listItem.title.value }}\n\t\t\t\t</span>\n\t\t\t\t<span v-else class=\"bx-im-notifications-item-header-title-text\">{{ listItem.title.value }}</span>\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"isMoreUsers && !listItem.systemType\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-more-users\"\n\t\t\t\t>\n\t\t\t\t\t{{ moreUsers.start }}\n\t\t\t\t\t<span class=\"bx-messenger-ajax\" @click=\"onMoreUsersClick({users: listItem.params.USERS, event: $event})\">\n\t\t\t\t\t\t{{ moreUsers.end }}\n\t\t\t\t\t</span>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-notifications-item-content-header-right\">\n\t\t\t\t<div class=\"bx-im-notifications-item-header-date\">\n\t\t\t\t\t{{ listItem.date.value }}\n\t\t\t\t</div>\n\t\t\t\t<span\n\t\t\t\t\tv-if=\"isAbleToDelete\"\n\t\t\t\t\tclass=\"bx-im-notifications-item-header-delete\"\n\t\t\t\t\t@click=\"onDeleteClick({item: listItem, event: $event})\">\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
 	var NotificationPlaceholder = {
@@ -187,6 +196,9 @@ this.BX = this.BX || {};
 	    },
 	    userData: function userData() {
 	      return this.$store.getters['users/get'](this.rawListItem.authorId, true);
+	    },
+	    isExtranet: function isExtranet() {
+	      return this.userData.extranet;
 	    },
 	    avatarStyles: function avatarStyles() {
 	      return {
@@ -291,7 +303,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  //language=Vue
-	  template: "\n\t\t<div \n\t\t\tclass=\"bx-im-notifications-item\"\n\t\t\t:class=\"[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '']\"\n\t\t\t@dblclick=\"onDoubleClick({item: listItem, event: $event})\"\n\t\t\t@contextmenu=\"onRightClick\"\n\t\t>\n\t\t\t<template v-if=\"listItem.sectionCode !== NotificationTypesCodes.placeholder\">\n\t\t\t\t<div v-if=\"listItem.avatar\" class=\"bx-im-notifications-item-image-wrap\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-if=\"listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image\"\n\t\t\t\t\t\t:style=\"avatarStyles\"\n\t\t\t\t\t></div>\n\t\t\t\t\t<div v-else-if=\"listItem.systemType\" class=\"bx-im-notifications-item-image bx-im-notifications-image-system\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-else-if=\"!listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image bx-im-notifications-item-image-default\"\n\t\t\t\t\t\t:style=\"{backgroundColor: listItem.avatar.color}\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-notifications-item-content\" @click=\"onContentClick\">\n\t\t\t\t\t<NotificationItemHeader \n\t\t\t\t\t\t:listItem=\"listItem\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@moreUsersClick=\"onMoreUsersClick\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div v-if=\"listItem.subtitle.value.length > 0\" class=\"bx-im-notifications-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-notifications-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t:class=\"[!listItem.title.value ? 'bx-im-notifications-item-bottom-subtitle-text' : 'bx-im-notifications-item-bottom-no-subtitle-text']\"\n\t\t\t\t\t\t\t\tv-html=\"listItem.subtitle.value\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<NotificationQuickAnswer v-if=\"isNeedQuickAnswer\" :listItem=\"listItem\"/>\n\t\t\t\t\t<div v-if=\"listItem.params['ATTACH']\" class=\"bx-im-notifications-item-content-additional\">\n\t\t\t\t\t\t<div v-for=\"attach in listItem.params['ATTACH']\">\n\t\t\t\t\t\t\t<bx-im-view-element-attach :config=\"attach\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"listItem.notifyButtons\">\n\t\t\t\t\t\t<bx-im-view-element-keyboard @click=\"onButtonsClick\" :buttons=\"listItem.notifyButtons\"/>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<NotificationPlaceholder v-else-if=\"listItem.sectionCode === NotificationTypesCodes.placeholder\"/>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div \n\t\t\tclass=\"bx-im-notifications-item\"\n\t\t\t:class=\"[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '']\"\n\t\t\t@dblclick=\"onDoubleClick({item: listItem, event: $event})\"\n\t\t\t@contextmenu=\"onRightClick\"\n\t\t>\n\t\t\t<template v-if=\"listItem.sectionCode !== NotificationTypesCodes.placeholder\">\n\t\t\t\t<div v-if=\"listItem.avatar\" class=\"bx-im-notifications-item-image-wrap\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-if=\"listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image\"\n\t\t\t\t\t\t:style=\"avatarStyles\"\n\t\t\t\t\t></div>\n\t\t\t\t\t<div v-else-if=\"listItem.systemType\" class=\"bx-im-notifications-item-image bx-im-notifications-image-system\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-else-if=\"!listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image bx-im-notifications-item-image-default\"\n\t\t\t\t\t\t:style=\"{backgroundColor: listItem.avatar.color}\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-notifications-item-content\" @click=\"onContentClick\">\n\t\t\t\t\t<NotificationItemHeader \n\t\t\t\t\t\t:listItem=\"listItem\"\n\t\t\t\t\t\t:isExtranet=\"isExtranet\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@moreUsersClick=\"onMoreUsersClick\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div v-if=\"listItem.subtitle.value.length > 0\" class=\"bx-im-notifications-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-notifications-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t:class=\"[!listItem.title.value ? 'bx-im-notifications-item-bottom-subtitle-text' : 'bx-im-notifications-item-bottom-no-subtitle-text']\"\n\t\t\t\t\t\t\t\tv-html=\"listItem.subtitle.value\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<NotificationQuickAnswer v-if=\"isNeedQuickAnswer\" :listItem=\"listItem\"/>\n\t\t\t\t\t<div v-if=\"listItem.params['ATTACH']\" class=\"bx-im-notifications-item-content-additional\">\n\t\t\t\t\t\t<div v-for=\"attach in listItem.params['ATTACH']\">\n\t\t\t\t\t\t\t<bx-im-view-element-attach :config=\"attach\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"listItem.notifyButtons\">\n\t\t\t\t\t\t<bx-im-view-element-keyboard @click=\"onButtonsClick\" :buttons=\"listItem.notifyButtons\"/>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<NotificationPlaceholder v-else-if=\"listItem.sectionCode === NotificationTypesCodes.placeholder\"/>\n\t\t</div>\n\t"
 	};
 
 	var NotificationCore = {

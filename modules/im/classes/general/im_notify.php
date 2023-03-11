@@ -247,6 +247,11 @@ class CIMNotify
 			{
 				$value['FROM_USER_DATA'] = $arGetUsers;
 				$value['COUNTER'] = $counters[$value['CHAT_ID']];
+				if (!$bTimeZone)
+				{
+					$dateTime = \Bitrix\Main\Type\DateTime::createFromTimestamp($value['DATE_CREATE']);
+					$value['DATE_CREATE'] = $dateTime->toUserTime()->getTimestamp();
+				}
 				$arNotify['notify'][$id] = self::GetFormatNotify($value);
 			}
 
@@ -393,15 +398,15 @@ class CIMNotify
 			'id' => $arFields['ID'],
 			'type' => $arFields['NOTIFY_TYPE'],
 			'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arFields['DATE_CREATE']),
-			'silent' => $arFields['NOTIFY_SILENT'] ? 'Y' : 'N',
-			'onlyFlash' => (bool)$arFields['NOTIFY_ONLY_FLASH'],
-			'link' => (string)$arFields['NOTIFY_LINK'],
+			'silent' => ($arFields['NOTIFY_SILENT'] ?? null) ? 'Y' : 'N',
+			'onlyFlash' => (bool)($arFields['NOTIFY_ONLY_FLASH'] ?? false),
+			'link' => (string)($arFields['NOTIFY_LINK'] ?? ''),
 			'text_converted' => $messageText,
 			'text' => $textInBbCode,
 			'tag' => $arFields['NOTIFY_TAG'] != '' ? md5($arFields['NOTIFY_TAG']): '',
 			'originalTag' => $arFields['NOTIFY_TAG'],
 			'original_tag' => $arFields['NOTIFY_TAG'],
-			'read' => $arFields['NOTIFY_READ'],
+			'read' => $arFields['NOTIFY_READ'] ?? null,
 			'settingName' => $arFields['NOTIFY_MODULE'] . '|' . $arFields['NOTIFY_EVENT'],
 			'params' => $arFields['PARAMS'] ?? [],
 			'counter' => isset($arFields['COUNTER']) ? (int)$arFields['COUNTER'] : 0,

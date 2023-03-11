@@ -58,7 +58,6 @@ $MESS["IBEL_A_HISTORY_ALT"] = "Modification history";
 $MESS["IBEL_A_IBLOCK_MANAGE_HINT"] = "You can edit the Information Block access permissions and properties on the";
 $MESS["IBEL_A_IBLOCK_MANAGE_HINT_HREF"] = "Information Block settings page.";
 $MESS["IBEL_A_LOCK_ACTION"] = "lock";
-$MESS["IBEL_A_OFFERS"] = "SKU";
 $MESS["IBEL_A_ORIG"] = "View the published element";
 $MESS["IBEL_A_ORIG_ED"] = "Edit original";
 $MESS["IBEL_A_ORIG_ED_TITLE"] = "Edit published version";

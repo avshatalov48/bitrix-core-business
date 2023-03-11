@@ -469,7 +469,7 @@ class VariationGrid
 
 		popup.show();
 	}
-	
+
 	openStoreAmountPopup(rowId, quantityNode)
 	{
 		const popupId = rowId + '-store-amount';
@@ -575,7 +575,13 @@ class VariationGrid
 					this.openDealsWithReservedProductSlider.bind(this, rowId, store.storeId)
 				);
 				this.addCellToTable(tableRow, quantityReservedNode, false);
-				this.addCellToTable(tableRow, store.quantityAvailable, false);
+				const quantityAvailable = parseInt(store.quantityAvailable, 10);
+				const viewQuantityAvailable =
+					quantityAvailable <= 0
+						? `<span class="text--danger">${quantityAvailable}</span>`
+						: quantityAvailable
+				;
+				this.addCellToTable(tableRow, viewQuantityAvailable, false);
 			}
 		});
 

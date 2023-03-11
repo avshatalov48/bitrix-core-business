@@ -2,8 +2,9 @@ html{height: 100%;}
 body{
 	margin:0 !important;
 	padding: 8px 8px 8px 18px !important;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
+	color: #161616;
 }
 
 html body.fullscreen{

@@ -94,7 +94,7 @@ foreach ($arDocumentStates as $arDocumentState)
 	</ul>
 	<div class="bizproc-document-toolbar-completed">
 		<button
-				class="ui-btn ui-btn-light-border ui-btn-themes"
+				class="ui-btn ui-btn-light-border"
 				data-role="btn-load-completed"
 				data-label-more="<?= htmlspecialcharsbx(GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE')) ?>"
 

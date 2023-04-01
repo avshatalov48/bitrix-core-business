@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,calendar_sharing_deletedviewform) {
 	'use strict';
 
 	class SliderLoader {
@@ -66,17 +66,32 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isString(options.entryDescription)) {
 	      this.extensionParams.entryDescription = options.entryDescription;
 	    }
+
+	    if (main_core.Type.isString(options.link)) {
+	      const uri = new main_core.Uri(options.link);
+	      const isSharing = uri.getQueryParam('IS_SHARING');
+	      this.isSharing = isSharing === '1';
+	    }
 	  }
 
 	  show() {
-	    BX.SidePanel.Instance.open(this.sliderId, {
-	      contentCallback: this.loadExtension.bind(this),
-	      label: {
-	        text: main_core.Loc.getMessage('CALENDAR_EVENT'),
-	        bgColor: "#55D0E0"
-	      },
-	      type: 'calendar:slider'
-	    });
+	    if (this.isSharing) {
+	      BX.SidePanel.Instance.open(this.sliderId, {
+	        contentCallback: slider => new Promise(resolve => {
+	          new calendar_sharing_deletedviewform.DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
+	        }),
+	        width: 600
+	      });
+	    } else {
+	      BX.SidePanel.Instance.open(this.sliderId, {
+	        contentCallback: this.loadExtension.bind(this),
+	        label: {
+	          text: main_core.Loc.getMessage('CALENDAR_EVENT'),
+	          bgColor: "#55D0E0"
+	        },
+	        type: 'calendar:slider'
+	      });
+	    }
 	  }
 
 	  loadExtension(slider) {
@@ -100,5 +115,5 @@ this.BX = this.BX || {};
 
 	exports.SliderLoader = SliderLoader;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Calendar.Sharing));
 //# sourceMappingURL=sliderloader.bundle.js.map

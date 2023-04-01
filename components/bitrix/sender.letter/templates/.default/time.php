@@ -9,14 +9,14 @@ global $APPLICATION;
 $componentParameters = array(
 	'ID' => $arResult['ID'],
 	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-	'PATH_TO_TIME' => $arResult['PATH_TO_TIME'],
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'PATH_TO_TIME' => $arResult['PATH_TO_TIME'] ?? '',
 	'SET_TITLE' => 'Y',
 	'MESSAGE_CODE_LIST' => \Bitrix\Sender\Message\Factory::getMailingMessageCodes(),
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.pageslider.wrapper",

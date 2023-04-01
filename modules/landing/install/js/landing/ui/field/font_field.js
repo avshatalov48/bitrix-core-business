@@ -12,10 +12,12 @@
 	var addClass = BX.Landing.Utils.addClass;
 	var clone = BX.Landing.Utils.clone;
 
-	var REG_CLASS_FONT = /g-font-(?!size-|weight-)[a-z0-9-]+/ig;
+	var REG_CLASS_FONT = /g-font-(?!size-|weight-)([a-z0-9-]+)/ig;
 	var REG_NAME_FONT = /[a-z0-9 ]*[a-z0-9]/i;
 	var REG_SYNTAX = /['|"]/g;
 	var REG_SPACE = / /g;
+
+	var HEADER_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7'];
 
 	/**
 	 * Implements interface for works with text field
@@ -90,7 +92,7 @@
 		}
 
 		bind(this.input, "click", proxy(this.onInputClick, this));
-		this.defaultFontLink.subscribe('onClick', proxy(this.onLinkClick, this));
+		this.defaultFontLink.subscribe('onClick', proxy(this.onDefaultFontLinkClick, this));
 	};
 
 
@@ -128,22 +130,20 @@
 
 		/**
 		 * Handles link click event
-		 * @param {MouseEvent} event
 		 */
-		onLinkClick: function()
+		onDefaultFontLinkClick: function()
 		{
 			if (this.defaultFontFamily)
 			{
-				var foundedClasses = this.element.classList.value.match(REG_CLASS_FONT);
+				const foundedClasses = this.element.classList.value.match(REG_CLASS_FONT);
 				if (foundedClasses !== null)
 				{
-					var element = this.element;
-					foundedClasses.forEach(function(foundedClass) {
-						element.classList.remove(foundedClass);
+					foundedClasses.forEach(foundedClass => {
+						this.element.classList.remove(foundedClass);
 					});
 				}
 				this.content = this.defaultFontFamily.replace(REG_SYNTAX, "").split(",")[0];
-				var font = {
+				const font = {
 					family: this.content
 				};
 				this.setValue(font);
@@ -161,33 +161,32 @@
 		{
 			if (this.element)
 			{
-				var setHeaderTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7'];
-				this.defaultFontFamily = getComputedStyle(document.body).fontFamily;
-				this.isHeaderElement = setHeaderTags.includes(this.element.tagName);
-				if (this.isHeaderElement)
+				if (HEADER_TAGS.includes(this.element.tagName))
 				{
-					var emptyHeader = document.createElement("H2");
+					const emptyHeader = document.createElement("H2");
 					document.body.appendChild(emptyHeader);
 					this.defaultFontFamily = getComputedStyle(emptyHeader).fontFamily;
 					emptyHeader.remove();
 				}
+				else
+				{
+					this.defaultFontFamily = getComputedStyle(document.body).fontFamily;
+				}
+
 				this.defaultFont = this.defaultFontFamily.match(REG_NAME_FONT)[0];
 				this.currentFont = getComputedStyle(this.element).fontFamily.match(REG_NAME_FONT)[0];
 				if (this.defaultFont !== this.currentFont)
 				{
 					this.linkContainer.append(this.defaultFontLink.getLayout());
 				}
-				else
+				else if (this.linkContainer.hasChildNodes())
 				{
-					if (this.linkContainer.hasChildNodes())
-					{
-						this.linkContainer.removeChild(this.linkContainer.firstChild);
-					}
+					this.linkContainer.removeChild(this.linkContainer.firstChild);
 				}
 			}
 		},
 
-		setValue: function(value)
+		setValue: function(value, preventEvent)
 		{
 			if (isPlainObject(value))
 			{
@@ -212,12 +211,12 @@
 				}
 				else
 				{
-					var FontManager = BX.Landing.UI.Tool.FontManager.getInstance();
+					const FontManager = BX.Landing.UI.Tool.FontManager.getInstance();
 
 					// Add font to current document
 					FontManager.addFont({
 						className: className,
-						family: value.family,
+						family: family,
 						href: href,
 						category: value.category
 					}, window);
@@ -232,31 +231,35 @@
 					// Remove unused handlers
 					FontManager.removeUnusedFonts();
 
-					var headString = "";
-					FontManager.getUsedLoadedFonts().forEach(function(item) {
-						if (item.element)
-						{
-							item.element.setAttribute("rel", "stylesheet");
-							item.element.removeAttribute("media");
-							headString += "<noscript>"+item.element.outerHTML+"</noscript>\n";
+					if (!preventEvent)
+					{
+						let headString = "";
+						FontManager.getUsedLoadedFonts().forEach(function(item) {
+							if (item.element)
+							{
+								item.element.setAttribute("rel", "stylesheet");
+								item.element.removeAttribute("media");
+								headString += "<noscript>"+item.element.outerHTML+"</noscript>\n";
 
-							item.element.setAttribute("rel", "preload");
-							item.element.setAttribute("onload", "this.removeAttribute('onload');this.rel='stylesheet'");
-							item.element.setAttribute("as", "style");
-							headString += item.element.outerHTML + "\n";
-						}
+								item.element.setAttribute("rel", "preload");
+								item.element.setAttribute("onload", "this.removeAttribute('onload');this.rel='stylesheet'");
+								item.element.setAttribute("as", "style");
+								headString += item.element.outerHTML + "\n";
+							}
 
-						if (item.CSSDeclaration)
-						{
-							headString += item.CSSDeclaration.outerHTML;
-						}
-					});
+							if (item.CSSDeclaration)
+							{
+								headString += item.CSSDeclaration.outerHTML;
+							}
+						});
 
-					headString = headString
-						.replace("async@load", "all")
-						.replace(/data-loadcss="true"/g, "");
-					BX.Landing.Backend.getInstance()
-						.action("Landing::updateHead", {content: headString});
+						headString = headString
+							.replace("async@load", "all")
+							.replace(/data-loadcss="true"/g, "");
+
+						BX.Landing.Backend.getInstance()
+							.action("Landing::updateHead", {content: headString});
+					}
 				}
 			}
 
@@ -266,6 +269,24 @@
 		getValue: function()
 		{
 			return this.value;
-		}
+		},
+
+		onFrameLoad: function ()
+		{
+
+			const classes = Array.from(this.element.classList.value.matchAll(REG_CLASS_FONT));
+			if (classes)
+			{
+				const family = classes[classes.length - 1][1]
+					.split('-')
+					.map(part => {
+						return part.charAt(0).toUpperCase() + part.slice(1);
+					})
+					.join(' ')
+				;
+				this.content = family;
+				this.setValue({family: family}, true)
+			}
+		},
 	}
 })();

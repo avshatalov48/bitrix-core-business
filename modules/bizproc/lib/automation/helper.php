@@ -1,9 +1,11 @@
 <?php
+
 namespace Bitrix\Bizproc\Automation;
 
 use Bitrix\Bizproc\Automation\Engine\DelayInterval;
 use Bitrix\Disk;
 use Bitrix\Main\Loader;
+use Bitrix\Bizproc;
 
 class Helper
 {
@@ -409,11 +411,11 @@ class Helper
 		$key = implode('@', $documentType);
 		if (!isset(static::$documentFields[$key]))
 		{
-			$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
 			static::$documentFields[$key] = $documentService->GetDocumentFields($documentType);
 		}
 
-		$resultFields = array();
+		$resultFields = [];
 
 		if (is_array(static::$documentFields[$key]))
 		{
@@ -436,24 +438,83 @@ class Helper
 
 				$field['Name'] = trim($field['Name']);
 
-				$resultFields[$id] = array(
+				$resultFields[$id] = [
 					'Id' => $id,
 					'Name' => $field['Name'],
 					'Type' => $field['Type'],
 					'BaseType' => $field['BaseType'] ?? $field['Type'],
-					'Expression' => '{{'.$field['Name'].'}}',
-					'SystemExpression' => '{=Document:'.$id.'}',
+					'Expression' => '{{' . $field['Name'] . '}}',
+					'SystemExpression' => '{=Document:' . $id . '}',
 					'Options' => $field['Options'] ?? null,
 					'Multiple' => $field['Multiple'] ?? false,
-				);
+				];
 			}
 		}
 		return $resultFields;
 	}
 
+	/** Get global variables for usage in robots designer */
+	public static function getGlobalVariables(array $documentType): array
+	{
+		$globalVariables = Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
+
+		$result = [];
+		$visibilityNames = Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+		foreach ($globalVariables as $id => $variable)
+		{
+			$name = trim($variable['Name']);
+			$visibilityName = $visibilityNames[$variable['Visibility']];
+
+			$result[$id] = [
+				'Id' => $id,
+				'Name' => $name,
+				'Type' => $variable['Type'],
+				'BaseType' => $variable['Type'],
+				'Expression' => '{{' . $visibilityName . ': ' . $name . '}}',
+				'SystemExpression' => '{=' . Bizproc\Workflow\Template\SourceType::GlobalVariable . ':' . $id . '}',
+				'Options' => $variable['Options'] ?? null,
+				'Multiple' => $variable['Multiple'] ?? false,
+				'Visibility' => $variable['Visibility'],
+				'VisibilityName' => $visibilityName,
+			];
+		}
+
+		return $result;
+	}
+
+	/** Get global constants for usage in robots designer */
+	public static function getGlobalConstants(array $documentType): array
+	{
+		$globalConstants = Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
+
+		$result = [];
+		$visibilityNames = Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
+		foreach ($globalConstants as $id => $constant)
+		{
+			$name = trim($constant['Name']);
+			$visibilityName = $visibilityNames[$constant['Visibility']];
+
+			$result[$id] = [
+				'Id' => $id,
+				'Name' => $name,
+				'Type' => $constant['Type'],
+				'BaseType' => $constant['Type'],
+				'Expression' => '{{' . $visibilityName . ': ' . $name . '}}',
+				'SystemExpression' => '{=' . Bizproc\Workflow\Template\SourceType::GlobalConstant . ':' . $id . '}',
+				'Options' => $constant['Options'] ?? null,
+				'Multiple' => $constant['Multiple'] ?? false,
+				'Visibility' => $constant['Visibility'],
+				'VisibilityName' => $visibilityName,
+			];
+		}
+
+		return $result;
+	}
+
 	private static function getDocumentUserServiceGroups(array $documentType)
 	{
-		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+
 		return $documentService->GetAllowableUserGroups($documentType);
 	}
 
@@ -505,7 +566,8 @@ class Helper
 		$key = implode('@', $documentType);
 		if (!isset(static::$maps[$key]))
 		{
-			$id = $name = [];
+			$id = [];
+			$name = [];
 
 			$fields = static::getDocumentFields($documentType);
 			foreach ($fields as $field)
@@ -530,8 +592,7 @@ class Helper
 				{
 					return static::$maps[$key];
 				}
-				$globals = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
-				$visibilityNames = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
+				$globals = static::getGlobalConstants($documentType);
 				break;
 			case \Bitrix\Bizproc\Workflow\Template\SourceType::GlobalVariable:
 				$key = 'globals@var@' . implode('@', $documentType);
@@ -539,8 +600,7 @@ class Helper
 				{
 					return static::$maps[$key];
 				}
-				$globals = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
-				$visibilityNames = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+				$globals = static::getGlobalVariables($documentType);
 				break;
 			default:
 				return [];
@@ -552,8 +612,7 @@ class Helper
 		foreach ($globals as $id => $property)
 		{
 			$ids[] = $id;
-			$visibility = $property['Visibility'];
-			$names[] = $visibilityNames[$visibility] . ': ' . $property['Name'];
+			$names[] = $property['VisibilityName'] . ': ' . trim($property['Name']);
 		}
 
 		static::$maps[$key] = [$ids, $names];

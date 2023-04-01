@@ -21,42 +21,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      im_v2_lib_logger.Logger.error('Error initializing core controller', error);
 	    });
 	  }
-
 	  prepareParams(params) {
 	    var _params$host;
-
 	    if (!main_core.Type.isUndefined(params.localize)) {
 	      this.localize = params.localize;
 	    } else {
-	      this.localize = BX ? { ...BX.message
+	      this.localize = BX ? {
+	        ...BX.message
 	      } : {};
 	    }
-
 	    this.host = (_params$host = params.host) != null ? _params$host : location.origin;
 	    this.userId = this.prepareUserId(params.userId);
 	    this.siteId = this.getLocalize('SITE_ID') || 's1';
-
 	    if (main_core.Type.isStringFilled(params.siteId)) {
 	      this.siteId = params.siteId;
 	    }
-
 	    this.siteDir = this.getLocalize('SITE_DIR') || 's1';
-
 	    if (main_core.Type.isStringFilled(params.siteDir)) {
 	      this.siteDir = params.siteDir;
 	    }
-
 	    this.languageId = this.getLocalize('LANGUAGE_ID') || 'en';
-
 	    if (main_core.Type.isStringFilled(params.languageId)) {
 	      this.languageId = params.languageId;
 	    }
-
 	    this.initPull(params);
 	    this.initRest(params);
 	    this.initVuexBuilder(params);
 	  }
-
 	  initStorage() {
 	    const applicationVariables = {
 	      common: {
@@ -90,12 +81,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return Promise.resolve();
 	    });
 	  }
-
 	  initPullClient() {
 	    if (!this.pullClient) {
 	      return false;
 	    }
-
 	    this.pullClient.subscribe(this.pullBaseHandler = new im_v2_provider_pull.ImBasePullHandler({
 	      store: this.store,
 	      controller: this
@@ -110,64 +99,51 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return Promise.resolve();
 	  }
-
 	  initComplete() {
 	    this.inited = true;
 	    this.initPromiseResolver(this);
 	  }
-
 	  initRest(params) {
 	    this.restInstance = rest_client.RestClient;
 	    this.restClient = rest_client.rest;
-
 	    if (!main_core.Type.isUndefined(params.rest)) {
 	      if (!main_core.Type.isUndefined(params.rest.instance)) {
 	        this.restInstance = params.rest.instance;
 	      }
-
 	      if (!main_core.Type.isUndefined(params.rest.client)) {
 	        this.restClient = params.rest.client;
 	      }
 	    }
-
 	    return Promise.resolve();
 	  }
-
 	  initPull(params) {
 	    this.pullInstance = pull_client.PullClient;
 	    this.pullClient = pull_client.PULL;
-
 	    if (params.pull) {
 	      if (params.pull.instance) {
 	        this.pullInstance = params.pull.instance;
 	      }
-
 	      if (params.pull.client) {
 	        this.pullClient = params.pull.client;
 	      }
 	    }
 	  }
-
 	  initVuexBuilder(params) {
 	    this.vuexBuilder = {
 	      database: false,
 	      databaseName: 'desktop/im',
 	      databaseType: ui_vue3_vuex.BuilderDatabaseType.indexedDb
 	    };
-
 	    if (params.vuexBuilder) {
 	      if (main_core.Type.isBoolean(params.vuexBuilder.database)) {
 	        this.vuexBuilder.database = params.vuexBuilder.database;
 	      }
-
 	      if (main_core.Type.isStringFilled(params.vuexBuilder.databaseName)) {
 	        this.vuexBuilder.databaseName = params.vuexBuilder.databaseName;
 	      }
-
 	      if (main_core.Type.isStringFilled(params.vuexBuilder.databaseType)) {
 	        this.vuexBuilder.databaseType = params.vuexBuilder.databaseType;
 	      }
-
 	      if (main_core.Type.isArray(params.vuexBuilder.models)) {
 	        params.vuexBuilder.models.forEach(model => {
 	          this.addVuexModel(model);
@@ -175,26 +151,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    }
 	  }
-
 	  prepareUserId(userId) {
 	    let result = 0;
-
 	    if (!main_core.Type.isUndefined(userId)) {
 	      const parsedUserId = Number.parseInt(params.userId, 10);
-
 	      if (parsedUserId) {
 	        result = parsedUserId;
 	      }
 	    } else if (this.getLocalize('USER_ID')) {
 	      result = Number.parseInt(this.getLocalize('USER_ID'), 10);
 	    }
-
 	    return result;
 	  }
+
 	  /* endregion 01. Initialize and store data */
 
 	  /* region 02. Push & Pull */
-
 
 	  eventStatusInteraction(data) {
 	    if (data.status === this.pullInstance.PullStatus.Online) {
@@ -203,12 +175,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.offline = true;
 	    }
 	  }
-
 	  eventOnlineInteraction(data) {
 	    if (!['list', 'userStatus'].includes(data.command)) {
 	      return false;
 	    }
-
 	    Object.values(data.params.users).forEach(userInfo => {
 	      this.store.dispatch('users/update', {
 	        id: userInfo.id,
@@ -216,30 +186,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
+
 	  /* endregion 02. Push & Pull */
 
 	  /* region 04. Template engine */
 
-
 	  createVue(application, config = {}) {
 	    let beforeCreateFunction = () => {};
-
 	    if (config.beforeCreate) {
 	      beforeCreateFunction = config.beforeCreate;
 	    }
-
 	    let unmountedFunction = () => {};
-
 	    if (config.unmounted) {
 	      unmountedFunction = config.unmounted;
 	    }
-
 	    let createdFunction = () => {};
-
 	    if (config.created) {
 	      createdFunction = config.created;
 	    }
-
 	    const controller = this;
 	    const initConfig = {
 	      // store: this.store,
@@ -247,126 +211,98 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.$bitrix.Data.set('controller', controller);
 	        this.$bitrix.Application.set(application);
 	        this.$bitrix.Loc.setMessage(controller.localize);
-
 	        if (controller.restClient) {
 	          this.$bitrix.RestClient.set(controller.restClient);
 	        }
-
 	        if (controller.pullClient) {
 	          this.$bitrix.PullClient.set(controller.pullClient);
 	        }
-
 	        beforeCreateFunction.bind(this)();
 	      },
-
 	      created() {
 	        createdFunction.bind(this)();
 	      },
-
 	      unmounted() {
 	        unmountedFunction.bind(this)();
 	      }
-
 	    };
-
 	    if (config.el) {
 	      initConfig.el = config.el;
 	    }
-
 	    if (config.template) {
 	      initConfig.template = config.template;
 	    }
-
 	    if (config.computed) {
 	      initConfig.computed = config.computed;
 	    }
-
 	    if (config.data) {
 	      initConfig.data = config.data;
 	    }
-
 	    if (config.name) {
 	      initConfig.name = config.name;
 	    }
-
 	    if (config.components) {
 	      initConfig.components = config.components;
 	    }
-
 	    const initConfigCreatedFunction = initConfig.created;
 	    return new Promise(resolve => {
 	      initConfig.created = function () {
 	        initConfigCreatedFunction.bind(this)();
 	        resolve(this);
 	      };
-
 	      const bitrixVue = ui_vue3.BitrixVue.createApp(initConfig);
-
 	      bitrixVue.config.errorHandler = function (err, vm, info) {
 	        console.error(err, info);
 	      };
-
 	      bitrixVue.config.warnHandler = function (warn, vm, trace) {
 	        console.warn(warn, trace);
 	      };
-
 	      application.bitrixVue = bitrixVue;
 	      bitrixVue.use(this.store).mount(initConfig.el);
 	    });
 	  }
+
 	  /* endregion 04. Template engine */
 
 	  /* region 05. Core methods */
-
-
 	  getHost() {
 	    return this.host;
 	  }
-
 	  getUserId() {
 	    return this.userId;
 	  }
-
 	  getSiteId() {
 	    return this.siteId;
 	  }
-
 	  getLanguageId() {
 	    return this.languageId;
 	  }
-
 	  getStore() {
 	    return this.store;
 	  }
-
 	  addVuexModel(model) {
 	    this.vuexAdditionalModel.push(model);
 	  }
-
 	  isOnline() {
 	    return !this.offline;
 	  }
-
 	  ready() {
 	    if (this.inited) {
 	      return Promise.resolve(this);
 	    }
-
 	    return this.initPromise;
 	  }
+
 	  /* endregion 05. Methods */
 
 	  /* region 06. Interaction and utils */
 
-
 	  setError(code = '', description = '') {
 	    im_v2_lib_logger.Logger.error(`Messenger.Application.error: ${code} (${description})`);
 	    let localizeDescription = '';
-
 	    if (code.endsWith('LOCALIZED')) {
 	      localizeDescription = description;
 	    }
-
 	    this.store.commit('application/set', {
 	      error: {
 	        active: true,
@@ -375,7 +311,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  clearError() {
 	    this.store.commit('application/set', {
 	      error: {
@@ -385,21 +320,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  addLocalize(phrases) {
 	    if (!main_core.Type.isPlainObject(phrases)) {
 	      return false;
 	    }
-
 	    Object.entries(phrases).forEach(([key, value]) => {
 	      this.localize[key] = value;
 	    });
 	    return true;
 	  }
-
 	  getLocalize(name) {
 	    let phrase = '';
-
 	    if (typeof name === 'undefined') {
 	      return this.localize;
 	    } else if (typeof this.localize[name.toString()] === 'undefined') {
@@ -407,12 +338,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else {
 	      phrase = this.localize[name];
 	    }
-
 	    return phrase;
 	  }
+
 	  /* endregion 06. Interaction and utils */
-
-
 	}
 
 	const Core = new CoreApplication();

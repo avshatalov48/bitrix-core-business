@@ -300,7 +300,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		}
 
 		$params['APPLY_BUTTON_ID'] = 'convert_service_to_product_confirm';
-		$params['CONFIRM_MESSAGE'] = Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT_CONFIRM_MESSAGE');
+		$params['CONFIRM_MESSAGE'] = Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT_CONFIRM_MESSAGE_MSGVER_1');
 
 		return [
 			'name' => (string)($params['NAME'] ?? Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT')),

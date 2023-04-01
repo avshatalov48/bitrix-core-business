@@ -60,7 +60,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			]
 		];
 
-		$email = $data['client_email'] ?: '';
+		$email = $data['client_email'] ?? '';
 
 		$phone = \NormalizePhone($data['client_phone']);
 		if (is_string($phone))
@@ -532,7 +532,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	{
 		$result = new Result();
 
-		if ($checkData['receipt']['client']['email'] === '' && $checkData['receipt']['client']['phone'] === '')
+		if (empty($checkData['receipt']['client']['email']) && empty($checkData['receipt']['client']['phone']))
 		{
 			$result->addError(new Main\Error(Localization\Loc::getMessage('SALE_CASHBOX_ATOL_ERR_EMPTY_PHONE_EMAIL')));
 		}

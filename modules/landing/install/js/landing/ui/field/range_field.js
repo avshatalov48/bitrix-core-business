@@ -197,15 +197,15 @@
 
 			if (this.elements.length)
 			{
-				var element = this.elements[0];
+				const element = this.elements[0];
 
 				if (this.isMultiple)
 				{
-					var from = this.values.find(function(item) {
+					const from = this.values.find(function(item) {
 						return element.classList.contains(item.value);
 					});
 
-					var to = this.values.find(function(item) {
+					const to = this.values.find(function(item) {
 						return element.classList.contains(item.value) && item.value !== from;
 					});
 
@@ -216,7 +216,7 @@
 				}
 				else
 				{
-					var value = this.values.find(function(item) {
+					const value = this.values.find(function(item) {
 						return element.classList.contains(item.value);
 					});
 

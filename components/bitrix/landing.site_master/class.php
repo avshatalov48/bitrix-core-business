@@ -79,9 +79,10 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 	}
 
 	/**
-	 * Saves data from form.
+	 * Processing step to save company data and new domain if changed.
+	 *
 	 * @param int $siteId Site id.
-	 * @param array $siteInfo Site data.
+	 * @param array $siteInfo Company and domain data.
 	 * @return void
 	 */
 	protected function processingStep(int $siteId, array $siteInfo): void
@@ -89,22 +90,29 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 		if (($this->request('SAVE_SITE') == 'Y') && check_bitrix_sessid())
 		{
 			$update = [];
+
 			Connector\Crm::setContacts($siteId, [
 				'COMPANY' => $this->request('COMPANY'),
 				'PHONE' => $this->request('PHONE')
 			]);
+
 			if ($company = $this->request('COMPANY'))
 			{
 				$update['TITLE'] = $company;
 			}
+
 			if ($subDomain = $this->request('SUBDOMAIN'))
 			{
-				$newDomain = $subDomain . $this->getPostfix();
-				if ($siteInfo['DOMAIN_NAME'] != $newDomain)
+				$prefix = null;
+				Domain::getBitrix24Subdomain($siteInfo['DOMAIN_NAME'], $prefix);
+				$newDomain = $subDomain . $prefix;
+
+				if ($siteInfo['DOMAIN_NAME'] !== $newDomain)
 				{
 					$update['DOMAIN_ID'] = $newDomain;
 				}
 			}
+
 			if ($update)
 			{
 				$this->updateMainTitles($siteId, $update);
@@ -153,6 +161,7 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 
 	/**
 	 * Returns postfix for bitrix24 domain.
+	 * @deprecated since 23.0.0
 	 * @return string
 	 */
 	protected function getPostfix(): string
@@ -776,9 +785,9 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 					$this->arResult['SITE']['ID']
 				);
 				$this->arResult['SITE']['SUBDOMAIN_NAME'] = Domain::getBitrix24Subdomain(
-					$this->arResult['SITE']['DOMAIN_NAME']
+					$this->arResult['SITE']['DOMAIN_NAME'],
+					$this->arResult['SITE']['POSTFIX']
 				);
-				$this->arResult['SITE']['POSTFIX'] = $this->getPostfix();
 			}
 			else
 			{

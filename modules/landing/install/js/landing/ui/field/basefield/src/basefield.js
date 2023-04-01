@@ -78,7 +78,7 @@ export class BaseField extends EventEmitter
 		Dom.append(this.input, this.layout);
 
 		Dom.attr(this.layout, 'data-selector', this.selector);
-		Dom.attr(this.input, 'data-placeholder', this.placeholder);
+		this.input.setAttribute('data-placeholder', this.placeholder);
 
 		if (Type.isArrayLike(this.className))
 		{

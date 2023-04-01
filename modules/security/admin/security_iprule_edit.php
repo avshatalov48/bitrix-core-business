@@ -27,13 +27,16 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
 
-$ID = intval($_REQUEST["ID"]); // Id of the edited record
+$ID = isset($_REQUEST["ID"]) ? intval($_REQUEST["ID"]) : 0; // Id of the edited record
 $strError = "";
 $bVarsFromForm = false;
 $bShowForce = false;
 $message = CSecurityIPRule::CheckAntiFile(true);
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"] !="" && $canWrite && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST"
+	&& (isset($_REQUEST["save"]) || isset($_REQUEST["apply"]))
+	&& $canWrite
+	&& check_bitrix_sessid())
 {
 	if(!is_array($_POST["INCL_IPS"]))
 		$inclIps = array($_POST["INCL_IPS"]);

@@ -74,11 +74,13 @@ final class VoteUserType
 		if (is_array($userFields) && !empty($userFields))
 		{
 			$userFields = array_intersect_key($userFields, $fields);
-			$path = str_replace("#post_id#", $ID, $fields["PATH"]);
+			$path = str_replace("#post_id#", $ID, $fields["PATH"] ?? '');
 			$userField = reset($userFields);
 			do {
-				if (is_array($userField["USER_TYPE"]) &&
-					$userField["USER_TYPE"]["USER_TYPE_ID"] == "vote" &&
+				if (
+					is_array($userField)
+					&& is_array($userField["USER_TYPE"])
+					&& $userField["USER_TYPE"]["USER_TYPE_ID"] == "vote" &&
 					$userField["USER_TYPE"]["CLASS_NAME"] == __CLASS__ &&
 					isset($GLOBALS[__CLASS__.$userField["ENTITY_VALUE_ID"]]))
 				{
@@ -237,7 +239,7 @@ final class VoteUserType
 	 * @param bool $varsFromForm Get params from $_REQUEST.
 	 * @return string
 	 */
-	public static function getSettingsHTML($userField = false, $htmlControl, $varsFromForm)
+	public static function getSettingsHTML($userField, $htmlControl, $varsFromForm)
 	{
 		if (!\Bitrix\Main\Loader::includeModule("vote"))
 			return '';
@@ -578,12 +580,12 @@ final class VoteUserType
 					}
 				}
 
-				if (!$userFieldManager->belongsToEntity($attach, $userField["ENTITY_ID"], $userField["ENTITY_VALUE_ID"]))
+				if (!$userFieldManager->belongsToEntity($attach, $userField["ENTITY_ID"], $userField["ENTITY_VALUE_ID"] ?? null))
 				{
 					throw new \Bitrix\Main\ObjectNotFoundException(Loc::getMessage("VOTE_IS_NOT_FOUND"));
 				}
 
-				$data["OPTIONS"] = (is_array($data["OPTIONS"]) ? array_sum($data["OPTIONS"]) : 0);
+				$data["OPTIONS"] = isset($data["OPTIONS"]) ? (is_array($data["OPTIONS"]) ? array_sum($data["OPTIONS"]) : (int) $data["OPTIONS"]) : 0;
 				$data["UNIQUE_TYPE"] = ($userField["SETTINGS"]["UNIQUE"] & \Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH ? $userField["SETTINGS"]["UNIQUE"] | \Bitrix\Vote\Vote\EventLimits::BY_USER_ID : $userField["SETTINGS"]["UNIQUE"]);
 				$interval = intval($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY"]);
 				$interval = in_array($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"], array("S", "M", "H")) ? "PT".$interval.$userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"] : "P".$interval."D";
@@ -686,7 +688,7 @@ final class VoteUserType
 				unset($data["ID"]);
 			}
 
-			$data["OPTIONS"] = (is_array($data["OPTIONS"]) ? array_sum($data["OPTIONS"]) : 0);
+			$data["OPTIONS"] = !empty($data["OPTIONS"]) ? (is_array($data["OPTIONS"]) ? array_sum($data["OPTIONS"]) : (int) $data["OPTIONS"]) : 0;
 			$data["UNIQUE_TYPE"] = intval($userField["SETTINGS"]["UNIQUE"] & \Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH ? $userField["SETTINGS"]["UNIQUE"] | \Bitrix\Vote\Vote\EventLimits::BY_USER_ID : $userField["SETTINGS"]["UNIQUE"]);
 			$interval = intval($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY"]);
 			$interval = in_array($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"], array("S", "M", "H")) ? "PT".$interval.$userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"] : "P".$interval."D";

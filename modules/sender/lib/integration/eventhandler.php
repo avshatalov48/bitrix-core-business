@@ -290,6 +290,10 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageDeal';
 		}
 
+		if (Bitrix24\Service::isMasterYandexVisibleInRegion())
+		{
+			$list[] = \Bitrix\Sender\Integration\Yandex\Master\MessageMasterYandex::class;
+		}
 		if(Bitrix24\Service::isTolokaVisibleInRegion())
 		{
 			$list[] = 'Bitrix\Sender\Integration\Yandex\Toloka\MessageToloka';

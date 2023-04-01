@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
 this.BX.Catalog.Store = this.BX.Catalog.Store || {};
-(function (exports,catalog_storeSelector,main_popup,main_core_events,currency_currencyCore,catalog_productSelector,catalog_documentCard,catalog_productModel,main_core,spotlight,ui_tour) {
+(function (exports,main_popup,main_core_events,currency_currencyCore,catalog_productSelector,catalog_storeSelector,catalog_documentCard,catalog_productModel,main_core,spotlight,ui_tour,ui_notification) {
 	'use strict';
 
 	catalog_documentCard = catalog_documentCard && catalog_documentCard.hasOwnProperty('default') ? catalog_documentCard['default'] : catalog_documentCard;
@@ -2356,9 +2356,13 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	var _childrenHasErrors = /*#__PURE__*/new WeakSet();
 
+	var _processSetStoryAction = /*#__PURE__*/new WeakSet();
+
 	var Editor = /*#__PURE__*/function () {
 	  function Editor(id) {
 	    babelHelpers.classCallCheck(this, Editor);
+
+	    _classPrivateMethodInitSpec$3(this, _processSetStoryAction);
 
 	    _classPrivateMethodInitSpec$3(this, _childrenHasErrors);
 
@@ -2973,6 +2977,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      return currency_currencyCore.CurrencyCore.loadCurrencyFormat(currencyId);
 	    }
 	  }, {
+	    key: "isSalesOrdersDocument",
+	    value: function isSalesOrdersDocument() {
+	      var salesOrdersDocumentTypeCodes = ['REALIZATION', 'W'];
+	      return salesOrdersDocumentTypeCodes.includes(this.settings.documentType);
+	    }
+	  }, {
 	    key: "changeCurrencyId",
 	    value: function changeCurrencyId(currencyId) {
 	      var _this7 = this;
@@ -3042,8 +3052,25 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      var totalBlock = BX(this.getSettingValue('totalBlockContainerId', null));
 
 	      if (main_core.Type.isElementNode(totalBlock)) {
-	        totalBlock.querySelectorAll('[data-role="currency-wrapper"]').forEach(function (row) {
-	          row.innerHTML = _this8.getCurrencyText();
+	        var totalsList = ['totalCost'];
+	        totalBlock.querySelectorAll('.catalog-document-product-list-result-grid-total').forEach(function (row) {
+	          var _iterator4 = _createForOfIteratorHelper$1(totalsList),
+	              _step4;
+
+	          try {
+	            for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+	              var totalId = _step4.value;
+	              var valueElement = row.querySelector('[data-total="' + totalId + '"]');
+
+	              if (valueElement) {
+	                row.innerHTML = currency_currencyCore.CurrencyCore.getPriceControl(valueElement, _this8.getCurrencyId());
+	              }
+	            }
+	          } catch (err) {
+	            _iterator4.e(err);
+	          } finally {
+	            _iterator4.f();
+	          }
 	        });
 	      }
 	    }
@@ -3342,21 +3369,21 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function initProducts() {
 	      var list = this.getSettingValue('items', []);
 
-	      var _iterator4 = _createForOfIteratorHelper$1(list),
-	          _step4;
+	      var _iterator5 = _createForOfIteratorHelper$1(list),
+	          _step5;
 
 	      try {
-	        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-	          var item = _step4.value;
+	        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+	          var item = _step5.value;
 
 	          var fields = _objectSpread$1({}, item.fields);
 
 	          this.products.push(new Row(item.rowId, fields, this.getSettingValue('rowSettings', {}), this));
 	        }
 	      } catch (err) {
-	        _iterator4.e(err);
+	        _iterator5.e(err);
 	      } finally {
-	        _iterator4.f();
+	        _iterator5.f();
 	      }
 
 	      this.numerateRows();
@@ -3500,7 +3527,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        fieldCode = this.getFieldCodeByGridCell(row, cell);
 	      }
 
-	      if (this.settings.documentType === 'REALIZATION' && fieldCode === 'AMOUNT' && value <= 0) {
+	      if (this.isSalesOrdersDocument() && fieldCode === 'AMOUNT' && value <= 0) {
 	        event.target.value = 1;
 	        this.handleFieldChange(event);
 	        BX.UI.Notification.Center.notify({
@@ -3712,6 +3739,23 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        });
 	      }
 
+	      if (main_core.Type.isNil(anchorProduct) && this.products.length > 0) {
+	        var previousRow = this.getSettingValue('newRowPosition') === 'bottom' ? this.products[this.products.length - 1] : this.products[0];
+	        var stores = this.getSettingValue('stores', {});
+	        var storeFields = previousRow.getSettingValue('storeHeaderMap', {});
+	        Object.values(storeFields).forEach(function (field) {
+	          var previousStoreValue = previousRow.getField(field);
+
+	          if (main_core.Type.isNil(stores[previousStoreValue])) {
+	            return;
+	          }
+
+	          fields[field] = previousRow.getField(field);
+	          var titleName = field + '_TITLE';
+	          fields[titleName] = previousRow.getField(titleName);
+	        });
+	      }
+
 	      var rowId = this.getRowIdPrefix() + newId;
 	      fields.ID = newId;
 	      fields.ROW_ID = newId;
@@ -3787,7 +3831,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        productRow.layoutBarcode();
 	        productRow.executeExternalActions();
 
-	        if (this.settings.documentType === 'REALIZATION') {
+	        if (this.isSalesOrdersDocument()) {
 	          productRow.changeAmount(productRow.getAmount() > 0 ? productRow.getAmount() : 1);
 	        }
 
@@ -3867,12 +3911,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        return;
 	      }
 
-	      var _iterator5 = _createForOfIteratorHelper$1(actions),
-	          _step5;
+	      var _iterator6 = _createForOfIteratorHelper$1(actions),
+	          _step6;
 
 	      try {
-	        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-	          var item = _step5.value;
+	        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+	          var item = _step6.value;
 
 	          if (!main_core.Type.isPlainObject(item) || !main_core.Type.isStringFilled(item.type)) {
 	            continue;
@@ -3893,9 +3937,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          }
 	        }
 	      } catch (err) {
-	        _iterator5.e(err);
+	        _iterator6.e(err);
 	      } finally {
-	        _iterator5.f();
+	        _iterator6.f();
 	      }
 	    }
 	  }, {
@@ -3938,18 +3982,18 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	      this.updateFieldForList = item.field;
 
-	      var _iterator6 = _createForOfIteratorHelper$1(this.products),
-	          _step6;
+	      var _iterator7 = _createForOfIteratorHelper$1(this.products),
+	          _step7;
 
 	      try {
-	        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-	          var row = _step6.value;
+	        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+	          var row = _step7.value;
 	          row.updateFieldByName(item.field, item.value);
 	        }
 	      } catch (err) {
-	        _iterator6.e(err);
+	        _iterator7.e(err);
 	      } finally {
-	        _iterator6.f();
+	        _iterator7.f();
 	      }
 
 	      this.updateFieldForList = null;
@@ -3980,18 +4024,18 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      var fields = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	      var productFields = [];
 
-	      var _iterator7 = _createForOfIteratorHelper$1(this.products),
-	          _step7;
+	      var _iterator8 = _createForOfIteratorHelper$1(this.products),
+	          _step8;
 
 	      try {
-	        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-	          var item = _step7.value;
+	        for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+	          var item = _step8.value;
 	          productFields.push(item.getFields(fields));
 	        }
 	      } catch (err) {
-	        _iterator7.e(err);
+	        _iterator8.e(err);
 	      } finally {
-	        _iterator7.f();
+	        _iterator8.f();
 	      }
 
 	      return productFields;
@@ -4241,12 +4285,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	        var addictedNodes = [];
 
-	        var _iterator8 = _createForOfIteratorHelper$1(addictedFields),
-	            _step8;
+	        var _iterator9 = _createForOfIteratorHelper$1(addictedFields),
+	            _step9;
 
 	        try {
-	          for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-	            var _fieldName = _step8.value;
+	          for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+	            var _fieldName = _step9.value;
 
 	            var _fieldNode = productNode.querySelector("[data-name=\"".concat(_fieldName, "\"]"));
 
@@ -4255,9 +4299,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	            }
 	          }
 	        } catch (err) {
-	          _iterator8.e(err);
+	          _iterator9.e(err);
 	        } finally {
-	          _iterator8.f();
+	          _iterator9.f();
 	        }
 
 	        var fieldNode = productNode.querySelector("[data-name=\"".concat(fieldName, "\"]"));
@@ -4277,6 +4321,13 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function getRestrictedProductTypes() {
 	      return this.getSettingValue('restrictedProductTypes', []);
 	    }
+	  }, {
+	    key: "processApplyActionButtonClick",
+	    value: function processApplyActionButtonClick(actionId) {
+	      if (actionId === 'STORE_FROM_INFO' || actionId === 'STORE_TO_INFO') {
+	        _classPrivateMethodGet$3(this, _processSetStoryAction, _processSetStoryAction2).call(this, actionId);
+	      }
+	    }
 	  }]);
 	  return Editor;
 	}();
@@ -4295,8 +4346,70 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM', 'BASE_PRICE_ID', 'BASKET_ID', 'DOC_ID', 'ELEMENT_ID', 'IBLOCK_ID', 'MEASURE_CODE', 'MEASURE_NAME', 'NAME', 'OFFERS_IBLOCK_ID', 'PARENT_PRODUCT_ID', 'PRODUCT_ID', 'ROW_ID', 'STORE_FROM_AMOUNT', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_RESERVED', 'STORE_FROM_TITLE', 'STORE_TO_AMOUNT', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_RESERVED', 'STORE_TO_TITLE', 'TOTAL_PRICE', 'TYPE'];
 	}
 
+	function _processSetStoryAction2(actionId) {
+	  var _this$getGrid2,
+	      _this16 = this;
+
+	  var actionPanel = (_this$getGrid2 = this.getGrid()) === null || _this$getGrid2 === void 0 ? void 0 : _this$getGrid2.getActionsPanel();
+	  var actionValues = actionPanel === null || actionPanel === void 0 ? void 0 : actionPanel.getValues();
+	  var actionStoreId = actionValues[actionId];
+
+	  if (!actionValues || main_core.Type.isUndefined(actionStoreId)) {
+	    return;
+	  }
+
+	  var selectedRows = this.getGrid().getRows().getSelected();
+
+	  if (selectedRows.length === 0) {
+	    return;
+	  }
+
+	  var stores = this.getSettingValue('stores', {});
+	  var actionStore = stores[actionStoreId];
+
+	  if (!main_core.Type.isNil(actionStore)) {
+	    var actionStoreName = (actionStore === null || actionStore === void 0 ? void 0 : actionStore.TITLE) || '';
+	    selectedRows.forEach(function (row) {
+	      var selectedItem = _this16.products.find(function (product) {
+	        return product.getField('ID') === row.getId();
+	      });
+
+	      if (selectedItem) {
+	        var storeSelector = catalog_storeSelector.StoreSelector.getById(selectedItem.getId() + '_' + actionId);
+
+	        if (storeSelector) {
+	          storeSelector.onStoreSelect(actionStoreId, actionStoreName);
+	        }
+	      }
+	    });
+	    var documentTypeMoving = 'M';
+	    var messageId = this.settings.documentType !== documentTypeMoving ? 'CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_CHANGED_HINT' : 'CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_' + actionId + '_CHANGED_HINT';
+	    ui_notification.UI.Notification.Center.notify({
+	      content: main_core.Loc.getMessage(messageId, {
+	        '#STORE_NAME#': main_core.Text.encode(actionStoreName)
+	      }),
+	      autoHide: true,
+	      autoHideDelay: 4000
+	    });
+	  }
+
+	  var dropdown = actionPanel.getDropdowns().find(function (dropdown) {
+	    return dropdown.id === 'actionListId_control';
+	  });
+
+	  if (dropdown) {
+	    actionPanel.removeItemsRelativeCurrent(dropdown.parentNode);
+	    main_core.Dom.attr(dropdown, 'data-value', null);
+	    var innerWrapper = dropdown.querySelector('.main-dropdown-inner');
+
+	    if (innerWrapper) {
+	      innerWrapper.innerText = main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_DEFAULT');
+	    }
+	  }
+	}
+
 	exports.Editor = Editor;
 	exports.PageEventsManager = PageEventsManager;
 
-}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX.Catalog,BX.Main,BX.Event,BX.Currency,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog,BX,BX,BX.UI.Tour));
+}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX.Main,BX.Event,BX.Currency,BX.Catalog,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog,BX,BX,BX.UI.Tour,BX));
 //# sourceMappingURL=script.js.map

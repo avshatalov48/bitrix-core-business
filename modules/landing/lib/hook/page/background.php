@@ -54,7 +54,7 @@ class Background extends \Bitrix\Landing\Hook\Page
 			)),
 			'COLOR' => new Field\Text('COLOR', array(
 				'title' => Loc::getMessage('LANDING_HOOK_BG_COLOR')
-			))
+			)),
 		);
 	}
 

@@ -179,7 +179,7 @@ function prepareOptions(&$letter, &$messageData)
 			$messageData[$option->getCode()] = $postFiles->getFiles([], $files);
 		}
 		$letter->getMessage()->setConfigurationData($messageData);
-		if ($messageData['CAMPAIGN_ID'])
+		if ($messageData['CAMPAIGN_ID'] ?? false)
 		{
 			$parameters['CAMPAIGN_ID'] = $messageData['CAMPAIGN_ID'];
 		}

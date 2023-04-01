@@ -78,21 +78,21 @@ class CAllVoteQuestion
 			endif;
 		}
 
-		if (is_set($arFields, "ACTIVE") || $ACTION == "ADD") $arFields["ACTIVE"] = ($arFields["ACTIVE"] == "N" ? "N" : "Y");
-		if (is_set($arFields, "FIELD_TYPE") || $ACTION == "ADD") $arFields["FIELD_TYPE"] = intval($arFields["FIELD_TYPE"]);
-		unset($arFields["TIMESTAMP_X"]);
-		if (is_set($arFields, "C_SORT") || $ACTION == "ADD") $arFields["C_SORT"] = (intval($arFields["C_SORT"]) > 0 ? intval($arFields["C_SORT"]) : 100);
-		if (is_set($arFields, "COUNTER") || $ACTION == "ADD") $arFields["COUNTER"] = intval($arFields["COUNTER"]);
-		if (is_set($arFields, "QUESTION_TYPE") || $ACTION == "ADD") $arFields["QUESTION_TYPE"] = ($arFields["QUESTION_TYPE"] == "html" ? "html" : "text");
-		if (is_set($arFields, "DIAGRAM") || $ACTION == "ADD") $arFields["DIAGRAM"] = ($arFields["DIAGRAM"] == "N" ? "N" : "Y");
-		if (is_set($arFields, "DIAGRAM_TYPE") && (empty($arFields["DIAGRAM_TYPE"]) || in_array($arFields["DIAGRAM_TYPE"], GetVoteDiagramArray()))):
-			$arFields["DIAGRAM_TYPE"] = VOTE_DEFAULT_DIAGRAM_TYPE;
+		if (isset($arFields['ACTIVE']) || $ACTION == 'ADD') $arFields['ACTIVE'] = ($arFields['ACTIVE'] ?? 'Y') === 'N' ? 'N' : 'Y';
+		if (isset($arFields['FIELD_TYPE']) || $ACTION == 'ADD') $arFields['FIELD_TYPE'] = intval($arFields['FIELD_TYPE'] ?? 0);
+		unset($arFields['TIMESTAMP_X']);
+		if (isset($arFields['C_SORT']) || $ACTION == 'ADD') $arFields['C_SORT'] = intval($arFields['C_SORT'] ?? 100);
+		if (isset($arFields['COUNTER']) || $ACTION == 'ADD') $arFields['COUNTER'] = intval($arFields['COUNTER'] ?? 0);
+		if (isset($arFields['QUESTION_TYPE']) || $ACTION == 'ADD') $arFields['QUESTION_TYPE'] = (($arFields['QUESTION_TYPE'] ?? 'text') == 'html' ? 'html' : 'text');
+		if (isset($arFields['DIAGRAM']) || $ACTION == 'ADD') $arFields['DIAGRAM'] = (($arFields['DIAGRAM'] ?? 'Y') === 'N' ? 'N' : 'Y');
+		if (isset($arFields['DIAGRAM_TYPE']) && (empty($arFields['DIAGRAM_TYPE']) || in_array($arFields['DIAGRAM_TYPE'], GetVoteDiagramArray()))):
+			$arFields['DIAGRAM_TYPE'] = VOTE_DEFAULT_DIAGRAM_TYPE;
 		endif;
-		if (is_set($arFields, "TEMPLATE")) $arFields["TEMPLATE"] = mb_substr(trim($arFields["TEMPLATE"]), 0, 255);
-		if (is_set($arFields, "TEMPLATE_NEW")) $arFields["TEMPLATE_NEW"] = mb_substr(trim($arFields["TEMPLATE_NEW"]), 0, 255);
+		if (isset($arFields['TEMPLATE'])) $arFields['TEMPLATE'] = mb_substr(trim($arFields['TEMPLATE']), 0, 255);
+		if (isset($arFields['TEMPLATE_NEW'])) $arFields['TEMPLATE_NEW'] = mb_substr(trim($arFields['TEMPLATE_NEW']), 0, 255);
 
-		if ((is_set($arFields, "TEMPLATE") ||is_set($arFields, "TEMPLATE_NEW")) &&
-			COption::GetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N") == "Y")
+		if ((isset($arFields['TEMPLATE']) || isset($arFields['TEMPLATE_NEW']))
+			&& COption::GetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N") == "Y")
 		{
 			$old_module_version = CVote::IsOldVersion();
 			if ($old_module_version != "Y")
@@ -264,63 +264,60 @@ class CAllVoteQuestion
 	public static function GetList($VOTE_ID, $by = 's_c_sort', $order = 'asc', $arFilter = [])
 	{
 		global $DB;
-		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: GetList<br>Line: ";
+		$err_mess = (CAllVoteQuestion::err_mess()).'<br>Function: GetList<br>Line: ';
 
-		$VOTE_ID = intval($VOTE_ID);
-		$arSqlSearch = array();
-		$arFilter = (is_array($arFilter) ? $arFilter : array($arFilter));
+		$VOTE_ID = (int) $VOTE_ID;
+		$arSqlSearch = [];
+		$arFilter = (is_array($arFilter) ? $arFilter : []);
 
 		foreach ($arFilter as $key => $val)
 		{
-			if (empty($key) || empty($val) || $val === "NOT_REF"):
+			if (empty($key) || empty($val) || $val === 'NOT_REF')
+			{
 				continue;
-			endif;
+			}
+
 			$key_res = VoteGetFilterOperation($key);
-			$strNegative = $key_res["NEGATIVE"];
-			$strOperation = $key_res["OPERATION"];
-			$key = strtoupper($key_res["FIELD"]);
+			$strNegative = $key_res['NEGATIVE'];
+			$strOperation = $key_res['OPERATION'];
+			$key = strtoupper($key_res['FIELD']);
 
 			switch($key)
 			{
-				case "ID":
-					$match = ($arFilter[$key."_EXACT_MATCH"] == "N" ? "Y" : "N"); //turn off
-					$arSqlSearch[] = GetFilterQuery("Q.ID", $val, $match);
+				case 'ID':
+					$match = (($arFilter[$key . '_EXACT_MATCH'] ?? 'Y') === 'N' ? 'Y' : 'N'); //turn off
+					$arSqlSearch[] = GetFilterQuery('Q.ID', $val, $match);
 					break;
-				case "DIAGRAM":
-				case "ACTIVE":
-				case "REQUIRED":
-						$arSqlSearch[] = ($strNegative=="Y"?" Q.".$key." IS NULL OR NOT ":"")." (Q.".$key." ".$strOperation." '".$DB->ForSql($val)."')";
+				case 'DIAGRAM':
+				case 'ACTIVE':
+				case 'REQUIRED':
+					$arSqlSearch[] = ($strNegative === 'Y' ? ' Q.' . $key . ' IS NULL OR NOT ' : '')
+						. ' (Q.' . $key . ' ' . $strOperation . ' \'' . $DB->ForSql($val) . '\')';
 					break;
-				case "QUESTION":
-					$match = ($arFilter[$key."_EXACT_MATCH"] != "N" ? "Y" : "N"); //turn on
-					$arSqlSearch[] = GetFilterQuery("Q.QUESTION", $val, $match);
+				case 'QUESTION':
+					$match = (($arFilter[$key . '_EXACT_MATCH'] ?? 'Y') !== 'N' ? 'Y' : 'N'); //turn on
+					$arSqlSearch[] = GetFilterQuery('Q.QUESTION', $val, $match);
 					break;
 			}
 		}
 		if ($VOTE_ID > 0)
-			$arSqlSearch[] = "Q.VOTE_ID = ".$VOTE_ID;
+			$arSqlSearch[] = 'Q.VOTE_ID = ' . $VOTE_ID;
 
 		// Order
-		$by = strtoupper(strpos($by, "s_") === 0? substr($by, 2) : $by);
-		$order = ($order != "desc" ? "asc" : "desc");
-		if (in_array($by, array("ID", "TIMESTAMP_X", "ACTIVE", "DIAGRAM", "C_SORT", "REQUIRED")))
-		{
-			$strSqlOrder = "Q.".$by." ".$order;
-		}
-		else
-		{
-			$strSqlOrder = "Q.C_SORT ".$order;
-		}
+		$by = strtoupper(strpos($by, 's_') === 0 ? substr($by, 2) : $by);
+		$by = in_array($by, ['ID', 'TIMESTAMP_X', 'ACTIVE', 'DIAGRAM', 'C_SORT', 'REQUIRED']) ? $by : 'C_SORT';
+		$order = ($order !== 'desc' ? 'asc' : 'desc');
+		$strSqlOrder = 'Q.' . $by . ' ' . $order;
 
 		// Sql
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
-		$strSql = "
+		$strSql = '
 			SELECT Q.*,
-				".$DB->DateToCharFunction("Q.TIMESTAMP_X","SHORT")." TIMESTAMP_X
+				' . $DB->DateToCharFunction('Q.TIMESTAMP_X','SHORT') . ' TIMESTAMP_X
 			FROM b_vote_question Q
-			WHERE ".$strSqlSearch."
-			ORDER BY ".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			WHERE ' . $strSqlSearch . '
+			ORDER BY ' . $strSqlOrder;
+		$res = $DB->Query($strSql, false, $err_mess . __LINE__);
 
 		return $res;
 	}

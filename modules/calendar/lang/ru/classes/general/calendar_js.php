@@ -301,6 +301,8 @@ $MESS["EC_REQUEST_APP_NONAME_TAB"] = "- без названия -";
 $MESS["EC_ADD_APPLICATION"] = "Добавить приложение";
 $MESS["EC_COLLAPSED_MESSAGE"] = "Событий";
 $MESS["EC_SAVE_ENTRY_CONFIRM"] = "Все несохраненные данные будут потеряны";
+$MESS['EC_LEAVE_EVENT_CONFIRM_QUESTION'] = 'Закрыть форму редактирования события?';
+$MESS['EC_LEAVE_EVENT_CONFIRM_DESC'] = 'Изменения не сохранятся';
 $MESS["EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION"] = "Выберите, кто может добавлять, удалять и настраивать переговорные комнаты вашей организации";
 $MESS["EC_LOCATION_SETTINGS_MORE_INFO"] = "Подробнее";
 $MESS["EC_ACCESS_GROUP_ADMIN"] = "Владелец группы";
@@ -323,3 +325,5 @@ $MESS["EC_SEC_SLIDER_TYPE_ARCHIVE"] = "Другие календари Google";
 $MESS["EC_SEC_SLIDER_TYPE_ARCHIVE_HELPER"] = "Календари Google, которые были ранее отключены. Сейчас эти календари не синхронизируются с вашим Google аккаунтом";
 $MESS["EC_SEC_SLIDER_ADJUST_SYNC"] = "Настроить синхронизацию";
 $MESS["EC_SEC_SLIDER_SYNC_DISABLED"] = "Отключен";
+
+$MESS['EC_CALENDAR_CONFERENCE'] = 'Видеоконференция';

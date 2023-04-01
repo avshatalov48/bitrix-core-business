@@ -798,7 +798,10 @@ class CBPDocument
 			$ar = array();
 
 			foreach ($arWorkflowParameters as $parameterKey => $arParameter)
-				$ar[$parameterKey] = $arRequest["bizproc".$templateId."_".$parameterKey];
+			{
+				$key = "bizproc" . $templateId . "_" . $parameterKey;
+				$ar[$parameterKey] = $arRequest[$key] ?? null;
+			}
 
 			$arWorkflowParametersValues = CBPWorkflowTemplateLoader::CheckWorkflowParameters(
 				$arWorkflowParameters,

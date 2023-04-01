@@ -88,6 +88,10 @@ class InventoryBuilder extends ShopBuilder
 		$this->urlTemplates[self::PAGE_ELEMENT_SEARCH] = '/bitrix/tools/iblock/element_search.php'
 			.'?#LANGUAGE#'
 			.'#ADDITIONAL_PARAMETERS#';
+
+		$this->urlTemplates[self::PAGE_CATALOG_SEO] = self::PATH_PREFIX . '#IBLOCK_ID#/seo/';
+		$this->urlTemplates[self::PAGE_ELEMENT_SEO] = self::PATH_PREFIX . '#IBLOCK_ID#/seo/product/#PRODUCT_ID#/';
+		$this->urlTemplates[self::PAGE_SECTION_SEO] = self::PATH_PREFIX . '#IBLOCK_ID#/seo/section/#SECTION_ID#/';
 	}
 
 	protected function getSliderPathTemplates(): array

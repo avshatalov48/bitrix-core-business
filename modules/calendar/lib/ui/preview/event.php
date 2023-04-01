@@ -59,6 +59,21 @@ class Event
 		return false;
 	}
 
+	public static function getImRich(array $params)
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return false;
+		}
+
+		if (!class_exists('\Bitrix\Im\V2\Entity\Url\RichData'))
+		{
+			return false;
+		}
+
+		return (new \Bitrix\Im\V2\Entity\Url\RichData())->setType(\Bitrix\Im\V2\Entity\Url\RichData::CALENDAR_TYPE);
+	}
+
 	protected static function getUser()
 	{
 		global $USER;

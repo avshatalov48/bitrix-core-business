@@ -155,24 +155,182 @@ class CIBlockPropertyXmlID
 	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
 	{
 		$settings = $params['SETTINGS'] ?? [];
-		$value = $params['VALUE'] ?? '';
-		$paramsHTMLControl = [
-			'MODE' => 'iblock_element_admin',
-			'VALUE' => $params['FIELD_NAME'] ?? '',
+
+		\Bitrix\Main\UI\Extension::load(['ui.entity-selector', 'ui.buttons', 'ui.forms']);
+		$fieldName = htmlspecialcharsbx($params['FIELD_NAME']);
+		$containerId = $fieldName . '_container';
+		$inputsContainerId = $fieldName . '_inputs_container';
+
+		$isMultiple = $settings['MULTIPLE'] === 'Y';
+		$isMultiple = CUtil::PhpToJSObject($isMultiple);
+
+		if (!is_array($params['VALUE']))
+		{
+			$params['VALUE'] = (!empty($params['VALUE'])) ? [$params['VALUE']] : [];
+		}
+
+		$preselectedItems = [];
+		foreach ($params['VALUE'] as $value)
+		{
+			if (!$value)
+			{
+				continue;
+			}
+			$element = self::getElementByXmlId($value);
+			if ($element)
+			{
+				$preselectedItems[] = ['iblock-element-xml', (string)$element['ID']];
+			}
+		}
+
+		$preselectedItems = CUtil::PhpToJSObject($preselectedItems);
+		$messages = [
+			'NOT_FOUND' => Loc::getMessage('BT_UT_XML_ID_SEARCH_NOT_FOUND'),
+			'CHANGE_QUERY' => Loc::getMessage('BT_UT_XML_ID_SEARCH_CHANGE_QUERY'),
+			'ENTER_QUERY' => Loc::getMessage('BT_UT_XML_ID_SEARCH_ENTER_QUERY'),
+			'ENTER_QUERY_SUBTITLE' => Loc::getMessage('BT_UT_XML_ID_SEARCH_ENTER_QUERY_SUBTITLE'),
 		];
-		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+		$propertyType = self::USER_TYPE;
+
+		return <<<HTML
+			<div id="{$containerId}" name="{$containerId}"></div>
+			<div id="{$inputsContainerId}" name="{$inputsContainerId}"></div>
+			<script>
+				(function() {
+					var selector = new BX.UI.EntitySelector.TagSelector({
+						id: '{$containerId}',
+						multiple: {$isMultiple},
+
+						dialogOptions: {
+							height: 300,
+							id: '{$containerId}',
+							multiple: {$isMultiple},
+							preselectedItems: {$preselectedItems},
+							entities: [
+								{
+									id: 'iblock-element-xml',
+									dynamicLoad: true,
+									dynamicSearch: true,
+									options: {
+										propertyType: '{$propertyType}',
+									},
+								}
+							],
+							searchOptions: {
+								allowCreateItem: false,
+							},
+							searchTabOptions: {
+								stub: true,
+								stubOptions: {
+									title: '{$messages['NOT_FOUND']}',
+									subtitle: '{$messages['CHANGE_QUERY']}',
+									arrow: false,
+								}
+							},
+							recentTabOptions: {
+								stub: true,
+								stubOptions: {
+									title: '{$messages['ENTER_QUERY']}',
+									subtitle: '{$messages['ENTER_QUERY_SUBTITLE']}',
+									arrow: false,
+								}
+							},
+							events: {
+								'Item:onSelect': setSelectedInputs.bind(this, 'Item:onSelect'),
+								'Item:onDeselect': setSelectedInputs.bind(this, 'Item:onDeselect'),
+							},
+						},
+					})
+
+					function setSelectedInputs(eventName, event)
+					{
+						var dialog = event.getData().item.getDialog();
+						if (!dialog.isMultiple())
+						{
+							dialog.hide();
+						}
+						var selectedItems = dialog.getSelectedItems();
+						if (Array.isArray(selectedItems))
+						{
+							var htmlInputs = '';
+							selectedItems.forEach(function(item)
+							{
+								htmlInputs +=
+									'<input type="hidden" name="{$fieldName}[]" value="' + BX.util.htmlspecialchars(item['customData'].get('xmlId')) + '" />'
+								;
+							});
+							if (htmlInputs === '')
+							{
+								htmlInputs =
+									'<input type="hidden" name="{$fieldName}[]" value="" />'
+								;
+							}
+							document.getElementById('{$inputsContainerId}').innerHTML = htmlInputs;
+							BX.Event.EventEmitter.emit('onChangeIblockElement');
+						}
+					}
+
+					selector.renderTo(document.getElementById("{$containerId}"));
+				})();
+
+			</script>
+HTML;
 	}
 
-	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []): string
 	{
-		$settings = $params['SETTINGS'] ?? [];
-		$value = [
-			'VALUE' => $params['VALUE'] ?? ''
+		$result = '';
+
+		if (empty($params['VALUE']))
+		{
+			return '';
+		}
+
+		if (!is_array($params['VALUE']))
+		{
+			$params['VALUE'] = [$params['VALUE']];
+		}
+
+		foreach ($params['VALUE'] as $value)
+		{
+			$filter = [
+				'CHECK_PERMISSIONS' => 'Y',
+				'MIN_PERMISSION' => 'R',
+				'XML_ID' => $value,
+			];
+			$element = CIBlockElement::GetList(
+				[],
+				$filter,
+				false,
+				false,
+				['ID', 'XML_ID', 'IBLOCK_ID', 'NAME']
+			)->Fetch();
+
+			$result .= htmlspecialcharsbx($element['NAME']) . '<br>';
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $xmlId
+	 * @return array|false
+	 */
+	private static function getElementByXmlId(string $xmlId)
+	{
+		$filter = [
+			'CHECK_PERMISSIONS' => 'Y',
+			'MIN_PERMISSION' => 'R',
+			'XML_ID' => $xmlId,
+			'ACTIVE' => 'Y',
 		];
-		$paramsHTMLControl = [
-			'MODE' => 'iblock_element_admin',
-			'VALUE' => $params['FIELD_NAME'] ?? '',
-		];
-		return static::GetPublicViewHTML($settings, $value, $paramsHTMLControl);
+
+		return \CIBlockElement::GetList(
+			[],
+			$filter,
+			false,
+			['nTopCount' => 1],
+			['ID', 'NAME', 'XML_ID']
+		)->Fetch();
 	}
 }

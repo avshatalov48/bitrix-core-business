@@ -1,4 +1,9 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -73,7 +78,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 			$params['ENTITY_ID'] = $_REQUEST['entityId'];
 		if(!empty($_REQUEST['entityType']))
 			$params['ENTITY_TYPE'] = $_REQUEST['entityType'];
-		
+
 		return $params;
 	}
 
@@ -138,7 +143,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 		$this->arParams['RAND_STRING'] = $this->randString();
 		$this->arParams['JS_OBJECT'] = sprintf(
 			'ListsElementAttachedCrm_%d%s',
-			(int)$this->arParams['IBLOCK_ID'],
+			(int)$this->iblockId,
 			$this->arParams['RAND_STRING']
 		);
 
@@ -316,43 +321,42 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 			$this->listIblockName[$iblockId] = $iblock['NAME'];
 			$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId] = array();
 
-			$propertyValues = $this->getPropertyValues($iblockId, array(), array('ID' => $listPropertyId));
-			foreach($propertyValues as $propertyValue)
-			{
-				foreach($listPropertyId as $propertyId)
-				{
-					if(!array_key_exists($propertyId, $propertyValue))
-						continue;
+			$elementFilter = [
+				'IBLOCK_ID' => $iblockId,
+				'=ACTIVE' => 'Y',
+			];
 
-					if(is_array($propertyValue[$propertyId]))
-					{
-						if(in_array($this->entityIdWithPrefix, $propertyValue[$propertyId]))
-						{
-							$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId][] =
-								intval($propertyValue['IBLOCK_ELEMENT_ID']);
-						}
-						elseif(in_array($propertyId, $this->listPropertyIdWithoutPrefix)
-							&& in_array($this->arParams['ENTITY_ID'], $propertyValue[$propertyId]))
-						{
-							$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId][] =
-								intval($propertyValue['IBLOCK_ELEMENT_ID']);
-						}
-					}
-					else
-					{
-						if($this->entityIdWithPrefix == $propertyValue[$propertyId])
-						{
-							$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId][] =
-								intval($propertyValue['IBLOCK_ELEMENT_ID']);
-						}
-						elseif(in_array($propertyId, $this->listPropertyIdWithoutPrefix)
-							&& $propertyValue[$propertyId] == $this->arParams['ENTITY_ID'])
-						{
-							$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId][] =
-								intval($propertyValue['IBLOCK_ELEMENT_ID']);
-						}
-					}
-				}
+			$propertyFilter = [];
+			foreach ($listPropertyId as $item)
+			{
+				$propertyFilter['=PROPERTY_' . $item] = (
+					in_array($item, $this->listPropertyIdWithoutPrefix)
+						? $this->arParams['ENTITY_ID']
+						: $this->entityIdWithPrefix
+					);
+			}
+
+			if (count($propertyFilter) > 1)
+			{
+				$propertyFilter['LOGIC'] = 'OR';
+				$elementFilter[] = $propertyFilter;
+			}
+			else
+			{
+				$elementFilter = array_merge($elementFilter, $propertyFilter);
+			}
+
+			$queryObject = CIBlockElement::getList(
+				[],
+				$elementFilter,
+				false,
+				$this->listGridOptions[$iblockId]['navParams'],
+				['ID'],
+			);
+
+			while ($row = $queryObject->fetch())
+			{
+				$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId][] = (int)$row['ID'];
 			}
 		}
 	}
@@ -407,7 +411,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 					if($listsPerm < CListPermissions::CAN_READ
 						&& !CIBlockElementRights::userHasRightTo($iblockId, $elementId, 'element_read'))
 						continue;
-					
+
 					$this->listIblockElementId[$iblockId][] = $elementId;
 
 					if(!$isSocnetGroupClosed && ($listsPerm >= CListPermissions::CAN_WRITE ||

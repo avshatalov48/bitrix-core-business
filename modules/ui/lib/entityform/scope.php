@@ -8,6 +8,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DeleteResult;
+use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\AccessRights\DataProvider;
@@ -376,6 +377,12 @@ class Scope
 		]);
 	}
 
+	public function updateScopeName(int $id, string $name): UpdateResult
+	{
+		return EntityFormConfigTable::update($id, [
+			'NAME' => $name,
+		]);
+	}
 
 	/**
 	 * @param int $configId

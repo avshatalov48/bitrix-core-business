@@ -2,6 +2,8 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
+use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Main;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Entities\SyncSection;
@@ -15,7 +17,9 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 
 	private array $map = [];
 
-    /**
+	private EventManager $eventManager;
+
+	/**
 	 * @param Office365Context $context
 	 */
     public function __construct(Office365Context $context)
@@ -23,9 +27,20 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		$this->context = $context;
 		$this->eventManager = $this->context->getEventManager();
 		parent::__construct($context->getConnection());
-
 	}
 
+	/**
+	 * @param Sync\Entities\SyncEventMap $syncEventMap
+	 * @param SyncSectionMap $syncSectionMap
+	 *
+	 * @return Result
+	 *
+	 * @throws BaseException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws Sync\Exceptions\ApiException
+	 */
 	public function export(
 		Sync\Entities\SyncEventMap $syncEventMap,
 		Sync\Entities\SyncSectionMap $syncSectionMap
@@ -60,6 +75,12 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		return new Result();
 	}
 
+	/**
+	 * @param SyncSectionMap $syncSectionMap
+	 * @param int $id
+	 *
+	 * @return SyncSection|null
+	 */
 	private function getSyncSection(SyncSectionMap $syncSectionMap, int $id): ?SyncSection
 	{
 		if (!array_key_exists($id, $this->map))
@@ -79,6 +100,18 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		return $this->map[$id];
 	}
 
+	/**
+	 * @param SyncEvent $syncEvent
+	 * @param SyncSectionMap $syncSectionMap
+	 *
+	 * @return void
+	 *
+	 * @throws Sync\Exceptions\ApiException
+	 * @throws BaseException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
 	private function saveSingle(SyncEvent $syncEvent, SyncSectionMap $syncSectionMap)
 	{
 		if ($syncEvent->getEventConnection() && $syncEvent->getEventConnection()->getVendorEventId())
@@ -88,7 +121,7 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 			;
 			try
 			{
-				$result = $this->context->getEventManager()->update(
+				$result = $this->eventManager->update(
 					$syncEvent->getEvent(),
 					$context
 				);
@@ -126,7 +159,7 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 				;
 				try
 				{
-					$result = $this->context->getEventManager()->create(
+					$result = $this->eventManager->create(
 						$syncEvent->getEvent(),
 						$context
 					);
@@ -156,6 +189,16 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		}
 	}
 
+	/**
+	 * @param SyncEvent $syncEvent
+	 * @param SyncSectionMap $syncSectionMap
+	 *
+	 * @return void
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
 	private function saveRecurrence(SyncEvent $syncEvent, SyncSectionMap $syncSectionMap)
 	{
 		$syncSection = $this->getSyncSection(
@@ -167,7 +210,7 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		if ($syncEvent->getEventConnection() && $syncEvent->getEventConnection()->getVendorEventId())
 		{
 			$context->setEventConnection($syncEvent->getEventConnection());
-			$result = $this->context->getEventManager()->updateRecurrence(
+			$this->eventManager->updateRecurrence(
 				$syncEvent,
 				$syncSection->getSectionConnection(),
 				$context
@@ -175,7 +218,7 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		}
 		else
 		{
-			$result = $this->context->getEventManager()->createRecurrence(
+			$this->eventManager->createRecurrence(
 				$syncEvent,
 				$syncSection->getSectionConnection(),
 				$context

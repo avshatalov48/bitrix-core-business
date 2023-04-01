@@ -282,6 +282,11 @@ class Chunk
 	{
 		$result = new Result();
 
+		if (in_array(mb_strtolower($this->getName()), $config->getIgnoredFileNames()))
+		{
+			return $result->addError(new UploaderError(UploaderError::FILE_NAME_NOT_ALLOWED));
+		}
+
 		if ($config->getMaxFileSize() !== null && $this->getFileSize() > $config->getMaxFileSize())
 		{
 			return $result->addError(

@@ -26,6 +26,7 @@ $MESS["CATALOG_SETTINGS_PRODUCT_CARD_EDIT"] = "Modify product view form";
 $MESS["CATALOG_SETTINGS_PRODUCT_CARD_SET_PROFILE_FOR_USERS"] = "Make current product view form design default for other users";
 $MESS["CATALOG_SETTINGS_SELL_NEGATIVE_COMMODITIES"] = "Change \"Make out-of-stock items available for purchase\" option";
 $MESS["CATALOG_SETTINGS_STORE_DOCUMENT_CARD_EDIT"] = "Modify inventory object view form (add or delete fields)";
+$MESS["CATALOG_STORE_ANALYTIC_VIEW"] = "View reports";
 $MESS["CATALOG_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY_D"] = "Allow negative product quantity on write-off";
 $MESS["CATALOG_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY_M"] = "Allow negative product quantity on stock transfer";
 $MESS["CATALOG_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY_W"] = "Allow negative product quantity on stock sale";

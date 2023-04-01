@@ -2473,9 +2473,6 @@ class CUpdateClientPartner
 	public static function __GetModuleInfo($path)
 	{
 		$arModuleVersion = array();
-//		include($path."/install/version.php");
-//		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
-//			return $arModuleVersion;
 
 		include_once($path."/install/index.php");
 
@@ -2488,6 +2485,13 @@ class CUpdateClientPartner
 			return array();
 
 		$cls = new $class_name;
+
+		if (!method_exists($cls, '__construct') && method_exists($cls, $class_name))
+		{
+			// old classes don't have a constructor
+			$cls->$class_name();
+		}
+
 		$result = array(
 			"VERSION" => $cls->MODULE_VERSION,
 			"VERSION_DATE" => $cls->MODULE_VERSION_DATE,

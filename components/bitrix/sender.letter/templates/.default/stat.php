@@ -8,15 +8,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 global $APPLICATION;
 $componentParameters = array(
 	'CHAIN_ID' => $arResult['ID'],
-	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'],
-	'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'],
+	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'] ?? '',
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'] ?? '',
+	'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'] ?? '',
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.pageslider.wrapper",

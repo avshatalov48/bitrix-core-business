@@ -19,13 +19,13 @@ class AttendeesCollection implements IteratorAggregate, Serializable
 	/**
 	 * @var array
 	 */
-	private $collection;
+	private array $collection;
 
 	/**
 	 * @param Attendee[]|null $collection
 	 * @return AttendeesCollection
 	 */
-	public static function createInstance(array $collection = null): AttendeesCollection
+	public static function createInstance(array $collection = []): AttendeesCollection
 	{
 		return new self($collection);
 	}
@@ -35,7 +35,7 @@ class AttendeesCollection implements IteratorAggregate, Serializable
 	 * AttendeesCollection constructor.
 	 * @param array|null $collection
 	 */
-	public function __construct(array $collection = null)
+	public function __construct(array $collection = [])
 	{
 		if (!$this->checkCollection($collection))
 		{
@@ -95,7 +95,7 @@ class AttendeesCollection implements IteratorAggregate, Serializable
 	}
 
 	/**
-	 * @param array|null collection
+	 * @param array|null $collection collection
 	 * @return bool
 	 */
 	private function checkCollection(?array $collection): bool
@@ -105,7 +105,7 @@ class AttendeesCollection implements IteratorAggregate, Serializable
 			return true;
 		}
 
-		$attendee = array_filter($collection, function ($attendee) {
+		$attendee = array_filter($collection, static function ($attendee) {
 			return !($attendee instanceof Attendee);
 		});
 

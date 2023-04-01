@@ -1,5 +1,7 @@
 "use strict";
-import {Loc, Runtime, Type} from "main.core";
+import {Loc, Runtime, Type, Uri} from "main.core";
+import { DeletedViewForm } from "calendar.sharing.deletedviewform";
+
 export class SliderLoader
 {
 	constructor(entryId, options = {})
@@ -95,18 +97,37 @@ export class SliderLoader
 		{
 			this.extensionParams.entryDescription = options.entryDescription;
 		}
+
+		if (Type.isString(options.link))
+		{
+			const uri = new Uri(options.link);
+			const isSharing = uri.getQueryParam('IS_SHARING');
+			this.isSharing = isSharing === '1';
+		}
 	}
 
 	show()
 	{
-		BX.SidePanel.Instance.open(this.sliderId, {
-			contentCallback: this.loadExtension.bind(this),
-			label: {
-				text: Loc.getMessage('CALENDAR_EVENT'),
-				bgColor: "#55D0E0"
-			},
-			type: 'calendar:slider'
-		});
+		if (this.isSharing)
+		{
+			BX.SidePanel.Instance.open(this.sliderId, {
+				contentCallback: (slider) => new Promise((resolve) => {
+					new DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
+				}),
+				width: 600,
+			});
+		}
+		else
+		{
+			BX.SidePanel.Instance.open(this.sliderId, {
+				contentCallback: this.loadExtension.bind(this),
+				label: {
+					text: Loc.getMessage('CALENDAR_EVENT'),
+					bgColor: "#55D0E0"
+				},
+				type: 'calendar:slider'
+			});
+		}
 	}
 
 	loadExtension(slider)

@@ -205,7 +205,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			{
 				$this->id = 0;
 				$this->arParams['SITE_ID'] = 0;
-				$this->addError('ACCESS_DENIED', '', true);
+				$this->addError('LANDING_ERROR_SETTINGS_ACCESS_DENIED', '', true);
 			}
 
 			if (!$this->id)

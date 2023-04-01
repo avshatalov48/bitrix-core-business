@@ -38,4 +38,6 @@ $MESS ['T_IBLOCK_DOW_4'] = "Чт";
 $MESS ['T_IBLOCK_DOW_5'] = "Пт";
 $MESS ['T_IBLOCK_DOW_6'] = "Сб";
 $MESS ['IBLOCK_DOWNLOAD'] = "Загрузить";
+$MESS['IBLOCK_FORMATPROPS_PROPERTY_YES'] = "Да";
+$MESS['IBLOCK_FORMATPROPS_PROPERTY_NO'] = "Нет";
 ?>

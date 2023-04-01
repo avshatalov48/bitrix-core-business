@@ -58,7 +58,7 @@ class Factory
 
 			$result = new OrderBasket($order, $jsObjName, $idPrefix, $createProductBasement, $mode);
 
-			if($params['setSettingsShowPropsVisible'])
+			if (!empty($params['setSettingsShowPropsVisible']))
 			{
 				$result->setSettingsShowPropsVisible((bool)$params['setSettingsShowPropsVisible']);
 			}

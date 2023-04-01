@@ -166,4 +166,12 @@ class UserModel extends Main\Access\User\UserModel
 
 		return $this->permissions;
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getRightGroups(): array
+	{
+		return \CUser::GetUserGroup($this->userId);
+	}
 }

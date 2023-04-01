@@ -368,13 +368,30 @@ export class TooltipBalloon
 
 					if (Type.isStringFilled(response.data.user.nameFormatted))
 					{
+						const {nameFormatted = ''} = response.data.user;
+
 						if (Type.isStringFilled(detailUrl))
 						{
-							cardUserName = `<a href="${detailUrl}">${response.data.user.nameFormatted}</a>`;
+							cardUserName = `
+											<a
+												class="bx-ui-tooltip-user-name"
+												title="${nameFormatted}"
+												href="${detailUrl}"
+											>
+												${response.data.user.nameFormatted}
+											</a>`
+							;
 						}
 						else
 						{
-							cardUserName = response.data.user.nameFormatted;
+							cardUserName = `
+											<span 
+												class="bx-ui-tooltip-user-name"
+												title="${nameFormatted}"
+											>
+												response.data.user.nameFormatted
+											</span>`
+							;
 						}
 					}
 
@@ -586,7 +603,7 @@ export class TooltipBalloon
 			cardEl.innerHTML = '';
 			if (Type.isStringFilled(this.INFO.RESULT.Name))
 			{
-				cardEl.innerHTML += `<div class="bx-ui-tooltip-user-name">${this.INFO.RESULT.Name}</div>`;
+				cardEl.innerHTML += `<div class="bx-ui-tooltip-user-name-block">${this.INFO.RESULT.Name}</div>`;
 			}
 			if (Type.isStringFilled(this.INFO.RESULT.Position))
 			{

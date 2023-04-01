@@ -13,9 +13,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 */
 	var ExampleApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
+
 	  function ExampleApplication() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ExampleApplication);
 	    this.inited = false;
@@ -32,7 +32,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return _this.initComplete();
 	    });
 	  }
-
 	  babelHelpers.createClass(ExampleApplication, [{
 	    key: "initParams",
 	    value: function initParams(controller) {
@@ -45,7 +44,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initComponent",
 	    value: function initComponent() {
 	      var _this2 = this;
-
 	      return this.controller.createVue(this, {
 	        el: this.rootNode,
 	        template: "<div>test2 {{store.application.common.host}}</div>",
@@ -84,13 +82,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        promise.resolve(this);
 	        return promise;
 	      }
-
 	      return this.initPromise;
 	    }
 	    /* endregion 01. Initialize */
-
 	    /* region 02. Event Bus */
-
 	  }, {
 	    key: "emit",
 	    value: function emit(eventName) {
@@ -104,12 +99,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof callback !== 'function') {
 	        return false;
 	      }
-
 	      this.eventBus.$on(eventName, callback);
 	      return true;
-	    }
-	    /* endregion 02. Event Bus */
-
+	    } /* endregion 02. Event Bus */
 	  }]);
 	  return ExampleApplication;
 	}();

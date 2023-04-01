@@ -50,7 +50,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getId(): int
 	{
-		return (int)$this->fields['ID'];
+		return (int)($this->fields['ID'] ?? null);
 	}
 
 	/**
@@ -58,15 +58,15 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getName(): ?string
 	{
-		return $this->fields['NAME'];
+		return $this->fields['NAME'] ?? null;
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getColor(): string
+	private function getColor(): ?string
 	{
-		return $this->fields['COLOR'];
+		return $this->fields['COLOR'] ?? null;
 	}
 
 	/**
@@ -74,7 +74,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getDescription(): ?string
 	{
-		return $this->fields['DESCRIPTION'];
+		return $this->fields['DESCRIPTION'] ?? null;
 	}
 
 	/**
@@ -82,7 +82,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getGoogleId(): ?string
 	{
-		return $this->fields['GAPI_CALENDAR_ID'];
+		return $this->fields['GAPI_CALENDAR_ID'] ?? null;
 	}
 
 	/**
@@ -90,7 +90,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getSyncToken(): ?string
 	{
-		return $this->fields['CAL_DAV_MOD'];
+		return $this->fields['CAL_DAV_MOD'] ?? null;
 	}
 
 	/**
@@ -106,15 +106,15 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getExternalType(): ?string
 	{
-		return $this->fields['EXTERNAL_TYPE'];
+		return $this->fields['EXTERNAL_TYPE'] ?? null;
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getType(): string
+	private function getType(): ?string
 	{
-		return $this->fields['CAL_TYPE'];
+		return $this->fields['CAL_TYPE'] ?? null;
 	}
 
 	/**
@@ -122,7 +122,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getIsActive(): bool
 	{
-		return $this->fields['ACTIVE'] === 'Y';
+		return ($this->fields['ACTIVE'] ?? null) === 'Y';
 	}
 
 	/**
@@ -130,7 +130,7 @@ class SectionBuilderFromArray implements Builder
 	 */
 	private function getXmlId(): ?string
 	{
-		return $this->fields['XML_ID'];
+		return $this->fields['XML_ID'] ?? null;
 	}
 
 	/**
@@ -142,7 +142,7 @@ class SectionBuilderFromArray implements Builder
 	{
 		try
 		{
-			return Helper::getUserRole($this->fields['OWNER_ID']);
+			return Helper::getUserRole($this->fields['OWNER_ID'] ?? 0);
 		}
 		catch (BaseException $e)
 		{
@@ -159,7 +159,7 @@ class SectionBuilderFromArray implements Builder
 	{
 		try
 		{
-			return Helper::getUserRole($this->fields['CREATED_BY']);
+			return Helper::getUserRole($this->fields['CREATED_BY'] ?? 0);
 		}
 		catch (BaseException $e)
 		{

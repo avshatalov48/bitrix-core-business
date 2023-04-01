@@ -215,8 +215,14 @@ $current_time = time();
 while($arRes = $rsData->NavNext(true, "f_")):
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
-	$row->AddViewField("ADMIN_SECTION", $f_ADMIN_SECTION=="Y"? GetMessage("MAIN_YES"): GetMessage("MAIN_NO"));
-	$row->AddViewField("RULE_TYPE", $arAccessTypes[$f_RULE_TYPE]);
+	if (isset($f_ADMIN_SECTION))
+	{
+		$row->AddViewField("ADMIN_SECTION", $f_ADMIN_SECTION=="Y"? GetMessage("MAIN_YES"): GetMessage("MAIN_NO"));
+	}
+	if (isset($f_RULE_TYPE))
+	{
+		$row->AddViewField("RULE_TYPE", $arAccessTypes[$f_RULE_TYPE]);
+	}
 	if(
 		$f_ACTIVE == "Y"
 		&& ($f_ACTIVE_FROM == "" || intval($f_ACTIVE_FROM_TIMESTAMP) < $current_time)
@@ -266,7 +272,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	{
 		$row->AddCheckField("ACTIVE");
 		$row->AddInputField("SORT", array("size"=>6));
-		$row->AddEditField("SITE_ID", CLang::SelectBox("FIELDS[".$f_ID."][SITE_ID]", $f_SITE_ID, GetMessage("MAIN_ALL")));
+		$row->AddEditField("SITE_ID", CLang::SelectBox("FIELDS[".$f_ID."][SITE_ID]", $f_SITE_ID ?? "", GetMessage("MAIN_ALL")));
 		$row->AddInputField("NAME", array("size"=>20));
 		$row->AddCalendarField("ACTIVE_FROM");
 		$row->AddCalendarField("ACTIVE_TO");

@@ -127,14 +127,21 @@ this.BX.Landing = this.BX.Landing || {};
 	var onEditButtonClick = Symbol('onEditButtonClick');
 	var onBackButtonClick = Symbol('onBackButtonClick');
 	var onForwardButtonClick = Symbol('onForwardButtonClick');
+	var onCopyLinkButtonClick = Symbol('onCopyLinkButtonClick');
+	var onUniqueViewIconClick = Symbol('onUniqueViewIconClick');
 	var TopPanel = /*#__PURE__*/function () {
-	  function TopPanel() {
+	  function TopPanel(data) {
 	    babelHelpers.classCallCheck(this, TopPanel);
+	    this.userData = data.userData;
 	    main_core.Event.bind(TopPanel.getEditButton(), 'click', this[onEditButtonClick]);
 	    main_core.Event.bind(TopPanel.getBackButton(), 'click', this[onBackButtonClick]);
 	    main_core.Event.bind(TopPanel.getForwardButton(), 'click', this[onForwardButtonClick]);
+	    main_core.Event.bind(TopPanel.getCopyLinkButton(), 'click', this[onCopyLinkButtonClick]);
+	    main_core.Event.bind(TopPanel.getUniqueViewIcon(), 'click', this[onUniqueViewIconClick]);
 	    TopPanel.pushHistory(window.location.toString());
 	    TopPanel.checkNavButtonsActivity();
+	    TopPanel.checkHints();
+	    TopPanel.initUniqueViewPopup(this.userData);
 	  }
 
 	  babelHelpers.createClass(TopPanel, [{
@@ -146,6 +153,58 @@ this.BX.Landing = this.BX.Landing || {};
 
 	      if (main_core.Type.isString(href) && href !== '') {
 	        TopPanel.openSlider(href, landingId);
+	      }
+	    }
+	  }, {
+	    key: onCopyLinkButtonClick,
+	    value: function value(event) {
+	      var _this = this;
+
+	      event.preventDefault();
+	      var link = BX.util.remove_url_param(window.location.href, ["IFRAME", "IFRAME_TYPE"]);
+	      var node = event.target;
+	      navigator.clipboard.writeText(link).then(function () {
+	        _this.timeoutIds = _this.timeoutIds || [];
+	        var popupParams = {
+	          content: main_core.Loc.getMessage('LANDING_TPL_PUB_COPIED_LINK'),
+	          darkMode: true,
+	          autoHide: true,
+	          zIndex: 1000,
+	          angle: true,
+	          offsetLeft: 20,
+	          bindOptions: {
+	            position: 'top'
+	          }
+	        };
+	        var popup = new BX.PopupWindow('landing_clipboard_copy', node, popupParams);
+	        popup.show();
+	        var timeoutId;
+
+	        while (timeoutId = _this.timeoutIds.pop()) {
+	          clearTimeout(timeoutId);
+	        }
+
+	        timeoutId = setTimeout(function () {
+	          popup.close();
+	        }, 2000);
+
+	        _this.timeoutIds.push(timeoutId);
+	      })["catch"](function (err) {
+	        console.error(err);
+	      });
+	    }
+	  }, {
+	    key: onUniqueViewIconClick,
+	    value: function value(event) {
+	      var popup = document.querySelector('.landing-pub-top-panel-unique-view-popup');
+
+	      if (main_core.Dom.hasClass(popup, 'hide')) {
+	        main_core.Dom.removeClass(popup, 'hide');
+	        setTimeout(function () {
+	          main_core.Dom.addClass(popup, 'hide');
+	        }, 2000);
+	      } else {
+	        main_core.Dom.addClass(popup, 'hide');
 	      }
 	    }
 	  }, {
@@ -247,16 +306,134 @@ this.BX.Landing = this.BX.Landing || {};
 	        return layout ? layout.querySelector('.landing-pub-top-panel-forward') : null;
 	      });
 	    }
+	  }, {
+	    key: "getCopyLinkButton",
+	    value: function getCopyLinkButton() {
+	      return TopPanel.cache.remember('copyLinkButton', function () {
+	        var layout = TopPanel.getLayout();
+	        return layout ? layout.querySelector('.landing-page-link-btn') : null;
+	      });
+	    }
+	  }, {
+	    key: "getUniqueViewIcon",
+	    value: function getUniqueViewIcon() {
+	      return TopPanel.cache.remember('uniqueViewIcon', function () {
+	        var layout = TopPanel.getLayout();
+	        return layout ? layout.querySelector('.landing-pub-top-panel-unique-view') : null;
+	      });
+	    }
+	  }, {
+	    key: "checkHints",
+	    value: function checkHints() {
+	      var linkPage = document.querySelector('.landing-pub-top-panel-chain-link-page');
+
+	      if (linkPage) {
+	        if (parseInt(window.getComputedStyle(linkPage).width) < 200) {
+	          main_core.Dom.style(linkPage, 'pointer-events', 'none');
+	        } else {
+	          BX.UI.Hint.init(BX('landing-pub-top-panel-chain-link-page'));
+	        }
+	      }
+	    }
+	  }, {
+	    key: "initUniqueViewPopup",
+	    value: function initUniqueViewPopup(userData) {
+	      var setUserId = userData.id;
+	      var setUserName = userData.name;
+	      var avatar = userData.avatar;
+
+	      if (setUserId.length === setUserName.length) {
+	        for (var i = 0; i < setUserId.length; i++) {
+	          this.createUserItem(setUserId[i], setUserName[i], avatar[i]);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "createUserItem",
+	    value: function createUserItem(id, name, avatar) {
+	      var itemContainer = document.querySelector('.landing-pub-top-panel-unique-view-popup-item-container');
+	      var userUrl = window.location.origin + '/company/personal/user/' + id + '/';
+	      var userItem = BX.Dom.create({
+	        tag: 'div',
+	        props: {
+	          classList: 'landing-pub-top-panel-unique-view-popup-item'
+	        }
+	      });
+	      var userItemAvatar;
+
+	      if (avatar && avatar !== '') {
+	        userItemAvatar = BX.Dom.create({
+	          tag: 'div',
+	          props: {
+	            classList: 'landing-pub-top-panel-unique-view-popup-item-avatar'
+	          }
+	        });
+	        avatar = "url('" + avatar + "')";
+	        main_core.Dom.style(userItemAvatar, 'background-image', avatar);
+	      } else {
+	        userItemAvatar = BX.Dom.create({
+	          tag: 'div',
+	          props: {
+	            classList: 'landing-pub-top-panel-unique-view-popup-item-avatar landing-pub-top-panel-unique-view-popup-item-avatar-empty'
+	          }
+	        });
+	      }
+
+	      var userItemLink = BX.Dom.create({
+	        tag: 'a',
+	        props: {
+	          classList: 'landing-pub-top-panel-unique-view-popup-item-link'
+	        },
+	        text: name
+	      });
+	      main_core.Dom.attr(userItemLink, 'href', userUrl);
+	      main_core.Dom.attr(userItemLink, 'target', '_blank');
+	      main_core.Dom.append(userItemAvatar, userItem);
+	      main_core.Dom.append(userItemLink, userItem);
+	      main_core.Dom.append(userItem, itemContainer);
+	    }
 	  }]);
 	  return TopPanel;
 	}();
 	babelHelpers.defineProperty(TopPanel, "cache", new main_core.Cache.MemoryCache());
 	babelHelpers.defineProperty(TopPanel, "history", []);
 
+	var PageTransition = /*#__PURE__*/function () {
+	  /**
+	   * Constructor.
+	   */
+	  function PageTransition() {
+	    babelHelpers.classCallCheck(this, PageTransition);
+	    this.init();
+	  }
+
+	  babelHelpers.createClass(PageTransition, [{
+	    key: "init",
+	    value: function init() {
+	      var url = new URL(window.location.href);
+
+	      if (url.searchParams.get('transition') === 'true') {
+	        url.searchParams["delete"]('transition');
+	        window.history.replaceState({}, '', url.toString());
+	      } else {
+	        BX.removeClass(document.body, "landing-page-transition");
+	      }
+
+	      document.addEventListener('DOMContentLoaded', function () {
+	        setTimeout(function () {
+	          BX.removeClass(document.body, "landing-page-transition");
+	        }, 300);
+	      });
+	    }
+	  }]);
+	  return PageTransition;
+	}();
+
 	exports.DiskFile = DiskFile;
 	exports.SearchResult = SearchResult;
 	exports.TimeStamp = TimeStamp;
 	exports.TopPanel = TopPanel;
+	exports.PageTransition = PageTransition;
 
 }((this.BX.Landing.Pub = this.BX.Landing.Pub || {}),BX,BX.Landing));
 //# sourceMappingURL=script.js.map

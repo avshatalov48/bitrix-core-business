@@ -32,4 +32,8 @@ $MESS["BT_UT_EAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR"] = "Выбор не�
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_NEW_ELEMENT"] = "Добавить элемент";
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_NEW_ELEMENT_DESCR"] = "Добавить новый элемент и выбрать его";
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_ELEMENT_EDIT"] = "Перейти на страницу редактирования элемента";
+$MESS["BT_UT_EAUTOCOMPLETE_SEARCH_NOT_FOUND"] = "По вашему запросу ничего не найдено";
+$MESS["BT_UT_EAUTOCOMPLETE_SEARCH_CHANGE_QUERY"] = "Попробуйте использовать другой запрос";
+$MESS["BT_UT_EAUTOCOMPLETE_SEARCH_ENTER_QUERY"] = "Введите запрос для поиска";
+$MESS["BT_UT_EAUTOCOMPLETE_SEARCH_ENTER_QUERY_SUBTITLE"] = "Поиск по элементам инфоблока";
 ?>

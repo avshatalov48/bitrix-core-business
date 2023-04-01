@@ -280,8 +280,6 @@ class CSecurityFilter
 
 	protected function overrideSuperGlobals()
 	{
-		global $HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS, $HTTP_REQUEST_VARS, $HTTP_SERVER_VARS;
-
 		self::cleanGlobals();
 
 		$httpRequest = $this->getHttpRequest();
@@ -292,12 +290,6 @@ class CSecurityFilter
 
 		self::reconstructRequest();
 		self::restoreGlobals();
-
-		$HTTP_GET_VARS = $_GET;
-		$HTTP_POST_VARS = $_POST;
-		$HTTP_COOKIE_VARS = $_COOKIE;
-		$HTTP_REQUEST_VARS = $_REQUEST;
-		$HTTP_SERVER_VARS = $_SERVER;
 	}
 
 	/**

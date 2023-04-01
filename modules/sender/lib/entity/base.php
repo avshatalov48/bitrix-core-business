@@ -121,7 +121,7 @@ abstract class Base
 	 * @return integer|null
 	 * @throws SystemException
 	 */
-	protected function saveByEntity(MainEntityBase $entity, $id = null, array $data, $primary = null)
+	protected function saveByEntity(MainEntityBase $entity, $id, array $data, $primary = null)
 	{
 		/** @var \Bitrix\Main\Entity\DataManager $className Class name. */
 		$className = $entity->getDataClass();
@@ -187,7 +187,7 @@ abstract class Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	abstract protected function saveData($id = null, array $data);
+	abstract protected function saveData($id, array $data);
 
 	/**
 	 * Copy data.

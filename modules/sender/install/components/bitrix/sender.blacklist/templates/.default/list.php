@@ -11,8 +11,8 @@ $APPLICATION->IncludeComponent(
 	"",
 	array(
 		'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-		'PATH_TO_IMPORT' => $arResult['PATH_TO_IMPORT'],
+		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+		'PATH_TO_IMPORT' => $arResult['PATH_TO_IMPORT'] ?? '',
 	)
 );

@@ -81,7 +81,12 @@
 			return {
 				src: this.mediaService ? this.mediaService.getEmbedURL() : this.input.innerText,
 				preview: this.mediaService ? this.mediaService.getEmbedPreview() : '',
-				source: this.input.innerText
+				source: this.input.innerText,
+				ratio:
+					(this.mediaService && this.mediaService.isVertical)
+						? BX.Landing.Block.Node.Embed.DEFAULT_RATIO_V
+						: BX.Landing.Block.Node.Embed.DEFAULT_RATIO_H
+				,
 			};
 		},
 

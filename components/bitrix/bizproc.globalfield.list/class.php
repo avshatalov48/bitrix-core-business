@@ -40,7 +40,7 @@ class BizprocGlobalFieldListComponent extends CBitrixComponent implements \Bitri
 		}
 
 		$arParams['MODE'] = in_array($arParams['MODE'], [self::VAR_MODE, self::CONST_MODE]) ? $arParams['MODE'] : null;
-		$arParams['SET_TITLE'] = ($arParams['SET_TITLE'] === 'N' ? 'N' : 'Y');
+		$arParams['SET_TITLE'] = (isset($arParams['SET_TITLE']) && $arParams['SET_TITLE'] === 'N' ? 'N' : 'Y');
 
 		return $arParams;
 	}

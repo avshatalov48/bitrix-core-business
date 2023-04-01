@@ -11,7 +11,7 @@ class CCalendarPlanner
 		self::InitJsCore($config, $initialParams);
 	}
 
-	public static function InitJsCore($config = [], $initialParams)
+	public static function InitJsCore($config = [], $initialParams = [])
 	{
 		global $APPLICATION;
 		\Bitrix\Main\UI\Extension::load(['ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest']);
@@ -63,9 +63,9 @@ class CCalendarPlanner
 
 	public static function prepareData($params = [])
 	{
-		$curEventId = (int)$params['entry_id'];
-		$curUserId = (int)$params['user_id'];
-		$hostUserId = (int)$params['host_id'];
+		$curEventId = (int)($params['entry_id'] ?? null);
+		$curUserId = (int)($params['user_id'] ?? null);
+		$hostUserId = (int)($params['host_id'] ?? null);
 
 		$isPlannerFeatureEnabled = Bitrix24Manager::isPlannerFeatureEnabled();
 
@@ -115,7 +115,8 @@ class CCalendarPlanner
 					'url' => CCalendar::GetUserUrl($user['USER_ID']),
 					'avatar' => CCalendar::GetUserAvatarSrc($user),
 					'strictStatus' => $userSettings['denyBusyInvitation'],
-					'emailUser' => $user['EXTERNAL_AUTH_ID'] === 'email'
+					'emailUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'email'),
+					'sharingUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'calendar_sharing'),
 				);
 			}
 		}
@@ -143,8 +144,8 @@ class CCalendarPlanner
 			}
 		}
 
-		$from = $params['date_from'];
-		$to = $params['date_to'];
+		$from = $params['date_from'] ?? null;
+		$to = $params['date_to'] ?? null;
 
 		if ($isPlannerFeatureEnabled)
 		{
@@ -192,7 +193,7 @@ class CCalendarPlanner
 						'name' => $entry['NAME'],
 						'dateFrom' => $dateFrom,
 						'dateTo' => $dateTo,
-						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
+						'type' => ($entry['FROM_HR'] ?? null) ? 'hr' : 'event'
 					];
 				}
 			}
@@ -202,15 +203,15 @@ class CCalendarPlanner
 		if (isset($params['location']))
 		{
 			$location = \Bitrix\Calendar\Rooms\Util::parseLocation($params['location']);
-			$entryLocation = \Bitrix\Calendar\Rooms\Util::parseLocation($params['entryLocation']);
-			$roomEventId = $entryLocation['room_event_id'];
+			$entryLocation = \Bitrix\Calendar\Rooms\Util::parseLocation($params['entryLocation'] ?? null);
+			$roomEventId = $entryLocation['room_event_id'] ?? null;
 
 			if ($roomEventId && !in_array($roomEventId, $skipEntryList))
 			{
 				$skipEntryList[] = $roomEventId;
 			}
 
-			if ($location['mrid'])
+			if ($location['mrid'] ?? null)
 			{
 				$mrid = 'MR_' . $location['mrid'];
 				$entry = [
@@ -364,7 +365,7 @@ class CCalendarPlanner
 			}
 		}
 
-		if ($params['initPullWatches'] === true)
+		if (($params['initPullWatches'] ?? null) === true)
 		{
 			\Bitrix\Calendar\Util::initPlannerPullWatches(
 				$curUserId,

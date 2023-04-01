@@ -57,6 +57,10 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 
 		$this->arParams['PATH_TO_TOLOKA_ADD'] = $this->arParams['PATH_TO_TOLOKA_ADD']??
 			str_replace('letter', 'toloka', $this->arParams['PATH_TO_LETTER_ADD']);
+
+		$this->arParams['PATH_TO_MASTER_YANDEX_ADD'] = $this->arParams['PATH_TO_MASTER_YANDEX_ADD'] ??
+			str_replace('letter', 'master-yandex', $this->arParams['PATH_TO_LETTER_ADD'])
+		;
 	}
 
 	protected function getSenderMessageIcon(Message\Adapter $message)
@@ -81,6 +85,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_DEAL => 'ui-icon-service-deal',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_LEAD => 'ui-icon-service-lead',
 			Message\iBase::CODE_TOLOKA => 'ui-icon-service-ya-toloka',
+			Message\iBase::CODE_MASTER_YANDEX => 'ui-icon-service-ya-direct',
 		];
 
 		return 'ui-icon ' . $map[$code];
@@ -108,6 +113,10 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		$uri->addParams(array('code' => '#code#'));
 		$pathToTolokaAdd = $uri->getLocator();
 
+		$uri = new Uri($this->arParams['PATH_TO_MASTER_YANDEX_ADD']);
+		$uri->addParams(array('code' => '#code#'));
+		$pathToMasterYandexAdd = $uri->getLocator();
+
 		$list = [];
 		foreach ($messages as $message)
 		{
@@ -134,6 +143,10 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			{
 				$pathToAdd = $pathToAdsAdd;
 			}
+			elseif ($message->isMasterYandex())
+			{
+				$pathToAdd = $pathToMasterYandexAdd;
+			}
 			else
 			{
 				$pathToAdd = $pathToTolokaAdd;
@@ -148,7 +161,8 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 					array('#code#', urlencode('#code#')),
 					$message->getCode(),
 					$pathToAdd
-				)
+				),
+				'EXTENSION' => $message->getCode() === 'toloka' ? '' : null,
 			);
 		}
 
@@ -234,44 +248,36 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		$adsMessages = $this->filterMessages(Message\Factory::getAdsMessages(), AdsAction::getMap());
 		$marketingMessages = $this->filterMessages(Message\Factory::getMarketingMessages(), AdsAction::getMap());
 		$rcMessages = $this->filterMessages(Message\Factory::getReturnCustomerMessages(), RcAction::getMap());
-		$tolokaMessages = $this->filterMessages(Message\Factory::getTolokaMessages(), RcAction::getMap());
+		$yandexMessages = $this->filterMessages(
+			Message\Factory::getYandexMessages(Integration\Bitrix24\Service::isTolokaVisibleInRegion()),
+			RcAction::getMap()
+		);
 
 		$this->arResult['MESSAGES'] = array(
 			'MAILING' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_MAILING_VIEW)
-				?
-					$mailingMessages
-				:
-				[]
+				? $mailingMessages
+				: []
 			),
 			'ADS' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
-				?
-					$adsMessages
-				:
-				[]
+				? $adsMessages
+				: []
 			),
 			'MARKETING' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
-				?
-					$marketingMessages
-				:
-				[]
+				? $marketingMessages
+				: []
 			),
 			'RC' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
-					?
-					$rcMessages
-					:
-					[]
+					? $rcMessages
+					: []
 			),
-			'TOLOKA' =>  $this->getSenderMessages(
+			'YANDEX' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
-						&& Integration\Bitrix24\Service::isTolokaVisibleInRegion()
-					?
-					$tolokaMessages
-					:
-					[]
+					? $yandexMessages
+					: []
 			),
 		);
 
@@ -286,7 +292,8 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 						'selected' => $item['IS_AVAILABLE'],
 						'iconClass' => $item['ICON_CLASS'],
 						'data' => [
-							'url' => $item['URL']
+							'url' => $item['URL'],
+							'extension' => $item['EXTENSION']
 						],
 					];
 				},

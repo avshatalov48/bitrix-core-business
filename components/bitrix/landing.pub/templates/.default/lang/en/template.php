@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Send a request to one of the users for read access to this knowledge base.";
 $MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "This knowledge base is private";
 $MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Request access";
@@ -16,14 +16,15 @@ $MESS["LANDING_TPL_EDIT_PAGE_GROUP"] = "Edit article";
 $MESS["LANDING_TPL_EDIT_PAGE_KNOWLEDGE"] = "Edit article";
 $MESS["LANDING_TPL_ERROR_NOT_ALLOWED_ASK"] = "Send request";
 $MESS["LANDING_TPL_ERROR_NOT_ALLOWED_GROUP"] = "View workgroup";
-$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_GROUP"] = "Become a workgroup member or send a membership request on the #LINK1#workgroup profile page#LINK2#.";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_2_GROUP"] = "Contact the #LINK1#workgroup's#LINK2# owner to get view access to the knowledge base.";
 $MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_KNOWLEDGE"] = "Send a request to one of the users for access to this knowledge base.";
-$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE"] = "No luck, we still can't find it. Please check your address again.";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE"] = "Check the link address or get back to the #LINK1#index page#LINK2#.";
 $MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE_KNOWLEDGE"] = "Try and find a knowledge base you need in #LINK1#the list#LINK2#";
+$MESS["LANDING_TPL_PUB_COPIED_LINK"] = "Page link has been copied to the Clipboard";
 $MESS["LANDING_TPL_SETTINGS_BUTTON_TITLE"] = "Settings";
 $MESS["LANDING_TPL_SITES"] = "My sites";
 $MESS["LANDING_TPL_SITES_GROUP"] = "Knowledge bases";
 $MESS["LANDING_TPL_SITES_KNOWLEDGE"] = "Knowledge bases";
 $MESS["LANDING_TPL_SITES_STORE"] = "My stores";
 $MESS["LANDING_TPL_TITLE"] = "Website";
-?>
+$MESS["LANDING_TPL_VIEWS"] = "Views";

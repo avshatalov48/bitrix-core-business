@@ -34,6 +34,11 @@ Manager::setPageView(
 	'<meta property="Bitrix24SiteType" content="' . mb_strtolower($arParams['TYPE']) . '" />'
 );
 
+Manager::setPageView(
+	'BeforeHeadClose',
+	'<link rel="icon" type="image/x-icon" href="' . $arResult['SITE_RELATIVE_URL'] . 'favicon.ico">'
+);
+
 // we set canonical, only if user no setup it before
 $headBlock = \Bitrix\Landing\Hook\Page\HeadBlock::getLastInsertedCode();
 if (mb_strpos($headBlock, '"canonical"') === false)

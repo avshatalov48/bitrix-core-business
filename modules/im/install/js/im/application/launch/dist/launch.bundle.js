@@ -11,12 +11,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-
 	var ApplicationLauncher = function ApplicationLauncher(app) {
 	  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	  var application = '';
 	  var name = '';
-
 	  if (babelHelpers["typeof"](app) === 'object') {
 	    name = app.name.toString();
 	    application = app.application.toString();
@@ -24,16 +22,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    name = app.toString();
 	    application = app;
 	  }
-
 	  application = application.substr(0, 1).toUpperCase() + application.substr(1);
-
 	  if (application === 'Launch' || application === 'Core' || application.endsWith('Application')) {
 	    im_lib_logger.Logger.error('BX.Messenger.Application.Launch: specified name is forbidden.');
 	    return new Promise(function (resolve, reject) {
 	      return reject();
 	    });
 	  }
-
 	  var launch = function launch() {
 	    try {
 	      BX.Messenger.Application[name] = new BX.Messenger.Application[application + 'Application'](params);
@@ -43,14 +38,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return false;
 	    }
 	  };
-
 	  if (typeof BX.Messenger.Application[application + 'Application'] === 'undefined' && typeof BX.Runtime !== 'undefined' && typeof BX.Runtime.loadExtension !== 'undefined') {
 	    var loadExtension = 'im.application.' + application.toString().toLowerCase();
 	    return BX.Runtime.loadExtension(loadExtension).then(function () {
 	      return launch();
 	    });
 	  }
-
 	  return launch();
 	};
 

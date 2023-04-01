@@ -316,19 +316,19 @@ class SenderSegmentListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	{
 		$data['USER'] = '';
 		$data['USER_PATH'] = '';
-		if (!$data['USER_ID'])
+		if (!($data['USER_ID'] ?? false))
 		{
 			return;
 		}
 
-		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
+		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'] ?? '', $this->arParams['PATH_TO_USER_PROFILE'] ?? '');
 		$data['USER'] = \CUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			array(
-				'LOGIN' => $data['USER_LOGIN'],
-				'NAME' => $data['USER_NAME'],
-				'LAST_NAME' => $data['USER_LAST_NAME'],
-				'SECOND_NAME' => $data['USER_SECOND_NAME']
+				'LOGIN' => $data['USER_LOGIN'] ?? '',
+				'NAME' => $data['USER_NAME'] ?? '',
+				'LAST_NAME' => $data['USER_LAST_NAME'] ?? '',
+				'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 			),
 			true, false
 		);

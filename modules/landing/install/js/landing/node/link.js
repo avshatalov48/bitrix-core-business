@@ -32,6 +32,9 @@
 		{
 			this.node.setAttribute("title", BX.Landing.Loc.getMessage("LANDING_TITLE_OF_LINK_NODE"));
 		}
+
+		this.onChange = BX.Runtime.debounce(this.onChange, 500);
+		this.onContentUpdate = BX.Runtime.debounce(this.onContentUpdate, 500);
 	};
 
 
@@ -41,23 +44,7 @@
 
 		onContentUpdate: function()
 		{
-			var blockId = this.getBlock().id;
-
-			clearTimeout(this.contentEditTimeout);
-			this.contentEditTimeout = setTimeout(function() {
-				BX.Landing.History.getInstance().push(
-					new BX.Landing.History.Entry({
-						block: blockId,
-						selector: this.selector,
-						command: "editLink",
-						undo: this.startValue,
-						redo: this.getValue()
-					})
-				);
-
-				this.startValue = null;
-			}.bind(this), 400);
-
+			BX.Landing.History.getInstance().push();
 			this.getField().setValue(this.getValue());
 		},
 
@@ -156,7 +143,7 @@
 				this.node.removeAttribute("data-embed");
 			}
 
-			this.onChange();
+			this.onChange(preventHistory);
 
 			if (!preventHistory)
 			{
@@ -210,7 +197,7 @@
 				delete value.text;
 			}
 
-			if (value.href.startsWith('selectActions:'))
+			if (value.href && value.href.startsWith('selectActions:'))
 			{
 				value.href = '#';
 			}

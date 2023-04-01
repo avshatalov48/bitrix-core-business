@@ -56,6 +56,9 @@ class AttachmentCancelManager extends AttachmentManager
 	public function getContent(): string
 	{
 		$event = $this->event;
+		$event['SKIP_TIME'] ??= null;
+		$event['CREATED'] ??= null;
+		$event['MODIFIED'] ??= null;
 		return Calendar::createInstance()
 			->setMethod(mb_strtoupper(SenderCancelInvitation::METHOD))
 			->addEvent(Event::createInstance($this->uid)

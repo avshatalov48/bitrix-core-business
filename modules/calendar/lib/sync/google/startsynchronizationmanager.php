@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Base\Result;
 use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Internals\HandleStatusTrait;
@@ -20,6 +21,7 @@ use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Exception;
+use Psr\Container\NotFoundExceptionInterface;
 
 class StartSynchronizationManager implements StartSynchronization
 {
@@ -31,12 +33,16 @@ class StartSynchronizationManager implements StartSynchronization
 	 */
 	private Mappers\Factory $mapperFactory;
 	private Connection $connection;
+	private static array $outgoingManagersCache = [];
 
 	/**
+	 * @param $userId
+	 *
 	 * @throws ArgumentException
-	 * @throws BaseException
+	 * @throws ObjectNotFoundException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
+	 * @throws NotFoundExceptionInterface
 	 */
 	public function __construct($userId)
 	{
@@ -70,8 +76,6 @@ class StartSynchronizationManager implements StartSynchronization
 
 		$this->initSubscription($connection);
 
-		$this->pushFinishNotification();
-
 		return $connection;
 	}
 
@@ -87,17 +91,19 @@ class StartSynchronizationManager implements StartSynchronization
 	{
 		$connection = (new Builders\BuilderConnectionFromExternalData($this->user))->build();
 		$factory = new Factory($connection);
-		$name = $factory->getImportManager()->requestConnectionId();
+		/** @var Result $nameResult */
+		$nameResult = $factory->getImportManager()->requestConnectionId();
 
-		if (!$name)
+		if (!$nameResult->isSuccess() || empty($nameResult->getData()['id']))
 		{
 			throw new BaseException('Can not connect with google');
 		}
 
+		$name = $nameResult->getData()['id'];
 		$connectionMap = $mapper->getMap([
 			'%=NAME' => '%'. $name .'%',
-			'ENTITY_ID' => $this->user->getId(),
-			'ACCOUNT_TYPE' => Factory::SERVICE_NAME,
+			'=ENTITY_ID' => $this->user->getId(),
+			'=ACCOUNT_TYPE' => Factory::SERVICE_NAME,
 		], null, ['ID' => 'ASC']);
 
 		$currentConnection = $connectionMap->fetch();
@@ -121,17 +127,6 @@ class StartSynchronizationManager implements StartSynchronization
 		}
 
 		return $mapper->create($connection);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function pushFinishNotification(): void
-	{
-		NotificationManager::addFinishedSyncNotificationAgent(
-			$this->user->getId(),
-			Factory::SERVICE_NAME
-		);
 	}
 
 	/**
@@ -171,7 +166,7 @@ class StartSynchronizationManager implements StartSynchronization
 	public function initSubscription(Connection $connection): void
 	{
 		$links = $this->mapperFactory->getSectionConnection()->getMap([
-			'CONNECTION_ID' => $connection->getId(),
+			'=CONNECTION_ID' => $connection->getId(),
 			'=ACTIVE' => 'Y'
 		]);
 
@@ -193,13 +188,12 @@ class StartSynchronizationManager implements StartSynchronization
 	 */
 	private function getOutgoingManager(Connection $connection)
 	{
-		static $managers = [];
-		if (empty($managers[$connection->getId()]))
+		if (empty(static::$outgoingManagersCache[$connection->getId()]))
 		{
-			$managers[$connection->getId()] = new OutgoingManager($connection);
+			static::$outgoingManagersCache[$connection->getId()] = new OutgoingManager($connection);
 		}
 
-		return $managers[$connection->getId()];
+		return static::$outgoingManagersCache[$connection->getId()];
 	}
 
 	/**

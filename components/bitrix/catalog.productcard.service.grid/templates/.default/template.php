@@ -68,6 +68,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 				'SHOW_ACTION_PANEL' => $arResult['GRID']['SHOW_ACTION_PANEL'],
 				'ACTION_PANEL' => $arResult['GRID']['ACTION_PANEL'],
 				'HANDLE_RESPONSE_ERRORS' => true,
+				'ENABLE_FIELDS_SEARCH' => $arResult['GRID']['ENABLE_FIELDS_SEARCH'],
 			],
 			$component
 		);

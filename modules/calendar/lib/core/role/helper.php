@@ -39,7 +39,8 @@ class Helper
 	 */
 	public static function getUserRole(int $id): Role
 	{
-		if (!($user = User::$users[$id]))
+		$user = User::$users[$id] ?? null;
+		if (!$user)
 		{
 			$user = self::getUserObject($id);
 		}
@@ -65,6 +66,7 @@ class Helper
 	public static function getGroupRole(int $id): Role
 	{
 		$group = new Group('');
+		$group->setId($id);
 		return new Role($group);
 	}
 
@@ -102,7 +104,7 @@ class Helper
 	 */
 	public static function getUserObject(int $id): ?Main\EO_User
 	{
-		if (User::$users[$id])
+		if (isset(User::$users[$id]) && User::$users[$id])
 		{
 			return User::$users[$id];
 		}

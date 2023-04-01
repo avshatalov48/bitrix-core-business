@@ -814,7 +814,7 @@ class OrderBasket
 						if($params['MODULE'] != 'catalog')
 							continue;
 
-						$productsParams["ITEMS"][$key]["SKU_PROPS_POSSIBLE_VALUES"] = $possibleSkuProps[$params['OFFER_ID']];
+						$productsParams["ITEMS"][$key]["SKU_PROPS_POSSIBLE_VALUES"] = $possibleSkuProps[$params['OFFER_ID']] ?? [];
 					}
 
 					unset($possibleSkuParams);
@@ -1084,8 +1084,12 @@ class OrderBasket
 					}
 				}
 
-
-				if (is_array($iblockPropsUsed[$arProp['ID']]) && !empty($arValues) && is_array($arValues))
+				if (
+					isset($iblockPropsUsed[$arProp['ID']])
+					&& is_array($iblockPropsUsed[$arProp['ID']])
+					&& !empty($arValues)
+					&& is_array($arValues)
+				)
 				{
 					//if property value deleted or inactive
 					$notFound = array_diff($iblockPropsUsed[$arProp['ID']], array_keys($arValues));
@@ -1959,6 +1963,9 @@ class OrderBasket
 	{
 		if($this->data === null)
 		{
+			$inParams['ADDED_PRODUCTS'] ??= null;
+			$isArrayAddedProducts = is_array($inParams['ADDED_PRODUCTS']);
+
 			$result = array(
 				"ITEMS" => array(),
 				"WEIGHT" => 0
@@ -2034,19 +2041,18 @@ class OrderBasket
 				$params["PRICE_BASE"] = $params["BASE_PRICE"] = $item->getField("BASE_PRICE");
 				$params["CUSTOM_PRICE"] = $item->isCustomPrice() ? "Y" : "N";
 
-				if(
-					!is_array($inParams["ADDED_PRODUCTS"])
+				if (
+					!$isArrayAddedProducts
 					||
 					(
 						!empty($inParams["ADDED_PRODUCTS"])
-						&& is_array($inParams["ADDED_PRODUCTS"])
 						&& in_array($productId, $inParams["ADDED_PRODUCTS"])
 					)
 				)
 				{
 					$params = $params + self::getPropsForBasketItem($item, $catalogPreparedData);
 
-					if(is_array($inParams["ADDED_PRODUCTS"]) && in_array($productId, $inParams["ADDED_PRODUCTS"]))
+					if ($isArrayAddedProducts && in_array($productId, $inParams["ADDED_PRODUCTS"]))
 					{
 						$result["ADDED_PRODUCTS"][] = $basketCode;
 					}
@@ -2145,7 +2151,7 @@ class OrderBasket
 
 			$result["ITEMS_ORDER"] = array_keys($result["ITEMS"]);
 
-			if(!$inParams["SKIP_SKU_INFO"])
+			if (empty($inParams["SKIP_SKU_INFO"]))
 			{
 				$result = $this->getOffersSkuParams($result, $this->visibleColumns);
 			}

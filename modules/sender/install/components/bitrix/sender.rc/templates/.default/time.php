@@ -12,9 +12,10 @@ global $APPLICATION;
 $componentParameters = array(
 	'ID' => $arResult['ID'],
 	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'PATH_TO_TIME' => $arResult['PATH_TO_TIME'] ?? '',
 	'SET_TITLE' => 'Y',
 	'CAN_VIEW' => Security\Access::getInstance()->canViewRc(),
 	'CAN_EDIT' => Security\Access::getInstance()->canStopStartPause("Rc"),
@@ -29,7 +30,7 @@ $componentParameters = array(
 	],
 	'MESSAGE_CODE_LIST' => \Bitrix\Sender\Message\Factory::getReturnCustomerMessageCodes(),
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.pageslider.wrapper",

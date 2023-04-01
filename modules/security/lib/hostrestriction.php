@@ -440,13 +440,12 @@ class HostRestriction
 	 */
 	protected function genValidationRegExp($hosts)
 	{
+		$hosts = preg_replace('/#.*/', '', $hosts);
 		$hosts = trim($hosts, " \t\n\r");
 		$hosts = preg_quote($hosts);
-		$hosts = preg_split('~\s+~s', preg_replace(
-			array('~\#.*~', '~\\\\\*~'),
-			array('',       '.*'),
-			$hosts
-		));
+		$hosts = preg_replace('~\\\\\*~', '.*', $hosts);
+		$hosts = preg_split('~\s+~s', $hosts);
+
 		foreach ($hosts as $i => $host)
 		{
 			$hosts[$i] = "#^\s*($host)(:\d+)?\s*$#iD";

@@ -50,14 +50,14 @@ export class Helper
 	/** if the variable is a date or a timestamp return Date, else null  */
 	static toDate(date: string | Date): ?Date
 	{
-		if (Date.parse(date))
-		{
-			return new Date(date);
-		}
-
 		if (DateTimeFormat.parse(date))
 		{
 			return DateTimeFormat.parse(date, false);
+		}
+
+		if (Date.parse(date))
+		{
+			return new Date(date);
 		}
 
 		if (!Helper.isDate(date))

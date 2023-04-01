@@ -67,6 +67,7 @@ export default class ProductListController extends BX.UI.EntityEditorController
 		if (this.productList)
 		{
 			this.productList.changeCurrencyId(this._currencyId);
+			this.productList.updateTotalUiCurrency();
 		}
 
 		this._isChanged = false;

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,calendar_sectioninterface,main_core_events,calendar_controls,main_core,calendar_util,ui_entitySelector) {
+(function (exports,calendar_controls,calendar_sectioninterface,main_core_events,main_core,calendar_util,ui_entitySelector,ui_dialogs_messagebox) {
 	'use strict';
 
 	class ReserveButton extends calendar_controls.AddButton {
@@ -807,15 +807,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	  renderCategorySelectorWrap() {
 	    return main_core.Tag.render(_t6 || (_t6 = _$1`
-					<div class="calendar-field-container calendar-field-container-string">
-						<div class="calendar-field-block">
-							<div class ="calendar-list-slider-card-widget-title">
-								<span class="calendar-list-slider-card-widget-title-text">
-									${0}
-								</span>
-							</div>
-						</div>
+			<div class="calendar-field-container calendar-field-container-string calendar-field-container-rooms">
+				<div class="calendar-field-block">
+					<div class ="calendar-list-slider-card-widget-title">
+						<span class="calendar-list-slider-card-widget-title-text">
+							${0}
+						</span>
 					</div>
+				</div>
+			</div>
 		`), main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_CATEGORY'));
 	  }
 
@@ -1140,8 +1140,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return new ui_entitySelector.TagSelector({
 	      placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_PLACEHOLDER'),
 	      textBoxWidth: 320,
-	      addButtonCaption: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION'),
-	      addButtonCaptionMore: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION_MORE'),
 	      dialogOptions: {
 	        context: 'CALENDAR_CONTEXT',
 	        width: 315,
@@ -1336,7 +1334,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _t15,
 	    _t16,
 	    _t17,
-	    _t18;
+	    _t18,
+	    _t19;
 	class RoomsInterface extends calendar_sectioninterface.SectionInterface {
 	  constructor({
 	    calendarContext,
@@ -1682,7 +1681,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        text: main_core.Loc.getMessage('EC_SEC_DELETE'),
 	        onclick: () => {
 	          this.roomActionMenu.close();
-	          this.deleteRoom(room);
+	          this.showRoomDeleteConfirm(room); // this.deleteRoom(room);
 	        }
 	      });
 	    }
@@ -1967,7 +1966,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        onclick: () => {
 	          this.categoryActionMenu.close();
 	          this.freezeButtons();
-	          this.categoryManager.deleteCategory(category.id, this.unfreezeButtons.bind(this));
+	          this.showCategoryDeleteConfirm(category);
 	        }
 	      });
 	    }
@@ -2026,6 +2025,28 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	  deleteRoom(room) {
 	    this.roomsManager.deleteRoom(room.id, room.location_id);
+
+	    if (this.DOM.confirmRoomPopup) {
+	      this.DOM.confirmRoomPopup.close();
+	      delete this.DOM.confirmRoomPopup;
+	    }
+
+	    if (this.currentRoom) {
+	      delete this.currentRoom;
+	    }
+	  }
+
+	  deleteCategory(category) {
+	    this.categoryManager.deleteCategory(category.id);
+
+	    if (this.DOM.confirmCategoryPopup) {
+	      this.DOM.confirmCategoryPopup.close();
+	      delete this.DOM.confirmCategoryPopup;
+	    }
+
+	    if (this.currentCategory) {
+	      delete this.currentCategory;
+	    }
 	  }
 
 	  freezeButtons() {
@@ -2145,11 +2166,90 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.categoryManager.getCategories().forEach(category => this.updateCategoryCheckboxState(category));
 	  }
 
+	  showRoomDeleteConfirm(room) {
+	    this.currentRoom = room;
+	    this.DOM.confirmRoomPopup = new ui_dialogs_messagebox.MessageBox({
+	      message: this.getConfirmRoomInterfaceContent(main_core.Loc.getMessage('EC_ROOM_DELETE_CONFIRM')),
+	      minHeight: 120,
+	      minWidth: 280,
+	      maxWidth: 300,
+	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+	      onOk: () => {
+	        this.deleteRoom(room);
+	      },
+	      onCancel: () => {
+	        this.DOM.confirmRoomPopup.close();
+	      },
+	      okCaption: main_core.Loc.getMessage('EC_SEC_DELETE'),
+	      popupOptions: {
+	        events: {
+	          onPopupClose: () => {
+	            delete this.DOM.confirmRoomPopup;
+	            delete this.currentRoom;
+	          }
+	        },
+	        closeByEsc: true,
+	        padding: 0,
+	        contentPadding: 0,
+	        animation: 'fading-slide'
+	      }
+	    });
+	    this.DOM.confirmRoomPopup.show();
+	  }
+
+	  showCategoryDeleteConfirm(category) {
+	    this.currentCategory = category;
+	    this.DOM.confirmCategoryPopup = new ui_dialogs_messagebox.MessageBox({
+	      message: this.getConfirmRoomInterfaceContent(main_core.Loc.getMessage('EC_CATEGORY_DELETE_CONFIRM')),
+	      minHeight: 120,
+	      minWidth: 280,
+	      maxWidth: 300,
+	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+	      onOk: () => {
+	        this.deleteCategory(category);
+	      },
+	      onCancel: () => {
+	        this.DOM.confirmCategoryPopup.close();
+	      },
+	      okCaption: main_core.Loc.getMessage('EC_SEC_DELETE'),
+	      popupOptions: {
+	        events: {
+	          onPopupClose: () => {
+	            this.unfreezeButtons();
+	            delete this.DOM.confirmCategoryPopup;
+	            delete this.currentCategory;
+	          }
+	        },
+	        closeByEsc: true,
+	        padding: 0,
+	        contentPadding: 0,
+	        animation: 'fading-slide'
+	      }
+	    });
+	    this.DOM.confirmCategoryPopup.show();
+	  }
+
+	  getConfirmRoomInterfaceContent(text) {
+	    return main_core.Tag.render(_t19 || (_t19 = _$3`<div class="calendar-list-slider-messagebox-text">${0}</div>`), text);
+	  }
+
+	  keyHandler(e) {
+	    if (e.keyCode === calendar_util.Util.getKeyCode('enter')) {
+	      if (this.DOM.confirmRoomPopup && this.currentRoom) {
+	        this.deleteRoom(this.currentRoom);
+	      }
+
+	      if (this.DOM.confirmCategoryPopup && this.currentCategory) {
+	        this.deleteCategory(this.currentCategory);
+	      }
+	    }
+	  }
+
 	}
 
 	exports.ReserveButton = ReserveButton;
 	exports.RoomsInterface = RoomsInterface;
 	exports.EditFormRoom = EditFormRoom;
 
-}((this.BX.Calendar.Rooms = this.BX.Calendar.Rooms || {}),BX.Calendar,BX.Event,BX.Calendar.Controls,BX,BX.Calendar,BX.UI.EntitySelector));
+}((this.BX.Calendar.Rooms = this.BX.Calendar.Rooms || {}),BX.Calendar.Controls,BX.Calendar,BX.Event,BX,BX.Calendar,BX.UI.EntitySelector,BX.UI.Dialogs));
 //# sourceMappingURL=rooms.bundle.js.map

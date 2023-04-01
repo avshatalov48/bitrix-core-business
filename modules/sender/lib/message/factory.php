@@ -98,6 +98,31 @@ class Factory extends CodeBasedFactory
 	}
 
 	/**
+	 * Get yandex messages.
+	 *
+	 * @return iYandex[]
+	 */
+	public static function getYandexMessages(bool $withToloka): array
+	{
+		$list = [];
+		foreach (static::getMessages() as $message)
+		{
+			if (!$message instanceof iYandex)
+			{
+				continue;
+			}
+			if (!$withToloka && $message instanceof iToloka)
+			{
+				continue;
+			}
+
+			$list[] = $message;
+		}
+
+		return $list;
+	}
+
+	/**
 	 * Get non ads message instances.
 	 *
 	 * @return iBase[]

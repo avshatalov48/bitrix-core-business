@@ -18,3 +18,7 @@ $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_TEXT'] = 'Недостато�
 $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_STORE_HINT'] = 'У вас нет доступа к складу на который был принят товар. Запросите доступ у руководителя или администратора чтобы просматривать информацию по складу';
 $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PURCHASING_PRICE_HINT'] = 'Недостаточно прав для просмотра закупочной цены товара';
 $MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PRODUCT_CREATION_HINT'] = 'Недостаточно прав для создания товара в каталоге';
+$MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_CHANGED_HINT'] = 'Склад изменен на «#STORE_NAME#»';
+$MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_FROM_INFO_CHANGED_HINT'] = 'Склад-отправитель изменен на «#STORE_NAME#»';
+$MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_TO_INFO_CHANGED_HINT'] = 'Склад-получатель изменен на «#STORE_NAME#»';
+$MESS['CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_DEFAULT'] = '- действия -';

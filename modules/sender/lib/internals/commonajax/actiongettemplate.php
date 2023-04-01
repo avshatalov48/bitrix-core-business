@@ -47,7 +47,7 @@ class ActionGetTemplate extends CommonAction
 
 		$type = $request->get('template_type');
 		$id = $request->get('template_id');
-		$charset = $request->get('template_charset');
+		$charset = $request->get('template_charset') ?? SITE_CHARSET;
 
 		Loader::includeModule('fileman');
 		$template = Templates\Selector::create()

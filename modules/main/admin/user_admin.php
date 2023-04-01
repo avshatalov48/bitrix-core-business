@@ -222,13 +222,15 @@ if($lAdmin->EditAction())
 		$DB->StartTransaction();
 
 		$ob = new CUser;
-		if(!$ob->Update($ID, $arFields))
+		if ($ob->Update($ID, $arFields))
+		{
+			$DB->Commit();
+		}
+		else
 		{
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$ob->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
 	}
 }
 
@@ -278,7 +280,10 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 						$err = '<br>'.$ex->GetString();
 					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR").$err, $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 				break;
 			case "activate":
 			case "deactivate":

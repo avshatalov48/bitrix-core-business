@@ -112,7 +112,6 @@ export class AttendeesList
 										width: 1100
 									}
 								);
-								this.morePopup.close();
 							}
 						}
 					);

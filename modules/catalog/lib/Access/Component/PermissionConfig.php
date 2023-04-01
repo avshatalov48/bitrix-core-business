@@ -198,8 +198,13 @@ class PermissionConfig
 				PermissionDictionary::CATALOG_INVENTORY_MANAGEMENT_ACCESS,
 				PermissionDictionary::CATALOG_STORE_MODIFY,
 				PermissionDictionary::CATALOG_STORE_VIEW,
-				PermissionDictionary::CATALOG_SETTINGS_STORE_DOCUMENT_CARD_EDIT,
 			];
+
+			if (Loader::includeModule('report'))
+			{
+				$sections[self::SECTION_INVENTORY_MANAGMENT][] = PermissionDictionary::CATALOG_STORE_ANALYTIC_VIEW;
+			}
+			$sections[self::SECTION_INVENTORY_MANAGMENT][] = PermissionDictionary::CATALOG_SETTINGS_STORE_DOCUMENT_CARD_EDIT;
 
 			foreach ($this->getStoreDocumentSectionCodesMap() as $code => $typeId)
 			{

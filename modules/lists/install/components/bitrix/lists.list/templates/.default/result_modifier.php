@@ -9,7 +9,7 @@ if (!empty($arResult["ELEMENTS_ROWS"]))
 		{
 			foreach($row["actions"] as &$action)
 			{
-				if ($action["ID"] == "delete")
+				if (isset($action['ID']) && $action["ID"] == "delete")
 				{
 					$action["ONCLICK"] = "javascript:BX.Lists['".$arResult['JS_OBJECT']."'].deleteElement('".
 						$arResult["GRID_ID"]."', '".$row["id"]."')";

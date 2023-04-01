@@ -103,7 +103,7 @@ if($_REQUEST["OKEI"] == "Y")
 	$lAdmin->AddHeaders(array(
 		array(
 			"id" => "CODE",
-			"content" => GetMessage("CAT_MEASURE_CODE"),
+			"content" => GetMessage("CAT_MEASURE_CODE_MSGVER_1"),
 			"default" => true
 		),
 		array(
@@ -384,7 +384,7 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td><?= GetMessage("CAT_MEASURE_CODE") ?>:</td>
+		<td><?= GetMessage("CAT_MEASURE_CODE_MSGVER_1") ?>:</td>
 		<td>
 			<input type="text" style="width:50px" name="CODE" value="<?=$str_CODE?>" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>

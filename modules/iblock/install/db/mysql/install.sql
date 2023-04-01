@@ -22,8 +22,8 @@ create table if not exists b_iblock
 (
 	ID int(11) not null auto_increment,
 	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
-	IBLOCK_TYPE_ID varchar(50) not null REFERENCES b_iblock_type(ID),
-	LID char(2) not null REFERENCES b_lang(LID),
+	IBLOCK_TYPE_ID varchar(50) not null,
+	LID char(2) not null,
 	CODE varchar(50) null,
 	API_CODE varchar(50) null,
 	REST_ON char(1) not null default 'N',

@@ -101,15 +101,15 @@ class AttendeesDescription
 		foreach ($users as $user)
 		{
 			$userName = $user['FORMATTED_NAME'];
-			if ($usersMeetingStatus[$user['ID']] === 'Y')
+			if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'Y')
 			{
 				$accepted[] = $userName;
 			}
-			else if ($usersMeetingStatus[$user['ID']] === 'H')
+			else if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'H')
 			{
 				$accepted[] = $userName;
 			}
-			else if ($usersMeetingStatus[$user['ID']] === 'N')
+			else if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'N')
 			{
 				$declined[] = $userName;
 			}

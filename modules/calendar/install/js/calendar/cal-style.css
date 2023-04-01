@@ -2044,14 +2044,6 @@ td.bx-cal-view-text-cell-r{
 	width: 102px !important;
 }
 
-.bx-ie8 .bxec-popup .calendar-inp,
-.bx-ie8 .bxec-popup .calendar-inp-time,
-.bx-ie8 .bxec-popup .bxec-time input
-{
-	height: 24px;
-	padding-top: 5px;
-}
-
 .bxec-popup .calendar-tz-select{
 	width: 245px;
 	font-size: 11pt !important;

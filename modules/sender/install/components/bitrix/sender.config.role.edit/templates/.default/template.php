@@ -135,12 +135,12 @@ $APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 		[
 			'TYPE'    => 'save',
 			'ONCLICK' => $cantUse? "BX.UI.InfoHelper.show('limit_crm_access_permissions_crm_marketing')":
-				"AccessRights.sendActionRequest()",
+				"window.AccessRights.sendActionRequest()",
 
 		],
 		[
 			'TYPE'    => 'cancel',
-			'ONCLICK' => "AccessRights.fireEventReset()",
+			'ONCLICK' => "window.AccessRights.fireEventReset()",
 		],
 	],
 ]);
@@ -148,29 +148,30 @@ $APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 ?>
 
 <script>
-	var AccessRights = new BX.UI.AccessRights({
-		renderTo: document.getElementById('bx-sender-role-main'),
-		userGroups: <?= CUtil::PhpToJSObject($arResult['USER_GROUPS']) ?>,
-		accessRights: <?= CUtil::PhpToJSObject($arResult['ACCESS_RIGHTS']); ?>,
-		component: 'bitrix:sender.config.role.edit',
-		actionSave: 'savePermissions',
-		additionalSaveParams: {
-			dealCategoryId: '<?= $arParams['ID'] ?>'
-		},
-		loadParams: {
-			dealCategoryId: '<?= $arParams['ID'] ?>'
-		},
-		actionDelete: 'deleteRole',
-		popupContainer: '<?= $componentId ?>',
-		openPopupEvent: '<?= $openPopupEvent ?>'
-	});
+	BX.ready(function() {
+		window.AccessRights = new BX.UI.AccessRights({
+			renderTo: document.getElementById('bx-sender-role-main'),
+			userGroups: <?= CUtil::PhpToJSObject($arResult['USER_GROUPS']) ?>,
+			accessRights: <?= CUtil::PhpToJSObject($arResult['ACCESS_RIGHTS']); ?>,
+			component: 'bitrix:sender.config.role.edit',
+			actionSave: 'savePermissions',
+			additionalSaveParams: {
+				dealCategoryId: '<?= $arParams['ID'] ?>'
+			},
+			loadParams: {
+				dealCategoryId: '<?= $arParams['ID'] ?>'
+			},
+			actionDelete: 'deleteRole',
+			popupContainer: '<?= $componentId ?>',
+			openPopupEvent: '<?= $openPopupEvent ?>'
+		});
 
-	AccessRights.draw();
-	setTimeout(function() {
-			BX.onCustomEvent('<?= $initPopupEvent ?>', [{
-				openDialogWhenInit: false,
-				multiple: true
-			}]);
-		},
-	1);
+		window.AccessRights.draw();
+
+		BX.ready(function() {
+			setTimeout(function() {
+				BX.onCustomEvent('<?= $initPopupEvent ?>', [{openDialogWhenInit: false, multiple: true }]);
+			});
+		});
+	});
 </script>

@@ -164,6 +164,7 @@ export default class Office365template extends InterfaceTemplate
 			popupOptions: {
 				zIndexAbsolute: 4020,
 				autoHide: true,
+				animation: 'fading-slide',
 			},
 		});
 		messageBox.show();

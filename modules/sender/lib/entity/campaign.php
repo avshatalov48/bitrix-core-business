@@ -66,7 +66,7 @@ class Campaign extends Base
 		{
 			if (!SiteTable::getList([
 				'filter' => ['ACTIVE' => 'Y', 'LID' => $siteId],
-				'cache' => 3600
+				'cache' => ['ttl' => 3600],
 			])->fetch())
 			{
 				$siteId = null;
@@ -82,7 +82,7 @@ class Campaign extends Base
 			$siteId = self::$defaultSiteId;
 		}
 
-		if (self::$defaultId[$siteId])
+		if (isset(self::$defaultId[$siteId]))
 		{
 			return self::$defaultId[$siteId];
 		}
@@ -153,7 +153,7 @@ class Campaign extends Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		$this->filterDataByEntityFields(MailingTable::getEntity(), $data);
 		return $this->saveByEntity(MailingTable::getEntity(), $id, $data);

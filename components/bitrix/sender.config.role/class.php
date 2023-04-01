@@ -57,10 +57,10 @@ class ConfigRoleSenderComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$arComponentVariables = array('id');
 			$arVariables = array();
 			$arUrlTemplates = CComponentEngine::makeComponentUrlTemplates(
-				$arDefaultUrlTemplates404, $this->arParams['SEF_URL_TEMPLATES']
+				$arDefaultUrlTemplates404, $this->arParams['SEF_URL_TEMPLATES'] ?? ''
 			);
 			$arVariableAliases = CComponentEngine::makeComponentVariableAliases(
-				$arDefaultVariableAliases404, $this->arParams['VARIABLE_ALIASES']
+				$arDefaultVariableAliases404, $this->arParams['VARIABLE_ALIASES'] ?? ''
 			);
 			$componentPage = CComponentEngine::parseComponentPath(
 				$this->arParams['SEF_FOLDER'], $arUrlTemplates, $arVariables
@@ -116,7 +116,7 @@ class ConfigRoleSenderComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				'VARIABLES' => $arVariables,
 				'ALIASES' => $this->arParams['SEF_MODE'] == 'Y' ? array(): $arVariableAliases,
 				'ID' => isset($arVariables['id']) ? strval($arVariables['id']) : '',
-				'PATH_TO_USER_PROFILE' => $this->arParams['PATH_TO_USER_PROFILE']
+				'PATH_TO_USER_PROFILE' => $this->arParams['PATH_TO_USER_PROFILE'] ?? ''
 			),
 			$this->arResult
 		);

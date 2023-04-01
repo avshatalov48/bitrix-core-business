@@ -17,25 +17,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.restClient = $Bitrix.RestClient.get();
 	    this.onClosePopupHandler = this.onClosePopup.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.closePopup, this.onClosePopupHandler);
-	  } // public
+	  }
 
-
+	  // public
 	  openMenu(context, target) {
 	    if (this.menuInstance) {
 	      this.menuInstance.destroy();
 	      this.menuInstance = null;
 	    }
-
 	    this.context = context;
 	    this.target = target;
 	    this.menuInstance = this.getMenuInstance();
 	    this.menuInstance.show();
 	  }
-
 	  getMenuInstance() {
 	    return main_popup.MenuManager.create(this.getMenuOptions());
 	  }
-
 	  getMenuOptions() {
 	    return {
 	      id: this.id,
@@ -50,37 +47,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      items: this.getMenuItems()
 	    };
 	  }
-
 	  getMenuItems() {
 	    return [];
 	  }
-
 	  getMenuClassName() {
 	    return this.isDarkMode() ? 'im-context-menu-dark' : '';
 	  }
-
 	  isDarkMode() {
 	    return this.store.state.application.options.darkTheme;
 	  }
-
 	  onClosePopup() {
 	    this.destroy();
 	  }
-
 	  close() {
 	    if (!this.menuInstance) {
 	      return;
 	    }
-
 	    this.menuInstance.destroy();
 	    this.menuInstance = null;
 	  }
-
 	  destroy() {
 	    this.close();
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.closePopup, this.onClosePopupHandler);
 	  }
-
 	}
 
 	class PinManager {
@@ -90,7 +79,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.restClient = $Bitrix.RestClient.get();
 	  }
-
 	  pinDialog(dialogId) {
 	    this.store.dispatch('recent/pin', {
 	      id: dialogId,
@@ -108,7 +96,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  unpinDialog(dialogId) {
 	    this.store.dispatch('recent/pin', {
 	      id: dialogId,
@@ -126,7 +113,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	}
 
 	class UnreadManager {
@@ -136,11 +122,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.restClient = $Bitrix.RestClient.get();
 	  }
-
 	  readDialog(dialogId) {
 	    let queryParams;
 	    const dialog = this.store.getters['dialogues/get'](dialogId, true);
-
 	    if (dialog.counter > 0) {
 	      queryParams = {
 	        'DIALOG_ID': dialogId
@@ -150,7 +134,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	      return;
 	    }
-
 	    this.store.dispatch('recent/unread', {
 	      id: dialogId,
 	      action: false
@@ -167,7 +150,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  unreadDialog(dialogId) {
 	    this.store.dispatch('recent/unread', {
 	      id: dialogId,
@@ -185,7 +167,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	}
 
 	class MuteManager {
@@ -195,7 +176,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.restClient = $Bitrix.RestClient.get();
 	  }
-
 	  muteDialog(dialogId) {
 	    this.store.dispatch('dialogues/mute', {
 	      dialogId
@@ -211,7 +191,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  unmuteDialog(dialogId) {
 	    this.store.dispatch('dialogues/unmute', {
 	      dialogId
@@ -227,7 +206,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	}
 
 	const resendAction = 'intranet.controller.invite.reinvite';
@@ -247,7 +225,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.handleActionError(error);
 	    });
 	  },
-
 	  cancelInvite(userId) {
 	    const data = {
 	      params: {
@@ -262,14 +239,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.handleActionError(error);
 	    });
 	  },
-
 	  showNotification(text, autoHideDelay = 4000) {
 	    BX.UI.Notification.Center.notify({
 	      content: text,
 	      autoHideDelay
 	    });
 	  },
-
 	  handleActionError(error) {
 	    if (error.status === 'error' && error.errors.length > 0) {
 	      const errorContent = error.errors.map(element => {
@@ -278,10 +253,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.showNotification(errorContent);
 	      return true;
 	    }
-
 	    this.showNotification(main_core.Loc.getMessage('IM_RECENT_CONNECT_ERROR'));
 	  }
-
 	};
 
 	class CallHelper {
@@ -289,42 +262,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = null;
 	    this.store = $Bitrix.Data.get('controller').store;
 	  }
-
 	  checkCallSupport(dialogId) {
 	    if (!BX.MessengerProxy.getPushServerStatus() || !BX.Call.Util.isWebRTCSupported()) {
 	      return false;
 	    }
-
 	    const userId = Number.parseInt(dialogId, 10);
 	    return userId > 0 ? this.checkUserCallSupport(userId) : this.checkChatCallSupport(dialogId);
 	  }
-
 	  checkUserCallSupport(userId) {
 	    const user = this.store.getters['users/get'](userId);
 	    return user && user.status !== 'guest' && !user.bot && !user.network && user.id !== this.getCurrentUserId() && !!user.lastActivityDate;
 	  }
-
 	  checkChatCallSupport(dialogId) {
 	    const dialog = this.store.getters['dialogues/get'](dialogId);
-
 	    if (!dialog) {
 	      return false;
 	    }
-
 	    const {
 	      userCounter
 	    } = dialog;
 	    return userCounter > 1 && userCounter <= BX.Call.Util.getUserLimit();
 	  }
-
 	  hasActiveCall() {
 	    return BX.MessengerProxy.getCallController().hasActiveCall();
 	  }
-
 	  getCurrentUserId() {
 	    return this.store.state.application.common.userId;
 	  }
-
 	}
 
 	class RecentMenu extends BaseMenu {
@@ -340,33 +304,30 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.muteManager = new MuteManager($Bitrix);
 	    this.callHelper = new CallHelper($Bitrix);
 	  }
-
 	  getMenuOptions() {
-	    return { ...super.getMenuOptions(),
+	    return {
+	      ...super.getMenuOptions(),
 	      className: this.getMenuClassName(),
 	      angle: true,
 	      offsetLeft: 32
 	    };
 	  }
-
 	  getMenuClassName() {
 	    return this.context.compactMode ? '' : super.getMenuClassName();
 	  }
-
 	  getMenuItems() {
 	    if (this.context.invitation.isActive) {
 	      return this.getInviteItems();
 	    }
-
 	    return [this.getSendMessageItem(), this.getUnreadMessageItem(), this.getPinMessageItem(), this.getMuteItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem(), this.getHideItem(), this.getLeaveItem()];
 	  }
-
 	  getSendMessageItem() {
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_WRITE'),
 	      onclick: function () {
 	        const target = this.context.target === im_v2_const.OpenTarget.current ? im_v2_const.OpenTarget.current : im_v2_const.OpenTarget.auto;
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, { ...this.context,
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, {
+	          ...this.context,
 	          chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
 	          user: this.store.getters['users/get'](this.context.dialogId, true),
 	          target
@@ -375,15 +336,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getUnreadMessageItem() {
 	    let isUnreaded = this.context.unread;
-
 	    if (!isUnreaded) {
 	      const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
 	      isUnreaded = dialog.counter > 0;
 	    }
-
 	    return {
 	      text: isUnreaded ? main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_READ') : main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNREAD'),
 	      onclick: function () {
@@ -392,12 +350,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        } else {
 	          this.unreadManager.unreadDialog(this.context.dialogId);
 	        }
-
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };
 	  }
-
 	  getPinMessageItem() {
 	    const isPinned = this.context.pinned;
 	    return {
@@ -408,27 +364,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        } else {
 	          this.pinManager.pinDialog(this.context.dialogId);
 	        }
-
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };
 	  }
-
 	  getMuteItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
 	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
 	    const isAnnouncement = dialog.type === im_v2_const.ChatTypes.announcement;
-
 	    if (!dialog || isUser || isAnnouncement) {
 	      return null;
 	    }
-
 	    const muteAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, im_v2_const.ChatOption.mute);
-
 	    if (!muteAllowed) {
 	      return null;
 	    }
-
 	    const isMuted = dialog.muteList.includes(this.getCurrentUserId());
 	    return {
 	      text: isMuted ? main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNMUTE') : main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_MUTE'),
@@ -438,35 +388,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        } else {
 	          this.muteManager.muteDialog(this.context.dialogId);
 	        }
-
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };
 	  }
-
 	  getCallItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-
 	    if (!dialog) {
 	      return null;
 	    }
-
 	    const isChat = dialog.type !== im_v2_const.ChatTypes.user;
 	    const callAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, im_v2_const.ChatOption.call);
-
 	    if (isChat && !callAllowed) {
 	      return null;
 	    }
-
 	    const callSupport = this.callHelper.checkCallSupport(this.context.dialogId);
 	    const isAnnouncement = dialog.type === im_v2_const.ChatTypes.announcement;
 	    const isExternalTelephonyCall = dialog.type === im_v2_const.ChatTypes.call;
 	    const hasActiveCall = this.callHelper.hasActiveCall();
-
 	    if (!callSupport || isAnnouncement || isExternalTelephonyCall || hasActiveCall) {
 	      return null;
 	    }
-
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_CALL'),
 	      onclick: function () {
@@ -475,20 +417,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getHistoryItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
 	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
-
 	    if (isUser) {
 	      return null;
 	    }
-
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_HISTORY'),
 	      onclick: function () {
 	        const target = this.context.target === im_v2_const.OpenTarget.current ? im_v2_const.OpenTarget.current : im_v2_const.OpenTarget.auto;
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.openHistory, { ...this.context,
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.openHistory, {
+	          ...this.context,
 	          chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
 	          user: this.store.getters['users/get'](this.context.dialogId, true),
 	          target
@@ -497,15 +437,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getOpenProfileItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
 	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
-
 	    if (!isUser) {
 	      return null;
 	    }
-
 	    const profileUri = `/company/personal/user/${this.context.dialogId}/`;
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_PROFILE'),
@@ -515,16 +452,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getHideItem() {
 	    if (this.context.invitation.isActive || this.context.options.default_user_record) {
 	      return null;
 	    }
-
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_HIDE'),
 	      onclick: function () {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.hide, { ...this.context,
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.hide, {
+	          ...this.context,
 	          chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
 	          user: this.store.getters['users/get'](this.context.dialogId, true)
 	        });
@@ -532,57 +468,46 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getLeaveItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-
 	    if (!dialog) {
 	      return null;
 	    }
-
 	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
-
 	    if (isUser) {
 	      return null;
 	    }
-
 	    let optionToCheck = im_v2_const.ChatOption.leave;
-
 	    if (dialog.owner === this.getCurrentUserId()) {
 	      optionToCheck = im_v2_const.ChatOption.leaveOwner;
 	    }
-
 	    const leaveAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
 	    const isExternalTelephonyCall = dialog.type === im_v2_const.ChatTypes.call;
-
 	    if (isExternalTelephonyCall || !leaveAllowed) {
 	      return null;
 	    }
-
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_LEAVE'),
 	      onclick: function () {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.leave, { ...this.context,
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.leave, {
+	          ...this.context,
 	          chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
 	          user: this.store.getters['users/get'](this.context.dialogId, true)
 	        });
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };
-	  } // invitation
+	  }
 
-
+	  // invitation
 	  getInviteItems() {
 	    const items = [this.getSendMessageItem(), this.getOpenProfileItem()];
 	    const canManageInvite = BX.MessengerProxy.canInvite() && this.getCurrentUserId() === this.context.invitation.originator;
-
 	    if (canManageInvite) {
 	      items.push(this.getDelimiter(), this.context.invitation.canResend ? this.getResendInviteItem() : null, this.getCancelInviteItem());
 	    }
-
 	    return items;
 	  }
-
 	  getResendInviteItem() {
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_RESEND'),
@@ -592,7 +517,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }.bind(this)
 	    };
 	  }
-
 	  getCancelInviteItem() {
 	    return {
 	      text: main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_CANCEL'),
@@ -612,19 +536,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };
-	  } // invitation end
-
+	  }
+	  // invitation end
 
 	  getDelimiter() {
 	    return {
 	      delimiter: true
 	    };
 	  }
-
 	  getCurrentUserId() {
 	    return this.store.state.application.common.userId;
 	  }
-
 	}
 
 	exports.BaseMenu = BaseMenu;

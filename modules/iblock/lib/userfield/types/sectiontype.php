@@ -109,36 +109,36 @@ class SectionType extends ElementType
 	 */
 	public static function getEnumList(array &$userField, array $additionalParameters = []): void
 	{
-		if(self::$iblockIncluded === null)
+		if (self::$iblockIncluded === null)
 		{
 			self::$iblockIncluded = Loader::includeModule('iblock');
 		}
 
-		if(!self::$iblockIncluded)
+		if (!self::$iblockIncluded)
 		{
 			return;
 		}
 
+		$userField['SETTINGS']['IBLOCK_ID'] ??= 0;
+		$userField['SETTINGS']['SHOW_NO_VALUE'] ??= 'Y';
+		$userField['SETTINGS']['DISPLAY'] ??= '';
+		$userField['SETTINGS']['ACTIVE_FILTER'] ??= 'N';
+
 		$result = [];
 		$showNoValue = (
 			$userField['MANDATORY'] !== 'Y'
-			||
-			$userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N'
-			||
-			(
+			|| $userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N'
+			|| (
 				isset($additionalParameters['SHOW_NO_VALUE'])
-				&&
-				$additionalParameters['SHOW_NO_VALUE'] === true
+				&& $additionalParameters['SHOW_NO_VALUE'] === true
 			)
 		);
 
 		if(
 			$showNoValue
-			&&
-			(
+			&& (
 				$userField['SETTINGS']['DISPLAY'] !== self::DISPLAY_CHECKBOX
-				||
-				$userField['MULTIPLE'] !== 'Y'
+				|| $userField['MULTIPLE'] !== 'Y'
 			)
 		)
 		{
@@ -173,6 +173,7 @@ class SectionType extends ElementType
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
 		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
+
 		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
 	}
 }

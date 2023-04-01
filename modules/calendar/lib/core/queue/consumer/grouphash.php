@@ -48,7 +48,7 @@ class GroupHash implements Interfaces\Consumer
 				'expression' => ['MAX(%s)', 'ID']
 			])
 			->setSelect(['MAX_ID', 'HASH'])
-			->addFilter('QUEUE_ID', 1)
+			->addFilter('QUEUE_ID', $this->getQueue()->getQueueId())
 			->exec()->fetch()
 		;
 		if ($row)

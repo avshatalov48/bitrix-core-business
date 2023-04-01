@@ -331,31 +331,83 @@ class CatalogProductDetailsComponent
 		$productTypes = ProductTable::getProductTypes(true);
 		if (isset($productTypes[$row['TYPE']]))
 		{
-			$builder = new \Bitrix\Catalog\Url\ShopBuilder();
-			$builder->setIblockId($row['IBLOCK_ID']);
-			$url = $builder->getElementListUrl(0);
-			if ($url)
+			$errorMessage = $this->getFormedErrorMessage($row, $productTypes[$row['TYPE']]);
+			if (!empty($errorMessage))
 			{
-				$title = $this->formatProductTypeName($productTypes[$row['TYPE']]);
-				$link = '<a href="'
-					. $url
-					. '" target="_top" class="ui-link-solid">'
-					. Loc::getMessage('CPD_SETS_NOT_SUPPORTED_LINK')
-					. '</a>'
-				;
-				$this->includeErrorComponent(Loc::getMessage(
-					'CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE',
-					[
-						'#TYPE#' => $title,
-						'#LINK#' => $link,
-					]
-				));
+				$this->includeErrorComponent($errorMessage);
 			}
 		}
 		else
 		{
 			$this->includeErrorComponent(Loc::getMessage('CPD_ERROR_UNKNOWN_PRODUCT_TYPE'));
 		}
+	}
+
+	private function getFormedErrorMessage(array $row, string $productType): string
+	{
+		$title = $this->formatProductTypeName($productType);
+
+		if (
+			Loader::includeModule('crm')
+			&& !Loader::includeModule('bitrix24')
+			&& \Bitrix\Main\Config\Option::get('catalog', 'product_card_slider_enabled') === 'Y'
+		)
+		{
+			$builder = new \Bitrix\Catalog\Url\ShopBuilder();
+			$builder->setIblockId($row['IBLOCK_ID']);
+			$builder->setSliderMode(false);
+			$builder->setUrlParams([
+				\Bitrix\Catalog\Url\ShopBuilder::OPEN_SETTINGS_PARAM => 1,
+			]);
+			$url = $builder->getElementListUrl(0);
+
+			if ($url && $this->checkProductSliderEnablePermissions())
+			{
+				$link = '<a href="'
+					. $url
+					. '" target="_top" class="ui-link-solid">'
+					. Loc::getMessage('CPD_SETS_ENABLE_PRODUCT_SLIDER_LINK')
+					. '</a>'
+				;
+			}
+			else
+			{
+				$link = '';
+			}
+
+			return Loc::getMessage('CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE_BUS', ['#TYPE#' => $title, '#LINK#' => $link]);
+		}
+		else
+		{
+			$builder = new \Bitrix\Catalog\Url\ShopBuilder();
+			$builder->setIblockId($row['IBLOCK_ID']);
+			$url = $builder->getElementListUrl(0);
+			if ($url)
+			{
+				$link = '<a href="'
+					. $url
+					. '" target="_top" class="ui-link-solid">'
+					. Loc::getMessage('CPD_SETS_NOT_SUPPORTED_LINK')
+					. '</a>'
+				;
+
+				return Loc::getMessage('CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE', ['#TYPE#' => $title, '#LINK#' => $link]);
+			}
+		}
+
+		return '';
+	}
+
+	private function checkProductSliderEnablePermissions(): bool
+	{
+		$accessController = \Bitrix\Catalog\Access\AccessController::getCurrent();
+
+		return
+			(
+				$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+				&& $accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS)
+			)
+		;
 	}
 
 	protected function checkBasePermissions(): bool
@@ -754,6 +806,7 @@ class CatalogProductDetailsComponent
 	{
 		$this->arResult['PRODUCT_ENTITY'] = $product;
 		$this->arResult['PRODUCT_FIELDS'] = $product->getFields();
+		$this->arResult['PRODUCT_FIELDS']['ID'] = $this->arResult['PRODUCT_FIELDS']['ID'] ?? null;
 		$this->arResult['SIMPLE_PRODUCT'] = $product->isSimple();
 		$this->arResult['IS_NEW_PRODUCT'] = $product->isNew();
 
@@ -1032,7 +1085,7 @@ class CatalogProductDetailsComponent
 					{
 						$propertySettings = CIBlockProperty::GetByID($propertyId)->Fetch();
 
-						if ($propertySettings['PROPERTY_TYPE'] === 'F')
+						if ($propertySettings && $propertySettings['PROPERTY_TYPE'] === 'F')
 						{
 							$gridImages = false;
 							if (isset($sku[$name . '_custom']))
@@ -1060,7 +1113,7 @@ class CatalogProductDetailsComponent
 							{
 								$prefix = BaseForm::GRID_FIELD_PREFIX . BaseForm::PROPERTY_FIELD_PREFIX . $propertyId;
 								$controlId = $prefix . '_uploader_' . $id;
-								if (is_array($sku[$name]))
+								if (isset($sku[$name]) && is_array($sku[$name]))
 								{
 									$checkedField = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
 										$controlId,
@@ -1071,7 +1124,7 @@ class CatalogProductDetailsComponent
 								{
 									$checkedField = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
 										$controlId,
-										[$sku[$name]]
+										[$sku[$name] ?? 0]
 									);
 									$checkedField = reset($checkedField);
 								}
@@ -1138,6 +1191,12 @@ class CatalogProductDetailsComponent
 		$propertyFields = [];
 		$prefixLength = mb_strlen(BaseForm::PROPERTY_FIELD_PREFIX);
 		$propertyCollection = $this->product->getPropertyCollection();
+		$sku = $this->product->getSkuCollection()->getFirst();
+		$skuPropertyCollection = null;
+		if ($sku)
+		{
+			$skuPropertyCollection = $sku->getPropertyCollection();
+		}
 
 		$this->prepareFieldKeys($fields);
 
@@ -1150,10 +1209,17 @@ class CatalogProductDetailsComponent
 			{
 				$index = mb_substr($name, $prefixLength);
 
+				$isSkuProperty = false;
 				$property = $propertyCollection->findById((int)$index);
 				if ($property === null)
 				{
 					$property = $propertyCollection->findByCode($index);
+				}
+
+				if ($property === null && $skuPropertyCollection)
+				{
+					$isSkuProperty = true;
+					$property = $skuPropertyCollection->findById((int)$index);
 				}
 
 				$propertyType = null;
@@ -1231,6 +1297,19 @@ class CatalogProductDetailsComponent
 						$field = '';
 					}
 					unset($fields[$name.'_descr']);
+				}
+				elseif (isset($property) && $property->getListType() === PropertyTable::CHECKBOX)
+				{
+					$variant = \Bitrix\Iblock\PropertyEnumerationTable::getRow([
+						'select' => ['ID', 'PROPERTY_ID', 'VALUE'],
+						'filter' => [
+							'=PROPERTY_ID' => $index,
+						],
+					]);
+					if ($variant && $field === $variant['VALUE'])
+					{
+						$field = $variant['ID'];
+					}
 				}
 				elseif (Loader::includeModule('currency'))
 				{
@@ -1606,7 +1685,7 @@ class CatalogProductDetailsComponent
 
 	private function prepareFileFields(&$fields)
 	{
-		$files = $_FILES['data'];
+		$files = $_FILES['data'] ?? [];
 		if (!empty($files))
 		{
 			CFile::ConvertFilesToPost($files, $fields);
@@ -1733,7 +1812,7 @@ class CatalogProductDetailsComponent
 				{
 					$notifyAboutNewVariation = true;
 
-					$sku = $this->createSkuItem($product, (int)$skuField['COPY_SKU_ID']);
+					$sku = $this->createSkuItem($product, (int)($skuField['COPY_SKU_ID'] ?? 0));
 				}
 
 				$this->fillSku($sku, $skuField);
@@ -2095,6 +2174,9 @@ class CatalogProductDetailsComponent
 		$updateFields = [
 			'IBLOCK_ID' => $property['IBLOCK_ID'],
 			'NAME' => $fields['NAME'],
+			'USER_TYPE_SETTINGS' => null,
+			'SMART_FILTER' => null,
+			'DEFAULT_VALUE' => null,
 		];
 
 		if (!empty($fields['MULTIPLE']))
@@ -2125,12 +2207,19 @@ class CatalogProductDetailsComponent
 			\Bitrix\Iblock\Model\PropertyFeature::updateFeatures($id, $features);
 		}
 
-		if ($fields['USER_TYPE'] === 'Date' || $fields['USER_TYPE'] === 'DateTime')
+		if (isset($fields['USER_TYPE']))
 		{
-			$updateFields['USER_TYPE'] = $fields['USER_TYPE'];
+			if (
+				$fields['USER_TYPE'] === CIBlockPropertyDate::USER_TYPE
+				|| $fields['USER_TYPE'] === CIBlockPropertyDateTime::USER_TYPE
+				|| $fields['USER_TYPE'] === CIBlockPropertySKU::USER_TYPE
+			)
+			{
+				$updateFields['USER_TYPE'] = $fields['USER_TYPE'];
+			}
 		}
 
-		if ($fields['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
+		if (isset($fields['PROPERTY_TYPE']) && $fields['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
 		{
 			$updateFields['VALUES'] = is_array($fields['VALUES']) ? $fields['VALUES'] : [];
 			if (empty($updateFields['VALUES']))
@@ -2139,7 +2228,22 @@ class CatalogProductDetailsComponent
 					new \Bitrix\Main\Error(Loc::getMessage('CPD_ERROR_EMPTY_LIST_ITEMS'))
 				);
 			}
-			$updateFields['VALUES'] = array_column($updateFields['VALUES'], null, 'ID');
+
+			if (count($updateFields['VALUES']) === 1 && $updateFields['VALUES'][0]['VALUE'] === 'Y')
+			{
+				$variant = \Bitrix\Iblock\PropertyEnumerationTable::getRow([
+					'select' => ['ID', 'PROPERTY_ID', 'VALUE'],
+					'filter' => [
+						'=PROPERTY_ID' => $id,
+					],
+				]);
+				unset($updateFields['VALUES'][0]);
+				$updateFields['VALUES'][$variant['ID']] = ['VALUE' => 'Y'];
+			}
+			else
+			{
+				$updateFields['VALUES'] = array_column($updateFields['VALUES'], null, 'ID');
+			}
 		}
 
 		$iblockProperty = new \CIBlockProperty();
@@ -2151,7 +2255,7 @@ class CatalogProductDetailsComponent
 			return $result;
 		}
 
-		$tableName = $property['USER_TYPE_SETTINGS']['TABLE_NAME'];
+		$tableName = $property['USER_TYPE_SETTINGS']['TABLE_NAME'] ?? null;
 		if ($property['USER_TYPE'] === 'directory'
 			&& !empty($tableName)
 			&& Loader::includeModule('highloadblock')
@@ -2292,7 +2396,7 @@ class CatalogProductDetailsComponent
 			return $result->addError(new \Bitrix\Main\Error('User has no rights to edit property.'));
 		}
 
-		if ($fields['USER_TYPE'] === 'directory')
+		if (isset($fields['USER_TYPE']) && $fields['USER_TYPE'] === 'directory')
 		{
 			$addDictionaryResult = self::addDictionary($fields);
 			if (!$addDictionaryResult->isSuccess())
@@ -2331,6 +2435,10 @@ class CatalogProductDetailsComponent
 			$fields['CODE'] = mb_strtoupper($fields['CODE']);
 		}
 
+		$listType = (isset($fields['LIST_TYPE']) && $fields['LIST_TYPE'] === PropertyTable::CHECKBOX)
+			? PropertyTable::CHECKBOX
+			: PropertyTable::LISTBOX;
+
 		$propertyFields = [
 			'IBLOCK_ID' => $fields['IBLOCK_ID'],
 			'NAME' => $fields['NAME'],
@@ -2340,7 +2448,10 @@ class CatalogProductDetailsComponent
 			'IS_REQUIRED' => ($fields['IS_REQUIRED'] === 'Y') ? 'Y' : 'N',
 			'PROPERTY_TYPE' => $fields['PROPERTY_TYPE'],
 			'USER_TYPE' => $fields['USER_TYPE'] ?? '',
-			'LIST_TYPE' => ($fields['LIST_TYPE'] === PropertyTable::CHECKBOX) ? PropertyTable::CHECKBOX : PropertyTable::LISTBOX,
+			'LIST_TYPE' => $listType,
+			'SMART_FILTER' => null,
+			'USER_TYPE_SETTINGS' => null,
+			'DEFAULT_VALUE' => null,
 		];
 
 		if ($fields['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)

@@ -94,7 +94,7 @@ class QueryCount
 			$ignoredTypes = [];
 			foreach (self::getTypes() as $typeId => $field)
 			{
-				$fieldName = $field['COLUMN_ALIAS'] ? $field['COLUMN_ALIAS'] : 'COUNT_' . $field['DATA_COLUMN'];
+				$fieldName = $field['COLUMN_ALIAS'] ?? 'COUNT_' . $field['DATA_COLUMN'];
 				if (!isset($row[$fieldName]))
 				{
 					continue;
@@ -107,7 +107,7 @@ class QueryCount
 				}
 				$result[$type] += (int) $row[$fieldName];
 
-				if ($field['IGNORE_TYPES'] && $row[$fieldName] > 0)
+				if (isset($field['IGNORE_TYPES']) && $row[$fieldName] > 0)
 				{
 					$ignoredTypes = array_merge($ignoredTypes, $field['IGNORE_TYPES']);
 				}
@@ -145,7 +145,8 @@ class QueryCount
 			$useEmptyValue = false;
 			if (mb_strpos($field['DATA_COLUMN'], '.') > 0)
 			{
-				$refFieldName = array_shift(explode('.', $field['DATA_COLUMN']));
+				$dataColumn = explode('.', $field['DATA_COLUMN']);
+				$refFieldName = array_shift($dataColumn);
 				if (!array_key_exists($refFieldName, $query->getRuntimeChains()))
 				{
 					$useEmptyValue = true;
@@ -156,10 +157,10 @@ class QueryCount
 				$useEmptyValue = true;
 			}
 
-			$fieldName = $field['COLUMN_ALIAS'] ? $field['COLUMN_ALIAS'] : 'COUNT_' . $field['DATA_COLUMN'];
+			$fieldName = $field['COLUMN_ALIAS'] ?? 'COUNT_' . $field['DATA_COLUMN'];
 			$fields[] = $fieldName;
 
-			if ($field['HAS'])
+			if (isset($field['HAS']))
 			{
 				$query->registerRuntimeField(new Entity\ExpressionField(
 					$fieldName,

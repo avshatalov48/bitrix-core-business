@@ -10,4 +10,5 @@ $MESS["SENDER_START_CREATE_LETTER"] = "Kampagne erstellen";
 $MESS["SENDER_START_CREATE_NEW_AD"] = "Werbenachrichten";
 $MESS["SENDER_START_CREATE_RC"] = "Umsatzsteigerung";
 $MESS["SENDER_START_CREATE_TOLOKA"] = "Yandex.Toloka";
+$MESS["SENDER_START_CREATE_YANDEX"] = "Yandex";
 $MESS["SENDER_START_TITLE"] = "Start";

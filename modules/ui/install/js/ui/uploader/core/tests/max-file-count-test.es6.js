@@ -1,6 +1,7 @@
 import Uploader from '../src/uploader';
 import { BaseEvent } from 'main.core.events';
 import { BaseError } from 'main.core';
+import { UploaderEvent } from '../src/enums/uploader-event';
 import createFileByType from './utils/create-file-by-type.es6';
 
 describe('Max Total Count Validation', () => {
@@ -18,10 +19,10 @@ describe('Max Total Count Validation', () => {
 			maxFileCount: 3,
 			multiple: true,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					assert.fail('A file was added to the uploader.');
 				},
-				onMaxFileCountExceeded: (event: BaseEvent) => {
+				[UploaderEvent.MAX_FILE_COUNT_EXCEEDED]: (event: BaseEvent) => {
 					try
 					{
 						const { error } = event.getData();
@@ -77,8 +78,8 @@ describe('Max Total Count Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAddStart', onAddStart);
-		uploader.subscribe('onMaxFileCountExceeded', onMaxFileCountExceeded);
+		uploader.subscribe(UploaderEvent.FILE_ADD_START, onAddStart);
+		uploader.subscribe(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, onMaxFileCountExceeded);
 
 		uploader.addFiles([gif, csv, png]);
 		uploader.addFiles([json]);
@@ -124,8 +125,8 @@ describe('Max Total Count Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAddStart', onAddStart);
-		uploader.subscribe('onMaxFileCountExceeded', onMaxFileCountExceeded);
+		uploader.subscribe(UploaderEvent.FILE_ADD_START, onAddStart);
+		uploader.subscribe(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, onMaxFileCountExceeded);
 
 		uploader.addFiles([
 			[gif, { id: 'gif' }],
@@ -165,7 +166,7 @@ describe('Max Total Count Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAddStart', onAddStart);
+		uploader.subscribe(UploaderEvent.FILE_ADD_START, onAddStart);
 		uploader.addFiles([gif, csv, png]);
 		uploader.addFile(json);
 	});
@@ -205,8 +206,8 @@ describe('Max Total Count Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAddStart', onAddStart);
-		uploader.subscribe('onMaxFileCountExceeded', onMaxFileCountExceeded);
+		uploader.subscribe(UploaderEvent.FILE_ADD_START, onAddStart);
+		uploader.subscribe(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, onMaxFileCountExceeded);
 
 		uploader.addFile(gif);
 		uploader.addFile(json);
@@ -248,8 +249,8 @@ describe('Max Total Count Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAddStart', onAddStart);
-		uploader.subscribe('onMaxFileCountExceeded', onMaxFileCountExceeded);
+		uploader.subscribe(UploaderEvent.FILE_ADD_START, onAddStart);
+		uploader.subscribe(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, onMaxFileCountExceeded);
 
 		uploader.addFile(gif);
 		uploader.addFile(json);

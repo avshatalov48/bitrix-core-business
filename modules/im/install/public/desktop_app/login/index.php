@@ -40,7 +40,16 @@ if (!IsModuleInstalled('bitrix24'))
 	header('Access-Control-Allow-Origin: *');
 }
 
-if ($_POST['action'] != 'login')
+$postAction = $_POST['action'] ?? 'none';
+$postLogin = $_POST['login'] ?? '';
+$postPassword = $_POST['password'] ?? '';
+$postOtpCode = $_POST['otp'] ?? '';
+$postRenewPassword = $_POST['renew_password'] ?? 'n';
+$postUserOsMark = $_POST['user_os_mark'] ?? '';
+$postUserAccount = $_POST['user_account'] ?? $postLogin;
+$postNetworkLogin = $_POST['LOGIN'] ?? '';
+
+if ($postAction != 'login')
 {
 	sendResponse(["success" => false, "code" => "method_not_permitted", "reason" => 'Method not permitted'], "403 Forbidden");
 	exit;
@@ -48,10 +57,10 @@ if ($_POST['action'] != 'login')
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/public/desktop_app/login/index.php");
 
-$result = $USER->Login($_POST['login'], $_POST['password']);
-if ($_POST['otp'])
+$result = $USER->Login($postLogin, $postPassword);
+if ($postOtpCode)
 {
-	$result = $USER->LoginByOtp($_POST['otp']);
+	$result = $USER->LoginByOtp($postOtpCode);
 }
 
 if ($result !== true || !$USER->IsAuthorized())
@@ -70,7 +79,7 @@ if ($result !== true || !$USER->IsAuthorized())
 		$answer["captchaCode"] = $captchaInfo["captchaCode"];
 		$answer["captchaURL"] = $captchaInfo["captchaURL"];
 	}
-	elseif ($APPLICATION->NeedCAPTHAForLogin($_POST['login']))
+	elseif ($APPLICATION->NeedCAPTHAForLogin($postLogin))
 	{
 		$answer["captchaCode"] = $APPLICATION->CaptchaGetCode();
 	}
@@ -88,9 +97,9 @@ if ($result !== true || !$USER->IsAuthorized())
 			$answer["code"] = "network_error";
 			sendResponse($answer, "521 Internal Bitrix24.Network error");
 
-			if (!empty($_POST['LOGIN']))
+			if (!empty($postNetworkLogin))
 			{
-				$dbRes = CUser::GetList('', '', array("LOGIN_EQUAL_EXACT" => $_POST['LOGIN']), array('FIELDS' => array('ID')));
+				$dbRes = CUser::GetList('', '', array("LOGIN_EQUAL_EXACT" => $postNetworkLogin), array('FIELDS' => array('ID')));
 				$arUser = $dbRes->fetch();
 				if ($arUser)
 				{
@@ -135,14 +144,14 @@ $answer = array(
 );
 
 if(
-	($_POST['renew_password'] == 'y' || $_POST['otp'] <> '')
+	($postRenewPassword == 'y' || $postOtpCode <> '')
 	&& $USER->GetParam("APPLICATION_ID") === null
 )
 {
 	$code = '';
-	if ($_POST['user_os_mark'] <> '')
+	if ($postUserOsMark <> '')
 	{
-		$code = md5($_POST['user_os_mark'].$_POST['user_account']);
+		$code = md5($postUserOsMark.$postUserAccount);
 	}
 
 	if ($code <> '')

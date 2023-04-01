@@ -447,14 +447,20 @@ class Manager
 	}
 
 	/**
-	 * Add some content to some marker.
-	 * @param string $marker Marker.
+	 * Adds content in specific area named by marker.
+	 *
+	 * @param string $marker Marker name.
 	 * @param string $content Content.
+	 * @param bool $skipTrim If true content will not be trimmed.
 	 * @return void
 	 */
-	public static function setPageView($marker, $content)
+	public static function setPageView(string $marker, string $content, bool $skipTrim = false): void
 	{
-		$content = trim($content);
+		if (!$skipTrim)
+		{
+			$content = trim($content);
+		}
+
 		if ($content)
 		{
 			$application = self::getApplication();
@@ -1192,16 +1198,16 @@ class Manager
 				$bad = true;
 				$value = $sanitizer->getFilteredValue();
 				$value = str_replace(
-					[' bxstyle="', '<sv g ', '<?', '?>'],
-					[' style="', '<svg ', '< ?', '? >'],
+					[' bxstyle="', '<sv g ', '<?', '?>', '<fo rm '],
+					[' style="', '<svg ', '< ?', '? >', '<form '],
 					$value
 				);
 			}
 			else
 			{
 				$value = str_replace(
-					[' bxstyle="', '<sv g ', '<?', '?>'],
-					[' style="', '<svg ', '< ?', '? >'],
+					[' bxstyle="', '<sv g ', '<?', '?>', '<fo rm '],
+					[' style="', '<svg ', '< ?', '? >', '<form '],
 					$value
 				);
 			}

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\Seo\Marketing\Services;
 use Bitrix\Main\Web\Json;
 use Bitrix\Seo\Marketing\Audience;
@@ -64,7 +64,7 @@ class AudienceFacebook extends Audience
 		return null;
 	}
 
-	protected function importContacts($audienceId, array $contacts = [], array $options)
+	protected function importContacts($audienceId, array $contacts, array $options)
 	{
 		return $this->getRequest()->send(array(
 			'methodName' => 'marketing.audience.contacts.add',
@@ -78,7 +78,7 @@ class AudienceFacebook extends Audience
 		));
 	}
 
-	protected function removeContacts($audienceId, array $contacts = [], array $options)
+	protected function removeContacts($audienceId, array $contacts, array $options)
 	{
 		return $this->getRequest()->send(array(
 			'methodName' => 'marketing.audience.contacts.remove',

@@ -152,6 +152,7 @@
 		 * @param {*} value
 		 * @param {?boolean} [preventSave = false]
 		 * @param {?boolean} [preventHistory = false]
+		 * @return void
 		 */
 		setValue: function(value, preventSave, preventHistory)
 		{
@@ -190,10 +191,11 @@
 
 		/**
 		 * Handles content change event and calls external onChange handler
+		 * @param {?boolean} [preventHistory = false]
 		 */
-		onChange: function()
+		onChange: function(preventHistory)
 		{
-			this.onChangeHandler.apply(null, [this]);
+			this.onChangeHandler.apply(null, [this, preventHistory]);
 		},
 
 
@@ -236,6 +238,52 @@
 		getBlock: function()
 		{
 			return BX.Landing.PageObject.getBlocks().getByChildNode(this.node);
-		}
+		},
+
+		/**
+		 * Prepare pseudo url if needed
+		 * @param {object} url
+		 * @return {null|object}
+		 */
+		preparePseudoUrl: function(url)
+		{
+			let urlIsChange = false;
+			if (!(url.href === '#' && url.target === ''))
+			{
+				urlIsChange = true;
+			}
+			if (url.href === 'selectActions:')
+			{
+				url.href = '';
+				url.enabled = false;
+				urlIsChange = true;
+			}
+			if (url.href.startsWith('product:'))
+			{
+				url.target = '_self';
+				urlIsChange = true;
+			}
+
+			if (url.enabled !== false)
+			{
+				if (url.href === '' || url.href === '#')
+				{
+					url.enabled = false;
+					urlIsChange = true;
+				}
+			}
+			if (url.target === '')
+			{
+				url.target = '_blank';
+				urlIsChange = true;
+			}
+
+			if (urlIsChange === true)
+			{
+				return url;
+			}
+
+			return null;
+		},
 	};
 })();

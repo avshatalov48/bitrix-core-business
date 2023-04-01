@@ -12,7 +12,7 @@
 					<!-- End Article Image -->
 
 					<!-- Article Content -->
-					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
+					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal g-pointer-events-none">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700 g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								Small<br>Objects
@@ -43,7 +43,7 @@
 					<!-- End Article Image -->
 
 					<!-- Article Content -->
-					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
+					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal g-pointer-events-none">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700 g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								Medium<br>Objects
@@ -74,7 +74,7 @@
 					<!-- End Article Image -->
 
 					<!-- Article Content -->
-					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
+					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal g-pointer-events-none">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700 g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								Large<br>Objects
@@ -105,7 +105,7 @@
 					<!-- End Article Image -->
 
 					<!-- Article Content -->
-					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
+					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal g-pointer-events-none">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700 g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								XXXXL<br>Objects

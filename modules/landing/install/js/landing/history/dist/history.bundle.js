@@ -1,24 +1,19 @@
 this.BX = this.BX || {};
-(function (exports,landing_main,main_core,landing_pageobject,landing_ui_highlight) {
+(function (exports,main_core,landing_pageobject,landing_ui_highlight,landing_main) {
 	'use strict';
 
-	var UNDO = 'undo';
-	var REDO = 'redo';
-	var INIT = 'init';
 	var RESOLVED = 'resolved';
 	var PENDING = 'pending';
-	var MAX_ENTRIES_COUNT = 100;
 
 	var _BX$Landing$Utils = BX.Landing.Utils,
 	    scrollTo = _BX$Landing$Utils.scrollTo,
 	    highlight = _BX$Landing$Utils.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function editText(state, entry) {
+	var editNode = function editNode(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 
@@ -33,38 +28,42 @@ this.BX = this.BX || {};
 	      return Promise.reject();
 	    }
 
-	    return scrollTo(node.node).then(highlight.bind(null, node.node, true)).then(function () {
-	      return node.setValue(entry[state], false, true);
+	    return scrollTo(node.node).then(highlight.bind(null, node.node, editNode.useRangeRect)).then(function () {
+	      return node.setValue(entry.params.value, false, true);
 	    });
 	  });
-	}
+	};
+
+	editNode.useRangeRect = true;
+
+	var editText = editNode;
+
+	var editEmbed = editNode;
+
+	var editMap = editNode;
+
+	var editImage = editNode;
+	editImage.useRangeRect = false;
+
+	var editIcon = editImage;
+
+	var editLink = editNode;
+	editLink.useRangeRect = false;
 
 	var _BX$Landing$Utils$1 = BX.Landing.Utils,
 	    scrollTo$1 = _BX$Landing$Utils$1.scrollTo,
 	    highlight$1 = _BX$Landing$Utils$1.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function editEmbed(state, entry) {
+	function sortBlock(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
-
-	    if (!block) {
-	      return Promise.reject();
-	    }
-
 	    block.forceInit();
-	    var node = block.nodes.getBySelector(entry.selector);
-
-	    if (!node) {
-	      return Promise.reject();
-	    }
-
-	    return scrollTo$1(node.node).then(highlight$1.bind(null, node.node, true)).then(function () {
-	      return node.setValue(entry[state], false, true);
+	    return scrollTo$1(block.node).then(highlight$1.bind(null, block.node)).then(function () {
+	      return block[entry.params.direction](true);
 	    });
 	  });
 	}
@@ -73,28 +72,28 @@ this.BX = this.BX || {};
 	    scrollTo$2 = _BX$Landing$Utils$2.scrollTo,
 	    highlight$2 = _BX$Landing$Utils$2.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function editMap(state, entry) {
-	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
+	function addBlock(entry) {
+	  return landing_pageobject.PageObject.getInstance().blocks().then(function (blocks) {
+	    var block = blocks.get(entry.params.currentBlock);
+	    return new Promise(function (resolve) {
+	      if (block) {
+	        block.forceInit();
+	        return scrollTo$2(block.node).then(highlight$2.bind(null, block.node, false, true)).then(resolve);
+	      }
 
-	    if (!block) {
-	      return Promise.reject();
-	    }
-
-	    block.forceInit();
-	    var node = block.nodes.getBySelector(entry.selector);
-
-	    if (!node) {
-	      return Promise.reject();
-	    }
-
-	    return scrollTo$2(node.node).then(highlight$2.bind(null, node.node, true)).then(function () {
-	      return node.setValue(entry[state], false, true);
+	      resolve();
+	    }).then(function () {
+	      var landing = BX.Landing.Main.getInstance();
+	      landing.currentBlock = block;
+	      return landing_pageobject.PageObject.getInstance().view().then(function (iframe) {
+	        landing.currentArea = iframe.contentDocument.body.querySelector("[data-landing=\"".concat(entry.params.lid, "\"]"));
+	        landing.insertBefore = entry.params.insertBefore;
+	        return landing.onAddBlock(entry.params.code, entry.block, true);
+	      });
 	    });
 	  });
 	}
@@ -103,34 +102,20 @@ this.BX = this.BX || {};
 	    scrollTo$3 = _BX$Landing$Utils$3.scrollTo,
 	    highlight$3 = _BX$Landing$Utils$3.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function editImage(state, entry) {
+	function removeBlock(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
-
-	    if (!block) {
-	      return Promise.reject();
-	    }
-
 	    block.forceInit();
-	    var node = block.nodes.getBySelector(entry.selector);
-
-	    if (!node) {
-	      return Promise.reject();
-	    }
-
-	    return scrollTo$3(node.node).then(highlight$3.bind(null, node.node)).then(function () {
-	      entry[state].id = 0;
-	      return node.setValue(entry[state], false, true);
+	    return scrollTo$3(block.node).then(function () {
+	      highlight$3(block.node);
+	      return block.deleteBlock(true);
 	    });
 	  });
 	}
-
-	var editIcon = editImage;
 
 	var _BX$Landing$Utils$4 = BX.Landing.Utils,
 	    scrollTo$4 = _BX$Landing$Utils$4.scrollTo,
@@ -141,107 +126,7 @@ this.BX = this.BX || {};
 	 * @return {Promise}
 	 */
 
-	function editLink(state, entry) {
-	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
-
-	    if (!block) {
-	      return Promise.reject();
-	    }
-
-	    block.forceInit();
-	    var node = block.nodes.getBySelector(entry.selector);
-
-	    if (!node) {
-	      return Promise.reject();
-	    }
-
-	    return scrollTo$4(node.node).then(highlight$4.bind(null, node.node)).then(function () {
-	      return node.setValue(entry[state], false, true);
-	    });
-	  });
-	}
-
-	var _BX$Landing$Utils$5 = BX.Landing.Utils,
-	    scrollTo$5 = _BX$Landing$Utils$5.scrollTo,
-	    highlight$5 = _BX$Landing$Utils$5.highlight;
-	/**
-	 * @param {string} state
-	 * @param {object} entry
-	 * @return {Promise}
-	 */
-
-	function sortBlock(state, entry) {
-	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
-	    block.forceInit();
-	    return scrollTo$5(block.node).then(highlight$5.bind(null, block.node)).then(function () {
-	      return block[entry[state]](true);
-	    });
-	  });
-	}
-
-	var _BX$Landing$Utils$6 = BX.Landing.Utils,
-	    scrollTo$6 = _BX$Landing$Utils$6.scrollTo,
-	    highlight$6 = _BX$Landing$Utils$6.highlight;
-	/**
-	 * @param {string} state
-	 * @param {object} entry
-	 * @return {Promise}
-	 */
-
-	function addBlock(state, entry) {
-	  return landing_pageobject.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry[state].currentBlock);
-	    return new Promise(function (resolve) {
-	      if (block) {
-	        block.forceInit();
-	        return scrollTo$6(block.node).then(highlight$6.bind(null, block.node, false, true)).then(resolve);
-	      }
-
-	      resolve();
-	    }).then(function () {
-	      var landing = BX.Landing.Main.getInstance();
-	      landing.currentBlock = block;
-	      return landing_pageobject.PageObject.getInstance().view().then(function (iframe) {
-	        landing.currentArea = iframe.contentDocument.body.querySelector("[data-landing=\"".concat(entry[state].lid, "\"]"));
-	        landing.insertBefore = entry[state].insertBefore;
-	        return landing.onAddBlock(entry[state].code, entry.block, true);
-	      });
-	    });
-	  });
-	}
-
-	var _BX$Landing$Utils$7 = BX.Landing.Utils,
-	    scrollTo$7 = _BX$Landing$Utils$7.scrollTo,
-	    highlight$7 = _BX$Landing$Utils$7.highlight;
-	/**
-	 * @param {string} state
-	 * @param {object} entry
-	 * @return {Promise}
-	 */
-
-	function removeBlock(state, entry) {
-	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
-	    block.forceInit();
-	    return scrollTo$7(block.node).then(function () {
-	      highlight$7(block.node);
-	      return block.deleteBlock(true);
-	    });
-	  });
-	}
-
-	var _BX$Landing$Utils$8 = BX.Landing.Utils,
-	    scrollTo$8 = _BX$Landing$Utils$8.scrollTo,
-	    highlight$8 = _BX$Landing$Utils$8.highlight;
-	/**
-	 * @param {string} state
-	 * @param {object} entry
-	 * @return {Promise}
-	 */
-
-	function addCard(state, entry) {
+	function addCard(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 
@@ -256,39 +141,42 @@ this.BX = this.BX || {};
 	    return block;
 	  }).then(function (block) {
 	    return BX.Landing.PageObject.getInstance().view().then(function (iframe) {
-	      return [block, iframe.contentDocument.querySelector(entry[state].container)];
+	      var parentNode = iframe.contentDocument.querySelector(entry.params.selector).parentNode;
+	      return [block, parentNode];
 	    });
-	  }).then(function (params) {
-	    return scrollTo$8(params[1]).then(function () {
-	      return params;
+	  }).then(function (elements) {
+	    return scrollTo$4(elements[1]).then(function () {
+	      return elements;
 	    });
-	  }).then(function (params) {
-	    params[0].addCard({
-	      index: entry[state].index,
-	      container: params[1],
-	      content: entry[state].html,
-	      selector: entry.selector
-	    });
-	    var card = params[0].cards.getBySelector(entry.selector);
+	  }).then(function (elements) {
+	    var block = elements[0];
+	    return block.addCard({
+	      index: entry.params.position,
+	      container: elements[1],
+	      content: entry.params.content,
+	      selector: entry.params.selector
+	    }, true).then(function () {
+	      var card = block.cards.getBySelector(entry.params.selector);
 
-	    if (!card) {
-	      return Promise.reject();
-	    }
+	      if (!card) {
+	        return Promise.reject();
+	      }
 
-	    return highlight$8(card.node);
+	      return highlight$4(card.node);
+	    });
 	  })["catch"](function () {});
 	}
 
-	var _BX$Landing$Utils$9 = BX.Landing.Utils,
-	    scrollTo$9 = _BX$Landing$Utils$9.scrollTo,
-	    highlight$9 = _BX$Landing$Utils$9.highlight;
+	var _BX$Landing$Utils$5 = BX.Landing.Utils,
+	    scrollTo$5 = _BX$Landing$Utils$5.scrollTo,
+	    highlight$5 = _BX$Landing$Utils$5.highlight;
 	/**
 	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function removeCard(state, entry) {
+	function removeCard(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 	    block.forceInit();
@@ -297,30 +185,32 @@ this.BX = this.BX || {};
 	      return Promise.reject();
 	    }
 
-	    var card = block.cards.getBySelector(entry.selector);
+	    var relativeSelector = entry.params.selector + '@' + (entry.params.position + 1); // todo: return +1 position from back. To be more precise - not always may be +1, need evaluate this
+
+	    var card = block.cards.getBySelector(relativeSelector);
 
 	    if (!card) {
 	      return Promise.reject();
 	    }
 
-	    return scrollTo$9(card.node).then(highlight$9.bind(null, card.node)).then(function () {
-	      return block.removeCard(entry.selector, true);
+	    return scrollTo$5(card.node).then(highlight$5.bind(null, card.node)).then(function () {
+	      return block.removeCard(relativeSelector, true);
 	    });
 	  });
 	}
 
 	/**
 	 * History entry action for add node.
-	 * @param {string} state State code.
 	 * @param {object} entry History entry.
 	 * @return {Promise}
 	 */
-	function addNode(state, entry) {
+	function addNode(entry) {
 	  var _this = this;
 
 	  // entry.block === null >> designer mode
 	  return new Promise(function (resolve, reject) {
-	    var tags = (entry.redo || {}).tags || (entry.undo || {}).tags || [];
+	    // const tags = (entry.redo || {}).tags || ((entry.undo || {}).tags || []);
+	    var tags = entry.params.tags || {};
 	    top.BX.onCustomEvent(_this, 'Landing:onHistoryAddNode', [tags]);
 	    resolve();
 	  });
@@ -328,31 +218,30 @@ this.BX = this.BX || {};
 
 	/**
 	 * History entry action for remove node.
-	 * @param {string} state State code.
 	 * @param {object} entry History entry.
 	 * @return {Promise}
 	 */
-	function removeNode(state, entry) {
+	function removeNode(entry) {
 	  var _this = this;
 
 	  // entry.block === null >> designer mode
 	  return new Promise(function (resolve, reject) {
-	    var tags = (entry.redo || {}).tags || (entry.undo || {}).tags || [];
+	    // const tags = (entry.redo || {}).tags || ((entry.undo || {}).tags || []);
+	    var tags = entry.params.tags || {};
 	    top.BX.onCustomEvent(_this, 'Landing:onHistoryRemoveNode', [tags]);
 	    resolve();
 	  });
 	}
 
-	var _BX$Landing$Utils$a = BX.Landing.Utils,
-	    scrollTo$a = _BX$Landing$Utils$a.scrollTo,
-	    slice = _BX$Landing$Utils$a.slice;
+	var _BX$Landing$Utils$6 = BX.Landing.Utils,
+	    scrollTo$6 = _BX$Landing$Utils$6.scrollTo,
+	    slice = _BX$Landing$Utils$6.slice;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function editStyle(state, entry) {
+	function editStyle(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 
@@ -364,7 +253,7 @@ this.BX = this.BX || {};
 	    block.initStyles();
 	    return block;
 	  }).then(function (block) {
-	    return scrollTo$a(block.node).then(function () {
+	    return scrollTo$6(block.node).then(function () {
 	      return block;
 	    });
 	  }).then(function (block) {
@@ -375,10 +264,10 @@ this.BX = this.BX || {};
 	    }
 
 	    elements.forEach(function (element) {
-	      element.className = entry[state].className;
+	      element.className = entry.params.value.className;
 
-	      if (entry[state].style) {
-	        element.style = entry[state].style;
+	      if (entry.params.value.style && entry.params.value.style !== '') {
+	        element.style = entry.params.value.style;
 	      } else {
 	        element.removeAttribute('style');
 	      }
@@ -394,7 +283,8 @@ this.BX = this.BX || {};
 	        field.reset();
 	        field.onFrameLoad();
 	      });
-	    }
+	    } // todo: relative selector? position?
+
 
 	    var styleNode = block.styles.find(function (style) {
 	      return style.selector === entry.selector || style.relativeSelector === entry.selector;
@@ -404,48 +294,75 @@ this.BX = this.BX || {};
 	      block.onStyleInputWithDebounce({
 	        node: styleNode.node,
 	        data: styleNode.getValue()
-	      });
+	      }, true);
 	    }
 	  });
 	}
 
-	var _BX$Landing$Utils$b = BX.Landing.Utils,
-	    scrollTo$b = _BX$Landing$Utils$b.scrollTo,
-	    highlight$a = _BX$Landing$Utils$b.highlight;
+	var _BX$Landing$Utils$7 = BX.Landing.Utils,
+	    scrollTo$7 = _BX$Landing$Utils$7.scrollTo,
+	    highlight$6 = _BX$Landing$Utils$7.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function updateBlockState(state, entry) {
+	function updateContent(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 	    block.forceInit();
-	    return scrollTo$b(block.node).then(function () {
-	      void highlight$a(block.node);
-	      block.updateBlockState(BX.clone(entry[state]), true);
+	    return scrollTo$7(block.node).then(function () {
+	      void highlight$6(block.node);
+	      return block.updateContent(entry.params.content, true);
 	    });
 	  });
 	}
 
-	var _BX$Landing$Utils$c = BX.Landing.Utils,
-	    scrollTo$c = _BX$Landing$Utils$c.scrollTo,
-	    highlight$b = _BX$Landing$Utils$c.highlight;
+	var _BX$Landing$Utils$8 = BX.Landing.Utils,
+	    scrollTo$8 = _BX$Landing$Utils$8.scrollTo,
+	    highlight$7 = _BX$Landing$Utils$8.highlight;
 	/**
-	 * @param {string} state
 	 * @param {object} entry
 	 * @return {Promise}
 	 */
 
-	function updateContent(state, entry) {
+	function multiply(entry) {
+	  var blockId = null;
+	  var updateBlockStateData = {};
+	  entry.params.forEach(function (singleAction) {
+	    if (!blockId && singleAction.params.block) {
+	      blockId = singleAction.params.block;
+	    } // todo: all types nodes
+
+
+	    if (singleAction.command === 'editText' || singleAction.command === 'editImage' || singleAction.command === 'editEmbed' || singleAction.command === 'editMap' || singleAction.command === 'editIcon' || singleAction.command === 'editLink') {
+	      updateBlockStateData[singleAction.params.selector] = singleAction.params.value;
+	    }
+
+	    if (singleAction.command === 'updateDynamic') {
+	      updateBlockStateData.dynamicParams = singleAction.params.dynamicParams;
+	      updateBlockStateData.dynamicState = singleAction.params.dynamicState;
+	    }
+
+	    if (singleAction.command === 'changeAnchor') {
+	      updateBlockStateData.settings = {
+	        id: singleAction.params.value
+	      };
+	    }
+	  });
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
-	    block.forceInit();
-	    return scrollTo$c(block.node).then(function () {
-	      void highlight$b(block.node);
-	      return block.updateContent(entry[state]);
-	    });
+	    var block = blocks.get(blockId);
+
+	    if (block) {
+	      block.forceInit();
+	      return scrollTo$8(block.node).then(function () {
+	        void highlight$7(block.node);
+
+	        if (Object.keys(updateBlockStateData).length > 0) {
+	          block.updateBlockState(updateBlockStateData, true);
+	        }
+	      });
+	    }
 	  });
 	}
 
@@ -456,9 +373,11 @@ this.BX = this.BX || {};
 
 	var Command = function Command(options) {
 	  babelHelpers.classCallCheck(this, Command);
-	  this.id = main_core.Type.isStringFilled(options.id) ? options.id : '#invalidCommand';
-	  this.undo = main_core.Type.isFunction(options.undo) ? options.undo : function () {};
-	  this.redo = main_core.Type.isFunction(options.redo) ? options.redo : function () {};
+	  this.id = main_core.Type.isStringFilled(options.id) ? options.id : '#invalidCommand'; // todo: remove undo redo
+	  // this.undo = Type.isFunction(options.undo) ? options.undo : (() => {});
+	  // this.redo = Type.isFunction(options.redo) ? options.redo : (() => {});
+
+	  this.command = main_core.Type.isFunction(options.command) ? options.command : function () {};
 	};
 
 	/**
@@ -469,83 +388,67 @@ this.BX = this.BX || {};
 	function registerBaseCommands(history) {
 	  history.registerCommand(new Command({
 	    id: 'editText',
-	    undo: editText.bind(null, UNDO),
-	    redo: editText.bind(null, REDO)
-	  }));
-	  history.registerCommand(new Command({
-	    id: 'editEmbed',
-	    undo: editEmbed.bind(null, UNDO),
-	    redo: editEmbed.bind(null, REDO)
-	  }));
-	  history.registerCommand(new Command({
-	    id: 'editMap',
-	    undo: editMap.bind(null, UNDO),
-	    redo: editMap.bind(null, REDO)
+	    command: editText
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'editImage',
-	    undo: editImage.bind(null, UNDO),
-	    redo: editImage.bind(null, REDO)
+	    command: editImage
+	  }));
+	  history.registerCommand(new Command({
+	    id: 'editEmbed',
+	    command: editEmbed
+	  }));
+	  history.registerCommand(new Command({
+	    id: 'editMap',
+	    command: editMap
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'editIcon',
-	    undo: editIcon.bind(null, UNDO),
-	    redo: editIcon.bind(null, REDO)
+	    command: editIcon
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'editLink',
-	    undo: editLink.bind(null, UNDO),
-	    redo: editLink.bind(null, REDO)
+	    command: editLink
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'sortBlock',
-	    undo: sortBlock.bind(null, UNDO),
-	    redo: sortBlock.bind(null, REDO)
+	    command: sortBlock
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'addBlock',
-	    undo: removeBlock.bind(null, UNDO),
-	    redo: addBlock.bind(null, REDO)
+	    command: addBlock
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'removeBlock',
-	    undo: addBlock.bind(null, UNDO),
-	    redo: removeBlock.bind(null, REDO)
+	    command: removeBlock
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'updateStyle',
-	    undo: editStyle.bind(null, UNDO),
-	    redo: editStyle.bind(null, REDO)
+	    command: editStyle
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'addCard',
-	    undo: removeCard.bind(null, UNDO),
-	    redo: addCard.bind(null, REDO)
+	    command: addCard
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'removeCard',
-	    undo: addCard.bind(null, UNDO),
-	    redo: removeCard.bind(null, REDO)
+	    command: removeCard
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'addNode',
-	    undo: removeNode.bind(null, UNDO),
-	    redo: addNode.bind(null, REDO)
+	    command: addNode
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'removeNode',
-	    undo: addNode.bind(null, UNDO),
-	    redo: removeNode.bind(null, REDO)
-	  }));
-	  history.registerCommand(new Command({
-	    id: 'updateBlockState',
-	    undo: updateBlockState.bind(null, UNDO),
-	    redo: updateBlockState.bind(null, REDO)
+	    command: removeNode
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'updateContent',
-	    undo: updateContent.bind(null, UNDO),
-	    redo: updateContent.bind(null, REDO)
+	    command: updateContent
+	  }));
+	  history.registerCommand(new Command({
+	    id: 'multiply',
+	    command: multiply
 	  }));
 	  return Promise.resolve(history);
 	}
@@ -615,54 +518,16 @@ this.BX = this.BX || {};
 	    currentPageId = landing_main.Main.getInstance().id;
 	  } catch (err) {
 	    currentPageId = -1;
-	  }
+	  } // todo: if design - no?
 
-	  return asyncJsonParse(window.localStorage.history).then(function (historyData) {
-	    if (main_core.Type.isPlainObject(historyData) && currentPageId in historyData) {
-	      return historyData[currentPageId];
-	    }
 
-	    return Promise.reject();
-	  }).then(function (landingData) {
-	    Object.keys(landingData.stack).forEach(function (key, index) {
-	      history.stack.push(new BX.Landing.History.Entry(landingData.stack[key]));
-
-	      if (index >= MAX_ENTRIES_COUNT) {
-	        history.stack.shift();
-	      }
-	    });
-	    history.position = Math.min(main_core.Text.toNumber(landingData.position), history.stack.length - 1);
-	    history.state = landingData.state;
+	  return BX.Landing.Backend.getInstance().action("History::getForLanding", {
+	    lid: currentPageId
+	  }).then(function (data) {
+	    history.stack = main_core.Text.toNumber(data.stackCount);
+	    history.step = Math.min(main_core.Text.toNumber(data.step), history.stack);
 	    return history;
-	  })["catch"](function () {
-	    return history;
-	  });
-	}
-
-	/**
-	 * Saves history to storage
-	 * @param {History} history
-	 * @return {Promise<History>}
-	 */
-	function saveStack(history) {
-	  var currentPageId;
-
-	  try {
-	    currentPageId = landing_main.Main.getInstance().id;
-	  } catch (err) {
-	    currentPageId = -1;
-	  }
-
-	  return asyncJsonParse(window.localStorage.history).then(function (historyData) {
-	    return main_core.Type.isPlainObject(historyData) ? historyData : {};
-	  }).then(function (all) {
-	    all[currentPageId] = {};
-	    all[currentPageId].stack = history.stack;
-	    all[currentPageId].position = history.position;
-	    all[currentPageId].state = history.state;
-	    return all;
-	  }).then(asyncJsonStringify).then(function (allString) {
-	    window.localStorage.history = allString;
+	  })["catch"](function (e) {
 	    return history;
 	  });
 	}
@@ -714,61 +579,13 @@ this.BX = this.BX || {};
 	}
 
 	/**
-	 * Offsets history by offset length
-	 * @param {History} history
-	 * @param {Integer} offsetValue
-	 */
-	function offset(history, offsetValue) {
-	  if (history.commandState === PENDING) {
-	    return Promise.resolve(history);
-	  }
-
-	  var position = history.position + offsetValue;
-	  var state = history.state;
-
-	  if (offsetValue < 0 && history.state !== UNDO) {
-	    position += 1;
-	    state = UNDO;
-	  }
-
-	  if (offsetValue > 0 && history.state !== REDO) {
-	    position -= 1;
-	    state = REDO;
-	  }
-
-	  if (position <= history.stack.length - 1 && position >= 0) {
-	    history.position = position;
-	    history.state = state;
-	    var entry = history.stack[position];
-
-	    if (entry) {
-	      var command = history.commands[entry.command];
-
-	      if (command) {
-	        history.commandState = PENDING;
-	        return command[state](entry).then(function () {
-	          history.commandState = RESOLVED;
-	          return history;
-	        })["catch"](function () {
-	          history.commandState = RESOLVED;
-	          return offset(history, offsetValue);
-	        });
-	      }
-	    }
-	  }
-
-	  return Promise.resolve(history);
-	}
-
-	/**
 	 * Clears history stack
 	 * @param {History} history
 	 * @return {Promise<History>}
 	 */
 	function clear(history) {
 	  history.stack = [];
-	  history.position = -1;
-	  history.state = INIT;
+	  history.step = -1;
 	  history.commandState = RESOLVED;
 	  return Promise.resolve(history);
 	}
@@ -800,8 +617,7 @@ this.BX = this.BX || {};
 	  this.block = options.block;
 	  this.selector = options.selector;
 	  this.command = main_core.Type.isStringFilled(options.command) ? options.command : '#invalidCommand';
-	  this.undo = options.undo;
-	  this.redo = options.redo;
+	  this.params = options.params;
 	};
 
 	var Highlight = /*#__PURE__*/function (_HighlightNode) {
@@ -855,26 +671,95 @@ this.BX = this.BX || {};
 	var History = /*#__PURE__*/function () {
 	  function History() {
 	    babelHelpers.classCallCheck(this, History);
-	    this.stack = [];
+	    babelHelpers.defineProperty(this, "designerBlockId", null);
+	    this.type = History.TYPE_LANDING;
+	    this.stack = 0;
 	    this.commands = {};
-	    this.position = -1;
-	    this.state = INIT;
+	    this.step = 0;
 	    this.commandState = RESOLVED;
 	    this.onStorage = this.onStorage.bind(this);
+
+	    try {
+	      this.landingId = landing_main.Main.getInstance().id;
+	    } catch (err) {
+	      this.landingId = -1;
+	    }
+
 	    main_core.Event.bind(window, 'storage', this.onStorage);
-	    registerBaseCommands(this).then(loadStack).then(saveStack).then(onInit);
+	    registerBaseCommands(this).then(loadStack).then(onInit);
 	  }
 
 	  babelHelpers.createClass(History, [{
-	    key: "undo",
+	    key: "setTypeDesignerBlock",
 
+	    /**
+	     * Set special type for designer block
+	     * @param blockId
+	     * @return {Promise<BX.Landing.History>|*}
+	     */
+	    value: function setTypeDesignerBlock(blockId) {
+	      this.type = History.TYPE_DESIGNER_BLOCK;
+	      this.designerBlockId = blockId;
+	      return loadStack(this);
+	    }
+	  }, {
+	    key: "getUndoAction",
+	    value: function getUndoAction() {
+	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
+	        return "History::undoDesignerBlock";
+	      }
+
+	      return "History::undoLanding";
+	    }
+	  }, {
+	    key: "getRedoAction",
+	    value: function getRedoAction() {
+	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
+	        return "History::redoDesignerBlock";
+	      }
+
+	      return "History::redoLanding";
+	    }
+	  }, {
+	    key: "getActionParams",
+	    value: function getActionParams() {
+	      if (this.type === History.TYPE_DESIGNER_BLOCK && this.designerBlockId) {
+	        return {
+	          blockId: this.designerBlockId
+	        };
+	      }
+
+	      return {
+	        lid: this.landingId
+	      };
+	    }
 	    /**
 	     * Applies preview history entry
 	     * @return {Promise}
 	     */
+
+	  }, {
+	    key: "undo",
 	    value: function undo() {
+	      var _this = this;
+
 	      if (this.canUndo()) {
-	        return offset(this, -1).then(saveStack).then(onUpdate);
+	        return BX.Landing.Backend.getInstance().action(this.getUndoAction(), this.getActionParams()).then(function (command) {
+	          if (command) {
+	            var params = command.params;
+	            var entry = new Entry({
+	              block: params.block,
+	              selector: params.selector,
+	              command: command.command,
+	              params: params
+	            });
+	            return _this.runCommand(entry, -1);
+	          }
+
+	          return Promise.reject();
+	        }).then(function (res) {
+	          return _this.offset(-1).then(onUpdate);
+	        });
 	      }
 
 	      return Promise.resolve(this);
@@ -887,11 +772,65 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "redo",
 	    value: function redo() {
+	      var _this2 = this;
+
 	      if (this.canRedo()) {
-	        return offset(this, 1).then(saveStack).then(onUpdate);
+	        return BX.Landing.Backend.getInstance().action(this.getRedoAction(), this.getActionParams()).then(function (command) {
+	          if (command) {
+	            var params = command.params;
+	            var entry = new Entry({
+	              block: params.block,
+	              selector: params.selector,
+	              command: command.command,
+	              params: params
+	            });
+	            return _this2.runCommand(entry, 1);
+	          }
+
+	          return Promise.reject();
+	        }).then(function (res) {
+	          return _this2.offset(1).then(onUpdate);
+	        });
 	      }
 
 	      return Promise.resolve(this);
+	    }
+	  }, {
+	    key: "offset",
+	    value: function offset(offsetValue) {
+	      if (this.commandState === PENDING) {
+	        return Promise.resolve(this);
+	      }
+
+	      var step = this.step + offsetValue;
+
+	      if (step >= 0 && step <= this.stack) {
+	        this.step = step;
+	      }
+
+	      return Promise.resolve(this);
+	    } // todo: offsetvelue if haaaaack, fuuuu
+
+	  }, {
+	    key: "runCommand",
+	    value: function runCommand(entry, offsetValue) {
+	      var _this3 = this;
+
+	      if (entry) {
+	        var command = this.commands[entry.command];
+
+	        if (command) {
+	          this.commandState = PENDING;
+	          return command.command(entry).then(function () {
+	            _this3.commandState = RESOLVED;
+	            return _this3;
+	          })["catch"](function () {
+	            _this3.commandState = RESOLVED; // todo: how check and process error
+
+	            return _this3.offset(offsetValue);
+	          });
+	        }
+	      }
 	    }
 	    /**
 	     * Check that there are actions to undo
@@ -901,7 +840,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canUndo",
 	    value: function canUndo() {
-	      return this.position > 0 && this.state === REDO || this.position > 0 && this.state === UNDO || this.position === 0 && this.state !== UNDO;
+	      return this.commandState !== PENDING && this.step > 0 && this.stack > 0 && this.step <= this.stack;
 	    }
 	    /**
 	     * Check that there are actions to redo
@@ -911,7 +850,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canRedo",
 	    value: function canRedo() {
-	      return this.position < this.stack.length - 1 && this.state !== INIT || this.position !== -1 && this.position === this.stack.length - 1 && this.state !== REDO;
+	      return this.commandState !== PENDING && this.step < this.stack && this.step >= 0;
 	    }
 	    /**
 	     * Adds entry to history stack
@@ -921,26 +860,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "push",
 	    value: function push(entry) {
-	      var startIndex = this.position + 1;
-	      var deleteCount = this.stack.length;
-
-	      if (this.state === UNDO) {
-	        startIndex -= 1;
+	      if (this.step < this.stack) {
+	        this.stack = this.step;
 	      }
 
-	      var deletedEntries = this.stack.splice(startIndex, deleteCount, entry);
-
-	      if (this.stack.length > MAX_ENTRIES_COUNT) {
-	        deletedEntries.push(this.stack.shift());
-	      }
-
-	      if (deletedEntries.length) {
-	        void this.onNewBranch(deletedEntries);
-	      }
-
-	      this.position = this.stack.length - 1;
-	      this.state = REDO;
-	      saveStack(this).then(onUpdate);
+	      this.step++;
+	      this.stack++;
+	      onUpdate(this);
 	    }
 	    /**
 	     * Registers unique history command
@@ -963,6 +889,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "removePageHistory",
 	    value: function removePageHistory$$1(pageId) {
+	      // todo: publication clear method
 	      return removePageHistory(pageId, this).then(function (history) {
 	        var currentPageId;
 
@@ -1002,14 +929,32 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onNewBranch",
 	    value: function onNewBranch(entries) {
-	      var _this = this;
+	      var _this4 = this;
 
 	      return fetchEntities(entries, this).then(function (entities) {
-	        return removeEntities(entities, _this);
+	        return removeEntities(entities, _this4);
 	      });
 	    }
 	  }], [{
 	    key: "getInstance",
+	    // todo: need?
+	    // static Action = {
+	    // 	editText,
+	    // 	editEmbed,
+	    // 	editMap,
+	    // 	editImage,
+	    // 	editIcon,
+	    // 	editLink,
+	    // 	sortBlock,
+	    // 	addBlock,
+	    // 	removeBlock,
+	    // 	addCard,
+	    // 	removeCard,
+	    // 	editStyle,
+	    // 	addNode,
+	    // 	removeNode,
+	    // 	updateContent
+	    // };
 	    value: function getInstance() {
 	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
 
@@ -1022,29 +967,13 @@ this.BX = this.BX || {};
 	  }]);
 	  return History;
 	}();
+	babelHelpers.defineProperty(History, "TYPE_LANDING", 'L');
+	babelHelpers.defineProperty(History, "TYPE_DESIGNER_BLOCK", 'D');
 	babelHelpers.defineProperty(History, "Command", Command);
 	babelHelpers.defineProperty(History, "Entry", Entry);
 	babelHelpers.defineProperty(History, "Highlight", Highlight);
-	babelHelpers.defineProperty(History, "Action", {
-	  editText: editText,
-	  editEmbed: editEmbed,
-	  editMap: editMap,
-	  editImage: editImage,
-	  editIcon: editIcon,
-	  editLink: editLink,
-	  sortBlock: sortBlock,
-	  addBlock: addBlock,
-	  removeBlock: removeBlock,
-	  addCard: addCard,
-	  removeCard: removeCard,
-	  editStyle: editStyle,
-	  updateBlockState: updateBlockState,
-	  addNode: addNode,
-	  removeNode: removeNode,
-	  updateContent: updateContent
-	});
 
 	exports.History = History;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX,BX.Landing,BX.Landing.UI));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Landing,BX.Landing.UI,BX.Landing));
 //# sourceMappingURL=history.bundle.js.map

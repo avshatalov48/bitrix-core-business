@@ -6,7 +6,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 IncludeModuleLangFile(__FILE__);
 
-if($_GET["back_url_pub"] <> "" && !is_array($_GET["back_url_pub"]) && mb_strpos($_GET["back_url_pub"], "/") === 0)
+if(isset($_GET["back_url_pub"]) && !is_array($_GET["back_url_pub"]) && mb_strpos($_GET["back_url_pub"], "/") === 0)
 	\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"] = $_GET["back_url_pub"];
 
 $params = DeleteParam(array("logout", "back_url_pub", "sessid"));

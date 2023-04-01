@@ -1,6 +1,8 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Config\Ini;
+
 /*
 Here is testing code:
 $s=<<<EOT
@@ -61,8 +63,8 @@ class CSecurityAntiVirus
 		foreach(GetModuleEvents("main", "OnPageStart", true) as $event)
 		{
 			if(
-				$event["TO_MODULE_ID"] == "security"
-				&& $event["TO_CLASS"] == "CSecurityAntiVirus"
+				isset($event["TO_MODULE_ID"]) && $event["TO_MODULE_ID"] === "security"
+				&& isset($event["TO_CLASS"]) && $event["TO_CLASS"] === "CSecurityAntiVirus"
 			)
 			{
 				$bActive = true;
@@ -154,7 +156,7 @@ class CSecurityAntiVirus
 		$fname = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/managed_cache/b_sec_virus";
 		if(file_exists($fname))
 		{
-			$rsInfo = $DB->Query("select * from b_sec_virus where SENT='N'");
+			$rsInfo = $DB->Query("select *, UNIX_TIMESTAMP(TIMESTAMP_X) as ts_x from b_sec_virus where SENT='N'");
 			if($arInfo = $rsInfo->Fetch())
 			{
 				if($table_lock = CSecurityDB::LockTable('b_sec_virus', $APPLICATION->GetServerUniqID()."_virus"))
@@ -167,6 +169,7 @@ class CSecurityAntiVirus
 							$arEvent = unserialize(base64_decode($arInfo["INFO"]), ['allowed_classes' => false]);
 							if(is_array($arEvent))
 							{
+								$arEvent["TIMESTAMP_X"] = ConvertTimeStamp($arInfo["ts_x"], "FULL");
 								$DB->Add("b_event_log", $arEvent, array("DESCRIPTION"));
 							}
 						}
@@ -388,8 +391,8 @@ class CSecurityAntiVirus
 		if(preg_match('/var\s*fix_mode\s*=/i', $this->body))
 			return 43;
 
-		//Voximplant document uploader
-		if($this->type == 'iframe' && preg_match('#\s*src=[\'"]https://verify.voximplant.com/#i', $this->atributes))
+		//Voximplant && powerBi && gtm
+		if($this->type == 'iframe' && preg_match('#\s*src=[\'"]https://(verify\.voximplant\.com|lookerstudio\.google\.com|datastudio\.google\.com|app\.powerbi\.com|www\.googletagmanager\.com)/#i', $this->atributes))
 			return 45;
 
 		if(preg_match('#function\s+bizvalChange#', $this->body))
@@ -398,6 +401,12 @@ class CSecurityAntiVirus
 		if($this->type === "script")
 		{
 			if(preg_match('#type="application/json"#is', $this->atributes))
+				return 44;
+
+			if(preg_match('#type="application/ld\+json"#is', $this->atributes))
+				return 44;
+
+			if(preg_match('#type="text/x-template"#is', $this->atributes))
 				return 44;
 
 			$filter = new CSecurityXSSDetect(array("action" => "none", "log" => "N"));
@@ -549,8 +558,8 @@ class CSecurityAntiVirus
 	{
 		static $arLocalCache = array();
 
-		$content_len = CUtil::BinStrlen($content) * 2;
-		CUtil::AdjustPcreBacktrackLimit($content_len);
+		$content_len = strlen($content) * 2;
+		Ini::adjustPcreBacktrackLimit($content_len);
 
 		$this->stylewithiframe = preg_match("/<style.*>\s*iframe/", $content);
 
@@ -1804,6 +1813,6 @@ class CSecurityAntiVirus
 
 	public static function isSafetyRequest()
 	{
-		return (!in_array($_SERVER['REQUEST_METHOD'],array('GET','POST')));
+		return (!isset($_SERVER['REQUEST_METHOD']) || !in_array($_SERVER['REQUEST_METHOD'],array('GET','POST')));
 	}
 }

@@ -9,12 +9,10 @@
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-
 	var _ButtonType = Object.freeze({
 	  newline: 'NEWLINE',
 	  button: 'BUTTON'
 	});
-
 	ui_vue.BitrixVue.component('bx-im-view-element-keyboard', {
 	  /*
 	   * @emits 'click' {action: string, params: Object}
@@ -56,15 +54,12 @@
 	  methods: {
 	    click: function click(button) {
 	      var _this = this;
-
 	      if (this.isBlocked) {
 	        return false;
 	      }
-
 	      if (button.DISABLED && button.DISABLED === 'Y') {
 	        return false;
 	      }
-
 	      if (button.ACTION && button.ACTION_VALUE.toString()) {
 	        this.$emit('click', {
 	          action: 'ACTION',
@@ -91,7 +86,6 @@
 	        if (button.BLOCK === 'Y') {
 	          this.isBlocked = true;
 	        }
-
 	        button.WAIT = 'Y';
 	        this.$emit('click', {
 	          action: 'COMMAND',
@@ -108,26 +102,21 @@
 	          button.WAIT = 'N';
 	        }, 10000);
 	      }
-
 	      return true;
 	    },
 	    getStyles: function getStyles(button) {
 	      var styles = {};
-
 	      if (button.WIDTH) {
 	        styles['width'] = button.WIDTH + 'px';
 	      } else if (button.DISPLAY === 'BLOCK') {
 	        styles['width'] = '225px';
 	      }
-
 	      if (button.BG_COLOR) {
 	        styles['backgroundColor'] = button.BG_COLOR;
 	      }
-
 	      if (button.TEXT_COLOR) {
 	        styles['color'] = button.TEXT_COLOR;
 	      }
-
 	      return styles;
 	    },
 	    prepareButtons: function prepareButtons(buttons) {
@@ -135,20 +124,17 @@
 	        if (!button.CONTEXT) {
 	          return true;
 	        }
-
 	        if (im_lib_utils.Utils.platform.isBitrixMobile() && button.CONTEXT === 'DESKTOP') {
 	          return false;
 	        }
-
 	        if (!im_lib_utils.Utils.platform.isBitrixMobile() && button.CONTEXT === 'MOBILE') {
-	          return false;
-	        } // TODO activate this buttons
-
-
-	        if (!im_lib_utils.Utils.platform.isBitrixMobile() && (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')) {
 	          return false;
 	        }
 
+	        // TODO activate this buttons
+	        if (!im_lib_utils.Utils.platform.isBitrixMobile() && (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')) {
+	          return false;
+	        }
 	        return true;
 	      });
 	    }

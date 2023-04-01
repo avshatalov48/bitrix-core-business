@@ -208,6 +208,11 @@ abstract class BasePersonalize
 		return $list;
 	}
 
+	public static function isFactoryBased(string $entityType): bool
+	{
+		return \CCrmOwnerType::isUseFactoryBasedApproach(\CCrmOwnerType::ResolveID($entityType));
+	}
+
 	/**
 	 * @param string $entityType
 	 * @param array $entityIds
@@ -237,7 +242,6 @@ abstract class BasePersonalize
 			$_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/crm/classes/general/crm_fields.php'
 		);
 
-		$arResult = null;
 		$entityType = ucfirst(strtolower($entityType));
 		$className = 'CCrm'.$entityType;
 		$dbDocumentList = $className::GetListEx(
@@ -399,41 +403,46 @@ abstract class BasePersonalize
 
 		if (is_array($userFieldsList))
 		{
-			foreach ($userFieldsList as $userFieldName => $userFieldParams)
+			static::processUserFieldValues($userFieldsList, $objDocument);
+		}
+	}
+
+	protected static function processUserFieldValues(array $userFieldsSettings, array &$userFieldValues): void
+	{
+		foreach ($userFieldsSettings as $userFieldName => $userFieldParams)
+		{
+			$fieldTypeID = isset($userFieldParams['USER_TYPE'])? $userFieldParams['USER_TYPE']['USER_TYPE_ID']
+				: '';
+			$isFieldMultiple = isset($userFieldParams['MULTIPLE']) && $userFieldParams['MULTIPLE'] === 'Y';
+			$fieldSettings = isset($userFieldParams['SETTINGS'])? $userFieldParams['SETTINGS'] : [];
+
+			if (isset($userFieldValues[$userFieldName]))
 			{
-				$fieldTypeID = isset($userFieldParams['USER_TYPE'])? $userFieldParams['USER_TYPE']['USER_TYPE_ID']
-					: '';
-				$isFieldMultiple = isset($userFieldParams['MULTIPLE']) && $userFieldParams['MULTIPLE'] === 'Y';
-				$fieldSettings = isset($userFieldParams['SETTINGS'])? $userFieldParams['SETTINGS'] : [];
+				$fieldValue = $userFieldValues[$userFieldName];
+			}
+			elseif (isset($fieldSettings['DEFAULT_VALUE']))
+			{
+				$fieldValue = $fieldSettings['DEFAULT_VALUE'];
+			}
 
-				if (isset($objDocument[$userFieldName]))
+			if ($fieldTypeID === 'employee')
+			{
+				if (!$isFieldMultiple)
 				{
-					$fieldValue = $objDocument[$userFieldName];
+					$userFieldValues[$userFieldName] = $fieldValue;
 				}
-				elseif (isset($fieldSettings['DEFAULT_VALUE']))
+				elseif (is_array($fieldValue))
 				{
-					$fieldValue = $fieldSettings['DEFAULT_VALUE'];
-				}
-
-				if ($fieldTypeID == 'employee')
-				{
-					if (!$isFieldMultiple)
+					$userFieldValues[$userFieldName] = [];
+					foreach ($fieldValue as $value)
 					{
-						$objDocument[$userFieldName] = $fieldValue;
-					}
-					elseif (is_array($fieldValue))
-					{
-						$objDocument[$userFieldName] = [];
-						foreach ($fieldValue as $value)
-						{
-							$objDocument[$userFieldName][] = $value;
-						}
+						$userFieldValues[$userFieldName][] = $value;
 					}
 				}
-				elseif ($fieldTypeID === 'boolean')
-				{
-					$objDocument[$userFieldName] = self::getBool($fieldValue)? 'Y' : 'N';
-				}
+			}
+			elseif ($fieldTypeID === 'boolean')
+			{
+				$userFieldValues[$userFieldName] = self::getBool($fieldValue)? 'Y' : 'N';
 			}
 		}
 	}
@@ -451,7 +460,7 @@ abstract class BasePersonalize
 	 * @param $assignedByID
 	 * @param $objDocument
 	 */
-	private static function addAssignedByFieldsValue($assignedByID, &$objDocument)
+	protected static function addAssignedByFieldsValue($assignedByID, &$objDocument)
 	{
 		if ($assignedByID < 1)
 		{

@@ -13,7 +13,6 @@ use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
 use Bitrix\Calendar\Sync\Util\RequestLogger;
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Exception;
@@ -50,9 +49,10 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
-	 * @throws ArgumentNullException
 	 */
 	public function request(string $method, string $uri, array $params): array
 	{
@@ -325,8 +325,9 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function get(string $uri, array $params = []): array
@@ -348,8 +349,9 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function post(string $uri, array $params = []): array
@@ -365,8 +367,9 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function delete(string $uri, array $params = []): array
@@ -382,8 +385,9 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function put(string $uri, array $params = []): array
@@ -399,8 +403,9 @@ class ApiClient implements HasStatusInterface
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function patch(string $uri, array $params = []): array

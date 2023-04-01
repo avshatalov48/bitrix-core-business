@@ -83,11 +83,12 @@ class DateLib extends BaseLib
 
 	public function callDateAdd(Arguments $args)
 	{
-		$date = $args->getFirst();
+		$date = $args->getFirstSingle();
 		$offset = $this->getDateTimeOffset($date);
-		$interval = $args->getSecond();
+		$date = $this->makeTimestamp($date);
+		$interval = $args->getSecondSingle();
 
-		if (($date = $this->makeTimestamp($date)) === false)
+		if ($date === false || ($interval && !is_scalar($interval)))
 		{
 			return null;
 		}
@@ -154,9 +155,9 @@ class DateLib extends BaseLib
 
 	public function callWorkDateAdd(Arguments $args)
 	{
-		$date = $args->getFirst();
+		$date = $args->getFirstSingle();
 		$offset = $this->getDateTimeOffset($date);
-		$paramInterval = $args->getSecond();
+		$paramInterval = $args->getSecondSingle();
 		$user = $args->getThird();
 
 		if ($user)
@@ -168,7 +169,9 @@ class DateLib extends BaseLib
 			$offset = $this->getDateTimeOffset($date);
 		}
 
-		if (($date = $this->makeTimestamp($date, true)) === false)
+		$date = $this->makeTimestamp($date, true);
+
+		if ($date === false || ($paramInterval && !is_scalar($paramInterval)))
 		{
 			return null;
 		}
@@ -250,7 +253,7 @@ class DateLib extends BaseLib
 
 	public function callAddWorkDays(Arguments $args)
 	{
-		$date = $args->getFirst();
+		$date = $args->getFirstSingle();
 		$offset = $this->getDateTimeOffset($date);
 		$days = (int)$args->getSecond();
 
@@ -276,7 +279,7 @@ class DateLib extends BaseLib
 			return false;
 		}
 
-		$date = $args->getFirst();
+		$date = $args->getFirstSingle();
 		$user = $args->getSecond();
 
 		if ($user)
@@ -302,7 +305,7 @@ class DateLib extends BaseLib
 			return false;
 		}
 
-		$date = $args->getFirst();
+		$date = $args->getFirstSingle();
 		$user = $args->getSecond();
 
 		if ($user)
@@ -323,8 +326,8 @@ class DateLib extends BaseLib
 
 	public function callDateDiff(Arguments $args)
 	{
-		$date1 = $args->getFirst();
-		$date2 = $args->getSecond();
+		$date1 = $args->getFirstSingle();
+		$date2 = $args->getSecondSingle();
 		$format = $args->getThird();
 
 		if (!$date1 || !$date2 || !is_scalar($format))
@@ -348,7 +351,7 @@ class DateLib extends BaseLib
 	public function callDate(Arguments $args)
 	{
 		$format = $args->getFirst();
-		$date = $args->getSecond();
+		$date = $args->getSecondSingle();
 
 		if (!$format || !is_string($format))
 		{
@@ -368,7 +371,7 @@ class DateLib extends BaseLib
 	public function callToUserDate(Arguments $args)
 	{
 		$user = $args->getFirst();
-		$date = $args->getSecond();
+		$date = $args->getSecondSingle();
 
 		if (!$user)
 		{
@@ -411,12 +414,12 @@ class DateLib extends BaseLib
 
 	public function callStrtotime(Arguments $args)
 	{
-		$datetime = (string)$args->getFirst();
-		$baseDate = $args->getSecond();
+		$datetime = $args->getFirstSingle();
+		$baseDate = $args->getSecondSingle();
 
 		$baseTimestamp = $baseDate ? $this->makeTimestamp($baseDate, true) : time();
 
-		if (!$baseTimestamp)
+		if (!$baseTimestamp || !is_scalar($datetime))
 		{
 			return null;
 		}
@@ -434,7 +437,7 @@ class DateLib extends BaseLib
 	public function callLocDate(Arguments $args)
 	{
 		$format = $args->getFirst();
-		$date = $args->getSecond();
+		$date = $args->getSecondSingle();
 
 		if (!$format || !is_string($format))
 		{
@@ -461,11 +464,11 @@ class DateLib extends BaseLib
 
 	public function callSetTime(Arguments $args)
 	{
-		$date = current(\CBPHelper::flatten($args->getFirst()));
+		$date = $args->getFirstSingle();
 		$offset = $this->getDateTimeOffset($date);
 
-		$hour = max(0, (int)current(\CBPHelper::flatten($args->getSecond())));
-		$minute = max(0, (int)current(\CBPHelper::flatten($args->getThird())));
+		$hour = max(0, (int)$args->getSecondSingle());
+		$minute = max(0, (int)$args->getThirdSingle());
 
 		if (($date = $this->makeTimestamp($date, true)) === false)
 		{
@@ -482,7 +485,7 @@ class DateLib extends BaseLib
 
 	private function makeTimestamp($date, $appendOffset = false)
 	{
-		if (!$date || !is_scalar($date) && !is_object($date))
+		if (!$date || (!is_scalar($date) && !is_object($date)))
 		{
 			return false;
 		}

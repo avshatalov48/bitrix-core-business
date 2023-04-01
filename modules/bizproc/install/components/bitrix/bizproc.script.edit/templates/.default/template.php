@@ -86,7 +86,7 @@ $APPLICATION->IncludeComponent("bitrix:ui.sidepanel.wrappermenu", "", [
 			$APPLICATION->IncludeComponent('bitrix:bizproc.automation', '', [
 				'ONE_TEMPLATE_MODE' => true,
 				'TEMPLATE' => [
-					'ID' => $script['WORKFLOW_TEMPLATE_ID']
+					'ID' => $script['WORKFLOW_TEMPLATE_ID'] ?? 0,
 				],
 				'DOCUMENT_TYPE' => [$script['MODULE_ID'], $script['ENTITY'], $script['DOCUMENT_TYPE']],
 				'DOCUMENT_ID'                   => null,

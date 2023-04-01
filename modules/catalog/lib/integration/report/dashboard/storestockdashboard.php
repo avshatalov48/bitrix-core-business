@@ -15,6 +15,8 @@ final class StoreStockDashboard extends CatalogDashboard
 	public const BOARD_VERSION = 'v2';
 	public const BOARD_KEY = 'catalog_warehouse_stock';
 
+	public const ACCESS_BOARD_ID = 2;
+
 	public function getBoardKey(): string
 	{
 		return self::BOARD_KEY;
@@ -23,6 +25,11 @@ final class StoreStockDashboard extends CatalogDashboard
 	public function getBoardVersion(): string
 	{
 		return self::BOARD_VERSION;
+	}
+
+	public function getAccessBoardId(): int
+	{
+		return self::ACCESS_BOARD_ID;
 	}
 
 	public function getBoardTitle(): string

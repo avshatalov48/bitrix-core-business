@@ -2000,31 +2000,13 @@ function CloneBarcodeField()
 		<tr>
 			<td width="40%"><?= GetMessage("C2IT_MEASURE"); ?>:</td>
 			<td width="60%"><?php
-				$measureFilter = [];
-				if ($isService)
-				{
-					$measureDefault = Catalog\MeasureTable::getRow([
-						'select' => [
-							'ID',
-						],
-						'filter' => [
-							'=CODE' => 796, // TODO: remove magic number after refactoring measure for services
-						]
-					]);
-					if ($measureDefault !== null)
-					{
-						$measureFilter = [
-							'=ID' => (int)$measureDefault['ID'],
-						];
-					}
-				}
-				$arAllMeasure = array();
+				$arAllMeasure = [];
 				$dbResultList = CCatalogMeasure::getList(
-					array(),
-					$measureFilter,
+					[],
+					[],
 					false,
 					false,
-					array("ID", "CODE", "MEASURE_TITLE", "SYMBOL_INTL", "IS_DEFAULT")
+					["ID", "CODE", "MEASURE_TITLE", "SYMBOL_INTL", "IS_DEFAULT"]
 				);
 				while($arMeasure = $dbResultList->Fetch())
 				{

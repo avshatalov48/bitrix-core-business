@@ -222,11 +222,6 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 		);
 		$documentId = $this->getDocumentId();
 
-		if ($target)
-		{
-			$target->setDocumentId($documentId);
-		}
-
 		if (!$canEdit)
 		{
 			if ($documentId)
@@ -293,6 +288,11 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 
 		$statusList = $target ? $target->getDocumentStatusList($documentCategoryId) : $this->getTemplateStatusList();
 
+		if ($target)
+		{
+			$target->setDocumentId($documentId);
+		}
+
 		$log = [];
 		if ($documentId && $target)
 		{
@@ -309,7 +309,7 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			$target->prepareTriggersToShow($triggers);
 		}
 
-		$this->arResult = array(
+		$this->arResult = [
 			'CAN_EDIT' => $canEdit,
 			'CAN_DEBUG' => Debugger\Session\Manager::canUserDebugAutomation($tplUser->getId(), $documentType),
 			'TITLE_VIEW' => $this->getTitleView(),
@@ -328,26 +328,15 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'TRIGGER_CAN_SET_EXECUTE_BY' => $target && $target->canTriggerSetExecuteBy(),
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
-			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType),
-			'G_CONSTANTS_VISIBILITY' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType),
-			'GLOBAL_VARIABLES' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType),
-			'G_VARIABLES_VISIBILITY' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType),
+			'GLOBAL_CONSTANTS' => $this->getGlobalConstants(),
+			'GLOBAL_VARIABLES' => $this->getGlobalVariables(),
 			'DOCUMENT_FIELDS' => $this->getDocumentFields(),
 			'LOG' => $log,
 			'WORKFLOW_EDIT_URL' => $this->getWorkflowEditUrl(),
 			'CONSTANTS_EDIT_URL' => $this->getConstantsEditUrl(),
 			'PARAMETERS_EDIT_URL' => $this->getParametersEditUrl(),
 			'STATUSES_EDIT_URL' => $this->getStatusesEditUrl(),
-			'USER_OPTIONS' => [
-				'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', []),
-				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', []),
-				'crm_check_automation' => \CUserOptions::GetOption(
-					'bizproc.automation.guide',
-					'crm_check_automation',
-					[],
-					$tplUser->getId()
-				),
-			],
+			'USER_OPTIONS' => $this->getUserOptions(),
 			'FRAME_MODE' => $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER',
 			'USE_DISK' => Main\Loader::includeModule('disk'),
 			'IS_EMBEDDED' => $this->isOneTemplateMode(),
@@ -356,7 +345,7 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 				&& $this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === 'Y'
 			),
 			'IS_WORKTIME_AVAILABLE' => \CBPHelper::isWorkTimeAvailable(),
-		);
+		];
 
 		$this->prepareDelayMinLimitResult();
 		$this->includeComponentTemplate();
@@ -432,6 +421,36 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 	private function getDocumentFields($filter = null)
 	{
 		return array_values(\Bitrix\Bizproc\Automation\Helper::getDocumentFields($this->getDocumentType(), $filter));
+	}
+
+	private function getGlobalVariables(): array
+	{
+		return array_values(\Bitrix\Bizproc\Automation\Helper::getGlobalVariables($this->getDocumentType()));
+	}
+
+	private function getGlobalConstants(): array
+	{
+		return array_values(\Bitrix\Bizproc\Automation\Helper::getGlobalConstants($this->getDocumentType()));
+	}
+
+	private function getUserOptions(): array
+	{
+		$tplUser = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+
+		return [
+			'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', []),
+			'save_state_checkboxes' => \CUserOptions::GetOption(
+				'bizproc.automation',
+				'save_state_checkboxes',
+				[]
+			),
+			'crm_check_automation' => \CUserOptions::GetOption(
+				'bizproc.automation.guide',
+				'crm_check_automation',
+				[],
+				$tplUser->getId()
+			),
+		];
 	}
 
 	private function getDocumentUserGroups()

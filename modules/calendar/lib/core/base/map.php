@@ -49,11 +49,12 @@ abstract class Map extends Collection
 
 	/**
 	 * @param $key
+	 *
 	 * @return mixed
 	 */
 	public function getItem($key)
 	{
-		return $this->collection[$key];
+		return $this->collection[$key] ?? null;
 	}
 
 	/**

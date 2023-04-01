@@ -11,6 +11,7 @@ use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Landing as LandingCore;
 use \Bitrix\Landing\PublicActionResult;
 use \Bitrix\Landing\Internals\HookDataTable;
+use \Bitrix\Landing\History;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -43,7 +44,7 @@ class Landing
 	/**
 	 * Get preview picture of landing.
 	 * @param int $lid Id of landing.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function getPreview($lid)
 	{
@@ -64,7 +65,7 @@ class Landing
 	/**
 	 * Get public url of landing.
 	 * @param int $lid Id of landing.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function getPublicUrl($lid)
 	{
@@ -100,7 +101,7 @@ class Landing
 	/**
 	 * Get additional fields of landing.
 	 * @param int $lid Id of landing.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function getAdditionalFields($lid)
 	{
@@ -132,7 +133,7 @@ class Landing
 	/**
 	 * Publication of landing.
 	 * @param int $lid Id of landing.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function publication($lid)
 	{
@@ -157,7 +158,7 @@ class Landing
 	/**
 	 * Cancel publication of landing.
 	 * @param int $lid Id of landing.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function unpublic($lid)
 	{
@@ -182,9 +183,10 @@ class Landing
 	 * Add new block to the landing.
 	 * @param int $lid Id of landing.
 	 * @param array $fields Data array of block.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $preventHistory True if no need save history
+	 * @return PublicActionResult
 	 */
-	public static function addBlock($lid, array $fields)
+	public static function addBlock($lid, array $fields, bool $preventHistory = false)
 	{
 		LandingCore::setEditMode();
 		Hook::setEditMode(true);
@@ -220,9 +222,10 @@ class Landing
 			{
 				$data['SORT'] = -1;
 			}
+			$preventHistory ? History::deactivate() : History::activate();
 			$newBlockId = $landing->addBlock($fields['CODE'] ?? '', $data, true);
-			// re-sort
 			$landing->resortBlocks();
+
 			// want return content ob block
 			if (
 				isset($fields['RETURN_CONTENT']) &&
@@ -245,7 +248,7 @@ class Landing
 	 * Delete the block from the landing.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function deleteBlock($lid, $block)
 	{
@@ -267,9 +270,10 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param boolean $mark Mark.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $preventHistory True if no need save history
+	 * @return PublicActionResult
 	 */
-	public static function markDeletedBlock($lid, $block, $mark = true)
+	public static function markDeletedBlock(int $lid, int $block, bool $mark = true, bool $preventHistory = false): PublicActionResult
 	{
 		LandingCore::setEditMode();
 
@@ -277,6 +281,7 @@ class Landing
 		$landing = LandingCore::createInstance($lid);
 		if ($landing->exist())
 		{
+			$preventHistory ? History::deactivate() : History::activate();
 			$result->setResult(
 				$landing->markDeletedBlock($block, $mark)
 			);
@@ -290,11 +295,12 @@ class Landing
 	 * Mark undelete the block.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $preventHistory True if no need save history
+	 * @return PublicActionResult
 	 */
-	public static function markUnDeletedBlock($lid, $block)
+	public static function markUnDeletedBlock(int $lid, int $block, bool $preventHistory = false): PublicActionResult
 	{
-		return self::markDeletedBlock($lid, $block, false);
+		return self::markDeletedBlock($lid, $block, false, $preventHistory);
 	}
 
 	/**
@@ -302,15 +308,15 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param string $action Code: up or down.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
-	private static function sort($lid, $block, $action)
+	private static function sort(int $lid, int $block, string $action): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$landing = LandingCore::createInstance($lid);
 		if ($landing->exist())
 		{
-			if ($action == 'up')
+			if ($action === 'up')
 			{
 				$result->setResult($landing->upBlock($block));
 			}
@@ -324,6 +330,7 @@ class Landing
 			}
 		}
 		$result->setError($landing->getError());
+
 		return $result;
 	}
 
@@ -331,11 +338,14 @@ class Landing
 	 * Sort up the block on the landing.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $preventHistory True if no need save history
+	 * @return PublicActionResult
 	 */
-	public static function upBlock($lid, $block)
+	public static function upBlock(int $lid, int $block, bool $preventHistory = false): PublicActionResult
 	{
 		LandingCore::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
+
 		return self::sort($lid, $block, 'up');
 	}
 
@@ -343,11 +353,14 @@ class Landing
 	 * Sort down the block on the landing.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $preventHistory True if no need save history
+	 * @return PublicActionResult
 	 */
-	public static function downBlock($lid, $block)
+	public static function downBlock(int $lid, int $block, bool $preventHistory = false): PublicActionResult
 	{
 		LandingCore::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
+
 		return self::sort($lid, $block, 'down');
 	}
 
@@ -398,7 +411,7 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param string $action Code: show or hide.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	private static function activate($lid, $block, $action)
 	{
@@ -423,7 +436,7 @@ class Landing
 	 * Activate the block on the landing.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function showBlock($lid, $block)
 	{
@@ -435,7 +448,7 @@ class Landing
 	 * Dectivate the block on the landing.
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function hideBlock($lid, $block)
 	{
@@ -448,7 +461,7 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param array $params Params array.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	private static function changeParentOfBlock($lid, $block, array $params)
 	{
@@ -490,7 +503,7 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param array $params Params array.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function copyBlock($lid, $block, array $params = array())
 	{
@@ -508,7 +521,7 @@ class Landing
 	 * @param int $lid Id of landing.
 	 * @param int $block Block id.
 	 * @param array $params Params array.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function moveBlock($lid, $block, array $params = array())
 	{
@@ -751,7 +764,7 @@ class Landing
 	/**
 	 * Create new landing.
 	 * @param array $fields Landing data.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function add(array $fields)
 	{
@@ -825,7 +838,7 @@ class Landing
 	 * Update landing.
 	 * @param int $lid Landing id.
 	 * @param array $fields Landing new data.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function update($lid, array $fields)
 	{
@@ -852,7 +865,7 @@ class Landing
 	/**
 	 * Delete landing.
 	 * @param int $lid Landing id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function delete($lid)
 	{
@@ -879,7 +892,7 @@ class Landing
 	 * @param int $lid Landing id.
 	 * @param int|null $toSiteId Site id.
 	 * @param int|null $toFolderId Folder id (optional).
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function move(int $lid, ?int $toSiteId = null, ?int $toFolderId = null): PublicActionResult
 	{
@@ -896,7 +909,7 @@ class Landing
 	 * @param int|null $toSiteId Site id (if you want copy in another site).
 	 * @param int|null $toFolderId Folder id (if you want copy in some folder).
 	 * @param bool $skipSystem If true, don't copy system flag.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function copy(int $lid, ?int $toSiteId = null, ?int $toFolderId = null, bool $skipSystem = false): PublicActionResult
 	{
@@ -915,7 +928,7 @@ class Landing
 	 * Mark entity as deleted.
 	 * @param int $lid Entity id.
 	 * @param boolean $mark Mark.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function markDelete($lid, $mark = true)
 	{
@@ -946,7 +959,7 @@ class Landing
 	/**
 	 * Mark entity as undeleted.
 	 * @param int $lid Entity id.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function markUnDelete($lid)
 	{
@@ -959,7 +972,7 @@ class Landing
 	 * @param string $picture File url / file array.
 	 * @param string $ext File extension.
 	 * @param array $params Some file params.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function uploadFile($lid, $picture, $ext = false, array $params = array())
 	{
@@ -1004,7 +1017,7 @@ class Landing
 	 * Set some content to the Head section.
 	 * @param int $lid Landing id.
 	 * @param string $content Some content.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
 	public static function updateHead($lid, $content)
 	{

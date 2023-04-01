@@ -7,6 +7,7 @@ use Bitrix\UI\Avatar;
 
 class Helper
 {
+	public const REQUEST_FIELD_NAME = 'ui_avatar_editor';
 	public static function getHTMLAttribute($fileId)
 	{
 		return ' data-bx-ui-avatar-editor-info="'.htmlspecialcharsbx(self::getJson($fileId)).'" ';
@@ -102,40 +103,59 @@ class Helper
 		return null;
 	}
 
-	public static function getDataFromRequest(string $fieldName, ?HttpRequest $request): ?array
+	public static function getMaskedFile(string $fieldName, ?HttpRequest $request = null): ?array
 	{
 		/** @var HttpRequest $request */
 		$request = ($request ?? Main\Application::getInstance()->getContext()->getRequest());
-		$files = $request->getFile($fieldName);
-		if ($files && is_array($files['name']))
+		$mask = null;
+		if ($id = $request->getPost(self::REQUEST_FIELD_NAME . $fieldName))
 		{
-			$copyFiles = [];
-			array_walk($files, function($item, $subField) use (&$copyFiles) {
-				foreach ($item as $key => $value)
-				{
-					$copyFiles[$key] = $copyFiles[$key] ?? [];
-					$copyFiles[$key][$subField] = $value;
-				}
-			});
-			if (array_key_exists('file', $copyFiles))
-			{
-				$result = [$copyFiles['file']];
-				if (array_key_exists('maskedFile', $copyFiles))
-				{
-					$post = $request->getPost($fieldName);
-					$post = is_array($post) ? $post : [];
-					$maskInfo = (!isset($post['maskedFile']) ? null : (
-						is_array($post['maskedFile']) ?
-							$post['maskedFile'] : Main\Web\Json::decode($post['maskedFile'])));
-					$result[] = $copyFiles['maskedFile']
-						+ (is_array($maskInfo) ? ['maskInfo' => ['id' => $maskInfo['maskId']]] : []);
-				}
-				return $result;
-			}
+			$mask = self::getMaskFromRequest(
+				$id,
+				$request->getFile(self::REQUEST_FIELD_NAME),
+				$request->getPost(self::REQUEST_FIELD_NAME)
+			);
 		}
-		return null;
+		return $mask;
 	}
 
+	/**
+	 * @deprecated Delete after intranet 23.100.0 will be released
+	 * @param string $fieldName
+	 * @param HttpRequest|null $request
+	 * @return array|null
+	 */
+	public static function getDataFromRequest(string $fieldName, ?HttpRequest $request = null): ?array
+	{
+		return null;
+	}
+	protected static function getMaskFromRequest($id, ?array $rawFiles, ?array $postData): ?array
+	{
+		if (!is_array($rawFiles) || !is_array($postData))
+		{
+			return null;
+		}
+
+		$orderedFiles = [];
+		array_walk($rawFiles, function($item, $subField) use (&$orderedFiles) {
+			foreach ($item as $key => $value)
+			{
+				$orderedFiles[$key] = $orderedFiles[$key] ?? [];
+				$orderedFiles[$key][$subField] = $value;
+			}
+		});
+		$result = null;
+		if (isset($orderedFiles[$id]))
+		{
+			$result = $orderedFiles[$id];
+			$maskInfo = ($postData[$id] ?? []);
+			if (isset($maskInfo['maskId']))
+			{
+				$result['maskInfo'] = ['id' => $maskInfo['maskId']];
+			}
+		}
+		return $result;
+	}
 	/**
 	 * @params $file ['name' => 'name.png', 'type' => '', 'tmp_name' => '', 'size' => 124]
 	 * @example

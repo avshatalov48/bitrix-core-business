@@ -1,4 +1,6 @@
-<?
+<?php
+
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\ModuleManager;
 
 IncludeModuleLangFile(__FILE__);
@@ -111,9 +113,49 @@ class CIBlockFormatProperties
 					}
 				}
 			}
-			elseif($arProperty["PROPERTY_TYPE"]=="L")
+			elseif($arProperty["PROPERTY_TYPE"] === "L")
 			{
-				$arDisplayValue[] = $val;
+				if ($arProperty['LIST_TYPE'] === PropertyTable::CHECKBOX)
+				{
+					$filter = [
+						'=PROPERTY_ID' => $arProperty['ID'],
+					];
+					$cache = ['ttl' => 86400];
+					$variantsCount = \Bitrix\Iblock\PropertyEnumerationTable::getCount($filter, $cache);
+
+					if ($variantsCount === 1)
+					{
+						$variant = \Bitrix\Iblock\PropertyEnumerationTable::getRow([
+							'select' => ['ID', 'PROPERTY_ID', 'VALUE'],
+							'filter' => $filter,
+							'cache' => $cache,
+						]);
+
+						if ($variant['VALUE'] === 'Y')
+						{
+							if ($val === $variant['VALUE'])
+							{
+								$arDisplayValue[] = GetMessage('IBLOCK_FORMATPROPS_PROPERTY_YES');
+							}
+							else
+							{
+								$arDisplayValue[] = GetMessage('IBLOCK_FORMATPROPS_PROPERTY_NO');
+							}
+						}
+						else
+						{
+							$arDisplayValue[] = $val;
+						}
+					}
+					else
+					{
+						$arDisplayValue[] = $val;
+					}
+				}
+				else
+				{
+					$arDisplayValue[] = $val;
+				}
 			}
 			elseif($arProperty["PROPERTY_TYPE"]=="F")
 			{

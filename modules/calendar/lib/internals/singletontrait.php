@@ -2,6 +2,8 @@
 
 namespace Bitrix\Calendar\Internals;
 
+use Bitrix\Calendar\Core\Base\BaseException;
+
 trait SingletonTrait
 {
 	/**
@@ -25,6 +27,12 @@ trait SingletonTrait
 
 	protected function __construct(){}
 
-	protected function __wakeup(){}
+	/**
+	 * @throws BaseException
+	 */
+	public function __wakeup()
+	{
+		throw new BaseException("Trying to wake singleton up");
+	}
 	protected function __clone(){}
 }

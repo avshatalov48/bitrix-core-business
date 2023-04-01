@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Iblock\PropertyTable;
+
 class CIBlockProperty extends CAllIBlockProperty
 {
 	function _Update($ID, $arFields, $bCheckDescription = false)
@@ -247,26 +250,41 @@ class CIBlockProperty extends CAllIBlockProperty
 	function _Add($ID, $arFields)
 	{
 		global $DB;
-		$ID = intval($ID);
 
-		if($arFields["MULTIPLE"]=="Y")
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
+
+		$arFields['IBLOCK_ID'] = (int)($arFields['IBLOCK_ID'] ?? 0);
+		if ($arFields['IBLOCK_ID'] <= 0)
+		{
+			return false;
+		}
+
+		$arFields['PROPERTY_TYPE'] ??= PropertyTable::TYPE_STRING;
+		$arFields['MULTIPLE'] ??= 'N';
+		$arFields['WITH_DESCRIPTION'] ??= 'N';
+
+		if ($arFields["MULTIPLE"] === "Y")
+		{
 			$strType = "longtext";
+		}
 		else
 		{
-			if ($arFields["PROPERTY_TYPE"] === null)
-				$arFields["PROPERTY_TYPE"] = "S";
 			switch($arFields["PROPERTY_TYPE"])
 			{
-				case "S":
+				case PropertyTable::TYPE_STRING:
 					$strType = "text";
 					break;
-				case "N":
+				case PropertyTable::TYPE_NUMBER:
 					$strType = "numeric(18,4)";
 					break;
-				case "L":
-				case "F":
-				case "G":
-				case "E":
+				case PropertyTable::TYPE_LIST:
+				case PropertyTable::TYPE_FILE:
+				case PropertyTable::TYPE_SECTION:
+				case PropertyTable::TYPE_ELEMENT:
 					$strType = "int(11)";
 					break;
 				default://s - small string
@@ -278,7 +296,7 @@ class CIBlockProperty extends CAllIBlockProperty
 			ADD PROPERTY_".$ID." ".$strType."
 			".($arFields["WITH_DESCRIPTION"] == "Y"? ", ADD DESCRIPTION_".$ID." varchar(255)": "")."
 		";
-		$rs = $DB->DDL($strSql, true);
-		return $rs;
+
+		return $DB->DDL($strSql, true);
 	}
 }

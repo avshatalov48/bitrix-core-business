@@ -108,7 +108,7 @@ class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderCo
 			$this->arResult['ROW']['CONTENT'] = $content;
 		}
 
-		if (!$this->arResult['ROW']['TYPE'])
+		if (!($this->arResult['ROW']['TYPE'] ?? false))
 		{
 			$this->arResult['ROW']['TYPE'] = Message\ConfigurationOption::TYPE_MAIL_EDITOR;
 		}
@@ -122,7 +122,7 @@ class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderCo
 			CommonAjax\ActionGetTemplate::NAME,
 			array(
 				'template_type' => 'USER',
-				'template_id' => $this->arResult['ROW']['ID']
+				'template_id' => $this->arResult['ROW']['ID'] ?? null
 			),
 			$this->getPath() . '/ajax.php'
 		);

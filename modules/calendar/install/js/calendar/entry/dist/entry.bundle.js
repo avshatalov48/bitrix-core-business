@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_controls,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_eventviewform,calendar_roomsmanager,main_core) {
+(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_roomsmanager,main_core) {
 	'use strict';
 
 	class EntryManager {
@@ -81,7 +81,7 @@ this.BX = this.BX || {};
 	  }
 
 	  static getNewEntryName() {
-	    return EntryManager.newEntryName || main_core.Loc.getMessage('CALENDAR_DEFAULT_ENTRY_NAME');
+	    return EntryManager.newEntryName || '';
 	  }
 
 	  static setNewEntryName(newEntryName) {
@@ -175,7 +175,8 @@ this.BX = this.BX || {};
 	          entryDateFrom: options.from,
 	          timezoneOffset: options.timezoneOffset,
 	          dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
-	          calendarContext: options.calendarContext || null
+	          calendarContext: options.calendarContext || null,
+	          link: options.link
 	        }).show();
 	      }
 	    }
@@ -265,8 +266,7 @@ this.BX = this.BX || {};
 
 	  static showConfirmStatusDialog(entry, resolvePromiseCallback = null) {
 	    if (!this.confirmDeclineDialog) {
-	      const bx = calendar_util.Util.getBX();
-	      this.confirmDeclineDialog = new bx.Calendar.Controls.ConfirmStatusDialog();
+	      this.confirmDeclineDialog = this.createConfirmStatusDialog();
 	    }
 
 	    this.confirmDeclineDialog.show();
@@ -287,8 +287,7 @@ this.BX = this.BX || {};
 
 	  static showConfirmEditDialog(options) {
 	    if (!this.confirmEditDialog) {
-	      const bx = calendar_util.Util.getBX();
-	      this.confirmEditDialog = new bx.Calendar.Controls.ConfirmEditDialog();
+	      this.confirmEditDialog = this.createConfirmEditDialog();
 	    }
 
 	    this.confirmEditDialog.show();
@@ -305,8 +304,7 @@ this.BX = this.BX || {};
 
 	  static showReInviteUsersDialog(options) {
 	    if (!this.reinviteUsersDialog) {
-	      const bx = calendar_util.Util.getBX();
-	      this.reinviteUsersDialog = new bx.Calendar.Controls.ReinviteUserDialog();
+	      this.reinviteUsersDialog = this.createReinviteUserDialog();
 	    }
 
 	    this.reinviteUsersDialog.show();
@@ -323,8 +321,7 @@ this.BX = this.BX || {};
 
 	  static showConfirmedEmailDialog(options = {}) {
 	    if (!this.confirmedEmailDialog) {
-	      const bx = calendar_util.Util.getBX();
-	      this.confirmedEmailDialog = new bx.Calendar.Controls.ConfirmedEmailDialog();
+	      this.confirmedEmailDialog = this.createConfirmedEmailDialog();
 	    }
 
 	    this.confirmedEmailDialog.show();
@@ -341,8 +338,7 @@ this.BX = this.BX || {};
 
 	  static showEmailLimitationDialog(options = {}) {
 	    if (!this.limitationEmailDialog) {
-	      const bx = calendar_util.Util.getBX();
-	      this.limitationEmailDialog = new bx.Calendar.Controls.EmailLimitationDialog();
+	      this.limitationEmailDialog = this.createEmailLimitationDialog();
 	    }
 
 	    this.limitationEmailDialog.subscribe('onClose', () => {
@@ -588,6 +584,32 @@ this.BX = this.BX || {};
 	    }
 
 	    calendar_util.Util.setUserSettings(userSettings);
+	  } //this is because extensions cant be loaded in iframe with import
+
+
+	  static createConfirmEditDialog() {
+	    const bx = calendar_util.Util.getBX();
+	    return new bx.Calendar.Controls.ConfirmEditDialog();
+	  }
+
+	  static createConfirmStatusDialog() {
+	    const bx = calendar_util.Util.getBX();
+	    return new bx.Calendar.Controls.ConfirmStatusDialog();
+	  }
+
+	  static createReinviteUserDialog() {
+	    const bx = calendar_util.Util.getBX();
+	    return new bx.Calendar.Controls.ReinviteUserDialog();
+	  }
+
+	  static createConfirmedEmailDialog() {
+	    const bx = calendar_util.Util.getBX();
+	    return new bx.Calendar.Controls.ConfirmedEmailDialog();
+	  }
+
+	  static createEmailLimitationDialog() {
+	    const bx = calendar_util.Util.getBX();
+	    return new bx.Calendar.Controls.EmailLimitationDialog();
 	  }
 
 	}
@@ -793,6 +815,14 @@ this.BX = this.BX || {};
 
 	  isTask() {
 	    return this.data['~TYPE'] === 'tasks';
+	  }
+
+	  isSharingEvent() {
+	    return this.data['EVENT_TYPE'] === '#shared#';
+	  }
+
+	  isInvited() {
+	    return this.getCurrentStatus() === 'Q';
 	  }
 
 	  isLocation() {
@@ -1032,7 +1062,7 @@ this.BX = this.BX || {};
 	  }
 
 	  getName() {
-	    return this.name || this.defaultNewName;
+	    return this.name || '';
 	  }
 
 	  getColor() {
@@ -1263,9 +1293,14 @@ this.BX = this.BX || {};
 	  }
 
 	}
+	Entry.CAL_TYPES = {
+	  'user': 'user',
+	  'group': 'group',
+	  'company': 'company_calendar'
+	};
 
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Controls,BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX));
 //# sourceMappingURL=entry.bundle.js.map

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,ui_uploader_core,ui_dialogs_messagebox,ui_sidepanel_layout,main_loader,main_core,main_core_events,ui_buttons) {
+(function (exports,ui_uploader_core,ui_dialogs_messagebox,ui_sidepanel_layout,main_loader,ui_draganddrop_draggable,main_core,main_core_events,ui_buttons) {
 	'use strict';
 
 	let _ = t => t,
@@ -156,12 +156,14 @@ this.BX.UI = this.BX.UI || {};
 
 	let _$3 = t => t,
 	    _t$3,
-	    _t2$1;
+	    _t2$1,
+	    _t3;
 	class ActionPanel extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setEventNamespace('BX.UI.Stamp.Uploader.ActionPanel');
+	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
 
@@ -192,14 +194,70 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 
-	  getLayout() {
-	    return this.cache.remember('layout', () => {
+	  getApplyButton() {
+	    return this.cache.remember('applyButton', () => {
+	      return new ui_buttons.ApplyButton({
+	        color: ui_buttons.Button.Color.PRIMARY,
+	        size: ui_buttons.Button.Size.EXTRA_SMALL,
+	        round: true,
+	        onclick: () => {
+	          this.emit('onApplyClick');
+	        }
+	      });
+	    });
+	  }
+
+	  getCancelButton() {
+	    return this.cache.remember('cancelButton', () => {
+	      return new ui_buttons.CancelButton({
+	        color: ui_buttons.Button.Color.LIGHT_BORDER,
+	        size: ui_buttons.Button.Size.EXTRA_SMALL,
+	        round: true,
+	        onclick: () => {
+	          this.emit('onCancelClick');
+	        }
+	      });
+	    });
+	  }
+
+	  getCropActionsLayout() {
+	    return this.cache.remember('cropActionsLayout', () => {
 	      return main_core.Tag.render(_t2$1 || (_t2$1 = _$3`
-				<div class="ui-stamp-uploader-action-panel">
+				<div class="ui-stamp-uploader-action-crop-actions" hidden>
+					${0}
 					${0}
 				</div>
-			`), this.getCropButton());
+			`), this.getApplyButton().render(), this.getCancelButton().render());
 	    });
+	  }
+
+	  showCropAction() {
+	    main_core.Dom.show(this.getCropActionsLayout());
+	    main_core.Dom.hide(this.getCropButton());
+	  }
+
+	  hideCropActions() {
+	    main_core.Dom.hide(this.getCropActionsLayout());
+	    main_core.Dom.show(this.getCropButton());
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t3 || (_t3 = _$3`
+				<div class="ui-stamp-uploader-action-panel">
+					${0}
+					${0}
+				</div>
+			`), this.getCropActionsLayout(), this.getCropButton());
+	    });
+	  }
+
+	  disable() {
+	    main_core.Dom.addClass(this.getLayout(), 'ui-stamp-uploader-action-panel-disabled');
+	  }
+
+	  enable() {
+	    main_core.Dom.removeClass(this.getLayout(), 'ui-stamp-uploader-action-panel-disabled');
 	  }
 
 	}
@@ -207,7 +265,7 @@ this.BX.UI = this.BX.UI || {};
 	let _$4 = t => t,
 	    _t$4,
 	    _t2$2,
-	    _t3,
+	    _t3$1,
 	    _t4;
 	class Status {
 	  constructor() {
@@ -272,7 +330,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  getPreparingStatusLayout() {
 	    return this.cache.remember('preparingStatusLayout', () => {
-	      return main_core.Tag.render(_t3 || (_t3 = _$4`
+	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$4`
 				<div class="ui-stamp-uploader-preparing-status">
 					<div class="ui-stamp-uploader-preparing-status-icon"></div>
 					<div class="ui-stamp-uploader-preparing-status-text">
@@ -338,14 +396,34 @@ this.BX.UI = this.BX.UI || {};
 	let _$5 = t => t,
 	    _t$5,
 	    _t2$3,
-	    _t3$1;
+	    _t3$2,
+	    _t4$1;
+
+	var _loadImage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadImage");
+
+	var _setIsCropEnabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setIsCropEnabled");
+
 	class Preview extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
+	    Object.defineProperty(this, _setIsCropEnabled, {
+	      value: _setIsCropEnabled2
+	    });
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setEventNamespace('BX.UI.Stamp.Uploader');
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
+	    const draggable = this.cache.remember('draggable', () => {
+	      return new ui_draganddrop_draggable.Draggable({
+	        container: this.getLayout(),
+	        draggable: '.ui-stamp-uploader-preview-crop > div',
+	        type: ui_draganddrop_draggable.Draggable.HEADLESS,
+	        context: window.top
+	      });
+	    });
+	    draggable.subscribe('start', this.onDragStart.bind(this));
+	    draggable.subscribe('move', this.onDragMove.bind(this));
+	    draggable.subscribe('end', this.onDragEnd.bind(this));
 	  }
 
 	  setOptions(options) {
@@ -357,25 +435,68 @@ this.BX.UI = this.BX.UI || {};
 	    return this.cache.get('options', {});
 	  }
 
-	  getImagePreviewLayout() {
-	    return this.cache.remember('imagePreviewLayout', () => {
-	      return main_core.Tag.render(_t$5 || (_t$5 = _$5`
-				<div class="ui-stamp-uploader-preview-image"></div>
-			`));
-	    });
+	  getDraggable() {
+	    return this.cache.get('draggable');
 	  }
 
-	  getActionButtonLayout() {
-	    return this.cache.remember('actionButtonLayout', () => {
-	      return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
-				<div class="ui-stamp-uploader-preview-actions-button"></div>
+	  getDevicePixelRatio() {
+	    return window.devicePixelRatio;
+	  }
+
+	  getCanvas() {
+	    const canvas = this.cache.remember('canvas', () => {
+	      return main_core.Tag.render(_t$5 || (_t$5 = _$5`
+				<canvas class="ui-stamp-uploader-preview-canvas"></canvas>
 			`));
+	    });
+	    const timeoutId = setTimeout(() => {
+	      if (main_core.Type.isDomNode(canvas.parentElement) && !this.cache.has('adjustCanvas')) {
+	        const parentRect = {
+	          width: canvas.parentElement.clientWidth,
+	          height: canvas.parentElement.clientHeight
+	        };
+
+	        if (parentRect.width > 0 && parentRect.height > 0) {
+	          void this.cache.remember('adjustCanvas', () => {
+	            const ratio = this.getDevicePixelRatio();
+	            canvas.width = parentRect.width * ratio;
+	            canvas.height = parentRect.height * ratio;
+	            main_core.Dom.style(canvas, {
+	              width: `${parentRect.width}px`,
+	              height: `${parentRect.height}px`
+	            });
+	            const context2d = canvas.getContext('2d');
+	            const {
+	              context2d: context2dOptions = {}
+	            } = this.getOptions();
+
+	            if (main_core.Type.isPlainObject(context2dOptions)) {
+	              Object.assign(context2d, context2dOptions);
+	            }
+
+	            context2d.scale(ratio, ratio);
+	          });
+	        }
+	      }
+
+	      clearTimeout(timeoutId);
+	    });
+	    return canvas;
+	  }
+
+	  getImagePreviewLayout() {
+	    return this.cache.remember('imagePreviewLayout', () => {
+	      return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
+				<div class="ui-stamp-uploader-preview-image">
+					${0}
+				</div>
+			`), this.getCanvas());
 	    });
 	  }
 
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
-	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$5`
+	      return main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
 				<div 
 					class="ui-stamp-uploader-preview" 
 					title="${0}"
@@ -383,14 +504,205 @@ this.BX.UI = this.BX.UI || {};
 					${0}
 					${0}
 				</div>
-			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_PREVIEW_TITLE'), this.getImagePreviewLayout(), this.getActionButtonLayout());
+			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_PREVIEW_TITLE'), this.getImagePreviewLayout(), this.getCropControl());
 	    });
 	  }
 
-	  show(src) {
-	    main_core.Dom.style(this.getImagePreviewLayout(), {
-	      backgroundImage: `url(${src})`
+	  clear() {
+	    const canvas = this.getCanvas();
+	    const context = canvas.getContext('2d');
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+	  }
+
+	  setSourceImage(image) {
+	    this.cache.set('sourceImage', image);
+	  }
+
+	  getSourceImage() {
+	    return this.cache.get('sourceImage', null);
+	  }
+
+	  setSourceImageRect(rect) {
+	    this.cache.set('sourceImageRect', rect);
+	  }
+
+	  getSourceImageRect() {
+	    return this.cache.get('sourceImageRect', {});
+	  }
+
+	  setCurrentDrawOptions(drawOptions) {
+	    this.cache.set('currentDrawOptions', drawOptions);
+	  }
+
+	  getCurrentDrawOptions() {
+	    return this.cache.get('currentDrawOptions', {});
+	  }
+
+	  applyCrop() {
+	    const cropRect = this.getCropRect();
+	    const drawOptions = this.getCurrentDrawOptions();
+	    const sourceImageRect = this.getSourceImageRect();
+	    const imageScaleRatio = sourceImageRect.width / drawOptions.dWidth;
+	    const canvas = this.getCanvas();
+	    const cropOptions = {
+	      sX: (cropRect.left - drawOptions.dX) * imageScaleRatio,
+	      sY: (cropRect.top - drawOptions.dY) * imageScaleRatio,
+	      sWidth: cropRect.width * imageScaleRatio,
+	      sHeight: cropRect.height * imageScaleRatio,
+	      dWidth: cropRect.width,
+	      dHeight: cropRect.height,
+	      dX: (canvas.clientWidth - cropRect.width) / 2,
+	      dY: (canvas.clientHeight - cropRect.height) / 2
+	    };
+	    return this.renderImage(this.getSourceImage(), cropOptions);
+	  }
+
+	  renderImage(file, drawOptions = {}) {
+	    const canvas = this.getCanvas();
+	    const context2d = canvas.getContext('2d');
+	    return babelHelpers.classPrivateFieldLooseBase(Preview, _loadImage)[_loadImage](file).then(sourceImage => {
+	      const sourceImageRect = {
+	        width: sourceImage.width,
+	        height: sourceImage.height
+	      };
+	      const scaleRatio = Math.min(canvas.clientWidth / sourceImageRect.width, canvas.clientHeight / sourceImageRect.height);
+	      const preparedDrawOptions = {
+	        sX: 0,
+	        sY: 0,
+	        sWidth: sourceImageRect.width,
+	        sHeight: sourceImageRect.height,
+	        dX: (canvas.clientWidth - sourceImageRect.width * scaleRatio) / 2,
+	        dY: (canvas.clientHeight - sourceImageRect.height * scaleRatio) / 2,
+	        dWidth: sourceImageRect.width * scaleRatio,
+	        dHeight: sourceImageRect.height * scaleRatio,
+	        ...drawOptions
+	      };
+	      this.setSourceImageRect(sourceImageRect);
+	      this.setCurrentDrawOptions(preparedDrawOptions);
+	      this.clear();
+	      context2d.drawImage(sourceImage, preparedDrawOptions.sX, preparedDrawOptions.sY, preparedDrawOptions.sWidth, preparedDrawOptions.sHeight, preparedDrawOptions.dX, preparedDrawOptions.dY, preparedDrawOptions.dWidth, preparedDrawOptions.dHeight);
 	    });
+	  }
+
+	  setInitialCropRect(rect) {
+	    this.cache.set('initialCropRect', rect);
+	  }
+
+	  getInitialCropRect() {
+	    return this.cache.get('initialCropRect');
+	  }
+
+	  getCropControl() {
+	    return this.cache.remember('cropControl', () => {
+	      return main_core.Tag.render(_t4$1 || (_t4$1 = _$5`
+				<div class="ui-stamp-uploader-preview-crop">
+					<div class="ui-stamp-uploader-preview-crop-top"></div>
+					<div class="ui-stamp-uploader-preview-crop-right"></div>
+					<div class="ui-stamp-uploader-preview-crop-bottom"></div>
+					<div class="ui-stamp-uploader-preview-crop-left"></div>
+					<div class="ui-stamp-uploader-preview-crop-rotate"></div>
+				</div>
+			`));
+	    });
+	  }
+
+	  isCropEnabled() {
+	    return this.cache.get('isCropEnabled', false);
+	  }
+
+	  enableCrop() {
+	    this.renderImage(this.getSourceImage()).then(() => {
+	      const control = this.getCropControl();
+	      const drawOptions = this.getCurrentDrawOptions();
+	      main_core.Dom.style(control, {
+	        top: `${drawOptions.dY}px`,
+	        bottom: `${drawOptions.dY}px`,
+	        left: `${drawOptions.dX}px`,
+	        right: `${drawOptions.dX}px`
+	      });
+	      main_core.Dom.addClass(control, 'ui-stamp-uploader-preview-crop-show');
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _setIsCropEnabled)[_setIsCropEnabled](true);
+	    });
+	  }
+
+	  disableCrop() {
+	    main_core.Dom.removeClass(this.getCropControl(), 'ui-stamp-uploader-preview-crop-show');
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _setIsCropEnabled)[_setIsCropEnabled](false);
+	  }
+
+	  onDragStart() {
+	    const cropControl = this.getCropControl();
+	    this.setInitialCropRect({
+	      top: main_core.Text.toNumber(main_core.Dom.style(cropControl, 'top')),
+	      left: main_core.Text.toNumber(main_core.Dom.style(cropControl, 'left')),
+	      right: main_core.Text.toNumber(main_core.Dom.style(cropControl, 'right')),
+	      bottom: main_core.Text.toNumber(main_core.Dom.style(cropControl, 'bottom'))
+	    });
+	  }
+
+	  onDragMove(event) {
+	    const data = event.getData();
+	    const initialRect = this.getInitialCropRect();
+	    const drawOptions = this.getCurrentDrawOptions();
+	    const requiredOffset = 20;
+	    const canvasWidth = drawOptions.dX + drawOptions.dWidth + drawOptions.dX;
+	    const canvasHeight = drawOptions.dY + drawOptions.dHeight + drawOptions.dY;
+
+	    if (data.source.matches('.ui-stamp-uploader-preview-crop-right')) {
+	      const position = Math.max(Math.min(initialRect.right - data.offsetX, canvasWidth - initialRect.left - requiredOffset), drawOptions.dX);
+	      main_core.Dom.style(this.getCropControl(), 'right', `${position}px`);
+	    }
+
+	    if (data.source.matches('.ui-stamp-uploader-preview-crop-left')) {
+	      const position = Math.max(Math.min(initialRect.left + data.offsetX, canvasWidth - initialRect.right - requiredOffset), drawOptions.dX);
+	      main_core.Dom.style(this.getCropControl(), 'left', `${position}px`);
+	    }
+
+	    if (data.source.matches('.ui-stamp-uploader-preview-crop-top')) {
+	      const position = Math.max(drawOptions.dY, Math.min(initialRect.top + data.offsetY, canvasHeight - initialRect.bottom - requiredOffset));
+	      main_core.Dom.style(this.getCropControl(), 'top', `${position}px`);
+	    }
+
+	    if (data.source.matches('.ui-stamp-uploader-preview-crop-bottom')) {
+	      const position = Math.max(Math.min(canvasHeight - initialRect.top - requiredOffset, initialRect.bottom - data.offsetY), drawOptions.dY);
+	      main_core.Dom.style(this.getCropControl(), 'bottom', `${position}px`);
+	    }
+	  }
+
+	  getCropRect() {
+	    const cropControl = this.getCropControl();
+	    const width = cropControl.clientWidth;
+	    const height = cropControl.clientHeight;
+	    const left = Math.round(main_core.Text.toNumber(main_core.Dom.style(cropControl, 'left')));
+	    const top = Math.round(main_core.Text.toNumber(main_core.Dom.style(cropControl, 'top')));
+	    const canvas = this.getCanvas();
+	    const canvasRect = canvas.getBoundingClientRect();
+	    const right = canvasRect.width - (left + width);
+	    const bottom = canvasRect.height - (top + height);
+	    return {
+	      width,
+	      height,
+	      top,
+	      left,
+	      right,
+	      bottom
+	    };
+	  }
+
+	  async getValue() {
+	    const canvas = this.getCanvas();
+	    return await new Promise(resolve => {
+	      canvas.toBlob(resolve, 'image/png');
+	    });
+	  }
+
+	  onDragEnd(event) {}
+
+	  show(file) {
+	    this.setSourceImage(file);
+	    void this.renderImage(file);
 	    main_core.Dom.addClass(this.getLayout(), 'ui-stamp-uploader-preview-show');
 	  }
 
@@ -399,6 +711,28 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	}
+
+	function _loadImage2(file) {
+	  const fileReader = new FileReader();
+	  return new Promise(resolve => {
+	    fileReader.readAsDataURL(file);
+	    main_core.Event.bindOnce(fileReader, 'loadend', () => {
+	      const image = new Image();
+	      image.src = fileReader.result;
+	      main_core.Event.bindOnce(image, 'load', () => {
+	        resolve(image);
+	      });
+	    });
+	  });
+	}
+
+	function _setIsCropEnabled2(value) {
+	  this.cache.set('isCropEnabled', value);
+	}
+
+	Object.defineProperty(Preview, _loadImage, {
+	  value: _loadImage2
+	});
 
 	let _$6 = t => t,
 	    _t$6;
@@ -494,9 +828,13 @@ this.BX.UI = this.BX.UI || {};
 	let _$8 = t => t,
 	    _t$8,
 	    _t2$4,
-	    _t3$2;
+	    _t3$3;
 
 	var _delay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("delay");
+
+	var _setPreventConfirmShow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setPreventConfirmShow");
+
+	var _isConfirmShowPrevented = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConfirmShowPrevented");
 
 	/**
 	 * @namespace BX.UI.Stamp
@@ -504,6 +842,12 @@ this.BX.UI = this.BX.UI || {};
 	class Uploader extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
+	    Object.defineProperty(this, _isConfirmShowPrevented, {
+	      value: _isConfirmShowPrevented2
+	    });
+	    Object.defineProperty(this, _setPreventConfirmShow, {
+	      value: _setPreventConfirmShow2
+	    });
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setEventNamespace('BX.UI.Stamp.Uploader');
 	    this.subscribeFromOptions(options.events);
@@ -512,6 +856,11 @@ this.BX.UI = this.BX.UI || {};
 	      const dropzoneLayout = this.getDropzone().getLayout();
 	      const previewLayout = this.getPreview().getLayout();
 	      const fileSelectButtonLayout = this.getFileSelect().getLayout();
+	      main_core.Event.bind(previewLayout, 'click', event => {
+	        if (this.getPreview().isCropEnabled()) {
+	          event.stopImmediatePropagation();
+	        }
+	      });
 	      return new ui_uploader_core.Uploader({
 	        controller: this.getOptions().controller.upload,
 	        assignAsFile: true,
@@ -522,26 +871,30 @@ this.BX.UI = this.BX.UI || {};
 	        autoUpload: false,
 	        acceptedFileTypes: ['image/png', 'image/jpeg'],
 	        events: {
-	          'File:onAdd': event => {
+	          [ui_uploader_core.UploaderEvent.FILE_ADD]: event => {
 	            const {
 	              file,
 	              error
 	            } = event.getData();
 
 	            if (main_core.Type.isNil(error)) {
-	              this.getPreview().show(file.getClientPreviewUrl());
+	              this.getPreview().show(file.getClientPreview());
 	              this.setUploaderFile(file);
 
 	              if (this.getMode() === Uploader.Mode.SLIDER) {
 	                this.getSliderButtons().saveButton.setDisabled(false);
+	                this.getActionPanel().enable();
 	              }
 
 	              if (this.getMode() === Uploader.Mode.INLINE) {
 	                this.getInlineSaveButton().setDisabled(false);
+	                this.getActionPanel().enable();
 	              }
+
+	              this.setIsChanged(true);
 	            }
 	          },
-	          'File:onUploadProgress': event => {
+	          [ui_uploader_core.UploaderEvent.FILE_UPLOAD_PROGRESS]: event => {
 	            const {
 	              progress,
 	              file
@@ -551,19 +904,44 @@ this.BX.UI = this.BX.UI || {};
 	              size: file.getSize() / 100 * progress
 	            });
 	          },
-	          'File:onError': function (event) {
+	          [ui_uploader_core.UploaderEvent.FILE_ERROR]: function (event) {
 	            const {
 	              error
 	            } = event.getData();
-	            const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
-
-	            if (!main_core.Type.isNil(TopMessageBox)) {
-	              TopMessageBox.alert(error.getMessage());
-	            }
+	            Uploader.showAlert(error.getMessage());
 	          }
 	        }
 	      });
 	    });
+	  }
+
+	  static showAlert(...args) {
+	    const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+
+	    if (!main_core.Type.isNil(TopMessageBox)) {
+	      TopMessageBox.alert(...args);
+	    }
+	  }
+
+	  static showConfirm(options) {
+	    const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+	    const TopMessageBoxButtons = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBoxButtons');
+
+	    if (!main_core.Type.isNil(TopMessageBox)) {
+	      TopMessageBox.show({
+	        modal: true,
+	        buttons: TopMessageBoxButtons.OK_CANCEL,
+	        ...options
+	      });
+	    }
+	  }
+
+	  setIsChanged(value) {
+	    this.cache.set('isChanged', value);
+	  }
+
+	  isChanged() {
+	    return this.cache.get('isChanged', false);
 	  }
 
 	  getFileUploader() {
@@ -633,8 +1011,7 @@ this.BX.UI = this.BX.UI || {};
 	          }
 
 	          return this.getDropzone();
-	        })(), // this.getActionPanel(),
-	        this.getStatus(), this.getPreview()]
+	        })(), this.getActionPanel(), this.getStatus(), this.getPreview()]
 	      });
 	    });
 	  }
@@ -647,8 +1024,36 @@ this.BX.UI = this.BX.UI || {};
 
 	  getActionPanel() {
 	    return this.cache.remember('actionPanel', () => {
-	      return new ActionPanel({});
+	      return new ActionPanel({
+	        events: {
+	          onCropClick: this.onCropClick.bind(this),
+	          onApplyClick: this.onCropApplyClick.bind(this),
+	          onCancelClick: this.onCropCancelClick.bind(this)
+	        }
+	      });
 	    });
+	  }
+
+	  onCropApplyClick() {
+	    this.getPreview().applyCrop();
+	    this.getPreview().disableCrop();
+	    this.getActionPanel().hideCropActions();
+	    this.getInlineSaveButton().setDisabled(false);
+	    this.getActionPanel().enable();
+	  }
+
+	  onCropCancelClick() {
+	    this.getPreview().disableCrop();
+	    this.getActionPanel().hideCropActions();
+	    this.getInlineSaveButton().setDisabled(false);
+	    this.getActionPanel().enable();
+	  }
+
+	  onCropClick() {
+	    this.getPreview().enableCrop();
+	    this.getActionPanel().showCropAction();
+	    this.getInlineSaveButton().setDisabled(true);
+	    this.getActionPanel().enable();
 	  }
 
 	  getStatus() {
@@ -690,7 +1095,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  getHiddenInput() {
 	    return this.cache.remember('hiddenInput', () => {
-	      return main_core.Tag.render(_t3$2 || (_t3$2 = _$8`
+	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$8`
 				<input type="file" name="STAMP_UPLOADER_INPUT" hidden>
 			`));
 	    });
@@ -704,19 +1109,22 @@ this.BX.UI = this.BX.UI || {};
 
 	  upload() {
 	    return new Promise(resolve => {
-	      const file = this.getUploaderFile();
-
-	      if (file) {
-	        this.getPreview().hide();
-	        this.getStatus().showUploadStatus({
-	          reset: true
+	      this.getPreview().getCanvas().toBlob(blob => {
+	        this.getFileUploader().addFile(blob);
+	        const [resultFile] = this.getFileUploader().getFiles();
+	        resultFile.subscribeOnce(ui_uploader_core.FileEvent.LOAD_COMPLETE, () => {
+	          this.getPreview().hide();
+	          this.getStatus().showUploadStatus({
+	            reset: true
+	          });
+	          resultFile.upload({
+	            onComplete: () => {
+	              resolve(resultFile);
+	            },
+	            onError: console.error
+	          });
 	        });
-	        file.upload();
-	        const uploadController = main_core.Type.isFunction(file.getUploadController) ? file.getUploadController() : file.uploadController;
-	        uploadController.subscribeOnce('onUpload', event => {
-	          resolve(event.getData().fileInfo);
-	        });
-	      }
+	      });
 	    });
 	  }
 
@@ -738,12 +1146,12 @@ this.BX.UI = this.BX.UI || {};
 	          saveButton.setWaiting(true);
 	          this.upload().then(uploaderFile => {
 	            babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
-	              this.getPreview().show(uploaderFile.serverPreviewUrl);
+	              this.getPreview().show(uploaderFile.getClientPreview());
 	              this.getStatus().showPreparingStatus();
 	            }, 1000);
 
 	            return this.emitAsync('onSaveAsync', {
-	              file: uploaderFile
+	              file: uploaderFile.toJSON()
 	            });
 	          }).then(() => {
 	            this.getStatus().hide();
@@ -751,11 +1159,13 @@ this.BX.UI = this.BX.UI || {};
 	            babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	              saveButton.setWaiting(false);
 	              saveButton.setDisabled(true);
+	              this.getActionPanel().disable();
 	            }, 500);
 	          });
 	        }
 	      });
 	      button.setDisabled(true);
+	      this.getActionPanel().disable();
 	      return button;
 	    });
 	  }
@@ -780,6 +1190,7 @@ this.BX.UI = this.BX.UI || {};
 
 	    this.getPreview().hide();
 	    this.getStatus().hide();
+	    this.getActionPanel().disable();
 	    SidePanelInstance.open('stampUploader', {
 	      width: 640,
 	      contentCallback: () => {
@@ -798,14 +1209,18 @@ this.BX.UI = this.BX.UI || {};
 	            const saveButton = new SaveButton({
 	              onclick: () => {
 	                saveButton.setWaiting(true);
+	                this.setIsChanged(false);
+
+	                babelHelpers.classPrivateFieldLooseBase(this, _setPreventConfirmShow)[_setPreventConfirmShow](true);
+
 	                this.upload().then(uploaderFile => {
 	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
-	                    this.getPreview().show(uploaderFile.serverPreviewUrl);
+	                    this.getPreview().show(uploaderFile.getClientPreview());
 	                    this.getStatus().showPreparingStatus();
 	                  }, 1000);
 
 	                  return this.emitAsync('onSaveAsync', {
-	                    file: uploaderFile
+	                    file: uploaderFile.toJSON()
 	                  });
 	                }).then(() => {
 	                  this.getStatus().hide();
@@ -813,12 +1228,14 @@ this.BX.UI = this.BX.UI || {};
 	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	                    saveButton.setWaiting(false);
 	                    saveButton.setDisabled(true);
+	                    this.getActionPanel().disable();
 	                    BX.SidePanel.Instance.close();
 	                  }, 500);
 	                });
 	              }
 	            });
 	            saveButton.setDisabled(true);
+	            this.getActionPanel().disable();
 	            this.setSliderButtons({
 	              saveButton,
 	              cancelButton
@@ -826,6 +1243,32 @@ this.BX.UI = this.BX.UI || {};
 	            return [saveButton, cancelButton];
 	          }
 	        });
+	      },
+	      events: {
+	        onClose: event => {
+	          if (this.isChanged()) {
+	            event.denyAction();
+
+	            if (!babelHelpers.classPrivateFieldLooseBase(this, _isConfirmShowPrevented)[_isConfirmShowPrevented]()) {
+	              Uploader.showConfirm({
+	                message: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM'),
+	                onOk: messageBox => {
+	                  this.setIsChanged(false);
+	                  event.getSlider().close();
+	                  messageBox.close();
+	                },
+	                okCaption: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CLOSE'),
+	                onCancel: messageBox => {
+	                  messageBox.close();
+	                },
+	                cancelCaption: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CANCEL')
+	              });
+	            } else {
+	              this.setIsChanged(false);
+	              event.getSlider().close();
+	            }
+	          }
+	        }
 	      }
 	    });
 	  }
@@ -839,6 +1282,14 @@ this.BX.UI = this.BX.UI || {};
 	  }, delay);
 	}
 
+	function _setPreventConfirmShow2(value) {
+	  this.cache.set('preventConfirmShow', value);
+	}
+
+	function _isConfirmShowPrevented2() {
+	  return this.cache.get('preventConfirmShow', false);
+	}
+
 	Object.defineProperty(Uploader, _delay, {
 	  value: _delay2
 	});
@@ -849,5 +1300,5 @@ this.BX.UI = this.BX.UI || {};
 
 	exports.Uploader = Uploader;
 
-}((this.BX.UI.Stamp = this.BX.UI.Stamp || {}),BX.UI.Uploader,BX.UI.Dialogs,BX.UI.SidePanel,BX,BX,BX.Event,BX.UI));
+}((this.BX.UI.Stamp = this.BX.UI.Stamp || {}),BX.UI.Uploader,BX.UI.Dialogs,BX.UI.SidePanel,BX,BX.UI.DragAndDrop,BX,BX.Event,BX.UI));
 //# sourceMappingURL=uploader.bundle.js.map

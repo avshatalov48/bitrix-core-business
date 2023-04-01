@@ -196,12 +196,13 @@ class ProductForm extends BaseForm
 			);
 			while ($section = $sectionList->Fetch())
 			{
-				$section['PICTURE'] = \CFile::resizeImageGet(
+				$picture = \CFile::resizeImageGet(
 					$section['PICTURE'],
 					['width' => 100, 'height' => 100],
 					BX_RESIZE_IMAGE_EXACT,
 					false
-				)['src'];
+				);
+				$section['PICTURE'] = $picture['src'] ?? null;
 				$sectionData[] = $section;
 			}
 		}

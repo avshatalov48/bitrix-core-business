@@ -12,7 +12,7 @@ $MESS["SEC_SESSION_ADMIN_DB_NOTE"] = "<p>Most web attacks steal authorized user 
 $MESS["SEC_SESSION_ADMIN_DB_NOTE_V2"] = "
 <p>Storing a session in the database, Redis or Memcache instead of files prevents access to this data via scripts hosted on other virtual servers, helps to avoid server configuration and access permission conflicts and other environment configuration issues. Furthermore, it decreases file system load by offloading requests to a database server, Redis or Memcache.</p>
 
-<p>To change session storage parameters, you will have to edit the file <b>.settings.php</b> as described<a href='https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=68&CHAPTER_ID=05962&LESSON_PATH=5936.5959.5962'>here</a>.</p>
+<p>To change session storage parameters, you will have to edit the file <b>.settings.php</b> as described <a href='https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=68&CHAPTER_ID=05962&LESSON_PATH=5936.5959.5962'>here</a>.</p>
 
 <p>In addition to conventional session security measures specified in the group settings, you can set the session ID to change every few minutes.</p>
 
@@ -21,7 +21,6 @@ $MESS["SEC_SESSION_ADMIN_DB_OFF"] = "Session data are not stored in the Security
 $MESS["SEC_SESSION_ADMIN_DB_ON"] = "Session data is stored in the Security module database.";
 $MESS["SEC_SESSION_ADMIN_DB_WARNING"] = "Attention! Toggling the session mode on or off will cause currently authorized users to lose authorization (the session data will be destroyed).";
 $MESS["SEC_SESSION_ADMIN_SAVEDB_TAB"] = "Sessions in Database";
-$MESS["SEC_SESSION_ADMIN_SAVEDB_TAB_TITLE"] = "Configure storing of session data in database";
 $MESS["SEC_SESSION_ADMIN_SAVEDB_TAB_TITLE_V2"] = "User session storage settings";
 $MESS["SEC_SESSION_ADMIN_SAVEDB_TAB_V2"] = "Session storage settings";
 $MESS["SEC_SESSION_ADMIN_SESSID_BUTTON_OFF"] = "Disable ID Change";

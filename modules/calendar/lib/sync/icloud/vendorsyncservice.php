@@ -19,7 +19,7 @@ class VendorSyncService
 	//DavConnection data or only authorization data
 	public function getCalendarServerPath(array $connection): ?string
 	{
-		if (!$connection['ID'])
+		if (empty($connection['ID']))
 		{
 			$server = $this->getApiService()->prepareUrl($this->helper::SERVER_PATH);
 

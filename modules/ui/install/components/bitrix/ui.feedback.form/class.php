@@ -32,7 +32,11 @@ class UiFeedbackForm extends CBitrixComponent
 
 		$feedbackForm = new \Bitrix\UI\Form\FeedbackForm($this->arParams['ID']);
 		$feedbackForm->setFormParams($this->arParams['FORMS']);
-		$feedbackForm->setPresets(is_array($this->arParams['PRESETS']) ? $this->arParams['PRESETS'] : []);
+		$feedbackForm->setPresets(
+			isset($this->arParams['PRESETS']) && is_array($this->arParams['PRESETS'])
+				? $this->arParams['PRESETS']
+				: []
+		);
 		if (isset($this->arParams['TITLE']))
 		{
 			$feedbackForm->setTitle($this->arParams['TITLE']);

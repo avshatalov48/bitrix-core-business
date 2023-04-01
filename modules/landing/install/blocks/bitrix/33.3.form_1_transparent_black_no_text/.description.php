@@ -17,14 +17,15 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.3_NODE_BGIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['background', 'block-default-background-overlay'],
 		),
 		'nodes' => array(
 			'.landing-block-node-bgimg' => array(

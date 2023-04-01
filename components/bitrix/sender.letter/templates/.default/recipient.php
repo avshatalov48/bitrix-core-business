@@ -9,14 +9,14 @@ global $APPLICATION;
 $componentParameters = array(
 	'LETTER_ID' => $arResult['ID'],
 	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'],
-	'PATH_TO_ABUSES' => $arResult['PATH_TO_ABUSES'],
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'] ?? '',
+	'PATH_TO_ABUSES' => $arResult['PATH_TO_ABUSES'] ?? '',
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.pageslider.wrapper",

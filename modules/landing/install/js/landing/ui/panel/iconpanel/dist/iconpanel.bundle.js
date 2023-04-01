@@ -225,10 +225,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (query.trim().length < 2) {
 	        this.selectDefaultCategory();
 	        return;
-	      } // dbg
-	      //const date = new Date();
-	      //console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
-
+	      }
 
 	      this.content.innerHTML = '';
 
@@ -310,14 +307,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        var lang = landing_loc.Loc.getMessage('LANGUAGE_ID');
 
 	        if (lang === IconPanel.DEFAULT_LANG) {
-	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_EN';
-	          imageClass = '--en';
-	        } else if (IconPanel.SUPPORTED_LANG.indexOf(landing_loc.Loc.getMessage('LANGUAGE_ID')) !== -1) {
+	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_DEFAULT';
+	          imageClass = '--not_found';
+	        } else if (IconPanel.SUPPORTED_LANG.indexOf(lang) !== -1) {
 	          // todo: correct phrases
-	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_EN';
+	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_SUPPORTED';
 	          imageClass = '--not_found';
 	        } else {
-	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_OTHER';
+	          textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_INCORRECT';
 	          imageClass = '--incorrect_lang';
 	        }
 
@@ -356,7 +353,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }]);
 	  return IconPanel;
 	}(landing_ui_panel_content.Content);
-	babelHelpers.defineProperty(IconPanel, "SUPPORTED_LANG", ['en', 'ru']);
+	babelHelpers.defineProperty(IconPanel, "SUPPORTED_LANG", ['en', 'ru', 'de']);
 	babelHelpers.defineProperty(IconPanel, "DEFAULT_LANG", 'en');
 	babelHelpers.defineProperty(IconPanel, "cache", new main_core.Cache.MemoryCache());
 

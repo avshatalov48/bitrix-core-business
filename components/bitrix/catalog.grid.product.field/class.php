@@ -178,6 +178,7 @@ class CatalogGridProductFieldComponent
 				'NAME' => $this->getProductName(),
 			];
 			$this->arResult['FILE_TYPE'] = 'product';
+			$this->arResult['SKU_TREE'] = null;
 
 			if ($this->getIblockId() > 0 && $this->getProductId() > 0)
 			{

@@ -5,11 +5,13 @@ import {PageEventsManager} from './page.events.manager';
 import SettingsPopup from './settings.button';
 import {CurrencyCore} from 'currency.currency-core';
 import {ProductSelector} from 'catalog.product-selector';
+import {StoreSelector} from "catalog.store-selector";
 import HintPopup from './hint.popup';
 import ProductListController from "catalog.document-card";
 import {ProductModel} from "catalog.product-model";
 import {FieldHintManager} from "./field.hint.manager";
 import {Guide} from "ui.tour";
+import {UI} from 'ui.notification';
 import "ui.hint";
 
 const GRID_TEMPLATE_ROW = 'template_0';
@@ -655,6 +657,13 @@ export class Editor
 		return CurrencyCore.loadCurrencyFormat(currencyId);
 	}
 
+	isSalesOrdersDocument(): boolean
+	{
+		const salesOrdersDocumentTypeCodes = ['REALIZATION', 'W'];
+
+		return salesOrdersDocumentTypeCodes.includes(this.settings.documentType);
+	}
+	
 	changeCurrencyId(currencyId): void
 	{
 		const oldCurrencyId = this.getCurrencyId();
@@ -730,8 +739,16 @@ export class Editor
 		const totalBlock = BX(this.getSettingValue('totalBlockContainerId', null));
 		if (Type.isElementNode(totalBlock))
 		{
-			totalBlock.querySelectorAll('[data-role="currency-wrapper"]').forEach((row) => {
-				row.innerHTML = this.getCurrencyText();
+			const totalsList = ['totalCost'];
+			totalBlock.querySelectorAll('.catalog-document-product-list-result-grid-total').forEach((row) => {
+				for (const totalId of totalsList)
+				{
+					const valueElement = row.querySelector('[data-total="' + totalId + '"]');
+					if (valueElement)
+					{
+						row.innerHTML = CurrencyCore.getPriceControl(valueElement, this.getCurrencyId());
+					}
+				}
 			});
 		}
 	}
@@ -1180,7 +1197,7 @@ export class Editor
 			fieldCode = this.getFieldCodeByGridCell(row, cell);
 		}
 
-		if (this.settings.documentType === 'REALIZATION' && fieldCode === 'AMOUNT' && value <= 0)
+		if (this.isSalesOrdersDocument() && fieldCode === 'AMOUNT' && value <= 0)
 		{
 			event.target.value = 1;
 			this.handleFieldChange(event);
@@ -1412,6 +1429,28 @@ export class Editor
 			};
 		}
 
+		if (Type.isNil(anchorProduct) && this.products.length > 0)
+		{
+			const previousRow =
+				this.getSettingValue('newRowPosition') === 'bottom'
+					? this.products[this.products.length - 1]
+					: this.products[0]
+			;
+			const stores = this.getSettingValue('stores', {});
+			const storeFields = previousRow.getSettingValue('storeHeaderMap', {});
+			Object.values(storeFields).forEach((field) => {
+				const previousStoreValue = previousRow.getField(field);
+				if (Type.isNil(stores[previousStoreValue]))
+				{
+					return;
+				}
+
+				fields[field] = previousRow.getField(field);
+				const titleName = field + '_TITLE';
+				fields[titleName] = previousRow.getField(titleName);
+			});
+		}
+
 		const rowId = this.getRowIdPrefix() + newId;
 		fields.ID = newId;
 		fields.ROW_ID = newId;
@@ -1500,7 +1539,7 @@ export class Editor
 			productRow.layoutBarcode();
 			productRow.executeExternalActions();
 
-			if (this.settings.documentType === 'REALIZATION')
+			if (this.isSalesOrdersDocument())
 			{
 				productRow.changeAmount(productRow.getAmount() > 0 ? productRow.getAmount() : 1);
 			}
@@ -2004,5 +2043,74 @@ export class Editor
 	getRestrictedProductTypes(): Array
 	{
 		return this.getSettingValue('restrictedProductTypes', []);
+	}
+
+	processApplyActionButtonClick(actionId: string): void
+	{
+		if (actionId === 'STORE_FROM_INFO' || actionId === 'STORE_TO_INFO')
+		{
+			this.#processSetStoryAction(actionId);
+		}
+	}
+
+	#processSetStoryAction(actionId)
+	{
+		const actionPanel = this.getGrid()?.getActionsPanel();
+		const actionValues = actionPanel?.getValues();
+		const actionStoreId = actionValues[actionId];
+		if (!actionValues || Type.isUndefined(actionStoreId))
+		{
+			return;
+		}
+
+		const selectedRows  = this.getGrid().getRows().getSelected();
+		if (selectedRows.length === 0)
+		{
+			return;
+		}
+
+		const stores = this.getSettingValue('stores', {});
+		const actionStore = stores[actionStoreId];
+		if (!Type.isNil(actionStore))
+		{
+			const actionStoreName = actionStore?.TITLE || '';
+
+			selectedRows.forEach((row) => {
+				const selectedItem = this.products.find(product => product.getField('ID') === row.getId());
+				if (selectedItem)
+				{
+					const storeSelector = StoreSelector.getById(selectedItem.getId() + '_' + actionId);
+					if (storeSelector)
+					{
+						storeSelector.onStoreSelect(actionStoreId, actionStoreName);
+					}
+				}
+			});
+
+			const documentTypeMoving = 'M';
+			const messageId =
+				this.settings.documentType !== documentTypeMoving
+					? 'CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_CHANGED_HINT'
+					: 'CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_' + actionId + '_CHANGED_HINT'
+			;
+
+			UI.Notification.Center.notify({
+				content: Loc.getMessage(messageId, {'#STORE_NAME#': Text.encode(actionStoreName)}),
+				autoHide: true,
+				autoHideDelay: 4000,
+			});
+		}
+
+		const dropdown = actionPanel.getDropdowns().find(dropdown => dropdown.id === 'actionListId_control');
+		if (dropdown)
+		{
+			actionPanel.removeItemsRelativeCurrent(dropdown.parentNode);
+			Dom.attr(dropdown, 'data-value', null);
+			const innerWrapper = dropdown.querySelector('.main-dropdown-inner');
+			if (innerWrapper)
+			{
+				innerWrapper.innerText = Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_DEFAULT');
+			}
+		}
 	}
 }

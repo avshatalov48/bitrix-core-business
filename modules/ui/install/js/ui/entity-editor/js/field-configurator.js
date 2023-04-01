@@ -237,7 +237,7 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 	BX.UI.EntityEditorFieldConfigurator.prototype.layoutInternal = function()
 	{
 		this._wrapper.appendChild(this.getInputContainer());
-		if(this._typeId === "list")
+		if(this._typeId === "list" && (!this._field || this._field.getEditor().canChangeCommonConfiguration()))
 		{
 			this.layoutInnerConfigurator(this._field.getInnerConfig(), this._field.getItems());
 		}

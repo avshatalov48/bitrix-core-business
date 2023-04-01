@@ -25,6 +25,8 @@
 	display: inline-block;
 	font: 30px/40px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
+	overflow-wrap: break-word;
+	max-width: 100%;
 }
 
 .sender-letter-time-button-container {

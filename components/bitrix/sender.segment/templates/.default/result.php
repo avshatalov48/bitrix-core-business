@@ -16,12 +16,12 @@ $APPLICATION->IncludeComponent(
 		"POPUP_COMPONENT_PARAMS" => [
 			'ID' => $arResult['ID'],
 			'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-			'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-			'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-			'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-			'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-			'PATH_TO_CONTACT_IMPORT' => $arParams['PATH_TO_CONTACT_IMPORT'],
-			'PATH_TO_CONTACT_LIST' => $arParams['PATH_TO_CONTACT_LIST'],
+			'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+			'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+			'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+			'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+			'PATH_TO_CONTACT_IMPORT' => $arParams['PATH_TO_CONTACT_IMPORT'] ?? '',
+			'PATH_TO_CONTACT_LIST' => $arParams['PATH_TO_CONTACT_LIST'] ?? '',
 		],
 		"BUTTONS" => ['close']
 	]

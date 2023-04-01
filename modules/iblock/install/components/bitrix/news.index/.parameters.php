@@ -1,6 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+/** @var array $arCurrentValues */
+
 if(!CModule::IncludeModule("iblock"))
 	return;
 
@@ -12,7 +14,11 @@ while($arRes = $db_iblock->Fetch())
 	$arIBlocks[$arRes["ID"]] = "[".$arRes["ID"]."] ".$arRes["NAME"];
 
 $arProperty_LNS = array();
-if(count($arCurrentValues["IBLOCKS"])==1)
+if (
+	!empty($arCurrentValues['IBLOCKS'])
+	&& is_array($arCurrentValues['IBLOCKS'])
+	&& count($arCurrentValues['IBLOCKS']) === 1
+)
 {
 	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCKS"][0]));
 	while ($arr=$rsProp->Fetch())
@@ -121,7 +127,6 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("IBLOCK_PROPERTY"),
 			"TYPE" => "LIST",
 			"MULTIPLE" => "Y",
-			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arProperty_LNS,
 			"ADDITIONAL_VALUES" => "Y",
 		),

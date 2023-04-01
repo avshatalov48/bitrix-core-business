@@ -436,3 +436,7 @@ main.landing-edit-mode .landing-ui-panel-content
 	content: '';
 	background: rgba(187, 237, 33, .2);
 }
+
+.landing-ui-panel.landing-ui-hide .landing-ui-panel-content-body-content {
+	overflow-y: hidden;
+}

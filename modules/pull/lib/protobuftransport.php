@@ -167,7 +167,7 @@ class ProtobufTransport
 
 		foreach ($messages as $message)
 		{
-			$event = $message['event'];
+			$event = $message['event'] ?? null;
 			if(!is_array($message['channels']) || count($message['channels']) == 0 || !isset($event['module_id']) || !isset($event['command']))
 			{
 				continue;
@@ -201,7 +201,7 @@ class ProtobufTransport
 		// for statistics
 		$messageType = "{$event['module_id']}_{$event['command']}";
 		$messageType = preg_replace("/[^\w]/", "", $messageType);
-		
+
 		$maxChannelsPerRequest = \CPullOptions::GetMaxChannelsPerRequest();
 		$receivers = [];
 		foreach ($channels as $channel)

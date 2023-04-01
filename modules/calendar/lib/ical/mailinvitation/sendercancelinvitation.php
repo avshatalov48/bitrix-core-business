@@ -42,6 +42,7 @@ class SenderCancelInvitation extends SenderInvitation
 	 */
 	protected function getMailEventField(): array
 	{
+		$this->event['SKIP_TIME'] ??= null;
 		return [
 			"=Reply-To" => "{$this->context->getAddresser()->getFullName()} <{$this->context->getAddresser()->getEmail()}>",
 			"=From" => "{$this->context->getAddresser()->getFullName()} <{$this->context->getAddresser()->getEmail()}>",

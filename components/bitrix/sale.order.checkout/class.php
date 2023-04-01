@@ -543,9 +543,9 @@ class SaleOrderCheckout extends \CBitrixComponent
 
 		$scheme = [
 			'ORDER' => [
-				'HASH' => $aggregateData['HASH'],
-				'ID' => $aggregateData['ORDER']['ID'],
-				'ACCOUNT_NUMBER' => $aggregateData['ORDER']['ACCOUNT_NUMBER'],
+				'HASH' => $aggregateData['HASH'] ?? null,
+				'ID' => $aggregateData['ORDER']['ID'] ?? null,
+				'ACCOUNT_NUMBER' => $aggregateData['ORDER']['ACCOUNT_NUMBER'] ?? null,
 				'PAID' => $aggregateData['ORDER']['PAYED'] === 'Y' ? 'Y' : 'N',
 			],
 			'USER_ID' => $this->getUserId(),

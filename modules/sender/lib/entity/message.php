@@ -281,7 +281,7 @@ class Message extends Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		$fields = $data['FIELDS'];
 		$utmTags = $data['UTM'];

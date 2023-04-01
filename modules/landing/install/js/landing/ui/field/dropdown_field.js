@@ -24,6 +24,7 @@
 		this.setEventNamespace('BX.Landing.UI.Field.Dropdown');
 		this.subscribeFromOptions(BX.Landing.UI.Component.fetchEventsFromOptions(options));
 		this.onChangeHandler = typeof options.onChange === "function" ? options.onChange : (function() {});
+		this.frame = typeof options.frame === "object" ? options.frame : null;
 		this.layout.classList.add("landing-ui-field-dropdown");
 		this.popup = null;
 		this.input.addEventListener("click", this.onInputClick.bind(this));
@@ -213,6 +214,18 @@
 			}, this);
 		},
 
+		onFrameLoad: function ()
+		{
+			const element = this.frame.document.querySelector(this.selector);
+			if (element)
+			{
+				const value = this.items.find(item => element.classList.contains(item.value));
+				if (value)
+				{
+					this.setValue(value.value, true);
+				}
+			}
+		},
 
 		/**
 		 * @inheritDoc

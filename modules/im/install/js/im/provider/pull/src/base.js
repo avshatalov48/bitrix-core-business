@@ -313,15 +313,30 @@ export class ImBasePullHandler
 			userId: params.senderId
 		});
 
+		let fields = {
+			params: params.params,
+			blink: true
+		};
+		if (command === "messageUpdate")
+		{
+			if (typeof params.textLegacy !== 'undefined')
+			{
+				fields.textLegacy = params.textLegacy;
+			}
+			if (typeof params.textOriginal !== 'undefined')
+			{
+				fields.textOriginal = params.textOriginal;
+			}
+			if (typeof params.text !== 'undefined')
+			{
+				fields.text = params.text;
+			}
+		}
+
 		this.store.dispatch('messages/update', {
 			id: params.id,
 			chatId: params.chatId,
-			fields: {
-				text: command === "messageUpdate"? params.text: '',
-				textOriginal: command === "messageUpdate"? params.textOriginal: '',
-				params: params.params,
-				blink: true
-			}
+			fields
 		}).then(() => {
 			EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: params.chatId, cancelIfScrollChange: true});
 		});

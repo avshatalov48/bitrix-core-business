@@ -112,6 +112,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 			popupOptions: {
 				zIndexAbsolute: 4020,
 				autoHide: true,
+				animation: 'fading-slide',
 			},
 		});
 		messageBox.show();
@@ -138,7 +139,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 			this.provider.setActiveWizard(this.wizard);
 		}
 	}
-	
+
 	sendRequestRemoveConnection(id)
 	{
 		this.deactivateConnection(id);

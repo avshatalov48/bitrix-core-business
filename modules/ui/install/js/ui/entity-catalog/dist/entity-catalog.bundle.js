@@ -286,7 +286,11 @@ this.BX = this.BX || {};
 	  },
 	  template: `
 		<div class="ui-entity-catalog__option-btn-block">
-			<div class="ui-entity-catalog__btn" @click="handleButtonClick">{{buttonText}}</div>
+			<div 
+				class="ui-entity-catalog__btn"
+				:class="{'--lock': buttonData.locked}"
+				@click="handleButtonClick"
+			>{{buttonText}}</div>
 		</div>
 	`
 	};

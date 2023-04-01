@@ -2,8 +2,10 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Text\Emoji;
 use CCalendar;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use CExtranet;
@@ -27,12 +29,17 @@ class Util
 			'room_event_id' => false,
 			'str' => $location
 		];
-		
+
 		if (!$location || is_array($location))
 		{
 			$res['str'] = '';
-			
+
 			return $res;
+		}
+
+		if (is_string($location))
+		{
+			$res['str'] = Emoji::decode($location);
 		}
 
 		if (
@@ -65,7 +72,7 @@ class Util
 				{
 					$res['room_id'] = (int)$parsedLocation[1];
 				}
-				if ((int)$parsedLocation[2] > 0)
+				if (isset($parsedLocation[2]) && (int)$parsedLocation[2] > 0)
 				{
 					$res['room_event_id'] = (int)$parsedLocation[2];
 				}
@@ -74,11 +81,13 @@ class Util
 
 		return $res;
 	}
-	
+
 	/**
-	 * @param string $loc
-	 *
-	 * @return array|string
+	 * @param $loc
+	 * @return array|string[]
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function unParseTextLocation($loc = ''): array
 	{
@@ -89,31 +98,31 @@ class Util
 			if ($location['mrid'] === false && $location['room_id'] === false)
 			{
 				$MRList = IBlockMeetingRoom::getMeetingRoomList();
-				$loc_ = trim(mb_strtolower($loc));
+				$loc_ = mb_strtolower(trim($loc));
 				foreach($MRList as $MR)
 				{
-					if (trim(mb_strtolower($MR['NAME'])) == $loc_)
+					if (mb_strtolower(trim($MR['NAME'])) == $loc_)
 					{
 						$result['NEW'] = 'ECMR_'.$MR['ID'];
 						break;
 					}
 				}
-				
+
 				if (Bitrix24Manager::isFeatureEnabled('calendar_location'))
 				{
 					$locationList = Manager::getRoomsList();
 					foreach($locationList as $room)
 					{
-						if (trim(mb_strtolower($room['NAME'])) == $loc_)
+						if (mb_strtolower(trim($room['NAME'])) == $loc_)
 						{
 							$result['NEW'] = 'calendar_'.$room['ID'];
 						}
 					}
 				}
-				
+
 			}
 		}
-		
+
 		return $result;
 	}
 
@@ -140,7 +149,7 @@ class Util
 			if ($location['room_id'] > 0)
 			{
 				$room = Manager::getRoomById($location['room_id']);
-				return $room ? $room[0]['NAME'] : '';
+				return $room ? ($room[0]['NAME'] ?? null) : '';
 			}
 
 			$MRList = IBlockMeetingRoom::getMeetingRoomList();
@@ -153,37 +162,51 @@ class Util
 			}
 		}
 
-		return $result;
+		return Emoji::decode($result);
 	}
-	
+
 	/**
-	 * @param string $old
-	 * @param string $new
+	 * @param $old
+	 * @param $new
 	 * @param array $params
-	 *
 	 * @return mixed|string
+	 * @throws LoaderException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function setLocation($old = '', $new = '', array $params = [])
 	{
+		$params = [
+			'bRecreateReserveMeetings' => $params['bRecreateReserveMeetings'] ?? null,
+			'dateFrom' => $params['dateFrom'] ?? null,
+			'dateTo' => $params['dateTo'] ?? null,
+			'name' => $params['name'] ?? null,
+			'persons' => $params['persons'] ?? null,
+			'attendees' => $params['attendees'] ?? null,
+			'parentParams' => $params['parentParams'] ?? null,
+			'checkPermission' => $params['checkPermission'] ?? null,
+		];
+
 		$tzEnabled = CTimeZone::Enabled();
 		if ($tzEnabled)
 		{
 			CTimeZone::Disable();
 		}
-		
+
 		// *** ADD MEETING ROOM ***
 		$locOld = self::parseLocation($old);
 		$locNew = self::parseLocation($new);
 		$res = $locNew['mrid'] ? $locNew['str'] : $new;
 		$settings = CCalendar::GetSettings(['request' => false]);
-		$RMiblockId = $settings['rm_iblock_id'];
-		
+		$RMiblockId = $settings['rm_iblock_id'] ?? null;
+
 		// If not allowed
 		if ($RMiblockId && $locOld['mrid'] !== false && $locOld['mrevid'] !== false) // Release MR
 		{
 			Util::releaseLocation($locOld);
 		}
-		
+
 		if ($locNew['mrid'] !== false) // Reserve MR
 		{
 			$mrevid = false;
@@ -200,19 +223,19 @@ class Util
 	                'members' => $params['attendees']
                 ]);
 			}
-			
-			else if(is_array($locNew) && $locNew['mrevid'] !== false)
+
+			else if($locNew['mrevid'] !== false)
 			{
 				$mrevid = $locNew['mrevid'];
 			}
-			
+
 			$locNew =
 				($mrevid && $mrevid !== 'reserved' && $mrevid !== 'expire' && $mrevid > 0)
 					? 'ECMR_'.$locNew['mrid'].'_'.$mrevid
 					: ''
 			;
 		}
-		
+
 		// Release room
 		if (
 			$locOld['room_id'] !== false
@@ -221,7 +244,7 @@ class Util
 		)
 		{
 			Util::releaseLocation($locOld);
-			
+
 			$locNew = $locNew['str'];
 		}
 		//Reserve room if it hasn't reserved before
@@ -232,7 +255,7 @@ class Util
 				'room_event_id' => false,
 				'parentParams' => $params['parentParams']
 			]);
-			
+
 			$locNew = $roomEventId ? 'calendar_'.$locNew['room_id'].'_'.$roomEventId : '';
 		}
 		//Update room event if it has been reserved before
@@ -248,7 +271,7 @@ class Util
 				'parentParams' => $params['parentParams'],
 				'checkPermission' => $params['checkPermission'],
 			]);
-			
+
 			$locNew = $roomEventId ? 'calendar_' . $locNew['room_id'] . '_' . $roomEventId : '';
 		}
 		//String value for location field
@@ -256,20 +279,20 @@ class Util
 		{
 			$locNew = $locNew['str'];
 		}
-		
+
 		if ($locNew)
 		{
 			$res = $locNew;
 		}
-		
+
 		if ($tzEnabled)
 		{
 			CTimeZone::Enable();
 		}
-		
+
 		return $res;
 	}
-	
+
 	/**
 	 * @param $loc
 	 *
@@ -277,6 +300,13 @@ class Util
 	 */
 	public static function releaseLocation($loc)
 	{
+		$loc = [
+			'room_id' => $loc['room_id'] ?? false,
+			'room_event_id' => $loc['room_event_id'] ?? false,
+			'mrevid' => $loc['mrevid'] ?? false,
+			'mrid' => $loc['mrid'] ?? false,
+		];
+
 		if ($loc['room_id'] && $loc['room_event_id'] !== false)
 		{
 			Manager::releaseRoom([
@@ -284,12 +314,12 @@ class Util
 				'room_event_id' => $loc['room_event_id']
 			]);
 		}
-		
+
 		// Old reserve meeting based on iblock module
 		if($loc['mrevid'] && $loc['mrid'])
 		{
 			$set = CCalendar::GetSettings(['request' => false]);
-			if ($set['rm_iblock_id'])
+			if ($set['rm_iblock_id'] ?? null)
 			{
 				IBlockMeetingRoom::releaseMeetingRoom([
 					'mrevid' => $loc['mrevid'],
@@ -299,11 +329,12 @@ class Util
 			}
 		}
 	}
-	
+
 	/**
 	 * @param $userId
 	 *
 	 * @return bool
+	 * @throws LoaderException
 	 */
 	public static function getLocationAccess($userId): bool
 	{
@@ -312,7 +343,7 @@ class Util
 			return \CCalendarType::CanDo('calendar_type_edit', 'location')
 				&& CExtranet::IsIntranetUser(SITE_ID, $userId);
 		}
-		
+
 		return \CCalendarType::CanDo('calendar_type_edit', 'location');
 	}
 }

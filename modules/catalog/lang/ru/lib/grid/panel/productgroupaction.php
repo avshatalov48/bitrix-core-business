@@ -10,4 +10,4 @@ $MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_PRODUCT_TO_SERVICE'] = "конверти
 $MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_PRODUCT_TO_SERVICE_CONFIRM_WITH_INVENTORY'] = "Вы действительно хотите превратить товары в услуги? Информация об этих товарах удалится со всех складов, данные об остатках станут недоступны.";
 $MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_PRODUCT_TO_SERVICE_CONFIRM_WITHOUT_INVENTORY'] = "Вы действительно хотите превратить товары в услуги? Данные об остатках этих товаров станут недоступны.";
 $MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT'] = "конвертировать услугу в товар";
-$MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT_CONFIRM_MESSAGE'] = "Вы действительно хотите превратить эти услуги в товары?";
+$MESS['IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT_CONFIRM_MESSAGE_MSGVER_1'] = "Вы действительно хотите превратить эти услуги в товары?";

@@ -136,11 +136,11 @@ $tabControl->BeginNextTab();
 	<td><?=Loc::getMessage('SECURITY_HOSTS_REACTION')?>:</td>
 	<td>
 		<label>
-			<input type="radio" name="properties[action]" value="<?=$hosts::ACTION_STOP?>" <?=$properties['action'] === $hosts::ACTION_STOP? 'checked': '';?>>
+			<input type="radio" name="properties[action]" value="<?=$hosts::ACTION_STOP?>" <?=isset($properties['action']) && $properties['action'] === $hosts::ACTION_STOP? 'checked': '';?>>
 			<?=Loc::getMessage('SECURITY_HOSTS_REACTION_STOP')?>
 		</label><br>
 		<label>
-			<input type="radio" name="properties[action]" value="<?=$hosts::ACTION_REDIRECT?>" <?=$properties['action'] === $hosts::ACTION_REDIRECT? 'checked': '';?>>
+			<input type="radio" name="properties[action]" value="<?=$hosts::ACTION_REDIRECT?>" <?=isset($properties['action']) && $properties['action'] === $hosts::ACTION_REDIRECT? 'checked': '';?>>
 			<?=Loc::getMessage('SECURITY_HOSTS_REACTION_REDIRECT')?>
 		</label>
 	</td>

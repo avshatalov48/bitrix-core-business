@@ -385,7 +385,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		if ($arRecord["DOCUMENT_URL"] <> '')
 			$aActions[] = array("ICONCLASS"=>"", "DEFAULT" => false, "TEXT"=>GetMessage("BPTL_C_DOCUMENT"), "ONCLICK"=>"window.open('".$arRecord["DOCUMENT_URL"]."');");
 
-		$arResult["RECORDS"][] = array("data" => $arRecord, "actions" => $aActions, "columns" => $aCols, "editable" => $arRecord['STATUS'] == CBPTaskStatus::Running);
+		$arResult["RECORDS"][] = array("data" => $arRecord, "actions" => $aActions, "editable" => $arRecord['STATUS'] == CBPTaskStatus::Running);
 	}
 
 	$arResult["COMMENTS_COUNT"] = array();

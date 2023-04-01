@@ -6,6 +6,7 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
+use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
@@ -47,10 +48,11 @@ class VendorSyncService
 	 * @return SectionDto[]
 	 *
 	 * @throws ApiException
+	 * @throws ArgumentException
+	 * @throws AuthException
 	 * @throws ConflictException
 	 * @throws NotFoundException
-	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws GoneException
 	 */
 	public function getSections(array $params = []): array
 	{
@@ -67,8 +69,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEvents(array $params): array
@@ -87,8 +90,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEvent(array $params): array
@@ -107,8 +111,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function createSection(SectionDto $sectionDto): SectionDto
@@ -125,8 +130,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function updateSection(SectionDto $sectionDto): SectionDto
@@ -143,19 +149,20 @@ class VendorSyncService
 	 * @return EventDto
 	 *
 	 * @throws ApiException
-	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
+	 * @throws ArgumentException
 	 */
-	public function createEvent(EventDto $dto, string $sectionId): EventDto
+	public function createEvent(EventDto $dto, string $sectionId): ?EventDto
 	{
 		if ($newEvent = $this->apiService->createEvent($dto, $sectionId))
 		{
 			return new EventDto($newEvent);
 		}
 
-		throw new ApiException('Error of API response.');
+		return null;
 	}
 
 	/**
@@ -213,15 +220,19 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
-	public function updateEvent(string $vendorEventId, EventDto $eventDto): EventDto
+	public function updateEvent(string $vendorEventId, EventDto $eventDto): ?EventDto
 	{
-		$event = $this->apiService->updateEvent($eventDto, $vendorEventId);
+		if ($event = $this->apiService->updateEvent($eventDto, $vendorEventId))
+		{
+			return new EventDto($event);
+		}
 
-		return new EventDto($event);
+		return null;
 	}
 
 	/**
@@ -231,8 +242,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEventInstances(array $params): array
@@ -245,10 +257,8 @@ class VendorSyncService
 				return new EventDto($row);
 			}, $result['value']) ?? [];
 		}
-		else
-		{
-			return [];
-		}
+
+		return [];
 	}
 
 	/**
@@ -258,8 +268,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function deleteEvent(string $vendorEventId)
@@ -274,8 +285,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function deleteSection(SectionDto $dto)
@@ -290,8 +302,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function subscribeSection(SectionConnection $link): ?array
@@ -310,7 +323,6 @@ class VendorSyncService
 		return $result;
 	}
 
-
 	/**
 	 * @param string $subscribeId
 	 *
@@ -318,8 +330,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function resubscribe(string $subscribeId): array
@@ -334,9 +347,9 @@ class VendorSyncService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
-	 * @throws NotFoundException
+	 * @throws GoneException
 	 */
 	public function unsubscribe(string $subscribeId): array
 	{

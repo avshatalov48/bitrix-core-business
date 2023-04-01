@@ -19,16 +19,16 @@ class PermissionDictionary extends \Bitrix\Main\Access\Permission\PermissionDict
 	const MAILING_PAUSE_START_STOP = 7;
 	const MAILING_CLIENT_VIEW      = 8;
 
-	const ADS_VIEW               = 9;
-	const ADS_YANDEX_EDIT        = 10;
-	const ADS_GOOGLE_EDIT        = 11;
-	const ADS_VK_EDIT            = 12;
-	const ADS_FB_INSTAGRAM_EDIT  = 13;
-	const ADS_LOOK_ALIKE_VK_EDIT = 14;
-	const ADS_LOOK_ALIKE_FB_EDIT = 15;
-	const ADS_PAUSE_START_STOP   = 16;
-	const ADS_CLIENT_VIEW        = 17;
-	const ADS_CONNECT_CABINET    = 18;
+	const ADS_VIEW                 = 9;
+	const ADS_YANDEX_EDIT          = 10;
+	const ADS_GOOGLE_EDIT_MSGVER_1 = 11;
+	const ADS_VK_EDIT              = 12;
+	const ADS_FB_INSTAGRAM_EDIT    = 13;
+	const ADS_LOOK_ALIKE_VK_EDIT   = 14;
+	const ADS_LOOK_ALIKE_FB_EDIT   = 15;
+	const ADS_PAUSE_START_STOP     = 16;
+	const ADS_CLIENT_VIEW          = 17;
+	const ADS_CONNECT_CABINET      = 18;
 
 	const RC_EDIT             = 19;
 	const RC_VIEW             = 20;
@@ -55,5 +55,7 @@ class PermissionDictionary extends \Bitrix\Main\Access\Permission\PermissionDict
 	const ADS_MARKETING_FB_EDIT = 36;
 	const ADS_MARKETING_INSTAGRAM_EDIT = 37;
 
-	const ADS_LOOK_ALIKE_YA_EDIT = 38;
+	public const ADS_LOOK_ALIKE_YA_EDIT = 38;
+
+	public const ADS_MASTER_YANDEX_EDIT = 39;
 }

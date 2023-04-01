@@ -35,6 +35,7 @@
 		this.params = {};
 		this.isDataLoaded = true;
 		this.isBgVideoMode = false;
+		this.isVertical = false;
 	};
 
 	BX.Landing.MediaService.BaseMediaService.prototype = {
@@ -237,6 +238,6 @@
 		setBgVideoMode(value)
 		{
 			this.isBgVideoMode = !!value;
-		}
+		},
 	}
 })();

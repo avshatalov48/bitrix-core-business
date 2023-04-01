@@ -4,7 +4,6 @@ if(!\Bitrix\Main\Loader::includeModule('rest') || !\Bitrix\Main\Loader::includeM
 	return;
 }
 
-use Bitrix\Main;
 use Bitrix\Rest\RestException;
 use Bitrix\Calendar\Internals;
 use Bitrix\Main\Localization\Loc;
@@ -63,83 +62,83 @@ final class CCalendarRestService extends IRestService
 			//End placements list
 
 			// Events
-			 \CRestUtil::EVENTS =>  [
-				 'OnCalendarEntryAdd' => array(
-					 'calendar',
+			\CRestUtil::EVENTS =>  [
+				'OnCalendarEntryAdd' => [
+					'calendar',
 					 'OnAfterCalendarEntryAdd',
-					 array(__CLASS__, 'PrepareOnCalendarEntryEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarEntryUpdate' => array(
-					 'calendar',
-					 'OnAfterCalendarEntryUpdate',
-					 array(__CLASS__, 'PrepareOnCalendarEntryEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarEntryDelete' => array(
-					 'calendar',
-					 'OnAfterCalendarEventDelete',
-					 array(__CLASS__, 'PrepareOnCalendarEntryEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarSectionAdd' => array(
-					 'calendar',
-					 'OnAfterCalendarSectionAdd',
-					 array(__CLASS__, 'PrepareOnCalendarSectionEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarSectionUpdate' => array(
-					 'calendar',
-					 'OnAfterCalendarSectionUpdate',
-					 array(__CLASS__, 'PrepareOnCalendarSectionEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarSectionDelete' => array(
-					 'calendar',
-					 'OnAfterCalendarSectionDelete',
-					 array(__CLASS__, 'PrepareOnCalendarSectionEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarRoomCreate' => array(
-					 'calendar',
-					 'OnAfterCalendarRoomCreate',
-					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarRoomUpdate' => array(
-					 'calendar',
-					 'OnAfterCalendarRoomUpdate',
-					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-				 'OnCalendarRoomDelete' => array(
-					 'calendar',
-					 'OnAfterCalendarRoomDelete',
-					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
-					 array(
-						 "sendRefreshToken" => true,
-					 )
-				 ),
-			 ]
+					[__CLASS__, 'PrepareOnCalendarEntryEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarEntryUpdate' => [
+					'calendar',
+					'OnAfterCalendarEntryUpdate',
+					[__CLASS__, 'PrepareOnCalendarEntryEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarEntryDelete' => [
+					'calendar',
+					'OnAfterCalendarEventDelete',
+					[__CLASS__, 'PrepareOnCalendarEntryEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarSectionAdd' => [
+					'calendar',
+					'OnAfterCalendarSectionAdd',
+					[__CLASS__, 'PrepareOnCalendarSectionEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarSectionUpdate' => [
+					'calendar',
+					'OnAfterCalendarSectionUpdate',
+					[__CLASS__, 'PrepareOnCalendarSectionEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarSectionDelete' => [
+					'calendar',
+					'OnAfterCalendarSectionDelete',
+					[__CLASS__, 'PrepareOnCalendarSectionEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarRoomCreate' => [
+					'calendar',
+					'OnAfterCalendarRoomCreate',
+					[__CLASS__, 'PrepareOnCalendarRoomEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarRoomUpdate' => [
+					'calendar',
+					'OnAfterCalendarRoomUpdate',
+					[__CLASS__, 'PrepareOnCalendarRoomEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+				'OnCalendarRoomDelete' => [
+					'calendar',
+					'OnAfterCalendarRoomDelete',
+					[__CLASS__, 'PrepareOnCalendarRoomEvent'],
+					[
+						'sendRefreshToken' => true,
+					]
+				],
+			]
 		];
 
-		return array(self::SCOPE_NAME => $methods);
+		return [self::SCOPE_NAME => $methods];
 	}
 
 	/*
@@ -165,17 +164,20 @@ final class CCalendarRestService extends IRestService
 	 * });
 	 *
 	 */
-	public static function EventGet($params = array(), $nav = null, $server = null)
+	public static function EventGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.event.get";
 
-		$necessaryParams = array('type');
+		$necessaryParams = ['type'];
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
+			if (empty($params[$param]))
 			{
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
 			}
 		}
 
@@ -185,13 +187,17 @@ final class CCalendarRestService extends IRestService
 		}
 
 		$type = $params['type'];
-		$ownerId = intval($params['ownerId']);
+		$ownerId = (int)$params['ownerId'];
 		$from = false;
 		$to = false;
 		if (isset($params['from']))
+		{
 			$from = CRestUtil::unConvertDateTime($params['from']);
+		}
 		if (isset($params['to']))
+		{
 			$to = CRestUtil::unConvertDateTime($params['to']);
+		}
 
 		// Default values for from-to period
 		if ($from === false && $to === false)
@@ -203,15 +209,20 @@ final class CCalendarRestService extends IRestService
 			$from = CCalendar::Date($ts - CCalendar::DAY_LENGTH * $pastDays, false);
 			$to = CCalendar::Date($ts + CCalendar::DAY_LENGTH * $futureDays, false);
 		}
-		elseif($from !== false && $to === false)
+		elseif ($from !== false && $to === false)
 		{
 			$to = CCalendar::Date(CCalendar::GetMaxTimestamp(), false);
 		}
 
-		$arSectionIds = array();
+		$arSectionIds = [];
 
-		$sections = CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => $type,'OWNER_ID' => $ownerId)));
-		foreach($sections as $section)
+		$sections = CCalendarSect::GetList([
+			'arFilter' => [
+				'CAL_TYPE' => $type,
+				'OWNER_ID' => $ownerId
+			]
+		]);
+		foreach ($sections as $section)
 		{
 			if ($section['PERM']['view_full'] || $section['PERM']['view_title'] || $section['PERM']['view_time'])
 			{
@@ -223,24 +234,23 @@ final class CCalendarRestService extends IRestService
 		{
 			if (!is_array($params['section']) && $params['section'] > 0)
 			{
-				$params['section'] = array($params['section']);
+				$params['section'] = [$params['section']];
 			}
 			$arSectionIds = array_intersect($arSectionIds, $params['section']);
 		}
 
-		$params = array(
+		$params = [
 			'type' => $type,
 			'ownerId' => $ownerId,
 			'userId' => $userId,
 			'section' => $arSectionIds,
 			'fromLimit' => $from,
-			'toLimit' => $to
-		);
+			'toLimit' => $to,
+		];
 
-		$arAttendees = array();
-		$arEvents = CCalendar::GetEventList($params, $arAttendees);
+		$arAttendees = [];
 
-		return $arEvents;
+		return CCalendar::GetEventList($params, $arAttendees);
 	}
 
 
@@ -259,13 +269,16 @@ final class CCalendarRestService extends IRestService
 	 * });
 	 *
 	 */
-	public static function EventGetById($params = array(), $nav = null, $server = null)
+	public static function EventGetById($params = [], $nav = null, $server = null)
 	{
 		$methodName = "calendar.event.getbyid";
 
-		if (!isset($params['id']) || empty($params['id']))
+		if (empty($params['id']))
 		{
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => 'id', '#REST_METHOD#' => $methodName)));
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#PARAM_NAME#' => 'id',
+				'#REST_METHOD#' => $methodName
+			]));
 		}
 
 		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
@@ -275,7 +288,7 @@ final class CCalendarRestService extends IRestService
 
 		$event = CCalendarEvent::GetById($params['id']);
 
-		return $event ? $event : null;
+		return $event ?: null;
 	}
 
 	/*
@@ -349,76 +362,101 @@ final class CCalendarRestService extends IRestService
 	 * 		}
 	 * });
 	 */
-	public static function EventAdd($params = array(), $nav = null, $server = null)
+	public static function EventAdd($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.event.add";
 
 		if (isset($params['from']))
+		{
 			$params['from'] = CRestUtil::unConvertDateTime($params['from'], true);
+		}
 
 		if (isset($params['to']))
+		{
 			$params['to'] = CRestUtil::unConvertDateTime($params['to'], true);
+		}
 
 		if (isset($params['from_ts']) && !isset($params['from']))
+		{
 			$params['from'] = CCalendar::Date($params['from_ts']);
+		}
 
 		if (isset($params['to_ts']) && !isset($params['to']))
+		{
 			$params['to'] = CCalendar::Date($params['to_ts']);
+		}
 
-		$necessaryParams = array('from', 'to', 'name', 'ownerId', 'type');
-		if ($params['auto_detect_section'] !== "Y")
+		$necessaryParams = ['from', 'to', 'name', 'ownerId', 'type'];
+		if (isset($params['auto_detect_section']) && $params['auto_detect_section'] !== "Y")
 		{
 			$necessaryParams[] = 'section';
 		}
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			if (empty($params[$param]))
+			{
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
+			}
 		}
 
 		$type = $params['type'];
-		$ownerId = intval($params['ownerId']);
+		$ownerId = (int)$params['ownerId'];
 
 		$sectionId = $params['section'];
-		$res = CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => $type,'OWNER_ID' => $ownerId, 'ID' => $sectionId)));
+
+		$res = CCalendarSect::GetList([
+			'arFilter' => [
+				'ID' => $sectionId,
+				'CAL_TYPE' => $type,
+				'OWNER_ID' => $ownerId,
+			]
+		]);
+
 		if ($res && is_array($res) && isset($res[0]))
 		{
 			if (!$res[0]['PERM']['add'])
+			{
 				throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+			}
 		}
 		else
 		{
 			throw new RestException('CAL_REST_SECTION_ERROR');
 		}
 
-		$arFields = array(
+		$arFields = [
 			"CAL_TYPE" => $type,
 			"OWNER_ID" => $ownerId,
 			"NAME" => trim($params['name']),
 			"DATE_FROM" => $params['from'],
 			"DATE_TO" => $params['to'],
 			"SECTIONS" => $sectionId
-		);
+		];
 
 		if (isset($params['skip_time']))
 		{
-			$arFields["SKIP_TIME"] = $params['skip_time'] == 'Y';
+			$arFields["SKIP_TIME"] = $params['skip_time'] === 'Y';
 		}
 
 		if (isset($params['skipTime']))
 		{
-			$arFields["SKIP_TIME"] = $params['skipTime'] == 'Y';
+			$arFields["SKIP_TIME"] = $params['skipTime'] === 'Y';
 		}
 
 		if (!$arFields["SKIP_TIME"] && isset($params['timezone_from']))
 		{
 			$arFields['TZ_FROM'] = $params['timezone_from'];
-			$arFields['TZ_TO'] = isset($params['timezone_to']) ? $params['timezone_to'] : $params['timezone_from'];
+			$arFields['TZ_TO'] = $params['timezone_to'] ?? $params['timezone_from'];
 		}
 
 		if (isset($params['description']))
+		{
 			$arFields["DESCRIPTION"] = trim($params['description']);
+		}
 
 		if (isset($params['color']))
 		{
@@ -433,56 +471,72 @@ final class CCalendarRestService extends IRestService
 		{
 			$color = CCalendar::Color($params['text_color']);
 			if ($color)
+			{
 				$arFields["TEXT_COLOR"] = $color;
+			}
 		}
 
 		if (isset($params['accessibility']))
+		{
 			$arFields["ACCESSIBILITY"] = $params['accessibility'];
+		}
 
 		if (isset($params['importance']))
+		{
 			$arFields["IMPORTANCE"] = $params['importance'];
+		}
 
 		if (isset($params['private_event']))
-			$arFields["PRIVATE_EVENT"] = $params['private_event'] == "Y";
+		{
+			$arFields["PRIVATE_EVENT"] = $params['private_event'] === "Y";
+		}
 
 		if (isset($params['rrule']))
+		{
 			$arFields["RRULE"] = $params['rrule'];
+		}
 
 		if (isset($params['is_meeting']))
-			$arFields["IS_MEETING"] = $params['is_meeting'] == "Y";
+		{
+			$arFields["IS_MEETING"] = $params['is_meeting'] === "Y";
+		}
 
 		if (isset($params['location']))
+		{
 			$arFields["LOCATION"] = $params['location'];
+		}
 
 		if (isset($params['remind']))
+		{
 			$arFields["REMIND"] = $params['remind'];
+		}
 
-		$saveParams = array();
+		$saveParams = [];
 		if ($arFields['IS_MEETING'])
 		{
 			$arFields['ATTENDEES'] = (isset($params['attendees']) && is_array($params['attendees'])) ? $params['attendees'] : false;
-			$arFields['ATTENDEES_CODES'] = array();
+			$arFields['ATTENDEES_CODES'] = [];
 			if (is_array($arFields['ATTENDEES']))
 			{
 				foreach($arFields['ATTENDEES'] as $attendeeId)
 				{
-					$code = 'U'.intval($attendeeId);
-					if (!in_array($code, $arFields['ATTENDEES_CODES']))
+					$code = 'U'. (int)$attendeeId;
+					if (!in_array($code, $arFields['ATTENDEES_CODES'], true))
 					{
 						$arFields['ATTENDEES_CODES'][] = $code;
 					}
 				}
 			}
 
-			$meeting = isset($params['meeting']) ? $params['meeting'] : array();
-			$arFields['MEETING_HOST'] = isset($params['host']) ? intval($params['host']) : $userId;
-			$arFields['MEETING'] = array(
+			$meeting = $params['meeting'] ?? [];
+			$arFields['MEETING_HOST'] = isset($params['host']) ? (int)$params['host'] : $userId;
+			$arFields['MEETING'] = [
 				'HOST_NAME' => CCalendar::GetUserName($arFields['MEETING_HOST']),
 				'TEXT' => $meeting['text'],
-				'OPEN' => (boolean) $meeting['open'],
-				'NOTIFY' => (boolean) $meeting['notify'],
-				'REINVITE' => (boolean) $meeting['reinvite']
-			);
+				'OPEN' => (bool)$meeting['open'],
+				'NOTIFY' => (bool)$meeting['notify'],
+				'REINVITE' => (bool)$meeting['reinvite']
+			];
 
 			$saveParams['userId'] = $arFields['MEETING_HOST'];
 		}
@@ -496,7 +550,9 @@ final class CCalendarRestService extends IRestService
 		$newId = CCalendar::SaveEvent($saveParams);
 
 		if (!$newId)
+		{
 			throw new RestException(Loc::getMessage("CAL_REST_EVENT_NEW_ERROR"));
+		}
 
 		return $newId;
 	}
@@ -564,49 +620,70 @@ final class CCalendarRestService extends IRestService
 	 * 		remind: [{type: 'min', count: 10}]
 	 * });
 	 */
-	public static function EventUpdate($params = array(), $nav = null, $server = null)
+	public static function EventUpdate($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.event.update";
 
-		$necessaryParams = array('id', 'ownerId', 'type');
+		$necessaryParams = [
+			'id',
+			'ownerId',
+			'type'
+		];
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			if (empty($params[$param]))
+			{
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
+			}
 		}
 
-		$id = intval($params['id']);
+		$id = (int)$params['id'];
 		$type = $params['type'];
-		$ownerId = intval($params['ownerId']);
+		$ownerId = (int)$params['ownerId'];
 
 		if (isset($params['from']))
+		{
 			$params['from'] = CRestUtil::unConvertDateTime($params['from'], true);
+		}
 
 		if (isset($params['to']))
+		{
 			$params['to'] = CRestUtil::unConvertDateTime($params['to'], true);
+		}
 
 		if (isset($params['from_ts']) && !isset($params['from']))
+		{
 			$params['from'] = CCalendar::Date($params['from_ts']);
+		}
 
 		if (isset($params['to_ts']) && !isset($params['to']))
+		{
 			$params['to'] = CCalendar::Date($params['to_ts']);
+		}
 
-		$arFields = array(
+		$arFields = [
 			"ID" => $id,
 			"DATE_FROM" => $params['from'],
 			"DATE_TO" => $params['to']
-		);
+		];
 
 		if (isset($params['skipTime']))
-			$arFields["SKIP_TIME"] = $params['skipTime'] == 'Y';
+		{
+			$arFields["SKIP_TIME"] = $params['skipTime'] === 'Y';
+		}
 		if (isset($params['skip_time']))
-			$arFields["SKIP_TIME"] = $params['skip_time'] == 'Y';
+		{
+			$arFields["SKIP_TIME"] = $params['skip_time'] === 'Y';
+		}
 
 		if (!$arFields["SKIP_TIME"] && isset($params['timezone_from']))
 		{
 			$arFields['TZ_FROM'] = $params['timezone_from'];
-			$arFields['TZ_TO'] = isset($params['timezone_to']) ? $params['timezone_to'] : $params['timezone_from'];
+			$arFields['TZ_TO'] = $params['timezone_to'] ?? $params['timezone_from'];
 		}
 
 		if (isset($params['name']))
@@ -619,18 +696,29 @@ final class CCalendarRestService extends IRestService
 		}
 
 		if (isset($params['description']))
+		{
 			$arFields["DESCRIPTION"] = trim($params['description']);
+		}
 
 		if (isset($params['section']))
 		{
 			$sectionId = $params['section'];
-			$arFields["SECTIONS"] = array($sectionId);
+			$arFields["SECTIONS"] = [$sectionId];
 
-			$res = CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => $type,'OWNER_ID' => $ownerId, 'ID' => $params['section'])));
+			$res = CCalendarSect::GetList([
+				'arFilter' => [
+					'ID' => $params['section'],
+					'CAL_TYPE' => $type,
+					'OWNER_ID' => $ownerId,
+				]
+			]);
+
 			if ($res && is_array($res) && isset($res[0]))
 			{
 				if (!$res[0]['PERM']['edit'])
+				{
 					throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+				}
 			}
 			else
 			{
@@ -642,63 +730,81 @@ final class CCalendarRestService extends IRestService
 		{
 			$color = CCalendar::Color($params['color']);
 			if ($color)
+			{
 				$arFields["COLOR"] = $color;
+			}
 		}
 
 		if (isset($params['text_color']))
 		{
 			$color = CCalendar::Color($params['text_color']);
 			if ($color)
+			{
 				$arFields["TEXT_COLOR"] = $color;
+			}
 		}
 
 		if (isset($params['accessibility']))
+		{
 			$arFields["ACCESSIBILITY"] = $params['accessibility'];
+		}
 
 		if (isset($params['importance']))
+		{
 			$arFields["IMPORTANCE"] = $params['importance'];
+		}
 
 		if (isset($params['private_event']))
-			$arFields["PRIVATE_EVENT"] = $params['private_event'] == "Y";
+		{
+			$arFields["PRIVATE_EVENT"] = $params['private_event'] === "Y";
+		}
 
 		if (isset($params['rrule']))
+		{
 			$arFields["RRULE"] = $params['rrule'];
+		}
 
 		if (isset($params['is_meeting']))
-			$arFields["IS_MEETING"] = $params['is_meeting'] == "Y";
+		{
+			$arFields["IS_MEETING"] = $params['is_meeting'] === "Y";
+		}
 
 		if (isset($params['location']))
+		{
 			$arFields["LOCATION"] = $params['location'];
+		}
 
 		if (isset($params['remind']))
+		{
 			$arFields["REMIND"] = $params['remind'];
+		}
 
-		$saveParams = array();
+		$saveParams = [];
 		if ($arFields['IS_MEETING'])
 		{
 			$arFields['ATTENDEES'] = (isset($params['attendees']) && is_array($params['attendees'])) ? $params['attendees'] : false;
-			$arFields['ATTENDEES_CODES'] = array();
+			$arFields['ATTENDEES_CODES'] = [];
 			if (is_array($arFields['ATTENDEES']))
 			{
 				foreach($arFields['ATTENDEES'] as $attendeeId)
 				{
-					$code = 'U'.intval($attendeeId);
-					if (in_array($code, $arFields['ATTENDEES_CODES']))
+					$code = 'U'. (int)$attendeeId;
+					if (in_array($code, $arFields['ATTENDEES_CODES'], true))
 					{
 						$arFields['ATTENDEES_CODES'][] = $code;
 					}
 				}
 			}
 
-			$meeting = isset($params['meeting']) ? $params['meeting'] : array();
-			$arFields['MEETING_HOST'] = isset($params['host']) ? intval($params['host']) : $userId;
-			$arFields['MEETING'] = array(
+			$meeting = $params['meeting'] ?? [];
+			$arFields['MEETING_HOST'] = isset($params['host']) ? (int)$params['host'] : $userId;
+			$arFields['MEETING'] = [
 				'HOST_NAME' => CCalendar::GetUserName($arFields['MEETING_HOST']),
 				'TEXT' => $meeting['text'],
-				'OPEN' => (boolean) $meeting['open'],
-				'NOTIFY' => (boolean) $meeting['notify'],
-				'REINVITE' => (boolean) $meeting['reinvite']
-			);
+				'OPEN' => (bool)$meeting['open'],
+				'NOTIFY' => (bool)$meeting['notify'],
+				'REINVITE' => (bool)$meeting['reinvite']
+			];
 
 			$saveParams['userId'] = $arFields['MEETING_HOST'];
 		}
@@ -706,7 +812,9 @@ final class CCalendarRestService extends IRestService
 		$newId = CCalendar::SaveEvent($saveParams);
 
 		if (!$newId)
+		{
 			throw new RestException(Loc::getMessage("CAL_REST_EVENT_UPDATE_ERROR"));
+		}
 
 		return $newId;
 	}
@@ -729,22 +837,27 @@ final class CCalendarRestService extends IRestService
 	 *	 	ownerId: '2'
 	 * });
 	 */
-	public static function EventDelete($params = array(), $nav = null, $server = null)
+	public static function EventDelete($params = [], $nav = null, $server = null)
 	{
-		$methodName = "calendar.event.delete";
-		if (isset($params['id']) && intval($params['id']) > 0)
-			$id = intval($params['id']);
+		if (isset($params['id']) && (int)$params['id'] > 0)
+		{
+			$id = (int)$params['id'];
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_EVENT_ID_EXCEPTION'));
+		}
 
 		$res = CCalendar::DeleteEvent($id);
 
 		if ($res !== true)
 		{
 			if ($res === false)
+			{
 				throw new RestException(Loc::getMessage('CAL_REST_EVENT_DELETE_ERROR'));
-			else
-				throw new RestException($res);
+			}
+
+			throw new RestException($res);
 		}
 
 		return $res;
@@ -776,7 +889,7 @@ final class CCalendarRestService extends IRestService
 	 * });
 	 *
 	 */
-	public static function EventGetNearest($params = array(), $nav = null, $server = null)
+	public static function EventGetNearest($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.event.get.nearest";
@@ -789,7 +902,9 @@ final class CCalendarRestService extends IRestService
 		}
 
 		if (!isset($params['days']))
+		{
 			$params['days'] = 60;
+		}
 
 		// Limits
 		$ts = time();
@@ -798,34 +913,39 @@ final class CCalendarRestService extends IRestService
 
 		$arEvents = CCalendar::GetNearestEventsList(
 			array(
-				'bCurUserList' => !!$params['forCurrentUser'],
+				'bCurUserList' => (bool)$params['forCurrentUser'],
 				'fromLimit' => $fromLimit,
 				'toLimit' => $toLimit,
 				'type' => $params['CALENDAR_TYPE'],
 				'sectionId' => $params['CALENDAR_SECTION_ID']
 			));
 
-		if ($arEvents == 'access_denied' || $arEvents == 'inactive_feature')
+		if ($arEvents === 'access_denied' || $arEvents === 'inactive_feature')
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
-		elseif (is_array($arEvents))
+
+		if (is_array($arEvents))
 		{
 
 			if (isset($params['detailUrl']))
 			{
 				if (mb_strpos($params['detailUrl'], '?') !== FALSE)
+				{
 					$params['detailUrl'] = mb_substr($params['detailUrl'], 0, mb_strpos($params['detailUrl'], '?'));
+				}
 				$params['detailUrl'] = str_replace('#user_id#', $userId, mb_strtolower($params['detailUrl']));
 
-				for ($i = 0, $l = count($arEvents); $i < $l; $i++)
+				foreach ($arEvents as $i => $event)
 				{
-					$arEvents[$i]['~detailUrl'] = CHTTP::urlAddParams($params['detailUrl'], ['EVENT_ID' => $arEvents[$i]['ID'], 'EVENT_DATE' => $arEvents[$i]['DATE_FROM']]);
+					$arEvents[$i]['~detailUrl'] = CHTTP::urlAddParams($params['detailUrl'], ['EVENT_ID' => $event['ID'], 'EVENT_DATE' => $event['DATE_FROM']]);
 				}
 			}
 
 			if (isset($params['maxEventsCount']))
-				array_splice($arEvents, intval($params['maxEventsCount']));
+			{
+				array_splice($arEvents, (int)$params['maxEventsCount']);
+			}
 		}
 
 		return $arEvents;
@@ -849,7 +969,7 @@ final class CCalendarRestService extends IRestService
 	 *		ownerId: '1'
 	 * });
 	 */
-	public static function SectionGet($params = array(), $nav = null, $server = null)
+	public static function SectionGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.section.get";
@@ -865,7 +985,7 @@ final class CCalendarRestService extends IRestService
 
 		if (isset($params['ownerId']))
 		{
-			$ownerId = intval($params['ownerId']);
+			$ownerId = (int)$params['ownerId'];
 		}
 		elseif($type === 'user')
 		{
@@ -946,7 +1066,7 @@ final class CCalendarRestService extends IRestService
 	 * 		}
 	 * });
 	 */
-	public static function SectionAdd($params = array(), $nav = null, $server = null)
+	public static function SectionAdd($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.section.add";
@@ -954,72 +1074,99 @@ final class CCalendarRestService extends IRestService
 		$DEFAULT_TEXT_COLOR = '#000000';
 
 		if (isset($params['type']))
+		{
 			$type = $params['type'];
+		}
 		else
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'type')));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#REST_METHOD#' => $methodName,
+				'#PARAM_NAME#' => 'type'
+			]));
+		}
 
 		if (isset($params['ownerId']))
-			$ownerId = intval($params['ownerId']);
-		elseif($type == 'user')
+		{
+			$ownerId = (int)$params['ownerId'];
+		}
+		elseif ($type === 'user')
+		{
 			$ownerId = $userId;
+		}
 		else
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'ownerId')));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#REST_METHOD#' => $methodName,
+				'#PARAM_NAME#' => 'ownerId'
+			]));
+		}
 
-		$perm = CCalendar::GetPermissions(array(
+		$perm = CCalendar::GetPermissions([
 			'type' => $type,
 			'ownerId' => $ownerId,
 			'userId' => $userId,
 			'setProperties' => false
-		));
+		]);
 
-		if (($type == 'group' || $type == 'user'))
+		if ($type === 'group' || $type === 'user')
 		{
 			if (!$perm['section_edit'])
+			{
 				throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+			}
 		}
-		else // other types
+		else if (!CCalendarType::CanDo('calendar_type_edit_section')) // other types
 		{
-			if (!CCalendarType::CanDo('calendar_type_edit_section'))
-				throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
 
-		$arFields = Array(
+		$arFields = [
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId,
 			'NAME' => (isset($params['name']) && trim($params['name']) != '') ? trim($params['name']) : '',
 			'DESCRIPTION' => (isset($params['description']) && trim($params['description']) != '') ? trim($params['description']) : ''
-		);
+		];
 
-		if (isset($params['export']) && isset($params['export']['ALLOW']) && isset($params['export']['SET']))
+		if (isset($params['export']['ALLOW'], $params['export']['SET']))
 		{
 			$arFields['EXPORT'] = array(
-				'ALLOW' => !!$params['export']['ALLOW'],
+				'ALLOW' => (bool)$params['export']['ALLOW'],
 				'SET' => $params['export']['SET']
 			);
 		}
 
 		if (isset($params['color']))
+		{
 			$arFields['COLOR'] = CCalendar::Color($params['color'], $DEFAULT_COLOR);
+		}
 		else
+		{
 			$arFields['COLOR'] = $DEFAULT_COLOR;
+		}
 
 		if (isset($params['text_color']))
+		{
 			$arFields['TEXT_COLOR'] = CCalendar::Color($params['text_color'], $DEFAULT_TEXT_COLOR);
+		}
 		else
+		{
 			$arFields['TEXT_COLOR'] = $DEFAULT_TEXT_COLOR;
+		}
 
 		if (isset($params['access']) && is_array($params['access']))
+		{
 			$arFields['ACCESS'] = $params['access'];
+		}
 
-		$id = CCalendar::SaveSection(
-			array(
-				'bAffectToDav' => false,
-				'arFields' => $arFields
-			)
-		);
+		$id = CCalendar::SaveSection([
+			'bAffectToDav' => false,
+			'arFields' => $arFields
+		]);
 
 		if (!$id)
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECTION_NEW_ERROR'));
+		}
 
 		CCalendarSect::SetClearOperationCache(true);
 		return $id;
@@ -1064,61 +1211,94 @@ final class CCalendarRestService extends IRestService
 	 * 		}
 	 * });
 	 */
-	public static function SectionUpdate($params = array(), $nav = null, $server = null)
+	public static function SectionUpdate($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.section.update";
 
 		if (isset($params['type']))
+		{
 			$type = $params['type'];
+		}
 		else
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'type')));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#REST_METHOD#' => $methodName,
+				'#PARAM_NAME#' => 'type'
+			]));
+		}
 
 		if (isset($params['ownerId']))
-			$ownerId = intval($params['ownerId']);
-		elseif($type == 'user')
+		{
+			$ownerId = (int)$params['ownerId'];
+		}
+		elseif ($type === 'user')
+		{
 			$ownerId = $userId;
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'ownerId')));
 
-		if (isset($params['id']) && intval($params['id']) > 0)
-			$id = intval($params['id']);
+		}
+
+		if (isset($params['id']) && (int)$params['id'] > 0)
+		{
+			$id = (int)$params['id'];
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECT_ID_EXCEPTION'));
+		}
 
-		if (!CCalendar::IsPersonal($type, $ownerId, $userId) && !CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+		if (
+			!CCalendar::IsPersonal($type, $ownerId, $userId)
+			&& !CCalendarSect::CanDo('calendar_edit_section', $id, $userId)
+		)
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
-		$arFields = Array(
+		$arFields = [
 			'ID' => $id,
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId
-		);
+		];
 
-		if (isset($params['name']) && trim($params['name']) != '')
+		if (isset($params['name']) && trim($params['name']) !== '')
+		{
 			$arFields['NAME'] = trim($params['name']);
+		}
 
-		if (isset($params['description']) && trim($params['description']) != '')
+		if (isset($params['description']) && trim($params['description']) !== '')
+		{
 			$arFields['DESCRIPTION'] = trim($params['description']);
+		}
 
 		if (isset($params['color']))
+		{
 			$arFields['COLOR'] = CCalendar::Color($params['color']);
+		}
 
 		if (isset($params['text_color']))
+		{
 			$arFields['TEXT_COLOR'] = CCalendar::Color($params['text_color']);
+		}
 
 		if (isset($params['access']) && is_array($params['access']))
+		{
 			$arFields['ACCESS'] = $params['access'];
+		}
 
-		$id = intval(CCalendar::SaveSection(
-			array(
-				'bAffectToDav' => false,
-				'arFields' => $arFields
-			)
-		));
+		$id = (int)CCalendar::SaveSection([
+			'bAffectToDav' => false,
+			'arFields' => $arFields
+		]);
 
 		if (!$id)
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECTION_SAVE_ERROR'));
+		}
 
 		return $id;
 	}
@@ -1143,35 +1323,56 @@ final class CCalendarRestService extends IRestService
 	 * 		id: 521
 	 * });
 	 */
-	public static function SectionDelete($params = array(), $nav = null, $server = null)
+	public static function SectionDelete($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.section.delete";
 
 		if (isset($params['type']))
+		{
 			$type = $params['type'];
+		}
 		else
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'type')));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#REST_METHOD#' => $methodName,
+				'#PARAM_NAME#' => 'type'
+			]));
+		}
 
 		if (isset($params['ownerId']))
-			$ownerId = intval($params['ownerId']);
-		elseif($type == 'user')
+		{
+			$ownerId = (int)$params['ownerId'];
+		}
+		elseif ($type === 'user')
+		{
 			$ownerId = $userId;
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'ownerId')));
+		}
 
-		if (isset($params['id']) && intval($params['id']) > 0)
-			$id = intval($params['id']);
+		if (isset($params['id']) && (int)$params['id'] > 0)
+		{
+			$id = (int)$params['id'];
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECT_ID_EXCEPTION'));
+		}
 
 		if (!CCalendar::IsPersonal($type, $ownerId, $userId) && !CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		$res = CCalendar::DeleteSection($id);
 
 		if (!$res)
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECTION_DELETE_ERROR'));
+		}
 
 		return $res;
 	}
@@ -1194,7 +1395,7 @@ final class CCalendarRestService extends IRestService
 	 *	 	status: 'Y'
 	 * });
 	 */
-	public static function MeetingStatusSet($params = array(), $nav = null, $server = null)
+	public static function MeetingStatusSet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.meeting.status.set";
@@ -1202,13 +1403,20 @@ final class CCalendarRestService extends IRestService
 		$necessaryParams = array('eventId', 'status');
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			if (empty($params[$param]))
+			{
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
+			}
 		}
 
 		$params['status'] = mb_strtoupper($params['status']);
 		if (!in_array($params['status'], array('Y', 'N', 'Q')))
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR', array('#PARAM_NAME#')));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR', ['#PARAM_NAME#']));
+		}
 
 		CCalendarEvent::SetMeetingStatus(array(
 			'userId' => $userId,
@@ -1235,7 +1443,7 @@ final class CCalendarRestService extends IRestService
 	 * 		eventId: '651'
 	 * });
 	 */
-	public static function MeetingStatusGet($params = array(), $nav = null, $server = null)
+	public static function MeetingStatusGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.meeting.status.get";
@@ -1243,18 +1451,24 @@ final class CCalendarRestService extends IRestService
 		$necessaryParams = array('eventId');
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			if (empty($params[$param]))
+			{
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
+			}
 		}
 
 		$status = CCalendarEvent::GetMeetingStatus(
 			$userId,
 			$params['eventId'],
-			$params['status']
 		);
 
 		if ($status === false)
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_GET_STATUS_ERROR'));
+		}
 
 		return $status;
 	}
@@ -1262,7 +1476,7 @@ final class CCalendarRestService extends IRestService
 	/*
 	 * @deprecated
 	 */
-	public static function MeetingParamsSet($params = array(), $nav = null, $server = null)
+	public static function MeetingParamsSet($params = [], $nav = null, $server = null)
 	{
 		throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 	}
@@ -1287,7 +1501,7 @@ final class CCalendarRestService extends IRestService
 	 * 		users: [1, 2, 34]
 	 * });
 	 */
-	public static function MeetingAccessibilityGet($params = array(), $nav = null, $server = null)
+	public static function MeetingAccessibilityGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.accessibility.get";
@@ -1295,21 +1509,24 @@ final class CCalendarRestService extends IRestService
 		$necessaryParams = array('from', 'to', 'users');
 		foreach ($necessaryParams as $param)
 		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			if (empty($params[$param]))
+			{
+				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+					'#PARAM_NAME#' => $param,
+					'#REST_METHOD#' => $methodName
+				]));
+			}
 		}
 
 		$from = CRestUtil::unConvertDate($params['from']);
 		$to = CRestUtil::unConvertDate($params['to']);
 
-		$res = CCalendar::GetAccessibilityForUsers(array(
+		return CCalendar::GetAccessibilityForUsers(array(
 			'users' => $params['users'],
 			'from' => $from,
 			'to' => $to,
 			'getFromHR' => true
 		));
-
-		return $res;
 	}
 
 	/*
@@ -1320,12 +1537,16 @@ final class CCalendarRestService extends IRestService
 	 * @example (Javascript)
 	 * BX24.callMethod("calendar.settings.get", {});
 	 */
-	public static function SettingsGet($params = array(), $nav = null, $server = null)
+	public static function SettingsGet($params = [], $nav = null, $server = null)
 	{
 		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
 		{
-			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+			return [
+				'work_time_start' => 9,
+				'work_time_end' => 19,
+			];
 		}
+
 		return CCalendar::GetSettings();
 	}
 
@@ -1351,16 +1572,23 @@ final class CCalendarRestService extends IRestService
 	 * 		}
 	 * });
 	 */
-	public static function SettingsSet($params = array(), $nav = null, $server = null)
+	public static function SettingsSet($params = [], $nav = null, $server = null)
 	{
 		global $USER;
 		$methodName = "calendar.settings.set";
 
 		if (!$USER->CanDoOperation('bitrix24_config') && !$USER->CanDoOperation('edit_php'))
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		if (!isset($params['settings']))
-			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => 'settings','#REST_METHOD#' => $methodName)));
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
+				'#PARAM_NAME#' => 'settings',
+				'#REST_METHOD#' => $methodName
+			]));
+		}
 
 		CCalendar::SetSettings($params['settings']);
 
@@ -1383,9 +1611,11 @@ final class CCalendarRestService extends IRestService
 		$methodName = "calendar.settings.clear";
 
 		if (!$USER->CanDoOperation('bitrix24_config') && !$USER->CanDoOperation('edit_php'))
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
-		CCalendar::SetSettings(array(), true);
+		CCalendar::SetSettings([], true);
 		return true;
 	}
 
@@ -1397,12 +1627,12 @@ final class CCalendarRestService extends IRestService
 	 * @example (Javascript)
 	 * BX24.callMethod("calendar.user.settings.get",{});
 	 */
-	public static function UserSettingsGet($params = array(), $nav = null, $server = null)
+	public static function UserSettingsGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.user.settings.get";
-		$settings = CCalendar::GetUserSettings($userId);
-		return $settings;
+
+		return CCalendar::GetUserSettings($userId);
 	}
 
 	/*
@@ -1427,7 +1657,7 @@ final class CCalendarRestService extends IRestService
 	 * 		}
 	 * });
 	 */
-	public static function UserSettingsSet($params = array(), $nav = null, $server = null)
+	public static function UserSettingsSet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.user.settings.set";
@@ -1490,12 +1720,12 @@ final class CCalendarRestService extends IRestService
 	 * 		name: 'My resource title'
 	 * });
 	 */
-	public static function ResourceAdd($params = array(), $nav = null, $server = null)
+	public static function ResourceAdd($params = [], $nav = null, $server = null)
 	{
 		$methodName = "calendar.resource.add";
 		$type = 'resource';
 
-		if (!isset($params['name']) || empty($params['name']))
+		if (empty($params['name']))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'name')));
 		}
@@ -1540,21 +1770,21 @@ final class CCalendarRestService extends IRestService
 	 * 		name: 'Changed Resource Name'
 	 * });
 	 */
-	public static function ResourceUpdate($params = array(), $nav = null, $server = null)
+	public static function ResourceUpdate($params = [], $nav = null, $server = null)
 	{
 		$methodName = "calendar.resource.update";
 		$type = 'resource';
 
-		if (isset($params['resourceId']) && intval($params['resourceId']) > 0)
+		if (isset($params['resourceId']) && (int)$params['resourceId'] > 0)
 		{
-			$id = intval($params['resourceId']);
+			$id = (int)$params['resourceId'];
 		}
 		else
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'id')));
 		}
 
-		if (!isset($params['name']) || empty($params['name']))
+		if (empty($params['name']))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'name')));
 		}
@@ -1598,14 +1828,14 @@ final class CCalendarRestService extends IRestService
 	 * 		resourceId: 521
 	 * });
 	 */
-	public static function ResourceDelete($params = array(), $nav = null, $server = null)
+	public static function ResourceDelete($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.resource.delete";
 
-		if (isset($params['resourceId']) && intval($params['resourceId']) > 0)
+		if (isset($params['resourceId']) && (int)$params['resourceId'] > 0)
 		{
-			$id = intval($params['resourceId']);
+			$id = (int)$params['resourceId'];
 		}
 		else
 		{
@@ -1613,7 +1843,9 @@ final class CCalendarRestService extends IRestService
 		}
 
 		if (!CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		$res = CCalendar::DeleteSection($id);
 
@@ -1682,7 +1914,7 @@ final class CCalendarRestService extends IRestService
 					foreach($resourseList['ENTRIES'] as $resEntry)
 					{
 						$eventIdList[] = $resEntry['EVENT_ID'];
-						$bookingIndex[$resEntry['EVENT_ID']] = intval($resEntry['ID']);
+						$bookingIndex[$resEntry['EVENT_ID']] = (int)$resEntry['ID'];
 					}
 
 					if (count($eventIdList) > 0)
@@ -2013,7 +2245,7 @@ final class CCalendarRestService extends IRestService
 	 * @example (Javascript)
 	 * BX24.callMethod("calendar.settings.clear",{});
 	 */
-	public static function UserSettingsClear($params = array(), $nav = null, $server = null)
+	public static function UserSettingsClear($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.user.settings.clear";

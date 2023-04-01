@@ -48,13 +48,13 @@ if ($arParams["USER_ID"] != $currentUserId)
 	$arResult['ReadOnly'] = true;
 }
 
-$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? $_REQUEST["WORKFLOW_ID"] : $arParams["WORKFLOW_ID"]);
+$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? $_REQUEST["WORKFLOW_ID"] ?? null : $arParams["WORKFLOW_ID"]);
 
 $arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 
-$arResult["backUrl"] = $_REQUEST["back_url"];
+$arResult["backUrl"] = $_REQUEST["back_url"] ?? '';
 
-$arParams["TASK_EDIT_URL"] = trim($arParams["TASK_EDIT_URL"]);
+$arParams["TASK_EDIT_URL"] = trim($arParams["TASK_EDIT_URL"] ?? '');
 if (empty($arParams["TASK_EDIT_URL"])):
 	$arParams["TASK_EDIT_URL"] = $APPLICATION->GetCurPage()."?PAGE_NAME=task_edit&ID=#ID#&back_url=".urlencode($arResult["backUrl"]);
 else:
@@ -63,8 +63,8 @@ endif;
 $arParams["~TASK_EDIT_URL"] = $arParams["TASK_EDIT_URL"];
 $arParams["TASK_EDIT_URL"] = htmlspecialcharsbx($arParams["~TASK_EDIT_URL"]);
 
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
+$arParams["SET_TITLE"] = (isset($arParams["SET_TITLE"]) && $arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
+$arParams["SET_NAV_CHAIN"] = (isset($arParams["SET_NAV_CHAIN"]) && $arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
 $arParams['POPUP'] = (isset($arParams["POPUP"]) && $arParams["POPUP"] == 'Y');
 
 $arResult["ERROR_MESSAGE"] = "";
@@ -148,7 +148,7 @@ $arResult["TASK"]["MODULE_ID"] = $arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"][
 $arResult["TASK"]["ENTITY"] = $arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"][1];
 $arResult["TASK"]["DOCUMENT_ID"] = $arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"][2];
 
-$arParams["DOCUMENT_URL"] = trim($arParams["DOCUMENT_URL"]);
+$arParams["DOCUMENT_URL"] = trim($arParams["DOCUMENT_URL"] ?? '');
 if (empty($arParams["DOCUMENT_URL"]))
 	$arParams["DOCUMENT_URL"] = CBPDocument::GetDocumentAdminPage($arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"]);
 else

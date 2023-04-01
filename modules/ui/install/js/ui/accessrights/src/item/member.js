@@ -55,7 +55,7 @@ export default class Member extends Base
 						if (user.avatar)
 						{
 							const userAvatar = Tag.render`<a class='ui-access-rights-members-item-avatar' title="${Text.encode(user.name)}"></a>`;
-							Dom.style(userAvatar, 'backgroundImage', 'url(' + user.avatar + ')');
+							Dom.style(userAvatar, 'backgroundImage', 'url(\'' + encodeURI(user.avatar) + '\')');
 							Dom.style(userAvatar, 'backgroundSize', 'cover');
 							Dom.append(userAvatar, userNode);
 						}
@@ -454,7 +454,7 @@ export default class Member extends Base
 						title="${Text.encode(item.name)}"
 					></a>
 				`;
-				Dom.style(avatar, 'backgroundImage', 'url(' + item.avatar + ')');
+				Dom.style(avatar, 'backgroundImage', 'url(\'' + encodeURI(item.avatar) + '\')');
 				Dom.style(avatar, 'backgroundSize', 'cover');
 				Dom.append(avatar, toggler);
 			}
@@ -518,7 +518,10 @@ export default class Member extends Base
 			?.selectorInstance
 		;
 
-		selectorInstance.itemsSelected = {};
+		if (selectorInstance)
+		{
+			selectorInstance.itemsSelected = {};
+		}
 
 		BX.onCustomEvent(this.openPopupEvent, [{
 			id: this.popupContainer,

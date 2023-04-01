@@ -2412,7 +2412,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
 	      popupOptions: {
 	        zIndexAbsolute: 4020,
-	        autoHide: true
+	        autoHide: true,
+	        animation: 'fading-slide'
 	      }
 	    });
 	    messageBox.show();
@@ -3402,7 +3403,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
 	      popupOptions: {
 	        zIndexAbsolute: 4020,
-	        autoHide: true
+	        autoHide: true,
+	        animation: 'fading-slide'
 	      }
 	    });
 	    messageBox.show();

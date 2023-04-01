@@ -866,7 +866,7 @@ HTML;
 
 	public static function validateValueSingle($value, FieldType $fieldType)
 	{
-		return $value;
+		return static::toSingleValue($fieldType, $value);
 	}
 
 	public static function validateValueMultiple($value, FieldType $fieldType): array

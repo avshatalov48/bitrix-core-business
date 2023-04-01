@@ -13,6 +13,8 @@
 		this.matcher = BX.Landing.Utils.Matchers.youtube;
 		this.embedURL = "//www.youtube.com/embed/$6";
 		this.previewURL = "//img.youtube.com/vi/$6/sddefault.jpg";
+		this.loadEmbedInfo();
+
 		this.idPlace = 6;
 		this.params = {
 			autoplay: 0,
@@ -139,6 +141,31 @@
 			}
 
 			return this.form;
+		},
+
+		loadEmbedInfo: function() {
+			const oembedUrl = 'https://www.youtube.com/oembed?format=json&url=' + this.url;
+			BX.ajax({
+				url: oembedUrl,
+				method: 'GET',
+				dataType: 'json',
+				onsuccess: result => {
+					if (
+						result.height && result.width
+						&& result.height > result.width
+					)
+					{
+						this.isVertical = true;
+					}
+
+					if (result.thumbnail_url)
+					{
+						this.previewURL = result.thumbnail_url;
+					}
+				},
+			});
+
+
 		},
 	};
 })();

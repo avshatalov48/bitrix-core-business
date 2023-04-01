@@ -78,7 +78,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Dom.append(_this.header, _this.layout);
 	    main_core.Dom.append(_this.input, _this.layout);
 	    main_core.Dom.attr(_this.layout, 'data-selector', _this.selector);
-	    main_core.Dom.attr(_this.input, 'data-placeholder', _this.placeholder);
+
+	    _this.input.setAttribute('data-placeholder', _this.placeholder);
 
 	    if (main_core.Type.isArrayLike(_this.className)) {
 	      main_core.Dom.addClass(_this.layout, _this.className);

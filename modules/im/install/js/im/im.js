@@ -832,8 +832,7 @@ BX.IM.prototype._doPhoneTo = function(number, params)
 	{
 		var stringParams = params ? '/params/' + BX.desktopUtils.encodeParamsJson(params) : '';
 
-		if (this.webrtc.popupKeyPad)
-			this.webrtc.popupKeyPad.close();
+		this.webrtc.closeKeyPad();
 
 		this.checkDesktop(function(){
 			BX.desktopUtils.goToBx("bx://callto/phone/"+escape(number)+stringParams)
@@ -3414,8 +3413,7 @@ BX.MessengerNotify = function(BXIM, params)
 				BX.bind(this.panelButtonCall, "click", BX.delegate(this.webrtc.openKeyPad, this.webrtc));
 			}
 			BX.bind(window, 'scroll', BX.delegate(function(){
-				if (this.webrtc.popupKeyPad)
-					this.webrtc.popupKeyPad.close();
+				this.webrtc.closeKeyPad();
 			}, this));
 		}
 
@@ -3777,10 +3775,16 @@ BX.MessengerNotify.prototype.newNotify = function(send)
 		if (notify && notify.userId && notify.userName)
 			flashNames[notify.userId] = notify.userName;
 
-		notify.text_converted = notify.text_converted.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, imol, chatId, text)
+
+		if (typeof(notify.text_converted) === 'undefined')
 		{
+			notify.text_converted = BX.Text.decode(notify.text.toString());
+			notify.text_converted = BX.Messenger.Lib.Utils.text.decode(notify.text_converted);
+		}
+		notify.text_converted = notify.text_converted.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, imol, chatId, text) {
 			return text;
 		});
+		notify.text_converted = notify.text_converted.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
 
 		notify = this.createNotify(notify, true);
 		if (notify !== false)
@@ -3788,6 +3792,11 @@ BX.MessengerNotify.prototype.newNotify = function(send)
 			arNotify.push(notify);
 
 			notify = this.notify[arNotifySort[i]];
+			if (typeof(notify.text_converted) === 'undefined')
+			{
+				notify.text_converted = BX.Text.decode(notify.text.toString());
+				notify.text_converted = BX.Messenger.Lib.Utils.text.decode(notify.text_converted);
+			}
 
 			var messageText = BX.util.htmlspecialcharsback(notify.text_converted);
 			messageText = messageText.split('<br />').join("\n");
@@ -5098,7 +5107,8 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 
 	if (typeof(notify.text_converted) === 'undefined')
 	{
-		notify.text_converted = notify.text;
+		notify.text_converted = BX.Text.decode(notify.text.toString());
+		notify.text_converted = BX.Messenger.Lib.Utils.text.decode(notify.text_converted);
 	}
 
 	notify.text_converted = notify.text_converted.replace(/\[like\]/ig, '<span class="bx-smile bx-im-smile-like" title="'+BX.message('IM_MESSAGE_LIKE')+'"></span>');
@@ -5878,8 +5888,7 @@ BX.MessengerChat = function(BXIM, params)
 					events: {
 						open: BX.delegate(this.webrtc.openKeyPad, this.webrtc),
 						close: BX.delegate(function(){
-							if (this.webrtc.popupKeyPad)
-								this.webrtc.popupKeyPad.close();
+							this.webrtc.closeKeyPad();
 						}, this)
 					}
 				});
@@ -12541,7 +12550,7 @@ BX.MessengerChat.prototype.drawMessageHistory = function(message)
 	var edited = message.params && message.params.IS_EDITED == 'Y';
 	var deleted = message.params && message.params.IS_DELETED == 'Y';
 
-	var messageText = message.text;
+	var messageText = typeof message.textLegacy !== 'undefined'? message.textLegacy: message.text;
 
 	var filesNode = BX.MessengerCommon.diskDrawFiles(message.chatId, message.params.FILE_ID, {'status': ['done', 'error'], 'boxId': 'im-file-history'});
 	if (filesNode.length > 0)
@@ -12914,6 +12923,8 @@ BX.MessengerChat.prototype.drawHistory = function(userId, historyElements, loadF
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.message[i] = data.MESSAGE[i];
 						this.showMessage[userId].push(i);
 					}
@@ -13330,6 +13341,8 @@ BX.MessengerChat.prototype.newHistorySearch = function(event)
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.message[i] = data.MESSAGE[i];
 					}
 
@@ -13413,6 +13426,8 @@ BX.MessengerChat.prototype.newHistoryDateSearch = function(params)
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.message[i] = data.MESSAGE[i];
 					}
 
@@ -17395,8 +17410,6 @@ BX.MessengerChat.prototype.closeMenuPopup = function()
 		this.notify.popupNotifyMore.destroy();
 	if (this.popupChatUsers != null)
 		this.popupChatUsers.close();
-	if (this.webrtc.popupKeyPad != null)
-		this.webrtc.popupKeyPad.destroy();
 	if (this.popupChatDialog != null)
 		this.popupChatDialog.destroy();
 	if (this.popupTransferDialog != null)
@@ -17407,6 +17420,8 @@ BX.MessengerChat.prototype.closeMenuPopup = function()
 		this.commandPopup.close();
 	if (this.popupIframeMenu != null && this.popupIframeBind)
 		this.popupIframeMenu.destroy();
+
+	this.webrtc.closeKeyPad();
 
 	BX.MessengerSupport24.closePopup();
 	this.disk.closeFilePopup();
@@ -17586,6 +17601,8 @@ BX.MessengerChat.prototype.storageSet = function(params)
 	else if (params.key == 'mum')
 	{
 		params.value.message.date = new Date(params.value.message.date);
+		params.value.message.text = typeof params.value.message.textLegacy !== 'undefined'? params.value.message.textLegacy: params.value.message.text;
+
 		this.message[params.value.message.id] = params.value.message;
 
 		if (this.showMessage[params.value.userId])
@@ -22710,6 +22727,14 @@ BX.IM.WebRTC.prototype.openKeyPad = function(e)
 	}.bind(this));
 }
 
+BX.IM.WebRTC.prototype.closeKeyPad = function()
+{
+	if (this.phoneKeypad)
+	{
+		this.phoneKeypad.close();
+	}
+};
+
 BX.IM.WebRTC.prototype._doOpenKeyPad = function(e)
 {
 	var bindElement;
@@ -22994,8 +23019,7 @@ BX.IM.WebRTC.prototype._doPhoneCall = function(number, params)
 	if(this.callActive || this.callInit)
 		return false;
 
-	if (this.popupKeyPad)
-		this.popupKeyPad.close();
+	this.closeKeyPad();
 
 	if (number != '')
 	{
@@ -23330,8 +23354,7 @@ BX.IM.WebRTC.prototype.phoneIncomingAnswer = function()
 	this.callSelfDisabled = true;
 	BX.MessengerCommon.phoneCommand('answer', {'CALL_ID' : this.phoneCallId});
 
-	if (this.popupKeyPad)
-		this.popupKeyPad.close();
+	this.closeKeyPad();
 
 	this.phoneCallView.setUiState(BX.PhoneCallView.UiState.connectingIncoming);
 	this.phoneCallView.setCallState(BX.PhoneCallView.CallState.connecting);

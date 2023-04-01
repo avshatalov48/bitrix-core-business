@@ -132,7 +132,7 @@ if (
 
 if ($arParams["ID"] <= 0 && $arParams["AJAX_ONLY"] != "Y")
 	$arResult["FatalError"] = GetMessage("MAIN_UL_NO_ID").". ";
-elseif (trim($arParams["HTML_ID"]) == '')
+elseif (empty($arParams["HTML_ID"]) || trim($arParams["HTML_ID"]) === '')
 	$arParams["HTML_ID"] = "mul_".RandString(8);
 
 if (!isset($arParams['USE_THUMBNAIL_LIST']) || $arParams['USE_THUMBNAIL_LIST'] != "N")

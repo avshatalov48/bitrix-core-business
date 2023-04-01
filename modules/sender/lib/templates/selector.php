@@ -426,7 +426,7 @@ class Selector
 		// compatibility
 		if ($template['MESSAGE_CODE'] === Message\iBase::CODE_MAIL)
 		{
-			$template['IS_SUPPORT_BLOCK_EDITOR'] = $template['FIELDS']['MESSAGE']['ON_DEMAND'];
+			$template['IS_SUPPORT_BLOCK_EDITOR'] = $template['FIELDS']['MESSAGE']['ON_DEMAND'] ?? '';
 		}
 
 		return $template;

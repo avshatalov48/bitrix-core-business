@@ -144,14 +144,7 @@ export default class Manager
 					text : Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_SEND_PARAMS'),
 					color: Button.Color.SUCCESS,
 					onclick: () => {
-						const paramFields = {};
-						const formData = new FormData(form)
-
-						parameters.forEach((param) => {
-							paramFields[param.Id] = param.Multiple ? formData.getAll(param.Id + '[]') : formData.get(param.Id);
-						});
-
-						this.#startScriptInternal(scriptId, documentIds, formData, popup);
+						this.#startScriptInternal(scriptId, documentIds, new FormData(form), popup);
 					}
 				}),
 				new BX.UI.Button({

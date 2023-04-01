@@ -11,6 +11,7 @@ use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Iblock\Component\Tools;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Loader;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
@@ -28,12 +29,16 @@ class ProductProvider extends BaseProvider
 
 		$this->options['iblockId'] = (int)($options['iblockId'] ?? 0);
 		$this->options['basePriceId'] = (int)($options['basePriceId'] ?? 0);
-		$this->options['currency'] = $options['currency'] ;
-		$this->options['restrictedProductTypes'] =
-			is_array($options['restrictedProductTypes'])
-				? $options['restrictedProductTypes']
-				: null
-		;
+		$this->options['currency'] = $options['currency'] ?? '';
+		if (isset($options['restrictedProductTypes']) && is_array($options['restrictedProductTypes']))
+		{
+			$this->options['restrictedProductTypes'] = $options['restrictedProductTypes'];
+		}
+		else
+		{
+			$this->options['restrictedProductTypes'] = null;
+		}
+
 		$this->options['showPriceInCaption'] = (bool)($options['showPriceInCaption'] ?? true);
 	}
 
@@ -434,7 +439,7 @@ class ProductProvider extends BaseProvider
 		return $products;
 	}
 
-	private function loadElements(array $parameters = []): array
+	protected function loadElements(array $parameters = []): array
 	{
 		$elements = [];
 
@@ -558,7 +563,7 @@ class ProductProvider extends BaseProvider
 		return $products;
 	}
 
-	private function loadPrices(array $elements): array
+	protected function loadPrices(array $elements): array
 	{
 		if (empty($elements))
 		{
@@ -608,7 +613,7 @@ class ProductProvider extends BaseProvider
 		return $elements;
 	}
 
-	private function loadBarcodes(array $elements, string $searchString): array
+	protected function loadBarcodes(array $elements, string $searchString): array
 	{
 		if (empty($elements))
 		{
@@ -698,7 +703,7 @@ class ProductProvider extends BaseProvider
 		});
 	}
 
-	private function loadProperties(array $elements, int $iblockId, IblockInfo $iblockInfo): array
+	protected function loadProperties(array $elements, int $iblockId, IblockInfo $iblockInfo): array
 	{
 		if (empty($elements))
 		{

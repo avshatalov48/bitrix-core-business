@@ -71,14 +71,13 @@
 	{
 		this.titleCont = this.viewCont.appendChild(BX.create('DIV', {props: {className: 'calendar-grid-week-row-days-week'}}));
 
-		var workTime = this.util.getWorkTime();
-		this.checkTimelineScroll(!this.isCollapsedOffHours || (workTime.end - workTime.start) * this.gridLineHeight + 20 > this.util.getViewHeight());
 		this.fullDayEventsCont = this.viewCont.appendChild(BX.create('DIV', {props: {className: this.fullDayContClass}}));
 
 		this.gridWrap = this.viewCont.appendChild(BX.create('DIV', {
 			props: {className: this.gridWrapClass},
 			style: {height: this.util.getViewHeight() + 'px'}
 		}));
+		this.checkTimelineScroll();
 		this.outerGrid = this.gridWrap.appendChild(BX.create('DIV', {props: {className: this.outerGridClass}}));
 
 		this.grid = this.outerGrid.appendChild(BX.create('DIV', {props: {className: this.gridClass + ' ' + this.gridClassCurrent}}));
@@ -113,6 +112,7 @@
 	DayView.prototype.increaseViewRangeDate = function()
 	{
 		this.changeViewRangeDate(this.dayCount);
+		this.highlightAll();
 		this.setTitle();
 
 		if (this.gridWrap)
@@ -155,6 +155,7 @@
 	DayView.prototype.decreaseViewRangeDate = function()
 	{
 		this.changeViewRangeDate(-this.dayCount);
+		this.highlightAll();
 		this.setTitle();
 
 		this.gridWrap.style.overflowX = 'hidden';
@@ -467,7 +468,7 @@
 			viewRangeDate = this.calendar.getViewRangeDate(),
 			time = viewRangeDate.getTime() / 1000;
 
-		View.prototype.setTitle.apply(this, [BX.date.format(BX.message('EC_DATE_FORMAT_1_MAY'), time) + ' #GRAY_START#' + BX.date.format('Y', time) + '#GRAY_END#']);
+		View.prototype.setTitle.apply(this, [BX.date.format(BX.Calendar.Util.getLongDateFormat(), time)]);
 	};
 
 	DayView.prototype.setDraggedEntry = function(entry)
@@ -689,8 +690,7 @@
 		BX.addClass(this.grid, 'calendar-events-holder-show');
 		BX.addClass(this.fullDayEventsCont, 'calendar-events-holder-show');
 
-		var workTime = this.util.getWorkTime();
-		this.checkTimelineScroll(!this.isCollapsedOffHours || (workTime.end - workTime.start) * this.gridLineHeight + 20 > this.util.getViewHeight());
+		this.checkTimelineScroll();
 	};
 
 	DayView.prototype.arrangeTopEntries = function()
@@ -761,7 +761,6 @@
 			MIN_BACK_ENTRY_OFFSET = 33,
 			MIN_BACK_ENTRY_TIME_OFFSET = 20,
 			MIN_TIME_WIDTH = 40,
-			ENTRY_NAME_OFFSET = 23,
 			LAYER_LEFT_OFFSET = 6,
 			LEFT_OFFSET = 2,
 			lastCount, count, lastCode,
@@ -1018,6 +1017,7 @@
 							}
 						}
 
+						entryPart.params.wrapNode.style.zIndex = parseInt(entryPart.params.wrapNode.style.zIndex) - parallelPosition;
 						if (this.dayCount > 1) // Weeks
 						{
 							entryPart.params.wrapNode.style.width = 'calc(100% / (' + this.dayCount + ' * ' + startList.length + ') - ' + entryWidthOffset + 'px)';
@@ -1078,18 +1078,32 @@
 		{
 			entryClassName += ' calendar-event-line-refused';
 		}
+		if (entry.isInvited())
+		{
+			entryClassName += ' calendar-event-animate-counter-highlight';
+		}
+
+		let arrowColor = entry.color;
+		if (entry.isFullDay())
+		{
+			arrowColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
+		}
+		else if (entry.isLongWithTime())
+		{
+			arrowColor = this.calendar.util.addOpacityToHex(entry.color, 0.5);
+		}
 
 		if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
 		{
 			entryClassName += ' calendar-event-line-start-yesterday';
 			deltaPartWidth += 8;
-			startArrow = this.getArrow('left', entry.color, entry.isFullDay());
+			startArrow = this.getArrow('left', arrowColor, entry.isFullDay());
 		}
 
 		if (this.util.getDayCode(entry.to) !== this.util.getDayCode(params.part.to.date))
 		{
 			entryClassName += ' calendar-event-line-finish-tomorrow';
-			endArrow = this.getArrow('right', entry.color, entry.isFullDay());
+			endArrow = this.getArrow('right', arrowColor, entry.isFullDay());
 			deltaPartWidth += 12;
 		}
 
@@ -1191,16 +1205,21 @@
 
 		if (entry.isFullDay())
 		{
-			innerContainer.style.backgroundColor = this.calendar.util.hexToRgba(entry.color, 0.3);
-			innerContainer.style.borderColor = this.calendar.util.hexToRgba(entry.color, 0.3);
+			innerContainer.style.backgroundColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
+			innerContainer.style.borderColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
 		}
 		else
 		{
 			if (entry.isLongWithTime())
 			{
-				innerContainer.style.borderColor = this.calendar.util.hexToRgba(entry.color, 0.5);
+				innerContainer.style.borderColor = this.calendar.util.addOpacityToHex(entry.color, 0.5);
 			}
 			dotNode.style.backgroundColor = entry.color;
+		}
+
+		if (entry.isInvited() && this.isFirstVisibleRecursiveEntry(entry))
+		{
+			innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter'}, text: '1'}));
 		}
 
 		(params.holder || this.topEntryHolder).appendChild(partWrap);
@@ -1269,9 +1288,11 @@
 
 		if (entry.hasEmailAttendees()
 			|| entry.ownerIsEmailUser()
-			|| entry.getCurrentStatus() === 'N')
+			|| entry.getCurrentStatus() === 'N'
+			|| entry.isSharingEvent()
+		)
 		{
-			entryClassName += ' calendar-event-block-wrap-icon';
+			entryClassName += ' calendar-event-wrap-icon';
 		}
 
 		if (entry.isExpired())
@@ -1279,6 +1300,10 @@
 			entryClassName += ' calendar-event-block-wrap-past';
 		}
 
+		if (entry.isSharingEvent())
+		{
+			entryClassName += ' calendar-event-block-wrap-sharing';
+		}
 
 		if (!this.isCollapsedOffHours
 			|| (toTimeValue > workTime.start
@@ -1310,22 +1335,46 @@
 			});
 
 			innerNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-inner'}}));
+			const titleNode = innerNode.appendChild(
+				BX.create('SPAN',{
+					props: {
+						className: 'calendar-event-block-title',
+					},
+				})
+			);
 
-			if (entry.getCurrentStatus() === 'N')
+			if (entry.isInvited())
 			{
-				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-refused'}}));
+				innerNode.className += ' calendar-event-animate-counter-highlight';
+				if (this.isFirstVisibleRecursiveEntry(entry))
+				{
+					titleNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter'}, text: '1'}));
+				}
+				else
+				{
+					titleNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter-dot'}}));
+				}
+			}
+			else if (entry.getCurrentStatus() === 'N')
+			{
+				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-refused'}}));
+			}
+			else if (entry.isSharingEvent())
+			{
+				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-sharing'}}));
 			}
 			else if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
 			{
-				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
+				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
 			}
-			nameNode = innerNode.appendChild(
-				BX.create('SPAN',
-					{
-						props: {className: 'calendar-event-block-text'},
-						text:  params.entry.name
-					}
-				)
+
+			nameNode = titleNode.appendChild(
+				BX.create('SPAN',{
+					props: {
+						className: 'calendar-event-block-text'
+					},
+					text:  params.entry.name,
+				})
 			);
 
 			if (!this.calendar.util.isDarkColor(entry.color))
@@ -1862,7 +1911,6 @@
 			return;
 		}
 		this.denySwitch = true;
-		this.checkTimelineScroll(this.doSetPadding());
 		this.removeOffHoursEntries();
 
 		if (animate)
@@ -1891,6 +1939,7 @@
 
 		this.displayEntries();
 		this.denySwitch = false;
+		this.checkTimelineScroll();
 	};
 
 	DayView.prototype.animateSwitchOffHours = function(state, isExpandAnimation)
@@ -1955,6 +2004,7 @@
 				}
 
 				this.cutEntryNodesByGrid(entryNodes, offset);
+				this.checkTimelineScroll();
 			},
 			complete: () => {
 				correctingDiv.remove();
@@ -1966,6 +2016,7 @@
 				}
 				this.displayEntries();
 				this.denySwitch = false;
+				this.checkTimelineScroll();
 			}
 		}).animate();
 	};
@@ -2102,12 +2153,6 @@
 		}
 	};
 
-	DayView.prototype.doSetPadding = function()
-	{
-		const workTime = this.util.getWorkTime();
-		return this.isCollapsedOffHours || (workTime.end - workTime.start) * this.gridLineHeight + 20 > this.util.getViewHeight();
-	};
-
 	DayView.prototype.removeOffHoursEntries = function()
 	{
 		const workTime = this.util.getWorkTime();
@@ -2134,10 +2179,15 @@
 		});
 	};
 
-	DayView.prototype.checkTimelineScroll = function(setPadding)
+	DayView.prototype.checkTimelineScroll = function()
 	{
+		if (!this.scrollbarWidth)
+		{
+			this.scrollbarWidth = this.util.getScrollbarWidth();
+		}
+
 		// Compensate padding in right title calendar-grid-week-full-days-events-holder
-		var wrapOffsetRight = setPadding ? this.util.getScrollbarWidth() : 0;
+		const wrapOffsetRight = this.gridWrap.scrollHeight > this.gridWrap.offsetHeight ? this.scrollbarWidth : 0;
 		if (this.titleCont)
 		{
 			this.titleCont.style.paddingRight = wrapOffsetRight + "px";
@@ -2148,24 +2198,27 @@
 			&& parseInt(this.topEntryHolder.style.right) !== parseInt(wrapOffsetRight)
 		)
 		{
-			new BX.easing({
-				duration: 100,
-				start: {width: wrapOffsetRight, paddingRight: 0},
-				finish: {width: 0, paddingRight: wrapOffsetRight},
-				transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
-				step: BX.delegate(function (state) {
-					this.gridWrap.style.width = 'calc(100% + ' + state.width + 'px)';
-					this.topEntryHolder.style.right = state.paddingRight + "px";
-					this.fullDayEventsHolderCont.style.paddingRight = state.paddingRight + "px";
-				}, this),
-				complete: function (){}
-			}).animate();
+			this.gridWrap.style.width = '100%';
+			this.topEntryHolder.style.right = wrapOffsetRight + "px";
+			this.fullDayEventsHolderCont.style.paddingRight = wrapOffsetRight + "px";
+			// new BX.easing({
+			// 	duration: 100,
+			// 	start: {width: wrapOffsetRight, paddingRight: 0},
+			// 	finish: {width: 0, paddingRight: wrapOffsetRight},
+			// 	transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
+			// 	step: BX.delegate(function (state) {
+			// 		this.gridWrap.style.width = 'calc(100% + ' + state.width + 'px)';
+			// 		this.topEntryHolder.style.right = state.paddingRight + "px";
+			// 		this.fullDayEventsHolderCont.style.paddingRight = state.paddingRight + "px";
+			// 	}, this),
+			// 	complete: function (){}
+			// }).animate();
 		}
 	};
 
 	DayView.prototype.getDayGridHeight = function()
 	{
-		return 1040;
+		return 756;
 	};
 
 	DayView.prototype.updateGridRowShadowHeight = function()
@@ -2660,35 +2713,22 @@
 		// clear all compact levels
 		BX.removeClass(entryNode, 'calendar-event-block-compact');
 		BX.removeClass(entryNode, 'calendar-event-block-super-compact');
-		nameNode.style.maxHeight = '';
-		nameNode.style.overflow = '';
-		nameNode.style.width = '';
+		nameNode.style.overflow = 'visible';
 
 		// add compactness level by level
 		if (nameNode.offsetHeight + timeNode.offsetHeight > innerNode.offsetHeight - 10)
 		{
-			BX.addClass(entryNode, 'calendar-event-block-compact');
-		}
-		if (nameNode.offsetHeight + timeNode.offsetHeight > innerNode.offsetHeight)
-		{
 			const lineHeight = parseInt(window.getComputedStyle(nameNode).lineHeight);
-			const fitHeight = innerNode.offsetHeight - timeNode.offsetHeight;
+			const fitHeight = innerNode.offsetHeight - timeNode.offsetHeight - 10;
 			const lineCount = Math.floor(fitHeight / lineHeight);
 
 			if (lineCount <= 1)
 			{
+				BX.addClass(entryNode, 'calendar-event-block-compact');
 				BX.addClass(entryNode, 'calendar-event-block-super-compact');
 			}
-			else
-			{
-				nameNode.style.width = '1ch';
-				nameNode.style.maxHeight = lineCount * lineHeight + 'px';
-				while (nameNode.offsetHeight <= nameNode.scrollHeight - lineHeight)
-				{
-					nameNode.style.width = (parseInt(nameNode.style.width) + 5) + 'ch';
-				}
-			}
 		}
+		nameNode.style.overflow = '';
 	}
 
 	DayView.prototype.showCompactEditFormForNewEntry = function(params)

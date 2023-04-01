@@ -8,6 +8,7 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
+use Bitrix\Catalog\GroupTable;
 use Bitrix\Catalog\StoreBarcodeTable;
 use Bitrix\Catalog\StoreDocumentBarcodeTable;
 use Bitrix\Catalog\StoreDocumentElementTable;
@@ -414,8 +415,7 @@ final class CatalogStoreDocumentProductListComponent
 			'top'
 		);
 
-		$baseGroup = \CCatalogGroup::GetBaseGroup();
-		$this->defaultSettings['BASE_PRICE_ID'] = (is_array($baseGroup) && isset($baseGroup['ID'])) ? (int)$baseGroup['ID'] : null;
+		$this->defaultSettings['BASE_PRICE_ID'] = GroupTable::getBasePriceTypeId();
 	}
 
 	protected function getDefaultSetting($name)
@@ -1149,15 +1149,125 @@ final class CatalogStoreDocumentProductListComponent
 
 		$snippet = new Snippet();
 
+		$dropdownStores = [];
+		foreach ($this->getAccessibleStores() as $store)
+		{
+			$dropdownStores[] = ['NAME' => $store['TITLE'], 'VALUE' => (int)$store['ID']];
+		}
+
+		$actionList = [];
+		if ($dropdownStores)
+		{
+			$items = [
+				[
+					'NAME' => Loc::getMessage('CATALOG_DOCUMENT_ACTION_DEFAULT'),
+					'VALUE' => 'default',
+					'ACTION' => Main\Grid\Panel\Actions::RESET_CONTROLS,
+				],
+			];
+
+			$isExternalDocument = (bool)($this->externalDocument['TYPE'] ?? false);
+			if (
+				$isExternalDocument
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_SALES_ORDERS
+			)
+			{
+				$storeFromActionTitle =
+					$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+						? Loc::getMessage('CATALOG_DOCUMENT_ACTION_SELECT_STORE_FROM')
+						: Loc::getMessage('CATALOG_DOCUMENT_ACTION_SELECT_STORE')
+				;
+
+				$items[] = $this->getDropdownActionField(
+					$snippet,
+					'STORE_FROM_INFO',
+					$dropdownStores,
+					$storeFromActionTitle
+				);
+			}
+
+			if (
+				!$isExternalDocument
+				&& $this->getDocumentType() !== StoreDocumentTable::TYPE_DEDUCT
+				&& $this->getDocumentType() !== StoreDocumentTable::TYPE_SALES_ORDERS
+			)
+			{
+				$storeToActionTitle =
+					$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+						? Loc::getMessage('CATALOG_DOCUMENT_ACTION_SELECT_STORE_TO')
+						: Loc::getMessage('CATALOG_DOCUMENT_ACTION_SELECT_STORE')
+				;
+
+				$items[] = $this->getDropdownActionField(
+					$snippet,
+					'STORE_TO_INFO',
+					$dropdownStores,
+					$storeToActionTitle
+				);
+			}
+
+			$actionList = [
+				'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
+				'ID' => 'actionListId',
+				'NAME' => 'actionList',
+				'ITEMS' => $items
+			];
+		}
+
 		return [
 			'GROUPS' => [
 				[
 					'ITEMS' => [
 						$snippet->getRemoveButton(),
+						$actionList,
 						$snippet->getForAllCheckbox(),
 					],
 				],
 			],
+		];
+	}
+
+	/**
+	 * @param Snippet $snippet
+	 * @param string $fieldId
+	 * @param array $list
+	 * @param string $title
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	private function getDropdownActionField(Snippet $snippet, string $fieldId, array $list, string $title): array
+	{
+		$action = [
+			'ACTION' => Main\Grid\Panel\Actions::CREATE,
+			'DATA' => [
+				[
+					'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
+					'ID' => $fieldId,
+					'NAME' => $fieldId,
+					'ITEMS' => $list,
+				],
+				$snippet->getApplyButton([
+					'ONCHANGE' => [
+						[
+							'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+							'DATA' => [
+								[
+									"JS" => "BX.Catalog.Store.ProductList.Instance.processApplyActionButtonClick('{$fieldId}')",
+								]
+							]
+						]
+					]
+				]),
+			]
+		];
+
+		return [
+			'NAME' => $title,
+			'VALUE' => $fieldId,
+			'ONCHANGE' => [$action]
 		];
 	}
 
@@ -1791,6 +1901,7 @@ final class CatalogStoreDocumentProductListComponent
 			'createProductPath' => $this->getStorageItem('CREATE_PRODUCT_PATH'),
 
 			'measures' => array_values($this->measures),
+			'stores' => $this->getAccessibleStores(),
 			'defaultMeasure' => $this->getDefaultMeasure(),
 
 			'currencyId' => $this->getCurrencyId(),
@@ -2281,6 +2392,11 @@ final class CatalogStoreDocumentProductListComponent
 		}
 
 		return $this->stores;
+	}
+
+	private function getAccessibleStores(): array
+	{
+		return array_intersect_key($this->getStores(), array_flip($this->getAccessibleStoresIds()));
 	}
 
 	/**

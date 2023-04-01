@@ -5208,7 +5208,7 @@ class CAllUser extends CDBResult
 		return $dbRes;
 	}
 
-	public static function FormatName($NAME_TEMPLATE, $arUser, $bUseLogin = false, $bHTMLSpec = true)
+	public static function FormatName($NAME_TEMPLATE, $arUser, $bUseLogin = false, $bHTMLSpec = true, $enabledEmptyNameStub = true)
 	{
 		if (isset($arUser["ID"]))
 			$ID = intval($arUser['ID']);
@@ -5243,8 +5243,10 @@ class CAllUser extends CDBResult
 		{
 			if ($bUseLogin && $arUser['LOGIN'] <> '')
 				$res = $arUser['LOGIN'];
-			else
+			else if($enabledEmptyNameStub)
 				$res = GetMessage('FORMATNAME_NONAME');
+			else
+				$res = '';
 
 			if (mb_strpos($NAME_TEMPLATE, '[#ID#]') !== false)
 				$res .= " [".$ID."]";

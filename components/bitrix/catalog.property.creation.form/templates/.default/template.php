@@ -2,6 +2,7 @@
 /**
  * @var $component \CatalogPropertyCreationFormComponent
  * @var $this \CBitrixComponentTemplate
+ * @var $arResult array
  */
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {

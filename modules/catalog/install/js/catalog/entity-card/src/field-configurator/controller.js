@@ -107,6 +107,11 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 					currentField.refreshLayout();
 				}
 			}
+			if (currentField instanceof BX.UI.EntityEditorCustom)
+			{
+				currentField.refreshLayout();
+			}
+
 			let newType = null;
 			let schemeElement = null;
 			if (eventArgs.multiple === true)
@@ -245,6 +250,9 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				break;
 			case 'file':
 				formatted.USER_TYPE = 'DiskFile';
+				break;
+			case 'custom':
+				formatted.USER_TYPE = fields.userType;
 				break;
 		}
 

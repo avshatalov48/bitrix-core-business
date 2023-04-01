@@ -94,7 +94,11 @@ class CAllSaleBasket
 			),
 			false,
 			false,
-			array('ID', 'FUSER_ID', 'USER_ID', 'MODULE', 'PRODUCT_ID', 'CURRENCY', 'DATE_INSERT', 'QUANTITY', 'LID', 'DELAY', 'CALLBACK_FUNC', 'SUBSCRIBE', 'PRODUCT_PROVIDER_CLASS')
+			array(
+				'ID',
+				'FUSER_ID',
+				'USER_ID',
+				'MODULE', 'PRODUCT_ID', 'CURRENCY', 'DATE_INSERT', 'QUANTITY', 'LID', 'DELAY', 'CALLBACK_FUNC', 'SUBSCRIBE', 'PRODUCT_PROVIDER_CLASS')
 		);
 		while ($arItemsBasket = $rsItemsBasket->Fetch())
 		{

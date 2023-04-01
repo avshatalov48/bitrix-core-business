@@ -919,6 +919,7 @@ if (!empty($arCompare) && is_array($arCompare))
 						if (
 							($boolArr && !empty($prop["VALUE"]))
 							|| (!$boolArr && $prop["VALUE"] <> '')
+							|| \Bitrix\Iblock\Component\Tools::isCheckboxProperty($prop)
 						)
 						{
 							$arItem['OFFER_DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arOffer, $prop, 'catalog_out');
@@ -963,6 +964,7 @@ if (!empty($arCompare) && is_array($arCompare))
 					if (
 						($boolArr && !empty($prop["VALUE"]))
 						|| (!$boolArr && $prop["VALUE"] <> '')
+						|| \Bitrix\Iblock\Component\Tools::isCheckboxProperty($prop)
 					)
 					{
 						$arItem['DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, 'catalog_out');

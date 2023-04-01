@@ -65,7 +65,8 @@ if (!empty($arResult['CURRENCIES']))
 $templateData = array(
 	'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
 	'TEMPLATE_LIBRARY' => $templateLibrary,
-	'CURRENCIES' => $currencyList
+	'CURRENCIES' => $currencyList,
+	'USE_PAGINATION_CONTAINER' => $showTopPager || $showBottomPager,
 );
 unset($currencyList, $templateLibrary);
 

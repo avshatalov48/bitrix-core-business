@@ -106,7 +106,7 @@ if (is_array($filter_delivery_id) && count($filter_delivery_id) > 0 && $filter_d
 	}
 }
 
-if ($filter_date_deducted_to <> '')
+if (!empty($filter_date_deducted_to))
 {
 	if ($arDate = ParseDateTime($filter_date_deducted_to, CSite::GetDateFormat("FULL", $siteId)))
 	{
@@ -136,30 +136,46 @@ if (isset($filter_status) && is_array($filter_status) && count($filter_status) >
 	}
 }
 
-if ($filter_account_num <> '')
-	$arFilter['ORDER.ACCOUNT_NUMBER'] = $filter_account_num;
-
-if ($filter_user_login <> '')
-	$arFilter["ORDER.USER.LOGIN"] = trim($filter_user_login);
-if ($filter_user_email <> '')
-	$arFilter["ORDER.USER.EMAIL"] = trim($filter_user_email);
-if (intval($filter_user_id)>0)
-	$arFilter["ORDER.USER_ID"] = intval($filter_user_id);
-
-if ($filter_is_delivery_request_failed <> '')
+if (!empty($filter_account_num))
 {
-	if($filter_is_delivery_request_failed == 'Y')
-		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
-	else
-		$arFilter["=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
+	$arFilter['ORDER.ACCOUNT_NUMBER'] = $filter_account_num;
 }
 
-if ($filter_is_delivery_request_sent <> '')
+if (!empty($filter_user_login))
 {
-	if($filter_is_delivery_request_sent == 'Y')
-		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.REQUEST_ID"] = false;
+	$arFilter["ORDER.USER.LOGIN"] = trim($filter_user_login);
+}
+if (!empty($filter_user_email))
+{
+	$arFilter["ORDER.USER.EMAIL"] = trim($filter_user_email);
+}
+if (!empty($filter_user_id))
+{
+	$arFilter["ORDER.USER_ID"] = intval($filter_user_id);
+}
+
+if (!empty($filter_is_delivery_request_failed))
+{
+	if ($filter_is_delivery_request_failed == 'Y')
+	{
+		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
+	}
 	else
+	{
+		$arFilter["=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
+	}
+}
+
+if (!empty($filter_is_delivery_request_sent))
+{
+	if ($filter_is_delivery_request_sent == 'Y')
+	{
+		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.REQUEST_ID"] = false;
+	}
+	else
+	{
 		$arFilter["=DELIVERY_REQUEST_SHIPMENT.REQUEST_ID"] = false;
+	}
 }
 
 $allowedStatusesView = \Bitrix\Sale\DeliveryStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
@@ -352,7 +368,9 @@ $select = array(
 	'EMP_DEDUCTED_BY_LAST_NAME' => 'EMP_DEDUCTED_BY.LAST_NAME',
 	'EMP_ALLOW_DELIVERY_BY_NAME' => 'EMP_ALLOW_DELIVERY_BY.NAME',
 	'EMP_ALLOW_DELIVERY_BY_LAST_NAME' => 'EMP_ALLOW_DELIVERY_BY.LAST_NAME',
-	'EMP_MARKED_BY_BY_NAME' => 'EMP_MARKED_BY.NAME',
+	'EMP_CANCELED_BY_NAME' => 'EMP_CANCELED_BY.NAME',
+	'EMP_CANCELED_BY_LAST_NAME' => 'EMP_CANCELED_BY.LAST_NAME',
+	'EMP_MARKED_BY_NAME' => 'EMP_MARKED_BY.NAME',
 	'EMP_MARKED_BY_LAST_NAME' => 'EMP_MARKED_BY.LAST_NAME',
 	'ORDER_USER_NAME' => 'ORDER.USER.NAME',
 	'ORDER_USER_LAST_NAME' => 'ORDER.USER.LAST_NAME',
@@ -455,9 +473,6 @@ else
 	$dbResultList->NavStart();
 }
 
-
-//$dbResultList = new CAdminResult($shipments, $tableId);
-//$dbResultList->NavStart();
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("group_admin_nav")));
 
 $allSelectedFields = array(
@@ -470,31 +485,56 @@ $allSelectedFields = array_merge($allSelectedFields, array_fill_keys($visibleHea
 
 while ($shipment = $dbResultList->Fetch())
 {
+	$renderStateField = function ($field) use ($shipment) {
+		$view = $shipment[$field] == "Y" ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO");
+
+		if (
+			$shipment['EMP_'.$field.'_ID']
+			&& (
+				$shipment['EMP_'.$field.'_BY_LAST_NAME']
+				|| $shipment['EMP_'.$field.'_BY_NAME']
+			)
+		)
+		{
+			$view .= "<br><a href=\"user_edit.php?ID=".$shipment['EMP_'.$field.'_ID']."\">".htmlspecialcharsbx($shipment['EMP_'.$field.'_BY_LAST_NAME'])." ".htmlspecialcharsbx($shipment['EMP_'.$field.'_BY_NAME'])."</a>";
+		}
+
+		if ($shipment['DATE_'.$field])
+		{
+			$view .= "<br>".htmlspecialcharsbx($shipment['DATE_'.$field]);
+		}
+
+		return $view;
+	};
+
 	$row =& $lAdmin->AddRow($shipment['ID'], $shipment);
 	$row->AddField("ID", "<a href=\"sale_order_shipment_edit.php?order_id=".$shipment['ORDER_ID']."&shipment_id=".$shipment['ID']."&lang=".$lang.GetFilterParams("filter_")."\">".$shipment['ID']."</a>");
 	$row->AddField("ORDER_ID", "<a href=\"sale_order_edit.php?ID=".$shipment['ORDER_ID']."&lang=".$lang.GetFilterParams("filter_")."\">".$shipment['ORDER_ID']."</a>");
 	$row->AddField("DELIVERY_NAME", "<a href=\"sale_delivery_service_edit.php?ID=".$shipment['DELIVERY_ID']."&lang=".$lang.GetFilterParams("filter_")."\">".htmlspecialcharsbx($shipment['DELIVERY_NAME'])."</a>");
 	$row->AddField("ACCOUNT_NUMBER", htmlspecialcharsbx($shipment['SALE_INTERNALS_SHIPMENT_ORDER_ACCOUNT_NUMBER']));
-	$row->AddField("ALLOW_DELIVERY", ($shipment["ALLOW_DELIVERY"] == "Y") ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"));
 	$row->AddField("COMPANY_BY", "<a href=\"sale_company_edit.php?ID=".$shipment['COMPANY_ID']."&lang=".$lang.GetFilterParams("filter_")."\">".htmlspecialcharsbx($shipment['SALE_INTERNALS_SHIPMENT_COMPANY_BY_NAME'])."</a>");
 	$row->AddField("ORDER_USER_NAME", "<a href='/bitrix/admin/user_edit.php?ID=".$shipment['ORDER_USER_ID']."&lang=".$lang."'>".htmlspecialcharsbx($shipment['ORDER_USER_NAME'])." ".htmlspecialcharsbx($shipment['ORDER_USER_LAST_NAME'])."</a>");
 	$row->AddField("PRICE_DELIVERY", \CCurrencyLang::CurrencyFormat($shipment['PRICE_DELIVERY'], $shipment['SALE_INTERNALS_SHIPMENT_ORDER_CURRENCY']));
 
-	$row->AddField("DEDUCTED", (($shipment["DEDUCTED"] == "Y") ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"))."<br><a href=\"user_edit.php?ID=".$shipment['EMP_DEDUCTED_ID']."\">".htmlspecialcharsbx($shipment['SALE_INTERNALS_SHIPMENT_EMP_DEDUCTED_BY_LAST_NAME'])." ".htmlspecialcharsbx($shipment['SALE_INTERNALS_SHIPMENT_EMP_DEDUCTED_BY_NAME'])."</a><br>".htmlspecialcharsbx($shipment['DATE_DEDUCTED']));
+	$row->AddField("DEDUCTED", $renderStateField('DEDUCTED'));
 
 	$row->AddField("RESPONSIBLE_BY", "<a href=\"user_edit.php?ID=".$shipment['RESPONSIBLE_ID']."\">".htmlspecialcharsbx($shipment['RESPONSIBLE_BY_NAME'])." ".htmlspecialcharsbx($shipment['RESPONSIBLE_BY_LAST_NAME'])."</a>");
 
-	$row->AddField("ALLOW_DELIVERY", (($shipment["ALLOW_DELIVERY"] == "Y") ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"))."<br><a href=\"user_edit.php?ID=".$shipment['EMP_ALLOW_DELIVERY_ID']."\">".htmlspecialcharsbx($shipment['EMP_ALLOW_DELIVERY_BY_LAST_NAME'])." ".htmlspecialcharsbx($shipment['EMP_ALLOW_DELIVERY_BY_NAME'])."</a><br>".htmlspecialcharsbx($shipment['DATE_ALLOW_DELIVERY']));
+	$row->AddField("ALLOW_DELIVERY", $renderStateField('ALLOW_DELIVERY'));
 
-	$row->AddField("CANCELED", (($shipment["CANCELED"] == "Y") ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"))."<br><a href=\"user_edit.php?ID=".$shipment['EMP_CANCELED_ID']."\">".htmlspecialcharsbx($shipment['EMP_CANCELED_BY_LAST_NAME'])." ".htmlspecialcharsbx($shipment['EMP_CANCELED_BY_NAME'])."</a><br>".htmlspecialcharsbx($shipment['DATE_CANCELED']));
+	$row->AddField("CANCELED", $renderStateField('CANCELED'));
 
-	$row->AddField("MARKED", (($shipment["MARKED"] == "Y") ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"))."<br><a href=\"user_edit.php?ID=".$shipment['EMP_MARKED_ID']."\">".htmlspecialcharsbx($shipment['EMP_MARKED_BY_LAST_NAME'])." ".htmlspecialcharsbx($shipment['EMP_MARKED_BY_NAME'])."</a><br>".htmlspecialcharsbx($shipment['DATE_MARKED']));
+	$row->AddField("MARKED", $renderStateField('MARKED'));
 
-	if(in_array("DELIVERY_REQUEST_ID", $visibleHeaders))
+	if (in_array("DELIVERY_REQUEST_ID", $visibleHeaders))
+	{
 		$row->AddField("DELIVERY_REQUEST_ID", intval($shipment["DELIVERY_REQUEST_ID"]) > 0 ? '<a href="/bitrix/admin/sale_delivery_request_view.php?lang='.LANGUAGE_ID.'&ID='.$shipment["DELIVERY_REQUEST_ID"].'">'.$shipment["DELIVERY_REQUEST_ID"].'</a>' : '');
+	}
 
-	if(in_array("IS_DELIVERY_REQUEST_FAILED", $visibleHeaders))
+	if (in_array("IS_DELIVERY_REQUEST_FAILED", $visibleHeaders))
+	{
 		$row->AddField("IS_DELIVERY_REQUEST_FAILED", $shipment["DELIVERY_REQUEST_SHIPMENT_ERROR_DESCRIPTION"] <> '' ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"));
+	}
 
 	$status = '';
 	if ($shipment['STATUS_COLOR'])
@@ -522,7 +562,7 @@ while ($shipment = $dbResultList->Fetch())
 	$arActions = array();
 	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("EDIT_SHIPMENT_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_order_shipment_edit.php?order_id=".$shipment['ORDER_ID']."&shipment_id=".$shipment['ID']."&lang=".$lang.GetFilterParams("filter_").""), "DEFAULT"=>true);
 
-	if(!$bReadOnly)
+	if (empty($bReadOnly))
 	{
 		$arActions[] = array("SEPARATOR" => true);
 		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("DELETE_SHIPMENT_ALT"), "ACTION"=>"if(confirm('".GetMessageJS('DELETE_SHIPMENT_CONFIRM')."')) ".$lAdmin->ActionDoGroup($shipment['ID'], "delete"));

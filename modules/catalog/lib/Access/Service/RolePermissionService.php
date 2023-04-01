@@ -2,9 +2,9 @@
 namespace Bitrix\Catalog\Access\Service;
 
 use Bitrix\Catalog\Access\Component\PermissionConfig;
-use Bitrix\Catalog\Access\Permission\Catalog\IblockCatalogPermissions;
-use Bitrix\Catalog\Access\Permission\Catalog\IblockCatalogPermissionsSaver;
+use Bitrix\Catalog\Access\Permission\Catalog\IblockCatalogPermissionStepper;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
+use Bitrix\Main\Event;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Catalog\Access\Permission\PermissionTable;
@@ -18,6 +18,8 @@ use Throwable;
 class RolePermissionService implements RolePermissionServiceInterface
 {
 	private const DB_ERROR_KEY = "CATALOG_CONFIG_PERMISSIONS_DB_ERROR";
+	private const EVENT_ON_BEFORE_SAVE = "onBeforeCatalogRolePermissionSave";
+	private const EVENT_ON_AFTER_SAVE = "onAfterCatalogRolePermissionSave";
 
 	/**
 	 * @var RoleRelationServiceInterface
@@ -35,6 +37,13 @@ class RolePermissionService implements RolePermissionServiceInterface
 	 */
 	public function saveRolePermissions(array $permissionSettings): array
 	{
+		$event = new Event(
+			'catalog',
+			self::EVENT_ON_BEFORE_SAVE,
+			$permissionSettings
+		);
+		$event->send();
+
 		$query = [];
 		$roles = [];
 
@@ -49,10 +58,6 @@ class RolePermissionService implements RolePermissionServiceInterface
 			]
 		);
 
-		$oldAccessCodes = $this->getAccessCodesMap();
-
-		$catalogPermissionsSaver = new IblockCatalogPermissionsSaver();
-
 		foreach ($permissionSettings as &$setting)
 		{
 			$roleId = (int)$setting['id'];
@@ -66,18 +71,6 @@ class RolePermissionService implements RolePermissionServiceInterface
 			{
 				continue;
 			}
-
-			$accessCodes = (array)($setting['accessCodes'] ?? []);
-			$accessCodes = array_keys($accessCodes);
-
-			$deletedAccessCodes = array_diff(
-				$oldAccessCodes[$roleId] ?? [],
-				$accessCodes
-			);
-
-			$catalogPermission = new IblockCatalogPermissions($accessCodes, $deletedAccessCodes);
-			$catalogPermission->setRights($setting['accessRights']);
-			$catalogPermissionsSaver->add($catalogPermission);
 
 			foreach ($setting['accessRights'] as $permission)
 			{
@@ -120,11 +113,11 @@ class RolePermissionService implements RolePermissionServiceInterface
 					\CIntranetUtils::clearMenuCache();
 				}
 
-				$catalogPermissionsSaver->save();
-
 				$this->roleRelationService->saveRoleRelation($permissionSettings);
 
 				$db->commitTransaction();
+
+				IblockCatalogPermissionStepper::bind(1);
 			}
 			catch (\Exception $e)
 			{
@@ -133,6 +126,13 @@ class RolePermissionService implements RolePermissionServiceInterface
 				throw new SqlQueryException(self::DB_ERROR_KEY);
 			}
 		}
+
+		$event = new Event(
+			'catalog',
+			self::EVENT_ON_AFTER_SAVE,
+			$permissionSettings
+		);
+		$event->send();
 
 		return $permissionSettings;
 	}
@@ -190,14 +190,6 @@ class RolePermissionService implements RolePermissionServiceInterface
 		try
 		{
 			$db->startTransaction();
-
-			$accessCodes = $this->getAccessCodesMap()[$roleId] ?? [];
-			if (!empty($accessCodes))
-			{
-				$catalogPermissionsSaver = new IblockCatalogPermissionsSaver();
-				$catalogPermissionsSaver->add(new IblockCatalogPermissions([], $accessCodes));
-				$catalogPermissionsSaver->save();
-			}
 
 			PermissionTable::deleteList(["=ROLE_ID" => $roleId]);
 

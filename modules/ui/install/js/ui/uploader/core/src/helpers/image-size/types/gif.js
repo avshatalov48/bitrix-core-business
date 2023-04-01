@@ -14,7 +14,7 @@ export default class Gif
 		return new Promise((resolve, reject) => {
 			if (file.size < 10)
 			{
-				return resolve(null);
+				return reject(new Error('GIF signature not found.'));
 			}
 
 			const blob = file.slice(0, 10);
@@ -24,7 +24,7 @@ export default class Gif
 
 					if (!compareBuffers(view, GIF87a, 0) && !compareBuffers(view, GIF89a, 0))
 					{
-						return resolve(null);
+						return reject(new Error('GIF signature not found.'));
 					}
 
 					resolve({
@@ -32,8 +32,8 @@ export default class Gif
 						height: view.getUint16(8, true),
 					});
 				})
-				.catch(() => {
-					resolve(null);
+				.catch(error => {
+					reject(error);
 				})
 			;
 		});

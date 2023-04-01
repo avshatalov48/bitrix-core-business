@@ -12,6 +12,7 @@ use Bitrix\Sender\Access\Role\RoleTable;
 use Bitrix\Sender\Access\Role\RoleUtil;
 use Bitrix\Sender\Access\SectionDictionary;
 use Bitrix\Sender\Integration\Bitrix24\Service;
+use Bitrix\Sender\Message\iBase;
 
 Loc::loadMessages(__FILE__);
 
@@ -236,13 +237,22 @@ class RolePermissionService implements RolePermissionServiceInterface
 			$rights = [];
 			foreach ($permissions as $permissionId)
 			{
-				if(
-					isset($adsAccessMap[$permissionId])
+				$messageCodeByPermission = $adsAccessMap[$permissionId] ?? null;
+				if (
+					$messageCodeByPermission !== null
 					&& !Service::isAdVisibleInRegion($adsAccessMap[$permissionId])
 				)
 				{
 					continue;
 				}
+				if (
+					$messageCodeByPermission === iBase::CODE_MASTER_YANDEX
+					&& !Service::isMasterYandexVisibleInRegion()
+				)
+				{
+					continue;
+				}
+
 				$rights[] = [
 					'id' => $permissionId,
 					'type' => PermissionDictionary::getType($permissionId),

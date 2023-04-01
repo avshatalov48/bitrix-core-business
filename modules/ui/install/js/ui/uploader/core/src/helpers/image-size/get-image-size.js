@@ -18,10 +18,10 @@ const typeHandlers = {
 	webp: new Webp()
 };
 
-const getImageSize = (file: File): Promise<?ImageSize> => {
+const getImageSize = (file: File): Promise<ImageSize> => {
 	if (file.size === 0)
 	{
-		return Promise.resolve(null);
+		return Promise.reject(new Error('Unknown image type.'));
 	}
 
 	const extension = getFileExtension(file.name).toLowerCase();
@@ -29,7 +29,7 @@ const getImageSize = (file: File): Promise<?ImageSize> => {
 	const typeHandler = typeHandlers[extension] || typeHandlers[type];
 	if (!typeHandler)
 	{
-		return Promise.resolve(null);
+		return Promise.reject(new Error('Unknown image type.'));
 	}
 
 	return typeHandler.getSize(file);

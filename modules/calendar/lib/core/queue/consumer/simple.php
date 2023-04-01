@@ -16,7 +16,7 @@ class Simple implements Interfaces\Consumer
 	private Interfaces\Queue $queue;
 
 	private ?HandledMessageMapper $handledMessageMapper = null;
-
+	protected Core\Base\Map $handledMessageMap;
 	private int $packSize = 100;
 
 	public function __construct(Interfaces\Queue $queue)
@@ -38,19 +38,8 @@ class Simple implements Interfaces\Consumer
 	 */
 	public function receive(): ?Interfaces\Message
 	{
-		static $handledMessageMap = null;
-		if ($handledMessageMap === null)
-		{
-			$handledMessageMap = $this->getHandledMessageMapper()->getMap(
-				[
-					'QUEUE_ID' => $this->getQueue()->getQueueId(),
-				],
-				$this->getPackSize(),
-				[
-					'DATE_CREATE' => 'ASC'
-				],
-			);
-		}
+		$handledMessageMap = $this->getHandledMessageMap();
+
 		/** @var HandledMessage $row */
 		if ($row = $handledMessageMap->fetch())
 		{
@@ -85,6 +74,30 @@ class Simple implements Interfaces\Consumer
 
 			$this->onAfterReject($message);
 		}
+	}
+
+	/**
+	 * @return Core\Base\Map
+	 *
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	private function getHandledMessageMap(): Core\Base\Map
+	{
+		if (empty($this->handledMessageMap))
+		{
+			$this->handledMessageMap = $this->getHandledMessageMapper()->getMap(
+				[
+					'QUEUE_ID' => $this->getQueue()->getQueueId(),
+				],
+				$this->getPackSize(),
+				[
+					'DATE_CREATE' => 'ASC'
+				],
+			);
+		}
+
+		return $this->handledMessageMap;
 	}
 
 	/**

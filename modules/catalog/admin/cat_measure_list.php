@@ -165,7 +165,7 @@ $lAdmin->AddHeaders(array(
 	),
 	array(
 		"id" => "CODE",
-		"content" => GetMessage("CAT_MEASURE_CODE"),
+		"content" => GetMessage("CAT_MEASURE_CODE_MSGVER_1"),
 		"sort" => "CODE",
 		"default" => true
 	),

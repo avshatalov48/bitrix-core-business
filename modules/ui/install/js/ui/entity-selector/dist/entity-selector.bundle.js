@@ -634,7 +634,9 @@ this.BX.UI = this.BX.UI || {};
 	      this.avatarOptions = {
 	        bgSize: null,
 	        bgColor: null,
-	        bgImage: null
+	        bgImage: null,
+	        border: null,
+	        borderRadius: null
 	      };
 	      this.textColor = '';
 	      this.link = '';
@@ -1148,7 +1150,7 @@ this.BX.UI = this.BX.UI || {};
 	        if (main_core.Type.isStringFilled(bgImage)) {
 	          this.getAvatarContainer().style.backgroundImage = bgImage;
 	        } else {
-	          this.getAvatarContainer().style.removeProperty('background-size');
+	          this.getAvatarContainer().style.removeProperty('background-image');
 	        }
 	      }
 
@@ -1166,6 +1168,22 @@ this.BX.UI = this.BX.UI || {};
 	        this.getAvatarContainer().style.backgroundSize = bgSize;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('background-size');
+	      }
+
+	      var border = this.getAvatarOption('border');
+
+	      if (main_core.Type.isStringFilled(border)) {
+	        this.getAvatarContainer().style.border = border;
+	      } else {
+	        this.getAvatarContainer().style.removeProperty('border');
+	      }
+
+	      var borderRadius = this.getAvatarOption('borderRadius');
+
+	      if (main_core.Type.isStringFilled(borderRadius)) {
+	        this.getAvatarContainer().style.borderRadius = borderRadius;
+	      } else {
+	        this.getAvatarContainer().style.removeProperty('border-radius');
 	      }
 
 	      main_core.Dom.clean(this.getBadgeContainer());
@@ -4803,8 +4821,12 @@ this.BX.UI = this.BX.UI || {};
 
 	      var bgColor = this.getAvatarOption('bgColor');
 	      var bgSize = this.getAvatarOption('bgSize');
+	      var border = this.getAvatarOption('border');
+	      var borderRadius = this.getAvatarOption('borderRadius');
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
+	      main_core.Dom.style(this.getAvatarContainer(), 'border', border);
+	      main_core.Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
 	      var hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
 
 	      if (hasAvatar) {

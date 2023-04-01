@@ -128,40 +128,17 @@
 				.then(function() {
 					if (value.url)
 					{
-						let isNeedSetPseudoLink = false;
-						if (!(value.url.href === '#' && value.url.target === ''))
+						const url = this.preparePseudoUrl(value.url);
+						if (url !== null)
 						{
-							isNeedSetPseudoLink = true;
-						}
-						if (value.url.href === 'selectActions:')
-						{
-							value.url.href = '';
-							value.url.enabled = false;
-							isNeedSetPseudoLink = true;
-						}
-						if (value.url.href.startsWith('product:'))
-						{
-							value.url.target = '_self';
-							isNeedSetPseudoLink = true;
-						}
-						if (isNeedSetPseudoLink)
-						{
-							attr(this.node, "data-pseudo-url", value.url);
+							attr(this.node, "data-pseudo-url", url);
 						}
 					}
-					this.onChange();
+					this.onChange(preventHistory);
 
 					if (!preventHistory)
 					{
-						BX.Landing.History.getInstance().push(
-							new BX.Landing.History.Entry({
-								block: this.getBlock().id,
-								selector: this.selector,
-								command: "editIcon",
-								undo: this.lastValue,
-								redo: this.getValue()
-							})
-						);
+						BX.Landing.History.getInstance().push();
 					}
 
 					this.lastValue = this.getValue();

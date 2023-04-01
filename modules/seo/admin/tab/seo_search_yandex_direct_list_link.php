@@ -49,7 +49,6 @@ if (
 	margin-top: 2px;
 }
 </style>
-
 <div id="adv_links_list" class="adv-links-list">
 	<b><?= Loc::getMessage('SEO_YANDEX_DIRECT_BANNER_LINKS') ?></b>
 	<?php foreach($arBanners as $campaignId => $campaignBanners): ?>

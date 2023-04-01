@@ -18,7 +18,7 @@ abstract class ValueCollection implements \ArrayAccess
 
 	public function offsetExists($offset)
 	{
-		return array_key_exists($offset, $this->document);
+		return isset($this->document[$offset]);
 	}
 
 	public function offsetSet($offset, $value)

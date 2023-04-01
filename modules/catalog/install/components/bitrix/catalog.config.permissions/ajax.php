@@ -68,9 +68,9 @@ class CatalogConfigPermissionsAjaxController extends \Bitrix\Main\Engine\Control
 
 	/**
 	 *
-	 * @return array
+	 * @return null | array
 	 */
-	public function loadAction(): array
+	public function loadAction(): ?array
 	{
 		if (!AccessController::can(CurrentUser::get()->getId(), ActionDictionary::ACTION_CATALOG_RIGHTS_EDIT))
 		{

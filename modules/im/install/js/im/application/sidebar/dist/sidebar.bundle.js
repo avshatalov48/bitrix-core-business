@@ -4,12 +4,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	/**
 	 * @notice Do not mutate or clone this component! It is under development.
 	 */
-
 	ui_vue.BitrixVue.component('bx-im-component-sidebar', {
 	  data: function data() {
 	    return {};
@@ -62,9 +61,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 */
 	var SidebarApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
+
 	  function SidebarApplication() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, SidebarApplication);
 	    this.inited = false;
@@ -83,12 +82,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return _this.initComplete();
 	    });
 	  }
-
 	  babelHelpers.createClass(SidebarApplication, [{
 	    key: "initCore",
 	    value: function initCore() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        im_application_core.Core.ready().then(function (controller) {
 	          _this2.controller = controller;
@@ -107,7 +104,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initComponent",
 	    value: function initComponent() {
 	      var _this3 = this;
-
 	      return this.controller.createVue(this, {
 	        el: this.rootNode,
 	        template: "<bx-im-component-sidebar/>"
@@ -142,13 +138,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        promise.resolve(this);
 	        return promise;
 	      }
-
 	      return this.initPromise;
 	    }
 	    /* endregion 01. Initialize */
-
 	    /* region 02. Event Bus */
-
 	  }, {
 	    key: "emit",
 	    value: function emit(eventName) {
@@ -162,12 +155,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof callback !== 'function') {
 	        return false;
 	      }
-
 	      this.eventBus.$on(eventName, callback);
 	      return true;
-	    }
-	    /* endregion 02. Event Bus */
-
+	    } /* endregion 02. Event Bus */
 	  }]);
 	  return SidebarApplication;
 	}();

@@ -90,7 +90,6 @@ $cardParameters = [
 	'tabContainerId' => $tabContainerId,
 	'tabMenuContainerId' => $tabMenuContainerId,
 	'creationPropertyUrl' => $arResult['UI_CREATION_PROPERTY_URL'],
-	'serviceUrl' => $arResult['SERVICE_URL'],
 	'variationGridId' => $arResult['VARIATION_GRID_ID'],
 	'productStoreGridId' => $arResult['STORE_AMOUNT_GRID_ID'],
 	'creationVariationPropertyUrl' => $arResult['UI_CREATION_SKU_PROPERTY_URL'],

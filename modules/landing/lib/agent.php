@@ -427,10 +427,6 @@ class Agent
 		$request->query(HttpClient::HTTP_HEAD, $file['SRC']);
 		if ($request->getStatus() !== 200)
 		{
-			\Bitrix\Landing\Debug::logToFile(
-				"[lndgdbg] AGENT check file {$fileId} with ORIG_NAME {$file['ORIGINAL_NAME']} and it not exists"
-			);
-
 			$filesToDelete = [$fileId];
 
 			// find duplicates of file

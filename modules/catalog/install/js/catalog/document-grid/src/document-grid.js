@@ -31,6 +31,7 @@ export class DocumentGridManager
 					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
+						button.setDisabled();
 						ajax.runAction(
 							'catalog.document.deleteList',
 							{
@@ -100,6 +101,7 @@ export class DocumentGridManager
 					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
+						button.setDisabled();
 						ajax.runAction(
 							'catalog.document.conductList',
 							actionConfig
@@ -162,6 +164,7 @@ export class DocumentGridManager
 					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
+						button.setDisabled();
 						ajax.runAction(
 							'catalog.document.cancelList',
 							actionConfig

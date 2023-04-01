@@ -62,7 +62,7 @@ class TileView
 	 *
 	 * @return $this
 	 */
-	public function addTile($id = null, $name, $data = [], $bgColor = null, $color = null)
+	public function addTile($id, $name, $data = [], $bgColor = null, $color = null)
 	{
 		$this->tiles[] = $this->getTile($id, $name, $data, $bgColor, $color);
 		return $this;
@@ -79,7 +79,7 @@ class TileView
 	 *
 	 * @return array
 	 */
-	public function getTile($id = null, $name, $data = [], $bgColor = null, $color = null)
+	public function getTile($id, $name, $data = [], $bgColor = null, $color = null)
 	{
 		return [
 			'id' => $id,

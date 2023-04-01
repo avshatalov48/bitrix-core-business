@@ -549,12 +549,17 @@ class EntityCard extends BaseCard
 
 	getSettingItem(item)
 	{
-		const input = Tag.render`
-			<input type="checkbox">
-		`;
-		input.checked = item.checked;
-		input.disabled = item.disabled ?? false;
-		input.dataset.settingId = item.id;
+		let input = '';
+		if (!item.disabledCheckbox)
+		{
+			input = Tag.render`
+				<input type="checkbox">
+			`;
+
+			input.checked = item.checked;
+			input.disabled = item.disabled ?? false;
+			input.dataset.settingId = item.id;
+		}
 
 		const hintNode = (
 			Type.isStringFilled(item.hint)
@@ -582,6 +587,20 @@ class EntityCard extends BaseCard
 				.then(() => {
 					this.reloadGrid();
 					this.getCardSettingsPopup().close();
+				});
+			})
+		}
+		else if(item.id === 'SEO')
+		{
+			Event.bind(setting, 'click', (event) =>
+			{
+				BX.SidePanel.Instance.open(item.url, {
+					cacheable: false,
+					allowChangeHistory: false,
+					data: {
+						'ELEMENT_ID': this.entityId
+					},
+					width: 1000
 				});
 			})
 		}

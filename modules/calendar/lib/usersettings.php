@@ -72,7 +72,7 @@ class UserSettings
 		}
 	}
 
-	public static function get($userId = false)
+	public static function get($userId = null)
 	{
 		if (!$userId)
 		{
@@ -286,7 +286,7 @@ class UserSettings
 		$res = [];
 		if (class_exists('CUserOptions') && $userId > 0)
 		{
-			$optionName = $options['isPersonalCalendarContext'] ? 'hidden_sections' : 'hidden_sections_'.$options['type'];
+			$optionName = ($options['isPersonalCalendarContext'] ?? null) ? 'hidden_sections' : 'hidden_sections_'.$options['type'];
 			$res = \CUserOptions::getOption('calendar', $optionName, false, $userId);
 
 			if (is_array($res) && isset($res[$optionName]))
@@ -294,7 +294,7 @@ class UserSettings
 				$res = explode(',', $res[$optionName]);
 			}
 
-			if ($res === false && is_array($options['defaultHiddenSections']))
+			if ($res === false && isset($options['defaultHiddenSections']) && is_array($options['defaultHiddenSections']))
 			{
 				$res = $options['defaultHiddenSections'];
 			}

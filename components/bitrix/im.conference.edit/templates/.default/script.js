@@ -2,7 +2,6 @@
 	'use strict';
 
 	var namespace = main_core.Reflection.namespace('BX.Messenger.PhpComponent');
-
 	var ConferenceEdit = /*#__PURE__*/function () {
 	  function ConferenceEdit(params) {
 	    babelHelpers.classCallCheck(this, ConferenceEdit);
@@ -12,11 +11,9 @@
 	    this.fieldsData = params.fieldsData;
 	    this.mode = params.mode;
 	    this.chatHost = params.chatHost;
-
 	    if (main_core.Type.isPlainObject(params.chatUsers)) {
 	      params.chatUsers = Object.values(params.chatUsers);
 	    }
-
 	    this.chatUsers = params.chatUsers;
 	    this.presenters = params.presenters;
 	    this.publicLink = params.publicLink;
@@ -26,7 +23,6 @@
 	    this.formContainer = document.getElementById("im-conference-create-fields");
 	    this.init();
 	  }
-
 	  babelHelpers.createClass(ConferenceEdit, [{
 	    key: "init",
 	    value: function init() {
@@ -36,7 +32,6 @@
 	    key: "initComponent",
 	    value: function initComponent() {
 	      var _this = this;
-
 	      ui_vue.Vue.create({
 	        el: this.formContainer,
 	        data: function data() {
@@ -61,7 +56,6 @@
 	  }]);
 	  return ConferenceEdit;
 	}();
-
 	namespace.ConferenceEdit = ConferenceEdit;
 
 }((this.window = this.window || {}),BX,BX));

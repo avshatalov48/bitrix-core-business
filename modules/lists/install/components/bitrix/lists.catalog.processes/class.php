@@ -56,30 +56,54 @@ class ListsCatalogProcessesComponent extends CBitrixComponent
 
 	protected function loadDataProcesses()
 	{
-		$this->arResult['SYSTEM_PROCESSES'] = array();
-		$this->arResult['USER_PROCESSES'] = array();
+		$this->arResult['SYSTEM_PROCESSES'] = [];
+		$this->arResult['USER_PROCESSES'] = [];
+
 		try
 		{
-			$defaultLang = "en";
-			if(IsModuleInstalled("bitrix24"))
+			$region = 'en';
+			if (IsModuleInstalled('bitrix24'))
 			{
-				$gr = COption::GetOptionString("main", "~controller_group_name", "");
-				if($gr != "")
-					$defaultLang = mb_substr($gr, 0, 2);
-				if($defaultLang == "ua")
-					$defaultLang = "ru";
+				$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+				if ($region == 'ua')
+				{
+					$region = 'ru';
+				}
+
+				if ($region === 'cn')
+				{
+					$queryObject = \CLanguage::getList('sort', 'asc', ['ACTIVE' => 'Y']);
+					while ($lang = $queryObject->fetch())
+					{
+						if ($lang['DEF'] === 'Y')
+						{
+							$region = $lang['LID'];
+						}
+					}
+				}
 			}
 			else
 			{
 				$defaultSiteId = CSite::GetDefSite();
 				$siteObject = CSite::GetByID($defaultSiteId);
 				$site = $siteObject->fetch();
-				$defaultLang = $site ? $site['LANGUAGE_ID'] : "en";
-				if($defaultLang == "ua")
-					$defaultLang = "ru";
+				$region = $site ? $site['LANGUAGE_ID'] : 'en';
+				if ($region == 'ua')
+				{
+					$region = 'ru';
+				}
 			}
-			\Bitrix\Lists\Importer::loadDataProcesses($defaultLang, true, $this->arResult['SYSTEM_PROCESSES']);
-			\Bitrix\Lists\Importer::loadDataProcesses($defaultLang, false, $this->arResult['USER_PROCESSES']);
+
+			\Bitrix\Lists\Importer::loadDataProcesses(
+				$region,
+				true,
+				$this->arResult['SYSTEM_PROCESSES']
+			);
+			\Bitrix\Lists\Importer::loadDataProcesses(
+				$region,
+				false,
+				$this->arResult['USER_PROCESSES']
+			);
 
 			$this->checkForIblock($this->arResult['SYSTEM_PROCESSES']);
 			$this->checkForIblock($this->arResult['USER_PROCESSES']);
@@ -89,7 +113,10 @@ class ListsCatalogProcessesComponent extends CBitrixComponent
 			$this->errors[] =  $e->getMessage();
 		}
 
-		if(empty($this->arResult['SYSTEM_PROCESSES']) && empty($this->arResult['USER_PROCESSES']))
+		if(
+			empty($this->arResult['SYSTEM_PROCESSES'])
+			&& empty($this->arResult['USER_PROCESSES'])
+		)
 		{
 			$this->errors[] = Loc::getMessage('CC_LCP_NOT_PROCESSES');
 		}

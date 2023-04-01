@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
+use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Dictionary;
@@ -24,6 +25,7 @@ use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
 use DateTime;
 use DateTimeZone;
@@ -56,11 +58,12 @@ class IncomingManager extends AbstractManager implements IncomingSectionManagerI
 	 * @throws ApiException
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws BaseException
 	 * @throws NotFoundException
 	 * @throws RemoteAccountException
-	 * @throws AuthException
-	 * @throws Core\Base\BaseException
+	 * @throws LoaderException
 	 */
     public function getSections(): Result
     {

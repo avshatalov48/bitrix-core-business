@@ -5,7 +5,7 @@ const {scrollTo, highlight} = BX.Landing.Utils;
  * @param {object} entry
  * @return {Promise}
  */
-export default function removeCard(state, entry)
+export default function removeCard(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {
@@ -17,7 +17,8 @@ export default function removeCard(state, entry)
 				return Promise.reject();
 			}
 
-			const card = block.cards.getBySelector(entry.selector);
+			const relativeSelector = entry.params.selector + '@' + (entry.params.position + 1);
+			const card = block.cards.getBySelector(relativeSelector);
 
 			if (!card)
 			{
@@ -27,7 +28,7 @@ export default function removeCard(state, entry)
 			return scrollTo(card.node)
 				.then(highlight.bind(null, card.node))
 				.then(() => {
-					return block.removeCard(entry.selector, true);
+					return block.removeCard(relativeSelector, true);
 				});
 		});
 }

@@ -8,7 +8,7 @@ use Bitrix\Main\Localization\Loc;
 
 class DocumentLib extends BaseLib
 {
-	function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return [
 			'getdocumenturl' => [
@@ -25,7 +25,7 @@ class DocumentLib extends BaseLib
 		$external = $args->getSecond();
 		$activity = $args->getParser()->getActivity();
 
-		$url = $activity->workflow->getService('DocumentService')->getDocumentAdminPage(
+		$url = $activity->workflow->getRuntime()->getDocumentService()->getDocumentAdminPage(
 			$activity->getDocumentId()
 		);
 		$name = null;

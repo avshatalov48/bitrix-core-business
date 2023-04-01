@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
-(function (exports) {
+(function (exports,calendar_util) {
 	'use strict';
 
 	/**
@@ -238,19 +238,11 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	  }
 
 	  doMagnetize() {
-	    return !this.isAnyModifierKeyPressed() && !this.isUserTryingToTurnOffMagnet();
+	    return !calendar_util.Util.isAnyModifierKeyPressed() && !this.isUserTryingToTurnOffMagnet();
 	  }
 
 	  isUserTryingToTurnOffMagnet() {
 	    return this.tryDuration > this.maxTryDuration;
-	  }
-
-	  isAnyModifierKeyPressed() {
-	    if (window.event) {
-	      return window.event.altKey || window.event.shiftKey || window.event.ctrlKey || window.event.metaKey;
-	    }
-
-	    return true;
 	  }
 
 	}
@@ -310,5 +302,5 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	exports.EventDragAndDrop = EventDragAndDrop;
 	exports.ResizeDragAndDrop = ResizeDragAndDrop;
 
-}((this.BX.Calendar.Ui.Tools = this.BX.Calendar.Ui.Tools || {})));
+}((this.BX.Calendar.Ui.Tools = this.BX.Calendar.Ui.Tools || {}),BX.Calendar));
 //# sourceMappingURL=draganddrop.bundle.js.map

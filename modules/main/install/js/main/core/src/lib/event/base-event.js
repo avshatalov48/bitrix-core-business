@@ -3,7 +3,7 @@ import BaseError from "../base-error";
 /**
  * Implements base event object interface
  */
-export default class BaseEvent
+export default class BaseEvent<DataType: any>
 {
 	constructor(
 		options: {
@@ -57,7 +57,7 @@ export default class BaseEvent
 	/**
 	 * Returns an event data
 	 */
-	getData()
+	getData(): DataType
 	{
 		return this.data;
 	}

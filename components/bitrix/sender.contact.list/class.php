@@ -234,12 +234,12 @@ class SenderContactListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		}
 
 
-		if ($this->arParams['LIST_ID'])
+		if ($this->arParams['LIST_ID'] ?? false)
 		{
 			$filter['=CONTACT_LIST.LIST_ID'] = $this->arParams['LIST_ID'];
 		}
 
-		if ($requestFilter['SET_ID'])
+		if ($requestFilter['SET_ID'] ?? false)
 		{
 			$filter['=CONTACT_LIST.LIST_ID'] = $requestFilter['SET_ID'];
 		}

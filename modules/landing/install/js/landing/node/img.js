@@ -198,7 +198,7 @@
 		else
 		{
 			node.node.src = value.src;
-			node.node.alt = value.alt;
+			node.node.alt = value.alt || '';
 			node.node.dataset.fileid = value.id || -1;
 			node.node.srcset = value.src2x ? value.src2x + " 2x" : "";
 			node.node.dataset.fileid2x = value.id2x || -1;
@@ -446,41 +446,18 @@
 
 			if (value.url)
 			{
-				let isNeedSetPseudoLink = false;
-				if (!(value.url.href === '#' && value.url.target === ''))
+				const url = this.preparePseudoUrl(value.url);
+				if (url !== null)
 				{
-					isNeedSetPseudoLink = true;
-				}
-				if (value.url.href === 'selectActions:')
-				{
-					value.url.href = '';
-					value.url.enabled = false;
-					isNeedSetPseudoLink = true;
-				}
-				if (value.url.href.startsWith('product:'))
-				{
-					value.url.target = '_self';
-					isNeedSetPseudoLink = true;
-				}
-				if (isNeedSetPseudoLink)
-				{
-					attr(this.node, "data-pseudo-url", value.url);
+					attr(this.node, "data-pseudo-url", url);
 				}
 			}
 
-			this.onChange();
+			this.onChange(preventHistory);
 
 			if (!preventHistory)
 			{
-				BX.Landing.History.getInstance().push(
-					new BX.Landing.History.Entry({
-						block: this.getBlock().id,
-						selector: this.selector,
-						command: "editImage",
-						undo: this.lastValue,
-						redo: this.getValue()
-					})
-				);
+				BX.Landing.History.getInstance().push();
 			}
 
 			this.lastValue = this.getValue();
@@ -492,25 +469,41 @@
 		 */
 		getValue: function()
 		{
-			var value = {type: "", src: "", src2x: "", id: -1, id2x: -1, alt: "", url: ""};
+			const value = {type: "", src: "", alt: "", url: ""};
+
+			const fileId = getFileId(this);
+			if (fileId > 0)
+			{
+				value.id = fileId;
+			}
+
+			const fileId2x = getFileId2x(this);
+			if (fileId2x > 0)
+			{
+				value.id2x = fileId2x;
+			}
 
 			if (isBackground(this))
 			{
 				value.type = "background";
 				value.src = getBackgroundUrl(this);
-				value.src2x = getBackgroundUrl2x(this);
-				value.id = getFileId(this);
-				value.id2x = getFileId2x(this);
+				const src2x = getBackgroundUrl2x(this);
+				if (src2x)
+				{
+					value.src2x = src2x;
+				}
 			}
 
 			if (isImage(this))
 			{
 				value.type = "image";
-				value.src = getImageSrc(this);
-				value.src2x = getImageSrc2x(this);
-				value.id = getFileId(this);
-				value.id2x = getFileId2x(this);
 				value.alt = getAlt(this);
+				value.src = getImageSrc(this);
+				const src2x = getImageSrc2x(this);
+				if (src2x)
+				{
+					value.src2x = src2x;
+				}
 			}
 
 			value.url = (

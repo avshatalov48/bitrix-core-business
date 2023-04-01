@@ -83,6 +83,17 @@ class CatalogSectionComponent extends ElementList
 			CJSCore::Init(array('popup'));
 		}
 
+		$params['HIDE_SECTION_DESCRIPTION'] = (string)($params['HIDE_SECTION_DESCRIPTION'] ?? 'N');
+		if ($params['HIDE_SECTION_DESCRIPTION'] !== 'Y')
+		{
+			$params['HIDE_SECTION_DESCRIPTION'] = 'N';
+		}
+
+		$params['META_KEYWORDS'] = (string)($params['META_KEYWORDS'] ?? '');
+		$params['META_DESCRIPTION'] = (string)($params['META_DESCRIPTION'] ?? '');
+		$params['BROWSER_TITLE'] = (string)($params['BROWSER_TITLE'] ?? '');
+		$params['BACKGROUND_IMAGE'] = (string)($params['BACKGROUND_IMAGE'] ?? '');
+
 		return $params;
 	}
 
@@ -100,35 +111,38 @@ class CatalogSectionComponent extends ElementList
 		$success = true;
 		$selectFields = array();
 
-		if (!empty($this->arParams['SECTION_USER_FIELDS']) && is_array($this->arParams['SECTION_USER_FIELDS']))
+		if ($this->arParams['IBLOCK_ID'] > 0)
 		{
-			foreach ($this->arParams['SECTION_USER_FIELDS'] as $field)
+			if (!empty($this->arParams['SECTION_USER_FIELDS']) && is_array($this->arParams['SECTION_USER_FIELDS']))
 			{
-				if (is_string($field) && preg_match('/^UF_/', $field))
+				foreach ($this->arParams['SECTION_USER_FIELDS'] as $field)
 				{
-					$selectFields[] = $field;
+					if (is_string($field) && preg_match('/^UF_/', $field))
+					{
+						$selectFields[] = $field;
+					}
 				}
 			}
-		}
 
-		if (preg_match('/^UF_/', $this->arParams['META_KEYWORDS']))
-		{
-			$selectFields[] = $this->arParams['META_KEYWORDS'];
-		}
+			if (preg_match('/^UF_/', $this->arParams['META_KEYWORDS']))
+			{
+				$selectFields[] = $this->arParams['META_KEYWORDS'];
+			}
 
-		if (preg_match('/^UF_/', $this->arParams['META_DESCRIPTION']))
-		{
-			$selectFields[] = $this->arParams['META_DESCRIPTION'];
-		}
+			if (preg_match('/^UF_/', $this->arParams['META_DESCRIPTION']))
+			{
+				$selectFields[] = $this->arParams['META_DESCRIPTION'];
+			}
 
-		if (preg_match('/^UF_/', $this->arParams['BROWSER_TITLE']))
-		{
-			$selectFields[] = $this->arParams['BROWSER_TITLE'];
-		}
+			if (preg_match('/^UF_/', $this->arParams['BROWSER_TITLE']))
+			{
+				$selectFields[] = $this->arParams['BROWSER_TITLE'];
+			}
 
-		if (preg_match('/^UF_/', $this->arParams['BACKGROUND_IMAGE']))
-		{
-			$selectFields[] = $this->arParams['BACKGROUND_IMAGE'];
+			if (preg_match('/^UF_/', $this->arParams['BACKGROUND_IMAGE']))
+			{
+				$selectFields[] = $this->arParams['BACKGROUND_IMAGE'];
+			}
 		}
 
 		$filterFields = array(

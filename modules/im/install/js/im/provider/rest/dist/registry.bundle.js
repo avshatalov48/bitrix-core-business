@@ -20,20 +20,16 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      return new this(params);
 	    }
 	  }]);
-
 	  function BaseRestHandler() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, BaseRestHandler);
-
 	    if (babelHelpers["typeof"](params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
 	    }
-
 	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 	  }
-
 	  babelHelpers.createClass(BaseRestHandler, [{
 	    key: "execute",
 	    value: function execute(command, result) {
@@ -41,7 +37,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      command = 'handle' + command.split('.').map(function (element) {
 	        return element.charAt(0).toUpperCase() + element.slice(1);
 	      }).join('');
-
 	      if (result.error()) {
 	        if (typeof this[command + 'Error'] === 'function') {
 	          return this[command + 'Error'](result.error(), extra);
@@ -51,7 +46,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          return this[command + 'Success'](result.data(), extra);
 	        }
 	      }
-
 	      return typeof this[command] === 'function' ? this[command](result, extra) : null;
 	    }
 	  }]);
@@ -59,17 +53,13 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	}();
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var CoreRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
 	  babelHelpers.inherits(CoreRestHandler, _BaseRestHandler);
-
 	  function CoreRestHandler() {
 	    babelHelpers.classCallCheck(this, CoreRestHandler);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CoreRestHandler).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(CoreRestHandler, [{
 	    key: "handleImUserListGetSuccess",
 	    value: function handleImUserListGetSuccess(data) {
@@ -89,14 +79,15 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImDialogMessagesGetSuccess",
 	    value: function handleImDialogMessagesGetSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/setBefore', this.controller.application.prepareFilesBeforeSave(data.files)); // this.store.dispatch('messages/setBefore', data.messages);
+	      this.store.dispatch('files/setBefore', this.controller.application.prepareFilesBeforeSave(data.files));
+	      // this.store.dispatch('messages/setBefore', data.messages);
 	    }
 	  }, {
 	    key: "handleImDialogMessagesGetInitSuccess",
 	    value: function handleImDialogMessagesGetInitSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files)); //handling messagesSet for empty chat
-
+	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
+	      //handling messagesSet for empty chat
 	      if (data.messages.length === 0 && data.chat_id) {
 	        im_lib_logger.Logger.warn('setting messagesSet for empty chat', data.chat_id);
 	        setTimeout(function () {
@@ -112,7 +103,8 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImDialogMessagesGetUnreadSuccess",
 	    value: function handleImDialogMessagesGetUnreadSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files)); // this.store.dispatch('messages/setAfter', data.messages);
+	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
+	      // this.store.dispatch('messages/setAfter', data.messages);
 	    }
 	  }, {
 	    key: "handleImDiskFolderGetSuccess",
@@ -127,7 +119,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImMessageAddSuccess",
 	    value: function handleImMessageAddSuccess(messageId, message) {
 	      var _this = this;
-
 	      this.store.dispatch('messages/update', {
 	        id: message.id,
 	        chatId: message.chatId,
@@ -155,7 +146,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImDiskFileCommitSuccess",
 	    value: function handleImDiskFileCommitSuccess(result, message) {
 	      var _this2 = this;
-
 	      this.store.dispatch('messages/update', {
 	        id: message.id,
 	        chatId: message.chatId,
@@ -198,12 +188,10 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      result.items.forEach(function (item) {
 	        var userId = 0;
 	        var chatId = 0;
-
 	        if (item.user && item.user.id > 0) {
 	          userId = item.user.id;
 	          users.push(item.user);
 	        }
-
 	        if (item.chat) {
 	          chatId = item.chat.id;
 	          dialogues.push(Object.assign(item.chat, {
@@ -214,7 +202,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            dialogId: item.id
 	          }));
 	        }
-
 	        recent.push(_objectSpread(_objectSpread({}, item), {}, {
 	          avatar: item.avatar.url,
 	          color: item.avatar.color,
@@ -240,16 +227,13 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 */
 	var DialogRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
 	  babelHelpers.inherits(DialogRestHandler, _BaseRestHandler);
-
 	  function DialogRestHandler(params) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DialogRestHandler);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DialogRestHandler).call(this, params));
 	    _this.application = params.application;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DialogRestHandler, [{
 	    key: "handleImChatGetSuccess",
 	    value: function handleImChatGetSuccess(data) {
@@ -275,25 +259,30 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImChatGetError",
 	    value: function handleImChatGetError(error) {
 	      if (error.ex.error === 'ACCESS_ERROR') {
-	        im_lib_logger.Logger.error('MobileRestAnswerHandler.handleImChatGetError: ACCESS_ERROR'); //	app.closeController();
+	        im_lib_logger.Logger.error('MobileRestAnswerHandler.handleImChatGetError: ACCESS_ERROR');
+	        //	app.closeController();
 	      }
 	    }
 	  }, {
 	    key: "handleImDialogMessagesGetInitSuccess",
-	    value: function handleImDialogMessagesGetInitSuccess(data) {// EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId: this.controller.application.getChatId()});
+	    value: function handleImDialogMessagesGetInitSuccess(data) {
+	      // EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId: this.controller.application.getChatId()});
 	    }
 	  }, {
 	    key: "handleImMessageAddSuccess",
 	    value: function handleImMessageAddSuccess(messageId, message) {
-	      console.warn('im.message.add success in dialog handler'); // this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+	      console.warn('im.message.add success in dialog handler');
+	      // this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }, {
 	    key: "handleImMessageAddError",
-	    value: function handleImMessageAddError(error, message) {// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+	    value: function handleImMessageAddError(error, message) {
+	      // this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }, {
 	    key: "handleImDiskFileCommitSuccess",
-	    value: function handleImDiskFileCommitSuccess(result, message) {// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+	    value: function handleImDiskFileCommitSuccess(result, message) {
+	      // this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }]);
 	  return DialogRestHandler;

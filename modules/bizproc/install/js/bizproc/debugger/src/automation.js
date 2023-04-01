@@ -34,6 +34,9 @@ export default class Automation extends EventEmitter
 
 	#customActionPanel: CustomCrmActionPanel = null;
 
+	#globalVariables: [] = [];
+	#globalConstants: [] = [];
+
 	constructor(parameters = {})
 	{
 		super();
@@ -381,6 +384,9 @@ export default class Automation extends EventEmitter
 					this.#workflowTrack = response.data.track;
 					this.#debuggerState = response.data.debuggerState;
 
+					this.#globalVariables = response.data.globalVariables;
+					this.#globalConstants = response.data.globalConstants;
+
 					getGlobalContext().document
 						.setFields(this.getDocumentFields())
 						.setStatusList(this.getStatusList())
@@ -392,6 +398,16 @@ export default class Automation extends EventEmitter
 				this.#handleRejectResponse.bind(this)
 			);
 		});
+	}
+
+	get globalConstants()
+	{
+		return this.#globalConstants;
+	}
+
+	get globalVariables()
+	{
+		return this.#globalVariables;
 	}
 
 	loadAllLog(): Promise

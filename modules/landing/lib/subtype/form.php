@@ -157,7 +157,7 @@ class Form
 			$replace
 		);
 
-		return $replace;
+		return $replace ?? $content;
 	}
 
 	/**

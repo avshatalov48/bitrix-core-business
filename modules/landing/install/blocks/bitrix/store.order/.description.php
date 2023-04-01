@@ -6,22 +6,25 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_STORE.ORDER_NAME'),
-		'section' => array('store'),
+		'section' => ['store'],
 		'type' => 'null',
 		'html' => false,
 		'namespace' => 'bitrix',
-	),
-	'nodes' => array(
-		'bitrix:sale.order.ajax' => array(
+	],
+	'nodes' => [
+		'bitrix:sale.order.ajax' => [
 			'type' => 'component',
-			'extra' => array(
-				'editable' => array(
-					'SHOW_COUPONS' => array(),
-				),
-			),
-		),
-	),
-);
+			'extra' => [
+				'editable' => [
+					'SHOW_COUPONS' => [],
+				],
+			],
+		],
+	],
+	'assets' => [
+		'ext' => ['landing_jquery'],
+	],
+];

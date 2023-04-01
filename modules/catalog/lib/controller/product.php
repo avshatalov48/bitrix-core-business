@@ -185,11 +185,15 @@ class Product extends Controller implements EventBindInterface
 			$propertyFields = $this->preparePropertyFields($propertyFields);
 			$propertyIds = array_keys($propertyFields);
 			$list = self::perfGetList(array_merge($productFields, $elementFields), $filter, $order, self::getNavData($pageNavigation->getOffset()));
-			$this->attachPropertyValues($list, (int)$filter['IBLOCK_ID'], $propertyIds);
 
-			foreach ($list as $row)
+			if (!empty($list))
 			{
-				$result[] = $row;
+				$this->attachPropertyValues($list, (int)$filter['IBLOCK_ID'], $propertyIds);
+
+				foreach ($list as $row)
+				{
+					$result[] = $row;
+				}
 			}
 
 			return new Page($this->getServiceListName(), $result, function() use ($filter)

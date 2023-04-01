@@ -184,7 +184,7 @@ class UiButtonPanel extends CBitrixComponent
 			}
 		}
 
-		$this->arResult['STICKY_CONTAINER'] = $this->arParams['STICKY_CONTAINER'];
+		$this->arResult['STICKY_CONTAINER'] = $this->arParams['STICKY_CONTAINER'] ?? false;
 	}
 
 	/**

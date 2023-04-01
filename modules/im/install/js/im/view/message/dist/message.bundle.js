@@ -94,7 +94,6 @@
 	  beforeDestroy: function beforeDestroy() {
 	    clearTimeout(this.dragStartTimeout1);
 	    clearTimeout(this.dragStartTimeout2);
-
 	    if (this.dragBackAnimation) {
 	      im_lib_animation.Animation.cancel(this.dragBackAnimation);
 	    }
@@ -118,26 +117,21 @@
 	    },
 	    gestureMenu: function gestureMenu(eventName, event) {
 	      var _this = this;
-
 	      if (!this.enableGestureMenu) {
 	        return;
 	      }
-
 	      if (eventName === 'touchstart') {
 	        this.gestureMenuStarted = true;
 	        this.gestureMenuPreventTouchEnd = false;
-
 	        if (event.target.tagName === "A") {
 	          return false;
 	        }
-
 	        this.gestureMenuStartPosition = {
 	          x: event.changedTouches[0].clientX,
 	          y: event.changedTouches[0].clientY
 	        };
 	        this.gestureMenuTimeout = setTimeout(function () {
 	          _this.gestureMenuPreventTouchEnd = true;
-
 	          _this.clickByMessageMenu({
 	            message: _this.message,
 	            event: event
@@ -147,7 +141,6 @@
 	        if (!this.gestureMenuStarted) {
 	          return false;
 	        }
-
 	        if (Math.abs(this.gestureMenuStartPosition.x - event.changedTouches[0].clientX) >= 10 || Math.abs(this.gestureMenuStartPosition.y - event.changedTouches[0].clientY) >= 10) {
 	          this.gestureMenuStarted = false;
 	          clearTimeout(this.gestureMenuTimeout);
@@ -156,10 +149,8 @@
 	        if (!this.gestureMenuStarted) {
 	          return false;
 	        }
-
 	        this.gestureMenuStarted = false;
 	        clearTimeout(this.gestureMenuTimeout);
-
 	        if (this.gestureMenuPreventTouchEnd) {
 	          event.preventDefault();
 	        }
@@ -167,17 +158,13 @@
 	    },
 	    gestureQuote: function gestureQuote(eventName, event) {
 	      var _this2 = this;
-
 	      var target = im_lib_utils.Utils.browser.findParent(event.target, 'bx-im-message') || event.target;
-
 	      if (!this.enableGestureQuote || im_lib_utils.Utils.platform.isAndroid()) {
 	        return;
 	      }
-
 	      var fromRight = this.enableGestureQuoteFromRight;
 	      var layerX = target.getBoundingClientRect().left + event.layerX;
 	      var layerY = target.getBoundingClientRect().top + event.layerY;
-
 	      if (eventName === 'touchstart') {
 	        this.dragCheck = true;
 	        this.dragStartInitialX = target.getBoundingClientRect().left;
@@ -197,11 +184,9 @@
 	        }, 29);
 	        this.dragStartTimeout2 = setTimeout(function () {
 	          _this2.dragCheck = false;
-
 	          if (Math.abs(_this2.dragStartPositionY - _this2.dragMovePositionY) >= 10) {
 	            return;
 	          }
-
 	          if (_this2.dragMovePositionX === null) {
 	            return;
 	          } else if (fromRight && _this2.dragStartPositionX - _this2.dragMovePositionX < 9) {
@@ -209,54 +194,45 @@
 	          } else if (!fromRight && _this2.dragStartPositionX - _this2.dragMovePositionX > 9) {
 	            return;
 	          }
-
 	          im_lib_animation.Animation.cancel(_this2.dragBackAnimation);
 	          _this2.drag = true;
-
 	          _this2.$emit('dragMessage', {
 	            result: _this2.drag,
 	            event: event
 	          });
-
 	          _this2.dragWidth = _this2.$refs.body.offsetWidth;
 	        }, 80);
 	      } else if (eventName === 'touchmove') {
 	        if (this.drag || !this.dragCheck) {
 	          return false;
 	        }
-
 	        this.dragMovePositionX = layerX;
 	        this.dragMovePositionY = layerY;
 	      } else if (eventName === 'touchend') {
 	        clearTimeout(this.dragStartTimeout1);
 	        clearTimeout(this.dragStartTimeout2);
 	        this.dragCheck = false;
-
 	        if (!this.drag) {
 	          this.dragIconShowLeft = false;
 	          this.dragIconShowRight = false;
 	          return;
 	        }
-
 	        im_lib_animation.Animation.cancel(this.dragBackAnimation);
 	        this.drag = false;
 	        this.$emit('dragMessage', {
 	          result: this.drag,
 	          event: event
 	        });
-
 	        if (this.enableGestureQuoteFromRight && this.dragIconShowRight && this.dragPosition !== 0 || !this.enableGestureQuoteFromRight && this.dragIconShowLeft && this.dragPosition !== this.dragStartInitialX) {
 	          if (im_lib_utils.Utils.platform.isBitrixMobile()) {
 	            setTimeout(function () {
 	              return app.exec("callVibration");
 	            }, 200);
 	          }
-
 	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.quoteMessage, {
 	            message: this.message
 	          });
 	        }
-
 	        this.dragIconShowLeft = false;
 	        this.dragIconShowRight = false;
 	        this.dragBackAnimation = im_lib_animation.Animation.start({
@@ -280,22 +256,17 @@
 	      if (!this.drag || !event) {
 	        return;
 	      }
-
 	      var target = im_lib_utils.Utils.browser.findParent(event.target, 'bx-im-message') || event.target;
 	      var layerX = target.getBoundingClientRect().left + event.layerX;
-
 	      if (typeof this.dragLayerPosition === 'undefined') {
 	        this.dragLayerPosition = layerX;
 	      }
-
 	      var movementX = this.dragLayerPosition - layerX;
 	      this.dragLayerPosition = layerX;
 	      this.dragPosition = this.dragPosition - movementX;
-
 	      if (this.enableGestureQuoteFromRight) {
 	        var dragPositionMax = (this.showAvatar ? 30 : 0) + 45;
 	        var dragPositionIcon = this.showAvatar ? 30 : 30;
-
 	        if (this.dragPosition < -dragPositionMax) {
 	          this.dragPosition = -dragPositionMax;
 	        } else if (this.dragPosition < -dragPositionIcon) {
@@ -308,7 +279,6 @@
 	      } else {
 	        var _dragPositionMax = 60;
 	        var _dragPositionIcon = 40;
-
 	        if (this.dragPosition <= this.dragStartInitialX) {
 	          this.dragPosition = this.dragStartInitialX;
 	        } else if (this.dragPosition >= _dragPositionMax) {
@@ -345,11 +315,9 @@
 	      if (this.message.params.AVATAR) {
 	        return "url('".concat(this.message.params.AVATAR, "')");
 	      }
-
 	      if (this.userData.avatar) {
 	        return "url('".concat(this.userData.avatar, "')");
 	      }
-
 	      return '';
 	    },
 	    filesData: function filesData() {

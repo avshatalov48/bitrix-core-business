@@ -15,6 +15,7 @@ return [
 		'calendar.controls',
 		'calendar.entry',
 		'calendar.sectionmanager',
+		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
 ];

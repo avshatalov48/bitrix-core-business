@@ -26,8 +26,9 @@ $IBLOCK_ID = is_array($arParams["~IBLOCK_ID"])? 0: intval($arParams["~IBLOCK_ID"
 $ELEMENT_ID = is_array($arParams["~ELEMENT_ID"])? 0: intval($arParams["~ELEMENT_ID"]);
 $SECTION_ID = is_array($arParams["~SECTION_ID"])? 0: intval($arParams["~SECTION_ID"]);
 
+$arResult["IS_SOCNET_GROUP_CLOSED"] = false;
 if (
-	intval($arParams["~SOCNET_GROUP_ID"]) > 0
+	intval($arParams["~SOCNET_GROUP_ID"] ?? 0) > 0
 	&& CModule::IncludeModule("socialnetwork")
 )
 {
@@ -50,7 +51,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	$IBLOCK_ID,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 {
@@ -86,7 +87,7 @@ elseif(
 	return;
 }
 
-$copy_id = intval($_REQUEST["copy_id"]);
+$copy_id = intval($_REQUEST["copy_id"] ?? 0);
 
 if (
 	$copy_id > 0
@@ -208,7 +209,7 @@ if ($ELEMENT_ID > 0)
 	$copy_id = 0;
 	$arResult["LIST_COPY_ELEMENT_URL"] = CHTTP::urlAddParams(str_replace(
 			array("#list_id#", "#section_id#", "#element_id#", "#group_id#"),
-			array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"]), 0, $arParams["SOCNET_GROUP_ID"]),
+			array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"] ?? 0), 0, $arParams["SOCNET_GROUP_ID"]),
 			$arParams["~LIST_ELEMENT_URL"]
 		),
 		array("copy_id" => $ELEMENT_ID),
@@ -690,7 +691,7 @@ if(
 			&& $arResult["CAN_EDIT_RIGHTS"]
 		)
 		{
-			if(is_array($_POST["RIGHTS"]))
+			if(is_array($_POST["RIGHTS"] ?? null))
 				$postRights = CIBlockRights::Post2Array($_POST["RIGHTS"]);
 			else
 				$postRights = array();
@@ -854,7 +855,7 @@ if(
 				}
 			}
 
-			$bizprocIndex = intval($_REQUEST["bizproc_index"]);
+			$bizprocIndex = intval($_REQUEST["bizproc_index"] ?? 0);
 			if($bizprocIndex > 0)
 			{
 				for($i = 1; $i <= $bizprocIndex; $i++)

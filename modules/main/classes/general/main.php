@@ -1122,10 +1122,14 @@ abstract class CAllMain
 
 	public function AddViewContent($view, $content, $pos = 500)
 	{
-		if(!is_array($this->__view[$view]))
-			$this->__view[$view] = array(array($content, $pos));
+		if (!isset($this->__view[$view]) || !is_array($this->__view[$view]))
+		{
+			$this->__view[$view] = [[$content, $pos]];
+		}
 		else
-			$this->__view[$view][] = array($content, $pos);
+		{
+			$this->__view[$view][] = [$content, $pos];
+		}
 	}
 
 	public function ShowViewContent($view)
@@ -2909,8 +2913,10 @@ abstract class CAllMain
 						&& is_array($this->arPanelButtons[$arButton["ID"]]["MENU"])
 					)
 					{
-						if(!is_array($arButton["MENU"]))
-							$arButton["MENU"] = array();
+						if(!isset($arButton["MENU"]) || !is_array($arButton["MENU"]))
+						{
+							$arButton["MENU"] = [];
+						}
 						$arButton["MENU"] = array_merge($this->arPanelButtons[$arButton["ID"]]["MENU"], $arButton["MENU"]);
 					}
 					$this->arPanelButtons[$arButton["ID"]] = $arButton;

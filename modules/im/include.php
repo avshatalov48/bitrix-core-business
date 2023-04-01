@@ -78,6 +78,7 @@ define("IM_NOTIFY_FEATURE_PUSH", "push");
 CModule::AddAutoloadClasses(
 	"im",
 	array(
+		"im" => "install/index.php",
 		"CIMSettings" => "classes/general/im_settings.php",
 		"CIMMessenger" => "classes/general/im_messenger.php",
 		"CIMNotify" => "classes/general/im_notify.php",
@@ -92,8 +93,6 @@ CModule::AddAutoloadClasses(
 		"CIMCall" => "classes/general/im_call.php",
 		"CIMMail" => "classes/general/im_mail.php",
 		"CIMConvert" => "classes/general/im_convert.php",
-		"CIMHint" => "classes/general/im_hint.php",
-		"CIMTableSchema" => "classes/general/im_table_schema.php",
 		"CIMNotifySchema" => "classes/general/im_notify_schema.php",
 		"CIMRestService" => "classes/general/im_rest.php",
 		"DesktopApplication" => "classes/general/im_event.php",
@@ -120,6 +119,7 @@ $jsCoreRel = [
 	'ui.buttons',
 	'ui.switcher',
 	'ui.hint',
+	'im.lib.utils',
 	'im.application.notifications',
 	'im.v2.application.left-panel',
 	'im.v2.application.sidebar',

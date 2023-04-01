@@ -25,6 +25,7 @@ class IcsBuilder {
 		'description',
 		'dtstart',
 		'dtend',
+		'dtstamp',
 		'location',
 		'url',
 		'alarm',
@@ -86,9 +87,9 @@ class IcsBuilder {
 		$this->fullDayMode = $value;
 	}
 
-	public function setOrganizer($name, $email)
+	public function setOrganizer($name, $email, $phone)
 	{
-		$this->organizer = ['name' => $name, 'email' => $email];
+		$this->organizer = ['name' => $name, 'email' => $email, 'phone' => $phone];
 	}
 
 	public function setAttendees($attendeeDataList = [])
@@ -122,7 +123,14 @@ class IcsBuilder {
 		$props = [];
 
 		// Add organizer field
-		$props[self::formatOrganizerKey($this->organizer)] = self::formatEmailValue($this->organizer['email']);
+		if (isset($this->organizer['email']))
+		{
+			$props[self::formatOrganizerKey($this->organizer)] = self::formatEmailValue($this->organizer['email']);
+		}
+		else if (isset($this->organizer['phone']))
+		{
+			$props[self::formatOrganizerKey($this->organizer)] = self::formatPhoneValue($this->organizer['phone']);
+		}
 
 		// Add attendees
 		if (is_array($this->attendees))
@@ -136,6 +144,11 @@ class IcsBuilder {
 		// Build ICS properties - add header
 		foreach($this->properties as $k => $v)
 		{
+			if ($k === 'dtstamp')
+			{
+				$props['DTSTAMP'] = self::formatDateTimeValue($v);
+				continue;
+			}
 			if ($k === 'url' )
 			{
 				$props['URL;VALUE=URI'] = $v;
@@ -157,9 +170,6 @@ class IcsBuilder {
 				$props[mb_strtoupper($k)] = $v;
 			}
 		}
-
-		// Set some default values
-		//$props['DTSTAMP'] = $this->formatDateValue('now');
 
 		// Append properties
 		foreach ($props as $k => $v)
@@ -220,6 +230,12 @@ class IcsBuilder {
 	{
 		return 'mailto:'.$email;
 	}
+
+	private static function formatPhoneValue($phone): string
+	{
+		return 'tel:'.$phone;
+	}
+
 
 	private static function formatAttendeeKey($attendee)
 	{

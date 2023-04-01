@@ -152,8 +152,8 @@ class IncomingManager
 	{
 		$mapper = $this->mapperFactory->getSectionConnection();
 		$map = $mapper->getMap([
-				'CONNECTION_ID' => $this->connection->getId(),
-				'VENDOR_SECTION_ID' => $sectionId,
+				'=CONNECTION_ID' => $this->connection->getId(),
+				'=VENDOR_SECTION_ID' => $sectionId,
 			]);
 
 		return $map->fetch();

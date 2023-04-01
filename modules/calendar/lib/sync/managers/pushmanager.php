@@ -6,6 +6,9 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Mappers\Connection;
 use Bitrix\Calendar\Core\Mappers\SectionConnection;
+use Bitrix\Calendar\Core\Queue;
+use Bitrix\Calendar\Core\Queue\Exception\InvalidDestinationException;
+use Bitrix\Calendar\Core\Queue\Exception\InvalidMessageException;
 use Bitrix\Calendar\Internals\EO_Push;
 use Bitrix\Calendar\Internals\Mutex;
 use Bitrix\Calendar\Internals\PushTable;
@@ -32,6 +35,11 @@ class PushManager
 	public const TYPE_CONNECTION = 'CONNECTION';
 	public const TYPE_SECTION_CONNECTION = 'SECTION_CONNECTION';
 	public const TYPE_SECTION = 'SECTION';
+
+	private const LOCK_CONNECTION_TIME = 20;
+
+	public const QUEUE_ROUTE_KEY_SECTION = 'calendar:SyncSectionPush';
+	public const QUEUE_ROUTE_KEY_CONNECTION = 'calendar:SyncConnectionPush';
 
 	/**
 	 * @param string $entityType
@@ -266,6 +274,7 @@ class PushManager
 	 *
 	 * @throws ArgumentException
 	 * @throws Exception
+	 * @throws Queue\Interfaces\Exception
 	 */
 	private function syncSection(Push $push): void
 	{
@@ -277,8 +286,9 @@ class PushManager
 		{
 			try
 			{
-				if (!$this->lockConnection($sectionLink->getConnection(), 10))
+				if (!$this->lockConnection($sectionLink->getConnection(), self::LOCK_CONNECTION_TIME))
 				{
+					$this->pushSectionToQueue($sectionLink);
 					return;
 				}
 				$syncSectionMap = new SyncSectionMap();
@@ -310,6 +320,10 @@ class PushManager
 			{
 			    $this->markPushSuccess($push, false);
 			}
+			finally
+			{
+				$this->unLockConnection($sectionLink->getConnection());
+			}
 		}
 		else
 		{
@@ -321,38 +335,57 @@ class PushManager
 	 * @param Push $push
 	 *
 	 * @return void
-	 *
-	 * @throws ArgumentException
-	 * @throws BaseException
-	 * @throws ObjectNotFoundException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
 	 */
 	private function syncConnection(Push $push): void
 	{
-		/** @var Sync\Connection\Connection $connection */
-		$connection = (new Connection())->getById($push->getEntityId());
-		if (!$connection || $connection->isDeleted())
+		try
+		{
+			/** @var Sync\Connection\Connection $connection */
+			$connection = (new Connection())->getById($push->getEntityId());
+			if (!$connection || $connection->isDeleted())
+			{
+				return;
+			}
+		}
+		catch (ArgumentException $e)
 		{
 			return;
 		}
 
-		$factory = FactoryBuilder::create(
-			$connection->getVendor()->getCode(),
-			$connection,
-			new Sync\Util\Context()
-		);
-		if ($factory)
+		try
 		{
-			$manager = new VendorDataExchangeManager(
-				$factory,
-				(new SyncSectionFactory())->getSyncSectionMapByFactory($factory)
+
+			if (!$this->lockConnection($connection, self::LOCK_CONNECTION_TIME))
+			{
+				$this->pushConnectionToQueue($connection);
+				return;
+			}
+
+			$factory = FactoryBuilder::create(
+				$connection->getVendor()->getCode(),
+				$connection,
+				new Sync\Util\Context()
 			);
-			$manager
-				->importSections()
-				->updateConnection($factory->getConnection())
-			;
+			if ($factory)
+			{
+				$manager = new VendorDataExchangeManager(
+					$factory,
+					(new SyncSectionFactory())->getSyncSectionMapByFactory($factory)
+				);
+				$manager
+					->importSections()
+					->updateConnection($factory->getConnection())
+				;
+			}
 		}
+		catch(\Exception $e)
+		{
+		}
+		finally
+		{
+			$this->unLockConnection($connection);
+		}
+
 	}
 
 	/**
@@ -510,5 +543,43 @@ class PushManager
 	{
 		$key = 'lockPushForConnection_' . $connection->getId();
 		return new Mutex($key);
+	}
+
+	/**
+	 * @param Sync\Connection\SectionConnection $sectionLink
+	 *
+	 * @return void
+	 *
+	 * @throws Queue\Exception\InvalidDestinationException
+	 * @throws Queue\Exception\InvalidMessageException
+	 * @throws Queue\Interfaces\Exception
+	 */
+	private function pushSectionToQueue(Sync\Connection\SectionConnection $sectionLink): void
+	{
+		$message = (new Queue\Message\Message())
+			->setBody([
+				Sync\Push\Dictionary::PUSH_TYPE['sectionConnection'] => $sectionLink->getId(),
+			])
+			->setRoutingKey(self::QUEUE_ROUTE_KEY_SECTION);
+		Queue\Producer\Factory::getProduser()->send($message);
+	}
+
+	/**
+	 * @param Sync\Connection\Connection $connection
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidDestinationException
+	 * @throws InvalidMessageException
+	 * @throws Queue\Interfaces\Exception
+	 */
+	private function pushConnectionToQueue(Sync\Connection\Connection $connection): void
+	{
+		$message = (new Queue\Message\Message())
+			->setBody([
+				Sync\Push\Dictionary::PUSH_TYPE['connection'] => $connection->getId(),
+			])
+			->setRoutingKey(self::QUEUE_ROUTE_KEY_CONNECTION);
+		Queue\Producer\Factory::getProduser()->send($message);
 	}
 }

@@ -199,21 +199,21 @@ class Toloka
 				'CATEGORY' => Category::getCode(Category::CASES),
 				'MESSAGE_CODE' => $messageCodes,
 				'VERSION' => 2,
-				'HOT' => $item['HOT'],
+				'HOT' => $item['HOT'] ?? '',
 				'ICON' => BX_ROOT . self::IMAGE_DIR . "$originalCode.png",
-				'NAME' => $item['NAME'],
-				'DESC' => $item['DESC'],
-				'HINT' => $item['HINT'],
+				'NAME' => $item['NAME'] ?? '',
+				'DESC' => $item['DESC'] ?? '',
+				'HINT' => $item['HINT'] ?? '',
 				'FIELDS' => array_merge(
 					$item['FIELDS'],
 					[
 					'TITLE' => [
 						'CODE' => 'TITLE',
-						'VALUE' => $item['TITLE'],
+						'VALUE' => $item['TITLE'] ?? '',
 					],
 					'COMMENT' => [
 						'CODE' => 'COMMENT',
-						'VALUE' => $item['TEXT'],
+						'VALUE' => $item['TEXT'] ?? '',
 					],
 					'ALWAYS_ADD' => [
 						'CODE' => 'ALWAYS_ADD',
@@ -221,7 +221,7 @@ class Toloka
 					],
 				]),
 				'SEGMENTS' => [],
-				'DISPATCH' => $item['DISPATCH'],
+				'DISPATCH' => $item['DISPATCH'] ?? '',
 			);
 		}
 

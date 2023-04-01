@@ -9,7 +9,6 @@ class CommitOptions
 	protected bool $forceRandom = false;
 	protected bool $skipExtension = false;
 	protected string $addDirectory = '';
-	protected bool $checkDuplicates = true;
 
 	public function __construct(array $options = [])
 	{
@@ -19,7 +18,6 @@ class CommitOptions
 			'forceRandom',
 			'skipExtension',
 			'addDirectory',
-			'checkDuplicates',
 		];
 
 		foreach ($optionNames as $optionName)
@@ -92,18 +90,4 @@ class CommitOptions
 
 		return $this;
 	}
-
-	public function isCheckDuplicates(): bool
-	{
-		return $this->checkDuplicates;
-	}
-
-	public function setCheckDuplicates(bool $checkDuplicates): self
-	{
-		$this->checkDuplicates = $checkDuplicates;
-
-		return $this;
-	}
-
-
 }

@@ -29,13 +29,20 @@ class Verification
 			return true;
 		}
 
-		// phone required only for new portals
-		if (self::isMailingsUsed() && self::isForceCheckDisabled())
+		if (\CBitrix24::isPhoneConfirmed())
 		{
 			return true;
 		}
 
-		return \CBitrix24::isPhoneConfirmed();
+		// phone required only for new portals
+		if (self::isMailingsUsed() && self::isForceCheckDisabled())
+		{
+			// remember verified state
+			\CBitrix24::setPhoneConfirmed(true);
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -57,6 +64,7 @@ class Verification
 
 	/**
 	 * For testing purposes
+	 * @return bool
 	 */
 	private static function isForceCheckDisabled()
 	{

@@ -104,24 +104,8 @@
 			"PlaceHolderSelectorButtonCreate",
 			this.onPlaceHolderSelectorButtonCreate.bind(this)
 		);
+	};
 
-		BX.addCustomEvent(
-			editor,
-			"GetControlsMap",
-			this.onGetControlsMap.bind(this)
-		);
-	};
-	Editor.prototype.onGetControlsMap = function (controlsMap)
-	{
-		controlsMap.push({
-			id: 'placeholder_selector',
-			compact: true,
-			hidden: false,
-			sort: 1,
-			checkWidth: false,
-			offsetWidth: 32
-		});
-	};
 	Editor.prototype.onPlaceHolderSelectorButtonCreate = function (PlaceHolderSelectorButton)
 	{
 		PlaceHolderSelectorButton.placeHolders = this.placeHolders;
@@ -171,99 +155,46 @@
 		// Call parent constructor
 		PlaceHolderSelectorButton.superclass.constructor.apply(this, arguments);
 		this.id = 'placeholder_selector';
-		this.title = '\#';
-		// this.action = 'insertHTML';
+
 		this.placeHolders = [];
 		
-		this.className = 'bxhtmled-top-bar-btn';
+		this.className = 'bxhtmled-top-bar-btn bxhtmled-top-bar-choose-template';
 		this.activeClassName = 'bxhtmled-top-bar-btn-active';
 		this.disabledClassName = 'bxhtmled-top-bar-btn-disabled';
 
 		editor.On('PlaceHolderSelectorButtonCreate', [this]);
 
 		this.disabledForTextarea = false;
-		this.arValues = [];
-
-		for (var i in this.placeHolders)
-		{
-			var value = this.placeHolders[i];
-			this.arValues.push(this.buildPlaceHolders(value));
-		}
-
 		this.Create();
-		this.pCont.innerHTML = this.title;
+		// this.pCont.innerHTML = this.title;
 
-		this.menu = new BX.Main.Menu({
-			id: this.id,
-			bindElement: this.GetCont(),
-			items: this.arValues,
-			maxHeight: 300
+		var _this = this;
+		new BX.Sender.PersonalizationSelector({
+			button: this.pCont,
+			fields: this.placeHolders,
+			onItemClick: function (event)
+			{
+				event.preventDefault();
+				var value = event.getData().item.getCustomData().get('property');
+				if (typeof value !== 'undefined' &&
+					_this.editor.action.IsSupported('insertHTML'))
+				{
+					_this.editor.action.Exec('insertHTML', value.id);
+				}
+			}
 		});
-
-		this.menuItem = new BX.Main.MenuItem();
-		BX.bind(this.pCont, 'click', BX.proxy(this.OnClick, this));
-		if (wrap)
-		{
-			wrap.appendChild(this.GetCont());
-		}
 	}
 
-	buildPrototypes = function () {
-		PlaceHolderSelectorButton.prototype.buildPlaceHolders = function(placeHolder, title) {
-				var _this = this;
-				var value = {
-					text: placeHolder.NAME,
-					topName: title,
-					title: placeHolder.DESC,
-					className: '',
-					style: '',
-					action: 'insertHTML',
-				};
+	buildPrototypes = function ()
+	{
+		PlaceHolderSelectorButton.prototype.buildPlaceHolders = BX.DoNothing;
+		PlaceHolderSelectorButton.prototype.Check = BX.DoNothing;
+		PlaceHolderSelectorButton.prototype.GetValue = BX.DoNothing;
+		PlaceHolderSelectorButton.prototype.SetValue = BX.DoNothing;
+		PlaceHolderSelectorButton.prototype.OnMouseUp = BX.DoNothing;
+		PlaceHolderSelectorButton.prototype.OnMouseDown = BX.DoNothing;
 
-				if (typeof placeHolder.ITEMS !== 'undefined')
-				{
-					value['items'] = [];
-					value['className'] = 'bxhtmled-style-heading-more';
-
-					for (var i in placeHolder.ITEMS)
-					{
-						value['items'].push(this.buildPlaceHolders(placeHolder.ITEMS[i]))
-					}
-				}
-
-				if (typeof value['items'] === 'undefined')
-				{
-					value['dataset'] = {
-						value: '#' + placeHolder.CODE + '#'
-					};
-					value['onclick'] = function(event, item)
-					{
-						if (typeof item.dataset.value !== 'undefined' &&
-							_this.editor.action.IsSupported('insertHTML'))
-						{
-							_this.editor.action.Exec('insertHTML', item.dataset.value);
-							_this.menu.close();
-						}
-					};
-				}
-				else
-				{
-					value['id'] = placeHolder.CODE;
-				}
-
-				return value;
-			};
-
-			PlaceHolderSelectorButton.prototype.Check= BX.DoNothing;
-			PlaceHolderSelectorButton.prototype.GetValue= BX.DoNothing;
-			PlaceHolderSelectorButton.prototype.SetValue= BX.DoNothing;
-			PlaceHolderSelectorButton.prototype.OnMouseUp= BX.DoNothing;
-			PlaceHolderSelectorButton.prototype.OnMouseDown= BX.DoNothing;
-
-			PlaceHolderSelectorButton.prototype.OnClick = function()
-			{
-				this.menu.show();
-			}
+		PlaceHolderSelectorButton.prototype.OnClick = BX.DoNothing;
 	}
 
 	setTimeout(function () {

@@ -26,10 +26,10 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 	protected function prepareItem(array $item)
 	{
 		$convertedItem = array();
-		$convertedItem['~NAME'] = $item['NAME'];
+		$convertedItem['~NAME'] = $item['NAME'] ?? '';
 		$convertedItem['NAME'] = isset($item['NAME_HTML']) ? $item['NAME_HTML'] : htmlspecialcharsbx($convertedItem['~NAME']);
-		$convertedItem['ACTIVE'] = (bool)$item['ACTIVE'];
-		$convertedItem['NOTICE'] = (bool)$item['NOTICE'];
+		$convertedItem['ACTIVE'] = isset($item['ACTIVE']) ? (bool)$item['ACTIVE'] : false;
+		$convertedItem['NOTICE'] = isset($item['NOTICE']) ? (bool)$item['NOTICE'] : false;
 
 		if (!empty($item['ATTRIBUTES']) && is_array($item['ATTRIBUTES']))
 		{

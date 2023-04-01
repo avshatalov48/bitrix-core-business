@@ -755,7 +755,7 @@ class CBPTaskResult extends CDBResult
 
 		if ($res)
 		{
-			if ($res["PARAMETERS"] <> '')
+			if (!empty($res["PARAMETERS"]))
 			{
 				$res["PARAMETERS"] = unserialize($res["PARAMETERS"], ['allowed_classes' => self::$classesList]);
 			}

@@ -5,6 +5,42 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+$entitiesSearchFields = [
+	[
+		'name' => 'supertitle',
+		'type' => 'string',
+		'system' => true,
+	],
+	[
+		'name' => 'SEARCH_PROPERTIES',
+		'type' => 'string',
+	],
+	[
+		'name' => 'PREVIEW_TEXT',
+		'type' => 'string',
+	],
+	[
+		'name' => 'DETAIL_TEXT',
+		'type' => 'string',
+	],
+	[
+		'name' => 'PARENT_NAME',
+		'type' => 'string',
+	],
+	[
+		'name' => 'PARENT_SEARCH_PROPERTIES',
+		'type' => 'string',
+	],
+	[
+		'name' => 'PARENT_PREVIEW_TEXT',
+		'type' => 'string',
+	],
+	[
+		'name' => 'PARENT_DETAIL_TEXT',
+		'type' => 'string',
+	],
+];
+
 return [
 	'settings' => [
 		'entities' => [
@@ -13,41 +49,7 @@ return [
 				'options' => [
 					'dynamicLoad' => true,
 					'dynamicSearch' => true,
-					'searchFields' => [
-						[
-							'name' => 'supertitle',
-							'type' => 'string',
-							'system' => true,
-						],
-						[
-							'name' => 'SEARCH_PROPERTIES',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PREVIEW_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'DETAIL_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_NAME',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_SEARCH_PROPERTIES',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_PREVIEW_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_DETAIL_TEXT',
-							'type' => 'string',
-						],
-					],
+					'searchFields' => $entitiesSearchFields,
 					'itemOptions' => [
 						'default' => [
 							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/product.svg',
@@ -64,41 +66,24 @@ return [
 				'options' => [
 					'dynamicLoad' => false,
 					'dynamicSearch' => true,
-					'searchFields' => [
-						[
-							'name' => 'supertitle',
-							'type' => 'string',
-							'system' => true,
-						],
-						[
-							'name' => 'SEARCH_PROPERTIES',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PREVIEW_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'DETAIL_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_NAME',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_SEARCH_PROPERTIES',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_PREVIEW_TEXT',
-							'type' => 'string',
-						],
-						[
-							'name' => 'PARENT_DETAIL_TEXT',
-							'type' => 'string',
+					'searchFields' => $entitiesSearchFields,
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/product.svg',
+							'captionOptions' => [
+								'fitContent' => true,
+								'maxWidth' => 150
+							],
 						],
 					],
+				],
+			],
+			[
+				'id' => 'variation',
+				'options' => [
+					'dynamicLoad' => true,
+					'dynamicSearch' => true,
+					'searchFields' => $entitiesSearchFields,
 					'itemOptions' => [
 						'default' => [
 							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/product.svg',

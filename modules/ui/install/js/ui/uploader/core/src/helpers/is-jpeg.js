@@ -1,5 +1,5 @@
-const isJpeg = (file: File) => {
-	return /^image\/jpeg$/i.test(file.type);
+const isJpeg = (blob: Blob) => {
+	return /^image\/jpeg$/i.test(blob.type);
 };
 
 export default isJpeg;

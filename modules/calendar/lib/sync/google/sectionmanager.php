@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Server;
+use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Managers\SectionManagerInterface;
 use Bitrix\Calendar\Sync\Util\SectionContext;
 use Bitrix\Main\ArgumentException;
@@ -24,8 +25,10 @@ class SectionManager extends Manager implements SectionManagerInterface
 	/**
 	 * @param Core\Section\Section $section
 	 * @param SectionContext|null $context
+	 *
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentException
+	 *
+	 * @throws ConflictException
 	 */
 	public function create(Core\Section\Section $section, SectionContext $context = null): Result
 	{
@@ -33,6 +36,8 @@ class SectionManager extends Manager implements SectionManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_POST,
 				$this->prepareCreateUrl(),
@@ -47,7 +52,33 @@ class SectionManager extends Manager implements SectionManagerInterface
 			}
 			else
 			{
-				$result->addError(new Error('do not create section'));
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']))
+				{
+					$error = $response['error'];
+					switch ($error['code'])
+					{
+						case 409:
+							throw new ConflictException($error['message'], $error['code']);
+						case 401:
+							$this->handleUnauthorize($this->connection);
+							$result->addError(new Error($error['message'], $error['code']));
+							break;
+						default:
+							if (!empty($error['code']))
+							{
+								$result->addError(new Error($error['message'], $error['code']));
+							}
+							else
+							{
+								$result->addError(new Error('Uncknown Google API error', 400));
+							}
+					}
+				}
+				else
+				{
+					$result->addError(new Error('do not create section'));
+				}
 			}
 		}
 		catch (ArgumentException $e)
@@ -77,6 +108,8 @@ class SectionManager extends Manager implements SectionManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareCalendarUrl($context->getSectionConnection()->getVendorSectionId()),
@@ -91,6 +124,27 @@ class SectionManager extends Manager implements SectionManagerInterface
 			}
 			else
 			{
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']))
+				{
+					$error = $response['error'];
+					switch ($error['code'])
+					{
+						case 401:
+							$this->handleUnauthorize($this->connection);
+							$result->addError(new Error($error['message'], $error['code']));
+							break;
+						default:
+							if (!empty($error['code']))
+							{
+								$result->addError(new Error($error['message'], $error['code']));
+							}
+							else
+							{
+								$result->addError(new Error('Uncknown Google API error', 400));
+							}
+					}
+				}
 				$result->addError(new Error('do not update section'));
 			}
 		}
@@ -114,13 +168,40 @@ class SectionManager extends Manager implements SectionManagerInterface
 	{
 		$result = new Result();
 
+		// TODO: Remake it: move this logic to parent::request().
+		// Or, better, in separate class.
 		$this->httpClient->query(
 			HttpClient::HTTP_DELETE,
 			$this->prepareCalendarUrl($context->getSectionConnection()->getVendorSectionId())
 		);
 		if (!$this->isRequestDeleteSuccess())
 		{
-			$result->addError(new Error('failed to delete an section in google'));
+			$response = Json::decode($this->httpClient->getResult());
+			if (!empty($response['error']))
+			{
+				$error = $response['error'];
+				switch ($error['code'])
+				{
+					case 401:
+						$this->handleUnauthorize($this->connection);
+						$result->addError(new Error($error['message'], $error['code']));
+						break;
+					default:
+						if (!empty($error['code']))
+						{
+							$result->addError(new Error($error['message'], $error['code']));
+						}
+						else
+						{
+							$result->addError(new Error('Uncknown Google API error', 400));
+						}
+				}
+			}
+			else
+			{
+				$result->addError(new Error('failed to delete an section in google'));
+			}
+
 		}
 
 		return $result;

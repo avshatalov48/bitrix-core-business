@@ -1170,13 +1170,13 @@ class CSaleExport
 
 			$agentParams = (array_key_exists($arOrder["PERSON_TYPE_ID"], $arAgent) ? $arAgent[$arOrder["PERSON_TYPE_ID"]] : array() );
 
-            $arResultPayment = self::getPayment($arOrder);
-            $paySystems = $arResultPayment['paySystems'];
-            $arPayment = $arResultPayment['payment'];
+			$arResultPayment = self::getPayment($arOrder);
+			$paySystems = $arResultPayment['paySystems'] ?? [];
+			$arPayment = $arResultPayment['payment'] ?? [];
 
 			$arResultShipment = self::getShipment($arOrder);
-			$arShipment = $arResultShipment['shipment'];
-			$delivery = $arResultShipment['deliveryServices'];
+			$arShipment = $arResultShipment['shipment'] ?? [];
+			$delivery = $arResultShipment['deliveryServices'] ?? [];
 
 			self::setDeliveryAddress('');
 			self::setSiteNameByOrder($arOrder);

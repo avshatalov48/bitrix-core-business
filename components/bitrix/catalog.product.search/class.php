@@ -1335,6 +1335,11 @@ class ProductSearchComponent extends \CBitrixComponent
 			unset($price);
 		}
 		unset($arPrices);
+
+		foreach (array_keys($this->arHeaders) as $index)
+		{
+			$this->arHeaders[$index]['default'] ??= false;
+		}
 	}
 
 	/**

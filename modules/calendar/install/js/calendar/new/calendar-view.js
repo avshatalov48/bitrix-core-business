@@ -57,6 +57,31 @@
 			}
 			this.viewCont.style.display = '';
 			this.setTitle('');
+			this.highlightAll();
+		},
+
+		isFirstVisibleRecursiveEntry: function(entry)
+		{
+			if (!entry.isRecursive())
+			{
+				return true;
+			}
+
+			const recursiveEntries = this.entries.filter((e) => {
+				return e.uid.split('|')[0] === entry.parentId && !e.isHiddenInPopup
+			}).sort((e1, e2) => {
+				return (e1.from.getTime() > e2.from.getTime()) ? 1 : (e1.from.getTime() < e2.from.getTime()) ? -1 : 0;
+			});
+			return recursiveEntries[0].uid === entry.uid;
+		},
+
+		highlightAll: function()
+		{
+			BX.addClass(this.viewCont, 'calendar-grid-highlight-all');
+			clearTimeout(this.hightlightAll);
+			this.hightlightAll = setTimeout(() => {
+				BX.removeClass(this.viewCont, 'calendar-grid-highlight-all');
+			}, 6000);
 		},
 
 		redraw: function()
@@ -138,27 +163,30 @@
 			}).animate();
 		},
 
-		getArrow: function(type, color, fill)
+		getArrow: function(type, color, doFill)
 		{
-			var
-				borderColor = BX.util.urlencode(color),
-				fillColor = fill ? BX.util.urlencode(color) : 'none',
-				imageSource = '', arrowNode;
+			const fill = doFill ? color : '#ffffff00';
+			const arrowNodeContainer = document.createElement('div');
 
-			if (type == 'left')
+			if (type === 'left')
 			{
-				arrowNode = BX.create('DIV', {props: {className: 'calendar-event-angle-start-yesterday'}});
-				imageSource = 'url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215px%22%20height%3D%2218px%22%20viewBox%3D%220%200%2015%2018%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill%3D%22' + fillColor + '%22%20stroke%3D%22' + borderColor + '%22%20stroke-width%3D%221%22%20d%3D%22M14.5%2C17.5%20L14.5%2C0.5%20L2.00049088%2C0.5%20C1.78697323%2C0.5%201.57591593%2C0.545584%201.38143042%2C0.633704227%20C0.626846099%2C0.975601882%200.292297457%2C1.86447615%200.634195112%2C2.61906047%20L3.05787308%2C7.96823256%20C3.35499359%2C8.62399158%203.35499359%2C9.37600842%203.05787308%2C10.0317674%20L0.634195112%2C15.3809395%20C0.546074885%2C15.575425%200.500490885%2C15.7864823%200.500490885%2C16%20C0.500490885%2C16.8284271%201.17206376%2C17.5%202.00049088%2C17.5%20L14.5%2C17.5%20Z%22/%3E%0A%3C/svg%3E)';
-			}
-			else
-			{
-				arrowNode = BX.create('DIV', {props: {className: 'calendar-event-angle-finish-tomorrow'}});
-				imageSource = 'url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215px%22%20height%3D%2218px%22%20viewBox%3D%220%200%2015%2018%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill%3D%22' + fillColor + '%22%20stroke%3D%22' + borderColor + '%22%20stroke-width%3D%221%22%20d%3D%22M0.5%2C0.5%20L0.5%2C17.5%20L8.7031205%2C17.5%20C9.65559352%2C17.5%2010.5253145%2C16.9587787%2010.9460243%2C16.1042565%20L13.8991717%2C10.1059895%20C14.2418971%2C9.40986472%2014.2419701%2C8.59406382%2013.8993692%2C7.89787777%20L10.9458495%2C1.89614482%20C10.5252214%2C1.04140271%209.65538246%2C0.5%208.70274816%2C0.5%20L0.5%2C0.5%20Z%22/%3E%0A%3C/svg%3E)';
+				arrowNodeContainer.innerHTML = `
+					<svg class="calendar-event-angle-start-yesterday" viewBox="0 0 6 18" version="1.1" xmlns="http://www.w3.org/2000/svg" style="stroke: ${color}; fill: ${fill};">
+						<path stroke-width="1" d="M14.5,17.5 L14.5,0.5 L2.00049088,0.5 C1.78697323,0.5 1.57591593,0.545584 1.38143042,0.633704227 C0.626846099,0.975601882 0.292297457,1.86447615 0.634195112,2.61906047 L3.05787308,7.96823256 C3.35499359,8.62399158 3.35499359,9.37600842 3.05787308,10.0317674 L0.634195112,15.3809395 C0.546074885,15.575425 0.500490885,15.7864823 0.500490885,16 C0.500490885,16.8284271 1.17206376,17.5 2.00049088,17.5 L14.5,17.5 Z"/>
+					</svg>
+				`;
 			}
 
-			arrowNode.style.backgroundImage = imageSource;
+			if (type === 'right')
+			{
+				arrowNodeContainer.innerHTML = `
+					<svg class="calendar-event-angle-finish-tomorrow" viewBox="8 0 15 18" version="1.1" xmlns="http://www.w3.org/2000/svg" style="stroke: ${color}; fill: ${fill};">
+						<path stroke-width="1" d="M0.5,0.5 L0.5,17.5 L8.7031205,17.5 C9.65559352,17.5 10.5253145,16.9587787 10.9460243,16.1042565 L13.8991717,10.1059895 C14.2418971,9.40986472 14.2419701,8.59406382 13.8993692,7.89787777 L10.9458495,1.89614482 C10.5252214,1.04140271 9.65538246,0.5 8.70274816,0.5 L0.5,0.5 Z"></path>
+					</svg>
+				`;
+			}
 
-			return arrowNode;
+			return arrowNodeContainer.firstElementChild;
 		},
 
 		occupySlot: function(params)
@@ -659,11 +687,6 @@
 		{
 			return this.hotkey || null;
 		},
-
-		allowActions: function()
-		{
-			return !this.entryController.isAwaitingAnyResponses();
-		}
 	};
 
 	// Year view of the calendar

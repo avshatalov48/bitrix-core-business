@@ -65,7 +65,7 @@ $enablePhoneVerification =
 			BX.Sender.Letter.Time.init(<?=Json::encode(array(
 				'containerId' => $containerId,
 				'actionUrl' => $arResult['ACTION_URL'],
-				'isFrame' => $arParams['IFRAME'] == 'Y',
+				'isFrame' => isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y',
 				'isSaved' => $arResult['IS_SAVED'],
 				'isOutside' => $arParams['IS_OUTSIDE'],
 				'canEdit' => $arResult['CAN_CHANGE'],
@@ -87,12 +87,12 @@ $enablePhoneVerification =
 					)
 				)
 			))?>);
-			<?php if ($arResult['USER_ERRORS']):
+			<?php if ($arResult['USER_ERRORS'] ?? false):
 			/** @var \Bitrix\Main\Error $userError */
 			$userError = $arResult['USER_ERRORS'][0];
 			$url = str_replace('#id#', $arParams['ID'], $arParams['PATH_TO_EDIT']);
 			$uri = new Bitrix\Main\Web\Uri($url);
-			if ($arParams['IFRAME'] == 'Y')
+			if (isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y')
 			{
 				$uri->addParams(array('IFRAME' => 'Y'));
 			}
@@ -118,7 +118,7 @@ $enablePhoneVerification =
 			endif; ?>
 		});
 	</script>
-	<form method="post" data-role="letter-time-form" action="<?= htmlspecialcharsbx($arResult['SUBMIT_FORM_URL']) ?>">
+	<form method="post" data-role="letter-time-form" action="<?= htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'] ?? '') ?>">
 		<?= bitrix_sessid_post() ?>
 
 		<div class="sender-letter-time-title">
@@ -187,7 +187,7 @@ $enablePhoneVerification =
 				$buttons[] = ['TYPE' => 'close', 'LINK' => $arParams['PATH_TO_LIST']];
 			}
 			?>
-			<?php if ($arParams['DAY_LIMIT'] !== null): ?>
+			<?php if (isset($arParams['DAY_LIMIT']) && $arParams['DAY_LIMIT'] !== null): ?>
 				<div class="sender-letter-time-limitation-wrap">
 					<div class="ui-alert ui-alert-warning">
 						<div class="sender-letter-time-limitation-text">

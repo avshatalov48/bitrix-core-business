@@ -273,7 +273,9 @@ abstract class Cashbox
 	{
 		$result = static::extractCheckData($data);
 
-		return CheckManager::savePrintResult($result['ID'], $result);
+		$checkId = $result['ID'] ?? 0;
+
+		return CheckManager::savePrintResult($checkId, $result);
 	}
 
 	/**

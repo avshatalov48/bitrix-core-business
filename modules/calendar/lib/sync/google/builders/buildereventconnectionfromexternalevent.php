@@ -33,11 +33,11 @@ class BuilderEventConnectionFromExternalEvent implements Builder
 		}
 
 		return (new EventConnection())
-			->setEntityTag($this->externalEvent['etag'])
-			->setVendorEventId($this->externalEvent['id'])
-			->setVendorVersionId($this->externalEvent['sequence'])
+			->setEntityTag($this->externalEvent['etag'] ?? null)
+			->setVendorEventId($this->externalEvent['id'] ?? null)
+			->setVendorVersionId($this->externalEvent['sequence'] ?? null)
 			->setVersion($this->syncEvent->getEvent()->getVersion())
-			->setRecurrenceId($this->externalEvent['recurringEventId'])
+			->setRecurrenceId($this->externalEvent['recurringEventId'] ?? null)
 			->setRetryCount(0)
 			->setLastSyncStatus('success')
 			->setEvent($this->syncEvent->getEvent())

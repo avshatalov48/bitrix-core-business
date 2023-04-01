@@ -40,6 +40,11 @@ this.BX = this.BX || {};
 	    this.setSections(data.sections);
 	    this.sortSections();
 	    this.reloadRoomsFromDatabaseDebounce = main_core.Runtime.debounce(this.reloadRoomsFromDatabase, calendar_sectionmanager.SectionManager.RELOAD_DELAY, this);
+
+	    if (Object.keys(calendar_util.Util.accessNames).length === 0) {
+	      BX.Calendar.Util.setAccessNames(config.accessNames);
+	    }
+
 	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Rooms:delete', this.deleteRoomHandler.bind(this));
 	  }
 
@@ -154,44 +159,42 @@ this.BX = this.BX || {};
 	  }
 
 	  deleteRoom(id, location_id) {
-	    if (confirm(BX.message('EC_ROOM_DELETE_CONFIRM'))) {
-	      const EventAlias = calendar_util.Util.getBX().Event;
-	      EventAlias.EventEmitter.emit('BX.Calendar.Section:delete', new EventAlias.BaseEvent({
+	    const EventAlias = calendar_util.Util.getBX().Event;
+	    EventAlias.EventEmitter.emit('BX.Calendar.Section:delete', new EventAlias.BaseEvent({
+	      data: {
+	        sectionId: id
+	      }
+	    }));
+	    return new Promise(resolve => {
+	      BX.ajax.runAction('calendar.api.locationajax.deleteRoom', {
 	        data: {
-	          sectionId: id
+	          id: id,
+	          location_id: location_id
 	        }
-	      }));
-	      return new Promise(resolve => {
-	        BX.ajax.runAction('calendar.api.locationajax.deleteRoom', {
+	      }).then(response => {
+	        const roomList = response.data.rooms || [];
+	        const sectionList = response.data.sections || [];
+
+	        if (!roomList.length) {
+	          BX.reload();
+	        }
+
+	        this.setRooms(roomList);
+	        this.sortRooms();
+	        this.setSections(sectionList);
+	        this.sortSections();
+	        calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms:delete', new main_core.Event.BaseEvent({
 	          data: {
-	            id: id,
-	            location_id: location_id
+	            id: id
 	          }
-	        }).then(response => {
-	          const roomList = response.data.rooms || [];
-	          const sectionList = response.data.sections || [];
-
-	          if (!roomList.length) {
-	            BX.reload();
-	          }
-
-	          this.setRooms(roomList);
-	          this.sortRooms();
-	          this.setSections(sectionList);
-	          this.sortSections();
-	          calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms:delete', new main_core.Event.BaseEvent({
-	            data: {
-	              id: id
-	            }
-	          }));
-	          this.setLocationSelector(roomList);
-	          resolve(response.data);
-	        }, response => {
-	          BX.Calendar.Util.displayError(response.errors);
-	          resolve(response.data);
-	        });
+	        }));
+	        this.setLocationSelector(roomList);
+	        resolve(response.data);
+	      }, response => {
+	        BX.Calendar.Util.displayError(response.errors);
+	        resolve(response.data);
 	      });
-	    }
+	    });
 	  }
 
 	  checkName(name) {

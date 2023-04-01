@@ -700,7 +700,7 @@ class CUtil
 	{
 		static $list = [];
 
-		if (is_null($list[$wizard]))
+		if (!isset($list[$wizard]))
 		{
 			$list[$wizard] = array();
 

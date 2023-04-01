@@ -37,5 +37,13 @@
 				|| BX.Landing.Utils.Matchers.vk.test(value)
 			;
 		},
+
+		getValue: function()
+		{
+			const res = BX.Landing.UI.Field.Embed.prototype.getValue.call(this);
+			delete res.ratio;
+
+			return res;
+		},
 	}
 })();

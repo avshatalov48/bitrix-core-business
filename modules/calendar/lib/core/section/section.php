@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Core\Section;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Main\Text\Emoji;
 
 class Section implements EntityInterface
 {
@@ -196,7 +197,7 @@ class Section implements EntityInterface
 	 */
 	public function setName(?string $name): Section
 	{
-		$this->name = $name;
+		$this->name = $name ? Emoji::decode($name) : $name;
 
 		return $this;
 	}

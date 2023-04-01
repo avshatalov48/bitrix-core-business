@@ -268,6 +268,8 @@ $listObject->SetNavigationParams($queryObject, array("BASE_LINK" => $selfFolderU
 
 $actionUrl = '&lang='.LANGUAGE_ID;
 $listUserData = array();
+$rowList = [];
+
 while($subscribe = $queryObject->fetch())
 {
 	$subscribe['CONTACT_TYPE'] = $contactType[$subscribe['CONTACT_TYPE']]['NAME'];
@@ -325,26 +327,43 @@ while($subscribe = $queryObject->fetch())
 
 	$row->addActions($actions);
 }
+unset($row);
 
-$listUserId = array_keys($listUserData);
-$listUsers = implode(' | ', $listUserId);
-$userQuery = CUser::getList('ID', 'ASC',
-	array('ID' => $listUsers) ,
-	array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME')));
-while($user = $userQuery->fetch())
+if (!empty($listUserData))
 {
-	if(is_array($listUserData[$user['ID']]))
+	$nameFormat = CSite::GetNameFormat();
+	$listUserId = array_keys($listUserData);
+
+	$userIterator = Main\UserTable::getList([
+		'select' => [
+			'ID',
+			'LOGIN',
+			'NAME',
+			'LAST_NAME',
+			'SECOND_NAME',
+			'EMAIL',
+			'TITLE',
+		],
+		'filter' => ['@ID' => $listUserId],
+	]);
+	while ($user = $userIterator->fetch())
 	{
-		$urlToUser = $selfFolderUrl."user_edit.php?ID=".$user["ID"]."&lang=".LANGUAGE_ID;
+		if (empty($listUserData[$user['ID']]) || !is_array($listUserData[$user['ID']]))
+		{
+			continue;
+		}
+		$urlToUser = $selfFolderUrl . "user_edit.php?ID=" . $user["ID"] . "&lang=" . LANGUAGE_ID;
 		if ($publicMode)
 		{
-			$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$user["ID"]."&lang=".LANGUAGE_ID;
+			$urlToUser = $selfFolderUrl . "sale_buyers_profile.php?USER_ID=" . $user["ID"] . "&lang=" . LANGUAGE_ID;
 			$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
 		}
-		foreach($listUserData[$user['ID']] as $subscribeId)
+		$userString = '<a href="' . $urlToUser . '">' .
+			CUser::FormatName($nameFormat, $user, true, true)
+			. '</a>'
+		;
+		foreach ($listUserData[$user['ID']] as $subscribeId)
 		{
-			$userString='<a href="'.$urlToUser.'">'.
-				CUser::formatName(CSite::getNameFormat(false), $user, true, true).'</a>';
 			$rowList[$subscribeId]->addField('USER_ID', $userString);
 		}
 	}

@@ -15,20 +15,20 @@ return [
 	'cards' => [
 		'.landing-block-card-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_2_CARDS_LANDINGBLOCKCARD_LEFT'),
-			'label' => ['.landing-block-card-left .landing-block-node-img', '.landing-block-node-carousel-element-title'],
+			'label' => ['.landing-block-node-img-left', '.landing-block-node-carousel-element-title'],
 		],
 		'.landing-block-card-right' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_2_CARDS_LANDINGBLOCKCARD_RIGHT'),
-			'label' => ['.landing-block-card-right .landing-block-node-img', '.landing-block-node-carousel-element-title'],
+			'label' => ['.landing-block-node-img-right', '.landing-block-node-carousel-element-title'],
 		],
 	],
 	'nodes' => [
-		'.landing-block-card-left .landing-block-node-img' => [
+		'.landing-block-node-img-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_2_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 580],
 		],
-		'.landing-block-card-right .landing-block-node-img' => [
+		'.landing-block-node-img-right' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_2_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 580],

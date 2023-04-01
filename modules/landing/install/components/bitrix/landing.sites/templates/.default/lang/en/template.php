@@ -49,6 +49,7 @@ $MESS["LANDING_TPL_DEV_BTN"] = "Order now";
 $MESS["LANDING_TPL_DEV_HELP"] = "Need help with your website?";
 $MESS["LANDING_TPL_DEV_HELP_KNOWLEDGE"] = "Need help creating your knowledge base?";
 $MESS["LANDING_TPL_DEV_ORDER"] = "Order development with our partners";
+$MESS["LANDING_TPL_FEEDBACK_FORM_TITLE"] = "Submit request";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Published to domain #LINK#";
 $MESS["LANDING_TPL_TITLE"] = "Sites";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "Knowledge bases";

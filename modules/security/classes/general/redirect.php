@@ -15,13 +15,13 @@ class CSecurityRedirect
 		if ($kernelSession->isStarted() && $kernelSession->has("LOCAL_REDIRECTS"))
 		{
 			if($kernelSession["LOCAL_REDIRECTS"]["C"] == 0 && $kernelSession["LOCAL_REDIRECTS"]["R"] == '')
-				$kernelSession["LOCAL_REDIRECTS"]["R"] = $_SERVER["HTTP_REFERER"];
+				$kernelSession["LOCAL_REDIRECTS"]["R"] = ($_SERVER["HTTP_REFERER"] ?? '');
 
 			$kernelSession["LOCAL_REDIRECTS"]["C"]++;
 		}
 		else
 		{
-			$kernelSession["LOCAL_REDIRECTS"] = array("C" => 1, "R" => $_SERVER["HTTP_REFERER"]);
+			$kernelSession["LOCAL_REDIRECTS"] = array("C" => 1, "R" => ($_SERVER["HTTP_REFERER"] ?? ''));
 		}
 
 		if($skip_security_check)
@@ -31,6 +31,7 @@ class CSecurityRedirect
 		global $APPLICATION;
 
 		$good = true;
+		$url = str_replace("\xe2\x80\xae", "", $url);
 		$url_l = str_replace(array("\r", "\n"), "", $url);
 
 		//In case of absolute url will check if server to be redirected is our
@@ -94,7 +95,7 @@ class CSecurityRedirect
 			if($kernelSession["LOCAL_REDIRECTS"]["C"] > 1)
 				$REFERER_TO_CHECK = $kernelSession["LOCAL_REDIRECTS"]["R"];
 			else
-				$REFERER_TO_CHECK = $_SERVER["HTTP_REFERER"];
+				$REFERER_TO_CHECK = ($_SERVER["HTTP_REFERER"] ?? '');
 
 			if($good && COption::GetOptionString("security", "redirect_referer_check") == "Y")
 			{

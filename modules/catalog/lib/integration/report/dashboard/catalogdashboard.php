@@ -62,6 +62,12 @@ abstract class CatalogDashboard
 	abstract public function getBoardKey(): string;
 
 	/**
+	 * Returns identified <b>access board id</b> for catalog access checking
+	 * @return string
+	 */
+	abstract public function getAccessBoardId(): int;
+
+	/**
 	 * Returns <b>board version</b> of dashboard instance
 	 * @return string
 	 */

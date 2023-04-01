@@ -198,10 +198,10 @@ class CCalendarReminder
 	{
 		$eventId = (int)$params['id'];
 		$entryFields = $params['arFields'];
-		$reminders = $params['reminders'];
+		$reminders = $params['reminders'] ?? null;
 		$userId = (int)$params['userId'];
 
-		if (!isset($reminders))
+		if (!$reminders)
 		{
 			$reminders = self::prepareReminder($entryFields['REMIND']);
 		}
@@ -216,17 +216,17 @@ class CCalendarReminder
 
 		$agentParams = [
 			'eventId' => $eventId,
-			'userId' => $entryFields["CREATED_BY"],
+			'userId' => $entryFields["CREATED_BY"] ?? null,
 			'viewPath' => $viewPath,
-			'calendarType' => $entryFields["CAL_TYPE"],
-			'ownerId' => $entryFields["OWNER_ID"]
+			'calendarType' => $entryFields["CAL_TYPE"] ?? null,
+			'ownerId' => $entryFields["OWNER_ID"] ?? null
 		];
 
 		// 1. clean reminders
 		self::RemoveAgent($agentParams);
 
 		// Prevent dublication of reminders for non-user's calendar context (mantis:0128287)
-		if (!$entryFields['IS_MEETING'] || $entryFields['CAL_TYPE'] === 'user')
+		if (empty($entryFields['IS_MEETING']) || $entryFields['CAL_TYPE'] === 'user')
 		{
 			// 2. Set new reminders
 			if (CCalendarEvent::CheckRecurcion($entryFields))
@@ -267,10 +267,10 @@ class CCalendarReminder
 							$reminderTimestamp = self::getReminderTimestamp(
 								$eventTimestamp,
 								$reminder,
-								$entryFields['TZ_FROM']
+								$entryFields['TZ_FROM'] ?? null
 							);
 
-							$limitTime = isset($params['updateRecursive']) && $params['updateRecursive']
+							$limitTime = !empty($params['updateRecursive'])
 								? time() + self::REMINDER_NEXT_DELAY
 								: time() - self::REMINDER_INACCURACY;
 
@@ -304,7 +304,7 @@ class CCalendarReminder
 					$reminderTimestamp = self::getReminderTimestamp(
 						$eventTimestamp,
 						$reminder,
-						$entryFields['TZ_FROM']
+						$entryFields['TZ_FROM'] ?? null
 					);
 
 					if (

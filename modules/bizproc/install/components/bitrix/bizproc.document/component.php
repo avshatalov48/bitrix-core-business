@@ -17,7 +17,7 @@ if (!CModule::IncludeModule('bizproc'))
 $arParams["MODULE_ID"] = trim(empty($arParams["MODULE_ID"]) ? $_REQUEST["module_id"] : $arParams["MODULE_ID"]);
 $arParams["ENTITY"] = trim(empty($arParams["ENTITY"]) ? $_REQUEST["entity"] : $arParams["ENTITY"]);
 $arParams["DOCUMENT_TYPE"] = trim(empty($arParams["DOCUMENT_TYPE"]) ? $_REQUEST["document_type"] : $arParams["DOCUMENT_TYPE"]);
-$arParams["DOCUMENT_ID"] = trim(empty($arParams["DOCUMENT_ID"]) ? $_REQUEST["document_id"] : $arParams["DOCUMENT_ID"]);
+$arParams["DOCUMENT_ID"] = trim(empty($arParams["DOCUMENT_ID"]) ? $_REQUEST["document_id"] ?? '' : $arParams["DOCUMENT_ID"]);
 
 if (isset($arParams["TASK_ID"]))
 {
@@ -233,9 +233,9 @@ else
 		$needUpdateStatesList = false;
 		for ($i = 1; $i <= $bizprocIndex; $i++)
 		{
-			$bpId = trim($_REQUEST["bizproc_id_" . $i]);
-			$bpTemplateId = intval($_REQUEST["bizproc_template_id_" . $i]);
-			$bpEvent = trim($_REQUEST["bizproc_event_" . $i]);
+			$bpId = trim($_REQUEST["bizproc_id_" . $i] ?? '');
+			$bpTemplateId = intval($_REQUEST["bizproc_template_id_" . $i] ?? 0);
+			$bpEvent = trim($_REQUEST["bizproc_event_" . $i] ?? '');
 
 			if ($bpEvent <> '')
 			{
@@ -284,7 +284,7 @@ else
 	{
 		$url = (!empty($arParams["back_url"]) ? $arParams["back_url"] : $APPLICATION->GetCurPageParam("", ["action", "id", "sessid"]));
 		$url = (empty($_POST["apply"]) ? $url : $APPLICATION->GetCurPageParam("", ["action", "id", "sessid"]));
-		if (isset($_REQUEST['action']))
+		if (!empty($_REQUEST['action']))
 		{
 			LocalRedirect($url);
 		}

@@ -1,6 +1,9 @@
 <?php
 
 namespace Bitrix\Iblock\Component;
+
+use Bitrix\Iblock\PropertyTable;
+
 /**
  * Class Tools
  * Provides various useful methods.
@@ -170,5 +173,53 @@ class Tools
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Check if the property is checkbox:
+	 * - PROPERTY_TYPE === 'L';
+	 * - LIST_TYPE === 'C';
+	 * - Variants amount === 1;
+	 * - Value of the variant === 'Y'.
+	 *
+	 * @param array $property			Array of property settings
+	 *
+	 * @return bool
+	 */
+	public static function isCheckboxProperty(array $property): bool
+	{
+		if (!isset($property['PROPERTY_TYPE']) || $property['PROPERTY_TYPE'] !== PropertyTable::TYPE_LIST)
+		{
+			return false;
+		}
+
+		if (!isset($property['LIST_TYPE']) || $property['LIST_TYPE'] !== PropertyTable::CHECKBOX)
+		{
+			return false;
+		}
+
+		$filter = [
+			'=PROPERTY_ID' => $property['ID'],
+		];
+		$cache = ['ttl' => 86400];
+		$variantsCount = \Bitrix\Iblock\PropertyEnumerationTable::getCount($filter, $cache);
+
+		if ($variantsCount !== 1)
+		{
+			return false;
+		}
+
+		$variant = \Bitrix\Iblock\PropertyEnumerationTable::getRow([
+			'select' => ['ID', 'PROPERTY_ID', 'VALUE'],
+			'filter' => $filter,
+			'cache' => $cache,
+		]);
+
+		if (!isset($variant['VALUE']) || $variant['VALUE'] !== 'Y')
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

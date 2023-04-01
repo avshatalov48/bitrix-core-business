@@ -46,65 +46,59 @@ this.BX = this.BX || {};
 	  }
 
 	  remove() {
-	    if (confirm(BX.message('EC_SEC_DELETE_CONFIRM'))) {
-	      const EventAlias = calendar_util.Util.getBX().Event;
-	      EventAlias.EventEmitter.emit('BX.Calendar.Section:delete', new EventAlias.BaseEvent({
-	        data: {
-	          sectionId: this.id
-	        }
-	      }));
-	      BX.ajax.runAction('calendar.api.calendarajax.deleteCalendarSection', {
-	        data: {
-	          id: this.id
-	        }
-	      }).then(response => {
-	        return this.updateListAfterDelete();
-	      }, response => {// this.calendar.displayError(response.errors);
-	      });
-	    }
+	    const EventAlias = calendar_util.Util.getBX().Event;
+	    EventAlias.EventEmitter.emit('BX.Calendar.Section:delete', new EventAlias.BaseEvent({
+	      data: {
+	        sectionId: this.id
+	      }
+	    }));
+	    BX.ajax.runAction('calendar.api.calendarajax.deleteCalendarSection', {
+	      data: {
+	        id: this.id
+	      }
+	    }).then(response => {
+	      return this.updateListAfterDelete();
+	    }, response => {// this.calendar.displayError(response.errors);
+	    });
 	  }
 
 	  hideSyncSection() {
-	    if (confirm(BX.message('EC_CAL_GOOGLE_HIDE_CONFIRM'))) {
-	      this.hide();
-	      BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
-	      calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Section:delete', new main_core.Event.BaseEvent({
-	        data: {
-	          sectionId: this.id
-	        }
-	      })); //hideExternalCalendarSection
+	    this.hide();
+	    BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
+	    calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Section:delete', new main_core.Event.BaseEvent({
+	      data: {
+	        sectionId: this.id
+	      }
+	    })); //hideExternalCalendarSection
 
-	      BX.ajax.runAction('calendar.api.calendarajax.setSectionStatus', {
-	        data: {
-	          sectionStatus: {
-	            [this.id]: false
-	          }
+	    BX.ajax.runAction('calendar.api.calendarajax.setSectionStatus', {
+	      data: {
+	        sectionStatus: {
+	          [this.id]: false
 	        }
-	      }).then(response => {
-	        return this.updateListAfterDelete();
-	      }, response => {// this.calendar.displayError(response.errors);
-	      });
-	    }
+	      }
+	    }).then(response => {
+	      return this.updateListAfterDelete();
+	    }, response => {// this.calendar.displayError(response.errors);
+	    });
 	  }
 
 	  hideExternalCalendarSection() {
-	    if (confirm(BX.message('EC_CAL_GOOGLE_HIDE_CONFIRM'))) {
-	      this.hide();
-	      BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
-	      calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Section:delete', new main_core.Event.BaseEvent({
-	        data: {
-	          sectionId: this.id
-	        }
-	      }));
-	      BX.ajax.runAction('calendar.api.calendarajax.hideExternalCalendarSection', {
-	        data: {
-	          id: this.id
-	        }
-	      }).then(response => {
-	        return this.updateListAfterDelete();
-	      }, response => {// this.calendar.displayError(response.errors);
-	      });
-	    }
+	    this.hide();
+	    BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
+	    calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Section:delete', new main_core.Event.BaseEvent({
+	      data: {
+	        sectionId: this.id
+	      }
+	    }));
+	    BX.ajax.runAction('calendar.api.calendarajax.hideExternalCalendarSection', {
+	      data: {
+	        id: this.id
+	      }
+	    }).then(response => {
+	      return this.updateListAfterDelete();
+	    }, response => {// this.calendar.displayError(response.errors);
+	    });
 	  }
 
 	  getLink() {
@@ -373,6 +367,7 @@ this.BX = this.BX || {};
 	    this.sectionAccessTasks = config.sectionAccessTasks;
 	    this.showTasks = config.showTasks;
 	    this.customizationData = config.sectionCustomization || {};
+	    this.meetSectionId = parseInt(config.meetSectionId, 10);
 	  }
 
 	  addTaskSection() {
@@ -598,11 +593,15 @@ this.BX = this.BX || {};
 
 	      if (calendarType === 'location') {
 	        const section = calendarContext.sectionManager.getDefaultSection('user', calendarContext.util.userId);
-	        return parseInt(section.id, 10);
+	        return parseInt(section == null ? void 0 : section.id, 10);
 	      } else {
 	        const section = calendarContext.sectionManager.getDefaultSection(calendarType, ownerId);
-	        return parseInt(section.id, 10);
+	        return parseInt(section == null ? void 0 : section.id, 10);
 	      }
+	    }
+
+	    if (SectionManager.newEntrySectionId) {
+	      return SectionManager.newEntrySectionId;
 	    }
 
 	    return null;
@@ -694,15 +693,19 @@ this.BX = this.BX || {};
 	  }
 
 	  getDefaultSection(calendarType = null, ownerId = null) {
+	    let sections = this.getSectionListForEdit();
 	    calendarType = main_core.Type.isString(calendarType) ? calendarType : this.calendarType;
 	    ownerId = main_core.Type.isNumber(ownerId) ? ownerId : this.ownerId;
-	    const userSettings = calendar_util.Util.getUserSettings();
-	    const key = calendarType + ownerId;
-	    const defaultSectionId = userSettings.defaultSections[key] || userSettings.lastUsedSection;
-	    const sections = this.getSectionListForEdit();
-	    let section = sections.find(item => {
-	      return item.type === calendarType && item.ownerId === ownerId && item.id === defaultSectionId;
-	    });
+	    let section;
+
+	    if (calendarType === 'user') {
+	      const defaultSectionId = this.meetSectionId;
+	      section = sections.find(item => {
+	        return item.type === calendarType && item.ownerId === ownerId && item.id === defaultSectionId;
+	      });
+	    } else {
+	      sections = sections.sort((section1, section2) => section1.id - section2.id);
+	    }
 
 	    if (!section) {
 	      section = sections.find(item => {

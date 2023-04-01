@@ -47,6 +47,61 @@ if (!empty($htmlEditorConfigs))
 		<div id="<?=htmlspecialcharsbx($htmlEditorConfig['containerId'])?>" style="display:none;">
 			<?php
 			$editor = new CHTMLEditor();
+
+			$editorControlsMap = [
+				['id' => 'ChangeView', 'compact' => true, 'sort' => 5],
+				['id' => 'Bold', 'compact' => true, 'sort' => 10],
+				['id' => 'Italic', 'compact' => true, 'sort' => 20],
+				['id' => 'Underline', 'compact' => true, 'sort' => 30],
+				['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
+				['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
+				['id' => 'Color', 'compact' => false, 'sort' => 60],
+				['id' => 'FontSelector', 'compact' => false, 'sort' => 70],
+				['id' => 'FontSize', 'compact' => true, 'sort' => 80],
+				['separator' => true, 'compact' => false, 'sort' => 90],
+				['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
+				['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
+				['id' => 'AlignList', 'compact' => false, 'sort' => 120],
+				['separator' => true, 'compact' => false, 'sort' => 130],
+				['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
+				['id' => 'Code', 'compact' => false, 'sort' => 180],
+				['id' => 'Quote', 'compact' => false, 'sort' => 190],
+				['separator' => true, 'compact' => false, 'sort' => 200],
+				['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
+				['id' => 'More', 'compact' => true, 'sort' => 400],
+			];
+
+			if (is_array($arResult['DISABLED_HTML_CONTROLS']))
+			{
+				$editorControls = [];
+				foreach ($editorControlsMap as $item)
+				{
+					$itemId = $item['id'] ?? false;
+					$isSeparator = $item['separator'] ?? false;
+
+					if (
+						$itemId
+						&& in_array($itemId, $arResult['DISABLED_HTML_CONTROLS'], true)
+					)
+					{
+						continue;
+					}
+
+					if (
+						$isSeparator
+						&& isset($editorControls[array_key_last($editorControls)]['separator'])
+					)
+					{
+						continue;
+					}
+					$editorControls[] = $item;
+				}
+			}
+			else
+			{
+				$editorControls = $editorControlsMap;
+			}
+
 			$editor->Show(
 				[
 					'name' => $htmlEditorConfig['id'],
@@ -69,27 +124,7 @@ if (!empty($htmlEditorConfigs))
 					'setFocusAfterShow' => false,
 					'askBeforeUnloadPage' => false,
 					'useFileDialogs' => false,
-					'controlsMap' => [
-						['id' => 'Bold', 'compact' => true, 'sort' => 10],
-						['id' => 'Italic', 'compact' => true, 'sort' => 20],
-						['id' => 'Underline', 'compact' => true, 'sort' => 30],
-						['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
-						['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
-						['id' => 'Color', 'compact' => false, 'sort' => 60],
-						['id' => 'FontSelector', 'compact' => false, 'sort' => 70],
-						['id' => 'FontSize', 'compact' => true, 'sort' => 80],
-						['separator' => true, 'compact' => false, 'sort' => 90],
-						['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
-						['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
-						['id' => 'AlignList', 'compact' => false, 'sort' => 120],
-						['separator' => true, 'compact' => false, 'sort' => 130],
-						['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
-						['id' => 'Code', 'compact' => false, 'sort' => 180],
-						['id' => 'Quote', 'compact' => false, 'sort' => 190],
-						['separator' => true, 'compact' => false, 'sort' => 200],
-						['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
-						['id' => 'More', 'compact' => true, 'sort' => 400],
-					],
+					'controlsMap' => $editorControls,
 				]
 			);
 			?>
@@ -164,7 +199,7 @@ if (!empty($htmlEditorConfigs))
 						validators: <?=CUtil::PhpToJSObject($arResult['ENTITY_VALIDATORS'])?>,
 						controllers: <?=CUtil::PhpToJSObject($arResult['ENTITY_CONTROLLERS'])?>,
 						detailManagerId: "<?=CUtil::JSEscape($arResult['DETAIL_MANAGER_ID'])?>",
-						fieldCreationPageUrl: "<?=CUtil::JSEscape($arResult['FIELD_CREATION_PAGE_URL'])?>",
+						fieldCreationPageUrl: "<?=CUtil::JSEscape($arResult['FIELD_CREATION_PAGE_URL'] ?? '')?>",
 						userFieldManager: userFieldManager,
 						initialMode: "<?=CUtil::JSEscape($arResult['INITIAL_MODE'])?>",
 						enableModeToggle: <?=$arResult['ENABLE_MODE_TOGGLE'] ? 'true' : 'false'?>,

@@ -30,13 +30,15 @@ abstract class DbRule implements Interfaces\RouteRule
 
 	/**
 	 * @param Interfaces\Message $message
-	 * @return mixed
+	 *
+	 * @return Queue|null
 	 */
-	abstract protected function getTargetQueue(Interfaces\Message $message);
+	abstract protected function getTargetQueue(Interfaces\Message $message): ?Queue;
 
 	/**
 	 * @param Interfaces\Message $message
-	 * @return mixed
+	 *
+	 * @return string
 	 */
-	abstract protected function getMessageHash(Interfaces\Message $message);
+	abstract protected function getMessageHash(Interfaces\Message $message): string;
 }

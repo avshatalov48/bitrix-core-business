@@ -1,12 +1,13 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 Loc::loadMessages(__FILE__);
 
 class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 {
-	const USER_TYPE = 'SKU';
+	public const USER_TYPE = 'SKU';
 
 	public static function GetUserTypeDescription()
 	{
@@ -18,7 +19,7 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 			"GetPropertyFieldHtmlMulty" => array(__CLASS__, "GetPropertyFieldHtml"),
 			"GetPublicViewHTML" => array(__CLASS__, "GetPublicViewHTML"),
 			"GetPublicEditHTML" => array(__CLASS__, "GetPublicEditHTML"),
-			"GetAdminListViewHTML" => array(__CLASS__,"GetAdminListViewHTML"),
+			"GetAdminListViewHTML" => array(__CLASS__,"getAdminListViewHTMLExtended"),
 			"GetAdminFilterHTML" => array(__CLASS__,'GetAdminFilterHTML'),
 			"GetSettingsHTML" => array(__CLASS__,'GetSettingsHTML'),
 			"PrepareSettings" => array(__CLASS__,'PrepareSettings'),
@@ -90,6 +91,71 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 		</tr>';
 
 		return $strResult;
+	}
+
+	public static function GetPublicViewHTML($arProperty, $arValue, $strHTMLControlName)
+	{
+		$elementId = (int)($arValue['VALUE'] ?? 0);
+		$element = self::getElement($elementId);
+		if (!$element)
+		{
+			return '';
+		}
+
+		return htmlspecialcharsbx($element['NAME']) . ' [' . $elementId . ']';
+	}
+
+	public static function getAdminListViewHTMLExtended(array $property, array $value, $control): string
+	{
+		$result = '';
+		if ($value['VALUE'])
+		{
+			$isPublicMode = (defined("PUBLIC_MODE") && (int)PUBLIC_MODE === 1);
+
+			if ($isPublicMode)
+			{
+				$result .= self::GetPublicViewHTML($property, $value, $control);
+			}
+			else
+			{
+				$result .= self::GetAdminListViewHTML($property, $value, $control);
+			}
+		}
+
+		return $result;
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		$result = parent::GetUIEntityEditorProperty($settings, $value);
+		$result['allowedMultiple'] = false;
+
+		return $result;
+	}
+
+	private static function getElement(int $elementId): ?array
+	{
+		if ($elementId <= 0)
+		{
+			return null;
+		}
+
+		$element = CIBlockElement::GetList(
+			[],
+			[
+				'ID' => $elementId,
+			],
+			false,
+			false,
+			['ID', 'IBLOCK_ID', 'NAME']
+		)->Fetch();
+
+		if ($element)
+		{
+			return $element;
+		}
+
+		return null;
 	}
 }
 

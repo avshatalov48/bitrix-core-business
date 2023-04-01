@@ -864,7 +864,7 @@
 		{
 			var error = new Error("Hangup in wrong state");
 			this.log(error);
-			return;
+			return Promise.reject(error);
 		}
 
 		var tempError = new Error();

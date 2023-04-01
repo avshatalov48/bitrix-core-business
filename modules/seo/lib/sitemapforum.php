@@ -82,7 +82,7 @@ class SitemapForum
 			$arTopic = (!empty($arTopic) ? $arTopic : \CForumTopic::GetByID($arMessage["TOPIC_ID"]));
 			if (empty($arTopic))
 				return false;
-			$arSitemaps = SitemapForumTable::getSitemapsByEntityId($arTopic["FORUM_ID"]);
+			$arSitemaps = SitemapForumTable::getSitemapsByEntityId($arTopic["FORUM_ID"] ?? 0);
 			if (!empty($arSitemaps) && ($arForum = \CForumNew::GetByIDEx($arTopic["FORUM_ID"])) && $arForum)
 			{
 				$arForum["PATH2FORUM_MESSAGE"] = \CForumNew::GetSites($arTopic["FORUM_ID"]);

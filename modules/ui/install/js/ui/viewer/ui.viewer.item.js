@@ -973,11 +973,16 @@
 
 				if (response.data.hasOwnProperty('pullTag'))
 				{
-					this.transformationPromise = promise;
-					this.registerTransformationHandler(response.data.pullTag);
+					if (!this.isTransforming)
+					{
+						this.transformationPromise = promise;
+						this.registerTransformationHandler(response.data.pullTag);
+					}
+					this.isTransforming = true;
 				}
 				else
 				{
+					this.isTransforming = false;
 					if (response.data.data)
 					{
 						this.width = response.data.data.width;

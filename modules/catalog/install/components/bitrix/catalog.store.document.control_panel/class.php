@@ -6,6 +6,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Integration\Report\Dashboard\DashboardManager;
+use Bitrix\Catalog\Integration\Report\Dashboard\StoreStockDashboard;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
@@ -243,7 +245,23 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		{
 			if (\Bitrix\Catalog\Component\UseStore::isUsed())
 			{
-				$url = '/report/analytics/?analyticBoardKey=catalog_warehouse_stock';
+				$allowedDashboards = DashboardManager::getManager()->getAllowedDashboards();
+				if (!$allowedDashboards)
+				{
+					return null;
+				}
+
+				$linkKey = '';
+				foreach ($allowedDashboards as $board)
+				{
+					$linkKey = $board->getBoardKey();
+					if ($linkKey === StoreStockDashboard::BOARD_KEY)
+					{
+						break;
+					}
+				}
+
+				$url = '/report/analytics/?analyticBoardKey=' . $linkKey;
 				return [
 					'ID' => 'analytics',
 					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),

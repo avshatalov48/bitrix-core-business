@@ -68,7 +68,7 @@
 
 .ui-popupcomponentmaker__content--section {
 	display: flex;
-	margin-bottom: var(--ui-space-stack-sm, 12px);
+	margin-bottom: var(--ui-space-stack-sm);
 }
 
 .ui-popupcomponentmaker__content--section:last-child {
@@ -78,11 +78,11 @@
 .ui-popupcomponentmaker__content--section-item {
 	flex: 1;
 	position: relative;
-	margin-right: var(--ui-space-inline-sm, 12px);
+	margin-right: var(--ui-space-inline-sm);
 	background: #fff;
 	transform: translateY(0);
 	box-shadow: 0 1px 3px 0 rgba(0,0,0,.09);
-	border-radius: var(--ui-border-radius-lg, 12px);
+	border-radius: var(--ui-border-radius-lg);
 	max-width: 100%;
 	transition: .2s;
 }
@@ -149,19 +149,19 @@
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
-	height: var(--ui-size-lg, 20px);
-	padding: 0 var(--ui-space-inset-sm, 12px);
+	height: var(--ui-size-lg);
+	padding: 0 var(--ui-space-inset-sm);
 	border: 1px solid transparent;
 	box-sizing: border-box;
 	margin: 0;
 	outline: none;
-	color: var(--ui-color-text-secondary, #525c69);
+	color: var(--ui-color-text-secondary);
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-size: var(--ui-font-size-4xs, 10px);
-	font-weight: var(--ui-font-weight-semi-bold, 600);
+	font-size: var(--ui-font-size-4xs);
+	font-weight: var(--ui-font-weight-semi-bold);
 	background-color: #fff;
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,.18);
-	border-radius: var(--ui-border-radius-xl, 14px);
+	border-radius: var(--ui-border-radius-xl);
 	text-decoration: none;
 	white-space: nowrap;
 	user-select: none;
@@ -171,12 +171,12 @@
 
 .ui-popupcomponentmaker__btn.--large,
 .ui-qr-popupcomponentmaker__btn.--large {
-	height: var(--ui-size-2xl, 28px);
-	padding: 0 var(--ui-space-inset-md, 16px);
-	border-radius: var(--ui-border-radius-xl, 14px);
+	height: var(--ui-size-2xl);
+	padding: 0 var(--ui-space-inset-md);
+	border-radius: var(--ui-border-radius-xl);
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-size: var(--ui-font-size-xs, 12px);
-	font-weight: var(--ui-font-weight-semi-bold, 600);
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-semi-bold);
 }
 
 .ui-popupcomponentmaker__btn.--border,
@@ -205,7 +205,7 @@
 .ui-popupcomponentmaker__btn:hover,
 .ui-qr-popupcomponentmaker__btn:hover {
 	border-color: rgba(31,130,232,.6);
-	color: var(--ui-color-text-secondary, #525c69);
+	color: var(--ui-color-text-secondary);
 	box-shadow: 0 1px 2px rgba(0,0,0,.08);;
 }
 

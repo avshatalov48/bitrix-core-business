@@ -34,7 +34,7 @@ if (!defined("UPD_INTERNAL_CALL") || UPD_INTERNAL_CALL != "Y")
 
 $stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "Y");
 
-$queryType = $_REQUEST["query_type"];
+$queryType = isset($_REQUEST["query_type"]) ? $_REQUEST["query_type"] : '';
 if (!in_array($queryType, array("M", "L", "H")))
 {
 	$queryType = "M";

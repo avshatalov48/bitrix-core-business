@@ -73,13 +73,28 @@ $isAjax = $component->isAjax();
 </script>
 
 <?if (!$arParams['ITEMS']):
-	$features = [
-		$component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT1'),
-		$component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT2'),
-		$component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT3'),
-		$component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT4'),
-		$component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT5')
-	];
+	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT1');
+	if ($arParams['TYPE'] === 'STORE' && \Bitrix\Landing\Manager::getZone() === 'ru')
+	{
+		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT6');
+	}
+	else
+	{
+		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT2');
+	}
+	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT3');
+	if ($arParams['TYPE']  === 'STORE' && \Bitrix\Landing\Manager::getZone() === 'ru')
+	{
+		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT7');
+	}
+	else
+	{
+		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT4');
+	}
+	if ($arParams['TYPE']  === 'STORE')
+	{
+		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT5');
+	}
 	\trimArr($features, true);
 	$langImg = \Bitrix\Landing\Manager::availableOnlyForZone('ru') ? 'ru' : 'en';
 	?>

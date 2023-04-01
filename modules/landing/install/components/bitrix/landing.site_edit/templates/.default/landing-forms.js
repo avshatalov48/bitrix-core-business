@@ -1,9 +1,3 @@
-function deleteAccessRow(link)
-{
-	landingAccessSelected[BX.data(BX(link), 'id')] = false;
-	BX.remove(BX.findParent(BX(link), {tag: 'tr'}, true));
-}
-
 (function() {
 
 	'use strict';
@@ -63,6 +57,11 @@ function deleteAccessRow(link)
 			this.input.style.display = 'block';
 
 			this.input.focus();
+			if (!BX.Dom.hasClass(this.input, 'landing-editable-field-input-js-init'))
+			{
+				this.input.selectionStart = this.input.value.length;
+				BX.Dom.addClass(this.input, "landing-editable-field-input-js-init");
+			}
 
 			this.input.IsWidthSet = true;
 
@@ -219,9 +218,9 @@ function deleteAccessRow(link)
 	 */
 	BX.Landing.Access = function(params)
 	{
-		const selected = landingAccessSelected;
+		BX.Landing.Access.selected = params.selected;
+		this.table = params.table;
 		const name = 'RIGHTS';
-		const tbl = params.table;
 		const form = params.form;
 		const select = params.select;
 		let inc = params.inc;
@@ -232,12 +231,12 @@ function deleteAccessRow(link)
 			}
 		});
 
-		BX.Access.SetSelected(selected, name);
+		BX.Access.SetSelected(BX.Landing.Access.selected, name);
 
 		function showForm()
 		{
 			BX.Access.ShowForm({
-				callback: function(obSelected) {
+				callback: obSelected => {
 					for (let provider in obSelected)
 					{
 						if (obSelected.hasOwnProperty(provider))
@@ -246,22 +245,23 @@ function deleteAccessRow(link)
 							{
 								if (obSelected[provider].hasOwnProperty(id))
 								{
-									let cnt = tbl.rows.length;
-									let row = tbl.insertRow(cnt-1);
+									let cnt = this.table.rows.length;
+									let row = this.table.insertRow(cnt-1);
 									row.classList.add("landing-form-rights");
 
-									selected[id] = true;
+									BX.Landing.Access.selected[id] = true;
 									row.insertCell(-1);
 									row.insertCell(-1);
 										row.cells[0].innerHTML = BX.Access.GetProviderName(provider) + ' ' +
 										BX.util.htmlspecialchars(obSelected[provider][id].name) + ':' +
-										'<input type="hidden" name="fields[' + name + '][ACCESS_CODE][]" value="' + id + '">';
+										'<input type="hidden" name="fields[' + name + '][ACCESS_CODE][' + inc + ']" value="' + id + '">';
 									row.cells[0].classList.add("landing-form-rights-right");
 									row.cells[1].classList.add("landing-form-rights-left");
 									row.cells[1].innerHTML =
-										select.replace('#inc#', inc++)
-										+ ' <a href="javascript:void(0);" onclick="deleteAccessRow(this);"'
+										select.replace('#inc#', inc)
+										+ ' <a href="javascript:void(0);" onclick="BX.Landing.Access.onRowDelete(this);"'
 										+ ' data-id="' + id + '" class="landing-form-rights-delete"></a>';
+									inc++;
 								}
 							}
 						}
@@ -273,6 +273,13 @@ function deleteAccessRow(link)
 
 		form.addEventListener('click', showForm.bind(this));
 	};
+
+	BX.Landing.Access.selected = [];
+
+	BX.Landing.Access.onRowDelete = function(link) {
+		BX.Landing.Access.selected[BX.data(BX(link), 'id')] = false;
+		BX.remove(BX.findParent(BX(link), {tag: 'tr'}, true));
+	}
 
 	/**
 	 * Layout.

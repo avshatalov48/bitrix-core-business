@@ -386,7 +386,7 @@ class CAllRatings
 				if ($sRatingWeightType === 'auto')
 				{
 					$voteWeight = COption::GetOptionString("main", "rating_vote_weight", 1);
-					$arRes['CONFIG']['COEFFICIENT'] = $arRes['CONFIG']['COEFFICIENT']*$voteWeight;
+					$arRes['CONFIG']['COEFFICIENT'] = ($arRes['CONFIG']['COEFFICIENT'] ?? 1) * $voteWeight;
 				}
 				if ($arRes['EXCEPTION_METHOD'] <> '')
 				{

@@ -372,7 +372,7 @@ class Letter extends Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		if(!$this->getMessage()->isAvailable())
 		{
@@ -607,7 +607,7 @@ class Letter extends Base
 
 	protected function updateTemplateUseCount(array $data, array $previousData)
 	{
-		if (!$data['TEMPLATE_TYPE'] || !$data['TEMPLATE_ID'])
+		if (!isset($data['TEMPLATE_TYPE']) || !isset($data['TEMPLATE_ID']))
 		{
 			return false;
 		}
@@ -616,7 +616,11 @@ class Letter extends Base
 		{
 			return false;
 		}
-		if ($data['TEMPLATE_ID'] === $previousData['TEMPLATE_ID'] && $data['TEMPLATE_TYPE'] === $previousData['TEMPLATE_TYPE'])
+		if (
+			isset($previousData['TEMPLATE_ID'])
+			&& $data['TEMPLATE_ID'] === $previousData['TEMPLATE_ID']
+			&& $data['TEMPLATE_TYPE'] === $previousData['TEMPLATE_TYPE']
+		)
 		{
 			return false;
 		}
@@ -740,14 +744,14 @@ class Letter extends Base
 		$messageId = $this->get('MESSAGE_ID') ?: null;
 
 		$messageFields = [];
-		if ($this->data['MESSAGE_FIELDS'])
+		if (isset($this->data['MESSAGE_FIELDS']) && $this->data['MESSAGE_FIELDS'])
 		{
 			foreach ($this->data['MESSAGE_FIELDS'] as $field)
 			{
 				$messageFields[$field['CODE']] = $field['VALUE'];
 			}
 		}
-		if ($this->messagesCache && $this->messagesCache[$messageCode])
+		if ($this->messagesCache && isset($this->messagesCache[$messageCode]))
 		{
 			$this->message = $this->messagesCache[$messageCode];
 			if ($messageFields)

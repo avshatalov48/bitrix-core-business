@@ -255,7 +255,7 @@ class CTimeZone
 			{
 				$localOffset = (new DateTime())->getOffset();
 
-				$userTime = new DateTime(null, new DateTimeZone($timeZone));
+				$userTime = new DateTime('now', new DateTimeZone($timeZone));
 				$userOffset = $userTime->getOffset();
 
 				return $userOffset - $localOffset;

@@ -93,11 +93,11 @@ class EntityUFDataProvider extends DataProvider
 			{
 				$result[$fieldName] = $this->createField(
 					$fieldName,
-					array(
-						'type' => 'dest_selector',
+					[
+						'type' => 'entity_selector',
 						'name' => $fieldLabel,
-						'partial' => true
-					)
+						'partial' => true,
+					]
 				);
 			}
 			elseif($typeID === 'string' || $typeID === 'url' || $typeID === 'address' || $typeID === 'money')
@@ -237,22 +237,28 @@ class EntityUFDataProvider extends DataProvider
 		$typeID = $userField['USER_TYPE']['USER_TYPE_ID'];
 		$isMultiple = isset($userField['MULTIPLE']) && $userField['MULTIPLE'] === 'Y';
 		$ID = $userField['ID'];
-		if($typeID === 'employee')
+		if ($typeID === 'employee')
 		{
-			return array(
-				'params' => array(
-					'context' => 'CRM_UF_FILTER_'.$fieldID,
-					'multiple' => 'N',
-					'contextCode' => 'U',
-					'enableAll' => 'N',
-					'enableSonetgroups' => 'N',
-					'allowEmailInvitation' => 'N',
-					'allowSearchEmailUsers' => 'N',
-					'departmentSelectDisable' => 'Y',
-					'isNumeric' => 'Y',
-					'prefix' => 'U',
-				)
-			);
+			return [
+				'params' => [
+					'multiple' => $isMultiple ? 'Y' : 'N',
+					'dialogOptions' => [
+						'height' => 200,
+						'context' => 'CRM_UF_FILTER_' . $fieldID,
+						'entities' => [
+							[
+								'id' => 'user',
+								'options' => [
+									'inviteEmployeeLink' => false,
+									'intranetUsersOnly' => true,
+								]
+							],
+						],
+						'showAvatars' => true,
+						'dropdownMode' => false,
+					],
+				],
+			];
 		}
 		elseif($typeID === 'enumeration')
 		{

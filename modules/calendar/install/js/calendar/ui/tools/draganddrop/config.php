@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/draganddrop.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
+		'calendar.util',
 	],
 	'skip_core' => true,
 ];

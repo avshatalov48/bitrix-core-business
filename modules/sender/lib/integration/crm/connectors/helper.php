@@ -8,6 +8,7 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
+use Bitrix\Crm\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
@@ -19,6 +20,8 @@ use Bitrix\Main\UI\Filter\AdditionalDateType;
 use Bitrix\Main\UI\Filter\Type as UiFilterType;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Integration\Crm\Connectors\Personalize\BasePersonalize;
+use Bitrix\Sender\Integration\Crm\Connectors\Personalize\FactoryBased;
 use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
@@ -82,16 +85,30 @@ class Helper
 
 	public static function buildPersonalizeList($entityType)
 	{
-		$result = [];
 		$documentClass = self::PERSONALIZE_NAMESPACE.ucfirst($entityType);
 
-		if(!class_exists($documentClass, 'getEntityFields'))
+		if(!is_subclass_of($documentClass, BasePersonalize::class))
 		{
-			return $result;
+			return [];
 		}
 
+		$fields = $documentClass::isFactoryBased($entityType)
+			? FactoryBased::getEntityFields($entityType)
+			: $documentClass::getEntityFields($entityType);
+
+		if(!$fields)
+		{
+			return [];
+		}
+
+		return static::preparePersonalizeList($entityType, $fields);
+	}
+
+	public static function preparePersonalizeList(string $entityType, array $fields): array
+	{
+		$result = [];
 		$items = [];
-		$fields = $documentClass::getEntityFields($entityType) ;
+
 		$counter = 0;
 		foreach ($fields as $fieldCode  => $field)
 		{
@@ -109,9 +126,14 @@ class Helper
 			}
 		}
 
+		$name = Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_'.$entityType);
+		if (Loader::includeModule('crm'))
+		{
+			$name = \CCrmOwnerType::GetDescription(\CCrmOwnerType::ResolveID($entityType));
+		}
 		$result[] = [
 			'CODE' => $entityType,
-			'NAME' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_'.$entityType),
+			'NAME' => $name,
 			'ITEMS' => $items
 		];
 
@@ -120,15 +142,17 @@ class Helper
 
 	public static function getData($entityType, $entityIds, $fields = ['*'])
 	{
-		$result = [];
 		$documentClass = self::PERSONALIZE_NAMESPACE.ucfirst($entityType);
 
-		if(!class_exists($documentClass, 'getData') || !Loader::includeModule('crm'))
+		if(!is_subclass_of($documentClass, BasePersonalize::class))
 		{
-			return $result;
+			return [];
 		}
 
-		return $documentClass::getData($entityType, $entityIds, $fields);
+		return $documentClass::isFactoryBased($entityType)
+			? FactoryBased::getData($entityType, $entityIds, $fields)
+			: $documentClass::getData($entityType, $entityIds, $fields)
+			;
 	}
 
 	public static function getPersonalizeFieldsFromConnectors($isTrigger = false)
@@ -455,7 +479,7 @@ class Helper
 					{
 						$filterKey = "=$filterKey";
 					}
-					if ($field['multiple_uf'])
+					if ($field['multiple_uf'] ?? false)
 					{
 						$filterKey .= "_SINGLE";
 					}
@@ -558,7 +582,7 @@ class Helper
 
 			$field['value'] = $value;
 
-			if ($field['filter_callback'])
+			if ($field['filter_callback'] ?? false)
 			{
 				$extraCallbackParams = [
 					'FIELD' => $field,
@@ -654,6 +678,11 @@ class Helper
 		{
 			$filter['=HAS_IMOL'] = 'Y';
 		}
+	}
+
+	protected static function getIdFilter($value, &$filter)
+	{
+		$filter['@CRM_ENTITY_ID'] = array_map('trim', explode(",", $value[0]));
 	}
 
 	protected static function getNoPurchasesFilter($value, &$filter, $extraCallbackParams = [])
@@ -788,6 +817,10 @@ class Helper
 
 	protected function getPathToDetail($entityTypeId, $entityId)
 	{
+		if (Loader::includeModule('crm'))
+		{
+			return Container::getInstance()->getRouter()->getItemDetailUrl($entityTypeId, $entityId);
+		}
 		switch ($entityTypeId)
 		{
 			case \CCrmOwnerType::Company:
@@ -818,6 +851,6 @@ class Helper
 
 	public static function isCrmSaleEnabled()
 	{
-		return Loader::includeModule("sale");
+		return Loader::includeModule("sale") && (Option::get("crm", "crm_shop_enabled", "N") != 'N');
 	}
 }

@@ -26,6 +26,8 @@ class Helper
 	public const DATE_TIME_FORMAT_WITH_MICROSECONDS = 'Y-m-d\TH:i:s\.vP';
 	public const DATE_TIME_FORMAT_RFC_3339 = 'Y-m-d\TH:i:s\Z';
 	public const DATE_TIME_FORMAT_WITH_UTC_TIMEZONE = 'Ymd\THis\Z';
+	public const EXCLUDED_DATE_TIME_FORMAT = self::DATE_TIME_FORMAT_WITH_UTC_TIMEZONE;
+	public const EXCLUDED_DATE_FORMAT = 'Ymd';
 	public const DATE_FORMAT = 'Y-m-d';
 	public const VERSION_DIFFERENCE = 1;
 	public const END_OF_TIME = "01.01.2038";

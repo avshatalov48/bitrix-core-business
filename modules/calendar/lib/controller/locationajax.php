@@ -45,7 +45,7 @@ class LocationAjax extends Controller
 				->eventHandler('OnAfterCalendarRoomCreate')
 				->addPullEvent('create_room')
 		;
-		
+
 		if ($manager->getError())
 		{
 			$this->addError(
@@ -134,7 +134,7 @@ class LocationAjax extends Controller
 				->eventHandler('OnAfterCalendarRoomDelete')
 				->addPullEvent('delete_room')
 		;
-		
+
 
 		if ($manager->getError())
 		{
@@ -160,7 +160,7 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -228,12 +228,9 @@ class LocationAjax extends Controller
 
 	public function cancelBookingAction(): ?array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
 		$request = $this->getRequest();
@@ -274,12 +271,9 @@ class LocationAjax extends Controller
 
 	public function createCategoryAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
 		if(
@@ -311,12 +305,9 @@ class LocationAjax extends Controller
 
 	public function updateCategoryAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
 		if(
@@ -348,15 +339,12 @@ class LocationAjax extends Controller
 
 	public function deleteCategoryAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
-		if(
+		if (
 			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
@@ -385,15 +373,12 @@ class LocationAjax extends Controller
 
 	public function getCategoryListAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
-		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -407,23 +392,20 @@ class LocationAjax extends Controller
 
 	public function getCategoryManagerDataAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
-		}
-
-		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
-		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
+		// if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		// {
+		// 	$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+		// 	return [];
+		// }
+
 		$categoryManagerData = [];
-		$categoryManagerData['permissions'] = Rooms\PermissionManager::getAvailableOperations();
-		$categoryManagerData['categories'] = Rooms\Categories\Manager::getCategoryList();
+		$categoryManagerData['permissions'] = Rooms\PermissionManager::getAvailableOperations() ?? [];
+		$categoryManagerData['categories'] = Rooms\Categories\Manager::getCategoryList() ?? [];
 
 		return $categoryManagerData;
 	}

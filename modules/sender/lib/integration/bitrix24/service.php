@@ -208,7 +208,23 @@ class Service
 
 		return true;
 	}
-	
+
+	/**
+	 * Return true if master yandex is available.
+	 *
+	 * @return bool
+	 */
+	public static function isMasterYandexVisibleInRegion(): bool
+	{
+		$isLanguageAcceptable = (LANGUAGE_ID ?? 'ru') === 'ru';
+
+		if (!self::isCloud())
+		{
+			return false;
+		}
+		return self::isCloudRegionRussian(true) && $isLanguageAcceptable;
+	}
+
 	/**
 	 * Return true if toloka is available.
 	 *

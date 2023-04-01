@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$arParams['B_CUR_USER_LIST'] = $arParams['B_CUR_USER_LIST'] == 'Y';
+$arParams['B_CUR_USER_LIST'] = ($arParams['B_CUR_USER_LIST'] ?? null) == 'Y';
 $arParams["FUTURE_MONTH_COUNT"] = intval($arParams["FUTURE_MONTH_COUNT"]);
 if ($arParams["FUTURE_MONTH_COUNT"] <= 0)
 	$arParams["FUTURE_MONTH_COUNT"] = 1;
@@ -27,7 +27,7 @@ $eventsList = CCalendar::GetNearestEventsList(
 		'fromLimit' => $fromLimit,
 		'toLimit' => $toLimit,
 		'type' => $arParams['CALENDAR_TYPE'],
-		'sectionId' => $arParams['CALENDAR_SECTION_ID'],
+		'sectionId' => $arParams['CALENDAR_SECTION_ID'] ?? null,
 	]);
 
 if ($eventsList == 'access_denied')
@@ -76,7 +76,7 @@ elseif (is_array($eventsList))
 	array_splice($arResult['ITEMS'], intval($arParams['EVENTS_COUNT']));
 }
 
-if ($arParams['RETURN_ARRAY'] == 'Y')
+if (($arParams['RETURN_ARRAY'] ?? null) == 'Y')
 	return $arResult;
 
 $this->IncludeComponentTemplate();

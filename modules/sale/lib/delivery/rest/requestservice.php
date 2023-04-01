@@ -37,6 +37,7 @@ class RequestService extends BaseService
 	private const ERROR_CODE_STATUS_UNEXPECTED_FORMAT = 'STATUS_UNEXPECTED_FORMAT';
 	private const ERROR_CODE_STATUS_TEXT_NOT_SPECIFIED = 'STATUS_TEXT_NOT_SPECIFIED';
 	private const ERROR_CODE_STATUS_SEMANTIC_NOT_SPECIFIED = 'STATUS_SEMANTIC_NOT_SPECIFIED';
+	private const ERROR_CODE_DATE_VALUE_UNEXPECTED_FORMAT = 'DATE_VALUE_UNEXPECTED_FORMAT';
 
 	/**
 	 * @param $query
@@ -470,9 +471,32 @@ class RequestService extends BaseService
 
 		if (isset($params[$key]['MONEY_VALUES']) && is_array($params[$key]['MONEY_VALUES']))
 		{
-			foreach ($params[$key]['MONEY_VALUES'] as $moneyValue)
+			foreach ($params[$key]['MONEY_VALUES'] as $key => $moneyValue)
 			{
-				$message->addMoneyValue((float)$moneyValue);
+				$message->addMoneyValue(
+					(string)$key,
+					(float)$moneyValue
+				);
+			}
+		}
+
+		if (isset($params[$key]['DATE_VALUES']) && is_array($params[$key]['DATE_VALUES']))
+		{
+			foreach ($params[$key]['DATE_VALUES'] as $key => $dateValue)
+			{
+				if (!isset($dateValue['VALUE']) || !isset($dateValue['FORMAT']))
+				{
+					throw new RestException(
+						'Unexpected date value format',
+						self::ERROR_CODE_DATE_VALUE_UNEXPECTED_FORMAT
+					);
+				}
+
+				$message->addDateValue(
+					(string)$key,
+					(int)$dateValue['VALUE'],
+					(string)$dateValue['FORMAT']
+				);
 			}
 		}
 

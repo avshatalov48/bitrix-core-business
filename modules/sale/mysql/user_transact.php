@@ -90,12 +90,8 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		$nTopCount =
-			is_array($arNavStartParams) && isset($arNavStartParams["nTopCount"])
-				? (int)$arNavStartParams["nTopCount"]
-				: 0
-		;
-		if ($nTopCount <= 0)
+		$nTopCount = (int)($arNavStartParams["nTopCount"] ?? 0);
+		if (is_array($arNavStartParams) && $nTopCount <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
@@ -129,7 +125,10 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		}
 		else
 		{
-			$strSql .= "LIMIT " . $nTopCount;
+			if ($nTopCount > 0)
+			{
+				$strSql .= "LIMIT " . $nTopCount;
+			}
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 

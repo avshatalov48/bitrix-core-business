@@ -47,32 +47,33 @@ class CComponentAjax
 
 		if ($USER->IsAdmin())
 		{
-			if ($_GET['bitrix_disable_ajax'] == 'N')
+			$disableAjaxInGetParameter = $_GET['bitrix_disable_ajax'] ?? null;
+			if ($disableAjaxInGetParameter === 'N')
 			{
 				unset(\Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax']);
 			}
 
-			if ($_GET['bitrix_disable_ajax'] == 'Y' || \Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax'] == 'Y')
+			if ($disableAjaxInGetParameter === 'Y' || \Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax'] == 'Y')
 			{
 				\Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax'] = 'Y';
-				return null;
+				return;
 			}
 		}
 
 		if ($parentComponent && $this->_checkParent($parentComponent))
-			return false;
+			return;
 
 		$this->componentName = $componentName;
 		$this->componentTemplate = $componentTemplate;
 		$this->arParams = $arParams;
 
-		$this->bShadow = $this->arParams['AJAX_OPTION_SHADOW'] != 'N';
-		$this->bJump = $this->arParams['AJAX_OPTION_JUMP'] != 'N';
-		$this->bStyle = $this->arParams['AJAX_OPTION_STYLE'] != 'N';
-		$this->bHistory = $this->arParams['AJAX_OPTION_HISTORY'] != 'N';
+		$this->bShadow = !isset($this->arParams['AJAX_OPTION_SHADOW']) || $this->arParams['AJAX_OPTION_SHADOW'] != 'N';
+		$this->bJump = !isset($this->arParams['AJAX_OPTION_JUMP']) || $this->arParams['AJAX_OPTION_JUMP'] != 'N';
+		$this->bStyle = !isset($this->arParams['AJAX_OPTION_STYLE']) || $this->arParams['AJAX_OPTION_STYLE'] != 'N';
+		$this->bHistory = !isset($this->arParams['AJAX_OPTION_HISTORY']) || $this->arParams['AJAX_OPTION_HISTORY'] != 'N';
 
 		if (!$this->CheckSession())
-			return false;
+			return;
 
 		CJSCore::Init(array('ajax'));
 
@@ -111,8 +112,6 @@ class CComponentAjax
 
 		$this->LocalRedirectHandlerId = AddEventHandler('main', 'OnBeforeLocalRedirect', array($this, "LocalRedirectHandler"));
 		$this->RestartBufferHandlerId = AddEventHandler('main', 'OnBeforeRestartBuffer', array($this, 'RestartBufferHandler'));
-
-		return null;
 	}
 
 	/**
@@ -121,7 +120,7 @@ class CComponentAjax
 	 */
 	function _checkParent($parent)
 	{
-		if ('Y' == $parent->arParams['AJAX_MODE'])
+		if (($parent->arParams['AJAX_MODE'] ?? null) === 'Y')
 			return true;
 		elseif (($parentComponent = $parent->GetParent()))
 			return $this->_checkParent($parentComponent);
@@ -186,7 +185,7 @@ class CComponentAjax
 
 	function CheckSession()
 	{
-		if ($this->componentID = CAjax::GetComponentID($this->componentName, $this->componentTemplate, $this->arParams['AJAX_OPTION_ADDITIONAL']))
+		if ($this->componentID = CAjax::GetComponentID($this->componentName, $this->componentTemplate, $this->arParams['AJAX_OPTION_ADDITIONAL'] ?? null))
 		{
 			if ($current_session = CAjax::GetSession())
 			{
@@ -228,7 +227,7 @@ class CComponentAjax
 
 		$url = preg_replace('/#.*/', '', $url);
 
-		if ($this->arParams['SEF_MODE'] == 'Y')
+		if (($this->arParams['SEF_MODE'] ?? null) === 'Y')
 		{
 			if ($url == POST_FORM_ACTION_URI)
 				return true;
@@ -262,7 +261,7 @@ class CComponentAjax
 		{
 			$currentUrl = $APPLICATION->GetCurPage();
 
-			if ($this->arParams['SEF_MODE'] == 'Y')
+			if (($this->arParams['SEF_MODE'] ?? null) === 'Y')
 				$currentUrl = $this->__getSEFRealUrl($currentUrl);
 
 			if (mb_strpos($currentUrl, '?') !== false)

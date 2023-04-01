@@ -110,7 +110,7 @@ if (
 				});
 			});
 		</script>
-	<?elseif ($errorCode == 'SITE_NOT_ALLOWED' && $arParams['TYPE'] == 'GROUP'):?>
+	<?elseif ($errorCode == 'SITE_NOT_ALLOWED' && $arParams['TYPE'] == Type::SCOPE_CODE_GROUP):?>
 		<div class="landing-error-kb landing-error-kb-group">
 			<div class="landing-error-kb-inner">
 				<div class="landing-error-kb-title"><?= $error;?></div>
@@ -118,7 +118,7 @@ if (
 					<div class="landing-error-kb-img-inner"></div>
 				</div>
 				<div class="landing-error-kb-desc">
-					<?= Loc::getMessage('LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_GROUP', [
+					<?= Loc::getMessage('LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_2_GROUP', [
 						'#LINK1#' => '<a href="' . $groupPath . '" target="_top">',
 						'#LINK2#' => '</a>',
 					]);?>

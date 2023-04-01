@@ -23,72 +23,75 @@ class CAllVoteAnswer
 	{
 		global $APPLICATION;
 		global $USER;
-		$aMsg = array();
+		$aMsg = [];
 		$ID = intval($ID);
-		$ACTION = ($ID > 0 && $ACTION == "UPDATE" ? "UPDATE" : "ADD");
+		$ACTION = ($ID > 0 && $ACTION == 'UPDATE' ? 'UPDATE' : 'ADD');
 
-		unset($arFields["ID"]);
-		if (is_set($arFields, "QUESTION_ID") || $ACTION == "ADD"):
-			$arFields["QUESTION_ID"] = intval($arFields["QUESTION_ID"]);
-			if ($arFields["QUESTION_ID"] <= 0):
-				$aMsg[] = array(
-					"id" => "QUESTION_ID", 
-					"text" => GetMessage("VOTE_FORGOT_QUESTION_ID"));
+		unset($arFields['ID']);
+
+		if (isset($arFields['QUESTION_ID']) || $ACTION == 'ADD'):
+			$arFields['QUESTION_ID'] = intval($arFields['QUESTION_ID'] ?? 0);
+			if ($arFields['QUESTION_ID'] <= 0):
+				$aMsg[] = [
+					'id' => 'QUESTION_ID', 
+					'text' => GetMessage('VOTE_FORGOT_QUESTION_ID')
+				];
 			endif;
 		endif;
 
-		if (isset($arFields["MESSAGE"]) || $ACTION == "ADD")
+		if (isset($arFields['MESSAGE']) || $ACTION == 'ADD')
 		{
+			$arFields['MESSAGE'] = ($arFields['MESSAGE'] ?? '');
 			if (!$USER || $USER->CanDoOperation('edit_php') !== true)
 			{
-				$arFields["MESSAGE"] = Vote\Inner\Sanitizer::cleanText($arFields["MESSAGE"]);
+				$arFields['MESSAGE'] = Vote\Inner\Sanitizer::cleanText($arFields['MESSAGE']);
 			}
-			if ($arFields["MESSAGE"] === "")
+			if ($arFields['MESSAGE'] === '')
 			{
-				$aMsg[] = ["id" => "MESSAGE", "text" => GetMessage("VOTE_FORGOT_MESSAGE")];
+				$aMsg[] = ['id' => 'MESSAGE', 'text' => GetMessage('VOTE_FORGOT_MESSAGE')];
 			}
 		}
 
-		if (array_key_exists("IMAGE_ID", $arFields))
+		if (array_key_exists('IMAGE_ID', $arFields))
 		{
-			if (!is_array($arFields["IMAGE_ID"]))
+			if (!is_array($arFields['IMAGE_ID']))
 			{
-				$arFields["IMAGE_ID"] = intval($arFields["IMAGE_ID"]);
+				$arFields['IMAGE_ID'] = intval($arFields['IMAGE_ID']);
 			}
-			else if ($arFields["IMAGE_ID"]["name"] == '' && $arFields["IMAGE_ID"]["del"] == '')
+			else if ($arFields['IMAGE_ID']['name'] == '' && $arFields['IMAGE_ID']['del'] == '')
 			{
-				unset($arFields["IMAGE_ID"]);
+				unset($arFields['IMAGE_ID']);
 			}
-			else if ($str = CFile::CheckImageFile($arFields["IMAGE_ID"]))
+			else if ($str = CFile::CheckImageFile($arFields['IMAGE_ID']))
 			{
 				$aMsg[] = array(
-					"id" => "IMAGE_ID",
-					"text" => "Answer: ".$str);
+					'id' => 'IMAGE_ID',
+					'text' => 'Answer: '.$str);
 			}
 			else
 			{
-				$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
+				$arFields['IMAGE_ID']['MODULE_ID'] = 'vote';
 			}
 		}
 
-		if (is_set($arFields, "ACTIVE") || $ACTION == "ADD") $arFields["ACTIVE"] = ($arFields["ACTIVE"] == "N" ? "N" : "Y");
-		unset($arFields["TIMESTAMP_X"]);
-		if (is_set($arFields, "C_SORT") || $ACTION == "ADD") $arFields["C_SORT"] = (intval($arFields["C_SORT"]) > 0 ? intval($arFields["C_SORT"]) : 100);
-		if (is_set($arFields, "COUNTER") || $ACTION == "ADD") $arFields["COUNTER"] = intval($arFields["COUNTER"]);
-		if (is_set($arFields, "FIELD_TYPE") || $ACTION == "ADD") $arFields["FIELD_TYPE"] = intval($arFields["FIELD_TYPE"]);
-		if (is_set($arFields, "FIELD_WIDTH") || $ACTION == "ADD") $arFields["FIELD_WIDTH"] = intval($arFields["FIELD_WIDTH"]);
-		if (is_set($arFields, "FIELD_HEIGHT") || $ACTION == "ADD") $arFields["FIELD_HEIGHT"] = intval($arFields["FIELD_HEIGHT"]);
+		unset($arFields['TIMESTAMP_X']);
+		if (isset($arFields['ACTIVE']) || $ACTION == 'ADD') $arFields['ACTIVE'] = (($arFields['ACTIVE'] ?? 'Y') == 'N' ? 'N' : 'Y');
+		if (isset($arFields['C_SORT']) || $ACTION == 'ADD') $arFields['C_SORT'] = intval($arFields['C_SORT'] ?? 100);
+		if (isset($arFields['COUNTER']) || $ACTION == 'ADD') $arFields['COUNTER'] = intval($arFields['COUNTER'] ?? 0);
+		if (isset($arFields['FIELD_TYPE']) || $ACTION == 'ADD') $arFields['FIELD_TYPE'] = intval($arFields['FIELD_TYPE'] ?? 0);
+		if (isset($arFields['FIELD_WIDTH']) || $ACTION == 'ADD') $arFields['FIELD_WIDTH'] = intval($arFields['FIELD_WIDTH'] ?? 0);
+		if (isset($arFields['FIELD_HEIGHT']) || $ACTION == 'ADD') $arFields['FIELD_HEIGHT'] = intval($arFields['FIELD_HEIGHT'] ?? 0);
 
-		if (isset($arFields["FIELD_PARAM"]))
+		if (isset($arFields['FIELD_PARAM']))
 		{
-			$arFields["FIELD_PARAM"] = ((!$USER || $USER->CanDoOperation('edit_php') !== true)
-				? '' : trim($arFields["FIELD_PARAM"]))
+			$arFields['FIELD_PARAM'] = ((!$USER || $USER->CanDoOperation('edit_php') !== true)
+				? '' : trim($arFields['FIELD_PARAM']))
 			;
 		}
 
-		if (is_set($arFields, "COLOR") || $ACTION == "ADD") $arFields["COLOR"] = mb_substr(trim($arFields["COLOR"]), 0, 7)?: "";
+		if (isset($arFields['COLOR']) || $ACTION == 'ADD') $arFields['COLOR'] = mb_substr(trim($arFields['COLOR'] ?? ''), 0, 7);
 		
-		if(!empty($aMsg))
+		if (!empty($aMsg))
 		{
 			$e = new CAdminException(array_reverse($aMsg));
 			$APPLICATION->ThrowException($e);

@@ -5,7 +5,6 @@ import { Event, Loc, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { CompactEventForm } from 'calendar.compacteventform';
 import 'ui.notification';
-import { EventViewForm } from 'calendar.eventviewform';
 import { RoomsManager } from 'calendar.roomsmanager';
 
 export class EntryManager {
@@ -88,9 +87,9 @@ export class EntryManager {
 		}
 	}
 
-	static getNewEntryName()
+	static getNewEntryName(): string
 	{
-		return EntryManager.newEntryName || Loc.getMessage('CALENDAR_DEFAULT_ENTRY_NAME');
+		return (EntryManager.newEntryName || '');
 	}
 
 	static setNewEntryName(newEntryName)
@@ -208,6 +207,7 @@ export class EntryManager {
 					timezoneOffset: options.timezoneOffset,
 					dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 					calendarContext: options.calendarContext || null,
+					link: options.link,
 				}).show();
 			}
 		}
@@ -312,8 +312,7 @@ export class EntryManager {
 	{
 		if (!this.confirmDeclineDialog)
 		{
-			const bx = Util.getBX();
-			this.confirmDeclineDialog = new bx.Calendar.Controls.ConfirmStatusDialog();
+			this.confirmDeclineDialog = this.createConfirmStatusDialog();
 		}
 
 		this.confirmDeclineDialog.show();
@@ -340,8 +339,7 @@ export class EntryManager {
 	{
 		if (!this.confirmEditDialog)
 		{
-			const bx = Util.getBX();
-			this.confirmEditDialog = new bx.Calendar.Controls.ConfirmEditDialog();
+			this.confirmEditDialog = this.createConfirmEditDialog();
 		}
 		this.confirmEditDialog.show();
 
@@ -361,8 +359,7 @@ export class EntryManager {
 	{
 		if (!this.reinviteUsersDialog)
 		{
-			const bx = Util.getBX();
-			this.reinviteUsersDialog = new bx.Calendar.Controls.ReinviteUserDialog();
+			this.reinviteUsersDialog = this.createReinviteUserDialog();
 		}
 		this.reinviteUsersDialog.show();
 
@@ -383,8 +380,7 @@ export class EntryManager {
 	{
 		if (!this.confirmedEmailDialog)
 		{
-			const bx = Util.getBX();
-			this.confirmedEmailDialog = new bx.Calendar.Controls.ConfirmedEmailDialog();
+			this.confirmedEmailDialog = this.createConfirmedEmailDialog();
 		}
 		this.confirmedEmailDialog.show();
 
@@ -405,8 +401,7 @@ export class EntryManager {
 	{
 		if (!this.limitationEmailDialog)
 		{
-			const bx = Util.getBX();
-			this.limitationEmailDialog = new bx.Calendar.Controls.EmailLimitationDialog();
+			this.limitationEmailDialog = this.createEmailLimitationDialog();
 		}
 		this.limitationEmailDialog.subscribe('onClose', ()=>{
 			if (Type.isFunction(options.callback))
@@ -677,5 +672,36 @@ export class EntryManager {
 			userSettings.defaultReminders[type] = reminders;
 		}
 		Util.setUserSettings(userSettings);
+	}
+
+	//this is because extensions cant be loaded in iframe with import
+	static createConfirmEditDialog()
+	{
+		const bx = Util.getBX();
+		return new bx.Calendar.Controls.ConfirmEditDialog();
+	}
+
+	static createConfirmStatusDialog()
+	{
+		const bx = Util.getBX();
+		return new bx.Calendar.Controls.ConfirmStatusDialog();
+	}
+
+	static createReinviteUserDialog()
+	{
+		const bx = Util.getBX();
+		return new bx.Calendar.Controls.ReinviteUserDialog();
+	}
+
+	static createConfirmedEmailDialog()
+	{
+		const bx = Util.getBX();
+		return new bx.Calendar.Controls.ConfirmedEmailDialog();
+	}
+
+	static createEmailLimitationDialog()
+	{
+		const bx = Util.getBX();
+		return new bx.Calendar.Controls.EmailLimitationDialog();
 	}
 }

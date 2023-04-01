@@ -6,6 +6,8 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Diag\Helper;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Security\Cipher;
+use Bitrix\Main\Security\SecurityException;
 
 final class Debugger
 {
@@ -13,9 +15,8 @@ final class Debugger
 	public const TO_HEADER = 0b010;
 	public const TO_ALL    = self::TO_FILE | self::TO_HEADER;
 
-	protected $mode = 0;
-	/** @var array */
-	private $config = [];
+	protected int $mode = 0;
+	private array $config = [];
 
 	public function __construct(int $mode = 0)
 	{
@@ -60,7 +61,7 @@ final class Debugger
 		}
 	}
 
-	public function logToFile($text)
+	public function logToFile($text): void
 	{
 		if ($this->mode & self::TO_FILE)
 		{
@@ -69,13 +70,54 @@ final class Debugger
 		}
 	}
 
-	protected function addHeader(string $category, $value): void
+	protected function addHeader(string $category, string $value): void
 	{
+		$context = Context::getCurrent();
+		if (!($context instanceof Context))
+		{
+			return;
+		}
+
 		if ($this->mode & self::TO_HEADER)
 		{
-			$response = Context::getCurrent()->getResponse();
+			if ($this->shouldEncryptValue())
+			{
+				$value = $this->encryptValue($value);
+			}
+
+			$response = $context->getResponse();
 			$response->addHeader("X-Session-{$category}", $value);
 		}
+	}
+
+	protected function getCryptoKey(): ?string
+	{
+		return $this->config['debugKey'] ?? null;
+	}
+
+	protected function shouldEncryptValue(): bool
+	{
+		return !empty($this->getCryptoKey());
+	}
+
+	protected function encryptValue(string $value): string
+	{
+		try
+		{
+			$cipher = new Cipher();
+			$encryptedValue = $cipher->encrypt($value, $this->getCryptoKey());
+
+			return $this->encodeUrlSafeB64($encryptedValue);
+		}
+		catch (SecurityException $securityException)
+		{
+			return '';
+		}
+	}
+
+	private function encodeUrlSafeB64(string $input): string
+	{
+		return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
 	}
 
 	public function storeConfig(array $sessionConfig): void

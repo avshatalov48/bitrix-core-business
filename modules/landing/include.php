@@ -319,10 +319,11 @@ $jsConfig = [
 
 	'landing_auto_font_scale' => [
 		'js' => [
-			$pathJS . '/ui/tool/auto-font-scale.js',
-			$pathJS . '/ui/tool/auto-font-scale-entry.js',
 			$pathTemplate24 . '/assets/js/helpers/auto_font_scale_init.js',
 		],
+		'rel' => [
+			'landing.ui.tool.auto_font_scale',
+		]
 	],
 
 	'landing_backlinks' => [

@@ -35,16 +35,16 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
 
-$ID = intval($_REQUEST['ID']); // Id of the edited record
 $strError = "";
 $bVarsFromForm = false;
 $bShowForce = false;
+$_GET["return_url"] = $_GET["return_url"] ?? "";
+
 $returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";
 
 if($_SERVER['REQUEST_METHOD'] == "POST"
 	&& (
-		$_REQUEST['save'].$_REQUEST['apply'] != ''
-		|| $_POST['DEFENCE_OFF'].$_POST['DEFENCE_ON'] != ''
+		isset($_REQUEST['save']) || isset($_REQUEST['apply']) || isset($_REQUEST['DEFENCE_OFF']) || isset($_REQUEST['DEFENCE_ON'])
 	)
 	&& $canWrite
 	&& check_bitrix_sessid()
@@ -58,9 +58,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"
 	COption::SetOptionInt($module_id, "DEFENCE_STACK_TIME", $_POST['DEFENCE_STACK_TIME']);
 	COption::SetOptionInt($module_id, "DEFENCE_MAX_STACK_HITS", $_POST['DEFENCE_MAX_STACK_HITS']);
 	COption::SetOptionInt($module_id, "DEFENCE_DELAY", $_POST['DEFENCE_DELAY']);
-	COption::SetOptionString($module_id, "DEFENCE_LOG", $_POST['DEFENCE_LOG']==="Y"? "Y": "N");
+	COption::SetOptionString($module_id, "DEFENCE_LOG", isset($_POST['DEFENCE_LOG']) && $_POST['DEFENCE_LOG']==="Y"? "Y": "N");
 
-	if($_REQUEST['save'] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST['save']) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 
 	LocalRedirect("/bitrix/admin/security_stat_activity.php?lang=".LANGUAGE_ID.$returnUrl."&".$tabControl->ActiveTabParam());

@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 use Bitrix\Main\Loader;
 use Bitrix\Catalog;
@@ -334,12 +340,16 @@ $arComponentParameters["PARAMETERS"]["PRODUCT_COLUMNS_VISIBLE"] = array(
 	"PARENT" => "ADDITIONAL_SETTINGS",
 );
 
-if (is_array($templateProperties['PRODUCT_COLUMNS_HIDDEN']) && !empty($templateProperties['PRODUCT_COLUMNS_HIDDEN']))
+if (
+	!empty($templateProperties['PRODUCT_COLUMNS_HIDDEN'])
+	&& is_array($templateProperties['PRODUCT_COLUMNS_HIDDEN'])
+)
 {
 	$templateProperties['PRODUCT_COLUMNS_HIDDEN']['VALUES'] = $arColumns;
 }
 
-if ($arCurrentValues['COUNT_DELIVERY_TAX'] == 'Y')
+// deprecated parameter
+if (($arCurrentValues['COUNT_DELIVERY_TAX'] ?? 'N') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["COUNT_DELIVERY_TAX"] = array(
 		"NAME" => GetMessage("SOA_COUNT_DELIVERY_TAX"),

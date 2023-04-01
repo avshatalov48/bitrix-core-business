@@ -1,4 +1,5 @@
 import DragAndDropInterface from './draganddropinterface';
+import { Util } from 'calendar.util';
 
 /**
  * @implements DragAndDropInterface
@@ -241,21 +242,12 @@ export class EventDragAndDrop implements DragAndDropInterface
 
 	doMagnetize()
 	{
-		return !this.isAnyModifierKeyPressed() && !this.isUserTryingToTurnOffMagnet();
+		return !Util.isAnyModifierKeyPressed() && !this.isUserTryingToTurnOffMagnet();
 	}
 
 	isUserTryingToTurnOffMagnet()
 	{
 		return this.tryDuration > this.maxTryDuration;
-	}
-
-	isAnyModifierKeyPressed()
-	{
-		if (window.event)
-		{
-			return window.event.altKey || window.event.shiftKey || window.event.ctrlKey || window.event.metaKey;
-		}
-		return true;
 	}
 
 }

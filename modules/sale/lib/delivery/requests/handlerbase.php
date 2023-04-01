@@ -43,7 +43,7 @@ abstract class HandlerBase
 	}
 
 	/**
-	 * @param int $requestId
+	 * @param int|null $requestId
 	 * @return array Actions list.
 	 * For example array( 'ACTION1' => 'ACTION1_NAME', 'ACTION2' => 'ACTION2_NAME').
 	 */

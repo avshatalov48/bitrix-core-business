@@ -1,4 +1,4 @@
-import {Type, Tag, Loc, Cache} from 'main.core';
+import {Type, Tag, Loc, Cache, Runtime} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {BaseCollection} from 'landing.collection.basecollection';
 
@@ -46,6 +46,8 @@ export class BaseProvider extends EventEmitter
 		this.cache = new Cache.MemoryCache();
 
 		this.handleApiLoad();
+
+		this.onChange = Runtime.debounce(this.onChange.bind(this), 666);
 	}
 
 
@@ -210,6 +212,7 @@ export class BaseProvider extends EventEmitter
 	onChange()
 	{
 		this.onChangeHandler(this.preventChangeEvent);
+		this.preventChangeEvent = false;
 	}
 
 	/**
@@ -252,6 +255,16 @@ export class BaseProvider extends EventEmitter
 	}
 
 	/**
+	 * Removes all markers from map
+	 * @abstract
+	 * @param options
+	 */
+	clearMarkers(): void
+	{
+		throw new Error("Must be implemented by subclass");
+	}
+
+	/**
 	 * Gets map value
 	 * @abstract
 	 */
@@ -269,7 +282,7 @@ export class BaseProvider extends EventEmitter
 	{
 		this.preventChangeEvent = preventChangeEvent;
 
-		this.markers.forEach(this.removeMarker, this);
+		this.clearMarkers();
 
 		if (Type.isPlainObject(value))
 		{
@@ -283,13 +296,11 @@ export class BaseProvider extends EventEmitter
 				this.setCenter(value.center);
 			}
 
-			if (!BX.Landing.Utils.isEmpty(value.zoom))
+			if (value.zoom && Type.isNumber(value.zoom))
 			{
 				this.setZoom(value.zoom);
 			}
 		}
-
-		this.preventChangeEvent = false;
 	}
 
 	/**

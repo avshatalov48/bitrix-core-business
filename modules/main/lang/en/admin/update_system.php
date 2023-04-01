@@ -48,6 +48,7 @@ $MESS["SUP_PHP_L710"] = "As of June 30, 2019 only limited support will be provid
 $MESS["SUP_PHP_LERR_F"] = "You are using PHP version #VERS#, but the system requires version #REQ# or higher. Please update your PHP installation or contact the technical support.";
 $MESS["SUP_PHP_LERR_F_NEW"] = "Your current PHP version is #VERS#. This version is outdated and may contain security vulterabilities. The system requires version #REQ# or higher. The latest stable build of PHP is recommended. <br>Please follow these steps:  <br>(1) if the page shows MySQL version warning, update MySQL to the latest stable version, <br>(2) update your Bitrix24, <br>(3) update PHP or contact your hosting service provider's helpdesk.";
 $MESS["SUP_PHP_LWARN_F"] = "As of #DATE# only limited support will be provided for our products running on PHP versions below #REQ#. PHP #BEST_VERS# or higher is recommended. You are currently using PHP #VERS#. Please update your PHP installation or contact your hosting service provider for assistance.";
+$MESS["SUP_PHP_LWARN_PHP8"] = "You can read more about upgrading to PHP 8 <a href=\"https://helpdesk.bitrix24.com/open/17347208/\">in this Helpdesk article</a>.";
 $MESS["SUP_REGISTERED"] = "Registered for:";
 $MESS["SUP_RESERVED_KEY_HINT"] = "You must activate your license key before using the update system.";
 $MESS["SUP_SALE_1500_HINT"] = "To continue installing updates you should perform <a href=\"#ADDR#\">the e-store module conversion</a>.";

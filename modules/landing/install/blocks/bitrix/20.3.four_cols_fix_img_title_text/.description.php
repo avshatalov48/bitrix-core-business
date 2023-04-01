@@ -37,6 +37,10 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_NODES_LANDINGBLOCK_CARD'),
 			'type' => ['columns', 'background-color', 'animation'],
 		],
+		'.landing-block-node-img-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_NODES_LANDINGBLOCKNODEIMG'),
+			'type' => ['text-align'],
+		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_STYLE_LANDINGBLOCKNODETITLE'),
 			'type' => ['typo', 'heading'],

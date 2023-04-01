@@ -604,9 +604,9 @@ export default class AutomationMainView extends EventEmitter
 
 		const template = new Template({
 			constants: {},
-			// globalConstants: this.component.getConstants(),
+			globalConstants: this.debugger.globalConstants,
 			variables: {},
-			// globalVariables: this.component.getGVariables(),
+			globalVariables: this.debugger.globalVariables,
 			templateContainerNode: node,
 			delayMinLimitM: 0,
 			// userOptions: this.userOptions,

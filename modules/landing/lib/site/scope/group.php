@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Site\Scope;
 
 use Bitrix\Landing\Domain;
+use Bitrix\Landing\Connector\SocialNetwork;
 use Bitrix\Landing\Internals\BindingTable;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Role;
@@ -122,7 +123,14 @@ class Group extends Scope
 			$groupId = (int) $row['BINDING_ID'];
 			if ($checkAccess && Loader::includeModule('socialnetwork'))
 			{
-				if (!\CSocNetGroup::canUserReadGroup(Manager::getUserId(), $groupId))
+				$canRead = \CSocNetFeaturesPerms::CanPerformOperation(
+					Manager::getUserId(),
+					SONET_ENTITY_GROUP,
+					$groupId,
+					SocialNetwork::SETTINGS_CODE,
+					'read'
+				);
+				if (!$canRead)
 				{
 					return null;
 				}

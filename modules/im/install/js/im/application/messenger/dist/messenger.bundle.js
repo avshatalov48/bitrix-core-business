@@ -4,19 +4,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Search = /*#__PURE__*/function () {
 	  function Search() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Search);
-
 	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
-
 	    this.dialog = new BX.UI.EntitySelector.Dialog({
 	      targetNode: params.targetNode,
 	      enableSearch: true,
@@ -50,18 +46,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 	    });
 	  }
-
 	  babelHelpers.createClass(Search, [{
 	    key: "onItemSelect",
 	    value: function onItemSelect(event) {
 	      this.dialog.deselectAll();
 	      var item = event.getData().item;
 	      var dialogId = this.getDialogIdByItem(item);
-
 	      if (!dialogId) {
 	        return;
 	      }
-
 	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.open, {
 	        id: dialogId,
 	        $event: event
@@ -77,24 +70,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      items.forEach(function (item) {
 	        var customData = item.getCustomData();
 	        var entityId = item.getEntityId();
-
 	        if (entityId === 'user' || entityId === 'im-bot') {
 	          var dialogId = customData.get('imUser')['ID'];
-
 	          if (!dialogId) {
 	            return;
 	          }
-
 	          users.push(_objectSpread({
 	            dialogId: dialogId
 	          }, customData.get('imUser')));
 	        } else if (entityId === 'im-chat') {
 	          var _dialogId = 'chat' + customData.get('imChat')['ID'];
-
 	          if (!_dialogId) {
 	            return;
 	          }
-
 	          dialogues.push(_objectSpread({
 	            dialogId: _dialogId
 	          }, customData.get('imChat')));
@@ -110,11 +98,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        case 'user':
 	        case 'im-bot':
 	          return item.getCustomData().get('imUser')['ID'];
-
 	        case 'im-chat':
 	          return 'chat' + item.getCustomData().get('imChat')['ID'];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -127,7 +113,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	}();
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-application-messenger', {
 	  props: {
@@ -159,14 +144,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (this.application) {
 	        return this.application.dialog.chatId;
 	      }
-
 	      return 0;
 	    },
 	    dialogId: function dialogId() {
 	      if (this.application) {
 	        return this.application.dialog.dialogId;
 	      }
-
 	      return 0;
 	    },
 	    localize: function localize() {
@@ -209,12 +192,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 	    getTextareaDragHandler: function getTextareaDragHandler() {
 	      var _this = this,
-	          _TextareaDragHandler;
-
+	        _TextareaDragHandler;
 	      return new im_eventHandler.TextareaDragHandler((_TextareaDragHandler = {}, babelHelpers.defineProperty(_TextareaDragHandler, im_eventHandler.TextareaDragHandler.events.onHeightChange, function (_ref) {
 	        var data = _ref.data;
 	        var newHeight = data.newHeight;
-
 	        if (_this.textareaHeight !== newHeight) {
 	          _this.textareaHeight = newHeight;
 	        }
@@ -233,12 +214,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          store: this.$store
 	        });
 	      }
-
 	      this.searchPopup.open();
 	    },
 	    openMessenger: function openMessenger(dialogId) {
 	      dialogId = dialogId.toString();
-
 	      if (dialogId === 'notify') {
 	        this.selectedDialogId = 0;
 	        this.notificationsSelected = true;
@@ -262,7 +241,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.textareaDragHandler.onStartDrag(event, this.textareaHeight);
 	      main_core_events.EventEmitter.emit(im_const.EventType.textarea.setBlur, true);
 	    } // endregion events
-
 	  },
 	  // language=Vue
 	  template: "\n\t  \t<div class=\"bx-im-next-layout\">\n\t\t\t<div class=\"bx-im-next-layout-recent\">\n\t\t\t\t<div class=\"bx-im-next-layout-recent-search\">\n\t\t\t\t\t<div class=\"bx-im-next-layout-recent-search-input\" id=\"bx-im-next-layout-recent-search-input\" @click=\"openSearch\">Search</div>  \n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-recent-list\">\n\t\t\t\t\t<bx-im-component-recent/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-dialog\" v-if=\"selectedDialogId\">\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-header\">\n\t\t\t\t\t<div class=\"bx-im-header-title\">Dialog: {{selectedDialogId}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-messages\">\n\t\t\t\t  \t<bx-pull-component-status/>\n\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"selectedDialogId\"\n\t\t\t\t\t\t:showMessageUserName=\"isDialog\"\n\t\t\t\t\t\t:showMessageAvatar=\"isDialog\"\n\t\t\t\t\t />\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-textarea\" :style=\"textareaHeightStyle\" ref=\"textarea\">\n\t\t\t\t  \t<div class=\"bx-im-next-layout-dialog-textarea-handle\" @mousedown=\"onTextareaStartDrag\" @touchstart=\"onTextareaStartDrag\"></div>\n\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t:siteId=\"application.common.siteId\"\n\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t:dialogId=\"selectedDialogId\"\n\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t:autoFocus=\"application.device.type !== DeviceType.mobile\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else-if=\"notificationsSelected\">\n\t\t\t\t<bx-im-component-notifications :darkTheme=\"false\"/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else>\n\t\t\t\t<div class=\"bx-messenger-box-hello-wrap\">\n\t\t\t\t  <div class=\"bx-messenger-box-hello\">{{ $Bitrix.Loc.getMessage('IM_M_EMPTY') }}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
@@ -280,7 +258,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  /* region 01. Initialize */
 	  function MessengerApplication() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, MessengerApplication);
 	    babelHelpers.defineProperty(this, "inited", false);
@@ -300,12 +277,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return _this.initComplete();
 	    });
 	  }
-
 	  babelHelpers.createClass(MessengerApplication, [{
 	    key: "initCore",
 	    value: function initCore() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve) {
 	        im_application_core.Core.ready().then(function (controller) {
 	          _this2.controller = controller;
@@ -317,7 +292,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initComponent",
 	    value: function initComponent() {
 	      var _this3 = this;
-
 	      this.setInitialApplicationInfo();
 	      this.setDialogRestHandler();
 	      this.setApplicationDialogInfo();
@@ -347,13 +321,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (this.inited) {
 	        return Promise.resolve(this);
 	      }
-
 	      return this.initPromise;
 	    }
 	    /* endregion 01. Initialize */
-
 	    /* region 02. Methods */
-
 	  }, {
 	    key: "setInitialApplicationInfo",
 	    value: function setInitialApplicationInfo() {
@@ -372,11 +343,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "setApplicationDialogInfo",
 	    value: function setApplicationDialogInfo() {
 	      var dialog = this.controller.getStore().getters['dialogues/get'](this.getDialogId());
-
 	      if (!dialog) {
 	        return false;
 	      }
-
 	      this.controller.getStore().commit('application/set', {
 	        dialog: {
 	          chatId: dialog.chatId,
@@ -423,9 +392,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "getLocalize",
 	    value: function getLocalize(name) {
 	      return this.controller.getLocalize(name);
-	    }
-	    /* endregion 02. Methods */
-
+	    } /* endregion 02. Methods */
 	  }]);
 	  return MessengerApplication;
 	}();

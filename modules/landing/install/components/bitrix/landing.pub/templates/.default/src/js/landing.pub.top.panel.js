@@ -1,22 +1,30 @@
-import {Event, Cache, Dom, Type} from 'main.core';
+import {Event, Cache, Dom, Loc, Type} from 'main.core';
 import {SliderHacks} from 'landing.sliderhacks';
 
 const onEditButtonClick = Symbol('onEditButtonClick');
 const onBackButtonClick = Symbol('onBackButtonClick');
 const onForwardButtonClick = Symbol('onForwardButtonClick');
+const onCopyLinkButtonClick = Symbol('onCopyLinkButtonClick');
+const onUniqueViewIconClick = Symbol('onUniqueViewIconClick');
 
 export class TopPanel
 {
 	static cache = new Cache.MemoryCache();
 
-	constructor()
+	constructor(data)
 	{
+		this.userData = data.userData;
+
 		Event.bind(TopPanel.getEditButton(), 'click', this[onEditButtonClick]);
 		Event.bind(TopPanel.getBackButton(), 'click', this[onBackButtonClick]);
 		Event.bind(TopPanel.getForwardButton(), 'click', this[onForwardButtonClick]);
+		Event.bind(TopPanel.getCopyLinkButton(), 'click', this[onCopyLinkButtonClick]);
+		Event.bind(TopPanel.getUniqueViewIcon(), 'click', this[onUniqueViewIconClick]);
 
 		TopPanel.pushHistory(window.location.toString());
 		TopPanel.checkNavButtonsActivity();
+		TopPanel.checkHints();
+		TopPanel.initUniqueViewPopup(this.userData);
 	}
 
 	static getLayout(): HTMLDivElement
@@ -123,6 +131,151 @@ export class TopPanel
 			const layout = TopPanel.getLayout();
 			return layout ? layout.querySelector('.landing-pub-top-panel-forward') : null;
 		});
+	}
+
+	static getCopyLinkButton(): HTMLAnchorElement
+	{
+		return TopPanel.cache.remember('copyLinkButton', () => {
+			const layout = TopPanel.getLayout();
+			return layout ? layout.querySelector('.landing-page-link-btn') : null;
+		});
+	}
+
+	static getUniqueViewIcon(): HTMLAnchorElement
+	{
+		return TopPanel.cache.remember('uniqueViewIcon', () => {
+			const layout = TopPanel.getLayout();
+			return layout ? layout.querySelector('.landing-pub-top-panel-unique-view') : null;
+		});
+	}
+
+	static checkHints()
+	{
+		const linkPage = document.querySelector('.landing-pub-top-panel-chain-link-page');
+		if (linkPage)
+		{
+			if (parseInt(window.getComputedStyle(linkPage).width) < 200)
+			{
+				Dom.style(linkPage, 'pointer-events', 'none');
+			}
+			else
+			{
+				BX.UI.Hint.init(BX('landing-pub-top-panel-chain-link-page'));
+			}
+		}
+	}
+
+	static initUniqueViewPopup(userData)
+	{
+		const setUserId = userData.id;
+		const setUserName = userData.name;
+		const avatar = userData.avatar;
+
+		if (setUserId.length === setUserName.length){
+			for (let i = 0; i < setUserId.length; i++)
+			{
+				this.createUserItem(setUserId[i], setUserName[i], avatar[i]);
+			}
+		}
+	}
+
+	static createUserItem(id, name, avatar)
+	{
+		const itemContainer = document.querySelector('.landing-pub-top-panel-unique-view-popup-item-container');
+		const userUrl = window.location.origin + '/company/personal/user/' + id + '/';
+		const userItem = BX.Dom.create({
+			tag: 'div',
+			props: {
+				classList: 'landing-pub-top-panel-unique-view-popup-item',
+			},
+		});
+		let userItemAvatar;
+		if (avatar && avatar !== '')
+		{
+			userItemAvatar = BX.Dom.create({
+				tag: 'div',
+				props: {
+					classList: 'landing-pub-top-panel-unique-view-popup-item-avatar',
+				},
+			});
+			avatar = "url('" + avatar + "')";
+			Dom.style(userItemAvatar, 'background-image', avatar);
+		}
+		else
+		{
+			userItemAvatar = BX.Dom.create({
+				tag: 'div',
+				props: {
+					classList: 'landing-pub-top-panel-unique-view-popup-item-avatar landing-pub-top-panel-unique-view-popup-item-avatar-empty',
+				},
+			});
+		}
+		const userItemLink = BX.Dom.create({
+			tag: 'a',
+			props: {
+				classList: 'landing-pub-top-panel-unique-view-popup-item-link',
+			},
+			text: name,
+		});
+		Dom.attr(userItemLink, 'href', userUrl);
+		Dom.attr(userItemLink, 'target', '_blank');
+		Dom.append(userItemAvatar, userItem);
+		Dom.append(userItemLink, userItem);
+		Dom.append(userItem, itemContainer);
+	}
+
+	[onCopyLinkButtonClick](event)
+	{
+		event.preventDefault();
+		const link = BX.util.remove_url_param(window.location.href, ["IFRAME", "IFRAME_TYPE"]);
+		const node = event.target;
+		navigator.clipboard.writeText(link)
+			.then(() => {
+				this.timeoutIds = this.timeoutIds || [];
+				const popupParams = {
+					content: Loc.getMessage('LANDING_TPL_PUB_COPIED_LINK'),
+					darkMode: true,
+					autoHide: true,
+					zIndex: 1000,
+					angle: true,
+					offsetLeft: 20,
+					bindOptions: {
+						position: 'top'
+					}
+				};
+				const popup = new BX.PopupWindow(
+					'landing_clipboard_copy',
+					node,
+					popupParams
+				);
+				popup.show();
+
+				let timeoutId;
+				while(timeoutId = this.timeoutIds.pop()) clearTimeout(timeoutId);
+				timeoutId = setTimeout(function(){
+					popup.close();
+				}, 2000);
+				this.timeoutIds.push(timeoutId);
+			})
+			.catch(err => {
+				console.error(err);
+			});
+	}
+
+	[onUniqueViewIconClick](event)
+	{
+		const popup = document.querySelector('.landing-pub-top-panel-unique-view-popup');
+		if (Dom.hasClass(popup, 'hide'))
+		{
+			Dom.removeClass(popup, 'hide');
+			setTimeout(function(){
+				Dom.addClass(popup, 'hide');
+			}, 2000);
+		}
+		else
+		{
+			Dom.addClass(popup, 'hide');
+		}
 	}
 
 	[onBackButtonClick](event)

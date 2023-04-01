@@ -86,6 +86,7 @@ class Service
 		$map = [
 			Recipient\Type::CRM_CONTACT_ID => \CCrmOwnerType::Contact,
 			Recipient\Type::CRM_COMPANY_ID => \CCrmOwnerType::Company,
+			Recipient\Type::CRM_LEAD_ID => \CCrmOwnerType::Lead,
 		];
 
 		return isset($map[$recipientTypeId]) ? $map[$recipientTypeId] : null;

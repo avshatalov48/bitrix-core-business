@@ -4,7 +4,8 @@
 }
 
 .ui-entity-catalog__btn {
-	display: block;
+	/*display: block;*/
+	display: flex;
 	padding: 5px 16px;
 	border-radius: var(--ui-border-radius-pill, 99rem);
 	border: 1px solid var(--ui-color-primary, #2fc6f6);
@@ -15,4 +16,28 @@
 	color: var(--ui-color-text-secondary, #525c69);
 	cursor: pointer;
 	transition: .2s;
+}
+
+.ui-entity-catalog__btn.--lock {
+	padding-left: 9px;
+}
+
+.ui-entity-catalog__btn.--lock::before {
+	content: '';
+	display: block;
+	width: 18px;
+	height: 18px;
+	margin-right: 8px;
+	background: no-repeat center;
+	background-image: url("../images/ui-entity-catalog__btn--lock-dark.svg");
+}
+
+.ui-entity-catalog__option:hover .ui-entity-catalog__btn {
+	background: var(--ui-color-primary, #2fc6f6);
+	color: var(--ui-color-background-primary, #ffffff);
+}
+
+.ui-entity-catalog__option:hover .ui-entity-catalog__btn.--lock::before {
+	background-image: url("../images/ui-entity-catalog__btn--lock-light.svg");
+
 }

@@ -1122,13 +1122,6 @@
 
 }
 
-.bx-ie8 .calendar-inp,
-.bx-ie8 .calendar-inp-time,
-.bx-ie8 .feed-event-time input {
-	height: 24px;
-	padding-top: 5px;
-}
-
 .calendar-inp-time, .feed-event-time input {
 	background-position: right -22px;
 	padding-right: 30px;

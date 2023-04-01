@@ -15,9 +15,16 @@ class StoreSaleDashboard extends CatalogDashboard
 	public const BOARD_VERSION = 'v2';
 	public const BOARD_KEY = 'catalog_warehouse_sale';
 
+	public const ACCESS_BOARD_ID = 1;
+
 	public function getBoardKey(): string
 	{
 		return static::BOARD_KEY;
+	}
+
+	public function getAccessBoardId(): int
+	{
+		return self::ACCESS_BOARD_ID;
 	}
 
 	public function getBoardVersion(): string

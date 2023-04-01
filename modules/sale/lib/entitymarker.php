@@ -342,7 +342,7 @@ class EntityMarker
 							}
 						}
 
-						if (intval($values['ENTITY_ID']) <= 0)
+						if (!isset($values['ENTITY_ID']) || intval($values['ENTITY_ID']) <= 0)
 						{
 							$values['ENTITY_ID'] = $values['ENTITY']->getId();
 						}
@@ -365,10 +365,10 @@ class EntityMarker
 						$fields = array(
 							'ENTITY_TYPE' => $values['ENTITY_TYPE'],
 							'ENTITY_ID' => intval($values['ENTITY_ID']),
-							'TYPE' => $values['TYPE'],
-							'CODE' => $values['CODE'],
-							'MESSAGE' => $values['MESSAGE'],
-							'COMMENT' => $values['COMMENT'],
+							'TYPE' => $values['TYPE'] ?? '',
+							'CODE' => $values['CODE'] ?? '',
+							'MESSAGE' => $values['MESSAGE'] ?? '',
+							'COMMENT' => $values['COMMENT'] ?? '',
 						);
 
 						if (is_object($USER) && $USER->IsAuthorized())

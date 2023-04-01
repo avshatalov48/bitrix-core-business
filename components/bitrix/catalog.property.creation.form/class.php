@@ -75,6 +75,8 @@ class CatalogPropertyCreationFormComponent extends \CBitrixComponent
 	{
 		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
 		{
+			$this->arResult['PROPERTY_SCHEME'] = null;
+			$this->arResult['PROPERTY_SCHEME_TYPE'] = null;
 			if ($this->hasPropertyId())
 			{
 				$productFactory = ServiceContainer::getProductFactory($this->getIblockId());
@@ -91,7 +93,10 @@ class CatalogPropertyCreationFormComponent extends \CBitrixComponent
 							$this->arResult['PROPERTY_SCHEME'] = $description;
 							$type = $description['type'];
 							$propertySchemeType = $description['type'];
-							if ($description['data']['userType'] === 'directory')
+							if (
+								isset($description['data']['userType'])
+								&& $description['data']['userType'] === 'directory'
+							)
 							{
 								$type = $description['data']['userType'];
 								$propertySchemeType = $description['multiple'] ? 'multilist' : 'list';

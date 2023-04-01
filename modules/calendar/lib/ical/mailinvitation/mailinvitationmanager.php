@@ -126,14 +126,18 @@ class MailInvitationManager
 	{
 		foreach ($failSent as $parentId => $item)
 		{
+			if (isset($item[0]))
+			{
+				$item = $item[0];
+			}
 			CCalendarNotify::Send([
 				'mode' => 'fail_ical_invite',
 				'eventId' => $parentId,
-				'userId' => $item[0]['userId'],
-				'guestId' => $item[0]['userId'],
+				'userId' => $item['userId'],
+				'guestId' => $item['userId'],
 				'items' => $item,
-				'name' => $item[0]['name'],
-				'icalMethod' => $item[0]['method'],
+				'name' => $item['name'],
+				'icalMethod' => $item['method'],
 			]);
 		}
 	}

@@ -1158,7 +1158,19 @@ BX.Kanban.Column.prototype =
 
 	handleAddItemButtonClick: function(event)
 	{
-		this.addDraftItem(this.getFirstItem(false));
+		var firstItem = this.getFirstItem(false);
+		if (firstItem)
+		{
+			var existsDraftItem = firstItem.getId().indexOf('kanban-new-item-') === 0;
+			if (existsDraftItem)
+			{
+				firstItem.applyDraftEditMode();
+
+				return;
+			}
+		}
+
+		this.addDraftItem(firstItem);
 	},
 
 	cleanLayoutItems: function()

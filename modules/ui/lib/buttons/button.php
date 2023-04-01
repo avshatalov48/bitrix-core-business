@@ -118,11 +118,12 @@ class Button extends BaseButton
 			$this->setRound($params['round']);
 		}
 
-		if (!empty($params['dropdown']) || (isset($params['menu']) && $params['dropdown'] !== false))
+		$isDropdown = $params['dropdown'] ?? null;
+		if ($isDropdown || (isset($params['menu']) && $isDropdown !== false))
 		{
 			$this->setDropdown();
 		}
-		elseif (array_key_exists('dropdown', $params) && $params['dropdown'] === false)
+		elseif ($isDropdown === false)
 		{
 			$this->getAttributeCollection()->addJsonOption('dropdown', false);
 		}

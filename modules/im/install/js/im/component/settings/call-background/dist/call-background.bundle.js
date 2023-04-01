@@ -30,19 +30,15 @@ this.BX = this.BX || {};
 	  methods: {
 	    createProgressbar: function createProgressbar() {
 	      var _this = this;
-
 	      if (this.uploader) {
 	        return true;
 	      }
-
 	      if (!this.item.state) {
 	        return true;
 	      }
-
 	      if (this.item.state.progress === 100) {
 	        return false;
 	      }
-
 	      this.uploader = new ui_progressbarjs_uploader.Uploader({
 	        container: this.$refs.container,
 	        labels: {
@@ -65,23 +61,19 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      this.uploader.start();
-
 	      if (this.item.state.size && this.item.state.size / 1024 / 1024 <= 2 || this.$refs.container.offsetHeight <= 54 && this.$refs.container.offsetWidth < 240) {
 	        this.uploader.setProgressTitleVisibility(false);
 	      }
-
 	      this.updateProgressbar();
 	      return true;
 	    },
 	    updateProgressbar: function updateProgressbar() {
 	      if (!this.uploader) {
 	        var result = this.createProgressbar();
-
 	        if (!result) {
 	          return false;
 	        }
 	      }
-
 	      if (this.item.state.status === im_const.FileStatus.error) {
 	        this.uploader.setProgress(0);
 	        this.uploader.setCancelDisable(false);
@@ -101,10 +93,8 @@ this.BX = this.BX || {};
 	        if (this.item.state.progress === 0) {
 	          this.uploader.setIcon(ui_progressbarjs_uploader.Uploader.icon.cancel);
 	        }
-
 	        var progress = this.item.state.progress > 5 ? this.item.state.progress : 5;
 	        this.uploader.setProgress(progress);
-
 	        if (this.item.state.size / 1024 / 1024 <= 2) {
 	          this.uploader.setProgressTitle(this.localize['BX_IM_COMPONENT_SETTINGS_CALL_BG_FILE_UPLOAD_LOADING']);
 	        } else {
@@ -116,7 +106,6 @@ this.BX = this.BX || {};
 	      if (!this.uploader) {
 	        return true;
 	      }
-
 	      this.uploader.destroy(false);
 	      return true;
 	    }
@@ -126,7 +115,6 @@ this.BX = this.BX || {};
 	      if (!this.item.state) {
 	        return '';
 	      }
-
 	      return this.item.state.status + ' ' + this.item.state.progress;
 	    },
 	    localize: function localize() {
@@ -180,7 +168,6 @@ this.BX = this.BX || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.defaultValue = this.isDesktop ? window.BX.desktop.getBackgroundImage() : {
 	      id: ActionType.none,
 	      background: ''
@@ -195,25 +182,21 @@ this.BX = this.BX || {};
 	        element.isCustom = false;
 	        element.canRemove = false;
 	        element.isSupported = true;
-
 	        _this.standard.push(element);
 	      });
 	      response.data().backgrounds.custom.forEach(function (element) {
 	        element.isCustom = true;
 	        element.canRemove = true;
-
 	        if (element.isSupported) {
 	          element.title = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CUSTOM');
 	        } else {
 	          element.title = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED');
 	        }
-
 	        _this.custom.push(element);
 	      });
 	      response.data().limits.forEach(function (element) {
 	        _this.limit[element.id] = element;
 	      });
-
 	      if (_this.diskFolderId) {
 	        _this.actions = _this.actions.map(function (element) {
 	          element.isSupported = true;
@@ -224,13 +207,11 @@ this.BX = this.BX || {};
 	          return element.id !== ActionType.upload;
 	        });
 	      }
-
 	      if (!window.BX.UI.InfoHelper.isInited()) {
 	        window.BX.UI.InfoHelper.init({
 	          frameUrlTemplate: response.data().infoHelperParams.frameUrlTemplate
 	        });
 	      }
-
 	      if (_this.isDesktop) {
 	        window.BX.desktop.hideLoader();
 	      }
@@ -259,7 +240,6 @@ this.BX = this.BX || {};
 	  },
 	  mounted: function mounted() {
 	    var _this2 = this;
-
 	    this.uploader = new im_lib_uploader.Uploader({
 	      inputNode: this.$refs.uploadInput,
 	      generatePreview: true,
@@ -276,7 +256,6 @@ this.BX = this.BX || {};
 	    this.uploader.subscribe('onSelectFile', function (event) {
 	      var eventData = event.getData();
 	      var file = eventData.file;
-
 	      if (!_this2.isAllowedType(file.type) || !eventData.previewData) {
 	        BX.UI.Notification.Center.notify({
 	          content: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name),
@@ -284,7 +263,6 @@ this.BX = this.BX || {};
 	        });
 	        return false;
 	      }
-
 	      _this2.uploader.addTask({
 	        taskId: "custom:".concat(Date.now()),
 	        chunkSize: 1024 * 1024,
@@ -298,7 +276,6 @@ this.BX = this.BX || {};
 	    this.uploader.subscribe('onStartUpload', function (event) {
 	      var eventData = event.getData();
 	      var filePreview = URL.createObjectURL(eventData.previewData);
-
 	      _this2.custom.unshift({
 	        id: eventData.id,
 	        background: filePreview,
@@ -318,68 +295,52 @@ this.BX = this.BX || {};
 	    });
 	    this.uploader.subscribe('onProgress', function (event) {
 	      var eventData = event.getData();
-
 	      var element = _this2.custom.find(function (element) {
 	        return element.id === eventData.id;
 	      });
-
 	      if (!element) {
 	        return;
 	      }
-
 	      element.state.progress = eventData.progress;
 	    });
 	    this.uploader.subscribe('onComplete', function (event) {
 	      var eventData = event.getData();
-
 	      var element = _this2.custom.find(function (element) {
 	        return element.id === eventData.id;
 	      });
-
 	      if (!element) {
 	        return;
 	      }
-
 	      element.id = eventData.result.data.file.id;
-
 	      if (element.isVideo) {
 	        element.background = eventData.result.data.file.links.download;
 	      }
-
 	      element.isLoading = false;
 	      element.canRemove = true;
-
 	      _this2.select(element);
-
 	      rest_client.rest.callMethod('im.v2.call.background.commit', {
 	        fileId: element.id
 	      });
 	    });
 	    this.uploader.subscribe('onUploadFileError', function (event) {
 	      var eventData = event.getData();
-
 	      var element = _this2.custom.find(function (element) {
 	        return element.id === eventData.id;
 	      });
-
 	      if (!element) {
 	        return;
 	      }
-
 	      element.state.status = im_const.FileStatus.error;
 	      element.state.progress = 0;
 	    });
 	    this.uploader.subscribe('onCreateFileError', function (event) {
 	      var eventData = event.getData();
-
 	      var element = _this2.custom.find(function (element) {
 	        return element.id === eventData.id;
 	      });
-
 	      if (!element) {
 	        return;
 	      }
-
 	      element.state.status = im_const.FileStatus.error;
 	      element.state.progress = 0;
 	    });
@@ -394,17 +355,14 @@ this.BX = this.BX || {};
 	    },
 	    containerSize: function containerSize() {
 	      var result = {};
-
 	      if (this.isDesktop) {
 	        result.height = 'calc(100vh - 79px)'; // 79 button panel
 	      } else {
 	        result.height = this.height + 'px';
 	      }
-
 	      if (this.width > 0) {
 	        result.width = this.width + 'px';
 	      }
-
 	      return result;
 	    },
 	    backgrounds: function backgrounds() {
@@ -414,7 +372,6 @@ this.BX = this.BX || {};
 	      if (im_lib_utils.Utils.platform.isBitrixDesktop()) {
 	        return '';
 	      }
-
 	      return '.png, .jpg, .jpeg, .avi, .mp4';
 	    }
 	  },
@@ -423,54 +380,43 @@ this.BX = this.BX || {};
 	      if (elementId === ActionType.none) {
 	        return true;
 	      }
-
 	      if ([ActionType.blur, ActionType.gaussianBlur].includes(elementId)) {
 	        if (this.limit[LimitCode.blur] && this.limit[LimitCode.blur].active && this.limit[LimitCode.blur].articleCode && window.BX.UI.InfoHelper) {
 	          window.BX.UI.InfoHelper.show(this.limit[LimitCode.blur].articleCode);
 	          return false;
 	        }
-
 	        return true;
 	      }
-
 	      if (this.limit[LimitCode.image] && this.limit[LimitCode.image].active && this.limit[LimitCode.image].articleCode && window.BX.UI.InfoHelper) {
 	        window.BX.UI.InfoHelper.show(this.limit[LimitCode.image].articleCode);
 	        return false;
 	      }
-
 	      return true;
 	    },
 	    select: function select(element) {
 	      if (!this.hasLimit(element.id)) {
 	        return false;
 	      }
-
 	      if (!element.isSupported || element.isLoading) {
 	        return false;
 	      }
-
 	      if (element.id === ActionType.upload) {
 	        this.$refs.uploadInput.click();
 	        return false;
 	      }
-
 	      this.selected = element.id;
-
 	      if (this.isDesktop) {
 	        window.BX.desktop.setCallBackground(element.id, element.background);
 	      }
-
 	      return true;
 	    },
 	    remove: function remove(element) {
 	      if (element.id === this.selected) {
 	        this.selected = ActionType.none;
-
 	        if (this.isDesktop) {
 	          window.BX.desktop.setCallBackground(ActionType.none, ActionType.none);
 	        }
 	      }
-
 	      if (element.isLoading) {
 	        this.uploader.deleteTask(element.id);
 	      } else {
@@ -480,7 +426,6 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      this.custom = this.custom.filter(function (el) {
 	        return el.id !== element.id;
 	      });
@@ -494,7 +439,6 @@ this.BX = this.BX || {};
 	        window.close();
 	        return true;
 	      }
-
 	      if (this.isDesktop) {
 	        window.BX.desktop.setCallBackground(this.defaultValue.id, this.defaultValue.background).then(function () {
 	          window.close();
@@ -502,7 +446,6 @@ this.BX = this.BX || {};
 	      } else {
 	        window.close();
 	      }
-
 	      return true;
 	    },
 	    isAllowedType: function isAllowedType(type) {

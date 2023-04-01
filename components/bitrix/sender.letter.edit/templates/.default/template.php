@@ -43,9 +43,9 @@ if($arParams['IFRAME'] === 'Y')
 
 		BX.Sender.Letter.init(<?=Json::encode(array(
 			'containerId' => $containerId,
-			'actionUrl' => $arResult['ACTION_URL'],
+			'actionUrl' => $arResult['ACTION_URL'] ?? '',
 			'isFrame' => $arParams['IFRAME'] === 'Y',
-			'isSaved' => $arResult['IS_SAVED'],
+			'isSaved' => $arResult['IS_SAVED'] ?? '',
 			'isOutside' => $arParams['IS_OUTSIDE'],
 			'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
 			'letterTile' => $arResult['LETTER_TILE'],
@@ -111,8 +111,8 @@ if($arParams['IFRAME'] === 'Y')
 			<input type="hidden" name="MESSAGE_CODE" value="<?=htmlspecialcharsbx($arResult['MESSAGE_CODE'])?>">
 			<input type="hidden" name="MESSAGE_ID" value="<?=htmlspecialcharsbx($arResult['MESSAGE_ID'])?>">
 
-			<input data-role="template-type" type="hidden" name="TEMPLATE_TYPE" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_TYPE'])?>">
-			<input data-role="template-id" type="hidden" name="TEMPLATE_ID" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_ID'])?>">
+			<input data-role="template-type" type="hidden" name="TEMPLATE_TYPE" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_TYPE'] ?? '')?>">
+			<input data-role="template-id" type="hidden" name="TEMPLATE_ID" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_ID'] ?? '')?>">
 
 			<input data-role="dispatch" data-code="METHOD_CODE" type="hidden" name="DISPATCH[METHOD_CODE]">
 			<input data-role="dispatch" data-code="DAYS_OF_WEEK" type="hidden" name="DISPATCH[DAYS_OF_WEEK]">
@@ -141,43 +141,43 @@ if($arParams['IFRAME'] === 'Y')
 				</div>
 			</div>
 
-			<?if ($arParams['SHOW_CAMPAIGNS']):?>
+			<?php if ($arParams['SHOW_CAMPAIGNS'] ?? false):?>
 				<div class="sender-letter-edit-row">
-					<?
+					<?php
 					$APPLICATION->IncludeComponent(
 						"bitrix:sender.campaign.selector",
 						"",
 						array(
-							'PATH_TO_ADD' => $arParams['PATH_TO_CAMPAIGN_ADD'],
-							'PATH_TO_EDIT' => $arParams['PATH_TO_CAMPAIGN_EDIT'],
-							'ID' => $arResult['CAMPAIGN_ID'],
-							'READONLY' => !empty($arResult['ROW']['ID']),
+							'PATH_TO_ADD' => $arParams['PATH_TO_CAMPAIGN_ADD'] ?? '',
+							'PATH_TO_EDIT' => $arParams['PATH_TO_CAMPAIGN_EDIT'] ?? '',
+							'ID' => $arResult['CAMPAIGN_ID'] ?? '',
+							'READONLY' => isset($arResult['ROW']['ID']) && !empty($arResult['ROW']['ID']),
 						),
 						false
 					);
 					?>
 				</div>
-			<?endif;?>
+			<?php endif;?>
 
-			<?if ($arParams['SHOW_SEGMENTS']):?>
+			<?php if ($arParams['SHOW_SEGMENTS'] ?? false):?>
 				<div class="sender-letter-edit-row">
-					<?
+					<?php
 					$APPLICATION->IncludeComponent(
 						"bitrix:sender.segment.selector",
 						"",
 						array(
-							'PATH_TO_ADD' => $arParams['PATH_TO_SEGMENT_ADD'],
-							'PATH_TO_EDIT' => $arParams['PATH_TO_SEGMENT_EDIT'],
-							'INCLUDE' => $arResult['SEGMENTS']['INCLUDE'],
-							'EXCLUDE' => $arResult['SEGMENTS']['EXCLUDE'],
-							'MESSAGE_CODE' => $arResult['MESSAGE_CODE'],
-							'READONLY' => $arResult['SEGMENTS']['READONLY'],
-							'RECIPIENT_COUNT' => $arResult['SEGMENTS']['RECIPIENT_COUNT'],
-							'IS_RECIPIENT_COUNT_EXACT' => $arResult['SEGMENTS']['IS_RECIPIENT_COUNT_EXACT'],
-							'DURATION_FORMATTED' => $arResult['SEGMENTS']['DURATION_FORMATTED'],
-							'SHOW_COUNTERS' => $arParams['SHOW_SEGMENT_COUNTERS'],
-							'CHECK_ON_STATIC' => $arParams['CHECK_ON_STATIC'],
-							'MESS' => $arParams['MESS'],
+							'PATH_TO_ADD' => $arParams['PATH_TO_SEGMENT_ADD'] ?? '',
+							'PATH_TO_EDIT' => $arParams['PATH_TO_SEGMENT_EDIT'] ?? '',
+							'INCLUDE' => $arResult['SEGMENTS']['INCLUDE'] ?? null,
+							'EXCLUDE' => $arResult['SEGMENTS']['EXCLUDE'] ?? null,
+							'MESSAGE_CODE' => $arResult['MESSAGE_CODE'] ?? '',
+							'READONLY' => $arResult['SEGMENTS']['READONLY'] ?? '',
+							'RECIPIENT_COUNT' => $arResult['SEGMENTS']['RECIPIENT_COUNT'] ?? null,
+							'IS_RECIPIENT_COUNT_EXACT' => $arResult['SEGMENTS']['IS_RECIPIENT_COUNT_EXACT'] ?? null,
+							'DURATION_FORMATTED' => $arResult['SEGMENTS']['DURATION_FORMATTED'] ?? null,
+							'SHOW_COUNTERS' => $arParams['SHOW_SEGMENT_COUNTERS'] ?? '',
+							'CHECK_ON_STATIC' => $arParams['CHECK_ON_STATIC'] ?? '',
+							'MESS' => $arParams['MESS'] ?? '',
 						),
 						false
 					);
@@ -201,13 +201,13 @@ if($arParams['IFRAME'] === 'Y')
 				"bitrix:sender.message.editor",
 				"",
 				array(
-					"MESSAGE_CODE" => $arResult['MESSAGE_CODE'],
-					"MESSAGE_ID" => $arResult['MESSAGE_ID'],
-					"MESSAGE" => $arResult['MESSAGE'],
-					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'],
-					"TEMPLATE_ID" => $arResult['ROW']['TEMPLATE_ID'],
-					"CAN_EDIT" => $arParams['CAN_EDIT'],
-					"IS_TRIGGER" => $arParams['IS_TRIGGER'],
+					"MESSAGE_CODE" => $arResult['MESSAGE_CODE'] ?? '',
+					"MESSAGE_ID" => $arResult['MESSAGE_ID'] ?? '',
+					"MESSAGE" => $arResult['MESSAGE'] ?? '',
+					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'] ?? '',
+					"TEMPLATE_ID" => $arResult['ROW']['TEMPLATE_ID'] ?? '',
+					"CAN_EDIT" => $arParams['CAN_EDIT'] ?? null,
+					"IS_TRIGGER" => $arParams['IS_TRIGGER'] ?? '',
 				),
 				false
 			);

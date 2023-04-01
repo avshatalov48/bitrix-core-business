@@ -4,9 +4,9 @@ import getFileExtension from './get-file-extension';
 const imageExtensions = ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'];
 
 const isResizableImage = (file: File | string, mimeType: string = null) => {
-	const filename = Type.isFile(file) ? file.name : file;
+	const fileName = Type.isFile(file) ? file.name : file;
 	const type = Type.isFile(file) ? file.type : mimeType;
-	const extension = getFileExtension(filename).toLowerCase();
+	const extension = getFileExtension(fileName).toLowerCase();
 
 	if (imageExtensions.includes(extension))
 	{

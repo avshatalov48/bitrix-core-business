@@ -12,6 +12,8 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 {
 	public const TYPE_ID = 'SHOP';
 
+	public const OPEN_SETTINGS_PARAM = 'open_settings_page';
+
 	public const PAGE_CSV_IMPORT = 'csvImport';
 
 	protected const TYPE_WEIGHT = 300;
@@ -130,6 +132,15 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 			unset($helpLink);
 		}
 
+		$result[] = [
+			'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_SEO'),
+			'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_SEO'),
+			'ONCLICK' => "BX.SidePanel.Instance.open('"
+				. \CUtil::JSEscape($this->getCatalogSeoUrl())
+				. "', {cacheable: false, allowChangeHistory: false, width: 1000})"
+			,
+		];
+
 		if (!empty($items))
 		{
 			$result = array_merge($result, $items);
@@ -221,6 +232,9 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 		$this->urlTemplates[self::PAGE_ELEMENT_SEARCH] = '/bitrix/tools/iblock/element_search.php'
 			.'?#LANGUAGE#'
 			.'#ADDITIONAL_PARAMETERS#';
+		$this->urlTemplates[self::PAGE_CATALOG_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/';
+		$this->urlTemplates[self::PAGE_ELEMENT_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/product/#PRODUCT_ID#/';
+		$this->urlTemplates[self::PAGE_SECTION_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/section/#SECTION_ID#/';
 	}
 
 	/**
@@ -234,5 +248,52 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 			'/^\/shop\/catalog\/[0-9]+\/product\/[0-9]+\/$/',
 			'/^\/shop\/catalog\/[0-9]+\/product\/[0-9]+\/variation\/[0-9]+\/$/',
 		];
+	}
+
+	public function openSettingsPage(): void
+	{
+		if
+		(
+			$this->request->get('open_settings_page')
+			&& (int)$this->request->get('open_settings_page') === 1
+		)
+		{
+			echo $this->getSettingsSlider();
+		}
+	}
+
+	protected function getSettingsSlider(): string
+	{
+		\Bitrix\Main\UI\Extension::load(['crm.config.catalog']);
+
+		return '<script>'
+			. 'BX.ready(function() {' . "\n"
+			. ' BX.Crm.Config.Catalog.Slider.open(\'shop\');' . "\n"
+			. '});' . "\n"
+			. '</script>'
+			;
+	}
+
+	public function subscribeOnAfterSettingsSave(): void
+	{
+		$saveEventName = static::getOnSaveEventName();
+
+		if ($saveEventName !== '')
+		{
+			$saveEventName = \CUtil::JSEscape($saveEventName);
+
+			echo '<script>'
+				. 'BX.addCustomEvent(\'' . $saveEventName . '\', function() {' . "\n"
+				. ' var href = window.top.location.href;' . "\n"
+				. ' window.top.location.replace(href.replace(/' . \CUtil::JSEscape(static::OPEN_SETTINGS_PARAM) . '.*&?/, \'\'));' . "\n"
+				. '});' . "\n"
+				. '</script>'
+			;
+		}
+	}
+
+	protected static function getOnSaveEventName(): string
+	{
+		return 'onCatalogSettingsSave';
 	}
 }

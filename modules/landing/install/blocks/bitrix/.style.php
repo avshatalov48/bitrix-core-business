@@ -2927,6 +2927,43 @@ return [
 				['name' => '21', 'value' => 'u-heading-v2-13-2--right'],
 			],
 		],
+		'orientation-free' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO'),
+			'type' => 'list',
+			'items' => [
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 16:9', 'value' => 'embed-responsive-16by9'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 9:16', 'value' => 'embed-responsive-9by16'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 4:3', 'value' => 'embed-responsive-4by3'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 3:4', 'value' => 'embed-responsive-3by4'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 21:9', 'value' => 'embed-responsive-21by9'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 9:21', 'value' => 'embed-responsive-9by21'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_S'), 'value' => 'embed-responsive-1by1'],
+			],
+		],
+		'orientation' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO') . ' ',
+			'type' => 'list',
+			'items' => [
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 4:3', 'value' => 'embed-responsive-4by3', 'hide' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 3:4', 'value' => 'embed-responsive-3by4', 'show' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 16:9', 'value' => 'embed-responsive-16by9', 'hide' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 9:16', 'value' => 'embed-responsive-9by16', 'show' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_H') . ', 21:9', 'value' => 'embed-responsive-21by9', 'hide' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_V') . ', 9:21', 'value' => 'embed-responsive-9by21', 'show' => ['video-scale']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_ORIENT_VIDEO_S'), 'value' => 'embed-responsive-1by1', 'hide' => ['video-scale']],
+			],
+		],
+		'video-scale' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SCALE_VIDEO'),
+			'type' => 'slider',
+			'items' => [
+				['name' => '75%', 'value' => 'scale-75'],
+				['name' => '100%', 'value' => 'scale-100'],
+				['name' => '125%', 'value' => 'scale-125'],
+				['name' => '150%', 'value' => 'scale-150'],
+				['name' => '200%', 'value' => 'scale-200'],
+			],
+		],
 	],
 	'group' => [
 		'block-default' => [

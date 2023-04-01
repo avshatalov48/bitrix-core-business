@@ -1,17 +1,22 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Bizproc;
+use Bitrix\Main\Localization\Loc;
 
-class CBPRequestInformationActivity
-	extends CBPCompositeActivity
-	implements IBPEventActivity, IBPActivityExternalEventListener
+class CBPRequestInformationActivity extends CBPCompositeActivity implements
+	IBPEventActivity,
+	IBPActivityExternalEventListener
 {
 	const ACTIVITY = 'RequestInformationActivity';
 	const CONTROLS_PREFIX = 'bpriact_';
 
 	protected $taskId = 0;
-	protected $taskUsers = array();
+	protected $taskUsers = [];
 	protected $subscriptionId = 0;
 	protected $isInEventActivityMode = false;
 	protected $taskStatus = false;
@@ -19,7 +24,7 @@ class CBPRequestInformationActivity
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
+		$this->arProperties = [
 			"Title" => "",
 			"Users" => null,
 			"Name" => null,
@@ -41,9 +46,9 @@ class CBPRequestInformationActivity
 			"TimeoutDuration" => 0,
 			"TimeoutDurationType" => "s",
 			"IsTimeout" => 0,
-			"Changes" => array(),
+			"Changes" => [],
 			'DelegationType' => 0,
-		);
+		];
 
 		$this->SetPropertiesTypes($this->getPropertiesTypesMap());
 	}
@@ -52,78 +57,88 @@ class CBPRequestInformationActivity
 	{
 		return [
 			'TaskId' => ['Type' => 'int'],
-			'Comments' => array(
-				'Type' => 'string'
-			),
-			'InfoUser' => array(
-				'Type' => 'user'
-			),
-			'IsTimeout' => array(
-				'Type' => 'int',
-			),
-			'Changes' => array(
+			'Comments' => [
 				'Type' => 'string',
-				'Multiple' => true
-			),
+			],
+			'InfoUser' => [
+				'Type' => 'user',
+			],
+			'IsTimeout' => [
+				'Type' => 'int',
+			],
+			'Changes' => [
+				'Type' => 'string',
+				'Multiple' => true,
+			],
 		];
 	}
 
-	protected function ReInitialize()
+	protected function reInitialize()
 	{
-		parent::ReInitialize();
+		parent::reInitialize();
 
 		$this->TaskId = 0;
 		$this->Comments = '';
 		$this->InfoUser = null;
 		$this->IsTimeout = 0;
-		$this->Changes = array();
+		$this->Changes = [];
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		if ($this->isInEventActivityMode)
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$this->Subscribe($this);
 
 		$this->isInEventActivityMode = false;
+
 		return CBPActivityExecutionStatus::Executing;
 	}
 
 	public function Subscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		if ($eventHandler == null)
-			throw new Exception("eventHandler");
-
 		$this->isInEventActivityMode = true;
 
 		$arUsersTmp = $this->Users;
 		if (!is_array($arUsersTmp))
-			$arUsersTmp = array($arUsersTmp);
+		{
+			$arUsersTmp = [$arUsersTmp];
+		}
 
-		$this->WriteToTrackingService(str_replace("#VAL#", "{=user:".implode("}, {=user:", $arUsersTmp)."}", GetMessage("BPRIA_ACT_TRACK1")));
+		$this->writeToTrackingService(
+			str_replace(
+				"#VAL#",
+				"{=user:" . implode("}, {=user:", $arUsersTmp) . "}",
+				Loc::getMessage("BPRIA_ACT_TRACK1")
+			)
+		);
 
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
+		$rootActivity = $this->getRootActivity();
+		$documentId = $rootActivity->getDocumentId();
 
-		$arUsers = CBPHelper::ExtractUsers($arUsersTmp, $documentId, false);
+		$arUsers = CBPHelper::extractUsers($arUsersTmp, $documentId, false);
 
 		$overdueDate = $this->OverdueDate;
 		$timeoutDuration = $this->CalculateTimeoutDuration();
 		if ($timeoutDuration > 0)
 		{
-			$overdueDate = ConvertTimeStamp(time() + max($timeoutDuration, CBPSchedulerService::getDelayMinLimit()), "FULL");
+			$overdueDate = ConvertTimeStamp(
+				time() + max($timeoutDuration, CBPSchedulerService::getDelayMinLimit()),
+				"FULL"
+			);
 		}
 
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		/** @var CBPTaskService $taskService */
-		$taskService = $this->workflow->GetService("TaskService");
-		$this->taskId = $taskService->CreateTask(
-			array(
+		$taskService = $this->workflow->getService("TaskService");
+		$this->taskId = $taskService->createTask(
+			[
 				"USERS" => $arUsers,
-				"WORKFLOW_ID" => $this->GetWorkflowInstanceId(),
+				"WORKFLOW_ID" => $this->getWorkflowInstanceId(),
 				"ACTIVITY" => static::ACTIVITY,
 				"ACTIVITY_NAME" => $this->name,
 				"OVERDUE_DATE" => $overdueDate,
@@ -131,64 +146,95 @@ class CBPRequestInformationActivity
 				"DESCRIPTION" => $this->Description,
 				"PARAMETERS" => $this->getTaskParameters($documentId, $documentService),
 				'DELEGATION_TYPE' => (int)$this->DelegationType,
-				'DOCUMENT_NAME' => $documentService->GetDocumentName($documentId)
-			)
+				'DOCUMENT_NAME' => $documentService->getDocumentName($documentId),
+			]
 		);
 		$this->TaskId = $this->taskId;
 		$this->taskUsers = $arUsers;
 
-		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
+		if (!$this->isPropertyExists("SetStatusMessage") || $this->SetStatusMessage === "Y")
 		{
-			$message = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPRIA_ACT_INFO");
-			$this->SetStatusTitle($message);
+			$message =
+				($this->isPropertyExists("StatusMessage") && $this->StatusMessage <> '')
+					? $this->StatusMessage
+					: Loc::getMessage("BPRIA_ACT_INFO")
+			;
+			$this->setStatusTitle($message);
 		}
 
 		if ($timeoutDuration > 0)
 		{
 			/** @var CBPSchedulerService $schedulerService */
-			$schedulerService = $this->workflow->GetService("SchedulerService");
-			$this->subscriptionId = $schedulerService->SubscribeOnTime($this->workflow->GetInstanceId(), $this->name, time() + $timeoutDuration);
+			$schedulerService = $this->workflow->getService("SchedulerService");
+			$this->subscriptionId = $schedulerService->subscribeOnTime(
+				$this->workflow->getInstanceId(),
+				$this->name,
+				time() + $timeoutDuration
+			);
 		}
 
-		$this->workflow->AddEventHandler($this->name, $eventHandler);
+		$this->workflow->addEventHandler($this->name, $eventHandler);
 	}
 
 	protected function getTaskParameters($documentId, $documentService)
 	{
 		$taskParameters = $this->Parameters;
 		if (!is_array($taskParameters))
-			$taskParameters = array($taskParameters);
+		{
+			$taskParameters = [$taskParameters];
+		}
 
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		$taskParameters["DOCUMENT_ID"] = $documentId;
-		$taskParameters["DOCUMENT_URL"] = $documentService->GetDocumentAdminPage($documentId);
-		$taskParameters["DOCUMENT_TYPE"] = $this->GetDocumentType();
-		$taskParameters["FIELD_TYPES"] = $documentService->GetDocumentFieldTypes($taskParameters["DOCUMENT_TYPE"]);
-		$taskParameters["REQUEST"] = array();
-		$taskParameters["TaskButtonMessage"] = $this->IsPropertyExists("TaskButtonMessage") ? $this->TaskButtonMessage : GetMessage("BPRIA_ACT_BUTTON1");
+		$taskParameters["DOCUMENT_URL"] = $documentService->getDocumentAdminPage($documentId);
+		$taskParameters["DOCUMENT_TYPE"] = $this->getDocumentType();
+		$taskParameters["FIELD_TYPES"] = $documentService->getDocumentFieldTypes($taskParameters["DOCUMENT_TYPE"]);
+		$taskParameters["REQUEST"] = [];
+		$taskParameters["TaskButtonMessage"] =
+			$this->isPropertyExists("TaskButtonMessage")
+				? $this->TaskButtonMessage
+				: Loc::getMessage("BPRIA_ACT_BUTTON1")
+		;
 		if ($taskParameters["TaskButtonMessage"] == '')
-			$taskParameters["TaskButtonMessage"] = GetMessage("BPRIA_ACT_BUTTON1");
-		$taskParameters["CommentLabelMessage"] = $this->IsPropertyExists("CommentLabelMessage") ? $this->CommentLabelMessage : GetMessage("BPRIA_ACT_COMMENT");
+		{
+			$taskParameters["TaskButtonMessage"] = Loc::getMessage("BPRIA_ACT_BUTTON1");
+		}
+		$taskParameters["CommentLabelMessage"] =
+			$this->isPropertyExists("CommentLabelMessage")
+				? $this->CommentLabelMessage
+				: Loc::getMessage("BPRIA_ACT_COMMENT")
+		;
 		if ($taskParameters["CommentLabelMessage"] == '')
-			$taskParameters["CommentLabelMessage"] = GetMessage("BPRIA_ACT_COMMENT");
-		$taskParameters["ShowComment"] = $this->IsPropertyExists("ShowComment") ? $this->ShowComment : "Y";
+		{
+			$taskParameters["CommentLabelMessage"] = Loc::getMessage("BPRIA_ACT_COMMENT");
+		}
+		$taskParameters["ShowComment"] = $this->isPropertyExists("ShowComment") ? $this->ShowComment : "Y";
 		if ($taskParameters["ShowComment"] != "Y" && $taskParameters["ShowComment"] != "N")
+		{
 			$taskParameters["ShowComment"] = "Y";
+		}
 
-		$taskParameters["CommentRequired"] = $this->IsPropertyExists("CommentRequired") ? $this->CommentRequired : "N";
-		$taskParameters["AccessControl"] = $this->IsPropertyExists("AccessControl") && $this->AccessControl == 'Y' ? 'Y' : 'N';
+		$taskParameters["CommentRequired"] =
+			$this->isPropertyExists("CommentRequired")
+				? $this->CommentRequired
+				: "N"
+		;
+		$taskParameters["AccessControl"] =
+			$this->isPropertyExists("AccessControl") && $this->AccessControl === 'Y'
+				? 'Y'
+				: 'N'
+		;
 
 		$requestedInformation = $this->RequestedInformation;
 		if ($requestedInformation && is_array($requestedInformation) && count($requestedInformation) > 0)
 		{
 			foreach ($requestedInformation as $v)
 			{
-				if (CBPHelper::isEmptyValue($v['Default']))
+				if (CBPHelper::isEmptyValue($v['Default'] ?? null))
 				{
-					$varValue = $this->GetVariable($v['Name']);
-					if (!CBPDocument::IsExpression($varValue))
+					$varValue = $this->getVariable($v['Name']);
+					if (!CBPDocument::isExpression($varValue))
 					{
 						$v['Default'] = $varValue;
 					}
@@ -202,163 +248,194 @@ class CBPRequestInformationActivity
 
 	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		if ($eventHandler == null)
-			throw new Exception("eventHandler");
-
-		$taskService = $this->workflow->GetService("TaskService");
+		$taskService = $this->workflow->getService("TaskService");
 		if ($this->taskStatus === false)
 		{
-			$taskService->DeleteTask($this->taskId);
+			$taskService->deleteTask($this->taskId);
 		}
 		else
 		{
-			$taskService->Update($this->taskId, array(
-				'STATUS' => $this->taskStatus
-			));
+			$taskService->update(
+				$this->taskId,
+				[
+					'STATUS' => $this->taskStatus,
+				]
+			);
 		}
 
 		$timeoutDuration = $this->CalculateTimeoutDuration();
 		if ($timeoutDuration > 0)
 		{
-			$schedulerService = $this->workflow->GetService("SchedulerService");
-			$schedulerService->UnSubscribeOnTime($this->subscriptionId);
+			$schedulerService = $this->workflow->getService("SchedulerService");
+			$schedulerService->unSubscribeOnTime($this->subscriptionId);
 		}
 
-		$this->workflow->RemoveEventHandler($this->name, $eventHandler);
+		$this->workflow->removeEventHandler($this->name, $eventHandler);
 
 		$this->taskId = 0;
-		$this->taskUsers = array();
+		$this->taskUsers = [];
 		$this->taskStatus = false;
 		$this->subscriptionId = 0;
 	}
 
-	public function Cancel()
+	public function cancel()
 	{
 		if (!$this->isInEventActivityMode && $this->taskId > 0)
+		{
 			$this->Unsubscribe($this);
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public function OnExternalEvent($eventParameters = array())
+	public function OnExternalEvent($eventParameters = [])
 	{
 		if ($this->executionStatus == CBPActivityExecutionStatus::Closed)
+		{
 			return;
+		}
 
 		$timeoutDuration = $this->CalculateTimeoutDuration();
 		if ($timeoutDuration > 0)
 		{
-			if (array_key_exists("SchedulerService", $eventParameters) && $eventParameters["SchedulerService"] == "OnAgent")
+			if (
+				array_key_exists("SchedulerService", $eventParameters)
+				&& $eventParameters["SchedulerService"] === "OnAgent"
+			)
 			{
 				$this->IsTimeout = 1;
 				$this->taskStatus = CBPTaskStatus::Timeout;
 				$this->Unsubscribe($this);
 				$this->closeActivity();
+
 				return;
 			}
 		}
 
 		if (!array_key_exists("USER_ID", $eventParameters) || intval($eventParameters["USER_ID"]) <= 0)
+		{
 			return;
+		}
 
 		if (empty($eventParameters["REAL_USER_ID"]))
+		{
 			$eventParameters["REAL_USER_ID"] = $eventParameters["USER_ID"];
+		}
 
-		$rootActivity = $this->GetRootActivity();
+		$rootActivity = $this->getRootActivity();
 		$arUsers = $this->taskUsers;
 		if (empty($arUsers)) //compatibility
-			$arUsers = CBPHelper::ExtractUsers($this->Users, $this->GetDocumentId(), false);
+		{
+			$arUsers = CBPHelper::extractUsers($this->Users, $this->getDocumentId(), false);
+		}
 
 		$eventParameters["USER_ID"] = intval($eventParameters["USER_ID"]);
 		$eventParameters["REAL_USER_ID"] = intval($eventParameters["REAL_USER_ID"]);
 		if (!in_array($eventParameters["USER_ID"], $arUsers))
+		{
 			return;
+		}
 
 		$this->Comments = $eventParameters["COMMENT"];
 
-		if ($this->IsPropertyExists("InfoUser"))
-			$this->InfoUser = "user_".$eventParameters["REAL_USER_ID"];
+		if ($this->isPropertyExists("InfoUser"))
+		{
+			$this->InfoUser = "user_" . $eventParameters["REAL_USER_ID"];
+		}
 		$this->completeTask($eventParameters, $rootActivity);
 	}
 
 	protected function closeActivity()
 	{
-		$this->workflow->CloseActivity($this);
+		$this->workflow->closeActivity($this);
 	}
 
 	protected function completeTask($eventParameters, $rootActivity)
 	{
 		$this->Changes = $this->findRequestChanges($this->RequestedInformation, $eventParameters["RESPONCE"]);
 
-		$taskService = $this->workflow->GetService("TaskService");
-		$taskService->MarkCompleted($this->taskId, $eventParameters["REAL_USER_ID"], CBPTaskUserStatus::Ok);
+		$taskService = $this->workflow->getService("TaskService");
+		$taskService->markCompleted($this->taskId, $eventParameters["REAL_USER_ID"], CBPTaskUserStatus::Ok);
 
-		$this->WriteToTrackingService(
+		$this->writeToTrackingService(
 			str_replace(
-				array("#PERSON#", "#COMMENT#"),
-				array("{=user:user_".$eventParameters["REAL_USER_ID"]."}", ($eventParameters["COMMENT"] <> '' ? ": ".$eventParameters["COMMENT"] : "")),
-				GetMessage("BPRIA_ACT_APPROVE_TRACK")
+				["#PERSON#", "#COMMENT#"],
+				[
+					"{=user:user_" . $eventParameters["REAL_USER_ID"] . "}",
+					($eventParameters["COMMENT"] <> '' ? ": " . $eventParameters["COMMENT"] : ""),
+				],
+				Loc::getMessage("BPRIA_ACT_APPROVE_TRACK")
 			),
 			$eventParameters["REAL_USER_ID"]
 		);
 
 		$this->ResponcedInformation = $eventParameters["RESPONCE"];
-		$rootActivity->SetVariables($eventParameters["RESPONCE"]);
+		$rootActivity->setVariables($eventParameters["RESPONCE"]);
 
 		$this->taskStatus = CBPTaskStatus::CompleteOk;
 		$this->Unsubscribe($this);
 
-		$this->workflow->CloseActivity($this);
+		$this->workflow->closeActivity($this);
 	}
 
 	protected function OnEvent(CBPActivity $sender)
 	{
-		$sender->RemoveStatusChangeHandler(self::ClosedEvent, $this);
-		$this->workflow->CloseActivity($this);
+		$sender->removeStatusChangeHandler(self::ClosedEvent, $this);
+		$this->workflow->closeActivity($this);
 	}
 
 	public static function ShowTaskForm($arTask, $userId, $userName = "", $arRequest = null)
 	{
 		$form = '';
 
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 		$isMobile = defined('BX_MOBILE');
 
-		if ($arTask["PARAMETERS"] && is_array($arTask["PARAMETERS"]) && count($arTask["PARAMETERS"]) > 0
-			&& $arTask["PARAMETERS"]["REQUEST"] && is_array($arTask["PARAMETERS"]["REQUEST"]) && count($arTask["PARAMETERS"]["REQUEST"]) > 0)
+		if (
+			$arTask["PARAMETERS"] && is_array($arTask["PARAMETERS"]) && count($arTask["PARAMETERS"]) > 0
+			&& $arTask["PARAMETERS"]["REQUEST"]
+			&& is_array($arTask["PARAMETERS"]["REQUEST"])
+			&& count($arTask["PARAMETERS"]["REQUEST"]) > 0
+		)
 		{
 			foreach ($arTask["PARAMETERS"]["REQUEST"] as $parameter)
 			{
 				if ($parameter["Name"] == '')
+				{
 					continue;
+				}
 
-				$nameHtml = $parameter['Required']
-					? sprintf(
-						'<span class="required">*</span><span class="adm-required-field">%s:</span>',
-						htmlspecialcharsbx($parameter['Title'])
-					)
-					: htmlspecialcharsbx($parameter['Title']) . ':'
+				$nameHtml =
+					$parameter['Required']
+						? sprintf(
+							'<span class="required">*</span><span class="adm-required-field">%s:</span>',
+							htmlspecialcharsbx($parameter['Title'])
+						)
+						: htmlspecialcharsbx($parameter['Title']) . ':'
 				;
 
-				$descriptionHtml = $parameter['Description']
-					? sprintf(
-						'<br/><span class="bizproc-field-description">%s</span>',
-						htmlspecialcharsbx($parameter['Description'])
-					)
-					: ''
+				$descriptionHtml =
+					!empty($parameter['Description'])
+						? sprintf(
+							'<br/><span class="bizproc-field-description">%s</span>',
+							htmlspecialcharsbx($parameter['Description'])
+						)
+						: ''
 				;
 
 				if ($arRequest === null)
+				{
 					$realValue = $parameter['Default'];
+				}
 				else
-					$realValue = $arRequest[static::CONTROLS_PREFIX.$parameter['Name']];
+				{
+					$realValue = $arRequest[static::CONTROLS_PREFIX . $parameter['Name']];
+				}
 
-				$controlHtml = $documentService->GetFieldInputControl(
+				$controlHtml = $documentService->getFieldInputControl(
 					$arTask['PARAMETERS']['DOCUMENT_TYPE'],
 					$parameter,
-					['task_form1', static::CONTROLS_PREFIX.$parameter['Name']],
+					['task_form1', static::CONTROLS_PREFIX . $parameter['Name']],
 					$realValue,
 					false,
 					true
@@ -382,7 +459,6 @@ class CBPRequestInformationActivity
 						</tr>
 					';
 				}
-
 
 				$form .= sprintf($rowHtml, $nameHtml, $descriptionHtml, $controlHtml);
 			}
@@ -418,21 +494,29 @@ class CBPRequestInformationActivity
 
 			$form .= sprintf(
 				$rowHtml,
-				$arTask["PARAMETERS"]["CommentLabelMessage"]  ?: GetMessage("BPRIA_ACT_COMMENT"),
+				$arTask["PARAMETERS"]["CommentLabelMessage"] ?: Loc::getMessage("BPRIA_ACT_COMMENT"),
 				$required,
 				htmlspecialcharsbx($commentText)
 			);
 		}
 
-		$buttons = '<input type="submit" name="approve" value="'.($arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPRIA_ACT_BUTTON1")).'"/>';
+		$buttons =
+			'<input type="submit" name="approve" value="'
+			. (
+				$arTask["PARAMETERS"]["TaskButtonMessage"] <> ''
+					? $arTask["PARAMETERS"]["TaskButtonMessage"]
+					: Loc::getMessage("BPRIA_ACT_BUTTON1")
+			)
+			. '"/>'
+		;
 
-		return array($form, $buttons);
+		return [$form, $buttons];
 	}
 
 	protected static function getCommentRequiredStar($arTask): string
 	{
 		$required = '';
-		if (isset($arTask['PARAMETERS']['CommentRequired']) && $arTask['PARAMETERS']['CommentRequired'] == 'Y')
+		if (isset($arTask['PARAMETERS']['CommentRequired']) && $arTask['PARAMETERS']['CommentRequired'] === 'Y')
 		{
 			$required = '<span style="color: red">*</span>';
 		}
@@ -442,38 +526,44 @@ class CBPRequestInformationActivity
 
 	public static function getTaskControls($arTask)
 	{
-		return array(
-			'BUTTONS' => array(
-				array(
-					'TYPE'  => 'submit',
+		return [
+			'BUTTONS' => [
+				[
+					'TYPE' => 'submit',
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Ok,
-					'NAME'  => 'approve',
+					'NAME' => 'approve',
 					'VALUE' => 'Y',
-					'TEXT'  => $arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAA_ACT_BUTTON1")
-				)
-			)
-		);
+					'TEXT' =>
+						$arTask["PARAMETERS"]["TaskButtonMessage"] <> ''
+							? $arTask["PARAMETERS"]["TaskButtonMessage"]
+							: Loc::getMessage("BPAA_ACT_BUTTON1")
+					,
+				],
+			],
+		];
 	}
 
 	protected static function getEventParameters($task, $request)
 	{
-		return array(
+		return [
 			"COMMENT" => isset($request["task_comment"]) ? trim($request["task_comment"]) : '',
 			"RESPONCE" => isset($request['fields'])
 				? static::prepareResponseFields($task, $request['fields']) : static::getTaskResponse($task),
-		);
+		];
 	}
 
 	protected static function getTaskResponse($task)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
-		$result = array();
+		$result = [];
 
-		if ($task["PARAMETERS"] && is_array($task["PARAMETERS"]) && count($task["PARAMETERS"]) > 0
-			&& $task["PARAMETERS"]["REQUEST"] && is_array($task["PARAMETERS"]["REQUEST"]) && count($task["PARAMETERS"]["REQUEST"]) > 0)
+		if (
+			$task["PARAMETERS"] && is_array($task["PARAMETERS"]) && count($task["PARAMETERS"]) > 0
+			&& $task["PARAMETERS"]["REQUEST"]
+			&& is_array($task["PARAMETERS"]["REQUEST"])
+			&& count($task["PARAMETERS"]["REQUEST"]) > 0
+		)
 		{
 			$request = $_REQUEST;
 
@@ -485,12 +575,16 @@ class CBPRequestInformationActivity
 					{
 						$ks = array_keys($v["name"]);
 						if (!is_array($request[$k]))
-							$request[$k] = array();
+						{
+							$request[$k] = [];
+						}
 						for ($i = 0, $cnt = count($ks); $i < $cnt; $i++)
 						{
-							$ar = array();
+							$ar = [];
 							foreach ($v as $k1 => $v1)
+							{
 								$ar[$k1] = $v1[$ks[$i]];
+							}
 
 							$request[$k][] = $ar;
 						}
@@ -504,12 +598,12 @@ class CBPRequestInformationActivity
 
 			foreach ($task["PARAMETERS"]["REQUEST"] as $parameter)
 			{
-				$arErrorsTmp = array();
+				$arErrorsTmp = [];
 
-				$result[$parameter["Name"]] = $documentService->GetFieldInputValue(
+				$result[$parameter["Name"]] = $documentService->getFieldInputValue(
 					$task["PARAMETERS"]["DOCUMENT_TYPE"],
 					$parameter,
-					static::CONTROLS_PREFIX.$parameter["Name"],
+					static::CONTROLS_PREFIX . $parameter["Name"],
 					$request,
 					$arErrorsTmp
 				);
@@ -518,7 +612,9 @@ class CBPRequestInformationActivity
 				{
 					$m = "";
 					foreach ($arErrorsTmp as $e)
-						$m .= $e["message"]."<br />";
+					{
+						$m .= $e["message"] . "<br />";
+					}
 					throw new CBPArgumentException($m);
 				}
 
@@ -526,14 +622,16 @@ class CBPRequestInformationActivity
 					CBPHelper::getBool($parameter['Required'])
 					&& CBPHelper::isEmptyValue($result[$parameter['Name']])
 				)
+				{
 					throw new CBPArgumentNullException(
 						$parameter["Name"],
 						str_replace(
 							"#PARAM#",
 							htmlspecialcharsbx($parameter["Title"]),
-							GetMessage("BPRIA_ARGUMENT_NULL")
+							Loc::getMessage("BPRIA_ARGUMENT_NULL")
 						)
 					);
+				}
 			}
 		}
 
@@ -542,36 +640,48 @@ class CBPRequestInformationActivity
 
 	protected static function prepareResponseFields($task, $values)
 	{
-		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		$result = [];
 
-		if ($task["PARAMETERS"] && is_array($task["PARAMETERS"]) && count($task["PARAMETERS"]) > 0
-			&& $task["PARAMETERS"]["REQUEST"] && is_array($task["PARAMETERS"]["REQUEST"]) && count($task["PARAMETERS"]["REQUEST"]) > 0)
+		if (
+			$task["PARAMETERS"] && is_array($task["PARAMETERS"]) && count($task["PARAMETERS"]) > 0
+			&& $task["PARAMETERS"]["REQUEST"]
+			&& is_array($task["PARAMETERS"]["REQUEST"])
+			&& count($task["PARAMETERS"]["REQUEST"]) > 0
+		)
 		{
 			foreach ($task["PARAMETERS"]["REQUEST"] as $property)
 			{
 				$title = $property["Title"];
 				$property = Bizproc\FieldType::normalizeProperty($property);
-				$fieldTypeObject = $documentService->getFieldTypeObject($task["PARAMETERS"]["DOCUMENT_TYPE"], $property);
+				$fieldTypeObject = $documentService->getFieldTypeObject(
+					$task["PARAMETERS"]["DOCUMENT_TYPE"],
+					$property
+				);
 				if ($fieldTypeObject)
 				{
 					$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
-					$result[$property['Name']] = $fieldTypeObject->internalizeValue($task['ACTIVITY_NAME'], $values[$property['Name']]);
+					$result[$property['Name']] = $fieldTypeObject->internalizeValue(
+						$task['ACTIVITY_NAME'],
+						$values[$property['Name']]
+					);
 				}
 
 				if (
 					CBPHelper::getBool($property['Required'])
 					&& CBPHelper::isEmptyValue($result[$property['Name']])
 				)
+				{
 					throw new CBPArgumentNullException(
 						$property["Name"],
 						str_replace(
 							"#PARAM#",
 							htmlspecialcharsbx($title),
-							GetMessage("BPRIA_ARGUMENT_NULL")
+							Loc::getMessage("BPRIA_ARGUMENT_NULL")
 						)
 					);
+				}
 			}
 		}
 
@@ -588,12 +698,19 @@ class CBPRequestInformationActivity
 			&& $arTask['PARAMETERS']['CommentRequired'] === 'Y'
 		)
 		{
-			$label = $arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
+			$label =
+				$arTask["PARAMETERS"]["CommentLabelMessage"] <> ''
+					? $arTask["PARAMETERS"]["CommentLabelMessage"]
+					: Loc::getMessage("BPAR_ACT_COMMENT")
+			;
 			throw new CBPArgumentNullException(
 				'task_comment',
-				GetMessage("BPRIA_ACT_COMMENT_ERROR", array(
-					'#COMMENT_LABEL#' => $label
-				))
+				Loc::getMessage(
+					"BPRIA_ACT_COMMENT_ERROR",
+					[
+						'#COMMENT_LABEL#' => $label,
+					]
+				)
 			);
 		}
 
@@ -602,30 +719,33 @@ class CBPRequestInformationActivity
 
 	public static function PostTaskForm($task, $userId, $request, &$errors, $userName = "", $realUserId = null)
 	{
-		$errors = array();
+		$errors = [];
 
 		try
 		{
 			$userId = intval($userId);
 			if ($userId <= 0)
+			{
 				throw new CBPArgumentNullException("userId");
+			}
 
 			$arEventParameters = static::getEventParameters($task, $request);
-			$arEventParameters["USER_ID"]= $userId;
+			$arEventParameters["USER_ID"] = $userId;
 			$arEventParameters["REAL_USER_ID"] = $realUserId;
 			$arEventParameters["USER_NAME"] = $userName;
 
 			static::validateTaskEventParameters($task, $arEventParameters);
-			CBPRuntime::SendExternalEvent($task["WORKFLOW_ID"], $task["ACTIVITY_NAME"], $arEventParameters);
+			CBPRuntime::sendExternalEvent($task["WORKFLOW_ID"], $task["ACTIVITY_NAME"], $arEventParameters);
+
 			return true;
 		}
 		catch (Exception $e)
 		{
-			$errors[] = array(
+			$errors[] = [
 				"code" => $e->getCode(),
 				"message" => $e->getMessage(),
-				"file" => $e->getFile()." [".$e->getLine()."]",
-			);
+				"file" => $e->getFile() . " [" . $e->getLine() . "]",
+			];
 		}
 
 		return false;
@@ -633,15 +753,17 @@ class CBPRequestInformationActivity
 
 	private function findRequestChanges($properties, $values)
 	{
-		$result = array();
+		$result = [];
 
 		foreach ($properties as $key => $property)
 		{
-			$a = (array) $property['Default'];
-			$b = (array) (isset($values[$property['Name']]) ? $values[$property['Name']] : null);
+			$a = (array)$property['Default'];
+			$b = (array)(isset($values[$property['Name']]) ? $values[$property['Name']] : null);
 
 			if ($a != $b)
+			{
 				$result[$property['Name']] = $property['Title'];
+			}
 		}
 
 		return $result;
@@ -649,12 +771,14 @@ class CBPRequestInformationActivity
 
 	private function CalculateTimeoutDuration()
 	{
-		$timeoutDuration = ($this->IsPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
+		$timeoutDuration = ($this->isPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
 
-		$timeoutDurationType = ($this->IsPropertyExists("TimeoutDurationType") ? $this->TimeoutDurationType : "s");
+		$timeoutDurationType = ($this->isPropertyExists("TimeoutDurationType") ? $this->TimeoutDurationType : "s");
 		$timeoutDurationType = mb_strtolower($timeoutDurationType);
-		if (!in_array($timeoutDurationType, array("s", "d", "h", "m")))
+		if (!in_array($timeoutDurationType, ["s", "d", "h", "m"]))
+		{
 			$timeoutDurationType = "s";
+		}
 
 		$timeoutDuration = intval($timeoutDuration);
 		switch ($timeoutDurationType)
@@ -675,10 +799,19 @@ class CBPRequestInformationActivity
 		return min($timeoutDuration, 3600 * 24 * 365 * 5);
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null, $siteId)
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = "",
+		$popupWindow = null,
+		$siteId = ""
+	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		$dialog = new Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $documentType,
@@ -688,18 +821,22 @@ class CBPRequestInformationActivity
 			'workflowVariables' => $arWorkflowVariables,
 			'currentValues' => $arCurrentValues,
 			'formName' => $formName,
-			'siteId' => $siteId
+			'siteId' => $siteId,
 		]);
 
 		$dialog->setMap(static::getPropertiesDialogMap());
 
 		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$requestedInformation = $currentActivity['Properties']['RequestedInformation'] ?: [];
+		$requestedInformation =
+			isset($currentActivity['Properties']['RequestedInformation']) && is_array($currentActivity['Properties']['RequestedInformation'])
+				? $currentActivity['Properties']['RequestedInformation']
+				: []
+		;
 
 		$requestedVariables = [];
 		foreach ($requestedInformation as $variable)
 		{
-			if($variable['Name'] == '')
+			if ($variable['Name'] == '')
 			{
 				continue;
 			}
@@ -709,13 +846,13 @@ class CBPRequestInformationActivity
 			$requestedVariables[] = $variable;
 		}
 
-		$arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
+		$arFieldTypes = $documentService->getDocumentFieldTypes($documentType);
 		unset($arFieldTypes['N:Sequence']);
 		unset($arFieldTypes['UF:resourcebooking']);
 
-		$arDocumentFields = $documentService->GetDocumentFields($documentType);
+		$arDocumentFields = $documentService->getDocumentFields($documentType);
 
-		$javascriptFunctions = $documentService->GetJSFunctionsForFields(
+		$javascriptFunctions = $documentService->getJSFunctionsForFields(
 			$documentType,
 			"objFields",
 			$arDocumentFields,
@@ -730,32 +867,38 @@ class CBPRequestInformationActivity
 			"formName" => $formName,
 			"popupWindow" => &$popupWindow,
 		]);
+
 		return $dialog;
 	}
 
 	protected static function getDefaultLabels()
 	{
 		return [
-			'comment_label_message' => GetMessage("BPRIA_ACT_COMMENT"),
-			'task_button_message' => GetMessage("BPRIA_ACT_BUTTON1"),
-			'status_message' => GetMessage("BPRIA_ACT_INFO")
+			'comment_label_message' => Loc::getMessage("BPRIA_ACT_COMMENT"),
+			'task_button_message' => Loc::getMessage("BPRIA_ACT_BUTTON1"),
+			'status_message' => Loc::getMessage("BPRIA_ACT_INFO"),
 		];
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$workflowTemplate, &$arWorkflowParameters, &$workflowVariables, $currentValues, &$errors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$workflowTemplate,
+		&$arWorkflowParameters,
+		&$workflowVariables,
+		$currentValues,
+		&$errors
+	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
-
 		$properties = [];
-		$documentService = $runtime->GetService('DocumentService');
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		foreach (static::getPropertiesDialogMap() as $fieldId => $fieldMap)
 		{
 			$field = $documentService->getFieldTypeObject($documentType, $fieldMap);
-			if(!$field)
+			if (!$field)
 			{
-				$properties[$fieldId] = $currentValues[$fieldMap['FieldName']];
+				$properties[$fieldId] = $currentValues[$fieldMap['FieldName']] ?? null;
 				continue;
 			}
 
@@ -795,7 +938,10 @@ class CBPRequestInformationActivity
 			}
 		}
 
-		$errors = static::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		$errors = static::validateProperties(
+			$properties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
 		if (count($errors) > 0)
 		{
 			return false;
@@ -804,9 +950,9 @@ class CBPRequestInformationActivity
 		return true;
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		if (!array_key_exists("Users", $arTestProperties))
 		{
@@ -815,7 +961,9 @@ class CBPRequestInformationActivity
 		else
 		{
 			if (!is_array($arTestProperties["Users"]))
-				$arTestProperties["Users"] = array($arTestProperties["Users"]);
+			{
+				$arTestProperties["Users"] = [$arTestProperties["Users"]];
+			}
 
 			$bUsersFieldEmpty = true;
 			foreach ($arTestProperties["Users"] as $userId)
@@ -829,88 +977,110 @@ class CBPRequestInformationActivity
 		}
 
 		if ($bUsersFieldEmpty)
-			$arErrors[] = array("code" => "NotExist", "parameter" => "Users", "message" => GetMessage("BPRIA_ACT_PROP_EMPTY1"));
+		{
+			$arErrors[] = [
+				"code" => "NotExist",
+				"parameter" => "Users",
+				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY1"),
+			];
+		}
 
 		if (!array_key_exists("Name", $arTestProperties) || $arTestProperties["Name"] == '')
-			$arErrors[] = array("code" => "NotExist", "parameter" => "Name", "message" => GetMessage("BPRIA_ACT_PROP_EMPTY4"));
+		{
+			$arErrors[] = [
+				"code" => "NotExist",
+				"parameter" => "Name",
+				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY4"),
+			];
+		}
 
-		if (!array_key_exists("RequestedInformation", $arTestProperties) || !is_array($arTestProperties["RequestedInformation"]) || count($arTestProperties["RequestedInformation"]) <= 0)
-			$arErrors[] = array("code" => "NotExist", "parameter" => "RequestedInformation", "message" => GetMessage("BPRIA_ACT_PROP_EMPTY2"));
+		if (
+			!array_key_exists("RequestedInformation", $arTestProperties)
+			|| !is_array($arTestProperties["RequestedInformation"])
+			|| count($arTestProperties["RequestedInformation"]) <= 0
+		)
+		{
+			$arErrors[] = [
+				"code" => "NotExist",
+				"parameter" => "RequestedInformation",
+				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY2"),
+			];
+		}
 
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
+		return array_merge($arErrors, parent::validateProperties($arTestProperties, $user));
 	}
 
 	protected static function getPropertiesDialogMap()
 	{
 		return [
 			"Users" => [
-				'Name' => GetMessage('BPRIA_APPROVERS'),
+				'Name' => Loc::getMessage('BPRIA_APPROVERS'),
 				'FieldName' => "requested_users",
 				'Type' => Bizproc\FieldType::USER,
 				'Multiple' => true,
 				'Required' => true,
 			],
 			"Name" => [
-				'Name' => GetMessage('BPRIA_NAME'),
+				'Name' => Loc::getMessage('BPRIA_NAME'),
 				'FieldName' => "requested_name",
 				'Type' => Bizproc\FieldType::STRING,
-				'Required' => true
+				'Required' => true,
 			],
 			"Description" => [
-				'Name' => GetMessage('BPRIA_DESCR'),
+				'Name' => Loc::getMessage('BPRIA_DESCR'),
 				'FieldName' => "requested_description",
-				'Type' => Bizproc\FieldType::TEXT
+				'Type' => Bizproc\FieldType::TEXT,
 			],
 			"TaskButtonMessage" => [
-				'Name' => GetMessage('BPAR_TASK_BUTTON_MESSAGE'),
+				'Name' => Loc::getMessage('BPAR_TASK_BUTTON_MESSAGE'),
 				'FieldName' => "task_button_message",
 				'Type' => Bizproc\FieldType::STRING,
 				'Default' => static::getDefaultLabels()['task_button_message'],
 			],
 			"ShowComment" => [
-				'Name' => GetMessage('BPAR_SHOW_COMMENT'),
+				'Name' => Loc::getMessage('BPAR_SHOW_COMMENT'),
 				'FieldName' => "show_comment",
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					'Y' => GetMessage('BPSFA_YES'),
-					'N' => GetMessage('BPSFA_NO')
+					'Y' => Loc::getMessage('BPSFA_YES'),
+					'N' => Loc::getMessage('BPSFA_NO'),
 				],
-				'Default' => 'Y'
+				'Default' => 'Y',
 			],
 			'CommentRequired' => [
-				'Name' => GetMessage('BPAR_COMMENT_REQUIRED'),
+				'Name' => Loc::getMessage('BPAR_COMMENT_REQUIRED'),
 				'FieldName' => 'comment_required',
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					'Y' => GetMessage('BPSFA_YES'),
-					'N' => GetMessage('BPSFA_NO')
+					'Y' => Loc::getMessage('BPSFA_YES'),
+					'N' => Loc::getMessage('BPSFA_NO'),
 				],
-				'Default' => 'N'
+				'Default' => 'N',
 			],
 			"CommentLabelMessage" => [
-				'Name' => GetMessage('BPAR_COMMENT_LABEL_MESSAGE'),
+				'Name' => Loc::getMessage('BPAR_COMMENT_LABEL_MESSAGE'),
 				'FieldName' => "comment_label_message",
 				'Type' => Bizproc\FieldType::STRING,
-				'Default' => static::getDefaultLabels()['comment_label_message']
+				'Default' => static::getDefaultLabels()['comment_label_message'],
 			],
 			"SetStatusMessage" => [
-				'Name' => GetMessage("BPSFA_SET_STATUS_MESSAGE"),
+				'Name' => Loc::getMessage("BPSFA_SET_STATUS_MESSAGE"),
 				'FieldName' => "set_status_message",
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					'Y' => GetMessage('BPSFA_YES'),
-					'N' => GetMessage('BPSFA_NO')
+					'Y' => Loc::getMessage('BPSFA_YES'),
+					'N' => Loc::getMessage('BPSFA_NO'),
 				],
-				'Default' => 'Y'
+				'Default' => 'Y',
 			],
 			"StatusMessage" => [
-				'Name' => GetMessage("BPSFA_STATUS_MESSAGE"),
+				'Name' => Loc::getMessage("BPSFA_STATUS_MESSAGE"),
 				'FieldName' => "status_message",
 				'Type' => Bizproc\FieldType::STRING,
-				'Default' => static::getDefaultLabels()['status_message']
+				'Default' => static::getDefaultLabels()['status_message'],
 			],
 			"TimeoutDuration" => [
-				'Name' => GetMessage("BPSFA_TIMEOUT_DURATION") . ":\n" . GetMessage('BPSFA_TIMEOUT_DURATION_HINT'),
+				'Name' => Loc::getMessage("BPSFA_TIMEOUT_DURATION") . ":\n" . Loc::getMessage('BPSFA_TIMEOUT_DURATION_HINT'),
 				'FieldName' => "timeout_duration",
 				'Type' => Bizproc\FieldType::INT,
 			],
@@ -919,43 +1089,43 @@ class CBPRequestInformationActivity
 				'FieldName' => "timeout_duration_type",
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					's' => GetMessage("BPSFA_TIME_S"),
-					'm' => GetMessage("BPSFA_TIME_M"),
-					'h' => GetMessage("BPSFA_TIME_H"),
-					'd' => GetMessage("BPSFA_TIME_D")
+					's' => Loc::getMessage("BPSFA_TIME_S"),
+					'm' => Loc::getMessage("BPSFA_TIME_M"),
+					'h' => Loc::getMessage("BPSFA_TIME_H"),
+					'd' => Loc::getMessage("BPSFA_TIME_D"),
 				],
 				'Default' => 's',
-				'Required' => true
+				'Required' => true,
 			],
 			'AccessControl' => [
-				'Name' => GetMessage("BPRIA_ACCESS_CONTROL"),
+				'Name' => Loc::getMessage("BPRIA_ACCESS_CONTROL"),
 				'FieldName' => 'access_control',
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					'Y' => GetMessage('BPSFA_YES'),
-					'N' => GetMessage('BPSFA_NO')
+					'Y' => Loc::getMessage('BPSFA_YES'),
+					'N' => Loc::getMessage('BPSFA_NO'),
 				],
-				'Default' => 'N'
+				'Default' => 'N',
 			],
 			"DelegationType" => [
-				'Name' => GetMessage("BPSFA_DELEGATION_TYPE"),
+				'Name' => Loc::getMessage("BPSFA_DELEGATION_TYPE"),
 				'FieldName' => "delegation_type",
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => CBPTaskDelegationType::getSelectList(),
-				'Default' => CBPTaskDelegationType::Subordinate
+				'Default' => CBPTaskDelegationType::Subordinate,
 			],
 			"RequestedInformation" => [
 				'FieldName' => 'requested_information',
 				'Settings' => [
-					'Hidden' => true
-				]
+					'Hidden' => true,
+				],
 			],
 			"OverdueDate" => [
 				'FieldName' => "requested_overdue_date",
 				'Settings' => [
-					'Hidden' => true
-				]
-			]
+					'Hidden' => true,
+				],
+			],
 		];
 	}
 

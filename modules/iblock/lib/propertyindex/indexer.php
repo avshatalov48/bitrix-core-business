@@ -449,15 +449,15 @@ class Indexer
 	 */
 	public static function getPropertyStorageType($property)
 	{
-		if ($property["PROPERTY_TYPE"] === Iblock\PropertyTable::TYPE_NUMBER)
+		if (isset($property['PROPERTY_TYPE']) && $property["PROPERTY_TYPE"] === Iblock\PropertyTable::TYPE_NUMBER)
 		{
 			return Storage::NUMERIC;
 		}
-		elseif ($property["USER_TYPE"] === \CIBlockPropertyDateTime::USER_TYPE)
+		elseif (isset($property['USER_TYPE']) && $property["USER_TYPE"] === \CIBlockPropertyDateTime::USER_TYPE)
 		{
 			return Storage::DATETIME;
 		}
-		elseif ($property["PROPERTY_TYPE"] === Iblock\PropertyTable::TYPE_STRING)
+		elseif (isset($property['PROPERTY_TYPE']) && $property["PROPERTY_TYPE"] === Iblock\PropertyTable::TYPE_STRING)
 		{
 			return Storage::STRING;
 		}

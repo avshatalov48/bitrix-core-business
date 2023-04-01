@@ -440,7 +440,7 @@ class CAllVoteChannel
 		$cache = array(
 			"channel_id" => $channel_id,
 			"groups" => $arGroups,
-			"get_from_database" => $params["get_from_database"]);
+			"get_from_database" => $params["get_from_database"] ?? null);
 		$cache_id = "b_vote_perm_".md5(serialize($cache));
 		$permission = 0;
 
@@ -450,7 +450,7 @@ class CAllVoteChannel
 		}
 		else
 		{
-			if ($params["get_from_database"] != "Y")
+			if ($params["get_from_database"] ?? null != "Y")
 				$permission = ((in_array(1, $USER->GetUserGroupArray()) || $APPLICATION->GetGroupRight("vote") >= "W") ? 4 : $permission);
 
 			if ($permission <= 0 && !empty($groups))

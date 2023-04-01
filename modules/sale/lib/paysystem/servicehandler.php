@@ -4,8 +4,11 @@ namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Request;
 use Bitrix\Sale\Payment;
+use Bitrix\Sale\Services\Base\RestrictionInfo;
+use Bitrix\Sale\Services\Base\RestrictionInfoCollection;
+use Bitrix\Sale\Services\PaySystem\Restrictions\RestrictableServiceHandler;
 
-abstract class ServiceHandler extends BaseServiceHandler
+abstract class ServiceHandler extends BaseServiceHandler implements RestrictableServiceHandler
 {
 	/**
 	 * @return array
@@ -81,5 +84,24 @@ abstract class ServiceHandler extends BaseServiceHandler
 	public static function findMyDataRefundablePage(array $paySystemList)
 	{
 		return array();
+	}
+
+	/**
+	 * Returns list of restrictions that installed on service add
+	 *
+	 * @return RestrictionInfoCollection
+	 */
+	public function getRestrictionList(): RestrictionInfoCollection
+	{
+		$collection = new RestrictionInfoCollection();
+
+		$currencyList = $this->getCurrencyList();
+		if (is_array($currencyList) && !empty($currencyList))
+		{
+			$currencyRestrictionContainer = new RestrictionInfo('Currency', ['CURRENCY' => $currencyList]);
+			$collection->add($currencyRestrictionContainer);
+		}
+
+		return $collection;
 	}
 }

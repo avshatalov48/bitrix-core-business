@@ -3,22 +3,23 @@ import Chunk from './chunk';
 import { ajax as Ajax, Type } from 'main.core';
 import AbstractUploadController from './abstract-upload-controller';
 import UploaderError from '../uploader-error';
+import type UploaderFile from '../uploader-file';
 
 export default class UploadController extends AbstractUploadController
 {
-	#file: File = null;
+	#file: UploaderFile = null;
 	#chunkOffset: ?number = null;
 	#chunkTimeout: ?number = null;
 	#token: string = null;
 	#xhr: XMLHttpRequest = null;
 	#aborted: boolean = false;
 
-	constructor(server: Server)
+	constructor(server: Server, options: { [key: string]: any } = {})
 	{
-		super(server);
+		super(server, options);
 	}
 
-	upload(file: File): void
+	upload(file: UploaderFile): void
 	{
 		if (this.#chunkOffset !== null)
 		{
@@ -43,23 +44,25 @@ export default class UploadController extends AbstractUploadController
 			this.#xhr = null;
 		}
 
-		this.emit('onAbort');
-
 		clearTimeout(this.#chunkTimeout);
 	}
 
 	#uploadChunk(chunk: Chunk)
 	{
-		const totalSize = this.getFile().size;
+		const totalSize = this.getFile().getSize();
 		const isOnlyOneChunk = chunk.getOffset() === 0 && totalSize === chunk.getSize();
 
-		let fileName = this.getFile().name;
+		let fileName = this.getFile().getName();
 		if (fileName.normalize)
 		{
 			fileName = fileName.normalize();
 		}
 
-		const type = Type.isStringFilled(this.getFile().type) ? this.getFile().type : 'application/octet-stream';
+		const type = Type.isStringFilled(this.getFile().getType())
+			? this.getFile().getType()
+			: 'application/octet-stream'
+		;
+
 		const headers = [
 			{ name: 'Content-Type', value: type },
 			{ name: 'X-Upload-Content-Name', value: encodeURIComponent(fileName) },
@@ -91,7 +94,7 @@ export default class UploadController extends AbstractUploadController
 				onprogressupload: (event: ProgressEvent) => {
 					if (event.lengthComputable)
 					{
-						const size = this.getFile().size;
+						const size = this.getFile().getSize();
 						const uploadedBytes = Math.min(size, chunk.getOffset() + event.loaded);
 						const progress = size > 0 ? Math.floor(uploadedBytes / size * 100) : 100;
 						this.emit('onProgress', { progress });
@@ -103,7 +106,13 @@ export default class UploadController extends AbstractUploadController
 				{
 					this.setToken(response.data.token);
 
-					const size = this.getFile().size;
+					if (this.getFile().getServerId() === null)
+					{
+						// Now we can remove a temp file on the backend
+						this.getFile().setServerId(response.data.token);
+					}
+
+					const size = this.getFile().getSize();
 					const progress = size > 0 ? Math.floor((chunk.getOffset() + chunk.getSize()) / size * 100) : 100;
 					this.emit('onProgress', { progress });
 
@@ -159,7 +168,7 @@ export default class UploadController extends AbstractUploadController
 
 	#getNextChunk(): ?Chunk
 	{
-		if (this.getChunkOffset() !== null && this.getChunkOffset() >= this.getFile().size)
+		if (this.getChunkOffset() !== null && this.getChunkOffset() >= this.getFile().getSize())
 		{
 			// End of File
 			return null;
@@ -172,16 +181,16 @@ export default class UploadController extends AbstractUploadController
 		}
 
 		let chunk: Chunk;
-		if (this.getChunkOffset() === 0 && this.getFile().size <= this.getChunkSize())
+		if (this.getChunkOffset() === 0 && this.getFile().getSize() <= this.getChunkSize())
 		{
-			chunk = new Chunk(this.getFile(), this.getChunkOffset());
-			this.#chunkOffset = this.getFile().size;
+			chunk = new Chunk(this.getFile().getBinary(), this.getChunkOffset());
+			this.#chunkOffset = this.getFile().getSize();
 		}
 		else
 		{
-			const currentChunkSize = Math.min(this.getChunkSize(), this.getFile().size - this.getChunkOffset());
+			const currentChunkSize = Math.min(this.getChunkSize(), this.getFile().getSize() - this.getChunkOffset());
 			const nextOffset = this.getChunkOffset() + currentChunkSize;
-			const fileRange = this.getFile().slice(this.getChunkOffset(), nextOffset);
+			const fileRange = this.getFile().getBinary().slice(this.getChunkOffset(), nextOffset);
 
 			chunk = new Chunk(fileRange, this.getChunkOffset());
 			this.#chunkOffset = nextOffset;
@@ -192,7 +201,7 @@ export default class UploadController extends AbstractUploadController
 		return chunk;
 	}
 
-	getFile(): File
+	getFile(): UploaderFile
 	{
 		return this.#file;
 	}

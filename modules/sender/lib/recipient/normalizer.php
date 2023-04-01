@@ -42,6 +42,7 @@ class Normalizer
 
 			case Type::CRM_COMPANY_ID:
 			case Type::CRM_CONTACT_ID:
+			case Type::CRM_LEAD_ID:
 				return self::normalizeCrmEntityId($code);
 
 			case Type::EMAIL:

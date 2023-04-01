@@ -33,3 +33,64 @@
 	width: 100%;
 	height: 100%;
 }
+
+.ui-stamp-uploader-preview-crop {
+	position: absolute;
+	opacity: 0;
+	transition: 200ms opacity ease;
+	z-index: 9999;
+}
+
+.ui-stamp-uploader-preview-crop::before {
+	content: '';
+	position: absolute;
+	border: 2px solid #2FC6F6;
+	filter: drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.12));
+	border-radius: 2px;
+	top: -2px;
+	left: -2px;
+	right: -2px;
+	bottom: -2px;
+}
+
+.ui-stamp-uploader-preview-crop-left,
+.ui-stamp-uploader-preview-crop-right {
+	background: url("images/left-right.svg") center center no-repeat;
+	position: absolute;
+	width: 9px;
+	height: 40px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: col-resize;
+}
+
+.ui-stamp-uploader-preview-crop-left {
+	left: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-right {
+	right: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-top,
+.ui-stamp-uploader-preview-crop-bottom {
+	background: url("images/top-bottom.svg") center center no-repeat;
+	position: absolute;
+	width: 40px;
+	height: 9px;
+	left: 50%;
+	transform: translateX(-50%);
+	cursor: row-resize;
+}
+
+.ui-stamp-uploader-preview-crop-top {
+	top: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-bottom {
+	bottom: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-show {
+	opacity: 1;
+}

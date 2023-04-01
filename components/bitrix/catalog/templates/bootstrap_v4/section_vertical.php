@@ -13,11 +13,11 @@ use Bitrix\Main\ModuleManager;
 
 if (isset($arParams['USE_COMMON_SETTINGS_BASKET_POPUP']) && $arParams['USE_COMMON_SETTINGS_BASKET_POPUP'] == 'Y')
 {
-	$basketAction = isset($arParams['COMMON_ADD_TO_BASKET_ACTION']) ? $arParams['COMMON_ADD_TO_BASKET_ACTION'] : '';
+	$basketAction = $arParams['COMMON_ADD_TO_BASKET_ACTION'] ?? '';
 }
 else
 {
-	$basketAction = isset($arParams['SECTION_ADD_TO_BASKET_ACTION']) ? $arParams['SECTION_ADD_TO_BASKET_ACTION'] : '';
+	$basketAction = $arParams['SECTION_ADD_TO_BASKET_ACTION'] ?? '';
 }
 
 
@@ -352,7 +352,7 @@ else
 						'LABEL_PROP' => $arParams['LABEL_PROP'],
 						'LABEL_PROP_MOBILE' => $arParams['LABEL_PROP_MOBILE'],
 						'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
-						'ADD_PICT_PROP' => $arParams['ADD_PICT_PROP'],
+						'ADD_PICT_PROP' => $arParams['ADD_PICT_PROP'] ?? '',
 						'PRODUCT_DISPLAY_MODE' => $arParams['PRODUCT_DISPLAY_MODE'],
 						'PRODUCT_BLOCKS_ORDER' => $arParams['LIST_PRODUCT_BLOCKS_ORDER'],
 						'PRODUCT_ROW_VARIANTS' => $arParams['LIST_PRODUCT_ROW_VARIANTS'],

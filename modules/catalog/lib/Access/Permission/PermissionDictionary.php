@@ -15,6 +15,7 @@ use Bitrix\Main\Access\Permission;
 use Bitrix\Main\Loader;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog\Integration\Report\Dashboard\DashboardManager;
 
 class PermissionDictionary extends Permission\PermissionDictionary
 {
@@ -23,6 +24,7 @@ class PermissionDictionary extends Permission\PermissionDictionary
 	public const CATALOG_INVENTORY_MANAGEMENT_ACCESS = 1;
 	public const CATALOG_STORE_MODIFY = 2;
 	public const CATALOG_STORE_VIEW = 3;
+	public const CATALOG_STORE_ANALYTIC_VIEW = 4;
 
 	public const CATALOG_RESERVE_DEAL = 101;
 	public const CATALOG_STORE_RESERVE = 102;
@@ -69,6 +71,9 @@ class PermissionDictionary extends Permission\PermissionDictionary
 	protected static $dynamicTypes;
 
 	/** @var array */
+	protected static $storeAnalitycs;
+
+	/** @var array */
 	protected static $priceEntities;
 
 	/** @var array */
@@ -99,12 +104,19 @@ class PermissionDictionary extends Permission\PermissionDictionary
 			$permission['hintTitle'] = Loc::getMessage('CATALOG_RESERVE_DEAL_DESCRIPTION_HINT');
 		}
 		elseif (
-			$permissionId === self:: CATALOG_PRODUCT_EDIT_ENTITY_PRICE
-			|| $permissionId === self:: CATALOG_PRODUCT_SET_DISCOUNT
+			$permissionId === self::CATALOG_PRODUCT_EDIT_ENTITY_PRICE
+			|| $permissionId === self::CATALOG_PRODUCT_SET_DISCOUNT
 		)
 		{
 			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
 			$permission['variables'] = self::getPriceSelectorVariables();
+			$permission['showAvatars'] = false;
+			$permission['compactView'] = true;
+		}
+		elseif ($permissionId === self::CATALOG_STORE_ANALYTIC_VIEW)
+		{
+			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
+			$permission['variables'] = self::getStoreAnalyticVariables();
 			$permission['showAvatars'] = false;
 			$permission['compactView'] = true;
 		}
@@ -327,5 +339,29 @@ class PermissionDictionary extends Permission\PermissionDictionary
 		static::$dynamicTypes = $items;
 
 		return static::$dynamicTypes;
+	}
+	public static function getStoreAnalyticVariables(): array
+	{
+		if (static::$storeAnalitycs !== null)
+		{
+			return static::$storeAnalitycs;
+		}
+
+		$items = [];
+		if (Loader::includeModule('report'))
+		{
+			$dashboards = DashboardManager::getCatalogDashboardList();
+			foreach ($dashboards as $dashboard)
+			{
+				$items[] = [
+					'id' => $dashboard->getAccessBoardId(),
+					'title' => $dashboard->getBoardTitle(),
+				];
+			}
+		}
+
+		static::$storeAnalitycs = $items;
+
+		return static::$storeAnalitycs;
 	}
 }

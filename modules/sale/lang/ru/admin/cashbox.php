@@ -21,7 +21,7 @@ $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8_PUBLIC"] = "Установите 
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_9"] = "<a href='https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=42&CHAPTER_ID=09179&LESSON_PATH=3912.4580.9179'>54-ФЗ: работайте без штрафов</a>";
 
 $MESS["SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_1"] = "Заключить договор с ОФД на передачу данных";
-$MESS["SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_2"] = "Заключить договор аренды онлайн кассы с одним из облачных сервисов(АТОЛ.Онлайн, Orange Data)";
+$MESS["SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_2"] = "Заключить договор аренды онлайн-кассы с одним из облачных сервисов(АТОЛ.Онлайн, Orange Data)";
 $MESS["SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_3"] = "Создать кассу на сайте, выбрав соотвествующий обработчик и заполнив все необходимые настройки";
 $MESS["SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_4"] = "Установите галочку \"Разрешить печать чеков\" <a class=\"adm-cashbox-list-load-link\" href=\"#URL#\" target=\"_blank\">в настройках платежной системы</a>, если требуется печатать чек.";
 

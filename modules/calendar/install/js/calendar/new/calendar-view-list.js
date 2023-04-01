@@ -429,6 +429,7 @@
 				props: {
 					className: 'calendar-timeline-stream-content-event'
 						+ (animation ? ' calendar-timeline-stream-section-event-animate-' + animation : '')
+						+ (entry.isSharingEvent() ? ' calendar-timeline-stream-content-event-sharing' : '')
 				}
 			}));
 
@@ -454,17 +455,42 @@
 					+ BX.util.htmlspecialchars(location)
 					+ ')</span>';
 			}
-			wrap.appendChild(BX.create('DIV', {
+
+			const titleNode = BX.create('DIV', {
 				props: {
-					className: 'calendar-timeline-stream-content-event-name'
+					className: 'calendar-timeline-stream-content-event-name',
 				},
-				html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: '
-					+ entry.color
-					+ '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>'
+				html: '<div class="calendar-timeline-stream-content-event-name-link"><span>'
 					+ BX.util.htmlspecialchars(entry.name)
 					+ '</span></div>'
-					+ location
-			}));
+					+ location,
+			});
+
+			if (entry.isInvited())
+			{
+				wrap.className += ' calendar-timeline-stream-content-event-invited';
+				if (this.isFirstVisibleRecursiveEntry(entry))
+				{
+					titleNode.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter'}, text: '1'}));
+				}
+				else
+				{
+					titleNode.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter-dot'}}));
+				}
+			}
+			else
+			{
+				titleNode.prepend(BX.create('SPAN', {
+					props: {
+						className: 'calendar-timeline-stream-content-event-color',
+					},
+					style: {
+						backgroundColor: entry.color,
+					}
+				}));
+			}
+
+			wrap.append(titleNode);
 
 
 			if (
@@ -590,14 +616,29 @@
 					}
 					else
 					{
-						var userClassName = user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user';
-						wrapper.appendChild(BX.create('DIV', {
-							props: {
-								title: user.DISPLAY_NAME,
-								className: 'ui-icon ' + userClassName,
-							},
-							html: '<i></i>',
-						}));
+						if (user.SHARING_USER)
+						{
+							wrapper.appendChild(BX.create('DIV', {
+								attrs: {
+									id: 'simple_view_popup_' + user.ID,
+									'bx-tooltip-user-id': user.ID,
+								},
+								props: {
+									className: 'calendar-event-block-icon-sharing calendar-event-block-icon-sharing-view-list',
+								},
+							}));
+						}
+						else
+						{
+							var userClassName = user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user';
+							wrapper.appendChild(BX.create('DIV', {
+								props: {
+									title: user.DISPLAY_NAME,
+									className: 'ui-icon ' + userClassName,
+								},
+								html: '<i></i>',
+							}));
+						}
 					}
 				}
 				if (attendeesCount >= userLength)
@@ -627,62 +668,6 @@
 
 	ListView.prototype.showUserListPopup = function(node, userList)
 	{
-		if (this.userListPopup)
-		{
-			this.userListPopup.close();
-		}
-
-		if (this.popup)
-		{
-			this.popup.setAutoHide(false);
-		}
-
-		if (!userList || !userList.length)
-		{
-			return;
-		}
-
-		this.DOM.userListPopupWrap = BX.create('DIV', {
-			props: {
-				className: 'calendar-user-list-popup-block'
-			}
-		});
-		userList.forEach(function(user){
-			var userWrap = this.DOM.userListPopupWrap.appendChild(BX.create('DIV', {
-				props: {
-					className: 'calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card'
-				}
-			}));
-
-			userWrap.appendChild(BX.create('DIV', {
-				props: {
-					className: 'calendar-slider-sidebar-user-block-avatar'
-				}
-			}))
-			.appendChild(BX.create('DIV', {
-				props: {
-					className: 'calendar-slider-sidebar-user-block-item'
-				}
-			}))
-			.appendChild(BX.create('IMG', {
-				props: {
-					width: 34,
-					height: 34,
-					src: user.AVATAR
-				}
-			}));
-
-			userWrap.appendChild(
-				BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-info'}}))
-				.appendChild(BX.create('A', {
-					props: {
-						href: user.URL ? user.URL : '#',
-						className: 'calendar-slider-sidebar-user-info-name'
-					},
-					text: user.DISPLAY_NAME
-				}));
-		}, this);
-
 		(new BX.Calendar.Controls.AttendeesList(
 			node,
 			BX.Calendar.Controls.AttendeesList.sortAttendees(userList))
@@ -1365,7 +1350,7 @@
 			text: BX.message('EC_DESIDE_BUT_' + decision),
 			round: true,
 			size: BX.UI.Button.Size.EXTRA_SMALL,
-			color: decision === 'Y' ? BX.UI.Button.Color.LIGHT_BORDER : BX.UI.Button.Color.LIGHT,
+			color: decision === 'Y' ? BX.UI.Button.Color.PRIMARY : BX.UI.Button.Color.LIGHT,
 			props: {
 				'data-bx-decision-button': decision,
 			},

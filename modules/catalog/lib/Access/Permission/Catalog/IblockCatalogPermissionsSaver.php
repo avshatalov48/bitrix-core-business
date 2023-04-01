@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Access\Permission\Catalog;
 
+use Bitrix\Catalog\Access\ShopGroupAssistant;
 use Bitrix\Catalog\CatalogIblockTable;
 use Bitrix\Iblock\IblockSiteTable;
 use Bitrix\Iblock\IblockTable;
@@ -11,6 +12,7 @@ use Bitrix\Main\Context;
 use Bitrix\Main\GroupTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\TaskTable;
+use Bitrix\Main\UserGroupTable;
 use CIBlock;
 use CIBlockRights;
 use Throwable;
@@ -78,6 +80,33 @@ class IblockCatalogPermissionsSaver
 		$this->permissions[] = $permission;
 	}
 
+	public static function convertRightsModeByAgent(string $mode): void
+	{
+		if ($mode !== IblockTable::RIGHTS_EXTENDED && $mode !== IblockTable::RIGHTS_SIMPLE)
+		{
+			return;
+		}
+
+		$saver = new self();
+		$db = Application::getConnection();
+		try
+		{
+			$db->startTransaction();
+
+			foreach ($saver->getIblockIds() as $iblockId)
+			{
+				$saver->convertRightsMode($iblockId, $mode);
+			}
+
+			$db->commitTransaction();
+		}
+		catch (Throwable $e)
+		{
+			$db->rollbackTransaction();
+			throw $e;
+		}
+	}
+
 	/**
 	 * Save iblock permissions.
 	 *
@@ -89,35 +118,20 @@ class IblockCatalogPermissionsSaver
 		$actualAccessCodes = $this->getActualAccessCodesMap();
 		$iblockCatalogIds = $this->getIblockIds();
 
-		$db = Application::getConnection();
-
 		foreach ($iblockCatalogIds as $iblockId)
 		{
-			try
+			if (empty($actualAccessCodes))
 			{
-				$db->startTransaction();
-
-				if (empty($actualAccessCodes))
-				{
-					$this->saveIblockRight($iblockId, null, [], $deleteAccessCodes);
-				}
-				foreach ($actualAccessCodes as $taskId => $accessCodes)
-				{
-					$this->saveIblockRight(
-						$iblockId,
-						$taskId,
-						$accessCodes,
-						$deleteAccessCodes
-					);
-				}
-
-				$db->commitTransaction();
+				$this->saveIblockRight($iblockId, null, [], $deleteAccessCodes);
 			}
-			catch (Throwable $e)
+			foreach ($actualAccessCodes as $taskId => $accessCodes)
 			{
-				$db->rollbackTransaction();
-
-				throw $e;
+				$this->saveIblockRight(
+					$iblockId,
+					$taskId,
+					$accessCodes,
+					$deleteAccessCodes
+				);
 			}
 		}
 	}
@@ -220,7 +234,8 @@ class IblockCatalogPermissionsSaver
 
 		$usedAccessCodes = [];
 		$iblockRights = new CIBlockRights($iblockId);
-
+		$isNeedResetIblockRights = false;
+		
 		$rights = $iblockRights->GetRights();
 		foreach ($rights as $id => &$right)
 		{
@@ -228,9 +243,12 @@ class IblockCatalogPermissionsSaver
 			if (in_array($rightAccessCode, $deleteAccessCodes, true))
 			{
 				unset($rights[$id]);
+				$isNeedResetIblockRights = true;
+				
 				continue;
 			}
-			elseif (!in_array($rightAccessCode, $accessCodes, true))
+
+			if (!in_array($rightAccessCode, $accessCodes, true))
 			{
 				continue;
 			}
@@ -247,6 +265,8 @@ class IblockCatalogPermissionsSaver
 				{
 					$right['TASK_ID'] = $taskId;
 				}
+
+				$isNeedResetIblockRights = true;
 			}
 		}
 		unset($right);
@@ -262,7 +282,14 @@ class IblockCatalogPermissionsSaver
 					'TASK_ID' => $taskId,
 				];
 				$i++;
+
+				$isNeedResetIblockRights = true;
 			}
+		}
+
+		if (!$isNeedResetIblockRights)
+		{
+			return;
 		}
 
 		$rights = $this->appendDefaultRights($rights);
@@ -310,11 +337,13 @@ class IblockCatalogPermissionsSaver
 		{
 			return (int)$iblockTasks[self::FULL_LETTER];
 		}
-		elseif ($permissions->getCanRead() && $permissions->getCanWrite())
+
+		if ($permissions->getCanRead() && $permissions->getCanWrite())
 		{
 			return (int)$iblockTasks[self::WRITE_LETTER];
 		}
-		elseif ($permissions->getCanRead())
+
+		if ($permissions->getCanRead())
 		{
 			return (int)$iblockTasks[self::READ_LETTER];
 		}
@@ -331,20 +360,51 @@ class IblockCatalogPermissionsSaver
 	 *
 	 * @throws SystemException if cannot change rights mode for iblock
 	 */
-	private function convertRightsMode(int $iblockId): void
+	private function convertRightsMode(int $iblockId, string $mode = IblockTable::RIGHTS_EXTENDED): void
 	{
+		$mode = ($mode === IblockTable::RIGHTS_EXTENDED) ? IblockTable::RIGHTS_EXTENDED : IblockTable::RIGHTS_SIMPLE;
 		$currentRightsMode = CIBlock::GetArrayByID($iblockId, 'RIGHTS_MODE');
-		if (!empty($currentRightsMode) && $currentRightsMode !== IblockTable::RIGHTS_EXTENDED)
+		if ($currentRightsMode === $mode)
 		{
-			$iblock = new CIBlock();
-			$result = $iblock->Update($iblockId, [
-				'RIGHTS_MODE' => IblockTable::RIGHTS_EXTENDED,
-				'GROUP_ID' => CIBlock::GetGroupPermissions($iblockId),
-			]);
-			if (!$result)
+			return;
+		}
+
+		if ($mode === IblockTable::RIGHTS_SIMPLE)
+		{
+			$currentGroup = new CIBlockRights($iblockId);
+			$convertGroupRights = [];
+			$iblockTaskIds = array_flip(self::getIblockRightsLetterToTaskId());
+			foreach ($currentGroup->GetRights() as $group)
 			{
-				throw new SystemException("Cannot change iblock '{$iblockId}' rights mode");
+				if (!empty($group['GROUP_CODE']) && $group['GROUP_CODE'][0] === 'G')
+				{
+					$code = (int)mb_substr($group['GROUP_CODE'], 1);
+					$isAdminGroup = ($code === 1);
+					if ($code && !$isAdminGroup)
+					{
+						$convertGroupRights[$code] = $iblockTaskIds[$group['TASK_ID']];
+					}
+				}
 			}
+		}
+
+		$iblock = new CIBlock();
+		$result = $iblock->Update(
+			$iblockId,
+			[
+				'RIGHTS_MODE' => $mode,
+				'GROUP_ID' => CIBlock::GetGroupPermissions($iblockId),
+			]
+		);
+
+		if (!$result)
+		{
+			throw new SystemException("Cannot change iblock '{$iblockId}' rights mode");
+		}
+
+		if ($mode === IblockTable::RIGHTS_SIMPLE && $convertGroupRights)
+		{
+			\CIBlock::SetPermission($iblockId, $convertGroupRights);
 		}
 	}
 
@@ -433,5 +493,67 @@ class IblockCatalogPermissionsSaver
 		}
 
 		return $rights;
+	}
+
+	public static function updateShopAccessGroup(array $userIds, array $allUserIds, string $groupType): void
+	{
+		$shopIblockGroups = [
+			ShopGroupAssistant::SHOP_MANAGER_USER_GROUP_CODE,
+			ShopGroupAssistant::SHOP_ADMIN_USER_GROUP_CODE
+		];
+
+		if (!in_array($groupType, $shopIblockGroups, true))
+		{
+			return;
+		}
+
+		$groupId = self::getShopGroupIdByType($groupType);
+		if (!$groupId)
+		{
+			return;
+		}
+
+		$currentGroupUserIds = \CGroup::getGroupUser($groupId);
+		$nonGroupUsers = array_diff($allUserIds, $userIds);
+		if ($nonGroupUsers)
+		{
+			$removeFromGroup = array_intersect($nonGroupUsers, $currentGroupUserIds);
+			if ($removeFromGroup)
+			{
+				$userGroupCollection = UserGroupTable::query()
+					->where('GROUP_ID', $groupId)
+					->whereIn('USER_ID', $removeFromGroup)
+					->fetchCollection()
+				;
+
+				foreach ($userGroupCollection as $userGroup)
+				{
+					$userId = $userGroup->getUserId();
+					$userGroup->delete();
+					\CUser::clearUserGroupCache($userId);
+				}
+			}
+		}
+
+		$addToGroup = array_diff($userIds, $currentGroupUserIds);
+		foreach ($addToGroup as $userId)
+		{
+			\CUser::appendUserGroup($userId, [$groupId]);
+		}
+	}
+
+	private static function getShopGroupIdByType(string $type): ?int
+	{
+		$group = GroupTable::getRow([
+			'filter' => ['STRING_ID' => $type],
+			'select' => ['ID']
+		]);
+
+		if ($group)
+		{
+			return (int)$group['ID'];
+		}
+
+		return null;
 	}
 }

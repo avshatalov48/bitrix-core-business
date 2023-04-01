@@ -83,11 +83,11 @@ trait ProductAndStoreInfo
 	/**
 	 * Get product row.
 	 *
-	 * @return array|null
+	 * @return array if product info is not found in store, returns an empty array.
 	 */
-	protected function getStoreProductRow(): ?array
+	protected function getStoreProductRow(): array
 	{
-		if (!$this->storeProductRow)
+		if (!isset($this->storeProductRow))
 		{
 			if ($this->getProductId() && $this->getStoreId())
 			{
@@ -100,13 +100,14 @@ trait ProductAndStoreInfo
 						'=PRODUCT_ID' => $this->getProductId(),
 						'=STORE_ID' => $this->getStoreId(),
 					],
-				]) ?: null;
+				]) ?: [];
 			}
 			else
 			{
-				$this->storeProductRow = null;
+				$this->storeProductRow = [];
 			}
 		}
+
 		return $this->storeProductRow;
 	}
 

@@ -14,7 +14,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  },
 	  created: function created() {
 	    var chatData = this.getChat(this.value);
-
 	    if (chatData) {
 	      this.chat = chatData;
 	      this.requestFinished = true;
@@ -34,12 +33,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 	    requestChatData: function requestChatData(dialogId) {
 	      var _this = this;
-
 	      this.$Bitrix.RestClient.get().callMethod(im_const.RestMethod.imChatGet, {
 	        dialog_id: dialogId
 	      }).then(function (response) {
 	        _this.$Bitrix.Data.get('controller').executeRestAnswer(im_const.RestMethodHandler.imChatGet, response);
-
 	        _this.chat = _this.getChat(_this.value);
 	        _this.requestFinished = true;
 	      })["catch"](function (error) {
@@ -61,11 +58,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  computed: {
 	    avatarStyles: function avatarStyles() {
 	      var styles = {};
-
 	      if (this.emptyAvatar) {
 	        styles.backgroundColor = this.chat.color;
 	      }
-
 	      return styles;
 	    },
 	    chatAvatar: function chatAvatar() {
@@ -94,7 +89,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  },
 	  created: function created() {
 	    var userData = this.getUser(this.value);
-
 	    if (userData) {
 	      this.user = userData;
 	      this.requestFinished = true;
@@ -114,12 +108,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 	    requestUserData: function requestUserData(userId) {
 	      var _this = this;
-
 	      this.$Bitrix.RestClient.get().callMethod(im_const.RestMethod.imUserGet, {
 	        ID: userId
 	      }).then(function (response) {
 	        _this.$Bitrix.Data.get('controller').executeRestAnswer(im_const.RestMethodHandler.imUserGet, response);
-
 	        _this.user = _this.getUser(_this.value);
 	        _this.requestFinished = true;
 	      })["catch"](function (error) {
@@ -141,11 +133,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  computed: {
 	    avatarStyles: function avatarStyles() {
 	      var styles = {};
-
 	      if (this.emptyAvatar) {
 	        styles.backgroundColor = this.chat.color;
 	      }
-
 	      return styles;
 	    },
 	    userAvatar: function userAvatar() {
@@ -190,10 +180,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  },
 	  created: function created() {
 	    var needRequest = this.isNeedUserRequest(this.value);
-
 	    if (needRequest) {
 	      this.requestUserData(this.value);
-	    } else //!needRequest
+	    } else
+	      //!needRequest
 	      {
 	        this.users = this.getUsersForPopup();
 	        this.requestFinished = true;
@@ -208,11 +198,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  computed: {
 	    popupHeight: function popupHeight() {
 	      var height = this.value.length * 30;
-
 	      if (height > 150) {
 	        height = 150;
 	      }
-
 	      return height + 'px';
 	    }
 	  },
@@ -222,7 +210,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 	    getUsersForPopup: function getUsersForPopup() {
 	      var _this = this;
-
 	      return this.value.map(function (userId) {
 	        return _this.getUser(userId);
 	      });
@@ -239,11 +226,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 	    getAvatarStyles: function getAvatarStyles(user) {
 	      var styles = {};
-
 	      if (this.isEmptyAvatar(user)) {
 	        styles.backgroundColor = user.color;
 	      }
-
 	      return styles;
 	    },
 	    getUserStatusClass: function getUserStatusClass(user) {
@@ -255,17 +240,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          return true;
 	        }
 	      }
-
 	      return false;
 	    },
 	    requestUserData: function requestUserData(userIds) {
 	      var _this2 = this;
-
 	      this.$Bitrix.RestClient.get().callMethod(im_const.RestMethod.imUserListGet, {
 	        ID: userIds
 	      }).then(function (response) {
 	        _this2.$Bitrix.Data.get('controller').executeRestAnswer(im_const.RestMethodHandler.imUserListGet, response);
-
 	        _this2.users = _this2.getUsersForPopup();
 	        _this2.requestFinished = true;
 	      })["catch"](function (error) {

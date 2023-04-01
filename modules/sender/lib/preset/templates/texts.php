@@ -184,7 +184,8 @@ class Texts
 
 		foreach ($dictionary as $type => $keys)
 		{
-			if (!is_array($result['TYPES'][$type]))
+			if (isset($result['TYPES'][$type])
+				&& !is_array($result['TYPES'][$type]))
 			{
 				$result['TYPES'][$type] = array();
 			}

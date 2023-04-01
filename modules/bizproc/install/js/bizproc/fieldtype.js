@@ -831,7 +831,7 @@
 				).then(
 					(response) =>
 					{
-						if (response.data.options)
+						if (BX.Type.isArray(response.data.options))
 						{
 							BX.Dom.remove(loadOption);
 							renderOptions(response.data.options);

@@ -8,6 +8,7 @@
 namespace Bitrix\Sender\Posting;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Consent\Consent;
@@ -117,7 +118,6 @@ class Builder
 	 * @param integer $postingId Posting ID.
 	 * @param bool $checkDuplicates Check duplicates.
 	 *
-	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
@@ -162,9 +162,17 @@ class Builder
 		$this->checkDuplicates = $checkDuplicates;
 		$this->postingId = $postingId;
 		$this->groupCount = array();
-		$this->messageConfiguration = Message\Adapter::getInstance($postingData['MESSAGE_TYPE'])->loadConfiguration($postingData['MESSAGE_ID']);
-
-
+		
+		try
+		{
+			$this->messageConfiguration = Message\Adapter::getInstance($postingData['MESSAGE_TYPE'])
+				->loadConfiguration($postingData['MESSAGE_ID']);
+		}
+		catch (ArgumentException)
+		{
+			return true;
+		}
+		
 		if(!$checkDuplicates)
 		{
 			if($this->postingData['STATUS'] === PostingTable::STATUS_NEW)
@@ -391,6 +399,25 @@ class Builder
 		);
 
 		return $groups;
+	}
+
+	/**
+	 * @param array $data
+	 * @param string|null $typeCode
+	 * @return bool
+	 */
+	public function isCorrectData(array $data, ?string $typeCode): bool
+	{
+		return (!isset($data[$typeCode]) || !$data[$typeCode])
+			&& !(
+				isset($data['FIELDS'])
+				&& (
+					(int)$data['FIELDS']['CRM_ENTITY_TYPE_ID'] === \CCrmOwnerType::Lead
+					|| ($data['FIELDS']['CRM_ENTITY_TYPE'] === \CCrmOwnerType::LeadName)
+				)
+				&& !empty($data['FIELDS']['CRM_ENTITY_ID'])
+				&& ((int)$this->typeId === \Bitrix\Sender\Recipient\Type::CRM_LEAD_ID)
+			);
 	}
 
 	protected function getCampaignGroups($campaignId)
@@ -646,9 +673,14 @@ class Builder
 
 			while ($data = $result->fetch())
 			{
-				if (!isset($data[$typeCode]) || !$data[$typeCode])
+				if ($this->isCorrectData($data, $typeCode))
 				{
 					continue;
+				}
+
+				if (!isset($data[$typeCode]) && ((int)$this->typeId === Recipient\Type::CRM_LEAD_ID))
+				{
+					$data[$typeCode] = $data['FIELDS']['CRM_ENTITY_ID'];
 				}
 
 				$primary = Recipient\Normalizer::normalize($data[$typeCode], $this->typeId);

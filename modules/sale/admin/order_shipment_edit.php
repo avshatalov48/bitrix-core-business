@@ -625,7 +625,7 @@ $action = $link
 	->setField('order_id', $orderId)
 	->setField('shipment_id', $shipmentId)
 	->setField('backurl', $backUrl)
-	->setQuery($urlForm)
+	->setQuery($urlForm ?? '')
 	->fill()
 	->build();
 
@@ -691,7 +691,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.
 								echo $block::getEdit($shipment);
 								break;
 							case BlockType::SHIPMENT:
-								echo $block::getEdit($shipment, 0, 'edit', $dataForRecovery[1]);
+								echo $block::getEdit($shipment, 0, 'edit', $dataForRecovery[1] ?? []);
 								break;
 							case BlockType::BUYER:
 								echo $block::getView($saleOrder);

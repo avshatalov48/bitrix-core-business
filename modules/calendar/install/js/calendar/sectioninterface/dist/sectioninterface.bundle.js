@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_sync_interface,main_popup,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager) {
+(function (exports,calendar_sync_interface,main_popup,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager,ui_dialogs_messagebox) {
 	'use strict';
 
 	let _ = t => t,
@@ -1172,7 +1172,8 @@ this.BX = this.BX || {};
 	    _t23,
 	    _t24,
 	    _t25,
-	    _t26;
+	    _t26,
+	    _t27;
 	class SectionInterface extends main_core_events.EventEmitter {
 	  constructor({
 	    calendarContext,
@@ -1195,6 +1196,7 @@ this.BX = this.BX || {};
 	    this.BX = calendar_util.Util.getBX();
 	    this.deleteSectionHandlerBinded = this.deleteSectionHandler.bind(this);
 	    this.refreshSectionListBinded = this.refreshSectionList.bind(this);
+	    this.keyHandlerBinded = this.keyHandler.bind(this);
 
 	    if (this.calendarContext !== null) {
 	      if (this.calendarContext.util.config.accessNames) {
@@ -1218,6 +1220,7 @@ this.BX = this.BX || {};
 	      }
 	    });
 	    this.addEventEmitterSubscriptions();
+	    main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
 	  }
 
 	  addEventEmitterSubscriptions() {
@@ -1244,6 +1247,7 @@ this.BX = this.BX || {};
 	    if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
 	      this.closeForms();
 	      this.destroyEventEmitterSubscriptions();
+	      main_core.Event.unbind(document, 'keydown', this.keyHandlerBinded);
 	    }
 	  }
 
@@ -1254,6 +1258,7 @@ this.BX = this.BX || {};
 	  destroy(event) {
 	    if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
 	      this.destroyEventEmitterSubscriptions();
+	      main_core.Event.unbind(document, 'keydown', this.keyHandlerBinded);
 	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:delete', this.deleteSectionHandlerBinded);
 	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:pull-delete', this.deleteSectionHandlerBinded);
 	      BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
@@ -1867,7 +1872,7 @@ this.BX = this.BX || {};
 	        text: main_core.Loc.getMessage('EC_SEC_DELETE'),
 	        onclick: () => {
 	          this.sectionActionMenu.close();
-	          section.remove();
+	          this.showSectionConfirm('delete', section);
 	        }
 	      });
 	    }
@@ -1891,7 +1896,7 @@ this.BX = this.BX || {};
 	          text: main_core.Loc.getMessage('EC_ACTION_HIDE'),
 	          onclick: () => {
 	            this.sectionActionMenu.close();
-	            section.hideSyncSection();
+	            this.showSectionConfirm('hideSync', section);
 	          }
 	        });
 	      } else if (section.isCalDav()) {
@@ -1899,7 +1904,7 @@ this.BX = this.BX || {};
 	          text: main_core.Loc.getMessage('EC_ACTION_HIDE'),
 	          onclick: () => {
 	            this.sectionActionMenu.close();
-	            section.hideExternalCalendarSection();
+	            this.showSectionConfirm('hideExternal', section);
 	          }
 	        });
 	      }
@@ -2147,9 +2152,107 @@ this.BX = this.BX || {};
 	    this.calendarContext.reload();
 	  }
 
+	  keyHandler(e) {
+	    if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.DOM.confirmSectionPopup && this.currentConfirmMode && this.currentSection) {
+	      if (this.currentConfirmMode === 'delete') {
+	        this.removeSection(this.currentSection);
+	      } else if (this.currentConfirmMode === 'hideSync') {
+	        this.hideSyncSection(this.currentSection);
+	      } else if (this.currentConfirmMode === 'hideExternal') {
+	        this.hideExternalSection(this.currentSection);
+	      }
+	    }
+	  }
+
+	  showSectionConfirm(mode, section) {
+	    this.currentSection = section;
+	    this.currentConfirmMode = mode;
+	    const confirmCallback = this.getConfirmCallback();
+	    const okCaption = this.getOkCaption();
+	    this.DOM.confirmSectionPopup = new ui_dialogs_messagebox.MessageBox({
+	      message: this.getSectionConfirmContent(),
+	      minHeight: 120,
+	      minWidth: 280,
+	      maxWidth: 300,
+	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+	      onOk: confirmCallback,
+	      onCancel: () => {
+	        this.DOM.confirmSectionPopup.close();
+	      },
+	      okCaption: okCaption,
+	      popupOptions: {
+	        events: {
+	          onPopupClose: () => {
+	            delete this.DOM.confirmSectionPopup;
+	            delete this.currentSection;
+	            delete this.currentConfirmMode;
+	          }
+	        },
+	        closeByEsc: true,
+	        padding: 0,
+	        contentPadding: 0,
+	        animation: 'fading-slide'
+	      }
+	    });
+	    this.DOM.confirmSectionPopup.show();
+	  }
+
+	  getConfirmCallback() {
+	    if (this.currentConfirmMode === 'delete') {
+	      return () => {
+	        this.removeSection(this.currentSection);
+	      };
+	    } else if (this.currentConfirmMode === 'hideSync') {
+	      return () => {
+	        this.hideSyncSection(this.currentSection);
+	      };
+	    } else if (this.currentConfirmMode === 'hideExternal') {
+	      return () => {
+	        this.hideExternalSection(this.currentSection);
+	      };
+	    }
+	  }
+
+	  getOkCaption() {
+	    if (this.currentConfirmMode === 'delete') {
+	      return main_core.Loc.getMessage('EC_SEC_DELETE');
+	    } else if (this.currentConfirmMode === 'hideSync' || this.currentConfirmMode === 'hideExternal') {
+	      return main_core.Loc.getMessage('EC_CAL_SYNC_DISCONNECT');
+	    }
+	  }
+
+	  getSectionConfirmContent() {
+	    let phrase = '';
+
+	    if (this.currentConfirmMode === 'delete') {
+	      phrase = main_core.Loc.getMessage('EC_SEC_DELETE_CONFIRM');
+	    } else if (this.currentConfirmMode === 'hideSync' || this.currentConfirmMode === 'hideExternal') {
+	      phrase = main_core.Loc.getMessage('EC_CAL_GOOGLE_HIDE_CONFIRM');
+	    }
+
+	    return main_core.Tag.render(_t27 || (_t27 = _$4`
+			<div class="calendar-list-slider-messagebox-text">${0}</div>
+		`), phrase);
+	  }
+
+	  removeSection(section) {
+	    section.remove();
+	    this.DOM.confirmSectionPopup.close();
+	  }
+
+	  hideSyncSection(section) {
+	    section.hideSyncSection();
+	    this.DOM.confirmSectionPopup.close();
+	  }
+
+	  hideExternalSection(section) {
+	    section.hideExternalCalendarSection();
+	    this.DOM.confirmSectionPopup.close();
+	  }
+
 	}
 
 	exports.SectionInterface = SectionInterface;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Sync.Interface,BX.Main,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Sync.Interface,BX.Main,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar,BX.Calendar,BX.UI.Dialogs));
 //# sourceMappingURL=sectioninterface.bundle.js.map

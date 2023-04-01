@@ -31,7 +31,7 @@
 	color: rgba(82,92,105,.5);
 }
 
-.catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency-symbol {
+.catalog-document-product-list-result-grid-total-big.catalog-document-product-list-result-grid-total {
 	color: rgba(82,92,105,.5);
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
@@ -82,7 +82,8 @@
 	color: #525c69;
 }
 
-.catalog-document-product-list-result-grid-total-big {
+.catalog-document-product-list-result-grid-total-big,
+.catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-total-sum {
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 21px;

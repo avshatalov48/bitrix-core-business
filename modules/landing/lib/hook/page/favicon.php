@@ -87,9 +87,9 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 
 		if ($picture > 0)
 		{
-			$icons = '';
+			$icons = "\n";
 			// first simple favicons
-			$sizes = array('32x32', '16x16', '96x96');
+			$sizes = ['16x16', '32x32', '96x96'];
 			foreach ($sizes as $size)
 			{
 				list($w, $h) = explode('x', $size);
@@ -104,7 +104,7 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 				$srcExplode = explode('.', $file['src']);
 				$ext = array_pop($srcExplode);
 				$icons .= '<link rel="icon" type="image/' . $ext .
-						  '" href="' . $file['src'] . '" sizes="' . $size . '">';
+						  '" href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
 			}
 			// apple icons
 			$sizes = array('120x120', '180x180', '152x152', '167x167');
@@ -120,13 +120,14 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 					BX_RESIZE_IMAGE_EXACT
 				);
 				$icons .= '<link rel="apple-touch-icon"' .
-						  ' href="' . $file['src'] . '" sizes="' . $size . '">';
+						  ' href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
 			}
 			if ($icons)
 			{
 				Manager::setPageView(
 					'BeforeHeadClose',
-					$icons
+					$icons,
+					true
 				);
 			}
 		}

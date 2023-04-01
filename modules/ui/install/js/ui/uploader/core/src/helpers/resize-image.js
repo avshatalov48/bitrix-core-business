@@ -1,19 +1,17 @@
+import { Browser, Type } from 'main.core';
+
 import createWorker from './create-worker';
 import BitmapWorker from './bitmap-worker';
 import loadImage from './load-image';
 import createImagePreview from './create-image-preview';
+import getCanvasToBlobType from './get-canvas-to-blob-type';
 import renameFileToMatchMimeType from './rename-file-to-match-mime-type';
 import createFileFromBlob from './create-file-from-blob';
 import convertCanvasToBlob from './convert-canvas-to-blob';
-import { Browser } from 'main.core';
+import getResizedImageSize from './get-resized-image-size';
 
-type ResizeImageOptions = {
-	mode?: 'contain' | 'crop' | 'force',
-	upscale?: boolean,
-	width?: number,
-	height?: number,
-	quality?: number,
-};
+import type { ResizeImageOptions } from '../types/resize-image-options';
+import type { ResizeImageResult } from '../types/resize-image-result';
 
 let canCreateImageBitmap = (
 	'createImageBitmap' in window
@@ -34,10 +32,10 @@ if (canCreateImageBitmap && Browser.isSafari())
 	}
 }
 
-const resizeImage = async (file: File, options: ResizeImageOptions) => {
+const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<ResizeImageResult> => {
 	return new Promise((resolve, reject) => {
 		const loadImageDataFallback = () => {
-			loadImage(file)
+			loadImage(source)
 				.then(({ image }) => {
 					handleImageLoad(image);
 				})
@@ -48,8 +46,8 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 		};
 
 		const handleImageLoad = (imageData: ImageBitmap | HTMLImageElement) => {
-			const { targetWidth, targetHeight } = calcTargetSize(imageData, options);
-			if (!targetWidth || !targetHeight)
+			const { targetWidth, targetHeight, useOriginalSize } = getResizedImageSize(imageData, options);
+			if (useOriginalSize)
 			{
 				if ('close' in imageData)
 				{
@@ -57,7 +55,7 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 				}
 
 				resolve({
-					preview: file,
+					preview: source,
 					width: imageData.width,
 					height: imageData.height,
 				});
@@ -73,13 +71,18 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 				imageData.close();
 			}
 
-			const { quality = 0.92, mimeType = 'image/jpeg' } = options;
-			const type = /jpeg|png|webp/.test(file.type) ? file.type : mimeType;
+			const { quality = 0.92, mimeType, mimeTypeMode } = options;
+			const type = getCanvasToBlobType(source, mimeType, mimeTypeMode);
 
 			convertCanvasToBlob(canvas, type, quality)
 				.then((blob: Blob) => {
-					const newFileName = renameFileToMatchMimeType(file.name, type);
-					const preview = createFileFromBlob(blob, newFileName);
+					let preview = blob;
+					if (Type.isFile(source))
+					{
+						// File type could be changed pic.gif -> pic.jpg
+						const newFileName = renameFileToMatchMimeType(source.name, type);
+						preview = createFileFromBlob(blob, newFileName);
+					}
 
 					resolve({
 						preview,
@@ -87,8 +90,8 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 						height: targetHeight,
 					});
 				})
-				.catch(() => {
-					reject();
+				.catch((error) => {
+					reject(error);
 				})
 			;
 		};
@@ -96,7 +99,7 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 		if (canCreateImageBitmap)
 		{
 			const bitmapWorker = createWorker(BitmapWorker);
-			bitmapWorker.post({ file },
+			bitmapWorker.post({ file: source },
 				(imageBitmap: ImageBitmap) => {
 					bitmapWorker.terminate();
 					if (imageBitmap)
@@ -118,77 +121,3 @@ const resizeImage = async (file: File, options: ResizeImageOptions) => {
 };
 
 export default resizeImage;
-
-const calcTargetSize = (imageData: ImageBitmap | HTMLImageElement, options = {}) => {
-	let { mode = 'contain', upscale = false, width, height } = options;
-
-	const result = {
-		targetWidth: 0,
-		targetHeight: 0,
-	};
-
-	if (!width && !height)
-	{
-		return result;
-	}
-
-	if (width === null)
-	{
-		width = height;
-	}
-	else if (height === null)
-	{
-		height = width;
-	}
-
-	if (mode !== 'force')
-	{
-		const ratioWidth = width / imageData.width;
-		const ratioHeight = height / imageData.height;
-		let ratio = 1;
-
-		if (mode === 'cover')
-		{
-			ratio = Math.max(ratioWidth, ratioHeight);
-		}
-		else if (mode === 'contain')
-		{
-			ratio = Math.min(ratioWidth, ratioHeight);
-		}
-
-		// if image is too small, exit here with original image
-		if (ratio > 1 && upscale === false)
-		{
-			return result;
-		}
-
-		width = imageData.width * ratio;
-		height = imageData.height * ratio;
-	}
-
-	/*if (mode === 'crop')
-	{
-		const sourceImageRatio = sourceImageWidth / sourceImageHeight;
-		const targetRatio = targetWidth / targetHeight;
-
-		if (sourceImageRatio > targetRatio)
-		{
-			const newWidth = sourceImageHeight * targetRatio;
-			srcX = (sourceImageWidth - newWidth) / 2;
-			sourceImageWidth = newWidth;
-		}
-		else
-		{
-			const newHeight = sourceImageWidth / targetRatio;
-			srcY = (sourceImageHeight - newHeight) / 2;
-			sourceImageHeight = newHeight;
-		}
-
-		context.drawImage(image, srcX, srcY, sourceImageWidth, sourceImageHeight, 0, 0, targetWidth, targetHeight);
-	}*/
-
-	result.targetWidth = Math.round(width);
-	result.targetHeight = Math.round(height);
-
-	return result;
-};

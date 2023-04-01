@@ -37,7 +37,7 @@ class Token
 		$result = self::getFromCache($botId);
 
 		$date = new \Bitrix\Main\Type\DateTime();
-		if (!isset($result[$dialogId]) || !$result[$dialogId] || $result[$dialogId]['DATE_EXPIRE'] < $date->getTimestamp())
+		if (!($result[$dialogId] ?? null) || $result[$dialogId]['DATE_EXPIRE'] < $date->getTimestamp())
 		{
 			$cache = \Bitrix\Main\Data\Cache::createInstance();
 			$cache->clean('token_'.$botId, self::CACHE_TOKEN_PATH);

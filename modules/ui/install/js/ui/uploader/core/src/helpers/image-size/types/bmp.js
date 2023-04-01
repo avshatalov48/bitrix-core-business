@@ -10,7 +10,7 @@ export default class Bmp
 		return new Promise((resolve, reject) => {
 			if (file.size < 26)
 			{
-				return resolve(null);
+				return reject(new Error('BMP signature not found.'));
 			}
 
 			const blob = file.slice(0, 26);
@@ -19,7 +19,7 @@ export default class Bmp
 					const view = new DataView(buffer);
 					if (!view.getUint16(0) === BMP_SIGNATURE)
 					{
-						return resolve(null);
+						return reject(new Error('BMP signature not found.'));
 					}
 
 					resolve({
@@ -27,8 +27,8 @@ export default class Bmp
 						height: Math.abs(view.getInt32(22, true)),
 					});
 				})
-				.catch(() => {
-					resolve(null);
+				.catch(error => {
+					reject(error);
 				})
 			;
 		});

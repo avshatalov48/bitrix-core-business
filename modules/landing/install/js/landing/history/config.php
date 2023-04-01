@@ -8,10 +8,10 @@ return [
 	'css' => 'dist/history.bundle.css',
 	'js' => 'dist/history.bundle.js',
 	'rel' => [
-		'landing.main',
 		'main.core',
 		'landing.pageobject',
 		'landing.ui.highlight',
+		'landing.main',
 	],
 	'skip_core' => false,
 ];

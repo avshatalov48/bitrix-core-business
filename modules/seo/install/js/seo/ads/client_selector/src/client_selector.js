@@ -83,11 +83,12 @@ export class ClientSelector
 
 	getMenuItemHtml(item)
 	{
-		let html =  Tag.render`<div>
+		const name = BX.util.htmlspecialchars(item.NAME);
+		const html =  Tag.render`<div>
 			${item.PICTURE ? 
 				Tag.render`<div class="seo-ads-client-menu-avatar" style="background-image: url('${item.PICTURE}');"></div>` :
 				Tag.render`<div class="seo-ads-client-menu-avatar"></div>`}
-			<span class="seo-ads-client-menu-popup-user">${item.NAME}</span>
+			<span class="seo-ads-client-menu-popup-user">${name}</span>
 			<span class="seo-ads-client-menu-popup-shutoff" data-role="client-remove" data-client-id="${item.CLIENT_ID}">${Loc.getMessage('SEO_ADS_CLIENT_DISCONNECT')}</span>
 		</div>`;
 		return html.innerHTML;
@@ -95,9 +96,10 @@ export class ClientSelector
 
 	getRemoveConfirmPopupHtml(item)
 	{
+		const name = BX.util.htmlspecialchars(item.NAME);
 		return Tag.render`<div class="seo-ads-client-popup">
 			<div class="seo-ads-client-popup-text">
-			${Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', item.NAME)}
+			${Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', name)}
 			</div>
 		</div>`;
 	}

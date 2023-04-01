@@ -18,7 +18,7 @@ Loc::loadMessages(__FILE__);
 /**
  * Class AdvEntity
  *
- * Interface for Yandex.Direct and Google AdWords local data mirrors. Contains common fields defeinitions.
+ * Interface for Yandex.Direct and Google Ads local data mirrors. Contains common fields defeinitions.
  *
  * Implemented fields:
  * <ul>

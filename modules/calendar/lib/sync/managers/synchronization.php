@@ -243,12 +243,12 @@ class Synchronization
 	 * @throws ObjectNotFoundException
 	 * @throws Exception
 	 */
-	public function createReccurence(Event $event, Context $context): Result
+	public function createRecurrence(Event $event, Context $context): Result
 	{
-		if (empty($event->getRecurringRule()))
-		{
-			return $this->createEvent($event, $context);
-		}
+		// if (empty($event->getRecurringRule()))
+		// {
+		// 	return $this->createEvent($event, $context);
+		// }
 
 		$eventExceptionsMap = $this->getEventExceptionsMap($event);
 		$mainResult = new Result();
@@ -345,14 +345,21 @@ class Synchronization
 			$diff = is_array($context->diff['EXDATE'])
 				? $context->diff['EXDATE']
 				: explode(';', $context->diff['EXDATE']);
-			$excludeDate = $context->sync['excludeDate'] ??
-				reset(array_filter(
-						$event->getExcludedDateCollection()->getCollection(),
-						function($item) use ($diff)
-						{
-							return !in_array($item->format(CCalendar::DFormat(false)), $diff);
-						})
-				);
+			if (isset($context->sync['excludeDate']))
+			{
+				$excludeDate = $context->sync['excludeDate'];
+			}
+			else
+			{
+				$excludeDates = array_filter(
+					$event->getExcludedDateCollection()->getCollection(),
+					function($item) use ($diff)
+					{
+						return !in_array($item->format(CCalendar::DFormat(false)), $diff);
+					});
+				$excludeDate = $excludeDates ? reset($excludeDates) : [];
+			}
+
 			$context->add('sync', 'excludeDate', $excludeDate);
 		}
 
@@ -469,8 +476,8 @@ class Synchronization
 	{
 		/** @var EventConnection $link */
 		$link = $this->mapperFactory->getEventConnection()->getMap([
-			'CONNECTION_ID' => $connection->getId(),
-			'EVENT_ID' => $event->getId(),
+			'=CONNECTION_ID' => $connection->getId(),
+			'=EVENT_ID' => $event->getId(),
 		])->fetch();
 
 		if ($link)
@@ -614,8 +621,8 @@ class Synchronization
 			return null;
 		}
 		$link = $this->mapperFactory->getEventConnection()->getMap([
-			'EVENT_ID' => $event->getId(),
-			'CONNECTION_ID' => $factory->getConnection()->getId(),
+			'=EVENT_ID' => $event->getId(),
+			'=CONNECTION_ID' => $factory->getConnection()->getId(),
 		])->fetch();
 
 		return $link;

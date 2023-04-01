@@ -84,4 +84,9 @@ abstract class Account extends BaseApiObject
 	{
 		return [];
 	}
+
+	public function checkNewAuthInfo(): bool
+	{
+		return false;
+	}
 }

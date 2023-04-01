@@ -31,6 +31,7 @@ this.BX = this.BX || {};
 	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 	          color: ui_buttons.ButtonColor.SUCCESS,
 	          onclick: function onclick(button, event) {
+	            button.setDisabled();
 	            main_core.ajax.runAction('catalog.document.deleteList', {
 	              data: {
 	                documentIds: [documentId]
@@ -96,6 +97,7 @@ this.BX = this.BX || {};
 	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 	          color: ui_buttons.ButtonColor.SUCCESS,
 	          onclick: function onclick(button, event) {
+	            button.setDisabled();
 	            main_core.ajax.runAction('catalog.document.conductList', actionConfig).then(function (response) {
 	              popup.destroy();
 
@@ -154,6 +156,7 @@ this.BX = this.BX || {};
 	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 	          color: ui_buttons.ButtonColor.SUCCESS,
 	          onclick: function onclick(button, event) {
+	            button.setDisabled();
 	            main_core.ajax.runAction('catalog.document.cancelList', actionConfig).then(function (response) {
 	              popup.destroy();
 

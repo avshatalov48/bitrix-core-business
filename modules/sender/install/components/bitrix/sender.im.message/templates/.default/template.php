@@ -27,6 +27,7 @@ $containerId = 'sender-im-message-editor';
 		))?>);
 	});
 </script>
+<div class="bx-im-sender-value">
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-im-message-wrap">
 	<div class="sender-im-message-title"><?=Loc::getMessage('SENDER_IM_MESSAGE_TEXT_TITLE')?></div>
 	<div class="sender-im-message-text">
@@ -41,4 +42,8 @@ $containerId = 'sender-im-message-editor';
 			</div>
 		</div>
 	</div>
+</div>
+<? if($arResult['TEMPLATE_OPTIONS_SELECTOR']): ?>
+	<span data-tag="<?=htmlspecialcharsbx(Json::encode($arResult['TEMPLATE_OPTIONS_SELECTOR']));?>"></span>
+<? endif; ?>
 </div>

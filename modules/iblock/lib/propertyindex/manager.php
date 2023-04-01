@@ -6,11 +6,10 @@
  */
 namespace Bitrix\Iblock\PropertyIndex;
 
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class Manager
 {
@@ -181,7 +180,12 @@ class Manager
 				'select' => array('ID'),
 				'filter' => array('=PROPERTY_INDEX' => 'I'),
 			));
-			$add = ($iblockList->fetch()? true: false);
+			$add = (bool)$iblockList->fetch();
+		}
+
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$add = false;
 		}
 
 		if ($add)

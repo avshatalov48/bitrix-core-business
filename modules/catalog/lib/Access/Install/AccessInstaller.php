@@ -8,6 +8,7 @@
 
 namespace Bitrix\Catalog\Access\Install;
 
+use Bitrix\Catalog\Access\ShopGroupAssistant;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Install\AccessInstaller\InstallStatus;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
@@ -28,9 +29,6 @@ use Throwable;
 
 class AccessInstaller
 {
-	private const CRM_SHOP_ADMIN_USER_GROUP_CODE = 'CRM_SHOP_ADMIN';
-	private const CRM_SHOP_MANAGER_USER_GROUP_CODE = 'CRM_SHOP_MANAGER';
-
 	private Connection $db;
 
 	public function __construct(Connection $db)
@@ -226,7 +224,7 @@ class AccessInstaller
 
 		$crmAdminGroupIds = [];
 		$crmAdminGroups = GroupTable::getList([
-			'filter' => ['=STRING_ID' => self::CRM_SHOP_ADMIN_USER_GROUP_CODE],
+			'filter' => ['=STRING_ID' => ShopGroupAssistant::SHOP_ADMIN_USER_GROUP_CODE],
 			'select' => ['ID'],
 		]);
 		while ($crmAdminGroup = $crmAdminGroups->fetch())
@@ -380,8 +378,8 @@ class AccessInstaller
 		$userGroups = GroupTable::getList([
 			'filter' => [
 				'=STRING_ID' => [
-					self::CRM_SHOP_MANAGER_USER_GROUP_CODE,
-					self::CRM_SHOP_ADMIN_USER_GROUP_CODE,
+					ShopGroupAssistant::SHOP_MANAGER_USER_GROUP_CODE,
+					ShopGroupAssistant::SHOP_ADMIN_USER_GROUP_CODE,
 				]
 			],
 			'select' => ['ID', 'STRING_ID']
@@ -391,7 +389,7 @@ class AccessInstaller
 		while ($userGroup = $userGroups->fetch())
 		{
 			$role =
-				$userGroup['STRING_ID'] === self::CRM_SHOP_ADMIN_USER_GROUP_CODE && $map[RoleDictionary::ROLE_DIRECTOR]
+				$userGroup['STRING_ID'] === ShopGroupAssistant::SHOP_ADMIN_USER_GROUP_CODE && $map[RoleDictionary::ROLE_DIRECTOR]
 					? $roleNameIdMap[RoleDictionary::ROLE_DIRECTOR]
 					: $roleNameIdMap[RoleDictionary::ROLE_SALESMAN]
 			;

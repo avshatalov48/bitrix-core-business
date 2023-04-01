@@ -71,8 +71,8 @@ class ConditionGroup
 
 			if ($condition->getOperator() === 'modified')
 			{
-				$conditionResult = !is_array($condition->getValue())
-					|| in_array($item['valueToCheck'], $condition->getValue())
+				$conditionResult =
+					is_array($condition->getValue()) && in_array($item['valueToCheck'], $condition->getValue(), true)
 				;
 			}
 			else

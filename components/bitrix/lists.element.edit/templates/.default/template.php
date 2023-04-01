@@ -1,4 +1,9 @@
-<? if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 CJSCore::Init(array('window', 'lists'));
 Bitrix\Main\UI\Extension::load("ui.buttons");
@@ -8,8 +13,8 @@ $urlTabBp = CHTTP::urlAddParams(
 	$APPLICATION->GetCurPageParam("", array($arResult["FORM_ID"]."_active_tab")),
 	array($arResult["FORM_ID"]."_active_tab" => "tab_bp")
 );
-$socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
-$sectionId = $arResult["SECTION_ID"] ? $arResult["SECTION_ID"] : 0;
+$socnetGroupId = $arParams["SOCNET_GROUP_ID"] ?: 0;
+$sectionId = $arResult["SECTION_ID"] ?: 0;
 
 $listAction = array();
 if (isset($arResult["LIST_COPY_ELEMENT_URL"]))
@@ -82,7 +87,7 @@ $tabElement = array();
 $cuctomHtml = "";
 foreach($arResult["FIELDS"] as $fieldId => $field)
 {
-	$field["LIST_SECTIONS_URL"] = $arParams["~LIST_SECTIONS_URL"];
+	$field["LIST_SECTIONS_URL"] = $arParams["~LIST_SECTIONS_URL"] ?? null;
 	$field["SOCNET_GROUP_ID"] = $socnetGroupId;
 	$field["LIST_ELEMENT_URL"] = $arParams["~LIST_ELEMENT_URL"];
 	$field["LIST_FILE_URL"] = $arParams["~LIST_FILE_URL"];
@@ -124,373 +129,207 @@ if (
 	&& $arResult["IBLOCK"]["BIZPROC"] != "N"
 )
 {
-	$arCurrentUserGroups = $GLOBALS["USER"]->GetUserGroupArray();
-	if(!$arResult["ELEMENT_FIELDS"] || $arResult["ELEMENT_FIELDS"]["CREATED_BY"] == $GLOBALS["USER"]->GetID())
+	if ($arResult["ELEMENT_ID"] > 0)
 	{
-		$arCurrentUserGroups[] = "author";
+		$complexDocumentId = BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"],
+			$arResult["ELEMENT_ID"]);
+
+		ob_start();
+		$APPLICATION->IncludeComponent(
+			"bitrix:bizproc.document",
+			"frame",
+			[
+				'MODULE_ID' => 'lists',
+				'ENTITY' => $complexDocumentId[1],
+				'DOCUMENT_TYPE' => 'iblock_' . $arResult["IBLOCK_ID"],
+				'DOCUMENT_ID' => $complexDocumentId[2],
+				'LAZYLOAD' => 'Y',
+			],
+			$component, ["HIDE_ICONS" => "Y"]
+		);
+
+		$arTabs[] = [
+			"id" => "tab_bp",
+			"name" => GetMessage("CT_BLEE_BIZPROC_TAB"),
+			"icon" => "",
+			"fields" => [
+				[
+					"id" => "BIZPROC",
+					"type" => "custom",
+					"colspan" => true,
+					"value" => ob_get_clean(),
+				],
+			],
+		];
 	}
-
-	$DOCUMENT_TYPE = "iblock_".$arResult["IBLOCK_ID"];
-	CBPDocument::AddShowParameterInit("iblock", "only_users", $DOCUMENT_TYPE);
-
-	$arTab2Fields = array();
-	$arTab2Fields[] = array(
-		"id" => "BIZPROC_WF_STATUS",
-		"name" => GetMessage("CT_BLEE_BIZPROC_PUBLISHED"),
-		"type" => "label",
-		"value" => $arResult["ELEMENT_FIELDS"]["BP_PUBLISHED"]=="Y"? GetMessage("MAIN_YES"): GetMessage("MAIN_NO")
-	);
-
-	$bizProcIndex = 0;
-	$arDocumentStates = CBPDocument::GetDocumentStates(
-		BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
-		($arResult["ELEMENT_ID"] > 0) ? BizProcDocument::getDocumentComplexId(
-			$arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]) : null,
-		"Y"
-	);
-
-	$cuctomHtml .= '<input type="hidden" name="stop_bizproc" id="stop_bizproc" value="">';
-
-	$runtime = CBPRuntime::GetRuntime();
-	$runtime->StartRuntime();
-	$documentService = $runtime->GetService("DocumentService");
-
-	foreach ($arDocumentStates as $arDocumentState)
+	else
 	{
-		$templateId = intval($arDocumentState["TEMPLATE_ID"]);
-		$templateConstants = CBPWorkflowTemplateLoader::getTemplateConstants($templateId);
+		$bizprocTabFields = [];
 
-		if(
-			empty($arDocumentState["TEMPLATE_PARAMETERS"]) &&
-			empty($arDocumentState["ID"]) &&
-			empty($templateConstants) &&
-			!CIBlockRights::UserHasRightTo($arResult["IBLOCK_ID"], $arResult["IBLOCK_ID"], 'iblock_edit')
-		)
-		{
-			continue;
-		}
+		$bizProcIndex = 0;
+		$arDocumentStates = CBPWorkflowTemplateLoader::GetDocumentTypeStates(
+			BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
+			CBPDocumentEventType::Create
+		);
 
-		$bizProcIndex++;
+		$runtime = CBPRuntime::GetRuntime();
+		$runtime->StartRuntime();
+		$documentService = $runtime->GetService("DocumentService");
 
-		if ($arResult["ELEMENT_ID"] > 0)
+		foreach ($arDocumentStates as $arDocumentState)
 		{
-			$canViewWorkflow = CBPDocument::CanUserOperateDocument(
-				CBPCanUserOperateOperation::ViewWorkflow,
-				$GLOBALS["USER"]->GetID(),
-				BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
-				array("AllUserGroups" => $arCurrentUserGroups, "DocumentStates" => $arDocumentStates,
-					"WorkflowId" => $arDocumentState["ID"])
-			);
-		}
-		else
-		{
+			$templateId = (int)$arDocumentState["TEMPLATE_ID"];
+			$templateConstants = CBPWorkflowTemplateLoader::getTemplateConstants($templateId);
+
+			if (
+				empty($arDocumentState["TEMPLATE_PARAMETERS"])
+				&& empty($arDocumentState["ID"])
+				&& empty($templateConstants)
+				&& !CIBlockRights::UserHasRightTo($arResult["IBLOCK_ID"], $arResult["IBLOCK_ID"], 'iblock_edit')
+			)
+			{
+				continue;
+			}
+
+			$bizProcIndex++;
+
 			$canViewWorkflow = CBPDocument::CanUserOperateDocumentType(
 				CBPCanUserOperateOperation::StartWorkflow,
 				$GLOBALS["USER"]->GetID(),
 				BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
-				array("sectionId"=> intval($arResult["SECTION_ID"]), "AllUserGroups" => $arCurrentUserGroups,
-					"DocumentStates" => $arDocumentStates, "WorkflowId" => $arDocumentState["ID"])
-			);
-		}
-
-		if($canViewWorkflow)
-		{
-			$arTab2Fields[] = array(
-				"id" => "BIZPROC_TITLE".$bizProcIndex,
-				"name" => $arDocumentState["TEMPLATE_NAME"],
-				"type" => "section",
+				[
+					"sectionId" => (int)$arResult["SECTION_ID"],
+					"DocumentStates" => $arDocumentStates,
+				]
 			);
 
-			if (mb_strlen($arDocumentState["ID"]) && mb_strlen($arDocumentState["WORKFLOW_STATUS"]))
+			if ($canViewWorkflow)
 			{
-				if (CBPDocument::CanUserOperateDocument(
-					CBPCanUserOperateOperation::StartWorkflow,
-					$GLOBALS["USER"]->GetID(),
-					BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
-					array("UserGroups" => $arCurrentUserGroups)
-				))
-				{
-					$arTab2Fields[] = array(
-						"id" => "BIZPROC_STOP".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_STOP_LABEL"),
-						"type" => "label",
-						"value" => '<a href="javascript:void(0)"
-						onclick="BX.Lists[\''.$jsClass.'\'].completeWorkflow(\''.$arDocumentState["ID"].'\',
-						\'stop\')">'.GetMessage("CT_BLEE_BIZPROC_STOP").'</a>'
-					);
-				}
-			}
+				$bizprocTabFields[] = [
+					"id" => "BIZPROC_TITLE" . $bizProcIndex,
+					"name" => $arDocumentState["TEMPLATE_NAME"],
+					"type" => "section",
+				];
 
-			$arTab2Fields[] = array(
-				"id" => "BIZPROC_NAME".$bizProcIndex,
-				"name" => GetMessage("CT_BLEE_BIZPROC_NAME"),
-				"type" => "label",
-				"value" => htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]),
-			);
-
-			if($arDocumentState["TEMPLATE_DESCRIPTION"]!='')
-				$arTab2Fields[] = array(
-					"id" => "BIZPROC_DESC".$bizProcIndex,
-					"name" => GetMessage("CT_BLEE_BIZPROC_DESC"),
+				$bizprocTabFields[] = [
+					"id" => "BIZPROC_NAME" . $bizProcIndex,
+					"name" => GetMessage("CT_BLEE_BIZPROC_NAME"),
 					"type" => "label",
-					"value" => htmlspecialcharsbx($arDocumentState["TEMPLATE_DESCRIPTION"]),
-				);
+					"value" => htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]),
+				];
 
-			if($arDocumentState["STATE_MODIFIED"] <> '')
-			{
-				$arTab2Fields[] = array(
-					"id" => "BIZPROC_DATE".$bizProcIndex,
-					"name" => GetMessage("CT_BLEE_BIZPROC_DATE"),
-					"type" => "label",
-					"value" => htmlspecialcharsbx($arDocumentState["STATE_MODIFIED"]),
-				);
-			}
-
-			if($arDocumentState["STATE_NAME"] <> '')
-			{
-				$backUrl = CHTTP::urlAddParams(
-					$APPLICATION->GetCurPageParam("", array($arResult["FORM_ID"]."_active_tab")),
-					array($arResult["FORM_ID"]."_active_tab" => "tab_bp")
-				);
-				$url = CHTTP::urlAddParams(str_replace(
-					array("#list_id#", "#document_state_id#", "#group_id#"),
-					array($arResult["IBLOCK_ID"], $arDocumentState["ID"], $arParams["SOCNET_GROUP_ID"]),
-					$arParams["~BIZPROC_LOG_URL"]
-				),
-					array("back_url" => $backUrl),
-					array("skip_empty" => true, "encode" => true)
-				);
-
-				if($arDocumentState["ID"] <> '')
+				if ($arDocumentState["TEMPLATE_DESCRIPTION"] != '')
 				{
-					$arTab2Fields[] = array(
-						"id" => "BIZPROC_STATE".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
+					$bizprocTabFields[] = [
+						"id" => "BIZPROC_DESC" . $bizProcIndex,
+						"name" => GetMessage("CT_BLEE_BIZPROC_DESC"),
 						"type" => "label",
-						"value" => '<a href="'.htmlspecialcharsbx($url).'">'.($arDocumentState["STATE_TITLE"] <> ''? htmlspecialcharsbx($arDocumentState["STATE_TITLE"]) : htmlspecialcharsbx($arDocumentState["STATE_NAME"])).'</a>',
-					);
-
-					$canDeleteWorkflow = CBPDocument::CanUserOperateDocument(
-						CBPCanUserOperateOperation::CreateWorkflow,
-						$GLOBALS["USER"]->GetID(),
-						BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
-						array("UserGroups" => $arCurrentUserGroups)
-					);
-
-					if($canDeleteWorkflow)
-					{
-						$arTab2Fields[] = array(
-							"id" => "BIZPROC_DELETE".$bizProcIndex,
-							"name" => GetMessage("CT_BLEE_BIZPROC_DELETE_LABEL"),
-							"type" => "label",
-							"value" => '<a href="javascript:void(0)"
-								onclick="BX.Lists[\''.$jsClass.'\'].completeWorkflow(\''.$arDocumentState["ID"].'\',
-								\'delete\')">'.GetMessage("CT_BLEE_BIZPROC_DELETE").'</a>'
-						);
-					}
+						"value" => htmlspecialcharsbx($arDocumentState["TEMPLATE_DESCRIPTION"]),
+					];
 				}
-				else
-				{
-					$arTab2Fields[] = array(
-						"id" => "BIZPROC_STATE".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
-						"type" => "label",
-						"value" => (
-							$arDocumentState["STATE_TITLE"] <> ''
-								? htmlspecialcharsbx($arDocumentState["STATE_TITLE"])
-								: htmlspecialcharsbx($arDocumentState["STATE_NAME"])
-						),
-					);
-				}
-			}
 
-			$arWorkflowParameters = $arDocumentState["TEMPLATE_PARAMETERS"];
-			if(!is_array($arWorkflowParameters))
-				$arWorkflowParameters = array();
-			$formName = $arResult["form_id"];
-			$bVarsFromForm = $arResult["VARS_FROM_FORM"];
-			if($arDocumentState["ID"] == '' && $templateId > 0)
-			{
-				$arParametersValues = array();
-				$keys = array_keys($arWorkflowParameters);
-				foreach ($keys as $key)
+				$arWorkflowParameters = $arDocumentState["TEMPLATE_PARAMETERS"];
+				if (!is_array($arWorkflowParameters))
 				{
-					$v = ($bVarsFromForm ? $_REQUEST["bizproc".$templateId."_".$key] :
-						$arWorkflowParameters[$key]["Default"]);
-					if (!is_array($v))
+					$arWorkflowParameters = [];
+				}
+				$formName = $arResult["form_id"];
+				$bVarsFromForm = $arResult["VARS_FROM_FORM"];
+				if ($templateId > 0)
+				{
+					$parametersValues = [];
+					$keys = array_keys($arWorkflowParameters);
+					foreach ($keys as $key)
 					{
-						$arParametersValues[$key] = $v;
-					}
-					else
-					{
-						$keys1 = array_keys($v);
-						foreach ($keys1 as $key1)
+						$v = $bVarsFromForm
+							? $_REQUEST["bizproc" . $templateId . "_" . $key]
+							: $arWorkflowParameters[$key]["Default"]
+						;
+						if (!is_array($v))
 						{
-							$arParametersValues[$key][$key1] = $v[$key1];
+							$parametersValues[$key] = $v;
+						}
+						else
+						{
+							foreach (array_keys($v) as $subKey)
+							{
+								$parametersValues[$key][$subKey] = $v[$subKey];
+							}
 						}
 					}
-				}
 
-				foreach ($arWorkflowParameters as $parameterKey => $arParameter)
-				{
-					$parameterKeyExt = "bizproc".$templateId."_".$parameterKey;
-
-					$html = $documentService->GetFieldInputControl(
-						BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"],$arResult["IBLOCK_ID"]),
-						$arParameter,
-						array("Form" => "start_workflow_form1", "Field" => $parameterKeyExt),
-						$arParametersValues[$parameterKey],
-						false,
-						true
-					);
-
-					$arTab2Fields[] = array(
-						"id" => $parameterKeyExt.$bizProcIndex,
-						"required" => $arParameter["Required"],
-						"name" => $arParameter["Name"],
-						"title" => $arParameter["Description"],
-						"type" => "label",
-						"value" => '<div>' . $html . '</div>',
-					);
-				}
-
-				if(!empty($templateConstants) &&
-					CIBlockRights::UserHasRightTo($arResult["IBLOCK_ID"], $arResult["IBLOCK_ID"], 'iblock_edit'))
-				{
-					$listTemplateId = array();
-					$listTemplateId[$templateId]['ID'] = $templateId;
-					$listTemplateId[$templateId]['NAME'] = htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]);
-					$arTab2Fields[] = array(
-						"id" => "BIZPROC_CONSTANTS".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_CONSTANTS_LABLE"),
-						"type" => "label",
-						"value" => '<a href="javascript:void(0)" id="lists-fill-constants-'.$bizProcIndex.'"
-							onclick="BX.Lists[\''.$jsClass.'\'].fillConstants('.CUtil::PhpToJSObject($listTemplateId).');">'.
-							GetMessage("CT_BLEE_BIZPROC_CONSTANTS_FILL").'</a>',
-					);
-				}
-			}
-
-			$arEvents = CBPDocument::GetAllowableEvents($GLOBALS["USER"]->GetID(), $arCurrentUserGroups, $arDocumentState, true);
-			if(count($arEvents))
-			{
-				$html = '';
-				$html .= '<input type="hidden" name="bizproc_id_'.$bizProcIndex.'" value="'.$arDocumentState["ID"].'">';
-				$html .= '<input type="hidden" name="bizproc_template_id_'.$bizProcIndex.'" value="'.
-					$arDocumentState["TEMPLATE_ID"].'">';
-				$html .= '<select name="bizproc_event_'.$bizProcIndex.'">';
-				$html .= '<option value="">'.GetMessage("CT_BLEE_BIZPROC_RUN_CMD_NO").'</option>';
-				foreach ($arEvents as $e)
-				{
-					$html .= '<option value="'.htmlspecialcharsbx($e["NAME"]).'"'.($_REQUEST["bizproc_event_".
-						$bizProcIndex] == $e["NAME"]? " selected": "").'>'.htmlspecialcharsbx($e["TITLE"]).'</option>';
-				}
-				$html .='</select>';
-
-				$arTab2Fields[] = array(
-					"id" => "BIZPROC_RUN_CMD".$bizProcIndex,
-					"name" => GetMessage("CT_BLEE_BIZPROC_RUN_CMD"),
-					"type" => "label",
-					"value" => $html,
-				);
-			}
-
-			if($arDocumentState["ID"] <> '')
-			{
-				$arTasks = CBPDocument::GetUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $arDocumentState["ID"]);
-				if(count($arTasks) > 0)
-				{
-					$html = '';
-					foreach($arTasks as $arTask)
+					foreach ($arWorkflowParameters as $parameterKey => $arParameter)
 					{
-						$backUrl = CHTTP::urlAddParams(
-							$APPLICATION->GetCurPageParam("", array($arResult["FORM_ID"]."_active_tab")),
-							array($arResult["FORM_ID"]."_active_tab" => "tab_bp")
+						$parameterKeyExt = "bizproc" . $templateId . "_" . $parameterKey;
+
+						$html = $documentService->GetFieldInputControl(
+							BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"],
+								$arResult["IBLOCK_ID"]),
+							$arParameter,
+							["Form" => "start_workflow_form1", "Field" => $parameterKeyExt],
+							$parametersValues[$parameterKey],
+							false,
+							true
 						);
 
-						$url = CHTTP::urlAddParams(str_replace(
-							array("#list_id#", "#section_id#", "#element_id#", "#task_id#", "#group_id#"),
-							array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"]),
-								$arResult["ELEMENT_ID"], $arTask["ID"], $arParams["SOCNET_GROUP_ID"]),
-							$arParams["~BIZPROC_TASK_URL"]
-						),
-							array("back_url" => $backUrl),
-							array("skip_empty" => true, "encode" => true)
-						);
-
-						$html .= '<a href="'.htmlspecialcharsbx($url).'" title="'.strip_tags(
-								$arTask["DESCRIPTION"]).'">'.$arTask["NAME"].'</a><br />';
+						$bizprocTabFields[] = [
+							"id" => $parameterKeyExt . $bizProcIndex,
+							"required" => $arParameter["Required"],
+							"name" => $arParameter["Name"],
+							"title" => $arParameter["Description"],
+							"type" => "label",
+							"value" => '<div>' . $html . '</div>',
+						];
 					}
 
-					$arTab2Fields[] = array(
-						"id" => "BIZPROC_TASKS".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_TASKS_1"),
-						"type" => "label",
-						"value" => $html,
-					);
+					if (
+						!empty($templateConstants)
+						&& CIBlockRights::UserHasRightTo($arResult["IBLOCK_ID"], $arResult["IBLOCK_ID"], 'iblock_edit')
+					)
+					{
+						$listTemplateId = [];
+						$listTemplateId[$templateId]['ID'] = $templateId;
+						$listTemplateId[$templateId]['NAME'] = htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]);
+						$bizprocTabFields[] = [
+							"id" => "BIZPROC_CONSTANTS" . $bizProcIndex,
+							"name" => GetMessage("CT_BLEE_BIZPROC_CONSTANTS_LABLE"),
+							"type" => "label",
+							"value" => '<a href="javascript:void(0)" id="lists-fill-constants-'
+								. $bizProcIndex
+								. '"
+							onclick="BX.Lists[\''
+								. $jsClass
+								. '\'].fillConstants('
+								. CUtil::PhpToJSObject($listTemplateId)
+								. ');">'
+								. GetMessage("CT_BLEE_BIZPROC_CONSTANTS_FILL")
+								. '</a>',
+						];
+					}
 				}
 			}
 		}
-	}
 
-	if(!$bizProcIndex)
-	{
-		$arTab2Fields[] = array(
-			"id" => "BIZPROC_NO",
-			"name" => GetMessage("CT_BLEE_BIZPROC_NA_LABEL"),
-			"type" => "label",
-			"value" => GetMessage("CT_BLEE_BIZPROC_NA")
-		);
-	}
-
-	$cuctomHtml .= '<input type="hidden" name="bizproc_index" value="'.$bizProcIndex.'">';
-
-	if($arResult["ELEMENT_ID"])
-	{
-		$bStartWorkflowPermission = CBPDocument::CanUserOperateDocument(
-			CBPCanUserOperateOperation::StartWorkflow,
-			$USER->GetID(),
-			BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
-			array("AllUserGroups" => $arCurrentUserGroups, "DocumentStates" => $arDocumentStates,
-				"WorkflowId" => $arDocumentState["TEMPLATE_ID"])
-		);
-		if($bStartWorkflowPermission)
+		if (!$bizProcIndex)
 		{
-			$arTab2Fields[] = array(
-				"id" => "BIZPROC_NEW",
-				"name" => GetMessage("CT_BLEE_BIZPROC_NEW"),
-				"type" => "section",
-			);
-
-			$backUrl = CHTTP::urlAddParams(
-				$APPLICATION->GetCurPageParam("", array($arResult["FORM_ID"]."_active_tab")),
-				array($arResult["FORM_ID"]."_active_tab" => "tab_bp")
-			);
-
-			$url = CHTTP::urlAddParams(str_replace(
-					array("#list_id#", "#section_id#", "#element_id#", "#group_id#"),
-					array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"]), $arResult["ELEMENT_ID"],
-						$arParams["SOCNET_GROUP_ID"]),
-					$arParams["~BIZPROC_WORKFLOW_START_URL"]
-				),
-				array("back_url" => $backUrl, "sessid" => bitrix_sessid()),
-				array("skip_empty" => true, "encode" => true)
-			);
-
-			$arTab2Fields[] = array(
-				"id" => "BIZPROC_NEW_START",
-				"name" => GetMessage("CT_BLEE_BIZPROC_START"),
-				"type" => "custom",
-				"colspan" => true,
-				"value" => '<a href="'.htmlspecialcharsbx($url).'">'.GetMessage("CT_BLEE_BIZPROC_START").'</a>',
-			);
+			$bizprocTabFields[] = [
+				"id" => "BIZPROC_NO",
+				"name" => GetMessage("CT_BLEE_BIZPROC_NA_LABEL"),
+				"type" => "label",
+				"value" => GetMessage("CT_BLEE_BIZPROC_NA"),
+			];
 		}
-	}
 
-	$arTabs[] = array("id"=>"tab_bp", "name"=>GetMessage("CT_BLEE_BIZPROC_TAB"), "icon"=>"", "fields"=>$arTab2Fields);
+		$arTabs[] = [
+			"id" => "tab_bp",
+			"name" => GetMessage("CT_BLEE_BIZPROC_TAB"),
+			"icon" => "",
+			"fields" => $bizprocTabFields,
+		];
+	}
 }
 
-if(isset($arResult["RIGHTS"]))
+if (isset($arResult["RIGHTS"]))
 {
 	ob_start();
 	IBlockShowRights(

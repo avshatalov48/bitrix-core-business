@@ -41,6 +41,11 @@ class MeetingDescription extends BaseProperty implements Serializable
 	private ?string $mailFrom = null;
 
 	/**
+	 * @var ?int
+	 */
+	private ?int $chatId = null;
+
+	/**
 	 * @return array
 	 */
 	public function getFields(): array
@@ -54,6 +59,7 @@ class MeetingDescription extends BaseProperty implements Serializable
 			'HOST_NAME' => $this->hostName ?? null,
 			'LANGUAGE_ID' => $this->languageId ?? null,
 			'MAIL_FROM' => $this->mailFrom ?? null,
+			'CHAT_ID' => $this->chatId ?? null,
 		];
 	}
 
@@ -63,6 +69,16 @@ class MeetingDescription extends BaseProperty implements Serializable
 	public function toString(): string
 	{
 		return $this->serialize() ?? '';
+	}
+
+	public function __serialize()
+	{
+		return $this->serialize();
+	}
+
+	public function __unserialize($data): void
+	{
+		$this->unserialize($data);
 	}
 
 	/**
@@ -178,6 +194,18 @@ class MeetingDescription extends BaseProperty implements Serializable
 	public function setMailFrom(?string $mailFrom): MeetingDescription
 	{
 		$this->mailFrom = $mailFrom;
+
+		return $this;
+	}
+
+	/**
+	 * @param int|null $chatId
+	 *
+	 * @return $this
+	 */
+	public function setChatId(?int $chatId): MeetingDescription
+	{
+		$this->chatId = $chatId;
 
 		return $this;
 	}

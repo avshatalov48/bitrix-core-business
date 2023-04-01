@@ -84,14 +84,14 @@ class SenderRcComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 			$arVariables                 = [];
 			$arUrlTemplates              = CComponentEngine::makeComponentUrlTemplates(
 				$arDefaultUrlTemplates404,
-				$this->arParams['SEF_URL_TEMPLATES']
+				$this->arParams['SEF_URL_TEMPLATES'] ?? ''
 			);
 			$arVariableAliases           = CComponentEngine::makeComponentVariableAliases(
 				$arDefaultVariableAliases404,
-				$this->arParams['VARIABLE_ALIASES']
+				$this->arParams['VARIABLE_ALIASES'] ?? ''
 			);
 			$componentPage               = CComponentEngine::parseComponentPath(
-				$this->arParams['SEF_FOLDER'],
+				$this->arParams['SEF_FOLDER'] ?? '',
 				$arUrlTemplates,
 				$arVariables
 			);
@@ -160,7 +160,7 @@ class SenderRcComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 				'VARIABLES'            => $arVariables,
 				'ALIASES'              => $this->arParams['SEF_MODE'] == 'Y'? [] : $arVariableAliases,
 				'ID'                   => isset($arVariables['id'])? strval($arVariables['id']) : '',
-				'PATH_TO_USER_PROFILE' => $this->arParams['PATH_TO_USER_PROFILE']
+				'PATH_TO_USER_PROFILE' => $this->arParams['PATH_TO_USER_PROFILE'] ?? ''
 			],
 			$this->arResult
 		);

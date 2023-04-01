@@ -112,6 +112,8 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
+		$params['CACHE_GROUPS'] ??= 'N';
+
 		if (isset($params['CUSTOM_SITE_ID']))
 		{
 			$this->setSiteId($params['CUSTOM_SITE_ID']);
@@ -1839,7 +1841,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 				$codes = array_keys($this->arIblockProps[$iblockId]);
 			}
 
-			$imageCode = $this->arParams['ADDITIONAL_PICT_PROP'][$iblockId];
+			$imageCode = $this->arParams['ADDITIONAL_PICT_PROP'][$iblockId] ?? '';
 			if (!empty($imageCode) && !in_array($imageCode, $codes))
 			{
 				$codes[] = $imageCode;
@@ -2265,7 +2267,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		if ($scale === 'no_scale')
 		{
-			$item[$imageKey.'_SRC'] = $arImage['SRC'];
+			$item[$imageKey.'_SRC'] = Iblock\Component\Tools::getImageSrc([
+				'SRC' => $arImage['SRC']
+			]);
 			$item[$imageKey.'_SRC_ORIGINAL'] = $arImage['SRC'];
 		}
 		elseif ($scale === 'adaptive')
@@ -2276,7 +2280,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 				BX_RESIZE_IMAGE_PROPORTIONAL,
 				true
 			);
-			$item[$imageKey.'_SRC'] = $arFileTmp['src'];
+			$item[$imageKey.'_SRC'] = Iblock\Component\Tools::getImageSrc([
+				'SRC' => $arFileTmp['src']
+			]);
 
 			$arFileTmp = CFile::ResizeImageGet(
 				$arImage,
@@ -2284,14 +2290,18 @@ class CBitrixBasketComponent extends CBitrixComponent
 				BX_RESIZE_IMAGE_PROPORTIONAL,
 				true
 			);
-			$item[$imageKey.'_SRC_2X'] = $arFileTmp['src'];
+			$item[$imageKey.'_SRC_2X'] = Iblock\Component\Tools::getImageSrc([
+				'SRC' => $arFileTmp['src']
+			]);
 
 			$item[$imageKey.'_SRC_ORIGINAL'] = $arImage['SRC'];
 		}
 		else
 		{
 			$arFileTmp = CFile::ResizeImageGet($arImage, $sizeStandard, BX_RESIZE_IMAGE_PROPORTIONAL, true);
-			$item[$imageKey.'_SRC'] = $arFileTmp['src'];
+			$item[$imageKey.'_SRC'] = Iblock\Component\Tools::getImageSrc([
+				'SRC' => $arFileTmp['src']
+			]);
 
 			$item[$imageKey.'_SRC_ORIGINAL'] = $arImage['SRC'];
 		}
@@ -3278,7 +3288,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 												['width' => self::IMAGE_SIZE_STANDARD, 'height' => self::IMAGE_SIZE_STANDARD],
 												BX_RESIZE_IMAGE_PROPORTIONAL, false, false
 											);
-											$arValue['PICT']['SRC'] = $tmpImg['src'];
+											$arValue['PICT']['SRC'] = Iblock\Component\Tools::getImageSrc([
+												'SRC' => $tmpImg['src']
+											]);
 										}
 									}
 								}

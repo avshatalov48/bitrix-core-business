@@ -67,7 +67,8 @@ class Landing extends \CModule
 		'socialnetwork' => [
 			'onFillSocNetFeaturesList' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetFeaturesList'],
 			'onFillSocNetMenu' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetMenu'],
-			'onSocNetGroupDelete' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetGroupDelete']
+			'onSocNetGroupDelete' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetGroupDelete'],
+			'onSocNetFeaturesUpdate' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetFeaturesUpdate'],
 		],
 	];
 	public $installDirs = array(

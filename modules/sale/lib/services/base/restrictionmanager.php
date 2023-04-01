@@ -2,18 +2,26 @@
 namespace Bitrix\Sale\Services\Base;
 
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\Entity\AddResult;
+use Bitrix\Main\Entity\UpdateResult;
+use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\PaySystem\Logger;
 use Bitrix\Sale\Internals\Entity;
 use Bitrix\Sale\Internals\ServiceRestrictionTable;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\EventResult;
+use Bitrix\Sale\Result;
 
 class RestrictionManager
 {
 	protected static $classNames;
 	protected static $cachedFields = array();
+
+	const ON_STARTUP_SERVICE_RESTRICTIONS_EVENT_NAME = "onStartupServiceRestrictions";
 
 	const MODE_CLIENT = 1;
 	const MODE_MANAGER = 2;
@@ -159,9 +167,9 @@ class RestrictionManager
 			$result = array();
 			$dbRes = ServiceRestrictionTable::getList(array(
 				'filter' => array(
-					'=SERVICE_TYPE' => $serviceType
+					'=SERVICE_TYPE' => $serviceType,
 				),
-				'order' => array('SORT' => 'ASC')
+				'order' => array('SORT' => 'ASC'),
 			));
 
 			while($restriction = $dbRes->fetch())
@@ -236,9 +244,9 @@ class RestrictionManager
 			$dbRes = ServiceRestrictionTable::getList(array(
 				'filter' => array(
 					'=SERVICE_ID' => $idsForDb,
-					'=SERVICE_TYPE' => $serviceType
+					'=SERVICE_TYPE' => $serviceType,
 				),
-				'order' => array('SORT' =>'ASC')
+				'order' => array('SORT' =>'ASC'),
 			));
 
 			while($restriction = $dbRes->fetch())
@@ -338,5 +346,139 @@ class RestrictionManager
 	public static function getById($id)
 	{
 		return ServiceRestrictionTable::getById($id);
+	}
+
+	/**
+	 * @param string $restrictionCode
+	 * @return string|null Restriction classname
+	 * @throws SystemException
+	 */
+	protected static function getRestriction(string $restrictionCode): ?string
+	{
+		foreach (static::getClassesList() as $className)
+		{
+			if (
+				self::isRestrictionClassname($className)
+				&& $className::isMyCode($restrictionCode)
+			)
+			{
+				return $className;
+			}
+		}
+
+		return null;
+	}
+
+	private static function isRestrictionClassname(string $className): bool
+	{
+		try
+		{
+			$restrictionClass = new \ReflectionClass($className);
+		}
+		catch (\ReflectionException $e)
+		{
+			return false;
+		}
+
+		return $restrictionClass->isSubclassOf(Restriction::class);
+	}
+
+	/**
+	 * Apply restriction to the service
+	 *
+	 * @param int $serviceId
+	 * @param RestrictionInfo $restrictionInfo information about applicable restriction
+	 * @return Result
+	 * @throws SystemException
+	 */
+	public static function applyRestriction(int $serviceId, RestrictionInfo $restrictionInfo): Result
+	{
+		$result = new Result();
+
+		$restriction = static::getRestriction($restrictionInfo->getType());
+
+		$reflectionClass = new \ReflectionClass(static::class);
+		$methodPath = $reflectionClass->getName() . "::applyRestriction";
+
+		if (!$restriction)
+		{
+			Logger::addError("[{$methodPath}] restriction '{$restrictionInfo->getType()}' not found.");
+
+			$publicErrorMessage = Loc::getMessage('SALE_BASE_RSTR_MANAGER_FIND_RSTR_ERROR', [
+				'#RSTR_CLASSNAME#' => htmlspecialcharsbx($restrictionInfo->getType()),
+			]);
+			$result->addError(new \Bitrix\Main\Error($publicErrorMessage));
+
+			return $result;
+		}
+
+		/**
+		 *	@var \Bitrix\Main\Entity\Result $restrictionApplyResult
+		 *	@var Restriction $restriction
+		 */
+		$restrictionApplyResult = $restriction::save([
+			'SERVICE_ID' => $serviceId,
+			'SERVICE_TYPE' => static::getServiceType(),
+			'PARAMS' => $restrictionInfo->getOptions(),
+		]);
+
+		if (!$restrictionApplyResult->isSuccess())
+		{
+			foreach ($restrictionApplyResult->getErrors() as $error)
+			{
+				Logger::addError("[{$methodPath}] " . $error->getMessage());
+				$result->addError(new Error($error->getMessage()));
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Apply to service his default restrictions
+	 *
+	 * @param RestrictableService $service
+	 * @return Result
+	 * @throws SystemException
+	 */
+	public static function setupDefaultRestrictions(RestrictableService $service): Result
+	{
+		$result = new Result();
+
+		$startupRestrictions = $service->getStartupRestrictions();
+
+		(new Event(
+			'sale',
+			static::ON_STARTUP_SERVICE_RESTRICTIONS_EVENT_NAME,
+			[
+				'STARTUP_RESTRICTIONS_COLLECTION' => $startupRestrictions,
+				'SERVICE_ID' => $service->getServiceId(),
+			]
+		))->send();
+
+		self::clearAlreadyUsedByServiceRestrictions($service->getServiceId(), $startupRestrictions);
+
+		/** @var RestrictionInfo $restrictionInfo */
+		foreach ($startupRestrictions as $restrictionInfo)
+		{
+			$applyResult = static::applyRestriction($service->getServiceId(), $restrictionInfo);
+			$result->addErrors($applyResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	private static function clearAlreadyUsedByServiceRestrictions(int $serviceId, RestrictionInfoCollection $collection): void
+	{
+		$serviceRestrictions = array_column(static::getRestrictionsList($serviceId), 'CLASS_NAME');
+
+		foreach ($serviceRestrictions as $restrictionClassName)
+		{
+			if (self::isRestrictionClassname($restrictionClassName))
+			{
+				/** @var Restriction $restrictionClassName */
+				$collection->delete($restrictionClassName::getCode());
+			}
+		}
 	}
 }

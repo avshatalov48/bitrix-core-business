@@ -1,11 +1,10 @@
 const {scrollTo, highlight} = BX.Landing.Utils;
 
 /**
- * @param {string} state
  * @param {object} entry
  * @return {Promise}
  */
-export default function sortBlock(state, entry)
+export default function sortBlock(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {
@@ -15,7 +14,7 @@ export default function sortBlock(state, entry)
 			return scrollTo(block.node)
 				.then(highlight.bind(null, block.node))
 				.then(() => {
-					return block[entry[state]](true);
+					return block[entry.params.direction](true);
 				});
 		});
 }

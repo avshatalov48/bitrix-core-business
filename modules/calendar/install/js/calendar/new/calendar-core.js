@@ -45,11 +45,14 @@
 
 		BX.Calendar.Util.setDayOfWeekMonthFormat(config.dayOfWeekMonthFormat);
 		BX.Calendar.Util.setDayMonthFormat(config.dayMonthFormat);
+		BX.Calendar.Util.setLongDateFormat(config.longDateFormat);
 
 		BX.Calendar.Util.setIphoneConnectionStatus(config.isIphoneConnected);
 		BX.Calendar.Util.setMacConnectionStatus(config.isMacConnected);
 		BX.Calendar.Util.setIcloudConnectionStatus(config.isIcloudConnected);
 		BX.Calendar.Util.setGoogleConnectionStatus(config.isGoogleConnected);
+		BX.Calendar.Util.setIsSharingFeatureEnabled(config.isSharingFeatureEnabled);
+		BX.Calendar.Util.setSharingConfig(config.sharing);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -145,6 +148,7 @@
 
 				BX.addCustomEvent(this, 'doRefresh', BX.proxy(this.refresh, this));
 				BX.Event.bind(document.body, 'keyup', BX.proxy(this.keyUpHandler, this));
+				BX.Event.bind(document.body, 'keydown', BX.proxy(this.keyDownHandler, this));
 				BX.Event.bind(window, 'beforeunload', BX.Calendar.EntryManager.doDelayedActions);
 				BX.addCustomEvent(this, 'changeViewRange', BX.Calendar.EntryManager.doDelayedActions);
 				BX.Event.bind(document, 'visibilitychange', this.handleVisibilityChange.bind(this));
@@ -189,7 +193,18 @@
 						isRuZone: this.util.config.isRuZone,
 						calendar: this,
 					});
+
 					this.syncInterface.showSyncButton();
+
+					this.sharingInterface = new BX.Calendar.Sharing.Interface({
+						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
+						userId: this.currentUser.id,
+					});
+
+					if (BX.Calendar.Util.checkSharingFeatureEnabled())
+					{
+						this.sharingInterface.showSharingButton();
+					}
 				}
 
 				BX.Event.EventEmitter.subscribe('BX.Calendar.EventEditForm:onSave', function(event)
@@ -291,10 +306,9 @@
 				}, this);
 			}
 
-			BX.addCustomEvent(this, 'keyup', function(params)
+			BX.addCustomEvent(this, 'keydown', function(params)
 			{
-
-				if (BX.Calendar && BX.Calendar.Util)
+				if (BX.Calendar && BX.Calendar.Util && !BX.Calendar.Util.isAnyModifierKeyPressed(params.e))
 				{
 					this.views.forEach(function(view)
 					{
@@ -868,6 +882,15 @@
 			}
 		},
 
+		keyDownHandler: function(e)
+		{
+			if (this.isKeyHandlerEnabled(e))
+			{
+				const keyCode = e.keyCode;
+				this.triggerEvent('keydown', { e, keyCode });
+			}
+		},
+
 		buildCountersControl: function()
 		{
 			this.countersCont = BX(this.id + '-counter-container');
@@ -1144,6 +1167,7 @@
 				{
 					from: BX.Calendar.Util.parseDate(startupEntry['~CURRENT_DATE']),
 					timezoneOffset: startupEntry.TZ_OFFSET_FROM || null,
+					link: location.href,
 				},
 			);
 		},

@@ -3,7 +3,9 @@
 namespace Bitrix\Calendar\Core\Queue\QueueListener;
 
 use Bitrix\Calendar\Core\Queue\Agent\AgentEntity;
+use Bitrix\Calendar\Core\Queue\Agent\EventAttendeesUpdateAgent;
 use Bitrix\Calendar\Core\Queue\Agent\EventDelayedSyncAgent;
+use Bitrix\Calendar\Core\Queue\Agent\EventsWithEntityAttendeesFindAgent;
 use Bitrix\Calendar\Core\Queue\Examples\ConsumerClientExample;
 use Bitrix\Calendar\Core\Queue\Queue\QueueRegistry;
 use Bitrix\Calendar\Internals\SingletonTrait;
@@ -42,12 +44,50 @@ class Registry
 			)
 
 		);
+		$this->registerListener(
+			QueueRegistry::QUEUE_LIST['DelayedSyncSection'],
+			new AgentListener(
+				new AgentEntity(
+					Queue\Agent\PushDelayedSectionAgent::class . '::runAgent();'
+				)
+			)
+		);
+		$this->registerListener(
+			QueueRegistry::QUEUE_LIST['DelayedSyncConnection'],
+			new AgentListener(
+				new AgentEntity(
+					Queue\Agent\PushDelayedConnectionAgent::class . '::runAgent();'
+				)
+			)
+		);
 
 		$this->registerListener(
 			QueueRegistry::QUEUE_LIST['Example'],
 			new AgentListener(
 				new AgentEntity(
 					ConsumerClientExample::class . '::runAgent();'
+				)
+			)
+		);
+
+		$this->registerListener(
+			QueueRegistry::QUEUE_LIST['EventsWithEntityAttendeesFind'],
+			new AgentListener(
+				new AgentEntity(
+					EventsWithEntityAttendeesFindAgent::class . '::runAgent();',
+					'calendar',
+					1,
+				)
+			)
+		);
+
+		$this->registerListener(
+			QueueRegistry::QUEUE_LIST['EventAttendeesUpdate'],
+			new AgentListener(
+				new AgentEntity(
+					EventAttendeesUpdateAgent::class . '::runAgent();',
+					'calendar',
+					1,
 				)
 			)
 		);

@@ -448,7 +448,7 @@
 			this.caller.inputNode.value = 'schedule';
 
 			this.setText();
-			this.popup.close();
+			// this.popup.close();
 		}
 	};
 

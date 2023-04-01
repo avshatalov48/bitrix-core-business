@@ -14,6 +14,7 @@ use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Main\Text\Emoji;
 
 class Event implements EntityInterface
 {
@@ -193,7 +194,7 @@ class Event implements EntityInterface
 	 */
 	public function setName(?string $name): Event
 	{
-		$this->name = $name;
+		$this->name = $name ? Emoji::decode($name) : $name;
 
 		return $this;
 	}
@@ -318,7 +319,7 @@ class Event implements EntityInterface
 	 */
 	public function setDescription(?string $description): Event
 	{
-		$this->description = $description;
+		$this->description = $description ? Emoji::decode($description) : $description;
 
 		return $this;
 	}

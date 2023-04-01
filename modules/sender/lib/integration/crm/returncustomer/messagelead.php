@@ -48,6 +48,8 @@ class MessageLead extends MessageBase implements Message\iHideable
 			return;
 		}
 
+		global $USER;
+
 		$this->configuration->setArrayOptions([
 			[
 				'type' => 'string',
@@ -60,16 +62,16 @@ class MessageLead extends MessageBase implements Message\iHideable
 						function ($item)
 						{
 							return array(
-								'id' => '#' . $item['CODE'] . '#',
-								'text' => $item['NAME'],
-								'title' => $item['DESC'],
-								'items' => $item['ITEMS']?array_map(
+								'id' => '#' . ($item['CODE'] ?? '') . '#',
+								'text' => $item['NAME'] ?? '',
+								'title' => $item['DESC'] ?? '',
+								'items' => isset($item['ITEMS']) ? array_map(
 									function ($item)
 									{
 										return array(
-											'id' => '#' . $item['CODE'] . '#',
-											'text' => $item['NAME'],
-											'title' => $item['DESC']
+											'id' => '#' . ($item['CODE'] ?? '') . '#',
+											'text' => $item['NAME'] ?? '',
+											'title' => $item['DESC'] ?? ''
 										);
 									}, $item['ITEMS']
 								) : []
@@ -88,6 +90,7 @@ class MessageLead extends MessageBase implements Message\iHideable
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ASSIGNED_BY'),
 				'required' => true,
 				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ASSIGNED_BY_HINT'),
+				'value' => $USER ? $USER->getId() : '',
 			],
 			[
 				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
@@ -102,6 +105,13 @@ class MessageLead extends MessageBase implements Message\iHideable
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_LEAD'),
 				'required' => false,
 				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_HINT'),
+			],
+			[
+				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
+				'code' => 'LINK_WITH_RESPONSIBLE',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_LEAD_WITH_RESPONSIBLE'),
+				'required' => false,
+				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_LEAD_WITH_RESPONSIBLE_HINT'),
 			],
 			[
 				'type' => 'text',

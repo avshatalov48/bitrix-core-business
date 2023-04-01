@@ -93,7 +93,7 @@ class YandexRegionTable extends AdvEntity
 
 	public static function getList(array $parameters = array())
 	{
-		if(static::needDatabaseUpdate())
+		if (static::needDatabaseUpdate())
 		{
 			static::updateDatabase();
 		}

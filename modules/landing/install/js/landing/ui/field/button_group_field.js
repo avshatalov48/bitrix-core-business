@@ -61,13 +61,14 @@
 
 			if (this.elements.length)
 			{
-				this.items.some(function(item) {
+				this.deactivateAll();
+				this.items.some(item => {
 					if (this.elements[0].classList.contains(item.value))
 					{
 						this.buttons.getByValue(item.value).activate();
 						return !this.multiple;
 					}
-				}, this);
+				});
 			}
 		},
 

@@ -21,12 +21,11 @@ class PushManager extends Manager implements PushManagerInterface
 {
 	/**
 	 * @param SectionConnection $link
-	 *
 	 * @return Result
-	 *
 	 * @throws ArgumentException
 	 * @throws LoaderException
 	 * @throws ObjectException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function addSectionPush(SectionConnection $link): Result
     {
@@ -39,10 +38,13 @@ class PushManager extends Manager implements PushManagerInterface
 		$calendarId = $link->getVendorSectionId();
 		$params = $this->makeChannelParams($link->getId(), Dictionary::PUSH_CHANNEL_TYPES['sectionConnection']);
 
+		// TODO: Remake it: move this logic to parent::request().
+		// Or, better, in separate class.
 		$this->httpClient->query(
 			Web\HttpClient::HTTP_POST,
-		$this->connection->getVendor()->getServer()->getFullPath() . '/calendars/' . urlencode($calendarId) . '/events/watch',
-		Web\Json::encode($params, JSON_UNESCAPED_SLASHES)
+			$this->connection->getVendor()->getServer()->getFullPath()
+			. '/calendars/' . urlencode($calendarId) . '/events/watch',
+			Web\Json::encode($params, JSON_UNESCAPED_SLASHES)
 		);
 
 		if ($this->httpClient->getStatus() === 200)
@@ -53,6 +55,12 @@ class PushManager extends Manager implements PushManagerInterface
 				'RESOURCE_ID' => $data['resourceId'],
 				'EXPIRES' => new DateTime($data['expiration'] / 1000, 'U'),
 			]);
+		}
+		else if ($this->httpClient->getStatus() === 401)
+		{
+			$this->handleUnauthorize($this->connection);
+
+			$result->addError(new Error('Unauthorized', $this->httpClient->getStatus()));
 		}
 		else
 		{
@@ -69,14 +77,15 @@ class PushManager extends Manager implements PushManagerInterface
 
 	/**
 	 * @param Push $pushChannel
-	 *
 	 * @return Result
-	 *
 	 * @throws ArgumentException
+	 * @throws LoaderException
 	 */
     public function deletePush(Push $pushChannel): Result
     {
 		$result = new Result();
+		// TODO: Remake it: move this logic to parent::request().
+		// Or, better, in separate class.
 		$this->httpClient->query(
 			Web\HttpClient::HTTP_POST,
 			$this->connection->getVendor()->getServer()->getFullPath() . '/channels/stop',
@@ -96,24 +105,25 @@ class PushManager extends Manager implements PushManagerInterface
 
 	/**
 	 * @param Connection $connection
-	 *
 	 * @return Result
-	 *
 	 * @throws ArgumentException
 	 * @throws LoaderException
 	 * @throws ObjectException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function addConnectionPush(Connection $connection): Result
 	{
 		$result = new Result();
 		$channelInfo = $this->makeChannelParams($connection->getName(), GoogleApiSync::CONNECTION_CHANNEL_TYPE);
+		// TODO: Remake it: move this logic to parent::request().
+		// Or, better, in separate class.
 		$this->httpClient->query(
 			Web\HttpClient::HTTP_POST,
 			$this->connection->getVendor()->getServer()->getFullPath() . '/users/me/calendarList/watch',
 			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
 		);
 
-		if ($this->httpClient->getStatus() === 200)
+		if ($this->isRequestSuccess())
 		{
 			$data = Web\Json::decode($this->httpClient->getResult());
 			$result->setData([
@@ -121,6 +131,12 @@ class PushManager extends Manager implements PushManagerInterface
 				'RESOURCE_ID' => $data['resourceId'],
 				'EXPIRES' => new DateTime($data['expiration'] / 1000, 'U'),
 			]);
+		}
+		else if ($this->httpClient->getStatus() === 401)
+		{
+			$this->handleUnauthorize($this->connection);
+
+			$result->addError(new Error('Unauthorized', $this->httpClient->getStatus()));
 		}
 		else
 		{

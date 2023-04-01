@@ -11,11 +11,11 @@ $APPLICATION->IncludeComponent(
 	"",
 	array(
 		'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-		'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-		'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
+		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+		'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+		'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
 		'RENDER_FILTER_INTO_VIEW' => 'pagetitle',
-		'ONLY_CONNECTOR_FILTERS' => $arParams['ONLY_CONNECTOR_FILTERS'],
+		'ONLY_CONNECTOR_FILTERS' => $arParams['ONLY_CONNECTOR_FILTERS'] ?? '',
 	)
 );

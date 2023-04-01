@@ -7,6 +7,7 @@ class ExceptionHandler
 
 	private $handledErrorsTypes;
 	private $exceptionErrorsTypes;
+	private array $trackModules = [];
 
 	private $catchOverflowMemory = false;
 	private $memoryReserveLimit = 65536;
@@ -76,6 +77,16 @@ class ExceptionHandler
 	public function setHandledErrorsTypes($handledErrorsTypes)
 	{
 		$this->handledErrorsTypes = $handledErrorsTypes;
+	}
+
+	public function getTrackModules(): array
+	{
+		return $this->trackModules;
+	}
+
+	public function setTrackModules(array $trackModules): void
+	{
+		$this->trackModules = $trackModules;
 	}
 
 	/**
@@ -289,6 +300,11 @@ class ExceptionHandler
 			return true;
 		}
 
+		if (!$this->isFileInTrackedModules($file))
+		{
+			return true;
+		}
+
 		if ($code & $this->exceptionErrorsTypes)
 		{
 			throw $exception;
@@ -298,6 +314,25 @@ class ExceptionHandler
 			$this->writeToLog($exception, ExceptionHandlerLog::LOW_PRIORITY_ERROR);
 			return true;
 		}
+	}
+
+	private function isFileInTrackedModules(string $file): bool
+	{
+		$modules = $this->getTrackModules();
+		if (!$modules)
+		{
+			return true;
+		}
+
+		foreach ($modules as $module)
+		{
+			if (mb_strpos($file, "/modules/{$module}/") !== false)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

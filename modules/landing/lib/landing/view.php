@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Landing;
 
+use Bitrix\Landing\PublicAction\Block;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Type\DateTime;
 use \Bitrix\Landing\Manager;
@@ -106,5 +107,79 @@ class View
 				$_SESSION[self::SESSION_VIEWS_KEY][] = $lid;
 			}
 		}
+	}
+
+	public static function getNumberUniqueViews(int $lid): int
+	{
+		$lid = (int)$lid;
+		$res = ViewTable::getList([
+			'select' => [
+				'COUNT'
+			],
+			'filter' => [
+				'LID' => $lid
+			],
+			'runtime' => [
+				new Entity\ExpressionField(
+					'COUNT', 'COUNT(*)'
+				)
+			]
+		]);
+
+		if ($row = $res->fetch())
+		{
+			$views = (int)$row['COUNT'];
+		}
+
+		if (isset($views) && is_int($views))
+		{
+			return $views;
+		}
+
+		return 0;
+	}
+
+	public static function getUniqueUserData(int $lid): array
+	{
+		$res = ViewTable::getList([
+			'select' => [
+				'USER_ID'
+			],
+			'filter' => [
+				'LID' => $lid
+			]
+		]);
+		$setUserId = [];
+		$setUserName = [];
+		$setUserAvatarSrc = [];
+
+		while ($row = $res->fetch())
+		{
+			$setUserId[] = $row['USER_ID'];
+			$userInfo = Block::getUserNameById($row['USER_ID'])->getResult();
+			$setUserName[] = $userInfo['NAME'];
+			$userPersonalPhotoId = Block::getPersonalPhotoById($row['USER_ID']);
+			$avatar = '';
+			if ($userPersonalPhotoId)
+			{
+				$avatar = \CFile::ResizeImageGet(
+					$userPersonalPhotoId,
+					['width' => 38, 'height' => 38],
+					BX_RESIZE_IMAGE_EXACT
+				);
+				if ($avatar)
+				{
+					$avatar = $avatar['src'];
+				}
+			}
+			$setUserAvatarSrc[] = $avatar;
+		}
+
+		$data = [];
+		$data['id'] = $setUserId;
+		$data['name'] = $setUserName;
+		$data['avatar'] = $setUserAvatarSrc;
+
+		return $data;
 	}
 }

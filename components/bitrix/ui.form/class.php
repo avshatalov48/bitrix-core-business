@@ -41,7 +41,7 @@ class UIFormComponent extends \CBitrixComponent
 		$this->initialize();
 		$this->emitOnUIFormInitializeEvent();
 
-		if (!$this->arParams['SKIP_TEMPLATE'])
+		if (!isset($this->arParams['SKIP_TEMPLATE']) || !$this->arParams['SKIP_TEMPLATE'])
 		{
 			$this->includeComponentTemplate();
 		}
@@ -132,6 +132,7 @@ class UIFormComponent extends \CBitrixComponent
 			],
 			'SCOPE' => null,
 			'SCOPE_PREFIX' => '',
+			'DISABLED_HTML_CONTROLS' => [],
 		];
 	}
 
@@ -523,7 +524,7 @@ class UIFormComponent extends \CBitrixComponent
 						continue;
 					}
 
-					$schemeElement = $availableFields[$name];
+					$schemeElement = $availableFields[$name] ?? [];
 					$fieldType = $schemeElement['type'] ?? '';
 
 					//User fields in common scope must have original names.
@@ -670,6 +671,7 @@ class UIFormComponent extends \CBitrixComponent
 
 		$this->arResult['ENTITY_AVAILABLE_FIELDS'] = array_values($fieldsInfo['available']);
 		$this->arResult['ENTITY_HTML_FIELD_NAMES'] = $fieldsInfo['html'];
+		$this->arResult['DISABLED_HTML_CONTROLS'] = $this->arParams['DISABLED_HTML_CONTROLS'] ?? [];
 	}
 
 	protected function loadLanguages(): array

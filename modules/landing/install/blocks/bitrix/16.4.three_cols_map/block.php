@@ -45,16 +45,16 @@
 					</address>
 
 					<ul class="landing-block-card-social-container list-inline mb-0">
-						<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="twitter">
+						<li class="landing-block-card-social list-inline-item g-mr-10 g-mb-10" data-card-preset="twitter">
 							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-twitter"></i></a>
 						</li>
-						<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="pinterest">
+						<li class="landing-block-card-social list-inline-item g-mr-10 g-mb-10" data-card-preset="pinterest">
 							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-pinterest"></i></a>
 						</li>
-						<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="facebook">
+						<li class="landing-block-card-social list-inline-item g-mr-10 g-mb-10" data-card-preset="facebook">
 							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-facebook"></i></a>
 						</li>
-						<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="linkedin">
+						<li class="landing-block-card-social list-inline-item g-mr-10 g-mb-10" data-card-preset="linkedin">
 							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-linkedin"></i></a>
 						</li>
 					</ul>

@@ -99,19 +99,19 @@ class UrlRewriter
 			foreach ($arFilter as $keyFilter => $valueFilter)
 			{
 				$isNegative = false;
-				if (mb_substr($keyFilter, 0, 1) == "!")
+				if (mb_substr($keyFilter, 0, 1) === "!")
 				{
 					$isNegative = true;
 					$keyFilter = mb_substr($keyFilter, 1);
 				}
 
-				if ($keyFilter == 'QUERY')
+				if ($keyFilter === 'QUERY')
 					$isMatchedTmp = preg_match($arRule["CONDITION"], $valueFilter);
-				elseif ($keyFilter == 'CONDITION')
+				elseif ($keyFilter === 'CONDITION')
 					$isMatchedTmp = ($arRule["CONDITION"] == $valueFilter);
-				elseif ($keyFilter == 'ID')
-					$isMatchedTmp = ($arRule["ID"] == $valueFilter);
-				elseif ($keyFilter == 'PATH')
+				elseif ($keyFilter === 'ID')
+					$isMatchedTmp = (isset($arRule["ID"]) && ($arRule["ID"] == $valueFilter));
+				elseif ($keyFilter === 'PATH')
 					$isMatchedTmp = ($arRule["PATH"] == $valueFilter);
 				else
 					throw new ArgumentException("arFilter");

@@ -1012,6 +1012,7 @@
 			text = text.replace(/\[ATTACH=([0-9]{1,})\]/ig, function(whole, rating) {return '['+BX.message('IM_F_ATTACH')+'] ';});
 			text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, '$2');
 			text = text.replace(/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/ig, '$2');
+			text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
 			text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/ig, '$2');
 			text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, '$2');
 			text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
@@ -1226,6 +1227,10 @@
 			}
 
 			return html;
+		});
+
+		textElement = textElement.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, text) => {
+			return text;
 		});
 
 		textElement = textElement.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function(whole, historyId, text)
@@ -5512,6 +5517,9 @@
 		var isGeneralChat = false;
 		var edited = message.params && message.params.IS_EDITED == 'Y';
 		var deleted = message.params && message.params.IS_DELETED == 'Y';
+
+		message.text = typeof message.textLegacy !== 'undefined'? message.textLegacy: message.text;
+
 		var messageText = deleted? BX.message('IM_M_DELETED'): message.text;
 		var temp = message.id.toString().indexOf('temp') == 0;
 		var retry = temp && message.retry;
@@ -7314,7 +7322,10 @@
 				data.SHOW_NEW_MESSAGE = !(params.message.params && params.message.params.NOTIFY === 'N');
 				data.MESSAGE = {};
 				data.USERS_MESSAGE = {};
+
 				params.message.date = new Date(params.message.date);
+				params.message.text = typeof params.message.textLegacy !== 'undefined'? params.message.textLegacy: params.message.text;
+
 				for (var i in params.chat)
 				{
 					params.chat[i].date_create = new Date(params.chat[i].date_create);
@@ -7702,6 +7713,12 @@
 					else if (command == 'messageUpdate')
 					{
 						this.BXIM.messenger.message[params.id].params = params.params;
+					}
+
+					if (typeof params.textLegacy !== 'undefined')
+					{
+						params.textOriginal = params.text;
+						params.text = params.textLegacy;
 					}
 
 					this.BXIM.messenger.message[params.id].text = params.text;
@@ -9113,6 +9130,8 @@
 			for (var i in data.MESSAGE)
 			{
 				data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+				data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 				if (this.BXIM.messenger.message[i] && this.BXIM.messenger.message[i].dropDuplicate)
 				{
 					data.MESSAGE[i].dropDuplicate = true;
@@ -9845,6 +9864,8 @@
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 
 						countMessages++;
@@ -10043,6 +10064,8 @@
 					{
 						messageCnt++;
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 						this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
 					}
@@ -10476,6 +10499,8 @@
 				{
 					messageCnt++;
 					data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+					data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 					this.BXIM.messenger.message[i] = data.MESSAGE[i];
 					this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
 				}
@@ -14776,6 +14801,8 @@
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 					}
 

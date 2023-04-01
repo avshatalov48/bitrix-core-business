@@ -8,7 +8,7 @@
                      data-slides-show="1"
                      data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-30">
                     <div class="js-slide landing-block-card-left">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
+                        <img class="landing-block-node-img-left img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Since 2008</h3>
@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="js-slide landing-block-card-left">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img2.jpg" alt="">
+                        <img class="landing-block-node-img-left img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img2.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Past 2012</h3>
@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="js-slide landing-block-card-left">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
+                        <img class="landing-block-node-img-left img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>
@@ -65,7 +65,7 @@
 					 data-autoplay="true"
                      data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-30">
                     <div class="js-slide landing-block-card-right">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
+                        <img class="landing-block-node-img-right img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Since 2008</h3>
@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="js-slide landing-block-card-right">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img2.jpg" alt="">
+                        <img class="landing-block-node-img-right img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img2.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Past 2012</h3>
@@ -89,7 +89,7 @@
                     </div>
 
                     <div class="js-slide landing-block-card-right">
-                        <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
+                        <img class="landing-block-node-img-right img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
 
                         <div class="g-pa-30">
                             <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>

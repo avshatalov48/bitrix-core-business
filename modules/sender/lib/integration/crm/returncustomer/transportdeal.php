@@ -8,6 +8,7 @@
 
 namespace Bitrix\Sender\Integration\Crm\ReturnCustomer;
 
+use Bitrix\Crm\Service\Container;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);

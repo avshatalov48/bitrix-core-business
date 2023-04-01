@@ -164,8 +164,7 @@ final class TempFile extends EO_TempFile
 			$commitOptions->getSavePath(),
 			$commitOptions->isForceRandom(),
 			$commitOptions->isSkipExtension(),
-			$commitOptions->getAddDirectory(),
-			$commitOptions->isCheckDuplicates()
+			$commitOptions->getAddDirectory()
 		);
 
 		$result = new Result();

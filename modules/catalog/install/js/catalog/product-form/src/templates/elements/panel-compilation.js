@@ -300,7 +300,7 @@ Vue.component(config.templatePanelCompilation,
 				Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 			}
 			this.message.hide();
-			this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
+				this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
 		}
 	},
 	computed:

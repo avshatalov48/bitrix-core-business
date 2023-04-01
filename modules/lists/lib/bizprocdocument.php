@@ -806,7 +806,7 @@ class BizprocDocument extends CIBlockDocument
 					"active_type" => $field['TYPE'],
 					"DefaultValue" => $field["DEFAULT_VALUE"],
 				);
-				if($field["ROW_COUNT"] && $field["COL_COUNT"])
+				if(isset($field['ROW_COUNT'], $field['COL_COUNT']) && $field["ROW_COUNT"] && $field["COL_COUNT"])
 				{
 					$result[$fieldId]["row_count"] = $field["ROW_COUNT"];
 					$result[$fieldId]["col_count"] = $field["COL_COUNT"];
@@ -818,7 +818,7 @@ class BizprocDocument extends CIBlockDocument
 		foreach ($keys as $k)
 		{
 			$result[$k]["BaseType"] = $documentFieldTypes[$result[$k]["Type"]]["BaseType"];
-			$result[$k]["Complex"] = $documentFieldTypes[$result[$k]["Type"]]["Complex"];
+			$result[$k]["Complex"] = $documentFieldTypes[$result[$k]["Type"]]["Complex"] ?? null;
 		}
 
 		return $result;

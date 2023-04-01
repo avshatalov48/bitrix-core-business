@@ -46,6 +46,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.mapInstance = null;
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.handleApiLoad();
+	    this.onChange = main_core.Runtime.debounce(this.onChange.bind(this), 666);
 	  }
 	  /**
 	   * Default options for map
@@ -198,6 +199,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	  onChange() {
 	    this.onChangeHandler(this.preventChangeEvent);
+	    this.preventChangeEvent = false;
 	  }
 	  /**
 	   * Adds marker on map
@@ -239,6 +241,16 @@ this.BX.Landing = this.BX.Landing || {};
 	    throw new Error("Must be implemented by subclass");
 	  }
 	  /**
+	   * Removes all markers from map
+	   * @abstract
+	   * @param options
+	   */
+
+
+	  clearMarkers() {
+	    throw new Error("Must be implemented by subclass");
+	  }
+	  /**
 	   * Gets map value
 	   * @abstract
 	   */
@@ -256,7 +268,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	  setValue(value, preventChangeEvent) {
 	    this.preventChangeEvent = preventChangeEvent;
-	    this.markers.forEach(this.removeMarker, this);
+	    this.clearMarkers();
 
 	    if (main_core.Type.isPlainObject(value)) {
 	      if (main_core.Type.isArray(value.markers)) {
@@ -267,12 +279,10 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.setCenter(value.center);
 	      }
 
-	      if (!BX.Landing.Utils.isEmpty(value.zoom)) {
+	      if (value.zoom && main_core.Type.isNumber(value.zoom)) {
 	        this.setZoom(value.zoom);
 	      }
 	    }
-
-	    this.preventChangeEvent = false;
 	  }
 	  /**
 	   * @abstract
@@ -1081,6 +1091,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 
 	  init() {
+	    this.preventChangeEvent = true;
 	    let opts = this.options;
 	    this.mapInstance = new google.maps.Map(this.mapContainer, {
 	      zoom: this.mapOptions.zoom,
@@ -1103,7 +1114,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      }, this);
 	    }
 
-	    this.onChange = this.onChange.bind(this);
 	    this.mapInstance.addListener("bounds_changed", this.onChange);
 	    this.mapInstance.addListener("center_changed", this.onChange);
 	    this.mapInstance.addListener("zoom_changed", this.onChange);
@@ -1112,6 +1122,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }
 
 	  reinit(options) {
+	    this.preventChangeEvent = true;
 	    this.mapInstance.setOptions({
 	      styles: this.getStylesFromOptions(options)
 	    });
@@ -1200,11 +1211,20 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.markers.remove(event);
 	  }
 
+	  clearMarkers() {
+	    this.markers.forEach(marker => {
+	      marker.marker.setMap(null);
+	    });
+	    this.markers.clear();
+	  }
+
 	  setZoom(zoom) {
+	    this.preventChangeEvent = true;
 	    this.mapInstance.setZoom(zoom);
 	  }
 
 	  setCenter(center) {
+	    this.preventChangeEvent = true;
 	    this.mapInstance.setCenter(center);
 	  }
 
@@ -1241,6 +1261,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 
 	  init() {
+	    this.preventChangeEvent = true;
 	    const controls = ['zoomControl', 'fullscreenControl', 'typeSelector', 'routeButtonControl'];
 
 	    if (this.options.fullscreenControl === false) {
@@ -1258,6 +1279,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      behaviors: this.options.zoomControl === false ? ['drag'] : ['default'],
 	      controls: controls
 	    });
+	    this.mapInstance.events.add('actionend', this.onChange);
 	    this.mapInstance.events.add('click', event => {
 	      this.cache.delete('value');
 	      this.onMapClickHandler(event);
@@ -1266,21 +1288,22 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.markers[this.markers.length - 1].marker.balloon.open();
 	      }
 	    });
-	    this.mapInstance.events.add('actionend', this.onChange.bind(this));
 
 	    if (this.mapOptions.markers) {
-	      this.mapOptions.markers.forEach(function (markerItem) {
+	      this.mapOptions.markers.forEach(markerItem => {
 	        markerItem.editable = BX.Landing.getMode() === "edit";
 	        markerItem.draggable = BX.Landing.getMode() === "edit";
 	        this.addMarker(markerItem);
-	      }, this);
+	      });
 	    }
 
 	    super.init();
 	  }
 
 	  reinit(options) {
-	    super.reinit(); // Yandex has't changes yet. If some settings will be added later - need implement reinit
+	    // Yandex has't changes yet. If some settings will be added later - need implement reinit
+	    this.preventChangeEvent = true;
+	    super.reinit();
 	  }
 	  /**
 	   * Check is provider API was loaded
@@ -1389,7 +1412,13 @@ this.BX.Landing = this.BX.Landing || {};
 
 	  removeMarker(event) {
 	    this.mapInstance.geoObjects.remove(event.marker);
-	    this.markers.remove(event);
+	  }
+
+	  clearMarkers() {
+	    this.markers.forEach(marker => {
+	      this.mapInstance.geoObjects.remove(marker.marker);
+	    });
+	    this.markers.clear();
 	  }
 
 	  setZoom(zoom) {

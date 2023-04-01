@@ -368,6 +368,7 @@ export class InlineSelector extends EventEmitter
 			[
 				{
 					text: Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+					disabled: self.fieldProperty?.Type === 'file',
 					onclick(event) {
 						this.popupWindow.close();
 						self.emit('onAskConstant', {fieldProperty: self.fieldProperty});

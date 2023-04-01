@@ -13,11 +13,11 @@ use Bitrix\Main\ModuleManager;
 
 if (isset($arParams['USE_COMMON_SETTINGS_BASKET_POPUP']) && $arParams['USE_COMMON_SETTINGS_BASKET_POPUP'] == 'Y')
 {
-	$basketAction = isset($arParams['COMMON_ADD_TO_BASKET_ACTION']) ? $arParams['COMMON_ADD_TO_BASKET_ACTION'] : '';
+	$basketAction = $arParams['COMMON_ADD_TO_BASKET_ACTION'] ?? '';
 }
 else
 {
-	$basketAction = isset($arParams['SECTION_ADD_TO_BASKET_ACTION']) ? $arParams['SECTION_ADD_TO_BASKET_ACTION'] : '';
+	$basketAction = $arParams['SECTION_ADD_TO_BASKET_ACTION'] ?? '';
 }
 
 

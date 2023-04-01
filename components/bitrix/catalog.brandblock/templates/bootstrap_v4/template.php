@@ -28,6 +28,7 @@ foreach ($arResult["BRAND_BLOCKS"] as $blockId => $arBB)
 	$brandID = 'brand_'.$arResult['ID'].'_'.$blockId.'_'.$strRand;
 	$popupID = $brandID.'_popup';
 
+	$tagAttrs = '';
 	$popupContext = '';
 	$shortDescr = '';
 	$useLink = $arBB['LINK'] !== false;

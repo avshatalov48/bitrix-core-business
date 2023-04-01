@@ -18,6 +18,7 @@ class Stockman extends Base
 			[
 				PermissionDictionary::CATALOG_INVENTORY_MANAGEMENT_ACCESS ,
 				PermissionDictionary::CATALOG_STORE_VIEW,
+				PermissionDictionary::CATALOG_STORE_ANALYTIC_VIEW,
 				PermissionDictionary::CATALOG_STORE_MODIFY,
 				PermissionDictionary::CATALOG_PRODUCT_READ,
 				PermissionDictionary::CATALOG_PRODUCT_ADD,

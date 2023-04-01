@@ -68,7 +68,7 @@ final class Director
 	/**
 	 * @param OrderBuilder $builder
 	 * @param array $shipmentData
-	 * @return \Bitrix\Sale\Payment
+	 * @return \Bitrix\Sale\Payment|null
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public function getUpdatedPayment(OrderBuilder $builder, array $paymentData)
@@ -76,7 +76,6 @@ final class Director
 		try{
 			$builder->initFields(array(
 				'ID' => $paymentData['ORDER_ID'],
-				'SITE_ID' => $paymentData['SITE_ID'],
 				'PAYMENT' => array($paymentData)
 			))
 				->delegate()
@@ -94,15 +93,16 @@ final class Director
 		$order = $builder->getOrder();
 		$collection = $order->getPaymentCollection();
 
-		if((int)$paymentData['ID'] > 0)
+		$paymentId = (int)($paymentData['ID'] ?? 0);
+		if ($paymentId)
 		{
-			return $collection->getItemById($paymentData['ID']);
+			return $collection->getItemById($paymentId);
 		}
 		else
 		{
-			foreach($collection as $payment)
+			foreach ($collection as $payment)
 			{
-				if($payment->getId() <= 0)
+				if ($payment->getId() === 0)
 				{
 					return $payment;
 				}

@@ -5129,7 +5129,7 @@ abstract class ProviderBase
 		$basketProviderList = array();
 		foreach($basketProviderMap as $basketProviderItem)
 		{
-			$providerName = $basketProviderItem['PROVIDER'];
+			$providerName = $basketProviderItem['PROVIDER'] ?? '';
 			$productId = $basketProviderItem['BASKET_ITEM']->getProductId();
 			$quantity = floatval($basketProviderItem['QUANTITY']);
 			unset($basketProviderItem['QUANTITY']);
@@ -5508,26 +5508,10 @@ abstract class ProviderBase
 				$result->addWarnings($r->getWarnings());
 			}
 
-			$providerName = null;
-			if (!empty($providerClass))
-			{
-				$reflect = new \ReflectionClass($providerClass);
-				$providerName = $reflect->getName();
-			}
-			else
-			{
-				/** @var BasketItem $basketItem */
-				$basketItem = $productData['BASKET_ITEM'];
-				$providerName = $basketItem->getCallbackFunction();
-			}
-
 			$availableQuantityData = $r->getData();
 			if (array_key_exists('AVAILABLE_QUANTITY', $availableQuantityData))
 			{
-				if (!isset($resultList))
-				{
-					$resultList = array();
-				}
+				$resultList[$productId] ??= 0;
 
 				$resultList[$productId] += floatval($availableQuantityData['AVAILABLE_QUANTITY']);
 			}

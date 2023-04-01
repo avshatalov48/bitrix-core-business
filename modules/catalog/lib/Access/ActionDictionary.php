@@ -26,6 +26,7 @@ class ActionDictionary
 	 */
 	public const ACTION_CATALOG_VIEW = 'catalog_view';
 	public const ACTION_STORE_VIEW = 'catalog_store';
+	public const ACTION_STORE_ANALYTIC_VIEW = 'catalog_store_analytic';
 	public const ACTION_VAT_EDIT = 'catalog_vat';
 	public const ACTION_MEASURE_EDIT = 'catalog_measure';
 	public const ACTION_CATALOG_IMPORT_EDIT = 'catalog_import_edit';
@@ -85,6 +86,7 @@ class ActionDictionary
 			self::ACTION_PRODUCT_PRICE_EXTRA_EDIT => PermissionDictionary::CATALOG_PRODUCT_PRICE_EXTRA_EDIT,
 			self::ACTION_MEASURE_EDIT => PermissionDictionary::CATALOG_MEASURE_MODIFY,
 			self::ACTION_STORE_VIEW => PermissionDictionary::CATALOG_STORE_VIEW,
+			self::ACTION_STORE_ANALYTIC_VIEW => PermissionDictionary::CATALOG_STORE_ANALYTIC_VIEW,
 			self::ACTION_INVENTORY_MANAGEMENT_ACCESS => PermissionDictionary::CATALOG_INVENTORY_MANAGEMENT_ACCESS,
 			self::ACTION_STORE_MODIFY => PermissionDictionary::CATALOG_STORE_MODIFY,
 			self::ACTION_DEAL_PRODUCT_RESERVE => PermissionDictionary::CATALOG_RESERVE_DEAL,
@@ -129,6 +131,7 @@ class ActionDictionary
 			self::ACTION_CATALOG_IMPORT_EXECUTION => [self::ACTION_CATALOG_IMPORT_EXECUTION],
 			self::ACTION_STORE_VIEW => [
 				self::ACTION_STORE_VIEW,
+				self::ACTION_STORE_ANALYTIC_VIEW,
 				self::ACTION_INVENTORY_MANAGEMENT_ACCESS,
 				self::ACTION_STORE_MODIFY,
 				self::ACTION_DEAL_PRODUCT_RESERVE,

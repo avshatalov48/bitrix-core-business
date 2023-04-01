@@ -10,6 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true){
  */
 
 use Bitrix\Main\UI;
+use Bitrix\Main\Web\Uri;
 
 UI\Extension::load([
 	'ui.link',
@@ -27,7 +28,7 @@ UI\Extension::load([
 	<div class="event-participants-inner"><?php
 		foreach ($arResult['EVENT']['ACCEPTED_ATTENDEES'] as $attendee)
 		{
-			$style = (!empty($attendee['AVATAR']) ? 'background-image: url('. \CHTTP::urnEncode($attendee['AVATAR']) .');' : '');
+			$style = (!empty($attendee['AVATAR']) ? 'background-image: url('. Uri::urnEncode($attendee['AVATAR']) .');' : '');
 			?><span class="ui-icon ui-icon-common-user event-participants-user" title="<?= htmlspecialcharsbx($attendee['DISPLAY_NAME']) ?>">
 				<i style="<?= $style ?>"></i>
 			</span><?php

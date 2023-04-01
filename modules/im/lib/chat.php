@@ -32,7 +32,7 @@ class Chat
 	public static function getType($chatData)
 	{
 		$messageType = $chatData["TYPE"] ?? $chatData["CHAT_TYPE"];
-		$entityType = $chatData["ENTITY_TYPE"] ?? ($chatData["CHAT_ENTITY_TYPE"] ?? null);
+		$entityType = $chatData["ENTITY_TYPE"] ?? $chatData["CHAT_ENTITY_TYPE"];
 
 		$messageType = trim($messageType);
 		$entityType = trim($entityType);

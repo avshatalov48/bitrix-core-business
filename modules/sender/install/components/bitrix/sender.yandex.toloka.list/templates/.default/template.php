@@ -10,10 +10,10 @@ use Bitrix\Main\Web\Json;
 /** @var array $arParams */
 /** @var array $arResult */
 
-$canEdit = $arParams['CAN_EDIT'];
-$canPauseStartStop = $arParams['CAN_PAUSE_START_STOP'];
-$canViewClient = $arParams['CAN_VIEW_CLIENT'];
-$canEditAdv = $arParams['CAN_EDIT_ADV'];
+$canEdit = $arParams['CAN_EDIT'] ?? null;
+$canPauseStartStop = $arParams['CAN_PAUSE_START_STOP'] ?? '';
+$canViewClient = $arParams['CAN_VIEW_CLIENT'] ?? '';
+$canEditAdv = $arParams['CAN_EDIT_ADV'] ?? '';
 
 foreach ($arResult['ROWS'] as $index => $data)
 {

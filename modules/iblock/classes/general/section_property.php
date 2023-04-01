@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Main\Loader;
 
 IncludeModuleLangFile(__FILE__);
@@ -8,8 +8,8 @@ class CIBlockSectionPropertyLink
 	public static function Set($SECTION_ID, $PROPERTY_ID, $arLink = array())
 	{
 		global $DB;
-		$SECTION_ID = intval($SECTION_ID);
-		$PROPERTY_ID = intval($PROPERTY_ID);
+		$SECTION_ID = (int)$SECTION_ID;
+		$PROPERTY_ID = (int)$PROPERTY_ID;
 		$rs = $DB->Query("
 			SELECT *
 			FROM b_iblock_section_property
@@ -84,9 +84,10 @@ class CIBlockSectionPropertyLink
 						&& $arUpdate["SMART_FILTER"] === "Y"
 					)
 					{
-						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]
-							? $arUpdate["IBLOCK_ID"]
-							: $ar["IBLOCK_ID"]
+						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid(
+							isset($arUpdate["IBLOCK_ID"]) && $arUpdate["IBLOCK_ID"]
+								? $arUpdate["IBLOCK_ID"]
+								: $ar["IBLOCK_ID"]
 						);
 					}
 				}
@@ -101,8 +102,8 @@ class CIBlockSectionPropertyLink
 	public static function Add($SECTION_ID, $PROPERTY_ID, $arLink = array())
 	{
 		global $DB;
-		$SECTION_ID = intval($SECTION_ID);
-		$PROPERTY_ID = intval($PROPERTY_ID);
+		$SECTION_ID = (int)$SECTION_ID;
+		$PROPERTY_ID = (int)$PROPERTY_ID;
 		$rs = $DB->Query("
 			SELECT *
 			FROM b_iblock_section_property
@@ -150,9 +151,10 @@ class CIBlockSectionPropertyLink
 						&& (!isset($arLink["INVALIDATE"]) || $arLink["INVALIDATE"] !== "N")
 					)
 					{
-						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]
-							? $arUpdate["IBLOCK_ID"]
-							: $ar["IBLOCK_ID"]
+						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid(
+							isset($arUpdate["IBLOCK_ID"]) && $arUpdate["IBLOCK_ID"]
+								? $arUpdate["IBLOCK_ID"]
+								: $ar["IBLOCK_ID"]
 						);
 					}
 				}
@@ -163,8 +165,8 @@ class CIBlockSectionPropertyLink
 	public static function CheckProperty($SECTION_ID, $PROPERTY_ID)
 	{
 		global $DB;
-		$SECTION_ID = intval($SECTION_ID);
-		$PROPERTY_ID = intval($PROPERTY_ID);
+		$SECTION_ID = (int)$SECTION_ID;
+		$PROPERTY_ID = (int)$PROPERTY_ID;
 
 		if ($SECTION_ID == 0)
 		{
@@ -583,7 +585,7 @@ class CIBlockSectionPropertyLink
 		return $js;
 	}
 
-	public static function _sort($a, $b)
+	public static function _sort($a, $b): int
 	{
 		if($a["SORT"] > $b["SORT"])
 			return 1;
@@ -593,8 +595,17 @@ class CIBlockSectionPropertyLink
 			return 0;
 	}
 
-	public static function cleanFilterHint($filterHint)
+	public static function cleanFilterHint(?string $filterHint): ?string
 	{
+		if ($filterHint === null)
+		{
+			return null;
+		}
+		$cleanHint = trim($filterHint);
+		if ($cleanHint === '')
+		{
+			return '';
+		}
 		$TextParser = null;
 		if (!$TextParser)
 		{
@@ -602,13 +613,13 @@ class CIBlockSectionPropertyLink
 			$TextParser->SetLevel(CBXSanitizer::SECURE_LEVEL_LOW);
 			$TextParser->ApplyDoubleEncode(false);
 		}
-		$cleanHint = trim($filterHint);
-		if ($cleanHint)
+
+		$cleanHint = $TextParser->SanitizeHtml($cleanHint);
+		if (preg_match('/^(<br>)+$/', $cleanHint))
 		{
-			$cleanHint = $TextParser->SanitizeHtml($cleanHint);
-			if (preg_match('/^(<br>)+$/', $cleanHint))
-				$cleanHint = "";
+			$cleanHint = '';
 		}
+
 		return $cleanHint;
 	}
 }

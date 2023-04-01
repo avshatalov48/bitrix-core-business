@@ -193,7 +193,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			'BASKET_ITEMS' => [],
 			'BASE_LANG_CURRENCY' => Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($siteId),
 			'WEIGHT_UNIT' => htmlspecialcharsbx(Option::get('sale', 'weight_unit', false, $siteId)),
-			'WEIGHT_KOEF' => htmlspecialcharsbx(Option::get('sale', 'weight_koef', 1, $siteId)),
+			'WEIGHT_KOEF' => (float)Option::get('sale', 'weight_koef', 1, $siteId),
 			'TaxExempt' => [],
 			'DISCOUNT_PRICE' => 0,
 			'DISCOUNT_PERCENT' => 0,
@@ -218,6 +218,11 @@ class SaleOrderAjax extends \CBitrixComponent
 			'PREPAY_ADIT_FIELDS' => '',
 			'PREPAY_ORDER_PROPS' => [],
 		];
+
+		if ($this->arResult['WEIGHT_KOEF'] === 0.0)
+		{
+			$this->arResult['WEIGHT_KOEF'] = 1;
+		}
 
 		if (!isset($arParams['IS_LANDING_SHOP']))
 		{
@@ -298,31 +303,37 @@ class SaleOrderAjax extends \CBitrixComponent
 		}
 
 		//compatibility to old default columns in basket
-		if (!empty($arParams['PRODUCT_COLUMNS_VISIBLE']))
+		if (!empty($arParams['PRODUCT_COLUMNS_VISIBLE']) && is_array($arParams['PRODUCT_COLUMNS_VISIBLE']))
 		{
 			$arParams['PRODUCT_COLUMNS'] = $arParams['PRODUCT_COLUMNS_VISIBLE'];
 		}
 		else
 		{
-			if (!isset($arParams['PRODUCT_COLUMNS_VISIBLE']) && !isset($arParams['PRODUCT_COLUMNS']))
+			if (!isset($arParams['PRODUCT_COLUMNS_VISIBLE']))
 			{
-				$arParams['PRODUCT_COLUMNS'] = ['PREVIEW_PICTURE', 'PROPS'];
-			}
-			elseif (!isset($arParams['PRODUCT_COLUMNS_VISIBLE']) && is_array($arParams['PRODUCT_COLUMNS']))
-			{
-				if (!empty($arParams['PRODUCT_COLUMNS']))
+				if (!isset($arParams['PRODUCT_COLUMNS']))
 				{
-					$arParams['PRODUCT_COLUMNS'] = array_merge($arParams['PRODUCT_COLUMNS'], ['PRICE_FORMATED']);
+					$arParams['PRODUCT_COLUMNS'] = ['PREVIEW_PICTURE', 'PROPS'];
 				}
-				else
+				elseif (is_array($arParams['PRODUCT_COLUMNS']))
 				{
-					$arParams['PRODUCT_COLUMNS'] = ['PROPS', 'DISCOUNT_PRICE_PERCENT_FORMATED', 'PRICE_FORMATED'];
+					if (!empty($arParams['PRODUCT_COLUMNS']))
+					{
+						$arParams['PRODUCT_COLUMNS'] = array_merge($arParams['PRODUCT_COLUMNS'], ['PRICE_FORMATED']);
+					}
+					else
+					{
+						$arParams['PRODUCT_COLUMNS'] = ['PROPS', 'DISCOUNT_PRICE_PERCENT_FORMATED', 'PRICE_FORMATED'];
+					}
 				}
+				$arParams['PRODUCT_COLUMNS_VISIBLE'] = $arParams['PRODUCT_COLUMNS'];
 			}
-
-			$arParams['PRODUCT_COLUMNS_VISIBLE'] = $arParams['PRODUCT_COLUMNS'];
 		}
 
+		if (empty($arParams['PRODUCT_COLUMNS']) || !is_array($arParams['PRODUCT_COLUMNS']))
+		{
+			$arParams['PRODUCT_COLUMNS'] = [];
+		}
 		$arDefaults = ['PROPS', 'DISCOUNT_PRICE_PERCENT_FORMATED', 'PRICE_FORMATED'];
 		$arDiff = [];
 		if (!empty($arParams['PRODUCT_COLUMNS']) && is_array($arParams['PRODUCT_COLUMNS']))

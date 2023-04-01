@@ -15,6 +15,11 @@
 	function Message()
 	{
 	}
+
+	Message.prototype.initFields = function ()
+	{
+		Helper.tag.init(this.context.parentElement, this.input);
+	};
 	Message.prototype.init = function (params)
 	{
 		this.context = BX(params.containerId);
@@ -27,6 +32,7 @@
 		BX.bind(this.input, 'input', this.onChange.bind(this));
 
 		this.refresh();
+		this.initFields();
 	};
 	Message.prototype.onChange = function ()
 	{

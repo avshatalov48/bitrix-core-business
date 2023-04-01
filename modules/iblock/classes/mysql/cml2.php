@@ -210,7 +210,13 @@ class CIBlockXMLFile
 		global $DB;
 
 		$strSql1 = "PARENT_ID, LEFT_MARGIN, RIGHT_MARGIN, DEPTH_LEVEL, NAME";
-		$strSql2 = (int)$arFields["PARENT_ID"].", ".(int)$arFields["LEFT_MARGIN"].", ".(int)$arFields["RIGHT_MARGIN"].", ".(int)$arFields["DEPTH_LEVEL"].", '".$DB->ForSQL($arFields["NAME"], 255)."'";
+		$strSql2 = (int)$arFields["PARENT_ID"] .", "
+			. (int)$arFields["LEFT_MARGIN"] . ", "
+			. (int)($arFields["RIGHT_MARGIN"] ?? 0) . ", "
+			. (int)($arFields["DEPTH_LEVEL"] ?? 0) .", '"
+			. $DB->ForSQL($arFields["NAME"] ?? '', 255)
+			."'"
+		;
 
 		if (isset($arFields["ATTRIBUTES"]))
 		{
@@ -685,6 +691,15 @@ class CIBlockXMLFile
 		);
 		while($ar = $rs->Fetch())
 		{
+			if (
+				(int)$ar['PARENT_ID'] === 0
+				&& (int)$ar['RIGHT_MARGIN'] === 0
+				&& (int)$ar['DEPTH_LEVEL'] === 0
+				&& $ar['NAME'] === ''
+			)
+			{
+				continue;
+			}
 			if(isset($ar["VALUE_CLOB"]))
 				$ar["VALUE"] = $ar["VALUE_CLOB"];
 
@@ -706,8 +721,10 @@ class CIBlockXMLFile
 			else
 			{
 				$parent_id = $ar["PARENT_ID"];
-				if(!is_array($arIndex[$parent_id]))
-					$arIndex[$parent_id] = array();
+				if (!is_array($arIndex[$parent_id]))
+				{
+					$arIndex[$parent_id] = [];
+				}
 				$arIndex[$parent_id][$ar["NAME"]] = $ar["VALUE"];
 				$arIndex[$ar["ID"]] = &$arIndex[$parent_id][$ar["NAME"]];
 			}

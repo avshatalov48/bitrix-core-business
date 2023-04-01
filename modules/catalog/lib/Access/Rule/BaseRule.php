@@ -6,10 +6,12 @@ use Bitrix\Catalog\Config\Feature;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\Access\Rule\AbstractRule;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\Model\UserModel;
 
 class BaseRule extends AbstractRule
 {
+	/* @var AccessController $controller */
 	/* @var UserModel $user */
 
 	/**
@@ -21,14 +23,21 @@ class BaseRule extends AbstractRule
 	 */
 	public function execute(AccessibleItem $item = null, $params = null): bool
 	{
-		if (!Feature::isAccessControllerCheckingEnabled())
+		if ($this->controller->isAdmin())
 		{
 			return true;
 		}
 
-		if ($this->user->isAdmin())
+		if (!Feature::isAccessControllerCheckingEnabled())
 		{
-			return true;
+			$userDepartments = $this->user->getUserDepartments();
+
+			if (empty($userDepartments))
+			{
+				return false;
+			}
+
+			return count($userDepartments) > 1 || $userDepartments[0] !== 0;
 		}
 
 		if (!$params)

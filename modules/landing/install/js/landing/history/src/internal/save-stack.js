@@ -9,6 +9,7 @@ import type {History} from '../history';
  * @param {History} history
  * @return {Promise<History>}
  */
+// todo: del
 export default function saveStack(history: History): Promise<History>
 {
 	let currentPageId;
@@ -29,8 +30,7 @@ export default function saveStack(history: History): Promise<History>
 		.then((all) => {
 			all[currentPageId] = {};
 			all[currentPageId].stack = history.stack;
-			all[currentPageId].position = history.position;
-			all[currentPageId].state = history.state;
+			all[currentPageId].step = history.step;
 			return all;
 		})
 		.then(asyncJsonStringify)

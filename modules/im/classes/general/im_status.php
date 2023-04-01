@@ -86,24 +86,37 @@ class CIMStatus
 
 		if ($needToUpdate && self::Enable())
 		{
-			CPullStack::AddShared(Array(
+
+			CPullStack::AddShared([
 				'module_id' => 'online',
 				'command' => 'userStatus',
 				'expiry' => 1,
-				'params' => Array(
-					'users' => Array(
-						$userId => Array(
+				'params' => [
+					'users' => [
+						$userId => [
 							'id' => $userId,
 							'status' => $status['STATUS'] ?? null,
-							'color' => ($status['COLOR'] ?? null) ? \Bitrix\Im\Color::getColor($status['COLOR']) : \Bitrix\Im\Color::getColorByNumber($userId),
-							'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['IDLE']->getTimestamp()): false,
-							'mobile_last_date' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['MOBILE_LAST_DATE']->getTimestamp()): false,
-							'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp()): false,
+							'color' => ($status['COLOR'] ?? null)
+								? \Bitrix\Im\Color::getColor($status['COLOR'])
+								: \Bitrix\Im\Color::getColorByNumber($userId)
+							,
+							'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime
+								? date('c', $status['IDLE']->getTimestamp())
+								: false
+							,
+							'mobile_last_date' => ($status['MOBILE_LAST_DATE'] ?? null) instanceof \Bitrix\Main\Type\DateTime
+								? date('c', $status['MOBILE_LAST_DATE']->getTimestamp())
+								: false
+							,
+							'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime
+								? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp())
+								: false
+							,
 							'last_activity_date' => date('c', time())
-						)
-					)
-				)
-			));
+						]
+					]
+				]
+			]);
 		}
 
 		$cache->CleanDir(self::CACHE_ONLINE_PATH);
@@ -459,6 +472,7 @@ class CIMStatus
 			return $result;
 		}
 
+		$result = [];
 		$externalUser = \Bitrix\Main\UserTable::getExternalUserTypes();
 		$externalUser[] = 'network';
 

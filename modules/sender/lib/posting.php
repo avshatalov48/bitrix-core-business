@@ -503,7 +503,13 @@ class PostingClickTable extends Entity\DataManager
 		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_CLICK' => 'Y']);
 
 		// update click counter of posting
-		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
+		$resultDb = static::getList(
+			array(
+				'filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID']),
+				'limit' => 2,
+			)
+		);
+
 		if($resultDb->getSelectedRowsCount() == 1)
 		{
 			Model\PostingTable::update($data['POSTING_ID'], array(

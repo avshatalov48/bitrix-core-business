@@ -3103,18 +3103,18 @@ class CAllSaleLocation
 					$lang = LANGUAGE_ID;
 
 				$arResult = array();
-				if(!empty($parsedList))
+				foreach ($parsedList as $id)
 				{
 					$res = self::GetLocationTypeList(
 						'REGION',
 						array('NAME' => 'asc', 'SHORT_NAME' => 'asc'),
-						array('ID' => $parsedList),
+						array('ID' => $id),
 						$lang
 					);
 
 					while($arRegion = $res->fetch())
 					{
-						$arResult[$arRegion["ID"]] = $arRegion["NAME"] <> '' ? $arRegion["NAME"] : $arRegion["SHORT_NAME"];
+						$arResult[$arRegion["ID"]] = $arRegion["NAME"] ?: $arRegion["SHORT_NAME"];
 					}
 				}
 

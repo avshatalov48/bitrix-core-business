@@ -411,68 +411,101 @@ if ($arParams['SUCCESS_SAVE'])
 			<!-- BG -->
 			<?php if (isset($hooks['BACKGROUND'])): ?>
 				<?php $pageFields = $hooks['BACKGROUND']->getPageFields(); ?>
-				<div class="ui-form-row last-row">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text"><?= Loc::getMessage('LANDING_SITE_DSGN_TPL_ADDITIONAL_BG') ?></div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-label" data-form-row-hidden>
-							<?php $template->showField($pageFields['BACKGROUND_USE'], ['title' => true]);?>
+				<?php if ($arParams['TYPE'] === 'KNOWLEDGE'):?>
+					<div class="ui-form-row last-row">
+				<?php else: ?>
+					<div class="ui-form-row">
+				<?php endif; ?>
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text"><?= Loc::getMessage('LANDING_SITE_DSGN_TPL_ADDITIONAL_BG') ?></div>
 						</div>
-						<div class="ui-form-row-hidden">
-							<div class="ui-form-row-group">
-								<!--Picture-->
-								<?php if (isset($pageFields['BACKGROUND_PICTURE'])): ?>
+						<div class="ui-form-content">
+							<div class="ui-form-label" data-form-row-hidden>
+								<?php $template->showField($pageFields['BACKGROUND_USE'], ['title' => true]);?>
+							</div>
+							<div class="ui-form-row-hidden">
+								<div class="ui-form-row-group">
+									<!--Picture-->
+									<?php if (isset($pageFields['BACKGROUND_PICTURE'])): ?>
+										<?php
+										$template->showPictureJS(
+											$pageFields['BACKGROUND_PICTURE'],
+											'',
+											[
+												'width' => 1920,
+												'height' => 1920,
+												'uploadParams' => $row['ID']['CURRENT'] ? [
+													'action' => 'Site::uploadFile',
+													'id' => $row['ID']['CURRENT'],
+												] : [],
+											]
+										);
+										?>
+									<?php endif; ?>
+
+									<!--Position-->
 									<?php
-									$template->showPictureJS(
-										$pageFields['BACKGROUND_PICTURE'],
-										'',
-										[
-											'width' => 1920,
-											'height' => 1920,
-											'uploadParams' => $row['ID']['CURRENT'] ? [
-												'action' => 'Site::uploadFile',
-												'id' => $row['ID']['CURRENT'],
-											] : [],
-										]
-									);
+									if (isset($pageFields['BACKGROUND_POSITION']))
+									{
+										$template->showField($pageFields['BACKGROUND_POSITION'], [
+											'title' => true,
+											'needWrapper' => true,
+										]);
+									}
 									?>
-								<?php endif; ?>
 
-								<!--Position-->
-								<?php
-								if (isset($pageFields['BACKGROUND_POSITION']))
-								{
-									$template->showField($pageFields['BACKGROUND_POSITION'], [
-										'title' => true,
-										'needWrapper' => true,
-									]);
-								}
-								?>
-
-								<!--Color-->
-								<?php if (isset($pageFields['BACKGROUND_COLOR'])): ?>
-									<?php $template->showField($pageFields['BACKGROUND_COLOR'], [
-										'title' => true,
-										'needWrapper' => true,
-										'readonly' => true,
-									]); ?>
-									<script type="text/javascript">
-										var paramsBgColor = {
-											defaultColor: <?=CUtil::PhpToJSObject(LandingSiteEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
-										}
-										BX.ready(function() {
-											this.bgColor = new BX.Landing.ColorPicker(
-												BX('<?= $template->getFieldId('BACKGROUND_COLOR') ?>'),
-												paramsBgColor
-											);
-										});
-									</script>
-								<?php endif; ?>
+									<!--Color-->
+									<?php if (isset($pageFields['BACKGROUND_COLOR'])): ?>
+										<?php $template->showField($pageFields['BACKGROUND_COLOR'], [
+											'title' => true,
+											'needWrapper' => true,
+											'readonly' => true,
+										]); ?>
+										<script type="text/javascript">
+											var paramsBgColor = {
+												defaultColor: <?=CUtil::PhpToJSObject(LandingSiteEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
+											}
+											BX.ready(function() {
+												this.bgColor = new BX.Landing.ColorPicker(
+													BX('<?= $template->getFieldId('BACKGROUND_COLOR') ?>'),
+													paramsBgColor
+												);
+											});
+										</script>
+									<?php endif; ?>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				<?php if ($arParams['TYPE'] !== 'KNOWLEDGE'):?>
+					<div class="ui-form-row last-row">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text"><?= Loc::getMessage('LANDING_SITE_DSGN_TPL_ADDITIONAL_TRANSITION_BG') ?></div>
+						</div>
+						<div class="ui-form-content">
+							<!--Color page transition-->
+							<?php $transitionFields = $hooks['TRANSITION']->getPageFields(); ?>
+							<?php if (isset($transitionFields['TRANSITION_COLOR'])): ?>
+								<?php $template->showField($transitionFields['TRANSITION_COLOR'], [
+									'title' => true,
+									'needWrapper' => true,
+									'readonly' => true,
+								]); ?>
+								<script type="text/javascript">
+									var paramsTransitionBgColor = {
+										defaultColor: <?=CUtil::PhpToJSObject(LandingSiteEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
+									}
+									BX.ready(function() {
+										this.transitionColor = new BX.Landing.ColorPicker(
+											BX('<?= $template->getFieldId('TRANSITION_COLOR') ?>'),
+											paramsTransitionBgColor
+										);
+									});
+								</script>
+							<?php endif; ?>
+						</div>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
 
 			<!--BUTTONS-->

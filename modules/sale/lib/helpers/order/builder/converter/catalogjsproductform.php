@@ -74,6 +74,9 @@ class CatalogJSProductForm
 	{
 		$fields = self::consistentFields($fields);
 
+		$priceExclusive = $fields['priceExclusive'] ?? $fields['price'] ?? 0;
+		$basePrice = $fields['basePrice'] ?? 0;
+
 		$item = [
 			'NAME' => $fields['name'],
 			'QUANTITY' => (float)$fields['quantity'] > 0 ? (float)$fields['quantity'] : 1,
@@ -81,18 +84,19 @@ class CatalogJSProductForm
 			'SORT' => (int)$fields['sort'],
 			'BASKET_CODE' => $fields['code'] ?? '',
 			'PRODUCT_ID' => $fields['skuId'] ?? $fields['productId'] ?? 0,
-			'BASE_PRICE' => $fields['basePrice'],
-			'PRICE' => $fields['priceExclusive'] ?? $fields['price'],
+			'BASE_PRICE' => $basePrice,
+			'PRICE' => $priceExclusive,
 			'CUSTOM_PRICE' => $fields['isCustomPrice'] === 'Y' ? 'Y' : 'N',
 			'DISCOUNT_PRICE' => 0,
 			'MEASURE_NAME' => $fields['measureName'],
 			'MEASURE_CODE' => (int)$fields['measureCode'],
-			'ORIGIN_BASKET_ID' => (int)$fields['additionalFields']['originBasketId'] ?? 0,
-			'ORIGIN_PRODUCT_ID' => (int)$fields['additionalFields']['originProductId'] ?? 0,
+			'ORIGIN_BASKET_ID' => (int)($fields['additionalFields']['originBasketId'] ?? 0),
+			'ORIGIN_PRODUCT_ID' => (int)($fields['additionalFields']['originProductId'] ?? 0),
 			'MANUALLY_EDITED' => 'Y',
 			'XML_ID' => $fields['innerId'],
 			'WEIGHT' => $fields['weight'],
-			'DIMENSIONS' => $fields['dimensions'],
+			'DIMENSIONS' => $fields['dimensions'] ?? [],
+			'TYPE' => null,
 		];
 
 		if (
@@ -119,7 +123,8 @@ class CatalogJSProductForm
 		}
 
 		if (
-			$fields['module'] === 'catalog'
+			isset($fields['module'])
+			&& $fields['module'] === 'catalog'
 			&& Main\Loader::includeModule('catalog')
 		)
 		{
@@ -129,11 +134,11 @@ class CatalogJSProductForm
 
 		if (
 			(int)$fields['discount'] === 0
-			&& abs($fields['priceExclusive'] - $fields['basePrice']) > 1e-10
-			&& (float)$fields['basePrice'] > 0
+			&& abs($priceExclusive - $basePrice) > 1e-10
+			&& (float)$basePrice > 0
 		)
 		{
-			$fields['discount'] = (int)(100 - ($fields['priceExclusive'] / $fields['basePrice']) * 100);
+			$fields['discount'] = (int)(100 - ($priceExclusive / $basePrice) * 100);
 		}
 
 		if ($fields['discount'] > 0)

@@ -4,7 +4,10 @@ namespace Bitrix\Calendar\Core\Queue\Rule;
 
 use Bitrix\Calendar\Core\Queue\Exception\InvalidRuleException;
 use Bitrix\Calendar\Core\Queue\Interfaces\RouteRule;
+use Bitrix\Calendar\Core\Queue\Rule\Rules\EventAttendeesUpdateRule;
 use Bitrix\Calendar\Core\Queue\Rule\Rules\EventDelayedSyncRule;
+use Bitrix\Calendar\Core\Queue\Rule\Rules\EventWithEntityAttendeesFindRule;
+use Bitrix\Calendar\Core\Queue\Rule\Rules\PushDelayedRule;
 use Bitrix\Calendar\Internals\SingletonTrait;
 
 class Registry
@@ -16,6 +19,9 @@ class Registry
 	protected function __construct()
 	{
 		$this->registerRule(new EventDelayedSyncRule());
+		$this->registerRule(new PushDelayedRule());
+		$this->registerRule(new EventAttendeesUpdateRule());
+		$this->registerRule(new EventWithEntityAttendeesFindRule());
 		// add preinstalled rules here
 		// for example:
 		// $this->registerRule(new ExampleRule());

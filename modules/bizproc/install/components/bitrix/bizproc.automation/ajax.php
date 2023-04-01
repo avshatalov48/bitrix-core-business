@@ -13,9 +13,8 @@ if (isset($_REQUEST['site_id']) && is_string($_REQUEST['site_id']))
 }
 if ($siteId)
 {
-
-}
 	define('SITE_ID', $siteId);
+}
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 

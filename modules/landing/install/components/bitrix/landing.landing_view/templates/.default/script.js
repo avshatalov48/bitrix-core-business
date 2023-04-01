@@ -44,6 +44,8 @@
 			BX.Landing.UI.Panel.StylePanel.getInstance();
 			rootWindow.BX.Landing.UI.Panel.Top.instance = null;
 			BX.Landing.UI.Panel.Top.getInstance();
+
+			editorWindow.BX.onCustomEvent('Landing.Editor:load')
 		});
 	};
 
@@ -658,20 +660,27 @@
 						{
 							if (top.window.autoPublicationEnabled)
 							{
+								const backend = BX.Landing.Backend.getInstance();
 								if (this.storeEnabled)
 								{
-									BX.Landing.Backend.getInstance()
+									backend
 										.action('Landing::publication', {
 											lid: this.id
+										})
+										.then(() => {
+											return backend
+												.action('Site::publication', {
+													id: this.siteId
+												});
 										});
-									BX.Landing.Backend.getInstance()
+									backend
 										.action('Site::publication', {
 											id: this.siteId
 										});
 								}
 								else
 								{
-									BX.Landing.Backend.getInstance()
+									backend
 										.action('Landing::publication', {
 											lid: this.id
 										});

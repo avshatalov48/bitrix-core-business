@@ -203,6 +203,10 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		$checkInfo = CheckManager::getCheckInfoByExternalUuid($data['id']);
+		if (empty($checkInfo))
+		{
+			return $result;
+		}
 
 		$result['ID'] = $checkInfo['ID'];
 		$result['CHECK_TYPE'] = $checkInfo['TYPE'];

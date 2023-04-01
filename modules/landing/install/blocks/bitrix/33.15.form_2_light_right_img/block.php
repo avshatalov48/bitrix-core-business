@@ -3,7 +3,7 @@
 	<div class="container">
 
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-6 g-mb-15 g-mb-0--lg">
 				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
 					data-b24form-use-style="Y"
 					data-b24form-embed

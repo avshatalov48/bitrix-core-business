@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Connector;
 
+use Bitrix\Crm\Settings\CompanySettings;
 use Bitrix\Crm\Requisite\EntityLink;
 use Bitrix\Main\Loader;
 use Bitrix\SalesCenter\Integration\CrmManager;
@@ -42,7 +43,7 @@ class Crm
 		$company = new \CCrmCompany(false);
 		$fields = [
 			'TITLE' => $title,
-			'OPENED' => 'Y',
+			'OPENED' => CompanySettings::getCurrent()->getOpenedFlag() ? 'Y' : 'N',
 			'IS_MY_COMPANY' => 'Y',
 			'FM' => [
 				'PHONE' => [

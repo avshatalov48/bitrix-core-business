@@ -76,7 +76,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 if (
 	$lastPage && !$arResult['IS_DELETED'] &&
 	($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE'  || $arParams['TYPE'] === 'STORE') &&
-	(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
+	(!isset($arResult['LICENSE']) || $arResult['LICENSE'] !== 'nfr')
 )
 {
 	if ($arParams['TYPE'] === 'KNOWLEDGE')
@@ -91,12 +91,17 @@ if (
 	{
 		$formCode = 'store';
 	}
+	$params = $component->getFeedbackParameters($formCode);
+	if (is_array($params))
+	{
+		$params['TITLE'] = Loc::getMessage('LANDING_TPL_FEEDBACK_FORM_TITLE');
+	}
 	?>
 	<div style="display: none">
 		<?$APPLICATION->includeComponent(
 			'bitrix:ui.feedback.form',
 			'',
-			$component->getFeedbackParameters($formCode)
+			$params
 		);?>
 	</div>
 	<?
@@ -284,9 +289,6 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				'access' => 'settings',
 				'sidepanel' => true
 			],
-			[
-				'delimiter' => true
-			],
 			$arResult['EXPORT_DISABLED'] === 'Y'
 			? [
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
@@ -296,12 +298,6 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			: [
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
 				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
-				'sidepanel' => true
-			],
-			[
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_IMPORT'),
-				'href' => \Bitrix\Landing\Transfer\Import\Site::getUrl($arParams['TYPE']),
-				'access' => 'site_new',
 				'sidepanel' => true
 			],
 			[
@@ -322,7 +318,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			],
 			[
 				'text' => 'Cookies',
-				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '#cookies',
+				'href' => $arParams['~PAGE_URL_SITE_SETTINGS'] . '#cookies',
 				'bottom' => true,
 				'code' => 'cookies'
 			],

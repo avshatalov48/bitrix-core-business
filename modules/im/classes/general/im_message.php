@@ -359,6 +359,8 @@ class CIMMessage
 		$arUsersMessage = Array();
 		$arMessageId = Array();
 		$arUnreadMessages = Array();
+		$blockNotify = null;
+		$lastRead = null;
 
 		if (!$bTimeZone)
 			CTimeZone::Disable();

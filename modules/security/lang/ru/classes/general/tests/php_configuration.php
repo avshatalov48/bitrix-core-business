@@ -12,7 +12,6 @@ $MESS["SECURITY_SITE_CHECKER_PHP_FOPEN_RECOMMENDATION"] = "Необходимо 
 $MESS["SECURITY_SITE_CHECKER_PHP_ASP"] = "Включено использование тегов в стиле ASP";
 $MESS["SECURITY_SITE_CHECKER_PHP_ASP_DETAIL"] = "Многие разработчики не догадываются о существовании подобной опции, а как следствие могут не учесть её в различных проверках";
 $MESS["SECURITY_SITE_CHECKER_PHP_ASP_RECOMMENDATION"] = "Необходимо в настройках php указать:<br>asp_tags = Off";
-$MESS["SECURITY_SITE_CHECKER_LOW_PHP_VERSION_ENTROPY"] = "Версия php устарела";
 $MESS["SECURITY_SITE_CHECKER_LOW_PHP_VERSION_ENTROPY_DETAIL"] = "Текущая версия php не поддерживает установку дополнительного источника энтропии при создании идентификатора сессии";
 $MESS["SECURITY_SITE_CHECKER_LOW_PHP_VERSION_ENTROPY_RECOMMENDATION"] = "Обновить версию php как минимум до 5.3.3, но лучше до последней стабильной";
 $MESS["SECURITY_SITE_CHECKER_PHP_HTTPONLY"] = "Cookies доступны из JavaScript";

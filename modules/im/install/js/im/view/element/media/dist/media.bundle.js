@@ -2,7 +2,6 @@
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-view-element-file', {
 	  /*
@@ -31,11 +30,9 @@
 	      if (file.progress !== 100) {
 	        return false;
 	      }
-
 	      if (BX.UI && BX.UI.Viewer && Object.keys(file.viewerAttrs).length > 0) {
 	        return false;
 	      }
-
 	      if (file.type === im_const.FileType.image && file.urlShow) {
 	        if (im_lib_utils.Utils.platform.isBitrixMobile()) {
 	          BXMobileApp.UI.Photo.show({
@@ -82,21 +79,16 @@
 	    },
 	    createProgressbar: function createProgressbar() {
 	      var _this = this;
-
 	      if (this.uploader) {
 	        return true;
 	      }
-
 	      if (this.file.progress === 100) {
 	        return false;
 	      }
-
 	      var blurElement = undefined;
-
 	      if (this.file.progress < 0 || this.file.type !== im_const.FileType.image && this.file.type !== im_const.FileType.video) {
 	        blurElement = false;
 	      }
-
 	      this.uploader = new ui_progressbarjs_uploader.Uploader({
 	        container: this.$refs.container,
 	        blurElement: blurElement,
@@ -126,23 +118,19 @@
 	        }
 	      });
 	      this.uploader.start();
-
 	      if (this.file.size && this.file.size / 1024 / 1024 <= 2 || this.$refs.container.offsetHeight <= 54 && this.$refs.container.offsetWidth < 240) {
 	        this.uploader.setProgressTitleVisibility(false);
 	      }
-
 	      this.updateProgressbar();
 	      return true;
 	    },
 	    updateProgressbar: function updateProgressbar() {
 	      if (!this.uploader) {
 	        var result = this.createProgressbar();
-
 	        if (!result) {
 	          return false;
 	        }
 	      }
-
 	      if (this.file.status === im_const.FileStatus.error) {
 	        this.uploader.setProgress(0);
 	        this.uploader.setCancelDisable(false);
@@ -162,10 +150,8 @@
 	        if (this.file.progress === 0) {
 	          this.uploader.setIcon(ui_progressbarjs_uploader.Uploader.icon.cancel);
 	        }
-
 	        var progress = this.file.progress > 5 ? this.file.progress : 5;
 	        this.uploader.setProgress(progress);
-
 	        if (this.file.size / 1024 / 1024 <= 2) {
 	          this.uploader.setProgressTitle(this.localize['IM_MESSENGER_ELEMENT_FILE_UPLOAD_LOADING']);
 	        } else {
@@ -177,7 +163,6 @@
 	      if (!this.uploader) {
 	        return true;
 	      }
-
 	      this.uploader.destroy(false);
 	      return true;
 	    }
@@ -191,11 +176,9 @@
 	    },
 	    fileName: function fileName() {
 	      var maxLength = 70;
-
 	      if (this.file.name.length < maxLength) {
 	        return this.file.name;
 	      }
-
 	      var endWordLength = 10;
 	      var secondPart = this.file.name.substring(this.file.name.length - 1 - (this.file.extension.length + 1 + endWordLength));
 	      var firstPart = this.file.name.substring(0, maxLength - secondPart.length - 3);
@@ -203,19 +186,15 @@
 	    },
 	    fileSize: function fileSize() {
 	      var size = this.file.size;
-
 	      if (size <= 0) {
 	        return '&nbsp;';
 	      }
-
 	      var sizes = ["BYTE", "KB", "MB", "GB", "TB"];
 	      var position = 0;
-
 	      while (size >= 1024 && position < 4) {
 	        size /= 1024;
 	        position++;
 	      }
-
 	      return Math.round(size) + " " + this.localize['IM_MESSENGER_ELEMENT_FILE_SIZE_' + sizes[position]];
 	    },
 	    uploadProgress: function uploadProgress() {
@@ -266,13 +245,11 @@
 	  methods: {
 	    getImageSize: function getImageSize(width, height, maxWidth) {
 	      var aspectRatio;
-
 	      if (width > maxWidth) {
 	        aspectRatio = maxWidth / width;
 	      } else {
 	        aspectRatio = 1;
 	      }
-
 	      return {
 	        width: width * aspectRatio,
 	        height: height * aspectRatio
@@ -292,7 +269,6 @@
 	      if (parseInt(this.styleFileSizes.height) <= 280) {
 	        return {};
 	      }
-
 	      return {
 	        height: '280px'
 	      };
@@ -316,13 +292,11 @@
 	  methods: {
 	    getImageSize: function getImageSize(width, height, maxWidth) {
 	      var aspectRatio;
-
 	      if (width > maxWidth) {
 	        aspectRatio = maxWidth / width;
 	      } else {
 	        aspectRatio = 1;
 	      }
-
 	      return {
 	        width: width * aspectRatio,
 	        height: height * aspectRatio
@@ -337,7 +311,6 @@
 	      if (parseInt(this.styleVideoSizes.height) <= 280) {
 	        return {};
 	      }
-
 	      return {
 	        height: '280px'
 	      };
@@ -346,7 +319,6 @@
 	      if (!this.file.image) {
 	        return {};
 	      }
-
 	      var sizes = this.getImageSize(this.file.image.width, this.file.image.height, 280);
 	      return {
 	        width: sizes.width + 'px',

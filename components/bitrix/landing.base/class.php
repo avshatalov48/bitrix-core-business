@@ -87,30 +87,34 @@ class LandingBaseComponent extends \CBitrixComponent
 	protected $currentRequest = null;
 
 	/**
+	 * Required initialization made in this instance.
+	 * @var bool
+	 */
+	private ?bool $initiated = null;
+
+	/**
 	 * Init class' vars, check conditions.
 	 * @return bool
 	 */
-	protected function init()
+	protected function init(): bool
 	{
-		static $init = null;
-
-		if ($init !== null)
+		if ($this->initiated !== null)
 		{
-			return $init;
+			return $this->initiated;
 		}
 
-		$init = true;
+		$this->initiated = true;
 
 		Loc::loadMessages($this->getFile());
 
-		if ($init && !Loader::includeModule('landing'))
+		if ($this->initiated && !Loader::includeModule('landing'))
 		{
 			$this->addError('LANDING_CMP_NOT_INSTALLED');
-			$init = false;
+			$this->initiated = false;
 		}
 		$this->initRequest();
 
-		return $init;
+		return $this->initiated;
 	}
 
 	/**
@@ -791,22 +795,37 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
-	 * Get loc::getMessage by type of site.
+	 * Wrapper for Loc::getMessage (adds site type as suffix to message code).
+	 *
 	 * @param string $code Mess code.
-	 * @param array $replace Array for replace, e.g. array('#NUM#' => 5).
+	 * @param array|null $replace Array for replace, e.g. array('#NUM#' => 5).
+	 * @param int|null $version Version of new phrase if needed.
 	 * @return string
 	 */
-	public function getMessageType($code, $replace = null)
+	public function getMessageType(string $code, ?array $replace = null, ?int $version = null): string
 	{
 		static $codes = [];
 
 		if (!array_key_exists($code, $codes))
 		{
-			$mess = Loc::getMessage($code . '_' . $this->arParams['TYPE'], $replace);
+			if ($version)
+			{
+				$mess = Loc::getMessage($code . '_' . $version . '_' . $this->arParams['TYPE'], $replace);
+				if (!$mess)
+				{
+					$mess = Loc::getMessage($code . '_' . $this->arParams['TYPE'], $replace);
+				}
+			}
+			else
+			{
+				$mess = Loc::getMessage($code . '_' . $this->arParams['TYPE'], $replace);
+			}
+
 			if (!$mess)
 			{
 				$mess = Loc::getMessage($code, $replace);
 			}
+
 			$codes[$code] = $mess;
 		}
 

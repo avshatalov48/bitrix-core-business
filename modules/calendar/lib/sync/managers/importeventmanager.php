@@ -57,6 +57,7 @@ class ImportEventManager
 
 				if ($result->isSuccess())
 				{
+					$this->handleCalendarChange(($result->getData()['externalSyncEventMap'])->getCollection());
 					$this->externalEventMap->addItems(($result->getData()['externalSyncEventMap'])->getCollection());
 					$syncSection
 						->getSectionConnection()
@@ -116,5 +117,29 @@ class ImportEventManager
 	public function getEvents(): Sync\Entities\SyncEventMap
 	{
 		return $this->externalEventMap;
+	}
+
+	/**
+	 * @throws ArgumentException
+	 */
+	private function handleCalendarChange(array $collection)
+	{
+		$handledCollection = $this->externalEventMap->getCollection();
+
+		/**
+		 * @var string $key
+		 * @var Sync\Entities\SyncEvent $value
+		 */
+		foreach ($collection as $key => $value)
+		{
+			if (
+				array_key_exists($key, $handledCollection)
+				&& $value->getAction() === 'save'
+			)
+			{
+				$this->externalEventMap->remove($key);
+				$this->externalEventMap->add($value, $key);
+			}
+		}
 	}
 }

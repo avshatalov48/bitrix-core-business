@@ -4,8 +4,9 @@ export const FileStatus = {
 	LOADING: 'loading',
 	PENDING: 'pending',
 	UPLOADING: 'uploading',
-	ABORTED: 'aborted',
 	COMPLETE: 'complete',
+	//REMOVING: 'removing',
+	//REMOVE_FAILED: 'remove-failed',
 	LOAD_FAILED: 'load-failed',
 	UPLOAD_FAILED: 'upload-failed',
 };

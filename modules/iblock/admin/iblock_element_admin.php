@@ -13,6 +13,7 @@ use Bitrix\Crm;
 use Bitrix\Currency;
 use Bitrix\Iblock;
 use Bitrix\Iblock\Grid\ActionType;
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 
@@ -260,7 +261,6 @@ $priceTypeIndex = array();
 $basePriceType = [];
 $basePriceTypeId = 0;
 $measureList = array();
-$serviceMeasureList = array();
 $vatList = array();
 $newProductCard = false;
 $clearedGridFields = array();
@@ -337,14 +337,11 @@ if ($bCatalog)
 	);
 	while($measure = $measureIterator->Fetch())
 	{
-		$measureList[$measure['ID']] = ($measure['SYMBOL_RUS'] != ''
-			? $measure['SYMBOL_RUS']
-			: $measure['MEASURE_TITLE']
-		);
-		if ($measure['CODE'] === '796') // TODO: remove magic number after refactoring measure for services
-		{
-			$serviceMeasureList[$measure['ID']] = $measureList[$measure['ID']];
-		}
+		$measureList[$measure['ID']] =
+			$measure['SYMBOL_RUS'] !== ''
+				? $measure['SYMBOL_RUS']
+				: $measure['MEASURE_TITLE']
+		;
 	}
 	unset($measure, $measureIterator);
 	asort($measureList);
@@ -1577,8 +1574,10 @@ if($lAdmin->EditAction())
 				);
 			}
 
-			if(!is_array($arFields["PROPERTY_VALUES"]))
-				$arFields["PROPERTY_VALUES"] = array();
+			if (!isset($arFields["PROPERTY_VALUES"]) || !is_array($arFields["PROPERTY_VALUES"]))
+			{
+				$arFields["PROPERTY_VALUES"] = [];
+			}
 
 			$bFieldProps = array();
 			foreach ($arFields as $k=>$v)
@@ -1710,15 +1709,25 @@ if($lAdmin->EditAction())
 			}
 
 			//All not displayed required fields from DB
-			foreach($arIBlock["FIELDS"] as $FIELD_ID => $field)
+			foreach ($arIBlock["FIELDS"] as $FIELD_ID => $field)
 			{
-				if(
+				if ($field["VISIBLE"] === "N")
+				{
+					continue;
+				}
+				if (preg_match("/^(SECTION_|LOG_)/", $FIELD_ID))
+				{
+					continue;
+				}
+				if (
 					$field["IS_REQUIRED"] === "Y"
 					&& !array_key_exists($FIELD_ID, $arFields)
 					&& $FIELD_ID !== "DETAIL_PICTURE"
 					&& $FIELD_ID !== "PREVIEW_PICTURE"
 				)
+				{
 					$arFields[$FIELD_ID] = $arRes[$FIELD_ID];
+				}
 			}
 			if($arRes["IN_SECTIONS"] == "Y")
 			{
@@ -1856,16 +1865,22 @@ if($lAdmin->EditAction())
 		unset($ib);
 	}
 
-	if($bCatalog)
+	if ($bCatalog)
 	{
-		if ($boolCatalogPrice && (isset($_POST["CATALOG_PRICE"]) || isset($_POST["CATALOG_CURRENCY"])))
+		if (
+			$boolCatalogPrice
+			&& isset($_POST['CATALOG_PRICE'])
+			&& is_array($_POST['CATALOG_PRICE'])
+			&& isset($_POST['CATALOG_CURRENCY'])
+			&& is_array($_POST['CATALOG_CURRENCY'])
+		)
 		{
 			$CATALOG_PRICE = $_POST["CATALOG_PRICE"];
 			$CATALOG_CURRENCY = $_POST["CATALOG_CURRENCY"];
-			$CATALOG_EXTRA = $_POST["CATALOG_EXTRA"];
+			$CATALOG_EXTRA = (array)($_POST["CATALOG_EXTRA"] ?? []);
 			$CATALOG_PRICE_ID = $_POST["CATALOG_PRICE_ID"];
-			$CATALOG_QUANTITY_FROM = $_POST["CATALOG_QUANTITY_FROM"];
-			$CATALOG_QUANTITY_TO = $_POST["CATALOG_QUANTITY_TO"];
+			$CATALOG_QUANTITY_FROM = (array)($_POST["CATALOG_QUANTITY_FROM"] ?? []);
+			$CATALOG_QUANTITY_TO = (array)($_POST["CATALOG_QUANTITY_TO"] ?? []);
 			$CATALOG_PRICE_old = $_POST["CATALOG_old_PRICE"];
 			$CATALOG_CURRENCY_old = $_POST["CATALOG_old_CURRENCY"];
 
@@ -1874,23 +1889,33 @@ if($lAdmin->EditAction())
 			while ($extras = $db_extras->Fetch())
 				$arCatExtraUp[$extras["ID"]] = $extras["PERCENTAGE"];
 
-			$arBaseGroup = CCatalogGroup::GetBaseGroup();
+			$checkBasePriceTypeId = Catalog\GroupTable::getBasePriceTypeId();
 			$arCatalogGroupList = Catalog\GroupTable::getTypeList();
 			foreach($CATALOG_PRICE as $elID => $arPrice)
 			{
+				if (!is_array($arPrice))
+				{
+					continue;
+				}
+				if (!(isset($CATALOG_CURRENCY[$elID]) && is_array($CATALOG_CURRENCY[$elID])))
+				{
+					continue;
+				}
 				if (
 					!(CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $elID, "element_edit")
 					&& CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $elID, "element_edit_price"))
 				)
+				{
 					continue;
+				}
 
 				$bError = false;
 
-				if ($strSaveWithoutPrice != 'Y')
+				if ($checkBasePriceTypeId !== null && $strSaveWithoutPrice !== 'Y')
 				{
-					if (isset($arPrice[$arBaseGroup['ID']]))
+					if (isset($arPrice[$checkBasePriceTypeId]))
 					{
-						if ($arPrice[$arBaseGroup['ID']] < 0)
+						if ((float)$arPrice[$checkBasePriceTypeId] < 0)
 						{
 							$bError = true;
 							$lAdmin->AddGroupError($elID.': '.GetMessage('IB_CAT_NO_BASE_PRICE'), $elID);
@@ -1898,14 +1923,46 @@ if($lAdmin->EditAction())
 					}
 					else
 					{
-						$arBasePrice = CPrice::GetBasePrice(
-							$elID,
-							$CATALOG_QUANTITY_FROM[$elID][$arBaseGroup['ID']],
-							$CATALOG_QUANTITY_FROM[$elID][$arBaseGroup['ID']],
-							false
-						);
+						$quantityFrom = null;
+						if (
+							isset($CATALOG_QUANTITY_FROM[$elID][$basePriceTypeId])
+							&& is_string($CATALOG_QUANTITY_FROM[$elID][$basePriceTypeId])
+							&& $CATALOG_QUANTITY_FROM[$elID][$basePriceTypeId] !== ''
+						)
+						{
+							$quantityFrom = (int)$CATALOG_QUANTITY_FROM[$elID][$basePriceTypeId];
+							if ($quantityFrom <= 0)
+							{
+								$quantityFrom = null;
+							}
+						}
+						$quantityTo = null;
+						if (
+							isset($CATALOG_QUANTITY_TO[$elID][$basePriceTypeId])
+							&& is_string($CATALOG_QUANTITY_TO[$elID][$basePriceTypeId])
+							&& $CATALOG_QUANTITY_TO[$elID][$basePriceTypeId] !== ''
+						)
+						{
+							$quantityTo = (int)$CATALOG_QUANTITY_TO[$elID][$basePriceTypeId];
+							if ($quantityTo <= 0)
+							{
+								$quantityTo = null;
+							}
+						}
 
-						if (!is_array($arBasePrice) || $arBasePrice['PRICE'] < 0)
+						$basePrice = Catalog\PriceTable::getRow([
+							'select' => [
+								'ID',
+								'PRICE',
+							],
+							'filter' => [
+								'=PRODUCT_ID' => $elID,
+								'=CATALOG_GROUP_ID' => $basePriceTypeId,
+								'=QUANTITY_FROM' => $quantityFrom,
+								'=QUANTITY_TO' => $quantityTo,
+							],
+						]);
+						if ($basePrice === null || (float)$basePrice['PRICE'] < 0)
 						{
 							$bError = true;
 							$lAdmin->AddGroupError($elID.': '.GetMessage('IB_CAT_NO_BASE_PRICE'), $elID);
@@ -1922,8 +1979,19 @@ if($lAdmin->EditAction())
 				{
 					foreach ($arCatalogGroupList as $arCatalogGroup)
 					{
-						if ($arPrice[$arCatalogGroup["ID"]] != $CATALOG_PRICE_old[$elID][$arCatalogGroup["ID"]]
-							|| $arCurrency[$arCatalogGroup["ID"]] != $CATALOG_CURRENCY_old[$elID][$arCatalogGroup["ID"]])
+						$priceTypeId = $arCatalogGroup['ID'];
+						if (!isset(
+							$arPrice[$priceTypeId],
+							$arCurrency[$priceTypeId],
+							$CATALOG_PRICE_old[$elID][$priceTypeId],
+							$CATALOG_CURRENCY_old[$elID][$priceTypeId]
+						))
+						{
+							continue;
+						}
+
+						if ($arPrice[$priceTypeId] != $CATALOG_PRICE_old[$elID][$priceTypeId]
+							|| $arCurrency[$priceTypeId] != $CATALOG_CURRENCY_old[$elID][$priceTypeId])
 						{
 							if($arCatalogGroup["BASE"] == 'Y') // if base price check extra for other prices
 							{
@@ -2005,10 +2073,7 @@ if($lAdmin->EditAction())
 			}
 			unset($arCatalogGroupList);
 		}
-	}
 
-	if ($bCatalog)
-	{
 		Catalog\Product\Sku::disableDeferredCalculation();
 		Catalog\Product\Sku::calculate();
 	}
@@ -2998,7 +3063,27 @@ foreach (array_keys($rawRows) as $rowId)
 			elseif($prop['PROPERTY_TYPE']=='S')
 				$arViewHTML[] = $prop["VALUE"];
 			elseif($prop['PROPERTY_TYPE']=='L')
-				$arViewHTML[] = $prop["VALUE_ENUM"];
+			{
+				if ($prop['LIST_TYPE'] === PropertyTable::CHECKBOX && count($arSelect[$prop['ID']]) === 1)
+				{
+					if ($prop["VALUE_ENUM"] === 'Y')
+					{
+						$arViewHTML[] = GetMessage('IBLOCK_YES');
+					}
+					elseif ($prop["VALUE_ENUM"] === null)
+					{
+						$arViewHTML[] = GetMessage('IBLOCK_NO');
+					}
+					else
+					{
+						$arViewHTML[] = $prop["VALUE_ENUM"];
+					}
+				}
+				else
+				{
+					$arViewHTML[] = $prop["VALUE_ENUM"];
+				}
+			}
 			elseif($prop['PROPERTY_TYPE']=='F')
 			{
 				if ($bExcel)
@@ -3129,7 +3214,14 @@ foreach (array_keys($rawRows) as $rowId)
 							$html .= '<input type="checkbox" name="'.$VALUE_NAME.'" id="id'.$uniq_id.'" value="'.$value.'"';
 							if(isset($arValues[$value]))
 								$html .= ' checked';
-							$html .= '>&nbsp;<label for="id'.$uniq_id.'">'.$display.'</label><br>';
+							if (count($arSelect[$prop['ID']]) === 1 && $display === 'Y')
+							{
+								$html .= '>&nbsp;<label for="id' . $uniq_id . '"></label><br>';
+							}
+							else
+							{
+								$html .= '>&nbsp;<label for="id' . $uniq_id . '">' . $display . '</label><br>';
+							}
 							$uniq_id++;
 						}
 					}
@@ -5291,6 +5383,12 @@ elseif ($bCatalog && !$isChangeVariationRequest && $publicMode)
 		});
 	</script>
 	<?php
+}
+
+if ($pageConfig['PUBLIC_CRM_CATALOG'])
+{
+	$urlBuilder->openSettingsPage();
+	$urlBuilder->subscribeOnAfterSettingsSave();
 }
 
 unset($urlBuilder);

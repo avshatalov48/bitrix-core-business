@@ -13,6 +13,7 @@ class Parser
 	private array $priority = [
 		'(' => 0,
 		')' => 1,
+		'@' => 2,
 		';' => 2,
 		'=' => 3,
 		'<' => 3,
@@ -71,12 +72,12 @@ class Parser
 		return $this->activity->parseValue($variable);
 	}
 
-	private function setError($errorCode, $message = '')
+	private function setError($errorCode, $message = ''): void
 	{
 		$this->errors[] = [$errorCode, str_replace('#STR#', $message, $this->errorMessages[$errorCode])];
 	}
 
-	public function getErrors()
+	public function getErrors(): array
 	{
 		return $this->errors;
 	}
@@ -90,11 +91,11 @@ class Parser
 	private function getPolishNotation($text)
 	{
 		$text = trim($text);
-		if (mb_substr($text, 0, 1) === '=')
+		if (mb_strpos($text, '=') === 0)
 		{
 			$text = mb_substr($text, 1);
 		}
-		if (mb_strpos($text, '{{=') === 0 && mb_substr($text, -2) == '}}')
+		if (mb_strpos($text, '{{=') === 0 && mb_substr($text, -2) === '}}')
 		{
 			$text = mb_substr($text, 3);
 			$text = mb_substr($text, 0, -2);
@@ -110,6 +111,13 @@ class Parser
 		$notation = [];
 		$stack = [];
 		$prev = '';
+
+		$isFunctionArgs = function ($stack)
+		{
+			return (
+				isset($stack[0], $stack[1], $this->functions[$stack[1][0]]) && $stack[0][0] === '('
+			);
+		};
 
 		$preg = '/
 			\s*\(\s*                          |
@@ -155,15 +163,11 @@ class Parser
 			if (isset($match[1]) && $match[1])
 			{
 				$str = mb_strtolower($str);
-				[$name, $left] = explode('(', $str);
+				[$name] = explode('(', $str);
 				$name = trim($name);
 				if (isset($this->functions[$name]))
 				{
-					if (!$stack)
-					{
-						array_unshift($stack, [$name, $this->priority['f']]);
-					}
-					else
+					if ($stack)
 					{
 						while ($this->priority['f'] <= $stack[0][1])
 						{
@@ -174,8 +178,8 @@ class Parser
 								break;
 							}
 						}
-						array_unshift($stack, [$name, $this->priority['f']]);
 					}
+					array_unshift($stack, [$name, $this->priority['f']]);
 				}
 				else
 				{
@@ -186,33 +190,58 @@ class Parser
 				$str = '(';
 			}
 
-			if ($str == '-' || $str == '+')
+			if ($str === '-' || $str === '+')
 			{
 				if (
-					$prev == ''
+					$prev === ''
 					|| in_array($prev, ['(', ';', '=', '<=', '>=', '<>', '<', '>', '&', '+', '-', '*', '/', '^'])
 				)
 				{
 					$str .= 'm';
 				}
 			}
-			$prev = $str;
 
 			switch ($str)
 			{
 				case '(':
 					array_unshift($stack, ['(', $this->priority['(']]);
+					array_unshift($stack, ['@', $this->priority['@']]);
 					break;
 				case ')':
+					$hasComma = false;
+					$hasArguments = $prev !== '(';
+					//trailing comma
+					if ($prev === ';')
+					{
+						array_shift($stack);
+					}
+
 					while ($op = array_shift($stack))
 					{
-						if ($op[0] == '(')
+						if ($op[0] === '(')
 						{
 							break;
 						}
+						if ($op[0] === ';')
+						{
+							$hasComma = true;
+						}
+
+						$isInFunction = $isFunctionArgs($stack);
+
+						if (
+							$op[0] === '@'
+							&& (
+								(!$hasComma && !$isInFunction)
+								|| (!$hasArguments && $isInFunction)
+							)
+						)
+						{
+							continue;
+						}
 						$notation[] = [$op[0], self::Operation];
 					}
-					if ($op == null)
+					if ($op === null)
 					{
 						$this->setError(4);
 
@@ -238,6 +267,10 @@ class Parser
 					if (!$stack)
 					{
 						array_unshift($stack, [$str, $this->priority[$str]]);
+						if ($str === ';')
+						{
+							$notation[] = ['@', self::Operation];
+						}
 						break;
 					}
 					while ($this->priority[$str] <= $stack[0][1])
@@ -252,12 +285,12 @@ class Parser
 					array_unshift($stack, [$str, $this->priority[$str]]);
 					break;
 				default:
-					if (mb_substr($str, 0, 1) == '0' || (int)$str)
+					if (mb_strpos($str, '0') === 0 || (int)$str)
 					{
 						$notation[] = [(float)$str, self::Constant];
 						break;
 					}
-					if (mb_substr($str, 0, 1) == '"' || mb_substr($str, 0, 1) == "'")
+					if (mb_strpos($str, '"') === 0 || mb_strpos($str, "'") === 0)
 					{
 						$notation[] = [mb_substr($str, 1, -1), self::Constant];
 						break;
@@ -265,10 +298,11 @@ class Parser
 					$notation[] = [$str, self::Variable];
 			}
 			$text = mb_substr($text, mb_strlen($match[0]));
+			$prev = $str;
 		}
 		while ($op = array_shift($stack))
 		{
-			if ($op[0] == '(')
+			if ($op[0] === '(')
 			{
 				$this->setError(5);
 
@@ -282,13 +316,13 @@ class Parser
 
 	public function calculate($text)
 	{
-		if (!$arPolishNotation = $this->getPolishNotation($text))
+		if (!$notation = $this->getPolishNotation($text))
 		{
 			return null;
 		}
 
 		$stack = [];
-		foreach ($arPolishNotation as $item)
+		foreach ($notation as $item)
 		{
 			switch ($item[1])
 			{
@@ -301,6 +335,10 @@ class Parser
 				case self::Operation:
 					switch ($item[0])
 					{
+						case '@':
+							$arg = array_shift($stack);
+							array_unshift($stack, [$arg]);
+							break;
 						case ';':
 							$arg2 = array_shift($stack);
 							$arg1 = array_shift($stack);
@@ -342,8 +380,8 @@ class Parser
 							array_unshift($stack, $arg1 > $arg2);
 							break;
 						case '&':
-							$arg2 = (string)array_shift($stack);
-							$arg1 = (string)array_shift($stack);
+							$arg2 = \CBPHelper::stringify(array_shift($stack));
+							$arg1 = \CBPHelper::stringify(array_shift($stack));
 							array_unshift($stack, $arg1 . $arg2);
 							break;
 						case '+':
@@ -383,7 +421,7 @@ class Parser
 						case '^':
 							$arg2 = (float)array_shift($stack);
 							$arg1 = (float)array_shift($stack);
-							array_unshift($stack, pow($arg1, $arg2));
+							array_unshift($stack, $arg1 ** $arg2);
 							break;
 						case '%':
 							$arg = (float)array_shift($stack);

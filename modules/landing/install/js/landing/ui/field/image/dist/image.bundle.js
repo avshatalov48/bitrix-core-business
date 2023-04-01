@@ -21,7 +21,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.input.innerText = _this.content.src;
 	    _this.input.hidden = true;
 	    _this.input2x = _this.createInput();
-	    _this.input2x.innerText = _this.content.src2x;
+	    _this.input2x.innerText = _this.content.src2x || '';
 	    _this.input2x.hidden = true;
 
 	    _this.layout.classList.add("landing-ui-field-image");
@@ -530,6 +530,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	        this.image.dataset.fileid = value && value.id ? value.id : -1;
 	        this.image.dataset.fileid2x = value && value.id2x ? value.id2x : -1;
+
+	        if (value.type === 'image') {
+	          this.altField.layout.hidden = false;
+	          this.altField.setValue(value.alt);
+	        }
+
 	        this.classList = [];
 	      } else {
 	        this.preview.style.backgroundImage = null;
@@ -591,34 +597,40 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getValue",
 	    value: function getValue() {
-	      var fileId = parseInt(this.image.dataset.fileid);
-	      var fileId2x = parseInt(this.image.dataset.fileid2x);
-	      fileId = fileId === fileId ? fileId : -1;
-	      fileId2x = fileId2x === fileId2x ? fileId2x : -1;
 	      var value = {
 	        type: "",
 	        src: "",
-	        id: fileId,
-	        id2x: fileId2x,
-	        src2x: "",
 	        alt: "",
 	        url: ""
 	      };
+	      var fileId = parseInt(this.image.dataset.fileid);
+
+	      if (main_core.Type.isNumber(fileId) && fileId > 0) {
+	        value.id = fileId;
+	      }
+
+	      var fileId2x = parseInt(this.image.dataset.fileid2x);
+
+	      if (main_core.Type.isNumber(fileId2x) && fileId2x > 0) {
+	        value.id2x = fileId2x;
+	      }
+
+	      var src2x = this.input2x.innerText.trim();
+
+	      if (main_core.Type.isString(src2x) && src2x) {
+	        value.src2x = src2x;
+	      }
+
+	      if (this.type === "background" || this.type === "image") {
+	        value.src = this.input.innerText.trim();
+	      }
 
 	      if (this.type === "background") {
 	        value.type = "background";
-	        value.src = this.input.innerText.trim();
-	        value.src2x = this.input2x.innerText.trim();
-	        value.id = fileId;
-	        value.id2x = fileId2x;
 	      }
 
 	      if (this.type === "image") {
 	        value.type = "image";
-	        value.src = this.input.innerText.trim();
-	        value.src2x = this.input2x.innerText.trim();
-	        value.id = fileId;
-	        value.id2x = fileId2x;
 	        value.alt = this.altField.getValue();
 	      }
 

@@ -675,16 +675,8 @@
 	border-radius: var(--ui-selector-item-border-radius, var(--ui-border-radius-2xs));
 }
 
-.bx-ie11 .ui-selector-item {
-	height: 44px;
-}
-
 .ui-selector-dialog--compact-view .ui-selector-item {
 	min-height: 34px;
-}
-
-.bx-ie11 .ui-selector-dialog--compact-view .ui-selector-item {
-	height: 34px;
 }
 
 .ui-selector-item-avatar {
@@ -957,6 +949,7 @@
 	color: #000;
 	background-color: #faf16d;
 }
+
 .ui-tag-selector-outer-container {
 	background: #fff;
 	border: 1px solid #c6cdd3;

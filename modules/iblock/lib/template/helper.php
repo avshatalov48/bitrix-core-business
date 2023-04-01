@@ -135,17 +135,22 @@ class Helper
 	 */
 	public static function makeFileName(
 		\Bitrix\Iblock\InheritedProperty\BaseTemplate $ipropTemplates,
-		$templateName,
+		string $templateName,
 		array $fields,
 		array $file
-	)
+	): string
 	{
+		if (!isset($file['name']))
+		{
+			return '';
+		}
+
 		if (preg_match("/^(.+)(\\.[a-zA-Z0-9]+)\$/", $file["name"], $fileName))
 		{
 			if (!isset($fields["IPROPERTY_TEMPLATES"]) || $fields["IPROPERTY_TEMPLATES"][$templateName] == "")
 			{
 				$templates = $ipropTemplates->findTemplates();
-				$TEMPLATE = $templates[$templateName]["TEMPLATE"];
+				$TEMPLATE = ($templates[$templateName]["TEMPLATE"] ?? '');
 			}
 			else
 			{
@@ -172,6 +177,7 @@ class Helper
 				}
 			}
 		}
+
 		return $file["name"];
 	}
 }

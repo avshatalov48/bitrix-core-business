@@ -1,5 +1,5 @@
 <?php
-$MESS["SALE_HPS_SKB"] = "СКБ-банк";
+$MESS["SALE_HPS_SKB"] = "Синара банк";
 $MESS["SALE_HPS_SKB_LOGIN"] = "Логин";
 $MESS["SALE_HPS_SKB_LOGIN_DESC"] = "Логин ТСП в системе быстрых платежей";
 $MESS["SALE_HPS_SKB_PASSWORD"] = "Пароль";

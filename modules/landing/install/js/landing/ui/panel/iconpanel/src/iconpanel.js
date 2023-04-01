@@ -21,7 +21,7 @@ export class IconPanel extends Content
 	dictionary: Object = null;
 	defaultCategory: string;
 
-	static SUPPORTED_LANG = ['en', 'ru'];
+	static SUPPORTED_LANG = ['en', 'ru', 'de'];
 	static DEFAULT_LANG = 'en';
 
 	constructor(...args)
@@ -273,16 +273,11 @@ export class IconPanel extends Content
 			return;
 		}
 
-		// dbg
-		//const date = new Date();
-		//console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
-
 		this.content.innerHTML = '';
 		if (this.sidebarButtons.getActive())
 		{
 			this.sidebarButtons.getActive().deactivate();
 		}
-
 
 		// todo: need loader?
 		IconPanel
@@ -376,18 +371,18 @@ export class IconPanel extends Content
 			const lang = Loc.getMessage('LANGUAGE_ID');
 			if (lang === IconPanel.DEFAULT_LANG)
 			{
-				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_EN';
-				imageClass = '--en';
+				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_DEFAULT';
+				imageClass = '--not_found';
 			}
-			else if (IconPanel.SUPPORTED_LANG.indexOf(Loc.getMessage('LANGUAGE_ID')) !== -1)
+			else if (IconPanel.SUPPORTED_LANG.indexOf(lang) !== -1)
 			{
 				// todo: correct phrases
-				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_EN';
+				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_SUPPORTED';
 				imageClass = '--not_found';
 			}
 			else
 			{
-				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_OTHER';
+				textMsgId = 'LANDING_ICON_PANEL_NOT_FOUND_INCORRECT';
 				imageClass = '--incorrect_lang';
 			}
 

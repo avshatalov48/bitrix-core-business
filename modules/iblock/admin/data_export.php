@@ -1,38 +1,61 @@
-<?
+<?php
+
 /** @global CMain $APPLICATION */
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-CModule::IncludeModule("iblock");
+Loader::includeModule('iblock');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
+
+$request = Main\Context::getCurrent()->getRequest();
 
 $bPublicMode = defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1;
 
 set_time_limit(0);
-$IBLOCK_ID = intval($IBLOCK_ID);
-$STEP = intval($STEP);
+$IBLOCK_ID = (int)$request->get('IBLOCK_ID');
+$STEP = (int)$request->get('STEP');
 if ($STEP <= 0)
+{
 	$STEP = 1;
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $backButton <> '')
-	$STEP = $STEP - 2;
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $backButton2 <> '')
-	$STEP = 1;
+}
+if ($request->isPost())
+{
+	if ($request->getPost('backButton') !== null)
+	{
+		$STEP -= 2;
+	}
+	if ($request->getPost('backButton2') !== null)
+	{
+		$STEP = 1;
+	}
+}
 
-$NUM_CATALOG_LEVELS = intval(COption::GetOptionInt('iblock', 'num_catalog_levels', 3));
+$NUM_CATALOG_LEVELS = (int)Main\Config\Option::get('iblock', 'num_catalog_levels');
 if ($NUM_CATALOG_LEVELS <= 0)
+{
 	$NUM_CATALOG_LEVELS = 3;
+}
 $strError = "";
 $DATA_FILE_NAME = "";
 
+$num_rows_writed = 0;
+
 /////////////////////////////////////////////////////////////////////
 
-function GetValueByCodeTmp($code)
+function GetValueByCodeTmp($code): int
 {
 	global $NUM_FIELDS;
 	for ($i = 0; $i < $NUM_FIELDS; $i++)
 	{
-		if ($GLOBALS["field_".$i] == $code)
+		if ($GLOBALS["field_" . $i] === $code)
+		{
 			return $i;
+		}
 	}
+
 	return -1;
 }
 
@@ -71,7 +94,7 @@ function ArrayMultiply(&$arResult, $arTuple, $arTemp = array())
 			}
 			else
 			{
-				foreach($head as $key=>$value)
+				foreach ($head as $value)
 				{
 					$arTemp[count($arTemp)-1] = $value;
 					ArrayMultiply($arResult, $arTuple, $arTemp);
@@ -87,36 +110,52 @@ function ArrayMultiply(&$arResult, $arTuple, $arTemp = array())
 }
 /////////////////////////////////////////////////////////////////////
 
-if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
+$fields_type = (string)$request->getPost('fields_type');
+$delimiter_r = (string)$request->getPost('delimiter_r');
+$delimiter_other_r = (string)$request->getPost('delimiter_other_r');
+$first_line_names = (string)$request->getPost('first_line_names');
+$field_needed = $request->getPost('field_needed') ?? [];
+$field_code = $request->getPost('field_code') ?? [];
+$field_num = $request->getPost('field_num') ?? [];
+
+if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 {
 	//*****************************************************************//
-	if ($STEP > 1)
+	$arIBlock = false;
+	if ($IBLOCK_ID > 0)
 	{
-		//*****************************************************************//
 		$arIBlockRes = CIBlock::GetList(
-			array("sort" => "asc"),
-			array(
+			["SORT" => "ASC"],
+			[
 				"ID" => $IBLOCK_ID,
 				"MIN_PERMISSION" => "X",
 				"OPERATION" => "iblock_export",
-			)
+			]
 		);
 		$arIBlockRes = new CIBlockResult($arIBlockRes);
-		if ($IBLOCK_ID <= 0 || !($arIBlock = $arIBlockRes->GetNext()))
-			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_IBLOCK")."<br>";
-
-		if ($strError <> '')
-			$STEP = 1;
-		//*****************************************************************//
+		$arIBlock = $arIBlockRes->GetNext();
 	}
+
+	if ($IBLOCK_ID <= 0 || !$arIBlock)
+	{
+		$strError .= GetMessage("IBLOCK_ADM_EXP_NO_IBLOCK") . "<br>";
+	}
+
+	if ($strError !== '')
+	{
+		$STEP = 1;
+	}
+	//*****************************************************************//
 
 	if ($STEP > 2)
 	{
 		//*****************************************************************//
 		$csvFile = new CCSVData();
 
-		if ($fields_type != "F" && $fields_type != "R")
-			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FORMAT")."<br>";
+		if ($fields_type !== "F" && $fields_type !== "R")
+		{
+			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FORMAT") . "<br>";
+		}
 
 		$csvFile->SetFieldsType($fields_type);
 
@@ -140,32 +179,39 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 				break;
 		}
 
-		if (mb_strlen($delimiter_r_char) != 1)
-			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_DELIMITER")."<br>";
+		if (mb_strlen($delimiter_r_char) !== 1)
+		{
+			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_DELIMITER") . "<br>";
+		}
 
-		if ($strError == '')
+		if ($strError === '')
+		{
 			$csvFile->SetDelimiter($delimiter_r_char);
+		}
 
-		if ($_REQUEST["DATA_FILE_NAME"] == '')
+		$fileName = (string)$request->getPost('DATA_FILE_NAME');
+		if ($fileName === '')
 		{
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FILE_NAME")."<br>";
 		}
 		elseif (
-			preg_match('/[^a-zA-Z0-9\s!#\$%&\(\)\[\]\{\}+\.;=@\^_\~\/\\\\\-]/i', $_REQUEST["DATA_FILE_NAME"])
-			|| preg_match('/^[a-z]+:\\/\\//i', $_REQUEST["DATA_FILE_NAME"])
-			|| HasScriptExtension($_REQUEST["DATA_FILE_NAME"])
+			preg_match('/[^a-zA-Z0-9\s!#\$%&\(\)\[\]\{\}+\.;=@\^_\~\/\\\\\-]/i', $fileName)
+			|| preg_match('/^[a-z]+:\\/\\//i', $fileName)
+			|| HasScriptExtension($fileName)
 		)
 		{
 			$strError .= GetMessage("IBLOCK_ADM_EXP_FILE_NAME_ERROR")."<br>";
 		}
 		else
 		{
-			$DATA_FILE_NAME = Rel2Abs("/", $_REQUEST["DATA_FILE_NAME"]);
+			$DATA_FILE_NAME = Rel2Abs("/", $fileName);
 			if (mb_strtolower(mb_substr($DATA_FILE_NAME, mb_strlen($DATA_FILE_NAME) - 4)) != ".csv")
+			{
 				$DATA_FILE_NAME .= ".csv";
+			}
 		}
 
-		if ($strError == '')
+		if ($strError === '')
 		{
 			$fp = fopen($_SERVER["DOCUMENT_ROOT"].$DATA_FILE_NAME, "w");
 			if(!is_resource($fp))
@@ -182,7 +228,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 		if (!is_array($field_needed) || !in_array("Y", $field_needed))
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FIELDS")."<br>";
 
-		$num_rows_writed = 0;
 		if ($strError == '')
 		{
 			$selectArray = array(
@@ -195,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			$arNeedFields = array();
 			foreach($field_code as  $i => $value)
 			{
-				if($field_needed[$i]=="Y")
+				if (isset($field_needed[$i]) && $field_needed[$i] === "Y")
 				{
 					if(strncmp($value, "IE_", 3) == 0)
 					{
@@ -213,17 +258,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 
 					$j = $field_num[$i];
 					while(array_key_exists($j, $arNeedFields))
+					{
 						$j++;
+					}
 					$arNeedFields[$j] = $value;
 				}
 			}
 			ksort($arNeedFields);
 
-			if($first_line_names == "Y")
+			if ($first_line_names === "Y")
 			{
 				$arResFields = array();
 				foreach($arNeedFields as $field_name)
+				{
 					$arResFields[] = $field_name;
+				}
 				$csvFile->SaveFile($_SERVER["DOCUMENT_ROOT"].$DATA_FILE_NAME, $arResFields);
 			}
 
@@ -338,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 				{
 					if($arElement["IBLOCK_SECTION_ID"] > 0)
 					{
-						
+
 						$arPath = array();
 						$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $arElement["IBLOCK_SECTION_ID"], array("NAME"));
 						while($arPathSection = $rsPath->Fetch())
@@ -380,11 +429,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 					foreach($arNeedFields as $field_name)
 					{
 						if(strncmp($field_name, "IE_", 3) == 0)
-							$arTuple[] = $arElement["~".mb_substr($field_name, 3)];
-						elseif(strncmp($field_name, "IP_PROP", 7) == 0)
-							$arTuple[] = $arPropsValues[intval(mb_substr($field_name, 7))];
-						elseif(strncmp($field_name, "IC_GROUP", 8) == 0)
-							$arTuple[] = $arPath[intval(mb_substr($field_name, 8))];
+						{
+							$arTuple[] = $arElement["~" . mb_substr($field_name, 3)];
+						}
+						elseif(strncmp($field_name, "IP_PROP", 7) === 0)
+						{
+							$index = (int)mb_substr($field_name, 7);
+							$arTuple[] = $arPropsValues[$index] ?? null;
+						}
+						elseif(strncmp($field_name, "IC_GROUP", 8) === 0)
+						{
+							$index = (int)mb_substr($field_name, 8);
+							$arTuple[] = $arPath[$index] ?? null;
+						}
 					}
 
 					ArrayMultiply($arResFields, $arTuple);
@@ -392,15 +449,30 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			}
 		}
 
-		if ($strError <> '')
+		if ($strError !== '')
+		{
 			$STEP = 2;
+		}
 		elseif ($bPublicMode)
 		{
 ?>
 <div id="result">
 	<div style="text-align: center; margin: 20px;">
-<?echo GetMessage("IBLOCK_ADM_EXP_LINES_EXPORTED", array("#LINES#" => "<b>".intval($num_rows_writed)."</b>")) ?><br />
-<?echo GetMessage("IBLOCK_ADM_EXP_DOWNLOAD_RESULT", array("#HREF#" => "<a href=\"".htmlspecialcharsbx($DATA_FILE_NAME)."\">".htmlspecialcharsbx($DATA_FILE_NAME)."</a>")) ?>
+<?= GetMessage(
+	'IBLOCK_ADM_EXP_LINES_EXPORTED',
+	[
+		'#LINES#' => '<b>' . $num_rows_writed . '</b>',
+	]
+); ?><br />
+<?= GetMessage(
+	'IBLOCK_ADM_EXP_DOWNLOAD_RESULT',
+	[
+		'#HREF#' => '<a href="' . htmlspecialcharsbx($DATA_FILE_NAME) . '">'
+			. htmlspecialcharsbx($DATA_FILE_NAME)
+			. '</a>'
+		,
+	]
+); ?>
 	</div>
 </div>
 
@@ -413,7 +485,7 @@ w.ClearButtons();
 w.SetContent(document.getElementById('result').innerHTML);
 w.SetButtons(w.btnClose);
 </script>
-<?
+<?php
 			die();
 		}
 		//*****************************************************************//
@@ -432,23 +504,47 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 CAdminMessage::ShowMessage($strError);
 ?>
 <form method="POST" action="<?=$APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID; ?>" ENCTYPE="multipart/form-data" name="dataload">
-<input type="hidden" name="STEP" value="<?echo $STEP + 1;?>">
+<input type="hidden" name="STEP" value="<?= $STEP + 1;?>">
 <?=bitrix_sessid_post()?>
-<?
+<?php
 if ($STEP > 1)
 {
-	?><input type="hidden" name="IBLOCK_ID" value="<?echo $IBLOCK_ID ?>"><?
+	?><input type="hidden" name="IBLOCK_ID" value="<?= $IBLOCK_ID ?>"><?php
 }
 if (!$bPublicMode)
-	$aTabs = array(
-		array("DIV" => "edit1", "TAB" => GetMessage("IBLOCK_ADM_EXP_TAB1"), "ICON" => "iblock", "TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB1_ALT")),
-		array("DIV" => "edit2", "TAB" => GetMessage("IBLOCK_ADM_EXP_TAB2"), "ICON" => "iblock", "TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB2_ALT")),
-		array("DIV" => "edit3", "TAB" => GetMessage("IBLOCK_ADM_EXP_TAB3"), "ICON" => "iblock", "TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB3_ALT")),
-	);
+{
+	$aTabs = [
+		[
+			"DIV" => "edit1",
+			"TAB" => GetMessage("IBLOCK_ADM_EXP_TAB1"),
+			"ICON" => "iblock",
+			"TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB1_ALT")
+		],
+		[
+			"DIV" => "edit2",
+			"TAB" => GetMessage("IBLOCK_ADM_EXP_TAB2"),
+			"ICON" => "iblock",
+			"TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB2_ALT")
+		],
+		[
+			"DIV" => "edit3",
+			"TAB" => GetMessage("IBLOCK_ADM_EXP_TAB3"),
+			"ICON" => "iblock",
+			"TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB3_ALT")
+		],
+	];
+}
 else
-	$aTabs = array(
-		array("DIV" => "edit2", "TAB" => GetMessage("IBLOCK_ADM_EXP_TAB2"), "ICON" => "iblock", "TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB2_ALT"))
-	);
+{
+	$aTabs = [
+		[
+			"DIV" => "edit2",
+			"TAB" => GetMessage("IBLOCK_ADM_EXP_TAB2"),
+			"ICON" => "iblock",
+			"TITLE" => GetMessage("IBLOCK_ADM_EXP_TAB2_ALT")
+		]
+	];
+}
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs, false, true);
 $tabControl->Begin();
@@ -461,9 +557,9 @@ if (!$bPublicMode)
 	{
 ?>
 	<tr>
-		<td width="40%"><?echo GetMessage("IBLOCK_ADM_EXP_CHOOSE_IBLOCK") ?></td>
+		<td width="40%"><?= GetMessage("IBLOCK_ADM_EXP_CHOOSE_IBLOCK") ?></td>
 		<td width="60%">
-			<?echo GetIBlockDropDownListEx(
+			<?= GetIBlockDropDownListEx(
 				$IBLOCK_ID,
 				'IBLOCK_TYPE_ID',
 				'IBLOCK_ID',
@@ -478,7 +574,7 @@ if (!$bPublicMode)
 			);?>
 		</td>
 	</tr>
-<?
+<?php
 	}
 
 	$tabControl->EndTab();
@@ -491,35 +587,35 @@ if ($STEP == 2)
 	?>
 	<tr class="heading">
 		<td colspan="2">
-			<?echo GetMessage("IBLOCK_ADM_EXP_CHOOSE_FORMAT") ?>
+			<?= GetMessage("IBLOCK_ADM_EXP_CHOOSE_FORMAT") ?>
 			<input type="hidden" name="fields_type" value="R">
 		</td>
 	</tr>
 	<tr>
-		<td width="40%" class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_ADM_EXP_DELIMITER") ?>:</td>
+		<td width="40%" class="adm-detail-valign-top"><?= GetMessage("IBLOCK_ADM_EXP_DELIMITER") ?>:</td>
 		<td width="60%">
-			<input type="radio" name="delimiter_r" id="delimiter_TZP" value="TZP" <?if ($delimiter_r=="TZP" || $delimiter_r == '') echo "checked"?>><label for="delimiter_TZP"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_TZP") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_ZPT" value="ZPT" <?if ($delimiter_r=="ZPT") echo "checked"?>><label for="delimiter_ZPT"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_ZPT") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_TAB" value="TAB" <?if ($delimiter_r=="TAB") echo "checked"?>><label for="delimiter_TAB"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_TAB") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_SPS" value="SPS" <?if ($delimiter_r=="SPS") echo "checked"?>><label for="delimiter_SPS"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_SPS") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_OTR" value="OTR" <?if ($delimiter_r=="OTR") echo "checked"?>><label for="delimiter_OTR"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_OTR") ?></label>
-			<input type="text" name="delimiter_other_r" size="3" value="<?echo htmlspecialcharsbx($delimiter_other_r) ?>">
+			<input type="radio" name="delimiter_r" id="delimiter_TZP" value="TZP"<?= ($delimiter_r === "TZP" || $delimiter_r === '' ? ' checked' : ''); ?>><label for="delimiter_TZP"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_TZP") ?></label><br>
+			<input type="radio" name="delimiter_r" id="delimiter_ZPT" value="ZPT"<?= ($delimiter_r === "ZPT" ? ' checked' : ''); ?>><label for="delimiter_ZPT"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_ZPT") ?></label><br>
+			<input type="radio" name="delimiter_r" id="delimiter_TAB" value="TAB"<?= ($delimiter_r === "TAB" ? ' checked' : ''); ?>><label for="delimiter_TAB"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_TAB") ?></label><br>
+			<input type="radio" name="delimiter_r" id="delimiter_SPS" value="SPS"<?= ($delimiter_r === "SPS" ? ' checked' : ''); ?>><label for="delimiter_SPS"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_SPS") ?></label><br>
+			<input type="radio" name="delimiter_r" id="delimiter_OTR" value="OTR"<?= ($delimiter_r === "OTR" ? ' checked' : ''); ?>><label for="delimiter_OTR"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_OTR") ?></label>
+			<input type="text" name="delimiter_other_r" size="3" value="<?= htmlspecialcharsbx($delimiter_other_r) ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_ADM_EXP_FIRST_LINE_NAMES") ?>:</td>
+		<td><?= GetMessage("IBLOCK_ADM_EXP_FIRST_LINE_NAMES") ?>:</td>
 		<td>
-			<input type="checkbox" name="first_line_names" value="Y" <?if ($first_line_names=="Y" || $strError == '') echo "checked"?>>
+			<input type="checkbox" name="first_line_names" value="Y"<?= ($first_line_names=="Y" || $strError === '' ? ' checked' : ''); ?>>
 		</td>
 	</tr>
 
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IBLOCK_ADM_EXP_FIELDS_MAPPING") ?></td>
+		<td colspan="2"><?= GetMessage("IBLOCK_ADM_EXP_FIELDS_MAPPING") ?></td>
 	</tr>
 
 	<tr>
 		<td colspan="2">
-				<?
+				<?php
 				$arAvailFields = array(
 					array("value"=>"IE_XML_ID", "name"=>GetMessage("IBLOCK_FIELD_XML_ID")." (B_IBLOCK_ELEMENT.XML_ID)"),
 					array("value"=>"IE_NAME", "name"=>GetMessage("IBLOCK_FIELD_NAME")." (B_IBLOCK_ELEMENT.NAME)"),
@@ -557,7 +653,10 @@ if ($STEP == 2)
 				$arCheckID = array();
 				for ($i = 0; $i < $intCountFields; $i++)
 				{
-					if ($field_needed[$i]=="Y" || (!isset($field_needed) && $strCSVError == ''))
+					if (
+						(isset($field_needed[$i]) && $field_needed[$i] === "Y")
+						|| (empty($field_needed) && $strError === '')
+					)
 					{
 						$arCheckID[] = $i;
 						$intCountChecked++;
@@ -565,34 +664,32 @@ if ($STEP == 2)
 				}
 			?><table width="100%" border="0" cellspacing="0" cellpadding="0" class="internal">
 				<tr class="heading">
-					<td style="text-align: left !important;"><input type="checkbox" name="field_needed_all" id="field_needed_all" value="Y" onclick="checkAll(this,<? echo $intCountFields; ?>);"<? echo ($intCountChecked == $intCountFields ? ' checked' : ''); ?>>&nbsp;<?echo GetMessage("IBLOCK_ADM_EXP_IS_FIELD_NEEDED") ?></td>
-					<td><?echo GetMessage("IBLOCK_ADM_EXP_FIELD_NAME") ?></td>
-					<td><?echo GetMessage("IBLOCK_ADM_EXP_FIELD_SORT") ?></td>
-				</tr><?
+					<td style="text-align: left !important;"><input type="checkbox" name="field_needed_all" id="field_needed_all" value="Y" onclick="checkAll(this,<?= $intCountFields; ?>);"<?= ($intCountChecked == $intCountFields ? ' checked' : ''); ?>>&nbsp;<?= GetMessage("IBLOCK_ADM_EXP_IS_FIELD_NEEDED") ?></td>
+					<td><?= GetMessage("IBLOCK_ADM_EXP_FIELD_NAME") ?></td>
+					<td><?= GetMessage("IBLOCK_ADM_EXP_FIELD_SORT") ?></td>
+				</tr><?php
 				for ($i = 0; $i < $intCountFields; $i++)
 				{
 					?>
 					<tr>
 						<td style="text-align: left !important;">
-							<input type="checkbox" name="field_needed[<?echo $i ?>]" id="field_needed_<? echo $i; ?>"<?/*if ($field_needed[$i]=="Y" || strlen($strError)<=0) echo "checked"; */ if (in_array($i,$arCheckID)) echo "checked"; ?> value="Y" onclick="checkOne(this,<? echo $intCountFields; ?>);">
+							<input type="checkbox" name="field_needed[<?= $i ?>]" id="field_needed_<?= $i; ?>"<?= (in_array($i,$arCheckID) ? ' checked' : ''); ?> value="Y" onclick="checkOne(this,<?= $intCountFields; ?>);">
 						</td>
 						<td>
-							<?if ($i < 2) echo "<b>";?>
-							<?echo $arAvailFields[$i]["name"]?>
-							<?if ($i < 2) echo "</b>";?>
+							<?= ($i < 2 ? '<b>' : '') . $arAvailFields[$i]["name"] . ($i < 2 ? '</b>' : ''); ?>
 						</td>
 						<td align="center">
-							<?if ($i < 2) echo "<b>";?>
-							<input type="text" name="field_num[<?echo $i ?>]" value="<?echo (is_array($field_num)?$field_num[$i]:(10*($i+1))) ?>" size="2">
-							<input type="hidden" name="field_code[<?echo $i ?>]" value="<?echo $arAvailFields[$i]["value"] ?>">
-							<?if ($i < 2) echo "</b>";?>
+							<?= ($i < 2 ? '<b>' : ''); ?>
+							<input type="text" name="field_num[<?= $i ?>]" value="<?= $field_num[$i] ?? (10 * ($i + 1)) ?>" size="2">
+							<input type="hidden" name="field_code[<?= $i ?>]" value="<?= $arAvailFields[$i]["value"] ?>">
+							<?= ($i < 2 ? '</b>' : ''); ?>
 						</td>
 					</tr>
-					<?
+					<?php
 				}
 				?>
 			</table>
-			<input type="hidden" name="count_checked" id="count_checked" value="<? echo $intCountChecked; ?>">
+			<input type="hidden" name="count_checked" id="count_checked" value="<?= $intCountChecked; ?>">
 			<script type="text/javascript">
 			function checkAll(obj,cnt)
 			{
@@ -617,27 +714,27 @@ if ($STEP == 2)
 	</tr>
 
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IBLOCK_ADM_EXP_FILE_NAME") ?></td>
+		<td colspan="2"><?= GetMessage("IBLOCK_ADM_EXP_FILE_NAME") ?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_ADM_EXP_ENTER_FILE_NAME") ?>:</td>
-		<td><?
+		<td><?= GetMessage("IBLOCK_ADM_EXP_ENTER_FILE_NAME") ?>:</td>
+		<td><?php
 			if ($DATA_FILE_NAME <> '')
 			{
 				$exportFileName = $DATA_FILE_NAME;
 			}
 			else
 			{
-				$exportFileName = "/".COption::GetOptionString("main", "upload_dir", "upload")."/export_file_";
-				$exportFileName .= randString(16);
+				$exportFileName = "/".Main\Config\Option::get("main", "upload_dir", "upload")."/export_file_";
+				$exportFileName .= Main\Security\Random::getString(16);
 				$exportFileName .= '.csv';
 			}
 			?>
 			<input type="text" name="DATA_FILE_NAME" size="40" value="<?=htmlspecialcharsbx($exportFileName); ?>"><br>
-			<small><?echo GetMessage("IBLOCK_ADM_EXP_FILE_WARNING") ?></small>
+			<small><?= GetMessage("IBLOCK_ADM_EXP_FILE_WARNING") ?></small>
 		</td>
 	</tr>
-	<?
+	<?php
 }
 
 $tabControl->EndTab();
@@ -651,15 +748,33 @@ if (!$bPublicMode)
 ?>
 	<tr>
 		<td>
-		<?echo CAdminMessage::ShowMessage(array(
+		<?php
+		$message = GetMessage(
+			"IBLOCK_ADM_EXP_LINES_EXPORTED",
+			array(
+				"#LINES#" => "<b>". $num_rows_writed . "</b>"
+			)
+		);
+		$message .= '<br>'
+			. GetMessage(
+				"IBLOCK_ADM_EXP_DOWNLOAD_RESULT",
+				array(
+					"#HREF#" => '<a href="' . htmlspecialcharsbx($DATA_FILE_NAME) . '" target="_blank">'
+						. htmlspecialcharsex($DATA_FILE_NAME)
+						. '</a>'
+				)
+			)
+		;
+		CAdminMessage::ShowMessage([
 			"TYPE" => "PROGRESS",
 			"MESSAGE" => GetMessage("IBLOCK_ADM_EXP_SUCCESS"),
-			"DETAILS" => GetMessage("IBLOCK_ADM_EXP_LINES_EXPORTED", array("#LINES#" => "<b>".intval($num_rows_writed)."</b>")).'<br>'.GetMessage("IBLOCK_ADM_EXP_DOWNLOAD_RESULT", array("#HREF#" => "<a href=\"".htmlspecialcharsbx($DATA_FILE_NAME)."\" target=\"_blank\">".htmlspecialcharsex($DATA_FILE_NAME)."</a>")),
+			"DETAILS" => $message,
 			"HTML" => true,
-		))?>
+		]);
+		?>
 		</td>
 	</tr>
-	<?
+	<?php
 	}
 	$tabControl->EndTab();
 }
@@ -671,16 +786,16 @@ else:
 	if ($STEP < 3):
 		if ($STEP > 1):
 ?>
-		<input type="submit" name="backButton" value="&lt;&lt; <?echo GetMessage("IBLOCK_ADM_EXP_BACK_BUTTON") ?>">
-<?
+		<input type="submit" name="backButton" value="&lt;&lt; <?= GetMessage("IBLOCK_ADM_EXP_BACK_BUTTON") ?>">
+<?php
 		endif;
 ?>
-	<input type="submit" value="<?echo ($STEP==2)?GetMessage("IBLOCK_ADM_EXP_FINISH_BUTTON"):GetMessage("IBLOCK_ADM_EXP_NEXT_BUTTON") ?> &gt;&gt;" name="submit_btn" class="adm-btn-save">
-<?
+	<input type="submit" value="<?= ($STEP==2)?GetMessage("IBLOCK_ADM_EXP_FINISH_BUTTON"):GetMessage("IBLOCK_ADM_EXP_NEXT_BUTTON") ?> &gt;&gt;" name="submit_btn" class="adm-btn-save">
+<?php
 	else:
 ?>
-	<input type="submit" name="backButton2" value="&lt;&lt; <?echo GetMessage("IBLOCK_ADM_EXP_RESTART_BUTTON") ?>" class="adm-btn-save">
-<?
+	<input type="submit" name="backButton2" value="&lt;&lt; <?= GetMessage("IBLOCK_ADM_EXP_RESTART_BUTTON") ?>" class="adm-btn-save">
+<?php
 	endif;
 endif;
 
@@ -690,25 +805,33 @@ if (!$bPublicMode):
 <script type="text/javaScript">
 <!--
 BX.ready(function() {
-<?if ($STEP < 2):?>
+<?php
+if ($STEP < 2):
+?>
 	tabControl.SelectTab("edit1");
 	tabControl.DisableTab("edit2");
 	tabControl.DisableTab("edit3");
-<?elseif ($STEP == 2):?>
+<?php
+elseif ($STEP == 2):
+?>
 	tabControl.SelectTab("edit2");
 	tabControl.DisableTab("edit1");
 	tabControl.DisableTab("edit3");
-<?elseif ($STEP > 2):?>
+<?php
+elseif ($STEP > 2):
+?>
 	tabControl.SelectTab("edit3");
 	tabControl.DisableTab("edit1");
 	tabControl.DisableTab("edit2");
-<?endif;?>
+<?php
+endif;
+?>
 });
 //-->
 </script>
-<?
+<?php
 endif;
 ?>
 </form>
-<?
-require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php');

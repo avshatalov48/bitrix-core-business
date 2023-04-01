@@ -20,7 +20,10 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		if(this._typeId === "list" || this._typeId === "multilist" || this._typeId === "directory")
 		{
 			this._wrapper.appendChild(Tag.render`<hr class="ui-entity-editor-line">`);
-			this._wrapper.appendChild(this.getEnumerationContainer());
+			if (BX.prop.get(this._field?.getSchemeElement().getData(), 'isConfigurable', null) !== false)
+			{
+				this._wrapper.appendChild(this.getEnumerationContainer());
+			}
 		}
 
 		this._wrapper.appendChild(this.getOptionContainer());
@@ -75,6 +78,14 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 
 	isAllowedMultipleCheckBox()
 	{
+		if (BX.prop.get(this?._field?.getSchemeElement()?._settings, 'allowedMultiple', true) === false)
+		{
+			return false;
+		}
+		if (this._typeId === 'boolean')
+		{
+			return false;
+		}
 		const isEnabledOfferTree = this?._field?.getSchemeElement()?._settings?.isEnabledOfferTree;
 		const isMultiple = this?._field?.getSchemeElement()?._settings?.multiple;
 
@@ -313,6 +324,11 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		if (this._isPublic)
 		{
 			params["isPublic"] = this._isPublic.checked;
+		}
+
+		if (this._typeId === 'custom')
+		{
+			params['userType'] = this._field?.getSchemeElement()?._settings?.settings['USER_TYPE'];
 		}
 
 		return params;

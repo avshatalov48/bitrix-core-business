@@ -36,6 +36,8 @@ class FileLogger extends Logger
 		{
 			if (flock($fp, LOCK_EX))
 			{
+				// need it for filesize()
+				clearstatcache();
 				$logSize = filesize($this->fileName);
 
 				if ($this->maxSize > 0 && $logSize > $this->maxSize)

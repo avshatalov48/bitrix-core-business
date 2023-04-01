@@ -9,7 +9,6 @@ use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Web;
 use CCalendar;
 use CSocServGoogleOAuth;
@@ -148,13 +147,12 @@ final class GoogleApiTransport
 	}
 
 	/**
-	 * Doing request to API server
-	 *
 	 * @param $type
 	 * @param $url
-	 * @param array $requestParams
+	 * @param $requestParams
+	 * @return array|mixed
 	 * @throws ArgumentException
-	 * @return array
+	 * @throws LoaderException
 	 */
 	private function doRequest($type, $url, $requestParams = '')
 	{
@@ -165,10 +163,10 @@ final class GoogleApiTransport
 			throw new ArgumentException('Bad request type');
 		}
 
-		$this->client->query($type, $url, ($requestParams ? $requestParams : null));
+		$this->client->query($type, $url, ($requestParams ?: null));
 
 		//Only "OK" response is acceptable.
-		if ($this->client->getStatus() == 200)
+		if ($this->client->getStatus() === 200)
 		{
 			$contentType = $this->client->getHeaders()->getContentType();
 
@@ -178,7 +176,14 @@ final class GoogleApiTransport
 			}
 			else
 			{
-				$response = Web\Json::decode($this->client->getResult());
+				try
+				{
+					$response = Web\Json::decode($this->client->getResult());
+				}
+				catch (ArgumentException $exception)
+				{
+					$response = null;
+				}
 			}
 		}
 		else
@@ -288,7 +293,7 @@ final class GoogleApiTransport
 	 * @return array
 	 * @throws ArgumentException
 	 */
-	public function getCalendarList(array $requestParameters = null): array
+	public function getCalendarList(array $requestParameters = null): ?array
 	{
 		$this->currentMethod = __METHOD__;
 

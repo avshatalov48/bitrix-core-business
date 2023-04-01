@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TOOLS_DN"] = "дн.";
 $MESS["TOOLS_DAYS"] = "дней";
 $MESS["TOOLS_CALENDAR"] = "Календарь";
@@ -131,7 +131,7 @@ $MESS["COUNTRY_93"] = "Мексика";
 $MESS["COUNTRY_94"] = "Мозамбик";
 $MESS["COUNTRY_95"] = "Монако";
 $MESS["COUNTRY_96"] = "Монголия";
-$MESS["COUNTRY_97"] = "Морокко";
+$MESS["COUNTRY_97"] = "Марокко";
 $MESS["COUNTRY_98"] = "Намибия";
 $MESS["COUNTRY_99"] = "Непал";
 $MESS["COUNTRY_100"] = "Нигерия";
@@ -193,7 +193,7 @@ $MESS["COUNTRY_156"] = "Восточный Тимор";
 $MESS["COUNTRY_157"] = "Эль Сальвадор";
 $MESS["COUNTRY_158"] = "Экваториальная Гвинея";
 $MESS["COUNTRY_159"] = "Эритрея";
-$MESS["COUNTRY_160"] = "Фижи";
+$MESS["COUNTRY_160"] = "Фиджи";
 $MESS["COUNTRY_161"] = "Габон";
 $MESS["COUNTRY_162"] = "Гана";
 $MESS["COUNTRY_163"] = "Гвинея-Биссау";
@@ -431,4 +431,3 @@ $MESS["CAL_TIME"] = "Время";
 $MESS["expire_mess_timelicense1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">Срок действия текущей лицензии закончился. Через две недели этот сайт полностью прекратит свою работу. Срочно свяжитесь с <a href=\"http://www.1c-bitrix.ru/\">отделом по работе с ключевыми клиентами компании 1С-Битрикс</a> для приобретения лицензии на следующий год.</font></font>";
 $MESS["YEAR_PATTERN"] = "";
 $MESS["DOM_PATTERN"] = "";
-?>

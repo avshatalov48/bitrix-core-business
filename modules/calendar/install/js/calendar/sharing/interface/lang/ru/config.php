@@ -1,0 +1,21 @@
+<?php
+$MESS['SHARING_BUTTON_TITLE'] = 'Свободные слоты';
+$MESS['SHARING_DIALOG_CHECKBOX_ON'] = 'ВКЛ';
+$MESS['SHARING_DIALOG_CHECKBOX_OFF'] = 'ВЫКЛ';
+$MESS['SHARING_DIALOG_SHARING_BLOCK_TITLE'] = 'Ссылка на календарь';
+$MESS['SHARING_DIALOG_SHARING_HINT'] = 'Отправьте ссылку клиенту, партнеру, подрядчику – они сами найдут удобное время для встречи и добавят событие в ваш календарь';
+$MESS['SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON'] = 'Копировать ссылку';
+$MESS['SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON_COPIED'] = 'Скопировано';
+$MESS['SHARING_DIALOG_SHARING_BLOCK_DISABLED_COPY_LINK_BUTTON_POPUP'] = 'Чтобы поделиться ссылкой, откройте доступ к календарю';
+$MESS['SHARING_DIALOG_PREVIEW_BLOCK_CONTENT'] = "Наведите камеру смартфона на QR-код или #LINK#, чтобы посмотреть, как получатели увидят ваше свободное время в календаре.";
+$MESS['SHARING_DIALOG_PREVIEW_BLOCK_CONTENT_LINK'] = "перейдите по ссылке";
+$MESS['SHARING_DIALOG_INFO_POPUP'] = "Планируйте встречи без долгих переписок. Отправьте ссылку, по которой клиент, партнер или подрядчик увидят ваше свободное время и смогут сами подобрать удобный вариант.\n\nНикто не увидит ваше расписание, мы покажем только время, когда вы свободны ";
+$MESS['SHARING_DIALOG_MORE_DETAILED'] = 'Подробнее';
+$MESS['SHARING_WARNING_POPUP_TITLE']  = 'Вы отключаете доступ по ссылке';
+$MESS['SHARING_WARNING_POPUP_SUBMIT_BUTTON'] = 'Закрыть доступ';
+$MESS['SHARING_WARNING_POPUP_CANCEL_BUTTON'] = 'Отменить';
+$MESS['SHARING_WARNING_POPUP_CONTENT'] = 'При повторном включении доступа появится новая гостевая ссылка, доступ по старой будет невозможен.';
+$MESS['SHARING_INFO_POPUP_CONTENT_1'] = 'Планируйте встречи без долгих переписок. Отправьте ссылку, по которой клиент, партнер или подрядчик увидят ваше свободное время и смогут сами подобрать удобный вариант.';
+$MESS['SHARING_INFO_POPUP_CONTENT_2'] = 'Никто не увидит ваше расписание, мы покажем только время, когда вы свободны.';
+$MESS['SHARING_COPY_LINK_NOTIFICATION'] = 'Ссылка скопирована';
+// $MESS['SHARING_COPY_LINK_TEXT'] = "Это мой календарь, выберите удобное время для встречи ";

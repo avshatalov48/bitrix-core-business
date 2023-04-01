@@ -331,7 +331,7 @@ BX.ready(function(){
 			<?
 			foreach($arPathes as $pathName)
 			{
-				$val = $SET['pathes'][$siteId][$pathName];
+				$val = $SET['pathes'][$siteId][$pathName] ?? null;
 				if (!isset($val) || empty($val))
 					$val = $SET[$pathName];
 

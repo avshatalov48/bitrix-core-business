@@ -249,7 +249,7 @@ class DataSyncManager
 
 		[$event, $exDate] = $this->mergeExternalEventWithLocal($eventsMap[$event['href']], $event, $client);
 
-		if ($event['calendar-data'] && is_array($event['calendar-data']))
+		if (!empty($event['calendar-data']) && is_array($event['calendar-data']))
 		{
 			$eventId = $this->modifySingleEvent(
 				$connection,
@@ -262,7 +262,7 @@ class DataSyncManager
 			);
 		}
 
-		if (is_array($event['calendar-data-ex']) && $eventId && count($event['calendar-data-ex']) > 0)
+		if (is_array($event['calendar-data-ex'] ?? null) && $eventId && count($event['calendar-data-ex']) > 0)
 		{
 			$this->modifyRecurrenceEvent(
 				$connection,
@@ -358,7 +358,7 @@ class DataSyncManager
 			{
 				foreach ($events as $eventData)
 				{
-					if ($eventData['ACCESSIBILITY'] === 'busy')
+					if (isset($eventData['ACCESSIBILITY']) && $eventData['ACCESSIBILITY'] === 'busy')
 					{
 						return false;
 					}
@@ -467,26 +467,26 @@ class DataSyncManager
 		{
 			$data = [];
 			// Prepare Data with outer params
-			if ($event['ATTENDEE'] || $event['ORGANIZER_ENTITY'])
+			if (!empty($event['ATTENDEE']) || !empty($event['ORGANIZER_ENTITY']))
 			{
 				$this->parseInvitedAttendees($event, $data);
 			}
-			if ($event['ATTACH'])
+			if (!empty($event['ATTACH']))
 			{
 				$this->parseAttachments($event, $data);
 			}
-			if ($event['URL'])
+			if (!empty($event['URL']))
 			{
 				$data['URL'] = $event['URL'];
 			}
 
-			if ($additionalParams['EVENT_CONNECTION_ID'])
+			if (!empty($additionalParams['EVENT_CONNECTION_ID']))
 			{
 				EventConnectionTable::update($additionalParams['EVENT_CONNECTION_ID'], [
 					'SYNC_STATUS' => Dictionary::SYNC_STATUS['success'],
-					'ENTITY_TAG' => $event['MODIFICATION_LABEL'],
-					'VERSION' => (string)$additionalParams['VERSION'],
-					'VENDOR_VERSION_ID' => (string)$additionalParams['VERSION'],
+					'ENTITY_TAG' => $event['MODIFICATION_LABEL'] ?? null,
+					'VERSION' => (string)($additionalParams['VERSION'] ?? null),
+					'VENDOR_VERSION_ID' => (string)($additionalParams['VERSION'] ?? null),
 					'DATA' => $data,
 				]);
 			}
@@ -495,11 +495,11 @@ class DataSyncManager
 				EventConnectionTable::add([
 					'EVENT_ID' => (int)$result->getId(),
 					'CONNECTION_ID' => $connection->getId(),
-					'VENDOR_EVENT_ID' => $event['XML_ID'],
+					'VENDOR_EVENT_ID' => $event['XML_ID'] ?? null,
 					'SYNC_STATUS' => Dictionary::SYNC_STATUS['success'],
-					'ENTITY_TAG' => $event['MODIFICATION_LABEL'],
-					'VERSION' => (string)$additionalParams['VERSION'],
-					'VENDOR_VERSION_ID' => (string)$additionalParams['VERSION'],
+					'ENTITY_TAG' => $event['MODIFICATION_LABEL'] ?? null,
+					'VERSION' => (string)($additionalParams['VERSION'] ?? null),
+					'VENDOR_VERSION_ID' => (string)($additionalParams['VERSION'] ?? null),
 					'DATA' => $data,
 				]);
 			}
@@ -609,7 +609,7 @@ class DataSyncManager
 						]
 					);
 
-					if ($instance['RECURRENCE_ID_DATE'])
+					if (!empty($instance['RECURRENCE_ID_DATE']))
 					{
 						$exDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['RECURRENCE_ID_DATE']), false);
 					}
@@ -700,7 +700,7 @@ class DataSyncManager
 
 		foreach ($calendars as $calendar)
 		{
-			if ($calendar['TYPE'] === 'VEVENT')
+			if (isset($calendar['TYPE']) && $calendar['TYPE'] === 'VEVENT')
 			{
 				$calendarNames[$calendar['XML_ID']] = $calendar;
 			}
@@ -739,16 +739,16 @@ class DataSyncManager
 			}
 			else
 			{
-				if ($link['VERSION_ID'] !== $calendarNames[$xmlId]['MODIFICATION_LABEL'])
+				if (($link['VERSION_ID'] ?? null) !== ($calendarNames[$xmlId]['MODIFICATION_LABEL'] ?? null))
 				{
 					$fields =  [
-						'ID' => (int)$link['SECTION_ID'],
-						'NAME' => $link['EXTERNAL_TYPE'] === 'local'
+						'ID' => (int)($link['SECTION_ID'] ?? null),
+						'NAME' => isset($link['EXTERNAL_TYPE']) && $link['EXTERNAL_TYPE'] === 'local'
 							? $link['NAME']
 							: $calendarNames[$xmlId]['NAME']
 						,
-						'DESCRIPTION' => $calendarNames[$xmlId]['DESCRIPTION'],
-						'COLOR' => $calendarNames[$xmlId]['COLOR'],
+						'DESCRIPTION' => $calendarNames[$xmlId]['DESCRIPTION'] ?? null,
+						'COLOR' => $calendarNames[$xmlId]['COLOR'] ?? null,
 					];
 
 					\CCalendarSect::Edit([
@@ -760,7 +760,7 @@ class DataSyncManager
 					SectionConnectionTable::update((int)$link['SECTION_CONNECTION_ID'], [
 							'LAST_SYNC_DATE' => new DateTime(),
 							'LAST_SYNC_STATUS' => Dictionary::SYNC_STATUS['success'],
-							'VERSION_ID' => $calendarNames[$xmlId]['MODIFICATION_LABEL'],
+							'VERSION_ID' => $calendarNames[$xmlId]['MODIFICATION_LABEL'] ?? null,
 						]
 					);
 
@@ -768,7 +768,7 @@ class DataSyncManager
 						'XML_ID' => $xmlId,
 						'SECTION_ID' => $link['SECTION_ID'],
 						'SECTION_CONNECTION_ID' => $link['SECTION_CONNECTION_ID'],
-						'SYNC_TOKEN' => $link['VERSION_ID'],
+						'SYNC_TOKEN' => $link['VERSION_ID'] ?? null,
 						'IS_NEW' => false,
 					];
 				}
@@ -887,7 +887,7 @@ class DataSyncManager
 			{
 				$existEvent = $linksMap[$event['XML_ID']];
 
-				if ($existEvent['ENTITY_TAG'] === $event['SYNC_TOKEN'])
+				if (($existEvent['ENTITY_TAG'] ?? null) === ($event['SYNC_TOKEN'] ?? null))
 				{
 					continue;
 				}
@@ -898,7 +898,7 @@ class DataSyncManager
 
 				if ((int)$event['STATUS'] === 200)
 				{
-					if ($linksMap[$event['XML_ID']]['ENTITY_TAG'] !== $event['SYNC_TOKEN'])
+					if (($linksMap[$event['XML_ID']]['ENTITY_TAG'] ?? null) !== ($event['SYNC_TOKEN'] ?? null))
 					{
 						$result[] = $this->prepareExistedEventParams($event['XML_ID'], $linksMap[$event['XML_ID']]);
 					}
@@ -922,7 +922,7 @@ class DataSyncManager
 					EventConnectionTable::delete($linksMap[$event['XML_ID']]['EVENT_CONNECTION_ID']);
 				}
 			}
-			else if ($event['SYNC_TOKEN'] && (int)$event['STATUS'] === 200)
+			else if (!empty($event['SYNC_TOKEN']) && (int)$event['STATUS'] === 200)
 			{
 				$result[] = $this->prepareExistedEventParams($event['XML_ID']);
 			}
@@ -1050,7 +1050,7 @@ class DataSyncManager
 	private function prepareEventParams(array $event, int $sectionId, int $entityId): Event
 	{
 		$fields = [
-			'ID' => (int)$event['ID'],
+			'ID' => (int)($event['ID'] ?? null),
 			'NAME' => $this->prepareName($event['NAME']),
 			'CAL_TYPE' => self::ENTITY_TYPE,
 			'DESCRIPTION' => $event['DESCRIPTION'] ?? '',
@@ -1058,16 +1058,16 @@ class DataSyncManager
 			'CREATED_BY' => $entityId,
 			'ATTENDEES_CODES' => ['U' . $entityId],
 			'SECTIONS' => [$sectionId],
-			'ACCESSIBILITY' => (int)$event['ID']
+			'ACCESSIBILITY' => !empty($event['ID'])
 				? $event['ACCESSIBILITY']
 				: ($event['PROPERTY_ACCESSIBILITY'] ?? 'busy')
 			,
 			'IS_MEETING' => $event['IS_MEETING'] ? true : null,
 			'IMPORTANCE' => $event['IMPORTANCE'] ?? 'normal',
-			'REMIND' => is_array($event['REMIND']) ? $event['REMIND'] : [],
-			'RRULE' => is_array($event['RRULE']) ? $event['RRULE'] : [],
+			'REMIND' => is_array($event['REMIND'] ?? null) ? $event['REMIND'] : [],
+			'RRULE' => is_array($event['RRULE'] ?? null) ? $event['RRULE'] : [],
 			'VERSION' => (int)$event['VERSION'],
-			'PRIVATE_EVENT' => (bool)$event['PRIVATE_EVENT'],
+			'PRIVATE_EVENT' => (bool)($event['PRIVATE_EVENT'] ?? null),
 			'DATE_FROM' => $event['DATE_FROM'],
 			'DATE_TO' => $event['DATE_TO'],
 			'TZ_FROM' => $event['TZ_FROM'],
@@ -1079,12 +1079,12 @@ class DataSyncManager
 			'DATE_CREATE' => new DateTime(),
 		];
 
-		if ($event['RECURRENCE_ID'])
+		if (!empty($event['RECURRENCE_ID']))
 		{
 			$fields['RECURRENCE_ID'] = $event['RECURRENCE_ID'];
 		}
 
-		if ($event['MEETING'])
+		if (!empty($event['MEETING']))
 		{
 			$fields['MEETING'] = $event['MEETING'];
 			$fields['MEETING_HOST'] = $event['MEETING']['MEETING_CREATOR'] ?? null;
@@ -1104,22 +1104,22 @@ class DataSyncManager
 			$fields['MEETING_STATUS'] = 'H';
 		}
 
-		if ($event['ATTENDEES_CODES'])
+		if (!empty($event['ATTENDEES_CODES']))
 		{
 			$fields['ATTENDEES_CODES'] = $event['ATTENDEES_CODES'];
 		}
 
-		if ($event['RECURRENCE_ID_DATE'])
+		if (!empty($event['RECURRENCE_ID_DATE']))
 		{
 			$fields['ORIGINAL_DATE_FROM'] = $event['RECURRENCE_ID_DATE'];
 		}
 
-		if ($fields['ORIGINAL_DATE_FROM'] && $fields['RECURRENCE_ID'])
+		if (!empty($fields['ORIGINAL_DATE_FROM']) && !empty($fields['RECURRENCE_ID']))
 		{
 			$fields['RELATIONS'] = ['COMMENT_XML_ID' => \CCalendarEvent::GetEventCommentXmlId($fields)];
 		}
 
-		if ($event['SKIP_TIME'])
+		if (!empty($event['SKIP_TIME']))
 		{
 			$fields['DATE_FROM'] = \CCalendar::Date(\CCalendar::Timestamp($fields['DATE_FROM'], false));
 			$fields['DATE_TO'] = \CCalendar::Date(
@@ -1128,7 +1128,7 @@ class DataSyncManager
 			);
 		}
 
-		if ($event['PROPERTY_REMIND_SETTINGS'])
+		if (!empty($event['PROPERTY_REMIND_SETTINGS']))
 		{
 			if (is_array($event['PROPERTY_REMIND_SETTINGS']))
 			{
@@ -1145,24 +1145,24 @@ class DataSyncManager
 			}
 		}
 
-		if ($event['PROPERTY_IMPORTANCE'])
+		if (!empty($event['PROPERTY_IMPORTANCE']))
 		{
 			$fields['IMPORTANCE'] = $event['PROPERTY_IMPORTANCE'];
 		}
 
-		if ($event['PROPERTY_LOCATION'])
+		if (!empty($event['PROPERTY_LOCATION']))
 		{
 			$fields['LOCATION'] = Rooms\Util::unParseTextLocation($event['PROPERTY_LOCATION']);
 		}
 
-		if ($event['DETAIL_TEXT'])
+		if (!empty($event['DETAIL_TEXT']))
 		{
 			$this->prepareDescription($event, $fields);
 		}
 
 		//RRULE SEGMENT
 		if (
-			$event['PROPERTY_PERIOD_TYPE']
+			!empty($event['PROPERTY_PERIOD_TYPE'])
 			&& in_array($event['PROPERTY_PERIOD_TYPE'], ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
 		)
 		{
@@ -1190,11 +1190,11 @@ class DataSyncManager
 		{
 			$result[] = [
 				'XML_ID' => $calendar['href'],
-				'NAME' => $calendar['displayname'],
-				'DESCRIPTION' => $calendar['calendar-description'],
+				'NAME' => $calendar['displayname'] ?? null,
+				'DESCRIPTION' => $calendar['calendar-description'] ?? '',
 				'TYPE' => $calendar['supported-calendar-component-set'] ?? '',
-				'COLOR' => $calendar['calendar-color'],
-				'MODIFICATION_LABEL' => $calendar['getctag'],
+				'COLOR' => $calendar['calendar-color'] ?? null,
+				'MODIFICATION_LABEL' => $calendar['getctag'] ?? null,
 			];
 		}
 
@@ -1293,7 +1293,7 @@ class DataSyncManager
 		$timestamp = time() - self::TIME_SLICE;
 		foreach ($events as $key => $event)
 		{
-			if ($event['calendar-data']['PROPERTY_PERIOD_UNTIL'])
+			if (!empty($event['calendar-data']['PROPERTY_PERIOD_UNTIL']))
 			{
 				if ((int)\CCalendar::Timestamp($event['calendar-data']['PROPERTY_PERIOD_UNTIL']) - $timestamp < 0)
 				{
@@ -1301,7 +1301,7 @@ class DataSyncManager
 				}
 			}
 			else if (
-				$event['calendar-data']['DATE_TO']
+				!empty($event['calendar-data']['DATE_TO'])
 				&& (int)\CCalendar::Timestamp($event['calendar-data']['DATE_TO']) - $timestamp < 0
 			)
 			{
@@ -1320,7 +1320,7 @@ class DataSyncManager
 	 */
 	private function parseInvitedAttendees(array $event, array &$data): void
 	{
-		if ($event['ATTENDEE'])
+		if (!empty($event['ATTENDEE']))
 		{
 			/** @var \CDavICalendarProperty $attendee */
 			foreach ($event['ATTENDEE'] as $attendee)
@@ -1518,16 +1518,20 @@ class DataSyncManager
 		$fields['RRULE']['FREQ'] = $event['PROPERTY_PERIOD_TYPE'];
 		$fields['RRULE']['INTERVAL'] = $event['PROPERTY_PERIOD_COUNT'];
 
-		if (!$fields['DT_LENGTH'] && $event['PROPERTY_EVENT_LENGTH'])
+		if (empty($fields['DT_LENGTH']) && !empty($event['PROPERTY_EVENT_LENGTH']))
 		{
 			$fields['DT_LENGTH'] = (int)$fields['PROPERTY_EVENT_LENGTH'];
 		}
-		else
+		elseif(isset($event['DT_TO_TS']) && isset($event['DT_FROM_TS']))
 		{
 			$fields['DT_LENGTH'] = $event['DT_TO_TS'] - $event['DT_FROM_TS'];
 		}
+		else
+		{
+			$fields['DT_LENGTH'] = null;
+		}
 
-		if ($fields['RRULE']['FREQ'] === 'WEEKLY' && $event['PROPERTY_PERIOD_ADDITIONAL'])
+		if ($fields['RRULE']['FREQ'] === 'WEEKLY' && !empty($event['PROPERTY_PERIOD_ADDITIONAL']))
 		{
 			$fields['RRULE']['BYDAY'] = [];
 			$days = explode(',', $event['PROPERTY_PERIOD_ADDITIONAL']);
@@ -1542,20 +1546,20 @@ class DataSyncManager
 			$fields['RRULE']['BYDAY'] = implode(',', $fields['RRULE']['BYDAY']);
 		}
 
-		if ($event['PROPERTY_RRULE_COUNT'])
+		if (!empty($event['PROPERTY_RRULE_COUNT']))
 		{
 			$fields['RRULE']['COUNT'] = $event['PROPERTY_RRULE_COUNT'];
 		}
-		else if ($event['PROPERTY_PERIOD_UNTIL'])
+		else if (!empty($event['PROPERTY_PERIOD_UNTIL']))
 		{
 			$fields['RRULE']['UNTIL'] = $event['PROPERTY_PERIOD_UNTIL'];
 		}
 		else
 		{
-			$fields['RRULE']['UNTIL'] = $event['DT_TO_TS'];
+			$fields['RRULE']['UNTIL'] = $event['DT_TO_TS'] ?? null;
 		}
 
-		if ($event['EXDATE'])
+		if (!empty($event['EXDATE']))
 		{
 			$fields['EXDATE'] = $event['EXDATE'];
 		}
@@ -1593,23 +1597,23 @@ class DataSyncManager
 		$instance['EVENT_CONNECTION_VERSION'] = (int)$localInstance['VERSION'];
 		$instance['EVENT_CONNECTION_ID'] = (int)$localInstance['EVENT_CONNECTION_ID'];
 
-		if ($localInstance['MEETING'])
+		if (!empty($localInstance['MEETING']))
 		{
 			$instance['MEETING'] = unserialize($localInstance['MEETING'], ['allow_classes' => false]);
 		}
-		if ($localInstance['ATTENDEES_CODES'])
+		if (!empty($localInstance['ATTENDEES_CODES']))
 		{
 			$instance['ATTENDEES_CODES'] = explode(',', $localInstance['ATTENDEES_CODES']);
 		}
-		if ($localInstance['IS_MEETING'])
+		if (!empty($localInstance['IS_MEETING']))
 		{
 			$instance['IS_MEETING'] = (bool)$localInstance['IS_MEETING'];
 		}
-		if ($localInstance['MEETING_HOST'])
+		if (!empty($localInstance['MEETING_HOST']))
 		{
 			$instance['MEETING_HOST'] = $localInstance['MEETING_HOST'];
 		}
-		if ($localInstance['ACCESSIBILITY'])
+		if (!empty($localInstance['ACCESSIBILITY']))
 		{
 			$instance['ACCESSIBILITY'] = $localInstance['ACCESSIBILITY'];
 		}
@@ -1623,24 +1627,24 @@ class DataSyncManager
 	 */
 	private function addParentDataToInstance(array $instance, array $parentEvent): array
 	{
-		if (!$instance['IS_MEETING'])
+		if (empty($instance['IS_MEETING']))
 		{
 			$instance['IS_MEETING'] = $parentEvent['IS_MEETING'];
 		}
-		if (!$instance['MEETING_HOST'])
+		if (empty($instance['MEETING_HOST']))
 		{
 			$instance['MEETING_HOST'] = $parentEvent['MEETING_HOST'];
 		}
-		if (!$instance['MEETING'])
+		if (empty($instance['MEETING']))
 		{
 			$instance['MEETING'] = $parentEvent['MEETING'];
 		}
-		if (!$instance['ATTENDEES_CODES'])
+		if (empty($instance['ATTENDEES_CODES']))
 		{
 			$instance['ATTENDEES_CODES'] = $parentEvent['ATTENDEES_CODES'];
 		}
 
-		$instance['VERSION'] = $instance['EVENT_CONNECTION_VERSION']
+		$instance['VERSION'] = !empty($instance['EVENT_CONNECTION_VERSION'])
 			? max($parentEvent['VERSION'], $instance['EVENT_CONNECTION_VERSION'])
 			: $parentEvent['VERSION']
 		;
@@ -1685,17 +1689,17 @@ class DataSyncManager
 	{
 		return [
 			'XML_ID' => $xmlId,
-			'ID' => (int)$link['EVENT_ID'],
-			'EVENT_NAME' => $link['EVENT_NAME'],
-			'EVENT_CONNECTION_ID' => (int)$link['EVENT_CONNECTION_ID'],
+			'ID' => (int)($link['EVENT_ID'] ?? null),
+			'EVENT_NAME' => $link['EVENT_NAME'] ?? null,
+			'EVENT_CONNECTION_ID' => (int)($link['EVENT_CONNECTION_ID'] ?? null),
 			'EXDATE' => $link['EXDATE'] ?? null,
 			'VERSION' => $link['EVENT_VERSION'] ?? $link['VERSION'] ?? 1,
-			'MEETING' => $link['MEETING']
+			'MEETING' => ($link['MEETING'] ?? null)
 				? unserialize($link['MEETING'], ['allowed_classes' => false])
 				: null
 			,
-			'IS_MEETING' => (bool)$link['IS_MEETING'],
-			'ATTENDEES_CODES' => $link['ATTENDEES_CODES']
+			'IS_MEETING' => (bool)($link['IS_MEETING'] ?? null),
+			'ATTENDEES_CODES' => ($link['ATTENDEES_CODES'] ?? null)
 				? explode(',', $link['ATTENDEES_CODES'])
 				: null
 			,

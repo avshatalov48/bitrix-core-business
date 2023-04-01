@@ -556,7 +556,7 @@ class CBPTrackingServiceResult extends CDBResult
 		{
 			$actionNote = $result['ACTION_NOTE'];
 
-			if (in_array((int)$result['TYPE'], CBPTrackingService::DEBUG_TRACK_TYPES, true))
+			if (isset($result['TYPE']) && in_array((int)$result['TYPE'], CBPTrackingService::DEBUG_TRACK_TYPES, true))
 			{
 				$actionNote = \Bitrix\Main\Web\Json::decode($actionNote);
 				if (isset($actionNote['propertyValue']) && is_string($actionNote['propertyValue']))

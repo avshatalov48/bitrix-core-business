@@ -282,7 +282,9 @@ endif;
 	{
 		BX.namespace('BX.Bizproc.Automation');
 		if (typeof BX.Bizproc.Automation.Component === 'undefined')
+		{
 			return;
+		}
 
 		var baseNode = document.querySelector('[data-role="automation-base-node"]');
 		if (baseNode)
@@ -299,7 +301,7 @@ endif;
 			var viewMode = BX.Bizproc.Automation.Component.ViewMode.Edit;
 
 			(new BX.Bizproc.Automation.Component(baseNode))
-				.init(<?=\Bitrix\Main\Web\Json::encode(array(
+				.init(<?=\Bitrix\Main\Web\Json::encode([
 					'AJAX_URL' => '/bitrix/components/bitrix/bizproc.automation/ajax.php',
 					'WORKFLOW_EDIT_URL' => $arResult['WORKFLOW_EDIT_URL'],
 					'CONSTANTS_EDIT_URL' => $arResult['CONSTANTS_EDIT_URL'],
@@ -325,8 +327,6 @@ endif;
 					'TRIGGER_CAN_SET_EXECUTE_BY' => $arResult['TRIGGER_CAN_SET_EXECUTE_BY'],
 					'GLOBAL_CONSTANTS' => $arResult['GLOBAL_CONSTANTS'],
 					'GLOBAL_VARIABLES' => $arResult['GLOBAL_VARIABLES'],
-					'G_CONSTANTS_VISIBILITY' => $arResult['G_CONSTANTS_VISIBILITY'],
-					'G_VARIABLES_VISIBILITY' => $arResult['G_VARIABLES_VISIBILITY'],
 					'LOG' => $arResult['LOG'],
 
 					'B24_TARIF_ZONE' => $arResult['B24_TARIF_ZONE'] ?? '',
@@ -341,7 +341,7 @@ endif;
 
 					'DELAY_MIN_LIMIT_M' => $arResult['DELAY_MIN_LIMIT_M'],
 					'IS_WORKTIME_AVAILABLE' => $arResult['IS_WORKTIME_AVAILABLE'],
-				))?>, viewMode);
+				])?>, viewMode);
 		}
 	});
 </script>

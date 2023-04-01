@@ -8,6 +8,7 @@ use Bitrix\Calendar\Internals\RoomCategoryTable;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 
 /**
  * Manager for categories
@@ -84,9 +85,9 @@ class Manager
 			$roomsIds = implode(',', $rooms);
 
 			$sqlStr = "
-				UPDATE ${tableName}
-				SET CATEGORY_ID = ${createdCategoryId}
-				WHERE SECTION_ID IN (${roomsIds})
+				UPDATE $tableName
+				SET CATEGORY_ID = $createdCategoryId
+				WHERE SECTION_ID IN ($roomsIds)
 			";
 			$result = $DB->Query($sqlStr, true);
 			if(!$result)
@@ -125,7 +126,7 @@ class Manager
 
 		$result = true;
 
-		if($rooms['toAddCategory'])
+		if(isset($rooms['toAddCategory']))
 		{
 			foreach ($rooms['toAddCategory'] as &$toAddId)
 			{
@@ -133,14 +134,14 @@ class Manager
 			}
 			$toAddIds = implode(',', $rooms['toAddCategory']);
 			$sqlStr = "
-				UPDATE ${tableName}
-				SET CATEGORY_ID = ${categoryId}
-				WHERE SECTION_ID IN (${toAddIds})
+				UPDATE $tableName
+				SET CATEGORY_ID = $categoryId
+				WHERE SECTION_ID IN ($toAddIds)
 			";
 			$result = $DB->Query($sqlStr, true);
 		}
 
-		if($result && $rooms['toRemoveCategory'])
+		if($result && isset($rooms['toRemoveCategory']))
 		{
 			foreach ($rooms['toRemoveCategory'] as &$toRemoveId)
 			{
@@ -148,9 +149,9 @@ class Manager
 			}
 			$toRemoveIds = implode(',', $rooms['toRemoveCategory']);
 			$sqlStr = "
-				UPDATE ${tableName}
+				UPDATE $tableName
 				SET CATEGORY_ID = null
-				WHERE SECTION_ID IN (${toRemoveIds})
+				WHERE SECTION_ID IN ($toRemoveIds)
 			";
 			$result = $DB->Query($sqlStr, true);
 		}
@@ -187,9 +188,9 @@ class Manager
 		$categoryId = $this->category->getId();
 
 		$DB->Query("
-			UPDATE ${tableName}
+			UPDATE $tableName
 			SET CATEGORY_ID = null
-			WHERE CATEGORY_ID = ${categoryId}
+			WHERE CATEGORY_ID = $categoryId
 		");
 
 		return $this;
@@ -197,8 +198,7 @@ class Manager
 
 	public static function getCategoryList()
 	{
-		return
-			RoomCategoryTable::getList([
+		$categories = RoomCategoryTable::getList([
 				'select' => [
 					'ID',
 					'NAME',
@@ -206,6 +206,13 @@ class Manager
 			])
 			->fetchAll()
 		;
+
+		foreach ($categories as &$category)
+		{
+			$category['NAME'] = Emoji::decode($category['NAME']);
+		}
+
+		return $categories;
 	}
 
 	/**

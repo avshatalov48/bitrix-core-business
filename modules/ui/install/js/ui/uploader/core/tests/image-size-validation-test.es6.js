@@ -2,6 +2,7 @@ import createFileByType from './utils/create-file-by-type.es6';
 import Uploader from '../src/uploader';
 import { BaseEvent } from 'main.core.events';
 import { BaseError } from 'main.core';
+import { UploaderEvent } from '../src/enums/uploader-event';
 
 describe('Image Size Validation', () => {
 
@@ -18,7 +19,7 @@ describe('Image Size Validation', () => {
 			imageMaxHeight: 100,
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -48,7 +49,7 @@ describe('Image Size Validation', () => {
 			imageMaxHeight: 100,
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -98,7 +99,7 @@ describe('Image Size Validation', () => {
 			}
 		});
 
-		uploader.subscribe('File:onAdd', listener);
+		uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 		uploader.addFiles([gif, jpg]);
 	});
 
@@ -143,7 +144,7 @@ describe('Image Size Validation', () => {
 				}
 			});
 
-			uploader.subscribe('File:onAdd', listener);
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			uploader.addFiles([gif, png, jpg]);
 		});
 	});
@@ -189,7 +190,7 @@ describe('Image Size Validation', () => {
 				}
 			});
 
-			uploader.subscribe('File:onAdd', listener);
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			uploader.addFiles([gif, png, jpg]);
 		});
 	});

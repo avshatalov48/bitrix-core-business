@@ -3,15 +3,14 @@ import {PageObject} from 'landing.pageobject';
 const {scrollTo, highlight} = BX.Landing.Utils;
 
 /**
- * @param {string} state
  * @param {object} entry
  * @return {Promise}
  */
-export default function addBlock(state, entry)
+export default function addBlock(entry)
 {
 	return PageObject.getInstance().blocks()
 		.then((blocks) => {
-			const block = blocks.get(entry[state].currentBlock);
+			const block = blocks.get(entry.params.currentBlock);
 
 			return new Promise(((resolve) => {
 				if (block)
@@ -29,9 +28,10 @@ export default function addBlock(state, entry)
 					landing.currentBlock = block;
 
 					return PageObject.getInstance().view().then((iframe) => {
-						landing.currentArea = iframe.contentDocument.body.querySelector(`[data-landing="${entry[state].lid}"]`);
-						landing.insertBefore = entry[state].insertBefore;
-						return landing.onAddBlock(entry[state].code, entry.block, true);
+						landing.currentArea = iframe.contentDocument.body.querySelector(`[data-landing="${entry.params.lid}"]`);
+						landing.insertBefore = entry.params.insertBefore;
+
+						return landing.onAddBlock(entry.params.code, entry.block, true);
 					});
 				});
 		});

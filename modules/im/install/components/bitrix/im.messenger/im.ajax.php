@@ -494,9 +494,9 @@ else if (isImPostRequest('IM_SEND_MESSAGE'))
 	}
 
 	$message = CIMMessenger::GetById($insertID, Array('WITH_FILES' => 'Y'));
-	$arMessages[$insertID]['params'] = $message['PARAMS'];
+	$arMessages[$insertID]['params'] = $message['PARAMS'] ?? null;
 
-	$arMessages = CIMMessageLink::prepareShow($arMessages, Array($insertID => $message['PARAMS']));
+	$arMessages = CIMMessageLink::prepareShow($arMessages, Array($insertID => $message['PARAMS'] ?? null));
 
 	$ar['MESSAGE'] = trim(str_replace(Array('[BR]', '[br]'), "\n", $_POST['MESSAGE']));
 	$ar['MESSAGE'] = preg_replace("/\[DISK\=([0-9]+)\]/i", "", $ar['MESSAGE']);
@@ -505,11 +505,11 @@ else if (isImPostRequest('IM_SEND_MESSAGE'))
 	$arResult = Array(
 		'TMP_ID' => $_POST['ID'],
 		'ID' => $insertID,
-		'CHAT_ID' => $message['CHAT_ID'],
+		'CHAT_ID' => $message['CHAT_ID'] ?? null,
 		'SEND_DATE' => new \Bitrix\Main\Type\DateTime(),
 		'SEND_MESSAGE' => \Bitrix\Im\Text::parse($ar['MESSAGE']),
 		'SEND_MESSAGE_PARAMS' => $arMessages[$insertID]['params'],
-		'SEND_MESSAGE_FILES' => $message['FILES'],
+		'SEND_MESSAGE_FILES' => $message['FILES'] ?? null,
 		'SENDER_ID' => intval($USER->GetID()),
 		'RECIPIENT_ID' => $_POST['CHAT'] == 'Y'? htmlspecialcharsbx($_POST['RECIPIENT_ID']): intval($_POST['RECIPIENT_ID']),
 		'OL_SILENT' => $_POST['OL_SILENT'],
@@ -821,7 +821,15 @@ else if (isImPostRequest('IM_LOAD_LAST_MESSAGE'))
 				$orm = \Bitrix\Im\Model\ChatTable::getById($chatId);
 				$chatData = $orm->fetch();
 
-				$diskFolderId = (int)$chatData['DISK_FOLDER_ID'];
+				if ($chatData === false)
+				{
+					$chatData = [
+						'DISK_FOLDER_ID' => null,
+						'ENTITY_TYPE' => null,
+						'ENTITY_ID' => null,
+					];
+				}
+				$diskFolderId = (int)($chatData['DISK_FOLDER_ID']);
 				$entityType = $chatData['ENTITY_TYPE'];
 				$entityId = $chatData['ENTITY_ID'];
 			}

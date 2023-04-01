@@ -4,10 +4,14 @@ import { Util } from 'calendar.util';
 import { Entry } from 'calendar.entry';
 import { Runtime, Event } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
+import { UserAvatar	} from './user-avatar';
 
 export const ViewEventSlider = {
 	name: 'ViewEventSlider',
 	props: ['params', 'reloadPlannerCallback', 'showUserListPopupCallback'],
+	components: {
+		UserAvatar,
+	},
 	data() {
 		return {
 			id: this.params.id,
@@ -18,15 +22,13 @@ export const ViewEventSlider = {
 			timezone: this.params.userTimezone,
 			fromToHtml: this.params.fromToHtml,
 			isMeeting: this.params.isMeeting,
-			meetingHostUrl: this.params.meetingHostUrl,
+			meetingHost: this.params.meetingHost,
 			meetingHostDisplayName: this.params.meetingHostDisplayName,
 			meetingHostWorkPosition: this.params.meetingHostWorkPosition,
-			meetingHostAvatar: this.params.meetingHostAvatar,
 			avatarSize: this.params.avatarSize,
 			attendees: this.params.attendees,
 			userList: {y : [], i: [], q: [], n: []},
 			curUserStatus: this.params.curUserStatus,
-			meetingHostId: this.params.meetingHostId,
 			meetingCreatorUrl: this.params.meetingCreatorUrl,
 			meetingCreatorDisplayName: this.params.meetingCreatorDisplayName,
 			isRemind: this.params.isRemind,
@@ -45,11 +47,16 @@ export const ViewEventSlider = {
 			filesView: this.getComponentHTML(this.params.filesView),
 			crmView: this.getComponentHTML(this.params.crmView),
 			entry: new Entry({data: this.params.entry, userIndex: this.params.userIndex}),
+			isInvited: false,
 
 			updateParamsDebounce: Runtime.debounce(this.updateParams, 500, this),
 			hasPulls: false,
-			backgroundPullEvent: null
+			backgroundPullEvent: null,
 		}
+	},
+	created()
+	{
+		this.isInvited = this.entry.isInvited();
 	},
 	mounted()
 	{
@@ -72,6 +79,7 @@ export const ViewEventSlider = {
 		if (this.params.eventExists)
 		{
 			EventEmitter.subscribe('onPullEvent-calendar', this.handlePullEvent);
+			EventEmitter.subscribe(`MeetingStatusControl_${this.id}:onSetStatus`, this.handleStatusUpdate);
 		}
 	},
 	beforeUnmount()
@@ -79,6 +87,7 @@ export const ViewEventSlider = {
 		if (this.params.eventExists)
 		{
 			EventEmitter.unsubscribe('onPullEvent-calendar', this.handlePullEvent);
+			EventEmitter.unsubscribe(`MeetingStatusControl_${this.id}:onSetStatus`, this.handleStatusUpdate);
 		}
 	},
 	methods: {
@@ -163,8 +172,17 @@ export const ViewEventSlider = {
 				this.hasPulls = false;
 			}
 		},
+		handleStatusUpdate(event)
+		{
+			this.entry.data.MEETING_STATUS = event.getData().status;
+			this.isInvited = this.entry.isInvited();
+		},
 		handlePullEvent(event: BaseEvent)
 		{
+			if (event.data[0] === "refresh_sync_status")
+			{
+				return;
+			}
 			if (event.data[1].fields.CAL_TYPE === 'location')
 			{
 				return;
@@ -208,13 +226,11 @@ export const ViewEventSlider = {
 				this.timezone = newData.userTimezone;
 				this.timezoneHint = newData.timezoneHint;
 				this.fromToHtml = newData.fromToHtml;
-				this.meetingHostUrl = newData.meetingHostUrl;
+				this.meetingHost = newData.meetingHost;
 				this.meetingHostDisplayName = newData.meetingHostDisplayName;
 				this.meetingHostWorkPosition = newData.meetingHostWorkPosition;
-				this.meetingHostAvatar = newData.meetingHostAvatar;
 				this.avatarSize = newData.avatarSize;
 				this.attendees = newData.attendees;
-				this.meetingHostId = newData.meetingHostId;
 				this.meetingCreatorUrl = newData.meetingCreatorUrl;
 				this.meetingCreatorDisplayName = newData.meetingCreatorDisplayName;
 				this.isRemind = newData.isRemind;
@@ -276,6 +292,7 @@ export const ViewEventSlider = {
 				<div class="calendar-head-area">
 					<div class="calendar-head-area-inner">
 						<div class="calendar-head-area-title">
+							<span class="calendar-event-invite-counter calendar-event-invite-counter-big" v-if="isInvited">1</span>
 							<span :id="id + '_title'" class="calendar-head-area-title-name" ref="highlightName">{{name}}</span>
 							<span :id="id + '_copy_url_btn'" class="calendar-page-link-btn" :title="$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COPY_LINK')"></span>
 						</div>
@@ -313,21 +330,17 @@ export const ViewEventSlider = {
 								<div v-if="isMeeting">
 									<div class="calendar-slider-sidebar-user-container">
 										<div class="calendar-slider-sidebar-user-block-avatar">
-											<a :href="meetingHostUrl">
+											<a :href="meetingHost.URL">
+												<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
 												<div class="calendar-slider-sidebar-user-icon-top"></div>
-												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize"/>
-												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
 										</div>
 									</div>
 									<div class="calendar-slider-sidebar-user-container" v-for="att in attendees.y.slice(0,10)">
-										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHostId != att.ID">
+										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHost.ID != att.ID">
 											<a :href="att.URL">
-												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="encodeURI(att.AVATAR)" :width="avatarSize" :height="avatarSize"/>
-												</div>
+												<UserAvatar :user="att" :avatarSize="avatarSize"/>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
 										</div>
@@ -341,15 +354,13 @@ export const ViewEventSlider = {
 								</div>
 								<div class="calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card" v-else>
 									<div class="calendar-slider-sidebar-user-block-avatar">
-										<a :href="meetingHostUrl">
-											<div class="calendar-slider-sidebar-user-block-item">
-												<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize" alt="host"/>
-											</div>
+										<a :href="meetingHost.URL">
+											<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
 										</a>
 										<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 									</div>
 									<div class="calendar-slider-sidebar-user-info">
-										<a :href="meetingHostUrl" class="calendar-slider-sidebar-user-info-name">{{meetingHostDisplayName}}</a>
+										<a :href="meetingHost.URL" class="calendar-slider-sidebar-user-info-name">{{meetingHostDisplayName}}</a>
 										<div class="calendar-slider-sidebar-user-info-status" v-if="meetingHostWorkPosition">{{meetingHostWorkPosition}}</div>
 									</div>
 								</div>

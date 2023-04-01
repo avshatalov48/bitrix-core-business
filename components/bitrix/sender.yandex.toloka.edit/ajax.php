@@ -127,7 +127,7 @@ $actions[] = Controller\Action::create('createPool')
 					$pool
 				);
 
-			if ($response['code'])
+			if ($response['code'] ?? false)
 			{
 				$content->addError($response['code']);
 				$content->set(

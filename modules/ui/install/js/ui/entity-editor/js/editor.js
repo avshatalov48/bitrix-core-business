@@ -2009,10 +2009,16 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					{
 						if(result.getStatus())
 						{
-							this.performInnerSaveAction(action);
-							if(this._bizprocManager)
+							if (this.performInnerSaveAction(action) !== false)
 							{
-								this._bizprocManager.onAfterSave();
+								if (this._bizprocManager)
+								{
+									this._bizprocManager.onAfterSave();
+								}
+							}
+							else if(this._toolPanel)
+							{
+								this._toolPanel.setLocked(false);
 							}
 						}
 						else
@@ -2197,7 +2203,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			if(this._isRequestRunning)
 			{
-				return;
+				return true;
 			}
 
 			var i, length;
@@ -2238,7 +2244,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			if(eventArgs["cancel"])
 			{
-				return;
+				return false;
 			}
 
 			var enableCloseConfirmation = BX.prop.getBoolean(
@@ -2277,8 +2283,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 						ajaxFormToSubmit.addUrlParams(params);
 					}
 				}
-				ajaxFormToSubmit.submit();
+				return ajaxFormToSubmit.submit();
 			}
+
+			return true;
 			//endregion
 		},
 		cancel: function()

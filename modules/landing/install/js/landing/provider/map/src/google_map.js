@@ -28,6 +28,8 @@ export class GoogleMap extends BaseProvider
 	 */
 	init()
 	{
+		this.preventChangeEvent = true;
+
 		let opts = this.options;
 
 		this.mapInstance = new google.maps.Map(this.mapContainer, {
@@ -53,7 +55,6 @@ export class GoogleMap extends BaseProvider
 			}, this);
 		}
 
-		this.onChange = this.onChange.bind(this);
 		this.mapInstance.addListener("bounds_changed", this.onChange);
 		this.mapInstance.addListener("center_changed", this.onChange);
 		this.mapInstance.addListener("zoom_changed", this.onChange);
@@ -64,6 +65,7 @@ export class GoogleMap extends BaseProvider
 
 	reinit(options: {})
 	{
+		this.preventChangeEvent = true;
 		this.mapInstance.setOptions({
 			styles: this.getStylesFromOptions(options)
 		});
@@ -167,13 +169,23 @@ export class GoogleMap extends BaseProvider
 		this.markers.remove(event);
 	}
 
+	clearMarkers(): void
+	{
+		this.markers.forEach(marker => {
+			marker.marker.setMap(null);
+		});
+		this.markers.clear();
+	}
+
 	setZoom(zoom): void
 	{
+		this.preventChangeEvent = true;
 		this.mapInstance.setZoom(zoom);
 	}
 
 	setCenter(center): void
 	{
+		this.preventChangeEvent = true;
 		this.mapInstance.setCenter(center);
 	}
 

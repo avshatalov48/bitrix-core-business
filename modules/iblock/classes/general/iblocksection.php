@@ -549,8 +549,8 @@ class CAllIBlockSection
 				unset($arFields["PICTURE"]);
 			}
 			elseif (
-				(!isset($arFields["PICTURE"]["name"]) || $arFields["PICTURE"]["name"] === '')
-				&& (!isset($arFields["PICTURE"]["del"]) || $arFields["PICTURE"]["del"] === '')
+				($arFields["PICTURE"]["name"] ?? '') === ''
+				&& ($arFields["PICTURE"]["del"] ?? '') === ''
 			)
 			{
 				unset($arFields["PICTURE"]);
@@ -558,12 +558,15 @@ class CAllIBlockSection
 			else
 			{
 				$arFields["PICTURE"]["MODULE_ID"] = "iblock";
-				$arFields["PICTURE"]["name"] = \Bitrix\Iblock\Template\Helper::makeFileName(
-					$ipropTemplates
-					,"SECTION_PICTURE_FILE_NAME"
-					,$arFields
-					,$arFields["PICTURE"]
-				);
+				if (isset($arFields["PICTURE"]["name"]))
+				{
+					$arFields["PICTURE"]["name"] = \Bitrix\Iblock\Template\Helper::makeFileName(
+						$ipropTemplates
+						, "SECTION_PICTURE_FILE_NAME"
+						, $arFields
+						, $arFields["PICTURE"]
+					);
+				}
 			}
 		}
 
@@ -574,8 +577,8 @@ class CAllIBlockSection
 				unset($arFields["DETAIL_PICTURE"]);
 			}
 			elseif (
-				(!isset($arFields["DETAIL_PICTURE"]["name"]) || $arFields["DETAIL_PICTURE"]["name"] === '')
-				&& (!isset($arFields["DETAIL_PICTURE"]["del"]) || $arFields["DETAIL_PICTURE"]["del"] === '')
+				($arFields["DETAIL_PICTURE"]["name"] ?? '') === ''
+				&& ($arFields["DETAIL_PICTURE"]["del"] ?? '') === ''
 			)
 			{
 				unset($arFields["DETAIL_PICTURE"]);
@@ -583,12 +586,15 @@ class CAllIBlockSection
 			else
 			{
 				$arFields["DETAIL_PICTURE"]["MODULE_ID"] = "iblock";
-				$arFields["DETAIL_PICTURE"]["name"] = \Bitrix\Iblock\Template\Helper::makeFileName(
-					$ipropTemplates
-					,"SECTION_DETAIL_PICTURE_FILE_NAME"
-					,$arFields
-					,$arFields["DETAIL_PICTURE"]
-				);
+				if (isset($arFields["DETAIL_PICTURE"]["name"]))
+				{
+					$arFields["DETAIL_PICTURE"]["name"] = \Bitrix\Iblock\Template\Helper::makeFileName(
+						$ipropTemplates
+						, "SECTION_DETAIL_PICTURE_FILE_NAME"
+						, $arFields
+						, $arFields["DETAIL_PICTURE"]
+					);
+				}
 			}
 		}
 
@@ -1012,8 +1018,8 @@ class CAllIBlockSection
 				unset($arFields["PICTURE"]);
 			}
 			elseif (
-				(!isset($arFields["PICTURE"]["name"]) || $arFields["PICTURE"]["name"] === '')
-				&& (!isset($arFields["PICTURE"]["del"]) || $arFields["PICTURE"]["del"] === '')
+				($arFields["PICTURE"]["name"] ?? '') === ''
+				&& ($arFields["PICTURE"]["del"] ?? '') === ''
 				&& !array_key_exists("description", $arFields["PICTURE"])
 			)
 			{
@@ -1039,8 +1045,8 @@ class CAllIBlockSection
 				unset($arFields["DETAIL_PICTURE"]);
 			}
 			elseif (
-				(!isset($arFields["DETAIL_PICTURE"]["name"]) || $arFields["DETAIL_PICTURE"]["name"] === '')
-				&& (!isset($arFields["DETAIL_PICTURE"]["del"]) || $arFields["DETAIL_PICTURE"]["del"] === '')
+				($arFields["DETAIL_PICTURE"]["name"] ?? '') === ''
+				&& ($arFields["DETAIL_PICTURE"]["del"] ?? '') === ''
 				&& !array_key_exists("description", $arFields["DETAIL_PICTURE"])
 			)
 			{

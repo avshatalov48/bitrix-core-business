@@ -194,7 +194,7 @@ export class Location
 					}
 				});
 
-				if(this.categoriesWithRooms.default.length)
+				if (this.categoriesWithRooms.default.length)
 				{
 					menuItemList.push({
 						text:"\0",
@@ -232,15 +232,20 @@ export class Location
 			this.selectContol.destroy();
 		}
 
-		this.processValue();
+		let disabledControl = this.disabled;
+		if (!menuItemList.length)
+		{
+			disabledControl = true;
+		}
 
+		this.processValue();
 
 		this.selectContol = new BX.Calendar.Controls.SelectInput({
 			input: this.DOM.input,
 			values: menuItemList,
 			valueIndex: selectedIndex,
 			zIndex: this.zIndex,
-			disabled: this.disabled,
+			disabled: disabledControl,
 			minWidth: 300,
 			onChangeCallback: () => {
 				EventEmitter.emit('Calendar.LocationControl.onValueChange');
@@ -378,7 +383,7 @@ export class Location
 			Util.initHintNode(this.DOM.alertIconLocation);
 		}
 		setTimeout(() => {
-			this.DOM.input.after(this.DOM.alertIconLocation)
+			this.DOM.inputWrapInner.after(this.DOM.alertIconLocation)
 		}, 200);
 	}
 
@@ -390,7 +395,7 @@ export class Location
 		}
 		if (this.DOM.alertIconLocation.parentNode === this.DOM.inputWrap)
 		{
-			this.DOM.inputWrap.removeChild(this.DOM.alertIconLocation);
+			Dom.remove(this.DOM.alertIconLocation);
 		}
 	}
 
@@ -410,7 +415,7 @@ export class Location
 		}
 		return Loc.getMessage('EC_LOCATION_CAPACITY_' + suffix, {'#NUM#': capacity})
 	}
-	
+
 	checkLocationAccessibility(params)
 	{
 		this.getLocationAccessibility(params.from, params.to)
@@ -423,7 +428,7 @@ export class Location
 			{
 				toTs += Location.DAY_LENGTH;
 			}
-			
+
 			for (const index in Location.locationList)
 			{
 				Location.locationList[index].reserved = false;
@@ -434,14 +439,14 @@ export class Location
 					{
 						continue;
 					}
-					
+
 					for (const event of Location.accessibility[date][roomId])
 					{
 						if (parseInt(event.PARENT_ID) === parseInt(params.currentEventId))
 						{
 							continue;
 						}
-						
+
 						eventTsFrom = Util.parseDate(event.DATE_FROM).getTime();
 						eventTsTo = Util.parseDate(event.DATE_TO).getTime();
 						if (event.DT_SKIP_TIME !== 'Y')
@@ -453,7 +458,7 @@ export class Location
 						{
 							eventTsTo += Location.DAY_LENGTH;
 						}
-						
+
 						if (eventTsFrom < toTs && eventTsTo > fromTs)
 						{
 							Location.locationList[index].reserved = true;
@@ -470,13 +475,13 @@ export class Location
 			this.setValuesDebounce();
 		});
 	}
-	
+
 	getLocationAccessibility(from, to)
 	{
 		return new Promise((resolve) => {
 			this.datesRange = Location.getDatesRange(from, to);
 			let isCheckedAccessibility = true;
-			
+
 			for (let date of this.datesRange)
 			{
 				if (Type.isUndefined(Location.accessibility[date]))
@@ -485,7 +490,7 @@ export class Location
 					break;
 				}
 			}
-			
+
 			if (!isCheckedAccessibility)
 			{
 				BX.ajax.runAction('calendar.api.locationajax.getLocationAccessibility', {
@@ -512,7 +517,7 @@ export class Location
 			}
 		});
 	}
-	
+
 	static handlePull(params)
 	{
 		if (!params.fields.DATE_FROM || !params.fields.DATE_TO)
@@ -522,7 +527,7 @@ export class Location
 		let dateFrom = Util.parseDate(params.fields.DATE_FROM);
 		let dateTo = Util.parseDate(params.fields.DATE_TO);
 		let datesRange = Location.getDatesRange(dateFrom, dateTo);
-		
+
 		for (let date of datesRange)
 		{
 			if (Location.accessibility[date])
@@ -531,13 +536,13 @@ export class Location
 			}
 		}
 	}
-	
+
 	loadRoomSlider()
 	{
 		this.setRoomsManager();
 		this.setCategoryManager();
 	}
-	
+
 	openRoomsSlider()
 	{
 		this.getRoomsInterface()
@@ -739,22 +744,22 @@ export class Location
 			Location.meetingRoomList = meetingRoomList;
 		}
 	}
-	
+
 	static getMeetingRoomList()
 	{
 		return Location.meetingRoomList;
 	}
-	
+
 	static setLocationAccessibility(accessibility)
 	{
 		Location.accessibility = accessibility;
 	}
-	
+
 	static getLocationAccessibility()
 	{
 		return Location.accessibility;
 	}
-	
+
 	static setCurrentCapacity(capacity)
 	{
 		Location.currentRoomCapacity = capacity;
@@ -764,7 +769,7 @@ export class Location
 	{
 		return Location.currentRoomCapacity || 0;
 	}
-	
+
 	displayInlineEditControls()
 	{
 		this.DOM.inlineEditLinkWrap.style.display = 'none';
@@ -865,7 +870,8 @@ export class Location
 								new_section_access: response.data.config.defaultSectionAccess,
 								sectionAccessTasks: response.data.config.sectionAccessTasks,
 								showTasks: response.data.config.showTasks,
-								locationContext: this //for updating list of locations in event creation menu
+								locationContext: this, //for updating list of locations in event creation menu
+								accessNames: response.data.config.accessNames,
 							}
 						)
 						resolve(response.data);
@@ -997,7 +1003,7 @@ export class Location
 			+ ('0' + (date.getMonth() + 1)).slice(-2) + '.'
 			+ date.getFullYear()
 	}
-	
+
 	static getDatesRange(from, to)
 	{
 		let fromDate = new Date(from);
@@ -1010,7 +1016,7 @@ export class Location
 			result.push(Location.getDateInFormat(new Date(startDate)));
 			startDate += Location.DAY_LENGTH;
 		}
-		
+
 		return result;
 	}
 }

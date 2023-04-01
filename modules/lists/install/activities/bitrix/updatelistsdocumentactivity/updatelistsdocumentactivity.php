@@ -53,6 +53,8 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
+		$fields = $this->prepareFieldsValues($documentId, $documentType, $fields);
+
 		$this->logDebugFields($documentType, $fields);
 		$documentService->UpdateDocument($documentId, $fields);
 
@@ -435,5 +437,45 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 
 		$debugInfo = $this->getDebugInfo($values, $fields);
 		$this->writeDebugInfo($debugInfo);
+	}
+
+	protected function prepareFieldsValues(
+		array $documentId,
+		array $documentType,
+		array $fields
+	): array
+	{
+		$documentService = $this->workflow->GetService('DocumentService');
+
+		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
+
+		$resultFields = [];
+		foreach ($fields as $key => $value)
+		{
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
+			{
+				$key = $documentFieldsAliasesMap[$key];
+			}
+
+			if (($property = $documentFields[$key]) && $value)
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($documentId);
+					$value = $fieldTypeObject->externalizeValue('Document', $value);
+				}
+			}
+
+			if (is_null($value))
+			{
+				$value = '';
+			}
+
+			$resultFields[$key] = $value;
+		}
+
+		return $resultFields;
 	}
 }

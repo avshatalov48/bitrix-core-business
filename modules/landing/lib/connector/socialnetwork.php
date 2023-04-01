@@ -1,14 +1,14 @@
 <?php
 namespace Bitrix\Landing\Connector;
 
+use Bitrix\Landing\Binding;
 use Bitrix\Landing\Copy\Integration\Group;
-use \Bitrix\Main\Config\Option;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\Binding;
-use \Bitrix\Landing\Rights;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Restriction;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Rights;
+use Bitrix\Landing\Site;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -152,9 +152,45 @@ class SocialNetwork
 			$socNetFeaturesSettings[self::SETTINGS_CODE] = [
 				'allowed' => [SONET_ENTITY_GROUP],
 				'title' => Loc::getMessage('LANDING_CONNECTOR_SN_TITLE'),
-				'operations' => [],
-				'minoperation' => 'view'
+				'operation_titles' => [
+					'read' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_READ'),
+					'edit' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_EDIT'),
+					'sett' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_SETT'),
+					'delete' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_DELETE'),
+				],
+				'operations' => [
+					'read' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+					'edit' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+					'sett' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+					'delete' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+				],
+				'minoperation' => ['read'],
 			];
+		}
+	}
+
+	/**
+	 * Invokes when changing §permissions of socialnetwork group is occurred.
+	 *
+	 * @param int $id Feature id.
+	 * @param array $fields Feature fields.
+	 * @return void
+	 */
+	public static function onSocNetFeaturesUpdate(int $id, array $fields): void
+	{
+		$groupId = self::getGroupIdByFeatureId($id);
+
+		if ($groupId)
+		{
+			AddEventHandler('main', 'onEpilog', function() use($groupId)
+			{
+				$siteId = Binding\Group::getSiteIdByGroupId($groupId);
+				if ($siteId)
+				{
+					$binding = new \Bitrix\Landing\Binding\Group($groupId);
+					$binding->rebindSite($siteId);
+				}
+			});
 		}
 	}
 
@@ -332,5 +368,35 @@ class SocialNetwork
 				Site::delete($binding['ENTITY_ID'], true)->isSuccess();
 			}
 		}
+	}
+
+	/**
+	 * Local tool for resolve group id by group feature id.
+	 *
+	 * @param int $featureId Feature id.
+	 * @return int|null
+	 */
+	private static function getGroupIdByFeatureId(int $featureId): ?int
+	{
+		static $featureToGroup = null;
+
+		if ($featureToGroup === null)
+		{
+			$res = \CSocNetFeatures::getList(
+				[],
+				[
+					'ENTITY_TYPE' => SONET_ENTITY_GROUP,
+					'FEATURE' => self::SETTINGS_CODE,
+				],
+				false, false,
+				['ID', 'ENTITY_ID']
+			);
+			while ($row = $res->fetch())
+			{
+				$featureToGroup[$row['ID']] = $row['ENTITY_ID'];
+			}
+		}
+
+		return $featureToGroup[$featureId] ?? null;
 	}
 }

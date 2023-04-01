@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/crm.bundle.css',
 	'js' => 'dist/crm.bundle.js',
 	'rel' => [
+		'ui.buttons',
 		'landing.ui.card.headercard',
 		'landing.ui.panel.basepresetpanel',
 		'landing.ui.field.radiobuttonfield',

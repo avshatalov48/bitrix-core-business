@@ -10,6 +10,9 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
+
+use Bitrix\Iblock\SectionPropertyTable;
+
 $this->setFrameMode(true);
 
 $templateData = array(
@@ -39,6 +42,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 						if ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0)
 							continue;
 
+						$precision = 0;
 						$step_num = 4;
 						$step = ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"]) / $step_num;
 						$prices = array();
@@ -150,10 +154,8 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 						continue;
 
 					if (
-						$arItem["DISPLAY_TYPE"] == "A"
-						&& (
-							$arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0
-						)
+						$arItem["DISPLAY_TYPE"] === SectionPropertyTable::NUMBERS_WITH_SLIDER
+						&& ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0)
 					)
 						continue;
 					?>
@@ -185,7 +187,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 							$arCur = current($arItem["VALUES"]);
 							switch ($arItem["DISPLAY_TYPE"])
 							{
-								case "A"://NUMBERS_WITH_SLIDER
+								case SectionPropertyTable::NUMBERS_WITH_SLIDER://NUMBERS_WITH_SLIDER
 									?>
 									<div class="col-xs-6 bx-filter-parameters-box-container-block bx-left">
 										<i class="bx-ft-sub"><?=GetMessage("CT_BCSF_FILTER_FROM")?></i>
@@ -269,7 +271,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</script>
 									<?
 									break;
-								case "B"://NUMBERS
+								case SectionPropertyTable::NUMBERS://NUMBERS
 									?>
 									<div class="col-xs-6 bx-filter-parameters-box-container-block bx-left">
 										<i class="bx-ft-sub"><?=GetMessage("CT_BCSF_FILTER_FROM")?></i>
@@ -301,7 +303,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "G"://CHECKBOXES_WITH_PICTURES
+								case SectionPropertyTable::CHECKBOXES_WITH_PICTURES://CHECKBOXES_WITH_PICTURES
 									?>
 									<div class="col-xs-12">
 										<div class="bx-filter-param-btn-inline">
@@ -333,7 +335,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "H"://CHECKBOXES_WITH_PICTURES_AND_LABELS
+								case SectionPropertyTable::CHECKBOXES_WITH_PICTURES_AND_LABELS://CHECKBOXES_WITH_PICTURES_AND_LABELS
 									?>
 									<div class="col-xs-12">
 										<div class="bx-filter-param-btn-block">
@@ -369,7 +371,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "P"://DROPDOWN
+								case SectionPropertyTable::DROPDOWN://DROPDOWN
 									$checkedItemExist = false;
 									?>
 									<div class="col-xs-12">
@@ -435,7 +437,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "R"://DROPDOWN_WITH_PICTURES_AND_LABELS
+								case SectionPropertyTable::DROPDOWN_WITH_PICTURES_AND_LABELS://DROPDOWN_WITH_PICTURES_AND_LABELS
 									?>
 									<div class="col-xs-12">
 										<div class="bx-filter-select-container">
@@ -516,7 +518,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "K"://RADIO_BUTTONS
+								case SectionPropertyTable::RADIO_BUTTONS://RADIO_BUTTONS
 									?>
 									<div class="col-xs-12">
 										<div class="radio">
@@ -556,7 +558,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 									</div>
 									<?
 									break;
-								case "U"://CALENDAR
+								case SectionPropertyTable::CALENDAR://CALENDAR
 									?>
 									<div class="col-xs-12">
 										<div class="bx-filter-parameters-box-container-block"><div class="bx-filter-input-container bx-filter-calendar-container">
@@ -650,7 +652,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 								value="<?=GetMessage("CT_BCSF_DEL_FILTER")?>"
 							/>
 							<div class="bx-filter-popup-result <?if ($arParams["FILTER_VIEW_MODE"] == "VERTICAL") echo $arParams["POPUP_POSITION"]?>" id="modef" <?if(!isset($arResult["ELEMENT_COUNT"])) echo 'style="display:none"';?> style="display: inline-block;">
-								<?echo GetMessage("CT_BCSF_FILTER_COUNT", array("#ELEMENT_COUNT#" => '<span id="modef_num">'.intval($arResult["ELEMENT_COUNT"]).'</span>'));?>
+								<?echo GetMessage("CT_BCSF_FILTER_COUNT", array("#ELEMENT_COUNT#" => '<span id="modef_num">'.(int)($arResult["ELEMENT_COUNT"] ?? 0).'</span>'));?>
 								<span class="arrow"></span>
 								<br/>
 								<a href="<?echo $arResult["FILTER_URL"]?>" target=""><?echo GetMessage("CT_BCSF_FILTER_SHOW")?></a>

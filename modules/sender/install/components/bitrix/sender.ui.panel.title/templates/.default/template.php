@@ -120,15 +120,15 @@ foreach ($arParams['LIST'] as $item):
 			elseif ($button['type'] == 'add'):
 				$button['class'] = $button['class'] ?: 'sender-ui-btn ui-btn-success';
 			?>
-				<a id="<?=htmlspecialcharsbx($button['id'])?>"
-					href="<?=htmlspecialcharsbx($button['href'])?>"
-					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
-					onclick="<?php if ($button['onclick']):?><?= htmlspecialcharsbx($button['onclick'])?><?php else:?>BX.Sender.Page.open('<?=CUtil::JSEscape(
-						htmlspecialcharsbx($button['href'])
+				<a id="<?=htmlspecialcharsbx($button['id'] ?? '')?>"
+					href="<?=htmlspecialcharsbx($button['href'] ?? '')?>"
+					class="ui-btn <?=htmlspecialcharsbx($button['class'] ?? '')?>"
+					onclick="<?php if ($button['onclick'] ?? false):?><?= htmlspecialcharsbx($button['onclick'] ?? '')?><?php else:?>BX.Sender.Page.open('<?=CUtil::JSEscape(
+						htmlspecialcharsbx($button['href'] ?? '')
 					)?>'); return false;<?php endif;?>"
 					style="<?=($button['visible'] ? '' : 'display: none;')?>"
 				>
-					<?=htmlspecialcharsbx($button['caption'])?>
+					<?=htmlspecialcharsbx($button['caption'] ?? '')?>
 				</a>
 			<?
 			elseif ($button['type'] == 'abuses'):

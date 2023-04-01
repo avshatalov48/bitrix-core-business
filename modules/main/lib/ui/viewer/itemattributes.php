@@ -320,7 +320,7 @@ class ItemAttributes
 	protected static function getViewerTypeByFile(array $fileArray)
 	{
 		$contentType = $fileArray['CONTENT_TYPE'];
-		$originalName = $fileArray['ORIGINAL_NAME'];
+		$originalName = $fileArray['ORIGINAL_NAME'] ?? null;
 
 		if (isset(static::$renderClassByContentType[$contentType]))
 		{
@@ -335,7 +335,7 @@ class ItemAttributes
 		$renderClass = $previewManager->getRenderClassByFile([
 			'contentType' => $contentType,
 			'originalName' => $originalName,
-			'size' => isset($fileArray['FILE_SIZE'])? $fileArray['FILE_SIZE'] : null,
+			'size' => $fileArray['FILE_SIZE'] ?? null,
 		]);
 
 		if ($renderClass === Renderer\Stub::class)

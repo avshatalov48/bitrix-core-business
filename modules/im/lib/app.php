@@ -717,7 +717,7 @@ class App
 			$result[] = Array(
 				'id' => $app['ID'],
 				'botId' => $app['BOT_ID'],
-				'botCode' => isset($botData['CODE']) ? htmlspecialcharsbx($botData['CODE']) : null,
+				'botCode' => htmlspecialcharsbx($botData['CODE'] ?? ''),
 				'domainHash' => self::getDomainHash($app['HASH']),
 				'userHash' => self::getUserHash($userId, $app['HASH']),
 				'code' => htmlspecialcharsbx($app['CODE']),

@@ -244,9 +244,9 @@ class EventCompareManager implements CompareManager
 	{
 		foreach ($this->getCompareFields() as $field)
 		{
-			if ($this->eventValueForCompare[$field] != $this->originalValueForCompare[$field])
+			if (($this->eventValueForCompare[$field] ?? null) != ($this->originalValueForCompare[$field] ?? null))
 			{
-				$this->differenceFields[$field] = $this->eventValueForCompare[$field];
+				$this->differenceFields[$field] = $this->eventValueForCompare[$field] ?? null;
 			}
 		}
 	}
@@ -264,7 +264,8 @@ class EventCompareManager implements CompareManager
 			);
 			if (!$excludedDatesManager->isEqual())
 			{
-				$this->differenceFields['excludedDates'] = $excludedDatesManager->getDiffCollection()->toString(';');
+				$this->differenceFields['excludedDates'] = $excludedDatesManager
+					->getDiffCollection()->toString(';');
 			}
 		}
 	}

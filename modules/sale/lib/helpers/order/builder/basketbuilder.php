@@ -225,8 +225,10 @@ abstract class BasketBuilder
 	{
 		foreach($this->formData["PRODUCT"] as $basketCode => $productData)
 		{
-			if($productData["IS_SET_ITEM"] == "Y")
+			if (isset($productData["IS_SET_ITEM"]) && $productData["IS_SET_ITEM"] === "Y")
+			{
 				continue;
+			}
 
 			if(!isset($productData["PROPS"]) || !is_array($productData["PROPS"]))
 				$productData["PROPS"] = array();
@@ -314,7 +316,7 @@ abstract class BasketBuilder
 			}
 
 			$item->setField('NAME', $productData['NAME']);
-			$item->setField('TYPE', $productData['TYPE']);
+			$item->setField('TYPE', $productData['TYPE'] ?? null);
 
 			if ($productData['CUSTOM_PRICE'] === 'Y')
 			{
@@ -352,7 +354,10 @@ abstract class BasketBuilder
 				$fillFields = array_intersect_key($productData, $availableFields);
 
 				$orderCurrency = $this->getOrder()->getCurrency();
-				if ($fillFields['CURRENCY'] !== $orderCurrency)
+				if (
+					isset($fillFields['CURRENCY'])
+					&& $fillFields['CURRENCY'] !== $orderCurrency
+				)
 				{
 					$fillFields['PRICE'] = \CCurrencyRates::ConvertCurrency(
 						(float)$fillFields['PRICE'],
@@ -486,7 +491,7 @@ abstract class BasketBuilder
 		foreach($basketItems as $item)
 		{
 			$basketCode = $item->getBasketCode();
-			$productFormData = $this->formData['PRODUCT'][$basketCode];
+			$productFormData = $this->formData['PRODUCT'][$basketCode] ?? [];
 			$isProductDataNeedUpdate = in_array($basketCode, $this->needDataUpdate);
 			$productProviderData[$basketCode] = $item->getFieldValues();
 
@@ -555,43 +560,59 @@ abstract class BasketBuilder
 			}
 			else
 			{
+				$basePrice = $productFormData['BASE_PRICE'] ?? 0;
+				$price = $productFormData['PRICE'] ?? 0;
+
 				$needUpdateItemPrice = $this->isNeedUpdateNewProductPrice() && $this->isBasketItemNew($basketCode);
 				$isPriceCustom = isset($productFormData['CUSTOM_PRICE']) && $productFormData['CUSTOM_PRICE'] == 'Y';
 
 				if ($isPriceCustom)
 				{
 					$productFormData['DISCOUNT_PRICE'] = 0;
-					if ($productFormData['BASE_PRICE'] > $productFormData['PRICE'])
+					if ($basePrice > $price)
 					{
-						$productFormData['DISCOUNT_PRICE'] = $productFormData['BASE_PRICE'] - $productFormData['PRICE'];
+						$productFormData['DISCOUNT_PRICE'] = $basePrice - $price;
 					}
 				}
 
-				if(($order->getId() <= 0 && !$isPriceCustom) || $needUpdateItemPrice)
+				if (($order->getId() === 0 && !$isPriceCustom) || $needUpdateItemPrice)
+				{
 					unset($productFormData['PRICE'], $productFormData['PRICE_BASE'], $productFormData['BASE_PRICE']);
+				}
 
 				$product = array_merge($product, $productFormData);
 			}
 
-			if(isset($product["OFFER_ID"]) && intval($product["OFFER_ID"]) > 0)
+			if (isset($product["OFFER_ID"]) && intval($product["OFFER_ID"]) > 0)
+			{
 				$product["PRODUCT_ID"] = $product["OFFER_ID"];
+			}
 
 			//discard BasketItem redundant fields
 			$product = array_intersect_key($product, array_flip($item::getAvailableFields()));
 
-			if(isset($product["MEASURE_CODE"]) && $product["MEASURE_CODE"] <> '')
+			if (isset($product["MEASURE_CODE"]) && $product["MEASURE_CODE"] <> '')
 			{
 				$measures = OrderBasket::getCatalogMeasures();
 
-				if(isset($measures[$product["MEASURE_CODE"]]) && $measures[$product["MEASURE_CODE"]] <> '')
+				if (!empty($measures[$product["MEASURE_CODE"]]))
+				{
 					$product["MEASURE_NAME"] = $measures[$product["MEASURE_CODE"]];
+				}
 			}
 
-			if(!isset($product["CURRENCY"]) || $product["CURRENCY"] == '')
+			if (empty($product["CURRENCY"]))
+			{
 				$product["CURRENCY"] = $order->getCurrency();
+			}
 
-			if($productFormData["IS_SET_PARENT"] == "Y")
+			if (
+				isset($productFormData["IS_SET_PARENT"])
+				&& $productFormData["IS_SET_PARENT"] === "Y"
+			)
+			{
 				$product["TYPE"] = BasketItem::TYPE_SET;
+			}
 
 			OrderEdit::setProductDetails(
 				$productFormData["OFFER_ID"],
@@ -786,7 +807,7 @@ abstract class BasketBuilder
 			$setBasketCode = null;
 
 		$item = $this->getBasket()->createItem(
-			$productData["MODULE"],
+			$productData["MODULE"] ?? '',
 			$productData["OFFER_ID"],
 			$setBasketCode
 		);

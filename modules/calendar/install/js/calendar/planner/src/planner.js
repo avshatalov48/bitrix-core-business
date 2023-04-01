@@ -549,7 +549,7 @@ export class Planner extends EventEmitter
 			<div class="calendar-planner-acc-wrap"></div>
 		`);
 
-		if (!this.readonly)
+		if (this.isTodayButtonEnabled())
 		{
 			this.DOM.timelineVerticalConstraint.addEventListener('scroll', this.updateTodayButtonVisibility.bind(this));
 		}
@@ -663,7 +663,7 @@ export class Planner extends EventEmitter
 							this.futureDayTitles.push(dayTitle.querySelector('span'));
 						}
 
-						if (date.getTime() === today.getTime())
+						if (date.getTime() === today.getTime() && this.isTodayButtonEnabled())
 						{
 							this.todayTitleButton = dayTitle.firstElementChild.appendChild(Tag.render`
 								<div class="calendar-planner-today-button"></div>
@@ -726,7 +726,7 @@ export class Planner extends EventEmitter
 
 	buildTodayButtonWrap()
 	{
-		if (this.readonly)
+		if (!this.isTodayButtonEnabled())
 		{
 			return;
 		}
@@ -1182,7 +1182,7 @@ export class Planner extends EventEmitter
 		{
 			let
 				fromPos = this.getPosByDate(from),
-				toPos = this.getPosByDate(to);
+				toPos = Math.min(this.getPosByDate(to), this.DOM.timelineScaleWrap.offsetWidth);
 
 			entry.node = wrap.appendChild(BX.create('DIV', {
 				props: {
@@ -1401,7 +1401,16 @@ export class Planner extends EventEmitter
 
 		if (!img || img === "/bitrix/images/1.gif")
 		{
-			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${(entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user')}"><i></i></div>`;
+			let defaultAvatarClass = 'ui-icon-common-user';
+			if (entry.emailUser)
+			{
+				defaultAvatarClass = 'ui-icon-common-user-mail';
+			}
+			if (entry.sharingUser)
+			{
+				defaultAvatarClass += ' ui-icon-common-user-sharing';
+			}
+			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${defaultAvatarClass}"><i></i></div>`;
 		}
 		else
 		{
@@ -1759,7 +1768,7 @@ export class Planner extends EventEmitter
 
 	todayButtonClickHandler()
 	{
-		if (this.readonly)
+		if (!this.isTodayButtonEnabled())
 		{
 			return;
 		}
@@ -1796,6 +1805,11 @@ export class Planner extends EventEmitter
 				}
 			}));
 		}
+	}
+
+	isTodayButtonEnabled()
+	{
+		return !this.readonly && !this.compactMode;
 	}
 
 	checkTimelineScroll()

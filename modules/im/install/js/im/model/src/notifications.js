@@ -810,6 +810,8 @@ class NotificationsModel extends VuexBuilderModel
 			return html;
 		});
 
+		text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
+
 		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text);
 
 		return text;

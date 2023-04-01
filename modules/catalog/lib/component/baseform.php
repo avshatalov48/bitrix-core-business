@@ -40,6 +40,9 @@ use Bitrix\Main\UserField;
 use Bitrix\Main\UserFieldTable;
 use Bitrix\Highloadblock as Highload;
 use Bitrix\UI\EntityForm\Control;
+use CIBlockPropertyElementAutoComplete;
+use CIBlockPropertySKU;
+use CIBlockPropertyXmlID;
 
 abstract class BaseForm
 {
@@ -163,6 +166,7 @@ abstract class BaseForm
 	protected function initUrlBuilder(): void
 	{
 		$this->urlBuilder = BuilderManager::getInstance()->getBuilder($this->params['BUILDER_CONTEXT']);
+		$this->urlBuilder->setIblockId($this->entity->getIblockId());
 	}
 
 	public function isCardAllowed(): bool
@@ -244,27 +248,6 @@ abstract class BaseForm
 		return $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
 	}
 
-	protected function isProductForm(): bool
-	{
-		$productTypeId = $this->entity->getType();
-
-		return (
-			$productTypeId === ProductTable::TYPE_PRODUCT
-			|| $productTypeId === ProductTable::TYPE_SET
-			|| $productTypeId === ProductTable::TYPE_SKU
-		);
-	}
-
-	protected function isVariationForm(): bool
-	{
-		return $this->entity->getType() === ProductTable::TYPE_OFFER;
-	}
-
-	protected function isServiceForm(): bool
-	{
-		return $this->entity->getType() === ProductTable::TYPE_SERVICE;
-	}
-
 	protected function prepareFieldName(string $name): string
 	{
 		return $name;
@@ -289,8 +272,23 @@ abstract class BaseForm
 				'config' => [],
 			],
 			[
+				'name' => 'VARIATION_LINK_CONTROLLER',
+				'type' => 'variation_link',
+				'config' => [],
+			],
+			[
+				'name' => 'USER_CONTROLLER',
+				'type' => 'user',
+				'config' => [],
+			],
+			[
 				'name' => 'CRM_CONTROLLER',
 				'type' => 'binding_to_crm_element',
+				'config' => [],
+			],
+			[
+				'name' => 'IBLOCK_ELEMENT_CONTROLLER',
+				'type' => 'iblock_element',
 				'config' => [],
 			],
 		];
@@ -422,6 +420,23 @@ abstract class BaseForm
 			];
 		}
 
+		$seoLink = [
+			'id' => 'SEO',
+			'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_SEO_TITLE'),
+			'disabled' => $this->isEntityCreationForm(),
+			'disabledCheckbox' => true,
+			'desc' => '',
+			'url' => '',
+			'action' => 'slider',
+		];
+
+		if ($this->entity->getId())
+		{
+			$seoLink['url'] = $this->urlBuilder->getElementSeoUrl($this->entity->getId());
+		}
+
+		$items[] = $seoLink;
+
 		return $items;
 	}
 
@@ -475,7 +490,7 @@ abstract class BaseForm
 
 		foreach ($descriptions as $description)
 		{
-			if (!in_array($description['type'], ['custom', 'money', 'multimoney', 'user'], true))
+			if (!isset($description['type']) || !in_array($description['type'], ['custom', 'money', 'multimoney', 'user'], true))
 			{
 				continue;
 			}
@@ -494,7 +509,34 @@ abstract class BaseForm
 
 			if ($description['type'] === 'custom')
 			{
-				if ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT)
+				if ($this->isCustomLinkProperty($propertySettings))
+				{
+					$params = [
+						'SETTINGS' => $propertySettings,
+						'VALUE' => $value,
+						'FIELD_NAME' => $description['name'],
+						'ELEMENT_ID' => $this->entity->getId() ? (string)$this->entity->getId() : 'n' . mt_rand(),
+					];
+					$paramsSingle = $params;
+					$paramsSingle['SETTINGS']['MULTIPLE'] = 'N';
+					$paramsMultiple = $params;
+					$paramsMultiple['SETTINGS']['MULTIPLE'] = 'Y';
+
+					$viewMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_GET_VIEW_METHOD] ?? null;
+					if ($viewMethod && is_callable($viewMethod))
+					{
+						$additionalValues[$descriptionData['view']] = $viewMethod($params);
+					}
+
+					$editMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_GET_EDIT_METHOD] ?? null;
+					if ($editMethod && is_callable($editMethod))
+					{
+						$additionalValues[$descriptionData['edit']] = $editMethod($params);
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $editMethod($paramsSingle);
+						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $editMethod($paramsMultiple);
+					}
+				}
+				elseif ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT)
 				{
 					$elementData = ElementTable::getList([
 						'select' => ['NAME'],
@@ -507,11 +549,31 @@ abstract class BaseForm
 					}
 					$viewValue = implode(', ', $namesList);
 					$additionalValues[$descriptionData['view']] = HtmlFilter::encode($viewValue);
-					$additionalValues[$descriptionData['edit']] = $this->getElementPropertyEditHtml(
-						$description['name'],
-						$propertySettings,
-						$value
-					);
+					$editMethod = ['CIBlockPropertyElementAutoComplete', 'GetUIEntityEditorPropertyEditHtml'];
+					if (is_callable($editMethod))
+					{
+						$params = [
+							'SETTINGS' => $propertySettings,
+							'VALUE' => $value,
+							'FIELD_NAME' => $description['name'],
+						];
+						$paramsSingle = $params;
+						$paramsSingle['SETTINGS']['MULTIPLE'] = 'N';
+						$paramsMultiple = $params;
+						$paramsMultiple['SETTINGS']['MULTIPLE'] = 'Y';
+
+						$additionalValues[$descriptionData['edit']] = $editMethod($params);
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $editMethod($paramsSingle);
+						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $editMethod($paramsMultiple);
+					}
+					else
+					{
+						$additionalValues[$descriptionData['edit']] = $this->getElementPropertyEditHtml(
+							$description['name'],
+							$propertySettings,
+							$value
+						);
+					}
 				}
 				elseif ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE)
 				{
@@ -584,7 +646,7 @@ abstract class BaseForm
 						'SETTINGS' => $propertySettings,
 						'VALUE' => $value,
 						'FIELD_NAME' => $description['name'],
-						'ELEMENT_ID' => $this->entity->getId() ?? 'n' . mt_rand(),
+						'ELEMENT_ID' => $this->entity->getId() ? (string)$this->entity->getId() : 'n' . mt_rand(),
 					];
 
 					if ($propertySettings['USER_TYPE'] === 'map_google')
@@ -594,7 +656,14 @@ abstract class BaseForm
 					}
 
 					$paramsSingle = $params;
-					$paramsSingle['VALUE'] = $description['multiple'] ? $value[0] : $value;
+					if ($description['multiple'])
+					{
+						$paramsSingle['VALUE'] = $value[0] ?? '';
+					}
+					else
+					{
+						$paramsSingle['VALUE'] = $value;
+					}
 					$paramsSingle['SETTINGS']['MULTIPLE'] = 'N';
 					if ($value === '')
 					{
@@ -720,6 +789,23 @@ abstract class BaseForm
 
 		$diffExtensions = array_diff($fileExtensions, $imageExtensions);
 		return empty($diffExtensions);
+	}
+
+	private function isCustomLinkProperty(array $property): bool
+	{
+		if (!isset($property['USER_TYPE']))
+		{
+			return false;
+		}
+
+		$userTypes = [
+			CIBlockPropertyXmlID::USER_TYPE,
+			CIBlockPropertyElementAutoComplete::USER_TYPE,
+			'employee',
+			CIBlockPropertySKU::USER_TYPE,
+		];
+
+		return in_array($property['USER_TYPE'], $userTypes, true);
 	}
 
 	private function getAdditionalMoneyValues(string $value, callable $formatMethod): array
@@ -1603,9 +1689,14 @@ abstract class BaseForm
 	protected function buildIblockPropertiesDescriptions(): array
 	{
 		$propertyDescriptions = [];
+		$unavailableUserTypes = $this->getUnavailableUserTypes();
 
 		foreach ($this->entity->getPropertyCollection() as $property)
 		{
+			if (in_array($property->getUserType(), $unavailableUserTypes, true))
+			{
+				continue;
+			}
 			if ($property->isActive())
 			{
 				$propertyDescriptions[] = $this->getPropertyDescription($property);
@@ -1613,6 +1704,15 @@ abstract class BaseForm
 		}
 
 		return $propertyDescriptions;
+	}
+
+	protected function getUnavailableUserTypes(): array
+	{
+		return [
+			'DiskFile',
+			'TopicID',
+			\CIBlockPropertySKU::USER_TYPE,
+		];
 	}
 
 	public static function preparePropertyName(string $name = ''): string
@@ -1640,12 +1740,22 @@ abstract class BaseForm
 			'multiple' => $property->isMultiple(),
 			'defaultValue' => $property->getDefaultValue(),
 			'settings' => $property->getSettings(),
+			'type' => null,
 		];
 
 		if ($property->getUserType() === \CIBlockPropertySequence::USER_TYPE)
 		{
 			$userTypeSettings = $property->getSetting('USER_TYPE_SETTINGS');
 			$description['editable'] = $userTypeSettings['write'] === 'Y';
+		}
+
+		$nonEditableUserTypes = [
+			'UserID',
+			'FileMan',
+		];
+		if (in_array($property->getUserType(), $nonEditableUserTypes, true))
+		{
+			$description['editable'] = false;
 		}
 
 		if ($description['propertyCode'] === self::MORE_PHOTO)
@@ -2349,6 +2459,11 @@ abstract class BaseForm
 		$property = $this->entity->getPropertyCollection()->findById($field['propertyId']);
 		$value = $property ? $property->getPropertyValueCollection()->getValues() : null;
 
+		if (!isset($field['type']))
+		{
+			return $value;
+		}
+
 		if ($field['type'] === 'html')
 		{
 			if ($field['multiple'])
@@ -2428,24 +2543,6 @@ abstract class BaseForm
 					'MEASURE_TITLE',
 				],
 			];
-
-			if ($this->isServiceForm())
-			{
-				$row = Catalog\MeasureTable::getRow([
-					'select' => [
-						'ID',
-					],
-					'filter' => [
-						'=CODE' => 796, // TODO: remove magic number after refactoring measure for services
-					]
-				]);
-				if ($row !== null)
-				{
-					$params['filter'] = [
-						'=ID' => (int)$row['ID'],
-					];
-				}
-			}
 
 			$measures = \Bitrix\Catalog\MeasureTable::getList($params)->fetchAll();
 		}

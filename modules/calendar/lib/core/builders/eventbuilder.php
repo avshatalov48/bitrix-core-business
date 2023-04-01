@@ -127,7 +127,7 @@ abstract class EventBuilder implements Builder
 				$rule->setCount((int)$ruleData['COUNT']);
 			}
 
-			if (is_string($ruleData['UNTIL']))
+			if (is_string($ruleData['UNTIL'] ?? null))
 			{
 				$ruleData['UNTIL'] = \CCalendarEvent::convertDateToCulture($ruleData['UNTIL']);
 				$rule->setUntil(new Date(Util::getDateObject($ruleData['UNTIL'])));
@@ -138,19 +138,20 @@ abstract class EventBuilder implements Builder
 				$rule->setInterval((int)$ruleData['INTERVAL']);
 			}
 
-			if (
-				is_string($ruleData['BYDAY'])
-				&& $ruleData['FREQ'] === RecurringEventRules::FREQUENCY_WEEKLY
-			)
+			if (!empty($ruleData['BYDAY']) && $ruleData['FREQ'] === RecurringEventRules::FREQUENCY_WEEKLY)
 			{
-				$rule->setByDay(explode(",", $ruleData['BYDAY']));
-			}
-			elseif (
-				is_array($ruleData['BYDAY'])
-				&& $ruleData['FREQ'] === RecurringEventRules::FREQUENCY_WEEKLY
-			)
-			{
-				$rule->setByDay($ruleData['BYDAY']);
+				if (
+					is_string($ruleData['BYDAY'])
+				)
+				{
+					$rule->setByDay(explode(",", $ruleData['BYDAY']));
+				}
+				elseif (
+					is_array($ruleData['BYDAY'])
+				)
+				{
+					$rule->setByDay($ruleData['BYDAY']);
+				}
 			}
 
 			return $rule;
@@ -449,10 +450,11 @@ abstract class EventBuilder implements Builder
 				->setReInvite((bool)$meeting['REINVITE'])
 				->setHideGuests((bool)$meeting['HIDE_GUESTS'])
 				->setHostName($meeting['HOST_NAME'])
-				->setIsNotify((bool)$meeting['NOTIFY'])
+				->setIsNotify((bool)($meeting['NOTIFY'] ?? null))
 				->setMeetingCreator((int)$meeting['MEETING_CREATOR'])
-				->setLanguageId($meeting['LANGUAGE_ID'])
-				->setMailFrom($meeting['MAIL_FROM'])
+				->setLanguageId($meeting['LANGUAGE_ID'] ?? null)
+				->setMailFrom($meeting['MAIL_FROM'] ?? null)
+				->setChatId($meeting['CHAT_ID'] ?? null)
 			;
 		}
 
@@ -510,16 +512,14 @@ abstract class EventBuilder implements Builder
 	 */
 	protected function createDateForRecurrence(string $date): Date
 	{
-		if (substr($date,2,1) === '.' && substr($date,5,1) === '.')
+		if ($date[2] === '.' && $date[5] === '.')
 		{
 			return Date::createDateFromFormat(
 				$date,
 				ExcludedDatesCollection::EXCLUDED_DATE_FORMAT
 			);
 		}
-		else
-		{
-			return new Date(Util::getDateObject($date));
-		}
+
+		return new Date(Util::getDateObject($date));
 	}
 }

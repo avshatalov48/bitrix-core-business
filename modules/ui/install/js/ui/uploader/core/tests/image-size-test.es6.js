@@ -1,5 +1,6 @@
 import createFileByType from './utils/create-file-by-type.es6';
 import getImageSize from '../src/helpers/image-size/get-image-size';
+import { UploaderEvent } from '../src/enums/uploader-event';
 
 describe('Images Size', () => {
 	it('should get size from a gif file', (done) => {
@@ -127,6 +128,17 @@ describe('Images Size', () => {
 			{
 				done(exception);
 			}
+		});
+	});
+
+	it('should return a error for an unsupported image', (done) => {
+		const unsupportedImage = createFileByType('unsupported-image');
+		getImageSize(unsupportedImage).then((size) => {
+			assert.equal(size.width, 2);
+			assert.equal(size.height, 1);
+		}).catch(error => {
+			assert.ok(error instanceof Error, 'error is empty');
+			done();
 		});
 	});
 });

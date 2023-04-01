@@ -37,6 +37,8 @@ class VendorDataExchangeManager
 {
 	use HandleStatusTrait;
 
+	private static array $outgoingManagersCache = [];
+
 	protected Sync\Entities\SyncEventMap $syncEventMap;
 	protected SyncEventMergeHandler $handlerMerge;
 	/**
@@ -878,10 +880,13 @@ class VendorDataExchangeManager
 			}
 
 			/** @var Sync\Entities\SyncSection $savedSyncSection */
-			if ($savedSyncSection = $this->syncSectionMap->getItem(
+			if ($savedSyncSection = $this->syncSectionMap->has(
 				$externalSyncSection->getSectionConnection()->getVendorSectionId()
 			))
 			{
+				$savedSyncSection = $this->syncSectionMap->getItem(
+					$externalSyncSection->getSectionConnection()->getVendorSectionId()
+				);
 				$externalSyncSection
 					->getSectionConnection()
 						->setId($savedSyncSection->getSectionConnection()->getId())
@@ -1310,6 +1315,7 @@ class VendorDataExchangeManager
 				{
 					if (
 						$existsSyncEvent->hasInstances()
+						&& $instanceSyncEvent->getEvent()->getOriginalDateFrom()
 						&& $existsInstanceSyncEvent = $existsSyncEvent->getInstanceMap()->getItem(
 							Sync\Entities\InstanceMap::getKeyByDate(
 								$instanceSyncEvent->getEvent()->getOriginalDateFrom()
@@ -1339,6 +1345,7 @@ class VendorDataExchangeManager
 		{
 			if (
 				$existsMasterSyncEvent->hasInstances()
+				&& $syncEvent->getEvent()->getOriginalDateFrom()
 				&& $existsInstanceSyncEvent = $existsMasterSyncEvent->getInstanceMap()->getItem(
 					Sync\Entities\InstanceMap::getKeyByDate(
 						$syncEvent->getEvent()->getOriginalDateFrom()
@@ -1810,7 +1817,7 @@ class VendorDataExchangeManager
 	{
 		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 		$links = $mapperFactory->getSectionConnection()->getMap([
-			'CONNECTION_ID' => $connection->getId(),
+			'=CONNECTION_ID' => $connection->getId(),
 			'=ACTIVE' => 'Y'
 		]);
 
@@ -1832,12 +1839,11 @@ class VendorDataExchangeManager
 	 */
 	private function getOutgoingManager(Connection $connection)
 	{
-		static $managers = [];
-		if (empty($managers[$connection->getId()]))
+		if (empty(static::$outgoingManagersCache[$connection->getId()]))
 		{
-			$managers[$connection->getId()] = new OutgoingManager($connection);
+			static::$outgoingManagersCache[$connection->getId()] = new OutgoingManager($connection);
 		}
 
-		return $managers[$connection->getId()];
+		return static::$outgoingManagersCache[$connection->getId()];
 	}
 }

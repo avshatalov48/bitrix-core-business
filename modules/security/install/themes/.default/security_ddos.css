@@ -238,10 +238,6 @@
     line-height: 51px !important;
 }
 
-.bx-ie .adm-workarea .ddos-form-field-container input {
-	line-height: 51px;
-}
-
 .ddos-btn {
 	display: inline-block;
 	margin-top: 15px;
@@ -357,9 +353,4 @@
 	box-shadow: inset 0 1px 0px rgba(66,84,17,.71) ;
 	border-color: transparent #698f00 #698f00 ;
 	border-top: 0px solid transparent;
-}
-
-.bx-ie8 .ddos-btn-arrow:before,
-.bx-ie8 .ddos-btn-arrow:after {
-	display: none;
 }

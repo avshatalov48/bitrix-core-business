@@ -14,6 +14,7 @@ class UploaderError extends \Bitrix\Main\Error
 	public const MAX_FILE_SIZE_EXCEEDED = 'MAX_FILE_SIZE_EXCEEDED';
 	public const MIN_FILE_SIZE_EXCEEDED = 'MIN_FILE_SIZE_EXCEEDED';
 	public const FILE_TYPE_NOT_ALLOWED = 'FILE_TYPE_NOT_ALLOWED';
+	public const FILE_NAME_NOT_ALLOWED = 'FILE_NAME_NOT_ALLOWED';
 	public const IMAGE_MAX_FILE_SIZE_EXCEEDED = 'IMAGE_MAX_FILE_SIZE_EXCEEDED';
 	public const IMAGE_MIN_FILE_SIZE_EXCEEDED = 'IMAGE_MIN_FILE_SIZE_EXCEEDED';
 	public const IMAGE_TYPE_NOT_SUPPORTED = 'IMAGE_TYPE_NOT_SUPPORTED';
@@ -84,9 +85,10 @@ class UploaderError extends \Bitrix\Main\Error
 
 	public function __construct(string $code, ...$args)
 	{
-		$message = is_string($args[0]) ? $args[0] : null;
-		$description = is_string($args[1]) ? $args[1] : null;
-		$customData = is_array($args[count($args) - 1]) ? $args[count($args) - 1] : [];
+		$message = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
+		$description = isset($args[1]) && is_string($args[1]) ? $args[1] : null;
+		$lastIndex = count($args) - 1;
+		$customData = isset($args[$lastIndex]) && is_array($args[$lastIndex]) ? $args[$lastIndex] : [];
 
 		$replacements = [];
 		foreach ($customData as $key => $value)

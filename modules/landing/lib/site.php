@@ -1443,6 +1443,24 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 			return $result;
 		}
 
+		// disable delete if folder (or aby sub folders) contains area
+		$res = Landing::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'FOLDER_ID' => [$id, ...Folder::getSubFolderIds($id)],
+				'!==AREAS.ID' => null,
+			],
+		]);
+		if ($res->fetch())
+		{
+			$result = new \Bitrix\Main\Entity\AddResult;
+			$result->addError(new \Bitrix\Main\Error(
+				Loc::getMessage('LANDING_DELETE_FOLDER_ERROR_CONTAINS_AREAS'),
+				'FOLDER_CONTAINS_AREAS'
+			));
+			return $result;
+		}
+
 		$event = new Event('landing', 'onBeforeFolderRecycle', [
 			'id' => $id,
 			'delete' => 'Y'

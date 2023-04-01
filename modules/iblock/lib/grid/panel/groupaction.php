@@ -514,7 +514,7 @@ class GroupAction
 	{
 		return (isset($params['NAME']) && $params['NAME'] != ''
 			? $params['NAME']
-			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_ACTIVATE_MSGVER_1')
+			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_ACTIVATE_MSGVER_2')
 		);
 	}
 
@@ -526,7 +526,7 @@ class GroupAction
 	{
 		return (isset($params['NAME']) && $params['NAME'] != ''
 			? $params['NAME']
-			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_DEACTIVATE_MSGVER_1')
+			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_DEACTIVATE_MSGVER_2')
 		);
 	}
 

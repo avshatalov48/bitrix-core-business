@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 class CCSVData
@@ -29,13 +29,19 @@ class CCSVData
 		$this->SetFirstHeader($first_header);
 	}
 
-	function LoadFile($filename)
+	public function LoadFile($filename)
 	{
 		$this->sFileName = $filename;
-		$this->__file = fopen($this->sFileName, "rb");
-		$this->iFileLength = filesize($this->sFileName);
-		$this->CheckUTF8BOM();
-		$this->SetPos(0);
+		$file = fopen($this->sFileName, "rb");
+		if (is_resource($file))
+		{
+			$this->__file = $file;
+			$this->iFileLength = filesize($this->sFileName);
+			$this->CheckUTF8BOM();
+			$this->SetPos();
+			return true;
+		}
+		return false;
 	}
 
 	public function CloseFile()
@@ -47,8 +53,13 @@ class CCSVData
 		}
 	}
 
-	function CheckUTF8BOM()
+	public function CheckUTF8BOM()
 	{
+		if (!$this->__file)
+		{
+			return;
+		}
+
 		//check UTF-8 Byte-Order Mark
 		fseek($this->__file, 0);
 		$sBOM = fread($this->__file, 3);
@@ -58,27 +69,27 @@ class CCSVData
 		}
 	}
 
-	function SetFieldsType($fields_type = "R")
+	public function SetFieldsType($fields_type = "R")
 	{
 		$this->cFieldsType = ($fields_type == "F"? "F" : "R");
 	}
 
-	function SetDelimiter($delimiter = ";")
+	public function SetDelimiter($delimiter = ";")
 	{
 		$this->cDelimiter = (mb_strlen($delimiter) > 1? mb_substr($delimiter, 0, 1) : $delimiter);
 	}
 
-	function SetFirstHeader($first_header = false)
+	public function SetFirstHeader($first_header = false)
 	{
 		$this->bFirstHeader = $first_header;
 	}
 
-	function GetFirstHeader()
+	public function GetFirstHeader()
 	{
 		return $this->bFirstHeader;
 	}
 
-	function SetWidthMap($arMap)
+	public function SetWidthMap($arMap)
 	{
 		$this->arWidthMap = array();
 		for ($i = 0, $n = count($arMap); $i < $n; $i++)
@@ -87,8 +98,13 @@ class CCSVData
 		}
 	}
 
-	function FetchDelimiter()
+	public function FetchDelimiter()
 	{
+		if (!$this->__file)
+		{
+			return false;
+		}
+
 		$bInString = false;
 		$str = "";
 		$res_r = array();
@@ -186,8 +202,13 @@ class CCSVData
 		}
 	}
 
-	function FetchWidth()
+	public function FetchWidth()
 	{
+		if (!$this->__file)
+		{
+			return false;
+		}
+
 		$str = "";
 		$ind = 1;
 		$jnd = 0;
@@ -267,7 +288,7 @@ class CCSVData
 		}
 	}
 
-	function Fetch()
+	public function Fetch()
 	{
 		if ($this->cFieldsType == "R")
 		{
@@ -287,8 +308,13 @@ class CCSVData
 		}
 	}
 
-	function IncCurPos()
+	public function IncCurPos()
 	{
+		if (!$this->__file)
+		{
+			return;
+		}
+
 		$this->iCurPos++;
 		$this->__buffer_pos++;
 		if($this->__buffer_pos >= $this->__buffer_size)
@@ -306,18 +332,23 @@ class CCSVData
 		}
 	}
 
-	function MoveFirst()
+	public function MoveFirst()
 	{
-		$this->SetPos(0);
+		$this->SetPos();
 	}
 
-	function GetPos()
+	public function GetPos()
 	{
 		return $this->iCurPos;
 	}
 
-	function SetPos($iCurPos = 0)
+	public function SetPos($iCurPos = 0)
 	{
+		if (!$this->__file)
+		{
+			return;
+		}
+
 		$iCurPos = intval($iCurPos);
 		if ($iCurPos <= $this->iFileLength)
 		{
@@ -347,7 +378,7 @@ class CCSVData
 		$this->__buffer_pos = 0;
 	}
 
-	function SaveFile($filename, $arFields)
+	public function SaveFile($filename, $arFields)
 	{
 		$this->sFileName = $filename;
 

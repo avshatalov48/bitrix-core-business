@@ -3762,21 +3762,29 @@ this.BX.UI = this.BX.UI || {};
 	        blob,
 	        maskedBlob
 	      } = event.getData();
-	      formObj.append(fieldName + '[file]', blob, blob['name']);
+	      formObj.append(fieldName, blob, blob['name']);
+	      const maskedFileId = ['maskedFile', Editor.justANumber++].join(':');
+	      formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + fieldName, maskedFileId);
 
 	      if (maskedBlob) {
-	        formObj.append(fieldName + '[maskedFile]', maskedBlob, blob['name']);
-	        formObj.append(fieldName + '[maskedFile][maskId]', maskedBlob['maskId']);
+	        formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + ']', maskedBlob, blob['name']);
+	        formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + '][maskId]', maskedBlob['maskId']);
+	        callback(new main_core_events.BaseEvent({
+	          data: {
+	            form: formObj,
+	            blob,
+	            maskedBlob,
+	            maskId: maskedBlob['maskId']
+	          }
+	        }));
+	      } else {
+	        callback(new main_core_events.BaseEvent({
+	          data: {
+	            form: formObj,
+	            blob
+	          }
+	        }));
 	      }
-
-	      callback(new main_core_events.BaseEvent({
-	        data: {
-	          form: formObj,
-	          blob,
-	          maskedBlob,
-	          maskId: maskedBlob ? maskedBlob['maskId'] : null
-	        }
-	      }));
 	    });
 	  } //region Compatibility
 

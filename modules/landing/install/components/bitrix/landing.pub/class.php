@@ -497,7 +497,7 @@ class LandingPubComponent extends LandingBaseComponent
 			$landingUrl = '';
 			$this->isSitemapXml = true;
 		}
-		elseif ($landingUrl == 'favicon' || $landingUrl == 'favicon.php')
+		elseif ($landingUrl == 'favicon' || $landingUrl == 'favicon.php' || $landingUrl == 'favicon.ico')
 		{
 			$path = '/bitrix/components/bitrix/landing.pub/favicon.ico';
 			$hooksSite = Hook::getForSite($siteId);
@@ -1559,6 +1559,7 @@ class LandingPubComponent extends LandingBaseComponent
 				self::$landingMain['LANDING_ID'] = $lid;
 				self::$landingMain['LANDING_INSTANCE'] = $landing;
 				$this->arResult['LANDING'] = $landing;
+				$this->arResult['SITE_RELATIVE_URL'] = Site::getPublicUrl($landing->getSiteId(), true, false);
 				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding($landing);
 				$this->arResult['DOMAIN'] = $this->getParentDomain();
 				$this->arResult['COPY_LINK'] = $this->getCopyLinkPath();
@@ -1747,7 +1748,7 @@ class LandingPubComponent extends LandingBaseComponent
 						}
 						$this->addError(
 							'SITE_NOT_ALLOWED',
-							$this->getMessageType('LANDING_CMP_SITE_NOT_ALLOWED')
+							$this->getMessageType('LANDING_CMP_SITE_NOT_ALLOWED', null, 2)
 						);
 						$this->arParams['CHECK_PERMISSIONS'] = 'Y';
 						parent::executeComponent();

@@ -1,7 +1,6 @@
 import { Tag, Dom, Loc, Event} from 'main.core';
 import { EditForm } from '../../sectioninterface/src/editform';
 import { Util } from 'calendar.util';
-import { SectionSelector } from 'calendar.controls';
 import { TagSelector } from 'ui.entity-selector';
 
 export class EditFormRoom extends EditForm
@@ -187,15 +186,15 @@ export class EditFormRoom extends EditForm
 	renderCategorySelectorWrap()
 	{
 		return Tag.render`
-					<div class="calendar-field-container calendar-field-container-string">
-						<div class="calendar-field-block">
-							<div class ="calendar-list-slider-card-widget-title">
-								<span class="calendar-list-slider-card-widget-title-text">
-									${Loc.getMessage('EC_SEC_SLIDER_ROOM_CATEGORY')}
-								</span>
-							</div>
-						</div>
+			<div class="calendar-field-container calendar-field-container-string calendar-field-container-rooms">
+				<div class="calendar-field-block">
+					<div class ="calendar-list-slider-card-widget-title">
+						<span class="calendar-list-slider-card-widget-title-text">
+							${Loc.getMessage('EC_SEC_SLIDER_ROOM_CATEGORY')}
+						</span>
 					</div>
+				</div>
+			</div>
 		`;
 	}
 
@@ -214,7 +213,7 @@ export class EditFormRoom extends EditForm
 
 		return new TagSelector({
 			placeholder: Loc.getMessage('EC_SEC_SLIDER_CATEGORY_SELECTOR_PLACEHOLDER'),
-			textBoxWidth:320,
+			textBoxWidth: 320,
 			multiple: false,
 			events: {
 				onTagAdd: () => {

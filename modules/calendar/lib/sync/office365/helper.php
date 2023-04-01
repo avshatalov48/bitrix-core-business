@@ -42,10 +42,7 @@ class Helper
 	];
 	const PUSH_PATH = '/bitrix/tools/calendar/office365push.php';
 
-	public function isVendorConnection(string $accountType): bool
-	{
-		return $accountType === self::ACCOUNT_TYPE;
-	}
+	private static array $deltaInterval;
 
 	/**
 	 * @return Date[] = [
@@ -55,20 +52,23 @@ class Helper
 	 */
 	public function getDeltaInterval(): array
 	{
-		static $interval;
-
-		if (empty($interval))
+		if (empty(static::$deltaInterval))
 		{
 			$from = new Date();
 			$from->getDate()->add(self::DELTA_INTERVAL['from']);
 			$to = new Date();
 			$to->getDate()->add(self::DELTA_INTERVAL['to']);
-			$interval = [
+			static::$deltaInterval = [
 				'from' => $from,
 				'to' =>$to
 			];
 		}
 
-		return $interval;
+		return static::$deltaInterval;
+	}
+
+	public function isVendorConnection(string $accountType): bool
+	{
+		return $accountType === self::ACCOUNT_TYPE;
 	}
 }

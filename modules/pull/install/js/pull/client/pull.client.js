@@ -36,6 +36,7 @@
 	const CONFIG_TTL = 24 * 60 * 60;
 	const CONFIG_CHECK_INTERVAL = 60000;
 	const MAX_IDS_TO_STORE = 10;
+	const OFFLINE_STATUS_DELAY = 5000;
 
 	const LS_SESSION = "bx-pull-session";
 	const LS_SESSION_CACHE_TIME = 20;
@@ -153,6 +154,8 @@
 				params.serverEnabled = true;
 			}
 
+			this._status = PullStatus.Offline;
+
 			this.context = 'master';
 
 			this.guestMode = params.guestMode ? params.guestMode : (typeof BX.message !== 'undefined' && BX.message.pull_guest_mode ? BX.message.pull_guest_mode === 'Y' : false);
@@ -261,6 +264,35 @@
 		get connector()
 		{
 			return this._connectors[this.connectionType];
+		}
+
+		get status()
+		{
+			return this._status;
+		}
+
+		set status(status)
+		{
+			if (this._status === status)
+			{
+				return;
+			}
+
+			this._status = status;
+			if (this.offlineTimeout)
+			{
+				clearTimeout(this.offlineTimeout)
+				this.offlineTimeout = null;
+			}
+
+			if (status === PullStatus.Offline)
+			{
+				this.sendPullStatusDelayed(status, OFFLINE_STATUS_DELAY);
+			}
+			else
+			{
+				this.sendPullStatus(status);
+			}
 		}
 
 		/**
@@ -620,7 +652,7 @@
 					(error) =>
 					{
 						this.starting = false;
-						this.sendPullStatus(PullStatus.Offline);
+						this.status = PullStatus.Offline;
 						this.stopCheckConfig();
 						console.error(Utils.getDateForLog() + ': Pull: could not read push-server config. ', error);
 						reject(error);
@@ -943,7 +975,7 @@
 				},
 				(error) => {
 					console.error(Utils.getDateForLog() + ': Pull: could not read push-server config', error);
-					this.sendPullStatus(PullStatus.Offline);
+					this.status = PullStatus.Offline;
 
 					clearTimeout(this.reconnectTimeout);
 					if (error.status == 401 || error.status == 403)
@@ -1283,7 +1315,7 @@
 				clearTimeout(this.reconnectTimeout);
 			}
 
-			this.sendPullStatus(PullStatus.Connecting);
+			this.status = PullStatus.Connecting;
 			this.connectionAttempt++;
 			return new Promise((resolve, reject) =>
 			{
@@ -1705,13 +1737,7 @@
 			this.starting = false;
 			this.connectionAttempt = 0;
 			this.isManualDisconnect = false;
-			this.sendPullStatus(PullStatus.Online);
-
-			if (this.offlineTimeout)
-			{
-				clearTimeout(this.offlineTimeout);
-				this.offlineTimeout = null;
-			}
+			this.status = PullStatus.Online;
 
 			this.logToConsole('Pull: Long polling connection with push-server opened');
 			if (this.isWebSocketEnabled())
@@ -1753,7 +1779,7 @@
 			this.starting = false;
 			this.connectionAttempt = 0;
 			this.isManualDisconnect = false;
-			this.sendPullStatus(PullStatus.Online);
+			this.status = PullStatus.Online;
 			this.sharedConfig.setWebSocketBlocked(false);
 
 			// to prevent fallback to long polling in case of networking problems
@@ -1765,11 +1791,6 @@
 				this._connectors.longPolling.disconnect();
 			}
 
-			if (this.offlineTimeout)
-			{
-				clearTimeout(this.offlineTimeout);
-				this.offlineTimeout = null;
-			}
 			if (this.restoreWebSocketTimeout)
 			{
 				clearTimeout(this.restoreWebSocketTimeout);
@@ -1786,14 +1807,7 @@
 		{
 			if (this.connectionType === ConnectionType.WebSocket)
 			{
-				if (e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
-				{
-					this.sendPullStatus(PullStatus.Offline);
-				}
-				else
-				{
-					this.offlineTimeout = setTimeout(() => this.sendPullStatus(PullStatus.Offline), 5000)
-				}
+				this.status = PullStatus.Offline;
 			}
 
 			if (!e)
@@ -1826,7 +1840,7 @@
 			this.starting = false;
 			if (this.connectionType === ConnectionType.WebSocket)
 			{
-				this.sendPullStatus(PullStatus.Offline);
+				this.status = PullStatus.Offline;
 			}
 
 			console.error(Utils.getDateForLog() + ": Pull: WebSocket connection error", e);
@@ -1843,14 +1857,7 @@
 		{
 			if (this.connectionType === ConnectionType.LongPolling)
 			{
-				if (e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
-				{
-					this.sendPullStatus(PullStatus.Offline);
-				}
-				else
-				{
-					this.offlineTimeout = setTimeout(() => this.sendPullStatus(PullStatus.Offline), 5500)
-				}
+				this.status = PullStatus.Offline;
 			}
 
 			if (!e)
@@ -1872,7 +1879,7 @@
 			this.starting = false;
 			if (this.connectionType === ConnectionType.LongPolling)
 			{
-				this.sendPullStatus(PullStatus.Offline);
+				this.status = PullStatus.Offline;
 			}
 			console.error(Utils.getDateForLog() + ': Pull: Long polling connection error', e);
 			this.scheduleReconnect();
@@ -2262,6 +2269,22 @@
 			}
 
 			return result + (result * Math.random() * 0.2);
+		}
+
+		sendPullStatusDelayed(status, delay)
+		{
+			if (this.offlineTimeout)
+			{
+				clearTimeout(this.offlineTimeout)
+			}
+			this.offlineTimeout = setTimeout(
+				() =>
+				{
+					this.offlineTimeout = null;
+					this.sendPullStatus(status);
+				},
+				delay
+			)
 		}
 
 		sendPullStatus(status)

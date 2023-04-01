@@ -93,7 +93,7 @@ abstract class Base
 	 */
 	protected function setFilteredValue($string)
 	{
-			$this->filteredValue = $string;
+		$this->filteredValue = $string;
 	}
 
 

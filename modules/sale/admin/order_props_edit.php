@@ -1,28 +1,29 @@
-<?
+<?php
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use	Bitrix\Sale\Internals\Input;
+use Bitrix\Sale\Internals\OrderPropsTable;
 
 $saleModulePermissions = $APPLICATION->GetGroupRight('sale');
 if ($saleModulePermissions < 'W')
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 ClearVars();
 ClearVars('f_');
 ClearVars('l_');
 
-use	Bitrix\Sale\Internals\Input,
-	Bitrix\Sale\Internals\OrderPropsTable,
-	Bitrix\Main\Localization\Loc;
-
 Loc::loadMessages(__FILE__);
 
-$ID = intval($ID);
+$request = Main\Context::getCurrent()->getRequest();
 
-$propertyId = $ID;
-$personTypeId = $PERSON_TYPE_ID;
-unset($ID, $PERSON_TYPE_ID);
+$propertyId = (int)$request->get('ID');
+$personTypeId = (int)$request->get('PERSON_TYPE_ID');
 
 // load person types
 $personTypes = array();
@@ -72,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // get property from post
 	}
 
 	$property = $_POST;
-	$relations = $_POST['RELATIONS'];
+	$relations = (array)($_POST['RELATIONS'] ?? []);
 }
 else
 {
@@ -306,7 +307,7 @@ $result = CSalePaySystem::GetList(
 	array("ID", "NAME", "ACTIVE", "SORT", "LID")
 );
 while ($row = $result->Fetch())
-	$paymentOptions[$row['ID']] = $row['NAME'] . ($row['LID'] ? " ({$row['LID']}) " : ' ') . "[{$row['ID']}]";
+	$paymentOptions[$row['ID']] = $row['NAME'] . "[{$row['ID']}]";
 
 // delivery system options
 $deliveryOptions = array();
@@ -411,6 +412,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 
 	foreach ($relationsSettings as $name => $input)
 	{
+		if (!isset($relations[$name]))
+		{
+			$relations[$name] = array();
+		}
 		if (($value = $relations[$name]) && $value != array(''))
 		{
 			if ($error = Input\Manager::getError($input, $value))
@@ -423,7 +428,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 	}
 
 	// insert/update database
-	if (! $errors && ($_POST['save'] || $_POST['apply']) && $saleModulePermissions == 'W' && check_bitrix_sessid())
+	if (
+		!$errors
+		&& ($request->getPost('save') !== null || $request->getPost('apply') !== null)
+		&& $saleModulePermissions == 'W'
+		&& check_bitrix_sessid()
+	)
 	{
 		// save uploaded files
 		if ($property['TYPE'] == 'FILE')
@@ -459,12 +469,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 		$propertyForDB = array();
 		foreach ($commonSettings + $inputSettings + $stringSettings + $locationSettings as $name => $input)
 		{
-			if (is_string($property[$name]))
+			if (isset($property[$name]))
 			{
-				$property[$name] = trim($property[$name]);
-			}
+				if (is_string($property[$name]))
+				{
+					$property[$name] = trim($property[$name]);
+				}
 
-			$propertyForDB[$name] = Input\Manager::getValue($input, $property[$name]);
+				$propertyForDB[$name] = Input\Manager::getValue($input, $property[$name]);
+			}
 		}
 
 		$propertyForDB['SETTINGS'] = array_intersect_key($propertyForDB, $inputSettings);
@@ -597,10 +610,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 				CSaleOrderProps::UpdateOrderPropsRelations($propertyId, $relations[$name], $name);
 		}
 
-		if ($_POST['save'] && ! $errors)
+		if ($request->getPost('save') !== null && !$errors)
 			LocalRedirect("sale_order_props.php?lang=".LANG.GetFilterParams("filter_", false));
 
-		if ($_POST['apply'] && ! $errors)
+		if ($request->getPost('apply') !== null && ! $errors)
 			LocalRedirect("sale_order_props_edit.php?lang=".LANG."&ID=".$propertyId.GetFilterParams("filter_", false));
 	}
 }
@@ -702,10 +715,18 @@ if ($errors)
 	<?
 
 	foreach ($propertySettings as $name => $input):
-		if ($input['HIDDEN'] != 'Y')
+		$input['HIDDEN'] ??= 'N';
+		$input['REQUIRED'] ??= 'N';
+		$input['MULTIPLE'] ??= 'N';
+		$input['DESCRIPTION'] ??= '';
+		$input['RLABEL'] ??= '';
+		$tr = '';
+		$td = '';
+
+		if ($input['HIDDEN'] !== 'Y')
 		{
-			$tr = $input['REQUIRED'] == 'Y' ? ' class="adm-detail-required-field"' : '';
-			$td = $input['MULTIPLE'] == 'Y' ? ' valign="top"' : '';
+			$tr = $input['REQUIRED'] === 'Y' ? ' class="adm-detail-required-field"' : '';
+			$td = $input['MULTIPLE'] === 'Y' ? ' valign="top"' : '';
 			switch ($input['TYPE'])
 			{
 				case 'FILE': $input['CLASS'] = 'adm-designed-file'; break;
@@ -716,9 +737,9 @@ if ($errors)
 		<?if ($name == 'TYPE'):?><tr class="heading"><td colspan="2"><?=Loc::getMessage('TYPE_TITLE')?></td></tr><?endif?>
 		<tr<?=$tr?>>
 			<td width="40%"<?=$td?>><?=$input['LABEL']?>:</td>
-			<td width="60%"<?=$td?>>
-				<?=Input\Manager::getEditHtml($name, $input, $property[$name]).$input['RLABEL']?>
-				<?if ($input['DESCRIPTION']):?>
+			<td width="60%"<?=$td?>><?php
+				echo Input\Manager::getEditHtml($name, $input, $property[$name] ?? '').$input['RLABEL'];
+				if ($input['DESCRIPTION']):?>
 					<small><?=$input['DESCRIPTION']?></small>
 				<?endif?>
 			</td>
@@ -790,5 +811,4 @@ if ($errors)
 	$tabControl->End();
 	?>
 </form>
-
 <?require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');

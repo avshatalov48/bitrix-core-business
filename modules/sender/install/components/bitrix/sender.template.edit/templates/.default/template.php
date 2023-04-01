@@ -24,8 +24,8 @@ CJSCore::Init(array('admin_interface'));
 	BX.ready(function () {
 		BX.Sender.Message.Editor.init(<?=Json::encode(array(
 			'containerId' => $containerId,
-			'actionUrl' => $arResult['ACTION_URL'],
-			'isFrame' => $arParams['IFRAME'] == 'Y',
+			'actionUrl' => $arResult['ACTION_URL'] ?? '',
+			'isFrame' => ($arParams['IFRAME'] ?? 'N') == 'Y',
 			'isSaved' => $arResult['IS_SAVED'],
 			'prettyDateFormat' => PrettyDate::getDateFormat(),
 			'mess' => array(
@@ -49,7 +49,7 @@ CJSCore::Init(array('admin_interface'));
 	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>
 
-		<div class="bx-sender-letter-field" style="<?=($arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
+		<div class="bx-sender-letter-field" style="<?=(($arParams['IFRAME'] ?? 'N') == 'Y' ? 'display: none;' : '')?>">
 			<div class="bx-sender-caption">
 				<?=Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_FIELD_NAME')?>:
 			</div>

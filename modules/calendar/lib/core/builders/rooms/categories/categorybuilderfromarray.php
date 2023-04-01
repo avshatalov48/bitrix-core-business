@@ -14,6 +14,11 @@ class CategoryBuilderFromArray extends CategoryBuilder
 	 */
 	public function __construct(array $params)
 	{
+		$params = [
+			'id' => $params['id'] ?? null,
+			'name' => $params['name'] ?? null,
+			'rooms' => $params['rooms'] ?? null,
+		];
 		$this->params = $params;
 	}
 

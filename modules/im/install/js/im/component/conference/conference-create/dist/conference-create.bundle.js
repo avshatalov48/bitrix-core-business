@@ -29,14 +29,10 @@ this.BX = this.BX || {};
 	  },
 	  mounted: function mounted() {
 	    var _this = this;
-
 	    this.initUserSelector().then(function () {
 	      _this.userSelector.renderTo(_this.$refs['userSelector']);
-
 	      _this.initPresenterSelector();
-
 	      _this.presenterSelector.renderTo(_this.$refs['presenterSelector']);
-
 	      _this.$nextTick(function () {
 	        _this.$refs['titleInput'].focus();
 	      });
@@ -47,40 +43,32 @@ this.BX = this.BX || {};
 	      if (this.linkGenerated) {
 	        return this.aliasData['LINK'];
 	      }
-
 	      return this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_LINK_LOADING'];
 	    },
 	    defaultTitlePlaceholder: function defaultTitlePlaceholder() {
 	      if (this.linkGenerated) {
 	        return this.defaultTitle;
 	      }
-
 	      return this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_PLACEHOLDER_TITLE_2'];
 	    },
 	    containerClasses: function containerClasses() {
 	      var classes = ['bx-conference-quick-create-wrap'];
-
 	      if (this.darkTheme) {
 	        classes.push('bx-conference-quick-create-wrap-dark');
 	      }
-
 	      return classes;
 	    },
 	    startButtonClasses: function startButtonClasses() {
 	      var classes = ['ui-btn', 'ui-btn-primary'];
-
 	      if (!this.userSelectorLoaded) {
 	        classes.push('ui-btn-disabled');
 	      }
-
 	      if (this.errors.length > 0) {
 	        classes.push('ui-btn-disabled', 'ui-btn-icon-lock');
 	      }
-
 	      if (this.isCreatingConference) {
 	        classes.push('ui-btn-wait');
 	      }
-
 	      return classes;
 	    },
 	    localize: function localize() {
@@ -90,7 +78,6 @@ this.BX = this.BX || {};
 	  methods: {
 	    generateLink: function generateLink() {
 	      var _this2 = this;
-
 	      main_core.ajax.runAction('im.conference.prepare', {
 	        json: {},
 	        analyticsLabel: {
@@ -114,11 +101,9 @@ this.BX = this.BX || {};
 	    },
 	    saveConference: function saveConference() {
 	      var _this3 = this;
-
 	      if (!this.linkGenerated) {
 	        return false;
 	      }
-
 	      var fieldsToSubmit = {
 	        id: 0,
 	        title: this.title,
@@ -141,17 +126,14 @@ this.BX = this.BX || {};
 	        _this3.chatId = response.data['CHAT_ID'];
 	        _this3.isCreatingConference = false;
 	        _this3.conferenceCreated = true;
-
 	        _this3.copyLink();
 	      })["catch"](function (response) {
 	        _this3.isCreatingConference = false;
-
 	        _this3.onFailedSubmit(response);
 	      });
 	    },
 	    startConference: function startConference() {
 	      this.openChat();
-
 	      if (BXIM) {
 	        BXIM.openVideoconf(this.aliasData['ALIAS']);
 	      }
@@ -168,7 +150,6 @@ this.BX = this.BX || {};
 	    },
 	    initUserSelector: function initUserSelector() {
 	      var _this4 = this;
-
 	      return main_core.Runtime.loadExtension('ui.entity-selector').then(function (exports) {
 	        _this4.TagSelector = exports.TagSelector;
 	        _this4.userSelectorLoaded = true;
@@ -203,7 +184,6 @@ this.BX = this.BX || {};
 	    },
 	    initPresenterSelector: function initPresenterSelector() {
 	      var _this5 = this;
-
 	      this.presenterSelector = new this.TagSelector({
 	        id: 'presenter-tag-selector',
 	        dialogOptions: {
@@ -235,7 +215,6 @@ this.BX = this.BX || {};
 	      if (!BX.PULL.isPublishingEnabled()) {
 	        this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_PUSH_ERROR']);
 	      }
-
 	      if (!BX.Call.Util.isCallServerAllowed()) {
 	        this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR_WITH_LINK']);
 	      }
@@ -250,7 +229,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedUsers.findIndex(function (userId) {
 	        return userId === event.data.item.id;
 	      });
-
 	      if (index === -1) {
 	        this.selectedUsers.push(event.data.item.id);
 	      }
@@ -259,7 +237,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedUsers.findIndex(function (userId) {
 	        return userId === event.data.item.id;
 	      });
-
 	      if (index > -1) {
 	        this.selectedUsers.splice(index, 1);
 	      }
@@ -268,7 +245,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedPresenters.findIndex(function (userId) {
 	        return userId === event.data.item.id;
 	      });
-
 	      if (index === -1) {
 	        this.selectedPresenters.push(event.data.item.id);
 	      }
@@ -277,18 +253,15 @@ this.BX = this.BX || {};
 	      var index = this.selectedPresenters.findIndex(function (userId) {
 	        return userId === event.data.item.id;
 	      });
-
 	      if (index > -1) {
 	        this.selectedPresenters.splice(index, 1);
 	      }
 	    },
 	    onFailedSubmit: function onFailedSubmit(response) {
 	      var errorMessage = response["errors"][0].message;
-
 	      if (response["errors"][0].code === 'NETWORK_ERROR') {
 	        errorMessage = this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_NETWORK_ERROR'];
 	      }
-
 	      this.addError(errorMessage);
 	    }
 	  },

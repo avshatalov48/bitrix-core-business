@@ -295,12 +295,12 @@ class CBPDelayActivity extends CBPActivity implements
 			{
 				$arCurrentValues['delay_time'] = $arCurrentActivity['Properties']['TimeoutDuration'] ?? 0;
 				$arCurrentValues['delay_type'] = $arCurrentActivity['Properties']['TimeoutDurationType'] ?? 'i';
-				$arCurrentValues['delay_date'] = $arCurrentActivity['Properties']['TimeoutTime'];
+				$arCurrentValues['delay_date'] = $arCurrentActivity['Properties']['TimeoutTime'] ?? '';
 				if ($arCurrentValues['delay_date'] && !CBPActivity::isExpression($arCurrentValues['delay_date']))
 				{
 					$arCurrentValues['delay_date'] = ConvertTimeStamp($arCurrentValues['delay_date'], 'FULL');
 				}
-				$arCurrentValues['delay_date_is_local'] = $arCurrentActivity['Properties']['TimeoutTimeIsLocal'];
+				$arCurrentValues['delay_date_is_local'] = $arCurrentActivity['Properties']['TimeoutTimeIsLocal'] ?? 'N';
 				$arCurrentValues['delay_write_to_log'] = $arCurrentActivity['Properties']['WriteToLog'] ?? 'N';
 			}
 

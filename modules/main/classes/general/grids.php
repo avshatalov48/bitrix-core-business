@@ -38,7 +38,7 @@ class CGridOptions
 
 		$defaultOptions = CUserOptions::GetOption("main.interface.grid.common", $this->grid_id, array());
 
-		if(is_array($defaultOptions["view"]) && !isset($aOptions["views"]["default"]))
+		if (isset($defaultOptions["view"]) && is_array($defaultOptions["view"]) && !isset($aOptions["views"]["default"]))
 		{
 			$aOptions["views"]["default"] = $defaultOptions["view"];
 		}
@@ -95,12 +95,12 @@ class CGridOptions
 		}
 		elseif(!isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"]))
 		{
-			if($this->options["sort_by"] <> '')
+			if(!empty($this->options["sort_by"]))
 			{
 				//sorting explicitly set in the view
 				$key = $this->options["sort_by"];
 			}
-			elseif($this->options["last_sort_by"] <> '')
+			elseif(!empty($this->options["last_sort_by"]))
 			{
 				//last saved user sorting
 				$key = $this->options["last_sort_by"];
@@ -117,11 +117,11 @@ class CGridOptions
 			}
 			elseif(!isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]))
 			{
-				if($this->options["sort_order"] <> '')
+				if(!empty($this->options["sort_order"]))
 				{
 					$arResult["sort"] = array($key => $this->options["sort_order"]);
 				}
-				elseif($this->options["last_sort_order"] <> '')
+				elseif(!empty($this->options["last_sort_order"]))
 				{
 					$arResult["sort"] = array($key => $this->options["last_sort_order"]);
 				}
@@ -140,10 +140,10 @@ class CGridOptions
 	public function GetNavParams($arParams=array())
 	{
 		$arResult = array(
-			"nPageSize" => (isset($arParams["nPageSize"])? $arParams["nPageSize"] : 20),
+			"nPageSize" => $arParams["nPageSize"] ?? 20,
 		);
 
-		if($this->options["page_size"] <> '')
+		if(!empty($this->options["page_size"]))
 			$arResult["nPageSize"] = $this->options["page_size"];
 
 		return $arResult;
@@ -151,9 +151,9 @@ class CGridOptions
 
 	public function GetVisibleColumns()
 	{
-		if($this->options["columns"] <> '')
+		if(!empty($this->options["columns"]))
 			return explode(",", $this->options["columns"]);
-		return array();
+		return [];
 	}
 
 	public function SetVisibleColumns($arColumns)

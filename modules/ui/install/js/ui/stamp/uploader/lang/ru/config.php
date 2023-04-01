@@ -17,3 +17,6 @@ $MESS['UI_STAMP_UPLOADER_PREVIEW_TITLE'] = 'Нажмите, чтобы загр�
 $MESS['UI_STAMP_UPLOADER_TAKE_PHOTO_BUTTON_LABEL'] = 'Сделать фото телефоном';
 $MESS['UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL'] = 'Загрузить фото';
 $MESS['UI_STAMP_UPLOADER_SAVE_BUTTON_LABEL'] = 'Сохранить';
+$MESS['UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM'] = 'Вы не сохранили изменения. Уверены, что хотите закрыть?';
+$MESS['UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CLOSE'] = 'Закрыть';
+$MESS['UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CANCEL'] = 'Отменить';

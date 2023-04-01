@@ -332,11 +332,13 @@ final class Order
 
 			$result['TYPE'] = ($result['TYPE'] === Catalog\ProductTable::TYPE_SERVICE) ? 'service' : 'product';
 
+			$result['PREVIEW_PICTURE'] ??= null;
 			if ((int)$result['PREVIEW_PICTURE'] > 0)
 			{
 				$result['PREVIEW_PICTURE_SRC'] = \CFile::GetPath($result['PREVIEW_PICTURE']);
 			}
 
+			$result['DETAIL_PICTURE'] ??= null;
 			if ((int)$result['DETAIL_PICTURE'] > 0)
 			{
 				$result['DETAIL_PICTURE_SRC'] = \CFile::GetPath($result['DETAIL_PICTURE']);

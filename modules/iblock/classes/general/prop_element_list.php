@@ -528,8 +528,9 @@ class CIBlockPropertyElementList
 			'data' => [
 				'isProductProperty' => true,
 				'enableEmptyItem' => true,
-				'items' => $items
-			]
+				'items' => $items,
+				'isConfigurable' => false,
+			],
 		];
 	}
 }

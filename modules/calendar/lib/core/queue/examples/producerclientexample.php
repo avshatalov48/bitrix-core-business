@@ -65,5 +65,4 @@ class ProducerClientExample
 	{
 		Registry::getInstance()->registerRuleClass(RuleExample::class);
 	}
-
 }

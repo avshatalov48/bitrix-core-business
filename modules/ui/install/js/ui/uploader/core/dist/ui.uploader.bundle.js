@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core,main_core_events,ui_uploader_core,ui_vue3) {
+(function (exports,main_core_events,ui_uploader_core,ui_vue3,main_core) {
 	'use strict';
 
 	const FileStatus = {
@@ -9,8 +9,9 @@ this.BX.UI = this.BX.UI || {};
 	  LOADING: 'loading',
 	  PENDING: 'pending',
 	  UPLOADING: 'uploading',
-	  ABORTED: 'aborted',
 	  COMPLETE: 'complete',
+	  //REMOVING: 'removing',
+	  //REMOVE_FAILED: 'remove-failed',
 	  LOAD_FAILED: 'load-failed',
 	  UPLOAD_FAILED: 'upload-failed'
 	};
@@ -20,21 +21,220 @@ this.BX.UI = this.BX.UI || {};
 	  SERVER: 'server'
 	};
 
+	const FileEvent = {
+	  ADD: 'onAdd',
+	  BEFORE_UPLOAD: 'onBeforeUpload',
+	  UPLOAD_START: 'onUploadStart',
+	  UPLOAD_ERROR: 'onUploadError',
+	  UPLOAD_PROGRESS: 'onUploadProgress',
+	  UPLOAD_COMPLETE: 'onUploadComplete',
+	  UPLOAD_CONTROLLER_INIT: 'onUploadControllerInit',
+	  LOAD_START: 'onLoadStart',
+	  LOAD_PROGRESS: 'onLoadProgress',
+	  LOAD_COMPLETE: 'onLoadComplete',
+	  LOAD_ERROR: 'onLoadError',
+	  LOAD_CONTROLLER_INIT: 'onLoadControllerInit',
+	  REMOVE_ERROR: 'onRemoveError',
+	  REMOVE_COMPLETE: 'onRemoveComplete',
+	  REMOVE_CONTROLLER_INIT: 'onRemoveControllerInit',
+	  STATE_CHANGE: 'onStateChange',
+	  STATUS_CHANGE: 'onStatusChange',
+	  PREPARE_FILE_ASYNC: 'onPrepareFileAsync'
+	};
+
+	class UploaderError extends main_core.BaseError {
+	  constructor(code, ...args) {
+	    let message = main_core.Type.isString(args[0]) ? args[0] : null;
+	    let description = main_core.Type.isString(args[1]) ? args[1] : null;
+	    const customData = main_core.Type.isPlainObject(args[args.length - 1]) ? args[args.length - 1] : {};
+	    const replacements = {};
+	    Object.keys(customData).forEach(key => {
+	      replacements[`#${key}#`] = customData[key];
+	    });
+
+	    if (!main_core.Type.isString(message) && main_core.Loc.hasMessage(`UPLOADER_${code}`)) {
+	      message = main_core.Loc.getMessage(`UPLOADER_${code}`, replacements);
+	    }
+
+	    if (main_core.Type.isStringFilled(message) && !main_core.Type.isString(description) && main_core.Loc.hasMessage(`UPLOADER_${code}_DESC`)) {
+	      description = main_core.Loc.getMessage(`UPLOADER_${code}_DESC`, replacements);
+	    }
+
+	    super(message, code, customData);
+	    this.description = '';
+	    this.origin = UploaderError.Origin.CLIENT;
+	    this.type = UploaderError.Type.USER;
+	    this.setDescription(description);
+	  }
+
+	  static createFromAjaxErrors(errors) {
+	    if (!main_core.Type.isArrayFilled(errors) || !main_core.Type.isPlainObject(errors[0])) {
+	      return new this('SERVER_ERROR');
+	    }
+
+	    const uploaderError = errors.find(error => {
+	      return error.type === 'file-uploader';
+	    });
+
+	    if (uploaderError && !uploaderError.system) {
+	      // Take the First Uploader User Error
+	      const {
+	        code,
+	        message,
+	        description,
+	        customData
+	      } = uploaderError;
+	      const error = new this(code, message, description, customData);
+	      error.setOrigin(UploaderError.Origin.SERVER);
+	      error.setType(UploaderError.Type.USER);
+	      return error;
+	    } else {
+	      let {
+	        code,
+	        message,
+	        description
+	      } = errors[0];
+	      const {
+	        customData,
+	        system,
+	        type
+	      } = errors[0];
+
+	      if (code === 'NETWORK_ERROR') {
+	        message = main_core.Loc.getMessage('UPLOADER_NETWORK_ERROR');
+	      } else {
+	        code = main_core.Type.isStringFilled(code) ? code : 'SERVER_ERROR';
+
+	        if (!main_core.Type.isStringFilled(description)) {
+	          description = message;
+	          message = main_core.Loc.getMessage('UPLOADER_SERVER_ERROR');
+	        }
+	      }
+
+	      console.error('Uploader', errors);
+	      const error = new this(code, message, description, customData);
+	      error.setOrigin(UploaderError.Origin.SERVER);
+
+	      if (type === 'file-uploader') {
+	        error.setType(system ? UploaderError.Type.SYSTEM : UploaderError.Type.USER);
+	      } else {
+	        error.setType(UploaderError.Type.UNKNOWN);
+	      }
+
+	      return error;
+	    }
+	  }
+
+	  static createFromError(error) {
+	    return new this(error.name, error.message);
+	  }
+
+	  getDescription() {
+	    return this.description;
+	  }
+
+	  setDescription(text) {
+	    if (main_core.Type.isString(text)) {
+	      this.description = text;
+	    }
+
+	    return this;
+	  }
+
+	  getOrigin() {
+	    return this.origin;
+	  }
+
+	  setOrigin(origin) {
+	    if (Object.values(UploaderError.Origin).includes(origin)) {
+	      this.origin = origin;
+	    }
+
+	    return this;
+	  }
+
+	  getType() {
+	    return this.type;
+	  }
+
+	  setType(type) {
+	    if (main_core.Type.isStringFilled(type)) {
+	      this.type = type;
+	    }
+
+	    return this;
+	  }
+
+	  clone() {
+	    const options = JSON.parse(JSON.stringify(this));
+	    const error = new UploaderError(options.code, options.message, options.description, options.customData);
+	    error.setOrigin(options.origin);
+	    error.setType(options.type);
+	    return error;
+	  }
+
+	  toString() {
+	    return `Uploader Error (${this.getCode()}): ${this.getMessage()} (${this.getOrigin()})`;
+	  }
+
+	  toJSON() {
+	    return {
+	      code: this.getCode(),
+	      message: this.getMessage(),
+	      description: this.getDescription(),
+	      origin: this.getOrigin(),
+	      type: this.getType(),
+	      customData: this.getCustomData()
+	    };
+	  }
+
+	}
+	UploaderError.Origin = {
+	  SERVER: 'server',
+	  CLIENT: 'client'
+	};
+	UploaderError.Type = {
+	  USER: 'user',
+	  SYSTEM: 'system',
+	  UNKNOWN: 'unknown'
+	};
+
 	var _server = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("server");
 
+	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
+
 	class AbstractUploadController extends main_core_events.EventEmitter {
-	  constructor(server) {
+	  constructor(server, options = {}) {
 	    super();
 	    Object.defineProperty(this, _server, {
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _options, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.UI.Uploader.UploadController');
 	    babelHelpers.classPrivateFieldLooseBase(this, _server)[_server] = server;
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = options;
 	  }
 
 	  getServer() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _server)[_server];
+	  }
+
+	  getOptions() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _options)[_options];
+	  }
+
+	  getOption(option, defaultValue) {
+	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option])) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option];
+	    } else if (!main_core.Type.isUndefined(defaultValue)) {
+	      return defaultValue;
+	    }
+
+	    return null;
 	  }
 
 	  upload(file) {
@@ -49,19 +249,40 @@ this.BX.UI = this.BX.UI || {};
 
 	var _server$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("server");
 
+	var _options$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
+
 	class AbstractLoadController extends main_core_events.EventEmitter {
-	  constructor(server) {
+	  constructor(server, options = {}) {
 	    super();
 	    Object.defineProperty(this, _server$1, {
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _options$1, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.UI.Uploader.LoadController');
 	    babelHelpers.classPrivateFieldLooseBase(this, _server$1)[_server$1] = server;
+	    babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1] = options;
 	  }
 
 	  getServer() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _server$1)[_server$1];
+	  }
+
+	  getOptions() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1];
+	  }
+
+	  getOption(option, defaultValue) {
+	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1][option])) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1][option];
+	    } else if (!main_core.Type.isUndefined(defaultValue)) {
+	      return defaultValue;
+	    }
+
+	    return null;
 	  }
 
 	  load(file) {
@@ -70,6 +291,50 @@ this.BX.UI = this.BX.UI || {};
 
 	  abort() {
 	    throw new Error('You must implement abort() method.');
+	  }
+
+	}
+
+	var _server$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("server");
+
+	var _options$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
+
+	class AbstractRemoveController extends main_core_events.EventEmitter {
+	  constructor(server, options = {}) {
+	    super();
+	    Object.defineProperty(this, _server$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _options$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.setEventNamespace('BX.UI.Uploader.RemoveController');
+	    babelHelpers.classPrivateFieldLooseBase(this, _server$2)[_server$2] = server;
+	    babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2] = options;
+	  }
+
+	  getServer() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _server$2)[_server$2];
+	  }
+
+	  getOptions() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2];
+	  }
+
+	  getOption(option, defaultValue) {
+	    if (!Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2][option])) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2][option];
+	    } else if (!Type.isUndefined(defaultValue)) {
+	      return defaultValue;
+	    }
+
+	    return null;
+	  }
+
+	  remove(file) {
+	    throw new Error('You must implement remove() method.');
 	  }
 
 	}
@@ -167,9 +432,9 @@ this.BX.UI = this.BX.UI || {};
 	const imageExtensions = ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'];
 
 	const isResizableImage = (file, mimeType = null) => {
-	  const filename = main_core.Type.isFile(file) ? file.name : file;
+	  const fileName = main_core.Type.isFile(file) ? file.name : file;
 	  const type = main_core.Type.isFile(file) ? file.type : mimeType;
-	  const extension = getFileExtension(filename).toLowerCase();
+	  const extension = getFileExtension(fileName).toLowerCase();
 
 	  if (imageExtensions.includes(extension)) {
 	    if (type === null || /^image\/[a-z0-9.-]+$/i.test(type)) {
@@ -252,9 +517,18 @@ this.BX.UI = this.BX.UI || {};
 
 	var _loadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadController");
 
+	var _removeController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeController");
+
+	var _uploadCallbacks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadCallbacks");
+
+	var _setStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setStatus");
+
 	class UploaderFile extends main_core_events.EventEmitter {
 	  constructor(source, fileOptions = {}) {
 	    super();
+	    Object.defineProperty(this, _setStatus, {
+	      value: _setStatus2
+	    });
 	    Object.defineProperty(this, _id, {
 	      writable: true,
 	      value: null
@@ -351,6 +625,14 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
+	    Object.defineProperty(this, _removeController, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _uploadCallbacks, {
+	      writable: true,
+	      value: new CallbackCollection(this)
+	    });
 	    this.setEventNamespace('BX.UI.Uploader.File');
 	    const options = main_core.Type.isPlainObject(fileOptions) ? fileOptions : {};
 
@@ -371,6 +653,11 @@ this.BX.UI = this.BX.UI || {};
 	    }
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(options.id) ? options.id : createUniqueId();
+	    this.subscribeFromOptions({
+	      [FileEvent.ADD]: () => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.ADDED);
+	      }
+	    });
 	    this.subscribeFromOptions(options.events);
 	  }
 
@@ -379,44 +666,64 @@ this.BX.UI = this.BX.UI || {};
 	      return;
 	    }
 
-	    this.setStatus(FileStatus.LOADING);
-	    this.emit('onLoadStart');
+	    babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.LOADING);
+
+	    this.emit(FileEvent.LOAD_START);
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].load(this);
 	  }
 
-	  upload() {
-	    if (!this.canUpload()) {
-	      return;
+	  upload(callbacks = {}) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].subscribe(callbacks);
+
+	    if (this.isComplete() && this.isUploadable()) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onComplete');
+	    } else if (this.isUploadFailed()) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	        error: this.getError()
+	      });
+	    } else if (!this.canUpload()) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	        error: new UploaderError('FILE_UPLOAD_NOT_ALLOWED')
+	      });
 	    }
 
-	    let event = new main_core_events.BaseEvent({
+	    const event = new main_core_events.BaseEvent({
 	      data: {
 	        file: this
 	      }
 	    });
-	    this.emit('onBeforeUpload', event);
+	    this.emit(FileEvent.BEFORE_UPLOAD, event);
 
 	    if (event.isDefaultPrevented()) {
 	      return;
 	    }
 
-	    this.setStatus(FileStatus.UPLOADING);
-	    event = new main_core_events.BaseEvent({
-	      data: {
-	        file: this.getFile()
-	      }
-	    });
-	    this.emitAsync('onPrepareFileAsync', event).then(result => {
-	      const file = main_core.Type.isArrayFilled(result) && main_core.Type.isFile(result[0]) ? result[0] : this.getFile();
-	      this.emit('onUploadStart');
+	    babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.UPLOADING);
 
-	      if (babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController]) {
-	        babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].upload(file);
-	      }
-	    }).catch(error => {
-	      console.error(error);
-	    });
+	    this.emit(FileEvent.UPLOAD_START);
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].upload(this);
+	  }
+
+	  remove() {
+	    if (this.getStatus() === FileStatus.INIT) {
+	      return;
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.INIT);
+
+	    this.emit(FileEvent.REMOVE_COMPLETE);
+	    this.abort(); //this.#setStatus(FileStatus.REMOVING);
+	    //this.#removeController.remove(this);
+
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] !== null && this.getOrigin() === FileOrigin.CLIENT) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController].remove(this);
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] = null;
 	  } // stop(): void
 	  // {
 	  // 	if (this.isUploading())
@@ -437,26 +744,33 @@ this.BX.UI = this.BX.UI || {};
 
 
 	  abort() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].abort();
+	    if (this.isLoading()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.LOAD_FAILED);
+
+	      const error = new UploaderError('FILE_LOAD_ABORTED');
+	      this.emit(FileEvent.LOAD_ERROR, {
+	        error
+	      });
+	    } else if (this.isUploading()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.UPLOAD_FAILED);
+
+	      const error = new UploaderError('FILE_UPLOAD_ABORTED');
+	      this.emit('onUploadError', {
+	        error
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	        error
+	      });
 	    }
 
-	    this.setStatus(FileStatus.ABORTED);
-	    this.emit('onAbort');
-	  }
-
-	  abortLoad() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].abort();
 	    }
 
-	    this.setStatus(FileStatus.ABORTED);
-	    this.emit('onAbort');
-	  }
-
-	  cancel() {
-	    this.abort();
-	    this.emit('onCancel');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].abort();
+	    }
 	  }
 
 	  getUploadController() {
@@ -464,14 +778,150 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  setUploadController(controller) {
-	    if (controller instanceof AbstractUploadController) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] = controller;
+	    if (this.getOrigin() === FileOrigin.SERVER) {
+	      return;
+	    }
+
+	    if (!(controller instanceof AbstractUploadController) && !main_core.Type.isNull(controller)) {
+	      return;
+	    }
+
+	    const changed = babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] !== controller;
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] = controller;
+
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController] && changed) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].subscribeOnce('onError', event => {
+	        const error = this.addError(event.getData().error);
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.UPLOAD_FAILED);
+
+	        this.emit(FileEvent.UPLOAD_ERROR, {
+	          error
+	        });
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	          error
+	        });
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].subscribe('onProgress', event => {
+	        const {
+	          progress
+	        } = event.getData();
+	        this.setProgress(progress);
+	        this.emit(FileEvent.UPLOAD_PROGRESS, {
+	          progress
+	        });
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadController)[_uploadController].subscribeOnce('onUpload', event => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.COMPLETE);
+
+	        this.setFile(event.getData().fileInfo);
+	        this.emit(FileEvent.UPLOAD_COMPLETE);
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onComplete');
+	      });
+	    }
+
+	    if (changed) {
+	      this.emit(FileEvent.UPLOAD_CONTROLLER_INIT, {
+	        controller
+	      });
 	    }
 	  }
 
 	  setLoadController(controller) {
-	    if (controller instanceof AbstractLoadController) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController] = controller;
+	    if (!(controller instanceof AbstractLoadController)) {
+	      return;
+	    }
+
+	    const changed = babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController] !== controller;
+	    babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController] = controller;
+
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController] && changed) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].subscribeOnce('onError', event => {
+	        const error = this.addError(event.getData().error);
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.LOAD_FAILED);
+
+	        this.emit(FileEvent.LOAD_ERROR, {
+	          error
+	        });
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].subscribe('onProgress', event => {
+	        const {
+	          progress
+	        } = event.getData();
+	        this.emit(FileEvent.LOAD_PROGRESS, {
+	          progress
+	        });
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].subscribeOnce('onLoad', event => {
+	        if (this.getOrigin() === FileOrigin.SERVER) {
+	          this.setFile(event.getData().fileInfo);
+
+	          babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.COMPLETE);
+
+	          this.emit(FileEvent.LOAD_COMPLETE);
+	        } else {
+	          const event = new main_core_events.BaseEvent({
+	            data: {
+	              file: this
+	            }
+	          });
+	          this.emitAsync(FileEvent.PREPARE_FILE_ASYNC, event).then(() => {
+	            if (this.isUploadable()) {
+	              babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.PENDING);
+	            } else {
+	              babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.COMPLETE);
+	            }
+
+	            this.emit(FileEvent.LOAD_COMPLETE);
+	          }).catch(error => {
+	            error = this.addError(error);
+
+	            babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.LOAD_FAILED);
+
+	            this.emit(FileEvent.LOAD_ERROR, {
+	              error
+	            });
+	          });
+	        }
+	      });
+	    }
+
+	    if (changed) {
+	      this.emit(FileEvent.LOAD_CONTROLLER_INIT, {
+	        controller
+	      });
+	    }
+	  }
+
+	  setRemoveController(controller) {
+	    if (!(controller instanceof AbstractRemoveController) && !main_core.Type.isNull(controller)) {
+	      return;
+	    }
+
+	    const changed = babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] !== controller;
+	    babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] = controller;
+
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] && changed) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController].subscribeOnce('onError', event => {//const error = this.addError(event.getData().error);
+	        //this.emit(FileEvent.REMOVE_ERROR, { error });
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController].subscribeOnce('onRemove', event => {//this.#setStatus(FileStatus.INIT);
+	        //this.emit(FileEvent.REMOVE_COMPLETE);
+	      });
+	    }
+
+	    if (changed) {
+	      this.emit(FileEvent.REMOVE_CONTROLLER_INIT, {
+	        controller
+	      });
 	    }
 	  }
 
@@ -511,7 +961,15 @@ this.BX.UI = this.BX.UI || {};
 	    return this.getStatus() === FileStatus.LOAD_FAILED || this.getStatus() === FileStatus.UPLOAD_FAILED;
 	  }
 
-	  getFile() {
+	  isLoadFailed() {
+	    return this.getStatus() === FileStatus.LOAD_FAILED;
+	  }
+
+	  isUploadFailed() {
+	    return this.getStatus() === FileStatus.UPLOAD_FAILED;
+	  }
+
+	  getBinary() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _file)[_file];
 	  }
 	  /**
@@ -522,6 +980,8 @@ this.BX.UI = this.BX.UI || {};
 	  setFile(file) {
 	    if (main_core.Type.isFile(file)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _file)[_file] = file;
+	    } else if (main_core.Type.isBlob(file)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _file)[_file] = createFileFromBlob(file, this.getName());
 	    } else if (main_core.Type.isPlainObject(file)) {
 	      this.setName(file.name);
 	      this.setOriginalName(file.originalName);
@@ -538,7 +998,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  getName() {
-	    return this.getFile() ? this.getFile().name : babelHelpers.classPrivateFieldLooseBase(this, _name)[_name];
+	    return this.getBinary() ? this.getBinary().name : babelHelpers.classPrivateFieldLooseBase(this, _name)[_name];
 	  }
 	  /**
 	   * @internal
@@ -548,7 +1008,7 @@ this.BX.UI = this.BX.UI || {};
 	  setName(name) {
 	    if (main_core.Type.isStringFilled(name)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] = name;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'name',
 	        value: name
 	      });
@@ -566,7 +1026,7 @@ this.BX.UI = this.BX.UI || {};
 	  setOriginalName(name) {
 	    if (main_core.Type.isStringFilled(name)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _originalName)[_originalName] = name;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'originalName',
 	        value: name
 	      });
@@ -580,7 +1040,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  getType() {
-	    return this.getFile() ? this.getFile().type : babelHelpers.classPrivateFieldLooseBase(this, _type)[_type];
+	    return this.getBinary() ? this.getBinary().type : babelHelpers.classPrivateFieldLooseBase(this, _type)[_type];
 	  }
 	  /**
 	   * internal
@@ -590,7 +1050,7 @@ this.BX.UI = this.BX.UI || {};
 	  setType(type) {
 	    if (main_core.Type.isStringFilled(type)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _type)[_type] = type;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'type',
 	        value: type
 	      });
@@ -598,7 +1058,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  getSize() {
-	    return this.getFile() ? this.getFile().size : babelHelpers.classPrivateFieldLooseBase(this, _size)[_size];
+	    return this.getBinary() ? this.getBinary().size : babelHelpers.classPrivateFieldLooseBase(this, _size)[_size];
 	  }
 
 	  getSizeFormatted() {
@@ -612,7 +1072,7 @@ this.BX.UI = this.BX.UI || {};
 	  setSize(size) {
 	    if (main_core.Type.isNumber(size) && size >= 0) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _size)[_size] = size;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'size',
 	        value: size
 	      });
@@ -630,7 +1090,7 @@ this.BX.UI = this.BX.UI || {};
 	  setServerId(id) {
 	    if (main_core.Type.isNumber(id) || main_core.Type.isStringFilled(id)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _serverId)[_serverId] = id;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'serverId',
 	        value: id
 	      });
@@ -639,15 +1099,6 @@ this.BX.UI = this.BX.UI || {};
 
 	  getStatus() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _status)[_status];
-	  }
-
-	  setStatus(status) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _status)[_status] = status;
-	    this.emit('onStateChange', {
-	      property: 'status',
-	      value: status
-	    });
-	    this.emit('onStatusChange');
 	  }
 
 	  getOrigin() {
@@ -661,7 +1112,7 @@ this.BX.UI = this.BX.UI || {};
 	  setDownloadUrl(url) {
 	    if (main_core.Type.isStringFilled(url)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _downloadUrl)[_downloadUrl] = url;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'downloadUrl',
 	        value: url
 	      });
@@ -675,7 +1126,7 @@ this.BX.UI = this.BX.UI || {};
 	  setRemoveUrl(url) {
 	    if (main_core.Type.isStringFilled(url)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _removeUrl)[_removeUrl] = url;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'removeUrl',
 	        value: url
 	      });
@@ -689,7 +1140,7 @@ this.BX.UI = this.BX.UI || {};
 	  setWidth(width) {
 	    if (main_core.Type.isNumber(width)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _width)[_width] = width;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'width',
 	        value: width
 	      });
@@ -703,7 +1154,7 @@ this.BX.UI = this.BX.UI || {};
 	  setHeight(height) {
 	    if (main_core.Type.isNumber(height)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _height)[_height] = height;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'height',
 	        value: height
 	      });
@@ -727,22 +1178,22 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  setClientPreview(file, width = null, height = null) {
-	    if (main_core.Type.isFile(file) || main_core.Type.isNull(file)) {
+	    if (main_core.Type.isBlob(file) || main_core.Type.isNull(file)) {
 	      this.revokeClientPreviewUrl();
-	      const url = URL.createObjectURL(file);
+	      const url = main_core.Type.isNull(file) ? null : URL.createObjectURL(file);
 	      babelHelpers.classPrivateFieldLooseBase(this, _clientPreview)[_clientPreview] = file;
 	      babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewUrl)[_clientPreviewUrl] = url;
 	      babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewWidth)[_clientPreviewWidth] = width;
 	      babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewHeight)[_clientPreviewHeight] = height;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'clientPreviewUrl',
 	        value: url
 	      });
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'clientPreviewWidth',
 	        value: width
 	      });
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'clientPreviewHeight',
 	        value: height
 	      });
@@ -757,7 +1208,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewUrl)[_clientPreviewUrl] !== null) {
 	      URL.revokeObjectURL(babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewUrl)[_clientPreviewUrl]);
 	      babelHelpers.classPrivateFieldLooseBase(this, _clientPreviewUrl)[_clientPreviewUrl] = null;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'clientPreviewUrl',
 	        value: null
 	      });
@@ -781,15 +1232,15 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _serverPreviewUrl)[_serverPreviewUrl] = url;
 	      babelHelpers.classPrivateFieldLooseBase(this, _serverPreviewWidth)[_serverPreviewWidth] = width;
 	      babelHelpers.classPrivateFieldLooseBase(this, _serverPreviewHeight)[_serverPreviewHeight] = height;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'serverPreviewUrl',
 	        value: url
 	      });
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'serverPreviewWidth',
 	        value: width
 	      });
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'serverPreviewHeight',
 	        value: height
 	      });
@@ -815,7 +1266,7 @@ this.BX.UI = this.BX.UI || {};
 	  setProgress(progress) {
 	    if (main_core.Type.isNumber(progress)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _progress)[_progress] = progress;
-	      this.emit('onStateChange', {
+	      this.emit(FileEvent.STATE_CHANGE, {
 	        property: 'progress',
 	        value: progress
 	      });
@@ -823,9 +1274,14 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  addError(error) {
+	    if (error instanceof Error) {
+	      error = UploaderError.createFromError(error);
+	    }
+
 	    babelHelpers.classPrivateFieldLooseBase(this, _errors)[_errors].push(error);
 
-	    this.emit('onStateChange');
+	    this.emit(FileEvent.STATE_CHANGE);
+	    return error;
 	  }
 
 	  getError() {
@@ -875,154 +1331,55 @@ this.BX.UI = this.BX.UI || {};
 
 	}
 
-	class UploaderError extends main_core.BaseError {
-	  constructor(code, ...args) {
-	    let message = main_core.Type.isString(args[0]) ? args[0] : null;
-	    let description = main_core.Type.isString(args[1]) ? args[1] : null;
-	    const customData = main_core.Type.isPlainObject(args[args.length - 1]) ? args[args.length - 1] : {};
-	    const replacements = {};
-	    Object.keys(customData).forEach(key => {
-	      replacements[`#${key}#`] = customData[key];
+	function _setStatus2(status) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _status)[_status] = status;
+	  this.emit(FileEvent.STATE_CHANGE, {
+	    property: 'status',
+	    value: status
+	  });
+	  this.emit(FileEvent.STATUS_CHANGE);
+	}
+
+	var _emitter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("emitter");
+
+	class CallbackCollection {
+	  constructor(file) {
+	    Object.defineProperty(this, _emitter, {
+	      writable: true,
+	      value: null
 	    });
-
-	    if (!main_core.Type.isString(message) && main_core.Loc.hasMessage(`UPLOADER_${code}`)) {
-	      message = main_core.Loc.getMessage(`UPLOADER_${code}`, replacements);
-	    }
-
-	    if (main_core.Type.isStringFilled(message) && !main_core.Type.isString(description) && main_core.Loc.hasMessage(`UPLOADER_${code}_DESC`)) {
-	      description = main_core.Loc.getMessage(`UPLOADER_${code}_DESC`, replacements);
-	    }
-
-	    super(message, code, customData);
-	    this.description = '';
-	    this.origin = UploaderError.Origin.CLIENT;
-	    this.type = UploaderError.Type.USER;
-	    this.setDescription(description);
+	    babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter] = new main_core_events.EventEmitter(file, 'BX.UI.Uploader.File.UploadCallbacks');
 	  }
 
-	  static createFromAjaxErrors(errors) {
-	    if (!main_core.Type.isArrayFilled(errors) || !main_core.Type.isPlainObject(errors[0])) {
-	      return new this('SERVER_ERROR');
+	  subscribe(callbacks = {}) {
+	    callbacks = main_core.Type.isPlainObject(callbacks) ? callbacks : {};
+
+	    if (main_core.Type.isFunction(callbacks.onComplete)) {
+	      this.getEmitter().subscribeOnce('onComplete', callbacks.onComplete);
 	    }
 
-	    const uploaderError = errors.find(error => {
-	      return error.type === 'file-uploader';
-	    });
-
-	    if (uploaderError && !uploaderError.system) {
-	      // Take the First Uploader User Error
-	      const {
-	        code,
-	        message,
-	        description,
-	        customData
-	      } = uploaderError;
-	      const error = new this(code, message, description, customData);
-	      error.setOrigin(UploaderError.Origin.SERVER);
-	      error.setType(UploaderError.Type.USER);
-	      return error;
-	    } else {
-	      let {
-	        code,
-	        message,
-	        description
-	      } = errors[0];
-	      const {
-	        customData,
-	        system,
-	        type
-	      } = errors[0];
-
-	      if (code === 'NETWORK_ERROR') {
-	        message = main_core.Loc.getMessage('UPLOADER_NETWORK_ERROR');
-	      } else {
-	        code = main_core.Type.isStringFilled(code) ? code : 'SERVER_ERROR';
-
-	        if (!main_core.Type.isStringFilled(description)) {
-	          description = message;
-	          message = main_core.Loc.getMessage('UPLOADER_SERVER_ERROR');
-	        }
-	      }
-
-	      console.error('Uploader', errors);
-	      const error = new this(code, message, description, customData);
-	      error.setOrigin(UploaderError.Origin.SERVER);
-
-	      if (type === 'file-uploader') {
-	        error.setType(system ? UploaderError.Type.SYSTEM : UploaderError.Type.USER);
-	      } else {
-	        error.setType(UploaderError.Type.UNKNOWN);
-	      }
-
-	      return error;
+	    if (main_core.Type.isFunction(callbacks.onError)) {
+	      this.getEmitter().subscribeOnce('onError', callbacks.onError);
 	    }
 	  }
 
-	  getDescription() {
-	    return this.description;
+	  emit(eventName, event) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter].emit(eventName, event);
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter].unsubscribeAll();
+	    }
 	  }
 
-	  setDescription(text) {
-	    if (main_core.Type.isString(text)) {
-	      this.description = text;
+	  getEmitter() {
+	    if (main_core.Type.isNull(babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter])) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter] = new main_core_events.EventEmitter(this, 'BX.UI.Uploader.File.UploadCallbacks');
 	    }
 
-	    return this;
-	  }
-
-	  getOrigin() {
-	    return this.origin;
-	  }
-
-	  setOrigin(origin) {
-	    if (Object.values(UploaderError.Origin).includes(origin)) {
-	      this.origin = origin;
-	    }
-
-	    return this;
-	  }
-
-	  getType() {
-	    return this.type;
-	  }
-
-	  setType(type) {
-	    if (main_core.Type.isStringFilled(type)) {
-	      this.type = type;
-	    }
-
-	    return this;
-	  }
-
-	  clone() {
-	    const options = JSON.parse(JSON.stringify(this));
-	    const error = new UploaderError(options.code, options.message, options.description, options.customData);
-	    error.setOrigin(options.origin);
-	    error.setType(options.type);
-	    return error;
-	  }
-
-	  toJSON() {
-	    return {
-	      code: this.getCode(),
-	      message: this.getMessage(),
-	      description: this.getDescription(),
-	      origin: this.getOrigin(),
-	      type: this.getType(),
-	      customData: this.getCustomData()
-	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter];
 	  }
 
 	}
-	UploaderError.Origin = {
-	  SERVER: 'server',
-	  CLIENT: 'client'
-	};
-	UploaderError.Type = {
-	  USER: 'user',
-	  SYSTEM: 'system',
-	  UNKNOWN: 'unknown'
-	};
 
 	var _data = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("data");
 
@@ -1095,8 +1452,8 @@ this.BX.UI = this.BX.UI || {};
 	var _getNextChunk = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNextChunk");
 
 	class UploadController extends AbstractUploadController {
-	  constructor(server) {
-	    super(server);
+	  constructor(server, options = {}) {
+	    super(server, options);
 	    Object.defineProperty(this, _getNextChunk, {
 	      value: _getNextChunk2
 	    });
@@ -1155,7 +1512,6 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _xhr)[_xhr] = null;
 	    }
 
-	    this.emit('onAbort');
 	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _chunkTimeout)[_chunkTimeout]);
 	  }
 
@@ -1184,15 +1540,15 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	function _uploadChunk2(chunk) {
-	  const totalSize = this.getFile().size;
+	  const totalSize = this.getFile().getSize();
 	  const isOnlyOneChunk = chunk.getOffset() === 0 && totalSize === chunk.getSize();
-	  let fileName = this.getFile().name;
+	  let fileName = this.getFile().getName();
 
 	  if (fileName.normalize) {
 	    fileName = fileName.normalize();
 	  }
 
-	  const type = main_core.Type.isStringFilled(this.getFile().type) ? this.getFile().type : 'application/octet-stream';
+	  const type = main_core.Type.isStringFilled(this.getFile().getType()) ? this.getFile().getType() : 'application/octet-stream';
 	  const headers = [{
 	    name: 'Content-Type',
 	    value: type
@@ -1227,7 +1583,7 @@ this.BX.UI = this.BX.UI || {};
 	    },
 	    onprogressupload: event => {
 	      if (event.lengthComputable) {
-	        const size = this.getFile().size;
+	        const size = this.getFile().getSize();
 	        const uploadedBytes = Math.min(size, chunk.getOffset() + event.loaded);
 	        const progress = size > 0 ? Math.floor(uploadedBytes / size * 100) : 100;
 	        this.emit('onProgress', {
@@ -1238,7 +1594,13 @@ this.BX.UI = this.BX.UI || {};
 	  }).then(response => {
 	    if (response.data.token) {
 	      this.setToken(response.data.token);
-	      const size = this.getFile().size;
+
+	      if (this.getFile().getServerId() === null) {
+	        // Now we can remove a temp file on the backend
+	        this.getFile().setServerId(response.data.token);
+	      }
+
+	      const size = this.getFile().getSize();
 	      const progress = size > 0 ? Math.floor((chunk.getOffset() + chunk.getSize()) / size * 100) : 100;
 	      this.emit('onProgress', {
 	        progress
@@ -1292,7 +1654,7 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	function _getNextChunk2() {
-	  if (this.getChunkOffset() !== null && this.getChunkOffset() >= this.getFile().size) {
+	  if (this.getChunkOffset() !== null && this.getChunkOffset() >= this.getFile().getSize()) {
 	    // End of File
 	    return null;
 	  }
@@ -1304,13 +1666,13 @@ this.BX.UI = this.BX.UI || {};
 
 	  let chunk;
 
-	  if (this.getChunkOffset() === 0 && this.getFile().size <= this.getChunkSize()) {
-	    chunk = new Chunk(this.getFile(), this.getChunkOffset());
-	    babelHelpers.classPrivateFieldLooseBase(this, _chunkOffset)[_chunkOffset] = this.getFile().size;
+	  if (this.getChunkOffset() === 0 && this.getFile().getSize() <= this.getChunkSize()) {
+	    chunk = new Chunk(this.getFile().getBinary(), this.getChunkOffset());
+	    babelHelpers.classPrivateFieldLooseBase(this, _chunkOffset)[_chunkOffset] = this.getFile().getSize();
 	  } else {
-	    const currentChunkSize = Math.min(this.getChunkSize(), this.getFile().size - this.getChunkOffset());
+	    const currentChunkSize = Math.min(this.getChunkSize(), this.getFile().getSize() - this.getChunkOffset());
 	    const nextOffset = this.getChunkOffset() + currentChunkSize;
-	    const fileRange = this.getFile().slice(this.getChunkOffset(), nextOffset);
+	    const fileRange = this.getFile().getBinary().slice(this.getChunkOffset(), nextOffset);
 	    chunk = new Chunk(fileRange, this.getChunkOffset());
 	    babelHelpers.classPrivateFieldLooseBase(this, _chunkOffset)[_chunkOffset] = nextOffset;
 	  }
@@ -1319,18 +1681,21 @@ this.BX.UI = this.BX.UI || {};
 	  return chunk;
 	}
 
-	const queues = new WeakMap();
+	const pendingQueues = new WeakMap();
+	const loadingFiles = new WeakMap();
 	function loadMultiple(controller, file) {
 	  const server = controller.getServer();
-	  let queue = queues.get(server);
+	  const timeout = controller.getOption('timeout', 100);
+	  let queue = pendingQueues.get(server);
 
 	  if (!queue) {
 	    queue = {
 	      tasks: [],
-	      load: main_core.Runtime.debounce(loadInternal, 100, server),
-	      xhr: null
+	      load: main_core.Runtime.debounce(loadInternal, timeout, server),
+	      xhr: null,
+	      aborted: false
 	    };
-	    queues.set(server, queue);
+	    pendingQueues.set(server, queue);
 	  }
 
 	  queue.tasks.push({
@@ -1339,43 +1704,54 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	  queue.load();
 	}
-	function abort(controller) {
+	function abort(controller, file) {
 	  const server = controller.getServer();
-	  const queue = queues.get(server);
+	  const queue = pendingQueues.get(server);
 
 	  if (queue) {
-	    queue.xhr.abort();
-	    queue.xhr = null;
-	    queues.delete(server);
-	    queue.tasks.forEach(task => {
-	      const {
-	        controller,
-	        file
-	      } = task;
-	      controller.emit('onAbort');
+	    queue.tasks = queue.tasks.filter(task => {
+	      return task.file !== file;
 	    });
+
+	    if (queue.tasks.length === 0) {
+	      pendingQueues.delete(server);
+	    }
+	  } else {
+	    const queue = loadingFiles.get(file);
+
+	    if (queue) {
+	      queue.tasks = queue.tasks.filter(task => {
+	        return task.file !== file;
+	      });
+	      loadingFiles.delete(file);
+
+	      if (queue.tasks.length === 0) {
+	        queue.aborted = true;
+	        queue.xhr.abort();
+	      }
+	    }
 	  }
 	}
 
 	function loadInternal() {
 	  const server = this;
-	  const queue = queues.get(server);
+	  const queue = pendingQueues.get(server);
 
 	  if (!queue) {
 	    return;
 	  }
 
-	  const {
-	    tasks
-	  } = queue;
-	  queues.delete(server);
+	  pendingQueues.delete(server);
+
+	  if (queue.tasks.length === 0) {
+	    return;
+	  }
+
 	  const fileIds = [];
-	  tasks.forEach(task => {
-	    const {
-	      controller,
-	      file
-	    } = task;
+	  queue.tasks.forEach(task => {
+	    const file = task.file;
 	    fileIds.push(file.getServerId());
+	    loadingFiles.set(file, queue);
 	  });
 	  const controllerOptions = server.getControllerOptions();
 	  main_core.ajax.runAction('ui.fileuploader.load', {
@@ -1392,7 +1768,7 @@ this.BX.UI = this.BX.UI || {};
 	    onprogress: event => {
 	      if (event.lengthComputable) {
 	        const progress = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
-	        tasks.forEach(task => {
+	        queue.tasks.forEach(task => {
 	          const {
 	            controller,
 	            file
@@ -1412,12 +1788,13 @@ this.BX.UI = this.BX.UI || {};
 	      response.data.files.forEach(fileResult => {
 	        fileResults[fileResult.id] = fileResult;
 	      });
-	      tasks.forEach(task => {
+	      queue.tasks.forEach(task => {
 	        const {
 	          controller,
 	          file
 	        } = task;
 	        const fileResult = fileResults[file.getServerId()] || null;
+	        loadingFiles.delete(file);
 
 	        if (fileResult && fileResult.success) {
 	          controller.emit('onProgress', {
@@ -1426,6 +1803,180 @@ this.BX.UI = this.BX.UI || {};
 	          });
 	          controller.emit('onLoad', {
 	            fileInfo: fileResult.data.file
+	          });
+	        } else {
+	          const error = UploaderError.createFromAjaxErrors(fileResult == null ? void 0 : fileResult.errors);
+	          controller.emit('onError', {
+	            error
+	          });
+	        }
+	      });
+	    } else {
+	      const error = new UploaderError('SERVER_ERROR');
+	      queue.tasks.forEach(task => {
+	        const {
+	          controller,
+	          file
+	        } = task;
+	        loadingFiles.delete(file);
+	        controller.emit('onError', {
+	          error: error.clone()
+	        });
+	      });
+	    }
+	  }).catch(response => {
+	    const error = queue.aborted ? null : UploaderError.createFromAjaxErrors(response.errors);
+	    queue.tasks.forEach(task => {
+	      const {
+	        controller,
+	        file
+	      } = task;
+	      loadingFiles.delete(file);
+
+	      if (!queue.aborted) {
+	        controller.emit('onError', {
+	          error: error.clone()
+	        });
+	      }
+	    });
+	  });
+	}
+
+	var _file$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("file");
+
+	class ServerLoadController extends AbstractLoadController {
+	  constructor(server, options = {}) {
+	    super(server, options);
+	    Object.defineProperty(this, _file$2, {
+	      writable: true,
+	      value: null
+	    });
+	  }
+
+	  load(file) {
+	    if (this.getServer().getController()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _file$2)[_file$2] = file;
+	      loadMultiple(this, file);
+	    } else {
+	      this.emit('onProgress', {
+	        file,
+	        progress: 100
+	      });
+	      this.emit('onLoad', {
+	        fileInfo: null
+	      });
+	    }
+	  }
+
+	  abort() {
+	    if (this.getServer().getController() && babelHelpers.classPrivateFieldLooseBase(this, _file$2)[_file$2]) {
+	      abort(this, babelHelpers.classPrivateFieldLooseBase(this, _file$2)[_file$2]);
+	    }
+	  }
+
+	}
+
+	class ClientLoadController extends AbstractLoadController {
+	  constructor(server, options = {}) {
+	    super(server, options);
+	  }
+
+	  load(file) {
+	    if (main_core.Type.isFile(file.getBinary())) {
+	      this.emit('onProgress', {
+	        file,
+	        progress: 100
+	      });
+	      this.emit('onLoad', {
+	        fileInfo: file
+	      });
+	    } else {
+	      this.emit('onError', {
+	        error: new UploaderError('WRONG_FILE_SOURCE')
+	      });
+	    }
+	  }
+
+	  abort() {}
+
+	}
+
+	const queues = new WeakMap();
+	function removeMultiple(controller, file) {
+	  const server = controller.getServer();
+	  let queue = queues.get(server);
+
+	  if (!queue) {
+	    queue = {
+	      tasks: [],
+	      remove: main_core.Runtime.debounce(removeInternal, 1000, server),
+	      xhr: null
+	    };
+	    queues.set(server, queue);
+	  }
+
+	  queue.tasks.push({
+	    controller,
+	    file
+	  });
+	  queue.remove();
+	}
+
+	function removeInternal() {
+	  const server = this;
+	  const queue = queues.get(server);
+
+	  if (!queue) {
+	    return;
+	  }
+
+	  const {
+	    tasks
+	  } = queue;
+	  queues.delete(server);
+	  const fileIds = [];
+	  tasks.forEach(task => {
+	    const file = task.file;
+
+	    if (file.getServerId() !== null) {
+	      fileIds.push(file.getServerId());
+	    }
+	  });
+
+	  if (fileIds.length === 0) {
+	    return;
+	  }
+
+	  const controllerOptions = server.getControllerOptions();
+	  main_core.ajax.runAction('ui.fileuploader.remove', {
+	    data: {
+	      fileIds: fileIds
+	    },
+	    getParameters: {
+	      controller: server.getController(),
+	      controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null
+	    },
+	    onrequeststart: xhr => {
+	      queue.xhr = xhr;
+	    }
+	  }).then(response => {
+	    var _response$data;
+
+	    if ((_response$data = response.data) != null && _response$data.files) {
+	      const fileResults = {};
+	      response.data.files.forEach(fileResult => {
+	        fileResults[fileResult.id] = fileResult;
+	      });
+	      tasks.forEach(task => {
+	        const {
+	          controller,
+	          file
+	        } = task;
+	        const fileResult = fileResults[file.getServerId()] || null;
+
+	        if (fileResult && fileResult.success) {
+	          controller.emit('onRemove', {
+	            fileId: fileResult.id
 	          });
 	        } else {
 	          const error = UploaderError.createFromAjaxErrors(fileResult == null ? void 0 : fileResult.errors);
@@ -1458,90 +2009,14 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	}
 
-	class ServerLoadController extends AbstractLoadController {
+	class RemoveController extends AbstractRemoveController {
 	  constructor(server) {
 	    super(server);
 	  }
 
-	  load(file) {
-	    if (this.getServer().getController()) {
-	      loadMultiple(this, file);
-	    } else {
-	      this.emit('onProgress', {
-	        file,
-	        progress: 100
-	      });
-	      this.emit('onLoad', {
-	        fileInfo: file
-	      });
-	    } // const controllerOptions = this.getServer().getControllerOptions();
-	    // Ajax.runAction('ui.fileuploader.load', {
-	    // 		data: {
-	    // 			fileIds: [file.getServerId()],
-	    // 		},
-	    // 		getParameters: {
-	    // 			controller: this.getServer().getController(),
-	    // 			controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
-	    // 		},
-	    // 		onrequeststart: (xhr) => {
-	    // 			this.xhr = xhr;
-	    // 		},
-	    // 		onprogress: (event: ProgressEvent) => {
-	    // 			if (event.lengthComputable)
-	    // 			{
-	    // 				const progress = event.total > 0 ? Math.floor(event.loaded / event.total * 100): 100;
-	    // 				this.emit('onProgress', { progress });
-	    // 			}
-	    // 		}
-	    // 	})
-	    // 	.then(response => {
-	    // 		if (response.data?.files)
-	    // 		{
-	    // 			this.emit('onProgress', { file, progress: 100 });
-	    // 			this.emit('onLoad', { file: response.data.file })
-	    // 		}
-	    // 		else
-	    // 		{
-	    // 			this.emit('onError', { error: new UploaderError('SERVER_ERROR') });
-	    // 		}
-	    // 	})
-	    // 	.catch(response => {
-	    // 		this.emit('onError', { error: UploaderError.createFromAjaxErrors(response.errors) });
-	    // 	})
-	    // ;
-
+	  remove(file) {
+	    removeMultiple(this, file);
 	  }
-
-	  abort() {
-	    if (this.getServer().getController()) {
-	      abort(this);
-	    }
-	  }
-
-	}
-
-	class ClientLoadController extends AbstractLoadController {
-	  constructor(server) {
-	    super(server);
-	  }
-
-	  load(file) {
-	    if (main_core.Type.isFile(file.getFile())) {
-	      this.emit('onProgress', {
-	        file,
-	        progress: 100
-	      });
-	      this.emit('onLoad', {
-	        fileInfo: file
-	      });
-	    } else {
-	      this.emit('onError', {
-	        error: new UploaderError('WRONG_FILE_SOURCE')
-	      });
-	    }
-	  }
-
-	  abort() {}
 
 	}
 
@@ -1551,7 +2026,15 @@ this.BX.UI = this.BX.UI || {};
 
 	var _uploadControllerClass = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadControllerClass");
 
+	var _uploadControllerOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadControllerOptions");
+
 	var _loadControllerClass = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadControllerClass");
+
+	var _loadControllerOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadControllerOptions");
+
+	var _removeControllerClass = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeControllerClass");
+
+	var _removeControllerOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeControllerOptions");
 
 	var _chunkSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chunkSize");
 
@@ -1582,9 +2065,25 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
+	    Object.defineProperty(this, _uploadControllerOptions, {
+	      writable: true,
+	      value: {}
+	    });
 	    Object.defineProperty(this, _loadControllerClass, {
 	      writable: true,
 	      value: null
+	    });
+	    Object.defineProperty(this, _loadControllerOptions, {
+	      writable: true,
+	      value: {}
+	    });
+	    Object.defineProperty(this, _removeControllerClass, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _removeControllerOptions, {
+	      writable: true,
+	      value: {}
 	    });
 	    Object.defineProperty(this, _chunkSize, {
 	      writable: true,
@@ -1620,7 +2119,7 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _chunkRetryDelays)[_chunkRetryDelays] = options.chunkRetryDelays;
 	    }
 
-	    ['uploadControllerClass', 'loadControllerClass'].forEach(controllerClass => {
+	    ['uploadControllerClass', 'loadControllerClass', 'removeControllerClass'].forEach(controllerClass => {
 	      let fn = null;
 
 	      if (main_core.Type.isStringFilled(options[controllerClass])) {
@@ -1637,13 +2136,18 @@ this.BX.UI = this.BX.UI || {};
 	        babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass] = fn;
 	      } else if (controllerClass === 'loadControllerClass') {
 	        babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass] = fn;
+	      } else if (controllerClass === 'removeControllerClass') {
+	        babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass] = fn;
 	      }
 	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions] = main_core.Type.isPlainObject(options.loadControllerOptions) ? options.loadControllerOptions : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions] = main_core.Type.isPlainObject(options.uploadControllerOptions) ? options.uploadControllerOptions : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions] = main_core.Type.isPlainObject(options.removeControllerOptions) ? options.removeControllerOptions : {};
 	  }
 
 	  createUploadController() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass]) {
-	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass])(this);
+	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions]);
 
 	      if (!(controller instanceof AbstractUploadController)) {
 	        throw new Error('Uploader.Server: "uploadControllerClass" must be an instance of AbstractUploadController.');
@@ -1651,7 +2155,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      return controller;
 	    } else if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
-	      return new UploadController(this);
+	      return new UploadController(this, babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions]);
 	    }
 
 	    return null;
@@ -1659,7 +2163,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  createLoadController() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass]) {
-	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass])(this);
+	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions]);
 
 	      if (!(controller instanceof AbstractLoadController)) {
 	        throw new Error('Uploader.Server: "loadControllerClass" must be an instance of AbstractLoadController.');
@@ -1668,11 +2172,27 @@ this.BX.UI = this.BX.UI || {};
 	      return controller;
 	    }
 
-	    return new ServerLoadController(this);
+	    return new ServerLoadController(this, babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions]);
 	  }
 
 	  createClientLoadController() {
-	    return new ClientLoadController(this);
+	    return new ClientLoadController(this, babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions]);
+	  }
+
+	  createRemoveController() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass]) {
+	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions]);
+
+	      if (!(controller instanceof AbstractRemoveController)) {
+	        throw new Error('Uploader.Server: "removeControllerClass" must be an instance of AbstractRemoveController.');
+	      }
+
+	      return controller;
+	    } else if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
+	      return new RemoveController(this, babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions]);
+	    }
+
+	    return null;
 	  }
 
 	  getController() {
@@ -1749,72 +2269,94 @@ this.BX.UI = this.BX.UI || {};
 
 	}
 
+	var _maxFileSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxFileSize");
+
+	var _minFileSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("minFileSize");
+
+	var _maxTotalFileSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxTotalFileSize");
+
+	var _imageMaxFileSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMaxFileSize");
+
+	var _imageMinFileSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMinFileSize");
+
 	class FileSizeFilter extends Filter {
 	  constructor(uploader, filterOptions = {}) {
 	    super(uploader);
-	    this.maxFileSize = 256 * 1024 * 1024;
-	    this.minFileSize = 0;
-	    this.maxTotalFileSize = null;
-	    this.imageMaxFileSize = 48 * 1024 * 1024;
-	    this.imageMinFileSize = 0;
-	    const settings = main_core.Extension.getSettings('ui.uploader.core');
-	    this.maxFileSize = settings.get('maxFileSize', this.maxFileSize);
-	    this.minFileSize = settings.get('minFileSize', this.minFileSize);
-	    this.maxTotalFileSize = settings.get('maxTotalFileSize', this.maxTotalFileSize);
-	    this.imageMaxFileSize = settings.get('imageMaxFileSize', this.imageMaxFileSize);
-	    this.imageMinFileSize = settings.get('imageMinFileSize', this.imageMinFileSize);
-	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
-	    const integerOptions = ['maxFileSize', 'minFileSize', 'maxTotalFileSize', 'imageMaxFileSize', 'imageMinFileSize'];
-	    integerOptions.forEach(option => {
-	      if (main_core.Type.isNumber(options[option]) && options[option] >= 0 || main_core.Type.isNull(option)) {
-	        this[option] = options[option];
-	      }
-
-	      this[option] = main_core.Type.isNumber(options[option]) && options[option] >= 0 ? options[option] : this[option];
+	    Object.defineProperty(this, _maxFileSize, {
+	      writable: true,
+	      value: 256 * 1024 * 1024
 	    });
+	    Object.defineProperty(this, _minFileSize, {
+	      writable: true,
+	      value: 0
+	    });
+	    Object.defineProperty(this, _maxTotalFileSize, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _imageMaxFileSize, {
+	      writable: true,
+	      value: 48 * 1024 * 1024
+	    });
+	    Object.defineProperty(this, _imageMinFileSize, {
+	      writable: true,
+	      value: 0
+	    });
+	    const settings = main_core.Extension.getSettings('ui.uploader.core');
+	    babelHelpers.classPrivateFieldLooseBase(this, _maxFileSize)[_maxFileSize] = settings.get('maxFileSize', babelHelpers.classPrivateFieldLooseBase(this, _maxFileSize)[_maxFileSize]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _minFileSize)[_minFileSize] = settings.get('minFileSize', babelHelpers.classPrivateFieldLooseBase(this, _minFileSize)[_minFileSize]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _maxTotalFileSize)[_maxTotalFileSize] = settings.get('maxTotalFileSize', babelHelpers.classPrivateFieldLooseBase(this, _maxTotalFileSize)[_maxTotalFileSize]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMaxFileSize)[_imageMaxFileSize] = settings.get('imageMaxFileSize', babelHelpers.classPrivateFieldLooseBase(this, _imageMaxFileSize)[_imageMaxFileSize]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMinFileSize)[_imageMinFileSize] = settings.get('imageMinFileSize', babelHelpers.classPrivateFieldLooseBase(this, _imageMinFileSize)[_imageMinFileSize]);
+	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
+	    this.setMaxFileSize(options['maxFileSize']);
+	    this.setMinFileSize(options['minFileSize']);
+	    this.setMaxTotalFileSize(options['maxTotalFileSize']);
+	    this.setImageMaxFileSize(options['imageMaxFileSize']);
+	    this.setImageMinFileSize(options['imageMinFileSize']);
 	  }
 
 	  apply(file) {
 	    return new Promise((resolve, reject) => {
-	      if (this.maxFileSize !== null && file.getSize() > this.maxFileSize) {
+	      if (this.getMaxFileSize() !== null && file.getSize() > this.getMaxFileSize()) {
 	        reject(new UploaderError('MAX_FILE_SIZE_EXCEEDED', {
-	          maxFileSize: formatFileSize(this.maxFileSize),
-	          maxFileSizeInBytes: this.maxFileSize
+	          maxFileSize: formatFileSize(this.getMaxFileSize()),
+	          maxFileSizeInBytes: this.getMaxFileSize()
 	        }));
 	        return;
 	      }
 
-	      if (file.getSize() < this.minFileSize) {
+	      if (file.getSize() < this.getMinFileSize()) {
 	        reject(new UploaderError('MIN_FILE_SIZE_EXCEEDED', {
-	          minFileSize: formatFileSize(this.minFileSize),
-	          minFileSizeInBytes: this.minFileSize
+	          minFileSize: formatFileSize(this.getMinFileSize()),
+	          minFileSizeInBytes: this.getMinFileSize()
 	        }));
 	        return;
 	      }
 
 	      if (file.isImage()) {
-	        if (this.imageMaxFileSize !== null && file.getSize() > this.imageMaxFileSize) {
+	        if (this.getImageMaxFileSize() !== null && file.getSize() > this.getImageMaxFileSize()) {
 	          reject(new UploaderError('IMAGE_MAX_FILE_SIZE_EXCEEDED', {
-	            imageMaxFileSize: formatFileSize(this.imageMaxFileSize),
-	            imageMaxFileSizeInBytes: this.imageMaxFileSize
+	            imageMaxFileSize: formatFileSize(this.getImageMaxFileSize()),
+	            imageMaxFileSizeInBytes: this.getImageMaxFileSize()
 	          }));
 	          return;
 	        }
 
-	        if (file.getSize() < this.imageMinFileSize) {
+	        if (file.getSize() < this.getImageMinFileSize()) {
 	          reject(new UploaderError('IMAGE_MIN_FILE_SIZE_EXCEEDED', {
-	            imageMinFileSize: formatFileSize(this.imageMinFileSize),
-	            imageMinFileSizeInBytes: this.imageMinFileSize
+	            imageMinFileSize: formatFileSize(this.getImageMinFileSize()),
+	            imageMinFileSizeInBytes: this.getImageMinFileSize()
 	          }));
 	          return;
 	        }
 	      }
 
-	      if (this.maxTotalFileSize !== null) {
-	        if (this.getUploader().getTotalSize() > this.maxTotalFileSize) {
+	      if (this.getMaxTotalFileSize() !== null) {
+	        if (this.getUploader().getTotalSize() > this.getMaxTotalFileSize()) {
 	          reject(new UploaderError('MAX_TOTAL_FILE_SIZE_EXCEEDED', {
-	            maxTotalFileSize: formatFileSize(this.maxTotalFileSize),
-	            maxTotalFileSizeInBytes: this.maxTotalFileSize
+	            maxTotalFileSize: formatFileSize(this.getMaxTotalFileSize()),
+	            maxTotalFileSizeInBytes: this.getMaxTotalFileSize()
 	          }));
 	          return;
 	        }
@@ -1822,6 +2364,56 @@ this.BX.UI = this.BX.UI || {};
 
 	      resolve();
 	    });
+	  }
+
+	  getMaxFileSize() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _maxFileSize)[_maxFileSize];
+	  }
+
+	  setMaxFileSize(value) {
+	    if (main_core.Type.isNumber(value) && value >= 0 || main_core.Type.isNull(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _maxFileSize)[_maxFileSize] = value;
+	    }
+	  }
+
+	  getMinFileSize() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _minFileSize)[_minFileSize];
+	  }
+
+	  setMinFileSize(value) {
+	    if (main_core.Type.isNumber(value) && value >= 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _minFileSize)[_minFileSize] = value;
+	    }
+	  }
+
+	  getMaxTotalFileSize() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _maxTotalFileSize)[_maxTotalFileSize];
+	  }
+
+	  setMaxTotalFileSize(value) {
+	    if (main_core.Type.isNumber(value) && value >= 0 || main_core.Type.isNull(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _maxTotalFileSize)[_maxTotalFileSize] = value;
+	    }
+	  }
+
+	  getImageMaxFileSize() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMaxFileSize)[_imageMaxFileSize];
+	  }
+
+	  setImageMaxFileSize(value) {
+	    if (main_core.Type.isNumber(value) && value >= 0 || main_core.Type.isNull(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMaxFileSize)[_imageMaxFileSize] = value;
+	    }
+	  }
+
+	  getImageMinFileSize() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMinFileSize)[_imageMinFileSize];
+	  }
+
+	  setImageMinFileSize(value) {
+	    if (main_core.Type.isNumber(value) && value >= 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMinFileSize)[_imageMinFileSize] = value;
+	    }
 	  }
 
 	}
@@ -1866,7 +2458,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  apply(file) {
 	    return new Promise((resolve, reject) => {
-	      if (isValidFileType(file.getFile(), this.getUploader().getAcceptedFileTypes())) {
+	      if (isValidFileType(file.getBinary(), this.getUploader().getAcceptedFileTypes())) {
 	        resolve();
 	      } else {
 	        reject(new UploaderError('FILE_TYPE_NOT_ALLOWED'));
@@ -1918,7 +2510,7 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 10) {
-	        return resolve(null);
+	        return reject(new Error('GIF signature not found.'));
 	      }
 
 	      const blob = file.slice(0, 10);
@@ -1926,15 +2518,15 @@ this.BX.UI = this.BX.UI || {};
 	        const view = new DataView(buffer);
 
 	        if (!compareBuffers(view, GIF87a, 0) && !compareBuffers(view, GIF89a, 0)) {
-	          return resolve(null);
+	          return reject(new Error('GIF signature not found.'));
 	        }
 
 	        resolve({
 	          width: view.getUint16(6, true),
 	          height: view.getUint16(8, true)
 	        });
-	      }).catch(() => {
-	        resolve(null);
+	      }).catch(error => {
+	        reject(error);
 	      });
 	    });
 	  }
@@ -1948,7 +2540,7 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 40) {
-	        return resolve(null);
+	        return reject(new Error('PNG signature not found.'));
 	      }
 
 	      const blob = file.slice(0, 40);
@@ -1956,7 +2548,7 @@ this.BX.UI = this.BX.UI || {};
 	        const view = new DataView(buffer);
 
 	        if (!compareBuffers(view, PNG_SIGNATURE, 0)) {
-	          return resolve(null);
+	          return reject(new Error('PNG signature not found.'));
 	        }
 
 	        if (compareBuffers(view, FRIED_CHUNK_NAME, 12)) {
@@ -1966,7 +2558,7 @@ this.BX.UI = this.BX.UI || {};
 	              height: view.getUint32(36)
 	            });
 	          } else {
-	            resolve(null);
+	            return reject(new Error('PNG IHDR not found.'));
 	          }
 	        } else if (compareBuffers(view, IHDR_SIGNATURE, 12)) {
 	          resolve({
@@ -1974,10 +2566,10 @@ this.BX.UI = this.BX.UI || {};
 	            height: view.getUint32(20)
 	          });
 	        } else {
-	          resolve(null);
+	          return reject(new Error('PNG IHDR not found.'));
 	        }
-	      }).catch(() => {
-	        resolve(null);
+	      }).catch(error => {
+	        return reject(error);
 	      });
 	    });
 	  }
@@ -1990,7 +2582,7 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 26) {
-	        return resolve(null);
+	        return reject(new Error('BMP signature not found.'));
 	      }
 
 	      const blob = file.slice(0, 26);
@@ -1998,15 +2590,15 @@ this.BX.UI = this.BX.UI || {};
 	        const view = new DataView(buffer);
 
 	        if (!view.getUint16(0) === BMP_SIGNATURE) {
-	          return resolve(null);
+	          return reject(new Error('BMP signature not found.'));
 	        }
 
 	        resolve({
 	          width: view.getUint32(18, true),
 	          height: Math.abs(view.getInt32(22, true))
 	        });
-	      }).catch(() => {
-	        resolve(null);
+	      }).catch(error => {
+	        reject(error);
 	      });
 	    });
 	  }
@@ -2018,14 +2610,14 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 2) {
-	        return resolve(null);
+	        return reject(new Error('JPEG signature not found.'));
 	      }
 
 	      getArrayBuffer(file).then(buffer => {
 	        const view = new DataView(buffer);
 
 	        if (view.getUint8(0) !== 0xFF || view.getUint8(1) !== 0xD8) {
-	          resolve(null);
+	          return reject(new Error('JPEG signature not found.'));
 	        }
 
 	        let offset = 2;
@@ -2033,11 +2625,11 @@ this.BX.UI = this.BX.UI || {};
 
 	        for (;;) {
 	          if (view.byteLength - offset < 2) {
-	            return resolve(null);
+	            return reject(new Error('JPEG signature not found.'));
 	          }
 
 	          if (view.getUint8(offset++) !== 0xFF) {
-	            return resolve(null);
+	            return reject(new Error('JPEG signature not found.'));
 	          }
 
 	          let code = view.getUint8(offset++);
@@ -2052,14 +2644,13 @@ this.BX.UI = this.BX.UI || {};
 	          } else if (0xC0 <= code && code <= 0xFE) {
 	            // the rest of the unreserved markers
 	            if (view.byteLength - offset < 2) {
-	              return resolve(null);
+	              return reject(new Error('JPEG signature not found.'));
 	            }
 
 	            length = view.getUint16(offset) - 2;
 	            offset += 2;
 	          } else {
-	            // unknown markers
-	            return resolve(null);
+	            return reject(new Error('JPEG unknown markers.'));
 	          }
 
 	          if (code === 0xD9
@@ -2067,8 +2658,7 @@ this.BX.UI = this.BX.UI || {};
 	          || code === 0xDA
 	          /* SOS */
 	          ) {
-	            // end of the datastream
-	            return resolve(null);
+	            return reject(new Error('JPEG end of the data stream.'));
 	          } // try to get orientation from Exif segment
 
 
@@ -2079,7 +2669,7 @@ this.BX.UI = this.BX.UI || {};
 
 	          if (length >= 5 && 0xC0 <= code && code <= 0xCF && code !== 0xC4 && code !== 0xC8 && code !== 0xCC) {
 	            if (view.byteLength - offset < length) {
-	              return resolve(null);
+	              return reject(new Error('JPEG size not found.'));
 	            }
 
 	            let width = view.getUint16(offset + 3);
@@ -2098,8 +2688,8 @@ this.BX.UI = this.BX.UI || {};
 
 	          offset += length;
 	        }
-	      }).catch(() => {
-	        resolve(null);
+	      }).catch(error => {
+	        reject(error);
 	      });
 	    });
 	  }
@@ -2172,7 +2762,7 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 16) {
-	        return resolve(null);
+	        return reject(new Error('WEBP signature not found.'));
 	      }
 
 	      const blob = file.slice(0, 30);
@@ -2180,7 +2770,7 @@ this.BX.UI = this.BX.UI || {};
 	        const view = new DataView(buffer);
 
 	        if (view.getUint32(0) !== RIFF_HEADER && view.getUint32(8) !== WEBP_SIGNATURE) {
-	          return resolve(null);
+	          return reject(new Error('WEBP signature not found.'));
 	        }
 
 	        const headerType = view.getUint32(12);
@@ -2215,9 +2805,9 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 
-	        resolve(null);
-	      }).catch(() => {
-	        resolve(null);
+	        reject(new Error('WEBP signature not found.'));
+	      }).catch(error => {
+	        reject(error);
 	      });
 	    });
 	  }
@@ -2237,7 +2827,7 @@ this.BX.UI = this.BX.UI || {};
 
 	const getImageSize = file => {
 	  if (file.size === 0) {
-	    return Promise.resolve(null);
+	    return Promise.reject(new Error('Unknown image type.'));
 	  }
 
 	  const extension = getFileExtension(file.name).toLowerCase();
@@ -2245,35 +2835,56 @@ this.BX.UI = this.BX.UI || {};
 	  const typeHandler = typeHandlers[extension] || typeHandlers[type];
 
 	  if (!typeHandler) {
-	    return Promise.resolve(null);
+	    return Promise.reject(new Error('Unknown image type.'));
 	  }
 
 	  return typeHandler.getSize(file);
 	};
 
+	var _imageMinWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMinWidth");
+
+	var _imageMinHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMinHeight");
+
+	var _imageMaxWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMaxWidth");
+
+	var _imageMaxHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imageMaxHeight");
+
+	var _ignoreUnknownImageTypes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ignoreUnknownImageTypes");
+
 	class ImageSizeFilter extends Filter {
 	  constructor(uploader, filterOptions = {}) {
 	    super(uploader);
-	    this.imageMinWidth = 1;
-	    this.imageMinHeight = 1;
-	    this.imageMaxWidth = 7000;
-	    this.imageMaxHeight = 7000;
-	    this.ignoreUnknownImageTypes = false;
-	    const settings = main_core.Extension.getSettings('ui.uploader.core');
-	    this.imageMinWidth = settings.get('imageMinWidth', this.imageMinWidth);
-	    this.imageMinHeight = settings.get('imageMinHeight', this.imageMinHeight);
-	    this.imageMaxWidth = settings.get('imageMaxWidth', this.imageMaxWidth);
-	    this.imageMaxHeight = settings.get('imageMaxHeight', this.imageMaxHeight);
-	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
-	    ['imageMinWidth', 'imageMinHeight', 'imageMaxWidth', 'imageMaxHeight'].forEach(option => {
-	      if (main_core.Type.isNumber(options[option]) && options[option] > 0) {
-	        this[option] = options[option];
-	      }
+	    Object.defineProperty(this, _imageMinWidth, {
+	      writable: true,
+	      value: 1
 	    });
-
-	    if (main_core.Type.isBoolean(options['ignoreUnknownImageTypes'])) {
-	      this.ignoreUnknownImageTypes = options['ignoreUnknownImageTypes'];
-	    }
+	    Object.defineProperty(this, _imageMinHeight, {
+	      writable: true,
+	      value: 1
+	    });
+	    Object.defineProperty(this, _imageMaxWidth, {
+	      writable: true,
+	      value: 7000
+	    });
+	    Object.defineProperty(this, _imageMaxHeight, {
+	      writable: true,
+	      value: 7000
+	    });
+	    Object.defineProperty(this, _ignoreUnknownImageTypes, {
+	      writable: true,
+	      value: false
+	    });
+	    const settings = main_core.Extension.getSettings('ui.uploader.core');
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMinWidth)[_imageMinWidth] = settings.get('imageMinWidth', babelHelpers.classPrivateFieldLooseBase(this, _imageMinWidth)[_imageMinWidth]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMinHeight)[_imageMinHeight] = settings.get('imageMinHeight', babelHelpers.classPrivateFieldLooseBase(this, _imageMinHeight)[_imageMinHeight]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMaxWidth)[_imageMaxWidth] = settings.get('imageMaxWidth', babelHelpers.classPrivateFieldLooseBase(this, _imageMaxWidth)[_imageMaxWidth]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _imageMaxHeight)[_imageMaxHeight] = settings.get('imageMaxHeight', babelHelpers.classPrivateFieldLooseBase(this, _imageMaxHeight)[_imageMaxHeight]);
+	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
+	    this.setImageMinWidth(options['imageMinWidth']);
+	    this.setImageMinHeight(options['imageMinHeight']);
+	    this.setImageMaxWidth(options['imageMaxWidth']);
+	    this.setImageMaxHeight(options['imageMaxHeight']);
+	    this.setIgnoreUnknownImageTypes(options['ignoreUnknownImageTypes']);
 	  }
 
 	  apply(file) {
@@ -2283,34 +2894,88 @@ this.BX.UI = this.BX.UI || {};
 	        return;
 	      }
 
-	      getImageSize(file.getFile()).then(({
+	      getImageSize(file.getBinary()).then(({
 	        width,
 	        height
 	      }) => {
 	        file.setWidth(width);
 	        file.setHeight(height);
 
-	        if (width < this.imageMinWidth || height < this.imageMinHeight) {
+	        if (width < this.getImageMinWidth() || height < this.getImageMinHeight()) {
 	          reject(new UploaderError('IMAGE_IS_TOO_SMALL', {
-	            minWidth: this.imageMinWidth,
-	            minHeight: this.imageMinHeight
+	            minWidth: this.getImageMinWidth(),
+	            minHeight: this.getImageMinHeight()
 	          }));
-	        } else if (width > this.imageMaxWidth || height > this.imageMaxHeight) {
+	        } else if (width > this.getImageMaxWidth() || height > this.getImageMaxHeight()) {
 	          reject(new UploaderError('IMAGE_IS_TOO_BIG', {
-	            maxWidth: this.imageMaxWidth,
-	            maxHeight: this.imageMaxHeight
+	            maxWidth: this.getImageMaxWidth(),
+	            maxHeight: this.getImageMaxHeight()
 	          }));
 	        } else {
 	          resolve();
 	        }
-	      }).catch(() => {
-	        if (this.ignoreUnknownImageTypes) {
+	      }).catch(error => {
+	        if (this.getIgnoreUnknownImageTypes()) {
 	          resolve();
 	        } else {
+	          if (error) {
+	            console.log('Uploader ImageSizeFilter:', error);
+	          }
+
 	          reject(new UploaderError('IMAGE_TYPE_NOT_SUPPORTED'));
 	        }
 	      });
 	    });
+	  }
+
+	  getImageMinWidth() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMinWidth)[_imageMinWidth];
+	  }
+
+	  setImageMinWidth(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMinWidth)[_imageMinWidth] = value;
+	    }
+	  }
+
+	  getImageMinHeight() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMinHeight)[_imageMinHeight];
+	  }
+
+	  setImageMinHeight(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMinHeight)[_imageMinHeight] = value;
+	    }
+	  }
+
+	  getImageMaxWidth() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMaxWidth)[_imageMaxWidth];
+	  }
+
+	  setImageMaxWidth(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMaxWidth)[_imageMaxWidth] = value;
+	    }
+	  }
+
+	  getImageMaxHeight() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imageMaxHeight)[_imageMaxHeight];
+	  }
+
+	  setImageMaxHeight(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imageMaxHeight)[_imageMaxHeight] = value;
+	    }
+	  }
+
+	  getIgnoreUnknownImageTypes() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _ignoreUnknownImageTypes)[_ignoreUnknownImageTypes];
+	  }
+
+	  setIgnoreUnknownImageTypes(value) {
+	    if (main_core.Type.isBoolean(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _ignoreUnknownImageTypes)[_ignoreUnknownImageTypes] = value;
+	    }
 	  }
 
 	}
@@ -2397,6 +3062,18 @@ this.BX.UI = this.BX.UI || {};
 	  return canvas;
 	};
 
+	const supportedMimeTypes = main_core.Browser.isSafari() ? ['image/jpeg', 'image/png'] : ['image/jpeg', 'image/png', 'image/webp'];
+
+	const getCanvasToBlobType = (blob, mimeType = 'image/jpeg', mimeTypeMode = 'auto') => {
+	  mimeType = supportedMimeTypes.includes(mimeType) ? mimeType : 'image/jpeg';
+
+	  if (mimeTypeMode === 'force') {
+	    return mimeType;
+	  } else {
+	    return supportedMimeTypes.includes(blob.type) ? blob.type : mimeType;
+	  }
+	};
+
 	const getFilenameWithoutExtension = name => {
 	  return name.substr(0, name.lastIndexOf('.')) || name;
 	};
@@ -2428,107 +3105,22 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	};
 
-	let canCreateImageBitmap = 'createImageBitmap' in window && typeof ImageBitmap !== 'undefined' && ImageBitmap.prototype && ImageBitmap.prototype.close;
-
-	if (canCreateImageBitmap && main_core.Browser.isSafari()) {
-	  const ua = navigator.userAgent.toLowerCase();
-	  const regex = new RegExp('version\\/([0-9.]+)', 'i');
-	  const result = regex.exec(ua);
-
-	  if (result && result[1] && result[1] < '16.4') {
-	    // Webkit bug https://bugs.webkit.org/show_bug.cgi?id=223326
-	    canCreateImageBitmap = false;
-	  }
-	}
-
-	const resizeImage = async (file, options) => {
-	  return new Promise((resolve, reject) => {
-	    const loadImageDataFallback = () => {
-	      loadImage(file).then(({
-	        image
-	      }) => {
-	        handleImageLoad(image);
-	      }).catch(error => {
-	        reject(error);
-	      });
-	    };
-
-	    const handleImageLoad = imageData => {
-	      const {
-	        targetWidth,
-	        targetHeight
-	      } = calcTargetSize(imageData, options);
-
-	      if (!targetWidth || !targetHeight) {
-	        if ('close' in imageData) {
-	          imageData.close();
-	        }
-
-	        resolve({
-	          preview: file,
-	          width: imageData.width,
-	          height: imageData.height
-	        });
-	        return;
-	      }
-
-	      const canvas = createImagePreview(imageData, targetWidth, targetHeight); // if it was ImageBitmap
-
-	      if ('close' in imageData) {
-	        imageData.close();
-	      }
-
-	      const {
-	        quality = 0.92,
-	        mimeType = 'image/jpeg'
-	      } = options;
-	      const type = /jpeg|png|webp/.test(file.type) ? file.type : mimeType;
-	      convertCanvasToBlob(canvas, type, quality).then(blob => {
-	        const newFileName = renameFileToMatchMimeType(file.name, type);
-	        const preview = createFileFromBlob(blob, newFileName);
-	        resolve({
-	          preview,
-	          width: targetWidth,
-	          height: targetHeight
-	        });
-	      }).catch(() => {
-	        reject();
-	      });
-	    };
-
-	    if (canCreateImageBitmap) {
-	      const bitmapWorker = createWorker(BitmapWorker);
-	      bitmapWorker.post({
-	        file
-	      }, imageBitmap => {
-	        bitmapWorker.terminate();
-
-	        if (imageBitmap) {
-	          handleImageLoad(imageBitmap);
-	        } else {
-	          loadImageDataFallback();
-	        }
-	      });
-	    } else {
-	      loadImageDataFallback();
-	    }
-	  });
-	};
-
-	const calcTargetSize = (imageData, options = {}) => {
-	  let {
+	const getResizedImageSize = (imageData, options) => {
+	  const {
 	    mode = 'contain',
-	    upscale = false,
+	    upscale = false
+	  } = options;
+	  let {
 	    width,
 	    height
 	  } = options;
-	  const result = {
-	    targetWidth: 0,
-	    targetHeight: 0
-	  };
 
 	  if (!width && !height) {
-	    return result;
+	    return {
+	      targetWidth: 0,
+	      targetHeight: 0,
+	      useOriginalSize: true
+	    };
 	  }
 
 	  if (width === null) {
@@ -2550,7 +3142,11 @@ this.BX.UI = this.BX.UI || {};
 
 
 	    if (ratio > 1 && upscale === false) {
-	      return result;
+	      return {
+	        targetWidth: imageData.width,
+	        targetHeight: imageData.height,
+	        useOriginalSize: true
+	      };
 	    }
 
 	    width = imageData.width * ratio;
@@ -2576,127 +3172,488 @@ this.BX.UI = this.BX.UI || {};
 	  }*/
 
 
-	  result.targetWidth = Math.round(width);
-	  result.targetHeight = Math.round(height);
-	  return result;
+	  return {
+	    targetWidth: Math.round(width),
+	    targetHeight: Math.round(height),
+	    useOriginalSize: false
+	  };
 	};
+
+	let canCreateImageBitmap = 'createImageBitmap' in window && typeof ImageBitmap !== 'undefined' && ImageBitmap.prototype && ImageBitmap.prototype.close;
+
+	if (canCreateImageBitmap && main_core.Browser.isSafari()) {
+	  const ua = navigator.userAgent.toLowerCase();
+	  const regex = new RegExp('version\\/([0-9.]+)', 'i');
+	  const result = regex.exec(ua);
+
+	  if (result && result[1] && result[1] < '16.4') {
+	    // Webkit bug https://bugs.webkit.org/show_bug.cgi?id=223326
+	    canCreateImageBitmap = false;
+	  }
+	}
+
+	const resizeImage = (source, options) => {
+	  return new Promise((resolve, reject) => {
+	    const loadImageDataFallback = () => {
+	      loadImage(source).then(({
+	        image
+	      }) => {
+	        handleImageLoad(image);
+	      }).catch(error => {
+	        reject(error);
+	      });
+	    };
+
+	    const handleImageLoad = imageData => {
+	      const {
+	        targetWidth,
+	        targetHeight,
+	        useOriginalSize
+	      } = getResizedImageSize(imageData, options);
+
+	      if (useOriginalSize) {
+	        if ('close' in imageData) {
+	          imageData.close();
+	        }
+
+	        resolve({
+	          preview: source,
+	          width: imageData.width,
+	          height: imageData.height
+	        });
+	        return;
+	      }
+
+	      const canvas = createImagePreview(imageData, targetWidth, targetHeight); // if it was ImageBitmap
+
+	      if ('close' in imageData) {
+	        imageData.close();
+	      }
+
+	      const {
+	        quality = 0.92,
+	        mimeType,
+	        mimeTypeMode
+	      } = options;
+	      const type = getCanvasToBlobType(source, mimeType, mimeTypeMode);
+	      convertCanvasToBlob(canvas, type, quality).then(blob => {
+	        let preview = blob;
+
+	        if (main_core.Type.isFile(source)) {
+	          // File type could be changed pic.gif -> pic.jpg
+	          const newFileName = renameFileToMatchMimeType(source.name, type);
+	          preview = createFileFromBlob(blob, newFileName);
+	        }
+
+	        resolve({
+	          preview,
+	          width: targetWidth,
+	          height: targetHeight
+	        });
+	      }).catch(error => {
+	        reject(error);
+	      });
+	    };
+
+	    if (canCreateImageBitmap) {
+	      const bitmapWorker = createWorker(BitmapWorker);
+	      bitmapWorker.post({
+	        file: source
+	      }, imageBitmap => {
+	        bitmapWorker.terminate();
+
+	        if (imageBitmap) {
+	          handleImageLoad(imageBitmap);
+	        } else {
+	          loadImageDataFallback();
+	        }
+	      });
+	    } else {
+	      loadImageDataFallback();
+	    }
+	  });
+	};
+
+	const isVideo = blob => {
+	  return /^video\/[a-z0-9.-]+$/i.test(blob.type);
+	};
+
+	const createVideoPreview = (blob, options = {
+	  width: 300,
+	  height: 3000
+	}, seekTime = 10) => {
+	  return new Promise((resolve, reject) => {
+	    const video = document.createElement('video');
+	    video.setAttribute('src', URL.createObjectURL(blob));
+	    video.load();
+	    main_core.Event.bind(video, 'error', error => {
+	      reject('Error while loading video file', error);
+	    });
+	    main_core.Event.bind(video, 'loadedmetadata', () => {
+	      if (video.duration < seekTime) {
+	        seekTime = 0;
+	      }
+
+	      video.currentTime = seekTime;
+	      main_core.Event.bind(video, 'seeked', () => {
+	        const imageData = {
+	          width: video.videoWidth,
+	          height: video.videoHeight
+	        };
+	        const {
+	          targetWidth,
+	          targetHeight
+	        } = getResizedImageSize(imageData, options);
+
+	        if (!targetWidth || !targetHeight) {
+	          reject();
+	          return;
+	        }
+
+	        const canvas = createImagePreview(video, targetWidth, targetHeight);
+	        const {
+	          quality = 0.92,
+	          mimeType = 'image/jpeg'
+	        } = options;
+	        convertCanvasToBlob(canvas, mimeType, quality).then(blob => {
+	          resolve({
+	            preview: blob,
+	            width: targetWidth,
+	            height: targetHeight
+	          });
+	        }).catch(() => {
+	          reject();
+	        });
+	      });
+	    });
+	  });
+	};
+
+	var _imagePreviewWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewWidth");
+
+	var _imagePreviewHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewHeight");
+
+	var _imagePreviewQuality = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewQuality");
+
+	var _imagePreviewMimeType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewMimeType");
+
+	var _imagePreviewMimeTypeMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewMimeTypeMode");
+
+	var _imagePreviewUpscale = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewUpscale");
+
+	var _imagePreviewResizeMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("imagePreviewResizeMode");
+
+	var _getResizeImageOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getResizeImageOptions");
 
 	class ImagePreviewFilter extends Filter {
 	  constructor(uploader, filterOptions = {}) {
 	    super(uploader);
-	    this.imagePreviewWidth = 300;
-	    this.imagePreviewHeight = 300;
-	    this.imagePreviewQuality = 0.92;
-	    this.imagePreviewMimeType = 'image/jpeg';
-	    this.imagePreviewUpscale = false;
-	    this.imagePreviewResizeMethod = 'contain';
-	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
-	    const integerOptions = ['imagePreviewWidth', 'imagePreviewHeight', 'imagePreviewQuality'];
-	    integerOptions.forEach(option => {
-	      this[option] = main_core.Type.isNumber(options[option]) && options[option] > 0 ? options[option] : this[option];
+	    Object.defineProperty(this, _getResizeImageOptions, {
+	      value: _getResizeImageOptions2
 	    });
-
-	    if (main_core.Type.isBoolean(options['imagePreviewUpscale'])) {
-	      this.imagePreviewUpscale = options['imagePreviewUpscale'];
-	    }
-
-	    if (['contain', 'force', 'cover'].includes(options['imagePreviewResizeMethod'])) {
-	      this.imagePreviewResizeMethod = options['imagePreviewResizeMethod'];
-	    }
-
-	    if (['image/jpeg', 'image/png'].includes(options['imagePreviewMimeType'])) {
-	      this.imagePreviewMimeType = options['imagePreviewMimeType'];
-	    }
+	    Object.defineProperty(this, _imagePreviewWidth, {
+	      writable: true,
+	      value: 300
+	    });
+	    Object.defineProperty(this, _imagePreviewHeight, {
+	      writable: true,
+	      value: 300
+	    });
+	    Object.defineProperty(this, _imagePreviewQuality, {
+	      writable: true,
+	      value: 0.92
+	    });
+	    Object.defineProperty(this, _imagePreviewMimeType, {
+	      writable: true,
+	      value: 'image/jpeg'
+	    });
+	    Object.defineProperty(this, _imagePreviewMimeTypeMode, {
+	      writable: true,
+	      value: 'auto'
+	    });
+	    Object.defineProperty(this, _imagePreviewUpscale, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _imagePreviewResizeMode, {
+	      writable: true,
+	      value: 'contain'
+	    });
+	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
+	    this.setImagePreviewWidth(options['imagePreviewWidth']);
+	    this.setImagePreviewHeight(options['imagePreviewHeight']);
+	    this.setImagePreviewQuality(options['imagePreviewQuality']);
+	    this.setImagePreviewUpscale(options['imagePreviewUpscale']);
+	    this.setImagePreviewResizeMode(options['imagePreviewResizeMode']);
+	    this.setImagePreviewMimeType(options['imagePreviewMimeType']);
+	    this.setImagePreviewMimeTypeMode(options['imagePreviewMimeTypeMode']);
 	  }
 
 	  apply(file) {
 	    return new Promise((resolve, reject) => {
-	      if (!isResizableImage(file.getFile())) {
-	        resolve();
-	        return;
-	      }
+	      if (isResizableImage(file.getBinary())) {
+	        resizeImage(file.getBinary(), babelHelpers.classPrivateFieldLooseBase(this, _getResizeImageOptions)[_getResizeImageOptions]()).then(({
+	          preview,
+	          width,
+	          height
+	        }) => {
+	          file.setClientPreview(preview, width, height);
+	          resolve();
+	        }).catch(error => {
+	          if (error) {
+	            console.log('Uploader: image resize error', error);
+	          }
 
-	      const options = {
-	        width: this.imagePreviewWidth,
-	        height: this.imagePreviewHeight,
-	        mode: this.imagePreviewResizeMethod,
-	        upscale: this.imagePreviewUpscale,
-	        quality: this.imagePreviewQuality,
-	        mimeType: this.imagePreviewMimeType
-	      };
-	      resizeImage(file.getFile(), options).then(({
-	        preview,
-	        width,
-	        height
-	      }) => {
-	        //setTimeout(() => {
-	        file.setClientPreview(preview, width, height);
-	        resolve(); //}, 60000);
-	      }).catch(error => {
-	        console.log('resize error', error);
+	          resolve();
+	        });
+	      } else if (isVideo(file.getBinary()) && !main_core.Browser.isSafari()) {
+	        createVideoPreview(file.getBinary(), babelHelpers.classPrivateFieldLooseBase(this, _getResizeImageOptions)[_getResizeImageOptions]()).then(({
+	          preview,
+	          width,
+	          height
+	        }) => {
+	          file.setClientPreview(preview, width, height);
+	          resolve();
+	        }).catch(error => {
+	          if (error) {
+	            console.log('Uploader: video preview error', error);
+	          }
+
+	          resolve();
+	        });
+	      } else {
 	        resolve();
-	      });
+	      }
 	    });
+	  }
+
+	  getImagePreviewWidth() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewWidth)[_imagePreviewWidth];
+	  }
+
+	  setImagePreviewWidth(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewWidth)[_imagePreviewWidth] = value;
+	    }
+	  }
+
+	  getImagePreviewHeight() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewHeight)[_imagePreviewHeight];
+	  }
+
+	  setImagePreviewHeight(value) {
+	    if (main_core.Type.isNumber(value) && value > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewHeight)[_imagePreviewHeight] = value;
+	    }
+	  }
+
+	  getImagePreviewQuality() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewQuality)[_imagePreviewQuality];
+	  }
+
+	  setImagePreviewQuality(value) {
+	    if (main_core.Type.isNumber(value) && value > 0.1 && value <= 1) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewQuality)[_imagePreviewQuality] = value;
+	    }
+	  }
+
+	  getImagePreviewUpscale() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewUpscale)[_imagePreviewUpscale];
+	  }
+
+	  setImagePreviewUpscale(value) {
+	    if (main_core.Type.isBoolean(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewUpscale)[_imagePreviewUpscale] = value;
+	    }
+	  }
+
+	  getImagePreviewResizeMode() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewResizeMode)[_imagePreviewResizeMode];
+	  }
+
+	  setImagePreviewResizeMode(value) {
+	    if (['contain', 'force', 'cover'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewResizeMode)[_imagePreviewResizeMode] = value;
+	    }
+	  }
+
+	  getImagePreviewMimeType() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewMimeType)[_imagePreviewMimeType];
+	  }
+
+	  setImagePreviewMimeType(value) {
+	    if (['image/jpeg', 'image/png', 'image/webp'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewMimeType)[_imagePreviewMimeType] = value;
+	    }
+	  }
+
+	  getImagePreviewMimeTypeMode() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewMimeTypeMode)[_imagePreviewMimeTypeMode];
+	  }
+
+	  setImagePreviewMimeTypeMode(value) {
+	    if (['auto', 'force'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _imagePreviewMimeTypeMode)[_imagePreviewMimeTypeMode] = value;
+	    }
 	  }
 
 	}
 
-	class TransformImageFilter extends Filter {
+	function _getResizeImageOptions2() {
+	  return {
+	    width: this.getImagePreviewWidth(),
+	    height: this.getImagePreviewHeight(),
+	    mode: this.getImagePreviewResizeMode(),
+	    upscale: this.getImagePreviewUpscale(),
+	    quality: this.getImagePreviewQuality(),
+	    mimeType: this.getImagePreviewMimeType(),
+	    mimeTypeMode: this.getImagePreviewMimeTypeMode()
+	  };
+	}
+
+	var _resizeWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeWidth");
+
+	var _resizeHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeHeight");
+
+	var _resizeMethod = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeMethod");
+
+	var _resizeMimeType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeMimeType");
+
+	var _resizeMimeTypeMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeMimeTypeMode");
+
+	var _resizeQuality = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resizeQuality");
+
+	class ImageResizeFilter extends Filter {
 	  constructor(uploader, filterOptions = {}) {
 	    super(uploader);
-	    this.resizeWidth = null;
-	    this.resizeHeight = null;
-	    this.resizeMethod = 'contain';
-	    this.resizeMimeType = 'image/jpeg';
-	    this.resizeQuality = 0.92;
+	    Object.defineProperty(this, _resizeWidth, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _resizeHeight, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _resizeMethod, {
+	      writable: true,
+	      value: 'contain'
+	    });
+	    Object.defineProperty(this, _resizeMimeType, {
+	      writable: true,
+	      value: 'image/jpeg'
+	    });
+	    Object.defineProperty(this, _resizeMimeTypeMode, {
+	      writable: true,
+	      value: 'auto'
+	    });
+	    Object.defineProperty(this, _resizeQuality, {
+	      writable: true,
+	      value: 0.92
+	    });
 	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
-
-	    if (main_core.Type.isNumber(options['imageResizeWidth']) && options['imageResizeWidth'] > 0) {
-	      this.resizeWidth = options['imageResizeWidth'];
-	    }
-
-	    if (main_core.Type.isNumber(options['imageResizeHeight']) && options['imageResizeHeight'] > 0) {
-	      this.resizeHeight = options['imageResizeHeight'];
-	    }
-
-	    if (['contain', 'force', 'cover'].includes(options['imageResizeMethod'])) {
-	      this.resizeMethod = options['imageResizeMethod'];
-	    }
-
-	    if (main_core.Type.isNumber(options['imageResizeQuality'])) {
-	      this.resizeQuality = Math.min(Math.max(0.1, options['imageResizeQuality']), 1);
-	    }
-
-	    if (['image/jpeg', 'image/png'].includes(options['imageResizeMimeType'])) {
-	      this.resizeMimeType = options['imageResizeMimeType'];
-	    }
+	    this.setResizeWidth(options['imageResizeWidth']);
+	    this.setResizeHeight(options['imageResizeHeight']);
+	    this.setResizeMode(options['imageResizeMode']);
+	    this.setResizeMimeType(options['imageResizeMimeType']);
+	    this.setResizeMimeTypeMode(options['imageResizeMimeTypeMode']);
+	    this.setResizeQuality(options['imageResizeQuality']);
 	  }
 
 	  apply(file) {
 	    return new Promise((resolve, reject) => {
-	      if (!isResizableImage(file)) {
-	        return resolve(file);
+	      if (this.getResizeWidth() === null && this.getResizeHeight() === null) {
+	        return resolve();
 	      }
 
-	      if (this.resizeWidth === null && this.resizeHeight === null) {
-	        return resolve(file);
+	      if (!isResizableImage(file.getBinary())) {
+	        return resolve();
 	      }
 
 	      const options = {
-	        width: this.resizeWidth,
-	        height: this.resizeHeight,
-	        mode: this.resizeMethod,
-	        quality: this.resizeQuality,
-	        mimeType: this.resizeMimeType
+	        width: this.getResizeWidth(),
+	        height: this.getResizeHeight(),
+	        mode: this.getResizeMode(),
+	        quality: this.getResizeQuality(),
+	        mimeType: this.getResizeMimeType(),
+	        mimeTypeMode: this.getResizeMimeTypeMode()
 	      };
-	      resizeImage(file, options).then(({
-	        preview
+	      resizeImage(file.getBinary(), options).then(({
+	        preview,
+	        width,
+	        height
 	      }) => {
-	        resolve(preview);
-	      }).catch(() => {
-	        resolve(file);
+	        file.setWidth(width);
+	        file.setHeight(height);
+	        file.setFile(preview);
+	        resolve();
+	      }).catch(error => {
+	        if (error) {
+	          console.log('image resize error', error);
+	        }
+
+	        resolve();
 	      });
 	    });
+	  }
+
+	  getResizeWidth() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeWidth)[_resizeWidth];
+	  }
+
+	  setResizeWidth(value) {
+	    if (main_core.Type.isNumber(value) && value > 0 || main_core.Type.isNull(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeWidth)[_resizeWidth] = value;
+	    }
+	  }
+
+	  getResizeHeight() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeHeight)[_resizeHeight];
+	  }
+
+	  setResizeHeight(value) {
+	    if (main_core.Type.isNumber(value) && value > 0 || main_core.Type.isNull(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeHeight)[_resizeHeight] = value;
+	    }
+	  }
+
+	  getResizeMode() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeMethod)[_resizeMethod];
+	  }
+
+	  setResizeMode(value) {
+	    if (['contain', 'force', 'cover'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeMethod)[_resizeMethod] = value;
+	    }
+	  }
+
+	  getResizeMimeType() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeMimeType)[_resizeMimeType];
+	  }
+
+	  setResizeMimeType(value) {
+	    if (['image/jpeg', 'image/png', 'image/webp'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeMimeType)[_resizeMimeType] = value;
+	    }
+	  }
+
+	  getResizeMimeTypeMode() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeMimeTypeMode)[_resizeMimeTypeMode];
+	  }
+
+	  setResizeMimeTypeMode(value) {
+	    if (['auto', 'force'].includes(value)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeMimeTypeMode)[_resizeMimeTypeMode] = value;
+	    }
+	  }
+
+	  getResizeQuality() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _resizeQuality)[_resizeQuality];
+	  }
+
+	  setResizeQuality(value) {
+	    if (main_core.Type.isNumber(value) && value > 0.1 && value <= 1) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _resizeQuality)[_resizeQuality] = value;
+	    }
 	  }
 
 	}
@@ -2704,6 +3661,31 @@ this.BX.UI = this.BX.UI || {};
 	const UploaderStatus = {
 	  STARTED: 0,
 	  STOPPED: 1
+	};
+
+	const UploaderEvent = {
+	  UPLOAD_START: 'onUploadStart',
+	  UPLOAD_COMPLETE: 'onUploadComplete',
+	  ERROR: 'onError',
+	  MAX_FILE_COUNT_EXCEEDED: 'onMaxFileCountExceeded',
+	  DESTROY: 'onDestroy',
+	  BEFORE_BROWSE: 'onBeforeBrowse',
+	  BEFORE_DROP: 'onBeforeDrop',
+	  BEFORE_PASTE: 'onBeforePaste',
+	  FILE_BEFORE_ADD: 'File:onBeforeAdd',
+	  FILE_ADD_START: 'File:onAddStart',
+	  FILE_LOAD_START: 'File:onLoadStart',
+	  FILE_LOAD_PROGRESS: 'File:onLoadProgress',
+	  FILE_LOAD_COMPLETE: 'File:onLoadComplete',
+	  FILE_ERROR: 'File:onError',
+	  FILE_ADD: 'File:onAdd',
+	  FILE_REMOVE: 'File:onRemove',
+	  FILE_UPLOAD_START: 'File:onUploadStart',
+	  FILE_UPLOAD_PROGRESS: 'File:onUploadProgress',
+	  FILE_UPLOAD_COMPLETE: 'File:onUploadComplete',
+	  FILE_COMPLETE: 'File:onComplete',
+	  FILE_STATUS_CHANGE: 'File:onStatusChange',
+	  FILE_STATE_CHANGE: 'File:onStateChange'
 	};
 
 	const FilterType = {
@@ -2860,7 +3842,7 @@ this.BX.UI = this.BX.UI || {};
 
 	var _maxFileCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxFileCount");
 
-	var _server$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("server");
+	var _server$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("server");
 
 	var _hiddenFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hiddenFields");
 
@@ -2875,12 +3857,6 @@ this.BX.UI = this.BX.UI || {};
 	var _status$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("status");
 
 	var _onBeforeUploadHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onBeforeUploadHandler");
-
-	var _onPrepareFileAsyncHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onPrepareFileAsyncHandler");
-
-	var _onUploadStartHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onUploadStartHandler");
-
-	var _onFileCancelHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onFileCancelHandler");
 
 	var _onFileStatusChangeHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onFileStatusChangeHandler");
 
@@ -2898,13 +3874,23 @@ this.BX.UI = this.BX.UI || {};
 
 	var _pastingNodes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pastingNodes");
 
-	var _setLoadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setLoadController");
+	var _setLoadEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setLoadEvents");
 
-	var _setUploadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setUploadController");
+	var _setUploadEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setUploadEvents");
+
+	var _setRemoveEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setRemoveEvents");
+
+	var _handleBeforeUpload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleBeforeUpload");
+
+	var _handleFileStatusChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileStatusChange");
+
+	var _handleFileStateChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileStateChange");
 
 	var _exceedsMaxFileCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("exceedsMaxFileCount");
 
 	var _applyFilters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applyFilters");
+
+	var _removeFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeFile");
 
 	var _handleBrowseClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleBrowseClick");
 
@@ -2920,21 +3906,11 @@ this.BX.UI = this.BX.UI || {};
 
 	var _loadNext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadNext");
 
-	var _handleBeforeUpload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleBeforeUpload");
-
-	var _handlePrepareFileAsync = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePrepareFileAsync");
-
-	var _handleUploadStart = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleUploadStart");
-
-	var _handleFileCancel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileCancel");
-
-	var _handleFileStatusChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileStatusChange");
-
-	var _handleFileStateChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileStateChange");
-
 	var _setHiddenField = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setHiddenField");
 
 	var _resetHiddenField = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resetHiddenField");
+
+	var _resetHiddenFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resetHiddenFields");
 
 	var _syncInputPositions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("syncInputPositions");
 
@@ -2944,29 +3920,14 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _syncInputPositions, {
 	      value: _syncInputPositions2
 	    });
+	    Object.defineProperty(this, _resetHiddenFields, {
+	      value: _resetHiddenFields2
+	    });
 	    Object.defineProperty(this, _resetHiddenField, {
 	      value: _resetHiddenField2
 	    });
 	    Object.defineProperty(this, _setHiddenField, {
 	      value: _setHiddenField2
-	    });
-	    Object.defineProperty(this, _handleFileStateChange, {
-	      value: _handleFileStateChange2
-	    });
-	    Object.defineProperty(this, _handleFileStatusChange, {
-	      value: _handleFileStatusChange2
-	    });
-	    Object.defineProperty(this, _handleFileCancel, {
-	      value: _handleFileCancel2
-	    });
-	    Object.defineProperty(this, _handleUploadStart, {
-	      value: _handleUploadStart2
-	    });
-	    Object.defineProperty(this, _handlePrepareFileAsync, {
-	      value: _handlePrepareFileAsync2
-	    });
-	    Object.defineProperty(this, _handleBeforeUpload, {
-	      value: _handleBeforeUpload2
 	    });
 	    Object.defineProperty(this, _loadNext, {
 	      value: _loadNext2
@@ -2989,17 +3950,32 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _handleBrowseClick, {
 	      value: _handleBrowseClick2
 	    });
+	    Object.defineProperty(this, _removeFile, {
+	      value: _removeFile2
+	    });
 	    Object.defineProperty(this, _applyFilters, {
 	      value: _applyFilters2
 	    });
 	    Object.defineProperty(this, _exceedsMaxFileCount, {
 	      value: _exceedsMaxFileCount2
 	    });
-	    Object.defineProperty(this, _setUploadController, {
-	      value: _setUploadController2
+	    Object.defineProperty(this, _handleFileStateChange, {
+	      value: _handleFileStateChange2
 	    });
-	    Object.defineProperty(this, _setLoadController, {
-	      value: _setLoadController2
+	    Object.defineProperty(this, _handleFileStatusChange, {
+	      value: _handleFileStatusChange2
+	    });
+	    Object.defineProperty(this, _handleBeforeUpload, {
+	      value: _handleBeforeUpload2
+	    });
+	    Object.defineProperty(this, _setRemoveEvents, {
+	      value: _setRemoveEvents2
+	    });
+	    Object.defineProperty(this, _setUploadEvents, {
+	      value: _setUploadEvents2
+	    });
+	    Object.defineProperty(this, _setLoadEvents, {
+	      value: _setLoadEvents2
 	    });
 	    Object.defineProperty(this, _files, {
 	      writable: true,
@@ -3041,7 +4017,7 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
-	    Object.defineProperty(this, _server$2, {
+	    Object.defineProperty(this, _server$3, {
 	      writable: true,
 	      value: null
 	    });
@@ -3070,18 +4046,6 @@ this.BX.UI = this.BX.UI || {};
 	      value: UploaderStatus.STOPPED
 	    });
 	    Object.defineProperty(this, _onBeforeUploadHandler, {
-	      writable: true,
-	      value: null
-	    });
-	    Object.defineProperty(this, _onPrepareFileAsyncHandler, {
-	      writable: true,
-	      value: null
-	    });
-	    Object.defineProperty(this, _onUploadStartHandler, {
-	      writable: true,
-	      value: null
-	    });
-	    Object.defineProperty(this, _onFileCancelHandler, {
 	      writable: true,
 	      value: null
 	    });
@@ -3118,30 +4082,20 @@ this.BX.UI = this.BX.UI || {};
 	      value: new Set()
 	    });
 	    this.setEventNamespace('BX.UI.Uploader');
-	    const options = main_core.Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
-	    babelHelpers.classPrivateFieldLooseBase(this, _multiple)[_multiple] = main_core.Type.isBoolean(options.multiple) ? options.multiple : false;
-	    babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages] = main_core.Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _onBeforeUploadHandler)[_onBeforeUploadHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleBeforeUpload)[_handleBeforeUpload].bind(this);
-	    babelHelpers.classPrivateFieldLooseBase(this, _onPrepareFileAsyncHandler)[_onPrepareFileAsyncHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handlePrepareFileAsync)[_handlePrepareFileAsync].bind(this);
-	    babelHelpers.classPrivateFieldLooseBase(this, _onUploadStartHandler)[_onUploadStartHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleUploadStart)[_handleUploadStart].bind(this);
-	    babelHelpers.classPrivateFieldLooseBase(this, _onFileCancelHandler)[_onFileCancelHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleFileCancel)[_handleFileCancel].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onFileStatusChangeHandler)[_onFileStatusChangeHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleFileStatusChange)[_handleFileStatusChange].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onFileStateChangeHandler)[_onFileStateChangeHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleFileStateChange)[_handleFileStateChange].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onInputFileChangeHandler)[_onInputFileChangeHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleInputFileChange)[_handleInputFileChange].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onPasteHandler)[_onPasteHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handlePaste)[_handlePaste].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onDropHandler)[_onDropHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleDrop)[_handleDrop].bind(this);
-	    this.setAutoUpload(options.autoUpload);
-	    this.setMaxParallelUploads(options.maxParallelUploads);
-	    this.setMaxParallelLoads(options.maxParallelLoads);
-
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages]) {
-	      const settings = main_core.Extension.getSettings('ui.uploader.core');
-	      const imageExtensions = settings.get('imageExtensions', 'jpg,bmp,jpeg,jpe,gif,png,webp');
-	      this.setAcceptedFileTypes(imageExtensions);
-	    }
-
-	    this.setAcceptedFileTypes(options.acceptedFileTypes);
-	    this.setIgnoredFileNames(options.ignoredFileNames);
+	    const options = main_core.Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _multiple)[_multiple] = main_core.Type.isBoolean(options.multiple) ? options.multiple : false;
+	    const acceptedFileTypes = main_core.Type.isString(options.acceptedFileTypes) || main_core.Type.isArray(options.acceptedFileTypes) ? options.acceptedFileTypes : Uploader.getGlobalOption('acceptedFileTypes', null);
+	    this.setAcceptedFileTypes(acceptedFileTypes);
+	    const acceptOnlyImages = main_core.Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : Uploader.getGlobalOption('acceptOnlyImages', null);
+	    this.setAcceptOnlyImages(acceptOnlyImages);
+	    const ignoredFileNames = main_core.Type.isArray(options.ignoredFileNames) ? options.ignoredFileNames : Uploader.getGlobalOption('ignoredFileNames', null);
+	    this.setIgnoredFileNames(ignoredFileNames);
 	    this.setMaxFileCount(options.maxFileCount);
 	    this.setAllowReplaceSingle(options.allowReplaceSingle);
 	    this.assignBrowse(options.browseElement);
@@ -3150,20 +4104,28 @@ this.BX.UI = this.BX.UI || {};
 	    this.setHiddenFieldsContainer(options.hiddenFieldsContainer);
 	    this.setHiddenFieldName(options.hiddenFieldName);
 	    this.setAssignAsFile(options.assignAsFile);
+	    this.setAutoUpload(options.autoUpload);
+	    this.setMaxParallelUploads(options.maxParallelUploads);
+	    this.setMaxParallelLoads(options.maxParallelLoads);
 	    let serverOptions = main_core.Type.isPlainObject(options.serverOptions) ? options.serverOptions : {};
 	    serverOptions = Object.assign({}, {
 	      controller: options.controller,
 	      controllerOptions: options.controllerOptions
 	    }, serverOptions);
-	    babelHelpers.classPrivateFieldLooseBase(this, _server$2)[_server$2] = new Server(serverOptions);
+	    babelHelpers.classPrivateFieldLooseBase(this, _server$3)[_server$3] = new Server(serverOptions);
 	    this.subscribeFromOptions(options.events);
 	    this.addFilter(FilterType.VALIDATION, new FileSizeFilter(this, options));
 	    this.addFilter(FilterType.VALIDATION, new FileTypeFilter(this, options));
 	    this.addFilter(FilterType.VALIDATION, new ImageSizeFilter(this, options));
 	    this.addFilter(FilterType.VALIDATION, new ImagePreviewFilter(this, options));
-	    this.addFilter(FilterType.PREPARATION, new TransformImageFilter(this, options));
+	    this.addFilter(FilterType.PREPARATION, new ImageResizeFilter(this, options));
 	    this.addFilters(options.filters);
 	    this.addFiles(options.files);
+	  }
+
+	  static getGlobalOption(path, defaultValue = null) {
+	    const globalOptions = main_core.Extension.getSettings('ui.uploader.core');
+	    return globalOptions.get(path, defaultValue);
 	  }
 
 	  addFiles(fileList) {
@@ -3208,28 +4170,40 @@ this.BX.UI = this.BX.UI || {};
 	        file: file
 	      }
 	    });
-	    this.emit('File:onBeforeAdd', event);
+	    this.emit(UploaderEvent.FILE_BEFORE_ADD, event);
 
 	    if (event.isDefaultPrevented()) {
 	      return;
 	    }
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _setLoadController)[_setLoadController](file);
+	    file.subscribe(FileEvent.STATUS_CHANGE, babelHelpers.classPrivateFieldLooseBase(this, _onFileStatusChangeHandler)[_onFileStatusChangeHandler]);
+	    file.subscribe(FileEvent.STATE_CHANGE, babelHelpers.classPrivateFieldLooseBase(this, _onFileStateChangeHandler)[_onFileStateChangeHandler]);
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _setUploadController)[_setUploadController](file);
+	    babelHelpers.classPrivateFieldLooseBase(this, _setUploadEvents)[_setUploadEvents](file);
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _setLoadEvents)[_setLoadEvents](file);
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _setRemoveEvents)[_setRemoveEvents](file);
+
+	    if (file.getOrigin() === FileOrigin.SERVER) {
+	      file.setLoadController(this.getServer().createLoadController());
+	    } else {
+	      file.setLoadController(this.getServer().createClientLoadController());
+	    }
+
+	    if (file.getOrigin() === FileOrigin.CLIENT) {
+	      const uploadController = this.getServer().createUploadController();
+	      file.setUploadController(uploadController);
+	    }
+
+	    file.setRemoveController(this.getServer().createRemoveController());
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].push(file);
 
-	    file.setStatus(FileStatus.ADDED);
-	    this.emit('File:onAddStart', {
+	    file.emit(FileEvent.ADD);
+	    this.emit(UploaderEvent.FILE_ADD_START, {
 	      file
 	    });
-	    file.subscribe('onBeforeUpload', babelHelpers.classPrivateFieldLooseBase(this, _onBeforeUploadHandler)[_onBeforeUploadHandler]);
-	    file.subscribe('onPrepareFileAsync', babelHelpers.classPrivateFieldLooseBase(this, _onPrepareFileAsyncHandler)[_onPrepareFileAsyncHandler]);
-	    file.subscribe('onUploadStart', babelHelpers.classPrivateFieldLooseBase(this, _onUploadStartHandler)[_onUploadStartHandler]);
-	    file.subscribe('onCancel', babelHelpers.classPrivateFieldLooseBase(this, _onFileCancelHandler)[_onFileCancelHandler]);
-	    file.subscribe('onStatusChange', babelHelpers.classPrivateFieldLooseBase(this, _onFileStatusChangeHandler)[_onFileStatusChangeHandler]);
-	    file.subscribe('onStateChange', babelHelpers.classPrivateFieldLooseBase(this, _onFileStateChangeHandler)[_onFileStateChangeHandler]);
 
 	    if (file.getOrigin() === FileOrigin.SERVER) {
 	      file.load();
@@ -3241,47 +4215,48 @@ this.BX.UI = this.BX.UI || {};
 	  start() {
 	    if (this.getStatus() !== UploaderStatus.STARTED && this.getPendingFileCount() > 0) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1] = UploaderStatus.STARTED;
-	      this.emit('onUploadStart');
+	      this.emit(UploaderEvent.UPLOAD_START);
 
 	      babelHelpers.classPrivateFieldLooseBase(this, _uploadNext)[_uploadNext]();
 	    }
-	  }
+	  } // stop(): void
+	  // {
+	  // 	this.#status = UploaderStatus.STOPPED;
+	  //
+	  // 	this.getFiles().forEach((file: UploaderFile) => {
+	  // 		if (file.isUploading())
+	  // 		{
+	  // 			file.abort();
+	  // 			file.setStatus(FileStatus.PENDING);
+	  // 		}
+	  // 	});
+	  //
+	  // 	this.emit('onStop');
+	  // }
 
-	  stop() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1] = UploaderStatus.STOPPED;
-
-	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].forEach(file => {
-	      if (file.isUploading()) {
-	        file.abort();
-	        file.setStatus(FileStatus.PENDING);
-	      }
-	    });
-
-	    this.emit('onStop');
-	  }
 
 	  cancel() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].forEach(file => {
-	      file.cancel();
+	    this.getFiles().forEach(file => {
+	      file.remove();
 	    });
 	  }
 
 	  destroy() {
-	    this.emit('onDestroy');
+	    this.emit(UploaderEvent.DESTROY);
 	    this.unassignBrowseAll();
 	    this.unassignDropzoneAll();
 	    this.unassignPasteAll();
-
-	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].forEach(file => {
-	      file.cancel();
+	    this.getFiles().forEach(file => {
+	      file.remove();
 	    });
 
+	    babelHelpers.classPrivateFieldLooseBase(this, _resetHiddenFields)[_resetHiddenFields]();
+
 	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files] = [];
-	    babelHelpers.classPrivateFieldLooseBase(this, _server$2)[_server$2] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _server$3)[_server$3] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _ignoredFileNames)[_ignoredFileNames] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _filters)[_filters] = null; // #hiddenFields
-
+	    babelHelpers.classPrivateFieldLooseBase(this, _filters)[_filters] = null;
 	    Object.setPrototypeOf(this, null);
 	  }
 
@@ -3292,17 +4267,11 @@ this.BX.UI = this.BX.UI || {};
 
 	    const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].findIndex(element => element === file);
 
-	    if (index >= 0) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].splice(index, 1);
-
-	      file.abort();
-	      file.setStatus(FileStatus.INIT);
-	      this.emit('File:onRemove', {
-	        file
-	      });
-
-	      babelHelpers.classPrivateFieldLooseBase(this, _resetHiddenField)[_resetHiddenField](file);
+	    if (index === -1) {
+	      return;
 	    }
+
+	    file.remove();
 	  }
 
 	  getFile(id) {
@@ -3356,7 +4325,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  getServer() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _server$2)[_server$2];
+	    return babelHelpers.classPrivateFieldLooseBase(this, _server$3)[_server$3];
 	  }
 
 	  assignBrowse(nodes) {
@@ -3371,7 +4340,7 @@ this.BX.UI = this.BX.UI || {};
 	        return;
 	      }
 
-	      let input = null;
+	      let input;
 
 	      if (node.tagName === 'INPUT' && node.type === 'file') {
 	        input = node; // Add already selected files
@@ -3522,6 +4491,10 @@ this.BX.UI = this.BX.UI || {};
 
 	    if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _hiddenFieldsContainer)[_hiddenFieldsContainer])) {
 	      element = document.querySelector(babelHelpers.classPrivateFieldLooseBase(this, _hiddenFieldsContainer)[_hiddenFieldsContainer]);
+
+	      if (!main_core.Type.isElementNode(element)) {
+	        console.error(`Uploader: a hidden field container was not found (${babelHelpers.classPrivateFieldLooseBase(this, _hiddenFieldsContainer)[_hiddenFieldsContainer]}).`);
+	      }
 	    } else if (main_core.Type.isElementNode(babelHelpers.classPrivateFieldLooseBase(this, _hiddenFieldsContainer)[_hiddenFieldsContainer])) {
 	      element = babelHelpers.classPrivateFieldLooseBase(this, _hiddenFieldsContainer)[_hiddenFieldsContainer];
 	    }
@@ -3599,6 +4572,22 @@ this.BX.UI = this.BX.UI || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].filter(file => file.isReadyToUpload()).length;
 	  }
 
+	  static getImageExtensions() {
+	    return this.getGlobalOption('imageExtensions', ['.jpg', '.bmp', '.jpeg', '.jpe', '.gif', '.png', '.webp']);
+	  }
+
+	  setAcceptOnlyImages(flag) {
+	    if (main_core.Type.isBoolean(flag)) {
+	      this.acceptOnlyImages(flag);
+	    }
+	  }
+
+	  acceptOnlyImages(flag = true) {
+	    const imageExtensions = flag ? Uploader.getImageExtensions() : [];
+	    this.setAcceptedFileTypes(imageExtensions);
+	    babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages] = flag;
+	  }
+
 	  shouldAcceptOnlyImages() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages];
 	  }
@@ -3614,6 +4603,7 @@ this.BX.UI = this.BX.UI || {};
 
 	    if (main_core.Type.isArray(fileTypes)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes] = [];
+	      babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages] = false;
 	      fileTypes.forEach(type => {
 	        if (main_core.Type.isStringFilled(type)) {
 	          babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes].push(type);
@@ -3659,153 +4649,97 @@ this.BX.UI = this.BX.UI || {};
 
 	}
 
-	function _setLoadController2(file) {
-	  const loadController = file.getOrigin() === FileOrigin.SERVER ? this.getServer().createLoadController() : this.getServer().createClientLoadController();
-	  loadController.subscribeFromOptions({
-	    'onError': event => {
+	function _setLoadEvents2(file) {
+	  file.subscribeFromOptions({
+	    [FileEvent.LOAD_START]: () => {
+	      this.emit(UploaderEvent.FILE_LOAD_START, {
+	        file
+	      });
+	    },
+	    [FileEvent.LOAD_PROGRESS]: event => {
+	      const {
+	        progress
+	      } = event.getData();
+	      this.emit(UploaderEvent.FILE_LOAD_PROGRESS, {
+	        file,
+	        progress
+	      });
+	    },
+	    [FileEvent.LOAD_ERROR]: event => {
 	      const {
 	        error
 	      } = event.getData();
-	      file.addError(error);
-	      file.setStatus(FileStatus.LOAD_FAILED);
-	      this.emit('File:onError', {
+	      this.emit(UploaderEvent.FILE_ERROR, {
+	        file,
+	        error
+	      });
+	      this.emit(UploaderEvent.FILE_ADD, {
 	        file,
 	        error
 	      });
 
 	      babelHelpers.classPrivateFieldLooseBase(this, _loadNext)[_loadNext]();
 	    },
-	    'onAbort': event => {
-	      if (file.getOrigin() === FileOrigin.SERVER) {
-	        file.setStatus(FileStatus.ABORTED);
-	      } else {
-	        file.setStatus(FileStatus.LOAD_FAILED);
-	      }
-
-	      this.emit('File:onAbort', {
+	    [FileEvent.LOAD_COMPLETE]: () => {
+	      this.emit(UploaderEvent.FILE_ADD, {
+	        file
+	      });
+	      this.emit(UploaderEvent.FILE_LOAD_COMPLETE, {
 	        file
 	      });
 
-	      babelHelpers.classPrivateFieldLooseBase(this, _loadNext)[_loadNext]();
-	    },
-	    'onProgress': event => {
-	      this.emit('File:onLoadProgress', {
-	        file,
-	        progress: event.getData().progress
-	      });
-	    },
-	    'onLoad': event => {
-	      if (file.getOrigin() === FileOrigin.SERVER) {
-	        file.setFile(event.getData().fileInfo);
-	        file.setStatus(FileStatus.COMPLETE);
-	        this.emit('File:onAdd', {
-	          file
-	        });
-	        this.emit('File:onLoadComplete', {
-	          file
-	        });
-	        this.emit('File:onComplete', {
+	      if (file.getOrigin() === FileOrigin.SERVER || !file.isUploadable()) {
+	        this.emit(UploaderEvent.FILE_COMPLETE, {
 	          file
 	        });
 
 	        babelHelpers.classPrivateFieldLooseBase(this, _setHiddenField)[_setHiddenField](file);
+	      } else if (file.isUploadable() && this.shouldAutoUpload()) {
+	        file.upload();
+	      }
 
-	        return;
-	      } // Validation
-
-
-	      babelHelpers.classPrivateFieldLooseBase(this, _applyFilters)[_applyFilters](FilterType.VALIDATION, file).then(() => {
-	        if (file.isUploadable()) {
-	          file.setStatus(FileStatus.PENDING);
-	          this.emit('File:onAdd', {
-	            file
-	          });
-	          this.emit('File:onLoadComplete', {
-	            file
-	          });
-
-	          if (this.shouldAutoUpload()) {
-	            file.upload();
-	          }
-	        } else {
-	          file.setStatus(FileStatus.COMPLETE);
-	          this.emit('File:onAdd', {
-	            file
-	          });
-	          this.emit('File:onLoadComplete', {
-	            file
-	          });
-	          this.emit('File:onComplete', {
-	            file
-	          });
-	        }
-
-	        babelHelpers.classPrivateFieldLooseBase(this, _loadNext)[_loadNext]();
-	      }).catch(error => {
-	        file.addError(error);
-	        file.setStatus(FileStatus.LOAD_FAILED);
-	        this.emit('File:onError', {
-	          file,
-	          error
-	        });
-	        this.emit('File:onAdd', {
-	          file,
-	          error
-	        });
-
-	        babelHelpers.classPrivateFieldLooseBase(this, _loadNext)[_loadNext]();
-	      });
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadNext)[_loadNext]();
+	    },
+	    [FileEvent.PREPARE_FILE_ASYNC]: event => {
+	      const file = event.getData().file;
+	      return babelHelpers.classPrivateFieldLooseBase(this, _applyFilters)[_applyFilters](FilterType.VALIDATION, file).then(() => babelHelpers.classPrivateFieldLooseBase(this, _applyFilters)[_applyFilters](FilterType.PREPARATION, file));
 	    }
 	  });
-	  file.setLoadController(loadController);
 	}
 
-	function _setUploadController2(file) {
-	  const uploadController = this.getServer().createUploadController();
-
-	  if (!uploadController) {
-	    return;
-	  }
-
-	  uploadController.subscribeFromOptions({
-	    'onError': event => {
+	function _setUploadEvents2(file) {
+	  file.subscribeFromOptions({
+	    [FileEvent.BEFORE_UPLOAD]: babelHelpers.classPrivateFieldLooseBase(this, _onBeforeUploadHandler)[_onBeforeUploadHandler],
+	    [FileEvent.UPLOAD_START]: () => {
+	      this.emit(UploaderEvent.FILE_UPLOAD_START, {
+	        file
+	      });
+	    },
+	    [FileEvent.UPLOAD_PROGRESS]: event => {
+	      const {
+	        progress
+	      } = event.getData();
+	      this.emit(UploaderEvent.FILE_UPLOAD_PROGRESS, {
+	        file,
+	        progress
+	      });
+	    },
+	    [FileEvent.UPLOAD_ERROR]: event => {
 	      const {
 	        error
 	      } = event.getData();
-	      file.addError(error);
-	      file.setStatus(FileStatus.UPLOAD_FAILED);
-	      this.emit('File:onError', {
+	      this.emit(UploaderEvent.FILE_ERROR, {
 	        file,
 	        error
 	      });
 
 	      babelHelpers.classPrivateFieldLooseBase(this, _uploadNext)[_uploadNext]();
 	    },
-	    'onAbort': event => {
-	      file.setStatus(FileStatus.ABORTED);
-	      this.emit('File:onAbort', {
+	    [FileEvent.UPLOAD_COMPLETE]: () => {
+	      this.emit(UploaderEvent.FILE_UPLOAD_COMPLETE, {
 	        file
 	      });
-
-	      babelHelpers.classPrivateFieldLooseBase(this, _uploadNext)[_uploadNext]();
-	    },
-	    'onProgress': event => {
-	      const {
-	        progress
-	      } = event.getData();
-	      file.setProgress(progress);
-	      this.emit('File:onUploadProgress', {
-	        file,
-	        progress
-	      });
-	    },
-	    'onUpload': event => {
-	      file.setStatus(FileStatus.COMPLETE);
-	      file.setFile(event.getData().fileInfo);
-	      this.emit('File:onUploadComplete', {
-	        file
-	      });
-	      this.emit('File:onComplete', {
+	      this.emit(UploaderEvent.FILE_COMPLETE, {
 	        file
 	      });
 
@@ -3814,7 +4748,50 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _uploadNext)[_uploadNext]();
 	    }
 	  });
-	  file.setUploadController(uploadController);
+	}
+
+	function _setRemoveEvents2(file) {
+	  file.subscribeOnce(FileEvent.REMOVE_ERROR, event => {
+	    const {
+	      error
+	    } = event.getData();
+	    this.emit(UploaderEvent.FILE_ERROR, {
+	      file,
+	      error
+	    });
+	  });
+	  file.subscribeOnce(FileEvent.REMOVE_COMPLETE, () => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _removeFile)[_removeFile](file);
+	  });
+	}
+
+	function _handleBeforeUpload2(event) {
+	  if (this.getStatus() === UploaderStatus.STOPPED) {
+	    event.preventDefault();
+	    this.start();
+	  } else {
+	    if (this.getUploadingFileCount() >= this.getMaxParallelUploads()) {
+	      event.preventDefault();
+	    }
+	  }
+	}
+
+	function _handleFileStatusChange2(event) {
+	  const file = event.getTarget();
+	  this.emit(UploaderEvent.FILE_STATUS_CHANGE, {
+	    file
+	  });
+	}
+
+	function _handleFileStateChange2(event) {
+	  const file = event.getTarget();
+	  const property = event.getData().property;
+	  const value = event.getData().value;
+	  this.emit(UploaderEvent.FILE_STATE_CHANGE, {
+	    file,
+	    property,
+	    value
+	  });
 	}
 
 	function _exceedsMaxFileCount2(fileList) {
@@ -3838,10 +4815,10 @@ this.BX.UI = this.BX.UI || {};
 	    const error = new UploaderError('MAX_FILE_COUNT_EXCEEDED', {
 	      maxFileCount
 	    });
-	    this.emit('onMaxFileCountExceeded', {
+	    this.emit(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, {
 	      error
 	    });
-	    this.emit('onError', {
+	    this.emit(UploaderEvent.ERROR, {
 	      error
 	    });
 	    return true;
@@ -3867,6 +4844,21 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	}
 
+	function _removeFile2(file) {
+	  const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].findIndex(element => element === file);
+
+	  if (index !== -1) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].splice(index, 1);
+	  }
+
+	  file.unsubscribeAll();
+	  this.emit(UploaderEvent.FILE_REMOVE, {
+	    file
+	  });
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _resetHiddenField)[_resetHiddenField](file);
+	}
+
 	function _handleBrowseClick2(input, node) {
 	  const event = new main_core_events.BaseEvent({
 	    data: {
@@ -3874,7 +4866,7 @@ this.BX.UI = this.BX.UI || {};
 	      node
 	    }
 	  });
-	  this.emit('onBeforeBrowse', event);
+	  this.emit(UploaderEvent.BEFORE_BROWSE, event);
 
 	  if (event.isDefaultPrevented()) {
 	    return;
@@ -3897,7 +4889,7 @@ this.BX.UI = this.BX.UI || {};
 	      dragEvent
 	    }
 	  });
-	  this.emit('onBeforeDrop', event);
+	  this.emit(UploaderEvent.BEFORE_DROP, event);
 
 	  if (event.isDefaultPrevented()) {
 	    return;
@@ -3925,7 +4917,7 @@ this.BX.UI = this.BX.UI || {};
 	      clipboardEvent
 	    }
 	  });
-	  this.emit('onBeforePaste', event);
+	  this.emit(UploaderEvent.BEFORE_PASTE, event);
 
 	  if (event.isDefaultPrevented()) {
 	    return;
@@ -3960,7 +4952,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  if (currentUploads === 0 && pendingUploads === 0) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1] = UploaderStatus.STOPPED;
-	    this.emit('onUploadComplete');
+	    this.emit(UploaderEvent.UPLOAD_COMPLETE);
 	  }
 	}
 
@@ -3981,62 +4973,6 @@ this.BX.UI = this.BX.UI || {};
 	      pendingFile.load();
 	    }
 	  }
-	}
-
-	function _handleBeforeUpload2(event) {
-	  if (this.getStatus() === UploaderStatus.STOPPED) {
-	    event.preventDefault();
-	    this.start();
-	  } else {
-	    if (this.getUploadingFileCount() >= this.getMaxParallelUploads()) {
-	      event.preventDefault();
-	    }
-	  }
-	}
-
-	function _handlePrepareFileAsync2(event) {
-	  return new Promise((resolve, reject) => {
-	    const {
-	      file
-	    } = event.getData();
-
-	    babelHelpers.classPrivateFieldLooseBase(this, _applyFilters)[_applyFilters](FilterType.PREPARATION, file).then(transformedFile => {
-	      if (main_core.Type.isFile(transformedFile)) {
-	        resolve(transformedFile);
-	      } else {
-	        resolve(file);
-	      }
-	    }).catch(error => reject(error));
-	  });
-	}
-
-	function _handleUploadStart2(event) {
-	  const file = event.getTarget();
-	  this.emit('File:onUploadStart', {
-	    file
-	  });
-	}
-
-	function _handleFileCancel2(event) {
-	  const file = event.getTarget();
-	  this.emit('File:onCancel', {
-	    file
-	  });
-	  this.removeFile(file);
-	}
-
-	function _handleFileStatusChange2(event) {
-	  const file = event.getTarget();
-	  this.emit('File:onStatusChange', {
-	    file
-	  });
-	}
-
-	function _handleFileStateChange2(event) {
-	  const file = event.getTarget();
-	  this.emit('File:onStateChange', {
-	    file
-	  });
 	}
 
 	function _setHiddenField2(file) {
@@ -4068,12 +5004,12 @@ this.BX.UI = this.BX.UI || {};
 	      position: 'absolute',
 	      'pointer-events': 'none'
 	    });
-	    assignFileToInput(input, file.getFile());
+	    assignFileToInput(input, file.getBinary());
 	  } else if (file.getServerId() !== null) {
 	    input.value = file.getServerId();
 	  }
 
-	  container.appendChild(input);
+	  main_core.Dom.append(input, container);
 
 	  babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields].set(file.getId(), input);
 
@@ -4090,6 +5026,13 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
+	function _resetHiddenFields2() {
+	  Array.from(babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields].values()).forEach(input => {
+	    main_core.Dom.remove(input);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields] = [];
+	}
+
 	function _syncInputPositions2() {
 	  const container = this.getHiddenFieldsContainer();
 
@@ -4097,11 +5040,11 @@ this.BX.UI = this.BX.UI || {};
 	    return;
 	  }
 
-	  babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].forEach(file => {
+	  this.getFiles().forEach(file => {
 	    const input = babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields].get(file.getId());
 
 	    if (input) {
-	      container.appendChild(input);
+	      main_core.Dom.append(input, container);
 	    }
 	  });
 	}
@@ -4128,7 +5071,7 @@ this.BX.UI = this.BX.UI || {};
 
 	var _handleError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleError");
 
-	var _handleUploadStart$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleUploadStart");
+	var _handleUploadStart = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleUploadStart");
 
 	var _handleUploadComplete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleUploadComplete");
 
@@ -4138,8 +5081,8 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _handleUploadComplete, {
 	      value: _handleUploadComplete2
 	    });
-	    Object.defineProperty(this, _handleUploadStart$1, {
-	      value: _handleUploadStart2$1
+	    Object.defineProperty(this, _handleUploadStart, {
+	      value: _handleUploadStart2
 	    });
 	    Object.defineProperty(this, _handleError, {
 	      value: _handleError2
@@ -4181,7 +5124,7 @@ this.BX.UI = this.BX.UI || {};
 	      'File:onRemove': babelHelpers.classPrivateFieldLooseBase(this, _handleFileRemove)[_handleFileRemove].bind(this),
 	      'File:onStateChange': babelHelpers.classPrivateFieldLooseBase(this, _handleFileStateChange$1)[_handleFileStateChange$1].bind(this),
 	      'onError': babelHelpers.classPrivateFieldLooseBase(this, _handleError)[_handleError].bind(this),
-	      'onUploadStart': babelHelpers.classPrivateFieldLooseBase(this, _handleUploadStart$1)[_handleUploadStart$1].bind(this),
+	      'onUploadStart': babelHelpers.classPrivateFieldLooseBase(this, _handleUploadStart)[_handleUploadStart].bind(this),
 	      'onUploadComplete': babelHelpers.classPrivateFieldLooseBase(this, _handleUploadComplete)[_handleUploadComplete].bind(this)
 	    };
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploader$1)[_uploader$1] = new ui_uploader_core.Uploader(options);
@@ -4260,7 +5203,7 @@ this.BX.UI = this.BX.UI || {};
 	  this.emit('Uploader:onError', event);
 	}
 
-	function _handleUploadStart2$1(event) {
+	function _handleUploadStart2(event) {
 	  this.emit('Uploader:onUploadStart', event);
 	}
 
@@ -4383,16 +5326,14 @@ this.BX.UI = this.BX.UI || {};
 	    this.uploaderError = this.adapter.getUploaderError();
 	  },
 
-	  mounted() {
-	    if (!this.uploader.getHiddenFieldsContainer()) {
-	      this.uploader.setHiddenFieldsContainer(this.$el);
-	    }
+	  unmounted() {
+	    this.uploader.destroy();
 	  }
 
 	};
 
-	const isImage = file => {
-	  return /^image\/[a-z0-9.-]+$/i.test(file.type);
+	const isImage = blob => {
+	  return /^image\/[a-z0-9.-]+$/i.test(blob.type);
 	};
 
 	const Marker$1 = {
@@ -4460,8 +5401,8 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	};
 
-	const isJpeg = file => {
-	  return /^image\/jpeg$/i.test(file.type);
+	const isJpeg = blob => {
+	  return /^image\/jpeg$/i.test(blob.type);
 	};
 
 
@@ -4491,14 +5432,17 @@ this.BX.UI = this.BX.UI || {};
 
 	exports.Uploader = Uploader;
 	exports.UploaderStatus = UploaderStatus;
+	exports.UploaderEvent = UploaderEvent;
 	exports.FileStatus = FileStatus;
 	exports.FileOrigin = FileOrigin;
+	exports.FileEvent = FileEvent;
 	exports.FilterType = FilterType;
 	exports.Helpers = index;
 	exports.UploaderError = UploaderError;
 	exports.VueUploaderAdapter = VueUploaderAdapter;
 	exports.VueUploaderWidget = VueUploaderWidget;
 	exports.VueUploaderComponent = VueUploaderComponent;
+	exports.Server = Server;
 
-}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX,BX.Event,BX.UI.Uploader,BX.Vue3));
+}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Event,BX.UI.Uploader,BX.Vue3,BX));
 //# sourceMappingURL=ui.uploader.bundle.js.map

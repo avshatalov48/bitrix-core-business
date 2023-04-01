@@ -116,7 +116,6 @@ $cardParameters = [
 	'containerId' => $containerId,
 	'tabContainerId' => $tabContainerId,
 	'tabMenuContainerId' => $tabMenuContainerId,
-	'serviceUrl' => $arResult['SERVICE_URL'],
 	'creationPropertyUrl' => $arResult['UI_CREATION_PROPERTY_URL'],
 	'creationVariationPropertyUrl' => $arResult['UI_CREATION_SKU_PROPERTY_URL'],
 	'variationGridId' => $arResult['VARIATION_GRID_ID'],

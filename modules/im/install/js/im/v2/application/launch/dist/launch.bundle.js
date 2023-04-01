@@ -6,10 +6,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	const ApplicationLauncher = function (app, params = {}) {
 	  var _BX, _BX$Runtime;
-
 	  let application = '';
 	  let name = '';
-
 	  if (typeof app === 'object') {
 	    name = app.name.toString();
 	    application = app.application.toString();
@@ -17,14 +15,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    name = app.toString();
 	    application = app;
 	  }
-
 	  application = application.slice(0, 1).toUpperCase() + application.slice(1);
-
 	  if (application === 'Launch' || application === 'Core' || application.endsWith('Application')) {
 	    im_v2_lib_logger.Logger.error('BX.Messenger.Application.Launch: specified name is forbidden.');
 	    return Promise.reject();
 	  }
-
 	  const launch = function () {
 	    try {
 	      BX.Messenger.v2.Application[name] = new BX.Messenger.v2.Application[`${application}Application`](params);
@@ -34,12 +29,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return false;
 	    }
 	  };
-
 	  if (!BX.Messenger.v2.Application[`${application}Application`] && (_BX = BX) != null && (_BX$Runtime = _BX.Runtime) != null && _BX$Runtime.loadExtension) {
 	    const loadExtension = `im.application.${application.toString().toLowerCase()}`;
 	    return BX.Runtime.loadExtension(loadExtension).then(() => launch());
 	  }
-
 	  return launch();
 	};
 

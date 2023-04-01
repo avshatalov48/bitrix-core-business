@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main;
 use Bitrix\Main\Context;
@@ -48,11 +48,13 @@ $PROP = array(); // initial value
 $MENU_SECTION_ID = 0;
 $find_section_section = 0;
 if (isset($_REQUEST['find_section_section']) && is_string($_REQUEST['find_section_section']))
+{
 	$find_section_section = (int)$_REQUEST['find_section_section'];
+}
 
 const MODULE_ID = "iblock";
 const ENTITY = "CIBlockDocument";
-define("DOCUMENT_TYPE", "iblock_".$IBLOCK_ID);
+define("DOCUMENT_TYPE", "iblock_" . $IBLOCK_ID);
 
 $bCustomForm = false;
 $customFormFile = '';
@@ -78,28 +80,36 @@ $urlBuilder->setUrlParams(array());
 /* autocomplete */
 $strLookup = (isset($_REQUEST['lookup']) && is_string($_REQUEST['lookup']) ? preg_replace("/[^a-zA-Z0-9_:]/", "", $_REQUEST['lookup']) : '');
 if ($strLookup != '')
+{
 	define('BT_UT_AUTOCOMPLETE', 1);
+}
 $bAutocomplete = defined('BT_UT_AUTOCOMPLETE') && (BT_UT_AUTOCOMPLETE == 1);
 
 /* property ajax */
 $bPropertyAjax = (isset($_REQUEST["ajax_action"]) && $_REQUEST["ajax_action"] === "section_property");
 if ($bPropertyAjax)
+{
 	CUtil::JSPostUnescape();
+}
 
 $strWarning = '';
 $bVarsFromForm = false;
 
-$ID = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0); //ID of the persistent record
+$ID = (int)($_REQUEST['ID'] ?? 0); //ID of the persistent record
 
 /* copy element */
 $bCopy = false;
 $copyID = 0;
 if (!$bAutocomplete)
-	$bCopy = (isset($_REQUEST['action']) && $_REQUEST["action"] == "copy");
-$copyID = (isset($_REQUEST['copyID']) ? (int)$_REQUEST['copyID'] : 0);
+{
+	$bCopy = (isset($_REQUEST['action']) && $_REQUEST["action"] === "copy");
+}
+$copyID = (int)$request->get('copyID');
 
 if ($ID <= 0 && isset($PID) && (int)$PID > 0)
+{
 	$ID = (int)$PID;
+}
 
 $PREV_ID = (int)$request->get('PREV_ID');
 
@@ -176,7 +186,7 @@ if(($ID <= 0 || $bCopy) && $bWorkflow)
 elseif(!$bWorkflow)
 	$WF = "N";
 else
-	$WF = ($_REQUEST["WF"] === "Y")? "Y": "N";
+	$WF = ($request->get("WF") === "Y")? "Y": "N";
 
 $view = (string)$request->get('view');
 $historyId = 0;
@@ -973,29 +983,50 @@ do{ //one iteration loop
 				{
 					$bs = new CIBlockElement;
 
+					if (array_key_exists('PREVIEW_PICTURE', $_FILES))
+					{
+						$pictureFile = $_FILES['PREVIEW_PICTURE'];
+					}
+					else
+					{
+						$pictureFile = $_REQUEST['PREVIEW_PICTURE'] ?? null;
+					}
 					$arPREVIEW_PICTURE = CIBlock::makeFileArray(
-						array_key_exists("PREVIEW_PICTURE", $_FILES)? $_FILES["PREVIEW_PICTURE"]: $_REQUEST["PREVIEW_PICTURE"],
-						${"PREVIEW_PICTURE_del"} === "Y",
-						${"PREVIEW_PICTURE_descr"}
+						$pictureFile,
+						$request->getPost('PREVIEW_PICTURE_del') === 'Y',
+						$request->getPost('PREVIEW_PICTURE_descr')
 					);
-					if ($arPREVIEW_PICTURE["error"] == 0)
-						$arPREVIEW_PICTURE["COPY_FILE"] = "Y";
+					if ($arPREVIEW_PICTURE['error'] === 0)
+					{
+						$arPREVIEW_PICTURE['COPY_FILE'] = 'Y';
+					}
 
+					if (array_key_exists('DETAIL_PICTURE', $_FILES))
+					{
+						$pictureFile = $_FILES['DETAIL_PICTURE'];
+					}
+					else
+					{
+						$pictureFile = $_REQUEST['DETAIL_PICTURE'] ?? null;
+					}
 					$arDETAIL_PICTURE = CIBlock::makeFileArray(
-						array_key_exists("DETAIL_PICTURE", $_FILES)? $_FILES["DETAIL_PICTURE"]: $_REQUEST["DETAIL_PICTURE"],
-						${"DETAIL_PICTURE_del"} === "Y",
-						${"DETAIL_PICTURE_descr"}
+						$pictureFile,
+						$request->getPost('DETAIL_PICTURE_del') === 'Y',
+						$request->getPost('DETAIL_PICTURE_descr')
 					);
-					if ($arDETAIL_PICTURE["error"] == 0)
-						$arDETAIL_PICTURE["COPY_FILE"] = "Y";
+					if ($arDETAIL_PICTURE['error'] === 0)
+					{
+						$arDETAIL_PICTURE['COPY_FILE'] = 'Y';
+					}
+					unset($pictureFile);
 
 					$arFields = array(
 						"ACTIVE" => ($_POST["ACTIVE"] ?? 'N'),
 						"MODIFIED_BY" => $USER->GetID(),
 						"IBLOCK_ID" => $IBLOCK_ID,
-						"ACTIVE_FROM" => $_POST["ACTIVE_FROM"],
-						"ACTIVE_TO" => $_POST["ACTIVE_TO"],
-						"SORT" => $_POST["SORT"],
+						"ACTIVE_FROM" => ($_POST["ACTIVE_FROM"] ?? ''),
+						"ACTIVE_TO" => ($_POST["ACTIVE_TO"] ?? ''),
+						"SORT" => ($_POST["SORT"] ?? null),
 						"NAME" => $_POST["NAME"],
 						"CODE" => trim($_POST["CODE"], " \t\n\r"),
 						"TAGS" => $_POST["TAGS"],
@@ -1419,7 +1450,7 @@ do{ //one iteration loop
 						LocalRedirect($saveUrl);
 					}
 				}
-				elseif($save_and_add <> '')
+				elseif ($request->getPost('save_and_add') !== null)
 				{
 					$params = array(
 						"WF" => ($WF=="Y"? "Y": null),
@@ -3893,8 +3924,14 @@ endif;
 
 }
 if ($bAutocomplete)
+{
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
+}
 elseif ($bPropertyAjax)
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+{
+	require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin_js.php");
+}
 else
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+{
+	require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
+}

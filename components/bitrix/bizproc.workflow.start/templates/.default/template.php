@@ -64,7 +64,7 @@ elseif ($arResult["SHOW_MODE"] == "WorkflowParameters")
 						$arParams["DOCUMENT_TYPE"],
 						$arParameter,
 						array("Form" => "start_workflow_form1", "Field" => $parameterKey),
-						$arResult["PARAMETERS_VALUES"][$parameterKey],
+						$arResult["PARAMETERS_VALUES"][$parameterKey] ?? null,
 						false,
 						true
 					);

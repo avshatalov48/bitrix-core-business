@@ -32,11 +32,16 @@ $getTileLayout = function (array $tile = [])
 		? ''
 		: 'color: ' . htmlspecialcharsbx($tile['color']) . ';';
 
+	$comingSoon = $tile['comingSoon'] ?? false;
+	$badgeNew = $tile['badgeNew'] ?? false;
+	$button = $tile['button'] ?? false;
+	$buttonName = $tile['data']['buttonName'] ?? '';
+
 	ob_start();
 	?>
 	<div data-role="tile/item"
 		data-id="<?=$id?>"
-		class="ui-tile-list-item<? if ($tile['comingSoon']):?> ui-tile-list-item-disabled<?endif?>"
+		class="ui-tile-list-item<? if ($comingSoon):?> ui-tile-list-item-disabled<?endif?>"
 		style="<?=$bgcolor?>"
 	>
 		<div class="ui-tile-list-logo-container">
@@ -47,17 +52,17 @@ $getTileLayout = function (array $tile = [])
 		<div class="ui-tile-list-name">
 			<span data-role="tile/item/name" class="ui-tile-list-name-text" title="<?=$name?>" style="<?=$color?>"><?=$name?></span>
 		</div>
-		<? if ($tile['badgeNew']): ?>
+		<? if ($badgeNew): ?>
 		<div class="ui-tile-badge ui-tile-badge--new"><?=Loc::getMessage('UI_TILE_LIST_NEW')?></div>
 		<? endif ?>
-		<? if ($tile['comingSoon']): ?>
+		<? if ($comingSoon): ?>
 		<div class="ui-tile-list-label">
 			<span class="ui-tile-list-label-text"><?=Loc::getMessage('UI_TILE_LIST_COMMING_SOON')?></span>
 		</div>
 		<? endif ?>
-		<? if ($tile['button']): ?>
+		<? if ($button): ?>
 		<div class="ui-tile-list-btn-block">
-			<button class="ui-btn ui-btn-primary"><?=$tile['data']['buttonName']?></button>
+			<button class="ui-btn ui-btn-primary"><?=$buttonName?></button>
 		</div>
 		<? endif ?>
 	</div>

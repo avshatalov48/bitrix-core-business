@@ -518,7 +518,7 @@ class CBXFavUrls
 		{
 			foreach ($arUrl1["ar_query"] as $valName => $value)
 			{
-				if($arUrl1["ar_query"][$valName] != $arUrl2["ar_query"][$valName])
+				if (!isset($arUrl2["ar_query"][$valName]) || $arUrl1["ar_query"][$valName] != $arUrl2["ar_query"][$valName])
 				{
 					if(!empty($arReqVals))
 					{

@@ -338,8 +338,10 @@ function _RecFindParams($act, $arFilter)
 			$resultTmp = [];
 			foreach($arAllActivities[$value['Type']]['ADDITIONAL_RESULT'] as $propertyKey)
 			{
-				if(!is_array($value['Properties'][$propertyKey]))
+				if (!isset($value['Properties'][$propertyKey]) || !is_array($value['Properties'][$propertyKey]))
+				{
 					continue;
+				}
 
 				foreach($value['Properties'][$propertyKey] as $fieldId => $fieldData)
 				{

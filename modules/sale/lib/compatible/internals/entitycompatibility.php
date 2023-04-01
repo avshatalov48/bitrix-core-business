@@ -105,7 +105,6 @@ abstract class EntityCompatibility
 	 */
 	public static function getList($sort = array(), $filter = array(), $group = null, $nav = array(), $select = array(), $callback = false)
 	{
-		/** @var EntityCompatibility $compatibility */
 		$compatibility = new static();
 		return static::setGetListParameters($compatibility, $sort, $filter, $group, $nav, $select, $callback);
 	}
@@ -242,7 +241,7 @@ abstract class EntityCompatibility
 
 		foreach($select as $fieldName)
 		{
-			$fieldName = ToUpper($fieldName);
+			$fieldName = mb_strtoupper($fieldName);
 			if (!in_array($fieldName, $this->getQueryAliasList()))
 			{
 				if (isset($aliasFields[$fieldName]))

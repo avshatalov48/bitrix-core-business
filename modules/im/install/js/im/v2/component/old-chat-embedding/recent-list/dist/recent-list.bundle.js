@@ -4,6 +4,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_oldChatEmbedding_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
+	// @vue/component
 	const NewUserPopup = {
 	  name: 'NewUserPopup',
 	  props: {
@@ -17,42 +18,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	  },
 	  emits: ['click', 'close'],
-
 	  mounted() {
 	    BX.MessengerProxy.playNewUserSound();
 	    this.setCloseTimer(5000);
 	    this.onClosePopupHandler = this.onClosePopup.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.closePopup, this.onClosePopupHandler);
 	  },
-
 	  beforeUnmount() {
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.closePopup, this.onClosePopupHandler);
 	  },
-
 	  methods: {
 	    onClick() {
 	      this.$emit('click');
 	      this.$emit('close');
 	    },
-
 	    onMouseOver() {
 	      clearTimeout(this.closeTimeout);
 	    },
-
 	    onMouseLeave() {
 	      this.setCloseTimer(2000);
 	    },
-
 	    setCloseTimer(time) {
 	      this.closeTimeout = setTimeout(() => {
 	        this.$emit('close');
 	      }, time);
 	    },
-
 	    onClosePopup() {
 	      this.$emit('close');
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -87,183 +80,142 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      required: true
 	    }
 	  },
-
 	  data() {
 	    return {
 	      showNewUserPopup: false
 	    };
 	  },
-
 	  computed: {
 	    AvatarSize: () => im_v2_const.AvatarSize,
-
 	    formattedDate() {
 	      if (this.needsBirthdayPlaceholder) {
 	        return this.$Bitrix.Loc.getMessage('IM_RECENT_BIRTHDAY_DATE');
 	      }
-
 	      return this.formatDate(this.item.message.date);
 	    },
-
 	    messageText() {
 	      if (!this.item.message || !this.item.message.text) {
 	        return this.isUser ? this.$store.getters['users/getPosition'](this.item.dialogId) : this.hiddenMessageText;
 	      }
-
 	      return this.$store.getters['recent/getItemText'](this.item.dialogId);
 	    },
-
 	    hiddenMessageText() {
 	      if (this.isUser) {
 	        return this.$store.getters['users/getPosition'](this.item.dialogId);
 	      }
-
 	      if (this.dialog.type === im_v2_const.ChatTypes.open) {
 	        return this.$Bitrix.Loc.getMessage('IM_RECENT_CHAT_TYPE_OPEN');
 	      }
-
 	      return this.$Bitrix.Loc.getMessage('IM_RECENT_CHAT_TYPE_GROUP');
 	    },
-
 	    statusIcon() {
 	      if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder || !this.item.message) {
 	        return '';
 	      }
-
 	      if (this.isSelfChat) {
 	        return '';
 	      }
-
 	      if (this.item.message.status === im_v2_const.MessageStatus.error) {
 	        return 'error';
 	      }
-
 	      if (this.item.liked) {
 	        return 'like';
 	      }
-
 	      if (this.item.message.status === im_v2_const.MessageStatus.delivered) {
 	        return 'read';
 	      }
-
 	      return 'unread';
 	    },
-
 	    formattedCounter() {
 	      return this.dialog.counter > 99 ? '99+' : this.dialog.counter;
 	    },
-
 	    user() {
 	      return this.$store.getters['users/get'](this.item.dialogId, true);
 	    },
-
 	    dialog() {
 	      return this.$store.getters['dialogues/get'](this.item.dialogId, true);
 	    },
-
 	    currentUserId() {
 	      return this.$store.state.application.common.userId;
 	    },
-
 	    isUser() {
 	      return this.dialog.type === im_v2_const.ChatTypes.user;
 	    },
-
 	    isChat() {
 	      return !this.isUser;
 	    },
-
 	    isSelfChat() {
 	      return this.isUser && this.user.id === this.currentUserId;
 	    },
-
 	    isBot() {
 	      if (this.isUser) {
 	        return this.user.bot;
 	      }
-
 	      return false;
 	    },
-
 	    isLastMessageAuthor() {
 	      if (!this.item.message) {
 	        return false;
 	      }
-
 	      return this.currentUserId === this.item.message.senderId;
 	    },
-
 	    lastMessageAuthorAvatar() {
 	      const authorDialog = this.$store.getters['dialogues/get'](this.item.message.senderId);
-
 	      if (!authorDialog) {
 	        return '';
 	      }
-
 	      return authorDialog.avatar;
 	    },
-
 	    lastMessageAuthorAvatarStyle() {
 	      return {
 	        backgroundImage: `url('${this.lastMessageAuthorAvatar}')`
 	      };
 	    },
-
 	    isChatMuted() {
 	      if (this.isUser) {
 	        return false;
 	      }
-
 	      const isMuted = this.dialog.muteList.find(element => {
 	        return element === this.currentUserId;
 	      });
 	      return !!isMuted;
 	    },
-
 	    needsBirthdayPlaceholder() {
 	      if (!this.isUser) {
 	        return false;
 	      }
-
 	      return this.$store.getters['recent/needsBirthdayPlaceholder'](this.item.dialogId);
 	    },
-
 	    showBirthdays() {
 	      return this.$store.getters['recent/getOption'](im_v2_const.RecentSettings.showBirthday);
 	    },
-
 	    showLastMessage() {
 	      return this.$store.getters['recent/getOption'](im_v2_const.RecentSettings.showLastMessage);
 	    },
-
 	    invitation() {
 	      return this.item.invitation;
 	    },
-
 	    newUserPopupContainer() {
 	      return `#popup-window-content-bx-im-recent-welcome-${this.item.dialogId}`;
 	    }
-
 	  },
 	  watch: {
 	    invitation(newValue, oldValue) {
 	      if (!this.compactMode) {
 	        return false;
-	      } // invitation accepted, user logged in
+	      }
 
-
+	      // invitation accepted, user logged in
 	      if (oldValue.isActive === true && newValue.isActive === false) {
 	        this.openNewUserPopup();
 	      }
 	    }
-
 	  },
 	  methods: {
 	    openNewUserPopup() {
 	      if (!this.isVisibleOnScreen || BX.MessengerProxy.isSliderOpened()) {
 	        return false;
 	      }
-
 	      this.newUserPopup = this.getNewUserPopup();
 	      this.newUserPopup.show();
 	      this.showNewUserPopup = true;
@@ -275,7 +227,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.newUserPopup.adjustPosition();
 	      });
 	    },
-
 	    getNewUserPopup() {
 	      return main_popup.PopupManager.create({
 	        id: `bx-im-recent-welcome-${this.item.dialogId}`,
@@ -292,25 +243,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	      });
 	    },
-
 	    onNewUserPopupClick(event) {
 	      const target = !this.compactMode || event.altKey ? im_v2_const.OpenTarget.current : im_v2_const.OpenTarget.auto;
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, { ...this.item,
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, {
+	        ...this.item,
 	        target
 	      });
 	    },
-
 	    onNewUserPopupClose() {
 	      this.newUserPopup.close();
 	      this.newUserPopup = null;
 	      this.showNewUserPopup = false;
 	    },
-
 	    formatDate(date) {
 	      const format = [['today', 'H:i'], ['d7', 'D'], ['', 'd.m.Y']];
 	      return BX.date.format(format, date);
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -386,6 +334,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
+	// @vue/component
 	const ActiveCall = {
 	  name: 'ActiveCall',
 	  components: {
@@ -405,37 +354,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  computed: {
 	    RecentCallStatus: () => im_v2_const.RecentCallStatus,
 	    AvatarSize: () => im_v2_const.AvatarSize,
-
 	    chatData() {
 	      return this.item.call.associatedEntity;
 	    },
-
 	    isUser() {
 	      return this.chatData.advanced.chatType === im_v2_const.DialogType.private;
 	    },
-
 	    isTabWithActiveCall() {
 	      return this.getCallController().hasActiveCall();
 	    },
-
 	    avatarStyle() {
 	      return {
 	        backgroundImage: `url(${this.chatData.avatar})`
 	      };
 	    },
-
 	    avatarText() {
 	      return im_v2_lib_utils.Utils.text.getFirstLetters(this.item.name);
 	    },
-
 	    isDarkTheme() {
 	      return this.application.options.darkTheme;
 	    },
-
 	    formattedName() {
 	      return im_v2_lib_utils.Utils.text.htmlspecialcharsback(this.item.name);
 	    },
-
 	    ...ui_vue3_vuex.mapState({
 	      application: state => state.application
 	    })
@@ -445,46 +386,36 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (this.joinMenu) {
 	        this.joinMenu.destroy();
 	      }
-
 	      this.joinMenu = this.getJoinMenu(event);
 	      this.joinMenu.show();
 	    },
-
 	    onHangupClick() {
 	      this.getCallController().leaveCurrentCall();
 	    },
-
 	    onClick(event) {
 	      if (this.item.state === im_v2_const.RecentCallStatus.joined) {
 	        this.getCallController().unfold();
 	        return;
 	      }
-
 	      const item = this.$store.getters['recent/get'](this.item.dialogId);
-
 	      if (!item) {
 	        return;
 	      }
-
 	      this.$emit('click', {
 	        item,
 	        $event: event
 	      });
 	    },
-
 	    onRightClick() {
 	      const item = this.$store.getters['recent/get'](this.item.dialogId);
-
 	      if (!item) {
 	        return;
 	      }
-
 	      this.$emit('contextmenu', {
 	        item,
 	        $event: event
 	      });
 	    },
-
 	    getJoinMenu(event) {
 	      return main_popup.MenuManager.create({
 	        id: 'im-recent-active-call-join-menu',
@@ -506,11 +437,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }]
 	      });
 	    },
-
 	    getCallController() {
 	      return BX.MessengerProxy.getCallController();
 	    }
-
 	  },
 	  template: `
 		<div :data-id="item.dialogId" class="bx-im-recent-item-wrap">
@@ -587,17 +516,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.instance) {
 	      return;
 	    }
-
 	    this.instance = new this($Bitrix);
 	  }
-
 	  constructor($Bitrix) {
 	    this.store = null;
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.initSettings();
 	    this.onSettingsChangeHandler = this.onSettingsChange.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.settingsChange, this.onSettingsChangeHandler);
-
 	    if (im_v2_lib_utils.Utils.platform.isBitrixDesktop() && !main_core.Type.isUndefined(BX.desktop)) {
 	      BX.desktop.addCustomEvent('bxSaveSettings', settings => {
 	        this.onSettingsChangeHandler({
@@ -606,17 +532,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    }
 	  }
-
 	  initSettings() {
 	    if (!BX.MessengerProxy) {
 	      console.error('Im.RecentList: SettingsManager: BX.MessengerProxy is not available');
 	      return false;
 	    }
-
 	    this.initGeneralSettings();
 	    this.initRecentSettings();
 	  }
-
 	  initGeneralSettings() {
 	    const initialSettings = {};
 	    Object.entries(im_v2_const.SettingsMap).forEach(([oldName, name]) => {
@@ -624,7 +547,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    this.store.dispatch('application/setOptions', initialSettings);
 	  }
-
 	  initRecentSettings() {
 	    const initialSettings = {};
 	    Object.entries(im_v2_const.RecentSettingsMap).forEach(([oldName, name]) => {
@@ -632,7 +554,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    this.store.dispatch('recent/setOptions', initialSettings);
 	  }
-
 	  onSettingsChange({
 	    data: event
 	  }) {
@@ -643,7 +564,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (Object.keys(im_v2_const.RecentSettingsMap).includes(name)) {
 	        recentSettings[im_v2_const.RecentSettingsMap[name]] = value;
 	      }
-
 	      if (Object.keys(im_v2_const.SettingsMap).includes(name)) {
 	        generalSettings[im_v2_const.SettingsMap[name]] = value;
 	      }
@@ -651,11 +571,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store.dispatch('application/setOptions', generalSettings);
 	    this.store.dispatch('recent/setOptions', recentSettings);
 	  }
-
 	  destroy() {
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.settingsChange, this.onSettingsChangeHandler);
 	  }
-
 	}
 	SettingsManager.instance = null;
 
@@ -664,25 +582,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!this.instance) {
 	      this.instance = new this();
 	    }
-
 	    return this.instance;
 	  }
-
 	  constructor() {
 	    super();
 	    this.setEventNamespace(BroadcastManager.eventNamespace);
 	    this.init();
 	  }
-
 	  isSupported() {
 	    return !main_core.Type.isUndefined(window.BroadcastChannel) && !im_v2_lib_utils.Utils.platform.isBitrixDesktop();
 	  }
-
 	  init() {
 	    if (!this.isSupported()) {
 	      return;
 	    }
-
 	    this.channel = new BroadcastChannel(BroadcastManager.channelName);
 	    this.channel.addEventListener('message', ({
 	      data: {
@@ -693,18 +606,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.emit(type, data);
 	    });
 	  }
-
 	  sendRecentList(recentData) {
 	    if (!this.isSupported()) {
 	      return;
 	    }
-
 	    this.channel.postMessage({
 	      type: BroadcastManager.events.recentListUpdate,
 	      data: recentData
 	    });
 	  }
-
 	}
 	BroadcastManager.instance = null;
 	BroadcastManager.channelName = 'im-recent';
@@ -718,17 +628,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.instance) {
 	      return;
 	    }
-
 	    this.instance = new this($Bitrix);
 	  }
-
 	  constructor($Bitrix) {
 	    this.store = null;
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.onCallCreatedHandler = this.onCallCreated.bind(this);
 	    main_core_events.EventEmitter.subscribe('CallEvents::callCreated', this.onCallCreatedHandler);
 	  }
-
 	  onCallCreated(event) {
 	    const {
 	      call
@@ -743,7 +650,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      state: im_v2_const.RecentCallStatus.waiting
 	    });
 	  }
-
 	  onCallJoin(event) {
 	    this.store.dispatch('recent/updateActiveCall', {
 	      dialogId: event.call.associatedEntity.id,
@@ -752,7 +658,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  onCallLeave(event) {
 	    this.store.dispatch('recent/updateActiveCall', {
 	      dialogId: event.call.associatedEntity.id,
@@ -761,17 +666,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  onCallDestroy(event) {
 	    this.store.dispatch('recent/deleteActiveCall', {
 	      dialogId: event.call.associatedEntity.id
 	    });
 	  }
-
 	  destroy() {
 	    main_core_events.EventEmitter.unsubscribe(window, 'CallEvents::callCreated', this.onCallCreatedHandler);
 	  }
-
 	}
 	CallManager.instance = null;
 
@@ -780,10 +682,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.instance) {
 	      return;
 	    }
-
 	    this.instance = new this($Bitrix);
 	  }
-
 	  constructor($Bitrix) {
 	    this.store = null;
 	    this.store = $Bitrix.Data.get('controller').store;
@@ -791,14 +691,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.onSetDraftHandler = this.onSetDraft.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.setDraftMessage, this.onSetDraftHandler);
 	  }
-
 	  initDraftHistory() {
 	    const history = BX.MessengerProxy.getTextareaHistory();
 	    Object.entries(history).forEach(([dialogId, text]) => {
 	      this.setDraftMessage(dialogId, text);
 	    });
 	  }
-
 	  onSetDraft({
 	    data: {
 	      dialogId,
@@ -807,18 +705,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }) {
 	    this.setDraftMessage(dialogId, text);
 	  }
-
 	  setDraftMessage(dialogId, text) {
 	    this.store.dispatch('recent/draft', {
 	      id: dialogId,
 	      text
 	    });
 	  }
-
 	  destroy() {
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.setDraftMessage, this.onSetDraftHandler);
 	  }
-
 	}
 	DraftManager.instance = null;
 
@@ -827,16 +722,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.instance) {
 	      return;
 	    }
-
 	    this.instance = new this($Bitrix);
 	  }
-
 	  constructor($Bitrix) {
 	    this.store = null;
 	    this.store = $Bitrix.Data.get('controller').store;
 	    this.subscribeToEvents();
 	  }
-
 	  subscribeToEvents() {
 	    this.onSetCounterHandler = this.onSetCounter.bind(this);
 	    this.onSetMessageHandler = this.onSetMessage.bind(this);
@@ -851,7 +743,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.clearLike, this.onClearLikeHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.clearHistory, this.onClearHistoryHandler);
 	  }
-
 	  onSetCounter({
 	    data: {
 	      dialogId,
@@ -860,11 +751,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }) {
 	    const recentItem = this.store.getters['recent/get'](dialogId);
 	    const dialog = this.store.getters['dialogues/get'](dialogId);
-
 	    if (!recentItem || !dialog) {
 	      return false;
 	    }
-
 	    this.store.dispatch('dialogues/update', {
 	      dialogId: dialogId,
 	      fields: {
@@ -872,7 +761,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  onSetMessage({
 	    data: {
 	      id,
@@ -883,15 +771,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }) {
 	    const recentItem = this.store.getters['recent/get'](dialogId);
 	    const dialog = this.store.getters['dialogues/get'](dialogId);
-
 	    if (!recentItem || !dialog) {
 	      return false;
 	    }
-
 	    if (id && !id.toString().startsWith('temp') && id !== recentItem.message.id) {
 	      return false;
 	    }
-
 	    this.store.dispatch('recent/update', {
 	      id: dialogId,
 	      fields: {
@@ -905,23 +790,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  onHideChat({
 	    data: {
 	      dialogId
 	    }
 	  }) {
 	    const recentItem = this.store.getters['recent/get'](dialogId);
-
 	    if (!recentItem) {
 	      return false;
 	    }
-
 	    this.store.dispatch('recent/delete', {
 	      id: dialogId
 	    });
 	  }
-
 	  onLeaveChat({
 	    data: {
 	      dialogId
@@ -933,53 +814,45 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  onClearLike({
 	    data: {
 	      dialogId
 	    }
 	  }) {
 	    const recentItem = this.store.getters['recent/get'](dialogId);
-
 	    if (!recentItem || !recentItem.liked) {
 	      return false;
 	    }
-
 	    this.store.dispatch('recent/like', {
 	      id: dialogId,
 	      liked: false
 	    });
 	  }
-
 	  onClearHistory({
 	    data: {
 	      dialogId
 	    }
 	  }) {
 	    const recentItem = this.store.getters['recent/get'](dialogId);
-
 	    if (!recentItem) {
 	      return false;
 	    }
-
 	    this.store.dispatch('recent/update', {
 	      id: dialogId,
 	      fields: {
-	        message: { ...recentItem.message,
+	        message: {
+	          ...recentItem.message,
 	          text: main_core.Loc.getMessage('IM_RECENT_DELETED_MESSAGE')
 	        }
 	      }
 	    });
 	  }
-
 	  getCurrentUserId() {
 	    return this.store.state.application.common.userId;
 	  }
-
 	  destroy() {
 	    this.unsubscribeEvents();
 	  }
-
 	  unsubscribeEvents() {
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.setCounter, this.onSetCounterHandler);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.setMessage, this.onSetMessageHandler);
@@ -987,10 +860,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.leaveChat, this.onLeaveChatHandler);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.clearLike, this.onClearLikeHandler);
 	  }
-
 	}
 	EventHandler.instance = null;
 
+	// @vue/component
 	const RecentList = {
 	  name: 'RecentList',
 	  components: {
@@ -1003,7 +876,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      mounted(element, binding) {
 	        binding.instance.observer.observe(element);
 	      }
-
 	    }
 	  },
 	  props: {
@@ -1012,37 +884,30 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      default: false
 	    }
 	  },
-
 	  data() {
 	    return {
 	      isLoading: false,
 	      visibleElements: new Set()
 	    };
 	  },
-
 	  computed: {
 	    collection() {
 	      return this.$store.getters['recent/getCollection'];
 	    },
-
 	    sections() {
 	      return [this.pinnedItems, this.generalItems];
 	    },
-
 	    preparedItems() {
 	      const filteredCollection = this.collection.filter(item => {
 	        if (!this.showBirthdays && item.options.birthdayPlaceholder) {
 	          return false;
 	        }
-
 	        const dialog = this.$store.getters['dialogues/get'](item.dialogId, true);
 	        const isUser = dialog.type === im_v2_const.ChatTypes.user;
 	        const hasBirthday = isUser && this.showBirthdays && this.$store.getters['users/hasBirthday'](item.dialogId);
-
 	        if (!this.showInvited && item.options.defaultUserRecord && !hasBirthday) {
 	          return false;
 	        }
-
 	        return true;
 	      });
 	      return [...filteredCollection].sort((a, b) => {
@@ -1051,49 +916,39 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return secondDate - firstDate;
 	      });
 	    },
-
 	    pinnedItems() {
 	      return this.preparedItems.filter(item => {
 	        return item.pinned === true;
 	      });
 	    },
-
 	    generalItems() {
 	      return this.preparedItems.filter(item => {
 	        return item.pinned === false;
 	      });
 	    },
-
 	    isDarkTheme() {
 	      return this.application.options.darkTheme;
 	    },
-
 	    showBirthdays() {
 	      return this.$store.getters['recent/getOption'](im_v2_const.RecentSettings.showBirthday);
 	    },
-
 	    showInvited() {
 	      return this.$store.getters['recent/getOption'](im_v2_const.RecentSettings.showInvited);
 	    },
-
 	    transitionType() {
 	      if (this.compactMode) {
 	        return '';
 	      }
-
 	      if (this.isLoading) {
 	        return '';
 	      }
-
 	      return 'bx-messenger-recent-transition';
 	    },
-
 	    ...ui_vue3_vuex.mapState({
 	      activeCalls: state => state.recent.activeCalls,
 	      application: state => state.application
 	    })
 	  },
-
 	  created() {
 	    this.recentService = im_v2_provider_service.RecentService.getInstance(this.$Bitrix);
 	    this.contextMenuManager = new im_v2_lib_oldChatEmbedding_menu.RecentMenu(this.$Bitrix);
@@ -1105,7 +960,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.managePreloadedList();
 	    this.manageChatOptions();
 	  },
-
 	  mounted() {
 	    this.isLoading = true;
 	    this.recentService.loadFirstPage().then(() => {
@@ -1114,68 +968,59 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    this.initBirthdayCheck();
 	  },
-
 	  beforeUnmount() {
 	    this.contextMenuManager.destroy();
 	    this.clearBirthdayCheck();
 	    this.destroyBroadcastManager();
 	  },
-
 	  methods: {
 	    onScroll(event) {
 	      this.contextMenuManager.close();
-
 	      if (!this.oneScreenRemaining(event) || !this.recentService.hasMoreItemsToLoad) {
 	        return false;
 	      }
-
 	      this.isLoading = true;
 	      this.recentService.loadNextPage().then(() => {
 	        this.isLoading = false;
 	      });
 	    },
-
 	    onClick(item, event) {
 	      const target = !this.compactMode || event.altKey ? im_v2_const.OpenTarget.current : im_v2_const.OpenTarget.auto;
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, { ...item,
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, {
+	        ...item,
 	        chat: this.$store.getters['dialogues/get'](item.dialogId, true),
 	        user: this.$store.getters['users/get'](item.dialogId, true),
 	        target
 	      });
 	    },
-
 	    onRightClick(item, event) {
 	      if (event.altKey && event.shiftKey) {
 	        return;
 	      }
-
 	      const target = !this.compactMode || event.altKey ? im_v2_const.OpenTarget.current : im_v2_const.OpenTarget.auto;
-	      const context = { ...item,
+	      const context = {
+	        ...item,
 	        compactMode: this.compactMode,
 	        target
 	      };
 	      this.contextMenuManager.openMenu(context, event.currentTarget);
 	      event.preventDefault();
 	    },
-
 	    onCallClick({
 	      item,
 	      $event
 	    }) {
 	      this.onClick(item, $event);
 	    },
-
 	    onCallRightClick({
 	      item,
 	      $event
 	    }) {
 	      this.onRightClick(item, $event);
 	    },
-
 	    oneScreenRemaining(event) {
 	      return event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - event.target.clientHeight;
 	    },
-
 	    initObserver() {
 	      this.observer = new IntersectionObserver(entries => {
 	        entries.forEach(entry => {
@@ -1189,21 +1034,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        threshold: [0, 1]
 	      });
 	    },
-
 	    initBroadcastManager() {
 	      this.onRecentListUpdate = event => {
 	        this.recentService.setPreloadedData(event.data);
 	      };
-
 	      this.broadcastManager = BroadcastManager.getInstance();
 	      this.broadcastManager.subscribe(BroadcastManager.events.recentListUpdate, this.onRecentListUpdate);
 	    },
-
 	    destroyBroadcastManager() {
 	      this.broadcastManager = BroadcastManager.getInstance();
 	      this.broadcastManager.unsubscribe(BroadcastManager.events.recentListUpdate, this.onRecentListUpdate);
 	    },
-
 	    initBirthdayCheck() {
 	      const fourHours = 60000 * 60 * 4;
 	      const day = 60000 * 60 * 24;
@@ -1218,37 +1059,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }, day);
 	      }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight() + fourHours);
 	    },
-
 	    clearBirthdayCheck() {
 	      clearTimeout(this.birthdayCheckTimeout);
 	      clearInterval(this.birthdayCheckInterval);
 	    },
-
 	    managePreloadedList() {
 	      const {
 	        preloadedList
 	      } = this.$Bitrix.Application.get().params;
-
 	      if (!preloadedList) {
 	        return false;
 	      }
-
 	      this.recentService.setPreloadedData(preloadedList);
 	      this.broadcastManager.sendRecentList(preloadedList);
 	    },
-
 	    manageChatOptions() {
 	      const {
 	        chatOptions
 	      } = this.$Bitrix.Application.get().params;
-
 	      if (!chatOptions) {
 	        return false;
 	      }
-
 	      this.$store.dispatch('dialogues/setChatOptions', chatOptions);
 	    }
-
 	  },
 	  template: `
 		<div @scroll="onScroll" class="bx-messenger-recent-list" :class="{'bx-messenger-recent-compact': compactMode}" >

@@ -14,7 +14,7 @@ export default class Webp
 		return new Promise((resolve, reject) => {
 			if (file.size < 16)
 			{
-				return resolve(null);
+				return reject(new Error('WEBP signature not found.'));
 			}
 
 			const blob = file.slice(0, 30);
@@ -23,7 +23,7 @@ export default class Webp
 					const view = new DataView(buffer);
 					if (view.getUint32(0) !== RIFF_HEADER && view.getUint32(8) !== WEBP_SIGNATURE)
 					{
-						return resolve(null);
+						return reject(new Error('WEBP signature not found.'));
 					}
 
 					const headerType = view.getUint32(12);
@@ -73,10 +73,10 @@ export default class Webp
 						}
 					}
 
-					resolve(null);
+					reject(new Error('WEBP signature not found.'));
 				})
-				.catch(() => {
-					resolve(null);
+				.catch(error => {
+					reject(error);
 				})
 			;
 		});

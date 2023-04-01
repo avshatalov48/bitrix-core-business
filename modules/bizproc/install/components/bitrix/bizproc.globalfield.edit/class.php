@@ -7,6 +7,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Bizproc;
+use Bitrix\Main\Localization\Loc;
+
 class BizprocGlobalFieldEditComponent extends CBitrixComponent
 {
 	private const VAR_MODE = 'variable';
@@ -34,26 +37,25 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 	{
 		if ($this->mode === self::VAR_MODE)
 		{
-			if (!\Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($id))
+			if (!Bizproc\Workflow\Type\GlobalVar::getById($id))
 			{
-				return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_CREATE');
+				return Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_CREATE');
 			}
 
-			return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_EDIT');
+			return Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_EDIT');
 		}
-		elseif ($this->mode === self::CONST_MODE)
+
+		if ($this->mode === self::CONST_MODE)
 		{
-			if (!\Bitrix\Bizproc\Workflow\Type\GlobalConst::getById($id))
+			if (!Bizproc\Workflow\Type\GlobalConst::getById($id))
 			{
-				return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_CREATE');
+				return Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_CREATE');
 			}
 
-			return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_EDIT');
+			return Loc::getMessage('BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_EDIT');
 		}
-		else
-		{
-			return '';
-		}
+
+		return '';
 	}
 
 	/**
@@ -65,7 +67,7 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 
 		if (!\Bitrix\Main\Loader::includeModule('bizproc'))
 		{
-			static::showError(\Bitrix\Main\Localization\Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
+			static::showError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
 
 			return false;
 		}
@@ -75,7 +77,7 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
 			$id = (string)$this->arParams['~FIELD_ID'];
-			$title = static::getTitle($id);
+			$title = $this->getTitle($id);
 			$APPLICATION->SetTitle($title);
 		}
 
@@ -117,13 +119,10 @@ HTML;
 
 	private function getFieldsTypes(): array
 	{
-		$baseTypes = \Bitrix\Bizproc\FieldType::getBaseTypesMap();
-		unset($baseTypes[\Bitrix\Bizproc\FieldType::INTERNALSELECT]);
-		unset($baseTypes[\Bitrix\Bizproc\FieldType::FILE]);
+		$baseTypes = Bizproc\FieldType::getBaseTypesMap();
+		unset($baseTypes[Bizproc\FieldType::INTERNALSELECT], $baseTypes[Bizproc\FieldType::FILE]);
 
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 		$documentType = $this->arParams['DOCUMENT_TYPE'];
 		$documentTypes = $documentService->GetDocumentFieldTypes($documentType);
 
@@ -131,7 +130,7 @@ HTML;
 
 		foreach ($documentTypes as $key => $value)
 		{
-			if ($key == 'UF:date')
+			if ($key === 'UF:date')
 			{
 				$key = 'date';
 			}
@@ -173,16 +172,15 @@ HTML;
 
 		if ($this->mode === self::VAR_MODE)
 		{
-			return \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityShortNames($documentType);
+			return Bizproc\Workflow\Type\GlobalVar::getVisibilityShortNames($documentType);
 		}
-		elseif ($this->mode === self::CONST_MODE)
+
+		if ($this->mode === self::CONST_MODE)
 		{
-			return \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityShortNames($documentType);
+			return Bizproc\Workflow\Type\GlobalConst::getVisibilityShortNames($documentType);
 		}
-		else
-		{
-			return [];
-		}
+
+		return [];
 	}
 
 	private function getFieldInfo(): array

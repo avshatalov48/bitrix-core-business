@@ -28,7 +28,7 @@ $loaderContainerId = $instanceId.'_loader_container';
 			containerId: '<?=CUtil::JSEscape($containerId)?>',
 			loaderContainerId: '<?=CUtil::JSEscape($loaderContainerId)?>',
 			settings: <?=CUtil::PhpToJSObject($arParams['FILE_SETTINGS'])?>,
-			disabled: <?=Json::encode($arParams['DISABLED'])?>
+			disabled: <?=Json::encode($arParams['DISABLED'] ?? false)?>
 		});
 	});
 </script>
@@ -40,7 +40,7 @@ if (!empty($arParams['LOADER_PREVIEW']))
 	<?php
 }
 
-$disabledClass = $arParams['DISABLED'] ? ' ui-image-input-img--disabled' : '';
+$disabledClass = isset($arParams['DISABLED']) && $arParams['DISABLED'] ? ' ui-image-input-img--disabled' : '';
 ?>
 <div class="ui-image-input-container<?=$disabledClass?>" id="<?=$containerId?>" style="display: none;">
 	<?=$arResult['FILE']->show($arParams['FILE_VALUES'])?>

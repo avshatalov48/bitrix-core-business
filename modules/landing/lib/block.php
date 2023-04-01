@@ -2242,7 +2242,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$styleNodes = [];
 			foreach ($manifest['style']['nodes'] as $selector => $styleNode)
 			{
-				if (!isset($manifest['nodes'][$selector]))
+				if (is_array($styleNode) && !isset($manifest['nodes'][$selector]))
 				{
 					$styleNodes[$selector] = is_array($styleNode['type']) ? $styleNode['type'] : [$styleNode['type']];
 				}
@@ -3202,6 +3202,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			);
 			return false;
 		}
+
+		if (History::isActive())
+		{
+			$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+			$history->push('CHANGE_ANCHOR', [
+				'block' => $this,
+				'valueBefore' => $this->anchor,
+				'valueAfter' => $anchor,
+			]);
+		}
+
 		$this->anchor = $anchor;
 		return true;
 	}
@@ -3326,10 +3337,25 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			);
 		}
 		// save
+		$paramsBefore = $this->dynamicParams;
 		$this->dynamicParams = $sourceParams;
-		Internals\BlockTable::update($this->id, [
+		$resUpdate = Internals\BlockTable::update($this->id, [
 			'SOURCE_PARAMS' => $sourceParams
 		]);
+
+		if ($resUpdate->isSuccess())
+		{
+			if (History::isActive())
+			{
+				$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+				$history->push('UPDATE_DYNAMIC', [
+					'block' => $this,
+					'valueBefore' => $paramsBefore,
+					'valueAfter' => $sourceParams,
+				]);
+			}
+		}
+
 		unset($sourceParams, $params);
 	}
 
@@ -4003,6 +4029,19 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$refChild,
 						false
 					);
+
+					// history before save content
+					if (History::isActive())
+					{
+						$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+						$history->push('ADD_CARD', [
+							'block' => $this,
+							'selector' => $selector,
+							'position' => $position,
+							'content' => $content,
+						]);
+					}
+
 					// cleaning and save
 					if (isset($tmpCardName))
 					{
@@ -4019,6 +4058,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$this->saveContent($doc->saveHTML());
 					}
 				}
+
 				return true;
 			}
 
@@ -4147,8 +4187,21 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$resultList[$position]->getParentNode()->removeChild(
 					$resultList[$position]
 				);
+
+				// history before save!
+				if (History::isActive())
+				{
+					$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+					$history->push('REMOVE_CARD', [
+						'block' => $this,
+						'selector' => $selector,
+						'position' => $position,
+					]);
+				}
+
 				$this->saveContent($doc->saveHTML());
 				Assets\PreProcessing::blockUpdateNodeProcessing($this);
+
 				return true;
 			}
 		}
@@ -4662,11 +4715,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$wrapper = '#' . $this->getAnchor($this->id);
 
 		// find available nodes by manifest from data
-		$styles = array_merge(
-			$manifest['style']['block'],
-			$manifest['style']['nodes']
-		);
-		$styles[$wrapper] = [];
+		$styles = $manifest['style']['nodes'];
+		$styles[$wrapper] = $manifest['style']['block'];
 		foreach ($styles as $selector => $node)
 		{
 			if (isset($data[$selector]))
@@ -4712,6 +4762,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$relativeSelector .= '@' . $pos;
 					}
 
+					$contentBefore = $resultNode->getOuterHTML();
+
 					if ($resultNode)
 					{
 						if ((int)$resultNode->getNodeType() === $resultNode::ELEMENT_NODE)
@@ -4733,8 +4785,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						// inline styles
 						if (!empty($data[$relativeSelector]['style']))
 						{
-							$styles = DOM\StyleInliner::getStyle($resultNode, false);
-							DOM\StyleInliner::setStyle($resultNode, array_merge($styles, $data[$relativeSelector]['style']));
+							$stylesInline = DOM\StyleInliner::getStyle($resultNode, false);
+							DOM\StyleInliner::setStyle(
+								$resultNode,
+								array_merge($stylesInline, $data[$relativeSelector]['style'])
+							);
 						}
 						else
 						{
@@ -4746,6 +4801,19 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 							$resultNode->removeAttribute('style');
 							$resultNode->setAttribute('style', $styleOldContent);
 						}
+					}
+
+					if (History::isActive())
+					{
+						$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+						$history->push('EDIT_STYLE', [
+							'block' => $this,
+							'selector' => $selector,
+							'position' => (int)$pos,
+							'affect' => $data[$relativeSelector]['affect'],
+							'contentBefore' => $contentBefore,
+							'contentAfter' => $resultNode->getOuterHTML(),
+						]);
 					}
 				}
 			}

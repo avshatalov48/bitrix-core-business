@@ -60,10 +60,18 @@ $strError = "";
 $bVarsFromForm = false;
 $bShowForce = false;
 $message = CSecurityIPRule::CheckAntiFile(true);
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].$_REQUEST["activate_iprule"].$_REQUEST["deactivate_iprule"] !="" && $canWrite && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST"
+	&& (isset($_REQUEST["save"]) || isset($_REQUEST["apply"]) || isset($_REQUEST["activate_iprule"]) || isset($_REQUEST["deactivate_iprule"]))
+	&& $canWrite
+	&& check_bitrix_sessid())
 {
 	$ob = new CSecurityIPRule;
+
+	$_REQUEST["activate_iprule"] = $_REQUEST["activate_iprule"] ?? "";
+	$_REQUEST["deactivate_iprule"] = $_REQUEST["deactivate_iprule"] ?? "";
+	$INCL_IPS = array("0.0.0.1-255.255.255.255");
 
 	if(!$_REQUEST["activate_iprule"] && $_REQUEST["deactivate_iprule"])
 	{
@@ -84,7 +92,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 			}
 		}
 		//AND it is not selfblocking rule
-		$INCL_IPS = array("0.0.0.1-255.255.255.255");
 		$selfBlock = $ob->CheckIP($INCL_IPS, $_POST["EXCL_IPS"]);
 	}
 
@@ -134,7 +141,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 
 		if($res)
 		{
-			if($_REQUEST["save"] != "" && $_GET["return_url"]!="")
+			if(isset($_REQUEST["save"]) && $_GET["return_url"]!="")
 				LocalRedirect($_GET["return_url"]);
 
 			$returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";

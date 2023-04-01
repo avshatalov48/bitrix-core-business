@@ -174,7 +174,7 @@ export default class FieldValueElement extends EventEmitter
 					onValueChange: () => {
 						const conditionValue = (
 							inputField.getValue()
-							|| Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY')
+							|| Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY_MSGVER_1')
 						);
 						this.setValueLabelText(conditionValue);
 						this.state.value = inputField.getValue();
@@ -392,7 +392,7 @@ export default class FieldValueElement extends EventEmitter
 			}
 		}
 
-		return Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY');
+		return Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY_MSGVER_1');
 	}
 
 	getValue(): FieldValueState

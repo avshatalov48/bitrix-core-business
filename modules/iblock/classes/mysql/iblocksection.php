@@ -74,7 +74,10 @@ class CIBlockSection extends CAllIBlockSection
 				$permissionsBy = null;
 		}
 		if($bCheckPermissions && ($permissionsBy !== null || !$bIsAdmin))
+		{
+			$arFilter["MIN_PERMISSION"] ??= CIBlockRights::PUBLIC_READ;
 			$arSqlSearch[] = self::_check_rights_sql($arFilter["MIN_PERMISSION"], $permissionsBy);
+		}
 		unset($permissionsBy);
 
 		if (!empty($arFilter["PROPERTY"]) && is_array($arFilter["PROPERTY"]))
@@ -497,7 +500,10 @@ class CIBlockSection extends CAllIBlockSection
 				$permissionsBy = null;
 		}
 		if($bCheckPermissions && ($permissionsBy !== null || !$bIsAdmin))
+		{
+			$arFilter["MIN_PERMISSION"] ??= CIBlockRights::PUBLIC_READ;
 			$arSqlSearch[] = self::_check_rights_sql($arFilter["MIN_PERMISSION"], $permissionsBy);
+		}
 		unset($permissionsBy);
 
 		if(array_key_exists("PROPERTY", $arFilter))

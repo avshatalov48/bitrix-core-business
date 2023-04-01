@@ -92,15 +92,36 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 			PostingRecipientTable::setPersonalizeList($this->arParams['PERSONALIZE_LIST']);
 		}
 
-		$this->arResult['PERSONALIZE_LIST'] = array_merge(
-			Helper::getPersonalizeFieldsFromConnectors($this->arParams['IS_TRIGGER']),
-			PostingRecipientTable::getPersonalizeList()
-		);
+		$this->arResult['PERSONALIZE_LIST'] =
+			array_map(
+				function ($item)
+				{
+					return array(
+						'id' => '#' . ($item['CODE'] ?? '') . '#',
+						'text' => $item['NAME'] ?? '',
+						'title' => $item['DESC'] ?? '',
+						'items' => isset($item['ITEMS']) ? array_map(
+							function ($item)
+							{
+								return array(
+									'id' => '#' . ($item['CODE'] ?? '') . '#',
+									'text' => $item['NAME'] ?? '',
+									'title' => $item['DESC'] ?? ''
+								);
+							}, $item['ITEMS']
+						) : []
+					);
+				},
+				array_merge(
+					Helper::getPersonalizeFieldsFromConnectors($this->arParams['IS_TRIGGER']),
+					PostingRecipientTable::getPersonalizeList()
+				)
+			);
 
 		// template use
 		$this->arResult['TEMPLATE_USED'] = false;
 		$this->arResult['DISPLAY_BLOCK_EDITOR'] = false;
-		if ($this->arParams['TEMPLATE_TYPE'] && $this->arParams['TEMPLATE_ID'])
+		if (isset($this->arParams['TEMPLATE_TYPE']) && $this->arParams['TEMPLATE_ID'])
 		{
 			$isEmptyTemplate = $this->arParams['TEMPLATE_TYPE'] === 'BASE' && $this->arParams['TEMPLATE_ID'] === 'empty';
 			$this->arResult['TEMPLATE_USED'] = !$isEmptyTemplate;
@@ -116,9 +137,9 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 		}
 
 		$url = '';
-		if($this->arResult['DISPLAY_BLOCK_EDITOR'])
+		if(isset($this->arResult['DISPLAY_BLOCK_EDITOR']) && $this->arResult['DISPLAY_BLOCK_EDITOR'])
 		{
-			if($this->arResult['TEMPLATE_USED'])
+			if(isset($this->arResult['TEMPLATE_USED']) && $this->arResult['TEMPLATE_USED'])
 			{
 				$url = CommonAjax\ActionGetTemplate::getRequestingUri(
 					$this->getPath() . '/ajax.php',
@@ -140,18 +161,18 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 		$this->arResult['INPUT_ID'] = 'bxed_' . $this->arParams['INPUT_NAME'];
 
 		$this->arResult['~BLOCK_EDITOR'] = Block\EditorMail::show(array(
-			'id' => $this->arParams['INPUT_NAME'],
-			'charset' => $this->arParams['CHARSET'],
-			'site' => $this->arParams['SITE'],
-			'own_result_id' => $this->arResult['INPUT_ID'],
+			'id' => $this->arParams['INPUT_NAME'] ?? '',
+			'charset' => $this->arParams['CHARSET'] ?? '',
+			'site' => $this->arParams['SITE'] ?? '',
+			'own_result_id' => $this->arResult['INPUT_ID'] ?? '',
 			'url' => $url,
 			'previewUrl' => $previewUrl,
 			'saveFileUrl' => $saveFileUrl,
-			'templateType' => $this->arParams['TEMPLATE_TYPE'],
-			'templateId' => $this->arParams['TEMPLATE_ID'],
-			'isTemplateMode' => $this->arParams['IS_TEMPLATE_MODE'],
-			'isUserHavePhpAccess' => $this->arParams['HAS_USER_ACCESS'],
-			'useLightTextEditor' => $this->arParams['USE_LIGHT_TEXT_EDITOR'],
+			'templateType' => $this->arParams['TEMPLATE_TYPE'] ?? '',
+			'templateId' => $this->arParams['TEMPLATE_ID'] ?? '',
+			'isTemplateMode' => $this->arParams['IS_TEMPLATE_MODE'] ?? '',
+			'isUserHavePhpAccess' => $this->arParams['HAS_USER_ACCESS'] ?? '',
+			'useLightTextEditor' => $this->arParams['USE_LIGHT_TEXT_EDITOR'] ?? '',
 		));
 
 		return true;

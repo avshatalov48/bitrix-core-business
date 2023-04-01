@@ -18,7 +18,7 @@ CUtil::InitJSCore(
  * @var CBitrixComponentTemplate $this
  */
 
-if ($arResult['USE_DISK'])
+if (isset($arResult['USE_DISK']) && $arResult['USE_DISK'])
 {
 	$this->addExternalJs($this->GetFolder().'/disk_uploader.js');
 	$this->addExternalCss('/bitrix/js/disk/css/legacy_uf_common.css');

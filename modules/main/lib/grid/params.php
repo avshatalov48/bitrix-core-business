@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\Grid;
 
@@ -12,11 +12,11 @@ class Params
 	 *
 	 * @return bool|*
 	 */
-	public static function prepareBoolean(array $values = array(), $defaultValue)
+	public static function prepareBoolean(array $values, $defaultValue)
 	{
 		$value = $defaultValue;
 
-		foreach ($values as $key => $item)
+		foreach ($values as $item)
 		{
 			if (is_bool($item))
 			{
@@ -36,11 +36,11 @@ class Params
 	 *
 	 * @return string|*
 	 */
-	public static function prepareString(array $values = array(), $defaultValue)
+	public static function prepareString(array $values, $defaultValue)
 	{
 		$value = $defaultValue;
 
-		foreach ($values as $key => $item)
+		foreach ($values as $item)
 		{
 			if (is_string($item))
 			{
@@ -60,11 +60,11 @@ class Params
 	 *
 	 * @return array|*
 	 */
-	public static function prepareArray(array $values = array(), $defaultValue)
+	public static function prepareArray(array $values, $defaultValue)
 	{
 		$value = $defaultValue;
 
-		foreach ($values as $key => $item)
+		foreach ($values as $item)
 		{
 			if (is_array($item))
 			{
@@ -84,11 +84,11 @@ class Params
 	 *
 	 * @return int|string
 	 */
-	public static function prepareInt(array $values = array(), $defaultValue)
+	public static function prepareInt(array $values, $defaultValue)
 	{
 		$value = $defaultValue;
 
-		foreach ($values as $key => $item)
+		foreach ($values as $item)
 		{
 			if (is_numeric($item))
 			{

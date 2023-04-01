@@ -265,22 +265,22 @@ class ScriptEditComponent
 		const usages = robot.collectUsages();
 		const itemNodes = [];
 
-		if (!usages.Constant.size && !usages.Parameter.size)
-		{
-			return null;
-		}
-
 		if (usages.Constant.size)
 		{
-			itemNodes.push(Tag.render`<div class="bizproc-script-edit-item">
-				<div class="bizproc-script-edit-title">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL')}</div>
-				<div class="bizproc-script-edit-text">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')}</div>
-			</div>`);
-
+			let headPushed = false;
 			usages.Constant.forEach((constId) => {
-				let constant = constants.find((c) => c.Id === constId);
+				const constant = constants.find((c) => c.Id === constId && c.Type !== 'file');
 				if (constant)
 				{
+					if (!headPushed)
+					{
+						itemNodes.push(Tag.render`<div class="bizproc-script-edit-item">
+							<div class="bizproc-script-edit-title">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL')}</div>
+							<div class="bizproc-script-edit-text">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')}</div>
+						</div>`);
+						headPushed = true;
+					}
+
 					itemNodes.push(this.renderPropertyBlock(constant, this.constantPrefix));
 				}
 			});
@@ -288,18 +288,27 @@ class ScriptEditComponent
 
 		if (usages.Parameter.size)
 		{
-			itemNodes.push(Tag.render`<div class="bizproc-script-edit-item">
-				<div class="bizproc-script-edit-title">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL')}</div>
-				<div class="bizproc-script-edit-text">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')}</div>
-			</div>`);
-
+			let headPushed = false;
 			usages.Parameter.forEach((paramId) => {
-				let parameter = parameters.find((p) => p.Id === paramId);
+				const parameter = parameters.find((p) => p.Id === paramId && p.Type !== 'file');
 				if (parameter)
 				{
+					if (!headPushed)
+					{
+						itemNodes.push(Tag.render`<div class="bizproc-script-edit-item">
+							<div class="bizproc-script-edit-title">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL')}</div>
+							<div class="bizproc-script-edit-text">${Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')}</div>
+						</div>`);
+						headPushed = true;
+					}
 					itemNodes.push(this.renderPropertyBlock(parameter, this.parameterPrefix));
 				}
 			});
+		}
+
+		if (!itemNodes.length)
+		{
+			return null;
 		}
 
 		return Tag.render`

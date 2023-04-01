@@ -13,9 +13,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 */
 	var NotificationsApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
+
 	  function NotificationsApplication() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, NotificationsApplication);
 	    this.inited = false;
@@ -40,7 +40,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return _this.initComplete();
 	    });
 	  }
-
 	  babelHelpers.createClass(NotificationsApplication, [{
 	    key: "initPullClient",
 	    value: function initPullClient() {
@@ -65,7 +64,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initCore",
 	    value: function initCore() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        im_application_core.Core.ready().then(function (controller) {
 	          _this2.controller = controller;
@@ -77,13 +75,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initParams",
 	    value: function initParams() {
 	      var _this3 = this;
-
 	      if (this.initCounter) {
 	        this.controller.getStore().dispatch('notifications/setCounter', {
 	          unreadTotal: this.initCounter
 	        });
 	      }
-
 	      this.controller.getStore().subscribe(function (mutation) {
 	        return _this3.eventStoreInteraction(mutation);
 	      });
@@ -95,21 +91,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initComponent",
 	    value: function initComponent(legacy) {
 	      var _this4 = this;
-
 	      if (legacy) {
 	        return new Promise(function (resolve, reject) {
 	          return resolve();
 	        });
 	      }
-
 	      var template;
-
 	      if (this.legacyMode) {
 	        template = '<bx-im-component-notifications/>';
 	      } else {
 	        template = "<div style=\"height: 400px; border: 1px solid #ccc;\">\n\t\t\t\t<bx-im-component-notifications/>\n\t\t\t</div>";
 	      }
-
 	      return this.controller.createVue(this, {
 	        el: this.rootNode,
 	        template: template
@@ -135,13 +127,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        promise.resolve(this);
 	        return promise;
 	      }
-
 	      return this.initPromise;
 	    }
 	    /* endregion 01. Initialize */
-
 	    /* region 02. Event Bus */
-
 	  }, {
 	    key: "emit",
 	    value: function emit(eventName) {
@@ -155,12 +144,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof callback !== 'function') {
 	        return false;
 	      }
-
 	      this.eventBus.$on(eventName, callback);
 	      return true;
-	    }
-	    /* endregion 02. Event Bus */
-
+	    } /* endregion 02. Event Bus */
 	  }, {
 	    key: "hasVueInstance",
 	    value: function hasVueInstance() {

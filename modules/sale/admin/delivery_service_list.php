@@ -138,7 +138,8 @@ if (empty($filter["=CLASS_NAME"]))
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
-	if ($_REQUEST['action_target']=='selected')
+	$action = $_REQUEST['action_target'] ?? '';
+	if ($action === 'selected')
 	{
 		$arID = Array();
 		$params = array(
@@ -528,7 +529,13 @@ if ($saleModulePermissions == "W")
 					continue;
 				}
 
-				$editUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".(intval($filter["=PARENT_ID"]) > 0 ? $filter["=PARENT_ID"] : 0).
+				$filterParentId = 0;
+				if (isset($filter["=PARENT_ID"]))
+				{
+					$filterParentId = (int)$filter["=PARENT_ID"];
+				}
+
+				$editUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".$filterParentId.
 					"&CLASS_NAME=".urlencode($class)."&back_url=".$backUrl;
 				$menu[] = array(
 					"TEXT" => $class::getClassTitle(),

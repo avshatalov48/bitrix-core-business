@@ -4,22 +4,18 @@ this.BX = this.BX || {};
 
 	var ConferenceTextareaHandler = /*#__PURE__*/function (_TextareaHandler) {
 	  babelHelpers.inherits(ConferenceTextareaHandler, _TextareaHandler);
-
 	  function ConferenceTextareaHandler($Bitrix) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ConferenceTextareaHandler);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConferenceTextareaHandler).call(this, $Bitrix));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "application", null);
 	    _this.application = $Bitrix.Application.get();
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ConferenceTextareaHandler, [{
 	    key: "onAppButtonClick",
 	    value: function onAppButtonClick(_ref) {
 	      var event = _ref.data;
-
 	      if (event.appId === 'smile') {
 	        this.application.toggleSmiles();
 	      }
@@ -30,19 +26,15 @@ this.BX = this.BX || {};
 
 	var ConferenceTextareaUploadHandler = /*#__PURE__*/function (_TextareaUploadHandle) {
 	  babelHelpers.inherits(ConferenceTextareaUploadHandler, _TextareaUploadHandle);
-
 	  function ConferenceTextareaUploadHandler() {
 	    babelHelpers.classCallCheck(this, ConferenceTextareaUploadHandler);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConferenceTextareaUploadHandler).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(ConferenceTextareaUploadHandler, [{
 	    key: "addMessageWithFile",
 	    value: function addMessageWithFile(event) {
 	      var _this = this;
-
 	      var message = event.getData();
-
 	      if (!this.getDiskFolderId()) {
 	        this.requestDiskFolderId(message.chatId).then(function () {
 	          _this.addMessageWithFile(event);
@@ -52,7 +44,6 @@ this.BX = this.BX || {};
 	        });
 	        return false;
 	      }
-
 	      message.chatId = this.getChatId();
 	      this.setUploaderCustomHeaders();
 	      this.uploader.addTask({
@@ -70,7 +61,6 @@ this.BX = this.BX || {};
 	      if (!this.uploader.senderOptions.customHeaders) {
 	        this.uploader.senderOptions.customHeaders = {};
 	      }
-
 	      this.uploader.senderOptions.customHeaders['Call-Auth-Id'] = this.getUserHash();
 	      this.uploader.senderOptions.customHeaders['Call-Chat-Id'] = this.getChatId();
 	    }
@@ -148,15 +138,12 @@ this.BX = this.BX || {};
 	    },
 	    processVolume: function processVolume() {
 	      var _this = this;
-
 	      var arr = new Uint8Array(this.analyser.frequencyBinCount);
 	      this.analyser.getByteFrequencyData(arr);
 	      var values = 0;
-
 	      for (var i = 0; i < arr.length; i++) {
 	        values += arr[i];
 	      }
-
 	      var average = values / arr.length;
 	      var oneBarValue = 100 / this.bars.length;
 	      var barsToColor = Math.round(average / oneBarValue);
@@ -187,7 +174,6 @@ this.BX = this.BX || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.$root.$on('setCameraState', function (state) {
 	      _this.onCameraStateChange(state);
 	    });
@@ -222,11 +208,9 @@ this.BX = this.BX || {};
 	      if (this.gettingVideo) {
 	        return this.localize['BX_IM_COMPONENT_CALL_CHECK_DEVICES_GETTING_CAMERA'];
 	      }
-
 	      if (this.userDisabledCamera) {
 	        return this.localize['BX_IM_COMPONENT_CALL_CHECK_DEVICES_DISABLED_CAMERA'];
 	      }
-
 	      return this.localize['BX_IM_COMPONENT_CALL_CHECK_DEVICES_NO_VIDEO'];
 	    },
 	    localize: function localize() {
@@ -242,27 +226,20 @@ this.BX = this.BX || {};
 	  methods: {
 	    getDefaultDevices: function getDefaultDevices() {
 	      var _this2 = this;
-
 	      this.gettingVideo = true;
 	      var constraints = {
 	        audio: true,
 	        video: true
 	      };
-
 	      if (!im_lib_utils.Utils.device.isMobile()) {
 	        constraints.video = {};
 	        constraints.video.width = {
-	          ideal:
-	          /*BX.Call.Hardware.preferHdQuality*/
-	          1280
+	          ideal: /*BX.Call.Hardware.preferHdQuality*/1280
 	        };
 	        constraints.video.height = {
-	          ideal:
-	          /*BX.Call.Hardware.preferHdQuality*/
-	          720
+	          ideal: /*BX.Call.Hardware.preferHdQuality*/720
 	        };
 	      }
-
 	      if (BX.Call.Hardware.defaultCamera) {
 	        this.selectedCamera = BX.Call.Hardware.defaultCamera;
 	        constraints.video = {
@@ -273,7 +250,6 @@ this.BX = this.BX || {};
 	      } else if (Object.keys(BX.Call.Hardware.cameraList).length === 0) {
 	        constraints.video = false;
 	      }
-
 	      if (BX.Call.Hardware.defaultMicrophone) {
 	        this.selectedMic = BX.Call.Hardware.defaultMicrophone;
 	        constraints.audio = {
@@ -282,29 +258,21 @@ this.BX = this.BX || {};
 	          }
 	        };
 	      }
-
 	      navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 	        _this2.gettingVideo = false;
-
 	        _this2.setLocalStream(stream);
-
 	        if (stream.getVideoTracks().length > 0) {
 	          if (!_this2.selectedCamera) {
 	            _this2.selectedCamera = stream.getVideoTracks()[0].getSettings().deviceId;
 	          }
-
 	          _this2.noVideo = false;
-
 	          _this2.playLocalVideo();
-
 	          _this2.getApplication().setSelectedCamera(_this2.selectedCamera);
 	        }
-
 	        if (stream.getAudioTracks().length > 0) {
 	          if (!_this2.selectedMic) {
 	            _this2.selectedMic = stream.getAudioTracks()[0].getSettings().deviceId;
 	          }
-
 	          _this2.getApplication().setSelectedMic(_this2.selectedMic);
 	        }
 	      })["catch"](function (e) {
@@ -314,39 +282,29 @@ this.BX = this.BX || {};
 	    },
 	    getLocalStream: function getLocalStream() {
 	      var _this3 = this;
-
 	      this.gettingVideo = true;
-
 	      if (main_core.Type.isNil(this.selectedCamera) && main_core.Type.isNil(this.selectedMic)) {
 	        return false;
 	      }
-
 	      var constraints = {
 	        video: false,
 	        audio: false
 	      };
-
 	      if (this.selectedCamera && !this.noVideo) {
 	        constraints.video = {
 	          deviceId: {
 	            exact: this.selectedCamera
 	          }
 	        };
-
 	        if (!im_lib_utils.Utils.device.isMobile()) {
 	          constraints.video.width = {
-	            ideal:
-	            /*BX.Call.Hardware.preferHdQuality*/
-	            1280
+	            ideal: /*BX.Call.Hardware.preferHdQuality*/1280
 	          };
 	          constraints.video.height = {
-	            ideal:
-	            /*BX.Call.Hardware.preferHdQuality*/
-	            720
+	            ideal: /*BX.Call.Hardware.preferHdQuality*/720
 	          };
 	        }
 	      }
-
 	      if (this.selectedMic) {
 	        constraints.audio = {
 	          deviceId: {
@@ -354,12 +312,9 @@ this.BX = this.BX || {};
 	          }
 	        };
 	      }
-
 	      navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 	        _this3.gettingVideo = false;
-
 	        _this3.setLocalStream(stream);
-
 	        if (stream.getVideoTracks().length > 0) {
 	          _this3.playLocalVideo();
 	        }
@@ -367,7 +322,6 @@ this.BX = this.BX || {};
 	        _this3.gettingVideo = false;
 	        im_lib_logger.Logger.warn('Getting video from camera error', error);
 	        _this3.noVideo = true;
-
 	        _this3.getApplication().setCameraState(false);
 	      });
 	    },
@@ -388,7 +342,6 @@ this.BX = this.BX || {};
 	      if (!this.mediaStream) {
 	        return;
 	      }
-
 	      this.mediaStream.getTracks().forEach(function (tr) {
 	        return tr.stop();
 	      });
@@ -420,7 +373,6 @@ this.BX = this.BX || {};
 	      if (state) {
 	        this.getLocalStream();
 	      }
-
 	      this.showMic = state;
 	    },
 	    isMobile: function isMobile() {
@@ -437,7 +389,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Error = {
 	  data: function data() {
@@ -526,7 +477,6 @@ this.BX = this.BX || {};
 	    },
 	    onFeedbackSent: function onFeedbackSent() {
 	      var _this = this;
-
 	      setTimeout(function () {
 	        _this.callFeedbackSent = true;
 	      }, 1500);
@@ -540,7 +490,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var PasswordCheck = {
 	  data: function data() {
@@ -574,12 +523,10 @@ this.BX = this.BX || {};
 	    },
 	    checkPassword: function checkPassword() {
 	      var _this = this;
-
 	      if (!this.password || this.checkingPassword) {
 	        this.wrongPassword = true;
 	        return false;
 	      }
-
 	      this.checkingPassword = true;
 	      this.wrongPassword = false;
 	      this.getApplication().checkPassword(this.password)["catch"](function () {
@@ -633,7 +580,6 @@ this.BX = this.BX || {};
 	    },
 	    requestPermissions: function requestPermissions() {
 	      var _this = this;
-
 	      this.getApplication().initHardware().then(function () {
 	        return navigator.mediaDevices.getUserMedia({
 	          audio: true,
@@ -644,7 +590,6 @@ this.BX = this.BX || {};
 	      })["catch"](function (error) {
 	        if (error.name === NOT_ALLOWED_ERROR_CODE) {
 	          _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
-
 	          return false;
 	        } else if (error.name === NOT_FOUND_ERROR_CODE) {
 	          // means there is no camera, request only microphone
@@ -656,18 +601,15 @@ this.BX = this.BX || {};
 	          })["catch"](function (error) {
 	            if (error.name === NOT_ALLOWED_ERROR_CODE) {
 	              _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
-
 	              return false;
 	            }
 	          });
 	        }
-
 	        _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
 	      });
 	    },
 	    setPermissionsRequestedFlag: function setPermissionsRequestedFlag() {
 	      var _this2 = this;
-
 	      this.$nextTick(function () {
 	        return _this2.$store.dispatch('conference/setPermissionsRequested', {
 	          status: true
@@ -690,7 +632,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var MobileChatButton = {
 	  computed: _objectSpread$2({
@@ -728,7 +669,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ConferenceInfo = {
 	  props: {
@@ -746,7 +686,6 @@ this.BX = this.BX || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    if (this.conferenceStarted) {
 	      this.updateConferenceDuration();
 	      this.durationInterval = setInterval(function () {
@@ -816,13 +755,11 @@ this.BX = this.BX || {};
 	  watch: {
 	    conferenceStarted: function conferenceStarted(newValue) {
 	      var _this2 = this;
-
 	      if (newValue === true) {
 	        this.durationInterval = setInterval(function () {
 	          _this2.updateConferenceDuration();
 	        }, 1000);
 	      }
-
 	      this.updateConferenceDuration();
 	    }
 	  },
@@ -831,26 +768,20 @@ this.BX = this.BX || {};
 	      if (!this.conferenceStartDate) {
 	        return false;
 	      }
-
 	      var startDate = this.conferenceStartDate;
 	      var currentDate = new Date();
 	      var durationInSeconds = Math.floor((currentDate - startDate) / 1000);
 	      var minutes = 0;
-
 	      if (durationInSeconds > 60) {
 	        minutes = Math.floor(durationInSeconds / 60);
-
 	        if (minutes < 10) {
 	          minutes = '0' + minutes;
 	        }
 	      }
-
 	      var seconds = durationInSeconds - minutes * 60;
-
 	      if (seconds < 10) {
 	        seconds = '0' + seconds;
 	      }
-
 	      this.conferenceDuration = "".concat(minutes, ":").concat(seconds);
 	      return true;
 	    }
@@ -860,7 +791,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var UserForm = {
 	  data: function data() {
@@ -876,7 +806,6 @@ this.BX = this.BX || {};
 	      if (this.user) {
 	        return this.user.name !== this.localize['BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME'];
 	      }
-
 	      return false;
 	    },
 	    intranetAvatarStyle: function intranetAvatarStyle() {
@@ -885,7 +814,6 @@ this.BX = this.BX || {};
 	          backgroundImage: "url('".concat(this.user.avatar, "')")
 	        };
 	      }
-
 	      return '';
 	    },
 	    logoutLink: function logoutLink() {
@@ -913,20 +841,16 @@ this.BX = this.BX || {};
 	    },
 	    videoModeButtonClasses: function videoModeButtonClasses() {
 	      var classes = ['ui-btn', 'ui-btn-sm', 'ui-btn-primary', 'bx-im-component-call-join-video'];
-
 	      if (!this.getApplication().hardwareInited) {
 	        classes.push('ui-btn-disabled');
 	      }
-
 	      return classes;
 	    },
 	    audioModeButtonClasses: function audioModeButtonClasses() {
 	      var classes = ['ui-btn', 'ui-btn-sm', 'bx-im-component-call-join-audio'];
-
 	      if (!this.getApplication().hardwareInited) {
 	        classes.push('ui-btn-disabled');
 	      }
-
 	      return classes;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
@@ -947,11 +871,9 @@ this.BX = this.BX || {};
 	    },
 	    joinConference: function joinConference(_ref2) {
 	      var video = _ref2.video;
-
 	      if (this.user.extranet && !this.userHasRealName) {
 	        this.setNewName();
 	      }
-
 	      if (!this.conferenceStarted) {
 	        main_core_events.EventEmitter.emit(im_const.EventType.conference.waitForStart);
 	        this.getApplication().setUserReadyToJoin();
@@ -959,7 +881,6 @@ this.BX = this.BX || {};
 	      } else {
 	        var viewerMode = this.isBroadcast && !this.isCurrentUserPresenter;
 	        im_lib_logger.Logger.warn('ready to join call', video, viewerMode);
-
 	        if (viewerMode) {
 	          this.getApplication().joinCall(this.getApplication().preCall.id, {
 	            joinAsViewer: true
@@ -985,7 +906,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$5(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$5(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$5(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ChatHeader = {
 	  created: function created() {
@@ -1026,7 +946,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$6(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$6(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$6(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var WaitingForStart = {
 	  computed: _objectSpread$6({
@@ -1049,7 +968,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$7(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$7(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$7(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$7(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var UserListItem = {
 	  props: {
@@ -1079,7 +997,6 @@ this.BX = this.BX || {};
 	      if (!this.dialog) {
 	        return 0;
 	      }
-
 	      return this.dialog.ownerId;
 	    },
 	    isCurrentUserOwner: function isCurrentUserOwner() {
@@ -1106,7 +1023,6 @@ this.BX = this.BX || {};
 	    },
 	    userInCallCount: function userInCallCount() {
 	      var _this = this;
-
 	      var usersInCall = Object.values(this.call.users).filter(function (user) {
 	        return _this.onlineStates.includes(user.state);
 	      });
@@ -1124,18 +1040,17 @@ this.BX = this.BX || {};
 	    // end statuses
 	    formattedSubtitle: function formattedSubtitle() {
 	      var subtitles = [];
-
 	      if (this.user.id === this.chatOwner) {
 	        subtitles.push(this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_STATUS_OWNER'));
 	      }
-
 	      if (this.user.id === this.currentUser) {
 	        subtitles.push(this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_STATUS_CURRENT_USER'));
-	      } // if (!this.user.extranet && !this.user.isOnline)
+	      }
+
+	      // if (!this.user.extranet && !this.user.isOnline)
 	      // {
 	      // 	subtitles.push(this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_STATUS_OFFLINE'));
 	      // }
-
 
 	      return subtitles.join(', ');
 	    },
@@ -1144,9 +1059,8 @@ this.BX = this.BX || {};
 	    },
 	    menuItems: function menuItems() {
 	      var _this2 = this;
-
-	      var items = []; // for self
-
+	      var items = [];
+	      // for self
 	      if (this.user.id === this.currentUser) {
 	        // self-rename
 	        if (this.isCurrentUserExternal) {
@@ -1154,24 +1068,22 @@ this.BX = this.BX || {};
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME_SELF'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.onRenameStart();
 	            }
 	          });
-	        } // change background
-
-
+	        }
+	        // change background
 	        if (this.isDesktop) {
 	          items.push({
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_CHANGE_BACKGROUND'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.$emit('userChangeBackground');
 	            }
 	          });
 	        }
-	      } // for other users
+	      }
+	      // for other users
 	      else {
 	        // force-rename
 	        if (this.isCurrentUserOwner && this.user.externalAuthId === 'call') {
@@ -1179,26 +1091,22 @@ this.BX = this.BX || {};
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.onRenameStart();
 	            }
 	          });
-	        } // kick
-
-
+	        }
+	        // kick
 	        if (this.isCurrentUserOwner && !this.isUserPresenter) {
 	          items.push({
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_KICK'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.$emit('userKick', {
 	                user: _this2.user
 	              });
 	            }
 	          });
 	        }
-
 	        if (this.isUserInCall && this.userCallStatus.cameraState && this.userInCallCount > 2) {
 	          // pin
 	          if (!this.userCallStatus.pinned) {
@@ -1206,32 +1114,29 @@ this.BX = this.BX || {};
 	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_PIN'),
 	              onclick: function onclick() {
 	                _this2.closeMenu();
-
 	                _this2.$emit('userPin', {
 	                  user: _this2.user
 	                });
 	              }
 	            });
-	          } // unpin
+	          }
+	          // unpin
 	          else {
 	            items.push({
 	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_UNPIN'),
 	              onclick: function onclick() {
 	                _this2.closeMenu();
-
 	                _this2.$emit('userUnpin');
 	              }
 	            });
 	          }
-	        } // open 1-1 chat and profile
-
-
+	        }
+	        // open 1-1 chat and profile
 	        if (this.isDesktop && !this.user.extranet) {
 	          items.push({
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_OPEN_CHAT'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.$emit('userOpenChat', {
 	                user: _this2.user
 	              });
@@ -1241,58 +1146,48 @@ this.BX = this.BX || {};
 	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_OPEN_PROFILE'),
 	            onclick: function onclick() {
 	              _this2.closeMenu();
-
 	              _this2.$emit('userOpenProfile', {
 	                user: _this2.user
 	              });
 	            }
 	          });
-	        } // insert name
-
-
+	        }
+	        // insert name
 	        items.push({
 	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_INSERT_NAME'),
 	          onclick: function onclick() {
 	            _this2.closeMenu();
-
 	            _this2.$emit('userInsertName', {
 	              user: _this2.user
 	            });
 	          }
 	        });
 	      }
-
 	      return items;
 	    },
 	    avatarWrapClasses: function avatarWrapClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-avatar-wrap'];
-
 	      if (this.userCallStatus.talking) {
 	        classes.push('bx-im-component-call-user-list-item-avatar-wrap-talking');
 	      }
-
 	      return classes;
 	    },
 	    avatarClasses: function avatarClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-avatar'];
-
 	      if (!this.user.avatar && this.user.extranet) {
 	        classes.push('bx-im-component-call-user-list-item-avatar-extranet');
 	      } else if (!this.user.avatar && !this.user.extranet) {
 	        classes.push('bx-im-component-call-user-list-item-avatar-default');
 	      }
-
 	      return classes;
 	    },
 	    avatarStyle: function avatarStyle() {
 	      var style = {};
-
 	      if (this.user.avatar) {
 	        style.backgroundImage = "url('".concat(this.user.avatar, "')");
 	      } else if (!this.user.avatar && !this.user.extranet) {
 	        style.backgroundColor = this.user.color;
 	      }
-
 	      return style;
 	    },
 	    isCallStatusPanelNeeded: function isCallStatusPanelNeeded() {
@@ -1304,44 +1199,36 @@ this.BX = this.BX || {};
 	    },
 	    callLeftIconClasses: function callLeftIconClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-left'];
-
 	      if (this.userCallStatus.floorRequestState) {
 	        classes.push('bx-im-component-call-user-list-item-icons-floor-request');
 	      } else if (this.userCallStatus.screenState) {
 	        classes.push('bx-im-component-call-user-list-item-icons-screen');
 	      }
-
 	      return classes;
 	    },
 	    callCenterIconClasses: function callCenterIconClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-center'];
-
 	      if (this.userCallStatus.microphoneState) {
 	        classes.push('bx-im-component-call-user-list-item-icons-mic-on');
 	      } else {
 	        classes.push('bx-im-component-call-user-list-item-icons-mic-off');
 	      }
-
 	      return classes;
 	    },
 	    callRightIconClasses: function callRightIconClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-right'];
-
 	      if (this.userCallStatus.cameraState) {
 	        classes.push('bx-im-component-call-user-list-item-icons-camera-on');
 	      } else {
 	        classes.push('bx-im-component-call-user-list-item-icons-camera-off');
 	      }
-
 	      return classes;
 	    },
 	    bodyClasses: function bodyClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-body'];
-
 	      if (!this.isUserInCall) {
 	        classes.push('bx-im-component-call-user-list-item-body-offline');
 	      }
-
 	      return classes;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
@@ -1361,19 +1248,16 @@ this.BX = this.BX || {};
 	  methods: {
 	    openMenu: function openMenu() {
 	      var _this3 = this;
-
 	      if (this.menuPopup) {
 	        this.closeMenu();
 	        return false;
-	      } //menu for other items
+	      }
 
-
+	      //menu for other items
 	      var existingMenu = main_popup.MenuManager.getMenuById(this.menuId);
-
 	      if (existingMenu) {
 	        existingMenu.destroy();
 	      }
-
 	      this.menuPopup = main_popup.MenuManager.create({
 	        id: this.menuId,
 	        bindElement: this.$refs['user-menu'],
@@ -1395,12 +1279,10 @@ this.BX = this.BX || {};
 	    },
 	    onRenameStart: function onRenameStart() {
 	      var _this4 = this;
-
 	      this.newName = this.user.name;
 	      this.renameMode = true;
 	      this.$nextTick(function () {
 	        _this4.$refs['rename-input'].focus();
-
 	        _this4.$refs['rename-input'].select();
 	      });
 	    },
@@ -1408,19 +1290,18 @@ this.BX = this.BX || {};
 	      //enter
 	      if (event.keyCode === 13) {
 	        this.changeName();
-	      } //escape
+	      }
+	      //escape
 	      else if (event.keyCode === 27) {
 	        this.renameMode = false;
 	      }
 	    },
 	    changeName: function changeName() {
 	      var _this5 = this;
-
 	      if (this.user.name === this.newName.trim() || this.newName === '') {
 	        this.renameMode = false;
 	        return false;
 	      }
-
 	      this.$emit('userChangeName', {
 	        user: this.user,
 	        newName: this.newName
@@ -1441,7 +1322,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$8(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$8(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$8(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$8(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var UserList = {
 	  components: {
@@ -1478,7 +1358,6 @@ this.BX = this.BX || {};
 	    },
 	    usersList: function usersList() {
 	      var _this = this;
-
 	      var users = this.conference.common.users.filter(function (user) {
 	        return !_this.presentersList.includes(user);
 	      });
@@ -1510,11 +1389,9 @@ this.BX = this.BX || {};
 	  methods: {
 	    requestUsers: function requestUsers() {
 	      var _this2 = this;
-
 	      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	          _ref$firstPage = _ref.firstPage,
-	          firstPage = _ref$firstPage === void 0 ? false : _ref$firstPage;
-
+	        _ref$firstPage = _ref.firstPage,
+	        firstPage = _ref$firstPage === void 0 ? false : _ref$firstPage;
 	      this.$Bitrix.RestClient.get().callMethod('im.dialog.users.list', {
 	        'DIALOG_ID': this.application.dialog.dialogId,
 	        'LIMIT': this.usersPerPage,
@@ -1523,13 +1400,10 @@ this.BX = this.BX || {};
 	        im_lib_logger.Logger.warn('Conference: getting next user list result', result.data());
 	        var users = result.data();
 	        _this2.pagesLoaded++;
-
 	        if (users.length < _this2.usersPerPage) {
 	          _this2.hasMoreToLoad = false;
 	        }
-
 	        _this2.$store.dispatch('users/set', users);
-
 	        var usersIds = users.map(function (user) {
 	          return user.id;
 	        });
@@ -1550,24 +1424,19 @@ this.BX = this.BX || {};
 	    },
 	    showUserKickConfirm: function showUserKickConfirm(user) {
 	      var _this3 = this;
-
 	      if (this.userKickConfirm) {
 	        this.userKickConfirm.close();
 	      }
-
 	      var confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_INTRANET_USER_CONFIRM_TEXT');
-
 	      if (user.extranet) {
 	        confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_GUEST_USER_CONFIRM_TEXT');
 	      }
-
 	      this.userKickConfirm = ui_dialogs_messagebox.MessageBox.create({
 	        message: confirmMessage,
 	        modal: true,
 	        buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
 	        onOk: function onOk() {
 	          _this3.kickUser(user);
-
 	          _this3.userKickConfirm.close();
 	        },
 	        onCancel: function onCancel() {
@@ -1578,7 +1447,6 @@ this.BX = this.BX || {};
 	    },
 	    kickUser: function kickUser(user) {
 	      var _this4 = this;
-
 	      this.$store.dispatch('conference/removeUsers', {
 	        users: [user.id]
 	      });
@@ -1587,7 +1455,6 @@ this.BX = this.BX || {};
 	        chat_id: this.application.dialog.chatId
 	      })["catch"](function (error) {
 	        im_lib_logger.Logger.error('Conference: removing user from chat error', error);
-
 	        _this4.$store.dispatch('conference/setUsers', {
 	          users: [user.id]
 	        });
@@ -1595,11 +1462,9 @@ this.BX = this.BX || {};
 	    },
 	    onUserMenuInsertName: function onUserMenuInsertName(_ref3) {
 	      var user = _ref3.user;
-
 	      if (this.rightPanelMode === im_const.ConferenceRightPanelMode.hidden || this.rightPanelMode === im_const.ConferenceRightPanelMode.users) {
 	        this.getApplication().toggleChat();
 	      }
-
 	      this.$nextTick(function () {
 	        main_core_events.EventEmitter.emit(im_const.EventType.textarea.insertText, {
 	          text: "".concat(user.name, ", "),
@@ -1609,9 +1474,8 @@ this.BX = this.BX || {};
 	    },
 	    onUserChangeName: function onUserChangeName(_ref4) {
 	      var _this5 = this;
-
 	      var user = _ref4.user,
-	          newName = _ref4.newName;
+	        newName = _ref4.newName;
 	      var method = user.id === this.userId ? 'im.call.user.update' : 'im.call.user.force.rename';
 	      var oldName = user.name;
 	      this.$store.dispatch('users/update', {
@@ -1627,13 +1491,11 @@ this.BX = this.BX || {};
 	        user_id: user.id
 	      }).then(function () {
 	        im_lib_logger.Logger.warn('Conference: rename completed', user.id, newName);
-
 	        if (oldName === _this5.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME')) {
 	          _this5.getApplication().setUserWasRenamed();
 	        }
 	      })["catch"](function (error) {
 	        im_lib_logger.Logger.error('Conference: renaming error', error);
-
 	        _this5.$store.dispatch('users/update', {
 	          id: user.id,
 	          fields: {
@@ -1664,49 +1526,39 @@ this.BX = this.BX || {};
 	    // Helpers
 	    getLoaderObserver: function getLoaderObserver() {
 	      var _this6 = this;
-
 	      var options = {
 	        root: document.querySelector('.bx-im-component-call-right-users'),
 	        threshold: 0.01
 	      };
-
 	      var callback = function callback(entries, observer) {
 	        entries.forEach(function (entry) {
 	          if (entry.isIntersecting && entry.intersectionRatio > 0.01) {
 	            im_lib_logger.Logger.warn('Conference: UserList: I see loader! Load next page!');
-
 	            _this6.requestUsers();
 	          }
 	        });
 	      };
-
 	      return new IntersectionObserver(callback, options);
 	    },
 	    userSortFunction: function userSortFunction(userA, userB) {
 	      if (userA === this.userId) {
 	        return -1;
 	      }
-
 	      if (userB === this.userId) {
 	        return 1;
 	      }
-
 	      if (this.call.users[userA] && (this.call.users[userA].floorRequestState || this.call.users[userA].screenState)) {
 	        return -1;
 	      }
-
 	      if (this.call.users[userB] && (this.call.users[userB].floorRequestState || this.call.users[userB].screenState)) {
 	        return 1;
 	      }
-
 	      if (this.call.users[userA] && [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected].includes(this.call.users[userA].state)) {
 	        return -1;
 	      }
-
 	      if (this.call.users[userB] && [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected].includes(this.call.users[userB].state)) {
 	        return 1;
 	      }
-
 	      return 0;
 	    },
 	    getApplication: function getApplication() {
@@ -1724,7 +1576,6 @@ this.BX = this.BX || {};
 	        if (vnode.context.loaderObserver) {
 	          vnode.context.loaderObserver.unobserve(element);
 	        }
-
 	        return true;
 	      }
 	    }
@@ -1733,7 +1584,6 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$9(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$9(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$9(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$9(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var UserListHeader = {
 	  computed: _objectSpread$9({
@@ -1744,7 +1594,6 @@ this.BX = this.BX || {};
 	      if (!this.dialog) {
 	        return false;
 	      }
-
 	      return this.dialog.ownerId === this.userId;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
@@ -1767,12 +1616,10 @@ this.BX = this.BX || {};
 	    },
 	    openMenu: function openMenu() {
 	      var _this = this;
-
 	      if (this.menuPopup) {
 	        this.closeMenu();
 	        return false;
 	      }
-
 	      this.menuPopup = main_popup.MenuManager.create({
 	        id: 'bx-im-component-call-user-list-header-popup',
 	        bindElement: this.$refs['user-list-header-menu'],
@@ -1794,27 +1641,22 @@ this.BX = this.BX || {};
 	    },
 	    getMenuItems: function getMenuItems() {
 	      var _this2 = this;
-
 	      var items = [{
 	        text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_HEADER_MENU_COPY_LINK'),
 	        onclick: function onclick() {
 	          _this2.closeMenu();
-
 	          _this2.onMenuCopyLink();
 	        }
 	      }];
-
 	      if (this.isCurrentUserOwner) {
 	        items.push({
 	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_HEADER_MENU_CHANGE_LINK'),
 	          onclick: function onclick() {
 	            _this2.closeMenu();
-
 	            _this2.onMenuChangeLink();
 	          }
 	        });
 	      }
-
 	      return items;
 	    },
 	    onMenuCopyLink: function onMenuCopyLink() {
@@ -1828,7 +1670,6 @@ this.BX = this.BX || {};
 	    },
 	    onMenuChangeLink: function onMenuChangeLink() {
 	      var _this3 = this;
-
 	      var confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_CHANGE_LINK_CONFIRM_TEXT');
 	      this.changeLinkConfirm = ui_dialogs_messagebox.MessageBox.create({
 	        message: confirmMessage,
@@ -1836,7 +1677,6 @@ this.BX = this.BX || {};
 	        buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
 	        onOk: function onOk() {
 	          _this3.changeLink();
-
 	          _this3.changeLinkConfirm.getPopupWindow().destroy();
 	        },
 	        onCancel: function onCancel() {
@@ -1847,10 +1687,8 @@ this.BX = this.BX || {};
 	    },
 	    changeLink: function changeLink() {
 	      var _this4 = this;
-
 	      this.getApplication().changeLink().then(function () {
 	        var notificationText = _this4.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_LINK_CHANGED');
-
 	        BX.UI.Notification.Center.notify({
 	          content: notificationText,
 	          autoHideDelay: 4000
@@ -1867,9 +1705,9 @@ this.BX = this.BX || {};
 	};
 
 	function ownKeys$a(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$a(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$a(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$a(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
+	//const
 	var popupModes = Object.freeze({
 	  preparation: 'preparation'
 	});
@@ -1915,13 +1753,11 @@ this.BX = this.BX || {};
 	    this.initEventHandlers();
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.conference.waitForStart, this.onWaitForStart);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.conference.hideSmiles, this.onHideSmiles);
-
 	    if (this.isMobile()) {
 	      this.setMobileMeta();
 	    } else {
 	      document.body.classList.add('bx-im-application-call-desktop-state');
 	    }
-
 	    if (!this.isDesktop()) {
 	      window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
 	    }
@@ -1930,7 +1766,6 @@ this.BX = this.BX || {};
 	    if (!this.isHttps()) {
 	      this.getApplication().setError(im_const.ConferenceErrorCode.unsafeConnection);
 	    }
-
 	    if (!this.passwordChecked) {
 	      main_core_events.EventEmitter.emit(im_const.EventType.conference.setPasswordFocus);
 	    }
@@ -1966,7 +1801,6 @@ this.BX = this.BX || {};
 	      if (this.user) {
 	        return this.user.name !== this.localize['BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME'];
 	      }
-
 	      return false;
 	    },
 	    rightPanelMode: function rightPanelMode() {
@@ -1974,40 +1808,34 @@ this.BX = this.BX || {};
 	    },
 	    userListClasses: function userListClasses() {
 	      var result = [];
-
 	      if (this.rightPanelMode === 'split') {
 	        result.push('bx-im-component-call-right-top');
 	      } else if (this.rightPanelMode === 'users') {
 	        result.push('bx-im-component-call-right-full');
 	      }
-
 	      return result;
 	    },
 	    userListStyles: function userListStyles() {
 	      if (this.rightPanelMode !== im_const.ConferenceRightPanelMode.split) {
 	        return {};
 	      }
-
 	      return {
 	        height: "".concat(this.rightPanelSplitMode.usersHeight, "%")
 	      };
 	    },
 	    chatClasses: function chatClasses() {
 	      var result = [];
-
 	      if (this.rightPanelMode === 'split') {
 	        result.push('bx-im-component-call-right-bottom');
 	      } else if (this.rightPanelMode === 'chat') {
 	        result.push('bx-im-component-call-right-full');
 	      }
-
 	      return result;
 	    },
 	    chatStyles: function chatStyles() {
 	      if (this.rightPanelMode !== im_const.ConferenceRightPanelMode.split) {
 	        return {};
 	      }
-
 	      return {
 	        height: "".concat(this.rightPanelSplitMode.chatHeight, "%")
 	      };
@@ -2041,18 +1869,15 @@ this.BX = this.BX || {};
 	    },
 	    wrapClasses: function wrapClasses() {
 	      var classes = ['bx-im-component-call-wrap'];
-
 	      if (this.isMobile() && this.isBroadcast && !this.isCurrentUserPresenter && this.isPreparationStep) {
 	        classes.push('bx-im-component-call-mobile-viewer-mode');
 	      }
-
 	      return classes;
 	    },
 	    chatId: function chatId() {
 	      if (this.application) {
 	        return this.application.dialog.chatId;
 	      }
-
 	      return 0;
 	    },
 	    localize: function localize() {
@@ -2075,11 +1900,9 @@ this.BX = this.BX || {};
 	  watch: {
 	    isChatShowed: function isChatShowed(newValue) {
 	      var _this = this;
-
 	      if (this.isMobile()) {
 	        return false;
 	      }
-
 	      if (newValue === true) {
 	        this.$nextTick(function () {
 	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollOnStart, {
@@ -2091,7 +1914,6 @@ this.BX = this.BX || {};
 	    },
 	    rightPanelMode: function rightPanelMode(newValue) {
 	      var _this2 = this;
-
 	      if (newValue === im_const.ConferenceRightPanelMode.chat || newValue === im_const.ConferenceRightPanelMode.split) {
 	        this.$nextTick(function () {
 	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollOnStart, {
@@ -2142,7 +1964,6 @@ this.BX = this.BX || {};
 	      if (!this.getApplication().callView) {
 	        return;
 	      }
-
 	      if (!this.isPreparationStep) {
 	        event.preventDefault();
 	        event.returnValue = '';
@@ -2163,7 +1984,6 @@ this.BX = this.BX || {};
 	      if (this.chatDrag) {
 	        return;
 	      }
-
 	      this.chatDrag = true;
 	      this.chatDragStartPoint = event.clientY;
 	      this.chatDragStartHeight = this.rightPanelSplitMode.chatHeight;
@@ -2173,7 +1993,6 @@ this.BX = this.BX || {};
 	      if (!this.chatDrag) {
 	        return;
 	      }
-
 	      this.chatDragControlPoint = event.clientY;
 	      var availableHeight = document.body.clientHeight;
 	      var maxHeightInPx = availableHeight * (this.rightPanelSplitMode.chatMaxHeight / 100);
@@ -2181,7 +2000,6 @@ this.BX = this.BX || {};
 	      var startHeightInPx = availableHeight * (this.chatDragStartHeight / 100);
 	      var chatHeightInPx = Math.max(Math.min(startHeightInPx + this.chatDragStartPoint - this.chatDragControlPoint, maxHeightInPx), minHeightInPx);
 	      var chatHeight = chatHeightInPx / availableHeight * 100;
-
 	      if (this.rightPanelSplitMode.chatHeight !== chatHeight) {
 	        this.rightPanelSplitMode.chatHeight = chatHeight;
 	        this.rightPanelSplitMode.usersHeight = 100 - chatHeight;
@@ -2191,7 +2009,6 @@ this.BX = this.BX || {};
 	      if (!this.chatDrag) {
 	        return;
 	      }
-
 	      this.chatDrag = false;
 	      this.removeChatDragEvents();
 	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollToBottom, {
@@ -2222,9 +2039,7 @@ this.BX = this.BX || {};
 	        this.viewPortMetaNode.setAttribute("content", "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0");
 	        document.head.appendChild(this.viewPortMetaNode);
 	      }
-
 	      document.body.classList.add('bx-im-application-call-mobile-state');
-
 	      if (im_lib_utils.Utils.browser.isSafariBased()) {
 	        document.body.classList.add('bx-im-application-call-mobile-safari-based');
 	      }
@@ -2237,9 +2052,7 @@ this.BX = this.BX || {};
 	    },
 	    getApplication: function getApplication() {
 	      return this.$Bitrix.Application.get();
-	    }
-	    /* endregion 03. Helpers */
-
+	    } /* endregion 03. Helpers */
 	  },
 	  template: "\n\t<div :class=\"wrapClasses\">\n\t\t<div class=\"bx-im-component-call\">\n\t\t\t<div class=\"bx-im-component-call-left\">\n\t\t\t\t<div id=\"bx-im-component-call-container\" :class=\"callContainerClasses\"></div>\n\t\t\t\t<div v-if=\"isPreparationStep\" class=\"bx-im-component-call-left-preparation\">\n\t\t\t\t\t<!-- Step 1: Errors page -->\n\t\t\t\t\t<Error v-if=\"errorCode\"/>\n\t\t\t\t\t<!-- Step 2: Password page -->\n\t\t\t\t\t<PasswordCheck v-else-if=\"!passwordChecked\"/>\n\t\t\t\t\t<template v-else-if=\"!errorCode && passwordChecked\">\n\t\t\t\t\t\t<!-- Step 3: Loading page -->\n\t\t\t\t\t\t<LoadingStatus v-if=\"!userInited\"/>\n\t\t\t\t\t\t<template v-else-if=\"userInited\">\n\t\t\t\t\t\t\t<!-- BROADCAST MODE -->\n\t\t\t\t\t\t  \t<template v-if=\"isBroadcast\">\n\t\t\t\t\t\t  \t\t<template v-if=\"!isDesktop() && !permissionsRequested && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user) && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-if=\"permissionsRequested || !isCurrentUserPresenter\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices v-if=\"isCurrentUserPresenter\" />\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END BROADCAST MODE -->\n\t\t\t\t\t\t\t<!-- NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t  \t<template v-else-if=\"!isBroadcast\">\n\t\t\t\t\t\t\t\t<!-- Step 4: Permissions page -->\n\t\t\t\t\t\t\t\t<template v-if=\"!isDesktop() && !permissionsRequested\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user)\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-else-if=\"permissionsRequested\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices/>\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<template v-if=\"userInited && !errorCode\">\n\t\t\t\t<transition :name=\"!isMobile()? 'videoconf-chat-slide': ''\">\n\t\t\t\t\t<div v-show=\"rightPanelMode !== RightPanelMode.hidden\" class=\"bx-im-component-call-right\">\n\t\t\t\t\t\t<!-- Start users list -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.users\" :class=\"userListClasses\" :style=\"userListStyles\">\n\t\t\t\t\t\t\t<UserListHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-users\">\n\t\t\t\t\t\t\t\t<UserList />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End users list -->\n\t\t\t\t\t\t<!-- Start chat -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.chat\" :class=\"chatClasses\" :style=\"chatStyles\">\n\t\t\t\t\t\t\t<!-- Resize handler -->\n\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\tv-if=\"rightPanelMode === RightPanelMode.split\"\n\t\t\t\t\t\t\t\t@mousedown=\"onChatStartDrag\"\n\t\t\t\t\t\t\t\tclass=\"bx-im-component-call-right-bottom-resize-handle\"\n\t\t\t\t\t\t\t></div>\n\t\t\t\t\t\t\t<ChatHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-chat\">\n\t\t\t\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t<keep-alive include=\"bx-im-component-call-smiles\">\n\t\t\t\t\t\t\t\t\t<ConferenceSmiles\n\t\t\t\t\t\t\t\t\t\tv-if=\"conference.common.showSmiles\"\n\t\t\t\t\t\t\t\t\t\t@selectSmile=\"onSmilesSelectSmile\"\n\t\t\t\t\t\t\t\t\t\t@selectSet=\"onSmilesSelectSet\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</keep-alive>\n\t\t\t\t\t\t\t\t<div v-if=\"user\" class=\"bx-im-component-call-textarea\">\n\t\t\t\t\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t\t\t\t\t:autoFocus=\"true\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End chat -->\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</transition>\n\t\t\t</template>\n\t\t</div>\n\t</div>\n\t"
 	});

@@ -13,5 +13,6 @@ export const config = Object.freeze({
 	templateFieldDiscount: 'bx-field-discount',
 	templateFieldTax: 'bx-field-tax',
 	templateFieldBrand: 'bx-field-brand',
+	templateSummaryTotal: 'bx-summary-total',
 	moduleId: 'catalog',
 });

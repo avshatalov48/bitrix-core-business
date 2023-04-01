@@ -4,6 +4,7 @@ namespace Bitrix\Sender\Posting;
 
 use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Text\Encoding;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Connector\IncrementallyConnector;
 use Bitrix\Sender\Entity\Segment;
@@ -132,7 +133,7 @@ class SegmentDataBuilder
 		$dataToSet = [
 			'FILTER_ID' => $this->filterId,
 			'GROUP_ID' => $this->groupId,
-			'ENDPOINT' => json_encode($this->endpoint),
+			'ENDPOINT' => json_encode(Encoding::convertEncoding($this->endpoint, SITE_CHARSET, 'utf-8')),
 			'OFFSET' => 0,
 			'STATE' => GroupStateTable::STATES['CREATED'],
 			'NEW_CREATED' => true,
@@ -531,6 +532,8 @@ class SegmentDataBuilder
 		}
 
 		$groupState = $this->getCurrentGroupState();
+		$result = '';
+
 		if (isset($groupState['NEW_CREATED'])
 			|| $groupState
 			&& ($groupState['ENDPOINT'] !== json_encode($this->endpoint) || $rebuild))
@@ -1064,25 +1067,26 @@ class SegmentDataBuilder
 
 	private function detectSenderType(array $row)
 	{
-		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		if (isset($row['PROD_CRM_ORDER_ID']) && $row['PROD_CRM_ORDER_ID']
+			&& isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
 			return Type::CRM_ORDER_PRODUCT_CONTACT_ID;
-		if ($row['CRM_ENTITY_TYPE_ID'] == 5)
+		if (isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
 			return Type::CRM_CONTACT_ID;
-		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		if (isset($row['SGT_DEAL_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
 			return Type::CRM_DEAL_PRODUCT_CONTACT_ID;
 
-		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+		if (isset($row['PROD_CRM_ORDER_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 4)
 			return Type::CRM_ORDER_PRODUCT_COMPANY_ID;
-		if ($row['CRM_ENTITY_TYPE_ID'] == 4)
+		if (isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 4)
 			return Type::CRM_COMPANY_ID;
-		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+		if (isset($row['SGT_DEAL_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 4)
 			return Type::CRM_DEAL_PRODUCT_COMPANY_ID;
 
-		if ($row['IM'])
+		if (isset($row['IM']))
 			return Type::IM;
-		if ($row['EMAIL'])
+		if (isset($row['EMAIL']))
 			return Type::EMAIL;
-		if ($row['PHONE'])
+		if (isset($row['PHONE']))
 			return Type::PHONE;
 
 		return Type::EMAIL;
@@ -1091,26 +1095,49 @@ class SegmentDataBuilder
 	private function detectSenderTypes(array $row)
 	{
 		$types = [];
-		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		if (isset($row['PROD_CRM_ORDER_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		{
 			$types[] = Type::CRM_ORDER_PRODUCT_CONTACT_ID;
-		if ($row['CRM_ENTITY_TYPE_ID'] == 5)
+		}
+		if (isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		{
 			$types[] = Type::CRM_CONTACT_ID;
-		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		}
+		if (isset($row['SGT_DEAL_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 5)
+		{
 			$types[] = Type::CRM_DEAL_PRODUCT_CONTACT_ID;
+		}
 
-		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+		if (isset($row['PROD_CRM_ORDER_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) && $row['CRM_ENTITY_TYPE_ID'] == 4)
+		{
 			$types[] = Type::CRM_ORDER_PRODUCT_COMPANY_ID;
-		if ($row['CRM_ENTITY_TYPE_ID'] == 4)
+		}
+		if (isset($row['CRM_ENTITY_TYPE_ID']) &&$row['CRM_ENTITY_TYPE_ID'] == 4)
+		{
 			$types[] = Type::CRM_COMPANY_ID;
-		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+		}
+		if (isset($row['SGT_DEAL_ID']) && isset($row['CRM_ENTITY_TYPE_ID']) &&$row['CRM_ENTITY_TYPE_ID'] == 4)
+		{
 			$types[] = Type::CRM_DEAL_PRODUCT_COMPANY_ID;
+		}
 
-		if ($row['IM'])
+		if ($row['CRM_ENTITY_TYPE_ID'] === Type::CRM_LEAD_ID)
+		{
+			$types[] = Type::CRM_LEAD_ID;
+		}
+
+		if (isset($row['IM']))
+		{
 			$types[] = Type::IM;
-		if ($row['EMAIL'])
+		}
+		if (isset($row['EMAIL']))
+		{
 			$types[] = Type::EMAIL;
-		if ($row['PHONE'])
+		}
+		if (isset($row['PHONE']))
+		{
 			$types[] = Type::PHONE;
+		}
 
 		return $types;
 	}

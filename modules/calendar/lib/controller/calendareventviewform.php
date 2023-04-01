@@ -23,13 +23,11 @@ class CalendarEventViewForm extends Controller
 
 		if ($entryId)
 		{
-			$entry = \CCalendarEvent::getEventForViewInterface($entryId,
-				[
-					'eventDate' => $dateFrom,
-					'timezoneOffset' => $timezoneOffset,
-					'userId' => $userId
-				]
-			);
+			$entry = \CCalendarEvent::getEventForViewInterface($entryId, [
+				'eventDate' => $dateFrom,
+				'timezoneOffset' => $timezoneOffset,
+				'userId' => $userId
+			]);
 		}
 		else
 		{
@@ -56,9 +54,11 @@ class CalendarEventViewForm extends Controller
 				'EVENT_DATE' => urlencode($entry['DATE_FROM'])
 			]
 		);
-		$responseParams['dayOfWeekMonthFormat'] = \Bitrix\Main\Context::getCurrent()
-			->getCulture()
-			->getDayOfWeekMonthFormat();
+		$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+			\Bitrix\Main\Context::getCurrent()
+				->getCulture()
+				->getDayOfWeekMonthFormat()
+		);
 
 		$sections = \CCalendarSect::GetList([
 			'arFilter' => [
@@ -91,7 +91,7 @@ class CalendarEventViewForm extends Controller
 
 		$UF = \CCalendarEvent::GetEventUserFields($event);
 
-		if (!is_null($event['UF_CRM_CAL_EVENT']))
+		if (isset($event['UF_CRM_CAL_EVENT']))
 		{
 			$event['UF_CRM_CAL_EVENT'] = $UF['UF_CRM_CAL_EVENT'];
 			if (empty($event['UF_CRM_CAL_EVENT']['VALUE']))
@@ -100,7 +100,7 @@ class CalendarEventViewForm extends Controller
 			}
 		}
 
-		if (!is_null($event['UF_WEBDAV_CAL_EVENT']))
+		if (isset($event['UF_WEBDAV_CAL_EVENT']))
 		{
 			$event['UF_WEBDAV_CAL_EVENT'] = $UF['UF_WEBDAV_CAL_EVENT'];
 			if(empty($event['UF_WEBDAV_CAL_EVENT']['VALUE']))
@@ -109,7 +109,7 @@ class CalendarEventViewForm extends Controller
 			}
 		}
 
-		$event['REMIND'] = \CCalendarReminder::GetTextReminders($event['REMIND']);
+		$event['REMIND'] = \CCalendarReminder::GetTextReminders($event['REMIND'] ?? []);
 
 		$curUserStatus = '';
 		$userId = \CCalendar::GetCurUserId();
@@ -132,7 +132,7 @@ class CalendarEventViewForm extends Controller
 			$userIndex = \CCalendarEvent::getUserIndex();
 			$attendees = ['y' => [], 'n' => [], 'q' => [], 'i' => []];
 
-			if (is_array($event['ATTENDEE_LIST']))
+			if (isset($event['ATTENDEE_LIST']) && is_array($event['ATTENDEE_LIST']))
 			{
 				foreach ($event['ATTENDEE_LIST'] as $attendee)
 				{
@@ -156,12 +156,19 @@ class CalendarEventViewForm extends Controller
 			}
 		}
 
-		if (!isset($meetingHost) || !$meetingHost)
+		if (!$meetingHost && isset($event['MEETING_HOST']))
 		{
 			$meetingHost = \CCalendar::GetUser($event['MEETING_HOST'], true);
+		}
+
+		if ($meetingHost && is_array($meetingHost))
+		{
 			$meetingHost['DISPLAY_NAME'] = \CCalendar::GetUserName($meetingHost);
-			$meetingHost['AVATAR'] = \CCalendar::GetUserAvatarSrc($meetingHost);
-			$meetingHost['URL'] = \CCalendar::GetUserUrl($meetingHost["ID"], $params["PATH_TO_USER"]);
+			if (!isset($meetingHost['AVATAR']))
+			{
+				$meetingHost['AVATAR'] = \CCalendar::GetUserAvatarSrc($meetingHost);
+			}
+			$meetingHost['URL'] = \CCalendar::GetUserUrl($meetingHost["ID"], ($params["PATH_TO_USER"] ?? ''));
 		}
 
 		$params['id'] = 'calendar_view_slider_'.mt_rand();
@@ -180,27 +187,25 @@ class CalendarEventViewForm extends Controller
 		$params['attendees'] = $attendees ?? [];
 
 		$params['curUserStatus'] = $curUserStatus;
-		$params['meetingHostUrl'] = $meetingHost['URL'];
-		$params['meetingHostAvatar'] = $meetingHost['AVATAR'];
-		$params['meetingHostId'] = $meetingHost['ID'];
-		$params['meetingHostDisplayName'] = htmlspecialcharsbx($meetingHost['DISPLAY_NAME']);
-		$params['meetingHostWorkPosition'] = htmlspecialcharsbx($meetingHost['WORK_POSITION']);
+		$params['meetingHost'] = $meetingHost;
+		$params['meetingHostDisplayName'] = htmlspecialcharsbx($meetingHost['DISPLAY_NAME'] ?? null);
+		$params['meetingHostWorkPosition'] = htmlspecialcharsbx($meetingHost['WORK_POSITION'] ?? null);
 
 		$meetingCreator = CalendarEventViewFormHelper::getMeetingCreator($event);
-		$params['meetingCreatorUrl'] = $meetingCreator['URL'];
-		$params['meetingCreatorDisplayName'] = $meetingCreator['DISPLAY_NAME'];
+		$params['meetingCreatorUrl'] = $meetingCreator['URL'] ?? null;
+		$params['meetingCreatorDisplayName'] = $meetingCreator['DISPLAY_NAME'] ?? null;
 
 		$params['isHighImportance'] = $event['IMPORTANCE'] === 'high';
-		$params['description'] = $event['~DESCRIPTION'];
+		$params['description'] = $event['~DESCRIPTION'] ?? null;
 
-		$params['isWebdavEvent'] = $event['UF_WEBDAV_CAL_EVENT'];
-		$params['isCrmEvent'] = $event['UF_CRM_CAL_EVENT'];
+		$params['isWebdavEvent'] = $event['UF_WEBDAV_CAL_EVENT'] ?? null;
+		$params['isCrmEvent'] = $event['UF_CRM_CAL_EVENT'] ?? null;
 
 		$params['accessibility'] = $event['ACCESSIBILITY'];
 		$params['isIntranetEnabled'] = \CCalendar::IsIntranetEnabled();
 		$params['isPrivate'] = $event['PRIVATE_EVENT'];
 
-		$params['location'] = htmlspecialcharsbx(\CCalendar::GetTextLocation($event['LOCATION']));
+		$params['location'] = htmlspecialcharsbx(\CCalendar::GetTextLocation($event['LOCATION'] ?? null));
 
 		$parentSectionId = \CCalendarSect::GetSectionIdByEventId($event['PARENT_ID']);
 		$params['canEditCalendar'] = \CCalendarSect::CanDo('calendar_edit', $parentSectionId['SECTION_ID'], $userId);
@@ -208,24 +213,27 @@ class CalendarEventViewForm extends Controller
 		$params['showComments'] = $viewComments;
 
 		//views
-		if ($params['isWebdavEvent'])
+		if (!empty($params['isWebdavEvent']))
 		{
 			$params['filesView'] = CalendarEventViewFormHelper::getFilesView($event)->getContent();
 		}
-		if ($params['isCrmEvent'])
+		if (!empty($params['isCrmEvent']))
 		{
 			$params['crmView'] = CalendarEventViewFormHelper::getCrmView($event)->getContent();
 		}
 
 		$signedEvent = [
-			'UF_CRM_CAL_EVENT' => $params['event']['UF_CRM_CAL_EVENT'],
-			'UF_WEBDAV_CAL_EVENT' => $params['event']['UF_WEBDAV_CAL_EVENT'],
+			'UF_CRM_CAL_EVENT' => $params['event']['UF_CRM_CAL_EVENT'] ?? null,
+			'UF_WEBDAV_CAL_EVENT' => $params['event']['UF_WEBDAV_CAL_EVENT'] ?? null,
 			'PARENT_ID' => $params['event']['PARENT_ID'],
 			'ID' => $params['event']['ID'],
 			'CREATED_BY' => $params['event']['CREATED_BY'],
 		];
 
-		if ($params['event']['RELATIONS'] && $params['event']['RELATIONS']['COMMENT_XML_ID'])
+		if (
+			isset($params['event']['RELATIONS']['COMMENT_XML_ID'])
+			&& $params['event']['RELATIONS']['COMMENT_XML_ID']
+		)
 		{
 			$signedEvent['ENTITY_XML_ID'] = $params['event']['RELATIONS']['COMMENT_XML_ID'];
 		}

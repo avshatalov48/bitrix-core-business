@@ -415,6 +415,8 @@ abstract class Base
 	{
 		$name = htmlspecialcharsbx($name);
 
+		$input['DISABLED'] ??= 'N';
+
 		if ($value === null && isset($input['VALUE']))
 		{
 			$value = $input['VALUE'];
@@ -847,7 +849,7 @@ class StringInput extends Base // String reserved in php 7
 			'MULTILINE' => array('TYPE' => 'Y/N'   , 'LABEL' => Loc::getMessage('INPUT_STRING_MULTILINE'), 'ONCLICK' => $reload),
 		);
 
-		if ($input['MULTILINE'] == 'Y')
+		if (isset($input['MULTILINE']) && $input['MULTILINE'] === 'Y')
 		{
 			$settings['COLS'] = array('TYPE' => 'NUMBER', 'LABEL' => Loc::getMessage('INPUT_STRING_SIZE'), 'MIN' => 0, 'STEP' => 1);
 			$settings['ROWS'] = array('TYPE' => 'NUMBER', 'LABEL' => Loc::getMessage('INPUT_STRING_ROWS'), 'MIN' => 0, 'STEP' => 1);
@@ -1379,7 +1381,8 @@ class File extends Base
 				return $file; // already loaded
 			}
 
-			$fileId = $file['ID'];
+
+			$fileId = $file['ID'] ?? null;
 		}
 		else
 		{
@@ -1409,7 +1412,13 @@ class File extends Base
 	 */
 	static function isUploadedSingle($value)
 	{
-		return is_array($value) && $value['error'] == UPLOAD_ERR_OK && is_uploaded_file($value['tmp_name']);
+		return
+			is_array($value)
+			&& isset($value['error'])
+			&& $value['error'] == UPLOAD_ERR_OK
+			&& isset($value['tmp_name'])
+			&& is_uploaded_file($value['tmp_name'])
+		;
 	}
 
 	// input methods ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1544,7 +1553,7 @@ class File extends Base
 					? array('REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR'))
 					: array();
 			}
-			elseif (is_uploaded_file($value['tmp_name']))
+			elseif (isset($value['tmp_name'])  && is_uploaded_file($value['tmp_name']))
 			{
 				$errors = array();
 
@@ -1559,7 +1568,7 @@ class File extends Base
 
 				return $errors;
 			}
-			else
+			else if (isset($value['error']))
 			{
 				switch ($value['error'])
 				{
@@ -1590,6 +1599,8 @@ class File extends Base
 		{
 			return array('INVALID' => Loc::getMessage('INPUT_INVALID_ERROR'));
 		}
+
+		return [];
 	}
 
 	public static function getValueSingle(array $input, $value)
@@ -1601,7 +1612,7 @@ class File extends Base
 				return null;
 			}
 
-			$value = $value['ID'];
+			$value = $value['ID'] ?? null;
 		}
 
 		return is_numeric($value) ? $value : null;
@@ -1732,6 +1743,8 @@ class Location extends Base
 	public static function getEditHtml($name, array $input, $value = null)
 	{
 		$name = htmlspecialcharsbx($name);
+
+		$input['DISABLED'] ??= 'N';
 
 		if ($value === null && isset($input['VALUE']))
 		{
@@ -1949,6 +1962,8 @@ class Address extends Base
 			return '';
 		}
 
+		$input['DISABLED'] ??= 'N';
+
 		\Bitrix\Main\UI\Extension::load('sale.address');
 
 		ob_start();
@@ -1961,7 +1976,7 @@ class Address extends Base
 						propsData: {
 							name: '<?=$name?>',
 							initValue: <?=(is_array($value)) ? ("'" . \Bitrix\Location\Entity\Address::fromArray($value)->toJson() . "'") : Json::encode(null)?>,
-							isLocked: <?=($input['DISABLED'] === 'Y') ? Json::encode(true) : Json::encode(false)?>,
+							isLocked: <?=($input['DISABLED'] === 'Y' ? 'true' : 'false'); ?>,
 							onChangeCallback: function () {
 								<?if (isset($input['ONCHANGE'])):?>
 								<?=$input['ONCHANGE']?>

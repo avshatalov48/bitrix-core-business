@@ -257,7 +257,7 @@ class CSecurityIPRule
 					{
 						$ar = explode("-", $ip);
 						$ip1 = self::ip2number($ar[0]);
-						$ip2 = self::ip2number($ar[1]);
+						$ip2 = isset($ar[1]) ? self::ip2number($ar[1]) : 0;
 						if($ip2 <= 0)
 							$ip2 = $ip1;
 						$arIP = array(
@@ -294,7 +294,7 @@ class CSecurityIPRule
 					{
 						$ar = explode("-", $ip);
 						$ip1 = self::ip2number($ar[0]);
-						$ip2 = self::ip2number($ar[1]);
+						$ip2 = isset($ar[1]) ? self::ip2number($ar[1]) : 0;
 						if($ip2 <= 0)
 							$ip2 = $ip1;
 						$arIP = array(
@@ -346,7 +346,7 @@ class CSecurityIPRule
 				{
 					$ar = explode("-", $ip);
 					$ip1 = self::ip2number($ar[0]);
-					$ip2 = self::ip2number($ar[1]);
+					$ip2 = isset($ar[1]) ? self::ip2number($ar[1]) : 0;
 					if($ip2 <= 0)
 						$ip2 = $ip1;
 					if($ip2check >= $ip1 && $ip2check <= $ip2)
@@ -367,7 +367,7 @@ class CSecurityIPRule
 				{
 					$ar = explode("-", $ip);
 					$ip1 = self::ip2number($ar[0]);
-					$ip2 = self::ip2number($ar[1]);
+					$ip2 = isset($ar[1]) ? self::ip2number($ar[1]) : 0;
 					if($ip2 <= 0)
 						$ip2 = $ip1;
 					if($ip2check >= $ip1 && $ip2check <= $ip2)
@@ -575,7 +575,7 @@ class CSecurityIPRule
 		if (!is_array($files))
 			$files = array($files);
 
-		foreach ($files as $file) 
+		foreach ($files as $file)
 				$DB->Query("DELETE FROM b_sec_iprule_excl_mask WHERE RULE_MASK = '".$DB->ForSQL($file)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
@@ -583,7 +583,7 @@ class CSecurityIPRule
 	{
 		if (empty($files))
 			return;
-	
+
 		$exclToUpdate = array();
 		if (!is_array($files))
 			$files = array($files);
@@ -608,7 +608,7 @@ class CSecurityIPRule
 			}
 		}
 
-		foreach ($exclToUpdate as $rule_id => $excl_mask) 
+		foreach ($exclToUpdate as $rule_id => $excl_mask)
 		{
 			$masks=CSecurityIPRule::GetRuleExclMasks($rule_id);
 			$masks = array_unique(array_merge($masks,$excl_mask));
@@ -622,7 +622,7 @@ class CSecurityIPRule
 		$res=array();
 		if (!is_array($files))
 			$files = array($files);
-		
+
 		if (!empty($files))
 		{
 			$files=array_map(array($DB,'ForSQL'),$files);
@@ -906,8 +906,8 @@ class CSecurityIPRule
 		foreach(GetModuleEvents("main", "OnPageStart", true) as $event)
 		{
 			if(
-				$event["TO_MODULE_ID"] == "security"
-				&& $event["TO_CLASS"] == "CSecurityIPRule"
+				isset($event["TO_MODULE_ID"]) && $event["TO_MODULE_ID"] == "security"
+				&& isset($event["TO_CLASS"]) && $event["TO_CLASS"] == "CSecurityIPRule"
 			)
 			{
 				$bActive = true;

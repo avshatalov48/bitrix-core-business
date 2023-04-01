@@ -36,14 +36,15 @@ $aTabs = array(
 	),
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
 $returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";
 
 if(
 	$_SERVER['REQUEST_METHOD'] == "POST"
 	&& (
-		$_REQUEST['save'].$_REQUEST['apply'] != ""
-		|| $_REQUEST['sessid_ttl_off'].$_REQUEST['sessid_ttl_on'] != ""
+		isset($_REQUEST['save']) || isset($_REQUEST['apply'])
+		|| isset($_REQUEST['sessid_ttl_off']) || isset($_REQUEST['sessid_ttl_on'])
 	)
 	&& $canWrite
 	&& check_bitrix_sessid()
@@ -63,7 +64,7 @@ if(
 		COption::SetOptionString("main", "use_session_id_ttl", "N");
 	}
 
-	if($_REQUEST["save"] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST["save"]) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 	else
 		LocalRedirect("/bitrix/admin/security_session.php?lang=".LANGUAGE_ID.$returnUrl."&".$tabControl->ActiveTabParam());

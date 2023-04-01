@@ -45,7 +45,7 @@ class Ad extends Letter
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		$isAvailable = Integration\Seo\Ads\Service::isAvailable();
 		$code = null;

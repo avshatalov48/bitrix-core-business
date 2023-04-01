@@ -35,13 +35,13 @@ export default class PreviewContent
 
 	setApproveBtn(accept)
 	{
-		this.approveBtn = accept;
+		this.approveBtn = BX.util.htmlspecialchars(accept);
 		this.reDraw();
 	}
 
 	setRejectBtn(reject)
 	{
-		this.rejectBtn = reject;
+		this.rejectBtn = BX.util.htmlspecialchars(reject);
 		this.reDraw();
 	}
 

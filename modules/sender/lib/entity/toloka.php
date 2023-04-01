@@ -55,7 +55,7 @@ class Toloka extends Letter
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		if (!Integration\Seo\Ads\Service::isAvailable() && Integration\Bitrix24\Service::isTolokaAvailable())
 		{

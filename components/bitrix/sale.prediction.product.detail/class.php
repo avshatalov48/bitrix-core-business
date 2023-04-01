@@ -49,7 +49,7 @@ class CSalePredictionProductDetailComponent extends CBitrixComponent
 		}
 
 		$pageTemplates = [];
-		if (empty($params['PAGE_TEMPLATES']) && is_array($params['PAGE_TEMPLATES']))
+		if (!empty($params['PAGE_TEMPLATES']) && is_array($params['PAGE_TEMPLATES']))
 		{
 			$templates = $params['PAGE_TEMPLATES'];
 			if (!empty($templates['PRODUCT_URL']) && is_string($templates['PRODUCT_URL']))

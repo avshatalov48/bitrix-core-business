@@ -84,7 +84,7 @@ else
 {
 	CUserOptions::setOption("lists_show_section_grid", $arResult["GRID_ID"], "N");
 }
-if ($arResult["CAN_EXPORT"])
+if (isset($arResult['CAN_EXPORT']) && $arResult["CAN_EXPORT"])
 {
 	if ($USER->isAuthorized())
 	{

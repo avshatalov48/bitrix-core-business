@@ -49,7 +49,7 @@ class CUpdateSystem
 				"&SUBSCR_EMAIL=".urlencode($strEmails).
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&lang=".urlencode($lang);
 
@@ -88,7 +88,7 @@ class CUpdateSystem
 				"&COUNT_ONLY=".urlencode("Y").
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
 				"&CHECK=".urlencode($strCheck).
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
@@ -165,7 +165,7 @@ class CUpdateSystem
 				"&COUNT_ONLY=".urlencode("N").
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
@@ -247,7 +247,7 @@ class CUpdateSystem
 				"&VERSION=".urlencode(SM_VERSION).
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
@@ -412,7 +412,7 @@ class CUpdateSystem
 				"&COUNT_ONLY=".urlencode("F").
 				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
 				"&lang=".urlencode($lang);
@@ -589,7 +589,7 @@ class CUpdateSystem
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
@@ -764,7 +764,7 @@ class CUpdateSystem
 				"&COUNT_ONLY=".urlencode("Y").
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
@@ -886,7 +886,7 @@ class CUpdateSystem
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
@@ -992,7 +992,7 @@ class CUpdateSystem
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
 				"&".CUpdateSystem::ModulesArray2Query($arClientLanguages, "bitl_");
@@ -1097,7 +1097,7 @@ class CUpdateSystem
 				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&stable=".urlencode($stableVersionsOnly).
 				"&".CUpdateSystem::ModulesArray2Query($arClientHelps, "bith_");
@@ -1220,7 +1220,7 @@ class CUpdateSystem
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&stable=".urlencode($stableVersionsOnly).
 				"&".CUpdateSystem::ModulesArray2Query($arClientModules, "bitm_");
 
@@ -1311,7 +1311,7 @@ class CUpdateSystem
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&stable=".urlencode($stableVersionsOnly).
 				"&".CUpdateSystem::ModulesArray2Query($arClientLangs, "bitl_");
 
@@ -1403,7 +1403,7 @@ class CUpdateSystem
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&stable=".urlencode($stableVersionsOnly).
 				"&".CUpdateSystem::ModulesArray2Query($arClientHelps, "bith_");
 
@@ -2871,7 +2871,7 @@ class CUpdateSystem
 				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode(($GLOBALS["DB"]->XE) ? "Y" : "N").
+				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
 				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N");
 
 			foreach ($arServerReport as $key => $value)
@@ -3981,7 +3981,6 @@ class CUpdatesXMLNode
 			foreach ($this->attributes as $attr)
 			{
 				$retHash["@"][$attr->name] = $attr->content;
-				$numAdded++;
 			}
 
 		$retHash["#"] = "";
@@ -4492,7 +4491,6 @@ else
 				foreach ($this->attributes as $attr)
 				{
 					$retHash["@"][$attr->name] = $attr->content;
-					$numAdded++;
 				}
 
 			$retHash["#"] = "";

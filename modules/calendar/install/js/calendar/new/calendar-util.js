@@ -865,7 +865,7 @@
 		{
 			return this.type === 'user';
 		},
-		
+
 		isCompanyCalendar: function()
 		{
 			return this.type === 'company_calendar'
@@ -893,12 +893,60 @@
 			} : null;
 		},
 
+		addOpacityToHex(hex, opacity)
+		{
+			return this.rgbaToHex(this.hexToRgba(hex, opacity));
+		},
+
 		hexToRgba: function(hex, opacity)
 		{
 			var color = this.hexToRgb(hex);
 			if (!color)
 				color = this.hexToRgb('#9dcf00');
 			return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
+		},
+
+		rgbaToHex: function(rgba)
+		{
+			return this.rgbToHex(this.rgbaToRgb(rgba));
+		},
+
+		rgbToHex: function(rgb)
+		{
+			function componentToHex(component)
+			{
+				const hex = component.toString(16);
+				return hex.length === 1 ? "0" + hex : hex;
+			}
+
+			return "#" + componentToHex(rgb.r) + componentToHex(rgb.g) + componentToHex(rgb.b);
+		},
+
+		rgbaToRgb: function(rgba)
+		{
+			if (rgba.r === undefined)
+			{
+				rgba = this.rgbaFromString(rgba);
+			}
+
+			return {
+				r: Math.round((rgba.a * (rgba.r / 255) + (1 - rgba.a)) * 255),
+				g: Math.round((rgba.a * (rgba.g / 255) + (1 - rgba.a)) * 255),
+				b: Math.round((rgba.a * (rgba.b / 255) + (1 - rgba.a)) * 255)
+			};
+		},
+
+		rgbaFromString(rgba)
+		{
+			const parsedRgba = rgba.replace(/^rgba?\(|\s+|\)$/g, '')
+				.split(',')
+				.map(string => parseFloat(string));
+			return {
+				r: parsedRgba[0],
+				g: parsedRgba[1],
+				b: parsedRgba[2],
+				a: parsedRgba[3] ?? 255
+			};
 		},
 
 		parseLocation : function(str)
@@ -1036,7 +1084,7 @@
 				|| this.isCompanyCalendar()
 				|| this.isGroupCalendar();
 		},
-		
+
 		getCounters: function()
 		{
 			return this.config.counters;

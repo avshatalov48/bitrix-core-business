@@ -2011,7 +2011,7 @@ class OrderShipment
 					$result->addErrors($basketResult->getErrors());
 			}
 
-			$extraServices = ($item['EXTRA_SERVICES']) ? $item['EXTRA_SERVICES'] : array();
+			$extraServices = $item['EXTRA_SERVICES'] ?? [];
 
 			$shipmentFields = array(
 				'COMPANY_ID' => (isset($item['COMPANY_ID']) && intval($item['COMPANY_ID']) > 0) ? intval($item['COMPANY_ID']) : 0,
@@ -2108,11 +2108,17 @@ class OrderShipment
 			}
 
 			if ($extraServices)
+			{
 				self::$shipment->setExtraServices($extraServices);
+			}
+
 			$setFieldsResult = self::$shipment->setFields($shipmentFields);
 			if (!$setFieldsResult->isSuccess())
+			{
 				$result->addErrors($setFieldsResult->getErrors());
-			self::$shipment->setStoreId($item['DELIVERY_STORE_ID']);
+			}
+
+			self::$shipment->setStoreId($item['DELIVERY_STORE_ID'] ?? 0);
 
 			if ($item['DEDUCTED'] == 'N')
 			{

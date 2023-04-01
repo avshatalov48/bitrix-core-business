@@ -76,6 +76,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      if (this.productList) {
 	        this.productList.changeCurrencyId(this._currencyId);
+	        this.productList.updateTotalUiCurrency();
 	      }
 
 	      this._isChanged = false;

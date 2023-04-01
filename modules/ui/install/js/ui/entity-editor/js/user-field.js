@@ -1739,7 +1739,7 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 	{
 		this._wrapper.appendChild(this.getInputContainer());
 
-		if (this._typeId === BX.UI.EntityUserFieldType.enumeration)
+		if (this._typeId === BX.UI.EntityUserFieldType.enumeration && (!this._field || this._field.getEditor().canChangeCommonConfiguration()))
 		{
 			if (this._enumConfigurator === null)
 			{

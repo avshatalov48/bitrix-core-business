@@ -46,7 +46,7 @@ return [
 		'chunkMinSize' => $chunkMinSize,
 		'chunkMaxSize' => $chunkMaxSize,
 		'defaultChunkSize' => $defaultChunkSize,
-		'imageExtensions' => Configuration::getImageExtensions(),
+
 		'maxFileSize' => $defaultConfig->getMaxFileSize(),
 		'minFileSize' => $defaultConfig->getMinFileSize(),
 		'imageMinWidth' => $defaultConfig->getImageMinWidth(),
@@ -55,5 +55,10 @@ return [
 		'imageMaxHeight' => $defaultConfig->getImageMaxHeight(),
 		'imageMaxFileSize' => $defaultConfig->getImageMaxFileSize(),
 		'imageMinFileSize' => $defaultConfig->getImageMinFileSize(),
+		'acceptOnlyImages' => $defaultConfig->shouldAcceptOnlyImages(),
+		'acceptedFileTypes' => $defaultConfig->getAcceptedFileTypes(),
+		'ignoredFileNames' => $defaultConfig->getIgnoredFileNames(),
+
+		'imageExtensions' => Configuration::getImageExtensions(),
 	],
 ];

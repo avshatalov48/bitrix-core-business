@@ -123,7 +123,7 @@ class SenderCampaignEditComponent extends \Bitrix\Sender\Internals\CommonSenderC
 		}
 
 		$this->arResult['CAMPAIGN_TILE'] = UI\TileView::create()->getTile(
-			$this->arResult['ROW']['ID'],
+			$this->arResult['ROW']['ID'] ?? null,
 			$this->arResult['ROW']['NAME']
 		);
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';

@@ -173,7 +173,6 @@
 			var node = document.createElement('span');
 			node.setAttribute(this.attributeName, text);
 			this.initNode(node);
-
 			return node;
 		},
 
@@ -212,7 +211,15 @@
 				node.appendChild(iconNode);
 			}
 
-			BX.bind(node, 'mouseenter', this.show.bind(this, node, text));
+			if (node.hasAttribute('data-hint-center'))
+			{
+				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, true));
+			}
+			else
+			{
+				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, false));
+			}
+
 			BX.bind(node, 'mouseleave', this.hide.bind(this, node));
 		},
 
@@ -221,8 +228,9 @@
 		 *
 		 * @param {Element} anchorNode - Anchor node for popup with text.
 		 * @param {string } html - Html of hint.
+		 * @param {boolean } centerPos - Position center for hint.
 		 */
-		show: function (anchorNode, html)
+		show: function (anchorNode, html, centerPos)
 		{
 			this.anchorNode = anchorNode;
 			if (!this.content)
@@ -272,11 +280,42 @@
 					parameters.className = this.classNamePopup;
 				}
 
-				if (typeof parameters.angle === "undefined")
+				if (centerPos === true)
 				{
-					parameters.angle = {
-						offset: anchorNode.offsetWidth ? (23 + anchorNode.offsetWidth / 2) : false
-					};
+					if (typeof parameters.offsetLeft === "undefined")
+					{
+						parameters.offsetLeft = 0;
+					}
+
+					if (typeof parameters.angle === "undefined")
+					{
+						parameters.angle = {
+							offset: 0,
+						};
+					}
+
+					if (typeof parameters.events === "undefined")
+					{
+						parameters.events = {
+							onPopupShow: function ()
+							{
+								this.offsetLeft = this.getPopupContainer().offsetWidth ? 23 + (anchorNode.offsetWidth - this.getPopupContainer().offsetWidth) / 2 : false;
+								setTimeout(function() {
+									this.angle.offset = this.getPopupContainer().offsetWidth ? (this.getPopupContainer().offsetWidth / 2) - 16 : false;
+									this.angle.element.style.left = this.angle.offset ? this.angle.offset + 'px': false;
+								}.bind(this), 0);
+							},
+						}
+					}
+				}
+				else
+				{
+					if (typeof parameters.angle === "undefined")
+					{
+						parameters.angle = {
+							offset: anchorNode.offsetWidth ? (23 + anchorNode.offsetWidth / 2) : false,
+						};
+					}
 				}
 
 				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
@@ -290,10 +329,16 @@
 			{
 				BX.Dom.removeClass(this.popup.getPopupContainer(), this.classNamePopupInteractivity);
 			}
-
 			this.content.innerHTML = html;
 			this.popup.setBindElement(anchorNode);
 			this.popup.show();
+			if (centerPos === true)
+			{
+				this.popup.getPopupContainer().style.visibility = 'hidden';
+				setTimeout(function() {
+					this.popup.getPopupContainer().style.visibility = '';
+				}.bind(this), 10);
+			}
 			this.timer = null;
 		},
 

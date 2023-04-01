@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_MEASURE_LIST"] = "Список единиц измерения";
 $MESS["CAT_MEASURE_CODE"] = "Код";
 $MESS["CAT_MEASURE_MEASURE_TITLE"] = "Наименование единицы измерения";
@@ -23,3 +23,4 @@ $MESS['CAT_MEASURE_TITLE_ONE'] = 'Единица измерения';
 $MESS['CAT_MEASURE_TITLE_OKEI'] = 'Добавление единицы измерения из классификатора';
 $MESS['CAT_MEASURE_NOTHING_SELECT'] = 'Ни одной единицы измерения не выбрано';
 $MESS['CAT_MEASURE_SUCCESS_ADD'] = 'Успешно добавлено';
+$MESS["CAT_MEASURE_CODE_MSGVER_1"] = "Код";

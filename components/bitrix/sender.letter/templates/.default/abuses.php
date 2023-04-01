@@ -9,7 +9,7 @@ global $APPLICATION;
 $componentParameters = array(
 	'SET_TITLE' => 'Y',
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.pageslider.wrapper",

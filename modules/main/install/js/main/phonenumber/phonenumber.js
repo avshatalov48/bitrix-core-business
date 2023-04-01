@@ -1117,6 +1117,8 @@
 	 * @param {Element} [params.flagNode]
 	 * @param {int} [params.flagSize] 16, 24 or 32
 	 * @param {string} [params.defaultCountry]
+	 * @param {string} [params.userDefaultCountry]
+	 * @param {string} [params.savedCountryCode]
 	 * @param {int} [params.countryPopupHeight] 180
 	 * @param {string} [params.countryPopupClassName] ''
 	 * @param {Array} [params.countryTopList]
@@ -1135,7 +1137,8 @@
 
 		this.inputNode = params.node;
 		this.defaultCountry = params.defaultCountry || BX.PhoneNumber.getDefaultCountry();
-		this.userDefaultCountry = BX.PhoneNumber.getUserDefaultCountry();
+		this.userDefaultCountry = params.userDefaultCountry || BX.PhoneNumber.getUserDefaultCountry();
+		this.savedCountryCode = params.savedCountryCode || '';
 		this.forceLeadingPlus = params.forceLeadingPlus === true;
 		this.flagNode = BX.type.isDomNode(params.flagNode) ? params.flagNode : null;
 		this.flagSize = ([16, 24, 32].indexOf(params.flagSize) !== -1) ? params.flagSize : 16;
@@ -1189,11 +1192,19 @@
 			if(self.inputNode.value)
 			{
 				self.inputNode.value = self.formatter.format(self.inputNode.value);
+
+				if (
+					BX.Type.isStringFilled(self.savedCountryCode)
+					&& self.formatter.country !== self.savedCountryCode
+				)
+				{
+					self.formatter.replaceCountry(self.savedCountryCode);
+				}
 			}
-			else if(self.userDefaultCountry != '' && self.userDefaultCountry !== self.defaultCountry)
+			else if(self.userDefaultCountry != '')
 			{
 				self.formatter.replaceCountry(self.userDefaultCountry);
-				self.inputNode.value = self.formatter.getFormattedNumber();
+				self.inputNode.value = self.userDefaultCountry === 'XX' ? '' : self.formatter.getFormattedNumber();
 			}
 			self.drawCountryFlag();
 			self.initialized = true;
@@ -1284,6 +1295,19 @@
 
 		country = country.toLowerCase();
 		BX.adjust(this.flagNode, {props: {className: this.flagNodeInitialClass + " bx-flag-" + this.flagSize + " " + country}});
+	};
+
+	BX.PhoneNumber.Input.prototype.tryRedrawCountryFlag = function()
+	{
+		if (this._countryBefore !== this.getCountry())
+		{
+			this.drawCountryFlag();
+
+			this.callbacks.countryChange({
+				country: this.getCountry(),
+				countryCode: this.getCountryCode()
+			});
+		}
 	};
 
 	BX.PhoneNumber.Input.prototype._onKeyDown = function (e)
@@ -1405,14 +1429,7 @@
 				countryCode: this.getCountryCode()
 			});
 
-			if(this._countryBefore !== this.getCountry())
-			{
-				this.drawCountryFlag();
-				this.callbacks.countryChange({
-					country: this.getCountry(),
-					countryCode: this.getCountryCode()
-				});
-			}
+			this.tryRedrawCountryFlag();
 		}
 		this._lastCaretPosition = null;
 	};

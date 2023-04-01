@@ -68,18 +68,18 @@ class SenderTemplateSelectorComponent extends \Bitrix\Sender\Internals\CommonSen
 			
 			$this->arResult['GRID']['items'][] = array(
 				'id' => $template['TYPE'] . '|' . $template['ID'] . '|' . (++$templateCounter),
-				'name' => $template['NAME'],
-				'description' => $template['DESC'],
-				'image' => $template['ICON'],
-				'hot' => $template['HOT'],
-				'hint' => $template['HINT'],
-				'rowId' => $template['CATEGORY'],
+				'name' => $template['NAME'] ?? '',
+				'description' => $template['DESC'] ?? '',
+				'image' => $template['ICON'] ?? '',
+				'hot' => $template['HOT'] ?? '',
+				'hint' => $template['HINT'] ?? '',
+				'rowId' => $template['CATEGORY'] ?? '',
 				'data' => array(
-					'templateId' => $template['ID'],
-					'templateType' => $template['TYPE'],
+					'templateId' => $template['ID'] ?? null,
+					'templateType' => $template['TYPE'] ?? '',
 					'messageFields' => $messageFields,
-					'segments' => $template['SEGMENTS'],
-					'dispatch' => $template['DISPATCH'],
+					'segments' => $template['SEGMENTS'] ?? '',
+					'dispatch' => $template['DISPATCH'] ?? '',
 				)
 			);
 		}

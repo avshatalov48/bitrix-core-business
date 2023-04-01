@@ -7,7 +7,7 @@ use Bitrix\Main\Localization\Loc;
 
 class MathLib extends BaseLib
 {
-	function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return [
 			'abs' => [
@@ -60,12 +60,12 @@ class MathLib extends BaseLib
 
 	public function callAbs(Arguments $args)
 	{
-		return abs((float)$args->getFirst());
+		return abs((float)$args->getFirstSingle());
 	}
 
 	public function callRound(Arguments $args)
 	{
-		$val = (float)$args->getFirst();
+		$val = (float)$args->getFirstSingle();
 		$precision = (int)$args->getSecond();
 
 		return round($val, $precision);
@@ -73,44 +73,43 @@ class MathLib extends BaseLib
 
 	public function callCeil(Arguments $args)
 	{
-		return ceil((double)$args->getFirst());
+		return ceil((double)$args->getFirstSingle());
 	}
 
 	public function callFloor(Arguments $args)
 	{
-		return floor((double)$args->getFirst());
+		return floor((double)$args->getFirstSingle());
 	}
 
 	public function callMin(Arguments $args)
 	{
-		$array = array_filter($args->getFlatArray(), fn($item) => is_numeric($item));
-		$array = array_map(
-			fn($item) => (float)$item,
-			$array
-		);
+		$array = array_filter($args->getFlatArray(), static fn($item) => is_scalar($item));
 
 		return $array ? min($array) : false;
 	}
 
 	public function callMax(Arguments $args)
 	{
-		$array = array_filter($args->getFlatArray(), fn($item) => is_numeric($item));
-		$array = array_map(
-			fn($item) => (float)$item,
-			$array
-		);
+		$array = array_filter($args->getFlatArray(), static fn($item) => is_scalar($item));
 
 		return $array ? max($array) : false;
 	}
 
 	public function callRand(Arguments $args)
 	{
-		$min = (int)$args->getFirst();
-		$max = (int)$args->getSecond();
+		$min = (int)$args->getFirstSingle();
+		$max = (int)$args->getSecondSingle();
 
 		if (!$max || !is_finite($max))
 		{
 			$max = mt_getrandmax();
+		}
+
+		if ($min > $max)
+		{
+			//$args->getParser()->setError('rand(): Argument #2 ($max) must be greater than or equal to argument #1 ($min)');
+
+			return null;
 		}
 
 		return mt_rand($min, $max);
@@ -118,11 +117,11 @@ class MathLib extends BaseLib
 
 	public function callIntval(Arguments $args)
 	{
-		return intval($args->getFirst());
+		return (int)$args->getFirstSingle();
 	}
 
 	public function callFloatval(Arguments $args)
 	{
-		return floatval($args->getFirst());
+		return (float)$args->getFirstSingle();
 	}
 }

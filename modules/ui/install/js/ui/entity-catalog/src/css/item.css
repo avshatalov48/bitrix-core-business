@@ -21,11 +21,6 @@
 	opacity: 0.7;
 }
 
-.ui-entity-catalog__option:hover .ui-entity-catalog__btn {
-	background: var(--ui-color-primary, #2fc6f6);
-	color: var(--ui-color-background-primary, #ffffff);
-}
-
 .ui-entity-catalog__option-info_label {
 	margin-left: 10px;
 	font-weight: var(--ui-font-weight-regular, 400);

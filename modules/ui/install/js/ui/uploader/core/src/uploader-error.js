@@ -100,6 +100,11 @@ export default class UploaderError extends BaseError
 		}
 	}
 
+	static createFromError(error: Error): UploaderError
+	{
+		return new this(error.name, error.message);
+	}
+
 	getDescription(): string
 	{
 		return this.description;
@@ -159,6 +164,11 @@ export default class UploaderError extends BaseError
 		error.setType(options.type);
 
 		return error;
+	}
+
+	toString(): string
+	{
+		return `Uploader Error (${this.getCode()}): ${this.getMessage()} (${this.getOrigin()})`;
 	}
 
 	toJSON(): { [key: string]: any }

@@ -1,4 +1,5 @@
 import {Loc} from 'landing.loc';
+import {Button, ButtonColor} from 'ui.buttons';
 import {HeaderCard} from 'landing.ui.card.headercard';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
 import {RadioButtonField} from 'landing.ui.field.radiobuttonfield';
@@ -528,8 +529,9 @@ export default class CrmContent extends ContentWrapper
 	{
 		return this.cache.remember('createOrderChangeConfirm', () => {
 			return new MessageBox({
-				title: Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CHANGE_CONFIRM_TITLE'),
+				title: Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CREATE_ORDER_CHANGE_CONFIRM_TITLE'),
 				buttons: MessageBoxButtons.OK_CANCEL,
+				message: Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_TITLE_1')
 			});
 		});
 	}
@@ -715,28 +717,36 @@ export default class CrmContent extends ContentWrapper
 		if (!this.#schemeManager.isInvoice(scheme.id) && value.document.payment.use)
 		{
 			const createOrderMessageBox = this.getCreateOrderChangeConfirm();
-			createOrderMessageBox.setMessage(
-				Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_TITLE')
+			createOrderMessageBox.setButtons(
+				[
+					(new Button())
+						.setColor(ButtonColor.PRIMARY)
+						.setText(Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_CANCEL'))
+						.setNoCaps(true)
+						.bindEvent('click', (button) => {
+							createOrderMessageBox.close();
+							button.setDisabled(false)
+
+							const orderSettingsSwitch = this.getOrderSettingsForm().getSwitch();
+							orderSettingsSwitch.setValue(true);
+							orderSettingsSwitch.onChange();
+
+							this.onChange(event);
+						}),
+					(new Button())
+						.setColor(ButtonColor.LIGHT)
+						.setText(Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_OK'))
+						.setNoCaps(true)
+						.bindEvent('click', (button) => {
+							createOrderMessageBox.close();
+							button.setDisabled(false);
+
+							this.options.formOptions.payment.use = false;
+
+							this.onChange(event);
+						}),
+				],
 			);
-
-			createOrderMessageBox.setOkCallback((messageBox: MessageBox) => {
-				messageBox.close();
-				messageBox.getOkButton().setDisabled(false);
-
-				this.options.formOptions.payment.use = false;
-
-				this.onChange(event);
-			})
-			createOrderMessageBox.setCancelCallback((messageBox: MessageBox) => {
-				messageBox.close();
-				messageBox.getCancelButton().setDisabled(false);
-
-				const orderSettingsSwitch = this.getOrderSettingsForm().getSwitch();
-				orderSettingsSwitch.setValue(true);
-				orderSettingsSwitch.onChange();
-
-				this.onChange(event);
-			})
 			createOrderMessageBox.show();
 		}
 

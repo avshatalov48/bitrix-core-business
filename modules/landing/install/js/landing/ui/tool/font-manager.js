@@ -172,10 +172,18 @@
 			return new Promise(function(resolve) {
 				if (!this.isLoaded(font.className))
 				{
+					let href = font.href;
+					if (window.fontsProxyUrl)
+					{
+						const url = new URL(href);
+						url.host = window.fontsProxyUrl;
+						href = url.href;
+					}
+
 					var link = create("link", {
 						attrs: {
 							rel: "stylesheet",
-							href: font.href,
+							href: href,
 							"data-font": font.className,
 							media: "async@load"
 						},

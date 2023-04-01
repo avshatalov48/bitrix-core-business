@@ -24,7 +24,7 @@ export class Image extends TextField
 		this.input.innerText = this.content.src;
 		this.input.hidden = true;
 		this.input2x = this.createInput();
-		this.input2x.innerText = this.content.src2x;
+		this.input2x.innerText = this.content.src2x || '';
 		this.input2x.hidden = true;
 
 		this.layout.classList.add("landing-ui-field-image");
@@ -707,6 +707,12 @@ export class Image extends TextField
 			this.image.dataset.fileid = value && value.id ? value.id : -1;
 			this.image.dataset.fileid2x = value && value.id2x ? value.id2x : -1;
 
+			if (value.type === 'image')
+			{
+				this.altField.layout.hidden = false;
+				this.altField.setValue(value.alt);
+			}
+
 			this.classList = [];
 		}
 		else
@@ -772,29 +778,39 @@ export class Image extends TextField
 	 */
 	getValue()
 	{
-		var fileId = parseInt(this.image.dataset.fileid);
-		var fileId2x = parseInt(this.image.dataset.fileid2x);
-		fileId = fileId === fileId ? fileId : -1;
-		fileId2x = fileId2x === fileId2x ? fileId2x : -1;
+		const value = {type: "", src: "", alt: "", url: ""};
 
-		var value = {type: "", src: "", id: fileId, id2x: fileId2x, src2x: "", alt: "", url: ""};
+		const fileId = parseInt(this.image.dataset.fileid);
+		if (Type.isNumber(fileId) && fileId > 0)
+		{
+			value.id = fileId;
+		}
+
+		const fileId2x = parseInt(this.image.dataset.fileid2x);
+		if (Type.isNumber(fileId2x) && fileId2x > 0)
+		{
+			value.id2x = fileId2x;
+		}
+
+		const src2x = this.input2x.innerText.trim();
+		if (Type.isString(src2x) && src2x)
+		{
+			value.src2x = src2x;
+		}
+
+		if (this.type === "background" || this.type === "image")
+		{
+			value.src = this.input.innerText.trim();
+		}
 
 		if (this.type === "background")
 		{
 			value.type = "background";
-			value.src = this.input.innerText.trim();
-			value.src2x = this.input2x.innerText.trim();
-			value.id = fileId;
-			value.id2x = fileId2x;
 		}
 
 		if (this.type === "image")
 		{
 			value.type = "image";
-			value.src = this.input.innerText.trim();
-			value.src2x = this.input2x.innerText.trim();
-			value.id = fileId;
-			value.id2x = fileId2x;
 			value.alt = this.altField.getValue();
 		}
 

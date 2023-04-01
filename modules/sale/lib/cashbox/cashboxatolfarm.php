@@ -165,6 +165,10 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		$checkInfo = CheckManager::getCheckInfoByExternalUuid($data['uuid']);
+		if (empty($checkInfo))
+		{
+			return $result;
+		}
 
 		if ($data['error'])
 		{

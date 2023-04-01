@@ -18,9 +18,9 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => [
 			'ID'                   => $arResult['ID'],
-			'NAME_TEMPLATE'        => $arResult['NAME_TEMPLATE'],
-			'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'],
-			'PATH_TO_EDIT'         => $arResult['PATH_TO_EDIT'],
+			'NAME_TEMPLATE'        => $arResult['NAME_TEMPLATE'] ?? '',
+			'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+			'PATH_TO_EDIT'         => $arResult['PATH_TO_EDIT'] ?? '',
 			'SET_TITLE'            => 'Y',
 		],
 		'USE_UI_TOOLBAR' => 'Y',

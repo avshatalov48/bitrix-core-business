@@ -32,7 +32,7 @@ class Arguments
 
 	public function getFlatArray(): array
 	{
-		return $this->toFlatArray($this->args);
+		return \CBPHelper::flatten($this->args);
 	}
 
 	/**
@@ -46,9 +46,25 @@ class Arguments
 	/**
 	 * @return mixed
 	 */
+	public function getFirstSingle()
+	{
+		return $this->toSingle($this->getFirst());
+	}
+
+	/**
+	 * @return mixed
+	 */
 	public function getSecond()
 	{
 		return $this->args[1] ?? null;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getSecondSingle()
+	{
+		return $this->toSingle($this->getSecond());
 	}
 
 	/**
@@ -62,34 +78,32 @@ class Arguments
 	/**
 	 * @return mixed
 	 */
+	public function getThirdSingle()
+	{
+		return $this->toSingle($this->getThird());
+	}
+
+	/**
+	 * @return mixed
+	 */
 	public function getArg(int $position)
 	{
 		return $this->args[$position] ?? null;
 	}
 
-	private function toFlatArray($args): array
+	/**
+	 * @return mixed
+	 */
+	public function getArgSingle(int $position)
 	{
-		if (!is_array($args))
-		{
-			return [$args];
-		}
+		return $this->toSingle($this->getArg($position));
+	}
 
-		$result = [];
-		foreach ($args as $arg)
-		{
-			if (!is_array($arg))
-			{
-				$result[] = $arg;
-			}
-			else
-			{
-				foreach ($this->toFlatArray($arg) as $val)
-				{
-					$result[] = $val;
-				}
-			}
-		}
-
-		return $result;
+	/**
+	 * @return mixed
+	 */
+	private function toSingle($value)
+	{
+		return is_array($value) ? array_shift($value) : $value;
 	}
 }

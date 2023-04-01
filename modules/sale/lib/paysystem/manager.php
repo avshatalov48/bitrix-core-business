@@ -551,8 +551,14 @@ final class Manager
 		$event->send();
 		foreach ($event->getResults() as $eventResult)
 		{
-			if($eventResult->getType() !== EventResult::ERROR)
-				$data['CODES'] = array_merge($data['CODES'], $eventResult->getParameters());
+			if ($eventResult->getType() !== EventResult::ERROR)
+			{
+				$codes = $eventResult->getParameters();
+				if ($codes && is_array($codes))
+				{
+					$data['CODES'] = array_merge($data['CODES'], $codes);
+				}
+			}
 		}
 
 		if (isset($data['CODES']) && is_array($data['CODES']))

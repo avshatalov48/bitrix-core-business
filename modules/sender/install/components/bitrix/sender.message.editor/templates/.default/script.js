@@ -200,6 +200,8 @@
 	function Configuration(manager)
 	{
 		this.manager = manager;
+		BX.Event.EventEmitter.emit('BX.Sender:onMessageConfigurationPrepared', this);
+
 	}
 	Configuration.prototype =
 	{

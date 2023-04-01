@@ -175,9 +175,9 @@ class ConverterDocumentShipment extends Converter
 		$result = array();
 
 		$traits = $fields['TRAITS'];
-		$items = $fields['ITEMS'];
-		$stories = isset($fields['STORIES']) ? $fields['STORIES']: array();
-		$taxes = $fields['TAXES'];
+		$items = $fields['ITEMS'] ?? [];
+		$stories = $fields['STORIES'] ?? [];
+		$taxes = $fields['TAXES'] ?? [];
 		$businessValue = $fields['BUSINESS_VALUE'];
 
 		$availableFields = $this->getFieldsInfo();
@@ -187,15 +187,16 @@ class ConverterDocumentShipment extends Converter
 
 		foreach ($availableFields as $k=>$v)
 		{
-			$value='';
+			$value = '';
 			switch ($k)
 			{
 				case 'ID':
-					$value = ($traits['ID_1C']<>'' ? $traits['ID_1C']:$traits['ID']);
+					$value = (!empty($traits['ID_1C']) ? $traits['ID_1C'] : $traits['ID']);
 					break;
 				case 'NUMBER':
 					$value = $traits['ID'];
 					break;
+				case 'TIME':
 				case 'DATE':
 					$value = $traits['DATE_INSERT'];
 					break;
@@ -216,8 +217,10 @@ class ConverterDocumentShipment extends Converter
 					$price = 0;
 					foreach ($items as $item)
 					{
-						if($item['PRODUCT_XML_ID'] !== ImportOneCBase::DELIVERY_SERVICE_XMLID)
+						if ($item['PRODUCT_XML_ID'] !== ImportOneCBase::DELIVERY_SERVICE_XMLID)
+						{
 							$price = $price + $item['PRICE'] * $item['QUANTITY'];
+						}
 					}
 
 					$value = $price + $traits['PRICE_DELIVERY'];
@@ -226,26 +229,29 @@ class ConverterDocumentShipment extends Converter
 				case 'VERSION':
 					$value = $traits['VERSION'];
 					break;
-				case 'NUMBER_BASE':// ?????
+				case 'NUMBER_BASE':
 					$value = $traits['ORDER_ID'];
 					break;
 				case 'TAXES':
-					if(count($taxes)>0)
+					if (count($taxes) > 0)
+					{
 						$value = $this->externalizeTaxes($taxes, $v);
+					}
 					break;
 				case 'STORIES':
-					if(count($stories)>0)
+					if (count($stories) > 0)
+					{
 						$value = $this->externalizeStories($stories, $v);
-					break;
-				case 'TIME':
-					$value = $traits['DATE_INSERT'];
+					}
 					break;
 				case 'COMMENT':
 					$value = $traits['COMMENTS'];
 					break;
 				case 'ITEMS':
-					if(count($items)>0)
+					if (count($items) > 0)
+					{
 						$value = $this->externalizeItems($items, $v);
+					}
 					break;
 				case 'REK_VALUES':
 					$value=array();

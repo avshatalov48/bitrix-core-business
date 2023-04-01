@@ -131,8 +131,8 @@ $containerId .= $arParams['ID'] ?: 'def';
 	</span>
 	<?if ($arParams['SHOW_BUTTON_ADD'] && !$arParams['READONLY']):?>
 		<span data-role="tile-add" class="sender-ui-tile-add">
-			<?if ($arParams['BUTTON_ADD_CAPTION']):?>
-				<?=htmlspecialcharsbx($arParams['BUTTON_ADD_CAPTION'])?>
+			<?if ($arParams['BUTTON_ADD_CAPTION'] ?? ''):?>
+				<?=htmlspecialcharsbx($arParams['BUTTON_ADD_CAPTION' ?? ''])?>
 			<?else:?>
 				<?=Loc::getMessage('SENDER_UI_TILE_SELECTOR_ADD')?>
 			<?endif;?>

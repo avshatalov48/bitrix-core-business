@@ -28,7 +28,7 @@
 				</div>
 			</div>
 			<div class="landing-block-node-video-col js-animation slideInRight col-md-6 col-lg-6">
-				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
+				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 scale-100 mx-auto w-100">
 					<div class="landing-block-node-video embed-responsive-item g-video-preview w-100"
 						data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
 						data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"

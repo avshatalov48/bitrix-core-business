@@ -116,7 +116,7 @@ Class bizproc extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if(!isset($_ENV["COMPUTERNAME"]) || $_ENV["COMPUTERNAME"] !== 'BX')
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
@@ -136,7 +136,7 @@ Class bizproc extends CModule
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if(!isset($_ENV["COMPUTERNAME"]) || $_ENV["COMPUTERNAME"] !== 'BX')
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
@@ -180,9 +180,9 @@ Class bizproc extends CModule
 		}
 		elseif($step==2)
 		{
-			$this->UnInstallDB(array(
-				"savedata" => $_REQUEST["savedata"],
-			));
+			$this->UnInstallDB([
+				"savedata" => $_REQUEST["savedata"] ?? null,
+			]);
 			$this->UnInstallFiles();
 
 			$this->UnInstallEvents();

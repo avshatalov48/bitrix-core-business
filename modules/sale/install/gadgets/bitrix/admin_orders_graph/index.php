@@ -1,8 +1,17 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if(!CModule::IncludeModule("sale") || !CModule::IncludeModule("currency"))
+use Bitrix\Main\Loader;
+use Bitrix\Currency;
+use Bitrix\Sale;
+
+if (
+	!Loader::includeModule('sale')
+	|| !Loader::includeModule('currency')
+)
+{
 	return false;
+}
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
@@ -10,18 +19,25 @@ if ($saleModulePermissions == "D")
 if(!CBXFeatures::IsFeatureEnabled('SaleReports'))
 	return false;
 
-if ($arGadgetParams["SITE_ID"] <> '')
+$arGadgetParams['SITE_ID'] = (string)($arGadgetParams['SITE_ID'] ?? '');
+
+if ($arGadgetParams["SITE_ID"] !== '')
 {
-	$arGadgetParams["SITE_CURRENCY"] = CSaleLang::GetLangCurrency($arGadgetParams["SITE_ID"]);
+	$arGadgetParams["SITE_CURRENCY"] = Sale\Internals\SiteCurrencyTable::getSiteCurrency($arGadgetParams["SITE_ID"]);
 	if ($arGadgetParams["TITLE_STD"] == '')
 	{
 		$rsSites = CSite::GetByID($arGadgetParams["SITE_ID"]);
-		if ($arSite = $rsSites->GetNext())
-			$arGadget["TITLE"] .= " / [".$arSite["ID"]."] ".$arSite["NAME"];
+		$arSite = $rsSites->GetNext();
+		if ($arSite)
+		{
+			$arGadget["TITLE"] .= " / [" . $arSite["ID"] . "] " . $arSite["NAME"];
+		}
 	}
 }
 else
-	$arGadgetParams["SITE_CURRENCY"] = CCurrency::GetBaseCurrency();
+{
+	$arGadgetParams["SITE_CURRENCY"] = Currency\CurrencyManager::getBaseCurrency();
+}
 
 $arGadgetParams["RND_STRING"] = randString(8);
 
@@ -47,7 +63,7 @@ if(is_array($arGadgetParams["ORDERS_STATUS"]) && !empty($arGadgetParams["ORDERS_
 		$arFields["find_payed_".$arGadgetParams["SITE_CURRENCY"]] = "Y";
 	}
 	if(in_array("CANCELED", $arGadgetParams["ORDERS_STATUS"]))
-	{	
+	{
 		$arFields["find_canceled"] = "Y";
 		$arFields["find_canceled_".$arGadgetParams["SITE_CURRENCY"]] = "Y";
 	}
@@ -78,7 +94,7 @@ elseif($arGadgetParams["PERIOD"] == "WEEK")
 }
 elseif($arGadgetParams["PERIOD"] == "QUATER")
 {
-	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("MM" => -4))); 
+	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("MM" => -4)));
 	$arFields["filter_by"] = "month";
 	$arFields["cache_time"] = 60*60*24;
 }
@@ -127,13 +143,16 @@ $tabControl = new CAdminViewTabControl("saleGraphTabControl_".$arGadgetParams["R
 <div class="bx-gadgets-tabs-wrap" id="bx_gd_tabset_sale_graph_<?=$arGadgetParams["RND_STRING"]?>">
 	<?
 	$tabControl->Begin();
-	for($i = 0; $i < count($aTabs); $i++)
+	$tabCount = count($aTabs);
+	for ($i = 0; $i < $tabCount; $i++)
+	{
 		$tabControl->BeginNextTab();
+	}
 	$tabControl->End();
 	?>
 	<div class="bx-gadgets-tabs-cont">
 		<?
-		for($i = 0; $i < count($aTabs); $i++)
+		for ($i = 0; $i < $tabCount; $i++)
 		{
 			?><div id="<?=$aTabs[$i]["DIV"]?>_content" style="display: <?=($i==0 ? "block" : "none")?>;" class="bx-gadgets-tab-container"><?
 				if ($i == 0)

@@ -3,6 +3,7 @@ import { SectionInterface } from 'calendar.sectioninterface';
 import { Util } from 'calendar.util';
 import { EditFormRoom } from './editformroom';
 import { EditFormCategory } from './editformcategory';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 export class RoomsInterface extends SectionInterface
 {
@@ -488,7 +489,8 @@ export class RoomsInterface extends SectionInterface
 				text: Loc.getMessage('EC_SEC_DELETE'),
 				onclick: () => {
 					this.roomActionMenu.close();
-					this.deleteRoom(room);
+					this.showRoomDeleteConfirm(room);
+					// this.deleteRoom(room);
 				}
 			});
 		}
@@ -844,7 +846,7 @@ export class RoomsInterface extends SectionInterface
 				onclick: () => {
 					this.categoryActionMenu.close();
 					this.freezeButtons();
-					this.categoryManager.deleteCategory(category.id, this.unfreezeButtons.bind(this));
+					this.showCategoryDeleteConfirm(category);
 				}
 			});
 		}
@@ -926,6 +928,33 @@ export class RoomsInterface extends SectionInterface
 			room.id,
 			room.location_id
 		);
+
+		if (this.DOM.confirmRoomPopup)
+		{
+			this.DOM.confirmRoomPopup.close();
+			delete this.DOM.confirmRoomPopup;
+		}
+		if (this.currentRoom)
+		{
+			delete this.currentRoom;
+		}
+	}
+
+	deleteCategory(category)
+	{
+		this.categoryManager.deleteCategory(
+			category.id
+		);
+
+		if (this.DOM.confirmCategoryPopup)
+		{
+			this.DOM.confirmCategoryPopup.close();
+			delete this.DOM.confirmCategoryPopup;
+		}
+		if (this.currentCategory)
+		{
+			delete this.currentCategory;
+		}
 	}
 
 	freezeButtons()
@@ -979,12 +1008,12 @@ export class RoomsInterface extends SectionInterface
 			}
 		});
 
-		if(hasEnabled && hasDisabled)
+		if (hasEnabled && hasDisabled)
 		{
 			return this.CATEGORY_ROOMS_SHOWN_SOME;
 		}
 
-		if(hasEnabled)
+		if (hasEnabled)
 		{
 			return this.CATEGORY_ROOMS_SHOWN_ALL;
 		}
@@ -1066,5 +1095,94 @@ export class RoomsInterface extends SectionInterface
 	updateAllCategoriesCheckboxState()
 	{
 		this.categoryManager.getCategories().forEach(category => this.updateCategoryCheckboxState(category));
+	}
+
+	showRoomDeleteConfirm(room)
+	{
+		this.currentRoom = room;
+
+		this.DOM.confirmRoomPopup = new MessageBox({
+			message: this.getConfirmRoomInterfaceContent(Loc.getMessage('EC_ROOM_DELETE_CONFIRM')),
+			minHeight: 120,
+			minWidth: 280,
+			maxWidth: 300,
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+			onOk: () => {
+				this.deleteRoom(room);
+			},
+			onCancel: () => {
+				this.DOM.confirmRoomPopup.close();
+			},
+			okCaption: Loc.getMessage('EC_SEC_DELETE'),
+			popupOptions: {
+				events: {
+					onPopupClose: () => {
+						delete this.DOM.confirmRoomPopup;
+						delete this.currentRoom;
+					},
+				},
+				closeByEsc: true,
+				padding: 0,
+				contentPadding: 0,
+				animation: 'fading-slide',
+			}
+		});
+
+		this.DOM.confirmRoomPopup.show();
+	}
+
+	showCategoryDeleteConfirm(category)
+	{
+		this.currentCategory = category;
+
+		this.DOM.confirmCategoryPopup = new MessageBox({
+			message: this.getConfirmRoomInterfaceContent(Loc.getMessage('EC_CATEGORY_DELETE_CONFIRM')),
+			minHeight: 120,
+			minWidth: 280,
+			maxWidth: 300,
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+			onOk: () => {
+				this.deleteCategory(category);
+			},
+			onCancel: () => {
+				this.DOM.confirmCategoryPopup.close();
+			},
+			okCaption: Loc.getMessage('EC_SEC_DELETE'),
+			popupOptions: {
+				events: {
+					onPopupClose: () => {
+						this.unfreezeButtons();
+						delete this.DOM.confirmCategoryPopup;
+						delete this.currentCategory;
+					},
+				},
+				closeByEsc: true,
+				padding: 0,
+				contentPadding: 0,
+				animation: 'fading-slide',
+			}
+		});
+
+		this.DOM.confirmCategoryPopup.show();
+	}
+
+	getConfirmRoomInterfaceContent(text)
+	{
+		return Tag.render`<div class="calendar-list-slider-messagebox-text">${text}</div>`;
+	}
+
+	keyHandler(e)
+	{
+		if (e.keyCode ===  Util.getKeyCode('enter'))
+		{
+			if (this.DOM.confirmRoomPopup && this.currentRoom)
+			{
+				this.deleteRoom(this.currentRoom);
+			}
+			if (this.DOM.confirmCategoryPopup && this.currentCategory)
+			{
+				this.deleteCategory(this.currentCategory);
+			}
+		}
 	}
 }

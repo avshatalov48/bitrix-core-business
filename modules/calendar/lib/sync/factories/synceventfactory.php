@@ -102,7 +102,7 @@ class SyncEventFactory
 
 			if (
 				$syncEvent->isRecurrence()
-				&& $instanceList = $impatientExportSyncEventList[$syncEvent->getVendorEventId()]
+				&& $instanceList = ($impatientExportSyncEventList[$syncEvent->getVendorEventId()] ?? null)
 			)
 			{
 				$syncEvent->addInstanceList($instanceList);
@@ -242,7 +242,7 @@ class SyncEventFactory
 			}
 			else
 			{
-				if ($instanceList = $impatientSyncEventInstanceList[$event->getUid()])
+				if ($instanceList = ($impatientSyncEventInstanceList[$event->getUid()] ?? null))
 				{
 					$syncEvent->addInstanceList($instanceList);
 					unset($impatientSyncEventInstanceList[$event->getUid()]);

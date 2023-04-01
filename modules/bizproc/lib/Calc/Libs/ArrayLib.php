@@ -7,7 +7,7 @@ use Bitrix\Main\Localization\Loc;
 
 class ArrayLib extends BaseLib
 {
-	function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return [
 			'implode' => [
@@ -45,7 +45,13 @@ class ArrayLib extends BaseLib
 
 	public function callImplode(Arguments $args)
 	{
-		$glue = (string)$args->getFirst();
+		$glue = $args->getFirst();
+
+		if (!is_scalar($glue))
+		{
+			return null;
+		}
+
 		$pieces = \CBPHelper::makeArrayFlat($args->getSecond());
 
 		if (!$pieces)
@@ -59,17 +65,7 @@ class ArrayLib extends BaseLib
 	public function callExplode(Arguments $args)
 	{
 		$delimiter = $args->getFirst();
-		$str = $args->getSecond();
-
-		if (is_array($str))
-		{
-			$str = reset($str);
-		}
-
-		if (is_array($delimiter))
-		{
-			$delimiter = reset($delimiter);
-		}
+		$str = $args->getSecondSingle();
 
 		if (empty($delimiter) || !is_scalar($str) || !is_scalar($delimiter))
 		{
@@ -90,7 +86,7 @@ class ArrayLib extends BaseLib
 			$a = is_object($a) ? [$a] : (array)$a;
 		}
 
-		return call_user_func_array('array_merge', $arrays);
+		return array_merge(...$arrays);
 	}
 
 	public function callShuffle(Arguments $args)
@@ -110,7 +106,9 @@ class ArrayLib extends BaseLib
 
 	public function callSwirl(Arguments $args)
 	{
-		$array = array_filter($args->getFlatArray(), fn ($arg) => $arg !== null);
+		$array = array_values(
+			array_filter($args->getFlatArray(), fn ($arg) => $arg !== null)
+		);
 
 		if (count($array) <= 1)
 		{

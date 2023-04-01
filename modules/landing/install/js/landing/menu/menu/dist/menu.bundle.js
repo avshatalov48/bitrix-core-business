@@ -55,95 +55,11 @@ this.BX.Landing = this.BX.Landing || {};
 	  return BX.Landing.Block.Node.Text;
 	}
 
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<li class=\"", "\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</li>\n\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
 
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"", "\" href=\"", "\" target=\"", "\">", "</a>\n\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<ul class=\"", "\">", "</ul>\n\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-menu-add\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-menu-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"landing-menu-add-field-apply\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"landing-menu-add-field-close\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"landing-menu-add-field-input\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"ui-btn ui-btn-light-border ui-btn-icon-add ui-btn-round landing-ui-menu-add-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.Menu
 	 */
@@ -163,7 +79,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    _this.code = options.code;
 	    _this.root = options.root;
 	    _this.block = options.block;
-	    _this.manifest = Object.freeze(babelHelpers.objectSpread({}, options.manifest));
+	    _this.manifest = Object.freeze(_objectSpread({}, options.manifest));
 	    _this.cache = new main_core.Cache.MemoryCache();
 
 	    if (landing_env.Env.getInstance().getType() === 'KNOWLEDGE' || landing_env.Env.getInstance().getType() === 'GROUP') {
@@ -179,6 +95,11 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!landing_ui_panel_stylepanel.StylePanel.getInstance().isShown() && event.target.nodeName === 'A') {
 	        event.preventDefault();
 	        var href = main_core.Dom.attr(event.target, 'href');
+	        var hrefPagePrefix = 'page:';
+
+	        if (href.startsWith(hrefPagePrefix)) {
+	          href = href.replace(hrefPagePrefix, '');
+	        }
 
 	        if (href.startsWith('#landing')) {
 	          var pageId = main_core.Text.toNumber(href.replace('#landing', ''));
@@ -211,7 +132,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          nodeElements.forEach(function (nodeElement) {
 	            nodes.push(new NodeClass({
 	              node: nodeElement,
-	              manifest: babelHelpers.objectSpread({}, nodeManifest, {
+	              manifest: _objectSpread(_objectSpread({}, nodeManifest), {}, {
 	                allowInlineEdit: false,
 	                menuMode: true
 	              })
@@ -222,7 +143,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      return new landing_menu_menuitem.MenuItem({
 	        layout: options.layout,
 	        children: options.children.map(function (itemOptions, index) {
-	          return _this2.createMenuItem(babelHelpers.objectSpread({}, itemOptions, {
+	          return _this2.createMenuItem(_objectSpread(_objectSpread({}, itemOptions), {}, {
 	            index: index
 	          }));
 	        }),
@@ -238,7 +159,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	      var item = this.manifest.item;
 	      return buildTree(this.root, item).map(function (options, index) {
-	        return _this3.createMenuItem(babelHelpers.objectSpread({}, options, {
+	        return _this3.createMenuItem(_objectSpread(_objectSpread({}, options), {}, {
 	          index: index
 	        }));
 	      });
@@ -266,7 +187,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('addPageButton', function () {
-	        return main_core.Tag.render(_templateObject(), _this4.onAddPageButtonClick.bind(_this4), landing_loc.Loc.getMessage('LANDING_MENU_CREATE_NEW_PAGE'));
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"ui-btn ui-btn-light-border ui-btn-icon-add ui-btn-round landing-ui-menu-add-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), _this4.onAddPageButtonClick.bind(_this4), landing_loc.Loc.getMessage('LANDING_MENU_CREATE_NEW_PAGE'));
 	      });
 	    }
 	  }, {
@@ -331,7 +252,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('addPageTextInput', function () {
-	        return main_core.Tag.render(_templateObject2(), landing_loc.Loc.getMessage('LANDING_MENU_CREATE_NEW_PAGE'), _this6.onAddPageTextInputKeydown.bind(_this6));
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"landing-menu-add-field-input\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\t>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_MENU_CREATE_NEW_PAGE'), _this6.onAddPageTextInputKeydown.bind(_this6));
 	      });
 	    }
 	  }, {
@@ -351,7 +272,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this7 = this;
 
 	      return this.cache.remember('addPageInputCloseButton', function () {
-	        return main_core.Tag.render(_templateObject3(), _this7.onAddPageInputCloseButtonClick.bind(_this7), landing_loc.Loc.getMessage('LANDING_MENU_CLOSE_BUTTON_LABEL'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"landing-menu-add-field-close\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t</span>\n\t\t\t"])), _this7.onAddPageInputCloseButtonClick.bind(_this7), landing_loc.Loc.getMessage('LANDING_MENU_CLOSE_BUTTON_LABEL'));
 	      });
 	    }
 	  }, {
@@ -360,7 +281,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this8 = this;
 
 	      return this.cache.remember('addPageInputApplyButton', function () {
-	        return main_core.Tag.render(_templateObject4(), _this8.onAddPageInputApplyButtonClick.bind(_this8), landing_loc.Loc.getMessage('LANDING_MENU_APPLY_BUTTON_LABEL'));
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"landing-menu-add-field-apply\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t</span>\n\t\t\t"])), _this8.onAddPageInputApplyButtonClick.bind(_this8), landing_loc.Loc.getMessage('LANDING_MENU_APPLY_BUTTON_LABEL'));
 	      });
 	    }
 	  }, {
@@ -375,7 +296,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this9 = this;
 
 	      return this.cache.remember('addPageInput', function () {
-	        return main_core.Tag.render(_templateObject5(), _this9.getAddPageInput(), _this9.getAddPageInputApplyButton(), _this9.getAddPageInputCloseButton());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-menu-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this9.getAddPageInput(), _this9.getAddPageInputApplyButton(), _this9.getAddPageInputCloseButton());
 	      });
 	    }
 	  }, {
@@ -384,7 +305,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this10 = this;
 
 	      return this.cache.remember('addPageLayout', function () {
-	        return main_core.Tag.render(_templateObject6(), _this10.getAddPageButton());
+	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-menu-add\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this10.getAddPageButton());
 	      });
 	    }
 	  }, {
@@ -404,7 +325,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	      var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'root';
 	      var ulClassName = this.manifest[type].ulClassName;
-	      return main_core.Tag.render(_templateObject7(), ulClassName, items.map(function (item) {
+	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<ul class=\"", "\">", "</ul>\n\t\t"])), ulClassName, items.map(function (item) {
 	        return _this11.createLi(item, type);
 	      }));
 	    }
@@ -413,14 +334,14 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function createA(item) {
 	      var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'root';
 	      var aClassName = this.manifest[type].aClassName;
-	      return main_core.Tag.render(_templateObject8(), aClassName, item.href, item.target, main_core.Text.encode(item.text));
+	      return main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"", "\" href=\"", "\" target=\"", "\">", "</a>\n\t\t"])), aClassName, item.href, item.target, main_core.Text.encode(item.text));
 	    }
 	  }, {
 	    key: "createLi",
 	    value: function createLi(item) {
 	      var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'root';
 	      var liClassName = this.manifest[type].liClassName;
-	      return main_core.Tag.render(_templateObject9(), liClassName, this.createA(item, type), item.children ? this.createList(item.children, 'children') : undefined);
+	      return main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<li class=\"", "\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</li>\n\t\t"])), liClassName, this.createA(item, type), item.children ? this.createList(item.children, 'children') : undefined);
 	    }
 	  }, {
 	    key: "rebuild",

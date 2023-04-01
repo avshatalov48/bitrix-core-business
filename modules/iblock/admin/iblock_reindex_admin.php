@@ -1,8 +1,8 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Iblock;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 Loader::includeModule('iblock');
@@ -13,47 +13,61 @@ $sTableID = "tbl_iblock_reindex_admin";
 
 $adminSort = new CAdminSorting($sTableID, 'ID', 'ASC');
 $lAdmin = new CAdminList($sTableID, $adminSort);
+$by = $adminSort->getField();
+$order = $adminSort->getOrder();
 
-$arHeader = array(
-	array(
+$arHeader = [
+	[
 		"id" => "ID",
 		"content" => GetMessage("IBLOCK_RADM_ID"),
 		"default" => true,
 		"sort" => "ID",
 		"align" => "right",
-	),
-	array(
+	],
+	[
 		"id" => "NAME",
 		"content" => GetMessage("IBLOCK_RADM_NAME"),
 		"sort" => "NAME",
 		"default" => true,
-	),
-	array(
+	],
+	[
 		"id" => "ACTIVE",
 		"content" => GetMessage("IBLOCK_RADM_ACTIVE"),
 		"sort" => "ACTIVE",
 		"default" => true,
-	),
-	array(
+	],
+	[
 		"id" => "PROPERTY_INDEX",
 		"content" => GetMessage("IBLOCK_RADM_PROPERTY_INDEX"),
 		"sort" => "PROPERTY_INDEX",
 		"default" => true,
-	),
-);
+	],
+];
 
 $lAdmin->AddHeaders($arHeader);
 
-$iblockFilter = array('=PROPERTY_INDEX' => array('I', 'Y'));
+$iblockFilter = [
+	'=PROPERTY_INDEX' => [
+		'I',
+		'Y',
+	],
+];
+
 if (Loader::includeModule('catalog'))
 {
-	$OfferIblocks = array();
-	$offersIterator = \Bitrix\Catalog\CatalogIblockTable::getList(array(
-		'select' => array('IBLOCK_ID'),
-		'filter' => array('!=PRODUCT_IBLOCK_ID' => 0)
-	));
+	$OfferIblocks = [];
+	$offersIterator = \Bitrix\Catalog\CatalogIblockTable::getList([
+		'select' => [
+			'IBLOCK_ID',
+		],
+		'filter' => [
+			'!=PRODUCT_IBLOCK_ID' => 0,
+		],
+	]);
 	while ($offer = $offersIterator->fetch())
+	{
 		$OfferIblocks[] = (int)$offer['IBLOCK_ID'];
+	}
 	unset($offer, $offersIterator);
 	if (!empty($OfferIblocks))
 	{
@@ -63,24 +77,23 @@ if (Loader::includeModule('catalog'))
 	unset($offersIterator, $OfferIblocks);
 }
 
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
-$iblockOrder = array($by => $order);
+$iblockOrder = [$by => $order];
 
 if ($arID = $lAdmin->GroupAction())
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
-		$arID = array();
-		$iblockIterator = Iblock\IblockTable::getList(array(
-			'select' => array('ID'),
+		$arID = [];
+		$iblockIterator = Iblock\IblockTable::getList([
+			'select' => [
+				'ID',
+			],
 			'filter' => $iblockFilter,
-			'order' => $iblockOrder
-		));
+		]);
 		while ($iblockInfo = $iblockIterator->fetch())
+		{
 			$arID[] = (int)$iblockInfo['ID'];
+		}
 		unset($iblockInfo, $iblockIterator);
 	}
 
@@ -93,19 +106,28 @@ if ($arID = $lAdmin->GroupAction())
 			if ($ID <= 0)
 				continue;
 
-			switch ($_REQUEST['action'])
+			switch ($lAdmin->GetAction())
 			{
 				case "delete":
 					if (!CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit"))
+					{
 						break;
-					$iblockInfo = Iblock\IblockTable::getList(array(
-						'select' => array('ID', 'PROPERTY_INDEX'),
-						'filter' => array('=ID' => $ID)
-					))->fetch();
-					if (empty($iblockInfo) || $iblockInfo['PROPERTY_INDEX'] != 'Y')
+					}
+					$iblockInfo = Iblock\IblockTable::getList([
+						'select' => [
+							'ID',
+							'PROPERTY_INDEX',
+						],
+						'filter' => [
+							'=ID' => $ID,
+						]
+					])->fetch();
+					if (empty($iblockInfo) || $iblockInfo['PROPERTY_INDEX'] !== 'Y')
+					{
 						break;
+					}
 					$conn->startTransaction();
-					$result = Iblock\IblockTable::update($ID, array('PROPERTY_INDEX' => 'I'));
+					$result = Iblock\IblockTable::update($ID, ['PROPERTY_INDEX' => 'I']);
 					if (!$result->isSuccess())
 					{
 						$lAdmin->AddGroupError(implode('. ', $result->getErrorMessages()), $ID);
@@ -127,7 +149,8 @@ if ($arID = $lAdmin->GroupAction())
 }
 
 $usePageNavigation = true;
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+$navyParams = [];
+if ($lAdmin->isExportMode())
 {
 	$usePageNavigation = false;
 }
@@ -135,7 +158,10 @@ else
 {
 	$navyParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
 		$sTableID,
-		array('nPageSize' => 20, 'sNavID' => $APPLICATION->GetCurPage())
+		[
+			'nPageSize' => 20,
+			'sNavID' => $APPLICATION->GetCurPage(),
+		]
 	));
 	if ($navyParams['SHOW_ALL'])
 	{
@@ -147,11 +173,16 @@ else
 		$navyParams['SIZEN'] = (int)$navyParams['SIZEN'];
 	}
 }
-$getListParams = array(
-	'select' => array('ID', 'NAME', 'PROPERTY_INDEX', 'ACTIVE'),
+$getListParams = [
+	'select' => [
+		'ID',
+		'NAME',
+		'PROPERTY_INDEX',
+		'ACTIVE',
+	],
 	'filter' => $iblockFilter,
-	'order' => $iblockOrder
-);
+	'order' => $iblockOrder,
+];
 unset($iblockFilter);
 if ($usePageNavigation)
 {
@@ -159,19 +190,23 @@ if ($usePageNavigation)
 	$getListParams['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
 }
 
+$totalCount = 0;
+$totalPages = 0;
 if ($usePageNavigation)
 {
 	$countQuery = new Main\Entity\Query(\Bitrix\Iblock\IblockTable::getEntity());
 	$countQuery->addSelect(new Main\Entity\ExpressionField('CNT', 'COUNT(1)'));
 	$countQuery->setFilter($getListParams['filter']);
-	$totalCount = $countQuery->setLimit(null)->setOffset(null)->exec()->fetch();
+	$totalCount = $countQuery->exec()->fetch();
 	unset($countQuery);
 	$totalCount = (int)$totalCount['CNT'];
 	if ($totalCount > 0)
 	{
 		$totalPages = ceil($totalCount/$navyParams['SIZEN']);
 		if ($navyParams['PAGEN'] > $totalPages)
+		{
 			$navyParams['PAGEN'] = $totalPages;
+		}
 		$getListParams['limit'] = $navyParams['SIZEN'];
 		$getListParams['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
 	}
@@ -198,7 +233,7 @@ else
 $lAdmin->NavText($rsIBlocks->GetNavPrint(GetMessage("IBLOCK_RADM_IBLOCKS")));
 
 $invalid = 0;
-while($iblockInfo = $rsIBlocks->Fetch())
+while ($iblockInfo = $rsIBlocks->Fetch())
 {
 	$row = $lAdmin->AddRow($iblockInfo["ID"], $iblockInfo);
 
@@ -206,7 +241,7 @@ while($iblockInfo = $rsIBlocks->Fetch())
 	$row->AddViewField("NAME", htmlspecialcharsEx($iblockInfo["NAME"]));
 	$row->AddViewField('ACTIVE', ($iblockInfo['ACTIVE'] == 'Y' ? GetMessage('IBLOCK_RADM_ACTIVE_YES') : GetMessage('IBLOCK_RADM_ACTIVE_NO')));
 
-	if ($iblockInfo["PROPERTY_INDEX"] == "I")
+	if ($iblockInfo["PROPERTY_INDEX"] === "I")
 	{
 		$status = 'red';
 		$lamp = '<span class="adm-lamp adm-lamp-in-list adm-lamp-'.$status.'"></span>';
@@ -219,7 +254,7 @@ while($iblockInfo = $rsIBlocks->Fetch())
 		$row->AddViewField("PROPERTY_INDEX", $lamp.GetMessage("IBLOCK_RADM_INDEX_OK"));
 	}
 
-	if ($iblockInfo["PROPERTY_INDEX"] == "I")
+	if ($iblockInfo["PROPERTY_INDEX"] === "I")
 	{
 		$invalid++;
 
@@ -234,7 +269,7 @@ while($iblockInfo = $rsIBlocks->Fetch())
 		$row->AddActions($arActions);
 		unset($arActions);
 	}
-	elseif ($iblockInfo["PROPERTY_INDEX"] == "Y")
+	elseif ($iblockInfo["PROPERTY_INDEX"] === "Y")
 	{
 		$arActions = array(
 			array(

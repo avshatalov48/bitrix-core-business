@@ -1,3 +1,4 @@
+import { Type } from 'main.core';
 import VueUploaderAdapter from './vue-uploader-adapter';
 
 /**
@@ -39,11 +40,8 @@ export const VueUploaderComponent = {
 		this.items = this.adapter.getItems();
 		this.uploaderError = this.adapter.getUploaderError();
 	},
-	mounted()
+	unmounted()
 	{
-		if (!this.uploader.getHiddenFieldsContainer())
-		{
-			this.uploader.setHiddenFieldsContainer(this.$el);
-		}
+		this.uploader.destroy();
 	}
 }

@@ -24,7 +24,8 @@ export default class MacProvider extends DesktopProvider
 
 		if (Type.isStringFilled(notification.getText()))
 		{
-			this.addTextToNotification(notificationUid, notification.getText());
+			//this.addTextToNotification(notificationUid, notification.getText());
+			BXDesktopSystem.NotificationAddText(notificationUid, notification.getText());
 		}
 
 		if (Type.isStringFilled(notification.getIcon()))

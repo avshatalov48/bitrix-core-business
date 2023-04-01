@@ -29,16 +29,15 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
-		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? $this->arParams['INPUT_NAME'] : '';
-		$this->arParams['~VALUE'] = isset($this->arParams['~VALUE']) ? $this->arParams['~VALUE'] : '';
+		$this->arParams['INPUT_NAME'] = $this->arParams['INPUT_NAME'] ?? '';
+		$this->arParams['~VALUE'] = $this->arParams['~VALUE'] ?? '';
 		$this->arParams['VALUE'] = (new Address($this->arParams['~VALUE']))->get();
-		$this->arParams['PATH_TO_SENDER_EDIT_GRID'] = isset($this->arParams['PATH_TO_SENDER_EDIT_GRID'])?
-			$this->arParams['PATH_TO_SENDER_EDIT_GRID']:'';
+		$this->arParams['PATH_TO_SENDER_EDIT_GRID'] = $this->arParams['PATH_TO_SENDER_EDIT_GRID'] ?? '';
 
 
-		$this->arParams['ID'] = isset($this->arParams['ID']) ? $this->arParams['ID'] : '';
-		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : null;
-		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
+		$this->arParams['ID'] = $this->arParams['ID'] ?? '';
+		$this->arParams['LIST'] = $this->arParams['LIST'] ?? null;
+		$this->arParams['BUTTON_SELECT_CAPTION'] = $this->arParams['BUTTON_SELECT_CAPTION'] ?? null;
 
 		if (isset($this->arParams['SHOW_BUTTON_ADD']))
 		{
@@ -79,11 +78,11 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 			return null;
 		}
 
-		if(!$users[$userId])
+		if(!($users[$userId] ?? false))
 		{
 			// prepare link to profile
 			$replaceList = array('user_id' => $userId);
-			$link = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_USER_PROFILE'], $replaceList);
+			$link = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_USER_PROFILE'] ?? '', $replaceList);
 
 			$userFields = \Bitrix\Main\UserTable::getRowById($userId);
 			if(!$userFields)
@@ -93,12 +92,12 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 
 			// format name
 			$userName = CUser::FormatName(
-				$this->arParams['NAME_TEMPLATE'],
+				$this->arParams['NAME_TEMPLATE'] ?? '',
 				array(
-					'LOGIN' => $userFields['LOGIN'],
-					'NAME' => $userFields['NAME'],
-					'LAST_NAME' => $userFields['LAST_NAME'],
-					'SECOND_NAME' => $userFields['SECOND_NAME']
+					'LOGIN' => $userFields['LOGIN'] ?? '',
+					'NAME' => $userFields['NAME'] ?? '',
+					'LAST_NAME' => $userFields['LAST_NAME'] ?? '',
+					'SECOND_NAME' => $userFields['SECOND_NAME'] ?? ''
 				),
 				true, false
 			);
@@ -110,7 +109,7 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 				BX_RESIZE_IMAGE_EXACT,
 				false
 			);
-			$userIcon = $fileTmp['src'];
+			$userIcon = $fileTmp ? $fileTmp['src'] : '';
 
 			$users[$userId] = array(
 				'ID' => $userId,

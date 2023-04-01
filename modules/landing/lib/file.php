@@ -145,11 +145,11 @@ class File
 	 */
 	public static function deleteFinal($limit = null)
 	{
-		$deletedFiles = array();
+		$deletedFiles = [];
 
 		$res = FileTable::getList([
 		  	'select' => [
-		 		'ID', 'FILE_ID', 'ENTITY_ID', 'ENTITY_TYPE'
+		 		'ID', 'FILE_ID'
 		    ],
 	  		'filter' => [
 				'<FILE_ID' => 0
@@ -163,11 +163,7 @@ class File
 		{
 			$row['FILE_ID'] *= -1;
 			FileTable::delete($row['ID']);
-			$deletedFiles[$row['FILE_ID']] =[
-				'FILE_ID' => $row['FILE_ID'],
-				'ENTITY_ID' => $row['ENTITY_ID'],
-				'ENTITY_TYPE' => $row['ENTITY_TYPE'],
-			];
+			$deletedFiles[$row['FILE_ID']] = $row['FILE_ID'];
 		}
 		if (!empty($deletedFiles))
 		{
@@ -177,29 +173,25 @@ class File
 					'FILE_ID'
 				],
 				'filter' => [
-					'FILE_ID' => array_keys($deletedFiles)
+					'FILE_ID' => $deletedFiles
 				]
 			]);
 			while ($row = $res->fetch())
 			{
 				unset($deletedFiles[$row['FILE_ID']]);
 			}
-			foreach ($deletedFiles as $file)
+			foreach ($deletedFiles as $fid)
 			{
-				$fileData = self::getFileArray($file['FILE_ID']);
+				$fileData = self::getFileArray($fid);
 				if ($fileData)
 				{
-					\Bitrix\Landing\Debug::logToFile(
-						"[lndgdbg] AGENT delete file {$file['FILE_ID']} with ORIG_NAME {$fileData['ORIGINAL_NAME']} for ENTITY {$file['ENTITY_TYPE']}_{$file['ENTITY_ID']}"
-					);
-
 					//@tmp log
 					Debug::log(
 						$fileData['SRC'],
-						'fileId: ' . $file['FILE_ID'],
+						'fileId: ' . $fid,
 						'LANDING_FILE_DELETE'
 					);
-					\CFile::delete($file);
+					\CFile::delete($fid);
 				}
 			}
 		}

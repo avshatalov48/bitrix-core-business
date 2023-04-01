@@ -649,6 +649,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "PRINT2", 'ui-btn-icon-print-2');
 	babelHelpers.defineProperty(ButtonIcon, "FUNNEL", 'ui-btn-icon-funnel');
 	babelHelpers.defineProperty(ButtonIcon, "FORWARD", 'ui-btn-icon-forward');
+	babelHelpers.defineProperty(ButtonIcon, "COPY", 'ui-btn-icon-copy');
 
 	/**
 	 * @namespace {BX.UI}

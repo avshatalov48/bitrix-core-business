@@ -9,17 +9,17 @@ global $APPLICATION;
 $componentParameters = array(
 	'ID' => $arResult['ID'],
 	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-	'PATH_TO_RESULT' => $arResult['PATH_TO_RESULT'],
-	'PATH_TO_CONTACT_IMPORT' => $arParams['PATH_TO_CONTACT_IMPORT'],
-	'PATH_TO_CONTACT_LIST' => $arParams['PATH_TO_CONTACT_LIST'],
-	'ONLY_CONNECTOR_FILTERS' => $arParams['ONLY_CONNECTOR_FILTERS'],
-	'SHOW_CONTACT_SETS' => $arParams['SHOW_CONTACT_SETS'],
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'PATH_TO_RESULT' => $arResult['PATH_TO_RESULT'] ?? '',
+	'PATH_TO_CONTACT_IMPORT' => $arParams['PATH_TO_CONTACT_IMPORT'] ?? '',
+	'PATH_TO_CONTACT_LIST' => $arParams['PATH_TO_CONTACT_LIST'] ?? '',
+	'ONLY_CONNECTOR_FILTERS' => $arParams['ONLY_CONNECTOR_FILTERS'] ?? '',
+	'SHOW_CONTACT_SETS' => $arParams['SHOW_CONTACT_SETS'] ?? '',
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$componentParameters['IFRAME'] = $_REQUEST['IFRAME'] == 'Y' ? 'Y' : 'N';
 	$APPLICATION->IncludeComponent(

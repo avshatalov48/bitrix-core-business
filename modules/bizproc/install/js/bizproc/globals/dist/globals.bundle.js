@@ -3,10 +3,8 @@ this.BX = this.BX || {};
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var instance = null;
-
 	var Manager = /*#__PURE__*/function () {
 	  function Manager() {
 	    babelHelpers.classCallCheck(this, Manager);
@@ -27,22 +25,17 @@ this.BX = this.BX || {};
 	      allowChangeHistory: false
 	    });
 	  }
-
 	  babelHelpers.createClass(Manager, [{
 	    key: "createGlobals",
 	    value: function createGlobals(mode, documentType, name, additionContext) {
-	      var customName = name !== null && name !== void 0 ? name : '';
+	      var customName = main_core.Type.isStringFilled(name) ? name : '';
 	      var visibility = null;
 	      var availableTypes = [];
-
-	      if (additionContext !== undefined) {
-	        var _additionContext$visi, _additionContext$avai;
-
-	        visibility = (_additionContext$visi = additionContext['visibility']) !== null && _additionContext$visi !== void 0 ? _additionContext$visi : null;
-	        availableTypes = (_additionContext$avai = additionContext['availableTypes']) !== null && _additionContext$avai !== void 0 ? _additionContext$avai : [];
+	      if (main_core.Type.isPlainObject(additionContext)) {
+	        visibility = main_core.Type.isStringFilled(additionContext.visibility) ? additionContext.visibility : null;
+	        availableTypes = main_core.Type.isArrayFilled(additionContext.availableTypes) ? additionContext.availableTypes : [];
 	      }
-
-	      return Manager.openSlider(main_core.Uri.addParam(this.editUrl, {
+	      return this.constructor.openSlider(main_core.Uri.addParam(this.editUrl, {
 	        documentType: documentType,
 	        mode: this.mode[mode],
 	        name: customName,
@@ -53,19 +46,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "editGlobals",
 	    value: function editGlobals(id, mode, documentType) {
-	      id = BX.util.htmlspecialcharsback(id);
-	      return Manager.openSlider(main_core.Uri.addParam(this.editUrl, {
+	      id = main_core.Type.isStringFilled(id) ? main_core.Text.decode(id) : '';
+	      return this.constructor.openSlider(main_core.Uri.addParam(this.editUrl, {
 	        fieldId: id,
-	        mode: mode,
+	        mode: this.mode[mode],
 	        documentType: documentType
 	      }), this.editSliderOptions);
 	    }
 	  }, {
 	    key: "showGlobals",
 	    value: function showGlobals(mode, documentType) {
-	      return Manager.openSlider(main_core.Uri.addParam(this.listUrl, {
+	      return this.constructor.openSlider(main_core.Uri.addParam(this.listUrl, {
 	        documentType: documentType,
-	        mode: mode
+	        mode: this.mode[mode]
 	      }), this.listSliderOptions);
 	    }
 	  }, {
@@ -99,18 +92,16 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(options)) {
 	        options = {};
 	      }
-
 	      options = _objectSpread(_objectSpread({}, {
 	        cacheable: false,
 	        allowChangeHistory: true,
 	        events: {}
 	      }), options);
 	      return new Promise(function (resolve) {
-	        if (main_core.Type.isString(url) && url.length > 1) {
+	        if (main_core.Type.isStringFilled(url)) {
 	          options.events.onClose = function (event) {
 	            resolve(event.getSlider());
 	          };
-
 	          BX.SidePanel.Instance.open(url, options);
 	        } else {
 	          resolve();
@@ -123,7 +114,6 @@ this.BX = this.BX || {};
 	      if (instance === null) {
 	        instance = new Manager();
 	      }
-
 	      return instance;
 	    }
 	  }]);

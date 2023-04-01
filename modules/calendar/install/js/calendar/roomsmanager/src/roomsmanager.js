@@ -19,6 +19,10 @@ export class RoomsManager extends SectionManager
 		this.sortSections();
 		this.reloadRoomsFromDatabaseDebounce = Runtime.debounce(this.reloadRoomsFromDatabase, SectionManager.RELOAD_DELAY, this);
 
+		if (Object.keys(Util.accessNames).length === 0)
+		{
+			BX.Calendar.Util.setAccessNames(config.accessNames);
+		}
 		EventEmitter.subscribeOnce('BX.Calendar.Rooms:delete', this.deleteRoomHandler.bind(this));
 	}
 
@@ -161,53 +165,50 @@ export class RoomsManager extends SectionManager
 
 	deleteRoom(id, location_id)
 	{
-		if (confirm(BX.message('EC_ROOM_DELETE_CONFIRM')))
-		{
-			const EventAlias = Util.getBX().Event;
-			EventAlias.EventEmitter.emit(
-				'BX.Calendar.Section:delete',
-				new EventAlias.BaseEvent({data: {sectionId: id}})
-			);
-			return new Promise(resolve => {
-				BX.ajax.runAction('calendar.api.locationajax.deleteRoom', {
-						data: {
-							id: id,
-							location_id: location_id
+		const EventAlias = Util.getBX().Event;
+		EventAlias.EventEmitter.emit(
+			'BX.Calendar.Section:delete',
+			new EventAlias.BaseEvent({data: {sectionId: id}})
+		);
+		return new Promise(resolve => {
+			BX.ajax.runAction('calendar.api.locationajax.deleteRoom', {
+					data: {
+						id: id,
+						location_id: location_id
+					}
+				})
+				.then(
+					(response) => {
+						const roomList = response.data.rooms || [];
+						const sectionList = response.data.sections || [];
+						if (!roomList.length)
+						{
+							BX.reload();
 						}
-					})
-					.then(
-						(response) => {
-							const roomList = response.data.rooms || [];
-							const sectionList = response.data.sections || [];
-							if (!roomList.length)
-							{
-								BX.reload();
-							}
-							this.setRooms(roomList);
-							this.sortRooms();
-							this.setSections(sectionList);
-							this.sortSections();
+						this.setRooms(roomList);
+						this.sortRooms();
+						this.setSections(sectionList);
+						this.sortSections();
 
-							Util.getBX().Event.EventEmitter.emit(
-								'BX.Calendar.Rooms:delete',
-								new Event.BaseEvent(
-									{
-										data: {
-											id: id
-										}
+						Util.getBX().Event.EventEmitter.emit(
+							'BX.Calendar.Rooms:delete',
+							new Event.BaseEvent(
+								{
+									data: {
+										id: id
 									}
-								)
-							);
-							this.setLocationSelector(roomList);
-							resolve(response.data);
-						},
-						(response) => {
-							BX.Calendar.Util.displayError(response.errors);
-							resolve(response.data);
-						}
-					);
-			});
-		}
+								}
+							)
+						);
+						this.setLocationSelector(roomList);
+						resolve(response.data);
+					},
+					(response) => {
+						BX.Calendar.Util.displayError(response.errors);
+						resolve(response.data);
+					}
+				);
+		});
 	}
 
 	checkName(name)

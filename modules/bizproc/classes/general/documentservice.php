@@ -46,7 +46,7 @@ class CBPDocumentService extends CBPRuntimeService
 			CModule::IncludeModule($moduleId);
 		}
 
-		if (class_exists($entity))
+		if (class_exists($entity) && method_exists($entity, 'GetDocument'))
 		{
 			$this->arDocumentsCache[$k] = call_user_func_array([$entity, "GetDocument"], [$documentId, $documentType]);
 			return $this->arDocumentsCache[$k];
@@ -658,7 +658,32 @@ $objectName.GetFieldValueByTagName = function(tag, name, form)
 				else
 				{
 					if (ar[i].selectedIndex >= 0)
-						fieldValues[ar[i].name] = ar[i].options[ar[i].selectedIndex].value;
+					{
+						const name = ar[i].name;
+						const value = ar[i].options[ar[i].selectedIndex].value;
+
+						if (name.indexOf("[]", 0) >= 0)
+						{
+							const newName = name.replace(/\[\]/g, "");
+							if ((typeof(fieldValues[newName]) !== 'object') || !(fieldValues[newName] instanceof Array))
+							{
+								if (fieldValues[newName])
+								{
+									fieldValues[newName] = [fieldValues[newName]];
+								}
+								else
+								{
+									fieldValues[newName] = [];
+								}
+							}
+
+							fieldValues[newName][fieldValues[newName].length] = value;
+						}
+						else
+						{
+							fieldValues[name] = value;
+						}
+					}
 				}
 			}
 			else
@@ -1124,7 +1149,8 @@ EOS;
 	 */
 	public function getFieldTypeObject(array $parameterDocumentType, array $property)
 	{
-		$typeClass = $this->getTypeClass($parameterDocumentType, $property['Type']);
+		$type = $property['Type'] ?? null;
+		$typeClass = $this->getTypeClass($parameterDocumentType, $type);
 		if ($typeClass && class_exists($typeClass))
 		{
 			return new FieldType($property, $parameterDocumentType, $typeClass);

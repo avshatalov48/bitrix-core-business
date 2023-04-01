@@ -13,6 +13,7 @@ class Toolbar
 	private $beforeTitleHtml;
 	private $afterTitleHtml;
 	private $underTitleHtml;
+	private string $rightCustomHtml;
 	private $titleMinWidth;
 	private $titleMaxWidth;
 	private $favoriteStar = true;
@@ -199,14 +200,14 @@ class Toolbar
 		return $this->underTitleHtml;
 	}
 
-	public function addRightCustomHtml(string $html)
+	public function addRightCustomHtml(string $html): void
 	{
 		$this->rightCustomHtml = $html;
 	}
 
-	public function getRightCustomHtml(): ?string
+	public function getRightCustomHtml(): string
 	{
-		return $this->rightCustomHtml;
+		return $this->rightCustomHtml ?? '';
 	}
 
 	/**

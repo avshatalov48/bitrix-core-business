@@ -1,6 +1,6 @@
 <?php
 $MESS["SALE_HPS_SKB_ERROR_DECODE_RESPONSE"] = "Ошибка декодирования строки JSON";
-$MESS["SALE_HPS_SKB_MODE_SKB"] = "СКБ-банк";
+$MESS["SALE_HPS_SKB_MODE_SKB"] = "Синара банк";
 $MESS["SALE_HPS_SKB_MODE_DELOBANK"] = "Делобанк";
 $MESS["SALE_HPS_SKB_MODE_GAZENERGOBANK"] = "Газэнергобанк";
 $MESS["SALE_HPS_SKB_ERROR_SIGN"] = "Подпись сообщения не совпадает";

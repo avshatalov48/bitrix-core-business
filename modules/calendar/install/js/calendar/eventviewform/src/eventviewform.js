@@ -1,7 +1,7 @@
 "use strict";
 
 import { Util } from 'calendar.util';
-import { Type, Event, Loc, Dom, Runtime, Text } from 'main.core';
+import { Type, Event, Loc, Dom, Runtime, Text, Tag } from 'main.core';
 import { Entry, EntryManager } from 'calendar.entry';
 import { MeetingStatusControl } from 'calendar.controls';
 import { BaseEvent, EventEmitter } from 'main.core.events';
@@ -74,7 +74,11 @@ export class EventViewForm {
 		EventEmitter.unsubscribe(this.slider, "SidePanel.Slider:onLoad", this.sliderOnLoad);
 		EventEmitter.unsubscribe(this.slider, "SidePanel.Slider:onCloseComplete", this.destroyBind);
 		Event.unbind(document, 'keydown', this.keyHandlerBind);
-		this.app.unmount();
+
+		if (this.app)
+		{
+			this.app.unmount();
+		}
 
 		if (this.intranetControllButton && this.intranetControllButton.destroy)
 		{
@@ -332,6 +336,25 @@ export class EventViewForm {
 		this.DOM.videoCall = this.DOM.sidebarInner.querySelector('.calendar-slider-sidebar-videocall');
 		Dom.clean(this.DOM.videoCall);
 		if (
+			Type.isElementNode(this.DOM.videoCall)
+			&& this.entry
+			&& this.entry.data['PARENT_ID']
+			&& this.entry.data['EVENT_TYPE'] === '#shared#'
+		)
+		{
+			this.DOM.videoCall.style.display = '';
+			this.conferenceButton = Tag.render`
+				<div class="ui-btn-split ui-btn-icon-camera-blue intranet-control-btn ui-btn-light-border ui-btn-icon-inline" style="width: 100%">
+					<button class="ui-btn-main calendar-slider-conference-button">
+						${Loc.getMessage('EC_CALENDAR_CONFERENCE')}
+					</button>
+				</div>
+			`;
+			Event.bind(this.conferenceButton, 'click', this.handleConferenceButtonClick.bind(this));
+
+			Dom.append(this.conferenceButton, this.DOM.videoCall);
+		}
+		else if (
 			BX?.Intranet?.ControlButton
 			&& Type.isElementNode(this.DOM.videoCall)
 			&& this.entry.getCurrentStatus() !== false
@@ -424,20 +447,45 @@ export class EventViewForm {
 			this.DOM.userListPopupWrap = this.BX.create('DIV', {props: {className: 'calendar-user-list-popup-block'}});
 			userList.forEach(function (user)
 			{
-				let userWrap = this.DOM.userListPopupWrap.appendChild(this.BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card'}}));
+				let userAvatar = `
+					<div class="ui-icon ui-icon-common-user"  style="width: 34px; height: 34px;">
+						<i></i>
+					</div>
+				`;
+				if (user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif')
+				{
+					userAvatar = `<img src="${user.AVATAR}" width="34" height="34">`;
+				}
+				if (user.EMAIL_USER)
+				{
+					userAvatar = `
+						<div class="ui-icon ui-icon ui-icon-common-user-mail" style="width: 34px; height: 34px;">
+							<i></i>
+						</div>
+					`;
+				}
+				if (user.SHARING_USER)
+				{
+					userAvatar = `
+						<div class="ui-icon ui-icon-common-user ui-icon-common-user-sharing" style="width: 34px; height: 34px;">
+							<i></i>
+						</div>
+					`;
+				}
 
-				userWrap.appendChild(this.BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-block-avatar'}}))
-					.appendChild(this.BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-block-item'}}))
-					.appendChild(this.BX.create('IMG', {props: {width: 34, height: 34, src: user.AVATAR}}));
-
-				userWrap.appendChild(this.BX.create("DIV", {props: {className: 'calendar-slider-sidebar-user-info'}}))
-					.appendChild(this.BX.create("A", {
-						props: {
-							href: user.URL ? user.URL : '#',
-							className: 'calendar-slider-sidebar-user-info-name'
-						},
-						text: user.DISPLAY_NAME
-					}));
+				const userWrap = Tag.render`
+					<div class="calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card">
+						<div class="calendar-slider-sidebar-user-block-avatar">
+							<div class="calendar-slider-sidebar-user-block-item">
+								${userAvatar}
+							</div>
+						</div>
+						<div class="calendar-slider-sidebar-user-info">
+							<a href="${user.URL ? user.URL : '#'}" class="calendar-slider-sidebar-user-info-name">${user.DISPLAY_NAME}</a>
+						</div>
+					</div>
+				`;
+				this.DOM.userListPopupWrap.append(userWrap);
 			}, this);
 
 			this.userListPopup = this.BX.PopupWindowManager.create("user-list-popup-" + Math.random(), node, {
@@ -476,17 +524,17 @@ export class EventViewForm {
 			});
 
 			this.statusControl.subscribe('onSetStatus', (event) => {
-					if (event instanceof BaseEvent)
-					{
-						this.handleEntityChanges();
-						EntryManager.setMeetingStatus(this.entry, event.getData().status)
-							.then(() => {
-								this.statusControl.setStatus(this.entry.getCurrentStatus(), false);
-								this.statusControl.updateStatus();
-							});
-					}
+				if (event instanceof BaseEvent)
+				{
+					this.handleEntityChanges();
+					EntryManager.setMeetingStatus(this.entry, event.getData().status)
+						.then(() => {
+							this.statusControl.setStatus(this.entry.getCurrentStatus(), false);
+							this.statusControl.updateStatus();
+							EventEmitter.emit(`MeetingStatusControl_${uid}:onSetStatus`, event);
+						});
 				}
-			);
+			});
 		}
 	}
 
@@ -607,5 +655,47 @@ export class EventViewForm {
 	handleEntityChanges()
 	{
 		this.entityChanged = true;
+	}
+
+	handleConferenceButtonClick()
+	{
+		if (this.conferenceButton)
+		{
+			Dom.addClass(this.conferenceButton, 'ui-btn-wait');
+		}
+
+		this.getConferenceChatId();
+
+		if (this.conferenceButton)
+		{
+			Dom.removeClass(this.conferenceButton, 'ui-btn-wait');
+		}
+	}
+
+	getConferenceChatId()
+	{
+		return this.BX.ajax.runAction('calendar.api.calendarajax.getConferenceChatId', {
+			data: {
+				eventId: this.entry.data['PARENT_ID'],
+			},
+		}).then(
+			(response) => {
+				if (top.window.BXIM && response.data && response.data.chatId)
+				{
+					top.BXIM.openMessenger('chat' + parseInt(response.data.chatId));
+
+					return null;
+				}
+
+				alert(Loc.getMessage('EC_CONFERENCE_ERROR'));
+
+				return null;
+			},
+			(response) => {
+				alert(Loc.getMessage('EC_CONFERENCE_ERROR'));
+
+				return null;
+			}
+		);
 	}
 }

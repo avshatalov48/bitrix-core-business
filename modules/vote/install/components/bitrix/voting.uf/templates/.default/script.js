@@ -383,7 +383,7 @@
 					var voterId = BX.util.htmlspecialchars(voter['ID']);
 					var voterName = BX.util.htmlspecialchars(voter['FULL_NAME']);
 					var voterPhoto = BX.type.isNotEmptyString(voter['PHOTO_SRC']) ?
-						BX.util.htmlspecialchars(voter['PHOTO_SRC']) : null;
+						encodeURI(BX.util.htmlspecialchars(voter['PHOTO_SRC'])) : null;
 					var voterType = BX.type.isNotEmptyString(voter['TYPE']) ?
 						BX.util.htmlspecialchars(voter['TYPE']) : null;
 

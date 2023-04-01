@@ -1,4 +1,4 @@
-import {Type, Text, Dom} from 'main.core';
+import {Text, Dom, Runtime} from 'main.core';
 import {BaseProvider} from './base_provider';
 
 export class YandexMap extends BaseProvider
@@ -15,6 +15,8 @@ export class YandexMap extends BaseProvider
 	 */
 	init()
 	{
+		this.preventChangeEvent = true;
+
 		const controls = ['zoomControl', 'fullscreenControl', 'typeSelector', 'routeButtonControl'];
 		if (this.options.fullscreenControl === false)
 		{
@@ -33,6 +35,7 @@ export class YandexMap extends BaseProvider
 			controls: controls,
 		});
 
+		this.mapInstance.events.add('actionend', this.onChange);
 		this.mapInstance.events.add('click', event =>
 		{
 			this.cache.delete('value');
@@ -42,16 +45,14 @@ export class YandexMap extends BaseProvider
 				this.markers[this.markers.length - 1].marker.balloon.open();
 			}
 		});
-		this.mapInstance.events.add('actionend', this.onChange.bind(this));
 
 		if (this.mapOptions.markers)
 		{
-			this.mapOptions.markers.forEach(function (markerItem)
-			{
+			this.mapOptions.markers.forEach(markerItem => {
 				markerItem.editable = BX.Landing.getMode() === "edit";
 				markerItem.draggable = BX.Landing.getMode() === "edit";
 				this.addMarker(markerItem);
-			}, this);
+			});
 		}
 
 		super.init();
@@ -59,8 +60,9 @@ export class YandexMap extends BaseProvider
 
 	reinit(options: {})
 	{
-		super.reinit();
 		// Yandex has't changes yet. If some settings will be added later - need implement reinit
+		this.preventChangeEvent = true;
+		super.reinit();
 	}
 
 	/**
@@ -189,7 +191,15 @@ export class YandexMap extends BaseProvider
 	removeMarker(event): void
 	{
 		this.mapInstance.geoObjects.remove(event.marker);
-		this.markers.remove(event);
+
+	}
+
+	clearMarkers(): void
+	{
+		this.markers.forEach(marker => {
+			this.mapInstance.geoObjects.remove(marker.marker);
+		});
+		this.markers.clear();
 	}
 
 	setZoom(zoom: number): void

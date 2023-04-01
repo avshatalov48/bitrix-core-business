@@ -22,7 +22,7 @@
 		return {
 			text: func.name,
 			description: func.description,
-			value: '{{=' + func.name + '(' + (func.args? ',' : '') + ')}}',
+			value: '{{=' + func.name + '()}}',
 		};
 	});
 	Object.freeze(functionItems);

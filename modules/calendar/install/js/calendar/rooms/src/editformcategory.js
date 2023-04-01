@@ -162,8 +162,6 @@ export class EditFormCategory extends EditForm
 		return new TagSelector({
 			placeholder: Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_PLACEHOLDER'),
 			textBoxWidth:320,
-			addButtonCaption: Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION'),
-			addButtonCaptionMore: Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION_MORE'),
 			dialogOptions: {
 				context: 'CALENDAR_CONTEXT',
 				width: 315,

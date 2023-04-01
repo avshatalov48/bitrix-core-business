@@ -12,9 +12,9 @@ class Channel
 
 	public static function getPublicId($params)
 	{
-		$config['USERS'] = isset($params['USER_ID'])? $params['USER_ID']: self::USER_SELF;
-		$config['TYPE'] = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
-		$config['JSON'] = $params['JSON'] == 'Y';
+		$config['USERS'] = $params['USER_ID'] ?? self::USER_SELF;
+		$config['TYPE'] = $params['TYPE'] ?? self::TYPE_PRIVATE;
+		$config['JSON'] = isset($params['JSON']) && $params['JSON'] == 'Y';
 
 		$result = self::getPublicIds($config);
 		if ($result)
@@ -30,8 +30,8 @@ class Channel
 		if (!\CPullOptions::GetQueueServerStatus() || \CPullOptions::GetQueueServerVersion() < 4)
 			return false;
 
-		$users = isset($params['USERS'])? $params['USERS']: self::USER_SELF;
-		$type = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
+		$users = $params['USERS'] ?? self::USER_SELF;
+		$type = $params['TYPE'] ?? self::TYPE_PRIVATE;
 		$returnJson = $params['JSON']? true: false;
 
 		$userList = [];

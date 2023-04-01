@@ -26,6 +26,11 @@ $resourceId = $fields['HTTP_X_GOOG_RESOURCE_ID'];
 Loader::includeModule('calendar');
 Loader::includeModule('dav');
 
-(new PushManager())->handlePush($channelId, $resourceId);
+try
+{
+	(new PushManager())->handlePush($channelId, $resourceId);
+}
+catch (\Exception $e)
+{}
 
 \Bitrix\Main\Application::getInstance()->end();

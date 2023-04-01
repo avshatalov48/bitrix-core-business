@@ -152,6 +152,8 @@ function SaleFormatCurrency($fSum, $strCurrency, $OnlyValue = false, $withoutFor
 			$currencyFormat = CCurrencyLang::GetDefaultValues();
 		}
 
+		$fSum = (float)$fSum;
+
 		$intDecimals = $currencyFormat['DECIMALS'];
 		if (round($fSum, $currencyFormat["DECIMALS"]) == round($fSum, 0))
 			$intDecimals = 0;
@@ -214,7 +216,14 @@ function PayUserAccountDeliveryOrderCallback($productID, $userID, $bPaid, $order
 		return False;
 
 	$baseLangCurrency = CSaleLang::GetLangCurrency($arOrder["LID"]);
-	$arAmount = unserialize(COption::GetOptionString("sale", "pay_amount", 'a:4:{i:1;a:2:{s:6:"AMOUNT";s:2:"10";s:8:"CURRENCY";s:3:"EUR";}i:2;a:2:{s:6:"AMOUNT";s:2:"20";s:8:"CURRENCY";s:3:"EUR";}i:3;a:2:{s:6:"AMOUNT";s:2:"30";s:8:"CURRENCY";s:3:"EUR";}i:4;a:2:{s:6:"AMOUNT";s:2:"40";s:8:"CURRENCY";s:3:"EUR";}}'));
+	$arAmount = unserialize(
+		COption::GetOptionString(
+			"sale",
+			"pay_amount",
+			'a:4:{i:1;a:2:{s:6:"AMOUNT";s:2:"10";s:8:"CURRENCY";s:3:"EUR";}i:2;a:2:{s:6:"AMOUNT";s:2:"20";s:8:"CURRENCY";s:3:"EUR";}i:3;a:2:{s:6:"AMOUNT";s:2:"30";s:8:"CURRENCY";s:3:"EUR";}i:4;a:2:{s:6:"AMOUNT";s:2:"40";s:8:"CURRENCY";s:3:"EUR";}}'
+		),
+		['allowed_classes' => false]
+	);
 	if (!array_key_exists($productID, $arAmount))
 		return False;
 

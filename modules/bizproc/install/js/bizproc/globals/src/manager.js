@@ -1,4 +1,4 @@
-import {ajax, Type, Uri} from 'main.core';
+import {ajax, Type, Uri, Text} from 'main.core';
 import 'sidepanel';
 
 let instance = null;
@@ -42,9 +42,10 @@ export default class Manager
 			options = {};
 		}
 		options = {...{cacheable: false, allowChangeHistory: true, events: {}}, ...options};
+
 		return new Promise((resolve) =>
 		{
-			if(Type.isString(url) && url.length > 1)
+			if(Type.isStringFilled(url))
 			{
 				options.events.onClose = function(event)
 				{
@@ -59,61 +60,78 @@ export default class Manager
 		});
 	}
 
-	createGlobals(mode: string, documentType: string, name: string, additionContext: object)
+	createGlobals(
+		mode: string,
+		documentType: string,
+		name: string,
+		additionContext: {
+			visibility?: string,
+			availableTypes?: Array<string>,
+		}
+	): Promise<?BX.SidePanel.Slider>
 	{
-		let customName = name ?? '';
+		const customName = Type.isStringFilled(name) ? name : '';
+
 		let visibility = null;
 		let availableTypes = [];
-		if (additionContext !== undefined)
+		if (Type.isPlainObject(additionContext))
 		{
-			visibility = additionContext['visibility'] ?? null;
-			availableTypes = additionContext['availableTypes'] ?? [];
+			visibility = Type.isStringFilled(additionContext.visibility) ? additionContext.visibility : null;
+			availableTypes = Type.isArrayFilled(additionContext.availableTypes) ? additionContext.availableTypes : [];
 		}
-		return Manager.openSlider(
+
+		return this.constructor.openSlider(
 			Uri.addParam(this.editUrl, {documentType, mode: this.mode[mode], name: customName, visibility, availableTypes}),
 			this.editSliderOptions
 		);
 	}
 
-	editGlobals(id: string, mode: string, documentType: string)
+	editGlobals(id: string, mode: string, documentType: string): Promise<?BX.SidePanel.Slider>
 	{
-		id = BX.util.htmlspecialcharsback(id);
-		return Manager.openSlider(
-			Uri.addParam(this.editUrl, {fieldId: id, mode, documentType,}),
+		id = Type.isStringFilled(id) ? Text.decode(id) : '';
+
+		return this.constructor.openSlider(
+			Uri.addParam(this.editUrl, {fieldId: id, mode: this.mode[mode], documentType}),
 			this.editSliderOptions
 		);
 	}
 
-	showGlobals(mode: string, documentType: string)
+	showGlobals(mode: string, documentType: string): Promise<?BX.SidePanel.Slider>
 	{
-		return Manager.openSlider(
-			Uri.addParam(this.listUrl, {documentType, mode}),
+		return this.constructor.openSlider(
+			Uri.addParam(this.listUrl, {documentType, mode: this.mode[mode]}),
 			this.listSliderOptions
 		);
 	}
 
-	deleteGlobalsAction(id: string, mode: string, documentType: string)
+	deleteGlobalsAction(id: string, mode: string, documentType: string): Promise
 	{
-		return ajax.runAction('bizproc.globalfield.delete', {
-			analyticsLabel: 'bizprocGlobalFieldDelete',
-			data: {
-				fieldId: id,
-				mode,
-				documentType,
+		return ajax.runAction(
+			'bizproc.globalfield.delete',
+			{
+				analyticsLabel: 'bizprocGlobalFieldDelete',
+				data: {
+					fieldId: id,
+					mode,
+					documentType,
+				}
 			}
-		});
+		);
 	}
 
-	upsertGlobalsAction(id: string, property: object, documentType: string, mode: string)
+	upsertGlobalsAction(id: string, property: {}, documentType: string, mode: string): Promise
 	{
-		return ajax.runAction('bizproc.globalfield.upsert', {
-			analyticsLabel: 'bizprocGlobalFieldUpsert',
-			data: {
-				fieldId: id,
-				property,
-				documentType,
-				mode
+		return ajax.runAction(
+			'bizproc.globalfield.upsert',
+			{
+				analyticsLabel: 'bizprocGlobalFieldUpsert',
+				data: {
+					fieldId: id,
+					property,
+					documentType,
+					mode
+				}
 			}
-		});
+		);
 	}
 }

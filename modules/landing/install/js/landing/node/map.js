@@ -101,19 +101,11 @@
 			{
 				if (!preventHistory)
 				{
-					BX.Landing.History.getInstance().push(
-						new BX.Landing.History.Entry({
-							block: this.getBlock().id,
-							selector: this.selector,
-							command: "editEmbed",
-							undo: this.lastValue,
-							redo: this.getValue()
-						})
-					);
+					BX.Landing.History.getInstance().push();
 				}
 
 				this.lastValue = this.getValue();
-				this.onChangeHandler(this);
+				this.onChangeHandler(this, preventHistory);
 			}
 		},
 

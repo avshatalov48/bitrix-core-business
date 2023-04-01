@@ -247,7 +247,7 @@ final class State
 		if (!self::checkIblockId($fields))
 			return;
 
-		$sections = $fields['IBLOCK_SECTION'];
+		$sections = $fields['IBLOCK_SECTION'] ?? null;
 		Main\Type\Collection::normalizeArrayValuesByInt($sections, true);
 		if (empty($sections))
 			return;

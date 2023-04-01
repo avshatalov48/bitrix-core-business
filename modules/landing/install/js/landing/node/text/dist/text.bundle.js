@@ -53,13 +53,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 
 	    if (!preventHistory) {
-	      BX.Landing.History.getInstance().push(new BX.Landing.History.Entry({
-	        block: this.getBlock().id,
-	        selector: this.selector,
-	        command: "editText",
-	        undo: this.lastValue,
-	        redo: this.getValue()
-	      }));
+	      // todo: old or new extention use?
+	      BX.Landing.History.getInstance().push();
 	    }
 	  }
 

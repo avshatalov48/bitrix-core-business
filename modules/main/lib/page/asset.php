@@ -1297,7 +1297,7 @@ class Asset
 						$cssInfo['MODULE_ID'] = $moduleInfo['MODULE_ID'];
 						$cssInfo['TARGET'] = 'KERNEL_'.$moduleInfo['MODULE_ID'];
 						$cssInfo['PREFIX'] = 'kernel_'.$moduleInfo['MODULE_ID'];
-						$cssInfo['SKIP'] = $moduleInfo['SKIP'];
+						$cssInfo['SKIP'] = $moduleInfo['SKIP'] ?? false;
 					}
 					else
 					{
@@ -1437,7 +1437,7 @@ class Asset
 						$jsInfo['MODULE_ID'] = $moduleInfo['MODULE_ID'];
 						$jsInfo['TARGET'] = 'KERNEL_'.$moduleInfo['MODULE_ID'];
 						$jsInfo['PREFIX'] = 'kernel_'.$moduleInfo['MODULE_ID'];
-						$jsInfo['SKIP'] = $moduleInfo['SKIP'];
+						$jsInfo['SKIP'] = $moduleInfo['SKIP'] ?? false;
 						$jsInfo['BODY'] = $moduleInfo['BODY'];
 					}
 					else
@@ -2254,7 +2254,7 @@ class Asset
 		$filesInfo = $tmpInfo['FILES_INFO'];
 		$action = $tmpInfo['ACTION'];
 		$files = $tmpInfo['FILE'];
-		$optimFileExist = $tmpInfo['FILE_EXIST'];
+		$optimFileExist = $tmpInfo['FILE_EXIST'] ?? false;
 
 		$writeResult = ($action == 'NEW' ? false : true);
 		$currentFileList = &$this->fileList[strtoupper($type)][$setName];

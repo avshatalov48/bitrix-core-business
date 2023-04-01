@@ -98,13 +98,17 @@
 				var observableBg = [].slice.call(entry.target.querySelectorAll('[data-lazy-bg]'));
 				observableBg.forEach(function (bg)
 				{
-					var origBg = BX.data(bg, 'bg');
-					var origStyle = BX.data(bg, 'style');
-					var origSrc = BX.data(bg, 'src');
-					var origSrc2x = BX.data(bg, 'src2x');
+					const origBg = BX.data(bg, 'bg');
+					const origStyle = BX.data(bg, 'style');
+					let origSrc = BX.data(bg, 'src');
+					// remove unnecessary quotes from src
+					origSrc = origSrc.replace(/(^['"])|(['"]$)/g, '');
+					let origSrc2x = BX.data(bg, 'src2x');
+					let origSrcset;
 					if (origSrc2x)
 					{
-						var origSrcset = origSrc2x + ' 2x';
+						origSrc2x = origSrc2x.replace(/(^['"])|(['"]$)/g, '');
+						origSrcset = origSrc2x + ' 2x';
 					}
 
 					BX.create("img", {

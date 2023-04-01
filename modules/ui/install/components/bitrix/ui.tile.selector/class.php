@@ -89,7 +89,7 @@ class UiTileSelectorComponent extends CBitrixComponent
 			$tileIds[] = $id;
 			$this->arResult['LIST'][] = array(
 				'name' => $item['name'],
-				'data' => $item['data'],
+				'data' => $item['data'] ?? [],
 				'id' => $id,
 				'bgcolor' => isset($item['bgcolor']) ? $item['bgcolor'] : null,
 				'color' => isset($item['color']) ? $item['color'] : null,

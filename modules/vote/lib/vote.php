@@ -656,10 +656,10 @@ class Vote extends BaseObject implements \ArrayAccess
 		$questions = array();
 		foreach ($questionsToSave as $key => $question)
 		{
-			if ($question["DEL"] == "Y")
+			if (($question["DEL"] ?? null) == "Y")
 				continue;
 
-			$question["ID"] = intval($question["ID"]);
+			$question["ID"] = intval($question["ID"] ?? null);
 			$question = array(
 				"ID" => (array_key_exists($question["ID"], $questionsToRevise) ? $question["ID"] : null),
 				"QUESTION" => trim($question["QUESTION"]),
@@ -671,9 +671,9 @@ class Vote extends BaseObject implements \ArrayAccess
 			$newAnswers = array();
 			foreach ($question["ANSWERS"] as $keya => $answer)
 			{
-				$answer["ID"] = intval($answer["ID"]);
+				$answer["ID"] = intval($answer["ID"] ?? null);
 				$answer["MESSAGE"] = trim($answer["MESSAGE"]);
-				if ($answer["DEL"] != "Y" && $answer["MESSAGE"] !== "")
+				if (($answer["DEL"] ?? null) != "Y" && $answer["MESSAGE"] !== "")
 				{
 					$answer = array(
 						"ID" => $answer["ID"],
@@ -752,14 +752,14 @@ class Vote extends BaseObject implements \ArrayAccess
 		$vote += ["QUESTIONS" => []];
 		/************** Check Data *****************************************/
 		$iQuestions = 0;
-		foreach ($data["QUESTIONS"] as $key => $question)
+		foreach ($data["QUESTIONS"] as $question)
 		{
 			$savedAnswers = array();
 			if ($question["ID"] > 0 && array_key_exists($question["ID"], $vote["QUESTIONS"]))
 			{
 				$savedAnswers = $vote["QUESTIONS"][$question["ID"]]["ANSWERS"];
 				unset($vote["QUESTIONS"][$question["ID"]]);
-				if ($question["DEL"] == "Y")
+				if (isset($question["DEL"]) && $question["DEL"] === "Y")
 				{
 					\CVoteQuestion::Delete($question["ID"]);
 					continue;
@@ -778,7 +778,7 @@ class Vote extends BaseObject implements \ArrayAccess
 			$iAnswers = 0;
 			foreach ($question["ANSWERS"] as $answer)
 			{
-				if (array_key_exists($answer["ID"], $savedAnswers))
+				if (!empty($answer["ID"]) && array_key_exists($answer["ID"], $savedAnswers))
 				{
 					unset($savedAnswers[$answer["ID"]]);
 					if ($answer["DEL"] == "Y")

@@ -1,124 +1,172 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
+require_once($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/prolog.php");
 
 if (!$USER->CanDoOperation('seo_tools'))
+{
 	die(GetMessage("ACCESS_DENIED"));
+}
 
+use Bitrix\Main\Loader;
 use Bitrix\Seo\Engine;
 use Bitrix\Main\IO\Path;
+use Bitrix\Seo\Webmaster;
 
 IncludeModuleLangFile(__FILE__);
-\Bitrix\Main\Loader::includeModule('seo');
-\Bitrix\Main\Loader::includeModule('socialservices');
+Loader::includeModule('seo');
+Loader::includeModule('socialservices');
 
 CUtil::JSPostUnescape();
 
-$engine = new Engine\Google();
-
-if(isset($_REQUEST['action']) && check_bitrix_sessid())
+if (isset($_REQUEST['action']) && check_bitrix_sessid())
 {
-	$res = array();
+	$res = [];
 
 	$arDomain = null;
-	if(isset($_REQUEST['domain']) && $_REQUEST['domain'] <> '')
+	if (isset($_REQUEST['domain']) && $_REQUEST['domain'] <> '')
 	{
 		$bFound = false;
 		$arDomains = \CSeoUtils::getDomainsList();
-		foreach($arDomains as $arDomain)
+		foreach ($arDomains as $arDomain)
 		{
-			if($arDomain['DOMAIN'] == $_REQUEST['domain'] && rtrim($arDomain['SITE_DIR'], '/') == rtrim($_REQUEST['dir'], '/'))
+			if ($arDomain['DOMAIN'] == $_REQUEST['domain']
+				&& (rtrim($arDomain['SITE_DIR'], '/') == rtrim($_REQUEST['dir'], '/'))
+			)
 			{
 				$bFound = true;
 				break;
 			}
 		}
 
-		if(!$bFound)
+		if (!$bFound)
 		{
-			$res = array('error' => 'Unknown site!');
+			$res = ['error' => 'Unknown site!'];
 		}
 	}
 
-	if(!$res['error'])
+	if (!$res['error'])
 	{
 		try
 		{
-			switch($_REQUEST['action'])
+			switch ($_REQUEST['action'])
 			{
 				case 'nullify_auth':
-					$engine->clearAuthSettings();
-					$res = array("result" => true);
-				break;
+					Webmaster\Service::getAuthAdapter(Webmaster\Service::TYPE_GOOGLE)
+						->setService(Webmaster\Service::getInstance())
+						->removeAuth()
+					;
+					$res = ["result" => true];
+
+					break;
 
 				case 'sites_feed':
-					$res = $engine->getFeeds();
-				break;
+					$res = Webmaster\Service::getSites();
+					if ($res['errors'])
+					{
+						$res = ['error' => $res['error']];
+					}
+
+					break;
 
 				case 'site_add':
-					$res = $engine->addSite($arDomain['DOMAIN'], $arDomain['SITE_DIR']);
-					$res['_domain'] = $arDomain['DOMAIN'];
-				break;
+					$domain = $arDomain['DOMAIN'];
+					$dir = $arDomain['SITE_DIR'] ?? '/';
+					$resAdd = Webmaster\Service::addSite($domain, $dir);
+					if ($resAdd['error'])
+					{
+						$res = ['error' => $resAdd['error']];
+						break;
+					}
+					$res = Webmaster\Service::getSites();
+					$res['_domain'] = $domain;
+
+					break;
 
 				case 'site_verify':
 					$res = array('error' => 'Unknown domain');
 
-					if(is_array($arDomain))
+					if (is_array($arDomain))
 					{
-						$sitesInfo = $engine->getFeeds();
-						if($sitesInfo[$arDomain['DOMAIN']]['verified'] == false)
+						$sitesInfo = Webmaster\Service::getSites();
+						if ($sitesInfo['error'])
 						{
-							$filename = $engine->verifyGetToken($arDomain['DOMAIN'], $arDomain['SITE_DIR']);
-
+							$res = ['error' => $res['error']];
+							break;
+						}
+						$verified = $sitesInfo[$arDomain['DOMAIN']]['verified'];
+						if (!$verified)
+						{
+							$domain = $arDomain['DOMAIN'];
+							$dir = $arDomain['SITE_DIR'] ?? '/';
+							$filename = Webmaster\Service::getVerifyToken($domain, $dir);
+							if ($filename['error'])
+							{
+								$res = ['error' => $filename['error']];
+								break;
+							}
+							$filename = $filename['token'];
 							// paranoia?
 							$filename = preg_replace("/^(.*?)\..*$/", "\\1.html", $filename);
 
-							if($filename <> '')
+							if ($filename <> '')
 							{
-								$path = Path::combine((
-									$arDomain['SITE_DOC_ROOT'] <> ''
-										? $arDomain['SITE_DOC_ROOT']
-										: $_SERVER['DOCUMENT_ROOT']
-									), $arDomain['SITE_DIR'], $filename);
+								$path = Path::combine(
+									(
+										$arDomain['SITE_DOC_ROOT'] <> ''
+											? $arDomain['SITE_DOC_ROOT']
+											: $_SERVER['DOCUMENT_ROOT']
+									),
+									$arDomain['SITE_DIR'],
+									$filename
+								);
 
 								$obFile = new \Bitrix\Main\IO\File($path);
-
-								if($obFile->isExists())
+								if ($obFile->isExists())
 								{
 									$obFile->delete();
 								}
 
-								$obFile->putContents('google-site-verification: '.$filename);
+								$obFile->putContents('google-site-verification: ' . $filename);
 
-								$res = $engine->verifySite($arDomain['DOMAIN'], $arDomain['SITE_DIR']);
+								$resVerify = !Webmaster\Service::verifySite($domain, $dir);
+								if ($resVerify['errors'])
+								{
+									$res = ['error' => $resVerify['error']];
+									break;
+								}
 							}
 
-							$res = $engine->getFeeds();
+							$res = Webmaster\Service::getSites();
+							if ($res['errors'])
+							{
+								$res = ['error' => $res['error']];
+								break;
+							}
 
 							$res['_domain'] = $arDomain['DOMAIN'];
 						}
-						elseif($siteInfo[$arDomain['DOMAIN']]['verified'] == 'true')
+						elseif ($verified == 'true')
 						{
-							$res = $siteInfo;
+							$res = $sitesInfo;
 							$res['_domain'] = $arDomain['DOMAIN'];
 						}
 					}
 					else
 					{
-						$res = array('error' => 'No domain');
+						$res = ['error' => 'No domain'];
 					}
-				break;
+					break;
 
 				default:
-					$res = array('error' => 'unknown action');
-				break;
+					$res = ['error' => 'unknown action'];
+					break;
 			}
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
-			$res = array(
-				'error' => $e->getMessage()
-			);
+			$res = [
+				'error' => $e->getMessage(),
+			];
 		}
 	}
 

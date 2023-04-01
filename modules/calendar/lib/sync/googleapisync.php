@@ -6,6 +6,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
@@ -303,7 +304,7 @@ final class GoogleApiSync
 			$response = $this->syncTransport->getCalendarList($this->getCalendarListParams($syncToken));
 		}
 
-		if (!empty($response['items']))
+		if ($response && !empty($response['items']))
 		{
 			foreach($response['items'] as $calendarItem)
 			{
@@ -948,7 +949,7 @@ final class GoogleApiSync
 	 */
 	private function prepareCalendar($calendar): array
 	{
-		$returnData['summary'] = $calendar['NAME'];
+		$returnData['summary'] = Emoji::decode($calendar['NAME']);
 		if (isset($calendar['EXTERNAL_TYPE']) && $calendar['EXTERNAL_TYPE'] === \CCalendarSect::EXTERNAL_TYPE_LOCAL)
 		{
 			IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php');

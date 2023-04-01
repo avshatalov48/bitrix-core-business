@@ -141,7 +141,7 @@ class EventQueueManager
 						&& (isset($resultData[$factory->getConnection()->getVendor()->getCode()])
 							&& $resultData[$factory->getConnection()->getVendor()->getCode()]['status']
 							=== Dictionary::SYNC_STATUS['success']
-							|| $resultData['status'] === Dictionary::SYNC_STATUS['success'])
+							|| ($resultData['status'] ?? null) === Dictionary::SYNC_STATUS['success'])
 					)
 					{
 						$eventLink->setLastSyncStatus(Dictionary::SYNC_STATUS['success']);
@@ -240,14 +240,17 @@ class EventQueueManager
 			]
 		);
 
-		$eventLink = (new EventConnection())->setId($queueItem['EVENT_CONNECTION_ID'])->setEntityTag(
-				$queueItem['ENTITY_TAG']
-			)->setVendorVersionId($queueItem['VENDOR_VERSION_ID'])->setRetryCount($queueItem['RETRY_COUNT'])
-											->setLastSyncStatus($queueItem['SYNC_STATUS'])->setVendorEventId(
-				$queueItem['VENDOR_EVENT_ID']
-			)->setData(json_decode($queueItem['DATA']))->setVersion((int)$queueItem['VERSION'])->setConnection(
-				$params['connection']
-			)->setEvent($params['event']);
+		$eventLink = (new EventConnection())
+			->setId($queueItem['EVENT_CONNECTION_ID'])
+			->setEntityTag($queueItem['ENTITY_TAG'])
+			->setVendorVersionId($queueItem['VENDOR_VERSION_ID'])
+			->setRetryCount($queueItem['RETRY_COUNT'])
+			->setLastSyncStatus($queueItem['SYNC_STATUS'])
+			->setVendorEventId($queueItem['VENDOR_EVENT_ID'])
+			->setData(json_decode($queueItem['DATA'] ?? ''))
+			->setVersion((int)$queueItem['VERSION'])
+			->setConnection($params['connection'])
+			->setEvent($params['event']);
 
 		$sectionLink = $this->mapperFactory->getSectionConnection()->getMap(
 			[

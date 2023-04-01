@@ -151,6 +151,7 @@ class PropertyProduct
 						'W' => $listImageSize,
 						'H' => $listImageSize,
 					];
+					$result[$code] ??= '';
 					$result[$code] .= \CFileInput::Show(
 						'NO_FIELDS[' . $productId . ']',
 						$prop['VALUE'],

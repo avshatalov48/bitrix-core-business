@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/sliderloader.bundle.js',
 	'rel' => [
 		'main.core',
+		'calendar.sharing.deletedviewform',
 	],
 	'skip_core' => false,
 ];

@@ -44,6 +44,8 @@ class EventManager extends Manager implements EventManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->post(
 				$this->prepareCreateUrl($context),
 				$this->encode((new EventConverter($event))->convertForCreate())
@@ -66,7 +68,7 @@ class EventManager extends Manager implements EventManagerInterface
 						case 409:
 							throw new ConflictException($error['message'], $error['code']);
 						case 401:
-							$this->handleUnauthorizeException();
+							$this->handleUnauthorize($this->connection);
 							$result->addError(new Error($error['message'], $error['code']));
 							break;
 						default:
@@ -124,6 +126,8 @@ class EventManager extends Manager implements EventManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareUpdateUrl($context),
@@ -149,8 +153,8 @@ class EventManager extends Manager implements EventManagerInterface
 							$mapper = new Core\Mappers\EventConnection();
 							/** @var EventConnection $link */
 							$link = $mapper->getMap([
-								'EVENT_ID' => $childEvent->getId(),
-								'CONNECTION_ID' => $this->connection->getId(),
+								'=EVENT_ID' => $childEvent->getId(),
+								'=CONNECTION_ID' => $this->connection->getId(),
 							])->fetch();
 							if ($link)
 							{
@@ -172,10 +176,13 @@ class EventManager extends Manager implements EventManagerInterface
 				$response = Json::decode($this->httpClient->getResult());
 				if (!empty($response['error']) && $response['error']['code'] === 401)
 				{
-					$this->handleUnauthorizeException();
+					$this->handleUnauthorize($this->connection);
+					$result->addError(new Error($response['error']['message'], $response['error']['code']));
 				}
-
-				$result->addError(new Error('error of updating event', $this->httpClient->getStatus()));
+				else
+				{
+					$result->addError(new Error('error of updating event', $this->httpClient->getStatus()));
+				}
 			}
 		}
 		catch (ArgumentException $e)
@@ -206,6 +213,8 @@ class EventManager extends Manager implements EventManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_DELETE,
 				$this->prepareUpdateUrl($context),
@@ -225,10 +234,13 @@ class EventManager extends Manager implements EventManagerInterface
 				$response = Json::decode($this->httpClient->getResult());
 				if (!empty($response['error']) && $response['error']['code'] === 401)
 				{
-					$this->handleUnauthorizeException();
+					$this->handleUnauthorize($this->connection);
+					$result->addError(new Error($response['error']['message'], $response['error']['code']));
 				}
-
-				$result->addError(new Error('error of deleting event'));
+				else
+				{
+					$result->addError(new Error('error of deleting event'));
+				}
 			}
 
 		}
@@ -264,6 +276,8 @@ class EventManager extends Manager implements EventManagerInterface
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareUpdateUrl($instanceContext),
@@ -281,10 +295,13 @@ class EventManager extends Manager implements EventManagerInterface
 				$response = Json::decode($this->httpClient->getResult());
 				if (!empty($response['error']) && $response['error']['code'] === 401)
 				{
-					$this->handleUnauthorizeException();
+					$this->handleUnauthorize($this->connection);
+					$result->addError(new Error($response['error']['message'], $response['error']['code']));
 				}
-
-				$result->addError(new Error('error of creating instance'));
+				else
+				{
+					$result->addError(new Error('error of creating instance'));
+				}
 			}
 		}
 		catch (ArgumentException $e)
@@ -335,8 +352,8 @@ class EventManager extends Manager implements EventManagerInterface
 	public function deleteInstance(Event $event, EventContext $context): Result
 	{
 		$result = new Result();
-		$excludeDate = $context->sync['excludeDate'];
-		$originalDate = $context->sync['originalDate'];
+		$excludeDate = $context->sync['excludeDate'] ?? null;
+		$originalDate = $context->sync['originalDate'] ?? null;
 
 		$instance = $this->getInstanceForDay($event, $excludeDate, $originalDate);
 		$instanceContext = $this->prepareContextForInstance($instance, $context);
@@ -725,26 +742,6 @@ class EventManager extends Manager implements EventManagerInterface
 
 	private function handleUnauthorizeException()
 	{
-		$this->connection
-			->setStatus('[401] Unauthorized')
-			->setLastSyncTime(new Core\Base\Date())
-		;
-
-		/** @var Core\Mappers\Factory $mapperFactory */
-		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
-		$mapperFactory->getConnection()->update($this->connection);
-
-		Util::addPullEvent('refresh_sync_status', $this->connection->getOwner()->getId(), [
-			'syncInfo' => [
-				'google' => [
-					'status' => false,
-					'type' => $this->connection->getAccountType(),
-					'connected' => true,
-					'id' => $this->connection->getId(),
-					'syncOffset' => 0
-				],
-			],
-			'requestUid' => Util::getRequestUid(),
-		]);
+		$this->handleUnauthorize($this->connection);
 	}
 }

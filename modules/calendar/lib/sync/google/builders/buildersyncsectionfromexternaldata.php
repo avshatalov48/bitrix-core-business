@@ -44,7 +44,7 @@ class BuilderSyncSectionFromExternalData implements Builder
 			->setExternalType(Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$this->item['accessRole']])
 			->setType(Core\Event\Tools\Dictionary::EVENT_TYPE[Core\Role\User::TYPE])
 			->setIsActive(true)
-			->setDescription($this->item['description'])
+			->setDescription($this->item['description'] ?? null)
 		;
 
 		$sectionConnection = (new SectionConnection())
@@ -65,7 +65,7 @@ class BuilderSyncSectionFromExternalData implements Builder
 			->setVendorName(Factory::SERVICE_NAME)
 		;
 
-		if ($this->item['deleted'])
+		if (!empty($this->item['deleted']))
 		{
 			$syncSection->setAction(Dictionary::SYNC_SECTION_ACTION['delete']);
 		}

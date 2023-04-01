@@ -12,6 +12,7 @@ use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Result;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\DateTime;
 use CCalendarSect;
 use Exception;
@@ -109,7 +110,9 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	protected function createEntity($entity, array $params = []): ?Core\Base\EntityInterface
 	{
-		$result = SectionTable::add($this->convertToArray($entity));
+		$arrayEntity = $this->prepareArrayEntityForDB($entity);
+
+		$result = SectionTable::add($arrayEntity);
 
 		if ($result->isSuccess())
 		{
@@ -134,9 +137,11 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	protected function updateEntity($entity, array $params = []): ?Core\Base\EntityInterface
 	{
+		$arrayEntity = $this->prepareArrayEntityForDB($entity);
+
 		$result = SectionTable::update(
 			$entity->getId(),
-			$this->convertToArray($entity)
+			$arrayEntity
 		);
 
 		if ($result->isSuccess())
@@ -225,6 +230,22 @@ class Section extends Mapper implements BaseMapperInterface
 	private function sendPushEdit(int $userId): void
 	{
 		Util::addPullEvent('edit_section', $userId);
+	}
+
+	/**
+	 * @param $entity
+	 *
+	 * @return array
+	 */
+	private function prepareArrayEntityForDB($entity): array
+	{
+		$arrayEntity = $this->convertToArray($entity);
+		if (!empty($arrayEntity['NAME']))
+		{
+			$arrayEntity['NAME'] = Emoji::encode($arrayEntity['NAME']);
+		}
+
+		return $arrayEntity;
 	}
 
 	/**

@@ -1,11 +1,15 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (!isset($arParams["CALENDAR_TYPE"]))
+{
 	$arParams["CALENDAR_TYPE"] = 'user';
+}
 
 if(!CModule::IncludeModule("calendar") || !class_exists("CCalendar"))
+{
 	return ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
-$arParams['EVENT_ID'] = intval($arParams['EVENT_ID']);
+}
+$arParams['EVENT_ID'] = (int)$arParams['EVENT_ID'];
 $arResult['EVENT'] = false;
 $arParams['CUR_USER'] = $USER->GetId();
 $events = CCalendarEvent::GetList(
@@ -22,7 +26,9 @@ $events = CCalendarEvent::GetList(
 );
 
 if ($events && is_array($events[0]))
+{
 	$arResult['EVENT'] = $events[0];
+}
 
 if (!$arResult['EVENT'])
 {
@@ -40,7 +46,9 @@ if (!$arResult['EVENT'])
 
 	// Clean damaged event from livefeed
 	if (!$events || !is_array($events[0]))
+	{
 		CCalendarLiveFeed::OnDeleteCalendarEventEntry($arParams['EVENT_ID']);
+	}
 
 	return false;
 }
@@ -65,7 +73,7 @@ else
 		$arResult['EVENT']['~DATE_FROM'] = $arResult['EVENT']['DATE_FROM'];
 		$arResult['EVENT']['~DATE_TO'] = $arResult['EVENT']['DATE_TO'];
 
-		if ($arResult['EVENT']['DT_SKIP_TIME'] == 'Y')
+		if ($arResult['EVENT']['DT_SKIP_TIME'] === 'Y')
 		{
 			$arResult['EVENT']['DATE_FROM'] = CCalendar::Date($instanceDateTs, false);
 			$arResult['EVENT']['DATE_TO'] = CCalendar::Date($instanceDateTs + $length - CCalendar::GetDayLen(), false);
@@ -80,17 +88,23 @@ else
 }
 
 if ($arResult['EVENT']['LOCATION'] !== '')
+{
 	$arResult['EVENT']['LOCATION'] = CCalendar::GetTextLocation($arResult['EVENT']["LOCATION"]);
+}
 
 global $USER_FIELD_MANAGER;
 $UF = CCalendarEvent::GetEventUserFields($arResult['EVENT']);
 $arResult['UF_CRM_CAL_EVENT'] = $UF['UF_CRM_CAL_EVENT'];
 if (empty($arResult['UF_CRM_CAL_EVENT']['VALUE']))
+{
 	$arResult['UF_CRM_CAL_EVENT'] = false;
+}
 
 $arResult['UF_WEBDAV_CAL_EVENT'] = $UF['UF_WEBDAV_CAL_EVENT'];
 if (empty($arResult['UF_WEBDAV_CAL_EVENT']['VALUE']))
+{
 	$arResult['UF_WEBDAV_CAL_EVENT'] = false;
+}
 
 $arParams['ATTENDEES_SHOWN_COUNT'] = 4;
 $arParams['ATTENDEES_SHOWN_COUNT_MAX'] = 8;
@@ -119,33 +133,34 @@ $arResult['ATTENDEES_INDEX'] = [];
 $arResult['EVENT']['ACCEPTED_ATTENDEES'] = [];
 $arResult['EVENT']['DECLINED_ATTENDEES'] = [];
 
-if ($arResult['EVENT']['IS_MEETING'])
+if (
+	$arResult['EVENT']['IS_MEETING']
+	&& isset($arResult['EVENT']['ATTENDEE_LIST'])
+	&& is_array($arResult['EVENT']['ATTENDEE_LIST'])
+)
 {
-	if (is_array($arResult['EVENT']['ATTENDEE_LIST']))
+	$userIndex = CCalendarEvent::getUserIndex();
+	foreach ($arResult['EVENT']['ATTENDEE_LIST'] as $attendee)
 	{
-		$userIndex = CCalendarEvent::getUserIndex();
-		foreach ($arResult['EVENT']['ATTENDEE_LIST'] as $attendee)
+		if (isset($userIndex[$attendee["id"]]))
 		{
-			if (isset($userIndex[$attendee["id"]]))
-			{
-				$arResult['ATTENDEES_INDEX'][$attendee["id"]] = [
-					"STATUS" => $attendee['status']
-				];
+			$arResult['ATTENDEES_INDEX'][$attendee["id"]] = [
+				"STATUS" => $attendee['status']
+			];
 
-				if ($attendee['status'] == "Y" || $attendee['status'] == "H")
-				{
-					$arResult['EVENT']['ACCEPTED_ATTENDEES'][] = $userIndex[$attendee["id"]];
-				}
-				elseif($attendee['status'] == "N")
-				{
-					$arResult['EVENT']['DECLINED_ATTENDEES'][] = $userIndex[$attendee["id"]];
-				}
+			if ($attendee['status'] === "Y" || $attendee['status'] === "H")
+			{
+				$arResult['EVENT']['ACCEPTED_ATTENDEES'][] = $userIndex[$attendee["id"]];
+			}
+			elseif($attendee['status'] === "N")
+			{
+				$arResult['EVENT']['DECLINED_ATTENDEES'][] = $userIndex[$attendee["id"]];
 			}
 		}
 	}
 }
 
-if ($arParams['MOBILE'] == 'Y')
+if ($arParams['MOBILE'] === 'Y')
 {
 	$this->setSiteTemplateId('mobile_app');
 	$arParams['ACTION_URL'] = SITE_DIR.'mobile/index.php?mobile_action=calendar_livefeed';
@@ -157,8 +172,7 @@ else
 
 ob_start();
 $this->IncludeComponentTemplate();
-$html_message = ob_get_contents();
-ob_end_clean();
+$html_message = ob_get_clean();
 
 $footStr1 = '<!--#BX_FEED_EVENT_FOOTER_MESSAGE#-->';
 $footStr2 = '<!--#BX_FEED_EVENT_FOOTER_MESSAGE_END#-->';
@@ -166,9 +180,13 @@ $pos1 = mb_strpos($html_message, $footStr1);
 $pos2 = mb_strpos($html_message, $footStr2);
 
 if ($footStr1 !== false)
+{
 	$message = mb_substr($html_message, 0, $pos1);
+}
 else
+{
 	$message = $html_message;
+}
 $footer_message = mb_substr($html_message, $pos1 + mb_strlen($footStr1), $pos2 - $pos1 - mb_strlen($footStr1));
 
 return array(

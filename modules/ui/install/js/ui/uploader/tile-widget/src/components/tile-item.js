@@ -1,5 +1,5 @@
 import { MenuManager } from 'main.popup';
-import { Text, Loc } from 'main.core';
+import { Text, Loc, Type } from 'main.core';
 import { FileOrigin, FileStatus } from 'ui.uploader.core';
 
 import { UploadLoader } from './upload-loader';
@@ -83,6 +83,27 @@ export const TileItem = {
 			}
 
 			return nameWithoutExtension;
+		},
+		menuItems()
+		{
+			const items = [];
+
+			if (Type.isStringFilled(this.item.downloadUrl))
+			{
+				items.push({
+					text: Loc.getMessage('TILE_UPLOADER_MENU_DOWNLOAD'),
+					href: this.item.downloadUrl,
+				});
+
+				items.push({
+					text: Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
+					onclick: () => {
+						this.remove();
+					},
+				});
+			}
+
+			return items;
 		}
 	},
 	created()
@@ -116,6 +137,7 @@ export const TileItem = {
 			this.showError = false;
 		},
 
+
 		showMenu()
 		{
 			if (this.menu)
@@ -130,18 +152,7 @@ export const TileItem = {
 				offsetLeft: 13,
 				minWidth: 100,
 				cacheable: false,
-				items: [
-					{
-						text: Loc.getMessage('TILE_UPLOADER_MENU_DOWNLOAD'),
-						href: this.item.downloadUrl,
-					},
-					{
-						text: Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
-						onclick: () => {
-							this.remove();
-						},
-					},
-				],
+				items: this.menuItems,
 				events: {
 					onDestroy: () => this.menu = null,
 				},
@@ -178,12 +189,12 @@ export const TileItem = {
 				<template v-else>
 					<div class="ui-tile-uploader-item-remove" @click="remove" key="remove"></div>
 					<div class="ui-tile-uploader-item-actions" key="actions">
-						<div class="ui-tile-uploader-item-menu" @click="showMenu" ref="menu"></div>
+						<div v-if="menuItems.length" class="ui-tile-uploader-item-menu" @click="showMenu" ref="menu"></div>
 					</div>
 				</template>
 				<div class="ui-tile-uploader-item-preview">
 					<div
-						v-if="item.isImage"
+						v-if="item.previewUrl"
 						class="ui-tile-uploader-item-image"
 						:class="{ 'ui-tile-uploader-item-image-default': item.previewUrl === null }"
 						:style="{ backgroundImage: item.previewUrl !== null ? 'url(' + item.previewUrl + ')' : '' }">

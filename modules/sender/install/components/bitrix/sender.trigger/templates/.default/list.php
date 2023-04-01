@@ -18,7 +18,7 @@ $componentParameters = array(
 	'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'],
 	'PATH_TO_ABUSES' => $arParams['PATH_TO_ABUSES'],
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) &&  $_REQUEST['IFRAME'] == 'Y')
 {
 	$componentParameters['IFRAME'] = $_REQUEST['IFRAME'] == 'Y' ? 'Y' : 'N';
 	$APPLICATION->IncludeComponent(

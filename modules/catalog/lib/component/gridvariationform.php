@@ -17,6 +17,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
+use CIBlockPropertyXmlID;
 
 class GridVariationForm extends VariationForm
 {
@@ -258,21 +259,35 @@ class GridVariationForm extends VariationForm
 				default:
 					$description['editable'] = ['TYPE' => Types::TEXT];
 			}
+
+			$nonEditableUserTypes = [
+				'ElementXmlID',
+				'employee',
+				'map_yandex',
+				'map_google',
+				'ECrm',
+				'video',
+				'HTML',
+			];
+			if (
+				$description['settings']['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT
+				|| $description['settings']['PROPERTY_TYPE'] === PropertyTable::TYPE_SECTION
+				|| in_array($description['settings']['USER_TYPE'], $nonEditableUserTypes, true)
+			)
+			{
+				$description['editable'] = false;
+			}
 		}
 
 		return $description;
 	}
 
-	protected function buildIblockPropertiesDescriptions(): array
+	protected function getUnavailableUserTypes(): array
 	{
-		$propertyDescriptions = [];
-
-		foreach ($this->entity->getPropertyCollection() as $property)
-		{
-			$propertyDescriptions[] = $this->getPropertyDescription($property);
-		}
-
-		return $propertyDescriptions;
+		return [
+			'DiskFile',
+			'TopicID',
+		];
 	}
 
 	public function getColumnValues(bool $allowDefaultValues = true): array
@@ -321,11 +336,11 @@ class GridVariationForm extends VariationForm
 					}
 					break;
 				case 'boolean':
-					$code = ($currentValue === 'Y') ? 'YES' : 'NO';
+					$code = ($currentValue !== '') ? 'YES' : 'NO';
 					$values[$name] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_VALUE_'.$code);
 					break;
 				case 'list':
-					$values[$name] = HtmlFilter::encode($description['editable']['items'][$currentValue]);
+					$values[$name] = HtmlFilter::encode($description['editable']['items'][$currentValue] ?? '');
 					break;
 				case 'custom':
 					$values[$name] = $values[$description['data']['view']];
@@ -845,6 +860,18 @@ class GridVariationForm extends VariationForm
 						],
 					];
 					break;
+				case 'boolean':
+					$descriptionData = $description['data'] ?? [];
+					$variants = $descriptionData['items'] ?? [];
+					foreach ($variants as $variant)
+					{
+						if ($values[$name] === $variant['ID'])
+						{
+							$values[$name] = $variant['NAME'];
+							break;
+						}
+					}
+					break;
 			}
 		}
 
@@ -859,7 +886,7 @@ class GridVariationForm extends VariationForm
 		foreach ($numberFields as $fieldName)
 		{
 			$fieldName = self::formatFieldName($fieldName);
-			if ($values[$fieldName] == 0)
+			if (isset($values[$fieldName]) && $values[$fieldName] == 0)
 			{
 				$additionalValues[$fieldName] = null;
 			}
@@ -963,7 +990,7 @@ HTML;
 			return $this->getBarcodeValue();
 		}
 
-		if ($field['originalName'] === 'QUANTITY_COMMON')
+		if (isset($field['originalName']) && $field['originalName'] === 'QUANTITY_COMMON')
 		{
 			return $this->getCommonQuantityFieldValue();
 		}

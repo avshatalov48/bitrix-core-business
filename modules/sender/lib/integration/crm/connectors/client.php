@@ -100,7 +100,7 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 	 *
 	 * @return Entity\Query[]
 	 */
-	public function getLimitedQueries(int $offset = 0, int $limit, string $excludeType = null): array
+	public function getLimitedQueries(int $offset, int $limit, string $excludeType = null): array
 	{
 		$queries = array();
 		$clientType = $this->getFieldValue('CLIENT_TYPE');
@@ -489,7 +489,7 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 		$result = [$query];
 
 		$filterFields = $query->getFilter();
-		$productSource = $filterFields['PRODUCT_SOURCE'];
+		$productSource = $filterFields['PRODUCT_SOURCE'] ?? '';
 		unset($filterFields['PRODUCT_SOURCE']);
 		$query->setFilter($filterFields);
 
@@ -834,6 +834,14 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 				'type' => 'string',
 				'sender_segment_filter' => '%NAME',
 				'sender_internal' => true
+			],
+			[
+				'id' => 'CLIENT_ID',
+				'type' => 'string',
+				'params' => array('hidden' => self::YES),
+				"name" => 'ID',
+				"default" => true,
+				'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'getIdFilter']
 			],
 		];
 

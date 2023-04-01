@@ -3,6 +3,7 @@ import type { FilterType } from '../enums/filter-type';
 import type { ServerOptions } from './server-options';
 import type { UploaderFileOptions } from './uploader-file-options';
 import type Filter from '../filters/filter';
+import type { ResizeImageMode, ResizeImageMimeType, ResizeImageMimeTypeMode } from '../types/resize-image-options';
 
 export type UploaderOptions = {
 	controller?: string,
@@ -34,16 +35,18 @@ export type UploaderOptions = {
 
 	imageResizeWidth?: number,
 	imageResizeHeight?: number,
-	imageResizeMimeType?: 'image/jpeg' | 'image/png',
+	imageResizeMode?: ResizeImageMode,
+	imageResizeMimeType?: ResizeImageMimeType,
+	imageResizeMimeTypeMode?: ResizeImageMimeTypeMode,
 	imageResizeQuality?: number,
-	imageResizeMethod?: 'contain' | 'cover' | 'force',
 
 	imagePreviewWidth?: number,
 	imagePreviewHeight?: number,
+	imagePreviewResizeMode?: ResizeImageMode,
+	imagePreviewMimeType?: ResizeImageMimeType,
+	imagePreviewMimeTypeMode?: ResizeImageMimeTypeMode,
 	imagePreviewQuality?: number,
-	imagePreviewMimeType?: 'image/jpeg' | 'image/png',
 	imagePreviewUpscale?: boolean,
-	imagePreviewResizeMethod?: 'contain' | 'cover' | 'force',
 
 	ignoredFileNames?: string[],
 	serverOptions: ServerOptions,

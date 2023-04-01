@@ -24,7 +24,7 @@
 			'sender-start-ads',
 			'sender-start-marketing',
 			'sender-start-rc',
-			'sender-start-toloka'
+			'sender-start-yandex'
 		];
 		for (var i = 0; i < tiles.length; i++)
 		{

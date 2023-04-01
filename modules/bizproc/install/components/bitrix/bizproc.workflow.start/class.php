@@ -11,7 +11,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		$arParams["ENTITY"] = trim(empty($arParams["ENTITY"]) ? $_REQUEST["entity"] : $arParams["ENTITY"]);
 		$arParams["DOCUMENT_TYPE"] = trim(empty($arParams["DOCUMENT_TYPE"]) ? $_REQUEST["document_type"] : $arParams["DOCUMENT_TYPE"]);
 		$arParams["DOCUMENT_ID"] = trim(empty($arParams["DOCUMENT_ID"]) ? $_REQUEST["document_id"] : $arParams["DOCUMENT_ID"]);
-		$arParams["TEMPLATE_ID"] = isset($arParams["TEMPLATE_ID"]) ? (int)$arParams["TEMPLATE_ID"] : (int)$_REQUEST["workflow_template_id"];
+		$arParams["TEMPLATE_ID"] = isset($arParams["TEMPLATE_ID"]) ? (int)$arParams["TEMPLATE_ID"] : (int)($_REQUEST["workflow_template_id"] ?? 0);
 		$arParams["AUTO_EXECUTE_TYPE"] = isset($arParams["AUTO_EXECUTE_TYPE"]) ? (int)$arParams["AUTO_EXECUTE_TYPE"] : null;
 
 		$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? 'Y') == "N" ? "N" : "Y");
@@ -120,7 +120,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 			],
 			false,
 			false,
-			["ID", "NAME", "DESCRIPTION", "MODIFIED", "USER_ID", "PARAMETERS"]
+			["ID", "NAME", "DESCRIPTION", "MODIFIED", "USER_ID", "PARAMETERS", 'AUTO_EXECUTE']
 		);
 		while ($arWorkflowTemplate = $dbWorkflowTemplate->GetNext())
 		{

@@ -20,12 +20,12 @@ class CCalendarType
 		global $DB;
 		$access = new CAccess();
 		$access->UpdateCodes();
-		$arFilter = $params['arFilter'];
+		$arFilter = $params['arFilter'] ?? null;
 		$result = false;
 		$cacheId = false;
 		$cachePath = '';
-		$arOrder = isset($params['arOrder']) ? $params['arOrder'] : Array('XML_ID' => 'asc');
-		$checkPermissions = $params['checkPermissions'] !== false;
+		$arOrder = $params['arOrder'] ?? Array('XML_ID' => 'asc');
+		$checkPermissions = ($params['checkPermissions'] ?? true) !== false;
 
 		$bCache = CCalendar::CacheTime() > 0;
 
@@ -45,13 +45,13 @@ class CCalendarType
 
 		if (!$bCache || !isset($arTypeXmlIds))
 		{
-			static $arFields = array(
-				"XML_ID" => Array("FIELD_NAME" => "CT.XML_ID", "FIELD_TYPE" => "string"),
-				"NAME" => Array("FIELD_NAME" => "CT.NAME", "FIELD_TYPE" => "string"),
-				"ACTIVE" => Array("FIELD_NAME" => "CT.ACTIVE", "FIELD_TYPE" => "string"),
-				"DESCRIPTION" => Array("FIELD_NAME" => "CT.DESCRIPTION", "FIELD_TYPE" => "string"),
-				"EXTERNAL_ID" => Array("FIELD_NAME" => "CT.EXTERNAL_ID", "FIELD_TYPE" => "string")
-			);
+			$arFields = [
+				"XML_ID" => ["FIELD_NAME" => "CT.XML_ID", "FIELD_TYPE" => "string"],
+				"NAME" => ["FIELD_NAME" => "CT.NAME", "FIELD_TYPE" => "string"],
+				"ACTIVE" => ["FIELD_NAME" => "CT.ACTIVE", "FIELD_TYPE" => "string"],
+				"DESCRIPTION" => ["FIELD_NAME" => "CT.DESCRIPTION", "FIELD_TYPE" => "string"],
+				"EXTERNAL_ID" => ["FIELD_NAME" => "CT.EXTERNAL_ID", "FIELD_TYPE" => "string"]
+			];
 
 			$arSqlSearch = array();
 			if(is_array($arFilter))
@@ -294,8 +294,10 @@ class CCalendarType
 		while($arRes = $res->Fetch())
 		{
 			$xmlId = $arRes['SECT_ID'];
-			if (!is_array(self::$Permissions[$xmlId]))
+			if (!isset(self::$Permissions[$xmlId]) || !is_array(self::$Permissions[$xmlId]))
+			{
 				self::$Permissions[$xmlId] = array();
+			}
 			self::$Permissions[$xmlId][$arRes['ACCESS_CODE']] = $arRes['TASK_ID'];
 		}
 		foreach($arTypes as $xmlid)
@@ -348,7 +350,7 @@ class CCalendarType
 
 		$opCacheKey = $xmlId.'_'.$userId;
 
-		if (is_array(self::$userOperationsCache[$opCacheKey]))
+		if (isset(self::$userOperationsCache[$opCacheKey]) && is_array(self::$userOperationsCache[$opCacheKey]))
 		{
 			$result = self::$userOperationsCache[$opCacheKey];
 		}
@@ -376,7 +378,7 @@ class CCalendarType
 			}
 
 			$key = $xmlId.'|'.implode(',', $arCodes);
-			if(!is_array(self::$arOp[$key]))
+			if(!isset(self::$arOp[$key]) || !is_array(self::$arOp[$key]))
 			{
 				if(!isset(self::$Permissions[$xmlId]))
 					self::GetArrayPermissions(array($xmlId));

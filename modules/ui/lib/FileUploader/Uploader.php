@@ -3,7 +3,8 @@
 namespace Bitrix\UI\FileUploader;
 
 use Bitrix\Main\Engine\UrlManager;
-use Bitrix\Main\Error;
+use Bitrix\Main\File\Image;
+use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
@@ -208,7 +209,7 @@ class Uploader
 				[
 					$controller->getName(),
 					$options,
-					\bitrix_sessid(),
+					$controller->getFingerprint(),
 				]
 			)
 		));
@@ -265,10 +266,10 @@ class Uploader
 		$results = new RemoveResultCollection();
 		[$bfileIds, $tempFileIds] = $this->splitIds($ids);
 
+		$controller = $this->getController();
 		// Files from b_file
 		if (count($bfileIds) > 0)
 		{
-			$controller = $this->getController();
 			$fileOwnerships = new FileOwnershipCollection($bfileIds);
 			if ($controller->canRemove())
 			{
@@ -294,11 +295,35 @@ class Uploader
 		// Temp Files
 		if (count($tempFileIds) > 0)
 		{
+			$canUpload = $controller->canUpload();
 			foreach ($tempFileIds as $tempFileId)
 			{
-				// TODO: remove file
 				$removeResult = new RemoveResult($tempFileId);
 				$results->add($removeResult);
+
+				if (!$canUpload)
+				{
+					$removeResult->addError(new UploaderError(UploaderError::FILE_REMOVE_ACCESS_DENIED));
+					continue;
+				}
+
+				$guid = $this->getGuidFromToken($tempFileId);
+				if (!$guid)
+				{
+					$removeResult->addError(new UploaderError(UploaderError::INVALID_SIGNATURE));
+					continue;
+				}
+
+				$tempFile = TempFileTable::getList([
+					'filter' => [
+						'=GUID' => $guid,
+					],
+				])->fetchObject();
+
+				if ($tempFile)
+				{
+					$tempFile->delete();
+				}
 			}
 		}
 
@@ -413,9 +438,22 @@ class Uploader
 			if ($fileInfo->getWidth() && $fileInfo->getHeight())
 			{
 				$fileInfo->setPreviewUrl($this->getFileActionUrl($fileInfo, 'preview'));
-				// TODO:
-				// $fileInfo->setPreviewWidth($previewWidth);
-				// $fileInfo->setPreviewHeight($previewHeight);
+
+				// Sync with \Bitrix\UI\Controller\FileUploader::previewAction
+				$sourceRectangle = new Rectangle($fileInfo->getWidth(), $fileInfo->getHeight());
+				$destinationRectangle = new Rectangle(300, 300);
+				$needResize = $sourceRectangle->resize($destinationRectangle, Image::RESIZE_PROPORTIONAL);
+				if ($needResize)
+				{
+					$fileInfo->setPreviewWidth($destinationRectangle->getWidth());
+					$fileInfo->setPreviewHeight($destinationRectangle->getHeight());
+				}
+				else
+				{
+					$fileInfo->setPreviewWidth($sourceRectangle->getWidth());
+					$fileInfo->setPreviewHeight($sourceRectangle->getHeight());
+				}
+
 			}
 		}
 

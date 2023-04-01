@@ -991,13 +991,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.selectContol.destroy();
 	    }
 
+	    let disabledControl = this.disabled;
+
+	    if (!menuItemList.length) {
+	      disabledControl = true;
+	    }
+
 	    this.processValue();
 	    this.selectContol = new BX.Calendar.Controls.SelectInput({
 	      input: this.DOM.input,
 	      values: menuItemList,
 	      valueIndex: selectedIndex,
 	      zIndex: this.zIndex,
-	      disabled: this.disabled,
+	      disabled: disabledControl,
 	      minWidth: 300,
 	      onChangeCallback: () => {
 	        main_core_events.EventEmitter.emit('Calendar.LocationControl.onValueChange');
@@ -1112,7 +1118,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 
 	    setTimeout(() => {
-	      this.DOM.input.after(this.DOM.alertIconLocation);
+	      this.DOM.inputWrapInner.after(this.DOM.alertIconLocation);
 	    }, 200);
 	  }
 
@@ -1122,7 +1128,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 
 	    if (this.DOM.alertIconLocation.parentNode === this.DOM.inputWrap) {
-	      this.DOM.inputWrap.removeChild(this.DOM.alertIconLocation);
+	      main_core.Dom.remove(this.DOM.alertIconLocation);
 	    }
 	  }
 
@@ -1503,8 +1509,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          new_section_access: response.data.config.defaultSectionAccess,
 	          sectionAccessTasks: response.data.config.sectionAccessTasks,
 	          showTasks: response.data.config.showTasks,
-	          locationContext: this //for updating list of locations in event creation menu
-
+	          locationContext: this,
+	          //for updating list of locations in event creation menu
+	          accessNames: response.data.config.accessNames
 	        });
 	        resolve(response.data);
 	      }, // Failure
@@ -4444,7 +4451,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	let _$7 = t => t,
 	    _t$7,
-	    _t2$7;
+	    _t2$7,
+	    _t3$5;
 	class UserPlannerSelector extends main_core_events.EventEmitter {
 	  constructor(params = {}) {
 	    super();
@@ -4600,7 +4608,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
 	    }
 
-	    if ((_BX = BX) != null && (_BX$Intranet = _BX.Intranet) != null && _BX$Intranet.ControlButton && this.DOM.videocallWrap && this.entryId && this.entry.getCurrentStatus() !== false) {
+	    if (this.entryId && this.entry && this.entry.data['PARENT_ID'] && this.entry.data['EVENT_TYPE'] === '#shared#' && this.entry.getCurrentStatus() !== false) {
+	      main_core.Dom.clean(this.DOM.videocallWrap);
+	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
+	      this.conferenceButton = main_core.Tag.render(_t$7 || (_t$7 = _$7`
+				<div class="calendar-text-link --gray">${0}</div>
+			`), main_core.Loc.getMessage('EC_CONFERENCE_START'));
+	      main_core.Event.bind(this.conferenceButton, 'click', this.handleVideoconferenceButtonClick.bind(this));
+	      main_core.Dom.append(this.conferenceButton, this.DOM.videocallWrap);
+	    } else if ((_BX = BX) != null && (_BX$Intranet = _BX.Intranet) != null && _BX$Intranet.ControlButton && this.DOM.videocallWrap && this.entryId && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
 	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 	      this.intranetControllButton = new intranet_controlButton.ControlButton({
@@ -4732,6 +4748,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        AVATAR: item.avatar,
 	        DISPLAY_NAME: item.name,
 	        EMAIL_USER: item.emailUser,
+	        SHARING_USER: item.sharingUser,
 	        STATUS: (item.status || '').toUpperCase(),
 	        URL: item.url
 	      };
@@ -4868,9 +4885,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        img = user.AVATAR || user.SMALL_AVATAR;
 
 	    if (!img || img === "/bitrix/images/1.gif") {
-	      imageNode = main_core.Tag.render(_t$7 || (_t$7 = _$7`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+	      let defaultAvatarClass = 'ui-icon-common-user';
+
+	      if (user.EMAIL_USER) {
+	        defaultAvatarClass = 'ui-icon-common-user-mail';
+	      }
+
+	      if (user.SHARING_USER) {
+	        defaultAvatarClass += ' ui-icon-common-user-sharing';
+	      }
+
+	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$7`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
 	    } else {
-	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$7`
+	      imageNode = main_core.Tag.render(_t3$5 || (_t3$5 = _$7`
 			<img
 				title="${0}"
 				class="calendar-member"
@@ -4993,6 +5020,29 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        });
 	      }
 	    }
+	  }
+
+	  handleVideoconferenceButtonClick() {
+	    this.getConferenceChatId();
+	  }
+
+	  getConferenceChatId() {
+	    return this.BX.ajax.runAction('calendar.api.calendarajax.getConferenceChatId', {
+	      data: {
+	        eventId: this.entry.data['PARENT_ID']
+	      }
+	    }).then(response => {
+	      if (top.window.BXIM && response.data && response.data.chatId) {
+	        top.BXIM.openMessenger('chat' + parseInt(response.data.chatId));
+	        return null;
+	      }
+
+	      alert(main_core.Loc.getMessage('EC_CONFERENCE_ERROR'));
+	      return null;
+	    }, response => {
+	      alert(main_core.Loc.getMessage('EC_CONFERENCE_ERROR'));
+	      return null;
+	    });
 	  }
 
 	}
@@ -5509,7 +5559,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	                contentClassName: "bitrix24-profile-slider-content",
 	                width: 1100
 	              });
-	              this.morePopup.close();
 	            }
 	          });
 	        });

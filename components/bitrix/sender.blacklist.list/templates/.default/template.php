@@ -126,7 +126,7 @@ $APPLICATION->IncludeComponent(
 
 			BX.Sender.BlacklistGrid.init(<?=Json::encode(array(
 				'actionUri' => $arResult['ACTION_URI'],
-				'messages' => $arResult['MESSAGES'],
+				'messages' => $arResult['MESSAGES'] ?? '',
 				"gridId" => $arParams['GRID_ID'],
 				'mess' => array()
 			))?>);

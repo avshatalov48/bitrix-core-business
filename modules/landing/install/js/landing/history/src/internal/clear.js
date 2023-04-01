@@ -9,8 +9,7 @@ import type {History} from '../history';
 export default function clear(history: History): Promise<History>
 {
 	history.stack = [];
-	history.position = -1;
-	history.state = INIT;
+ 	history.step = -1;
 	history.commandState = RESOLVED;
 	return Promise.resolve(history);
 }

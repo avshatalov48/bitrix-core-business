@@ -100,7 +100,7 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 		return [
 			[
 				'id' => 'PRODUCT_ID',
-				'name' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_PRODUCT_COLUMN'),
+				'name' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_PRODUCT_COLUMN_MSGVER_1'),
 				'sort' => 'PRODUCT_ID',
 				'default' => true,
 				'type' => 'custom',

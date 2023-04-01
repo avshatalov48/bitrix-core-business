@@ -233,7 +233,6 @@ export class ColorField extends BaseField
 	onFrameLoad()
 	{
 		// todo: now not work with "group select", can use just any node from elements. If group - need forEach
-
 		const value = this.data.styleNode.getValue(true);
 		this.setValue(value.style);
 	}

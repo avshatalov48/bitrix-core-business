@@ -19,7 +19,15 @@ return array(
 			'type' => 'embed',
 		),
 	),
-	'style' => array(),
+	'style' => [
+		'block' => [],
+		'nodes' => [
+			'.landing-block-node-video' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_49_JUST_VIDEO'),
+				'type' => ['orientation-free', 'video-scale'],
+			],
+		],
+	],
 	'assets' => array(
 		'ext' => array('landing_inline_video'),
 	),

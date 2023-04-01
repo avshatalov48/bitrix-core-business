@@ -5,6 +5,7 @@ namespace Bitrix\Seo\LeadAds\Services;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Error;
+use Bitrix\Main\Result;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Encoding;
@@ -27,6 +28,10 @@ class FormVkontakte extends LeadAds\Form
 {
 	public const TYPE_CODE = LeadAds\Service::TYPE_VKONTAKTE;
 
+	public const LIMIT_DEFAULT = 20;
+	public const LIMIT_MAX = 50;
+	protected const STATUS_FORM_ACTIVE = 1;
+
 	public const URL_FORM_LIST = 'https://www.facebook.com/ads/manager/audiences/manage/';
 
 	public const USE_GROUP_AUTH = true;
@@ -34,11 +39,14 @@ class FormVkontakte extends LeadAds\Form
 		['CRM_NAME' => LeadAds\Field::TYPE_NAME, 'ADS_NAME' => 'first_name'],
 		['CRM_NAME' => LeadAds\Field::TYPE_LAST_NAME, 'ADS_NAME' => 'last_name'],
 		['CRM_NAME' => LeadAds\Field::TYPE_EMAIL, 'ADS_NAME' => 'email'],
-		['CRM_NAME' => LeadAds\Field::TYPE_PHONE, 'ADS_NAME' => 'phone_number'],
-		['CRM_NAME' => LeadAds\Field::TYPE_BIRTHDAY, 'ADS_NAME'=>'birthday'],
+		['CRM_NAME' => LeadAds\Field::TYPE_PHONE, 'ADS_NAME' => 'phone'],
+		['CRM_NAME' => LeadAds\Field::TYPE_BIRTHDAY, 'ADS_NAME'=>'birth_date'],
 		['CRM_NAME' => LeadAds\Field::TYPE_AGE, 'ADS_NAME'=>'age'],
 		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_FULL, 'ADS_NAME'=>'location'],
 		['CRM_NAME' => LeadAds\Field::TYPE_PATRONYMIC_NAME, 'ADS_NAME'=>'patronymic_name'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_COUNTRY, 'ADS_NAME'=>'country'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_CITY, 'ADS_NAME'=>'city'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_STREET_ADDRESS, 'ADS_NAME'=>'address'],
 	];
 
 	protected static $fieldKeyPrefix = 'b24-seo-ads-';
@@ -117,35 +125,7 @@ class FormVkontakte extends LeadAds\Form
 	 */
 	public function add(array $data) : Response
 	{
-		$response = $this->registerGroupWebHook();
-		if (!$response->isSuccess())
-		{
-			return $response;
-		}
-		// https://vk.com/dev/leadForms.create
-		$questions = static::convertFields($data['FIELDS']);
-		$privacyPolicy = self::getPrivacyPolicyUrl();
-		$requestParameters = array(
-			'methodName'=>'leadads.form.create',
-			'parameters' => array(
-				'group_id' => $this->accountId,
-				'active' => 1,
-				'name' => $this->encodeString($data['NAME'], 100),
-				'title' => $this->encodeString($data['TITLE'] ?: ' ', 60),
-				'description' => $this->encodeString($data['DESCRIPTION'] ?: ' ', 600),
-				'policy_link_url' => mb_substr($privacyPolicy, 0, 200),
-				'site_link_url' => mb_substr($data['SUCCESS_URL'], 0, 200),
-				'questions' => Json::encode($questions)
-			)
-		);
-		$response = $this->getRequest()->send($requestParameters);
-		$responseData = $response->getData();
-		if (!empty($responseData['form_id']))
-		{
-			$response->setId($responseData['form_id']);
-		}
-
-		return $response;
+		return new Retargeting\Services\ResponseVkontakte();
 	}
 
 	/**
@@ -247,36 +227,10 @@ class FormVkontakte extends LeadAds\Form
 			return $row['CALLBACK_SERVER_ID'];
 		}
 
-		$remoteServiceUrl = Service::SERVICE_URL;
-		$webhookQueryParams = http_build_query(
-			array(
-				"code" => LeadAds\Service::getEngineCode(static::TYPE_CODE),
-				"action" => "web_hook",
-			)
-		);
-		$serverCreateResponse = $this->getRequest()->send([
-			'methodName' => 'leadads.callback.server.add',
-			'parameters' => [
-				'group_id' => $this->accountId,
-				'url' => "{$remoteServiceUrl}/register/index.php?{$webhookQueryParams}",
-				'title' => 'Bitrix24 CRM',
-				'secret_key' => $secretKey,
-			]
-		]);
-
-		if (!$serverCreateResponse->isSuccess() || !$serverId = $serverCreateResponse->getData()['server_id'] ?? null)
-		{
-			return new Error(
-				'Can not add Callback server: '
-				. ($serverCreateResponse->getErrorMessages()[0] ?? 'Empty `server_id`.')
-			);
-		}
-
 		$responseSetCallbackSettings = $this->getRequest()->send([
 			'methodName' => 'leadads.callback.server.settings.set',
 			'parameters' => [
 				'group_id' => $this->accountId,
-				'server_id' => $serverId,
 				'lead_forms_new' => 1,
 			]
 		]);
@@ -286,18 +240,7 @@ class FormVkontakte extends LeadAds\Form
 			return new Error('Can not set Callback server settings.');
 		}
 
-		$callbackSubscriptionDbResult = LeadAds\Internals\CallbackSubscriptionTable::update(
-			$row['ID'],
-			['CALLBACK_SERVER_ID' => $serverId]
-		);
-
-		if (!$callbackSubscriptionDbResult->isSuccess())
-		{
-			return new Error('Can not update Callback server table.');
-		}
-
-
-		return $serverId;
+		return true;
 	}
 
 	protected function deleteCallbackServer($groupId): void
@@ -366,13 +309,35 @@ class FormVkontakte extends LeadAds\Form
 	 */
 	public function getList() : FormResponse
 	{
-		/**@var Retargeting\Services\ResponseVkontakte $response*/
-		$response = $this->getRequest()->send([
-			'methodName'=>'leadads.form.list',
-			'parameters'=>[
-				'group_id' => $this->accountId,
-			]
-		]);
+		$limit = self::LIMIT_DEFAULT;
+		$offset = 0;
+		$result = [];
+		/**@var Retargeting\Services\ResponseVkontakte $response */
+		while (true)
+		{
+			$response = $this->getRequest()->send([
+				'methodName' => 'leadads.form.list',
+				'parameters' => [
+					'limit' => $limit,
+					'offset' => $offset,
+				]
+			]);
+			$items = array_filter($response->getData(), fn ($item) => ((int)$item['status'] === self::STATUS_FORM_ACTIVE));
+			$result = array_merge($result, $items);
+
+			if (count($response->getData()) < $limit)
+			{
+				$response->setData($result);
+				break;
+			}
+
+			if ($limit < self::LIMIT_MAX)
+			{
+				$limit = self::LIMIT_MAX;
+			}
+
+			$offset += count($response->getData());
+		}
 
 		return new FormResponse(
 			new VkontakteFormBuilder($this::getFieldMapper()),
@@ -443,6 +408,88 @@ class FormVkontakte extends LeadAds\Form
 			;
 		}
 
-		return $this->registerGroupWebHook();
+		$isRegister = $this->registerForm($formId);
+		if (!$isRegister)
+		{
+			return (new Retargeting\Services\ResponseVkontakte())
+				->addError(new Error('VK lead ads form register: Empty formId.'))
+			;
+		}
+
+		return new Retargeting\Services\ResponseVkontakte();
+	}
+
+	public function loadLeads($formId): Result
+	{
+		if (!isset($formId) || !isset($this->accountId))
+		{
+			return (new Result())
+				->addError(new Error('Can not load leads'));
+		}
+
+		$limit = self::LIMIT_DEFAULT;
+		$response = $this->loadLeadsByForm($formId,
+			[
+				'limit' => $limit,
+				'offset' => 0,
+			]
+		);
+
+		if (!$response->isSuccess())
+		{
+			return (new Result())
+				->addError(new Error('Can not load leads'));
+		}
+
+		$leads = $response->getData();
+		if (count($leads) === $limit)
+		{
+			$limit = self::LIMIT_MAX;
+			while (true)
+			{
+				$response = $this->loadLeadsByForm($formId, [
+					'limit' => $limit,
+					'offset' => count($leads),
+				]);
+
+				if (!$response->isSuccess())
+				{
+					break;
+				}
+
+				$leads = array_merge($leads, $response->getData());
+
+				if (count($response->getData()) < $limit)
+				{
+					break;
+				}
+			}
+		}
+
+		return (new Result())->setData($leads);
+	}
+
+	protected function loadLeadsByForm(int $formId, array $params): Response
+	{
+		$response = $this->getRequest()->send([
+			'methodName' => 'leadads.form.leads.load',
+			'parameters' => [
+				'form_id' => $formId,
+				'limit' => $params['limit'],
+				'offset' => $params['offset'],
+			]
+		]);
+
+		if ($response->isSuccess())
+		{
+			return $response;
+		}
+
+		return new Retargeting\Services\ResponseVkontakte();
+	}
+
+	protected function deleteLinkForm($formId)
+	{
+
 	}
 }

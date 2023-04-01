@@ -1409,7 +1409,7 @@ abstract class EntityObject implements ArrayAccess
 	 */
 	public function sysGetRuntime($name)
 	{
-		return $this->_runtimeValues[$name];
+		return $this->_runtimeValues[$name] ?? null;
 	}
 
 	/**
@@ -1571,7 +1571,9 @@ abstract class EntityObject implements ArrayAccess
 				if (!($value instanceof $remoteObjectClass))
 				{
 					throw new ArgumentException(sprintf(
-						'Expected instance of `%s`, got `%s` instead', $remoteObjectClass, get_class($value)
+						'Expected instance of `%s`, got `%s` instead',
+						$remoteObjectClass,
+						is_object($value) ? get_class($value) : gettype($value)
 					));
 				}
 			}

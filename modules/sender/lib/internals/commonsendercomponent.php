@@ -66,25 +66,21 @@ abstract class CommonSenderComponent extends CBitrixComponent
 	 */
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ?
-			$this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ?
-			$this->arParams['PATH_TO_USER_PROFILE'] : '';
+		$this->arParams['PATH_TO_LIST'] = $this->arParams['PATH_TO_LIST'] ?? '';
+		$this->arParams['PATH_TO_USER_PROFILE'] = $this->arParams['PATH_TO_USER_PROFILE'] ?? '';
 		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ?
 			\CAllSite::GetNameFormat(false) :
 			str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 
-		$this->arParams['RENDER_FILTER_INTO_VIEW'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW']) ? $this->arParams['RENDER_FILTER_INTO_VIEW'] : '';
-		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW_SORT']) ? $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] : 10;
+		$this->arParams['RENDER_FILTER_INTO_VIEW'] = $this->arParams['RENDER_FILTER_INTO_VIEW'] ?? '';
+		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] ?? 10;
 
 		if(isset($this->arParams['GRID_ID']))
 		{
-			$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ?
-				$this->arParams['FILTER_ID'] : $this->arParams['GRID_ID'] . '_FILTER';
+			$this->arParams['FILTER_ID'] = $this->arParams['FILTER_ID'] ?? $this->arParams['GRID_ID'] . '_FILTER';
 		}
 
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ?
-			$this->arParams['SET_TITLE'] == 'Y' : true;
+		$this->arParams['SET_TITLE'] = !isset($this->arParams['SET_TITLE']) || $this->arParams['SET_TITLE'] == 'Y';
 
 		$this->canEdit();
 	}
@@ -98,8 +94,9 @@ abstract class CommonSenderComponent extends CBitrixComponent
 
 		try
 		{
-			$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT']) ? $this->arParams['CAN_EDIT']
-				: $this->getAccessController()->check(static::getEditAction());
+			$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT']
+				??
+				$this->getAccessController()->check(static::getEditAction());
 		}
 		catch (UnknownActionException $e)
 		{
@@ -152,7 +149,7 @@ abstract class CommonSenderComponent extends CBitrixComponent
 		{
 			$canAccess = $this->getAccessController()->check(static::getViewAction());
 
-			if(!$this->arParams['CAN_VIEW'] && !$canAccess)
+			if((!isset($this->arParams['CAN_VIEW']) || !$this->arParams['CAN_VIEW']) && !$canAccess)
 			{
 				throw new WrongPermissionException();
 			}

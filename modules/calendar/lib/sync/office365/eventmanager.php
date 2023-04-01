@@ -3,14 +3,19 @@
 namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar;
+use Bitrix\Calendar\Sync\Exceptions\GoneException;
+use Bitrix\Main;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
+use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
+use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Managers\EventManagerInterface;
@@ -22,12 +27,11 @@ use Bitrix\Calendar\Sync\Office365;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
-use Bitrix\Main\Error;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
 use DateTimeZone;
 use Generator;
 
@@ -41,6 +45,8 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @var ?EventConverter
 	 */
 	private ?EventConverter $eventConverter;
+
+	private Core\Mappers\EventConnection $eventConnectionMapper;
 
 	/**
 	 * @param Office365\Office365Context $context
@@ -58,36 +64,44 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
-	 * @throws ArgumentException
+	 * @throws Main\ArgumentException
 	 * @throws Core\Base\BaseException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 * @throws Calendar\Sync\Exceptions\NotFoundException
+	 * @throws LoaderException
 	 */
 	public function create(Core\Event\Event $event, EventContext $context): Result
 	{
-		$dto = $this->getEventConverter()->eventToDto($event);
-
-		$dto = $this->getService()->createEvent($dto, $context->getSectionConnection()->getVendorSectionId());
-		if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
-		{
-			$context->add('sync', 'masterEventId', $dto->id);
-			/** @var Date $item */
-			foreach ($event->getExcludedDateCollection() as $item)
-			{
-				$context->add('sync', 'excludeDate', $item);
-				$this->deleteInstance($event, $context);
-			}
-		}
-
 		$result = new Result();
-		if (!empty($dto->id))
+		$internalDto = $this->getEventConverter()->eventToDto($event);
+
+		$dto = $this->getService()->createEvent($internalDto, $context->getSectionConnection()->getVendorSectionId());
+		if ($dto)
 		{
-			$result->setData($this->prepareResultData($dto));
+			if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
+			{
+				$context->add('sync', 'masterEventId', $dto->id);
+				/** @var Main\Type\DateTime $item */
+				foreach ($event->getExcludedDateCollection() as $item)
+				{
+					$context->add('sync', 'excludeDate', $item);
+					$this->deleteInstance($event, $context);
+				}
+			}
+
+			if (!empty($dto->id))
+			{
+				$result->setData($this->prepareResultData($dto));
+			}
+			else
+			{
+				$result->addError(new Main\Error('Error of create a series master event'));
+			}
 		}
 		else
 		{
-			$result->addError(new Error('Error of create a series master event'));
+			$result->addError(new Main\Error('Error of create event'));
 		}
 
 		return $result;
@@ -98,19 +112,24 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @param EventContext $context
 	 *
 	 * @return Result
-	 * @throws ArgumentException
+	 *
+	 * @throws Main\ArgumentException
 	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws LoaderException
 	 */
 	public function update(Core\Event\Event $event, EventContext $context): Result
 	{
-		$dto = $this->getEventConverter()->eventToDto($event);
-		$this->enrichVendorData($dto, $context->getEventConnection());
-
-		$dto = $this->getService()->updateEvent($context->getEventConnection()->getVendorEventId(), $dto);
 		$result = new Result();
-		$result->setData($this->prepareResultData($dto));
+		$internalDto = $this->getEventConverter()->eventToDto($event);
+		$this->enrichVendorData($internalDto, $context->getEventConnection());
+
+		$dto = $this->getService()->updateEvent($context->getEventConnection()->getVendorEventId(), $internalDto);
+		if ($dto)
+		{
+			$result->setData($this->prepareResultData($dto));
+		}
 
 		return $result;
 	}
@@ -120,7 +139,15 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @param EventContext $context
 	 *
 	 * @return Result
-	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ApiException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
+	 * @throws LoaderException
 	 */
 	public function delete(Core\Event\Event $event, EventContext $context): Result
 	{
@@ -130,52 +157,11 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	}
 
 	/**
-	 * @param Event $event
-	 * @param EventContext $context
+	 * @param EventDto $dto
 	 *
-	 * @return Result
-	 * @throws ArgumentException
-	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @return array
 	 */
-	public function createInstance(Core\Event\Event $event, EventContext $context): Result
-	{
-		if (
-			$event->getOriginalDateFrom()
-			&& $event->getOriginalDateFrom()->format('Ymd') !== $event->getStart()->format('Ymd')
-		)
-		{
-			return $this->moveInstance($event, $context);
-		}
-
-		$result = new Result();
-		$masterLink = $context->getEventConnection();
-
-		if ($instance = $this->getInstanceForDay($masterLink->getVendorEventId(), $event->getStart()->getDate()))
-		{
-			$dto = $this->getService()->updateEvent(
-				$instance->id,
-				$this->getEventConverter()->eventToDto($event),
-			);
-			if (!empty($dto->id))
-			{
-				$result->setData($this->prepareResultData($dto));
-			}
-			else
-			{
-				$result->addError(new Error("Error of create instance.", 404));
-			}
-		}
-		else
-		{
-			$result->addError(new Error("Instances for event not found", 404));
-		}
-
-		return $result;
-	}
-
-	private function prepareResultData(EventDto $dto)
+	private function prepareResultData(EventDto $dto): array
 	{
 		return [
 			'dto' => $dto,
@@ -196,8 +182,9 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @return Result
 	 * @throws ArgumentException
 	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws LoaderException
 	 */
 	public function updateInstance(Event $event, EventContext $context): Result
 	{
@@ -211,7 +198,55 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			return $this->update($event, $eventContext);
 		}
 
-		return (new Result())->addError(new Error('Not found link for instance'));
+		return (new Result())->addError(new Main\Error('Not found link for instance'));
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws LoaderException
+	 */
+	public function createInstance(Core\Event\Event $event, EventContext $context): Result
+	{
+		if (
+			$event->getOriginalDateFrom()
+			&& $event->getOriginalDateFrom()->format('Ymd') !== $event->getStart()->format('Ymd')
+		)
+		{
+			return $this->moveInstance($event, $context);
+		}
+
+		$result = new Result();
+		$masterLink = $context->getEventConnection();
+
+		if ($masterLink && $instance = $this->getInstanceForDay($masterLink->getVendorEventId(), $event->getStart()->getDate()))
+		{
+			$dto = $this->getService()->updateEvent(
+				$instance->id,
+				$this->getEventConverter()->eventToDto($event),
+			);
+			if ($dto && !empty($dto->id))
+			{
+				$result->setData($this->prepareResultData($dto));
+			}
+			else
+			{
+				$result->addError(new Main\Error("Error of create instance.", 404));
+			}
+		}
+		else
+		{
+			$result->addError(new Main\Error("Instances for event not found", 404));
+		}
+
+		return $result;
 	}
 
 	/**
@@ -223,9 +258,13 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @throws ApiException
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
 	 * @throws ConflictException
 	 * @throws NotFoundException
-	 * @throws ObjectException
+	 * @throws Main\ObjectException
+	 * @throws RemoteAccountException
+	 * @throws LoaderException
 	 */
 	public function deleteInstance(Event $event, EventContext $context): Result
 	{
@@ -236,10 +275,12 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		;
 		if ($masterEventId)
 		{
-			$excludeDate = new DateTime(
+			$excludeDate = new Main\Type\DateTime(
 				$context->sync['excludeDate']->getDate()->format('Ymd 000000'),
 				'Ymd His',
-				$event->getStartTimeZone()->getTimeZone()
+				$event->getStartTimeZone()
+					? $event->getStartTimeZone()->getTimeZone()
+					: new \DateTimeZone('UTC')
 			);
 			try
 			{
@@ -251,16 +292,16 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				}
 				else
 				{
-					$result->addError(new Error("Instances for event not found", 404));
+					$result->addError(new Main\Error("Instances for event not found", 404));
 				}
 			}
 			catch(ApiException $e)
 			{
-				if ($e->getCode() != 400)
+				if ((int)$e->getCode() !== 400)
 				{
 					throw $e;
 				}
-				$result->addError(new Error($e->getMessage(), $e->getCode()));
+				$result->addError(new Main\Error($e->getMessage(), $e->getCode()));
 			}
 		}
 
@@ -273,11 +314,15 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
+	 * @throws ApiException
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
-	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws Calendar\Sync\Exceptions\ConflictException
-	 * @throws Calendar\Sync\Exceptions\NotFoundException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
+	 * @throws LoaderException
 	 */
 	private function moveInstance(Event $event, EventContext $context): Result
 	{
@@ -299,12 +344,12 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			}
 			else
 			{
-				$result->addError(new Error('Error of move instance', 400));
+				$result->addError(new Main\Error('Error of move instance', 400));
 			}
 		}
 		else
 		{
-			$result->addError(new Error('Instance not found'));
+			$result->addError(new Main\Error('Instance not found'));
 		}
 
 		return $result;
@@ -315,9 +360,16 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Generator|array
 	 *
-	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ApiException
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws LoaderException
 	 * @throws ObjectException
-	 *
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
 	 * @deprecated use Sync\Office365\IncomingManager::getEvents()
 	 */
 	public function fetchSectionEvents(SectionConnection $sectionLink): Generator
@@ -374,9 +426,18 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
+	 * @throws ApiException
 	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws LoaderException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
+	 * @throws NotFoundException
+	 * @throws ObjectException
+	 * @throws RemoteAccountException
 	 */
 	public function saveRecurrence(
 		SyncEvent $recurrenceEvent,
@@ -427,7 +488,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				if (empty($instance->getEvent()->getOriginalDateFrom()))
 				{
 					$result->addError(
-						new Error('Instance is invalid - there is not original date from. ['.$instance->getEvent()->getId().']', 400));
+						new Main\Error('Instance is invalid - there is not original date from. ['.$instance->getEvent()->getId().']', 400));
 					continue;
 				}
 
@@ -478,7 +539,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		if ($excludes->count() > 0)
 		{
 			$context = (new EventContext())->setEventConnection($recurrenceEvent->getEventConnection());
-			/** @var Date $excludedDate */
+			/** @var Main\Type\Date $excludedDate */
 			foreach ($excludes as $excludedDate)
 			{
 				$context->add('sync', 'excludeDate', $excludedDate);
@@ -494,12 +555,12 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 */
 	private function getEventConnectionMapper(): Core\Mappers\EventConnection
 	{
-		static $mapper = null;
-		if ($mapper === null)
+		if (empty($this->eventConnectionMapper))
 		{
-			$mapper = new Core\Mappers\EventConnection();
+			$this->eventConnectionMapper = new Core\Mappers\EventConnection();
 		}
-		return $mapper;
+
+		return $this->eventConnectionMapper;
 	}
 
 	/**
@@ -509,8 +570,17 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
+	 * @throws ApiException
 	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws LoaderException
+	 * @throws NotFoundException
+	 * @throws ObjectException
 	 * @throws ObjectPropertyException
+	 * @throws RemoteAccountException
 	 * @throws SystemException
 	 */
 	public function createRecurrence(
@@ -530,8 +600,9 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @return Result
 	 *
 	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws LoaderException
 	 */
 	public function updateRecurrence(
 		SyncEvent $recurrenceEvent,
@@ -548,7 +619,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return void
 	 *
-	 * @throws ObjectException
+	 * @throws Main\ObjectException
 	 */
 	private function prepareSeries($deltaData, SectionConnection $sectionLink): array
 	{
@@ -562,7 +633,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 
 		if (!empty($exceptionList)) {
 			$exceptionsDates = array_map(function (EventDto $exception) {
-				return (new DateTime(
+				return (new Main\Type\DateTime(
 					$exception->start->dateTime,
 					$this->helper::TIME_FORMAT_LONG,
 					new DateTimeZone($exception->start->timeZone),
@@ -604,12 +675,21 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @param Date $dayStart
 	 *
 	 * @return EventDto|null
-	 * @throws Calendar\Sync\Exceptions\ApiException
+	 *
+	 * @throws ApiException
+	 * @throws ArgumentException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws GoneException
+	 * @throws ConflictException
+	 * @throws LoaderException
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
 	 */
-	private function getInstanceForDay(string $eventId, Date $dayStart): ? EventDto
+	private function getInstanceForDay(string $eventId, Main\Type\Date $dayStart): ? EventDto
 	{
 		$dateFrom = clone $dayStart;
-		if ($dateFrom instanceof DateTime)
+		if ($dateFrom instanceof Main\Type\DateTime)
 		{
 			$dateFrom->setTime(0,0);
 		}
@@ -642,6 +722,11 @@ class EventManager extends AbstractManager implements EventManagerInterface
 
 	/**
 	 * @return VendorSyncService
+	 *
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws LoaderException
+	 * @throws RemoteAccountException
 	 */
 	private function getService(): VendorSyncService
 	{
@@ -652,7 +737,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @param EventDto $dto
 	 *
 	 * @return array
-	 * @deprecated see Sync\Office365\IncomingManager::prepareCustomData()
+	 * @todo see Sync\Office365\IncomingManager::prepareCustomData()
 	 */
 	private function prepareCustomData(EventDto $dto): array
 	{
@@ -699,7 +784,9 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 * @param EventConnection|null $masterLink
 	 *
 	 * @return Result
+	 *
 	 * @throws ArgumentException
+	 * @throws LoaderException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
@@ -750,7 +837,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 					{
 						$errMessage = 'Uncknown error of creating recurrence '
 							. ($masterLink ? 'master' : 'instance');
-						$result->addError(new Error($errMessage, 400, ['data' => $result->getData()]));
+						$result->addError(new Main\Error($errMessage, 400, ['data' => $result->getData()]));
 					}
 
 				}
@@ -764,7 +851,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		}
 		catch (Core\Base\BaseException $e)
 		{
-		    return (new Result())->addError(new Error($e->getMessage()));
+		    return (new Result())->addError(new Main\Error($e->getMessage()));
 		}
 	}
 
@@ -777,8 +864,9 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @throws ArgumentException
 	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 * @throws LoaderException
 	 */
 	private function updateRecurrenceInstance(
 		SyncEvent $syncEvent,
@@ -790,7 +878,10 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$eventContext->merge($context);
 		if ($masterLink)
 		{
-			$eventContext->setEventConnection($masterLink);
+			$eventContext
+				->setEventConnection($masterLink)
+				->add('sync', 'instanceLink', $syncEvent->getEventConnection())
+			;
 			$result = $this->updateInstance($syncEvent->getEvent(), $eventContext);
 		}
 		else
@@ -826,6 +917,11 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		return $excludes;
 	}
 
+	/**
+	 * @param SyncEvent $syncEvent
+	 *
+	 * @return Event
+	 */
 	private function prepareMasterEvent(SyncEvent $syncEvent): Event
 	{
 		$event = (new Core\Builders\EventCloner($syncEvent->getEvent()))->build();

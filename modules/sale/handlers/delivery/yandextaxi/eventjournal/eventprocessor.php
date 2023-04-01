@@ -11,6 +11,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\Event;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\PriceChanged;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\StatusChanged;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
 use Sale\Handlers\Delivery\YandexTaxi\Api\StatusDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
 use Bitrix\Sale\Delivery\Services;
@@ -18,6 +19,7 @@ use Bitrix\Sale\Delivery\Requests;
 use Bitrix\Sale\Delivery\Requests\Message;
 use Bitrix\Sale\Internals\Analytics\Storage;
 use Bitrix\Sale\Delivery\Internals\Analytics\Provider;
+use Bitrix\Main\Application;
 
 /**
  * Class EventProcessor
@@ -270,6 +272,7 @@ final class EventProcessor
 		{
 			return;
 		}
+		$deliveryName = !is_null($shipment->getDelivery()) ? $shipment->getDelivery()->getName() : '';
 
 		switch ($fields['EXTERNAL_STATUS'])
 		{
@@ -300,14 +303,11 @@ final class EventProcessor
 					{
 						$message
 							->setBody(
-								sprintf(
-									'%s: %s',
-									Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_RECEIVED_SUCCESSFULLY'),
-									Message\Message::MESSAGE_TEXT_MONEY_PLACEHOLDER
-								)
+								Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_RECEIVED_SUCCESSFULLY_V2')
 							)
 							->setCurrency($currency)
-							->addMoneyValue($price);
+							->addMoneyValue('#PRICE#', $price)
+						;
 					}
 					else
 					{
@@ -342,14 +342,92 @@ final class EventProcessor
 				}
 				break;
 			case StatusDictionary::PERFORMER_FOUND:
+				$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
+				if (!$remoteClaim)
+				{
+					break;
+				}
+
+				$performerInfo = $remoteClaim->getPerformerInfo();
+				if (!$performerInfo)
+				{
+					break;
+				}
+
+				$externalProperties = [
+					[
+						'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER'),
+						'VALUE' => implode(
+							', ',
+							[
+								$performerInfo->getCourierName(),
+								implode(
+									' ',
+									[
+										$performerInfo->getCarModel(),
+										$performerInfo->getCarNumber(),
+									]
+								)
+							]
+						),
+					],
+				];
+
+				$getPhoneResult = $this->api->getPhone($claim['EXTERNAL_ID']);
+				if ($getPhoneResult->isSuccess())
+				{
+					$externalProperties[] = [
+						'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE'),
+						'VALUE' => $getPhoneResult->getPhone(),
+						'TAGS' => ['phone'],
+					];
+
+					$externalProperties[] = [
+						'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE_EXT'),
+						'VALUE' => $getPhoneResult->getExt(),
+					];
+				}
+
 				Requests\Manager::updateDeliveryRequest(
 					$request['ID'],
 					[
-						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_IN_PROCESS'),
+						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_IN_PROCESS_V2'),
 						'EXTERNAL_STATUS_SEMANTIC' => Requests\Manager::EXTERNAL_STATUS_SEMANTIC_PROCESS,
-						'EXTERNAL_PROPERTIES' => $this->getPerformer($claim),
+						'EXTERNAL_PROPERTIES' => $externalProperties,
 					]
 				);
+
+				$expectedOnSourceTimestamp = $this->getExpectedOnSourceTimestamp($remoteClaim->getRoutePoints());
+				if ($expectedOnSourceTimestamp)
+				{
+					Requests\Manager::sendMessage(
+						Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+						(new Message\Message())
+							->setSubject(
+								Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_FOUND')
+							)
+							->setBody(
+								Loc::getMessage(
+									'SALE_YANDEX_TAXI_PICKUP_TIME',
+									[
+										'#PERSON_NAME#' => $performerInfo->getCourierName()
+											?: Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER')
+										,
+										'#DELIVERY_NAME#' => $deliveryName,
+									]
+								)
+							)
+							->addDateValue(
+								'#TIME#',
+								$expectedOnSourceTimestamp,
+								Application::getInstance()->getContext()->getCulture()->getShortTimeFormat()
+							)
+						,
+						$request['ID'],
+						$shipment->getId()
+					);
+				}
+
 				break;
 			case StatusDictionary::PICKUPED:
 				Requests\Manager::sendMessage(
@@ -364,10 +442,32 @@ final class EventProcessor
 			case StatusDictionary::PERFORMER_NOT_FOUND:
 			case StatusDictionary::FAILED:
 			case StatusDictionary::ESTIMATING_FAILED:
+				$messagesMap = [
+					StatusDictionary::PERFORMER_NOT_FOUND => [
+						'SUBJECT' => Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_NOT_FOUND'),
+						'BODY' => Loc::getMessage(
+							'SALE_YANDEX_TAXI_PERFORMER_NOT_FOUND_DESCRIPTION'
+						),
+					],
+					StatusDictionary::FAILED => [
+						'SUBJECT' => Loc::getMessage('SALE_YANDEX_TAXI_ERROR_OCCURRED'),
+						'BODY' => Loc::getMessage(
+							'SALE_YANDEX_TAXI_ERROR_OCCURRED_DESCRIPTION'
+						),
+					],
+					StatusDictionary::ESTIMATING_FAILED => [
+						'SUBJECT' => Loc::getMessage('SALE_YANDEX_TAXI_ESTIMATING_FAILED'),
+						'BODY' => Loc::getMessage(
+							'SALE_YANDEX_TAXI_ESTIMATING_FAILED_DESCRIPTION'
+						),
+					],
+				];
+
 				Requests\Manager::sendMessage(
 					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
 					(new Message\Message())
-						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_NOT_FOUND'))
+						->setSubject($messagesMap[$fields['EXTERNAL_STATUS']]['SUBJECT'] ?? '')
+						->setBody($messagesMap[$fields['EXTERNAL_STATUS']]['BODY'] ?? '')
 						->setStatus(
 							new Message\Status(
 								Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
@@ -384,6 +484,7 @@ final class EventProcessor
 					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
 					(new Message\Message())
 						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_CANCELLED_BY_PERFORMER'))
+						->setBody(Loc::getMessage('SALE_YANDEX_TAXI_CANCELLED_BY_PERFORMER_DESCRIPTION'))
 						->setStatus(
 							new Message\Status(
 								Loc::getMessage('SALE_YANDEX_TAXI_CANCELLATION'),
@@ -400,6 +501,7 @@ final class EventProcessor
 					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
 					(new Message\Message())
 						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_RETURNED_CARGO'))
+						->setBody(Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_RETURNED_CARGO_DESCRIPTION'))
 						->setStatus(
 							new Message\Status(
 								Loc::getMessage('SALE_YANDEX_TAXI_RETURN'),
@@ -416,10 +518,50 @@ final class EventProcessor
 					$request['ID'],
 					[
 						'STATUS' => Requests\Manager::STATUS_PROCESSED,
-						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_FINISHED'),
+						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_FINISHED_V2'),
 						'EXTERNAL_STATUS_SEMANTIC' => Requests\Manager::EXTERNAL_STATUS_SEMANTIC_SUCCESS,
 					]
 				);
+
+				$message = (new Message\Message())->setSubject(
+					Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_FINISHED_DELIVERY')
+				);
+				$price = isset($claim['EXTERNAL_FINAL_PRICE']) ? (float)$claim['EXTERNAL_FINAL_PRICE'] : null;
+				$currency = isset($claim['EXTERNAL_CURRENCY']) ? (string)$claim['EXTERNAL_CURRENCY'] : null;
+				if (!is_null($price) && !is_null($currency))
+				{
+					$message
+						->setBody(
+							Loc::getMessage(
+								'SALE_YANDEX_TAXI_PRICE',
+								[
+									'#DELIVERY_NAME#' => $deliveryName,
+								]
+							)
+						)
+						->addMoneyValue('#PRICE#', $price)
+						->setCurrency($currency)
+					;
+				}
+				else
+				{
+					$message->setBody(
+						Loc::getMessage(
+							'SALE_YANDEX_TAXI_TARIFF',
+							[
+								'#DELIVERY_NAME#' => $deliveryName,
+							]
+						)
+					);
+				}
+
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+					$message,
+					$request['ID'],
+					$shipment->getId()
+				);
+
 				break;
 		}
 
@@ -468,52 +610,6 @@ final class EventProcessor
 	}
 
 	/**
-	 * @param array $claim
-	 * @return array
-	 */
-	private function getPerformer(array $claim): array
-	{
-		$result = [];
-
-		$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
-		if ($remoteClaim)
-		{
-			$performerInfo = $remoteClaim->getPerformerInfo();
-			if ($performerInfo)
-			{
-				$result[] = [
-					'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER'),
-					'VALUE' => $performerInfo->getCourierName(),
-				];
-				$result[] = [
-					'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_CAR'),
-					'VALUE' => sprintf(
-						'%s %s',
-						$performerInfo->getCarModel(),
-						$performerInfo->getCarNumber()
-					),
-				];
-			}
-		}
-
-		$getPhoneResult = $this->api->getPhone($claim['EXTERNAL_ID']);
-		if ($getPhoneResult->isSuccess())
-		{
-			$result[] = [
-				'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE'),
-				'VALUE' => $getPhoneResult->getPhone(),
-				'TAGS' => ['phone'],
-			];
-			$result[] = [
-				'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE_EXT'),
-				'VALUE' => $getPhoneResult->getExt(),
-			];
-		}
-
-		return $result;
-	}
-
-	/**
 	 * @param string $externalId
 	 * @return Claim|null
 	 */
@@ -537,5 +633,46 @@ final class EventProcessor
 	private function readDate(string $dateTime)
 	{
 		return \DateTime::createFromFormat('Y-m-d\TH:i:s.uP', $dateTime);
+	}
+
+	/**
+	 * @param RoutePoint[] $routePoints
+	 * @return int|null
+	 */
+	private function getExpectedOnSourceTimestamp(array $routePoints): ?int
+	{
+		$sourceRoutePoints = array_filter(
+			$routePoints,
+			static function (RoutePoint $routePoint)
+			{
+				return $routePoint->getType() === 'source';
+			}
+		);
+
+		if (empty($sourceRoutePoints))
+		{
+			return null;
+		}
+
+		$sourceRoutePoint = $sourceRoutePoints[0];
+		$visitedAt = $sourceRoutePoint->getVisitedAt();
+		if (!$visitedAt)
+		{
+			return null;
+		}
+
+		$expectedTimeOnSourceRaw = $visitedAt->getExpected();
+		if (!$expectedTimeOnSourceRaw)
+		{
+			return null;
+		}
+
+		$expectedTimeOnSource = $this->readDate($expectedTimeOnSourceRaw);
+		if (!$expectedTimeOnSource)
+		{
+			return null;
+		}
+
+		return $expectedTimeOnSource->getTimestamp();
 	}
 }

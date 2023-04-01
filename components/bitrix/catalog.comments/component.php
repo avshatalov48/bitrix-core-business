@@ -20,7 +20,7 @@ $arParams['CACHE_GROUPS'] = trim($arParams['CACHE_GROUPS']);
 if (!isset($arParams['CACHE_GROUPS']) || $arParams['CACHE_GROUPS'] != 'N')
 	$arParams['CACHE_GROUPS'] = 'Y';
 
-$arParams['IBLOCK_TYPE']= trim($arParams['IBLOCK_TYPE']);
+$arParams['IBLOCK_TYPE']= trim($arParams['IBLOCK_TYPE'] ?? '');
 $arParams['IBLOCK_ID'] = intval($arParams['IBLOCK_ID']);
 $arParams['ELEMENT_ID'] = intval($arParams['ELEMENT_ID']);
 $arParams['ELEMENT_CODE'] = ($arParams['ELEMENT_ID'] > 0 ? '' : trim($arParams['ELEMENT_CODE']));
@@ -498,7 +498,7 @@ if ($this->StartResultCache(false, ($arParams['CACHE_GROUPS'] === 'N' ? false: $
 					'AJAX_POST' => $arParams['AJAX_POST'],
 					'SHOW_SPAM' => $arParams['SHOW_SPAM'],
 					'SHOW_RATING' => $arParams['SHOW_RATING'],
-					'RATING_TYPE' => $arParams['~RATING_TYPE'],
+					'RATING_TYPE' => $arParams['RATING_TYPE'],
 					'CACHE_TYPE' => 'N',
 					'CACHE_TIME' => '0',
 					'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],

@@ -230,11 +230,11 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		}
 		else
 		{
-			$this->arResult['SLIDER_COMPONENT_NAME_LIST'][] = $this->arParams['POPUP_COMPONENT_NAME'];
-			$this->arResult['SLIDER_COMPONENT_TEMPLATE_LIST'][] = $this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'];
+			$this->arResult['SLIDER_COMPONENT_NAME_LIST'][] = $this->arParams['POPUP_COMPONENT_NAME'] ?? '';
+			$this->arResult['SLIDER_COMPONENT_TEMPLATE_LIST'][] = $this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'] ?? '';
 
 			$this->arParams['POPUP_COMPONENT_PARAMS']['IFRAME'] = true;
-			$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'][] = $this->arParams['POPUP_COMPONENT_PARAMS'];
+			$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'][] = $this->arParams['POPUP_COMPONENT_PARAMS'] ?? [];
 		}
 	}
 }

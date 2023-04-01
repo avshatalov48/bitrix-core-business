@@ -459,16 +459,16 @@ this.BX = this.BX || {};
 	    var settingsCollection = main_core.Extension.getSettings('catalog.store-selector');
 
 	    if (options.model instanceof catalog_productModel.ProductModel) {
-	      if (!options.model.isCatalogExisted()) {
-	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('id', settingsCollection.get('defaultStoreId'));
-	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('title', settingsCollection.get('defaultStoreName'));
-	      } else if (options.model.getField(options.inputFieldId) > 0) {
+	      if (options.model.getField(options.inputFieldId) > 0) {
 	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('id', options.model.getField(options.inputFieldId));
 	        var name = main_core.Type.isStringFilled(options.model.getField(options.inputFieldTitle)) ? options.model.getField(options.inputFieldTitle) : '';
 
 	        _this.setProductId(options.model.getSkuId());
 
 	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('title', name);
+	      } else if (!options.model.isCatalogExisted()) {
+	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('id', settingsCollection.get('defaultStoreId'));
+	        babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _storeInfo).set('title', settingsCollection.get('defaultStoreName'));
 	      }
 
 	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _model, options.model);

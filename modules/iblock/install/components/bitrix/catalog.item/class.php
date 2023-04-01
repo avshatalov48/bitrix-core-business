@@ -25,6 +25,9 @@ class CatalogItemComponent extends CBitrixComponent
 			$this->setSiteId($params['CUSTOM_SITE_ID']);
 		}
 
+		$params['DISPLAY_COMPARE'] = (bool)($params['DISPLAY_COMPARE'] ?? false);
+		$params['BRAND_PROPERTY'] ??= '';
+
 		return $params;
 	}
 

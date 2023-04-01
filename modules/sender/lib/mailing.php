@@ -253,7 +253,7 @@ class MailingTable extends Entity\DataManager
 		return $resultListTmp;
 	}
 
-	public static function checkFieldsChain(Entity\Result $result, $primary = null, array $fields)
+	public static function checkFieldsChain(Entity\Result $result, $primary, array $fields)
 	{
 		$id = $primary;
 		$errorList = array();
@@ -659,7 +659,7 @@ class MailingTable extends Entity\DataManager
 	public static function getMailingSiteId($mailingId)
 	{
 		static $cache;
-		if (!$cache[$mailingId])
+		if (!$cache || !($cache[$mailingId] ?? false))
 		{
 			$mailing = self::getById($mailingId)->fetch();
 			$cache[$mailingId] = $mailing['SITE_ID'];

@@ -1,11 +1,10 @@
 const {scrollTo, highlight} = BX.Landing.Utils;
 
 /**
- * @param {string} state
  * @param {object} entry
  * @return {Promise}
  */
-export default function removeBlock(state, entry)
+export default function removeBlock(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {

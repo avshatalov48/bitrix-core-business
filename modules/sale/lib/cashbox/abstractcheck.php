@@ -113,7 +113,7 @@ abstract class AbstractCheck
 	 */
 	public function getField($name)
 	{
-		return $this->fields[$name];
+		return $this->fields[$name] ?? null;
 	}
 
 	/**
@@ -305,7 +305,7 @@ abstract class AbstractCheck
 	 */
 	public function save()
 	{
-		if ((int)$this->fields['ID'] > 0)
+		if ((int)$this->getField('ID') > 0)
 		{
 			return CashboxCheckTable::update($this->fields['ID'], $this->fields);
 		}

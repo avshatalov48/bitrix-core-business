@@ -1,6 +1,7 @@
 import Uploader from '../src/uploader';
 import { BaseEvent } from 'main.core.events';
 import createFileByType from './utils/create-file-by-type.es6';
+import { UploaderEvent } from '../src/enums/uploader-event';
 
 describe('Add File Method', () => {
 
@@ -9,7 +10,7 @@ describe('Add File Method', () => {
 		const uploader = new Uploader({
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -39,7 +40,7 @@ describe('Add File Method', () => {
 		const uploader = new Uploader({
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -56,8 +57,6 @@ describe('Add File Method', () => {
 					{
 						done(exception);
 					}
-
-
 				},
 			}
 		});
@@ -70,7 +69,7 @@ describe('Add File Method', () => {
 		const uploader = new Uploader({
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -99,7 +98,7 @@ describe('Add File Method', () => {
 		const uploader = new Uploader({
 			autoUpload: false,
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();
@@ -170,7 +169,7 @@ describe('Add File Method', () => {
 	/*it('should accept a pseudo file object', (done) => {
 		const uploader = new Uploader({
 			events: {
-				'File:onAdd': (event: BaseEvent) => {
+				[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 					try
 					{
 						const { file, error } = event.getData();

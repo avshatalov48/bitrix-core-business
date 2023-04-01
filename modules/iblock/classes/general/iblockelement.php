@@ -102,13 +102,18 @@ class CAllIBlockElement
 	{
 		if(mb_substr($strField, 0, 9) == "PROPERTY_")
 		{
+			if (!is_array($arFilter) || !isset($arFilter["IBLOCK_ID"]))
+			{
+				return null;
+			}
+
 			$db_prop = CIBlockProperty::GetPropertyArray(
-				mb_substr($strField, 9)
-				, CIBlock::_MergeIBArrays(
-					$arFilter["IBLOCK_ID"]
-					, $arFilter["IBLOCK_CODE"]
-					, $arFilter["~IBLOCK_ID"]
-					, $arFilter["~IBLOCK_CODE"]
+				mb_substr($strField, 9),
+				CIBlock::_MergeIBArrays(
+					$arFilter["IBLOCK_ID"],
+					$arFilter["IBLOCK_CODE"] ?? false,
+					$arFilter["~IBLOCK_ID"] ?? false,
+					$arFilter["~IBLOCK_CODE"] ?? false
 				)
 			);
 			if($db_prop && $db_prop["PROPERTY_TYPE"] == "E")
@@ -1254,18 +1259,17 @@ class CAllIBlockElement
 				}
 				break;
 			case "PROPERTY":
+				$iblockIds = CIBlock::_MergeIBArrays(
+					$arFilter["IBLOCK_ID"] ?? false,
+					$arFilter["IBLOCK_CODE"] ?? false,
+					$arFilter["~IBLOCK_ID"] ?? false,
+					$arFilter["~IBLOCK_CODE"] ?? false
+				);
 				foreach($val as $propID=>$propVAL)
 				{
 					$res = CIBlock::MkOperationFilter($propID);
 					$res["LOGIC"] = $Logic;
 					$res["LEFT_JOIN"] = $bPropertyLeftJoin;
-
-					$iblockIds = CIBlock::_MergeIBArrays(
-						$arFilter["IBLOCK_ID"] ?? false,
-						$arFilter["IBLOCK_CODE"] ?? false,
-						$arFilter["~IBLOCK_ID"] ?? false,
-						$arFilter["~IBLOCK_CODE"] ?? false
-					);
 
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $res["FIELD"], $arMatch))
 					{
@@ -1282,6 +1286,7 @@ class CAllIBlockElement
 							CIBlockElement::MkPropertyFilter($res, $cOperationType, $propVAL, $db_prop, $arJoinProps, $arSqlSearch);
 					}
 				}
+				unset($iblockIds);
 				break;
 			default:
 				if(is_numeric($orig_key))
@@ -1671,10 +1676,14 @@ class CAllIBlockElement
 						"bFullJoin" => false,
 					);
 
-				if($res["LEFT_JOIN"])
+				if (isset($res["LEFT_JOIN"]) && $res["LEFT_JOIN"])
+				{
 					$arJoinProps["FP"][$db_prop["ID"]]["bFullJoin"] &= $bFullJoin;
+				}
 				else
+				{
 					$arJoinProps["FP"][$db_prop["ID"]]["bFullJoin"] |= $bFullJoin;
+				}
 
 				if(!array_key_exists($db_prop["ID"], $arJoinProps["FPV"]))
 					$arJoinProps["FPV"][$db_prop["ID"]] = array(
@@ -1686,10 +1695,14 @@ class CAllIBlockElement
 						"bFullJoin" => false,
 					);
 
-				if($res["LEFT_JOIN"])
+				if(isset($res["LEFT_JOIN"]) && $res["LEFT_JOIN"])
+				{
 					$arJoinProps["FPV"][$db_prop["ID"]]["bFullJoin"] &= $bFullJoin;
+				}
 				else
+				{
 					$arJoinProps["FPV"][$db_prop["ID"]]["bFullJoin"] |= $bFullJoin;
+				}
 			}
 
 			if($db_prop["PROPERTY_TYPE"]=="L" && $bValueEnum)
@@ -1704,7 +1717,7 @@ class CAllIBlockElement
 						"bFullJoin" => false,
 					);
 
-				if($res["LEFT_JOIN"])
+				if(isset($res["LEFT_JOIN"]) && $res["LEFT_JOIN"])
 					$arJoinProps["FPEN"][$db_prop["ID"]]["bFullJoin"] &= $bFullJoin;
 				else
 					$arJoinProps["FPEN"][$db_prop["ID"]]["bFullJoin"] |= $bFullJoin;
@@ -2718,6 +2731,11 @@ class CAllIBlockElement
 		$bWasGroup = false;
 
 		//********************************ORDER BY PART***********************************************
+
+		$iblockIds = CIBlock::_MergeIBArrays(
+			$arFilter["IBLOCK_ID"] ?? false,
+			$arFilter["IBLOCK_CODE"] ?? false,
+		);
 		$orderAlias = array(
 			'EXTERNAL_ID' => 'XML_ID',
 			'DATE_ACTIVE_FROM' => 'ACTIVE_FROM',
@@ -2788,13 +2806,13 @@ class CAllIBlockElement
 					$propID = mb_strtoupper(mb_substr($by_orig, 9));
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $propID, $arMatch))
 					{
-						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false));
+						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], $iblockIds);
 						if(is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
 							CIBlockElement::MkPropertyOrder($arMatch, $order, false, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($propID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false)))
+						if($db_prop = CIBlockProperty::GetPropertyArray($propID, $iblockIds))
 							CIBlockElement::MkPropertyOrder($by, $order, false, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 				}
@@ -2803,13 +2821,13 @@ class CAllIBlockElement
 					$propID = mb_strtoupper(mb_substr($by_orig, 13));
 					if(preg_match("/^([^.]+)\\.([^.]+)$/", $propID, $arMatch))
 					{
-						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"]));
+						$db_prop = CIBlockProperty::GetPropertyArray($arMatch[1], $iblockIds);
 						if(is_array($db_prop) && $db_prop["PROPERTY_TYPE"] == "E")
 							CIBlockElement::MkPropertyOrder($arMatch, $order, true, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($propID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"])))
+						if($db_prop = CIBlockProperty::GetPropertyArray($propID, $iblockIds))
 							CIBlockElement::MkPropertyOrder($by, $order, true, $db_prop, $arJoinProps, $arSqlOrder);
 					}
 				}
@@ -3400,9 +3418,12 @@ class CAllIBlockElement
 		$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\ElementTemplates($arFields["IBLOCK_ID"], 0);
 		if(array_key_exists("PREVIEW_PICTURE", $arFields))
 		{
-			if(is_array($arFields["PREVIEW_PICTURE"]))
+			if (is_array($arFields["PREVIEW_PICTURE"]))
 			{
-				if($arFields["PREVIEW_PICTURE"]["name"] == '' && $arFields["PREVIEW_PICTURE"]["del"] == '')
+				if (
+					($arFields["PREVIEW_PICTURE"]["name"] ?? '') === ''
+					&& ($arFields["PREVIEW_PICTURE"]["del"] ?? '') === ''
+				)
 				{
 					unset($arFields["PREVIEW_PICTURE"]);
 				}
@@ -3426,9 +3447,12 @@ class CAllIBlockElement
 
 		if(array_key_exists("DETAIL_PICTURE", $arFields))
 		{
-			if(is_array($arFields["DETAIL_PICTURE"]))
+			if (is_array($arFields["DETAIL_PICTURE"]))
 			{
-				if($arFields["DETAIL_PICTURE"]["name"] == '' && $arFields["DETAIL_PICTURE"]["del"] == '')
+				if (
+					($arFields["DETAIL_PICTURE"]["name"] ?? '') === ''
+					&& ($arFields["DETAIL_PICTURE"]["del"] ?? '') === ''
+				)
 				{
 					unset($arFields["DETAIL_PICTURE"]);
 				}
@@ -3695,6 +3719,7 @@ class CAllIBlockElement
 			&& is_array($arFields["PREVIEW_PICTURE"])
 			&& isset($arFields["PREVIEW_PICTURE"]["COPY_FILE"])
 			&& $arFields["PREVIEW_PICTURE"]["COPY_FILE"] == "Y"
+			&& isset($arFields["PREVIEW_PICTURE"]["copy"])
 			&& $arFields["PREVIEW_PICTURE"]["copy"]
 		)
 		{
@@ -3707,6 +3732,7 @@ class CAllIBlockElement
 			&& is_array($arFields["DETAIL_PICTURE"])
 			&& isset($arFields["DETAIL_PICTURE"]["COPY_FILE"])
 			&& $arFields["DETAIL_PICTURE"]["COPY_FILE"] == "Y"
+			&& isset($arFields["DETAIL_PICTURE"]["copy"])
 			&& $arFields["DETAIL_PICTURE"]["copy"]
 		)
 		{
@@ -5321,7 +5347,7 @@ class CAllIBlockElement
 					{
 						$strProperties .= "\r\n";
 						$arProperty = $arProperties[$IBLOCK_ID][$ar["IBLOCK_PROPERTY_ID"]];
-						if($arProperty["GetSearchContent"])
+						if (isset($arProperty["GetSearchContent"]) && $arProperty["GetSearchContent"])
 						{
 							$strProperties .= CSearch::KillTags(
 								call_user_func_array($arProperty["GetSearchContent"],
@@ -5333,13 +5359,13 @@ class CAllIBlockElement
 								)
 							);
 						}
-						elseif($arProperty["PROPERTY_TYPE"]=='L')
+						elseif ($arProperty["PROPERTY_TYPE"] == Iblock\PropertyTable::TYPE_LIST)
 						{
 							$arEnum = CIBlockPropertyEnum::GetByID($ar["VALUE"]);
 							if($arEnum!==false)
 								$strProperties .= $arEnum["VALUE"];
 						}
-						elseif($arProperty["PROPERTY_TYPE"]=='F')
+						elseif ($arProperty["PROPERTY_TYPE"] === Iblock\PropertyTable::TYPE_FILE)
 						{
 							$arFile = CIBlockElement::__GetFileContent($ar["VALUE"]);
 							if(is_array($arFile))
@@ -6300,7 +6326,7 @@ class CAllIBlockElement
 		$ID = (int)$ID;
 		if ($ID <= 0)
 			return;
-		if(!is_array($_SESSION["IBLOCK_COUNTER"]))
+		if(!isset($_SESSION["IBLOCK_COUNTER"]) || !is_array($_SESSION["IBLOCK_COUNTER"]))
 			$_SESSION["IBLOCK_COUNTER"] = array();
 		if(in_array($ID, $_SESSION["IBLOCK_COUNTER"]))
 			return;

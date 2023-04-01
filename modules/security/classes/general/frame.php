@@ -8,6 +8,7 @@ class CSecurityFrame
 		if((!defined("BX_SECURITY_SKIP_FRAMECHECK") || BX_SECURITY_SKIP_FRAMECHECK!==true) && !CSecurityFrameMask::Check(SITE_ID, $_SERVER["REQUEST_URI"]))
 		{
 			header("X-Frame-Options: SAMEORIGIN");
+			header("Content-Security-Policy: frame-ancestors 'self';");
 		}
 	}
 
@@ -17,8 +18,8 @@ class CSecurityFrame
 		foreach(GetModuleEvents("main", "OnPageStart", true) as $event)
 		{
 			if(
-				$event["TO_MODULE_ID"] == "security"
-				&& $event["TO_CLASS"] == "CSecurityFrame"
+				isset($event["TO_MODULE_ID"]) && $event["TO_MODULE_ID"] === "security"
+				&& isset($event["TO_CLASS"]) && $event["TO_CLASS"] === "CSecurityFrame"
 			)
 			{
 				$bActive = true;
@@ -72,7 +73,8 @@ class CSecurityFrameMask
 						$site_id = "";
 
 					$mask = trim($arMask["MASK"]);
-					if($mask && !array_key_exists($mask, $added))
+					$mask_site = $mask . "_" . $site_id;
+					if($mask && !array_key_exists($mask_site, $added))
 					{
 						$arMask = array(
 							"SORT" => $i,
@@ -85,7 +87,7 @@ class CSecurityFrameMask
 
 						$DB->Add("b_sec_frame_mask", $arMask);
 						$i += 10;
-						$added[$mask] = true;
+						$added[$mask_site] = true;
 					}
 				}
 
@@ -131,7 +133,7 @@ class CSecurityFrameMask
 				$CACHE_MANAGER->Set($cache_id, $arMasks);
 			}
 
-			if(is_array($arMasks["-"]))
+			if(isset($arMasks["-"]) && is_array($arMasks["-"]))
 			{
 				foreach($arMasks["-"] as $mask)
 				{

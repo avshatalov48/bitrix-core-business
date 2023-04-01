@@ -22,7 +22,7 @@ class General extends Base
 	public const PRIVACY_RESULT_ALL = 'all';
 	public const PRIVACY_RESULT_CONTACT = 'contact';
 	public const PRIVACY_RESULT_NOBODY = 'nobody';
-	
+
 	/** @var int  */
 	protected $userId;
 
@@ -174,13 +174,14 @@ class General extends Base
 	public static function getUserSettings(int $userId): array
 	{
 		$defaultSettings = self::getDefaultSettings();
-		$groupId =
+		$result =
 			OptionUserTable::query()
 				->addSelect('GENERAL_GROUP_ID')
 				->where('USER_ID', $userId)
-				->fetch()['GENERAL_GROUP_ID']
+				->fetch()
 		;
 
+		$groupId = is_array($result) ? $result['GENERAL_GROUP_ID'] : null;
 		if (!$groupId)
 		{
 			return $defaultSettings;

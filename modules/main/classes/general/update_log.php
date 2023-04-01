@@ -79,14 +79,14 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/updater.log")
 	}
 	fclose($logf);
 
-	$by = strtoupper($by);
+	$by = isset($by) ? strtoupper($by) : '';
 	if($by == "SUCCESS")
 		$sort = 0;
 	elseif($by == "DESCRIPTION")
 		$sort = 2;
 	else
 		$sort = 1;
-	if(strtoupper($order) == "ASC")
+	if(isset($order) && strtoupper($order) == "ASC")
 		$ord = 1;
 	else
 		$ord = -1;
@@ -122,7 +122,7 @@ while($rec = $rsData->Fetch())
 	elseif($rec[0]=="N")
 		$s = '<div class="lamp-yellow" style="float:left"></div>'.GetMessage("SUP_HIST_NOTES");
 	$row->AddField("SUCCESS", $s);
-	
+
 	$n++;
 }
 

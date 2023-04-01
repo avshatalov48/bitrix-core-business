@@ -223,6 +223,9 @@
 					this.inlineProperties.push(prop);
 				}
 			}, this);
+
+			// recalculate value after changes
+			this.value = this.getValue();
 		},
 
 		/**
@@ -242,6 +245,9 @@
 					this.computedProperties.push(prop);
 				}
 			}, this);
+
+			// recalculate value after changes
+			this.value = this.getValue();
 		},
 
 		/**
@@ -251,6 +257,9 @@
 		setPseudoElement: function(pseudo)
 		{
 			this.pseudoElement = pseudo;
+
+			// recalculate value after changes
+			this.value = this.getValue();
 		},
 
 		/**
@@ -274,10 +283,7 @@
 			affect = !!affect ? affect : "";
 			if (affect.length)
 			{
-				if (affect !== "background-image")
-				{
-					this.affects.add(affect);
-				}
+				this.setAffects(affect);
 			}
 
 			if (BX.type.isObjectLike(value))
@@ -347,6 +353,21 @@
 			}, this);
 		},
 
+		/**
+		 *
+		 * @param {string|[string]} affects
+		 */
+		setAffects(affects)
+		{
+			affects = BX.Type.isArray(affects) ? affects : [affects];
+			affects.forEach(affect => {
+				if (affect !== "background-image")
+				{
+					this.affects.add(affect);
+				}
+			})
+		},
+
 		setValueClass: function(node, value, items, affect) {
 			if (BX.type.isArray(items))
 			{
@@ -398,18 +419,22 @@
 				{
 					isAllInlineProps = true;
 					const styleObj = node.style;
-					this.inlineProperties.forEach(function (prop) {
+					this.inlineProperties.forEach(prop => {
 						style[prop] = styleObj.getPropertyValue(prop).trim() || null;
+						if (prop === 'background-image' && !!style[prop])
+						{
+							style[prop] = style[prop].replaceAll('"', '\'');
+						}
 						isAllInlineProps = isAllInlineProps && !!style[prop];
 					});
 				}
 				if (!!isNeedComputed && this.computedProperties.length && !isAllInlineProps)
 				{
-					this.computedProperties.forEach(function (prop) {
+					this.computedProperties.forEach(prop => {
 						style[prop] =
 							getComputedStyle(node, this.pseudoElement).getPropertyValue(prop)
 							|| null;
-					}.bind(this));
+					});
 				}
 			}
 
@@ -418,22 +443,6 @@
 				affect: this.affects.toArray(),
 				style: style,
 			};
-		},
-
-		/**
-		 * Gets style in special format for save to history entry
-		 */
-		getValueForHistory: function ()
-		{
-			const value = {className: "", style: ""};
-
-			if (this.node[0])
-			{
-				value.className = this.sanitizeClassName(this.node[0].className);
-				value.style = this.node[0].style.cssText;
-			}
-
-			return value;
 		},
 
 		/**

@@ -2374,9 +2374,9 @@ class AjaxProcessor
 
 		if ($formData["ID"] > 0)
 		{
-			if ((int)$formData["USER_ID"] > 0)
+			if (isset($formData["USER_ID"]) && (int)$formData["USER_ID"] > 0)
 				$currentUserId = (int)$formData["USER_ID"];
-			if ((int)$formData["OLD_USER_ID"] > 0)
+			if (isset($formData["USER_ID"]) && (int)$formData["OLD_USER_ID"] > 0)
 				$oldUserId = (int)$formData["OLD_USER_ID"];
 		}
 		else

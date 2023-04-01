@@ -156,7 +156,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 							<tr>
 								<td>
 									<div id="audience-selector-btn"></div>
-									<input type="hidden" id="audience-selector-value" name="<?=$namePrefix?>AUDIENCE_ID">
+									<input type="hidden" id="audience-selector-value" name="<?= $namePrefix ?>AUDIENCE_ID" value="<?= $audienceId ?>">
 								</td>
 								<td>
 									<div data-bx-ads-audience-loader="" class="crm-ads-rtg-loader-sm" style="display: none;">
@@ -294,7 +294,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 						<tr>
 							<td>
 								<div id="audience-selector-btn"></div>
-								<input type="hidden" id="audience-selector-value" name="<?=$namePrefix?>AUDIENCE_ID">
+								<input type="hidden" id="audience-selector-value" name="<?= $namePrefix ?>AUDIENCE_ID" value="<?= $audienceId ?>">
 							</td>
 							<td>
 								<?if ($provider['IS_SUPPORT_ADD_AUDIENCE']):?>
@@ -414,6 +414,12 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 				endif ?>
 
 
+				<?php
+					$audienceName = in_array($type, [\Bitrix\Seo\Retargeting\Service::TYPE_GOOGLE], true)
+						? Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped . '_1')
+						: Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped)
+					;
+				?>
 				<div data-bx-ads-audience-not-found="" class="crm-ads-rtg-popup-settings" style="display: none;">
 					<div class="crm-ads-rtg-popup-settings-alert">
 						<?= Loc::getMessage(
@@ -423,7 +429,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 									. htmlspecialcharsbx($provider['URL_AUDIENCE_LIST'])
 									. '" '
 									. 'target="_blank">'
-									. Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped)
+									. $audienceName
 									. '</a>',
 							]
 						) ?>
@@ -435,7 +441,11 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 
 		<div class="crm-ads-rtg-popup-settings">
 			<a data-bx-ads-audience-create-link="" class="crm-ads-rtg-popup-link" href="<?= htmlspecialcharsbx($provider['URL_AUDIENCE_LIST']) ?>" target="_blank">
-				<?= Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped) ?>
+				<?php if (in_array($type, [\Bitrix\Seo\Retargeting\Service::TYPE_GOOGLE], true)): ?>
+					<?= Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped . '_1') ?>
+				<?php else: ?>
+					<?= Loc::getMessage('CRM_ADS_RTG_CABINET_' . $typeUpped) ?>
+				<?php endif ?>
 			</a>
 		</div>
 

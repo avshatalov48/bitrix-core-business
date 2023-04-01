@@ -133,13 +133,19 @@ export default class EditorInPopup extends Editor
 			const formObj = new FormData();
 			const {blob, maskedBlob} = event.getData();
 
-			formObj.append(fieldName + '[file]', blob, blob['name']);
+			formObj.append(fieldName, blob, blob['name']);
+			const maskedFileId = ['maskedFile', Editor.justANumber++].join(':');
+			formObj.append( Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + fieldName, maskedFileId);
 			if (maskedBlob)
 			{
-				formObj.append(fieldName + '[maskedFile]', maskedBlob, blob['name']);
-				formObj.append(fieldName + '[maskedFile][maskId]', maskedBlob['maskId']);
+				formObj.append(Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + ']', maskedBlob, blob['name']);
+				formObj.append(Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + '][maskId]', maskedBlob['maskId']);
+				callback(new BaseEvent({data: {form: formObj, blob, maskedBlob, maskId: maskedBlob['maskId']}}));
 			}
-			callback(new BaseEvent({data: {form: formObj, blob, maskedBlob, maskId: (maskedBlob ? maskedBlob['maskId'] : null)}}));
+			else
+			{
+				callback(new BaseEvent({data: {form: formObj, blob}}));
+			}
 		});
 	}
 

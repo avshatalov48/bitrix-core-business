@@ -284,8 +284,13 @@ if ($arResult["FatalErrorMessage"] == '')
 			$ar1["URL"] = $APPLICATION->GetCurPageParam("bizproc_id=".$arDocumentState["ID"]."&process_state_event=Y&bizproc_event=".htmlspecialcharsbx($ar1["NAME"])."&".bitrix_sessid_get(), array("sessid", "stop_bizproc_id", "process_state_event", "bizproc_event", "bizproc_id"));
 			$arResult["BP"]["DOCUMENT_STATE_EVENTS"][] = $ar1;
 		}
-		if (count($arResult["BP"]["DOCUMENT_STATE_EVENTS"]) > 0)
+		if (
+			isset($arResult["BP"]["DOCUMENT_STATE_EVENTS"])
+			&& count($arResult["BP"]["DOCUMENT_STATE_EVENTS"]) > 0
+		)
+		{
 			$arResult["ShowStateEvents"] = true;
+		}
 
 		$arResult["BP"]["DOCUMENT_STATE_TASKS"] = array();
 		$ar = CBPDocument::GetUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $arDocumentState["ID"]);

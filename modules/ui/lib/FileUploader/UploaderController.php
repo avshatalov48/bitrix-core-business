@@ -58,6 +58,11 @@ abstract class UploaderController
 		]);
 	}
 
+	public function getFingerprint(): string
+	{
+		return (string)\bitrix_sessid();
+	}
+
 	public function getOptions(): array
 	{
 		return $this->options;

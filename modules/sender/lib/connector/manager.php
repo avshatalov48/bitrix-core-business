@@ -127,7 +127,7 @@ class Manager
 					}
 					else
 					{
-						if ($field)
+						if ($field && is_string($field))
 						{
 							try
 							{
@@ -135,7 +135,6 @@ class Manager
 							}
 							catch (\Exception $exception)
 							{
-
 							}
 						}
 						else

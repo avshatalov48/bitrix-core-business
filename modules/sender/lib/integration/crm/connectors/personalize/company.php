@@ -20,7 +20,7 @@ class Company extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => false,
 				'Required' => false,
-				'personalizeCode' => 'ID'
+				// 'personalizeCode' => 'ID'
 			),
 			'TITLE' => array(
 				'Name' => GetMessage('CRM_FIELD_TITLE_COMPANY'),
@@ -28,7 +28,7 @@ class Company extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => true,
-				'personalizeCode' => 'NAME'
+				// 'personalizeCode' => 'NAME'
 			),
 			'COMPANY_TYPE' => array(
 				'Name' => GetMessage('CRM_FIELD_COMPANY_TYPE'),
@@ -76,7 +76,7 @@ class Company extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'EMAIL'
+				// 'personalizeCode' => 'EMAIL'
 			),
 			'PHONE' => array(
 				'Name' => GetMessage('CRM_FIELD_PHONE'),
@@ -84,7 +84,7 @@ class Company extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'PHONE'
+				// 'personalizeCode' => 'PHONE'
 			),
 			'WEB' => array(
 				'Name' => GetMessage('CRM_FIELD_WEB'),

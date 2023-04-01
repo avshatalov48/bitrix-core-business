@@ -295,7 +295,7 @@ $result = [
 	],
 
 	'discord' => [
-		'name' => '<i class="fab fa-discord"></i> Discord',
+		'name' => '<i class="fab fa-discord g-pr-5"></i> Discord',
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-valign-middle g-mx-3 g-mb-6"
 				data-card-preset="discord">

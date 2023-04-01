@@ -524,6 +524,7 @@ class CatalogProductServiceGridComponent
 			'SHOW_TOTAL_COUNTER' => false,
 			'SHOW_PAGESIZE' => false,
 			'SHOW_ACTION_PANEL' => false,
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 	}
 

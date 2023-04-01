@@ -976,7 +976,7 @@ class CSaleActionGift extends CSaleActionCtrl
 		if (!$boolError)
 		{
 			$arControl['ATOMS'] = static::GetAtomsEx($arControl['ID'], true);
-			$arValues = static::CheckAtoms($arOneCondition, $arOneCondition, $arControl, true);
+			$arValues = static::CheckAtoms($arOneCondition, $arParams, $arControl, true);
 			$boolError = ($arValues === false);
 		}
 

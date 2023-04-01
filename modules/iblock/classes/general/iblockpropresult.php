@@ -37,7 +37,7 @@ class CIBlockPropertyResult extends CDBResult
 				{
 					$value = array("VALUE"=>$res["VALUE"],"DESCRIPTION"=>"");
 					$value = call_user_func_array($arUserType["ConvertFromDB"],array($res,$value));
-					$res["VALUE"] = $value["VALUE"];
+					$res["VALUE"] = $value["VALUE"] ?? null;
 				}
 
 				if(array_key_exists("DEFAULT_VALUE", $res))

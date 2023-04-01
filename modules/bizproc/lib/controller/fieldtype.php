@@ -3,13 +3,13 @@
 namespace Bitrix\Bizproc\Controller;
 
 use Bitrix\Main\Engine\Response\HtmlContent;
-use Bitrix\Main\AccessDeniedException;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc;
 
 class FieldType extends Base
 {
-	protected function inputAndAccessCheck(array &$documentType, array &$type): void
+	protected function inputAndAccessCheck(array &$documentType, array &$type): bool
 	{
 		$operationParameters = [];
 
@@ -33,14 +33,21 @@ class FieldType extends Base
 			)
 		)
 		{
-			throw new AccessDeniedException(Loc::getMessage('BIZPROC_ACCESS_DENIED'));
+			$this->addError(new Error(Loc::getMessage('BIZPROC_ACCESS_DENIED')));
+
+			return false;
 		}
+
+		return true;
 	}
 
 	//TODO: useful?
 	private function renderControlOptionsAction(array $documentType, array $type, array $params)
 	{
-		$this->inputAndAccessCheck($documentType, $type);
+		if (!$this->inputAndAccessCheck($documentType, $type))
+		{
+			return null;
+		}
 
 		$params = (new Bizproc\Validator($params))
 			->validateRequire('Func')
@@ -68,7 +75,10 @@ class FieldType extends Base
 
 	public function renderControlAction(array $documentType, array $property, array $params)
 	{
-		$this->inputAndAccessCheck($documentType, $property);
+		if (!$this->inputAndAccessCheck($documentType, $property))
+		{
+			return null;
+		}
 
 		$params = (new Bizproc\Validator($params))
 			->validateRequire('Field')

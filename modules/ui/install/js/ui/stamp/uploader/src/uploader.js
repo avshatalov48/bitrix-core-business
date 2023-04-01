@@ -1,6 +1,6 @@
 import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Type, Cache, Tag, Dom, Reflection, Loc} from 'main.core';
-import {Uploader as FileUploader, UploaderFile} from 'ui.uploader.core';
+import {Type, Cache, Tag, Dom, Reflection, Loc, Event} from 'main.core';
+import {Uploader as FileUploader, UploaderFile, FileEvent, UploaderEvent} from 'ui.uploader.core';
 import 'ui.dialogs.messagebox';
 import {Layout} from 'ui.sidepanel.layout';
 import {Button} from 'ui.buttons';
@@ -56,6 +56,14 @@ export class Uploader extends EventEmitter
 			const dropzoneLayout = this.getDropzone().getLayout();
 			const previewLayout = this.getPreview().getLayout();
 			const fileSelectButtonLayout = this.getFileSelect().getLayout();
+
+			Event.bind(previewLayout, 'click', (event: MouseEvent) => {
+				if (this.getPreview().isCropEnabled())
+				{
+					event.stopImmediatePropagation();
+				}
+			});
+
 			return new FileUploader({
 				controller: this.getOptions().controller.upload,
 				assignAsFile: true,
@@ -74,26 +82,30 @@ export class Uploader extends EventEmitter
 				autoUpload: false,
 				acceptedFileTypes: ['image/png', 'image/jpeg'],
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const {file, error} = event.getData();
 
 						if (Type.isNil(error))
 						{
-							this.getPreview().show(file.getClientPreviewUrl());
+							this.getPreview().show(file.getClientPreview());
 							this.setUploaderFile(file);
 
 							if (this.getMode() === Uploader.Mode.SLIDER)
 							{
 								this.getSliderButtons().saveButton.setDisabled(false);
+								this.getActionPanel().enable();
 							}
 
 							if (this.getMode() === Uploader.Mode.INLINE)
 							{
 								this.getInlineSaveButton().setDisabled(false);
+								this.getActionPanel().enable();
 							}
+
+							this.setIsChanged(true);
 						}
 					},
-					'File:onUploadProgress': (event: BaseEvent) => {
+					[UploaderEvent.FILE_UPLOAD_PROGRESS]: (event: BaseEvent) => {
 						const {progress, file} = event.getData();
 
 						this.getStatus().updateUploadStatus({
@@ -101,17 +113,46 @@ export class Uploader extends EventEmitter
 							size: (file.getSize() / 100) * progress,
 						});
 					},
-					'File:onError': function(event: BaseEvent) {
+					[UploaderEvent.FILE_ERROR]: function(event: BaseEvent) {
 						const {error} = event.getData();
-						const TopMessageBox = Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
-						if (!Type.isNil(TopMessageBox))
-						{
-							TopMessageBox.alert(error.getMessage());
-						}
+						Uploader.showAlert(error.getMessage());
 					},
 				},
 			});
 		});
+	}
+
+	static showAlert(...args)
+	{
+		const TopMessageBox = Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+		if (!Type.isNil(TopMessageBox))
+		{
+			TopMessageBox.alert(...args);
+		}
+	}
+
+	static showConfirm(options: {[key: string]: any})
+	{
+		const TopMessageBox = Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+		const TopMessageBoxButtons = Reflection.getClass('top.BX.UI.Dialogs.MessageBoxButtons');
+		if (!Type.isNil(TopMessageBox))
+		{
+			TopMessageBox.show({
+				modal: true,
+				buttons: TopMessageBoxButtons.OK_CANCEL,
+				...options,
+			});
+		}
+	}
+
+	setIsChanged(value: boolean)
+	{
+		this.cache.set('isChanged', value);
+	}
+
+	isChanged(): boolean
+	{
+		return this.cache.get('isChanged', false);
 	}
 
 	static #delay(callback: () => void, delay: number)
@@ -201,7 +242,7 @@ export class Uploader extends EventEmitter
 
 						return this.getDropzone();
 					})(),
-					// this.getActionPanel(),
+					this.getActionPanel(),
 					this.getStatus(),
 					this.getPreview(),
 				],
@@ -219,8 +260,39 @@ export class Uploader extends EventEmitter
 	getActionPanel(): ActionPanel
 	{
 		return this.cache.remember('actionPanel', () => {
-			return new ActionPanel({});
+			return new ActionPanel({
+				events: {
+					onCropClick: this.onCropClick.bind(this),
+					onApplyClick: this.onCropApplyClick.bind(this),
+					onCancelClick: this.onCropCancelClick.bind(this),
+				},
+			});
 		});
+	}
+
+	onCropApplyClick()
+	{
+		this.getPreview().applyCrop();
+		this.getPreview().disableCrop();
+		this.getActionPanel().hideCropActions();
+		this.getInlineSaveButton().setDisabled(false);
+		this.getActionPanel().enable();
+	}
+
+	onCropCancelClick()
+	{
+		this.getPreview().disableCrop();
+		this.getActionPanel().hideCropActions();
+		this.getInlineSaveButton().setDisabled(false);
+		this.getActionPanel().enable();
+	}
+
+	onCropClick()
+	{
+		this.getPreview().enableCrop();
+		this.getActionPanel().showCropAction();
+		this.getInlineSaveButton().setDisabled(true);
+		this.getActionPanel().enable();
 	}
 
 	getStatus(): Status
@@ -284,17 +356,22 @@ export class Uploader extends EventEmitter
 	upload(): Promise<UploaderFile>
 	{
 		return new Promise((resolve) => {
-			const file: UploaderFile = this.getUploaderFile();
-			if (file)
-			{
-				this.getPreview().hide();
-				this.getStatus().showUploadStatus({reset: true});
-				file.upload();
-				const uploadController = Type.isFunction(file.getUploadController) ? file.getUploadController() : file.uploadController;
-				uploadController.subscribeOnce('onUpload', (event: BaseEvent) => {
-					resolve(event.getData().fileInfo);
+			this.getPreview().getCanvas().toBlob((blob) => {
+				this.getFileUploader().addFile(blob);
+				const [resultFile] = this.getFileUploader().getFiles();
+
+				resultFile.subscribeOnce(FileEvent.LOAD_COMPLETE, () => {
+					this.getPreview().hide();
+					this.getStatus().showUploadStatus({reset: true});
+
+					resultFile.upload({
+						onComplete: () => {
+							resolve(resultFile);
+						},
+						onError: console.error,
+					});
 				});
-			}
+			});
 		});
 	}
 
@@ -320,11 +397,11 @@ export class Uploader extends EventEmitter
 					this.upload()
 						.then((uploaderFile) => {
 							Uploader.#delay(() => {
-								this.getPreview().show(uploaderFile.serverPreviewUrl);
+								this.getPreview().show(uploaderFile.getClientPreview());
 								this.getStatus().showPreparingStatus();
 							}, 1000);
 
-							return this.emitAsync('onSaveAsync', {file: uploaderFile});
+							return this.emitAsync('onSaveAsync', {file: uploaderFile.toJSON()});
 						})
 						.then(() => {
 							this.getStatus().hide();
@@ -332,12 +409,14 @@ export class Uploader extends EventEmitter
 							Uploader.#delay(() => {
 								saveButton.setWaiting(false);
 								saveButton.setDisabled(true);
+								this.getActionPanel().disable();
 							}, 500);
 						});
 				},
 			});
 
 			button.setDisabled(true);
+			this.getActionPanel().disable();
 
 			return button;
 		});
@@ -353,6 +432,16 @@ export class Uploader extends EventEmitter
 		return this.cache.get('sliderButtons', {saveButton: null, cancelButton: null});
 	}
 
+	#setPreventConfirmShow(value: boolean)
+	{
+		this.cache.set('preventConfirmShow', value);
+	}
+
+	#isConfirmShowPrevented(): boolean
+	{
+		return this.cache.get('preventConfirmShow', false);
+	}
+
 	show()
 	{
 		const SidePanelInstance = Reflection.getClass('BX.SidePanel.Instance');
@@ -363,6 +452,7 @@ export class Uploader extends EventEmitter
 
 		this.getPreview().hide();
 		this.getStatus().hide();
+		this.getActionPanel().disable();
 
 		SidePanelInstance.open('stampUploader', {
 			width: 640,
@@ -381,15 +471,17 @@ export class Uploader extends EventEmitter
 						const saveButton = new SaveButton({
 							onclick: () => {
 								saveButton.setWaiting(true);
+								this.setIsChanged(false);
+								this.#setPreventConfirmShow(true);
 
 								this.upload()
 									.then((uploaderFile) => {
 										Uploader.#delay(() => {
-											this.getPreview().show(uploaderFile.serverPreviewUrl);
+											this.getPreview().show(uploaderFile.getClientPreview());
 											this.getStatus().showPreparingStatus();
 										}, 1000);
 
-										return this.emitAsync('onSaveAsync', {file: uploaderFile});
+										return this.emitAsync('onSaveAsync', {file: uploaderFile.toJSON()});
 									})
 									.then(() => {
 										this.getStatus().hide();
@@ -397,6 +489,7 @@ export class Uploader extends EventEmitter
 										Uploader.#delay(() => {
 											saveButton.setWaiting(false);
 											saveButton.setDisabled(true);
+											this.getActionPanel().disable();
 											BX.SidePanel.Instance.close();
 										}, 500);
 									});
@@ -404,6 +497,7 @@ export class Uploader extends EventEmitter
 						});
 
 						saveButton.setDisabled(true);
+						this.getActionPanel().disable();
 						this.setSliderButtons({saveButton, cancelButton});
 
 						return [
@@ -412,6 +506,35 @@ export class Uploader extends EventEmitter
 						];
 					},
 				});
+			},
+			events: {
+				onClose: (event) => {
+					if (this.isChanged())
+					{
+						event.denyAction();
+						if (!this.#isConfirmShowPrevented())
+						{
+							Uploader.showConfirm({
+								message: Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM'),
+								onOk: (messageBox) => {
+									this.setIsChanged(false);
+									event.getSlider().close();
+									messageBox.close();
+								},
+								okCaption: Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CLOSE'),
+								onCancel: (messageBox) => {
+									messageBox.close();
+								},
+								cancelCaption: Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CANCEL'),
+							});
+						}
+						else
+						{
+							this.setIsChanged(false);
+							event.getSlider().close();
+						}
+					}
+				},
 			},
 		});
 	}

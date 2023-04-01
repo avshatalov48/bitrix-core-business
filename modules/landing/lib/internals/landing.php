@@ -144,6 +144,9 @@ class LandingTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VERSION'),
 				'default_value' => 10
 			)),
+			'HISTORY_STEP' => new Entity\IntegerField('HISTORY_STEP', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_HISTORY_STEP')
+			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
 				'required' => true

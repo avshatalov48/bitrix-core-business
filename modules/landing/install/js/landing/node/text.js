@@ -71,26 +71,18 @@
 		/**
 		 * Handles change event
 		 * @param {boolean} [preventAdjustPosition]
-		 * @param {boolean} [preventHistory]
+		 * @param {?boolean} [preventHistory = false]
 		 */
 		onChange: function(preventAdjustPosition, preventHistory)
 		{
-			this.superClass.onChange.call(this, arguments);
+			this.superClass.onChange.call(this, preventHistory);
 			if (!preventAdjustPosition)
 			{
 				BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(this.node);
 			}
 			if (!preventHistory)
 			{
-				BX.Landing.History.getInstance().push(
-					new BX.Landing.History.Entry({
-						block: this.getBlock().id,
-						selector: this.selector,
-						command: "editText",
-						undo: this.lastValue,
-						redo: this.getValue()
-					})
-				);
+				BX.Landing.History.getInstance().push();
 			}
 		},
 
@@ -472,7 +464,7 @@
 		{
 			if (this.node.querySelector('.landing-table-container') !== null)
 			{
-				var node = this.node.cloneNode(true);
+				const node = this.node.cloneNode(true);
 				this.prepareTable(node);
 				return textToPlaceholders(node.innerHTML);
 			}

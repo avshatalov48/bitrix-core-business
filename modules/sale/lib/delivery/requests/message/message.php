@@ -2,16 +2,17 @@
 
 namespace Bitrix\Sale\Delivery\Requests\Message;
 
+use Bitrix\Main\Type\DateTime;
+
 /**
  * Class Message
+ *
  * @package Bitrix\Sale\Delivery\Requests\Message
  * @internal
  */
 final class Message
 {
 	public const TYPE_SHIPMENT_PICKUPED = 'SHIPMENT_PICKUPED';
-
-	public const MESSAGE_TEXT_MONEY_PLACEHOLDER = '#MONEY#';
 
 	/** @var string */
 	private $subject;
@@ -30,6 +31,9 @@ final class Message
 
 	/** @var array */
 	private $moneyValues = [];
+
+	/** @var array */
+	private $dateValues = [];
 
 	/**
 	 * @return string|null
@@ -54,24 +58,45 @@ final class Message
 	{
 		$result = htmlspecialcharsbx($this->getBody());
 
-		if ($this->getCurrency() && $this->getMoneyValues())
+		$moneyValues = $this->getMoneyValues();
+		$currency = $this->getCurrency();
+		if ($moneyValues && $currency)
 		{
-			$replaceValues = array_map(
-				function ($moneyValue)
-				{
-					return SaleFormatCurrency($moneyValue, $this->getCurrency());
-				},
-				$this->getMoneyValues()
+			$result = str_replace(
+				array_keys($moneyValues),
+				array_map(
+					static function ($moneyValue) use ($currency)
+					{
+						return SaleFormatCurrency($moneyValue, $currency);
+					},
+					$this->getMoneyValues()
+				),
+				$result
 			);
+		}
 
-			if (substr_count($result, self::MESSAGE_TEXT_MONEY_PLACEHOLDER) !== count($replaceValues))
-			{
-				return $result;
-			}
+		$dateValues = $this->getDateValues();
+		if ($dateValues)
+		{
+			$result = str_replace(
+				array_keys($dateValues),
+				array_map(
+					static function ($dateValue)
+					{
+						if (!isset($dateValue['VALUE']) || !isset($dateValue['FORMAT']))
+						{
+							return '';
+						}
 
-			return sprintf(
-				str_replace(self::MESSAGE_TEXT_MONEY_PLACEHOLDER, '%s', $result),
-				...$replaceValues
+						return
+							DateTime::createFromTimestamp((int)$dateValue['VALUE'])
+								->toUserTime()
+								->format($dateValue['FORMAT'])
+						;
+					},
+					$dateValues
+				),
+				$result
 			);
 		}
 
@@ -111,12 +136,21 @@ final class Message
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getDateValues(): array
+	{
+		return $this->dateValues;
+	}
+
+	/**
 	 * @param string $subject
 	 * @return Message
 	 */
 	public function setSubject(string $subject): Message
 	{
 		$this->subject = $subject;
+
 		return $this;
 	}
 
@@ -127,6 +161,7 @@ final class Message
 	public function setBody(string $body): Message
 	{
 		$this->body = $body;
+
 		return $this;
 	}
 
@@ -137,6 +172,7 @@ final class Message
 	public function setStatus(Status $status): Message
 	{
 		$this->status = $status;
+
 		return $this;
 	}
 
@@ -147,16 +183,19 @@ final class Message
 	public function setType(string $type): Message
 	{
 		$this->type = $type;
+
 		return $this;
 	}
 
 	/**
+	 * @param string $key
 	 * @param float $value
 	 * @return $this
 	 */
-	public function addMoneyValue(float $value): Message
+	public function addMoneyValue(string $key, float $value): Message
 	{
-		$this->moneyValues[] = $value;
+		$this->moneyValues[$key] = $value;
+
 		return $this;
 	}
 
@@ -167,6 +206,23 @@ final class Message
 	public function setCurrency(string $currency): Message
 	{
 		$this->currency = $currency;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $key
+	 * @param int $value
+	 * @param string $format
+	 * @return $this
+	 */
+	public function addDateValue(string $key, int $value, string $format): Message
+	{
+		$this->dateValues[$key] = [
+			'VALUE' => $value,
+			'FORMAT' => $format,
+		];
+
 		return $this;
 	}
 }

@@ -1,9 +1,9 @@
 <?php
 
-
 namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
@@ -52,10 +52,11 @@ class ApiService
 	 * @return array
 	 *
 	 * @throws ApiException
-	 * @throws ConflictException
-	 * @throws NotFoundException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws ConflictException
+	 * @throws GoneException
+	 * @throws NotFoundException
 	 */
 	public function getCalendarList(array $params): array
 	{
@@ -71,8 +72,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEventList(array $params): array
@@ -93,8 +95,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function createSection(SectionDto $sectionDto): array
@@ -109,8 +112,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function updateSection(SectionDto $sectionDto): array
@@ -126,15 +130,16 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function createEvent(EventDto $eventDto, string $sectionId): array
 	{
 		return $this->apiClient->post(
 			'me/calendars/' . $sectionId . '/events',
-			array_filter($eventDto->toArray(true), function ($val) {
+			array_filter($eventDto->toArray(true), static function ($val) {
 				return $val !== [] && $val !== null;
 			})
 		);
@@ -215,8 +220,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEvent(array $params): array
@@ -235,15 +241,15 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function updateEvent(EventDto $eventDto, string $vendorEventId): array
 	{
 		if ($eventDto->isCancelled)
 		{
-			// TODO: move text to language file?
 			$response = $this->apiClient->post(
 				'me/events/' . $vendorEventId . '/cancel',
 				[
@@ -253,12 +259,19 @@ class ApiService
 		}
 		else
 		{
-			$response = $this->apiClient->patch(
-				'me/events/' . $vendorEventId,
-				array_filter($eventDto->toArray(true), function ($val) {
-					return $val !== [] && $val !== null;
-				})
-			);
+			try
+			{
+				$response = $this->apiClient->patch(
+					'me/events/' . $vendorEventId,
+					array_filter($eventDto->toArray(true), static function ($val) {
+						return $val !== [] && $val !== null;
+					})
+				);
+			}
+			catch (NotFoundException $exception)
+			{
+				return [];
+			}
 		}
 
 		return $response;
@@ -271,8 +284,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function getEventInstances(array $params): array
@@ -293,15 +307,23 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function deleteEvent(string $vendorEventId)
 	{
-		$this->apiClient->delete(
-			'me/events/' . $vendorEventId,
-		);
+		try
+		{
+			$this->apiClient->delete(
+				'me/events/' . $vendorEventId,
+			);
+		}
+		catch (NotFoundException $exception)
+		{
+			return;
+		}
 	}
 
 	/**
@@ -311,8 +333,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function deleteSection(string $vendorSectionId)
@@ -330,8 +353,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function addSectionSubscription(string $vendorSectionId, string $state = ''): array
@@ -355,8 +379,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
+	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
 	public function renewSectionSubscription(string $subscriptionId): array
@@ -373,9 +398,9 @@ class ApiService
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws ConflictException
-	 * @throws NotFoundException
+	 * @throws GoneException
 	 */
 	public function deleteSectionSubscription(string $subscriptionId): array
 	{
@@ -421,7 +446,7 @@ class ApiService
 	 */
 	private function processResponseAfterDelta(SectionConnection $sectionConnection, array $response): bool
 	{
-		$sectionConnection->setLastSyncStatus(\Bitrix\Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+		$sectionConnection->setLastSyncStatus(Dictionary::SYNC_STATUS['success']);
 		$breakingFlag = true;
 
 		if ($token = $this->getPageToken($response))

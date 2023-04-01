@@ -579,10 +579,21 @@ class DocumentBase
                 if(isset($item['DISCOUNTS']['SUMM']) && $item['DISCOUNTS']['SUMM']<>'')
 				{
 					if ($priceone != $price)
+					{
 						$discountPrice = DoubleVal($priceone - $price);
+					}
 				}
-				elseif($priceone>0)
+				elseif ($priceone > 0)
+				{
 					$price = $priceone;
+				}
+
+				$vatRate = null;
+				if (!empty($item['TAXES']['TAX_VALUE']))
+				{
+					$taxValue = (float)$item['TAXES']['TAX_VALUE'];
+					$vatRate = $taxValue / 100;
+				}
 
                 $basketItems = Array(
                     'ID' => $item['ID'],
@@ -597,8 +608,8 @@ class DocumentBase
                     'MARKING_GROUP' => !empty($item['MARKING_GROUP']['CODE']) ? $item['MARKING_GROUP']['CODE']:null,
                     'MARKINGS' => !empty($item['MARKINGS']) ? $item['MARKINGS']:null,
                     'TAX' => array(
-                        'VAT_RATE' => !empty($item['TAXES']['TAX_VALUE']) ? $item['TAXES']['TAX_VALUE']/100:null,
-                        'VAT_INCLUDED' => !empty($item['TAXES']['IN_PRICE']) ? $item['TAXES']['IN_PRICE']:'Y'//if tax is null then always included by default
+                        'VAT_RATE' => $vatRate,
+                        'VAT_INCLUDED' => !empty($item['TAXES']['IN_PRICE']) ? $item['TAXES']['IN_PRICE'] : 'Y'//if tax is null then always included by default
                     ),
                     'DISCOUNT' => array(
                         'PRICE' => $discountPrice

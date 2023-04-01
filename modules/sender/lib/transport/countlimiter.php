@@ -61,7 +61,7 @@ class CountLimiter implements iLimiter
 	{
 		$unit = explode(' ', $unit);
 		$num = (int) $unit[0];
-		$unit = $unit[1];
+		$unit = $unit[1] ?? '';
 
 		return array(
 			'num' => $num,

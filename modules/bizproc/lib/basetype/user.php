@@ -204,7 +204,9 @@ class User extends Base
 			$controlIdHtml = htmlspecialcharsbx($controlId);
 			$configHtml = htmlspecialcharsbx(Main\Web\Json::encode($config));
 			$className = htmlspecialcharsbx(static::generateControlClassName($fieldType, $field));
-			$propertyHtml = htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()));
+			$property = $fieldType->getProperty();
+			$property['Type'] = static::getType();
+			$propertyHtml = htmlspecialcharsbx(Main\Web\Json::encode($property));
 
 			return <<<HTML
 				<script>
@@ -286,7 +288,8 @@ HTML;
 	{
 		static::cleanErrors();
 		$result = static::extractValue($fieldType, $field, $request);
-		return is_array($result)? $result[0] : $result;
+
+		return is_array($result)? array_shift($result) : $result;
 	}
 
 	/**

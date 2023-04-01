@@ -148,7 +148,6 @@ if ($arResult['MODULES']['catalog'] && $arResult['PRODUCT']['TYPE'] === ProductT
 }
 else
 {
-	AddMessage2Log('not check');
 	$arParams['~MESS_NOT_AVAILABLE'] = $arParams['~MESS_NOT_AVAILABLE']
 		?: Loc::getMessage('CT_BCE_CATALOG_NOT_AVAILABLE')
 	;
@@ -1169,10 +1168,15 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 						'MESS_BTN_ADD_TO_BASKET' => $arParams['~GIFTS_MESS_BTN_BUY'],
 						'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
 						'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
+						'MESS_BTN_COMPARE' => $arParams['~MESS_BTN_COMPARE'],
+						'MESS_NOT_AVAILABLE' => $arParams['~MESS_NOT_AVAILABLE'],
+						'MESS_SHOW_MAX_QUANTITY' => $arParams['~MESS_SHOW_MAX_QUANTITY'],
+						'MESS_RELATIVE_QUANTITY_MANY' => $arParams['~MESS_RELATIVE_QUANTITY_MANY'],
+						'MESS_RELATIVE_QUANTITY_FEW' => $arParams['~MESS_RELATIVE_QUANTITY_FEW'],
 
 						'SHOW_PRODUCTS_'.$arParams['IBLOCK_ID'] => 'Y',
-						'PROPERTY_CODE_'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE'],
-						'PROPERTY_CODE_MOBILE'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE_MOBILE'],
+						'PROPERTY_CODE_'.$arParams['IBLOCK_ID'] => [],
+						'PROPERTY_CODE_MOBILE'.$arParams['IBLOCK_ID'] => [],
 						'PROPERTY_CODE_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
 						'OFFER_TREE_PROPS_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
 						'CART_PROPERTIES_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFERS_CART_PROPERTIES'],
@@ -1247,7 +1251,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 							'OFFERS_FIELD_CODE' => $arParams['OFFERS_FIELD_CODE'],
 							'OFFERS_PROPERTY_CODE' => $arParams['OFFERS_PROPERTY_CODE'],
 
-							'AJAX_MODE' => $arParams['AJAX_MODE'],
+							'AJAX_MODE' => $arParams['AJAX_MODE'] ?? '',
 							'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
 							'IBLOCK_ID' => $arParams['IBLOCK_ID'],
 

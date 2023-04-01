@@ -1,8 +1,12 @@
 <?php
 namespace Bitrix\Landing\Node;
 
+use Bitrix\Landing\History;
+
 class Map extends \Bitrix\Landing\Node
 {
+	protected const ATTR_MAP = 'data-map';
+
 	/**
 	 * Get class - frontend handler.
 	 * @return string
@@ -28,8 +32,20 @@ class Map extends \Bitrix\Landing\Node
 		{
 			if (isset($resultList[$pos]) && $value)
 			{
+				if (History::isActive())
+				{
+					$history = new History($block->getLandingId(), History::ENTITY_TYPE_LANDING);
+					$history->push('EDIT_MAP', [
+						'block' => $block,
+						'selector' => $selector,
+						'position' => (int)$pos,
+						'valueBefore' => $resultList[$pos]->getAttributes()[self::ATTR_MAP]->getValue(),
+						'valueAfter' => $value,
+					]);
+				}
+
 				$resultList[$pos]->setAttribute(
-					'data-map',
+					self::ATTR_MAP,
 					$value
 				);
 			}
@@ -50,7 +66,7 @@ class Map extends \Bitrix\Landing\Node
 
 		foreach ($resultList as $pos => $res)
 		{
-			$data[$pos] = $res->getAttribute('data-map');
+			$data[$pos] = $res->getAttribute(self::ATTR_MAP);
 		}
 
 		return $data;

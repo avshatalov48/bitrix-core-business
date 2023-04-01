@@ -626,7 +626,7 @@ class CBitrixComponentTemplate
 	 *
 	 * @param string $customTemplatePath
 	 *
-	 * @return false|string
+	 * @return bool
 	 */
 	public function __SearchTemplate($customTemplatePath = "")
 	{
@@ -641,7 +641,7 @@ class CBitrixComponentTemplate
 		$parentRelativePath = "";
 		$parentTemplateName = "";
 
-		$parentComponent = &$this->__component->GetParent();
+		$parentComponent = $this->__component->GetParent();
 
 		if($parentComponent && $parentComponent->GetTemplate())
 		{

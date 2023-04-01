@@ -393,6 +393,7 @@ class CAllSaleUserAccount
 			{
 				$arFields = array(
 						"USER_ID" => $userID,
+						"=TIMESTAMP_X" => $DB->GetNowFunction(),
 						"TRANSACT_DATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID))),
 						"AMOUNT" => $withdrawSum,
 						"CURRENCY" => $payCurrency,
@@ -446,6 +447,7 @@ class CAllSaleUserAccount
 
 			$arFields = array(
 					"USER_ID" => $userID,
+					"=TIMESTAMP_X" => $DB->GetNowFunction(),
 					"TRANSACT_DATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID))),
 					"AMOUNT" => $paySum,
 					"CURRENCY" => $payCurrency,
@@ -558,6 +560,7 @@ class CAllSaleUserAccount
 
 				$arFields = array(
 						"USER_ID" => $userID,
+						"=TIMESTAMP_X" => $DB->GetNowFunction(),
 						"TRANSACT_DATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID))),
 						"AMOUNT" => $withdrawSum,
 						"CURRENCY" => $payCurrency,
@@ -668,6 +671,7 @@ class CAllSaleUserAccount
 
 			$arFields = array(
 					"USER_ID" => $userID,
+					"=TIMESTAMP_X" => $DB->GetNowFunction(),
 					"TRANSACT_DATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID))),
 					"CURRENT_BUDGET" => $currentBudget,
 					"AMOUNT" => ($sum > 0 ? $sum : -$sum),

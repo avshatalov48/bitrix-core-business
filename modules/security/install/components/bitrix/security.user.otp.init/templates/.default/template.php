@@ -42,7 +42,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 		<span class="bx-otp-section-desc"><?=GetMessage("SECURITY_OTP_MOBILE2")?></span>
 
 		<ul class="bx-otp-section-market-list">
-			<li class="bx-otp-section-market-icon-Apple"><a href="https://itunes.apple.com/<?=(LANGUAGE_ID == "ru" || LANGUAGE_ID == "ua" ? "ru" : "en")?>/app/bitrix24-otp/id929604673?mt=8" target="_blank"></a></li>
+			<li class="bx-otp-section-market-icon-Apple"><a href="https://apps.apple.com<?=(LANGUAGE_ID == "ru" || LANGUAGE_ID == "ua" ? "/ru" : "")?>/app/bitrix24-otp/id929604673?mt=8" target="_blank"></a></li>
 			<li class="bx-otp-section-market-icon-Google"><a href="https://play.google.com/store/apps/details?id=com.bitrixsoft.otp" target="_blank"></a></li>
 			<?/*if (in_array(LANGUAGE_ID, array("ru", "ua"))):?>
 			<li class="bx-otp-section-market-icon-Yandex"><a href=""></a></li>

@@ -109,16 +109,16 @@ class MessageMail implements Message\iBase, Message\iMailable
 						function ($item)
 						{
 							return array(
-								'id' => '#' . $item['CODE'] . '#',
-								'text' => $item['NAME'],
-								'title' => $item['DESC'],
-								'items' => $item['ITEMS']?array_map(
+								'id' => '#' . ($item['CODE'] ?? '') . '#',
+								'text' => $item['NAME'] ?? '',
+								'title' => $item['DESC'] ?? '',
+								'items' => isset($item['ITEMS']) ? array_map(
 									function ($item)
 									{
 										return array(
-											'id' => '#' . $item['CODE'] . '#',
-											'text' => $item['NAME'],
-											'title' => $item['DESC']
+											'id' => '#' . ($item['CODE'] ?? ''). '#',
+											'text' => $item['NAME'] ?? '',
+											'title' => $item['DESC'] ?? ''
 										);
 									}, $item['ITEMS']
 								) : []

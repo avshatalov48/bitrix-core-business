@@ -56,31 +56,59 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 	 * @var SectionConnection
 	 */
 	protected SectionConnection $syncSectionConnection;
+
 	/**
-	 * @return string|null
-	 * @throws BaseException
+	 * @return Result
 	 */
-	public function requestConnectionId(): ?string
+	public function requestConnectionId(): Result
 	{
+		$result = new Result();
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_GET,
 				$this->prepareCalendarListUrlWithId(self::CALENDAR_PRIMARY_ID)
 			);
 
+			try
+			{
+				$externalResult = $this->parseResponse($this->httpClient->getResult());
+			}
+			catch (\Exception $e)
+			{
+				return $result->addError(new Error($e->getMessage()));
+			}
+
 			if ($this->isRequestSuccess())
 			{
 				$requestResult = $this->parseResponse($this->httpClient->getResult());
 
-				return $requestResult['id'];
+				return $result->setData(['id' => $requestResult['id']]);
+			}
+			$helper = new Helper();
+
+			if ($helper->isNotValidSyncTokenError($this->prepareError($externalResult)))
+			{
+				$this->connection->setToken(null);
+				$result->addError(new Error('Auth error on getting connection Id', 410));
+				return $result;
 			}
 
-			return null;
+			if ($helper->isMissingRequiredAuthCredential($this->prepareError($externalResult)))
+			{
+				$this->handleUnauthorize($this->connection);
+				$result->addError(new Error('Auth error on getting sections', 401));
+
+				return $result;
+			}
+
+			return $result->addError(new Error('Do not sync sections'));
 		}
 		catch (\Exception $e)
 		{
-			throw new BaseException('Failed to get connection name');
+			return $result->addError(new Error('Failed to get connection name'));
 		}
 	}
 
@@ -93,6 +121,8 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 		//todo handle errors
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->query(
 				HttpClient::HTTP_GET,
 				$this->prepareCalendarListUrl()
@@ -141,8 +171,8 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 			if ($helper->isMissingRequiredAuthCredential($this->prepareError($externalResult)))
 			{
-				$this->connection->setStatus('[401] Unauthorized');
-				$result->addError(new Error('Auth error'));
+				$this->handleUnauthorize($this->connection);
+				$result->addError(new Error('Auth error on getting sections', 401));
 
 				return $result;
 			}
@@ -170,6 +200,8 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 		try
 		{
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->syncSectionConnection = $syncSection->getSectionConnection();
 			$this->httpClient->query(
 				HttpClient::HTTP_GET,
@@ -194,8 +226,8 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 				$impatientInstanceListByUid = [];
 
 				$this->etag = $externalResult['etag'];
-				$this->syncToken = $externalResult['nextSyncToken'];
-				$this->pageToken = $externalResult['nextPageToken'];
+				$this->syncToken = $externalResult['nextSyncToken'] ?? null;
+				$this->pageToken = $externalResult['nextPageToken'] ?? null;
 				$this->lastSyncStatus = \Bitrix\Calendar\Sync\Dictionary::SYNC_SECTION_ACTION['success'];
 
 				$this->handleSuccessBehavior($externalResult);
@@ -204,12 +236,16 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 				{
 					foreach ($externalResult['items'] as $item)
 					{
-						$syncEvent = (new BuilderSyncEventFromExternalData($item, $this->connection, $syncSection))->build();
+						$syncEvent = (new BuilderSyncEventFromExternalData($item, $this->connection, $syncSection))
+							->build();
 
 						if ($syncEvent->isInstance() || $syncEvent->getVendorRecurrenceId())
 						{
 							/** @var SyncEvent $masterEvent */
-							$masterEvent = $map->getItem($syncEvent->getVendorRecurrenceId());
+							$masterEvent = $map->has($syncEvent->getVendorRecurrenceId())
+								? $map->getItem($syncEvent->getVendorRecurrenceId())
+								: null
+							;
 
 							if (!$masterEvent)
 							{
@@ -221,7 +257,9 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 						}
 						else
 						{
-							if ($syncEvent->isRecurrence() && ($instanceList = $impatientInstanceListByUid[$syncEvent->getUid()]))
+							if ($syncEvent->isRecurrence()
+								&& ($instanceList = ($impatientInstanceListByUid[$syncEvent->getUid()] ?? null))
+							)
 							{
 								$syncEvent->addInstanceList($instanceList);
 								unset($impatientInstanceListByUid[$syncEvent->getUid()]);
@@ -254,8 +292,8 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 			if ($helper->isMissingRequiredAuthCredential($this->prepareError($externalResult)))
 			{
-				$this->connection->setStatus('[401] Unauthorized');
-				$result->addError(new Error('Auth error'));
+				$this->handleUnauthorize($this->connection);
+				$result->addError(new Error('Auth error on getting events', 401));
 
 				return $result;
 			}
@@ -438,14 +476,15 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 	 */
 	private function handleSuccessBehavior($result): void
 	{
-		$this->syncSectionConnection->setSyncToken($result['nextSyncToken']);
-		$this->syncSectionConnection->setPageToken($result['nextPageToken']);
+		$this->syncSectionConnection->setSyncToken($result['nextSyncToken'] ?? null);
+		$this->syncSectionConnection->setPageToken($result['nextPageToken'] ?? null);
 		// $this->pageToken = $result['nextPageToken'];
 		// $this->etag = $result['etag'];
-		$this->syncSectionConnection->setVersionId($result['etag']);
-		$this->defaultRemind = $result['defaultReminders'] ? $result['defaultReminders'][0] : null;
+		$this->syncSectionConnection->setVersionId($result['etag'] ?? null);
+		$this->defaultRemind = $result['defaultReminders'][0] ?? null;
 		$this->modified = Date::createDateTimeFromFormat($result['updated'],
 			Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS);
+		// TODO: Remake it: Overdependence from $this->httpClient
 		$status = $this->httpClient->getStatus();
 		$this->lastSyncStatus = \Bitrix\Calendar\Sync\Dictionary::SYNC_SECTION_ACTION['success'];
 	}

@@ -348,7 +348,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 				$connectorData = $this->prepareConnectorData($connector);
 
-				if($connectorData['SAVED_FILTER_ID'])
+				if($connectorData['SAVED_FILTER_ID'] ?? false)
 				{
 					$connectorData['FILTER_ID'] = $connectorData['SAVED_FILTER_ID'];
 				}
@@ -380,7 +380,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 				}
 				$connectorData['FORM'] = str_replace('%CONNECTOR_NUM%', $connectorData['NUM'], $connectorData['FORM']);
 
-				$addressCounter += $connectorData['COUNT']['summary'];
+				$addressCounter += $connectorData['COUNT']['summary'] ?? 0;
 
 				$this->prepareConnectorDataCounter($connectorData, $connector, true);
 				$connectorData['COUNTER'] = Json::encode($connectorData['COUNT']);
@@ -402,7 +402,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	{
 		$isIncrementally = $connector instanceof Connector\IncrementallyConnector;
 
-		if ($isIncrementally && $connectorData['SAVED_FILTER_ID'])
+		if ($isIncrementally && ($connectorData['SAVED_FILTER_ID'] ?? false))
 		{
 			$segmentBuilder = new SegmentDataBuilder(
 				$this->arParams['ID'],
@@ -412,7 +412,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 		$dataCounter = $calcCount
 			? (
-			$segmentBuilder
+			isset($segmentBuilder)
 				? $segmentBuilder->calculateCurrentFilterCount()
 				: $connector->getDataCounter()
 			)

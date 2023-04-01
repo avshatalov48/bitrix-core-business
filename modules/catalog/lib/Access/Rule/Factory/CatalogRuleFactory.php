@@ -8,7 +8,7 @@ use Bitrix\Main\Access\Rule\Factory\RuleControllerFactory;
 
 class CatalogRuleFactory extends RuleControllerFactory
 {
-	private const BASE_RULE = 'Base';
+	protected const BASE_RULE = 'Base';
 
 	protected function getClassName(string $action, AccessibleController $controller): ?string
 	{
@@ -21,13 +21,13 @@ class CatalogRuleFactory extends RuleControllerFactory
 		$action = explode('_', $actionName);
 		$action = array_map(fn($el) => ucfirst(mb_strtolower($el)), $action);
 
-		$ruleClass = $this->getNamespace($controller) . implode($action) . self::SUFFIX;
+		$ruleClass = $this->getNamespace($controller) . implode($action) . static::SUFFIX;
 
 		if (class_exists($ruleClass))
 		{
 			return $ruleClass;
 		}
 
-		return $this->getNamespace($controller) . self::BASE_RULE . self::SUFFIX;
+		return $this->getNamespace($controller) . static::BASE_RULE . static::SUFFIX;
 	}
 }

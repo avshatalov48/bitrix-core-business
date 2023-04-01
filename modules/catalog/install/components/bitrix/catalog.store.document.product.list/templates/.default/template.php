@@ -174,11 +174,16 @@ $productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
 					<td class="catalog-document-product-list-result-grid-total-big">
 						<?=Loc::getMessage('CATALOG_PRODUCT_SUM_TOTAL')?>:
 					</td>
-					<td class="catalog-document-product-list-result-grid-total-big">
-						<span data-total="totalCost">
-							<?=\CCurrencyLang::CurrencyFormat($arResult['TOTAL_SUM'], $currency['ID'], false)?>
-						</span>
-						<span data-role="currency-wrapper" class="catalog-document-product-list-result-grid-item-currency-symbol"><?=$currency['TEXT']?></span>
+					<td class="catalog-document-product-list-result-grid-total catalog-document-product-list-result-grid-total-big">
+					<?php
+						$formattedValue =
+							'<span data-total="totalCost" class="catalog-document-product-list-result-grid-total-sum">'
+							. \CCurrencyLang::CurrencyFormat($arResult['TOTAL_SUM'],  $currency['ID'], false)
+							. '</span>'
+						;
+
+						echo \CCurrencyLang::getPriceControl($formattedValue, $currency['ID']);
+					?>
 					</td>
 				</tr>
 			</table>

@@ -239,7 +239,7 @@ class CIMNotify
 			CIMMessenger::SpeedFileCreate($this->user_id, array('counter' => $arNotify['countNotify'], 'maxId' => $arNotify['maxNotify']), IM_SPEED_NOTIFY);
 
 			$arUsers = CIMContactList::GetUserData(Array('ID' => $arGetUsers, 'DEPARTMENT' => 'N', 'USE_CACHE' => 'Y', 'CACHE_TTL' => 86400));
-			$arGetUsers = $arUsers['users'];
+			$arGetUsers = $arUsers['users'] ?? null;
 
 			$counters = self::GetCounters($arChatId);
 
@@ -414,14 +414,14 @@ class CIMNotify
 		if (!isset($arFields["FROM_USER_DATA"]))
 		{
 			$arUsers = CIMContactList::GetUserData(Array('ID' => $arFields['FROM_USER_ID'], 'DEPARTMENT' => 'N', 'USE_CACHE' => 'Y', 'CACHE_TTL' => 86400));
-			$arFields["FROM_USER_DATA"] = $arUsers['users'];
+			$arFields["FROM_USER_DATA"] = $arUsers['users'] ?? null;
 		}
 
 		$arNotify['userId'] = $arFields["FROM_USER_ID"];
-		$arNotify['userName'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['name'];
-		$arNotify['userColor'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['color'];
-		$arNotify['userAvatar'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['avatar'];
-		$arNotify['userLink'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['profile'];
+		$arNotify['userName'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['name'] ?? null;
+		$arNotify['userColor'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['color'] ?? null;
+		$arNotify['userAvatar'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['avatar'] ?? null;
+		$arNotify['userLink'] = $arFields["FROM_USER_DATA"][$arFields["FROM_USER_ID"]]['profile'] ?? null;
 
 		if ($arFields['NOTIFY_TYPE'] == IM_NOTIFY_CONFIRM)
 		{

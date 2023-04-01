@@ -3,6 +3,7 @@ $MESS['LANDING_TPL_PREVIEW_URL'] = 'Предпросмотр';
 $MESS['LANDING_TPL_PREVIEW_URL_OPEN'] = 'Открыть сайт';
 $MESS['LANDING_TPL_PREVIEW_URL_OPEN_FORM'] = 'Открыть форму';
 $MESS['LANDING_TPL_PREVIEW_URL_HINT'] = 'Посмотрите, как будет выглядеть ваш сайт до публикации.';
+$MESS['LANDING_TPL_PREVIEW_EXIT'] = 'Выйти из редактора';
 $MESS['LANDING_TPL_FEATURES'] = 'Возможности сайта';
 $MESS['LANDING_TPL_FEATURES_STORE'] = 'Возможности магазина';
 $MESS['LANDING_TPL_FEATURES_KNOWLEDGE'] = 'Возможности базы знаний';

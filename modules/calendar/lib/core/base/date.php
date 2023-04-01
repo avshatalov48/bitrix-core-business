@@ -23,7 +23,7 @@ class Date extends BaseProperty
 	 * @return Date
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public static function createDateTimeFromFormat(string $date, string $format): Date
+	public static function createDateTimeFromFormat(string $date, string $format): ?Date
 	{
 		$timeZone = null;
 		$entity = \DateTime::createFromFormat($format, $date);
@@ -33,7 +33,12 @@ class Date extends BaseProperty
 			$timeZone = new DateTimeZone(Util::DEFAULT_TIMEZONE);
 		}
 
-		return new self(new Type\DateTime($entity->format($format), $format, $timeZone), $format);
+        if ($entity)
+        {
+            return new self(new Type\DateTime($entity->format($format), $format, $timeZone), $format);
+        }
+
+        return null;
 	}
 
 	/**

@@ -32,12 +32,16 @@ $aTabs = array(
 	),
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
 $returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].$_REQUEST["otp_siteb"] !="" && $canWrite && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST"
+	&& (isset($_REQUEST["save"]) || isset($_REQUEST["apply"]) || isset($_REQUEST["otp_siteb"]))
+	&& $canWrite
+	&& check_bitrix_sessid())
 {
 
-	if($_REQUEST["otp_siteb"] != "")
+	if(isset($_REQUEST["otp_siteb"]) && $_REQUEST["otp_siteb"] != "")
 		CSecurityUser::setActive($_POST["otp_active"]==="Y");
 
 	$hotp_user_window = intval($_POST["window_size"]);
@@ -45,22 +49,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 		$hotp_user_window = 10;
 	COption::SetOptionString("security", "hotp_user_window", $hotp_user_window);
 
-	COption::SetOptionString("security", "otp_allow_remember", $_POST["otp_allow_remember"]==="Y"? "Y": "N");
-	COption::SetOptionString("security", "otp_allow_recovery_codes", $_POST["otp_allow_recovery_codes"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "otp_allow_remember", isset($_POST["otp_allow_remember"]) && $_POST["otp_allow_remember"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "otp_allow_recovery_codes", isset($_POST["otp_allow_recovery_codes"]) && $_POST["otp_allow_recovery_codes"]==="Y"? "Y": "N");
 	COption::SetOptionString("security", "otp_log", ($_POST["otp_log"] === "Y"? "Y": "N"));
 
 	if ($_POST['otp_default_type'])
 		Bitrix\Security\Mfa\Otp::setDefaultType($_POST['otp_default_type']);
 
-	if (is_numeric($_POST['otp_mandatory_skip_days']))
+	if (isset($_POST['otp_mandatory_skip_days']) && is_numeric($_POST['otp_mandatory_skip_days']))
 		Bitrix\Security\Mfa\Otp::setSkipMandatoryDays($_POST['otp_mandatory_skip_days']);
 
-	Bitrix\Security\Mfa\Otp::setMandatoryUsing($_POST['otp_mandatory_using'] === 'Y');
+	Bitrix\Security\Mfa\Otp::setMandatoryUsing(isset($_POST['otp_mandatory_using']) && $_POST['otp_mandatory_using'] === 'Y');
 
-	if (is_array($_POST['otp_mandatory_rights']))
+	if (isset($_POST['otp_mandatory_rights']) && is_array($_POST['otp_mandatory_rights']))
 		Bitrix\Security\Mfa\Otp::setMandatoryRights($_POST['otp_mandatory_rights']);
 
-	if($_REQUEST["save"] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST["save"]) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 	else
 		LocalRedirect("/bitrix/admin/security_otp.php?lang=".LANGUAGE_ID.$returnUrl."&".$tabControl->ActiveTabParam());

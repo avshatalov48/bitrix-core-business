@@ -7,6 +7,7 @@ namespace Bitrix\Calendar\Rooms\Categories;
 use Bitrix\Calendar\Internals\RoomCategoryTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 
 class Category
 {
@@ -102,7 +103,7 @@ class Category
 	public function create(): Category
 	{
 		$section = RoomCategoryTable::add([
-			'NAME' => $this->name,
+			'NAME' => Emoji::encode($this->name),
 		]);
 		if (!$section->isSuccess())
 		{
@@ -122,7 +123,7 @@ class Category
 		$section = RoomCategoryTable::update(
 			$this->id,
 			[
-				'NAME' => $this->name,
+				'NAME' => Emoji::encode($this->name),
 			]
 		);
 		if (!$section->isSuccess())

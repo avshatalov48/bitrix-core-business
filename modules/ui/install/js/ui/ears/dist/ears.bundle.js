@@ -2,6 +2,68 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
+	var TouchController = /*#__PURE__*/function () {
+	  function TouchController(_ref) {
+	    var target = _ref.target;
+	    babelHelpers.classCallCheck(this, TouchController);
+	    this.target = target ? target : null;
+	    this.pos = {
+	      top: 0,
+	      left: 0,
+	      x: 0,
+	      y: 0
+	    };
+	    this.touchInit = false;
+	    this.init();
+	  }
+
+	  babelHelpers.createClass(TouchController, [{
+	    key: "init",
+	    value: function init() {
+	      if (!this.target) {
+	        console.warn('BX.UI.Ears: TouchController not initialized');
+	        return;
+	      }
+
+	      this.target.addEventListener('mousedown', this.mouseDownHandler.bind(this));
+	      this.target.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
+	      this.target.addEventListener('mouseup', this.mouseUpHandler.bind(this));
+	      this.target.addEventListener('mouseleave', this.mouseUpHandler.bind(this));
+	    }
+	  }, {
+	    key: "mouseDownHandler",
+	    value: function mouseDownHandler(ev) {
+	      this.touchInit = true;
+	      this.target.style.cursor = 'grabbing';
+	      this.target.style.userSelect = 'none';
+	      this.target.parentNode.classList.add('--grabbing');
+	      this.pos = {
+	        left: this.target.scrollLeft,
+	        x: ev.clientX
+	      };
+	    }
+	  }, {
+	    key: "mouseMoveHandler",
+	    value: function mouseMoveHandler(ev) {
+	      if (!this.touchInit) {
+	        return;
+	      }
+
+	      var dx = ev.clientX - this.pos.x;
+	      this.target.scrollLeft = this.pos.left - dx;
+	    }
+	  }, {
+	    key: "mouseUpHandler",
+	    value: function mouseUpHandler() {
+	      this.touchInit = false;
+	      this.target.style.cursor = 'grab';
+	      this.target.style.removeProperty('user-select');
+	      this.target.parentNode.classList.remove('--grabbing');
+	    }
+	  }]);
+	  return TouchController;
+	}();
+
 	var _templateObject, _templateObject2, _templateObject3;
 	var Ears = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Ears, _EventEmitter);
@@ -14,15 +76,18 @@ this.BX = this.BX || {};
 
 	    _this.setEventNamespace('BX.UI.Ears');
 
-	    _this.container = options.container;
+	    _this.container = options.container || null;
 	    _this.smallSize = options.smallSize || null;
 	    _this.noScrollbar = options.noScrollbar ? options.noScrollbar : false;
 	    _this.className = options.className ? options.className : null;
+	    _this.mousewheel = options.mousewheel || null;
+	    _this.touchScroll = options.touchScroll || null; // layouts
+
 	    _this.wrapper = null;
 	    _this.leftEar = null;
 	    _this.rightEar = null;
-	    _this.parentContainer = _this.container.parentNode;
-	    _this.delay = 6;
+	    _this.parentContainer = main_core.Type.isDomNode(_this.container) ? _this.container.parentNode : null;
+	    _this.delay = 12;
 	    _this.scrollTimeout = null;
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    return _this;
@@ -32,7 +97,11 @@ this.BX = this.BX || {};
 	    key: "bindEvents",
 	    value: function bindEvents() {
 	      this.container.addEventListener('scroll', this.toggleEars.bind(this));
-	      this.container.addEventListener('wheel', this.onWheel.bind(this));
+
+	      if (this.mousewheel) {
+	        this.container.addEventListener('wheel', this.onWheel.bind(this));
+	      }
+
 	      this.getLeftEar().addEventListener('mouseenter', this.scrollLeft.bind(this));
 	      this.getLeftEar().addEventListener('mouseleave', this.stopScroll.bind(this));
 	      this.getLeftEar().addEventListener('mousedown', this.stopScroll.bind(this));
@@ -47,8 +116,18 @@ this.BX = this.BX || {};
 	    value: function init() {
 	      var _this2 = this;
 
+	      if (!this.container) {
+	        console.warn('BX.UI.Ears.Preview: \'container\' is not defined');
+	        return;
+	      }
+
 	      this.setWrapper();
 	      this.bindEvents();
+
+	      if (this.touchScroll) {
+	        this.initTouchScroll();
+	      }
+
 	      setTimeout(function () {
 	        if (_this2.container.scrollWidth > _this2.container.offsetWidth) {
 	          _this2.toggleRightEar();
@@ -90,6 +169,7 @@ this.BX = this.BX || {};
 	      this.scrollTimeout = setTimeout(function () {
 	        return _this4.stopScroll();
 	      }, 150);
+	      event.preventDefault();
 	    }
 	  }, {
 	    key: "setWrapper",
@@ -193,14 +273,14 @@ this.BX = this.BX || {};
 	      var conditionLeft = this.container.scrollLeft < fullScrollLeft / 4;
 
 	      if (this.container.scrollLeft === fullScrollLeft) {
-	        this.delay = 6;
+	        this.delay = 12;
 	      }
 
 	      if (this.left) {
 	        if (conditionLeft) {
 	          this.delay = 25;
 	        } else {
-	          this.delay = 6;
+	          this.delay = 12;
 	        }
 	      }
 
@@ -208,7 +288,7 @@ this.BX = this.BX || {};
 	        if (conditionRight) {
 	          this.delay = 25;
 	        } else {
-	          this.delay = 6;
+	          this.delay = 12;
 	        }
 	      }
 	    }
@@ -225,6 +305,13 @@ this.BX = this.BX || {};
 	      } else if (direction === 'left') {
 	        this.left = false;
 	      }
+	    }
+	  }, {
+	    key: "initTouchScroll",
+	    value: function initTouchScroll() {
+	      new TouchController({
+	        target: this.container
+	      });
 	    }
 	  }]);
 	  return Ears;

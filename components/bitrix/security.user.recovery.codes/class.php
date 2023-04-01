@@ -64,7 +64,7 @@ class CSecurityUserRecoveryCodesComponent
 				header('Content-Type: text/plain', true);
 				header('Content-Disposition: attachment; filename="recovery_codes.txt"');
 				header('Content-Transfer-Encoding: binary');
-				header(sprintf('Content-Length: %d', CUtil::BinStrlen($this->arResult['PLAIN_RESPONSE'])));
+				header(sprintf('Content-Length: %d', strlen($this->arResult['PLAIN_RESPONSE'])));
 				echo $this->arResult['PLAIN_RESPONSE'];
 				exit;
 				break;

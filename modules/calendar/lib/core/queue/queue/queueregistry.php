@@ -9,12 +9,22 @@ class QueueRegistry
 		'EventDelayedSync' => 1,
 		'UpdateDepartmentStructure' => 2,
 		'UpdateSocialGroupStructure' => 3,
-		'Example' => 4,
+		'DelayedSyncSection' => 4,
+		'DelayedSyncConnection' => 5,
+		'EventsWithEntityAttendeesFind' => 6,
+		'EventAttendeesUpdate' => 7,
+		'Example' => 99999,
 	];
 
 	public const ROUTING_TO_QUEUES = [
 		'calendar:update_meeting_status' => [
 			'EventDelayedSync'
+		],
+		'calendar:find_events_with_entity_attendees' =>[
+			'EventsWithEntityAttendeesFind'
+		],
+		'calendar:update_event_attendees' => [
+			'EventAttendeesUpdate'
 		],
 	];
 

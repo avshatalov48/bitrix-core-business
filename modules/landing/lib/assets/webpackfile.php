@@ -138,31 +138,6 @@ class WebpackFile
 
 				// tmp fixing agent for 149117
 				Agent::addUniqueAgent('checkFileExists', [$this->fileId], 86400, 60);
-
-				// dbg tmp log
-				$file = \CFile::getFileArray($this->fileId);
-				$request = new HttpClient(["redirect" => false,]);
-				$request->query(HttpClient::HTTP_HEAD, $file['SRC']);
-				if ($request->getStatus() !== 200)
-				{
-					\Bitrix\Landing\Debug::logToFile(
-						"[lndgdbg] afterBuildFile, create new {$this->fileId} for lid {$this->landingId} with ORIG_NAME {$file['ORIGINAL_NAME']} and it not exists"
-					);
-				}
-				$fileMsg = "File {$this->fileId} with NAME {$file['FILE_NAME']} and ORIG_NAME {$file['ORIGINAL_NAME']}";
-				$duplicateMsg = "Has no duplicates";
-				$original = \Bitrix\Main\File\Internal\FileDuplicateTable::query()
-					->addSelect("ORIGINAL_ID")
-					->where("DUPLICATE_ID", $this->fileId)
-					->fetch();
-				if ($original && $original['ORIGINAL_ID'])
-				{
-					$fileOrig = \CFile::getFileArray((int)$original['ORIGINAL_ID']);
-					$duplicateMsg = "It is duplicate of orig {$original['ORIGINAL_ID']} with NAME {$fileOrig['FILE_NAME']} and ORIG_NAME {$fileOrig['ORIGINAL_NAME']}";
-				}
-				\Bitrix\Landing\Debug::logToFile(
-					"[lndgdbg] afterBuildFile for lid {$this->landingId}. {$fileMsg}. {$duplicateMsg}."
-				);
 			}
 		}
 	}
@@ -172,17 +147,12 @@ class WebpackFile
 	 */
 	protected function configureFile(): void
 	{
-		$msgAdd = '';
 		if ($fileId = $this->findExistFile())
 		{
 			$this->fileId = $fileId;
 			$file = \CFile::GetByID($fileId)->Fetch();
 			$this->setFileName($file['ORIGINAL_NAME'] ?: $this->filename);
 		}
-
-		\Bitrix\Landing\Debug::logToFile(
-			"[lndgdbg] configureFile for lid {$this->landingId}."
-		);
 
 		$this->fileController->configureFile(
 			$this->fileId,
@@ -202,20 +172,6 @@ class WebpackFile
 		{
 			foreach(File::getFilesFromAsset($this->landingId) as $fileId)
 			{
-				$currentFile = \CFile::GetByID($fileId)->Fetch();
-				$msg = "Current file {$fileId} with ORIG_NAME {$currentFile['ORIGINAL_NAME']}. ";
-
-				$currentName = self::DEFAULT_NAME . '_' . $this->packageHash;
-				$msg .= "Hash name {$currentName} ";
-				$msg .= strpos($currentFile['ORIGINAL_NAME'], $currentName) === 0
-					? 'and it MATCH with file.'
-					: 'and it NOT MATCH with file.'
-				;
-
-				\Bitrix\Landing\Debug::logToFile(
-					"[lndgdbg] findExistFile for lid {$this->landingId}. {$msg}"
-				);
-
 				if(
 					$fileId > 0
 					&& $this->packageHash

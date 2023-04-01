@@ -236,12 +236,12 @@ class RestService extends \IRestService
 
 		$params['AUTH_USER_ID'] = isset($params['AUTH_USER_ID'])? (int) $params['AUTH_USER_ID'] : 0;
 		$params['IS_ROBOT'] = $isRobot ? 'Y' : 'N';
-		$params['USE_PLACEMENT'] = ($params['USE_PLACEMENT'] === 'Y') ? 'Y' : 'N';
+		$params['USE_PLACEMENT'] = (isset($params['USE_PLACEMENT']) && $params['USE_PLACEMENT'] === 'Y') ? 'Y' : 'N';
 
 		if ($params['USE_PLACEMENT'] === 'Y')
 		{
-			self::validateActivityHandler($params['PLACEMENT_HANDLER'], $server);
-			self::upsertAppPlacement($appId, $params['CODE'], $params['PLACEMENT_HANDLER']);
+			self::validateActivityHandler($params['PLACEMENT_HANDLER'] ?? null, $server);
+			self::upsertAppPlacement($appId, $params['CODE'], $params['PLACEMENT_HANDLER'] ?? null);
 		}
 
 		$result = RestActivityTable::add($params);

@@ -14,6 +14,17 @@ class RoomBuilderFromArray extends RoomBuilder
 	 */
 	public function __construct(array $params)
 	{
+		$params = [
+			'ID' => $params['ID'] ?? null,
+			'LOCATION_ID' => $params['LOCATION_ID'] ?? null,
+			'CAPACITY' => $params['CAPACITY'] ?? null,
+			'NECESSITY' => $params['NECESSITY'] ?? null,
+			'NAME' => $params['NAME'] ?? null,
+			'COLOR' => $params['COLOR'] ?? null,
+			'OWNER_ID' => $params['OWNER_ID'] ?? null,
+			'ACCESS' => $params['ACCESS'] ?? null,
+			'CATEGORY_ID' => $params['CATEGORY_ID'] ?? null,
+		];
 		$this->params = $params;
 	}
 

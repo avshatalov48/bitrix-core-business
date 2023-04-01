@@ -47,12 +47,7 @@ export class StoreSelector extends EventEmitter
 
 		if (options.model instanceof ProductModel)
 		{
-			if (!options.model.isCatalogExisted())
-			{
-				this.#storeInfo.set('id', settingsCollection.get('defaultStoreId'));
-				this.#storeInfo.set('title', settingsCollection.get('defaultStoreName'));
-			}
-			else if (options.model.getField(options.inputFieldId) > 0)
+			if (options.model.getField(options.inputFieldId) > 0)
 			{
 				this.#storeInfo.set('id', options.model.getField(options.inputFieldId));
 				const name =
@@ -63,6 +58,11 @@ export class StoreSelector extends EventEmitter
 
 				this.setProductId(options.model.getSkuId());
 				this.#storeInfo.set('title', name);
+			}
+			else if (!options.model.isCatalogExisted())
+			{
+				this.#storeInfo.set('id', settingsCollection.get('defaultStoreId'));
+				this.#storeInfo.set('title', settingsCollection.get('defaultStoreName'));
 			}
 
 			this.#model = options.model;

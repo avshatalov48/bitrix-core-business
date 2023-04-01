@@ -269,9 +269,9 @@ if ($server->getRequestMethod() == "POST"
 		{
 			if ($path !== null)
 			{
-				if (\Bitrix\Main\IO\File::isFileExists($documentRoot.$path.'/handler.php'))
+				[$className] = PaySystem\Manager::includeHandler($actionFile);
+				if (is_callable([$className, 'prepareToField']))
 				{
-					[$className] = PaySystem\Manager::includeHandler($actionFile);
 					$fields["TARIF"] = $className::prepareToField($request->get('TARIF'));
 				}
 			}
@@ -348,7 +348,7 @@ if ($server->getRequestMethod() == "POST"
 
 			if (!$result->isSuccess())
 			{
-				$errorMessage .= join(',', $result->getErrorMessages()).".<br>";
+				$errorMessage .= (implode(',', $result->getErrorMessages()) . ".<br>");
 			}
 			else
 			{
@@ -360,7 +360,7 @@ if ($server->getRequestMethod() == "POST"
 			$result = PaySystem\Manager::add($fields);
 			if (!$result->isSuccess())
 			{
-				$errorMessage .= join(',', $result->getErrorMessages());
+				$errorMessage .= implode(',', $result->getErrorMessages());
 			}
 			else
 			{
@@ -369,28 +369,30 @@ if ($server->getRequestMethod() == "POST"
 				{
 					AddEventToStatFile('sale', 'addPaysystem', $id, $paySysntemStatisticLabel);
 
-					$fields = array(
-						'PARAMS' => serialize(array('BX_PAY_SYSTEM_ID' => $id)),
-						'PAY_SYSTEM_ID' => $id
-					);
+					$fields = [
+						'PARAMS' => serialize(['BX_PAY_SYSTEM_ID' => $id]),
+						'PAY_SYSTEM_ID' => $id,
+					];
 
 					$result = PaySystem\Manager::update($id, $fields);
 					if (!$result->isSuccess())
-						$errorMessage .= join(',', $result->getErrorMessages());
+					{
+						$errorMessage .= implode(', ', $result->getErrorMessages());
+					}
 
 					$service = PaySystem\Manager::getObjectById($id);
-					$currency = $service->getCurrency();
-					if ($currency)
+					$applyRestrictionsResult = Restrictions\Manager::setupDefaultRestrictions($service);
+					if (!$applyRestrictionsResult->isSuccess())
 					{
-						$params = array(
-							'SERVICE_ID' => $id,
-							'SERVICE_TYPE' => Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-							'PARAMS' => array('CURRENCY' => $currency)
-						);
-						Restrictions\Manager::getClassesList();
-						$saveResult = \Bitrix\Sale\Services\PaySystem\Restrictions\Currency::save($params);
-						if (!$saveResult->isSuccess())
-							$errorMessage .= Loc::getMessage('SALE_PSE_ERROR_RSRT_CURRENCY_SAVE');
+						$rstrApplyErrorMessages = [Loc::getMessage('SALE_PSE_ERROR_DEFAULT_RSRT_APPLY')];
+
+						// TODO: Add public messages of errors while applied concrete restrictions
+
+						if (!empty($errorMessage))
+						{
+							$errorMessage .= ', ';
+						}
+						$errorMessage .= implode(', ', $rstrApplyErrorMessages);
 					}
 				}
 			}

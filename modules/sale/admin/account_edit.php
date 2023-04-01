@@ -1,8 +1,15 @@
-<?
+<?php
 use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
+
+/** @global CMain $APPLICATION */
+/** @global CDatabase $DB */
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."sale_account_admin.php?lang=".LANGUAGE_ID;
@@ -23,7 +30,12 @@ $bVarsFromForm = false;
 $ID = (int)($ID ?? 0);
 $CHANGE_REASON ??= null;
 
-if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermissions>="U" && check_bitrix_sessid())
+if (
+	$_SERVER['REQUEST_METHOD']=="POST"
+	&& (isset($_POST['Update']) && $_POST['Update'] !== '')
+	&& $saleModulePermissions >= "U"
+	&& check_bitrix_sessid()
+)
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -32,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 		if ($saleModulePermissions < "W")
 			$errorMessage .= GetMessage("SAE_NO_PERMS2ADD").".<br>";
 
-		$USER_ID = intval($USER_ID);
+		$USER_ID = (int)($_POST['USER_ID'] ?? 0);
 		if ($USER_ID <= 0)
 			$errorMessage .= GetMessage("SAE_EMPTY_USER").".<br>";
 
-		$CURRENCY = Trim($CURRENCY);
-		if ($CURRENCY == '')
+		$CURRENCY = trim((string)($_POST['CURRENCY'] ?? ''));
+		if ($CURRENCY === '')
 			$errorMessage .= GetMessage("SAE_EMPTY_CURRENCY").".<br>";
 
 		if ($errorMessage == '')
@@ -70,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 		{
 			$USER_ID = $arOldUserAccount["USER_ID"];
 			$CURRENCY = $arOldUserAccount["CURRENCY"];
-			$OLD_BUDGET = DoubleVal($arOldUserAccount["CURRENT_BUDGET"]);
+			$OLD_BUDGET = (float)$arOldUserAccount["CURRENT_BUDGET"];
 		}
 	}
 
@@ -86,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 			$currentLocked = $arUserAccount["LOCKED"];
 
 		$allowUpdate = false;
-		$CURRENT_BUDGET = str_replace(",", ".", $CURRENT_BUDGET);
+		$CURRENT_BUDGET = str_replace(",", ".", (string)($_POST['CURRENT_BUDGET'] ?? ''));
 		$CURRENT_BUDGET = (float)$CURRENT_BUDGET;
 		if ($ID > 0)
 		{
@@ -114,11 +126,16 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermission
 
 	if ($errorMessage == '' AND $currentLocked != "")
 	{
-		if($_POST["UNLOCK"] == "Y")
+		$unlock = (string)($_POST['UNLOCK'] ?? '');
+		if ($unlock === "Y")
+		{
 			CSaleUserAccount::UnLock($USER_ID, $CURRENCY);
+		}
 
-		if($_POST["UNLOCK"] == "N" OR ($currentLocked == "Y" AND !isset($_POST["UNLOCK"])))
+		if ($unlock === 'N' || ($currentLocked == "Y" && !isset($_POST["UNLOCK"])))
+		{
 			CSaleUserAccount::Lock($USER_ID, $CURRENCY);
+		}
 	}
 
 	if ($errorMessage == '')

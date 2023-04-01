@@ -49,8 +49,8 @@ BX.ready(function () {
 });
 </script>
 
-<div id="<?=htmlspecialcharsbx($containerId)?>" class="ui-button-panel-wrapper ui-pinner ui-pinner-bottom<?=($arParams['FRAME'] ? ' ui-pinner-full-width' : '')?><?=($arParams['HIDE'] ? ' ui-button-panel-wrapper-hide' : '')?>">
-	<div class="ui-button-panel <?=htmlspecialcharsbx($alignClass)?> <?=$arParams['CLASS_NAME']?>">
+<div id="<?=htmlspecialcharsbx($containerId)?>" class="ui-button-panel-wrapper ui-pinner ui-pinner-bottom<?=($arParams['FRAME'] ? ' ui-pinner-full-width' : '')?><?=(isset($arParams['HIDE']) && $arParams['HIDE'] ? ' ui-button-panel-wrapper-hide' : '')?>">
+	<div class="ui-button-panel <?=htmlspecialcharsbx($alignClass)?> <?=($arParams['CLASS_NAME'] ?? '')?>">
 		<?foreach ($arResult['LIST'] as $item)
 		{
 			$item['CLASS_NAME'] = '';

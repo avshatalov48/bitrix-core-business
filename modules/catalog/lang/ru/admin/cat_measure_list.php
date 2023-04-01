@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_STORE_INDEX_TITLE"] = "Список складов хранения товаров";
 $MESS["CAT_MEASURE_CODE"] = "Код";
 $MESS["CAT_MEASURE_MEASURE_TITLE"] = "Наименование единицы измерения";
@@ -15,3 +15,4 @@ $MESS["CAT_MEASURE_DELETE_CONFIRM"] = "Вы уверены, что хотите 
 $MESS["CAT_MEASURE_DELETE_ALT"] = "Удалить";
 $MESS["CAT_MEASURE_EDIT_ALT"] = "Редактировать";
 $MESS["CAT_MEASURE_VIEW_ALT"] = "Открыть";
+$MESS['CAT_MEASURE_CODE_MSGVER_1'] = "Код";

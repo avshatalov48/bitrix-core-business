@@ -49,7 +49,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['background', 'block-default-background-overlay'],
 			'additional' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43_5_COVER_WITH_FEEDBACK_NODES_SLIDER'),
 				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'dots'],

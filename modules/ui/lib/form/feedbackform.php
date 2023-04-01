@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\UI\Form;
 
+use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -58,6 +59,9 @@ class FeedbackForm
 				: ''
 		);
 
+		$presets['hosturl'] = Main\Engine\UrlManager::getInstance()->getHostUrl();
+		$presets['hostname'] = parse_url($presets['hosturl'], PHP_URL_HOST);
+
 		global $USER;
 		$name = '';
 		$email = '';
@@ -99,13 +103,13 @@ class FeedbackForm
 
 	public function setFormParams(array $forms)
 	{
-		if ($this->isCloud && $forms['prefixes'])
+		if ($this->isCloud && isset($forms['prefixes']))
 		{
 			$zone = \CBitrix24::getLicensePrefix();
 			$defaultForm = null;
 			foreach ($forms as $form)
 			{
-				if (!isset($form['zones']) || !is_array($forms['licenseZones']))
+				if (!isset($form['licenseZones']) || !isset($form['zones']) || !is_array($forms['licenseZones']))
 				{
 					continue;
 				}
@@ -125,7 +129,6 @@ class FeedbackForm
 			}
 
 			$this->formParams = $defaultForm;
-			return;
 		}
 		else if ($this->isCloud)
 		{
@@ -153,7 +156,6 @@ class FeedbackForm
 			}
 
 			$this->formParams = $defaultForm;
-			return;
 		}
 		else
 		{
@@ -179,7 +181,6 @@ class FeedbackForm
 			}
 
 			$this->formParams =  $defaultForm;
-			return;
 		}
 	}
 

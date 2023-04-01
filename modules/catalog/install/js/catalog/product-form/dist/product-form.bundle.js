@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,catalog_storeUse,ui_hint,main_core_events,currency_currencyCore,catalog_productCalculator) {
+(function (exports,ui_designTokens,ui_fonts_opensans,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,main_popup,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,catalog_storeUse,ui_hint,ui_vue,main_core,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
 
 	class FormElementPosition {}
@@ -246,6 +246,7 @@ this.BX = this.BX || {};
 	  templateFieldDiscount: 'bx-field-discount',
 	  templateFieldTax: 'bx-field-tax',
 	  templateFieldBrand: 'bx-field-brand',
+	  templateSummaryTotal: 'bx-summary-total',
 	  moduleId: 'catalog'
 	});
 
@@ -2570,6 +2571,35 @@ this.BX = this.BX || {};
 	`
 	});
 
+	let _$3 = t => t,
+	    _t$3;
+	ui_vue.Vue.component(config.templateSummaryTotal, {
+	  props: {
+	    currency: {
+	      type: String,
+	      required: true
+	    },
+	    sum: {
+	      required: true
+	    },
+	    sumAdditionalClass: String,
+	    currencyAdditionalClass: String
+	  },
+	  computed: {
+	    formattedSum() {
+	      var _this$sumAdditionalCl;
+
+	      const element = main_core.Tag.render(_t$3 || (_t$3 = _$3`<span class="catalog-pf-text ${0}">${0}</span>`), (_this$sumAdditionalCl = this.sumAdditionalClass) != null ? _this$sumAdditionalCl : '', this.sum);
+	      return currency_currencyCore.CurrencyCore.getPriceControl(element, this.currency);
+	    }
+
+	  },
+	  // language=Vue
+	  template: `
+	<span class="catalog-pf-symbol" :class="currencyAdditionalClass" v-html="formattedSum"></span>
+	`
+	});
+
 	ui_vue.Vue.component(config.templateName, {
 	  props: {
 	    options: Object,
@@ -2691,43 +2721,54 @@ this.BX = this.BX || {};
 		/>
 		<div class="catalog-pf-result-line"></div>
 		<div class="catalog-pf-result-wrapper" v-if="showResultBlock">
-			<table class="catalog-pf-result" v-if="showResultBlock">
-				<tr v-if="showResults">
+			<table class="catalog-pf-result">
+				<tr>
 					<td>
 						<span class="catalog-pf-text">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>
 					</td>
 					<td>
-						<span v-html="productList.total.sum"
-							:class="productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'"
-						></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.sum"
+							:currency="options.currency"
+							:sumAdditionalClass="productList.total.result !== productList.total.sum ? 'catalog-pf-text--line-through' : ''"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults">
+				<tr>
 					<td class="catalog-pf-result-padding-bottom">
 						<span class="catalog-pf-text catalog-pf-text--discount">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>
 					</td>
 					<td class="catalog-pf-result-padding-bottom">
-						<span class="catalog-pf-text catalog-pf-text--discount" v-html="productList.total.discount"></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.discount"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--discount'"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults && showTaxResult">
+				<tr v-if="showTaxResult">
 					<td class="catalog-pf-tax">
 						<span class="catalog-pf-text catalog-pf-text--tax">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>
 					</td>
 					<td class="catalog-pf-tax">
-						<span class="catalog-pf-text catalog-pf-text--tax" v-html="productList.total.taxSum"></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.taxSum"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--tax'"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults">
+				<tr>
 					<td class="catalog-pf-result-padding">
 						<span class="catalog-pf-text catalog-pf-text--total catalog-pf-text--border">{{totalResultLabel}}:</span>
 					</td>
 					<td class="catalog-pf-result-padding">
-						<span class="catalog-pf-text catalog-pf-text--total" v-html="productList.total.result"></span>
-						<span class="catalog-pf-symbol catalog-pf-symbol--total" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.result"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--total'"
+							:currencyAdditionalClass="'catalog-pf-symbol--total'"
+						/>
 					</td>
 				</tr>
 			</table>
@@ -2736,8 +2777,8 @@ this.BX = this.BX || {};
 `
 	});
 
-	let _$3 = t => t,
-	    _t$3;
+	let _$4 = t => t,
+	    _t$4;
 
 	var _onBasketChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onBasketChange");
 
@@ -2767,7 +2808,7 @@ this.BX = this.BX || {};
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
 
-	    this.wrapper = main_core.Tag.render(_t$3 || (_t$3 = _$3`<div class=""></div>`));
+	    this.wrapper = main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class=""></div>`));
 
 	    if (main_core.Text.toNumber(options.iblockId) <= 0) {
 	      return;
@@ -3218,5 +3259,5 @@ this.BX = this.BX || {};
 	exports.ProductForm = ProductForm;
 	exports.FormMode = FormMode;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX,BX.Event,BX.Currency,BX.Catalog));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX.Main,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX,BX,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

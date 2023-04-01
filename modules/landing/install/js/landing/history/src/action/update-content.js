@@ -1,11 +1,10 @@
 const {scrollTo, highlight} = BX.Landing.Utils;
 
 /**
- * @param {string} state
  * @param {object} entry
  * @return {Promise}
  */
-export default function updateContent(state, entry)
+export default function updateContent(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {
@@ -15,7 +14,7 @@ export default function updateContent(state, entry)
 			return scrollTo(block.node)
 				.then(() => {
 					void highlight(block.node);
-					return block.updateContent(entry[state]);
+					return block.updateContent(entry.params.content, true);
 				});
 		});
 }

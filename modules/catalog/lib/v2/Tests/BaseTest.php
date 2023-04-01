@@ -22,7 +22,7 @@ abstract class BaseTest extends TestCase
 		return static::$container;
 	}
 
-	public static function setUpBeforeClass()
+	public static function setUpBeforeClass() : void
 	{
 		Loader::includeModule('catalog');
 		static::loadContainer();

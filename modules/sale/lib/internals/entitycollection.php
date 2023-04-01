@@ -162,7 +162,7 @@ abstract class EntityCollection
 	/**
 	 * @param $id
 	 *
-	 * @return CollectableEntity|bool
+	 * @return CollectableEntity|null
 	 * @throws Main\ArgumentNullException
 	 */
 	public function getItemById($id)

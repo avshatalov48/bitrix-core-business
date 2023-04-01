@@ -96,7 +96,8 @@ if (!empty($arResult['CURRENCIES']))
 $templateData = [
 	'TEMPLATE_LIBRARY' => $templateLibrary,
 	'CURRENCIES' => $currencyList,
-	'NAV_PARAMS' => $navParams
+	'NAV_PARAMS' => $navParams,
+	'USE_PAGINATION_CONTAINER' => $showTopPager || $showBottomPager,
 ];
 unset($currencyList, $templateLibrary);
 

@@ -14,6 +14,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItemSize;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\VisitedAt;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Warning;
 
 /**
@@ -351,6 +352,13 @@ final class ClaimReader
 			);
 		}
 
+		if (isset($node['visited_at']))
+		{
+			$result->setVisitedAt(
+				$this->buildVisitedAt($node['visited_at'])
+			);
+		}
+
 		return $result;
 	}
 
@@ -413,6 +421,27 @@ final class ClaimReader
 		if (isset($node['coordinates']))
 		{
 			$result->setCoordinates($node['coordinates']);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $node
+	 * @return VisitedAt
+	 */
+	private function buildVisitedAt(array $node): VisitedAt
+	{
+		$result = new VisitedAt();
+
+		if (isset($node['actual']))
+		{
+			$result->setActual((string)$node['actual']);
+		}
+
+		if (isset($node['expected']))
+		{
+			$result->setExpected((string)$node['expected']);
 		}
 
 		return $result;

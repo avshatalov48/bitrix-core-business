@@ -22,3 +22,4 @@ $MESS['LANDING_TABLE_FIELD_PARENT_ID'] = 'Родительский блок';
 $MESS['LANDING_TABLE_FIELD_SOURCE_PARAMS'] = 'Параметры динамического источника';
 $MESS['LANDING_TABLE_FIELD_ASSETS'] = 'Дополнительные ресурсы блока';
 $MESS['LANDING_TABLE_FIELD_FAVORITE_META'] = 'Переопределяемые поля для сохраненного блока';
+$MESS['LANDING_TABLE_FIELD_HISTORY_STEP_DESIGNER'] = 'Шаг истории суперблока';

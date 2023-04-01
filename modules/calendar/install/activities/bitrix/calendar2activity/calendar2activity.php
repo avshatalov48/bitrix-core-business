@@ -34,15 +34,15 @@ class CBPCalendar2Activity extends CBPActivity
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
 
-		$fromTs = CCalendar::Timestamp($this->CalendarFrom);
-		$toTs = $this->CalendarTo == '' ? $fromTs : CCalendar::Timestamp($this->CalendarTo);
+		$fromTs = $this->getCalendarFrom();
+		$toTs = $this->getCalendarTo($fromTs);
 		$calendarType = $this->getCalendarType();
 		$calendarName = $this->getCalendarName();
 		$calendarDescription = $this->getCalendarDescription();
 
 		$arFields = [
 			"CAL_TYPE" => $calendarType,
-			"NAME" => $calendarName ?: GetMessage('EC_DEFAULT_EVENT_NAME'),
+			"NAME" => $calendarName ?: GetMessage('EC_DEFAULT_EVENT_NAME_V2'),
 			"DESCRIPTION" => $calendarDescription,
 			"SKIP_TIME" => date('H:i', $fromTs) == '00:00' && date('H:i', $toTs) == '00:00',
 			"IS_MEETING" => false,
@@ -225,6 +225,58 @@ class CBPCalendar2Activity extends CBPActivity
 		$arCurrentActivity["Properties"] = $arProperties;
 
 		return true;
+	}
+
+	private function getCalendarFrom()
+	{
+		$calendarFrom = $this->CalendarFrom;
+		if (is_array($calendarFrom))
+		{
+			$calendarFrom = current(CBPHelper::makeArrayFlat($calendarFrom));
+		}
+
+		if (
+			is_scalar($calendarFrom)
+			|| (is_object($calendarFrom) && method_exists($calendarFrom, '__toString'))
+		)
+		{
+			$calendarFrom = (string)$calendarFrom;
+		}
+		else
+		{
+			$calendarFrom = '';
+		}
+
+		return CCalendar::Timestamp($calendarFrom);
+	}
+
+	private function getCalendarTo($calendarFrom)
+	{
+		$calendarTo = $this->CalendarTo;
+		// $calendarTo == '' (php 7.4: (0 == ''))
+		if ($calendarTo === 0 || CBPHelper::isEmptyValue($calendarTo))
+		{
+			return $calendarFrom;
+		}
+
+		if (is_array($calendarTo))
+		{
+			$calendarTo = current(CBPHelper::makeArrayFlat($calendarTo));
+		}
+
+		if (
+			is_scalar($calendarTo)
+			|| (is_object($calendarTo) && method_exists($calendarTo, '__toString'))
+		)
+		{
+			$calendarTo = (string)$calendarTo;
+		}
+		else
+		{
+			$calendarTo = '';
+		}
+
+		return CCalendar::Timestamp($calendarTo);
 	}
 
 	private function getCalendarType(): string

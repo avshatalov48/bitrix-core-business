@@ -695,8 +695,7 @@
 	background: url(img/progress-icon.svg) no-repeat center;
 }
 
-.crm-order-instagram-view-block-process-icon,
-.bx-ie .ui-icon, .bx-ie .ui-icon-md.crm-order-instagram-view-block-process-icon {
+.crm-order-instagram-view-block-process-icon {
 	width: 144px;
 }
 

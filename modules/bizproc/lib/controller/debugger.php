@@ -120,6 +120,8 @@ class Debugger extends Base
 			'workflowEvents' => $workflowEvents,
 			'debuggerState' => $debuggerState,
 			'track' => $this->getTrack($workflowId, $workflowStatus),
+			'globalVariables' => array_values(Automation\Helper::getGlobalVariables($documentType)),
+			'globalConstants' => array_values(Automation\Helper::getGlobalConstants($documentType)),
 		];
 	}
 

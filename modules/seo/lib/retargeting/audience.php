@@ -299,7 +299,7 @@ abstract class Audience extends BaseApiObject
 	 * @param array $options
 	 * @return Response
 	 */
-	public function addContacts($audienceId, array $contacts = array(), array $options)
+	public function addContacts($audienceId, array $contacts, array $options)
 	{
 		$contacts = $this->normalizeContacts($contacts);
 		if ($this->isQueueModeEnabled())
@@ -325,7 +325,7 @@ abstract class Audience extends BaseApiObject
 	 * @param array $options
 	 * @return Response
 	 */
-	public function deleteContacts($audienceId, array $contacts = array(), array $options)
+	public function deleteContacts($audienceId, array $contacts, array $options)
 	{
 		if ($this->isQueueModeEnabled())
 		{
@@ -364,7 +364,7 @@ abstract class Audience extends BaseApiObject
 	 * @param array $options Options.
 	 * @return Response
 	 */
-	abstract protected function importContacts($audienceId, array $contacts = array(), array $options);
+	abstract protected function importContacts($audienceId, array $contacts, array $options);
 
 
 	/**
@@ -375,7 +375,7 @@ abstract class Audience extends BaseApiObject
 	 * @param array $options Options.
 	 * @return Response
 	 */
-	abstract protected function removeContacts($audienceId, array $contacts = array(), array $options);
+	abstract protected function removeContacts($audienceId, array $contacts, array $options);
 
 	public function createLookalike($sourceAudienceId, array $options)
 	{

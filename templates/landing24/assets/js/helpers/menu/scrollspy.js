@@ -78,10 +78,11 @@
 			links.forEach(function (link)
 			{
 				if (
-					link.getAttribute("href") !== "#" &&
-					link.hash !== '' &&
-					link.pathname === document.location.pathname &&
-					link.hostname === document.location.hostname
+					link.getAttribute("href") !== "#"
+					&& link.hash !== ''
+					&& (link.target === '' || link.target === '_self')
+					&& link.pathname === document.location.pathname
+					&& link.hostname === document.location.hostname
 				)
 				{
 					// hash can be not valid for various reasons

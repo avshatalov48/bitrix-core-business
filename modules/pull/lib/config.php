@@ -18,7 +18,7 @@ class Config
 		if (!\CPullOptions::GetQueueServerStatus())
 			return false;
 
-		$userId = (int)$params['USER_ID'];
+		$userId = (int)($params['USER_ID'] ?? 0);
 		if (isset($params['CHANNEL']) && !($params['CHANNEL'] instanceof \Bitrix\Pull\Model\Channel))
 		{
 			throw new ArgumentException('$params["CHANNEL"] should be instance of \Bitrix\Pull\Model\Channel');
@@ -33,6 +33,9 @@ class Config
 				return false;
 			}
 		}
+
+		$params['CACHE'] = (bool)($params['CACHE'] ?? true);
+		$params['REOPEN'] = (bool)($params['REOPEN'] ?? false);
 
 		$cache = $params['CACHE'] !== false;
 		$reopen = $params['REOPEN'] !== false;
@@ -128,7 +131,9 @@ class Config
 			];
 		}
 
-		$config['PUBLIC_CHANNELS'] = \Bitrix\Pull\Channel::getPublicIds(['JSON' => (bool)$params['JSON']]);
+		$params['JSON'] = (bool)($params['JSON'] ?? false);
+
+		$config['PUBLIC_CHANNELS'] = \Bitrix\Pull\Channel::getPublicIds(['JSON' => $params['JSON']]);
 		if (\CPullOptions::GetQueueServerVersion() >= 5)
 		{
 			$channelsForToken = [];

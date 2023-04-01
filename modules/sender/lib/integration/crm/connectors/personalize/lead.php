@@ -21,7 +21,7 @@ class Lead extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => false,
 				'Required' => false,
-				'personalizeCode' => 'ID'
+				// 'personalizeCode' => 'ID'
 			),
 			'TITLE' => array(
 				'Name' => GetMessage('CRM_FIELD_TITLE_LEAD'),
@@ -29,7 +29,7 @@ class Lead extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => true,
-				'personalizeCode' => 'NAME'
+				// 'personalizeCode' => 'NAME'
 			),
 			'STATUS_ID' => array(
 				'Name' => GetMessage('CRM_FIELD_STATUS_ID'),
@@ -119,7 +119,7 @@ class Lead extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'EMAIL'
+				// 'personalizeCode' => 'EMAIL'
 			),
 			'PHONE' => array(
 				'Name' => GetMessage('CRM_FIELD_PHONE'),
@@ -127,7 +127,7 @@ class Lead extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'PHONE'
+				// 'personalizeCode' => 'PHONE'
 			),
 			'WEB' => array(
 				'Name' => GetMessage('CRM_FIELD_WEB'),

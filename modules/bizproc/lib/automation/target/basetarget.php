@@ -173,7 +173,7 @@ abstract class BaseTarget
 
 			if ($triggerDescription && isset($triggerDescription['RETURN']))
 			{
-				if (!is_array($params[$status]))
+				if (!isset($params[$status]))
 				{
 					$params[$status] = [];
 				}

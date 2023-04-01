@@ -334,7 +334,11 @@ class ShipmentImport extends EntityImport
                                 }
                             }
 
-							if(count($item['MARKINGS'])>0)
+							if (
+								isset($item['MARKINGS'])
+								&& is_array($item['MARKINGS'])
+								&& count($item['MARKINGS']) > 0
+							)
 							{
 								$result = $this->fillMarkingsShipmentItem($shipmentItem, $item['MARKINGS']);
 							}

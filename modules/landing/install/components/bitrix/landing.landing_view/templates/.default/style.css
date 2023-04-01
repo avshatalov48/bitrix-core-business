@@ -34,7 +34,6 @@
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	letter-spacing: 0.13px;
 	position: relative;
-	top: -3px;
 }
 
 .landing-ui-panel-top-logo-link {
@@ -603,7 +602,6 @@ div#landing-popup-publication-error {
 	border: 1px solid #c6cdd3;
 	background-color: transparent;
 	outline: none !important;
-	margin-top: -3px;
 }
 
 .landing-ui-panel-top-pub-btn:hover {

@@ -112,6 +112,11 @@ this.BX = this.BX || {};
 	    this.emitter.setEventNamespace('BX.Calendar.EventEditForm');
 	    this.BX = calendar_util.Util.getBX();
 	    this.context = (_Util$getCalendarCont = calendar_util.Util.getCalendarContext()) != null ? _Util$getCalendarCont : options.calendarContext;
+
+	    if (!calendar_util.Util.getCalendarContext()) {
+	      calendar_util.Util.setCalendarContext(this.context);
+	    }
+
 	    this.formSettings = {
 	      pinnedFields: {}
 	    };
@@ -284,6 +289,10 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      return false;
+	    }
+
+	    if (this.entry.id && this.entry.isRecursive() && !options.confirmed && this.getFormDataChanges().includes('section')) {
+	      options.recursionMode = this.entry.isFirstInstance() ? 'all' : 'next';
 	    }
 
 	    main_core.Dom.addClass(this.DOM.saveBtn, this.BX.UI.Button.State.CLOCKING);
@@ -501,6 +510,8 @@ this.BX = this.BX || {};
 	  }
 
 	  createContent(slider) {
+	    var _entry$data$CAL_TYPE, _entry$data$OWNER_ID;
+
 	    let promise = new this.BX.Promise();
 	    let entry = this.getCurrentEntry();
 	    this.BX.ajax.runAction('calendar.api.calendarajax.getEditEventSlider', {
@@ -508,8 +519,8 @@ this.BX = this.BX || {};
 	        event_id: this.entryId || entry.id,
 	        date_from: entry ? calendar_util.Util.formatDate(entry.from) : '',
 	        form_type: this.formType,
-	        type: this.type,
-	        ownerId: this.ownerId,
+	        type: (_entry$data$CAL_TYPE = entry.data['CAL_TYPE']) != null ? _entry$data$CAL_TYPE : this.type,
+	        ownerId: (_entry$data$OWNER_ID = entry.data['OWNER_ID']) != null ? _entry$data$OWNER_ID : this.ownerId,
 	        entityList: this.participantsEntityList
 	      }
 	    }).then(response => {
@@ -518,7 +529,8 @@ this.BX = this.BX || {};
 	        slider.getData().set("sliderContent", html);
 	        let params = response.data.additionalParams;
 	        this.updateEntryData(params.entry, {
-	          userSettings: this.userSettings
+	          userSettings: this.userSettings,
+	          meetSection: params.meetSection
 	        });
 	        entry = this.getCurrentEntry();
 	        this.uid = params.uniqueId;
@@ -559,10 +571,8 @@ this.BX = this.BX || {};
 	          this.setCurrentEntry();
 	        }
 
-	        const key = this.type + this.ownerId;
-
-	        if (this.userSettings.defaultSections && this.userSettings.defaultSections[key]) {
-	          calendar_sectionmanager.SectionManager.setNewEntrySectionId(this.userSettings.defaultSections[key]);
+	        if (this.userSettings.meetSection && this.type === 'user') {
+	          calendar_sectionmanager.SectionManager.setNewEntrySectionId(this.userSettings.meetSection);
 	        }
 
 	        promise.fulfill(html);
@@ -611,6 +621,10 @@ this.BX = this.BX || {};
 	        if (!this.entry.getTimezoneFrom() || this.entry.getTimezoneTo()) {
 	          this.entry.setTimezone(userSettings.timezoneName || userSettings.timezoneDefaultName || null);
 	        }
+	      }
+
+	      if (!this.entry.id && options.meetSection && this.type === calendar_entry.Entry.CAL_TYPES['user']) {
+	        this.entry.setSectionId(options.meetSection);
 	      }
 	    }
 	  }
@@ -1243,7 +1257,7 @@ this.BX = this.BX || {};
 	    let section = 0,
 	        entry = this.getCurrentEntry();
 
-	    if (entry instanceof calendar_entry.Entry) {
+	    if (entry instanceof calendar_entry.Entry && this.sections[this.sectionIndex[entry.sectionId]]) {
 	      section = parseInt(entry.sectionId);
 	    }
 
@@ -1251,7 +1265,7 @@ this.BX = this.BX || {};
 	      if (this.type === 'location') {
 	        section = calendar_roomsmanager.RoomsManager.getNewEntrySectionId();
 	      } else {
-	        section = calendar_sectionmanager.SectionManager.getNewEntrySectionId();
+	        section = calendar_sectionmanager.SectionManager.getNewEntrySectionId(this.type, this.ownerId);
 	      }
 
 	      if (!this.sectionIndex[section]) {
@@ -1605,9 +1619,14 @@ this.BX = this.BX || {};
 	  }
 
 	  keyHandler(e) {
-	    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === calendar_util.Util.getKeyCode('enter')) {
+	    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === calendar_util.Util.getKeyCode('enter') && this.checkTopSlider()) {
 	      this.save();
 	    }
+	  }
+
+	  checkTopSlider() {
+	    const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
+	    return slider && slider.options.type === 'calendar:slider';
 	  }
 
 	  showError(errorList) {

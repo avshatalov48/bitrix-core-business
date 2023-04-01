@@ -23,7 +23,7 @@ class Path
 	protected function getFilters()
 	{
 		$filters = array();
-		$filters['#([\\\/]\.)(\.[\\\/])#is'] = $this->getSplittingString(2);
+		$filters['#((?:[\\\/]|%2f|%5c)(?:\.|%2e))((?:\.|%2e)(?:[\\\/]|%2f|%5c))#is'] = $this->getSplittingString(2);
 		if(
 			(!defined('PHP_OS'))
 			|| (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === 'WIN')

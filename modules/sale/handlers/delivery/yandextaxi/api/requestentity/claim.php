@@ -95,6 +95,14 @@ final class Claim extends RequestEntity
 	}
 
 	/**
+	 * @return RoutePoint[]
+	 */
+	public function getRoutePoints(): array
+	{
+		return $this->routePoints;
+	}
+
+	/**
 	 * @param RoutePoint[] $routePoints
 	 * @return Claim
 	 */

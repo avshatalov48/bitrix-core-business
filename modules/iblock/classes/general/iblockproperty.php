@@ -335,7 +335,7 @@ class CAllIBlockProperty
 					)
 					{
 						$arLink = array(
-							"SMART_FILTER" => $arFields["SMART_FILTER"],
+							"SMART_FILTER" => $arFields["SMART_FILTER"] ?? null,
 						);
 						if (array_key_exists("DISPLAY_TYPE", $arFields))
 							$arLink["DISPLAY_TYPE"] = $arFields["DISPLAY_TYPE"];
@@ -553,7 +553,12 @@ class CAllIBlockProperty
 			if($strUpdate <> '')
 			{
 				$strSql = "UPDATE b_iblock_property SET ".$strUpdate." WHERE ID=".$ID;
-				$DB->QueryBind($strSql, array("USER_TYPE_SETTINGS"=>$arFields["USER_TYPE_SETTINGS"]));
+				$bindList = [];
+				if (isset($arFields['USER_TYPE_SETTINGS']))
+				{
+					$bindList['USER_TYPE_SETTINGS'] = $arFields['USER_TYPE_SETTINGS'];
+				}
+				$DB->QueryBind($strSql, $bindList);
 			}
 
 			if(is_set($arFields, "VALUES"))
@@ -569,9 +574,11 @@ class CAllIBlockProperty
 					|| $arFields["SECTION_PROPERTY"] !== "N"
 				)
 				{
-					$arLink = array(
-						"SMART_FILTER" => $arFields["SMART_FILTER"],
-					);
+					$arLink = [];
+					if (array_key_exists("SMART_FILTER", $arFields))
+					{
+						$arLink["SMART_FILTER"] = $arFields["SMART_FILTER"];
+					}
 					if (array_key_exists("DISPLAY_TYPE", $arFields))
 						$arLink["DISPLAY_TYPE"] = $arFields["DISPLAY_TYPE"];
 					if (array_key_exists("DISPLAY_EXPANDED", $arFields))

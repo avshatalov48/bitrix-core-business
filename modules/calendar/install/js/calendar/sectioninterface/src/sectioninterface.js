@@ -9,6 +9,7 @@ import { TrackingUsersForm } from './trackingusersform';
 import { TrackingGroupsForm } from './trackinggroupsform';
 import { TrackingTypesForm } from './trackingtypesform';
 import { SectionManager } from 'calendar.sectionmanager';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 export class SectionInterface extends EventEmitter
 {
@@ -31,6 +32,7 @@ export class SectionInterface extends EventEmitter
 		this.BX = Util.getBX();
 		this.deleteSectionHandlerBinded = this.deleteSectionHandler.bind(this);
 		this.refreshSectionListBinded = this.refreshSectionList.bind(this);
+		this.keyHandlerBinded = this.keyHandler.bind(this);
 
 		if(this.calendarContext !== null)
 		{
@@ -56,6 +58,8 @@ export class SectionInterface extends EventEmitter
 		});
 
 		this.addEventEmitterSubscriptions();
+
+		Event.bind(document, 'keydown', this.keyHandlerBinded);
 	}
 
 	addEventEmitterSubscriptions()
@@ -113,6 +117,7 @@ export class SectionInterface extends EventEmitter
 		{
 			this.closeForms();
 			this.destroyEventEmitterSubscriptions();
+			Event.unbind(document, 'keydown', this.keyHandlerBinded);
 		}
 	}
 
@@ -126,6 +131,7 @@ export class SectionInterface extends EventEmitter
 		if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId)
 		{
 			this.destroyEventEmitterSubscriptions();
+			Event.unbind(document, 'keydown', this.keyHandlerBinded);
 
 			Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:delete', this.deleteSectionHandlerBinded);
 			Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:pull-delete', this.deleteSectionHandlerBinded);
@@ -605,43 +611,43 @@ export class SectionInterface extends EventEmitter
 		}
 
 		const menuItems = [
-				new MenuItem({
-					text: Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_TITLE'),
-					delimiter: true
-				}),
-				{
-					html: Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_MENU'),
-					onclick: () => {
-						this.addBtnMenu.close();
-						this.showEditSectionForm();
-					}
-				},
-				new MenuItem({
-					text: Loc.getMessage('EC_SEC_SLIDER_POPUP_EXIST_TITLE'),
-					delimiter: true
-				}),
-				{
-					html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'),
-					onclick: () => {
-						this.addBtnMenu.close();
-						this.showTrackingTypesForm();
-					}
-				},
-				{
-					html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_USER'),
-					onclick: () => {
-						this.addBtnMenu.close();
-						this.showTrackingUsersForm();
-					}
-				},
-				{
-					html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
-					onclick: () => {
-						this.addBtnMenu.close();
-						this.showTrackingGroupsForm();
-					}
+			new MenuItem({
+				text: Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_TITLE'),
+				delimiter: true
+			}),
+			{
+				html: Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_MENU'),
+				onclick: () => {
+					this.addBtnMenu.close();
+					this.showEditSectionForm();
 				}
-			];
+			},
+			new MenuItem({
+				text: Loc.getMessage('EC_SEC_SLIDER_POPUP_EXIST_TITLE'),
+				delimiter: true
+			}),
+			{
+				html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'),
+				onclick: () => {
+					this.addBtnMenu.close();
+					this.showTrackingTypesForm();
+				}
+			},
+			{
+				html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_USER'),
+				onclick: () => {
+					this.addBtnMenu.close();
+					this.showTrackingUsersForm();
+				}
+			},
+			{
+				html: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
+				onclick: () => {
+					this.addBtnMenu.close();
+					this.showTrackingGroupsForm();
+				}
+			}
+		];
 
 		this.addBtnMenu = this.BX.PopupMenu.create(
 			'add-btn-' + Util.getRandomInt(),
@@ -917,7 +923,7 @@ export class SectionInterface extends EventEmitter
 				text : Loc.getMessage('EC_SEC_DELETE'),
 				onclick: () => {
 					this.sectionActionMenu.close();
-					section.remove();
+					this.showSectionConfirm('delete', section);
 				}
 			});
 		}
@@ -944,7 +950,7 @@ export class SectionInterface extends EventEmitter
 					text: Loc.getMessage('EC_ACTION_HIDE'),
 					onclick: () => {
 						this.sectionActionMenu.close();
-						section.hideSyncSection();
+						this.showSectionConfirm('hideSync', section);
 					}
 				});
 			}
@@ -955,7 +961,7 @@ export class SectionInterface extends EventEmitter
 					text: Loc.getMessage('EC_ACTION_HIDE'),
 					onclick: () => {
 						this.sectionActionMenu.close();
-						section.hideExternalCalendarSection();
+						this.showSectionConfirm('hideExternal', section);
 					}
 				});
 			}
@@ -1261,5 +1267,137 @@ export class SectionInterface extends EventEmitter
 		}
 
 		this.calendarContext.reload();
+	}
+
+
+	keyHandler(e)
+	{
+		if (
+			e.keyCode ===  Util.getKeyCode('enter')
+			&& this.DOM.confirmSectionPopup
+			&& this.currentConfirmMode
+			&& this.currentSection
+		)
+		{
+			if (this.currentConfirmMode === 'delete')
+			{
+				this.removeSection(this.currentSection);
+			}
+			else if (this.currentConfirmMode === 'hideSync')
+			{
+				this.hideSyncSection(this.currentSection);
+			}
+			else if (this.currentConfirmMode === 'hideExternal')
+			{
+				this.hideExternalSection(this.currentSection);
+			}
+		}
+	}
+
+	showSectionConfirm(mode, section)
+	{
+		this.currentSection = section;
+		this.currentConfirmMode = mode;
+
+		const confirmCallback = this.getConfirmCallback();
+		const okCaption = this.getOkCaption();
+
+		this.DOM.confirmSectionPopup = new MessageBox({
+			message: this.getSectionConfirmContent(),
+			minHeight: 120,
+			minWidth: 280,
+			maxWidth: 300,
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+			onOk: confirmCallback,
+			onCancel: () => {
+				this.DOM.confirmSectionPopup.close();
+			},
+			okCaption: okCaption,
+			popupOptions: {
+				events: {
+					onPopupClose: () => {
+						delete this.DOM.confirmSectionPopup;
+						delete this.currentSection;
+						delete this.currentConfirmMode;
+					},
+				},
+				closeByEsc: true,
+				padding: 0,
+				contentPadding: 0,
+				animation: 'fading-slide',
+			}
+		});
+
+		this.DOM.confirmSectionPopup.show();
+	}
+
+	getConfirmCallback()
+	{
+		if (this.currentConfirmMode === 'delete')
+		{
+			return () => {
+				this.removeSection(this.currentSection);
+			};
+		}
+		else if (this.currentConfirmMode === 'hideSync')
+		{
+			return () => {
+				this.hideSyncSection(this.currentSection);
+			};
+		}
+		else if (this.currentConfirmMode === 'hideExternal')
+		{
+			return () => {
+				this.hideExternalSection(this.currentSection);
+			};
+		}
+	}
+
+	getOkCaption()
+	{
+		if (this.currentConfirmMode === 'delete')
+		{
+			return Loc.getMessage('EC_SEC_DELETE');
+		}
+		else if (this.currentConfirmMode === 'hideSync' || this.currentConfirmMode === 'hideExternal')
+		{
+			return Loc.getMessage('EC_CAL_SYNC_DISCONNECT')
+		}
+	}
+
+	getSectionConfirmContent()
+	{
+		let phrase = '';
+
+		if (this.currentConfirmMode === 'delete')
+		{
+			phrase = Loc.getMessage('EC_SEC_DELETE_CONFIRM');
+		}
+		else if (this.currentConfirmMode === 'hideSync' || this.currentConfirmMode === 'hideExternal')
+		{
+			phrase = Loc.getMessage('EC_CAL_GOOGLE_HIDE_CONFIRM');
+		}
+
+		return Tag.render`
+			<div class="calendar-list-slider-messagebox-text">${phrase}</div>
+		`;
+	}
+
+	removeSection(section)
+	{
+		section.remove();
+		this.DOM.confirmSectionPopup.close();
+	}
+
+	hideSyncSection(section)
+	{
+		section.hideSyncSection();
+		this.DOM.confirmSectionPopup.close();
+	}
+
+	hideExternalSection(section)
+	{
+		section.hideExternalCalendarSection();
+		this.DOM.confirmSectionPopup.close();
 	}
 }

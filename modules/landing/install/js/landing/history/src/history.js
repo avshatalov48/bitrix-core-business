@@ -1,13 +1,11 @@
 import {Event} from 'main.core';
 import {PageObject} from 'landing.pageobject';
-import {UNDO, REDO, INIT, RESOLVED, MAX_ENTRIES_COUNT} from './internal/constants';
+import {RESOLVED, PENDING} from './internal/constants';
 import registerBaseCommands from './internal/register-base-commands';
 import removePageHistory from './internal/remove-page-history';
 import loadStack from './internal/load-stack';
-import saveStack from './internal/save-stack';
 import fetchEntities from './internal/fetch-entities';
 import removeEntities from './internal/remove-entities';
-import offset from './internal/offset';
 import clear from './internal/clear';
 import onUpdate from './internal/on-update';
 import onInit from './internal/on-init';
@@ -28,8 +26,8 @@ import removeCard from './action/remove-card';
 import addNode from './action/add-node';
 import removeNode from './action/remove-node';
 import editStyle from './action/edit-style';
-import updateBlockState from './action/update-block-state';
 import updateContent from './action/update-content';
+import {Main} from 'landing.main';
 
 /**
  * Implements interface for works with landing history
@@ -38,44 +36,66 @@ import updateContent from './action/update-content';
  */
 export class History
 {
+	static TYPE_LANDING = 'L';
+	static TYPE_DESIGNER_BLOCK = 'D';
+
+	stack: number;
+	commands: {};
+	/**
+	 * From 1 to X. 0 - is state without any history
+	 * @type {number}
+	 */
+	step: number;
+	commandState: string;
+	landingId: number;
+	designerBlockId: ?number = null;
+
 	constructor()
 	{
-		this.stack = [];
+		this.type = History.TYPE_LANDING;
+		this.stack = 0;
 		this.commands = {};
-		this.position = -1;
-		this.state = INIT;
+		this.step = 0;
 		this.commandState = RESOLVED;
 		this.onStorage = this.onStorage.bind(this);
+
+		try
+		{
+			this.landingId = Main.getInstance().id;
+		}
+		catch (err)
+		{
+			this.landingId = -1;
+		}
 
 		Event.bind(window, 'storage', this.onStorage);
 
 		registerBaseCommands(this)
 			.then(loadStack)
-			.then(saveStack)
 			.then(onInit);
 	}
 
 	static Command = Command;
 	static Entry = Entry;
 	static Highlight = Highlight;
-	static Action = {
-		editText,
-		editEmbed,
-		editMap,
-		editImage,
-		editIcon,
-		editLink,
-		sortBlock,
-		addBlock,
-		removeBlock,
-		addCard,
-		removeCard,
-		editStyle,
-		updateBlockState,
-		addNode,
-		removeNode,
-		updateContent
-	};
+	// todo: need?
+	// static Action = {
+	// 	editText,
+	// 	editEmbed,
+	// 	editMap,
+	// 	editImage,
+	// 	editIcon,
+	// 	editLink,
+	// 	sortBlock,
+	// 	addBlock,
+	// 	removeBlock,
+	// 	addCard,
+	// 	removeCard,
+	// 	editStyle,
+	// 	addNode,
+	// 	removeNode,
+	// 	updateContent
+	// };
 
 	static getInstance(): History
 	{
@@ -89,6 +109,56 @@ export class History
 	}
 
 	/**
+	 * Set special type for designer block
+	 * @param blockId
+	 * @return {Promise<BX.Landing.History>|*}
+	 */
+	setTypeDesignerBlock(blockId: number): Promise<History>
+	{
+		this.type = History.TYPE_DESIGNER_BLOCK;
+		this.designerBlockId = blockId;
+
+		return loadStack(this);
+	}
+
+	getUndoAction(): string
+	{
+		if (this.type === History.TYPE_DESIGNER_BLOCK)
+		{
+			return "History::undoDesignerBlock";
+		}
+
+		return "History::undoLanding";
+	}
+
+	getRedoAction(): string
+	{
+		if (this.type === History.TYPE_DESIGNER_BLOCK)
+		{
+			return "History::redoDesignerBlock";
+		}
+
+		return "History::redoLanding";
+	}
+
+	getActionParams(): string
+	{
+		if (
+			this.type === History.TYPE_DESIGNER_BLOCK
+			&& this.designerBlockId
+		)
+		{
+			return {
+				blockId: this.designerBlockId,
+			};
+		}
+
+		return {
+			lid: this.landingId,
+		};
+	}
+
+	/**
 	 * Applies preview history entry
 	 * @return {Promise}
 	 */
@@ -96,7 +166,30 @@ export class History
 	{
 		if (this.canUndo())
 		{
-			return offset(this, -1).then(saveStack).then(onUpdate);
+			return BX.Landing.Backend.getInstance()
+				.action(
+					this.getUndoAction(),
+					this.getActionParams(),
+				)
+				.then(command => {
+					if (command)
+					{
+						const params = command.params;
+						const entry = new Entry({
+							block: params.block,
+							selector: params.selector,
+							command: command.command,
+							params: params,
+						});
+
+						return this.runCommand(entry, -1);
+					}
+
+					return Promise.reject();
+				})
+				.then(res => {
+					return this.offset(-1).then(onUpdate);
+				})
 		}
 
 		return Promise.resolve(this);
@@ -111,10 +204,74 @@ export class History
 	{
 		if (this.canRedo())
 		{
-			return offset(this, 1).then(saveStack).then(onUpdate);
+			return BX.Landing.Backend.getInstance()
+				.action(
+					this.getRedoAction(),
+					this.getActionParams(),
+				)
+				.then(command => {
+					if (command)
+					{
+						const params = command.params;
+						const entry = new Entry({
+							block: params.block,
+							selector: params.selector,
+							command: command.command,
+							params: params,
+						});
+
+						return this.runCommand(entry, 1);
+					}
+
+					return Promise.reject();
+				})
+				.then(res => {
+					return this.offset(1).then(onUpdate);
+				})
 		}
 
 		return Promise.resolve(this);
+	}
+
+	offset(offsetValue: number): Promise<History>
+	{
+		if (this.commandState === PENDING)
+		{
+			return Promise.resolve(this);
+		}
+
+		let step = this.step + offsetValue;
+
+		if (step >= 0 && step <= this.stack)
+		{
+			this.step = step;
+		}
+
+		return Promise.resolve(this);
+	}
+
+	runCommand(entry: Entry, offsetValue: number)
+	{
+		if (entry)
+		{
+			const command = this.commands[entry.command];
+			if (command)
+			{
+				this.commandState = PENDING;
+
+				return command.command(entry)
+					.then(() => {
+						this.commandState = RESOLVED;
+
+						return this;
+					})
+					.catch(() => {
+						this.commandState = RESOLVED;
+						// todo: how check and process error
+						return this.offset(offsetValue);
+					});
+			}
+		}
 	}
 
 
@@ -125,9 +282,8 @@ export class History
 	canUndo()
 	{
 		return (
-			(this.position > 0 && this.state === REDO)
-			|| (this.position > 0 && this.state === UNDO)
-			|| (this.position === 0 && this.state !== UNDO)
+			this.commandState !== PENDING
+			&& (this.step > 0 && this.stack > 0 && this.step <= this.stack)
 		);
 	}
 
@@ -139,8 +295,8 @@ export class History
 	canRedo()
 	{
 		return (
-			(this.position < this.stack.length - 1 && this.state !== INIT)
-			|| (this.position !== -1 && this.position === this.stack.length - 1 && this.state !== REDO)
+			this.commandState !== PENDING
+			&& (this.step < this.stack && this.step >= 0)
 		);
 	}
 
@@ -151,29 +307,15 @@ export class History
 	 */
 	push(entry)
 	{
-		let startIndex = this.position + 1;
-		const deleteCount = this.stack.length;
-
-		if (this.state === UNDO)
+		if (this.step < this.stack)
 		{
-			startIndex -= 1;
+			this.stack = this.step;
 		}
 
-		const deletedEntries = this.stack.splice(startIndex, deleteCount, entry);
+		this.step++;
+		this.stack++;
 
-		if (this.stack.length > MAX_ENTRIES_COUNT)
-		{
-			deletedEntries.push(this.stack.shift());
-		}
-
-		if (deletedEntries.length)
-		{
-			void this.onNewBranch(deletedEntries);
-		}
-
-		this.position = this.stack.length - 1;
-		this.state = REDO;
-		saveStack(this).then(onUpdate);
+		onUpdate(this);
 	}
 
 
@@ -197,6 +339,7 @@ export class History
 	 */
 	removePageHistory(pageId)
 	{
+		// todo: publication clear method
 		return removePageHistory(pageId, this)
 			.then((history) => {
 				let currentPageId;

@@ -8,7 +8,7 @@ export type FileInfo = {
 	height?: number,
 	downloadUrl?: string,
 	removeUrl?: string,
-	clientPreview?: File,
+	clientPreview?: Blob,
 	clientPreviewWidth?: number,
 	clientPreviewHeight?: number,
 	serverPreviewUrl?: string,

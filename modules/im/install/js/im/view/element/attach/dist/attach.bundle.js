@@ -74,11 +74,9 @@
 	      },
 	      fileName: function fileName(element) {
 	        var maxLength = 70;
-
 	        if (!element.NAME || element.NAME.length < maxLength) {
 	          return element.NAME;
 	        }
-
 	        var endWordLength = 10;
 	        var extension = element.NAME.split('.').splice(-1)[0];
 	        var secondPart = element.NAME.substring(element.NAME.length - 1 - (extension.length + 1 + endWordLength));
@@ -90,19 +88,15 @@
 	      },
 	      fileSize: function fileSize(element) {
 	        var size = element.SIZE;
-
 	        if (size <= 0) {
 	          return '';
 	        }
-
 	        var sizes = ["BYTE", "KB", "MB", "GB", "TB"];
 	        var position = 0;
-
 	        while (size >= 1024 && position < 4) {
 	          size /= 1024;
 	          position++;
 	        }
-
 	        return Math.round(size) + " " + this.$Bitrix.Loc.getMessage('IM_MESSENGER_ATTACH_FILE_SIZE_' + sizes[position]);
 	      },
 	      fileIcon: function fileIcon(element) {
@@ -118,11 +112,9 @@
 	    openLink: function openLink(event) {
 	      var element = event.element;
 	      var eventData = event.event;
-
 	      if (!im_lib_utils.Utils.platform.isBitrixMobile() && element.LINK) {
 	        return;
 	      }
-
 	      if (element.LINK && eventData.target.tagName !== 'A') {
 	        im_lib_utils.Utils.platform.openNewPage(element.LINK);
 	      } else if (!element.LINK) {
@@ -130,17 +122,14 @@
 	          id: null,
 	          type: null
 	        };
-
 	        if (element.hasOwnProperty('USER_ID') && element.USER_ID > 0) {
 	          entity.id = element.USER_ID;
 	          entity.type = 'user';
 	        }
-
 	        if (element.hasOwnProperty('CHAT_ID') && element.CHAT_ID > 0) {
 	          entity.id = element.CHAT_ID;
 	          entity.type = 'chat';
 	        }
-
 	        if (entity.id && entity.type && window.top['BXIM']) {
 	          var popupAngle = !BX.MessengerTheme.isDark();
 	          window.top['BXIM'].messenger.openPopupExternalData(eventData.target, entity.type, popupAngle, {
@@ -148,13 +137,11 @@
 	          });
 	        } else if (navigator.userAgent.toLowerCase().includes('bitrixmobile')) {
 	          var dialogId = '';
-
 	          if (entity.type === 'chat') {
 	            dialogId = "chat".concat(entity.id);
 	          } else {
 	            dialogId = entity.id;
 	          }
-
 	          if (dialogId !== '') {
 	            BXMobileApp.Events.postToComponent("onOpenDialog", [{
 	              dialogId: dialogId
@@ -203,28 +190,22 @@
 	        if (element.DISPLAY !== 'row') {
 	          return element.WIDTH ? element.WIDTH + 'px' : '';
 	        }
-
 	        if (!element.VALUE) {
 	          return false;
 	        }
-
 	        if (this.maxCellWith && element.WIDTH > this.maxCellWith) {
 	          return this.maxCellWith + 'px';
 	        }
-
 	        return element.WIDTH ? element.WIDTH + 'px' : '';
 	      },
 	      getValue: function getValue(element) {
 	        var _this = this;
-
 	        if (!element.VALUE) {
 	          return '';
 	        }
-
 	        var text = im_lib_utils.Utils.text.htmlspecialchars(element.VALUE);
 	        text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
 	          var user = _this.$store.getters['users/get'](userId);
-
 	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : userName;
 	          return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
 	        });
@@ -295,7 +276,6 @@
 	        if (!file) {
 	          return false;
 	        }
-
 	        if (im_lib_utils.Utils.platform.isBitrixMobile()) {
 	          // TODO add multiply
 	          BXMobileApp.UI.Photo.show({
@@ -310,13 +290,11 @@
 	      },
 	      getImageSize: function getImageSize(width, height, maxWidth) {
 	        var aspectRatio;
-
 	        if (width > maxWidth) {
 	          aspectRatio = maxWidth / width;
 	        } else {
 	          aspectRatio = 1;
 	        }
-
 	        return {
 	          width: width * aspectRatio,
 	          height: height * aspectRatio
@@ -332,7 +310,6 @@
 	        if (!event.element.style.width) {
 	          event.element.style.width = event.element.offsetWidth + 'px';
 	        }
-
 	        if (!event.element.style.height) {
 	          event.element.style.height = event.element.offsetHeight + 'px';
 	        }
@@ -344,7 +321,6 @@
 	            backgroundSize: 'contain'
 	          };
 	        }
-
 	        var sizes = this.getImageSize(image.WIDTH, image.HEIGHT, 250);
 	        return {
 	          width: sizes.width + 'px',
@@ -358,11 +334,9 @@
 	            height: '150px'
 	          };
 	        }
-
 	        if (parseInt(this.styleFileSizes(image).height) <= 250) {
 	          return {};
 	        }
-
 	        return {
 	          height: '280px'
 	        };
@@ -450,11 +424,9 @@
 	    computed: {
 	      message: function message() {
 	        var _this = this;
-
 	        var text = im_lib_utils.Utils.text.htmlspecialchars(this.config.MESSAGE);
 	        text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
 	          var user = _this.$store.getters['users/get'](userId);
-
 	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : userName;
 	          return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
 	        });
@@ -545,15 +517,12 @@
 	        if (element.AVATAR) {
 	          return '';
 	        }
-
 	        var avatarType = 'user';
-
 	        if (element.AVATAR_TYPE === 'CHAT') {
 	          avatarType = 'chat';
 	        } else if (element.AVATAR_TYPE === 'BOT') {
 	          avatarType = 'bot';
 	        }
-
 	        return 'bx-im-element-attach-type-user-avatar-type-' + avatarType;
 	      }
 	    },
@@ -562,11 +531,14 @@
 	  }
 	};
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	/**
+	 * Bitrix Messenger
+	 * Attach element Vue component
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2019 Bitrix
+	 */
 	var AttachTypes = [AttachTypeDelimiter, AttachTypeFile, AttachTypeGrid, AttachTypeHtml, AttachTypeImage, AttachTypeLink, AttachTypeMessage, AttachTypeRich, AttachTypeUser];
 	var AttachComponents = {};
 	AttachTypes.forEach(function (attachType) {
@@ -585,23 +557,12 @@
 	  },
 	  methods: {
 	    getComponentForBlock: function getComponentForBlock(block) {
-	      var _iterator = _createForOfIteratorHelper(AttachTypes),
-	          _step;
-
-	      try {
-	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-	          var attachType = _step.value;
-
-	          if (typeof block[attachType.property] !== 'undefined') {
-	            return attachType.name;
-	          }
+	      for (var _i = 0, _AttachTypes = AttachTypes; _i < _AttachTypes.length; _i++) {
+	        var attachType = _AttachTypes[_i];
+	        if (typeof block[attachType.property] !== 'undefined') {
+	          return attachType.name;
 	        }
-	      } catch (err) {
-	        _iterator.e(err);
-	      } finally {
-	        _iterator.f();
 	      }
-
 	      return '';
 	    }
 	  },
@@ -610,11 +571,9 @@
 	      if (typeof this.config.COLOR === 'undefined' || !this.config.COLOR) {
 	        return this.baseColor;
 	      }
-
 	      if (this.config.COLOR === 'transparent') {
 	        return '';
 	      }
-
 	      return this.config.COLOR;
 	    }
 	  },

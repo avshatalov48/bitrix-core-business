@@ -79,7 +79,7 @@ final class Configuration
 
 			$moduleId = FilterControllerResolver::getModuleId($filterOption['id']);
 			$className = $filterConfigs[$filterOption['id']]['className'] ?? null;
-			$options = is_array($filterOption['options']) ? $filterOption['options'] : [];
+			$options = isset($filterOption['options']) && is_array($filterOption['options']) ? $filterOption['options'] : [];
 
 			$filters[] = self::createFilter($moduleId, $className, $options);
 		}

@@ -58,4 +58,5 @@ export default class ButtonIcon
 	static PRINT2 = 'ui-btn-icon-print-2';
 	static FUNNEL = 'ui-btn-icon-funnel';
 	static FORWARD = 'ui-btn-icon-forward';
+	static COPY = 'ui-btn-icon-copy';
 }

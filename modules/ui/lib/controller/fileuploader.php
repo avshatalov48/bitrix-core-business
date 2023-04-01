@@ -238,6 +238,7 @@ class FileUploader extends Controller
 
 			if (is_array($imageData))
 			{
+				// Sync with \Bitrix\UI\FileUploader\Uploader::getFileInfo
 				$response = new Response\ResizedImage($imageData, 300, 300);
 				$response->setResizeType(BX_RESIZE_IMAGE_PROPORTIONAL);
 				$response->setCacheTime(86400);

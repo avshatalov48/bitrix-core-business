@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Binding;
 
+use Bitrix\Landing\Connector\SocialNetwork;
 use \Bitrix\Landing\Role;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Internals\RightsTable;
@@ -18,6 +19,28 @@ class Group extends Entity
 	 * @var string
 	 */
 	protected static $bindingType = 'G';
+
+	/**
+	 * By group id returns binding site id.
+	 *
+	 * @param int $groupId Group id.
+	 * @return int|null
+	 */
+	public static function getSiteIdByGroupId(int $groupId): ?int
+	{
+		$res = BindingTable::getList([
+			'select' => [
+				'ENTITY_ID',
+			],
+			'filter' => [
+				'=BINDING_TYPE' => self::$bindingType,
+				'=BINDING_ID' => $groupId,
+				'=ENTITY_TYPE' => self::ENTITY_TYPE_SITE,
+			],
+		]);
+
+		return $res->fetch()['ENTITY_ID'] ?? null;
+	}
 
 	/**
 	 * Accepts array with site data and replaces site title to group title.
@@ -85,27 +108,26 @@ class Group extends Entity
 
 	/**
 	 * Returns tasks for access.
+	 *
+	 * @param bool $fullData Returns full data not ids only.
 	 * @return array
 	 */
-	protected static function getAccessTasks()
+	protected static function getAccessTasks(bool $fullData = false): array
 	{
 		static $tasks = [];
 
 		if (empty($tasks))
 		{
 			$res = \CTask::getList(
-				[
-					'LETTER' => 'ASC'
-				],
-				[
-					'MODULE_ID' => 'landing'
-				]
+				['LETTER' => 'ASC'],
+				['MODULE_ID' => 'landing'],
 			);
 			while ($row = $res->fetch())
 			{
 				if ($row['LETTER'] > 'D')
 				{
-					$tasks[] = $row['ID'];
+					$row['NAME'] = str_replace('landing_right_', '', $row['NAME']);
+					$tasks[] = $fullData ? $row : $row['ID'];
 				}
 			}
 		}
@@ -159,17 +181,48 @@ class Group extends Entity
 	}
 
 	/**
-	 * Call when binding new group.
+	 * Invokes when bind group was occurred.
+	 *
 	 * @param int $siteId Site id.
+	 * @param array $groupRoles Reference map between access names and group roles (not landing roles!).
 	 * @return void
 	 */
-	protected function addSiteRights($siteId)
+	protected function addSiteRights(int $siteId, array $groupRoles = []): void
 	{
-		$tasks = self::getAccessTasks();
+		$tasks = self::getAccessTasks(true);
 		$roleId = self::getRoleId();
 
-		foreach ($tasks as $taskId)
+		// for new binding
+		if (!$groupRoles && \Bitrix\Main\Loader::includeModule('socialnetwork'))
 		{
+			$groupRoles = [
+				'read' => SONET_ROLES_USER,
+				'edit' => SONET_ROLES_USER,
+				'sett' => SONET_ROLES_USER,
+				'delete' => SONET_ROLES_USER,
+			];
+
+			// try to retrieve roles from group features
+			$res = \CSocNetFeaturesPerms::getList(
+				[],
+				[
+					'FEATURE_ENTITY_ID' => $this->bindingId,
+					'FEATURE_ENTITY_TYPE' => SONET_ENTITY_GROUP,
+					'FEATURE_FEATURE' => SocialNetwork::SETTINGS_CODE,
+				],
+			);
+			while ($row = $res->fetch())
+			{
+				$groupRoles[$row['OPERATION_ID']] = $row['ROLE'];
+			}
+		}
+
+		foreach ($tasks as $task)
+		{
+			if (!isset($groupRoles[$task['NAME']]))
+			{
+				continue;
+			}
 			$check = RightsTable::getList([
 				'select' => [
 					'ID'
@@ -177,22 +230,35 @@ class Group extends Entity
 				'filter' => [
 					'ENTITY_ID' => $siteId,
 					'=ENTITY_TYPE' => Rights::ENTITY_TYPE_SITE,
-					'=ACCESS_CODE' => 'SG' . $this->bindingId . '_K',
-					'TASK_ID' => $taskId,
+					'=ACCESS_CODE' => 'SG' . $this->bindingId . '_' . $groupRoles[$task['NAME']],
+					'TASK_ID' => $task['ID'],
 					'ROLE_ID' => $roleId
-				]
+				],
 			])->fetch();
 			if (!$check)
 			{
 				RightsTable::add([
 					'ENTITY_ID' => $siteId,
 					'ENTITY_TYPE' => Rights::ENTITY_TYPE_SITE,
-					'TASK_ID' => $taskId,
-					'ACCESS_CODE' => 'SG' . $this->bindingId . '_K',
+					'TASK_ID' => $task['ID'],
+					'ACCESS_CODE' => 'SG' . $this->bindingId . '_' . $groupRoles[$task['NAME']],
 					'ROLE_ID' => $roleId
 				])->isSuccess();
 			}
 		}
+	}
+
+	/**
+	 * Invokes when rebind group was occurred.
+	 *
+	 * @param int $siteId Site id.
+	 * @return void
+	 */
+	protected function updateSiteRights(int $siteId): void
+	{
+		$opsToRoles = $this->getOperationsToRolesMap($this->bindingId);
+		$this->removeSiteRights($siteId);
+		$this->addSiteRights($siteId, $opsToRoles);
 	}
 
 	/**
@@ -211,7 +277,7 @@ class Group extends Entity
 			'filter' => [
 				'ENTITY_ID' => $siteId,
 				'=ENTITY_TYPE' => Rights::ENTITY_TYPE_SITE,
-				'=ACCESS_CODE' => 'SG' . $this->bindingId . '_K',
+				'ACCESS_CODE' => 'SG' . $this->bindingId . '_%',
 				'ROLE_ID' => $roleId
 			]
 		]);
@@ -219,5 +285,36 @@ class Group extends Entity
 		{
 			RightsTable::delete($row['ID'])->isSuccess();
 		}
+	}
+
+	/**
+	 * Returns references between operations and roles in specific group.
+	 *
+	 * @param int $groupId Group id.
+	 * @return array
+	 */
+	private function getOperationsToRolesMap(int $groupId): array
+	{
+		$opsToRoles = [];
+
+		if (!\Bitrix\Main\Loader::includeModule('socialnetwork'))
+		{
+			return $opsToRoles;
+		}
+
+		$res = \CSocNetFeaturesPerms::getList(
+			[],
+			[
+				'FEATURE_ENTITY_ID' => $groupId,
+				'FEATURE_ENTITY_TYPE' => SONET_ENTITY_GROUP,
+				'FEATURE_FEATURE' => SocialNetwork::SETTINGS_CODE,
+			],
+		);
+		while ($row = $res->fetch())
+		{
+			$opsToRoles[$row['OPERATION_ID']] = $row['ROLE'];
+		}
+
+		return $opsToRoles;
 	}
 }

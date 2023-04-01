@@ -4,12 +4,15 @@ namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Entities\SyncSection;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
+use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
+use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Managers\IncomingManager;
 use Bitrix\Calendar\Sync\Managers\SectionManagerInterface;
@@ -23,6 +26,7 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
@@ -48,10 +52,14 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 	 * @return Result
 	 *
 	 * @throws ApiException
-	 * @throws ConflictException
-	 * @throws NotFoundException
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws NotFoundException
+	 * @throws AuthException
+	 * @throws RemoteAccountException
+	 * @throws LoaderException
 	 */
 	public function create(Section $section, SectionContext $context): Result
 	{
@@ -69,7 +77,7 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 				->setConnection($this->connection)
 				->setVendorSectionId($sectionDto->id)
 				->setVersionId($sectionDto->changeKey)
-				->setLastSyncStatus(\Bitrix\Calendar\Sync\Dictionary::SYNC_STATUS['success'])
+				->setLastSyncStatus(Sync\Dictionary::SYNC_STATUS['success'])
 				->setOwner($section->getOwner())
 				->setActive(true)
 			;
@@ -77,7 +85,7 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 				->setSection($section)
 				->setSectionConnection($sectionConnection)
 				->setVendorName($section->getExternalType())
-				->setAction(\Bitrix\Calendar\Sync\Dictionary::SYNC_STATUS['success'])
+				->setAction(Sync\Dictionary::SYNC_STATUS['success'])
 			;
 			$result->setData([
 				$sectionDto->id => $syncSection,
@@ -180,7 +188,16 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 	 * @param $connection
 	 *
 	 * @return array
+	 *
 	 * @throws ApiException
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws ConflictException
+	 * @throws LoaderException
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
 	 * @todo todo maybe use array of object without array of array
 	 */
 	public function getSections($connection): array
@@ -332,9 +349,7 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 				}
 
 			}
-		} catch (BaseException $e) {
-			// TODO: write into log
-		} catch (Throwable $e) {
+		} catch (BaseException|Throwable $e) {
 			// TODO: write into log
 		}
 

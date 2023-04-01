@@ -11,9 +11,9 @@ use Bitrix\Sale\PriceMaths;
  * @var array $result
  */
 
-$mobileColumns = isset($this->arParams['COLUMNS_LIST_MOBILE'])
-	? $this->arParams['COLUMNS_LIST_MOBILE']
-	: $this->arParams['COLUMNS_LIST'];
+$this->arParams['BRAND_PROPERTY'] ??= '';
+
+$mobileColumns = $this->arParams['COLUMNS_LIST_MOBILE'] ?? $this->arParams['COLUMNS_LIST'];
 $mobileColumns = array_fill_keys($mobileColumns, true);
 
 $result['BASKET_ITEM_RENDER_DATA'] = array();
@@ -424,7 +424,7 @@ if ($this->priceVatShowValue === 'Y')
 if ($this->hideCoupon !== 'Y' && !empty($result['COUPON_LIST']))
 {
 	$totalData['COUPON_LIST'] = $result['COUPON_LIST'];
-	
+
 	foreach ($totalData['COUPON_LIST'] as &$coupon)
 	{
 		if ($coupon['JS_STATUS'] === 'ENTERED')

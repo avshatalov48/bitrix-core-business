@@ -17,11 +17,14 @@ abstract class BaseBuilder
 	public const PAGE_ELEMENT_COPY = 'elementCopy';
 	public const PAGE_ELEMENT_SAVE = 'elementSave';
 	public const PAGE_ELEMENT_SEARCH = 'elementSearch';
+	public const PAGE_ELEMENT_SEO = 'elementSeo';
 	public const PAGE_SECTION_LIST = 'sectionList';
 	public const PAGE_SECTION_DETAIL = 'sectionDetail';
 	public const PAGE_SECTION_COPY = 'sectionCopy';
 	public const PAGE_SECTION_SAVE = 'sectionSave';
 	public const PAGE_SECTION_SEARCH = 'sectionSearch';
+	public const PAGE_SECTION_SEO = 'sectionSeo';
+	public const PAGE_CATALOG_SEO = 'catalogSeo';
 
 	public const ENTITY_SECTION = 'section';
 	public const ENTITY_ELEMENT = 'element';
@@ -250,6 +253,30 @@ abstract class BaseBuilder
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_ELEMENT_SEARCH),
 			$this->getExtendedVariables($options, $additional)
+		);
+	}
+
+	public function getCatalogSeoUrl(array $options = [], string $additional = ''): string
+	{
+		return $this->fillUrlTemplate(
+			$this->getUrlTemplate(self::PAGE_CATALOG_SEO),
+			$this->getExtendedVariables($options, $additional)
+		);
+	}
+
+	public function getElementSeoUrl(int $productId, array $options = [], string $additional = ''): string
+	{
+		return $this->fillUrlTemplate(
+			$this->getUrlTemplate(self::PAGE_ELEMENT_SEO),
+			$this->getDetailSeoVariables($productId, $options, $additional)
+		);
+	}
+
+	public function getSectionSeoUrl(int $sectionId, array $options = [], string $additional = ''): string
+	{
+		return $this->fillUrlTemplate(
+			$this->getUrlTemplate(self::PAGE_SECTION_SEO),
+			$this->getSectionSeoVariables($sectionId, $options, $additional)
 		);
 	}
 
@@ -538,6 +565,22 @@ abstract class BaseBuilder
 		return $replaces;
 	}
 
+	protected function getDetailSeoVariables(?int $entityId, array $options = [], string $additional = ''): array
+	{
+		$replaces = $this->getExtendedVariables($options, $additional);
+		$replaces['#PRODUCT_ID#'] = (string)$entityId;
+
+		return $replaces;
+	}
+
+	protected function getSectionSeoVariables(?int $sectionId, array $options = [], string $additional = ''): array
+	{
+		$replaces = $this->getExtendedVariables($options, $additional);
+		$replaces['#SECTION_ID#'] = (string)$sectionId;
+
+		return $replaces;
+	}
+
 	protected function getCopyAction(): string
 	{
 		return '&action=copy';
@@ -608,5 +651,24 @@ abstract class BaseBuilder
 	protected function getSliderPathTemplates(): array
 	{
 		return [];
+	}
+
+	/**
+	 * Open settings page of IBlock context
+	 *
+	 * <i>Example: for catalog IBlock it should open settings of catalog</i>
+	 * @return void
+	 */
+	public function openSettingsPage(): void
+	{
+	}
+
+	/**
+	 * Subscribe to save settings events depending on the context
+	 *
+	 * @return void
+	 */
+	public function subscribeOnAfterSettingsSave(): void
+	{
 	}
 }

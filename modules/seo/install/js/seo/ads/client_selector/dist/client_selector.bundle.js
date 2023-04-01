@@ -79,13 +79,15 @@ this.BX.Seo = this.BX.Seo || {};
 	  }, {
 	    key: "getMenuItemHtml",
 	    value: function getMenuItemHtml(item) {
-	      var html = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t", "\n\t\t\t<span class=\"seo-ads-client-menu-popup-user\">", "</span>\n\t\t\t<span class=\"seo-ads-client-menu-popup-shutoff\" data-role=\"client-remove\" data-client-id=\"", "\">", "</span>\n\t\t</div>"])), item.PICTURE ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\" style=\"background-image: url('", "');\"></div>"])), item.PICTURE) : main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\"></div>"]))), item.NAME, item.CLIENT_ID, main_core.Loc.getMessage('SEO_ADS_CLIENT_DISCONNECT'));
+	      var name = BX.util.htmlspecialchars(item.NAME);
+	      var html = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t", "\n\t\t\t<span class=\"seo-ads-client-menu-popup-user\">", "</span>\n\t\t\t<span class=\"seo-ads-client-menu-popup-shutoff\" data-role=\"client-remove\" data-client-id=\"", "\">", "</span>\n\t\t</div>"])), item.PICTURE ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\" style=\"background-image: url('", "');\"></div>"])), item.PICTURE) : main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\"></div>"]))), name, item.CLIENT_ID, main_core.Loc.getMessage('SEO_ADS_CLIENT_DISCONNECT'));
 	      return html.innerHTML;
 	    }
 	  }, {
 	    key: "getRemoveConfirmPopupHtml",
 	    value: function getRemoveConfirmPopupHtml(item) {
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-popup\">\n\t\t\t<div class=\"seo-ads-client-popup-text\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>"])), main_core.Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', item.NAME));
+	      var name = BX.util.htmlspecialchars(item.NAME);
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-popup\">\n\t\t\t<div class=\"seo-ads-client-popup-text\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>"])), main_core.Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', name));
 	    }
 	  }, {
 	    key: "updateClientHtml",

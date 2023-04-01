@@ -59,7 +59,7 @@ export const StackPreview = {
 				<template v-if="item.failed">
 					<div class="ui-uploader-stack-preview-error"></div>
 				</template>
-				<template v-else-if="item.isImage">
+				<template v-else-if="item.previewUrl">
 					<div
 						class="ui-uploader-stack-preview-image"
 						:class="{ '--default': item.previewUrl === null }"

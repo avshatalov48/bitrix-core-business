@@ -1,5 +1,12 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+
+/** @global CMain $APPLICATION */
+/** @global CDatabase $DB */
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -17,6 +24,9 @@ $sTableID = "tbl_sale_account";
 $oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $listCurrency = array();
 $currencyList = Bitrix\Currency\CurrencyManager::getCurrencyList();
@@ -70,7 +80,7 @@ $lAdmin->AddFilter($filterFields, $arFilter);
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = Array();
 		$dbResultList = CSaleUserAccount::GetList(
@@ -89,7 +99,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($lAdmin->GetAction())
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -333,7 +343,7 @@ else
 	$lAdmin->DisplayList();
 
 	echo BeginNote();
-	?><span id="order_sum"><?print_r($order_sum);?></span><?
+	?><span id="order_sum"><?php print_r($order_sum); ?></span><?php
 	echo EndNote();
 }
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

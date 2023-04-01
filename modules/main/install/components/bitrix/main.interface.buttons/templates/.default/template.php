@@ -122,7 +122,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 						?></span><?
 						?><span
 							<?= $dataCounterId ?>
-							class="main-buttons-item-counter<?=$arParams["CLASS_ITEM_COUNTER"] ? " ".$arParams["CLASS_ITEM_COUNTER"] : ""?>"><?=$arItem["COUNTER"] > $arItem['MAX_COUNTER_SIZE'] ? $arItem['MAX_COUNTER_SIZE'].'+' : $arItem["COUNTER"]?></span><?
+							class="main-buttons-item-counter<?=!empty($arParams["CLASS_ITEM_COUNTER"]) ? (" ".$arParams["CLASS_ITEM_COUNTER"]) : ""?>"><?=(isset($arItem["COUNTER"]) && ($arItem["COUNTER"] > $arItem['MAX_COUNTER_SIZE'])) ? $arItem['MAX_COUNTER_SIZE'].'+' : ($arItem["COUNTER"] ?? '')?></span><?
 					if (!empty($arItem["URL"])):
 						?></a><?
 					else:

@@ -22,7 +22,7 @@ class Contact extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => false,
 				'Required' => false,
-				'personalizeCode' => 'ID'
+				// 'personalizeCode' => 'ID'
 			),
 			'NAME' => array(
 				'Name' => GetMessage('CRM_FIELD_FIRST_NAME'),
@@ -30,7 +30,7 @@ class Contact extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => true,
-				'personalizeCode' => 'NAME'
+				// 'personalizeCode' => 'NAME'
 			),
 			'LAST_NAME' => array(
 				'Name' => GetMessage('CRM_FIELD_LAST_NAME'),
@@ -66,7 +66,7 @@ class Contact extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'EMAIL'
+				// 'personalizeCode' => 'EMAIL'
 			),
 			'PHONE' => array(
 				'Name' => GetMessage('CRM_FIELD_PHONE'),
@@ -74,7 +74,7 @@ class Contact extends BasePersonalize
 				'Filterable' => true,
 				'Editable' => true,
 				'Required' => false,
-				'personalizeCode' => 'PHONE'
+				// 'personalizeCode' => 'PHONE'
 			),
 			'WEB' => array(
 				'Name' => GetMessage('CRM_FIELD_WEB'),

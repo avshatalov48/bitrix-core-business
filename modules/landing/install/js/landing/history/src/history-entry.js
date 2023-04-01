@@ -7,7 +7,6 @@ export default class Entry
 		this.block = options.block;
 		this.selector = options.selector;
 		this.command = Type.isStringFilled(options.command) ? options.command : '#invalidCommand';
-		this.undo = options.undo;
-		this.redo = options.redo;
+		this.params = options.params;
 	}
 }

@@ -1442,6 +1442,7 @@ class CIMMessenger
 				foreach(GetModuleEvents("im", "OnAfterNotifyAdd", true) as $arEvent)
 					ExecuteModuleEventEx($arEvent, array(intval($messageID), $arFields));
 
+				$counter ??= null;
 				if (CModule::IncludeModule('pull'))
 				{
 					$pullNotificationParams = CIMNotify::GetFormatNotify(
@@ -2591,7 +2592,7 @@ class CIMMessenger
 				$aMsg[] = array("id"=>"MESSAGE", "text"=> GetMessage("IM_ERROR_MESSAGE_TEXT"));
 			}
 
-			if ($messageType === IM_MESSAGE_PRIVATE && $authorId && $authorId <= 0)
+			if ($messageType === IM_MESSAGE_PRIVATE && $authorId && (int)$authorId <= 0)
 			{
 				$aMsg[] = ["id" => "AUTHOR_ID", "text" => GetMessage("IM_ERROR_MESSAGE_AUTHOR")];
 			}
@@ -2603,12 +2604,12 @@ class CIMMessenger
 
 			if ($messageType === IM_MESSAGE_SYSTEM)
 			{
-				if (isset($arFields["NOTIFY_MODULE"]) && trim($arFields["NOTIFY_MODULE"]) === '')
+				if (isset($arFields["NOTIFY_MODULE"]) && trim($arFields["NOTIFY_MODULE"]) == '')
 				{
 					$aMsg[] = ["id" => "NOTIFY_MODULE", "text" => GetMessage("IM_ERROR_NOTIFY_MODULE")];
 				}
 
-				if (isset($arFields["NOTIFY_EVENT"]) && trim($arFields["NOTIFY_EVENT"]) === '')
+				if (isset($arFields["NOTIFY_EVENT"]) && trim($arFields["NOTIFY_EVENT"]) == '')
 				{
 					$aMsg[] = ["id" => "NOTIFY_EVENT", "text" => GetMessage("IM_ERROR_NOTIFY_EVENT")];
 				}
@@ -2618,14 +2619,14 @@ class CIMMessenger
 					$aMsg[] = ["id" => "NOTIFY_TYPE", "text" => GetMessage("IM_ERROR_NOTIFY_TYPE")];
 				}
 
-				if (isset($arFields["NOTIFY_TYPE"]) && $arFields["NOTIFY_TYPE"] === IM_NOTIFY_CONFIRM)
+				if (isset($arFields["NOTIFY_TYPE"]) && $arFields["NOTIFY_TYPE"] == IM_NOTIFY_CONFIRM)
 				{
 					if(isset($arFields["NOTIFY_BUTTONS"]) && !is_array($arFields["NOTIFY_BUTTONS"]))
 					{
 						$aMsg[] = ["id" => "NOTIFY_BUTTONS", "text" => GetMessage("IM_ERROR_NOTIFY_BUTTON")];
 					}
 				}
-				else if(isset($arFields["NOTIFY_TYPE"]) && $arFields["NOTIFY_TYPE"] === IM_NOTIFY_FROM)
+				else if(isset($arFields["NOTIFY_TYPE"]) && $arFields["NOTIFY_TYPE"] == IM_NOTIFY_FROM)
 				{
 					if (!$fromUserId || (int)$fromUserId <= 0)
 					{
@@ -4281,6 +4282,7 @@ class CIMMessenger
 		$message['message']['text'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[USER=([0-9]{1,})\](.+?)\[\/USER\]/i", "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $message['message']['text']);
+		$message['message']['text'] = preg_replace("/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/i", "$3", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $message['message']['text']);

@@ -313,6 +313,24 @@ abstract class Entity
 	}
 
 	/**
+	 * Refreshes binding of site.
+	 *
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+	public function rebindSite(int $siteId): bool
+	{
+		// this method only implements parent method currently
+
+		if (method_exists($this, 'updateSiteRights'))
+		{
+			$this->updateSiteRights($siteId);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Unbind site for current entity.
 	 * @param int $siteId Site id.
 	 * @return bool

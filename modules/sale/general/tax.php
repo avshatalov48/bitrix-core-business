@@ -22,6 +22,7 @@ class CAllSaleTax
 	 */
 	public static function calculateTax(&$arOrder, $arOptions, &$arErrors = [])
 	{
+		// don't change `$arOrder["USE_VAT"] != "Y"` comparison, may be values: 1, true, etc
 		if (
 			(!array_key_exists("TAX_LOCATION", $arOrder) || trim((string)$arOrder["TAX_LOCATION"]) === "")
 			&& (!$arOrder["USE_VAT"] || $arOrder["USE_VAT"] != "Y")

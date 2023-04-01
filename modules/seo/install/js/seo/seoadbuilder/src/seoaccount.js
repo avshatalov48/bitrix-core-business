@@ -138,7 +138,7 @@ export class SeoAccount
 				}
 				const dropDownData = data.map(accountData => {
 					return {
-						caption: accountData.name,
+						caption: BX.util.htmlspecialchars(accountData.name),
 						value: accountData.id,
 						selected: accountData.id === this.accountId,
 						currency: accountData.currency
@@ -179,7 +179,7 @@ export class SeoAccount
 				}
 				const dropDownData = data.map(accountData => {
 					return {
-						caption: accountData.name,
+						caption: BX.util.htmlspecialchars(accountData.name),
 						value: accountData.id,
 						pageId: accountData.page_id,
 						actorId: accountData.actor_id

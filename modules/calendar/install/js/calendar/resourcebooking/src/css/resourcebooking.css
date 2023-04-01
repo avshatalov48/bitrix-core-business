@@ -1443,17 +1443,7 @@ input.calendar-resbook-error{
 	margin-bottom: 8px;
 }
 
-.bx-ie .calendar-resbook-webform-block-btn {
-	background: #a6c12e;
-	border-color: #a6c12e;
-}
-
 .calendar-resbook-webform-block-btn:hover {
-	background: #b4cc4b;
-	border-color: #b4cc4b;
-}
-
-.bx-ie .calendar-resbook-webform-block-btn:hover {
 	background: #b4cc4b;
 	border-color: #b4cc4b;
 }

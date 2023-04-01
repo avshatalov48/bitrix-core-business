@@ -595,6 +595,26 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-copy*/
+.ui-btn-icon-copy.ui-btn-split,
+.ui-btn-icon-copy.ui-btn-danger,
+.ui-btn-icon-copy.ui-btn-primary,
+.ui-btn-icon-copy.ui-btn-default,
+.ui-btn-icon-copy.ui-btn-danger-dark,
+.ui-btn-icon-copy.ui-btn-success-dark,
+.ui-btn-icon-copy.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-copy.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-btn-icon-copy-light.svg?v=1.1); }
+.ui-btn-icon-copy.ui-btn,
+
+.ui-btn-icon-copy.ui-btn-link,
+.ui-btn-icon-copy.ui-btn-light,
+.ui-btn-icon-copy.ui-btn-success,
+.ui-btn-icon-copy.ui-btn-secondary,
+.ui-btn-icon-copy.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-copy.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-btn-icon-copy-dark.svg?v=1.1); }
+
+/*endregion*/
+
 /*region ui-btn-icon-task*/
 .ui-btn-icon-task.ui-btn,
 .ui-btn-icon-task.ui-btn-split,

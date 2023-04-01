@@ -94,6 +94,11 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "getMarginBottom",
+	    value: function getMarginBottom() {
+	      return this.marginBottom;
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.layout.container) {

@@ -8,6 +8,7 @@ use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Options\CheckRightsOnDecreaseStoreAmount;
 use Bitrix\Catalog\Document\Action;
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Result;
 use Bitrix\Main\Error;
@@ -90,5 +91,32 @@ class DecreaseStoreQuantityAction  implements Action
 	protected function getProductAmountNew(): float
 	{
 		return $this->getStoreProductAmount() - $this->amount;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getStoreProductRow(): array
+	{
+		$row = null;
+
+		$storeId = $this->getStoreId();
+		$productId = $this->getProductId();
+		if (isset($storeId, $productId))
+		{
+			// load without cache to maintain the actual state.
+			$row = StoreProductTable::getRow([
+				'select' => [
+					'AMOUNT',
+					'QUANTITY_RESERVED',
+				],
+				'filter' => [
+					'=PRODUCT_ID' => $productId,
+					'=STORE_ID' => $storeId,
+				],
+			]);
+		}
+
+		return $row ?? [];
 	}
 }

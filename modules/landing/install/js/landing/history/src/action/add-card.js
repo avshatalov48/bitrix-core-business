@@ -5,7 +5,7 @@ const {scrollTo, highlight} = BX.Landing.Utils;
  * @param {object} entry
  * @return {Promise}
  */
-export default function addCard(state, entry)
+export default function addCard(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {
@@ -25,34 +25,37 @@ export default function addCard(state, entry)
 		.then((block) => {
 			return BX.Landing.PageObject.getInstance().view()
 				.then((iframe) => {
+					const parentNode = iframe.contentDocument.querySelector(entry.params.selector).parentNode;
 					return [
 						block,
-						iframe.contentDocument.querySelector(entry[state].container),
+						parentNode,
 					];
 				});
 		})
-		.then((params) => {
-			return scrollTo(params[1])
+		.then((elements) => {
+			return scrollTo(elements[1])
 				.then(() => {
-					return params;
+					return elements;
 				});
 		})
-		.then((params) => {
-			params[0].addCard({
-				index: entry[state].index,
-				container: params[1],
-				content: entry[state].html,
-				selector: entry.selector,
-			});
+		.then((elements) => {
+			let block = elements[0];
+			return block
+				.addCard({
+					index: entry.params.position,
+					container: elements[1],
+					content: entry.params.content,
+					selector: entry.params.selector,
+				}, true)
+				.then(() => {
+					const card = block.cards.getBySelector(entry.params.selector);
+					if (!card)
+					{
+						return Promise.reject();
+					}
 
-			const card = params[0].cards.getBySelector(entry.selector);
-
-			if (!card)
-			{
-				return Promise.reject();
-			}
-
-			return highlight(card.node);
+					return highlight(card.node);
+				})
 		})
 		.catch(() => {});
 }

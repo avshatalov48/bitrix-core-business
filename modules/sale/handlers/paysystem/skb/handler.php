@@ -604,8 +604,8 @@ class SkbHandler
 	 */
 	protected function getUrlList(): array
 	{
-		$testUrl = 'https://public.test-api.skbbank.ru:443/';
-		$activeUrl = 'https://public.api.skbbank.ru:443/';
+		$testUrl = 'https://test.api.sinara.ru:443/';
+		$activeUrl = 'https://public.api.sinara.ru:443/';
 
 		return [
 			'register' => [

@@ -138,6 +138,17 @@ export class RobotSelector extends EventEmitter
 	{
 		const getButtonHandler = (robotData) => {
 			return (event) => {
+
+				if (robotData.LOCKED)
+				{
+					if (top.BX.UI && top.BX.UI.InfoHelper && robotData.LOCKED.INFO_CODE)
+					{
+						top.BX.UI.InfoHelper.show(robotData.LOCKED.INFO_CODE);
+					}
+
+					return;
+				}
+
 				if (!event.getData().eventData.groupIds.includes(this.constructor.RECENT_GROUP_ID))
 				{
 					event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
@@ -185,6 +196,7 @@ export class RobotSelector extends EventEmitter
 			const robotItem = this.#getRobotItemData(robot);
 			robotItem.button = {
 				action: getButtonHandler(robot),
+				locked: !!robot.LOCKED,
 			};
 
 			const isRecentRobot = recentRobotIds.includes(robotItem.id);
@@ -366,6 +378,17 @@ export class RobotSelector extends EventEmitter
 	{
 		const getButtonHandler = (triggerData) => {
 			return (event) => {
+
+				if (triggerData.LOCKED)
+				{
+					if (top.BX.UI && top.BX.UI.InfoHelper && triggerData.LOCKED.INFO_CODE)
+					{
+						top.BX.UI.InfoHelper.show(triggerData.LOCKED.INFO_CODE);
+					}
+
+					return;
+				}
+
 				if (!event.getData().eventData.groupIds.includes(this.constructor.RECENT_GROUP_ID))
 				{
 					event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
@@ -433,6 +456,7 @@ export class RobotSelector extends EventEmitter
 					},
 					button: {
 						action: getButtonHandler(trigger),
+						locked: !!trigger.LOCKED,
 					}
 				};
 

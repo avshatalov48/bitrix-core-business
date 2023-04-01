@@ -21,6 +21,7 @@ class Director extends Base
 				PermissionDictionary::CATALOG_INVENTORY_MANAGEMENT_ACCESS,
 				PermissionDictionary::CATALOG_STORE_VIEW,
 				PermissionDictionary::CATALOG_STORE_MODIFY,
+				PermissionDictionary::CATALOG_STORE_ANALYTIC_VIEW,
 				PermissionDictionary::CATALOG_RESERVE_DEAL,
 				PermissionDictionary::CATALOG_STORE_RESERVE,
 				PermissionDictionary::CATALOG_RESERVE_SETTINGS,

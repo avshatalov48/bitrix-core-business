@@ -15,17 +15,14 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, ApplicationController);
 	    this.controller = null;
 	    this.timer = new im_lib_timer.Timer();
-
 	    this._prepareFilesBeforeSave = function (params) {
 	      return params;
 	    };
-
 	    this.defaultMessageLimit = 50;
 	    this.requestMessageLimit = this.getDefaultMessageLimit();
 	    this.messageLastReadId = {};
 	    this.messageReadQueue = {};
 	  }
-
 	  babelHelpers.createClass(ApplicationController, [{
 	    key: "setCoreController",
 	    value: function setCoreController(controller) {
@@ -70,11 +67,9 @@ this.BX = this.BX || {};
 	    key: "getDialogData",
 	    value: function getDialogData() {
 	      var dialogId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getDialogId();
-
 	      if (this.controller.getStore().state.dialogues.collection[dialogId]) {
 	        return this.controller.getStore().state.dialogues.collection[dialogId];
 	      }
-
 	      return this.controller.getStore().getters['dialogues/getBlank']();
 	    }
 	  }, {
@@ -87,15 +82,13 @@ this.BX = this.BX || {};
 	        entityId: 0
 	      };
 	      var dialogData = this.getDialogData(dialogId);
-
 	      if (dialogData.type === im_const.DialogType.call) {
 	        if (dialogData.entityData1 && typeof dialogData.entityData1 === 'string') {
 	          var _dialogData$entityDat = dialogData.entityData1.split('|'),
-	              _dialogData$entityDat2 = babelHelpers.slicedToArray(_dialogData$entityDat, 3),
-	              enabled = _dialogData$entityDat2[0],
-	              entityType = _dialogData$entityDat2[1],
-	              entityId = _dialogData$entityDat2[2];
-
+	            _dialogData$entityDat2 = babelHelpers.slicedToArray(_dialogData$entityDat, 3),
+	            enabled = _dialogData$entityDat2[0],
+	            entityType = _dialogData$entityDat2[1],
+	            entityId = _dialogData$entityDat2[2];
 	          if (enabled) {
 	            entityType = entityType ? entityType.toString().toLowerCase() : im_const.DialogCrmType.none;
 	            result = {
@@ -107,10 +100,9 @@ this.BX = this.BX || {};
 	        }
 	      } else if (dialogData.type === im_const.DialogType.crm) {
 	        var _dialogData$entityId$ = dialogData.entityId.split('|'),
-	            _dialogData$entityId$2 = babelHelpers.slicedToArray(_dialogData$entityId$, 2),
-	            _entityType = _dialogData$entityId$2[0],
-	            _entityId = _dialogData$entityId$2[1];
-
+	          _dialogData$entityId$2 = babelHelpers.slicedToArray(_dialogData$entityId$, 2),
+	          _entityType = _dialogData$entityId$2[0],
+	          _entityId = _dialogData$entityId$2[1];
 	        _entityType = _entityType ? _entityType.toString().toLowerCase() : im_const.DialogCrmType.none;
 	        result = {
 	          enabled: true,
@@ -118,7 +110,6 @@ this.BX = this.BX || {};
 	          entityId: _entityId
 	        };
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -127,13 +118,10 @@ this.BX = this.BX || {};
 	      if (this.getDialogId() === 'chat' + chatId) {
 	        return this.getDialogId();
 	      }
-
 	      var dialog = this.controller.getStore().getters['dialogues/getByChatId'](chatId);
-
 	      if (!dialog) {
 	        return 0;
 	      }
-
 	      return dialog.dialogId;
 	    }
 	  }, {
@@ -155,18 +143,14 @@ this.BX = this.BX || {};
 	    key: "muteDialog",
 	    value: function muteDialog() {
 	      var _this = this;
-
 	      var action = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      var dialogId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.getDialogId();
-
 	      if (im_lib_utils.Utils.dialog.isEmptyDialogId(dialogId)) {
 	        return false;
 	      }
-
 	      if (action === null) {
 	        action = !this.isDialogMuted();
 	      }
-
 	      this.timer.start('muteDialog', dialogId, .3, function (id) {
 	        _this.controller.restClient.callMethod(im_const.RestMethod.imChatMute, {
 	          'DIALOG_ID': dialogId,
@@ -174,7 +158,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	      var muteList = [];
-
 	      if (action) {
 	        muteList = this.getDialogData().muteList;
 	        muteList.push(this.getUserId());
@@ -183,7 +166,6 @@ this.BX = this.BX || {};
 	          return userId !== _this.getUserId();
 	        });
 	      }
-
 	      this.controller.getStore().dispatch('dialogues/update', {
 	        dialogId: dialogId,
 	        fields: {
@@ -202,32 +184,24 @@ this.BX = this.BX || {};
 	    key: "isUnreadMessagesLoaded",
 	    value: function isUnreadMessagesLoaded() {
 	      var dialog = this.controller.getStore().state.dialogues.collection[this.getDialogId()];
-
 	      if (!dialog) {
 	        return true;
 	      }
-
 	      if (dialog.lastMessageId <= 0) {
 	        return true;
 	      }
-
 	      var collection = this.controller.getStore().state.messages.collection[this.getChatId()];
-
 	      if (!collection || collection.length <= 0) {
 	        return true;
 	      }
-
 	      var lastElementId = 0;
-
 	      for (var index = collection.length - 1; index >= 0; index--) {
 	        var lastElement = collection[index];
-
 	        if (typeof lastElement.id === "number") {
 	          lastElementId = lastElement.id;
 	          break;
 	        }
 	      }
-
 	      return lastElementId >= dialog.lastMessageId;
 	    }
 	  }, {
@@ -254,10 +228,9 @@ this.BX = this.BX || {};
 	    key: "startOpponentWriting",
 	    value: function startOpponentWriting(params) {
 	      var _this2 = this;
-
 	      var dialogId = params.dialogId,
-	          userId = params.userId,
-	          userName = params.userName;
+	        userId = params.userId,
+	        userName = params.userName;
 	      this.controller.getStore().dispatch('dialogues/updateWriting', {
 	        dialogId: dialogId,
 	        userId: userId,
@@ -266,8 +239,7 @@ this.BX = this.BX || {};
 	      });
 	      this.timer.start('writingEnd', dialogId + '|' + userId, 35, function (id, params) {
 	        var dialogId = params.dialogId,
-	            userId = params.userId;
-
+	          userId = params.userId;
 	        _this2.controller.getStore().dispatch('dialogues/updateWriting', {
 	          dialogId: dialogId,
 	          userId: userId,
@@ -284,8 +256,8 @@ this.BX = this.BX || {};
 	    value: function stopOpponentWriting() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var dialogId = params.dialogId,
-	          userId = params.userId,
-	          userName = params.userName;
+	        userId = params.userId,
+	        userName = params.userName;
 	      this.timer.stop('writingStart', dialogId + '|' + userId, true);
 	      this.timer.stop('writingEnd', dialogId + '|' + userId);
 	      return true;
@@ -294,13 +266,10 @@ this.BX = this.BX || {};
 	    key: "startWriting",
 	    value: function startWriting() {
 	      var _this3 = this;
-
 	      var dialogId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getDialogId();
-
 	      if (im_lib_utils.Utils.dialog.isEmptyDialogId(dialogId) || this.timer.has('writes', dialogId)) {
 	        return false;
 	      }
-
 	      this.timer.start('writes', dialogId, 28);
 	      this.timer.start('writesSend', dialogId, 5, function (id) {
 	        _this3.controller.restClient.callMethod(im_const.RestMethod.imDialogWriting, {
@@ -321,20 +290,16 @@ this.BX = this.BX || {};
 	    key: "joinParentChat",
 	    value: function joinParentChat(messageId, dialogId) {
 	      var _this4 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        if (!messageId || !dialogId) {
 	          return reject();
 	        }
-
 	        if (typeof _this4.tempJoinChat === 'undefined') {
 	          _this4.tempJoinChat = {};
 	        } else if (_this4.tempJoinChat['wait']) {
 	          return reject();
 	        }
-
 	        _this4.tempJoinChat['wait'] = true;
-
 	        _this4.controller.restClient.callMethod(im_const.RestMethod.imChatParentJoin, {
 	          'DIALOG_ID': dialogId,
 	          'MESSAGE_ID': messageId
@@ -352,9 +317,9 @@ this.BX = this.BX || {};
 	    key: "setTextareaMessage",
 	    value: function setTextareaMessage(params) {
 	      var _params$message = params.message,
-	          message = _params$message === void 0 ? '' : _params$message,
-	          _params$dialogId = params.dialogId,
-	          dialogId = _params$dialogId === void 0 ? this.getDialogId() : _params$dialogId;
+	        message = _params$message === void 0 ? '' : _params$message,
+	        _params$dialogId = params.dialogId,
+	        dialogId = _params$dialogId === void 0 ? this.getDialogId() : _params$dialogId;
 	      this.controller.getStore().dispatch('dialogues/update', {
 	        dialogId: dialogId,
 	        fields: {
@@ -383,31 +348,24 @@ this.BX = this.BX || {};
 	    key: "readMessage",
 	    value: function readMessage() {
 	      var _this5 = this;
-
 	      var messageId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var skipAjax = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var chatId = this.getChatId();
-
 	      if (typeof this.messageLastReadId[chatId] === 'undefined') {
 	        this.messageLastReadId[chatId] = null;
 	      }
-
 	      if (typeof this.messageReadQueue[chatId] === 'undefined') {
 	        this.messageReadQueue[chatId] = [];
 	      }
-
 	      if (messageId) {
 	        this.messageReadQueue[chatId].push(parseInt(messageId));
 	      }
-
 	      this.timer.stop('readMessage', chatId, true);
 	      this.timer.stop('readMessageServer', chatId, true);
-
 	      if (force) {
 	        return this.readMessageExecute(chatId, skipAjax);
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        _this5.timer.start('readMessage', chatId, .1, function (chatId, params) {
 	          return _this5.readMessageExecute(chatId, skipAjax).then(function (result) {
@@ -420,7 +378,6 @@ this.BX = this.BX || {};
 	    key: "readMessageExecute",
 	    value: function readMessageExecute(chatId) {
 	      var _this6 = this;
-
 	      var skipAjax = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      return new Promise(function (resolve, reject) {
 	        if (_this6.messageReadQueue[chatId]) {
@@ -432,11 +389,8 @@ this.BX = this.BX || {};
 	            }
 	          });
 	        }
-
 	        var dialogId = _this6.getDialogIdByChatId(chatId);
-
 	        var lastId = _this6.messageLastReadId[chatId] || 0;
-
 	        if (lastId <= 0) {
 	          resolve({
 	            dialogId: dialogId,
@@ -444,7 +398,6 @@ this.BX = this.BX || {};
 	          });
 	          return true;
 	        }
-
 	        _this6.controller.getStore().dispatch('messages/readMessages', {
 	          chatId: chatId,
 	          readId: lastId
@@ -453,15 +406,12 @@ this.BX = this.BX || {};
 	            dialogId: dialogId,
 	            count: result.count
 	          });
-
 	          if (_this6.getChatId() === chatId && _this6.controller.getStore().getters['dialogues/canSaveChat']) {
 	            var dialog = _this6.controller.getStore().getters['dialogues/get'](dialogId);
-
 	            if (dialog.counter <= 0) {
 	              _this6.controller.getStore().commit('application/clearDialogExtraCount');
 	            }
 	          }
-
 	          if (skipAjax) {
 	            resolve({
 	              dialogId: dialogId,
@@ -494,25 +444,20 @@ this.BX = this.BX || {};
 	    key: "unreadMessage",
 	    value: function unreadMessage() {
 	      var _this7 = this;
-
 	      var messageId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      var skipAjax = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var chatId = this.getChatId();
-
 	      if (typeof this.messageLastReadId[chatId] === 'undefined') {
 	        this.messageLastReadId[chatId] = null;
 	      }
-
 	      if (typeof this.messageReadQueue[chatId] === 'undefined') {
 	        this.messageReadQueue[chatId] = [];
 	      }
-
 	      if (messageId) {
 	        this.messageReadQueue[chatId] = this.messageReadQueue[chatId].filter(function (id) {
 	          return id < messageId;
 	        });
 	      }
-
 	      this.timer.stop('readMessage', chatId, true);
 	      this.timer.stop('readMessageServer', chatId, true);
 	      this.messageLastReadId[chatId] = messageId;
@@ -521,19 +466,16 @@ this.BX = this.BX || {};
 	        unreadId: this.messageLastReadId[chatId]
 	      }).then(function (result) {
 	        var dialogId = _this7.getDialogIdByChatId(chatId);
-
 	        _this7.controller.getStore().dispatch('dialogues/update', {
 	          dialogId: dialogId,
 	          fields: {
 	            unreadId: messageId
 	          }
 	        });
-
 	        _this7.controller.getStore().dispatch('dialogues/increaseCounter', {
 	          dialogId: dialogId,
 	          count: result.count
 	        });
-
 	        if (!skipAjax) {
 	          _this7.controller.restClient.callMethod(im_const.RestMethod.imDialogUnread, {
 	            'DIALOG_ID': dialogId,
@@ -566,11 +508,9 @@ this.BX = this.BX || {};
 	    key: "emit",
 	    value: function emit(eventName) {
 	      var _Vue$event;
-
 	      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	        args[_key - 1] = arguments[_key];
 	      }
-
 	      (_Vue$event = ui_vue.Vue.event).$emit.apply(_Vue$event, [eventName].concat(args));
 	    }
 	  }, {
@@ -583,13 +523,12 @@ this.BX = this.BX || {};
 	}();
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Controller = /*#__PURE__*/function () {
 	  /* region 01. Initialize and store data */
+
 	  function Controller() {
 	    var _this = this;
-
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Controller);
 	    this.inited = false;
@@ -621,7 +560,6 @@ this.BX = this.BX || {};
 	      im_lib_logger.Logger.error('error initializing core controller', error);
 	    });
 	  }
-
 	  babelHelpers.createClass(Controller, [{
 	    key: "init",
 	    value: function init() {
@@ -631,7 +569,6 @@ this.BX = this.BX || {};
 	    key: "prepareParams",
 	    value: function prepareParams(params) {
 	      var _this2 = this;
-
 	      if (typeof params.localize !== 'undefined') {
 	        this.localize = params.localize;
 	      } else {
@@ -641,16 +578,13 @@ this.BX = this.BX || {};
 	          this.localize = {};
 	        }
 	      }
-
 	      if (typeof params.host !== 'undefined') {
 	        this.host = params.host;
 	      } else {
 	        this.host = location.origin;
 	      }
-
 	      if (typeof params.userId !== 'undefined') {
 	        var parsedUserId = parseInt(params.userId);
-
 	        if (!isNaN(parsedUserId)) {
 	          this.userId = parsedUserId;
 	        } else {
@@ -660,7 +594,6 @@ this.BX = this.BX || {};
 	        var userId = this.getLocalize('USER_ID');
 	        this.userId = userId ? parseInt(userId) : 0;
 	      }
-
 	      if (typeof params.siteId !== 'undefined') {
 	        if (typeof params.siteId === 'string' && params.siteId !== '') {
 	          this.siteId = params.siteId;
@@ -670,7 +603,6 @@ this.BX = this.BX || {};
 	      } else {
 	        this.siteId = this.getLocalize('SITE_ID') || 's1';
 	      }
-
 	      if (typeof params.siteDir !== 'undefined') {
 	        if (typeof params.siteDir === 'string' && params.siteDir !== '') {
 	          this.siteDir = params.siteDir;
@@ -680,7 +612,6 @@ this.BX = this.BX || {};
 	      } else {
 	        this.siteDir = this.getLocalize('SITE_DIR') || 's1';
 	      }
-
 	      if (typeof params.languageId !== 'undefined') {
 	        if (typeof params.languageId === 'string' && params.languageId !== '') {
 	          this.languageId = params.languageId;
@@ -690,59 +621,47 @@ this.BX = this.BX || {};
 	      } else {
 	        this.languageId = this.getLocalize('LANGUAGE_ID') || 'en';
 	      }
-
 	      this.pullInstance = pull_client.PullClient;
 	      this.pullClient = pull_client.PULL;
-
 	      if (typeof params.pull !== 'undefined') {
 	        if (typeof params.pull.instance !== 'undefined') {
 	          this.pullInstance = params.pull.instance;
 	        }
-
 	        if (typeof params.pull.client !== 'undefined') {
 	          this.pullClient = params.pull.client;
 	        }
 	      }
-
 	      this.restInstance = rest_client.RestClient;
 	      this.restClient = rest_client.rest;
-
 	      if (typeof params.rest !== 'undefined') {
 	        if (typeof params.rest.instance !== 'undefined') {
 	          this.restInstance = params.rest.instance;
 	        }
-
 	        if (typeof params.rest.client !== 'undefined') {
 	          this.restClient = params.rest.client;
 	        }
 	      }
-
 	      this.vuexBuilder = {
 	        database: false,
 	        databaseName: 'desktop/im',
 	        databaseType: ui_vue_vuex.VuexBuilder.DatabaseType.indexedDb
 	      };
-
 	      if (typeof params.vuexBuilder !== 'undefined') {
 	        if (typeof params.vuexBuilder.database !== 'undefined') {
 	          this.vuexBuilder.database = params.vuexBuilder.database;
 	        }
-
 	        if (typeof params.vuexBuilder.databaseName !== 'undefined') {
 	          this.vuexBuilder.databaseName = params.vuexBuilder.databaseName;
 	        }
-
 	        if (typeof params.vuexBuilder.databaseType !== 'undefined') {
 	          this.vuexBuilder.databaseType = params.vuexBuilder.databaseType;
 	        }
-
 	        if (typeof params.vuexBuilder.models !== 'undefined') {
 	          params.vuexBuilder.models.forEach(function (model) {
 	            _this2.addVuexModel(model);
 	          });
 	        }
 	      }
-
 	      return Promise.resolve();
 	    }
 	  }, {
@@ -765,7 +684,6 @@ this.BX = this.BX || {};
 	    key: "initStorage",
 	    value: function initStorage() {
 	      var _this3 = this;
-
 	      var applicationVariables = {
 	        common: {
 	          host: this.getHost(),
@@ -835,7 +753,6 @@ this.BX = this.BX || {};
 	      if (!this.pullClient) {
 	        return false;
 	      }
-
 	      this.pullClient.subscribe(this.pullBaseHandler = new im_provider_pull.ImBasePullHandler({
 	        store: this.store,
 	        controller: this
@@ -856,18 +773,15 @@ this.BX = this.BX || {};
 	    key: "initEnvironment",
 	    value: function initEnvironment(result) {
 	      var _this4 = this;
-
 	      window.addEventListener('orientationchange', function () {
 	        if (!_this4.store) {
 	          return;
 	        }
-
 	        _this4.store.commit('application/set', {
 	          device: {
 	            orientation: im_lib_utils.Utils.device.getOrientation()
 	          }
 	        });
-
 	        if (_this4.store.state.application.device.type === im_const.DeviceType.mobile && _this4.store.state.application.device.orientation === im_const.DeviceOrientation.horizontal) {
 	          document.activeElement.blur();
 	        }
@@ -883,14 +797,14 @@ this.BX = this.BX || {};
 	      this.initPromiseResolver(this);
 	    }
 	    /* endregion 01. Initialize and store data */
-
 	    /* region 02. Push & Pull */
-
 	  }, {
 	    key: "eventStatusInteraction",
 	    value: function eventStatusInteraction(data) {
 	      if (data.status === this.pullInstance.PullStatus.Online) {
-	        this.offline = false; //this.pullBaseHandler.option.skip = true;
+	        this.offline = false;
+
+	        //this.pullBaseHandler.option.skip = true;
 	        // this.getDialogUnread().then(() => {
 	        // 	this.pullBaseHandler.option.skip = false;
 	        // 	this.processSendMessages();
@@ -911,7 +825,6 @@ this.BX = this.BX || {};
 	          if (!data.params.users.hasOwnProperty(userId)) {
 	            continue;
 	          }
-
 	          this.store.dispatch('users/update', {
 	            id: data.params.users[userId].id,
 	            fields: data.params.users[userId]
@@ -920,9 +833,7 @@ this.BX = this.BX || {};
 	      }
 	    }
 	    /* endregion 02. Push & Pull */
-
 	    /* region 03. Rest */
-
 	  }, {
 	    key: "executeRestAnswer",
 	    value: function executeRestAnswer(command, result, extra) {
@@ -932,48 +843,36 @@ this.BX = this.BX || {};
 	      });
 	    }
 	    /* endregion 03. Rest */
-
 	    /* region 04. Template engine */
-
 	  }, {
 	    key: "createVue",
 	    value: function createVue(application) {
 	      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var controller = this;
-
 	      var beforeCreateFunction = function beforeCreateFunction() {};
-
 	      if (config.beforeCreate) {
 	        beforeCreateFunction = config.beforeCreate;
 	      }
-
 	      var destroyedFunction = function destroyedFunction() {};
-
 	      if (config.destroyed) {
 	        destroyedFunction = config.destroyed;
 	      }
-
 	      var createdFunction = function createdFunction() {};
-
 	      if (config.created) {
 	        createdFunction = config.created;
 	      }
-
 	      var initConfig = {
 	        store: this.store,
 	        beforeCreate: function beforeCreate() {
 	          this.$bitrix.Data.set('controller', controller);
 	          this.$bitrix.Application.set(application);
 	          this.$bitrix.Loc.setMessage(controller.localize);
-
 	          if (controller.restClient) {
 	            this.$bitrix.RestClient.set(controller.restClient);
 	          }
-
 	          if (controller.pullClient) {
 	            this.$bitrix.PullClient.set(controller.pullClient);
 	          }
-
 	          beforeCreateFunction.bind(this)();
 	        },
 	        created: function created() {
@@ -983,37 +882,29 @@ this.BX = this.BX || {};
 	          destroyedFunction.bind(this)();
 	        }
 	      };
-
 	      if (config.el) {
 	        initConfig.el = config.el;
 	      }
-
 	      if (config.template) {
 	        initConfig.template = config.template;
 	      }
-
 	      if (config.computed) {
 	        initConfig.computed = config.computed;
 	      }
-
 	      if (config.data) {
 	        initConfig.data = config.data;
 	      }
-
 	      var initConfigCreatedFunction = initConfig.created;
 	      return new Promise(function (resolve, reject) {
 	        initConfig.created = function () {
 	          initConfigCreatedFunction.bind(this)();
 	          resolve(this);
 	        };
-
 	        ui_vue.BitrixVue.createApp(initConfig);
 	      });
 	    }
 	    /* endregion 04. Template engine */
-
 	    /* region 05. Core methods */
-
 	  }, {
 	    key: "getHost",
 	    value: function getHost() {
@@ -1038,13 +929,11 @@ this.BX = this.BX || {};
 	    key: "setUserId",
 	    value: function setUserId(userId) {
 	      var parsedUserId = parseInt(userId);
-
 	      if (!isNaN(parsedUserId)) {
 	        this.userId = parsedUserId;
 	      } else {
 	        this.userId = 0;
 	      }
-
 	      this.store.commit('application/set', {
 	        common: {
 	          userId: userId
@@ -1064,7 +953,6 @@ this.BX = this.BX || {};
 	      } else {
 	        this.siteId = 's1';
 	      }
-
 	      this.store.commit('application/set', {
 	        common: {
 	          siteId: this.siteId
@@ -1084,7 +972,6 @@ this.BX = this.BX || {};
 	      } else {
 	        this.languageId = 'en';
 	      }
-
 	      this.store.commit('application/set', {
 	        common: {
 	          languageId: this.languageId
@@ -1122,13 +1009,10 @@ this.BX = this.BX || {};
 	      if (this.inited) {
 	        return Promise.resolve(this);
 	      }
-
 	      return this.initPromise;
 	    }
 	    /* endregion 05. Methods */
-
 	    /* region 06. Interaction and utils */
-
 	  }, {
 	    key: "setError",
 	    value: function setError() {
@@ -1136,11 +1020,9 @@ this.BX = this.BX || {};
 	      var description = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 	      im_lib_logger.Logger.error("Messenger.Application.error: ".concat(code, " (").concat(description, ")"));
 	      var localizeDescription = '';
-
 	      if (code.endsWith('LOCALIZED')) {
 	        localizeDescription = description;
 	      }
-
 	      this.store.commit('application/set', {
 	        error: {
 	          active: true,
@@ -1166,32 +1048,27 @@ this.BX = this.BX || {};
 	      if (babelHelpers["typeof"](phrases) !== "object" || !phrases) {
 	        return false;
 	      }
-
 	      for (var name in phrases) {
 	        if (phrases.hasOwnProperty(name)) {
 	          this.localize[name] = phrases[name];
 	        }
 	      }
-
 	      return true;
 	    }
 	  }, {
 	    key: "getLocalize",
 	    value: function getLocalize(name) {
 	      var phrase = '';
-
 	      if (typeof name === 'undefined') {
 	        return this.localize;
 	      } else if (typeof this.localize[name.toString()] === 'undefined') {
-	        im_lib_logger.Logger.warn("Controller.Core.getLocalize: message with code '".concat(name.toString(), "' is undefined.")); //Logger.trace();
+	        im_lib_logger.Logger.warn("Controller.Core.getLocalize: message with code '".concat(name.toString(), "' is undefined."));
+	        //Logger.trace();
 	      } else {
 	        phrase = this.localize[name];
 	      }
-
 	      return phrase;
-	    }
-	    /* endregion 06. Interaction and utils */
-
+	    } /* endregion 06. Interaction and utils */
 	  }]);
 	  return Controller;
 	}();

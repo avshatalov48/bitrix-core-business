@@ -1097,9 +1097,10 @@ class Otp
 	 */
 	protected function clearGlobalCache()
 	{
-		Application::getInstance()->getTaggedCache()->clearByTag(
-			sprintf(static::TAGGED_CACHE_TEMPLATE, (int) ($this->getUserId() / 100))
-		);
+		$cache_dir = '/otp/user_id/' . substr(md5($this->getUserId()), -2) . '/' . $this->getUserId() . '/';
+		$cache = new \CPHPCache;
+		$cache->CleanDir($cache_dir);
+
 		return $this;
 	}
 

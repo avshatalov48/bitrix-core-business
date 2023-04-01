@@ -163,9 +163,9 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 
 		if ($this->errors->isEmpty())
 		{
-			$url = str_replace('#id#', $this->letter->getId(), $this->arParams['PATH_TO_TIME']);
+			$url = str_replace('#id#', $this->letter->getId(), $this->arParams['PATH_TO_TIME'] ?? '');
 			$uri = new Uri($url);
-			if ($this->arParams['IFRAME'] == 'Y')
+			if (isset($this->arParams['IFRAME']) && $this->arParams['IFRAME'] == 'Y')
 			{
 				$uri->addParams(array('IFRAME' => 'Y'));
 				$uri->addParams(array('IS_SAVED' => 'Y'));

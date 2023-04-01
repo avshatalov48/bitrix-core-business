@@ -203,6 +203,10 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		$checkInfo = CheckManager::getCheckInfoByExternalUuid($data['UUID']);
+		if (empty($checkInfo))
+		{
+			return $result;
+		}
 
 		if ($data['STATUS'] === 'ERROR')
 		{

@@ -317,25 +317,31 @@ abstract class Base
 		{
 			foreach($rParams["ITEMS"] as $key2 => $iParams)
 			{
-				if($iParams["TYPE"] == "DELIVERY_SECTION")
-					continue;
-
-				$errors = \Bitrix\Sale\Internals\Input\Manager::getRequiredError($iParams, $fields["CONFIG"][$key1][$key2]);
-
-				if(empty($errors))
+				if ($iParams["TYPE"] == "DELIVERY_SECTION")
 				{
-					$errors = \Bitrix\Sale\Internals\Input\Manager::getError($iParams, $fields["CONFIG"][$key1][$key2]);
+					continue;
 				}
 
-				if(!empty($errors))
+				$value = $fields["CONFIG"][$key1][$key2] ?? null;
+
+				$errors = \Bitrix\Sale\Internals\Input\Manager::getRequiredError($iParams, $value);
+
+				if (empty($errors))
+				{
+					$errors = \Bitrix\Sale\Internals\Input\Manager::getError($iParams, $value);
+				}
+
+				if (!empty($errors))
 				{
 					$strError .= Loc::getMessage("SALE_DLVR_BASE_FIELD")." \"".$iParams["NAME"]."\": ".implode("<br>\n", $errors)."<br>\n";
 				}
 			}
 		}
 
-		if($strError != "")
+		if ($strError != "")
+		{
 			throw new SystemException($strError);
+		}
 
 		if(mb_strpos($fields['CLASS_NAME'], '\\') !== 0)
 		{

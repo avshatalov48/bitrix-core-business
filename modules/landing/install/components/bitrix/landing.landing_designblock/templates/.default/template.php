@@ -179,7 +179,6 @@ else
 	<script type="text/javascript">
 		BX.ready(function() {
 			BX.Landing.Component.View.loadEditor();
-			BX.Landing.History.getInstance().removePageHistory(0);
 		});
 	</script>
 	<div class="landing-ui-view-wrapper">

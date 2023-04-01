@@ -149,7 +149,7 @@ SCRIPT;
 				statusOk = '<?=CBPTaskUserStatus::Ok?>',
 				statusCancel = '<?=CBPTaskUserStatus::Cancel?>',
 				userStatus = false,
-				wfCompleted = <?=$arResult['WORKFLOW_STATE_INFO']['STATUS']===null?'true':'false'?>,
+				wfCompleted = <?= empty($arResult['WORKFLOW_STATE_INFO']['STATUS']) ? 'true' : 'false' ?>,
 				taskId = false;
 
 			if (BX(cmpId+'_steps'))

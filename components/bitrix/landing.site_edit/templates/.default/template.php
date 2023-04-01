@@ -22,26 +22,36 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Uri;
 use CBXPunycode;
-use CJSCore;
 use CUtil;
 use function htmlspecialcharsback;
 use function htmlspecialcharsbx;
-use function randString;
 
 Loc::loadMessages(__FILE__);
 
 if ($arResult['ERRORS'])
 {
-	?><div class="landing-message-label error"><?
-	foreach ($arResult['ERRORS'] as $error)
+	foreach ($arResult['ERRORS'] as $errorCode => $errorMessage)
 	{
-		echo $error . '<br/>';
+		$errorMessage .= $component->getSettingLinkByError(
+			$errorCode
+		);
+		if ($arResult['FATAL'])
+		{
+			?>
+			<div class="landing-error-page">
+				<div class="landing-error-page-inner">
+					<div class="landing-error-page-title"><?= $errorMessage ?></div>
+					<div class="landing-error-page-img">
+						<div class="landing-error-page-img-inner"></div>
+					</div>
+				</div>
+			</div>
+			<?php
+		}
 	}
-	?></div><?php
 }
 if ($arResult['FATAL'])
 {
@@ -1220,8 +1230,13 @@ if ($arParams['SUCCESS_SAVE'])
 												</select>
 											</div>
 
-											<input type="hidden" name="fields[RIGHTS][ACCESS_CODE][]" value="<?= htmlspecialcharsbx($code) ?>">
-											<a href="javascript:void(0);" onclick="deleteAccessRow(this);" data-id="<?= htmlspecialcharsbx($code) ?>" class="landing-form-rights-delete"></a>
+											<input type="hidden" name="fields[RIGHTS][ACCESS_CODE][<?= $i ?>]" value="<?= htmlspecialcharsbx($code) ?>">
+											<a href="javascript:void(0);"
+												onclick="BX.Landing.Access.onRowDelete(this);"
+												data-id="<?= htmlspecialcharsbx($code) ?>"
+												class="landing-form-rights-delete"
+											>
+											</a>
 										</td>
 									</tr>
 								<?php endforeach;?>
@@ -1247,6 +1262,11 @@ if ($arParams['SUCCESS_SAVE'])
 							form: BX('<?= $template->getFieldId('RIGHTS_FORM') ?>'),
 							select: '<?= CUtil::jsEscape($tasksStr) ?>',
 							inc: <?= count($arResult['CURRENT_RIGHTS']) ?>,
+							selected: <?=
+								isset($accessCodes)
+									? json_encode(array_fill_keys($accessCodes, true))
+									: '[]'
+								?>
 						});
 					});
 				</script>
@@ -1287,9 +1307,6 @@ if ($arParams['SUCCESS_SAVE'])
 </div>
 
 <script type="text/javascript">
-	<?php if (isset($accessCodes)):?>
-	var landingAccessSelected = <?= json_encode(array_fill_keys($accessCodes, true)) ?>;
-	<?php endif;?>
 	BX.ready(function(){
 		new BX.Landing.EditTitleForm(BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>'), 600, true);
 		new BX.Landing.Favicon();

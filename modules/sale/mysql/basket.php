@@ -56,15 +56,19 @@ class CSaleBasket extends CAllSaleBasket
 
 		if ($isOrderConverted != 'N')
 		{
-			$result = \Bitrix\Sale\Compatible\BasketCompatibility::getList($arOrder, $arFilter, $arGroupBy, $arNavStartParams, $arSelectFields);
+			$result = \Bitrix\Sale\Compatible\BasketCompatibility::getList(
+				$arOrder,
+				$arFilter,
+				$arGroupBy,
+				$arNavStartParams,
+				$arSelectFields
+			);
 			if ($result instanceof \Bitrix\Sale\Compatible\CDBResult)
 				$result->addFetchAdapter(new \Bitrix\Sale\Compatible\BasketFetchAdapter());
 			return $result;
 		}
 
-
-
-		if (count($arSelectFields) <= 0)
+		if (empty($arSelectFields) || !is_array($arSelectFields))
 		{
 			$arSelectFields = array(
 				"ID",
@@ -862,8 +866,31 @@ class CSaleBasket extends CAllSaleBasket
 	public static function GetLeave($arOrder = Array(), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = Array())
 	{
 		global $DB;
-		if(empty($arSelectFields) || in_array("*", $arSelectFields))
-			$arSelectFields = Array("FUSER_ID", "USER_ID", "QUANTITY_ALL", "PRICE_ALL", "PR_COUNT", "CURRENCY", "DATE_INSERT_MIN", "DATE_UPDATE_MAX", "LID", "USER_NAME", "USER_LAST_NAME", "USER_LOGIN", "USER_EMAIL");
+
+		if (!is_array($arSelectFields))
+		{
+			$arSelectFields = [];
+		}
+
+		if (empty($arSelectFields) || in_array("*", $arSelectFields))
+		{
+			$arSelectFields = [
+				"ID",
+				"FUSER_ID",
+				"USER_ID",
+				"QUANTITY_ALL",
+				"PRICE_ALL",
+				"PR_COUNT",
+				"CURRENCY",
+				"DATE_INSERT_MIN",
+				"DATE_UPDATE_MAX",
+				"LID",
+				"USER_NAME",
+				"USER_LAST_NAME",
+				"USER_LOGIN",
+				"USER_EMAIL",
+			];
+		}
 
 		$arFields = array(
 				"ID" => array("FIELD" => "B.ID", "TYPE" => "int"),
@@ -918,7 +945,8 @@ class CSaleBasket extends CAllSaleBasket
 		if(!in_array("LID", $arSelectFields))
 			$arSelectFields[] = "LID";
 
-		$arFilterH = Array();
+		$arFilterH = [];
+		$arSqlsH = [];
 		if(!empty($arFilter))
 		{
 			foreach($arFilter as $k => $v)
@@ -931,8 +959,10 @@ class CSaleBasket extends CAllSaleBasket
 			}
 		}
 
-		if(!empty($arFilterH))
+		if (!empty($arFilterH))
+		{
 			$arSqlsH = CSaleOrder::PrepareSql($arFields, $arOrder, $arFilterH, false, $arSelectFields);
+		}
 		$arSqls = CSaleOrder::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
@@ -943,41 +973,51 @@ class CSaleBasket extends CAllSaleBasket
 			"	".$arSqls["FROM"]." ";
 		$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 		$strSql .= "GROUP BY B.FUSER_ID, F.USER_ID, B.LID ";
-		if ($arSqlsH["WHERE"] <> '')
-			$strSql .= "HAVING ".$arSqlsH["WHERE"]." ";
-		if ($arSqls["ORDERBY"] <> '')
-			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
-		// echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
+		if (isset($arSqlsH["WHERE"]) && $arSqlsH["WHERE"] !== '')
+		{
+			$strSql .= "HAVING " . $arSqlsH["WHERE"] . " ";
+		}
+		if ($arSqls["ORDERBY"] !== '')
+		{
+			$strSql .= "ORDER BY " . $arSqls["ORDERBY"] . " ";
+		}
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
+		$topCount = 0;
+		$useNavParams = is_array($arNavStartParams);
+		if ($useNavParams && isset($arNavStartParams['nTopCount']))
+		{
+			$topCount = (int)$arNavStartParams['nTopCount'];
+		}
+
+		if ($useNavParams && $topCount <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sale_basket B ".
 				"	".$arSqls["FROM"]." ";
-			if ($arSqls["WHERE"] <> '')
-				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
+			if ($arSqls["WHERE"] !== '')
+			{
+				$strSql_tmp .= "WHERE " . $arSqls["WHERE"] . " ";
+			}
 			$strSql_tmp .= "GROUP BY B.FUSER_ID, F.USER_ID, B.LID ";
-			if ($arSqlsH["WHERE"] <> '')
-				$strSql_tmp .= "HAVING ".$arSqlsH["WHERE"]." ";
-
-			// echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
+			if (isset($arSqlsH["WHERE"]) && $arSqlsH["WHERE"] !== '')
+			{
+				$strSql_tmp .= "HAVING " . $arSqlsH["WHERE"] . " ";
+			}
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = $dbRes->SelectedRowsCount();
 
 			$dbRes = new CDBResult();
 
-			// echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
-
-			// echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
+			if ($useNavParams && $topCount > 0)
+			{
+				$strSql .= "LIMIT " . $topCount;
+			}
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

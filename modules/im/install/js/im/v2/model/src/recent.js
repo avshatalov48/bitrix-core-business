@@ -666,6 +666,7 @@ export class RecentModel extends BuilderModel
 		result = result.replace(/\[url=(.*?)](.*?)\[\/url]/gi, '$2');
 		result = result.replace(/\[rating=([1-5])]/gi, () => `[${Loc.getMessage('IM_UTILS_TEXT_RATING')}] `);
 		result = result.replace(/\[attach=(\d+)]/gi, () => `[${Loc.getMessage('IM_UTILS_TEXT_ATTACH')}] `);
+		result = result.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
 		result = result.replace(/\[chat=(\d+)](.*?)\[\/chat]/gi, '$2');
 		result = result.replace(/\[send(?:=.+?)?](.+?)?\[\/send]/gi, '$1');
 		result = result.replace(/\[put(?:=.+?)?](.+?)?\[\/put]/gi, '$1');

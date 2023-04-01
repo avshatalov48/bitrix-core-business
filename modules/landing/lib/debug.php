@@ -41,7 +41,7 @@ class Debug
 	 * @param string $message Message.
 	 * @return void
 	 */
-	public static function logToFile(string $message)
+	public static function logToFile(string $message): void
 	{
 		static $write = null;
 

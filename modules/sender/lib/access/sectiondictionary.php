@@ -34,7 +34,7 @@ class SectionDictionary
 			self::ADS       => [
 				PermissionDictionary::ADS_VIEW,
 				PermissionDictionary::ADS_YANDEX_EDIT,
-				PermissionDictionary::ADS_GOOGLE_EDIT,
+				PermissionDictionary::ADS_GOOGLE_EDIT_MSGVER_1,
 				PermissionDictionary::ADS_VK_EDIT,
 				PermissionDictionary::ADS_FB_INSTAGRAM_EDIT,
 				PermissionDictionary::ADS_LOOK_ALIKE_VK_EDIT,
@@ -43,6 +43,7 @@ class SectionDictionary
 				PermissionDictionary::ADS_CLIENT_VIEW,
 				PermissionDictionary::ADS_MARKETING_FB_EDIT,
 				PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT,
+				PermissionDictionary::ADS_MASTER_YANDEX_EDIT,
 			],
 			self::SEGMENT   => [
 				PermissionDictionary::SEGMENT_EDIT,
@@ -90,6 +91,7 @@ class SectionDictionary
 			PermissionDictionary::ADS_LOOK_ALIKE_FB_EDIT => MessageBase::CODE_ADS_LOOKALIKE_FB,
 			PermissionDictionary::ADS_MARKETING_FB_EDIT => MessageBase::CODE_ADS_FB,
 			PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT => Message\iMarketing::CODE_FACEBOOK,
+			PermissionDictionary::ADS_MASTER_YANDEX_EDIT => MessageBase::CODE_MASTER_YANDEX,
 		];
 	}
 

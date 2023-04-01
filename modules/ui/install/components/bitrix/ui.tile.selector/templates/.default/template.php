@@ -43,12 +43,12 @@ $containerId .= $arParams['ID'] ?: 'def';
 	BX.ready(function () {
 		new BX.UI.TileSelector(<?=Json::encode(array(
 			'containerId' => $containerId,
-			'id' => $arParams['ID'],
-			'duplicates' => $arParams['DUPLICATES'],
-			'readonly' => $arParams['READONLY'],
-			'multiple' => $arParams['MULTIPLE'],
-			'manualInputEnd' => $arParams['MANUAL_INPUT_END'],
-			'fireClickEvent' => $arParams['FIRE_CLICK_EVENT'],
+			'id' => $arParams['ID'] ?? '',
+			'duplicates' => $arParams['DUPLICATES'] ?? [],
+			'readonly' => $arParams['READONLY'] ?? null,
+			'multiple' => $arParams['MULTIPLE'] ?? null,
+			'manualInputEnd' => $arParams['MANUAL_INPUT_END'] ?? null,
+			'fireClickEvent' => $arParams['FIRE_CLICK_EVENT'] ?? null,
 			'caption' => CUtil::jSEscape(!empty($arParams['BUTTON_SELECT_CAPTION']) ? $arParams['BUTTON_SELECT_CAPTION'] : Loc::getMessage('UI_TILE_SELECTOR_SELECT')),
 			'captionMore' => CUtil::jSEscape(!empty($arParams['BUTTON_SELECT_CAPTION_MORE']) ? $arParams['BUTTON_SELECT_CAPTION_MORE'] : Loc::getMessage('UI_TILE_SELECTOR_SELECT'))
 		))?>);
@@ -116,7 +116,7 @@ $containerId .= $arParams['ID'] ?: 'def';
 					htmlspecialcharsbx(Json::encode($tile['data'])),
 					$style,
 					htmlspecialcharsbx($tile['name']),
-					($tile['readonly'] ? 'yes' : 'no')
+					(isset($tile['readonly']) && $tile['readonly'] ? 'yes' : 'no')
 				),
 				$getTileTemplate()
 			);

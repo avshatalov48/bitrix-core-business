@@ -63,4 +63,18 @@ abstract class Account extends Retargeting\Account
 		return static::URL_INFO;
 	}
 
+	public function loginCompletion()
+	{
+		return new Result();
+	}
+
+	public function logout()
+	{
+		return new Result();
+	}
+
+	public function hasPageAccount()
+	{
+		return true;
+	}
 }

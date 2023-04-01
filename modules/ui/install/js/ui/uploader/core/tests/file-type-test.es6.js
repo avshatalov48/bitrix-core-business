@@ -1,7 +1,10 @@
 import Uploader from '../src/uploader';
+import { UploaderEvent } from '../src/enums/uploader-event';
+
 import { BaseEvent } from 'main.core.events';
 import { BaseError } from 'main.core';
 import createFileByType from './utils/create-file-by-type.es6';
+import getImageSize from '../src/helpers/image-size/get-image-size';
 
 describe('File Type Validation', () => {
 	// mime types: image/png, image/jpeg, image/gif
@@ -15,6 +18,7 @@ describe('File Type Validation', () => {
 	const csv = createFileByType('csv');
 	const css = createFileByType('css');
 	const json = createFileByType('json');
+	const tiff = createFileByType('tiff');
 
 	describe('Mime Types', () => {
 		it('should accept only png, gif and jpg', (done) => {
@@ -57,7 +61,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			imageUploader.subscribe('File:onAdd', listener);
+			imageUploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			imageUploader.addFiles([png, jpg, gif, css, json, text, csv]);
 		});
 
@@ -101,7 +105,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			imageUploader.subscribe('File:onAdd', listener);
+			imageUploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			imageUploader.addFiles([png, json, text, jpg, gif, css, csv]);
 		});
 	});
@@ -147,7 +151,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			uploader.subscribe('File:onAdd', listener);
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			uploader.addFiles([png, jpg, gif, css, json, text, csv]);
 		});
 	});
@@ -176,7 +180,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			imageUploader.subscribe('File:onAdd', listener);
+			imageUploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			imageUploader.addFile(png);
 			imageUploader.addFile(jpg);
 			imageUploader.addFile(gif);
@@ -208,7 +212,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			imageUploader.subscribe('File:onAdd', listener);
+			imageUploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			imageUploader.addFile(text);
 			imageUploader.addFile(json);
 			imageUploader.addFile(csv);
@@ -256,7 +260,7 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			uploader.subscribe('File:onAdd', listener);
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			uploader.addFiles([png, json, text, jpg, gif, css, csv]);
 		});
 	});
@@ -285,8 +289,80 @@ describe('File Type Validation', () => {
 				}
 			});
 
-			uploader.subscribe('File:onAdd', listener);
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
 			uploader.addFiles([png, json, text, jpg, gif, css, csv]);
+		});
+	});
+
+	describe('Accept Only Images', () => {
+		it('should accept only images', (done) => {
+			const uploader = new Uploader({
+				autoUpload: false,
+				acceptOnlyImages: true,
+				multiple: true
+			});
+
+			let acceptCount = 0;
+			let failedCount = 0;
+			const listener = sinon.stub().callsFake((event: BaseEvent) => {
+				const { file, error } = event.getData();
+				try
+				{
+					if (['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'].includes(file.getExtension()))
+					{
+						acceptCount++;
+						assert.equal(false, error instanceof BaseError, file.getName() + ': ' + (error ? error.toString() : ''));
+						assert.equal(file.isComplete(), true);
+					}
+					else
+					{
+						failedCount++;
+						assert.ok(error instanceof BaseError, 'error is empty');
+						assert.equal(error.getCode(), 'FILE_TYPE_NOT_ALLOWED', file.getName());
+						assert.equal(file.isFailed(), true);
+					}
+
+					if (listener.callCount === 8)
+					{
+						assert.equal(acceptCount, 3);
+						assert.equal(failedCount, 5);
+						done();
+					}
+				}
+				catch(exception)
+				{
+					done(exception);
+				}
+			});
+
+			uploader.subscribe(UploaderEvent.FILE_ADD, listener);
+			uploader.addFiles([png, json, text, jpg, gif, css, csv, tiff]);
+		});
+
+		it('should raise an error for an unsupported image', (done) => {
+
+			const unsupportedImage = createFileByType('unsupported-image');
+			const uploader = new Uploader({
+				acceptOnlyImages: true,
+				multiple: true,
+				events: {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
+						const { file, error } = event.getData();
+						try
+						{
+							assert.equal(error.getCode(), 'IMAGE_TYPE_NOT_SUPPORTED');
+							assert.equal(file.isFailed(), true);
+							done();
+						}
+						catch(exception)
+						{
+							done(exception);
+						}
+					}
+				}
+			});
+
+			uploader.addFile(unsupportedImage);
 		});
 	});
 });

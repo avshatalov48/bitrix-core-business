@@ -11,7 +11,6 @@ use Bitrix\Calendar\Sync\Managers\IncomingSectionManagerInterface;
 use Bitrix\Calendar\Sync\Managers\OutgoingEventManagerInterface;
 use Bitrix\Calendar\Sync\Office365\Converter\Converter;
 use Bitrix\Calendar\Sync\Util\RequestLogger;
-use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
@@ -19,6 +18,7 @@ use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Web\HttpClient;
 use COffice365OAuthInterface;
 use CSocServOffice365OAuth;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -29,14 +29,9 @@ class Office365Context implements ContextInterface
 {
 	/** @var array */
 	private static array $instances = [];
-	//
-	// /** @var ConnectionManager */
-	// protected static ConnectionManager $connectionManager;
 
 	/** @var EventManager */
 	private EventManager $eventManager;
-	/** @var SectionManager */
-	private SectionManager $sectionManager;
 	/** @var Helper */
 	private $helper;
 	/**@var VendorSyncService */
@@ -49,19 +44,20 @@ class Office365Context implements ContextInterface
 	private ApiService $apiService;
 	/** @var Connection  */
 	private Connection $connection;
-	/** @var LoggerInterface  */
-	private LoggerInterface $logger;
 
 	/** @var IncomingSectionManagerInterface */
 	private IncomingSectionManagerInterface $incomingManager;
 	/** @var OutgoingEventManagerInterface  */
 	private OutgoingEventManagerInterface $outgoingEventManager;
+	private Converter $converter;
+	private PushManager $pushManager;
 
 	/**
 	 * @param Connection $connection
 	 *
 	 * @return Office365Context
 	 *
+	 * @throws NotFoundExceptionInterface
 	 * @throws ObjectNotFoundException
 	 */
 	public static function getConnectionContext(Connection $connection): Office365Context
@@ -77,6 +73,7 @@ class Office365Context implements ContextInterface
 	 * @param Connection $connection
 	 *
 	 * @throws ObjectNotFoundException
+	 * @throws NotFoundExceptionInterface
 	 */
 	protected function __construct(Connection $connection)
 	{
@@ -101,9 +98,10 @@ class Office365Context implements ContextInterface
 	/**
 	 * @return VendorSyncService
 	 *
-	 * @throws BaseException
-	 * @throws RemoteAccountException
 	 * @throws AuthException
+	 * @throws BaseException
+	 * @throws LoaderException
+	 * @throws RemoteAccountException
 	 */
 	public function getVendorSyncService(): VendorSyncService
 	{
@@ -177,18 +175,6 @@ class Office365Context implements ContextInterface
 	}
 
 	/**
-	 * @return SectionManager
-	 */
-	public function getSectionManager(): SectionManager
-	{
-		if (empty($this->sectionManager))
-		{
-			$this->sectionManager = new SectionManager($this);
-		}
-		return $this->sectionManager;
-	}
-
-	/**
 	 * @return PushManager
 	 */
 	public function getPushManager(): PushManager
@@ -236,31 +222,28 @@ class Office365Context implements ContextInterface
 			$httpClient->setHeader('Prefer', 'odata.maxpagesize=' . $this->getMaxPageSize());
 			$httpClient->setRedirect(false);
 		}
-		else
+		elseif ($checkUser = $oAuthEntity->GetCurrentUser())
 		{
-			if ($checkUser = $oAuthEntity->GetCurrentUser())
+			if (!empty($checkUser['access_token']))
 			{
-				if (!empty($checkUser['access_token']))
-				{
-					$httpClient->setHeader('Authorization', 'Bearer ' . $checkUser['access_token']);
-					$httpClient->setHeader('Content-Type', 'application/json');
-					$httpClient->setHeader('Prefer', 'odata.maxpagesize=' . $this->getMaxPageSize());
-					$httpClient->setRedirect(false);
-				}
-				else
-				{
-					throw new AuthException('Access token not recived', 401);
-				}
+				$httpClient->setHeader('Authorization', 'Bearer ' . $checkUser['access_token']);
+				$httpClient->setHeader('Content-Type', 'application/json');
+				$httpClient->setHeader('Prefer', 'odata.maxpagesize=' . $this->getMaxPageSize());
+				$httpClient->setRedirect(false);
 			}
 			else
 			{
-				// TODO: maybe move it to the exception handler.
-				// Now it's impossible, because there are many points of call this class
-				(new \Bitrix\Calendar\Core\Mappers\Connection())->update(
-					$this->getConnection()->setDeleted(true)
-				);
-				throw new RemoteAccountException('Office365 account not found', 403);
+				throw new AuthException('Access token not recived', 401);
 			}
+		}
+		else
+		{
+			// TODO: maybe move it to the exception handler.
+			// Now it's impossible, because there are many points of call this class
+			(new \Bitrix\Calendar\Core\Mappers\Connection())->update(
+				$this->getConnection()->setDeleted(true)
+			);
+			throw new RemoteAccountException('Office365 account not found', 403);
 		}
 		return $httpClient;
 	}
@@ -317,20 +300,18 @@ class Office365Context implements ContextInterface
 
 	/**
 	 * @return LoggerInterface
-	 *
-	 * @throws ArgumentNullException
 	 */
 	public function getLogger(): LoggerInterface
 	{
 		if (RequestLogger::isEnabled())
 		{
-			$this->logger = new RequestLogger($this->getOwner()->getId(), Helper::ACCOUNT_TYPE);
+			$logger = new RequestLogger($this->getOwner()->getId(), Helper::ACCOUNT_TYPE);
 		}
 		else
 		{
-			$this->logger = new NullLogger();
+			$logger = new NullLogger();
 		}
 
-		return $this->logger;
+		return $logger;
 	}
 }

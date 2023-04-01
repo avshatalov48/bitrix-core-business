@@ -13,7 +13,10 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->IsAdmin())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if($_SERVER['REQUEST_METHOD'] == "POST" && check_bitrix_sessid() && $_POST["action"].$_POST["save"].$_POST["apply"] != "")
+if($_SERVER['REQUEST_METHOD'] == "POST"
+	&& check_bitrix_sessid()
+	&& (isset($_POST["action"]) || isset($_POST["save"]) || isset($_POST["apply"]))
+)
 {
 	$result = "error";
 
@@ -121,7 +124,7 @@ else:
 		));
 		?>
 	</div>
-	<form method="POST" action="security_scanner.php?lang=<?=LANG?><?=$_GET["return_url"]? "&amp;return_url=".urlencode($_GET["return_url"]): ""?>" name="settings_form">
+	<form method="POST" action="security_scanner.php?lang=<?=LANG?><?=isset($_GET["return_url"]) && $_GET["return_url"]? "&amp;return_url=".urlencode($_GET["return_url"]): ""?>" name="settings_form">
 	<?$tabControl->Begin();?>
 	<?$tabControl->BeginNextTab();?>
 	<div class="adm-security-wrap">

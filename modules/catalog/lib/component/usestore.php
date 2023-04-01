@@ -176,7 +176,7 @@ final class UseStore
 
 	public static function installCatalogStores()
 	{
-		if (self::hasDefaultCatalogStore() === false)
+		if (!self::hasDefaultCatalogStore())
 		{
 			$storeId = self::getFirstCatalogStore();
 			if ($storeId > 0)
@@ -189,7 +189,7 @@ final class UseStore
 			}
 		}
 
-		if (self::isBitrixSiteManagement() === false)
+		if (!self::isBitrixSiteManagement())
 		{
 			self::createCatalogStores();
 		}
@@ -202,22 +202,20 @@ final class UseStore
 
 	protected static function getFirstCatalogStore(): int
 	{
-		$iterator = Catalog\StoreTable::getList([
+		$row = Catalog\StoreTable::getRow([
 			'select' => [
 				'ID',
+				'SORT',
 			],
 			'filter' => [
 				'=ACTIVE' => 'Y',
 				'=SITE_ID' => '',
 			],
-			'limit' => 1,
 			'order' => [
 				'SORT' => 'ASC',
 				'ID' => 'ASC',
 			],
 		]);
-		$row = $iterator->fetch();
-		unset($iterator);
 
 		return (!empty($row) ? (int)$row['ID'] : 0);
 	}
@@ -240,6 +238,7 @@ final class UseStore
 		$r = Catalog\StoreTable::add([
 			'TITLE' => $title,
 			'ADDRESS' => $title,
+			'IS_DEFAULT' => 'Y',
 		]);
 
 		return $r->isSuccess();
@@ -656,48 +655,47 @@ final class UseStore
 
 	public static function getCodesStoreByZone() :array
 	{
-		$result = [];
-
-		$portalZone = self::getPortalZone();
-
-		if ($portalZone === 'ru')
+		switch (self::getPortalZone())
 		{
-			$result = [
-				self::STORE_ALIEXPRESS,
-				self::STORE_OZON,
-				self::STORE_SBERMEGAMARKET,
-				self::STORE_WILDBERRIES,
-			];
+			case 'ru':
+				$result = [
+					self::STORE_ALIEXPRESS,
+					self::STORE_OZON,
+					self::STORE_SBERMEGAMARKET,
+					self::STORE_WILDBERRIES,
+				];
+				break;
+			case 'by':
+				$result = [
+					self::STORE_ALIEXPRESS,
+					self::STORE_OZON,
+					self::STORE_WILDBERRIES,
+				];
+				break;
+			case 'ua':
+				$result = [
+					self::STORE_ALIEXPRESS,
+				];
+				break;
+			default:
+				$result = [];
+				break;
 		}
-		else if ($portalZone === 'by')
-		{
-			$result = [
-				self::STORE_ALIEXPRESS,
-				self::STORE_OZON,
-				self::STORE_WILDBERRIES,
-			];
-		}
-		else if ($portalZone === 'ua')
-		{
-			$result = [
-				self::STORE_ALIEXPRESS,
-			];
-	}
 
 		return $result;
 	}
 
 	private static function createCatalogStores(): void
 	{
-		$codes = self::getCodesStoreByZone();
+		$codeList = self::getCodesStoreByZone();
 
-		if (!empty($codes))
+		if (!empty($codeList))
 		{
-			foreach ($codes as $code)
+			foreach ($codeList as $code)
 			{
 				$title = Loc::getMessage('CATALOG_USE_STORE_' . $code);
 
-				$iterator = Catalog\StoreTable::getList([
+				$row = Catalog\StoreTable::getRow([
 					'select' => [
 						'CODE',
 					],
@@ -705,8 +703,6 @@ final class UseStore
 						'=CODE' => $code,
 					],
 				]);
-				$row = $iterator->fetch();
-				unset($iterator);
 				if (empty($row))
 				{
 					Catalog\StoreTable::add([

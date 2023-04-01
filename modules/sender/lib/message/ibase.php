@@ -22,6 +22,7 @@ interface iBase
 	const CODE_CALL = 'call';
 	const CODE_AUDIO_CALL = 'audio_call';
 	const CODE_UNDEFINED = '';
+	public const CODE_MASTER_YANDEX = 'master_yandex';
 	const EVENT_NAME = 'onSenderMessageList';
 
 	/**

@@ -318,11 +318,11 @@ class Converter
 
 	/**
 	 * @param string $color
-	 * @param string $hexColor
+	 * @param string|null $hexColor
 	 *
 	 * @return string
 	 */
-	private function getOurColor(string $color, string $hexColor = ''): ?string
+	private function getOurColor(string $color, ?string $hexColor = null): ?string
 	{
 		return ColorConverter::fromOffice($color, $hexColor);
 	}

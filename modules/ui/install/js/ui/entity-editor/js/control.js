@@ -1970,9 +1970,10 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 				if(!this.isNeedToDisplay())
 				{
 					window.setTimeout(BX.delegate(this.clearLayout, this), 500);
+					var handledTitle =  BX.util.htmlspecialchars(this.getTitle());
 					BX.UI.Notification.Center.notify(
 						{
-							content: BX.message("UI_ENTITY_EDITOR_FIELD_HIDDEN_DUE_TO_SHOW_ALWAYS_CHANGED").replace(/#TITLE#/gi, this.getTitle()),
+							content: BX.message("UI_ENTITY_EDITOR_FIELD_HIDDEN_DUE_TO_SHOW_ALWAYS_CHANGED").replace(/#TITLE#/gi, handledTitle),
 							position: "top-center",
 							autoHideDelay: 5000
 						}
@@ -8946,7 +8947,9 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 					"OnCreateIframeAfter",
 					this._editorInitializationHandler
 				);
-				this._htmlEditor.Init();
+				setTimeout(function() {
+					this._htmlEditor.Init();
+				}.bind(this), 0);
 			}
 
 			window.top.setTimeout(BX.delegate(this.bindChangeEvent, this), 1000);
@@ -9492,7 +9495,7 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 										props:
 											{
 												className: "crm-entity-widget-content-block-photo",
-												src: this._model.getSchemeField(this._schemeElement, "showUrl", "")
+												src: encodeURI(this._model.getSchemeField(this._schemeElement, "showUrl", ""))
 											}
 									}
 								)

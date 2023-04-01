@@ -328,7 +328,7 @@ final class Loc
 		$currentFile = null;
 		for($i = 3; $i >= 1; $i--)
 		{
-			if (stripos($trace[$i]["function"], "GetMessage") === 0)
+			if (isset($trace[$i]) && stripos($trace[$i]["function"], "GetMessage") === 0)
 			{
 				$currentFile = Path::normalize($trace[$i]["file"]);
 

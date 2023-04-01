@@ -19,7 +19,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    clearInterval(this.updateIntervalId);
 	    this.updateIntervalId = setInterval(this.worker.bind(this), this.updateInterval);
 	  }
-
 	  babelHelpers.createClass(Timer, [{
 	    key: "start",
 	    value: function start(name) {
@@ -29,17 +28,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var callbackParams = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 	      id = id == null ? 'default' : id;
 	      time = parseFloat(time);
-
 	      if (isNaN(time) || time <= 0) {
 	        return false;
 	      }
-
 	      time = time * 1000;
-
 	      if (typeof this.list[name] === 'undefined') {
 	        this.list[name] = {};
 	      }
-
 	      this.list[name][id] = {
 	        'dateStop': new Date().getTime() + time,
 	        'callback': typeof callback === 'function' ? callback : function () {},
@@ -52,11 +47,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function has(name) {
 	      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'default';
 	      id = id == null ? 'default' : id;
-
 	      if (id.toString().length <= 0 || typeof this.list[name] === 'undefined') {
 	        return false;
 	      }
-
 	      return !!this.list[name][id];
 	    }
 	  }, {
@@ -65,19 +58,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'default';
 	      var skipCallback = arguments.length > 2 ? arguments[2] : undefined;
 	      id = id == null ? 'default' : id;
-
 	      if (id.toString().length <= 0 || typeof this.list[name] === 'undefined') {
 	        return false;
 	      }
-
 	      if (!this.list[name][id]) {
 	        return true;
 	      }
-
 	      if (skipCallback !== true) {
 	        this.list[name][id]['callback'](id, this.list[name][id]['callbackParams']);
 	      }
-
 	      delete this.list[name][id];
 	      return true;
 	    }
@@ -93,7 +82,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 	        }
 	      }
-
 	      return true;
 	    }
 	  }, {
@@ -103,16 +91,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        if (!this.list.hasOwnProperty(name)) {
 	          continue;
 	        }
-
 	        for (var id in this.list[name]) {
 	          if (!this.list[name].hasOwnProperty(id) || this.list[name][id]['dateStop'] > new Date()) {
 	            continue;
 	          }
-
 	          this.stop(name, id);
 	        }
 	      }
-
 	      return true;
 	    }
 	  }, {

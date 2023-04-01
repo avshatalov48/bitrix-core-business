@@ -30,7 +30,7 @@ class CatalogReportStoreSaleGridComponent extends ReportStoreList
 			],
 			[
 				'id' => 'RECEIVED_QUANTITY',
-				'name' => Loc::getMessage('STORE_SALE_REPORT_GRID_RECEIVED_QUANTITY_COLUMN'),
+				'name' => Loc::getMessage('STORE_SALE_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_MSGVER_1'),
 				'hint' => Loc::getMessage('STORE_SALE_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,

@@ -887,17 +887,20 @@ BX.Kanban.DraftItem.prototype = {
 		//Blur event can be fired when `render` cleans items container.
 		//It causes DOM exception.
 		setTimeout(function() {
-			this.applyDraftEditMode();
+			if (!this.draftTextArea.value.length)
+			{
+				this.applyDraftEditMode();
+			}
 		}.bind(this), 0);
 	},
 
 	handleDraftTextAreaKeyDown: function(event)
 	{
-		if (event.keyCode === 13)
+		if (event.key === 'Enter')
 		{
 			this.applyDraftEditMode();
 		}
-		else if (event.keyCode === 27)
+		else if (event.key === 'Escape')
 		{
 			this.removeDraftItem();
 			BX.onCustomEvent(this.getGrid(), "Kanban.Grid:removeDraftItemByEsc", [this]);

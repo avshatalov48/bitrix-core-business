@@ -30,6 +30,9 @@ final class RoutePoint extends RequestEntity
 	/** @var bool */
 	protected $skipConfirmation;
 
+	/** @var VisitedAt */
+	protected ?VisitedAt $visitedAt = null;
+
 	/**
 	 * @return int|null
 	 */
@@ -66,6 +69,25 @@ final class RoutePoint extends RequestEntity
 	public function setAddress(Address $address): RoutePoint
 	{
 		$this->address = $address;
+
+		return $this;
+	}
+
+	/**
+	 * @return VisitedAt|null
+	 */
+	public function getVisitedAt(): ?VisitedAt
+	{
+		return $this->visitedAt;
+	}
+
+	/**
+	 * @param VisitedAt|null $visitedAt
+	 * @return RoutePoint
+	 */
+	public function setVisitedAt(?VisitedAt $visitedAt): RoutePoint
+	{
+		$this->visitedAt = $visitedAt;
 
 		return $this;
 	}
@@ -109,5 +131,13 @@ final class RoutePoint extends RequestEntity
 	{
 		$this->type = $type;
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getType(): string
+	{
+		return $this->type;
 	}
 }

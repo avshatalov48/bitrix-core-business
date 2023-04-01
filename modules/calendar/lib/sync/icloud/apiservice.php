@@ -388,7 +388,7 @@ class ApiService
 	public function prepareUrl(string $url): array
 	{
 		$parsed = parse_url($url);
-		if (!$parsed['port'])
+		if (empty($parsed['port']))
 		{
 			$parsed['port'] = ($parsed['scheme'] === 'https'
 				? 443

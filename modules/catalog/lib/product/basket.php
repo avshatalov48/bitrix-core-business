@@ -244,6 +244,14 @@ class Basket
 			unset($fields['MODULE']);
 		}
 
+		if (
+			$module === 'catalog'
+			&& !isset($fields['PRODUCT_PROVIDER_CLASS'])
+		)
+		{
+			$fields['PRODUCT_PROVIDER_CLASS'] = self::getDefaultProviderName();
+		}
+
 		$transferFields = [
 			'PRODUCT_PROVIDER_CLASS' => true,
 			'CALLBACK_FUNC' => true,

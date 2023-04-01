@@ -102,6 +102,10 @@ li.bizproc-document-process tbody tr:last-child td {
 	padding-bottom: 0.7em;
 }
 
+li.bizproc-document-process tbody td:first-child {
+	padding: 7px 5px;
+}
+
 li.bizproc-document-process tbody tr:last-child td:first-child {
 	border-bottom-left-radius: var(--ui-border-radius-md);
 }

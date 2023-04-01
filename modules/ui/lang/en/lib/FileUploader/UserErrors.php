@@ -10,6 +10,7 @@ $MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Minimum image file size i
 $MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED"] = "Maximum total size exceeded.";
 $MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED_DESC"] = "Maximum total file size is #maxTotalFileSize#.";
 $MESS["UPLOADER_FILE_TYPE_NOT_ALLOWED"] = "File of invalid type.";
+$MESS["UPLOADER_FILE_NAME_NOT_ALLOWED"] = "Invalid file name.";
 $MESS["UPLOADER_IMAGE_IS_TOO_SMALL"] = "Image is too small.";
 $MESS["UPLOADER_IMAGE_IS_TOO_SMALL_DESC"] = "Minimum size is #minWidth#x#minHeight#.";
 $MESS["UPLOADER_IMAGE_IS_TOO_BIG"] = "Image is too big.";

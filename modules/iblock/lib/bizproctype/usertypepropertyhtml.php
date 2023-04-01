@@ -225,5 +225,17 @@ if (Loader::requireModule('bizproc'))
 			return $renderResult;
 		}
 
+		public static function externalizeValue(FieldType $fieldType, $context, $value)
+		{
+			if (is_array($value) && isset($value['TEXT']) && !is_scalar($value['TEXT']))
+			{
+				return is_object($value['TEXT']) && method_exists($value['TEXT'], '__toString')
+					? (string)$value['TEXT']
+					: ''
+				;
+			}
+
+			return parent::externalizeValue($fieldType, $context, $value);
+		}
 	}
 }

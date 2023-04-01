@@ -7,7 +7,7 @@ use Bitrix\Security\Mfa\Otp;
 
 class CSecurityUserOtpInitAjaxController extends \Bitrix\Main\Engine\Controller
 {
-	public function setOtpAction($secret, $sync1, $sync2 = "", $otpAction)
+	public function setOtpAction($otpAction, $secret, $sync1, $sync2 = "")
 	{
 		/** @global CUser $USER */
 		global $USER;

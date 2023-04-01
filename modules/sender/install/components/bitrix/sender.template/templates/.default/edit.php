@@ -9,13 +9,13 @@ global $APPLICATION;
 $componentParameters = array(
 	'ID' => $arResult['ID'],
 	'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'],
-	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-	'CAN_EDIT' => $arResult['CAN_EDIT']
+	'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_USER_PROFILE'] ?? '',
+	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+	'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+	'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+	'CAN_EDIT' => $arResult['CAN_EDIT'] ?? null,
 );
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$componentParameters['IFRAME'] = $_REQUEST['IFRAME'] == 'Y' ? 'Y' : 'N';
 	$APPLICATION->IncludeComponent(

@@ -6,6 +6,7 @@ class Helper
 {
 	public const CALDAV_TYPE = 'caldav';
 	public const YANDEX_TYPE = 'yandex';
+	public const EXCHANGE_TYPE = 'exchange';
 
 
 	/**

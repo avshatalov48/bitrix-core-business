@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Node;
 
+use Bitrix\Landing\History;
+
 class Text extends \Bitrix\Landing\Node
 {
 	/**
@@ -76,6 +78,18 @@ class Text extends \Bitrix\Landing\Node
 				else
 				{
 					$value = ' ';
+				}
+
+				if (History::isActive())
+				{
+					$history = new History($block->getLandingId(), History::ENTITY_TYPE_LANDING);
+					$history->push('EDIT_TEXT', [
+						'block' => $block,
+						'selector' => $selector,
+						'position' => (int)$pos,
+						'valueBefore' => $resultList[$pos]->getInnerHTML(),
+						'valueAfter' => $value,
+					]);
 				}
 
 				$result[$pos]['content'] = $value;

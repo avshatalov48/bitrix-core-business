@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Retargeting\Services;
 
@@ -149,7 +149,7 @@ class AudienceYandex extends Audience
 	 * @return Result|\Bitrix\Seo\Retargeting\Response
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function importContacts($audienceId, array $contacts = array(), array $options)
+	public function importContacts($audienceId, array $contacts, array $options)
 	{
 		$createNewAudience = ($audienceId == static::NEW_AUDIENCE_FAKE_ID);
 		$audienceData = $this->getById($audienceId);
@@ -199,7 +199,7 @@ class AudienceYandex extends Audience
 	 * @deprecated Not supported by Yandex anymore
 	 * @return \Bitrix\Seo\Retargeting\Response|null
 	 */
-	public function removeContacts($audienceId, array $contacts = array(), array $options)
+	public function removeContacts($audienceId, array $contacts, array $options)
 	{
 		$response = Response::create(static::TYPE_CODE);
 		return $response;

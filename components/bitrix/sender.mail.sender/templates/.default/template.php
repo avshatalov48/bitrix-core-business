@@ -13,6 +13,8 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+
 \Bitrix\Main\UI\Extension::load([
 	"ui.icons.b24",
 	"main.maillimiter"
@@ -30,10 +32,10 @@ $containerId = 'sender-ui-mailbox-selector';
 	BX.ready(function () {
 		BX.Sender.UI.Mailbox.Selector.init(<?=Json::encode(array(
 			'containerId' => $containerId,
-			'list' => $arResult['LIST'],
-			'current'=>$arParams['VALUE'],
-			'actionUri'=>$arResult['ACTION_URI'],
-			'path'=>$arParams['PATH_TO_SENDER_EDIT_GRID'],
+			'list' => $arResult['LIST'] ?? [],
+			'current'=>$arParams['VALUE'] ?? '',
+			'actionUri'=>$arResult['ACTION_URI'] ?? '',
+			'path'=>$arParams['PATH_TO_SENDER_EDIT_GRID'] ?? '',
 			'default' => Loc::getMessage('SENDER_UI_MAILBOX_SELECTOR_SETUP'),
 			'mess' => array(
 				'addAddress' => Loc::getMessage('SENDER_UI_MAILBOX_SELECTOR_ADD')
@@ -43,7 +45,7 @@ $containerId = 'sender-ui-mailbox-selector';
 </script>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-ui-mailbox-selector-wrap">
 	<span class="ui-icon ui-icon-common-user sender-ui-mailbox-icon">
-		<i <?if ($arResult['CURRENT']['icon']):?> style="background-image: url(<?=htmlspecialcharsbx($arResult['CURRENT']['icon'])?>)"<?endif?>></i>
+		<i <?if ($arResult['CURRENT']['icon']):?> style="background-image: url('<?= Uri::urnEncode(htmlspecialcharsbx($arResult['CURRENT']['icon']))?>')"<?endif?>></i>
 	</span>
 	<span class="sender-ui-mailbox-dropdown"  data-role="mailbox-wrap">
 		<span data-role="mailbox" class="sender-ui-mailbox-name"></span>

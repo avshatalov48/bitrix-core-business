@@ -8,7 +8,7 @@
 		this.title = BX.message('EC_VIEW_MONTH');
 		this.contClassName = 'calendar-month-view';
 		this.dayCount = 7;
-		this.slotHeight = 20;
+		this.slotHeight = 21;
 		this.eventHolderTopOffset = 25;
 		this.hotkey = 'M';
 
@@ -60,6 +60,7 @@
 	MonthView.prototype.increaseViewRangeDate = function()
 	{
 		this.changeViewRangeDate(1);
+		this.highlightAll();
 
 		var nextGrid = this.gridMonthContainer.appendChild(BX.create('DIV', {props: {className: 'calendar-grid-month calendar-grid-month-next' + ' ' + this.animateClass}}));
 		BX.addClass(this.grid, this.animateClass);
@@ -98,6 +99,7 @@
 	MonthView.prototype.decreaseViewRangeDate = function()
 	{
 		this.changeViewRangeDate(-1);
+		this.highlightAll();
 
 		var previousGrid = this.gridMonthContainer.insertBefore(BX.create('DIV', {props: {className: 'calendar-grid-month calendar-grid-month-previous' + ' ' + this.animateClass}}), this.grid);
 		BX.addClass(this.grid, this.animateClass);
@@ -434,11 +436,9 @@
 			return;
 		}
 		var
-			prevElement,
 			element,
 			i, j, entry, part, dayPos, entryPart, day, entryStarted,
-			partsStorage = [],
-			entryDisplayed, showHiddenLink;
+			partsStorage = [];
 
 		this.entries = this.getUndeletedEntries();
 
@@ -541,6 +541,16 @@
 					day.entries.started.sort(this.calendar.entryController.sort);
 				}
 
+				const date = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate());
+				let visibleEntries = day.entries.list.map(e => {
+					return {
+						entry: e.entry,
+						entryWrap: e.entry.getWrap(e.part.partIndex),
+					}
+				}).filter(e =>
+					e.entry.from.getTime() < date.getTime()
+					&& e.entryWrap.style.display !== 'none'
+				);
 				for(i = 0; i < day.entries.started.length; i++)
 				{
 					element = day.entries.started[i];
@@ -548,48 +558,40 @@
 					{
 						entry = element.entry;
 						entryPart = element.part;
-						entryDisplayed = false;
+						const entryWrap = entry.getWrap(entryPart.partIndex);
+						entryWrap.style.display = 'none';
 						for(j = 0; j < this.slotsCount; j++)
 						{
 							if (day.slots[j] !== false)
 							{
 								this.occupySlot({slotIndex: j, startIndex: dayPos, endIndex: dayPos + entryPart.daysCount});
-								entryDisplayed = true;
-								entry.getWrap(entryPart.partIndex).style.top = (j * this.slotHeight) + 'px';
+								entryWrap.style.display = '';
+								entryWrap.style.top = (j * this.slotHeight) + 'px';
+								visibleEntries.push({entry, entryWrap});
 								break;
 							}
 						}
-
-						if (!entryDisplayed)
-						{
-							prevElement = day.entries.started[i - 1];
-							if (prevElement)
-							{
-								day.entries.hidden.push(prevElement);
-								prevElement.entry.getWrap(prevElement.part.partIndex).style.display = 'none';
-							}
-							day.entries.hidden.push(element);
-							entry.getWrap(entryPart.partIndex).style.display = 'none';
-						}
 					}
 				}
-			}
 
-			// Here we check all entries in the day and if any of it
-			// was hidden, we going to show 'show all' link
-			if (day.entries.list.length > 0)
-			{
-				showHiddenLink = false;
-				for(i = 0; i < day.entries.list.length; i++)
+				if (day.hiddenStorage)
 				{
-					if (day.entries.list[i].part.params.wrapNode.style.display === 'none')
-					{
-						showHiddenLink = true;
-						break;
-					}
+					day.hiddenStorage.style.display = 'none';
 				}
 
-				if (showHiddenLink)
+				visibleEntries.sort((a, b) => parseInt(a.entryWrap.style.top) - parseInt(b.entryWrap.style.top));
+
+				if (visibleEntries.length >= this.slotsCount && visibleEntries.length < day.entries.list.length)
+				{
+					const lastVisibleEntry = visibleEntries[visibleEntries.length - 1];
+					if (day.entries.started.find(e => e.entry.uid === lastVisibleEntry.entry.uid))
+					{
+						lastVisibleEntry.entryWrap.style.display = 'none';
+					}
+					visibleEntries = visibleEntries.slice(0, visibleEntries.length - 1);
+				}
+
+				if (visibleEntries.length < day.entries.list.length)
 				{
 					day.hiddenStorage = this.entryHolders[day.holderIndex].appendChild(BX.create('DIV', {
 						props: {
@@ -605,10 +607,6 @@
 					day.hiddenStorageText = day.hiddenStorage.appendChild(BX.create('span', {props: {className: 'calendar-event-more-btn'}}));
 					day.hiddenStorage.style.display = 'block';
 					day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' ' + day.entries.list.length;
-				}
-				else if (day.hiddenStorage)
-				{
-					day.hiddenStorage.style.display = 'none';
 				}
 			}
 		}
@@ -654,17 +652,33 @@
 				entryClassName += ' calendar-event-line-past';
 			}
 
+			if (entry.isSharingEvent())
+			{
+				entryClassName += ' calendar-event-line-wrap-sharing';
+				entryClassName += ' calendar-event-wrap-icon';
+			}
+
+			let arrowColor = entry.color;
+			if (entry.isFullDay())
+			{
+				arrowColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
+			}
+			else if (entry.isLongWithTime())
+			{
+				arrowColor = this.calendar.util.addOpacityToHex(entry.color, 0.5);
+			}
+
 			if (!params.popupMode && this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
 			{
 				entryClassName += ' calendar-event-line-start-yesterday';
 				deltaPartWidth += 8;
-				startArrow = this.getArrow('left', entry.color, entry.isFullDay());
+				startArrow = this.getArrow('left', arrowColor, entry.isFullDay());
 			}
 
 			if (!params.popupMode && this.util.getDayCode(entry.to) !== this.util.getDayCode(params.part.to.date))
 			{
 				entryClassName += ' calendar-event-line-finish-tomorrow';
-				endArrow = this.getArrow('right', entry.color, entry.isFullDay());
+				endArrow = this.getArrow('right', arrowColor, entry.isFullDay());
 				deltaPartWidth += 12;
 			}
 
@@ -687,7 +701,6 @@
 				}
 			});
 
-
 			if (startArrow)
 			{
 				partWrap.appendChild(startArrow);
@@ -701,7 +714,41 @@
 
 			innerContainer = partWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-inner-container'}}));
 			innerNode = innerContainer.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-inner'}}));
-			dotNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-dot'}}));
+
+			const day = this.days[this.dayIndex[entry.startDayCode]];
+			const entriesInDay = [...day.entries.list].sort((e1, e2) => {
+				return (e1.entry.from.getTime() > e2.entry.from.getTime()) ? 1 : (e1.entry.from.getTime() < e2.entry.from.getTime()) ? -1 : 0;
+			});
+			const positionInDay = entriesInDay.findIndex(e => e.entry.uid === entry.uid);
+			if (positionInDay >= this.slotsCount && entriesInDay.length > this.slotsCount)
+			{
+				entry.isHiddenInPopup = true;
+			}
+
+			dotNode = BX.create('DIV', {props: {className: 'calendar-event-line-dot'}})
+			if (entry.isInvited())
+			{
+				partWrap.className += ' calendar-event-animate-counter-highlight';
+				if (this.isFirstVisibleRecursiveEntry(entry))
+				{
+					innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter'}, text: '1'}))
+				}
+				else
+				{
+					//temporarily removed recursive entries invitation indicators
+					// innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter-dot'}}))
+					innerNode.appendChild(dotNode);
+				}
+			}
+			else
+			{
+				innerNode.appendChild(dotNode);
+			}
+
+			if (entry.isSharingEvent())
+			{
+				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-sharing'}}));
+			}
 
 			if (entry.isFullDay())
 			{
@@ -709,7 +756,6 @@
 			}
 			else if (entry.isLongWithTime())
 			{
-				partWrap.style.borderColor = entry.color;
 				innerNode.style.maxWidth = 'calc(200% / ' + daysCount + ' - 3px)';
 
 				// first part
@@ -777,14 +823,14 @@
 
 			if (entry.isFullDay())
 			{
-				innerContainer.style.backgroundColor = this.calendar.util.hexToRgba(entry.color, 0.3);
-				innerContainer.style.borderColor = this.calendar.util.hexToRgba(entry.color, 0.3);
+				innerContainer.style.backgroundColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
+				innerContainer.style.borderColor = this.calendar.util.addOpacityToHex(entry.color, 0.3);
 			}
 			else
 			{
 				if (entry.isLongWithTime())
 				{
-					innerContainer.style.borderColor = this.calendar.util.hexToRgba(entry.color, 0.5);
+					innerContainer.style.borderColor = this.calendar.util.addOpacityToHex(entry.color, 0.5);
 				}
 				dotNode.style.backgroundColor = entry.color;
 			}

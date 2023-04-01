@@ -2151,6 +2151,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 			$this->touch();
 			$this->addBlockToCollection($block);
+
+			if (History::isActive())
+			{
+				$history = new History($this->id, History::ENTITY_TYPE_LANDING);
+				$history->push('ADD_BLOCK', ['block' => $block]);
+			}
+
 			return $block->getId();
 		}
 
@@ -2221,6 +2228,12 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				{
 					if ($mark)
 					{
+						if (History::isActive())
+						{
+							$history = new History($this->id, History::ENTITY_TYPE_LANDING);
+							$history->push('REMOVE_BLOCK', ['block' => $this->blocks[$id]]);
+						}
+
 						unset($this->blocks[$id]);
 					}
 					else
@@ -2317,7 +2330,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * @param string $action Code: up or down.
 	 * @return boolean
 	 */
-	protected function sortBlock($id, $action)
+	protected function sortBlock(int $id, string $action): bool
 	{
 		$id = intval($id);
 		if (isset($this->blocks[$id]))
@@ -2328,7 +2341,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				if ($blocks[$i] == $id)
 				{
 					// change sort between two blocks
-					$targetKey = $i + ($action == 'up' ? -1 : 1);
+					$targetKey = $i + ($action === 'up' ? -1 : 1);
 					if (isset($blocks[$targetKey]))
 					{
 						$thisBlock = $this->blocks[$id];
@@ -2351,14 +2364,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 						return $res1 && $res2;
 					}
-					else
-					{
-						$this->error->addError(
-							'BLOCK_WRONG_SORT',
-							Loc::getMessage('LANDING_BLOCK_WRONG_SORT')
-						);
-						return false;
-					}
+
+					$this->error->addError(
+						'BLOCK_WRONG_SORT',
+						Loc::getMessage('LANDING_BLOCK_WRONG_SORT')
+					);
+
+					return false;
 				}
 			}
 		}
@@ -2378,9 +2390,24 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * @param int $id Block id.
 	 * @return boolean
 	 */
-	public function upBlock($id)
+	public function upBlock(int $id): bool
 	{
-		return $this->sortBlock($id, 'up');
+		if ($this->sortBlock($id, 'up'))
+		{
+			if (History::isActive())
+			{
+				$history = new History($this->id, History::ENTITY_TYPE_LANDING);
+				$history->push('SORT_BLOCK', [
+					'block' => $id,
+					'lid' => $this->getId(),
+					'up' => true,
+				]);
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -2388,9 +2415,24 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * @param int $id Block id.
 	 * @return boolean
 	 */
-	public function downBlock($id)
+	public function downBlock(int $id): bool
 	{
-		return $this->sortBlock($id, 'down');
+		if ($this->sortBlock($id, 'down'))
+		{
+			if (History::isActive())
+			{
+				$history = new History($this->id, History::ENTITY_TYPE_LANDING);
+				$history->push('SORT_BLOCK', [
+					'block' => $id,
+					'lid' => $this->getId(),
+					'up' => false,
+				]);
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

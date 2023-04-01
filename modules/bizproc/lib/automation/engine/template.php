@@ -157,7 +157,7 @@ class Template
 			"GetPropertiesDialog",
 			array(
 				$this->getDocumentType(), //documentType
-				$robot['Name'], //activityName
+				$robot['Name'] ?? null, //activityName
 				$copy->template['TEMPLATE'], //arWorkflowTemplate
 				[], //arWorkflowParameters
 				[], //arWorkflowVariables
@@ -191,7 +191,7 @@ class Template
 			"GetPropertiesDialogValues",
 			[
 				$documentType,
-				$robot['Name'],
+				$robot['Name'] ?? null,
 				&$raw,
 				&$v,
 				&$p,
@@ -202,9 +202,9 @@ class Template
 
 		if ($result)
 		{
-			$templateActivity = \CBPWorkflowTemplateLoader::findActivityByName($raw, $robot['Name']);
+			$templateActivity = \CBPWorkflowTemplateLoader::findActivityByName($raw, $robot['Name'] ?? null);
 
-			$robotTitle = $robot['Properties']['Title'];
+			$robotTitle = $robot['Properties']['Title'] ?? null;
 			$robot['Properties'] = $templateActivity['Properties'];
 			$robot['Properties']['Title'] = $robotTitle;
 

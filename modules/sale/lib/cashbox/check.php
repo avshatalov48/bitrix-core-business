@@ -192,7 +192,7 @@ abstract class Check extends AbstractCheck
 	 */
 	public function save()
 	{
-		$isNew = (int)$this->fields['ID'] === 0;
+		$isNew = (int)$this->getField('ID') === 0;
 
 		$result = parent::save();
 		if (!$result->isSuccess())
@@ -272,17 +272,17 @@ abstract class Check extends AbstractCheck
 				foreach ($data['PRODUCTS'] as $product)
 				{
 					$item = [
-						'entity' => $product['ENTITY'],
+						'entity' => $product['ENTITY'] ?? null,
 						'name' => $product['NAME'],
 						'base_price' => $product['BASE_PRICE'],
 						'price' => $product['PRICE'],
 						'sum' => $product['SUM'],
 						'quantity' => $product['QUANTITY'],
-						'measure_code' => $product['MEASURE_CODE'],
+						'measure_code' => $product['MEASURE_CODE'] ?? '',
 						'vat' => $product['VAT'] ?? 0,
 						'vat_sum' => $product['VAT_SUM'] ?? 0,
 						'payment_object' => $product['PAYMENT_OBJECT'],
-						'properties' => $product['PROPERTIES'],
+						'properties' => $product['PROPERTIES'] ?? [],
 					];
 
 					if (isset($product['NOMENCLATURE_CODE']))
@@ -300,7 +300,7 @@ abstract class Check extends AbstractCheck
 						$item['barcode'] = $product['BARCODE'];
 					}
 
-					if ($product['DISCOUNT'])
+					if (!empty($product['DISCOUNT']))
 					{
 						$item['discount'] = [
 							'discount' => $product['DISCOUNT']['PRICE'],

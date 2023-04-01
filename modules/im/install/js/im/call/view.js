@@ -5643,37 +5643,21 @@
 		}
 		if(this.hasVideo()/* && this.visible*/)
 		{
-			if (this.videoRenderer)
+			if (this.visible)
 			{
-
-				//this.elements.video.srcObject = this.videoRenderer.stream;
-				this.videoRenderer.render(this.elements.video);
-				/*if (!this.elements.video.parentElement)
+				if (this.videoRenderer)
 				{
-					this.elements.videoContainer.appendChild(this.elements.video);
-				}*/
+					this.videoRenderer.render(this.elements.video);
+				}
+				else if (this.elements.video.srcObject != this.stream)
+				{
+					this.elements.video.srcObject = this.stream;
+				}
 			}
-			else if (this.elements.video.srcObject != this.stream)
-			{
-				this.elements.video.srcObject = this.stream;
-			}
+
 			BX.remove(this.elements.avatarContainer);
-			if(this.flipVideo)
-			{
-				this.elements.video.classList.add("bx-messenger-videocall-video-flipped");
-			}
-			else
-			{
-				this.elements.video.classList.remove("bx-messenger-videocall-video-flipped");
-			}
-			if (this.userModel.screenState)
-			{
-				this.elements.video.classList.add("bx-messenger-videocall-video-contain");
-			}
-			else
-			{
-				this.elements.video.classList.remove("bx-messenger-videocall-video-contain");
-			}
+			this.elements.video.classList.toggle("bx-messenger-videocall-video-flipped", this.flipVideo);
+			this.elements.video.classList.toggle("bx-messenger-videocall-video-contain", this.userModel.screenState);
 		}
 		else
 		{

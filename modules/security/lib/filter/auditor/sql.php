@@ -32,7 +32,6 @@ class Sql
 		$sqlSplitTo4 = $this->getSplittingString(4);
 
 
-		global $DBType;
 		$filters = array(
 			"/{$sqlStart}(uni)(on{$sqlSpace}.+?{$sqlExpEnd}sel)(ect){$sqlEnd}/is" => $sqlSplitTo3,
 			"/{$sqlStart}(uni)(on{$sqlSpace}sel)(ect){$sqlEnd}/is" => $sqlSplitTo3,
@@ -60,28 +59,10 @@ class Sql
 			"/{$sqlStart}(fr)(om{$sqlSpace}.+?{$sqlExpEnd}lim)(it){$sqlEnd}/is" => $sqlSplitTo3,
 		);
 
-		$dbt = mb_strtolower($DBType);
-		if ($dbt === 'mssql')
-		{
-			$filters += array(
-				"/({$sqlSpace}[sx]p)(_\w+{$sqlFunctionsSpace}[\(\[])/" => $sqlSplitTo2,
-				"/(ex)(ec{$sqlFunctionsSpace}\()/is"=>$sqlSplitTo2,
-				"/(ex)(ecute{$sqlFunctionsSpace}\()/is"=>$sqlSplitTo2,
-				"/([\\x00-\\x20;]ex)(ec.+[sx]p)(_\w+)/is" => $sqlSplitTo3,
-			);
-		}
-		elseif ($dbt === 'oracle')
-		{
-			$filters += array(
-				"/(ex)(ecute{$sqlSpace}.+{$sqlExpEnd}imme)(diate)/is" => $sqlSplitTo3,
-				"/(ex)(ecute{$sqlSpace}imme)(diate)/is" => $sqlSplitTo3,
-			);
-		}
-
 		$result = array(
 			'search' => array_keys($filters),
 			'replace' => $filters
-			);
+		);
 		return $result;
 	}
 }

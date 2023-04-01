@@ -47,7 +47,7 @@ if (!function_exists('getWrapperMenu'))
 					$result .= '</a>';
 				}
 
-				$result .= getWrapperMenu($item['CHILDREN'], $level + 1);
+				$result .= getWrapperMenu($item['CHILDREN'] ?? [], $level + 1);
 				$result .= '</li>';
 			}
 

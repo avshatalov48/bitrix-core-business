@@ -1129,7 +1129,24 @@ export class MessagesModel extends VuexBuilderModel
 		}
 
 		// previous P&P format
-		if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number")
+		if (typeof fields.textLegacy === "string" || typeof fields.textLegacy === "number")
+		{
+			if (typeof fields.text === "string" || typeof fields.text === "number")
+			{
+				result.text = fields.text.toString();
+			}
+
+			result.textConverted = this.convertToHtml({
+				text: fields.textLegacy.toString(),
+				isConverted: true
+			});
+
+			if (typeof fields.text === "string" || typeof fields.text === "number")
+			{
+				result.text = fields.text;
+			}
+		}
+		else if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number")
 		{
 			result.text = fields.textOriginal.toString();
 
@@ -1367,7 +1384,7 @@ export class MessagesModel extends VuexBuilderModel
 			text = text.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, offset) {
 				return (offset > 0? '<br>': '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\">" + p1 + "</div></div><br />";
 			});
-		}
+		}xx
 
 		if (image)
 		{
@@ -1533,6 +1550,7 @@ export class MessagesModel extends VuexBuilderModel
 
 		// this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
 		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => openlines? inner: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+inner+'</span>'); // TODO tag CHAT
+		text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
 
 		if (false && Utils.device.isMobile())
 		{

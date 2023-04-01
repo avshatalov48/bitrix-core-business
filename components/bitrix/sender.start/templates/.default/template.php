@@ -88,14 +88,14 @@ $containerId = 'sender-start-container';
 		</div>
 	<?endif;?>
 
-	<?if (!empty($arResult['MESSAGES']['TOLOKA']['TILES'])):?>
+	<?if (!empty($arResult['MESSAGES']['YANDEX']['TILES'])):?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
-				<?= Loc::getMessage('SENDER_START_CREATE_TOLOKA') ?>
+				<?= Loc::getMessage('SENDER_START_CREATE_YANDEX') ?>
 			</div>
 			<? $APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
-				'ID' => 'sender-start-toloka',
-				'LIST' => $arResult['MESSAGES']['TOLOKA']['TILES'],
+				'ID' => 'sender-start-yandex',
+				'LIST' => $arResult['MESSAGES']['YANDEX']['TILES'],
 			]); ?>
 		</div>
 	<? endif; ?>

@@ -151,7 +151,7 @@ $actions[] = Controller\Action::create('importList')->setHandler(
 				foreach ($updateList as $updateItem)
 				{
 					$typeId = $updateItem['TYPE_ID'];
-					if (!is_array($codesByType[$typeId]))
+					if (isset($codesByType[$typeId]) && !is_array($codesByType[$typeId]))
 					{
 						$codesByType[$typeId] = array();
 					}

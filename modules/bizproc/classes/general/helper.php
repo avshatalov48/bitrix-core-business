@@ -2182,7 +2182,13 @@ class CBPHelper
 
 		$result = [];
 
-		if (!CBPHelper::IsAssociativeArray($ar) && (count($ar) == 2) && in_array($ar[0], array("Variable", "Document", "Template", "Workflow", "User", "System")) && is_string($ar[1]))
+		if (
+			!CBPHelper::isAssociativeArray($ar)
+			&& (count($ar) === 2)
+			&& isset($ar[0], $ar[1])
+			&& in_array($ar[0], ["Variable", "Document", "Template", "Workflow", "User", "System"])
+			&& is_string($ar[1])
+		)
 		{
 			$result[] = $ar;
 			return $result;

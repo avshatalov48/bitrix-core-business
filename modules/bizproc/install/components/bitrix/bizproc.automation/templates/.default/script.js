@@ -610,19 +610,18 @@
 				'BX.Bizproc.Automation:Template:onSelectorMenuOpen',
 				function (event)
 				{
-					var template = event.getData().template;
-					var selector = event.getData().selector;
-					var robot = event.getData().robot;
-					var isMixedCondition = event.getData().isMixedCondition;
+					const template = event.getData().template;
+					const selector = event.getData().selector;
+					const isMixedCondition = event.getData().isMixedCondition;
 
 					if (BX.Type.isBoolean(isMixedCondition) && !isMixedCondition)
 					{
 						return;
 					}
 
-					var triggersReturnProperties = this.triggerManager.getReturnProperties(template.getStatusId());
+					const triggersReturnProperties = this.triggerManager.getReturnProperties(template.getStatusId());
 
-					var triggerMenuItems = triggersReturnProperties.map((property) => ({
+					const triggerMenuItems = triggersReturnProperties.map((property) => ({
 						id: property['SystemExpression'],
 						title: property['Name'] || property['Id'],
 						subtitle: property['ObjectName'] || property['ObjectId'],
@@ -633,18 +632,18 @@
 					{
 						selector.addGroup('__TRESULT', {
 							id: '__TRESULT',
-							title: BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
+							title: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
 							children: triggerMenuItems,
 						});
 					}
 
 					// TODO - test !this.showTemplatePropertiesMenuOnSelecting
-					var constantList = template.getConstants().map(function (constant)
+					const constantList = template.getConstants().map(function (constant)
 					{
 						return {
 							id: constant.SystemExpression,
 							title: constant['Name'],
-							supertitle: BX.message('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST'),
+							supertitle: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST'),
 							customData: { field: constant }
 						};
 					});
@@ -655,19 +654,19 @@
 							constantList.push({
 								id: constant.SystemExpression,
 								title: constant['Name'],
-								supertitle: constant.supertitle,
+								supertitle: constant.SuperTitle,
 								customData: { field: constant },
 							});
 						}.bind(this));
+					}
 
-						if (constantList.length > 0)
-						{
-							selector.addGroup('__CONSTANTS', {
-								id: '__CONSTANTS',
-								title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-								children: constantList
-							});
-						}
+					if (constantList.length > 0)
+					{
+						selector.addGroup('__CONSTANTS', {
+							id: '__CONSTANTS',
+							title: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
+							children: constantList
+						});
 					}
 
 					if (this.data['GLOBAL_VARIABLES'])
@@ -677,7 +676,7 @@
 							return {
 								id: variable.SystemExpression,
 								title: variable['Name'],
-								supertitle: variable.supertitle,
+								supertitle: variable.SuperTitle,
 								customData: { field: variable }
 							};
 						}.bind(this));
@@ -686,7 +685,7 @@
 						{
 							selector.addGroup('__GLOB_VARIABLES', {
 								id: '__GLOB_VARIABLES',
-								title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
+								title: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
 								children: globalVariableList
 							});
 						}
@@ -1105,41 +1104,35 @@
 			{
 				return [];
 			}
-			var constants = [];
-			var visibilityNames = this.data['G_CONSTANTS_VISIBILITY'];
-			Object.keys(this.data['GLOBAL_CONSTANTS']).forEach(function(id)
+
+			if (!BX.Type.isArrayFilled(this.data['GLOBAL_CONSTANTS']))
 			{
-				var constant = BX.clone(this.data['GLOBAL_CONSTANTS'][id]);
-				constant.Id = id;
-				constant.ObjectId = 'GlobalConst';
-				constant.SystemExpression = '{=GlobalConst:' + id + '}';
-				constant.Expression = '{=GlobalConst:' + id + '}';
+				return [];
+			}
 
-				var constantVisibility = String(constant.Visibility).toUpperCase();
-				var visibilityName = visibilityNames[constantVisibility];
-				if (visibilityName)
-				{
-					constant.Expression = '{{' + visibilityName + ': ' + constant.Name + '}}';
-					constant.supertitle = visibilityName;
-				}
-
-				constants.push(constant);
-			}, this);
+			const constants = [];
+			const globalConstants = this.data['GLOBAL_CONSTANTS'];
+			globalConstants.forEach((property) => {
+				constants.push({
+					ObjectId: 'GlobalConst',
+					SuperTitle: property['VisibilityName'],
+					Id: property['Id'],
+					Name: property['Name'],
+					Type: property['Type'],
+					BaseType: property['BaseType'],
+					Expression: property['Expression'],
+					SystemExpression: property['SystemExpression'],
+					Options: property['Options'],
+					Multiple: property['Multiple'],
+					Visibility: property['Visibility'],
+				});
+			});
 
 			return constants;
 		},
 		getConstant: function(id)
 		{
-			var constants = this.getConstants();
-			for (var i = 0; i < constants.length; ++i)
-			{
-				if (constants[i].Id === id)
-				{
-					return constants[i];
-				}
-			}
-
-			return null;
+			return this.getConstants().find((constant) => constant.Id === id) || null;
 		},
 		getGVariables: function()
 		{
@@ -1148,41 +1141,34 @@
 				return [];
 			}
 
-			var variables = [];
-			var visibilityNames = this.data['G_VARIABLES_VISIBILITY'];
-			BX.util.object_keys(this.data['GLOBAL_VARIABLES']).forEach(function(id)
+			if (!BX.Type.isArrayFilled(this.data['GLOBAL_VARIABLES']))
 			{
-				var variable = BX.clone(this.data['GLOBAL_VARIABLES'][id]);
-				variable.Id = id;
-				variable.ObjectId = 'GlobalVar';
-				variable.SystemExpression = '{=GlobalVar:' + id + '}';
-				variable.Expression = '{=GlobalVar:' + id + '}';
+				return [];
+			}
 
-				var variableVisibility = String(variable.Visibility).toUpperCase();
-				var visibilityName = visibilityNames[variableVisibility];
-				if (visibilityName)
-				{
-					variable.Expression = '{{' + visibilityName + ': ' + variable.Name + '}}';
-					variable.supertitle = visibilityName;
-				}
-
-				variables.push(variable);
-			}, this);
+			const variables = [];
+			const globalVariables = this.data['GLOBAL_VARIABLES'];
+			globalVariables.forEach((property) => {
+				variables.push({
+					ObjectId: 'GlobalVar',
+					SuperTitle: property['VisibilityName'],
+					Id: property['Id'],
+					Name: property['Name'],
+					Type: property['Type'],
+					BaseType: property['BaseType'],
+					Expression: property['Expression'],
+					SystemExpression: property['SystemExpression'],
+					Options: property['Options'],
+					Multiple: property['Multiple'],
+					Visibility: property['Visibility'],
+				});
+			});
 
 			return variables;
 		},
 		getGVariable: function(id)
 		{
-			var variables = this.getGVariables();
-			for (var i = 0; i < variables.length; i++)
-			{
-				if (variables[i].Id === id)
-				{
-					return variables[i];
-				}
-			}
-
-			return null;
+			return this.getGVariables().find((variable) => variable.Id === id) || null;
 		},
 		getDocumentFields: function ()
 		{

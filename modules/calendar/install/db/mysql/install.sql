@@ -93,7 +93,8 @@ create table b_calendar_event
   SECTION_ID int null,
   SYNC_STATUS varchar(20) null,
   primary key (ID),
-  INDEX ix_cal_event_date_utc (DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
+  INDEX ix_cal_event_date_from_utc (DATE_FROM_TS_UTC),
+  INDEX ix_cal_event_date_to_utc (DATE_TO_TS_UTC),
   INDEX ix_cal_event_owner_id_date (OWNER_ID, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
   INDEX ix_cal_event_parent_id (PARENT_ID),
   INDEX ix_cal_event_created_by (CREATED_BY),
@@ -105,7 +106,8 @@ create table b_calendar_event
   INDEX ix_cal_type_del_date (CAL_TYPE, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC),
   INDEX ix_event_location (LOCATION),
   INDEX ix_event_section_del (SECTION_ID,DELETED),
-  INDEX ix_cal_google_sync_status (SYNC_STATUS)
+  INDEX ix_cal_google_sync_status (SYNC_STATUS),
+  INDEX ix_cal_event_section_del_date (SECTION_ID, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC)
 );
 
 create table b_calendar_event_sect
@@ -153,7 +155,8 @@ create table b_calendar_access
 	ACCESS_CODE varchar(100) not null,
 	TASK_ID int not null,
 	SECT_ID varchar(100) not null,
-	primary key (ACCESS_CODE, TASK_ID, SECT_ID)
+	PRIMARY KEY (ACCESS_CODE, TASK_ID, SECT_ID),
+	INDEX ix_access_sect_id (SECT_ID)
 );
 
 create table b_calendar_resource
@@ -262,5 +265,19 @@ CREATE TABLE b_calendar_queue_handled_message(
 	QUEUE_ID int NOT NULL,
 	HASH varchar(255) NULL,
 	DATE_CREATE datetime NULL,
-	PRIMARY KEY (ID)
+	PRIMARY KEY (ID),
+	INDEX ix_cal_queue_handled_id_hash (QUEUE_ID, HASH)
+);
+
+CREATE TABLE b_calendar_sharing_link (
+	ID int NOT NULL AUTO_INCREMENT,
+	OBJECT_ID int NOT NULL,
+	OBJECT_TYPE varchar(32) NOT NULL,
+	HASH char(64) NOT NULL,
+	OPTIONS text NULL,
+	ACTIVE char(1) NOT NULL DEFAULT 'Y',
+	DATE_CREATE datetime NOT NULL,
+	PRIMARY KEY (ID),
+	INDEX ix_calendar_sharing_link_hash(HASH),
+	INDEX ix_calendar_sharing_link_object_id(OBJECT_ID)
 );

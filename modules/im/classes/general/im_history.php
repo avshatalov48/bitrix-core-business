@@ -325,7 +325,7 @@ class CIMHistory
 		else
 		{
 			$arRelation = \CIMChat::GetPrivateRelation($fromUserId, $toUserId);
-			$chatId = $arRelation['CHAT_ID'];
+			$chatId = $arRelation['CHAT_ID'] ?? null;
 			$startId = $arRelation['START_ID'];
 		}
 

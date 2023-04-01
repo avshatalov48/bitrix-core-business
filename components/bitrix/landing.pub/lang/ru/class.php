@@ -1,7 +1,7 @@
 <?php
 $MESS['LANDING_CMP_SITE_NOT_ALLOWED'] = 'Доступ закрыт';
 $MESS['LANDING_CMP_SITE_NOT_ALLOWED_KNOWLEDGE'] = 'База знаний закрыта для публичного просмотра. Отправьте запрос на предоставление доступа.';
-$MESS['LANDING_CMP_SITE_NOT_ALLOWED_GROUP'] = 'База знаний доступна только участникам группы.';
+$MESS['LANDING_CMP_SITE_NOT_ALLOWED_2_GROUP'] = 'База знаний закрыта для публичного просмотра';
 $MESS['LANDING_CMP_SITE_NOT_ALLOWED'] = 'Доступ закрыт';
 $MESS['LANDING_CMP_SITE_NOT_FOUND2'] = 'Не удалось найти страницу по данной ссылке';
 $MESS['LANDING_CMP_SITE_NOT_FOUND2_KNOWLEDGE'] = 'Мы не можем найти базу знаний по этой ссылке, проверьте, верно ли она указана.';

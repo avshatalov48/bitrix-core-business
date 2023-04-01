@@ -167,11 +167,6 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	 */
 	public function checkThreads(): ?int
 	{
-		if(!static::checkLock())
-		{
-			return self::THREAD_LOCKED;
-		}
-
 		$thread = PostingThreadTable::getList(
 			[
 				"select" => ["THREAD_ID"],

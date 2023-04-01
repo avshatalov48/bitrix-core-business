@@ -132,7 +132,7 @@ this.BX = this.BX || {};
 
 	        var dropDownData = data.map(function (accountData) {
 	          return {
-	            caption: accountData.name,
+	            caption: BX.util.htmlspecialchars(accountData.name),
 	            value: accountData.id,
 	            selected: accountData.id === _this4.accountId,
 	            currency: accountData.currency
@@ -173,7 +173,7 @@ this.BX = this.BX || {};
 
 	        var dropDownData = data.map(function (accountData) {
 	          return {
-	            caption: accountData.name,
+	            caption: BX.util.htmlspecialchars(accountData.name),
 	            value: accountData.id,
 	            pageId: accountData.page_id,
 	            actorId: accountData.actor_id

@@ -9,6 +9,7 @@ import "ui.buttons";
 
 import "./row";
 import "./elements/panel-buttons";
+import "./elements/summary-total";
 import {FormElementPosition} from "../types/form-element-position";
 import {FormMode} from "../types/form-mode";
 
@@ -157,43 +158,54 @@ Vue.component(config.templateName,
 		/>
 		<div class="catalog-pf-result-line"></div>
 		<div class="catalog-pf-result-wrapper" v-if="showResultBlock">
-			<table class="catalog-pf-result" v-if="showResultBlock">
-				<tr v-if="showResults">
+			<table class="catalog-pf-result">
+				<tr>
 					<td>
 						<span class="catalog-pf-text">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>
 					</td>
 					<td>
-						<span v-html="productList.total.sum"
-							:class="productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'"
-						></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.sum"
+							:currency="options.currency"
+							:sumAdditionalClass="productList.total.result !== productList.total.sum ? 'catalog-pf-text--line-through' : ''"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults">
+				<tr>
 					<td class="catalog-pf-result-padding-bottom">
 						<span class="catalog-pf-text catalog-pf-text--discount">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>
 					</td>
 					<td class="catalog-pf-result-padding-bottom">
-						<span class="catalog-pf-text catalog-pf-text--discount" v-html="productList.total.discount"></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.discount"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--discount'"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults && showTaxResult">
+				<tr v-if="showTaxResult">
 					<td class="catalog-pf-tax">
 						<span class="catalog-pf-text catalog-pf-text--tax">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>
 					</td>
 					<td class="catalog-pf-tax">
-						<span class="catalog-pf-text catalog-pf-text--tax" v-html="productList.total.taxSum"></span>
-						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.taxSum"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--tax'"
+						/>
 					</td>
 				</tr>
-				<tr v-if="showResults">
+				<tr>
 					<td class="catalog-pf-result-padding">
 						<span class="catalog-pf-text catalog-pf-text--total catalog-pf-text--border">{{totalResultLabel}}:</span>
 					</td>
 					<td class="catalog-pf-result-padding">
-						<span class="catalog-pf-text catalog-pf-text--total" v-html="productList.total.result"></span>
-						<span class="catalog-pf-symbol catalog-pf-symbol--total" v-html="options.currencySymbol"></span>
+						<${config.templateSummaryTotal}
+							:sum="productList.total.result"
+							:currency="options.currency"
+							:sumAdditionalClass="'catalog-pf-text--total'"
+							:currencyAdditionalClass="'catalog-pf-symbol--total'"
+						/>
 					</td>
 				</tr>
 			</table>

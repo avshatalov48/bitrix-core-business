@@ -2,6 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
@@ -16,6 +17,11 @@ $fieldValue = htmlspecialcharsbx($arParams['~VALUE']);
 
 $isBlock = $arResult['DISPLAY_BLOCK_EDITOR'];
 $containerId = 'bx-sender-message-editor-mail-' . $fieldName;
+
+Extension::load([
+	'sender.personalization_selector'
+]);
+
 ?>
 <script type="text/javascript">
 	BX.ready(function () {

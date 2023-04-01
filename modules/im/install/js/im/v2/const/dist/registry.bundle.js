@@ -12,6 +12,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const DateFormat = Object.freeze({
 	  groupTitle: 'groupTitle',
 	  message: 'message',
@@ -30,6 +31,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const DeviceType = Object.freeze({
 	  mobile: 'mobile',
 	  desktop: 'desktop'
@@ -54,8 +56,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	});
 	const Settings = Object.freeze({
 	  darkTheme: 'darkTheme'
-	}); // old chat names -> new model names
+	});
 
+	// old chat names -> new model names
 	const SettingsMap = Object.freeze({
 	  enableDarkTheme: 'darkTheme'
 	});
@@ -82,6 +85,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const RestMethod = Object.freeze({
 	  imMessageAdd: 'im.message.add',
 	  imMessageUpdate: 'im.message.update',
@@ -153,6 +157,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const EventType = Object.freeze({
 	  dialog: {
 	    open: 'IM.Dialog:open',
@@ -290,6 +295,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const FileStatus = Object.freeze({
 	  upload: 'upload',
 	  wait: 'wait',
@@ -311,6 +317,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const MessageType = Object.freeze({
 	  self: 'self',
 	  opponent: 'opponent',
@@ -325,6 +332,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	const ConferenceFieldState = Object.freeze({
 	  view: 'view',
 	  edit: 'edit',
@@ -353,8 +361,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  chat: 'chat',
 	  users: 'users',
 	  split: 'split'
-	}); //BX.Call.UserState sync
+	});
 
+	//BX.Call.UserState sync
 	const ConferenceUserState = Object.freeze({
 	  Idle: 'Idle',
 	  Busy: 'Busy',
@@ -409,8 +418,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  showBirthday: 'showBirthday',
 	  showInvited: 'showInvited',
 	  showLastMessage: 'showLastMessage'
-	}; // old chat names -> new model names
+	};
 
+	// old chat names -> new model names
 	const RecentSettingsMap = {
 	  'viewBirthday': 'showBirthday',
 	  'viewCommonUsers': 'showInvited',

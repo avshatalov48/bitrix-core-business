@@ -27,7 +27,7 @@ final class Manager
 	const CATEGORY_DELIVERY = 6;
 	const CATEGORY_OTHER    = 7;
 
-	/** @var  ErrorCollection */
+	/** @var ErrorCollection */
 	protected $errorCollection;
 	/** @var  Manager */
 	private static $instance;
@@ -312,9 +312,18 @@ final class Manager
 			}
 		}
 
-		uasort($presets, function(BasePreset $a, BasePreset $b){
-			return $a->getSort() > $b->getSort();
-		});
+		uasort(
+			$presets,
+			static function(BasePreset $a, BasePreset $b): int
+			{
+				$aSort = (int)$a->getSort();
+				$bSort = (int)$b->getSort();
+				if ($aSort === $bSort) {
+					return 0;
+				}
+				return ($aSort < $bSort) ? -1 : 1;
+			}
+		);
 
 		return $presets;
 	}

@@ -74,7 +74,10 @@ class CalendarEventViewFormHelper
 		{
 			$meetingCreator = CCalendar::GetUser($event['MEETING']['MEETING_CREATOR'], true);
 			$meetingCreator['DISPLAY_NAME'] = CCalendar::GetUserName($meetingCreator);
-			$meetingCreator['URL'] = CCalendar::GetUserUrl($meetingCreator["ID"], $meetingCreator["PATH_TO_USER"]);
+			$meetingCreator['URL'] = CCalendar::GetUserUrl(
+				$meetingCreator["ID"],
+				$meetingCreator["PATH_TO_USER"] ?? null
+			);
 		}
 		return $meetingCreator;
 	}

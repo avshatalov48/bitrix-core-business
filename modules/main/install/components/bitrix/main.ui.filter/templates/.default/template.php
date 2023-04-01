@@ -11,6 +11,7 @@ use Bitrix\Main\UI\Filter\Type;
 use Bitrix\Main\UI\Filter\DateType;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
 use Bitrix\Main\UI\Filter\NumberType;
+use Bitrix\Main\Text\HtmlFilter;
 
 Extension::load([
 	"ui.design-tokens",
@@ -82,7 +83,7 @@ if ($arResult["LIMITS_ENABLED"])
 	$filterSearchClass .= " main-ui-filter-field-limits-active";
 }
 
-if ($currentPreset["IS_SET_OUTSIDE"])
+if (isset($currentPreset["IS_SET_OUTSIDE"]) && $currentPreset["IS_SET_OUTSIDE"])
 {
 	$filterSearchClass .= " main-ui-filter-set-outside";
 }
@@ -91,11 +92,7 @@ else
 	$filterSearchClass .= " main-ui-filter-set-inside";
 }
 
-$filterValue = \Bitrix\Main\Text\HtmlFilter::encode(htmlspecialcharsback($arResult["CURRENT_PRESET"]["FIND"]));
-if ($arResult["LIMITS_ENABLED"])
-{
-	$filterValue = "";
-}
+$filterValue = $arResult["LIMITS_ENABLED"] ? '' : HtmlFilter::encode($arResult["CURRENT_PRESET"]["FIND"] ?? '', ENT_COMPAT, false);
 ?>
 
 <!-- Final :: Search -->
@@ -120,7 +117,7 @@ if ($arResult["LIMITS_ENABLED"])
 $frame = $this->createFrame()->begin(false);
 
 $filterWrapperClass = "main-ui-filter-theme-".mb_strtolower($arResult["THEME"]);
-if ($arParams["VALUE_REQUIRED_MODE"] === true)
+if (isset($arParams["VALUE_REQUIRED_MODE"]) && $arParams["VALUE_REQUIRED_MODE"] === true)
 {
 	$filterWrapperClass .= " main-ui-filter-value-required-mode";
 }
@@ -148,12 +145,12 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 						<? foreach ($arResult["PRESETS"] as $key => $preset) : ?>
 							<div class="main-ui-filter-sidebar-item<?=$preset["ID"] === $arResult["CURRENT_PRESET"]["ID"] ? " main-ui-filter-current-item" : ""?><?
 							?><?=$preset["ID"] === "default_filter" || $preset["ID"] === "tmp_filter" ? " main-ui-hide" : ""?><?
-							?><?=$preset["IS_PINNED"] && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " main-ui-item-pin" : ""?>" data-id="<?=htmlspecialcharsbx($preset["ID"])?>"<?
-							?><?=$preset["IS_PINNED"] && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " title=\"".Loc::getMessage("MAIN_UI_FILTER__IS_SET_AS_DEFAULT_PRESET")."\"" : " "?>>
+							?><?=!empty($preset["IS_PINNED"]) && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " main-ui-item-pin" : ""?>" data-id="<?=htmlspecialcharsbx($preset["ID"])?>"<?
+							?><?=!empty($preset["IS_PINNED"]) && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " title=\"".Loc::getMessage("MAIN_UI_FILTER__IS_SET_AS_DEFAULT_PRESET")."\"" : " "?>>
 								<span class="main-ui-item-icon main-ui-filter-icon-grab" title="<?=Loc::getMessage("MAIN_UI_FILTER__DRAG_TITLE")?>"></span>
 								<span class="main-ui-filter-sidebar-item-text-container">
-									<span class="main-ui-filter-sidebar-item-text" title="<?=\Bitrix\Main\Text\HtmlFilter::encode(htmlspecialcharsback($preset["TITLE"]))?>"><?=\Bitrix\Main\Text\HtmlFilter::encode(htmlspecialcharsback($preset["TITLE"]))?></span>
-									<input type="text" placeholder="<?=Loc::getMessage("MAIN_UI_FILTER__FILTER_NAME_PLACEHOLDER")?>" value="<?=\Bitrix\Main\Text\HtmlFilter::encode(htmlspecialcharsback($preset["TITLE"]))?>" class="main-ui-filter-sidebar-item-input">
+									<span class="main-ui-filter-sidebar-item-text" title="<?=HtmlFilter::encode($preset["TITLE"], ENT_COMPAT, false)?>"><?=HtmlFilter::encode($preset["TITLE"], ENT_COMPAT, false)?></span>
+									<input type="text" placeholder="<?=Loc::getMessage("MAIN_UI_FILTER__FILTER_NAME_PLACEHOLDER")?>" value="<?=HtmlFilter::encode($preset["TITLE"], ENT_COMPAT, false)?>" class="main-ui-filter-sidebar-item-input">
 									<span class="main-ui-item-icon main-ui-filter-icon-pin" title="<?=Loc::getMessage("MAIN_UI_FILTER__IS_SET_AS_DEFAULT_PRESET")?>"></span>
 								</span>
 								<? if ($arParams["CONFIG"]["DEFAULT_PRESET"]) : ?>

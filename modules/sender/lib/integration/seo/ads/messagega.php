@@ -24,6 +24,6 @@ class MessageGa extends MessageBase
 	 */
 	public function getName()
 	{
-		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_GA');
+		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_GA_1');
 	}
 }

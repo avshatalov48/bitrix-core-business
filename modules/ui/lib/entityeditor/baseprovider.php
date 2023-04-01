@@ -17,6 +17,7 @@ abstract class BaseProvider
 			'ENTITY_CONTROLLERS' => $this->getEntityControllers(),
 			'READ_ONLY' => $this->isReadOnly(),
 			'ENTITY_CONFIG_EDITABLE' => $this->isEntityConfigEditable(),
+			'MODULE_ID' => $this->getModuleId(),
 		];
 	}
 
@@ -50,5 +51,10 @@ abstract class BaseProvider
 	public function isEntityConfigEditable(): bool
 	{
 		return true;
+	}
+
+	public function getModuleId(): ?string
+	{
+		return null;
 	}
 }

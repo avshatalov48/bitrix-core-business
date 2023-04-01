@@ -75,7 +75,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 
 			if ($res === true)
 			{
-				\CDavGroupdavClientCalendar::DataSync("user", $params['userId']);
+				\CDavGroupdavClientCalendar::DataSync("user", $params['user_id']);
 			}
 			else
 			{
@@ -116,7 +116,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				(array) $result
 			);
 
-			if ($result['stage'] === 'events_sync_finished')
+			if ($result['stage'] === 'export_finished')
 			{
 				NotificationManager::addFinishedSyncNotificationAgent(
 					$owner->getId(),

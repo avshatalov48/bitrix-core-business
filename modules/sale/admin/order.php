@@ -2082,10 +2082,9 @@ if (!empty($orderList) && is_array($orderList))
 				|| $row->bEditMode == true && !$isStatusAllowed)
 			{
 				$fieldValue = "";
-				if(in_array("STATUS", $arVisibleColumns))
+				if (in_array("STATUS", $arVisibleColumns))
 				{
-					if(!isset($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]])
-						|| empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
+					if (empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
 					{
 						$arStatus =  StatusTable::getList(array(
 							'select' => array(
@@ -2178,10 +2177,9 @@ if (!empty($orderList) && is_array($orderList))
 			{
 				$fieldValue = "";
 				$fieldValueTmp = "";
-				if(in_array("STATUS_ID", $arVisibleColumns))
+				if (in_array("STATUS_ID", $arVisibleColumns))
 				{
-					if(!isset($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]])
-						|| empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
+					if (empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
 					{
 						$arStatus =  StatusTable::getList(array(
 							'select' => array(
@@ -3481,10 +3479,9 @@ else
 
 	$allowedStatusesFrom = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($intUserID, array('from'));
 
-	foreach($allowedStatusesFrom as $status)
+	foreach ($allowedStatusesFrom as $status)
 	{
-		if(!isset($LOCAL_STATUS_CACHE[$status])
-			|| empty($LOCAL_STATUS_CACHE[$status]))
+		if (empty($LOCAL_STATUS_CACHE[$status]))
 		{
 			$arStatus =  StatusTable::getList(array(
 				'select' => array(
@@ -3499,10 +3496,12 @@ else
 				'limit'  => 1,
 			))->fetch();
 
-			if($arStatus)
+			if ($arStatus)
 			{
-				$LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['COLOR'] = htmlspecialcharsbx($arStatus["COLOR"]);
-				$LOCAL_STATUS_CACHE[$status]['NAME'] = htmlspecialcharsbx($arStatus["NAME"]);
+				$LOCAL_STATUS_CACHE[$status] = [
+					'NAME' => htmlspecialcharsbx($arStatus["NAME"]),
+					'COLOR' => htmlspecialcharsbx($arStatus["COLOR"]),
+				];
 			}
 		}
 
@@ -4017,7 +4016,7 @@ else
 
 						foreach ($paySystemList as $psId => $paySystem):
 							$personTypeString = '';
-							if ($paySystem['PERSON_TYPE_ID'])
+							if (!empty($paySystem['PERSON_TYPE_ID']))
 							{
 								$psPt = array();
 								foreach ($paySystem['PERSON_TYPE_ID'] as $ptId)

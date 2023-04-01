@@ -751,7 +751,7 @@ this.BX = this.BX || {};
 
 	            if (user.avatar) {
 	              var userAvatar = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<a class='ui-access-rights-members-item-avatar' title=\"", "\"></a>"])), main_core.Text.encode(user.name));
-	              main_core.Dom.style(userAvatar, 'backgroundImage', 'url(' + user.avatar + ')');
+	              main_core.Dom.style(userAvatar, 'backgroundImage', 'url(\'' + encodeURI(user.avatar) + '\')');
 	              main_core.Dom.style(userAvatar, 'backgroundSize', 'cover');
 	              main_core.Dom.append(userAvatar, userNode);
 	            } else {
@@ -1053,7 +1053,7 @@ this.BX = this.BX || {};
 
 	        if (item.avatar) {
 	          var avatar = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-content-item-userpic'\n\t\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t></a>\n\t\t\t\t"])), main_core.Text.encode(item.name));
-	          main_core.Dom.style(avatar, 'backgroundImage', 'url(' + item.avatar + ')');
+	          main_core.Dom.style(avatar, 'backgroundImage', 'url(\'' + encodeURI(item.avatar) + '\')');
 	          main_core.Dom.style(avatar, 'backgroundSize', 'cover');
 	          main_core.Dom.append(avatar, toggler);
 	        } else {
@@ -1099,7 +1099,11 @@ this.BX = this.BX || {};
 	      var _BX$Main$selectorMana;
 
 	      var selectorInstance = (_BX$Main$selectorMana = BX$2.Main.selectorManagerV2.controls[this.popupContainer]) === null || _BX$Main$selectorMana === void 0 ? void 0 : _BX$Main$selectorMana.selectorInstance;
-	      selectorInstance.itemsSelected = {};
+
+	      if (selectorInstance) {
+	        selectorInstance.itemsSelected = {};
+	      }
+
 	      BX$2.onCustomEvent(this.openPopupEvent, [{
 	        id: this.popupContainer,
 	        bindNode: this.getAddUserToRole()
@@ -1661,10 +1665,13 @@ this.BX = this.BX || {};
 	    _this.enableSearch = (_options$enableSearch = options.enableSearch) !== null && _options$enableSearch !== void 0 ? _options$enableSearch : false;
 	    _this.placeholder = options.placeholder || '';
 	    _this.hintTitle = options.hintTitle || '';
-	    _this.allSelectedCode = options.allSelectedCode || '-1';
+	    _this.allSelectedCode = main_core.Text.toNumber(options.allSelectedCode || -1);
 	    _this.showAvatars = (_options$showAvatars = options.showAvatars) !== null && _options$showAvatars !== void 0 ? _options$showAvatars : true;
 	    _this.compactView = (_options$compactView = options.compactView) !== null && _options$compactView !== void 0 ? _options$compactView : false;
 	    _this.currentValue = main_core.Type.isArray(options.currentValue) ? options.currentValue : [];
+	    _this.currentValue = _this.currentValue.map(function (value) {
+	      return main_core.Text.toNumber(value);
+	    });
 	    _this.selectedValues = _this.currentValue;
 	    _this.variables = _this.variables.map(function (item) {
 	      item.entityId = item.entityId || 'editor-right-item';
@@ -1713,7 +1720,7 @@ this.BX = this.BX || {};
 	    value: function render() {
 	      var title = '';
 
-	      if (this.selectedValues.includes(this.allSelectedCode)) {
+	      if (this.includesSelected(this.allSelectedCode)) {
 	        title = main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_ACCEPTED');
 	      } else {
 	        var _this$getSelected;
@@ -1724,7 +1731,7 @@ this.BX = this.BX || {};
 	        });
 
 	        if (titles.length > 0) {
-	          var firstItem = main_core.Text.encode(titles[0]);
+	          var firstItem = titles[0];
 	          title = titles.length - 1 > 0 ? main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_HAS_SELECTED_ITEMS', {
 	            '#FIRST_ITEM_NAME#': firstItem.length > 10 ? firstItem.slice(0, 10) + '...' : firstItem,
 	            '#COUNT_REST_ITEMS#': titles.length - 1
@@ -1746,7 +1753,7 @@ this.BX = this.BX || {};
 	        hint += '</ul>';
 	      }
 
-	      var variablesValue = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-text-link' data-hint-html data-hint-no-icon data-hint=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), hint, main_core.Text.encode(title));
+	      var variablesValue = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-text-link' data-hint-html data-hint-no-icon data-hint=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(hint), main_core.Text.encode(title));
 	      main_core.Event.bind(variablesValue, 'click', this.showSelector.bind(this));
 	      main_core.Dom.append(variablesValue, this.getChanger());
 	      BX.UI.Hint.init(this.getChanger());
@@ -1776,13 +1783,18 @@ this.BX = this.BX || {};
 	    value: function getSelected() {
 	      var _this2 = this;
 
-	      if (this.selectedValues.includes(this.allSelectedCode)) {
+	      if (this.includesSelected(this.allSelectedCode)) {
 	        return this.variables;
 	      }
 
 	      return this.variables.filter(function (variable) {
-	        return _this2.selectedValues.includes(variable.id);
+	        return _this2.includesSelected(variable.id);
 	      });
+	    }
+	  }, {
+	    key: "includesSelected",
+	    value: function includesSelected(item) {
+	      return this.selectedValues.includes(main_core.Text.toNumber(item));
 	    }
 	  }, {
 	    key: "showSelector",
@@ -1801,7 +1813,7 @@ this.BX = this.BX || {};
 	        this.selectedValues.push(this.allSelectedCode);
 	      } else {
 	        selected.forEach(function (item) {
-	          _this3.selectedValues.push(item.id);
+	          _this3.selectedValues.push(main_core.Text.toNumber(item.id));
 	        });
 	      }
 

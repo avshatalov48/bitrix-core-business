@@ -38,6 +38,7 @@ class SenderSmsTextEditorComponent extends CBitrixComponent
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 		$this->arResult['VALUE'] = htmlspecialcharsback($this->arParams['VALUE']);
 		$this->arResult['COUNT'] = mb_strlen($this->arParams['VALUE']);
+		$this->arResult['TEMPLATE_OPTIONS_SELECTOR'] = \Bitrix\Sender\Message\Helper::getTemplateOptionSelector();
 
 		return true;
 	}

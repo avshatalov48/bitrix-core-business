@@ -6,6 +6,7 @@ use Bitrix\Landing\Block;
 use Bitrix\Landing\Hook;
 use Bitrix\Landing\Manager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/subtype/map_ru.php');
@@ -102,6 +103,24 @@ class Map
 						'data-map-provider' => $providerForNewBlock,
 					],
 				]);
+
+				$defaultOptions = [
+					'center' => self::getDefaultMapCenter(),
+					'zoom' => 17,
+					'markers' => [
+						[
+							'latLng' => self::getDefaultMapCenter(),
+							'title' => 'Bitrix24',
+							'description' => 'Bitrix24 - Your company. United.',
+						],
+					],
+				];
+				$block->setAttributes([
+					self::MAP_SELECTOR => [
+						'data-map' => $defaultOptions,
+					],
+				]);
+
 				$block->save();
 
 				unset(self::$manifestStore[$block->getId()]);
@@ -185,6 +204,30 @@ class Map
 		return Manager::availableOnlyForZone('ru');
 	}
 
+	protected static function getDefaultMapCenter(): array
+	{
+		switch (Manager::getZone())
+		{
+			case 'ru':
+				return [
+					'lat' => 54.71916849999999,
+					'lng' => 20.48854240000003,
+				];
+
+			case 'ua':
+				return [
+					'lat' => 50.440333,
+					'lng' => 30.526835,
+				];
+
+			default:
+				return [
+					'lat' => 38.814089,
+					'lng' => -77.042356,
+				];
+		}
+	}
+
 	/**
 	 * Set alert actions if needed
 	 * @param array $manifest
@@ -249,27 +292,34 @@ class Map
 	 */
 	protected static function addSettings(array $manifest): array
 	{
+		$attrs = [
+			[
+				'name' => 'Map',
+				'attribute' => 'data-map',
+				'type' => 'string',
+				'hidden' => true,
+			],
+		];
+
 		if (self::canUseYandex())
 		{
-			$attrs = [
-				[
-					'name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER'),
-					'attribute' => 'data-map-provider',
-					'type' => 'list',
-					'items' => [
-						['name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER-G'), 'value' => self::PROVIDER_GOOGLE],
-						['name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER-Y'), 'value' => self::PROVIDER_YANDEX],
-					],
-					'requireReload' => true,
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER'),
+				'attribute' => 'data-map-provider',
+				'type' => 'list',
+				'items' => [
+					['name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER-G'), 'value' => self::PROVIDER_GOOGLE],
+					['name' => Loc::getMessage('LANDING_GOOGLE_MAP-PROVIDER-Y'), 'value' => self::PROVIDER_YANDEX],
 				],
+				'requireReload' => true,
 			];
-
-			if (!is_array($manifest['attrs'][self::MAP_SELECTOR]))
-			{
-				$manifest['attrs'][self::MAP_SELECTOR] = [];
-			}
-			$manifest['attrs'][self::MAP_SELECTOR] = array_merge($manifest['attrs'][self::MAP_SELECTOR], $attrs);
 		}
+
+		if (!is_array($manifest['attrs'][self::MAP_SELECTOR]))
+		{
+			$manifest['attrs'][self::MAP_SELECTOR] = [];
+		}
+		$manifest['attrs'][self::MAP_SELECTOR] = array_merge($manifest['attrs'][self::MAP_SELECTOR], $attrs);
 
 		return $manifest;
 	}

@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Sender\Message;
 
-interface iToloka
+interface iToloka extends iYandex
 {
 
 }

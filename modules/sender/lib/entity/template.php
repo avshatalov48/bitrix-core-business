@@ -45,7 +45,7 @@ class Template extends Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		return $this->saveByEntity(TemplateTable::getEntity(), $id, $data);
 	}

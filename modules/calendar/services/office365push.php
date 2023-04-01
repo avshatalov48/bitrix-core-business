@@ -39,15 +39,21 @@ Loader::includeModule('dav');
 $manager = new PushManager();
 $data = $getPut();
 
-if (!empty($data['value']))
+if (!empty($data['value']) && is_array($data['value']))
 {
 	foreach ($data['value'] as $changeData)
 	{
-		if (!empty($changeData['subscriptionId']))
+		if (!empty($changeData['subscriptionId']) && !empty($changeData['clientState']))
 		{
 			$resourceId = htmlspecialcharsbx($changeData['subscriptionId']);
 			$channelId = htmlspecialcharsbx($changeData['clientState']);
-			$manager->handlePush($channelId, $resourceId);
+			try
+			{
+				$manager->handlePush($channelId, $resourceId);
+			}
+			catch (\Exception $e)
+			{
+			}
 		}
 	}
 }

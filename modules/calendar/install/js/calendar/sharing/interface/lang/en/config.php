@@ -1,0 +1,20 @@
+<?php
+$MESS["SHARING_BUTTON_TITLE"] = "Guest access";
+$MESS["SHARING_COPY_LINK_NOTIFICATION"] = "Link copied";
+$MESS["SHARING_DIALOG_CHECKBOX_OFF"] = "OFF";
+$MESS["SHARING_DIALOG_CHECKBOX_ON"] = "ON";
+$MESS["SHARING_DIALOG_INFO_POPUP"] = "Plan your meetings without boring emails or messaging. Send a link to your calendar to have your partners or customers pick the most suitable time.\n\nNo one will see your actual schedule: only your free time will be shown.";
+$MESS["SHARING_DIALOG_MORE_DETAILED"] = "Learn more";
+$MESS["SHARING_DIALOG_PREVIEW_BLOCK_CONTENT"] = "Scan the QR code or #LINK# to preview how your free time will be seen on the calendar.";
+$MESS["SHARING_DIALOG_PREVIEW_BLOCK_CONTENT_LINK"] = "click the link";
+$MESS["SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON"] = "Copy link";
+$MESS["SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON_COPIED"] = "Link copied.";
+$MESS["SHARING_DIALOG_SHARING_BLOCK_DISABLED_COPY_LINK_BUTTON_POPUP"] = "Grant access to the calendar to share the link.";
+$MESS["SHARING_DIALOG_SHARING_BLOCK_TITLE"] = "Calendar link";
+$MESS["SHARING_DIALOG_SHARING_HINT"] = "Send the link to your customer or partner. They will pick a suitable time and add a new event to your calendar.";
+$MESS["SHARING_INFO_POPUP_CONTENT_1"] = "Plan your meetings without boring emails or messaging. Send a link to your calendar to have your partners or customers pick the most suitable time.";
+$MESS["SHARING_INFO_POPUP_CONTENT_2"] = "No one will see your actual schedule: only your free time will be shown.";
+$MESS["SHARING_WARNING_POPUP_CANCEL_BUTTON"] = "Cancel";
+$MESS["SHARING_WARNING_POPUP_CONTENT"] = "A new guest link will be created if you open access to the calendar again. The old link will be invalid.";
+$MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON"] = "Close access";
+$MESS["SHARING_WARNING_POPUP_TITLE"] = "You're about to close access";

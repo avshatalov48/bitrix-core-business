@@ -1,15 +1,17 @@
 <?php
 
+use Bitrix\Main\Diag;
+
 class CSecurityEvent
 {
 	private static $instance = null;
 
 	private $isDBEngineActive = false;
-	private $isSyslogEngineActive = false;
-	private $syslogFacility = 0;
-	private $syslogPriority = "";
-	private $isFileEngineActive = false;
-	private $filePath = "";
+	/** @var \Psr\Log\LoggerInterface */
+	private $fileLogger;
+	/** @var \Psr\Log\LoggerInterface */
+	private $sysLogger;
+	private $syslogPriority = LOG_WARNING;
 
 	/** @var CSecurityEventMessageFormatter $messageFormatter */
 	private $messageFormatter = null;
@@ -54,27 +56,33 @@ class CSecurityEvent
 	 */
 	public function doLog($severity, $auditType, $itemName, $itemDescription)
 	{
-		$savedInDB = $savedInFile = $savedInSyslog = false;
+		$result = false;
+
 		if ($this->isDBEngineActive)
 		{
-			$savedInDB = CEventLog::log($severity, $auditType, "security", $itemName, $itemDescription);
+			$result = CEventLog::log($severity, $auditType, "security", $itemName, $itemDescription);
 		}
-		$message = "";
-		if ($this->isSyslogEngineActive)
+
+		if ($this->sysLogger || $this->fileLogger)
 		{
 			$message = $this->messageFormatter->format($auditType, $itemName, $itemDescription);
-			$savedInSyslog = syslog($this->syslogPriority, $message);
-		}
-		if ($this->isFileEngineActive)
-		{
-			if (!$message)
-				$message = $this->messageFormatter->format($auditType, $itemName, $itemDescription);
 
-			$message = static::sanitizeMessage($message);
-			$message .= "\n";
-			$savedInFile = file_put_contents($this->filePath, $message, FILE_APPEND) > 0;
+			if ($this->sysLogger)
+			{
+				$level = Diag\SysLogger::priorityToLevel($this->syslogPriority);
+				$this->sysLogger->log($level, $message);
+			}
+
+			if ($this->fileLogger)
+			{
+				$message = static::sanitizeMessage($message);
+				$message .= "\n";
+
+				$this->fileLogger->warning($message);
+			}
+			$result = true;
 		}
-		return ($savedInDB || $savedInSyslog || $savedInFile);
+		return $result;
 	}
 
 	/**
@@ -187,10 +195,10 @@ class CSecurityEvent
 
 	private function initializeFileEngine()
 	{
-		$this->filePath = COption::getOptionString("security", "security_event_file_path");
-		if ($this->filePath && checkDirPath($this->filePath))
+		$filePath = COption::getOptionString("security", "security_event_file_path");
+		if ($filePath && checkDirPath($filePath))
 		{
-			$this->isFileEngineActive = true;
+			$this->fileLogger = new Diag\FileLogger($filePath, 0);
 		}
 	}
 
@@ -201,14 +209,18 @@ class CSecurityEvent
 
 	private function initializeSyslogEngine()
 	{
-		$this->isSyslogEngineActive = true;
 		if (self::isRunOnWin())
-			$this->syslogFacility = LOG_USER;
+		{
+			$facility = LOG_USER;
+		}
 		else
-			$this->syslogFacility = (int) COption::getOptionString("security", "security_event_syslog_facility");
+		{
+			$facility = (int) COption::getOptionString("security", "security_event_syslog_facility");
+		}
 
 		$this->syslogPriority = COption::getOptionString("security", "security_event_syslog_priority");
-		openlog("Bitrix WAF", LOG_ODELAY, $this->syslogFacility);
+
+		$this->sysLogger = new Diag\SysLogger('Bitrix WAF', LOG_ODELAY, $facility);
 	}
 
 	/**

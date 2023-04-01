@@ -128,6 +128,11 @@
 	cursor: pointer;
 	padding-left: 22px;
 }
+
+.ui-stamp-uploader-action-panel-disabled {
+	pointer-events: none;
+	opacity: .5;
+}
 .ui-stamp-uploader-status {
 	position: absolute;
 	background: #FFFFFF;
@@ -240,6 +245,67 @@
 	background-repeat: no-repeat;
 	width: 100%;
 	height: 100%;
+}
+
+.ui-stamp-uploader-preview-crop {
+	position: absolute;
+	opacity: 0;
+	transition: 200ms opacity ease;
+	z-index: 9999;
+}
+
+.ui-stamp-uploader-preview-crop::before {
+	content: '';
+	position: absolute;
+	border: 2px solid #2FC6F6;
+	filter: drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.12));
+	border-radius: 2px;
+	top: -2px;
+	left: -2px;
+	right: -2px;
+	bottom: -2px;
+}
+
+.ui-stamp-uploader-preview-crop-left,
+.ui-stamp-uploader-preview-crop-right {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='9' height='7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect opacity='.4' y='7' width='7' height='9' rx='1' transform='rotate(-90 0 7)' fill='%2311A9D9'/%3E%3Cpath d='M6 5V2h1v3H6zM4 5V2h1v3H4zM2 5V2h1v3H2z' fill='%23fff'/%3E%3C/svg%3E") center center no-repeat;
+	position: absolute;
+	width: 9px;
+	height: 40px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: col-resize;
+}
+
+.ui-stamp-uploader-preview-crop-left {
+	left: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-right {
+	right: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-top,
+.ui-stamp-uploader-preview-crop-bottom {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='7' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect opacity='.4' width='7' height='9' rx='1' fill='%2311A9D9'/%3E%3Cpath d='M2 6h3v1H2V6zM2 4h3v1H2V4zM2 2h3v1H2V2z' fill='%23fff'/%3E%3C/svg%3E") center center no-repeat;
+	position: absolute;
+	width: 40px;
+	height: 9px;
+	left: 50%;
+	transform: translateX(-50%);
+	cursor: row-resize;
+}
+
+.ui-stamp-uploader-preview-crop-top {
+	top: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-bottom {
+	bottom: -6px;
+}
+
+.ui-stamp-uploader-preview-crop-show {
+	opacity: 1;
 }
 .ui-stamp-uploader-message {
 	background: #FFFFFF;

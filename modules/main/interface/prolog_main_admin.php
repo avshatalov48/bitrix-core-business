@@ -46,7 +46,7 @@ $aOptMenuPos = array();
 if($bShowAdminMenu && class_exists("CUserOptions"))
 {
 	$aOptMenuPos = CUserOptions::GetOption("admin_menu", "pos", array());
-	$bOptMenuMinimized = $aOptMenuPos['ver'] == 'off';
+	$bOptMenuMinimized = isset($aOptMenuPos['ver']) && $aOptMenuPos['ver'] == 'off';
 }
 
 if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):

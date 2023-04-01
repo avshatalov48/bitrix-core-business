@@ -132,7 +132,7 @@ foreach($arParams["ROWS"] as $index=>$aRow):
 <?if($arResult["ALLOW_EDIT"]):?>
 	<?
 	if($aRow["editable"] !== false):
-		$data_id = ($aRow["id"] <> ''? $aRow["id"] : $aRow["data"]["ID"]);
+		$data_id = ($aRow["id"] ?? $aRow["data"]["ID"]);
 	?>
 		<td class="bx-bizproc-checkbox-col"><input type="checkbox" name="ID[]" id="ID_<?=$data_id?>" value="<?=$data_id?>" title="<?echo GetMessage("interface_grid_check")?>"></td>
 	<?else:?>
@@ -149,7 +149,7 @@ foreach($arParams["ROWS"] as $index=>$aRow):
 <?
 	$columnClasses = isset($aRow['columnClasses']) && is_array($aRow['columnClasses']) ? $aRow['columnClasses'] : null;
 	foreach($arResult["HEADERS"] as $id=>$header):
-	$columnClass = 	$header["sort_state"] !== '' ? 'bx-bizproc-sorted' : '';
+	$columnClass = 	!empty($header["sort_state"]) ? 'bx-bizproc-sorted' : '';
 	if($columnClasses && isset($columnClasses[$id]) && $columnClasses[$id] !== '')
 	{
 		if($columnClass !== '')
@@ -160,12 +160,14 @@ foreach($arParams["ROWS"] as $index=>$aRow):
 	}
 
 	?><td<?=($columnClass !== '' ? ' class="'.$columnClass.'"' : '')?><?
-if($header["align"] <> '')
+if (!empty($header["align"]))
 	echo ' align="'.$header["align"].'"';
-elseif($header["type"] == "checkbox")
+elseif(isset($header["type"]) && $header["type"] == "checkbox")
 	echo ' align="center"';
 		?>><?
-	if($header["type"] == "checkbox"
+	if (
+		isset($header["type"])
+		&& $header["type"] == "checkbox"
 		&& $aRow["data"][$id] <> ''
 		&& ($aRow["data"][$id] == 'Y' || $aRow["data"][$id] == 'N')
 	)

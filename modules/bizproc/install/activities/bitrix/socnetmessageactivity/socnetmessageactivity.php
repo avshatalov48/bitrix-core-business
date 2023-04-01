@@ -123,10 +123,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 		]]);
 
 		$attach->AddDelimiter();
-		$attach->AddHtml('<span style="color: #6E6E6E">'.
-			$messageText
-			.'</span>'
-		);
+		$attach->AddHtml($messageText);
 
 		$arMessageUserFrom = CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
 		$arMessageUserTo = CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);

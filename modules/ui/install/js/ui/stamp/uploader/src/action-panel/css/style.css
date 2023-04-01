@@ -13,3 +13,8 @@
 	cursor: pointer;
 	padding-left: 22px;
 }
+
+.ui-stamp-uploader-action-panel-disabled {
+	pointer-events: none;
+	opacity: .5;
+}

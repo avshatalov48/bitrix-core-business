@@ -312,12 +312,12 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 		{
 			if ($option->getShowInFilter())
 			{
-				if (!$selectParameters['runtime'])
+				if (!isset($selectParameters['runtime']))
 				{
 					$selectParameters['runtime'] = [];
 				}
 				$fieldName = 'OPTION_'.$option->getCode();
-				$filterValue = $requestFilter[$option->getCode()];
+				$filterValue = $requestFilter[$option->getCode()] ?? '';
 				if($filterValue <> '')
 				{
 					if($filterValue == 'last')
@@ -526,10 +526,10 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 			$result[$data['USER_ID']] = \CAllUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				array(
-					'LOGIN' => $data['USER_LOGIN'],
-					'NAME' => $data['USER_NAME'],
-					'LAST_NAME' => $data['USER_LAST_NAME'],
-					'SECOND_NAME' => $data['USER_SECOND_NAME']
+					'LOGIN' => $data['USER_LOGIN'] ?? '',
+					'NAME' => $data['USER_NAME'] ?? '',
+					'LAST_NAME' => $data['USER_LAST_NAME'] ?? '',
+					'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 				),
 				true, false
 			);
@@ -588,10 +588,10 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 		$data['USER'] = \CAllUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			array(
-				'LOGIN' => $data['USER_LOGIN'],
-				'NAME' => $data['USER_NAME'],
-				'LAST_NAME' => $data['USER_LAST_NAME'],
-				'SECOND_NAME' => $data['USER_SECOND_NAME']
+				'LOGIN' => $data['USER_LOGIN'] ?? '',
+				'NAME' => $data['USER_NAME'] ?? '',
+				'LAST_NAME' => $data['USER_LAST_NAME'] ?? '',
+				'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 			),
 			true, false
 		);

@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Integration\Crm\Connectors;
 
 use Bitrix\Crm\LeadTable;
 use Bitrix\Crm\PhaseSemantics;
+use Bitrix\Crm\Service\Container;
 use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
@@ -496,5 +497,41 @@ class Lead extends ConnectorBaseFilter implements Connector\IncrementallyConnect
 	{
 		$query = $this->getLimitedQueries($offset, $limit)[0];
 		return QueryData::getData($query, $this->getDataTypeId());
+	}
+
+	public function getContactDataLead(int $leadId): ?array
+	{
+		$query = LeadTable::query()
+			->setSelect(['NAME', 'LAST_NAME', 'POST', 'HONORIFIC', 'BIRTHDATE', 'HAS_EMAIL', 'HAS_IMOL', 'HAS_PHONE'])
+			->where('ID', $leadId);
+
+		// $leadDb = LeadTable::getById($leadId);
+		if ($lead = $query->fetch())
+		{
+			$contactsFields = [];
+
+			if (
+				($lead['HAS_EMAIL'] === 'Y')
+				|| ($lead['HAS_IMOL'] === 'Y')
+				|| ($lead['HAS_PHONE'] === 'Y')
+			)
+			{
+				$leadMultiFields = Container::getInstance()
+					->getMultifieldStorage()
+					->get(new \Bitrix\Crm\ItemIdentifier(\CCrmOwnerType::Lead, $leadId));
+				$contactsFields = $leadMultiFields->toArray();
+			}
+
+			return [
+				'NAME' => $lead['NAME'],
+				'LAST_NAME' => $lead['LAST_NAME'],
+				'POST' => $lead['POST'],
+				'HONORIFIC' => $lead['HONORIFIC'],
+				'BIRTHDATE' => $lead['BIRTHDATE'],
+				'FM' => $contactsFields,
+			];
+		}
+
+		return null;
 	}
 }

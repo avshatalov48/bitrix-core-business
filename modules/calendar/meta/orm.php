@@ -1,5 +1,193 @@
 <?php
 
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Sharing\Link\SharingLinkTable:calendar/lib/sharing/link/sharinglinktable.php */
+namespace Bitrix\Calendar\Sharing\Link {
+	/**
+	 * EO_SharingLink
+	 * @see \Bitrix\Calendar\Sharing\Link\SharingLinkTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getObjectId()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setObjectId(\int|\Bitrix\Main\DB\SqlExpression $objectId)
+	 * @method bool hasObjectId()
+	 * @method bool isObjectIdFilled()
+	 * @method bool isObjectIdChanged()
+	 * @method \int remindActualObjectId()
+	 * @method \int requireObjectId()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetObjectId()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetObjectId()
+	 * @method \int fillObjectId()
+	 * @method \string getObjectType()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setObjectType(\string|\Bitrix\Main\DB\SqlExpression $objectType)
+	 * @method bool hasObjectType()
+	 * @method bool isObjectTypeFilled()
+	 * @method bool isObjectTypeChanged()
+	 * @method \string remindActualObjectType()
+	 * @method \string requireObjectType()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetObjectType()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetObjectType()
+	 * @method \string fillObjectType()
+	 * @method \string getHash()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setHash(\string|\Bitrix\Main\DB\SqlExpression $hash)
+	 * @method bool hasHash()
+	 * @method bool isHashFilled()
+	 * @method bool isHashChanged()
+	 * @method \string remindActualHash()
+	 * @method \string requireHash()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetHash()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetHash()
+	 * @method \string fillHash()
+	 * @method \string getOptions()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setOptions(\string|\Bitrix\Main\DB\SqlExpression $options)
+	 * @method bool hasOptions()
+	 * @method bool isOptionsFilled()
+	 * @method bool isOptionsChanged()
+	 * @method \string remindActualOptions()
+	 * @method \string requireOptions()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetOptions()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetOptions()
+	 * @method \string fillOptions()
+	 * @method \boolean getActive()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setActive(\boolean|\Bitrix\Main\DB\SqlExpression $active)
+	 * @method bool hasActive()
+	 * @method bool isActiveFilled()
+	 * @method bool isActiveChanged()
+	 * @method \boolean remindActualActive()
+	 * @method \boolean requireActive()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetActive()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetActive()
+	 * @method \boolean fillActive()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink resetDateCreate()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink reset($fieldName)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink wakeUp($data)
+	 */
+	class EO_SharingLink {
+		/* @var \Bitrix\Calendar\Sharing\Link\SharingLinkTable */
+		static public $dataClass = '\Bitrix\Calendar\Sharing\Link\SharingLinkTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Sharing\Link {
+	/**
+	 * EO_SharingLink_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getObjectIdList()
+	 * @method \int[] fillObjectId()
+	 * @method \string[] getObjectTypeList()
+	 * @method \string[] fillObjectType()
+	 * @method \string[] getHashList()
+	 * @method \string[] fillHash()
+	 * @method \string[] getOptionsList()
+	 * @method \string[] fillOptions()
+	 * @method \boolean[] getActiveList()
+	 * @method \boolean[] fillActive()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Sharing\Link\EO_SharingLink $object)
+	 * @method bool has(\Bitrix\Calendar\Sharing\Link\EO_SharingLink $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Sharing\Link\EO_SharingLink $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_SharingLink_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Sharing\Link\SharingLinkTable */
+		static public $dataClass = '\Bitrix\Calendar\Sharing\Link\SharingLinkTable';
+	}
+}
+namespace Bitrix\Calendar\Sharing\Link {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_SharingLink_Result exec()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink fetchObject()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_SharingLink_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink fetchObject()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection fetchCollection()
+	 */
+	class EO_SharingLink_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection createCollection()
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection wakeUpCollection($rows)
+	 */
+	class EO_SharingLink_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\AccessTable:calendar/lib/internals/access.php */
 namespace Bitrix\Calendar\Internals {
 	/**

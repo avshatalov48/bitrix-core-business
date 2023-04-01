@@ -37,4 +37,9 @@ class Dictionary
 		'Question' => 'Q',
 		'Host' => 'H'
 	];
+
+	public const CALENDAR_TYPE = [
+		'user' => 'user',
+		'group' => 'group',
+	];
 }

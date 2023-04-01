@@ -169,30 +169,38 @@
 	      var _this6 = this;
 	      var usages = robot.collectUsages();
 	      var itemNodes = [];
-	      if (!usages.Constant.size && !usages.Parameter.size) {
-	        return null;
-	      }
 	      if (usages.Constant.size) {
-	        itemNodes.push(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')));
+	        var headPushed = false;
 	        usages.Constant.forEach(function (constId) {
 	          var constant = constants.find(function (c) {
-	            return c.Id === constId;
+	            return c.Id === constId && c.Type !== 'file';
 	          });
 	          if (constant) {
+	            if (!headPushed) {
+	              itemNodes.push(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')));
+	              headPushed = true;
+	            }
 	            itemNodes.push(_this6.renderPropertyBlock(constant, _this6.constantPrefix));
 	          }
 	        });
 	      }
 	      if (usages.Parameter.size) {
-	        itemNodes.push(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')));
+	        var _headPushed = false;
 	        usages.Parameter.forEach(function (paramId) {
 	          var parameter = parameters.find(function (p) {
-	            return p.Id === paramId;
+	            return p.Id === paramId && p.Type !== 'file';
 	          });
 	          if (parameter) {
+	            if (!_headPushed) {
+	              itemNodes.push(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')));
+	              _headPushed = true;
+	            }
 	            itemNodes.push(_this6.renderPropertyBlock(parameter, _this6.parameterPrefix));
 	          }
 	        });
+	      }
+	      if (!itemNodes.length) {
+	        return null;
 	      }
 	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-slider-section\">\n\t\t\t\t<div class=\"ui-slider-heading-4 ui-slider-heading-4--bizproc-icon\">", "</div>\n\t\t\t\t", "\n\t\t\t</div>"])), main_core.Text.encode(robot.getTitle()), itemNodes);
 	    }

@@ -8,7 +8,9 @@ class Configuration
 {
 	protected ?int $maxFileSize = 256 * 1024 * 1024;
 	protected int $minFileSize = 0;
+	protected bool $acceptOnlyImages = false;
 	protected array $acceptedFileTypes = [];
+	protected array $ignoredFileNames = ['.ds_store', 'thumbs.db', 'desktop.ini'];
 	protected int $imageMinWidth = 1;
 	protected int $imageMinHeight = 1;
 	protected int $imageMaxWidth = 7000;
@@ -30,11 +32,10 @@ class Configuration
 			'imageMinFileSize',
 			'acceptOnlyImages',
 			'acceptedFileTypes',
-			'ignoreUnknownImageTypes',
+			'ignoredFileNames',
 		];
 
 		$globalSettings = static::getGlobalSettings();
-
 		foreach ($optionNames as $optionName)
 		{
 			$setter = 'set' . ucfirst($optionName);
@@ -53,6 +54,11 @@ class Configuration
 
 				$this->$setter($optionValue);
 			}
+		}
+
+		if (isset($options['ignoreUnknownImageTypes']) && is_bool($options['ignoreUnknownImageTypes']))
+		{
+			$this->setIgnoreUnknownImageTypes($options['ignoreUnknownImageTypes']);
 		}
 	}
 
@@ -92,6 +98,11 @@ class Configuration
 		return $this;
 	}
 
+	public function shouldAcceptOnlyImages(): bool
+	{
+		return $this->acceptOnlyImages;
+	}
+
 	public function getAcceptedFileTypes(): array
 	{
 		return $this->acceptedFileTypes;
@@ -104,9 +115,15 @@ class Configuration
 		return $this;
 	}
 
-	public function acceptOnlyImages($flag = true): self
+	public function setAcceptOnlyImages(bool $flag = true): self
+	{
+		return $this->acceptOnlyImages($flag);
+	}
+
+	public function acceptOnlyImages(bool $flag = true): self
 	{
 		$imageExtensions = $flag ? static::getImageExtensions() : [];
+		$this->acceptOnlyImages = $flag;
 		$this->setAcceptedFileTypes($imageExtensions);
 
 		return $this;
@@ -119,6 +136,25 @@ class Configuration
 		return array_map(function($extension) {
 			return '.' . ltrim($extension);
 		}, $imageExtensions);
+	}
+
+	public function getIgnoredFileNames(): array
+	{
+		return $this->ignoredFileNames;
+	}
+
+	public function setIgnoredFileNames(array $fileNames): self
+	{
+		$this->ignoredFileNames = [];
+		foreach ($fileNames as $fileName)
+		{
+			if (is_string($fileName) && mb_strlen($fileName) > 0)
+			{
+				$this->ignoredFileNames[] = mb_strtolower($fileName);
+			}
+		}
+
+		return $this;
 	}
 
 	public function getImageMinWidth(): int

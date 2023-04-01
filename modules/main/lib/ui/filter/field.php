@@ -415,7 +415,7 @@ class Field
 		if (empty($defaultValue) && count($items))
 		{
 			$defaultValue["NAME"] = $items[0]["NAME"];
-			$defaultValue["VALUE"] = $items[0]["VALUE"];
+			$defaultValue["VALUE"] = $items[0]["VALUE"] ?? null;
 		}
 
 		$field = array(

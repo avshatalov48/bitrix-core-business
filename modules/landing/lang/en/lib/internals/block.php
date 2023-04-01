@@ -12,6 +12,7 @@ $MESS["LANDING_TABLE_FIELD_DATE_MODIFY"] = "Modified on";
 $MESS["LANDING_TABLE_FIELD_DELETED"] = "Deleted or not";
 $MESS["LANDING_TABLE_FIELD_DESIGNED"] = "Block was modified by user";
 $MESS["LANDING_TABLE_FIELD_FAVORITE_META"] = "Overriding fields for saved block";
+$MESS["LANDING_TABLE_FIELD_HISTORY_STEP_DESIGNER"] = "Superblock history step";
 $MESS["LANDING_TABLE_FIELD_INITIATOR_APP_CODE"] = "Parent application code";
 $MESS["LANDING_TABLE_FIELD_LID"] = "Landing ID";
 $MESS["LANDING_TABLE_FIELD_MODIFIED_BY_ID"] = "Modified by user ID";

@@ -4,8 +4,11 @@ namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sync\Connection\Connection;
+use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Managers\ServiceBase;
 use Bitrix\Calendar\Sync\Util\Helper;
+use Bitrix\Calendar\Util;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\SystemException;
@@ -19,53 +22,105 @@ abstract class Manager extends ServiceBase
 	protected HttpQuery $httpClient;
 	protected int $userId;
 
+	private static array $httpClients = [];
+
+	/**
+	 * @param Connection $connection
+	 * @param int $userId
+	 *
+	 * @throws SystemException
+	 */
 	public function __construct(Connection $connection, int $userId)
 	{
 		parent::__construct($connection);
-		$this->initHttpClient($userId);
 		$this->userId = $userId;
+		if (!$this->initHttpClient())
+		{
+			$this->deactivateConnection();
+		}
 	}
 
 	/**
-	 * @param int $userId
 	 *
-	 * @throws SystemException	
-	 * @throws  LoaderException
+	 * @param bool $force
+	 *
+	 * @return bool is success
+	 *
+	 * @throws SystemException
 	 */
-	private function initHttpClient(int $userId): void
+	private function initHttpClient(bool $force = false): bool
 	{
-		if (!Loader::includeModule('socialservices'))
+		$success = true;
+		$userId = $this->userId;
+		if (!isset(self::$httpClients[$userId]) || $force)
 		{
-			throw new SystemException('Module Socialservices not found');
+			if (!Loader::includeModule('socialservices'))
+			{
+				throw new SystemException('Module Socialservices not found');
+			}
+
+			$httpClient = new HttpClient();
+			if (\CSocServGoogleProxyOAuth::isProxyAuth())
+			{
+				$oAuth = new \CSocServGoogleProxyOAuth($userId);
+			}
+			else
+			{
+				$oAuth = new \CSocServGoogleOAuth($userId);
+			}
+
+			$oAuth->getEntityOAuth()->addScope(
+				[
+					'https://www.googleapis.com/auth/calendar',
+					'https://www.googleapis.com/auth/calendar.readonly',
+				]
+			);
+
+			$oAuth->getEntityOAuth()->setUser($userId);
+
+			if ($oAuth->getEntityOAuth()->GetAccessToken())
+			{
+				$httpClient->setHeader('Authorization', 'Bearer ' . $oAuth->getEntityOAuth()->getToken());
+				$httpClient->setHeader('Content-Type', 'application/json');
+				$httpClient->setHeader('Referer', Helper::getDomain());
+				unset($oAuth);
+			}
+			else
+			{
+				$success = false;
+			}
+
+			self::$httpClients[$userId] = new HttpQuery($httpClient, $userId);
 		}
 
-		$httpClient = new HttpClient();
-		if (\CSocServGoogleProxyOAuth::isProxyAuth())
-		{
-			$oAuth = new \CSocServGoogleProxyOAuth($userId);
-		}
-		else
-		{
-			$oAuth = new \CSocServGoogleOAuth($userId);
-		}
+		$this->httpClient = self::$httpClients[$userId];
 
-		$oAuth->getEntityOAuth()->addScope(
-			[
-				'https://www.googleapis.com/auth/calendar',
-				'https://www.googleapis.com/auth/calendar.readonly',
-			]
-		);
+		return $success;
+	}
 
-		$oAuth->getEntityOAuth()->setUser($userId);
-		if ($oAuth->getEntityOAuth()->GetAccessToken())
-		{
-			$httpClient->setHeader('Authorization', 'Bearer ' . $oAuth->getEntityOAuth()->getToken());
-			$httpClient->setHeader('Content-Type', 'application/json');
-			$httpClient->setHeader('Referer', Helper::getDomain());
-			unset($oAuth);
-		}
+	private function deactivateConnection()
+	{
+		$this->connection
+			->setStatus('[401] Unauthorized')
+			->setLastSyncTime(new Core\Base\Date())
+		;
 
-		$this->httpClient = new HttpQuery($httpClient, $userId);
+		/** @var Core\Mappers\Factory $mapperFactory */
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$mapperFactory->getConnection()->update($this->connection);
+
+		Util::addPullEvent('refresh_sync_status', $this->connection->getOwner()->getId(), [
+			'syncInfo' => [
+				'google' => [
+					'status' => false,
+					'type' => $this->connection->getAccountType(),
+					'connected' => true,
+					'id' => $this->connection->getId(),
+					'syncOffset' => 0
+				],
+			],
+			'requestUid' => Util::getRequestUid(),
+		]);
 	}
 
 	/**
@@ -81,5 +136,29 @@ abstract class Manager extends ServiceBase
 		$acceptedCodes = [200, 201, 204, 404];
 
 		return in_array($this->httpClient->getStatus(), $acceptedCodes);
+	}
+
+	/**
+	 * @param Connection $connection
+	 *
+	 * @return void
+	 *
+	 * @throws SystemException
+	 */
+	protected function handleUnauthorize(Connection $connection)
+	{
+		$this->deactivateConnection();
+	}
+
+	/**
+	 * Request to Google API and handle errors
+	 * @param $params
+	 *
+	 * @return void
+	 *
+	 */
+	protected function request($params)
+	{
+		// TODO: implement it
 	}
 }

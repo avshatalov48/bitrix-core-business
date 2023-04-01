@@ -38,7 +38,6 @@ this.BX = this.BX || {};
 	      },
 	      onFocus: function onFocus(fieldName) {
 	        var _this = this;
-
 	        if (this.name === fieldName) {
 	          this.$nextTick(function () {
 	            _this.$refs['input'].focus();
@@ -99,7 +98,6 @@ this.BX = this.BX || {};
 	      },
 	      onFocus: function onFocus(fieldName) {
 	        var _this = this;
-
 	        if (this.name === fieldName) {
 	          this.$nextTick(function () {
 	            if (_this.$refs['input']) {
@@ -154,29 +152,23 @@ this.BX = this.BX || {};
 	      },
 	      avatarClasses: function avatarClasses() {
 	        var classes = ['im-conference-create-invitation-user-avatar'];
-
 	        if (!this.chatHost.AVATAR) {
 	          classes.push('im-conference-create-invitation-user-avatar-default');
 	        }
-
 	        return classes;
 	      },
 	      avatarStyles: function avatarStyles() {
 	        var styles = {};
-
 	        if (this.chatHost.AVATAR) {
 	          styles.backgroundImage = "url(".concat(this.chatHost.AVATAR, ")");
 	        }
-
 	        return styles;
 	      },
 	      formattedInvitation: function formattedInvitation() {
 	        var title = this.title ? this.title : '';
-
 	        if (this.isFormCreateMode && !this.title) {
 	          title = this.defaultTitle;
 	        }
-
 	        return this.invitation.value.replace(/#CREATOR#/gm, main_core.Text.encode(this.chatHost.FULL_NAME)).replace(/#TITLE#/gm, "\"".concat(main_core.Text.encode(title), "\"")).replace(/#LINK#/gm, "<a href=\"".concat(this.publicLink, "\" target=\"_blank\">").concat(this.publicLink, "</a>"));
 	      },
 	      localize: function localize() {
@@ -186,7 +178,6 @@ this.BX = this.BX || {};
 	    methods: {
 	      onEditClick: function onEditClick() {
 	        var _this = this;
-
 	        var contentWidth = this.$refs['view'].offsetWidth;
 	        var contentHeight = this.$refs['view'].offsetHeight;
 	        this.invitation.mode = im_const.ConferenceFieldState.edit;
@@ -194,7 +185,6 @@ this.BX = this.BX || {};
 	        this.$nextTick(function () {
 	          _this.$refs['editor'].style.width = contentWidth + 20 + 'px';
 	          _this.$refs['editor'].style.height = contentHeight + 30 + 'px';
-
 	          _this.$refs['editor'].focus();
 	        });
 	      },
@@ -202,7 +192,6 @@ this.BX = this.BX || {};
 	        if (!this.initialValue) {
 	          this.initialValue = this.invitation.value;
 	        }
-
 	        this.editedValue = main_core.Text.encode(event.target.value);
 	      },
 	      saveChanges: function saveChanges() {
@@ -214,7 +203,6 @@ this.BX = this.BX || {};
 	        } else {
 	          this.invitation.value = main_core.Text.encode(this.invitation.value);
 	        }
-
 	        this.invitation.mode = im_const.ConferenceFieldState.view;
 	      },
 	      discardChanges: function discardChanges() {
@@ -223,7 +211,6 @@ this.BX = this.BX || {};
 	          this.initialValue = null;
 	          this.editedValue = null;
 	        }
-
 	        this.invitation.value = main_core.Text.encode(this.invitation.value);
 	        this.invitation.mode = im_const.ConferenceFieldState.view;
 	      }
@@ -232,7 +219,6 @@ this.BX = this.BX || {};
 	      if (this.isFormCreateMode || !this.invitation.value) {
 	        this.invitation.value = this.localize['BX_IM_COMPONENT_CONFERENCE_DEFAULT_INVITATION'];
 	      }
-
 	      if (!this.isFormCreateMode && this.invitation.value) {
 	        this.invitation.value = main_core.Text.encode(this.invitation.value);
 	      }
@@ -299,13 +285,11 @@ this.BX = this.BX || {};
 	      },
 	      formattedDurationForView: function formattedDurationForView() {
 	        var durationTypeText;
-
 	        if (this.selectedDurationType === 'm') {
 	          durationTypeText = this.localize('BX_IM_COMPONENT_CONFERENCE_DURATION_MINUTES');
 	        } else if (this.selectedDurationType === 'h') {
 	          durationTypeText = this.localize('BX_IM_COMPONENT_CONFERENCE_DURATION_HOURS');
 	        }
-
 	        return "".concat(this.selectedDuration, " ").concat(durationTypeText);
 	      },
 	      startDateTime: function startDateTime() {
@@ -314,13 +298,11 @@ this.BX = this.BX || {};
 	      endDateTime: function endDateTime() {
 	        var duration = Number(this.selectedDuration);
 	        var durationType = this.selectedDurationType;
-
 	        if (durationType === 'h') {
 	          duration *= 60 * 60 * 1000;
 	        } else {
 	          duration *= 60 * 1000;
 	        }
-
 	        var endDateTime = new Date();
 	        endDateTime.setTime(this.startDateTime.getTime() + duration);
 	        return endDateTime;
@@ -332,14 +314,14 @@ this.BX = this.BX || {};
 	    methods: {
 	      switchToEdit: function switchToEdit() {
 	        this.$emit('switchToEdit', this.name);
-	        this.$nextTick(function () {//this.userSelector.renderTo(this.$refs['userSelector']);
+	        this.$nextTick(function () {
+	          //this.userSelector.renderTo(this.$refs['userSelector']);
 	          //this.initPlanner();
 	          //this.updatePlanner();
 	        });
 	      },
 	      onDateFieldClick: function onDateFieldClick(event) {
 	        var _this = this;
-
 	        if (main_core.Reflection.getClass('BX.calendar')) {
 	          BX.calendar({
 	            node: event.currentTarget,
@@ -350,26 +332,21 @@ this.BX = this.BX || {};
 	            }
 	          });
 	        }
-
 	        return false;
 	      },
 	      onTimeFieldClick: function onTimeFieldClick() {
 	        var _this2 = this;
-
 	        this.clockInstance.setNode(this.$refs['timeInput']);
 	        this.clockInstance.setTime(this.convertToSeconds(this.selectedTime));
 	        this.clockInstance.setCallback(function (value) {
 	          _this2.$emit('timeChange', value);
-
 	          BX.fireEvent(_this2.$refs['timeInput'], 'change');
-
 	          _this2.clockInstance.closeWnd();
 	        });
 	        this.clockInstance.Show();
 	      },
 	      onUpdateDateTime: function onUpdateDateTime() {
 	        var _this3 = this;
-
 	        //$nextTick didn't help there
 	        setTimeout(function () {
 	          _this3.planner.updateSelector(_this3.startDateTime, _this3.endDateTime, false);
@@ -388,39 +365,34 @@ this.BX = this.BX || {};
 	        var parts = time.split(/[\s:]+/);
 	        var hours = parseInt(parts[0], 10);
 	        var minutes = parseInt(parts[1], 10);
-
 	        if (parts.length === 3) {
 	          var modifier = parts[2];
-
 	          if (modifier === 'pm' && hours < 12) {
 	            //'03:00 pm' => 15:00
 	            hours = hours + 12;
 	          }
-
 	          if (modifier === 'am' && hours === 12) {
 	            //'12:00 am' => 0:00
 	            hours = 0;
 	          }
 	        }
-
 	        var secondsInHours = hours * 3600;
 	        var secondsInMinutes = minutes * 60;
 	        return secondsInHours + secondsInMinutes;
 	      },
 	      onUserSelect: function onUserSelect(event) {
-	        this.$emit('userSelect', event); //this.updatePlanner();
+	        this.$emit('userSelect', event);
+	        //this.updatePlanner();
 	      },
 	      onUserDeselect: function onUserDeselect(event) {
-	        this.$emit('userDeselect', event); //this.updatePlanner();
+	        this.$emit('userDeselect', event);
+	        //this.updatePlanner();
 	      },
 	      onUpdateUserSelector: function onUpdateUserSelector() {
 	        var _this4 = this;
-
 	        this.$nextTick(function () {
 	          _this4.$refs['userSelector'].innerHTML = '';
-
 	          _this4.initUserSelector();
-
 	          _this4.userSelector.renderTo(_this4.$refs['userSelector']);
 	        });
 	      },
@@ -431,7 +403,6 @@ this.BX = this.BX || {};
 	      },
 	      initUserSelector: function initUserSelector() {
 	        var _this5 = this;
-
 	        this.userSelector = new ui_entitySelector.TagSelector({
 	          id: 'user-tag-selector',
 	          dialogOptions: {
@@ -463,7 +434,6 @@ this.BX = this.BX || {};
 	      },
 	      initPlanner: function initPlanner() {
 	        var _this6 = this;
-
 	        this.planner = new calendar_planner.Planner({
 	          wrap: this.$refs['plannerNode'],
 	          showEntryName: true,
@@ -478,7 +448,6 @@ this.BX = this.BX || {};
 	      },
 	      updatePlanner: function updatePlanner() {
 	        var _this7 = this;
-
 	        if (this.selectedUsers.length > 0) {
 	          main_core.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 	            data: {
@@ -488,7 +457,6 @@ this.BX = this.BX || {};
 	            }
 	          }).then(function (response) {
 	            _this7.planner.update(response.data.entries, response.data.accessibility);
-
 	            _this7.planner.updateSelector(_this7.startDateTime, _this7.endDateTime, false);
 	          })["catch"](function (error) {});
 	        }
@@ -498,11 +466,9 @@ this.BX = this.BX || {};
 	          var data = event.getData();
 	          var startDateTime = data.dateFrom;
 	          var duration = (data.dateTo - data.dateFrom) / 1000 / 60; //duration in minutes
-
 	          var durationType = this.selectedDurationType;
 	          this.$emit('dateChange', startDateTime);
 	          this.$emit('timeChange', this.$parent.formatTime(startDateTime));
-
 	          if (durationType === 'h' && duration % 60 === 0) {
 	            this.$emit('durationChange', duration / 60);
 	            this.$emit('durationTypeChange', 'h');
@@ -518,16 +484,15 @@ this.BX = this.BX || {};
 	            backgroundImage: "url('".concat(encodeURI(user.avatar), "')")
 	          };
 	        }
-
 	        return {};
 	      }
 	    },
 	    created: function created() {},
 	    mounted: function mounted() {
 	      var _this8 = this;
-
 	      this.initUserSelector();
-	      this.userSelector.renderTo(this.$refs['userSelector']); //this.initClock();
+	      this.userSelector.renderTo(this.$refs['userSelector']);
+	      //this.initClock();
 	      //this.initPlanner();
 	      //this.updatePlanner();
 
@@ -597,10 +562,12 @@ this.BX = this.BX || {};
 	        }
 	      },
 	      onPresenterSelect: function onPresenterSelect(event) {
-	        this.$emit('presenterSelect', event); //this.updatePlanner();
+	        this.$emit('presenterSelect', event);
+	        //this.updatePlanner();
 	      },
 	      onPresenterDeselect: function onPresenterDeselect(event) {
-	        this.$emit('presenterDeselect', event); //this.updatePlanner();
+	        this.$emit('presenterDeselect', event);
+	        //this.updatePlanner();
 	      },
 	      getUserAvatarStyle: function getUserAvatarStyle(user) {
 	        if (user.avatar) {
@@ -608,12 +575,10 @@ this.BX = this.BX || {};
 	            backgroundImage: "url('".concat(encodeURI(user.avatar), "')")
 	          };
 	        }
-
 	        return {};
 	      },
 	      initPresenterSelector: function initPresenterSelector() {
 	        var _this = this;
-
 	        this.presenterSelector = new ui_entitySelector.TagSelector({
 	          id: 'presenter-tag-selector',
 	          dialogOptions: {
@@ -637,19 +602,15 @@ this.BX = this.BX || {};
 	      },
 	      onUpdatePresenterSelector: function onUpdatePresenterSelector() {
 	        var _this2 = this;
-
 	        this.$nextTick(function () {
 	          _this2.$refs['presenterSelector'].innerHTML = '';
-
 	          _this2.initPresenterSelector();
-
 	          _this2.presenterSelector.renderTo(_this2.$refs['presenterSelector']);
 	        });
 	      }
 	    },
 	    mounted: function mounted() {
 	      var _this3 = this;
-
 	      this.initPresenterSelector();
 	      this.presenterSelector.renderTo(this.$refs['presenterSelector']);
 	      this.$root.$on('switchModeForAll', function (mode) {
@@ -790,7 +751,6 @@ this.BX = this.BX || {};
 	      this.passwordNeeded.currentValue = !!this.fieldsData['PASSWORD'];
 	      this.publicLink = main_core.Text.encode(this.publicLink);
 	      this.selectedUsers.currentValue = babelHelpers.toConsumableArray(this.chatUsers);
-
 	      if (this.fieldsData['BROADCAST']) {
 	        this.selectedPresenters.currentValue = babelHelpers.toConsumableArray(this.presenters);
 	      }
@@ -808,7 +768,6 @@ this.BX = this.BX || {};
 	      this.selectedUsers.currentValue.push(currentUser);
 	      this.selectedPresenters.currentValue.push(currentUser);
 	    }
-
 	    this.title.currentValue = this.title.initialValue;
 	    this.password.currentValue = this.password.initialValue;
 	    this.passwordNeeded.initialValue = this.passwordNeeded.currentValue;
@@ -861,11 +820,9 @@ this.BX = this.BX || {};
 	    },
 	    submitFormButtonClasses: function submitFormButtonClasses() {
 	      var classes = ['ui-btn', 'ui-btn-success'];
-
 	      if (this.isSubmitting) {
 	        classes.push('ui-btn-disabled');
 	      }
-
 	      return classes;
 	    },
 	    localize: function localize() {
@@ -873,8 +830,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  methods: {
-	    /* region 01. Mode switching */
-	    switchToEdit: function switchToEdit(fieldName) {
+	    /* region 01. Mode switching */switchToEdit: function switchToEdit(fieldName) {
 	      this.fieldsMode[fieldName] = im_const.ConferenceFieldState.edit;
 	      this.$root.$emit('focus', fieldName);
 	    },
@@ -884,12 +840,9 @@ this.BX = this.BX || {};
 	          this.fieldsMode[field] = mode;
 	        }
 	      }
-
 	      this.$root.$emit('switchModeForAll', mode);
 	    },
-
 	    /* endregion 01. Mode switching */
-
 	    /* region 02. Field update handlers */
 	    onTitleChange: function onTitleChange(newTitle) {
 	      this.title.currentValue = newTitle;
@@ -899,7 +852,6 @@ this.BX = this.BX || {};
 	    },
 	    onPasswordNeededChange: function onPasswordNeededChange() {
 	      this.passwordNeeded.currentValue = !this.passwordNeeded.currentValue;
-
 	      if (this.passwordNeeded.currentValue) {
 	        this.$root.$emit('focus', 'password');
 	      }
@@ -915,7 +867,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedUsers.currentValue.findIndex(function (user) {
 	        return user.id === event.data.item.id;
 	      });
-
 	      if (index === -1) {
 	        this.selectedUsers.currentValue.push({
 	          id: event.data.item.id,
@@ -928,7 +879,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedUsers.currentValue.findIndex(function (user) {
 	        return user.id === event.data.item.id;
 	      });
-
 	      if (index > -1) {
 	        this.selectedUsers.currentValue.splice(index, 1);
 	      }
@@ -937,7 +887,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedPresenters.currentValue.findIndex(function (user) {
 	        return user.id === event.data.item.id;
 	      });
-
 	      if (index === -1) {
 	        this.selectedPresenters.currentValue.push({
 	          id: event.data.item.id,
@@ -950,7 +899,6 @@ this.BX = this.BX || {};
 	      var index = this.selectedPresenters.currentValue.findIndex(function (user) {
 	        return user.id === event.data.item.id;
 	      });
-
 	      if (index > -1) {
 	        this.selectedPresenters.currentValue.splice(index, 1);
 	      }
@@ -967,9 +915,7 @@ this.BX = this.BX || {};
 	    onDurationTypeChange: function onDurationTypeChange(newDurationType) {
 	      this.selectedDurationType.currentValue = newDurationType;
 	    },
-
 	    /* endregion 02. Field update handlers */
-
 	    /* region 03. Actions */
 	    discardChanges: function discardChanges() {
 	      this.clearErrors();
@@ -989,22 +935,17 @@ this.BX = this.BX || {};
 	    },
 	    copyInvitation: function copyInvitation() {
 	      var link = '';
-
 	      if (this.isFormCreateMode && this.linkGenerated) {
 	        link = main_core.Text.decode(this.aliasData['LINK']);
 	      } else if (this.isFormViewMode) {
 	        link = main_core.Text.decode(this.publicLink);
 	      }
-
 	      var title = this.localize['BX_IM_COMPONENT_CONFERENCE_DEFAULT_TITLE'];
-
 	      if (this.title.currentValue) {
 	        title = this.title.currentValue;
 	      }
-
 	      var copyValue = main_core.Text.decode(this.invitation.value).replace(/#CREATOR#/gm, this.chatHost.FULL_NAME).replace(/#TITLE#/gm, "\"".concat(title, "\"")).replace(/#LINK#/gm, "".concat(link));
 	      im_lib_clipboard.Clipboard.copy(copyValue);
-
 	      if (main_core.Reflection.getClass('BX.UI.Notification.Center')) {
 	        top.BX.UI.Notification.Center.notify({
 	          content: this.localize['BX_IM_COMPONENT_CONFERENCE_INVITATION_COPIED']
@@ -1019,17 +960,13 @@ this.BX = this.BX || {};
 	    editAll: function editAll() {
 	      this.switchModeForAllFields(im_const.ConferenceFieldState.edit);
 	    },
-
 	    /* endregion 03. Actions */
-
 	    /* region 04. Form handling */
 	    submitForm: function submitForm() {
 	      var _this = this;
-
 	      if (this.isSubmitting) {
 	        return false;
 	      }
-
 	      this.isSubmitting = true;
 	      var fieldsToSubmit = {};
 	      fieldsToSubmit['title'] = this.title.currentValue;
@@ -1045,7 +982,6 @@ this.BX = this.BX || {};
 	        return user.id;
 	      });
 	      this.clearErrors();
-
 	      if (this.isFormViewMode || this.linkGenerated) {
 	        main_core.ajax.runAction('im.conference.create', {
 	          json: {
@@ -1066,7 +1002,6 @@ this.BX = this.BX || {};
 	      if (this.isFormCreateMode) {
 	        this.copyInvitation();
 	      }
-
 	      this.isSubmitting = false;
 	      this.closeSlider();
 	      this.reloadGrid();
@@ -1074,23 +1009,18 @@ this.BX = this.BX || {};
 	    onFailedSubmit: function onFailedSubmit(response) {
 	      this.isSubmitting = false;
 	      var errorMessage = response["errors"][0].message;
-
 	      if (response["errors"][0].code === 'NETWORK_ERROR') {
 	        errorMessage = this.localize['BX_IM_COMPONENT_CONFERENCE_NETWORK_ERROR'];
 	      }
-
 	      this.addError(errorMessage);
 	    },
-
 	    /* endregion 04. Form handling */
-
 	    /* region 05. Helpers */
 	    checkRequirements: function checkRequirements() {
 	      if (!top.BX.PULL.isPublishingEnabled()) {
 	        this.disableButton();
 	        this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_PUSH_ERROR']);
 	      }
-
 	      if (!top.BX.Call.Util.isCallServerAllowed()) {
 	        this.disableButton();
 	        this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_VOXIMPLANT_ERROR_WITH_LINK']);
@@ -1098,14 +1028,12 @@ this.BX = this.BX || {};
 	    },
 	    disableButton: function disableButton() {
 	      var createButton = document.querySelector('#im-conference-create-wrap #ui-button-panel-save');
-
 	      if (createButton) {
 	        main_core.Dom.addClass(createButton, ['ui-btn-disabled', 'ui-btn-icon-lock']);
 	      }
 	    },
 	    generateLink: function generateLink() {
 	      var _this2 = this;
-
 	      main_core.ajax.runAction('im.conference.prepare', {
 	        json: {},
 	        analyticsLabel: {
@@ -1142,11 +1070,9 @@ this.BX = this.BX || {};
 	      var date = new Date();
 	      var minutes = date.getMinutes();
 	      var mod = minutes % 5;
-
 	      if (mod > 0) {
 	        date.setMinutes(minutes - mod + (mod > 2 ? 5 : 0));
 	      }
-
 	      this.selectedDate.currentValue = BX.formatDate(date, BX.message('FORMAT_DATE'));
 	      this.selectedDate.initialValue = this.selectedDate.currentValue;
 	      this.selectedTime.currentValue = this.formatTime(date);
@@ -1164,9 +1090,7 @@ this.BX = this.BX || {};
 	      var dateString = BX.date.format(dateFormat, date);
 	      var timeString = BX.date.format(timeFormat, date);
 	      return BX.util.trim(timeString.replace(dateString, ''));
-	    }
-	    /* endregion 05. Helpers */
-
+	    } /* endregion 05. Helpers */
 	  },
 	  components: FieldComponents,
 	  template: "\n\t\t<div>\n\t\t\t<template v-if=\"errors.length > 0\">\n\t\t\t\t<div class=\"ui-alert ui-alert-danger\" id=\"im-conference-create-errors\">\n\t\t\t\t\t<span v-for=\"error in errors\" class=\"ui-alert-message\" v-html=\"error\"></span>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<div class=\"im-conference-create-block im-conference-create-fields-wrapper\">\n\t\t\t\t<!-- Form fields -->\n\t\t\t\t<conference-field-title\n\t\t\t\t\t:mode=\"fieldsMode['title']\"\n\t\t\t\t\t:title=\"title.currentValue\"\n\t\t\t\t\t:defaultValue=\"title.defaultValue\"\n\t\t\t\t\t@titleChange=\"onTitleChange\"\n\t\t\t\t\t@switchToEdit=\"switchToEdit\"\n\t\t\t\t/>\n\t\t\t\t<conference-field-planner\n\t\t\t\t\t:mode=\"fieldsMode['planner']\"\n\t\t\t\t\t:selectedUsers=\"selectedUsers.currentValue\"\n\t\t\t\t\t:selectedDate=\"selectedDate.currentValue\"\n\t\t\t\t\t:selectedTime=\"selectedTime.currentValue\"\n\t\t\t\t\t:selectedDuration=\"selectedDuration.currentValue\"\n\t\t\t\t\t:selectedDurationType=\"selectedDurationType.currentValue\"\n\t\t\t\t\t:chatHost=\"chatHost\"\n\t\t\t\t\t@userSelect=\"onUserSelect\"\n\t\t\t\t\t@userDeselect=\"onUserDeselect\"\n\t\t\t\t\t@dateChange=\"onDateChange\"\n\t\t\t\t\t@timeChange=\"onTimeChange\"\n\t\t\t\t\t@durationChange=\"onDurationChange\"\n\t\t\t\t\t@durationTypeChange=\"onDurationTypeChange\"\n\t\t\t\t\t@switchToEdit=\"switchToEdit\"\n\t\t\t\t/>\n\t\t\t\t<conference-field-password\n\t\t\t\t\t:mode=\"fieldsMode['password']\"\n\t\t\t\t\t:password=\"password.currentValue\"\n\t\t\t\t\t:passwordNeeded=\"passwordNeeded.currentValue\"\n\t\t\t\t\t@passwordChange=\"onPasswordChange\"\n\t\t\t\t\t@passwordNeededChange=\"onPasswordNeededChange\"\n\t\t\t\t\t@switchToEdit=\"switchToEdit\"\n\t\t\t\t/>\n<!--\t\t\t\t<div v-if=\"isFormCreateMode\" class=\"im-conference-create-delimiter im-conference-create-delimiter-small\"></div>-->\n\t\t\t\t<template v-if=\"broadcastingEnabled\">\n\t\t\t\t\t<conference-field-broadcast\n\t\t\t\t\t\t:mode=\"fieldsMode['broadcast']\"\n\t\t\t\t\t\t:broadcastMode=\"broadcastMode.currentValue\"\n\t\t\t\t\t\t:selectedPresenters=\"selectedPresenters.currentValue\"\n\t\t\t\t\t\t:chatHost=\"chatHost\"\n\t\t\t\t\t\t@broadcastModeChange=\"onBroadcastModeChange\"\n\t\t\t\t\t\t@switchToEdit=\"switchToEdit\"\n\t\t\t\t\t\t@presenterSelect=\"onPresenterSelect\"\n\t\t\t\t\t\t@presenterDeselect=\"onPresenterDeselect\"\n\t\t\t\t\t/>\n\t\t\t\t</template>\n\t\t\t\t<!-- Action buttons -->\n\t\t\t\t<template v-if=\"!isFormCreateMode\">\n\t\t\t\t\t<div class=\"im-conference-create-section im-conference-create-actions\">\n\t\t\t\t\t\t<a :href=\"publicLink\" target=\"_blank\" class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-icon-camera\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_START'] }}</a>\n\t\t\t\t\t\t<button @click=\"copyInvitation\" class=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-share\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_INVITATION_COPY'] }}</button>\n\t\t\t\t\t\t<button @click=\"openChat\" class=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-chat\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CHAT'] }}</button>\n\t\t\t\t\t\t<button @click=\"editAll\" class=\"ui-btn ui-btn-sm ui-btn-light\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_EDIT'] }}</button>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Bottom button panel -->\n\t\t\t\t<div v-if=\"isEditing\" class=\"im-conference-create-button-panel-edit ui-button-panel-wrapper ui-pinner ui-pinner-bottom ui-pinner-full-width\">\n\t\t\t\t\t<div class=\"ui-button-panel ui-button-panel-align-center\">\n\t\t\t\t\t\t<button @click=\"submitForm\" id=\"ui-button-panel-save\" :class=\"submitFormButtonClasses\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_SAVE'] }}</button>\n\t\t\t\t\t\t<a @click=\"discardChanges\" id=\"ui-button-panel-cancel\" class=\"ui-btn ui-btn-link\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CANCEL'] }}</a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-else-if=\"isFormCreateMode\" class=\"im-conference-create-button-panel-add ui-button-panel-wrapper ui-pinner ui-pinner-bottom ui-pinner-full-width\">\n\t\t\t\t\t<div class=\"ui-button-panel ui-button-panel-align-center\">\n\t\t\t\t\t\t<button @click=\"submitForm\" id=\"ui-button-panel-save\" name=\"save\" value=\"Y\" :class=\"submitFormButtonClasses\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CREATE'] }}</button>\n\t\t\t\t\t\t<a @click=\"closeSlider\" id=\"ui-button-panel-cancel\" class=\"ui-btn ui-btn-link\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CANCEL'] }}</a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"im-conference-create-delimiter\"></div>\n\t\t\t\t<!-- Invitation -->\n\t\t\t\t<conference-field-invitation\n\t\t\t\t\t:invitation=\"invitation\"\n\t\t\t\t\t:chatHost=\"chatHost\"\n\t\t\t\t\t:title=\"title.currentValue\"\n\t\t\t\t\t:defaultTitle=\"title.defaultValue\"\n\t\t\t\t\t:publicLink=\"conferenceLink\"\n\t\t\t\t\t:formMode=\"mode\"\n\t\t\t\t\t@invitationUpdate=\"onInvitationUpdate\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t</div>\n\t"

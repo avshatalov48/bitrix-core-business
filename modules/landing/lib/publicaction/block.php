@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
+use Bitrix\Landing\History;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Landing;
@@ -92,11 +93,14 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param string $selector Selector.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function cloneCard($lid, $block, $selector)
+	public static function cloneCard($lid, $block, $selector, bool $preventHistory = false)
 	{
 		Landing::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
+
 		return self::cardAction('cloneCard', $lid, $block, $selector);
 	}
 
@@ -105,12 +109,15 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param string $selector Selector.
+	 * @param bool $preventHistory True if no need save history
 	 * @param string $content Content of card.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function addCard($lid, $block, $selector, $content)
+	public static function addCard($lid, $block, $selector, $content, bool $preventHistory = false)
 	{
 		Landing::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
+
 		return self::cardAction(
 			'cloneCard',
 			$lid,
@@ -127,11 +134,14 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param string $selector Selector.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function removeCard($lid, $block, $selector)
+	public static function removeCard($lid, $block, $selector, bool $preventHistory = false)
 	{
 		Landing::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
+
 		return self::cardAction('removeCard', $lid, $block, $selector);
 	}
 
@@ -260,14 +270,17 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param string $data New anchor.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function changeAnchor($lid, $block, $data)
+	public static function changeAnchor($lid, $block, $data, bool $preventHistory = false)
 	{
 		$error = new \Bitrix\Landing\Error;
 		$result = new PublicActionResult();
 
 		Landing::setEditMode();
+
+		$preventHistory ? History::deactivate() : History::activate();
 
 		$landing = Landing::createInstance($lid, [
 			'blocks_id' => $block
@@ -306,9 +319,10 @@ class Block
 	 * @param int $block Block id.
 	 * @param array $data Array with selector and value.
 	 * @param array $additional Additional prams for save.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function updateNodes($lid, $block, array $data, array $additional = array())
+	public static function updateNodes($lid, $block, array $data, array $additional = array(), bool $preventHistory = false)
 	{
 		$error = new \Bitrix\Landing\Error;
 		$result = new PublicActionResult();
@@ -321,6 +335,7 @@ class Block
 		$block = intval($block);
 
 		Landing::setEditMode();
+		$preventHistory ? History::deactivate() : History::activate();
 
 		// save dynamic cards settings
 		if (isset($data['dynamicState']) || isset($data['dynamicBlock']))//@tmp refactor
@@ -562,10 +577,13 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param array $data Array with selector and data.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function updateStyles($lid, $block, array $data)
+	public static function updateStyles($lid, $block, array $data, bool $preventHistory = false)
 	{
+		$preventHistory ? History::deactivate() : History::activate();
+
 		$lastResult = null;
 		foreach ($data as $selector => $value)
 		{
@@ -663,9 +681,10 @@ class Block
 	 * @param int $block Block id.
 	 * @param string $content Block content.
 	 * @param bool $designed Block was designed.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function updateContent($lid, $block, $content, $designed = false)
+	public static function updateContent($lid, $block, $content, $designed = false, bool $preventHistory = false)
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
@@ -718,6 +737,23 @@ class Block
 				{
 					File::deleteFromBlock($block, $filesDelete);
 				}
+
+				if (!$preventHistory)
+				{
+					History::activate();
+					$history = new History($lid, History::ENTITY_TYPE_LANDING);
+					$history->push('UPDATE_CONTENT', [
+						'block' => $blocks[$block]->getId(),
+						'contentBefore' => $blocks[$block]->getContent(),
+						'contentAfter' => $newContent,
+						'designed' => $designed,
+					]);
+				}
+				else
+				{
+					History::deactivate();
+				}
+
 				// update content
 				$blocks[$block]->saveContent(
 					$newContent,
@@ -1092,5 +1128,23 @@ class Block
 			)
 		]);
 		return $result;
+	}
+
+	public static function getPersonalPhotoById(int $userId): ?int
+	{
+		$res = \Bitrix\Main\UserTable::getList([
+			'select' => [
+				'PERSONAL_PHOTO',
+			],
+			'filter' => [
+				'ID' => $userId
+			]
+		]);
+		$row = $res->fetch();
+		if ($row['PERSONAL_PHOTO'])
+		{
+			return $row['PERSONAL_PHOTO'];
+		}
+		return null;
 	}
 }

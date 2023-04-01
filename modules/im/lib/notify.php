@@ -413,7 +413,7 @@ class Notify
 			if ($row['NOTIFY_READ'] === 'N')
 			{
 				$relationId = (int)$row['RELATION_ID'];
-				if (isset($relationIdToCounters[$relationId]))
+				if (!isset($relationIdToCounters[$relationId]))
 				{
 					$relationIdToCounters[$relationId] = 0;
 				}

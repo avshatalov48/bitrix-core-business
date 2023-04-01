@@ -35,9 +35,9 @@ $containerId = 'bx-sender-segment-edit';
 	<form name="post_form" method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>
 
-		<div class="bx-sender-letter-field" style="<?=($arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
+		<div class="bx-sender-letter-field" style="<?=(isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
 			<div class="bx-sender-caption">
-				<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FIELD_NAME')?>:
+				<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FIELD_NAME')?>
 			</div>
 			<div class="bx-sender-value">
 				<input data-role="segment-title" type="text" name="NAME" value="<?=htmlspecialcharsbx($arResult['ROW']['NAME'])?>" class="bx-sender-form-control bx-sender-letter-field-input">
@@ -187,7 +187,7 @@ $containerId = 'bx-sender-segment-edit';
 
 		<div class="sender-box-list">
 			<div data-bx-list="" >
-				<?
+				<?php
 				foreach($arResult['CONNECTOR']['EXISTED'] as $existedConnector)
 				{
 					if ($existedConnector['ID'] == 'sender_contact_list')
@@ -198,18 +198,29 @@ $containerId = 'bx-sender-segment-edit';
 					$replace = array();
 					foreach ($existedConnector as $key => $value)
 					{
-						if ($key != 'FORM')
+						if (!is_array($value) && $key != 'FORM')
 						{
 							$value = htmlspecialcharsbx((string) $value);
 						}
 						$replace["%CONNECTOR_$key%"] = $value;
 					}
 
-					echo str_replace(
-						array_keys($replace),
-						array_values($replace),
-						$existedConnector['IS_FILTER'] ? $connectorFilterTemplate : $connectorTemplate
-					);
+					$subject = $existedConnector['IS_FILTER'] ? $connectorFilterTemplate : $connectorTemplate;
+
+					$keys = array_keys($replace);
+					$values = array_values($replace);
+					$size = count($keys);
+					for($counter = 0; $counter < $size; $counter++)
+					{
+						$key = $keys[$counter];
+						$value = !is_array($values[$counter]) ? $values[$counter] : '';
+						$subject = str_replace(
+							$key,
+							$value,
+							$subject
+						);
+					}
+					echo $subject;
 				}
 				?>
 			</div>
@@ -288,7 +299,7 @@ $containerId = 'bx-sender-segment-edit';
 				'groupId' => $arParams['ID'],
 				'containerId' => $containerId,
 				'actionUri' => $arResult['ACTION_URI'],
-				'isFrame' => $arParams['IFRAME'] == 'Y',
+				'isFrame' => isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y',
 				'isSaved' => $arResult['IS_SAVED'],
 				'canViewConnData' => $arParams['CAN_VIEW_CONN_DATA'],
 				'onlyConnectorFilters' => $arParams['ONLY_CONNECTOR_FILTERS'],

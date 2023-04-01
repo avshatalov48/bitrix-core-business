@@ -154,7 +154,7 @@ export class DelayIntervalSelector
 						className: "bizproc-automation-popup-settings-lbl",
 						for: uid + "worktime"
 					},
-					text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME')
+					text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_MSGVER_1')
 				}),
 				workTimeHelpNode
 			]
@@ -856,7 +856,7 @@ export class DelayIntervalSelector
 							className: `bizproc-automation-popup-settings-lbl ${!isAvailable? 'bizproc-automation-robot-btn-set-locked' : ''}`,
 							for: uid + "wait_workday"
 						},
-						text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY')
+						text: Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_MSGVER_1')
 					}),
 					workDayHelpNode
 				]

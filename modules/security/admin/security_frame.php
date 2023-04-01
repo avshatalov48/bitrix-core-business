@@ -33,15 +33,19 @@ $aTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
 
 $bVarsFromForm = false;
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].$_REQUEST["frame_siteb"] !="" && $canWrite && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST"
+	&& (isset($_REQUEST["save"]) || isset($_REQUEST["apply"]) || isset($_REQUEST["frame_siteb"]))
+	&& $canWrite
+	&& check_bitrix_sessid())
 {
 	if($_REQUEST["frame_siteb"] != "")
 		CSecurityFrame::SetActive($_POST["frame_active"]==="Y");
 
 	CSecurityFrameMask::Update($_POST["FRAME_MASKS"]);
 
-	if($_REQUEST["save"] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST["save"]) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 
 	$returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";

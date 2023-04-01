@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Core\Event\Properties;
 
 use Bitrix\Calendar\Core\Base\BaseProperty;
+use Bitrix\Main\Text\Emoji;
 
 class Location extends BaseProperty
 {
@@ -21,8 +22,8 @@ class Location extends BaseProperty
 	 */
 	public function __construct(?string $actualLocation, ?string $originalLocation = '')
 	{
-		$this->actualLocation = $actualLocation;
-		$this->originalLocation = $originalLocation;
+		$this->actualLocation = $actualLocation ? Emoji::decode($actualLocation) : $actualLocation;
+		$this->originalLocation = $originalLocation ? Emoji::decode($originalLocation) : $originalLocation;
 	}
 
 	/**
@@ -42,7 +43,7 @@ class Location extends BaseProperty
 	 */
 	public function setActualLocation(string $actualLocation): Location
 	{
-		$this->actualLocation = $actualLocation;
+		$this->actualLocation = Emoji::decode($actualLocation);
 
 		return $this;
 	}
@@ -53,7 +54,7 @@ class Location extends BaseProperty
 	 */
 	public function setOriginalLocation(string $originalLocation): Location
 	{
-		$this->originalLocation = $originalLocation;
+		$this->originalLocation = Emoji::decode($originalLocation);
 
 		return $this;
 	}

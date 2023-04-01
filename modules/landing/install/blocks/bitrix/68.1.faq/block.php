@@ -61,7 +61,7 @@
 			</h3>
 			<div class="landing-block-faq-hidden">
 				<div class="g-pa-20">
-					Set tasks, receive work reports, and manage projects online with the ultimate “get things done” tool from Bitrix24.
+					Set tasks, receive work reports, and manage projects online with the ultimate "get things done" tool from Bitrix24.
 				</div>
 			</div>
 		</div>

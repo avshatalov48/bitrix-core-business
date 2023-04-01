@@ -130,7 +130,7 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 		{
 			$fields['SHIPMENT_ITEM'] = $shipmentItem;
 			$fields['NEED_RESERVE'] = [
-				$shipmentItem->getInternalIndex() => $productData["NEED_RESERVE"]
+				$shipmentItem->getInternalIndex() => $productData["NEED_RESERVE"] ?? false
 			];
 		}
 

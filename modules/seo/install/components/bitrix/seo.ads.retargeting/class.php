@@ -29,7 +29,7 @@ class SeoAdsRetargetingComponent extends CBitrixComponent implements Controllera
 	{
 		$this->arParams['INPUT_NAME_PREFIX'] = isset($this->arParams['INPUT_NAME_PREFIX']) ? $this->arParams['INPUT_NAME_PREFIX'] : '';
 		$this->arParams['HAS_ACCESS'] = isset($this->arParams['HAS_ACCESS']) ? (bool) $this->arParams['HAS_ACCESS'] : false;
-		$this->arParams['AUDIENCE_LOOKALIKE_MODE'] = !!$this->arParams['AUDIENCE_LOOKALIKE_MODE'];
+		$this->arParams['AUDIENCE_LOOKALIKE_MODE'] = (bool)($this->arParams['AUDIENCE_LOOKALIKE_MODE'] ?? false);
 
 		return $this->arParams;
 	}

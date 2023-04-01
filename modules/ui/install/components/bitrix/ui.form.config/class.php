@@ -7,6 +7,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Grid\Options;
 use Bitrix\Main\Grid\Panel\Actions;
+use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -39,15 +40,26 @@ class UiFormConfig extends CBitrixComponent
 
 		if ($request->isPost() && check_bitrix_sessid())
 		{
-			$scopeId = $request->getPost('ID');
 			$moduleId = $request->get('MODULE_ID');
-			if (
-				$request->getPost('action_button_editor_scopes') === 'delete'
-				&& ($scopeAccess = ScopeAccess::getInstance($moduleId))
-				&& $scopeAccess->canDelete($scopeId)
-			)
+			$scopeAccess = ScopeAccess::getInstance($moduleId);
+
+			if ($request->getPost('action_button_editor_scopes') === 'edit')
 			{
-				Scope::getInstance()->removeByIds($scopeId);
+				foreach ($request->getPost('FIELDS') as $scopeId => $row)
+				{
+					if (!empty($row['NAME']) && $scopeAccess->canUpdate($scopeId))
+					{
+						Scope::getInstance()->updateScopeName($scopeId, $row['NAME']);
+					}
+				}
+			}
+			elseif ($request->getPost('action_button_editor_scopes') === 'delete')
+			{
+				$scopeId = $request->getPost('ID');
+				if ($scopeAccess->canDelete($scopeId))
+				{
+					Scope::getInstance()->removeByIds($scopeId);
+				}
 			}
 		}
 
@@ -65,12 +77,9 @@ class UiFormConfig extends CBitrixComponent
 		$grid['GRID_ID'] = $gridId;
 		$grid['COLUMNS'] = $this->getColumns();
 
-		$userIds = [];
-
 		$gridOptions = new Options($gridId);
 		$navParams = $gridOptions->getNavParams(['nPageSize' => 10]);
 		$pageSize = (int)$navParams['nPageSize'];
-		$gridSort = $gridOptions->GetSorting(['sort' => $this->defaultGridSort]);
 
 		$pageNavigation = new PageNavigation($this->navParamName);
 		$pageNavigation->allowAllRecords(false)->setPageSize($pageSize)->initFromUri();
@@ -123,17 +132,13 @@ class UiFormConfig extends CBitrixComponent
 		$grid['SHOW_CHECK_ALL_CHECKBOXES'] = false;
 		$grid['SHOW_ACTION_PANEL'] = true;
 
+		$snippet = new Snippet();
 		$grid['ACTION_PANEL'] = [
 			'GROUPS' => [
 				'TYPE' => [
 					'ITEMS' => [
-						[
-							'NAME' => 'delete',
-							'TYPE' => 'BUTTON',
-							'TEXT' => Loc::getMessage('UI_FORM_CONFIG_DELETE'),
-							'CLASS' => 'icon remove',
-							'ONCHANGE' => $this->getOnRemove()->toArray()
-						]
+						$snippet->getRemoveButton(),
+						$snippet->getEditButton(),
 					],
 				]
 			],
@@ -159,9 +164,22 @@ class UiFormConfig extends CBitrixComponent
 	protected function getColumns(): array
 	{
 		return [
-			['id' => 'ID', 'name' => 'ID', 'default' => true],
-			['id' => 'NAME', 'name' => Loc::getMessage('UI_FORM_CONFIG_SCOPE'), 'default' => true],
-			['id' => 'USERS', 'name' => Loc::getMessage('UI_FORM_CONFIG_MEMBERS'), 'default' => true],
+			[
+				'id' => 'ID',
+				'name' => 'ID',
+				'default' => true,
+			],
+			[
+				'id' => 'NAME',
+				'name' => Loc::getMessage('UI_FORM_CONFIG_SCOPE'),
+				'default' => true,
+				'editable' => true,
+			],
+			[
+				'id' => 'USERS',
+				'name' => Loc::getMessage('UI_FORM_CONFIG_MEMBERS'),
+				'default' => true,
+			],
 		];
 	}
 
@@ -178,27 +196,6 @@ class UiFormConfig extends CBitrixComponent
 				'CONFIRM' => false,
 				'DATA' => [
 					['JS' => 'Grid.editSelectedSave()']
-				]
-			]
-		);
-
-		return $onchange;
-	}
-
-	/**
-	 * @return Onchange
-	 */
-	protected function getOnRemove(): Onchange
-	{
-		$onchange = new Onchange();
-
-		$onchange->addAction(
-			[
-				'ACTION' => Actions::CALLBACK,
-				'CONFIRM' => true,
-				'CONFIRM_APPLY_BUTTON' => Loc::getMessage('UI_FORM_CONFIG_APPLY'),
-				'DATA' => [
-					['JS' => 'Grid.removeSelected()']
 				]
 			]
 		);

@@ -20,6 +20,9 @@ $sTableID = "tbl_sale_order_props";
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $arFilterFields = array(
 	"filter_person_type_id",
 	"filter_type",
@@ -44,7 +47,7 @@ if ($filter_util <> '') $arFilter["UTIL"] = Trim($filter_util);
 
 if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
-	foreach ($FIELDS as $ID => $arFields)
+	foreach ($lAdmin->GetEditFields() as $ID => $arFields)
 	{
 		$DB->StartTransaction();
 		$ID = intval($ID);
@@ -70,7 +73,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = Array();
 		$dbResultList = CSaleOrderProps::GetList(
@@ -89,7 +92,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($lAdmin->GetAction())
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -167,16 +170,19 @@ while ($arOrderProp = $dbResultList->NavNext(true, "f_"))
 	$fieldValue = "";
 	if (in_array("PERSON_TYPE_ID", $arVisibleColumns))
 	{
-		$fieldValue  = "[".$arPersonTypeList[$f_PERSON_TYPE_ID]["ID"]."] ";
-		$fieldValue .= $arPersonTypeList[$f_PERSON_TYPE_ID]["NAME"]." ";
-		$fieldValue .= "(".htmlspecialcharsEx($arPersonTypeList[$f_PERSON_TYPE_ID]["LID"]).")";
+		$fieldValue = "[" . $f_PERSON_TYPE_ID . "] ";
+		if (isset($arPersonTypeList[$f_PERSON_TYPE_ID]))
+		{
+			$fieldValue .= $arPersonTypeList[$f_PERSON_TYPE_ID]["NAME"]." ";
+			$fieldValue .= "(".htmlspecialcharsEx($arPersonTypeList[$f_PERSON_TYPE_ID]["LID"]).")";
+		}
 	}
 	$row->AddField("PERSON_TYPE_ID", $fieldValue);
 
 	$row->AddInputField("NAME");
 	$row->AddInputField("SORT");
 	$row->AddInputField("CODE");
-	$row->AddField('TYPE', "[$f_TYPE] ".$inputTypes[$f_TYPE]['NAME']);
+	$row->AddField('TYPE', "[$f_TYPE] ". ($inputTypes[$f_TYPE]['NAME'] ?? ''));
 	$row->AddCheckField("ACTIVE");
 	$row->AddCheckField("REQUIRED");
 	$row->AddCheckField("MULTIPLE");

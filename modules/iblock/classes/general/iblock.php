@@ -284,6 +284,36 @@ class CAllIBlock
 		$s = $bWorkflow? "&WF=Y": "";
 
 		$arLabels = ($arOptions["LABELS"] ?? []);
+		$labelList = [
+			'ELEMENT_EDIT_TEXT' => 'ELEMENT_EDIT',
+			'ELEMENT_EDIT_TITLE' => 'ELEMENT_EDIT',
+			'ELEMENT_ADD_TEXT' => 'ELEMENT_ADD',
+			'ELEMENT_ADD_TITLE' => 'ELEMENT_ADD',
+			'ELEMENT_DELETE_TEXT' => 'ELEMENT_DELETE',
+			'ELEMENT_DELETE_TITLE' => 'ELEMENT_DELETE',
+			'SECTION_EDIT_TEXT' => 'SECTION_EDIT',
+			'SECTION_EDIT_TITLE' => 'SECTION_EDIT',
+			'SECTION_ADD_TEXT' => 'SECTION_ADD',
+			'SECTION_ADD_TITLE' => 'SECTION_ADD',
+			'SECTION_DELETE_TEXT' => 'SECTION_DELETE',
+			'SECTION_DELETE_TITLE' => 'SECTION_DELETE',
+			'ELEMENTS_NAME_TEXT' => 'ELEMENTS_NAME',
+			'ELEMENTS_NAME_TITLE' => 'ELEMENTS_NAME',
+			'SECTIONS_NAME_TEXT' => 'SECTIONS_NAME',
+			'SECTIONS_NAME_TITLE' => 'SECTIONS_NAME',
+		];
+		foreach ($labelList as $phraseId => $iblockPhrase)
+		{
+			if (
+				isset($arLabels[$phraseId])
+				&& is_string($arLabels[$phraseId])
+				&& $arLabels[$phraseId] !== ''
+			)
+			{
+				continue;
+			}
+			$arLabels[$phraseId] = $arIBlock[$iblockPhrase];
+		}
 
 		if($ELEMENT_ID > 0 && CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ELEMENT_ID, "element_edit"))
 		{
@@ -303,12 +333,12 @@ class CAllIBlock
 			);
 
 			$arButton = array(
-				"TEXT" => (($arLabels["ELEMENT_EDIT_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_EDIT_TEXT"] : $arIBlock["ELEMENT_EDIT"]),
-				"TITLE" => (($arLabels["ELEMENT_EDIT_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_EDIT_TITLE"] : $arIBlock["ELEMENT_EDIT"]),
+				"TEXT" => $arLabels["ELEMENT_EDIT_TEXT"],
+				"TITLE" => $arLabels["ELEMENT_EDIT_TITLE"],
 				"ACTION" => 'javascript:'.$action,
 				"ACTION_URL" => $url,
 				"ONCLICK" => $action,
-				"DEFAULT" => ($APPLICATION->GetPublicShowMode() != 'configure'? true: false),
+				"DEFAULT" => $APPLICATION->GetPublicShowMode() !== 'configure',
 				"ICON" => "bx-context-toolbar-edit-icon",
 				"ID" => "bx-context-toolbar-edit-element"
 			);
@@ -360,8 +390,8 @@ class CAllIBlock
 					)
 				);
 				$arButton = array(
-					"TEXT" => (($arLabels["ELEMENT_ADD_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_ADD_TEXT"] : $arIBlock["ELEMENT_ADD"]),
-					"TITLE" => (($arLabels["ELEMENT_ADD_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_ADD_TITLE"] : $arIBlock["ELEMENT_ADD"]),
+					"TEXT" => $arLabels["ELEMENT_ADD_TEXT"],
+					"TITLE" => $arLabels["ELEMENT_ADD_TITLE"],
 					"ACTION" => 'javascript:'.$action,
 					"ACTION_URL" => $url,
 					"ONCLICK" => $action,
@@ -401,8 +431,8 @@ class CAllIBlock
 			$url .= '&ID='.(preg_match('/^iblock_list_admin\.php/', $url)? "E": "").$ELEMENT_ID."&return_url=".UrlEncode($return_url["delete_element"]);
 			$url = "/bitrix/admin/".$url;
 			$arButton = array(
-				"TEXT" => (($arLabels["ELEMENT_DELETE_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_DELETE_TEXT"] : $arIBlock["ELEMENT_DELETE"]),
-				"TITLE" => (($arLabels["ELEMENT_DELETE_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_DELETE_TITLE"] : $arIBlock["ELEMENT_DELETE"]),
+				"TEXT" => $arLabels["ELEMENT_DELETE_TEXT"],
+				"TITLE" => $arLabels["ELEMENT_DELETE_TITLE"],
 				"ACTION"=>"javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
 				"ONCLICK"=>"if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -444,13 +474,13 @@ class CAllIBlock
 					);
 
 					$arButton = array(
-						"TEXT" => ($arLabels["SECTION_EDIT_TEXT"] <> ''? $arLabels["SECTION_EDIT_TEXT"] : $arIBlock["SECTION_EDIT"]),
-						"TITLE" => ($arLabels["SECTION_EDIT_TITLE"] <> ''? $arLabels["SECTION_EDIT_TITLE"] : $arIBlock["SECTION_EDIT"]),
+						"TEXT" => $arLabels["SECTION_EDIT_TEXT"],
+						"TITLE" => $arLabels["SECTION_EDIT_TITLE"],
 						"ACTION" => 'javascript:'.$action,
 						"ACTION_URL" => $url,
 						"ICON" => "bx-context-toolbar-edit-icon",
 						"ONCLICK" => $action,
-						"DEFAULT" => ($APPLICATION->GetPublicShowMode() != 'configure'? true: false),
+						"DEFAULT" => $APPLICATION->GetPublicShowMode() !== 'configure',
 						"ID" => "bx-context-toolbar-edit-section"
 					);
 					$arButtons["edit"]["edit_section"] = $arButton;
@@ -481,8 +511,8 @@ class CAllIBlock
 					);
 
 					$arButton = array(
-						"TEXT" => (($arLabels["SECTION_ADD_TEXT"] ?? '') <> ''? $arLabels["SECTION_ADD_TEXT"] : $arIBlock["SECTION_ADD"]),
-						"TITLE" => (($arLabels["SECTION_ADD_TITLE"] ?? '') <> ''? $arLabels["SECTION_ADD_TITLE"] : $arIBlock["SECTION_ADD"]),
+						"TEXT" => $arLabels["SECTION_ADD_TEXT"],
+						"TITLE" => $arLabels["SECTION_ADD_TITLE"],
 						"ACTION" => 'javascript:'.$action,
 						"ACTION_URL" => $url,
 						"ICON" => "bx-context-toolbar-create-icon",
@@ -509,8 +539,8 @@ class CAllIBlock
 					$url = "/bitrix/admin/".$url;
 
 					$arButton = array(
-						"TEXT" => ($arLabels["SECTION_DELETE_TEXT"] <> ''? $arLabels["SECTION_DELETE_TEXT"] : $arIBlock["SECTION_DELETE"]),
-						"TITLE" => ($arLabels["SECTION_DELETE_TITLE"] <> ''? $arLabels["SECTION_DELETE_TITLE"] : $arIBlock["SECTION_DELETE"]),
+						"TEXT" => $arLabels["SECTION_DELETE_TEXT"],
+						"TITLE" => $arLabels["SECTION_DELETE_TITLE"],
 						"ACTION" => "javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 						"ACTION_URL" => $url,
 						"ONCLICK" => "if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -760,18 +790,22 @@ class CAllIBlock
 		else
 			$arFields["RIGHTS_MODE"] = "S";
 
-		if(array_key_exists("PICTURE", $arFields))
+		if (array_key_exists("PICTURE", $arFields))
 		{
 			if(
 				!is_array($arFields["PICTURE"])
 				|| (
-					$arFields["PICTURE"]["name"] == ''
-					&& $arFields["PICTURE"]["del"] == ''
+					($arFields["PICTURE"]["name"] ?? '') === ''
+					&& ($arFields["PICTURE"]["del"] ?? '' ) === ''
 				)
 			)
+			{
 				unset($arFields["PICTURE"]);
+			}
 			else
+			{
 				$arFields["PICTURE"]["MODULE_ID"] = "iblock";
+			}
 		}
 
 		if(array_key_exists("SITE_ID", $arFields))
@@ -930,9 +964,15 @@ class CAllIBlock
 		if(is_set($arFields, "EXTERNAL_ID"))
 			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
 
-		if(is_set($arFields, "PICTURE"))
+		if (array_key_exists("PICTURE", $arFields))
 		{
-			if($arFields["PICTURE"]["name"] == '' && $arFields["PICTURE"]["del"] == '')
+			if (
+				!is_array($arFields["PICTURE"])
+				|| (
+					($arFields["PICTURE"]["name"] ?? '') === ''
+					&& ($arFields["PICTURE"]["del"] ?? '') === ''
+				)
+			)
 			{
 				unset($arFields["PICTURE"]);
 			}
@@ -940,7 +980,9 @@ class CAllIBlock
 			{
 				$pic_res = $DB->Query("SELECT PICTURE FROM b_iblock WHERE ID=".$ID);
 				if($pic_res = $pic_res->Fetch())
-					$arFields["PICTURE"]["old_file"]=$pic_res["PICTURE"];
+				{
+					$arFields["PICTURE"]["old_file"] = $pic_res["PICTURE"];
+				}
 				$arFields["PICTURE"]["MODULE_ID"] = "iblock";
 			}
 		}
@@ -1621,193 +1663,204 @@ REQ
 		static $res = false;
 		if (!$res)
 		{
-			$jpgQuality = self::getDefaultJpegQuality();
+			$defaultValues = static::getFieldsDefaultValues();
 
-			$res = array(
-				"IBLOCK_SECTION" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_SECTIONS"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"KEEP_IBLOCK_SECTION_ID" => "N",
-					)),
-				),
-				"ACTIVE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_ACTIVE"),
-					"IS_REQUIRED" => "Y",
-				),
-				"ACTIVE_FROM" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_ACTIVE_PERIOD_FROM"),
-					"IS_REQUIRED" => false,
-				),
-				"ACTIVE_TO" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_ACTIVE_PERIOD_TO"),
-					"IS_REQUIRED" => false,
-				),
-				"SORT" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_SORT"),
-					"IS_REQUIRED" => false,
-				),
-				"NAME" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_NAME"),
-					"IS_REQUIRED" => "Y",
-				),
-				"PREVIEW_PICTURE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"METHOD" => "resample",
-						"COMPRESSION" => $jpgQuality,
-					)),
-				),
-				"PREVIEW_TEXT_TYPE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_PREVIEW_TEXT_TYPE"),
-					"IS_REQUIRED" => "Y",
-				),
-				"PREVIEW_TEXT" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_PREVIEW_TEXT"),
-					"IS_REQUIRED" => false,
-				),
-				"DETAIL_PICTURE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_DETAIL_PICTURE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"METHOD" => "resample",
-						"COMPRESSION" => $jpgQuality,
-					)),
-				),
-				"DETAIL_TEXT_TYPE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_DETAIL_TEXT_TYPE"),
-					"IS_REQUIRED" => "Y",
-				),
-				"DETAIL_TEXT" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_DETAIL_TEXT"),
-					"IS_REQUIRED" => false,
-				),
-				"XML_ID" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_XML_ID"),
-					"IS_REQUIRED" => "Y",
-				),
-				"CODE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_CODE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"UNIQUE" => "N",
-						"TRANSLITERATION" => "N",
-						"TRANS_LEN" => 100,
-						"TRANS_CASE" => "L",
-						"TRANS_SPACE" => "-",
-						"TRANS_OTHER" => "-",
-						"TRANS_EAT" => "Y",
-						"USE_GOOGLE" => "N",
-					)),
-				),
-				"TAGS" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_TAGS"),
-					"IS_REQUIRED" => false,
-				),
-
-				"SECTION_NAME" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_NAME"),
-					"IS_REQUIRED" => "Y",
-				),
-				"SECTION_PICTURE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"METHOD" => "resample",
-						"COMPRESSION" => $jpgQuality,
-					)),
-				),
-				"SECTION_DESCRIPTION_TYPE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_SECTION_DESCRIPTION_TYPE"),
-					"IS_REQUIRED" => "Y",
-				),
-				"SECTION_DESCRIPTION" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_SECTION_DESCRIPTION"),
-					"IS_REQUIRED" => false,
-				),
-				"SECTION_DETAIL_PICTURE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_DETAIL_PICTURE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"METHOD" => "resample",
-						"COMPRESSION" => $jpgQuality,
-					)),
-				),
-				"SECTION_XML_ID" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_XML_ID"),
-					"IS_REQUIRED" => false,
-				),
-				"SECTION_CODE" => array(
-					"NAME" => GetMessage("IBLOCK_FIELD_CODE"),
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => serialize(array(
-						"UNIQUE" => "N",
-						"TRANSLITERATION" => "N",
-						"TRANS_LEN" => 100,
-						"TRANS_CASE" => "L",
-						"TRANS_SPACE" => "-",
-						"TRANS_OTHER" => "-",
-						"TRANS_EAT" => "Y",
-						"USE_GOOGLE" => "N",
-					)),
-				),
-				"LOG_SECTION_ADD" => array(
-					"NAME" => "LOG_SECTION_ADD",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"LOG_SECTION_EDIT" => array(
-					"NAME" => "LOG_SECTION_EDIT",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"LOG_SECTION_DELETE" => array(
-					"NAME" => "LOG_SECTION_DELETE",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"LOG_ELEMENT_ADD" => array(
-					"NAME" => "LOG_ELEMENT_ADD",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"LOG_ELEMENT_EDIT" => array(
-					"NAME" => "LOG_ELEMENT_EDIT",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"LOG_ELEMENT_DELETE" => array(
-					"NAME" => "LOG_ELEMENT_DELETE",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-				),
-				"XML_IMPORT_START_TIME" => array(
-					"NAME" => "XML_IMPORT_START_TIME",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => false,
-					"VISIBLE" => "N",
-				),
-				"DETAIL_TEXT_TYPE_ALLOW_CHANGE" => array(
-					"NAME" => "DETAIL_TEXT_TYPE_ALLOW_CHANGE",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => "Y",
-					"VISIBLE" => "N",
-				),
-				"PREVIEW_TEXT_TYPE_ALLOW_CHANGE" => array(
-					"NAME" => "PREVIEW_TEXT_TYPE_ALLOW_CHANGE",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => "Y",
-					"VISIBLE" => "N",
-				),
-				"SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE" => array(
-					"NAME" => "SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE",
-					"IS_REQUIRED" => false,
-					"DEFAULT_VALUE" => "Y",
-					"VISIBLE" => "N",
-				),
-			);
+			$res = [
+				'IBLOCK_SECTION' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_SECTIONS'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['IBLOCK_SECTION']),
+					'VISIBLE' => 'Y',
+				],
+				'ACTIVE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['ACTIVE'],
+					'VISIBLE' => 'Y',
+				],
+				'ACTIVE_FROM' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE_PERIOD_FROM'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['ACTIVE_FROM'],
+					'VISIBLE' => 'Y',
+				],
+				'ACTIVE_TO' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE_PERIOD_TO'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['ACTIVE_TO'],
+					'VISIBLE' => 'Y',
+				],
+				'SORT' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_SORT'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['SORT'],
+					'VISIBLE' => 'Y',
+				],
+				'NAME' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_NAME'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['NAME'],
+					'VISIBLE' => 'Y',
+				],
+				'PREVIEW_PICTURE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['PREVIEW_PICTURE']),
+					'VISIBLE' => 'Y',
+				],
+				'PREVIEW_TEXT_TYPE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_TEXT_TYPE'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['PREVIEW_TEXT_TYPE'],
+					'VISIBLE' => 'Y',
+				],
+				'PREVIEW_TEXT' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_TEXT'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['PREVIEW_TEXT'],
+					'VISIBLE' => 'Y',
+				],
+				'DETAIL_PICTURE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['DETAIL_PICTURE']),
+					'VISIBLE' => 'Y',
+				],
+				'DETAIL_TEXT_TYPE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_TEXT_TYPE'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['DETAIL_TEXT_TYPE'],
+					'VISIBLE' => 'Y',
+				],
+				'DETAIL_TEXT' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_TEXT'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['DETAIL_TEXT'],
+					'VISIBLE' => 'Y',
+				],
+				'XML_ID' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_XML_ID'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['XML_ID'],
+					'VISIBLE' => 'Y',
+				],
+				'CODE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_CODE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['CODE']),
+					'VISIBLE' => 'Y',
+				],
+				'TAGS' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_TAGS'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['TAGS'],
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_NAME' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_NAME'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['SECTION_NAME'],
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_PICTURE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_PICTURE']),
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_DESCRIPTION_TYPE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_SECTION_DESCRIPTION_TYPE'),
+					'IS_REQUIRED' => 'Y',
+					'DEFAULT_VALUE' => $defaultValues['SECTION_DESCRIPTION_TYPE'],
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_DESCRIPTION' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_SECTION_DESCRIPTION'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['SECTION_DESCRIPTION'],
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_DETAIL_PICTURE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_DETAIL_PICTURE']),
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_XML_ID' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_XML_ID'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['SECTION_XML_ID'],
+					'VISIBLE' => 'Y',
+				],
+				'SECTION_CODE' => [
+					'NAME' => GetMessage('IBLOCK_FIELD_CODE'),
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_CODE']),
+					'VISIBLE' => 'Y',
+				],
+				'LOG_SECTION_ADD' => [
+					'NAME' => 'LOG_SECTION_ADD',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_SECTION_ADD'],
+					'VISIBLE' => 'Y',
+				],
+				'LOG_SECTION_EDIT' => [
+					'NAME' => 'LOG_SECTION_EDIT',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_SECTION_EDIT'],
+					'VISIBLE' => 'Y',
+				],
+				'LOG_SECTION_DELETE' => [
+					'NAME' => 'LOG_SECTION_DELETE',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_SECTION_DELETE'],
+					'VISIBLE' => 'Y',
+				],
+				'LOG_ELEMENT_ADD' => [
+					'NAME' => 'LOG_ELEMENT_ADD',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_ELEMENT_ADD'],
+					'VISIBLE' => 'Y',
+				],
+				'LOG_ELEMENT_EDIT' => [
+					'NAME' => 'LOG_ELEMENT_EDIT',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_ELEMENT_EDIT'],
+					'VISIBLE' => 'Y',
+				],
+				'LOG_ELEMENT_DELETE' => [
+					'NAME' => 'LOG_ELEMENT_DELETE',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['LOG_ELEMENT_DELETE'],
+					'VISIBLE' => 'Y',
+				],
+				'XML_IMPORT_START_TIME' => [
+					'NAME' => 'XML_IMPORT_START_TIME',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['XML_IMPORT_START_TIME'],
+					'VISIBLE' => 'N',
+				],
+				'DETAIL_TEXT_TYPE_ALLOW_CHANGE' => [
+					'NAME' => 'DETAIL_TEXT_TYPE_ALLOW_CHANGE',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['DETAIL_TEXT_TYPE_ALLOW_CHANGE'],
+					'VISIBLE' => 'N',
+				],
+				'PREVIEW_TEXT_TYPE_ALLOW_CHANGE' => [
+					'NAME' => 'PREVIEW_TEXT_TYPE_ALLOW_CHANGE',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['PREVIEW_TEXT_TYPE_ALLOW_CHANGE'],
+					'VISIBLE' => 'N',
+				],
+				'SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE' => [
+					'NAME' => 'SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE',
+					'IS_REQUIRED' => false,
+					'DEFAULT_VALUE' => $defaultValues['SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE'],
+					'VISIBLE' => 'N',
+				],
+			];
 		}
+
 		return $res;
 	}
 
@@ -1824,283 +1877,161 @@ REQ
 
 		$fields = static::GetFieldsDefaults();
 
-		return (isset($fields[$fieldName]) ? $fields[$fieldName] : null);
+		return ($fields[$fieldName] ?? null);
 	}
 
 	public static function SetFields($ID, $arFields)
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		$ID = intval($ID);
-		if($ID > 0)
+		$ID = (int)$ID;
+		if ($ID > 0)
 		{
-			$arDefFields = CIBlock::GetFieldsDefaults();
+			$fields = CIBlock::GetFieldsDefaults();
+			$defaultValues = static::getFieldsDefaultValues();
+
+			foreach (array_keys($arFields) as $fieldId)
+			{
+				if (!is_array($arFields[$fieldId]))
+				{
+					unset($arFields[$fieldId]);
+				}
+				if (isset($defaultValues[$fieldId]) && is_array($defaultValues[$fieldId]))
+				{
+					$value = $arFields[$fieldId]['DEFAULT_VALUE'] ?? [];
+					if (!is_array($value))
+					{
+						$value = [];
+					}
+					$value = array_intersect_key($value, $defaultValues[$fieldId]);
+					$value = array_merge($defaultValues[$fieldId], $value);
+					$arFields[$fieldId]['DEFAULT_VALUE'] = $value;
+				}
+			}
+
+			if (isset($arFields['PREVIEW_PICTURE']))
+			{
+				$arFields['PREVIEW_PICTURE']['DEFAULT_VALUE'] = serialize(static::preparePreviewPictureFieldSettings(
+					$arFields['PREVIEW_PICTURE']['DEFAULT_VALUE']
+				));
+			}
+
+			if (isset($arFields['DETAIL_PICTURE']))
+			{
+				$arFields['DETAIL_PICTURE']['DEFAULT_VALUE'] = serialize(static::prepareDetailPictureFieldSettings(
+					$arFields['DETAIL_PICTURE']['DEFAULT_VALUE']
+				));
+			}
+
+			if (isset($arFields['CODE']))
+			{
+				$arFields['CODE']['DEFAULT_VALUE'] = serialize(static::prepareCodeFieldSettings(
+					$arFields['CODE']['DEFAULT_VALUE']
+				));
+			}
+
+			if (isset($arFields['SECTION_PICTURE']))
+			{
+				$arFields['SECTION_PICTURE']['DEFAULT_VALUE'] = serialize(static::preparePreviewPictureFieldSettings(
+					$arFields['SECTION_PICTURE']['DEFAULT_VALUE']
+				));
+			}
+
+			if (isset($arFields['SECTION_DETAIL_PICTURE']))
+			{
+				$arFields['SECTION_DETAIL_PICTURE']['DEFAULT_VALUE'] = serialize(static::prepareDetailPictureFieldSettings(
+					$arFields['SECTION_DETAIL_PICTURE']['DEFAULT_VALUE']
+				));
+			}
+			if (isset($arFields['SECTION_CODE']))
+			{
+				$arFields['SECTION_CODE']['DEFAULT_VALUE'] = serialize(static::prepareCodeFieldSettings(
+					$arFields['SECTION_CODE']['DEFAULT_VALUE']
+				));
+			}
+			if (isset($arFields['SORT']))
+			{
+				$arFields['SORT']['DEFAULT_VALUE'] = (int)($arFields['SORT']['DEFAULT_VALUE'] ?? 500);
+			}
+			if (isset($arFields['IBLOCK_SECTION']))
+			{
+				$arFields['IBLOCK_SECTION']['DEFAULT_VALUE'] = serialize([
+					'KEEP_IBLOCK_SECTION_ID' =>
+						$arFields['IBLOCK_SECTION']['DEFAULT_VALUE']['KEEP_IBLOCK_SECTION_ID'] === 'Y'
+							? 'Y'
+							: 'N'
+					,
+				]);
+			}
+
 			$res = $DB->Query("
 				SELECT * FROM b_iblock_fields
-				WHERE IBLOCK_ID = ".$ID."
+				WHERE IBLOCK_ID = " . $ID . "
 			");
-			if(array_key_exists("PREVIEW_PICTURE", $arFields))
+			while ($ar = $res->Fetch())
 			{
-				$arDef = &$arFields["PREVIEW_PICTURE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
+				$arUpdate = [];
+				$fieldId = $ar['FIELD_ID'];
+				if (isset($arFields[$fieldId]) && isset($fields[$fieldId]))
 				{
-					$arDef = serialize(array(
-						"FROM_DETAIL" => $arDef["FROM_DETAIL"] === "Y"? "Y": "N",
-						"SCALE" => $arDef["SCALE"] === "Y"? "Y": "N",
-						"WIDTH" => intval($arDef["WIDTH"]) > 0? intval($arDef["WIDTH"]): "",
-						"HEIGHT" => intval($arDef["HEIGHT"]) > 0? intval($arDef["HEIGHT"]): "",
-						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
-						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
-						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
-						"DELETE_WITH_DETAIL" => $arDef["DELETE_WITH_DETAIL"] === "Y"? "Y": "N",
-						"UPDATE_WITH_DETAIL" => $arDef["UPDATE_WITH_DETAIL"] === "Y"? "Y": "N",
-						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
-						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
-						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
-						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
-						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
-						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
-						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
-						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
-						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
-						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
-						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("DETAIL_PICTURE", $arFields))
-			{
-				$arDef = &$arFields["DETAIL_PICTURE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-					$arDef = serialize(array(
-						"SCALE" => $arDef["SCALE"] === "Y"? "Y": "N",
-						"WIDTH" => intval($arDef["WIDTH"]) > 0? intval($arDef["WIDTH"]): "",
-						"HEIGHT" => intval($arDef["HEIGHT"]) > 0? intval($arDef["HEIGHT"]): "",
-						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
-						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
-						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
-						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
-						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
-						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
-						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
-						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
-						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
-						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
-						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
-						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
-						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
-						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("CODE", $arFields))
-			{
-				$arDef = &$arFields["CODE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-					$trans_len = intval($arDef["TRANS_LEN"]);
-					if($trans_len > 255)
-						$trans_len = 255;
-					elseif($trans_len < 1)
-						$trans_len = 100;
-
-					$arDef = serialize(array(
-						"UNIQUE" => $arDef["UNIQUE"] === "Y"? "Y": "N",
-						"TRANSLITERATION" => $arDef["TRANSLITERATION"] === "Y"? "Y": "N",
-						"TRANS_LEN" =>  $trans_len,
-						"TRANS_CASE" => $arDef["TRANS_CASE"] == "U"? "U": ($arDef["TRANS_CASE"] == ""? "": "L"),
-						"TRANS_SPACE" => mb_substr($arDef["TRANS_SPACE"], 0, 1),
-						"TRANS_OTHER" => mb_substr($arDef["TRANS_OTHER"], 0, 1),
-						"TRANS_EAT" => $arDef["TRANS_EAT"] === "N"? "N": "Y",
-						"USE_GOOGLE" => $arDef["USE_GOOGLE"] === "Y"? "Y": "N",
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("SECTION_PICTURE", $arFields))
-			{
-				$arDef = &$arFields["SECTION_PICTURE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-					$arDef = serialize(array(
-						"FROM_DETAIL" => $arDef["FROM_DETAIL"] === "Y"? "Y": "N",
-						"SCALE" => $arDef["SCALE"] === "Y"? "Y": "N",
-						"WIDTH" => intval($arDef["WIDTH"]) > 0? intval($arDef["WIDTH"]): "",
-						"HEIGHT" => intval($arDef["HEIGHT"]) > 0? intval($arDef["HEIGHT"]): "",
-						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
-						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
-						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
-						"DELETE_WITH_DETAIL" => $arDef["DELETE_WITH_DETAIL"] === "Y"? "Y": "N",
-						"UPDATE_WITH_DETAIL" => $arDef["UPDATE_WITH_DETAIL"] === "Y"? "Y": "N",
-						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
-						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
-						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
-						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
-						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
-						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
-						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
-						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
-						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
-						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
-						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("SECTION_DETAIL_PICTURE", $arFields))
-			{
-				$arDef = &$arFields["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-					$arDef = serialize(array(
-						"SCALE" => $arDef["SCALE"] === "Y"? "Y": "N",
-						"WIDTH" => intval($arDef["WIDTH"]) > 0? intval($arDef["WIDTH"]): "",
-						"HEIGHT" => intval($arDef["HEIGHT"]) > 0? intval($arDef["HEIGHT"]): "",
-						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
-						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
-						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
-						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
-						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
-						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
-						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
-						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
-						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
-						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
-						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
-						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
-						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
-						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("SECTION_CODE", $arFields))
-			{
-				$arDef = &$arFields["SECTION_CODE"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-
-					$trans_len = intval($arDef["TRANS_LEN"]);
-					if($trans_len > 255)
-						$trans_len = 255;
-					elseif($trans_len < 1)
-						$trans_len = 100;
-
-					$arDef = serialize(array(
-						"UNIQUE" => $arDef["UNIQUE"] === "Y"? "Y": "N",
-						"TRANSLITERATION" => $arDef["TRANSLITERATION"] === "Y"? "Y": "N",
-						"TRANS_LEN" => $trans_len,
-						"TRANS_CASE" => $arDef["TRANS_CASE"] == "U"? "U": ($arDef["TRANS_CASE"] == ""? "": "L"),
-						"TRANS_SPACE" => mb_substr($arDef["TRANS_SPACE"], 0, 1),
-						"TRANS_OTHER" => mb_substr($arDef["TRANS_OTHER"], 0, 1),
-						"TRANS_EAT" => $arDef["TRANS_EAT"] === "N"? "N": "Y",
-						"USE_GOOGLE" => $arDef["USE_GOOGLE"] === "Y"? "Y": "N",
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-			if(array_key_exists("SORT", $arFields))
-			{
-				$arFields["SORT"]["DEFAULT_VALUE"] = intval($arFields["SORT"]["DEFAULT_VALUE"]);
-			}
-			if(array_key_exists("IBLOCK_SECTION", $arFields))
-			{
-				$arDef = &$arFields["IBLOCK_SECTION"]["DEFAULT_VALUE"];
-				if(is_array($arDef))
-				{
-					$arDef = serialize(array(
-						"KEEP_IBLOCK_SECTION_ID" => $arDef["KEEP_IBLOCK_SECTION_ID"] === "Y"? "Y": "N",
-					));
-				}
-				else
-				{
-					$arDef = "";
-				}
-			}
-
-			while($ar = $res->Fetch())
-			{
-				if(array_key_exists($ar["FIELD_ID"], $arFields) && array_key_exists($ar["FIELD_ID"], $arDefFields))
-				{
-					if($arDefFields[$ar["FIELD_ID"]]["IS_REQUIRED"] === false)
-						$IS_REQUIRED = $arFields[$ar["FIELD_ID"]]["IS_REQUIRED"];
+					if ($fields[$fieldId]["IS_REQUIRED"] === false)
+					{
+						$IS_REQUIRED = ($arFields[$fieldId]["IS_REQUIRED"] ?? 'N');
+					}
 					else
-						$IS_REQUIRED = $arDefFields[$ar["FIELD_ID"]]["IS_REQUIRED"];
+					{
+						$IS_REQUIRED = $fields[$fieldId]["IS_REQUIRED"];
+					}
 					$IS_REQUIRED = ($IS_REQUIRED === "Y"? "Y": "N");
-					if(
-						$ar["IS_REQUIRED"] !== $IS_REQUIRED
-						|| $ar["DEFAULT_VALUE"] !== $arFields[$ar["FIELD_ID"]]["DEFAULT_VALUE"]
+					if ($ar["IS_REQUIRED"] !== $IS_REQUIRED)
+					{
+						$arUpdate['IS_REQUIRED'] = $IS_REQUIRED;
+					}
+					if (
+						isset($arFields[$fieldId]["DEFAULT_VALUE"])
+						&& $ar["DEFAULT_VALUE"] !== $arFields[$fieldId]["DEFAULT_VALUE"]
 					)
 					{
-						$arUpdate = array(
-							"IS_REQUIRED" => $IS_REQUIRED,
-							"DEFAULT_VALUE" => $arFields[$ar["FIELD_ID"]]["DEFAULT_VALUE"],
-						);
+						$arUpdate['DEFAULT_VALUE'] = $arFields[$fieldId]["DEFAULT_VALUE"];
 					}
-					else
-					{
-						$arUpdate = array(
-						);
-					}
-					unset($arDefFields[$ar["FIELD_ID"]]);
+					unset($fields[$fieldId]);
 				}
-				elseif(array_key_exists($ar["FIELD_ID"], $arDefFields))
+				elseif (isset($fields[$fieldId]))
 				{
-					$IS_REQUIRED = $arDefFields[$ar["FIELD_ID"]]["IS_REQUIRED"];
+					$IS_REQUIRED = $fields[$fieldId]["IS_REQUIRED"];
 					$IS_REQUIRED = ($IS_REQUIRED === "Y"? "Y": "N");
-					if($ar["IS_REQUIRED"] !== $IS_REQUIRED)
+					if ($ar["IS_REQUIRED"] !== $IS_REQUIRED)
 					{
-						$arUpdate = array(
+						$arUpdate = [
 							"IS_REQUIRED" => $IS_REQUIRED,
 							"DEFAULT_VALUE" => "",
-						);
+						];
 					}
-					else
-					{
-						$arUpdate = array(
-						);
-					}
-					unset($arDefFields[$ar["FIELD_ID"]]);
+					unset($fields[$fieldId]);
 				}
 				else
 				{
-					$DB->Query("DELETE FROM b_iblock_fields WHERE IBLOCK_ID = ".$ID." AND FIELD_ID = '".$DB->ForSQL($ar["FIELD_ID"])."'");
-					$arUpdate = array(
-					);
+					$DB->Query("DELETE FROM b_iblock_fields WHERE IBLOCK_ID = ".$ID." AND FIELD_ID = '".$DB->ForSQL($fieldId)."'");
 				}
 
-				$strUpdate = $DB->PrepareUpdate("b_iblock_fields", $arUpdate);
-				if($strUpdate != "")
+				if (!empty($arUpdate))
 				{
-					$strSql = "UPDATE b_iblock_fields SET ".$strUpdate." WHERE IBLOCK_ID = ".$ID." AND FIELD_ID = '".$ar["FIELD_ID"]."'";
-					$arBinds = array(
-						"DEFAULT_VALUE" => $arUpdate["DEFAULT_VALUE"],
-					);
-					$DB->QueryBind($strSql, $arBinds);
+					$strUpdate = $DB->PrepareUpdate("b_iblock_fields", $arUpdate);
+					if ($strUpdate != "")
+					{
+						$strSql = "UPDATE b_iblock_fields SET " . $strUpdate
+							. " WHERE IBLOCK_ID = " . $ID
+							. " AND FIELD_ID = '" . $fieldId . "'";
+						$arBinds = [];
+						if (isset($arUpdate["DEFAULT_VALUE"]))
+						{
+							$arBinds["DEFAULT_VALUE"] = $arUpdate["DEFAULT_VALUE"];
+						}
+						$DB->QueryBind($strSql, $arBinds);
+					}
 				}
 			}
-			foreach($arDefFields as $FIELD_ID => $arDefaults)
+			foreach($fields as $FIELD_ID => $arDefaults)
 			{
 				if(array_key_exists($FIELD_ID, $arFields))
 				{
@@ -2116,13 +2047,12 @@ REQ
 					$DEFAULT_VALUE = false;
 				}
 				$IS_REQUIRED = ($IS_REQUIRED === "Y"? "Y": "N");
-				$arAdd = array(
-					"ID" => 1,
+				$arAdd = [
 					"IBLOCK_ID" => $ID,
 					"FIELD_ID" => $FIELD_ID,
 					"IS_REQUIRED" => $IS_REQUIRED,
 					"DEFAULT_VALUE" => $DEFAULT_VALUE,
-				);
+				];
 				$DB->Add("b_iblock_fields", $arAdd, array("DEFAULT_VALUE"));
 			}
 
@@ -2134,8 +2064,10 @@ REQ
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		$ID = intval($ID);
-		$arDefFields = CIBlock::GetFieldsDefaults();
+		$ID = (int)$ID;
+		$fields = static::GetFieldsDefaults();
+		$defaultValues = static::getFieldsDefaultValues();
+
 		$res = $DB->Query("
 			SELECT
 				F.*
@@ -2145,31 +2077,30 @@ REQ
 			WHERE
 				B.ID = ".$ID."
 		");
-		while($ar = $res->Fetch())
+		while ($ar = $res->Fetch())
 		{
-			if(array_key_exists($ar["FIELD_ID"], $arDefFields))
+			$fieldId = $ar['FIELD_ID'];
+			if (isset($fields[$fieldId]))
 			{
-				if($arDefFields[$ar["FIELD_ID"]]["IS_REQUIRED"] === false)
-					$arDefFields[$ar["FIELD_ID"]]["IS_REQUIRED"] = $ar["IS_REQUIRED"] === "Y"? "Y": "N";
-				$arDefFields[$ar["FIELD_ID"]]["DEFAULT_VALUE"] = $ar["DEFAULT_VALUE"];
+				if ($fields[$fieldId]['IS_REQUIRED'] === false)
+				{
+					$fields[$fieldId]['IS_REQUIRED'] = $ar['IS_REQUIRED'] === 'Y' ? 'Y' : 'N';
+				}
+				$fields[$fieldId]['DEFAULT_VALUE'] = $ar['DEFAULT_VALUE'];
 			}
 		}
-		foreach($arDefFields as $FIELD_ID => $default)
-		{
-			if($default["IS_REQUIRED"] === false)
-				$arDefFields[$FIELD_ID]["IS_REQUIRED"] = "N";
+		unset($res);
 
-			if(
-				$FIELD_ID == "DETAIL_PICTURE"
-				|| $FIELD_ID == "PREVIEW_PICTURE"
-				|| $FIELD_ID == "CODE"
-				|| $FIELD_ID == "SECTION_PICTURE"
-				|| $FIELD_ID == "SECTION_DETAIL_PICTURE"
-				|| $FIELD_ID == "SECTION_CODE"
-				|| $FIELD_ID == "IBLOCK_SECTION"
-			)
+		foreach ($fields as $FIELD_ID => $default)
+		{
+			if ($default['IS_REQUIRED'] === false)
 			{
-				$a = &$arDefFields[$FIELD_ID]["DEFAULT_VALUE"];
+				$fields[$FIELD_ID]['IS_REQUIRED'] = 'N';
+			}
+
+			if (isset($defaultValues[$FIELD_ID]) && is_array($defaultValues[$FIELD_ID]))
+			{
+				$a = &$fields[$FIELD_ID]['DEFAULT_VALUE'];
 
 				if (is_string($a) && $a !== '')
 				{
@@ -2182,19 +2113,25 @@ REQ
 				{
 					$a = [];
 				}
+				$a = array_merge($defaultValues[$FIELD_ID], $a);
 
-				if(array_key_exists("TRANS_LEN", $a))
+				if (array_key_exists('TRANS_LEN', $a))
 				{
-					$trans_len = intval($a["TRANS_LEN"]);
-					if($trans_len > 255)
+					$trans_len = (int)$a['TRANS_LEN'];
+					if ($trans_len > 255)
+					{
 						$trans_len = 255;
-					elseif($trans_len < 1)
+					}
+					elseif ($trans_len < 1)
+					{
 						$trans_len = 100;
-					$a["TRANS_LEN"] = $trans_len;
+					}
+					$a['TRANS_LEN'] = $trans_len;
 				}
 			}
 		}
-		return $arDefFields;
+
+		return $fields;
 	}
 
 	public static function GetProperties($ID, $arOrder = array(), $arFilter = array())
@@ -2766,6 +2703,7 @@ REQ
 
 	public static function ReplaceSectionUrl($url, $arr, $server_name = false, $arrType = false)
 	{
+		$url = (string)$url;
 		$url = str_replace("#ID#", "#SECTION_ID#", $url);
 		$url = str_replace("#CODE#", "#SECTION_CODE#", $url);
 		return CIBlock::ReplaceDetailUrl($url, $arr, $server_name, $arrType);
@@ -2795,10 +2733,17 @@ REQ
 			{
 				$arIBlockCache[$OF_IBLOCK_ID] = CCatalogSku::GetInfoByOfferIBlock($OF_IBLOCK_ID);
 				if (is_array($arIBlockCache[$OF_IBLOCK_ID]))
-					$arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"] = CIBlock::GetArrayByID($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK_ID"]);
+				{
+					$productIblock = CIBlock::GetArrayByID($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK_ID"]);
+					if (is_array($productIblock))
+					{
+						$productIblock['DETAIL_PAGE_URL'] = (string)$productIblock['DETAIL_PAGE_URL'];
+					}
+					$arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"] = $productIblock;
+				}
 			}
 
-			if (is_array($arIBlockCache[$OF_IBLOCK_ID]))
+			if (is_array($arIBlockCache[$OF_IBLOCK_ID]) && is_array($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]))
 			{
 				if(!isset($arElementCache[$OF_ELEMENT_ID]))
 				{
@@ -2833,7 +2778,10 @@ REQ
 								);
 								$rsSections = CIBlockSection::GetList(
 									array(),
-									array('ID' => $sectionId),
+									array(
+										'ID' => $sectionId,
+										'CHECK_PERMISSIONS' => 'N',
+									),
 									false,
 									array('ID', 'IBLOCK_ID', 'CODE')
 								);
@@ -2863,9 +2811,10 @@ REQ
 							"SECTION_CODE" => $arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_CODE"],
 						);
 					}
+					unset($rsOffer);
 				}
 
-				if(is_array($arElementCache[$OF_ELEMENT_ID]))
+				if (!empty($arElementCache[$OF_ELEMENT_ID]) && is_array($arElementCache[$OF_ELEMENT_ID]))
 				{
 					$product_url = CIBlock::ReplaceDetailUrl($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]["DETAIL_PAGE_URL"], $arElementCache[$OF_ELEMENT_ID], $server_name, $arrType);
 				}
@@ -2877,8 +2826,7 @@ REQ
 
 	public static function ReplaceDetailUrl($url, $arr, $server_name = false, $arrType = false)
 	{
-		/** @global CDatabase $DB */
-		global $DB;
+		$url = (string)$url;
 
 		if($server_name)
 		{
@@ -2912,8 +2860,14 @@ REQ
 		$id = (int)$arr["ID"];
 		$preparedId = $id > 0 ? $id : '';
 
-		if(mb_strpos($url, "#PRODUCT_URL#") !== false)
-			$url = str_replace("#PRODUCT_URL#", CIBlock::_GetProductUrl($id, $arr["IBLOCK_ID"], $server_name, $arrType), $url);
+		if (strpos($url, "#PRODUCT_URL#") !== false)
+		{
+			$url = str_replace(
+				"#PRODUCT_URL#",
+				CIBlock::_GetProductUrl($id, $arr["IBLOCK_ID"], $server_name, $arrType),
+				$url
+			);
+		}
 
 		static $arSearch = array(
 			/*Thees come from GetNext*/
@@ -2955,7 +2909,7 @@ REQ
 			$SECTION_CODE = "";
 			if(
 				$SECTION_ID > 0
-				&& mb_strpos($url, "#SECTION_CODE#") !== false
+				&& strpos($url, "#SECTION_CODE#") !== false
 			)
 			{
 				$SECTION_CODE = CIBlockSection::getSectionCode($SECTION_ID);
@@ -2964,7 +2918,7 @@ REQ
 			$SECTION_CODE_PATH = "";
 			if(
 				$SECTION_ID > 0
-				&& mb_strpos($url, "#SECTION_CODE_PATH#") !== false
+				&& strpos($url, "#SECTION_CODE_PATH#") !== false
 			)
 			{
 				$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($SECTION_ID);
@@ -2980,7 +2934,7 @@ REQ
 			$SECTION_CODE_PATH = "";
 			if(
 				$SECTION_ID > 0
-				&& mb_strpos($url, "#SECTION_CODE_PATH#") !== false
+				&& strpos($url, "#SECTION_CODE_PATH#") !== false
 			)
 			{
 				$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($SECTION_ID);
@@ -4053,7 +4007,7 @@ REQ
 			);
 		}
 
-		if (array_key_exists("description", $data["VALUE"]))
+		if (array_key_exists("description", $data["VALUE"] ?? []))
 		{
 			$data["DESCRIPTION"] = $data["VALUE"]["description"];
 		}
@@ -4284,7 +4238,10 @@ REQ
 	{
 		$jpgQuality = (int)Main\Config\Option::get('main', 'image_resize_quality', '95');
 		if ($jpgQuality <= 0 || $jpgQuality > 100)
+		{
 			$jpgQuality = 95;
+		}
+
 		return $jpgQuality;
 	}
 
@@ -4381,5 +4338,216 @@ REQ
 			isset($iblock['SECTION_CODE']['DEFAULT_VALUE']['UNIQUE'])
 			&& $iblock['SECTION_CODE']['DEFAULT_VALUE']['UNIQUE'] === 'Y'
 		);
+	}
+
+	protected static function getFieldsDefaultValues(): array
+	{
+		$jpgQuality = static::getDefaultJpegQuality();
+
+		return [
+			'IBLOCK_SECTION' => [
+				'KEEP_IBLOCK_SECTION_ID' => 'N',
+			],
+			'ACTIVE' => 'Y',
+			'ACTIVE_FROM' => '',
+			'ACTIVE_TO' => '',
+			'SORT' => 500,
+			'NAME' => '',
+			'PREVIEW_PICTURE' => [
+				'FROM_DETAIL' => 'N',
+				'UPDATE_WITH_DETAIL' => 'N',
+				'DELETE_WITH_DETAIL' => 'N',
+				'SCALE' => 'N',
+				'WIDTH' => '',
+				'HEIGHT' => '',
+				'IGNORE_ERRORS' => 'N',
+				'METHOD' => 'resample',
+				'COMPRESSION' => $jpgQuality,
+				'USE_WATERMARK_TEXT' => 'N',
+				'WATERMARK_TEXT' => '',
+				'WATERMARK_TEXT_FONT' => '',
+				'WATERMARK_TEXT_COLOR' => '',
+				'WATERMARK_TEXT_SIZE' => '',
+				'WATERMARK_TEXT_POSITION' => '',
+				'USE_WATERMARK_FILE' => 'N',
+				'WATERMARK_FILE' => '',
+				'WATERMARK_FILE_ALPHA' => '',
+				'WATERMARK_FILE_POSITION' => '',
+				'WATERMARK_FILE_ORDER' => '', // unused
+			],
+			'PREVIEW_TEXT_TYPE' => 'text',
+			'PREVIEW_TEXT' => '',
+			'DETAIL_PICTURE' => array(
+				'SCALE' => 'N',
+				'WIDTH' => '',
+				'HEIGHT' => '',
+				'IGNORE_ERRORS' => 'N',
+				'METHOD' => 'resample',
+				'COMPRESSION' => $jpgQuality,
+				'USE_WATERMARK_TEXT' => 'N',
+				'WATERMARK_TEXT' => '',
+				'WATERMARK_TEXT_FONT' => '',
+				'WATERMARK_TEXT_COLOR' => '',
+				'WATERMARK_TEXT_SIZE' => '',
+				'WATERMARK_TEXT_POSITION' => '',
+				'USE_WATERMARK_FILE' => 'N',
+				'WATERMARK_FILE' => '',
+				'WATERMARK_FILE_ALPHA' => '',
+				'WATERMARK_FILE_POSITION' => '',
+				'WATERMARK_FILE_ORDER' => '', // unused
+			),
+			'DETAIL_TEXT_TYPE' => 'text',
+			'DETAIL_TEXT' => '',
+			'XML_ID' => '',
+			'CODE' => [
+				'UNIQUE' => 'N',
+				'TRANSLITERATION' => 'N',
+				'TRANS_LEN' => 100,
+				'TRANS_CASE' => 'L',
+				'TRANS_SPACE' => '-',
+				'TRANS_OTHER' => '-',
+				'TRANS_EAT' => 'Y',
+				'USE_GOOGLE' => 'N',
+			],
+			'TAGS' => '',
+			'SECTION_NAME' => '',
+			'SECTION_PICTURE' => [
+				'FROM_DETAIL' => 'N',
+				'UPDATE_WITH_DETAIL' => 'N',
+				'DELETE_WITH_DETAIL' => 'N',
+				'SCALE' => 'N',
+				'WIDTH' => '',
+				'HEIGHT' => '',
+				'IGNORE_ERRORS' => 'N',
+				'METHOD' => 'resample',
+				'COMPRESSION' => $jpgQuality,
+				'USE_WATERMARK_TEXT' => 'N',
+				'WATERMARK_TEXT' => '',
+				'WATERMARK_TEXT_FONT' => '',
+				'WATERMARK_TEXT_COLOR' => '',
+				'WATERMARK_TEXT_SIZE' => '',
+				'WATERMARK_TEXT_POSITION' => '',
+				'USE_WATERMARK_FILE' => 'N',
+				'WATERMARK_FILE' => '',
+				'WATERMARK_FILE_ALPHA' => '',
+				'WATERMARK_FILE_POSITION' => '',
+				'WATERMARK_FILE_ORDER' => '', // unused
+			],
+			'SECTION_DESCRIPTION_TYPE' => 'text',
+			'SECTION_DESCRIPTION' => '',
+			'SECTION_DETAIL_PICTURE' => [
+				'SCALE' => 'N',
+				'WIDTH' => '',
+				'HEIGHT' => '',
+				'IGNORE_ERRORS' => 'N',
+				'METHOD' => 'resample',
+				'COMPRESSION' => $jpgQuality,
+				'USE_WATERMARK_TEXT' => 'N',
+				'WATERMARK_TEXT' => '',
+				'WATERMARK_TEXT_FONT' => '',
+				'WATERMARK_TEXT_COLOR' => '',
+				'WATERMARK_TEXT_SIZE' => '',
+				'WATERMARK_TEXT_POSITION' => '',
+				'USE_WATERMARK_FILE' => 'N',
+				'WATERMARK_FILE' => '',
+				'WATERMARK_FILE_ALPHA' => '',
+				'WATERMARK_FILE_POSITION' => '',
+				'WATERMARK_FILE_ORDER' => '',
+			],
+			'SECTION_XML_ID' => '',
+			'SECTION_CODE' => [
+				'UNIQUE' => 'N',
+				'TRANSLITERATION' => 'N',
+				'TRANS_LEN' => 100,
+				'TRANS_CASE' => 'L',
+				'TRANS_SPACE' => '-',
+				'TRANS_OTHER' => '-',
+				'TRANS_EAT' => 'Y',
+				'USE_GOOGLE' => 'N',
+			],
+			'LOG_SECTION_ADD' => false,
+			'LOG_SECTION_EDIT' => false,
+			'LOG_SECTION_DELETE' => false,
+			'LOG_ELEMENT_ADD' => false,
+			'LOG_ELEMENT_EDIT' => false,
+			'LOG_ELEMENT_DELETE' => false,
+			'XML_IMPORT_START_TIME' => false,
+			'DETAIL_TEXT_TYPE_ALLOW_CHANGE' => 'Y',
+			'PREVIEW_TEXT_TYPE_ALLOW_CHANGE' => 'Y',
+			'SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE' => 'Y',
+		];
+	}
+
+	protected static function prepareDetailPictureFieldSettings(array $settings): array
+	{
+		$compression = (int)$settings['COMPRESSION'];
+		if ($compression > 100)
+		{
+			$compression = 100;
+		}
+		elseif ($compression <= 0)
+		{
+			$compression = '';
+		}
+
+		return [
+			'SCALE' => $settings['SCALE'] === 'Y'? 'Y': 'N',
+			'WIDTH' => (int)$settings['WIDTH'] ?: '',
+			'HEIGHT' => (int)$settings['HEIGHT'] ?: '',
+			'IGNORE_ERRORS' => $settings['IGNORE_ERRORS'] === 'Y'? 'Y': 'N',
+			'METHOD' => $settings['METHOD'] === 'resample'? 'resample': '',
+			'COMPRESSION' => $compression,
+			'USE_WATERMARK_TEXT' => $settings['USE_WATERMARK_TEXT'] === 'Y'? 'Y': 'N',
+			'WATERMARK_TEXT' => $settings['WATERMARK_TEXT'],
+			'WATERMARK_TEXT_FONT' => $settings['WATERMARK_TEXT_FONT'],
+			'WATERMARK_TEXT_COLOR' => $settings['WATERMARK_TEXT_COLOR'],
+			'WATERMARK_TEXT_SIZE' => (int)$settings['WATERMARK_TEXT_SIZE'] ?: '',
+			'WATERMARK_TEXT_POSITION' => $settings['WATERMARK_TEXT_POSITION'],
+			'USE_WATERMARK_FILE' => $settings['USE_WATERMARK_FILE'] === 'Y'? 'Y': 'N',
+			'WATERMARK_FILE' => $settings['WATERMARK_FILE'],
+			'WATERMARK_FILE_ALPHA' => (int)$settings['WATERMARK_FILE_ALPHA'] ?: '',
+			'WATERMARK_FILE_POSITION' => $settings['WATERMARK_FILE_POSITION'],
+			'WATERMARK_FILE_ORDER' => $settings['WATERMARK_FILE_ORDER'], // unused
+		];
+	}
+
+	protected static function preparePreviewPictureFieldSettings(array $settings): array
+	{
+		$result = static::prepareDetailPictureFieldSettings($settings);
+
+		$result['FROM_DETAIL'] = $settings['FROM_DETAIL'] === 'Y'? 'Y': 'N';
+		$result['DELETE_WITH_DETAIL'] = $settings['DELETE_WITH_DETAIL'] === 'Y'? 'Y': 'N';
+		$result['UPDATE_WITH_DETAIL'] = $settings['UPDATE_WITH_DETAIL'] === 'Y'? 'Y': 'N';
+
+		return $result;
+	}
+
+	protected static function prepareCodeFieldSettings(array $settings): array
+	{
+		$maxLength = (int)$settings['TRANS_LEN'];
+		if ($maxLength > 255)
+		{
+			$maxLength = 255;
+		}
+		elseif($maxLength < 1)
+		{
+			$maxLength = 100;
+		}
+		$transCase = (string)$settings['TRANS_CASE'];
+		if ($transCase !== 'U' && $transCase !== '')
+		{
+			$transCase = 'L';
+		}
+
+		return [
+			'UNIQUE' => $settings['UNIQUE'] === 'Y'? 'Y': 'N',
+			'TRANSLITERATION' => $settings['TRANSLITERATION'] === 'Y'? 'Y': 'N',
+			'TRANS_LEN' =>  $maxLength,
+			'TRANS_CASE' => $transCase,
+			'TRANS_SPACE' => substr($settings['TRANS_SPACE'], 0, 1),
+			'TRANS_OTHER' => substr($settings['TRANS_OTHER'], 0, 1),
+			'TRANS_EAT' => $settings['TRANS_EAT'] === 'N'? 'N': 'Y',
+			'USE_GOOGLE' => $settings['USE_GOOGLE'] === 'Y'? 'Y': 'N',
+		];
 	}
 }

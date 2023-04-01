@@ -376,8 +376,8 @@ class Rest extends \IRestService
 
 		$configParams = Array();
 		$configParams['USER_ID'] = $userId;
-		$configParams['CACHE'] = $params['CACHE'] !== 'N';
-		$configParams['REOPEN'] = $params['REOPEN'] !== 'N';
+		$configParams['CACHE'] = !isset($params['CACHE']) || $params['CACHE'] !== 'N';
+		$configParams['REOPEN'] = !isset($params['REOPEN']) || $params['REOPEN'] !== 'N';
 		$configParams['JSON'] = true;
 
 		$config = \Bitrix\Pull\Config::get($configParams);

@@ -73,31 +73,29 @@ class AliasedQuery extends Query
 
 	public function getAliasName($alias)
 	{
-		if ($field = $this->aliases[$alias])
-		{
-			if (is_string($field))
-			{
-				return $field; // name
-			}
-			elseif (is_array($field)) // TODO Field support
-			{
-				$name = '__'.$alias.'_ALIAS__';
-				if (! $field['registered'])
-				{
-					$field['registered'] = true;
-					$this->registerRuntimeField($name, $field);
-				}
-				return $name;
-			}
-			else
-			{
-				throw new SystemException("invalid alias '$alias' type", 0, __FILE__, __LINE__);
-			}
-		}
-		else
+		if (!isset($this->aliases[$alias]))
 		{
 			return null;
 		}
+
+		$field = $this->aliases[$alias];
+
+		if (is_string($field))
+		{
+			return $field; // name
+		}
+		elseif (is_array($field)) // TODO Field support
+		{
+			$name = '__'.$alias.'_ALIAS__';
+			if (! $field['registered'])
+			{
+				$field['registered'] = true;
+				$this->registerRuntimeField($name, $field);
+			}
+			return $name;
+		}
+
+		throw new SystemException("invalid alias '$alias' type", 0, __FILE__, __LINE__);
 	}
 
 	public function addAliasSelect($alias)

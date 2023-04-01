@@ -1,7 +1,9 @@
 <?php
+
 namespace Bitrix\Landing\Node;
 
 use \Bitrix\Landing\File;
+use Bitrix\Landing\History;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Web\DOM\StyleInliner;
 use \Bitrix\Landing\Node;
@@ -28,6 +30,7 @@ class Img extends \Bitrix\Landing\Node
 	{
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
+		$valueBefore = static::getNode($block, $selector);
 		$files = null;
 
 		foreach ($data as $pos => $value)
@@ -191,6 +194,18 @@ class Img extends \Bitrix\Landing\Node
 					? $resultList[$pos]->setAttribute('data-pseudo-url', $url)
 					: $resultList[$pos]->removeAttribute('data-pseudo-url')
 				;
+
+				if (History::isActive())
+				{
+					$history = new History($block->getLandingId(), History::ENTITY_TYPE_LANDING);
+					$history->push('EDIT_IMG', [
+						'block' => $block,
+						'selector' => $selector,
+						'position' => (int)$pos,
+						'valueBefore' => $valueBefore[$pos],
+						'valueAfter' => $value,
+					]);
+				}
 			}
 		}
 	}

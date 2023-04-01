@@ -23,6 +23,7 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Type\Date;
 use \Bitrix\Main\Engine\ActionFilter\Authentication;
@@ -412,7 +413,10 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 	protected function prepareParams(): void
 	{
 		$this->arResult['TOP_TITLE'] = COption::GetOptionString("main", "site_name", Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST') , '-');
-		$this->arResult['NAME'] = $this->event['NAME'];
+		if (!empty($this->event['NAME']))
+		{
+			$this->arResult['NAME'] = Emoji::decode($this->event['NAME']);
+		}
 		$this->arResult['IS_SHOW_LIST_BOX'] = false;
 
 		$this->prepareEventDurationParams();
@@ -583,7 +587,7 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 		{
 			$this->arResult['EVENT_DESCRIPTION'] = nl2br(
 				CCalendarEvent::ParseText(
-					$this->event['DESCRIPTION'],
+					Emoji::decode($this->event['DESCRIPTION']),
 					$this->event['PARENT_ID']
 				)
 			);

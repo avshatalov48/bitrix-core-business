@@ -74,15 +74,22 @@ if (isset($historyEntity) && is_array($historyEntity))
 	$arFilterHistory = array_merge($historyEntity, $arFilterHistory);
 }
 
-if ($filter_type <> '') $arFilterHistory["TYPE"] = trim($filter_type);
-if (intval($filter_user)>0) $arFilterHistory["USER_ID"] = intval($filter_user);
-
-if ($filters_date_history_from <> '')
+if (!empty($filter_type) <> '')
 {
-	$arFilterHistory["DATE_CREATE_FROM"] = Trim($filters_date_history_from);
+	$arFilterHistory["TYPE"] = trim($filter_type);
 }
 
-if ($filters_date_history_to <> '')
+if (!empty($filter_user) && intval($filter_user) > 0)
+{
+	$arFilterHistory["USER_ID"] = intval($filter_user);
+}
+
+if (!empty($filters_date_history_from))
+{
+	$arFilterHistory["DATE_CREATE_FROM"] = trim($filters_date_history_from);
+}
+
+if (!empty($filters_date_history_to))
 {
 	if ($arDate = ParseDateTime($filters_date_history_to, CSite::GetDateFormat("FULL")))
 	{
@@ -228,8 +235,13 @@ while ($arChangeRecord = $dbRecords->Fetch())
 	$arOperations[$arChangeRecord["TYPE"]] = $arRecord["NAME"];
 }
 
-if($_REQUEST["table_id"] == $sTableHistory)
+if(
+	isset($_REQUEST["table_id"])
+	&& $_REQUEST["table_id"] == $sTableHistory
+)
+{
 	$lAdminHistory->CheckListMode();
+}
 
 ?>
 
@@ -262,7 +274,7 @@ if($_REQUEST["table_id"] == $sTableHistory)
 <tr>
 	<td><?=Loc::getMessage('SOD_HIST_H_DATE')?>:</td>
 	<td>
-		<?echo CalendarPeriod("filters_date_history_from", $filters_date_history_from, "filters_date_history_to", $filters_date_history_to, "find_form_history", "Y")?>
+		<?echo CalendarPeriod("filters_date_history_from", $filters_date_history_from ?? '', "filters_date_history_to", $filters_date_history_to  ?? '', "find_form_history", "Y")?>
 	</td>
 </tr>
 

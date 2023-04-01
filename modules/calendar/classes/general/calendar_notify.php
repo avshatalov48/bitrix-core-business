@@ -2,8 +2,10 @@
 /** var CMain $APPLICATION */
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Loader;
+use Bitrix\Main\Loader;
+use Bitrix\Calendar\Sharing;
 
 class CCalendarNotify
 {
@@ -18,8 +20,8 @@ class CCalendarNotify
 
 		$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
 
-		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'], false, false);
-		$params["eventId"] = (int)$params["eventId"];
+		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'] ?? null, false, false);
+		$params["eventId"] = (int)($params["eventId"] ?? null);
 		$mode = $params['mode'];
 		$fromUser = (int)$params["userId"];
 		$toUser = (int)$params["guestId"];
@@ -28,8 +30,8 @@ class CCalendarNotify
 			return false;
 		}
 
-		$fromTimestamp = CCalendar::Timestamp($params["from"]);
-		if ($params['fields']['DT_SKIP_TIME'] === 'Y')
+		$fromTimestamp = CCalendar::Timestamp($params["from"] ?? null);
+		if (($params['fields']['DT_SKIP_TIME'] ?? null) === 'Y')
 		{
 			$params["from"] = CCalendar::Date($fromTimestamp, false);
 			$params["from_formatted"] = FormatDate($culture->getFullDateFormat(), $fromTimestamp);
@@ -68,12 +70,20 @@ class CCalendarNotify
 			return false;
 		}
 
-		$eventId = $params["eventId"];
-		$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['TO_USER_ID']);
-		if ($params["pathToCalendar"] && $eventId)
+		$eventId = $params["eventId"] ?? null;
+		$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['TO_USER_ID'] ?? null);
+		if (!empty($params["pathToCalendar"]) && $eventId)
 		{
 			$params["pathToCalendar"] = CHTTP::urlDeleteParams($params["pathToCalendar"], ["action", "sessid", "bx_event_calendar_request", "EVENT_ID"]);
-			$params["pathToEvent"] = CHTTP::urlAddParams($params["pathToCalendar"], ['EVENT_ID' => $eventId]);
+
+			if (($params['isSharing'] ?? false) && $mode === 'cancel_sharing')
+			{
+				$params["pathToEvent"] = CHTTP::urlAddParams($params["pathToCalendar"], ['EVENT_ID' => $eventId, 'IS_SHARING' => 1]);
+			}
+			else
+			{
+				$params["pathToEvent"] = CHTTP::urlAddParams($params["pathToCalendar"], ['EVENT_ID' => $eventId]);
+			}
 		}
 
 		$notifyFields = [
@@ -100,6 +110,9 @@ class CCalendarNotify
 			case 'cancel_all':
 				$notifyFields = self::CancelAllReccurent($notifyFields, $params);
 				break;
+			case 'cancel_sharing':
+				$notifyFields = self::CancelSharing($notifyFields, $params);
+				break;
 			case 'accept':
 			case 'decline':
 				$notifyFields = self::MeetingStatus($notifyFields, $params);
@@ -120,9 +133,9 @@ class CCalendarNotify
 		}
 
 		$messageId = CIMNotify::Add($notifyFields);
-		if ($params['markRead'] && $messageId > 0)
+		if (!empty($params['markRead']) && $messageId > 0)
 		{
-			$CIMNotify = new CIMNotify((int)$params["userId"]);
+			$CIMNotify = new CIMNotify((int)($params["userId"] ?? null));
 			$CIMNotify->MarkNotifyRead($messageId);
 		}
 
@@ -130,43 +143,90 @@ class CCalendarNotify
 		{
 			ExecuteModuleEventEx($arEvent, [$params]);
 		}
+
+		if (($params['isSharing'] ?? false) && in_array($mode, ['accept', 'decline']))
+		{
+			self::notifySharingUser($params["eventId"]);
+		}
 	}
 
+	protected static function notifySharingUser(int $eventId): void
+	{
+		/** @var \Bitrix\Calendar\Core\Event\Event $event */
+		$event = (new Mappers\Event())->getById($eventId);
+		/** @var Sharing\Link\EventLink $eventLink */
+		$eventLink = (new Sharing\Link\Factory())->getEventLinkByEventId($eventId);
 
-	public static function Invite($fields = [], $params)
+		if (!$eventLink)
+		{
+			return;
+		}
+
+		$host = CUser::GetByID($eventLink->getHostId())->Fetch();
+		$email = $host['PERSONAL_MAILBOX'] ?? null;
+		$phone = $host['PERSONAL_PHONE'] ?? null;
+		$userContact = !empty($email) ? $email : $phone;
+
+		$notificationService = null;
+		if ($userContact && Sharing\SharingEventManager::isEmailCorrect($userContact))
+		{
+			$notificationService = (new Sharing\Notification\Mail())
+				->setEventLink($eventLink)
+				->setEvent($event)
+			;
+		}
+		if ($userContact && Sharing\SharingEventManager::isPhoneNumberCorrect($userContact))
+		{
+			$notificationService = (new Sharing\Notification\Sms())
+				->setEventLink($eventLink)
+				->setEvent($event)
+			;
+		}
+
+		if ($notificationService !== null)
+		{
+			$notificationService->notifyAboutMeetingStatus($userContact);
+		}
+	}
+
+	public static function Invite($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "invite";
 		$fields['NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID'];
-		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
+		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|" . $params['eventId'] ?? null;
 
-		if ($params['rrule'])
+		if (!empty($params['rrule']))
 		{
-			$fromTs = CCalendar::Timestamp($params['fields']['DATE_FROM']);
-			$toTs = CCalendar::Timestamp($params['fields']['DATE_TO']);
+			$fromTs = CCalendar::Timestamp($params['fields']['DATE_FROM'] ?? null);
+			$toTs = CCalendar::Timestamp($params['fields']['DATE_TO'] ?? null);
 
-			if ($params['fields']['DT_SKIP_TIME'] === "Y")
+			if (($params['fields']['DT_SKIP_TIME'] ?? null) === "Y")
 			{
 				$toTs += CCalendar::DAY_LENGTH;
 			}
 			else
 			{
-				$fromTs = $fromTs - CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM']) + CCalendar::GetCurrentOffsetUTC($fields['TO_USER_ID']);
-				$toTs = $toTs - CCalendar::GetTimezoneOffset($params['fields']['TZ_TO']) + CCalendar::GetCurrentOffsetUTC($fields['TO_USER_ID']);
+				$fromTs = $fromTs
+					- CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'] ?? null)
+					+ CCalendar::GetCurrentOffsetUTC($fields['TO_USER_ID'] ?? null);
+				$toTs = $toTs
+					- CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'] ?? null)
+					+ CCalendar::GetCurrentOffsetUTC($fields['TO_USER_ID'] ?? null);
 			}
 
 			$params['from_to_html'] = CCalendar::GetFromToHtml(
 				$fromTs,
 				$toTs,
-				$params['fields']['DT_SKIP_TIME'] === 'Y',
-				$params['fields']['DT_LENGTH'],
+				($params['fields']['DT_SKIP_TIME'] ?? null) === 'Y',
+				$params['fields']['DT_LENGTH'] ?? null,
 				true
 			);
 
 			$fields['MESSAGE'] = Loc::getMessage('EC_MESS_REC_INVITE_SITE', [
-				'#TITLE#' => $params["name"],
+				'#TITLE#' => $params["name"] ?? null,
 				'#ACTIVE_FROM#' => $params['from_to_html'],
-				'#RRULE#' => $params["rrule"]
+				'#RRULE#' => $params["rrule"] ?? null
 			]);
 			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_REC_INVITE', [
 				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
@@ -196,7 +256,15 @@ class CCalendarNotify
 			]);
 			$fields['MESSAGE_OUT'] .= "\n\n" . Loc::getMessage('EC_EVENT_REMINDER_LOCATION', [
 				'#LOCATION#' => $params['location']
-			]);;
+			]);
+		}
+
+		if ($params['isSharing'] ?? false)
+		{
+			$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_SITE_SHARING', [
+				'#TITLE#' => $params["name"],
+				'#ACTIVE_FROM#' => $params["from_formatted"],
+			]);
 		}
 
 		$fields['PUSH_MESSAGE'] = str_replace(
@@ -426,7 +494,7 @@ class CCalendarNotify
 	}
 
 
-	public static function Cancel($fields = [], $params)
+	public static function Cancel($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "change";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|cancel";
@@ -449,7 +517,7 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function CancelInstance($fields = [], $params)
+	public static function CancelInstance($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "change";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$params["from"]."|".$fields['TO_USER_ID']."|cancel";
@@ -472,7 +540,7 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function CancelAllReccurent($fields = [], $params)
+	public static function CancelAllReccurent($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "change";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|cancel";
@@ -496,7 +564,28 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function MeetingStatus($fields = [], $params)
+	public static function CancelSharing($fields = [], $params = [])
+	{
+		$fields['NOTIFY_EVENT'] = "change";
+		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|sharing|cancel";
+		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
+
+		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_SHARING', [
+			'#TITLE#' => $params["name"],
+			'#ACTIVE_FROM#' => $params['from_formatted'],
+		]);
+
+		$fields['MESSAGE'] .= "\n\n" . Loc::getMessage('EC_MESS_INVITE_CANCEL_SHARING_SITE', [
+			'#LINK#' =>  $params["pathToEvent"],
+		]);
+
+		$fields['MESSAGE_OUT'] = $fields['MESSAGE'];
+		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_TITLE', ['#TITLE#' => $params["name"]]);
+
+		return $fields;
+	}
+
+	public static function MeetingStatus($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "info";
 		$fields['FROM_USER_ID'] = (int)$params["guestId"];
@@ -529,7 +618,7 @@ class CCalendarNotify
 
 		return $fields;
 	}
-	public static function MeetingStatusInfo($fields = [], $params)
+	public static function MeetingStatusInfo($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "info";
 		$fields['FROM_USER_ID'] = (int)$params["guestId"];
@@ -737,7 +826,7 @@ class CCalendarNotify
 		}
 	}
 
-	private static function NotifyFailIcalInvite($fields = [], $params)
+	private static function NotifyFailIcalInvite($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "info";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|"."icalfail";
@@ -745,7 +834,14 @@ class CCalendarNotify
 
 		foreach ($params['items'] as $item)
 		{
-			$usersList[] = $item['email'];
+			if (is_string($item))
+			{
+				$usersList[] = $item;
+			}
+			if (isset($item['email']) && is_string($item['email']))
+			{
+				$usersList[] = $item['email'];
+			}
 		}
 
 		$userString = implode(', ', $usersList);
@@ -800,7 +896,7 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function DeleteLocation($fields = [], $params)
+	public static function DeleteLocation($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "delete_location";
 		$fields['FROM_USER_ID'] = (int)$params["userId"];
@@ -815,7 +911,7 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function CancelBooking($fields = [], $params)
+	public static function CancelBooking($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = 'release_location';
 		$fields['FROM_USER_ID'] = (int)$params['userId'];
@@ -845,7 +941,7 @@ class CCalendarNotify
 			$fromTime = Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_TIME', [
 				'#FROM_TIME#'=> mb_substr($params['from'], -5, 5)
 			]);
-			$fromDate = mb_substr($params['from'], 0, mb_strlen($params['from']) - 6);
+			$fromDate = mb_substr($params['from'], 0, -6);
 		}
 		$fields['MESSAGE'] =
 			Loc::getMessage($notificationCode, [

@@ -557,6 +557,7 @@ $MESS["EC_MR_CHECK_PERIOD_WARN"] = "Событие не может быть до
 $MESS["EC_CAL_DAV_CON_WAIT"] = "Подождите, идет обработка предыдущего запроса.";
 $MESS["EC_CAL_DAV_REFRESH"] = "Обновить";
 $MESS["EC_DEFAULT_EVENT_NAME"] = "Мое событие";
+$MESS["EC_DEFAULT_EVENT_NAME_V2"] = "Новое событие";
 $MESS["EC_ATTENDEE_MORE_1"] = "и еще #NUM# участник";
 $MESS["EC_ATTENDEE_MORE_2"] = "и еще #NUM# участника";
 $MESS["EC_ATTENDEE_MORE_3"] = "и еще #NUM# участника";

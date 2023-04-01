@@ -17,6 +17,8 @@ use Bitrix\Sale\Registry;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ResultError;
 use Bitrix\Sale\Cashbox;
+use Bitrix\Sale\Services\Base\RestrictionInfoCollection;
+use Bitrix\Sale\Services\Base\RestrictableService;
 
 Loc::loadMessages(__FILE__);
 
@@ -24,7 +26,7 @@ Loc::loadMessages(__FILE__);
  * Class Service
  * @package Bitrix\Sale\PaySystem
  */
-class Service
+class Service implements RestrictableService
 {
 	public const EVENT_ON_BEFORE_PAYMENT_PAID = 'OnSalePsServiceProcessRequestBeforePaid';
 	public const EVENT_ON_AFTER_PROCESS_REQUEST = 'OnSaleAfterPsServiceProcessRequest';
@@ -1023,5 +1025,20 @@ class Service
 		throw new NotSupportedException(
 			'Handler is not implemented interface '.Sale\PaySystem\Cashbox\ISupportPrintCheck::class
 		);
+	}
+
+	public function getStartupRestrictions(): RestrictionInfoCollection
+	{
+		if ($this->handler instanceof Sale\Services\PaySystem\Restrictions\RestrictableServiceHandler)
+		{
+			return $this->handler->getRestrictionList();
+		}
+
+		return (new RestrictionInfoCollection());
+	}
+
+	public function getServiceId(): int
+	{
+		return (int)($this->getField('ID') ?? 0);
 	}
 }

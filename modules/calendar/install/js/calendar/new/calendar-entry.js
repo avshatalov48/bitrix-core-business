@@ -4,20 +4,14 @@
 	{
 		this.calendar = calendar;
 		this.pulledEntriesIndex = {};
-		this.requestedEntriesIndex = {};
 		this.entriesRaw = [];
 		this.userIndex = {};
 		this.loadedEntriesIndex = {};
 		this.externalEntryIndex = {};
-		this.sentRequests = [];
+		this.movedEntries = [];
 	}
 
 	EntryController.prototype = {
-
-		isAwaitingAnyResponses: function()
-		{
-			return this.sentRequests.length > 0;
-		},
 
 		getList: function (params)
 		{
@@ -43,9 +37,7 @@
 		getExternalLoadedList: async function(params)
 		{
 			let entries;
-			this.sentRequests.push('getList');
 			await this.loadExternalEntries(params).then(() => {
-					this.sentRequests.pop();
 					entries = this.getEntriesFromEntriesRaw(params.viewRange);
 				});
 
@@ -55,11 +47,9 @@
 		getLoadedList: async function(params)
 		{
 			let entries;
-			this.sentRequests.push('getList');
 			await BX.Calendar.EntryManager.doDelayedActions()
 				.then(() => this.loadEntries(params))
 				.then(() => {
-					this.sentRequests.pop();
 					entries = this.getEntriesFromEntriesRaw(params.viewRange);
 				});
 
@@ -124,6 +114,7 @@
 		moveEventToNewDate: function(entry, dateFrom, dateTo, params = {})
 		{
 			entry = this.setDateRangeToEntry(entry, dateFrom, dateTo);
+			this.addMovedEntry(entry);
 
 			if (this.calendar.isExternalMode())
 			{
@@ -155,7 +146,6 @@
 				});
 			}
 
-			this.sentRequests.push('moveEvent');
 			return new Promise((resolve) => {
 				BX.ajax.runAction('calendar.api.calendarentryajax.moveEvent', {
 					data: {
@@ -175,8 +165,6 @@
 						requestUid: BX.Calendar.Util.registerRequestId()
 					}
 				}).then((response) => {
-					this.sentRequests.pop();
-
 					let isEntrySavedSuccessfully = true;
 					if (entry.isMeeting() && response.data.busy_warning)
 					{
@@ -188,6 +176,11 @@
 					{
 						alert(BX.message('EC_LOCATION_RESERVE_ERROR'));
 						isEntrySavedSuccessfully = false;
+					}
+
+					if (!isEntrySavedSuccessfully)
+					{
+						this.removeMovedEntry(entry);
 					}
 
 					this.calendar.reload();
@@ -480,6 +473,21 @@
 					continue;
 				}
 
+				const movedEntry = this.findMovedEntry(entryRaw);
+				if (movedEntry)
+				{
+					if (entryRaw.DATE_FROM === movedEntry.DATE_FROM && entryRaw.DATE_TO === movedEntry.DATE_TO && parseInt(entryRaw.DT_LENGTH) === movedEntry.DT_LENGTH)
+					{
+						this.movedEntries = this.movedEntries.filter(e => e.ID !== movedEntry.ID);
+					}
+					else
+					{
+						entryRaw.DATE_FROM = movedEntry.DATE_FROM;
+						entryRaw.DATE_TO = movedEntry.DATE_TO;
+						entryRaw.DT_LENGTH = movedEntry.DT_LENGTH;
+					}
+				}
+
 				const entry = new Entry(this.calendar, entryRaw);
 				if (!viewRange || viewRange && entry.applyViewRange(viewRange))
 				{
@@ -487,6 +495,48 @@
 				}
 			}
 			return entries;
+		},
+
+		addMovedEntry: function(entry)
+		{
+			const formattedDateFrom = entry.isFullDay() ? this.calendar.util.formatDate(entry.from) : this.calendar.util.formatDateTime(entry.from);
+			const formattedDateTo = entry.isFullDay() ? this.calendar.util.formatDate(entry.to) : this.calendar.util.formatDateTime(entry.to);
+
+			this.movedEntries = this.movedEntries.filter(e => e.ID !== entry.uid);
+			this.movedEntries.push({
+				ID: entry.uid,
+				RECURRENCE_ID: entry.parentId,
+				ORIGINAL_DATE_FROM: this.calendar.util.formatDateTime(BX.parseDate(entry.data.DATE_FROM)),
+				DATE_FROM: formattedDateFrom,
+				DATE_TO: formattedDateTo,
+				DT_LENGTH: (entry.to.getTime() - entry.from.getTime()) / 1000,
+			});
+		},
+
+		removeMovedEntry: function(entry)
+		{
+			this.movedEntries = this.movedEntries.filter(e => e.ID !== entry.uid);
+		},
+
+		findMovedEntry: function(entryRaw)
+		{
+			return this.movedEntries.filter((e) => {
+				const isRecursive = !!entryRaw.RRULE;
+
+				if (isRecursive)
+				{
+					return entryRaw.RECURRENCE_ID === e.RECURRENCE_ID && entryRaw.ORIGINAL_DATE_FROM === e.ORIGINAL_DATE_FROM;
+				}
+
+				return entryRaw.ID === e.ID;
+			})[0];
+		},
+
+		findMovedEntryById: function(id)
+		{
+			return this.movedEntries.filter((e) => {
+				return id === e.ID;
+			})[0];
 		},
 
 		getActiveSectionsIndex: function()
@@ -548,7 +598,6 @@
 		clearLoadIndexCache: function()
 		{
 			this.pulledEntriesIndex = {};
-			this.requestedEntriesIndex = {};
 			this.entriesRaw = [];
 			this.loadedEntriesIndex = {};
 			this.externalEntryIndex = {};
@@ -812,6 +861,16 @@
 		isTask: function()
 		{
 			return this.data['~TYPE'] === 'tasks';
+		},
+
+		isSharingEvent: function()
+		{
+			return this.data['EVENT_TYPE'] === '#shared#';
+		},
+
+		isInvited: function()
+		{
+			return this.getCurrentStatus() === 'Q';
 		},
 
 		isLocation: function()

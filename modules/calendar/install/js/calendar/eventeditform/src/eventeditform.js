@@ -44,6 +44,10 @@ export class EventEditForm
 		this.emitter.setEventNamespace('BX.Calendar.EventEditForm');
 		this.BX = Util.getBX();
 		this.context = Util.getCalendarContext() ?? options.calendarContext;
+		if (!Util.getCalendarContext())
+		{
+			Util.setCalendarContext(this.context)
+		}
 
 		this.formSettings = {
 			pinnedFields : {}
@@ -195,10 +199,12 @@ export class EventEditForm
 
 		options = Type.isPlainObject(options) ? options : {};
 
-		if (!this.entry.id
+		if (
+			!this.entry.id
 			&& this.hasExternalEmailUsers()
 			&& Util.checkEmailLimitationPopup()
-			&& !options.emailLimitationDialogShown)
+			&& !options.emailLimitationDialogShown
+		)
 		{
 			EntryManager.showEmailLimitationDialog({
 				callback: () => {
@@ -223,9 +229,12 @@ export class EventEditForm
 			return false;
 		}
 
-		if (this.entry.id && this.entry.isRecursive()
+		if (
+			this.entry.id
+			&& this.entry.isRecursive()
 			&& !options.confirmed
-			&& this.getFormDataChanges(['section', 'notify']).length > 0)
+			&& this.getFormDataChanges(['section', 'notify']).length > 0
+		)
 		{
 			EntryManager.showConfirmEditDialog({
 				callback: (params) => {
@@ -240,7 +249,8 @@ export class EventEditForm
 			return false;
 		}
 
-		if (this.entry.id
+		if (
+			this.entry.id
 			&& this.entry.isMeeting()
 			&& options.sendInvitesAgain === undefined
 			&& this.getFormDataChanges().includes('date&time')
@@ -254,6 +264,16 @@ export class EventEditForm
 				}
 			});
 			return false;
+		}
+
+		if (
+			this.entry.id
+			&& this.entry.isRecursive()
+			&& !options.confirmed
+			&& this.getFormDataChanges().includes('section')
+		)
+		{
+			options.recursionMode = this.entry.isFirstInstance() ? 'all' : 'next';
 		}
 
 		Dom.addClass(this.DOM.saveBtn, this.BX.UI.Button.State.CLOCKING);
@@ -539,8 +559,8 @@ export class EventEditForm
 				event_id: this.entryId || entry.id,
 				date_from: entry ? Util.formatDate(entry.from) : '',
 				form_type: this.formType,
-				type: this.type,
-				ownerId: this.ownerId,
+				type: entry.data['CAL_TYPE'] ?? this.type,
+				ownerId: entry.data['OWNER_ID'] ?? this.ownerId,
 				entityList: this.participantsEntityList,
 			}
 		})
@@ -554,7 +574,8 @@ export class EventEditForm
 						let params = response.data.additionalParams;
 
 						this.updateEntryData(params.entry, {
-							userSettings: this.userSettings
+							userSettings: this.userSettings,
+							meetSection: params.meetSection,
 						});
 						entry = this.getCurrentEntry();
 
@@ -602,10 +623,9 @@ export class EventEditForm
 							this.setCurrentEntry();
 						}
 
-						const key = this.type + this.ownerId;
-						if (this.userSettings.defaultSections && this.userSettings.defaultSections[key])
+						if (this.userSettings.meetSection && this.type ==='user')
 						{
-							SectionManager.setNewEntrySectionId(this.userSettings.defaultSections[key]);
+							SectionManager.setNewEntrySectionId(this.userSettings.meetSection);
 						}
 
 						promise.fulfill(html);
@@ -668,6 +688,15 @@ export class EventEditForm
 				{
 					this.entry.setTimezone(userSettings.timezoneName || userSettings.timezoneDefaultName || null);
 				}
+			}
+
+			if (
+				!this.entry.id
+				&& options.meetSection
+				&& this.type === Entry.CAL_TYPES['user']
+			)
+			{
+				this.entry.setSectionId(options.meetSection)
 			}
 		}
 	}
@@ -1456,7 +1485,7 @@ export class EventEditForm
 			section = 0,
 			entry = this.getCurrentEntry();
 
-		if (entry instanceof Entry)
+		if (entry instanceof Entry && this.sections[this.sectionIndex[entry.sectionId]])
 		{
 			section = parseInt(entry.sectionId);
 		}
@@ -1469,7 +1498,7 @@ export class EventEditForm
 			}
 			else
 			{
-				section = SectionManager.getNewEntrySectionId();
+				section = SectionManager.getNewEntrySectionId(this.type, this.ownerId);
 
 			}
 			if (!this.sectionIndex[section])
@@ -1885,10 +1914,22 @@ export class EventEditForm
 
 	keyHandler(e)
 	{
-		if ((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === Util.getKeyCode('enter'))
+		if (
+			(e.ctrlKey || e.metaKey)
+			&& !e.altKey
+			&& e.keyCode === Util.getKeyCode('enter')
+			&& this.checkTopSlider()
+		)
 		{
 			this.save();
 		}
+	}
+
+	checkTopSlider()
+	{
+		const slider = Util.getBX().SidePanel.Instance.getTopSlider();
+
+		return slider && slider.options.type === 'calendar:slider';
 	}
 
 	showError(errorList)

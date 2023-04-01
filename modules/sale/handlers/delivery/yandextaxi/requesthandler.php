@@ -216,9 +216,21 @@ class RequestHandler extends HandlerBase
 				new Message(Loc::getMessage(
 					'SALE_YANDEX_TAXI_DELIVERY_PAID_CANCELLATION',
 					[
-						'#SERVICE_NAME#' => $this->deliveryService->getName()
+						'#SERVICE_NAME#' =>
+							$this->deliveryService->getParentService()
+								? $this->deliveryService->getParentService()->getName()
+								: $this->deliveryService->getName()
+						,
 					]
 				))
+			);
+		}
+		else
+		{
+			$result->addMessage(
+				new Message(
+					Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_FREE_CANCELLATION')
+				)
 			);
 		}
 

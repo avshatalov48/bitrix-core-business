@@ -17,7 +17,7 @@ $containerId = 'bx-sender-campaign-edit';
 	BX.ready(function () {
 		BX.Sender.TriggerEditor.init(<?=Json::encode(array(
 			'containerId' => $containerId,
-			'actionUrl' => $arResult['ACTION_URL'],
+			'actionUrl' => $arResult['ACTION_URL'] ?? null,
 			'isFrame' => $arParams['IFRAME'] == 'Y',
 			'isSaved' => $arResult['IS_SAVED'],
 			'campaignTile' => $arResult['CAMPAIGN_TILE'],
@@ -85,7 +85,7 @@ $containerId = 'bx-sender-campaign-edit';
 			<div class="bx-sender-value">
 				<textarea name="DESCRIPTION"
 					class="bx-sender-form-control bx-sender-message-editor-field-text"
-				><?=htmlspecialcharsbx($arResult['ROW']['DESCRIPTION'])?></textarea>
+				><?=htmlspecialcharsbx($arResult['ROW']['DESCRIPTION'] ?? '')?></textarea>
 			</div>
 		</div>
 
@@ -120,21 +120,21 @@ $containerId = 'bx-sender-campaign-edit';
 										<?foreach($arResult['TRIGGERS']['AVAILABLE']['START'] as $triggerId => $triggerParams):?>
 											<option
 												value="<?=htmlspecialcharsbx($triggerId)?>"
-												<?=($arResult['TRIGGERS']['EXISTS']['START']['ID'] == $triggerId ? 'selected' : '')?>
+												<?=(($arResult['TRIGGERS']['EXISTS']['START']['ID'] ?? null) == $triggerId ? 'selected' : '')?>
 											><?=htmlspecialcharsbx($triggerParams['NAME'])?></option>
 										<?endforeach;?>
 									</select>
-									<input type="hidden" id="ENDPOINT_START_MODULE_ID" name="ENDPOINT[START][MODULE_ID]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['MODULE_ID'])?>">
-									<input type="hidden" id="ENDPOINT_START_CODE" name="ENDPOINT[START][CODE]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['CODE'])?>">
-									<input type="hidden" id="ENDPOINT_START_IS_CLOSED_TRIGGER" name="ENDPOINT[START][IS_CLOSED_TRIGGER]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'])?>">
-									<input type="hidden" id="ENDPOINT_START_WAS_RUN_FOR_OLD_DATA" name="ENDPOINT[START][WAS_RUN_FOR_OLD_DATA]" value="<?=($arResult['TRIGGERS']['EXISTS']['START']['WAS_RUN_FOR_OLD_DATA']=='Y' ? 'Y' : 'N')?>">
+									<input type="hidden" id="ENDPOINT_START_MODULE_ID" name="ENDPOINT[START][MODULE_ID]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['MODULE_ID'] ?? '')?>">
+									<input type="hidden" id="ENDPOINT_START_CODE" name="ENDPOINT[START][CODE]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['CODE'] ?? '')?>">
+									<input type="hidden" id="ENDPOINT_START_IS_CLOSED_TRIGGER" name="ENDPOINT[START][IS_CLOSED_TRIGGER]" value="<?=htmlspecialcharsbx($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] ?? '')?>">
+									<input type="hidden" id="ENDPOINT_START_WAS_RUN_FOR_OLD_DATA" name="ENDPOINT[START][WAS_RUN_FOR_OLD_DATA]" value="<?=(($arResult['TRIGGERS']['EXISTS']['START']['WAS_RUN_FOR_OLD_DATA'] ?? null) == 'Y' ? 'Y' : 'N')?>">
 								</td>
 							</tr>
 							<tr>
 								<td></td>
 								<td>
-									<div id="ENDPOINT_START_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['START']['FORM']) || $arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] == 'Y') ? '' : 'display: none;')?>">
-										<div id="ENDPOINT_START_CLOSED_FORM" style="<?=($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] == 'Y' ? '' : 'display:none;')?>">
+									<div id="ENDPOINT_START_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['START']['FORM']) || ($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] ?? null) == 'Y') ? '' : 'display: none;')?>">
+										<div id="ENDPOINT_START_CLOSED_FORM" style="<?=(($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] ?? null) == 'Y' ? '' : 'display:none;')?>">
 											<?=Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_RUN_TIME')?>
 											<select id="ENDPOINT_START_CLOSED_TRIGGER_TIME" name="ENDPOINT[START][CLOSED_TRIGGER_TIME]">
 												<?

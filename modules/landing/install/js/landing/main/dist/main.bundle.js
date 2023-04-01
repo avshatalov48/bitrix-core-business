@@ -836,7 +836,6 @@ this.BX = this.BX || {};
 	    /**
 	     * Adds block from server response
 	     * @param {addBlockResponse} res
-	     * @param {boolean} [preventHistory = false]
 	     * @param {boolean} [withoutAnimation = false]
 	     * @param {boolean} [insertBefore = false]
 	     * @return {Promise<T>}
@@ -844,8 +843,7 @@ this.BX = this.BX || {};
 
 	  }, {
 	    key: "addBlock",
-	    value: function addBlock(res, preventHistory, withoutAnimation) {
-	      var insertBefore = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+	    value: function addBlock(res, withoutAnimation) {
 
 	      if (this.lastBlocks) {
 	        this.lastBlocks.unshift(res.manifest.codeOriginal || res.manifest.code);
@@ -854,35 +852,6 @@ this.BX = this.BX || {};
 	      var self = this;
 	      var block = this.appendBlock(res, withoutAnimation);
 	      return this.loadBlockDeps(res).then(function (blockRes) {
-	        if (!main_core.Type.isBoolean(preventHistory) || preventHistory === false) {
-	          var lid = null;
-	          var id = null;
-
-	          if (self.currentBlock) {
-	            lid = self.currentBlock.lid;
-	            id = self.currentBlock.id;
-	          }
-
-	          if (self.currentArea) {
-	            lid = main_core.Dom.attr(self.currentArea, 'data-landing');
-	            id = main_core.Dom.attr(self.currentArea, 'data-site');
-	          } // Add history entry
-
-
-	          BX.Landing.History.getInstance().push(new BX.Landing.History.Entry({
-	            block: blockRes.id,
-	            selector: "#block".concat(blockRes.id),
-	            command: 'addBlock',
-	            undo: '',
-	            redo: {
-	              currentBlock: id,
-	              lid: lid,
-	              code: blockRes.manifest.code,
-	              insertBefore: main_core.Text.toBoolean(insertBefore)
-	            }
-	          }));
-	        }
-
 	        self.currentBlock = null;
 	        self.currentArea = null;
 	        var blockId = parseInt(res.id);
@@ -923,12 +892,13 @@ this.BX = this.BX || {};
 
 	  }, {
 	    key: "onAddBlock",
-	    value: function onAddBlock(blockCode, restoreId, preventHistory) {
+	    value: function onAddBlock(blockCode, restoreId) {
 	      var _this7 = this;
 
+	      var preventHistory = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var id = main_core.Text.toNumber(restoreId);
 	      this.hideBlocksPanel();
-	      return this.showBlockLoader().then(this.loadBlock(blockCode, id)).then(function (res) {
+	      return this.showBlockLoader().then(this.loadBlock(blockCode, id, preventHistory)).then(function (res) {
 	        return new Promise(function (resolve) {
 	          setTimeout(function () {
 	            resolve(res);
@@ -937,7 +907,7 @@ this.BX = this.BX || {};
 	      }).then(function (res) {
 	        res.manifest.codeOriginal = blockCode;
 
-	        var p = _this7.addBlock(res, preventHistory, false, _this7.insertBefore);
+	        var p = _this7.addBlock(res, false, _this7.insertBefore);
 
 	        _this7.insertBefore = false;
 
@@ -1106,12 +1076,13 @@ this.BX = this.BX || {};
 	     * Load new block from server
 	     * @param {string} blockCode
 	     * @param {int} [restoreId]
+	     * @param {boolean} [preventHistory = false]
 	     * @returns {Function}
 	     */
 
 	  }, {
 	    key: "loadBlock",
-	    value: function loadBlock(blockCode, restoreId) {
+	    value: function loadBlock(blockCode, restoreId, preventHistory) {
 	      var _this9 = this;
 
 	      return function () {
@@ -1130,7 +1101,8 @@ this.BX = this.BX || {};
 
 	        var requestBody = {
 	          lid: lid,
-	          siteId: siteId
+	          siteId: siteId,
+	          preventHistory: preventHistory ? 1 : 0
 	        };
 	        var fields = {
 	          ACTIVE: 'Y',
@@ -1138,6 +1110,11 @@ this.BX = this.BX || {};
 	          AFTER_ID: _this9.currentBlock ? _this9.currentBlock.id : 0,
 	          RETURN_CONTENT: 'Y'
 	        };
+
+	        if (!main_core.Type.isBoolean(preventHistory) || preventHistory === false) {
+	          // Change history steps
+	          BX.Landing.History.getInstance().push();
+	        }
 
 	        if (!restoreId) {
 	          requestBody.fields = fields;
@@ -1158,29 +1135,14 @@ this.BX = this.BX || {};
 	          });
 	        }
 
-	        requestBody = {
-	          undeleete: {
-	            action: 'Landing::markUndeletedBlock',
-	            data: {
-	              lid: lid,
-	              block: restoreId
-	            }
-	          },
-	          getContent: {
-	            action: 'Block::getContent',
-	            data: {
-	              block: restoreId,
-	              lid: lid,
-	              fields: fields,
-	              editMode: 1
-	            }
-	          }
-	        };
-	        return BX.Landing.Backend.getInstance().batch('Landing::addBlock', requestBody, {
-	          code: blockCode
+	        return BX.Landing.Backend.getInstance().action('Block::getContent', {
+	          block: restoreId,
+	          lid: lid,
+	          fields: fields,
+	          editMode: 1
 	        }).then(function (res) {
-	          res.getContent.result.id = restoreId;
-	          return res.getContent.result;
+	          res.id = restoreId;
+	          return res;
 	        });
 	      };
 	    }

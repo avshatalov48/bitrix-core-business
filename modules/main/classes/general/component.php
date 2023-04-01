@@ -1109,7 +1109,7 @@ class CBitrixComponent
 		);
 		if ($this->__template)
 		{
-			$arCache["templateCachedData"] = & $this->__template->getCachedData();
+			$arCache["templateCachedData"] = $this->__template->getCachedData();
 			if ($this->__component_epilog)
 				$arCache["templateCachedData"]["component_epilog"] = $this->__component_epilog;
 		}

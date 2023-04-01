@@ -100,7 +100,13 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    var captchaTypeForm = new landing_ui_form_formsettingsform.FormSettingsForm({
 	      id: 'type',
 	      description: null,
-	      fields: [new landing_ui_field_radiobuttonfield.RadioButtonField({
+	      fields: [new landing_ui_card_messagecard.MessageCard({
+	        selector: 'warning-captcha',
+	        context: 'warning',
+	        description: landing_loc.Loc.getMessage('LANDING_SPAM_PROTECTION_MESSAGE_WARNING_RECAPTCHA').replace('#URL_POLICIES_PRIVACY#', "https://policies.google.com/privacy").replace('#URL_POLICIES_TERMS#', 'https://policies.google.com/terms'),
+	        angle: false,
+	        closeable: false
+	      }), new landing_ui_field_radiobuttonfield.RadioButtonField({
 	        selector: 'use',
 	        title: landing_loc.Loc.getMessage('LANDING_SPAM_PROTECTION_TABS_TITLE'),
 	        value: main_core.Text.toBoolean(_this.options.formOptions.data.recaptcha.use) ? 'hidden' : 'disabled',

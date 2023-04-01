@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Node;
 
+use Bitrix\Landing\History;
 use \Bitrix\Main\Application;
 
 class Link extends \Bitrix\Landing\Node
@@ -69,6 +70,7 @@ class Link extends \Bitrix\Landing\Node
 
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
+		$valueBefore = static::getNode($block, $selector);
 		$isIframe = self::isFrame();
 
 		foreach ($data as $pos => $value)
@@ -135,6 +137,18 @@ class Link extends \Bitrix\Landing\Node
 					{
 						$resultList[$pos]->removeAttribute($attr);
 					}
+				}
+
+				if (History::isActive())
+				{
+					$history = new History($block->getLandingId(), History::ENTITY_TYPE_LANDING);
+					$history->push('EDIT_LINK', [
+						'block' => $block,
+						'selector' => $selector,
+						'position' => (int)$pos,
+						'valueBefore' => $valueBefore[$pos],
+						'valueAfter' => $value,
+					]);
 				}
 			}
 		}

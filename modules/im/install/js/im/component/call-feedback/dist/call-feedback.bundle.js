@@ -71,17 +71,14 @@ this.BX = this.BX || {};
         },
         getProblemCode: function getProblemCode() {
           var problem = '';
-
           for (var _i = 0, _Object$entries = Object.entries(this.problemsList); _i < _Object$entries.length; _i++) {
             var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-                key = _Object$entries$_i[0],
-                value = _Object$entries$_i[1];
-
+              key = _Object$entries$_i[0],
+              value = _Object$entries$_i[1];
             if (this.selectedProblem === value) {
               problem = key;
             }
           }
-
           return problem;
         },
         sendFeedback: function sendFeedback() {
@@ -89,11 +86,9 @@ this.BX = this.BX || {};
           var feedback = this.prepareFeedback();
           im_lib_logger.Logger.warn('Call feedback', feedback);
           this.$emit('feedbackSent');
-
           if (this.selectedRating === 0 && this.selectedProblem === this.problemsList.noProblem) {
             return;
           }
-
           BX.Call.Util.sendTelemetryEvent(feedback);
         },
         getRatingStarClasses: function getRatingStarClasses(index) {
@@ -115,11 +110,9 @@ this.BX = this.BX || {};
         },
         createProblemSelectPopup: function createProblemSelectPopup() {
           var _this = this;
-
           var problemSelect = this.$refs['problemSelect'];
           var className = 'bx-im-call-feedback-problem-select' + (this.darkMode ? ' bx-im-call-feedback-problem-select-dark' : '');
           var items = [];
-
           for (var _i2 = 0, _Object$values = Object.values(this.problemsList); _i2 < _Object$values.length; _i2++) {
             var problem = _Object$values[_i2];
             items.push({
@@ -130,7 +123,6 @@ this.BX = this.BX || {};
               className: 'bx-im-call-feedback-problem-option'
             });
           }
-
           this.problemSelectPopup = new main_popup.Menu({
             bindElement: problemSelect,
             items: items,
@@ -142,7 +134,6 @@ this.BX = this.BX || {};
           if (!this.problemSelectPopup) {
             this.createProblemSelectPopup();
           }
-
           this.problemSelectPopup.toggle();
         },
         onProblemClick: function onProblemClick(problem) {

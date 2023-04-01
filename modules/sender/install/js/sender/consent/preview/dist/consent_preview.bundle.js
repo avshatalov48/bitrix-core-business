@@ -38,13 +38,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setApproveBtn",
 	    value: function setApproveBtn(accept) {
-	      this.approveBtn = accept;
+	      this.approveBtn = BX.util.htmlspecialchars(accept);
 	      this.reDraw();
 	    }
 	  }, {
 	    key: "setRejectBtn",
 	    value: function setRejectBtn(reject) {
-	      this.rejectBtn = reject;
+	      this.rejectBtn = BX.util.htmlspecialchars(reject);
 	      this.reDraw();
 	    }
 	  }, {

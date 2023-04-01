@@ -204,7 +204,7 @@ class ConverterDocumentPayment extends Converter
 
 		$traits = $fields['TRAITS'];
 		$businessValue = $fields['BUSINESS_VALUE'];
-		$checks = $fields['CASH_BOX_CHECKS'];
+		$checks = $fields['CASH_BOX_CHECKS'] ?? [];
 
 		$availableFields = $this->getFieldsInfo();
 

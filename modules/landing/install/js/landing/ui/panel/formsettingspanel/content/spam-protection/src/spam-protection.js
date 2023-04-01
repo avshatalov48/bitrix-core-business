@@ -30,6 +30,16 @@ export default class SpamProtection extends ContentWrapper
 			id: 'type',
 			description: null,
 			fields: [
+				new MessageCard({
+					selector: 'warning-captcha',
+					context: 'warning',
+					description: Loc.getMessage('LANDING_SPAM_PROTECTION_MESSAGE_WARNING_RECAPTCHA')
+						.replace('#URL_POLICIES_PRIVACY#', "https://policies.google.com/privacy")
+						.replace('#URL_POLICIES_TERMS#', 'https://policies.google.com/terms')
+					,
+					angle: false,
+					closeable: false,
+				}),
 				new RadioButtonField({
 					selector: 'use',
 					title: Loc.getMessage('LANDING_SPAM_PROTECTION_TABS_TITLE'),

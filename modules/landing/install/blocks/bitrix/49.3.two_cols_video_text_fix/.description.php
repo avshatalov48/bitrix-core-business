@@ -45,6 +45,10 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_49_2_TWO_COLS_TEXT_VIDEO_FIX--LANDINGBLOCKNODEVIDEO'),
 			'type' => array('align-self', 'animation'),
 		),
+		'.landing-block-node-video-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_49_2_TWO_COLS_TEXT_VIDEO_FIX--LANDINGBLOCKNODEVIDEO'),
+			'type' => ['orientation', 'video-scale'],
+		],
 	),
 	'assets' => array(
 		'ext' => array('landing_inline_video'),

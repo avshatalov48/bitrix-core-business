@@ -9,6 +9,8 @@ namespace Bitrix\UI\Buttons;
  */
 class LockedButton extends Button
 {
+	protected bool $hasHint = false;
+
 	/**
 	 * @return array
 	 */
@@ -33,6 +35,7 @@ class LockedButton extends Button
 		$hint = $params['hint'] ?? null;
 		if ($hint)
 		{
+			$this->hasHint = true;
 			$this->addDataAttribute('hint', $hint);
 			$this->addDataAttribute('hint-no-icon', true);
 		}
@@ -53,11 +56,28 @@ class LockedButton extends Button
 	 */
 	public function render($jsInit = true)
 	{
-		$ouput = parent::render($jsInit);
+		$output = parent::render($jsInit);
+		$uniqId = $this->getUniqId();
 
 		// execute in any case despite $jsInit
-		$ouput .= "<script>BX.UI.Hint.init();</script>";
+		if ($this->hasHint)
+		{
+			// HACK: hint does not work on locked buttons because mouse(enter/out) events don't work for disabled buttons. So we remove disabled attribute
+			$output .=
+				"<script>
+				setTimeout(() => {
+					const lockedButton = BX.UI.ButtonManager.getByUniqid('{$uniqId}');
+					if (lockedButton && lockedButton.button)
+					{
+						lockedButton.button.removeAttribute('disabled');
+					}
+					
+					BX.UI.Hint.init();
+				}, 200);
+			</script>";
+		}
 
-		return $ouput;
+
+		return $output;
 	}
 }

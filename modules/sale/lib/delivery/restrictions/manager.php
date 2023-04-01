@@ -122,11 +122,15 @@ class Manager extends \Bitrix\Sale\Services\Base\RestrictionManager
 
 				if(in_array($rstr['CLASS_NAME'], $supportGroupFiltering))
 				{
-					if(!is_array($idsGrouppedByRestrictions[$rstr['CLASS_NAME']]))
-						$idsGrouppedByRestrictions[$rstr['CLASS_NAME']] = array();
+					if (!isset($idsGrouppedByRestrictions[$rstr['CLASS_NAME']]))
+					{
+						$idsGrouppedByRestrictions[$rstr['CLASS_NAME']] = [];
+					}
 
-					if(!in_array($rstr["SERVICE_ID"], $idsGrouppedByRestrictions[$rstr['CLASS_NAME']]))
+					if (!in_array($rstr["SERVICE_ID"], $idsGrouppedByRestrictions[$rstr['CLASS_NAME']]))
+					{
 						$idsGrouppedByRestrictions[$rstr['CLASS_NAME']][$rstr["SERVICE_ID"]] = $rstr;
+					}
 				}
 			}
 

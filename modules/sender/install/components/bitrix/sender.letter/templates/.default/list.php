@@ -11,14 +11,14 @@ $APPLICATION->IncludeComponent(
 	"",
 	array(
 		'NAME_TEMPLATE' => $arResult['NAME_TEMPLATE'],
-		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'],
-		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
-		'PATH_TO_ADD' => $arResult['PATH_TO_ADD'],
-		'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'],
-		'PATH_TO_TIME' => $arResult['PATH_TO_TIME'],
-		'PATH_TO_STAT' => $arResult['PATH_TO_STAT'],
-		'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'],
-		'PATH_TO_ABUSES' => $arResult['PATH_TO_ABUSES'],
-		'SHOW_CAMPAIGNS' => $arParams['SHOW_CAMPAIGNS'],
+		'PATH_TO_USER_PROFILE' => $arResult['PATH_TO_CONSENTS'] ?? '',
+		'PATH_TO_LIST' => $arResult['PATH_TO_LIST'] ?? '',
+		'PATH_TO_ADD' => $arResult['PATH_TO_ADD'] ?? '',
+		'PATH_TO_EDIT' => $arResult['PATH_TO_EDIT'] ?? '',
+		'PATH_TO_TIME' => $arResult['PATH_TO_TIME'] ?? '',
+		'PATH_TO_STAT' => $arResult['PATH_TO_STAT'] ?? '',
+		'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'] ?? '',
+		'PATH_TO_ABUSES' => $arResult['PATH_TO_ABUSES'] ?? '',
+		'SHOW_CAMPAIGNS' => $arParams['SHOW_CAMPAIGNS'] ?? '',
 	)
 );

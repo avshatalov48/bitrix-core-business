@@ -180,7 +180,7 @@ class CatalogProductVariationDetailsComponent
 
 	private function prepareFileFields(&$fields): void
 	{
-		$files = $_FILES['data'];
+		$files = $_FILES['data'] ?? [];
 		if (!empty($files))
 		{
 			CFile::ConvertFilesToPost($files, $fields);
@@ -206,6 +206,14 @@ class CatalogProductVariationDetailsComponent
 
 		foreach ($fields as $name => $field)
 		{
+			$index = mb_substr($name, $prefixLength);
+
+			$property = $propertyCollection->findById((int)$index);
+			if ($property === null)
+			{
+				$property = $propertyCollection->findByCode($index);
+			}
+
 			if (
 				mb_strpos($name, BaseForm::PROPERTY_FIELD_PREFIX) === 0
 				&& mb_substr($name, -7) !== '_custom'
@@ -285,6 +293,19 @@ class CatalogProductVariationDetailsComponent
 					}
 					unset($fields[$name.'_descr']);
 				}
+				elseif (isset($property) && $property->getListType() === PropertyTable::CHECKBOX)
+				{
+					$variant = \Bitrix\Iblock\PropertyEnumerationTable::getRow([
+						'select' => ['ID', 'PROPERTY_ID', 'VALUE'],
+						'filter' => [
+							'=PROPERTY_ID' => $index,
+						],
+					]);
+					if ($variant && $field === $variant['VALUE'])
+					{
+						$field = $variant['ID'];
+					}
+				}
 				elseif (Loader::includeModule('currency'))
 				{
 					if (isset($field['AMOUNT'], $field['CURRENCY']))
@@ -300,7 +321,6 @@ class CatalogProductVariationDetailsComponent
 					}
 				}
 
-				$index = mb_substr($name, $prefixLength);
 				$propertyFields[$index] = $field;
 
 				unset($fields[$name]);
@@ -502,15 +522,12 @@ class CatalogProductVariationDetailsComponent
 								unset($skuField[$name . '_custom']);
 							}
 						}
-						else
+						elseif (!isset($fields[$name]))
 						{
-							if (!isset($fields[$name]))
-							{
-								$value = '';
-								$skuFields[$id][$originalName] = $value;
+							$value = '';
+							$skuField[$originalName] = $value;
 
-								continue;
-							}
+							continue;
 						}
 
 						if (isset($fields[$name . '_del']))
@@ -931,6 +948,7 @@ class CatalogProductVariationDetailsComponent
 	{
 		$this->arResult['VARIATION_ENTITY'] = $variation;
 		$this->arResult['VARIATION_FIELDS'] = $variation->getFields();
+		$this->arResult['IS_NEW_PRODUCT'] = $variation->isNew();
 
 		$this->arResult['UI_ENTITY_FIELDS'] = $this->getForm()->getDescriptions();
 		$this->arResult['UI_ENTITY_CONFIG'] = $this->getForm()->getConfig();
@@ -940,6 +958,7 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['UI_ENTITY_READ_ONLY'] = $this->getForm()->isReadOnly();
 		$this->arResult['UI_ENTITY_CARD_SETTINGS_EDITABLE'] = $this->getForm()->isCardSettingsEditable();
 		$this->arResult['UI_ENTITY_ENABLE_SETTINGS_FOR_ALL'] = $this->getForm()->isEnabledSetSettingsForAll();
+		$this->arResult['UI_CREATION_SKU_PROPERTY_URL'] = $this->getCreationSkuPropertyLink();
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
@@ -1195,6 +1214,15 @@ class CatalogProductVariationDetailsComponent
 		}
 
 		return '';
+	}
+
+	protected function getCreationSkuPropertyLink()
+	{
+		return str_replace(
+			'#IBLOCK_ID#',
+			$this->getForm()->getVariationIblockId(),
+			$this->arParams['PATH_TO']['PROPERTY_CREATOR']
+		);
 	}
 
 	protected function getVariationDetailUrl(): string

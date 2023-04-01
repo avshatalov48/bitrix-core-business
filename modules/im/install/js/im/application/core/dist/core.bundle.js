@@ -11,13 +11,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-
 	var CoreApplication = /*#__PURE__*/function () {
 	  function CoreApplication() {
 	    babelHelpers.classCallCheck(this, CoreApplication);
 	    this.controller = new im_controller.Controller();
 	  }
-
 	  babelHelpers.createClass(CoreApplication, [{
 	    key: "ready",
 	    value: function ready() {
@@ -26,7 +24,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }]);
 	  return CoreApplication;
 	}();
-
 	var Core = new CoreApplication();
 
 	exports.Core = Core;

@@ -1162,6 +1162,34 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return VariationGridController;
 	}(BX.UI.EntityEditorController);
 
+	var VariationLinkController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(VariationLinkController, _BX$UI$EntityEditorCo);
+
+	  function VariationLinkController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, VariationLinkController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VariationLinkController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    main_core_events.EventEmitter.subscribe('onChangeVariationLink', _this.markAsChanged.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(VariationLinkController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(VariationLinkController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+	    }
+	  }]);
+	  return VariationLinkController;
+	}(BX.UI.EntityEditorController);
+
 	var GoogleMapController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(GoogleMapController, _BX$UI$EntityEditorCo);
 
@@ -1216,6 +1244,62 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    }
 	  }]);
 	  return EmployeeController;
+	}(BX.UI.EntityEditorController);
+
+	var UserController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(UserController, _BX$UI$EntityEditorCo);
+
+	  function UserController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, UserController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UserController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    main_core_events.EventEmitter.subscribe('onChangeUser', _this.markAsChanged.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(UserController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(UserController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+	    }
+	  }]);
+	  return UserController;
+	}(BX.UI.EntityEditorController);
+
+	var IblockElementController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(IblockElementController, _BX$UI$EntityEditorCo);
+
+	  function IblockElementController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, IblockElementController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(IblockElementController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    main_core_events.EventEmitter.subscribe('onChangeIblockElement', _this.markAsChanged.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(IblockElementController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(IblockElementController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+	    }
+	  }]);
+	  return IblockElementController;
 	}(BX.UI.EntityEditorController);
 
 	var BindingToCrmElementController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
@@ -1373,6 +1457,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          }
 	        }
 
+	        if (currentField instanceof BX.UI.EntityEditorCustom) {
+	          currentField.refreshLayout();
+	        }
+
 	        var newType = null;
 	        var schemeElement = null;
 
@@ -1496,6 +1584,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	        case 'file':
 	          formatted.USER_TYPE = 'DiskFile';
+	          break;
+
+	        case 'custom':
+	          formatted.USER_TYPE = fields.userType;
 	          break;
 	      }
 
@@ -1891,8 +1983,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        return new IblockSectionController(controlId, settings);
 	      }
 
+	      if (type === 'iblock_element') {
+	        return new IblockElementController(controlId, settings);
+	      }
+
 	      if (type === 'variation_grid') {
 	        return new VariationGridController(controlId, settings);
+	      }
+
+	      if (type === 'variation_link') {
+	        return new VariationLinkController(controlId, settings);
 	      }
 
 	      if (type === 'google_map') {
@@ -1901,6 +2001,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      if (type === 'employee') {
 	        return new EmployeeController(controlId, settings);
+	      }
+
+	      if (type === 'user') {
+	        return new UserController(controlId, settings);
 	      }
 
 	      if (type === 'binding_to_crm_element') {
@@ -2055,9 +2159,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this._wrapper.appendChild(this.getInputContainer());
 
 	      if (this._typeId === "list" || this._typeId === "multilist" || this._typeId === "directory") {
+	        var _this$_field;
+
 	        this._wrapper.appendChild(main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))));
 
-	        this._wrapper.appendChild(this.getEnumerationContainer());
+	        if (BX.prop.get((_this$_field = this._field) === null || _this$_field === void 0 ? void 0 : _this$_field.getSchemeElement().getData(), 'isConfigurable', null) !== false) {
+	          this._wrapper.appendChild(this.getEnumerationContainer());
+	        }
 	      }
 
 	      this._wrapper.appendChild(this.getOptionContainer());
@@ -2105,10 +2213,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "isAllowedMultipleCheckBox",
 	    value: function isAllowedMultipleCheckBox() {
-	      var _this$_field, _this$_field$getSchem, _this$_field$getSchem2, _this$_field2, _this$_field2$getSche, _this$_field2$getSche2;
+	      var _this$_field2, _this$_field2$getSche, _this$_field3, _this$_field3$getSche, _this$_field3$getSche2, _this$_field4, _this$_field4$getSche, _this$_field4$getSche2;
 
-	      var isEnabledOfferTree = this === null || this === void 0 ? void 0 : (_this$_field = this._field) === null || _this$_field === void 0 ? void 0 : (_this$_field$getSchem = _this$_field.getSchemeElement()) === null || _this$_field$getSchem === void 0 ? void 0 : (_this$_field$getSchem2 = _this$_field$getSchem._settings) === null || _this$_field$getSchem2 === void 0 ? void 0 : _this$_field$getSchem2.isEnabledOfferTree;
-	      var isMultiple = this === null || this === void 0 ? void 0 : (_this$_field2 = this._field) === null || _this$_field2 === void 0 ? void 0 : (_this$_field2$getSche = _this$_field2.getSchemeElement()) === null || _this$_field2$getSche === void 0 ? void 0 : (_this$_field2$getSche2 = _this$_field2$getSche._settings) === null || _this$_field2$getSche2 === void 0 ? void 0 : _this$_field2$getSche2.multiple;
+	      if (BX.prop.get(this === null || this === void 0 ? void 0 : (_this$_field2 = this._field) === null || _this$_field2 === void 0 ? void 0 : (_this$_field2$getSche = _this$_field2.getSchemeElement()) === null || _this$_field2$getSche === void 0 ? void 0 : _this$_field2$getSche._settings, 'allowedMultiple', true) === false) {
+	        return false;
+	      }
+
+	      if (this._typeId === 'boolean') {
+	        return false;
+	      }
+
+	      var isEnabledOfferTree = this === null || this === void 0 ? void 0 : (_this$_field3 = this._field) === null || _this$_field3 === void 0 ? void 0 : (_this$_field3$getSche = _this$_field3.getSchemeElement()) === null || _this$_field3$getSche === void 0 ? void 0 : (_this$_field3$getSche2 = _this$_field3$getSche._settings) === null || _this$_field3$getSche2 === void 0 ? void 0 : _this$_field3$getSche2.isEnabledOfferTree;
+	      var isMultiple = this === null || this === void 0 ? void 0 : (_this$_field4 = this._field) === null || _this$_field4 === void 0 ? void 0 : (_this$_field4$getSche = _this$_field4.getSchemeElement()) === null || _this$_field4$getSche === void 0 ? void 0 : (_this$_field4$getSche2 = _this$_field4$getSche._settings) === null || _this$_field4$getSche2 === void 0 ? void 0 : _this$_field4$getSche2.multiple;
 	      return !isEnabledOfferTree || isMultiple;
 	    }
 	  }, {
@@ -2308,6 +2424,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        params["isPublic"] = this._isPublic.checked;
 	      }
 
+	      if (this._typeId === 'custom') {
+	        var _this$_field5, _this$_field5$getSche, _this$_field5$getSche2;
+
+	        params['userType'] = (_this$_field5 = this._field) === null || _this$_field5 === void 0 ? void 0 : (_this$_field5$getSche = _this$_field5.getSchemeElement()) === null || _this$_field5$getSche === void 0 ? void 0 : (_this$_field5$getSche2 = _this$_field5$getSche._settings) === null || _this$_field5$getSche2 === void 0 ? void 0 : _this$_field5$getSche2.settings['USER_TYPE'];
+	      }
+
 	      return params;
 	    }
 	  }, {
@@ -2326,7 +2448,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onSaveButtonClick",
 	    value: function onSaveButtonClick() {
-	      var _this$_field3, _this$_field3$getSche;
+	      var _this$_field6, _this$_field6$getSche;
 
 	      if (this._isLocked) {
 	        return;
@@ -2381,7 +2503,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 	      }
 
-	      (_this$_field3 = this._field) === null || _this$_field3 === void 0 ? void 0 : (_this$_field3$getSche = _this$_field3.getSchemeElement()) === null || _this$_field3$getSche === void 0 ? void 0 : _this$_field3$getSche.setDataParam('isPublic', params['isPublic']);
+	      (_this$_field6 = this._field) === null || _this$_field6 === void 0 ? void 0 : (_this$_field6$getSche = _this$_field6.getSchemeElement()) === null || _this$_field6$getSche === void 0 ? void 0 : _this$_field6$getSche.setDataParam('isPublic', params['isPublic']);
 	      BX.onCustomEvent(this, "onSave", [this, params]);
 	    }
 	  }, {
@@ -3771,13 +3893,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getSettingItem",
 	    value: function getSettingItem(item) {
-	      var _item$disabled,
-	          _this4 = this;
+	      var _this4 = this;
 
-	      var input = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"])));
-	      input.checked = item.checked;
-	      input.disabled = (_item$disabled = item.disabled) !== null && _item$disabled !== void 0 ? _item$disabled : false;
-	      input.dataset.settingId = item.id;
+	      var input = '';
+
+	      if (!item.disabledCheckbox) {
+	        var _item$disabled;
+
+	        input = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"checkbox\">\n\t\t\t"])));
+	        input.checked = item.checked;
+	        input.disabled = (_item$disabled = item.disabled) !== null && _item$disabled !== void 0 ? _item$disabled : false;
+	        input.dataset.settingId = item.id;
+	      }
+
 	      var hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["<span class=\"catalog-entity-setting-hint\" data-hint=\"", "\"></span>"])), item.hint) : '';
 	      var setting = main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title ", "\">", "", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.disabled ? 'catalog-entity-disabled-setting' : '', item.title, hintNode, item.desc);
 	      BX.UI.Hint.init(setting);
@@ -3788,6 +3916,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	            _this4.reloadGrid();
 
 	            _this4.getCardSettingsPopup().close();
+	          });
+	        });
+	      } else if (item.id === 'SEO') {
+	        main_core.Event.bind(setting, 'click', function (event) {
+	          BX.SidePanel.Instance.open(item.url, {
+	            cacheable: false,
+	            allowChangeHistory: false,
+	            data: {
+	              'ELEMENT_ID': _this4.entityId
+	            },
+	            width: 1000
 	          });
 	        });
 	      } else {

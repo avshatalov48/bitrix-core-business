@@ -131,12 +131,14 @@ class Segment extends Base
 	 * @param array $data Data.
 	 * @return integer|null
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		$endpoints = $data['ENDPOINTS'];
 		unset($data['ENDPOINTS']);
 
-		if (!$id && $data['STATUS'] !== GroupTable::STATUS_NEW)
+		if (!$id
+			&& isset($data['STATUS'])
+			&& $data['STATUS'] !== GroupTable::STATUS_NEW)
 		{
 			$data['STATUS'] = GroupTable::STATUS_DONE;
 		}
@@ -165,7 +167,7 @@ class Segment extends Base
 					continue;
 				}
 
-				$connector->setFieldValues($endpoint['FIELDS']);
+				$connector->setFieldValues(is_array($endpoint['FIELDS']) ? $endpoint['FIELDS'] : null);
 				$endpoint['FIELDS'] = $connector->getFieldValues();
 				$statFields = $connector->getStatFields();
 
@@ -186,7 +188,7 @@ class Segment extends Base
 					'ADDRESS_COUNT' => $dataCounter->getSummary()
 				);
 
-				if($endpoint['FILTER_ID'])
+				if(isset($endpoint['FILTER_ID']))
 				{
 					$groupConnector['FILTER_ID'] = $endpoint['FILTER_ID'];
 				}
@@ -200,7 +202,7 @@ class Segment extends Base
 				$this->updateDealCategory($id, $connector);
 			}
 
-			if (GroupTable::STATUS_NEW === $data['STATUS'])
+			if (isset($data['STATUS']) && GroupTable::STATUS_NEW === $data['STATUS'])
 			{
 				SegmentDataBuilder::actualize($id, true);
 			}

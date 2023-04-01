@@ -10,6 +10,9 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
+
+use Bitrix\Iblock\SectionPropertyTable;
+
 $this->setFrameMode(true);
 $templateData = array(
 	'TEMPLATE_CLASS' => 'bx-'.$arParams['TEMPLATE_THEME']
@@ -19,7 +22,6 @@ if (isset($templateData['TEMPLATE_THEME']))
 {
 	$this->addExternalCss($templateData['TEMPLATE_THEME']);
 }
-
 ?>
 <div class="smart-filter mb-4 <?=$templateData["TEMPLATE_CLASS"]?> <?if ($arParams["FILTER_VIEW_MODE"] == "HORIZONTAL") echo "smart-filter-horizontal"?>">
 	<div class="smart-filter-section">
@@ -40,6 +42,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 						if ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0)
 							continue;
 
+						$precision = 0;
 						$step_num = 4;
 						$step = ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"]) / $step_num;
 						$prices = array();
@@ -160,8 +163,13 @@ if (isset($templateData['TEMPLATE_THEME']))
 					if (empty($arItem["VALUES"]) || isset($arItem["PRICE"]))
 						continue;
 
-					if ($arItem["DISPLAY_TYPE"] == "A" && ( $arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0))
+					if (
+						$arItem["DISPLAY_TYPE"] === SectionPropertyTable::NUMBERS_WITH_SLIDER
+						&& ($arItem["VALUES"]["MAX"]["VALUE"] - $arItem["VALUES"]["MIN"]["VALUE"] <= 0)
+					)
+					{
 						continue;
+					}
 					?>
 
 					<div class="<?if ($arParams["FILTER_VIEW_MODE"] == "HORIZONTAL"):?>col-sm-6 col-md-4<?else:?>col-lg-12<?endif?> mb-2 smart-filter-parameters-box <?if ($arItem["DISPLAY_EXPANDED"]== "Y"):?>bx-active<?endif?>">
@@ -194,7 +202,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 							switch ($arItem["DISPLAY_TYPE"])
 							{
 								//region NUMBERS_WITH_SLIDER +
-								case "A":
+								case SectionPropertyTable::NUMBERS_WITH_SLIDER:
 								?>
 									<div class="smart-filter-input-group-number">
 										<div class="d-flex justify-content-between">
@@ -290,7 +298,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region NUMBERS +
-								case "B":
+								case SectionPropertyTable::NUMBERS:
 								?>
 									<div class="smart-filter-input-group-number">
 										<div class="d-flex justify-content-between">
@@ -330,7 +338,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region CHECKBOXES_WITH_PICTURES +
-								case "G":
+								case SectionPropertyTable::CHECKBOXES_WITH_PICTURES:
 								?>
 									<div class="smart-filter-input-group-checkbox-pictures">
 										<?foreach ($arItem["VALUES"] as $val => $ar):?>
@@ -367,7 +375,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region CHECKBOXES_WITH_PICTURES_AND_LABELS +
-								case "H":
+								case SectionPropertyTable::CHECKBOXES_WITH_PICTURES_AND_LABELS:
 								?>
 									<div class="smart-filter-input-group-checkbox-pictures-text">
 										<?foreach ($arItem["VALUES"] as $val => $ar):?>
@@ -409,7 +417,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region DROPDOWN +
-								case "P":
+								case SectionPropertyTable::DROPDOWN:
 								?>
 									<? $checkedItemExist = false; ?>
 									<div class="smart-filter-input-group-dropdown">
@@ -483,7 +491,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region DROPDOWN_WITH_PICTURES_AND_LABELS
-								case "R":
+								case SectionPropertyTable::DROPDOWN_WITH_PICTURES_AND_LABELS:
 									?>
 										<div class="smart-filter-input-group-dropdown">
 											<div class="smart-filter-dropdown-block" onclick="smartFilter.showDropDownPopup(this, '<?=CUtil::JSEscape($key)?>')">
@@ -572,7 +580,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region RADIO_BUTTONS
-								case "K":
+								case SectionPropertyTable::RADIO_BUTTONS:
 									?>
 									<div class="col">
 										<div class="radio">
@@ -617,7 +625,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								//endregion
 
 								//region CALENDAR
-								case "U":
+								case SectionPropertyTable::CALENDAR:
 									?>
 									<div class="col">
 										<div class=""><div class="smart-filter-input-container smart-filter-calendar-container">
@@ -716,7 +724,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 								value="<?=GetMessage("CT_BCSF_DEL_FILTER")?>"
 							/>
 							<div class="smart-filter-popup-result <?if ($arParams["FILTER_VIEW_MODE"] == "VERTICAL") echo $arParams["POPUP_POSITION"]?>" id="modef" <?if(!isset($arResult["ELEMENT_COUNT"])) echo 'style="display:none"';?> style="display: inline-block;">
-								<?echo GetMessage("CT_BCSF_FILTER_COUNT", array("#ELEMENT_COUNT#" => '<span id="modef_num">'.intval($arResult["ELEMENT_COUNT"]).'</span>'));?>
+								<?echo GetMessage("CT_BCSF_FILTER_COUNT", array("#ELEMENT_COUNT#" => '<span id="modef_num">'.(int)($arResult["ELEMENT_COUNT"] ?? 0).'</span>'));?>
 								<span class="arrow"></span>
 								<br/>
 								<a href="<?echo $arResult["FILTER_URL"]?>" target=""><?echo GetMessage("CT_BCSF_FILTER_SHOW")?></a>

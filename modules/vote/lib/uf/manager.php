@@ -34,6 +34,8 @@ final class Manager
 	public function __construct(array $params)
 	{
 		$this->params = $params;
+		$this->params['ENTITY_VALUE_ID'] = $this->params['ENTITY_VALUE_ID'] ?? null;
+		$this->params['VALUE_ID'] = $this->params['VALUE_ID'] ?? null;
 		$this->errorCollection = new ErrorCollection();
 	}
 
@@ -118,7 +120,7 @@ final class Manager
 		{
 			[$entityType, $moduleId] = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
 			$attach = \Bitrix\Vote\Attachment\Manager::loadFromVoteId(array(
-				"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
+				"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"]  ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
 				"ENTITY_TYPE" => $entityType,
 				"MODULE_ID" => $moduleId), $id);
 			$this->loadedAttachedObjects[$id1] = $attach;

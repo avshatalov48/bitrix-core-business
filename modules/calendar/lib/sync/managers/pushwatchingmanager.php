@@ -52,9 +52,14 @@ class PushWatchingManager
 	/** @var Factory */
 	private $mapperFactory;
 
+	private SectionConnectionFactory $linkFactory;
+
+	private static array $outgoingManagersCache = [];
+
 	/**
+	 * @throws LoaderException
+	 * @throws ObjectNotFoundException
 	 * @throws SystemException
-	 * @throws LoaderException|\Psr\Container\NotFoundExceptionInterface
 	 */
 	public function __construct()
 	{
@@ -297,13 +302,12 @@ class PushWatchingManager
 	 */
 	private function getLinkFactory(): SectionConnectionFactory
 	{
-		static $linkFactory = null;
-		if ($linkFactory === null)
+		if (empty($this->linkFactory))
 		{
-			$linkFactory = new SectionConnectionFactory();
+			$this->linkFactory = new SectionConnectionFactory();
 		}
 
-		return $linkFactory;
+		return $this->linkFactory;
 	}
 
 	/**
@@ -557,13 +561,12 @@ class PushWatchingManager
 	 */
 	private function getOutgoingManager($connectionId): OutgoingManager
 	{
-		static $cache = [];
-		if (empty($cache[$connectionId]))
+		if (empty(static::$outgoingManagersCache[$connectionId]))
 		{
 			$connection = $this->mapperFactory->getConnection()->getById($connectionId);
-			$cache[$connectionId] = new OutgoingManager($connection);
+			static::$outgoingManagersCache[$connectionId] = new OutgoingManager($connection);
 		}
 
-		return $cache[$connectionId];
+		return static::$outgoingManagersCache[$connectionId];
 	}
 }

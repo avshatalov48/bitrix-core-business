@@ -13,7 +13,7 @@ export default class Jpeg
 		return new Promise((resolve, reject) => {
 			if (file.size < 2)
 			{
-				return resolve(null);
+				return reject(new Error('JPEG signature not found.'));
 			}
 
 			getArrayBuffer(file)
@@ -21,7 +21,7 @@ export default class Jpeg
 					const view = new DataView(buffer);
 					if (view.getUint8(0) !== 0xFF || view.getUint8(1) !== 0xD8)
 					{
-						resolve(null);
+						return reject(new Error('JPEG signature not found.'));
 					}
 
 					let offset = 2;
@@ -30,12 +30,12 @@ export default class Jpeg
 					{
 						if (view.byteLength - offset < 2)
 						{
-							return resolve(null);
+							return reject(new Error('JPEG signature not found.'));
 						}
 
 						if (view.getUint8(offset++) !== 0xFF)
 						{
-							return resolve(null);
+							return reject(new Error('JPEG signature not found.'));
 						}
 
 						let code = view.getUint8(offset++);
@@ -56,7 +56,7 @@ export default class Jpeg
 							// the rest of the unreserved markers
 							if (view.byteLength - offset < 2)
 							{
-								return resolve(null);
+								return reject(new Error('JPEG signature not found.'));
 							}
 
 							length = view.getUint16(offset) - 2;
@@ -64,14 +64,12 @@ export default class Jpeg
 						}
 						else
 						{
-							// unknown markers
-							return resolve(null);
+							return reject(new Error('JPEG unknown markers.'));
 						}
 
 						if (code === 0xD9 /* EOI */ || code === 0xDA /* SOS */)
 						{
-							// end of the datastream
-							return resolve(null);
+							return reject(new Error('JPEG end of the data stream.'));
 						}
 
 						// try to get orientation from Exif segment
@@ -89,7 +87,7 @@ export default class Jpeg
 						{
 							if (view.byteLength - offset < length)
 							{
-								return resolve(null);
+								return reject(new Error('JPEG size not found.'));
 							}
 
 							let width = view.getUint16(offset + 3);
@@ -109,8 +107,8 @@ export default class Jpeg
 						offset += length;
 					}
 				})
-				.catch(() => {
-					resolve(null);
+				.catch(error => {
+					reject(error);
 				})
 			;
 		});

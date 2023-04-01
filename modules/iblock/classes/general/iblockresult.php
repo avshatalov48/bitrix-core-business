@@ -352,6 +352,7 @@ class CIBlockResult extends CDBResult
 								);
 								if (!empty($rs))
 								{
+									$arSectionPathCache[$this->arSectionContext["ID"]] = '';
 									foreach ($rs as $a)
 									{
 										$arSectionPathCache[$this->arSectionContext["ID"]] .= rawurlencode($a["CODE"])."/";

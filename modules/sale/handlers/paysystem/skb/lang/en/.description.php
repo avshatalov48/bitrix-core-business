@@ -1,5 +1,5 @@
 <?php
-$MESS["SALE_HPS_SKB"] = "SKB Bank";
+$MESS["SALE_HPS_SKB"] = "Sinara Bank";
 $MESS["SALE_HPS_SKB_ADDITIONAL_INFO"] = "Additional information";
 $MESS["SALE_HPS_SKB_ADDITIONAL_INFO_DESC"] = "Extra info (max. 140 characters). The following macros are possible: #PAYMENT_ID# - payment ID, #ORDER_ID# - order ID, #PAYMENT_NUMBER# - payment no., #ORDER_NUMBER# - order no., #USER_EMAIL# - customer email";
 $MESS["SALE_HPS_SKB_ADDITIONAL_INFO_TEMPLATE"] = "Payment ##PAYMENT_NUMBER# for order ##ORDER_NUMBER# for #USER_EMAIL#";

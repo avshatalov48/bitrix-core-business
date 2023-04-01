@@ -1,4 +1,4 @@
-<?
+<?php
 //Следуйте комментариям вида Число* для отслеживания пути исполнения.
 
 //21*
@@ -16,19 +16,39 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 	//Проверям: ключ подошел?
 	if(CModule::IncludeModule("iblock"))
 	{
-		$arCache = CIBlockRSS::GetCache($_REQUEST["SESSION_PARAMS"]);
-		if($arCache && ($arCache["VALID"] == "Y"))
+		$arCache = null;
+		if (isset($_REQUEST["SESSION_PARAMS"]) && is_string($_REQUEST["SESSION_PARAMS"]) && $_REQUEST["SESSION_PARAMS"] !== '')
+		{
+			$arCache = CIBlockRSS::GetCache($_REQUEST["SESSION_PARAMS"]);
+		}
+		if (is_array($arCache) && ($arCache["VALID"] ?? '') === "Y")
 		{
 			//23*
 			//Да!
 			//Забираем параметры "подключения"
-			$arParams = unserialize($arCache["CACHE"]);
+			$arParams = [];
+			if (CheckSerializedData($arCache["CACHE"]))
+			{
+				$arParams = unserialize($arCache["CACHE"], ['allowed_classes' => false]);
+			}
+			if (!is_array($arParams))
+			{
+				$arParams = [];
+			}
 			//18*
 			//Добиваем теми, которые доступны "снаружи"
-			foreach($arParams["PAGE_PARAMS"] as $param_name)
+			if (!empty($arParams["PAGE_PARAMS"]) && is_array($arParams["PAGE_PARAMS"]))
 			{
-				if(!array_key_exists($param_name, $arParams))
-					$arParams[$param_name] = $_REQUEST["PAGE_PARAMS"][$param_name];
+				foreach ($arParams["PAGE_PARAMS"] as $param_name)
+				{
+					if (!array_key_exists($param_name, $arParams))
+					{
+						if (isset($_REQUEST["PAGE_PARAMS"][$param_name]))
+						{
+							$arParams[$param_name] = $_REQUEST["PAGE_PARAMS"][$param_name];
+						}
+					}
+				}
 			}
 			//24*
 			//Эта магия позволяет нам правильно определить
@@ -52,7 +72,6 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 	}
 
 	CMain::FinalActions();
-	die();
 }
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
@@ -77,12 +96,24 @@ if(!CModule::IncludeModule("iblock"))
 /************************************************
 	Processing of received parameters
 *************************************************/
+
+$arParams['IBLOCK_ID'] ??= 0;
+$arParams['ELEMENT_ID'] ??= 0;
+$arParams['~ELEMENT_CODE'] ??= '';
+$arParams['ELEMENT_CODE'] ??= '';
+
+$arParams['DISPLAY_AS_RATING'] ??= 'rating';
+$arParams['READ_ONLY'] ??= '';
+$arParams['SHOW_RATING'] ??= 'N';
+$arParams['SET_STATUS_404'] ??= 'N';
+$arParams['MESSAGE_404'] ??= '';
+
 $bAjax = isset($arParams["AJAX_CALL"]) && $arParams["AJAX_CALL"] == "Y";
 $arParams = array(
-	"IBLOCK_ID" => intval($arParams["IBLOCK_ID"]),
-	"ELEMENT_ID" => intval($arParams["ELEMENT_ID"]),
+	"IBLOCK_ID" => (int)$arParams["IBLOCK_ID"],
+	"ELEMENT_ID" => (int)$arParams["ELEMENT_ID"],
 	"MAX_VOTE" => intval($arParams["MAX_VOTE"])<=0? 5: intval($arParams["MAX_VOTE"]),
-	"VOTE_NAMES" => is_array($arParams["VOTE_NAMES"])? $arParams["VOTE_NAMES"]: array(),
+	"VOTE_NAMES" => isset($arParams["VOTE_NAMES"]) && is_array($arParams["VOTE_NAMES"])? $arParams["VOTE_NAMES"]: array(),
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"]=="vote_avg"? "vote_avg": "rating",
@@ -125,7 +156,7 @@ if(
 {
 	if(!is_array($_SESSION["IBLOCK_RATING"]))
 		$_SESSION["IBLOCK_RATING"] = Array();
-	$RATING = intval($_REQUEST["rating"])+1;
+	$RATING = intval($_REQUEST["rating"] ?? 0)+1;
 	if($RATING>0 && $RATING<=$arParams["MAX_VOTE"])
 	{
 		$ELEMENT_ID = intval($_REQUEST["vote_id"]);
@@ -223,7 +254,7 @@ if(
 //28*
 //Начинаем исполнять "шаблон"
 
-$bVoted = (is_array($_SESSION["IBLOCK_RATING"]) && array_key_exists($arParams["ELEMENT_ID"], $_SESSION["IBLOCK_RATING"]))? 1: 0;
+$bVoted = (isset($_SESSION["IBLOCK_RATING"]) && is_array($_SESSION["IBLOCK_RATING"]) && array_key_exists($arParams["ELEMENT_ID"], $_SESSION["IBLOCK_RATING"]))? 1: 0;
 if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 {
 	if ($bAjax)
@@ -269,6 +300,17 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 
 		$arResult["VOTED"] = $bVoted;
 
+		// Hack for custom templates
+		if ($arParams['DISPLAY_AS_RATING'] === 'rating')
+		{
+			if (!isset($arResult["PROPERTIES"]["rating"]))
+			{
+				$arResult["PROPERTIES"]["rating"] = [
+					'VALUE' => 0,
+				];
+			}
+		}
+
 		$this->SetResultCacheKeys(array(
 			"AJAX",
 		));
@@ -285,11 +327,11 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 	}
 }
 
-if(array_key_exists("AJAX", $arResult) && ($_REQUEST["AJAX_CALL"] != "Y"))
+if(array_key_exists("AJAX", $arResult) && ($_REQUEST["AJAX_CALL"] ?? '') !== "Y")
 {
 	//13*
 	//Сохраняем в БД кеш
-	if(!is_array($_SESSION["iblock.vote"]))
+	if(!isset($_SESSION["iblock.vote"]) || !is_array($_SESSION["iblock.vote"]))
 		$_SESSION["iblock.vote"] = array();
 	if(!array_key_exists($arResult["AJAX"]["SESSION_KEY"], $_SESSION["iblock.vote"]))
 	{
@@ -310,4 +352,3 @@ if(array_key_exists("AJAX", $arResult) && ($_REQUEST["AJAX_CALL"] != "Y"))
 	//15*
 	//Продолжение экскурсии в файле jscript.php
 }
-?>

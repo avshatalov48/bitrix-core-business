@@ -14,9 +14,11 @@ $MESS["CPD_ERROR_CATALOG_SERVICES_LIMIT_TARIFF"] = "<a onclick=\"#LINK#\" style=
 $MESS["CPD_ERROR_EMPTY_DIRECTORY_ITEMS"] = "Elemente zur Auswahlliste hinzufügen";
 $MESS["CPD_ERROR_EMPTY_LIST_ITEMS"] = "Elemente für Liste hinzufügen";
 $MESS["CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE"] = "Der von Ihnen ausgewählte Produkttyp \"#TYPE#\" wird vom neuen Produktformular nicht unterstützt. Sie können dieses Produkt im Bereich Onlineshop anzeigen und bearbeiten.<br>#LINK#";
+$MESS["CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE_BUS"] = "Der von Ihnen ausgewählte Produkttyp \"#TYPE#\" wird von dem neuen Produktformular nicht unterstützt. Möchten Sie dieses Produkt anzeigen oder bearbeiten, sollten Sie in den Katalogeinstellungen wieder das alte Produktformular aktiveren.<br>#LINK#";
 $MESS["CPD_ERROR_UNKNOWN_PRODUCT_TYPE"] = "Unbekannter Produkttyp";
 $MESS["CPD_NEW_LIST_ELEMENT_EMPTY_NAME"] = "Neues Element";
 $MESS["CPD_NEW_PRODUCT_TITLE"] = "Neues Produkt";
 $MESS["CPD_NEW_SERVICE_TITLE"] = "Neue Dienstleistung";
 $MESS["CPD_NOT_FOUND_ERROR_TITLE"] = "Produkt wurde nicht gefunden. Kann sein, dass es gelöscht wurde.";
+$MESS["CPD_SETS_ENABLE_PRODUCT_SLIDER_LINK"] = "Einstellungen öffnen";
 $MESS["CPD_SETS_NOT_SUPPORTED_LINK"] = "Onlineshop jetzt öffnen";

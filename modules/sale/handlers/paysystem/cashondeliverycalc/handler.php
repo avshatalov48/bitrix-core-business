@@ -170,11 +170,11 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 	 * @param $tariff
 	 * @return string
 	 */
-	public function prepareToField($tariff)
+	public static function prepareToField($tariff)
 	{
 		$arResult = array();
 
-		if(is_array($tariff))
+		if (is_array($tariff))
 		{
 			foreach ($tariff as $id => $value)
 			{
@@ -189,10 +189,12 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 				}
 				$tariffIds = explode('_', $id);
 
-				if(isset($tariffIds[2]))
+				if (isset($tariffIds[2]))
+				{
 					$regionId = $tariffIds[2];
 
-				$arResult[$regionId][] = $value;
+					$arResult[$regionId][] = $value;
+				}
 			}
 		}
 		return serialize($arResult);

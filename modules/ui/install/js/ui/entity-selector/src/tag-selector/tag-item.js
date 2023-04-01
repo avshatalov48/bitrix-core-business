@@ -330,9 +330,13 @@ export default class TagItem
 
 		const bgColor = this.getAvatarOption('bgColor');
 		const bgSize = this.getAvatarOption('bgSize');
+		const border = this.getAvatarOption('border');
+		const borderRadius = this.getAvatarOption('borderRadius');
 
 		Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 		Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
+		Dom.style(this.getAvatarContainer(), 'border', border);
+		Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
 
 		const hasAvatar = avatar || (bgColor && bgColor !== 'none') || (bgImage && bgImage !== 'none');
 		if (hasAvatar)

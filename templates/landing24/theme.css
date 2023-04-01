@@ -9,6 +9,18 @@ body {
   background-color: #fff;
 }
 
+body::after {
+  pointer-events: none;
+  content: '';
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  background: transparent;
+  z-index: 9999;
+  transition: background .4s ease;
+}
+
 a {
   color: var(--primary);
   outline: none;
@@ -42,8 +54,13 @@ figure {
 ------------------------------------*/
 .h1, .h2, .h3, .h4, .h5, .h6, .h7,
 h1, h2, h3, h4, h5, h6 {
-  line-height: 1.4;
   color: var(--theme-color-title);
+  line-height: 1.4;
+}
+
+.h1.g-line-height-0, .h2.g-line-height-0, .h3.g-line-height-0, .h4.g-line-height-0, .h5.g-line-height-0, .h6.g-line-height-0, .h7.g-line-height-0,
+h1.g-line-height-0, h2.g-line-height-0, h3.g-line-height-0, h4.g-line-height-0, h5.g-line-height-0, h6.g-line-height-0 {
+  line-height: 1.4 !important;
 }
 
 .h7 {
@@ -25544,6 +25561,12 @@ div.g-video-preview.--loader::after, div.g-video-preview.--loader:hover::after {
   -ms-flex-pack: center;
       justify-content: center;
   background: none !important;
+}
+
+.landing-edit-mode .g-video-preview {
+  margin-left: 2%;
+  margin-right: 2%;
+  width: 96% !important;
 }
 
 :root {

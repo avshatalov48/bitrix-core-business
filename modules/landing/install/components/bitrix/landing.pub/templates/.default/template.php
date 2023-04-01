@@ -10,6 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Landing\Config;
 use \Bitrix\Landing\Hook;
+use \Bitrix\Landing\Landing\View;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Main\Localization\Loc;
@@ -38,6 +39,7 @@ if ($arResult['ERRORS'])
 
 // load extensions
 $extensions = ['ui.fonts.opensans'];
+$extensions[] = 'ui.entity-selector';
 if (
 	$arParams['SHOW_EDIT_PANEL'] == 'Y' ||
 	!$landing->getDomainId()// wiki mode
@@ -76,7 +78,9 @@ if ($component->request('IFRAME'))
 	</script>
 	<?php
 }
+?>
 
+<?php
 // shop master frame
 if ($masterFrame)
 {
@@ -92,12 +96,16 @@ if ($arParams['SHOW_EDIT_PANEL'] === 'Y')
 {
 	Extension::load([
 		'ui.buttons',
-		'ui.buttons.icons'
+		'ui.buttons.icons',
+		'ui.hint'
 	]);
 	ob_start(function($content)
 	{
 		Manager::setPageView('AfterBodyOpen',$content);
 	});
+	$allMess = Loc::loadLanguageFile(__FILE__);
+	$setMessForJS = [];
+	$setMessForJS['LANDING_TPL_PUB_COPIED_LINK'] = $allMess['LANDING_TPL_PUB_COPIED_LINK'];
 	?>
 	<div class="landing-pub-top-panel-wrapper">
 		<div class="landing-pub-top-panel">
@@ -109,29 +117,47 @@ if ($arParams['SHOW_EDIT_PANEL'] === 'Y')
 				<div class="landing-pub-top-panel-separator"></div>
 				<div class="landing-pub-top-panel-chain">
 					<?php $title = $component->getMessageType('LANDING_TPL_SITES');?>
-					<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-pub-top-panel-chain-link" style="pointer-events: none" title="<?= $title;?>">
-						<?= $title;?>
+					<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-pub-top-panel-chain-link" style="pointer-events: none" title="<?= $title?>">
+						<?= $title?>
 					</span>
 					<strong class="landing-pub-top-panel-chain-separator"><span></span></strong>
 					<?php $title = \htmlspecialcharsbx($landing->getTitle());?>
-					<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-pub-top-panel-chain-link" style="pointer-events: none" title="<?= $title;?>">
-						<?= $title;?>
+					<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-pub-top-panel-chain-link landing-pub-top-panel-chain-link-page"" data-hint="<?= $title?>" data-hint-no-icon>
+						<?= $title?>
 					</span>
 				</div>
+				<div class="landing-pub-top-panel-page-link">
+					<span class="landing-page-link-btn"></span>
+				</div>
 			</div>
-			<?php if($arResult['CAN_EDIT'] === 'Y'): ?>
-				<div class="landing-pub-top-panel-right">
+			<div class="landing-pub-top-panel-right">
+				<div class="landing-pub-top-panel-unique-view">
+					<div class="ui-btn ui-btn-xs ui-btn-icon-eye-opened ui-btn-link ui-btn-light">
+						<?= View::getNumberUniqueViews($landing->getId())?>
+					</div>
+					<div class="landing-pub-top-panel-unique-view-popup hide">
+						<div class="landing-pub-top-panel-unique-view-popup-header">
+							<?= $component->getMessageType('LANDING_TPL_VIEWS')?>
+						</div>
+						<div class="landing-pub-top-panel-unique-view-popup-item-container"></div>
+					</div>
+				</div>
+				<?php if($arResult['CAN_EDIT'] === 'Y'): ?>
 					<div class="landing-pub-top-panel-actions">
 						<a href="<?= $arParams['PAGE_URL_LANDING_VIEW'];?>" data-landingId="<?= $landing->getId();?>" class="ui-btn ui-btn-primary ui-btn-icon-edit landing-pub-top-panel-edit-button">
 							<?= $component->getMessageType('LANDING_TPL_EDIT_PAGE');?>
 						</a>
 					</div>
-				</div>
-			<?php endif; ?>
+				<?php endif; ?>
+			</div>
 		</div>
 		<script>
+			BX.message(<?= \CUtil::PhpToJSObject($setMessForJS)?>);
+			var userData = <?= \CUtil::PhpToJSObject(View::getUniqueUserData($landing->getId()))?>;
+			var data = [];
+			data.userData = userData;
 			BX.ready(function() {
-				void new BX.Landing.Pub.TopPanel();
+				void new BX.Landing.Pub.TopPanel(data);
 			});
 		</script>
 	</div>
@@ -232,6 +258,12 @@ $assets->addAsset('landing_critical_grid', Assets\Location::LOCATION_BEFORE_ALL)
 </script>
 <?php endif;?>
 
+<script>
+	BX.ready(function() {
+		void new BX.Landing.Pub.PageTransition();
+	});
+</script>
+
 <?php
 $hooksSite = Hook::getForSite($landing->getSiteId());
 if (!$masterFrame && !$formEditor && (isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled()))
@@ -241,4 +273,3 @@ if (!$masterFrame && !$formEditor && (isset($hooksSite['COPYRIGHT']) && $hooksSi
 	Manager::setPageView('BeforeBodyClose', $hooksSite['COPYRIGHT']->view());
 }
 ?>
-

@@ -1,8 +1,10 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Rooms;
+use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
@@ -100,7 +102,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 						],
 					]);
 
-					if (!$group = $r->Fetch())
+					if (!$group = $r->fetch())
 					{
 						$this->addError(
 							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_01')
@@ -126,6 +128,25 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_01')
 						);
 					}
+
+					if (Loader::includeModule('socialnetwork'))
+					{
+						$result = \Bitrix\Socialnetwork\UserToGroupTable::getList([
+							'filter' => [
+								'@ROLE' => \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember(),
+								'=GROUP_ID' => $ownerId,
+								'=USER_ID' => $userId,
+							],
+						]);
+
+						$group = $result->fetch();
+						if (!$group)
+						{
+							$this->addError(
+								new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_user')
+							);
+						}
+					}
 				}
 				else if ($type === 'user')
 				{
@@ -148,9 +169,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			else
 			{
 				$section = \CCalendarSect::GetById($id);
-				if (!$section
+				if (
+					!$section
 					&& !$isPersonal
-					&& !\CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+					&& !\CCalendarSect::CanDo('calendar_edit_section', $id, $userId)
+				)
 				{
 					$this->addError(
 						new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_04')
@@ -407,12 +430,19 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					));
 				}
 			}
-			$sections = array_merge($sections, \CCalendar::getSectionListAvailableForUser($userId, [$entry['SECTION_ID']]));
+			$sections = array_merge(
+				$sections,
+				\CCalendar::getSectionListAvailableForUser($userId, (array)($entry['SECTION_ID'] ?? null))
+			);
 
 			$responseParams['sections'] = [];
 			foreach($sections as $section)
 			{
-				if (!\CCalendarSect::CheckGoogleVirtualSection($section['GAPI_CALENDAR_ID'], $section['EXTERNAL_TYPE'])
+				if (
+					!\CCalendarSect::CheckGoogleVirtualSection(
+						$section['GAPI_CALENDAR_ID'] ?? null,
+						$section['EXTERNAL_TYPE'] ?? null,
+					)
 					&&
 					(
 						($entryId && \CCalendarSect::CanDo('calendar_edit', $section['ID'], $userId))
@@ -424,9 +454,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				}
 			}
 
-			$responseParams['dayOfWeekMonthFormat'] = \Bitrix\Main\Context::getCurrent()
-				->getCulture()
-				->getDayOfWeekMonthFormat();
+			$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+				\Bitrix\Main\Context::getCurrent()
+					->getCulture()
+					->getDayOfWeekMonthFormat()
+			);
 			$responseParams['trackingUsersList'] = UserSettings::getTrackingUsers($userId);
 			$responseParams['userSettings'] = UserSettings::get($userId);
 			$responseParams['eventWithEmailGuestLimit'] = Bitrix24Manager::getEventWithEmailGuestLimit();
@@ -443,6 +475,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['attendeesEntityList'] = ($entryId > 0 && !empty($entry['attendeesEntityList']))
 				? $entry['attendeesEntityList']
 				: Util::getDefaultEntityList($userId, $type, $ownerId);
+			$responseParams['meetSection'] = null;
+			if ($type === Dictionary::EVENT_TYPE['user'])
+			{
+				$responseParams['meetSection'] = UserSettings::get($ownerId)['meetSection'] ?? null;
+			}
 
 			return new \Bitrix\Main\Engine\Response\Component(
 				'bitrix:calendar.edit.slider',
@@ -505,9 +542,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'EVENT_ID' => (int)$entry['ID'],
 					'EVENT_DATE' => urlencode($entry['DATE_FROM'])
 				]);
-			$responseParams['dayOfWeekMonthFormat'] = \Bitrix\Main\Context::getCurrent()
-				->getCulture()
-				->getDayOfWeekMonthFormat();
+			$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+				\Bitrix\Main\Context::getCurrent()
+					->getCulture()
+					->getDayOfWeekMonthFormat()
+			);
 
 			$sections = \CCalendarSect::GetList([
 				'arFilter' => [
@@ -842,8 +881,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$response['id'] = \CCalendar::SaveEvent([
 				'arFields' => [
 					'ID' => $entry['ID'],
-					'REMIND' => \CCalendarReminder::prepareReminder($request->getPost('reminders'))
-				]
+					'REMIND' => $entry['REMIND']
+				],
+				'updateReminders' => true,
 			]);
 
 			\CCalendar::ClearCache('event_list');
@@ -1037,12 +1077,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getFilterDataAction()
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
 		$request = $this->getRequest();
@@ -1054,5 +1091,37 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		];
 
 		return CalendarFilter::getFilterData($params);
+	}
+
+	public function getConferenceChatIdAction(int $eventId)
+	{
+		$result = [];
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			return $result;
+		}
+
+		/** @var Sharing\Link\EventLink $eventLink */
+		$eventLink = (new Sharing\Link\Factory())->getEventLinkByEventId($eventId);
+		if (!$eventLink)
+		{
+			$this->addError(new Error('Event not found'));
+
+			return $result;
+		}
+
+		$chatId = (new Sharing\SharingConference($eventLink))->getConferenceChatId();
+
+		if (!$chatId)
+		{
+			$this->addError(new Error('Conference not found'));
+
+			return $result;
+		}
+
+		$result['chatId'] = $chatId;
+
+		return $result;
 	}
 }

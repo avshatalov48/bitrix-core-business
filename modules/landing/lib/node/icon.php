@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Node;
 
+use Bitrix\Landing\History;
+
 class Icon extends \Bitrix\Landing\Node
 {
 	/**
@@ -24,6 +26,7 @@ class Icon extends \Bitrix\Landing\Node
 	{
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
+		$valueBefore = static::getNode($block, $selector);
 
 		foreach ($data as $pos => $value)
 		{
@@ -51,6 +54,18 @@ class Icon extends \Bitrix\Landing\Node
 					if ($url)
 					{
 						$resultList[$pos]->setAttribute('data-pseudo-url', $url);
+					}
+
+					if (History::isActive())
+					{
+						$history = new History($block->getLandingId(), History::ENTITY_TYPE_LANDING);
+						$history->push('EDIT_ICON', [
+							'block' => $block,
+							'selector' => $selector,
+							'position' => (int)$pos,
+							'valueBefore' => $valueBefore[$pos],
+							'valueAfter' => $value,
+						]);
 					}
 				}
 			}

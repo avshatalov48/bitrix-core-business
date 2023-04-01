@@ -1,18 +1,19 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) {die();}
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use Bitrix\Calendar\ICal\MailInvitation\TopIconForMailTemplate;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Context;
-use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/lib/ical/mailinvitation/senderinvitation.php');
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/lib/ical/mailinvitation/sendercancelinvitation.php');
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php');
-
 
 class CalendarPubEventComponent extends CBitrixComponent
 {

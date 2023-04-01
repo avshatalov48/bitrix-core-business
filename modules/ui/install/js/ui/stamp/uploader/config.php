@@ -12,6 +12,7 @@ return [
 		'ui.dialogs.messagebox',
 		'ui.sidepanel.layout',
 		'main.loader',
+		'ui.draganddrop.draggable',
 		'main.core',
 		'main.core.events',
 		'ui.buttons',

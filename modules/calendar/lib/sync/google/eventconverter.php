@@ -188,7 +188,7 @@ class EventConverter
 		$reminders['useDefault'] = false;
 
 		$remindCollection = $this->originalEvent->getRemindCollection();
-		if ($remindCollection->count() > self::MAX_COUNT_REMINDERS_FOR_SYNC)
+		if ($remindCollection && $remindCollection->count() > self::MAX_COUNT_REMINDERS_FOR_SYNC)
 		{
 			$remindCollection->sortFromStartEvent();
 		}
@@ -217,6 +217,9 @@ class EventConverter
 
 	/**
 	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function prepareLocation(): string
 	{

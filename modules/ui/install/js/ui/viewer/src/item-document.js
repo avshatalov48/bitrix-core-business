@@ -17,7 +17,6 @@ export class Document extends Item
 {
 	static #loadingLibraryPromise = null;
 	#pageNumber: number = 1;
-	#loadingDataPromise: BXPromise = null;
 	#loadingDocumentPromise: Promise = null;
 
 	pdfDocument;
@@ -117,18 +116,11 @@ export class Document extends Item
 
 	loadData(): BXPromise
 	{
-		if (this.#loadingDataPromise !== null)
-		{
-			return this.#loadingDataPromise;
-		}
-
 		const promise = new BXPromise();
-		this.#loadingDataPromise = promise;
 
 		if (this._pdfSrc)
 		{
 			this.loadLibrary().then(() => {
-				this.#loadingDataPromise = null;
 				promise.fulfill(this);
 			});
 
@@ -156,7 +148,6 @@ export class Document extends Item
 			if (!response || !response.data)
 			{
 				this.isTransforming = false;
-				this.#loadingDataPromise = null;
 				promise.reject({
 					item: this,
 					message: Loc.getMessage("JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR_1").replace('#DOWNLOAD_LINK#', this.getSrc()),
@@ -181,13 +172,12 @@ export class Document extends Item
 				this.isTransforming = false;
 				this._pdfSrc = response.data.data.src;
 				this.loadLibrary().then(() => {
-					this.#loadingDataPromise = null;
 					promise.fulfill(this);
 				});
 			}
 		});
 
-		return this.#loadingDataPromise;
+		return promise;
 	}
 
 	render(): HTMLDivElement
@@ -889,4 +879,3 @@ export class PrintService
 		return this.documentOverview;
 	}
 }
-

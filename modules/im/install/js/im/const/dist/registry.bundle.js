@@ -11,6 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var DateFormat = Object.freeze({
 	  groupTitle: 'groupTitle',
 	  message: 'message',
@@ -29,6 +30,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var DeviceType = Object.freeze({
 	  mobile: 'mobile',
 	  desktop: 'desktop'
@@ -46,6 +48,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var MutationType = Object.freeze({
 	  none: 'none',
 	  add: 'delete',
@@ -68,6 +71,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var RestMethod = Object.freeze({
 	  imMessageAdd: 'im.message.add',
 	  imMessageUpdate: 'im.message.update',
@@ -124,6 +128,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var EventType = Object.freeze({
 	  dialog: {
 	    open: 'IM.Dialog:open',
@@ -196,6 +201,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var DialogType = Object.freeze({
 	  "private": 'private',
 	  chat: 'chat',
@@ -240,6 +246,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var FileStatus = Object.freeze({
 	  upload: 'upload',
 	  wait: 'wait',
@@ -261,6 +268,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var MessageType = Object.freeze({
 	  self: 'self',
 	  opponent: 'opponent',
@@ -275,6 +283,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var ConferenceFieldState = Object.freeze({
 	  view: 'view',
 	  edit: 'edit',
@@ -303,8 +312,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  chat: 'chat',
 	  users: 'users',
 	  split: 'split'
-	}); //BX.Call.UserState sync
+	});
 
+	//BX.Call.UserState sync
 	var ConferenceUserState = Object.freeze({
 	  Idle: 'Idle',
 	  Busy: 'Busy',
@@ -325,6 +335,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
+
 	var ChatTypes = {
 	  chat: 'chat',
 	  open: 'open',

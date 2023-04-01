@@ -5,58 +5,38 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var EVENT_NAMESPACE = 'BX.Messenger.v2.CallBackground.ProgressBar';
 	var SIZE_LOWER_THRESHOLD = 1024 * 1024 * 2;
 	var STARTING_PROGRESS = 5;
-
 	var _getProgressBarParams = /*#__PURE__*/new WeakSet();
-
 	var _adjustProgressBarTitleVisibility = /*#__PURE__*/new WeakSet();
-
 	var _isSmallSizeFile = /*#__PURE__*/new WeakSet();
-
 	var _isSmallContainer = /*#__PURE__*/new WeakSet();
-
 	var ProgressBarManager = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ProgressBarManager, _EventEmitter);
-
 	  function ProgressBarManager(params) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ProgressBarManager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ProgressBarManager).call(this));
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _isSmallContainer);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _isSmallSizeFile);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _adjustProgressBarTitleVisibility);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getProgressBarParams);
-
 	    _this.setEventNamespace(EVENT_NAMESPACE);
-
 	    var container = params.container,
-	        uploadState = params.uploadState;
+	      uploadState = params.uploadState;
 	    _this.container = container;
 	    _this.uploadState = uploadState;
 	    _this.progressBar = new ui_progressbarjs_uploader.Uploader(_objectSpread(_objectSpread({}, _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _getProgressBarParams, _getProgressBarParams2).call(babelHelpers.assertThisInitialized(_this))), {}, {
 	      container: container
 	    }));
-
 	    _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _adjustProgressBarTitleVisibility, _adjustProgressBarTitleVisibility2).call(babelHelpers.assertThisInitialized(_this));
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ProgressBarManager, [{
 	    key: "start",
 	    value: function start() {
@@ -85,10 +65,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (this.uploadState.progress === 0) {
 	          this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.cancel);
 	        }
-
 	        var progress = this.uploadState.progress > STARTING_PROGRESS ? this.uploadState.progress : STARTING_PROGRESS;
 	        this.progressBar.setProgress(progress);
-
 	        if (_classPrivateMethodGet(this, _isSmallSizeFile, _isSmallSizeFile2).call(this)) {
 	          this.progressBar.setProgressTitle(main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_LOADING'));
 	        } else {
@@ -105,10 +83,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }]);
 	  return ProgressBarManager;
 	}(main_core_events.EventEmitter);
-
 	function _getProgressBarParams2() {
 	  var _this2 = this;
-
 	  return {
 	    labels: {
 	      loading: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_LOADING'),
@@ -125,30 +101,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	  };
 	}
-
 	function _adjustProgressBarTitleVisibility2() {
 	  if (_classPrivateMethodGet(this, _isSmallSizeFile, _isSmallSizeFile2).call(this) || _classPrivateMethodGet(this, _isSmallContainer, _isSmallContainer2).call(this)) {
 	    this.progressBar.setProgressTitleVisibility(false);
 	  }
 	}
-
 	function _isSmallSizeFile2() {
 	  return this.uploadState.size < SIZE_LOWER_THRESHOLD;
 	}
-
 	function _isSmallContainer2() {
 	  var WIDTH_LOWER_THRESHOLD = 240;
 	  var HEIGHT_LOWER_THRESHOLD = 54;
 	  return this.container.offsetHeight <= HEIGHT_LOWER_THRESHOLD && this.container.offsetWidth < WIDTH_LOWER_THRESHOLD;
 	}
-
 	babelHelpers.defineProperty(ProgressBarManager, "event", {
 	  cancel: 'cancel',
 	  destroy: 'destroy'
 	});
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Background = /*#__PURE__*/function () {
 	  function Background(params) {
@@ -165,7 +136,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.defineProperty(this, "uploadState", null);
 	    Object.assign(this, params);
 	  }
-
 	  babelHelpers.createClass(Background, [{
 	    key: "setUploadProgress",
 	    value: function setUploadProgress(progress) {
@@ -181,11 +151,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    key: "onUploadComplete",
 	    value: function onUploadComplete(fileResult) {
 	      this.id = fileResult.id;
-
 	      if (this.isVideo) {
 	        this.background = fileResult.links.download;
 	      }
-
 	      this.isLoading = false;
 	      this.canRemove = true;
 	    }
@@ -203,11 +171,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    key: "createCustomFromRest",
 	    value: function createCustomFromRest(restItem) {
 	      var title = main_core.Loc.getMessage('BX_IM_CALL_BG_CUSTOM');
-
 	      if (!restItem.isSupported) {
 	        title = main_core.Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED');
 	      }
-
 	      return new Background(_objectSpread$1(_objectSpread$1({}, restItem), {}, {
 	        title: title,
 	        isCustom: true,
@@ -218,8 +184,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    key: "createCustomFromUploaderEvent",
 	    value: function createCustomFromUploaderEvent(uploaderData) {
 	      var id = uploaderData.id,
-	          filePreview = uploaderData.filePreview,
-	          file = uploaderData.file;
+	        filePreview = uploaderData.filePreview,
+	        file = uploaderData.file;
 	      return new Background({
 	        id: id,
 	        background: filePreview,
@@ -241,6 +207,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return Background;
 	}();
 
+	// @vue/component
 	var BackgroundComponent = {
 	  props: {
 	    element: {
@@ -262,28 +229,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    containerClasses: function containerClasses() {
 	      var classes = [];
-
 	      if (this.isSelected) {
 	        classes.push('--selected');
 	      }
-
 	      if (!this.background.isSupported) {
 	        classes.push('--unsupported');
 	      }
-
 	      if (this.background.isLoading) {
 	        classes.push('--loading');
 	      }
-
 	      return classes;
 	    },
 	    imageStyle: function imageStyle() {
 	      var backgroundImage = '';
-
 	      if (this.background.preview) {
 	        backgroundImage = "url('".concat(this.background.preview, "')");
 	      }
-
 	      return {
 	        backgroundImage: backgroundImage
 	      };
@@ -306,11 +267,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    initProgressBar: function initProgressBar() {
 	      var _this = this;
-
 	      if (!this.background.uploadState || this.background.uploadState.progress === 100) {
 	        return;
 	      }
-
 	      this.progressBarManager = new ProgressBarManager({
 	        container: this.$refs['container'],
 	        uploadState: this.background.uploadState
@@ -329,7 +288,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.progressBarManager) {
 	        return;
 	      }
-
 	      this.progressBarManager.destroy();
 	    },
 	    getProgressBarManager: function getProgressBarManager() {
@@ -348,7 +306,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var id = Action.type.none;
 	    var background = Action.type.none;
 	    var title = main_core.Loc.getMessage('BX_IM_CALL_BG_ACTION_NONE');
-
 	    if (type === Action.type.upload) {
 	      id = type;
 	      background = type;
@@ -362,12 +319,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      background = type;
 	      title = main_core.Loc.getMessage('BX_IM_CALL_BG_ACTION_BLUR_MAX');
 	    }
-
 	    this.id = id;
 	    this.background = background;
 	    this.title = title;
 	  }
-
 	  babelHelpers.createClass(Action, [{
 	    key: "isEmpty",
 	    value: function isEmpty() {
@@ -393,6 +348,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  gaussianBlur: 'gaussianBlur'
 	});
 
+	// @vue/component
 	var ActionComponent = {
 	  props: {
 	    element: {
@@ -413,11 +369,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    containerClasses: function containerClasses() {
 	      var classes = ["--".concat(this.action.id)];
-
 	      if (this.isSelected) {
 	        classes.push('--selected');
 	      }
-
 	      return classes;
 	    }
 	  },
@@ -436,7 +390,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.defineProperty(this, "isLoading", false);
 	    Object.assign(this, params);
 	  }
-
 	  babelHelpers.createClass(Mask, [{
 	    key: "isEmpty",
 	    value: function isEmpty() {
@@ -458,11 +411,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    key: "createFromRest",
 	    value: function createFromRest(rawMask) {
 	      var active = rawMask.active,
-	          id = rawMask.id,
-	          mask = rawMask.mask,
-	          background = rawMask.background,
-	          preview = rawMask.preview,
-	          title = rawMask.title;
+	        id = rawMask.id,
+	        mask = rawMask.mask,
+	        background = rawMask.background,
+	        preview = rawMask.preview,
+	        title = rawMask.title;
 	      return new Mask({
 	        active: active,
 	        id: id,
@@ -476,6 +429,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return Mask;
 	}();
 
+	// @vue/component
 	var MaskComponent = {
 	  props: {
 	    element: {
@@ -496,24 +450,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    containerClasses: function containerClasses() {
 	      var classes = ["--".concat(this.mask.id)];
-
 	      if (this.isSelected) {
 	        classes.push('--selected');
 	      }
-
 	      if (!this.mask.active) {
 	        classes.push('--inactive');
 	      }
-
 	      return classes;
 	    },
 	    imageStyle: function imageStyle() {
 	      var backgroundImage = '';
-
 	      if (this.mask.preview) {
 	        backgroundImage = "url('".concat(this.mask.preview, "')");
 	      }
-
 	      return {
 	        backgroundImage: backgroundImage
 	      };
@@ -537,43 +486,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _initLimits = /*#__PURE__*/new WeakSet();
-
 	var _initInfoHelper = /*#__PURE__*/new WeakSet();
-
 	var _limitIsActive = /*#__PURE__*/new WeakSet();
-
 	var LimitManager = /*#__PURE__*/function () {
 	  function LimitManager(params) {
 	    babelHelpers.classCallCheck(this, LimitManager);
-
 	    _classPrivateMethodInitSpec$1(this, _limitIsActive);
-
 	    _classPrivateMethodInitSpec$1(this, _initInfoHelper);
-
 	    _classPrivateMethodInitSpec$1(this, _initLimits);
-
 	    babelHelpers.defineProperty(this, "limits", {});
 	    var _limits = params.limits,
-	        _infoHelperUrlTemplate = params.infoHelperUrlTemplate;
-
+	      _infoHelperUrlTemplate = params.infoHelperUrlTemplate;
 	    _classPrivateMethodGet$1(this, _initLimits, _initLimits2).call(this, _limits);
-
 	    _classPrivateMethodGet$1(this, _initInfoHelper, _initInfoHelper2).call(this, _infoHelperUrlTemplate);
 	  }
-
 	  babelHelpers.createClass(LimitManager, [{
 	    key: "isLimitedAction",
 	    value: function isLimitedAction(action) {
 	      if (action.isEmpty() || action.isUpload()) {
 	        return false;
 	      }
-
 	      return action.isBlur() && _classPrivateMethodGet$1(this, _limitIsActive, _limitIsActive2).call(this, LimitManager.limitCode.blur);
 	    }
 	  }, {
@@ -586,14 +521,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    value: function showLimitSlider(limitCode) {
 	      window.BX.UI.InfoHelper.show(this.limits[limitCode].articleCode);
 	    } // region Mask feature
-
 	  }], [{
 	    key: "isMaskFeatureAvailable",
 	    value: function isMaskFeatureAvailable() {
 	      if (!im_v2_lib_utils.Utils.platform.isBitrixDesktop()) {
 	        return true;
 	      }
-
 	      return im_v2_lib_utils.Utils.platform.isDesktopFeatureEnabled(im_v2_const.DesktopFeature.mask.id);
 	    }
 	  }, {
@@ -602,47 +535,37 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!im_v2_lib_utils.Utils.platform.isBitrixDesktop()) {
 	        return true;
 	      }
-
 	      return im_v2_lib_utils.Utils.platform.getDesktopVersion() >= im_v2_const.DesktopFeature.mask.availableFromVersion;
 	    } // endregion Mask feature
-
 	  }, {
 	    key: "showHelpArticle",
 	    value: function showHelpArticle(articleCode) {
 	      var _window$BX$Helper;
-
 	      (_window$BX$Helper = window.BX.Helper) === null || _window$BX$Helper === void 0 ? void 0 : _window$BX$Helper.show("redirect=detail&code=".concat(articleCode));
 	    }
 	  }]);
 	  return LimitManager;
 	}();
-
 	function _initLimits2(limits) {
 	  var _this = this;
-
 	  limits.forEach(function (limit) {
 	    _this.limits[limit.id] = limit;
 	  });
 	}
-
 	function _initInfoHelper2(infoHelperUrlTemplate) {
 	  if (window.BX.UI.InfoHelper.isInited()) {
 	    return;
 	  }
-
 	  window.BX.UI.InfoHelper.init({
 	    frameUrlTemplate: infoHelperUrlTemplate
 	  });
 	}
-
 	function _limitIsActive2(limitCode) {
 	  var _this$limits$limitCod, _this$limits$limitCod2;
-
 	  var limitIsActive = !!((_this$limits$limitCod = this.limits[limitCode]) !== null && _this$limits$limitCod !== void 0 && _this$limits$limitCod.active);
 	  var articleIsActive = !!((_this$limits$limitCod2 = this.limits[limitCode]) !== null && _this$limits$limitCod2 !== void 0 && _this$limits$limitCod2.articleCode);
 	  return limitIsActive && articleIsActive;
 	}
-
 	babelHelpers.defineProperty(LimitManager, "limitCode", {
 	  blur: 'call_blur_background',
 	  image: 'call_background'
@@ -669,7 +592,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  computed: {
 	    tabs: function tabs() {
 	      var tabs = [];
-
 	      if (LimitManager.isMaskFeatureAvailable()) {
 	        tabs.push({
 	          id: TabId.mask,
@@ -677,7 +599,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          isNew: true
 	        });
 	      }
-
 	      tabs.push({
 	        id: TabId.background,
 	        loc: 'BX_IM_CALL_BG_TAB_BG',
@@ -695,11 +616,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var VIDEO_CONSTRAINT_WIDTH = 1280;
-	var VIDEO_CONSTRAINT_HEIGHT = 720; // @vue/component
+	var VIDEO_CONSTRAINT_HEIGHT = 720;
 
+	// @vue/component
 	var VideoPreview = {
 	  data: function data() {
 	    return {
@@ -715,7 +636,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.initHardware().then(function () {
 	      _this.getDefaultDevices();
 	    })["catch"](function (error) {
@@ -731,7 +651,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    getDefaultDevices: function getDefaultDevices() {
 	      var _this2 = this;
-
 	      var constraints = {
 	        audio: false,
 	        video: true
@@ -743,7 +662,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      constraints.video.height = {
 	        ideal: VIDEO_CONSTRAINT_HEIGHT
 	      };
-
 	      if (BX.Call.Hardware.defaultCamera) {
 	        this.selectedCamera = BX.Call.Hardware.defaultCamera;
 	        constraints.video = _objectSpread$2(_objectSpread$2({}, constraints.video), {
@@ -755,20 +673,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        console.error('VideoPreview: no camera');
 	        return;
 	      }
-
 	      navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 	        _this2.videoStream = stream;
-
 	        if (stream.getVideoTracks().length === 0) {
 	          _this2.noVideo = true;
 	          console.error('VideoPreview: no video tracks');
 	          return;
 	        }
-
 	        if (!_this2.selectedCamera) {
 	          _this2.selectedCamera = stream.getVideoTracks()[0].getSettings().deviceId;
 	        }
-
 	        _this2.playLocalVideo();
 	      });
 	    },
@@ -792,29 +706,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  function BackgroundService() {
 	    babelHelpers.classCallCheck(this, BackgroundService);
 	  }
-
 	  babelHelpers.createClass(BackgroundService, [{
 	    key: "getElementsList",
 	    value: function getElementsList() {
 	      var _query;
-
 	      var query = (_query = {}, babelHelpers.defineProperty(_query, im_v2_const.RestMethod.imCallBackgroundGet, [im_v2_const.RestMethod.imCallBackgroundGet]), babelHelpers.defineProperty(_query, im_v2_const.RestMethod.imCallMaskGet, [im_v2_const.RestMethod.imCallMaskGet]), _query);
 	      return new Promise(function (resolve, reject) {
 	        rest_client.rest.callBatch(query, function (response) {
 	          im_v2_lib_logger.Logger.warn('BackgroundService: getElementsList result', response);
 	          var backgroundResult = response[im_v2_const.RestMethod.imCallBackgroundGet];
 	          var maskResult = response[im_v2_const.RestMethod.imCallMaskGet];
-
 	          if (backgroundResult.error()) {
 	            console.error('BackgroundService: error getting background list', backgroundResult.error());
 	            return reject('Error getting background list');
 	          }
-
 	          if (maskResult.error()) {
 	            console.error('BackgroundService: error getting mask list', maskResult.error());
 	            return reject('Error getting mask list');
 	          }
-
 	          return resolve({
 	            backgroundResult: backgroundResult.data(),
 	            maskResult: maskResult.data()
@@ -841,9 +750,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}();
 
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var FILE_MAX_SIZE = 100 * 1024 * 1024;
 	var FILE_MAX_SIZE_PHRASE_NUMBER = 100;
@@ -851,70 +758,42 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var NOTIFICATION_HIDE_DELAY = 5000;
 	var CUSTOM_BG_TASK_PREFIX = 'custom';
 	var EVENT_NAMESPACE$1 = 'BX.Messenger.v2.CallBackground.UploadManager';
-
 	var _bindEvents = /*#__PURE__*/new WeakSet();
-
 	var _onFileMaxSizeExceeded = /*#__PURE__*/new WeakSet();
-
 	var _onSelectFile = /*#__PURE__*/new WeakSet();
-
 	var _onStartUpload = /*#__PURE__*/new WeakSet();
-
 	var _onProgress = /*#__PURE__*/new WeakSet();
-
 	var _onComplete = /*#__PURE__*/new WeakSet();
-
 	var _onUploadError = /*#__PURE__*/new WeakSet();
-
 	var _addUploadTask = /*#__PURE__*/new WeakSet();
-
 	var _isAllowedType = /*#__PURE__*/new WeakSet();
-
 	var _showNotification = /*#__PURE__*/new WeakSet();
-
 	var UploadManager = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(UploadManager, _EventEmitter);
-
 	  function UploadManager(params) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, UploadManager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UploadManager).call(this));
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _showNotification);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _isAllowedType);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _addUploadTask);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onUploadError);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onComplete);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onProgress);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onStartUpload);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onSelectFile);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onFileMaxSizeExceeded);
-
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _bindEvents);
-
 	    _this.setEventNamespace(EVENT_NAMESPACE$1);
-
 	    var inputNode = params.inputNode;
 	    _this.uploader = new im_lib_uploader.Uploader({
 	      inputNode: inputNode,
 	      generatePreview: true,
 	      fileMaxSize: FILE_MAX_SIZE
 	    });
-
 	    _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _bindEvents, _bindEvents2).call(babelHelpers.assertThisInitialized(_this));
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(UploadManager, [{
 	    key: "setDiskFolderId",
 	    value: function setDiskFolderId(diskFolderId) {
@@ -925,11 +804,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    value: function cancelUpload(fileId) {
 	      this.uploader.deleteTask(fileId);
 	    } // region events
-
 	  }]);
 	  return UploadManager;
 	}(main_core_events.EventEmitter);
-
 	function _bindEvents2() {
 	  this.uploader.subscribe('onFileMaxSizeExceeded', _classPrivateMethodGet$2(this, _onFileMaxSizeExceeded, _onFileMaxSizeExceeded2).bind(this));
 	  this.uploader.subscribe('onSelectFile', _classPrivateMethodGet$2(this, _onSelectFile, _onSelectFile2).bind(this));
@@ -939,42 +816,31 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  this.uploader.subscribe('onUploadFileError', _classPrivateMethodGet$2(this, _onUploadError, _onUploadError2).bind(this));
 	  this.uploader.subscribe('onCreateFileError', _classPrivateMethodGet$2(this, _onUploadError, _onUploadError2).bind(this));
 	}
-
 	function _onFileMaxSizeExceeded2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onFileMaxSizeExceeded', event);
 	  var eventData = event.getData();
 	  var file = eventData.file;
 	  var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_SIZE_EXCEEDED').replace('#LIMIT#', FILE_MAX_SIZE_PHRASE_NUMBER).replace('#FILE_NAME#', file.name);
-
 	  _classPrivateMethodGet$2(this, _showNotification, _showNotification2).call(this, phrase);
 	}
-
 	function _onSelectFile2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onSelectFile', event);
-
 	  var _event$getData = event.getData(),
-	      file = _event$getData.file,
-	      previewData = _event$getData.previewData;
-
+	    file = _event$getData.file,
+	    previewData = _event$getData.previewData;
 	  if (!_classPrivateMethodGet$2(this, _isAllowedType, _isAllowedType2).call(this, file.type) || !previewData) {
 	    var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name);
-
 	    _classPrivateMethodGet$2(this, _showNotification, _showNotification2).call(this, phrase);
-
 	    return false;
 	  }
-
 	  _classPrivateMethodGet$2(this, _addUploadTask, _addUploadTask2).call(this, file, previewData);
 	}
-
 	function _onStartUpload2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onStartUpload', event);
-
 	  var _event$getData2 = event.getData(),
-	      previewData = _event$getData2.previewData,
-	      id = _event$getData2.id,
-	      file = _event$getData2.file;
-
+	    previewData = _event$getData2.previewData,
+	    id = _event$getData2.id,
+	    file = _event$getData2.file;
 	  var filePreview = URL.createObjectURL(previewData);
 	  this.emit(UploadManager.event.uploadStart, {
 	    id: id,
@@ -982,33 +848,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    file: file
 	  });
 	}
-
 	function _onProgress2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onProgress', event);
-
 	  var _event$getData3 = event.getData(),
-	      id = _event$getData3.id,
-	      progress = _event$getData3.progress;
-
+	    id = _event$getData3.id,
+	    progress = _event$getData3.progress;
 	  this.emit(UploadManager.event.uploadProgress, {
 	    id: id,
 	    progress: progress
 	  });
 	}
-
 	function _onComplete2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onComplete', event);
-
 	  var _event$getData4 = event.getData(),
-	      id = _event$getData4.id,
-	      result = _event$getData4.result;
-
+	    id = _event$getData4.id,
+	    result = _event$getData4.result;
 	  this.emit(UploadManager.event.uploadComplete, {
 	    id: id,
 	    fileResult: result.data.file
 	  });
 	}
-
 	function _onUploadError2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onUploadError', event);
 	  var eventData = event.getData();
@@ -1016,7 +875,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    id: eventData.id
 	  });
 	}
-
 	function _addUploadTask2(file, previewData) {
 	  this.uploader.addTask({
 	    taskId: "".concat(CUSTOM_BG_TASK_PREFIX, ":").concat(Date.now()),
@@ -1028,18 +886,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    previewBlob: previewData
 	  });
 	}
-
 	function _isAllowedType2(fileType) {
 	  return UploadManager.allowedFileTypes.includes(fileType);
 	}
-
 	function _showNotification2(text) {
 	  BX.UI.Notification.Center.notify({
 	    content: text,
 	    autoHideDelay: NOTIFICATION_HIDE_DELAY
 	  });
 	}
-
 	babelHelpers.defineProperty(UploadManager, "allowedFileTypes", ['image/png', 'image/jpg', 'image/jpeg', 'video/avi', 'video/mp4', 'video/quicktime']);
 	babelHelpers.defineProperty(UploadManager, "event", {
 	  uploadStart: 'uploadStart',
@@ -1087,11 +942,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    containerClasses: function containerClasses() {
 	      var classes = [];
-
 	      if (this.isDesktop) {
 	        classes.push('--desktop');
 	      }
-
 	      return classes;
 	    },
 	    uploadTypes: function uploadTypes() {
@@ -1103,11 +956,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        '#HIGHLIGHT_END#': '</span>',
 	        '#BR#': '</br></br>'
 	      };
-
 	      if (this.selectedTab === TabId.mask) {
 	        return this.loc('BX_IM_CALL_BG_DESCRIPTION_MASK_2', replaces);
 	      }
-
 	      return this.loc('BX_IM_CALL_BG_DESCRIPTION_BG', replaces);
 	    },
 	    isDesktop: function isDesktop() {
@@ -1116,30 +967,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.initSelectedTab();
 	    this.getBackgroundService().getElementsList().then(function (result) {
 	      var backgroundResult = result.backgroundResult,
-	          maskResult = result.maskResult;
-
+	        maskResult = result.maskResult;
 	      _this.initLimitManager(backgroundResult);
-
 	      _this.initBackgroundList(backgroundResult);
-
 	      _this.uploadManager.setDiskFolderId(backgroundResult.upload.folderId);
-
 	      var uploadActionIsAvailable = !!backgroundResult.upload.folderId;
-
 	      _this.initActions(uploadActionIsAvailable);
-
 	      _this.initMasks(maskResult);
-
 	      _this.initMaskLoadEventHandler();
-
 	      _this.initPreviouslySelectedItem();
-
 	      _this.loadingItems = false;
-
 	      _this.hideLoader();
 	    })["catch"](function () {
 	      _this.loadingItems = false;
@@ -1155,13 +995,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.selectedTab = TabId.background;
 	        return;
 	      }
-
 	      if (this.tab === TabId.mask && !LimitManager.isMaskFeatureSupportedByDesktopVersion()) {
 	        this.selectedTab = TabId.background;
 	        LimitManager.showHelpArticle(MASK_HELP_ARTICLE_CODE);
 	        return;
 	      }
-
 	      this.selectedTab = this.tab;
 	    },
 	    initPreviouslySelectedItem: function initPreviouslySelectedItem() {
@@ -1171,44 +1009,36 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    initPreviouslySelectedMask: function initPreviouslySelectedMask() {
 	      if (this.isDesktop) {
 	        var _window$BX$desktop$ge = window.BX.desktop.getMask(),
-	            maskId = _window$BX$desktop$ge.id;
-
+	          maskId = _window$BX$desktop$ge.id;
 	        var foundMask = this.masks.find(function (mask) {
 	          return mask.id === maskId;
 	        });
-
 	        if (!foundMask) {
 	          foundMask = Mask.createEmpty();
 	        }
-
 	        this.previouslySelectedMask = foundMask;
 	        im_v2_lib_logger.Logger.warn('CallBackground: previously selected mask', this.previouslySelectedMask);
 	      } else {
 	        this.previouslySelectedMask = Mask.createEmpty();
 	      }
-
 	      this.selectedMaskId = this.previouslySelectedMask.id;
 	    },
 	    initPreviouslySelectedBackground: function initPreviouslySelectedBackground() {
 	      if (this.isDesktop) {
 	        var _window$BX$desktop$ge2 = window.BX.desktop.getBackgroundImage(),
-	            backgroundId = _window$BX$desktop$ge2.id;
-
+	          backgroundId = _window$BX$desktop$ge2.id;
 	        var itemsToSearch = [].concat(babelHelpers.toConsumableArray(this.actions), babelHelpers.toConsumableArray(this.backgrounds));
 	        var foundBackground = itemsToSearch.find(function (item) {
 	          return item.id === backgroundId;
 	        });
-
 	        if (!foundBackground) {
 	          foundBackground = new Action(Action.type.none);
 	        }
-
 	        this.previouslySelectedBackground = foundBackground;
 	        im_v2_lib_logger.Logger.warn('CallBackground: previously selected background', this.previouslySelectedBackground);
 	      } else {
 	        this.previouslySelectedBackground = new Action(Action.type.none);
 	      }
-
 	      this.selectedBackgroundId = this.previouslySelectedBackground.id;
 	    },
 	    initActions: function initActions(uploadActionIsAvailable) {
@@ -1216,7 +1046,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    initBackgroundList: function initBackgroundList(restResult) {
 	      var _this2 = this;
-
 	      this.defaultBackgrounds = [];
 	      restResult.backgrounds["default"].forEach(function (background) {
 	        _this2.defaultBackgrounds.push(Background.createDefaultFromRest(background));
@@ -1228,7 +1057,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    initLimitManager: function initLimitManager(result) {
 	      var limits = result.limits,
-	          infoHelperParams = result.infoHelperParams;
+	        infoHelperParams = result.infoHelperParams;
 	      this.limitManager = new LimitManager({
 	        limits: limits,
 	        infoHelperUrlTemplate: infoHelperParams.frameUrlTemplate
@@ -1236,61 +1065,47 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    initUploader: function initUploader() {
 	      var _this3 = this;
-
 	      this.uploadManager = new UploadManager({
 	        inputNode: this.$refs['uploadInput']
 	      });
 	      this.uploadManager.subscribe(UploadManager.event.uploadStart, function (event) {
 	        var backgroundsInstance = Background.createCustomFromUploaderEvent(event.getData());
-
 	        _this3.customBackgrounds.unshift(backgroundsInstance);
 	      });
 	      this.uploadManager.subscribe(UploadManager.event.uploadProgress, function (event) {
 	        var _event$getData = event.getData(),
-	            id = _event$getData.id,
-	            progress = _event$getData.progress;
-
+	          id = _event$getData.id,
+	          progress = _event$getData.progress;
 	        var background = _this3.findCustomBackgroundById(id);
-
 	        if (!background) {
 	          return;
 	        }
-
 	        background.setUploadProgress(progress);
 	      });
 	      this.uploadManager.subscribe(UploadManager.event.uploadComplete, function (event) {
 	        var _event$getData2 = event.getData(),
-	            id = _event$getData2.id,
-	            fileResult = _event$getData2.fileResult;
-
+	          id = _event$getData2.id,
+	          fileResult = _event$getData2.fileResult;
 	        var background = _this3.findCustomBackgroundById(id);
-
 	        if (!background) {
 	          return;
 	        }
-
 	        background.onUploadComplete(fileResult);
-
 	        _this3.onBackgroundClick(background);
-
 	        _this3.getBackgroundService().commitBackground(background.id);
 	      });
 	      this.uploadManager.subscribe(UploadManager.event.uploadError, function (event) {
 	        var _event$getData3 = event.getData(),
-	            id = _event$getData3.id;
-
+	          id = _event$getData3.id;
 	        var background = _this3.findCustomBackgroundById(id);
-
 	        if (!background) {
 	          return;
 	        }
-
 	        background.setUploadError();
 	      });
 	    },
 	    initMasks: function initMasks(result) {
 	      var _this4 = this;
-
 	      var masks = result.masks;
 	      this.masks.push(Mask.createEmpty());
 	      masks.forEach(function (mask) {
@@ -1301,7 +1116,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      this.maskLoadTimeouts = {};
 	      window.BX.desktop.setCallMaskLoadHandlers(this.onMaskLoad.bind(this));
 	    },
@@ -1312,19 +1126,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.getLimitManager().showLimitSlider(LimitManager.limitCode.blur);
 	        return;
 	      }
-
 	      if (action.isUpload()) {
 	        this.$refs['uploadInput'].click();
 	        return;
 	      }
-
 	      this.selectedBackgroundId = action.id;
-
 	      if (action.isEmpty()) {
 	        this.removeCallBackground();
 	        return;
 	      }
-
 	      this.selectedMaskId = '';
 	      this.setCallBlur(action);
 	    },
@@ -1333,11 +1143,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.getLimitManager().showLimitSlider(LimitManager.limitCode.image);
 	        return;
 	      }
-
 	      if (!background.isSupported || background.isLoading) {
 	        return;
 	      }
-
 	      this.selectedBackgroundId = background.id;
 	      this.selectedMaskId = '';
 	      this.setCallBackground(background);
@@ -1347,13 +1155,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.selectedBackgroundId = Action.type.none;
 	        this.removeCallBackground();
 	      }
-
 	      if (background.isLoading) {
 	        this.uploadManager.cancelUpload(background.id);
 	      } else {
 	        this.getBackgroundService().deleteFile(background.id);
 	      }
-
 	      this.customBackgrounds = this.customBackgrounds.filter(function (element) {
 	        return element.id !== background.id;
 	      });
@@ -1362,12 +1168,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!mask.active) {
 	        return;
 	      }
-
 	      if (mask.isEmpty()) {
 	        this.selectedMaskId = mask.id;
 	        this.removeCallMask();
 	      }
-
 	      this.setCallMask(mask);
 	    },
 	    onSaveButtonClick: function onSaveButtonClick() {
@@ -1375,29 +1179,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    onCancelButtonClick: function onCancelButtonClick() {
 	      var _this5 = this;
-
 	      var backgroundWasChanged = this.previouslySelectedBackground.id !== this.selectedBackgroundId;
 	      var maskWasChanged = this.previouslySelectedMask.id !== this.selectedMaskId;
-
 	      if (!backgroundWasChanged && !maskWasChanged) {
 	        window.close();
 	        return;
 	      }
-
 	      var backgroundPromise = Promise.resolve();
-
 	      if (backgroundWasChanged) {
 	        backgroundPromise = this.setCallBackground(this.previouslySelectedBackground);
 	      }
-
 	      backgroundPromise.then(function () {
 	        if (maskWasChanged && !_this5.previouslySelectedMask.isEmpty()) {
 	          _this5.setCallMask(_this5.previouslySelectedMask);
-
 	          _this5.isWaitingForMaskToCancel = true;
 	        } else if (_this5.previouslySelectedMask.isEmpty()) {
 	          _this5.removeCallMask();
-
 	          window.close();
 	        } else {
 	          window.close();
@@ -1409,7 +1206,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.listIsScrolled = false;
 	        return;
 	      }
-
 	      this.listIsScrolled = true;
 	    },
 	    onTabChange: function onTabChange(newTabId) {
@@ -1417,17 +1213,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        LimitManager.showHelpArticle(MASK_HELP_ARTICLE_CODE);
 	        return;
 	      }
-
 	      this.selectedTab = newTabId;
 	    },
 	    onMaskLoad: function onMaskLoad(url) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: onMaskLoad', url);
-
 	      if (this.isWaitingForMaskToCancel) {
 	        window.close();
 	        return;
 	      }
-
 	      var masksWithoutEmpty = this.masks.filter(function (mask) {
 	        return !mask.isEmpty();
 	      });
@@ -1435,14 +1228,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return url.includes(mask.mask);
 	      });
 	      im_v2_lib_logger.Logger.warn('CallBackground: loaded mask', loadedMask);
-
 	      if (!loadedMask) {
 	        return;
 	      }
-
 	      clearTimeout(this.maskLoadTimeouts[loadedMask.id]);
 	      loadedMask.isLoading = false;
-
 	      if (this.lastRequestedMaskId === loadedMask.id) {
 	        this.selectedMaskId = loadedMask.id;
 	      }
@@ -1451,42 +1241,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    // region desktop interactions
 	    setCallBackground: function setCallBackground(backgroundInstance) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set background', backgroundInstance);
-
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      return window.BX.desktop.setCallBackground(backgroundInstance.id, backgroundInstance.background);
 	    },
 	    setCallBlur: function setCallBlur(action) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set blur', action);
-
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      return window.BX.desktop.setCallBackground(action.id, action.background);
 	    },
 	    removeCallBackground: function removeCallBackground() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      return window.BX.desktop.setCallBackground(Action.type.none, Action.type.none);
 	    },
 	    setCallMask: function setCallMask(mask) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set mask', mask);
-
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      if (mask.isEmpty()) {
 	        im_v2_lib_logger.Logger.warn('CallBackground: empty mask - removing it');
 	        window.BX.desktop.setCallMask();
 	        return;
 	      }
-
 	      this.lastRequestedMaskId = mask.id;
 	      var MASK_LOAD_STATUS_DELAY = 500;
 	      this.maskLoadTimeouts[mask.id] = setTimeout(function () {
@@ -1498,14 +1280,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      window.BX.desktop.setCallMask();
 	    },
 	    hideLoader: function hideLoader() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-
 	      window.BX.desktop.hideLoader();
 	    },
 	    // endregion desktop interactions
@@ -1518,7 +1298,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.backgroundService) {
 	        this.backgroundService = new BackgroundService();
 	      }
-
 	      return this.backgroundService;
 	    },
 	    getLimitManager: function getLimitManager() {

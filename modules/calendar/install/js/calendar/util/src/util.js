@@ -1,6 +1,6 @@
-import {Runtime, Type, Loc, Dom, Tag} from "main.core";
+import { Type, Loc, Dom, Tag} from "main.core";
+import { DateTimeFormat } from "main.date";
 import "ui.notification";
-import "../../../../../../main/install/js/main/date/main.date";
 import {PopupManager} from 'main.popup';
 import {PULL as Pull} from 'pull.client';
 
@@ -206,6 +206,13 @@ export class Util
 		return BX.date.format(Util.getDateTimeFormat(), timestamp / 1000);
 	}
 
+	static formatTimeInterval(from, to)
+	{
+		const formattedFrom = DateTimeFormat.format(Util.getTimeFormatShort(), from.getTime() / 1000);
+		const formattedTo = DateTimeFormat.format(Util.getTimeFormatShort(), to.getTime() / 1000);
+		return `${formattedFrom} - ${formattedTo}`;
+	}
+
 	static formatDateUsable(date, showYear = true, showDayOfWeek = false)
 	{
 		const lang = Loc.getMessage('LANGUAGE_ID');
@@ -295,6 +302,26 @@ export class Util
 		return ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][index];
 	}
 
+	static getIndByWeekDay(weekDay)
+	{
+		return new Object({SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6})[weekDay];
+	}
+
+	static getWeekdaysLoc()
+	{
+		const today = new Date();
+		const weekdays = [];
+
+		const dayLength = 24 * 60 * 60 * 1000;
+		for (let weekOffset = 0; weekOffset < 7; weekOffset++)
+		{
+			const weekDayName = DateTimeFormat.format('D', new Date(today.getTime() + dayLength * weekOffset));
+			weekdays[(today.getDay() + weekOffset) % 7] = weekDayName;
+		}
+
+		return weekdays;
+	}
+
 	static getLoader(size, className)
 	{
 		return Tag.render`
@@ -369,6 +396,16 @@ export class Util
 		return KEY_CODES[key.toLowerCase()];
 	}
 
+	static isAnyModifierKeyPressed(event = window.event)
+	{
+		if (event)
+		{
+			return event.altKey || event.shiftKey || event.ctrlKey || event.metaKey;
+		}
+
+		return null;
+	}
+
 	static getUsableDateTime(timestamp, roundMin)
 	{
 		if (Type.isDate(timestamp))
@@ -440,6 +477,16 @@ export class Util
 	static getDayMonthFormat()
 	{
 		return Util.dayMonthFormat || 'j F';
+	}
+
+	static setLongDateFormat(value)
+	{
+		Util.longDateFormat = value;
+	}
+
+	static getLongDateFormat()
+	{
+		return Util.longDateFormat || 'j F Y';
 	}
 
 	static getDateTimeFormat()
@@ -616,6 +663,33 @@ export class Util
 		return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
 	}
 
+	static getFormattedTimezone(timeZone)
+	{
+		const timezoneOffset = this.getTimeZoneOffset(timeZone);
+		if (timezoneOffset === 0)
+		{
+			return '(UTC) ' + timeZone;
+		}
+
+		const prefix = (timezoneOffset > 0 ? '-' : '+');
+		const hours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
+		const minutes = ('0' + Math.abs(timezoneOffset) % 60).slice(-2);
+
+		return '(UTC ' + prefix + hours + ':' + minutes + ') ' + timeZone;
+	}
+
+	static getTimezoneDateFromTimestampUTC(timestampUTC, timeZone)
+	{
+		return new Date(timestampUTC + this.getTimeZoneOffset() * 60 * 1000 - this.getTimeZoneOffset(timeZone) * 60 * 1000);
+	}
+
+	static getTimeZoneOffset(timeZone = undefined)
+	{
+		const timeInTimezone = new Date(new Date().toLocaleString("en-US", { timeZone })).getTime();
+		const timeInUTC = new Date(new Date().toLocaleString("en-US", { timeZone: 'UTC' })).getTime();
+		return parseInt((timeInUTC - timeInTimezone) / 60000);
+	}
+
 	static randomInt(min, max)
 	{
 		return Math.round(min - 0.5 + Math.random() * (max - min + 1));
@@ -782,23 +856,23 @@ export class Util
 			document.body.scrollLeft = scrollH;
 		}
 	}
-	
+
 	// TODO: move to syncManager
 	static setIphoneConnectionStatus(value)
 	{
 		Util.iphoneConnectionStatus = value;
 	}
-	
+
 	static isIphoneConnected()
 	{
 		return Util.iphoneConnectionStatus;
 	}
-	
+
 	static setMacConnectionStatus(value)
 	{
 		Util.macConnectionStatus = value;
 	}
-	
+
 	static isMacConnected()
 	{
 		return Util.macConnectionStatus;
@@ -822,5 +896,41 @@ export class Util
 	static isGoogleConnected()
 	{
 		return Util.googleConnectionStatus;
+	}
+
+	static setIsSharingFeatureEnabled(value)
+	{
+		Util.isSharingFeatureEnabled = value;
+	}
+
+	static checkSharingFeatureEnabled()
+	{
+		return Util.isSharingFeatureEnabled;
+	}
+
+	static setSharingConfig(value)
+	{
+		Util.sharingConfig = value;
+	}
+
+	static getSharingConfig()
+	{
+		return Util.sharingConfig;
+	}
+
+	static downloadIcsFile(fileContent, fileName)
+	{
+		const link = document.createElement('a');
+		link.href = "data:text/calendar," + encodeURI(fileContent);
+		link.download = fileName;
+		link.click();
+	}
+
+	static isMobileBrowser()
+	{
+		return navigator.userAgent.toLowerCase().includes('iphone')
+			|| navigator.userAgent.toLowerCase().includes('ipad')
+			|| navigator.userAgent.toLowerCase().includes('android')
+		;
 	}
 }

@@ -49,7 +49,12 @@ export class Menu extends Event.EventEmitter
 			)
 			{
 				event.preventDefault();
-				const href = Dom.attr(event.target, 'href');
+				let href = Dom.attr(event.target, 'href');
+				const hrefPagePrefix = 'page:';
+				if (href.startsWith(hrefPagePrefix))
+				{
+					href = href.replace(hrefPagePrefix, '');
+				}
 				if (href.startsWith('#landing'))
 				{
 					const pageId = Text.toNumber(href.replace('#landing', ''));

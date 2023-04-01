@@ -511,8 +511,10 @@ class CIBlockRights
 			{
 				$this->_update($ID, $GROUP_CODE, $bInherit, $arRightSet["TASK_ID"]);
 
-				if($bInherit && $bChildrenSet)
+				if ($bInherit && $bChildrenSet)
+				{
 					$obStorage->AddChildrenSet($ID, $GROUP_CODE, /*$bInherited=*/true);
+				}
 
 				unset($arDBRights[$ID]);
 			}

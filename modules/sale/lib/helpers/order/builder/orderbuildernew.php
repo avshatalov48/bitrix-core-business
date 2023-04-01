@@ -146,11 +146,11 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 
 	public function setShipmentPriceFields(Shipment $shipment, array $fields)
 	{
-		if($fields['CUSTOM_PRICE_DELIVERY'] !== 'Y')
+		if ($fields['CUSTOM_PRICE_DELIVERY'] !== 'Y')
 		{
 			$fields['PRICE_DELIVERY'] = $shipment->calculateDelivery()->getPrice();
-			$fields['BASE_PRICE_DELIVERY'] = $fields['PRICE_DELIVERY'];
 		}
+		$fields['BASE_PRICE_DELIVERY'] = $fields['PRICE_DELIVERY'];
 
 		$res = $shipment->setFields($fields);
 

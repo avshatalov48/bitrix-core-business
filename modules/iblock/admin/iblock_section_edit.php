@@ -240,20 +240,29 @@ if(
 		$arDETAIL_PICTURE["COPY_FILE"] = "Y";
 	}
 
-	$arFields = array(
-		"ACTIVE" => $_POST["ACTIVE"],
-		"IBLOCK_SECTION_ID" => $IBLOCK_SECTION_ID,
+	$arFields = [
 		"IBLOCK_ID" => $IBLOCK_ID,
-		"NAME" => $_POST["NAME"],
-		"SORT" => $_POST["SORT"],
-		"CODE" => $_POST["CODE"],
+		"IBLOCK_SECTION_ID" => $IBLOCK_SECTION_ID,
 		"PICTURE" => $arPICTURE,
 		"DETAIL_PICTURE" => $arDETAIL_PICTURE,
-		"DESCRIPTION" => $_POST["DESCRIPTION"],
-		"DESCRIPTION_TYPE" => $_POST["DESCRIPTION_TYPE"],
-	);
+	];
+	$simpleFields = [
+		'ACTIVE',
+		'NAME',
+		'SORT',
+		'CODE',
+		'DESCRIPTION',
+		'DESCRIPTION_TYPE',
+	];
+	foreach ($simpleFields as $fieldId)
+	{
+		if (isset($_POST[$fieldId]) && is_string($_POST[$fieldId]))
+		{
+			$arFields[$fieldId] = $_POST[$fieldId];
+		}
+	}
 
-	if (Loader::includeModule('bitrix24'))
+	if (isset($arFields['DESCRIPTION']) && Loader::includeModule('bitrix24'))
 	{
 		$sanitizer = new \CBXSanitizer();
 		$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
@@ -280,10 +289,17 @@ if(
 
 	if($bEditRights && $arIBlock["RIGHTS_MODE"] === "E")
 	{
-		if(is_array($_POST["RIGHTS"]))
-			$arFields["RIGHTS"] = CIBlockRights::Post2Array($_POST["RIGHTS"]);
-		else
-			$arFields["RIGHTS"] = array();
+		if (isset($_POST["RIGHTS"]))
+		{
+			if (is_array($_POST["RIGHTS"]))
+			{
+				$arFields["RIGHTS"] = CIBlockRights::Post2Array($_POST["RIGHTS"]);
+			}
+			else
+			{
+				$arFields["RIGHTS"] = [];
+			}
+		}
 	}
 
 	if (is_array($_POST["IPROPERTY_TEMPLATES"]))
@@ -491,7 +507,7 @@ if(
 		$urlBuilder->setSliderMode(false);
 		$urlBuilder->setUrlParams([]);
 		// fix end
-		if($apply == '' && $save_and_add == '')
+		if ($request->getPost('apply') === null && $request->getPost('save_and_add') === null)
 		{
 			if ($bAutocomplete)
 			{
@@ -520,7 +536,7 @@ if(
 				LocalRedirect($saveUrl);
 			}
 		}
-		elseif($save_and_add <> '')
+		elseif ($request->getPost('save_and_add') !== null)
 		{
 			if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
 			{
@@ -922,7 +938,16 @@ $tabControl->BeginNextFormTab();
 	<?$tabControl->EndCustomField("TIMESTAMP_X", '');?>
 
 <?
-$tabControl->AddCheckBoxField("ACTIVE", GetMessage("IBSEC_E_ACTIVE"), false, "Y", $str_ACTIVE=="Y");
+$tabControl->AddCheckBoxField(
+	'ACTIVE',
+	GetMessage('IBSEC_E_ACTIVE'),
+	false,
+	[
+		'Y',
+		'N',
+	],
+	$str_ACTIVE === 'Y'
+);
 
 $tabControl->BeginCustomField("IBLOCK_SECTION_ID", GetMessage("IBSEC_E_PARENT_SECTION").":");?>
 	<tr>

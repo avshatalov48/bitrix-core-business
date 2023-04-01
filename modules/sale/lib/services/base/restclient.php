@@ -215,10 +215,14 @@ class RestClient
 			return $result;
 		}
 
-		if($jsonResult["error"])
+		if (!empty($jsonResult["error"]))
+		{
 			$result->addError(new Error($jsonResult["error"], static::ERROR_WRONG_LICENSE));
+		}
 		else
+		{
 			$result->addData($jsonResult);
+		}
 
 		return $result;
 	}

@@ -425,7 +425,7 @@ setTimeout(BPRIAStart, 0);
 
 $renderName = function ($field)
 {
-	return $field['Required']
+	return isset($field['Required']) && $field['Required']
 		? sprintf('<span class="adm-required-field">%s:</span>', htmlspecialcharsbx($field['Name']))
 		: htmlspecialcharsbx($field['Name']) . ':';
 };
@@ -444,7 +444,14 @@ $renderField = function(array $field, bool $allowSelection) use($dialog)
 	<td colspan="2">
 		<table width="100%" class="adm-detail-content-table edit-table">
 			<?php foreach ($dialog->getMap() as $fieldId => $field):?>
-				<?php if($fieldId !== 'TimeoutDurationType' && !is_array($field['Settings']) && $field['Settings']['Hidden'] !== true): ?>
+				<?php if (
+					$fieldId !== 'TimeoutDurationType'
+					&& (
+						!isset($field['Settings'])
+						|| !is_array($field['Settings'])
+						|| !($field['Settings']['Hidden'] ?? false)
+					)):
+					?>
 					<tr>
 						<td align="right" width="40%" class="adm-detail-content-cell-l"><?= $renderName($field) ?></td>
 						<td width="60%" class="adm-detail-content-cell-r">

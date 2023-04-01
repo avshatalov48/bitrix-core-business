@@ -6,6 +6,7 @@ use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\LanguageTable;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use COption;
@@ -21,6 +22,7 @@ class Util
 	private static $requestUid = '';
 	private static $userAccessCodes = [];
 	private static $pathCache = [];
+	private static $isRussian = null;
 
 	/**
 	 * @param $managerId
@@ -119,9 +121,14 @@ class Util
 
 	public static function checkRuZone(): bool
 	{
+		if (!is_null(self::$isRussian))
+		{
+			return self::$isRussian;
+		}
+
 		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			$isRussian = (\CBitrix24::getPortalZone() === 'ru');
+			self::$isRussian = (\CBitrix24::getPortalZone() === 'ru');
 		}
 		else
 		{
@@ -133,7 +140,7 @@ class Util
 			$row = $iterator->fetch();
 			if (empty($row))
 			{
-				$isRussian = false;
+				self::$isRussian = false;
 			}
 			else
 			{
@@ -143,11 +150,11 @@ class Util
 					'limit' => 1
 				]);
 				$row = $iterator->fetch();
-				$isRussian = empty($row);
+				self::$isRussian = empty($row);
 			}
 		}
 
-		return $isRussian;
+		return self::$isRussian;
 	}
 
 	public static function convertEntitiesToCodes($entityList = [])
@@ -229,19 +236,7 @@ class Util
 
 	public static function getUsersByEntityList($entityList, $fetchUsers = false)
 	{
-		if (!Main\Loader::includeModule('socialnetwork'))
-		{
-			return [];
-		}
-		$users = \CSocNetLogDestination::getDestinationUsers(self::convertEntitiesToCodes($entityList), $fetchUsers);
-		if ($fetchUsers)
-		{
-			for ($i = 0, $l = count($users); $i < $l; $i++)
-			{
-				$users[$i]['FORMATTED_NAME'] = \CCalendar::getUserName($users[$i]);
-			}
-		}
-		return $users;
+		return \CCalendar::GetDestinationUsers(self::convertEntitiesToCodes($entityList), $fetchUsers);
 	}
 
 
@@ -349,6 +344,18 @@ class Util
 
 		if ($event = $eventDb->fetch())
 		{
+			if (!empty($event['NAME']))
+			{
+				$event['NAME'] = Emoji::decode($event['NAME']);
+			}
+			if (!empty($event['DESCRIPTION']))
+			{
+				$event['DESCRIPTION'] = Emoji::decode($event['DESCRIPTION']);
+			}
+			if (!empty($event['LOCATION']))
+			{
+				$event['LOCATION'] = Emoji::decode($event['LOCATION']);
+			}
 			return $event;
 		}
 
@@ -588,7 +595,7 @@ class Util
 			else
 			{
 				$settings = \CCalendar::GetSettings();
-				$path = $settings['path_to_type_' . $type];
+				$path = $settings['path_to_type_' . $type] ?? null;
 			}
 
 			if (!\COption::GetOptionString('calendar', 'pathes_for_sites', true))

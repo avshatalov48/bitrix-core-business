@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Retargeting\Services;
 
@@ -68,7 +68,7 @@ class AudienceVkontakte extends Audience
 		return implode(',', $data);
 	}
 
-	public function importContacts($audienceId, array $contacts = array(), array $options)
+	public function importContacts($audienceId, array $contacts, array $options)
 	{
 
 		return $this->getRequest()->send(array(
@@ -81,7 +81,7 @@ class AudienceVkontakte extends Audience
 		));
 	}
 
-	public function removeContacts($audienceId, array $contacts = array(), array $options)
+	public function removeContacts($audienceId, array $contacts, array $options)
 	{
 		$response = Response::create(static::TYPE_CODE);
 		return $response;

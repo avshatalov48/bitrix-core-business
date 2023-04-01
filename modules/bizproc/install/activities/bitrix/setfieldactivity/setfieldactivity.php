@@ -348,7 +348,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 					'type' => $arCurrentValues['new_field_type'][$k],
 					'multiple' => $arCurrentValues['new_field_mult'][$k],
 					'required' => $arCurrentValues['new_field_req'][$k],
-					'options' => $arCurrentValues['new_field_options'][$k],
+					'options' => $arCurrentValues['new_field_options'][$k] ?? null,
 				];
 
 				$newCode = $documentService->AddDocumentField($documentType, $arFieldsTmp);

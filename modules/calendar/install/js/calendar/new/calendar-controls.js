@@ -349,7 +349,8 @@
 				startDayCode: new Date(entry.from.getTime()),
 				endDayCode: new Date(entry.to.getTime()),
 			};
-			if (entry.id !== entry.uid)
+			const isRecursive = entry.isRecursive ? entry.isRecursive() : false;
+			if (isRecursive)
 			{
 				const id = entry.uid.split("|")[0];
 				const date = entry.uid.split("|")[1];
@@ -441,7 +442,15 @@
 			node.onbxdragstart = BX.delegate(function()
 			{
 				this.cancelDragAndDrop = false;
-				if (!dragAllowed || !this.calendar.getView().allowActions())
+
+				if (!node.parentNode)
+				{
+					const uidAttributeName = 'data-bx-calendar-entry';
+					const uidAttributeValue = node.getAttribute(uidAttributeName);
+					node = document.querySelector(`[${uidAttributeName}="${uidAttributeValue}"]`);
+				}
+
+				if (!dragAllowed || this.isRecursiveEntryMoved(params.entry))
 				{
 					this.cancelDragAndDrop = true;
 					this.draggedNode = false;
@@ -994,7 +1003,7 @@
 			node.setAttribute('data-bx-entry-resizer', 'Y');
 
 			node.onbxdragstart = (e) => {
-				if (!this.calendar.getView().allowActions())
+				if (this.isRecursiveEntryMoved(params.entry))
 				{
 					this.cancelDragAndDrop = true;
 					this.draggedNode = false;
@@ -1146,7 +1155,8 @@
 					title: BX.Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
 					events: {
 						click: (e, balloon) => {
-							if (!this.calendar.getView().allowActions())
+							const entry = this.undoList[this.undoList.length - 1];
+							if (this.isRecursiveEntryMoved(this.getRealEntry(entry)))
 							{
 								return;
 							}
@@ -1156,6 +1166,11 @@
 					}
 				}]
 			);
+		},
+
+		isRecursiveEntryMoved: function(entry)
+		{
+			return entry && entry.isRecursive() && this.calendar.entryController.findMovedEntryById(entry.uid);
 		},
 
 		setBoundaryTimeToTimeNode: function(boundary, wrapNode)

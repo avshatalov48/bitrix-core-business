@@ -620,6 +620,16 @@ class Adapter implements iBase
 	}
 
 	/**
+	 * Is master yandex.
+	 *
+	 * @return bool
+	 */
+	public function isMasterYandex(): bool
+	{
+		return $this->message instanceof iMasterYandex;
+	}
+
+	/**
 	 * Return true if is hidden.
 	 *
 	 * @return bool

@@ -237,6 +237,11 @@ abstract class MysqlCommonConnection extends Connection
 	{
 		$this->transactionLevel--;
 
+		if ($this->transactionLevel < 0)
+		{
+			throw new TransactionException('Transaction was not started.');
+		}
+
 		if ($this->transactionLevel == 0)
 		{
 			// commits all nested transactions
@@ -251,6 +256,11 @@ abstract class MysqlCommonConnection extends Connection
 	public function rollbackTransaction()
 	{
 		$this->transactionLevel--;
+
+		if ($this->transactionLevel < 0)
+		{
+			throw new TransactionException('Transaction was not started.');
+		}
 
 		if ($this->transactionLevel == 0)
 		{

@@ -168,7 +168,7 @@ class PropertiesDialog
 				$this->getActivityName()
 			);
 
-			if (is_array($currentActivity) && is_array($currentActivity['Properties']))
+			if (is_array($currentActivity) && isset($currentActivity['Properties']) && is_array($currentActivity['Properties']))
 			{
 				$map = $this->getMap();
 				foreach ($map as $id => $property)
@@ -222,7 +222,7 @@ class PropertiesDialog
 					continue;
 				}
 
-				if ($property['Type'] === FieldType::USER && !isset($property['Getter']))
+				if (isset($property['Type']) && $property['Type'] === FieldType::USER && !isset($property['Getter']))
 				{
 					$compatibleValues[$property['FieldName']] = \CBPHelper::usersArrayToString(
 						$compatibleValues[$property['FieldName']],

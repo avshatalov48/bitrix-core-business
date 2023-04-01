@@ -146,7 +146,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 			if ($params['type'] === 'user')
 			{
-				$fetchMeetings = in_array(\CCalendar::GetMeetingSection($arFilter['OWNER_ID']), $params['section']);
+				$fetchMeetings = in_array(\CCalendar::GetMeetingSection($arFilter['OWNER_ID'] ?? null), $params['section']);
 			}
 			else
 			{
@@ -161,11 +161,11 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					'userId' => \CCalendar::GetCurUserId(),
 					'fetchMeetings' => $fetchMeetings,
 					'setDefaultLimit' => false,
-					'limit' => $params['limit']
+					'limit' => ($params['limit'] ?? null)
 				]
 			);
 
-			$finish = $params['limit'] && count($res) < $params['limit'];
+			$finish = ($params['limit'] ?? false) && count($res) < $params['limit'];
 			$lastDateTimestamp = 0;
 			$firstDateTimestamp = INF;
 			foreach($res as $entry)
@@ -235,7 +235,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$response['connections'] = $connections;
 		}
-		if ($params['limit'])
+		if (isset($params['limit']) && $params['limit'])
 		{
 			$response['finish'] = $finish;
 		}
@@ -478,7 +478,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$name = trim($request['name']);
 		if (empty($name))
 		{
-			$name = Loc::getMessage('EC_DEFAULT_EVENT_NAME');
+			$name = Loc::getMessage('EC_DEFAULT_EVENT_NAME_V2');
 		}
 		$reminderList = \CCalendarReminder::prepareReminder($request['reminder']);
 
@@ -689,7 +689,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				);
 			}
 
-			if (in_array($_REQUEST['rec_edit_mode'], ['this', 'next']))
+			if (isset($_REQUEST['rec_edit_mode']) && in_array($_REQUEST['rec_edit_mode'], ['this', 'next']))
 			{
 				unset($filter['ID']);
 				$filter['RECURRENCE_ID'] = ($eventList && $eventList[0] && $eventList[0]['RECURRENCE_ID']) ? $eventList[0]['RECURRENCE_ID'] : $newId;
@@ -709,7 +709,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				}
 				$eventList = array_merge($eventList, $resRelatedEvents);
 			}
-			elseif ($id && $eventList && $eventList[0] && \CCalendarEvent::CheckRecurcion($eventList[0]))
+			else if ($id && $eventList && $eventList[0] && \CCalendarEvent::CheckRecurcion($eventList[0]))
 			{
 				$recId = $eventList[0]['RECURRENCE_ID'] ?? $eventList[0]['ID'];
 

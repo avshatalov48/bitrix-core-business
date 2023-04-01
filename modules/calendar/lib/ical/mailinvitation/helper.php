@@ -86,11 +86,11 @@ class Helper
 	public static function getIcalTemplateRRule(array $rrule = null, array $params = null): string
 	{
 		$res = '';
-		if ($rrule['BYDAY'])
+		if ($rrule['BYDAY'] ?? false)
 		{
 			$rrule['BYDAY'] = \CCalendarEvent::sortByDay($rrule['BYDAY']);
 		}
-		switch($rrule['FREQ'])
+		switch($rrule['FREQ'] ?? null)
 		{
 			case 'DAILY':
 				$res = (int)$rrule['INTERVAL'] === 1
@@ -127,11 +127,11 @@ class Helper
 				break;
 		}
 
-		if ($rrule['COUNT'])
+		if ($rrule['COUNT'] ?? false)
 		{
 			$res .= ' ' . Loc::getMessage('EC_RRULE_COUNT', ['#COUNT#' => $rrule['COUNT']]);
 		}
-		elseif ($rrule['UNTIL'] && self::isNotEndOfTime($rrule['UNTIL']))
+		elseif (isset($rrule['UNTIL']) && $rrule['UNTIL'] && self::isNotEndOfTime($rrule['UNTIL']))
 		{
 			$res .= ' ' . Loc::getMessage('EC_RRULE_UNTIL', ['#UNTIL_DATE#' => $rrule['UNTIL']]);
 		}
@@ -350,6 +350,7 @@ class Helper
 		$UF = $USER_FIELD_MANAGER->GetUserFields("CALENDAR_EVENT", $parentId, LANGUAGE_ID);
 		$attachedFilesIds = $UF['UF_WEBDAV_CAL_EVENT']['VALUE'];
 
+		$fields['UF_WEBDAV_CAL_EVENT'] ??= null;
 		if (is_array($fields) && is_array($fields['UF_WEBDAV_CAL_EVENT']) && is_array($attachedFilesIds))
 		{
 			$ufIds = array_unique(array_merge($fields['UF_WEBDAV_CAL_EVENT'], $attachedFilesIds));

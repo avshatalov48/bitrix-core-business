@@ -9,6 +9,8 @@ $MESS["EC_MESS_INVITE"] = "#OWNER_NAME# invites you to attend the event \"#TITLE
 $MESS["EC_MESS_INVITE_ACCEPTED_1"] = "#GUEST_NAME# will attend your event \"#TITLE#\" on #ACTIVE_FROM#";
 $MESS["EC_MESS_INVITE_ACCEPTED_SITE_1"] = "I'm attending your event \"#TITLE#\" on #ACTIVE_FROM#";
 $MESS["EC_MESS_INVITE_CANCEL"] = "#OWNER_NAME# canceled the event \"#TITLE#\" which you were going to attend on #ACTIVE_FROM#";
+$MESS["EC_MESS_INVITE_CANCEL_SHARING"] = "Meeting [B]\"#TITLE#\"[/B] to take place on [B]#ACTIVE_FROM#[/B] has been canceled. Please contact the meeting originator to schedule a new meeting.";
+$MESS["EC_MESS_INVITE_CANCEL_SHARING_SITE"] = "[url=#LINK#]Meeting details[/url]";
 $MESS["EC_MESS_INVITE_CANCEL_SITE"] = "The event \"[B]#TITLE#[/B]\" which you were going to attend on [B]#ACTIVE_FROM#[/B] was canceled";
 $MESS["EC_MESS_INVITE_CANCEL_TITLE"] = "Event \"#TITLE#\" canceled";
 $MESS["EC_MESS_INVITE_CHANGED"] = "#OWNER_NAME# updated the event \"#TITLE#\" which you will be attending on #ACTIVE_FROM#";
@@ -23,6 +25,7 @@ $MESS["EC_MESS_INVITE_DECLINED_SITE_1"] = "I won't attend your event \"#TITLE#\"
 $MESS["EC_MESS_INVITE_DETAILS"] = "View the event details in your calendar: #LINK#";
 $MESS["EC_MESS_INVITE_DETAILS_SITE"] = "View the event details in your [url=#LINK#]calendar[/url].";
 $MESS["EC_MESS_INVITE_SITE"] = "I would like to invite you to the event \"[B]#TITLE#[/B]\". The said event will take place on [B]#ACTIVE_FROM#[/B].";
+$MESS["EC_MESS_INVITE_SITE_SHARING"] = "invited you to the meeting [B]\"#TITLE#\"[/B] to take place on [B]#ACTIVE_FROM#[/B]";
 $MESS["EC_MESS_INVITE_TITLE"] = "Invitation to event \"#TITLE#\" from #OWNER_NAME#";
 $MESS["EC_MESS_REC_ALL_CANCEL"] = "#OWNER_NAME# canceled all instances of recurring event \"[B]#TITLE#[/B]\" of [B]#ACTIVE_FROM#[/B] which you were going to attend";
 $MESS["EC_MESS_REC_ALL_CANCEL_SITE"] = "All instances of recurring event \"[B]#TITLE#[/B]\" of [B]#ACTIVE_FROM#[/B] which you were going to attend was canceled";

@@ -93,7 +93,7 @@ class AudioCall
 	{
 		$code = self::getCodeWithLang($code);
 		$data = self::getMetadata();
-		return $data ? $data['durations'][$code] : false;
+		return $data['durations'][$code] ?? false;
 	}
 
 	/**

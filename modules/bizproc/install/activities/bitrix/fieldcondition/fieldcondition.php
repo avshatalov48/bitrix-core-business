@@ -48,7 +48,7 @@ class CBPFieldCondition extends CBPActivityCondition
 			}
 
 			$fld = null;
-			if (isset($document[$cond[0] . "_XML_ID"]) && $document[$cond[0] . "_XML_ID"] !== null)
+			if (isset($document[$cond[0] . "_XML_ID"]))
 			{
 				$fld = $document[$cond[0] . "_XML_ID"];
 			}
@@ -276,7 +276,7 @@ class CBPFieldCondition extends CBPActivityCondition
 				}
 			}
 
-			$joiner = (int)$arCurrentValues['field_condition_joiner_' . $i];
+			$joiner = isset($arCurrentValues['field_condition_joiner_' . $i]) ? (int)$arCurrentValues['field_condition_joiner_' . $i] : 0;
 
 			$arResult[] = [$fieldId, $operator, $inputResult->getData()['value'] ?? '', $joiner];
 		}

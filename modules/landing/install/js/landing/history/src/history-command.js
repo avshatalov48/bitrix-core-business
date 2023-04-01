@@ -6,10 +6,9 @@ import {Type} from 'main.core';
  */
 export default class Command
 {
-	constructor(options: {id: string, undo: () => {}, redo: () => {}})
+	constructor(options: {id: string, command: () => {}})
 	{
 		this.id = Type.isStringFilled(options.id) ? options.id : '#invalidCommand';
-		this.undo = Type.isFunction(options.undo) ? options.undo : (() => {});
-		this.redo = Type.isFunction(options.redo) ? options.redo : (() => {});
+		this.command = Type.isFunction(options.command) ? options.command : (() => {});
 	}
 }

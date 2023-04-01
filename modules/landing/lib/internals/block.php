@@ -123,6 +123,9 @@ class BlockTable extends Entity\DataManager
 			'FAVORITE_META' => (new \Bitrix\Main\ORM\Fields\ArrayField('FAVORITE_META', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FAVORITE_META')
 			)))->configureSerializationPhp(),
+			'HISTORY_STEP_DESIGNER' => new Entity\IntegerField('HISTORY_STEP_DESIGNER', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_HISTORY_STEP_DESIGNER')
+			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
 				'required' => true

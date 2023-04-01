@@ -13,6 +13,7 @@ use Bitrix\Catalog\ProductTable;
  * @var string $elementEdit
  * @var string $elementDelete
  * @var string $elementDeleteParams
+ * @var string $componentPath
  */
 
 $this->addExternalCss('/bitrix/css/main/bootstrap.css');
@@ -681,7 +682,7 @@ $containerName = 'catalog-top-container';
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
 		bigData: <?=CUtil::PhpToJSObject($arResult['BIG_DATA'])?>,
 		template: '<?=CUtil::JSEscape($signedTemplate)?>',
-		ajaxId: '<?=CUtil::JSEscape($arParams['AJAX_ID'])?>',
+		ajaxId: '<?=CUtil::JSEscape($arParams['AJAX_ID'] ?? '')?>',
 		parameters: '<?=CUtil::JSEscape($signedParams)?>',
 		container: '<?=$containerName?>'
 	});

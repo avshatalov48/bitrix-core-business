@@ -77,6 +77,30 @@ class Folder extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Recursively collects all subfolder ids for specific folder.
+	 *
+	 * @param int $folderId Folder id.
+	 * @return array
+	 */
+	public static function getSubFolderIds(int $folderId): array
+	{
+		$ids = [];
+
+		$res = self::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'PARENT_ID' => $folderId,
+			],
+		]);
+		while ($row = $res->fetch())
+		{
+			array_push($ids, $row['ID'], ...self::getSubFolderIds($row['ID']));
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Returns site's folders id.
 	 * @param int $siteId Site id.
 	 * @param array $additionalFilter Optional additional filter.

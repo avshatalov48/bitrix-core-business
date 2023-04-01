@@ -6,10 +6,9 @@ use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Internals\HandleStatusTrait;
+use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
-use Bitrix\Calendar\Sync\Entities\SyncSectionMap;
 use Bitrix\Calendar\Sync\Exceptions\SyncException;
-use Bitrix\Calendar\Sync\Factories\FactoryBase;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
 use Bitrix\Calendar\Sync\Managers\ConnectionManager;
 use Bitrix\Calendar\Sync\Managers\NotificationManager;
@@ -24,10 +23,10 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Bitrix\Socialservices\UserTable;
 use CCalendar;
 use COption;
 use Exception;
+use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 
 class StartSyncController implements StartSynchronization
@@ -104,7 +103,7 @@ class StartSyncController implements StartSynchronization
 					$this->sendResult($status);
 				}
 
-				$this->setConnectionStatus($connection, \Bitrix\Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+				$this->setConnectionStatus($connection, Sync\Dictionary::SYNC_STATUS['success']);
 
 				$this->muteConnection($connection, false);
 				return $connection;
@@ -125,8 +124,6 @@ class StartSyncController implements StartSynchronization
 	 * @param bool $state
 	 *
 	 * @return void
-	 *
-	 * @throws BaseException
 	 */
 	private function muteConnection(Connection $connection, bool $state)
 	{
@@ -156,27 +153,6 @@ class StartSyncController implements StartSynchronization
 	}
 
 	/**
-	 * @param Role $owner
-	 * @param string $accountType
-	 *
-	 * @return string
-	 *
-	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
-	 */
-	private function getSocialUserLogin(Role $owner, string $accountType): string
-	{
-		$user = UserTable::query()
-			->addFilter('=USER_ID', $owner->getId())
-			->addFilter('=EXTERNAL_AUTH_ID', $accountType)
-			->setSelect(['LOGIN'])
-			->fetch();
-
-		return $user['LOGIN'] ?? '';
-	}
-
-	/**
 	 * @param string $stage
 	 *
 	 * @return void
@@ -198,6 +174,7 @@ class StartSyncController implements StartSynchronization
 		return $this->accountName ?? '';
 	}
 
+	private array $outgoingManagersCache = [];
 	/**
 	 * @param Connection $connection
 	 *
@@ -207,13 +184,13 @@ class StartSyncController implements StartSynchronization
 	 */
 	private function getOutgoingManager(Connection $connection)
 	{
-		static $managers = [];
-		if (empty($managers[$connection->getId()]))
+
+		if (empty($this->outgoingManagersCache[$connection->getId()]))
 		{
-			$managers[$connection->getId()] = new OutgoingManager($connection);
+			$this->outgoingManagersCache[$connection->getId()] = new OutgoingManager($connection);
 		}
 
-		return $managers[$connection->getId()];
+		return $this->outgoingManagersCache[$connection->getId()];
 	}
 
 	/**
@@ -227,7 +204,7 @@ class StartSyncController implements StartSynchronization
 		try
 		{
 			$links = (new Core\Mappers\SectionConnection())->getMap([
-				'CONNECTION_ID' => $connection->getId(),
+				'=CONNECTION_ID' => $connection->getId(),
 				'=ACTIVE' => 'Y'
 			]);
 			$manager = $this->getOutgoingManager($connection);
@@ -270,6 +247,8 @@ class StartSyncController implements StartSynchronization
 	 * @param Connection $connection
 	 *
 	 * @return Connection
+	 *
+	 * @throws NotFoundExceptionInterface
 	 */
 	private function fixUglyAccountName(Connection $connection): Connection
 	{
@@ -323,7 +302,7 @@ class StartSyncController implements StartSynchronization
 		{
 			return (new Core\Mappers\Connection())->getMap([
 				'=ENTITY_TYPE' => $owner->getType(),
-				'ENTITY_ID' => $owner->getId(),
+				'=ENTITY_ID' => $owner->getId(),
 				'=ACCOUNT_TYPE' => $serviceName,
 				'=NAME' => $name,
 			])->fetch();

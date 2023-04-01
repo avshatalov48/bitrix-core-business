@@ -10,6 +10,7 @@ use Bitrix\Calendar\ICal\Basic\Content;
 use Bitrix\Calendar\ICal\Basic\RecurrenceRuleProperty;
 use Bitrix\Calendar\ICal\Basic\RecurrenceRulePropertyType;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Date;
 
 class Event extends BasicComponent implements BuilderComponent
@@ -159,7 +160,7 @@ class Event extends BasicComponent implements BuilderComponent
 	 */
 	public function setName(string $name = null): Event
 	{
-		$this->name = $name ?? Loc::getMessage('CAL_ICAL_NEW_EVENT');
+		$this->name = $name ? Emoji::decode($name) : Loc::getMessage('CAL_ICAL_NEW_EVENT');
 
 		return $this;
 	}
@@ -170,7 +171,7 @@ class Event extends BasicComponent implements BuilderComponent
 	 */
 	public function setDescription(string $description = null): Event
 	{
-		$this->description = $description;
+		$this->description = $description ? Emoji::decode($description) : $description;
 
 		return $this;
 	}

@@ -14,5 +14,4 @@ $MESS["SEO_MENU_SITEMAP_ALT"] = "Настройка sitemap.xml";
 $MESS["SEO_MENU_YANDEX"] = "Яндекс";
 $MESS["SEO_MENU_GOOGLE"] = "Google";
 $MESS["SEO_MENU_YANDEX_DIRECT"] = "Яндекс.Директ";
-$MESS["SEO_MENU_GOOGLE_ADWORDS"] = "Google AdWords";
 ?>

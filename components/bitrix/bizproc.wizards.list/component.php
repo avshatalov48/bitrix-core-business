@@ -541,7 +541,7 @@ if ($arResult["FatalErrorMessage"] == '')
 		$aActions = array(
 			array("ICONCLASS"=>"edit", "DEFAULT" => true, "TEXT"=>GetMessage("BPWC_WLC_NOT_DETAIL"), "ONCLICK"=>"window.location='".CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_VIEW"], array("bp_id" => $arRecord["ID"], "block_id" => $arParams["BLOCK_ID"]))."';")
 		);
-		if (count($arRecord["DOCUMENT_STATE_EVENTS"]) > 0)
+		if (isset($arRecord["DOCUMENT_STATE_EVENTS"]) && count($arRecord["DOCUMENT_STATE_EVENTS"]) > 0)
 		{
 			foreach ($arRecord["DOCUMENT_STATE_EVENTS"] as $e)
 				$aActions[] = array("ICONCLASS"=>"", "TEXT"=>htmlspecialcharsbx($e["TITLE"]), "ONCLICK"=>"window.location='".$APPLICATION->GetCurPageParam("bizproc_id=".$arRecord["DOCUMENT_STATE"]["ID"]."&process_state_event=Y&bizproc_event=".htmlspecialcharsbx($e["NAME"])."&".bitrix_sessid_get(), array("sessid", "stop_bizproc_id", "process_state_event", "bizproc_event", "bizproc_id"))."';");

@@ -65,6 +65,7 @@ if($isBitrix24Template)
 	<? endif;?>
 
 	<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
+	<div id="<?= $arResult['ID']?>-sharing-container" style="margin: auto 0 auto 5px"></div>
 </div>
 <?
 if($isBitrix24Template)
@@ -87,18 +88,18 @@ if($ex = $APPLICATION->GetException())
 }
 
 // Set title and navigation
-$arParams["SET_TITLE"] = $arParams["SET_TITLE"] === "Y" ? "Y" : "N";
-$arParams["SET_NAV_CHAIN"] = $arParams["SET_NAV_CHAIN"] === "Y" ? "Y" : "N"; //Turn OFF by default
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? null) === "Y" ? "Y" : "N";
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] ?? null) === "Y" ? "Y" : "N"; //Turn OFF by default
 
-if ($arParams["STR_TITLE"])
+if (($arParams["STR_TITLE"] ?? null))
 {
 	$arParams["STR_TITLE"] = trim($arParams["STR_TITLE"]);
 }
 else
 {
-	if (!$arParams['OWNER_ID'] && $arParams['CALENDAR_TYPE'] === "group")
+	if (!($arParams['OWNER_ID'] ?? null) && $arParams['CALENDAR_TYPE'] === "group")
 		return CCalendarSceleton::showCalendarGridError(GetMessage('EC_GROUP_ID_NOT_FOUND'));
-	if (!$arParams['OWNER_ID'] && $arParams['CALENDAR_TYPE'] === "user")
+	if (!($arParams['OWNER_ID'] ?? null) && $arParams['CALENDAR_TYPE'] === "user")
 		return CCalendarSceleton::showCalendarGridError(GetMessage('EC_USER_ID_NOT_FOUND'));
 
 	if ($arParams['CALENDAR_TYPE'] === "group" || $arParams['CALENDAR_TYPE'] === "user")

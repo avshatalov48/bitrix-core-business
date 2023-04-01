@@ -8,7 +8,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getMenuItems() {
 	    return [this.getSendMessageItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem()];
 	  }
-
 	}
 
 	const CarouselUser = {
@@ -26,22 +25,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    name() {
 	      return this.user.dialog.name.split(' ')[0];
 	    },
-
 	    isExtranet() {
 	      return this.user.user.extranet;
 	    },
-
 	    AvatarSize: () => im_v2_const.AvatarSize
 	  },
-
 	  created() {
 	    this.contextMenuManager = new SearchContextMenu(this.$Bitrix);
 	  },
-
 	  beforeUnmount() {
 	    this.contextMenuManager.destroy();
 	  },
-
 	  methods: {
 	    onClick() {
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.open, {
@@ -51,12 +45,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	      BX.MessengerProxy.clearSearchInput();
 	    },
-
 	    onRightClick(event) {
 	      if (event.altKey && event.shiftKey) {
 	        return;
 	      }
-
 	      const item = {
 	        dialogId: this.user.dialogId
 	      };
@@ -65,7 +57,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        event
 	      });
 	    }
-
 	  },
 	  template: `
 		<div class="bx-messenger-carousel-item" @click="onClick" @click.right.prevent="onRightClick">
@@ -77,8 +68,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	const recentUsersLimit = 5; // @vue/component
+	const recentUsersLimit = 5;
 
+	// @vue/component
 	const RecentUsersCarousel = {
 	  name: 'RecentUsersCarousel',
 	  components: {
@@ -97,7 +89,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.$store.getters['recent/getSortedCollection'].forEach(recentItem => {
 	        const dialog = this.$store.getters['dialogues/get'](recentItem.dialogId, true);
 	        const user = this.$store.getters['users/get'](recentItem.dialogId, true);
-	        recentUsers.push({ ...recentItem,
+	        recentUsers.push({
+	          ...recentItem,
 	          dialog,
 	          user
 	        });
@@ -107,11 +100,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	      return usersWithoutBotsAndCurrentUser.slice(0, recentUsersLimit);
 	    },
-
 	    currentUserId() {
 	      return this.$store.state.application.common.userId;
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -164,30 +155,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.showMoreButton) {
 	        return false;
 	      }
-
 	      return this.items.size > this.minItems;
 	    },
-
 	    showMoreButtonText() {
 	      return this.expanded ? this.$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_TITLE_SHOW_LESS') : this.$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_TITLE_SHOW_MORE');
 	    },
-
 	    sectionItems() {
 	      const itemsFromMap = [...this.items.values()];
-
 	      if (!this.showMoreButton) {
 	        return itemsFromMap;
 	      }
-
 	      return this.expanded ? itemsFromMap.slice(0, this.maxItems) : itemsFromMap.slice(0, this.minItems);
 	    }
-
 	  },
 	  methods: {
 	    onShowMore() {
 	      this.expanded = !this.expanded;
 	    }
-
 	  },
 	  template: `
 		<div class="bx-messenger-search-result-section-wrapper">
@@ -216,28 +200,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const clearedString = string.replaceAll('(', ' ').replaceAll(')', ' ').replaceAll('[', ' ').replaceAll(']', ' ').replaceAll('{', ' ').replaceAll('}', ' ').replaceAll('<', ' ').replaceAll('>', ' ').replaceAll('-', ' ').replaceAll('#', ' ').replaceAll('"', ' ').replaceAll('\'', ' ').replace(/\s\s+/g, ' ');
 	    return clearedString.split(' ').filter(word => word !== '');
 	  },
-
 	  getTypeByEntityId(entityId) {
 	    switch (entityId) {
 	      case EntityIdTypes.user:
 	      case EntityIdTypes.bot:
 	        return 'user';
-
 	      case EntityIdTypes.chat:
 	      case EntityIdTypes.chatUser:
 	        return 'chat';
-
 	      case EntityIdTypes.department:
 	        return 'department';
-
 	      case EntityIdTypes.network:
 	        return 'network';
-
 	      default:
 	        throw new Error(`Unknown entity id: ${entityId}`);
 	    }
 	  },
-
 	  createItemMap(items) {
 	    const map = new Map();
 	    items.forEach(item => {
@@ -246,7 +224,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return map;
 	  },
-
 	  getFirstItemFromMap(map) {
 	    const iterator = map.entries();
 	    const firstIteration = iterator.next();
@@ -254,7 +231,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const [, content] = firstItem;
 	    return content;
 	  },
-
 	  convertKeysToLowerCase(object) {
 	    const result = {};
 	    Object.keys(object).forEach(key => {
@@ -266,12 +242,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return result;
 	  },
-
 	  prepareRecentItems(recentItems) {
 	    if (!recentItems) {
 	      return [];
 	    }
-
 	    return recentItems.map(item => {
 	      const [entityId, id] = item;
 	      const type = SearchUtils.getTypeByEntityId(entityId);
@@ -281,7 +255,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 	    });
 	  }
-
 	};
 
 	class SearchItem {
@@ -315,15 +288,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.setAvatarOptions(itemOptions);
 	    this.setContextSort(itemOptions);
 	  }
-
 	  isFromProviderResponse(itemOptions) {
 	    return main_core.Type.isString(itemOptions.entityId) && !main_core.Type.isNil(itemOptions.id);
 	  }
-
 	  isFromModel(itemOptions) {
 	    return main_core.Type.isString(itemOptions.dialogId) && main_core.Type.isObject(itemOptions.dialog);
 	  }
-
 	  setId(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.id = itemOptions.id;
@@ -331,11 +301,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.id = itemOptions.dialogId.startsWith('chat') ? itemOptions.dialogId.slice(4) : itemOptions.dialogId;
 	    }
 	  }
-
 	  setDialogId(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      var _itemOptions$customDa, _itemOptions$customDa2, _itemOptions$customDa3, _itemOptions$customDa4;
-
 	      if (((_itemOptions$customDa = itemOptions.customData) == null ? void 0 : (_itemOptions$customDa2 = _itemOptions$customDa.imChat) == null ? void 0 : _itemOptions$customDa2.ID) > 0) {
 	        this.dialogId = `chat${itemOptions.customData.imChat.ID}`;
 	      } else if (((_itemOptions$customDa3 = itemOptions.customData) == null ? void 0 : (_itemOptions$customDa4 = _itemOptions$customDa3.imUser) == null ? void 0 : _itemOptions$customDa4.ID) > 0) {
@@ -345,7 +313,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.dialogId = itemOptions.dialogId;
 	    }
 	  }
-
 	  setEntityId(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.entityId = itemOptions.entityId;
@@ -359,13 +326,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    }
 	  }
-
 	  setEntityType(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.entityType = itemOptions.entityType;
 	    }
 	  }
-
 	  setTitle(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.title = itemOptions.title;
@@ -373,232 +338,175 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.title = itemOptions.dialog.name;
 	    }
 	  }
-
 	  setSubtitle(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.subtitle = itemOptions.subtitle;
 	    }
 	  }
-
 	  setName(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      var _itemOptions$customDa5;
-
 	      this.name = (_itemOptions$customDa5 = itemOptions.customData) == null ? void 0 : _itemOptions$customDa5.name;
 	    } else if (this.isFromModel(itemOptions)) {
 	      var _itemOptions$user;
-
 	      this.name = (_itemOptions$user = itemOptions.user) == null ? void 0 : _itemOptions$user.firstName;
 	    }
 	  }
-
 	  setLastName(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      var _itemOptions$customDa6;
-
 	      this.lastName = (_itemOptions$customDa6 = itemOptions.customData) == null ? void 0 : _itemOptions$customDa6.lastName;
 	    } else if (this.isFromModel(itemOptions)) {
 	      var _itemOptions$user2;
-
 	      this.lastName = (_itemOptions$user2 = itemOptions.user) == null ? void 0 : _itemOptions$user2.lastName;
 	    }
 	  }
-
 	  setSecondName(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      var _itemOptions$customDa7;
-
 	      this.secondName = (_itemOptions$customDa7 = itemOptions.customData) == null ? void 0 : _itemOptions$customDa7.secondName;
 	    }
 	  }
-
 	  setPosition(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      var _itemOptions$customDa8;
-
 	      this.position = (_itemOptions$customDa8 = itemOptions.customData) == null ? void 0 : _itemOptions$customDa8.position;
 	    } else if (this.isFromModel(itemOptions)) {
 	      var _itemOptions$user3;
-
 	      this.position = (_itemOptions$user3 = itemOptions.user) == null ? void 0 : _itemOptions$user3.workPosition;
 	    }
 	  }
-
 	  setAvatar(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.avatar = itemOptions.avatar;
 	    }
 	  }
-
 	  setAvatarOptions(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.avatarOptions = itemOptions.avatarOptions;
 	    }
 	  }
-
 	  setContextSort(itemOptions) {
 	    if (this.isFromProviderResponse(itemOptions)) {
 	      this.contextSort = itemOptions.contextSort;
 	    }
 	  }
-
 	  setRawData(itemOptions) {
 	    this.rawData = itemOptions;
 	  }
-
 	  getId() {
 	    return this.id;
 	  }
-
 	  getEntityId() {
 	    return this.entityId;
 	  }
-
 	  getEntityType() {
 	    return this.entityType;
 	  }
-
 	  getEntityFullId() {
 	    const type = SearchUtils.getTypeByEntityId(this.entityId);
 	    return `${type}|${this.id}`;
 	  }
-
 	  getTitle() {
 	    return this.title;
 	  }
-
 	  getSubtitle() {
 	    return this.subtitle;
 	  }
-
 	  getName() {
 	    return this.name;
 	  }
-
 	  getLastName() {
 	    return this.lastName;
 	  }
-
 	  getSecondName() {
 	    return this.secondName;
 	  }
-
 	  getPosition() {
 	    return this.position;
 	  }
-
 	  getCustomData() {
 	    return this.rawData.customData;
 	  }
-
 	  getDialogId() {
 	    return this.dialogId;
 	  }
-
 	  getAvatar() {
 	    return this.avatar;
 	  }
-
 	  getAvatarOptions() {
 	    return this.avatarOptions;
 	  }
-
 	  getContextSort() {
 	    return this.contextSort ? this.contextSort : 0;
 	  }
-
 	  addCustomSort(value) {
 	    this.customSort += value;
 	  }
-
 	  getCustomSort() {
 	    return this.customSort;
 	  }
-
 	  isUser() {
 	    if (this.isFromProviderResponse(this.rawData)) {
 	      var _this$rawData$customD;
-
 	      return !!((_this$rawData$customD = this.rawData.customData) != null && _this$rawData$customD.imUser) && this.rawData.customData.imUser.ID > 0;
 	    }
-
 	    return !!this.rawData.user;
 	  }
-
 	  isChat() {
 	    return !this.isUser();
 	  }
-
 	  isExtranet() {
 	    if (this.isFromProviderResponse(this.rawData)) {
 	      var _this$rawData$customD2, _this$rawData$customD3, _this$rawData$customD4, _this$rawData$customD5;
-
 	      return !!((_this$rawData$customD2 = this.rawData.customData) != null && (_this$rawData$customD3 = _this$rawData$customD2.imUser) != null && _this$rawData$customD3.EXTRANET) || !!((_this$rawData$customD4 = this.rawData.customData) != null && (_this$rawData$customD5 = _this$rawData$customD4.imChat) != null && _this$rawData$customD5.EXTRANET);
 	    } else if (this.isFromModel(this.rawData)) {
 	      var _this$rawData$user;
-
 	      return !!((_this$rawData$user = this.rawData.user) != null && _this$rawData$user.extranet) || !!this.rawData.dialog.extranet;
 	    }
 	  }
-
 	  getUserCustomData() {
 	    var _this$rawData$customD6;
-
 	    return (_this$rawData$customD6 = this.rawData.customData) != null && _this$rawData$customD6.imUser ? this.rawData.customData.imUser : null;
 	  }
-
 	  getChatCustomData() {
 	    var _this$rawData$customD7;
-
 	    return (_this$rawData$customD7 = this.rawData.customData) != null && _this$rawData$customD7.imChat ? this.rawData.customData.imChat : null;
 	  }
-
 	  isOpeLinesType() {
 	    return this.getEntityType() === 'LINES';
 	  }
-
 	  getOpenlineEntityId() {
 	    var _this$rawData$customD8, _this$rawData$customD9;
-
 	    if (!this.isOpeLinesType()) {
 	      return '';
 	    }
-
 	    const entityId = (_this$rawData$customD8 = this.rawData.customData) == null ? void 0 : (_this$rawData$customD9 = _this$rawData$customD8.imChat) == null ? void 0 : _this$rawData$customD9.ENTITY_ID;
 	    return entityId.toString().split('|')[0];
 	  }
-
 	  getAvatarColor() {
 	    let color = '';
-
 	    if (this.isFromProviderResponse(this.rawData)) {
 	      if (this.isUser()) {
 	        var _this$rawData$customD10, _this$rawData$customD11, _this$rawData$customD12;
-
 	        color = (_this$rawData$customD10 = this.rawData.customData) == null ? void 0 : (_this$rawData$customD11 = _this$rawData$customD10.imUser) == null ? void 0 : (_this$rawData$customD12 = _this$rawData$customD11.COLOR) == null ? void 0 : _this$rawData$customD12.toString();
 	      } else if (this.isChat()) {
 	        var _this$rawData$customD13, _this$rawData$customD14, _this$rawData$customD15;
-
 	        color = (_this$rawData$customD13 = this.rawData.customData) == null ? void 0 : (_this$rawData$customD14 = _this$rawData$customD13.imChat) == null ? void 0 : (_this$rawData$customD15 = _this$rawData$customD14.COLOR) == null ? void 0 : _this$rawData$customD15.toString();
 	      }
 	    } else if (this.isFromModel(this.rawData)) {
 	      color = this.rawData.dialog.color.toString();
 	    }
-
 	    return color;
 	  }
-
 	  isCrmSession() {
 	    if (this.isFromProviderResponse(this.rawData) && this.isOpeLinesType()) {
 	      var _this$rawData$customD16, _this$rawData$customD17;
-
 	      const sessionData = (_this$rawData$customD16 = this.rawData.customData) == null ? void 0 : (_this$rawData$customD17 = _this$rawData$customD16.imChat) == null ? void 0 : _this$rawData$customD17.ENTITY_DATA_1.toString().split('|');
 	      return sessionData[0] === 'Y';
 	    }
-
 	    return false;
 	  }
-
 	}
 
 	const OpenlineAvatarType = {
@@ -637,35 +545,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    openlineType() {
 	      return this.item.getOpenlineEntityId();
 	    },
-
 	    chatAvatarStyle() {
 	      return {
 	        backgroundImage: `url('${this.item.getAvatar()}')`
 	      };
 	    },
-
 	    chatTypeIconClasses() {
 	      if (OpenlineAvatarType[this.openlineType]) {
 	        return `bx-im-search-avatar-openline__icon-${this.openlineType}`;
 	      }
-
 	      return 'bx-im-search-avatar-openline__icon-lines';
 	    },
-
 	    needCrmBadge() {
 	      if (!this.isCrmAvailable) {
 	        return false;
 	      }
-
 	      return this.item.isCrmSession();
 	    }
-
 	  },
-
 	  created() {
 	    this.isCrmAvailable = main_core.Extension.getSettings('im.v2.component.old-chat-embedding.search').get('isCrmAvailable', false);
 	  },
-
 	  template: `
 		<div 
 			:title="item.getTitle()" 
@@ -703,7 +603,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    title() {
 	      return im_v2_lib_utils.Utils.text.htmlspecialcharsback(this.item.getTitle());
 	    }
-
 	  },
 	  methods: {
 	    onClick(event) {
@@ -711,12 +610,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        dialogId: this.item.getDialogId(),
 	        chat: SearchUtils.convertKeysToLowerCase(this.item.getChatCustomData())
 	      });
-
 	      if (!event.altKey) {
 	        BX.MessengerProxy.clearSearchInput();
 	      }
 	    }
-
 	  },
 	  template: `
 		<div @click="onClick" class="bx-im-search-item">
@@ -749,23 +646,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    hasAvatar() {
 	      return this.item.getAvatar() !== '';
 	    },
-
 	    avatarStyle() {
 	      if (!this.hasAvatar) {
 	        return {
 	          backgroundColor: this.item.getAvatarOptions().color
 	        };
 	      }
-
 	      return {
 	        backgroundImage: `url('${this.item.getAvatar()}')`
 	      };
 	    },
-
 	    title() {
 	      return im_v2_lib_utils.Utils.text.htmlspecialcharsback(this.item.getTitle());
 	    }
-
 	  },
 	  methods: {
 	    onClick(event) {
@@ -777,7 +670,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          this.isLoading = false;
 	          return;
 	        }
-
 	        const dialogId = eventResult[0].id.toString();
 	        const user = this.$store.getters['users/get'](dialogId, true);
 	        const dialog = this.$store.getters['dialogues/get'](dialogId, true);
@@ -787,7 +679,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          user: user
 	        });
 	        this.isLoading = false;
-
 	        if (!event.altKey) {
 	          BX.MessengerProxy.clearSearchInput();
 	        }
@@ -796,7 +687,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.isLoading = false;
 	      });
 	    }
-
 	  },
 	  template: `
 		<div @click="onClick" class="bx-im-search-item">
@@ -848,65 +738,49 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    dialogId() {
 	      return this.item.getDialogId();
 	    },
-
 	    user() {
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
-
 	    dialog() {
 	      return this.$store.getters['dialogues/get'](this.dialogId, true);
 	    },
-
 	    isChat() {
 	      return !this.isUser;
 	    },
-
 	    isUser() {
 	      return this.dialog.type === im_v2_const.ChatTypes.user;
 	    },
-
 	    userItemText() {
 	      if (!this.isUser) {
 	        return '';
 	      }
-
 	      const status = this.$store.getters['users/getLastOnline'](this.dialogId);
-
 	      if (status) {
 	        return status;
 	      }
-
 	      return this.$store.getters['users/getPosition'](this.dialogId);
 	    },
-
 	    chatItemText() {
 	      if (this.isUser) {
 	        return '';
 	      }
-
 	      if (this.dialog.type === im_v2_const.ChatTypes.open) {
 	        return this.$Bitrix.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_OPEN');
 	      }
-
 	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_GROUP');
 	    },
-
 	    searchEntityId() {
 	      if (this.isUser) {
 	        return this.user.bot ? 'im-bot' : 'user';
 	      }
-
 	      return 'im-chat';
 	    },
-
 	    searchItemId() {
 	      if (this.dialogId.startsWith('chat')) {
 	        return Number.parseInt(this.dialogId.slice(4), 10);
 	      }
-
 	      return Number.parseInt(this.dialogId, 10);
 	    },
-
 	    AvatarSize: () => im_v2_const.AvatarSize
 	  },
 	  methods: {
@@ -922,12 +796,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        nativeEvent: event
 	      });
 	    },
-
 	    onRightClick(event) {
 	      if (event.altKey && event.shiftKey) {
 	        return;
 	      }
-
 	      const item = {
 	        dialogId: this.dialogId
 	      };
@@ -936,7 +808,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        event
 	      });
 	    }
-
 	  },
 	  template: `
 		<div @click="onClick" @click.right.prevent="onRightClick" class="bx-im-search-item" :class="[this.child ? 'bx-im-search-sub-item' : '']">
@@ -969,7 +840,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  constructor(userId) {
 	    this.userId = userId;
 	    /** @type {Dexie} */
-
 	    this.db = new ui_dexie.Dexie('bx-im-search-results');
 	    this.db.version(2).stores({
 	      items: 'id, *title, *name, *lastName, *secondName, *position, date',
@@ -989,7 +859,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.onAccessDeniedHandler = this.onAccessDenied.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.errors.accessDenied, this.onAccessDeniedHandler);
 	  }
-
 	  checkTables() {
 	    this.db.open();
 	    this.db.on('ready', () => {
@@ -997,13 +866,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return this.db.settings.where('name').equals('userId').first();
 	      }).then(settings => {
 	        const promises = [];
-
 	        if ((settings == null ? void 0 : settings.value) !== this.userId) {
 	          const clearItemsPromise = this.db.items.clear();
 	          const clearRecentItemsPromise = this.db.recentItems.clear();
 	          promises.push(clearItemsPromise, clearRecentItemsPromise);
 	        }
-
 	        return ui_dexie.Dexie.Promise.all(promises);
 	      }).then(() => {
 	        return this.db.settings.put({
@@ -1013,11 +880,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  destroy() {
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.errors.accessDenied, this.onAccessDeniedHandler);
 	  }
-
 	  loadRecentFromCache() {
 	    const searchResults = {};
 	    return this.db.transaction('rw', this.db.items, this.db.recentItems, () => {
@@ -1038,7 +903,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return searchResults;
 	    });
 	  }
-
 	  save(searchResults) {
 	    const preparedItems = searchResults.items ? this.prepareItems(searchResults.items) : [];
 	    const preparedRecentItems = searchResults.recentItems ? SearchUtils.prepareRecentItems(searchResults.recentItems) : [];
@@ -1046,7 +910,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (preparedItems.length > 0) {
 	        this.db.items.bulkPut(preparedItems);
 	      }
-
 	      if (preparedRecentItems.length > 0) {
 	        this.db.recentItems.clear().then(() => {
 	          this.db.recentItems.bulkPut(preparedRecentItems);
@@ -1054,14 +917,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	  }
-
 	  deleteExpiredItems() {
 	    const oneMonthAgo = new Date(Date.now() - 60 * 60 * 1000 * 24 * 7 * 30);
 	    return this.db.items.where('date').below(oneMonthAgo).delete().then(() => {
 	      return this.db.recentItems.where('date').below(oneMonthAgo).delete();
 	    });
 	  }
-
 	  onAccessDenied({
 	    data: eventData
 	  }) {
@@ -1070,21 +931,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.db.recentItems.where('cacheId').equals(cacheId).delete();
 	    });
 	  }
-
 	  convertDialogIdToCacheItemId(dialogId) {
 	    if (dialogId.startsWith('chat')) {
 	      return `chat|${dialogId.slice(4)}`;
 	    }
-
 	    return `user|${dialogId}`;
 	  }
-
 	  prepareItems(items) {
 	    return items.filter(item => {
 	      return item.entityId !== EntityIdTypes.department && item.entityId !== EntityIdTypes.network && item.entityType !== 'LINES';
 	    }).map(item => {
 	      var _item$customData, _item$customData2, _item$customData$imUs, _item$customData$imUs2;
-
 	      const type = SearchUtils.getTypeByEntityId(item.entityId);
 	      return {
 	        id: `${type}|${item.id}`,
@@ -1097,13 +954,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 	    });
 	  }
+
 	  /**
 	   * Moves item to the top of the recent search items list.
 	   *
 	   * @param itemToMove Array<string, number>
 	   */
-
-
 	  unshiftItem(itemToMove) {
 	    const [itemToMoveEntityId, itemToMoveId] = itemToMove;
 	    const type = SearchUtils.getTypeByEntityId(itemToMoveEntityId);
@@ -1114,11 +970,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const itemIndexToUpdate = recentItems.findIndex(recentItem => {
 	        return recentItem.cacheId === itemToMoveCacheId;
 	      });
-
 	      if (itemIndexToUpdate === 0) {
 	        return;
 	      }
-
 	      if (itemIndexToUpdate !== -1) {
 	        const item = recentItems.splice(itemIndexToUpdate, 1);
 	        item[0].date = new Date();
@@ -1130,52 +984,43 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        };
 	        recentItems.unshift(item);
 	      }
-
 	      recentItems.forEach(item => delete item.id);
 	      this.db.recentItems.clear().then(() => {
 	        this.db.recentItems.bulkPut(recentItems);
 	      });
 	    });
 	  }
-
 	  search(words) {
 	    return this.db.transaction('r', this.db.items, function* () {
 	      // Parallel search for all words - just select resulting primary keys
 	      const results = yield this.getQueryResultByWords(words);
-
 	      if (!main_core.Type.isArrayFilled(results)) {
 	        return [];
 	      }
-
 	      const intersectedResult = this.intersectArrays(...results);
-	      const distinctIds = [...new Set(intersectedResult.flat())]; // Finally, select entire items from intersection
+	      const distinctIds = [...new Set(intersectedResult.flat())];
 
+	      // Finally, select entire items from intersection
 	      return yield this.db.items.where(':id').anyOf(distinctIds).toArray();
 	    }.bind(this)).then(items => {
 	      return items.map(item => item.json);
 	    });
 	  }
-
 	  getQueryResultByWords(words) {
 	    return ui_dexie.Dexie.Promise.all(words.map(word => {
 	      return this.db.items.where('name').startsWithIgnoreCase(word).or('lastName').startsWithIgnoreCase(word).or('position').startsWithIgnoreCase(word).or('title').startsWithIgnoreCase(word).distinct().primaryKeys();
 	    }));
 	  }
-
 	  intersectArrays(firstArray, secondArray, ...restArrays) {
 	    if (main_core.Type.isUndefined(secondArray)) {
 	      return firstArray;
 	    }
-
 	    const intersectedArray = firstArray.filter(value => secondArray.includes(value));
-
 	    if (restArrays.length === 0) {
 	      return intersectedArray;
 	    }
-
 	    return this.intersectArrays(intersectedArray, ...restArrays);
 	  }
-
 	}
 
 	const Config = {
@@ -1252,9 +1097,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	class SearchRecentList {
 	  constructor($Bitrix) {
 	    this.store = $Bitrix.Data.get('controller').store;
-	  } // region public methods
+	  }
 
-
+	  // region public methods
 	  search(queryWords) {
 	    const recentListItems = this.getRecentListItems();
 	    const foundItems = [];
@@ -1264,8 +1109,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    });
 	    return Promise.resolve(SearchUtils.createItemMap(foundItems));
-	  } //endregion
-
+	  }
+	  //endregion
 
 	  getRecentListItems() {
 	    return this.store.getters['recent/getSortedCollection'].map(item => {
@@ -1275,55 +1120,42 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        dialogId: item.dialogId,
 	        dialog: dialog
 	      };
-
 	      if (isUser) {
 	        recentListItem.user = this.store.getters['users/get'](item.dialogId, true);
 	      }
-
 	      return recentListItem;
 	    });
 	  }
-
 	  searchByQueryWords(recentListItem, queryWords) {
 	    if (recentListItem.user) {
 	      return this.searchByUserFields(recentListItem, queryWords);
 	    }
-
 	    return this.searchByDialogFields(recentListItem, queryWords);
 	  }
-
 	  searchByDialogFields(recentListItem, queryWords) {
 	    const searchField = [];
-
 	    if (recentListItem.dialog.name) {
 	      const dialogNameWords = SearchUtils.getWordsFromString(recentListItem.dialog.name.toLowerCase());
 	      searchField.push(...dialogNameWords);
 	    }
-
 	    return this.doesItemMatchQuery(searchField, queryWords);
 	  }
-
 	  searchByUserFields(recentListItem, queryWords) {
 	    const searchField = [];
-
 	    if (recentListItem.user.firstName) {
 	      const userFirstNameWords = SearchUtils.getWordsFromString(recentListItem.user.firstName.toLowerCase());
 	      searchField.push(...userFirstNameWords);
 	    }
-
 	    if (recentListItem.user.lastName) {
 	      const userLastNameWords = SearchUtils.getWordsFromString(recentListItem.user.lastName.toLowerCase());
 	      searchField.push(...userLastNameWords);
 	    }
-
 	    if (recentListItem.user.workPosition) {
 	      const userWorkPositionWords = SearchUtils.getWordsFromString(recentListItem.user.workPosition.toLowerCase());
 	      searchField.push(...userWorkPositionWords);
 	    }
-
 	    return this.doesItemMatchQuery(searchField, queryWords);
 	  }
-
 	  doesItemMatchQuery(fieldsForSearch, queryWords) {
 	    let found = 0;
 	    queryWords.forEach(queryWord => {
@@ -1333,14 +1165,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          queryWordsMatchCount++;
 	        }
 	      });
-
 	      if (queryWordsMatchCount > 0) {
 	        found++;
 	      }
 	    });
 	    return found >= queryWords.length;
 	  }
-
 	}
 
 	const RestMethodImopenlinesNetworkJoin = 'imopenlines.network.join';
@@ -1349,10 +1179,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!this.instance) {
 	      this.instance = new this($Bitrix, cache, recentList);
 	    }
-
 	    return this.instance;
 	  }
-
 	  constructor($Bitrix, cache, recentList) {
 	    this.store = null;
 	    this.cache = null;
@@ -1365,8 +1193,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.onOpenNetworkItemHandler = this.onOpenNetworkItem.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.search.selectItem, this.onItemSelectHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.search.openNetworkItem, this.onOpenNetworkItemHandler);
-	  } //region Public methods
+	  }
 
+	  //region Public methods
 
 	  loadRecentSearchFromCache() {
 	    return this.cache.loadRecentFromCache().then(responseFromCache => {
@@ -1383,7 +1212,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  loadRecentSearchFromServer() {
 	    return this.loadRecentFromServer().then(responseFromServer => {
 	      im_v2_lib_logger.Logger.warn('Im.Search: Recent search loaded from server');
@@ -1394,7 +1222,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  searchLocal(query) {
 	    const originalLayoutQuery = query.trim().toLowerCase();
 	    const searchInCachePromise = this.searchInCache(originalLayoutQuery);
@@ -1406,7 +1233,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.getSortedItems(items, originalLayoutQuery);
 	    });
 	  }
-
 	  searchOnServer(query, config) {
 	    const originalLayoutQuery = query.trim().toLowerCase();
 	    let items = [];
@@ -1417,14 +1243,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.allocateSearchResults(items, originalLayoutQuery);
 	    });
 	  }
-
 	  searchOnNetwork(query) {
 	    const originalLayoutQuery = query.trim().toLowerCase();
 	    return this.searchOnNetworkRequest(originalLayoutQuery).then(items => {
 	      return SearchUtils.createItemMap(items);
 	    });
 	  }
-
 	  loadDepartmentUsers(parentItem) {
 	    let items = [];
 	    return this.loadDepartmentUsersFromServer(parentItem).then(responseFromServer => {
@@ -1434,22 +1258,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return items;
 	    });
 	  }
-
 	  destroy() {
 	    this.cache.destroy();
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.selectItem, this.onItemSelectHandler);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.openNetworkItem, this.onOpenNetworkItemHandler);
-	  } //endregion
+	  }
 
+	  //endregion
 
 	  searchInCache(originalLayoutQuery) {
 	    let wrongLayoutSearchPromise = Promise.resolve([]);
-
 	    if (this.needLayoutChange(originalLayoutQuery)) {
 	      const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
 	      wrongLayoutSearchPromise = this.getItemsFromCacheByQuery(wrongLayoutQuery);
 	    }
-
 	    const correctLayoutSearchPromise = this.getItemsFromCacheByQuery(originalLayoutQuery);
 	    return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then(result => {
 	      return new Map([...result[0], ...result[1]]);
@@ -1458,70 +1280,58 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return new Map();
 	    });
 	  }
-
 	  searchInRecentList(originalLayoutQuery) {
 	    let wrongLayoutSearchPromise = Promise.resolve([]);
-
 	    if (this.needLayoutChange(originalLayoutQuery)) {
 	      const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
 	      wrongLayoutSearchPromise = this.getItemsFromRecentListByQuery(wrongLayoutQuery);
 	    }
-
 	    const correctLayoutSearchPromise = this.getItemsFromRecentListByQuery(originalLayoutQuery);
 	    return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then(result => {
 	      return new Map([...result[0], ...result[1]]);
 	    });
 	  }
-
 	  getItemsFromRecentListByQuery(query) {
 	    const queryWords = SearchUtils.getWordsFromString(query);
 	    return this.recentList.search(queryWords);
 	  }
-
 	  getSearchConfig() {
 	    return Config.get();
 	  }
-
 	  onItemSelect(event) {
 	    const {
 	      selectedItem,
 	      onlyOpen
 	    } = event.getData();
 	    const item = [selectedItem.entityId, selectedItem.id];
-
 	    if (!onlyOpen) {
 	      this.cache.unshiftItem(item);
 	      this.addItemsToRecentSearchResults(item);
 	    }
 	  }
-
 	  onOpenNetworkItem(event) {
 	    const code = event.getData();
 	    return new Promise((resolve, reject) => {
 	      this.restClient.callBatch(this.getDataRequestQuery(code), result => resolve(this.handleBatchRequestResult(result)), error => reject(error));
 	    });
 	  }
-
 	  handleBatchRequestResult(result) {
 	    if (result[RestMethodImopenlinesNetworkJoin] && result[RestMethodImopenlinesNetworkJoin].error()) {
 	      return {
 	        error: result[RestMethodImopenlinesNetworkJoin].error().ex.error_description
 	      };
 	    }
-
 	    if (result[im_v2_const.RestMethod.imUserGet] && result[im_v2_const.RestMethod.imUserGet].error()) {
 	      return {
 	        error: result[im_v2_const.RestMethod.imUserGet].error().ex.error_description
 	      };
 	    }
-
 	    const user = result[im_v2_const.RestMethod.imUserGet].data();
 	    this.store.dispatch('users/set', [user]);
 	    const dialogue = this.prepareChatForAdditionalUser(user);
 	    this.store.dispatch('dialogues/set', [dialogue]);
 	    return user;
 	  }
-
 	  prepareChatForAdditionalUser(user) {
 	    return {
 	      dialogId: user.id,
@@ -1531,7 +1341,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      type: im_v2_const.ChatTypes.user
 	    };
 	  }
-
 	  getDataRequestQuery(code) {
 	    const query = {
 	      [RestMethodImopenlinesNetworkJoin]: [RestMethodImopenlinesNetworkJoin, {
@@ -1543,7 +1352,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }];
 	    return query;
 	  }
-
 	  getItemsFromCacheByQuery(query) {
 	    const queryWords = SearchUtils.getWordsFromString(query);
 	    return this.cache.search(queryWords).then(cacheItems => {
@@ -1551,21 +1359,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.updateModels(items).then(() => items);
 	    });
 	  }
-
 	  getSortedItems(items, originalLayoutQuery) {
 	    let sortedItems = this.sortItemsBySearchField(items, originalLayoutQuery);
 	    sortedItems = this.sortItemsByEntityIdAndContextSort(sortedItems);
 	    return sortedItems;
 	  }
-
 	  sortItemsBySearchField(items, originalLayoutQuery) {
 	    let queryWords = SearchUtils.getWordsFromString(originalLayoutQuery);
-
 	    if (this.needLayoutChange(originalLayoutQuery)) {
 	      const wrongLayoutQueryWords = SearchUtils.getWordsFromString(this.changeLayout(originalLayoutQuery));
 	      queryWords = [...queryWords, ...wrongLayoutQueryWords];
 	    }
-
 	    const uniqueWords = [...new Set(queryWords)];
 	    const searchFieldsWeight = {
 	      title: 10000,
@@ -1576,7 +1380,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    items.forEach(item => {
 	      uniqueWords.forEach(word => {
 	        var _item$getName, _item$getLastName, _item$getPosition;
-
 	        if (item.getTitle().toLowerCase().startsWith(word)) {
 	          item.addCustomSort(searchFieldsWeight.title);
 	        } else if ((_item$getName = item.getName()) != null && _item$getName.toLowerCase().startsWith(word)) {
@@ -1594,7 +1397,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return secondItemValue.getCustomSort() - firstItemValue.getCustomSort();
 	    }));
 	  }
-
 	  sortItemsByEntityIdAndContextSort(items) {
 	    const entityWeight = {
 	      'user': 100,
@@ -1609,7 +1411,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const [, secondItemValue] = secondItem;
 	      const secondItemEntityId = secondItemValue.isExtranet() ? 'extranet' : secondItemValue.getEntityId();
 	      const firstItemEntityId = firstItemValue.isExtranet() ? 'extranet' : firstItemValue.getEntityId();
-
 	      if (entityWeight[secondItemEntityId] < entityWeight[firstItemEntityId]) {
 	        return -1;
 	      } else if (entityWeight[secondItemEntityId] > entityWeight[firstItemEntityId]) {
@@ -1619,7 +1420,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    }));
 	  }
-
 	  loadRecentFromServer() {
 	    const config = {
 	      json: this.getSearchConfig()
@@ -1635,10 +1435,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }).catch(error => reject(error));
 	    });
 	  }
-
 	  loadDepartmentUsersFromServer(parentItem) {
 	    const config = {
-	      json: { ...this.getSearchConfig(),
+	      json: {
+	        ...this.getSearchConfig(),
 	        parentItem
 	      }
 	    };
@@ -1652,22 +1452,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }).catch(error => reject(error));
 	    });
 	  }
-
 	  searchRequest(query, requestConfig) {
 	    const config = {
 	      json: this.getSearchConfig()
 	    };
-
 	    if (requestConfig.network) {
 	      const networkEntity = Config.getNetworkEntity();
 	      config.json.dialog.entities.push(networkEntity);
 	    }
-
 	    if (requestConfig.departments) {
 	      const departmentEntity = Config.getDepartmentEntity();
 	      config.json.dialog.entities.push(departmentEntity);
 	    }
-
 	    const chatEntity = Config.getChatEntity();
 	    config.json.dialog.entities.push(chatEntity);
 	    config.json.searchQuery = {
@@ -1682,7 +1478,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }).catch(error => reject(error));
 	    });
 	  }
-
 	  searchOnNetworkRequest(query) {
 	    const config = {
 	      json: this.getSearchConfig()
@@ -1700,7 +1495,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }).catch(error => reject(error));
 	    });
 	  }
-
 	  addItemsToRecentSearchResults(recentItem) {
 	    const [entityId, id] = recentItem;
 	    const recentItems = [{
@@ -1708,7 +1502,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      entityId
 	    }];
 	    const config = {
-	      json: { ...this.getSearchConfig(),
+	      json: {
+	        ...this.getSearchConfig(),
 	        recentItems
 	      }
 	    };
@@ -1716,7 +1511,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    config.json.dialog.entities.push(chatEntity);
 	    main_core.ajax.runAction('ui.entityselector.saveRecentItems', config);
 	  }
-
 	  updateModels(items, set = false) {
 	    const {
 	      users,
@@ -1728,7 +1522,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const dialoguesPromise = this.store.dispatch(dialoguesActionName, dialogues);
 	    return Promise.all([usersPromise, dialoguesPromise]);
 	  }
-
 	  prepareDataForModels(items) {
 	    const result = {
 	      users: [],
@@ -1737,9 +1530,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    items.forEach(item => {
 	      if (!item.getCustomData()) {
 	        return;
-	      } // user
+	      }
 
-
+	      // user
 	      if (item.isUser()) {
 	        const preparedUser = SearchUtils.convertKeysToLowerCase(item.getUserCustomData());
 	        result.users.push(preparedUser);
@@ -1750,31 +1543,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          type: im_v2_const.ChatTypes.user,
 	          dialogId: item.getId()
 	        });
-	      } // chat
+	      }
 
-
+	      // chat
 	      if (item.isChat() && !item.isOpeLinesType()) {
 	        const chat = SearchUtils.convertKeysToLowerCase(item.getChatCustomData());
-	        result.dialogues.push({ ...chat,
+	        result.dialogues.push({
+	          ...chat,
 	          dialogId: `chat${chat.id}`
 	        });
 	      }
 	    });
 	    return result;
 	  }
-
 	  getItemsFromRecentItems(recentItems, items) {
 	    const filledRecentItems = new Map();
 	    recentItems.forEach(recentItem => {
 	      const itemFromMap = items.get(recentItem.cacheId);
-
 	      if (itemFromMap && !itemFromMap.isOpeLinesType()) {
 	        filledRecentItems.set(itemFromMap.getEntityFullId(), itemFromMap);
 	      }
 	    });
 	    return filledRecentItems;
 	  }
-
 	  allocateSearchResults(items, originalLayoutQuery) {
 	    const usersAndChats = new Map();
 	    const chatUsers = new Map();
@@ -1788,19 +1579,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            chatUsers.set(item.getEntityFullId(), item);
 	            break;
 	          }
-
 	        case EntityIdTypes.department:
 	          {
 	            departments.set(item.getEntityFullId(), item);
 	            break;
 	          }
-
 	        case EntityIdTypes.network:
 	          {
 	            network.set(item.getEntityFullId(), item);
 	            break;
 	          }
-
 	        default:
 	          {
 	            if (item.isOpeLinesType()) {
@@ -1819,11 +1607,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      network: network
 	    };
 	  }
-
 	  isRussianInterface() {
 	    return this.store.state.application.common.languageId === 'ru';
 	  }
-
 	  changeLayout(query) {
 	    if (this.isRussianInterface() && BX.correctText) {
 	      // eslint-disable-next-line bitrix-rules/no-bx
@@ -1831,19 +1617,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        replace_way: 'AUTO'
 	      });
 	    }
-
 	    return query;
 	  }
-
 	  needLayoutChange(originalLayoutQuery) {
 	    const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
 	    const isIdenticalQuery = wrongLayoutQuery === originalLayoutQuery;
 	    return this.isRussianInterface() && !isIdenticalQuery;
 	  }
-
 	}
 	SearchService.instance = null;
 
+	// @vue/component
 	const SearchResultDepartmentItem = {
 	  name: 'SearchResultDepartmentItem',
 	  components: {
@@ -1865,30 +1649,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  computed: {
 	    departmentAvatarStyle() {
 	      var _this$item$avatarOpti;
-
 	      if ((_this$item$avatarOpti = this.item.avatarOptions) != null && _this$item$avatarOpti.color) {
 	        return {
 	          backgroundColor: this.item.avatarOptions.color
 	        };
 	      }
-
 	      return {
 	        backgroundColor: '#df532d'
 	      };
 	    },
-
 	    title() {
 	      return im_v2_lib_utils.Utils.text.htmlspecialcharsback(this.item.title);
 	    }
-
 	  },
-
 	  created() {
 	    const cache = new SearchCache(this.getCurrentUserId());
 	    const recentList = new SearchRecentList(this.$Bitrix);
 	    this.searchService = SearchService.getInstance(this.$Bitrix, cache, recentList);
 	  },
-
 	  methods: {
 	    onClick() {
 	      if (!this.expanded) {
@@ -1897,31 +1675,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.closeDepartment();
 	      }
 	    },
-
 	    openDepartment() {
 	      this.isLoading = true;
-
 	      if (main_core.Type.isArrayFilled(this.usersInDepartment)) {
 	        this.isLoading = false;
 	        this.expanded = true;
 	        return;
 	      }
-
 	      this.searchService.loadDepartmentUsers(this.item).then(usersAndDepartments => {
 	        this.usersInDepartment = [...usersAndDepartments.values()].filter(user => user.isUser());
 	        this.isLoading = false;
 	        this.expanded = true;
 	      });
 	    },
-
 	    closeDepartment() {
 	      this.expanded = false;
 	    },
-
 	    getCurrentUserId() {
 	      return this.$store.state.application.common.userId;
 	    },
-
 	    enterTransition(element) {
 	      main_core.Dom.style(element, 'height', 0);
 	      main_core.Dom.style(element, 'opacity', 0);
@@ -1932,11 +1704,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	      });
 	    },
-
 	    afterEnterTransition(element) {
 	      main_core.Dom.style(element, 'height', 'auto');
 	    },
-
 	    leaveTransition(element) {
 	      main_core.Dom.style(element, 'height', `${element.scrollHeight}px`);
 	      requestAnimationFrame(() => {
@@ -1944,7 +1714,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        main_core.Dom.style(element, 'opacity', 0);
 	      });
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -1991,7 +1760,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	* @bitrixEvents EventType.search.selectItem
 	* @bitrixEvents EventType.recent.updateSearch
 	*/
-
 	const Search = {
 	  components: {
 	    RecentUsersCarousel,
@@ -2037,42 +1805,32 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (this.isServerLoading || this.isLocalLoading || this.isNetworkLoading) {
 	        return false;
 	      }
-
 	      if (this.isNetworkAvailable && !this.isNetworkButtonClicked && this.isServerSearch) {
 	        return false;
 	      }
-
 	      return this.result.usersAndChats.size === 0 && this.result.departments.size === 0 && this.result.chatUsers.size === 0 && this.result.openLines.size === 0 && this.result.network.size === 0;
 	    },
-
 	    isLoadingState() {
 	      return this.isServerLoading || this.isRecentLoading;
 	    },
-
 	    isServerSearch() {
 	      return this.searchQuery.trim().length >= this.minTokenSize;
 	    },
-
 	    needToShowNetworkSection() {
 	      return !this.isNetworkButtonClicked || this.result.network.size > 0;
 	    },
-
 	    showSearchResult() {
 	      return this.searchQuery.trim().length > 0;
 	    },
-
 	    isNetworkSearchCode() {
 	      return !!(this.searchQuery.length === 32 && /[\da-f]{32}/.test(this.searchQuery));
 	    },
-
 	    isNetworkAvailableForSearch() {
 	      if (!this.isNetworkAvailable) {
 	        return false;
 	      }
-
 	      return this.isNetworkSearchEnabled || this.isNetworkSearchCode;
 	    },
-
 	    itemComponent: () => SearchResultItem,
 	    itemDepartmentComponent: () => SearchResultDepartmentItem,
 	    itemNetworkComponent: () => SearchResultNetworkItem,
@@ -2082,35 +1840,30 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    searchQuery(newValue, oldValue) {
 	      const newQuery = newValue.trim();
 	      const previousQuery = oldValue.trim();
-
 	      if (newQuery === previousQuery) {
 	        return;
 	      }
-
 	      this.startSearch(newQuery);
 	    },
-
 	    searchMode(newValue, oldValue) {
-	      if (newValue === false && oldValue === true) // search switch off
+	      if (newValue === false && oldValue === true)
+	        // search switch off
 	        {
 	          this.isNetworkButtonClicked = false;
-	        } else if (newValue === true && oldValue === false) // search switch on
+	        } else if (newValue === true && oldValue === false)
+	        // search switch on
 	        {
 	          if (this.result.recent.size > 0) {
 	            return;
 	          }
-
 	          this.isRecentLoading = true;
 	        }
-
 	      this.searchService.loadRecentSearchFromServer().then(recentItems => {
 	        this.result.recent = recentItems;
 	        this.isRecentLoading = false;
 	      });
 	    }
-
 	  },
-
 	  created() {
 	    this.initSettings();
 	    this.contextMenuManager = new SearchContextMenu(this.$Bitrix);
@@ -2124,7 +1877,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.updateSearch, this.onPressEnterKey);
 	    this.loadInitialRecentFromCache();
 	  },
-
 	  beforeUnmount() {
 	    this.searchService.destroy();
 	    this.contextMenuManager.destroy();
@@ -2133,7 +1885,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.selectItem, this.onSelectItem);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.recent.updateSearch, this.onPressEnterKey);
 	  },
-
 	  methods: {
 	    loadInitialRecentFromCache() {
 	      // we don't need an extra request to get recent items while messenger initialization
@@ -2141,7 +1892,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.result.recent = recentItems;
 	      });
 	    },
-
 	    initSettings() {
 	      const settings = main_core.Extension.getSettings('im.v2.component.old-chat-embedding.search');
 	      const defaultMinTokenSize = 3;
@@ -2150,7 +1900,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.isNetworkSearchEnabled = settings.get('isNetworkSearchEnabled', true);
 	      this.isDepartmentsAvailable = settings.get('isDepartmentsAvailable', false);
 	    },
-
 	    startSearch(searchQuery) {
 	      if (searchQuery.length > 0 && searchQuery.length < this.minTokenSize) {
 	        this.isLocalLoading = true;
@@ -2159,7 +1908,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          if (queryBeforeRequest !== this.searchQuery.trim()) {
 	            return;
 	          }
-
 	          this.result.usersAndChats = localSearchResult;
 	          this.isLocalLoading = false;
 	        });
@@ -2170,14 +1918,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          if (queryBeforeRequest !== this.searchQuery.trim()) {
 	            return;
 	          }
-
 	          this.result.usersAndChats = localSearchResult;
 	        }).then(() => this.searchOnServerDelayed(searchQuery));
 	      } else {
 	        this.cleanSearchResult();
 	      }
 	    },
-
 	    cleanSearchResult() {
 	      this.result.usersAndChats = new Map();
 	      this.result.departments = new Map();
@@ -2185,7 +1931,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.result.network = new Map();
 	      this.result.openLines = new Map();
 	    },
-
 	    searchOnServer(query) {
 	      this.currentServerQueries++;
 	      this.isNetworkLoading = this.isNetworkButtonClicked;
@@ -2199,7 +1944,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          this.stopLoader();
 	          return;
 	        }
-
 	        this.result.usersAndChats = this.mergeResults(this.result.usersAndChats, searchResultFromServer.usersAndChats);
 	        this.result.departments = searchResultFromServer.departments;
 	        this.result.chatUsers = searchResultFromServer.chatUsers;
@@ -2212,16 +1956,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.stopLoader();
 	      });
 	    },
-
 	    stopLoader() {
 	      if (this.currentServerQueries > 0) {
 	        return;
 	      }
-
 	      this.isNetworkLoading = false;
 	      this.isServerLoading = false;
 	    },
-
 	    searchOnNetwork(query) {
 	      this.isNetworkLoading = true;
 	      const queryBeforeRequest = query;
@@ -2230,13 +1971,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          this.isNetworkLoading = false;
 	          return;
 	        }
-
 	        this.result.network = searchResultFromServer;
 	        this.isNetworkButtonClicked = true;
 	        this.isNetworkLoading = false;
 	      });
 	    },
-
 	    mergeResults(originalItems, newItems) {
 	      const mergedMap = new Map(originalItems.entries());
 	      newItems.forEach((newItemValue, newItemKey) => {
@@ -2246,17 +1985,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	      return mergedMap;
 	    },
-
 	    onOpenContextMenu({
 	      data: eventData
 	    }) {
 	      if (eventData.event.altKey && eventData.event.shiftKey) {
 	        return;
 	      }
-
 	      this.contextMenuManager.openMenu(eventData.item, eventData.event.currentTarget);
 	    },
-
 	    onDelete({
 	      data: eventData
 	    }) {
@@ -2267,15 +2003,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.result.usersAndChats.delete(dialogId);
 	      this.result.chatUsers.delete(dialogId);
 	    },
-
 	    onScroll() {
 	      this.contextMenuManager.destroy();
 	    },
-
 	    onClickLoadNetworkResult() {
 	      this.searchOnNetwork(this.searchQuery);
 	    },
-
 	    onSelectItem(event) {
 	      const {
 	        selectedItem,
@@ -2286,24 +2019,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        chat: this.$store.getters['dialogues/get'](selectedItem.dialogId, true),
 	        user: this.$store.getters['users/get'](selectedItem.dialogId, true)
 	      });
-
 	      if (!nativeEvent.altKey) {
 	        BX.MessengerProxy.clearSearchInput();
 	      }
 	    },
-
 	    onPressEnterKey(event) {
-	      if (event.data.keyCode !== 13) // enter
+	      if (event.data.keyCode !== 13)
+	        // enter
 	        {
 	          return;
 	        }
-
 	      const firstItem = this.getFirstItemFromSearchResults();
-
 	      if (!firstItem) {
 	        return;
 	      }
-
 	      const selectedItem = {
 	        id: firstItem.getId(),
 	        entityId: firstItem.getEntityId(),
@@ -2315,31 +2044,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        nativeEvent: {}
 	      });
 	    },
-
 	    getFirstItemFromSearchResults() {
 	      if (!this.showSearchResult && this.result.recent.size > 0) {
 	        return SearchUtils.getFirstItemFromMap(this.result.recent);
 	      }
-
 	      if (this.result.usersAndChats.size > 0) {
 	        return SearchUtils.getFirstItemFromMap(this.result.usersAndChats);
 	      }
-
 	      if (this.result.chatUsers.size > 0) {
 	        return SearchUtils.getFirstItemFromMap(this.result.chatUsers);
 	      }
-
 	      if (this.result.openLines.size > 0) {
 	        return SearchUtils.getFirstItemFromMap(this.result.openLines);
 	      }
-
 	      return null;
 	    },
-
 	    getCurrentUserId() {
 	      return this.$store.state.application.common.userId;
 	    }
-
 	  },
 	  template: `
 		<div class="bx-messenger-search" @scroll="onScroll">

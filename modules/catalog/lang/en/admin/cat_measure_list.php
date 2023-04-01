@@ -4,6 +4,7 @@ $MESS["CAT_MEASURE_ADD_NEW_ALT"] = "Add new unit of measurement";
 $MESS["CAT_MEASURE_ADD_NEW_OKEI"] = "Add from code registry";
 $MESS["CAT_MEASURE_ADD_NEW_OKEI_ALT"] = "Add new unit of measurement from registry";
 $MESS["CAT_MEASURE_CODE"] = "ID";
+$MESS["CAT_MEASURE_CODE_MSGVER_1"] = "Code";
 $MESS["CAT_MEASURE_DELETE_ALT"] = "Delete";
 $MESS["CAT_MEASURE_DELETE_CONFIRM"] = "Are you sure you want to delete the unit of measurement?";
 $MESS["CAT_MEASURE_EDIT_ALT"] = "Edit";

@@ -490,6 +490,9 @@ export class LinkUrl extends Text
 				break;
 			case LinkUrl.TYPE_HREF_MAILTO:
 				data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_MAILTO");
+				data.items =  {
+					"_blank": "",
+				};
 				data.hideInput = false;
 				data.needValidate = 'mail';
 				data.contentEditable = true;
@@ -1132,26 +1135,37 @@ export class LinkUrl extends Text
 		return this.cache.remember(section, function() {
 			let matchRes;
 			let id;
-			let type = 'Section';
+			let type;
 			matchRes = section.match(this.matchers.catalog);
 			if (matchRes === null)
 			{
 				matchRes = section.match(this.matchers.element);
-				type = 'Element';
+				if (matchRes !== null)
+				{
+					type = 'Element';
+				}
+			}
+			else
+			{
+				type = 'Section';
 			}
 			if (matchRes)
 			{
 				id = matchRes[1];
 			}
 
-			let requestBody;
+			let requestBody = null;
 			if (type === 'Section')
 			{
 				requestBody = {sectionId: id};
 			}
-			else
+			if (type === 'Element')
 			{
 				requestBody = {elementId: id};
+			}
+			if (requestBody === null)
+			{
+				return null;
 			}
 			const action = 'Utils::getCatalog' + type;
 
@@ -1593,6 +1607,10 @@ export class LinkUrl extends Text
 
 		if (valueText === '')
 		{
+			if (selectedHrefType === 'catalog')
+			{
+				return '';
+			}
 			return LinkUrl.TYPE_HREF_START;
 		}
 
@@ -1613,7 +1631,16 @@ export class LinkUrl extends Text
 		{
 			if (this.constantType === LinkUrl.TYPE_CATALOG)
 			{
-				return valueText;
+				if (
+					this.matchers.catalogElement.test(valueText)
+					|| this.matchers.catalogSection.test(valueText)
+					|| this.matchers.catalog.test(valueText)
+					|| this.matchers.element.test(valueText)
+				)
+				{
+					return valueText;
+				}
+				return '';
 			}
 			if (this.constantType === LinkUrl.TYPE_PAGE)
 			{
@@ -1642,7 +1669,7 @@ export class LinkUrl extends Text
 		const setRegs = [];
 		setRegs['phoneExtended'] = /(^[\d+][\d-]{4,14}\d$)|#crmPhone\d+/;
 		setRegs['phone'] = /^[\d+][\d-]{4,14}\d$/;
-		setRegs['mail'] = /^[\w-.]+@[\w-]+([.][a-z]{2,4})+$|#crmEmail[\d]+$/i;
+		setRegs['mail'] = /^\S+@\S+[.]\S+$/i;
 		setRegs['skype'] = /^[a-z\d-.:]{6,32}$/i;
 		const type = this.hrefTypeSwithcer.getValue();
 		const data = this.getTypeData(type);

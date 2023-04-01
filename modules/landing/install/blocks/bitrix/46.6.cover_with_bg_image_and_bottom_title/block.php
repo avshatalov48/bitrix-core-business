@@ -7,7 +7,7 @@
 			 data-card-preset="image"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img7.jpg);">
 			<div class="u-bg-overlay__inner w-100">
-				<div class="g-max-width-645 py-0 g-px-30 g-pb-30">
+				<div class="g-max-width-645 py-0 g-px-30 g-pb-80 g-pb-30--sm">
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInUp g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						Company24 agency</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">

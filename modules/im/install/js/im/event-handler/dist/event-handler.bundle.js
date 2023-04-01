@@ -22,44 +22,35 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.clickOnCommand, this.onClickOnCommandHandler);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.clickOnKeyboardButton, this.onClickOnKeyboardHandler);
 	  }
-
 	  babelHelpers.createClass(SendMessageHandler, [{
 	    key: "onSendMessage",
 	    value: function onSendMessage(_ref) {
 	      var data = _ref.data;
-
 	      if (!data.text && !data.file) {
 	        return false;
 	      }
-
 	      this.sendMessage(data.text, data.file);
 	    } //endregion events
 	    // entry point for sending message
-
 	  }, {
 	    key: "sendMessage",
 	    value: function sendMessage() {
 	      var _this = this;
-
 	      var text = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	      var file = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
 	      if (!text && !file) {
 	        return false;
-	      } // quote handling
+	      }
 
-
+	      // quote handling
 	      var quoteId = this.store.getters['dialogues/getQuoteId'](this.getDialogId());
-
 	      if (quoteId) {
 	        var quoteMessage = this.store.getters['messages/getMessage'](this.getChatId(), quoteId);
-
 	        if (quoteMessage) {
 	          text = this.getMessageTextWithQuote(quoteMessage, text);
 	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.quotePanelClose);
 	        }
 	      }
-
 	      if (!this.controller.application.isUnreadMessagesLoaded()) {
 	        // not all messages are loaded, adding message only on server
 	        this.sendMessageToServer({
@@ -72,13 +63,10 @@ this.BX = this.BX || {};
 	        this.processQueue();
 	        return true;
 	      }
-
 	      var params = {};
-
 	      if (file) {
 	        params.FILE_ID = [file.id];
 	      }
-
 	      this.addMessageToModel({
 	        text: text,
 	        params: params,
@@ -88,13 +76,11 @@ this.BX = this.BX || {};
 	          chatId: _this.getChatId(),
 	          cancelIfScrollChange: true
 	        });
-
 	        _this.addMessageToQueue({
 	          messageId: messageId,
 	          text: text,
 	          file: file
 	        });
-
 	        _this.processQueue();
 	      });
 	    }
@@ -103,19 +89,15 @@ this.BX = this.BX || {};
 	     * - For messages with file sends event to uploader
 	     * - For common messages sends them to server
 	     */
-
 	  }, {
 	    key: "processQueue",
 	    value: function processQueue() {
 	      var _this2 = this;
-
 	      this.messagesToSend.filter(function (element) {
 	        return !element.sending;
 	      }).forEach(function (element) {
 	        _this2.deleteFromQueue(element.id);
-
 	        element.sending = true;
-
 	        if (element.file) {
 	          main_core_events.EventEmitter.emit(im_const.EventType.textarea.stopWriting);
 	          main_core_events.EventEmitter.emit(im_const.EventType.uploader.addMessageWithFile, element);
@@ -128,8 +110,8 @@ this.BX = this.BX || {};
 	    key: "addMessageToModel",
 	    value: function addMessageToModel(_ref2) {
 	      var text = _ref2.text,
-	          params = _ref2.params,
-	          sending = _ref2.sending;
+	        params = _ref2.params,
+	        sending = _ref2.sending;
 	      return this.store.dispatch('messages/add', {
 	        chatId: this.getChatId(),
 	        authorId: this.getUserId(),
@@ -142,8 +124,8 @@ this.BX = this.BX || {};
 	    key: "addMessageToQueue",
 	    value: function addMessageToQueue(_ref3) {
 	      var messageId = _ref3.messageId,
-	          text = _ref3.text,
-	          file = _ref3.file;
+	        text = _ref3.text,
+	        file = _ref3.file;
 	      this.messagesToSend.push({
 	        id: messageId,
 	        chatId: this.getChatId(),
@@ -157,7 +139,6 @@ this.BX = this.BX || {};
 	    key: "sendMessageToServer",
 	    value: function sendMessageToServer(element) {
 	      var _this3 = this;
-
 	      main_core_events.EventEmitter.emit(im_const.EventType.textarea.stopWriting);
 	      this.restClient.callMethod(im_const.RestMethod.imMessageAdd, {
 	        'TEMPLATE_ID': element.id,
@@ -167,7 +148,6 @@ this.BX = this.BX || {};
 	        _this3.controller.executeRestAnswer(im_const.RestMethodHandler.imMessageAdd, response, element);
 	      })["catch"](function (error) {
 	        _this3.controller.executeRestAnswer(im_const.RestMethodHandler.imMessageAdd, error, element);
-
 	        im_lib_logger.Logger.warn('SendMessageHandler: error during adding message', error);
 	      });
 	    }
@@ -207,7 +187,6 @@ this.BX = this.BX || {};
 	    key: "onClickOnCommand",
 	    value: function onClickOnCommand(_ref5) {
 	      var event = _ref5.data;
-
 	      if (event.type === 'put') {
 	        this.handlePutAction(event.value);
 	      } else if (event.type === 'send') {
@@ -220,21 +199,19 @@ this.BX = this.BX || {};
 	    key: "onClickOnKeyboard",
 	    value: function onClickOnKeyboard(_ref6) {
 	      var event = _ref6.data;
-
 	      if (event.action === 'ACTION') {
 	        var _event$params = event.params,
-	            action = _event$params.action,
-	            value = _event$params.value;
+	          action = _event$params.action,
+	          value = _event$params.value;
 	        this.handleKeyboardAction(action, value);
 	      }
-
 	      if (event.action === 'COMMAND') {
 	        var _event$params2 = event.params,
-	            dialogId = _event$params2.dialogId,
-	            messageId = _event$params2.messageId,
-	            botId = _event$params2.botId,
-	            command = _event$params2.command,
-	            params = _event$params2.params;
+	          dialogId = _event$params2.dialogId,
+	          messageId = _event$params2.messageId,
+	          botId = _event$params2.botId,
+	          command = _event$params2.command,
+	          params = _event$params2.params;
 	        this.restClient.callMethod(im_const.RestMethod.imMessageCommand, {
 	          'MESSAGE_ID': messageId,
 	          'DIALOG_ID': dialogId,
@@ -255,19 +232,16 @@ this.BX = this.BX || {};
 	            this.handleSendAction(value);
 	            break;
 	          }
-
 	        case 'PUT':
 	          {
 	            this.handlePutAction(value);
 	            break;
 	          }
-
 	        case 'CALL':
 	          {
 	            //this.openPhoneMenu(value);
 	            break;
 	          }
-
 	        case 'COPY':
 	          {
 	            im_lib_clipboard.Clipboard.copy(value);
@@ -277,13 +251,11 @@ this.BX = this.BX || {};
 	            });
 	            break;
 	          }
-
 	        case 'DIALOG':
 	          {
 	            //this.openDialog(value);
 	            break;
 	          }
-
 	        default:
 	          {
 	            console.error('SendMessageHandler: unknown keyboard action');
@@ -301,7 +273,6 @@ this.BX = this.BX || {};
 	    key: "handleSendAction",
 	    value: function handleSendAction(text) {
 	      var _this4 = this;
-
 	      this.sendMessage(text);
 	      setTimeout(function () {
 	        main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollToBottom, {
@@ -311,16 +282,13 @@ this.BX = this.BX || {};
 	        });
 	      }, 300);
 	    } // region helpers
-
 	  }, {
 	    key: "getMessageTextWithQuote",
 	    value: function getMessageTextWithQuote(quoteMessage, text) {
 	      var user = null;
-
 	      if (quoteMessage.authorId) {
 	        user = this.store.getters['users/get'](quoteMessage.authorId);
 	      }
-
 	      var files = this.store.getters['files/getList'](this.getChatId());
 	      var quoteDelimiter = '-'.repeat(54);
 	      var quoteTitle = user && user.name ? user.name : this.loc['IM_QUOTE_PANEL_DEFAULT_TITLE'];
@@ -349,7 +317,6 @@ this.BX = this.BX || {};
 	    value: function getUserId() {
 	      return this.store.state.application.common.userId;
 	    } // endregion helpers
-
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
@@ -364,6 +331,7 @@ this.BX = this.BX || {};
 
 	var ReadingHandler = /*#__PURE__*/function () {
 	  // {<chatId>: [<messageId>]}
+
 	  function ReadingHandler($Bitrix) {
 	    babelHelpers.classCallCheck(this, ReadingHandler);
 	    babelHelpers.defineProperty(this, "messagesToRead", {});
@@ -376,43 +344,36 @@ this.BX = this.BX || {};
 	    this.onReadMessageHandler = this.onReadMessage.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.readMessage, this.onReadMessageHandler);
 	  }
-
 	  babelHelpers.createClass(ReadingHandler, [{
 	    key: "onReadMessage",
 	    value: function onReadMessage(_ref) {
 	      var _ref$data = _ref.data,
-	          _ref$data$id = _ref$data.id,
-	          id = _ref$data$id === void 0 ? null : _ref$data$id,
-	          _ref$data$skipTimer = _ref$data.skipTimer,
-	          skipTimer = _ref$data$skipTimer === void 0 ? false : _ref$data$skipTimer,
-	          _ref$data$skipAjax = _ref$data.skipAjax,
-	          skipAjax = _ref$data$skipAjax === void 0 ? false : _ref$data$skipAjax;
+	        _ref$data$id = _ref$data.id,
+	        id = _ref$data$id === void 0 ? null : _ref$data$id,
+	        _ref$data$skipTimer = _ref$data.skipTimer,
+	        skipTimer = _ref$data$skipTimer === void 0 ? false : _ref$data$skipTimer,
+	        _ref$data$skipAjax = _ref$data.skipAjax,
+	        skipAjax = _ref$data$skipAjax === void 0 ? false : _ref$data$skipAjax;
 	      return this.readMessage(id, skipTimer, skipAjax);
 	    }
 	  }, {
 	    key: "readMessage",
 	    value: function readMessage(messageId) {
 	      var _this = this;
-
 	      var skipTimer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var skipAjax = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var chatId = this.getChatId();
-
 	      if (messageId) {
 	        if (!this.messagesToRead[chatId]) {
 	          this.messagesToRead[chatId] = [];
 	        }
-
 	        this.messagesToRead[chatId].push(Number.parseInt(messageId, 10));
 	      }
-
 	      this.timer.stop('readMessage', chatId, true);
 	      this.timer.stop('readMessageServer', chatId, true);
-
 	      if (skipTimer) {
 	        return this.processMessagesToRead(chatId, skipAjax);
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        _this.timer.start('readMessage', chatId, 0.1, function () {
 	          _this.processMessagesToRead(chatId, skipAjax).then(function (result) {
@@ -425,15 +386,12 @@ this.BX = this.BX || {};
 	    key: "processMessagesToRead",
 	    value: function processMessagesToRead(chatId) {
 	      var _this2 = this;
-
 	      var skipAjax = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var lastMessageToRead = this.getMaxMessageIdFromQueue(chatId);
 	      delete this.messagesToRead[chatId];
-
 	      if (lastMessageToRead <= 0) {
 	        return Promise.resolve();
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        _this2.readMessageOnClient(chatId, lastMessageToRead).then(function (readResult) {
 	          return _this2.decreaseChatCounter(chatId, readResult.count);
@@ -444,7 +402,6 @@ this.BX = this.BX || {};
 	              lastId: lastMessageToRead
 	            });
 	          }
-
 	          _this2.timer.start('readMessageServer', chatId, 0.5, function () {
 	            _this2.readMessageOnServer(chatId, lastMessageToRead).then(function () {
 	              resolve({
@@ -463,11 +420,9 @@ this.BX = this.BX || {};
 	    key: "getMaxMessageIdFromQueue",
 	    value: function getMaxMessageIdFromQueue(chatId) {
 	      var maxMessageId = 0;
-
 	      if (!this.messagesToRead[chatId]) {
 	        return maxMessageId;
 	      }
-
 	      this.messagesToRead[chatId].forEach(function (messageId) {
 	        if (maxMessageId < messageId) {
 	          maxMessageId = messageId;
@@ -508,11 +463,9 @@ this.BX = this.BX || {};
 	    key: "getDialogIdByChatId",
 	    value: function getDialogIdByChatId(chatId) {
 	      var dialog = this.store.getters['dialogues/getByChatId'](chatId);
-
 	      if (!dialog) {
 	        return 0;
 	      }
-
 	      return dialog.dialogId;
 	    }
 	  }, {
@@ -539,7 +492,6 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.setMessageReaction, this.onSetMessageReactionHandler);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.openMessageReactionList, this.onOpenMessageReactionListHandler);
 	  }
-
 	  babelHelpers.createClass(ReactionHandler, [{
 	    key: "onSetMessageReaction",
 	    value: function onSetMessageReaction(_ref) {
@@ -557,11 +509,9 @@ this.BX = this.BX || {};
 	    value: function reactToMessage(messageId, reaction) {
 	      // let type = reaction.type || ReactionHandler.types.like;
 	      var action = reaction.action || ReactionHandler.actions.auto;
-
 	      if (action !== ReactionHandler.actions.auto) {
 	        action = action === ReactionHandler.actions.set ? ReactionHandler.actions.plus : ReactionHandler.actions.minus;
 	      }
-
 	      this.restClient.callMethod(im_const.RestMethod.imMessageLike, {
 	        'MESSAGE_ID': messageId,
 	        'ACTION': action
@@ -606,7 +556,6 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.quoteMessage, this.onQuoteMessageHandler);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.quotePanelClose, this.onQuotePanelCloseHandler);
 	  }
-
 	  babelHelpers.createClass(QuoteHandler, [{
 	    key: "onQuoteMessage",
 	    value: function onQuoteMessage(_ref) {
@@ -663,9 +612,9 @@ this.BX = this.BX || {};
 	    this.restClient = $Bitrix.RestClient.get();
 	    this.timer = new im_lib_timer.Timer();
 	    this.subscribeToEvents();
-	  } // region events
+	  }
 
-
+	  // region events
 	  babelHelpers.createClass(TextareaHandler, [{
 	    key: "subscribeToEvents",
 	    value: function subscribeToEvents() {
@@ -696,37 +645,38 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "onAppButtonClick",
-	    value: function onAppButtonClick() {//
+	    value: function onAppButtonClick() {
+	      //
 	    }
 	  }, {
 	    key: "onFocus",
-	    value: function onFocus() {//
+	    value: function onFocus() {
+	      //
 	    }
 	  }, {
 	    key: "onBlur",
-	    value: function onBlur() {//
+	    value: function onBlur() {
+	      //
 	    }
 	  }, {
 	    key: "onKeyUp",
-	    value: function onKeyUp() {//
+	    value: function onKeyUp() {
+	      //
 	    }
 	  }, {
 	    key: "onEdit",
-	    value: function onEdit() {//
+	    value: function onEdit() {
+	      //
 	    } //endregion events
 	    // region writing
-
 	  }, {
 	    key: "startWriting",
 	    value: function startWriting() {
 	      var _this = this;
-
 	      var dialogId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getDialogId();
-
 	      if (im_lib_utils.Utils.dialog.isEmptyDialogId(dialogId) || this.timer.has('writes', dialogId)) {
 	        return false;
 	      }
-
 	      this.timer.start('writes', dialogId, 28);
 	      this.timer.start('writesSend', dialogId, 5, function () {
 	        _this.restClient.callMethod(im_const.RestMethod.imDialogWriting, {
@@ -744,7 +694,6 @@ this.BX = this.BX || {};
 	      this.timer.stop('writesSend', dialogId, true);
 	    } // endregion writing
 	    // region helpers
-
 	  }, {
 	    key: "getChatId",
 	    value: function getChatId() {
@@ -765,7 +714,6 @@ this.BX = this.BX || {};
 	    value: function getDiskFolderId() {
 	      return this.store.state.application.dialog.diskFolderId;
 	    } // endregion helpers
-
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
@@ -785,7 +733,6 @@ this.BX = this.BX || {};
 	 * @notice define getActionUploadChunk and getActionCommitFile methods for custom upload methods (e.g. videoconference)
 	 * @notice redefine addMessageWithFile for custom headers (e.g. videoconference)
 	 */
-
 	var TextareaUploadHandler = /*#__PURE__*/function () {
 	  function TextareaUploadHandler($Bitrix) {
 	    babelHelpers.classCallCheck(this, TextareaUploadHandler);
@@ -803,7 +750,6 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.uploader.addMessageWithFile, this.addMessageWithFileHandler);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.clickOnUploadCancel, this.onClickOnUploadCancelHandler);
 	  }
-
 	  babelHelpers.createClass(TextareaUploadHandler, [{
 	    key: "initUploader",
 	    value: function initUploader() {
@@ -822,7 +768,6 @@ this.BX = this.BX || {};
 	    key: "commitFile",
 	    value: function commitFile(params, message) {
 	      var _this = this;
-
 	      this.restClient.callMethod(im_const.RestMethod.imDiskFileCommit, {
 	        chat_id: params.chatId,
 	        upload_id: params.uploadId,
@@ -848,7 +793,6 @@ this.BX = this.BX || {};
 	          progress: 0
 	        }
 	      });
-
 	      if (messageId) {
 	        this.controller.store.dispatch('messages/actionError', {
 	          chatId: chatId,
@@ -862,20 +806,16 @@ this.BX = this.BX || {};
 	    value: function onTextareaFileSelected(_ref) {
 	      var event = _ref.data;
 	      var fileInput = event && event.fileChangeEvent && event.fileChangeEvent.target.files.length > 0 ? event.fileChangeEvent : '';
-
 	      if (!fileInput) {
 	        return false;
 	      }
-
 	      this.uploadFile(fileInput);
 	    }
 	  }, {
 	    key: "addMessageWithFile",
 	    value: function addMessageWithFile(event) {
 	      var _this2 = this;
-
 	      var message = event.getData();
-
 	      if (!this.getDiskFolderId()) {
 	        this.requestDiskFolderId(message.chatId).then(function () {
 	          _this2.addMessageWithFile(event);
@@ -885,7 +825,6 @@ this.BX = this.BX || {};
 	        });
 	        return false;
 	      }
-
 	      this.uploader.addTask({
 	        taskId: message.file.id,
 	        fileData: message.file.source.file,
@@ -901,7 +840,6 @@ this.BX = this.BX || {};
 	      if (!event) {
 	        return false;
 	      }
-
 	      this.uploader.addFilesFromEvent(event);
 	    }
 	  }, {
@@ -910,7 +848,6 @@ this.BX = this.BX || {};
 	      if (this.uploader) {
 	        this.uploader.unsubscribeAll();
 	      }
-
 	      main_core_events.EventEmitter.unsubscribe(im_const.EventType.textarea.fileSelected, this.onTextareaFileSelectedHandler);
 	      main_core_events.EventEmitter.unsubscribe(im_const.EventType.uploader.addMessageWithFile, this.addMessageWithFileHandler);
 	      main_core_events.EventEmitter.unsubscribe(im_const.EventType.dialog.clickOnUploadCancel, this.onClickOnUploadCancelHandler);
@@ -941,18 +878,14 @@ this.BX = this.BX || {};
 	      var chatMessages = this.controller.store.getters['messages/get'](this.getChatId());
 	      var messageWithFile = chatMessages.find(function (message) {
 	        var _message$params;
-
 	        if (main_core.Type.isArray((_message$params = message.params) === null || _message$params === void 0 ? void 0 : _message$params.FILE_ID)) {
 	          return message.params.FILE_ID.includes(fileId);
 	        }
-
 	        return false;
 	      });
-
 	      if (!messageWithFile) {
 	        return;
 	      }
-
 	      return {
 	        id: messageWithFile.id,
 	        chatId: messageWithFile.chatId,
@@ -970,34 +903,26 @@ this.BX = this.BX || {};
 	    key: "requestDiskFolderId",
 	    value: function requestDiskFolderId(chatId) {
 	      var _this3 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        if (_this3.isRequestingDiskFolderId || _this3.getDiskFolderId()) {
 	          _this3.isRequestingDiskFolderId = false;
 	          resolve();
 	          return;
 	        }
-
 	        _this3.isRequestingDiskFolderId = true;
-
 	        _this3.restClient.callMethod(im_const.RestMethod.imDiskFolderGet, {
 	          chat_id: chatId
 	        }).then(function (response) {
 	          _this3.isRequestingDiskFolderId = false;
-
 	          _this3.controller.executeRestAnswer(im_const.RestMethodHandler.imDiskFolderGet, response);
-
 	          resolve();
 	        })["catch"](function (error) {
 	          _this3.isRequestingDiskFolderId = false;
-
 	          _this3.controller.executeRestAnswer(im_const.RestMethodHandler.imDiskFolderGet, error);
-
 	          reject(error);
 	        });
 	      });
 	    } // Uploader handlers
-
 	  }, {
 	    key: "onStartUploadHandler",
 	    value: function onStartUploadHandler(event) {
@@ -1033,13 +958,11 @@ this.BX = this.BX || {};
 	      var file = eventData.file;
 	      im_lib_logger.Logger.log('Uploader: onSelectFile', eventData);
 	      var fileType = 'file';
-
 	      if (file.type.toString().startsWith('image')) {
 	        fileType = 'image';
 	      } else if (file.type.toString().startsWith('video')) {
 	        fileType = 'video';
 	      }
-
 	      this.controller.store.dispatch('files/add', {
 	        chatId: this.getChatId(),
 	        authorId: this.getCurrentUser().id,
@@ -1096,7 +1019,6 @@ this.BX = this.BX || {};
 	      var eventData = event.getData();
 	      im_lib_logger.Logger.log('Uploader: onUploadFileError', eventData);
 	      var messageWithFile = this.getMessageByFileId(eventData.id, eventData);
-
 	      if (messageWithFile) {
 	        this.setUploadError(this.getChatId(), messageWithFile.file.id, messageWithFile.id);
 	      }
@@ -1107,7 +1029,6 @@ this.BX = this.BX || {};
 	      var eventData = event.getData();
 	      im_lib_logger.Logger.log('Uploader: onCreateFileError', eventData);
 	      var messageWithFile = this.getMessageByFileId(eventData.id, eventData);
-
 	      if (messageWithFile) {
 	        this.setUploadError(this.getChatId(), messageWithFile.file.id, messageWithFile.id);
 	      }
@@ -1116,16 +1037,13 @@ this.BX = this.BX || {};
 	    key: "onClickOnUploadCancel",
 	    value: function onClickOnUploadCancel(_ref2) {
 	      var _this4 = this;
-
 	      var event = _ref2.data;
 	      var fileId = event.file.id;
 	      var fileData = event.file;
 	      var messageWithFile = this.getMessageByFileId(fileId, fileData);
-
 	      if (!messageWithFile) {
 	        return;
 	      }
-
 	      this.uploader.deleteTask(fileId);
 	      this.controller.store.dispatch('messages/delete', {
 	        chatId: this.getChatId(),
@@ -1161,38 +1079,29 @@ this.BX = this.BX || {};
 
 	var TextareaDragHandler = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(TextareaDragHandler, _EventEmitter);
-
 	  function TextareaDragHandler(events) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TextareaDragHandler);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextareaDragHandler).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "isDragging", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minimumHeight", 120);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "maximumHeight", 400);
-
 	    _this.setEventNamespace('BX.IM.TextareaDragHandler');
-
 	    _this.subscribeToEvents(events);
-
 	    if (im_lib_utils.Utils.device.isMobile()) {
 	      _this.maximumHeight = 200;
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(TextareaDragHandler, [{
 	    key: "subscribeToEvents",
 	    value: function subscribeToEvents(configEvents) {
 	      var _this2 = this;
-
 	      var events = main_core.Type.isObject(configEvents) ? configEvents : {};
 	      Object.entries(events).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            name = _ref2[0],
-	            callback = _ref2[1];
-
+	          name = _ref2[0],
+	          callback = _ref2[1];
 	        if (main_core.Type.isFunction(callback)) {
 	          _this2.subscribe(name, callback);
 	        }
@@ -1204,7 +1113,6 @@ this.BX = this.BX || {};
 	      if (this.isDragging) {
 	        return;
 	      }
-
 	      this.isDragging = true;
 	      event = event.changedTouches ? event.changedTouches[0] : event;
 	      this.textareaDragCursorStartPoint = event.clientY;
@@ -1217,7 +1125,6 @@ this.BX = this.BX || {};
 	      if (!this.isDragging) {
 	        return;
 	      }
-
 	      event = event.changedTouches ? event.changedTouches[0] : event;
 	      this.textareaDragCursorControlPoint = event.clientY;
 	      var maxPoint = Math.min(this.textareaDragHeightStartPoint + this.textareaDragCursorStartPoint - this.textareaDragCursorControlPoint, this.maximumHeight);
@@ -1232,7 +1139,6 @@ this.BX = this.BX || {};
 	      if (!this.isDragging) {
 	        return;
 	      }
-
 	      this.isDragging = false;
 	      this.removeTextareaDragEvents();
 	      this.emit(TextareaDragHandler.events.onStopDrag);
@@ -1277,7 +1183,6 @@ this.BX = this.BX || {};
 	    this.restClient = $Bitrix.RestClient.get();
 	    this.subscribeToEvents();
 	  }
-
 	  babelHelpers.createClass(DialogActionHandler, [{
 	    key: "subscribeToEvents",
 	    value: function subscribeToEvents() {
@@ -1298,7 +1203,6 @@ this.BX = this.BX || {};
 	    key: "onClickOnMention",
 	    value: function onClickOnMention(_ref) {
 	      var event = _ref.data;
-
 	      if (event.type === 'USER') {
 	        im_lib_logger.Logger.warn('DialogActionHandler: open user profile', event);
 	      } else if (event.type === 'CHAT') {
@@ -1346,21 +1250,18 @@ this.BX = this.BX || {};
 	    key: "joinParentChat",
 	    value: function joinParentChat(messageId, dialogId) {
 	      var _this = this;
-
 	      return new Promise(function (resolve, reject) {
 	        if (!messageId || !dialogId) {
 	          return reject();
-	        } // TODO: what is this for
+	        }
 
-
+	        // TODO: what is this for
 	        if (typeof _this.tempJoinChat === 'undefined') {
 	          _this.tempJoinChat = {};
 	        } else if (_this.tempJoinChat['wait']) {
 	          return reject();
 	        }
-
 	        _this.tempJoinChat['wait'] = true;
-
 	        _this.restClient.callMethod(im_const.RestMethod.imChatParentJoin, {
 	          'DIALOG_ID': dialogId,
 	          'MESSAGE_ID': messageId

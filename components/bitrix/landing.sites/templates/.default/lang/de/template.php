@@ -49,6 +49,7 @@ $MESS["LANDING_TPL_DEV_BTN"] = "Bestellen";
 $MESS["LANDING_TPL_DEV_HELP"] = "Brauchen Sie Hilfe mit Ihrer Website?";
 $MESS["LANDING_TPL_DEV_HELP_KNOWLEDGE"] = "Brauchen Sie Hilfe beim Erstellen Ihrer Wissensbasis?";
 $MESS["LANDING_TPL_DEV_ORDER"] = "Sie können Entwicklung bei unseren partnern bestellen";
+$MESS["LANDING_TPL_FEEDBACK_FORM_TITLE"] = "Anfrage senden";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Veröffentlicht in der Domain #LINK#";
 $MESS["LANDING_TPL_TITLE"] = "Websites";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "Wissensbasis";

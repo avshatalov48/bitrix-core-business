@@ -72,7 +72,7 @@ class Contact extends Base
 	 * @return integer|null
 	 * @throws
 	 */
-	protected function saveData($id = null, array $data)
+	protected function saveData($id, array $data)
 	{
 		$setList = array_filter($data['SET_LIST'], 'is_numeric');
 		$subList = array_filter($data['SUB_LIST'], 'is_numeric');

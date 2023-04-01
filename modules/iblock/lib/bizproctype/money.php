@@ -27,6 +27,7 @@ if (Loader::requireModule('bizproc'))
 				&& filter_var($currentValue, FILTER_VALIDATE_INT|FILTER_VALIDATE_FLOAT) !== false
 			)
 			{
+				//TODO: replace to \CCurrencyLang::formatValue after refactoring currency for support really big prices (more than float)
 				$format = \CCurrencyLang::getCurrencyFormat($currentCurrency);
 				$separators = \CCurrencyLang::getSeparators();
 				$thousandsSep = $separators[$format['THOUSANDS_VARIANT']];

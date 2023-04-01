@@ -68,22 +68,22 @@ class ConsentBuilderMail extends AbstractConsentMessageBuilder
 	protected function buildLinkApply(): string
 	{
 		return static::buildLink([
-			'CODE' => $this->fields['CONTACT_CODE'],
-			'CONTACT' => $this->fields['CONTACT_ID'],
-			'RECIPIENT' => $this->fields['RECIPIENT_ID'],
-			'POSTING' => $this->fields['POSTING_ID'],
-			'CONSENT' => $this->fields['CONSENT_ID'],
-		], $this->fields['SITE_ID'], static::APPLY);
+			'CODE' => $this->fields['CONTACT_CODE'] ?? '',
+			'CONTACT' => $this->fields['CONTACT_ID'] ?? '',
+			'RECIPIENT' => $this->fields['RECIPIENT_ID'] ?? '',
+			'POSTING' => $this->fields['POSTING_ID'] ?? '',
+			'CONSENT' => $this->fields['CONSENT_ID'] ?? '',
+		], $this->fields['SITE_ID'] ?? '', static::APPLY);
 	}
 
 	protected function buildLinkReject(): string
 	{
 		return static::buildLink([
-			'CODE' => $this->fields['CONTACT_CODE'],
-			'CONTACT' => $this->fields['CONTACT_ID'],
-			'RECIPIENT' => $this->fields['RECIPIENT_ID'],
-			'POSTING' => $this->fields['POSTING_ID'],
-			'CONSENT' => $this->fields['CONSENT_ID'],
+			'CODE' => $this->fields['CONTACT_CODE'] ?? '',
+			'CONTACT' => $this->fields['CONTACT_ID'] ?? '',
+			'RECIPIENT' => $this->fields['RECIPIENT_ID'] ?? '',
+			'POSTING' => $this->fields['POSTING_ID'] ?? '',
+			'CONSENT' => $this->fields['CONSENT_ID'] ?? '',
 		], $this->fields['SITE_ID'], static::REJECT);
 	}
 

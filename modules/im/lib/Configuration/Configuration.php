@@ -22,6 +22,7 @@ use Exception;
 class Configuration
 {
 	public const DEFAULT_PRESET_NAME = 'default';
+	public const DEFAULT_PRESET_SETTING_NAME = 'default_configuration_preset';
 	protected const DEFAULT_SORT = 100;
 
 	public const USER_PRESET_SORT = 1000000;

@@ -42,19 +42,13 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 
 		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 		
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
+		$this->arParams['SET_TITLE'] = !isset($this->arParams['SET_TITLE']) || $this->arParams['SET_TITLE'] == 'Y';
 
-		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
-			?
-			$this->arParams['CAN_VIEW']
-			:
-			Security\Access::current()->canViewLetters();
+		$this->arParams['CAN_VIEW'] = $this->arParams['CAN_VIEW'] ?? Security\Access::current()->canViewLetters();
 
-		$this->arParams['GOTO_URI_AFTER_SAVE'] = isset($this->arParams['GOTO_URI_AFTER_SAVE'])
-			?
-			$this->arParams['GOTO_URI_AFTER_SAVE']
-			:
-			$this->arParams['PATH_TO_TIME'];
+		$this->arParams['GOTO_URI_AFTER_SAVE'] = $this->arParams['GOTO_URI_AFTER_SAVE']
+			??
+			($this->arParams['PATH_TO_TIME'] ?? '');
 	}
 
 	protected function preparePostMessage()
@@ -131,7 +125,7 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 		);
 		if (!$this->letter->getId())
 		{
-			$data['CAMPAIGN_ID'] = $this->arParams['CAMPAIGN_ID'] ?: Entity\Campaign::getDefaultId(SITE_ID);
+			$data['CAMPAIGN_ID'] = $this->arParams['CAMPAIGN_ID'] ?? Entity\Campaign::getDefaultId(SITE_ID);
 			$data['CREATED_BY'] = Security\User::current()->getId();
 		}
 		$this->letter->mergeData($data);
@@ -208,7 +202,7 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 		);
 
 		$this->arResult['USE_TEMPLATES'] = Templates\Selector::create()
-									->withMessageCode($this->arResult['MESSAGE_CODE'])
+									->withMessageCode($this->arResult['MESSAGE_CODE'] ?? '')
 									->hasAny();
 		if (!$this->letter)
 		{
@@ -254,7 +248,7 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 				$configuration->getOptionsByGroup(Message\ConfigurationOption::GROUP_ADDITIONAL)
 			),
 		);
-		if($this->arResult['ROW']['TEMPLATE_ID'])
+		if($this->arResult['ROW']['TEMPLATE_ID'] ?? false)
 		{
 			$this->arResult['ROW']['TEMPLATE'] =Templates\Selector::create()
 						->withMessageCode(
@@ -279,14 +273,14 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 
 		$this->arResult['LETTER_TILE'] = UI\TileView::create()->getTile(
-			$this->arResult['ROW']['ID'],
+			$this->arResult['ROW']['ID'] ?? null,
 			$this->arResult['ROW']['TITLE'],
 			[
 				'title' => $this->arResult['ROW']['TITLE'],
-				'userId' => $this->arResult['ROW']['USER_ID'],
-				'userName' => $this->arResult['ROW']['USER_NAME'] . ' ' . $this->arResult['ROW']['USER_LAST_NAME'],
-				'dateInsert' => (string) $this->arResult['ROW']['DATE_INSERT'],
-				'timeShift' => (int) $this->arResult['ROW']['TIME_SHIFT'],
+				'userId' => $this->arResult['ROW']['USER_ID'] ?? null,
+				'userName' => ($this->arResult['ROW']['USER_NAME'] ?? '') . ' ' . ($this->arResult['ROW']['USER_LAST_NAME'] ?? ''),
+				'dateInsert' => (string) ($this->arResult['ROW']['DATE_INSERT'] ?? ''),
+				'timeShift' => (int) ($this->arResult['ROW']['TIME_SHIFT'] ?? ''),
 			]
 		);
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
@@ -294,7 +288,7 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 		$this->arResult['USE_TEMPLATES'] = $this->accessController
 				->check(ActionDictionary::ACTION_TEMPLATE_VIEW)
 			&& Templates\Selector::create()
-				->withMessageCode($this->arResult['MESSAGE_CODE'])
+				->withMessageCode($this->arResult['MESSAGE_CODE'] ?? '')
 				->hasAny();
 
 		$this->arResult['SHOW_TEMPLATE_SELECTOR'] =

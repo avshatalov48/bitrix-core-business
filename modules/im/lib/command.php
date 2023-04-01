@@ -635,7 +635,7 @@ class Command
 			$chatEntityType = $messageFields['CHAT_ENTITY_TYPE'] ?? null;
 			if (
 				$chatEntityType === 'LIVECHAT'
-				|| ($chatEntityType === 'LINES' && $bots[$value['BOT_ID']]['OPENLINE'] !== 'Y')
+				|| ($chatEntityType === 'LINES' && $bots[$value['BOT_ID']]['OPENLINE'] != 'Y')
 			)
 			{
 				continue;

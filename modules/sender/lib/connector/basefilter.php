@@ -182,18 +182,18 @@ abstract class BaseFilter extends Base
 				}
 				if ($field['type'] === 'dest_selector')
 				{
-					if (array_key_exists($field['id'].'_label', $fieldValues))
+					if (is_array($fieldValues) && array_key_exists($field['id'].'_label', $fieldValues))
 					{
 						$values[$field['id'].'_label']  = $fieldValues[$field['id'].'_label'];
 					}
-					elseif (array_key_exists('_label', $fieldValues[$field['id']]))
+					elseif (is_array($fieldValues[$field['id']]) && array_key_exists('_label', $fieldValues[$field['id']]))
 					{
 						$values[$field['id'].'_label']  = $fieldValues[$field['id']]['_label'];
 						$fieldValues[$field['id']] = $fieldValues[$field['id']]['_value'];
 					}
 				}
 
-				$values[$field['id']] = $fieldValues[$field['id']];
+				$values[$field['id']] = $fieldValues[$field['id']] ?? '';
 			}
 
 			$fieldValues = $values;
@@ -329,13 +329,13 @@ abstract class BaseFilter extends Base
 		$filterOptions = new FilterOptions($filterId, static::getUiFilterPresets());
 		$settings = $filterOptions->getOptions();
 		$cleared = false;
-		if ($settings && $settings['filter'])
+		if ($settings && ($settings['filter'] ?? false))
 		{
 			$filterPresetIds = ['tmp_filter', $settings['filter']];
 			foreach ($filterPresetIds as $filterPresetId)
 			{
 				$presetSettings = $filterOptions->getFilterSettings($filterPresetId);
-				if ($presetSettings['fields'])
+				if ($presetSettings && ($presetSettings['fields'] ?? false))
 				{
 					$filterOptions->setFilterSettings($filterPresetId, ['clear_filter' => 'Y']); // clear saved filter state
 					$cleared = true;

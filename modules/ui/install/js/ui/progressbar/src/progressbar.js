@@ -306,8 +306,8 @@ export class ProgressBar {
 		}
 		else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT)
 		{
-			Dom.adjust(this.status, {
-				text: this.getStatusPercent()
+			Dom.adjust(this.status.firstChild, {
+				text: this.getStatusPercent(),
 			});
 		}
 	}
@@ -325,7 +325,10 @@ export class ProgressBar {
 			else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT)
 			{
 				this.status = Tag.render`
-					<div class="ui-progressbar-status-percent">${this.getStatusPercent()}</div>
+					<div class="ui-progressbar-status-percent">
+						<span class="ui-progressbar-status-percent-value">${this.getStatusPercent()}</span>
+						<span class="ui-progressbar-status-percent-sign">%</span>
+					</div>
 				`;
 			}
 			else
@@ -350,7 +353,7 @@ export class ProgressBar {
 			this.statusPercent = 100;
 		}
 
-		return this.statusPercent + "%";
+		return this.statusPercent;
 	}
 
 	getStatusCounter()
@@ -417,7 +420,7 @@ export class ProgressBar {
 		{
 			this.bar = Dom.create("div", {
 				props: {className: "ui-progressbar-bar"},
-				style: {width: this.getStatusPercent()}
+				style: {width: `${this.getStatusPercent()}%`}
 			});
 		}
 
@@ -454,7 +457,7 @@ export class ProgressBar {
 		}
 
 		Dom.adjust(this.bar, {
-			style: {width: this.getStatusPercent()}
+			style: {width: `${this.getStatusPercent()}%`}
 		});
 	}
 

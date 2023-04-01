@@ -9,4 +9,9 @@ return [
 		],
 		"readonly" => true,
 	],
+	"yandex.integration.widget" => [
+		"value" => [
+			"partnerId" => 2706070
+		]
+	]
 ];

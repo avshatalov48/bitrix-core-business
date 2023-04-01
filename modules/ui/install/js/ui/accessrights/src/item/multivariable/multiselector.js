@@ -23,10 +23,11 @@ export default class MultiSelector extends Changer
 		this.enableSearch = options.enableSearch ?? false;
 		this.placeholder = options.placeholder || '';
 		this.hintTitle = options.hintTitle || '';
-		this.allSelectedCode = options.allSelectedCode || '-1';
+		this.allSelectedCode = Text.toNumber(options.allSelectedCode || -1);
 		this.showAvatars = options.showAvatars ?? true;
 		this.compactView = options.compactView ?? false;
 		this.currentValue = Type.isArray(options.currentValue) ? options.currentValue : [];
+		this.currentValue = this.currentValue.map(value => Text.toNumber(value));
 		this.selectedValues = this.currentValue;
 
 		this.variables = this.variables.map((item) => {
@@ -76,7 +77,7 @@ export default class MultiSelector extends Changer
 	render(): HTMLElement
 	{
 		let title = '';
-		if (this.selectedValues.includes(this.allSelectedCode))
+		if (this.includesSelected(this.allSelectedCode))
 		{
 			title = Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_ACCEPTED');
 		}
@@ -89,7 +90,7 @@ export default class MultiSelector extends Changer
 
 			if (titles.length > 0 )
 			{
-				const firstItem = Text.encode(titles[0]);
+				const firstItem = titles[0];
 				title =
 					titles.length - 1 > 0
 						? Loc.getMessage(
@@ -127,7 +128,7 @@ export default class MultiSelector extends Changer
 		}
 
 		const variablesValue = Tag.render`
-				<div class='ui-access-rights-column-item-text-link' data-hint-html data-hint-no-icon data-hint="${hint}">
+				<div class='ui-access-rights-column-item-text-link' data-hint-html data-hint-no-icon data-hint="${Text.encode(hint)}">
 					${Text.encode(title)}
 				</div>
 			`;
@@ -163,12 +164,17 @@ export default class MultiSelector extends Changer
 
 	getSelected(): ?VariableItem[]
 	{
-		if (this.selectedValues.includes(this.allSelectedCode))
+		if (this.includesSelected(this.allSelectedCode))
 		{
 			return this.variables;
 		}
 
-		return this.variables.filter(variable => this.selectedValues.includes(variable.id));
+		return this.variables.filter(variable => this.includesSelected(variable.id));
+	}
+
+	includesSelected(item): boolean
+	{
+		return this.selectedValues.includes(Text.toNumber(item));
 	}
 
 	showSelector(event: Event): void
@@ -187,7 +193,7 @@ export default class MultiSelector extends Changer
 		else
 		{
 			selected.forEach((item) => {
-				this.selectedValues.push(item.id);
+				this.selectedValues.push(Text.toNumber(item.id));
 			});
 		}
 

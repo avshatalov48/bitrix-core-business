@@ -45,71 +45,60 @@ class StyleImg extends Node
 	 * @param array $data Data array.
 	 * @return void
 	 */
-	public static function saveNode(Block $block, $selector, array $data)
+	public static function saveNode(Block $block, $selector, array $data): void
 	{
-		$resultList = Node\Style::getNodesBySelector($block, $selector);
-		$files = null;
-
-		foreach ($data as $pos => $value)
+		if (!self::isCorrectNodeType($block, $selector))
 		{
-			$id = isset($value['id']) ? (int)$value['id'] : 0;
-			$id2x = isset($value['id2x']) ? (int)$value['id2x'] : 0;
+			Img::saveNode($block, $selector, $data);
+		}
+		else
+		{
+			$resultList = Node\Style::getNodesBySelector($block, $selector);
+			$files = null;
 
-			// check permissions to this file ids
-			if ($id || $id2x)
+			foreach ($data as $pos => $value)
 			{
-				if ($files === null)
-				{
-					$files = File::getFilesFromBlock($block->getId());
-				}
-				if (!in_array($id, $files))
-				{
-					$id = 0;
-				}
-				if (!in_array($id2x, $files))
-				{
-					$id2x = 0;
-				}
-			}
+				$id = isset($value['id']) ? (int)$value['id'] : 0;
+				$id2x = isset($value['id2x']) ? (int)$value['id2x'] : 0;
 
-			if (isset($resultList[$pos]))
-			{
-				// update in content
-				if ($resultList[$pos]->getTagName() !== 'IMG')
+				// check permissions to this file ids
+				if ($id || $id2x)
 				{
-					$styles = DOM\StyleInliner::getStyle($resultList[$pos]);
-					if (isset($styles['--bg-url']))
+					if ($files === null)
 					{
-						$styles['background-image'] = '';
+						$files = File::getFilesFromBlock($block->getId());
 					}
-					if (!isset($styles['background']))
+					if (!in_array($id, $files))
 					{
-						if ($id)
-						{
-							$stylesChanged = false;
-							$resultList[$pos]->setAttribute('data-fileid', $id);
-							foreach (self::STYLES_VARIABLES_WITH_FILES['1x'] as $var => $pattern)
-							{
-								if (isset($styles[$var]))
-								{
-									$fileArray = \CFile::GetFileArray($id);
-									$styles[$var] = str_replace(
-										self::STYLES_URL_MARKER,
-										$fileArray['SRC'],
-										$pattern
-									);
-									$stylesChanged = true;
-								}
-							}
+						$id = 0;
+					}
+					if (!in_array($id2x, $files))
+					{
+						$id2x = 0;
+					}
+				}
 
-							if ($id2x)
+				if (isset($resultList[$pos]))
+				{
+					// update in content
+					if ($resultList[$pos]->getTagName() !== 'IMG')
+					{
+						$styles = DOM\StyleInliner::getStyle($resultList[$pos]);
+						if (isset($styles['--bg-url']))
+						{
+							$styles['background-image'] = '';
+						}
+						if (!isset($styles['background']))
+						{
+							if ($id)
 							{
-								$resultList[$pos]->setAttribute('data-fileid2x', $id2x);
-								foreach (self::STYLES_VARIABLES_WITH_FILES['2x'] as $var => $pattern)
+								$stylesChanged = false;
+								$resultList[$pos]->setAttribute('data-fileid', $id);
+								foreach (self::STYLES_VARIABLES_WITH_FILES['1x'] as $var => $pattern)
 								{
 									if (isset($styles[$var]))
 									{
-										$fileArray = \CFile::GetFileArray($id2x);
+										$fileArray = \CFile::GetFileArray($id);
 										$styles[$var] = str_replace(
 											self::STYLES_URL_MARKER,
 											$fileArray['SRC'],
@@ -118,46 +107,64 @@ class StyleImg extends Node
 										$stylesChanged = true;
 									}
 								}
-							}
 
-							if (!$stylesChanged)
-							{
-								$classList = $resultList[$pos]->getAttribute('class');
-								if (!stripos($classList, 'g-bg-image'))
+								if ($id2x)
 								{
-									$classList .= ' g-bg-image';
+									$resultList[$pos]->setAttribute('data-fileid2x', $id2x);
+									foreach (self::STYLES_VARIABLES_WITH_FILES['2x'] as $var => $pattern)
+									{
+										if (isset($styles[$var]))
+										{
+											$fileArray = \CFile::GetFileArray($id2x);
+											$styles[$var] = str_replace(
+												self::STYLES_URL_MARKER,
+												$fileArray['SRC'],
+												$pattern
+											);
+											$stylesChanged = true;
+										}
+									}
 								}
-								$resultList[$pos]->setAttribute('class', $classList);
-								$fileArray1x = \CFile::GetFileArray($id);
-								$src1x = $fileArray1x['SRC'];
-								$styles['--bg-url'] = "url('{$src1x}');";
-								if ($id2x <= 0 && $id > 0)
-								{
-									$id2x = $id;
-								}
-								$fileArray2x = \CFile::GetFileArray($id2x);
-								$src2x = $fileArray2x['SRC'];
-								$styles['--bg-url-2x'] = "url('{$src2x}');";
-								$stylesChanged = true;
-							}
 
-							if ($stylesChanged)
-							{
-								DOM\StyleInliner::setStyle($resultList[$pos], $styles);
-							}
-						}
-						else
-						{
-							foreach (['fileid', 'fileid2x'] as $dataCode)
-							{
-								$attribute = 'data-' . $dataCode;
-								$oldId = $resultList[$pos]->getAttribute($attribute);
-								if ($oldId > 0)
+								if (!$stylesChanged)
 								{
-									File::deleteFromBlock(
-										$block->getId(),
-										$oldId
-									);
+									$classList = $resultList[$pos]->getAttribute('class');
+									if (!stripos($classList, 'g-bg-image'))
+									{
+										$classList .= ' g-bg-image';
+									}
+									$resultList[$pos]->setAttribute('class', $classList);
+									$fileArray1x = \CFile::GetFileArray($id);
+									$src1x = $fileArray1x['SRC'];
+									$styles['--bg-url'] = "url('{$src1x}');";
+									if ($id2x <= 0 && $id > 0)
+									{
+										$id2x = $id;
+									}
+									$fileArray2x = \CFile::GetFileArray($id2x);
+									$src2x = $fileArray2x['SRC'];
+									$styles['--bg-url-2x'] = "url('{$src2x}');";
+									$stylesChanged = true;
+								}
+
+								if ($stylesChanged)
+								{
+									DOM\StyleInliner::setStyle($resultList[$pos], $styles);
+								}
+							}
+							else
+							{
+								foreach (['fileid', 'fileid2x'] as $dataCode)
+								{
+									$attribute = 'data-' . $dataCode;
+									$oldId = $resultList[$pos]->getAttribute($attribute);
+									if ($oldId > 0)
+									{
+										File::deleteFromBlock(
+											$block->getId(),
+											$oldId
+										);
+									}
 								}
 							}
 						}
@@ -175,35 +182,42 @@ class StyleImg extends Node
 	 */
 	public static function getNode(Block $block, $selector): array
 	{
-		$data = [];
-		$resultList = Node\Style::getNodesBySelector($block, $selector);
-
-		foreach ($resultList as $pos => $res)
+		if (!self::isCorrectNodeType($block, $selector))
 		{
-			if ($res->getTagName() !== 'IMG')
-			{
-				$isLazy =
-					$res->getAttribute('data-lazy-styleimg')
-					&& $res->getAttribute('data-lazy-styleimg') === 'Y'
-				;
-				$nodeData =
-					$isLazy
-						? self::getNodeDataLazy($res)
-						: self::getNodeData($res)
-				;
-				if ($nodeData)
-				{
-					$files = File::getFilesFromBlock($block->getId());
-					if (!in_array($nodeData['id'], $files))
-					{
-						continue;
-					}
-					if ($nodeData['id2x'] && !in_array($nodeData['id'], $files))
-					{
-						unset($nodeData['id2x'], $nodeData['src2x'], $nodeData['lazyOrigSrc2x']);
-					}
+			$data = Img::getNode($block, $selector);
+		}
+		else
+		{
+			$data = [];
+			$resultList = Node\Style::getNodesBySelector($block, $selector);
 
-					$data[$pos] = $nodeData;
+			foreach ($resultList as $pos => $res)
+			{
+				if ($res->getTagName() !== 'IMG')
+				{
+					$isLazy =
+						$res->getAttribute('data-lazy-styleimg')
+						&& $res->getAttribute('data-lazy-styleimg') === 'Y'
+					;
+					$nodeData =
+						$isLazy
+							? self::getNodeDataLazy($res)
+							: self::getNodeData($res)
+					;
+					if ($nodeData)
+					{
+						$files = File::getFilesFromBlock($block->getId());
+						if (!in_array($nodeData['id'], $files))
+						{
+							continue;
+						}
+						if ($nodeData['id2x'] && !in_array($nodeData['id'], $files))
+						{
+							unset($nodeData['id2x'], $nodeData['src2x'], $nodeData['lazyOrigSrc2x']);
+						}
+
+						$data[$pos] = $nodeData;
+					}
 				}
 			}
 		}
@@ -310,8 +324,37 @@ class StyleImg extends Node
 	 * @param string $selector Selector.
 	 * @return array
 	 */
-	public static function getSearchableNode($block, $selector): array
+	public static function getSearchableNode(Block $block, string $selector): array
 	{
-		return [];
+		if (!self::isCorrectNodeType($block, $selector))
+		{
+			$data = Img::getSearchableNode($block, $selector);
+		}
+		else
+		{
+			$data = [];
+		}
+		return $data;
+	}
+
+	/**
+	 * Find src in inline styles variables
+	 * @param Block $block Block instance.
+	 * @param string $selector Selector.
+	 * @return bool
+	 */
+	protected static function isCorrectNodeType(Block $block, string $selector): bool
+	{
+		$matches = [];
+		$pattern = '/' . substr($selector, 1) . '[^\"]*/i';
+		if (preg_match($pattern, $block->getContent(), $matches) === 1)
+		{
+			$pattern = '/[\s]?g-bg-image[\s]?/i';
+			if (preg_match($pattern, $matches[0]) === 1)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

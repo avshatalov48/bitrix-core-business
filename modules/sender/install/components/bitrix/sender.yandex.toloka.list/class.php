@@ -367,10 +367,10 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 			$result[$data['USER_ID']] = \CAllUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				[
-					'LOGIN'       => $data['USER_LOGIN'],
-					'NAME'        => $data['USER_NAME'],
-					'LAST_NAME'   => $data['USER_LAST_NAME'],
-					'SECOND_NAME' => $data['USER_SECOND_NAME']
+					'LOGIN'       => $data['USER_LOGIN'] ?? '',
+					'NAME'        => $data['USER_NAME'] ?? '',
+					'LAST_NAME'   => $data['USER_LAST_NAME'] ?? '',
+					'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 				],
 				true,
 				false
@@ -459,7 +459,7 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		$searchString  = $filterOptions->getSearchString();
 
 		$filter = ['=IS_TRIGGER' => 'N'];
-		if ($requestFilter['TITLE'])
+		if ($requestFilter['TITLE'] ?? false)
 		{
 			$filter['TITLE'] = '%'.$requestFilter['TITLE'].'%';
 		}
@@ -542,10 +542,10 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		$data['USER']      = \CAllUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			[
-				'LOGIN'       => $data['USER_LOGIN'],
-				'NAME'        => $data['USER_NAME'],
-				'LAST_NAME'   => $data['USER_LAST_NAME'],
-				'SECOND_NAME' => $data['USER_SECOND_NAME']
+				'LOGIN'       => $data['USER_LOGIN'] ?? '',
+				'NAME'        => $data['USER_NAME'] ?? '',
+				'LAST_NAME'   => $data['USER_LAST_NAME'] ?? '',
+				'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 			],
 			true,
 			false

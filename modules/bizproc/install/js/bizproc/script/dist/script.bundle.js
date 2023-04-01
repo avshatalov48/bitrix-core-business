@@ -312,12 +312,7 @@ this.BX = this.BX || {};
 	      text: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_SEND_PARAMS'),
 	      color: ui_buttons.Button.Color.SUCCESS,
 	      onclick: function onclick() {
-	        var paramFields = {};
-	        var formData = new FormData(form);
-	        parameters.forEach(function (param) {
-	          paramFields[param.Id] = param.Multiple ? formData.getAll(param.Id + '[]') : formData.get(param.Id);
-	        });
-	        _classPrivateMethodGet(_this4, _startScriptInternal, _startScriptInternal2).call(_this4, scriptId, documentIds, formData, popup);
+	        _classPrivateMethodGet(_this4, _startScriptInternal, _startScriptInternal2).call(_this4, scriptId, documentIds, new FormData(form), popup);
 	      }
 	    }), new BX.UI.Button({
 	      text: main_core.Loc.getMessage('UI_MESSAGE_BOX_CANCEL_CAPTION'),

@@ -7,7 +7,7 @@ use Bitrix\Main\Localization\Loc;
 
 class LogicLib extends BaseLib
 {
-	function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return [
 			'true' => [
@@ -64,7 +64,7 @@ class LogicLib extends BaseLib
 
 	public function callNot(Arguments $args)
 	{
-		return !((boolean)$args->getFirst());
+		return !$args->getFirst();
 	}
 
 	public function callAnd(Arguments $args)

@@ -209,10 +209,7 @@ class Element
 	 */
 	public function getPropertyValues($propertyId)
 	{
-		if (!$this->elementPropertyValues[$propertyId])
-			return array();
-		else
-			return $this->elementPropertyValues[$propertyId];
+		return $this->elementPropertyValues[$propertyId] ?? [];
 	}
 
 	/**
@@ -224,7 +221,7 @@ class Element
 	 */
 	public function getPriceValues($priceId)
 	{
-		return $this->elementPrices[$priceId];
+		return $this->elementPrices[$priceId] ?? [];
 	}
 
 	/**

@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Sale\Delivery\Requests;
 
 use Bitrix\Main;
@@ -206,6 +207,7 @@ final class Manager
 						'SALE_DLVR_REQ_MNGR_ERROR_NOT_SUPPORT',
 						array('#DELIVERY_LINK#' => Helper::getDeliveryEditLink($deliveryId))
 			)));
+			self::sendOnCreateDeliveryRequestEvent($result, $deliveryId, $shipmentIds, $additional);
 
 			return $result;
 		}
@@ -229,6 +231,8 @@ final class Manager
 		if (empty($shipmentIds))
 		{
 			$result->addError(new Main\Error(Loc::getMessage('SALE_DLVR_REQ_MNGR_ERROR_SHP_ABSENT')));
+			self::sendOnCreateDeliveryRequestEvent($result, $deliveryId, $shipmentIds, $additional);
+
 			return $result;
 		}
 
@@ -242,7 +246,10 @@ final class Manager
 			$result->addErrors($handlerResult->getErrors());
 
 			foreach ($handlerResult->getShipmentResults() as $sRes)
+			{
 				$result->addResult(self::processShipmentResult($sRes));
+			}
+			self::sendOnCreateDeliveryRequestEvent($result, $deliveryId, $shipmentIds, $additional);
 
 			return $result;
 		}
@@ -252,6 +259,9 @@ final class Manager
 		if (!is_array($results) || empty($results))
 		{
 			$result->addError(new Main\Error(Loc::getMessage('SALE_DLVR_REQ_MNGR_ERROR_RES_UNKNOWN')));
+
+			self::sendOnCreateDeliveryRequestEvent($result, $deliveryId, $shipmentIds, $additional);
+
 			return $result;
 		}
 
@@ -320,7 +330,18 @@ final class Manager
 		}
 
 		$result->setResults($results);
+		self::sendOnCreateDeliveryRequestEvent($result, $deliveryId, $shipmentIds, $additional);
 
+		return $result;
+	}
+
+	private static function sendOnCreateDeliveryRequestEvent(
+		Result $result,
+		int $deliveryId,
+		array $shipmentIds,
+		array $additional
+	)
+	{
 		(new Main\Event(
 			'sale',
 			self::REQUEST_CREATED_EVENT_CODE,
@@ -331,8 +352,6 @@ final class Manager
 				'RESULT' => $result,
 			]
 		))->send();
-
-		return $result;
 	}
 
 	/**

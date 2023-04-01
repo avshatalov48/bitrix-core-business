@@ -8,7 +8,7 @@ use Bitrix\Main\Localization\Loc;
 
 class StringLib extends BaseLib
 {
-	function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return [
 			'numberformat' => [
@@ -71,18 +71,18 @@ class StringLib extends BaseLib
 
 	public function callNumberFormat(Arguments $args)
 	{
-		$number = (float)$args->getFirst();
+		$number = (float)$args->getFirstSingle();
 		$decimals = (int)($args->getSecond() ?: 0);
 		$decPoint = $args->getThird();
 
-		if ($decPoint === null)
+		if (!is_scalar($decPoint))
 		{
 			$decPoint = '.';
 		}
 		$decPoint = (string)$decPoint;
 
 		$thousandsSeparator = $args->getArg(3);
-		if ($thousandsSeparator === null)
+		if (!is_scalar($thousandsSeparator))
 		{
 			$thousandsSeparator = ',';
 		}
@@ -93,14 +93,14 @@ class StringLib extends BaseLib
 
 	public function callRandString(Arguments $args)
 	{
-		$len = (int)$args->getFirst();
+		$len = (int)$args->getFirstSingle();
 
 		return Main\Security\Random::getString($len, true);
 	}
 
 	public function callSubstr(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 		$pos = (int)$args->getSecond();
 		$len = (int)$args->getThird();
 
@@ -124,17 +124,19 @@ class StringLib extends BaseLib
 
 	public function callStrpos(Arguments $args)
 	{
-		$haystack = (string)$args->getFirst();
+		$haystack = $args->getFirstSingle();
+		$needle = $args->getSecondSingle();
 
-		if (empty($haystack))
+		if (empty($haystack) || is_array($haystack) || is_array($needle))
 		{
 			return false;
 		}
+		$haystack = (string)$haystack;
+		$needle = (string)$needle;
 
 		$maxOffset = mb_strlen($haystack);
 		$minOffset = -1 * $maxOffset;
 
-		$needle = (string)$args->getSecond();
 		$offset = max($minOffset, min($maxOffset, (int)$args->getThird()));
 
 		return mb_strpos($haystack, $needle, $offset);
@@ -142,7 +144,7 @@ class StringLib extends BaseLib
 
 	public function callStrlen(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{
@@ -156,13 +158,13 @@ class StringLib extends BaseLib
 
 	public function callUrlencode(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{
-			if (is_array($str))
+			if (is_array($str) && count($str) === 1)
 			{
-				$str = implode(", ", \CBPHelper::MakeArrayFlat($str));
+				$str = \CBPHelper::stringify($str);
 			}
 			else
 			{
@@ -177,7 +179,7 @@ class StringLib extends BaseLib
 
 	public function callStrtolower(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{
@@ -189,7 +191,7 @@ class StringLib extends BaseLib
 
 	public function callStrtoupper(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{
@@ -201,7 +203,7 @@ class StringLib extends BaseLib
 
 	public function callUcwords(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{
@@ -213,7 +215,7 @@ class StringLib extends BaseLib
 
 	public function callUcfirst(Arguments $args)
 	{
-		$str = $args->getFirst();
+		$str = $args->getFirstSingle();
 
 		if (!is_scalar($str))
 		{

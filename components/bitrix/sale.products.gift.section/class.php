@@ -74,7 +74,10 @@ class SaleProductsGiftSectionComponent extends ElementList
 		$sectionId = null;
 
 		$sectionSearch = $this->arParams['SECTION_ID'] > 0 || $this->arParams['SECTION_CODE'] !== '';
-		$sectionByItemSearch = $this->arParams['SECTION_ELEMENT_ID'] > 0 || $this->arParams['SECTION_ELEMENT_CODE'] !== '';
+		$sectionByItemSearch =
+			(isset($this->arParams['SECTION_ELEMENT_ID']) && $this->arParams['SECTION_ELEMENT_ID'] > 0)
+			|| (isset($this->arParams['SECTION_ELEMENT_CODE']) && $this->arParams['SECTION_ELEMENT_CODE'] !== '')
+		;
 
 		if ($sectionSearch || $sectionByItemSearch)
 		{

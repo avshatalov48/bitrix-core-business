@@ -126,7 +126,7 @@ class EventBuilderFromGetList extends EventBuilderFromArray
 	 */
 	protected function getFullDay(): bool
 	{
-		return $this->fields['DT_SKIP_TIME'] === 'Y';
+		return isset($this->fields['DT_SKIP_TIME']) && $this->fields['DT_SKIP_TIME'] === 'Y';
 	}
 
 	/**

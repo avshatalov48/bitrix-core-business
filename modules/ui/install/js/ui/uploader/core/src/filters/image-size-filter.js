@@ -9,34 +9,29 @@ import type UploaderFile from '../uploader-file';
 
 export default class ImageSizeFilter extends Filter
 {
-	imageMinWidth: number = 1;
-	imageMinHeight: number = 1;
-	imageMaxWidth: number = 7000;
-	imageMaxHeight: number = 7000;
-	ignoreUnknownImageTypes: boolean = false;
+	#imageMinWidth: number = 1;
+	#imageMinHeight: number = 1;
+	#imageMaxWidth: number = 7000;
+	#imageMaxHeight: number = 7000;
+	#ignoreUnknownImageTypes: boolean = false;
 
 	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
 	{
 		super(uploader);
 
 		const settings = Extension.getSettings('ui.uploader.core');
-		this.imageMinWidth = settings.get('imageMinWidth', this.imageMinWidth);
-		this.imageMinHeight = settings.get('imageMinHeight', this.imageMinHeight);
-		this.imageMaxWidth = settings.get('imageMaxWidth', this.imageMaxWidth);
-		this.imageMaxHeight = settings.get('imageMaxHeight', this.imageMaxHeight);
+		this.#imageMinWidth = settings.get('imageMinWidth', this.#imageMinWidth);
+		this.#imageMinHeight = settings.get('imageMinHeight', this.#imageMinHeight);
+		this.#imageMaxWidth = settings.get('imageMaxWidth', this.#imageMaxWidth);
+		this.#imageMaxHeight = settings.get('imageMaxHeight', this.#imageMaxHeight);
 
 		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
-		['imageMinWidth', 'imageMinHeight', 'imageMaxWidth', 'imageMaxHeight'].forEach(option => {
-			if (Type.isNumber(options[option]) && options[option] > 0)
-			{
-				this[option] = options[option];
-			}
-		});
 
-		if (Type.isBoolean(options['ignoreUnknownImageTypes']))
-		{
-			this.ignoreUnknownImageTypes = options['ignoreUnknownImageTypes'];
-		}
+		this.setImageMinWidth(options['imageMinWidth']);
+		this.setImageMinHeight(options['imageMinHeight']);
+		this.setImageMaxWidth(options['imageMaxWidth']);
+		this.setImageMaxHeight(options['imageMaxHeight']);
+		this.setIgnoreUnknownImageTypes(options['ignoreUnknownImageTypes']);
 	}
 
 	apply(file: UploaderFile): Promise
@@ -49,28 +44,28 @@ export default class ImageSizeFilter extends Filter
 				return;
 			}
 
-			getImageSize(file.getFile())
+			getImageSize(file.getBinary())
 				.then(({ width, height }) => {
 					file.setWidth(width);
 					file.setHeight(height);
 
-					if (width < this.imageMinWidth || height < this.imageMinHeight)
+					if (width < this.getImageMinWidth() || height < this.getImageMinHeight())
 					{
 						reject(new UploaderError(
 							'IMAGE_IS_TOO_SMALL',
 							{
-								minWidth: this.imageMinWidth,
-								minHeight: this.imageMinHeight,
+								minWidth: this.getImageMinWidth(),
+								minHeight: this.getImageMinHeight(),
 							},
 						));
 					}
-					else if (width > this.imageMaxWidth || height > this.imageMaxHeight)
+					else if (width > this.getImageMaxWidth() || height > this.getImageMaxHeight())
 					{
 						reject(new UploaderError(
 							'IMAGE_IS_TOO_BIG',
 							{
-								maxWidth: this.imageMaxWidth,
-								maxHeight: this.imageMaxHeight,
+								maxWidth: this.getImageMaxWidth(),
+								maxHeight: this.getImageMaxHeight(),
 							},
 						));
 					}
@@ -79,17 +74,87 @@ export default class ImageSizeFilter extends Filter
 						resolve();
 					}
 				})
-				.catch(() => {
-					if (this.ignoreUnknownImageTypes)
+				.catch(error => {
+					if (this.getIgnoreUnknownImageTypes())
 					{
 						resolve();
 					}
 					else
 					{
+						if (error)
+						{
+							console.log('Uploader ImageSizeFilter:', error);
+						}
+
 						reject(new UploaderError('IMAGE_TYPE_NOT_SUPPORTED'));
 					}
 				})
 			;
 		});
+	}
+
+	getImageMinWidth(): number
+	{
+		return this.#imageMinWidth;
+	}
+
+	setImageMinWidth(value: number): void
+	{
+		if (Type.isNumber(value) && value > 0)
+		{
+			this.#imageMinWidth = value;
+		}
+	}
+
+	getImageMinHeight(): number
+	{
+		return this.#imageMinHeight;
+	}
+
+	setImageMinHeight(value: number): void
+	{
+		if (Type.isNumber(value) && value > 0)
+		{
+			this.#imageMinHeight = value;
+		}
+	}
+
+	getImageMaxWidth(): number
+	{
+		return this.#imageMaxWidth;
+	}
+
+	setImageMaxWidth(value: number): void
+	{
+		if (Type.isNumber(value) && value > 0)
+		{
+			this.#imageMaxWidth = value;
+		}
+	}
+
+	getImageMaxHeight(): number
+	{
+		return this.#imageMaxHeight;
+	}
+
+	setImageMaxHeight(value: number): void
+	{
+		if (Type.isNumber(value) && value > 0)
+		{
+			this.#imageMaxHeight = value;
+		}
+	}
+
+	getIgnoreUnknownImageTypes(): boolean
+	{
+		return this.#ignoreUnknownImageTypes;
+	}
+
+	setIgnoreUnknownImageTypes(value: boolean): void
+	{
+		if (Type.isBoolean(value))
+		{
+			this.#ignoreUnknownImageTypes = value;
+		}
 	}
 }

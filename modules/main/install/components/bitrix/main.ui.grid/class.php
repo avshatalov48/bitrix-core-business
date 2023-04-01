@@ -143,7 +143,7 @@ class CMainUIGrid extends CBitrixComponent
 
 		foreach ($this->arParams['ROWS'] as $key => $row)
 		{
-			if ($row['id'] === 'template_0')
+			if (isset($row['id']) && $row['id'] === 'template_0')
 			{
 				$templateRow = array_merge($row, $templateRow);
 				unset($this->arParams['ROWS'][$key]);
@@ -190,7 +190,10 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["TOTAL_ROWS_COUNT"] = Grid\Params::prepareInt(
-			array($this->arParams["TOTAL_ROWS_COUNT"], $this->arParams["FOOTER"]["TOTAL_ROWS_COUNT"]),
+			[
+				$this->arParams["TOTAL_ROWS_COUNT"] ?? null,
+				$this->arParams["FOOTER"]["TOTAL_ROWS_COUNT"] ?? null,
+			],
 			null
 		);
 
@@ -200,27 +203,27 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["AGGREGATE_ROWS"] = Grid\Params::prepareArray(
-			array($this->arParams["AGGREGATE_ROWS"]),
-			array()
+			[$this->arParams["AGGREGATE_ROWS"] ?? null],
+			[]
 		);
 
 		$this->arParams["NAV_PARAM_NAME"] = Grid\Params::prepareString(
-			array($this->arParams["NAV_PARAM_NAME"]),
+			[$this->arParams["NAV_PARAM_NAME"] ?? null],
 			null
 		);
 
 		$this->arParams["CURRENT_PAGE"] = Grid\Params::prepareInt(
-			array($this->arParams["CURRENT_PAGE"]),
+			[$this->arParams["CURRENT_PAGE"] ?? null],
 			null
 		);
 
 		$this->arParams["NAV_STRING"] = Grid\Params::prepareString(
-			array($this->arParams["NAV_STRING"], $this->arParams["FOOTER"]["NAV_STRING"]),
+			array($this->arParams["NAV_STRING"] ?? null, $this->arParams["FOOTER"]["NAV_STRING"] ?? null),
 			""
 		);
 
 		$this->arParams["ACTIONS_LIST"] = Grid\Params::prepareArray(
-			array($this->arParams["ACTIONS_LIST"], $this->arParams["ACTIONS"]["list"]),
+			array($this->arParams["ACTIONS_LIST"] ?? null, $this->arParams["ACTIONS"]["list"] ?? null),
 			array()
 		);
 
@@ -235,12 +238,12 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["ALLOW_INLINE_EDIT"] = Grid\Params::prepareBoolean(
-			array($this->arParams["ALLOW_INLINE_EDIT"], $this->arParams["EDITABLE"]),
+			array($this->arParams["ALLOW_INLINE_EDIT"] ?? null, $this->arParams["EDITABLE"] ?? null),
 			true
 		);
 
 		$this->arParams["SHOW_ROW_ACTIONS_MENU"] = Grid\Params::prepareBoolean(
-			array($this->arParams["SHOW_ROW_ACTIONS_MENU"], $this->arParams["ROW_ACTIONS"]),
+			array($this->arParams["SHOW_ROW_ACTIONS_MENU"], $this->arParams["ROW_ACTIONS"] ?? null),
 			true
 		);
 
@@ -255,7 +258,7 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["ALLOW_GROUP_ACTIONS"] = Grid\Params::prepareBoolean(
-			array($this->arParams["ALLOW_GROUP_ACTIONS"], $this->arParams["ACTION_ALL_ROWS"]),
+			array($this->arParams["ALLOW_GROUP_ACTIONS"] ?? null, $this->arParams["ACTION_ALL_ROWS"] ?? null),
 			false
 		);
 
@@ -265,7 +268,7 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["ALLOW_CONTEXT_MENU"] = Grid\Params::prepareBoolean(
-			array($this->arParams["ALLOW_CONTEXT_MENU"]),
+			array($this->arParams["ALLOW_CONTEXT_MENU"] ?? null),
 			false
 		);
 

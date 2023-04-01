@@ -121,7 +121,11 @@
 					return;
 				}
 
-				BX.bind(node, 'click', this.show.bind(this, target, node, items));
+				new BX.Sender.PersonalizationSelector({
+					button: node,
+					targetInput: target,
+					fields: items
+				});
 			},
 			onClick: function (target, node, item)
 			{

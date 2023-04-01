@@ -6,6 +6,7 @@ use Bitrix\Calendar\Internals\LocationTable;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Error;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
@@ -13,7 +14,7 @@ Loc::loadMessages(__FILE__);
 class Room
 {
 	public const TYPE = 'location';
-	
+
 	/** @var int|null $id*/
 	private ?int $id = null;
 	/** @var int|null $locationId */
@@ -46,6 +47,18 @@ class Room
 	 */
 	public static function createInstanceFromParams($params): Room
 	{
+		$params = [
+			'ID' => $params['ID'] ?? null,
+			'LOCATION_ID' => $params['LOCATION_ID'] ?? null,
+			'CAPACITY' => $params['CAPACITY'] ?? null,
+			'NECESSITY' => $params['NECESSITY'] ?? null,
+			'NAME' => $params['NAME'] ?? null,
+			'COLOR' => $params['COLOR'] ?? null,
+			'OWNER_ID' => $params['OWNER_ID'] ?? null,
+			'ACCESS' => $params['ACCESS'] ?? null,
+			'CATEGORY_ID' => $params['CATEGORY_ID'] ?? null,
+		];
+
 		$room = new self();
 		$room->setId($params['ID'])
 			->setLocationId($params['LOCATION_ID'])
@@ -78,7 +91,7 @@ class Room
 	public function setId(?int $id = null): Room
 	{
 		$this->id = $id;
-		
+
 		return $this;
 	}
 
@@ -90,9 +103,9 @@ class Room
 	public function setLocationId(?int $locationId = null): Room
 	{
 		$this->locationId = $locationId;
-		
+
 		return $this;
-		
+
 	}
 
 	/**
@@ -103,7 +116,7 @@ class Room
 	public function setCapacity(?int $capacity = null): Room
 	{
 		$this->capacity = $capacity;
-		
+
 		return $this;
 	}
 
@@ -115,7 +128,7 @@ class Room
 	public function setNecessity(?string $necessity = 'N'): Room
 	{
 		$this->necessity = ($necessity === 'Y') ? 'Y' : 'N';
-		
+
 		return $this;
 	}
 
@@ -127,7 +140,7 @@ class Room
 	public function setName(?string $name = ''): Room
 	{
 		$this->name = Manager::checkRoomName($name);
-		
+
 		return $this;
 	}
 
@@ -139,7 +152,7 @@ class Room
 	public function setColor(?string $color = ''): Room
 	{
 		$this->color = \CCalendar::Color($color);
-		
+
 		return $this;
 	}
 
@@ -151,7 +164,7 @@ class Room
 	public function setOwnerId(?int $ownerId = null): Room
 	{
 		$this->ownerId = $ownerId;
-		
+
 		return $this;
 	}
 
@@ -161,7 +174,7 @@ class Room
 	public function setCreatedBy(): Room
 	{
 		$this->createdBy = \CCalendar::GetCurUserId();
-		
+
 		return $this;
 	}
 
@@ -173,7 +186,7 @@ class Room
 	public function setAccess(?array $access = []): Room
 	{
 		$this->access = $access;
-		
+
 		return $this;
 	}
 
@@ -226,7 +239,7 @@ class Room
 	/**
 	 * @return string
 	 */
-	public function getNecessity(): string
+	public function getNecessity(): ?string
 	{
 		return $this->necessity;
 	}
@@ -234,7 +247,7 @@ class Room
 	/**
 	 * @return string
 	 */
-	public function getName(): string
+	public function getName(): ?string
 	{
 		return $this->name;
 	}
@@ -242,7 +255,7 @@ class Room
 	/**
 	 * @return string
 	 */
-	public function getType(): string
+	public function getType(): ?string
 	{
 		return $this->type;
 	}
@@ -250,7 +263,7 @@ class Room
 	/**
 	 * @return string
 	 */
-	public function getColor(): string
+	public function getColor(): ?string
 	{
 		return $this->color;
 	}
@@ -274,7 +287,7 @@ class Room
 	/**
 	 * @return array
 	 */
-	public function getAccess(): array
+	public function getAccess(): ?array
 	{
 		return $this->access;
 	}
@@ -303,7 +316,7 @@ class Room
 	{
 		$section = SectionTable::add([
 			'CAL_TYPE' => $this->type,
-			'NAME' => $this->name,
+			'NAME' => Emoji::encode($this->name),
 			'COLOR' => $this->color,
 			'OWNER_ID' => $this->ownerId,
 			'SORT' => 100,
@@ -315,7 +328,7 @@ class Room
 		if (!$section->isSuccess())
 		{
 			$this->addError(Loc::getMessage('EC_ROOM_SAVE_ERROR'));
-			
+
 			return $this;
 		}
 		$this->setId($section->getId());
@@ -332,10 +345,10 @@ class Room
 		{
 			SectionTable::delete($this->id);
 			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
-			
+
 			return $this;
 		}
-		
+
 		return $this;
 	}
 
@@ -348,7 +361,7 @@ class Room
 		$section = SectionTable::update(
 			$this->id,
 			[
-				'NAME' => $this->name,
+				'NAME' => Emoji::encode($this->name),
 				'COLOR' => $this->color,
 				'TIMESTAMP_X' => new DateTime(),
 			]
@@ -356,7 +369,7 @@ class Room
 		if (!$section->isSuccess())
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
-			
+
 			return $this;
 		}
 		$this->setId($section->getId());
@@ -372,7 +385,7 @@ class Room
 		if (!$location->isSuccess())
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
-			
+
 			return $this;
 		}
 
@@ -389,7 +402,7 @@ class Room
 		if (!$section->isSuccess())
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
-			
+
 			return $this;
 		}
 
@@ -397,7 +410,7 @@ class Room
 		if (!$location->isSuccess())
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
-			
+
 			return $this;
 		}
 

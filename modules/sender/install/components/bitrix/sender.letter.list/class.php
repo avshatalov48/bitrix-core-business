@@ -250,13 +250,16 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					}
 				}
 
-				if (!$item['EMAIL_FROM'] && $item['SENDER'])
+				if (!isset($item['EMAIL_FROM']) || !$item['EMAIL_FROM'])
 				{
-					$item['EMAIL_FROM'] = $item['SENDER'];
-				}
-				if (!$item['EMAIL_FROM'] && $item['OUTPUT_NUMBER'])
-				{
-					$item['EMAIL_FROM'] = $item['OUTPUT_NUMBER'];
+					if (isset($item['SENDER']) && $item['SENDER'])
+					{
+						$item['EMAIL_FROM'] = $item['SENDER'];
+					}
+					elseif (isset($item['OUTPUT_NUMBER']) && $item['OUTPUT_NUMBER'])
+					{
+						$item['EMAIL_FROM'] = $item['OUTPUT_NUMBER'];
+					}
 				}
 			}
 			catch (SystemException $exception)
@@ -654,10 +657,10 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$result[$data['USER_ID']] = \CUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				array(
-					'LOGIN' => $data['USER_LOGIN'],
-					'NAME' => $data['USER_NAME'],
-					'LAST_NAME' => $data['USER_LAST_NAME'],
-					'SECOND_NAME' => $data['USER_SECOND_NAME']
+					'LOGIN' => $data['USER_LOGIN'] ?? '',
+					'NAME' => $data['USER_NAME'] ?? '',
+					'LAST_NAME' => $data['USER_LAST_NAME'] ?? '',
+					'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 				),
 				true, false
 			);
@@ -714,12 +717,12 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 
 		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
 		$data['USER'] = \CUser::FormatName(
-			$this->arParams['NAME_TEMPLATE'],
+			$this->arParams['NAME_TEMPLATE'] ?? '',
 			array(
-				'LOGIN' => $data['USER_LOGIN'],
-				'NAME' => $data['USER_NAME'],
-				'LAST_NAME' => $data['USER_LAST_NAME'],
-				'SECOND_NAME' => $data['USER_SECOND_NAME']
+				'LOGIN' => $data['USER_LOGIN'] ?? '',
+				'NAME' => $data['USER_NAME'] ?? '',
+				'LAST_NAME' => $data['USER_LAST_NAME'] ?? '',
+				'SECOND_NAME' => $data['USER_SECOND_NAME'] ?? ''
 			),
 			true, false
 		);

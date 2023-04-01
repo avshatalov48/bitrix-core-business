@@ -4,8 +4,8 @@ namespace Bitrix\Bizproc\Calc;
 
 class Functions
 {
-	static array $functions;
-	static array $libsClasses = [
+	private static array $functions;
+	private static array $libsClasses = [
 		'logic' => Libs\LogicLib::class,
 		'string' => Libs\StringLib::class,
 		'math' => Libs\MathLib::class,
@@ -49,7 +49,7 @@ class Functions
 	protected static function getLibFunctions(Libs\BaseLib $lib): array
 	{
 		return array_map(
-			function($function) use ($lib)
+			static function($function) use ($lib)
 			{
 				$function['func'] = \Closure::fromCallable([$lib, $function['func']]);
 

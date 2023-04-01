@@ -222,4 +222,5 @@ $MESS['SUP_WRONG_GD'] = "Для обновления продукта необх
 $MESS["SUP_CONFLICT_POPUP_TITLE"] = "Конфликты зависимостей";
 $MESS["SUP_CONFLICT_NOTHING_SELECTED"] = "Ничего не выбрано";
 $MESS["SUP_CONFLICT_MODULE_MESSAGE"] = "Для установки #MODULE# необходимо наличие обновлений: #REQUIRES#";
+$MESS['SUP_PHP_LWARN_PHP8'] = 'Подробнее о переходе на PHP 8 вы можете прочитать <a href="https://helpdesk.bitrix24.ru/open/17332020/">на странице поддержки</a>.';
 ?>

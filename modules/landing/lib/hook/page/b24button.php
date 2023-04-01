@@ -156,6 +156,7 @@ class B24button extends \Bitrix\Landing\Hook\Page
 		}
 
 
+		$helpUrl = \Bitrix\Landing\Help::getHelpUrl('B24BUTTON');
 		return [
 			'USE' => new Landing\Field\Checkbox('USE', [
 				'title' => Loc::getMessage('LANDING_HOOK_B24BUTTONCODE_USE'),
@@ -175,7 +176,15 @@ class B24button extends \Bitrix\Landing\Hook\Page
 			'COLOR_VALUE' => new Landing\Field\Text('COLOR_VALUE', [
 				'title' => Loc::getMessage('LANDING_HOOK_B24BUTTONCOLOR_VALUE'),
 				'default' => self::COLOR_DEFAULT,
-			])
+			]),
+			'HELP' => new Landing\Field\Text('HELP', [
+				'title' => '',
+				'help' => $helpUrl
+					? '<a href="' . $helpUrl . '" target="_blank">' .
+					Loc::getMessage('LANDING_HOOK_DETAIL_HELP') .
+					'</a>'
+					: ''
+			]),
 		];
 	}
 

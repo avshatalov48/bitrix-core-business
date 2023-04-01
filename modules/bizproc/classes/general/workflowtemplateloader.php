@@ -385,7 +385,7 @@ class CBPWorkflowTemplateLoader
 				$parentActivity->FixUpParentChildRelationship($activity);
 			}
 
-			if ($activityFormatted['Children'])
+			if (!empty($activityFormatted['Children']))
 			{
 				$this->parseWorkflowTemplate($activityFormatted['Children'], $arActivityNames, $activity);
 			}
@@ -533,7 +533,7 @@ class CBPWorkflowTemplateLoader
 		}
 		else
 		{
-			$result["STATE_PERMISSIONS"] = $arWorkflowTemplate[0]["Properties"]["Permission"];
+			$result["STATE_PERMISSIONS"] = $arWorkflowTemplate[0]["Properties"]["Permission"] ?? null;
 		}
 
 		if (is_array($result["STATE_PERMISSIONS"]))
@@ -780,13 +780,18 @@ class CBPWorkflowTemplateLoader
 		$res = null;
 		foreach ($arWorkflowTemplate as $key => $value)
 		{
-			if ($value["Name"] == $activityName)
+			$valueName = $value['Name'] ?? null;
+			if ($valueName == $activityName)
+			{
 				return $arWorkflowTemplate[$key];
+			}
 
 			if (is_array($value["Children"]))
 			{
 				if ($res = &self::FindActivityByName($arWorkflowTemplate[$key]["Children"], $activityName))
+				{
 					return $res;
+				}
 			}
 		}
 
@@ -957,18 +962,24 @@ class CBPWorkflowTemplateLoader
 				continue;
 			}
 
-			$documentField = array(
+			$documentField = [
 				"name" => $field["Name"],
 				"code" => $code,
 				"type" => $field["Type"],
-				"multiple" => $field["Multiple"],
-				"required" => $field["Required"],
-			);
+				"multiple" => $field["Multiple"] ?? null,
+				"required" => $field["Required"] ?? null,
+			];
 
-			if (is_array($field["Options"]) && count($field["Options"]) > 0)
+			if (isset($field['Options']) && is_array($field["Options"]) && count($field["Options"]) > 0)
 			{
+				$documentField['options'] = '';
 				foreach ($field["Options"] as $k => $v)
 				{
+					if (!is_scalar($v))
+					{
+						continue;
+					}
+
 					$documentField["options"] .= "[".$k."]".$v."\n";
 				}
 			}
@@ -1153,16 +1164,21 @@ class CBPWorkflowTemplateLoader
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
 		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$event = new Event(
-			'bizproc',
-			'onAfterWorkflowTemplateAdd',
-			[
-				'FIELDS' => $arFields,
-			]
-		);
-		EventManager::getInstance()->send($event);
+		$id = (int)$DB->LastID();
 
-		return intval($DB->LastID());
+		if ($id)
+		{
+			$event = new Event(
+				'bizproc',
+				'onAfterWorkflowTemplateAdd',
+				[
+					'FIELDS' => $arFields,
+				]
+			);
+			EventManager::getInstance()->send($event);
+		}
+
+		return $id;
 	}
 
 	public function updateTemplate($id, $arFields, $systemImport = false, $validationRequired = true)

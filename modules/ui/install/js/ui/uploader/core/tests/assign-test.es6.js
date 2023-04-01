@@ -1,9 +1,10 @@
 import Uploader from '../src/uploader';
 import { fireEvent } from '@testing-library/dom';
+import { UploaderEvent } from '../src/enums/uploader-event';
 
 describe('Assigning', () => {
 	describe('assignBrowse', () => {
-		let uploader = null;
+		let uploader: Uploader = null;
 		let file = null;
 
 		beforeEach(() => {
@@ -17,7 +18,7 @@ describe('Assigning', () => {
 			file = new File(['<html><body><b>Hello</b></body></html>'], 'index.html', { type: 'text/html' });
 		});
 
-		it('should set tag attributes', async () => {
+		it('should set tag attributes', () => {
 			const input = document.createElement('input');
 			input.type = 'file';
 
@@ -63,7 +64,7 @@ describe('Assigning', () => {
 			assert.equal(addFiles.callCount, 0);
 		});
 
-		it('unassign browse to input', async () => {
+		it('unassign browse to input', () => {
 			const input = document.createElement('input');
 			input.type = 'file';
 
@@ -105,7 +106,7 @@ describe('Assigning', () => {
 			assert.equal(uploader.getFiles().length, 0);
 			assert.equal(addFiles.callCount, 0);
 
-			uploader.subscribe('onBeforeBrowse', (event) => {
+			uploader.subscribe(UploaderEvent.BEFORE_BROWSE, (event) => {
 				assert.equal(uploader.getFiles().length, 0);
 				assert.equal(addFiles.callCount, 0);
 
@@ -140,7 +141,7 @@ describe('Assigning', () => {
 			}, 50);
 
 			let callCount = 0;
-			uploader.subscribe('onBeforeBrowse', (event) => {
+			uploader.subscribe(UploaderEvent.BEFORE_BROWSE, (event) => {
 				callCount++;
 				if (callCount === 2)
 				{
@@ -158,7 +159,7 @@ describe('Assigning', () => {
 	});
 
 	describe('assignDropzone', () => {
-		let uploader = null;
+		let uploader: Uploader = null;
 		let file = null;
 
 		beforeEach(() => {
@@ -180,10 +181,10 @@ describe('Assigning', () => {
 			assert.equal(uploader.getFiles().length, 0);
 			assert.equal(addFiles.callCount, 0);
 
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 
 				assert.equal(uploader.getFiles().length, 1);
-				assert.equal(uploader.getFiles()[0].getFile(), file);
+				assert.equal(uploader.getFiles()[0].getBinary(), file);
 				assert.equal(addFiles.callCount, 1);
 
 				done();
@@ -210,7 +211,7 @@ describe('Assigning', () => {
 			}, 150);
 
 			let callCount = 0;
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 				callCount++;
 				if (callCount === 2)
 				{
@@ -219,7 +220,7 @@ describe('Assigning', () => {
 				else
 				{
 					assert.equal(uploader.getFiles().length, 1);
-					assert.equal(uploader.getFiles()[0].getFile(), file);
+					assert.equal(uploader.getFiles()[0].getBinary(), file);
 					assert.equal(addFiles.callCount, 1);
 				}
 
@@ -249,7 +250,7 @@ describe('Assigning', () => {
 			}, 100);
 
 			let callCount = 0;
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 				callCount++;
 				if (callCount === 4)
 				{
@@ -271,7 +272,7 @@ describe('Assigning', () => {
 	});
 
 	describe('assignPaste', () => {
-		let uploader = null;
+		let uploader: Uploader = null;
 		let file = null;
 		beforeEach(() => {
 			uploader = new Uploader({
@@ -292,9 +293,9 @@ describe('Assigning', () => {
 			assert.equal(uploader.getFiles().length, 0);
 			assert.equal(addFiles.callCount, 0);
 
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 				assert.equal(uploader.getFiles().length, 1);
-				assert.equal(uploader.getFiles()[0].getFile(), file);
+				assert.equal(uploader.getFiles()[0].getBinary(), file);
 				assert.equal(addFiles.callCount, 1);
 
 				done();
@@ -322,7 +323,7 @@ describe('Assigning', () => {
 			}, 150);
 
 			let callCount = 0;
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 				callCount++;
 				if (callCount === 2)
 				{
@@ -331,7 +332,7 @@ describe('Assigning', () => {
 				else
 				{
 					assert.equal(uploader.getFiles().length, 1);
-					assert.equal(uploader.getFiles()[0].getFile(), file);
+					assert.equal(uploader.getFiles()[0].getBinary(), file);
 					assert.equal(addFiles.callCount, 1);
 				}
 
@@ -361,7 +362,7 @@ describe('Assigning', () => {
 			}, 100);
 
 			let callCount = 0;
-			uploader.subscribe('File:onAdd', (event) => {
+			uploader.subscribe(UploaderEvent.FILE_ADD, (event) => {
 				callCount++;
 				if (callCount === 4)
 				{

@@ -5,7 +5,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	var _applicationName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applicationName");
-
 	class LeftPanelApplication {
 	  constructor(params = {}) {
 	    this.inited = false;
@@ -26,12 +25,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.rootNode = this.params.node || document.createElement('div');
 	    this.initCore().then(() => this.initPullHandler()).then(() => this.initComplete());
 	  }
-
 	  initPullHandler() {
 	    if (this.controller.pullHandlers.includes(im_v2_const.PullHandlers.recent)) {
 	      return Promise.resolve();
 	    }
-
 	    this.controller.pullClient.subscribe(new im_v2_provider_pull.RecentPullHandler({
 	      store: this.controller.getStore(),
 	      controller: this.controller,
@@ -40,7 +37,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.controller.pullHandlers.push(im_v2_const.PullHandlers.recent);
 	    return Promise.resolve();
 	  }
-
 	  initCore() {
 	    return new Promise(resolve => {
 	      im_v2_application_core.Core.ready().then(controller => {
@@ -49,13 +45,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  initComponent(node) {
 	    if (this.vueInstance) {
 	      this.bitrixVue.unmount();
 	      this.vueInstance = null;
 	    }
-
 	    return this.controller.createVue(this, {
 	      name: babelHelpers.classPrivateFieldLooseBase(this, _applicationName)[_applicationName],
 	      el: node,
@@ -68,20 +62,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return Promise.resolve();
 	    });
 	  }
-
 	  initComplete() {
 	    this.inited = true;
 	    this.initPromiseResolver(this);
 	  }
-
 	  ready() {
 	    if (this.inited) {
 	      return Promise.resolve(this);
 	    }
-
 	    return this.initPromise;
 	  }
-
 	}
 
 	exports.LeftPanelApplication = LeftPanelApplication;

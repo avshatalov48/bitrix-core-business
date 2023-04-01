@@ -7,7 +7,7 @@ CModule::IncludeModule("socialnetwork");
 $APPLICATION->ResetException();
 $APPLICATION->SetPageProperty("BodyClass", trim($APPLICATION->GetPageProperty("BodyClass")." no-all-paddings"));
 
-$arParams["FILTER_ID"] = "CALENDAR_GRID_FILTER_".$arParams["CALENDAR_TYPE"]."_".$arParams["OWNER_ID"]."_".CCalendar::GetCurUserId();
+$arParams["FILTER_ID"] = "CALENDAR_GRID_FILTER_".$arParams["CALENDAR_TYPE"]."_". ($arParams["OWNER_ID"] ?? '') ."_".CCalendar::GetCurUserId();
 
 $viewTaskPath = '';
 $editTaskPath = '';
@@ -31,7 +31,7 @@ $arParams['SHOW_FILTER'] =
 	|| $arParams['CALENDAR_TYPE'] === 'group';
 $arParams['FILTER_ID'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilterId(
 	$arParams['CALENDAR_TYPE'],
-	$arParams['OWNER_ID'],
+	$arParams['OWNER_ID'] ?? null,
 	$arParams['USER_ID']
 );
 $arParams['FILTER'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilters();
@@ -39,11 +39,11 @@ $arParams['FILTER_PRESETS'] = \Bitrix\Calendar\Ui\CalendarFilter::getPresets($ar
 
 $params = array(
 	'type' => $arParams['CALENDAR_TYPE'],
-	'ownerId' => $arParams['OWNER_ID'],
+	'ownerId' => $arParams['OWNER_ID'] ?? null,
 	'pageUrl' => htmlspecialcharsback(POST_FORM_ACTION_URI),
-	'allowSuperpose' => $arParams['ALLOW_SUPERPOSE'] == 'Y',
-	'allowResMeeting' => $arParams['ALLOW_RES_MEETING'] != 'N',
-	'allowVideoMeeting' => $arParams['ALLOW_RES_MEETING'] != 'N',
+	'allowSuperpose' => ($arParams['ALLOW_SUPERPOSE'] ?? null) == 'Y',
+	'allowResMeeting' => ($arParams['ALLOW_RES_MEETING'] ?? null) != 'N',
+	'allowVideoMeeting' => ($arParams['ALLOW_RES_MEETING'] ?? null) != 'N',
 	'SectionControlsDOMId' => 'sidebar',
 	'user_name_template' => empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]),
 	'viewTaskPath' => $viewTaskPath,

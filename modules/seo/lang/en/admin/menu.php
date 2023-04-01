@@ -14,5 +14,4 @@ $MESS["SEO_MENU_ADV_ENGINES_ALT"] = "Advertising platform integration";
 $MESS["SEO_MENU_ADV_AUTOLOG"] = "Autocontext log";
 $MESS["SEO_MENU_ADV_AUTOLOG_ALT"] = "Advert robot log";
 $MESS["SEO_MENU_YANDEX_DIRECT"] = "Yandex.Direct";
-$MESS["SEO_MENU_GOOGLE_ADWORDS"] = "Google AdWords";
 ?>

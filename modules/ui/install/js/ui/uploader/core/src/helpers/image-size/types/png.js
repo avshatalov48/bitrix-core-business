@@ -14,7 +14,7 @@ export default class Png
 		return new Promise((resolve, reject) => {
 			if (file.size < 40)
 			{
-				return resolve(null);
+				return reject(new Error('PNG signature not found.'));
 			}
 
 			const blob = file.slice(0, 40);
@@ -24,7 +24,7 @@ export default class Png
 
 					if (!compareBuffers(view, PNG_SIGNATURE, 0))
 					{
-						return resolve(null);
+						return reject(new Error('PNG signature not found.'));
 					}
 
 					if (compareBuffers(view, FRIED_CHUNK_NAME, 12))
@@ -38,7 +38,7 @@ export default class Png
 						}
 						else
 						{
-							resolve(null);
+							return reject(new Error('PNG IHDR not found.'));
 						}
 					}
 					else if (compareBuffers(view, IHDR_SIGNATURE, 12))
@@ -50,11 +50,11 @@ export default class Png
 					}
 					else
 					{
-						resolve(null);
+						return reject(new Error('PNG IHDR not found.'));
 					}
 				})
-				.catch(() => {
-					resolve(null);
+				.catch(error => {
+					return reject(error);
 				})
 			;
 		});

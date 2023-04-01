@@ -90,12 +90,7 @@ class CSecurityPhpConfigurationTest
 	 */
 	protected function checkPhpEntropy()
 	{
-		if(self::isRunOnWin() && version_compare(phpversion(),"5.3.3","<"))
-		{
-			$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_LOW_PHP_VERSION_ENTROPY", CSecurityCriticalLevel::MIDDLE);
-			return self::STATUS_FAILED;
-		}
-		elseif(!self::checkPhpEntropyConfigs())
+		if(!self::checkPhpEntropyConfigs())
 		{
 			$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_PHP_ENTROPY", CSecurityCriticalLevel::MIDDLE);
 			return self::STATUS_FAILED;

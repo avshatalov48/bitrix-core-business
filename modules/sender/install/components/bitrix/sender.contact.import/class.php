@@ -111,7 +111,7 @@ class SenderContactImportComponent extends CBitrixComponent
 		$this->arResult['ROW'] = $this->entityTemplate->getData();
 
 
-		if (!$this->arResult['ROW']['TYPE'])
+		if (!($this->arResult['ROW']['TYPE'] ?? false))
 		{
 			$this->arResult['ROW']['TYPE'] = Message\ConfigurationOption::TYPE_MAIL_EDITOR;
 		}
@@ -125,7 +125,7 @@ class SenderContactImportComponent extends CBitrixComponent
 			CommonAjax\ActionGetTemplate::NAME,
 			array(
 				'template_type' => 'USER',
-				'template_id' => $this->arResult['ROW']['ID']
+				'template_id' => $this->arResult['ROW']['ID'] ?? ''
 			),
 			$this->getPath() . '/ajax.php'
 		);

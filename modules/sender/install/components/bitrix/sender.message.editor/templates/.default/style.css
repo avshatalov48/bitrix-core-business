@@ -453,6 +453,12 @@
 	margin-bottom: 0 !important;
 }
 
+.bx-im-sender-value{
+	display: flex;
+	align-items: center;
+}
+
 .sender-im-message-wrap {
 	margin-bottom: 30px;
+	flex: 1;
 }

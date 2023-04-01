@@ -82,4 +82,7 @@ $MESS["EC_HIDE_GUEST_NAMES_HINT"] = "Вы можете скрыть от гос�
 $MESS["EC_MINUTE_SHORT"] = 'мин.';
 $MESS["EC_HOUR_SHORT"] = 'ч.';
 $MESS["EC_DAY_SHORT"] = 'д.';
+
+$MESS['EC_CONFERENCE_START'] = 'Начать видеоконференцию';
+$MESS['EC_CONFERENCE_ERROR'] = 'Не удалось начать видеоконференцию';
 ?>

@@ -127,37 +127,33 @@ this.BX = this.BX || {};
 	    });
 	  }
 
-	  deleteCategory(id, unfreezeButtonsCallback) {
-	    if (confirm(BX.message('EC_CATEGORY_DELETE_CONFIRM'))) {
-	      return new Promise(resolve => {
-	        BX.ajax.runAction('calendar.api.locationajax.deleteCategory', {
+	  deleteCategory(id) {
+	    return new Promise(resolve => {
+	      BX.ajax.runAction('calendar.api.locationajax.deleteCategory', {
+	        data: {
+	          id
+	        }
+	      }).then(response => {
+	        const categories = response.data || [];
+
+	        if (!categories.length) {
+	          BX.reload();
+	        }
+
+	        this.setCategories(categories);
+	        this.sortCategories();
+	        calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms.Categories:delete', new main_core.Event.BaseEvent({
 	          data: {
-	            id
+	            categoryList: categories
 	          }
-	        }).then(response => {
-	          const categories = response.data || [];
-
-	          if (!categories.length) {
-	            BX.reload();
-	          }
-
-	          this.setCategories(categories);
-	          this.sortCategories();
-	          calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms.Categories:delete', new main_core.Event.BaseEvent({
-	            data: {
-	              categoryList: categories
-	            }
-	          }));
-	          this.updateLocationContext(categories);
-	          resolve(response.data);
-	        }, response => {
-	          BX.Calendar.Util.displayError(response.errors);
-	          resolve(response.data);
-	        });
+	        }));
+	        this.updateLocationContext(categories);
+	        resolve(response.data);
+	      }, response => {
+	        BX.Calendar.Util.displayError(response.errors);
+	        resolve(response.data);
 	      });
-	    } else {
-	      unfreezeButtonsCallback();
-	    }
+	    });
 	  }
 
 	  checkName(name) {

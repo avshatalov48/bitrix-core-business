@@ -628,7 +628,7 @@ class CatalogProductVariationGridComponent
 				$columns['SKU_GRID_QUANTITY_RESERVED'] = $this->getDomElementForReservedQuantity($reserveQuantity);
 			}
 
-			$item['SKU_GRID_BARCODE_VALUES'] = $item['SKU_GRID_BARCODE'];
+			$item['SKU_GRID_BARCODE_VALUES'] = $item['SKU_GRID_BARCODE'] ?? [];
 			$item['SKU_GRID_BARCODE'] = '<div data-role="barcode-selector"></div>';
 			$actions = [];
 
@@ -862,6 +862,7 @@ class CatalogProductVariationGridComponent
 			'SHOW_TOTAL_COUNTER' => true,
 			'SHOW_PAGESIZE' => true,
 			'SHOW_ACTION_PANEL' => !$this->getProduct()->isSimple() && !$isReadOnly,
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 	}
 

@@ -1,4 +1,5 @@
 import Uploader from '../src/uploader';
+import { UploaderEvent } from '../src/enums/uploader-event';
 import { BaseEvent } from 'main.core.events';
 import { BaseError } from 'main.core';
 import createFileByType from './utils/create-file-by-type.es6';
@@ -10,7 +11,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				maxFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{
@@ -41,7 +42,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				maxFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -74,7 +75,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				maxFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -108,7 +109,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				minFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{
@@ -139,7 +140,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				minFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -171,7 +172,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				minFileSize: 1024,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -205,7 +206,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMaxFileSize: 451,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{
@@ -235,7 +236,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMaxFileSize: 453,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -265,7 +266,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMaxFileSize: 452,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{
@@ -297,7 +298,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMinFileSize: 1042,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{
@@ -327,7 +328,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMinFileSize: 1040,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -358,7 +359,7 @@ describe('File Size Validation', () => {
 				autoUpload: false,
 				imageMinFileSize: 1041,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 
 						try
@@ -392,7 +393,7 @@ describe('File Size Validation', () => {
 				maxTotalFileSize: 350,
 				multiple: true,
 				events: {
-					'File:onAdd': (event: BaseEvent) => {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
 						const { file, error } = event.getData();
 						try
 						{

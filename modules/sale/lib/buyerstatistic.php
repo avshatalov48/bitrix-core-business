@@ -56,12 +56,12 @@ class BuyerStatistic
 		);
 
 		$buyerStatistic = $statisticData->fetch();
-		$id = $buyerStatistic['ID'];
-
-		if (empty($id))
+		if (!$buyerStatistic)
+		{
 			return Internals\BuyerStatisticTable::add($result->getData());
-		else
-			return Internals\BuyerStatisticTable::update($id, $result->getData());
+		}
+
+		return Internals\BuyerStatisticTable::update($buyerStatistic['ID'], $result->getData());
 	}
 
 	/**

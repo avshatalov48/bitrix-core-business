@@ -82,7 +82,7 @@ class AudienceFacebook extends Audience
 		);
 	}
 
-	public function importContacts($audienceId, array $contacts = array(), array $options)
+	public function importContacts($audienceId, array $contacts, array $options)
 	{
 		return $this->getRequest()->send(array(
 			'methodName' => 'retargeting.audience.contacts.add',
@@ -96,7 +96,7 @@ class AudienceFacebook extends Audience
 		));
 	}
 
-	public function removeContacts($audienceId, array $contacts = array(), array $options)
+	public function removeContacts($audienceId, array $contacts, array $options)
 	{
 		return $this->getRequest()->send(array(
 			'methodName' => 'retargeting.audience.contacts.remove',

@@ -136,10 +136,10 @@ $APPLICATION->IncludeComponent(
 
 
 		<input data-role="template-type" type="hidden" name="TEMPLATE_TYPE" value="<?=htmlspecialcharsbx(
-			$arResult['ROW']['TEMPLATE_TYPE']
+			$arResult['ROW']['TEMPLATE_TYPE'] ?? ''
 		)?>">
 		<input data-role="template-id" type="hidden" name="TEMPLATE_ID" value="<?=htmlspecialcharsbx(
-			$arResult['ROW']['TEMPLATE_ID']
+			$arResult['ROW']['TEMPLATE_ID'] ?? ''
 		)?>">
 
 		<input data-role="dispatch" data-code="METHOD_CODE" type="hidden" name="DISPATCH[METHOD_CODE]">
@@ -157,7 +157,7 @@ $APPLICATION->IncludeComponent(
 			</div>
 			<div class="bx-sender-value">
 				<input data-role="title" type="text" name="TITLE" value="<?=htmlspecialcharsbx(
-					$arResult['ROW']['TITLE']
+					$arResult['ROW']['TITLE'] ?? ''
 				)?>" class="bx-sender-letter-form-control bx-sender-letter-field-input"
 					<? if (!$arParams['CAN_EDIT']): ?>disabled="disabled"<? endif; ?>
 				>
@@ -173,8 +173,8 @@ $APPLICATION->IncludeComponent(
 					"MESSAGE_CODE"  => $arResult['MESSAGE_CODE'],
 					"MESSAGE_ID"    => $arResult['MESSAGE_ID'],
 					"MESSAGE"       => $arResult['MESSAGE'],
-					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'],
-					"TEMPLATE_ID"   => $arResult['ROW']['TEMPLATE_ID'],
+					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'] ?? '',
+					"TEMPLATE_ID"   => $arResult['ROW']['TEMPLATE_ID'] ?? '',
 					"CAN_EDIT"      => $arParams['CAN_EDIT'],
 				],
 				false
@@ -197,7 +197,7 @@ $APPLICATION->IncludeComponent(
 						],
 						[
 							'TYPE' => 'cancel',
-							'LINK' => $arParams['PATH_TO_LIST']
+							'LINK' => $arParams['PATH_TO_LIST'] ?? ''
 						],
 					],
 				]
@@ -214,15 +214,15 @@ $APPLICATION->IncludeComponent(
 			[
 				'containerId'      => 'workarea-content',
 				'actionUri'        => $arResult['ACTION_URL'],
-				'isAvailable'      => $arResult['IS_AVAILABLE'],
-				'isSaved'          => $arResult['IS_SAVED'],
-				'isOutside'        => $arParams['IS_OUTSIDE'],
-				'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
-				'letterTile'       => $arResult['LETTER_TILE'],
-				'isRegistered'     => $arResult['IS_REGISTERED'],
+				'isAvailable'      => $arResult['IS_AVAILABLE'] ?? '',
+				'isSaved'          => $arResult['IS_SAVED'] ?? '',
+				'isOutside'        => $arParams['IS_OUTSIDE'] ?? '',
+				'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'] ?? '',
+				'letterTile'       => $arResult['LETTER_TILE'] ?? '',
+				'isRegistered'     => $arResult['IS_REGISTERED'] ?? '',
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
 				'preset'           => json_encode(
-					isset($arResult['ROW']['TEMPLATE']['FIELDS'])? $arResult['ROW']['TEMPLATE']['FIELDS'] : []
+					$arResult['ROW']['TEMPLATE']['FIELDS'] ?? []
 				),
 				'mess'             => [
 					'patternTitle'       => Loc::getMessage('SENDER_COMP_TMPL_TOLOKA_PATTERN_TITLE'),

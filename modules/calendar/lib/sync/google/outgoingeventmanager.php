@@ -68,7 +68,7 @@ class OutgoingEventManager extends Manager implements OutgoingEventManagerInterf
 				&& $instanceMap =  $syncEvent->getInstanceMap()
 			)
 			{
-				if (!$delayExportSyncEventList[$syncEvent->getEvent()->getSection()->getId()])
+				if (empty($delayExportSyncEventList[$syncEvent->getEvent()->getSection()->getId()]))
 				{
 					$delayExportSyncEventList[$syncEvent->getEvent()->getSection()->getId()] = [];
 				}
@@ -82,12 +82,12 @@ class OutgoingEventManager extends Manager implements OutgoingEventManagerInterf
 		/** @var SyncSection $syncSection */
 		foreach ($syncSectionMap as $syncSection)
 		{
-			if ($syncEventList = $syncEventListForExport[$syncSection->getSection()->getId()])
+			if ($syncEventList = ($syncEventListForExport[$syncSection->getSection()->getId()] ?? null))
 			{
 				$this->exportBatch(
 					$syncEventList,
 					$syncSection,
-					$delayExportSyncEventList[$syncSection->getSection()->getId()]
+					$delayExportSyncEventList[$syncSection->getSection()->getId()] ?? null
 				);
 			}
 		}
@@ -103,10 +103,13 @@ class OutgoingEventManager extends Manager implements OutgoingEventManagerInterf
 	 */
 	private function exportBatch(array $syncEventList, SyncSection $syncSection, ?array $syncEventInstanceList = null): void
 	{
+
 		// single or recurrence
 		foreach (array_chunk($syncEventList, self::CHUNK_LENGTH) as $batch)
 		{
 			$body = $this->prepareMultipartMixed($batch, $syncSection);
+			// TODO: Remake it: move this logic to parent::request().
+			// Or, better, in separate class.
 			$this->httpClient->post(self::BATCH_PATH, $body);
 
 			$this->multipartDecode($this->httpClient->getResult(), $syncEventList);
@@ -118,6 +121,8 @@ class OutgoingEventManager extends Manager implements OutgoingEventManagerInterf
 			foreach (array_chunk($syncEventInstanceList, self::CHUNK_LENGTH) as $batch)
 			{
 				$body = $this->prepareMultipartMixed($batch, $syncSection, $syncEventList);
+				// TODO: Remake it: move this logic to parent::request().
+				// Or, better, in separate class.
 				$this->httpClient->post(self::BATCH_PATH, $body);
 
 				$this->multipartDecode($this->httpClient->getResult(), $syncEventList);
@@ -240,30 +245,9 @@ class OutgoingEventManager extends Manager implements OutgoingEventManagerInterf
 						->setAction(Dictionary::SYNC_EVENT_ACTION['success'])
 					;
 				}
-				else
+				elseif (isset($parsedData['error']['code'], $parsedData['error']['message']))
 				{
-					if (
-						isset($parsedData['error'])
-						&& isset($parsedData['error']['code'])
-						&& isset($parsedData['error']['message'])
-					)
-					{
-						$searchResult = array_values($this->findSyncEvent($syncEventList, $eventId));
-						if ($searchResult)
-						{
-							$syncEvent = $searchResult[0];
-
-							$this->calculateLastSyncStatusForFailedSyncEvent($syncEvent, $parsedData['error']);
-
-							AddMessage2Log('Event sync error. ID: '
-								. $this->getId($partEvent[0])
-								. ' '
-								. $parsedData['error']['code']
-								. ' '
-								. $parsedData['error']['message']
-							);
-						}
-					}
+					return;
 				}
 			}
 		}

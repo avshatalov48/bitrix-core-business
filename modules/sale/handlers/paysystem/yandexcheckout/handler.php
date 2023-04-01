@@ -10,6 +10,8 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\PriceMaths;
+use Bitrix\Sale\Services\Base\RestrictionInfo;
+use Bitrix\Sale\Services\Base\RestrictionInfoCollection;
 use Bitrix\Seo;
 
 Localization\Loc::loadMessages(__FILE__);
@@ -28,39 +30,52 @@ class YandexCheckoutHandler
 {
 	const CMS_NAME = 'api_1c-bitrix';
 
-	const PAYMENT_STATUS_WAITING_FOR_CAPTURE = 'waiting_for_capture';
-	const PAYMENT_STATUS_SUCCEEDED = 'succeeded';
-	const PAYMENT_STATUS_CANCELED = 'canceled';
-	const PAYMENT_STATUS_PENDING = 'pending';
+	/**
+	 * @deprecated
+	 */
+	public const PAYMENT_STATUS_WAITING_FOR_CAPTURE = 'waiting_for_capture';
+	/**
+	 * @deprecated
+	 */
+	public const PAYMENT_STATUS_PENDING = 'pending';
+	/**
+	 * @deprecated
+	 */
+	public const AUTH_TYPE = 'yandex';
 
-	const PAYMENT_METHOD_SMART = '';
-	const PAYMENT_METHOD_ALFABANK = 'alfabank';
-	const PAYMENT_METHOD_BANK_CARD = 'bank_card';
-	const PAYMENT_METHOD_YANDEX_MONEY = 'yoo_money';
-	const PAYMENT_METHOD_SBERBANK = 'sberbank';
-	const PAYMENT_METHOD_QIWI = 'qiwi';
-	const PAYMENT_METHOD_WEBMONEY = 'webmoney';
-	const PAYMENT_METHOD_CASH = 'cash';
-	const PAYMENT_METHOD_MOBILE_BALANCE = 'mobile_balance';
-	const PAYMENT_METHOD_EMBEDDED = 'embedded';
-	const PAYMENT_METHOD_TINKOFF_BANK = 'tinkoff_bank';
+	public const PAYMENT_STATUS_SUCCEEDED = 'succeeded';
+	public const PAYMENT_STATUS_CANCELED = 'canceled';
 
-	const MODE_SMART = '';
-	const MODE_ALFABANK = 'alfabank';
-	const MODE_BANK_CARD = 'bank_card';
-	const MODE_YANDEX_MONEY = 'yoo_money';
-	const MODE_SBERBANK = 'sberbank';
-	const MODE_SBERBANK_SMS = 'sberbank_sms';
-	const MODE_QIWI = 'qiwi';
-	const MODE_WEBMONEY = 'webmoney';
-	const MODE_CASH = 'cash';
-	const MODE_MOBILE_BALANCE = 'mobile_balance';
-	const MODE_EMBEDDED = 'embedded';
-	const MODE_TINKOFF_BANK = 'tinkoff_bank';
+	public const PAYMENT_METHOD_SMART = '';
+	public const PAYMENT_METHOD_ALFABANK = 'alfabank';
+	public const PAYMENT_METHOD_BANK_CARD = 'bank_card';
+	public const PAYMENT_METHOD_YANDEX_MONEY = 'yoo_money';
+	public const PAYMENT_METHOD_SBERBANK = 'sberbank';
+	public const PAYMENT_METHOD_QIWI = 'qiwi';
+	public const PAYMENT_METHOD_WEBMONEY = 'webmoney';
+	public const PAYMENT_METHOD_CASH = 'cash';
+	public const PAYMENT_METHOD_EMBEDDED = 'embedded';
+	public const PAYMENT_METHOD_TINKOFF_BANK = 'tinkoff_bank';
+	public const PAYMENT_METHOD_SBP = 'sbp';
+	public const PAYMENT_METHOD_INSTALLMENTS = 'installments';
 
-	const URL = 'https://api.yookassa.ru/v3';
+	public const MODE_SMART = '';
+	public const MODE_ALFABANK = 'alfabank';
+	public const MODE_BANK_CARD = 'bank_card';
+	public const MODE_YANDEX_MONEY = 'yoo_money';
+	public const MODE_SBERBANK = 'sberbank';
+	public const MODE_SBERBANK_SMS = 'sberbank_sms';
+	public const MODE_SBERBANK_QR = 'sberbank_qr';
+	public const MODE_QIWI = 'qiwi';
+	public const MODE_WEBMONEY = 'webmoney';
+	public const MODE_CASH = 'cash';
+	public const MODE_MOBILE_BALANCE = 'mobile_balance';
+	public const MODE_EMBEDDED = 'embedded';
+	public const MODE_TINKOFF_BANK = 'tinkoff_bank';
+	public const MODE_SBP = 'sbp';
+	public const MODE_INSTALLMENTS = 'installments';
 
-	const AUTH_TYPE = 'yandex';
+	public const URL = 'https://api.yookassa.ru/v3';
 
 	private const CALLBACK_IP_LIST = [
 		'185.71.76.0/27',
@@ -74,6 +89,7 @@ class YandexCheckoutHandler
 	private const CONFIRMATION_TYPE_REDIRECT = "redirect";
 	private const CONFIRMATION_TYPE_EXTERNAL = "external";
 	private const CONFIRMATION_TYPE_EMBEDDED = "embedded";
+	private const CONFIRMATION_TYPE_QR = 'qr';
 
 	private const SEND_METHOD_HTTP_POST = "POST";
 	private const SEND_METHOD_HTTP_GET = "GET";
@@ -219,6 +235,17 @@ class YandexCheckoutHandler
 			$params['CONFIRMATION_TOKEN'] = $additionalParams['confirmation']['confirmation_token'] ?? '';
 			$params['RETURN_URL'] = $this->getReturnUrl($payment);
 		}
+		elseif ($template === 'template_qr')
+		{
+			$params['URL'] = $additionalParams['confirmation']['confirmation_data'] ?? '';
+			$params['QR_CODE_IMAGE'] = '';
+
+			$qrCode = self::generateQrCode($params['URL']);
+			if ($qrCode)
+			{
+				$params['QR_CODE_IMAGE'] = base64_encode($qrCode);
+			}
+		}
 
 		return $params;
 	}
@@ -253,6 +280,10 @@ class YandexCheckoutHandler
 		{
 			$template = "template_embedded";
 		}
+		elseif ($this->isQrPaymentType())
+		{
+			$template = "template_qr";
+		}
 
 		return $template ?? "template";
 	}
@@ -262,12 +293,12 @@ class YandexCheckoutHandler
 	 */
 	private function isSetExternalPaymentType(): bool
 	{
-		$externalPayment = array(
+		$externalPayment = [
 			static::MODE_ALFABANK,
 			static::MODE_SBERBANK_SMS
-		);
+		];
 
-		return in_array($this->service->getField('PS_MODE'), $externalPayment);
+		return in_array($this->service->getField('PS_MODE'), $externalPayment, true);
 	}
 
 	/**
@@ -276,6 +307,16 @@ class YandexCheckoutHandler
 	private function isSetEmbeddedPaymentType(): bool
 	{
 		return $this->service->getField('PS_MODE') === static::MODE_EMBEDDED;
+	}
+
+	private function isQrPaymentType(): bool
+	{
+		$qrPayment = [
+			static::MODE_SBP,
+			static::MODE_SBERBANK_QR,
+		];
+
+		return in_array($this->service->getField('PS_MODE'), $qrPayment, true);
 	}
 
 	/**
@@ -510,22 +551,31 @@ class YandexCheckoutHandler
 
 		if ($this->isSetEmbeddedPaymentType())
 		{
-			$query['confirmation'] = array(
+			$query['confirmation'] = [
 				'type' => self::CONFIRMATION_TYPE_EMBEDDED,
-			);
+			];
+		}
+		elseif ($this->isQrPaymentType())
+		{
+			$query['confirmation'] = [
+				'type' => self::CONFIRMATION_TYPE_QR,
+			];
+			$query['payment_method_data'] = [
+				'type' => $this->getYandexHandlerType($this->service->getField('PS_MODE')),
+			];
 		}
 		elseif ($this->service->getField('PS_MODE') !== static::MODE_SMART)
 		{
 			$query['capture'] = true;
-			$query['payment_method_data'] = array(
+			$query['payment_method_data'] = [
 				'type' => $this->getYandexHandlerType($this->service->getField('PS_MODE'))
-			);
+			];
 
 			if ($this->isSetExternalPaymentType())
 			{
-				$query['confirmation'] = array(
+				$query['confirmation'] = [
 					'type' => self::CONFIRMATION_TYPE_EXTERNAL,
-				);
+				];
 			}
 
 			if ($this->hasPaymentMethodFields())
@@ -548,7 +598,7 @@ class YandexCheckoutHandler
 
 		if ($this->isRecurring($payment) && !self::isOAuth())
 		{
-			$query["save_payment_method"] = true;
+			$query['save_payment_method'] = true;
 		}
 
 		return $query;
@@ -1158,19 +1208,22 @@ class YandexCheckoutHandler
 	 */
 	public static function getHandlerModeList()
 	{
-		return array(
+		return [
 			static::MODE_SMART => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SMART'),
 			static::MODE_BANK_CARD=> Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_BANK_CARDS'),
 			static::MODE_YANDEX_MONEY => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_YANDEX_MONEY'),
 			static::MODE_SBERBANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK'),
 			static::MODE_SBERBANK_SMS => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS'),
+			static::MODE_SBERBANK_QR => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR'),
 			static::MODE_QIWI => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI'),
 			static::MODE_WEBMONEY => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_WEBMONEY'),
 			static::MODE_ALFABANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK'),
 			static::MODE_CASH => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_CASH'),
 			static::MODE_EMBEDDED => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_EMBEDDED'),
 			static::MODE_TINKOFF_BANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK'),
-		);
+			static::MODE_INSTALLMENTS => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS'),
+			static::MODE_SBP => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBP'),
+		];
 	}
 
 	/**
@@ -1179,19 +1232,22 @@ class YandexCheckoutHandler
 	 */
 	protected function getYandexHandlerType($psMode)
 	{
-		$handlersMap = array(
+		$handlersMap = [
 			static::MODE_SMART => static::PAYMENT_METHOD_SMART,
 			static::MODE_ALFABANK => static::PAYMENT_METHOD_ALFABANK,
 			static::MODE_BANK_CARD => static::PAYMENT_METHOD_BANK_CARD,
 			static::MODE_YANDEX_MONEY => static::PAYMENT_METHOD_YANDEX_MONEY,
 			static::MODE_SBERBANK => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_SBERBANK_SMS => static::PAYMENT_METHOD_SBERBANK,
+			static::MODE_SBERBANK_QR => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_QIWI => static::PAYMENT_METHOD_QIWI,
 			static::MODE_WEBMONEY => static::PAYMENT_METHOD_WEBMONEY,
 			static::MODE_CASH => static::PAYMENT_METHOD_CASH,
 			static::MODE_EMBEDDED => static::PAYMENT_METHOD_EMBEDDED,
 			static::MODE_TINKOFF_BANK => static::PAYMENT_METHOD_TINKOFF_BANK,
-		);
+			static::MODE_INSTALLMENTS => static::PAYMENT_METHOD_INSTALLMENTS,
+			static::MODE_SBP => static::PAYMENT_METHOD_SBP,
+		];
 
 		if (array_key_exists($psMode, $handlersMap))
 		{
@@ -1208,9 +1264,9 @@ class YandexCheckoutHandler
 	{
 		return array(
 			'pay' => static::URL.'/payments',
-			'refund' =>  static::URL.'/refunds',
-			'confirm' =>  static::URL.'/payments/#payment_id#/capture',
-			'cancel' =>  static::URL.'/payments/#payment_id#/cancel',
+			'refund' => static::URL.'/refunds',
+			'confirm' => static::URL.'/payments/#payment_id#/capture',
+			'cancel' => static::URL.'/payments/#payment_id#/cancel',
 			'payment' => static::URL.'/payments/#payment_id#',
 			'settings' => static::URL.'/me',
 		);
@@ -1474,5 +1530,40 @@ class YandexCheckoutHandler
 	{
 		/** @noinspection TypeUnsafeComparisonInspection */
 		return Main\Config\Option::get('sale', 'YANDEX_CHECKOUT_OAUTH', false) == true;
+	}
+
+	public function getRestrictionList(): RestrictionInfoCollection
+	{
+		$psMode = $this->service->getField('PS_MODE');
+
+		$baseRestrictions = parent::getRestrictionList();
+		if ($psMode === self::PAYMENT_METHOD_INSTALLMENTS)
+		{
+			$restrictionInfo = new RestrictionInfo('Price', [
+				'MIN_VALUE' => 3000,
+				'MAX_VALUE' => 150000,
+			]);
+
+			$baseRestrictions->add($restrictionInfo);
+		}
+		elseif (
+			$psMode === self::PAYMENT_METHOD_SBP
+			|| $this->getYandexHandlerType($psMode) === self::PAYMENT_METHOD_SBERBANK
+		)
+		{
+			$restrictionInfo = new RestrictionInfo('Price', [
+				'MIN_VALUE' => 1,
+				'MAX_VALUE' => 1000000,
+			]);
+
+			$baseRestrictions->add($restrictionInfo);
+		}
+
+		return $baseRestrictions;
+	}
+
+	private static function generateQrCode(string $data): ?string
+	{
+		return (new PaySystem\BarcodeGenerator())->generate($data);
 	}
 }

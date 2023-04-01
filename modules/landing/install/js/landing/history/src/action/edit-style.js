@@ -1,11 +1,10 @@
 const {scrollTo, slice} = BX.Landing.Utils;
 
 /**
- * @param {string} state
  * @param {object} entry
  * @return {Promise}
  */
-export default function editStyle(state, entry)
+export default function editStyle(entry)
 {
 	return BX.Landing.PageObject.getInstance().blocks()
 		.then((blocks) => {
@@ -35,10 +34,10 @@ export default function editStyle(state, entry)
 			}
 
 			elements.forEach((element) => {
-				element.className = entry[state].className;
-				if (entry[state].style)
+				element.className = entry.params.value.className;
+				if (entry.params.value.style && entry.params.value.style !== '')
 				{
-					element.style = entry[state].style;
+					element.style = entry.params.value.style;
 				}
 				else
 				{
@@ -63,6 +62,7 @@ export default function editStyle(state, entry)
 				});
 			}
 
+			// todo: relative selector? position?
 			const styleNode = block.styles.find((style) => {
 				return (
 					style.selector === entry.selector
@@ -72,7 +72,11 @@ export default function editStyle(state, entry)
 
 			if (styleNode)
 			{
-				block.onStyleInputWithDebounce({node: styleNode.node, data: styleNode.getValue()});
+				if (entry.params.affect && entry.params.affect.length > 0)
+				{
+					styleNode.setAffects(entry.params.affect);
+				}
+				block.onStyleInputWithDebounce({node: styleNode.node, data: styleNode.getValue()}, true);
 			}
 		});
 }

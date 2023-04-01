@@ -71,9 +71,9 @@ class ContextMenu
 
 		$button['TEXT'] = htmlspecialcharsbx(trim($params['TEXT']));
 
-		$button['CONTEXT'] = in_array($params['CONTEXT'], Array('MOBILE', 'DESKTOP'))? $params['CONTEXT']: 'ALL';
+		$button['CONTEXT'] = isset($params['CONTEXT']) && in_array($params['CONTEXT'], ['MOBILE', 'DESKTOP']) ? $params['CONTEXT'] : 'ALL';
 
-		$button['DISABLED'] = $params['DISABLED'] == 'Y'? 'Y': 'N';
+		$button['DISABLED'] = (isset($params['DISABLED']) && $params['DISABLED'] == 'Y') ? 'Y' : 'N';
 
 		$this->items[] = $button;
 

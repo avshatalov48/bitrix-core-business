@@ -1,13 +1,18 @@
-import {ConfirmDeleteDialog} from "calendar.controls";
 import {Util} from 'calendar.util';
 import {EntryManager} from "./entrymanager";
-import { Type, Dom } from 'main.core';
+import { Type } from 'main.core';
 
 export {EntryManager};
 
 export class Entry
 {
 	FULL_DAY_LENGTH = 86400;
+
+	static CAL_TYPES = {
+		'user': 'user',
+		'group': 'group',
+		'company': 'company_calendar',
+	};
 	constructor(options = {})
 	{
 		this.prepareData(options.data);
@@ -252,6 +257,16 @@ export class Entry
 	isTask()
 	{
 		return this.data['~TYPE'] === 'tasks';
+	}
+
+	isSharingEvent()
+	{
+		return this.data['EVENT_TYPE'] === '#shared#';
+	}
+
+	isInvited()
+	{
+		return this.getCurrentStatus() === 'Q';
 	}
 
 	isLocation()
@@ -549,9 +564,9 @@ export class Entry
 		return Math.round((to.getTime() - from.getTime()) / Util.getDayLength()) + 1;
 	}
 
-	getName()
+	getName(): string
 	{
-		return this.name || this.defaultNewName;
+		return (this.name || '');
 	}
 
 	getColor()

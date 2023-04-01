@@ -169,7 +169,6 @@ $MESS["LANDING_HEADER_AND_BUTTONS_VARIABLE_NAME"] = "First name";
 $MESS["LANDING_IDENTIFY_HEADER"] = "Client match";
 $MESS["LANDING_IDENTIFY_MESSAGE_DESCRIPTION"] = "The less time a customer needs to fill out a form, the more chance of winning a sale!<br>If a customer filled out a form on your site in the past, their information is already in your CRM. Why not use it? Have the form recognize the customer and prefill form fields with data obtained previously.";
 $MESS["LANDING_IDENTIFY_MESSAGE_HEADER"] = "Client match feature is enabled!";
-$MESS["LANDING_RULE_CONDITION_VALUE_EMPTY"] = "Not selected";
 $MESS["LANDING_RULE_CONDITION_VALUE_NO"] = "No";
 $MESS["LANDING_RULE_CONDITION_VALUE_YES"] = "Yes";
 $MESS["LANDING_RULE_ENTRY_ADD_FIELD_LABEL"] = "Select field";
@@ -201,6 +200,7 @@ $MESS["LANDING_SPAM_PROTECTION_CUSTOM_KEYS_CHECKBOX_LABEL"] = "Use custom reCAPT
 $MESS["LANDING_SPAM_PROTECTION_KEYS_FORM_HELP_HREF"] = "https://www.google.com/recaptcha/about/";
 $MESS["LANDING_SPAM_PROTECTION_KEYS_FORM_HELP_TEXT"] = "How do I get the keys?";
 $MESS["LANDING_SPAM_PROTECTION_KEYS_FORM_TITLE"] = "Enter reCAPTCHA keys";
+$MESS["LANDING_SPAM_PROTECTION_MESSAGE_WARNING_RECAPTCHA"] = "Google reCAPTCHA is a security service provided by Google LLC.<br>By using reCAPTCHA you accept that data will be collected and sent to Google LLC as stated in the respective <a href=\"#URL_POLICIES_TERMS#\" target=\"_blank\">Terms of Service</a> and <a href=\"#URL_POLICIES_PRIVACY#\" target=\"_blank\">Privacy Policy</a>.";
 $MESS["LANDING_SPAM_PROTECTION_RECAPTCHA_KEY_FIELD_TITLE"] = "Key";
 $MESS["LANDING_SPAM_PROTECTION_RECAPTCHA_SECRET_KEY_FIELD_TITLE"] = "Secret key";
 $MESS["LANDING_SPAM_PROTECTION_TABS_TITLE"] = "Select how you want to use reCAPTCHA";

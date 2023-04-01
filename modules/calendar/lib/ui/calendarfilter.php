@@ -8,10 +8,13 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\Text\Emoji;
 
 class CalendarFilter
 {
 	protected static $filterId = '';
+
+	protected static array $filters;
 
 	/**
 	 * Get available fields in filter.
@@ -163,8 +166,6 @@ class CalendarFilter
 		return $result;
 	}
 
-
-
 	/**
 	 * @return array|bool
 	 */
@@ -186,11 +187,9 @@ class CalendarFilter
 	 */
 	public static function getFilters(): array
 	{
-		static $filters = [];
-
-		if (empty($filters))
+		if (empty(static::$filters))
 		{
-			$filters['CREATED_BY'] = [
+			static::$filters['CREATED_BY'] = [
 				'id' => 'CREATED_BY',
 				'name' => Loc::getMessage('CALENDAR_FILTER_CREATED_BY'),
 				'type' => 'entity_selector',
@@ -212,7 +211,7 @@ class CalendarFilter
 				],
 			];
 
-			$filters['ATTENDEES'] = [
+			static::$filters['ATTENDEES'] = [
 				'id' => 'ATTENDEES',
 				'name' => Loc::getMessage('CALENDAR_FILTER_ATTENDEES'),
 				'type' => 'entity_selector',
@@ -241,7 +240,7 @@ class CalendarFilter
 			// 	'default' => true,
 			// ];
 
-			$filters['MEETING_STATUS'] = [
+			static::$filters['MEETING_STATUS'] = [
 				'id' => 'MEETING_STATUS',
 				'name' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_ME'),
 				'type' => 'list',
@@ -257,14 +256,14 @@ class CalendarFilter
 				]
 			];
 
-			$filters['DATE'] = [
+			static::$filters['DATE'] = [
 				'id' => 'DATE',
 				'name' => Loc::getMessage('CALENDAR_FILTER_DATE'),
 				'type' => 'date'
 			];
 		}
 
-		return $filters;
+		return static::$filters;
 	}
 
 	private static function getSectionsForFilter(string $type, ?int $ownerId, ?int $userId): array
@@ -450,7 +449,7 @@ class CalendarFilter
 
 		if (isset($fields['search']) && $fields['search'])
 		{
-			$filter[(\CCalendarEvent::isFullTextIndexEnabled() ? '*' : '*%').'SEARCHABLE_CONTENT'] = \CCalendarEvent::prepareToken($fields['search']);
+			$filter[(\CCalendarEvent::isFullTextIndexEnabled() ? '*' : '*%').'SEARCHABLE_CONTENT'] = \CCalendarEvent::prepareToken(Emoji::encode($fields['search']));
 		}
 
 		$entries = \CCalendarEvent::GetList(
@@ -622,7 +621,7 @@ class CalendarFilter
 			$fromTs = \CCalendar::Timestamp($fields['fields']['DATE_FROM'], true, false);
 			$filter['FROM_LIMIT'] = \CCalendar::Date($fromTs, false);
 		}
-		else if (!$filter['FROM_LIMIT'])
+		else if (!($filter['FROM_LIMIT'] ?? null))
 		{
 			$filter['FROM_LIMIT'] = \CCalendar::Date(time() - 31 * 12 * 24 * 3600, false);
 		}

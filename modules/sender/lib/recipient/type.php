@@ -23,6 +23,7 @@ class Type extends ClassConstant
 	const IM = 3;
 	const CRM_COMPANY_ID = 4;
 	const CRM_CONTACT_ID = 5;
+	const CRM_LEAD_ID = 10;
 	const CRM_DEAL_PRODUCT_CONTACT_ID = 6;
 	const CRM_ORDER_PRODUCT_CONTACT_ID = 7;
 	const CRM_DEAL_PRODUCT_COMPANY_ID = 8;

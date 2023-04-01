@@ -1227,7 +1227,7 @@ class CFileCheckerUtil
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-if (in_array($_REQUEST["fcajax"], array("cl", "vf", "df")))
+if (isset($_REQUEST["fcajax"]) && in_array($_REQUEST["fcajax"], array("cl", "vf", "df")))
 {
 	if (!check_bitrix_sessid())
 	{
@@ -1339,9 +1339,9 @@ if (in_array($_REQUEST["fcajax"], array("cl", "vf", "df")))
 
 	die();
 }
-if ($_REQUEST["fcdld"] == "Y" && check_bitrix_sessid() && $canCollect)
+if (isset($_REQUEST["fcdld"]) && $_REQUEST["fcdld"] == "Y" && check_bitrix_sessid() && $canCollect)
 {
-	if (intval($_REQUEST["ts"]) > 0)
+	if (isset($_REQUEST["ts"]) && intval($_REQUEST["ts"]) > 0)
 	{
 		$streamFileName = CFileCheckerLog::StartDownload($_REQUEST["ts"]);
 

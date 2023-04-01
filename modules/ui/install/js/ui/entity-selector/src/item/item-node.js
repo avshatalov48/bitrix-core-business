@@ -100,6 +100,8 @@ export default class ItemNode
 				bgSize: null,
 				bgColor: null,
 				bgImage: null,
+				border: null,
+				borderRadius: null,
 			};
 			this.textColor = '';
 			this.link = '';
@@ -664,7 +666,7 @@ export default class ItemNode
 			}
 			else
 			{
-				this.getAvatarContainer().style.removeProperty('background-size');
+				this.getAvatarContainer().style.removeProperty('background-image');
 			}
 		}
 
@@ -686,6 +688,26 @@ export default class ItemNode
 		else
 		{
 			this.getAvatarContainer().style.removeProperty('background-size');
+		}
+
+		const border = this.getAvatarOption('border');
+		if (Type.isStringFilled(border))
+		{
+			this.getAvatarContainer().style.border = border;
+		}
+		else
+		{
+			this.getAvatarContainer().style.removeProperty('border');
+		}
+
+		const borderRadius = this.getAvatarOption('borderRadius');
+		if (Type.isStringFilled(borderRadius))
+		{
+			this.getAvatarContainer().style.borderRadius = borderRadius;
+		}
+		else
+		{
+			this.getAvatarContainer().style.removeProperty('border-radius');
 		}
 
 		Dom.clean(this.getBadgeContainer());

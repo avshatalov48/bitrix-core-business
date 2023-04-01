@@ -330,7 +330,7 @@
 							if (data.items[i]['PHOTO_SRC'].length > 0)
 							{
 								avatarNode = BX.create("IMG", {
-									attrs: {src: data.items[i]['PHOTO_SRC']},
+									attrs: {src: encodeURI(data.items[i]['PHOTO_SRC'])},
 									props: {className: "bx-ilike-popup-avatar-img"}
 								});
 							}

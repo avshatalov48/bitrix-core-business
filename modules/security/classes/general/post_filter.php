@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Config\Ini;
+
 class CSecurityXSSDetect
 {
 	const SCRIPT_MARK = '<!-- deleted by bitrix WAF -->';
@@ -239,7 +241,7 @@ class CSecurityXSSDetect
 		{
 			if($this->doLog)
 			{
-				$this->logVariable($var["name"], $var["value"], $str);
+				$this->logVariable($var["name"], $var["value"], $_SERVER["SCRIPT_NAME"]);
 			}
 
 			if($this->action !== "none")
@@ -257,6 +259,9 @@ class CSecurityXSSDetect
 	 */
 	protected function getFilteredScript($strs)
 	{
+		if(preg_match('#\btype="text/html"#', $strs[1]))
+			return $strs[0];
+
 		if(trim($strs[2]) === "")
 			return $strs[0];
 		else
@@ -269,8 +274,8 @@ class CSecurityXSSDetect
 	 */
 	protected function filter($string)
 	{
-		$stringLen = CUtil::BinStrlen($string) * 2;
-		CUtil::AdjustPcreBacktrackLimit($stringLen);
+		$stringLen = strlen($string) * 2;
+		Ini::adjustPcreBacktrackLimit($stringLen);
 
 		return preg_replace_callback("/(<script[^>]*>)(.*?)(<\\/script[^>]*>)/is", array($this, "getFilteredScript"), $string);
 	}

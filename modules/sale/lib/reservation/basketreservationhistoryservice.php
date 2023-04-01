@@ -116,6 +116,7 @@ class BasketReservationHistoryService
 				'PRODUCT_ID' => 'RESERVATION.BASKET.PRODUCT_ID',
 			],
 			'filter' => [
+				'!RESERVATION.STORE_ID' => null,
 				'=RESERVATION.BASKET.PRODUCT_ID' => $basket2productIds,
 			],
 			'order' => [

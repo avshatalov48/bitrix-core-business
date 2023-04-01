@@ -40,3 +40,6 @@ $containerId = 'bx-sender-call-text-editor';
 		</div>
 	</div>
 </div>
+<? if($arResult['TEMPLATE_OPTIONS_SELECTOR']): ?>
+	<span data-tag="<?=htmlspecialcharsbx(Json::encode($arResult['TEMPLATE_OPTIONS_SELECTOR']));?>"></span>
+<? endif; ?>

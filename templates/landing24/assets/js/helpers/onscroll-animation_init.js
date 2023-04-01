@@ -16,6 +16,7 @@
 	var hasClass = BX.Landing.Utils.hasClass;
 	var style = BX.Landing.Utils.style;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isArray = BX.Type.isArray;
 	var onAnimationEnd = BX.Landing.Utils.onAnimationEnd;
 	var slice = BX.Landing.Utils.slice;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
@@ -46,28 +47,32 @@
 	});
 
 	onCustomEvent("BX.Landing.Block:updateStyle", function(event) {
-		if (isPlainObject(event.data) && isPlainObject(event.data.affect))
+		if (isPlainObject(event.data) && isArray(event.data.affect) && isArray(event.node))
 		{
-			var isAnimationChange = event.data.affect.some(function(prop) {
-				return prop === "animation-name";
+			const isAnimationChange = event.data.affect.some(function(prop) {
+				return prop === BX.Landing.OnscrollAnimationHelper.PROP;
 			});
 
 			if (isAnimationChange)
 			{
-				var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);
-
-				allObservableElements.forEach(function(element) {
-					prepareAnimatedElement(element);
-					observer.observe(element);
+				const allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);
+				allObservableElements.forEach(element => {
+					if (event.node.indexOf(element) !== -1)
+					{
+						BX.Landing.OnscrollAnimationHelper.animatedMap.delete(element);
+						prepareAnimatedElement(element);
+						BX.Landing.OnscrollAnimationHelper.animateElement(element);
+					}
 				});
 			}
 		}
 	});
 
-	BX.Landing.OnscrollAnimationHelper.selector = '.js-animation';
+	BX.Landing.OnscrollAnimationHelper.SELECTOR = '.js-animation';
+	BX.Landing.OnscrollAnimationHelper.PROP = 'animation-name';
 	BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements = function(block)
 	{
-		return slice(block.querySelectorAll(BX.Landing.OnscrollAnimationHelper.selector));
+		return slice(block.querySelectorAll(BX.Landing.OnscrollAnimationHelper.SELECTOR));
 	}
 
 	/**
@@ -134,7 +139,7 @@
 		if (
 			(window.performance.timing.domContentLoadedEventStart - window.performance.timing.domLoading > 400)
 			&& (window.performance.timing.domComplete === 0)
-			&& !document.querySelector('main.landing-edit-mode')
+			&& BX.Landing.getMode() !== "edit"
 		)
 		{
 			addClass(element, "modified");

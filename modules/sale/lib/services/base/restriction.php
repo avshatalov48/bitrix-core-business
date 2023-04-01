@@ -179,6 +179,40 @@ abstract class Restriction {
 		return true;
 	}
 
+	/**
+	 * Get a restriction code that is comparable to the service handler restriction code.
+	 * <br>
+	 * Bitrix restrictions will return name of restriction class. Vendor restrictions must return full classname with namespace.
+	 * <br><br>
+	 * <i>Example 1: for bitrix currency restriction class **Bitrix\Currency** it will return 'currency'</i>
+	 * <br>
+	 * <i>Example 2: for vendor currency restriction class **Vendor\Currency** it will return 'Vendor\Currency'</i>
+	 *
+	 * @return string
+	 */
+	public static function getCode(): string
+	{
+		$class = new \ReflectionClass(static::class);
+		if (self::isBitrixNamespace($class->getNamespaceName()))
+		{
+			return $class->getShortName();
+		}
+
+		return $class->getName();
+	}
+
+	public static function isMyCode(string $code): bool
+	{
+		return static::getCode() === $code;
+	}
+
+	private static function isBitrixNamespace(string $namespace): bool
+	{
+		$vendorName = mb_substr($namespace, 0, 7);
+
+		return ($vendorName === 'Bitrix' || $vendorName === 'Bitrix\\');
+	}
+
 	/*
 	 * Children can have also this method
 	 * for performance purposes.

@@ -405,7 +405,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			return false;
 		}
 		$appliedConsents = json_decode(\COption::GetOptionString("sender", "sender_approve_consent_created"), true);
-		if (!$appliedConsents[Context::getCurrent()->getLanguage()])
+		if (!isset($appliedConsents[Context::getCurrent()->getLanguage()]))
 		{
 			\CAgent::AddAgent(
 				'\\Bitrix\\Sender\\Preset\\Consent\\ConsentInstaller::run(\''.Context::getCurrent()->getLanguage().'\');',
@@ -474,7 +474,8 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		);
 		// get row
 		$this->arResult['ROW'] = $this->letter->getData();
-		if ($this->arResult['ROW']['IS_TRIGGER'] === 'Y'
+		if (isset($this->arResult['ROW']['IS_TRIGGER'])
+			&& $this->arResult['ROW']['IS_TRIGGER'] === 'Y'
 			|| $isNewAds)
 		{
 			$this->arParams['SHOW_SEGMENTS'] = false;
@@ -589,14 +590,14 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		}
 
 		$this->arResult['LETTER_TILE'] = UI\TileView::create()->getTile(
-			$this->arResult['ROW']['ID'],
+			$this->arResult['ROW']['ID'] ?? null,
 			$this->arResult['ROW']['TITLE'],
 			[
 				'title' => $this->arResult['ROW']['TITLE'],
-				'userId' => $this->arResult['ROW']['USER_ID'],
-				'userName' => $this->arResult['ROW']['USER_NAME'] . ' ' . $this->arResult['ROW']['USER_LAST_NAME'],
-				'dateInsert' => (string) $this->arResult['ROW']['DATE_INSERT'],
-				'timeShift' => (int) $this->arResult['ROW']['TIME_SHIFT'],
+				'userId' => $this->arResult['ROW']['USER_ID'] ?? null,
+				'userName' => ($this->arResult['ROW']['USER_NAME'] ?? '') . ' ' . ($this->arResult['ROW']['USER_LAST_NAME'] ?? ''),
+				'dateInsert' => (string) ($this->arResult['ROW']['DATE_INSERT'] ?? ''),
+				'timeShift' => (int) ($this->arResult['ROW']['TIME_SHIFT'] ?? 0),
 			]
 		);
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';

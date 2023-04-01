@@ -134,7 +134,6 @@ class Service
 			self::answerError(self::ANSWER_ERROR_NO_SEC_CODE);
 			return;
 		}
-
 		$externalId = $request->get('externalId');
 		if (!$externalId)
 		{
@@ -152,7 +151,6 @@ class Service
 			self::answerError(self::ANSWER_ERROR_NO_PAYLOAD);
 			return;
 		}
-
 		$instance = self::create($type, $externalId);
 		if (!$instance->checkSecurityCode($securityCode))
 		{
@@ -235,6 +233,26 @@ class Service
 		);
 
 		return $result;
+	}
+
+	public static function registerForm($formId)
+	{
+		return self::queryHookRegister(
+			'seo.client.form.register',
+			[
+				'FORM_ID' => $formId,
+			]
+		);
+	}
+
+	public static function unregisterForm($formId)
+	{
+		return self::queryHookRegister(
+			'seo.client.form.unregister',
+			[
+				'FORM_ID' => $formId,
+			]
+		);
 	}
 
 	/**

@@ -22,7 +22,7 @@ class Service implements IService, IMultiClientService, IInternalService
 	 *
 	 * @return static
 	 */
-	public static function getInstance()
+	public static function getInstance(): Service
 	{
 		static $instance = null;
 		if ($instance === null)

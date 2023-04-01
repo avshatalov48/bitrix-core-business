@@ -6,60 +6,94 @@ import type UploaderFile from '../uploader-file';
 import type Server from './server';
 import type ServerLoadController from './server-load-controller';
 
-const queues = new WeakMap();
+type Queue = {
+	tasks: Array<{ controller: ServerLoadController, file: UploaderFile }>,
+	load: Function,
+	xhr: XMLHttpRequest,
+	aborted: boolean,
+};
+
+const pendingQueues: WeakMap<Server, Queue> = new WeakMap();
+const loadingFiles: WeakMap<UploaderFile, Queue> = new WeakMap();
 
 export function loadMultiple(controller: ServerLoadController, file: UploaderFile)
 {
 	const server = controller.getServer();
-	let queue = queues.get(server);
+	const timeout = controller.getOption('timeout', 100);
+
+	let queue = pendingQueues.get(server);
 	if (!queue)
 	{
 		queue = {
 			tasks: [],
-			load: Runtime.debounce(loadInternal, 100, server),
+			load: Runtime.debounce(loadInternal, timeout, server),
 			xhr: null,
+			aborted: false,
 		};
 
-		queues.set(server, queue);
+		pendingQueues.set(server, queue);
 	}
 
 	queue.tasks.push({ controller, file });
 	queue.load();
 }
 
-export function abort(controller: ServerLoadController)
+export function abort(controller: ServerLoadController, file: UploaderFile)
 {
 	const server = controller.getServer();
-	const queue = queues.get(server);
+	const queue: Queue = pendingQueues.get(server);
 	if (queue)
 	{
-		queue.xhr.abort();
-		queue.xhr = null;
-		queues.delete(server);
-
-		queue.tasks.forEach(task => {
-			const { controller, file } = task;
-			controller.emit('onAbort');
+		queue.tasks = queue.tasks.filter(task => {
+			return task.file !== file;
 		});
+
+		if (queue.tasks.length === 0)
+		{
+			pendingQueues.delete(server);
+		}
+	}
+	else
+	{
+		const queue: Queue = loadingFiles.get(file);
+		if (queue)
+		{
+			queue.tasks = queue.tasks.filter(task => {
+				return task.file !== file;
+			});
+
+			loadingFiles.delete(file);
+
+			if (queue.tasks.length === 0)
+			{
+				queue.aborted = true;
+				queue.xhr.abort();
+			}
+		}
 	}
 }
 
 function loadInternal()
 {
 	const server: Server = this;
-	const queue = queues.get(server);
+	const queue: Queue = pendingQueues.get(server);
 	if (!queue)
 	{
 		return;
 	}
 
-	const { tasks } = queue;
-	queues.delete(server);
+	pendingQueues.delete(server);
+
+	if (queue.tasks.length === 0)
+	{
+		return;
+	}
 
 	const fileIds = [];
-	tasks.forEach(task => {
-		const { controller, file } = task;
+	queue.tasks.forEach(task => {
+		const file: UploaderFile = task.file;
 		fileIds.push(file.getServerId());
+		loadingFiles.set(file, queue);
 	});
 
 	const controllerOptions = server.getControllerOptions();
@@ -79,7 +113,7 @@ function loadInternal()
 				{
 					const progress = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
 
-					tasks.forEach(task => {
+					queue.tasks.forEach(task => {
 						const { controller, file } = task;
 						controller.emit('onProgress', { file, progress });
 					});
@@ -94,9 +128,11 @@ function loadInternal()
 					fileResults[fileResult.id] = fileResult;
 				});
 
-				tasks.forEach(task => {
+				queue.tasks.forEach(task => {
 					const { controller, file } = task;
 					const fileResult = fileResults[file.getServerId()] || null;
+
+					loadingFiles.delete(file);
 
 					if (fileResult && fileResult.success)
 					{
@@ -113,17 +149,25 @@ function loadInternal()
 			else
 			{
 				const error = new UploaderError('SERVER_ERROR');
-				tasks.forEach(task => {
-					const { controller } = task;
+				queue.tasks.forEach(task => {
+					const { controller, file } = task;
+
+					loadingFiles.delete(file);
 					controller.emit('onError', { error: error.clone() });
 				});
 			}
 		})
 		.catch(response => {
-			const error = UploaderError.createFromAjaxErrors(response.errors);
-			tasks.forEach(task => {
-				const { controller } = task;
-				controller.emit('onError', { error: error.clone() });
+			const error = queue.aborted ? null : UploaderError.createFromAjaxErrors(response.errors);
+			queue.tasks.forEach(task => {
+				const { controller, file } = task;
+
+				loadingFiles.delete(file);
+
+				if (!queue.aborted)
+				{
+					controller.emit('onError', { error: error.clone() });
+				}
 			});
 		})
 	;

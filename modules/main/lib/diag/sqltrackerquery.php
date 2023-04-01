@@ -380,11 +380,11 @@ class SqlTrackerQuery implements \ArrayAccess
 			}
 
 			$filtered[] = [
-				"file" => $tr["file"],
-				"line" => $tr["line"],
-				"class" => $tr["class"],
-				"type" => $tr["type"],
-				"function" => $tr["function"],
+				"file" => $tr["file"] ?? null,
+				"line" => $tr["line"] ?? null,
+				"class" => $tr["class"] ?? null,
+				"type" => $tr["type"] ?? null,
+				"function" => $tr["function"] ?? null,
 				"args" => $args,
 			];
 		}

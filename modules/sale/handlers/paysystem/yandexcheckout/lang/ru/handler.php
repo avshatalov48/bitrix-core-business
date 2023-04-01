@@ -1,8 +1,9 @@
 <?php
 $MESS["SALE_HPS_YANDEX_CHECKOUT_BANK_CARDS"] = "Банковские карты";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_YANDEX_MONEY"] = "ЮMoney";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK"] = "Сбербанк Онлайн";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS"] = "Сбербанк Онлайн (подтверждение по СМС)";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK"] = "SberPay";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS"] = "SberPay (подтверждение через пуш-уведомление или СМС)";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR"] = "SberPay (в приложении банка по QR)";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI"] = "QIWI Wallet";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_WEBMONEY"] = "Webmoney";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ALFABANK"] = "Альфа-Клик";
@@ -11,6 +12,8 @@ $MESS["SALE_HPS_YANDEX_CHECKOUT_SMART"] = "Умный платеж";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_MOBILE_BALANCE"] = "Баланс телефона";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_EMBEDDED"] = "Виджет";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK"] = "Тинькофф Банк";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS"] = "Заплатить по частям";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_SBP"] = "Система быстрых платежей (СБП)";
 
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_400"] = "Неправильный запрос. Некорректное взаимодействие с API ЮKassa";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_401"] = "Ошибка аутентификации. Неверный идентификатор вашего аккаунта в ЮKassa или секретный ключ. Проверьте настройки подключения платежной системы";

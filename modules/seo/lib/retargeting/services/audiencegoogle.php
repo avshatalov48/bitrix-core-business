@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Retargeting\Services;
 
@@ -86,7 +86,7 @@ class AudienceGoogle extends Audience
 		return $data;
 	}
 
-	public function importContacts($audienceId, array $contacts = array(), array $options)
+	public function importContacts($audienceId, array $contacts, array $options)
 	{
 		$response = $this->request->send(array(
 			'methodName' => 'audience.importcontacts',
@@ -100,7 +100,7 @@ class AudienceGoogle extends Audience
 		return $response;
 	}
 
-	public function removeContacts($audienceId, array $contacts = array(), array $options)
+	public function removeContacts($audienceId, array $contacts, array $options)
 	{
 		$response = $this->request->send(array(
 			'methodName' => 'audience.removecontacts',

@@ -1135,6 +1135,15 @@ class CIMRestService extends IRestService
 			{
 				$arParams['USERS'] = [];
 			}
+
+			$arParams['USERS'] = array_filter(array_values($arParams['USERS']));
+			foreach ($arParams['USERS'] as $uid)
+			{
+				if (!is_integer($uid) && !is_string($uid))
+				{
+					throw new Bitrix\Rest\RestException("Parameter USERS has wrong type", "INVALID_FORMAT", CRestServer::STATUS_WRONG_REQUEST);
+				}
+			}
 		}
 		else
 		{
@@ -1856,8 +1865,13 @@ class CIMRestService extends IRestService
 
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if (isset($arParams['MESSAGE']))
+		if (isset($arParams['MESSAGE']) && !empty($arParams['MESSAGE']))
 		{
+			if (!is_string($arParams['MESSAGE']))
+			{
+				throw new Bitrix\Rest\RestException("Wrong message type", "MESSAGE_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+			}
+
 			$arParams['MESSAGE'] = trim($arParams['MESSAGE']);
 
 			if ($arParams['MESSAGE'] == '' && empty($arParams['ATTACH']))
@@ -2791,8 +2805,8 @@ class CIMRestService extends IRestService
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		if (
-			!isset($arParams['SEARCH_TYPE'])
-			&& !isset($arParams['SEARCH_DATE'])
+			!($arParams['SEARCH_TYPE'] ?? null)
+			&& !($arParams['SEARCH_DATE'] ?? null)
 			&& mb_strlen(trim($arParams['SEARCH_TEXT'])) < 3
 		)
 		{

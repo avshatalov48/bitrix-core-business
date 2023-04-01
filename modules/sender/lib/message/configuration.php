@@ -116,7 +116,7 @@ class Configuration
 	{
 		if (isset ($this->data[$key]))
 		{
-			if (is_callable($this->data[$key]))
+			if ($this->data[$key] instanceof \Closure)
 			{
 				return $this->data[$key]();
 			}

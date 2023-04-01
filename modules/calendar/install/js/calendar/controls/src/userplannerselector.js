@@ -2,10 +2,9 @@ import {Type, Dom, Event, Runtime, Tag, Loc, Text} from 'main.core';
 import {Util} from 'calendar.util';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
-import {Popup, MenuManager} from 'main.popup';
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
 import { ControlButton } from 'intranet.control-button';
-import {AttendeesList, Location} from "calendar.controls";
+import {AttendeesList} from "calendar.controls";
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -171,6 +170,24 @@ export class UserPlannerSelector extends EventEmitter
 		}
 
 		if (
+			this.entryId
+			&& this.entry
+			&& this.entry.data['PARENT_ID']
+			&& this.entry.data['EVENT_TYPE'] === '#shared#'
+			&& this.entry.getCurrentStatus() !== false
+		)
+		{
+			Dom.clean(this.DOM.videocallWrap);
+			Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
+
+			this.conferenceButton = Tag.render`
+				<div class="calendar-text-link --gray">${Loc.getMessage('EC_CONFERENCE_START')}</div>
+			`;
+			Event.bind(this.conferenceButton, 'click', this.handleVideoconferenceButtonClick.bind(this));
+
+			Dom.append(this.conferenceButton, this.DOM.videocallWrap);
+		}
+		else if (
 			BX?.Intranet?.ControlButton
 			&& this.DOM.videocallWrap
 			&& this.entryId
@@ -337,6 +354,7 @@ export class UserPlannerSelector extends EventEmitter
 					AVATAR: item.avatar,
 					DISPLAY_NAME: item.name,
 					EMAIL_USER: item.emailUser,
+					SHARING_USER: item.sharingUser,
 					STATUS: (item.status || '').toUpperCase(),
 					URL: item.url
 				};
@@ -514,7 +532,16 @@ export class UserPlannerSelector extends EventEmitter
 			img = user.AVATAR || user.SMALL_AVATAR;
 		if (!img || img === "/bitrix/images/1.gif")
 		{
-			imageNode = Tag.render`<div title="${Text.encode(user.DISPLAY_NAME)}" class="ui-icon ${(user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user')}"><i></i></div>`;
+			let defaultAvatarClass = 'ui-icon-common-user';
+			if (user.EMAIL_USER)
+			{
+				defaultAvatarClass = 'ui-icon-common-user-mail';
+			}
+			if (user.SHARING_USER)
+			{
+				defaultAvatarClass += ' ui-icon-common-user-sharing';
+			}
+			imageNode = Tag.render`<div title="${Text.encode(user.DISPLAY_NAME)}" class="ui-icon ${defaultAvatarClass}"><i></i></div>`;
 		}
 		else
 		{
@@ -662,5 +689,37 @@ export class UserPlannerSelector extends EventEmitter
 				});
 			}
 		}
+	}
+
+	handleVideoconferenceButtonClick()
+	{
+		this.getConferenceChatId();
+	}
+
+	getConferenceChatId()
+	{
+		return this.BX.ajax.runAction('calendar.api.calendarajax.getConferenceChatId', {
+			data: {
+				eventId: this.entry.data['PARENT_ID'],
+			},
+		}).then(
+			(response) => {
+				if (top.window.BXIM && response.data && response.data.chatId)
+				{
+					top.BXIM.openMessenger('chat' + parseInt(response.data.chatId));
+
+					return null;
+				}
+
+				alert(Loc.getMessage('EC_CONFERENCE_ERROR'));
+
+				return null;
+			},
+			(response) => {
+				alert(Loc.getMessage('EC_CONFERENCE_ERROR'));
+
+				return null;
+			}
+		);
 	}
 }

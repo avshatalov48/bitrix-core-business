@@ -111,18 +111,6 @@ abstract class OrderBuilder
 		return $this;
 	}
 
-	/**
-	 * @param array $data
-	 * @return $this
-	 * @deprecated
-	 */
-	public function initOrder(array $data)
-	{
-		$data["ID"] = (isset($data["ID"]) ? (int)$data["ID"] : 0);
-		$this->formData = $data;
-		return $this;
-	}
-
 	public function delegate()
 	{
 		$data = $this->formData;
@@ -140,11 +128,6 @@ abstract class OrderBuilder
 		}
 
 		return $this;
-	}
-
-	protected function getSettableTradeBindingFields()
-	{
-		return [];
 	}
 
 	protected function getSettableShipmentFields()
@@ -413,14 +396,18 @@ abstract class OrderBuilder
 				$item['DEDUCTED'] = 'N';
 			}
 
-			$extraServices = ($item['EXTRA_SERVICES']) ? $item['EXTRA_SERVICES'] : array();
+			$extraServices =
+				isset($item['EXTRA_SERVICES']) && is_array($item['EXTRA_SERVICES'])
+					? $item['EXTRA_SERVICES']
+					: []
+			;
 
 			$settableShipmentFields = $this->getSettableShipmentFields();
 			if(count($settableShipmentFields)>0)
 			{
 				//for backward compatibility
 				$product = $item['PRODUCT'];
-				$storeId = (int)$item['DELIVERY_STORE_ID'];
+				$storeId = (int)($item['DELIVERY_STORE_ID'] ?? 0);
 				$item = array_intersect_key($item, array_flip($settableShipmentFields));
 				$item['PRODUCT'] = $product;
 			}
@@ -490,11 +477,11 @@ abstract class OrderBuilder
 
 			$shipmentFields = array(
 				'COMPANY_ID' => (isset($item['COMPANY_ID']) && intval($item['COMPANY_ID']) > 0) ? intval($item['COMPANY_ID']) : 0,
-				'DEDUCTED' => $item['DEDUCTED'],
-				'DELIVERY_DOC_NUM' => $item['DELIVERY_DOC_NUM'],
-				'TRACKING_NUMBER' => $item['TRACKING_NUMBER'],
+				'DEDUCTED' => $item['DEDUCTED'] ?? 'N',
+				'DELIVERY_DOC_NUM' => $item['DELIVERY_DOC_NUM'] ?? '',
+				'TRACKING_NUMBER' => $item['TRACKING_NUMBER'] ?? '',
 				'CURRENCY' => $this->order->getCurrency(),
-				'COMMENTS' => $item['COMMENTS'],
+				'COMMENTS' => $item['COMMENTS'] ?? '',
 			);
 
 			if (!empty($item['IS_REALIZATION']))
@@ -502,27 +489,44 @@ abstract class OrderBuilder
 				$shipmentFields['IS_REALIZATION'] = $item['IS_REALIZATION'];
 			}
 
-			if(isset($item['ACCOUNT_NUMBER']) && $item['ACCOUNT_NUMBER']<>'')
+			if (!empty($item['ACCOUNT_NUMBER']))
+			{
 				$shipmentFields['ACCOUNT_NUMBER'] = $item['ACCOUNT_NUMBER'];
+			}
 
-			if(isset($item['XML_ID']) && $item['XML_ID']<>'')
+			if (!empty($item['XML_ID']))
+			{
 				$shipmentFields['XML_ID'] = $item['XML_ID'];
+			}
 
 			$statusId = $this->prepareFieldsStatusId($isNew, $item, $defaultFields);
-			if($statusId <> '')
+			if ($statusId !== '')
+			{
 				$shipmentFields['STATUS_ID'] = $statusId;
+			}
 
-			if(empty($item['COMPANY_ID']))
+			if (empty($item['COMPANY_ID']))
 			{
 				$shipmentFields['COMPANY_ID'] = $this->order->getField('COMPANY_ID');
 			}
-			if(empty($item['RESPONSIBLE_ID']))
+
+			if (empty($item['RESPONSIBLE_ID']))
 			{
 				$shipmentFields['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
 				$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->GetID();
 			}
 
-			$shipmentFields['DELIVERY_ID'] = ((int)$item['PROFILE_ID'] > 0) ? (int)$item['PROFILE_ID'] : (int)$item['DELIVERY_ID'];
+			$deliveryId = 0;
+			if (isset($item['PROFILE_ID']) && (int)$item['PROFILE_ID'] > 0)
+			{
+				$deliveryId = (int)$item['PROFILE_ID'];
+			}
+			elseif (isset($item['DELIVERY_ID']))
+			{
+				$deliveryId = (int)$item['DELIVERY_ID'];
+			}
+
+			$shipmentFields['DELIVERY_ID'] = $deliveryId;
 
 			$dateFields = ['DELIVERY_DOC_DATE', 'DATE_DEDUCTED', 'DATE_MARKED', 'DATE_CANCELED', 'DATE_RESPONSIBLE_ID'];
 
@@ -682,13 +686,19 @@ abstract class OrderBuilder
 				}
 			}
 
+			$isCustomPrice = false;
+			if (isset($item['CUSTOM_PRICE_DELIVERY']))
+			{
+				$isCustomPrice = $item['CUSTOM_PRICE_DELIVERY'] === 'Y';
+			}
+
 			$fields = array(
-				'CUSTOM_PRICE_DELIVERY' => $item['CUSTOM_PRICE_DELIVERY'] === 'Y' ? 'Y' : 'N',
-				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'],
-				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY']),
+				'CUSTOM_PRICE_DELIVERY' => $isCustomPrice ? 'Y' : 'N',
+				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'] ?? 'N',
+				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY'] ?? 0),
 			);
 
-			if(isset($item['BASE_PRICE_DELIVERY']))
+			if (isset($item['BASE_PRICE_DELIVERY']))
 			{
 				$fields['BASE_PRICE_DELIVERY'] = (float)str_replace(',', '.', $item['BASE_PRICE_DELIVERY']);
 			}
@@ -822,16 +832,26 @@ abstract class OrderBuilder
 					}
 				}
 
+				$isSupportedMarkingCode = false;
+				if (isset($items['IS_SUPPORTED_MARKING_CODE']))
+				{
+					$isSupportedMarkingCode = $items['IS_SUPPORTED_MARKING_CODE'] === 'Y';
+				}
+
 				$tmp = array(
 					'BASKET_CODE' => $basketCode,
-					'AMOUNT' => $items['AMOUNT'],
-					'ORDER_DELIVERY_BASKET_ID' => isset($items['ORDER_DELIVERY_BASKET_ID']) ? $items['ORDER_DELIVERY_BASKET_ID'] : 0,
-					'XML_ID' => $items['XML_ID'],
-					'IS_SUPPORTED_MARKING_CODE' => $items['IS_SUPPORTED_MARKING_CODE'],
+					'AMOUNT' => $items['AMOUNT'] ?? 0,
+					'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'] ?? 0,
+					'XML_ID' => $items['XML_ID'] ?? '',
+					'IS_SUPPORTED_MARKING_CODE' => $isSupportedMarkingCode ? 'Y' : 'N',
 				);
 				$idsFromForm[$basketCode] = array();
 
-				if ($items['BARCODE_INFO'] && ($useStoreControl || $items['IS_SUPPORTED_MARKING_CODE'] == 'Y'))
+				if (
+					isset($items['BARCODE_INFO'])
+					&& $items['BARCODE_INFO']
+					&& ($useStoreControl || $isSupportedMarkingCode)
+				)
 				{
 					foreach ($items['BARCODE_INFO'] as $item)
 					{
@@ -845,7 +865,7 @@ abstract class OrderBuilder
 						$barcodeStoreId = $item['STORE_ID'];
 
 						$tmp['BARCODE'] = array(
-							'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'],
+							'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'] ?? 0,
 							'STORE_ID' => $barcodeStoreId,
 							'QUANTITY' => $barcodeQuantity,
 						);
@@ -1214,7 +1234,7 @@ abstract class OrderBuilder
 
 		foreach($this->formData["PAYMENT"] as $paymentData)
 		{
-			$paymentId = intval($paymentData['ID']);
+			$paymentId = (int)($paymentData['ID'] ?? 0);
 			$isNew = ($paymentId <= 0);
 			$hasError = false;
 			$products = $paymentData['PRODUCT'] ?? [];
@@ -1256,7 +1276,7 @@ abstract class OrderBuilder
 			$paymentData['COMPANY_ID'] = (isset($paymentData['COMPANY_ID']) && intval($paymentData['COMPANY_ID']) > 0) ? intval($paymentData['COMPANY_ID']) : 0;
 			$paymentData['PAY_SYSTEM_NAME'] = ($psService) ? $psService->getField('NAME') : '';
 
-			$paymentFields['PAID'] = $paymentData['PAID'];
+			$paymentFields['PAID'] = $paymentData['PAID'] ?? 'N';
 			unset($paymentData['PAID']);
 
 			if($isNew)
@@ -1308,12 +1328,6 @@ abstract class OrderBuilder
 			{
 				$paymentData['SUM'] = (float)str_replace(',', '.', $paymentData['SUM']);
 			}
-
-			if($paymentData['PRICE_COD'])
-			{
-				$paymentData['PRICE_COD'] = $paymentData['PRICE_COD'];
-			}
-
 
 			if(isset($paymentData['RESPONSIBLE_ID']))
 			{
@@ -1576,7 +1590,7 @@ abstract class OrderBuilder
 	{
 		if($fieldName <> '')
 		{
-			$result = isset($this->formData[$fieldName]) ? $this->formData[$fieldName]:null;
+			$result = $this->formData[$fieldName] ?? null;
 		}
 		else
 		{

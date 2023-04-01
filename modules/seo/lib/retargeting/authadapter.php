@@ -101,8 +101,10 @@ class AuthAdapter
 
 	protected function getAuthData($isUseCache = true)
 	{
-		return ($this->canUseMultipleClients() ?
-			$this->getAuthDataMultiple() : $this->getAuthDataSingle($isUseCache));
+		return ($this->canUseMultipleClients()
+			? $this->getAuthDataMultiple()
+			: $this->getAuthDataSingle($isUseCache))
+		;
 	}
 
 	protected function getAuthDataMultiple()
@@ -148,7 +150,6 @@ class AuthAdapter
 	{
 		if ($this->service)
 		{
-
 			return $this->service::getEngineCode($this->type);
 		}
 

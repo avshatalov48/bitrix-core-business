@@ -72,8 +72,8 @@ class CIBlockFindTools
 		$component = $engine->getComponent();
 		if ($component)
 		{
-			$iblock_id = intval($component->arParams["IBLOCK_ID"]);
-			$strict_check = $component->arParams["DETAIL_STRICT_SECTION_CHECK"] === "Y";
+			$iblock_id = (int)$component->arParams["IBLOCK_ID"];
+			$strict_check = ($component->arParams["DETAIL_STRICT_SECTION_CHECK"] ?? '') === "Y";
 		}
 		else
 		{
@@ -106,7 +106,7 @@ class CIBlockFindTools
 			foreach ($pageCandidates as $pageID => $arVariablesTmp)
 			{
 				if (
-					$arVariablesTmp["SECTION_CODE_PATH"] != ""
+					(isset($arVariablesTmp["SECTION_CODE_PATH"]) && $arVariablesTmp["SECTION_CODE_PATH"] !== "")
 					&& (isset($arVariablesTmp["ELEMENT_ID"]) || isset($arVariablesTmp["ELEMENT_CODE"]))
 				)
 				{
@@ -124,7 +124,7 @@ class CIBlockFindTools
 			foreach ($pageCandidates as $pageID => $arVariablesTmp)
 			{
 				if (
-					$arVariablesTmp["SECTION_CODE_PATH"] != ""
+					(isset($arVariablesTmp["SECTION_CODE_PATH"]) && $arVariablesTmp["SECTION_CODE_PATH"] !== "")
 					&& (!isset($arVariablesTmp["ELEMENT_ID"]) && !isset($arVariablesTmp["ELEMENT_CODE"]))
 				)
 				{

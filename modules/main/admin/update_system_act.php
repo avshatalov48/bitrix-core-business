@@ -22,7 +22,7 @@ $errorMessage = "";
 
 $stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "Y");
 
-$queryType = $_REQUEST["query_type"];
+$queryType = isset($_REQUEST["query_type"]) ? $_REQUEST["query_type"] : null;
 if (!in_array($queryType, array("licence", "activate", "key", "register", "sources", "updateupdate", "coupon", "stability", "mail", "support_full_load")))
 	$queryType = "licence";
 
@@ -53,54 +53,71 @@ if ($queryType == "licence")
 }
 elseif ($queryType == "activate")
 {
-	$name = $APPLICATION->UnJSEscape($_REQUEST["NAME"]);
+	$name = isset($_REQUEST["NAME"]) ? $_REQUEST["NAME"] : '';
+	$name = $APPLICATION->UnJSEscape($name);
 	if ($name == '')
 		$errorMessage .= GetMessage("SUPA_AERR_NAME").". ";
 
-	$email = $APPLICATION->UnJSEscape($_REQUEST["EMAIL"]);
+	$email = isset($_REQUEST["EMAIL"]) ? $_REQUEST["EMAIL"] : '';
+	$email = $APPLICATION->UnJSEscape($email);
 	if ($email == '')
 		$errorMessage .= GetMessage("SUPA_AERR_EMAIL").". ";
 	elseif (!CUpdateSystem::CheckEMail($email))
 		$errorMessage .= GetMessage("SUPA_AERR_EMAIL1").". ";
 
-	$siteUrl = $APPLICATION->UnJSEscape($_REQUEST["SITE_URL"]);
+	$siteUrl = isset($_REQUEST["SITE_URL"]) ? $_REQUEST["SITE_URL"] : '';
+	$siteUrl = $APPLICATION->UnJSEscape($siteUrl);
 	if ($siteUrl == '')
 		$errorMessage .= GetMessage("SUPA_AERR_URI").". ";
 
-	$phone = $APPLICATION->UnJSEscape($_REQUEST["PHONE"]);
+	$phone = isset($_REQUEST["PHONE"]) ? $_REQUEST["PHONE"] : '';
+	$phone = $APPLICATION->UnJSEscape($phone);
 	if ($phone == '')
 		$errorMessage .= GetMessage("SUPA_AERR_PHONE").". ";
 
-	$contactEMail = $APPLICATION->UnJSEscape($_REQUEST["CONTACT_EMAIL"]);
+	$contactEMail = isset($_REQUEST["CONTACT_EMAIL"]) ? $_REQUEST["CONTACT_EMAIL"] : '';
+	$contactEMail = $APPLICATION->UnJSEscape($contactEMail);
 	if ($contactEMail == '')
 		$errorMessage .= GetMessage("SUPA_AERR_CONTACT_EMAIL").". ";
 	elseif (!CUpdateSystem::CheckEMail($contactEMail))
 		$errorMessage .= GetMessage("SUPA_AERR_CONTACT_EMAIL1").". ";
 
-	$contactPerson = $APPLICATION->UnJSEscape($_REQUEST["CONTACT_PERSON"]);
+	$contactPerson = isset($_REQUEST["CONTACT_PERSON"]) ? $_REQUEST["CONTACT_PERSON"] : '';
+	$contactPerson = $APPLICATION->UnJSEscape($contactPerson);
 	if ($contactPerson == '')
 		$errorMessage .= GetMessage("SUPA_AERR_CONTACT_PERSON").". ";
 
-	$contactPhone = $APPLICATION->UnJSEscape($_REQUEST["CONTACT_PHONE"]);
+	$contactPhone = isset($_REQUEST["CONTACT_PHONE"]) ? $_REQUEST["CONTACT_PHONE"] : '';
+	$contactPhone = $APPLICATION->UnJSEscape($contactPhone);
 	if ($contactPhone == '')
 		$errorMessage .= GetMessage("SUPA_AERR_CONTACT_PHONE").". ";
 
-	$generateUser = $APPLICATION->UnJSEscape($_REQUEST["GENERATE_USER"]);
+	$generateUser = isset($_REQUEST["GENERATE_USER"]) ? $_REQUEST["GENERATE_USER"] : '';
+	$generateUser = $APPLICATION->UnJSEscape($generateUser);
 	if ($generateUser == "Y")
 	{
-		$userName = $APPLICATION->UnJSEscape($_REQUEST["USER_NAME"]);
+		$userName = isset($_REQUEST["USER_NAME"]) ? $_REQUEST["USER_NAME"] : '';
+		$userName = $APPLICATION->UnJSEscape($userName);
 		if ($userName == '')
 			$errorMessage .= GetMessage("SUPA_AERR_FNAME").". ";
-		$userLastName = $APPLICATION->UnJSEscape($_REQUEST["USER_LAST_NAME"]);
+
+		$userLastName = isset($_REQUEST["USER_LAST_NAME"]) ? $_REQUEST["USER_LAST_NAME"] : '';
+		$userLastName = $APPLICATION->UnJSEscape($userLastName);
 		if ($userLastName == '')
 			$errorMessage .= GetMessage("SUPA_AERR_LNAME").". ";
-		$userLogin = $APPLICATION->UnJSEscape($_REQUEST["USER_LOGIN"]);
+
+		$userLogin = isset($_REQUEST["USER_LOGIN"]) ? $_REQUEST["USER_LOGIN"] : '';
+		$userLogin = $APPLICATION->UnJSEscape($userLogin);
 		if ($userLogin == '')
 			$errorMessage .= GetMessage("SUPA_AERR_LOGIN").". ";
 		elseif (strlen($userLogin) < 3)
 			$errorMessage .= GetMessage("SUPA_AERR_LOGIN1").". ";
-		$userPassword = $APPLICATION->UnJSEscape($_REQUEST["USER_PASSWORD"]);
-		$userPasswordConfirm = $APPLICATION->UnJSEscape($_REQUEST["USER_PASSWORD_CONFIRM"]);
+
+		$userPassword = isset($_REQUEST["USER_PASSWORD"]) ? $_REQUEST["USER_PASSWORD"] : '';
+		$userPassword = $APPLICATION->UnJSEscape($userPassword);
+
+		$userPasswordConfirm = isset($_REQUEST["USER_PASSWORD_CONFIRM"]) ? $_REQUEST["USER_PASSWORD_CONFIRM"] : '';
+		$userPasswordConfirm = $APPLICATION->UnJSEscape($userPasswordConfirm);
 		if ($userPassword == '')
 			$errorMessage .= GetMessage("SUPA_AERR_PASSW").". ";
 		if ($userPassword != $userPasswordConfirm)
@@ -108,7 +125,8 @@ elseif ($queryType == "activate")
 	}
 	else
 	{
-		$userLogin = $APPLICATION->UnJSEscape($_REQUEST["USER_LOGIN"]);
+		$userLogin = isset($_REQUEST["USER_LOGIN"]) ? $_REQUEST["USER_LOGIN"] : '';
+		$userLogin = $APPLICATION->UnJSEscape($userLogin);
 		if ($userLogin == '')
 			$errorMessage .= GetMessage("SUPA_AERR_LOGIN").". ";
 		elseif (strlen($userLogin) < 3)
@@ -117,7 +135,8 @@ elseif ($queryType == "activate")
 
 	if ($errorMessage == '')
 	{
-		$contactInfo = $APPLICATION->UnJSEscape($_REQUEST["CONTACT_INFO"]);
+		$contactInfo = isset($_REQUEST["CONTACT_INFO"]) ? $_REQUEST["CONTACT_INFO"] : '';
+		$contactInfo = $APPLICATION->UnJSEscape($contactInfo);
 
 		$arFields = array(
 			"NAME" => $name,
@@ -153,8 +172,8 @@ elseif ($queryType == "key")
 	if (!check_bitrix_sessid())
 		$errorMessage .= GetMessage("ACCESS_DENIED");
 
-	$newLicenseKey = $APPLICATION->UnJSEscape($_REQUEST["NEW_LICENSE_KEY"]);
-
+	$newLicenseKey = isset($_REQUEST["NEW_LICENSE_KEY"]) ? $_REQUEST["NEW_LICENSE_KEY"] : '';
+	$newLicenseKey = $APPLICATION->UnJSEscape($newLicenseKey);
 	$newLicenseKey = preg_replace("/[^A-Za-z0-9_.-]/", "", $newLicenseKey);
 
 	if ($newLicenseKey == '')
@@ -443,7 +462,8 @@ elseif ($queryType == "updateupdate")
 }
 elseif ($queryType == "coupon")
 {
-	$coupon = $APPLICATION->UnJSEscape($_REQUEST["COUPON"]);
+	$coupon = isset($_REQUEST["COUPON"]) ? $_REQUEST["COUPON"] : '';
+	$coupon = $APPLICATION->UnJSEscape($coupon);
 	if ($coupon == '')
 		$errorMessage .= GetMessage("SUPA_ACE_CPN").". ";
 
@@ -466,10 +486,11 @@ elseif ($queryType == "coupon")
 }
 elseif ($queryType == "stability")
 {
-	$stability = $APPLICATION->UnJSEscape($_REQUEST["STABILITY"]);
+	$stability = isset($_REQUEST["STABILITY"]) ? $_REQUEST["STABILITY"] : '';
+	$stability = $APPLICATION->UnJSEscape($stability);
 	if (!in_array($stability, array("Y", "N")) && !is_numeric($stability))
 		$errorMessage .= GetMessage("SUPA_ASTE_FLAG").". ";
-	
+
 	if ($errorMessage == '')
 		COption::SetOptionString("main", "stable_versions_only", $stability);
 
@@ -480,7 +501,8 @@ elseif ($queryType == "stability")
 }
 elseif ($queryType == "mail")
 {
-	$email = $APPLICATION->UnJSEscape($_REQUEST["EMAIL"]);
+	$email = isset($_REQUEST["EMAIL"]) ? $_REQUEST["EMAIL"] : '';
+	$email = $APPLICATION->UnJSEscape($email);
 	if ($email == '')
 		$errorMessage .= GetMessage("SUPA_AME_EMAIL").". ";
 

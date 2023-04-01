@@ -208,4 +208,8 @@ class PopupComponentsMaker
 		this.getPopup().close();
 	}
 }
-export {PopupComponentsMakerItem, PopupComponentsMaker};
+
+export {
+	PopupComponentsMakerItem,
+	PopupComponentsMaker
+};

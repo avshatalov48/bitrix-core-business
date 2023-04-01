@@ -64,7 +64,7 @@ class CCalendarLiveFeed
 			"EVENT_ID" => $arFields["SOURCE_ID"],
 			"USER_ID" => $arFields["USER_ID"],
 			"PATH_TO_USER" => $arParams["PATH_TO_USER"],
-			"MOBILE" => $arParams["MOBILE"],
+			"MOBILE" => ($arParams["MOBILE"] ?? null),
 			"LIVEFEED_ENTRY_PARAMS" => $arFields['~PARAMS']
 			),
 			null,
@@ -164,6 +164,8 @@ class CCalendarLiveFeed
 		}
 
 		$messageID = null;
+		$arFieldsMessage = null;
+		$sError = null;
 		$ufFileID = [];
 		$ufDocID = [];
 
@@ -201,7 +203,7 @@ class CCalendarLiveFeed
 				'checkPermissions' => true,
 				'setDefaultLimit' => false
 			]);
-			
+
 			if ($calendarEvent && is_array($calendarEvent[0]))
 			{
 				$calendarEvent = $calendarEvent[0];
@@ -317,7 +319,7 @@ class CCalendarLiveFeed
 				'FILE' => $ufFileID,
 				'DOC' => $ufDocID
 			],
-			'URL' => $messageUrl
+			'URL' => $messageUrl ?? null
 		];
 	}
 
@@ -445,7 +447,7 @@ class CCalendarLiveFeed
 
 			if ($createNewSocnetLogEntry && $parentRes)
 			{
-				$arSoFields = Array(
+				$arSoFields = [
 					"ENTITY_TYPE" => SONET_SUBSCRIBE_ENTITY_USER,
 					"ENTITY_ID" => $parentRes["ENTITY_ID"],
 					"EVENT_ID" => "calendar",
@@ -459,10 +461,10 @@ class CCalendarLiveFeed
 					"ENABLE_COMMENTS" => "Y",
 					"CALLBACK_FUNC" => false,
 					"=LOG_DATE" => CDatabase::CurrentTimeFunction(),
-					"PARAMS" => serialize(array(
+					"PARAMS" => serialize([
 						"COMMENT_XML_ID" => $commentXmlId
-					))
-				);
+					])
+				];
 				$logId = CSocNetLog::Add($arSoFields, false);
 
 				$arCodes = [];
@@ -584,7 +586,7 @@ class CCalendarLiveFeed
 
 		if (trim($entryFields["NAME"]) === '')
 		{
-			$entryFields["NAME"] = GetMessage('EC_DEFAULT_EVENT_NAME');
+			$entryFields["NAME"] = GetMessage('EC_DEFAULT_EVENT_NAME_V2');
 		}
 
 		$entryFields['IS_MEETING'] = (!empty($attendeeList) && $attendeeList != array($params["userId"]));
@@ -866,11 +868,11 @@ class CCalendarLiveFeed
 					"SEND_TO_AUTHOR" => "N"
 				));
 
-				if ($arFields['RELATIONS'] && Loader::includeModule('forum'))
+				if (!empty($arFields['RELATIONS']) && Loader::includeModule('forum'))
 				{
 					$commentsXmlId = CCalendarEvent::GetEventCommentXmlId($arFields);
 					$calendarSettings = CCalendar::GetSettings();
-					$forumID = $calendarSettings['forum_id'];
+					$forumID = $calendarSettings['forum_id'] ?? null;
 
 					CForumTopic::Add([
 						'TITLE' => $commentsXmlId,
@@ -894,10 +896,10 @@ class CCalendarLiveFeed
 			}
 
 			// Find if we already have socialnetwork livefeed entry for this event
-			if ($newlogId && $arFields['RECURRENCE_ID'] > 0)
+			if ($newlogId && ($arFields['RECURRENCE_ID'] ?? null) > 0)
 			{
 				$commentXmlId = false;
-				if ($arFields['RELATIONS'])
+				if (!empty($arFields['RELATIONS']))
 				{
 					if (!isset($arFields['~RELATIONS']) || !is_array($arFields['~RELATIONS']))
 					{
@@ -923,12 +925,12 @@ class CCalendarLiveFeed
 
 				$event = CCalendarEvent::GetById($arFields['RECURRENCE_ID']);
 
-				$rrule = CCalendarEvent::ParseRRULE($event['RRULE']);
-				$until = $rrule['~UNTIL'];
+				$rrule = CCalendarEvent::ParseRRULE($event['RRULE'] ?? null);
+				$until = $rrule['~UNTIL'] ?? null;
 
 				while ($arRes = $dbRes->Fetch())
 				{
-					if ((string)$arRes['PARAMS'] !== "")
+					if (isset($arRes['PARAMS']) && is_string($arRes['PARAMS']))
 					{
 						$arRes['PARAMS'] = unserialize($arRes['PARAMS'], ['allowed_classes' => false]);
 						if (!is_array($arRes['PARAMS']))
@@ -950,7 +952,7 @@ class CCalendarLiveFeed
 							// Update comments count for new entry
 							// And put COMMENT_XML_ID from old antry to preserve syncrinization
 							CSocNetLog::Update($newlogId, array(
-								"COMMENTS_COUNT" => (int)$arRes['COMMENTS_COUNT'],
+								"COMMENTS_COUNT" => (int)($arRes['COMMENTS_COUNT'] ?? 0),
 								"PARAMS" => serialize(array(
 									"COMMENT_XML_ID" => $commentXmlId
 								))
@@ -1002,8 +1004,8 @@ class CCalendarLiveFeed
 	public static function FixForumCommentURL($arData)
 	{
 		if (
-			$arData['ENTITY_TYPE_ID'] === 'FORUM_POST'
-			&& (int)$arData['PARAM1'] > 0
+			($arData['ENTITY_TYPE_ID'] ?? null) === 'FORUM_POST'
+			&& (int)($arData['PARAM1'] ?? null) > 0
 			&& in_array($arData["MODULE_ID"], array("forum", "FORUM"))
 			&& preg_match('/^EVENT_(\d+)/', $arData["TITLE"], $match)
 		)
@@ -1067,10 +1069,10 @@ class CCalendarLiveFeed
 				return $arData;
 			}
 
-			return array(
-				"TITLE" => "",
-				"BODY" => ""
-			);
+			$arData['TITLE'] = '';
+			$arData['BODY'] = '';
+
+			return $arData;
 		}
 	}
 
@@ -1091,7 +1093,7 @@ class CCalendarLiveFeed
 					$codesList[] = 'U' . (int)$params['event']['MEETING_HOST'];
 				}
 
-				if (is_array($params['event']['ATTENDEE_LIST']))
+				if (isset($params['event']['ATTENDEE_LIST']) && is_array($params['event']['ATTENDEE_LIST']))
 				{
 					foreach ($params['event']['ATTENDEE_LIST'] as $attendee)
 					{
@@ -1112,32 +1114,32 @@ class CCalendarLiveFeed
 				}
 			}
 
-			foreach ($params['event']['ATTENDEES_CODES'] as $code)
+			if (isset($params['event']['ATTENDEES_CODES']) && is_array($params['event']['ATTENDEES_CODES']))
 			{
-				if (mb_strpos($code, 'U') === 0)
+				foreach ($params['event']['ATTENDEES_CODES'] as $code)
 				{
-					$attendeeId = (int)mb_substr($code, 1);
-					if (!in_array($attendeeId, $unfolowersList, true))
+					if (mb_strpos($code, 'U') === 0)
 					{
+						$attendeeId = (int)mb_substr($code, 1);
+						if (!in_array($attendeeId, $unfolowersList, true))
+						{
+							$codesList[] = $code;
+						}
+					}
+					else
+					{
+						if (mb_strpos($code, 'SG') === 0)
+						{
+							$codesList[] = $code . '_K';
+						}
 						$codesList[] = $code;
 					}
-				}
-				else
-				{
-					if (mb_strpos($code, 'SG') === 0)
-					{
-						$codesList[] = $code . '_K';
-					}
-					$codesList[] = $code;
 				}
 			}
 		}
 
 		if (
-			(
-				$params['status'] === 'N'
-				|| $params['status'] === 'Y'
-			)
+			($params['status'] === 'N' || $params['status'] === 'Y')
 			&& (int)$params['userId']
 		)
 		{
@@ -1159,10 +1161,10 @@ class CCalendarLiveFeed
 				{
 					ComponentHelper::userLogSubscribe(array(
 						'logId' => $logEntry['ID'],
-						'userId' => $value,
-						'typeList' => array(
-							'COUNTER_COMMENT_PUSH'
-						)
+						'userId' => (int)$params['userId'],
+						'typeList' => [
+							'COUNTER_COMMENT_PUSH',
+						]
 					));
 				}
 

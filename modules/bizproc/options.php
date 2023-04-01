@@ -21,7 +21,7 @@ while ($site = $dbSites->Fetch())
 }
 $subTabControl = new CAdminViewTabControl("subTabControl", $aSubTabs);
 
-if ($REQUEST_METHOD == "GET" && $RestoreDefaults <> '' && $bizprocPerms == "W" && check_bitrix_sessid())
+if ($REQUEST_METHOD == "GET" && !empty($RestoreDefaults) && $bizprocPerms == "W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("bizproc");
 }

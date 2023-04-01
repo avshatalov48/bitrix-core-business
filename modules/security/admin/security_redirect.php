@@ -30,23 +30,24 @@ $aTabs = array(
 	),
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
 $returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";
 
 if(
 	$_SERVER['REQUEST_METHOD'] == "POST"
-	&& $_REQUEST['save'].$_REQUEST['apply'].$_REQUEST['redirect_button'] != ""
+	&& (isset($_REQUEST['save']) || isset($_REQUEST['apply']) || isset($_REQUEST['redirect_button']))
 	&& $canWrite && check_bitrix_sessid()
 )
 {
 
-	if($_REQUEST['redirect_button']!="")
+	if(isset($_REQUEST['redirect_button']) && $_REQUEST['redirect_button']!="")
 		CSecurityRedirect::SetActive($_POST["redirect_active"] === "Y");
 
-	COption::SetOptionString("security", "redirect_log", $_POST["redirect_log"]==="Y"? "Y": "N");
-	COption::SetOptionString("security", "redirect_referer_check", $_POST["redirect_referer_check"]==="Y"? "Y": "N");
-	COption::SetOptionString("security", "redirect_referer_site_check", $_POST["redirect_referer_site_check"]==="Y"? "Y": "N");
-	COption::SetOptionString("security", "redirect_href_sign", $_POST["redirect_href_sign"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "redirect_log", isset($_POST["redirect_log"]) && $_POST["redirect_log"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "redirect_referer_check", isset($_POST["redirect_referer_check"]) && $_POST["redirect_referer_check"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "redirect_referer_site_check", isset($_POST["redirect_referer_site_check"]) && $_POST["redirect_referer_site_check"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "redirect_href_sign", isset($_POST["redirect_href_sign"]) && $_POST["redirect_href_sign"]==="Y"? "Y": "N");
 	if ($_POST["redirect_action"] === "show_message_and_stay")
 	{
 		COption::SetOptionString("security", "redirect_action", $_POST["redirect_action"]);
@@ -70,7 +71,7 @@ if(
 
 	CSecurityRedirect::Update($_POST["URLS"]);
 
-	if($_REQUEST["save"] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST["save"]) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 	else
 		LocalRedirect("/bitrix/admin/security_redirect.php?lang=".LANGUAGE_ID.$returnUrl."&".$tabControl->ActiveTabParam());

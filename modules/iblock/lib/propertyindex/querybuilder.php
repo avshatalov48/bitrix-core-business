@@ -63,7 +63,9 @@ class QueryBuilder
 		if (array_key_exists("FACET_OPTIONS", $filter))
 		{
 			if (is_array($filter["FACET_OPTIONS"]))
+			{
 				$this->options = $filter["FACET_OPTIONS"];
+			}
 			unset($filter["FACET_OPTIONS"]);
 		}
 
@@ -71,9 +73,9 @@ class QueryBuilder
 		$fcJoin = "";
 		$toUnset = array();
 		if (
-			!is_array($filter["IBLOCK_ID"]) && $filter["IBLOCK_ID"] > 0
+			isset($filter["IBLOCK_ID"]) && !is_array($filter["IBLOCK_ID"]) && $filter["IBLOCK_ID"] > 0
 			&& (
-				(!is_array($filter["SECTION_ID"]) && $filter["SECTION_ID"] > 0)
+				(isset($filter["SECTION_ID"]) && !is_array($filter["SECTION_ID"]) && $filter["SECTION_ID"] > 0)
 				|| ($this->options && !isset($filter["SECTION_ID"]))
 			)
 			&& isset($filter["ACTIVE"]) && $filter["ACTIVE"] === "Y"
@@ -82,7 +84,7 @@ class QueryBuilder
 			$where = array();
 			$toUnset[] = array(&$filter, "SECTION_ID");
 
-			if ($filter["INCLUDE_SUBSECTIONS"] === "Y")
+			if (isset($filter["INCLUDE_SUBSECTIONS"]) && $filter["INCLUDE_SUBSECTIONS"] === "Y")
 			{
 				$subsectionsCondition = "";
 				$toUnset[] = array(&$filter, "INCLUDE_SUBSECTIONS");
@@ -127,8 +129,13 @@ class QueryBuilder
 				$this->facet->setSectionId($filter["SECTION_ID"]);
 				if ($this->options)
 				{
-					if ($this->options["CURRENCY_CONVERSION"])
-						$this->facet->enableCurrencyConversion($this->options["CURRENCY_CONVERSION"]["TO"], $this->options["CURRENCY_CONVERSION"]["FROM"]);
+					if (isset($this->options["CURRENCY_CONVERSION"]) && $this->options["CURRENCY_CONVERSION"])
+					{
+						$this->facet->enableCurrencyConversion(
+							$this->options["CURRENCY_CONVERSION"]["TO"] ?? '',
+							$this->options["CURRENCY_CONVERSION"]["FROM"] ?? ''
+						);
+					}
 				}
 				$distinctSelectCapable = (\Bitrix\Main\Application::getConnection()->getType() == "mysql");
 				if (count($where) == 1 && $distinctSelectCapable)
@@ -226,6 +233,9 @@ class QueryBuilder
 		$countUnset = count($toUnset);
 		$properties = null;
 		$propertyCodeMap = null;
+
+		$usePriceFilter = isset($this->options['PRICE_FILTER']) && $this->options['PRICE_FILTER'];
+
 		foreach ($filter as $filterKey => $filterValue)
 		{
 			if (preg_match("/^(=)PROPERTY\$/i", $filterKey, $keyDetails) && is_array($filterValue))
@@ -401,7 +411,7 @@ class QueryBuilder
 				}
 			}
 			elseif (
-				$this->options["PRICE_FILTER"]
+				$usePriceFilter
 				&& preg_match("/^(>=|<=)(?:CATALOG_|)PRICE_(\\d+)\$/i", $filterKey, $keyDetails)
 				&& !is_array($filterValue)
 			)
@@ -419,7 +429,7 @@ class QueryBuilder
 				$toUnset[] = array(&$filter, $filterKey);
 			}
 			elseif (
-				$this->options["PRICE_FILTER"]
+				$usePriceFilter
 				&& preg_match("/^(><)(?:CATALOG_|)PRICE_(\\d+)\$/i", $filterKey, $keyDetails)
 				&& is_array($filterValue)
 			)
@@ -438,7 +448,7 @@ class QueryBuilder
 				$toUnset[] = array(&$filter, $filterKey);
 			}
 			elseif (
-				$this->options["PRICE_FILTER"]
+				$usePriceFilter
 				&& is_numeric($filterKey)
 				&& is_array($filterValue) && count($filterValue) === 3
 				&& isset($filterValue["LOGIC"]) && $filterValue["LOGIC"] === "OR"
@@ -461,7 +471,7 @@ class QueryBuilder
 				$toUnset[] = array(&$filter, "CATALOG_SHOP_QUANTITY_".$priceId);
 			}
 			elseif (
-				$this->options["PRICE_FILTER"]
+				$usePriceFilter
 				&& is_numeric($filterKey)
 				&& is_array($filterValue) && count($filterValue) === 3
 				&& isset($filterValue["LOGIC"]) && $filterValue["LOGIC"] === "OR"

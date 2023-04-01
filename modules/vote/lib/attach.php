@@ -634,7 +634,7 @@ class Attach extends BaseObject implements \ArrayAccess
 		]);
 		$this->getConnector()->checkFields($data);
 		Vote::checkData($data, $data["ID"]);
-		if ($data["TITLE"] == '' && is_array($data["QUESTIONS"]))
+		if (($data["TITLE"] ?? null) == '' && is_array($data["QUESTIONS"]))
 		{
 			$q = reset($data["QUESTIONS"]);
 			if (is_array($q) && $q["QUESTION"] <> '')
@@ -694,7 +694,7 @@ class Attach extends BaseObject implements \ArrayAccess
 			$this->attach = $attach;
 			$this->vote = $vote;
 		}
-		else if ($this->attach["ID"] > 0)
+		else if ($this->attach["ID"] ?? null > 0)
 		{
 			$this->attach = null;
 			$this->vote = null;

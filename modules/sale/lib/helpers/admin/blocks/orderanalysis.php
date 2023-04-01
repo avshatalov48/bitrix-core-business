@@ -143,7 +143,7 @@ class OrderAnalysis
 				<tbody>
 					<?foreach ($items as $item):
 						$properties = '<table style="margin: auto; width: 50%;">';
-						if (is_array($item['SKU_PROPS']))
+						if (isset($item['SKU_PROPS']) && is_array($item['SKU_PROPS']))
 						{
 							foreach ($item['SKU_PROPS'] as $skuProp)
 							{
@@ -160,11 +160,9 @@ class OrderAnalysis
 						}
 						$properties .= '</table>';
 
-						if (! $quantity = (float) $item['QUANTITY'])
-							$quantity = 0;
+						$quantity = (float)($item['QUANTITY'] ?? 0);
 
-						if (! $shippedQuantity = $item['SHIPPED_QUANTITY'])
-							$shippedQuantity = 0;
+						$shippedQuantity = (float)($item['SHIPPED_QUANTITY'] ?? 0);
 
 						?>
 						<tr class="bdb-line">
@@ -251,25 +249,25 @@ class OrderAnalysis
 			array(
 				'filter' => array('=SHIPMENT_ID' => $shipmentId),
 				'select' => array(
-					'*',
-					'REQUEST_DATE' => 'REQUEST.DATE'
+					'REQUEST_ID',
+					'REQUEST_DATE' => 'REQUEST.DATE',
 				)
 			)
 		);
 
-		$request = $res->fetch();
+		$shipment = $res->fetch();
 
-		if(intval($request['REQUEST_ID']) > 0)
+		if ($shipment && intval($shipment['REQUEST_ID']) > 0)
 		{
 			?>
 				<div class="adm-bus-orderdocs-threelist-block-children" style="padding-left: 60px;">
 					<div class="adm-bus-orderdocs-threelist-block-img adm-bus-orderdocs-threelist-block-img-doc_shipping"></div>
 						<div class="adm-bus-orderdocs-threelist-block-content">
 							<div class="adm-bus-orderdocs-threelist-block-title">
-								<?=static::renderDeliveryRequestView(['ID'=>$request['REQUEST_ID']])?>
+								<?=static::renderDeliveryRequestView(['ID'=>$shipment['REQUEST_ID']])?>
 							</div>
 						<div class="adm-bus-orderdocs-threelist-block-date-block">
-							<?=Loc::getMessage('SALE_OANALYSIS_CREATED_AT')?>: <span class="adm-bus-orderdocs-threelist-block-date"><?=$request['REQUEST_DATE']?></span>
+							<?=Loc::getMessage('SALE_OANALYSIS_CREATED_AT')?>: <span class="adm-bus-orderdocs-threelist-block-date"><?=$shipment['REQUEST_DATE']?></span>
 						</div>
 					</div>
 					<div class="clb"></div>

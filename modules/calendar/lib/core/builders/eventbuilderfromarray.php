@@ -14,6 +14,7 @@ use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
@@ -121,7 +122,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getLocation(): ?Location
 	{
-		return $this->prepareLocation($this->fields['LOCATION']);
+		return $this->prepareLocation($this->fields['LOCATION'] ?? null);
 	}
 
 	/**
@@ -132,9 +133,9 @@ class EventBuilderFromArray extends EventBuilder
 	{
 		return new Date(
 			Util::getDateObject(
-				$this->fields['DATE_FROM'],
-                $this->fields['SKIP_TIME'] === 'Y' || $this->fields['DT_SKIP_TIME'] === 'Y',
-                $this->fields['TZ_FROM']
+				$this->fields['DATE_FROM'] ?? null,
+				$this->isFullDay(),
+                $this->fields['TZ_FROM'] ?? null
 			)
 		);
 	}
@@ -147,11 +148,17 @@ class EventBuilderFromArray extends EventBuilder
 	{
 		return new Date(
 			Util::getDateObject(
-				$this->fields['DATE_TO'],
-                $this->fields['SKIP_TIME'] === 'Y' || $this->fields['DT_SKIP_TIME'] === 'Y',
-                $this->fields['TZ_TO']
+				$this->fields['DATE_TO'] ?? null,
+                $this->isFullDay(),
+                $this->fields['TZ_TO'] ?? null,
 			)
 		);
+	}
+
+	private function isFullDay(): bool
+	{
+		return (isset($this->fields['SKIP_TIME']) && $this->fields['SKIP_TIME'] === 'Y')
+			||	(isset($this->fields['DT_SKIP_TIME']) && $this->fields['DT_SKIP_TIME'] === 'Y');
 	}
 
 	/**
@@ -167,8 +174,8 @@ class EventBuilderFromArray extends EventBuilder
 
 		return new Date(Util::getDateObject(
 			$this->fields['ORIGINAL_DATE_FROM'],
-			$this->fields['SKIP_TIME'] === 'Y' || $this->fields['DT_SKIP_TIME'] === 'Y',
-			$this->fields['TZ_FROM']
+			($this->fields['SKIP_TIME'] ?? null) === 'Y' || ($this->fields['DT_SKIP_TIME'] ?? null) === 'Y',
+			$this->fields['TZ_FROM'] ?? null
 		));
 	}
 
@@ -177,7 +184,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getFullDay(): bool
 	{
-		return $this->fields['SKIP_TIME'] === 'Y' || $this->fields['DT_SKIP_TIME'] === 'Y';
+		return $this->isFullDay();
 	}
 
 	/**
@@ -187,16 +194,19 @@ class EventBuilderFromArray extends EventBuilder
 	{
 		$collection = new AttendeeCollection();
 
-		if (is_string($this->fields['ATTENDEES_CODES']))
+		if (isset($this->fields['ATTENDEES_CODES']))
 		{
-			$collection->setAttendeesCodes(explode(',', $this->fields['ATTENDEES_CODES']));
-		}
-		else if (is_array($this->fields['ATTENDEES_CODES']))
-		{
-			$collection->setAttendeesCodes($this->fields['ATTENDEES_CODES']);
+			if (is_string($this->fields['ATTENDEES_CODES']))
+			{
+				$collection->setAttendeesCodes(explode(',', $this->fields['ATTENDEES_CODES']));
+			}
+			else if (is_array($this->fields['ATTENDEES_CODES']))
+			{
+				$collection->setAttendeesCodes($this->fields['ATTENDEES_CODES']);
+			}
 		}
 
-		if (is_array($this->fields['ATTENDEES']))
+		if (isset($this->fields['ATTENDEES']) && is_array($this->fields['ATTENDEES']))
 		{
 			$collection->setAttendeesId($this->fields['ATTENDEES']);
 		}
@@ -215,12 +225,12 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getReminders(): RemindCollection
 	{
-		if (is_string($this->fields['REMIND']))
+		if (isset($this->fields['REMIND']) && is_string($this->fields['REMIND']))
 		{
 			$this->fields['REMIND'] = unserialize($this->fields['REMIND'], ['allowed_classes' => false]);
 		}
 
-		if (!is_array($this->fields['REMIND']))
+		if (!isset($this->fields['REMIND']) || !is_array($this->fields['REMIND']))
 		{
 			return new RemindCollection();
 		}
@@ -286,7 +296,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getDescription(): ?string
 	{
-		return $this->fields['DESCRIPTION'] ?: null;
+		return $this->fields['DESCRIPTION'] ?? null;
 	}
 
 	/**
@@ -318,7 +328,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getColor(): ?string
 	{
-		return $this->fields['COLOR'];
+		return $this->fields['COLOR'] ?? null;
 	}
 
 	/**
@@ -326,7 +336,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getTransparency(): ?string
 	{
-		return $this->fields['TRANSPARENT'];
+		return $this->fields['TRANSPARENT'] ?? null;
 	}
 
 	/**
@@ -334,7 +344,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getImportance(): ?string
 	{
-		return $this->fields['IMPORTANCE'];
+		return $this->fields['IMPORTANCE'] ?? null;
 	}
 
 	/**
@@ -342,7 +352,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getAccessibility(): ?string
 	{
-		return $this->fields['ACCESSIBILITY'];
+		return $this->fields['ACCESSIBILITY'] ?? null;
 	}
 
 	/**
@@ -361,7 +371,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getEventHost(): ?Role
 	{
-		if (!$this->fields['MEETING_HOST'])
+		if (empty($this->fields['MEETING_HOST']))
 		{
 			return null;
 		}
@@ -384,7 +394,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getCreator(): ?Role
 	{
-		if (!$this->fields['CREATED_BY'])
+		if (empty($this->fields['CREATED_BY']))
 		{
 			return null;
 		}
@@ -407,14 +417,18 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getOwner(): ?Role
 	{
-		if (!$this->fields['OWNER_ID'])
+		if (empty($this->fields['OWNER_ID']))
 		{
 			return null;
+		}
+		if (empty($this->fields['CAL_TYPE']))
+		{
+			$this->fields['CAL_TYPE'] = User::TYPE;
 		}
 
 		try
 		{
-			return Helper::getUserRole($this->fields['OWNER_ID']);
+			return Helper::getRole($this->fields['OWNER_ID'], $this->fields['CAL_TYPE']);
 		}
 		catch (BaseException $exception)
 		{
@@ -427,7 +441,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getMeetingDescription(): ?MeetingDescription
 	{
-		return $this->prepareMeetingDescription($this->fields['MEETING']);
+		return $this->prepareMeetingDescription($this->fields['MEETING'] ?? null);
 	}
 
 	/**
@@ -435,7 +449,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getVersion(): int
 	{
-		return (int)$this->fields['VERSION'];
+		return (int)($this->fields['VERSION'] ?? null);
 	}
 
 	/**
@@ -443,7 +457,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getCalendarType(): ?string
 	{
-		return $this->fields['CAL_TYPE'];
+		return $this->fields['CAL_TYPE'] ?? null;
 	}
 
 	/**
@@ -451,7 +465,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getUid(): ?string
 	{
-		return $this->fields['DAV_XML_ID'];
+		return $this->fields['DAV_XML_ID'] ?? null;
 	}
 
 	/**
@@ -459,7 +473,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function isDeleted(): bool
 	{
-		return $this->fields['DELETED'] === 'Y';
+		return isset($this->fields['DELETED']) && $this->fields['DELETED'] === 'Y';
 	}
 
 	/**
@@ -467,7 +481,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function isActive(): bool
 	{
-		return $this->fields['ACTIVE'] === 'Y';
+		return isset($this->fields['ACTIVE']) && $this->fields['ACTIVE'] === 'Y';
 	}
 
 	/**
@@ -475,7 +489,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getRecurrenceId(): ?int
 	{
-		return $this->fields['RECURRENCE_ID'];
+		return $this->fields['RECURRENCE_ID'] ?? null;
 	}
 
 	/**
@@ -566,7 +580,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function isMeeting(): bool
 	{
-		return (bool)$this->fields['IS_MEETING'];
+		return (bool)($this->fields['IS_MEETING'] ?? null);
 	}
 
 	/**
@@ -574,7 +588,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getMeetingStatus(): ?string
 	{
-		return $this->fields['MEETING_STATUS'];
+		return $this->fields['MEETING_STATUS'] ?? null;
 	}
 
 	/**
@@ -582,7 +596,7 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getRelations(): ?Relations
 	{
-		return $this->prepareRelations($this->fields['RELATIONS']);
+		return $this->prepareRelations($this->fields['RELATIONS'] ?? null);
 	}
 
 	/**
@@ -590,6 +604,6 @@ class EventBuilderFromArray extends EventBuilder
 	 */
 	protected function getSpecialLabel(): ?string
 	{
-		return $this->fields['EVENT_TYPE'];
+		return $this->fields['EVENT_TYPE'] ?? null;
 	}
 }

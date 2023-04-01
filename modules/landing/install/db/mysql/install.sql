@@ -20,6 +20,7 @@ create table if not exists b_landing
 	FOLDER_ID int(18),
 	SEARCH_CONTENT mediumtext default null,
 	VERSION int(18) not null default 1,
+    HISTORY_STEP int(18) not null,
 	CREATED_BY_ID int(18) not null,
 	MODIFIED_BY_ID int(18) not null,
 	DATE_CREATE timestamp null,
@@ -59,6 +60,7 @@ create table if not exists b_landing_block
 	SEARCH_CONTENT mediumtext default null,
 	ASSETS text default null,
 	FAVORITE_META text default null,
+	HISTORY_STEP_DESIGNER int(18) not null,
 	CREATED_BY_ID int(18) not null,
 	MODIFIED_BY_ID int(18) not null,
 	DATE_CREATE timestamp null,
@@ -486,4 +488,18 @@ create table if not exists b_landing_block_last_used
 	INDEX IX_B_BLOCK_LU_USER (USER_ID),
 	INDEX IX_B_BLOCK_LU_CODE (CODE),
 	INDEX IX_B_BLOCK_LU_USER_CODE (USER_ID, CODE)
+);
+
+create table if not exists b_landing_history
+(
+    ID int(18) not null auto_increment,
+    ENTITY_TYPE char(1) not null default 'L',
+    ENTITY_ID int(18) not null,
+    `ACTION` text not null,
+    ACTION_PARAMS text not null,
+    MULTIPLY_ID int(18),
+    CREATED_BY_ID int(18) not null,
+    DATE_CREATE timestamp not null,
+    PRIMARY KEY(ID),
+    INDEX IX_B_LAND_HISTORY_ENTITY (ENTITY_ID, ENTITY_TYPE)
 );

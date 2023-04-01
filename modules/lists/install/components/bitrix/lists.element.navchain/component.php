@@ -21,7 +21,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	$arParams["~IBLOCK_ID"] > 0? intval($arParams["~IBLOCK_ID"]): false,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 	return;
@@ -36,7 +36,7 @@ if(isset($arParams["SOCNET_GROUP_ID"]) && $arParams["SOCNET_GROUP_ID"] > 0)
 else
 	$arParams["SOCNET_GROUP_ID"] = "";
 
-if($arParams["ADD_NAVCHAIN_GROUP"] === "Y" && $arParams["SOCNET_GROUP_ID"])
+if (isset($arParams['ADD_NAVCHAIN_GROUP']) && $arParams["ADD_NAVCHAIN_GROUP"] === "Y" && $arParams["SOCNET_GROUP_ID"])
 {
 	$arResult["~LISTS_URL"] = str_replace(
 		array("#group_id#"),
@@ -62,7 +62,7 @@ if($arParams["ADD_NAVCHAIN_GROUP"] === "Y" && $arParams["SOCNET_GROUP_ID"])
 	}
 }
 
-if($arParams["ADD_NAVCHAIN_LIST"] !== "N")
+if (isset($arParams['ADD_NAVCHAIN_LIST']) && $arParams["ADD_NAVCHAIN_LIST"] !== "N")
 {
 	$arResult["~LIST_URL"] = CHTTP::urlAddParams(str_replace(
 		array("#list_id#", "#section_id#", "#group_id#"),

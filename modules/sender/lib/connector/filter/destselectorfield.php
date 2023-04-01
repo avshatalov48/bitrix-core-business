@@ -37,7 +37,7 @@ class DestSelectorField extends AbstractField
 	public function fetchFieldValue($filterFields)
 	{
 		$id = $this->getId();
-		$value = $filterFields[$id];
+		$value = $filterFields[$id] ?? false;
 		if (!array_key_exists($id . '_label', $filterFields))
 		{
 			return $value ? [$id => $value] : [];

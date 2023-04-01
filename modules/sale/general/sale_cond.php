@@ -359,7 +359,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		{
 			$arControl['ATOMS'] = static::GetAtomsEx($arControl['ID'], true);
 			$arParams['COND_NUM'] = $arParams['FUNC_ID'];
-			$arValues = static::CheckAtoms($arOneCondition, $arOneCondition, $arControl, true);
+			$arValues = static::CheckAtoms($arOneCondition, $arParams, $arControl, true);
 			$boolError = ($arValues === false);
 		}
 
@@ -1819,7 +1819,7 @@ class CSaleCondCtrlBasketItemConditions extends CGlobalCondCtrlAtoms
 		if (!$error)
 		{
 			$control['ATOMS'] = static::GetAtomsEx($control['ID'], true);
-			$values = static::CheckAtoms($condition, $condition, $control, false);
+			$values = static::CheckAtoms($condition, $params, $control, false);
 			$error = ($values === false);
 		}
 
@@ -1982,7 +1982,7 @@ class CSaleCondCtrlBasketProperties extends CGlobalCondCtrlAtoms
 		if (!$error)
 		{
 			$control['ATOMS'] = static::GetAtomsEx($control['ID'], true);
-			$values = static::CheckAtoms($condition, $condition, $control, false);
+			$values = static::CheckAtoms($condition, $params, $control, false);
 			$error = ($values === false);
 		}
 
@@ -3049,7 +3049,7 @@ class CSaleCondCumulativeCtrl extends \CSaleCondCtrlComplex
 		$control['ATOMS'] = static::GetAtomsEx($control['ID'], true);
 		$params['COND_NUM'] = $params['FUNC_ID'];
 
-		$values = static::CheckAtoms($oneCondition, $oneCondition, $control, true);
+		$values = static::CheckAtoms($oneCondition, $params, $control, true);
 		if ($values === false)
 		{
 			return false;

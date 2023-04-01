@@ -57,14 +57,14 @@ if (!is_array($arTemplate) || !$canWrite)
 	die();
 }
 
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_TITLE"] = (isset($arParams["SET_TITLE"]) && $arParams["SET_TITLE"] === "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = (isset($arParams["SET_NAV_CHAIN"]) && $arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-$arResult["EDIT_PAGE_TEMPLATE"] = $arParams["EDIT_PAGE_TEMPLATE"];
+$arResult["EDIT_PAGE_TEMPLATE"] = $arParams["EDIT_PAGE_TEMPLATE"] ?? '';
 
-$arResult["BackUrl"] = $_REQUEST["back_url"];
+$arResult["BackUrl"] = $_REQUEST["back_url"] ?? '';
 if ($arResult["BackUrl"] == '')
-	$arResult["BackUrl"] = $arParams["BACK_URL"];
+	$arResult["BackUrl"] = $arParams["BACK_URL"] ?? '';
 if ($arResult["BackUrl"] == '')
 	$arResult["BackUrl"] = $APPLICATION->GetCurPageParam();
 
@@ -73,7 +73,7 @@ $arResult["ErrorMessage"] = "";
 
 if ($arResult["FatalErrorMessage"] == '')
 {
-	if ($_REQUEST["cancel_action"] <> '')
+	if (!empty($_REQUEST["cancel_action"]))
 		LocalRedirect($arResult['BackUrl']);
 }
 
@@ -83,7 +83,7 @@ if ($arResult["FatalErrorMessage"] == '')
 	$runtime->StartRuntime();
 	$arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
-	if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save_action"] <> '' && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["save_action"]) && check_bitrix_sessid())
 	{
 		$errorMessageTmp = "";
 		$arRequest = $_REQUEST;

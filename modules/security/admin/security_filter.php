@@ -39,8 +39,12 @@ $aTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
 
 $bVarsFromForm = false;
+$_GET["return_url"] = $_GET["return_url"] ?? "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].$_REQUEST["filter_siteb"] !="" && $canWrite && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST"
+	&& (isset($_REQUEST["save"]) || isset($_REQUEST["apply"]) || isset($_REQUEST["filter_siteb"]))
+	&& $canWrite
+	&& check_bitrix_sessid())
 {
 
 	if($_REQUEST["filter_siteb"]!="")
@@ -53,13 +57,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 	else
 		COption::SetOptionString("security", "filter_action", "filter");
 
-	COption::SetOptionString("security", "filter_stop", $_POST["filter_stop"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "filter_stop", isset($_POST["filter_stop"]) && $_POST["filter_stop"]==="Y"? "Y": "N");
 	COption::SetOptionInt("security", "filter_duration", $_POST["filter_duration"]);
-	COption::SetOptionString("security", "filter_log", $_POST["filter_log"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "filter_log", isset($_POST["filter_log"]) && $_POST["filter_log"]==="Y"? "Y": "N");
 
 	CSecurityFilterMask::Update($_POST["FILTER_MASKS"]);
 
-	if($_REQUEST["save"] != "" && $_GET["return_url"] != "")
+	if(isset($_REQUEST["save"]) && $_GET["return_url"] != "")
 		LocalRedirect($_GET["return_url"]);
 
 	$returnUrl = $_GET["return_url"]? "&return_url=".urlencode($_GET["return_url"]): "";

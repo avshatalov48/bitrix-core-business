@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
+use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Factories\FactoryBase;
 use Bitrix\Calendar\Sync\Managers\EventManagerInterface;
@@ -12,7 +13,10 @@ use Bitrix\Calendar\Sync\Managers\OutgoingSectionManagerInterface;
 use Bitrix\Calendar\Sync\Managers\PushManagerInterface;
 use Bitrix\Calendar\Sync\Managers\SectionManagerInterface;
 use Bitrix\Calendar\Sync;
+use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Main\ObjectNotFoundException;
+use Bitrix\Main\SystemException;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Factory extends FactoryBase
 {
@@ -30,9 +34,11 @@ class Factory extends FactoryBase
 
 	/**
 	 * @param Connection $connection
-	 * @param Sync\Util\Context|null $context
+	 * @param Context|null $context
 	 *
+	 * @throws BaseException
 	 * @throws ObjectNotFoundException
+	 * @throws NotFoundExceptionInterface
 	 */
 	public function __construct(Connection $connection, Sync\Util\Context $context = null)
 	{
@@ -75,19 +81,9 @@ class Factory extends FactoryBase
 		return true;
 	}
 
-	// public function getVendorSyncService(): VendorSyncService
-	// {
-	// 	// TODO: Implement getVendorSyncService() method.
-	// }
-
 	public function getContext(): Sync\Util\Context
 	{
 		return $this->context;
-	}
-
-	public function getImportManager(): IncomingSectionManagerInterface
-	{
-		return $this->officeContext->getIncomingManager();
 	}
 
 	public function getPushManager(): ?PushManagerInterface
@@ -113,8 +109,14 @@ class Factory extends FactoryBase
 		return $this->officeContext->getOutgoingEventManager();
 	}
 
+	/**
+	 * @return OutgoingSectionManagerInterface
+	 *
+	 * @throws SystemException
+	 */
 	public function getOutgoingSectionManager(): OutgoingSectionManagerInterface
 	{
+		throw new SystemException("Method " . __METHOD__ . " is not implemented");
 		// TODO: Implement getOutgoingSectionManager() method.
 	}
 }

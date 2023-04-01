@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Integration\Report\Dashboard;
 
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Integration\Report\View\CatalogView;
 use Bitrix\Main\Loader;
 
@@ -15,6 +16,11 @@ final class DashboardManager
 	 * list of <b>Dashboard</b> instances that rendering in warehouse report
 	 */
 	private array $dashboardList = [];
+	/**
+	 * @var array
+	 * list of <b>Dashboard</b> instances that filtered by user access rights
+	 */
+	private ?array $allowedDashboardList;
 
 	/**
 	 * Returns instance of <b>DashboardManager</b>
@@ -30,7 +36,7 @@ final class DashboardManager
 		return self::$manager;
 	}
 
-	private static function getDefaultDashboardList(): array
+	public static function getCatalogDashboardList(): array
 	{
 		return [
 			new StoreStockDashboard(),
@@ -40,7 +46,7 @@ final class DashboardManager
 
 	public function getActiveViewList(): array
 	{
-		if (!self::checkDocumentReadRights())
+		if (!self::checkAccessRights())
 		{
 			return [];
 		}
@@ -48,7 +54,7 @@ final class DashboardManager
 		$viewList = [];
 
 		/** @var CatalogDashboard $dashboard */
-		foreach ($this->dashboardList as $dashboard)
+		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			array_push($viewList, ...$dashboard->getActiveViewList());
 		}
@@ -57,7 +63,7 @@ final class DashboardManager
 
 	public function getActiveHandlerList(): array
 	{
-		if (!self::checkDocumentReadRights())
+		if (!self::checkAccessRights())
 		{
 			return [];
 		}
@@ -65,7 +71,7 @@ final class DashboardManager
 		$handlersList = [];
 
 		/** @var CatalogDashboard $dashboard */
-		foreach ($this->dashboardList as $dashboard)
+		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			/** @var array $viewHandlers */
 			$viewHandlers = array_map(static function(CatalogView $view) {
@@ -80,14 +86,14 @@ final class DashboardManager
 
 	public function getDashboardList(): array
 	{
-		if (!self::checkDocumentReadRights())
+		if (!self::checkAccessRights())
 		{
 			return [];
 		}
 
 		$dashboards = [];
 		/** @var CatalogDashboard $dashboard */
-		foreach ($this->dashboardList as $dashboard)
+		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			$dashboards[] = $dashboard->getDashboard();
 		}
@@ -97,14 +103,14 @@ final class DashboardManager
 
 	public function getAnalyticBoardList(): array
 	{
-		if (!self::checkDocumentReadRights())
+		if (!self::checkAccessRights())
 		{
 			return [];
 		}
 
 		$boards = [];
 		/** @var CatalogDashboard $dashboard */
-		foreach ($this->dashboardList as $dashboard)
+		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			$boards[] = $dashboard->getAnalyticBoard();
 		}
@@ -114,14 +120,14 @@ final class DashboardManager
 
 	public function getAnalyticBoardBatchList(): array
 	{
-		if (!self::checkDocumentReadRights())
+		if (!self::checkAccessRights())
 		{
 			return [];
 		}
 
 		$boards = [];
 		/** @var CatalogDashboard $dashboard */
-		foreach ($this->dashboardList as $dashboard)
+		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			$boards[] = $dashboard->getAnalyticBoardBatch();
 		}
@@ -141,11 +147,45 @@ final class DashboardManager
 
 	private function __construct()
 	{
-		$this->addDashboard(...self::getDefaultDashboardList());
+		$this->addDashboard(...self::getCatalogDashboardList());
 	}
 
-	private static function checkDocumentReadRights(): bool
+	/**
+	 * @return CatalogDashboard[]
+	 */
+	public function getAllowedDashboards(): array
 	{
-		return Loader::includeModule('catalog') && AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ);
+		if (isset($this->allowedDashboardList))
+		{
+			return $this->allowedDashboardList;
+		}
+
+		$acceptedDashboards = AccessController::getCurrent()->getPermissionValue(ActionDictionary::ACTION_STORE_ANALYTIC_VIEW);
+		if (!$acceptedDashboards)
+		{
+			return [];
+		}
+
+		$allAccepted = in_array(PermissionDictionary::VALUE_VARIATION_ALL, $acceptedDashboards, true);
+		$this->allowedDashboardList = [];
+		/** @var CatalogDashboard $dashboard */
+		foreach ($this->dashboardList as $dashboard)
+		{
+			if ($allAccepted || in_array($dashboard->getAccessBoardId(), $acceptedDashboards, true))
+			{
+				$this->allowedDashboardList[] = $dashboard;
+			}
+		}
+
+		return $this->allowedDashboardList;
+	}
+
+	private static function checkAccessRights(): bool
+	{
+		return
+			Loader::includeModule('catalog')
+			&& AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_ANALYTIC_VIEW)
+		;
 	}
 }

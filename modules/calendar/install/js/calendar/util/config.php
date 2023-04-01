@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/util.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.date',
 		'ui.notification',
 		'main.popup',
 		'pull.client',

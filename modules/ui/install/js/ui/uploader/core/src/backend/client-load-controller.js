@@ -6,14 +6,14 @@ import UploaderError from '../uploader-error';
 
 export default class ClientLoadController extends AbstractLoadController
 {
-	constructor(server: Server)
+	constructor(server: Server, options: { [key: string]: any } = {})
 	{
-		super(server);
+		super(server, options);
 	}
 
 	load(file: UploaderFile): void
 	{
-		if (Type.isFile(file.getFile()))
+		if (Type.isFile(file.getBinary()))
 		{
 			this.emit('onProgress', { file, progress: 100 });
 			this.emit('onLoad', { fileInfo: file });

@@ -1,0 +1,75 @@
+.bx-im-search-result-section__scope {
+	--im-search-result-section__background-image_up-icon: url('../css/images/title-arrow-up.svg');
+	--im-search-result-section__background-image_down-icon: url('../css/images/title-arrow-down.svg');
+	--im-search-result-section__color_title-text: #959CA4;
+	--im-search-result-section__background-color_show-more-button: transparent;
+	--im-search-result-section__background-color_show-more-button-hover: rgba(82, 92, 105, 0.2);
+	--im-search-result-section__color_show-more-button-text: #828B95;
+	--im-search-result-section__color_show-more-button-text-hover: #525C69;
+	--im-search-result-section__border-color_show-more-button: #c6cdd3;
+	--im-search-result-section__border-color_show-more-button-hover: #9d9fa8;
+}
+
+.bx-im-search-result-section__container {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 4px;
+}
+
+.bx-im-search-result-section__items-container {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+}
+
+.bx-im-search-result-section__title-container {
+	height: 32px;
+	position: relative;
+	padding-left: 11px;
+	padding-top: 6px;
+	overflow: hidden;
+}
+
+.bx-im-search-result-section__title-container.--foldable {
+	cursor: pointer;
+}
+
+.bx-im-search-result-section__title-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-search-result-section__color_title-text);
+	position: relative;
+}
+
+.bx-im-search-result-section__title-text.--icon::after {
+	content: '';
+	position: absolute;
+	top: -2px;
+	width: 23px;
+	height: 23px;
+	background: var(--im-search-result-section__background-image_up-icon) no-repeat center;
+}
+
+.bx-im-search-result-section__title-container.--down .bx-im-search-result-section__title-text.--icon::after {
+	background: var(--im-search-result-section__background-image_down-icon) no-repeat center;
+}
+
+.bx-im-search-result-section__show-more {
+	font: var(--im-font-size-3xs)/var(--im-font-line-height-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	height: 22px;
+	padding: 3px 10px 3px 9px;
+	border: 1px solid var(--im-search-result-section__border-color_show-more-button);
+	border-radius: 80px;
+	background-color: var(--im-search-result-section__background-color_show-more-button);
+	color: var(--im-search-result-section__color_show-more-button-text);
+	cursor: pointer;
+	align-self: center;
+	margin: 8px 0 20px 0;
+}
+
+.bx-im-search-result-section__show-more:hover {
+	background-color: var(--im-search-result-section__background-color_show-more-button-hover);
+	color: var(--im-search-result-section__color_show-more-button-text-hover);
+	border-color: var(--im-search-result-section__border-color_show-more-button-hover);
+}

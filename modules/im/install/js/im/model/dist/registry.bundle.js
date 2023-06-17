@@ -1478,14 +1478,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        if (typeof fields.text === "string" || typeof fields.text === "number") {
 	          result.text = fields.text;
 	        }
-	      } else if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number") {
-	        result.text = fields.textOriginal.toString();
-	        if (typeof fields.text === "string" || typeof fields.text === "number") {
-	          result.textConverted = this.convertToHtml({
-	            text: fields.text.toString(),
-	            isConverted: true
-	          });
-	        }
 	      } else
 	        // modern format
 	        {
@@ -1580,7 +1572,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              });
 	            }
 	          } else if (field === 'ATTACH') {
-	            result[field] = this.decodeAttach(params[field]);
+	            result[field] = params[field];
 	          } else {
 	            result[field] = params[field];
 	          }
@@ -1635,9 +1627,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 	      text = text.replace(/\n/gi, '<br />');
 	      text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
-	      text = this.decodeBbCode(text, false, enableBigSmile);
+
+	      //text = this.decodeBbCode(text, false, enableBigSmile);
+	      text = im_lib_utils.Utils.text.decodeBbCode(text, enableBigSmile);
 	      if (quote) {
-	        text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\]<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
+	        text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\](?: #(?:(?:chat)?\d+|\d+:\d+)\/\d+)?<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
 	          return (offset > 0 ? '<br>' : '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\"><div class=\"bx-im-message-content-quote-name\"><span class=\"bx-im-message-content-quote-name-text\">" + p1 + "</span><span class=\"bx-im-message-content-quote-name-time\">" + p2 + "</span></div>" + p3 + "</div></div><br />";
 	        });
 	        text = text.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, offset) {
@@ -1646,7 +1640,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 	      if (image) {
 	        var changed = false;
-	        text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function (whole, aInner, text, offset) {
+	        text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/gi, function (whole, aInner, text, offset) {
 	          if (!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0) {
 	            return whole;
 	          } else {
@@ -1655,7 +1649,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 	        });
 	        if (changed) {
-	          text = text.replace(/<\/span>(\n?)<br(\s\/?)>/ig, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/ig, '<br /><span');
+	          text = text.replace(/<\/span>(\n?)<br(\s\/?)>/gi, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/gi, '<br /><span');
 	        }
 	      }
 	      if (enableBigSmile) {
@@ -1666,8 +1660,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (text.substr(-6) == '<br />') {
 	        text = text.substr(0, text.length - 6);
 	      }
-	      text = text.replace(/<br><br \/>/ig, '<br />');
-	      text = text.replace(/<br \/><br>/ig, '<br />');
+	      text = text.replace(/<br><br \/>/gi, '<br />');
+	      text = text.replace(/<br \/><br>/gi, '<br />');
 	      return text;
 	    }
 	  }, {
@@ -1712,13 +1706,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        _params$enableBigSmil2 = params.enableBigSmile,
 	        enableBigSmile = _params$enableBigSmil2 === void 0 ? true : _params$enableBigSmil2;
 	      var putReplacement = [];
-	      text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function (whole) {
+	      text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/gi, function (whole) {
 	        var id = putReplacement.length;
 	        putReplacement.push(whole);
 	        return '####REPLACEMENT_PUT_' + id + '####';
 	      });
 	      var sendReplacement = [];
-	      text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function (whole) {
+	      text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/gi, function (whole) {
 	        var id = sendReplacement.length;
 	        sendReplacement.push(whole);
 	        return '####REPLACEMENT_SEND_' + id + '####';
@@ -1729,7 +1723,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        codeReplacement.push(text);
 	        return '####REPLACEMENT_CODE_' + id + '####';
 	      });
-	      text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
+	      text = text.replace(/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/gi, function (whole, link, text) {
 	        var tag = document.createElement('a');
 	        tag.href = im_lib_utils.Utils.text.htmlspecialcharsback(link);
 	        tag.target = '_blank';
@@ -1740,7 +1734,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	        return tag.outerHTML;
 	      });
-	      text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function (whole, link) {
+	      text = text.replace(/\[url\]([^\]]+)\[\/url\]/gi, function (whole, link) {
 	        link = im_lib_utils.Utils.text.htmlspecialcharsback(link);
 	        var tag = document.createElement('a');
 	        tag.href = link;
@@ -1752,33 +1746,30 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	        return tag.outerHTML;
 	      });
-	      text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-	      text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
-	      text = text.replace(/\[BR\]/ig, '<br/>');
-	      text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function (whole, open, inner, close) {
+	      text = text.replace(/\[LIKE\]/gi, '<span class="bx-smile bx-im-smile-like"></span>');
+	      text = text.replace(/\[DISLIKE\]/gi, '<span class="bx-smile bx-im-smile-dislike"></span>');
+	      text = text.replace(/\[BR\]/gi, '<br/>');
+	      text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/gi, function (whole, open, inner, close) {
 	        return '<' + open + '>' + inner + '<' + close + '>';
 	      }); // TODO tag USER
 
 	      // this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
-	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, openlines, chatId, inner) {
+	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/gi, function (whole, openlines, chatId, inner) {
 	        return openlines ? inner : '<span class="bx-im-mention" data-type="CHAT" data-value="chat' + chatId + '">' + inner + '</span>';
 	      }); // TODO tag CHAT
-	      text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, function (whole, dialogId, messageId, message) {
-	        return message;
-	      });
-	      text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, function (whole, number, text) {
+	      text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/gi, function (whole, number, text) {
 	        return '<span class="bx-im-mention" data-type="CALL" data-value="' + im_lib_utils.Utils.text.htmlspecialchars(number) + '">' + text + '</span>';
 	      }); // TODO tag CHAT
 
-	      text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function (whole, historyId, text) {
+	      text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, function (whole, historyId, text) {
 	        return text;
 	      }); // TODO tag PCH
 
 	      var textElementSize = 0;
 	      if (enableBigSmile) {
-	        textElementSize = text.replace(/\[icon\=([^\]]*)\]/ig, '').trim().length;
+	        textElementSize = text.replace(/\[icon\=([^\]]*)\]/gi, '').trim().length;
 	      }
-	      text = text.replace(/\[icon\=([^\]]*)\]/ig, function (whole) {
+	      text = text.replace(/\[icon\=([^\]]*)\]/gi, function (whole) {
 	        var url = whole.match(/icon\=(\S+[^\s.,> )\];\'\"!?])/i);
 	        if (url && url[1]) {
 	          url = url[1];
@@ -1845,8 +1836,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      sendReplacement.forEach(function (value, index) {
 	        text = text.replace('####REPLACEMENT_SEND_' + index + '####', value);
 	      });
-	      text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function (match) {
-	        return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function (whole, command, text) {
+	      text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/gi, function (match) {
+	        return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/gi, function (whole, command, text) {
 	          var html = '';
 	          text = text ? text : command;
 	          command = (command ? command : text).replace('<br />', '\n');
@@ -1864,8 +1855,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      putReplacement.forEach(function (value, index) {
 	        text = text.replace('####REPLACEMENT_PUT_' + index + '####', value);
 	      });
-	      text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function (match) {
-	        return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function (whole, command, text) {
+	      text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/gi, function (match) {
+	        return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/gi, function (whole, command, text) {
 	          var html = '';
 	          text = text ? text : command;
 	          command = (command ? command : text).replace('<br />', '\n');
@@ -4555,9 +4546,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        },
 	        readAll: function readAll(state, payload) {
 	          for (var index = 0; state.collection.length > index; index++) {
-	            if (state.collection[index].sectionCode === im_const.NotificationTypesCodes.simple) {
-	              state.collection[index].unread = false;
-	            }
+	            state.collection[index].unread = false;
 	          }
 	        },
 	        updatePlaceholders: function updatePlaceholders(state, payload) {
@@ -4608,32 +4597,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (!main_core.Type.isNil(fields.date)) {
 	        result.date = im_lib_utils.Utils.date.cast(fields.date);
 	      }
-
-	      // previous P&P format
-	      if (main_core.Type.isString(fields.textOriginal) || main_core.Type.isNumber(fields.textOriginal)) {
-	        result.text = fields.textOriginal.toString();
-	        if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
-	          result.textConverted = this.convertToHtml({
-	            text: fields.text.toString()
-	          });
-	        }
-	      } else
-	        // modern format
-	        {
-	          if (!main_core.Type.isNil(fields.text_converted)) {
-	            fields.textConverted = fields.text_converted;
-	          }
-	          if (main_core.Type.isString(fields.textConverted) || main_core.Type.isNumber(fields.textConverted)) {
-	            result.textConverted = fields.textConverted.toString();
-	          }
-	          if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
-	            result.text = fields.text.toString();
-	            var isConverted = !main_core.Type.isNil(result.textConverted);
-	            result.textConverted = this.convertToHtml({
-	              text: isConverted ? result.textConverted : result.text
-	            });
-	          }
-	        }
+	      if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
+	        result.text = fields.text.toString();
+	        result.textConverted = NotificationsModel.decodeText(result.text);
+	      }
 	      if (main_core.Type.isNumber(fields.author_id)) {
 	        if (fields.system === true || fields.system === 'Y') {
 	          result.authorId = 0;
@@ -4776,83 +4743,27 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      } else {
 	        return b.id - a.id;
 	      }
-	    }
-	    /* endregion Internal helpers */
-	    /* region Text utils */
-	  }, {
-	    key: "convertToHtml",
-	    value: function convertToHtml() {
-	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      var _params$text = params.text,
-	        text = _params$text === void 0 ? '' : _params$text;
-	      text = text.trim();
-	      text = text.replace(/\n/gi, '<br />');
-	      text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
-	      text = NotificationsModel.decodeBbCode({
-	        text: text
+	    } /* endregion Internal helpers */
+	  }], [{
+	    key: "decodeText",
+	    value: function decodeText(text) {
+	      text = main_core.Text.decode(text.toString());
+	      text = im_lib_utils.Utils.text.decode(text, {
+	        skipImages: true
 	      });
-	      if (im_lib_utils.Utils.platform.isBitrixDesktop()) {
-	        text = text.replace(/<a(.*?)>(.*?)<\/a>/ig, function (whole, anchor, text) {
-	          return '<a' + anchor.replace('target="_self"', 'target="_blank"') + ' class="bx-im-notifications-item-link">' + text + '</a>';
+	      var Parser = main_core.Reflection.getClass('BX.Messenger.v2.Lib.Parser');
+	      if (Parser) {
+	        text = Parser.decodeSmileForLegacyCore(text, {
+	          enableBigSmile: false
+	        });
+	      }
+	      if (!im_lib_utils.Utils.platform.isBitrixDesktop()) {
+	        text = text.replace(/<a(.*?)>(.*?)<\/a>/gi, function (whole, anchor, innerText) {
+	          return "<a ".concat(anchor.replace('target="_blank"', 'target="_self"'), " class=\"bx-im-notifications-item-link\">").concat(innerText, "</a>");
 	        });
 	      }
 	      return text;
 	    }
-	  }], [{
-	    key: "decodeBbCode",
-	    value: function decodeBbCode() {
-	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      var text = params.text;
-	      text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
-	        var tag = document.createElement('a');
-	        tag.href = im_lib_utils.Utils.text.htmlspecialcharsback(link);
-	        tag.target = '_blank';
-	        tag.text = im_lib_utils.Utils.text.htmlspecialcharsback(text);
-	        var allowList = ['http:', 'https:', 'ftp:', 'file:', 'tel:', 'callto:', 'mailto:', 'skype:', 'viber:'];
-	        if (allowList.indexOf(tag.protocol) <= -1) {
-	          return whole;
-	        }
-	        return tag.outerHTML;
-	      });
-	      text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-	      text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
-	      text = text.replace(/\[RATING\=([1-5]{1})\]/ig, function (whole, rating) {
-	        // todo: refactor legacy call
-	        return BX.MessengerCommon.linesVoteHeadNodes(0, rating, false).outerHTML;
-	      });
-	      text = text.replace(/\[BR\]/ig, '<br/>');
-	      text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function (whole, open, inner, close) {
-	        return '<' + open + '>' + inner + '<' + close + '>';
-	      });
-	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, openlines, chatId, inner) {
-	        chatId = parseInt(chatId);
-	        if (chatId <= 0) {
-	          return inner;
-	        }
-	        if (openlines) {
-	          return '<span class="bx-im-mention" data-type="OPENLINES" data-value="' + chatId + '">' + inner + '</span>';
-	        } else {
-	          return '<span class="bx-im-mention" data-type="CHAT" data-value="' + chatId + '">' + inner + '</span>';
-	        }
-	      });
-	      text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, text) {
-	        var html = '';
-	        userId = parseInt(userId);
-	        if (userId > 0 && typeof BXIM != 'undefined') {
-	          html = "<span class=\"bx-im-mention ".concat(userId === +BXIM.userId ? 'bx-messenger-ajax-self' : '', "\" data-type=\"USER\" data-value=\"").concat(userId, "\">").concat(text, "</span>");
-	        } else {
-	          html = text;
-	        }
-	        return html;
-	      });
-	      text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, function (whole, dialogId, messageId, message) {
-	        return message;
-	      });
-	      text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function (whole, historyId, text) {
-	        return text;
-	      });
-	      return text;
-	    } /* endregion Text utils */
 	  }]);
 	  return NotificationsModel;
 	}(ui_vue_vuex.VuexBuilderModel);

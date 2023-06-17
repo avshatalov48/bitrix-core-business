@@ -449,7 +449,7 @@ export default class EventEmitter
 			thisArg?: Object,
 			useGlobalNaming?: boolean
 		}
-	): this
+	): Array
 	{
 		if (Type.isString(target))
 		{

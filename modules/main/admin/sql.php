@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -23,7 +22,7 @@ $message = null;
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 $lAdmin = new CAdminList($sTableID);
-if($_SERVER["REQUEST_METHOD"] == "POST" && $query<>"" && $isAdmin && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST" && !empty($query) && $isAdmin && check_bitrix_sessid())
 {
 	$first = getmicrotime();
 	$arErrors = array();
@@ -34,7 +33,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $query<>"" && $isAdmin && check_bitri
 		if(!$dbr)
 			$arErrors[$i] = $DB->GetErrorMessage();
 	}
-	if(count($arErrors) <= 0)
+	if(empty($arErrors))
 	{
 		$exec_time = round(getmicrotime()-$first, 5);
 		$rsData = new CAdminResult($dbr, $sTableID);
@@ -92,7 +91,7 @@ if($message != null)
 
 $lAdmin->BeginEpilogContent();
 ?>
-	<input type="hidden" name="query" id="query" value="<?=htmlspecialcharsbx($query)?>">
+	<input type="hidden" name="query" id="query" value="<?=htmlspecialcharsbx($query ?? '')?>">
 <?
 $lAdmin->EndEpilogContent();
 
@@ -129,7 +128,7 @@ $editTab->BeginNextTab();
 <tr valign="top">
 	<td width="100%" colspan="2">
 	<input type="hidden" name="lang" value="<?=LANG?>">
-	<textarea cols="60" name="sql" id="sql" rows="15" wrap="OFF" style="width:100%;"><? echo htmlspecialcharsbx($query); ?></textarea><br />	</td>
+	<textarea cols="60" name="sql" id="sql" rows="15" wrap="OFF" style="width:100%;"><? echo htmlspecialcharsbx($query ?? ''); ?></textarea><br />	</td>
 </tr>
 <?$editTab->Buttons();?>
 <input <?if (!$isAdmin) echo "disabled"?> type="button" accesskey="x" name="execute" value="<?echo GetMessage("SQL_EXECUTE")?>" onclick="return __FSQLSubmit();" class="adm-btn-save">

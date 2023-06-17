@@ -34,7 +34,7 @@ class DisplayProperties
 	 */
 	public function isHidden()
 	{
-		return $this->properties[static::DISPLAY] === static::DISPLAY_HIDDEN;
+		return isset($this->properties[static::DISPLAY]) && $this->properties[static::DISPLAY] === static::DISPLAY_HIDDEN;
 	}
 
 	/**
@@ -42,7 +42,7 @@ class DisplayProperties
 	 */
 	public function isDisplayBlock()
 	{
-		return $this->properties[static::DISPLAY] === static::DISPLAY_BLOCK;
+		return isset($this->properties[static::DISPLAY]) && $this->properties[static::DISPLAY] === static::DISPLAY_BLOCK;
 	}
 
 	/**
@@ -50,7 +50,7 @@ class DisplayProperties
 	 */
 	public function isDisplayInline()
 	{
-		return $this->properties[static::DISPLAY] === static::DISPLAY_INLINE;
+		return isset($this->properties[static::DISPLAY]) && $this->properties[static::DISPLAY] === static::DISPLAY_INLINE;
 	}
 
 	/**
@@ -58,7 +58,10 @@ class DisplayProperties
 	 */
 	public function isFontBold()
 	{
-		return $this->properties[static::FONT][static::FONT_BOLD] === true;
+		return (
+			isset($this->properties[static::FONT][static::FONT_BOLD])
+			&& $this->properties[static::FONT][static::FONT_BOLD] === true
+		);
 	}
 
 	/**
@@ -66,7 +69,10 @@ class DisplayProperties
 	 */
 	public function isFontItalic()
 	{
-		return $this->properties[static::FONT][static::FONT_ITALIC] === true;
+		return (
+			isset($this->properties[static::FONT][static::FONT_ITALIC])
+			&& $this->properties[static::FONT][static::FONT_ITALIC] === true
+		);
 	}
 
 	/**
@@ -74,7 +80,10 @@ class DisplayProperties
 	 */
 	public function isFontUnderlined()
 	{
-		return $this->properties[static::FONT][static::FONT_UNDERLINED] === true;
+		return (
+			isset($this->properties[static::FONT][static::FONT_UNDERLINED])
+			&& $this->properties[static::FONT][static::FONT_UNDERLINED] === true
+		);
 	}
 
 	/**
@@ -82,7 +91,10 @@ class DisplayProperties
 	 */
 	public function isFontDeleted()
 	{
-		return $this->properties[static::FONT][static::FONT_DELETED] === true;
+		return (
+			isset($this->properties[static::FONT][static::FONT_DELETED])
+			&& $this->properties[static::FONT][static::FONT_DELETED] === true
+		);
 	}
 
 	/**
@@ -260,11 +272,11 @@ class DisplayProperties
 						}
 						elseif($name == 'text-decoration')
 						{
-							if(mb_strpos($value, 'underline') !== false)
+							if(strpos($value, 'underline') !== false)
 							{
 								$font[static::FONT_UNDERLINED] = true;
 							}
-							if(mb_strpos($value, 'line-through') !== false)
+							if(strpos($value, 'line-through') !== false)
 							{
 								$font[static::FONT_DELETED] = true;
 							}

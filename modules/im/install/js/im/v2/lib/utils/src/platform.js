@@ -1,5 +1,7 @@
 import {Type, Browser} from 'main.core';
 
+import {DesktopManager} from 'im.v2.lib.desktop';
+
 const UA = navigator.userAgent.toLowerCase();
 
 export const PlatformUtil = {
@@ -22,33 +24,15 @@ export const PlatformUtil = {
 	},
 	isBitrixDesktop(): boolean
 	{
-		return UA.includes('bitrixdesktop');
+		return DesktopManager.isDesktop();
 	},
 	getDesktopVersion(): number
 	{
-		if (!Type.isUndefined(this.getDesktopVersionStatic))
-		{
-			return this.getDesktopVersionStatic;
-		}
-
-		if (Type.isUndefined(window.BXDesktopSystem))
-		{
-			return 0;
-		}
-
-		const version = window.BXDesktopSystem.GetProperty('versionParts');
-		this.getDesktopVersionStatic = version[3];
-
-		return this.getDesktopVersionStatic;
+		return DesktopManager.getInstance().getDesktopVersion();
 	},
-	isDesktopFeatureEnabled(code: string)
+	isDesktopFeatureEnabled(code: string): boolean
 	{
-		if (!this.isBitrixDesktop() || !Type.isFunction(BXDesktopSystem.FeatureEnabled))
-		{
-			return false;
-		}
-
-		return !!BXDesktopSystem.FeatureEnabled(code);
+		return DesktopManager.getInstance().isDesktopFeatureEnabled(code);
 	},
 	isMobile(): boolean
 	{

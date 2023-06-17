@@ -47,7 +47,7 @@ class BooleanType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$label = $userField['SETTINGS']['LABEL'];
+		$label = ($userField['SETTINGS']['LABEL'] ?? ['', '']);
 
 		if($label[0] === Loc::getMessage('MAIN_NO'))
 		{
@@ -58,20 +58,20 @@ class BooleanType extends BaseType
 			$label[1] = '';
 		}
 
-		$labelCheckbox = $userField['SETTINGS']['LABEL_CHECKBOX'];
+		$labelCheckbox = ($userField['SETTINGS']['LABEL_CHECKBOX'] ?? '');
 		if($labelCheckbox === Loc::getMessage('MAIN_YES'))
 		{
 			$labelCheckbox = '';
 		}
 
 
-		$def = (int)$userField['SETTINGS']['DEFAULT_VALUE'];
+		$def = (int)($userField['SETTINGS']['DEFAULT_VALUE'] ?? 0);
 		if($def !== 1)
 		{
 			$def = 0;
 		}
 
-		$disp = $userField['SETTINGS']['DISPLAY'];
+		$disp = ($userField['SETTINGS']['DISPLAY'] ?? '');
 		if($disp !== 'CHECKBOX' && $disp !== 'RADIO' && $disp !== 'DROPDOWN')
 		{
 			$disp = 'CHECKBOX';
@@ -94,7 +94,7 @@ class BooleanType extends BaseType
 	public static function getLabels(array $userField): array
 	{
 		$label = [Loc::getMessage('MAIN_NO'), GetMessage('MAIN_YES')];
-		if(is_array($userField['SETTINGS']['LABEL']))
+		if(isset($userField['SETTINGS']['LABEL']) && is_array($userField['SETTINGS']['LABEL']))
 		{
 			foreach($label as $key => $value)
 			{

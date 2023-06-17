@@ -83,7 +83,7 @@ $componentParameters = array(
 	"LOG_NEW_TEMPLATE" => $arParams["LOG_NEW_TEMPLATE"],
 );
 
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:socialnetwork.pageslider.wrapper",

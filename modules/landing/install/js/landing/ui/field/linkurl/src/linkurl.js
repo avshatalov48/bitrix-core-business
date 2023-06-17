@@ -1,5 +1,5 @@
 import { Text } from 'landing.ui.field.textfield';
-import { Event, Type, Dom, Tag } from 'main.core';
+import { Dom, Event, Tag, Type } from 'main.core';
 import { Dialog } from 'ui.entity-selector';
 
 import 'ui.fonts.opensans';
@@ -209,8 +209,9 @@ export class LinkUrl extends Text
 		{
 			actionClick = data.onclick;
 		}
+		const buttonClasses = `landing-ui-button-grid-center-cell ${data.className || ''}`;
 		return new BX.Landing.UI.Button.BaseButton("center_cell_button", {
-			className: "landing-ui-button-grid-center-cell " + data.className,
+			className: buttonClasses,
 			text: data.text,
 			onClick: actionClick
 		});
@@ -409,6 +410,7 @@ export class LinkUrl extends Text
 		}
 
 		const data = {};
+		const buttonClasses = 'fa fa-chevron-right';
 		switch (type)
 		{
 			case LinkUrl.TYPE_HREF_PAGE:
@@ -419,7 +421,7 @@ export class LinkUrl extends Text
 					"_popup": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_POPUP"),
 				};
 				data.button = {
-					'className': 'fa fa-chevron-right',
+					'className': buttonClasses,
 					'text': '',
 					'action': LinkUrl.TYPE_PAGE,
 				};
@@ -434,7 +436,7 @@ export class LinkUrl extends Text
 					"_popup": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_POPUP"),
 				};
 				data.button = {
-					'className': 'fa fa-chevron-right',
+					'className': buttonClasses,
 					'text': '',
 					'action': LinkUrl.TYPE_BLOCK,
 				};
@@ -444,7 +446,7 @@ export class LinkUrl extends Text
 			case LinkUrl.TYPE_HREF_CRM_FORM:
 				data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_CRM_FORM");
 				data.button = {
-					'className': 'fa fa-chevron-right',
+					'className': buttonClasses,
 					'text': '',
 					'action': LinkUrl.TYPE_CRM_FORM,
 				};
@@ -455,7 +457,7 @@ export class LinkUrl extends Text
 			case LinkUrl.TYPE_CATALOG:
 				data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_PRODUCT");
 				data.button = {
-					'className': 'fa fa-chevron-right',
+					'className': buttonClasses,
 					'text': '',
 					'action': LinkUrl.TYPE_CATALOG_SECTION,
 				};
@@ -468,7 +470,7 @@ export class LinkUrl extends Text
 					"_blank": '',
 				};
 				data.button = {
-					'className': 'fa fa-chevron-right',
+					'className': buttonClasses,
 					'text': '',
 					'action': LinkUrl.TYPE_CRM_PHONE,
 				};
@@ -513,6 +515,7 @@ export class LinkUrl extends Text
 					"_blank": '',
 				};
 				data.button = {
+					'className': buttonClasses,
 					'text': '',
 					'onclick': this.onDiskFileShow.bind(this),
 				};
@@ -522,6 +525,7 @@ export class LinkUrl extends Text
 			case LinkUrl.TYPE_HREF_USER:
 				data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_USER");
 				data.button = {
+					'className': buttonClasses,
 					'text': '',
 					'onclick': this.onUserListShow.bind(this),
 				};
@@ -873,7 +877,7 @@ export class LinkUrl extends Text
 				name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_FILE_MSGVER_1"),
 				value: LinkUrl.TYPE_HREF_FILE,
 				className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--file',
-				type: 'KNOWLEDGE',
+				type: ['KNOWLEDGE', 'GROUP'],
 			},
 			{
 				name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_USER"),
@@ -889,7 +893,11 @@ export class LinkUrl extends Text
 		];
 		let setItems = [];
 		items.forEach(function(item) {
-			if (!item.hasOwnProperty('type') || item.type === type)
+			if (
+				!item.hasOwnProperty('type')
+				|| item.type === type
+				|| Type.isArray(item.type) && item.type.includes(type)
+			)
 			{
 				setItems.push(item);
 			}
@@ -1206,21 +1214,24 @@ export class LinkUrl extends Text
 	 */
 	getUserData(userData)
 	{
-		return this.cache.remember(userData, function() {
-			const userId = userData.replace("user:", "").replace("#user", "");
-			return BX.Landing.Backend
-				.getInstance()
-				.action("Block::getUserNameById", {userId: userId})
-				.then(function(result) {
-					if (result)
-					{
-						return {
-							type: LinkUrl.TYPE_USER,
-							id: userId,
-							name: result.NAME
-						};
-					}
-				}.bind(this));
+		const userId = userData.replace("user:", "").replace("#user", "");
+		return new Promise(function(resolve) {
+			BX.ajax({
+				url: '/bitrix/services/main/ajax.php?action=landing.api.user.getUserNameById',
+				method: 'POST',
+				dataType: 'json',
+				data: {
+					userId: userId
+				},
+				onsuccess: function(result) {
+					const response = {
+						type: LinkUrl.TYPE_USER,
+						id: userId,
+						name: result.data
+					};
+					resolve(response);
+				},
+			});
 		}.bind(this));
 	}
 
@@ -1296,44 +1307,16 @@ export class LinkUrl extends Text
 			this.popup.close();
 		}
 
-		const urlSelect = "/bitrix/tools/disk/uf.php?action=selectFile&dialog2=Y&SITE_ID=" + BX.message("SITE_ID");
-		const dialogName = "LandingDiskFile";
-
-		BX.ajax.get(urlSelect, "multiselect=N&dialogName=" + dialogName,
-			BX.delegate(function() {
-				setTimeout(BX.delegate(function() {
-					BX.DiskFileDialog.obElementBindPopup[dialogName].overlay = {
-						backgroundColor: "#cdcdcd",
-						opacity: ".1"
-					};
-					BX.DiskFileDialog.obCallback[dialogName] = {
-						saveButton: function(tab, path, selected)
-						{
-							const selectedItem = selected[Object.keys(selected)[0]];
-							if (!selectedItem)
-							{
-								return;
-							}
-
-							let fileId = selectedItem.id;
-
-							if (fileId[0] === 'n')
-							{
-								fileId = fileId.substr(1);
-							}
-
-							this.getDiskFileData("#diskFile" + fileId)
-								.then(function(data)
-								{
-									this.setValue(this.createPlaceholder(data), true);
-								}.bind(this))
-							this.setHrefTypeSwitcherValue(LinkUrl.TYPE_HREF_FILE);
-						}.bind(this)
-					};
-					BX.DiskFileDialog.openDialog(dialogName);
-				}, this), 10);
-			}, this)
-		);
+		parent.BX.Landing.Connector.Disk.openDialog({
+			onSelect: (fileId) => {
+				this.getDiskFileData("#diskFile" + fileId)
+					.then(function(data)
+					{
+						this.setValue(this.createPlaceholder(data), true);
+					}.bind(this))
+				this.setHrefTypeSwitcherValue(LinkUrl.TYPE_HREF_FILE);
+			}
+		});
 	}
 
 	onUserListShow()
@@ -1354,6 +1337,9 @@ export class LinkUrl extends Text
 				'Item:onSelect': this.onSelectUser.bind(this)
 			},
 			multiple: false,
+			popupOptions: {
+				targetContainer: parent.document.body,
+			},
 		});
 		this.dialog.show();
 	}

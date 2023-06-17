@@ -5,10 +5,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	'use strict';
 
 	var _templateObject;
+
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
-
 	var BasePanel = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BasePanel, _EventEmitter);
 	  babelHelpers.createClass(BasePanel, null, [{
@@ -22,32 +22,29 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel landing-ui-hide\" data-id=\"", "\"></div>\n\t\t"])), id);
 	    }
 	  }]);
-
 	  function BasePanel() {
 	    var _this;
-
 	    var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	    babelHelpers.classCallCheck(this, BasePanel);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BasePanel).call(this));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.BasePanel');
-
 	    _this.id = main_core.Type.isString(id) ? id : BasePanel.makeId();
 	    _this.layout = BasePanel.createLayout(_this.id);
 	    _this.classShow = 'landing-ui-show';
 	    _this.classHide = 'landing-ui-hide';
 	    _this.forms = new BX.Landing.UI.Collection.FormCollection();
+	    _this.contextDocument = document;
+	    _this.contextWindow = _this.contextDocument.defaultView;
 	    return _this;
-	  } // eslint-disable-next-line no-unused-vars
+	  }
 
-
+	  // eslint-disable-next-line no-unused-vars
 	  babelHelpers.createClass(BasePanel, [{
 	    key: "show",
 	    value: function show(options) {
 	      if (!this.isShown()) {
 	        return BX.Landing.Utils.Show(this.layout);
 	      }
-
 	      return Promise.resolve();
 	    }
 	  }, {
@@ -56,7 +53,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (this.isShown()) {
 	        return BX.Landing.Utils.Hide(this.layout);
 	      }
-
 	      return Promise.resolve();
 	    }
 	  }, {
@@ -68,7 +64,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "setContent",
 	    value: function setContent(content) {
 	      this.clear();
-
 	      if (main_core.Type.isString(content)) {
 	        this.layout.innerHTML = content;
 	      } else if (main_core.Type.isDomNode(content)) {
@@ -117,6 +112,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "setLayoutClass",
 	    value: function setLayoutClass(className) {
 	      main_core.Dom.addClass(this.layout, className);
+	    }
+	  }, {
+	    key: "setContextDocument",
+	    value: function setContextDocument(contextDocument) {
+	      this.contextDocument = contextDocument;
+	      this.contextWindow = this.contextDocument.defaultView;
 	    }
 	  }]);
 	  return BasePanel;

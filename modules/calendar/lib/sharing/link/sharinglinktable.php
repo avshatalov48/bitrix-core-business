@@ -22,6 +22,7 @@ use Bitrix\Main\Type\DateTime;
  * <li> OPTIONS unknown optional
  * <li> ACTIVE bool ('N', 'Y') optional default 'Y'
  * <li> DATE_CREATE datetime mandatory
+ * <li> DATE_EXPIRE datetime optional
  * </ul>
  *
  * @package Bitrix\Calendar
@@ -101,6 +102,42 @@ class SharingLinkTable extends DataManager
 					'required' => true,
 				]
 			),
+			new DatetimeField(
+				'DATE_EXPIRE',
+				[
+				]
+			),
+			new IntegerField(
+				'HOST_ID',
+				[
+				]
+			),
+			new IntegerField(
+				'OWNER_ID',
+				[
+				]
+			),
+			new StringField(
+				'CONFERENCE_ID',
+				[
+				]
+			),
+			new StringField(
+				'PARENT_LINK_HASH',
+				[
+					'validation' => [__CLASS__, 'validateParentLinkHash'],
+				]
+			),
+			new IntegerField(
+				'CONTACT_ID',
+				[
+				]
+			),
+			new IntegerField(
+				'CONTACT_TYPE',
+				[
+				]
+			),
 		];
 	}
 
@@ -122,6 +159,18 @@ class SharingLinkTable extends DataManager
 	 * @return array
 	 */
 	public static function validateHash(): array
+	{
+		return [
+			new LengthValidator(null, 64),
+		];
+	}
+
+	/**
+	 * Returns validators for PARENT_LINK_HASH field.
+	 *
+	 * @return array
+	 */
+	public static function validateParentLinkHash(): array
 	{
 		return [
 			new LengthValidator(null, 64),

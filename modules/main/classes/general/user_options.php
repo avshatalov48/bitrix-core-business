@@ -125,7 +125,7 @@ class CUserOptions
 					WHERE (USER_ID = {$user_id} OR (USER_ID = 0 AND COMMON = 'Y'))
 						AND CATEGORY = '{$DB->ForSql($category)}'
 				";
-	
+
 				$res = $DB->Query($sql);
 				while ($option = $res->Fetch())
 				{
@@ -236,8 +236,10 @@ class CUserOptions
 					}
 				}
 				CUserOptions::SetOption($opt["c"], $opt["n"], $val);
-				if ($opt["d"] == "Y" && $USER->CanDoOperation('edit_other_settings'))
+				if (isset($opt["d"]) && $opt["d"] === "Y" && $USER->CanDoOperation('edit_other_settings'))
+				{
 					CUserOptions::SetOption($opt["c"], $opt["n"], $val, true);
+				}
 			}
 		}
 	}

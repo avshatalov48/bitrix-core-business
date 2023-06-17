@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -6,9 +7,7 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/template_message.php")));
-global $MESS;
-include_once($file);
+\Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
 
 if (function_exists("__forum_default_template_show_message"))
 {
@@ -171,9 +170,9 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 										"bitrix:rating.result", "",
 										Array(
 											"RATING_ID" => $arParams["RATING_ID"],
-											"ENTITY_ID" => $arRatingResult[$res['AUTHOR_ID']]['ENTITY_ID'],
-											"CURRENT_VALUE" => $arRatingResult[$res['AUTHOR_ID']]['CURRENT_VALUE'],
-											"PREVIOUS_VALUE" => $arRatingResult[$res['AUTHOR_ID']]['PREVIOUS_VALUE'],
+											"ENTITY_ID" => $arRatingResult[$res['AUTHOR_ID']]['ENTITY_ID'] ?? null,
+											"CURRENT_VALUE" => $arRatingResult[$res['AUTHOR_ID']]['CURRENT_VALUE'] ?? null,
+											"PREVIOUS_VALUE" => $arRatingResult[$res['AUTHOR_ID']]['PREVIOUS_VALUE'] ?? null,
 										),
 										null,
 										array("HIDE_ICONS" => "Y")
@@ -201,7 +200,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 							?>onclick="prompt(oText['ml'], (location.protocol + '//' + location.host + this.getAttribute('href'))); return false;" title="<?=GetMessage("F_ANCHOR")?>" rel="nofollow">#<?=$res["NUMBER"]?></a></noindex><?
 							if (
 								$arResult["USER"]["PERMISSION"] >= "Q"
-								&& $res["SHOW_CONTROL"] != "N"
+								&& ($res["SHOW_CONTROL"] ?? null) != "N"
 							)
 							{
 								?>&nbsp;<input type="checkbox" name="message_id[]" value="<?=$res["ID"]?>" id="message_id_<?=$res["ID"]?>_" <?
@@ -251,15 +250,15 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 										"ENTITY_TYPE_ID" => $voteEntityType,
 										"ENTITY_ID" => $voteEntityId,
 										"OWNER_ID" => $res['AUTHOR_ID'],
-										"USER_VOTE" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_VOTE'],
-										"USER_REACTION" => $arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"],
-										"REACTIONS_LIST" => $arRatingVote[$voteEntityType][$voteEntityId]["REACTIONS_LIST"],
-										"USER_HAS_VOTED" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_HAS_VOTED'],
-										"TOTAL_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VOTES'],
-										"TOTAL_POSITIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_POSITIVE_VOTES'],
-										"TOTAL_NEGATIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_NEGATIVE_VOTES'],
-										"TOTAL_VALUE" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VALUE'],
-										"PATH_TO_USER_PROFILE" => $arParams["~URL_TEMPLATES_PROFILE_VIEW"],
+										"USER_VOTE" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_VOTE'] ?? null,
+										"USER_REACTION" => $arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"] ?? null,
+										"REACTIONS_LIST" => $arRatingVote[$voteEntityType][$voteEntityId]["REACTIONS_LIST"] ?? null,
+										"USER_HAS_VOTED" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_HAS_VOTED'] ?? null,
+										"TOTAL_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VOTES'] ?? null,
+										"TOTAL_POSITIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_POSITIVE_VOTES'] ?? null,
+										"TOTAL_NEGATIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_NEGATIVE_VOTES'] ?? null,
+										"TOTAL_VALUE" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VALUE'] ?? null,
+										"PATH_TO_USER_PROFILE" => $arParams["~URL_TEMPLATES_PROFILE_VIEW"] ?? null,
 										"VOTE_ID" => $voteId
 									),
 									$arParams["component"],

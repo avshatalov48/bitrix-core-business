@@ -35,6 +35,8 @@ $extensionsList = [
 	'sidepanel',
 	'videorecorder',
 	'ui.entity-selector',
+	'ui.common',
+	'ui.forms',
 	'ui.buttons',
 	'ui.alerts',
 	'ui_date',
@@ -59,7 +61,10 @@ UI\Extension::load($extensionsList);
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 
-if ($arResult["delete_blog_post"] === "Y")
+if (
+	isset($arResult["delete_blog_post"])
+	&& $arResult["delete_blog_post"] === "Y"
+)
 {
 	$APPLICATION->RestartBuffer();
 	if (!empty($arResult["ERROR_MESSAGE"]))
@@ -90,7 +95,7 @@ if (!empty($arResult["FATAL_MESSAGE"]))
 
 	$strFullForm = ob_get_clean();
 
-	if ($_POST["action"] === "SBPE_get_full_form")
+	if (isset($_POST["action"]) && $_POST["action"] === "SBPE_get_full_form")
 	{
 		while (ob_end_clean()) {}
 
@@ -138,7 +143,10 @@ if (!empty($arResult["UTIL_MESSAGE"]))
 	</div>
 	<?php
 }
-elseif ($arResult["imageUploadFrame"] === "Y") // Frame with file input to ajax uploading in WYSIWYG editor dialog
+elseif (
+	isset($arResult["imageUploadFrame"])
+	&& $arResult["imageUploadFrame"] === "Y"
+) // Frame with file input to ajax uploading in WYSIWYG editor dialog
 {
 	?><script><?php
 	if (!empty($arResult["Image"]))
@@ -170,13 +178,13 @@ else
 	$userOption = CUserOptions::GetOption("socialnetwork", "postEdit");
 	$bShowTitle = (
 		(
-			$arResult["PostToShow"]["MICRO"] !== "Y"
+			($arResult["PostToShow"]["MICRO"] ?? '') !== "Y"
 			&& !empty($arResult["PostToShow"]["TITLE"])
 		)
 		|| (
 			isset($userOption["showTitle"])
 			&& $userOption["showTitle"] === "Y"
-			&& $arResult["PostToShow"]["MICRO"] !== "Y"
+			&& ($arResult["PostToShow"]["MICRO"] ?? '') !== "Y"
 		)
 	);
 
@@ -314,7 +322,10 @@ else
 					{
 						?><?= $arTab["ONCLICK_SLIDER"] ?><?php
 					}
-					elseif ($arTab["LIMITED"] === 'Y')
+					elseif (
+						isset($arTab["LIMITED"])
+						&& $arTab["LIMITED"] === 'Y'
+					)
 					{
 						?><?= ($arTab["ONCLICK"] ?? '') ?><?php
 					}
@@ -346,7 +357,8 @@ else
 		for ($i = $maxTabs; $i < $tabsCnt; $i++)
 		{
 			$arTab = $arTabs[$i];
-			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.($arTab["ONCLICK"] ?? '').'" data-name="'.$arTab["NAME"].'" data-limited="'.$arTab["LIMITED"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
+			$limited = $arTab["LIMITED"] ?? '';
+			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.($arTab["ONCLICK"] ?? '').'" data-name="'.$arTab["NAME"].'" data-limited="'.$limited.'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
 			if (
 				$arResult['tabActive'] === $arTab["ID"]
 				&& $maxTabs > 0
@@ -380,7 +392,7 @@ else
 	$strGratVote = ob_get_clean();
 
 	if (
-		$arParams["TOP_TABS_VISIBLE"] === "Y"
+		($arParams["TOP_TABS_VISIBLE"] ?? null) === "Y"
 		&& (
 			!isset($arParams["PAGE_ID"])
 			|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
@@ -509,7 +521,10 @@ HTML;
 
 	if ($arResult["SHOW_FULL_FORM"]) // lazyloadmode on + ajax
 	{
-		if ($_POST["action"] === "SBPE_get_full_form")
+		if (
+			isset($_POST["action"])
+			&& $_POST["action"] === "SBPE_get_full_form"
+		)
 		{
 			$APPLICATION->ShowAjaxHead();
 		}
@@ -530,7 +545,7 @@ HTML;
 			<?= bitrix_sessid_post() ?>
 			<div class="feed-add-post-form-wrap"><?php
 				if (
-					$arParams["TOP_TABS_VISIBLE"] !== "Y"
+					($arParams["TOP_TABS_VISIBLE"] ?? null) !== "Y"
 					&& (
 						!isset($arParams["PAGE_ID"])
 						|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
@@ -540,7 +555,7 @@ HTML;
 					?><div class="feed-add-post-form-variants" id="feed-add-post-form-tab"><?php
 						echo $strGratVote;
 
-						if ($arParams["SHOW_BLOG_FORM_TARGET"])
+						if ($arParams["SHOW_BLOG_FORM_TARGET"] ?? null)
 						{
 							$APPLICATION->ShowViewContent("sonet_blog_form");
 						}
@@ -632,13 +647,13 @@ HTML;
 								"VALUE" => $arResult["PostToShow"]["FEED_DESTINATION"],
 								"SHOW" => (!isset($arParams["PAGE_ID"]) || $arParams["PAGE_ID"] !== "user_blog_post_edit_profile" ? 'Y' : 'N')
 							],
-							"DEST_SORT" => $arResult["DEST_SORT"],
+							"DEST_SORT" => $arResult["DEST_SORT"] ?? [],
 							"SELECTOR_CONTEXT" => "BLOG_POST",
 							'SELECTOR_VERSION' => $arResult['SELECTOR_VERSION'],
 							"TAGS" => [
 								"ID" => "TAGS",
 								"NAME" => "TAGS",
-								"VALUE" => explode(",", trim($arResult["PostToShow"]["CategoryText"])),
+								"VALUE" => explode(",", trim($arResult["PostToShow"]["CategoryText"] ?? '')),
 								"USE_SEARCH" => "Y",
 								"FILTER" => "blog",
 							],
@@ -652,7 +667,10 @@ HTML;
 								"ctrlEnterHandler" => "submitBlogPostForm",
 								"jsObjName" => $jsObjName,
 								"fontSize" => "14px",
-								"bInitByJS" => (!$arResult['bVarsFromForm'] && $arParams["TOP_TABS_VISIBLE"] === "Y")
+								"bInitByJS" => (
+									!$arResult['bVarsFromForm']
+									&& ($arParams["TOP_TABS_VISIBLE"] ?? null) === "Y"
+								),
 							],
 							"USE_CLIENT_DATABASE" => "Y",
 							"DEST_CONTEXT" => "BLOG_POST",
@@ -793,13 +811,15 @@ HTML;
 						$grat_type = ""; $title_default = "";
 
 						if (
-							is_array($arResult["PostToShow"]["GRAT_CURRENT"])
+							isset($arResult["PostToShow"]["GRAT_CURRENT"])
+							&& isset($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"])
+							&& is_array($arResult["PostToShow"]["GRAT_CURRENT"])
 							&& is_array($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"])
 						)
 						{
 							$grat_type = htmlspecialcharsbx($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"]["XML_ID"]);
 							$class_default = "feed-add-grat-medal-".htmlspecialcharsbx($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"]["XML_ID"]);
-							$title_default = htmlspecialcharsbx($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"]["VALUE_ENUM"]);
+							$title_default = htmlspecialcharsbx($arResult["PostToShow"]["GRAT_CURRENT"]["TYPE"]["VALUE_ENUM"] ?? null);
 						}
 						elseif (is_array($arResult["PostToShow"]["GRATS_DEF"]))
 						{
@@ -1063,9 +1083,17 @@ HTML;
 				];
 
 				if (
-					$arParams["MICROBLOG"] !== "Y"
-					&& (int)$arResult['UserID'] === (int)$arResult['Blog']['OWNER_ID']
-					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
+					($arParams["MICROBLOG"] ?? null) !== "Y"
+					&& (int) $arResult['UserID'] === (int) $arResult['Blog']['OWNER_ID']
+					&& !in_array(
+						$arParams["PAGE_ID"] ?? '',
+						[
+							"user_blog_post_edit_profile",
+							"user_blog_post_edit_grat",
+							"user_grat",
+							"user_blog_post_edit_post",
+						]
+					)
 				)
 				{
 					$arButtons[] = [
@@ -1089,13 +1117,16 @@ HTML;
 					$scriptFunc = [];
 					foreach ($arButtons as $val)
 					{
-						$onclick = $val["CLICK"];
-						if ((string)$onclick === '')
+						$onclick = $val["CLICK"] ?? '';
+						if ((string) $onclick === '')
 						{
 							$onclick = "submitBlogPostForm('" . $val["NAME"] . "'); ";
 						}
 						$scriptFunc[$val["NAME"]] = $onclick;
-						if ($val["CLEAR_CANCEL"] === "Y")
+						if (
+							isset($val["CLEAR_CANCEL"])
+							&& $val["CLEAR_CANCEL"] === "Y"
+						)
 						{
 							?><span class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></span><?php
 						}
@@ -1127,7 +1158,10 @@ HTML;
 		?><div id="task_form_hidden" style="display: none;"></div><?php
 		?></div><?php
 
-		if ($_POST["action"] === "SBPE_get_full_form")
+		if (
+			isset($_POST["action"])
+			&& $_POST["action"] === "SBPE_get_full_form"
+		)
 		{
 			$strFullForm = ob_get_contents();
 			while (ob_end_clean()) {}

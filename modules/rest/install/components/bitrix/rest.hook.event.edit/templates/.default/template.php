@@ -120,9 +120,16 @@ if(is_array($arResult["EVENTS"])):
 			}
 		}
 
-		if($scopeHtml != '')
+		if ($scopeHtml != '')
 		{
-			$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_".toUpper($scope)));
+			if (mb_strtoupper($scope) === 'LOG')
+			{
+				$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_LOG_MSGVER_1"));
+			}
+			else
+			{
+				$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_".mb_strtoupper($scope)));
+			}
 ?>
 				<b><?=$scopeName?></b>
 				<div style="padding-left: 20px;"><?=$scopeHtml?></div>

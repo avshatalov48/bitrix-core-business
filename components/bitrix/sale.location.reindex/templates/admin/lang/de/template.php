@@ -1,0 +1,30 @@
+<?
+$MESS["SALE_SLRI_TAB_REINDEX_TITLE"] = "Neu indexieren";
+$MESS["SALE_SLRI_TAB_REINDEX_TITLE_SETTINGS"] = "Parameter der Neu-Indexierung";
+$MESS["SALE_SLRI_SETTINGS_BASE"] = "Haupteinstellungen";
+$MESS["SALE_SLRI_JOB_DICTIONARY"] = "Suchverzeichnis";
+$MESS["SALE_SLRI_JOB_SITE"] = "Anbindung an Websites";
+$MESS["SALE_SLRI_AP_TIMELIMIT"] = "Schritt der Neu-Indexierung, in Sek.";
+$MESS["SALE_SLRI_START"] = "Jetzt neu indexieren";
+$MESS["SALE_SLRI_STOP"] = "Stopp";
+$MESS["SALE_SLRI_STOPPING"] = "Neu-Indexierung wird abgebrochen...";
+$MESS["SALE_SLRI_ERROR"] = "Interner Fehler.";
+$MESS["SALE_SLRI_STAGE_CLEANUP"] = "Suchindex wird geleert";
+$MESS["SALE_SLRI_STAGE_CREATE_DICTIONARY"] = "Verzeichnis wird erstellt";
+$MESS["SALE_SLRI_STAGE_RESORT_DICTIONARY"] = "Verzeichnis wird sortiert";
+$MESS["SALE_SLRI_STAGE_CREATE_SEARCH_INDEX"] = "Suchindex wird erstellt";
+$MESS["SALE_SLRI_STAGE_CREATE_SITE2LOCATION_INDEX"] = "Index der Website-Anbindung wird erstellt";
+$MESS["SALE_SLRI_STAGE_RESTORE_DB_INDEXES"] = "Datenbankindexe werde wiederhergestellt";
+$MESS["SALE_SLRI_STAGE_COMPLETE"] = "Neu-Indexierung ist abgeschlossen";
+$MESS["SALE_SLRI_STAGE_INTERRUPTING"] = "abbrechen";
+$MESS["SALE_SLRI_STAGE_INTERRUPTED"] = "Neu-Indexierung wurde abgebrochen";
+$MESS["SALE_SLRI_STATUS"] = "Status";
+$MESS["SALE_SLRI_STAGE_INITIAL"] = "Ausführung erwartet";
+$MESS["SALE_SLRI_SURE_REINDEX"] = "Möchten Sie jetzt wirklich neu indexieren?";
+$MESS["SALE_SLRI_HEAVY_DUTY_NOTICE"] = "Neu-Indexierung kann 30 Minuten oder aber mehrere Stunden dauern, was von Ihren Web-Einstellungen und Ihrer Hardware abhängt.";
+$MESS["SALE_SLRI_HEAVY_DUTY_HOST_NOTICE"] = "Neu-Indexierung kann die Belastung der Server und der Datenbank erhöhen. Möchten Sie eine größere Datenmenge jetzt indexieren, wird es empfohlen, den Support Ihres Hosting-Anbieters zu konsultieren, bevor Sie neu indexieren.";
+$MESS["SALE_SLRI_TYPES4INDEX_2"] = "Schnellsuche für Typen benutzen";
+$MESS["SALE_SLRI_ALL_TYPES_2"] = "Alle Typen";
+$MESS["SALE_SLRI_LANGS4INDEX_2"] = "Schnellsuche für Sprachen benutzen";
+$MESS["SALE_SLRI_ALL_LANGS_2"] = "Alle Sprachen";
+?>

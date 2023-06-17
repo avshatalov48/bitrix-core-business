@@ -383,15 +383,17 @@ class FunctionMin extends FunctionBase
 	public function calculate(array $parameters)
 	{
 		$result = $this->parametersToArray($parameters);
-		$asFloat = array();
-		foreach ($result as $value)
+		$asFloat = [];
+		foreach ($result as $rawValue)
 		{
-			if (!isset($asFloat[$value]))
+			if (!isset($asFloat[$rawValue]))
 			{
-				$floatFalue = doubleval(preg_replace("/[^0-9.]+/", "", $value));
-				$asFloat[$value] = $floatFalue;
+				$value = preg_replace("/&\#[0-9]+;/", '', $rawValue);
+				$floatFalue = (float)preg_replace("/[^0-9.]+/", "", $value);
+				$asFloat[$rawValue] = $floatFalue;
 			}
 		}
+
 		if (empty($asFloat))
 		{
 			return '';
@@ -403,6 +405,7 @@ class FunctionMin extends FunctionBase
 		else
 		{
 			$min = min($asFloat);
+
 			return array_search($min, $asFloat);
 		}
 	}
@@ -426,13 +429,14 @@ class FunctionMax extends FunctionBase
 	public function calculate(array $parameters)
 	{
 		$result = $this->parametersToArray($parameters);
-		$asFloat = array();
-		foreach ($result as $value)
+		$asFloat = [];
+		foreach ($result as $rawValue)
 		{
-			if (!isset($asFloat[$value]))
+			if (!isset($asFloat[$rawValue]))
 			{
-				$floatFalue = doubleval(preg_replace("/[^0-9.]+/", "", $value));
-				$asFloat[$value] = $floatFalue;
+				$value = preg_replace("/&\#[0-9]+;/", '', $rawValue);
+				$floatFalue = (float)preg_replace("/[^0-9.]+/", '', $value);
+				$asFloat[$rawValue] = $floatFalue;
 			}
 		}
 		if (empty($asFloat))
@@ -446,6 +450,7 @@ class FunctionMax extends FunctionBase
 		else
 		{
 			$max = max($asFloat);
+
 			return array_search($max, $asFloat);
 		}
 	}

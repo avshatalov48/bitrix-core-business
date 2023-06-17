@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 $arTemplateParameters = array(
 	'POSITION_FIXED' => array(
@@ -27,4 +33,3 @@ if (!isset($arCurrentValues['POSITION_FIXED']) || $arCurrentValues['POSITION_FIX
 	);
 	unset($positionList);
 }
-?>

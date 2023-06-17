@@ -1,8 +1,13 @@
 <?php
 namespace Bitrix\Clouds;
 
-use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 Loc::loadMessages(__FILE__);
 
@@ -32,7 +37,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Clouds\EO_FileHash_Collection wakeUpCollection($rows)
  */
 
-class FileHashTable extends Main\Entity\DataManager
+class FileHashTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -52,34 +57,48 @@ class FileHashTable extends Main\Entity\DataManager
 	public static function getMap()
 	{
 		return [
-			'ID' => [
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_ID_FIELD'),
-			],
-			'BUCKET_ID' => [
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_BUCKET_ID_FIELD'),
-			],
-			'FILE_PATH' => [
-				'data_type' => 'string',
-				'validation' => [__CLASS__, 'validateFilePath'],
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_PATH_FIELD'),
-			],
-			'FILE_SIZE' => [
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_SIZE_FIELD'),
-			],
-			'FILE_MTIME' => [
-				'data_type' => 'datetime',
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_MTIME_FIELD'),
-			],
-			'FILE_HASH' => [
-				'data_type' => 'string',
-				'validation' => [__CLASS__, 'validateFileHash'],
-				'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_HASH_FIELD'),
-			],
+			new IntegerField(
+				'ID',
+				[
+					'primary' => true,
+					'autocomplete' => true,
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_ID_FIELD'),
+				]
+			),
+			new IntegerField(
+				'BUCKET_ID',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_BUCKET_ID_FIELD'),
+				]
+			),
+			new StringField(
+				'FILE_PATH',
+				[
+					'required' => true,
+					'validation' => [__CLASS__, 'validateFilePath'],
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_PATH_FIELD'),
+				]
+			),
+			new IntegerField(
+				'FILE_SIZE',
+				[
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_SIZE_FIELD'),
+				]
+			),
+			new DatetimeField(
+				'FILE_MTIME',
+				[
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_MTIME_FIELD'),
+				]
+			),
+			new StringField(
+				'FILE_HASH',
+				[
+					'validation' => [__CLASS__, 'validateFileHash'],
+					'title' => Loc::getMessage('FILE_HASH_ENTITY_FILE_HASH_FIELD'),
+				]
+			),
 		];
 	}
 
@@ -91,7 +110,7 @@ class FileHashTable extends Main\Entity\DataManager
 	public static function validateFilePath()
 	{
 		return [
-			new Main\Entity\Validator\Length(null, 760),
+			new LengthValidator(null, 760),
 		];
 	}
 
@@ -103,7 +122,7 @@ class FileHashTable extends Main\Entity\DataManager
 	public static function validateFileHash()
 	{
 		return [
-			new Main\Entity\Validator\Length(null, 50),
+			new LengthValidator(null, 50),
 		];
 	}
 
@@ -111,15 +130,15 @@ class FileHashTable extends Main\Entity\DataManager
 	 * Stores file hashes to the database.
 	 *
 	 * @param integer $bucketId Clouds storage bucket identifier.
-	 * @param array $files File list as it returned by CCloudStorageBucket::ListFiles.
+	 * @param array $files File list as it returned by \CCloudStorageBucket::ListFiles.
 	 *
-	 * @return Main\DB\Result
-	 * @see CCloudStorageBucket::ListFiles
+	 * @return \Bitrix\Main\DB\Result
+	 * @see \CCloudStorageBucket::ListFiles
 	 */
 	public static function addList($bucketId, array $files)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 		$values = [];
 		foreach ($files['file'] as $i => $file)
@@ -153,14 +172,14 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param array $files File list as it returned by CCloudStorageBucket::ListFiles.
 	 * @param string $prevLastKey Last key returned by previous call to CCloudStorageBucket::ListFiles.
 	 *
-	 * @return null|Main\DB\Result
-	 * @see CCloudStorageBucket::ListFiles
+	 * @return null|\Bitrix\Main\DB\Result
+	 * @see \CCloudStorageBucket::ListFiles
 	 */
 	public static function syncList($bucketId, $path, array $files, $prevLastKey)
 	{
 		$result = null;
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
 		$index = [];
@@ -238,13 +257,13 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param string $path File list relative path.
 	 * @param string $prevLastKey Last key returned by last call to CCloudStorageBucket::ListFiles.
 	 *
-	 * @return null|Main\DB\Result
+	 * @return null|\Bitrix\Main\DB\Result
 	 * @see \Bitrix\Clouds\FileHashTable::syncList
 	 */
 	public static function syncEnd($bucketId, $path, $prevLastKey)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
 		$delete = '
 			DELETE from ' . static::getTableName() . '
@@ -263,8 +282,8 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param string $path Path to the file.
 	 * @param array $fileInfo File info as it returned by CCloudStorageBucket::GetFileInfo.
 	 *
-	 * @return null|Main\DB\Result
-	 * @see CCloudStorageBucket::GetFileInfo
+	 * @return null|\Bitrix\Main\DB\Result
+	 * @see \CCloudStorageBucket::GetFileInfo
 	 */
 	public static function addFile($bucketId, $path, array $fileInfo)
 	{
@@ -287,7 +306,7 @@ class FileHashTable extends Main\Entity\DataManager
 	public static function getLastKey($bucketId)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$sql = 'SELECT max(FILE_PATH) LAST_KEY from ' . static::getTableName() . ' WHERE BUCKET_ID=' . $bucketId;
 		$last = $connection->query($sql)->fetch();
 		return $last && $last['LAST_KEY'] ? $last['LAST_KEY'] : '';
@@ -298,12 +317,12 @@ class FileHashTable extends Main\Entity\DataManager
 	 *
 	 * @param integer $bucketId Clouds storage bucket identifier.
 	 *
-	 * @return Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function deleteAll($bucketId)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$delete = 'DELETE from ' . static::getTableName() . ' WHERE BUCKET_ID=' . $bucketId;
 		$result = $connection->query($delete);
 		return $result;
@@ -315,12 +334,12 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param integer $bucketId Clouds storage bucket identifier.
 	 * @param string $filePath File path.
 	 *
-	 * @return Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function deleteByFilePath($bucketId, $filePath)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
 		$delete = '
 			DELETE from ' . static::getTableName() . '
@@ -339,7 +358,7 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param array $order How to sort.
 	 * @param array $filter Additional filter.
 	 *
-	 * @return Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function dirList($bucketId, $path, $order, $filter)
 	{
@@ -348,27 +367,27 @@ class FileHashTable extends Main\Entity\DataManager
 
 		$query = \Bitrix\Clouds\FileHashTable::query();
 		$query->setSelect([
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'FILE_TYPE',
 				'if(locate(\'/\', substring(%s, length(\'' . $sqlHelper->forSql($path) . '\')+1)) > 0, \'D\', \'F\')',
 				['FILE_PATH']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'NAME',
 				'substring_index(substring(%s, length(\'' . $sqlHelper->forSql($path) . '\')+1), \'/\', 1)',
 				['FILE_PATH']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'SUM_FILE_SIZE',
 				'SUM(%s)',
 				['FILE_SIZE']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'MAX_FILE_MTIME',
 				'MAX(%s)',
 				['FILE_MTIME']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'FILE_COUNT',
 				'COUNT(1)'
 			),
@@ -392,7 +411,7 @@ class FileHashTable extends Main\Entity\DataManager
 	 * @param array $filter Additional filter to pass to FileHashTable.
 	 * @param array $order Sort order.
 	 * @param integer $limit Records count.
-	 * @return Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 * @see \Bitrix\Main\File\Internal\FileHashTable
 	 */
 	public static function duplicateList($bucketId, $filter, $order, $limit = 0)
@@ -403,17 +422,17 @@ class FileHashTable extends Main\Entity\DataManager
 		$query->setSelect([
 			'FILE_HASH',
 			'FILE_SIZE',
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'FILE_COUNT',
 				'COUNT(distinct %s, %s)',
 				['FILE.SUBDIR', 'FILE.FILE_NAME']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'FILE_ID_MIN',
 				'MIN(%s)',
 				['FILE_ID']
 			),
-			new \Bitrix\Main\Entity\ExpressionField(
+			new ExpressionField(
 				'FILE_ID_MAX',
 				'MAX(%s)',
 				['FILE_ID']
@@ -477,7 +496,7 @@ class FileHashTable extends Main\Entity\DataManager
 	public static function getDuplicatesStat($bucketId)
 	{
 		$bucketId = intval($bucketId);
-		$connection = Main\Application::getConnection();
+		$connection = \Bitrix\Main\Application::getConnection();
 		$sql = "
 			select sum(DUP_COUNT) DUP_COUNT, sum(DUP_SIZE) DUP_SIZE
 			from (

@@ -1,14 +1,19 @@
 import {EventEmitter} from 'main.core.events';
+import {RestClient} from 'rest.client';
 
-import {ChatTypes, EventType, RestMethod} from 'im.v2.const';
+import {Messenger} from 'im.public';
+import {Core} from 'im.v2.application.core';
+import {DialogType, EventType, Layout, RestMethod} from 'im.v2.const';
 import {Logger} from 'im.v2.lib.logger';
+
+import type {ImModelRecentItem} from 'im.v2.model';
 
 export class RecentService
 {
 	static instance = null;
 
 	store: Object = null;
-	restClient: Object = null;
+	restClient: RestClient = null;
 
 	dataIsPreloaded: boolean = false;
 	itemsPerPage: number = 50;
@@ -17,29 +22,31 @@ export class RecentService
 	hasMoreItemsToLoad: boolean = true;
 	lastMessageDate: string = null;
 
-	static getInstance($Bitrix)
+	static getInstance(): RecentService
 	{
 		if (!this.instance)
 		{
-			this.instance = new this($Bitrix);
+			this.instance = new this();
 		}
 
 		return this.instance;
 	}
 
-	constructor($Bitrix)
+	constructor()
 	{
-		this.controller = $Bitrix.Data.get('controller');
-		this.store = $Bitrix.Data.get('controller').store;
-		this.restClient = $Bitrix.RestClient.get();
+		this.store = Core.getStore();
+		this.restClient = Core.getRestClient();
 
 		this.onUpdateStateHandler = this.onUpdateState.bind(this);
-		this.onUserRequestHandler = this.onUserRequest.bind(this);
 		EventEmitter.subscribe(EventType.recent.updateState, this.onUpdateStateHandler);
-		EventEmitter.subscribe(EventType.recent.requestUser, this.onUserRequestHandler);
 	}
 
 	// region public
+	getCollection(): ImModelRecentItem[]
+	{
+		return this.store.getters['recent/getRecentCollection'];
+	}
+
 	loadFirstPage({ignorePreloadedItems = false} = {}): Promise
 	{
 		if (this.dataIsPreloaded && !ignorePreloadedItems)
@@ -81,20 +88,39 @@ export class RecentService
 
 		this.updateModels(params);
 	}
+
+	hideChat(dialogId)
+	{
+		Logger.warn(`Im.RecentList: hide chat`, dialogId);
+		const recentItem = this.store.getters['recent/get'](dialogId);
+		if (!recentItem)
+		{
+			return false;
+		}
+
+		this.store.dispatch('recent/delete', {
+			id: dialogId
+		});
+
+		const chatIsOpened = this.store.getters['application/isChatOpen'](dialogId);
+		if (chatIsOpened)
+		{
+			Messenger.openChat();
+		}
+
+		this.restClient.callMethod(RestMethod.imRecentHide, {'DIALOG_ID': dialogId}).catch(error => {
+			console.error('Im.RecentList: hide chat error', error);
+		});
+	}
 	// endregion public
 
 	requestItems({firstPage = false} = {}): Promise
 	{
-		const queryParams = {
-			'SKIP_OPENLINES': 'Y',
-			'LIMIT': this.itemsPerPage,
-			'LAST_MESSAGE_DATE': firstPage? null : this.lastMessageDate,
-			'GET_ORIGINAL_TEXT': 'Y'
-		};
+		const queryParams = this.getQueryParams(firstPage);
 
-		return this.restClient.callMethod(RestMethod.imRecentList, queryParams).then((result) => {
+		return this.restClient.callMethod(this.getQueryMethod(), queryParams).then((result) => {
 			this.pagesLoaded++;
-			Logger.warn(`Im.RecentList: ${this.pagesLoaded} page request result`, result.data());
+			Logger.warn(`Im.RecentList: ${firstPage? 'First' : this.pagesLoaded} page request result`, result.data());
 			const {items, hasMore} = result.data();
 
 			this.lastMessageDate = this.getLastMessageDate(items);
@@ -112,6 +138,21 @@ export class RecentService
 		});
 	}
 
+	getQueryMethod(): string
+	{
+		return RestMethod.imRecentList;
+	}
+
+	getQueryParams(firstPage: boolean): Object
+	{
+		return {
+			'SKIP_OPENLINES': 'Y',
+			'LIMIT': this.itemsPerPage,
+			'LAST_MESSAGE_DATE': firstPage? null : this.lastMessageDate,
+			'GET_ORIGINAL_TEXT': 'Y'
+		};
+	}
+
 	updateModels(rawData): Promise
 	{
 		const {users, dialogues, recent} = this.prepareDataForModels(rawData);
@@ -122,7 +163,7 @@ export class RecentService
 			this.store.dispatch('users/setBotList', rawData.botList);
 		}
 		const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
-		const recentPromise = this.store.dispatch('recent/set', recent);
+		const recentPromise = this.store.dispatch('recent/setRecent', recent);
 
 		return Promise.all([usersPromise, dialoguesPromise, recentPromise]);
 	}
@@ -133,17 +174,7 @@ export class RecentService
 		this.updateModels(data);
 	}
 
-	onUserRequest({data: {userId}})
-	{
-		this.restClient.callMethod(RestMethod.imUserGet, {id: userId}).then((result) => {
-			Logger.warn(`Im.RecentList: addition user request result`, result.data());
-			this.store.dispatch('users/set', result.data());
-		}).catch((error) => {
-			console.error('Im.RecentList: user request error', error);
-		});
-	}
-
-	prepareDataForModels({items, birthdayList = []}): Object
+	prepareDataForModels({items, birthdayList = []}): {users: Array, dialogues: Array, recent: Array}
 	{
 		const result = {
 			users: [],
@@ -235,7 +266,7 @@ export class RecentService
 			color: item.user.color,
 			dialogId: item.id,
 			name: item.user.name,
-			type: ChatTypes.user,
+			type: DialogType.user,
 			counter: item.counter
 		};
 	}
@@ -247,7 +278,7 @@ export class RecentService
 			avatar: user.avatar,
 			color: user.color,
 			name: user.name,
-			type: ChatTypes.user
+			type: DialogType.user
 		};
 	}
 

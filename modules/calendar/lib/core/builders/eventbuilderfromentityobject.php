@@ -104,7 +104,10 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getStart(): Date
 	{
 		return new Date(Util::getDateObject(
-			$this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME)),
+            $this->event->getDateFrom()
+                ? $this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME))
+                : null
+            ,
 			false,
 			$this->getStartTimezone() ? $this->getStartTimezone()->getTimeZone()->getName() : null
 		));
@@ -116,7 +119,10 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getEnd(): Date
 	{
 		return new Date(Util::getDateObject(
-			$this->event->getDateTo()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME)),
+            $this->event->getDateTo()
+                ? $this->event->getDateTo()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME))
+                : null
+            ,
 			false,
 			$this->getEndTimezone() ? $this->getEndTimezone()->getTimeZone()->getName() : null
 		));

@@ -1,29 +1,45 @@
-<?
-use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
+<?php
 
+/** @global CMain $APPLICATION */
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location\Admin\SiteLocationHelper as Helper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
-if($APPLICATION->GetGroupRight("sale") < "W")
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
+$publicMode = $adminPage->publicMode;
+
+if ($APPLICATION->GetGroupRight("sale") < "W")
+{
 	$APPLICATION->AuthForm(Loc::getMessage('SALE_MODULE_ACCES_DENIED'));
+}
 
 #####################################
 #### Data prepare
 #####################################
 
+$fatal = '';
+$columns = [];
+
+$sTableID = 'tbl_zone_list';
+$oSort = new CAdminSorting($sTableID, 'SORT', 'asc');
+$lAdmin = new CAdminList($sTableID, $oSort);
+
 try
 {
-	$itemId = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
-
 	// get entity fields for columns & filter
 	$columns = Helper::getColumns('list');
 
@@ -35,14 +51,10 @@ try
 		$arFilterTitles[] = $fld['title'];
 	}
 
-	$sTableID = "tbl_zone_list";
-
 	$oFilter = new CAdminFilter(
 		$sTableID."_filter",
 		$arFilterTitles
 	);
-	$oSort = new CAdminSorting($sTableID, "SORT", "asc");
-	$lAdmin = new CAdminList($sTableID, $oSort);
 	$lAdmin->InitFilter($arFilterFields);
 
 	// order, select and filter for the list
@@ -102,25 +114,24 @@ if(empty($fatal))
 	$lAdmin->CheckListMode();
 
 } // empty($fatal)
-?>
 
-<?$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'))?>
+$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'));
 
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-<?
 #####################################
 #### Data output
 #####################################
-?>
 
-<?//temporal code?>
-<?if(!CSaleLocation::locationProCheckEnabled())require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+//temporal code
+if (!CSaleLocation::locationProCheckEnabled())
+{
+	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
+}
 
-<?SearchHelper::checkIndexesValid();?>
+SearchHelper::checkIndexesValid();
 
-<? if($fatal <> ''): ?>
-	<?
+if($fatal !== ''):
 	$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
 	if($publicMode)
 	{
@@ -128,13 +139,14 @@ if(empty($fatal))
 	}
 	?>
 	<div class="error-message">
-		<? CAdminMessage::ShowMessage($messageParams) ?>
+		<?php
+		CAdminMessage::ShowMessage($messageParams);
+		?>
 	</div>
 
-<? else: ?>
+<?php
+else:
+	$lAdmin->DisplayList();
+endif;
 
-	<? $lAdmin->DisplayList(); ?>
-
-<? endif?>
-
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

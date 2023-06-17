@@ -22,7 +22,7 @@ Main\Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -236,11 +236,11 @@ if (isset($_REQUEST['action']))
 			$siteID = $_REQUEST["SITE_ID"];
 			if ($publicMode)
 			{
-				$url = "/shop/orders/details/0/?lang=".LANG."&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
+				$url = "/shop/orders/details/0/?lang=" . LANGUAGE_ID . "&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
 			}
 			else
 			{
-				$url = $selfFolderUrl."sale_order_create.php?lang=".LANG."&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
+				$url = $selfFolderUrl."sale_order_create.php?lang=" . LANGUAGE_ID . "&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
 			}
 
 			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);

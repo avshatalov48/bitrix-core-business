@@ -31,6 +31,11 @@ abstract class TradeBindingRestriction extends Restriction
 		return Loc::getMessage('SALE_SRV_RSTR_BY_TRADE_BINDING_DESC');
 	}
 
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_SRV_RSTR_BY_TRADE_BINDING_ON_APPLY_ERROR_MSG');
+	}
+
 	/**
 	 * @param int $entityId
 	 * @return array

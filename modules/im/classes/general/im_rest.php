@@ -1,6 +1,11 @@
 <?php
 
+use Bitrix\Disk\File;
 use Bitrix\Im\Chat;
+use Bitrix\Im\V2\Chat\ChatFactory;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\Type\DateTime;
 
 if (!CModule::IncludeModule('rest'))
 {
@@ -36,6 +41,7 @@ class CIMRestService extends IRestService
 				'im.department.employees.get' => array(__CLASS__, 'departmentEmployeesGet'),
 
 				'im.chat.add' => array(__CLASS__, 'chatCreate'),
+				'im.chat.getEntityChat' => array(__CLASS__, 'chatGetEntityChat'),
 				'im.chat.get' => array(__CLASS__, 'chatGet'),
 				'im.chat.setOwner' => array(__CLASS__, 'chatSetOwner'),
 				'im.chat.setManager' => array(__CLASS__, 'chatSetManager'),
@@ -49,9 +55,34 @@ class CIMRestService extends IRestService
 				'im.chat.sendTyping' => array('callback' => array(__CLASS__, 'dialogWriting'), 'options' => array('private' => true)),
 				'im.chat.mute' => array(__CLASS__, 'chatMute'),
 				'im.chat.parent.join' => array('callback' => array(__CLASS__, 'chatParentJoin'), 'options' => array('private' => true)),
+				'im.chat.url.get' => array('callback' => array(__CLASS__, 'chatUrlGet'), 'options' => array('private' => true)),
+				'im.chat.url.delete' => array('callback' => array(__CLASS__, 'chatUrlDelete'), 'options' => array('private' => true)),
+				'im.chat.url.counter.get' => array('callback' => array(__CLASS__, 'chatUrlCounterGet'), 'options' => array('private' => true)),
+				'im.chat.file.get' => array('callback' => array(__CLASS__, 'chatFileGet'), 'options' => array('private' => true)),
+				'im.chat.file.collection.get' => array('callback' => array(__CLASS__, 'chatFileCollectionGet'), 'options' => array('private' => true)),
+				'im.chat.favorite.get' => array('callback' => array(__CLASS__, 'chatFavoriteGet'), 'options' => array('private' => true)),
+				'im.chat.favorite.add' => array('callback' => array(__CLASS__, 'chatFavoriteAdd'), 'options' => array('private' => true)),
+				'im.chat.favorite.delete' => array('callback' => array(__CLASS__, 'chatFavoriteDelete'), 'options' => array('private' => true)),
+				'im.chat.favorite.counter.get' => array('callback' => array(__CLASS__, 'chatFavoriteCounterGet'), 'options' => array('private' => true)),
+				'im.chat.task.get' => array('callback' => array(__CLASS__, 'chatTaskGet'), 'options' => array('private' => true)),
+				'im.chat.task.delete' => array('callback' => array(__CLASS__, 'chatTaskDelete'), 'options' => array('private' => true)),
+				'im.chat.task.prepare' => array('callback' => array(__CLASS__, 'chatTaskPrepare'), 'options' => array('private' => true)),
+				'im.chat.calendar.get' => array('callback' => array(__CLASS__, 'chatCalendarGet'), 'options' => array('private' => true)),
+				'im.chat.calendar.add' => array('callback' => array(__CLASS__, 'chatCalendarAdd'), 'options' => array('private' => true)),
+				'im.chat.calendar.delete' => array('callback' => array(__CLASS__, 'chatCalendarDelete'), 'options' => array('private' => true)),
+				'im.chat.calendar.prepare' => array('callback' => array(__CLASS__, 'chatCalendarPrepare'), 'options' => array('private' => true)),
+				'im.chat.sign.get' => array('callback' => array(__CLASS__, 'chatSignGet'), 'options' => array('private' => true)),
+				'im.chat.pin.get' => array('callback' => array(__CLASS__, 'chatPinGet'), 'options' => array('private' => true)),
+				'im.chat.pin.add' => array('callback' => array(__CLASS__, 'chatPinAdd'), 'options' => array('private' => true)),
+				'im.chat.pin.delete' => array('callback' => array(__CLASS__, 'chatPinDelete'), 'options' => array('private' => true)),
+				'im.chat.reminder.get' => array('callback' => array(__CLASS__, 'chatReminderGet'), 'options' => array('private' => true)),
+				'im.chat.reminder.add' => array('callback' => array(__CLASS__, 'chatReminderAdd'), 'options' => array('private' => true)),
+				'im.chat.reminder.delete' => array('callback' => array(__CLASS__, 'chatReminderDelete'), 'options' => array('private' => true)),
 
 				'im.dialog.get' => array(__CLASS__, 'dialogGet'),
 				'im.dialog.messages.get' => array(__CLASS__, 'dialogMessagesGet'),
+				'im.dialog.messages.search' => array('callback' => array(__CLASS__, 'dialogMessagesSearch'), 'options' => array('private' => true)),
+				'im.dialog.context.get' => array('callback' => array(__CLASS__, 'dialogContextGet'), 'options' => array('private' => true)),
 				'im.dialog.users.get' => array('callback' => array(__CLASS__, 'dialogUsersGet'), 'options' => array('private' => true)),
 				'im.dialog.users.list' => array(__CLASS__, 'dialogUsersList'),
 				'im.dialog.read' => array(__CLASS__, 'dialogRead'),
@@ -81,6 +112,7 @@ class CIMRestService extends IRestService
 				'im.notify.history.search' => array('callback' => array(__CLASS__, 'notifyHistorySearch'), 'options' => array('private' => true)),
 				'im.notify.schema.get' => array('callback' => array(__CLASS__, 'notifySchemaGet'), 'options' => array('private' => true)),
 
+				'im.disk.folder.list.get' => array('callback' => array(__CLASS__, 'diskFolderListGet'), 'options' => array('private' => true)),
 				'im.disk.folder.get' => array(__CLASS__, 'diskFolderGet'),
 				'im.disk.file.commit' => array(__CLASS__, 'diskFileCommit'),
 				'im.disk.file.delete' => array(__CLASS__, 'diskFileDelete'),
@@ -117,6 +149,9 @@ class CIMRestService extends IRestService
 
 				'im.desktop.status.get' => array('callback' => array(__CLASS__, 'desktopStatusGet'), 'options' => array('private' => true)),
 				'im.desktop.page.open' => array('callback' => array(__CLASS__, 'desktopPageOpen'), 'options' => array('private' => true)),
+
+				'im.version.v2.enable' => array('callback' => array(__CLASS__, 'enableV2Version'), 'options' => array('private' => true)),
+				'im.version.v2.disable' => array('callback' => array(__CLASS__, 'disableV2Version'), 'options' => array('private' => true)),
 			),
 			'imbot' => Array(
 				'imbot.register' => array(__CLASS__, 'botRegister'),
@@ -285,7 +320,8 @@ class CIMRestService extends IRestService
 			$result[$userId] = \Bitrix\Im\User::getInstance($userId)->getArray(Array('JSON' => 'Y', 'HR_PHOTO' => isset($arParams['AVATAR_HR']) && $arParams['AVATAR_HR'] == 'Y'));
 		}
 
-		if (mb_strtolower($arParams['RESULT_TYPE']) === 'array')
+		$arParams['RESULT_TYPE'] ??= '';
+		if (mb_strtolower(($arParams['RESULT_TYPE'] ?? '')) === 'array')
 		{
 			$result = array_values($result);
 		}
@@ -350,7 +386,7 @@ class CIMRestService extends IRestService
 
 		$userId = \Bitrix\Im\Common::getUserId();
 
-		\CIMStatus::Set($userId, Array('STATUS' => $params['STATUS']));
+		CIMSettings::SetSetting(CIMSettings::SETTINGS, ['status' => $params['STATUS']], $userId);
 
 		return true;
 	}
@@ -466,6 +502,92 @@ class CIMRestService extends IRestService
 		return \Bitrix\Im\Chat::getMessages($chatId, null, $options);
 	}
 
+	public static function dialogMessagesSearch($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'SEARCH_MESSAGE' => $arParams['SEARCH_MESSAGE'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+			'DATE' => $arParams['DATE'] ? new DateTime($arParams['DATE'], DateTimeInterface::RFC3339) : null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC',
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$messages = \Bitrix\Im\V2\MessageCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($messages))->toRestFormat();
+	}
+
+	public static function dialogContextGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new Bitrix\Rest\RestException('Message ID can`t be empty', 'MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$message->getChat()->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (!isset($arParams['RANGE']))
+		{
+			throw new Bitrix\Rest\RestException('Range can`t be empty', 'RANGE_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$range = (int)$arParams['RANGE'];
+		$range = ($range <= 50 && $range >= 0) ? $range : 50;
+
+		$result = (new \Bitrix\Im\V2\Message\MessageService())->getMessageContext($message, $range);
+		if (!$result->isSuccess())
+		{
+			$error = $result->getErrors()[0];
+			if (isset($error))
+			{
+				throw new Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		/** @var \Bitrix\Im\V2\MessageCollection $messages */
+		$messages = $result->getResult();
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($messages))->toRestFormat();
+	}
+
 	public static function dialogUsersGet($arParams, $n, CRestServer $server)
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
@@ -524,14 +646,21 @@ class CIMRestService extends IRestService
 			$countFilter['!=USER.EXTERNAL_AUTH_ID'] = \Bitrix\Im\Model\UserTable::filterExternalUserTypes($exceptType);
 		}
 
+		$options['LIMIT'] = self::getLimit($params);
+		$options['JSON'] = true;
+
+		if (isset($params['LAST_ID']) && (int)$params['LAST_ID'] >= 0)
+		{
+			$options['LAST_ID'] = (int)$params['LAST_ID'];
+
+			return \Bitrix\Im\Chat::getUsers($chatId, $options);
+		}
+
 		$counter = \Bitrix\Im\Model\RelationTable::getList([
 			'select' => ['CNT' => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')],
 			'filter' => $countFilter
 		])->fetch();
-
 		$options['OFFSET'] = self::getOffset($offset, $params);
-		$options['LIMIT'] = self::getLimit($params);
-		$options['JSON'] = true;
 
 		$result = Array();
 		if ($counter && $counter["CNT"] > 0)
@@ -850,6 +979,7 @@ class CIMRestService extends IRestService
 
 		$skipChatParam = $arParams['SKIP_CHAT'] ?? null;
 		$skipDialogParam = $arParams['SKIP_DIALOG'] ?? null;
+		$unreadOnly = $arParams['UNREAD_ONLY'] ?? null;
 
 		$config = Array('JSON' => 'Y');
 		if ($arParams['SKIP_OPENLINES'] === 'Y')
@@ -863,6 +993,10 @@ class CIMRestService extends IRestService
 		if ($skipDialogParam === 'Y')
 		{
 			$config['SKIP_DIALOG'] = 'Y';
+		}
+		if ($unreadOnly === 'Y')
+		{
+			$config['UNREAD_ONLY'] = 'Y';
 		}
 		if (isset($arParams['GET_ORIGINAL_TEXT']) && $arParams['GET_ORIGINAL_TEXT'] === 'Y')
 		{
@@ -1121,6 +1255,16 @@ class CIMRestService extends IRestService
 
 	/* ChatAPI */
 
+	/**
+	 * im.chat.add
+	 *
+	 * @param $arParams
+	 * @param $n
+	 * @param CRestServer $server
+	 * @return int
+	 * @throws \Bitrix\Rest\AccessException
+	 * @throws \Bitrix\Rest\RestException
+	 */
 	public static function chatCreate($arParams, $n, CRestServer $server)
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
@@ -1150,41 +1294,14 @@ class CIMRestService extends IRestService
 			$arParams['USERS'] = [];
 		}
 
-		if (isset($arParams['AVATAR']) && $arParams['AVATAR'])
-		{
-			$arParams['AVATAR'] = CRestUtil::saveFile($arParams['AVATAR']);
-			$imageCheck = (new \Bitrix\Main\File\Image($arParams['AVATAR']["tmp_name"]))->getInfo();
-			if(
-				!$imageCheck
-				|| !$imageCheck->getWidth()
-				|| $imageCheck->getWidth() > 5000
-				|| !$imageCheck->getHeight()
-				|| $imageCheck->getHeight() > 5000
-			)
-			{
-				$arParams['AVATAR'] = null;
-			}
-			if (!$arParams['AVATAR'] || mb_strpos($arParams['AVATAR']['type'], "image/") !== 0)
-			{
-				$arParams['AVATAR'] = 0;
-			}
-			else
-			{
-				$arParams['AVATAR'] = CFile::saveFile($arParams['AVATAR'], 'im');
-			}
-		}
-		else
-		{
-			$arParams['AVATAR'] = 0;
-		}
-
-		$add = Array(
-			'TYPE' => $arParams['TYPE'] == 'OPEN'? IM_MESSAGE_OPEN: IM_MESSAGE_CHAT,
+		$add = [
+			'TYPE' => $arParams['TYPE'] == 'OPEN' ? Chat::TYPE_OPEN : Chat::TYPE_GROUP,
 			'USERS' => $arParams['USERS'],
-		);
-		if ($arParams['AVATAR'] > 0)
+		];
+
+		if (isset($arParams['AVATAR']))
 		{
-			$add['AVATAR_ID'] = $arParams['AVATAR'];
+			$add['AVATAR'] = $arParams['AVATAR'];
 		}
 		if (isset($arParams['COLOR']))
 		{
@@ -1497,12 +1614,7 @@ class CIMRestService extends IRestService
 		}
 
 		$chat = new CIMChat($userId);
-		$result = $chat->Rename($arParams['CHAT_ID'], $arParams['TITLE']);
-
-		if (!$result)
-		{
-			throw new Bitrix\Rest\RestException("This title currently set or chat isn't exists", "WRONG_REQUEST", CRestServer::STATUS_WRONG_REQUEST);
-		}
+		$chat->Rename($arParams['CHAT_ID'], $arParams['TITLE']);
 
 		return true;
 	}
@@ -1835,6 +1947,987 @@ class CIMRestService extends IRestService
 		return true;
 	}
 
+	public static function chatUrlGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'SEARCH_URL' => $arParams['SEARCH_URL'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+		];
+		$limit = self::getLimit($arParams);
+		$offset = self::getOffset($n, $arParams);
+		$order = [
+			'MESSAGE_ID' => $arParams['ORDER']['MESSAGE_ID'] ?? 'DESC'
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$urls = \Bitrix\Im\V2\Link\Url\UrlCollection::find($filter, $order, $limit, new \Bitrix\Im\V2\Service\Context(), $offset);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($urls))->toRestFormat();
+	}
+
+	public static function chatUrlDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (!isset($arParams['LINK_ID']) || (int)$arParams['LINK_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('LINK_ID can`t be empty', 'LINK_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$linkId = (int)$arParams['LINK_ID'];
+		$url = new \Bitrix\Im\V2\Link\Url\UrlItem($linkId);
+		if ($url->getId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Url not found', \Bitrix\Im\V2\Entity\Url\UrlError::NOT_FOUND, \CRestServer::STATUS_NOT_FOUND);
+		}
+
+		$chatId = $url->getChatId();
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		global $USER;
+		$userId = (int)$USER->GetID();
+
+		if ($userId !== $url->getAuthorId() && !$USER->IsAdmin())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to delete this url', \Bitrix\Im\V2\Entity\Url\UrlError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$urls = new \Bitrix\Im\V2\Link\Url\UrlCollection();
+		$urls->add($url);
+
+		$deleteResult = (new \Bitrix\Im\V2\Link\Url\UrlService())->deleteUrls($urls);
+
+		if (!$deleteResult->isSuccess())
+		{
+			throw new \Bitrix\Rest\RestException('Failed to delete url', \Bitrix\Im\V2\Entity\Url\UrlError::DELETE_ERROR, \CRestServer::STATUS_INTERNAL);
+		}
+
+		return true;
+	}
+
+	public static function chatUrlCounterGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $arParams['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		return [
+			'counter' => (new \Bitrix\Im\V2\Link\Url\UrlService())->getCount($chatId, $startId)
+		];
+	}
+
+	public static function chatFileGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'SEARCH_FILE_NAME' => $arParams['SEARCH_FILE_NAME'] ?? null,
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'SUBTYPE' => $arParams['SUBTYPE'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC',
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (isset($filter['SUBTYPE']))
+		{
+			$filter['SUBTYPE'] = \Bitrix\Im\V2\Entity\File\FileItem::getSubtypeFromJsonFormat($filter['SUBTYPE']);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$files = \Bitrix\Im\V2\Link\File\FileCollection::find($filter, $order, $limit, new \Bitrix\Im\V2\Service\Context());
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+	}
+
+	public static function chatFileCollectionGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+		];
+		$limit = self::getLimit($arParams);
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$files = new \Bitrix\Im\V2\Link\File\FileCollection();
+
+		foreach (\Bitrix\Im\V2\Entity\File\FileItem::ALLOWED_SUBTYPE as $subtype)
+		{
+			$filter['SUBTYPE'] = $subtype;
+
+			$filesBySubtype = \Bitrix\Im\V2\Link\File\FileCollection::find($filter, [], $limit);
+
+			foreach ($filesBySubtype as $fileBySubtype)
+			{
+				$files[] = $fileBySubtype;
+			}
+		}
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+	}
+
+	public static function chatFavoriteGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'SEARCH_MESSAGE' => $arParams['SEARCH_MESSAGE'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC',
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$favoriteMessage = \Bitrix\Im\V2\Link\Favorite\FavoriteCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($favoriteMessage))->toRestFormat();
+	}
+
+	public static function chatFavoriteAdd($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('MESSAGE_ID can`t be empty', 'MESSAGE_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chat = $message->getChat();
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if ($chat->getStartId() > $messageId)
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$markResult = $message->markAsFavorite();
+		if (!$markResult->isSuccess())
+		{
+			$error = $markResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $markResult->isSuccess();
+	}
+
+	public static function chatFavoriteDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('MESSAGE_ID can`t be empty', 'MESSAGE_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$unmarkResult = $message->unmarkAsFavorite();
+		if (!$unmarkResult->isSuccess())
+		{
+			$error = $unmarkResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $unmarkResult->isSuccess();
+	}
+
+	public static function chatFavoriteCounterGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $arParams['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		return [
+			'counter' => (new \Bitrix\Im\V2\Link\Favorite\FavoriteService())->getCount($chatId)
+		];
+	}
+
+	public static function chatTaskGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+			'SEARCH_TASK_NAME' => $arParams['SEARCH_TASK_NAME'] ?? null,
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC'
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$tasks = \Bitrix\Im\V2\Link\Task\TaskCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($tasks))->toRestFormat();
+	}
+
+	public static function chatTaskDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (!isset($arParams['LINK_ID']) || (int)$arParams['LINK_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('LINK_ID can`t be empty', 'LINK_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$linkId = (int)$arParams['LINK_ID'];
+		$task = new \Bitrix\Im\V2\Link\Task\TaskItem($linkId);
+		if ($task->getId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Task not found', \Bitrix\Im\V2\Entity\Task\TaskError::NOT_FOUND, \CRestServer::STATUS_NOT_FOUND);
+		}
+
+		$chatId = $task->getChatId();
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		global $USER;
+		$userId = (int)$USER->GetID();
+
+		if ($userId !== $task->getAuthorId() && !$USER->IsAdmin())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to delete this task', \Bitrix\Im\V2\Entity\Task\TaskError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$deleteResult = (new \Bitrix\Im\V2\Link\Task\TaskService())->unregisterTask($task, false);
+
+		if (!$deleteResult->isSuccess())
+		{
+			throw new \Bitrix\Rest\RestException('Failed to delete task', \Bitrix\Im\V2\Entity\Task\TaskError::DELETE_ERROR, \CRestServer::STATUS_INTERNAL);
+		}
+
+		return true;
+	}
+
+	public static function chatTaskPrepare($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if ($server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE && !self::isDebugEnabled())
+		{
+			throw new \Bitrix\Rest\RestException('This method is available only with session auth type', 'WRONG_AUTH_TYPE', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$message = null;
+		$messageId = null;
+
+		if (isset($arParams['MESSAGE_ID']) && (int)$arParams['MESSAGE_ID'] > 0)
+		{
+			$messageId = (int)$arParams['MESSAGE_ID'];
+
+			$message = new \Bitrix\Im\V2\Message($messageId);
+
+			if ($message->getMessageId() === null)
+			{
+				throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+			}
+
+			$chat = $message->getChat();
+		}
+		elseif (isset($arParams['CHAT_ID']) && (int)$arParams['CHAT_ID'] > 0)
+		{
+			$chatId = (int)$arParams['CHAT_ID'];
+
+			$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+		}
+		else
+		{
+			throw new Bitrix\Rest\RestException('Message ID and chat ID can`t be empty together', 'CHAT_ID_MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (isset($messageId) && $messageId < $chat->getStartId())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$taskService = new \Bitrix\Im\V2\Link\Task\TaskService();
+		$result = $taskService->prepareDataForCreateSlider($chat, $message);
+		if (!$result->isSuccess())
+		{
+			$error = $result->getErrors()[0];
+			if (isset($error))
+			{
+				throw new Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		$data = $result->getResult();
+
+		return [
+			'link' => $data['LINK'],
+			'params' => $data['PARAMS']
+		];
+	}
+
+	public static function chatCalendarGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+			'CALENDAR_DATE_FROM' => $arParams['CALENDAR_DATE_FROM'] ? new DateTime($arParams['CALENDAR_DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'CALENDAR_DATE_TO' => $arParams['CALENDAR_DATE_TO'] ? new DateTime($arParams['CALENDAR_DATE_TO'], DateTimeInterface::RFC3339) : null,
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'SEARCH_TITLE' => $arParams['SEARCH_TITLE'] ?? null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC'
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$calendars = \Bitrix\Im\V2\Link\Calendar\CalendarCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($calendars))->toRestFormat();
+	}
+
+	public static function chatCalendarAdd($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		$messageId = null;
+		$chatId = null;
+
+		if (isset($arParams['MESSAGE_ID']) && (int)$arParams['MESSAGE_ID'] > 0)
+		{
+			$messageId = (int)$arParams['MESSAGE_ID'];
+
+			$message = new \Bitrix\Im\V2\Message($messageId);
+
+			if ($message->getMessageId() === null)
+			{
+				throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+			}
+
+			$chat = $message->getChat();
+		}
+		elseif (isset($arParams['CHAT_ID']) && (int)$arParams['CHAT_ID'] > 0)
+		{
+			$chatId = (int)$arParams['CHAT_ID'];
+
+			$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+		}
+		else
+		{
+			throw new Bitrix\Rest\RestException('Message ID and chat ID can`t be empty together', 'CHAT_ID_MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!isset($arParams['CALENDAR_ID']) || (int)$arParams['CALENDAR_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('CALENDAR_ID can`t be empty', 'CALENDAR_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (isset($messageId))
+		{
+			$startId = $chat->getStartId();
+
+			if ($messageId < $startId)
+			{
+				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			}
+		}
+
+		$chatId = $chat->getChatId();
+
+		$calendarId = $arParams['CALENDAR_ID'];
+
+		$calendarService = new \Bitrix\Im\V2\Link\Calendar\CalendarService();
+		$calendar = \Bitrix\Im\V2\Entity\Calendar\CalendarItem::initById($calendarId);
+
+		global $USER;
+		$userId = (int)$USER->GetID();
+		if ($userId !== $calendar->getCreatedBy())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this calendar event', Bitrix\Im\V2\Entity\Calendar\CalendarError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$saveResult = $calendarService->registerCalendar($chatId, $messageId, $calendar);
+		if (!$saveResult->isSuccess())
+		{
+			$error = $saveResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $saveResult->isSuccess();
+	}
+
+	public static function chatCalendarDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (!isset($arParams['LINK_ID']) || (int)$arParams['LINK_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('LINK_ID can`t be empty', 'LINK_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$linkId = (int)$arParams['LINK_ID'];
+		$calendar = new \Bitrix\Im\V2\Link\Calendar\CalendarItem($linkId);
+		if ($calendar->getId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Calendar event not found', \Bitrix\Im\V2\Entity\Calendar\CalendarError::NOT_FOUND, \CRestServer::STATUS_NOT_FOUND);
+		}
+
+		$chatId = $calendar->getChatId();
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		global $USER;
+		$userId = (int)$USER->GetID();
+
+		if ($userId !== $calendar->getAuthorId() && !$USER->IsAdmin())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to delete this calendar event', \Bitrix\Im\V2\Entity\Calendar\CalendarError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$deleteResult = (new \Bitrix\Im\V2\Link\Calendar\CalendarService())->unregisterCalendar($calendar);
+
+		if (!$deleteResult->isSuccess())
+		{
+			throw new \Bitrix\Rest\RestException('Failed to delete calendar event', \Bitrix\Im\V2\Entity\Calendar\CalendarError::DELETE_ERROR, \CRestServer::STATUS_INTERNAL);
+		}
+
+		return true;
+	}
+
+	public static function chatCalendarPrepare($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if ($server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE && !self::isDebugEnabled())
+		{
+			throw new \Bitrix\Rest\RestException('This method is available only with session auth type', 'WRONG_AUTH_TYPE', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$message = null;
+		$messageId = null;
+
+		if (isset($arParams['MESSAGE_ID']) && (int)$arParams['MESSAGE_ID'] > 0)
+		{
+			$messageId = (int)$arParams['MESSAGE_ID'];
+
+			$message = new \Bitrix\Im\V2\Message($messageId);
+
+			if ($message->getMessageId() === null)
+			{
+				throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+			}
+
+			$chat = $message->getChat();
+		}
+		elseif (isset($arParams['CHAT_ID']) && (int)$arParams['CHAT_ID'] > 0)
+		{
+			$chatId = (int)$arParams['CHAT_ID'];
+
+			$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+		}
+		else
+		{
+			throw new Bitrix\Rest\RestException('Message ID and chat ID can`t be empty together', 'CHAT_ID_MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (isset($messageId))
+		{
+			$startId = $chat->getStartId();
+
+			if ($messageId < $startId)
+			{
+				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			}
+		}
+
+		$calendarService = new \Bitrix\Im\V2\Link\Calendar\CalendarService();
+		$result = $calendarService->prepareDataForCreateSlider($chat, $message);
+		if (!$result->isSuccess())
+		{
+			$error = $result->getErrors()[0];
+			if (isset($error))
+			{
+				throw new Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $result->getResult();
+	}
+
+	public static function chatSignGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		return [
+			'list' => [
+				[
+					'id' => 1,
+					'messageId' => 2345,
+					'chatId' => 92,
+					'authorId' => 1,
+					'dateCreate' => '2022-08-22T12:37:10+02:00',
+					'sign' => [
+						'id' => 1,
+						'title' => 'Important document #1',
+						'status' => 'signed',
+						'from' => [
+							'company' => 'Bitrix',
+							'userId' => 1
+						],
+						'to' => [
+							'company' => null,
+							'userId' => 1
+						],
+						'links' => [
+							'detail' => 'https://...'
+						]
+					],
+				],
+				[
+					'id' => 2,
+					'messageId' => 2346,
+					'chatId' => 92,
+					'authorId' => 1,
+					'dateCreate' => '2022-08-24T12:37:10+02:00',
+					'sign' => [
+						'id' => 1,
+						'title' => 'Important document #2',
+						'status' => 'signed',
+						'from' => [
+							'company' => 'Bitrix',
+							'userId' => 1
+						],
+						'to' => [
+							'company' => null,
+							'userId' => 1
+						],
+						'links' => [
+							'detail' => 'https://...'
+						]
+					],
+				]
+			],
+			'users' => [\Bitrix\Im\User::getInstance(1)->getArray(['JSON' => 'Y'])]
+		];
+	}
+
+	public static function chatPinGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+		];
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC',
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$startId = $chat->getStartId();
+
+		if ($startId > 0)
+		{
+			$filter['START_ID'] = $startId;
+		}
+
+		$pins = \Bitrix\Im\V2\Link\Pin\PinCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($pins))->toRestFormat();
+	}
+
+	public static function chatPinAdd($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('MESSAGE_ID can`t be empty', 'MESSAGE_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chat = $message->getChat();
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if ($chat->getStartId() > $messageId)
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$pinResult = $message->pin();
+		if (!$pinResult->isSuccess())
+		{
+			$error = $pinResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $pinResult->isSuccess();
+	}
+
+	public static function chatPinDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('MESSAGE_ID can`t be empty', 'MESSAGE_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chat = $message->getChat();
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$unpinResult = $message->unpin();
+		if (!$unpinResult->isSuccess())
+		{
+			$error = $unpinResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $unpinResult->isSuccess();
+	}
+
+	public static function chatReminderGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$filter = [
+			'LAST_ID' => $arParams['LAST_ID'] ?? null,
+			'SEARCH_MESSAGE' => $arParams['SEARCH_MESSAGE'] ?? null,
+			'USER_ID' => $arParams['USER_ID'] ?? null,
+			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
+			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
+			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+		];
+		if ($arParams['IS_REMINDED'] === 'Y')
+		{
+			$filter['IS_REMINDED'] = true;
+		}
+		if ($arParams['IS_REMINDED'] === 'N')
+		{
+			$filter['IS_REMINDED'] = false;
+		}
+		$limit = self::getLimit($arParams);
+		$order = [
+			'ID' => $arParams['ORDER']['ID'] ?? 'DESC',
+		];
+		if (!isset($filter['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $filter['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$reminders = \Bitrix\Im\V2\Link\Reminder\ReminderCollection::find($filter, $order, $limit);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($reminders))->toRestFormat();
+	}
+
+	public static function chatReminderAdd($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (!isset($arParams['DATE_REMIND']))
+		{
+			throw new \Bitrix\Rest\RestException('DATE_REMIND can`t be empty', \Bitrix\Im\V2\Link\Reminder\ReminderError::DATE_REMIND_EMPTY, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$dateRemind = new DateTime($arParams['DATE_REMIND'], DateTimeInterface::RFC3339);
+
+		if (!isset($arParams['MESSAGE_ID']) || (int)$arParams['MESSAGE_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('MESSAGE_ID can`t be empty', 'MESSAGE_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$messageId = (int)$arParams['MESSAGE_ID'];
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+
+		if ($message->getMessageId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chat = $message->getChat();
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if ($chat->getStartId() > $messageId)
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$addResult = $message->addToReminder($dateRemind);
+		if (!$addResult->isSuccess())
+		{
+			$error = $addResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $addResult->isSuccess();
+	}
+
+	public static function chatReminderDelete($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		if (!isset($arParams['REMINDER_ID']) || (int)$arParams['REMINDER_ID'] <= 0)
+		{
+			throw new \Bitrix\Rest\RestException('REMINDER_ID can`t be empty', 'REMINDER_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$reminderId = (int)$arParams['REMINDER_ID'];
+
+		$reminder = new \Bitrix\Im\V2\Link\Reminder\ReminderItem($reminderId);
+
+		if ($reminder->getId() === null)
+		{
+			throw new \Bitrix\Rest\RestException('Reminder not found', \Bitrix\Im\V2\Link\Reminder\ReminderError::REMINDER_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$deleteResult = (new \Bitrix\Im\V2\Link\Reminder\ReminderService())->deleteReminder($reminder);
+		if (!$deleteResult->isSuccess())
+		{
+			$error = $deleteResult->getErrors()[0];
+			if (isset($error))
+			{
+				throw new \Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		return $deleteResult->isSuccess();
+	}
+
 	public static function botList($arParams, $n, CRestServer $server)
 	{
 		if ($server->getAuthType() == \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE)
@@ -1865,7 +2958,7 @@ class CIMRestService extends IRestService
 
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if (isset($arParams['MESSAGE']) && !empty($arParams['MESSAGE']))
+		if (isset($arParams['MESSAGE']))
 		{
 			if (!is_string($arParams['MESSAGE']))
 			{
@@ -2613,9 +3706,7 @@ class CIMRestService extends IRestService
 
 		$options['CONVERT_TEXT'] = isset($arParams['CONVERT_TEXT']) && $arParams['CONVERT_TEXT'] === 'Y';
 
-		$notify = new \Bitrix\Im\Notify($options);
-
-		return $notify->get();
+		return (new \Bitrix\Im\Notify($options))->get();
 	}
 
 	public static function notifyDelete($arParams, $n, CRestServer $server)
@@ -2890,6 +3981,30 @@ class CIMRestService extends IRestService
 		return $schemaResult;
 	}
 
+	public static function diskFolderListGet($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$lastId = $arParams['LAST_ID'] ?? null;
+		$fileName = $arParams['SEARCH_FILE_NAME'] ?? null;
+		$limit = self::getLimit($arParams);
+		if (!isset($arParams['CHAT_ID']))
+		{
+			throw new \Bitrix\Rest\RestException('CHAT_ID can`t be empty', 'CHAT_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = $arParams['CHAT_ID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if (!$chat->hasAccess())
+		{
+			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$files = (new \Bitrix\Im\V2\Link\File\FileService())->getFilesBeforeMigrationFinished($chatId, $limit, $lastId, $fileName);
+
+		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+	}
+
 	public static function diskFolderGet($arParams, $n, CRestServer $server)
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
@@ -2968,7 +4083,7 @@ class CIMRestService extends IRestService
 
 		$arParams['SILENT_MODE'] = $arParams['SILENT_MODE'] == 'Y';
 
-		$chatRelation = CIMChat::GetRelationById($chatId);
+		$chatRelation = CIMChat::GetRelationById($chatId, false, true, false);
 		if (!$chatRelation[CIMDisk::GetUserId()])
 		{
 			throw new Bitrix\Rest\RestException("You don't have access to this chat", "ACCESS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
@@ -5562,7 +6677,11 @@ class CIMRestService extends IRestService
 		$auth = \Bitrix\Rest\Event\Sender::getAuth(
 			$appId,
 			$userId,
-			array('EVENT_SESSION' => $session)
+			array('EVENT_SESSION' => $session),
+			[
+				'sendRefreshToken' => 1,
+				'sendAuth' => 1
+			]
 		);
 		return $auth? $auth: Array();
 	}
@@ -5778,7 +6897,7 @@ class CIMRestService extends IRestService
 			'NAME' => $params['NAME']
 		]);
 
-		$relations = \Bitrix\Im\Chat::getRelation($params['CHAT_ID']);
+		$relations = \Bitrix\Im\Chat::getRelation($params['CHAT_ID'], ['WITHOUT_COUNTERS' => 'Y']);
 
 		if (\CModule::IncludeModule("pull"))
 		{
@@ -5840,7 +6959,7 @@ class CIMRestService extends IRestService
 			'NAME' => $params['NAME']
 		]);
 
-		$relations = \Bitrix\Im\Chat::getRelation($params['CHAT_ID']);
+		$relations = \Bitrix\Im\Chat::getRelation($params['CHAT_ID'], ['WITHOUT_COUNTERS' => 'Y']);
 
 		if (\CModule::IncludeModule("pull"))
 		{
@@ -5987,7 +7106,7 @@ class CIMRestService extends IRestService
 
 		//send pull with changed alias
 
-		$relations = \Bitrix\Im\Chat::getRelation($chatId);
+		$relations = \Bitrix\Im\Chat::getRelation($chatId, ['WITHOUT_COUNTERS' => 'Y']);
 		if (\CModule::IncludeModule("pull"))
 		{
 			\Bitrix\Pull\Event::add(array_keys($relations), [
@@ -6161,6 +7280,16 @@ class CIMRestService extends IRestService
 		}
 
 		return true;
+	}
+
+	public static function enableV2Version($params, $n, \CRestServer $server)
+	{
+		CUserOptions::SetOption('im', 'v2_enabled', 'Y');
+	}
+
+	public static function disableV2Version($params, $n, \CRestServer $server)
+	{
+		CUserOptions::SetOption('im', 'v2_enabled', 'N');
 	}
 
 	private static function getBotId($arParams, \CRestServer $server)

@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
@@ -7,11 +12,13 @@ if ($saleModulePermissions < "W")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
+
+$request = Context::getCurrent()->getRequest();
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
 
 /// redirect to newer version
 if(CSaleLocation::isLocationProEnabled())
@@ -39,7 +46,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $strError = "";
 $bInitVars = false;
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$SORT = intval($SORT);
 	if ($SORT<=0) $SORT = 100;
@@ -194,9 +201,9 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermi
 	else
 	{
 		if ($save <> '')
-			LocalRedirect("sale_location_admin.php?lang=".LANG.GetFilterParams("filter_", false));
+			LocalRedirect("sale_location_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 		else
-			LocalRedirect("sale_location_edit.php?lang=".LANG."&ID=".$ID.GetFilterParams("filter_", false));
+			LocalRedirect("sale_location_edit.php?lang=" . LANGUAGE_ID . "&ID=".$ID.GetFilterParams("filter_", false));
 	}
 }
 
@@ -247,7 +254,7 @@ $aMenu = array(
 		array(
 				"TEXT" => GetMessage("SLN_2FLIST"),
 				"ICON" => "btn_list",
-				"LINK" => "/bitrix/admin/sale_location_admin.php?lang=".LANG.GetFilterParams("filter_")
+				"LINK" => "/bitrix/admin/sale_location_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 
@@ -258,13 +265,13 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SLN_NEW_LOCATION"),
 			"ICON" => "btn_new",
-			"LINK" => "/bitrix/admin/sale_location_edit.php?lang=".LANG.GetFilterParams("filter_")
+			"LINK" => "/bitrix/admin/sale_location_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 		);
 
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SLN_DELETE_LOCATION"),
 			"ICON" => "btn_delete",
-			"LINK" => "javascript:if(confirm('".GetMessage("SLN_DELETE_LOCATION_CONFIRM")."')) window.location='/bitrix/admin/sale_location_admin.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+			"LINK" => "javascript:if(confirm('".GetMessage("SLN_DELETE_LOCATION_CONFIRM")."')) window.location='/bitrix/admin/sale_location_admin.php?action=delete&ID[]=".$ID."&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 		);
 }
 $context = new CAdminContextMenu($aMenu);
@@ -733,7 +740,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 		array(
 				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_location_admin.php?lang=".LANG.GetFilterParams("filter_")
+				"back_url" => "/bitrix/admin/sale_location_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 ?>
@@ -743,4 +750,5 @@ $tabControl->End();
 ?>
 
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");

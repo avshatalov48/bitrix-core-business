@@ -21,6 +21,13 @@ class CIBlockSection extends CAllIBlockSection
 			$arFilter = array();
 		if (!is_array($arSelect))
 			$arSelect = array();
+		foreach (array_keys($arSelect) as $index)
+		{
+			if (!is_string($arSelect[$index]))
+			{
+				unset($arSelect[$index]);
+			}
+		}
 
 		$iblockFilterExist = (isset($arFilter['IBLOCK_ID']) && $arFilter['IBLOCK_ID'] > 0);
 

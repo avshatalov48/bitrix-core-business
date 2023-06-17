@@ -1,6 +1,12 @@
 .landing-ui-panel-google-fonts {
 	width: 100vw;
 	max-width: 1280px;
+	z-index: 9999;
+	margin-top: 0;
+}
+
+.landing-editor .landing-ui-panel-google-fonts {
+	margin-top: 62px;
 }
 
 .landing-ui-panel-google-fonts .landing-ui-panel-content-body-right {
@@ -19,11 +25,6 @@
 
 .landing-ui-panel-content-body.landing-ui-panel-content-body-show-right .landing-ui-panel-content-body-content {
 	margin-right: 0;
-}
-
-.landing-ui-panel-google-fonts,
-.landing-ui-panel-google-fonts-overlay {
-	top: 62px;
 }
 
 .landing-ui-font-preview {

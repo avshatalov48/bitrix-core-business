@@ -5,7 +5,7 @@ foreach (GetModuleEvents('forum', 'OnCommentFormDisplay', true) as $arEvent)
 	if ($arExt !== null)
 	{
 		foreach($arExt as $arTpl)
-			$APPLICATION->AddViewContent(implode('_', array($tplID, 'EDIT', $arTpl['DISPLAY'])), $arTpl['TEXT'], $arTpl['SORT']);
+			$APPLICATION->AddViewContent(implode('_', array($arParams["tplID"], 'EDIT', $arTpl['DISPLAY'])), $arTpl['TEXT'], $arTpl['SORT']);
 	}
 }
 ?>
@@ -121,16 +121,16 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 				),
 				"UPLOAD_FILE_PARAMS" => array("width" => $arParams["IMAGE_SIZE"], "height" => $arParams["IMAGE_SIZE"]),
 				"PROPERTIES" => array(
-					array_merge(is_array($arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"]) ? $arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"] : array(), (is_array($arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MESSAGE_DOC"]) ? $arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MESSAGE_DOC"] : array())),
-					array_merge(is_array($arResult["USER_FIELDS"]["UF_FORUM_MES_URL_PRV"]) ? $arResult["USER_FIELDS"]["UF_FORUM_MES_URL_PRV"] : array(), (is_array($arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MES_URL_PRV"]) ? $arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MES_URL_PRV"] : array())),
+					array_merge($arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"] ?? [], $arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MESSAGE_DOC"] ?? []),
+					array_merge($arResult["USER_FIELDS"]["UF_FORUM_MES_URL_PRV"] ?? [], $arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MES_URL_PRV"] ?? []),
 				),
 				"SMILES" => (
 						$arParams["ALLOW_SMILES"] == "Y"
 							? \COption::GetOptionInt("forum", "smile_gallery_id", 0) :
 							array("VALUE" => array())
 				),
-				"HTML_BEFORE_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($tplID, 'EDIT', 'BEFORE'))).$html_before_textarea,
-				"HTML_AFTER_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($tplID, 'EDIT', 'AFTER'))).$html_after_textarea
+				"HTML_BEFORE_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'BEFORE'))).$html_before_textarea,
+				"HTML_AFTER_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'AFTER'))).$html_after_textarea
 			),
 			false,
 			Array("HIDE_ICONS" => "Y")

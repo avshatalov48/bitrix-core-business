@@ -16,7 +16,7 @@ if ($saleModulePermissions=="D")
 
 if(!CBXFeatures::IsFeatureEnabled('SaleCCards'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -51,12 +51,12 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
+		$DB->StartTransaction();
 		if (!CSaleUserCards::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -66,8 +66,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -108,8 +110,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(str_replace("#ID#", $ID, GetMessage("SCA_ERROR_DELETE")), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 
@@ -159,11 +163,11 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 while ($arCCard = $dbResultList->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arCCard, "sale_ccards_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_"), GetMessage("SCA_UPDATE_ALT"));
+	$row =& $lAdmin->AddRow($f_ID, $arCCard, "sale_ccards_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_"), GetMessage("SCA_UPDATE_ALT"));
 
 	$row->AddField("ID", $f_ID);
 
-	$fieldValue  = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\">".$f_USER_ID."</a>] ";
+	$fieldValue  = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=" . LANGUAGE_ID . "\">".$f_USER_ID."</a>] ";
 	$fieldValue .= htmlspecialcharsEx($arCCard["USER_NAME"].(($arCCard["USER_NAME"] == '' || $arCCard["USER_LAST_NAME"] == '') ? "" : " ").$arCCard["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arCCard["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arCCard["USER_EMAIL"])."\">".htmlspecialcharsEx($arCCard["USER_EMAIL"])."</a>";
@@ -176,7 +180,7 @@ while ($arCCard = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("CARD_TYPE", $f_CARD_TYPE);
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SCA_UPDATE_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_ccards_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SCA_UPDATE_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_ccards_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_").""), "DEFAULT"=>true);
 	if ($saleModulePermissions >= "W")
 	{
 		$arActions[] = array("SEPARATOR" => true);

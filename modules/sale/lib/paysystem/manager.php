@@ -244,24 +244,24 @@ final class Manager
 	 * @param string $registryType
 	 * @return array
 	 */
-	public static function getIdsByPayment($paymentId, $registryType = Registry::REGISTRY_TYPE_ORDER)
+	public static function getIdsByPayment($paymentId, $registryType = Registry::REGISTRY_TYPE_ORDER): array
 	{
 		if (empty($paymentId))
 		{
-			return array(0, 0);
+			return [0, 0];
 		}
 
-		$params = array(
-			'select' => array('ID', 'ORDER_ID')
-		);
+		$params = [
+			'select' => ['ID', 'ORDER_ID'],
+		];
 
 		if (intval($paymentId).'|' == $paymentId.'|')
 		{
-			$params['filter']['ID'] = $paymentId;
+			$params['filter']['=ID'] = $paymentId;
 		}
 		else
 		{
-			$params['filter']['ACCOUNT_NUMBER'] = $paymentId;
+			$params['filter']['=ACCOUNT_NUMBER'] = $paymentId;
 		}
 
 		$registry = Registry::getInstance($registryType);
@@ -269,9 +269,9 @@ final class Manager
 		/** @var Payment $paymentClassName */
 		$paymentClassName = $registry->getPaymentClassName();
 		$result = $paymentClassName::getList($params);
-		$data = $result->fetch() ?: array();
+		$data = $result->fetch() ?: [];
 
-		return array((int)$data['ORDER_ID'], (int)$data['ID']);
+		return [(int)$data['ORDER_ID'], (int)$data['ID']];
 	}
 
 	/**
@@ -556,6 +556,11 @@ final class Manager
 				$codes = $eventResult->getParameters();
 				if ($codes && is_array($codes))
 				{
+					if (!isset($data['CODES']) || !is_array($data['CODES']))
+					{
+						$data['CODES'] = [];
+					}
+
 					$data['CODES'] = array_merge($data['CODES'], $codes);
 				}
 			}
@@ -632,31 +637,37 @@ final class Manager
 	/**
 	 * @return int
 	 */
-	public static function getInnerPaySystemId()
+	public static function getInnerPaySystemId() : int
 	{
 		$id = 0;
 		$cacheManager = Application::getInstance()->getManagedCache();
 
-		if($cacheManager->read(self::TTL, self::CACHE_ID))
+		if ($cacheManager->read(self::TTL, self::CACHE_ID))
+		{
 			$id = $cacheManager->get(self::CACHE_ID);
+		}
 
 		if ($id <= 0)
 		{
 			$data = PaySystemActionTable::getRow(
-				array(
-					'select' => array('ID'),
-					'filter' => array('ACTION_FILE' => 'inner')
-				)
+				[
+					'select' => ['ID'],
+					'filter' => ['ACTION_FILE' => 'inner']
+				]
 			);
 			if ($data === null)
+			{
 				$id = self::createInnerPaySystem();
+			}
 			else
+			{
 				$id = $data['ID'];
+			}
 
 			$cacheManager->set(self::CACHE_ID, $id);
 		}
 
-		return $id;
+		return (int)$id;
 	}
 
 	/**
@@ -781,7 +792,7 @@ final class Manager
 			'CONNECT_SETTINGS_UAPAY' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'), 'SORT' => 100],
 			'CONNECT_SETTINGS_ADYEN' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ADYEN'), 'SORT' => 100],
 			'CONNECT_SETTINGS_APPLE_PAY' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY'), 'SORT' => 200],
-			'CONNECT_SETTINGS_SKB' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB'), 'SORT' => 100],
+			'CONNECT_SETTINGS_SKB' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SINARA'), 'SORT' => 100],
 			'CONNECT_SETTINGS_BEPAID' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'), 'SORT' => 100],
 			'CONNECT_SETTINGS_WOOPPAY' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WOOPPAY'), 'SORT' => 100],
 			'CONNECT_SETTINGS_PLATON' => ['NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_PLATON'), 'SORT' => 100],

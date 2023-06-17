@@ -1,0 +1,13 @@
+<?php
+$MESS['IBLOCK_PROPERTY_DETAILS_NEW_RECORD_TITLE'] = 'Добавление свойства';
+
+$MESS['IBLOCK_PROPERTY_DETAILS_MENU_TITLE'] = 'Настройки';
+$MESS['IBLOCK_PROPERTY_DETAILS_MENU_COMMON'] = 'Общее';
+$MESS['IBLOCK_PROPERTY_DETAILS_MENU_LIST'] = 'Значения списка';
+$MESS['IBLOCK_PROPERTY_DETAILS_MENU_DIRECTORY'] = 'Значения справочника';
+$MESS['IBLOCK_PROPERTY_DETAILS_MENU_ADDITIONAL'] = 'Дополнительно';
+
+$MESS['IBLOCK_PROPERTY_DETAILS_SETTINGS_TITLE'] = 'Настройки типа';
+$MESS['IBLOCK_PROPERTY_DETAILS_REMOVE_POPUP_MESSAGE'] = 'Вы уверены, что хотите удалить это свойство? Все данные будут утеряны';
+$MESS['IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_SAVE_BUTTON'] = 'Сохранить';
+$MESS['IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_TEXT'] = 'Сохраните свойство, чтобы перейти к заполнению значений';

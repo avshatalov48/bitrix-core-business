@@ -1,5 +1,8 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 $arViewModeList = array(
 	'LIST' => GetMessage('CPT_BCSL_VIEW_MODE_LIST'),
@@ -35,4 +38,3 @@ if (isset($arCurrentValues['VIEW_MODE']) && 'TILE' == $arCurrentValues['VIEW_MOD
 		'DEFAULT' => 'N'
 	);
 }
-?>

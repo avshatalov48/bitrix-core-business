@@ -427,8 +427,10 @@ class RestrictionManager
 			foreach ($restrictionApplyResult->getErrors() as $error)
 			{
 				Logger::addError("[{$methodPath}] " . $error->getMessage());
-				$result->addError(new Error($error->getMessage()));
 			}
+
+			$publicErrorMessage = $restriction::getOnApplyErrorMessage();
+			$result->addError(new Error($publicErrorMessage));
 		}
 
 		return $result;

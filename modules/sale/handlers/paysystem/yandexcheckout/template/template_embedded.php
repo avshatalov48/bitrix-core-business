@@ -6,8 +6,15 @@ Loc::loadMessages(__FILE__);
 $messages = Loc::loadLanguageFile(__FILE__);
 $sum = round($params['SUM'], 2);
 ?>
+<style>
+	<?php
+		require 'style.css';
+	?>
+</style>
 
 <div class="mb-4" id="paysystem-yookassa">
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_MSGVER_1') ?></div>
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_SUM', ['#SUM#' => SaleFormatCurrency($sum, $params['CURRENCY'])]) ?></div>
 	<p class="mb-4"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION')." ".SaleFormatCurrency($sum, $params['CURRENCY']);?></p>
 	<div id="payment-widget-form"></div>
 	<div class="alert alert-info"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?></div>

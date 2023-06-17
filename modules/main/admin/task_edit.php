@@ -27,8 +27,8 @@ IncludeModuleLangFile(__FILE__);
 Handling GET | POST
 ****************************************************************************/
 
-$ID = intval($_REQUEST["ID"]);
-$COPY_ID = intval($_REQUEST["COPY_ID"]);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$COPY_ID = intval($_REQUEST["COPY_ID"] ?? 0);
 
 if($COPY_ID > 0)
 	$ID = $COPY_ID;
@@ -41,7 +41,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && $USER->CanDoOperation('edit_tasks') && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $USER->CanDoOperation('edit_tasks') && check_bitrix_sessid())
 {
 	$aMsg = Array();
 	$LETTER = mb_strtoupper($_POST["LETTER"]);
@@ -53,7 +53,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"
 		"BINDING" => $_POST["BINDING"],
 		"MODULE_ID" => $_POST["MODULE_ID"]
 	);
-	
+
 	if($ID>0 && $COPY_ID<=0)
 	{
 		CTask::UpdateModuleRights($ID, $_POST["MODULE_ID"], $LETTER);
@@ -63,27 +63,27 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"
 	{
 		$ID = CTask::Add($arFields);
 	}
-	
+
 	/** @var CAdminException $e */
 	if($e = $APPLICATION->GetException())
 		$aMsg = $e->messages;
-	
+
 	if(empty($aMsg))
 	{
 		if (!isset($_POST['OPERATION_ID']))
 			$arOperationIds = Array();
 		else
 			$arOperationIds = $_POST['OPERATION_ID'];
-			
+
 		$old_arOperationIds = CTask::GetOperations($ID);
-		if (count(array_diff($old_arOperationIds, $arOperationIds)) > 0 || count(array_diff($arOperationIds, $old_arOperationIds)) > 0)
+		if (!empty(array_diff($old_arOperationIds, $arOperationIds)) || !empty(array_diff($arOperationIds, $old_arOperationIds)))
 		{
 			CTask::SetOperations($ID, $arOperationIds);
 		}
-		
-		if($_POST["save"] <> '')
+
+		if (!empty($_POST["save"]))
 			LocalRedirect("task_admin.php?lang=".LANGUAGE_ID);
-		elseif($_POST["apply"] <> '')
+		elseif (!empty($_POST["apply"]))
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ID=".$ID."&".$tabControl->ActiveTabParam());
 	}
 	else
@@ -95,7 +95,10 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"
 $z = CTask::GetByID($ID);
 if(!$z->ExtractFields("str_") || $ID == 0)
 {
-	$ID=0;
+	$ID = 0;
+	$str_NAME = '';
+	$str_DESCRIPTION = '';
+	$str_LETTER = '';
 	$str_SYS = 'N';
 	$str_BINDING = 'module';
 	$str_MODULE_ID = 'main';
@@ -171,14 +174,14 @@ $tabControl->BeginNextTab();
 if (isset($_POST['NAME']))
 {
 	$str_NAME = htmlspecialcharsbx($_POST['NAME']);
-	$str_DESCRIPTION = htmlspecialcharsbx($_POST['DESCRIPTION']);
-	$str_MODULE_ID = htmlspecialcharsbx($_POST['MODULE_ID']); 
-	$str_BINDING = htmlspecialcharsbx($_POST['BINDING']); 
-	$str_LETTER = htmlspecialcharsbx($_POST['LETTER']);
+	$str_DESCRIPTION = htmlspecialcharsbx($_POST['DESCRIPTION'] ?? '');
+	$str_MODULE_ID = htmlspecialcharsbx($_POST['MODULE_ID'] ?? '');
+	$str_BINDING = htmlspecialcharsbx($_POST['BINDING'] ?? '');
+	$str_LETTER = htmlspecialcharsbx($_POST['LETTER'] ?? '');
 }
 
 $dbOperations = COperation::GetList();
-			
+
 $arOperations = Array();
 $arBindings = Array();
 ?>
@@ -291,17 +294,14 @@ while ($arOperation = $dbOperations->Fetch())
 				<td width="90%">&nbsp;</td>
 			</tr>
 			<?
-			if (isset($_POST['OPERATION_ID']))
-				$arTaskOperations = $_POST['OPERATION_ID'];
-			else
-				$arTaskOperations = CTask::GetOperations($ID);
-			
+			$arTaskOperations = $_POST['OPERATION_ID'] ?? CTask::GetOperations($ID);
+
 			$ind = -1;
 			foreach($arOperations as $arOperation)
 			{
 				$ind++;
 				?>
-				<tr id="operation_row_<?=$ind?>" 
+				<tr id="operation_row_<?=$ind?>"
 				<?echo (($arOperation["MODULE_ID"] != $str_MODULE_ID) || ($arOperation["BINDING"] != $str_BINDING)) ? 'style="display: none"' : ''?>>
 					<td align="right" style="padding: 0 10px 0 10px">
 						<input type="checkbox" name="OPERATION_ID[]" id="OPERATION_ID_<?=$ind ?>" value="<?=$arOperation["ID"]?>" <? echo (in_array($arOperation["ID"], $arTaskOperations)) ? " checked" : ''?>>
@@ -314,7 +314,7 @@ while ($arOperation = $dbOperations->Fetch())
 						</script>
 					</td>
 					<td align="left">
-					<label for="OPERATION_ID_<?= $ind ?>" 
+					<label for="OPERATION_ID_<?= $ind ?>"
 						title="<?=htmlspecialcharsbx($arOperation["DESCRIPTION"]);?>">
 						<?=htmlspecialcharsbx($arOperation["TITLE"])?>
 						<?if($arOperation["TITLE"] != $arOperation['NAME']):?>
@@ -334,7 +334,7 @@ while ($arOperation = $dbOperations->Fetch())
 		var __binding_select = document.getElementById('__binding_select');
 		var _noneopermess = document.getElementById('__noneopermess');
 		var noOperMess = "<?=GetMessageJS('TASK_NONE_OPERATIONS');?>";
-		
+
 		__module_id_select.onchange = function(e)
 		{
 			var arB = arBingings[this.value];
@@ -344,7 +344,7 @@ while ($arOperation = $dbOperations->Fetch())
 				for (var k in arB)
 					__binding_select.options[__binding_select.options.length] = new Option(arB[k], k);
 			}
-		
+
 			var binding = __binding_select.value;
 			var operation_count = arOperations.length, ch;
 			var bShowNoneOperMess = true;
@@ -371,7 +371,7 @@ while ($arOperation = $dbOperations->Fetch())
 			}
 			showNoneOperMess(bShowNoneOperMess);
 		};
-		
+
 		__binding_select.onchange = function(e)
 		{
 			var operation_count = arOperations.length, ch;
@@ -400,7 +400,7 @@ while ($arOperation = $dbOperations->Fetch())
 			}
 			showNoneOperMess(bShowNoneOperMess);
 		};
-		
+
 		var showNoneOperMess = function(bShow)
 		{
 			if (bShow)

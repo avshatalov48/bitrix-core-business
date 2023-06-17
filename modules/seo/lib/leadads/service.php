@@ -192,5 +192,11 @@ class Service implements IService, IInternalService
 
 		return $this->accounts[$type];
 	}
+
+	public function getAuthUrl($type): string
+	{
+		$authManager = static::getAuthAdapter($type);
+		return $authManager->getAuthUrl();
+	}
 }
 

@@ -270,10 +270,11 @@ class UserProvider extends BaseProvider
 		{
 			$inviteEmployeeLink = null;
 			$employeeInvitationAvailable = Invitation::canCurrentUserInvite();
+			$intranetUsersOnly = $this->options['intranetUsersOnly'] ?? false;
 			$extranetInvitationAvailable = (
 				ModuleManager::isModuleInstalled('extranet')
 				&& Option::get('extranet', 'extranet_site')
-				&& !$this->options['intranetUsersOnly']
+				&& !$intranetUsersOnly
 			);
 
 			if (

@@ -1,22 +1,29 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 IncludeModuleLangFile(__FILE__);
+
+$request = Context::getCurrent()->getRequest();
 
 ClearVars();
 
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,
@@ -48,14 +55,14 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && c
 		}
 		else
 		{
-			LocalRedirect("/bitrix/admin/sale_order_props_group_edit.php?ID=$ID&lang=".LANG.GetFilterParams("filter_", false));
+			LocalRedirect("/bitrix/admin/sale_order_props_group_edit.php?ID=$ID&lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 		}
 	}
 
 	if ($errorMessage == '')
 	{
 		if ($apply == '')
-			LocalRedirect("/bitrix/admin/sale_order_props_group.php?lang=".LANG.GetFilterParams("filter_", false));
+			LocalRedirect("/bitrix/admin/sale_order_props_group.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 	}
 	else
 	{
@@ -89,7 +96,7 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("SOPGEN_2FLIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/sale_order_props_group.php?lang=".LANG.GetFilterParams("filter_")
+		"LINK" => "/bitrix/admin/sale_order_props_group.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 	)
 );
 
@@ -100,12 +107,12 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 	$aMenu[] = array(
 		"TEXT" => GetMessage("SOPGEN_NEW_PROPS_GRP"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/sale_order_props_group_edit.php?lang=".LANG.GetFilterParams("filter_")
+		"LINK" => "/bitrix/admin/sale_order_props_group_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 	);
 
 	$aMenu[] = array(
-		"TEXT" => GetMessage("SOPGEN_DELETE_PROPS_GRP"), 
-		"LINK" => "javascript:if(confirm('".GetMessage("SOPGEN_DELETE_PROPS_GRP_CONFIRM")."')) window.location='/bitrix/admin/sale_order_props_group.php?ID=".$ID."&action=delete&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+		"TEXT" => GetMessage("SOPGEN_DELETE_PROPS_GRP"),
+		"LINK" => "javascript:if(confirm('".GetMessage("SOPGEN_DELETE_PROPS_GRP_CONFIRM")."')) window.location='/bitrix/admin/sale_order_props_group.php?ID=".$ID."&action=delete&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 		"ICON" => "btn_delete",
 	);
 }
@@ -181,7 +188,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 		array(
 				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_order_props_group.php?lang=".LANG.GetFilterParams("filter_")
+				"back_url" => "/bitrix/admin/sale_order_props_group.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 ?>
@@ -190,4 +197,5 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

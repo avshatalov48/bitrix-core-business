@@ -576,7 +576,7 @@ class Bot
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
 			$messageFields['MESSAGE_ORIGINAL'] = $messageFields['MESSAGE'];
-			if (preg_match("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $messageFields['MESSAGE'], $matches))
+			if (preg_match("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $messageFields['MESSAGE'], $matches))
 			{
 				$messageFields['TO_USER_ID'] = $matches[1];
 			}
@@ -643,7 +643,7 @@ class Bot
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
 			$messageFields['MESSAGE_ORIGINAL'] = $messageFields['MESSAGE'];
-			if (preg_match("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $messageFields['MESSAGE'], $matches))
+			if (preg_match("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $messageFields['MESSAGE'], $matches))
 			{
 				$messageFields['TO_USER_ID'] = $matches[1];
 			}
@@ -1595,7 +1595,7 @@ class Bot
 			{
 				$botFound = $messageFields['BOT_IN_CHAT'];
 			}
-			else if (preg_match_all("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $message, $matches))
+			else if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $message, $matches))
 			{
 				foreach ($matches[1] as $userId)
 				{

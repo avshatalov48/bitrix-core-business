@@ -67,11 +67,60 @@ class Post
 
 		if($post['TITLE'] != '')
 		{
-			$attach->addHtml('<strong>' . $post['TITLE'] . '</strong>');
+			$attach->addMessage('[b]' . $post['TITLE'] . '[/b]');
 		}
-		$attach->addHtml($post['PREVIEW_TEXT']);
+		$attach->addMessage($post['PREVIEW_TEXT']);
 
 		return $attach;
+	}
+
+	public static function getImRich(array $params)
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return false;
+		}
+
+		if (!Loader::includeModule('blog'))
+		{
+			return false;
+		}
+
+		if (!class_exists('\Bitrix\Im\V2\Entity\Url\RichData'))
+		{
+			return false;
+		}
+
+		$cursor = \CBlogPost::getList(
+			[],
+			['ID' => $params['postId']],
+			false,
+			false,
+			['TITLE', 'MICRO', 'DETAIL_TEXT']
+		);
+		$post = $cursor->fetch();
+		if(!$post)
+		{
+			return false;
+		}
+
+		// For some reason, blog stores specialchared text.
+		$post['DETAIL_TEXT'] = htmlspecialcharsback($post['DETAIL_TEXT']);
+		if ($post['MICRO'] === 'Y')
+		{
+			$post['TITLE'] = null;
+		}
+
+		$parser = new \blogTextParser();
+		$post['PREVIEW_TEXT'] = TruncateText($parser->killAllTags($post['DETAIL_TEXT']), 200);
+
+		$rich = new \Bitrix\Im\V2\Entity\Url\RichData();
+
+		return $rich
+			->setName($post['TITLE'])
+			->setDescription($post['PREVIEW_TEXT'])
+			->setType(\Bitrix\Im\V2\Entity\Url\RichData::POST_TYPE)
+		;
 	}
 
 	/**

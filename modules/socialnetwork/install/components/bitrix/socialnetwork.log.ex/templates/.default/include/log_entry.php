@@ -38,8 +38,12 @@ $arComponentParams = array_merge($arParams, [
 	"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
 	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
 	'FORM_ID' => $arParams['FORM_ID'],
-	'FORUM_ID' => $arParams['FORUM_ID'],
-	'TASK_RESULT_TASK_ID' => $arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']] ? (int)$arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']] : 0,
+	'FORUM_ID' => $arParams['FORUM_ID'] ?? null,
+	'TASK_RESULT_TASK_ID' => (
+		($arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']] ?? 0)
+			? (int)$arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']]
+			: 0
+	),
 ]);
 
 if (isset($arResult['UNREAD_COMMENTS_ID_LIST'][$arEvent['ID']]))

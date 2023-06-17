@@ -1,4 +1,5 @@
 <?php
 $MESS['SALE_PS_RESTRICTIONS_BY_CURRENCY'] = 'по валюте';
 $MESS['SALE_PS_RESTRICTIONS_BY_CURRENCY_DESC'] = '';
+$MESS['SALE_PS_RESTRICTIONS_BY_CURRENCY_ON_APPLY_ERROR_MSG'] = 'Во время применения ограничения по валюте произошла ошибка';
 $MESS['SALE_PS_RESTRICTIONS_BY_CURRENCY_NAME'] = 'Валюта';

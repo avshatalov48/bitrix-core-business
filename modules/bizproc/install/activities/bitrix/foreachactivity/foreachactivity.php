@@ -143,8 +143,8 @@ class CBPForEachActivity extends CBPCompositeActivity implements IBPActivityEven
 			if (is_array($arCurrentActivity['Properties']))
 			{
 				$arCurrentValues = [
-					'variable' => $arCurrentActivity['Properties']['Variable'],
-					'object' => $arCurrentActivity['Properties']['Object'],
+					'variable' => $arCurrentActivity['Properties']['Variable'] ?? null,
+					'object' => $arCurrentActivity['Properties']['Object'] ?? null,
 				];
 			}
 		}

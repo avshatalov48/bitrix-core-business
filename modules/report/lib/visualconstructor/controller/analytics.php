@@ -42,7 +42,6 @@ class Analytics extends Base
 		$additionalParams = [
 			'pageTitle' => $analyticBoard->getTitle(),
 			'pageControlsParams' => $analyticBoard->getButtonsContent()
-
 		];
 		return new Component(
 			$analyticBoard->getDisplayComponentName(),

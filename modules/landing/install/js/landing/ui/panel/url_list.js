@@ -50,7 +50,18 @@
  		onCustomEvent("BX.Landing.Block:remove", this.refresh.bind(this));
 
 		// Append panel
-		append(this.layout, document.body);
+		if (BX.Landing.Main.isEditorMode())
+		{
+			append(this.layout, window.parent.document.body);
+		}
+		else
+		{
+			this.overlay.parentNode.removeChild(this.overlay);
+			document.body.appendChild(this.overlay);
+			append(this.layout, document.body);
+			this.layout.style.marginTop = 0;
+			this.overlay.style.marginTop = 0;
+		}
 
 		// Make loader
 		this.loader = new BX.Loader({target: this.content});

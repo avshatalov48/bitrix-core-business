@@ -31,12 +31,12 @@ class Field
 			$params = [];
 		}
 
-		$this->name = isset($params['name']) ? $params['name'] : $id;
-		$this->type = isset($params['type']) ? $params['type'] : '';
-		$this->isDefault = isset($params['default']) ? $params['default'] : false;
+		$this->name = $params['name'] ?? $id;
+		$this->type = $params['type'] ?? '';
+		$this->isDefault = $params['default'] ?? false;
 
-		$this->isPartial = isset($params['partial']) ? $params['partial'] : false;
-		$this->data = isset($params['data']) ? $params['data'] : null;
+		$this->isPartial = $params['partial'] ?? false;
+		$this->data = $params['data'] ?? null;
 	}
 
 	/**

@@ -154,8 +154,14 @@ class Bpt extends BasePacker
 		{
 			$variable['Default'] = self::replaceValueDocumentFieldsAliases($variable['Default'], $aliases);
 			//Type Internalselect use options as link to document field.
-			if (is_scalar($variable['Options']) && array_key_exists($variable['Options'], $aliases))
+			if (
+				isset($variable['Options'])
+				&& is_scalar($variable['Options'])
+				&& array_key_exists($variable['Options'], $aliases)
+			)
+			{
 				$variable['Options'] = $aliases[$variable['Options']];
+			}
 		}
 	}
 

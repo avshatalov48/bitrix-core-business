@@ -1,0 +1,196 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%"
+	 preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 100%" fill="none">
+
+	<svg height="100%">
+		<rect width="100%" height="100%" fill="#EEF2F4" />
+		<rect x="100%" y="16" width="170" height="39" rx="2" fill="#2FC6F6" transform="translate(-190)" />
+		<rect x="100%" y="16" width="150" height="39" rx="4" fill="#e5eaec" stroke="#ccd2d6"
+			  transform="translate(-350)" />
+		<rect x="20" y="73" width="100%" height="60" rx="10" fill="white" />
+
+		<rect x="20" y="209" width="100%" height="1" fill="#cfd4d8" />
+		<rect x="300" y="152" width="113" height="39" rx="2" fill="#BBED21" />
+		<rect x="423" y="152" width="104" height="39" rx="4" fill="#e5eaec" stroke="#ccd2d6" />
+		<rect x="538" y="152" width="455" height="39" rx="4" fill="#e6eaed" stroke="#ccd2d6" />
+	</svg>
+
+	<svg height="100%" id="animated-elements">
+		<circle cx="39" cy="36" r="17" fill="#cfd4d8" />
+		<rect x="71" y="31" width="265" height="12" rx="2" fill="#cfd4d8" />
+
+		<rect x="100%" y="32" width="130" height="8" rx="2" fill="#67d1f8" transform="translate(-171)" />
+		<rect x="100%" y="32" width="110" height="8" rx="2" fill="#c9cdd4" transform="translate(-331)" />
+		<rect x="47" y="99" width="58" height="8" rx="2" fill="#DFE0E3" />
+		<rect x="139" y="99" width="101" height="8" rx="2" fill="#DFE0E3" />
+		<rect x="279" y="99" width="101" height="8" rx="2" fill="#DFE0E3" />
+		<rect x="418" y="99" width="101" height="8" rx="2" fill="#DFE0E3" />
+		<rect x="35" y="170" width="231" height="8" rx="2" fill="#cfd4d8" />
+
+		<rect x="314" y="168" width="83" height="8" rx="2" fill="#a7d03e" />
+		<rect x="435" y="168" width="79" height="8" fill="#c8cdd3" />
+	</svg>
+
+	<svg height="900px" x="20" y="235" viewBox="0 0 1400 900" preserveAspectRatio="xMinYMin meet">
+		<defs>
+			<g id="block-arrow">
+				<rect y="" width="225" height="32" rx="4" fill="#D1D6D9" />
+				<svg x="2">
+					<path fill-rule="evenodd" clip-rule="evenodd"
+						  d="M218 0H220.227C221.895 0 223.388 1.03466 223.973 2.59628L228.732 15.2947C228.901 15.7471 228.901 16.2456 228.732 16.6981L223.973 29.4032C223.388 30.9651 221.895 32 220.227 32H218V0Z"
+						  fill="#D1D6D9" />
+				</svg>
+			</g>
+
+			<g id="block-plus">
+				<rect opacity="0.1" width="230" height="31" rx="4" fill="#525C69"/>
+				<path opacity="0.8" fill-rule="evenodd" clip-rule="evenodd" d="M115 11H113V14H110V16H113V19H115V16H118V14H115V11Z" fill="white"/>
+			</g>
+
+			<g id="block-separator-1">
+				<svg x="87" y="105">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M12.978 6.48907C12.978 2.90499 10.0728 0 6.48909 0C2.90525 0 0 2.90499 0 6.48907C0 10.0726 2.90525 12.9778 6.48909 12.9778C10.0728 12.9778 12.978 10.0726 12.978 6.48907ZM3.98246 4.78949C3.98246 4.47202 4.08438 4.15033 4.28825 3.82448C4.49206 3.49864 4.78957 3.22879 5.18057 3.01487C5.5716 2.80103 6.02778 2.69405 6.54913 2.69405C7.03367 2.69405 7.4615 2.7835 7.83247 2.96224C8.20344 3.14106 8.48995 3.3842 8.69221 3.69163C8.89437 3.99916 8.99549 4.3333 8.99549 4.69424C8.99549 4.97833 8.93783 5.22736 8.82253 5.44118C8.70722 5.65509 8.57015 5.83973 8.41145 5.9951C8.25268 6.15052 7.96779 6.41205 7.55673 6.77966C7.44309 6.88329 7.35196 6.97439 7.28352 7.0529C7.21498 7.13145 7.16399 7.20329 7.13061 7.26843C7.09717 7.33361 7.07123 7.39877 7.0529 7.46396C7.03449 7.52909 7.00693 7.64362 6.9702 7.80734C6.90668 8.15495 6.7078 8.32871 6.37366 8.32871C6.19985 8.32871 6.05361 8.27193 5.93502 8.15826C5.81635 8.04467 5.75706 7.87588 5.75706 7.65195C5.75706 7.37121 5.80045 7.12807 5.8874 6.92256C5.97428 6.71699 6.08956 6.53653 6.2333 6.38116C6.37694 6.22574 6.57082 6.04112 6.81481 5.82721C7.02865 5.64008 7.18327 5.49885 7.27852 5.4036C7.37377 5.30835 7.45397 5.2023 7.51915 5.08526C7.58431 4.96831 7.61691 4.84135 7.61691 4.70428C7.61691 4.43693 7.51744 4.21136 7.31863 4.02752C7.11975 3.84376 6.86322 3.7518 6.54913 3.7518C6.18144 3.7518 5.91074 3.84454 5.737 4.03003C5.5632 4.21551 5.41618 4.48872 5.29585 4.84965C5.18221 5.22736 4.96663 5.41613 4.64916 5.41613C4.46194 5.41613 4.30404 5.35017 4.17543 5.21812C4.04678 5.08611 3.98246 4.94324 3.98246 4.78949ZM5.89493 10.0858C6.04697 10.2177 6.22493 10.2838 6.42882 10.2838C6.62599 10.2838 6.79975 10.2169 6.95015 10.0833C7.10054 9.94963 7.17574 9.76581 7.17574 9.53184C7.17574 9.32128 7.10383 9.14419 6.96018 9.00045C6.81645 8.85679 6.63936 8.7849 6.4288 8.7849C6.21489 8.7849 6.03442 8.85679 5.8874 9.00045C5.74029 9.14419 5.66683 9.32128 5.66683 9.53184C5.66683 9.76916 5.74282 9.9538 5.89493 10.0858Z" fill="#BDC1C6"/>
+				</svg>
+
+				<rect x="110" y="111" width="2020" height="1" fill="#cfd4d8" />
+			</g>
+
+			<svg id="block-robot">
+				<rect x="3" y="2" width="229" height="171" rx="10" fill="#e9f8fe" />
+				<path
+					d="M6 10.1367C6 5.71844 9.58172 2.13672 14 2.13672H224C228.418 2.13672 232 5.71844 232 10.1367V137.137H6V10.1367Z"
+					fill="white" />
+			</svg>
+
+			<g id="block-robot-column-2">
+				<use xlink:href="#block-robot" y="176" />
+				<use xlink:href="#block-robot" y="353" />
+			</g>
+
+			<g id="block-robot-column-1">
+				<use xlink:href="#block-robot" y="176" />
+			</g>
+		</defs>
+
+		<use xlink:href="#block-arrow"></use>
+		<use xlink:href="#block-arrow" x="234"></use>
+		<use xlink:href="#block-arrow" x="468"></use>
+		<use xlink:href="#block-arrow" x="702"></use>
+		<use xlink:href="#block-arrow" x="936"></use>
+		<use xlink:href="#block-arrow" x="1170"></use>
+		<use xlink:href="#block-arrow" x="1404"></use>
+		<use xlink:href="#block-arrow" x="1638"></use>
+
+		<use y="48" xlink:href="#block-plus"></use>
+		<use y="48" xlink:href="#block-plus" x="234"></use>
+		<use y="48" xlink:href="#block-plus" x="468"></use>
+		<use y="48" xlink:href="#block-plus" x="702"></use>
+		<use y="48" xlink:href="#block-plus" x="936"></use>
+		<use y="48" xlink:href="#block-plus" x="1170"></use>
+		<use y="48" xlink:href="#block-plus" x="1404"></use>
+		<use y="48" xlink:href="#block-plus" x="1638"></use>
+
+		<use xlink:href="#block-separator-1"></use>
+		<use xlink:href="#block-separator-1" y="42"></use>
+
+		<use xlink:href="#block-robot-column-2"></use>
+		<use xlink:href="#block-robot-column-2" x="234"></use>
+		<use xlink:href="#block-robot-column-1" x="468"></use>
+		<use xlink:href="#block-robot-column-2" x="702"></use>
+		<use xlink:href="#block-robot-column-2" x="936"></use>
+		<use xlink:href="#block-robot-column-1" x="1170"></use>
+	</svg>
+
+	<svg id="animated-elements-1" height="900px" x="20" y="235" viewBox="0 0 1400 900" preserveAspectRatio="xMinYMin meet">
+		<defs>
+			<g id="block-arrow-animated">
+				<rect x="11" y="12" width="108" height="8" rx="2" fill="#B9BEC2"/>
+			</g>
+
+			<g id="block-separator-animated-1">
+				<rect x="7" y="107" width="67" height="8" rx="2" fill="#cfd4d8" />
+			</g>
+
+			<svg id="block-robot-animated">
+				<rect x="15" y="17" width="131" height="8" rx="2" fill="#DFE0E3" />
+				<rect x="15" y="39" width="102" height="8" rx="2" fill="#DFE0E3" />
+				<rect x="15" y="91" width="79" height="8" rx="2" fill="#DFE0E3" />
+				<rect x="15" y="152" width="62" height="8" rx="2" fill="#DFE0E3" />
+				<rect x="152" y="152" width="67" height="8" rx="2" fill="#DFE0E3" />
+				<rect x="15" y="74" width="46" height="6" rx="2" fill="#DFE0E3" />
+			</svg>
+			<svg id="without-bg-animated">
+				<rect x="11" y="186" width="147" height="8" rx="3" fill="#dfe3e6" />
+				<rect x="11" y="202" width="99" height="8" rx="3" fill="#dfe3e6" />
+				<rect x="11" y="236" width="86" height="8" rx="3" fill="#dfe3e6" />
+				<rect x="11" y="252" width="106" height="8" rx="3" fill="#dfe3e6" />
+			</svg>
+
+			<g id="block-robot-column-animated-2">
+				<use xlink:href="#block-robot-animated" y="176" />
+				<use xlink:href="#block-robot-animated" y="352" />
+				<use xlink:href="#without-bg-animated" y="353" />
+			</g>
+
+			<g id="block-robot-column-animated-1">
+				<use xlink:href="#block-robot-animated" y="176" />
+				<use xlink:href="#without-bg-animated" y="177"/>
+			</g>
+
+			<g id="block-robot-column-animated">
+				<use xlink:href="#without-bg-animated" />
+			</g>
+		</defs>
+
+		<use xlink:href="#block-arrow-animated"></use>
+		<use xlink:href="#block-arrow-animated" x="234"></use>
+		<use xlink:href="#block-arrow-animated" x="468"></use>
+		<use xlink:href="#block-arrow-animated" x="702"></use>
+		<use xlink:href="#block-arrow-animated" x="936"></use>
+		<use xlink:href="#block-arrow-animated" x="1170"></use>
+		<use xlink:href="#block-arrow-animated" x="1404"></use>
+		<use xlink:href="#block-arrow-animated" x="1638"></use>
+
+		<use xlink:href="#block-separator-animated-1"></use>
+		<use xlink:href="#block-separator-animated-1" y="43"></use>
+
+		<use xlink:href="#block-robot-column-animated-2"></use>
+		<use xlink:href="#block-robot-column-animated-2" x="234"></use>
+		<use xlink:href="#block-robot-column-animated-1" x="468"></use>
+		<use xlink:href="#block-robot-column-animated-2" x="702"></use>
+		<use xlink:href="#block-robot-column-animated-2" x="936"></use>
+		<use xlink:href="#block-robot-column-animated-1" x="1170"></use>
+		<use xlink:href="#block-robot-column-animated" x="1404"></use>
+		<use xlink:href="#block-robot-column-animated" x="1638"></use>
+	</svg>
+
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"/>
+		<use xlink:href="#animated-elements-1"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+	<svg height="100%">
+		<defs>
+			<g id="upper-right-corner">
+				<path d="M9.99997 10V0H0C5.52285 0 9.99997 4.47715 9.99997 10Z" fill="#eef2f4" />
+			</g>
+			<g id="lower-right-corner">
+				<path d="M9.99997 0V10H0C5.52285 10 9.99997 5.52285 9.99997 0Z" fill="#eef2f4" />
+			</g>
+		</defs>
+
+		<rect width="20" height="100%" x="100%" fill="#EEF2F4" transform="translate(-20)" />
+		<use xlink:href="#upper-right-corner" x="100%" y="73" transform="translate(-30)"></use>
+		<use xlink:href="#lower-right-corner" x="100%" y="123" transform="translate(-30)"></use>
+	</svg>
+</svg>

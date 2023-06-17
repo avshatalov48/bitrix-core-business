@@ -25,12 +25,12 @@ final class PaymentRepository
 	 */
 	public static function getInstance(): PaymentRepository
 	{
-		if (is_null(static::$instance))
+		if (is_null(self::$instance))
 		{
-			static::$instance = new self();
+			self::$instance = new self();
 		}
 
-		return static::$instance;
+		return self::$instance;
 	}
 
 	/**
@@ -39,21 +39,14 @@ final class PaymentRepository
 	 */
 	public function getById(int $id): ?Sale\Payment
 	{
-		/** @var Sale\Payment $paymentClass */
-		$paymentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getPaymentClassName();
-
-		$paymentRow = $paymentClass::getList([
+		$paymentList = $this->getList([
 			'select' => ['ID', 'ORDER_ID'],
 			'filter' => [
 				'=ID' => $id
-			]
-		])->fetch();
-		if (!$paymentRow)
-		{
-			return null;
-		}
+			],
+		]);
 
-		return static::getInstance()->getByRow($paymentRow);
+		return $paymentList[0] ?? null;
 	}
 
 	/**
@@ -62,21 +55,29 @@ final class PaymentRepository
 	 */
 	public function getByIds(array $ids): array
 	{
+		return $this->getList([
+			'select' => ['ID', 'ORDER_ID'],
+			'filter' => [
+				'@ID' => $ids
+			],
+		]);
+	}
+
+	/**
+	 * @param array $parameters
+	 * @return array
+	 */
+	public function getList(array $parameters): array
+	{
 		$result = [];
 
 		/** @var Sale\Payment $paymentClass */
 		$paymentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getPaymentClassName();
 
-		$paymentList = $paymentClass::getList([
-			'select' => ['ID', 'ORDER_ID'],
-			'filter' => [
-				'=ID' => $ids
-			]
-		]);
-
+		$paymentList = $paymentClass::getList($parameters);
 		while ($paymentRow = $paymentList->fetch())
 		{
-			$payment = static::getInstance()->getByRow($paymentRow);
+			$payment = $this->getByRow($paymentRow);
 			if (is_null($payment))
 			{
 				continue;
@@ -103,15 +104,11 @@ final class PaymentRepository
 			return null;
 		}
 
-		$paymentCollection = $order->getPaymentCollection();
-
-		/** @var Sale\Payment $payment */
-		foreach ($paymentCollection as $payment)
+		$paymentId = (int)$paymentRow['ID'];
+		if ($paymentId > 0)
 		{
-			if ($payment->getId() !== (int)$paymentRow['ID'])
-			{
-				continue;
-			}
+			/** @var Sale\Payment $payment */
+			$payment = $order->getPaymentCollection()->getItemById($paymentRow['ID']);
 
 			return $payment;
 		}

@@ -21,23 +21,40 @@ $APPLICATION->showHeadStrings();
 $APPLICATION->showHeadScripts();
 $APPLICATION->showCSS();
 
-$APPLICATION->IncludeComponent(
-	'bitrix:ui.sidepanel.wrapper',
-	'',
-	[
-		'POPUP_COMPONENT_NAME' => 'bitrix:rest.configuration.import',
-		'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
-		'POPUP_COMPONENT_PARAMS' => [
+if ($request->get('inSlider') === 'N')
+{
+	$APPLICATION->includeComponent(
+		'bitrix:rest.configuration.import',
+		'',
+		array(
 			'ZIP_ID' => (int)$request->get('id'),
 			'ADDITIONAL' => $request->get('additional'),
 			'MODE' => 'ZIP',
 			'SET_TITLE' => 'Y',
-		],
-		'USE_PADDING' => false,
-		'PAGE_MODE' => false,
-		'USE_UI_TOOLBAR' => 'N',
-		'PLAIN_VIEW' => \CRestUtil::isSlider() ? 'Y' : 'N'
-	]
-);
+		),
+		false, array('HIDE_ICONS' => 'Y')
+	);
+}
+else
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.sidepanel.wrapper',
+		'',
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:rest.configuration.import',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
+			'POPUP_COMPONENT_PARAMS' => [
+				'ZIP_ID' => (int)$request->get('id'),
+				'ADDITIONAL' => $request->get('additional'),
+				'MODE' => 'ZIP',
+				'SET_TITLE' => 'Y',
+			],
+			'USE_PADDING' => false,
+			'PAGE_MODE' => false,
+			'USE_UI_TOOLBAR' => 'N',
+			'PLAIN_VIEW' => \CRestUtil::isSlider() ? 'Y' : 'N'
+		]
+	);
+}
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

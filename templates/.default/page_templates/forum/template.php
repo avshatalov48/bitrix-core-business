@@ -183,7 +183,7 @@ window.ForumVoteChannelClick = function(el)
 		$arGroups = $this->CheckArray($_POST['forum_VOTE_GROUP_ID']);
 		
 		$vote_channel = 0;
-		if(IsModuleInstalled("vote") && $GLOBALS["APPLICATION"]->GetGroupRight("vote") >= "W" && $_POST['forum_SHOW_VOTE'] == 'Y')
+		if(\CModule::IncludeModule("vote") && $GLOBALS["APPLICATION"]->GetGroupRight("vote") >= "W" && $_POST['forum_SHOW_VOTE'] == 'Y')
 		{
 			if($_POST['forum_NEW_VOTE_CHANNEL'] == 'Y')
 			{

@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 namespace Bitrix\Main\UI;
@@ -457,9 +457,9 @@ Thanks!
 				->setLicenceUrl("https://github.com/twbs/bootstrap/blob/main/LICENSE"),
 
 			// main/install/fonts
-			(new static("Font Awesome 4"))
+			(new static("Font Awesome 6"))
 				->setProductUrl("http://fontawesome.io")
-				->setCopyright("by @davegandy")
+				->setCopyright("Fonticons, Inc.")
 				->setLicence("Font: SIL OFL 1.1, CSS: MIT License")
 				->setLicenceUrl("http://fontawesome.io/license"),
 
@@ -509,6 +509,27 @@ THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMP
 				->setCopyright("Copyright (c) 2012 PHP Framework Interoperability Group")
 				->setLicence(static::LICENCE_MIT)
 				->setLicenceUrl("https://github.com/php-fig/log/blob/master/LICENSE"),
+
+			// main/vendor/psr/http-message
+			(new static("PSR HTTP Message"))
+				->setProductUrl("https://github.com/php-fig/http-message")
+				->setCopyright("Copyright (c) 2014 PHP Framework Interoperability Group")
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl("https://github.com/php-fig/http-message/blob/master/LICENSE"),
+
+			// main/vendor/psr/http-client
+			(new static("PSR HTTP Client"))
+				->setProductUrl("https://github.com/php-fig/http-client")
+				->setCopyright("Copyright (c) 2017 PHP Framework Interoperability Group")
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl("https://github.com/php-fig/http-client/blob/master/LICENSE"),
+
+			// main/vendor/php-http/promise
+			(new static("php-http/promise"))
+				->setProductUrl("https://github.com/php-http/promise")
+				->setCopyright("Copyright (c) 2015-2016 PHP HTTP Team <team@php-http.org>")
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl("https://github.com/php-http/promise/blob/master/LICENSE"),
 
 			// main/install/js/main/d3js
 			(new static("D3.js"))

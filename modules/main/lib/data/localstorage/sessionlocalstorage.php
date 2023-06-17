@@ -76,17 +76,18 @@ final class SessionLocalStorage implements \ArrayAccess, \Countable, \IteratorAg
         $this->data = [];
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function &offsetGet($offset)
 	{
 		return $this->get($offset);
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if ($offset === null)
 		{
@@ -98,17 +99,17 @@ final class SessionLocalStorage implements \ArrayAccess, \Countable, \IteratorAg
 		}
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->data[$offset]);
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return count($this->data);
 	}
 
-	public function getIterator()
+	public function getIterator(): \ArrayIterator
 	{
 		return new \ArrayIterator($this->getData());
 	}

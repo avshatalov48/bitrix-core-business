@@ -10,7 +10,7 @@ use Bitrix\Sale;
  * @package Bitrix\Sale\Controller\Action\Entity
  * @internal
  */
-final class UserConsentRequestAction extends BaseAction
+final class UserConsentRequestAction extends Sale\Controller\Action\BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

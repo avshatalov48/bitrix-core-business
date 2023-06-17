@@ -2,6 +2,7 @@
 
 namespace Bitrix\Pull\SharedServer;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Web\HttpClient;
@@ -180,20 +181,14 @@ class Client
 		return $result;
 	}
 
-	protected static function getLicenseKey()
-	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-		return \CUpdateClient::GetLicenseKey();
-	}
-
 	public static function getPublicLicenseCode(): string
 	{
-		return md5("BITRIX" . static::getLicenseKey() . "LICENCE");
+		return Application::getInstance()->getLicense()->getPublicHashKey();
 	}
 
 	protected static function signRequest(array $request): string
 	{
 		$paramStr = md5(implode("|", $request));
-		return md5($paramStr . md5(static::getLicenseKey()));
+		return md5($paramStr . Application::getInstance()->getLicense()->getHashLicenseKey());
 	}
 }

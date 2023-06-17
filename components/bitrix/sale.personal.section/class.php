@@ -1,23 +1,129 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use \Bitrix\Main\Localization\Loc,
-	\Bitrix\Sale,
-	\Bitrix\Main\Loader;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
 
 class PersonalOrderSection extends CBitrixComponent
 {
 	public function onPrepareComponentParams($params)
 	{
-		if (!isset($params['MAIN_CHAIN_NAME']))
-		{
-			$params['MAIN_CHAIN_NAME'] = Loc::getMessage("SPS_CHAIN_MAIN");
-		}
-
 		$params['DISABLE_SOCSERV_AUTH'] = $params['DISABLE_SOCSERV_AUTH'] ?? 'N';
 		$params['DISABLE_SOCSERV_AUTH'] = $params['DISABLE_SOCSERV_AUTH'] === 'Y' ? 'Y' : 'N';
+
+		$params['SEF_MODE'] ??= 'Y';
+		$params['VARIABLE_ALIASES'] ??= [];
+		if (!is_array($params['VARIABLE_ALIASES']))
+		{
+			$params['VARIABLE_ALIASES'] = [];
+		}
+
+		$params['SHOW_ACCOUNT_PAGE'] = (string)($params['SHOW_ACCOUNT_PAGE'] ?? 'Y');
+		$params['SHOW_ORDER_PAGE'] = (string)($params['SHOW_ORDER_PAGE'] ?? 'Y');
+		$params['SHOW_PRIVATE_PAGE'] = (string)($params['SHOW_PRIVATE_PAGE'] ?? 'Y');
+		$params['SHOW_PROFILE_PAGE'] = (string)($params['SHOW_PROFILE_PAGE'] ?? 'Y');
+		$params['SHOW_SUBSCRIBE_PAGE'] = (string)($params['SHOW_SUBSCRIBE_PAGE'] ?? 'Y');
+		$params['SHOW_CONTACT_PAGE'] = (string)($params['SHOW_CONTACT_PAGE'] ?? 'Y');
+		$params['SHOW_BASKET_PAGE'] = (string)($params['SHOW_BASKET_PAGE'] ?? 'Y');
+
+		$params['USE_PRIVATE_PAGE_TO_AUTH'] = (string)($params['USE_PRIVATE_PAGE_TO_AUTH'] ?? 'N');
+
+		$params['PATH_TO_PAYMENT'] = (string)($params['PATH_TO_PAYMENT'] ?? '/personal/order/payment/');
+		$params['PATH_TO_CONTACT'] = (string)($params['PATH_TO_CONTACT'] ?? '/about/contacts/');
+		$params['PATH_TO_BASKET'] = (string)($params['PATH_TO_BASKET'] ?? '/personal/cart/');
+		$params['PATH_TO_CATALOG'] = (string)($params['PATH_TO_CATALOG'] ?? '/catalog/');
+
+		$params['MAIN_CHAIN_NAME'] = (string)($params['MAIN_CHAIN_NAME'] ?? Loc::getMessage('SPS_CHAIN_MAIN'));
+
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
+		$params['CACHE_TIME'] = (int)($params['CACHE_TIME'] ?? 3600);
+		$params['CACHE_GROUPS'] = (string)($params['CACHE_GROUPS'] ?? 'Y');
+
+		$params['CUSTOM_PAGES'] ??= '';
+
+		$params['SHOW_ACCOUNT_COMPONENT'] = (string)($params['SHOW_ACCOUNT_COMPONENT'] ?? 'Y');
+		$params['SHOW_ACCOUNT_PAY_COMPONENT'] = (string)($params['SHOW_ACCOUNT_PAY_COMPONENT'] ?? 'Y');
+		$params['ACCOUNT_PAYMENT_SELL_CURRENCY'] = (string)($params['ACCOUNT_PAYMENT_SELL_CURRENCY'] ?? 'Y');
+		$params['ACCOUNT_PAYMENT_PERSON_TYPE'] = (string)($params['ACCOUNT_PAYMENT_PERSON_TYPE'] ?? '');
+		$params['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS'] ??= [];
+		if (!is_array($params['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS']))
+		{
+			$params['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS'] = [];
+		}
+		$params['ACCOUNT_PAYMENT_SELL_SHOW_FIXED_VALUES'] = (string)($params['ACCOUNT_PAYMENT_SELL_SHOW_FIXED_VALUES'] ?? 'Y');
+
+		$params['ACCOUNT_PAYMENT_SELL_TOTAL'] ??= [];
+		if (empty($params['ACCOUNT_PAYMENT_SELL_TOTAL']) || !is_array($params['ACCOUNT_PAYMENT_SELL_TOTAL']))
+		{
+			$params['ACCOUNT_PAYMENT_SELL_TOTAL'] = [
+				100,
+				200,
+				500,
+				1000,
+				5000,
+			];
+		}
+		$params['ACCOUNT_PAYMENT_SELL_USER_INPUT'] = (string)($params['ACCOUNT_PAYMENT_SELL_USER_INPUT'] ?? 'Y');
+		$params['ACCOUNT_PAYMENT_SELL_SHOW_RESULT_SUM'] = (string)($params['ACCOUNT_PAYMENT_SELL_SHOW_RESULT_SUM'] ?? 'N');
+
+		$params['SAVE_IN_SESSION'] = (string)($params['SAVE_IN_SESSION'] ?? 'Y');
+		$params['ACTIVE_DATE_FORMAT'] = (string)($params['ACTIVE_DATE_FORMAT'] ?? '');
+		$params['CUSTOM_SELECT_PROPS'] ??= [];
+		if (!is_array($params['CUSTOM_SELECT_PROPS']))
+		{
+			$params['CUSTOM_SELECT_PROPS'] = [];
+		}
+		$params['CUSTOM_SELECT_PROPS'] = array_filter($params['CUSTOM_SELECT_PROPS']);
+
+		$params['ORDER_HIDE_USER_INFO'] ??= [];
+		if (!is_array($params['ORDER_HIDE_USER_INFO']))
+		{
+			$params['ORDER_HIDE_USER_INFO'] = [];
+		}
+
+		$params['ORDER_HISTORIC_STATUSES'] ??= [];
+		if (!is_array($params['ORDER_HISTORIC_STATUSES']))
+		{
+			$params['ORDER_HISTORIC_STATUSES'] = [];
+		}
+
+		$params['ORDER_RESTRICT_CHANGE_PAYSYSTEM'] ??= [];
+		if (!is_array($params['ORDER_RESTRICT_CHANGE_PAYSYSTEM']))
+		{
+			$params['ORDER_RESTRICT_CHANGE_PAYSYSTEM'] = [];
+		}
+
+		$params['ORDER_DEFAULT_SORT'] = (string)($params['ORDER_DEFAULT_SORT'] ?? 'STATUS');
+		$params['ORDER_REFRESH_PRICES'] = (string)($params['ORDER_REFRESH_PRICES'] ?? 'N');
+		$params['ORDER_DISALLOW_CANCEL'] = (string)($params['ORDER_DISALLOW_CANCEL'] ?? 'N');
+
+		$params['ALLOW_INNER'] = (string)($params['ALLOW_INNER'] ?? 'N');
+		$params['ONLY_INNER_FULL'] = (string)($params['ONLY_INNER_FULL'] ?? 'N');
+
+		$params['NAV_TEMPLATE'] = (string)($params['NAV_TEMPLATE'] ?? '');
+		$params['ORDERS_PER_PAGE'] = (int)($params['ORDERS_PER_PAGE'] ?? 20);
+		if ($params['ORDERS_PER_PAGE'] <= 0)
+		{
+			$params['ORDERS_PER_PAGE'] = 20;
+		}
+
+		$params['SEND_INFO_PRIVATE'] = (string)($params['SEND_INFO_PRIVATE'] ?? 'N');
+		$params['CHECK_RIGHTS_PRIVATE'] = (string)($params['CHECK_RIGHTS_PRIVATE'] ?? 'N');
+		$params['USE_AJAX_LOCATIONS_PROFILE'] = (string)($params['USE_AJAX_LOCATIONS_PROFILE'] ?? 'N');
+		$params['COMPATIBLE_LOCATION_MODE_PROFILE'] = (string)($params['COMPATIBLE_LOCATION_MODE_PROFILE'] ?? 'N');
+		$params['PROFILES_PER_PAGE'] = (int)($params['PROFILES_PER_PAGE'] ?? 20);
+		if ($params['PROFILES_PER_PAGE'] <= 0)
+		{
+			$params['PROFILES_PER_PAGE'] = 20;
+		}
+
+		$params['CONTEXT_SITE_ID'] ??= null;
+
+		$params['SUBSCRIBE_DETAIL_URL'] = (string)($params['SUBSCRIBE_DETAIL_URL'] ?? ''); // strange parameter for templates
 
 		return $params;
 	}
@@ -77,10 +183,10 @@ class PersonalOrderSection extends CBitrixComponent
 
 			foreach ($templatesUrls as $url => $value)
 			{
-				$this->arResult["PATH_TO_".ToUpper($url)] = $this->arParams["SEF_FOLDER"].$value;
+				$this->arResult["PATH_TO_" . mb_strtoupper($url)] = $this->arParams["SEF_FOLDER"].$value;
 			}
-
 			$this->arResult["PATH_TO_ORDER_COPY"] = $this->arResult["PATH_TO_ORDERS"]."?COPY_ORDER=Y&ID=#ID#";
+			$this->arResult['PATH_TO_PROFILE_DELETE'] = $this->arResult['PATH_TO_PROFILE'] . '?del_id=#ID#';
 
 			$variableAliases = CComponentEngine::makeComponentVariableAliases(array(), $this->arParams["VARIABLE_ALIASES"]);
 
@@ -183,7 +289,7 @@ class PersonalOrderSection extends CBitrixComponent
 				}
 				else
 				{
-					$this->arResult["PATH_TO_".ToUpper($sectionName)] = $currentPage."?SECTION=".$sectionName;
+					$this->arResult["PATH_TO_" . mb_strtoupper($sectionName)] = $currentPage."?SECTION=".$sectionName;
 				}
 			}
 		}
@@ -255,6 +361,15 @@ class PersonalOrderSection extends CBitrixComponent
 			$componentPage = "private";
 		}
 
+		if ($componentPage == 'private')
+		{
+			$this->arResult['SHOW_LOGIN_FORM'] ??= 'N';
+			$this->arResult['SHOW_FORGOT_PASSWORD_FORM'] ??= 'N';
+			$this->arResult['SHOW_CHANGE_PASSWORD_FORM'] ??= 'N';
+			$this->arParams['AJAX_MODE_PRIVATE'] ??= 'N';
+			$this->arParams['EDITABLE_EXTERNAL_AUTH_ID'] ??= 'N';
+		}
+
 		if ($this->arParams['USE_PRIVATE_PAGE_TO_AUTH'] === 'Y')
 		{
 			$this->arResult["AUTH_SUCCESS_URL"] = $this->arResult["PATH_TO_LOGIN"];
@@ -270,6 +385,8 @@ class PersonalOrderSection extends CBitrixComponent
 				true
 			);
 		}
+
+		$this->arResult['VARIABLES']['ID'] ??= 0;
 
 		$this->includeComponentTemplate($componentPage);
 	}

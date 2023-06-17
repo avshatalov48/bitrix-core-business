@@ -33,7 +33,12 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 	 */
 	public function onPrepareComponentParams($arParams)
 	{
-		self::tryParseInt($arParams['INITIAL_TIME']);
+		if (!is_array($arParams))
+		{
+			$arParams = [];
+		}
+
+		$arParams['INITIAL_TIME'] = (int)($arParams['INITIAL_TIME'] ?? 0);
 
 		return $arParams;
 	}
@@ -41,9 +46,9 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 	/**
 	 * Function checks if required modules installed. If not, throws an exception
 	 * @throws Exception
-	 * @return void
+	 * @return bool
 	 */
-	protected function checkRequiredModules()
+	protected function checkRequiredModules(): bool
 	{
 		$result = true;
 
@@ -58,22 +63,31 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 
 	protected static function checkAccessPermissions($parameters = array())
 	{
-		if(!is_array($parameters))
-			$parameters = array();
+		if (!is_array($parameters))
+		{
+			$parameters = [];
+		}
+		$parameters['CHECK_CSRF'] ??= false;
 
-		$errors = array();
+		$errors = [];
 
 		if ($GLOBALS['APPLICATION']->GetGroupRight("sale") < "W")
-			$errors[] = Loc::getMessage("SALE_SLI_SALE_MODULE_WRITE_ACCESS_DENIED");
-
-		if(!LocationHelper::checkLocationEnabled())
-			$errors[] = 'Locations were disabled or data has not been converted';
-
-		if($parameters['CHECK_CSRF'])
 		{
-			$post = \Bitrix\Main\Context::getCurrent()->getRequest()->getPostList();
-			if(!mb_strlen($post['csrf']) || bitrix_sessid() != $post['csrf'])
+			$errors[] = Loc::getMessage("SALE_SLI_SALE_MODULE_WRITE_ACCESS_DENIED");
+		}
+
+		if (!LocationHelper::checkLocationEnabled())
+		{
+			$errors[] = 'Locations were disabled or data has not been converted';
+		}
+
+		if ($parameters['CHECK_CSRF'])
+		{
+			$csrf = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getPost('csrf');
+			if ($csrf === '' || bitrix_sessid() !== $csrf)
+			{
 				$errors[] = 'CSRF token is not valid';
+			}
 		}
 
 		return $errors;
@@ -82,9 +96,9 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 	/**
 	 * Function checks if user have basic permissions to launch the component
 	 * @throws Exception
-	 * @return void
+	 * @return bool
 	 */
-	protected function checkPermissions()
+	protected function checkPermissions(): bool
 	{
 		$errors = static::checkAccessPermissions();
 		if(is_array($errors))
@@ -92,26 +106,17 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 			$this->errors['FATAL'] = array_merge($this->errors['FATAL'], $errors);
 		}
 
-		return count($errors) == 0;
+		return empty($errors);
 	}
 
 	/**
 	 * Additional parameters check, if needed.
-	 * @return void
+	 * @return bool
 	 */
-	protected function checkParameters()
+	protected function checkParameters(): bool
 	{
 		return true;
 	}
-
-	/*
-	protected function prepareInstances()
-	{
-		$this->import = $this->getImportInstance(array(
-			'INITIAL_TIME' => $this->arParams['INITIAL_TIME']
-		));
-	}
-	*/
 
 	/**
 	 * Function makes some actions based on what is in $this->request
@@ -205,12 +210,12 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 	 */
 	public static function doAjaxStuff($parameters = array())
 	{
-		$errors = static::checkAccessPermissions(array('CHECK_CSRF' => true));
+		$errors = static::checkAccessPermissions(['CHECK_CSRF' => true]);
 		$data = 	array();
 
 		if(count($errors) == 0)
 		{
-			$request =	static::getRequest();
+			$request = static::getRequest();
 
 			// action: process ajax
 			if(isset($request['POST']['AJAX_CALL']))
@@ -311,23 +316,25 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 		$this->obtainNonCachedData();
 	}
 
-	protected static function getRequest()
+	protected static function getRequest(): array
 	{
 		$request = Main\Context::getCurrent()->getRequest();
 
-		return array(
-			'GET' => $request->getQueryList(),
-			'POST' => $request->getPostList(),
-		);
+		return [
+			'GET' => $request->getQueryList()->toArray(),
+			'POST' => $request->getPostList()->toArray(),
+		];
 	}
 
-	protected static function getRequestMethod()
+	protected static function getRequestMethod(): string
 	{
-		return Main\Context::getCurrent()->getServer()->getRequestMethod();
+		return (string)Main\Context::getCurrent()->getServer()->getRequestMethod();
 	}
 
 	/**
-	 * Function reduces input value to integer type, and, if gets null, passes the default value
+	 * @deprecated
+	 *
+	 * Function reduces input value to integer type, and, if it gets null, passes the default value
 	 * @param mixed $fld Field value
 	 * @param int $default Default value
 	 * @param int $allowZero Allows zero-value of the parameter
@@ -338,7 +345,7 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 		$fld = intval($fld);
 		if(!$allowZero && !$fld && $default !== false)
 			$fld = $default;
-			
+
 		return $fld;
 	}
 }

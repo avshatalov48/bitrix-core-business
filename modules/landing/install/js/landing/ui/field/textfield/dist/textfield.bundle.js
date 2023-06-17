@@ -6,17 +6,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	var TextField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextField, _BaseField);
-
 	  function TextField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TextField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextField).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Field.TextField');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    _this.bind = _this.options.bind;
 	    _this.changeTagButton = _this.options.changeTagButton;
 	    _this.onInputHandler = main_core.Type.isFunction(_this.options.onInput) ? _this.options.onInput : function () {};
@@ -40,7 +35,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Event.bind(document, 'mouseup', _this.onDocumentMouseup);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(TextField, [{
 	    key: "onInputInput",
 	    value: function onInputInput() {
@@ -62,7 +56,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          if (this === BX.Landing.UI.Field.BaseField.currentField) {
 	            BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	          }
-
 	          this.disableEdit();
 	        }
 	      }
@@ -104,17 +97,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this === BX.Landing.UI.Field.BaseField.currentField) {
 	          BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	        }
-
 	        this.disableEdit();
 	      }
-
 	      this.fromInput = false;
 	    }
 	  }, {
 	    key: "onDocumentMouseup",
 	    value: function onDocumentMouseup() {
 	      var _this2 = this;
-
 	      setTimeout(function () {
 	        _this2.fromInput = false;
 	      }, 10);
@@ -131,7 +121,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function onInputMousedown(event) {
 	      this.enableEdit();
 	      BX.Landing.UI.Tool.ColorPicker.hideAll();
-	      BX.Landing.UI.Button.FontAction.hideAll();
 	      requestAnimationFrame(function () {
 	        if (event.target.nodeName === 'A') {
 	          var range = document.createRange();
@@ -150,21 +139,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this !== BX.Landing.UI.Field.BaseField.currentField && BX.Landing.UI.Field.BaseField.currentField !== null) {
 	          BX.Landing.UI.Field.BaseField.currentField.disableEdit();
 	        }
-
 	        BX.Landing.UI.Field.BaseField.currentField = this;
-
 	        if (!this.isTextOnly()) {
 	          if (this.changeTagButton) {
 	            this.changeTagButton.onChangeHandler = this.onChangeTag.bind(this);
 	          }
-
 	          BX.Landing.UI.Panel.EditorPanel.getInstance().show(this.layout, null, this.changeTagButton ? [this.changeTagButton] : null);
 	          this.input.contentEditable = true;
 	        } else {
 	          BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	          this.input.contentEditable = true;
 	        }
-
 	        if (!this.isContentEditable()) {
 	          this.input.contentEditable = false;
 	        }
@@ -197,7 +182,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        main_core.Dom.remove(element.lastChild);
 	        this.adjustTags(element);
 	      }
-
 	      return element;
 	    }
 	  }, {
@@ -206,7 +190,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (this.textOnly) {
 	        return this.input.innerText;
 	      }
-
 	      return this.adjustTags(main_core.Runtime.clone(this.input)).innerHTML.replace(/&nbsp;/g, '');
 	    }
 	  }]);

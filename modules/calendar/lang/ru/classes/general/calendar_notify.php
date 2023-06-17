@@ -21,6 +21,8 @@ $MESS["EC_MESS_REC_THIS_CANCEL_SITE"] = "Повторение встречи \"[
 
 $MESS["EC_MESS_INVITE_DETAILS"] = "Детали встречи Вы можете посмотреть в своем календаре: #LINK#";
 $MESS["EC_MESS_INVITE_DETAILS_SITE"] = "Детали встречи Вы можете посмотреть в [url=#LINK#]своем календаре[/url]";
+$MESS['EC_MESS_AUTO_INVITE_ACCEPT'] = "Создана встреча \"[B]#TITLE#[/B]\" с вашим участием, которая состоится [B]#ACTIVE_FROM#[/B]";
+$MESS['EC_MESS_AUTO_INVITE_ACCEPT_DETAILS'] = 'Посмотреть детали или отказаться от встречи вы можете в [url=#LINK#]своем календаре[/url]';
 $MESS["EC_MESS_INVITE_CONF_Y"] = "Подтвердить участие: #LINK#";
 $MESS["EC_MESS_INVITE_CONF_N"] = "Отказаться от участия: #LINK#";
 $MESS["EC_MESS_INVITE_CONF_Y_SITE"] = "Подтвердить участие";
@@ -39,7 +41,6 @@ $MESS["EC_NOTIFY_DATE_FROM_CHANGED"] = "Изменено время провед
 $MESS["EC_NOTIFY_DATE_TO_CHANGED"] = "Изменено время окончания встречи \"#TITLE#\" с вашим участием с \"#OLD_DATE_TO#\", на \"#NEW_DATE_TO#\"";
 $MESS["EC_NOTIFY_ATTENDEES_CHANGED"] = "Изменен состав участников встречи \"#TITLE#\" с вашим участием, дата проведения встречи - #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_DESCRIPTION_CHANGED"] = "Изменено описание встречи \"#TITLE#\" с вашим участием, дата проведения встречи - #ACTIVE_FROM#";
-$MESS["EC_NOTIFY_LOCATION_CHANGED"] = "Изменено местоположение встречи \"#TITLE#\" с вашим участием, дата проведения встречи - #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_LOCATION_CHANGED"] = "Место проведения вашей встречи \"#TITLE#\", которая состоится #ACTIVE_FROM# было изменено. Новое местоположение - \"#NEW_VALUE#\"";
 $MESS["EC_NOTIFY_LOCATION_CHANGED_NONE"] = "Место проведения вашей встречи \"#TITLE#\", которая состоится #ACTIVE_FROM# теперь не указано. Уточните подробности у организатора встречи.";
 $MESS["EC_NOTIFY_RRULE_CHANGED"] = "Изменены параметры повторения для регулярной встречи \"#TITLE#\" с вашим участием";

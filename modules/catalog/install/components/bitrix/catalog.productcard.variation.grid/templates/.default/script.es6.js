@@ -30,9 +30,15 @@ class VariationGrid
 		this.storeAmount = settings.storeAmount;
 		this.isShowedStoreReserve = settings.isShowedStoreReserve;
 		this.reservedDealsSliderLink = settings.reservedDealsSliderLink;
+
 		if (settings.copyItemsMap)
 		{
 			this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
+		}
+
+		if (settings.supportedAjaxFields)
+		{
+			this.getGrid().arParams.SUPPORTED_AJAX_FIELDS = settings.supportedAjaxFields;
 		}
 
 		if (!this.isNew)
@@ -74,7 +80,6 @@ class VariationGrid
 		}
 
 		Event.bind(this.getGrid().getScrollContainer(), 'scroll', Runtime.throttle(this.onScrollHandler.bind(this), 50));
-		Event.bind(this.getGridSettingsButton(), 'click', this.showGridSettingsWindowHandler.bind(this));
 
 		this.modifyHeaders();
 		this.subscribeCustomEvents();
@@ -190,21 +195,6 @@ class VariationGrid
 		}
 	}
 
-	getGridSettingsButton()
-	{
-		return this.getGrid().getContainer().querySelector('.' + this.getGrid().settings.get('classSettingsButton'))
-	}
-
-	showGridSettingsWindowHandler(event)
-	{
-		event.preventDefault();
-		event.stopPropagation();
-
-		this.askToLossGridData(() => {
-			this.getGrid().getSettingsWindow()._onSettingsButtonClick();
-		});
-	}
-
 	onScrollHandler(event)
 	{
 		const popup = PopupManager.getCurrentPopup();
@@ -292,7 +282,7 @@ class VariationGrid
 
 		const addButton = Tag.render`
 			<div class="catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new">
-				<label 
+				<label
 					class="catalog-productcard-popup-select-label main-dropdown-item">
 					<span class="catalog-productcard-popup-select-add"></span>
 					<span class="catalog-productcard-popup-select-text">
@@ -1070,8 +1060,8 @@ class VariationGrid
 		if (rowId)
 		{
 			const deleteButton = Tag.render`
-				<span 
-					class="main-grid-delete-button" 
+				<span
+					class="main-grid-delete-button"
 					onclick="${this.removeNewRowFromGrid.bind(this, rowId)}"
 				></span>
 			`;
@@ -1292,41 +1282,11 @@ class VariationGrid
 		const [propertyId] = event.getData();
 		const link = this.modifyPropertyLink.replace('#PROPERTY_ID#', propertyId);
 
-		this.askToLossGridData(() => {
-			BX.SidePanel.Instance.open(link, {
-				width: 550,
-				allowChangeHistory: false,
-				cacheable: false
-			});
+		BX.SidePanel.Instance.open(link, {
+			width: 550,
+			allowChangeHistory: false,
+			cacheable: false
 		});
-	}
-
-	askToLossGridData(okCallback?, cancelCallback?, options?: {})
-	{
-		if (this.isGridInEditMode())
-		{
-			const defaultOptions = {
-				title: Loc.getMessage('C_PVG_UNSAVED_DATA_TITLE'),
-				message: Loc.getMessage('C_PVG_UNSAVED_DATA_MESSAGE'),
-				modal: true,
-				buttons: MessageBoxButtons.OK_CANCEL,
-				okCaption: Loc.getMessage('C_PVG_UNSAVED_DATA_CONTINUE'),
-				onOk: messageBox => {
-					okCallback && okCallback();
-					messageBox.close();
-				},
-				onCancel: messageBox => {
-					cancelCallback && cancelCallback();
-					messageBox.close();
-				}
-			};
-
-			MessageBox.show({...defaultOptions, ...options});
-		}
-		else
-		{
-			okCallback && okCallback();
-		}
 	}
 
 	isGridInEditMode()

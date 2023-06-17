@@ -1,0 +1,122 @@
+.bx-im-message-base__scope {
+	--bx-im-message-quote__border-color: #939ba4;
+	--bx-im-message-quote__color: #767e87;
+	--bx-im-message-quote__color_name: #767a7e;
+	--bx-im-message-quote__color_time: var(--im-message-base__font-color_date);
+	--bx-im-message-quote-with-context__border-color: #23bef0;
+	--bx-im-message-quote-with-context__color_name: #1eaad8;
+}
+.bx-im-content-notification-item__container {
+	--bx-im-message-quote__border-color: #939ba4;
+	--bx-im-message-quote__color: #767e87;
+	--bx-im-message-quote__color_name: #767a7e;
+	--bx-im-message-quote__color_time: var(--im-message-base__font-color_date);
+	--bx-im-message-quote-with-context__border-color: #23bef0;
+	--bx-im-message-quote-with-context__color_name: #1eaad8;
+}
+
+.bx-im-message-quote {
+	display: block;
+}
+.bx-im-message-quote.--inline {
+	display: inline-block;
+}
+.bx-im-message-quote__wrap {
+	font: var(--ui-font-size-md) var(--im-font-family-system);
+	color: var(--bx-im-message-quote__color);
+	border-left: 3px solid var(--bx-im-message-quote__border-color);
+	padding-left: 10px;
+	padding-bottom: 2px;
+	margin: 4px 0;
+}
+.bx-im-message-quote__name {
+	padding-bottom: 0;
+	font: var(--ui-font-size-md) var(--im-font-family-system);
+	color: var(--bx-im-message-quote__color_name);
+	padding-top: 1px;
+	font-weight: var(--im-font-weight-medium);
+}
+.bx-im-message-quote__name-text {
+	display: inline-block;
+	padding-right: 5px;
+}
+.bx-im-message-quote__name-time {
+	display: inline-block;
+	font: var(--im-font-size-4xs) var(--im-font-family-system);
+	color: var(--bx-im-message-quote__color_time);
+}
+
+.bx-im-message-quote.--with-context {
+	cursor: pointer;
+}
+.--with-context .bx-im-message-quote__text {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	word-break: break-word;
+}
+.--with-context .bx-im-message-quote__wrap {
+	border-left-color: var(--bx-im-message-quote-with-context__border-color);
+}
+.--with-context .bx-im-message-quote__name-text {
+	color: var(--bx-im-message-quote-with-context__color_name);
+}
+.--with-context .bx-im-message-quote__name-time {
+	display: none;
+}
+
+
+
+.bx-im-message-content-code {
+	white-space: pre-line;
+	padding-left: 5px;
+	color: #505050;
+	border-left: 3px solid #505050;
+}
+
+
+
+.bx-im-message-image
+{
+	display: block;
+	cursor: pointer;
+	align-items: center;
+	justify-content: left;
+	overflow: hidden;
+	height: 160px;
+	min-width: 80px;
+	border-radius: 12px;
+}
+
+.bx-im-message-image-source {
+	display: inline-block;
+	max-width: 100%;
+	max-height: 160px;
+	border-radius: 12px;
+}
+
+
+
+.bx-im-mention {
+	display: inline-block;
+	color: #1d54a2;
+	border-bottom: 1px dotted #1d54a2;
+	cursor: pointer;
+}
+
+
+
+.bx-im-message-command-wrap {
+	display: inline-block;
+}
+.bx-im-message-command {
+	display: inline-block;
+	color: #1d54a2;
+	border-bottom: 1px dotted #1d54a2;
+	cursor: pointer;
+}
+.bx-im-message-command-data {
+	display: none;
+}

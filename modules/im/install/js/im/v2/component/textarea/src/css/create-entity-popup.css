@@ -1,0 +1,74 @@
+.bx-im-create-entity-popup__scope {
+	--im-create-entity-popup__background-color_item-hover: var(--im-color-palette-gray-03);;
+	--im-create-entity-popup__font_title: var(--im-font-size-sm)/var(--im-font-line-height-md) var(--im-font-family-open-sans);
+	--im-create-entity-popup__font-color_title: var(--im-color-palette-black-base);
+	--im-create-entity-popup__font_subtitle: var(--im-font-size-3xs)/var(--im-font-line-height-md) var(--im-font-family-helvetica);
+	--im-create-entity-popup__font-color_subtitle: var(--im-color-palette-gray-60);
+	--im-create-entity-popup__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.05);
+}
+
+.bx-im-create-entity-popup__container {
+	padding: 8px 8px 8px;
+}
+
+.bx-im-create-entity-popup__container * {
+	box-sizing: border-box;
+}
+
+.bx-im-create-entity-popup__separator {
+	width: 246px;
+	height: 1px;
+	margin-left: 8px;
+	background-color: var(--im-create-entity-popup__background-color_separator);
+}
+
+.bx-im-create-entity-popup__item {
+	display: flex;
+	/*height: 50px;*/
+	padding: 9px 8px 7px 8px;
+	border-radius: var(--im-border-radius-xs);
+	cursor: pointer;
+}
+
+.bx-im-create-entity-popup__item:hover {
+	background-color: var(--im-create-entity-popup__background-color_item-hover);
+}
+
+.bx-im-create-entity-popup__item_icon {
+	width: 20px;
+	height: 20px;
+	margin-right: 6px;
+	background-position: center;
+}
+
+.bx-im-create-entity-popup__item_icon.--summary {
+	background-image: url('./images/create-entity/summary.svg');
+}
+
+.bx-im-create-entity-popup__item_icon.--task {
+	background-image: url('./images/create-entity/task.svg');
+}
+
+.bx-im-create-entity-popup__item_icon.--meeting {
+	background-image: url('./images/create-entity/meeting.svg');
+}
+
+.bx-im-create-entity-popup__item_icon.--vote {
+	background-image: url('./images/create-entity/vote.svg');
+}
+
+.bx-im-create-entity-popup__item_icon.--app {
+	background-image: url('./images/create-entity/app.svg');
+}
+
+.bx-im-create-entity-popup__item_title {
+	font: var(--im-create-entity-popup__font_title);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-create-entity-popup__font-color_title);
+}
+
+.bx-im-create-entity-popup__item_subtitle {
+	max-width: 190px;
+	font: var(--im-create-entity-popup__font_subtitle);
+	color: var(--im-create-entity-popup__font-color_subtitle);
+}

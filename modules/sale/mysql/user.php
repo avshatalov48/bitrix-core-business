@@ -221,7 +221,6 @@ class CSaleUserAccount extends CAllSaleUserAccount
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		$ID = (int)$DB->LastID();
-		$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] = 0;
 
 		$dbEvents = GetModuleEvents("sale", "OnAfterUserAccountAdd");
 		while ($arEvent = $dbEvents->Fetch())

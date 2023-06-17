@@ -46,9 +46,11 @@ class HotpAlgorithm extends OtpAlgorithm
 		}
 
 		if ($result === true)
-			return array($result, $counter + 1);
+		{
+			return array(true, $counter + 1);
+		}
 
-		return array($result, null);
+		return array(false, null);
 	}
 
 	/**

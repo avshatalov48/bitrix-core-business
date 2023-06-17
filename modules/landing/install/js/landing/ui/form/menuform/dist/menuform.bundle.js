@@ -33,11 +33,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.draggable = new ui_draganddrop_draggable.Draggable({
 	      container: _this.getBody(),
+	      context: parent.window,
 	      draggable: '.landing-ui-form-menuitem',
 	      dragElement: '.landing-ui-form-header-drag-button',
 	      type: ui_draganddrop_draggable.Draggable.DROP_PREVIEW,
 	      depth: {
 	        margin: 20
+	      },
+	      offset: {
+	        y: -65
 	      }
 	    });
 	    _this.onMenuItemRemove = _this.onMenuItemRemove.bind(babelHelpers.assertThisInitialized(_this));

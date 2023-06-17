@@ -21,7 +21,7 @@ if (!\Bitrix\Main\Loader::includeModule('sale'))
 $ebay = \Bitrix\Sale\TradingPlatform\Ebay\Ebay::getInstance();
 
 if(!$ebay->isActive())
-	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=".LANG."&back_url=".urlencode($APPLICATION->GetCurPageParam()));
+	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=" . LANGUAGE_ID . "&back_url=".urlencode($APPLICATION->GetCurPageParam()));
 
 $errorMsg = "";
 $bSaved = false;
@@ -158,7 +158,7 @@ $policy = null;
 $APPLICATION->SetTitle(Loc::getMessage("SALE_EBAY_TITLE"));
 \Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/ebay_admin.js", true);
 
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once ($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 if($errorMsg <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>$errorMsg, "TYPE"=>"ERROR", "HTML" => true));

@@ -23,8 +23,21 @@
 
 		this.overlay.classList.add("landing-ui-panel-image");
 		this.title.appendChild(this.headerButtonsField.layout);
-		document.body.appendChild(this.layout);
+
 		this.title.innerText = BX.Landing.Loc.getMessage("LANDING_IMAGE_LIBRARY_PANEL_TITLE");
+
+		if (BX.Landing.Main.isEditorMode())
+		{
+			if (BX.Landing.Main.isExternalControlsEnabled() || window.parent && (window.parent !== top))
+			{
+				window.parent.document.body.appendChild(this.layout);
+				return;
+			}
+		}
+
+		this.overlay.parentNode.removeChild(this.overlay);
+		document.body.appendChild(this.overlay);
+		document.body.appendChild(this.layout);
 	};
 
 

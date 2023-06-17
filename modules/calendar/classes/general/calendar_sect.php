@@ -1,5 +1,8 @@
 <?
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
@@ -347,65 +350,34 @@ class CCalendarSect
 		{
 			$sectId = $section['ID'];
 			$userId = CCalendar::GetUserId();
-			$isOwner = $section['CAL_TYPE'] === 'user' && (int)$section['OWNER_ID'] === $userId;
 
-			$isManager = Loader::includeModule('intranet')
-				&& $section['CAL_TYPE'] === 'user'
-				&& $settings['dep_manager_sub']
-				&& Bitrix\Calendar\Util::isManagerForUser($userId, $section['OWNER_ID']);
+			$accessController = new SectionAccessController($userId);
+			$sectionModel = SectionModel::createFromArray($section);
 
-			if(
-				$isOwner
-				|| $isManager
-				|| self::CanDo('calendar_view_time', $sectId, $userId))
+			$request = [
+				ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME => [],
+				ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE => [],
+				ActionDictionary::ACTION_SECTION_EVENT_VIEW_FULL => [],
+				ActionDictionary::ACTION_SECTION_ADD => [],
+				ActionDictionary::ACTION_SECTION_EDIT => [],
+				ActionDictionary::ACTION_SECTION_ACCESS => [],
+			];
+
+			$result = $accessController->batchCheck($request, $sectionModel);
+
+			if ($result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME])
 			{
-				$canView = CCalendarType::CanDo('calendar_type_view', $section['CAL_TYPE']);
-
 				$section['PERM'] = [
-					'view_time' => false,
-					'view_title' => false,
-					'view_full' => false,
-					'add' => false,
-					'edit' => false,
-					'edit_section' => false,
-					'access' => false,
+					'view_time' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME],
+					'view_title' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE],
+					'view_full' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_FULL],
+					'add' => $result[ActionDictionary::ACTION_SECTION_ADD],
+					'edit' => $result[ActionDictionary::ACTION_SECTION_EDIT],
+					'edit_section' => $result[ActionDictionary::ACTION_SECTION_EDIT],
+					'access' => $result[ActionDictionary::ACTION_SECTION_ACCESS],
 				];
 
-				if ($canView)
-				{
-					$section['PERM'] = [
-						'view_time' => $isManager
-							|| $isOwner
-							|| self::CanDo('calendar_view_time', $sectId, $userId),
-						'view_title' => $isManager
-							|| $isOwner
-							|| self::CanDo('calendar_view_title', $sectId, $userId),
-						'view_full' => $isManager
-							|| $isOwner
-							|| self::CanDo('calendar_view_full', $sectId, $userId),
-					];
-				}
-
-				$canEdit = CCalendarType::CanDo('calendar_type_edit', $section['CAL_TYPE']);
-
-				if ($canView && $canEdit)
-				{
-					$section['PERM']['add'] = $isOwner
-						|| self::CanDo('calendar_add', $sectId, $userId);
-					$section['PERM']['edit'] = $isOwner
-						|| self::CanDo('calendar_edit', $sectId, $userId);
-					$section['PERM']['edit_section'] = $isOwner
-						|| self::CanDo('calendar_edit_section', $sectId, $userId);
-				}
-
-				$hasFullAccess = CCalendarType::CanDo('calendar_type_edit_access', $section['CAL_TYPE']);
-
-				if ($hasFullAccess || $isOwner)
-				{
-					$section['PERM']['access'] = $isOwner || self::CanDo('calendar_edit_access', $sectId, $userId);
-				}
-
-				if (($getPermissions || $isOwner || self::CanDo('calendar_edit_access', $sectId, $userId)) || $section['CAL_TYPE'] === 'location')
+				if ($getPermissions || $section['PERM']['access'] || $section['CAL_TYPE'] === 'location')
 				{
 					$section['ACCESS'] = [];
 					if (
@@ -423,6 +395,7 @@ class CCalendarSect
 				$res[] = $section;
 			}
 		}
+
 		return $res;
 	}
 
@@ -605,17 +578,34 @@ class CCalendarSect
 				$sectId = $sect['ID'];
 				$ownerId = $sect['OWNER_ID'];
 
-				if (self::CanDo('calendar_view_time', $sectId) && !in_array($sectId, $sectIds))
+				$accessController = new SectionAccessController($userId);
+				$sectionModel =
+					SectionModel::createFromId((int)$sectId)
+						->setType($sect['CAL_TYPE'])
+						->setOwnerId((int)$ownerId)
+				;
+				$request = [
+					ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME => [],
+					ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE => [],
+					ActionDictionary::ACTION_SECTION_EVENT_VIEW_FULL => [],
+					ActionDictionary::ACTION_SECTION_ADD => [],
+					ActionDictionary::ACTION_SECTION_EDIT => [],
+					ActionDictionary::ACTION_SECTION_ACCESS => [],
+				];
+
+				$result = $accessController->batchCheck($request, $sectionModel);
+
+				if ($result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME] && !in_array($sectId, $sectIds))
 				{
-					$sect['PERM'] = array(
-						'view_time' => self::CanDo('calendar_view_time', $sectId),
-						'view_title' => self::CanDo('calendar_view_title', $sectId),
-						'view_full' => self::CanDo('calendar_view_full', $sectId),
-						'add' => self::CanDo('calendar_add', $sectId),
-						'edit' => self::CanDo('calendar_edit', $sectId),
-						'edit_section' => self::CanDo('calendar_edit_section', $sectId),
-						'access' => self::CanDo('calendar_edit_access', $sectId),
-					);
+					$sect['PERM'] = [
+						'view_time' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME],
+						'view_title' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE],
+						'view_full' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_FULL],
+						'add' => $result[ActionDictionary::ACTION_SECTION_ADD],
+						'edit' => $result[ActionDictionary::ACTION_SECTION_EDIT],
+						'edit_section' => $result[ActionDictionary::ACTION_SECTION_EDIT],
+						'access' => $result[ActionDictionary::ACTION_SECTION_ACCESS],
+					];
 
 					if ($sect['CAL_TYPE'] === 'user')
 					{
@@ -733,13 +723,12 @@ class CCalendarSect
 		//SaveAccess
 		if ($id > 0 && isset($sectionFields['ACCESS']) && is_array($sectionFields['ACCESS']))
 		{
-			if (
-				(
-					$sectionFields['CAL_TYPE'] === 'user'
-					&& (int)$sectionFields['OWNER_ID'] === (int)$userId
-				)
-				|| self::CanDo('calendar_edit_access', $id)
-			)
+			$sectionModel =
+				SectionModel::createFromId($id)
+					->setType($sectionFields['CAL_TYPE'])
+					->setOwnerId((int)($sectionFields['OWNER_ID'] ?? null))
+			;
+			if ((new SectionAccessController($userId))->check(ActionDictionary::ACTION_SECTION_ACCESS, $sectionModel))
 			{
 				if (empty($sectionFields['ACCESS']))
 				{
@@ -836,14 +825,15 @@ class CCalendarSect
 	public static function Delete($id, $checkPermissions = true, $params = [])
 	{
 		global $DB;
-		if ($checkPermissions !== false && !self::CanDo('calendar_edit_section', $id))
+		$id = (int)$id;
+
+		$sectionFields = self::GetById($id);
+		$canEdit = $sectionFields['PERM']['edit'] ?? false;
+		if ($checkPermissions !== false && !$canEdit)
 		{
 			return CCalendar::ThrowError('EC_ACCESS_DENIED');
 		}
 
-		$id = (int)$id;
-
-		$sectionFields = self::GetById($id);
 		$meetingIds = [];
 		if (Util::isSectionStructureConverted())
 		{
@@ -970,7 +960,7 @@ class CCalendarSect
 			{
 				$arFields['NECESSITY'] = 'N';
 				$arFields['CAPACITY'] = 0;
-//TODO test this
+
 				$builder = new \Bitrix\Calendar\Core\Builders\Rooms\RoomBuilderFromArray($arFields);
 				$room = $builder->build();
 
@@ -1135,6 +1125,15 @@ class CCalendarSect
 			$userId = CCalendar::GetCurUserId();
 		}
 
+		if ((int)$sectId && (int)$userId && !self::$bClearOperationCache)
+		{
+			$sectionPermKey = $userId . '|' . $sectId;
+			if (isset(self::$userSectionPermissions[$sectionPermKey]))
+			{
+				return self::$userSectionPermissions[$sectionPermKey];
+			}
+		}
+
 		$codes = Util::getUserAccessCodes($userId);
 
 		$key = $sectId.'|'.implode(',', $codes);
@@ -1164,6 +1163,8 @@ class CCalendarSect
 			$sectionPermKey = $userId . '|' . $sectId;
 			self::$userSectionPermissions[$sectionPermKey] = self::$arOp[$key];
 		}
+
+		self::$bClearOperationCache = false;
 
 		return self::$arOp[$key];
 	}
@@ -1839,10 +1840,10 @@ class CCalendarSect
 		return $count;
 	}
 
-	public static function GetSectionIdByEventId($id)
+	public static function GetSectionByEventId($id)
 	{
 		$resDb = EventTable::getList([
-			'select' => ['SECTION_ID',],
+			'select' => ['SECTION_ID', 'OWNER_ID', 'CAL_TYPE'],
 			'filter' => ['ID' => $id],
 		]);
 

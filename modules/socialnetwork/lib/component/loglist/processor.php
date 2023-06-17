@@ -2,6 +2,7 @@
 
 namespace Bitrix\Socialnetwork\Component\LogList;
 
+use Bitrix\Crm\Activity\Provider\Tasks\Task;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -337,7 +338,10 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			$this->setFilterKey('EVENT_ID', [ $params['EXACT_EVENT_ID'] ]);
 			$turnFollowModeOff = true;
 		}
-		elseif (is_array($params['EVENT_ID']))
+		elseif (
+			isset($params['EVENT_ID'])
+			&& is_array($params['EVENT_ID'])
+		)
 		{
 			if (!in_array('all', $params['EVENT_ID'], true))
 			{
@@ -354,7 +358,10 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 				$turnFollowModeOff = true;
 			}
 		}
-		elseif ($params['EVENT_ID'] <> '')
+		elseif (
+			isset($params['EVENT_ID'])
+			&& $params['EVENT_ID'] <> ''
+		)
 		{
 			$this->setFilterKey('EVENT_ID', \CSocNetLogTools::findFullSetByEventID($params['EVENT_ID']));
 			$turnFollowModeOff = true;
@@ -561,7 +568,7 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			&& (int)$params['LOG_ID'] <= 0
 			&& (
 				$request->get('useBXMainFilter') === 'Y'
-				|| $params['useBXMainFilter'] === 'Y'
+				|| (($params['useBXMainFilter'] ?? '') === 'Y')
 			)
 		)
 		{
@@ -667,15 +674,15 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			}
 
 			if (
-				is_numeric($filterData['TAG'])
-				|| !empty(trim($filterData['TAG']))
+				is_numeric($filterData['TAG'] ?? null)
+				|| !empty(trim($filterData['TAG'] ?? ''))
 			)
 			{
 				$filtered = true;
 				$this->setFilterKey('=TAG', trim($filterData['TAG']));
 			}
 
-			$this->setFilterContent(trim($filterData['FIND']));
+			$this->setFilterContent(trim($filterData['FIND'] ?? ''));
 			$findValue = (string)$this->getFilterContent();
 			if ($findValue !== '')
 			{
@@ -1077,38 +1084,46 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 				[],
 				[
 					'@ID' => array_keys($activity2LogList),
-					'TYPE_ID' => \CCrmActivityType::Task,
 					'CHECK_PERMISSIONS' => 'N'
 				],
 				false,
 				false,
-				[ 'ID', 'ASSOCIATED_ENTITY_ID' ]
+				['ID', 'ASSOCIATED_ENTITY_ID', 'TYPE_ID', 'PROVIDER_ID']
 			);
 			while (
 				($activityFields = $res->fetch())
 				&& ((int)$activityFields['ASSOCIATED_ENTITY_ID'] > 0)
 			)
 			{
-				try
+				if (
+					(int)$activityFields['TYPE_ID'] === \CCrmActivityType::Task
+					|| (
+						(int)$activityFields['TYPE_ID'] === \CCrmActivityType::Provider
+						&& $activityFields['PROVIDER_ID'] === Task::getId()
+					)
+				)
 				{
-					$taskItem = new \CTaskItem((int)$activityFields['ASSOCIATED_ENTITY_ID'], $result['currentUserId']);
-					if (!$taskItem->checkCanRead())
+					try
 					{
-						$activity2LogList = $this->getComponent()->getActivity2LogListValue();
-						unset($activity2LogList[$activityFields['ID']]);
-						$this->getComponent()->setActivity2LogListValue($activity2LogList);
-						unset($activity2LogList);
+						$taskItem = new \CTaskItem((int)$activityFields['ASSOCIATED_ENTITY_ID'], $result['currentUserId']);
+						if (!$taskItem->checkCanRead())
+						{
+							$activity2LogList = $this->getComponent()->getActivity2LogListValue();
+							unset($activity2LogList[$activityFields['ID']]);
+							$this->getComponent()->setActivity2LogListValue($activity2LogList);
+							unset($activity2LogList);
+						}
+						else
+						{
+							$task2LogList = $this->getComponent()->getTask2LogListValue();
+							$task2LogList[(int)$activityFields['ASSOCIATED_ENTITY_ID']] = (int)$activity2LogList[$activityFields['ID']];
+							$this->getComponent()->setTask2LogListValue($task2LogList);
+							unset($task2LogList);
+						}
 					}
-					else
+					catch (\CTaskAssertException $e)
 					{
-						$task2LogList = $this->getComponent()->getTask2LogListValue();
-						$task2LogList[(int)$activityFields['ASSOCIATED_ENTITY_ID']] = (int)$activity2LogList[$activityFields['ID']];
-						$this->getComponent()->setTask2LogListValue($task2LogList);
-						unset($task2LogList);
 					}
-				}
-				catch (\CTaskAssertException $e)
-				{
 				}
 			}
 		}

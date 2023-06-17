@@ -18,7 +18,7 @@ if ($saleModulePermissions == "D")
 
 if(!CBXFeatures::IsFeatureEnabled('SaleRecurring'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -135,8 +135,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 						else
 							$lAdmin->AddGroupError(str_replace("#ID#", $ID, GetMessage("SRA_ERROR_DELETE")), $ID);
 					}
-
-					$DB->Commit();
+					else
+					{
+						$DB->Commit();
+					}
 				}
 				else
 				{
@@ -235,7 +237,7 @@ while ($arRecurring = $dbResultList->NavNext(false))
 	else
 		$fieldValue = GetMessage("SRA_UNSECCESS").$arRecurring["REMAINING_ATTEMPTS"]."";
 	$row->AddField("SUCCESS_PAYMENT", $fieldValue);
-	
+
 	$arActions = Array();
 	$arActions[] = array(
 		"ICON" => "edit",

@@ -952,12 +952,24 @@ this.BX = this.BX || {};
 	      if (this.entry.isResourcebooking()) {
 	        return false;
 	      }
+	      if (this.entry.permissions) {
+	        var _this$entry$permissio;
+	        return (_this$entry$permissio = this.entry.permissions) == null ? void 0 : _this$entry$permissio['edit'];
+	      }
 	      return section.canDo('edit');
 	    }
 	    if (action === 'view') {
+	      if (this.entry.permissions) {
+	        var _this$entry$permissio2;
+	        return (_this$entry$permissio2 = this.entry.permissions) == null ? void 0 : _this$entry$permissio2['view_time'];
+	      }
 	      return section.canDo('view_time');
 	    }
 	    if (action === 'viewFull') {
+	      if (this.entry.permissions) {
+	        var _this$entry$permissio3;
+	        return (_this$entry$permissio3 = this.entry.permissions) == null ? void 0 : _this$entry$permissio3['view_full'];
+	      }
 	      return section.canDo('view_full');
 	    }
 	    if (action === 'release') {

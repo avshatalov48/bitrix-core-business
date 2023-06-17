@@ -41,7 +41,7 @@ $arBanSym = str_split($strBanSym,1);
 $strRepSym = trim($_REQUEST['REP_SYM']);
 $arRepSym = array_fill(0,sizeof($arBanSym),$strRepSym);
 
-if ($_REQUEST['MODE'] == 'section')
+if (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'section')
 {
 	$arResult = array();
 	$SECTION_ID = intval($_REQUEST['SECTION_ID']);
@@ -72,7 +72,7 @@ if ($_REQUEST['MODE'] == 'section')
 	echo CUtil::PhpToJsObject(array("SECTION_ID" => intval($SECTION_ID), "arElements" => $arResult));
 	die();
 }
-elseif ($_REQUEST['MODE'] == 'search')
+elseif (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'search')
 {
 	$arResult = array();
 
@@ -144,7 +144,7 @@ if(isset($_REQUEST['value']))
 	}
 	$arValues = $arTempo;
 
-	if(count($arValues) > 0)
+	if(!empty($arValues))
 	{
 		$rsElements = CIBlockElement::GetList(
 			array(),
@@ -233,7 +233,7 @@ document.getElementById('<?echo $win_id?>').__object.InitControl('bx_emp_search_
 	echo '</div>';
 
 
-	if (count($arStructure[0]) <= 1 && count($arOpenedSections) <= 0)
+	if (count($arStructure[0]) <= 1 && empty($arOpenedSections))
 	{
 		$arOpenedSections[] = $arStructure[0][0];
 	}
@@ -242,7 +242,7 @@ document.getElementById('<?echo $win_id?>').__object.InitControl('bx_emp_search_
 <script>
 var WIN_ID = document.getElementById('<?echo $win_id?>');
 <?
-	if (count($arOpenedSections) > 0)
+	if (!empty($arOpenedSections))
 	{
 		$arSectionList = array();
 		foreach ($arOpenedSections as $opened_section)

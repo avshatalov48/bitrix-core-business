@@ -4,6 +4,7 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridServiceForm;
+use Bitrix\Catalog\Component\GridVariation\InitSkuCollectionFromParams;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
@@ -28,6 +29,7 @@ class CatalogProductServiceGridComponent
 	implements Controllerable, Errorable
 {
 	use ErrorableImplementation;
+	use InitSkuCollectionFromParams;
 
 	public const HEADER_EMPTY_PROPERTY_COLUMN = 'EMPTY_PROPERTIES';
 
@@ -84,6 +86,8 @@ class CatalogProductServiceGridComponent
 	{
 		if ($this->product === null && $this->arParams['IBLOCK_ID'] > 0)
 		{
+			$isLoadRowsFromParams = !empty($this->arParams['~ROWS']) && is_array($this->arParams['~ROWS']);
+
 			if ($this->arParams['PRODUCT_ID'] > 0)
 			{
 				$productRepository = ServiceContainer::getProductRepository($this->arParams['IBLOCK_ID']);
@@ -154,13 +158,22 @@ class CatalogProductServiceGridComponent
 						}
 					}
 
-					if ($skuCollection->isEmpty())
+					if ($skuCollection->isEmpty() && !$isLoadRowsFromParams)
 					{
 						$skuCollection->create();
 					}
 
 					$this->initializeExternalProductFields($this->product);
 				}
+			}
+
+			if ($isLoadRowsFromParams)
+			{
+				$this->initFieldsSkuCollectionItems(
+					$this->product->getSkuCollection(),
+					$this->arParams['~ROWS'],
+					true
+				);
 			}
 		}
 
@@ -275,13 +288,15 @@ class CatalogProductServiceGridComponent
 
 	protected function initializeVariantsGrid()
 	{
-		$this->getDefaultVariationRowForm();
+		$form = $this->getDefaultVariationRowForm();
+
 		//$this->arResult['CAN_HAVE_SKU'] = $this->canHaveSku();
 		$this->arResult['CAN_HAVE_SKU'] = false;
 		$this->arResult['PROPERTY_MODIFY_LINK'] = $this->getPropertyModifyLink();
 		$this->arResult['PROPERTY_COPY_LINK'] = $this->getProductCopyLink();
 		$this->arResult['GRID'] = $this->getGridData();
 		$this->arResult['RESERVED_DEALS_SLIDER_LINK'] = $this->getReservedDealsSliderLink();
+		$this->arResult['SUPPORTED_AJAX_FIELDS'] = $form ? $form->getGridSupportedAjaxColumns() : [];
 	}
 
 	public function getGridId(): ?string
@@ -407,9 +422,14 @@ class CatalogProductServiceGridComponent
 			$propertyPrefix = $defaultForm::preparePropertyName();
 			$defaultSkuProperties = array_filter(
 				$editData['template_0'],
-				static function ($value, $name) use ($propertyPrefix) {
-					return mb_strpos($name, $propertyPrefix) === 0 && mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false;
-				}, ARRAY_FILTER_USE_BOTH
+				static function ($value, $name) use ($propertyPrefix)
+				{
+					return
+						mb_strpos($name, $propertyPrefix) === 0
+						&& mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false
+					;
+				},
+				ARRAY_FILTER_USE_BOTH
 			);
 		}
 
@@ -425,8 +445,12 @@ class CatalogProductServiceGridComponent
 				{
 					$productPropertiesKeys = array_filter(
 						$row['data'],
-						static function ($value, $name) use ($propertyPrefix) {
-							return mb_strpos($name, $propertyPrefix) === 0 && mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false;
+						static function ($value, $name) use ($propertyPrefix)
+						{
+							return
+								mb_strpos($name, $propertyPrefix) === 0
+								&& mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false
+							;
 						},
 						ARRAY_FILTER_USE_BOTH
 					);

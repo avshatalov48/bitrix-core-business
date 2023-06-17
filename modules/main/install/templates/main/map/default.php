@@ -130,10 +130,7 @@ print_r($levels);
 	{
 		if ($map[$iCurrent]["ID"] == $map[$i]["PARENT_ID"])
 		{
-			if ($map[$iCurrent]["IS_DIR"]=="Y")
-			{
-				$sfch .= FindChild($map, $i);
-			}
+			$sfch .= FindChild($map, $i);
 			array_splice($map, $i, 1);
 			$i--;
 		}
@@ -187,7 +184,7 @@ $arAllMenu = array();
 function GetMapChilds($PARENT_PATH, $PARENT_ID)
 {
 	global $level, $counter, $map, $APPLICATION, $strFolders, $arrChildMenu, $arAllMenu, $USER;
-	if (is_array($arrChildMenu) && count($arrChildMenu)>0)
+	if (is_array($arrChildMenu) && !empty($arrChildMenu))
 	{
 		$arrChildMenuX = $arrChildMenu;
 		reset($arrChildMenuX);
@@ -303,11 +300,11 @@ if ($cache_map->InitCache($GLOBALS["MAP_CACHE_TIME"], $CACHE_ID, "/map/"))
 	$arrMAP = $vars["MAP"];
 	$MAP_COUNTER = count($arrMAP);
 	reset($arrMAP);
-	if (is_array($arrMAP) && count($arrMAP)>0)
+	if (is_array($arrMAP) && !empty($arrMAP))
 	{
 		foreach ($arrMAP as $arM)
 		{
-			if (is_array($arM) && count($arM)>0)
+			if (is_array($arM) && !empty($arM))
 			{
 				reset($arM);
 				foreach ($arM as $ar)
@@ -330,7 +327,7 @@ else
 		}
 	}
 	$i = 0;
-	if(is_array($arrMainMenu) && count($arrMainMenu)>0)
+	if(is_array($arrMainMenu) && !empty($arrMainMenu))
 	{
 		foreach($arrMainMenu as $mmenu)
 		{
@@ -397,7 +394,7 @@ if (!isset($_SESSION["SESS_UNFOLDED"])) $unfolded_arr = explode(",", $strFolders
 
 for ($j=1; $j<=$MAP_COUNTER; $j++)
 {
-	if (count($arrMAP[$j])>0)
+	if (!empty($arrMAP[$j]))
 	{
 		$arM = $arrMAP[$j];
 		$PARENT_ID = $arM[0]["PARENT_ID"];

@@ -6,17 +6,26 @@ if(!CModule::IncludeModule("iblock"))
 
 $boolCatalog = CModule::IncludeModule("catalog");
 
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $arIBlock = array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(array("SORT" => "ASC"), $iblockFilter);
 while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 
 $arProperty_LNS = array();
 $arProperty_N = array();
 $arProperty_X = array();
-if (0 < intval($arCurrentValues["IBLOCK_ID"]))
+if ($iblockExists)
 {
 	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"], "ACTIVE"=>"Y"));
 	while ($arr=$rsProp->Fetch())
@@ -68,7 +77,11 @@ $arAscDesc = array(
 );
 
 $arProperty_UF = array();
-$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION");
+$arUserFields =
+	$iblockExists
+		? $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION")
+		: []
+;
 foreach($arUserFields as $FIELD_NAME=>$arUserField)
 	$arProperty_UF[$FIELD_NAME] = $arUserField["LIST_COLUMN_LABEL"]? $arUserField["LIST_COLUMN_LABEL"]: $FIELD_NAME;
 

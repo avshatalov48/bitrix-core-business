@@ -4,7 +4,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-IncludeModuleLangFile(__FILE__); 
+IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_smile_gallery";
 
@@ -23,7 +23,7 @@ if ($arID = $lAdmin->GroupAction())
 		if ($ID == '')
 			continue;
 
-		if ($_REQUEST['action'] == 'delete')
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'delete')
 		{
 			$arSmileSet = CSmileGallery::getById($ID);
 			if ($arSmileSet["STRING_ID"] != 'bitrix')

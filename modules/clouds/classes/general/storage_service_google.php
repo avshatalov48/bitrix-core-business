@@ -883,7 +883,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			$stime = microtime(1);
 			$logRequest = array(
 				"request_id" => md5((string)mt_rand()),
-				"portal" => (CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HTTP_HOST"]),
+				"portal" => $_SERVER["HTTP_HOST"],
 				"verb" => $this->verb,
 				"url" => $this->url,
 			);
@@ -896,7 +896,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 		$this->status = $request->getStatus();
 		foreach($request->getHeaders() as $key => $value)
 		{
-			$this->headers[$key] = $value;
+			$this->headers[$key] = is_array($value) ? $value[0] : $value;
 		}
 		$this->errstr = implode("\n", $request->getError());
 		$this->errno = $this->errstr? 255: 0;

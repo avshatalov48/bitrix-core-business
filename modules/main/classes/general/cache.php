@@ -17,9 +17,7 @@ interface ICacheBackend
 
 class CPHPCache
 {
-	/**
-	 * @var Bitrix\Main\Data\Cache
-	 */
+	/** @var Bitrix\Main\Data\Cache */
 	private $cache;
 
 	public function __construct()
@@ -102,7 +100,7 @@ class CPageCache
 	var $_cache;
 	var $filename;
 	var $content;
-	var $TTL;
+	var $ttl;
 	var $bStarted = false;
 	var $uniq_str = false;
 	var $basedir;
@@ -154,7 +152,7 @@ class CPageCache
 		$this->basedir = BX_PERSONAL_ROOT."/".$basedir."/";
 		$this->initdir = $initdir;
 		$this->filename = "/".CPageCache::GetPath($uniq_str);
-		$this->TTL = $TTL;
+		$this->ttl = $TTL;
 		$this->uniq_str = $uniq_str;
 
 		if($TTL<=0)
@@ -166,7 +164,7 @@ class CPageCache
 			{
 				if(mb_strtoupper($_GET["clear_cache_session"]) == "Y")
 					\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"] = "Y";
-				elseif($_GET["clear_cache_session"] <> '')
+				elseif (!empty($_GET["clear_cache_session"]))
 					unset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"]);
 			}
 
@@ -177,7 +175,7 @@ class CPageCache
 		if(isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"]) && \Bitrix\Main\Application::getInstance()->getSession()["SESS_CLEAR_CACHE"] == "Y")
 			return false;
 
-		if(!$this->_cache->read($this->content, $this->basedir, $this->initdir, $this->filename, $this->TTL))
+		if(!$this->_cache->read($this->content, $this->basedir, $this->initdir, $this->filename, $this->ttl))
 			return false;
 
 //		$GLOBALS["CACHE_STAT_BYTES"] += $this->_cache->read;
@@ -243,7 +241,7 @@ class CPageCache
 
 		$arAllVars = ob_get_contents();
 
-		$this->_cache->write($arAllVars, $this->basedir, $this->initdir, $this->filename, $this->TTL);
+		$this->_cache->write($arAllVars, $this->basedir, $this->initdir, $this->filename, $this->ttl);
 
 		if (\Bitrix\Main\Data\Cache::getShowCacheStat())
 		{
@@ -669,7 +667,7 @@ class CStackCacheManager
 		if (!$this->eventHandlerAdded)
 		{
 			AddEventHandler("main", "OnEpilog", array("CStackCacheManager", "SaveAll"));
-			$this->eventHandlerAdded = True;
+			$this->eventHandlerAdded = true;
 		}
 
 		if($length <= 0 && isset($this->cacheLen[$entity]))
@@ -694,7 +692,7 @@ class CStackCacheManager
 	}
 
 	//NO ONE SHOULD NEVER EVER USE INTEGER $id HERE
-	function Clear($entity, $id = False)
+	function Clear($entity, $id = false)
 	{
 		if (defined("BITRIX_SKIP_STACK_CACHE") && BITRIX_SKIP_STACK_CACHE)
 			return;
@@ -702,7 +700,7 @@ class CStackCacheManager
 		if (!array_key_exists($entity, $this->cache))
 			$this->Load($entity);
 
-		if ($id !== False)
+		if ($id !== false)
 			$this->cache[$entity]->DeleteEntry($id);
 		else
 			$this->cache[$entity]->Clean();
@@ -721,7 +719,7 @@ class CStackCacheManager
 	function Exist($entity, $id)
 	{
 		if (defined("BITRIX_SKIP_STACK_CACHE") && BITRIX_SKIP_STACK_CACHE)
-			return False;
+			return false;
 
 		if (!array_key_exists($entity, $this->cache))
 			$this->Load($entity);
@@ -733,7 +731,7 @@ class CStackCacheManager
 	function Get($entity, $id)
 	{
 		if (defined("BITRIX_SKIP_STACK_CACHE") && BITRIX_SKIP_STACK_CACHE)
-			return False;
+			return false;
 
 		if (!array_key_exists($entity, $this->cache))
 			$this->Load($entity);

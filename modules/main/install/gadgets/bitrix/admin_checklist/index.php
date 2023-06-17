@@ -24,9 +24,9 @@ else
 	if ($arReports)
 	{
 		$arReport = $arReports->GetNext();
-		$arReportData = new CCheckList($arReport["ID"]);
+		$arReportData = new CCheckList(is_array($arReport) ? $arReport["ID"] : false);
 		$arReportInfo = $arReportData->GetReportInfo();
-		$arStat = $arReportInfo["STAT"];
+		$arStat = $arReportInfo["STAT"] ?? [];
 //		if ($arReportInfo["INFO"]["PICTURE"])
 //			$arPictureSrc = CFile::GetPath($arReportInfo["INFO"]["PICTURE"]);
 

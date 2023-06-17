@@ -20,7 +20,7 @@ use Bitrix\Rest\PlacementTable;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-if($arParams["APP_VIEW"])
+if(isset($arParams["APP_VIEW"]) && $arParams["APP_VIEW"])
 {
 	$appInfo = \Bitrix\Rest\AppTable::getByClientId($arParams["APP_VIEW"]);
 	if(
@@ -85,6 +85,7 @@ if($arParams['ID'] <= 0)
 		$arVariables = array();
 
 		$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"]);
+		$arParams["VARIABLE_ALIASES"] = $arParams["VARIABLE_ALIASES"] ?? null;
 		$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"]);
 
 		$componentPage = CComponentEngine::ParseComponentPath(
@@ -118,7 +119,8 @@ if($arParams['ID'] <= 0)
 	}
 
 	if (
-		(int)$arVariables['placement_id'] > 0
+		isset($arVariables['placement_id'])
+		&& (int)$arVariables['placement_id'] > 0
 		&& (string)(int)$arVariables['placement_id'] === (string)$arVariables['placement_id']
 	)
 	{
@@ -162,9 +164,9 @@ if(!\Bitrix\Main\Loader::includeModule("rest"))
 	return;
 }
 
-$arParams['INITIALIZE'] = $arParams['INITIALIZE']  == 'N' ? 'N' : 'Y';
+$arParams['INITIALIZE'] = (isset($arParams['INITIALIZE']) && $arParams['INITIALIZE'] === 'N')  ? 'N' : 'Y';
 
-$arParams['DETAIL_URL'] = isset($arParams['DETAIL_URL']) ? trim($arParams['DETAIL_URL']) : '/marketplace/detail/#code#/';
+$arParams['DETAIL_URL'] = isset($arParams['DETAIL_URL']) ? trim($arParams['DETAIL_URL']) : '/marketplace/detail/#code#/?from=app_layout';
 $arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? ToUpper($arParams['PLACEMENT']) : PlacementTable::PLACEMENT_DEFAULT;
 $arParams['PLACEMENT_OPTIONS'] = isset($arParams['PLACEMENT_OPTIONS']) ? $arParams['PLACEMENT_OPTIONS'] : '';
 $arResult['SUBSCRIPTION_FINISH'] = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
@@ -180,7 +182,7 @@ if ($arParams['PLACEMENT'] === PlacementTable::PLACEMENT_DEFAULT && empty($arPar
 		{
 			$requestOptions = array_merge($requestOptions, $_REQUEST['param']);
 		}
-		$arParams['PARENT_SID'] = $_REQUEST['parentsid'];
+		$arParams['PARENT_SID'] = $_REQUEST['parentsid'] ?? null;
 	}
 
 	$deniedParam = \Bitrix\Main\HttpRequest::getSystemParameters();
@@ -413,11 +415,13 @@ if(
 		}
 
 		$dateFinish = $arApp['DATE_FINISH'] ? $arApp['DATE_FINISH']->getTimestamp() : '';
+		$dateFinishAuth = $arResult['AUTH']['date_finish'] ?? null;
+		$authError = $arResult['AUTH']['error'] ?? null;
 		if(
-			!$arResult['AUTH']['error']
+			!$authError
 			&& (
 				$arResult['AUTH']['status'] !== $arApp['STATUS']
-				|| $arResult['AUTH']['date_finish'] != $dateFinish
+				|| $dateFinishAuth != $dateFinish
 			)
 		)
 		{
@@ -450,7 +454,7 @@ if(
 		$arResult['IS_ADMIN'] = \CRestUtil::isAdmin() || \CRestUtil::canInstallApplication($arApp);
 		$arResult['REST_PATH'] = \Bitrix\Main\Config\Option::get("rest", "server_path", "/rest");
 
-		if(!is_array($arResult['AUTH']) || $arResult['AUTH']['error'])
+		if(!is_array($arResult['AUTH']) || $authError)
 		{
 			$arResult['APP_STATUS']['PAYMENT_ALLOW'] = 'N';
 		}
@@ -565,12 +569,12 @@ if(
 
 		$p = parse_url($arResult['APP_URL']);
 		$arResult['APP_HOST'] = $p['host'];
-		$arResult['APP_PORT'] = $p['port'];
+		$arResult['APP_PORT'] = $p['port'] ?? null;
 		$arResult['APP_PROTO'] = $p['scheme'];
 
-		if($p['port'])
+		if($arResult['APP_PORT'])
 		{
-			$arResult['APP_HOST'] .= ':'.$p['port'];
+			$arResult['APP_HOST'] .= ':'.$arResult['APP_PORT'];
 		}
 
 		$arResult['CURRENT_HOST_SECURE'] = $request->isHttps();
@@ -598,7 +602,7 @@ if(
 			$APPLICATION->RestartBuffer();
 			$APPLICATION->ShowAjaxHead();
 		}
-		elseif($arParams['SET_TITLE'] !== 'N')
+		elseif(!isset($arParams['SET_TITLE']) || $arParams['SET_TITLE'] !== 'N')
 		{
 			$APPLICATION->SetTitle(htmlspecialcharsbx($arResult['APP_NAME']));
 		}

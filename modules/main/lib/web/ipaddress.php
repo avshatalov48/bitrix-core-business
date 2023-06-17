@@ -9,6 +9,8 @@
 
 namespace Bitrix\Main\Web;
 
+use Psr\Http\Message\UriInterface;
+
 class IpAddress
 {
 	protected $ip;
@@ -34,12 +36,12 @@ class IpAddress
 	}
 
 	/**
-	 * Creates the object by an Uri.
+	 * Creates the object by a Uri.
 	 *
-	 * @param Uri $uri
+	 * @param UriInterface $uri
 	 * @return static
 	 */
-	public static function createByUri(Uri $uri)
+	public static function createByUri(UriInterface $uri)
 	{
 		return static::createByName($uri->getHost());
 	}
@@ -52,6 +54,16 @@ class IpAddress
 	public function get()
 	{
 		return $this->ip;
+	}
+
+	/**
+	 * Returns address's value.
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->get();
 	}
 
 	/**

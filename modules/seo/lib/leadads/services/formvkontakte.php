@@ -47,6 +47,7 @@ class FormVkontakte extends LeadAds\Form
 		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_COUNTRY, 'ADS_NAME'=>'country'],
 		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_CITY, 'ADS_NAME'=>'city'],
 		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_STREET_ADDRESS, 'ADS_NAME'=>'address'],
+		['CRM_NAME' => LeadAds\Field::TYPE_INPUT, 'ADS_NAME'=>'question'],
 	];
 
 	protected static $fieldKeyPrefix = 'b24-seo-ads-';

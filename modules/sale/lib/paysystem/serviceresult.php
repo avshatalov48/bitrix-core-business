@@ -21,6 +21,8 @@ class ServiceResult extends Result
 	private $template = '';
 	private $paymentUrl = '';
 
+	private string $qr = '';
+
 	/**
 	 * @param array $psData
 	 */
@@ -100,6 +102,16 @@ class ServiceResult extends Result
 	public function setPaymentUrl($paymentUrl): void
 	{
 		$this->paymentUrl = $paymentUrl;
+	}
+
+	public function getQr(): string
+	{
+		return $this->qr;
+	}
+
+	public function setQr(string $qr): void
+	{
+		$this->qr = $qr;
 	}
 
 	/**

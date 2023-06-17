@@ -17,12 +17,12 @@ if (!empty($arResult["Smiles"]))
 	foreach($arResult["Smiles"] as $arSmile)
 	{
 		$arSmiles[] = array(
-			'name' => $arSmile["~LANG_NAME"],
+			'name' => $arSmile["~LANG_NAME"] ?? null,
 			'path' => "/bitrix/images/blog/smile/".$arSmile["IMAGE"],
-			'code' => str_replace("\\\\","\\",$arSmile["TYPE"]),
-			'codes' => str_replace("\\\\","\\",$arSmile["TYPING"]),
-			'width' => $arSmile["IMAGE_WIDTH"],
-			'height' => $arSmile["IMAGE_HEIGHT"],
+			'code' => str_replace("\\\\", "\\", $arSmile["TYPE"] ?? ''),
+			'codes' => str_replace("\\\\", "\\", $arSmile["TYPING"] ?? ''),
+			'width' => $arSmile["IMAGE_WIDTH"] ?? null,
+			'height' => $arSmile["IMAGE_HEIGHT"] ?? null,
 		);
 	}
 }
@@ -36,7 +36,7 @@ if (!empty($arResult["Smiles"]))
 		<input type="hidden" name="parentId" id="parentId" value="" />
 		<input type="hidden" name="edit_id" id="edit_id" value="" />
 		<input type="hidden" name="act" id="act" value="add" />
-		<input type="hidden" name="as" id="as" value="<?=$arParams['AVATAR_SIZE_COMMENT']?>" />
+		<input type="hidden" name="as" id="as" value="<?=$arParams['AVATAR_SIZE_COMMENT'] ?? null?>" />
 		<input type="hidden" name="post" id="" value="Y" />
 		<input type="hidden" name="blog_upload_cid" id="upload-cid" value="" />
 		<input type="hidden" name="decode" value="Y" />
@@ -50,7 +50,7 @@ $APPLICATION->IncludeComponent("bitrix:main.post.form",
 		"PARSER" => array(
 			"Bold", "Italic", "Underline", "Strike", "ForeColor",
 			"FontList", "FontSizeList", "RemoveFormat", "Quote",
-			"Code", ((!$arResult["NoCommentUrl"]) ? 'CreateLink' : ''),
+			"Code", ((!($arResult["NoCommentUrl"] ?? null)) ? 'CreateLink' : ''),
 			"Image", (($arResult["allowImageUpload"] === "Y") ? 'UploadImage' : ''),
 			(($arResult["allowVideo"] === "Y") ? "InputVideo" : ""),
 			"Table", "Justify", "InsertOrderedList",

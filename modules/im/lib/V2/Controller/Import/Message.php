@@ -6,6 +6,7 @@ use Bitrix\Im\Chat;
 use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Import\ImportError;
 use Bitrix\Im\V2\Import\ImportService;
+use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\CurrentUser;
 
@@ -25,6 +26,13 @@ class Message extends Controller
 
 	public function addAction(int $chatId, array $messages, CurrentUser $user): ?array
 	{
+		if (count($messages) > 2000)
+		{
+			$this->addError(new MessageError(MessageError::TOO_MANY_MESSAGES));
+
+			return null;
+		}
+
 		$chat = Chat::getById($chatId, ['CHECK_ACCESS' => 'N']);
 		if (!$chat)
 		{
@@ -56,6 +64,13 @@ class Message extends Controller
 
 	public function updateAction(array $messages, int $chatId, CurrentUser $user): ?array
 	{
+		if (count($messages) > 2000)
+		{
+			$this->addError(new MessageError(MessageError::TOO_MANY_MESSAGES));
+
+			return null;
+		}
+
 		$chat = Chat::getById($chatId, ['CHECK_ACCESS' => 'N']);
 		if (!$chat)
 		{

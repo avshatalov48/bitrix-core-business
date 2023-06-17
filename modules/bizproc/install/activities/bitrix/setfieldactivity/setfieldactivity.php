@@ -8,6 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @property-write string|null ErrorMessage */
 class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEventListener
 {
 	public function __construct($name)
@@ -17,8 +18,14 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			'Title' => '',
 			'FieldValue' => null,
 			'MergeMultipleFields' => 'N',
-			'ModifiedBy' => null
+			'ModifiedBy' => null,
+			//return
+			'ErrorMessage' => null,
 		];
+
+		$this->setPropertiesTypes([
+			'ErrorMessage' => ['Type' => 'string'],
+		]);
 	}
 
 	public function execute()
@@ -57,9 +64,16 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 		catch (Exception $e)
 		{
 			$this->writeToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+			$this->ErrorMessage = $e->getMessage();
 		}
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function reInitialize()
+	{
+		parent::reInitialize();
+		$this->ErrorMessage = null;
 	}
 
 	protected function prepareFieldsValues(
@@ -103,7 +117,8 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 
 					if ($value)
 					{
-						$value = $fieldTypeObject->externalizeValue('Document', $value);
+						$fieldTypeObject->setValue($value);
+						$value = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
 					}
 				}
 			}

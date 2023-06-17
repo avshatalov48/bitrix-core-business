@@ -133,8 +133,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SALE_DELETE_ERROR"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 

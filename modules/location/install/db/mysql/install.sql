@@ -73,10 +73,10 @@ CREATE TABLE IF NOT EXISTS b_location_source(
    PRIMARY KEY (`CODE`)
 );
 
-CREATE TABLE `b_location_area` (
+CREATE TABLE IF NOT EXISTS `b_location_area` (
    `ID` int NOT NULL AUTO_INCREMENT,
-   `TYPE` varchar(255) NOT NULL,
-   `CODE` varchar(255) DEFAULT NULL,
+   `TYPE` varchar(100) NOT NULL,
+   `CODE` varchar(100) DEFAULT NULL,
    `SORT` int NOT NULL,
    `GEOMETRY` longtext,
    PRIMARY KEY (`ID`),

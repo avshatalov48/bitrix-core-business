@@ -9,6 +9,7 @@ use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\ConferenceUserRoleTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\Settings;
+use Bitrix\Im\V2\Chat\ChatFactory;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\ArrayResult;
 use Bitrix\Main\Entity;
@@ -508,7 +509,7 @@ class Conference
 		$isPullNeeded = isset($updateData['VIDEOCONF']['IS_BROADCAST']) || isset($updateData['NEW_PRESENTERS']) || isset($updateData['DELETED_PRESENTERS']);
 		if ($isPullNeeded && Loader::includeModule("pull"))
 		{
-			$relations = \CIMChat::GetRelationById($this->getChatId());
+			$relations = \CIMChat::GetRelationById($this->getChatId(), false, true, false);
 			$pushMessage = [
 				'module_id' => 'im',
 				'command' => 'conferenceUpdate',
@@ -724,6 +725,7 @@ class Conference
 		$addData['ENTITY_DATA_1'] = $addData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? static::BROADCAST_MODE: '';
 
 		$currentUser = \Bitrix\Im\User::getInstance();
+		$addData['AUTHOR_ID'] = $currentUser->getId();
 
 		$addData['MANAGERS'] = [];
 		if ($addData['VIDEOCONF']['IS_BROADCAST'] === 'Y')
@@ -734,10 +736,8 @@ class Conference
 			}
 		}
 
-		$chat = new \CIMChat($currentUser->getId());
-		$chatId = $chat->Add($addData);
-
-		if (!$chatId)
+		$result = ChatFactory::getInstance()->addChat($addData);
+		if (!$result->isSuccess() || !$result->hasResult())
 		{
 			return $result->addError(
 				new Error(
@@ -747,9 +747,11 @@ class Conference
 			);
 		}
 
-		$result->setData(['CHAT_ID' => $chatId, 'ALIAS_DATA' => $addData['VIDEOCONF']['ALIAS_DATA']]);
-
-		return $result;
+		$chatResult = $result->getResult();
+		return $result->setData([
+			'CHAT_ID' => $chatResult['CHAT_ID'],
+			'ALIAS_DATA' => $addData['VIDEOCONF']['ALIAS_DATA']
+		]);
 	}
 
 	public static function getByAlias(string $alias)

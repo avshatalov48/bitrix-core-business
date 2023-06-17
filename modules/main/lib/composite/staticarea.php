@@ -90,7 +90,7 @@ class StaticArea
 	 */
 	public static function getDynamicArea($id)
 	{
-		return isset(self::$dynamicAreas[$id]) ? self::$dynamicAreas[$id] : null;
+		return self::$dynamicAreas[$id] ?? null;
 	}
 
 	/**

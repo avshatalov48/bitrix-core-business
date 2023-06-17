@@ -59,4 +59,24 @@ class WorkgroupPinTable extends Entity\DataManager
 			],
 		];
 	}
+
+	public static function getSelectExpression(): string
+	{
+		$tableName = static::getTableName();
+
+		return "
+			IF(
+				EXISTS(
+					SELECT 'x'
+					FROM {$tableName}
+					WHERE
+						GROUP_ID = %s
+						AND USER_ID = %s
+						AND CONTEXT = %s
+				),
+				'Y',
+				'N'
+			)
+		";
+	}
 }

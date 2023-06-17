@@ -256,7 +256,6 @@
 					}
 
 					BX.Landing.UI.Tool.ColorPicker.hideAll();
-					BX.Landing.UI.Button.FontAction.hideAll();
 				}
 
 				requestAnimationFrame(function() {
@@ -350,6 +349,11 @@
 				this.buttons = [];
 				this.buttons.push(this.getDesignButton());
 
+				if (BX.Landing.Main.getInstance()["options"]["allow_ai_text"])
+				{
+					this.buttons.push(this.getAiTextButton());
+				}
+
 				if (this.isHeader())
 				{
 					this.buttons.push(this.getChangeTagButton());
@@ -386,6 +390,83 @@
 			return this.designButton;
 		},
 
+		/**
+		 * Gets AI (text) button for editor
+		 * @return {BX.Landing.UI.Button.AiText}
+		 */
+		getAiTextButton: function()
+		{
+			if (!this.aiTextButton)
+			{
+				this.aiTextButton = new BX.Landing.UI.Button.AiText("ai_text", {
+					html: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT"),
+					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT")},
+					onClick: function() {
+						BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+
+						let repository = BX.Landing.Main.getInstance()["options"]["blocks"];
+						let sections = this.manifest.sections;
+						let startMessage = '';
+						let engineParameters = {
+						//	assistant_text: "friendly business tone"
+						};
+
+						// retrieve startMessage from settings' meta
+						for (let i = 0, c = sections.length; i < c; i++)
+						{
+							let section = sections[i];
+							if (repository[section] && repository[section]["meta"])
+							{
+								if (repository[section]["meta"]["ai_text_placeholder"])
+								{
+									startMessage = repository[section]["meta"]["ai_text_placeholder"];
+								}
+								if (repository[section]["meta"]["ai_text_max_tokens"])
+								{
+									engineParameters['max_tokens'] = parseInt(repository[section]["meta"]["ai_text_max_tokens"]);
+								}
+								/*if (repository[section]["meta"]["ai_text_assistant_text"])
+								{
+									engineParameters['assistant_text'] = repository[section]["meta"]["ai_text_assistant_text"];
+								}*/
+							}
+						}
+
+						if (!this.aiTextPicker)
+						{
+							let siteId = BX.Landing.Main.getInstance()["options"]["site_id"];
+							let picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
+
+							this.aiTextPicker = new picker({
+								/*startMessage: (startMessage.length > 0)
+									? startMessage
+									: "write {text, reviews,benefits} {for website}, {flower shop}, {family business}",*/
+								moduleId: "landing",
+								contextId: "text_site_" + siteId,
+								analyticLabel: 'landing_text',
+								history: true,
+								onSelect: function (item) {
+									this.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, '<br>');
+									this.onChange();
+								}.bind(this),
+								onTariffRestriction: function() {
+									BX.UI.InfoHelper.show("limit_sites_TextAssistant_AI");
+								},
+							});
+
+							this.aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text)
+						}
+
+						this.aiTextPicker.setEngineParameters(engineParameters);
+
+						this.aiTextPicker.text();
+
+					}.bind(this)
+				});
+			}
+
+			return this.aiTextButton;
+		},
 
 		/**
 		 * Disables edit mode
@@ -570,10 +651,10 @@
 				{
 					neededButtons = [0, 1, 2, 3, 4, 5];
 				}
-				neededButtons.forEach(function(neededButon) {
-					tableButtons[neededButon]['options']['target'] = 'row';
-					tableButtons[neededButon]['options']['setTd'] = setTd;
-					buttons.push(tableButtons[neededButon]);
+				neededButtons.forEach(function(neededButton) {
+					tableButtons[neededButton]['options']['target'] = 'row';
+					tableButtons[neededButton]['options']['setTd'] = setTd;
+					buttons.push(tableButtons[neededButton]);
 				})
 			}
 
@@ -614,10 +695,10 @@
 				{
 					neededButtons = [0, 1, 2, 3, 4, 5];
 				}
-				neededButtons.forEach(function(neededButon) {
-					tableButtons[neededButon]['options']['target'] = 'col';
-					tableButtons[neededButon]['options']['setTd'] = setTd;
-					buttons.push(tableButtons[neededButon]);
+				neededButtons.forEach(function(neededButton) {
+					tableButtons[neededButton]['options']['target'] = 'col';
+					tableButtons[neededButton]['options']['setTd'] = setTd;
+					buttons.push(tableButtons[neededButton]);
 				})
 			}
 
@@ -627,17 +708,17 @@
 				if (event.srcElement.classList.contains('landing-table-th-select-all-selected'))
 				{
 					isSelectedAll = true;
-					var rows = event.srcElement.parentElement.parentElement.childNodes;
+					const rows = event.srcElement.parentElement.parentElement.childNodes;
 					rows.forEach(function(row) {
 						row.childNodes.forEach(function(th) {
 							setTd.push(th);
 						})
 					})
 					neededButtons = [0, 1, 2, 3, 4, 5, 8, 9, 10];
-					neededButtons.forEach(function(neededButon) {
-						tableButtons[neededButon]['options']['target'] = 'table';
-						tableButtons[neededButon]['options']['setTd'] = setTd;
-						buttons.push(tableButtons[neededButon]);
+					neededButtons.forEach(function(neededButton) {
+						tableButtons[neededButton]['options']['target'] = 'table';
+						tableButtons[neededButton]['options']['setTd'] = setTd;
+						buttons.push(tableButtons[neededButton]);
 					})
 				}
 				else
@@ -647,22 +728,25 @@
 				}
 			}
 
-			if (event.srcElement.classList.contains('landing-table-td'))
+			if (
+				BX.Dom.hasClass(event.srcElement, 'landing-table-td')
+				|| this.hasParentWithClass(event.srcElement, 'landing-table-td')
+			)
 			{
 				setTd.push(event.srcElement);
 				neededButtons = [3, 2, 1, 0];
-				neededButtons.forEach(function(neededButon) {
-					tableButtons[neededButon]['options']['target'] = 'cell';
-					tableButtons[neededButon]['options']['setTd'] = setTd;
-					tableButtons[neededButon].insertAfter = 'strikeThrough';
-					buttons.push(tableButtons[neededButon]);
-				})
+				neededButtons.forEach(function(neededButton) {
+					tableButtons[neededButton]['options']['target'] = 'cell';
+					tableButtons[neededButton]['options']['setTd'] = setTd;
+					tableButtons[neededButton].insertAfter = 'strikeThrough';
+					buttons.push(tableButtons[neededButton]);
+				});
 				isCell = true;
 				hideButtons = ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'createTable', 'pasteTable'];
 			}
 
 			var activeAlignButtonId;
-			var setActiveAlignButtonId = [];
+			let setActiveAlignButtonId = [];
 			setTd.forEach(function(th) {
 				if (th.nodeType === 1)
 				{
@@ -740,7 +824,6 @@
 							{
 								BX.Landing.UI.Panel.EditorPanel.getInstance().show(table.parentNode, null, buttons, true);
 							}
-							isSelectedAll = true;
 						}
 						else
 						{
@@ -753,6 +836,26 @@
 					BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 				}
 			}
+		},
+
+		/**
+		 * Checking whether an element is a descendant of a parent of any level with the desired class
+		 * @return {boolean}
+		 */
+		hasParentWithClass: function(element, className)
+		{
+			let parent = element.parentNode;
+
+			while (parent !== null)
+			{
+				if (parent.classList && BX.Dom.hasClass(parent, className))
+				{
+					return true;
+				}
+				parent = parent.parentNode;
+			}
+
+			return false;
 		},
 
 		/**
@@ -834,8 +937,9 @@
 		/**
 		 * Handles change tag event
 		 * @param value
+		 * @param {?boolean} [preventHistory = false]
 		 */
-		onChangeTag: function(value)
+		onChangeTag: function(value, preventHistory)
 		{
 			this.node = changeTagName(this.node, value);
 
@@ -846,7 +950,7 @@
 			this.node.addEventListener("input", this.onInput);
 			this.node.addEventListener("keydown", this.onInput);
 
-			if (!this.getField().isEditable())
+			if (!this.getField().isEditable() && !preventHistory)
 			{
 				this.disableEdit();
 				this.enableEdit();
@@ -854,7 +958,14 @@
 
 			var data = {};
 			data[this.selector] = value;
-			this.changeOptionsHandler(data);
+
+			if (!preventHistory)
+			{
+				this.changeOptionsHandler(data)
+					.then(() => {
+						BX.Landing.History.getInstance().push();
+					})
+			}
 		},
 
 		getAmountTableCols: function(table)

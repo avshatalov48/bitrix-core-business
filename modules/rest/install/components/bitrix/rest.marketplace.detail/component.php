@@ -198,9 +198,19 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 		{
 			foreach($arResult['APP']['RIGHTS'] as $key => $scope)
 			{
+				if (mb_strtoupper($key) === 'LOG')
+				{
+					$title = Loc::getMessage('REST_SCOPE_LOG_MSGVER_1') ?: $scope;
+					$description = Loc::getMessage("REST_SCOPE_LOG_DESCRIPTION_MSGVER_1");
+				}
+				else
+				{
+					$title = Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)) ?: $scope;
+					$description = Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)."_DESCRIPTION");
+				}
 				$arResult['APP']['RIGHTS'][$key] = [
-					"TITLE" => Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)) ?: $scope,
-					"DESCRIPTION" => Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)."_DESCRIPTION")
+					"TITLE" => $title,
+					"DESCRIPTION" => $description
 				];
 				if(!in_array($key, $scopeList, true))
 				{

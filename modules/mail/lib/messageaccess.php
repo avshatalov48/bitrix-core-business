@@ -3,6 +3,7 @@
 namespace Bitrix\Mail;
 
 use Bitrix\Mail\Internals\MessageAccessTable;
+use \Bitrix\Crm\ActivityTable;
 
 /**
  * @see \Bitrix\Mail\Helper\MessageAccess
@@ -65,6 +66,38 @@ class MessageAccess
 	public function isOwner(): bool
 	{
 		return (bool)self::getUserMailbox($this->getMessage()->getMailboxId(), $this->getUserId());
+	}
+
+	public static function getCrmEntityOwner($activityId): array
+	{
+		return ActivityTable::getList([
+			'select' => [
+				'OWNER_ID',
+				'OWNER_TYPE_ID',
+			],
+			'filter' => [
+				'==ID' => $activityId,
+			],
+			'limit' => 1,
+		])->fetch();
+	}
+
+	public function getEntitiesForType($entityType): array
+	{
+		$collection = $this->getCollection($this->getMessage());
+
+		$bindings = [];
+
+		/** @var \Bitrix\Mail\Item\MessageAccess $item */
+		foreach ($collection as $item)
+		{
+			if ($item->getEntityType() === $entityType)
+			{
+				$bindings[] = $item->getEntityId();
+			}
+		}
+
+		return $bindings;
 	}
 
 	/**

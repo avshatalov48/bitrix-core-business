@@ -180,7 +180,7 @@ final class FileStorage extends AbstractStorage
 	public static function deleteRecursive($relativePath = "", $validTime = 0)
 	{
 		$bytes = 0.0;
-		if (mb_strpos($relativePath, "..") !== false)
+		if (strpos($relativePath, "..") !== false)
 		{
 			return $bytes;
 		}

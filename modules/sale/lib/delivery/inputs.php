@@ -27,29 +27,36 @@ class Period extends Input\Base
 
 	public static function getEditHtmlSingle($name, array $input, $values)
 	{
-		if(!isset($input["ITEMS"]))
-			$input["ITEMS"] = array(
-		"FROM" => array(
-			"TYPE" => "STRING",
-			"NAME" => ""
-		),
-		"TO" => array(
-			"TYPE" => "STRING",
-			"NAME" => "&nbsp;-&nbsp;"
-		),
-		"TYPE" => array(
-			"TYPE" => "ENUM",
-			"OPTIONS" => array(
-				"H" => "HOURS", //Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_HOUR"),
-				"D" => "DAYS", //Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_DAY"),
-				"M" => "MONTHS" ////Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_MONTH")
-			)
-		)
-	);
+		if (!isset($input["ITEMS"]))
+		{
+			$input["ITEMS"] = [
+				"FROM" => [
+					"TYPE" => "STRING",
+					"NAME" => ""
+				],
+				"TO" => [
+					"TYPE" => "STRING",
+					"NAME" => "&nbsp;-&nbsp;"
+				],
+				"TYPE" => [
+					"TYPE" => "ENUM",
+					"OPTIONS" => [
+						"H" => "HOURS", //Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_HOUR"),
+						"D" => "DAYS", //Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_DAY"),
+						"M" => "MONTHS" ////Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_MONTH")
+					]
+				]
+			];
+		}
 
-		return $input["ITEMS"]["FROM"]["NAME"].Input\Manager::getEditHtml($name."[FROM]", $input["ITEMS"]["FROM"], $values["FROM"]).
-			$input["ITEMS"]["TO"]["NAME"].Input\Manager::getEditHtml($name."[TO]", $input["ITEMS"]["TO"], $values["TO"]).
-			" ".Input\Manager::getEditHtml($name."[TYPE]", $input["ITEMS"]["TYPE"], $values["TYPE"]);
+		return
+			$input["ITEMS"]["FROM"]["NAME"]
+			. Input\Manager::getEditHtml($name . "[FROM]", $input["ITEMS"]["FROM"], $values["FROM"] ?? null)
+			. $input["ITEMS"]["TO"]["NAME"]
+			. Input\Manager::getEditHtml($name . "[TO]", $input["ITEMS"]["TO"], $values["TO"] ?? null)
+			. ' '
+			. Input\Manager::getEditHtml($name . "[TYPE]", $input["ITEMS"]["TYPE"], $values["TYPE"] ?? null)
+		;
 	}
 
 	public static function getError(array $input, $values)
@@ -349,7 +356,8 @@ class LocationMulti extends Input\Base
 			array(
 				"ENTITY_PRIMARY" => $input["DELIVERY_ID"],
 				"LINK_ENTITY_NAME" => mb_substr(static::$d2LClass, 0, -5),
-				"INPUT_NAME" => $name
+				"INPUT_NAME" => $name,
+				'FILTER_BY_SITE' => 'N',
 			),
 			false
 		);
@@ -451,25 +459,18 @@ class ButtonSelector extends Input\Base
 
 	public static function getEditHtmlSingle($name, array $input, $values)
 	{
-		if(!isset($input["NAME"]))
-			$input["NAME"] = '';
+		$input['NAME_DEFAULT'] = trim((string)($input['NAME_DEFAULT'] ?? ''));
+		$input['VALUE_DEFAULT'] = trim((string)($input['VALUE_DEFAULT'] ?? ''));
 
-		if(!isset($input["VALUE"]))
-			$input["VALUE"] = '';
-
-		$itemName = ($values['NAME'] <> '' ? htmlspecialcharsbx($values['NAME']) : '');
-
-		if($itemName == '' && $input['NAME_DEFAULT'] <> '')
+		if (!is_array($values))
 		{
-			$itemName = htmlspecialcharsbx($input['NAME_DEFAULT']);
+			$values = [];
 		}
+		$values['NAME'] = trim((string)($values['NAME'] ?? ''));
+		$values['VALUE'] = trim((string)($values['VALUE'] ?? ''));
 
-		$itemValue = ($values['VALUE'] <> '' ? htmlspecialcharsbx($values['VALUE']) : '');
-
-		if($itemName == '' && $input['VALUE_DEFAULT'] <> '')
-		{
-			$itemValue = htmlspecialcharsbx($input['VALUE_DEFAULT']);
-		}
+		$itemName = htmlspecialcharsbx($values['NAME'] ?: $input['NAME_DEFAULT']);
+		$itemValue = htmlspecialcharsbx($values['VALUE'] ?: $input['VALUE_DEFAULT']);
 
 		return '<div>'.
 			'<div id="'.$input['READONLY_NAME_ID'].'">'.htmlspecialcharsbx($itemName).'</div>'.

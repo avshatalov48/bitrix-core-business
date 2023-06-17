@@ -19,110 +19,6 @@ BX.Lists.ListClass = (function ()
 	ListClass.prototype.init = function ()
 	{
 		this.ajaxUrl = '/bitrix/components/bitrix/lists.list/ajax.php';
-		this.actionButton = BX('lists-title-action');
-		this.addButton = BX('lists-title-action-add');
-		this.selectAddButton = BX('lists-title-action-select-add');
-
-		this.addPopupItems = [];
-		this.addPopupObject = null;
-		this.addPopupId = 'lists-title-add';
-
-		this.actionPopupItems = [];
-		this.actionPopupObject = null;
-		this.actionPopupId = 'lists-title-action';
-		this.actionItemChanges = false;
-
-		BX.bind(this.actionButton, 'click', BX.delegate(this.showListAction, this));
-		BX.bind(this.selectAddButton, 'click', BX.delegate(this.showListAdd, this));
-	};
-
-	ListClass.prototype.showListAction = function ()
-	{
-		if(!this.actionPopupItems.length)
-		{
-			for(var k = 0; k < this.listAction.length; k++)
-			{
-				var popupItems = {
-					id: this.listAction[k].hasOwnProperty('id') ? this.listAction[k].id : '',
-					text : BX.util.htmlspecialchars(this.listAction[k].text),
-					onclick : this.listAction[k].action
-				};
-				if(this.listAction[k].hasOwnProperty('items'))
-				{
-					popupItems.items = [];
-					for(var i = 0; i < this.listAction[k].items.length; i++)
-					{
-						popupItems.items.push({
-							text: BX.util.htmlspecialchars(this.listAction[k].items[i].text),
-							onclick: this.listAction[k].items[i].action
-						});
-					}
-				}
-				this.actionPopupItems.push(popupItems);
-			}
-		}
-		if(this.actionItemChanges)
-		{
-			if(this.actionPopupObject)
-			{
-				this.actionPopupObject.popupWindow.destroy();
-				BX.PopupMenu.destroy(this.actionPopupId);
-			}
-		}
-		if(!BX.PopupMenu.getMenuById(this.actionPopupId))
-		{
-			var buttonRect = this.actionButton.getBoundingClientRect();
-			this.actionPopupObject = BX.PopupMenu.create(
-				this.actionPopupId,
-				this.actionButton,
-				this.actionPopupItems,
-				{
-					closeByEsc : true,
-					angle: true,
-					offsetLeft: buttonRect.width/2,
-					events: {
-						onPopupShow: BX.proxy(function () {
-							BX.addClass(this.actionButton, 'webform-button-active');
-						}, this),
-						onPopupClose: BX.proxy(function () {
-							BX.removeClass(this.actionButton, 'webform-button-active');
-
-						}, this)
-					}
-				}
-			);
-			this.actionItemChanges = false;
-		}
-		if(this.actionPopupObject) this.actionPopupObject.popupWindow.show();
-	};
-
-	ListClass.prototype.showListAdd = function ()
-	{
-		if(!this.addPopupItems.length)
-		{
-			for(var k = 0; k < this.listActionAdd.length; k++)
-			{
-				this.addPopupItems.push({
-					text : BX.util.htmlspecialchars(this.listActionAdd[k].text),
-					onclick : this.listActionAdd[k].action
-				});
-			}
-		}
-		if(!BX.PopupMenu.getMenuById(this.addPopupId))
-		{
-			var buttonRect = this.addButton.getBoundingClientRect();
-			this.addPopupObject = BX.PopupMenu.create(
-				this.addPopupId,
-				this.addButton,
-				this.addPopupItems,
-				{
-					closeByEsc : true,
-					angle: true,
-					offsetLeft: buttonRect.width/2
-				}
-			);
-		}
-		if(this.addPopupObject) this.addPopupObject.popupWindow.show();
 	};
 
 	ListClass.prototype.getTotalCount = function ()
@@ -480,141 +376,87 @@ BX.Lists.ListClass = (function ()
 
 	ListClass.prototype.deleteSection = function (gridId, sectionId)
 	{
-		BX.Lists.modalWindow({
-			modalId: 'bx-lists-migrate-list',
-			title: BX.message('CT_BLL_DELETE_POPUP_TITLE'),
-			draggable: true,
-			contentClassName: '',
-			contentStyle: {
-				width: '400px',
-				padding: '20px 20px 20px 20px'
-			},
-			events: {
-				onPopupClose : function() {
-					this.destroy();
-				}
-			},
-			content: BX.message('CT_BLL_TOOLBAR_SECTION_DELETE_WARNING'),
-			buttons: [
-				BX.create('span', {
-					text : BX.message("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON"),
-					props: {
-						className: 'webform-small-button webform-small-button-accept'
+		BX.UI.Dialogs.MessageBox.confirm(
+			BX.Loc.getMessage('CT_BLL_TOOLBAR_SECTION_DELETE_WARNING'),
+			BX.Loc.getMessage('CT_BLL_DELETE_POPUP_TITLE'),
+			() =>
+			{
+				BX.Lists.ajax({
+					method: 'POST',
+					dataType: 'json',
+					url: BX.Lists.addToLinkParam(this.ajaxUrl, 'action', 'deleteSection'),
+					data: {
+						iblockTypeId: this.iblockTypeId,
+						iblockId: this.iblockId,
+						sectionId: this.sectionId,
+						socnetGroupId: this.socnetGroupId,
+						sectionIdForDelete: sectionId
 					},
-					events : {
-						click : BX.delegate(function() {
-							BX.Lists.ajax({
-								method: 'POST',
-								dataType: 'json',
-								url: BX.Lists.addToLinkParam(this.ajaxUrl, 'action', 'deleteSection'),
-								data: {
-									iblockTypeId: this.iblockTypeId,
-									iblockId: this.iblockId,
-									sectionId: this.sectionId,
-									socnetGroupId: this.socnetGroupId,
-									sectionIdForDelete: sectionId
-								},
-								onsuccess: BX.delegate(function(result) {
-									if(result.status == 'success')
-									{
-										BX.Lists.showModalWithStatusAction({
-											status: 'success',
-											message: result.message
-										});
-										var reloadParams = {}, gridObject;
-										gridObject = BX.Main.gridManager.getById(gridId);
-										if(gridObject.hasOwnProperty('instance'))
-										{
-											gridObject.instance.reloadTable('POST', reloadParams);
-											var rowObject = gridObject.instance.getRows().getById(sectionId);
-											if(rowObject) rowObject.closeActionsMenu();
-										}
-									}
-									else
-									{
-										result.errors = result.errors || [{}];
-										BX.Lists.showModalWithStatusAction({
-											status: 'error',
-											message: result.errors.pop().message
-										});
-									}
-								}, this)
+					onsuccess: (result) =>
+					{
+						if (result.status === 'success')
+						{
+							BX.Lists.showModalWithStatusAction({
+								status: 'success',
+								message: result.message
 							});
-							BX.PopupWindowManager.getCurrentPopup().close();
-						}, this)
+							const reloadParams = {};
+							const gridObject = BX.Main.gridManager.getById(gridId);
+							if (gridObject.hasOwnProperty('instance'))
+							{
+								gridObject.instance.reloadTable('POST', reloadParams);
+								const rowObject = gridObject.instance.getRows().getById(sectionId);
+								if (rowObject)
+								{
+									rowObject.closeActionsMenu();
+								}
+							}
+						}
+						else if (BX.Type.isArrayFilled(result.errors))
+						{
+							BX.Lists.showModalWithStatusAction({
+								status: 'error',
+								message: result.errors.pop().message
+							});
+						}
 					}
-				}),
-				BX.create('span', {
-					text : BX.message("CT_BLL_DELETE_POPUP_CANCEL_BUTTON"),
-					props: {
-						className: 'popup-window-button popup-window-button-link popup-window-button-link-cancel'
-					},
-					events : {
-						click : BX.delegate(function() {
-							BX.PopupWindowManager.getCurrentPopup().close();
-						}, this)
-					}
-				})
-			]
-		});
+				});
+
+				return true;
+			},
+			BX.Loc.getMessage("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON"),
+		);
 	};
 
 	ListClass.prototype.deleteElement = function (gridId, elementId)
 	{
-		BX.Lists.modalWindow({
-			modalId: 'bx-lists-migrate-list',
-			title: BX.message('CT_BLL_DELETE_POPUP_TITLE'),
-			draggable: true,
-			contentClassName: '',
-			contentStyle: {
-				width: '400px',
-				padding: '20px 20px 20px 20px'
-			},
-			events: {
-				onPopupClose : function() {
-					this.destroy();
-				}
-			},
-			content: BX.message('CT_BLL_TOOLBAR_ELEMENT_DELETE_WARNING'),
-			buttons: [
-				BX.create('span', {
-					text : BX.message("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON"),
-					props: {
-						className: 'webform-small-button webform-small-button-accept'
-					},
-					events : {
-						click : BX.delegate(function() {
-							var reloadParams = {}, gridObject;
-							reloadParams['action_button_'+gridId] = 'delete';
-							reloadParams['ID'] = [elementId];
+		BX.UI.Dialogs.MessageBox.confirm(
+			BX.Loc.getMessage('CT_BLL_TOOLBAR_ELEMENT_DELETE_WARNING'),
+			BX.Loc.getMessage('CT_BLL_DELETE_POPUP_TITLE'),
+			() =>
+			{
+				const reloadParams = {};
+				reloadParams['action_button_'+gridId] = 'delete';
+				reloadParams['ID'] = [elementId];
 
-							gridObject = BX.Main.gridManager.getById(gridId);
-							if(gridObject.hasOwnProperty('instance'))
-							{
-								gridObject.instance.reloadTable('POST', reloadParams);
-								var rowObject = gridObject.instance.getRows().getById(elementId);
-								if(rowObject) rowObject.closeActionsMenu();
-							}
-							BX.PopupWindowManager.getCurrentPopup().close();
-						}, this)
+				const gridObject = BX.Main.gridManager.getById(gridId);
+				if(gridObject.hasOwnProperty('instance'))
+				{
+					gridObject.instance.reloadTable('POST', reloadParams);
+					var rowObject = gridObject.instance.getRows().getById(elementId);
+					if (rowObject)
+					{
+						rowObject.closeActionsMenu();
 					}
-				}),
-				BX.create('span', {
-					text : BX.message("CT_BLL_DELETE_POPUP_CANCEL_BUTTON"),
-					props: {
-						className: 'popup-window-button popup-window-button-link popup-window-button-link-cancel'
-					},
-					events : {
-						click : BX.delegate(function() {
-							BX.PopupWindowManager.getCurrentPopup().close();
-						}, this)
-					}
-				})
-			]
-		});
+				}
+
+				return true;
+			},
+			BX.Loc.getMessage("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON"),
+		);
 	};
 
-	ListClass.prototype.toogleSectionGrid = function()
+	ListClass.prototype.toogleSectionGrid = function(event, menuItem)
 	{
 		BX.Lists.ajax({
 			method: 'POST',
@@ -631,16 +473,12 @@ BX.Lists.ListClass = (function ()
 					{
 						text = BX.message('CT_BLL_HIDE_SECTION_GRID');
 					}
-					for(var k = 0; k < this.actionPopupItems.length; k++)
+
+					if (menuItem instanceof BX.Main.MenuItem)
 					{
-						if(this.actionPopupItems[k].hasOwnProperty('id') &&
-							this.actionPopupItems[k].id == 'showSectionGrid')
-						{
-							this.actionPopupItems[k].text = text;
-							this.actionItemChanges = true;
-						}
+						menuItem.setText(text);
 					}
-					if(this.actionPopupObject) this.actionPopupObject.popupWindow.close();
+
 					if(BX.Main.gridManager.getById(this.gridId))
 					{
 						BX.Main.gridManager.getById(this.gridId).instance.reload();

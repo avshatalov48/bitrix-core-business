@@ -54,7 +54,7 @@ abstract class CAllMain
 	var $arPanelButtons = array();
 	var $arPanelFutureButtons = array();
 
-	var $ShowPanel = NULL;
+	var $ShowPanel = null;
 	var $PanelShowed = false;
 	var $showPanelWasInvoked = false;
 
@@ -229,7 +229,13 @@ abstract class CAllMain
 		//page title
 		$APPLICATION->SetTitle(GetMessage("AUTH_TITLE"));
 
-		if(is_array($arAuthResult) && $arAuthResult["TYPE"] == "ERROR" && $arAuthResult["ERROR_TYPE"] == "CHANGE_PASSWORD")
+		if (
+			is_array($arAuthResult)
+			&& isset($arAuthResult["TYPE"])
+			&& isset($arAuthResult["ERROR_TYPE"])
+			&& $arAuthResult["TYPE"] === "ERROR"
+			&& $arAuthResult["ERROR_TYPE"] === "CHANGE_PASSWORD"
+		)
 		{
 			//require to change the password after N days
 			$change_password = "yes";
@@ -262,7 +268,11 @@ abstract class CAllMain
 			$APPLICATION->SetTitle(GetMessage("AUTH_TITLE_CONFIRM"));
 			$comp_name = "system.auth.confirmation";
 		}
-		elseif(CModule::IncludeModule("security") && \Bitrix\Security\Mfa\Otp::isOtpRequired() && $_REQUEST["login_form"] <> "yes")
+		elseif(
+			CModule::IncludeModule("security")
+			&& \Bitrix\Security\Mfa\Otp::isOtpRequired()
+			&& (!isset($_REQUEST["login_form"]) || $_REQUEST["login_form"] !== "yes")
+		)
 		{
 			//otp form
 			$APPLICATION->SetTitle(GetMessage("AUTH_TITLE_OTP"));
@@ -446,7 +456,7 @@ abstract class CAllMain
 			$res = $this->GetProperty($property_name);
 		else
 			$res = $this->sDocTitle;
-		if($strip_tags)
+		if($strip_tags && is_string($res))
 			return strip_tags($res);
 		return $res;
 	}
@@ -1019,7 +1029,7 @@ abstract class CAllMain
 
 		$componentRelativePath = CComponentEngine::MakeComponentPath($componentName);
 		if ($componentRelativePath == '')
-			return False;
+			return false;
 
 		$debug = null;
 		$bShowDebug = Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y"
@@ -1079,9 +1089,9 @@ abstract class CAllMain
 		}
 
 		if($bShowDebug)
-			echo $debug->Output($componentName, "/bitrix/components".$componentRelativePath."/component.php", $arParams["CACHE_TYPE"].$arParams["MENU_CACHE_TYPE"]);
+			echo $debug->Output($componentName, "/bitrix/components".$componentRelativePath."/component.php", ($arParams["CACHE_TYPE"] ?? '') . ($arParams["MENU_CACHE_TYPE"] ?? ''));
 		elseif(isset($debug))
-			$debug->Stop($componentName, "/bitrix/components".$componentRelativePath."/component.php", $arParams["CACHE_TYPE"].$arParams["MENU_CACHE_TYPE"]);
+			$debug->Stop($componentName, "/bitrix/components".$componentRelativePath."/component.php", ($arParams["CACHE_TYPE"] ?? '') . ($arParams["MENU_CACHE_TYPE"] ?? ''));
 
 
 		return $result;
@@ -1284,7 +1294,6 @@ abstract class CAllMain
 				{
 					case 'html':
 						$editor = '/bitrix/admin/public_file_edit.php?site='.SITE_ID.'&bxpublic=Y&from=includefile&templateID='.$encSiteTemplateId.'&';
-						$resize = 'false';
 						break;
 
 					case 'text':
@@ -1534,7 +1543,7 @@ abstract class CAllMain
 					if($i==0)
 						$strChain = $sChainProlog . $strChain;
 				}
-				if(count($arChain)>0)
+				if(!empty($arChain))
 					$strChain .= $sChainEpilog;
 			}
 		}
@@ -1615,7 +1624,7 @@ abstract class CAllMain
 		if(!is_array($FILE_PERM))
 			$FILE_PERM = array();
 
-		if(!$bOverWrite && count($FILE_PERM)>0)
+		if(!$bOverWrite && !empty($FILE_PERM))
 			return true;
 
 		$bDiff = false;
@@ -1714,7 +1723,7 @@ abstract class CAllMain
 				foreach($arPerm as $group=>$perm)
 				{
 					$bExists = false;
-					if($arGroups !== false)
+					if(is_array($arGroups))
 					{
 						//compatibility with group id
 						if(in_array($group, $arGroups))
@@ -1818,10 +1827,10 @@ abstract class CAllMain
 		if($bAdminM)
 			return (!$task_mode? 'X' : array(CTask::GetIdByLetter('X', 'main', 'file')));
 
-		if(mb_substr($path, -12) == "/.access.php" && !$bAdminM)
+		if(mb_substr($path, -12) == "/.access.php")
 			return (!$task_mode? 'D' : array(CTask::GetIdByLetter('D', 'main', 'file')));
 
-		if(mb_substr($path, -10) == "/.htaccess" && !$bAdminM)
+		if(mb_substr($path, -10) == "/.htaccess")
 			return (!$task_mode? 'D' : array(CTask::GetIdByLetter('D', 'main', 'file')));
 
 		$max_perm = "D";
@@ -1997,10 +2006,10 @@ abstract class CAllMain
 		if ($bAdminM)
 			return (!$task_mode? 'X' : array(CTask::GetIdByLetter('X', 'main', 'file')));
 
-		if (mb_substr($path, -12) == "/.access.php" && !$bAdminM)
+		if (mb_substr($path, -12) == "/.access.php")
 			return (!$task_mode? 'D' : array(CTask::GetIdByLetter('D', 'main', 'file')));
 
-		if (mb_substr($path, -10) == "/.htaccess" && !$bAdminM)
+		if (mb_substr($path, -10) == "/.htaccess")
 			return (!$task_mode? 'D' : array(CTask::GetIdByLetter('D', 'main', 'file')));
 
 		$max_perm = "D";
@@ -2326,7 +2335,7 @@ abstract class CAllMain
 		}
 		$key = $use_default_role."_".$max_role_for_super_admin;
 		$groups = '';
-		if(is_array($arGroups) && count($arGroups)>0)
+		if(is_array($arGroups) && !empty($arGroups))
 		{
 			foreach($arGroups as $grp)
 				$groups .= ($groups<>''? ',':'').intval($grp);
@@ -2341,7 +2350,7 @@ abstract class CAllMain
 		}
 		else
 		{
-			if(is_array($arGroups) && count($arGroups)>0)
+			if(is_array($arGroups) && !empty($arGroups))
 			{
 				if(in_array(1,$arGroups) && $max_role_for_super_admin=="Y")
 					$arRoles[] = $max_role;
@@ -2571,7 +2580,7 @@ abstract class CAllMain
 		$strSql = '';
 
 		$sGroups = '';
-		if(is_array($arGroups) && count($arGroups)>0)
+		if(is_array($arGroups) && !empty($arGroups))
 			foreach($arGroups as $grp)
 				$sGroups .= ($sGroups <> ''? ',':'').intval($grp);
 
@@ -2663,7 +2672,7 @@ abstract class CAllMain
 			$name = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".$name;
 		else
 			$name = $name_prefix."_".$name;
-		return (isset($_COOKIE[$name])? $_COOKIE[$name] : "");
+		return ($_COOKIE[$name] ?? "");
 	}
 
 	/**
@@ -2806,7 +2815,8 @@ abstract class CAllMain
 			$response = Main\Context::getCurrent()->getResponse();
 			$request = Main\Context::getCurrent()->getRequest();
 
-			$localStorage = Main\Application::getInstance()->getLocalSession('spreadCookies');
+			$application = Main\Application::getInstance();
+			$localStorage = $application->getLocalSession('spreadCookies');
 			$cookies = $localStorage->getData();
 
 			foreach($cookies as $cookie)
@@ -2836,7 +2846,7 @@ abstract class CAllMain
 							$cookie->getHttpOnly().chr(2);
 					}
 				}
-				$salt = $_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY;
+				$salt = $_SERVER["REMOTE_ADDR"] . "|" . @filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php") . "|" . $application->getLicense()->getKey();
 				$params = "s=".urlencode(base64_encode($params))."&k=".urlencode(md5($params.$salt));
 
 				$arrDomain = array();
@@ -2846,13 +2856,13 @@ abstract class CAllMain
 				while($ar = $rs->Fetch())
 				{
 					$arD = explode("\n", str_replace("\r", "\n", $ar["DOMAINS"]));
-					if(is_array($arD) && count($arD)>0)
+					if(is_array($arD))
 						foreach($arD as $d)
 							if(trim($d) <> '')
 								$arrDomain[] = $d;
 				}
 
-				if(count($arrDomain)>0)
+				if(!empty($arrDomain))
 				{
 					$arUniqDomains = array();
 					$arrDomain = array_unique($arrDomain);
@@ -2898,7 +2908,7 @@ abstract class CAllMain
 
 	public function AddPanelButton($arButton, $bReplace=false)
 	{
-		if(is_array($arButton) && count($arButton)>0)
+		if(is_array($arButton) && !empty($arButton))
 		{
 			if(isset($arButton["ID"]) && $arButton["ID"] <> "")
 			{
@@ -3263,9 +3273,9 @@ abstract class CAllMain
 	{
 		$cpt = new CCaptcha();
 		if ($cpt->CheckCode($captcha_word, $captcha_sid))
-			return True;
+			return true;
 		else
-			return False;
+			return false;
 	}
 
 	public function UnJSEscape($str)
@@ -3287,7 +3297,7 @@ abstract class CAllMain
 	/**
 	 * @deprecated Use CAdminFileDialog::ShowScript instead
 	 */
-	public static function ShowFileSelectDialog($event, $arResultDest, $arPath = array(), $fileFilter = "", $bAllowFolderSelect = False)
+	public static function ShowFileSelectDialog($event, $arResultDest, $arPath = array(), $fileFilter = "", $bAllowFolderSelect = false)
 	{
 		CAdminFileDialog::ShowScript(array(
 			"event" => $event,
@@ -3356,10 +3366,9 @@ abstract class CAllMain
 			{
 				case 'EDITOR': $dialog_class = 'CEditorDialog'; break;
 				case 'ADMIN': $dialog_class = 'CAdminDialog'; break;
-				default: $dialog_class = 'CDialog';
 			}
 		}
-		elseif (mb_strpos($arUrl['URL'], 'bxpublic=') !== false)
+		elseif (strpos($arUrl['URL'], 'bxpublic=') !== false)
 		{
 			$dialog_class = 'CAdminDialog';
 		}

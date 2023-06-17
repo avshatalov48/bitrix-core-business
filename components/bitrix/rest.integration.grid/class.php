@@ -251,7 +251,15 @@ class RestIntegrationGridComponent extends CBitrixComponent implements Controlle
 			$item['SCOPE'] = array_map(
 				function ($value)
 				{
-					$result = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($value));
+					if (mb_strtoupper($value) === 'LOG')
+					{
+						$result = Loc::getMessage('REST_SCOPE_LOG_MSGVER_1');
+					}
+					else
+					{
+						$result = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($value));
+					}
+
 					if (empty($result))
 					{
 						$result = $value;

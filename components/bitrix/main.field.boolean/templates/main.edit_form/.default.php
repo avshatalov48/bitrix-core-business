@@ -66,13 +66,18 @@ else if($arResult['type'] === BooleanType::DISPLAY_RADIO)
 else
 {
 	$label = Loc::getMessage('MAIN_YES');
-	if(
-		isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'])
-		&&
-		mb_strlen($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'])
-	)
+	if (isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
 	{
-		$label = $arResult['userField']['SETTINGS']['LABEL_CHECKBOX'];
+		if (is_array($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
+		{
+			$arResult['userField']['SETTINGS']['LABEL_CHECKBOX'] =
+				$arResult['userField']['SETTINGS']['LABEL_CHECKBOX'][LANGUAGE_ID];
+		}
+
+		if ($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'] !== '')
+		{
+			$label = $arResult['userField']['SETTINGS']['LABEL_CHECKBOX'];
+		}
 	}
 	?>
 	<input

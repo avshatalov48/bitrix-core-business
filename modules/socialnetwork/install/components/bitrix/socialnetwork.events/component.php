@@ -57,11 +57,17 @@ $arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 if ($GLOBALS["USER"]->IsAuthorized())
 {
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["EventType"] === "FriendRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	if (
+		isset($_REQUEST["EventType"])
+		&& $_REQUEST["EventType"] === "FriendRequest"
+		&& check_bitrix_sessid()
+		&& isset($_REQUEST["eventID"])
+		&& intval($_REQUEST["eventID"]) > 0
+	)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "add")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -69,7 +75,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] === "reject")
+		elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -81,11 +87,17 @@ if ($GLOBALS["USER"]->IsAuthorized())
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	elseif ($_REQUEST["EventType"] === "GroupRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	elseif (
+		isset($_REQUEST["EventType"])
+		&& $_REQUEST["EventType"] === "GroupRequest"
+		&& check_bitrix_sessid()
+		&& isset($_REQUEST["eventID"])
+		&& intval($_REQUEST["eventID"]) > 0
+	)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "add")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -93,7 +105,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] === "reject")
+		elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -105,11 +117,17 @@ if ($GLOBALS["USER"]->IsAuthorized())
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	elseif ($_REQUEST["EventType"] === "Message" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	elseif (
+		isset($_REQUEST["EventType"])
+		&& $_REQUEST["EventType"] === "Message"
+		&& check_bitrix_sessid()
+		&& isset($_REQUEST["eventID"])
+		&& intval($_REQUEST["eventID"]) > 0
+	)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "close")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "close")
 		{
 			if (!CSocNetMessages::MarkMessageRead($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -121,11 +139,17 @@ if ($GLOBALS["USER"]->IsAuthorized())
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	elseif ($_REQUEST["EventType"] === "Message" && check_bitrix_sessid() && intval($_REQUEST["userID"]) > 0)
+	elseif (
+		isset($_REQUEST["EventType"])
+		&& $_REQUEST["EventType"] === "Message"
+		&& check_bitrix_sessid()
+		&& isset($_REQUEST["userID"])
+		&& intval($_REQUEST["userID"]) > 0
+	)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "ban")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "ban")
 		{
 			if (!CSocNetUserRelations::BanUser($GLOBALS["USER"]->GetID(), intval($_REQUEST["userID"])))
 			{

@@ -65,10 +65,6 @@ export const AttachTypeImage =
 			{
 				return element.PREVIEW? element.PREVIEW: element.LINK;
 			},
-			getElementTitle(element)
-			{
-				return Utils.text.htmlspecialcharsback(element.NAME);
-			},
 			lazyLoadCallback(event)
 			{
 				if (!event.element.style.width)
@@ -125,7 +121,7 @@ export const AttachTypeImage =
 							class="bx-im-element-attach-type-image-source"
 							:data-lazyload-src="getElementSource(image)"
 							:style="styleFileSizes(image)"
-							:title="getElementTitle(image)"
+							:title="image.NAME"
 						/>
 					</div>
 				</template>

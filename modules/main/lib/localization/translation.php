@@ -355,11 +355,11 @@ class Translation
 			return $langFile;
 		}
 
-		if (mb_strpos($langFile, '\\') !== false)
+		if (strpos($langFile, '\\') !== false)
 		{
 			$langFile = str_replace('\\', '/', $langFile);
 		}
-		if (mb_strpos($langFile, '//') !== false)
+		if (strpos($langFile, '//') !== false)
 		{
 			$langFile = str_replace('//', '/', $langFile);
 		}

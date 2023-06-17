@@ -28,7 +28,11 @@
 			{
 				pseudoLinks.forEach(link => {
 					const linkOptions = BX.Landing.Utils.data(link, "data-pseudo-url");
-					if (linkOptions.href && linkOptions.enabled)
+					if (
+						linkOptions.href
+						&& linkOptions.enabled
+						&& linkOptions.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') !== 0
+					)
 					{
 						if (linkOptions.target === "_self" || linkOptions.target === "_blank")
 						{
@@ -48,7 +52,6 @@
 								)
 								{
 									BX.addClass(document.body, "landing-page-transition");
-									url.searchParams.append('transition', true);
 									linkOptions.href = url.href;
 									setTimeout(() => {
 										openPseudoLinks(linkOptions, event);
@@ -98,20 +101,21 @@
 			// endregion
 
 			// region all LINKS FOR MOBILE
-			if (typeof BXMobileApp !== "undefined")
+			if (typeof BXMobileApp !== 'undefined')
 			{
-				var allLinks = [].slice.call(document.querySelectorAll("a"));
+				const allLinks = [].slice.call(document.querySelectorAll('a'));
 				if (allLinks.length)
 				{
 					allLinks.forEach(function(link) {
-						if (link.href)
+						//file links
+						if (link.href && link.href.indexOf('file:') === 0)
 						{
-							link.addEventListener("click", function(event) {
+							link.addEventListener('click', function(event) {
 								event.preventDefault();
 								BXMobileApp.PageManager.loadPageBlank({
 									url: link.href,
 									cache: false,
-									bx24ModernStyle: true
+									bx24ModernStyle: true,
 								});
 							});
 						}
@@ -121,19 +125,22 @@
 			// endregion
 
 			// region SCROLL-TO for #block links
-			const blocksLinks = [].slice.call(document.querySelectorAll('a[href*="#"]'))
-			if (!!blocksLinks && blocksLinks.length)
+			if (typeof BXMobileApp === "undefined")
 			{
-				blocksLinks.forEach(link => {
-					const href = link.getAttribute("href");
-					if (
-						link.target === '_self'
-						&& isBlockLink(href)
-					)
-					{
-						link.addEventListener("click", onBlockLinkClick);
-					}
-				});
+				const blocksLinks = [].slice.call(document.querySelectorAll('a[href*="#"]'))
+				if (!!blocksLinks && blocksLinks.length)
+				{
+					blocksLinks.forEach(link => {
+						const href = link.getAttribute("href");
+						if (link.target === '_self' || link.target === '')
+						{
+							if (isBlockLink(href))
+							{
+								link.addEventListener("click", onBlockLinkClick);
+							}
+						}
+					});
+				}
 			}
 			// endregion
 
@@ -151,7 +158,6 @@
 						)
 						{
 							event.preventDefault();
-							url.searchParams.append('transition', true);
 							BX.addClass(document.body, "landing-page-transition");
 							setTimeout(() => {
 								top.open(url.href, link.target);
@@ -261,6 +267,10 @@
 
 			function openPseudoLinks(linkOptions, event)
 			{
+				if (linkOptions.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0)
+				{
+					return;
+				}
 				// mobile device
 				if (typeof BXMobileApp !== "undefined")
 				{
@@ -280,7 +290,7 @@
 					{
 						onBlockLinkClick(event);
 					}
-					else if (document.location.href.indexOf('IFRAME=Y') === -1)
+					else
 					{
 						if (linkOptions.query)
 						{

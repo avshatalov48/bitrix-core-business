@@ -52,7 +52,7 @@ $componentParams = array_merge($arResult, [
 	'RELATIVE_ITEMS' => $arResult['VARIABLES']['RELATIVE_ITEMS'],
 ]);
 
-if ($_REQUEST['IFRAME'] === 'Y')
+if (($_REQUEST['IFRAME'] ?? null) === 'Y')
 {
 	$this->SetViewTarget("below_pagetitle");
 	$APPLICATION->IncludeComponent(

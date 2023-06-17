@@ -107,7 +107,8 @@ class CBPTrackingService extends CBPRuntimeService
 
 	public static function deleteByWorkflow($workflowId)
 	{
-		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$workflowId = trim($workflowId);
 		if (!$workflowId)
@@ -115,11 +116,22 @@ class CBPTrackingService extends CBPRuntimeService
 			throw new Exception("workflowId");
 		}
 
-		$DB->Query(
-			"DELETE FROM b_bp_tracking ".
-			"WHERE WORKFLOW_ID = '".$DB->ForSql($workflowId)."' ",
-			true
+		$queryString = sprintf(
+			"SELECT ID FROM b_bp_tracking t WHERE WORKFLOW_ID = '%s'",
+			$helper->forSql($workflowId)
 		);
+
+		$ids = $connection->query($queryString)->fetchAll();
+
+		while ($partIds = array_splice($ids, 0, static::CLEAR_LOG_DELETE_LIMIT))
+		{
+			$connection->query(
+				sprintf(
+					'DELETE from b_bp_tracking WHERE ID IN(%s)',
+					implode(',', array_column($partIds, 'ID'))
+				)
+			);
+		}
 	}
 
 	public function setCompletedByWorkflow($workflowId, $flag = true)

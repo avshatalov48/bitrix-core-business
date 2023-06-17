@@ -297,8 +297,10 @@ class OracleConnection extends Connection
 	 */
 	public function getIndexName($tableName, array $columns, $strict = false)
 	{
-		if (!is_array($columns) || empty($columns))
+		if (empty($columns))
+		{
 			return null;
+		}
 
 		$isFunc = false;
 		$indexes = array();

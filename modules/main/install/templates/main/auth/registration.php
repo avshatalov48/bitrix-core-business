@@ -57,15 +57,17 @@ ShowMessage($arAuthResult);
 
 				<?
 			$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("USER", 0, LANGUAGE_ID);
-			if (is_array($arUserFields) && count($arUserFields) > 0)
+			if (is_array($arUserFields) && !empty($arUserFields))
 			{
 				foreach ($arUserFields as $FIELD_NAME => $arUserField)
 				{
 					if ($arUserField["MANDATORY"] != "Y")
+					{
 						continue;
+					}
 					$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
 				?><tr valign="top"> 
-					<td align="right" nowrap class="tablebody"><?if ($arUserField["MANDATORY"]=="Y"):?><span class="required">*</span><?endif;?><font  class="tablebodytext"><?=$arUserField["EDIT_FORM_LABEL"]?>:</font></td>
+					<td align="right" nowrap class="tablebody"><span class="required">*</span><font  class="tablebodytext"><?=$arUserField["EDIT_FORM_LABEL"]?>:</font></td>
 					<td align="left" class="tablebody"><?$APPLICATION->IncludeComponent(
 				"bitrix:system.field.edit", 
 				$arUserField["USER_TYPE"]["USER_TYPE_ID"], 

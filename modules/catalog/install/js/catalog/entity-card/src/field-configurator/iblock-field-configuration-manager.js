@@ -77,6 +77,7 @@ export default class IblockFieldConfigurationManager extends BX.UI.EntityConfigu
 	openCreationPageUrl(typeId)
 	{
 		BX.SidePanel.Instance.open(this.getCreationPageUrl(typeId), {
+			width: 900, // corresponds to the slider settings on `iblock/install/components/bitrix/iblock.property.grid/templates/.default/script.es6.js`
 			allowChangeHistory: false,
 			cacheable: false
 		});

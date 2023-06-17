@@ -169,6 +169,7 @@ class Workgroup
 				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID']),
 				'exclude' => $exclude
 			);
+			$workgroupsToSync = $this->reduceSyncList($workgroupsToSync);
 			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
 			\Bitrix\Socialnetwork\Update\WorkgroupDeptSync::bind(1);
 		}
@@ -702,5 +703,18 @@ class Workgroup
 		}
 
 		return ($optionValue === 'Y');
+	}
+
+	private function reduceSyncList(array $workgroupsToSync = []): array
+	{
+		$result = [];
+
+		foreach ($workgroupsToSync as $workgroupData)
+		{
+			$workgroupId = (int) $workgroupData['groupId'];
+			$result[$workgroupId] = $workgroupData;
+		}
+
+		return array_values($result);
 	}
 }

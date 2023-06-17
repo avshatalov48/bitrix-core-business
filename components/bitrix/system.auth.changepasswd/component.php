@@ -99,7 +99,7 @@ if(isset($_GET["USER_LOGIN"]))
 elseif(isset($_POST["USER_LOGIN"]))
 	$arResult["~LAST_LOGIN"] = $_POST["USER_LOGIN"];
 else
-	$arResult["~LAST_LOGIN"] = $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"];
+	$arResult["~LAST_LOGIN"] = $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"] ?? '';
 
 $arResult["LAST_LOGIN"] = htmlspecialcharsbx($arResult["~LAST_LOGIN"]);
 

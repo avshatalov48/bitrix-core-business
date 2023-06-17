@@ -417,61 +417,72 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			$this->setSiteId($params['CUSTOM_SITE_ID']);
 		}
 
-		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
-		$params["BASKET_URL"] = trim($params["BASKET_URL"]);
+		$params["DETAIL_URL"] = trim((string)($params["DETAIL_URL"] ?? ''));
+		$params["BASKET_URL"] = trim((string)($params["BASKET_URL"] ?? ''));
+		if ($params["BASKET_URL"] === '')
+		{
+			$params["BASKET_URL"] = "/personal/basket.php";
+		}
 
-		$params["CACHE_TIME"] = intval($params["CACHE_TIME"]);
+		$params["CACHE_TIME"] = (int)($params["CACHE_TIME"] ?? 0);
 		if ($params["CACHE_TIME"] <= 0)
 			$params["CACHE_TIME"] = 3600;
 
-		if ($params["BASKET_URL"] === '')
-			$params["BASKET_URL"] = "/personal/basket.php";
-
 		$params['ACTION_VARIABLE'] = $this->prepareActionVariable($params);
 
-		$params["PRODUCT_ID_VARIABLE"] = trim($params["PRODUCT_ID_VARIABLE"]);
+		$params["PRODUCT_ID_VARIABLE"] = trim((string)($params["PRODUCT_ID_VARIABLE"] ?? ''));
 		if ($params["PRODUCT_ID_VARIABLE"] === '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $params["PRODUCT_ID_VARIABLE"]))
 			$params["PRODUCT_ID_VARIABLE"] = "id";
 
-		$params["USE_PRODUCT_QUANTITY"] = $params["USE_PRODUCT_QUANTITY"] === "Y";
-		$params["PRODUCT_QUANTITY_VARIABLE"] = trim($params["PRODUCT_QUANTITY_VARIABLE"]);
+		$params["USE_PRODUCT_QUANTITY"] = ($params["USE_PRODUCT_QUANTITY"] ?? 'N') === "Y";
+		$params["PRODUCT_QUANTITY_VARIABLE"] = trim((string)($params["PRODUCT_QUANTITY_VARIABLE"] ?? ''));
 		if ($params["PRODUCT_QUANTITY_VARIABLE"] === '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $params["PRODUCT_QUANTITY_VARIABLE"]))
 			$params["PRODUCT_QUANTITY_VARIABLE"] = "quantity";
 
-		$params["PRODUCT_PROPS_VARIABLE"] = trim($params["PRODUCT_PROPS_VARIABLE"]);
+		$params["PRODUCT_PROPS_VARIABLE"] = trim((string)($params["PRODUCT_PROPS_VARIABLE"] ?? ''));
 		if ($params["PRODUCT_PROPS_VARIABLE"] === '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $params["PRODUCT_PROPS_VARIABLE"]))
 			$params["PRODUCT_PROPS_VARIABLE"] = "prop";
 
 		$params['ADD_PROPERTIES_TO_BASKET'] = (isset($params['ADD_PROPERTIES_TO_BASKET']) && $params['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'N' : 'Y');
 		$params['PARTIAL_PRODUCT_PROPERTIES'] = (isset($params['PARTIAL_PRODUCT_PROPERTIES']) && $params['PARTIAL_PRODUCT_PROPERTIES'] === 'Y' ? 'Y' : 'N');
-		$params["SET_TITLE"] = $params["SET_TITLE"] != "N";
-		$params["DISPLAY_COMPARE"] = $params["DISPLAY_COMPARE"] == "Y";
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
+		$params["DISPLAY_COMPARE"] = ($params["DISPLAY_COMPARE"] ?? '') == "Y";
+		$params['COMPARE_PATH'] = (string)($params['COMPARE_PATH'] ?? '');
 
-		$params["PAGE_ELEMENT_COUNT"] = intval($params["PAGE_ELEMENT_COUNT"]);
+		$params["PAGE_ELEMENT_COUNT"] = (int)($params["PAGE_ELEMENT_COUNT"] ?? 0);
 		if ($params["PAGE_ELEMENT_COUNT"] <= 0)
 			$params["PAGE_ELEMENT_COUNT"] = 20;
-		$params["LINE_ELEMENT_COUNT"] = intval($params["LINE_ELEMENT_COUNT"]);
+		$params["LINE_ELEMENT_COUNT"] = (int)($params["LINE_ELEMENT_COUNT"] ?? 0);
 		if ($params["LINE_ELEMENT_COUNT"] <= 0)
 			$params["LINE_ELEMENT_COUNT"] = 3;
 
-		$params["OFFERS_LIMIT"] = intval($params["OFFERS_LIMIT"]);
+		$params["OFFERS_LIMIT"] = (int)($params["OFFERS_LIMIT"] ?? 0);
 		if ($params["OFFERS_LIMIT"] < 0)
 			$params["OFFERS_LIMIT"] = 5;
 		elseif ($params['OFFERS_LIMIT'] == 0)
 			$params["OFFERS_LIMIT"] = PHP_INT_MAX;
 
-		$params['MESS_BTN_BUY'] = trim($params['MESS_BTN_BUY']);
-		$params['MESS_BTN_ADD_TO_BASKET'] = trim($params['MESS_BTN_ADD_TO_BASKET']);
-		$params['MESS_BTN_SUBSCRIBE'] = trim($params['MESS_BTN_SUBSCRIBE']);
-		$params['MESS_BTN_DETAIL'] = trim($params['MESS_BTN_DETAIL']);
-		$params['MESS_NOT_AVAILABLE'] = trim($params['MESS_NOT_AVAILABLE']);
+		$params['MESS_BTN_BUY'] = trim((string)($params['MESS_BTN_BUY'] ?? ''));
+		$params['MESS_BTN_ADD_TO_BASKET'] = trim((string)($params['MESS_BTN_ADD_TO_BASKET'] ?? ''));
+		$params['MESS_BTN_SUBSCRIBE'] = trim((string)($params['MESS_BTN_SUBSCRIBE'] ?? ''));
+		$params['MESS_BTN_DETAIL'] = trim((string)($params['MESS_BTN_DETAIL'] ?? ''));
+		$params['MESS_NOT_AVAILABLE'] = trim((string)($params['MESS_NOT_AVAILABLE'] ?? ''));
 
-		if ('Y' != $params['SHOW_DISCOUNT_PERCENT'])
+		$params['SHOW_DISCOUNT_PERCENT'] = (string)($params['SHOW_DISCOUNT_PERCENT'] ?? '');
+		if ($params['SHOW_DISCOUNT_PERCENT'] !== 'Y')
+		{
 			$params['SHOW_DISCOUNT_PERCENT'] = 'N';
-		if ('Y' != $params['SHOW_OLD_PRICE'])
+		}
+		$params['SHOW_OLD_PRICE'] = (string)($params['SHOW_OLD_PRICE'] ?? '');
+		if ($params['SHOW_OLD_PRICE'] !== 'Y')
+		{
 			$params['SHOW_OLD_PRICE'] = 'N';
-		if ('Y' != $params['PRODUCT_SUBSCRIPTION'])
+		}
+		$params['PRODUCT_SUBSCRIPTION'] = (string)($params['PRODUCT_SUBSCRIPTION'] ?? '');
+		if ($params['PRODUCT_SUBSCRIPTION'] !== 'Y')
+		{
 			$params['PRODUCT_SUBSCRIPTION'] = 'N';
+		}
 
 		$params['PROPERTY_CODE'] = array();
 		$params['ADDITIONAL_PICT_PROP'] = array();
@@ -586,13 +597,16 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			}
 		}
 
-		if (!is_array($params["PRICE_CODE"]))
-			$params["PRICE_CODE"] = array();
+		if (empty($params["PRICE_CODE"]) || !is_array($params["PRICE_CODE"]))
+		{
+			$params["PRICE_CODE"] = [];
+		}
 
-		$params["SHOW_PRICE_COUNT"] = intval($params["SHOW_PRICE_COUNT"]);
+		$params["SHOW_PRICE_COUNT"] = (int)($params["SHOW_PRICE_COUNT"] ?? 0);
 		if ($params["SHOW_PRICE_COUNT"] <= 0)
+		{
 			$params["SHOW_PRICE_COUNT"] = 1;
-
+		}
 
 		if (empty($params['HIDE_NOT_AVAILABLE']))
 			$params['HIDE_NOT_AVAILABLE'] = 'N';
@@ -605,9 +619,9 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 		if (empty($params['SHOW_NAME']))
 			$params['SHOW_NAME'] = 'Y';
 
-		$params["PRICE_VAT_INCLUDE"] = $params["PRICE_VAT_INCLUDE"] !== "N";
+		$params["PRICE_VAT_INCLUDE"] = ($params["PRICE_VAT_INCLUDE"] ?? '') !== "N";
 		$params['CONVERT_CURRENCY'] = (isset($params['CONVERT_CURRENCY']) && 'Y' == $params['CONVERT_CURRENCY'] ? 'Y' : 'N');
-		$params['CURRENCY_ID'] = trim(strval($params['CURRENCY_ID']));
+		$params['CURRENCY_ID'] = trim((string)($params['CURRENCY_ID'] ?? ''));
 		if ('' == $params['CURRENCY_ID'])
 		{
 			$params['CONVERT_CURRENCY'] = 'N';
@@ -629,6 +643,8 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			if ($params['USER_ID'] < 0)
 				$params['USER_ID'] = 0;
 		}
+
+		$params['TEMPLATE_THEME'] = (string)($params['TEMPLATE_THEME'] ?? '');
 
 		return $params;
 	}
@@ -1196,7 +1212,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 								|| (!$boolArr && $prop["VALUE"] <> '')
 							)
 							{
-								$element['DISPLAY_PROPERTIES'][$propertyName] = CIBlockFormatProperties::GetDisplayValue($element, $prop, 'catalog_out');
+								$element['DISPLAY_PROPERTIES'][$propertyName] = CIBlockFormatProperties::GetDisplayValue($element, $prop);
 							}
 							unset($prop);
 						}
@@ -1215,6 +1231,11 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 							$element['PRODUCT_PROPERTIES_FILL'] = CIBlockPriceTools::getFillProductProperties($element['PRODUCT_PROPERTIES']);
 					}
 				}
+				CCatalogDiscount::ClearDiscountCache([
+					'PRODUCT' => true,
+					'SECTIONS' => true,
+					'PROPERTIES' => true,
+				]);
 			}
 			unset($element, $this->linkItems);
 		}
@@ -1423,26 +1444,36 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			//if(empty($this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']]) || empty($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']]))
 			//	continue;
 
-			if(!isset($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']]) && !is_array($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']]))
-				$this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']] = array();
+			if (
+				!isset($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']])
+				|| !is_array($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']])
+			)
+			{
+				$this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']] = [];
+			}
 
-			if(!isset($this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']]) && !is_array($this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']]))
-				$this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']] = array();
+			if (
+				!isset($this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']])
+				|| !is_array($this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']])
+			)
+			{
+				$this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']] = [];
+			}
 
 			$selectProperties = array_merge($this->arParams['PROPERTY_CODE'][$iblock['OFFERS_IBLOCK_ID']], $this->arParams['OFFER_TREE_PROPS'][$iblock['OFFERS_IBLOCK_ID']]);
 			$offers = CIBlockPriceTools::GetOffersArray(
 				array(
 					'IBLOCK_ID' => $iblock['IBLOCK_ID'],
 					'HIDE_NOT_AVAILABLE' => $this->arParams['HIDE_NOT_AVAILABLE'],
-				)
-				, $this->iblockItems[$iblock['IBLOCK_ID']]
-				, array()
-				, array("ID", "CODE", "NAME", "SORT", "PREVIEW_PICTURE", "DETAIL_PICTURE")
-				, $selectProperties
-				, $this->arParams["OFFERS_LIMIT"]
-				, $this->data['CATALOG_PRICES']
-				, $this->arParams['PRICE_VAT_INCLUDE']
-				, $this->data['CONVERT_CURRENCY']
+				),
+				$this->iblockItems[$iblock['IBLOCK_ID']],
+				array(),
+				array("ID", "CODE", "NAME", "SORT", "PREVIEW_PICTURE", "DETAIL_PICTURE"),
+				$selectProperties,
+				$this->arParams["OFFERS_LIMIT"],
+				$this->data['CATALOG_PRICES'],
+				$this->arParams['PRICE_VAT_INCLUDE'],
+				$this->data['CONVERT_CURRENCY']
 			);
 			if (empty($offers))
 				continue;

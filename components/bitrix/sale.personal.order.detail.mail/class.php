@@ -1,4 +1,8 @@
 <?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * Bitrix Framework
@@ -9,13 +13,27 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization;
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
-	CBitrixComponent::includeComponentClass("bitrix:sale.personal.order.detail");
+
+CBitrixComponent::includeComponentClass("bitrix:sale.personal.order.detail");
+
 class CBitrixPersonalOrderDetailMail extends CBitrixPersonalOrderDetailComponent
 {
-	/**
-	 * @return void
-	 */
+	public function onPrepareComponentParams($arParams)
+	{
+		$params = parent::onPrepareComponentParams($arParams);
+
+		$params['SHOW_ORDER_BASKET'] = (string)($params['SHOW_ORDER_BASKET'] ?? 'Y');
+		$params['SHOW_ORDER_BASE'] = (string)($params['SHOW_ORDER_BASE'] ?? 'Y');
+		$params['SHOW_ORDER_USER'] = (string)($params['SHOW_ORDER_USER'] ?? 'Y');
+		$params['SHOW_ORDER_PARAMS'] = (string)($params['SHOW_ORDER_PARAMS'] ?? 'Y');
+		$params['SHOW_ORDER_BUYER'] = (string)($params['SHOW_ORDER_BUYER'] ?? 'Y');
+		$params['SHOW_ORDER_DELIVERY'] = (string)($params['SHOW_ORDER_DELIVERY'] ?? 'Y');
+		$params['SHOW_ORDER_PAYMENT'] = (string)($params['SHOW_ORDER_PAYMENT'] ?? 'Y');
+		$params['SHOW_ORDER_SUM'] = (string)($params['SHOW_ORDER_SUM'] ?? 'Y');
+
+		return $params;
+	}
+
 	protected function checkOrder()
 	{
 		if (!($this->order))

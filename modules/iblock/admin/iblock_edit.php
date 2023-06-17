@@ -3,12 +3,13 @@
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
-/** @global string $type */
 
 use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
+use Bitrix\Iblock\Template;
+use Bitrix\Iblock\InheritedProperty;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 Loader::includeModule('iblock');
@@ -26,7 +27,7 @@ if (!CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit"))
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
-const CATALOG_NEW_OFFERS_IBLOCK_NEED = '-1';
+const CATALOG_NEW_OFFERS_IBLOCK_NEED = -1;
 const PROPERTY_EMPTY_ROW_SIZE = 5;
 $strPREFIX_OF_PROPERTY = 'OF_PROPERTY_';
 $strPREFIX_IB_PROPERTY = 'IB_PROPERTY_';
@@ -516,20 +517,77 @@ $bCatalog = Loader::includeModule('catalog');
 
 $canUseYandexMarket = $bCatalog && \Bitrix\Catalog\Config\Feature::isCanUseYandexExport();
 
+$type = (string)$request->get('type');
 $arIBTYPE = CIBlockType::GetByIDLang($type, LANGUAGE_ID);
 
-if($arIBTYPE!==false):
+if ($arIBTYPE === false)
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	ShowError(GetMessage("IBLOCK_BAD_BLOCK_TYPE_ID"));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	die();
+}
 
-$strWarning="";
+$strWarning = '';
 $bVarsFromForm = false;
+$defaultIblockValues = [
+	'LID' => [], // need check
+	'CODE' => '',
+	'API_CODE' => '',
+	'REST_ON' => '',
+	'NAME' => '',
+	'ACTIVE' => '',
+	'SORT' => 500,
+	'LIST_PAGE_URL' => '',
+	'DETAIL_PAGE_URL' => '',
+	'SECTION_PAGE_URL' => '',
+	'CANONICAL_PAGE_URL' => '',
+	'PICTURE' => null, // need check
+	'DESCRIPTION' => '',
+	'DESCRIPTION_TYPE' => 'text',
+	'RSS_TTL' => 24,
+	'RSS_ACTIVE' => 'Y',
+	'RSS_FILE_ACTIVE' => 'N',
+	'RSS_FILE_LIMIT' => 0,
+	'RSS_FILE_DAYS' => 0,
+	'RSS_YANDEX_ACTIVE' => 'N',
+	'XML_ID' => '',
+	'INDEX_ELEMENT' => 'Y',
+	'INDEX_SECTION' => 'N',
+	'WORKFLOW' => 'Y',
+	'BIZPROC' => 'N',
+	'SECTION_CHOOSER' => '', // need check
+	'LIST_MODE' => '', // need check
+	'RIGHTS_MODE' => Iblock\IblockTable::RIGHTS_SIMPLE,
+	'VERSION' =>  Iblock\IblockTable::PROPERTY_STORAGE_COMMON,
+	'EDIT_FILE_BEFORE' => '',
+	'EDIT_FILE_AFTER' => '',
+	'SECTIONS_NAME' => '',
+	'SECTION_NAME' => '',
+	'ELEMENTS_NAME' => '',
+	'ELEMENT_NAME' => '',
+];
+$defaultCatalogValues = [
+	'IS_CATALOG' => 'N',
+	'SUBSCRIPTION' => 'N',
+	'YANDEX_EXPORT' => 'N',
+	'VAT_ID' => 0,
+	'USED_SKU' => 'N',
+	'OF_IBLOCK_ID' => 0,
+	'OF_IBLOCK_TYPE_ID' => '',
+	'OF_NEW_IBLOCK_TYPE_ID' => '',
+	'OF_CREATE_IBLOCK_TYPE_ID' => 'N',
+	'OFFERS_PROPERTY_COUNT' => 0,
+	'OF_IBLOCK_NAME' => '',
+];
 $formFields = [];
 
-if(
+if (
 	$request->isPost()
 	&& check_bitrix_sessid()
-	&& CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit")
+	&& CIBlockRights::UserHasRightTo($ID, $ID, 'iblock_edit')
 	&& $request->getPost('Update') === 'Y'
-	&& !isset($_POST["propedit"])
+	&& $request->getPost('propedit') === null
 )
 {
 	$adminSidePanelHelper->decodeUriComponent();
@@ -659,6 +717,7 @@ if(
 	}
 	foreach ($intList as $fieldId)
 	{
+		$value = $request->getPost($fieldId);
 		if (is_string($value))
 		{
 			$value = (int)$value;
@@ -675,33 +734,31 @@ if(
 
 	$arFields = $formFields;
 
-	if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
+	if (CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 	{
 		if (isset($arFields["RIGHTS_MODE"]) && $arFields["RIGHTS_MODE"] === Iblock\IblockTable::RIGHTS_EXTENDED)
 		{
-			if (isset($_POST["RIGHTS"]) && is_array($_POST["RIGHTS"]))
+			$extendedRights = $request->getPost('RIGHTS');
+			$groupRights = $request->getPost('GROUP');
+			if (is_array($extendedRights))
 			{
-				$arFields["RIGHTS"] = CIBlockRights::Post2Array($_POST["RIGHTS"]);
+				$arFields["RIGHTS"] = CIBlockRights::Post2Array($extendedRights);
 			}
-			elseif (isset($_POST["GROUP"]) && is_array($_POST["GROUP"]))
+			elseif (is_array($groupRights))
 			{
-				$arFields["GROUP_ID"] = $_POST["GROUP"];
+				$arFields["GROUP_ID"] = $groupRights;
 			}
 			else
 			{
 				$arFields["RIGHTS"] = [];
 			}
+			unset($groupRights, $extendedRights);
 		}
 		else
 		{
-			if (isset($_POST["GROUP"]) && is_array($_POST["GROUP"]))
-			{
-				$arFields["GROUP_ID"] = $_POST["GROUP"];
-			}
-			else
-			{
-				$arFields["GROUP_ID"] = [];
-			}
+			$groupRights = $request->getPost('GROUP');
+			$arFields['GROUP_ID'] = is_array($groupRights) ? $groupRights : [];
+			unset($groupRights);
 		}
 	}
 
@@ -733,8 +790,8 @@ if(
 		}
 	}
 
-	$intPropCount = intval($_POST['IBLOCK_PROPERTY_COUNT']);
-	for($i=0; $i<$intPropCount; $i++)
+	$intPropCount = (int)($_POST['IBLOCK_PROPERTY_COUNT'] ?? 0);
+	for ($i = 0; $i < $intPropCount; $i++)
 	{
 		$arProperty = GetPropertyInfo($strPREFIX_IB_PROPERTY, 'n'.$i, true, $arHiddenPropFields);
 		if (!is_array($arProperty))
@@ -787,43 +844,70 @@ if(
 	unset($arDublicateCodes);
 	unset($bDublicate);
 
-	if (is_array($_POST["IPROPERTY_TEMPLATES"]))
+	$ipropertyTemplates = $request->getPost('IPROPERTY_TEMPLATES');
+	if (is_array($ipropertyTemplates))
 	{
-		$SECTION_PICTURE_FILE_NAME = \Bitrix\Iblock\Template\Helper::convertArrayToModifiers($_POST["IPROPERTY_TEMPLATES"]["SECTION_PICTURE_FILE_NAME"]);
-		$SECTION_DETAIL_PICTURE_FILE_NAME = \Bitrix\Iblock\Template\Helper::convertArrayToModifiers($_POST["IPROPERTY_TEMPLATES"]["SECTION_DETAIL_PICTURE_FILE_NAME"]);
-		$ELEMENT_PREVIEW_PICTURE_FILE_NAME = \Bitrix\Iblock\Template\Helper::convertArrayToModifiers($_POST["IPROPERTY_TEMPLATES"]["ELEMENT_PREVIEW_PICTURE_FILE_NAME"]);
-		$ELEMENT_DETAIL_PICTURE_FILE_NAME = \Bitrix\Iblock\Template\Helper::convertArrayToModifiers($_POST["IPROPERTY_TEMPLATES"]["ELEMENT_DETAIL_PICTURE_FILE_NAME"]);
+		$arFields['IPROPERTY_TEMPLATES'] = [];
 
-		$arFields["IPROPERTY_TEMPLATES"] = array(
-			"SECTION_META_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_META_TITLE"]["TEMPLATE"],
-			"SECTION_META_KEYWORDS" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_META_KEYWORDS"]["TEMPLATE"],
-			"SECTION_META_DESCRIPTION" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_META_DESCRIPTION"]["TEMPLATE"],
-			"SECTION_PAGE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_PAGE_TITLE"]["TEMPLATE"],
-			"ELEMENT_META_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_META_TITLE"]["TEMPLATE"],
-			"ELEMENT_META_KEYWORDS" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_META_KEYWORDS"]["TEMPLATE"],
-			"ELEMENT_META_DESCRIPTION" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_META_DESCRIPTION"]["TEMPLATE"],
-			"ELEMENT_PAGE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_PAGE_TITLE"]["TEMPLATE"],
-			"SECTION_PICTURE_FILE_ALT" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_PICTURE_FILE_ALT"]["TEMPLATE"],
-			"SECTION_PICTURE_FILE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_PICTURE_FILE_TITLE"]["TEMPLATE"],
-			"SECTION_PICTURE_FILE_NAME" => $SECTION_PICTURE_FILE_NAME,
-			"SECTION_DETAIL_PICTURE_FILE_ALT" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_DETAIL_PICTURE_FILE_ALT"]["TEMPLATE"],
-			"SECTION_DETAIL_PICTURE_FILE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["SECTION_DETAIL_PICTURE_FILE_TITLE"]["TEMPLATE"],
-			"SECTION_DETAIL_PICTURE_FILE_NAME" => $SECTION_DETAIL_PICTURE_FILE_NAME,
-			"ELEMENT_PREVIEW_PICTURE_FILE_ALT" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_PREVIEW_PICTURE_FILE_ALT"]["TEMPLATE"],
-			"ELEMENT_PREVIEW_PICTURE_FILE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_PREVIEW_PICTURE_FILE_TITLE"]["TEMPLATE"],
-			"ELEMENT_PREVIEW_PICTURE_FILE_NAME" => $ELEMENT_PREVIEW_PICTURE_FILE_NAME,
-			"ELEMENT_DETAIL_PICTURE_FILE_ALT" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_DETAIL_PICTURE_FILE_ALT"]["TEMPLATE"],
-			"ELEMENT_DETAIL_PICTURE_FILE_TITLE" => $_POST["IPROPERTY_TEMPLATES"]["ELEMENT_DETAIL_PICTURE_FILE_TITLE"]["TEMPLATE"],
-			"ELEMENT_DETAIL_PICTURE_FILE_NAME" => $ELEMENT_DETAIL_PICTURE_FILE_NAME,
-		);
+		$simpleTemplateNameList = [
+			'SECTION_META_TITLE',
+			'SECTION_META_KEYWORDS',
+			'SECTION_META_DESCRIPTION',
+			'SECTION_PAGE_TITLE',
+			'ELEMENT_META_TITLE',
+			'ELEMENT_META_KEYWORDS',
+			'ELEMENT_META_DESCRIPTION',
+			'ELEMENT_PAGE_TITLE',
+			'SECTION_PICTURE_FILE_ALT',
+			'SECTION_PICTURE_FILE_TITLE',
+			'SECTION_DETAIL_PICTURE_FILE_ALT',
+			'SECTION_DETAIL_PICTURE_FILE_TITLE',
+			'ELEMENT_PREVIEW_PICTURE_FILE_ALT',
+			'ELEMENT_PREVIEW_PICTURE_FILE_TITLE',
+			'ELEMENT_DETAIL_PICTURE_FILE_ALT',
+			'ELEMENT_DETAIL_PICTURE_FILE_TITLE',
+		];
+		foreach ($simpleTemplateNameList as $templateName)
+		{
+			if (isset($ipropertyTemplates[$templateName]['TEMPLATE']) && is_string($ipropertyTemplates[$templateName]['TEMPLATE']))
+			{
+				$arFields['IPROPERTY_TEMPLATES'][$templateName] = $ipropertyTemplates[$templateName]['TEMPLATE'];
+			}
+		}
+		unset($templateName, $simpleTemplateNameList);
+
+		$fileNameTemplateList = [
+			'SECTION_PICTURE_FILE_NAME',
+			'SECTION_DETAIL_PICTURE_FILE_NAME',
+			'ELEMENT_PREVIEW_PICTURE_FILE_NAME',
+			'ELEMENT_DETAIL_PICTURE_FILE_NAME',
+		];
+		foreach ($fileNameTemplateList as $templateName)
+		{
+			if (isset($ipropertyTemplates[$templateName]) && is_array($ipropertyTemplates[$templateName]))
+			{
+				$arFields['IPROPERTY_TEMPLATES'][$templateName] = Template\Helper::convertArrayToModifiers(
+					$ipropertyTemplates[$templateName]
+				);
+			}
+		}
+		unset($templateName, $fileNameTemplateList);
+
+		if (empty($arFields['IPROPERTY_TEMPLATES']))
+		{
+			unset($arFields['IPROPERTY_TEMPLATES']);
+		}
 	}
+	unset($ipropertyTemplates);
 
 	$bCreateRecord = $ID <= 0;
 
-	if(!$bVarsFromForm)
+	if (!$bVarsFromForm)
 	{
-		$res_log["NAME"] = $NAME;
-		if($ID>0)
+		$res_log = [
+			'NAME' => ($arFields['NAME'] ?? ''),
+		];
+		if ($ID > 0)
 		{
 			$res = $ib->Update($ID, $arFields);
 			if(COption::GetOptionString("iblock", "event_log_iblock", "N") === "Y" && $res)
@@ -849,8 +933,9 @@ if(
 					serialize($res_log)
 				);
 		}
+		unset($res_log);
 
-		if(!$res)
+		if (!$res)
 		{
 			$strWarning .= $ib->LAST_ERROR."<br>";
 			$bVarsFromForm = true;
@@ -858,34 +943,43 @@ if(
 		else
 		{
 			// RSS agent creation
-			if ($RSS_FILE_ACTIVE == "Y")
+			$agentPeriod = ($arFields['RSS_TTL'] ?? $defaultIblockValues['RSS_TTL']) * 36000;
+
+			CAgent::RemoveAgent('CIBlockRSS::PreGenerateRSS(' . $ID . ', false);', 'iblock');
+			if (($arFields['RSS_FILE_ACTIVE'] ?? $defaultIblockValues['RSS_FILE_ACTIVE']) === 'Y')
 			{
-				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock");
-				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock", "N", intval($RSS_TTL)*60*60, "", "Y");
-			}
-			else
-			{
-				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock");
+				CAgent::AddAgent(
+					'CIBlockRSS::PreGenerateRSS(' . $ID . ', false);',
+					'iblock',
+					'N',
+					$agentPeriod,
+					'',
+					'Y'
+				);
 			}
 
-			if ($RSS_YANDEX_ACTIVE == "Y")
+			CAgent::RemoveAgent('CIBlockRSS::PreGenerateRSS(' . $ID . ', true);', 'iblock');
+			if (($arFields['RSS_YANDEX_ACTIVE'] ?? $defaultIblockValues['RSS_YANDEX_ACTIVE']) === 'Y')
 			{
-				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock");
-				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock", "N", intval($RSS_TTL)*60*60, "", "Y");
-			}
-			else
-			{
-				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock");
+				CAgent::AddAgent(
+					'CIBlockRSS::PreGenerateRSS(' . $ID . ', true);',
+					'iblock',
+					'N',
+					$agentPeriod,
+					'',
+					'Y'
+				);
 			}
 
-			if (isset($_POST["IPROPERTY_CLEAR_VALUES"]) && $_POST["IPROPERTY_CLEAR_VALUES"] === "Y")
+			if ($request->getPost('IPROPERTY_CLEAR_VALUES') === 'Y')
 			{
-				$ipropValues = new \Bitrix\Iblock\InheritedProperty\IblockValues($ID);
+				$ipropValues = new InheritedProperty\IblockValues($ID);
 				$ipropValues->clearValues();
+				unset($ipropValues);
 			}
 
 			/********************/
-			\CIBlock::disableClearTagCache();
+			CIBlock::disableClearTagCache();
 			$ibp = new CIBlockProperty();
 			foreach($arProperties as $property_id => $arProperty)
 			{
@@ -921,35 +1015,41 @@ if(
 					}
 				}
 			}
-			\CIBlock::enableClearTagCache();
+			CIBlock::enableClearTagCache();
 			if (!$bVarsFromForm)
-				\CIBlock::clearIblockTagCache($ID);
+			{
+				CIBlock::clearIblockTagCache($ID);
+			}
 			/*******************************************/
 
-			if(!$bVarsFromForm && $arIBTYPE["IN_RSS"]=="Y")
+			if (!$bVarsFromForm && $arIBTYPE['IN_RSS'] === 'Y')
 			{
 				CIBlockRSS::Delete($ID);
 				$arNodesRSS = CIBlockRSS::GetRSSNodes();
-				foreach($arNodesRSS as $key => $val)
+				foreach ($arNodesRSS as $key => $val)
 				{
-					if(${"RSS_NODE_VALUE_".$key} <> '')
-						CIBlockRSS::Add($ID, $val, ${"RSS_NODE_VALUE_".$key});
+					$formNodeValue = (string)$request->getPost('RSS_NODE_VALUE_' . $key);
+					if ($formNodeValue !== '')
+					{
+						CIBlockRSS::Add($ID, $val, $formNodeValue);
+					}
 				}
 			}
 
-			if(!$bVarsFromForm && !$bCreateRecord && $bBizproc)
+			if (!$bVarsFromForm && !$bCreateRecord && $bBizproc)
 			{
 				$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(array("iblock", "CIBlockDocument", "iblock_".$ID));
 				foreach ($arWorkflowTemplates as $t)
 				{
-					$create_bizproc = (array_key_exists("create_bizproc_".$t["ID"], $_REQUEST) && $_REQUEST["create_bizproc_".$t["ID"]] == "Y");
-					$edit_bizproc = (array_key_exists("edit_bizproc_".$t["ID"], $_REQUEST) && $_REQUEST["edit_bizproc_".$t["ID"]] == "Y");
+					$create_bizproc = $request->getPost('create_bizproc_' . $t['ID']) === 'Y';
+					$edit_bizproc = $request->getPost('edit_bizproc_' . $t['ID']) === 'Y';
 
 					$create_bizproc1 = (($t["AUTO_EXECUTE"] & 1) != 0);
 					$edit_bizproc1 = (($t["AUTO_EXECUTE"] & 2) != 0);
 
-					if ($create_bizproc != $create_bizproc1 || $edit_bizproc != $edit_bizproc1)
+					if ($create_bizproc !== $create_bizproc1 || $edit_bizproc !== $edit_bizproc1)
 					{
+						$arErrorsTmp = [];
 						CBPDocument::UpdateWorkflowTemplate(
 							$t["ID"],
 							array("iblock", "CIBlockDocument", "iblock_".$ID),
@@ -962,22 +1062,22 @@ if(
 				}
 			}
 
+			$boolNeedAgent = false;
 			if (!$bVarsFromForm && $bCatalog)
 			{
-				$boolNeedAgent = false;
 				$boolFlag = true;
 				$obCatalog = new CCatalog();
-				$arCatalog = $obCatalog->GetByIDExt($ID);
+				$arCatalog = CCatalog::GetByIDExt($ID);
 
 				if (!isset($IS_CATALOG) || ('Y' != $IS_CATALOG && 'N' != $IS_CATALOG))
 				{
 					$bVarsFromForm = true;
-					$strWarning .= GetMessage('IB_E_OF_ERR_IS_CATALOG').'<br>';
+					$strWarning .= GetMessage('IB_E_OF_ERR_IS_CATALOG') . '<br>';
 				}
 				if (!isset($SUBSCRIPTION) || ('Y' != $SUBSCRIPTION && 'N' != $SUBSCRIPTION))
 				{
 					$bVarsFromForm = true;
-					$strWarning .= GetMessage('IB_E_OF_ERR_SUBSCRIPTION').'<br>';
+					$strWarning .= GetMessage('IB_E_OF_ERR_SUBSCRIPTION') . '<br>';
 				}
 
 				if (!$bVarsFromForm)
@@ -989,20 +1089,20 @@ if(
 							if (!isset($YANDEX_EXPORT) || ('Y' != $YANDEX_EXPORT && 'N' != $YANDEX_EXPORT))
 							{
 								$bVarsFromForm = true;
-								$strWarning .= GetMessage('IB_E_OF_ERR_YANDEX_EXPORT').'<br>';
+								$strWarning .= GetMessage('IB_E_OF_ERR_YANDEX_EXPORT') . '<br>';
 							}
 						}
 						if (!isset($VAT_ID))
 						{
 							$bVarsFromForm = true;
-							$strWarning .= GetMessage('IB_E_OF_ERR_VAT_ID').'<br>';
+							$strWarning .= GetMessage('IB_E_OF_ERR_VAT_ID') . '<br>';
 						}
 					}
 				}
 				if (!isset($USED_SKU) || ('Y' != $USED_SKU && 'N' != $USED_SKU))
 				{
 					$bVarsFromForm = true;
-					$strWarning .= GetMessage('IB_E_OF_ERR_USED_SKU').'<br>';
+					$strWarning .= GetMessage('IB_E_OF_ERR_USED_SKU') . '<br>';
 				}
 
 				if (!$bVarsFromForm)
@@ -1043,9 +1143,10 @@ if(
 						if (!$boolFlag)
 						{
 							$bVarsFromForm = true;
-							if ($ex = $APPLICATION->GetException())
+							$ex = $APPLICATION->GetException();
+							if ($ex)
 							{
-								$strWarning .= $ex->GetString()."<br>";
+								$strWarning .= $ex->GetString() . '<br>';
 							}
 						}
 						else
@@ -1069,13 +1170,15 @@ if(
 								$boolFlag = $obCatalog->Add($arOffersFields);
 							}
 							if ($boolFlag && $arOffersFields['YANDEX_EXPORT'] == 'Y')
+							{
 								$boolNeedAgent = true;
+							}
 						}
 						else
 						{
 							if ($IS_CATALOG == 'Y' || $SUBSCRIPTION == 'Y')
 							{
-								$boolFlag = $obCatalog->Update($ID,$arOffersFields);
+								$boolFlag = $obCatalog->Update($ID, $arOffersFields);
 								if ($boolFlag)
 									$boolNeedAgent = ($YANDEX_EXPORT != $arCatalog['YANDEX_EXPORT']);
 							}
@@ -1089,9 +1192,10 @@ if(
 						if (!$boolFlag)
 						{
 							$bVarsFromForm = true;
-							if($ex = $APPLICATION->GetException())
+							$ex = $APPLICATION->GetException();
+							if ($ex)
 							{
-								$strWarning .= $ex->GetString()."<br>";
+								$strWarning .= $ex->GetString() . '<br>';
 							}
 						}
 						if (!$bVarsFromForm)
@@ -1102,7 +1206,7 @@ if(
 								if (0 == $OF_IBLOCK_ID)
 								{
 									$bVarsFromForm = true;
-									$strWarning .= GetMessage('IB_E_OF_ERR_OFFERS_IS_ABSENT').'<br>';
+									$strWarning .= GetMessage('IB_E_OF_ERR_OFFERS_IS_ABSENT') . '<br>';
 								}
 								elseif (CATALOG_NEW_OFFERS_IBLOCK_NEED == $OF_IBLOCK_ID)
 								{
@@ -1110,14 +1214,14 @@ if(
 									if (!$arCheckIBlockType)
 									{
 										$bVarsFromForm = true;
-										$strWarning .= GetMessage('IB_E_OF_ERR_IBLOCK_TYPE_UNKNOWN_ERR').'<br>';
+										$strWarning .= GetMessage('IB_E_OF_ERR_IBLOCK_TYPE_UNKNOWN_ERR') . '<br>';
 									}
 									else
 									{
-										if ('ERROR' == $arCheckIBlockType['RESULT'])
+										if ($arCheckIBlockType['RESULT'] === 'ERROR')
 										{
 											$bVarsFromForm = true;
-											$strWarning .= $arCheckIBlockType['MESSAGE'].'<br>';
+											$strWarning .= $arCheckIBlockType['MESSAGE'] . '<br>';
 										}
 										else
 										{
@@ -1133,13 +1237,18 @@ if(
 										$arOfPropList = array();
 										for ($i = 0; $i < $intCountOFProp; $i++)
 										{
-											$arOFProperty = GetPropertyInfo($strPREFIX_OF_PROPERTY, 'n'.$i, true, $arHiddenPropFields);
-											if (false !== $arOFProperty)
+											$arOFProperty = GetPropertyInfo(
+												$strPREFIX_OF_PROPERTY,
+												'n' . $i,
+												true,
+												$arHiddenPropFields
+											);
+											if ($arOFProperty !== false)
 											{
 												$res = $ibp->CheckFields($arOFProperty, false, true);
-												if(!$res)
+												if (!$res)
 												{
-													$strWarning .= GetMessage("IB_E_PROPERTY_ERROR").": ".$ibp->LAST_ERROR."<br>";
+													$strWarning .= GetMessage('IB_E_PROPERTY_ERROR') . ': ' . $ibp->LAST_ERROR . '<br>';
 													$bVarsFromForm = true;
 												}
 												$arOfPropList[] = $arOFProperty;
@@ -1175,8 +1284,13 @@ if(
 											{
 												$arGroup = $_POST["GROUP"];
 												foreach ($arGroup as &$value)
-												if ('U' == $value)
-													$value = 'W';
+												{
+													if ($value === 'U')
+													{
+														$value = 'W';
+													}
+												}
+												unset($value);
 
 												$arOffersFields["GROUP_ID"] = $arGroup;
 											}
@@ -1189,8 +1303,13 @@ if(
 										{
 											$arGroup = $GROUP;
 											foreach ($arGroup as &$value)
-												if ('U' == $value)
+											{
+												if ($value === 'U')
+												{
 													$value = 'W';
+												}
+											}
+											unset($value);
 
 											$arOffersFields["GROUP_ID"] = $arGroup;
 										}
@@ -1208,9 +1327,9 @@ if(
 
 										$obIBlock = new CIBlock();
 										$mxOffersID = $obIBlock->Add($arOffersFields);
-										if (false == $mxOffersID)
+										if (!$mxOffersID)
 										{
-											$strWarning .= $obIBlock->LAST_ERROR."<br>";
+											$strWarning .= $obIBlock->LAST_ERROR . '<br>';
 											$bVarsFromForm = true;
 										}
 										else
@@ -1268,8 +1387,13 @@ if(
 												{
 													$arGroup = $_POST["GROUP"];
 													foreach ($arGroup as &$value)
-													if ('U' == $value)
-														$value = 'W';
+													{
+														if ($value === 'U')
+														{
+															$value = 'W';
+														}
+													}
+													unset($value);
 
 													$arOffersFields["GROUP_ID"] = $arGroup;
 												}
@@ -1282,8 +1406,13 @@ if(
 											{
 												$arGroup = $GROUP;
 												foreach ($arGroup as &$value)
-													if ('U' == $value)
+												{
+													if ($value === 'U')
+													{
 														$value = 'W';
+													}
+												}
+												unset($value);
 
 												$arOffersFields["GROUP_ID"] = $arGroup;
 											}
@@ -1330,7 +1459,14 @@ if(
 									}
 									else
 									{
-										$strWarning .= str_replace(array('#ID#'),array($OF_IBLOCK_ID),GetMessage('IB_E_RIGHTS_IBLOCK_ACCESS_DENIED')).'<br>';
+										$strWarning .=
+											str_replace(
+												'#ID#',
+												$catalogFields['OF_IBLOCK_ID'],
+												GetMessage('IB_E_RIGHTS_IBLOCK_ACCESS_DENIED')
+											)
+											. '<br>'
+										;
 										$bVarsFromForm = true;
 									}
 								}
@@ -1372,9 +1508,10 @@ if(
 											$boolFlag = $obCatalog->Add($arOffersFields);
 										}
 									}
-									if($ex = $APPLICATION->GetException())
+									$ex = $APPLICATION->GetException();
+									if ($ex)
 									{
-										$strWarning .= $ex->GetString()."<br>";
+										$strWarning .= $ex->GetString() . '<br>';
 										$bVarsFromForm = true;
 									}
 								}
@@ -1388,9 +1525,9 @@ if(
 									{
 										$bVarsFromForm = true;
 										$ex = $APPLICATION->GetException();
-										if (true == is_object($ex))
+										if ($ex)
 										{
-											$strWarning .= $ex->GetString()."<br>";
+											$strWarning .= $ex->GetString() . '<br>';
 										}
 									}
 								}
@@ -1401,9 +1538,10 @@ if(
 
 				if (!$boolFlag)
 				{
-					if($ex = $APPLICATION->GetException())
+					$ex = $APPLICATION->GetException();
+					if ($ex)
 					{
-						$strWarning .= $ex->GetString()."<br>";
+						$strWarning .= $ex->GetString() . '<br>';
 						$bVarsFromForm = true;
 					}
 				}
@@ -1431,7 +1569,7 @@ if(
 
 				if ($bCatalog)
 				{
-					if (isset($boolNeedAgent) && $boolNeedAgent == true)
+					if ($boolNeedAgent)
 					{
 						$intYandexExport = CCatalog::GetList(array(),array('YANDEX_EXPORT' => 'Y'),array());
 						CAgent::RemoveAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog");
@@ -1440,17 +1578,24 @@ if(
 					}
 				}
 
-				$reloadUrl = "/bitrix/admin/iblock_edit.php?type=" . $type
-					. "&tabControl_active_tab=" . urlencode($tabControl_active_tab)
-					. "&lang=" . LANGUAGE_ID
-					. "&ID=" . $ID
-					. "&admin=" . urlencode($isAdminUrl)
-					. ($returnUrl !== '' ? "&return_url=" . urlencode($returnUrl) : "")
+				$reloadUrl =
+					'/bitrix/admin/iblock_edit.php?type=' . $type
+					. '&tabControl_active_tab=' . urlencode((string)$request->get('tabControl_active_tab'))
+					. '&lang=' . LANGUAGE_ID
+					. '&ID=' . $ID
+					. '&admin=' . urlencode($isAdminUrl)
+					. ($returnUrl !== '' ? '&return_url=' . urlencode($returnUrl) : '')
 				;
 				if ($adminSidePanelHelper->isAjaxRequest())
 				{
-					$reloadUrl .= "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
-					$adminSidePanelHelper->sendSuccessResponse("apply", array("ID" => $ID, "reloadUrl" => $reloadUrl));
+					$reloadUrl .= '&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER';
+					$adminSidePanelHelper->sendSuccessResponse(
+						'apply',
+						[
+							'ID' => $ID,
+							'reloadUrl' => $reloadUrl,
+						]
+					);
 				}
 				else
 				{
@@ -1463,9 +1608,10 @@ if(
 						}
 						else
 						{
-							LocalRedirect("/bitrix/admin/iblock_admin.php?type=" . urlencode($type)
-								. "&lang=" . LANGUAGE_ID
-								. "&admin=" . urlencode($isAdminUrl)
+							LocalRedirect(
+								'/bitrix/admin/iblock_admin.php?type=' . urlencode($type)
+								. '&lang=' . LANGUAGE_ID
+								. '&admin=' . urlencode($isAdminUrl)
 							);
 						}
 					}
@@ -1478,15 +1624,15 @@ if(
 	$DB->Rollback();
 }
 
-if(
+if (
 	check_bitrix_sessid()
-	&& $_SERVER["REQUEST_METHOD"] ==="GET"
+	&& $request->getRequestMethod() === 'GET'
 	&& intval($_REQUEST["delete_bizproc_template"]) > 0
 	&& $bBizproc
 	&& CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit")
 )
 {
-	$arErrorTmp = array();
+	$arErrorTmp = [];
 	CBPDocument::DeleteWorkflowTemplate($_REQUEST["delete_bizproc_template"], array("iblock", "CIBlockDocument", "iblock_".$ID), $arErrorTmp);
 	if (!empty($arErrorTmp))
 	{
@@ -1495,7 +1641,7 @@ if(
 	}
 	else
 	{
-		LocalRedirect($APPLICATION->GetCurPageParam("", Array("delete_bizproc_template", "sessid")));
+		LocalRedirect($APPLICATION->GetCurPageParam("", ["delete_bizproc_template", "sessid"]));
 	}
 }
 
@@ -1512,7 +1658,12 @@ else
 
 
 ClearVars("str_");
+$str_LID = [];
 $str_ACTIVE="Y";
+$str_CODE = '';
+$str_API_CODE = '';
+$str_REST_ON = '';
+$str_NAME = '';
 $str_WORKFLOW="N";
 $str_BIZPROC="N";
 $str_SECTION_CHOOSER="L";
@@ -1532,11 +1683,16 @@ $str_RSS_FILE_ACTIVE="N";
 $str_RSS_FILE_LIMIT="10";
 $str_RSS_FILE_DAYS="7";
 $str_RSS_YANDEX_ACTIVE="N";
+$str_PICTURE = '';
+$str_DESCRIPTION = '';
+$str_DESCRIPTION_TYPE = '';
 
-$str_IS_CATALOG = 'N';
-$str_SUBSCRIPTION = 'N';
-$str_YANDEX_EXPORT = 'N';
-$str_VAT_ID = 0;
+$str_RIGHTS_MODE = Iblock\IblockTable::RIGHTS_SIMPLE;
+
+$str_IS_CATALOG = $defaultCatalogValues['IS_CATALOG'];
+$str_SUBSCRIPTION = $defaultCatalogValues['SUBSCRIPTION'];
+$str_YANDEX_EXPORT = $defaultCatalogValues['YANDEX_EXPORT'];
+$str_VAT_ID = $defaultCatalogValues['VAT_ID'];
 $str_USED_SKU = 'N';
 $str_CATALOG_TYPE = '';
 
@@ -1556,6 +1712,9 @@ $str_IPROPERTY_TEMPLATES = array();
 
 $str_SKU_RIGHTS = 'N';
 
+$str_EDIT_FILE_BEFORE = '';
+$str_EDIT_FILE_AFTER = '';
+
 $boolRecurringError = false;
 
 $bCurrentBPDisabled = true;
@@ -1569,17 +1728,20 @@ else
 {
 	$bCurrentBPDisabled = ($str_BIZPROC!='Y');
 
-	$str_LID = Array();
+	$str_LID = [];
 	$db_LID = CIBlock::GetSite($ID);
 	while($ar_LID = $db_LID->Fetch())
+	{
 		$str_LID[] = $ar_LID["LID"];
+	}
+	unset($ar_LID, $db_LID);
 
 	$ipropTemlates = new \Bitrix\Iblock\InheritedProperty\IblockTemplates($ID);
 	$str_IPROPERTY_TEMPLATES = $ipropTemlates->findTemplates();
-	$str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] ?? null);
-	$str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] ?? null);
-	$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] ?? null);
-	$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = \Bitrix\Iblock\Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] = Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] = Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["SECTION_DETAIL_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] = Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_PREVIEW_PICTURE_FILE_NAME"] ?? null);
+	$str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] = Template\Helper::convertModifiersToArray($str_IPROPERTY_TEMPLATES["ELEMENT_DETAIL_PICTURE_FILE_NAME"] ?? null);
 
 	if ($bCatalog)
 	{
@@ -1618,11 +1780,7 @@ else
 	}
 }
 
-endif; //$arIBTYPE!==false
-
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-
-if($arIBTYPE!==false):
 
 if($bVarsFromForm)
 {
@@ -1776,12 +1934,12 @@ var CellTPL = [],
 <?
 foreach ($arCellTemplates as $key => $value)
 {
-	?>CellTPL[<? echo $key; ?>] = '<? echo $value; ?>';
+	?>CellTPL[<?= $key; ?>] = '<?= $value; ?>';
 <?
 }
 foreach ($arCellAttr as $key => $value)
 {
-	?>CellAttr[<? echo $key; ?>] = '<? echo $value; ?>';
+	?>CellAttr[<?= $key; ?>] = '<?= $value; ?>';
 <?
 }
 ?>
@@ -5422,11 +5580,5 @@ $tabControl->BeginNextTab();
 <?
 	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));
 endif;
-
-else: //if($arIBTYPE!==false):?>
-<br>
-<?
-	ShowError(GetMessage("IBLOCK_BAD_BLOCK_TYPE_ID"));
-endif;// if($arIBTYPE!==false):
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -4,7 +4,6 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 if (function_exists("FormDecode")) FormDecode();
-UnQuoteAll();
 
 // создаем изображение
 $ImageHendle = CreateImageHandle(45, 2);

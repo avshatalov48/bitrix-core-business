@@ -332,11 +332,11 @@
 
 			if (event.target.classList.contains('landing-form-select-next'))
 			{
-				layoutContainer.classList.add('landing-form-list-inner-prev');
+				layoutContainer.classList.add('--prev');
 			}
 			else
 			{
-				layoutContainer.classList.remove('landing-form-list-inner-prev');
+				layoutContainer.classList.remove('--prev');
 			}
 		},
 

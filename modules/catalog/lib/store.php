@@ -399,16 +399,16 @@ class StoreTable extends Main\Entity\DataManager
 
 	public static function getDefaultStoreId(): ?int
 	{
-		$iterator = self::getList([
-			'select' => ['ID'],
+		$row = self::getRow([
+			'select' => [
+				'ID',
+			],
 			'filter' => [
 				'=IS_DEFAULT' => 'Y',
 			],
 			'cache' => ['ttl' => 86400],
 		]);
-		$row = $iterator->fetch();
 		$defaultStoreId = (int)($row['ID'] ?? 0);
-		unset($row, $iterator);
 
 		return ($defaultStoreId > 0 ? $defaultStoreId : null);
 	}

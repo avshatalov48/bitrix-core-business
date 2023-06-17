@@ -1,0 +1,69 @@
+.bx-im-sidebar-detail-empty-state__scope {
+	--im-sidebar-detail-empty-state__color_text: #a8adb4;
+	--im-sidebar-detail-empty-state__background-color_icon: #f8fafb;
+	--im-sidebar-detail-empty-state__background-image_link-icon: url('./images/links-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_favorite-icon: url('./images/favorites-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_task-icon: url('./images/tasks-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_file-icon: url('./images/files-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_meeting-icon: url('./images/meetings-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_sign-icon: url('./images/sign-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_brief-icon: url('./images/briefs-empty-state.svg');
+}
+
+.bx-im-sidebar-detail-empty-state__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.bx-im-sidebar-detail-empty-state__icon {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-color: var(--im-sidebar-detail-empty-state__background-color_icon);
+}
+
+.bx-im-sidebar-detail-empty-state__text {
+	margin-left: 5px;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-sidebar-detail-empty-state__color_text);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--link {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_link-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--favorite {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_favorite-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--task {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_task-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--media {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_file-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--audio,
+.bx-im-sidebar-detail-empty-state__icon.--document,
+.bx-im-sidebar-detail-empty-state__icon.--other,
+.bx-im-sidebar-file-media-detail__container .bx-im-sidebar-detail-empty-state__icon.--media {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_sign-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--meeting {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_meeting-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--sign {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_sign-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--brief {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_brief-icon);
+}

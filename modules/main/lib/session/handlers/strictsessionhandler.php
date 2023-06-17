@@ -53,7 +53,7 @@ class StrictSessionHandler extends AbstractSessionHandler
 		return $this->handler->destroy($sessionId);
 	}
 
-	public function close()
+	public function close(): bool
 	{
 		return $this->handler->close();
 	}

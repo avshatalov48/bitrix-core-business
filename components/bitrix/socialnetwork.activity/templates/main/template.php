@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (!empty($arResult["FatalError"]))
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif ($arResult["FatalError"] <> '')
 }
 else
 {
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />

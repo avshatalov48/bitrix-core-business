@@ -463,7 +463,7 @@ class CAllIMContactList
 		{
 			$bColorEnabled = IM\Color::isEnabled();
 			$bOpenChatEnabled = CIMMessenger::CheckEnableOpenChat();
-			$cache_id = 'im_chats_v9_'.$USER->GetID().'_'.$bColorEnabled.'_'.$bOpenChatEnabled;
+			$cache_id = 'im_chats_v10_'.$USER->GetID().'_'.$bColorEnabled.'_'.$bOpenChatEnabled;
 			$obCLCache = new CPHPCache;
 			$cache_dir = '/bx/imc/chats';
 
@@ -526,7 +526,7 @@ class CAllIMContactList
 	{
 		$bColorEnabled = IM\Color::isEnabled();
 		$bOpenChatEnabled = CIMMessenger::CheckEnableOpenChat();
-		$cache_id = 'im_chats_v9_'.$userId.'_'.$bColorEnabled.'_'.$bOpenChatEnabled;
+		$cache_id = 'im_chats_v10_'.$userId.'_'.$bColorEnabled.'_'.$bOpenChatEnabled;
 		$cache_dir = '/bx/imc/chats';
 
 		$obCLCache = new CPHPCache;
@@ -680,67 +680,6 @@ class CAllIMContactList
 						'desktop_last_date' => false,
 						'absent' => false,
 					);
-				}
-			}
-		}
-
-		if (CModule::IncludeModule('socialservices'))
-		{
-			$network = new \Bitrix\Socialservices\Network();
-			if ($network->isEnabled())
-			{
-				$result = $network->searchUser($searchText);
-				if ($result)
-				{
-					$arUserIds = array_keys($arUsers);
-					$arIntersectUserIds = Array();
-					foreach ($result as $arUser)
-					{
-						$id = 'network'.$arUser["NETWORK_ID"];
-						$arUsers[$id] = Array(
-							'id' => $id,
-							'name' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser),
-							'active' => true,
-							'first_name' => \Bitrix\Im\User::formatNameFromDatabase($arUser),
-							'last_name' => $arUser['LAST_NAME'],
-							'work_position' => $arUser['CLIENT_DOMAIN'],
-							'color' => IM\Color::getColor('GRAY'),
-							'avatar' => empty($arUser['PERSONAL_PHOTO'])? '': $arUser['PERSONAL_PHOTO'],
-							'birthday' => false,
-							'gender' => $arUser['PERSONAL_GENDER'] == 'F'? 'F': 'M',
-							'phone_device' => false,
-							'tz_offset' => 0,
-							'extranet' => true,
-							'network' => true,
-							'bot' => false,
-							'profile' => 'https://www.bitrix24.net/id'.$arUser['NETWORK_USER_ID'],
-							'select' => 'Y',
-							'network_id' => $arUser['NETWORK_ID'],
-							'search_mark' => $searchText,
-							'external_auth_id' => 'replica',
-							'status' => 'online',
-							'idle' => false,
-							'last_activity_date' => false,
-							'mobile_last_date' => false,
-							'desktop_last_date' => false,
-							'absent' => false,
-						);
-						$arIntersectUserIds[$arUser['XML_ID']] = $id;
-					}
-					if (!empty($arUserIds))
-					{
-						$result = \Bitrix\Main\UserTable::getList(Array(
-							'select' => Array('XML_ID'),
-							'filter' => Array(
-								'=XML_ID' => array_keys($arIntersectUserIds),
-								'=EXTERNAL_AUTH_ID' => \Bitrix\Socialservices\Network::EXTERNAL_AUTH_ID
-							),
-						));
-						while($user = $result->fetch())
-						{
-							unset($arUsers[$arIntersectUserIds[$user['XML_ID']]]);
-						}
-					}
 				}
 			}
 		}
@@ -1416,25 +1355,47 @@ class CAllIMContactList
 			$itemType = "ITEM_TYPE = '".IM_MESSAGE_PRIVATE."'";
 		}
 
-		$strSQL = "
+		/*$strSQL = "
 			UPDATE b_im_relation R
-				INNER JOIN b_im_recent RC 
+				INNER JOIN b_im_recent RC
 				ON R.ID = RC.ITEM_RID
-			SET 
+			SET
 				R.STATUS = '".IM_STATUS_READ."'
 				, R.UNREAD_ID = 0
 				, R.MESSAGE_STATUS = '".IM_MESSAGE_STATUS_RECEIVED."'
 				, R.COUNTER = 0
 				, R.LAST_READ = NOW()
-			WHERE 
-				RC.USER_ID = {$userId} 
-				AND RC.{$itemType} 
+			WHERE
+				RC.USER_ID = {$userId}
+				AND RC.{$itemType}
 				AND RC.{$sqlEntityId}
 		";
-		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);*/
 
 		$strSQL = "DELETE FROM b_im_recent WHERE USER_ID = {$userId} AND {$itemType} AND {$sqlEntityId}";
 		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+
+		if ($isChat)
+		{
+			$chat = IM\V2\Chat::getInstance((int)$entityId);
+		}
+		else
+		{
+			$chat = IM\V2\Entity\User\User::getInstance($userId)->getChatWith($entityId);
+		}
+
+		if ($chat !== null && !($chat instanceof IM\V2\Chat\NullChat) && $chat->getChatId())
+		{
+			$chat = $chat->withContextUser($userId);
+			if ($chat instanceof IM\V2\Chat\OpenLineChat)
+			{
+				$chat->read(false, false, true);
+			}
+			else
+			{
+				$chat->read();
+			}
+		}
 
 		if ($isChat && \Bitrix\Main\Loader::includeModule('pull'))
 		{
@@ -1451,7 +1412,7 @@ class CAllIMContactList
 			}
 		}
 
-		\Bitrix\Im\Counter::clearCache($userId);
+		//\Bitrix\Im\Counter::clearCache($userId);
 
 		$strSQL = $DB->TopSql("SELECT 1 FROM b_im_recent WHERE USER_ID = ".$userId, 1);
 		$rs = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
@@ -1532,7 +1493,7 @@ class CAllIMContactList
 
 		$strSql = "
 			SELECT
-				R.ITEM_TYPE, R.ITEM_ID, R.PINNED, C1.COUNTER,
+				R.ITEM_TYPE, R.ITEM_ID, R.PINNED,
 				R.ITEM_MID M_ID, M.AUTHOR_ID M_AUTHOR_ID, M.ID M_ID, M.CHAT_ID M_CHAT_ID, M.MESSAGE M_MESSAGE, ".$DB->DatetimeToTimestampFunction('R.DATE_UPDATE')." M_DATE_CREATE,
 				C.TITLE C_TITLE, C.AUTHOR_ID C_OWNER_ID, C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID, C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1, C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2, C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3, C.AVATAR C_AVATAR, C.CALL_NUMBER C_CALL_NUMBER, C.EXTRANET CHAT_EXTRANET, C.COLOR CHAT_COLOR, C.TYPE CHAT_TYPE,
 				U.LOGIN, U.NAME, U.LAST_NAME, U.PERSONAL_PHOTO, U.SECOND_NAME, ".$DB->DatetimeToTimestampFunction('U.PERSONAL_BIRTHDAY')." PERSONAL_BIRTHDAY, ".$DB->DatetimeToTimestampFunction('U.LAST_ACTIVITY_DATE')." LAST_ACTIVITY_DATE, U.PERSONAL_GENDER, U.EXTERNAL_AUTH_ID, U.WORK_POSITION, U.TIME_ZONE_OFFSET, U.ACTIVE,
@@ -1557,6 +1518,7 @@ class CAllIMContactList
 		$arMessageId = Array();
 
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$counters = (new IM\V2\Message\CounterService($userId))->getForEachChat();
 		while ($arRes = $dbRes->GetNext(true, false))
 		{
 			$arRes['ITEM_TYPE'] = trim($arRes['ITEM_TYPE']);
@@ -1600,7 +1562,7 @@ class CAllIMContactList
 					'text' => \Bitrix\Im\Text::parse($arRes['M_MESSAGE'], Array('CUT_STRIKE' => 'Y', 'SMILES' => 'N', 'SAFE' => 'N')),
 					'pinned' => $arRes['PINNED'] == 'Y',
 				),
-				'COUNTER' => (int)$arRes['COUNTER'],
+				'COUNTER' => $counters[(int)$arRes['M_CHAT_ID']],
 			);
 			$item['MESSAGE']['text'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", strip_tags(str_replace(array("<br>","<br/>","<br />", "#BR#"), Array(" "," ", " ", " "), $item['MESSAGE']['text']), "<img>"));
 

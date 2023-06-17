@@ -43,6 +43,7 @@ $MESS["CLO_STORAGE_LIST_MOVE_PROGRESS"] = "
 Total files processed: <b>#total#</b>.<br>
 Moved files: <b>#moved# (#bytes#)</b>, skipped files: <b>#skiped#</b>.
 ";
+$MESS["CLO_STORAGE_LIST_NOT_EMPTY"] = "there are currently files in the storage";
 $MESS["CLO_STORAGE_LIST_READ_ONLY"] = "Read-only";
 $MESS["CLO_STORAGE_LIST_READ_WRITE"] = "Read/Write";
 $MESS["CLO_STORAGE_LIST_SERVICE"] = "Service";

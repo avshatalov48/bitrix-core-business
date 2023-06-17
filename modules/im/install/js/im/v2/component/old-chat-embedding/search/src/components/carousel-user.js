@@ -1,6 +1,6 @@
 import {EventEmitter} from 'main.core.events';
-import {EventType, AvatarSize} from 'im.v2.const';
-import {Avatar} from 'im.v2.component.old-chat-embedding.elements';
+import {EventType} from 'im.v2.const';
+import {Avatar, AvatarSize} from 'im.v2.component.old-chat-embedding.elements';
 import '../css/search.css';
 import {SearchContextMenu} from '../search-context-menu';
 

@@ -15,11 +15,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 ClearVars();
 $ID = intval($ID);
 if ($ID <= 0)
-	LocalRedirect("sale_order.php?lang=".LANG.GetFilterParams("filter_", false));
+	LocalRedirect("sale_order.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 
 $db_order = CSaleOrder::GetList(Array("ID"=>"DESC"), Array("ID"=>$ID));
 if (!$db_order->ExtractFields("str_"))
-	LocalRedirect("sale_order.php?lang=".LANG.GetFilterParams("filter_", false));
+	LocalRedirect("sale_order.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 
 $APPLICATION->SetTitle(GetMessage("SALE_PRINT_RECORD", array("#ID#"=>$ID)));
 
@@ -446,4 +446,4 @@ else
 <?echo EndNote();?>
 
 
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

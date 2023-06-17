@@ -1,5 +1,5 @@
-import { Type, Tag, Loc } from 'main.core'
-import { UI } from 'ui.notification';
+import {Type, Tag, Loc, Dom, Text} from 'main.core';
+import {UI} from 'ui.notification';
 import BrowserNotificationAction from './browser-notification-action';
 
 import 'ui.design-tokens';
@@ -88,7 +88,13 @@ export default class BrowserNotification extends UI.Notification.Balloon
 			return '';
 		}
 
-		return Tag.render`<div class="ui-notification-manager-browser-title">${this.getData().title}<div>`;
+		const title = Dom.create({
+			tag: 'span',
+			attrs: {className: 'ui-notification-manager-browser-title'},
+			text: this.getData().title
+		}).outerHTML;
+
+		return Tag.render`<div class="ui-notification-manager-browser-title">${title}<div>`;
 	}
 
 	getTextNode(): HTMLElement | string
@@ -98,7 +104,11 @@ export default class BrowserNotification extends UI.Notification.Balloon
 			return '';
 		}
 
-		return Tag.render`<div class="ui-notification-manager-browser-text">${this.getData().text}<div>`;
+		return Dom.create({
+			tag: 'div',
+			attrs: {className: 'ui-notification-manager-browser-text'},
+			text: this.getData().text,
+		});
 	}
 
 	getIconNode(): HTMLElement | string
@@ -108,15 +118,20 @@ export default class BrowserNotification extends UI.Notification.Balloon
 			return '';
 		}
 
-		return Tag.render`
-			<div class="ui-notification-manager-browser-column">
-				<img
-					class="ui-notification-manager-browser-icon"
-					style="height: 44px; width: 44px"
-					src="${this.getData().icon}"
-				>
-			</div>
-		`;
+		return Dom.create({
+			tag: 'div',
+			className: 'ui-notification-manager-browser-column',
+			children: [
+				Dom.create({
+					tag: 'img',
+					style: {height: '44px', width: '44px'},
+					attrs: {
+						className: 'ui-notification-manager-browser-icon',
+						src: this.getData().icon,
+					},
+				})
+			]
+		});
 	}
 
 	getActionsNode(): HTMLElement | string
@@ -143,13 +158,16 @@ export default class BrowserNotification extends UI.Notification.Balloon
 
 		const onInputReplyClick = (event: Event) => event.stopPropagation();
 
+		const id = Text.encode(this.getId());
+		const placeholderText = Text.encode(this.getData().inputPlaceholderText);
+
 		return Tag.render`
 			<div class="ui-notification-manager-browser-actions">
 				<div class="ui-notification-manager-browser-column ui-notification-manager-browser-column-wide">
 					<div class="ui-notification-manager-browser-row">
 						<button
 							class="ui-notification-manager-browser-button"
-							id="ui-notification-manager-browser-reply-toggle-${this.getId()}"
+							id="ui-notification-manager-browser-reply-toggle-${id}"
 							onclick="${this.toggleUserInputContainerNode.bind(this)}"
 						>
 							<span class="ui-btn-text">${Loc.getMessage('UI_NOTIFICATION_MANAGER_REPLY')}</span>
@@ -157,14 +175,14 @@ export default class BrowserNotification extends UI.Notification.Balloon
 					</div>
 					<div
 						class="ui-notification-manager-browser-row ui-notification-manager-browser-row-reply"
-						id="ui-notification-manager-browser-reply-container-${this.getId()}"
+						id="ui-notification-manager-browser-reply-container-${id}"
 					>
 						<div class="ui-notification-manager-browser-reply-wrapper">
 							<input
 								type="text"
 								class="ui-notification-manager-browser-input-reply"
-								placeholder="${this.getData().inputPlaceholderText}"
-								id="ui-notification-manager-browser-reply-${this.getId()}"
+								placeholder="${placeholderText}"
+								id="ui-notification-manager-browser-reply-${id}"
 								onkeyup="${this.handleUserInputEnter.bind(this)}"
 								onclick="${onInputReplyClick}"
 								disabled
@@ -184,24 +202,26 @@ export default class BrowserNotification extends UI.Notification.Balloon
 	{
 		event.stopPropagation();
 
+		const id = Text.encode(this.getId());
+
 		if (!this.userInputContainerNode)
 		{
 			this.userInputContainerNode =
-				document.getElementById('ui-notification-manager-browser-reply-container-' + this.getId())
+				document.getElementById('ui-notification-manager-browser-reply-container-' + id)
 			;
 		}
 
 		if (!this.userInputNode)
 		{
 			this.userInputNode =
-				document.getElementById('ui-notification-manager-browser-reply-' + this.getId())
+				document.getElementById('ui-notification-manager-browser-reply-' + id)
 			;
 		}
 
 		if (!this.replyToggleButton)
 		{
 			this.replyToggleButton =
-				document.getElementById('ui-notification-manager-browser-reply-toggle-' + this.getId())
+				document.getElementById('ui-notification-manager-browser-reply-toggle-' + id)
 			;
 		}
 

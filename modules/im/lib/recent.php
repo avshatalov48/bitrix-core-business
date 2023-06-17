@@ -2,7 +2,15 @@
 
 namespace Bitrix\Im;
 
+use Bitrix\Im\Model\LinkReminderTable;
+use Bitrix\Im\Model\MessageUnreadTable;
+use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Entity\File\FileCollection;
+use Bitrix\Im\V2\Entity\File\FileItem;
+use Bitrix\Im\V2\Message\ReadService;
+use Bitrix\Im\V2\Message\ViewedService;
 use Bitrix\Main\Application, Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 Loc::loadMessages(__FILE__);
 
@@ -33,7 +41,7 @@ class Recent
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'SHOW_OPENLINES' => $showOpenlines,
-			'WITHOUT_COMMON_USERS' => true,
+			'WITHOUT_COMMON_USERS' => true
 		]);
 
 		$lastSyncDateOption = $options['LAST_SYNC_DATE'] ?? null;
@@ -99,7 +107,9 @@ class Recent
 
 		$result = [];
 		$orm = \Bitrix\Im\Model\RecentTable::getList($ormParams);
-		while ($row = $orm->fetch())
+		$rows = $orm->fetchAll();
+		$rows = self::prepareRows($rows, $userId);
+		foreach ($rows as $row)
 		{
 			$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 			$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
@@ -118,6 +128,7 @@ class Recent
 
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
+				'GET_ORIGINAL_TEXT' => $options['GET_ORIGINAL_TEXT'] ?? null,
 			]);
 			if (!$item)
 			{
@@ -169,6 +180,8 @@ class Recent
 		$skipDialogOption = $options['SKIP_DIALOG'] ?? null;
 		$lastMessageDateOption = $options['LAST_MESSAGE_DATE'] ?? null;
 		$withoutCommonUsers = !$viewCommonUsers || $onlyOpenlinesOption === 'Y';
+		$unreadOnly = isset($options['UNREAD_ONLY']) && $options['UNREAD_ONLY'] === 'Y';
+		$shortInfo = isset($options['SHORT_INFO']) && $options['SHORT_INFO'] === 'Y';
 
 		$showOpenlines = (
 			\Bitrix\Main\Loader::includeModule('imopenlines')
@@ -182,6 +195,8 @@ class Recent
 			'USER_ID' => $userId,
 			'SHOW_OPENLINES' => $showOpenlines,
 			'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
+			'UNREAD_ONLY' => $unreadOnly,
+			'SHORT_INFO' => $shortInfo,
 		]);
 
 		if ($onlyOpenlinesOption === 'Y')
@@ -241,8 +256,11 @@ class Recent
 
 		$counter = 0;
 		$result = [];
+		$files = [];
 
-		while ($row = $orm->fetch())
+		$rows = $orm->fetchAll();
+		$rows = self::prepareRows($rows, $userId);
+		foreach ($rows as $row)
 		{
 			$counter++;
 			$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
@@ -263,7 +281,8 @@ class Recent
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
 				'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
-				'GET_ORIGINAL_TEXT' => $options['GET_ORIGINAL_TEXT']
+				'GET_ORIGINAL_TEXT' => $options['GET_ORIGINAL_TEXT'] ?? null,
+				'SHORT_INFO' => $shortInfo,
 			]);
 			if (!$item)
 			{
@@ -272,7 +291,6 @@ class Recent
 
 			$result[$id] = $item;
 		}
-
 		$result = array_values($result);
 
 		if ($options['JSON'])
@@ -329,7 +347,9 @@ class Recent
 		]);
 
 		$result = null;
-		while ($row = $orm->fetch())
+		$rows = $orm->fetchAll();
+		$rows = self::prepareRows($rows, $userId);
+		foreach ($rows as $row)
 		{
 			$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 			if ($isUser)
@@ -354,6 +374,7 @@ class Recent
 
 			$result = $item;
 		}
+		$result = self::prepareRows([$result], $userId)[0];
 
 		if ($options['JSON'])
 		{
@@ -369,21 +390,11 @@ class Recent
 		$showOpenlines = \Bitrix\Main\Loader::includeModule('imopenlines') && $params['SHOW_OPENLINES'] !== false;
 		$isIntranet = \Bitrix\Main\Loader::includeModule('intranet') && \Bitrix\Intranet\Util::isIntranetUser($userId);
 		$withoutCommonUsers = $params['WITHOUT_COMMON_USERS'] === true || !$isIntranet;
+		$unreadOnly = isset($params['UNREAD_ONLY']) && $params['UNREAD_ONLY'] === true;
+		$shortInfo = isset($params['SHORT_INFO']) && $params['SHORT_INFO'] === true;
 
-		$select = [
+		$shortInfoFields = [
 			'*',
-			'COUNTER' => 'RELATION.COUNTER',
-			'MESSAGE_ID' => 'MESSAGE.ID',
-			'MESSAGE_AUTHOR_ID' => 'MESSAGE.AUTHOR_ID',
-			'MESSAGE_TEXT' => 'MESSAGE.MESSAGE',
-			'MESSAGE_FILE' => 'FILE.ID',
-			'MESSAGE_DATE' => 'MESSAGE.DATE_CREATE',
-			'MESSAGE_ATTACH' => 'ATTACH.ID',
-			'MESSAGE_CODE' => 'CODE.PARAM_VALUE',
-			'MESSAGE_USER_LAST_ACTIVITY_DATE' => 'MESSAGE.AUTHOR.LAST_ACTIVITY_DATE',
-			'MESSAGE_USER_IDLE' => 'MESSAGE.STATUS.IDLE',
-			'MESSAGE_USER_MOBILE_LAST_DATE' => 'MESSAGE.STATUS.MOBILE_LAST_DATE',
-			'MESSAGE_USER_DESKTOP_LAST_DATE' => 'MESSAGE.STATUS.DESKTOP_LAST_DATE',
 			'RELATION_USER_ID' => 'RELATION.USER_ID',
 			'RELATION_NOTIFY_BLOCK' => 'RELATION.NOTIFY_BLOCK',
 			'RELATION_IS_MANAGER' => 'RELATION.MANAGER',
@@ -391,7 +402,6 @@ class Recent
 			'CHAT_TITLE' => 'CHAT.TITLE',
 			'CHAT_TYPE' => 'CHAT.TYPE',
 			'CHAT_AVATAR' => 'CHAT.AVATAR',
-			'CHAT_LAST_MESSAGE_STATUS' => 'CHAT.LAST_MESSAGE_STATUS',
 			'CHAT_AUTHOR_ID' => 'CHAT.AUTHOR_ID',
 			'CHAT_EXTRANET' => 'CHAT.EXTRANET',
 			'CHAT_COLOR' => 'CHAT.COLOR',
@@ -402,25 +412,52 @@ class Recent
 			'CHAT_ENTITY_DATA_3' => 'CHAT.ENTITY_DATA_3',
 			'CHAT_DATE_CREATE' => 'CHAT.DATE_CREATE',
 			'CHAT_USER_COUNT' => 'CHAT.USER_COUNT',
-			'USER_EMAIL' => 'USER.EMAIL',
+			'MESSAGE_CODE' => 'CODE.PARAM_VALUE',
 			'USER_LAST_ACTIVITY_DATE' => 'USER.LAST_ACTIVITY_DATE',
+			'MESSAGE_DATE' => 'MESSAGE.DATE_CREATE',
+		];
+
+		$additionalInfoFields = [
+			'MESSAGE_ID' => 'MESSAGE.ID',
+			'MESSAGE_AUTHOR_ID' => 'MESSAGE.AUTHOR_ID',
+			'MESSAGE_TEXT' => 'MESSAGE.MESSAGE',
+			'MESSAGE_FILE' => 'FILE.PARAM_VALUE',
+			'MESSAGE_ATTACH' => 'ATTACH.PARAM_VALUE',
+			'MESSAGE_ATTACH_JSON' => 'ATTACH.PARAM_JSON',
+			'MESSAGE_USER_LAST_ACTIVITY_DATE' => 'MESSAGE.AUTHOR.LAST_ACTIVITY_DATE',
+			'MESSAGE_USER_IDLE' => 'MESSAGE.STATUS.IDLE',
+			'MESSAGE_USER_MOBILE_LAST_DATE' => 'MESSAGE.STATUS.MOBILE_LAST_DATE',
+			'MESSAGE_USER_DESKTOP_LAST_DATE' => 'MESSAGE.STATUS.DESKTOP_LAST_DATE',
+			'USER_EMAIL' => 'USER.EMAIL',
 			'USER_IDLE' => 'STATUS.IDLE',
 			'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
 			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
 			'MESSAGE_UUID_VALUE' => 'MESSAGE_UUID.UUID',
+			'HAS_REMINDER' => 'HAS_REMINDER',
 		];
-		if (!$withoutCommonUsers)
-		{
-			$select['INVITATION_ORIGINATOR_ID'] = 'INVITATION.ORIGINATOR_ID';
-		}
-		if ($showOpenlines)
-		{
-			$select['LINES_ID'] = 'LINES.ID';
-			$select['LINES_STATUS'] = 'LINES.STATUS';
-			$select['LINES_DATE_CREATE'] = 'LINES.DATE_CREATE';
-		}
 
-		$runtime = [
+		$shortRuntime = [
+			new \Bitrix\Main\Entity\ReferenceField(
+				'CODE',
+				'\Bitrix\Im\Model\MessageParamTable',
+				[
+					"=ref.MESSAGE_ID" => "this.ITEM_MID",
+					"ref.PARAM_NAME" => new \Bitrix\Main\DB\SqlExpression("?s", "CODE")
+				],
+				["join_type" => "LEFT"]
+			),
+			new \Bitrix\Main\Entity\ReferenceField(
+				'USER',
+				'\Bitrix\Main\UserTable',
+				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.ID" => "this.ITEM_ID"),
+				array("join_type"=>"LEFT")
+			),
+		];
+
+		$reminderTable = LinkReminderTable::getTableName();
+		$unreadTable = MessageUnreadTable::getTableName();
+
+		$additionalRuntime = [
 			new \Bitrix\Main\Entity\ReferenceField(
 				'ATTACH',
 				'\Bitrix\Im\Model\MessageParamTable',
@@ -440,27 +477,42 @@ class Recent
 				["join_type" => "LEFT"]
 			),
 			new \Bitrix\Main\Entity\ReferenceField(
-				'CODE',
-				'\Bitrix\Im\Model\MessageParamTable',
-				[
-					"=ref.MESSAGE_ID" => "this.ITEM_MID",
-					"ref.PARAM_NAME" => new \Bitrix\Main\DB\SqlExpression("?s", "CODE")
-				],
-				["join_type" => "LEFT"]
-			),
-			new \Bitrix\Main\Entity\ReferenceField(
-				'USER',
-				'\Bitrix\Main\UserTable',
-				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.ID" => "this.ITEM_ID"),
-				array("join_type"=>"LEFT")
-			),
-			new \Bitrix\Main\Entity\ReferenceField(
 				'STATUS',
 				'\Bitrix\Im\Model\StatusTable',
 				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.USER_ID" => "this.ITEM_ID"),
 				array("join_type"=>"LEFT")
+			),
+			new ExpressionField(
+				'HAS_REMINDER',
+				"CASE WHEN EXISTS (
+					SELECT 1
+					FROM {$reminderTable}
+					WHERE CHAT_ID = %s AND AUTHOR_ID = %s AND IS_REMINDED = 'Y'
+				) THEN 'Y' ELSE 'N' END",
+				['ITEM_CID', 'USER_ID'],
+				['data_type' => 'boolean', 'values' => ['N', 'Y']]
+			),
+			new ExpressionField(
+				'HAS_UNREAD_MESSAGE',
+				"EXISTS(SELECT 1 FROM {$unreadTable} WHERE CHAT_ID = %s AND USER_ID = %s)",
+				['ITEM_CID', 'USER_ID']
 			)
 		];
+
+		$select = $shortInfo ? $shortInfoFields : array_merge($shortInfoFields, $additionalInfoFields);
+		$runtime = $shortInfo ? $shortRuntime : array_merge($shortRuntime, $additionalRuntime);
+
+		if (!$withoutCommonUsers)
+		{
+			$select['INVITATION_ORIGINATOR_ID'] = 'INVITATION.ORIGINATOR_ID';
+		}
+		if ($showOpenlines)
+		{
+			$select['LINES_ID'] = 'LINES.ID';
+			$select['LINES_STATUS'] = 'LINES.STATUS';
+			$select['LINES_DATE_CREATE'] = 'LINES.DATE_CREATE';
+		}
+
 		if (!$withoutCommonUsers)
 		{
 			$runtime[] = new \Bitrix\Main\Entity\ReferenceField(
@@ -489,6 +541,15 @@ class Recent
 			$filter = ['@USER_ID' => [$userId, 0]];
 		}
 
+		if ($unreadOnly)
+		{
+			$filter[] = [
+				'LOGIC' => 'OR',
+				['==HAS_UNREAD_MESSAGE' => true],
+				['=UNREAD' => true],
+			];
+		}
+
 		return [
 			'select' => $select,
 			'filter' => $filter,
@@ -500,20 +561,53 @@ class Recent
 	{
 		$generalChatId = (int)$options['GENERAL_CHAT_ID'];
 		$withoutCommonUsers = isset($options['WITHOUT_COMMON_USERS']) && $options['WITHOUT_COMMON_USERS'] === true;
+		$shortInfo = isset($options['SHORT_INFO']) && $options['SHORT_INFO'];
 
 		$chatOwner = $row['CHAT_OWNER'] ?? null;
 
 		$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 		$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
+		$row['MESSAGE_ID'] ??= null;
 
-		if (!$isUser && (!$row['MESSAGE_ID'] || !$row['RELATION_USER_ID'] || !$row['CHAT_ID']))
+		if (!$isUser && ((!$row['MESSAGE_ID'] && !$shortInfo) || !$row['RELATION_USER_ID'] || !$row['CHAT_ID']))
 		{
 			return null;
 		}
 
-		if ($row['ITEM_MID'] > 0)
+		if ($row['ITEM_MID'] > 0 && $row['MESSAGE_ID'] > 0)
 		{
-			$text = str_replace("\n", " ", $row['MESSAGE_TEXT']);
+			$attach = false;
+			if ($row['MESSAGE_ATTACH'] || $row["MESSAGE_ATTACH_JSON"])
+			{
+				if (preg_match('/^(\d+)$/', $row['MESSAGE_ATTACH']))
+				{
+					$attach = true;
+				}
+				else if ($row['MESSAGE_ATTACH'] === \CIMMessageParamAttach::FIRST_MESSAGE)
+				{
+					try
+					{
+						$value = \Bitrix\Main\Web\Json::decode($row["MESSAGE_ATTACH_JSON"]);
+						$attachRestored = \CIMMessageParamAttach::PrepareAttach($value);
+						$attach = $attachRestored['DESCRIPTION'];
+					}
+					catch (\Bitrix\Main\SystemException $e)
+					{
+						$attach = true;
+					}
+				}
+				else if (!empty($row['MESSAGE_ATTACH']))
+				{
+					$attach = $row['MESSAGE_ATTACH'];
+				}
+				else
+				{
+					$attach = true;
+				}
+			}
+
+			$text = $row['MESSAGE_TEXT'] ?? '';
+
 			$getOriginalTextOption = $options['GET_ORIGINAL_TEXT'] ?? null;
 			if ($getOriginalTextOption === 'Y')
 			{
@@ -522,31 +616,33 @@ class Recent
 			else
 			{
 				$text = Text::removeBbCodes(
-					$text,
+					str_replace("\n", " ", $text),
 					$row['MESSAGE_FILE'] > 0,
-					$row['MESSAGE_ATTACH'] > 0
+					$attach
 				);
 			}
+
 			$message = [
 				'ID' => (int)$row['ITEM_MID'],
 				'TEXT' => $text,
-				'FILE' => $row['MESSAGE_FILE'] > 0,
+				'FILE' => $row['MESSAGE_FILE'],
 				'AUTHOR_ID' =>  (int)$row['MESSAGE_AUTHOR_ID'],
-				'ATTACH' => $row['MESSAGE_ATTACH'] > 0,
-				'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
+				'ATTACH' => $attach,
+				'DATE' => $row['MESSAGE_DATE']?: $row['DATE_UPDATE'],
 				'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
 				'UUID' => $row['MESSAGE_UUID_VALUE'],
 			];
 		}
 		else
 		{
+			$row['MESSAGE_DATE'] ??= null;
 			$message = [
 				'ID' => 0,
 				'TEXT' => "",
 				'FILE' => false,
 				'AUTHOR_ID' =>  0,
 				'ATTACH' => false,
-				'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
+				'DATE' => $row['MESSAGE_DATE']?: $row['DATE_UPDATE'],
 				'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
 			];
 		}
@@ -561,6 +657,7 @@ class Recent
 			'COUNTER' => (int)$row['COUNTER'],
 			'PINNED' => $row['PINNED'] === 'Y',
 			'UNREAD' => $row['UNREAD'] === 'Y',
+			'HAS_REMINDER' => isset($row['HAS_REMINDER']) && $row['HAS_REMINDER'] === 'Y',
 			'DATE_UPDATE' => $row['DATE_UPDATE']
 		];
 
@@ -574,6 +671,7 @@ class Recent
 				return null;
 			}
 
+			$row['INVITATION_ORIGINATOR_ID'] ??= null;
 			if (!$row['USER_LAST_ACTIVITY_DATE'] && $row['INVITATION_ORIGINATOR_ID'])
 			{
 				$item['INVITED'] = [
@@ -661,7 +759,7 @@ class Recent
 				];
 			}
 			$item['USER'] = [
-				'ID' => (int)$row['MESSAGE_AUTHOR_ID'],
+				'ID' => (int)($row['MESSAGE_AUTHOR_ID'] ?? 0),
 			];
 		}
 
@@ -675,7 +773,7 @@ class Recent
 			else if ($item['TYPE'] == 'user')
 			{
 				if (
-					!$user['ACTIVE']
+					(!$user['ACTIVE'] && $item['COUNTER'] <= 0)
 					&& !$user['BOT']
 					&& !$user['CONNECTOR']
 					&& !$user['NETWORK']
@@ -691,6 +789,11 @@ class Recent
 
 				$item['TITLE'] = $user['NAME'];
 
+				$row['USER_LAST_ACTIVITY_DATE'] ??= null;
+				$row['USER_DESKTOP_LAST_DATE'] ??= null;
+				$row['USER_MOBILE_LAST_DATE'] ??= null;
+				$row['USER_IDLE'] ??= null;
+
 				$user['LAST_ACTIVITY_DATE'] = $row['USER_LAST_ACTIVITY_DATE']?: false;
 				$user['DESKTOP_LAST_DATE'] = $row['USER_DESKTOP_LAST_DATE']?: false;
 				$user['MOBILE_LAST_DATE'] = $row['USER_MOBILE_LAST_DATE']?: false;
@@ -698,6 +801,11 @@ class Recent
 			}
 			else
 			{
+				$row['MESSAGE_USER_LAST_ACTIVITY_DATE'] ??= null;
+				$row['MESSAGE_USER_DESKTOP_LAST_DATE'] ??= null;
+				$row['MESSAGE_USER_MOBILE_LAST_DATE'] ??= null;
+				$row['MESSAGE_USER_IDLE'] ??= null;
+
 				$user['LAST_ACTIVITY_DATE'] = $row['MESSAGE_USER_LAST_ACTIVITY_DATE']?: false;
 				$user['DESKTOP_LAST_DATE'] = $row['MESSAGE_USER_DESKTOP_LAST_DATE']?: false;
 				$user['MOBILE_LAST_DATE'] = $row['MESSAGE_USER_MOBILE_LAST_DATE']?: false;
@@ -825,7 +933,7 @@ class Recent
 
 			$relationData = \Bitrix\Im\Model\RelationTable::getList(
 				[
-					'select' => ['ID', 'LAST_SEND_ID'],
+					'select' => ['ID', 'CHAT.LAST_MESSAGE_ID' => 'LAST_MESSAGE_ID'],
 					'filter' => [
 						'=CHAT_ID' => $chatId,
 						'=USER_ID' => $userId,
@@ -833,7 +941,7 @@ class Recent
 				]
 			)->fetchAll()[0];
 
-			$messageId = $relationData['LAST_SEND_ID'];
+			$messageId = $relationData['LAST_MESSAGE_ID'];
 			$relationId = $relationData['ID'];
 
 			$addResult = \Bitrix\Im\Model\RecentTable::add(
@@ -899,7 +1007,7 @@ class Recent
 		return true;
 	}
 
-	public static function unread($dialogId, $unread, $userId = null)
+	public static function unread($dialogId, $unread, $userId = null, ?int $markedId = null)
 	{
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
@@ -921,7 +1029,7 @@ class Recent
 		}
 
 		$element = \Bitrix\Im\Model\RecentTable::getList([
-			'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD', 'COUNTER' => 'RELATION.COUNTER', 'MUTED' => 'RELATION.NOTIFY_BLOCK'],
+			'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD', 'MUTED' => 'RELATION.NOTIFY_BLOCK', 'ITEM_CID', 'MARKED_ID'],
 			'filter' => [
 				'=USER_ID' => $userId,
 				'=ITEM_TYPE' => $itemTypes,
@@ -932,9 +1040,23 @@ class Recent
 		{
 			return false;
 		}
-		if ($element['UNREAD'] == $unread)
+		if ($element['UNREAD'] === $unread && !isset($markedId))
 		{
 			return true;
+		}
+
+		$updatedFields = [
+			'UNREAD' => $unread,
+			'DATE_UPDATE' => new \Bitrix\Main\Type\DateTime(),
+		];
+
+		if ($unread === 'N')
+		{
+			$markedId = 0;
+		}
+		if (isset($markedId))
+		{
+			$updatedFields['MARKED_ID'] = $markedId;
 		}
 
 		\Bitrix\Im\Model\RecentTable::update(
@@ -943,19 +1065,20 @@ class Recent
 				'ITEM_TYPE' => $element['ITEM_TYPE'],
 				'ITEM_ID' => $element['ITEM_ID'],
 			],
-			[
-				'UNREAD' => $unread,
-				'DATE_UPDATE' => new \Bitrix\Main\Type\DateTime()
-			]
+			$updatedFields
 		);
 
 		self::clearCache($element['USER_ID']);
-		\Bitrix\Im\Counter::clearCache($element['USER_ID']);
+		//\Bitrix\Im\Counter::clearCache($element['USER_ID']);
+		CounterService::clearCache((int)$element['USER_ID']);
 
 		$pullInclude = \Bitrix\Main\Loader::includeModule("pull");
 		if ($pullInclude)
 		{
-			$counter = (int)$element['COUNTER'];
+			$chatId = (int)$element['ITEM_CID'];
+			$readService = new ReadService($userId);
+			$counter = $readService->getCounterService()->getByChat($chatId);
+			//$readService->sendPush($chatId, [$userId], $counter, $time);
 
 			\Bitrix\Pull\Event::add(
 				$userId,
@@ -964,10 +1087,12 @@ class Recent
 					'command' => 'chatUnread',
 					'expiry' => 3600,
 					'params' => [
+						'chatId' => $chatId,
 						'dialogId' => $dialogId,
 						'active' => $unread === 'Y',
 						'muted' => $element['MUTED'] === 'Y',
 						'counter' => $counter,
+						'markedId' => $markedId ?? $element['MARKED_ID'],
 						'lines' => $element['ITEM_TYPE'] === IM_MESSAGE_OPEN_LINE,
 					],
 					'extra' => \Bitrix\Im\Common::getPullExtra()
@@ -976,6 +1101,54 @@ class Recent
 		}
 
 		return true;
+	}
+
+	public static function readAll(int $userId): void
+	{
+		\Bitrix\Main\Application::getConnection()->query(
+			"UPDATE b_im_recent R
+			SET R.UNREAD = 'N', R.MARKED_ID = 0
+			WHERE R.UNREAD = 'Y'
+			AND R.USER_ID = {$userId}"
+		);
+	}
+
+	public static function isUnread(int $userId, string $itemType, string $dialogId): bool
+	{
+		$id = mb_strpos($dialogId, 'chat') === 0 ? mb_substr($dialogId, 4) : $dialogId;
+		$element = \Bitrix\Im\Model\RecentTable::getList([
+			'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD', 'MUTED' => 'RELATION.NOTIFY_BLOCK', 'ITEM_CID'],
+			'filter' => [
+				'=USER_ID' => $userId,
+				'=ITEM_TYPE' => $itemType,
+				'=ITEM_ID' => $id
+			]
+		])->fetch();
+		if (!$element)
+		{
+			return false;
+		}
+
+		return ($element['UNREAD'] ?? 'N') === 'Y';
+	}
+
+	public static function getMarkedId(int $userId, string $itemType, string $dialogId): int
+	{
+		$id = mb_strpos($dialogId, 'chat') === 0 ? mb_substr($dialogId, 4) : $dialogId;
+		$element = \Bitrix\Im\Model\RecentTable::getList([
+			'select' => ['MARKED_ID'],
+			'filter' => [
+				'=USER_ID' => $userId,
+				'=ITEM_TYPE' => $itemType,
+				'=ITEM_ID' => $id
+			]
+		])->fetch();
+		if (!$element)
+		{
+			return 0;
+		}
+
+		return (int)($element['MARKED_ID'] ?? 0);
 	}
 
 	public static function hide($dialogId, $userId = null)
@@ -1126,5 +1299,89 @@ class Recent
 	{
 		$cache = Application::getInstance()->getCache();
 		$cache->cleanDir('/bx/imc/recent'.($userId ? Common::getCacheUserPostfix($userId) : ''));
+	}
+
+	protected static function prepareRows(array $rows, int $userId): array
+	{
+		$rows = static::fillCounters($rows, $userId);
+		$rows = static::fillFiles($rows);
+
+		return static::fillLastMessageStatuses($rows, $userId);
+	}
+
+	protected static function fillCounters(array $rows, int $userId): array
+	{
+		$chatIds = [];
+
+		foreach ($rows as $row)
+		{
+			$chatIds[] = (int)$row['CHAT_ID'];
+		}
+
+		$counters = (new CounterService($userId))->getForEachChat($chatIds);
+
+		foreach ($rows as $key => $row)
+		{
+			$rows[$key]['COUNTER'] = (int)($counters[(int)$row['CHAT_ID']] ?? 0);
+		}
+
+		return $rows;
+	}
+
+	protected static function fillLastMessageStatuses(array $rows, int $userId): array
+	{
+		$messageIds = [];
+
+		foreach ($rows as $row)
+		{
+			if (isset($row['MESSAGE_AUTHOR_ID']) && (int)$row['MESSAGE_AUTHOR_ID'] === $userId)
+			{
+				$messageIds[] = (int)$row['MESSAGE_ID'];
+			}
+		}
+
+		$messageStatuses = (new ViewedService($userId))->getMessageStatuses($messageIds);
+
+		foreach ($rows as $key => $row)
+		{
+			$rows[$key]['CHAT_LAST_MESSAGE_STATUS'] = $messageStatuses[(int)($row['MESSAGE_ID'] ?? 0)] ?? \IM_MESSAGE_STATUS_RECEIVED;
+		}
+
+		return $rows;
+	}
+
+	protected static function fillFiles(array $rows): array
+	{
+		$fileIds = [];
+
+		foreach ($rows as $row)
+		{
+			if (isset($row['MESSAGE_FILE']) && $row['MESSAGE_FILE'] > 0)
+			{
+				$fileIds[] = (int)$row['MESSAGE_FILE'];
+			}
+		}
+
+		$files = FileCollection::initByDiskFilesIds($fileIds);
+
+		foreach ($rows as $key => $row)
+		{
+			$fileId = $row['MESSAGE_FILE'] ?? null;
+			$rows[$key]['MESSAGE_FILE'] = false;
+			if (isset($fileId) && $fileId > 0)
+			{
+				$file = $files->getById((int)$fileId);
+				if ($file !== null)
+				{
+					/** @var FileItem $file */
+					$rows[$key]['MESSAGE_FILE'] = [
+						'TYPE' => $file->getContentType(),
+						'NAME' => $file->getDiskFile()->getName(),
+					];
+				}
+			}
+		}
+
+		return $rows;
 	}
 }

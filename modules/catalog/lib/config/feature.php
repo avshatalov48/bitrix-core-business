@@ -207,6 +207,11 @@ final class Feature
 		return self::isFeatureEnabled(self::CATALOG_SERVICES);
 	}
 
+	public static function getLandingLimitVariable(): string
+	{
+		return self::LANDING_PRODUCT_LIMIT_VARIABLE;
+	}
+
 	/**
 	 * Returns url description for help article about sets and bunles.
 	 *

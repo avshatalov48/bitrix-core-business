@@ -9,15 +9,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	var RuleType = function RuleType() {
 	  babelHelpers.classCallCheck(this, RuleType);
 	};
-
 	babelHelpers.defineProperty(RuleType, "TYPE_0", 0);
 	babelHelpers.defineProperty(RuleType, "TYPE_1", 1);
 	babelHelpers.defineProperty(RuleType, "TYPE_2", 2);
 
 	var _templateObject, _templateObject2, _templateObject3;
-
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var defaultOptions = {
 	  removable: true,
@@ -27,22 +24,16 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	};
 	var FieldElement = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(FieldElement, _EventEmitter);
-
 	  function FieldElement(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FieldElement);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FieldElement).call(this));
-
 	    _this.setEventNamespace('BX.Landing.UI.Field.RuleField.FieldElement');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    _this.options = _objectSpread(_objectSpread({}, defaultOptions), options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FieldElement, [{
 	    key: "getDragButtonLayout",
 	    value: function getDragButtonLayout() {
@@ -60,7 +51,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getActionsDropdown",
 	    value: function getActionsDropdown() {
 	      var _this2 = this;
-
 	      return this.cache.remember('actionsDropdown', function () {
 	        var field = new window.top.BX.Landing.UI.Field.DropdownInline({
 	          title: _this2.options.actionsLabel,
@@ -77,7 +67,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getActionsLayout",
 	    value: function getActionsLayout() {
 	      var _this3 = this;
-
 	      return this.cache.remember('actionsLayout', function () {
 	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-element-text-action\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getActionsDropdown().getLayout());
 	      });
@@ -86,7 +75,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTitleLayout",
 	    value: function getTitleLayout() {
 	      var _this4 = this;
-
 	      return this.cache.remember('titleLayout', function () {
 	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-element-text-title\">", "</div>"])), main_core.Text.encode(_this4.options.title));
 	      });
@@ -95,7 +83,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRemoveButtonLayout",
 	    value: function getRemoveButtonLayout() {
 	      var _this5 = this;
-
 	      return this.cache.remember('removeButton', function () {
 	        var button = new landing_ui_component_iconbutton.IconButton({
 	          type: landing_ui_component_iconbutton.IconButton.Types.remove,
@@ -115,7 +102,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this6 = this;
-
 	      return this.cache.remember('layout', function () {
 	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-field-element-", "\"\n\t\t\t\t\tdata-field-id=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-field-element-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this6.options.color, main_core.Text.encode(_this6.options.id), _this6.options.draggable ? _this6.getDragButtonLayout() : '', _this6.options.actionsLabel ? _this6.getActionsLayout() : '', _this6.getTitleLayout(), _this6.options.removable ? _this6.getRemoveButtonLayout() : '');
 	      });
@@ -130,36 +116,26 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	});
 
 	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4, _templateObject5;
-
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var FieldValueElement = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(FieldValueElement, _EventEmitter);
-
 	  function FieldValueElement(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FieldValueElement);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FieldValueElement).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.ValueElement');
-
 	    _this.options = _objectSpread$1({}, options);
 	    _this.state = _objectSpread$1({}, _this.options.data);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FieldValueElement, [{
 	    key: "getOperatorLabelLayout",
 	    value: function getOperatorLabelLayout() {
 	      var _this2 = this;
-
 	      return this.cache.remember('operatorLabelLayout', function () {
 	        var text = _this2.getOperatorLabelText(_this2.options.data.operation);
-
 	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-rule-value-operator-label\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>", "</div>\n\t\t\t"])), _this2.onOperatorLabelClick.bind(_this2), text);
 	      });
 	    }
@@ -173,7 +149,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTargetContainer",
 	    value: function getTargetContainer() {
 	      var _this3 = this;
-
 	      return this.cache.remember('targetContainer', function () {
 	        return _this3.getLayout().closest('.landing-ui-panel-content-body-content') || _this3.getLayout();
 	      });
@@ -182,7 +157,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getOperatorSettingsPopup",
 	    value: function getOperatorSettingsPopup() {
 	      var _this4 = this;
-
 	      return this.cache.remember('operatorSettingsPopup', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        return new rootWindow.BX.Main.Popup({
@@ -203,16 +177,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getValueLabelLayout",
 	    value: function getValueLabelLayout() {
 	      var _this5 = this;
-
 	      return this.cache.remember('valueLabelLayout', function () {
 	        var text = _this5.getValueLabelText(_this5.options.data.value);
-
 	        var layout = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-rule-value-value-label\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<span class=\"landing-ui-rule-value-value-label-inner\">", "</span>\n\t\t\t\t</div>\n\t\t\t"])), _this5.onValueLabelClick.bind(_this5), main_core.Text.encode(text));
-
 	        if (_this5.options.data.operation === 'any' || _this5.options.data.operation === 'empty') {
 	          main_core.Dom.hide(layout);
 	        }
-
 	        return layout;
 	      });
 	    }
@@ -231,14 +201,11 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getValueSettingsPopup",
 	    value: function getValueSettingsPopup() {
 	      var _this6 = this;
-
 	      return this.cache.remember('valueSettingsPopup', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var popupContent = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"value-settings-popup\"></div>"])));
 	        var random = main_core.Text.getRandom();
-
 	        var targetField = _this6.getTargetField();
-
 	        if (targetField.type === 'list' || targetField.type === 'product' || targetField.type === 'checkbox' || targetField.type === 'radio' || targetField.type === 'bool') {
 	          var valueItems = function () {
 	            if (targetField.type === 'bool') {
@@ -250,10 +217,8 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	                value: 'N'
 	              }];
 	            }
-
 	            return targetField.items;
 	          }();
-
 	          valueItems.forEach(function (item) {
 	            var checked = String(targetField.value) === String(item.value);
 	            main_core.Dom.append(main_core.Dom.append(_this6.renderValueRadioButton(_objectSpread$1(_objectSpread$1({}, item), {}, {
@@ -266,26 +231,20 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            if (main_core.Type.isStringFilled(_this6.options.data.value)) {
 	              return _this6.getValueLabelText(_this6.options.data.value);
 	            }
-
 	            return '';
 	          }();
-
 	          var inputField = new landing_ui_field_textfield.TextField({
 	            textOnly: true,
 	            onValueChange: function onValueChange() {
-	              var conditionValue = inputField.getValue() || landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY');
-
+	              var conditionValue = inputField.getValue() || landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY_MSGVER_1');
 	              _this6.setValueLabelText(conditionValue);
-
 	              _this6.state.value = inputField.getValue();
-
 	              _this6.emit('onChange');
 	            },
 	            content: value
 	          });
 	          main_core.Dom.append(inputField.getLayout(), popupContent);
 	        }
-
 	        return new rootWindow.BX.Main.Popup({
 	          bindElement: _this6.getLayout(),
 	          targetContainer: _this6.getTargetContainer(),
@@ -310,32 +269,24 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "renderValueRadioButton",
 	    value: function renderValueRadioButton(_ref) {
 	      var _this7 = this;
-
 	      var label = _ref.label,
-	          value = _ref.value,
-	          id = _ref.id,
-	          checked = _ref.checked;
-
+	        value = _ref.value,
+	        id = _ref.id,
+	        checked = _ref.checked;
 	      var onChange = function onChange() {
 	        _this7.setValueLabelText(label);
-
 	        _this7.state.value = value;
-
 	        _this7.emit('onChange');
 	      };
-
 	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"value-settings-item value-settings-item-value\">\n\t\t\t\t<input\n\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\tid=\"value_", "_", "\"\n\t\t\t\t\tname=\"value_", "_", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t>\n\t\t\t\t<label for=\"value_", "_", "\">", "</label>\n\t\t\t</div>\n\t\t"])), id, value, id, this.options.data.target, onChange, checked ? 'checked' : '', id, value, main_core.Text.encode(label));
 	    }
 	  }, {
 	    key: "getOperatorField",
 	    value: function getOperatorField() {
 	      var _this8 = this;
-
 	      return this.cache.remember('operatorField', function () {
 	        var condition = _this8.options.dictionary.deps.condition;
-
 	        var targetField = _this8.getTargetField();
-
 	        return new BX.Landing.UI.Field.Radio({
 	          selector: 'operation',
 	          value: [_this8.state.operation],
@@ -360,17 +311,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "onOperationChange",
 	    value: function onOperationChange() {
 	      var operatorField = this.getOperatorField();
-
 	      var _operatorField$getVal = operatorField.getValue(),
-	          _operatorField$getVal2 = babelHelpers.slicedToArray(_operatorField$getVal, 1),
-	          value = _operatorField$getVal2[0];
-
+	        _operatorField$getVal2 = babelHelpers.slicedToArray(_operatorField$getVal, 1),
+	        value = _operatorField$getVal2[0];
 	      if (value === 'empty' || value === 'any') {
 	        main_core.Dom.hide(this.getValueLabelLayout());
 	      } else {
 	        main_core.Dom.show(this.getValueLabelLayout());
 	      }
-
 	      this.setOperationLabelText(this.getOperatorLabelText(value));
 	      this.state.operation = value;
 	      this.emit('onChange');
@@ -379,7 +327,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRemoveButton",
 	    value: function getRemoveButton() {
 	      var _this9 = this;
-
 	      return this.cache.remember('removeButton', function () {
 	        return new landing_ui_component_iconbutton.IconButton({
 	          type: landing_ui_component_iconbutton.IconButton.Types.remove,
@@ -390,7 +337,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          },
 	          onClick: function onClick() {
 	            _this9.emit('onRemove');
-
 	            _this9.emit('onChange');
 	          }
 	        });
@@ -400,7 +346,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this10 = this;
-
 	      return this.cache.remember('layout', function () {
 	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-rule-value\"\n\t\t\t\t\tdata-target=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"landing-ui-rule-value-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-rule-value-actions\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-rule-decoration\">\n\t\t\t\t\t\t<div class=\"landing-ui-rule-decoration-v-line\"></div>\n\t\t\t\t\t\t<div class=\"landing-ui-rule-decoration-h-line\"></div>\n\t\t\t\t\t\t<div class=\"landing-ui-rule-decoration-arrow\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(_this10.options.data.target), _this10.getOperatorLabelLayout(), _this10.getValueLabelLayout(), _this10.options.removable ? _this10.getRemoveButton().getLayout() : '');
 	      });
@@ -412,7 +357,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        if (item.id === operatorValue) {
 	          return item.name;
 	        }
-
 	        return acc;
 	      }, this.options.dictionary.deps.condition.operations[0].name);
 	    }
@@ -420,7 +364,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTargetField",
 	    value: function getTargetField() {
 	      var _this11 = this;
-
 	      return this.cache.remember('targetField', function () {
 	        return _this11.options.fields.find(function (field) {
 	          return String(field.id) === String(_this11.options.data.target);
@@ -431,32 +374,26 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getValueLabelText",
 	    value: function getValueLabelText(value) {
 	      var targetField = this.getTargetField();
-
 	      if (main_core.Type.isPlainObject(targetField)) {
 	        if (main_core.Type.isArrayFilled(targetField.items)) {
 	          var item = targetField.items.find(function (currentItem) {
 	            return String(currentItem.value) === String(value);
 	          });
-
 	          if (main_core.Type.isPlainObject(item)) {
 	            return item.label;
 	          }
 	        }
-
 	        if (main_core.Type.isStringFilled(value)) {
 	          if (value === 'Y') {
 	            return landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_YES');
 	          }
-
 	          if (value === 'N') {
 	            return landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_NO');
 	          }
-
 	          return value;
 	        }
 	      }
-
-	      return landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY');
+	      return landing_loc.Loc.getMessage('LANDING_RULE_CONDITION_VALUE_EMPTY_MSGVER_1');
 	    }
 	  }, {
 	    key: "getValue",
@@ -468,23 +405,18 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(main_core_events.EventEmitter);
 
 	var _templateObject$2;
-
 	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var TypeSeparator = /*#__PURE__*/function () {
 	  function TypeSeparator(options) {
 	    babelHelpers.classCallCheck(this, TypeSeparator);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    this.options = _objectSpread$2({}, options);
 	  }
-
 	  babelHelpers.createClass(TypeSeparator, [{
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this = this;
-
 	      return this.cache.remember('layout', function () {
 	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-entry-type-separator\">\n\t\t\t\t\t<div class=\"landing-ui-rule-entry-type-separator-inner\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this.getSeparatorLabel());
 	      });
@@ -495,7 +427,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      if (String(this.options.typeId) === String(2)) {
 	        return landing_loc.Loc.getMessage('LANDING_RULE_TYPE_SEPARATOR_TYPE_2');
 	      }
-
 	      return landing_loc.Loc.getMessage('LANDING_RULE_TYPE_SEPARATOR_TYPE_1');
 	    }
 	  }]);
@@ -503,24 +434,17 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}();
 
 	var _templateObject$3, _templateObject2$2, _templateObject3$2, _templateObject4$1, _templateObject5$1;
-
 	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var RuleEntry = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(RuleEntry, _EventEmitter);
-
 	  function RuleEntry(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, RuleEntry);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RuleEntry).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "conditions", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "expressions", []);
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.RuleEntry');
-
 	    _this.options = _objectSpread$3({
 	      enableHeader: true,
 	      expressions: []
@@ -528,20 +452,16 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onConditionFieldValueRemove = _this.onConditionFieldValueRemove.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onConditionFieldRemove = _this.onConditionFieldRemove.bind(babelHelpers.assertThisInitialized(_this));
-
 	    if (main_core.Type.isArrayFilled(_this.options.conditions)) {
 	      _this.options.conditions.forEach(function (item) {
 	        _this.addCondition(item);
 	      });
-
 	      _this.options.expressions.forEach(function (item) {
 	        _this.addExpression(item);
 	      });
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(RuleEntry, [{
 	    key: "getConditionsLayout",
 	    value: function getConditionsLayout() {
@@ -553,7 +473,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getExpressionsLayout",
 	    value: function getExpressionsLayout() {
 	      var _this2 = this;
-
 	      return this.cache.remember('expressionsLayout', function () {
 	        return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-entry-expressions\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getAddExpresionFieldLinkLayout());
 	      });
@@ -569,7 +488,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this3 = this;
-
 	      return this.cache.remember('layout', function () {
 	        return main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-entry\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-rule-entry-body\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this3.options.enableHeader ? _this3.getHeaderLayout() : '', _this3.getConditionsLayout(), _this3.getExpressionsLayout());
 	      });
@@ -583,7 +501,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        return item !== target;
 	      });
 	      var nextNode = targetLayout.nextElementSibling;
-
 	      while (main_core.Type.isDomNode(nextNode) && !nextNode.matches('[class*="landing-ui-field-element"]')) {
 	        this.conditions = this.conditions.filter(function (item) {
 	          return item.getLayout() !== nextNode;
@@ -591,15 +508,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        main_core.Dom.remove(nextNode);
 	        nextNode = targetLayout.nextElementSibling;
 	      }
-
 	      if (!main_core.Type.isDomNode(nextNode)) {
 	        var prevNode = targetLayout.previousElementSibling;
-
 	        if (main_core.Type.isDomNode(prevNode) && main_core.Dom.hasClass(prevNode, 'landing-ui-rule-entry-type-separator')) {
 	          main_core.Dom.remove(prevNode);
 	        }
 	      }
-
 	      main_core.Dom.remove(targetLayout);
 	      this.emit('onChange');
 	    }
@@ -611,23 +525,19 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      this.conditions = this.conditions.filter(function (item) {
 	        return item !== target;
 	      });
-
 	      if (main_core.Dom.hasClass(targetLayout.nextElementSibling, 'landing-ui-rule-entry-type-separator')) {
 	        main_core.Dom.remove(targetLayout.nextElementSibling);
 	      } else if (main_core.Dom.hasClass(targetLayout.previousElementSibling, 'landing-ui-rule-entry-type-separator')) {
 	        main_core.Dom.remove(targetLayout.previousElementSibling);
 	      }
-
 	      main_core.Dom.remove(targetLayout);
 	    }
 	  }, {
 	    key: "addCondition",
 	    value: function addCondition(element) {
 	      var _this4 = this;
-
 	      if (!this.conditions.includes(element)) {
 	        this.conditions.push(element);
-
 	        if (element instanceof FieldValueElement) {
 	          element.subscribe('onRemove', this.onConditionFieldValueRemove);
 	          element.subscribe('onChange', function () {
@@ -638,39 +548,31 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            if (main_core.Dom.hasClass(node, 'landing-ui-rule-value') && String(main_core.Dom.attr(node, 'data-target')) === String(element.options.data.target) || node.matches('[class*="landing-ui-field-element"]') && String(main_core.Dom.attr(node, 'data-field-id')) === String(element.options.data.target)) {
 	              return node;
 	            }
-
 	            return acc;
 	          }, null);
-
 	          if (main_core.Type.isDomNode(lastElement)) {
 	            main_core.Dom.insertAfter(element.getLayout(), lastElement);
-
 	            if (main_core.Dom.hasClass(lastElement, 'landing-ui-rule-value')) {
 	              var separator = new TypeSeparator({
 	                typeId: this.options.typeId
 	              });
 	              main_core.Dom.insertBefore(separator.getLayout(), element.getLayout());
 	            }
-
 	            return;
 	          }
 	        }
-
 	        if (element instanceof FieldElement) {
 	          element.subscribe('onRemove', this.onConditionFieldRemove);
 	          element.subscribe('onChange', function () {
 	            return _this4.emit('onChange');
 	          });
-
 	          if (babelHelpers.toConsumableArray(this.getConditionsLayout().childNodes).length > 0) {
 	            var _separator = new TypeSeparator({
 	              typeId: this.options.typeId
 	            });
-
 	            main_core.Dom.append(_separator.getLayout(), this.getConditionsLayout());
 	          }
 	        }
-
 	        main_core.Dom.append(element.getLayout(), this.getConditionsLayout());
 	        this.emit('onChange');
 	      }
@@ -679,7 +581,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getExpressionActionPanel",
 	    value: function getExpressionActionPanel() {
 	      var _this5 = this;
-
 	      return this.cache.remember('expressionActionPanel', function () {
 	        return new landing_ui_component_actionpanel.ActionPanel({
 	          left: [{
@@ -694,14 +595,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "onAddExpressionFieldClick",
 	    value: function onAddExpressionFieldClick(event) {
 	      var _this6 = this;
-
 	      event.preventDefault();
 	      var menu = this.getFieldsListMenu();
 	      menu.getMenuItems().forEach(function (item) {
 	        var isUsed = _this6.expressions.some(function (expressionItem) {
 	          return String(expressionItem.options.id) === String(item.getId());
 	        });
-
 	        if (isUsed) {
 	          main_core.Dom.addClass(item.getLayout().item, 'landing-ui-disabled');
 	        } else {
@@ -714,7 +613,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getExpressionAllowedFieldsList",
 	    value: function getExpressionAllowedFieldsList() {
 	      var _this7 = this;
-
 	      var disallowedTypes = ['page', 'layout'];
 	      return this.options.fields.filter(function (field) {
 	        if (!disallowedTypes.includes(field.type)) {
@@ -722,7 +620,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            return main_core.Type.isPlainObject(condition.options) && (main_core.Type.isPlainObject(condition.options.data) && String(condition.options.data.target) === String(field.id) || String(condition.options.id) === String(field.id));
 	          });
 	        }
-
 	        return true;
 	      });
 	    }
@@ -730,7 +627,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFieldsListMenu",
 	    value: function getFieldsListMenu() {
 	      var _this8 = this;
-
 	      return this.cache.remember('fieldsListMenu', function () {
 	        return new window.top.BX.Main.Menu({
 	          bindElement: _this8.getExpressionActionPanel().getLayout(),
@@ -749,7 +645,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getAddExpresionFieldLinkLayout",
 	    value: function getAddExpresionFieldLinkLayout() {
 	      var _this9 = this;
-
 	      return this.cache.remember('addExpressionFieldLinkLayout', function () {
 	        return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-entry-add-expression-field-link\">\n\t\t\t\t\t<div class=\"landing-ui-rule-entry-add-expression-field-link-action-panel\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-rule-entry-add-expression-field-link-separator\"></div>\n\t\t\t\t</div>\n\t\t\t"])), _this9.getExpressionActionPanel().getLayout());
 	      });
@@ -807,8 +702,9 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      if (!this.expressions.includes(element)) {
 	        this.expressions.push(element);
 	        element.subscribe('onRemove', this.onExpressionFieldRemove.bind(this));
-	        element.subscribe('onChange', this.onExpressionFieldChange.bind(this)); // @todo: refactoring
+	        element.subscribe('onChange', this.onExpressionFieldChange.bind(this));
 
+	        // @todo: refactoring
 	        void this.getLayout();
 	        main_core.Dom.insertBefore(element.getLayout(), this.getAddExpresionFieldLinkLayout());
 	        this.adjustExpressionFieldsZIndexes();
@@ -818,7 +714,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getValue",
 	    value: function getValue() {
 	      var _this10 = this;
-
 	      return this.conditions.filter(function (item) {
 	        return item instanceof FieldValueElement;
 	      }).reduce(function (acc, conditionsItem) {
@@ -840,33 +735,24 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(main_core_events.EventEmitter);
 
 	var _templateObject$4;
-
 	var FieldActionPanel = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(FieldActionPanel, _EventEmitter);
-
 	  function FieldActionPanel(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FieldActionPanel);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FieldActionPanel).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
-
 	    _this.setEventNamespace('BX.Landing.UI.FormSettingsPanel.FieldRules.FieldActionPanel');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    if (main_core.Type.isPlainObject(options.style)) {
 	      main_core.Dom.style(_this.getLayout(), options.style);
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FieldActionPanel, [{
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this2 = this;
-
 	      return this.cache.remember('layout', function () {
 	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-field-action-panel\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-rule-field-action-panel-decoration\">\n\t\t\t\t\t\t<div class=\"landing-ui-rule-field-action-panel-decoration-v-line\"></div>\n\t\t\t\t\t\t<div class=\"landing-ui-rule-field-action-panel-decoration-h-line\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this2.getActionPanel().getLayout());
 	      });
@@ -875,7 +761,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getActionPanel",
 	    value: function getActionPanel() {
 	      var _this3 = this;
-
 	      return this.cache.remember('actionPanel', function () {
 	        return new landing_ui_component_actionpanel.ActionPanel({
 	          left: [{
@@ -893,59 +778,43 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(main_core_events.EventEmitter);
 
 	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$2;
-
 	var RuleGroup = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(RuleGroup, _BaseField);
-
 	  function RuleGroup(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, RuleGroup);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RuleGroup).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.Content.FieldRules.RuleGroup');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    _this.setLayoutClass('landing-ui-rule-group');
-
 	    var layout = _this.getLayout();
-
 	    main_core.Dom.clean(layout);
 	    main_core.Dom.append(_this.getHeaderLayout(), layout);
 	    main_core.Dom.append(_this.getBodyLayout(), layout);
 	    main_core.Dom.append(_this.getFooterLayout(), layout);
-
 	    if (main_core.Type.isArrayFilled(_this.options.data.list)) {
 	      var filteredDataList = _this.options.data.list.filter(function (item) {
 	        var conditionTarget = _this.getField(item.condition.target);
-
 	        var actionTarget = _this.getField(item.action.target);
-
 	        return conditionTarget && actionTarget;
 	      });
-
 	      if (_this.getTypeId() === RuleType.TYPE_0) {
 	        var groupedList = filteredDataList.reduce(function (acc, item) {
 	          var _item$condition = item.condition,
-	              target = _item$condition.target,
-	              operation = _item$condition.operation,
-	              value = _item$condition.value;
-
+	            target = _item$condition.target,
+	            operation = _item$condition.operation,
+	            value = _item$condition.value;
 	          if (!main_core.Type.isArray(acc["".concat(target).concat(operation).concat(value)])) {
 	            acc["".concat(target).concat(operation).concat(value)] = [];
 	          }
-
 	          acc["".concat(target).concat(operation).concat(value)].push(item);
 	          return acc;
 	        }, {});
 	        Object.values(groupedList).forEach(function (group, index) {
 	          var _group = babelHelpers.slicedToArray(group, 1),
-	              firstItem = _group[0];
-
+	            firstItem = _group[0];
 	          if (main_core.Type.isPlainObject(firstItem)) {
 	            var targetField = _this.getField(firstItem.condition.target);
-
 	            var entry = new RuleEntry({
 	              enableHeader: index === 0,
 	              typeId: _this.getTypeId(),
@@ -970,7 +839,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	              })],
 	              expressions: group.map(function (groupItem) {
 	                var targetField = _this.getField(groupItem.action.target);
-
 	                return new FieldElement({
 	                  id: targetField.id,
 	                  title: targetField.label,
@@ -988,12 +856,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	                });
 	              })
 	            });
-
 	            _this.addEntry(entry);
 	          }
 	        });
 	      }
-
 	      if (_this.getTypeId() === RuleType.TYPE_1 || _this.getTypeId() === RuleType.TYPE_2) {
 	        var entry = new RuleEntry({
 	          enableHeader: true,
@@ -1003,25 +869,19 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            return _this.emit('onChange');
 	          }
 	        });
-
 	        var _groupedList = filteredDataList.reduce(function (acc, item) {
 	          var target = item.condition.target;
-
 	          if (!main_core.Type.isArray(acc[target])) {
 	            acc[target] = [];
 	          }
-
 	          acc[target].push(item);
 	          return acc;
 	        }, {});
-
 	        Object.values(_groupedList).forEach(function (group) {
 	          var _group2 = babelHelpers.slicedToArray(group, 1),
-	              firstItem = _group2[0];
-
+	            firstItem = _group2[0];
 	          if (main_core.Type.isPlainObject(firstItem)) {
 	            var targetField = _this.getField(firstItem.condition.target);
-
 	            var allowedMultipleConditions = _this.getTypeId() === RuleType.TYPE_2 && targetField.multiple || _this.getTypeId() === RuleType.TYPE_1;
 	            entry.addCondition(new FieldElement({
 	              dictionary: _this.options.dictionary,
@@ -1062,14 +922,13 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        });
 	        var groupedExpressions = Object.values(filteredDataList).reduce(function (acc, item) {
 	          var _item$action = item.action,
-	              target = _item$action.target,
-	              type = _item$action.type;
+	            target = _item$action.target,
+	            type = _item$action.type;
 	          acc["".concat(target).concat(type)] = item;
 	          return acc;
 	        }, {});
 	        Object.values(groupedExpressions).forEach(function (item) {
 	          var targetField = _this.getField(item.action.target);
-
 	          var element = new FieldElement({
 	            id: targetField.id,
 	            title: targetField.label,
@@ -1087,14 +946,11 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          });
 	          entry.addExpression(element);
 	        });
-
 	        _this.addEntry(entry);
 	      }
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(RuleGroup, [{
 	    key: "getEntries",
 	    value: function getEntries() {
@@ -1111,10 +967,8 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "addEntry",
 	    value: function addEntry(entry) {
 	      var _this2 = this;
-
 	      if (entry) {
 	        var entries = this.getEntries();
-
 	        if (!entries.includes(entry)) {
 	          entry.subscribe('onChange', function () {
 	            return _this2.emit('onChange');
@@ -1129,7 +983,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getHeaderLayout",
 	    value: function getHeaderLayout() {
 	      var _this3 = this;
-
 	      return this.cache.remember('headerLayout', function () {
 	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-group-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getHeaderTitleLayout(), _this3.getRemoveButtonLayout());
 	      });
@@ -1138,7 +991,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getHeaderTitleLayout",
 	    value: function getHeaderTitleLayout() {
 	      var _this4 = this;
-
 	      return this.cache.remember('headerTitleLayout', function () {
 	        var titleOfRuleType = landing_loc.Loc.getMessage("LANDING_FIELDS_RULES_TYPE_".concat(_this4.getTypeId() + 1));
 	        return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-group-header-title\">", "</div>\n\t\t\t"])), titleOfRuleType);
@@ -1148,7 +1000,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRemoveButtonLayout",
 	    value: function getRemoveButtonLayout() {
 	      var _this5 = this;
-
 	      return this.cache.remember('removeButtonLayout', function () {
 	        var button = new landing_ui_component_iconbutton.IconButton({
 	          type: landing_ui_component_iconbutton.IconButton.Types.remove,
@@ -1179,7 +1030,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFooterLayout",
 	    value: function getFooterLayout() {
 	      var _this6 = this;
-
 	      return this.cache.remember('footerLayout', function () {
 	        return main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-rule-group-footer\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this6.getFooterActionPanel().getLayout());
 	      });
@@ -1188,7 +1038,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFooterActionPanel",
 	    value: function getFooterActionPanel() {
 	      var _this7 = this;
-
 	      return this.cache.remember('footerActionPanel', function () {
 	        return new landing_ui_component_actionpanel.ActionPanel({
 	          left: [{
@@ -1210,7 +1059,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFieldsListMenu",
 	    value: function getFieldsListMenu() {
 	      var _this8 = this;
-
 	      return this.cache.remember('fieldsMenu', function () {
 	        return new window.top.BX.Main.Menu({
 	          maxHeight: 205,
@@ -1220,7 +1068,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	              text: field.label,
 	              onclick: function onclick() {
 	                _this8.onFieldsListMenuItemClick(field);
-
 	                _this8.getFieldsListMenu().close();
 	              }
 	            };
@@ -1235,26 +1082,22 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      var targetField = this.options.fields.find(function (field) {
 	        return String(field.id) === String(fieldId);
 	      });
-
 	      if (targetField) {
 	        var filteredOperations = this.options.dictionary.deps.condition.operations.filter(function (operation) {
 	          return (!main_core.Type.isArrayFilled(operation.fieldTypes) || operation.fieldTypes.includes(targetField.type)) && (!main_core.Type.isArrayFilled(operation.excludeFieldTypes) || main_core.Type.isArrayFilled(operation.excludeFieldTypes) && !operation.excludeFieldTypes.includes(targetField.type));
 	        });
-
 	        if (main_core.Type.isArrayFilled(filteredOperations)) {
 	          return filteredOperations[0].id;
 	        }
 	      }
-
 	      return '=';
 	    }
 	  }, {
 	    key: "onAddFieldCondition",
 	    value: function onAddFieldCondition(event) {
 	      var _event$getData = event.getData(),
-	          target = _event$getData.target,
-	          entry = _event$getData.entry;
-
+	        target = _event$getData.target,
+	        entry = _event$getData.entry;
 	      entry.addCondition(new FieldValueElement({
 	        dictionary: this.options.dictionary,
 	        fields: this.options.fields,
@@ -1272,7 +1115,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      var fieldElements = entry.conditions.filter(function (item) {
 	        return item instanceof FieldElement;
 	      });
-
 	      if (fieldElements.length === 1) {
 	        var entries = this.getEntries().filter(function (item) {
 	          return entry !== item;
@@ -1285,7 +1127,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "onFieldsListMenuItemClick",
 	    value: function onFieldsListMenuItemClick(field) {
 	      var _this9 = this;
-
 	      if (this.getTypeId() === RuleType.TYPE_0) {
 	        var enableHeader = this.getEntries().length === 0;
 	        var entry = new RuleEntry({
@@ -1317,7 +1158,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        });
 	        this.addEntry(entry);
 	      }
-
 	      if (this.getTypeId() === RuleType.TYPE_1 || this.getTypeId() === RuleType.TYPE_2) {
 	        var allowedMultipleConditions = this.getTypeId() === RuleType.TYPE_2 && field.multiple || this.getTypeId() === RuleType.TYPE_1;
 	        var items = [new FieldElement({
@@ -1339,7 +1179,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            value: null
 	          }
 	        })];
-
 	        if (this.getTypeId() === RuleType.TYPE_1 || this.getTypeId() === RuleType.TYPE_2) {
 	          items.push(new FieldActionPanel({
 	            style: {
@@ -1355,11 +1194,9 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            }
 	          }));
 	        }
-
 	        var _this$getEntries = this.getEntries(),
-	            _this$getEntries2 = babelHelpers.slicedToArray(_this$getEntries, 1),
-	            _entry = _this$getEntries2[0];
-
+	          _this$getEntries2 = babelHelpers.slicedToArray(_this$getEntries, 1),
+	          _entry = _this$getEntries2[0];
 	        if (_entry) {
 	          items.forEach(function (item) {
 	            _entry.addCondition(item);
@@ -1384,7 +1221,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      if (!main_core.Type.isNil(this.options.data.id)) {
 	        return this.options.data.id;
 	      }
-
 	      return 0;
 	    }
 	  }, {
@@ -1422,33 +1258,23 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(landing_ui_field_basefield.BaseField);
 
 	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var FieldsRules = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(FieldsRules, _ContentWrapper);
-
 	  function FieldsRules(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FieldsRules);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FieldsRules).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.FieldsRulesContent');
-
 	    _this.addItem(_this.getHeader());
-
 	    if (!main_core.Type.isArrayFilled(_this.options.formOptions.data.dependencies)) {
 	      _this.addItem(_this.getRuleTypeField());
 	    } else {
 	      _this.addItem(_this.getRulesForm());
-
 	      _this.addItem(_this.getActionPanel());
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FieldsRules, [{
 	    key: "getHeader",
 	    value: function getHeader() {
@@ -1462,7 +1288,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRulesForm",
 	    value: function getRulesForm() {
 	      var _this2 = this;
-
 	      return this.cache.remember('rulesForm', function () {
 	        return new landing_ui_form_formsettingsform.FormSettingsForm({
 	          selector: 'dependencies',
@@ -1482,7 +1307,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getActionPanel",
 	    value: function getActionPanel() {
 	      var _this3 = this;
-
 	      return this.cache.remember('actionPanel', function () {
 	        return new landing_ui_component_actionpanel.ActionPanel({
 	          left: [{
@@ -1504,14 +1328,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRuleTypeField",
 	    value: function getRuleTypeField() {
 	      var _this4 = this;
-
 	      return this.cache.remember('ruleTypeField', function () {
 	        return new landing_ui_field_radiobuttonfield.RadioButtonField({
 	          selector: 'rules-type',
 	          items: Object.entries(RuleType).map(function (_ref) {
 	            var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	                value = _ref2[1];
-
+	              value = _ref2[1];
 	            return {
 	              id: "ruleType".concat(value),
 	              icon: "landing-ui-rules-type".concat(value + 1, "-icon"),
@@ -1531,15 +1353,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFormFields",
 	    value: function getFormFields() {
 	      var _this5 = this;
-
 	      var disallowedTypes = function () {
 	        if (!main_core.Type.isPlainObject(_this5.options.dictionary.deps.field) || !main_core.Type.isArrayFilled(_this5.options.dictionary.deps.field.disallowed)) {
 	          return null;
 	        }
-
 	        return _this5.options.dictionary.deps.field.disallowed;
 	      }();
-
 	      return this.options.formOptions.data.fields.filter(function (field) {
 	        return !main_core.Type.isArrayFilled(disallowedTypes) || !disallowedTypes.includes(field.type) && (!main_core.Type.isPlainObject(field.content) || disallowedTypes.includes(field.content.type));
 	      });

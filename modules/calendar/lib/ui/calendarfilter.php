@@ -12,6 +12,11 @@ use Bitrix\Main\Text\Emoji;
 
 class CalendarFilter
 {
+	private const PRESET_INVITED = 'filter_calendar_meeting_status_q';
+	private const PRESET_HOST = 'filter_calendar_host';
+	private const PRESET_ATTENDEE = 'filter_calendar_attendee';
+	private const PRESET_DECLINED = 'filter_calendar_declined';
+
 	protected static $filterId = '';
 
 	protected static array $filters;
@@ -85,31 +90,40 @@ class CalendarFilter
 		$presets = [];
 		if ($type === 'user')
 		{
-			$presets['filter_calendar_meeting_status_q'] = [
+			$presets[self::PRESET_INVITED] = [
 				'name' => Loc::getMessage('CALENDAR_PRESET_MEETING_STATUS_Q'),
 				'default' => false,
 				'fields' => [
 					'IS_MEETING' => 'Y',
-					'MEETING_STATUS' => 'Q'
+					'MEETING_STATUS' => 'Q',
 				]
 			];
 		}
 
-		$presets['filter_calendar_host'] = [
-				'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_HOST'),
-				'default' => false,
-				'fields' => [
-					'IS_MEETING' => 'Y',
-					'MEETING_STATUS' => 'H',
-				]
-			];
+		$presets[self::PRESET_HOST] = [
+			'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_HOST'),
+			'default' => false,
+			'fields' => [
+				'IS_MEETING' => 'Y',
+				'MEETING_STATUS' => 'H',
+			]
+		];
 
-		$presets['filter_calendar_attendee'] = [
+		$presets[self::PRESET_ATTENDEE] = [
 			'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_ATTENDEE'),
 			'default' => false,
 			'fields' => [
 				'IS_MEETING' => 'Y',
-				'MEETING_STATUS' => 'Y'
+				'MEETING_STATUS' => 'Y',
+			]
+		];
+
+		$presets[self::PRESET_DECLINED] = [
+			'name' => Loc::getMessage('CALENDAR_PRESET_I_DECLINED'),
+			'default' => false,
+			'fields' => [
+				'IS_MEETING' => 'Y',
+				'MEETING_STATUS' => 'N',
 			]
 		];
 
@@ -125,9 +139,21 @@ class CalendarFilter
 	{
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($filterId);
 		$fields = $filterOptions->getFilter();
+
+		$preset = $fields['PRESET_ID'] ?? null;
+		$meetingStatus = $fields['MEETING_STATUS'] ?? null;
+		if ($meetingStatus === 'Q')
+		{
+			$preset = self::PRESET_INVITED;
+		}
+		if ($meetingStatus === 'N')
+		{
+			$preset = self::PRESET_DECLINED;
+		}
+
 		$result = [
 			'search' => $filterOptions->getSearchString(),
-			'presetId' => $fields['PRESET_ID'],
+			'presetId' => $preset,
 			'fields' => []
 		];
 		$connection = Application::getConnection();
@@ -165,22 +191,6 @@ class CalendarFilter
 
 		return $result;
 	}
-
-	/**
-	 * @return array|bool
-	 */
-	/*protected static function processSpecialPresetsFilter()
-	{
-		$arrFilter = array();
-		$request = Context::getCurrent()->getRequest()->toArray();
-		if(array_key_exists('F_FILTER_SWITCH_PRESET', $request)
-			&& static::getFilterCtrlInstance()->checkExistsPresetById($request['F_FILTER_SWITCH_PRESET']))
-		{
-			$arrFilter = static::getFilterCtrlInstance()->getFilterPresetConditionById($request['F_FILTER_SWITCH_PRESET']);
-		}
-
-		return $arrFilter;
-	}*/
 
 	/**
 	 * @return array
@@ -233,13 +243,6 @@ class CalendarFilter
 				],
 			];
 
-			// $filters['IS_MEETING'] = [
-			// 	'id' => 'IS_MEETING',
-			// 	'name' => Loc::getMessage('CALENDAR_FILTER_IS_MEETING'),
-			// 	'type' => 'checkbox',
-			// 	'default' => true,
-			// ];
-
 			static::$filters['MEETING_STATUS'] = [
 				'id' => 'MEETING_STATUS',
 				'name' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_ME'),
@@ -251,22 +254,22 @@ class CalendarFilter
 					'H' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_H'),
 					'Q' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_Q'),
 					'Y' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_Y'),
-					'N' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_N')
-					//'I' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_I'),
+					'N' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_N'),
 				]
 			];
 
 			static::$filters['DATE'] = [
 				'id' => 'DATE',
 				'name' => Loc::getMessage('CALENDAR_FILTER_DATE'),
-				'type' => 'date'
+				'type' => 'date',
+				'default' => true,
 			];
 		}
 
 		return static::$filters;
 	}
 
-	private static function getSectionsForFilter(string $type, ?int $ownerId, ?int $userId): array
+	private static function getSectionsForFilter(string $type, ?string $preset, ?int $ownerId, ?int $userId): array
 	{
 		$result = [];
 
@@ -278,18 +281,25 @@ class CalendarFilter
 		]);
 		$isPersonalCalendarContext = ($type === 'user' && $userId === $ownerId);
 
-		$hiddenSections = UserSettings::getHiddenSections(
-			$userId,
-			[
-				'type' => $type,
-				'ownerId' => $ownerId,
-				'isPersonalCalendarContext' => $isPersonalCalendarContext,
-			]
-		);
+		$hiddenSections = [];
+		if ($preset !== self::PRESET_INVITED)
+		{
+			$hiddenSections = UserSettings::getHiddenSections(
+				$userId,
+				[
+					'type' => $type,
+					'ownerId' => $ownerId,
+					'isPersonalCalendarContext' => $isPersonalCalendarContext,
+				]
+			);
+			$hiddenSections = array_map(static function($sectionId) {
+				return (int)$sectionId;
+			}, $hiddenSections);
+		}
 
 		foreach ($sectionList as $section)
 		{
-			if (in_array($section['ID'], $hiddenSections))
+			if (in_array((int)$section['ID'], $hiddenSections, true))
 			{
 				continue;
 			}
@@ -321,8 +331,9 @@ class CalendarFilter
 		);
 		$fields['fields']['SECTION_ID'] = self::getSectionsForFilter(
 			$params['type'],
+			$fields['presetId'],
 			$params['ownerId'],
-			$params['userId']
+			$params['userId'],
 		);
 
 		if (
@@ -377,7 +388,7 @@ class CalendarFilter
 				$filter['IS_MEETING'] = true;
 			}
 
-			if ($fields['presetId'] === 'filter_calendar_meeting_status_q')
+			if ($fields['presetId'] === self::PRESET_INVITED)
 			{
 				$filter['FROM_LIMIT'] = \CCalendar::Date(time(), false);
 				$filter['TO_LIMIT'] = \CCalendar::Date(time() + \CCalendar::DAY_LENGTH * 90, false);
@@ -433,7 +444,7 @@ class CalendarFilter
 				$filter['ID'][] = (int)$event['ID'];
 			}
 
-			if ($filter['ID'])
+			if ($filter['ID'] ?? false)
 			{
 				$filter['ID'] = array_unique($filter['ID']);
 			}
@@ -465,6 +476,10 @@ class CalendarFilter
 				'setDefaultLimit' => false
 			]
 		);
+		if ($fields['presetId'] !== self::PRESET_DECLINED)
+		{
+			$entries = self::filterByShowDeclined($entries);
+		}
 
 		return [
 			'result' => true,
@@ -598,6 +613,7 @@ class CalendarFilter
 			);
 		}
 		$entries = self::applyAccessRestrictions($entries);
+		$entries = self::filterByShowDeclined($entries);
 
 		return [
 			'result' => true,
@@ -665,5 +681,16 @@ class CalendarFilter
 		}
 
 		return array_values($events);
+	}
+
+	public static function filterByShowDeclined(array $entries): array
+	{
+		$settings = UserSettings::get();
+		$optionShowDeclined = $settings['showDeclined'];
+
+		return array_values(array_filter($entries, static function($entry) use ($optionShowDeclined) {
+			$hideDeclinedEntry = (!$optionShowDeclined || (int)$entry['CREATED_BY'] !== \CCalendar::GetUserId());
+			return !($hideDeclinedEntry && $entry['MEETING_STATUS'] === 'N');
+		}));
 	}
 }

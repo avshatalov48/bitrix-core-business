@@ -622,7 +622,7 @@ if ($arParams["SEF_MODE"] === "Y")
 		$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
 	}
 
-	if ($_REQUEST["auth"] === "Y")
+	if (isset($_REQUEST["auth"]) && $_REQUEST["auth"] === "Y")
 	{
 		$componentPage = "auth";
 	}
@@ -707,7 +707,7 @@ else
 	{
 		$componentPage = "index";
 	}
-	if ($_REQUEST["auth"] === "Y")
+	if (isset($_REQUEST["auth"]) && $_REQUEST["auth"] === "Y")
 		$componentPage = "auth";
 
 	$arResult["PATH_TO_GROUP_LOG_RSS_MASK"] = $arResult["~PATH_TO_GROUP_LOG_RSS_MASK"] = $APPLICATION->GetCurPage(true)."?page=group_log_rss&group_id=".$arVariables["group_id"];

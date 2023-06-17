@@ -384,10 +384,11 @@
 @media (max-width: 767px) {
 	.product-item-label-ring.product-item-label-small,
 	.product-item-scalable-card.hover .product-item-label-ring.product-item-label-small {
-		width: 35px;
-		height: 35px;
-		font-size: 12px;
-		line-height: 35px;
+		--product-item-label-ring-size: 40px;
+		width: var(--product-item-label-ring-size);
+		height: var(--product-item-label-ring-size);
+		line-height: var(--product-item-label-ring-size);
+		font-size: 14px;
 	}
 
 	.product-item-big-card .product-item-label-ring.product-item-label-small,

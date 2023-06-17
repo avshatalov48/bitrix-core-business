@@ -14,7 +14,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
-if($arResult['ERROR'])
+if(isset($arResult['ERROR']) && $arResult['ERROR'])
 {
 	ShowError($arResult['ERROR']);
 	return false;

@@ -7522,7 +7522,7 @@ if(typeof BX.UI.EntityEditorDatetime === "undefined")
 							BX.create("div",
 								{
 									props: {className: "ui-entity-editor-content-block-text"},
-									text: value
+									text: value.replaceAll('\\', '')
 								}
 							)
 						]
@@ -9193,6 +9193,50 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 	};
 }
 
+if (typeof BX.UI.EntityEditorBB === 'undefined')
+{
+	BX.UI.EntityEditorBB = function()
+	{
+		BX.UI.EntityEditorBB.superclass.constructor.apply(this);
+	};
+	BX.extend(BX.UI.EntityEditorBB, BX.UI.EntityEditorHtml);
+	BX.UI.EntityEditorBB.prototype.layout = function(options)
+	{
+		if (this._hasLayout)
+		{
+			return;
+		}
+
+		BX.UI.EntityEditorBB.superclass.layout.apply(this, [options]);
+
+		if (this._mode !== BX.UI.EntityEditorMode.edit) // view mode
+		{
+			let contentNode = null;
+			if (this._innerWrapper)
+			{
+				contentNode = this._innerWrapper.querySelector('.ui-entity-editor-content-block-inner-html');
+			}
+
+			if (contentNode)
+			{
+				let value = this._model.getField(this.getDataKey() + '_HTML', '');
+				if (!BX.Type.isStringFilled(value))
+				{
+					value = BX.Text.encode(this.getValue());
+				}
+
+				contentNode.innerHTML = value;
+			}
+		}
+	};
+	BX.UI.EntityEditorBB.create = function(id, settings)
+	{
+		var self = new BX.UI.EntityEditorBB();
+		self.initialize(id, settings);
+		return self;
+	};
+}
+
 if (typeof BX.UI.EntityEditorFile === "undefined")
 {
 	BX.UI.EntityEditorFile = function()
@@ -10065,6 +10109,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 	{
 		BX.UI.EntityEditorMoney.superclass.constructor.apply(this);
 		this._currencyEditor = null;
+		this._amountWrapper = null;
 		this._amountInput = null;
 		this._currencyInput = null;
 		this._sumElement = null;
@@ -10092,7 +10137,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 	};
 	BX.UI.EntityEditorMoney.prototype.focus = function()
 	{
-		if(this._amountInput)
+		if(this._amountInput && !this.isInputDisabled())
 		{
 			BX.focus(this._amountInput);
 			BX.UI.EditorTextHelper.getCurrent().selectAll(this._amountInput);
@@ -10157,6 +10202,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 		var amountValue = this._model.getField(amountFieldName, ""); //SET CURRENT SUM VALUE
 		var formatted = this._model.getField(BX.prop.getString(data, "formatted"), ""); //SET FORMATTED VALUE
 
+		this._amountWrapper = null;
 		this._amountValue = null;
 		this._amountInput = null;
 		this._currencyInput = null;
@@ -10188,10 +10234,18 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 				{
 					attrs:
 						{
-							className: "ui-ctl-inline ui-ctl-element ui-ctl-w75",
+							className: "ui-ctl-element",
 							type: "text",
 							value: formatted
 						}
+				}
+			);
+			this._amountWrapper = BX.create('div',
+				{
+					props: { className: 'ui-ctl-inline ui-ctl-w75'},
+					children: [
+						this._amountInput,
+					]
 				}
 			);
 
@@ -10199,7 +10253,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 
 			if(this._model.isFieldLocked(amountFieldName))
 			{
-				this._amountInput.disabled = true;
+				this.setInputDisabled(true);
 			}
 
 			this._currencyInput = BX.create("input",
@@ -10254,7 +10308,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 						[
 							this._amountValue,
 							this._currencyInput,
-							this._amountInput,
+							this._amountWrapper,
 							this._selectContainer,
 						]
 				}
@@ -10344,6 +10398,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 			this._currencyEditor = null;
 		}
 
+		this._amountWrapper = null;
 		this._amountValue = null;
 		this._amountInput = null;
 		this._currencyInput = null;
@@ -10383,7 +10438,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 				currencyValue
 			);
 
-			this._amountInput.disabled = this._model.isFieldLocked(amountFieldName);
+			this.setInputDisabled(this._model.isFieldLocked(amountFieldName));
 		}
 		else if(this._mode === BX.UI.EntityEditorMode.view && this._sumElement)
 		{
@@ -10569,6 +10624,26 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 		{
 			BX.removeClass(this._amountInput, "ui-entity-editor-field-error");
 		}
+	};
+	BX.UI.EntityEditorMoney.prototype.setInputDisabled = function(isDisabled)
+	{
+		if (!this._amountInput || !this._amountWrapper)
+		{
+			return;
+		}
+		this._amountInput.readOnly = isDisabled;
+		if (isDisabled)
+		{
+			BX.Dom.addClass(this._amountWrapper, 'ui-ctl-disabled');
+		}
+		else
+		{
+			BX.Dom.removeClass(this._amountWrapper, 'ui-ctl-disabled');
+		}
+	};
+	BX.UI.EntityEditorMoney.prototype.isInputDisabled = function()
+	{
+		return this._amountInput.readOnly;
 	};
 	BX.UI.EntityEditorMoney.prototype.getRuntimeValue = function()
 	{

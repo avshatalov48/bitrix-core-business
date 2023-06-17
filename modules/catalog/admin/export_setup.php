@@ -1,12 +1,13 @@
-<?
+<?php
 /** @global CDatabase $DB */
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 
-define('NO_AGENT_CHECK', true);
+const NO_AGENT_CHECK = true;
 
 $executeExport = (isset($_REQUEST['ACTION']) && is_string($_REQUEST['ACTION']) && $_REQUEST['ACTION'] == 'EXPORT');
 $existActionFile = (isset($_REQUEST['ACT_FILE']) && is_string($_REQUEST['ACT_FILE']) && trim($_REQUEST['ACT_FILE']) !== '');
@@ -32,6 +33,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
 Loader::includeModule('catalog');
+
+$request = Context::getCurrent()->getRequest();
 
 $accessController = AccessController::getCurrent();
 if (
@@ -1695,7 +1698,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 if ($strErrorMessage <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("CES_ERRORS"), "DETAILS"=>$strErrorMessage));
 
-if ($_GET["success_export"]=="Y")
+if ($request->get('success_export') === 'Y')
 {
 	CAdminMessage::ShowNote(GetMessage("CES_SUCCESS"));
 
@@ -1897,6 +1900,6 @@ function HideVarsForm()
 	HideDiv('vars_div', 'form_shadow');
 }
 </script>
-<?
+<?php
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

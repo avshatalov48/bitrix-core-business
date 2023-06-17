@@ -12,7 +12,7 @@ class Config
 
 	public function __construct(array $params = null)
 	{
-		if (!empty($params) && is_array($params))
+		if (!empty($params))
 		{
 			foreach ($params as $name => $value)
 			{

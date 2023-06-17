@@ -20,7 +20,7 @@ class PageManager
 			return null;
 		}
 
-		$pageTitle = isset($params["TITLE"]) ? $params["TITLE"] : $GLOBALS["APPLICATION"]->GetTitle();
+		$pageTitle = $params["TITLE"] ?? $GLOBALS["APPLICATION"]->GetTitle();
 		$pageTitle = mb_substr($pageTitle, 0, 250);
 
 		$pageHost = isset($params["HOST"]) && mb_strlen($params["HOST"]) ? $params["HOST"] : Helper::getHttpHost();

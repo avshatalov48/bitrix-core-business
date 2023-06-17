@@ -143,7 +143,7 @@ else
 			}
 			else
 			{
-				if ($_REQUEST['backurl'])
+				if (!empty($_REQUEST['backurl']))
 				{
 					LocalRedirect($_REQUEST['backurl']);
 				}

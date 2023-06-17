@@ -399,5 +399,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.MessengerApplication = MessengerApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger,window,window,BX.Event,BX.UI.EntitySelector,BX.Messenger.Const,BX.Messenger));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger,window,window,BX.Event,BX.UI.EntitySelector,BX.Messenger.Const,BX.Messenger.EventHandler));
 //# sourceMappingURL=messenger.bundle.js.map

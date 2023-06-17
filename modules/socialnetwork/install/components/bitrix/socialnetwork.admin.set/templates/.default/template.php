@@ -3,7 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 \Bitrix\Main\UI\Extension::load("ui.alerts");
 ?>
 <?
-if($arResult["FatalError"] <> '')
+if(!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -11,14 +11,14 @@ else
 {
 	CUtil::InitJSCore(array("ajax", "popup"));
 
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?><span class="errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
 	
 	if (
-		$arResult["SHOW_BANNER"]
-		|| $arParams["PROCESS_ONLY"] == "Y"
+		($arResult["SHOW_BANNER"] ?? false)
+		|| $arResult["PROCESS_ONLY"] === "Y"
 	)
 	{
 		?><script>

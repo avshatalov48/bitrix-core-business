@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $filemanPerms = $APPLICATION->GetGroupRight("fileman");
@@ -17,7 +23,7 @@ echo "<h1>".str_replace("#NAME#", $component, (($action == "install") ? "Инсталл
 
 $componentErrorMessage = "";
 
-$component = Trim($component);
+$component = trim($component);
 if ($component == '')
 	$componentErrorMessage .= "Не указан компонент";
 

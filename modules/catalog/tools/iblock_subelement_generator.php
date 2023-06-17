@@ -1,19 +1,21 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 /**	@global CUser $USER */
 
-use Bitrix\Main,
-	Bitrix\Highloadblock as HL,
-	Bitrix\Currency,
-	Bitrix\Catalog,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController;
+use Bitrix\Main;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Currency;
+use Bitrix\Highloadblock as HL;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
 
-if(!Main\Loader::includeModule('catalog'))
+if (!Main\Loader::includeModule('catalog'))
+{
 	die();
+}
 Main\Loader::includeModule('fileman');
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/catalog/tbl_edit.js');
@@ -24,22 +26,38 @@ $arJSDescription = array(
 	'lang' => '/bitrix/modules/catalog/lang/'.LANGUAGE_ID.'/tools/iblock_subelement_generator.php'
 );
 CJSCore::RegisterExt('iblock_generator', $arJSDescription);
-CJSCore::Init(array('iblock_generator', 'file_input'));
+CJSCore::Init([
+	'iblock_generator',
+	'file_input',
+]);
 
 const IB_SEG_ROW_PREFIX = 'IB_SEG_';
 
-$subIBlockId = intval($_REQUEST["subIBlockId"]);
-$subPropValue = intval($_REQUEST["subPropValue"]);
-$subTmpId = intval($_REQUEST["subTmpId"]);
-$iBlockId = intval($_REQUEST["iBlockId"]);
-$findSection = intval($_REQUEST["findSection"]);
+$request = Main\Context::getCurrent()->getRequest();
+
+$subIBlockId = (int)$request->get('subIBlockId');
+if ($subIBlockId <= 0)
+{
+	die();
+}
+$subPropValue = (int)$request->get('subPropValue');
+$subTmpId = (int)$request->get('subTmpId');
+$iBlockId = (int)$request->get('iBlockId');
 $arSKUInfo = CCatalogSku::GetInfoByOfferIBlock($subIBlockId);
 CUtil::decodeURIComponent($_POST['PRODUCT_NAME']);
 $parentProductName = trim($_POST['PRODUCT_NAME']);
 
 $useStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 
-if($arSKUInfo == false)
+$accessController = AccessController::getCurrent();
+
+$allowProductAdd = $accessController->check(ActionDictionary::ACTION_PRODUCT_ADD);
+$elementAdd =
+	CIBlockSectionRights::UserHasRightTo($subIBlockId, 0, 'section_element_bind')
+	&& $allowProductAdd
+;
+
+if (empty($arSKUInfo))
 {
 	ShowError("SKU error!");
 }
@@ -51,10 +69,10 @@ $APPLICATION->SetTitle(GetMessage("IB_SEG_MAIN_TITLE"));
  * @param $strPrefix
  * @return string
  */
-function __AddCellPriceType($intRangeID, $strPrefix)
+function __AddCellPriceType($intRangeID, $strPrefix): string
 {
 	$priceTypeCellOption = '';
-	foreach (CCatalogGroup::GetListArray() as $arCatalogGroup)
+	foreach (Catalog\GroupTable::getTypeList() as $arCatalogGroup)
 	{
 		$priceTypeCellOption .= "<option value=".$arCatalogGroup['ID'].">".htmlspecialcharsbx($arCatalogGroup["NAME"])."</option>";
 	}
@@ -75,7 +93,7 @@ PRICETYPECELL;
  * @param $strPrefix
  * @return string
  */
-function __AddCellPrice($intRangeID, $strPrefix)
+function __AddCellPrice($intRangeID, $strPrefix): string
 {
 	return <<<"PRICECELL"
 	<td width="30%">
@@ -89,7 +107,7 @@ PRICECELL;
  * @param $strPrefix
  * @return string
  */
-function __AddCellCurrency($intRangeID, $strPrefix)
+function __AddCellCurrency($intRangeID, $strPrefix): string
 {
 	$currencySelectbox = CCurrency::SelectBox("{$strPrefix}CURRENCY[{$intRangeID}]", '', "", true, "", "class=\"adm-select\" style=\"width: 169px;\"");
 
@@ -123,7 +141,7 @@ function __showPopup($element_id, $items)
  * @param $strPrefix
  * @return string
  */
-function __AddRangeRow($intRangeID, $strPrefix)
+function __AddRangeRow($intRangeID, $strPrefix): string
 {
 	return '<tr id="'.$strPrefix.$intRangeID.'">'.__AddCellPriceType($intRangeID, $strPrefix).__AddCellPrice($intRangeID, $strPrefix).__AddCellCurrency($intRangeID, $strPrefix).'</tr>';
 }
@@ -133,7 +151,7 @@ function __AddRangeRow($intRangeID, $strPrefix)
  * @param int $index
  * @return array
  */
-function arraysCombination (&$arr, $index = 0)
+function arraysCombination (&$arr, $index = 0): array
 {
 	static $line = array();
 	static $keys;
@@ -166,7 +184,8 @@ function arraysCombination (&$arr, $index = 0)
 
 $boolHighLoad = null;
 $arResult = array();
-$arAllProperties = $arAllParentProperties = array();
+$arAllProperties = array();
+$arAllParentProperties = array();
 $arFileProperties = array();
 $arFilePropertiesExt = array();
 $arDirProperties = array();
@@ -183,7 +202,7 @@ while($arIBlockProperty = $dbIBlockProperty->Fetch())
 		continue;
 	if ('S' == $propertyType && 'directory' == $userType)
 	{
-		if (!isset($arIBlockProperty['USER_TYPE_SETTINGS']['TABLE_NAME']) || empty($arIBlockProperty['USER_TYPE_SETTINGS']['TABLE_NAME']))
+		if (empty($arIBlockProperty['USER_TYPE_SETTINGS']['TABLE_NAME']))
 			continue;
 		if (null === $boolHighLoad)
 			$boolHighLoad = CModule::IncludeModule('highloadblock');
@@ -256,7 +275,7 @@ while($arParentIBlockProperty = $dbParentIBlockProperty->Fetch())
 
 $errorMessage = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $elementAdd && check_bitrix_sessid())
 {
 	$arImageCombinationResult = $arPropertyValueCombinationResult = array();
 	if (isset($_FILES['PROP']) && is_array($_FILES['PROP']))
@@ -330,9 +349,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 	$obIBlockElement = new CIBlockElement();
 	$arPropertyValues = (isset($_POST["PROPERTY_VALUE"]) && is_array($_POST["PROPERTY_VALUE"])) ? $_POST["PROPERTY_VALUE"] : array();
 	$arPropertyChecks = (isset($_POST["PROPERTY_CHECK"]) && is_array($_POST["PROPERTY_CHECK"])) ? $_POST["PROPERTY_CHECK"] : array();
-	$title = $_POST["IB_SEG_TITLE"];
-	if(trim($title) == '')
+	$title = trim((string)$request->getPost('IB_SEG_TITLE'));
+	if ($title === '')
+	{
 		$title = '{=this.property.CML2_LINK.NAME} ';
+	}
 	if (isset($_POST['IB_SEG_PRICETYPE']) && is_array($_POST['IB_SEG_PRICETYPE']))
 	{
 		foreach($_POST['IB_SEG_PRICETYPE'] as $key => $priceTypeId)
@@ -347,7 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 	}
 	$arCombinationResult = arraysCombination($arPropertyValue);
 
-	if($_POST['AJAX_MODE'] == 'Y')
+	if ($request->getPost('AJAX_MODE') === 'Y')
 	{
 		$APPLICATION->RestartBuffer();
 		foreach($arPropertyValue as &$value)
@@ -362,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 
 	$arIBlockElement = $dbIBlockElement->Fetch();
 
-	if($_POST['save'] <> '')
+	if ((string)$request->getPost('save') !== '')
 	{
 		$parentElementId = (0 < $subPropValue ? $subPropValue : -$subTmpId);
 		$parentElement = new \Bitrix\Iblock\Template\Entity\Element($parentElementId);
@@ -385,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 		);
 		if (!$useStoreControl)
 			$productData['QUANTITY'] = $_POST['IB_SEG_QUANTITY'];
-		if (AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
+		if ($accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
 		{
 			if (!empty($_POST['IB_SEG_PURCHASING_CURRENCY']) && $_POST['IB_SEG_PURCHASING_PRICE'] !== '')
 			{
@@ -639,7 +660,6 @@ else
 	<input type="hidden" name="subIBlockId" value="<?echo $subIBlockId?>">
 	<input type="hidden" name="subPropValue" value="<?echo $subPropValue?>">
 	<input type="hidden" name="iBlockId" value="<?echo $iBlockId?>">
-	<input type="hidden" name="findSection" value="<?echo $findSection?>">
 	<input type="hidden" name="subTmpId" value="<?echo $subTmpId?>">
 	<input type="hidden" name="PRODUCT_NAME_HIDDEN" value="<?echo htmlspecialcharsbx($parentProductName)?>">
 	<?=bitrix_sessid_post();
@@ -794,7 +814,7 @@ else
 				<span class="adm-select-wrap" style="vertical-align: middle !important;">
 				<?
 					$arVATRef = CatalogGetVATArray(array(), true);
-					echo SelectBoxFromArray('IB_SEG_VAT_ID', $arVATRef, '', "", ($bReadOnly ? "disabled readonly" : '').'class="adm-select" style="width: 169px;"');
+					echo SelectBoxFromArray('IB_SEG_VAT_ID', $arVATRef, '', "", (!$elementAdd ? "disabled readonly" : '').'class="adm-select" style="width: 169px;"');
 				?>
 				</span>
 			</td>
@@ -803,13 +823,13 @@ else
 			<td class="adm-detail-content-cell-l"><?echo GetMessage("IB_SEG_VAT_INCLUDED")?></td>
 			<td class="adm-detail-content-cell-r">
 				<input type="hidden" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED_N" value="N"><?
-				$vatInclude = ((string)Main\Config\Option::get('catalog', 'default_product_vat_included') == 'Y');
+				$vatInclude = (Main\Config\Option::get('catalog', 'default_product_vat_included') === 'Y');
 				?><input class="adm-designed-checkbox" type="checkbox" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED" value="Y"<?=($vatInclude ? ' checked' : '');?>>
 				<label class="adm-designed-checkbox-label" for="IB_SEG_VAT_INCLUDED"></label>
 			</td>
 		</tr>
 		<?
-		if (AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
+		if ($accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
 		{
 			$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
 		?>
@@ -819,19 +839,19 @@ else
 				<input type="text" name="IB_SEG_PURCHASING_PRICE" value="">
 				<span class="adm-select-wrap" style="vertical-align: middle !important;"><select name="IB_SEG_PURCHASING_CURRENCY" class="adm-select" style="width: 169px;">
 				<option value=""><?=htmlspecialcharsbx(GetMessage('IB_SEG_EMPTY_VALUE'))?></option>
-				<?
+				<?php
 				foreach (Currency\CurrencyManager::getCurrencyList() as $id => $title)
 				{
-					?><option value="<?=$id; ?>"<?=($id == $baseCurrency ? ' selected' : ''); ?>><?=htmlspecialcharsbx($title); ?></option><?
+					?><option value="<?=$id; ?>"<?=($id == $baseCurrency ? ' selected' : ''); ?>><?=htmlspecialcharsbx($title); ?></option><?php
 				}
 				unset($id, $title);
 				?>
 				</select></span>
 			</td>
 		</tr>
-		<?
+		<?php
 		}
-		$priceTypeList = CCatalogGroup::GetListArray();
+		$priceTypeList = Catalog\GroupTable::getTypeList();
 		if (!empty($priceTypeList)):
 		?>
 		<tr>
@@ -844,7 +864,7 @@ else
 						<td><?= GetMessage("IB_SEG_CURRENCY") ?>:</td>
 					</tr>
 					<tbody>
-					<?
+					<?php
 						$intCount = 0;
 						echo __AddRangeRow($intCount, IB_SEG_ROW_PREFIX);
 					?>
@@ -854,7 +874,7 @@ else
 				<input type="hidden" value="1" id="generator_price_table_max_id">
 			</td>
 		</tr>
-		<?
+		<?php
 		endif;
 		?>
 	</table>
@@ -874,11 +894,12 @@ else
 			<input type="hidden" value="0" id="generator_property_table_max_id">
 			<div class="adm-shop-table-block" id="generator_property_table">
 				<script type="text/javascript">
-					<?
+					<?php
 					foreach($arResult as $key => $arProperty)
-					{?>
+					{
+					?>
 					obPropertyTable.addPropertyTable(<?=$key?>);
-					<?
+					<?php
 					}
 					?>
 				</script>
@@ -894,8 +915,17 @@ else
 				<div class="adm-shop-select-bar" id="ib_seg_select_prop_bar">
 					<input type="hidden" value="0" id="ib_seg_max_property_id">
 					<input type="hidden" value="0" id="ib_seg_max_image_row_id">
-					<?$arFileProperties[]=array("ID" => "DETAIL", "NAME" => GetMessage("IB_SEG_DETAIL"), "SELECTED" => 'Y');?>
-					<?$arFileProperties[]=array("ID" => "ANNOUNCE", "NAME" => GetMessage("IB_SEG_ANNOUNCE")); ?>
+					<?php
+					$arFileProperties[] = [
+						'ID' => 'DETAIL',
+						'NAME' => GetMessage('IB_SEG_DETAIL'),
+						'SELECTED' => 'Y',
+					];
+					$arFileProperties[] = [
+						'ID' => 'ANNOUNCE',
+						'NAME' => GetMessage('IB_SEG_ANNOUNCE'),
+					];
+					?>
 					<span class="adm-btn" onclick="obPropertyTable.addPropertyImages();" id="ib_seg_add_images_button"><?= GetMessage("IB_SEG_ADD_PICTURES") ?></span>
 						<span class="adm-shop-bar-btn-wrap" id="ib_seg_property_span">
 							<script type="text/javascript">
@@ -912,11 +942,11 @@ else
 		</div>
 	</td>
 </tr>
-	<?
+	<?php
 	$tabControl->EndTab();
 	$tabControl->End();
 	?>
 	</form>
-	<?
+	<?php
 }
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

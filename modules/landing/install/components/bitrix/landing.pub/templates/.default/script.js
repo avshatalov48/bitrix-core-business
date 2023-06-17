@@ -11,44 +11,49 @@ this.BX.Landing = this.BX.Landing || {};
 	    babelHelpers.classCallCheck(this, DiskFile);
 	    document.addEventListener('click', this.onClick.bind(this));
 	  }
+
 	  /**
 	   * Click callback.
 	   *
 	   * @return {void}
 	   */
-
-
 	  babelHelpers.createClass(DiskFile, [{
 	    key: "onClick",
 	    value: function onClick(event) {
 	      var target = event.target;
-
-	      if (target.nodeName === 'A') {
-	        if (target.getAttribute('data-viewer-type')) {
-	          return;
+	      var href = target.getAttribute('href') || target.getAttribute('data-pseudo-url') && JSON.parse(target.getAttribute('data-pseudo-url')).href;
+	      if (!href) {
+	        var parentNode = target.parentNode;
+	        if (parentNode.nodeName === 'A') {
+	          href = parentNode.getAttribute('href');
+	          target = parentNode;
+	        } else {
+	          var grandParentNode = parentNode.parentNode;
+	          if (grandParentNode.nodeName === 'A') {
+	            href = grandParentNode.getAttribute('href');
+	            target = grandParentNode;
+	          }
 	        }
-
-	        var href = target.getAttribute('href');
-
-	        if (href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0) {
-	          BX.ajax.get(href.replace('landing.api.diskFile.download', 'landing.api.diskFile.view'), function (data) {
-	            if (typeof data === 'string') {
-	              data = JSON.parse(data);
-	            }
-
-	            if (!data.data) {
-	              return;
-	            }
-
-	            Object.keys(data.data).map(function (key) {
-	              target.setAttribute(key, data.data[key]);
-	            });
-	            target.click();
+	      }
+	      if (target.getAttribute('data-viewer-type')) {
+	        return;
+	      }
+	      if (href && href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0) {
+	        BX.ajax.get(href.replace('landing.api.diskFile.download', 'landing.api.diskFile.view'), function (data) {
+	          if (typeof data === 'string') {
+	            data = JSON.parse(data);
+	          }
+	          if (!data.data) {
+	            return;
+	          }
+	          Object.keys(data.data).map(function (key) {
+	            target.setAttribute(key, data.data[key]);
 	          });
-	          event.preventDefault();
-	          event.stopPropagation();
-	          return false;
-	        }
+	          target.click();
+	        });
+	        event.preventDefault();
+	        event.stopPropagation();
+	        return false;
 	      }
 	    }
 	  }]);
@@ -63,20 +68,17 @@ this.BX.Landing = this.BX.Landing || {};
 	    babelHelpers.classCallCheck(this, SearchResult);
 	    this.scrollToFirstBlock();
 	  }
+
 	  /**
 	   * Finds first highlight word and scroll to it.
 	   * @return {void}
 	   */
-
-
 	  babelHelpers.createClass(SearchResult, [{
 	    key: "scrollToFirstBlock",
 	    value: function scrollToFirstBlock() {
 	      var result = document.querySelector('.landing-highlight');
-
 	      if (result) {
 	        var parent = result.parentNode;
-
 	        while (parent) {
 	          if (parent.classList.contains('block-wrapper')) {
 	            window.scrollTo({
@@ -85,7 +87,6 @@ this.BX.Landing = this.BX.Landing || {};
 	            });
 	            break;
 	          }
-
 	          parent = parent.parentNode;
 	        }
 	      }
@@ -102,22 +103,19 @@ this.BX.Landing = this.BX.Landing || {};
 	    babelHelpers.classCallCheck(this, TimeStamp);
 	    this.removeTimestamp();
 	  }
+
 	  /**
 	   * Removes 'ts' param from query string.
 	   * @return {void}
 	   */
-
-
 	  babelHelpers.createClass(TimeStamp, [{
 	    key: "removeTimestamp",
 	    value: function removeTimestamp() {
 	      var uri = window.location.toString();
 	      uri = uri.replace(/(ts=[\d]+[&]*)/, '');
-
 	      if (uri.slice(-1) === '?' || uri.slice(-1) === '&') {
 	        uri = uri.slice(0, -1);
 	      }
-
 	      window.history.replaceState({}, document.title, uri);
 	    }
 	  }]);
@@ -143,14 +141,12 @@ this.BX.Landing = this.BX.Landing || {};
 	    TopPanel.checkHints();
 	    TopPanel.initUniqueViewPopup(this.userData);
 	  }
-
 	  babelHelpers.createClass(TopPanel, [{
 	    key: onEditButtonClick,
 	    value: function value(event) {
 	      event.preventDefault();
 	      var href = main_core.Dom.attr(event.currentTarget, 'href');
 	      var landingId = main_core.Dom.attr(event.currentTarget, 'data-landingId');
-
 	      if (main_core.Type.isString(href) && href !== '') {
 	        TopPanel.openSlider(href, landingId);
 	      }
@@ -158,13 +154,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: onCopyLinkButtonClick,
 	    value: function value(event) {
-	      var _this = this;
-
 	      event.preventDefault();
 	      var link = BX.util.remove_url_param(window.location.href, ["IFRAME", "IFRAME_TYPE"]);
 	      var node = event.target;
-	      navigator.clipboard.writeText(link).then(function () {
-	        _this.timeoutIds = _this.timeoutIds || [];
+	      if (BX.clipboard.isCopySupported()) {
+	        BX.clipboard.copy(link);
+	        this.timeoutIds = this.timeoutIds || [];
 	        var popupParams = {
 	          content: main_core.Loc.getMessage('LANDING_TPL_PUB_COPIED_LINK'),
 	          darkMode: true,
@@ -179,25 +174,19 @@ this.BX.Landing = this.BX.Landing || {};
 	        var popup = new BX.PopupWindow('landing_clipboard_copy', node, popupParams);
 	        popup.show();
 	        var timeoutId;
-
-	        while (timeoutId = _this.timeoutIds.pop()) {
+	        while (timeoutId = this.timeoutIds.pop()) {
 	          clearTimeout(timeoutId);
 	        }
-
 	        timeoutId = setTimeout(function () {
 	          popup.close();
 	        }, 2000);
-
-	        _this.timeoutIds.push(timeoutId);
-	      })["catch"](function (err) {
-	        console.error(err);
-	      });
+	        this.timeoutIds.push(timeoutId);
+	      }
 	    }
 	  }, {
 	    key: onUniqueViewIconClick,
 	    value: function value(event) {
 	      var popup = document.querySelector('.landing-pub-top-panel-unique-view-popup');
-
 	      if (main_core.Dom.hasClass(popup, 'hide')) {
 	        main_core.Dom.removeClass(popup, 'hide');
 	        setTimeout(function () {
@@ -211,7 +200,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: onBackButtonClick,
 	    value: function value(event) {
 	      event.preventDefault();
-
 	      if (main_core.Type.isArrayFilled(TopPanel.history) && main_core.Type.isNumber(TopPanel.historyState) && TopPanel.historyState > 0) {
 	        void landing_sliderhacks.SliderHacks.reloadSlider(TopPanel.history[--TopPanel.historyState]);
 	        TopPanel.checkNavButtonsActivity();
@@ -221,7 +209,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: onForwardButtonClick,
 	    value: function value(event) {
 	      event.preventDefault();
-
 	      if (main_core.Type.isArrayFilled(TopPanel.history) && main_core.Type.isNumber(TopPanel.historyState) && TopPanel.historyState < TopPanel.history.length - 1) {
 	        void landing_sliderhacks.SliderHacks.reloadSlider(TopPanel.history[++TopPanel.historyState]);
 	        TopPanel.checkNavButtonsActivity();
@@ -246,7 +233,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function openSlider(url, landingId) {
 	      BX.SidePanel.Instance.open(url, {
 	        cacheable: false,
-	        customLeftBoundary: 240,
+	        customLeftBoundary: 60,
 	        allowChangeHistory: false,
 	        events: {
 	          onClose: function onClose() {
@@ -255,7 +242,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      });
 	    } // HISTORY save
-
 	  }, {
 	    key: "pushHistory",
 	    value: function pushHistory(url) {
@@ -266,7 +252,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (TopPanel.historyState < TopPanel.history.length - 1) {
 	        TopPanel.history.splice(TopPanel.historyState + 1);
 	      }
-
 	      TopPanel.history.push(url);
 	      TopPanel.historyState++;
 	    }
@@ -275,17 +260,14 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function checkNavButtonsActivity() {
 	      main_core.Dom.removeClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
 	      main_core.Dom.removeClass(TopPanel.getBackButton(), 'ui-btn-disabled');
-
 	      if (!main_core.Type.isArrayFilled(TopPanel.history) || !main_core.Type.isNumber(TopPanel.historyState) || TopPanel.history.length === 1) {
 	        main_core.Dom.addClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
 	        main_core.Dom.addClass(TopPanel.getBackButton(), 'ui-btn-disabled');
 	        return;
 	      }
-
 	      if (TopPanel.historyState === 0) {
 	        main_core.Dom.addClass(TopPanel.getBackButton(), 'ui-btn-disabled');
 	      }
-
 	      if (TopPanel.historyState >= TopPanel.history.length - 1) {
 	        main_core.Dom.addClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
 	      }
@@ -326,7 +308,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "checkHints",
 	    value: function checkHints() {
 	      var linkPage = document.querySelector('.landing-pub-top-panel-chain-link-page');
-
 	      if (linkPage) {
 	        if (parseInt(window.getComputedStyle(linkPage).width) < 200) {
 	          main_core.Dom.style(linkPage, 'pointer-events', 'none');
@@ -341,7 +322,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      var setUserId = userData.id;
 	      var setUserName = userData.name;
 	      var avatar = userData.avatar;
-
 	      if (setUserId.length === setUserName.length) {
 	        for (var i = 0; i < setUserId.length; i++) {
 	          this.createUserItem(setUserId[i], setUserName[i], avatar[i]);
@@ -360,7 +340,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      });
 	      var userItemAvatar;
-
 	      if (avatar && avatar !== '') {
 	        userItemAvatar = BX.Dom.create({
 	          tag: 'div',
@@ -378,7 +357,6 @@ this.BX.Landing = this.BX.Landing || {};
 	          }
 	        });
 	      }
-
 	      var userItemLink = BX.Dom.create({
 	        tag: 'a',
 	        props: {
@@ -406,19 +384,26 @@ this.BX.Landing = this.BX.Landing || {};
 	    babelHelpers.classCallCheck(this, PageTransition);
 	    this.init();
 	  }
-
 	  babelHelpers.createClass(PageTransition, [{
 	    key: "init",
 	    value: function init() {
-	      var url = new URL(window.location.href);
-
-	      if (url.searchParams.get('transition') === 'true') {
-	        url.searchParams["delete"]('transition');
-	        window.history.replaceState({}, '', url.toString());
+	      var referrer = document.referrer;
+	      if (referrer !== '') {
+	        var isSameHost = false;
+	        var isDifferentPath = false;
+	        var isIframeDisabled = false;
+	        var previousUrl = new URL(referrer);
+	        if (previousUrl) {
+	          isSameHost = window.location.host === previousUrl.hostname;
+	          isDifferentPath = window.location.pathname !== previousUrl.pathname;
+	          isIframeDisabled = previousUrl.searchParams.get('IFRAME') !== 'Y';
+	        }
+	        if (!isIframeDisabled || !isSameHost || !isDifferentPath) {
+	          BX.removeClass(document.body, 'landing-page-transition');
+	        }
 	      } else {
-	        BX.removeClass(document.body, "landing-page-transition");
+	        BX.removeClass(document.body, 'landing-page-transition');
 	      }
-
 	      document.addEventListener('DOMContentLoaded', function () {
 	        setTimeout(function () {
 	          BX.removeClass(document.body, "landing-page-transition");

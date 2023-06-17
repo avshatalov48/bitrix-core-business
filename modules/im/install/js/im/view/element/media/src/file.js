@@ -39,7 +39,7 @@ BitrixVue.component('bx-im-view-element-file',
 		messageType: { default: MessageType.self },
 		file: {
 			type: Object,
-			default: FilesModel.create().getElementState
+			required: true
 		},
 	},
 	methods:

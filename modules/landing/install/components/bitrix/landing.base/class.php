@@ -17,6 +17,7 @@ use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Service\GeoIp;
 use \Bitrix\Main\UI\PageNavigation;
 use Bitrix\UI\Fonts;
+use Bitrix\Main\Web\Uri;
 
 class LandingBaseComponent extends \CBitrixComponent
 {
@@ -207,7 +208,7 @@ class LandingBaseComponent extends \CBitrixComponent
 				'VIEW_TARGET' => null,
 				'FORMS' => [
 					['zones' => ['br'], 'id' => '317','lang' => 'br', 'sec' => '3uon92'],
-					['zones' => ['es'], 'id' => '315','lang' => 'la', 'sec' => 'd3jam4'],
+					['zones' => ['es', 'la'], 'id' => '315','lang' => 'la', 'sec' => 'd3jam4'],
 					['zones' => ['de'], 'id' => '319','lang' => 'de', 'sec' => 'pr1z8q'],
 					['zones' => ['ua'], 'id' => '321','lang' => 'ua', 'sec' => 'm6etjp'],
 					['zones' => ['ru', 'by', 'kz'], 'id' => '311','lang' => 'ru', 'sec' => 'b8sbcz'],
@@ -222,7 +223,7 @@ class LandingBaseComponent extends \CBitrixComponent
 				'VIEW_TARGET' => null,
 				'FORMS' => [
 					['zones' => ['br'], 'id' => '279','lang' => 'br', 'sec' => 'wcqdvn'],
-					['zones' => ['es'], 'id' => '277','lang' => 'la', 'sec' => 'eytrfo'],
+					['zones' => ['es', 'la'], 'id' => '277','lang' => 'la', 'sec' => 'eytrfo'],
 					['zones' => ['de'], 'id' => '281','lang' => 'de', 'sec' => '167ch0'],
 					['zones' => ['ua'], 'id' => '283','lang' => 'ua', 'sec' => 'ggoa61'],
 					['zones' => ['ru', 'by', 'kz'], 'id' => '273','lang' => 'ru', 'sec' => 'z71z93'],
@@ -238,7 +239,7 @@ class LandingBaseComponent extends \CBitrixComponent
 				'FORMS' => [
 					['zones' => ['en'], 'id' => '946','lang' => 'en', 'sec' => 'b3isk2'],
 					['zones' => ['de'], 'id' => '951','lang' => 'de', 'sec' => '34dwna'],
-					['zones' => ['es'], 'id' => '952','lang' => 'la', 'sec' => 'pkalm2'],
+					['zones' => ['es', 'la'], 'id' => '952','lang' => 'la', 'sec' => 'pkalm2'],
 					['zones' => ['br'], 'id' => '953','lang' => 'br', 'sec' => 'p9ty5r'],
 					['zones' => ['fr'], 'id' => '954','lang' => 'fr', 'sec' => 'udxiup'],
 					['zones' => ['pl'], 'id' => '955','lang' => 'pl', 'sec' => 'isnnbz'],
@@ -272,7 +273,7 @@ class LandingBaseComponent extends \CBitrixComponent
 				'FORMS' => [
 					['zones' => ['en'], 'id' => '1399','lang' => 'en', 'sec' => 'fkonbt'],
 					['zones' => ['de'], 'id' => '1398','lang' => 'de', 'sec' => 'zvchw9'],
-					['zones' => ['es'], 'id' => '1396','lang' => 'la', 'sec' => 'vb62o3'],
+					['zones' => ['es', 'la'], 'id' => '1396','lang' => 'la', 'sec' => 'vb62o3'],
 					['zones' => ['fr'], 'id' => '1401','lang' => 'fr', 'sec' => 'ungyc0'],
 					['zones' => ['pl'], 'id' => '1392','lang' => 'pl', 'sec' => 'ib6p6u'],
 					['zones' => ['pt'], 'id' => '1394','lang' => 'pt', 'sec' => 'sfzq02'],
@@ -296,7 +297,7 @@ class LandingBaseComponent extends \CBitrixComponent
 				'FORMS' => [
 					['zones' => ['en'], 'id' => '1930','lang' => 'en', 'sec' => 'lg4wsd'],
 					['zones' => ['de'], 'id' => '1965','lang' => 'de', 'sec' => 'i95dp6'],
-					['zones' => ['es'], 'id' => '1966','lang' => 'la', 'sec' => 'zlemun'],
+					['zones' => ['es', 'la'], 'id' => '1966','lang' => 'la', 'sec' => 'zlemun'],
 					['zones' => ['fr'], 'id' => '1968','lang' => 'fr', 'sec' => '8rao53'],
 					['zones' => ['pl'], 'id' => '1967','lang' => 'pl', 'sec' => 'hg6mms'],
 					['zones' => ['pt'], 'id' => '1964','lang' => 'pt', 'sec' => 'n4evxs'],
@@ -800,9 +801,9 @@ class LandingBaseComponent extends \CBitrixComponent
 	 * @param string $code Mess code.
 	 * @param array|null $replace Array for replace, e.g. array('#NUM#' => 5).
 	 * @param int|null $version Version of new phrase if needed.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getMessageType(string $code, ?array $replace = null, ?int $version = null): string
+	public function getMessageType(string $code, ?array $replace = null, ?int $version = null): ?string
 	{
 		static $codes = [];
 
@@ -1261,7 +1262,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			{
 				$row['PERSONAL_PHOTO'] = \CFile::ResizeImageGet(
 					$row['PERSONAL_PHOTO'],
-					['width' => 38, 'height' => 38],
+					['width' => 58, 'height' => 58],
 					BX_RESIZE_IMAGE_EXACT
 				);
 				if ($row['PERSONAL_PHOTO'])
@@ -1295,7 +1296,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			return;
 		}*/
 		\Bitrix\Landing\Site\Type::setScope(
-			$this->arParams['TYPE']
+			$this->arParams['TYPE'] ?? null
 		);
 
 		$result = [];
@@ -1364,6 +1365,101 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 
 		return "<script>window.fontsProxyUrl = '{$domain}';</script>";
+	}
+
+	/**
+	 * Get URI for create new ...
+	 * @param bool $isSite - if true - create new site, false - new page in current site
+	 * @param array $urlParams - additional url params, join with url (old or new type)
+	 * @return string
+	 */
+	public function getUrlAdd(bool $isSite = true, array $urlParams = []): string
+	{
+		$paramName = $isSite ? 'PAGE_URL_SITE_EDIT' : 'PAGE_URL_LANDING_EDIT';
+
+		if (
+			(
+				!isset($this->arParams['~' . $paramName])
+				&& !isset($this->arParams[$paramName])
+			)
+			|| !isset($this->arParams['TYPE'])
+		)
+		{
+			return '';
+		}
+
+		$search = ['#site_edit#', '#landing_edit#', '#site_show#'];
+		$replace = [
+			0,
+			0,
+			$this->arParams['SITE_ID'] ?? 0
+		];
+		$param = $this->arParams['~' . $paramName] ?? $this->arParams[$paramName];
+		$urlTemplate =
+			(!$isSite && isset($this->arParams['~PARAMS']['sef_url']['landing_edit']))
+			? $this->arParams['~PARAMS']['sef_url']['landing_edit']
+			: $param
+		;
+		$createViaLandingUrl = str_replace($search, $replace, $urlTemplate);
+
+		// add FOLDER
+		if (!$isSite && isset($this->arParams['ACTION_FOLDER']) && $this->arParams['ACTION_FOLDER'])
+		{
+			$folderId = (int)$this->request->get($this->arParams['ACTION_FOLDER']);
+			if ($folderId)
+			{
+				$createViaLandingUrl = $this->getPageParam($createViaLandingUrl, [
+					$this->arParams['ACTION_FOLDER'] => $folderId
+				]);
+			}
+		}
+
+		// additional url params
+		if (!empty($urlParams))
+		{
+			$createViaLandingUrl = $this->getPageParam($createViaLandingUrl, [
+				'super' => 'Y'
+			]);
+		}
+
+		// OLD style showcase
+		if (!$this->isUseNewMarket())
+		{
+			return $createViaLandingUrl;
+		}
+
+		// NEW - create via market module
+		$createViaMarketUrl = new Uri(
+			'/market/?placement=landings'
+		);
+		$createViaMarketUrl->addParams([
+			'create_uri' => $createViaLandingUrl
+		]);
+
+		return $createViaMarketUrl->getUri();
+	}
+
+	public function getUrlAddSidepanelCondition(bool $isSite = true, array $urlParams = []): string
+	{
+		if ($this->isUseNewMarket())
+		{
+			$condition = (new Uri('/market/?placement=landings'))->getUri();
+		}
+		else
+		{
+			$condition = $this->getUrlAdd($isSite, $urlParams);
+		}
+
+		return str_replace(['?'], ['\?'], CUtil::jsEscape($condition));
+	}
+
+	public function isUseNewMarket(): bool
+	{
+		return
+			$this->arParams['TYPE'] === 'PAGE'
+			&& Manager::isB24()
+			&& Loader::includeModule('market')
+		;
 	}
 
 	/**

@@ -27,13 +27,66 @@ $configIconID = "{$prefix}_config_icon";
 $htmlEditorConfigs = [];
 $htmlFieldNames = isset($arResult['ENTITY_HTML_FIELD_NAMES']) && is_array($arResult['ENTITY_HTML_FIELD_NAMES'])
 	? $arResult['ENTITY_HTML_FIELD_NAMES']
-	: [];
+	: []
+;
+$bbFieldNames = isset($arResult['ENTITY_BB_FIELD_NAMES']) && is_array($arResult['ENTITY_BB_FIELD_NAMES'])
+	? $arResult['ENTITY_BB_FIELD_NAMES']
+	: []
+;
 foreach ($htmlFieldNames as $fieldName)
 {
 	$fieldPrefix = $prefix.'_'.strtolower($fieldName);
 	$htmlEditorConfigs[$fieldName] = [
 		'id' => "{$fieldPrefix}_html_editor",
 		'containerId' => "{$fieldPrefix}_html_editor_container",
+		'bb' => false,
+		'controlsMap' => [
+			['id' => 'ChangeView', 'compact' => true, 'sort' => 5],
+			['id' => 'Bold', 'compact' => true, 'sort' => 10],
+			['id' => 'Italic', 'compact' => true, 'sort' => 20],
+			['id' => 'Underline', 'compact' => true, 'sort' => 30],
+			['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
+			['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
+			['id' => 'Color', 'compact' => false, 'sort' => 60],
+			['id' => 'FontSelector', 'compact' => false, 'sort' => 70],
+			['id' => 'FontSize', 'compact' => true, 'sort' => 80],
+			['separator' => true, 'compact' => false, 'sort' => 90],
+			['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
+			['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
+			['id' => 'AlignList', 'compact' => false, 'sort' => 120],
+			['separator' => true, 'compact' => false, 'sort' => 130],
+			['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
+			['id' => 'Code', 'compact' => false, 'sort' => 180],
+			['id' => 'Quote', 'compact' => false, 'sort' => 190],
+			['separator' => true, 'compact' => false, 'sort' => 200],
+			['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
+			['id' => 'More', 'compact' => true, 'sort' => 400],
+		],
+	];
+}
+foreach ($bbFieldNames as $fieldName)
+{
+	$fieldPrefix = $prefix.'_'.strtolower($fieldName);
+	$htmlEditorConfigs[$fieldName] = [
+		'id' => "{$fieldPrefix}_html_editor",
+		'containerId' => "{$fieldPrefix}_html_editor_container",
+		'bb' => true,
+		// only allow tags that are supported in mobile app
+		'controlsMap' => [
+			['id' => 'ChangeView', 'compact' => true, 'sort' => 5],
+			['id' => 'Bold', 'compact' => true, 'sort' => 10],
+			['id' => 'Italic', 'compact' => true, 'sort' => 20],
+			['id' => 'Underline', 'compact' => true, 'sort' => 30],
+			['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
+			['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
+			['separator' => true, 'compact' => false, 'sort' => 90],
+			['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
+			['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
+			['separator' => true, 'compact' => false, 'sort' => 130],
+			['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
+			['separator' => true, 'compact' => false, 'sort' => 200],
+			['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
+		],
 	];
 }
 
@@ -48,28 +101,7 @@ if (!empty($htmlEditorConfigs))
 			<?php
 			$editor = new CHTMLEditor();
 
-			$editorControlsMap = [
-				['id' => 'ChangeView', 'compact' => true, 'sort' => 5],
-				['id' => 'Bold', 'compact' => true, 'sort' => 10],
-				['id' => 'Italic', 'compact' => true, 'sort' => 20],
-				['id' => 'Underline', 'compact' => true, 'sort' => 30],
-				['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
-				['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
-				['id' => 'Color', 'compact' => false, 'sort' => 60],
-				['id' => 'FontSelector', 'compact' => false, 'sort' => 70],
-				['id' => 'FontSize', 'compact' => true, 'sort' => 80],
-				['separator' => true, 'compact' => false, 'sort' => 90],
-				['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
-				['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
-				['id' => 'AlignList', 'compact' => false, 'sort' => 120],
-				['separator' => true, 'compact' => false, 'sort' => 130],
-				['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
-				['id' => 'Code', 'compact' => false, 'sort' => 180],
-				['id' => 'Quote', 'compact' => false, 'sort' => 190],
-				['separator' => true, 'compact' => false, 'sort' => 200],
-				['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
-				['id' => 'More', 'compact' => true, 'sort' => 400],
-			];
+			$editorControlsMap = $htmlEditorConfig['controlsMap'];
 
 			if (is_array($arResult['DISABLED_HTML_CONTROLS']))
 			{
@@ -116,7 +148,7 @@ if (!empty($htmlEditorConfigs))
 					'showNodeNavi' => false,
 					'autoResize' => true,
 					'autoResizeOffset' => 10,
-					'bbCode' => false,
+					'bbCode' => $htmlEditorConfig['bb'],
 					'saveOnBlur' => false,
 					'bAllowPhp' => false,
 					'lazyLoad' => true,

@@ -394,11 +394,10 @@ class CSiteSettingsWizardStep extends CWizardStep
 		$this->SetPrevStep("select_theme");
 		$this->SetNextCaption(GetMessage("wiz_install"));
 		$this->SetPrevCaption(GetMessage("PREVIOUS_BUTTON"));
-		$wizard =& $this->GetWizard();
+		$wizard = $this->GetWizard();
 
 		if(defined("WIZARD_DEFAULT_SITE_ID"))
 		{
-			$wizard =& $this->GetWizard();
 			$wizard->SetVar("siteID", WIZARD_DEFAULT_SITE_ID);
 		}
 
@@ -613,7 +612,7 @@ class CDataInstallWizardStep extends CWizardStep
 		$pattern = '/^(.*):(.*)\((.*)\)/';
 		preg_match($pattern, $res["NAME"], $matches);
 
-		if($res && (count($matches) > 0 || $res["NAME"] == $site_id) && $site_id != "s1")
+		if($res && (!empty($matches) || $res["NAME"] == $site_id) && $site_id != "s1")
 		{
 			$templateID = $wizard->GetVar("templateID");
 			$themeVarName = $templateID."_themeID";
@@ -643,7 +642,7 @@ class CDataInstallWizardStep extends CWizardStep
 
 		$arMenuTypes = GetMenuTypes($site_id);
 
-		if(count($arMenuTypes) == 0){
+		if(empty($arMenuTypes)){
 			$arMenuTypes = Array(
 				'left' => GetMessage("WIZ_MENU_LEFT"),
 				'top' => GetMessage("WIZ_MENU_TOP"),

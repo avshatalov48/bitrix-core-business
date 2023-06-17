@@ -11,6 +11,7 @@ namespace Bitrix\Socialnetwork\Helper;
 use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Entity\Query;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Config\Option;
@@ -19,8 +20,11 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\EO_WorkgroupPin;
 use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\FeaturePermTable;
+use Bitrix\Socialnetwork\Integration\Pull\PushService;
+use Bitrix\Socialnetwork\WorkgroupPinTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Item;
@@ -162,7 +166,7 @@ class Workgroup
 		foreach ($typesList as $code => $type)
 		{
 			if (
-				$params['fields']['PROJECT'] === $type['PROJECT']
+				($params['fields']['PROJECT'] ?? '') === ($type['PROJECT'] ?? '')
 				&& $params['fields']['SCRUM_PROJECT'] === $type['SCRUM_PROJECT']
 			)
 			{
@@ -192,12 +196,12 @@ class Workgroup
 		foreach ($typesList as $code => $type)
 		{
 			if (
-				$params['fields']['OPENED'] === $type['OPENED']
+				($params['fields']['OPENED'] ?? '') === ($type['OPENED'] ?? '')
 				&& (
 					isset($params['fields']['VISIBLE'])
 					&& $params['fields']['VISIBLE'] === $type['VISIBLE']
 				)
-				&& $params['fields']['PROJECT'] === $type['PROJECT']
+				&& ($params['fields']['PROJECT'] ?? '') === ($type['PROJECT'] ?? '')
 			)
 			{
 				$result = $code;
@@ -467,7 +471,7 @@ class Workgroup
 	{
 		global $USER, $APPLICATION;
 
-		static $result = null;
+		static $result = [];
 
 		$userId = (int)($params['userId'] ?? (is_object($USER) ? $USER->getId() : 0));
 		$groupId = (int)($params['groupId'] ?? 0);
@@ -476,7 +480,10 @@ class Workgroup
 			$APPLICATION->throwException('Empty workgroup Id', 'SONET_HELPER_WORKGROUP_EMPTY_GROUP');
 		}
 
-		if (!$result[$userId][$groupId])
+		if (
+			empty($result[$userId] ?? null)
+			|| !($result[$userId][$groupId] ?? null)
+		)
 		{
 			$groupFields = Item\Workgroup::getById($groupId)->getFields();
 			$result[$userId][$groupId] = \CSocNetUserToGroup::initUserPerms(
@@ -565,8 +572,8 @@ class Workgroup
 	{
 		global $APPLICATION;
 
-		$groupId = (int)($fields['groupId'] ?? 0);
-		$newOwnerId = (int)($fields['userId'] ?? 0);
+		$groupId = (int) ($fields['groupId'] ?? 0);
+		$newOwnerId = (int) ($fields['userId'] ?? 0);
 		$currentUserId = User::getCurrentUserId();
 
 		if ($groupId <= 0)
@@ -1559,13 +1566,11 @@ class Workgroup
 			$extranetInstalled = self::isExtranetInstalled();
 		}
 
-		$entityOptions = (
-			!empty($params)
-			&& is_array($params['entityOptions'])
-			&& !empty($params['entityOptions'])
-				? $params['entityOptions']
-				: []
-		);
+		$entityOptions = [];
+		if (!empty($params['entityOptions']) && is_array($params['entityOptions']))
+		{
+			$entityOptions = $params['entityOptions'];
+		}
 
 		$result = [];
 		$sort = 0;
@@ -1637,9 +1642,8 @@ class Workgroup
 		);
 
 		$entityOptions = (
-			!empty($params)
+			!empty($params['entityOptions'])
 			&& is_array($params['entityOptions'])
-			&& !empty($params['entityOptions'])
 				? $params['entityOptions']
 				: []
 		);
@@ -1913,21 +1917,17 @@ class Workgroup
 			&& $params['currentExtranetSite']
 		);
 
-		$categoryList = (
-			!empty($params)
-			&& is_array($params['category'])
-			&& !empty($params['category'])
-				? $params['category']
-				: []
-		);
+		$categoryList = [];
+		if (!empty($params['category']) && is_array($params['category']))
+		{
+			$categoryList = $params['category'];
+		}
 
-		$entityOptions = (
-			!empty($params)
-			&& is_array($params['entityOptions'])
-			&& !empty($params['entityOptions'])
-				? $params['entityOptions']
-				: []
-		);
+		$entityOptions = [];
+		if (!empty($params['entityOptions']) && is_array($params['entityOptions']))
+		{
+			$entityOptions = $params['entityOptions'];
+		}
 
 		$fullMode = (
 			!empty($params)
@@ -2392,5 +2392,101 @@ class Workgroup
 				$fields['SUBJECT_ID'] = (int)$subject['ID'];
 			}
 		}
+	}
+
+	public static function pin(int $groupId, string $mode = ''): ?bool
+	{
+		if (
+			$groupId <= 0
+			|| !Helper\Workgroup\Access::canView(['groupId' => $groupId])
+			|| static::getIsPinned($groupId, $mode)
+		)
+		{
+			return false;
+		}
+
+		$userId = User::getCurrentUserId();
+
+		try
+		{
+			WorkgroupPinTable::add([
+				'GROUP_ID' => $groupId,
+				'USER_ID' => $userId,
+				'CONTEXT' => $mode,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			return null;
+		}
+
+		static::sendPinChangedPushEvent($groupId, $userId, 'pin');
+
+		return true;
+	}
+
+	public static function unpin(int $groupId, string $mode = ''): ?bool
+	{
+		if (
+			$groupId <= 0
+			|| !Helper\Workgroup\Access::canView(['groupId' => $groupId])
+			|| !($isPinned = static::getIsPinned($groupId, $mode))
+		)
+		{
+			return false;
+		}
+
+		$tableDeleteResult = WorkgroupPinTable::delete($isPinned->get('ID'));
+		if (!$tableDeleteResult->isSuccess())
+		{
+			return null;
+		}
+
+		static::sendPinChangedPushEvent($groupId, User::getCurrentUserId(), 'unpin');
+
+		return true;
+	}
+
+	private static function getIsPinned(int $groupId, string $mode): ?EO_WorkgroupPin
+	{
+		$query = WorkgroupPinTable::query();
+		$query
+			->setSelect(['ID', 'GROUP_ID', 'USER_ID'])
+			->where('GROUP_ID', $groupId)
+			->where('USER_ID', User::getCurrentUserId())
+			->setLimit(1)
+		;
+
+		if ($mode === '')
+		{
+			$query->where(
+				Query::filter()
+					->logic('or')
+					->whereNull('CONTEXT')
+					->where('CONTEXT', '')
+			);
+		}
+		else
+		{
+			$query->where('CONTEXT', $mode);
+		}
+
+		return $query->exec()->fetchObject();
+	}
+
+	private static function sendPinChangedPushEvent(int $groupId, int $userId, string $action): void
+	{
+		PushService::addEvent(
+			[$userId],
+			[
+				'module_id' => 'socialnetwork',
+				'command' => 'workgroup_pin_changed',
+				'params' => [
+					'GROUP_ID' => $groupId,
+					'USER_ID' => $userId,
+					'ACTION' => $action,
+				],
+			]
+		);
 	}
 }

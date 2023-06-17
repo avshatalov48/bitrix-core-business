@@ -108,7 +108,7 @@ class Dispatcher
 			$addFieldInfo = array(
 				'ENTITY_ID' => $fieldInfo['ENTITY_ID'],
 				'FIELD' => $fieldInfo['FIELD'],
-				'CONTEXT' => $fieldInfo['CONTEXT'],
+				'CONTEXT' => $fieldInfo['CONTEXT'] ?? null,
 			);
 
 			$addFieldInfo['SIGNATURE'] = $this->getSignature($addFieldInfo);
@@ -255,17 +255,17 @@ class Dispatcher
 			'USER_TYPE_ID' => $fieldInfo['USER_TYPE_ID'],
 			'MULTIPLE' => $fieldInfo['MULTIPLE'],
 			'MANDATORY' => $fieldInfo['MANDATORY'],
-			'SHOW_FILTER' => $fieldInfo['SHOW_FILTER'],
-			'SHOW_IN_LIST' => $fieldInfo['SHOW_IN_LIST'],
-			'EDIT_IN_LIST' => $fieldInfo['EDIT_IN_LIST'],
-			'IS_SEARCHABLE' => $fieldInfo['IS_SEARCHABLE'],
-			'SETTINGS' => $fieldInfo['SETTINGS'],
-			'EDIT_FORM_LABEL' => $this->checkLabel($fieldInfo['EDIT_FORM_LABEL']),
-			'LIST_COLUMN_LABEL' => $this->checkLabel($fieldInfo['LIST_COLUMN_LABEL']),
-			'LIST_FILTER_LABEL' => $this->checkLabel($fieldInfo['LIST_FILTER_LABEL']),
-			'ERROR_MESSAGE' => $this->checkLabel($fieldInfo['ERROR_MESSAGE']),
-			'HELP_MESSAGE' => $this->checkLabel($fieldInfo['HELP_MESSAGE']),
-			'CONTEXT_PARAMS' => $fieldInfo['CONTEXT_PARAMS'],
+			'SHOW_FILTER' => $fieldInfo['SHOW_FILTER'] ?? null,
+			'SHOW_IN_LIST' => $fieldInfo['SHOW_IN_LIST'] ?? null,
+			'EDIT_IN_LIST' => $fieldInfo['EDIT_IN_LIST'] ?? null,
+			'IS_SEARCHABLE' => $fieldInfo['IS_SEARCHABLE'] ?? null,
+			'SETTINGS' => $fieldInfo['SETTINGS'] ?? null,
+			'EDIT_FORM_LABEL' => $this->checkLabel($fieldInfo['EDIT_FORM_LABEL'] ?? null),
+			'LIST_COLUMN_LABEL' => $this->checkLabel($fieldInfo['LIST_COLUMN_LABEL'] ?? null),
+			'LIST_FILTER_LABEL' => $this->checkLabel($fieldInfo['LIST_FILTER_LABEL'] ?? null),
+			'ERROR_MESSAGE' => $this->checkLabel($fieldInfo['ERROR_MESSAGE'] ?? null),
+			'HELP_MESSAGE' => $this->checkLabel($fieldInfo['HELP_MESSAGE'] ?? null),
+			'CONTEXT_PARAMS' => $fieldInfo['CONTEXT_PARAMS'] ?? null,
 		));
 
 		if(!$fieldId)
@@ -339,7 +339,7 @@ class Dispatcher
 				$updateField['SETTINGS'] = array_merge($userFieldInfo['SETTINGS'], $fieldInfo['SETTINGS']);
 			}
 
-			if(count($updateField) > 0)
+			if(!empty($updateField))
 			{
 				$userTypeEntity = new \CUserTypeEntity();
 				$updateResult = $userTypeEntity->update($userFieldInfo['ID'], $updateField);
@@ -482,7 +482,7 @@ class Dispatcher
 
 	protected function getStoredFieldSignature($entityId, $field)
 	{
-		return $this->storedFieldSignature[$entityId.'|'.$field];
+		return $this->storedFieldSignature[$entityId.'|'.$field] ?? null;
 	}
 
 	/**
@@ -528,7 +528,7 @@ class Dispatcher
 	{
 		$this->assetCollectior->startAssetCollection();
 
-		if(count($this->validateFieldList) > 0)
+		if(!empty($this->validateFieldList))
 		{
 			$this->processValidate();
 		}
@@ -840,7 +840,7 @@ class Dispatcher
 			'ID' => $userField['ID'],
 			'USER_TYPE_ID' => $userField['USER_TYPE_ID'],
 			'ENTITY_ID' => $userField['ENTITY_ID'],
-			'ENTITY_VALUE_ID' => $userField['ENTITY_VALUE_ID'],
+			'ENTITY_VALUE_ID' => $userField['ENTITY_VALUE_ID'] ?? 0,
 			'MANDATORY' => $userField['MANDATORY'],
 			'MULTIPLE' => $userField['MULTIPLE'],
 			'FIELD' => $userField['FIELD_NAME'],
@@ -852,7 +852,7 @@ class Dispatcher
 			'SHOW_FILTER' => $userField['SHOW_FILTER'],
 			'SHOW_IN_LIST' => $userField['SHOW_IN_LIST'],
 			'SORT' => $userField['SORT'],
-			'CONTEXT_PARAMS' => $userField['CONTEXT_PARAMS'],
+			'CONTEXT_PARAMS' => $userField['CONTEXT_PARAMS'] ?? [],
 		);
 
 		if($userField['USER_TYPE_ID'] === \CUserTypeEnum::USER_TYPE_ID && is_array($userField['ENUM']))

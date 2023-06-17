@@ -181,7 +181,7 @@ class UserTable extends DataManager
 
 			(new Reference(
 				'COUNTER',
-				\Bitrix\Main\UserCounterTable::class,
+				UserCounterTable::class,
 				Join::on('this.ID', 'ref.USER_ID')->where('ref.CODE', 'tasks_effective')
 			)),
 			(new Reference(
@@ -223,54 +223,17 @@ class UserTable extends DataManager
 			$seconds = 120;
 		}
 
-		return intval($seconds);
+		return $seconds;
 	}
 
 	/**
+	 * @deprecated
 	 * @param Type\Date|null $lastLoginDate
 	 * @return int
 	 */
 	public static function getActiveUsersCount(Type\Date $lastLoginDate = null)
 	{
-		$connection = Application::getConnection();
-
-		if ($lastLoginDate !== null)
-		{
-			// logged in today
-			$filter = "AND U.LAST_LOGIN > ".$connection->getSqlHelper()->convertToDbDate($lastLoginDate);
-		}
-		else
-		{
-			// logged in in total
-			$filter = "AND U.LAST_LOGIN IS NOT NULL";
-		}
-
-		if (ModuleManager::isModuleInstalled("intranet"))
-		{
-			$sql = "
-				SELECT COUNT(DISTINCT U.ID)
-				FROM
-					b_user U
-					INNER JOIN b_user_field F ON F.ENTITY_ID = 'USER' AND F.FIELD_NAME = 'UF_DEPARTMENT'
-					INNER JOIN b_utm_user UF ON
-						UF.FIELD_ID = F.ID
-						AND UF.VALUE_ID = U.ID
-						AND UF.VALUE_INT > 0
-				WHERE U.ACTIVE = 'Y'
-					{$filter}
-			";
-		}
-		else
-		{
-			$sql = "
-				SELECT COUNT(ID)
-				FROM b_user U
-				WHERE U.ACTIVE = 'Y'
-				   {$filter}
-			";
-		}
-
-		return (int)$connection->queryScalar($sql);
+		return Application::getInstance()->getLicense()->getActiveUsersCount($lastLoginDate);
 	}
 
 	public static function getUserGroupIds($userId)
@@ -417,7 +380,7 @@ class UserTable extends DataManager
 			}
 		}
 
-		$departmentName = isset($record['UF_DEPARTMENT_NAMES'][0])? $record['UF_DEPARTMENT_NAMES'][0]: '';
+		$departmentName = $record['UF_DEPARTMENT_NAMES'][0] ?? '';
 		$searchDepartmentContent = implode(' ', $record['UF_DEPARTMENT_NAMES']);
 
 		UserIndexTable::merge(array(
@@ -475,7 +438,7 @@ class UserTable extends DataManager
 		$workCountry = (
 			isset($fields['WORK_COUNTRY'])
 			&& intval($fields['WORK_COUNTRY'])
-				? \Bitrix\Main\UserUtils::getCountryValue([
+				? UserUtils::getCountryValue([
 					'VALUE' => intval($fields['WORK_COUNTRY'])
 				])
 				: ''
@@ -487,8 +450,8 @@ class UserTable extends DataManager
 				: ''
 		);
 
-		$ufContent = \Bitrix\Main\UserUtils::getUFContent($fields['ID']);
-		$tagsContent = \Bitrix\Main\UserUtils::getTagsContent($fields['ID']);
+		$ufContent = UserUtils::getUFContent($fields['ID']);
+		$tagsContent = UserUtils::getTagsContent($fields['ID']);
 
 		$result = MapBuilder::create()
 			->addInteger($fields['ID'])

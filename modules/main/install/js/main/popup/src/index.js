@@ -1,13 +1,14 @@
 /*
 
 //ES6
-import { Popup, PopupManager } from 'main.popup';
+import { Popup, PopupManager, CloseIconSize } from 'main.popup';
 const popup = new Popup();
 PopupManager.create();
 
 //ES5
 var popup = new BX.Main.Popup();
 BX.Main.PopupManager.create();
+BX.Main.Popup.CloseIconSize;
 
 //ES6
 import { Menu, MenuItem, MenuManager } from 'main.popup';
@@ -24,6 +25,7 @@ BX.Main.MenuManager.create();
 
 import Popup from './popup/popup';
 import PopupManager from './popup/popup-manager';
+import CloseIconSize from './popup/popup-close-icon-size';
 import Menu from './menu/menu';
 import MenuManager from './menu/menu-manager';
 import MenuItem from './menu/menu-item';
@@ -53,7 +55,8 @@ export {
 	Menu,
 	MenuItem,
 	PopupManager,
-	MenuManager
+	MenuManager,
+	CloseIconSize,
 };
 
 export type {

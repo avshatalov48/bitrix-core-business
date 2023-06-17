@@ -25,6 +25,7 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 </ul>
 <?*/
 
+$arParams["SHOW_AVATAR_EDITOR"] = $arParams["SHOW_AVATAR_EDITOR"] ?? null;
 if ($arParams["SHOW_AVATAR_EDITOR"] == "Y")
 {
 	\CJSCore::Init(array("webrtc_adapter", "avatar_editor"));
@@ -127,7 +128,7 @@ HTML;
 				"allowUpload" => $arParams["ALLOW_UPLOAD"],
 				"allowUploadExt" => $arParams["ALLOW_UPLOAD_EXT"],
 				"uploadMaxFilesize" => $arParams['MAX_FILE_SIZE'],
-				"enableCamera" => $arParams['ENABLE_CAMERA'] !== "N",
+				"enableCamera" => !isset($arParams['ENABLE_CAMERA']) || $arParams['ENABLE_CAMERA'] !== "N",
 
 				"urlUpload" => $arParams["URL_TO_UPLOAD"]
 			))?>);

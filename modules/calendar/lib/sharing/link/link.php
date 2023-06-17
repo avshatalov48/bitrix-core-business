@@ -13,6 +13,7 @@ abstract class Link implements EntityInterface
 	protected string $hash;
 	protected bool $active;
 	protected ?DateTime $dateCreate = null;
+	protected ?DateTime $dateExpire = null;
 
 	public function getId(): ?int
 	{
@@ -58,6 +59,18 @@ abstract class Link implements EntityInterface
 	public function setDateCreate(DateTime $dateCreate): self
 	{
 		$this->dateCreate = $dateCreate;
+
+		return $this;
+	}
+
+	public function getDateExpire(): ?DateTime
+	{
+		return $this->dateExpire;
+	}
+
+	public function setDateExpire(?DateTime $dateExpire): self
+	{
+		$this->dateExpire = $dateExpire;
 
 		return $this;
 	}

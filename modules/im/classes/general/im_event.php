@@ -796,14 +796,16 @@ class CIMEvent
 
 	public static function OnAfterUserUpdate($arParams)
 	{
+		IM\V2\Message\CounterService::onAfterUserUpdate($arParams);
+		IM\V2\Chat\User\OwnerService::onAfterUserUpdate($arParams);
 		$commonChatId = CIMChat::GetGeneralChatId();
 		if ($commonChatId > 0 && (isset($arParams['ACTIVE']) || isset($arParams['UF_DEPARTMENT'])))
 		{
 			if ($arParams['ACTIVE'] == 'N')
 			{
-				CIMMessage::SetReadMessageAll($arParams['ID']);
+				//CIMMessage::SetReadMessageAll($arParams['ID']);
 
-				if ($commonChatId && CIMChat::GetRelationById($commonChatId, $arParams["ID"]))
+				if ($commonChatId && CIMChat::GetRelationById($commonChatId, $arParams["ID"], true, false))
 				{
 					$CIMChat = new CIMChat($arParams["ID"]);
 					$CIMChat->DeleteUser($commonChatId, $arParams["ID"]);
@@ -824,7 +826,7 @@ class CIMEvent
 						return true;
 					}
 
-					$userInChat = CIMChat::GetRelationById($commonChatId, $arParams["ID"]);
+					$userInChat = CIMChat::GetRelationById($commonChatId, $arParams["ID"], true, false);
 					$userCanJoin = CIMChat::CanJoinGeneralChatId($arParams["ID"]);
 
 					if ($userInChat && !$userCanJoin)
@@ -907,6 +909,12 @@ class CIMEvent
 
 			$strSQL = "DELETE FROM b_im_relation WHERE CHAT_ID IN (".implode(',', $arChat).")";
 			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+			IM\V2\Link\Url\UrlCollection::deleteByChatsIds($arChat);
+			foreach ($arChat as $id)
+			{
+				IM\V2\Chat::cleanCache((int)$id);
+			}
 		}
 		else
 		{
@@ -915,6 +923,8 @@ class CIMEvent
 
 			$strSQL = "DELETE FROM b_im_relation WHERE USER_ID =".$ID;
 			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+			IM\V2\Link\Url\UrlCollection::deleteByAuthorsIds([$ID]);
 		}
 
 		\Bitrix\Im\Bot::unRegister(['BOT_ID' => $ID]);

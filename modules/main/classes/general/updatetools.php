@@ -10,8 +10,10 @@ class UpdateTools
 	{
 		global $USER;
 
-		if(LICENSE_KEY == "DEMO")
+		if(Main\Application::getInstance()->getLicense()->isDemoKey())
+		{
 			return;
+		}
 
 		$days_check = intval(COption::GetOptionString('main', 'update_autocheck'));
 		if($days_check > 0)

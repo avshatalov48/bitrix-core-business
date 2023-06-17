@@ -19,7 +19,7 @@ class WizardTemplate extends CWizardTemplate
 		$obStep =& $wizard->GetCurrentStep();
 		$arErrors = $obStep->GetErrors();
 		$strError = "";
-		if (count($arErrors) > 0)
+		if (!empty($arErrors))
 		{
 			foreach ($arErrors as $arError)
 				$strError .= $arError[0]."<br />";
@@ -47,21 +47,12 @@ class WizardTemplate extends CWizardTemplate
 			$title = GetMessage("WIZARD_TITLE");
 		$title = str_replace("#VERS#", $productVersion , $title);
 
-		if(isset($bxProductConfig["intranet_wizard"]["copyright"]))
-			$copyright = $bxProductConfig["intranet_wizard"]["copyright"];
-		else
-			$copyright = GetMessage("COPYRIGHT");
+		$copyright = $bxProductConfig["intranet_wizard"]["copyright"] ?? GetMessage("COPYRIGHT");
 		$copyright = str_replace("#CURRENT_YEAR#", date("Y") , $copyright);
 
-		if(isset($bxProductConfig["intranet_wizard"]["links"]))
-			$support = $bxProductConfig["intranet_wizard"]["links"];
-		else
-			$support = GetMessage("SUPPORT");
+		$support = $bxProductConfig["intranet_wizard"]["links"] ?? GetMessage("SUPPORT");
 
-		if(isset($bxProductConfig["intranet_wizard"]["title"]))
-			$wizardName = $bxProductConfig["intranet_wizard"]["title"];
-		else
-			$wizardName = $wizard->GetWizardName();
+		$wizardName = $bxProductConfig["intranet_wizard"]["title"] ?? $wizard->GetWizardName();
 
 		//Images
 		$logoImage = "";

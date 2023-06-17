@@ -161,7 +161,7 @@ export class AutomationGuide
 			steps: [
 				{
 					target: this.#guideTargets['robot'],
-					title: Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_TITLE'),
+					title: Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_TITLE_1'),
 					text: this.constructor.#getText([
 						Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_SUBTITLE_1'),
 						Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_SUBTITLE_2')
@@ -190,7 +190,7 @@ export class AutomationGuide
 			steps: [
 				{
 					target: this.#guideTargets['trigger'],
-					title: Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_TITLE'),
+					title: Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_TITLE_1'),
 					text: this.constructor.#getText([
 						Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_SUBTITLE_1'),
 						Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_SUBTITLE_2')

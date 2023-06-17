@@ -1,9 +1,16 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 if(!$USER->CanDoOperation('manage_short_uri') && !$USER->CanDoOperation('view_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+$message = null;
 $isAdmin = $USER->CanDoOperation('manage_short_uri');
 
 IncludeModuleLangFile(__FILE__);
@@ -13,16 +20,16 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-$ID = intval($ID);		// Id of the edited record
+$ID = intval($_REQUEST['ID'] ?? 0);
 $strError = "";
 $bVarsFromForm = false;
 
-if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $isAdmin && check_bitrix_sessid())
+if($REQUEST_METHOD == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
 	$arFields = Array(
-		"URI" => $URI,
-		"SHORT_URI" => $SHORT_URI,
-		"STATUS" => $STATUS,
+		"URI" => $_POST['URI'] ?? '',
+		"SHORT_URI" => $_POST['SHORT_URI'] ?? '',
+		"STATUS" => $_POST['STATUS'] ?? '',
 	);
 	if($ID>0)
 	{
@@ -36,7 +43,7 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $isAdmin && check_b
 
 	if($res)
 	{
-		if($apply!="")
+		if(!empty($_POST['apply']))
 			LocalRedirect("/bitrix/admin/short_uri_edit.php?ID=".$ID."&mess=ok&lang=".LANG."&".$tabControl->ActiveTabParam());
 		else
 			LocalRedirect("/bitrix/admin/short_uri_admin.php?lang=".LANG);
@@ -54,6 +61,12 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $isAdmin && check_b
 ClearVars();
 
 $str_SHORT_URI = CBXShortUri::GenerateShortUri();
+$str_MODIFIED = '';
+$str_URI = '';
+$str_SHORT_URI = '';
+$str_STATUS = '';
+$str_LAST_USED = '';
+$str_NUMBER_USED = '';
 
 if (isset($_REQUEST["public"]))
 {
@@ -107,7 +120,7 @@ $context->Show();
 ?>
 
 <?
-if($_REQUEST["mess"] == "ok" && $ID>0)
+if(isset($_REQUEST["mess"]) && $_REQUEST["mess"] == "ok" && $ID>0)
 	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("SU_EF_saved"), "TYPE"=>"OK"));
 if($message)
 	echo $message->Show();

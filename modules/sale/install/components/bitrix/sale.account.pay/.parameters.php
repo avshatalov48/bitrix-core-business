@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 $currencyList = array();
 $baseCurrencyCode = "";
@@ -9,7 +14,7 @@ if (CModule::IncludeModule("currency"))
 	$currencyList = \Bitrix\Currency\CurrencyManager::getCurrencyList();
 }
 
-if ($_REQUEST['src_site'] && is_string($_REQUEST['src_site']))
+if (isset($_REQUEST['src_site']) && $_REQUEST['src_site'] && is_string($_REQUEST['src_site']))
 {
 	$siteId = $_REQUEST['src_site'];
 }
@@ -45,7 +50,7 @@ $arComponentParameters = array(
 			"DEFAULT" => "/personal/order/payment",
 			"COLS" => 25,
 		),
-		
+
 		"SELL_CURRENCY" => array(
 			"NAME"=>GetMessage("SAPP_SELL_CURRENCY"),
 			"TYPE"=>"LIST",
@@ -58,8 +63,10 @@ $arComponentParameters = array(
 	)
 );
 
-if ((!empty($arCurrentValues['SELL_AMOUNT']) && $arCurrentValues["REFRESHED_COMPONENT_MODE"] !== "Y")
-	|| $arCurrentValues["REFRESHED_COMPONENT_MODE"] === "N")
+if (
+	!empty($arCurrentValues['SELL_AMOUNT'])
+	&& ($arCurrentValues["REFRESHED_COMPONENT_MODE"] ?? 'N') !== 'Y'
+)
 {
 	$arAmount = array();
 	$arAvAmount = unserialize(Bitrix\Main\Config\Option::get("sale", "pay_amount"), ['allowed_classes' => false]);
@@ -104,7 +111,6 @@ if ((!empty($arCurrentValues['SELL_AMOUNT']) && $arCurrentValues["REFRESHED_COMP
 	$arComponentParameters["PARAMETERS"]["REDIRECT_TO_CURRENT_PAGE"] = array(
 		"NAME" => GetMessage("SAPP_REDIRECT_TO_CURRENT_PAGE"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
 		"DEFAULT" => "N",
 	);
 
@@ -199,9 +205,7 @@ else
 		$arComponentParameters['PARAMETERS']['SELL_SHOW_FIXED_VALUES'] = array(
 			"NAME"=>GetMessage("SAPP_SELL_SHOW_FIXED_VALUES"),
 			"TYPE"=>"CHECKBOX",
-			"MULTIPLE"=>"N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES"=>"N",
 			"REFRESH" => "Y"
 		);
 
@@ -237,9 +241,7 @@ else
 		$arComponentParameters["PARAMETERS"]['SELL_SHOW_RESULT_SUM'] = array(
 			"NAME"=>GetMessage("SAPP_SELL_SHOW_RESULT_SUM"),
 			"TYPE"=>"CHECKBOX",
-			"MULTIPLE"=>"N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES"=>"N",
 		);
 	}
 

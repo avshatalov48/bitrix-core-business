@@ -16,8 +16,6 @@ if (false == check_bitrix_sessid() || !$GLOBALS["USER"]->IsAuthorized())
 
 $APPLICATION->SetAdditionalCSS('/bitrix/themes/.default/pubstyles.css');
 
-$strWarning = "";
-
 $arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_admin_index", array(), false);
 if(!is_array($arUserOptions))
 	$arUserOptions = Array();
@@ -55,19 +53,14 @@ if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 	}
 
 	CUserOptions::SetOption("intranet", "~gadgets_admin_index", $arUserOptionsTmp, false, false);	
-
-	if($strWarning == '')
-	{
-		?>
-		<script bxrunfirst="true">
-		top.BX.WindowManager.Get().Close();
-		top.BX.showWait();
-		top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl))?>';
-		</script>
-		<?
-		die();
-	}
-
+?>
+	<script bxrunfirst="true">
+	top.BX.WindowManager.Get().Close();
+	top.BX.showWait();
+	top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl))?>';
+	</script>
+<?
+	die();
 }
 /******* /POST **********/
 $obJSPopup = new CJSPopup('',
@@ -81,12 +74,6 @@ $obJSPopup = new CJSPopup('',
 $obJSPopup->ShowTitlebar();
 ?>
 <script src="/bitrix/js/main/dd.js" type="text/javascript"></script>
-
-<?
-if($strWarning <> "")
-	$obJSPopup->ShowValidationError($strWarning);
-
-?>
 
 <?
 // ======================== Show content ============================= //

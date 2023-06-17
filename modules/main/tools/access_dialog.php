@@ -12,11 +12,13 @@ if(!$USER->IsAuthorized()):
 endif;
 
 $arParams = false;
-if(is_array($_REQUEST["arParams"]))
+if (isset($_REQUEST["arParams"]) && is_array($_REQUEST["arParams"]))
+{
 	$arParams = $_REQUEST["arParams"];
-	
+}
+
 $arParams["SITE_ID"] = '';
-if($_REQUEST["site_id"] <> '')
+if(isset($_REQUEST["site_id"]) && $_REQUEST["site_id"] <> '')
 {
 	$res = CSite::GetByID($_REQUEST["site_id"]);
 	if($arSite = $res->Fetch())
@@ -25,16 +27,18 @@ if($_REQUEST["site_id"] <> '')
 
 $access = new CAccess($arParams);
 
-if($_REQUEST["mode"] == "ajax")
+if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "ajax")
 {
 	echo $access->AjaxRequest(array("provider"=>$_REQUEST["provider"]));
 	die();
 }
 
-if($_REQUEST["mode"] == "save_lru" && check_bitrix_sessid())
+if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_lru" && check_bitrix_sessid())
 {
-	if(is_array($_REQUEST["LRU"]))
+	if (isset($_REQUEST["LRU"]) && is_array($_REQUEST["LRU"]))
+	{
 		CAccess::SaveLastRecentlyUsed($_REQUEST["LRU"]);
+	}
 	die();
 }
 ?>

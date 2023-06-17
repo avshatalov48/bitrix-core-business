@@ -30,7 +30,7 @@ class StandartBuilder extends Builder
 
 	protected function normalizeLangResources(): void
 	{
-		$langResources = $this->normalizedResources[Types::TYPE_LANG];
+		$langResources = $this->normalizedResources[Types::TYPE_LANG] ?? null;
 		if (isset($langResources) && !empty($langResources))
 		{
 			// convert array to string (get first element)

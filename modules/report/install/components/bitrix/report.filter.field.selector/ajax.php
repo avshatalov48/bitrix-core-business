@@ -1,7 +1,9 @@
 <?php
 
+use Bitrix\Crm\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\UI\Selector\Entities;
 use Bitrix\Report\Internals\Controller;
 use Bitrix\Main\Error;
 
@@ -9,8 +11,13 @@ use Bitrix\Main\Error;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-if (!Loader::IncludeModule('report') || !\Bitrix\Main\Application::getInstance()->getContext()
-		->getRequest()->getQuery('action'))
+if (
+	!Loader::IncludeModule('report') ||
+	!\Bitrix\Main\Application::getInstance()
+		->getContext()
+		->getRequest()
+		->getQuery('action')
+)
 {
 	return;
 }
@@ -23,11 +30,14 @@ class ReportFilterFieldSelectorController extends Controller
 
 	protected function listActions()
 	{
-		return array(
-			'LoadEnumerationValues' => array(
-				'method' => array('POST')
-			)
-		);
+		return [
+			'LoadEnumerationValues' => [
+				'method' => ['POST']
+			],
+			'CrmElementSearch' => [
+				'method' => ['POST']
+			],
+		];
 	}
 
 	protected function processActionLoadEnumerationValues()
@@ -87,6 +97,92 @@ class ReportFilterFieldSelectorController extends Controller
 		}
 
 		$this->sendJsonSuccessResponse(array('ITEMS' => $enumValues));
+	}
+
+	protected function processActionCrmElementSearch(): void
+	{
+		$result = [];
+
+		if (Loader::includeModule('crm'))
+		{
+			$entityTypeName = $this->request->getPost('ENTITY_TYPE');
+			$entityTypeId = CCrmOwnerType::Undefined;
+			if (is_string($entityTypeName) && $entityTypeName !== '')
+			{
+				$entityTypeId = CCrmOwnerType::ResolveId($entityTypeName);
+			}
+			if ($entityTypeId !== CCrmOwnerType::Undefined)
+			{
+				$data = [];
+				$settings = [mb_strtoupper($entityTypeName) => 'Y'];
+				$selectorParams = ElementType::getDestSelectorParametersForFilter($settings, true);
+				$selectorEntityTypeOptions = ElementType::getDestSelectorOptions($selectorParams);
+				$searchString = $this->request->getPost('VALUE');
+				if (is_string($searchString) && $searchString !== '' && $searchString !== '[]')
+				{
+					$matches = [];
+					if (preg_match('/^\\[(\\d+)]$/', $searchString, $matches))
+					{
+						$id = (int)$matches[1];
+						$providerEntityType = '';
+						if ($description = reset($selectorEntityTypeOptions))
+						{
+							$providerEntityType = key($selectorEntityTypeOptions);
+							$provider = Entities::getProviderByEntityType($providerEntityType);
+							if (
+								$provider !== false
+								&& is_callable([$provider, 'getByIds'])
+							)
+							{
+								$options = (!empty($description['options']) ? $description['options'] : array());
+								$data = [
+									'ENTITIES' => [
+										$providerEntityType => [
+											'ITEMS' => $provider->getByIds([$id], $options)
+										]
+									]
+								];
+							}
+						}
+						unset($id, $providerEntityType, $description, $options);
+					}
+					else
+					{
+						$data = Entities::search(
+							$selectorParams,
+							$selectorEntityTypeOptions,
+							['searchString' => $searchString]
+						);
+					}
+
+					$useIdPrefix = ($this->request->getPost('MULTI') === 'Y');
+					$idPrefix = $useIdPrefix ? CCrmOwnerTypeAbbr::ResolveByTypeName($entityTypeName) . '_' : '';
+					if (is_array($data['ENTITIES']))
+					{
+						foreach ($data['ENTITIES'] as $entities)
+						{
+							if (is_array($entities['ITEMS']))
+							{
+								foreach ($entities['ITEMS'] as $item)
+								{
+									$result[] = [
+										'id' => $useIdPrefix ? $idPrefix . $item['entityId'] : $item['entityId'],
+										'type' => $entityTypeName,
+										'title' => htmlspecialcharsback($item['name']) ?? '',
+										'desc' => htmlspecialcharsback($item['desc']) ?? '',
+										'url' => $item['url'] ?? '',
+										'selected' => 'N',
+										'image' => $item['avatar'] ?? '',
+									];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$this->sendJsonSuccessResponse($result);
 	}
 }
 

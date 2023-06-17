@@ -399,8 +399,8 @@ if ($this->startResultCache(
 			$arSection["ID"],
 			array("SESSID"=>false, "CATALOG"=>true)
 		);
-		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"];
-		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"];
+		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"] ?? '';
+		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"] ?? '';
 
 		$arSection["~ELEMENT_CNT"] = null;
 		$arSection["ELEMENT_CNT"] = null;

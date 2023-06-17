@@ -407,7 +407,7 @@ BitrixVue.component('bx-im-component-conference-create',
 					</template>
 					<template v-else>
 						<button @click="startConference" class="bx-conference-quick-create-button-start" :class="startButtonClasses">{{ this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_START'] }}</button>
-						<button @click="openChat" class="ui-btn ui-btn-link bx-conference-quick-create-button-cancel">{{ this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_CLOSE'] }}</button>
+						<button @click="openChat" class="ui-btn ui-btn-link bx-conference-quick-create-button-cancel">{{ this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_OPEN_CHAT'] }}</button>
 					</template>
 				</div>
 			</div>

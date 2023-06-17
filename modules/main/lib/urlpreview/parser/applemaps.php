@@ -26,10 +26,6 @@ class AppleMaps extends Parser
 		$description = '';
 		if(!empty($outputParams['q']))
 		{
-			if(!empty($description))
-			{
-				$description .= ' ';
-			}
 			$description .= $outputParams['q'];
 		}
 		if(!empty($outputParams['address']))

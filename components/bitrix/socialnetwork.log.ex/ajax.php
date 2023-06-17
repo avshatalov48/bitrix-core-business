@@ -337,7 +337,7 @@ if(CModule::IncludeModule("socialnetwork"))
 				: "N"
 		);
 
-		if ($_REQUEST["follow"] == "Y")
+		if (isset($_REQUEST["follow"]) && $_REQUEST["follow"] == "Y")
 		{
 			\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
 				'logId' => $_REQUEST["log_id"],

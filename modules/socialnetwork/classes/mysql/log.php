@@ -736,7 +736,7 @@ class CSocNetLog extends CAllSocNetLog
 		if (
 			!empty($arParams)
 			&& isset($arParams['USER_ID'])
-			&& ($arParams["CHECK_CRM_RIGHTS"] != "Y")
+			&& (($arParams['CHECK_CRM_RIGHTS'] ?? '') !== 'Y')
 		)
 		{
 			$arParams["CHECK_RIGHTS"] = "Y";
@@ -745,8 +745,11 @@ class CSocNetLog extends CAllSocNetLog
 		if (
 			!empty($arParams)
 			&& (
-				$arParams["USE_SUBSCRIBE"] == "Y"
-				|| $arParams["USE_FOLLOW"] == "Y"
+				(
+					isset($arParams["USE_SUBSCRIBE"])
+					&& $arParams["USE_SUBSCRIBE"] === "Y"
+				)
+				|| ($arParams["USE_FOLLOW"] ?? '') == "Y"
 			)
 		)
 		{
@@ -766,7 +769,8 @@ class CSocNetLog extends CAllSocNetLog
 			}
 
 			if (
-				$arParams["USE_SUBSCRIBE"] == "Y"
+				isset($arParams["USE_SUBSCRIBE"])
+				&& $arParams["USE_SUBSCRIBE"] === "Y"
 				&& !isset($arParams['MY_ENTITIES'])
 			)
 			{
@@ -803,7 +807,11 @@ class CSocNetLog extends CAllSocNetLog
 				LEFT JOIN b_user_access UA ON (UA.ACCESS_CODE = SLR.GROUP_CODE AND UA.USER_ID = " . (int)$USER->GetID() . ")
 				WHERE L.ID = SLR.LOG_ID ".
 					(
-						$USER->IsAuthorized() && $arParams["MY_GROUPS_ONLY"] === "Y"
+						(
+							$USER->IsAuthorized()
+							&& isset($arParams["MY_GROUPS_ONLY"])
+							&& $arParams["MY_GROUPS_ONLY"] === "Y"
+						)
 						?
 							" AND (
 								(SLR.GROUP_CODE LIKE 'SG%' AND (UA.ACCESS_CODE = SLR.GROUP_CODE AND UA.USER_ID = " . (int)$USER->GetID() . ")) 
@@ -923,7 +931,7 @@ class CSocNetLog extends CAllSocNetLog
 
 			$bWhereStarted = false;
 
-			if ($arSqls["WHERE"] <> '')
+			if (($arSqls["WHERE"] ?? '') <> '')
 			{
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 				$bWhereStarted = true;
@@ -935,29 +943,29 @@ class CSocNetLog extends CAllSocNetLog
 				$bWhereStarted = true;
 			}
 
-			if ($arSqls["RIGHTS"] <> '')
+			if (($arSqls["RIGHTS"] ?? '') <> '')
 			{
 				$strSql .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["RIGHTS"]." ";
 				$bWhereStarted = true;
 			}
 
-			if ($arSqls["VIEW"] <> '')
+			if (($arSqls["VIEW"] ?? '') <> '')
 			{
 				$strSql .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["VIEW"]." ";
 				$bWhereStarted = true;
 			}
 
-			if ($arSqls["CRM_RIGHTS"] <> '')
+			if (($arSqls["CRM_RIGHTS"] ?? '') <> '')
 			{
 				$strSql .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["CRM_RIGHTS"]." ";
 				$bWhereStarted = true;
 			}
 
-			if ($arSqls["SUBSCRIBE"] <> '')
+			if (($arSqls["SUBSCRIBE"] ?? '') <> '')
 			{
 				$strSql .= ($bWhereStarted ? " AND " : " WHERE ")."(".$arSqls["SUBSCRIBE"].") ";
 			}
-			if ($arSqls["GROUPBY"] <> '')
+			if (($arSqls["GROUPBY"] ?? '') <> '')
 			{
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 			}
@@ -1077,7 +1085,7 @@ class CSocNetLog extends CAllSocNetLog
 
 		if (
 			is_array($arNavStartParams)
-			&& (int)$arNavStartParams["nTopCount"] <= 0
+			&& (int) ($arNavStartParams["nTopCount"] ?? 0) <= 0
 		)
 		{
 			if (
@@ -1111,23 +1119,23 @@ class CSocNetLog extends CAllSocNetLog
 					$bWhereStarted = true;
 				}
 
-				if ($arSqls["RIGHTS"] <> '')
+				if (($arSqls["RIGHTS"] ?? '') <> '')
 				{
 					$strSql_tmp .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["RIGHTS"]." ";
 					$bWhereStarted = true;
 				}
 
-				if ($arSqls["CRM_RIGHTS"] <> '')
+				if (($arSqls["CRM_RIGHTS"] ?? '') <> '')
 				{
 					$strSql_tmp .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["CRM_RIGHTS"]." ";
 					$bWhereStarted = true;
 				}
 
-				if ($arSqls["SUBSCRIBE"] <> '')
+				if (($arSqls["SUBSCRIBE"] ?? '') <> '')
 				{
 					$strSql_tmp .= ($bWhereStarted ? " AND " : " WHERE ")."(".$arSqls["SUBSCRIBE"].") ";
 				}
-				if ($arSqls["GROUPBY"] <> '')
+				if (($arSqls["GROUPBY"] ?? '') <> '')
 				{
 					$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 				}
@@ -1151,7 +1159,7 @@ class CSocNetLog extends CAllSocNetLog
 
 				// for empty 2nd page show
 				if (
-					$arNavStartParams["bSkipPageReset"]
+					($arNavStartParams["bSkipPageReset"] ?? null)
 					&& $arNavStartParams["nPageSize"] >= $cnt
 				)
 				{

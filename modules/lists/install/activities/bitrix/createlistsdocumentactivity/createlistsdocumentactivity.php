@@ -63,7 +63,7 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			$stateInfo = CBPStateService::getWorkflowStateInfo($this->getWorkflowInstanceId());
 			if (intval($stateInfo["STARTED_BY"]) > 0)
 			{
-				$fields["CREATED_BY"] = $stateInfo["STARTED_BY"];
+				$fields["CREATED_BY"] = 'user_' . $stateInfo["STARTED_BY"];
 			}
 		}
 

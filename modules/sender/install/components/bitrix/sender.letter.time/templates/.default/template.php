@@ -55,11 +55,7 @@ $enablePhoneVerification =
 		BX.ready(function ()
 		{
 			<?php if ($enablePhoneVerification): ?>
-			BX.Bitrix24.PhoneVerify
-				.setVerified(false)
-				.setMandatory(false);
-
-			BX.Bitrix24.PhoneVerify.showSlider(); // open slider on page load, also triggered on save btn
+			BX.Bitrix24.PhoneVerify.getInstance().startVerify({mandatory: false}); // open slider on page load, also triggered on save btn
 			<?php endif; ?>
 
 			BX.Sender.Letter.Time.init(<?=Json::encode(array(
@@ -178,7 +174,7 @@ $enablePhoneVerification =
 			{
 				$buttons[] = [
 				'TYPE' => 'save', 'ONCLICK' => $enablePhoneVerification
-					? 'return BX.Bitrix24.PhoneVerify.showSlider(function (verified) { BXPhoneVerifyOnSliderClose(verified) });'
+					? 'return BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { BXPhoneVerifyOnSliderClose(verified) }});'
 					: 'BXPhoneVerifyOnSliderClose(true)'
 			];
 			}

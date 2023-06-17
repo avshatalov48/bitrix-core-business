@@ -9,6 +9,7 @@ use Bitrix\Catalog\Integration\Report\StoreStock\StoreStockQuantity;
 use Bitrix\Catalog\Integration\Report\StoreStock\StoreStockSale;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\StoreTable;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
@@ -98,6 +99,8 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 				{
 					$groupedStoreTotals[$storeId][$measureId]['SOLD_AMOUNTS_DIFFERENCE'] = $soldAmountsDifference[$storeId];
 				}
+
+				ksort($groupedStoreTotals[$storeId]);
 			}
 			ksort($groupedStoreTotals);
 
@@ -143,6 +146,12 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 
 	private function getStoreProductData(): array
 	{
+		$accessController = AccessController::getCurrent();
+		if (!$accessController->check(ActionDictionary::ACTION_STORE_VIEW))
+		{
+			return [];
+		}
+
 		// adding a new runtime reference field with right join
 		// in order to select all the stores and not just the
 		// ones that have corresponding entries in b_catalog_store_product
@@ -173,9 +182,20 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 
 		$userFilterParameters = $this->getFilterParameters();
 
-		if (!empty($userFilterParameters['STORES']) && is_array($userFilterParameters['STORES']))
+		if (isset($userFilterParameters['STORES']) && is_array($userFilterParameters['STORES']))
 		{
-			$queryParams['filter']['=TMP_STORE_ID'] = $userFilterParameters['STORES'];
+			$storesList = $userFilterParameters['STORES'];
+		}
+		else
+		{
+			$storesList = null;
+		}
+
+		$filteredStoresList = self::getFilteredByRightsStoreList($storesList);
+
+		if (is_array($filteredStoresList))
+		{
+			$queryParams['filter']['=TMP_STORE_ID'] = $filteredStoresList;
 		}
 
 		if (!empty($userFilterParameters['PRODUCTS']) && is_array($userFilterParameters['PRODUCTS']))
@@ -186,16 +206,6 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 				'!=AMOUNT' => 0,
 				'!=QUANTITY_RESERVED' => 0,
 			];
-		}
-
-		$accessController = AccessController::getCurrent();
-		$accessFilter = $accessController->getEntityFilter(
-			ActionDictionary::ACTION_STORE_VIEW,
-			StoreProductTable::class
-		);
-		if (count($accessFilter))
-		{
-			$queryParams['filter'][] = $accessFilter;
 		}
 
 		return StoreProductTable::getList($queryParams)->fetchAll();
@@ -368,9 +378,12 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 
 		$formattedFilter = [];
 
-		if (!empty($filter['STORES']))
+		$storesList = (isset($filter['STORES']) && is_array($filter['STORES'])) ? $filter['STORES'] : null;
+		$filteredStoresList = self::getFilteredByRightsStoreList($storesList);
+
+		if (is_array($filteredStoresList))
 		{
-			$formattedFilter['STORES'] = $filter['STORES'];
+			$formattedFilter['STORES'] = $filteredStoresList;
 		}
 
 		if (!empty($filter['PRODUCTS']))
@@ -494,5 +507,41 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 		}
 
 		return $filterParameters[$filterId];
+	}
+
+	protected static function getNoAccessToStoresStub(): array
+	{
+		return [
+			'title' => Loc::getMessage('BASE_HANDLER_EMPTY_PERMITTED_STORES_LIST_STUB_TITLE'),
+			'description' => Loc::getMessage('BASE_HANDLER_EMPTY_PERMITTED_STORES_LIST_STUB_DESCRIPTION'),
+		];
+	}
+
+	/**
+	 * @param array|null $inputStoreList
+	 * @return array|null
+	 */
+	private static function getFilteredByRightsStoreList(?array $inputStoreList = null): ?array
+	{
+		$accessController = AccessController::getCurrent();
+
+		if (!$accessController->check(ActionDictionary::ACTION_STORE_VIEW))
+		{
+			return [];
+		}
+
+		if (!$accessController->checkCompleteRight(ActionDictionary::ACTION_STORE_VIEW))
+		{
+			$availableStores = $accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW) ?? [];
+
+			if (is_array($inputStoreList))
+			{
+				return array_values(array_intersect($availableStores, $inputStoreList));
+			}
+
+			return $availableStores;
+		}
+
+		return $inputStoreList;
 	}
 }

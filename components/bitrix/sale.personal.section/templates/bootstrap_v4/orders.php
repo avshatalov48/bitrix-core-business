@@ -1,5 +1,15 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var CBitrixComponent $component */
+/** @global CMain $APPLICATION */
+
 use Bitrix\Main\Localization\Loc;
 
 if ($arParams['SHOW_ORDER_PAGE'] !== 'Y')
@@ -13,7 +23,7 @@ if ($arParams['USE_PRIVATE_PAGE_TO_AUTH'] === 'Y' && !$USER->IsAuthorized())
 	LocalRedirect($arResult['PATH_TO_AUTH_PAGE']);
 }
 
-if ($arParams["MAIN_CHAIN_NAME"] <> '')
+if ($arParams["MAIN_CHAIN_NAME"] !== '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }
@@ -50,5 +60,3 @@ $APPLICATION->IncludeComponent(
 	),
 	$component
 );
-?>
-

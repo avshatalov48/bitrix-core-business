@@ -50,7 +50,7 @@ if($lAdmin->EditAction() && $isAdmin)
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = array();
 		$rsData = CLanguage::GetList();
@@ -73,7 +73,10 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "activate":
 		case "deactivate":

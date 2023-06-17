@@ -74,7 +74,7 @@ class TypeHelper extends NameHelper
 
 		$result = array();
 
-		$lang = ToLower($params['LANGUAGE_ID']);
+		$lang = mb_strtolower($params['LANGUAGE_ID']);
 		$langMapped = static::mapLanguage($lang);
 
 		$res = \Bitrix\Sale\Location\TypeTable::getList(array(

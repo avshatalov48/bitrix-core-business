@@ -145,9 +145,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 			$request = $context->getRequest();
 		}
 
-		$code = isset($this->formFields[$fieldCode])
-				? $this->formFields[$fieldCode]
-				: $fieldCode;
+		$code = $this->formFields[$fieldCode] ?? $fieldCode;
 
 		return isset($request[$code]) ? $request[$code] : '';
 	}

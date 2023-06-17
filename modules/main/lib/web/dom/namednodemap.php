@@ -45,13 +45,10 @@ class NamedNodeMap extends NodeList
 
 	public function set(array $values)
 	{
-		if($values !== null)
-		{
-			$this->nameByPosition = array();
-			$this->positionByName = array();
+		$this->nameByPosition = array();
+		$this->positionByName = array();
 
-			parent::set($values);
-		}
+		parent::set($values);
 	}
 
 	public function get()

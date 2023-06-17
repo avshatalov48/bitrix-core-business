@@ -15,7 +15,7 @@ BX.message({
 });
 BX.Forum.Init({
 	formID : '<?=$arParams["FORM_ID"]?>',
-	captcha : '<?=($arParams["FORUM"]["USE_CAPTCHA"]=="Y" && !$USER->IsAuthorized() ? "Y" : "N")?>',
+	captcha : '<?=(($arParams["FORUM"]["USE_CAPTCHA"] ?? '') === "Y" && !$USER->IsAuthorized() ? "Y" : "N")?>',
 	bVarsFromForm : '<?=$arParams["bVarsFromForm"]?>',
 	autosave : '<?=($arParams['AUTOSAVE'] ? "Y" : "N")?>',
 	ajaxPost : '<?=$arParams["AJAX_POST"]?>'
@@ -303,7 +303,7 @@ if ($arResult["SHOW_PANEL"]["TOPIC"] == "Y" && $arResult["SHOW_PANEL"]["VOTE"] =
 //					"TAGS" => Array(),
 
 					"SMILES" => COption::GetOptionInt("forum", "smile_gallery_id", 0),
-					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
 				)
 			);
 			?>

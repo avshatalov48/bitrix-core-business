@@ -1,6 +1,13 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 IncludeModuleLangFile(__FILE__);
 
+$module_id = $module_id ?? '';
 $MODULE_RIGHT = $APPLICATION->GetGroupRight($module_id);
 
 $md = CModule::CreateModuleObject($module_id);
@@ -36,7 +43,7 @@ if (!function_exists("__GroupRightsShowRow"))
 
 		__GroupRightsShowRow($titleCol, false, 0, $ar, $GROUP_DEFAULT_RIGHT, $site_id_tmp, $arRightsUseSites, $arSites, false);
 
-	}	
+	}
 
 	function __GetGroupRight($module_id, $groupID, $site_id_tmp, $arSites, $arGROUPS)
 	{
@@ -98,14 +105,14 @@ if (!function_exists("__GroupRightsShowRow"))
 
 		__GroupRightsShowRow($titleCol, $value["ID"], $value["ID"], $ar, $v, $site_id_tmp, $arRightsUseSites, $arSites, true);
 	}
-	
+
 	function __GroupRightsShowRow($titleCol, $groupID, $group_id, $ar, $v, $site_id_tmp, $arRightsUseSites, $arSites, $useDefault = true)
 	{
 		?><tr>
 			<td width="40%"><?=$titleCol?></td>
 			<td width="40%"><?
 			echo '<input type="hidden" name="GROUPS[]" value="'.$group_id.'">';
-			
+
 			$strReturnBox = '<select class="typeselect" name="RIGHTS[]" onchange="__GroupRightsChangeSite(this)" >';
 
 			$ref = $ar["reference"];
@@ -133,7 +140,7 @@ if (!function_exists("__GroupRightsShowRow"))
 			<td width="0%"><a href="javascript:void(0)" onClick="__GroupRightsDeleteRow(this)"><img src="/bitrix/themes/.default/images/actions/delete_button.gif" border="0" width="20" height="20"></a></td>
 		</tr><?
 	}
-	
+
 }
 
 
@@ -171,7 +178,7 @@ if (array_key_exists("use_site", $ar))
 	}
 }
 
-echo "</script>\n";	
+echo "</script>\n";
 
 echo "<script type=\"text/javascript\">\n".
 	"if ('__GroupRightsChangeSite' != typeof window.noFunc) { \n".
@@ -186,7 +193,7 @@ echo "<script type=\"text/javascript\">\n".
 			"}\n".
 		"}\n".
 	"}\n".
-	
+
 	"if ('__GroupRightsDeleteRow' != typeof window.noFunc) { \n".
 		"function __GroupRightsDeleteRow(el)\n".
 		"{\n".
@@ -195,18 +202,18 @@ echo "<script type=\"text/javascript\">\n".
 		"}\n".
 	"}\n".
 	"</script>\n";
-				
+
 if($REQUEST_METHOD=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitrix_sessid())
 {
-	if (count($GROUPS)>0)
+	if (!empty($GROUPS))
 	{
 // echo "Remove all options<br>";
-		COption::RemoveOption($module_id, "GROUP_DEFAULT_RIGHT");	
+		COption::RemoveOption($module_id, "GROUP_DEFAULT_RIGHT");
 // echo "Delete group rights for all sites<br>";
 		$APPLICATION->DelGroupRight($module_id, array(), false);
 		foreach($arSites["reference_id"] as $site_id_tmp)
 		{
-// echo "Delete group rights for site ".$site_id_tmp."<br>";		
+// echo "Delete group rights for site ".$site_id_tmp."<br>";
 			$APPLICATION->DelGroupRight($module_id, array(), $site_id_tmp);
 		}
 
@@ -214,7 +221,7 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitri
 		{
 			if ($group_id == '')
 				continue;
-				
+
 			if (
 				!array_key_exists($i, $RIGHTS)
 				|| $RIGHTS[$i] == ''
@@ -229,13 +236,13 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitri
 				)
 				{
 // echo "Set Default for all sites: ". $RIGHTS[$i]."<br>";
-					COption::SetOptionString($module_id, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], "Right for groups by default", "");						
+					COption::SetOptionString($module_id, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], "Right for groups by default", "");
 				}
 				else
 				{
 // echo "Set Default for site ".$SITES[$i].": ".$RIGHTS[$i]."<br>";
 					COption::SetOptionString($module_id, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], "Right for groups by default for site ".$SITES[$i], $SITES[$i]);
-				
+
 				}
 			}
 			else
@@ -245,9 +252,9 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitri
 					|| $SITES[$i] == ''
 				)
 				{
-// echo "Set Right for group ".$group_id." all sites: ".$RIGHTS[$i]."<br>";						
+// echo "Set Right for group ".$group_id." all sites: ".$RIGHTS[$i]."<br>";
 					$APPLICATION->SetGroupRight($module_id, $group_id, $RIGHTS[$i], false);
-			
+
 				}
 				else
 				{
@@ -276,7 +283,7 @@ foreach($arGROUPS as $value)
 ?><tr>
 	<td><select style="width:300px" onchange="settingsSetGroupID(this)" name="GROUPS[]">
 		<option value=""><?echo GetMessage("group_rights_select")?></option>
-		<option value="0"><?echo GetMessage("group_rights_default")?></option>		
+		<option value="0"><?echo GetMessage("group_rights_default")?></option>
 		<?
 		foreach($arGROUPS as $group):
 			?>
@@ -341,16 +348,16 @@ function settingsAddRights(a)
 
 	selSites = BX.findChild(tableRow.cells[2], { 'tag': 'select'}, true);
 	selSites.selectedIndex = 0;
-	
+
 	selSiteSpan = BX.findChild(tableRow.cells[2], { 'tag': 'span'}, true);
-	selSiteSpan.style.display = "none";	
-	
+	selSiteSpan.style.display = "none";
+
 	RightsRowNew = new BX.CRightsRowNew({'row': tableRow});
 
 	BX.bind(selRights, "change", BX.delegate(RightsRowNew.ChangeSite, RightsRowNew));
 }
 
-BX.CRightsRowNew = function(arParams) 
+BX.CRightsRowNew = function(arParams)
 {
 	this.row = arParams.row;
 }
@@ -359,10 +366,10 @@ BX.CRightsRowNew.prototype.settingsSetGroupID = function()
 {
 	var tr = this.row;
 	var selGroup = BX.findChild(tr.cells[0], { 'tag': 'select'}, true);
-	var selSite = BX.findChild(tr.cells[2], { 'tag': 'select'}, true);	
-	var selRights = BX.findChild(tr.cells[1], { 'tag': 'select'}, true);	
+	var selSite = BX.findChild(tr.cells[2], { 'tag': 'select'}, true);
+	var selRights = BX.findChild(tr.cells[1], { 'tag': 'select'}, true);
 
-	BX.bind(selRights, "change", BX.delegate(this.ChangeSite, this));	
+	BX.bind(selRights, "change", BX.delegate(this.ChangeSite, this));
 }
 
 BX.CRightsRowNew.prototype.ChangeSite = function()
@@ -375,7 +382,7 @@ BX.CRightsRowNew.prototype.ChangeSite = function()
 	if(BX.util.in_array(selRights.options[number].value, arRightsUseSites))
 		selSiteSpan.style.display = 'block';
 	else
-		selSiteSpan.style.display = 'none';	
+		selSiteSpan.style.display = 'none';
 }
 
 </script>

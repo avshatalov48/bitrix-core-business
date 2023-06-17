@@ -232,6 +232,7 @@
 		});
 
 		this.currentLayout = (this.callListId > 0 ? layouts.crm : layouts.simple);
+		BackgroundWorker.isExternalCall = !!params.isExternalCall;
 		BackgroundWorker.desktop.isCurrentPage = true;
 		this.init();
 		this.createTitle().then(this.setTitle.bind(this));
@@ -415,8 +416,14 @@
 
 	BX.PhoneCallView.prototype.show = function()
 	{
-		if(!this.popup)
+		if(!this.popup && this.isDesktop())
+		{
 			return;
+		}
+		if(!this.popup)
+		{
+			this.reinit();
+		}
 
 		if(!this.isDesktop() && !this.isFolded())
 			this.disableDocumentScroll();
@@ -2315,8 +2322,12 @@
 
 	BX.PhoneCallView.prototype.isUnloadAllowed = function()
 	{
-		return this.folded &&
-			(
+		if (BackgroundWorker.isActiveIntoCurrentCall())
+		{
+			return false;
+		}
+		return this.folded
+			&& (
 				this.deviceCall ||
 				this._uiState === BX.PhoneCallView.UiState.idle ||
 				this._uiState === BX.PhoneCallView.UiState.error ||
@@ -3495,6 +3506,10 @@
 
 	BX.PhoneCallView.prototype.canBeUnloaded = function()
 	{
+		if (BackgroundWorker.isUsed)
+		{
+			return false;
+		}
 		return this.allowAutoClose && this.isFolded();
 	};
 
@@ -5547,11 +5562,18 @@
 		/** @type {PhoneCallView} */
 		CallCard: null,
 
+		isExternalCall: false,
+
 		/** @type {boolean} */
 		isUsed: false,
 		UndefinedCallCard: {
 			result: 'error',
 			errorCode: 'Call card is undefined'
+		},
+
+		isActiveIntoCurrentCall: function ()
+		{
+			return this.isExternalCall && this.isUsed
 		},
 
 		initializePlacement: function()
@@ -5985,6 +6007,10 @@
 
 		onInitialize: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardInitialized', [params]);
@@ -5996,6 +6022,10 @@
 
 		onAddCommentButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardAddCommentButtonClick', [params])
@@ -6005,6 +6035,10 @@
 
 		onMuteButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardMuteButtonClick', [params])
@@ -6014,6 +6048,10 @@
 
 		onHoldButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardHoldButtonClick', [params])
@@ -6023,6 +6061,10 @@
 
 		onCloseButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardCloseButtonClick', [params])
@@ -6032,6 +6074,10 @@
 
 		onTransferButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardTransferButtonClick', [params])
@@ -6041,6 +6087,10 @@
 
 		onCancelTransferButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardCancelTransferButtonClick', [params])
@@ -6050,6 +6100,10 @@
 
 		onCompleteTransferButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardCompleteTransferButtonClick', [params])
@@ -6059,6 +6113,10 @@
 
 		onHangupButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardHangupButtonClick', [params])
@@ -6068,6 +6126,10 @@
 
 		onNextButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardNextButtonClick', [params])
@@ -6077,6 +6139,10 @@
 
 		onSkipButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardSkipButtonClick', [params])
@@ -6086,6 +6152,10 @@
 
 		onAnswerButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardAnswerButtonClick', [params])
@@ -6095,6 +6165,10 @@
 
 		onEntityChanged: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardEntityChanged', [params])
@@ -6104,6 +6178,10 @@
 
 		onQualityMeterClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardQualityMeterClick', [params])
@@ -6113,6 +6191,10 @@
 
 		onDialpadButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardDialpadButtonClick', [params])
@@ -6122,6 +6204,10 @@
 
 		onMakeCallButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardMakeCallButtonClick', [params])
@@ -6131,6 +6217,10 @@
 
 		onNotifyAdminButtonClick: function(params)
 		{
+			if (!this.isExternalCall)
+			{
+				return;
+			}
 			if (this.isDesktop() && this.desktop.isCallCardPage())
 			{
 				BXDesktopSystem.BroadcastEvent('DesktopCallCardNotifyAdminButtonClick', [params])
@@ -6145,7 +6235,8 @@
 		 */
 		setMute: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback(this.UndefinedCallCard);
 
@@ -6194,7 +6285,8 @@
 		 */
 		setHold: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6244,7 +6336,8 @@
 		 */
 		setUiState: function(params, callback)
 		{
-			if (!this.CallCard)
+			this.isUsed = true;
+			if (!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6293,6 +6386,7 @@
 		 */
 		getListUiStates: function(params, callback)
 		{
+			this.isUsed = true;
 			callback(Object.keys(BX.PhoneCallView.UiState).filter(function(state)
 			{
 				switch (state)
@@ -6315,7 +6409,8 @@
 		 */
 		startTimer: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6332,7 +6427,8 @@
 		 */
 		stopTimer: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6348,7 +6444,8 @@
 		 */
 		close: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6368,7 +6465,8 @@
 		 */
 		setCardTitle: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 
@@ -6385,7 +6483,8 @@
 		 */
 		setStatusText: function(params, callback)
 		{
-			if(!this.CallCard)
+			this.isUsed = true;
+			if(!this.CallCard || !this.isExternalCall)
 			{
 				callback([this.UndefinedCallCard]);
 

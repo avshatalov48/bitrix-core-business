@@ -107,7 +107,7 @@ class CFileCacheCleaner
 			{
 				//Skip all checked bases
 				$arPath = $this->_arPath;
-				while(count($arPath) > 0)
+				while(!empty($arPath))
 				{
 					$CurBase = array_shift($arPath);
 					if($CurBase == $this->_CurrentBase)
@@ -115,7 +115,7 @@ class CFileCacheCleaner
 				}
 				//There is at least one cache directory not checked yet
 				//so try to find a file inside
-				while(count($arPath) > 0)
+				while(!empty($arPath))
 				{
 					$this->_CurrentBase = array_shift($arPath);
 					$this->_CurrentPath = "";
@@ -288,7 +288,7 @@ class _CFileTree
 			array_shift($this->_dir);
 		}
 
-		if(count($this->_dir))
+		if(!empty($this->_dir))
 			return true; //there is more work to do
 		else
 			return $this->GoUp(); // try to go upper
@@ -312,7 +312,7 @@ class _CFileTree
 				closedir($dh);
 				sort($result);
 				//try to delete an empty directory
-				if(count($result) == 0)
+				if(empty($result))
 					@rmdir($dir);
 
 				return $result;

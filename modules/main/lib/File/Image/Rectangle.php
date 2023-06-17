@@ -180,7 +180,6 @@ class Rectangle
 				{
 					// destination is larger than source
 					$ratio = 1;
-					$result = false;
 				}
 				$destination->width = max(1, round($ratio * $this->width));
 				$destination->height = max(1, round($ratio * $this->height));

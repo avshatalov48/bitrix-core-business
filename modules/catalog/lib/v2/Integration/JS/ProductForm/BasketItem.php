@@ -13,6 +13,8 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Url\ShopBuilder;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Loader;
+use Bitrix\Sale\Internals;
 use Bitrix\Iblock\Url\AdminPage\BuilderManager;
 use Bitrix\Main\Web\Json;
 
@@ -40,6 +42,7 @@ class BasketItem
 			'innerId' => $this->id,
 			'productId' => 0,
 			'skuId' => 0,
+			'type' => null,
 			'code' => '',
 			'name' => '',
 			'sort' => 0,
@@ -198,6 +201,7 @@ class BasketItem
 	private function fillFieldsFromSku(): void
 	{
 		$this->setName($this->sku->getName());
+		$this->setType($this->sku->getType());
 		$this->fillProperties();
 		$this->fillBrands();
 		$this->fillMeasureFields();
@@ -302,7 +306,7 @@ class BasketItem
 				]
 			);
 
-			$displayProperty = \CIBlockFormatProperties::GetDisplayValue([], $displayProperty, '');
+			$displayProperty = \CIBlockFormatProperties::GetDisplayValue([], $displayProperty);
 
 			$formattedValues[$propertyValueId]['DISPLAY_VALUE'] = $displayProperty['DISPLAY_VALUE'];
 		}
@@ -441,6 +445,13 @@ class BasketItem
 	public function setCode(string $value): self
 	{
 		$this->fields['code'] = $value;
+
+		return $this;
+	}
+
+	public function setType(?int $value): self
+	{
+		$this->fields['type'] = $value;
 
 		return $this;
 	}

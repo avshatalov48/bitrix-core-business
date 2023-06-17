@@ -59,15 +59,9 @@
 								<?echo GetMessage("STPOL_STATUS_FROM")?>
 								<?=$vval["ORDER"]["DATE_STATUS"];?>
 								<br />
-								<?if(intval($vval["ORDER"]["DELIVERY_ID"])>0)
+								<?if((int)($vval["ORDER"]["DELIVERY_ID"])>0)
 								{
 									echo "<b>".GetMessage("P_DELIVERY")."</b>".$arResult["INFO"]["DELIVERY"][$vval["ORDER"]["DELIVERY_ID"]]["NAME"];
-								}
-								elseif (mb_strpos($vval["ORDER"]["DELIVERY_ID"], ":") !== false)
-								{
-									echo "<b>".GetMessage("P_DELIVERY")."</b>";
-									$arId = explode(":", $vval["ORDER"]["DELIVERY_ID"]);
-									echo $arResult["INFO"]["DELIVERY_HANDLERS"][$arId[0]]["NAME"]." (".$arResult["INFO"]["DELIVERY_HANDLERS"][$arId[0]]["PROFILES"][$arId[1]]["TITLE"].")";
 								}
 								?>
 							</td>

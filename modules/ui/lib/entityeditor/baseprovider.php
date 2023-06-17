@@ -2,7 +2,7 @@
 
 namespace Bitrix\UI\EntityEditor;
 
-abstract class BaseProvider
+abstract class BaseProvider implements ReturnsEditorFields
 {
 	public function getFields(): array
 	{

@@ -241,14 +241,7 @@ class ManyToMany extends Relation
 
 				foreach ($this->getEntity()->getPrimaryArray() as $primaryName)
 				{
-					if (isset($this->localPrimaryNames[$primaryName]))
-					{
-						$mediatorPrimaryName = $this->localPrimaryNames[$primaryName];
-					}
-					else
-					{
-						$mediatorPrimaryName = $this->getLocalReferenceName().'_'.$primaryName;
-					}
+					$mediatorPrimaryName = $this->localPrimaryNames[$primaryName] ?? $this->getLocalReferenceName().'_'.$primaryName;
 
 					$fieldType = get_class($this->getEntity()->getField($primaryName));
 
@@ -272,14 +265,7 @@ class ManyToMany extends Relation
 
 				foreach ($this->getRefEntity()->getPrimaryArray() as $primaryName)
 				{
-					if (isset($this->remotePrimaryNames[$primaryName]))
-					{
-						$mediatorPrimaryName = $this->remotePrimaryNames[$primaryName];
-					}
-					else
-					{
-						$mediatorPrimaryName = $this->getRemoteReferenceName().'_'.$primaryName;
-					}
+					$mediatorPrimaryName = $this->remotePrimaryNames[$primaryName] ?? $this->getRemoteReferenceName().'_'.$primaryName;
 
 					$fieldType = get_class($this->getRefEntity()->getField($primaryName));
 

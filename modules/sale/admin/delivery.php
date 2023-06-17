@@ -77,8 +77,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SDAN_ERROR_DELETE"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 
@@ -132,7 +134,7 @@ while ($arCCard = $dbResultList->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_ID, $arCCard, "sale_delivery_edit.php?ID=".$f_ID."&lang=".LANG, GetMessage("SALE_EDIT_DESCR"));
 
-	$row->AddField("ID", "<a href=\"sale_delivery_edit.php?ID=".$f_ID."&lang=".LANG."\">".$f_ID."</a>");
+	$row->AddField("ID", "<a href=\"sale_delivery_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . "\">".$f_ID."</a>");
 	$row->AddField("NAME", $f_NAME);
 	$row->AddField("LID", $f_LID);
 
@@ -192,7 +194,7 @@ if ($saleModulePermissions == "W")
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("SDAN_ADD_NEW"),
-			"LINK" => "sale_delivery_edit.php?lang=".LANG.GetFilterParams("filter_"),
+			"LINK" => "sale_delivery_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 			"TITLE" => GetMessage("SDAN_ADD_NEW_ALT"),
 			"ICON" => "btn_new"
 		),

@@ -9,9 +9,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var array $arResult */
 /** @var array $tagSliderParams */
-/** @var bool $backgroundForTask */
-/** @var string $action */
-/** @var int $taskId */
 /** @var CBitrixComponent $component */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
@@ -47,12 +44,6 @@ if (
 }
 elseif (Loader::includeModule('tasks'))
 {
-	$getParams = [];
-	if ($backgroundForTask)
-	{
-		$getParams = '?' . http_build_query(Context::getCurrent()->getRequest()->getQueryList()->toArray());
-	}
-
 	Task::setUserId($userId);
 	$state = Task::listStateInit()->getState();
 
@@ -94,11 +85,11 @@ elseif (Loader::includeModule('tasks'))
 			'SELECTED_VIEWS' => $state['VIEWS'],
 		],
 		"ITEMS_COUNT" => "50",
-		"PAGE_VAR" => $arResult["ALIASES"]["page"],
+		"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? '',
 		"USER_VAR" => $userId,
-		"VIEW_VAR" => $arResult["ALIASES"]["view_id"],
-		"TASK_VAR" => $arResult['ALIASES']['task_id'],
-		"ACTION_VAR" => $arResult["ALIASES"]["action"],
+		"VIEW_VAR" => $arResult["ALIASES"]["view_id"] ?? '',
+		"TASK_VAR" => $arResult['ALIASES']['task_id'] ?? '',
+		"ACTION_VAR" => $arResult["ALIASES"]["action"] ?? '',
 		"PATH_TO_USER_PROFILE" => $arResult["PATH_TO_USER"],
 		"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
 		"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
@@ -112,7 +103,7 @@ elseif (Loader::includeModule('tasks'))
 		"PATH_TO_GROUP_TASKS" => $arParams["PATH_TO_GROUP_TASKS"],
 		"PATH_TO_GROUP_TASKS_TASK" => $arParams["PATH_TO_GROUP_TASKS_TASK"],
 		"PATH_TO_GROUP_TASKS_VIEW" => $arParams["PATH_TO_GROUP_TASKS_VIEW"],
-		"PATH_TO_GROUP_TASKS_REPORT" => $arParams["PATH_TO_GROUP_TASKS_REPORT"],
+		"PATH_TO_GROUP_TASKS_REPORT" => $arParams["PATH_TO_GROUP_TASKS_REPORT"] ?? '',
 		'PATH_TO_USER_TASKS_PROJECTS_OVERVIEW' => $arResult['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'],
 		"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 		"SET_TITLE" => $arResult["SET_TITLE"],
@@ -130,10 +121,6 @@ elseif (Loader::includeModule('tasks'))
 		"PREORDER" => [
 			'STATUS_COMPLETE' => 'asc'
 		],
-		'BACKGROUND_FOR_TASK' => $backgroundForTask,
-		'TASK_ID' => $taskId,
-		'TASK_ACTION' => $action,
-		'GET_PARAMS' => $getParams,
 	];
 
 	if (isset($tagSliderParams))

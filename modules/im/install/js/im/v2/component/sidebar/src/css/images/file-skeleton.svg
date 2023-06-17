@@ -1,0 +1,82 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 130"
+    preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 130px" fill="none">
+   
+    <svg height="1285px">
+        <defs>
+            <g id="item">
+                <path
+                d="M90 87.5L22 87.5C16.7533 87.5 12.5 83.2467 12.5 78L12.5 52C12.5 46.7533 16.7533 42.5 22 42.5L90 42.5C95.2467 42.5 99.5 46.7533 99.5 52L99.5 78C99.5 83.2467 95.2467 87.5 90 87.5Z"
+                stroke="#DFE0E3" />
+            </g>
+        </defs>
+        
+        <path
+        d="M308 122C308 126.418 304.418 130 300 130L8 130C3.58172 130 -4.5487e-08 126.418 -1.01598e-07 122L-1.54937e-06 8.00007C-1.60548e-06 3.5818 3.58172 7.35286e-05 8 7.08697e-05L300 -0.000104857C304.418 -0.000107516 308 3.58161 308 7.99989L308 122Z"
+        fill="white" />
+
+        <use xlink:href="#item"></use>
+        <use xlink:href="#item" x="98"></use>
+        <use xlink:href="#item" x="196"></use>
+    </svg>
+
+    <svg height="1285px"  id="animated-elements">
+        <defs>
+            <g id="item--animat">
+                <rect x="24" y="98" width="65" height="5" rx="2" fill="#eeeff0" />
+                <rect x="30" y="110" width="53" height="5" rx="2" fill="#eeeff0" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M46.1797 51.455C46.1797 50.6514 46.8311 50 47.6347 50H59.3997C59.7856 50 60.1557 50.1533 60.4286 50.4262L65.3964 55.3939C65.6692 55.6668 65.8225 56.0369 65.8225 56.4228V74.0079C65.8225 74.8115 65.1711 75.463 64.3675 75.463H47.6347C46.8311 75.463 46.1797 74.8115 46.1797 74.0079V51.455Z"
+                fill="#E5E8EB" />
+                <mask id="mask0_182_32420" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="46" y="50" width="20" height="26">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M46.1797 51.455C46.1797 50.6514 46.8311 50 47.6347 50H59.3997C59.7856 50 60.1557 50.1533 60.4286 50.4262L65.3964 55.3939C65.6692 55.6668 65.8225 56.0369 65.8225 56.4228V74.0079C65.8225 74.8115 65.1711 75.463 64.3675 75.463H47.6347C46.8311 75.463 46.1797 74.8115 46.1797 74.0079V51.455Z"
+                        fill="#525C69" />
+                </mask>
+                <g mask="url(#mask0_182_32420)">
+                    <path opacity="0.15" fill-rule="evenodd" clip-rule="evenodd"
+                        d="M59.3707 50C59.1928 50 65.8216 50 65.8216 50C65.8216 50 65.8216 56.6819 65.8216 56.4663C65.8216 56.2507 65.6392 56.1839 65.5286 56.1839C65.4425 56.1839 61.9208 56.1839 60.3645 56.1839C59.9627 56.1839 59.6377 55.8587 59.6377 55.4569C59.6377 53.8914 59.6377 50.3366 59.6377 50.2724C59.6377 50.19 59.5486 50 59.3707 50Z"
+                        fill="#525C69" />
+                </g>
+            </g>
+        </defs>
+
+        <rect x="14" y="16" width="127" height="8" rx="2" fill="#eeeff0" />
+
+        <use xlink:href="#item--animat"></use>
+        <use xlink:href="#item--animat" x="98"></use>
+        <use xlink:href="#item--animat" x="196"></use>
+    </svg>
+
+
+
+
+
+    <defs>
+        <filter id="filter0_i_3005_70593" x="44" y="433" width="90%" height="1" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"/>
+            <feOffset dy="-1"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_3005_70593"/>
+        </filter>
+    </defs>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#animated-elements"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

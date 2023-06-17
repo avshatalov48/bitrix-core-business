@@ -87,7 +87,7 @@ class User
 				'IS_MODERATOR' => ($isModerator ? 'Y' : 'N'),
 				'IS_SCRUM_MASTER' => ($isScrumMaster ? 'Y' : 'N'),
 				'IS_AUTO_MEMBER' => $member['AUTO_MEMBER'],
-				'PHOTO' => $avatars[$imageIdList[$memberId]],
+				'PHOTO' => ($avatars[($imageIdList[$memberId] ?? '')] ?? ''),
 			];
 		}
 

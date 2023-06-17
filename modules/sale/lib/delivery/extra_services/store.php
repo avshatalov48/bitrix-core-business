@@ -61,12 +61,12 @@ class Store extends Base
 	{
 		return 	Input\Manager::getEditHtml(
 			$name."[PARAMS][STORES]",
-			array(
+			[
 				"TYPE" => "ENUM",
 				"MULTIPLE" => "Y",
-				"OPTIONS" => self::getStoresList()
-			),
-			$params["PARAMS"]["STORES"]
+				"OPTIONS" => self::getStoresList(),
+			],
+			$params["PARAMS"]["STORES"] ?? null
 		);
 	}
 

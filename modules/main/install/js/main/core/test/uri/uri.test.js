@@ -411,4 +411,14 @@ describe('core/uri', () => {
 
 		assert.ok(uri.toString() === `${source}&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER`);
 	});
+
+	describe('Security tests', () => {
+		it('Prototype pollution #1', () => {
+			const url = 'https://my-site.com/?__proto__[customProp1]=badValue1';
+			const uri = new Uri(url);
+
+			assert.ok(typeof Object.customProp === 'undefined', 'Affected object prototype');
+			assert.ok(uri.getQueryParam('__proto__') === null, '__proto__ access');
+		});
+	});
 });

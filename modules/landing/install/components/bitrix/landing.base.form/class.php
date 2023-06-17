@@ -454,7 +454,7 @@ class LandingBaseFormComponent extends LandingBaseComponent
 	{
 		if (
 			$this->init() &&
-			!$this->arResult['FATAL']
+			!($this->arResult['FATAL'] ?? false)
 		)
 		{
 			$this->arParams['SUCCESS_SAVE'] = false;

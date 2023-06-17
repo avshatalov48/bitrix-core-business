@@ -31,7 +31,9 @@ export class TouchController
 
 		this.pos = {
 			left: this.target.scrollLeft,
-			x: ev.clientX
+			top: this.target.scrollTop,
+			x: ev.clientX,
+			y: ev.clientY,
 		};
 	}
 
@@ -43,8 +45,10 @@ export class TouchController
 		}
 
 		const dx = ev.clientX - this.pos.x;
+		const dy = ev.clientY - this.pos.y;
 
 		this.target.scrollLeft = this.pos.left - dx;
+		this.target.scrollTop = this.pos.top - dy;
 	}
 
 	mouseUpHandler()

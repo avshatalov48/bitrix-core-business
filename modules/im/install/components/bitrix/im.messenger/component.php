@@ -14,6 +14,23 @@ if (intval($USER->GetID()) <= 0)
 if (!CModule::IncludeModule('im'))
 	return;
 
+if (\Bitrix\Im\Settings::isBetaActivated())
+{
+	$arResult['MESSENGER_V2'] = true;
+
+	if (CModule::IncludeModule('disk'))
+	{
+		CJSCore::Init([
+			'file_dialog',
+			'im.integration.viewer'
+		]);
+	}
+	CModule::IncludeModule('voximplant');
+
+	$this->IncludeComponentTemplate();
+	return;
+}
+
 CModule::IncludeModule('voximplant');
 CModule::IncludeModule('disk');
 

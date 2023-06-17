@@ -13,6 +13,7 @@ DROP TABLE if exists b_iblock_right;
 DROP TABLE if exists b_iblock_section_property;
 DROP TABLE if exists b_iblock;
 DROP TABLE if exists b_iblock_property;
+DROP TABLE if exists b_iblock_property_feature;
 DROP TABLE if exists b_iblock_messages;
 DROP TABLE if exists b_iblock_section;
 DROP TABLE if exists b_iblock_element_lock;

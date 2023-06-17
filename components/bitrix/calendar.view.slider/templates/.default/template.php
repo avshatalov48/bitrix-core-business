@@ -1,5 +1,9 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\EventAccessController;
+use Bitrix\Calendar\Access\Model\EventModel;
 use \Bitrix\Main\Localization\Loc;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools/clock.php");
@@ -80,12 +84,9 @@ $event['REMIND'] = CCalendarReminder::GetTextReminders($event['REMIND']);
 $curUserStatus = '';
 $userId = CCalendar::GetCurUserId();
 
-$viewComments = Bitrix\Main\Loader::includeModule('forum') && (CCalendar::IsPersonal($event['CAL_TYPE'], $event['OWNER_ID'], $userId) || CCalendarSect::CanDo('calendar_view_full', $event['SECT_ID'], $userId));
-
-if ($event['EVENT_TYPE'] === '#resourcebooking#')
-{
-	$viewComments = false;
-}
+$accessController = new EventAccessController($userId);
+$eventModel = CCalendarEvent::getEventModelForPermissionCheck($event['ID'], $event, $userId);
+$viewComments = $accessController->check(ActionDictionary::ACTION_EVENT_VIEW_COMMENTS, $eventModel);
 
 $codes = array();
 $meetingHost = false;

@@ -79,8 +79,17 @@ class Group extends CopyImplementer
 
 		if (!$groupId)
 		{
-			//todo application exception
-			$this->result->addError(new Error("System error", self::GROUP_COPY_ERROR));
+			global $APPLICATION;
+
+			$this->result->addError(
+				new Error(
+					$APPLICATION->GetException()
+						? $APPLICATION->GetException()->GetString()
+						: 'System error'
+					,
+					self::GROUP_COPY_ERROR
+				)
+			);
 		}
 		else
 		{

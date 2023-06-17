@@ -9,6 +9,7 @@ use Bitrix\Main\Localization\Loc;
 
 /** @var array $arResult */
 /** @var array $arParams */
+/** @var LandingBaseComponent $component */
 
 if ($arResult['ERRORS'])
 {
@@ -93,9 +94,19 @@ $row = $arResult['FOLDER'];
 				<?else:?>
 					<div class="landing-folder-edit__section--wrapper">
 						<?if ($arResult['INDEX_LANDING']):?>
-							<a id="landing-folder-index-link" class="landing-folder-edit__section--text --link --link-icon" href="<?= str_replace('#landing_edit#', $arResult['INDEX_LANDING']['ID'], $arParams['PAGE_URL_LANDING_VIEW'])?>" target="_top"><?= htmlspecialcharsbx($arResult['INDEX_LANDING']['TITLE'])?></a>
+							<a
+								id="landing-folder-index-link"
+								class="landing-folder-edit__section--text --link --link-icon"
+								title="<?= htmlspecialcharsbx($arResult['INDEX_LANDING']['TITLE'])?>"
+								href="<?= str_replace('#landing_edit#', $arResult['INDEX_LANDING']['ID'], $arParams['PAGE_URL_LANDING_VIEW'])?>"
+								target="_top"
+							>
+								<span class="landing-folder-index-link-text">
+									<?= htmlspecialcharsbx($arResult['INDEX_LANDING']['TITLE'])?>
+								</span>
+							</a>
 						<?else:?>
-							<a id="landing-folder-index-link" class="landing-folder-edit__section--text --link zz" href="#" target="_top"></a>
+							<a id="landing-folder-index-link" class="landing-folder-edit__section--text --link --link-icon" href="#" target="_top"></a>
 						<?endif;?>
 
 						<span id="landing-folder-select-index" class="landing-folder-edit__section--text --link"><?= Loc::getMessage('LANDING_TPL_FOLDER_SELECT_PAGE')?></span>
@@ -268,8 +279,9 @@ $row = $arResult['FOLDER'];
 			selectorPreviewPicture: BX('landing-folder-metaog-image'),
 			selectorPreviewSrcPicture: BX('landing-folder-metaog-image-src'),
 			selectorPreviewPictureWrapper: BX('landing-folder-picture'),
-			pathToLandingEdit: '<?= \CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW'])?>',
-			pathToLandingCreate: '<?= \CUtil::jsEscape($arParams['~PAGE_URL_LANDING_EDIT'])?>'
+			pathToLandingEdit: '<?= \CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']); ?>',
+			pathToLandingCreate: '<?= $component->getUrlAdd(false); ?>',
+			isUseNewMarket: '<?= $component->isUseNewMarket(); ?>',
 		});
 	});
 </script>

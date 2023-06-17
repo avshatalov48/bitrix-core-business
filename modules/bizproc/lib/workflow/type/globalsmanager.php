@@ -2,6 +2,10 @@
 
 namespace Bitrix\Bizproc\Workflow\Type;
 
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
+
 abstract class GlobalsManager
 {
 	protected static $allCache;
@@ -87,6 +91,11 @@ abstract class GlobalsManager
 
 	public static function upsert($id, $property, int $userId = null): bool
 	{
+		return static::upsertByProperty($id, $property, $userId)->isSuccess();
+	}
+
+	public static function upsertByProperty($id, $property, int $userId = null): Result
+	{
 		$table = static::getTableEntity();
 		if (method_exists($table, 'upsertByProperty'))
 		{
@@ -95,10 +104,12 @@ abstract class GlobalsManager
 			$cacheId = static::getCacheId();
 			static::clearStaticCache($cacheId);
 
-			return $result->isSuccess();
+			return $result;
 		}
 
-		return false;
+		return (new Result())->addError(
+			new Error(Loc::getMessage('BIZPROC_LIB_WF_TYPE_GLOBALS_MANAGER_CAN_NOT_UPSERT'))
+		);
 	}
 
 	public static function delete($id): bool
@@ -201,7 +212,7 @@ abstract class GlobalsManager
 		$documentCaption = $documentService->getDocumentTypeCaption($parameterDocumentType);
 
 		$names = [];
-		$names['GLOBAL'] = \Bitrix\Main\Localization\Loc::getMessage(
+		$names['GLOBAL'] = Loc::getMessage(
 			'BIZPROC_LIB_WF_TYPE_GLOBAL_FIELD_VISIBILITY_SHORT_GLOBAL'
 		);
 
@@ -230,4 +241,9 @@ abstract class GlobalsManager
 	}
 
 	abstract public static function getVisibilityFullNames(array $parameterDocumentType): array;
+
+	public static function loadLanguageFile(): void
+	{
+		Loc::loadLanguageFile(__FILE__);
+	}
 }

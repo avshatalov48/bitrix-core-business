@@ -55,7 +55,7 @@ class Collection
 			$valueColumn[$column] = array();
 			foreach ($array as $index => $row)
 			{
-				$value = isset($row[$column]) ? $row[$column] : $defaultValueIfNotSetValue;
+				$value = $row[$column] ?? $defaultValueIfNotSetValue;
 				if ($callback)
 				{
 					$value = call_user_func_array($callback, array($value));

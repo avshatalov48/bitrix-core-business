@@ -68,8 +68,8 @@ class UserProfileRecordTable extends Entity\DataManager
 		$conn = $entity->getConnection();
 
 		$conn->query("
-			DELETE FROM b_user_profile_record 
-			WHERE HISTORY_ID IN(
+			DELETE R FROM b_user_profile_record R 
+			WHERE R.HISTORY_ID IN(
 				SELECT ID FROM b_user_profile_history 
 				{$where} 
 			)"

@@ -1653,8 +1653,7 @@ const MessageList = {
 						:data-type="element.templateType" 
 						:key="element.templateId"
 						v-bx-im-directive-dialog-observer="element.unread? ObserverType.read: ObserverType.none"
-					>				
-<!--					  <div style="width: 200px; height: 50px; margin-top: 5px; background: #000; color: #fff;">{{ element.textConverted }}</div>-->
+					>
 						<component :is="element.params.COMPONENT_ID"
 							:userId="userId" 
 							:dialogId="dialogId"

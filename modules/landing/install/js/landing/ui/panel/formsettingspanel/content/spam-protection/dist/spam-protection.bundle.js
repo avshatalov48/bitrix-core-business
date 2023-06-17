@@ -7,45 +7,32 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var KeysForm = /*#__PURE__*/function (_FormSettingsForm) {
 	  babelHelpers.inherits(KeysForm, _FormSettingsForm);
-
 	  function KeysForm(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, KeysForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(KeysForm).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.Content.SpamProtection.KeysForm');
-
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-form-form-keys-settings');
-
 	    _this.getButton().renderTo(_this.layout);
-
 	    _this.value = {};
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(KeysForm, [{
 	    key: "getButton",
 	    value: function getButton() {
 	      var _this2 = this;
-
 	      return this.cache.remember('button', function () {
 	        return new ui_buttons.Button({
 	          text: _this2.options.buttonLabel,
 	          color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	          onclick: function onclick() {
 	            _this2.getButton().setWaiting(true);
-
 	            main_core.Runtime.loadExtension('crm.form.captcha').then(function (_ref) {
 	              var Captcha = _ref.Captcha;
-
 	              _this2.getButton().setWaiting(false);
-
 	              return Captcha.open();
 	            }).then(function (result) {
 	              _this2.value = _objectSpread({}, result);
@@ -54,11 +41,9 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	              var activeButton = formSettingsPanel.getSidebarButtons().find(function (button) {
 	                return button.isActive();
 	              });
-
 	              if (activeButton) {
 	                activeButton.getLayout().click();
 	              }
-
 	              _this2.emit('onChange');
 	            });
 	          }
@@ -75,20 +60,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(landing_ui_form_formsettingsform.FormSettingsForm);
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var SpamProtection = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(SpamProtection, _ContentWrapper);
-
 	  function SpamProtection(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SpamProtection);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SpamProtection).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.SpamProtection');
-
 	    var header = new landing_ui_card_headercard.HeaderCard({
 	      title: landing_loc.Loc.getMessage('LANDING_SPAM_PROTECTION_TITLE')
 	    });
@@ -121,20 +100,13 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        }]
 	      })]
 	    });
-
 	    _this.addItem(header);
-
 	    _this.addItem(message);
-
 	    _this.addItem(captchaTypeForm);
-
 	    captchaTypeForm.subscribe('onChange', _this.onTypeChange.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    _this.onTypeChange();
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SpamProtection, [{
 	    key: "hasDefaultsCaptchaKeys",
 	    value: function hasDefaultsCaptchaKeys() {
@@ -151,16 +123,13 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      main_core.Dom.remove(this.getCustomKeysForm().getLayout());
 	      main_core.Dom.remove(this.getRequiredKeysForm().getLayout());
 	      main_core.Dom.remove(this.getKeysSettingsForm().getLayout());
-
 	      if (this.getValue().recaptcha.use) {
 	        if (!this.hasDefaultsCaptchaKeys() && !this.hasCustomKeys()) {
 	          this.addItem(this.getRequiredKeysForm());
 	        }
-
 	        if (!this.hasDefaultsCaptchaKeys() && this.hasCustomKeys() || this.hasDefaultsCaptchaKeys() && this.hasCustomKeys()) {
 	          this.addItem(this.getKeysSettingsForm());
 	        }
-
 	        if (this.hasDefaultsCaptchaKeys() && !this.hasCustomKeys()) {
 	          this.addItem(this.getCustomKeysForm());
 	        }
@@ -197,7 +166,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        });
 	      });
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "valueReducer",
 	    value: function valueReducer(sourceValue) {

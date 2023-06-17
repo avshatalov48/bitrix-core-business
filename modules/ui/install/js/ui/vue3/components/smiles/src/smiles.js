@@ -216,3 +216,5 @@ export const Smiles = {
 		</div>
 	`
 };
+
+export {emoji};

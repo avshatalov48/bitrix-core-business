@@ -14,11 +14,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 $pageId = "user_tasks";
 $taskId = (int)$arResult['VARIABLES']['task_id'];
+$userId = (int)$arResult['VARIABLES']['user_id'];
 $action =
 	$arResult['VARIABLES']['action'] === 'edit'
 		? 'edit'
@@ -31,8 +33,6 @@ if (Context::getCurrent()->getRequest()->get('IFRAME'))
 	include("util_profile.php");
 
 	Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].$this->getFolder().'/result_modifier.php');
-
-	$userId = $arResult['VARIABLES']['user_id'];
 
 	if (
 		!CSocNetFeatures::IsActiveFeature(
@@ -84,6 +84,7 @@ if (Context::getCurrent()->getRequest()->get('IFRAME'))
 }
 else
 {
+	$userId = CurrentUser::get()->getId();
 	$backgroundForTask = true;
-	require_once('user_tasks.php');
+	require_once('user_tasks_task_background.php');
 }

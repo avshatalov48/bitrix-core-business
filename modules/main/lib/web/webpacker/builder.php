@@ -333,7 +333,7 @@ class Builder
 
 		if (!$isRestored)
 		{
-			if (mb_strpos($url, ':') === false && $server->getServerPort())
+			if (strpos($url, ':') === false && $server->getServerPort())
 			{
 				if (!in_array($server->getServerPort(), array('80', '443')))
 				{

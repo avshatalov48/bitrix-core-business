@@ -1,5 +1,8 @@
-<?
+<?php
 
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Sale\Location;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -14,11 +17,13 @@ if ($saleModulePermissions < "W")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = intval($ID);
+$request = Context::getCurrent()->getRequest();
+
+$ID = (int)$request->get('ID');
 
 ClearVars();
 ClearVars("fp_");
@@ -28,7 +33,7 @@ $bInitVars = false;
 
 $lpEnabled = CSaleLocation::isLocationProEnabled();
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 	$TAX_ID = intval($TAX_ID);
@@ -283,7 +288,7 @@ $tabControl->BeginNextTab();
 		</td>
 		<td width="60%">
 			<?echo CSalePersonType::SelectBox("PERSON_TYPE_ID", $str_PERSON_TYPE_ID, GetMessage("SALE_ANY"), True, "", "")?>
-			
+
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
@@ -354,7 +359,7 @@ $tabControl->BeginNextTab();
 					}
 					else
 					{
-						
+
 						while ($arLocation = $db_location->Fetch())
 						{
 							$arLOCATION1[] = $arLocation["LOCATION_ID"];
@@ -406,4 +411,5 @@ $tabControl->End();
 ?>
 
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");

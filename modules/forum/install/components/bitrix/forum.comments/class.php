@@ -24,8 +24,9 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 	const STATUS_DENIED  = 'denied';
 	const STATUS_ERROR   = 'error';
 
-	/** @var  string */
-	protected $actionPrefix = 'action';
+	const MID_NEW = 'Y';
+	const MID_OLD = 'N';
+
 	/** @var  string */
 	protected $action;
 	/** @var  ErrorCollection */
@@ -87,7 +88,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 		return ($this->scope == self::STATUS_SCOPE_WEB);
 	}
 
-	protected function sendResponse($response)
+	protected function sendResponse($response): void
 	{
 		$this->getApplication()->restartBuffer();
 		while (ob_end_clean());
@@ -184,8 +185,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 	{
 		if ($terminate)
 		{
-			/** @noinspection PhpUndefinedClassInspection */
-			CMain::finalActions();
+			\CMain::finalActions();
 		}
 	}
 
@@ -201,6 +201,19 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 
 	public function onPrepareComponentParams($arParams)
 	{
+		$arParams['CHECK_ACTIONS'] = $arParams['CHECK_ACTIONS'] ?? 'Y';
+		$arParams['COMPONENT_AJAX'] = $arParams['COMPONENT_AJAX'] ?? 'N';
+		$arParams['SHOW_LINK_TO_MESSAGE'] = $arParams['SHOW_LINK_TO_MESSAGE'] ?? 'Y';
+		$arParams['LAZYLOAD'] = $arParams['LAZYLOAD'] ?? 'Y';
+		$arParams['SET_LAST_VISIT'] = $arParams['SET_LAST_VISIT'] ?? 'N';
+		$arParams['ACTION'] = $arParams['ACTION'] ?? 'none';
+		$arParams['SUBSCRIBE_AUTHOR_ELEMENT'] = $arParams['SUBSCRIBE_AUTHOR_ELEMENT'] ?? 'N';
+
+		$arParams['CACHE_TYPE'] = $arParams['CACHE_TYPE'] ?? 'A';
+		$arParams['CACHE_TIME'] = $arParams['CACHE_TIME'] ?? '3600';
+
+		$arParams['bFromList'] = $arParams['bFromList'] ?? false;
+
 		return $arParams;
 	}
 
@@ -304,17 +317,16 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 
 		$this->arParams["NAME_TEMPLATE"] = empty($this->arParams["NAME_TEMPLATE"]) ? \CSite::GetNameFormat() : $this->arParams["NAME_TEMPLATE"];
 		$this->arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "", $this->arParams["NAME_TEMPLATE"]);
-		$this->arParams["URL"] = $this->arParams["URL"] <> '' ? $this->arParams["URL"] : $this->getApplication()->GetCurPageParam("", ["IFRAME", "IFRAME_TYPE"]);
+		$this->arParams["URL"] = $this->arParams["URL"] ?? $this->getApplication()->GetCurPageParam("", ["IFRAME", "IFRAME_TYPE"]);
 	}
 
 	protected function prepareParams()
 	{
-		$this->arParams["SHOW_LOGIN"] = ($this->arParams["SHOW_LOGIN"] == "N" ? "N" : "Y");
+		$this->arParams["SHOW_LOGIN"] = $this->arParams["SHOW_LOGIN"] ?? 'Y';
 		if (!array_key_exists("USE_CAPTCHA", $this->arParams))
 			$this->arParams["USE_CAPTCHA"] = $this->forum["USE_CAPTCHA"];
 		if ($this->arParams["USE_CAPTCHA"] == "Y" && !$this->getUser()->IsAuthorized())
 		{
-
 			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$this->captcha = new CCaptcha();
 			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
@@ -515,10 +527,10 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			if ($action == "add" || $action == "edit")
 			{
 				$arPost = array(
-					"POST_MESSAGE" => $post["REVIEW_TEXT"],
-					"AUTHOR_NAME" => ($this->getUser()->isAuthorized() ? $this->getUserName() : (empty($post["REVIEW_AUTHOR"]) ? $GLOBALS["FORUM_STATUS_NAME"]["guest"] : $post["REVIEW_AUTHOR"])),
-					"AUTHOR_EMAIL" => $post["REVIEW_EMAIL"],
-					"USE_SMILES" => $post["REVIEW_USE_SMILES"],
+					"POST_MESSAGE" => $post["REVIEW_TEXT"] ?? '',
+					"AUTHOR_NAME" => ($this->getUser()->isAuthorized() ? $this->getUserName() : ($post["REVIEW_AUTHOR"] ?? $GLOBALS["FORUM_STATUS_NAME"]["guest"])),
+					"AUTHOR_EMAIL" => $post["REVIEW_EMAIL"] ?? '',
+					"USE_SMILES" => $post["REVIEW_USE_SMILES"] ?? 'Y',
 					"GUEST_ID" => Main\ModuleManager::isModuleInstalled("statistic") ? $_SESSION["SESS_GUEST_ID"] : null
 				);
 				if ($realIp = Main\Service\GeoIp\Manager::getRealIp())

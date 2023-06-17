@@ -36,16 +36,24 @@ abstract class ReportStoreList extends \CBitrixComponent
 
 	private function getGridData(): array
 	{
+		$result = [
+			'GRID_ID' => $this->getGridId(),
+			'COLUMNS' => $this->getGridColumns(),
+			'ROWS' => [],
+		];
+
+		if (
+			isset($this->arParams['RESULT']['data']['stub'])
+			&& is_array($this->arParams['RESULT']['data']['stub'])
+		)
+		{
+			$result['STUB'] = $this->arParams['RESULT']['data']['stub'];
+
+			return $result;
+		}
+
 		$providerData = $this->arParams['RESULT']['data']['items'];
 		$overallData = $this->arParams['RESULT']['data']['overall'];
-
-		$result = [];
-
-		$result['GRID_ID'] = $this->getGridId();
-
-		$result['COLUMNS'] = $this->getGridColumns();
-
-		$result['ROWS'] = [];
 
 		if (!empty($providerData))
 		{

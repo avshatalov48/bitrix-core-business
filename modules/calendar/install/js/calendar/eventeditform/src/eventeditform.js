@@ -380,8 +380,8 @@ export class EventEditForm
 				formType: 'full',
 				emailGuests: this.hasExternalEmailUsers() ? 'Y' : 'N',
 				markView: Util.getCurrentView() || 'outside',
-				markCrm: this.DOM.form['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
-				markRrule: this.repeatSelector.getType(),
+				markCrm: this.DOM.form?.['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
+				markRrule: this.repeatSelector?.getType(),
 				markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
 				markType: this.type
 			}
@@ -790,7 +790,7 @@ export class EventEditForm
 		);
 
 		// Recursion
-		this.repeatSelector.setValue(this.formDataValue.rrule || entry.getRrule());
+		this.repeatSelector?.setValue(this.formDataValue.rrule || entry.getRrule());
 
 		// accessibility
 		if (this.DOM.accessibilityInput)
@@ -1036,8 +1036,14 @@ export class EventEditForm
 
 	initReminderControl(uid)
 	{
+		const reminderWrap = this.DOM.content.querySelector(`#${uid}_reminder`);
+		if (!reminderWrap)
+		{
+			return;
+		}
+
 		this.reminderValues = [];
-		this.DOM.reminderWrap = this.DOM.content.querySelector(`#${uid}_reminder`);
+		this.DOM.reminderWrap = reminderWrap;
 		this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(Tag.render`<span></span>`);
 
 		this.remindersControl = new Reminder({
@@ -1190,7 +1196,13 @@ export class EventEditForm
 
 	initRepeatRuleControl(uid)
 	{
-		this.DOM.rruleWrap = this.DOM.content.querySelector(`#${uid}_rrule_wrap`);
+		const rruleWrap = this.DOM.content.querySelector(`#${uid}_rrule_wrap`);
+		if (!rruleWrap)
+		{
+			return;
+		}
+
+		this.DOM.rruleWrap = rruleWrap;
 		this.repeatSelector = new RepeatSelector(
 			{
 				wrap: this.DOM.rruleWrap,
@@ -1385,7 +1397,13 @@ export class EventEditForm
 
 	initCrmUfControl(uid)
 	{
-		this.DOM.crmUfWrap = BX(uid + '-uf-crm-wrap');
+		const crmUfWrap = BX(uid + '-uf-crm-wrap');
+		if (!crmUfWrap)
+		{
+			return;
+		}
+
+		this.DOM.crmUfWrap = crmUfWrap;
 
 		if (this.DOM.crmUfWrap)
 		{

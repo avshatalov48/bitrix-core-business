@@ -21,14 +21,14 @@ if(!$USER->CanDoOperation('edit_ratings'))
 
 IncludeModuleLangFile(__FILE__);
 
-$ID = intval($_REQUEST["ID"]);
+$ID = intval($_REQUEST['ID'] ?? 0);
 $message = null;
 $bVarsFromForm = false;
 
-if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<>"") && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid())
 {
 	$arFields = array(
-		"ACTIVE"				=> isset($_POST['ACTIVE'])? $_POST['ACTIVE'] : 'N',
+		"ACTIVE"				=> $_POST['ACTIVE'] ?? 'N',
 		"NAME"					=> $_POST['NAME'],
 		"ENTITY_ID"				=> $_POST['ENTITY_ID'],
 		"CALCULATION_METHOD"	=> $_POST['CALCULATION_METHOD'],
@@ -47,7 +47,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 
 	if($res)
 	{
-		if($_POST["apply"] <> "")
+		if (!empty($_POST["apply"]))
 		{
 			\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("RATING_EDIT_SUCCESS"), "TYPE"=>"OK");
 			LocalRedirect("rating_edit.php?ID=".$ID."&lang=".LANG);
@@ -119,7 +119,10 @@ if($ID>0)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]))
+if(
+	isset(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"])
+	&& is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"])
+)
 {
 	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]);
 	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=false;
@@ -139,7 +142,7 @@ $tabControl->BeginEpilogContent();
 	<input type="hidden" name="ID" value=<?=$ID?>>
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 	<input type="hidden" name="action" value="" id="action">
-<?if($_REQUEST["addurl"]<>""):?>
+<?if (!empty($_REQUEST["addurl"])):?>
 	<input type="hidden" name="addurl" value="<?echo htmlspecialcharsbx($_REQUEST["addurl"])?>">
 <?endif;?>
 <?
@@ -272,7 +275,7 @@ foreach ($arRatingConfigs as $arConfigModule => $arConfigModuleValue)
 
 											?>
 											<tr valign="top">
-												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-1 field-name" style="vertical-align:middle"><label><? echo isset($arConfig['FIELDS'][$i]['NAME'])? $arConfig['FIELDS'][$i]['NAME']: GetMessage('RATING_FIELDS_DEF_NAME')?></label></td>
+												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-1 field-name" style="vertical-align:middle"><label><? echo $arConfig['FIELDS'][$i]['NAME'] ?? GetMessage('RATING_FIELDS_DEF_NAME') ?></label></td>
 												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-2" width="25%" >
 													<?=SelectBoxFromArray("CONFIGS[$arConfigModule][$arConfigType>][".$arConfig['ID']."][".$arConfig['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "");?>
 													<input type="text" name="CONFIGS[<?=$arConfigModule?>][<?=$arConfigType?>][<?=$arConfig['ID']?>][<?=$arConfig['FIELDS'][$i]['ID_INPUT']?>]" value="<?=htmlspecialcharsbx($strFieldValueInput)?>" style="width:45px;">
@@ -290,7 +293,7 @@ foreach ($arRatingConfigs as $arConfigModule => $arConfigModuleValue)
 												$strFieldValue = $str_CONFIGS[$arConfigModule][$arConfigType][$arConfig['ID']][$arConfig['FIELDS'][$i]['ID']];
 											?>
 											<tr valign="top" style="">
-												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-1 field-name" style="vertical-align:middle"><label><? echo isset($arConfig['FIELDS'][$i]['NAME'])? $arConfig['FIELDS'][$i]['NAME']: GetMessage('RATING_FIELDS_DEF_NAME')?></label></td>
+												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-1 field-name" style="vertical-align:middle"><label><? echo $arConfig['FIELDS'][$i]['NAME'] ?? GetMessage('RATING_FIELDS_DEF_NAME') ?></label></td>
 												<td class="rating-table-component-table-td-table-td rating-table-component-table-td-table-td-2" width="20%"><input type="text" name="CONFIGS[<?=$arConfigModule?>][<?=$arConfigType?>][<?=$arConfig['ID']?>][<?=$arConfig['FIELDS'][$i]['ID']?>]" value="<?=htmlspecialcharsbx($strFieldValue)?>"></td>
 											</tr>
 											<?
@@ -344,7 +347,7 @@ if($ID>0)
 
 $tabControl->Buttons(array(
 	"disabled"=>false,
-	"back_url"=>($_REQUEST["addurl"]<>""? $_REQUEST["addurl"]:"rating_list.php?lang=".LANG),
+	"back_url"=>(!empty($_REQUEST["addurl"]) ? $_REQUEST["addurl"] : "rating_list.php?lang=".LANG),
 ));
 $tabControl->Show();
 $tabControl->ShowWarnings($tabControl->GetName(), $message);

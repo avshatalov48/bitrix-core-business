@@ -1,0 +1,88 @@
+.bx-im-content-chat__scope {
+	--im-content-chat__max-width_message_container: 800px;
+	--im-content-chat__max-width_textarea_container: 830px;
+	--im-content-chat__icon-file_start: url(./images/start-icon.svg);
+
+	--im-content-chat__background-color_start-icon-border: rgba(var(--im-color-palette-white-base-rgb), 0.3);
+	--im-content-chat__font-color_start-text: rgba(var(--im-color-palette-white-base-rgb), 0.9);
+}
+
+.bx-im-messenger__container.--light-theme .bx-im-content-chat__scope {
+	--im-content-chat__icon-file_start: url(./images/start-icon-light.svg);
+
+	--im-content-chat__background-color_start-icon-border: rgba(var(--im-color-palette-gray-90-rgb), 0.1);
+	--im-content-chat__font-color_start-text: rgba(var(--im-color-palette-gray-90-rgb), 0.3);
+}
+
+.bx-im-content-chat__container {
+	display: flex;
+	width: 100%;
+	height: 100%;
+}
+
+.bx-im-content-chat__content {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	position: relative;
+}
+
+.bx-im-content-chat__dialog_container {
+	position: relative;
+}
+
+.bx-im-content-chat__dialog_container *:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(255,255,255, .8)!important;
+}
+
+.bx-im-content-chat__dialog_content {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.bx-im-content-chat__textarea_container {
+	display: flex;
+	justify-content: center;
+	flex: 0 0 var(--im-messenger__textarea_height);
+	width: calc(100% - 6px);
+	margin: 0 6px 0 0;
+	padding: 6px 0 12px;
+	align-self: center;
+}
+
+.bx-im-content-chat__start_message {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+}
+
+.bx-im-content-chat__start_message_icon {
+	width: 120px;
+	height: 120px;
+	border: 2px solid var(--im-content-chat__background-color_start-icon-border);
+	border-radius: 50%;
+}
+.bx-im-content-chat__start_message_icon:after {
+	position: absolute;
+	display: block;
+	width: 120px;
+	height: 120px;
+	background: no-repeat center;
+	background-image: var(--im-content-chat__icon-file_start);
+	content: '';
+}
+
+.bx-im-content-chat__start_message_text {
+	font: 26px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-light);
+	color: var(--im-content-chat__font-color_start-text);
+	margin-top: 32px;
+}

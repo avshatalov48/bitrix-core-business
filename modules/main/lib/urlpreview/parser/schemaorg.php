@@ -25,7 +25,7 @@ class SchemaOrg extends Parser
 	public function handle(HtmlDocument $document)
 	{
 		$this->documentEncoding = $document->getEncoding();
-		if(mb_strpos($document->getHtml(), 'itemscope') === false)
+		if(strpos($document->getHtml(), 'itemscope') === false)
 			return null;
 
 		if(!$this->initializeDom($document))
@@ -177,7 +177,7 @@ class SchemaOrg extends Parser
 		$this->dom = new \DOMDocument();
 		// Prevents parsing errors bubbling
 		libxml_use_internal_errors(true);
-		$result = $this->dom->loadHTML('<?xml encoding="'.$document->getEncoding().'">'.$document->getHtml());
+		$result = $this->dom->loadHTML('<?xml encoding="'.$document->getEncoding().'">'.$document->getHtml(), LIBXML_COMPACT);
 
 		return $result;
 	}

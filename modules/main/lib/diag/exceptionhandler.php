@@ -295,9 +295,16 @@ class ExceptionHandler
 	{
 		$exception = new \ErrorException($message, 0, $code, $file, $line);
 
-		if ((error_reporting() === 0) && !$this->ignoreSilence)
+		if (!$this->ignoreSilence)
 		{
-			return true;
+			$errorReporting = error_reporting();
+			if (
+				$errorReporting === 0 //Prior to PHP 8.0.0
+				|| $errorReporting === (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE)
+			)
+			{
+				return true;
+			}
 		}
 
 		if (!$this->isFileInTrackedModules($file))
@@ -326,7 +333,8 @@ class ExceptionHandler
 
 		foreach ($modules as $module)
 		{
-			if (mb_strpos($file, "/modules/{$module}/") !== false)
+			$moduleDir = DIRECTORY_SEPARATOR . "modules" . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
+			if (strpos($file, $moduleDir) !== false)
 			{
 				return true;
 			}
@@ -371,7 +379,7 @@ class ExceptionHandler
 	 */
 	public function handleFatalError()
 	{
-		unset($this->memoryReserve);
+		$this->memoryReserve = null;
 		if ($error = error_get_last())
 		{
 			if (($error['type'] & (E_ERROR | E_USER_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR)))

@@ -568,7 +568,7 @@ class CSocNetLogRestService extends IRestService
 		try
 		{
 			$result = Helper::deleteBlogPost([
-				'POST_ID' => (int)$arFields['POST_ID'],
+				'POST_ID' => (int) ($arFields['POST_ID'] ?? null),
 			]);
 		}
 		catch (Exception $e)
@@ -767,7 +767,7 @@ class CSocNetLogRestService extends IRestService
 			throw new ArgumentTypeException('Incorrect input data');
 		}
 
-		$arParams["postId"] = (int)$fields['POST_ID'];
+		$arParams["postId"] = (int) ($fields['POST_ID'] ?? null);
 
 		if ($arParams['postId'] <= 0)
 		{
@@ -1079,7 +1079,7 @@ class CSocNetLogRestService extends IRestService
 			throw new InvalidOperationException('No blog module installed');
 		}
 
-		$postId = (int)$fields['POST_ID'];
+		$postId = (int) ($fields['POST_ID'] ?? null);
 		if ($postId <= 0)
 		{
 			throw new ArgumentException('No post found');
@@ -1110,7 +1110,7 @@ class CSocNetLogRestService extends IRestService
 		if (
 			empty($fields["FILES"])
 			&& !\Bitrix\Blog\Item\Comment::checkDuplicate(array(
-				'MESSAGE' => $fields["TEXT"],
+				'MESSAGE' => $fields["TEXT"] ?? null,
 				'BLOG_ID' => $post['BLOG_ID'],
 				'POST_ID' => $post['ID'],
 				'AUTHOR_ID' => $authorId,
@@ -1228,7 +1228,7 @@ class CSocNetLogRestService extends IRestService
 
 	public static function deleteBlogComment($fields): bool
 	{
-		$commentId = (int)$fields['COMMENT_ID'];
+		$commentId = (int) ($fields['COMMENT_ID'] ?? null);
 
 		if ($commentId <= 0)
 		{
@@ -1936,7 +1936,7 @@ class CSocNetLogRestService extends IRestService
 			$arFields['PROJECT_DATE_FINISH'] = CRestUtil::unConvertDate($arFields['PROJECT_DATE_FINISH']);
 		}
 
-		$groupID = $arFields['GROUP_ID'];
+		$groupID = $arFields['GROUP_ID'] ?? null;
 		unset($arFields['GROUP_ID']);
 
 		if ((int)$groupID <= 0)
@@ -1963,7 +1963,7 @@ class CSocNetLogRestService extends IRestService
 
 	public static function deleteGroup($arFields): bool
 	{
-		$groupId = (int)$arFields['GROUP_ID'];
+		$groupId = (int) ($arFields['GROUP_ID'] ?? null);
 
 		if ($groupId <= 0)
 		{
@@ -2007,8 +2007,8 @@ class CSocNetLogRestService extends IRestService
 		try
 		{
 			return Workgroup::setOwner([
-				'groupId' => $arFields['GROUP_ID'],
-				'userId' => $arFields['USER_ID'],
+				'groupId' => $arFields['GROUP_ID'] ?? null,
+				'userId' => $arFields['USER_ID'] ?? null,
 			]);
 		}
 		catch(Exception $e)
@@ -2019,21 +2019,21 @@ class CSocNetLogRestService extends IRestService
 
 	public static function getGroup($arFields, $n, $server)
 	{
-		$arOrder = $arFields['ORDER'];
+		$arOrder = $arFields['ORDER'] ?? null;
 		if (!is_array($arOrder))
 		{
 			$arOrder = array("ID" => "DESC");
 		}
 
 		if (
-			$arFields['IS_ADMIN'] === 'Y'
+			($arFields['IS_ADMIN'] ?? null) === 'Y'
 			&& !self::isCurrentUserAdmin()
 		)
 		{
 			unset($arFields['IS_ADMIN']);
 		}
 
-		$filter = self::checkGroupFilter($arFields['FILTER']);
+		$filter = self::checkGroupFilter($arFields['FILTER'] ?? null);
 
 		if (
 			isset($arFields['GROUP_ID'])
@@ -2043,7 +2043,7 @@ class CSocNetLogRestService extends IRestService
 			$filter['ID'] = $arFields['GROUP_ID'];
 		}
 
-		if ($arFields['IS_ADMIN'] !== 'Y')
+		if (($arFields['IS_ADMIN'] ?? null) !== 'Y')
 		{
 			$filter['CHECK_PERMISSIONS'] = self::getCurrentUserId();
 		}
@@ -2052,7 +2052,7 @@ class CSocNetLogRestService extends IRestService
 
 		if (
 			$extranetSiteId
-			&& $arFields['IS_ADMIN'] !== 'Y'
+			&& ($arFields['IS_ADMIN'] ?? null) !== 'Y'
 			&& self::getCurrentUserType() === 'extranet'
 		)
 		{
@@ -2105,7 +2105,7 @@ class CSocNetLogRestService extends IRestService
 
 	public static function getGroupUsers($arFields, $n, $server): array
 	{
-		$GROUP_ID = (int)$arFields['ID'];
+		$GROUP_ID = (int) ($arFields['ID'] ?? null);
 
 		if ($GROUP_ID <= 0)
 		{
@@ -2156,9 +2156,9 @@ class CSocNetLogRestService extends IRestService
 
 	public static function inviteGroupUsers($arFields): array
 	{
-		$groupID = $arFields['GROUP_ID'];
-		$arUserID = $arFields['USER_ID'];
-		$message = $arFields['MESSAGE'];
+		$groupID = $arFields['GROUP_ID'] ?? null;
+		$arUserID = $arFields['USER_ID'] ?? null;
+		$message = $arFields['MESSAGE'] ?? null;
 
 		if ((int)$groupID <= 0)
 		{
@@ -2210,8 +2210,8 @@ class CSocNetLogRestService extends IRestService
 
 	public static function requestGroupUser($arFields): bool
 	{
-		$groupID = $arFields['GROUP_ID'];
-		$message = $arFields['MESSAGE'];
+		$groupID = $arFields['GROUP_ID'] ?? null;
+		$message = $arFields['MESSAGE'] ?? null;
 
 		if ((int)$groupID <= 0)
 		{
@@ -2245,8 +2245,8 @@ class CSocNetLogRestService extends IRestService
 
 	public static function addGroupUsers($arFields): array
 	{
-		$groupId = $arFields['GROUP_ID'];
-		$userIdList = $arFields['USER_ID'];
+		$groupId = $arFields['GROUP_ID'] ?? null;
+		$userIdList = $arFields['USER_ID'] ?? null;
 
 		if ((int)$groupId <= 0)
 		{
@@ -2359,9 +2359,9 @@ class CSocNetLogRestService extends IRestService
 
 	public static function updateGroupUsers($arFields): array
 	{
-		$groupId = $arFields['GROUP_ID'];
-		$userIdList = $arFields['USER_ID'];
-		$role = $arFields['ROLE'];
+		$groupId = $arFields['GROUP_ID'] ?? null;
+		$userIdList = $arFields['USER_ID'] ?? null;
+		$role = $arFields['ROLE'] ?? null;
 
 		if ((int)$groupId <= 0)
 		{
@@ -2433,8 +2433,8 @@ class CSocNetLogRestService extends IRestService
 
 	public static function deleteGroupUsers($arFields): array
 	{
-		$groupId = $arFields['GROUP_ID'];
-		$userIdList = $arFields['USER_ID'];
+		$groupId = $arFields['GROUP_ID'] ?? null;
+		$userIdList = $arFields['USER_ID'] ?? null;
 
 		if ((int)$groupId <= 0)
 		{
@@ -2589,9 +2589,9 @@ class CSocNetLogRestService extends IRestService
 	{
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
-		$groupID = (int)$arFields["GROUP_ID"];
-		$feature = trim((string)$arFields["FEATURE"]);
-		$operation = trim((string)$arFields["OPERATION"]);
+		$groupID = (int) ($arFields["GROUP_ID"] ?? null);
+		$feature = trim((string) ($arFields["FEATURE"] ?? ''));
+		$operation = trim((string) ($arFields["OPERATION"] ?? ''));
 
 		if ($groupID <= 0)
 		{
@@ -2701,7 +2701,7 @@ class CSocNetLogRestService extends IRestService
 
 	public static function getGroupSubject($arFields, $n, $server)
 	{
-		$arOrder = $arFields['ORDER'];
+		$arOrder = $arFields['ORDER'] ?? null;
 		if (!is_array($arOrder))
 		{
 			$arOrder = array("SORT" => "ASC");
@@ -2780,7 +2780,7 @@ class CSocNetLogRestService extends IRestService
 			}
 		}
 
-		$subjectId = $fields['SUBJECT_ID'];
+		$subjectId = $fields['SUBJECT_ID'] ?? null;
 		unset($fields['SUBJECT_ID']);
 
 		if ((int)$subjectId <= 0)
@@ -2815,7 +2815,7 @@ class CSocNetLogRestService extends IRestService
 
 	public static function deleteGroupSubject($arFields): bool
 	{
-		$subjectId = $arFields['SUBJECT_ID'];
+		$subjectId = $arFields['SUBJECT_ID'] ?? null;
 
 		if ((int)$subjectId <= 0)
 		{

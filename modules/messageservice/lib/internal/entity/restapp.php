@@ -19,12 +19,12 @@ use Bitrix\Main;
  * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp wakeUpObject($row)
  * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp_Collection wakeUpCollection($rows)
  */
-class RestAppTable extends Main\Entity\DataManager
+class RestAppTable extends Main\ORM\Data\DataManager
 {
 	/**
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_messageservice_rest_app';
 	}
@@ -34,79 +34,79 @@ class RestAppTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true
-			),
-			'APP_ID' => array(
+			],
+			'APP_ID' => [
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateVarchar128'),
-			),
-			'CODE' => array(
+				'validation' => [__CLASS__, 'validateVarchar128'],
+			],
+			'CODE' => [
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateVarchar128'),
-			),
-			'TYPE' => array(
+				'validation' => [__CLASS__, 'validateVarchar128'],
+			],
+			'TYPE' => [
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateType'),
-			),
-			'HANDLER' => array(
+				'validation' => [__CLASS__, 'validateType'],
+			],
+			'HANDLER' => [
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateHandler'),
-			),
-			'DATE_ADD' => array(
+				'validation' => [__CLASS__, 'validateHandler'],
+			],
+			'DATE_ADD' => [
 				'data_type' => 'datetime',
 				'default_value' => new Main\Type\DateTime(),
-			),
-			'AUTHOR_ID' => array(
+			],
+			'AUTHOR_ID' => [
 				'data_type' => 'integer',
 				'default_value' => 0,
-			),
-			'AUTHOR' => array(
+			],
+			'AUTHOR' => [
 				'data_type' => '\Bitrix\Main\UserTable',
-				'reference' => array(
+				'reference' => [
 					'=this.AUTHOR_ID' => 'ref.ID'
-				),
+				],
 				'join_type' => 'LEFT',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function validateVarchar128()
+	public static function validateVarchar128(): array
 	{
-		return array(
+		return [
 			new Main\Entity\Validator\Length(null, 128),
-		);
+		];
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function validateType()
+	public static function validateType(): array
 	{
-		return array(
+		return [
 			new Main\Entity\Validator\Length(null, 30),
-		);
+		];
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function validateHandler()
+	public static function validateHandler(): array
 	{
-		return array(
+		return [
 			new Main\Entity\Validator\Length(null, 1000),
-		);
+		];
 	}
 }

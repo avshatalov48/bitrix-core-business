@@ -1,0 +1,18 @@
+.bx-im-attach-link__link {
+	color: #1d54a2;
+	cursor: pointer;
+}
+
+.bx-im-attach-link__link:hover {
+	text-decoration: underline;
+}
+
+.bx-im-attach-link__name {
+	border-bottom: 1px dashed #2067b0;
+	color: #2067b0;
+	cursor: pointer;
+}
+
+.bx-im-attach-link__image {
+	cursor: pointer;
+}

@@ -80,7 +80,13 @@ if (
 				)
 			)
 			{
-				?><input type="hidden" value="<?= ($arResult['POST']['OPENED'] === 'Y') ? 'Y' : 'N' ?>" name="GROUP_OPENED" id="GROUP_OPENED"><?php
+				?>
+				<input
+					type="hidden"
+					value="<?= (($arResult['POST']['OPENED'] ?? '') === 'Y') ? 'Y' : 'N' ?>"
+					name="GROUP_OPENED"
+					id="GROUP_OPENED"
+				><?php
 			}
 			else
 			{
@@ -158,7 +164,7 @@ if (
 				$checked = (
 					$setByOptions
 						? $arParams['PROJECT_OPTIONS']['landing'] === true || $arParams['PROJECT_OPTIONS']['landing'] === 'true'
-						: $arResult['POST']['LANDING'] === 'Y'
+						: ($arResult['POST']['LANDING'] ?? '') === 'Y'
 				);
 
 				if ($disabled)
@@ -186,7 +192,7 @@ if (
 				$checked = (
 				$setByOptions
 					? ($arParams['PROJECT_OPTIONS']['extranet'] === true || $arParams['PROJECT_OPTIONS']['extranet'] === 'true')
-					: ($arResult["POST"]['IS_EXTRANET_GROUP'] === 'Y')
+					: (($arResult["POST"]['IS_EXTRANET_GROUP'] ?? '') === 'Y')
 			);
 
 			if ($disabled)

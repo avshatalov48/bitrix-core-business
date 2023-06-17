@@ -457,6 +457,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				);
 			}
 		);
+		$clientsItem['ITEMS'] = array_values($clientsItem['ITEMS']);
 
 		$clientsItem['ITEMS'] = array_map(
 			function ($item)
@@ -478,7 +479,8 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				elseif ($isCatalogItem)
 				{
 					$item['ITEMS'] = array_map(
-						function($item) {
+						function($item)
+						{
 							unset($item['ON_CLICK']);
 
 							$item['IS_ACTIVE'] = $this->isActiveUrl(

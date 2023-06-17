@@ -1,5 +1,9 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -13,14 +17,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-CJSCore::Init(["lists", "popup"]);
+\Bitrix\Main\Loader::includeModule('ui');
 
-Bitrix\Main\UI\Extension::load("popup");
-Bitrix\Main\UI\Extension::load("ui.buttons");
-Bitrix\Main\UI\Extension::load("ui.notification");
+Bitrix\Main\UI\Extension::load(["lists", "popup", "ui.buttons", "ui.notification", "ui.dialogs.messagebox"]);
 
-$jsClass = 'ListsEditClass_'.$arResult['RAND_STRING'];
-if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
+$jsClass = 'ListsEditClass_' . $arResult['RAND_STRING'];
+if ($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
 {
 	$processes = true;
 	$typeTranslation = '_PROCESS';
@@ -31,46 +33,45 @@ else
 	$typeTranslation = '';
 }
 
-$listAction = array();
-if($arResult["IBLOCK_ID"])
+$listAction = [];
+if ($arResult["IBLOCK_ID"])
 {
-	$listAction[] = array(
-		"id" => 'deleteList',
-		"text" => GetMessage("CT_BLLE_TOOLBAR_DELETE".$typeTranslation),
-		"action"=>"BX.Lists['".$jsClass."'].deleteIblock('". CUtil::JSEscape("form_".$arResult["FORM_ID"])."', '".
-			GetMessage("CT_BLLE_TOOLBAR_DELETE_WARNING".$typeTranslation)."')",
-	);
+	$listAction[] = [
+		"text" => GetMessage("CT_BLLE_TOOLBAR_DELETE" . $typeTranslation),
+		"onclick" => new \Bitrix\UI\Buttons\JsCode(
+			"BX.Lists['" . $jsClass . "'].deleteIblock('" . CUtil::JSEscape("form_" . $arResult["FORM_ID"]) . "', '" .
+			GetMessage("CT_BLLE_TOOLBAR_DELETE_WARNING" . $typeTranslation) . "')"
+		),
+	];
 
-	if(!$processes && IsModuleInstalled('intranet') && !$arParams["SOCNET_GROUP_ID"])
+	if (!$processes && IsModuleInstalled('intranet') && !$arParams["SOCNET_GROUP_ID"])
 	{
-		$listAction[] = array(
-			"id" => 'migrateList',
+		$listAction[] = [
 			"text" => GetMessage("CT_BLLE_TOOLBAR_MIGRATE_PROCESSES"),
-			"action"=>"BX.Lists['".$jsClass."'].migrateList('".CUtil::JSEscape("form_".$arResult["FORM_ID"])."', '".
-				GetMessage("CT_BLLE_TOOLBAR_MIGRATE_WARNING_PROCESS")."')",
-		);
+			"onclick" => new \Bitrix\UI\Buttons\JsCode(
+				"BX.Lists['"
+				. $jsClass
+				. "'].migrateList('"
+				. CUtil::JSEscape("form_" . $arResult["FORM_ID"])
+				. "', '" . GetMessage("CT_BLLE_TOOLBAR_MIGRATE_WARNING_PROCESS") . "')"
+			),
+		];
 	}
-	$listAction[] = array(
-		"id" => 'copyList',
-		"text" => GetMessage("CT_BLLE_TOOLBAR_LIST_COPY".$typeTranslation),
-		"action" => "BX.Lists['".$jsClass."'].copyIblock()",
-	);
 
-	$listAction[] = array(
-		"id" => 'fieldSettings',
-		"text" => GetMessage("CT_BLLE_TOOLBAR_FIELDS_TITLE".$typeTranslation),
-		"action" => 'document.location.href="'.$arResult["LIST_FIELDS_URL"].'"',
-	);
+	$listAction[] = [
+		"text" => GetMessage("CT_BLLE_TOOLBAR_LIST_COPY" . $typeTranslation),
+		"onclick" => new \Bitrix\UI\Buttons\JsCode(
+			"BX.Lists['" . $jsClass . "'].copyIblock()"
+		),
+	];
+
+	$listAction[] = [
+		"text" => GetMessage("CT_BLLE_TOOLBAR_FIELDS_TITLE" . $typeTranslation),
+		"href" => $arResult["LIST_FIELDS_URL"],
+	];
 }
 
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-$pagetitleAlignRightContainer = "lists-align-right-container";
-if($isBitrix24Template)
-{
-	$this->SetViewTarget("pagetitle", 100);
-	$pagetitleAlignRightContainer = "";
-}
-elseif(!IsModuleInstalled("intranet"))
+if (!IsModuleInstalled("intranet"))
 {
 	\Bitrix\Main\UI\Extension::load([
 		'ui.design-tokens',
@@ -80,140 +81,155 @@ elseif(!IsModuleInstalled("intranet"))
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
 
-use Bitrix\Main\UI\Extension; ?>
-<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<?if($arResult["IBLOCK_ID"]):?>
-	<a href="<?=$arResult["LIST_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
-		<?=GetMessage("CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT")?>
-	</a>
-	<?endif;?>
-	<?if($listAction):?>
-	<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
-		<?=GetMessage("CT_BLLE_TOOLBAR_ACTION")?>
-	</span>
-	<?endif;?>
-</div>
-<?
-if($isBitrix24Template)
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
+if ($arResult["IBLOCK_ID"])
 {
-	$this->EndViewTarget();
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton([
+			'link' => $arResult["LIST_URL"],
+			'color' => \Bitrix\UI\Buttons\Color::LINK,
+			'text' => GetMessage("CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT"),
+			'classList' => ['lists-list-back'],
+		]
+	);
+}
+
+if ($listAction)
+{
+	$settingsButton = new Bitrix\UI\Buttons\SettingsButton([
+		'menu' => [
+			'items' => $listAction,
+		],
+	]);
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($settingsButton);
 }
 
 ob_start();
 IBlockShowRights(
-	/*$entity_type=*/'iblock',
-	/*$iblock_id=*/$arResult["IBLOCK_ID"],
-	/*$id=*/$arResult["IBLOCK_ID"],
-	/*$section_title=*/"",
-	/*$variable_name=*/"RIGHTS",
-	/*$arPossibleRights=*/$arResult["TASKS"],
-	/*$arActualRights=*/$arResult["RIGHTS"],
-	/*$bDefault=*/true,
-	/*$bForceInherited=*/false
+/*$entity_type=*/ 'iblock',
+	/*$iblock_id=*/ $arResult["IBLOCK_ID"],
+	/*$id=*/ $arResult["IBLOCK_ID"],
+	/*$section_title=*/ "",
+	/*$variable_name=*/ "RIGHTS",
+	/*$arPossibleRights=*/ $arResult["TASKS"],
+	/*$arActualRights=*/ $arResult["RIGHTS"],
+	/*$bDefault=*/ true,
+	/*$bForceInherited=*/ false
 );
-$rights_html = ob_get_contents();
-ob_end_clean();
+$rights_html = ob_get_clean();
 
-$rights_fields = array(
-	array(
-		"id"=>"RIGHTS",
-		"name"=>GetMessage("CT_BLLE_ACCESS_RIGHTS"),
-		"type"=>"custom",
-		"colspan"=>true,
-		"value"=>$rights_html,
-	),
-);
+$rights_fields = [
+	[
+		"id" => "RIGHTS",
+		"name" => GetMessage("CT_BLLE_ACCESS_RIGHTS"),
+		"type" => "custom",
+		"colspan" => true,
+		"value" => $rights_html,
+	],
+];
 
 $custom_html = '<input type="hidden" name="action" id="action" value="">';
 
-$arTab1 = array(
+$arTab1 = [
 	"id" => "tab1",
 	"name" => GetMessage("CT_BLLE_TAB_EDIT"),
-	"title" => GetMessage("CT_BLLE_TAB_EDIT_TITLE".$typeTranslation),
+	"title" => GetMessage("CT_BLLE_TAB_EDIT_TITLE" . $typeTranslation),
 	"icon" => "",
-	"fields" => array(
-		array("id"=>"NAME", "name"=>GetMessage("CT_BLLE_FIELD_NAME".$typeTranslation), "required"=>true),
-		array("id"=>"DESCRIPTION", "name"=>GetMessage("CT_BLLE_FIELD_DESCRIPTION".$typeTranslation), "type"=>"textarea"),
-		array("id"=>"SORT", "name"=>GetMessage("CT_BLLE_FIELD_SORT"), "params"=>array("size"=>5)),
-		array("id"=>"PICTURE", "name"=>GetMessage("CT_BLLE_FIELD_PICTURE"), "type"=>"file"),
-	),
-);
-if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
+	"fields" => [
+		["id" => "NAME", "name" => GetMessage("CT_BLLE_FIELD_NAME" . $typeTranslation), "required" => true],
+		[
+			"id" => "DESCRIPTION",
+			"name" => GetMessage("CT_BLLE_FIELD_DESCRIPTION" . $typeTranslation),
+			"type" => "textarea",
+		],
+		["id" => "SORT", "name" => GetMessage("CT_BLLE_FIELD_SORT"), "params" => ["size" => 5]],
+		["id" => "PICTURE", "name" => GetMessage("CT_BLLE_FIELD_PICTURE"), "type" => "file"],
+	],
+];
+if ($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
 {
-	if(isset($arResult["FORM_DATA"]["BIZPROC"]))
+	if (isset($arResult["FORM_DATA"]["BIZPROC"]))
 	{
-		$arTab1["fields"][] = array(
-			"id"=>"BIZPROC",
-			"type"=>"custom",
-			"value"=>'<input type="hidden" name="BIZPROC" value="Y">',
-		);
+		$arTab1["fields"][] = [
+			"id" => "BIZPROC",
+			"type" => "custom",
+			"value" => '<input type="hidden" name="BIZPROC" value="Y">',
+		];
 	}
 }
 else
 {
-	if(isset($arResult["FORM_DATA"]["BIZPROC"]))
-		$arTab1["fields"][] = array(
+	if (isset($arResult["FORM_DATA"]["BIZPROC"]))
+	{
+		$arTab1["fields"][] = [
 			"id" => "BIZPROC",
 			"name" => GetMessage("CT_BLLE_FIELD_BIZPROC"),
-			"type"=>"checkbox",
-		);
+			"type" => "checkbox",
+		];
+	}
 }
 
-$arTab1["fields"][] = array(
+$arTab1["fields"][] = [
 	"id" => "LOCK_FEATURE",
 	"name" => GetMessage("CT_BLLE_FIELD_LOCK"),
-	"type"=>"checkbox",
-);
+	"type" => "checkbox",
+];
 
 $backUrl = $arResult["IBLOCK"] ? $arResult["~LIST_URL"] : $arResult["~LISTS_URL"];
 
 $APPLICATION->IncludeComponent(
 	"bitrix:main.interface.form",
 	"",
-	array(
-		"FORM_ID"=>$arResult["FORM_ID"],
-		"TABS"=>array(
+	[
+		"FORM_ID" => $arResult["FORM_ID"],
+		"TABS" => [
 			$arTab1,
-			array("id"=>"tab2", "name"=>GetMessage("CT_BLLE_TAB_MESSAGES"), "title"=>GetMessage("CT_BLLE_TAB_MESSAGES_TITLE".$typeTranslation), "icon"=>"", "fields"=>array(
-				array("id"=>"ELEMENTS_NAME", "name"=>GetMessage("CT_BLLE_FIELD_ELEMENTS_NAME")),
-				array("id"=>"ELEMENT_NAME", "name"=>GetMessage("CT_BLLE_FIELD_ELEMENT_NAME")),
-				array("id"=>"ELEMENT_ADD", "name"=>GetMessage("CT_BLLE_FIELD_ELEMENT_ADD")),
-				array("id"=>"ELEMENT_EDIT", "name"=>GetMessage("CT_BLLE_FIELD_ELEMENT_EDIT")),
-				array("id"=>"ELEMENT_DELETE", "name"=>GetMessage("CT_BLLE_FIELD_ELEMENT_DELETE")),
-				array("id"=>"SECTIONS_NAME", "name"=>GetMessage("CT_BLLE_FIELD_SECTIONS_NAME")),
-				array("id"=>"SECTION_NAME", "name"=>GetMessage("CT_BLLE_FIELD_SECTION_NAME")),
-				array("id"=>"SECTION_ADD", "name"=>GetMessage("CT_BLLE_FIELD_SECTION_ADD")),
-				array("id"=>"SECTION_EDIT", "name"=>GetMessage("CT_BLLE_FIELD_SECTION_EDIT")),
-				array("id"=>"SECTION_DELETE", "name"=>GetMessage("CT_BLLE_FIELD_SECTION_DELETE")),
-			)),
-			array(
-				"id"=>"tab3",
-				"name"=>GetMessage("CT_BLLE_TAB_ACCESS"),
-				"title"=>GetMessage("CT_BLLE_TAB_ACCESS_TITLE".$typeTranslation),
-				"icon"=>"",
-				"fields"=>$rights_fields,
-			),
-		),
-		"BUTTONS"=>array("back_url"=>$backUrl, "custom_html"=>$custom_html),
-		"DATA"=>$arResult["FORM_DATA"],
-		"SHOW_SETTINGS"=>"N",
-		"THEME_GRID_ID"=>$arResult["GRID_ID"],
-	),
-	$component, array("HIDE_ICONS" => "Y")
+			[
+				"id" => "tab2",
+				"name" => GetMessage("CT_BLLE_TAB_MESSAGES"),
+				"title" => GetMessage("CT_BLLE_TAB_MESSAGES_TITLE" . $typeTranslation),
+				"icon" => "",
+				"fields" => [
+					["id" => "ELEMENTS_NAME", "name" => GetMessage("CT_BLLE_FIELD_ELEMENTS_NAME")],
+					["id" => "ELEMENT_NAME", "name" => GetMessage("CT_BLLE_FIELD_ELEMENT_NAME")],
+					["id" => "ELEMENT_ADD", "name" => GetMessage("CT_BLLE_FIELD_ELEMENT_ADD")],
+					["id" => "ELEMENT_EDIT", "name" => GetMessage("CT_BLLE_FIELD_ELEMENT_EDIT")],
+					["id" => "ELEMENT_DELETE", "name" => GetMessage("CT_BLLE_FIELD_ELEMENT_DELETE")],
+					["id" => "SECTIONS_NAME", "name" => GetMessage("CT_BLLE_FIELD_SECTIONS_NAME")],
+					["id" => "SECTION_NAME", "name" => GetMessage("CT_BLLE_FIELD_SECTION_NAME")],
+					["id" => "SECTION_ADD", "name" => GetMessage("CT_BLLE_FIELD_SECTION_ADD")],
+					["id" => "SECTION_EDIT", "name" => GetMessage("CT_BLLE_FIELD_SECTION_EDIT")],
+					["id" => "SECTION_DELETE", "name" => GetMessage("CT_BLLE_FIELD_SECTION_DELETE")],
+				],
+			],
+			[
+				"id" => "tab3",
+				"name" => GetMessage("CT_BLLE_TAB_ACCESS"),
+				"title" => GetMessage("CT_BLLE_TAB_ACCESS_TITLE" . $typeTranslation),
+				"icon" => "",
+				"fields" => $rights_fields,
+			],
+		],
+		"BUTTONS" => ["back_url" => $backUrl, "custom_html" => $custom_html],
+		"DATA" => $arResult["FORM_DATA"],
+		"SHOW_SETTINGS" => "N",
+		"THEME_GRID_ID" => $arResult["GRID_ID"],
+	],
+	$component, ["HIDE_ICONS" => "Y"]
 );
 
 $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
 ?>
 
 <script type="text/javascript">
-	BX(function () {
+	BX(function()
+	{
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsEditClass({
 			randomString: '<?=$arResult['RAND_STRING']?>',
 			iblockTypeId: '<?=$arParams["IBLOCK_TYPE_ID"]?>',
 			iblockId: '<?=$arResult["IBLOCK_ID"]?>',
 			socnetGroupId: '<?=$socnetGroupId?>',
 			listsUrl: '<?=CUtil::JSEscape($arResult["LISTS_URL"])?>',
-			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,
 			listTemplateEditUrl: '<?=$arParams["LIST_EDIT_URL"]?>',
 			listElementUrl: '<?=htmlspecialcharsbx($arParams["LIST_ELEMENT_URL"])?>'
 		});
@@ -229,7 +245,8 @@ $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0
 			CT_BLLE_COPY_POPUP_TITLE: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_TITLE")?>',
 			CT_BLLE_COPY_POPUP_CONTENT: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_CONTENT")?>',
 			CT_BLLE_COPY_POPUP_ACCEPT_BUTTON: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_ACCEPT_BUTTON")?>',
-			CT_BLLE_COPY_POPUP_COPIED_SUCCESS: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_COPIED_SUCCESS".$typeTranslation)?>',
+			CT_BLLE_COPY_POPUP_COPIED_SUCCESS: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_COPIED_SUCCESS"
+				. $typeTranslation)?>',
 			CT_BLLE_COPY_POPUP_CANCEL_BUTTON: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_CANCEL_BUTTON")?>'
 		});
 	});

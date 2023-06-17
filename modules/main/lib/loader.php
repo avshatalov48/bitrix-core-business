@@ -355,7 +355,7 @@ class Loader
 			if ($pathInfo["module"] != "")
 			{
 				$module = $pathInfo["module"];
-				$holder = (isset(self::$modulesHolders[$module])? self::$modulesHolders[$module] : self::BITRIX_HOLDER);
+				$holder = (self::$modulesHolders[$module] ?? self::BITRIX_HOLDER);
 
 				$filePath = (defined('REPOSITORY_ROOT'))
 					? REPOSITORY_ROOT
@@ -551,7 +551,7 @@ class Loader
 	public static function getPersonal($path)
 	{
 		$root = self::getDocumentRoot();
-		$personal = (isset($_SERVER["BX_PERSONAL_ROOT"])? $_SERVER["BX_PERSONAL_ROOT"] : "");
+		$personal = ($_SERVER["BX_PERSONAL_ROOT"] ?? "");
 
 		if ($personal <> '' && file_exists($root.$personal."/".$path))
 		{

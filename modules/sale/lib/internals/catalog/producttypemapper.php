@@ -21,4 +21,19 @@ class ProductTypeMapper
 
 		return null;
 	}
+
+	public static function getCatalogType(?int $saleType): ?int
+	{
+		if ($saleType === Sale\BasketItem::TYPE_SET)
+		{
+			return Catalog\ProductTable::TYPE_SET;
+		}
+
+		if ($saleType === Sale\BasketItem::TYPE_SERVICE)
+		{
+			return Catalog\ProductTable::TYPE_SERVICE;
+		}
+
+		return null;
+	}
 }

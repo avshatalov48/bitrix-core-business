@@ -16,6 +16,20 @@ $arActivityDescription = [
 	'CATEGORY' => [
 		'ID' => "interaction",
 	],
+	'RETURN' => [
+		"PostId" => [
+			"NAME" => GetMessage("SNBPA_RETURN_POST_ID"),
+			"TYPE" => "int",
+		],
+		"PostUrl" => [
+			"NAME" => GetMessage("SNBPA_RETURN_POST_URL"),
+			"TYPE" => "string",
+		],
+		"PostUrlBb" => [
+			"NAME" => GetMessage("SNBPA_RETURN_POST_URL_BB"),
+			"TYPE" => "string",
+		],
+	],
 	'ROBOT_SETTINGS' => [
 		'CATEGORY' => 'employee',
 		'RESPONSIBLE_PROPERTY' => 'UsersTo',

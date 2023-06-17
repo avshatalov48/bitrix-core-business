@@ -91,7 +91,7 @@ class CAdminPage
 		$this->Init();
 
 		$arCSS = array_merge(
-			$this->GetModulesCSS($_REQUEST['from_module']),
+			$this->GetModulesCSS($_REQUEST['from_module'] ?? ''),
 			$APPLICATION->GetCSSArray()
 		);
 
@@ -144,7 +144,8 @@ class CAdminPage
 		$rel_theme_path = ADMIN_THEMES_PATH."/".ADMIN_THEME_ID."/";
 		$abs_theme_path = $_SERVER["DOCUMENT_ROOT"].$rel_theme_path;
 
-		if($module_id <> '' && $this->aModules[$module_id] <> '')
+		$module_id = (string)$module_id;
+		if ($module_id !== '' && isset($this->aModules[$module_id]) && $this->aModules[$module_id] !== '')
 		{
 			if(file_exists($abs_theme_path.$module_id.".css"))
 				return array($rel_theme_path.$module_id.'.css');
@@ -294,7 +295,8 @@ var phpVars = {
 		if($USER->IsAuthorized() && !isset($_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM").'_SOUND_LOGIN_PLAYED']))
 		{
 			$aUserOptGlobal = CUserOptions::GetOption("global", "settings");
-			if($aUserOptGlobal["sound"] == 'Y')
+			$aUserOptGlobal['sound'] = $aUserOptGlobal['sound'] ?? 'N';
+			if ($aUserOptGlobal["sound"] === 'Y')
 			{
 				if($aUserOptGlobal["sound_login"] == '')
 					$aUserOptGlobal["sound_login"] = "/bitrix/sounds/main/bitrix_tune.mp3";
@@ -393,8 +395,8 @@ var phpVars = {
 				}
 
 				if(
-					count($ssoMenu) > 0
-					&& count($queryResult['result']["portal"]) > 0
+					!empty($ssoMenu)
+					&& !empty($queryResult['result']["portal"])
 				)
 				{
 					$ssoMenu[] = array("SEPARATOR" => true);
@@ -572,7 +574,7 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 		{
 			if ($this->isPublicSidePanel())
 			{
-				if (mb_strpos("publicSidePanel",$dataToForm["reloadUrl"]) === false)
+				if (strpos($dataToForm["reloadUrl"], "publicSidePanel") === false)
 				{
 					$dataToForm["reloadUrl"] = (new Uri($dataToForm["reloadUrl"]))
 						->addParams(["publicSidePanel" => "Y"])
@@ -999,11 +1001,11 @@ class CAdminMenu
 			$aSections[$aMenu["items_id"]] = array(
 				"menu_id" => $aMenu["menu_id"] ?? null,
 				"items_id"=>$aMenu["items_id"],
-				"page_icon"=>isset($aMenu["page_icon"])? $aMenu["page_icon"]: null,
+				"page_icon"=>$aMenu["page_icon"] ?? null,
 				"text"=>$aMenu["text"],
-				"url"=>isset($aMenu["url"]) ? $aMenu["url"] : null,
-				"skip_chain"=>isset($aMenu["skip_chain"])? $aMenu["skip_chain"]: null,
-				"help_section"=>isset($aMenu["help_section"])? $aMenu["help_section"]: null,
+				"url"=>$aMenu["url"] ?? null,
+				"skip_chain"=>$aMenu["skip_chain"] ?? null,
+				"help_section"=>$aMenu["help_section"] ?? null,
 			);
 
 		$bSelected = false;
@@ -1065,7 +1067,7 @@ class CAdminMenu
 								$varvalue = urldecode(mb_substr($paramKeyAndValue,$eqpos+1));
 							}
 
-							$globvarvalue = isset($_REQUEST[$varname]) ? $_REQUEST[$varname] : "";
+							$globvarvalue = $_REQUEST[$varname] ?? "";
 							if($globvarvalue != $varvalue)
 							{
 								$bOK = false;
@@ -1100,11 +1102,11 @@ class CAdminMenu
 			{
 				$aSections["_active"] = array(
 					"menu_id"=>$aMenu["menu_id"] ?? null,
-					"page_icon"=>isset($aMenu["page_icon"])? $aMenu["page_icon"]: null,
+					"page_icon"=>$aMenu["page_icon"] ?? null,
 					"text"=>$aMenu["text"],
 					"url"=>$aMenu["url"],
-					"skip_chain"=>isset($aMenu["skip_chain"])? $aMenu["skip_chain"]: null,
-					"help_section"=>isset($aMenu["help_section"]) ? $aMenu["help_section"]: null,
+					"skip_chain"=>$aMenu["skip_chain"] ?? null,
+					"help_section"=>$aMenu["help_section"] ?? null,
 				);
 			}
 			$aMenu["_active"] = true;
@@ -1138,16 +1140,16 @@ class CAdminMenu
 //			: ($level < 1 ? '<span class="adm-submenu-item-link-icon" id="default_menu_icon"></span>' : '');
 			: '';
 		$id = 'menu_item_'.RandString(10);
-		?><div class="adm-sub-submenu-block<?=$level > 0 ? ' adm-submenu-level-'.($level+1) : ''?><?=$bSectionActive && isset($aMenu["items"]) && is_array($aMenu["items"]) && count($aMenu['items']) > 0 ? ' adm-sub-submenu-open' : ''?><?= isset($aMenu["_active"]) && $aMenu["_active"] ? ' adm-submenu-item-active' : ''?>"><?
+		?><div class="adm-sub-submenu-block<?=$level > 0 ? ' adm-submenu-level-'.($level+1) : ''?><?=$bSectionActive && isset($aMenu["items"]) && is_array($aMenu["items"]) && !empty($aMenu['items']) ? ' adm-sub-submenu-open' : ''?><?= isset($aMenu["_active"]) && $aMenu["_active"] ? ' adm-submenu-item-active' : ''?>"><?
 		?><div class="adm-submenu-item-name<?=!$bSubmenu ? ' adm-submenu-no-children' : ''?>" id="<?=$id?>" data-type="submenu-item"<?=isset($aMenu['fav_id']) ? ' data-fav-id="'.intval($aMenu['fav_id']).'"' : ''?>><?
 		$onclick = '';
 		if ($bSubmenu)
 		{
-			if(isset($aMenu["dynamic"]) && $aMenu["dynamic"] == true && (!$aMenu["items"] || count($aMenu["items"]) <= 0))
+			if(isset($aMenu["dynamic"]) && $aMenu["dynamic"] == true && (!$aMenu["items"] || empty($aMenu["items"])))
 			{
 				$onclick = "BX.adminMenu.toggleDynSection(".$this->_get_menu_item_width($level).", this.parentNode.parentNode, '".htmlspecialcharsbx(CUtil::JSEscape($aMenu["module_id"]))."', '".urlencode(htmlspecialcharsbx(CUtil::JSEscape($aMenu["items_id"])))."', '".($level+1)."')";
 			}
-			elseif(!isset($aMenu["dynamic"]) || !$aMenu["dynamic"] || !$bSectionActive || $aMenu['dynamic'] && $bSectionActive && isset($aMenu["items"]) && count($aMenu["items"]) > 0)
+			elseif(!isset($aMenu["dynamic"]) || !$aMenu["dynamic"] || !$bSectionActive || $aMenu['dynamic'] && $bSectionActive && isset($aMenu["items"]) && !empty($aMenu["items"]))
 			{
 				$onclick = "BX.adminMenu.toggleSection(this.parentNode.parentNode, '".htmlspecialcharsbx(CUtil::JSEscape($aMenu["items_id"]))."', '".($level+1)."')";
 			} //endif;
@@ -1160,9 +1162,9 @@ class CAdminMenu
 			$menuUrl = htmlspecialcharsbx($aMenu["url"], ENT_COMPAT, false);
 			?><a class="adm-submenu-item-name-link<?=(isset($aMenu["readonly"]) && $aMenu["readonly"] == true? ' menutext-readonly':'')?>"<?=$level > 0 ? ' style="padding-left:'.$this->_get_menu_item_padding($level).'px;"' : ''?> href="<?=$menuUrl?>"><?=$icon?><span class="adm-submenu-item-name-link-text"><?=$menuText?></span></a><?
 		elseif ($bSubmenu):
-			if(isset($aMenu["dynamic"]) && $aMenu["dynamic"] == true && !$bSectionActive && (!$aMenu["items"] || count($aMenu["items"]) <= 0)):
+			if(isset($aMenu["dynamic"]) && $aMenu["dynamic"] == true && !$bSectionActive && (!$aMenu["items"] || empty($aMenu["items"]))):
 				?><a class="adm-submenu-item-name-link<?=(isset($aMenu["readonly"]) && $aMenu["readonly"] == true? ' menutext-readonly':'')?>"<?=$level > 0 ? ' style="padding-left:'.$this->_get_menu_item_padding($level).'px;"' : ''?> href="javascript:void(0)" onclick="BX.adminMenu.toggleDynSection(<?=$this->_get_menu_item_width($level)?>, this.parentNode.parentNode, '<?=htmlspecialcharsbx(CUtil::JSEscape($aMenu["module_id"]))?>', '<?=htmlspecialcharsbx(CUtil::JSEscape($aMenu["items_id"]))?>', '<?=$level+1?>')"><?=$icon?><span class="adm-submenu-item-name-link-text"><?=$menuText?></span></a><?
-			elseif(!isset($aMenu["dynamic"]) || !$aMenu["dynamic"] || !$bSectionActive || $aMenu['dynamic'] && $bSectionActive && isset($aMenu["items"]) && count($aMenu["items"]) > 0):
+			elseif(!isset($aMenu["dynamic"]) || !$aMenu["dynamic"] || !$bSectionActive || $aMenu['dynamic'] && $bSectionActive && isset($aMenu["items"]) && !empty($aMenu["items"])):
 				?><a class="adm-submenu-item-name-link<?=(isset($aMenu["readonly"]) && $aMenu["readonly"] == true? ' menutext-readonly':'')?>"<?=$level > 0 ? ' style="padding-left:'.$this->_get_menu_item_padding($level).'px;"' : ''?> href="javascript:void(0)" onclick="BX.adminMenu.toggleSection(this.parentNode.parentNode, '<?=htmlspecialcharsbx(CUtil::JSEscape($aMenu["items_id"]))?>', '<?=$level+1?>')"><?=$icon?><span class="adm-submenu-item-name-link-text"><?=$menuText?></span></a><?
 			else:
 				?><span class="adm-submenu-item-name-link<?=(isset($aMenu["readonly"]) && $aMenu["readonly"] == true? ' menutext-readonly':'')?>"<?=$level > 0 ? ' style="padding-left:'.$this->_get_menu_item_padding($level).'px"' : ''?>><?=$icon?><span class="adm-submenu-item-name-link-text"><?=$menuText?></span></span><?
@@ -1276,7 +1278,7 @@ class CAdminMenu
 
 	function _ShowSubmenu(&$aMenu, $menu_id, $mode, $level=0)
 	{
-		$bSubmenu = (is_array($aMenu["items"]) && count($aMenu["items"])>0);
+		$bSubmenu = isset($aMenu["items"]) && is_array($aMenu["items"]) && !empty($aMenu["items"]);
 		if($bSubmenu)
 		{
 			if($aMenu["items_id"] == $menu_id)
@@ -1596,9 +1598,8 @@ class CAdminContextMenu
 	{
 		foreach ($listItems as &$item)
 		{
-			if (!empty($item["LINK"]) && !$item["PUBLIC"])
+			if (!empty($item["LINK"]) && (!isset($item["PUBLIC"]) || !$item["PUBLIC"]))
 			{
-
 				$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 				$reqValue = "/".str_replace("/", "\/", $selfFolderUrl)."/i";
 				if (!preg_match($reqValue, $item["LINK"]) && !preg_match("/javascript:/", $item["LINK"]))
@@ -1607,7 +1608,8 @@ class CAdminContextMenu
 				}
 			}
 
-			switch ($item["ICON"])
+			$icon = $item["ICON"] ?? null;
+			switch ($icon)
 			{
 				case "btn_list":
 					if ($this->isSidePanel)
@@ -1702,6 +1704,7 @@ class CAdminContextMenu
 		$bNeedSplitClosing = false;
 		foreach($this->items as $item)
 		{
+			$item['ICON'] = (string)($item['ICON'] ?? '');
 			if(!empty($item["NEWBAR"]))
 				$this->EndBar();
 
@@ -1806,37 +1809,46 @@ BX.Fix(right_bar, {type: 'right', limit_node: BX.previousSibling(right_bar)});
 	function Button($item, $hkInst)
 	{
 		// $item["ICON"]
+		$icon = (string)($item["ICON"] ?? '');
+		$onclick = (string)($item['ONCLICK'] ?? '');
+		$item['LINK'] = (string)($item['LINK'] ?? '');
+		$item['LINK_PARAM'] = (string)($item['LINK_PARAM'] ?? '');
+		$item['TITLE'] = (string)($item['TITLE'] ?? '');
+
 		if(isset($item["HTML"]) && $item["HTML"] <> "")
 		{
 			echo '<span class="adm-list-table-top-wrapper">'.$item['HTML'].'</span>';
 		}
 		elseif(!empty($item["MENU"]))
 		{
-
 			$sMenuUrl = "BX.adminShowMenu(this, ".htmlspecialcharsbx(CAdminPopup::PhpToJavaScript($item["MENU"])).
-				", {active_class: '".$this->GetActiveClassByID($item["ICON"])."', public_frame: '".($this->isPublicFrame ? 1 : 0)."'});";
-			$sClassName = $this->GetClassByID($item["ICON"]);
+				", {active_class: '".$this->GetActiveClassByID($icon)."', public_frame: '".($this->isPublicFrame ? 1 : 0)."'});";
+			$sClassName = $this->GetClassByID($icon);
 ?>
 	<a href="javascript:void(0)" hidefocus="true" onclick="this.blur();<?=$sMenuUrl?> return false;" class="adm-btn<?=$sClassName != '' ? ' '.$sClassName : ''?> adm-btn-menu" title="<?=($item["TITLE"] ?? '');?>"><?=$item["TEXT"]?></a>
 <?
 		}
 		else
 		{
-			$link = htmlspecialcharsbx($item["LINK"], ENT_COMPAT, false);
+			$link = htmlspecialcharsbx($item['LINK'], ENT_COMPAT, false);
 
-			if ($item['ICON'] == 'btn_list'/* || $item['ICON'] == 'btn_up'*/):
+
+
+
+
+			if ($icon == 'btn_list'/* || $icon == 'btn_up'*/):
 ?>
-	<a <?if ($this->isPublicFrame):?>target="_top"<?endif;?> href="<?=($item["ONCLICK"] <> ''? 'javascript:void(0)' : $link)?>" <?=$item["LINK_PARAM"]?> class="adm-detail-toolbar-btn" title="<?=$item["TITLE"].$hkInst->GetTitle($item["ICON"])?>"<?=($item["ONCLICK"] <> ''? ' onclick="'.htmlspecialcharsbx($item["ONCLICK"]).'"':'')?><?=(!empty($item["ICON"])? ' id="'.$item["ICON"].'"':'')?>><span class="adm-detail-toolbar-btn-l"></span><span class="adm-detail-toolbar-btn-text"><?=$item["TEXT"]?></span><span class="adm-detail-toolbar-btn-r"></span></a>
+	<a <?if ($this->isPublicFrame):?>target="_top"<?endif;?> href="<?=($onclick !== '' ? 'javascript:void(0)' : $link)?>" <?=$item["LINK_PARAM"]?> class="adm-detail-toolbar-btn" title="<?=$item["TITLE"].$hkInst->GetTitle($icon)?>"<?=($onclick !== '' ? ' onclick="'.htmlspecialcharsbx($onclick).'"':'')?><?=(!empty($item["ICON"])? ' id="'.$item["ICON"].'"':'')?>><span class="adm-detail-toolbar-btn-l"></span><span class="adm-detail-toolbar-btn-text"><?=$item["TEXT"]?></span><span class="adm-detail-toolbar-btn-r"></span></a>
 <?
 			else:
-				$sClassName = $this->GetClassByID($item["ICON"]);
+				$sClassName = $this->GetClassByID($icon);
 ?>
-	<a <?if ($this->isPublicFrame):?>target="_top"<?endif;?> href="<?=($item["ONCLICK"] <> ''? 'javascript:void(0)' : $link)?>" <?=$item["LINK_PARAM"]?> class="adm-btn<?=$sClassName != '' ? ' '.$sClassName : ''?>" title="<?=$item["TITLE"].$hkInst->GetTitle($item["ICON"])?>"<?=($item["ONCLICK"] <> ''? ' onclick="'.htmlspecialcharsbx($item["ONCLICK"]).'"' : '')?><?=(!empty($item["ICON"])? ' id="'.$item["ICON"].'"':'')?>><?=$item["TEXT"]?></a>
+	<a <?if ($this->isPublicFrame):?>target="_top"<?endif;?> href="<?=($onclick !== '' ? 'javascript:void(0)' : $link)?>" <?=$item["LINK_PARAM"]?> class="adm-btn<?=$sClassName != '' ? ' '.$sClassName : ''?>" title="<?=$item["TITLE"].$hkInst->GetTitle($icon)?>"<?=($onclick !== '' ? ' onclick="'.htmlspecialcharsbx($onclick).'"' : '')?><?=(!empty($item["ICON"])? ' id="'.$item["ICON"].'"':'')?>><?=$item["TEXT"]?></a>
 
 <?
 			endif;
 
-			$arExecs = $hkInst->GetCodeByClassName($item["ICON"]);
+			$arExecs = $hkInst->GetCodeByClassName($icon);
 			echo $hkInst->PrintJSExecs($arExecs, "", true, true);
 		}
 	}
@@ -2104,8 +2116,10 @@ class CAdminResult extends CDBResult
 		if (!isset($NavNum))
 			$NavNum = 0;
 
-		if(is_array($nPageSize))
-			$sNavID = $nPageSize["sNavID"];
+		if (is_array($nPageSize))
+		{
+			$sNavID = (string)($nPageSize["sNavID"] ?? '');
+		}
 
 		$application = Application::getInstance();
 
@@ -2134,12 +2148,23 @@ class CAdminResult extends CDBResult
 		else
 		{
 			$aOptions = array();
-			if($table_id)
+			if ($table_id)
+			{
 				$aOptions = CUserOptions::GetOption("list", $table_id);
-			if(intval($aOptions["page_size"]) > 0)
-				$nSize = intval($aOptions["page_size"]);
+			}
+			if (!is_array($aOptions))
+			{
+				$aOptions = [];
+			}
+			$optionSize = (int)($aOptions['page_size'] ?? 0);
+			if ($optionSize > 0)
+			{
+				$nSize = $optionSize;
+			}
 			else
+			{
 				$nSize = (is_array($nPageSize)? $nPageSize["nPageSize"]:$nPageSize);
+			}
 		}
 		return $nSize;
 	}
@@ -2199,17 +2224,17 @@ class CAdminMessage
 			\Bitrix\Main\UI\Extension::load("ui.alerts");
 		}
 
-		if($this->message["MESSAGE"])
+		if (isset($this->message["MESSAGE"]) && $this->message["MESSAGE"])
 			$title = '<div class="adm-info-message-title">'.$this->_formatHTML($this->message["MESSAGE"]).'</div>';
 		else
 			$title = '';
 
-		if($this->message["DETAILS"])
+		if(isset($this->message["DETAILS"]) && $this->message["DETAILS"])
 			$details = $this->_formatHTML($this->message["DETAILS"]);
 		else
 			$details = '';
 
-		if($this->message["TYPE"] == "OK")
+		if(isset($this->message["TYPE"]) && $this->message["TYPE"] == "OK")
 		{
 			$baseClass = "adm-info-message-wrap adm-info-message-green";
 			$messageClass = "adm-info-message";
@@ -2229,7 +2254,7 @@ class CAdminMessage
 			</div>
 			';
 		}
-		elseif($this->message["TYPE"] == "PROGRESS")
+		elseif(isset($this->message["TYPE"]) && $this->message["TYPE"] == "PROGRESS")
 		{
 			$baseClass = "adm-info-message-wrap adm-info-message-gray";
 			$messageClass = "adm-info-message";
@@ -2239,7 +2264,7 @@ class CAdminMessage
 				$messageClass = "ui-btn-message";
 			}
 
-			if ($this->message['PROGRESS_ICON'])
+			if (isset($this->message['PROGRESS_ICON']) && $this->message['PROGRESS_ICON'])
 				$title = '<div class="adm-info-message-icon-progress"></div>'.$title;
 
 			$details = str_replace("#PROGRESS_BAR#", $this->_getProgressHtml(), $details);
@@ -2280,7 +2305,7 @@ class CAdminMessage
 	{
 		$w = isset($this->message['PROGRESS_WIDTH']) ? intval($this->message['PROGRESS_WIDTH']) : 500;
 		$p = 0;
-		if ($this->message['PROGRESS_TOTAL'] > 0)
+		if (isset($this->message['PROGRESS_TOTAL']) && $this->message['PROGRESS_TOTAL'] > 0)
 			$p = $this->message['PROGRESS_VALUE']/$this->message['PROGRESS_TOTAL'];
 
 		if ($p < 0)
@@ -2289,7 +2314,7 @@ class CAdminMessage
 			$p = 1;
 
 		$innerText = number_format(100*$p, 0) .'%';
-		if ($this->message['PROGRESS_TEMPLATE'])
+		if (!empty($this->message['PROGRESS_TEMPLATE']))
 		{
 			$innerText = str_replace(
 				array('#PROGRESS_TOTAL#', '#PROGRESS_VALUE#', '#PROGRESS_PERCENT#'),
@@ -2316,7 +2341,7 @@ class CAdminMessage
 
 	public function _formatHTML($html)
 	{
-		if($this->message["HTML"])
+		if(isset($this->message["HTML"]) && $this->message["HTML"])
 			return $html;
 		else
 			return _ShowHtmlspec($html);
@@ -2586,7 +2611,7 @@ class CAdminUtil
 		else
 		{
 			$htmlName = $varName;
-			if (count($varStack) > 0)
+			if (!empty($varStack))
 			{
 				$htmlName = $varStack[0];
 				for ($i = 1, $intCount = count($varStack); $i < $intCount; $i++)

@@ -14,12 +14,12 @@ $menuBlockId = "catalog_menu_".$this->randString();
 	<ul id="ul_<?=$menuBlockId?>">
 	<?foreach($arResult["MENU_STRUCTURE"] as $itemID => $arColumns):?>     <!-- first level-->
 		<?$existPictureDescColomn = ($arResult["ALL_ITEMS"][$itemID]["PARAMS"]["picture_src"] || $arResult["ALL_ITEMS"][$itemID]["PARAMS"]["description"]) ? true : false;?>
-		<li onmouseover="BX.CatalogVertMenu.itemOver(this);" onmouseout="BX.CatalogVertMenu.itemOut(this)" class="bx_hma_one_lvl <?if($arResult["ALL_ITEMS"][$itemID]["SELECTED"]):?>current<?endif?><?if (is_array($arColumns) && count($arColumns) > 0):?> dropdown<?endif?>">
-			<a href="<?=$arResult["ALL_ITEMS"][$itemID]["LINK"]?>" <?if (is_array($arColumns) && count($arColumns) > 0 && $existPictureDescColomn):?>onmouseover="BX.CatalogVertMenu.changeSectionPicture(this);"<?endif?>>
+		<li onmouseover="BX.CatalogVertMenu.itemOver(this);" onmouseout="BX.CatalogVertMenu.itemOut(this)" class="bx_hma_one_lvl <?if($arResult["ALL_ITEMS"][$itemID]["SELECTED"]):?>current<?endif?><?if (is_array($arColumns) && !empty($arColumns)):?> dropdown<?endif?>">
+			<a href="<?=$arResult["ALL_ITEMS"][$itemID]["LINK"]?>" <?if (is_array($arColumns) && !empty($arColumns) && $existPictureDescColomn):?>onmouseover="BX.CatalogVertMenu.changeSectionPicture(this);"<?endif?>>
 				<?=$arResult["ALL_ITEMS"][$itemID]["TEXT"]?>
 				<span class="bx_shadow_fix"></span>
 			</a>
-		<?if (is_array($arColumns) && count($arColumns) > 0):?>
+		<?if (is_array($arColumns) && !empty($arColumns)):?>
 			<span style="display: none">
 				<?=$arResult["ALL_ITEMS"][$itemID]["PARAMS"]["description"]?>
 			</span>
@@ -41,7 +41,7 @@ $menuBlockId = "catalog_menu_".$this->randString();
 							<span class="bx_children_advanced_panel">
 								<img src="<?=$arResult["ALL_ITEMS"][$itemIdLevel_2]["PARAMS"]["picture_src"]?>" alt="">
 							</span>
-						<?if (is_array($arLevel_3) && count($arLevel_3) > 0):?>
+						<?if (is_array($arLevel_3) && !empty($arLevel_3)):?>
 							<ul>
 							<?foreach($arLevel_3 as $itemIdLevel_3):?>	<!-- third level-->
 								<li>

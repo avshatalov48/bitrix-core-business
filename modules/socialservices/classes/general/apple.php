@@ -348,8 +348,15 @@ class CAppleInterface extends CSocServOAuthTransport
 		}
 
 		//case for sign in from Bitrix24 application on iOS device
-		$request = \Bitrix\Main\Context::getCurrent()->getRequest()->toArray();
-		if ($request['service'] === self::SERVICE_ID && $request['platform'] === 'ios')
+		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+		$requestData = $request->toArray();
+		if (
+			$requestData['service'] === self::SERVICE_ID
+			&& (
+				$requestData['platform'] === 'ios'
+				|| (empty($requestData['platform']) && mb_strpos($request->getUserAgent(), 'Darwin') !== false)
+			)
+		)
 		{
 			$this->appID = self::BITRIX_APP_BUNDLE_ID;
 		}

@@ -1,0 +1,17 @@
+.bx-im-sidebar-detail__scope {
+	--im-sidebar-detail__height_header: 64px;
+	--im-sidebar-detail__height_tabs: 50px;
+}
+
+.bx-im-sidebar-detail__container {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	height: calc(100% - var(--im-sidebar-detail__height_header));
+	scrollbar-width: thin;
+}
+
+.bx-im-sidebar-detail__loader-container {
+	height: 55px;
+	flex-shrink: 0;
+}

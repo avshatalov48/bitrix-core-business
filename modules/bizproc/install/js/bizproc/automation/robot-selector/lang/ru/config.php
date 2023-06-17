@@ -2,12 +2,9 @@
 
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUPS_HEADER_TITLE'] = 'Группа';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUPS_HEADER_TITLE_HINT'] = 'В каждой группе есть свой набор роботов для определенных задач бизнеса';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE'] = 'Роботы';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_1'] = 'Роботы и триггеры';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_HINT'] = 'Роботы возьмут на себя рутинные задачи и помогут автоматизировать процесс работы с клиентами и сотрудниками';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_ITEMS_HEADER_TITLE_HINT_1'] = 'Роботы и триггеры возьмут на себя рутинные задачи и помогут автоматизировать процесс работы с клиентами и сотрудниками';
 
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE'] = 'Добавить робота';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE_1'] = 'Добавить';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_SUBTITLE'] = 'на стадию';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_FILTER_BITRIX_24_ROBOTS'] = 'Роботы в Битрикс24';
@@ -20,7 +17,6 @@ $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_CLIENT_COMMUNICATION'
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_INFORMING_EMPLOYEE'] = 'Информирование сотрудников';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_INFORMING_EMPLOYEE'] = 'Вовремя уведомим сотрудника или целый отдел о чём-то важном - пришлём указанный текст удобным способом';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_EMPLOYEE_CONTROL'] = 'Контроль сотрудников';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_EMPLOYEE_CONTROL'] = 'Дадим сигнал руководителю о том, что сделка не двигается, менеджер не перезванивает клиенту и не отвечает на его сообщения. Поставим задачу менеджеру от имени руководителя';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_EMPLOYEE_CONTROL_1'] = 'Дадим сигнал руководителю о том, что элемент не двигается, менеджер не перезванивает клиенту и не отвечает на его сообщения. Поставим задачу менеджеру от имени руководителя';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_PAPERWORK'] = 'Оформление документов';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK'] = 'Сформируем печатную форму по шаблону для быстрой отправки клиенту';
@@ -46,8 +42,6 @@ $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DIGITAL_WORKPLACE'] = 'Автом
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_DIGITAL_WORKPLACE'] = 'Создадим новые элементы в смарт-процессе и передадим нужные данные из элемента другим роботам';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_OTHER'] = 'Другие роботы';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_OTHER'] = 'Создадим купоны, забронируем услуги, запустим бизнес-процессы и другое';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_ELECTRONIC_COMMERCE'] = 'Электронная коммерция';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_PARTNER_ORDER'] = 'Заказать у партнера';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_EMPLOYEE_CATEGORY'] = 'Для сотрудника';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_CLIENT_CATEGORY'] = 'Для связи с клиентом';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_ADS_CATEGORY'] = 'Реклама';

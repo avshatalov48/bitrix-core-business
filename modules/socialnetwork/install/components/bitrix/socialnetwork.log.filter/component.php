@@ -100,7 +100,7 @@ $arResult["MODE"] = (isset($_REQUEST["SONET_FILTER_MODE"]) && $_REQUEST["SONET_F
 
 if ($arResult["MODE"] != "AJAX") // old filter
 {
-	if (intval($arParams["CREATED_BY_ID"]) > 0)
+	if (intval($arParams["CREATED_BY_ID"] ?? null) > 0)
 	{
 		\Bitrix\Main\FinderDestTable::merge(array(
 			"CONTEXT" => "FEED_FILTER_CREATED_BY",
@@ -174,7 +174,7 @@ if ($USER->IsAuthorized())
 		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'crm_activity_add', $value);
 		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'crm_activity_add_comment', $value);
 
-		if ($_GET['set_expert_mode'] === 'Y')
+		if (isset($_GET['set_expert_mode']) && $_GET['set_expert_mode'] === 'Y')
 		{
 			$_SESSION["SL_EXPERT_MODE_HINT"] = "Y";
 		}
@@ -183,7 +183,7 @@ if ($USER->IsAuthorized())
 
 	$arResult["FOLLOW_TYPE"] = CSocNetLogFollow::GetDefaultValue($USER->GetID());
 
-	if ($arParams["SHOW_EXPERT_MODE"] == 'Y')
+	if (($arParams["SHOW_EXPERT_MODE"] ?? null) == 'Y')
 	{
 		if (isset($arParams["EXPERT_MODE"]))
 		{
@@ -211,9 +211,12 @@ if ($USER->IsAuthorized())
 
 $arResult["flt_created_by_string"] = "";
 
-if ($_REQUEST["flt_created_by_string"] <> '')
+$requestFltCreatedById = $_REQUEST["flt_created_by_id"] ?? null;
+$requestFltCreatedByString = $_REQUEST["flt_created_by_string"] ?? '';
+
+if ($requestFltCreatedByString <> '')
 {
-	$arResult["flt_created_by_string"] = $_REQUEST["flt_created_by_string"];
+	$arResult["flt_created_by_string"] = $requestFltCreatedByString;
 }
 else
 {
@@ -230,13 +233,13 @@ else
 			$user_id_tmp = $matches[1];
 		}
 	}
-	elseif (is_array($_REQUEST["flt_created_by_id"]) && intval($_REQUEST["flt_created_by_id"][0]) > 0)
+	elseif (is_array($requestFltCreatedById) && intval($requestFltCreatedById[0]) > 0)
 	{
-		$user_id_tmp = $_REQUEST["flt_created_by_id"][0];
+		$user_id_tmp = $requestFltCreatedById[0];
 	}
-	elseif(intval($_REQUEST["flt_created_by_id"]) > 0)
+	elseif(intval($requestFltCreatedById) > 0)
 	{
-		$user_id_tmp = $_REQUEST["flt_created_by_id"];
+		$user_id_tmp = $requestFltCreatedById;
 	}
 
 	if (intval($user_id_tmp) > 0)
@@ -249,11 +252,17 @@ else
 	}
 }
 
-if (!is_array($arResult["PresetFiltersTop"]))
+if (
+	!isset($arResult["PresetFiltersTop"])
+	|| !is_array($arResult["PresetFiltersTop"])
+)
 {
 	$arResult["PresetFiltersTop"] = array();
 }
-if (!is_array($arResult["PresetFilters"]))
+if (
+	!isset($arResult["PresetFilters"])
+	|| !is_array($arResult["PresetFilters"])
+)
 {
 	$arResult["PresetFilters"] = array();
 }
@@ -324,7 +333,10 @@ foreach($arResult["PresetFilters"] as $presetFilter)
 }
 
 $preset_filter_top_id = '';
-if ($_REQUEST["preset_filter_top_id"] == "clearall")
+if (
+	isset($_REQUEST["preset_filter_top_id"])
+	&& $_REQUEST["preset_filter_top_id"] === "clearall"
+)
 {
 	$preset_filter_top_id = false;
 }
@@ -347,7 +359,10 @@ else
 }
 
 $preset_filter_id = '';
-if ($_REQUEST["preset_filter_id"] == "clearall")
+if (
+	isset($_REQUEST["preset_filter_id"])
+	&& $_REQUEST["preset_filter_id"] === "clearall"
+)
 {
 	$preset_filter_id = false;
 }

@@ -58,7 +58,7 @@ class CUserCounter extends CAllUserCounter
 			", true);
 		}
 
-		if (self::$counters && self::$counters[$user_id])
+		if (self::$counters && isset(self::$counters[$user_id]))
 		{
 			if ($site_id === self::ALL_SITES)
 			{
@@ -237,7 +237,7 @@ class CUserCounter extends CAllUserCounter
 			)
 			{
 				$strSQL = "
-					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT, TAG".(is_array($arParams) && isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
+					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT, TAG".(isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
 					ON DUPLICATE KEY UPDATE CNT = CNT + VALUES(CNT), SENT = VALUES(SENT), TAG = '".$DB->ForSQL($arParams["TAG_SET"])."'
 				";
 			}
@@ -247,7 +247,7 @@ class CUserCounter extends CAllUserCounter
 			)
 			{
 				$strSQL = "
-					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT".(is_array($arParams) && isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
+					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT".(isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
 					ON DUPLICATE KEY UPDATE CNT = CASE
 						WHEN
 							TAG = '".$DB->ForSQL($arParams["TAG_CHECK"])."'
@@ -288,7 +288,7 @@ class CUserCounter extends CAllUserCounter
 				)
 			)
 			{
-				self::$counters = false;
+				self::$counters = [];
 				$CACHE_MANAGER->CleanDir("user_counter");
 			}
 
@@ -540,7 +540,7 @@ class CUserCounter extends CAllUserCounter
 
 		$DB->Query("DELETE FROM b_user_counter WHERE CODE = '".$code."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		self::$counters = false;
+		self::$counters = [];
 		$CACHE_MANAGER->CleanDir("user_counter");
 
 		if ($bPullEnabled)

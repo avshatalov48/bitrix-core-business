@@ -18,44 +18,42 @@ class Rest extends Sender\Base
 {
 	public const ID = 'rest';
 
-	static $langFields;
-	static $countRestApps;
+	public static $langFields;
+	public static ?int $countRestApps = null;
 
-	public static function isSupported()
+	public static function isSupported(): bool
 	{
 		return ModuleManager::isModuleInstalled('rest');
 	}
 
-	public function getId()
+	public function getId(): string
 	{
 		return static::ID;
 	}
 
-	public function getName()
+	public function getName(): ?string
 	{
 		return Loc::getMessage('MESSAGESERVICE_SENDER_SMS_REST_NAME');
 	}
 
-	public function getShortName()
+	public function getShortName(): string
 	{
 		return 'REST';
 	}
 
-	public function canUse()
+	public function canUse(): bool
 	{
 		if (Loader::includeModule('rest') && \Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 		{
-			if (static::$countRestApps === null)
-			{
-				static::$countRestApps = RestAppTable::getCount();
-			}
+			static::$countRestApps ??= RestAppTable::getCount();
 
 			return static::$countRestApps > 0;
 		}
+
 		return false;
 	}
 
-	public function getFromList()
+	public function getFromList(): array
 	{
 		$list = [];
 		if (!$this->canUse())
@@ -78,7 +76,7 @@ class Rest extends Sender\Base
 		return $list;
 	}
 
-	public function isCorrectFrom($from)
+	public function isCorrectFrom($from): bool
 	{
 		[$appId, $code] = explode('|', $from);
 		$restSender = RestAppTable::getList(
@@ -94,7 +92,7 @@ class Rest extends Sender\Base
 		return $restSender !== false;
 	}
 
-	public function sendMessage(array $messageFields)
+	public function sendMessage(array $messageFields): Result\SendMessage
 	{
 		$sendResult = new Result\SendMessage();
 
@@ -216,7 +214,7 @@ class Rest extends Sender\Base
 		return $sendResult;
 	}
 
-	public static function resolveStatus($serviceStatus)
+	public static function resolveStatus($serviceStatus): int
 	{
 		$status = parent::resolveStatus($serviceStatus);
 
@@ -278,7 +276,8 @@ class Rest extends Sender\Base
 				static::$langFields[$row['APP_ID']]['DESCRIPTION'][$row['LANGUAGE_ID']] = $row['DESCRIPTION'];
 			}
 		}
-		return isset(static::$langFields[$appId]) ? static::$langFields[$appId] : null;
+
+		return static::$langFields[$appId] ?? null;
 	}
 
 	private function setExternalMessageId(int $internalId, string $externalId): void

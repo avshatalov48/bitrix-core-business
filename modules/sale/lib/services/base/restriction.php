@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Sale\Services\Base;
 
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Result;
 use Bitrix\Sale\Internals\Entity;
@@ -11,7 +13,8 @@ use Bitrix\Sale\Internals\ServiceRestrictionTable;
  * Base class for payment and delivery services restrictions.
  * @package Bitrix\Sale\Services
  */
-abstract class Restriction {
+abstract class Restriction
+{
 
 	/** @var int
 	 * 100 - lightweight - just compare with params
@@ -39,10 +42,24 @@ abstract class Restriction {
 	}
 
 	/**
+	 * Returns message that will be display if error occurs while applying restriction
+	 *
+	 * @return string
+	 */
+	public static function getOnApplyErrorMessage(): string
+	{
+		$class = new \ReflectionClass(static::class);
+
+		return Loc::getMessage('SALE_BASE_RESTRICTION_ON_APPLY_ERROR_MSG', [
+			'#RSTR_CLASSNAME#' => $class->getName(),
+		]) ?? '';
+	}
+
+	/**
 	 * Checking the service parameters for compliance with the restriction.
-	 * 
+	 *
 	 * To check of the constraint itself, use method self::validateRestriction
-	 * 
+	 *
 	 * @param mixed $params Params to check.
 	 * @param array $restrictionParams Restriction params.
 	 * @param int $serviceId Service identifier.
@@ -56,7 +73,7 @@ abstract class Restriction {
 
 	/**
 	 * Checking the service parameters for compliance with the restriction by entity.
-	 * 
+	 *
 	 * @param Entity $entity
 	 * @param array $restrictionParams
 	 * @param int $mode
@@ -75,10 +92,10 @@ abstract class Restriction {
 		$res = static::check($entityRestrictionParams, $restrictionParams, $serviceId);
 		return $res ? RestrictionManager::SEVERITY_NONE : $severity;
 	}
-	
+
 	/**
 	 * Checking the restriction for compliance with business rules.
-	 * 
+	 *
 	 * For example, for the restriction "currency" in this method,
 	 * you can compare which currencies the payment system works with which the restriction is linked.
 	 *
@@ -130,9 +147,13 @@ abstract class Restriction {
 		$fields["CLASS_NAME"] = '\\'.get_called_class();
 
 		if($restrictionId > 0)
+		{
 			$res = ServiceRestrictionTable::update($restrictionId, $fields);
+		}
 		else
+		{
 			$res = ServiceRestrictionTable::add($fields);
+		}
 
 		return $res;
 	}

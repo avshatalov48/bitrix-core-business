@@ -1,0 +1,185 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%"
+    preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 100%;" fill="none">
+
+    <svg height="100%">
+        <defs>
+            <g id="chat-block-1">
+                <path d="M4 7.99308C4 3.57481 7.58172 0 12 0H228C232.418 0 236 3.58172 236 8V52C236 56.4183 232.418 60 228 60H4C4 60 4 25.7436 4 7.99308Z" fill="white"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M17.4487 60H7.26555H1.4407C0.460983 60 -0.0244284 58.6168 0.665252 57.921C2.2421 56.3301 4.00871 53.9917 4.00871 51.5V48H17.4487V60Z" fill="white"/>
+            </g>
+
+            <g id="chat-block-2">
+                <path d="M232 7.99308C232 3.57481 228.418 0 224 0H8C3.58173 0 0 3.58172 0 8V52C0 56.4183 3.58173 60 8 60H232C232 60 232 25.7436 232 7.99308Z" fill="white"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M218.551 60H228.734H234.559C235.539 60 236.024 58.6168 235.335 57.921C233.758 56.3301 231.991 53.9917 231.991 51.5V48H218.551V60Z" fill="white"/> 
+            </g>
+        </defs>    
+
+        <rect width="78" height="100%" fill="#414a54"/>
+        <rect width="400" height="100%" rx="8" fill="white" x="68" />
+        <rect width="370" height="100%" fill="white" x="98" />
+
+        <g clip-path="url(#clip2_211_49577)">
+
+            <rect width="calc(100% - 468px)" height="100%" fill="#EAECF1" x="468" y="1" />
+            <rect width="calc(100% - 468px)" height="100%" fill="#EAECF1" x="468" y="1" />
+            
+            <g opacity="0.35" clip-path="url(#clip3_211_49577)">
+                <rect width="100%" height="calc(100% - 2px)" fill="white" x="468" y="1" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1623.41 -279.383V-337.677H1514.79C1551.83 -318.704 1588.06 -299.251 1623.41 -279.383ZM-54.6484 55.0181V1028.24H1623.41V909.449C1401.44 879.994 1150.08 811.015 892.704 702.223C478.918 527.313 139.324 287.419 -54.6484 55.0181Z"
+                    fill="url(#paint5_linear_211_49577)" />
+                <ellipse opacity="0.3" rx="882.012" ry="222.922"
+                    transform="matrix(-0.831804 -0.55507 0.434757 -0.900548 979.82 629.994)"
+                    fill="url(#paint7_linear_211_49577)" />
+                <ellipse opacity="0.5" rx="954.969" ry="373.018"
+                    transform="matrix(0.971784 -0.235874 0.167776 0.985825 1247.57 772.952)"
+                    fill="url(#paint9_linear_211_49577)" />
+
+                    <ellipse opacity="0.5" rx="954.969" ry="373.018"
+                    transform="matrix(0.971784 -0.235874 0.167776 0.985825 1247.57 772.952)"
+                    fill="url(#paint9_linear_211_49577)" />
+            </g>
+        </g>
+
+        <rect width="100%" height="64" fill="white" x="468"/>
+        <rect width="calc(100% - 493px)" height="46" rx="8" fill="white" x="481" y="100%"  transform="translate(0, -58)"/>
+        <rect x="468" y="1" width="1" height="100%" fill="#EDEEF0"/>
+        <use xlink:href="#chat-block-1" x="544" y="100%" transform="translate(0, -219)"></use>
+        <use xlink:href="#chat-block-2" x="100%" y="100%" transform="translate(-308, -154)"></use>
+    </svg>
+
+    <svg height="100%" id="animated-elements">
+        <defs>
+            <g id="navigation-item--animat">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M35.5 111C30.8056 111 27 114.806 27 119.5C27 124.194 30.8056 128 35.5 128C40.1944 128 44 124.194 44 119.5C44 114.806 40.1944 111 35.5 111ZM21.5 134C20.1193 134 19 135.119 19 136.5C19 137.881 20.1193 139 21.5 139H49.5C50.8807 139 52 137.881 52 136.5C52 135.119 50.8807 134 49.5 134H21.5Z"
+                fill="#606871" />
+            </g>
+
+            <g id="navigation-item-2--animat">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M35.5 173C30.8056 173 27 176.806 27 181.5C27 186.194 30.8056 190 35.5 190C40.1944 190 44 186.194 44 181.5C44 176.806 40.1944 173 35.5 173ZM24.5 196C23.1193 196 22 197.119 22 198.5C22 199.881 23.1193 201 24.5 201H46.5C47.8807 201 49 199.881 49 198.5C49 197.119 47.8807 196 46.5 196H24.5Z"
+                fill="#606871" />
+            </g>
+
+            <g id="navigation-item-3--animat">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M35.5 294C30.8056 294 27 297.806 27 302.5C27 307.194 30.8056 311 35.5 311C40.1944 311 44 307.194 44 302.5C44 297.806 40.1944 294 35.5 294ZM18.5 317C17.1193 317 16 318.119 16 319.5C16 320.881 17.1193 322 18.5 322H52.5C53.8807 322 55 320.881 55 319.5C55 318.119 53.8807 317 52.5 317H18.5Z"
+                fill="#606871" />
+            </g>
+
+            <g id="messenger-recent-item--animat">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M108 83.0098C121.255 83.0098 132 93.7549 132 107.01C132 120.265 121.255 131.01 108 131.01C94.7452 131.01 84 120.265 84 107.01C84 93.7549 94.7452 83.0098 108 83.0098Z"
+                fill="#DFE0E3" />
+
+                <rect width="376" height="1" x="80" y="142" fill="#f2f2f3"/>
+                <rect x="144" y="87.0098" width="241" height="7" rx="3.5" fill="#DFE0E3" />
+                <rect x="144" y="106.01" width="189" height="7" rx="3.5" fill="#DFE0E3" />
+                <rect x="144" y="122.01" width="189" height="7" rx="3.5" fill="#DFE0E3" />
+            </g>
+
+            <g id="messenger-recent-item-2--animat">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M108 83.0098C121.255 83.0098 132 93.7549 132 107.01C132 120.265 121.255 131.01 108 131.01C94.7452 131.01 84 120.265 84 107.01C84 93.7549 94.7452 83.0098 108 83.0098Z"
+                fill="#DFE0E3" />
+                <rect width="376" height="1" x="80" y="142" fill="#f2f2f3"/>
+                <rect x="144" y="87.0098" width="241" height="7" rx="3.5" fill="#DFE0E3" />
+                <rect x="144" y="106.01" width="189" height="7" rx="3.5" fill="#DFE0E3" />
+            </g>
+        </defs>
+
+        <rect x="19" y="19" width="32" height="8" rx="4" fill="#606871" />
+        <rect x="19" y="51" width="32" height="32" rx="16" fill="#606871" />
+
+        <use xlink:href="#navigation-item--animat"></use>
+        <use xlink:href="#navigation-item-2--animat"></use>
+        <use xlink:href="#navigation-item--animat" y="122px"></use>
+        <use xlink:href="#navigation-item-3--animat"></use>
+        <use xlink:href="#navigation-item--animat" y="244px"></use>
+        <use xlink:href="#navigation-item-2--animat" y="243px"></use>
+        <use xlink:href="#navigation-item--animat" y="366px"></use>
+
+        <rect x="81" y="19" width="30" height="30" rx="15" fill="#DFE0E3" />
+        <rect x="131" y="17" width="266" height="34" rx="17" fill="#DFE0E3"/>
+        <rect x="411" y="17" width="44" height="34" rx="17" fill="#DFE0E3"/>
+
+        <use xlink:href="#messenger-recent-item--animat"></use>
+        <use xlink:href="#messenger-recent-item--animat" y="70"></use>
+        <use xlink:href="#messenger-recent-item-2--animat" y="140"></use>
+        <use xlink:href="#messenger-recent-item--animat" y="210"></use>
+        <use xlink:href="#messenger-recent-item-2--animat" y="280"></use>
+        <use xlink:href="#messenger-recent-item--animat" y="350"></use>
+        <use xlink:href="#messenger-recent-item--animat" y="420"></use>
+
+        <rect x="535" y="21" width="166" height="7" rx="3.5" fill="#DFE0E3" />
+        <rect x="535" y="40" width="150" height="7" rx="3.5" fill="#DFE0E3" />
+        <circle cx="504" cy="33" r="21" fill="#DFE0E3"/>
+
+        <rect x="100%" y="20" width="119" height="26" rx="13" fill="#DFE0E3" transform="translate(-249)" />
+        <circle cx="100%" cy="33" r="11" fill="#DFE0E3" transform="translate(-101)" />
+        <circle cx="100%" cy="33" r="11" fill="#DFE0E3" transform="translate(-66)" />
+        <circle cx="100%" cy="33" r="11" fill="#DFE0E3" transform="translate(-31)" />
+
+        <circle cx="512" cy="100%" r="24" fill="#D5D7DB" transform="translate(0, -183)"/>
+        <rect x="559" y="100%" width="166" height="7" rx="3.5" fill="#DFE0E3" transform="translate(0, -204)" />
+        <rect x="559" y="100%" width="150" height="7" rx="3.5" fill="#DFE0E3" transform="translate(0, -187)"/>
+        <circle cx="100%" cy="100%" r="24" fill="#D5D7DB" transform="translate(-40, -118)"/>
+        <rect x="100%" y="100%" width="181" height="7" rx="3.5" fill="#DFE0E3" transform="translate(-296, -139)" />
+        <rect x="100%" y="100%" width="108" height="7" rx="3.5" fill="#DFE0E3" transform="translate(-296, -122)"/>
+        <circle cx="501" cy="100%" r="11" fill="#DFE0E3" transform="translate(0, -35)" />
+        <rect x="522" y="100%" width="106" height="7" rx="3.5" fill="#DFE0E3" transform="translate(0, -39)" />
+    </svg>
+
+    <defs>
+        <linearGradient id="paint5_linear_211_49577" x1="784.379" y1="-337.677" x2="784.379" y2="1028.24"
+            gradientUnits="userSpaceOnUse">
+            <stop stop-color="#8593AE" />
+            <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+
+        <linearGradient id="paint7_linear_211_49577" x1="882.012" y1="0" x2="882.012" y2="445.844"
+            gradientUnits="userSpaceOnUse">
+            <stop stop-color="#DADDE2" />
+            <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="paint9_linear_211_49577" x1="954.969" y1="0" x2="954.969" y2="746.037"
+            gradientUnits="userSpaceOnUse">
+            <stop stop-color="#DADDE2" />
+            <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+       
+        <clipPath id="clip2_211_49577">
+            <rect x="468" y="1" width="100%" height="100%" rx="10" fill="white" />
+        </clipPath>
+    </defs>
+
+    <defs>
+        <filter id="filter0_i_3005_70593" x="44" y="433" width="90%" height="1" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"/>
+            <feOffset dy="-1"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_3005_70593"/>
+        </filter>
+    </defs>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#animated-elements"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

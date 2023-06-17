@@ -1,7 +1,9 @@
 import {Type, Loc} from 'main.core';
 import {BuilderModel} from 'ui.vue3.vuex';
+
+import {Core} from 'im.v2.application.core';
 import {Utils} from 'im.v2.lib.utils';
-import {UserStatus, BotType} from 'im.v2.const';
+import {UserStatus, BotType, Color} from 'im.v2.const';
 
 export class UsersModel extends BuilderModel
 {
@@ -30,6 +32,8 @@ export class UsersModel extends BuilderModel
 			name: '',
 			firstName: '',
 			lastName: '',
+			avatar: '',
+			color: Color.base,
 			workPosition: '',
 			gender: 'M',
 			extranet: false,
@@ -125,6 +129,17 @@ export class UsersModel extends BuilderModel
 
 				return user.isBirthday;
 			},
+			hasVacation: state => userId => {
+				userId = Number.parseInt(userId, 10);
+
+				const user = state.collection[userId];
+				if (userId <= 0 || !user)
+				{
+					return false;
+				}
+
+				return user.isAbsent;
+			},
 			getStatus: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -171,7 +186,7 @@ export class UsersModel extends BuilderModel
 				const user = state.collection[userId];
 				if (userId <= 0 || !user)
 				{
-					return false;
+					return '';
 				}
 
 				if (user.workPosition)
@@ -274,6 +289,13 @@ export class UsersModel extends BuilderModel
 			setBotList: (store, payload) =>
 			{
 				store.commit('setBotList', payload);
+			},
+			setStatus: (store, payload: {status: string}) =>
+			{
+				store.commit('update', {
+					id: Core.getUserId(),
+					fields: this.validate(payload)
+				});
 			}
 		};
 	}
@@ -387,6 +409,16 @@ export class UsersModel extends BuilderModel
 			result.name = fields.name;
 		}
 
+		if (Type.isStringFilled(fields.color))
+		{
+			result.color = fields.color;
+		}
+
+		if (Type.isStringFilled(fields.avatar))
+		{
+			result.avatar = this.prepareAvatar(fields.avatar);
+		}
+
 		if (Type.isStringFilled(fields.work_position))
 		{
 			fields.workPosition = fields.work_position;
@@ -482,6 +514,31 @@ export class UsersModel extends BuilderModel
 		if (Type.isPlainObject(fields.phones))
 		{
 			result.phones = this.preparePhones(fields.phones);
+		}
+
+		return result;
+	}
+
+	prepareAvatar(avatar: string): string
+	{
+		let result = '';
+
+		if (!avatar || avatar.endsWith('/js/im/images/blank.gif'))
+		{
+			result = '';
+		}
+		else if (avatar.startsWith('http'))
+		{
+			result = avatar;
+		}
+		else
+		{
+			result = Core.getHost() + avatar;
+		}
+
+		if (result)
+		{
+			result = encodeURI(result);
 		}
 
 		return result;

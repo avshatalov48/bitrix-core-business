@@ -1,13 +1,31 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if(!Loader::includeModule("iblock"))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), $iblockFilter);
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];

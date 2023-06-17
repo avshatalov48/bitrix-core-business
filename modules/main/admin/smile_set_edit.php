@@ -1,4 +1,11 @@
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 IncludeModuleLangFile(__FILE__);
 
@@ -10,9 +17,10 @@ if (!isset($_REQUEST['GALLERY_ID']))
 	LocalRedirect("smile_gallery.php?lang=".LANG);
 }
 
-$ID = intval($_REQUEST["ID"]);
-$parentId = intval($_REQUEST['GALLERY_ID']);
+$ID = intval($_REQUEST["ID"] ?? 0);
+$parentId = intval($_REQUEST['GALLERY_ID'] ?? 0);
 $arError = $arSmileSet = $arFields = $arLang = array();
+$message = null;
 
 /* LANGS */
 $arLangTitle = array("reference_id" => array(), "reference" => array());
@@ -28,7 +36,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($_SERVER["REQUEST_METHOD"] == "POST" && ($save <> '' || $apply <> ''))
+if ($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -82,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($save <> '' || $apply <> ''))
 			LocalRedirect(
 				isset($_REQUEST['IMPORT'])?
 				"smile_import.php?lang=".LANG."&SET_ID=".$ID :
-				($save <> '' ?
+				(!empty($_POST['save']) ?
 					"smile_set.php?GALLERY_ID=".$parentId."&lang=".LANG."&".GetFilterParams("filter_", false) :
 					"smile_set_edit.php?GALLERY_ID=".$parentId."&lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false)));
 		}
@@ -101,15 +109,15 @@ if ($bInitVars && !empty($arFields))
 	$arSmileSet = array(
 		"SORT" => isset($arFields['SORT'])? intval($arFields['SORT']): 300,
 		"STRING_ID" => isset($arFields['STRING_ID'])? htmlspecialcharsbx($arFields['STRING_ID']): "",
-		"NAME" => isset($arFields['NAME'])? $arFields['NAME']: array(),
-		"PARENT_ID" => isset($arFields['GALLERY_ID'])? $arFields['GALLERY_ID']: 0
+		"NAME" => $arFields['NAME'] ?? array(),
+		"PARENT_ID" => $arFields['GALLERY_ID'] ?? 0
 	);
 }
 elseif ($ID > 0)
 {
 	$arSmileSet = CSmileSet::getById($ID, CSmileSet::GET_ALL_LANGUAGE);
 }
-else 
+else
 {
 	if (isset($_REQUEST['NAME']))
 		foreach ($_REQUEST['NAME'] as $key => $value)
@@ -118,7 +126,7 @@ else
 	$arSmileSet = array(
 		"SORT" => isset($_REQUEST['SORT'])? intval($_REQUEST['SORT']): 300,
 		"STRING_ID" => isset($_REQUEST['STRING_ID'])? htmlspecialcharsbx($_REQUEST['STRING_ID']): "",
-		"NAME" => isset($_REQUEST['NAME'])? $_REQUEST['NAME']: array(),
+		"NAME" => $_REQUEST['NAME'] ?? array(),
 		"PARENT_ID" => isset($_REQUEST['GALLERY_ID'])? $parentId : 0
 	);
 }
@@ -206,7 +214,7 @@ $tabControl->BeginNextTab();
 			'ORDER' => array($by => $order),
 			'NAV_PARAMS' => array("nTopCount"=>5),
 		));
-		if (count($arSmiles) > 0):?>
+		if (!empty($arSmiles)):?>
 		<tr>
 			<td><?=GetMessage("SMILE_SMILE_EXAMPLE")?>:</td>
 			<td>
@@ -236,4 +244,4 @@ $tabControl->Buttons(array(
 $tabControl->End();
 $tabControl->ShowWarnings("smile_set_edit", $message);
 ?>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

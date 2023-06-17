@@ -67,35 +67,34 @@ class OrderFinanceInfo
 		if ($order->getUserId() > 0)
 		{
 			$res = \CSaleUserAccount::getList(
-				array(),
-				array(
+				[],
+				[
 					'USER_ID' => $order->getUserId(),
 					'CURRENCY' => $order->getCurrency(),
 					'LOCKED' => 'N'
-				),
+				],
 				false,
 				false,
-				array(
-					'CURRENT_BUDGET'
-				)
+				[
+					'CURRENT_BUDGET',
+				]
 			);
 			$userAccount = $res->Fetch();
-			$currencyBudget = $userAccount['CURRENT_BUDGET'];
+			$currencyBudget = (float)($userAccount['CURRENT_BUDGET'] ?? 0);
 		}
-		
+
 		$payable = $order->getPrice() - $order->getSumPaid();
 		$price = $order->getPrice();
 		$sumPaid = $order->getSumPaid();
-		$data = array(
+
+		return [
 			'PRICE' => ($price) ? $price : 0,
 			'SUM_PAID' => ($sumPaid) ? $sumPaid : 0,
 			'PAYABLE' => ($payable >= 0) ? $payable : 0,
 			'CURRENCY' => $order->getCurrency(),
 			'BUYER_BUDGET' => $currencyBudget,
 			'STATUS_ID' => $order->getField('STATUS_ID')
-		);
-
-		return $data;
+		];
 	}
 
 	public static function getScripts()

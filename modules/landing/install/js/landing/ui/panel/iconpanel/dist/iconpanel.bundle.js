@@ -46,7 +46,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      textOnly: true,
 	      onInput: _this.search
 	    });
-	    main_core.Dom.append(_this.layout, document.body);
+	    main_core.Dom.append(_this.layout, window.parent.document.body);
 
 	    _this.initDictionary();
 

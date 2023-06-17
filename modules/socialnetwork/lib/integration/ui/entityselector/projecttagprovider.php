@@ -66,12 +66,12 @@ class ProjectTagProvider extends BaseProvider
 		$query = WorkgroupTagTable::query();
 		$query->setSelect(['NAME', 'GROUP_ID']);
 
-		if ($options['selected'] && $options['groupId'])
+		if (($options['selected'] ?? null) && $options['groupId'])
 		{
 			$query->where('GROUP_ID', $options['groupId']);
 		}
 
-		if (!empty($options['searchQuery']) && is_string($options['searchQuery']))
+		if (!empty($options['searchQuery'] ?? null) && is_string($options['searchQuery']))
 		{
 			$query
 				->setDistinct(true)

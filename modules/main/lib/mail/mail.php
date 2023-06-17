@@ -80,7 +80,7 @@ class Mail
 			$this->trackReadLink = Tracking::getLinkRead(
 				$mailParams['TRACK_READ']['MODULE_ID'],
 				$mailParams['TRACK_READ']['FIELDS'],
-				isset($mailParams['TRACK_READ']['URL_PAGE']) ? $mailParams['TRACK_READ']['URL_PAGE'] : null
+				$mailParams['TRACK_READ']['URL_PAGE'] ?? null
 			);
 		}
 		if(array_key_exists('TRACK_CLICK', $mailParams) && !empty($mailParams['TRACK_CLICK']))
@@ -88,7 +88,7 @@ class Mail
 			$this->trackClickLink = Tracking::getLinkClick(
 				$mailParams['TRACK_CLICK']['MODULE_ID'],
 				$mailParams['TRACK_CLICK']['FIELDS'],
-				isset($mailParams['TRACK_CLICK']['URL_PAGE']) ? $mailParams['TRACK_CLICK']['URL_PAGE'] : null
+				$mailParams['TRACK_CLICK']['URL_PAGE'] ?? null
 			);
 			if(!empty($mailParams['TRACK_CLICK']['URL_PARAMS']))
 			{
@@ -103,10 +103,10 @@ class Mail
 
 		$this->charset = $mailParams['CHARSET'];
 		$this->contentType = $mailParams['CONTENT_TYPE'];
-		$this->messageId = $mailParams['MESSAGE_ID'];
+		$this->messageId = $mailParams['MESSAGE_ID'] ?? null;
 		$this->eol = $this->getMailEol();
 
-		$this->attachment = (isset($mailParams['ATTACHMENT']) ? $mailParams['ATTACHMENT'] : array());
+		$this->attachment = ($mailParams['ATTACHMENT'] ?? array());
 		if (isset($mailParams['USE_BLACKLIST']))
 		{
 			$this->useBlacklist = (bool) $mailParams['USE_BLACKLIST'];
@@ -438,7 +438,7 @@ class Mail
 		}
 
 		$summarySize = 0;
-		if(count($files)>0)
+		if(!empty($files))
 		{
 			foreach($files as $attachment)
 			{
@@ -451,9 +451,7 @@ class Mail
 				{
 					try
 					{
-						$fileContent = isset($attachment["CONTENT"])
-							? $attachment["CONTENT"]
-							: File::getFileContents($attachment["PATH"]);
+						$fileContent = $attachment["CONTENT"] ?? File::getFileContents($attachment["PATH"]);
 					}
 					catch (\Exception $exception)
 					{
@@ -482,7 +480,7 @@ class Mail
 						'This is not the original file. The size of the original file `%name%` exceeded the limit of %limit% MB.'
 					);
 				}
-				
+
 				if(isset($attachment['METHOD']))
 				{
 					$name = $this->encodeSubject($attachment["NAME"], $attachment['CHARSET']);
@@ -613,17 +611,21 @@ class Mail
 
 		$this->filterHeaderEmails($headers);
 
-		if($headers["Reply-To"] == '' && $headers["From"] <> '')
+		if(
+			(!isset($headers["Reply-To"]) || $headers["Reply-To"] == '')
+			&& isset($headers["From"])
+			&& $headers["From"] <> ''
+		)
 		{
 			$headers["Reply-To"] = preg_replace("/(.*)\\<(.*)\\>/i", '$2', $headers["From"]);
 		}
 
-		if($headers["X-Priority"] == '')
+		if (!isset($headers["X-Priority"]) || $headers["X-Priority"] == '')
 		{
 			$headers["X-Priority"] = '3 (Normal)';
 		}
 
-		if($headers["Date"] == '')
+		if(!isset($headers["Date"]) || $headers["Date"] == '')
 		{
 			$headers["Date"] = date("r");
 		}
@@ -650,17 +652,17 @@ class Mail
 
 		if($this->settingServerMsSmtp)
 		{
-			if($headers["From"] != '')
+			if(isset($headers["From"]) && $headers["From"] != '')
 			{
 				$headers["From"] = preg_replace("/(.*)\\<(.*)\\>/i", '$2', $headers["From"]);
 			}
 
-			if($headers["To"] != '')
+			if(isset($headers["To"]) && $headers["To"] != '')
 			{
 				$headers["To"] = preg_replace("/(.*)\\<(.*)\\>/i", '$2', $headers["To"]);
 			}
 
-			if($headers["Reply-To"] != '')
+			if(isset($headers["Reply-To"]) && $headers["Reply-To"] != '')
 			{
 				$headers["Reply-To"] = preg_replace("/(.*)\\<(.*)\\>/i", '$2', $headers["Reply-To"]);
 			}
@@ -977,7 +979,7 @@ class Mail
 		else if(mb_substr($srcTrimmed, 0, 1) == "/")
 		{
 			$srcModified = false;
-			if(count($this->attachment)>0)
+			if(!empty($this->attachment))
 			{
 				$io = \CBXVirtualIo::GetInstance();
 				$filePath = $io->GetPhysicalName(Application::getDocumentRoot().$srcTrimmed);
@@ -1131,7 +1133,7 @@ class Mail
 					$hrefAddParam .= '&'.htmlspecialcharsbx($k).'='.htmlspecialcharsbx($v);
 
 				$parsedHref = explode("#", $href);
-				$parsedHref[0] .= (mb_strpos($parsedHref[0], '?') === false? '?' : '&').mb_substr($hrefAddParam, 1);
+				$parsedHref[0] .= (strpos($parsedHref[0], '?') === false? '?' : '&').mb_substr($hrefAddParam, 1);
 				$href = implode("#", $parsedHref);
 			}
 

@@ -1,6 +1,6 @@
 import {EventEmitter} from 'main.core.events';
-import {ChatTypes, EventType, AvatarSize} from 'im.v2.const';
-import {Avatar, ChatTitle} from 'im.v2.component.old-chat-embedding.elements';
+import {DialogType, EventType} from 'im.v2.const';
+import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.old-chat-embedding.elements';
 
 import '../css/search.css';
 
@@ -38,7 +38,7 @@ export const SearchResultItem = {
 		},
 		isUser()
 		{
-			return this.dialog.type === ChatTypes.user;
+			return this.dialog.type === DialogType.user;
 		},
 		userItemText()
 		{
@@ -62,7 +62,7 @@ export const SearchResultItem = {
 				return '';
 			}
 
-			if (this.dialog.type === ChatTypes.open)
+			if (this.dialog.type === DialogType.open)
 			{
 				return this.$Bitrix.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_OPEN');
 			}

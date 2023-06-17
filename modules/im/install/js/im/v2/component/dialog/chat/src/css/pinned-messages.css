@@ -1,0 +1,49 @@
+.bx-im-dialog-chat__pinned_container {
+	background-color: var(--im-dialog-chat__background-color_pinned);
+	cursor: pointer;
+	border-top: 1px solid var(--im-dialog-chat__background-color_pinned-separator);
+	padding: 10px 15px;
+
+	position: relative;
+}
+
+.bx-im-dialog-chat__pinned_unpin {
+	position: absolute;
+	right: 12px;
+	top: 16px;
+	width: 20px;
+	height: 20px;
+	background-image: url('./images/unpin.svg');
+	opacity: 0.35;
+	cursor: pointer;
+}
+
+.bx-im-dialog-chat__pinned_unpin:hover {
+	opacity: 0.7;
+}
+
+.bx-im-dialog-chat__pinned_title {
+	font: var(--im-font-size-sm) var(--im-font-family-system);
+	color: var(--im-dialog-chat__font-color_pinned-title);
+	font-weight: var(--im-font-weight-semi-bold);
+	margin-bottom: 2px;
+}
+
+.bx-im-dialog-chat__pinned_item {
+	max-width: 95%;
+	font: var(--im-font-size-sm) var(--im-font-family-system);
+	color: var(--im-dialog-chat__font-color_pinned-text);
+
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-dialog-chat__pinned_item + .bx-im-dialog-chat__pinned_item {
+	margin-top: 5px;
+}
+
+.bx-im-dialog-chat__pinned_item_user {
+	color: var(--im-dialog-chat__font-color_pinned-author);
+	font-weight: var(--im-font-weight-medium);
+}

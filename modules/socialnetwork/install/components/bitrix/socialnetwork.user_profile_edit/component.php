@@ -176,7 +176,7 @@ else
 		{
 			$arGroupsCanEditID = CSocNetTools::GetSubordinateGroups();
 			if (
-				is_array($arGroupsCanEditID) 
+				is_array($arGroupsCanEditID)
 				&& count($arGroupsCanEditID) > 0
 			)
 			{
@@ -184,7 +184,7 @@ else
 					"c_sort",
 					"asc",
 					array(
-						"ID" => implode(" | ", $arGroupsCanEditID), 
+						"ID" => implode(" | ", $arGroupsCanEditID),
 						"ACTIVE" => "Y"
 					)
 				);
@@ -201,7 +201,7 @@ else
 			if ($value == 'GROUP_ID' || $value == 'ACTIVE')
 				unset($arParams['EDITABLE_FIELDS'][$key]);
 	}
-	
+
 	if ($arParams['IS_FORUM'] == 'Y')
 	{
 		$arForumUser = CForumUser::GetByUSER_ID($arParams["ID"]);
@@ -303,7 +303,7 @@ else
 			$picturesToDelete[] = $_POST['WORK_LOGO_ID'];
 		}
 		elseif ( // usual template
-			$_FILES["WORK_LOGO"]["name"] <> '' 
+			$_FILES["WORK_LOGO"]["name"] <> ''
 			|| isset($_POST["WORK_LOGO_del"])
 		)
 		{
@@ -372,7 +372,7 @@ else
 			{
 				$removeAdminRights = true;
 			}
-			
+
 			$curUserGroups = CUser::GetUserGroup($arResult["User"]['ID']);
 			foreach ($curUserGroups as $groupKey => $group)
 			{
@@ -381,7 +381,7 @@ else
 					unset($curUserGroups[$groupKey]);
 				}
 			}
-			if ($_POST["IS_ADMIN"] == "Y")
+			if (isset($_POST["IS_ADMIN"]) && $_POST["IS_ADMIN"] == "Y")
 			{
 				$curUserGroups[] = "1";
 				$curUserGroups[] = "12";
@@ -523,7 +523,7 @@ else
 		}
 
 		if($strErrorMessage == '')
-			if ($_REQUEST['backurl'])
+			if (!empty($_REQUEST['backurl']))
 			{
 				LocalRedirect($_REQUEST['backurl']);
 			}
@@ -537,13 +537,13 @@ else
 			$bVarsFromForm = true;
 		}
 	}
-	
+
 	if($arResult['bEdit'] == 'Y' && $_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["submit_fire"] <> '' || $_POST["submit_recover"] <> '') && check_bitrix_sessid())
 	{
-		if ($CurrentUserPerms["Operations"]["modifyuser_main"] && $SONET_USER_ID != $USER->GetID())		
+		if ($CurrentUserPerms["Operations"]["modifyuser_main"] && $SONET_USER_ID != $USER->GetID())
 		{
-			$arFields = array("ACTIVE" => $_POST["submit_fire"] <> '' ? "N" : "Y");		
-			$res = $USER->Update($SONET_USER_ID, $arFields);	
+			$arFields = array("ACTIVE" => $_POST["submit_fire"] <> '' ? "N" : "Y");
+			$res = $USER->Update($SONET_USER_ID, $arFields);
 			$arResult["User"]["ACTIVE"] = $_POST["submit_fire"] <> '' ? "N" : "Y";
 		}
 	}

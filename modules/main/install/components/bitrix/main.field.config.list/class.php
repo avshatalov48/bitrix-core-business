@@ -40,7 +40,11 @@ class MainUfListComponent extends ConfigComponent
 
 	public function executeComponent()
 	{
-		$this->setTitle($this->arParams['title'] ?: Loc::getMessage('MAIN_FIELD_CONFIG_LIST_DETAIL_TITLE'));
+		$this->setTitle(
+		!empty($this->arParams['title'])
+				? $this->arParams['title']
+				: Loc::getMessage('MAIN_FIELD_CONFIG_LIST_DETAIL_TITLE')
+		);
 
 		$this->init();
 		if(!$this->errorCollection->isEmpty())
@@ -78,7 +82,10 @@ class MainUfListComponent extends ConfigComponent
 			'offset' => $this->getPageNavigation()->getOffset(),
 			'limit' => $this->getPageNavigation()->getLimit(),
 			'runtime' => [
-				UserFieldTable::getLabelsReference('', $this->arParams['language'] ?: Loc::getCurrentLang()),
+				UserFieldTable::getLabelsReference(
+					'',
+					!empty($this->arParams['language']) ? $this->arParams['language'] : Loc::getCurrentLang()
+				),
 			],
 		])->fetchAll();
 		$this->getPageNavigation()->setRecordCount(UserFieldTable::getCount($filter));
@@ -92,7 +99,7 @@ class MainUfListComponent extends ConfigComponent
 	{
 		if(!$this->gridId)
 		{
-			$this->gridId = $this->arParams['gridId'] ?: 'main-user-field-config-list';
+			$this->gridId = !empty($this->arParams['gridId']) ? $this->arParams['gridId'] : 'main-user-field-config-list';
 		}
 
 		return $this->gridId;
@@ -129,7 +136,7 @@ class MainUfListComponent extends ConfigComponent
 			'GRID_ID' => $this->getGridId(),
 		];
 
-		if(count($fields) > 0)
+		if(!empty($fields))
 		{
 			foreach($fields as $field)
 			{

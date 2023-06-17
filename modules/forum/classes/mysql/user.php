@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/user.php");
 
 class CForumUser extends CAllForumUser
@@ -11,9 +11,12 @@ class CForumUser extends CAllForumUser
 		$strSqlSearch = "";
 		$strSqlOrder = "";
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
-		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
-		if (is_set($arAddParams, "nameTemplate"))
+		$arAddParams = is_array($arAddParams) ? $arAddParams : [];
+		if (isset($arAddParams["nameTemplate"]))
+		{
 			$arAddParams["sNameTemplate"] = $arAddParams["nameTemplate"];
+			unset($arAddParams["nameTemplate"]);
+		}
 
 		if (isset($arFilter['PERSONAL_BIRTHDAY_DATE']))
 		{
@@ -220,9 +223,9 @@ class CForumUser extends CAllForumUser
 				" WHERE 1 = 1 ".$strSqlSearch." \n".
 				$strSqlOrder;
 
-		if (is_array($arAddParams) && (intval($arAddParams["nTopCount"])>0))
-			$strSql .= " LIMIT 0,".intval($arAddParams["nTopCount"]);
-		if (is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0))
+		if (!empty($arAddParams["nTopCount"]))
+			$strSql .= " LIMIT 0," . intval($arAddParams["nTopCount"]);
+		if (isset($arAddParams["bDescPageNumbering"]) && empty($arAddParams["nTopCount"]))
 		{
 			$iCnt = 0;
 			$strSqlCount =

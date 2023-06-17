@@ -1,45 +1,63 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $arIBlock=array(
 	"-" => GetMessage("IBLOCK_ANY"),
 );
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(["SORT" => "ASC"], $iblockFilter);
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 }
 
-$arComponentParameters = array(
-	"GROUPS" => array(
-	),
-	"PARAMETERS" => array(
-		"IBLOCK_TYPE" => array(
+$arComponentParameters = [
+	"GROUPS" => [
+	],
+	"PARAMETERS" => [
+		"IBLOCK_TYPE" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("IBLOCK_TYPE"),
 			"TYPE" => "LIST",
 			"VALUES" => $arIBlockType,
 			"REFRESH" => "Y",
-		),
-		"IBLOCKS" => array(
+		],
+		"IBLOCKS" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("IBLOCK_IBLOCK"),
 			"TYPE" => "LIST",
 			"VALUES" => $arIBlock,
 			"MULTIPLE"=>"Y",
 			"REFRESH" => "Y",
-		),
-		"PARENT_SECTION" => array(
+		],
+		"PARENT_SECTION" => [
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_ID"),
 			"TYPE" => "STRING",
 			"DEFAULT" => '',
-		),
+		],
 		"DETAIL_URL" => CIBlockParameters::GetPathTemplateParam(
 			"DETAIL",
 			"DETAIL_URL",
@@ -47,13 +65,12 @@ $arComponentParameters = array(
 			"",
 			"URL_TEMPLATES"
 		),
-		"CACHE_TIME"  =>  Array("DEFAULT"=>180),
-		"CACHE_GROUPS" => array(
+		"CACHE_TIME"  =>  ["DEFAULT"=>180],
+		"CACHE_GROUPS" => [
 			"PARENT" => "CACHE_SETTINGS",
 			"NAME" => GetMessage("CP_BPR_CACHE_GROUPS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
-		),
-	),
-);
-?>
+		],
+	],
+];

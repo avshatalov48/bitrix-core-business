@@ -1,0 +1,155 @@
+.ui-ears-wrapper {
+	display: inline-flex;
+	overflow: hidden;
+	position: relative;
+	max-height: 100%;
+	max-width: 100%;
+}
+
+.ui-ear {
+	position: absolute;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+	z-index: 11;
+	opacity: 0;
+	transition: .3s;
+	pointer-events: none;
+}
+
+.ui-ears-wrapper.--grabbing .ui-ear {
+	pointer-events: none;
+}
+
+.ui-ear-left,
+.ui-ear-right {
+
+	background-repeat: no-repeat;
+	background-position: center;
+
+	cursor: pointer;
+	z-index: 11;
+	opacity: 0;
+	transition: .3s;
+}
+
+.ui-ear-left,
+.ui-ear-right {
+	top: 0;
+	bottom: 0;
+	width: 49px;
+}
+
+.ui-ear-left {
+	background-image: url(../image/ui-ears-left.svg);
+	left: 0;
+	margin-left: -50px;
+}
+
+.ui-ear-right {
+	right: 0;
+	background-image: url(../image/ui-ears-right.svg);
+	margin-right: -50px;
+}
+
+.ui-ear-top,
+.ui-ear-bottom {
+	left: 0;
+	right: 0;
+	height: 49px;
+}
+
+.ui-ear-top {
+	top: 0;
+	background-image: url(../image/ui-ears-top.svg);
+}
+
+.ui-ear-bottom {
+	bottom: 0;
+	background-image: url(../image/ui-ears-bottom.svg);
+}
+
+
+.ui-ear:hover {
+	opacity: .3;
+}
+
+.ui-ear-show {
+	opacity: .18;
+}
+
+.ui-ear-right.ui-ear-show {
+	margin-right: 0;
+	pointer-events: unset;
+}
+
+.ui-ear-left.ui-ear-show {
+	margin-left: 0;
+	pointer-events: unset;
+}
+
+.ui-ears-wrapper-sm .ui-ear {
+	width: 37px;
+}
+
+.ui-ears-wrapper-sm .ui-ear-left,
+.ui-ears-wrapper-sm .ui-ear-right {
+	background-size: 37px 71px;
+}
+
+.ui-ears-wrapper-sm .ui-ear.ui-ear-top,
+.ui-ears-wrapper-sm .ui-ear.ui-ear-bottom {
+	width: unset;
+	height: 37px;
+	background-size: 71px 37px;
+}
+
+.ui-ears-wrapper-sm .ui-ear.ui-ear-top,
+.ui-ears-wrapper-sm .ui-ear.ui-ear-bottom {
+	width: unset;
+	height: 37px;
+	background-size: 71px 37px;
+}
+
+.ui-ear.ui-ear-top {
+	margin-top: -50px;
+}
+
+.ui-ear.ui-ear-top.ui-ear-show {
+	margin-top: 0;
+	pointer-events: unset;
+}
+
+.ui-ear.ui-ear-bottom {
+	margin-bottom: -50px;
+}
+
+.ui-ear.ui-ear-bottom.ui-ear-show {
+	margin-bottom: 0;
+	pointer-events: unset;
+}
+
+.ui-ear-container {
+	white-space: nowrap;
+}
+
+.ui-ear-container > * {
+	white-space: normal;
+}
+
+.ui-ear-container.--vertical {
+	overflow-y: auto;
+}
+
+.ui-ear-container.--horizontal {
+	overflow-x: auto;
+}
+
+.ui-ear-container-no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.ui-ear-container-no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}

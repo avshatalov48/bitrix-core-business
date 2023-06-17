@@ -99,7 +99,7 @@ if (is_array($arParams['AVILABLE_VIEWS']))
 	$config['avilableViews'] = $arParams['AVILABLE_VIEWS'];
 }
 
-if (is_array($arParams['ADDITIONAL_VIEW_MODES']))
+if (is_array($arParams['ADDITIONAL_VIEW_MODES'] ?? null))
 {
 	$config['additionalViewModes'] = $arParams['ADDITIONAL_VIEW_MODES'];
 }
@@ -129,10 +129,12 @@ if($ex = $APPLICATION->GetException())
 	return ShowError($ex->GetString());
 
 // Set title and navigation
-$arParams["SET_TITLE"] = $arParams["SET_TITLE"] == "Y" ? "Y" : "N";
-$arParams["SET_NAV_CHAIN"] = $arParams["SET_NAV_CHAIN"] == "Y" ? "Y" : "N"; //Turn OFF by default
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? null) == "Y" ? "Y" : "N";
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] ?? null) == "Y" ? "Y" : "N"; //Turn OFF by default
 
-if ($arParams["STR_TITLE"])
+$arParams['OWNER_ID'] ??= null;
+$arParams['CALENDAR_TYPE'] ??= null;
+if ($arParams["STR_TITLE"] ?? false)
 {
 	$arParams["STR_TITLE"] = trim($arParams["STR_TITLE"]);
 }

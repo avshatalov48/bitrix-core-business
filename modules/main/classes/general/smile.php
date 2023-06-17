@@ -6,15 +6,49 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\Type\DateTime;
+
 IncludeModuleLangFile(__FILE__);
+
+trait OptionsHelperTrait
+{
+	protected static function setLastUpdate(): void
+	{
+		COption::SetOptionString(
+			'main',
+			'smile_last_update',
+			(new DateTime())->getTimestamp()
+		);
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public static function getLastUpdate(): DateTime
+	{
+		$lastUpdateTimestamp = COption::GetOptionInt(
+			'main',
+			'smile_last_update',
+		);
+
+		if (!$lastUpdateTimestamp)
+		{
+			self::setLastUpdate();
+		}
+
+		return DateTime::createFromTimestamp($lastUpdateTimestamp);
+	}
+}
 
 class CSmile
 {
+	use OptionsHelperTrait;
+
 	const TYPE_ALL = '';
 	const TYPE_SMILE = 'S';
 	const TYPE_ICON = 'I';
-	const PATH_TO_SMILE = "/bitrix/images/main/smiles/";
-	const PATH_TO_ICON = "/bitrix/images/main/icons/";
+	const PATH_TO_SMILE = "/upload/main/smiles/";
+	const PATH_TO_ICON = "/upload/main/icons/";
 	const CHECK_TYPE_ADD = 1;
 	const CHECK_TYPE_UPDATE = 2;
 	const GET_ALL_LANGUAGE = false;
@@ -141,6 +175,7 @@ class CSmile
 			}
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return $setId;
@@ -224,6 +259,7 @@ class CSmile
 			}
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
@@ -246,6 +282,7 @@ class CSmile
 		$DB->Query("DELETE FROM b_smile WHERE ID = ".$id, true);
 		$DB->Query("DELETE FROM b_smile_lang WHERE TYPE = '".self::TYPE_SMILE."' AND SID = ".$id, true);
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
@@ -280,6 +317,7 @@ class CSmile
 			$DB->Query("DELETE FROM b_smile WHERE ID IN (".implode(',', $arDelete).")", true);
 			$DB->Query("DELETE FROM b_smile_lang WHERE TYPE = '".self::TYPE_SMILE."' AND SID IN (".implode(',', $arDelete).")", true);
 
+			self::setLastUpdate();
 			$CACHE_MANAGER->CleanDir("b_smile");
 		}
 
@@ -320,6 +358,7 @@ class CSmile
 			$DB->Query("DELETE FROM b_smile WHERE ID IN (".implode(',', $arDelete).")", true);
 			$DB->Query("DELETE FROM b_smile_lang WHERE TYPE = '".self::TYPE_SMILE."' AND SID IN (".implode(',', $arDelete).")", true);
 
+			self::setLastUpdate();
 			$CACHE_MANAGER->CleanDir("b_smile");
 		}
 
@@ -466,7 +505,7 @@ class CSmile
 
 		if(array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
 		{
-			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount']);
+			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount'] ?? 0);
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSelect.$strSql, $nTopCount);
@@ -648,7 +687,6 @@ class CSmile
 			{
 				if (file_exists($sUnpackDir.'install_lang_'. $res["LID"].'.csv'))
 				{
-					$arSmiles = Array();
 					$csvFile = new CCSVData();
 					$csvFile->LoadFile($sUnpackDir.'install_lang_'.$res["LID"].'.csv');
 					$csvFile->SetFieldsType("R");
@@ -729,20 +767,20 @@ class CSmile
 							$smileHR = self::IMAGE_SD;
 							$smileType = CSmile::TYPE_SMILE;
 							$smileCode = GetFileNameWithoutExtension($file);
-							if (mb_strpos($file, 'smile_') !== false && mb_strpos($file, 'smile_') == 0)
+							if (strpos($file, 'smile_') === 0)
 							{
 								$smileCode = mb_substr($smileCode, 6);
 							}
-							elseif (mb_strpos($file, 'smile') !== false && mb_strpos($file, 'smile') == 0)
+							elseif (strpos($file, 'smile') === 0)
 							{
 								$smileCode = mb_substr($smileCode, 5);
 							}
-							elseif (mb_strpos($file, 'icon_') !== false && mb_strpos($file, 'icon_') == 0)
+							elseif (strpos($file, 'icon_') === 0)
 							{
 								$smileType = CSmile::TYPE_ICON;
 								$smileCode = mb_substr($smileCode, 5);
 							}
-							else if (mb_strpos($file, 'icon') !== false && mb_strpos($file, 'icon') == 0)
+							else if (strpos($file, 'icon') === 0)
 							{
 								$smileType = CSmile::TYPE_ICON;
 								$smileCode = mb_substr($smileCode, 4);
@@ -752,10 +790,15 @@ class CSmile
 								$smileHR = self::IMAGE_HD;
 								$smileCode = mb_substr($smileCode, 0, mb_strrpos($smileCode, '_hr'));
 							}
-							if (($pos = mb_strpos($smileCode, '_hr_')))
+							else if (($pos = mb_strpos($smileCode, '_hr_')))
 							{
 								$smileHR = self::IMAGE_HD;
 								$smileCode = mb_substr($smileCode, 0, $pos).'_'.mb_substr($smileCode, $pos + 4);
+							}
+							else if (mb_strrpos($smileCode, '_uhd') !== false && mb_strrpos($smileCode, '_uhd') == mb_strlen($smileCode) - 4)
+							{
+								$smileHR = self::IMAGE_UHD;
+								$smileCode = mb_substr($smileCode, 0, mb_strrpos($smileCode, '_uhd'));
 							}
 
 							$arSmiles[] = Array(
@@ -767,7 +810,7 @@ class CSmile
 								'IMAGE_WIDTH' => intval($info->getWidth()),
 								'IMAGE_HEIGHT' => intval($info->getHeight()),
 								'IMAGE_DEFINITION' => $smileHR,
-								'TYPING' => ':'.(isset($smileSet['STRING_ID'])? $smileSet['STRING_ID']: $smileSet['ID']).'/'.$smileCode.':',
+								'TYPING' => ':'.($smileSet['STRING_ID'] ?? $smileSet['ID']).'/'.$smileCode.':',
 							);
 							$sort = $sort+5;
 						}
@@ -807,12 +850,54 @@ class CSmile
 			}
 		}
 
+		self::setLastUpdate();
 		return $importSmile;
+	}
+
+	/**
+	 * Onetime command for copy smiles from bitrix/images
+	 *
+	 * @return void
+	 */
+	public static function moveSmilesToUploadAgent(): string
+	{
+		$paths = [
+			'smiles' => [
+				'old' => '/bitrix/images/main/smiles/',
+				'new' => self::PATH_TO_SMILE
+			],
+			'icons' => [
+				'old' => '/bitrix/images/main/icons/',
+				'new' => self::PATH_TO_ICON
+			]
+		];
+
+		$returnValue = '';
+		foreach ($paths as $path)
+		{
+			$oldPath = $_SERVER["DOCUMENT_ROOT"] . $path['old'];
+			$newPath = $_SERVER["DOCUMENT_ROOT"] . $path['new'];
+
+			$directory = new \Bitrix\Main\IO\Directory($oldPath);
+			if ($directory->isExists())
+			{
+				CopyDirFiles($directory->getPhysicalPath(), $newPath, true, true);
+				self::setLastUpdate();
+			}
+			else
+			{
+				$returnValue = __METHOD__ . '();';
+			}
+		}
+
+		return $returnValue;
 	}
 }
 
 class CSmileGallery
 {
+	use OptionsHelperTrait;
+
 	const GALLERY_DEFAULT = 0;
 	const GET_ALL_LANGUAGE = false;
 
@@ -843,6 +928,7 @@ class CSmileGallery
 			$DB->Query("DELETE FROM b_smile_lang WHERE TYPE = '".$smileGallery['TYPE']."' AND SID = ".$smileGallery['ID'], true);
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 	}
@@ -920,7 +1006,7 @@ class CSmileGallery
 		return COption::SetOptionString("main", "smile_gallery_id", $id);
 	}
 
-	public static function getSmilesWithSets($galleryId = self::GALLERY_DEFAULT)
+	public static function getSmilesWithSets($galleryId = self::GALLERY_DEFAULT, $options = [])
 	{
 		if ($galleryId == self::GALLERY_DEFAULT)
 		{
@@ -932,6 +1018,8 @@ class CSmileGallery
 		$smiles = CSmile::getByGalleryId(CSmile::TYPE_SMILE, $galleryId);
 
 		$smilesSet = CSmileSet::getListCache();
+
+		$fullTypings = isset($options['FULL_TYPINGS']) && $options['FULL_TYPINGS'] === 'Y';
 
 		$userSets = Array();
 		foreach ($smiles as $smile)
@@ -948,7 +1036,7 @@ class CSmileGallery
 				'SET_ID' => (int)$smile['SET_ID'],
 				'NAME' => $smile['NAME'],
 				'IMAGE' => CSmile::PATH_TO_SMILE.$smile["SET_ID"]."/".$smile["IMAGE"],
-				'TYPING' => $typing[0],
+				'TYPING' => $fullTypings? $smile['TYPING']: $typing[0],
 				'WIDTH' => (int)$smile['IMAGE_WIDTH'],
 				'HEIGHT' => (int)$smile['IMAGE_HEIGHT'],
 				'DEFINITION' => $smile['IMAGE_DEFINITION'],
@@ -1161,6 +1249,8 @@ class CSmileGallery
 
 class CSmileSet
 {
+	use OptionsHelperTrait;
+
 	const TYPE_SET = 'G';
 	const TYPE_GALLERY = 'P';
 
@@ -1212,6 +1302,7 @@ class CSmileSet
 			}
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return $setId;
@@ -1258,6 +1349,7 @@ class CSmileSet
 			}
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
@@ -1278,6 +1370,7 @@ class CSmileSet
 			CSmile::deleteBySet($smileSet['ID']);
 		}
 
+		self::setLastUpdate();
 		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
@@ -1385,11 +1478,11 @@ class CSmileSet
 
 		// select block
 
-		if (!in_array($arParams['FILTER']['TYPE'], Array(CSmileSet::TYPE_SET, CSmileSet::TYPE_GALLERY)))
+		$type = $arParams['FILTER']['TYPE'] ?? '';
+		if (!in_array($type, Array(CSmileSet::TYPE_SET, CSmileSet::TYPE_GALLERY)))
 		{
 			$arParams['FILTER']['TYPE'] = CSmileSet::TYPE_SET;
 		}
-
 
 		foreach ($arParams['SELECT'] as $fieldName)
 		{
@@ -1491,7 +1584,7 @@ class CSmileSet
 
 		if(array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
 		{
-			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount']);
+			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount'] ?? 0);
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSelect.$strSql, $nTopCount);

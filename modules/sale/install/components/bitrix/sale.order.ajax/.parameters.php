@@ -29,41 +29,34 @@ $arColumns = array(
 );
 
 $arIblockIDs = array();
+$arIblockNames = array();
 if (Loader::includeModule('catalog'))
 {
-	$arIblockNames = array();
-	$parameters = array(
-		'select' => array('IBLOCK_ID', 'NAME' => 'IBLOCK.NAME', 'SITE_ID' => 'IBLOCK_SITE.SITE_ID'),
-		'order' => array('IBLOCK_ID' => 'ASC'),
-		'filter' => array('SITE_ID' => 's1'),
-		'runtime' => array(
-			'IBLOCK_SITE' => array(
-				'data_type' => 'Bitrix\Iblock\IblockSiteTable',
-				'reference' => array(
-					'ref.IBLOCK_ID' => 'this.IBLOCK_ID',
-				),
-				'join_type' => 'inner'
-			)
-		)
-	);
-	$parameters = array(
-		'select' => array('IBLOCK_ID', 'NAME' => 'IBLOCK.NAME'),
-		'order' => array('IBLOCK_ID' => 'ASC'),
-	);
+	$parameters = [
+		'select' => [
+			'IBLOCK_ID',
+			'NAME' => 'IBLOCK.NAME',
+		],
+		'order' => [
+			'IBLOCK_ID' => 'ASC',
+		],
+	];
 
-	if (!empty($siteId) && is_string($siteId))
+	if ($siteId !== '')
 	{
 		$parameters['select']['SITE_ID'] = 'IBLOCK_SITE.SITE_ID';
-		$parameters['filter'] = array('SITE_ID' => $siteId);
-		$parameters['runtime'] = array(
-			'IBLOCK_SITE' => array(
+		$parameters['filter'] = [
+			'=SITE_ID' => $siteId,
+		];
+		$parameters['runtime'] = [
+			'IBLOCK_SITE' => [
 				'data_type' => 'Bitrix\Iblock\IblockSiteTable',
-				'reference' => array(
+				'reference' => [
 					'ref.IBLOCK_ID' => 'this.IBLOCK_ID',
-				),
-				'join_type' => 'inner'
-			)
-		);
+				],
+				'join_type' => 'inner',
+			],
+		];
 	}
 
 	$catalogIterator = Catalog\CatalogIblockTable::getList($parameters);
@@ -77,12 +70,25 @@ if (Loader::includeModule('catalog'))
 
 	if (!empty($arIblockIDs))
 	{
-		$arProps = array();
-		$propertyIterator = Iblock\PropertyTable::getList(array(
-			'select' => array('ID', 'CODE', 'NAME', 'IBLOCK_ID'),
-			'filter' => array('@IBLOCK_ID' => $arIblockIDs, '=ACTIVE' => 'Y', '!=XML_ID' => CIBlockPropertyTools::XML_SKU_LINK),
-			'order' => array('IBLOCK_ID' => 'ASC', 'SORT' => 'ASC', 'ID' => 'ASC')
-		));
+		$arProps = [];
+		$propertyIterator = Iblock\PropertyTable::getList([
+			'select' => [
+				'ID',
+				'CODE',
+				'NAME',
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'@IBLOCK_ID' => $arIblockIDs,
+				'=ACTIVE' => 'Y',
+				'!=XML_ID' => CIBlockPropertyTools::XML_SKU_LINK,
+			],
+			'order' => [
+				'IBLOCK_ID' => 'ASC',
+				'SORT' => 'ASC',
+				'ID' => 'ASC',
+			]
+		]);
 		while ($property = $propertyIterator->fetch())
 		{
 			$property['ID'] = (int)$property['ID'];
@@ -92,14 +98,14 @@ if (Loader::includeModule('catalog'))
 				$property['CODE'] = $property['ID'];
 			if (!isset($arProps[$property['CODE']]))
 			{
-				$arProps[$property['CODE']] = array(
+				$arProps[$property['CODE']] = [
 					'CODE' => $property['CODE'],
 					'TITLE' => $property['NAME'].' ['.$property['CODE'].']',
-					'ID' => array($property['ID']),
-					'IBLOCK_ID' => array($property['IBLOCK_ID'] => $property['IBLOCK_ID']),
-					'IBLOCK_TITLE' => array($property['IBLOCK_ID'] => $arIblockNames[$property['IBLOCK_ID']]),
+					'ID' => [$property['ID']],
+					'IBLOCK_ID' => [$property['IBLOCK_ID'] => $property['IBLOCK_ID']],
+					'IBLOCK_TITLE' => [$property['IBLOCK_ID'] => $arIblockNames[$property['IBLOCK_ID']]],
 					'COUNT' => 1
-				);
+				];
 			}
 			else
 			{
@@ -112,7 +118,7 @@ if (Loader::includeModule('catalog'))
 		}
 		unset($property, $propertyIterator);
 
-		$propList = array();
+		$propList = [];
 		foreach ($arProps as &$property)
 		{
 			$iblockList = '';
@@ -265,9 +271,7 @@ $arComponentParameters = array(
 		"SPOT_LOCATION_BY_GEOIP" => array(
 			"NAME" => GetMessage("SBB_SPOT_LOCATION_BY_GEOIP"),
 			"TYPE" => "CHECKBOX",
-			"MULTIPLE" => "N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES" => "N",
 			"PARENT" => "BASE",
 		),
 		"DELIVERY_TO_PAYSYSTEM" => array(
@@ -283,18 +287,14 @@ $arComponentParameters = array(
 		"SHOW_VAT_PRICE" => array(
 			"NAME" => GetMessage('SOA_SHOW_VAT_PRICE'),
 			"TYPE" => "CHECKBOX",
-			"MULTIPLE" => "N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES" => "N",
 			"PARENT" => "BASE",
 		),
 		"SET_TITLE" => array(),
 		"USE_PREPAYMENT" => array(
 			"NAME" => GetMessage('SBB_USE_PREPAYMENT'),
 			"TYPE" => "CHECKBOX",
-			"MULTIPLE" => "N",
 			"DEFAULT" => "N",
-			"ADDITIONAL_VALUES" => "N",
 			"PARENT" => "BASE",
 		),
 		"DISABLE_BASKET_REDIRECT" => array(
@@ -323,9 +323,17 @@ if (!isset($arCurrentValues['PRODUCT_COLUMNS']) && !isset($arCurrentValues['PROD
 else if (!isset($arCurrentValues['PRODUCT_COLUMNS_VISIBLE']))
 {
 	if (isset($arCurrentValues['PRODUCT_COLUMNS']))
-		$defaultColumns = array_merge($arCurrentValues['PRODUCT_COLUMNS'], array('PRICE_FORMATED'));
+	{
+		if (!is_array($arCurrentValues['PRODUCT_COLUMNS']))
+		{
+			$arCurrentValues['PRODUCT_COLUMNS'] = [];
+		}
+		$defaultColumns = array_merge($arCurrentValues['PRODUCT_COLUMNS'], ['PRICE_FORMATED']);
+	}
 	else
-		$defaultColumns = array('PROPS', 'DISCOUNT_PRICE_PERCENT_FORMATED', 'PRICE_FORMATED');
+	{
+		$defaultColumns = ['PROPS', 'DISCOUNT_PRICE_PERCENT_FORMATED', 'PRICE_FORMATED'];
+	}
 }
 
 $arComponentParameters["PARAMETERS"]["PRODUCT_COLUMNS_VISIBLE"] = array(

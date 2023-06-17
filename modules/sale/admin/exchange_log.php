@@ -176,10 +176,10 @@ while ($report = $dbResultList->Fetch())
     }
 
 	$row->AddField("ID", (int)$report['ID']);
-	$row->AddField("ENTITY_ID", "<a href=\"".getAdminUrlByType($report['ENTITY_TYPE_ID'], $report['ENTITY_ID'], $report['OWNER_ENTITY_ID'])."&lang=".LANG."\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['ENTITY_ID']."</a>");
+	$row->AddField("ENTITY_ID", "<a href=\"".getAdminUrlByType($report['ENTITY_TYPE_ID'], $report['ENTITY_ID'], $report['OWNER_ENTITY_ID'])."&lang=" . LANGUAGE_ID . "\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['ENTITY_ID']."</a>");
 	$row->AddField("ENTITY_TYPE_ID", htmlspecialcharsbx(EntityType::getDescription($report['ENTITY_TYPE_ID'])));
-	$row->AddField("PARENT_ID", $report['PARENT_ID']>0? "<a href=\"".getAdminUrlByType(EntityType::ORDER, $report['PARENT_ID'])."&lang=".LANG."\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['PARENT_ID']."</a>":'');
-	$row->AddField("OWNER_ENTITY_ID", $report['OWNER_ENTITY_ID']>0? "<a href=\"".getAdminUrlByType(EntityType::ORDER, $report['OWNER_ENTITY_ID'])."&lang=".LANG."\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['OWNER_ENTITY_ID']."</a>":'');
+	$row->AddField("PARENT_ID", $report['PARENT_ID']>0? "<a href=\"".getAdminUrlByType(EntityType::ORDER, $report['PARENT_ID'])."&lang=" . LANGUAGE_ID . "\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['PARENT_ID']."</a>":'');
+	$row->AddField("OWNER_ENTITY_ID", $report['OWNER_ENTITY_ID']>0? "<a href=\"".getAdminUrlByType(EntityType::ORDER, $report['OWNER_ENTITY_ID'])."&lang=" . LANGUAGE_ID . "\" title=\"".GetMessage("SALE_EDIT_DESCR")."\">".$report['OWNER_ENTITY_ID']."</a>":'');
 	$row->AddField("ENTITY_DATE_UPDATE", htmlspecialcharsbx($report['ENTITY_DATE_UPDATE']));
 	$row->AddField("XML_ID", htmlspecialcharsbx($report['XML_ID']));
 	$row->AddField("MARKED", $report['MARKED']=='Y'? Loc::getMessage("LOG_MARKED_Y"):'');

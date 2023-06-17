@@ -156,7 +156,7 @@ if ($postRight >= 'R'):
 	{
 		$allOptions[] = array(
 			'portal_url',
-			Loc::getMessage('LANDING_OPT_PORTAL_URL') . ':',
+			Loc::getMessage('LANDING_OPT_PORTAL_URL') . ' (host[:port]):',
 			array('text', 32)
 		);
 	}
@@ -256,7 +256,7 @@ if ($postRight >= 'R'):
 			}
 			else
 			{
-				$val = $$name;
+				$val = $$name ?? '';
 			}
 
 			if ($arOption[2][0] == 'checkbox' && $val<>'Y')
@@ -358,7 +358,7 @@ if ($postRight >= 'R'):
 		}
 	}
 
-	?><form method="post" action="<?= $APPLICATION->GetCurPage()?>?mid=<?= urlencode($mid)?>&amp;lang=<?= LANGUAGE_ID?>"><?
+	?><form method="post" action="<?= $APPLICATION->GetCurPage()?>?mid=<?= urlencode($mid)?>&amp;lang=<?= LANGUAGE_ID?>"><?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	foreach($allOptions as $Option):
@@ -370,19 +370,19 @@ if ($postRight >= 'R'):
 					<?= $Option[1];?>
 				</td>
 			</tr>
-			<?if (isset($Option[2])):?>
+			<?php if (isset($Option[2])):?>
 			<tr>
 				<td></td>
 				<td>
-					<?
+					<?php
 					echo BeginNote();
 					echo $Option[2];
 					echo EndNote();
 					?>
 				</td>
 			</tr>
-			<?endif;?>
-			<?
+			<?php
+			endif;
 			continue;
 		}
 		$type = $Option[2];
@@ -393,7 +393,7 @@ if ($postRight >= 'R'):
 		);
 		?>
 		<tr>
-			<td valign="top" width="40%"><?
+			<td valign="top" width="40%"><?php
 				if ($type[0]=='checkbox')
 				{
 					echo '<label for="' . \htmlspecialcharsbx($Option[0]) . '">'.$Option[1].'</label>';
@@ -403,34 +403,34 @@ if ($postRight >= 'R'):
 					echo $Option[1];
 				}
 		?></td>
-		<td valign="middle" width="60%"><?
+		<td valign="middle" width="60%"><?php
 			if ($type[0] == 'checkbox'):
-				?><input type="checkbox" name="<?echo \htmlspecialcharsbx($Option[0])?>" id="<?echo \htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val == 'Y') echo ' checked="checked"';?> /><?
+				?><input type="checkbox" name="<?= \htmlspecialcharsbx($Option[0])?>" id="<?= \htmlspecialcharsbx($Option[0])?>" value="Y"<?php if($val == 'Y') echo ' checked="checked"';?> /><?php
 			elseif ($type[0] == 'text'):
-				?><input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo \htmlspecialcharsbx($val)?>" name="<?echo \htmlspecialcharsbx($Option[0])?>" /><?
+				?><input type="text" size="<?= $type[1]?>" maxlength="255" value="<?= \htmlspecialcharsbx($val)?>" name="<?= \htmlspecialcharsbx($Option[0])?>" /><?php
 			elseif ($type[0] == 'doubletext'):
 				list($val1, $val2) = explode('x', $val);
-				?><input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo \htmlspecialcharsbx($val1)?>" name="<?echo \htmlspecialcharsbx($Option[0].'_1')?>" /><?
-				?><input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo \htmlspecialcharsbx($val2)?>" name="<?echo \htmlspecialcharsbx($Option[0].'_2')?>" /><?
+				?><input type="text" size="<?= $type[1]?>" maxlength="255" value="<?= \htmlspecialcharsbx($val1)?>" name="<?= \htmlspecialcharsbx($Option[0].'_1')?>" /><?php
+				?><input type="text" size="<?= $type[1]?>" maxlength="255" value="<?= \htmlspecialcharsbx($val2)?>" name="<?= \htmlspecialcharsbx($Option[0].'_2')?>" /><?php
 			elseif ($type[0] == 'textarea'):
-				?><textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo \htmlspecialcharsbx($Option[0])?>"><?echo \htmlspecialcharsbx($val)?></textarea><?
+				?><textarea rows="<?= $type[1]?>" cols="<?= $type[2]?>" name="<?= \htmlspecialcharsbx($Option[0])?>"><?= \htmlspecialcharsbx($val)?></textarea><?php
 			elseif ($type[0] == 'text-list'):
 				$aVal = explode(",", $val);
 				for($j=0; $j<count($aVal); $j++):
-					?><input type="text" size="<?echo $type[2]?>" value="<?echo \htmlspecialcharsbx($aVal[$j])?>" name="<?echo \htmlspecialcharsbx($Option[0]).'[]'?>" /><br /><?
+					?><input type="text" size="<?= $type[2]?>" value="<?= \htmlspecialcharsbx($aVal[$j])?>" name="<?= \htmlspecialcharsbx($Option[0]).'[]'?>" /><br /><?php
 				endfor;
 				for($j=0; $j<$type[1]; $j++):
-					?><input type="text" size="<?echo $type[2]?>" value="" name="<?echo \htmlspecialcharsbx($Option[0]).'[]'?>" /><br /><?
+					?><input type="text" size="<?= $type[2]?>" value="" name="<?= \htmlspecialcharsbx($Option[0]).'[]'?>" /><br /><?php
 				endfor;
 			elseif ($type[0] == 'selectbox'):
 				$arr = $type[1];
 				$arr_keys = array_keys($arr);
 				$currValue = explode(',', $val);
-				?><select name="<?echo \htmlspecialcharsbx($Option[0])?>[]"<?= $type[2]?>><?
+				?><select name="<?= \htmlspecialcharsbx($Option[0])?>[]"<?= $type[2]?>><?php
 					for($j = 0; $j < count($arr_keys); $j++):
-						?><option value="<?echo $arr_keys[$j]?>"<?if(in_array($arr_keys[$j], $currValue))echo ' selected="selected"'?>><?echo \htmlspecialcharsbx($arr[$arr_keys[$j]])?></option><?
+						?><option value="<?= $arr_keys[$j]?>"<?php if(in_array($arr_keys[$j], $currValue))echo ' selected="selected"'?>><?= \htmlspecialcharsbx($arr[$arr_keys[$j]])?></option><?php
 					endfor;
-					?></select><?
+					?></select><?php
 			elseif ($type[0] == 'selectboxtree'):
 				$arr = $type[1];
 				$currValue = explode(',', $val);
@@ -464,9 +464,9 @@ if ($postRight >= 'R'):
 				$output .= '</select>';
 				echo $output;
 			endif;
-			echo $Option[4];?>
+			echo $Option[4] ?? '';?>
 		</td>
-		<?
+		<?php
 	endforeach;
 
 	// access tab
@@ -475,14 +475,14 @@ if ($postRight >= 'R'):
 
 	$tabControl->Buttons();
 	?>
-	<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Update" value="<?= Loc::getMessage('MAIN_SAVE')?>" title="<?= Loc::getMessage('MAIN_OPT_SAVE_TITLE')?>" />
-	<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Apply" value="<?= Loc::getMessage('MAIN_OPT_APPLY')?>" title="<?= Loc::getMessage('MAIN_OPT_APPLY_TITLE')?>" />
-	<?if ($backUrl <> ''):?>
-		<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="button" name="Cancel" value="<?= Loc::getMessage('MAIN_OPT_CANCEL')?>" title="<?= Loc::getMessage('MAIN_OPT_CANCEL_TITLE')?>" onclick="window.location='<?echo \htmlspecialcharsbx(CUtil::addslashes($backUrl))?>'" />
+	<input <?php if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Update" value="<?= Loc::getMessage('MAIN_SAVE')?>" title="<?= Loc::getMessage('MAIN_OPT_SAVE_TITLE')?>" />
+	<input <?php if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Apply" value="<?= Loc::getMessage('MAIN_OPT_APPLY')?>" title="<?= Loc::getMessage('MAIN_OPT_APPLY_TITLE')?>" />
+	<?php if ($backUrl <> ''):?>
+		<input <?php if ($postRight < 'W') echo 'disabled="disabled"' ?> type="button" name="Cancel" value="<?= Loc::getMessage('MAIN_OPT_CANCEL')?>" title="<?= Loc::getMessage('MAIN_OPT_CANCEL_TITLE')?>" onclick="window.location='<?= \htmlspecialcharsbx(CUtil::addslashes($backUrl))?>'" />
 		<input type="hidden" name="back_url_settings" value="<?=\htmlspecialcharsbx($backUrl)?>" />
-	<?endif?>
-	<?=bitrix_sessid_post();?>
-	<?$tabControl->End();?>
+	<?php endif?>
+	<?=bitrix_sessid_post()?>
+	<?php $tabControl->End()?>
 	</form>
 
-<?endif;?>
+<?php endif;

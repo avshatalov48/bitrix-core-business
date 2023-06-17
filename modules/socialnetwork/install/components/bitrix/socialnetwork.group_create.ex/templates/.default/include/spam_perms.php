@@ -21,7 +21,7 @@ if 	(
 )
 {
 	if (
-		$arResult['POST']['CLOSED'] !== 'Y'
+		($arResult['POST']['CLOSED'] ?? '') !== 'Y'
 		&& !$arResult['bExtranet']
 		&& !ModuleManager::isModuleInstalled('im')
 	)
@@ -40,7 +40,12 @@ if 	(
 				$defaultValue = $arResult['SpamPerms'][$defaultKey];
 
 				?>
-				<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown sgcp-flex-nonproject --nonproject" data-role="soc-net-dropdown" data-items="<?= htmlspecialcharsbx(Json::encode($arResult['SpamPerms'])) ?>" data-value="<?= htmlspecialcharsbx($arResult['POST']['SPAM_PERMS']) ?>">
+				<div
+					class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown sgcp-flex-nonproject --nonproject"
+					data-role="soc-net-dropdown"
+					data-items="<?= htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['SpamPerms'])) ?>"
+					data-value="<?= htmlspecialcharsbx($arResult['POST']['SPAM_PERMS']) ?>"
+				>
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 					<div class="ui-ctl-element"><?= htmlspecialcharsEx($defaultValue) ?></div>
 					<input type="hidden" name="GROUP_SPAM_PERMS" value="<?= htmlspecialcharsbx($defaultKey) ?>">

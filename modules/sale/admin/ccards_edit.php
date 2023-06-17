@@ -1,15 +1,20 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleCCards'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -19,14 +24,16 @@ if(!CBXFeatures::IsFeatureEnabled('SaleCCards'))
 
 IncludeModuleLangFile(__FILE__);
 
+$request = Context::getCurrent()->getRequest();
+
 ClearVars();
 
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions=="W" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$USER_ID = intval($USER_ID);
 	if ($USER_ID <= 0)
@@ -118,7 +125,7 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions=="W" && c
 		else
 		{
 			if ($apply == '')
-				LocalRedirect("/bitrix/admin/sale_ccards_admin.php?lang=".LANG.GetFilterParams("filter_", false));
+				LocalRedirect("/bitrix/admin/sale_ccards_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 		}
 	}
 	else
@@ -163,7 +170,7 @@ $aMenu = array(
 		array(
 				"TEXT" => GetMessage("SCEN_2FLIST"),
 				"TITLE" => GetMessage("SCEN_2FLIST_TITLE"),
-				"LINK" => "/bitrix/admin/sale_ccards_admin.php?lang=".LANG.GetFilterParams("filter_"),
+				"LINK" => "/bitrix/admin/sale_ccards_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 				"ICON" => "btn_list"
 			)
 	);
@@ -175,15 +182,15 @@ if ($ID > 0 && $saleModulePermissions >= "U")
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SCEN_NEW_CCARD"),
 			"TITLE" => GetMessage("SCEN_NEW_CCARD_TITLE"),
-			"LINK" => "/bitrix/admin/sale_ccards_edit.php?lang=".LANG.GetFilterParams("filter_"),
+			"LINK" => "/bitrix/admin/sale_ccards_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 			"ICON" => "btn_new"
 		);
 
 	if ($saleModulePermissions >= "W")
 	{
 		$aMenu[] = array(
-				"TEXT" => GetMessage("SCEN_DELETE_CCARD"), 
-				"LINK" => "javascript:if(confirm('".GetMessage("SCEN_DELETE_CCARD_CONFIRM")."')) window.location='/bitrix/admin/sale_ccards_admin.php?ID=".$ID."&action=delete&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+				"TEXT" => GetMessage("SCEN_DELETE_CCARD"),
+				"LINK" => "javascript:if(confirm('".GetMessage("SCEN_DELETE_CCARD_CONFIRM")."')) window.location='/bitrix/admin/sale_ccards_admin.php?ID=".$ID."&action=delete&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 				"WARNING" => "Y",
 				"ICON" => "btn_delete"
 			);
@@ -421,7 +428,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 		array(
 				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_account_admin.php?lang=".LANG.GetFilterParams("filter_")
+				"back_url" => "/bitrix/admin/sale_account_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 ?>
@@ -431,6 +438,5 @@ $tabControl->End();
 ?>
 
 </form>
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

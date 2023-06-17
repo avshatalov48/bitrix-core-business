@@ -671,7 +671,7 @@ class CAllRatings
 			$arResult[$entityId]['USER_HAS_VOTED'] = 'Y';
 		}
 
-		return isset($arResult[$entityId])? $arResult[$entityId]: Array();
+		return $arResult[$entityId] ?? array();
 	}
 
 	public static function GetRatingResult($ID, $entityId)
@@ -1329,7 +1329,7 @@ class CAllRatings
 			$CACHE_MANAGER->Set($cache_id, $arResult);
 		}
 
-		return isset($arResult[$entityId])? $arResult[$entityId]: $arDefaultResult;
+		return $arResult[$entityId] ?? $arDefaultResult;
 	}
 
 	public static function GetAuthorityRating()
@@ -1578,7 +1578,7 @@ class CAllRatings
 		global $DB;
 		$err_mess = (CRatings::err_mess())."<br>Function: OnAfterUserRegister<br>Line: ";
 
-		if (in_array($arFields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes(), true))
+		if (isset($arFields['EXTERNAL_AUTH_ID']) && in_array($arFields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes(), true))
 		{
 			return false;
 		}
@@ -1799,31 +1799,6 @@ class CAllRatings
 	{
 		global $USER;
 
-		static $beforeListHandlers;
-		if (!isset($beforeListHandlers))
-		{
-			$beforeListHandlers = GetModuleEvents("main", "OnBeforeGetVoteList", true);
-		}
-
-		foreach ($beforeListHandlers as $arEvent)
-		{
-			$arEventResult = ExecuteModuleEventEx($arEvent, array($arParam));
-			if (
-				is_array($arEventResult)
-				&& array_key_exists('RESULT', $arEventResult)
-				&& !$arEventResult['RESULT']
-			)
-			{
-				return [
-					'items_all' => 0,
-					'items_page' => 0,
-					'items' => [],
-					'reactions' => [],
-					'list_page' => (int) $arParam['LIST_PAGE'],
-				];
-			}
-		}
-
 		$reactionResult = self::GetRatingVoteReaction($arParam);
 		$cnt = $reactionResult['items_all'];
 		$cntReactions = $reactionResult['reactions'];
@@ -1896,7 +1871,7 @@ class CAllRatings
 
 			if (
 				$bExtended
-				&& count($arUserID) > 0
+				&& !empty($arUserID)
 			)
 			{
 				$arUserListParams = array();
@@ -1957,38 +1932,12 @@ class CAllRatings
 			}
 		}
 
-		static $afterListHandlers;
-		if (!isset($afterListHandlers))
-		{
-			$afterListHandlers = GetModuleEvents("main", "OnAfterGetVoteList", true);
-		}
-
-		foreach ($afterListHandlers as $arEvent)
-		{
-			$arEventResult = ExecuteModuleEventEx(
-				$arEvent,
-				[
-					'param' => $arParam,
-					'items' => $arVoteList,
-				]
-			);
-
-			if (
-				is_array($arEventResult)
-				&& array_key_exists('ITEMS', $arEventResult)
-				&& is_array($arEventResult['ITEMS'])
-			)
-			{
-				$arVoteList = array_intersect($arVoteList, $arEventResult['ITEMS']);
-			}
-		}
-
 		return array(
 			'items_all' => $cnt,
 			'items_page' => count($arVoteList),
 			'items' => $arVoteList,
 			'reactions' => $cntReactions,
-			'list_page' => (int) $arParam['LIST_PAGE'],
+			'list_page' => isset($arParam['LIST_PAGE']) ? (int)$arParam['LIST_PAGE'] : 0,
 		);
 	}
 

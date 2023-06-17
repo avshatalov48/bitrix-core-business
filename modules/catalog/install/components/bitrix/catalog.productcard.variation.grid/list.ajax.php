@@ -3,6 +3,7 @@
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\PostDecodeFilter;
 
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC', 'Y');
@@ -40,6 +41,7 @@ CUtil::JSPostUnescape();
 
 $componentName = 'bitrix:catalog.productcard.variation.grid';
 $request = Bitrix\Main\Context::getCurrent()->getRequest();
+$request->addFilter(new PostDecodeFilter);
 
 if ($request->get('signedParameters'))
 {
@@ -50,6 +52,12 @@ if ($request->get('signedParameters'))
 else
 {
 	$params = [];
+}
+
+$rows = $request->getPost('rows');
+if (is_array($rows))
+{
+	$params['~ROWS'] = $rows;
 }
 
 $componentClass = CBitrixComponent::includeComponentClass($componentName);

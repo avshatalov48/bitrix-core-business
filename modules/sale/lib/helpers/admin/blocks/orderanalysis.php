@@ -6,11 +6,11 @@ use Bitrix\Main;
 use Bitrix\Sale\Company;
 use Bitrix\Sale\Delivery\Requests\ShipmentTable;
 use Bitrix\Sale\Internals;
-use Bitrix\Sale\Exchange\Integration\Admin\Link,
-    Bitrix\Sale\Exchange\Integration\Admin\Registry;
-use	Bitrix\Sale\Order,
-	Bitrix\Sale\Payment,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Exchange\Integration\Admin\Link;
+use Bitrix\Sale\Exchange\Integration\Admin\Registry;
+use	Bitrix\Sale\Order;
+use Bitrix\Sale\Payment;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Services\Company\Manager;
 use Bitrix\Sale\Shipment;
 
@@ -304,7 +304,15 @@ class OrderAnalysis
 	}
 	protected static function renderShipmentItemLink($item)
 	{
-		return '<a class="fwb" href="'.htmlspecialcharsbx($item['EDIT_PAGE_URL']).'">'.htmlspecialcharsEx($item['NAME']).'</a>';
+		if (!isset($item['EDIT_PAGE_URL']))
+		{
+			return htmlspecialcharsEx($item['NAME']);
+		}
+		return
+			'<a class="fwb" href="' . htmlspecialcharsbx($item['EDIT_PAGE_URL']) . '">'
+			. htmlspecialcharsEx($item['NAME'])
+			. '</a>'
+		;
 	}
 	protected static function renderOrderLink($data)
 	{

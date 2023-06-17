@@ -75,7 +75,7 @@ if((isset($_SERVER['REDIRECT_STATUS']) && $_SERVER['REDIRECT_STATUS'] == '404') 
 			$_GET["SEF_APPLICATION_CUR_PAGE_URL"] = '';
 		}
 		$url = $requestUri = $_GET["SEF_APPLICATION_CUR_PAGE_URL"];
-		$_SERVER["REQUEST_URI"] = $REQUEST_URI = Web\Uri::urnEncode($_GET["SEF_APPLICATION_CUR_PAGE_URL"]);
+		$_SERVER["REQUEST_URI"] = $REQUEST_URI = Web\Uri::urnEncode($_GET["SEF_APPLICATION_CUR_PAGE_URL"], false);
 		unset($_GET["SEF_APPLICATION_CUR_PAGE_URL"]);
 	}
 
@@ -100,7 +100,7 @@ if((isset($_SERVER['REDIRECT_STATUS']) && $_SERVER['REDIRECT_STATUS'] == '404') 
 				}
 			}
 
-			$_SERVER["QUERY_STRING"] = $QUERY_STRING = Web\Uri::urnEncode($params);
+			$_SERVER["QUERY_STRING"] = $QUERY_STRING = Web\Uri::urnEncode($params, false);
 		}
 	}
 
@@ -141,7 +141,7 @@ if (!$uri->isPathTraversal())
 
 				$_GET += $vars;
 				$_REQUEST += $vars;
-				$_SERVER["QUERY_STRING"] = $QUERY_STRING = Web\Uri::urnEncode($params);
+				$_SERVER["QUERY_STRING"] = $QUERY_STRING = Web\Uri::urnEncode($params, false);
 				$url = mb_substr($url, 0, $pos);
 
 				// actualize context if it is initialized already

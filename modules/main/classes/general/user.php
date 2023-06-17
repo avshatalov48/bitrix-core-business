@@ -4,10 +4,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Authentication;
 use Bitrix\Main\Authentication\ShortCode;
 use Bitrix\Main\Authentication\Device;
@@ -25,12 +26,9 @@ use Bitrix\Main\Security\Password;
 
 IncludeModuleLangFile(__FILE__);
 
-/**
- * @deprecated
- */
 class CAllUser extends CDBResult
 {
-	var $LAST_ERROR = "";
+	var $LAST_ERROR = '';
 	protected $admin;
 	/** @var Authentication\Context */
 	protected $context;
@@ -38,7 +36,7 @@ class CAllUser extends CDBResult
 	protected static $kernelSession;
 	protected static $CURRENT_USER = false;
 	protected $justAuthorized = false;
-	protected static $userGroupCache = array();
+	protected static $userGroupCache = [];
 
 	const STATUS_ONLINE = 'online';
 	const STATUS_OFFLINE = 'offline';
@@ -60,7 +58,7 @@ class CAllUser extends CDBResult
 
 	public function GetParam($name)
 	{
-		if(isset(static::$kernelSession["SESS_AUTH"][$name]))
+		if (isset(static::$kernelSession["SESS_AUTH"][$name]))
 		{
 			return static::$kernelSession["SESS_AUTH"][$name];
 		}
@@ -86,7 +84,7 @@ class CAllUser extends CDBResult
 
 	public function GetSecurityPolicy()
 	{
-		if(!is_array($this->GetParam("POLICY")))
+		if (!is_array($this->GetParam("POLICY")))
 		{
 			$this->SetParam("POLICY", static::getPolicy($this->GetID())->getValues());
 		}
@@ -95,7 +93,7 @@ class CAllUser extends CDBResult
 
 	public function GetID()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetID() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -107,7 +105,7 @@ class CAllUser extends CDBResult
 
 	public function GetLogin()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetLogin() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -119,7 +117,7 @@ class CAllUser extends CDBResult
 
 	public function GetEmail()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetEmail() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -131,7 +129,7 @@ class CAllUser extends CDBResult
 
 	public function GetFullName()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetFullName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -143,7 +141,7 @@ class CAllUser extends CDBResult
 
 	public function GetFirstName()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetFirstName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -155,7 +153,7 @@ class CAllUser extends CDBResult
 
 	public function GetLastName()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetLastName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -167,7 +165,7 @@ class CAllUser extends CDBResult
 
 	public function GetSecondName()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::GetSecondName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -180,13 +178,13 @@ class CAllUser extends CDBResult
 	public function GetFormattedName($bUseBreaks = true, $bHTMLSpec = true)
 	{
 		return static::FormatName(CSite::GetNameFormat($bUseBreaks),
-			array(
+			[
 				"TITLE" => $this->GetParam("TITLE"),
 				"NAME" => $this->GetFirstName(),
 				"SECOND_NAME" => $this->GetSecondName(),
 				"LAST_NAME" => $this->GetLastName(),
 				"LOGIN" => $this->GetLogin(),
-			),
+			],
 			true,
 			$bHTMLSpec
 		);
@@ -205,7 +203,7 @@ class CAllUser extends CDBResult
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER;
 
 		$ID = 0;
-		if(!$this->CheckFields($arFields))
+		if (!$this->CheckFields($arFields))
 		{
 			$Result = false;
 			$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
@@ -219,24 +217,31 @@ class CAllUser extends CDBResult
 			$arFields['BLOCKED'] = (is_set($arFields, 'BLOCKED') && $arFields['BLOCKED'] == 'Y'? 'Y' : 'N');
 			$arFields['PASSWORD_EXPIRED'] = (is_set($arFields, 'PASSWORD_EXPIRED') && $arFields['PASSWORD_EXPIRED'] == 'Y'? 'Y' : 'N');
 
-			if ($arFields["PERSONAL_GENDER"] != "M" && $arFields["PERSONAL_GENDER"] != "F")
+			if (
+				!isset($arFields["PERSONAL_GENDER"])
+				|| ($arFields["PERSONAL_GENDER"] != "M" && $arFields["PERSONAL_GENDER"] != "F")
+			)
 			{
-				$arFields["PERSONAL_GENDER"] = "";
+				$arFields["PERSONAL_GENDER"] = '';
 			}
 
 			$originalPassword = $arFields["PASSWORD"];
 			$arFields["PASSWORD"] = Password::hash($arFields["PASSWORD"]);
 
-			$checkword = ($arFields["CHECKWORD"] == ''? Random::getString(32) : $arFields["CHECKWORD"]);
+			$checkword = empty($arFields["CHECKWORD"])? Random::getString(32) : $arFields["CHECKWORD"];
 			$arFields["CHECKWORD"] = Password::hash($checkword);
 
 			$arFields["~CHECKWORD_TIME"] = $DB->CurrentTimeFunction();
 
-			if(is_set($arFields, "WORK_COUNTRY"))
+			if (is_set($arFields, "WORK_COUNTRY"))
+			{
 				$arFields["WORK_COUNTRY"] = intval($arFields["WORK_COUNTRY"]);
+			}
 
-			if(is_set($arFields, "PERSONAL_COUNTRY"))
+			if (is_set($arFields, "PERSONAL_COUNTRY"))
+			{
 				$arFields["PERSONAL_COUNTRY"] = intval($arFields["PERSONAL_COUNTRY"]);
+			}
 
 			if (
 				array_key_exists("PERSONAL_PHOTO", $arFields)
@@ -246,9 +251,9 @@ class CAllUser extends CDBResult
 					|| $arFields["PERSONAL_PHOTO"]["MODULE_ID"] == ''
 				)
 			)
-				$arFields["PERSONAL_PHOTO"]["MODULE_ID"] = "main";
+				$arFields["PERSONAL_PHOTO"]["MODULE_ID"] = 'main';
 
-			CFile::SaveForDB($arFields, "PERSONAL_PHOTO", "main");
+			CFile::SaveForDB($arFields, "PERSONAL_PHOTO", 'main');
 
 			if (
 				array_key_exists("WORK_LOGO", $arFields)
@@ -258,13 +263,13 @@ class CAllUser extends CDBResult
 					|| $arFields["WORK_LOGO"]["MODULE_ID"] == ''
 				)
 			)
-				$arFields["WORK_LOGO"]["MODULE_ID"] = "main";
+				$arFields["WORK_LOGO"]["MODULE_ID"] = 'main';
 
-			CFile::SaveForDB($arFields, "WORK_LOGO", "main");
+			CFile::SaveForDB($arFields, "WORK_LOGO", 'main');
 
 			$arInsert = $DB->PrepareInsert("b_user", $arFields);
 
-			if(!is_set($arFields, "DATE_REGISTER"))
+			if (!is_set($arFields, "DATE_REGISTER"))
 			{
 				$arInsert[0] .= ", DATE_REGISTER";
 				$arInsert[1] .= ", ".$DB->GetNowFunction();
@@ -284,19 +289,21 @@ class CAllUser extends CDBResult
 
 			CAccess::RecalculateForUser($ID, CUserAuthProvider::ID);
 
-			if(is_set($arFields, "GROUP_ID"))
-				static::SetUserGroup($ID, $arFields["GROUP_ID"], true);
-
-			if(isset($arFields["PHONE_NUMBER"]) && $arFields["PHONE_NUMBER"] <> '')
+			if (is_set($arFields, "GROUP_ID"))
 			{
-				Main\UserPhoneAuthTable::add(array(
+				static::SetUserGroup($ID, $arFields["GROUP_ID"], true);
+			}
+
+			if (isset($arFields["PHONE_NUMBER"]) && $arFields["PHONE_NUMBER"] != '')
+			{
+				Main\UserPhoneAuthTable::add([
 					"USER_ID" => $ID,
 					"PHONE_NUMBER" => $arFields["PHONE_NUMBER"],
-				));
+				]);
 			}
 
 			//update digest hash for http digest authorization
-			if(COption::GetOptionString('main', 'use_digest_auth', 'N') == 'Y')
+			if (Option::get('main', 'use_digest_auth', 'N') == 'Y')
 			{
 				static::UpdateDigest($ID, $originalPassword);
 			}
@@ -308,7 +315,7 @@ class CAllUser extends CDBResult
 				"DATE_CHANGE" => new Main\Type\DateTime(),
 			]);
 
-			if(Main\Config\Option::get("main", "user_profile_history") === "Y")
+			if (Option::get('main', 'user_profile_history') === 'Y')
 			{
 				UserProfileHistoryTable::addHistory($ID, UserProfileHistoryTable::TYPE_ADD);
 			}
@@ -320,12 +327,14 @@ class CAllUser extends CDBResult
 
 		$arFields["RESULT"] = &$Result;
 
-		foreach (GetModuleEvents("main", "OnAfterUserAdd", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
-
-		if($ID > 0 && defined("BX_COMP_MANAGED_CACHE"))
+		foreach (GetModuleEvents('main', 'OnAfterUserAdd', true) as $arEvent)
 		{
-			$isRealUser = !$arFields['EXTERNAL_AUTH_ID'] || !in_array($arFields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes());
+			ExecuteModuleEventEx($arEvent, [&$arFields]);
+		}
+
+		if ($ID > 0 && defined("BX_COMP_MANAGED_CACHE"))
+		{
+			$isRealUser = empty($arFields['EXTERNAL_AUTH_ID']) || !in_array($arFields['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
 
 			$CACHE_MANAGER->ClearByTag("USER_CARD_".intval($ID / TAGGED_user_card_size));
 			$CACHE_MANAGER->ClearByTag($isRealUser? "USER_CARD": "EXTERNAL_USER_CARD");
@@ -334,7 +343,7 @@ class CAllUser extends CDBResult
 			$CACHE_MANAGER->ClearByTag($isRealUser? "USER_NAME": "EXTERNAL_USER_NAME");
 		}
 
-		\Bitrix\Main\UserTable::indexRecord($ID);
+		Main\UserTable::indexRecord($ID);
 
 		return $Result;
 	}
@@ -378,15 +387,15 @@ class CAllUser extends CDBResult
 		{
 			$obUserFieldsSql = new CUserTypeSQL;
 			$obUserFieldsSql->SetEntity("USER", "U.ID");
-			$obUserFieldsSql->obWhere->AddFields(array(
-				"F_LAST_NAME" => array(
+			$obUserFieldsSql->obWhere->AddFields([
+				"F_LAST_NAME" => [
 					"TABLE_ALIAS" => "U",
 					"FIELD_NAME" => "U.LAST_NAME",
-					"MULTIPLE" => "N",
+					"MULTIPLE" => 'N',
 					"FIELD_TYPE" => "string",
 					"JOIN" => false,
-				),
-			));
+				],
+			]);
 		}
 		if (isset($arParams["SELECT"]))
 		{
@@ -395,33 +404,43 @@ class CAllUser extends CDBResult
 		$obUserFieldsSql->SetFilter($arFilter);
 		$obUserFieldsSql->SetOrder($arOrder);
 
-		$arFields_m = array("ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY", "IS_ONLINE", "IS_REAL_USER");
-		$arFields = array(
+		$arFields_m = ["ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY", "IS_ONLINE", "IS_REAL_USER"];
+		$arFields = [
 			"DATE_REGISTER", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER", "PERSONAL_PHOTO", "PERSONAL_PHONE", "PERSONAL_FAX",
 			"PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX", "PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES",
 			"WORK_COMPANY", "WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET", "WORK_MAILBOX", "WORK_CITY", "WORK_STATE",
 			"WORK_ZIP", "WORK_COUNTRY", "WORK_PROFILE", "WORK_NOTES", "ADMIN_NOTES", "XML_ID", "LAST_NAME", "SECOND_NAME", "STORED_HASH", "CHECKWORD_TIME", "EXTERNAL_AUTH_ID",
 			"CONFIRM_CODE", "LOGIN_ATTEMPTS", "LAST_ACTIVITY_DATE", "AUTO_TIME_ZONE", "TIME_ZONE", "TIME_ZONE_OFFSET", "PASSWORD", "CHECKWORD", "LID", "LANGUAGE_ID", "TITLE",
-		);
+		];
 		$arFields_all = array_merge($arFields_m, $arFields);
 
-		$arSelectFields = array();
+		$arSelectFields = [];
 		$online_interval = (array_key_exists("ONLINE_INTERVAL", $arParams) && intval($arParams["ONLINE_INTERVAL"]) > 0 ? $arParams["ONLINE_INTERVAL"] : static::GetSecondsForLimitOnline());
-		if (isset($arParams['FIELDS']) && is_array($arParams['FIELDS']) && count($arParams['FIELDS']) > 0 && !in_array("*", $arParams['FIELDS']))
+		if (isset($arParams['FIELDS']) && is_array($arParams['FIELDS']) && !empty($arParams['FIELDS']) && !in_array("*", $arParams['FIELDS']))
 		{
 			foreach ($arParams['FIELDS'] as $field)
 			{
 				$field = strtoupper($field);
 				if ($field == 'TIMESTAMP_X' || $field == 'DATE_REGISTER' || $field == 'LAST_LOGIN')
-					$arSelectFields[$field] = $DB->DateToCharFunction("U.".$field)." ".$field.", U.".$field." ".$field."_DATE";
+				{
+					$arSelectFields[$field] = $DB->DateToCharFunction("U." . $field) . ' ' . $field . ", U." . $field . ' ' . $field . "_DATE";
+				}
 				elseif ($field == 'PERSONAL_BIRTHDAY')
+				{
 					$arSelectFields[$field] = $DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." PERSONAL_BIRTHDAY, U.PERSONAL_BIRTHDAY PERSONAL_BIRTHDAY_DATE";
+				}
 				elseif ($field == 'IS_ONLINE')
+				{
 					$arSelectFields[$field] = "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N') IS_ONLINE";
+				}
 				elseif ($field == 'IS_REAL_USER')
+				{
 					$arSelectFields[$field] = "IF(U.EXTERNAL_AUTH_ID IN ('".join("', '", static::GetExternalUserTypes())."'), 'N', 'Y') IS_REAL_USER";
+				}
 				elseif (in_array($field, $arFields_all))
+				{
 					$arSelectFields[$field] = 'U.'.$field;
+				}
 			}
 		}
 		if (empty($arSelectFields))
@@ -434,18 +453,20 @@ class CAllUser extends CDBResult
 			$arSelectFields['PERSONAL_BIRTHDAY'] =	$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." PERSONAL_BIRTHDAY";
 		}
 
-		$arSqlSearch = Array();
-		$strJoin = "";
+		$arSqlSearch = [];
+		$strJoin = '';
 
-		if(is_array($arFilter))
+		if (is_array($arFilter))
 		{
 			foreach ($arFilter as $key => $val)
 			{
 				$key = strtoupper($key);
-				if(is_array($val))
+				if (is_array($val))
 				{
-					if(count($val) <= 0)
+					if (empty($val))
+					{
 						continue;
+					}
 				}
 				elseif
 				(
@@ -461,14 +482,16 @@ class CAllUser extends CDBResult
 					&& $key != "IS_REAL_USER"
 				)
 				{
-					if((string)$val == '' || $val === "NOT_REF")
+					if ((string)$val == '' || $val === "NOT_REF")
+					{
 						continue;
+					}
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
 				switch($key)
 				{
 				case "ID":
-					$arSqlSearch[] = GetFilterQuery("U.ID",$val,"N");
+					$arSqlSearch[] = GetFilterQuery("U.ID", $val, 'N');
 					break;
 				case ">ID":
 					$arSqlSearch[] = "U.ID > ".intval($val);
@@ -486,10 +509,10 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = "U.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y")." 23:59:59","d.m.Y")."')";
 					break;
 				case "TIMESTAMP_X_1":
-					$arSqlSearch[] = "U.TIMESTAMP_X >= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"DD.MM.YYYY HH:MI:SS"),"d.m.Y H:i:s")."')";
+					$arSqlSearch[] = "U.TIMESTAMP_X >= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"DD.MM.YYYY HH:MI:SS"))."')";
 					break;
 				case "TIMESTAMP_X_2":
-					$arSqlSearch[] = "U.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"DD.MM.YYYY HH:MI:SS"),"d.m.Y H:i:s")."')";
+					$arSqlSearch[] = "U.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"DD.MM.YYYY HH:MI:SS"))."')";
 					break;
 				case "LAST_LOGIN_1":
 					$arSqlSearch[] = "U.LAST_LOGIN >= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y"),"d.m.Y")."')";
@@ -512,45 +535,53 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = "U.DATE_REGISTER <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y")." 23:59:59","d.m.Y")."')";
 					break;
 				case "ACTIVE":
-					$arSqlSearch[] = ($val=="Y") ? "U.ACTIVE='Y'" : "U.ACTIVE='N'";
+					$arSqlSearch[] = ($val == 'Y') ? "U.ACTIVE='Y'" : "U.ACTIVE='N'";
 					break;
 				case "LOGIN_EQUAL":
-					$arSqlSearch[] = GetFilterQuery("U.LOGIN", $val, "N");
+					$arSqlSearch[] = GetFilterQuery("U.LOGIN", $val, 'N');
 					break;
 				case "LOGIN":
 					$arSqlSearch[] = GetFilterQuery("U.LOGIN", $val);
 					break;
 				case "EXTERNAL_AUTH_ID":
-					if($val <> '')
+					if ($val != '')
+					{
 						$arSqlSearch[] = "U.EXTERNAL_AUTH_ID='".$DB->ForSQL($val, 255)."'";
+					}
 					else
+					{
 						$arSqlSearch[] = "(U.EXTERNAL_AUTH_ID IS NULL OR U.EXTERNAL_AUTH_ID='')";
+					}
 					break;
 				case "!EXTERNAL_AUTH_ID":
   					if (
 						is_array($val)
-						&& count($val) > 0
+						&& !empty($val)
 					)
 					{
-						$strTmp = "";
-						foreach($val as $authId)
+						$strTmp = '';
+						foreach ($val as $authId)
 						{
-							if ($authId <> '')
+							if ($authId != '')
 							{
-								$strTmp .= ($strTmp <> '' ? "," : "")."'".$DB->ForSQL($authId, 255)."'";
+								$strTmp .= ($strTmp != '' ? ',' : '')."'".$DB->ForSQL($authId, 255)."'";
 							}
 						}
-						if ($strTmp <> '')
+						if ($strTmp != '')
 						{
 							$arSqlSearch[] = "U.EXTERNAL_AUTH_ID NOT IN (".$strTmp.") OR U.EXTERNAL_AUTH_ID IS NULL";
 						}
 					}
 					elseif (!is_array($val))
 					{
-						if($val <> '')
+						if ($val != '')
+						{
 							$arSqlSearch[] = "U.EXTERNAL_AUTH_ID <> '".$DB->ForSql($val, 255)."' OR U.EXTERNAL_AUTH_ID IS NULL";
+						}
 						else
+						{
 							$arSqlSearch[] = "(U.EXTERNAL_AUTH_ID IS NOT NULL AND LENGTH(U.EXTERNAL_AUTH_ID) > 0)";
+						}
 					}
 					break;
 				case "LOGIN_EQUAL_EXACT":
@@ -560,16 +591,24 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = "U.XML_ID='".$DB->ForSql($val)."'";
 					break;
 				case "CONFIRM_CODE":
-					if($val <> '')
+					if ($val != '')
+					{
 						$arSqlSearch[] = "U.CONFIRM_CODE='".$DB->ForSql($val)."'";
+					}
 					else
+					{
 						$arSqlSearch[] = "(U.CONFIRM_CODE IS NULL OR LENGTH(U.CONFIRM_CODE) <= 0)";
+					}
 					break;
 				case "!CONFIRM_CODE":
-					if($val <> '')
+					if ($val != '')
+					{
 						$arSqlSearch[] = "U.CONFIRM_CODE <> '".$DB->ForSql($val)."'";
+					}
 					else
+					{
 						$arSqlSearch[] = "(U.CONFIRM_CODE IS NOT NULL AND LENGTH(U.CONFIRM_CODE) > 0)";
+					}
 					break;
 				case "COUNTRY_ID":
 				case "WORK_COUNTRY":
@@ -585,20 +624,24 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = GetFilterQuery("U.NAME, U.LAST_NAME, U.SECOND_NAME, U.EMAIL, U.LOGIN", $val);
 					break;
 				case "EMAIL":
-					$arSqlSearch[] = GetFilterQuery("U.EMAIL", $val, "Y", array("@","_",".","-"));
+					$arSqlSearch[] = GetFilterQuery("U.EMAIL", $val, 'Y', ["@","_",".","-"]);
 					break;
 				case "=EMAIL":
 					$arSqlSearch[] = "U.EMAIL = '".$DB->ForSQL(trim($val))."'";
 					break;
 				case "GROUP_MULTI":
 				case "GROUPS_ID":
-					if(is_numeric($val) && intval($val)>0)
-						$val = array($val);
-					if(is_array($val) && count($val)>0)
+					if (is_numeric($val) && intval($val)>0)
 					{
-						$ar = array();
-						foreach($val as $id)
+						$val = [$val];
+					}
+					if (is_array($val) && !empty($val))
+					{
+						$ar = [];
+						foreach ($val as $id)
+						{
 							$ar[intval($id)] = intval($id);
+						}
 						$strJoin .=
 							" INNER JOIN (SELECT DISTINCT UG.USER_ID FROM b_user_group UG
 							WHERE UG.GROUP_ID in (".implode(",", $ar).")
@@ -626,20 +669,28 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = GetFilterQuery(implode(",",$arFields), $val);
 					break;
 				case "CHECK_SUBORDINATE":
-					if(is_array($val))
+					if (is_array($val))
 					{
 						$strSubord = "0";
-						foreach($val as $grp)
+						foreach ($val as $grp)
+						{
 							$strSubord .= ",".intval($grp);
-						if(intval($arFilter["CHECK_SUBORDINATE_AND_OWN"]) > 0)
+						}
+						if (intval($arFilter["CHECK_SUBORDINATE_AND_OWN"]) > 0)
+						{
 							$arSqlSearch[] = "(U.ID=".intval($arFilter["CHECK_SUBORDINATE_AND_OWN"])." OR NOT EXISTS(SELECT 'x' FROM b_user_group UGS WHERE UGS.USER_ID=U.ID AND UGS.GROUP_ID NOT IN (".$strSubord.")))";
+						}
 						else
+						{
 							$arSqlSearch[] = "NOT EXISTS(SELECT 'x' FROM b_user_group UGS WHERE UGS.USER_ID=U.ID AND UGS.GROUP_ID NOT IN (".$strSubord."))";
+						}
 					}
 					break;
 				case "NOT_ADMIN":
-					if($val !== true)
+					if ($val !== true)
+					{
 						break;
+					}
 					$arSqlSearch[] = "not exists (SELECT * FROM b_user_group UGNA WHERE UGNA.USER_ID=U.ID AND UGNA.GROUP_ID = 1)";
 					break;
 				case "LAST_ACTIVITY":
@@ -656,7 +707,7 @@ class CAllUser extends CDBResult
 					$arSqlSearch[] = "U.ACTIVE = 'Y' AND U.LAST_LOGIN IS NOT NULL AND EXISTS(SELECT 'x' FROM b_utm_user UF1, b_user_field F1 WHERE F1.ENTITY_ID = 'USER' AND F1.FIELD_NAME = 'UF_DEPARTMENT' AND UF1.FIELD_ID = F1.ID AND UF1.VALUE_ID = U.ID AND UF1.VALUE_INT IS NOT NULL AND UF1.VALUE_INT <> 0)";
 					break;
 				case "IS_REAL_USER":
-					if($val === true || $val === 'Y')
+					if ($val === true || $val === 'Y')
 					{
 						$arSqlSearch[] = "U.EXTERNAL_AUTH_ID NOT IN ('".join("', '", static::GetExternalUserTypes())."') OR U.EXTERNAL_AUTH_ID IS NULL";
 					}
@@ -666,22 +717,24 @@ class CAllUser extends CDBResult
 					}
 					break;
 				default:
-					if(in_array($key, $arFields))
-						$arSqlSearch[] = GetFilterQuery('U.'.$key, $val, ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set? "N" : "Y"));
+					if (in_array($key, $arFields))
+					{
+						$arSqlSearch[] = GetFilterQuery('U.'.$key, $val, ($arFilter[$key."_EXACT_MATCH"] == 'Y' && $match_value_set ? 'N' : 'Y'));
+					}
 				}
 			}
 		}
 
-		$arSqlOrder = array();
+		$arSqlOrder = [];
 		foreach ($arOrder as $field => $dir)
 		{
 			$field = strtoupper($field);
-			if(strtolower($dir) != "asc")
+			if (strtolower($dir) != "asc")
 			{
 				$dir = "desc";
 			}
 
-			if($field == "CURRENT_BIRTHDAY")
+			if ($field == "CURRENT_BIRTHDAY")
 			{
 				$cur_year = intval(date('Y'));
 				$arSqlOrder[$field] = "IF(ISNULL(U.PERSONAL_BIRTHDAY), '9999-99-99', IF (
@@ -690,31 +743,31 @@ class CAllUser extends CDBResult
 					DATE_FORMAT(U.PERSONAL_BIRTHDAY, '".$cur_year."-%m-%d')
 				)) ".$dir;
 			}
-			elseif($field == "IS_ONLINE")
+			elseif ($field == "IS_ONLINE")
 			{
 				$arSelectFields[$field] = "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N') IS_ONLINE";
 				$arSqlOrder[$field] = "IS_ONLINE ".$dir;
 			}
-			elseif(in_array($field,$arFields_all))
+			elseif (in_array($field,$arFields_all))
 			{
-				$arSqlOrder[$field] = "U.".$field." ".$dir;
+				$arSqlOrder[$field] = "U." . $field . ' ' . $dir;
 			}
-			elseif($s = $obUserFieldsSql->GetOrder($field))
+			elseif ($s = $obUserFieldsSql->GetOrder($field))
 			{
-				$arSqlOrder[$field] = strtoupper($s)." ".$dir;
+				$arSqlOrder[$field] = strtoupper($s) . ' ' . $dir;
 			}
-			elseif(preg_match('/^RATING_(\d+)$/i', $field, $matches))
+			elseif (preg_match('/^RATING_(\d+)$/i', $field, $matches))
 			{
 				$ratingId = intval($matches[1]);
 				if ($ratingId > 0)
 				{
-					$arSqlOrder[$field] = $field."_ISNULL ASC, ".$field." ".$dir;
+					$arSqlOrder[$field] = $field . "_ISNULL ASC, " . $field . ' ' . $dir;
 					$arParams['SELECT'][] = $field;
 				}
 				else
 				{
 					$field = "TIMESTAMP_X";
-					$arSqlOrder[$field] = "U.".$field." ".$dir;
+					$arSqlOrder[$field] = "U." . $field . ' ' . $dir;
 				}
 			}
 			elseif ($field == 'FULL_NAME')
@@ -735,17 +788,17 @@ class CAllUser extends CDBResult
 		$arSqlSearch[] = $obUserFieldsSql->GetFilter();
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
-		$sSelect = ($obUserFieldsSql->GetDistinct()? "DISTINCT " : "")
+		$sSelect = ($obUserFieldsSql->GetDistinct()? "DISTINCT " : '')
 			.implode(', ',$arSelectFields)."
 			".$userFieldsSelect."
 		";
 
 		if (isset($arParams['SELECT']) && is_array($arParams['SELECT']))
 		{
-			$arRatingInSelect = array();
+			$arRatingInSelect = [];
 			foreach ($arParams['SELECT'] as $column)
 			{
-				if(preg_match('/^RATING_(\d+)$/i', $column, $matches))
+				if (preg_match('/^RATING_(\d+)$/i', $column, $matches))
 				{
 					$ratingId = intval($matches[1]);
 					if ($ratingId > 0 && !in_array($ratingId, $arRatingInSelect))
@@ -780,31 +833,37 @@ class CAllUser extends CDBResult
 
 		$strSql = "SELECT ".$sSelect.$strFrom.$strSqlOrder;
 
-		if(array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
+		if (array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
 		{
-			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount']);
-			if($nTopCount > 0)
+			$nTopCount = isset($arParams['NAV_PARAMS']['nTopCount']) ? intval($arParams['NAV_PARAMS']['nTopCount']) : 0;
+			if ($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSql, $nTopCount);
 				$res = $DB->Query($strSql);
-				if($userFieldsSelect <> '')
+				if ($userFieldsSelect != '')
+				{
 					$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+				}
 			}
 			else
 			{
-				$res_cnt = $DB->Query("SELECT COUNT(".($obUserFieldsSql->GetDistinct()? "DISTINCT ":"")."U.ID) as C ".$strFrom);
+				$res_cnt = $DB->Query("SELECT COUNT(".($obUserFieldsSql->GetDistinct()? 'DISTINCT ' : '')."U.ID) as C ".$strFrom);
 				$res_cnt = $res_cnt->Fetch();
 				$res = new CDBResult();
-				if($userFieldsSelect <> '')
+				if ($userFieldsSelect != '')
+				{
 					$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+				}
 				$res->NavQuery($strSql, $res_cnt["C"], $arParams["NAV_PARAMS"]);
 			}
 		}
 		else
 		{
 			$res = $DB->Query($strSql);
-			if($userFieldsSelect <> '')
+			if ($userFieldsSelect != '')
+			{
 				$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+			}
 		}
 
 		$res->is_filtered = IsFiltered($strSqlSearch);
@@ -835,14 +894,14 @@ class CAllUser extends CDBResult
 		}
 
 		$dbRes = $DB->Query("SELECT 'x' FROM b_user WHERE ID = ".$id." AND LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$interval." SECOND)");
-		return $arRes = $dbRes->Fetch()? true: false;
+		return (bool)$dbRes->Fetch();
 	}
 
 	public function GetUserGroupArray()
 	{
 		$groups = $this->GetParam("GROUPS");
 
-		if(!is_array($groups) || empty($groups))
+		if (!is_array($groups) || empty($groups))
 		{
 			return [2];
 		}
@@ -874,27 +933,31 @@ class CAllUser extends CDBResult
 	public function RequiredHTTPAuthBasic($Realm = "Bitrix")
 	{
 		header("WWW-Authenticate: Basic realm=\"{$Realm}\"");
-		if(stristr(php_sapi_name(), "cgi") !== false)
+		if (stristr(php_sapi_name(), "cgi") !== false)
+		{
 			header("Status: 401 Unauthorized");
+		}
 		else
+		{
 			header($_SERVER["SERVER_PROTOCOL"]." 401 Unauthorized");
+		}
 
 		return false;
 	}
 
 	public function LoginByCookies()
 	{
-		if(COption::GetOptionString("main", "store_password", "Y") == "Y")
+		if (Option::get('main', 'store_password', 'Y') == 'Y')
 		{
 			if (!isset($_REQUEST["logout"]) || strtolower($_REQUEST["logout"]) != "yes")
 			{
-				$prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+				$prefix = Option::get('main', 'cookie_name', 'BITRIX_SM');
 				$login = (string)($_COOKIE[$prefix.'_UIDL'] ?? '');
 				$password = (string)($_COOKIE[$prefix.'_UIDH'] ?? '');
 
-				if($login != '' && $password != '')
+				if ($login != '' && $password != '')
 				{
-					if($login != $this->GetLogin() || $password !== $this->getContext()->getStoredAuthHash())
+					if ($login != $this->GetLogin() || $password !== $this->getContext()->getStoredAuthHash())
 					{
 						$this->LoginByHash($login, $password);
 					}
@@ -910,23 +973,25 @@ class CAllUser extends CDBResult
 
 		$result_message = true;
 		$userId = 0;
-		$arParams = array(
+		$arParams = [
 			"LOGIN" => $login,
 			"HASH" => $hash,
-		);
+		];
 
 		$APPLICATION->ResetException();
 		$bOk = true;
-		foreach(GetModuleEvents("main", "OnBeforeUserLoginByHash", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserLoginByHash', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams))===false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams]) === false)
 			{
-				if($err = $APPLICATION->GetException())
-					$result_message = array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+				if ($err = $APPLICATION->GetException())
+				{
+					$result_message = ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
+				}
 				else
 				{
 					$APPLICATION->ThrowException("Unknown error");
-					$result_message = array("MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR"];
 				}
 
 				$bOk = false;
@@ -934,7 +999,7 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($bOk && $arParams['HASH'] <> '')
+		if ($bOk && $arParams['HASH'] != '')
 		{
 			$strSql =
 				"SELECT U.ID, U.ACTIVE, U.EXTERNAL_AUTH_ID, U.BLOCKED ".
@@ -942,15 +1007,14 @@ class CAllUser extends CDBResult
 				"WHERE U.LOGIN = '".$DB->ForSQL($arParams['LOGIN'], 50)."' ";
 			$result = $DB->Query($strSql);
 
-			$userFound = false;
-			$hashFound = false;
-			while(($arUser = $result->Fetch()))
+			$found = false;
+			while (($arUser = $result->Fetch()))
 			{
-				$userFound = true;
 				$userId = $arUser['ID'];
+
 				//there is no stored auth for external authorization, but domain spread auth should work
-				$bExternal = ($arUser["EXTERNAL_AUTH_ID"] <> '');
-				$bAllowExternalSave = COption::GetOptionString("main", "allow_external_auth_stored_hash", "N") == "Y";
+				$bExternal = ($arUser["EXTERNAL_AUTH_ID"] != '');
+				$bAllowExternalSave = Option::get('main', 'allow_external_auth_stored_hash', 'N') == 'Y';
 				$tempHash = $bExternal && !$bAllowExternalSave;
 
 				$context = (new Authentication\Context())
@@ -959,7 +1023,7 @@ class CAllUser extends CDBResult
 
 				if (static::CheckStoredHash($context, $arParams['HASH'], $tempHash))
 				{
-					$hashFound = true;
+					$found = true;
 					if ($arUser["ACTIVE"] == 'Y' && $arUser["BLOCKED"] != 'Y')
 					{
 						$this->Authorize($context, !$tempHash);
@@ -967,29 +1031,39 @@ class CAllUser extends CDBResult
 					else
 					{
 						$APPLICATION->ThrowException(GetMessage("LOGIN_BLOCK"));
-						$result_message = array("MESSAGE"=>GetMessage("LOGIN_BLOCK")."<br>", "TYPE"=>"ERROR");
+						$result_message = ["MESSAGE"=>GetMessage("LOGIN_BLOCK")."<br>", "TYPE"=>"ERROR"];
 					}
 					break;
 				}
 			}
-			if (!$userFound || !$hashFound)
+
+			if (!$found)
 			{
+				//Delete invalid stored auth cookie
+				$spread = (Option::get('main', 'auth_multisite', 'N') === 'Y' ? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
+
+				$cookie = (new Main\Web\Cookie('UIDH', '', 0))
+					->setSpread($spread)
+					->setHttpOnly(true)
+				;
+				Main\Context::getCurrent()->getResponse()->addCookie($cookie);
+
 				$APPLICATION->ThrowException(GetMessage("WRONG_LOGIN"));
-				$result_message = array("MESSAGE"=>GetMessage("WRONG_LOGIN")."<br>", "TYPE"=>"ERROR");
+				$result_message = ["MESSAGE"=>GetMessage("WRONG_LOGIN")."<br>", "TYPE"=>"ERROR"];
 			}
 		}
 
 		$arParams["USER_ID"] = $userId;
 		$arParams["RESULT_MESSAGE"] = $result_message;
 
-		foreach (GetModuleEvents("main", "OnAfterUserLoginByHash", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnAfterUserLoginByHash', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array(&$arParams));
+			ExecuteModuleEventEx($arEvent, [&$arParams]);
 		}
 
-		if ($result_message !== true && COption::GetOptionString("main", "event_log_login_fail", "N") === "Y")
+		if ($result_message !== true && Option::get('main', 'event_log_login_fail', 'N') === 'Y')
 		{
-			CEventLog::Log("SECURITY", "USER_LOGINBYHASH", "main", $login, $result_message["MESSAGE"]);
+			CEventLog::Log('SECURITY', 'USER_LOGINBYHASH', 'main', $login, $result_message['MESSAGE']);
 		}
 
 		return $arParams["RESULT_MESSAGE"];
@@ -997,29 +1071,29 @@ class CAllUser extends CDBResult
 
 	public function LoginByHttpAuth()
 	{
-		$arAuth = Bitrix\Main\Context::getCurrent()->getServer()->parseAuthRequest();
+		$arAuth = Main\Context::getCurrent()->getServer()->parseAuthRequest();
 
-		foreach(GetModuleEvents("main", "onBeforeUserLoginByHttpAuth", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'onBeforeUserLoginByHttpAuth', true) as $arEvent)
 		{
-			$res = ExecuteModuleEventEx($arEvent, array(&$arAuth));
-			if($res !== null)
+			$res = ExecuteModuleEventEx($arEvent, [&$arAuth]);
+			if ($res !== null)
 			{
 				return $res;
 			}
 		}
 
-		if(isset($arAuth["basic"]) && $arAuth["basic"]["username"] <> '' && $arAuth["basic"]["password"] <> '')
+		if (isset($arAuth["basic"]) && $arAuth["basic"]["username"] != '' && $arAuth["basic"]["password"] != '')
 		{
 			// Authorize user, if it is http basic authorization, with no remembering
-			if(!$this->IsAuthorized() || $this->GetLogin() <> $arAuth["basic"]["username"])
+			if (!$this->IsAuthorized() || $this->GetLogin() != $arAuth["basic"]["username"])
 			{
-				return $this->Login($arAuth["basic"]["username"], $arAuth["basic"]["password"], "N");
+				return $this->Login($arAuth["basic"]["username"], $arAuth["basic"]["password"]);
 			}
 		}
-		elseif(isset($arAuth["digest"]) && $arAuth["digest"]["username"] <> '' && COption::GetOptionString('main', 'use_digest_auth', 'N') == 'Y')
+		elseif (isset($arAuth["digest"]) && $arAuth["digest"]["username"] != '' && Option::get('main', 'use_digest_auth', 'N') == 'Y')
 		{
 			// Authorize user by http digest authorization
-			if(!$this->IsAuthorized() || $this->GetLogin() <> $arAuth["digest"]["username"])
+			if (!$this->IsAuthorized() || $this->GetLogin() != $arAuth["digest"]["username"])
 			{
 				return $this->LoginByDigest($arAuth["digest"]);
 			}
@@ -1042,12 +1116,12 @@ class CAllUser extends CDBResult
 			"WHERE U.LOGIN='".$DB->ForSQL($arDigest["username"])."' ";
 		$res = $DB->Query($strSql);
 
-		if($arUser = $res->Fetch())
+		if ($arUser = $res->Fetch())
 		{
-			$method = (isset($_SERVER['REDIRECT_REQUEST_METHOD']) ? $_SERVER['REDIRECT_REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+			$method = ($_SERVER['REDIRECT_REQUEST_METHOD'] ?? $_SERVER['REQUEST_METHOD']);
 			$HA2 = md5($method.':'.$arDigest['uri']);
 
-			if($arUser["EXTERNAL_AUTH_ID"] == '' && $arUser["DIGEST_HA1"] <> '')
+			if ($arUser["EXTERNAL_AUTH_ID"] == '' && $arUser["DIGEST_HA1"] != '')
 			{
 				//digest is for internal authentication only
 				static::$kernelSession["BX_HTTP_DIGEST_ABSENT"] = false;
@@ -1055,20 +1129,20 @@ class CAllUser extends CDBResult
 				$HA1 = $arUser["DIGEST_HA1"];
 				$valid_response = md5($HA1.':'.$arDigest['nonce'].':'.$HA2);
 
-				if($arDigest["response"] === $valid_response)
+				if ($arDigest["response"] === $valid_response)
 				{
 					//regular user password
-					return $this->Login($arDigest["username"], $arUser["PASSWORD"], "N", "N");
+					return $this->Login($arDigest["username"], $arUser["PASSWORD"], 'N', 'N');
 				}
 			}
 
 			//check for an application password, including external users
-			if(($appPassword = ApplicationPasswordTable::findDigestPassword($arUser["ID"], $arDigest)) !== false)
+			if (($appPassword = ApplicationPasswordTable::findDigestPassword($arUser["ID"], $arDigest)) !== false)
 			{
-				return $this->Login($arDigest["username"], $appPassword["PASSWORD"], "N", "N");
+				return $this->Login($arDigest["username"], $appPassword["PASSWORD"], 'N', 'N');
 			}
 
-			if($arUser["DIGEST_HA1"] == '')
+			if ($arUser["DIGEST_HA1"] == '')
 			{
 				//this indicates that we still have no user digest hash
 				static::$kernelSession["BX_HTTP_DIGEST_ABSENT"] = true;
@@ -1076,7 +1150,7 @@ class CAllUser extends CDBResult
 		}
 
 		$APPLICATION->ThrowException(GetMessage("USER_AUTH_DIGEST_ERR"));
-		return array("MESSAGE"=>GetMessage("USER_AUTH_DIGEST_ERR")."<br>", "TYPE"=>"ERROR");
+		return ["MESSAGE"=>GetMessage("USER_AUTH_DIGEST_ERR")."<br>", "TYPE"=>"ERROR"];
 	}
 
 	public static function UpdateDigest($ID, $pass)
@@ -1089,16 +1163,20 @@ class CAllUser extends CDBResult
 			FROM b_user U LEFT JOIN b_user_digest UD on UD.USER_ID=U.ID
 			WHERE U.ID=".$ID
 		);
-		if($arRes = $res->Fetch())
+		if ($arRes = $res->Fetch())
 		{
-			if(defined('BX_HTTP_AUTH_REALM'))
+			if (defined('BX_HTTP_AUTH_REALM'))
+			{
 				$realm = BX_HTTP_AUTH_REALM;
+			}
 			else
+			{
 				$realm = "Bitrix Site Manager";
+			}
 
 			$digest = md5($arRes["LOGIN"].':'.$realm.':'.$pass);
 
-			if($arRes["DIGEST_HA1"] == '')
+			if ($arRes["DIGEST_HA1"] == '')
 			{
 				//new digest
 				$DB->Query("insert into b_user_digest (user_id, digest_ha1) values('".$ID."', '".$DB->ForSQL($digest)."')");
@@ -1106,8 +1184,10 @@ class CAllUser extends CDBResult
 			else
 			{
 				//update digest (login, password or realm were changed)
-				if($arRes["DIGEST_HA1"] !== $digest)
+				if ($arRes["DIGEST_HA1"] !== $digest)
+				{
 					$DB->Query("update b_user_digest set digest_ha1='".$DB->ForSQL($digest)."' where user_id=".$ID);
+				}
 			}
 		}
 	}
@@ -1143,7 +1223,7 @@ class CAllUser extends CDBResult
 			$query->where('SITE_ID', SITE_ID);
 		}
 
-		if($hashData = $query->fetch())
+		if ($hashData = $query->fetch())
 		{
 			// case sensitive
 			if ($hashData['HASH'] === $hash)
@@ -1257,7 +1337,7 @@ class CAllUser extends CDBResult
 			$query->where('SITE_ID', $siteId);
 		}
 
-		if($hashData = $query->fetch())
+		if ($hashData = $query->fetch())
 		{
 			if ($hashData['VALID_UNTIL'] instanceof Main\Type\DateTime)
 			{
@@ -1276,7 +1356,7 @@ class CAllUser extends CDBResult
 
 	public static function CleanUpHitAuthAgent()
 	{
-		$cleanupDays = COption::GetOptionInt('main', 'hit_auth_cleanup_days', 30);
+		$cleanupDays = (int)Option::get('main', 'hit_auth_cleanup_days', 30);
 		if ($cleanupDays > 0)
 		{
 			UserHitAuthTable::deleteByFilter(['<=TIMESTAMP_X' => (new Main\Type\DateTime())->add("-{$cleanupDays}D")]);
@@ -1303,13 +1383,13 @@ class CAllUser extends CDBResult
 
 		$result = $DB->Query($strSql);
 
-		if($arUser = $result->Fetch())
+		if ($arUser = $result->Fetch())
 		{
 			$data = [
 				"LOGIN" => $arUser["LOGIN"],
 				"EMAIL" => $arUser["EMAIL"],
 				"TITLE" => $arUser["TITLE"],
-				"NAME" => $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''? "":" ").$arUser["LAST_NAME"],
+				"NAME" => $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''? '' : ' ').$arUser["LAST_NAME"],
 				"FIRST_NAME" => $arUser["NAME"],
 				"SECOND_NAME" => $arUser["SECOND_NAME"],
 				"LAST_NAME" => $arUser["LAST_NAME"],
@@ -1372,7 +1452,7 @@ class CAllUser extends CDBResult
 
 		$arUser = $this->UpdateSessionData($context, $onlyActive);
 
-		if($arUser !== false)
+		if ($arUser !== false)
 		{
 			$regenerateIdAfterLogin = Main\Config\Configuration::getInstance()->get('session')['regenerateIdAfterLogin'] ?? false;
 			if ($regenerateIdAfterLogin === true)
@@ -1384,7 +1464,7 @@ class CAllUser extends CDBResult
 			$this->justAuthorized = true;
 
 			//sometimes we don't need to update db (REST)
-			if($bUpdate)
+			if ($bUpdate)
 			{
 				$tz = '';
 				if (CTimeZone::Enabled())
@@ -1426,7 +1506,7 @@ class CAllUser extends CDBResult
 						ID=".$arUser["ID"]
 				);
 
-				if ($bSave || COption::GetOptionString("main", "auth_multisite", "N") == "Y")
+				if ($bSave || Option::get('main', 'auth_multisite', 'N') == 'Y')
 				{
 					if (($hash = $context->getStoredAuthHash()) === null)
 					{
@@ -1439,7 +1519,7 @@ class CAllUser extends CDBResult
 					$ipAddress = new Main\Web\IpAddress(Main\Context::getCurrent()->getServer()->getRemoteAddr());
 					$ipExpr = new Main\DB\SqlExpression($ipAddress->toUnsigned());
 
-					if($context->getStoredAuthId() > 0)
+					if ($context->getStoredAuthId() > 0)
 					{
 						UserStoredAuthTable::update($context->getStoredAuthId(), [
 							'LAST_AUTH' => $date,
@@ -1459,44 +1539,44 @@ class CAllUser extends CDBResult
 					}
 				}
 
-				if(($applicationPassId = $context->getApplicationPasswordId()) !== null)
+				if (($applicationPassId = $context->getApplicationPasswordId()) !== null)
 				{
 					//update usage statistics for the application
-					ApplicationPasswordTable::update($applicationPassId, array(
+					ApplicationPasswordTable::update($applicationPassId, [
 						'DATE_LOGIN' => new Main\Type\DateTime(),
 						'LAST_IP' => $_SERVER["REMOTE_ADDR"],
-					));
+					]);
 				}
 
-				if(COption::GetOptionString("main", "event_log_login_success", "N") === "Y")
+				if (Option::get('main', 'event_log_login_success', 'N') === 'Y')
 				{
-					CEventLog::Log("SECURITY", "USER_AUTHORIZE", "main", $arUser["ID"], $context->getApplicationId());
+					CEventLog::Log('SECURITY', 'USER_AUTHORIZE', 'main', $arUser['ID'], $context->getApplicationId());
 				}
 
-				if(COption::GetOptionString('main', 'user_device_history', 'N') === 'Y')
+				if (Option::get('main', 'user_device_history', 'N') === 'Y')
 				{
 					Device::addLogin($context, $arUser);
 				}
 			}
 
-			$arParams = array(
+			$arParams = [
 				"user_fields" => $arUser,
 				"save" => $bSave,
 				"update" => $bUpdate,
 				"applicationId" => $context->getApplicationId(),
-			);
+			];
 
-			foreach (GetModuleEvents("main", "OnAfterUserAuthorize", true) as $arEvent)
+			foreach (GetModuleEvents('main', 'OnAfterUserAuthorize', true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array($arParams));
+				ExecuteModuleEventEx($arEvent, [$arParams]);
 			}
 
-			foreach (GetModuleEvents("main", "OnUserLogin", true) as $arEvent)
+			foreach (GetModuleEvents('main', 'OnUserLogin', true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array($this->GetID(), $arParams));
+				ExecuteModuleEventEx($arEvent, [$this->GetID(), $arParams]);
 			}
 
-			if($bUpdate)
+			if ($bUpdate)
 			{
 				Main\Composite\Engine::onUserLogin();
 			}
@@ -1515,7 +1595,7 @@ class CAllUser extends CDBResult
 		$response = $context->getResponse();
 		$request = $context->getRequest();
 
-		$secure = (COption::GetOptionString('main', 'use_secure_password_cookies', 'N') == 'Y' && $request->isHttps());
+		$secure = (Option::get('main', 'use_secure_password_cookies', 'N') == 'Y' && $request->isHttps());
 
 		if ($save)
 		{
@@ -1528,7 +1608,7 @@ class CAllUser extends CDBResult
 			$spread = Main\Web\Cookie::SPREAD_SITES;
 		}
 
-		$cookie = new Bitrix\Main\Web\Cookie('UIDH', $hash, $period);
+		$cookie = new Main\Web\Cookie('UIDH', $hash, $period);
 
 		$cookie->setSecure($secure)
 			->setSpread($spread)
@@ -1536,7 +1616,7 @@ class CAllUser extends CDBResult
 
 		$response->addCookie($cookie);
 
-		$cookie = new Bitrix\Main\Web\Cookie('UIDL', $login, $period);
+		$cookie = new Main\Web\Cookie('UIDL', $login, $period);
 
 		$cookie->setSecure($secure)
 			->setSpread($spread)
@@ -1574,7 +1654,7 @@ class CAllUser extends CDBResult
 	 * @param string $password_original
 	 * @return array|bool
 	 */
-	public function Login($login, $password, $remember="N", $password_original="Y")
+	public function Login($login, $password, $remember = 'N', $password_original = 'Y')
 	{
 		global $APPLICATION;
 
@@ -1582,30 +1662,30 @@ class CAllUser extends CDBResult
 		$user_id = 0;
 		$context = new Authentication\Context();
 
-		$arParams = array(
+		$arParams = [
 			"LOGIN" => &$login,
 			"PASSWORD" => &$password,
 			"REMEMBER" => &$remember,
 			"PASSWORD_ORIGINAL" => &$password_original,
-		);
+		];
 
 		unset(static::$kernelSession["SESS_OPERATIONS"]);
 		$APPLICATION->SetNeedCAPTHA(false);
 
 		$bOk = true;
 		$APPLICATION->ResetException();
-		foreach(GetModuleEvents("main", "OnBeforeUserLogin", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserLogin', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams))===false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams]) === false)
 			{
-				if($err = $APPLICATION->GetException())
+				if ($err = $APPLICATION->GetException())
 				{
-					$result_message = array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
 				}
 				else
 				{
 					$APPLICATION->ThrowException("Unknown login error");
-					$result_message = array("MESSAGE"=>"Unknown login error"."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>"Unknown login error"."<br>", "TYPE"=>"ERROR"];
 				}
 
 				$bOk = false;
@@ -1613,38 +1693,38 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($bOk)
+		if ($bOk)
 		{
 			//external authentication
-			foreach(GetModuleEvents("main", "OnUserLoginExternal", true) as $arEvent)
+			foreach (GetModuleEvents('main', 'OnUserLoginExternal', true) as $arEvent)
 			{
-				$user_id = ExecuteModuleEventEx($arEvent, array(&$arParams));
+				$user_id = ExecuteModuleEventEx($arEvent, [&$arParams]);
 
-				if(isset($arParams["RESULT_MESSAGE"]))
+				if (isset($arParams["RESULT_MESSAGE"]))
 				{
 					$result_message = $arParams["RESULT_MESSAGE"];
 				}
-				if($user_id > 0)
+				if ($user_id > 0)
 				{
 					break;
 				}
 			}
 
-			if($user_id <= 0)
+			if ($user_id <= 0)
 			{
 				//internal authentication OR application password for external user
 				$user_id = static::LoginInternal($arParams, $result_message, $context);
 
-				if($user_id <= 0)
+				if ($user_id <= 0)
 				{
 					//no user found by login - try to find an external user
-					foreach(GetModuleEvents("main", "OnFindExternalUser", true) as $arEvent)
+					foreach (GetModuleEvents('main', 'OnFindExternalUser', true) as $arEvent)
 					{
-						if(($external_user_id = intval(ExecuteModuleEventEx($arEvent, array($arParams["LOGIN"])))) > 0)
+						if (($external_user_id = intval(ExecuteModuleEventEx($arEvent, [$arParams["LOGIN"]]))) > 0)
 						{
 							//external user authentication
 							//let's try to find application password for the external user
-							if(($appPassword = ApplicationPasswordTable::findPassword($external_user_id, $arParams["PASSWORD"], ($arParams["PASSWORD_ORIGINAL"] == "Y"))) !== false)
+							if (($appPassword = ApplicationPasswordTable::findPassword($external_user_id, $arParams["PASSWORD"], ($arParams["PASSWORD_ORIGINAL"] == 'Y'))) !== false)
 							{
 								//bingo, the user has the application password
 								$user_id = $external_user_id;
@@ -1663,16 +1743,16 @@ class CAllUser extends CDBResult
 		}
 
 		// All except Admin
-		if ($user_id > 1 && $arParams["CONTROLLER_ADMIN"] !== "Y")
+		if ($user_id > 1 && (!isset($arParams["CONTROLLER_ADMIN"]) || $arParams["CONTROLLER_ADMIN"] !== 'Y'))
 		{
-			if(!static::CheckUsersCount($user_id))
+			if (!static::CheckUsersCount($user_id))
 			{
 				$user_id = 0;
 				$APPLICATION->ThrowException(GetMessage("LIMIT_USERS_COUNT"));
-				$result_message = array(
+				$result_message = [
 					"MESSAGE" => GetMessage("LIMIT_USERS_COUNT")."<br>",
 					"TYPE" => "ERROR",
-				);
+				];
 			}
 		}
 
@@ -1680,9 +1760,9 @@ class CAllUser extends CDBResult
 
 		$doAuthorize = true;
 
-		if($user_id > 0)
+		if ($user_id > 0)
 		{
-			if($context->getApplicationId() === null && CModule::IncludeModule("security"))
+			if ($context->getApplicationId() === null && CModule::IncludeModule("security"))
 			{
 				/*
 				MFA can allow or disallow authorization.
@@ -1702,27 +1782,27 @@ class CAllUser extends CDBResult
 				$doAuthorize = \Bitrix\Security\Mfa\Otp::verifyUser($arParams);
 			}
 
-			if($doAuthorize)
+			if ($doAuthorize)
 			{
 				$context->setUserId($user_id);
 
-				$this->Authorize($context, ($arParams["REMEMBER"] == "Y"));
+				$this->Authorize($context, ($arParams["REMEMBER"] == 'Y'));
 			}
 			else
 			{
 				$result_message = false;
 			}
 
-			if($context->getApplicationId() === null && $arParams["LOGIN"] <> '')
+			if ($context->getApplicationId() === null && $arParams["LOGIN"] != '')
 			{
 				//the cookie is for authentication forms mostly, does not make sense for applications
-				$cookie = new Bitrix\Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*12);
+				$cookie = new Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*12);
 				Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 			}
 		}
 		else
 		{
-			if(CModule::IncludeModule("security"))
+			if (CModule::IncludeModule("security"))
 			{
 				//disable OTP from if login was incorrect
 				\Bitrix\Security\Mfa\Otp::setDeferredParams(null);
@@ -1732,11 +1812,16 @@ class CAllUser extends CDBResult
 		$arParams["RESULT_MESSAGE"] = $result_message;
 
 		$APPLICATION->ResetException();
-		foreach(GetModuleEvents("main", "OnAfterUserLogin", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array(&$arParams));
 
-		if($doAuthorize == true && $result_message !== true && (COption::GetOptionString("main", "event_log_login_fail", "N") === "Y"))
-			CEventLog::Log("SECURITY", "USER_LOGIN", "main", $login, $result_message["MESSAGE"]);
+		foreach (GetModuleEvents('main', 'OnAfterUserLogin', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [&$arParams]);
+		}
+
+		if ($doAuthorize && $result_message !== true && (Option::get('main', 'event_log_login_fail', 'N') === 'Y'))
+		{
+			CEventLog::Log('SECURITY', 'USER_LOGIN', 'main', $login, $result_message['MESSAGE']);
+		}
 
 		return $arParams["RESULT_MESSAGE"];
 	}
@@ -1761,7 +1846,7 @@ class CAllUser extends CDBResult
 			"FROM b_user U  ".
 			"WHERE U.LOGIN='".$DB->ForSQL($arParams["LOGIN"])."' ";
 
-		if(isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] <> '')
+		if (isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '')
 		{
 			//external user
 			$strSql .= " AND EXTERNAL_AUTH_ID='".$DB->ForSql($arParams["EXTERNAL_AUTH_ID"])."'";
@@ -1774,39 +1859,39 @@ class CAllUser extends CDBResult
 
 		$result = $DB->Query($strSql);
 
-		if(($arUser = $result->Fetch()))
+		if (($arUser = $result->Fetch()))
 		{
 			$passwordCorrect = false;
 			$policy = null;
 			$applicationId = null;
-			$original = ($arParams["PASSWORD_ORIGINAL"] == "Y");
+			$original = isset($arParams["PASSWORD_ORIGINAL"]) && $arParams["PASSWORD_ORIGINAL"] === 'Y';
 			$loginAttempts = intval($arUser["LOGIN_ATTEMPTS"]) + 1;
 
-			if($arUser["BLOCKED"] <> "Y")
+			if ($arUser["BLOCKED"] != 'Y')
 			{
 				$policy = static::getPolicy($arUser["ID"]);
 
 				//show captcha after a serial of incorrect login attempts
 				$correctCaptcha = true;
 				$policyLoginAttempts = (int)$policy->getLoginAttempts();
-				if($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
+				if ($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
 				{
 					$APPLICATION->SetNeedCAPTHA(true);
-					if(!$APPLICATION->CaptchaCheckCode($_REQUEST["captcha_word"], $_REQUEST["captcha_sid"]))
+					if (!$APPLICATION->CaptchaCheckCode($_REQUEST["captcha_word"] ?? '', $_REQUEST["captcha_sid"] ?? ''))
 					{
 						$correctCaptcha = false;
 					}
 				}
 
-				if($correctCaptcha)
+				if ($correctCaptcha)
 				{
 					$passwordCorrect = Password::equals($arUser["PASSWORD"], $arParams["PASSWORD"], $original);
 
-					if(!$passwordCorrect)
+					if (!$passwordCorrect)
 					{
-						if($arParams["OTP"] <> '' && $original)
+						if (isset($arParams["OTP"]) && $arParams["OTP"] != '' && $original)
 						{
-							//may be we have OTP added to the password
+							// maybe we have OTP added to the password
 							$passwordWithoutOtp = mb_substr($arParams["PASSWORD"], 0, -6);
 							$passwordCorrect = Password::equals($arUser["PASSWORD"], $passwordWithoutOtp);
 						}
@@ -1817,10 +1902,10 @@ class CAllUser extends CDBResult
 						$arParams["OTP"] = '';
 					}
 
-					if(!$passwordCorrect)
+					if (!$passwordCorrect)
 					{
 						//let's try to find application password
-						if(($appPassword = ApplicationPasswordTable::findPassword($arUser["ID"], $arParams["PASSWORD"], $original)) !== false)
+						if (($appPassword = ApplicationPasswordTable::findPassword($arUser["ID"], $arParams["PASSWORD"], $original)) !== false)
 						{
 							$passwordCorrect = true;
 							$applicationId = $appPassword["APPLICATION_ID"];
@@ -1836,14 +1921,14 @@ class CAllUser extends CDBResult
 					}
 				}
 
-				if(!$passwordCorrect)
+				if (!$passwordCorrect)
 				{
 					//block the user after numerous incorrect login attempts
 					$policyBlockAttempts = (int)$policy->getBlockLoginAttempts();
 					$policyBlockTime = (int)$policy->getBlockTime();
-					if($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
+					if ($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
 					{
-						if($arUser["ACTIVE"] == "Y")
+						if ($arUser["ACTIVE"] == 'Y')
 						{
 							static::blockUser($arUser["ID"], $policyBlockTime, $loginAttempts);
 						}
@@ -1851,23 +1936,23 @@ class CAllUser extends CDBResult
 				}
 			}
 
-			if($passwordCorrect)
+			if ($passwordCorrect)
 			{
 				//applied only to "human" passwords
-				if($applicationId === null)
+				if ($applicationId === null)
 				{
 					//only for original passwords
-					if($original)
+					if ($original)
 					{
 						//update the old password hash to the new one with a salt
-						if(Password::needRehash($arUser["PASSWORD"]))
+						if (Password::needRehash($arUser["PASSWORD"]))
 						{
 							$newPassword = Password::hash($arParams["PASSWORD"]);
 							$DB->Query("UPDATE b_user SET PASSWORD='".$DB->ForSQL($newPassword)."', TIMESTAMP_X = TIMESTAMP_X WHERE ID = ".intval($arUser["ID"]));
 						}
 
 						//update digest hash for http digest authorization
-						if(COption::GetOptionString('main', 'use_digest_auth', 'N') == 'Y')
+						if (Option::get('main', 'use_digest_auth', 'N') == 'Y')
 						{
 							static::UpdateDigest($arUser["ID"], $arParams["PASSWORD"]);
 						}
@@ -1891,10 +1976,10 @@ class CAllUser extends CDBResult
 					if (!$passwordExpired)
 					{
 						$policyChangeDays = (int)$policy->getPasswordChangeDays();
-						if($policyChangeDays > 0)
+						if ($policyChangeDays > 0)
 						{
 							//require to change the password after N days
-							if(UserPasswordTable::passwordExpired($arUser["ID"], $policyChangeDays))
+							if (UserPasswordTable::passwordExpired($arUser["ID"], $policyChangeDays))
 							{
 								$passwordExpired = true;
 							}
@@ -1909,9 +1994,9 @@ class CAllUser extends CDBResult
 					}
 				}
 
-				if($passwordCorrect)
+				if ($passwordCorrect)
 				{
-					if($arUser["ACTIVE"] == "Y")
+					if ($arUser["ACTIVE"] == 'Y')
 					{
 						//success
 						$user_id = $arUser["ID"];
@@ -1919,10 +2004,10 @@ class CAllUser extends CDBResult
 					else
 					{
 						//something wrong with the inactive user
-						if($arUser["CONFIRM_CODE"] <> '')
+						if ($arUser["CONFIRM_CODE"] != '')
 						{
 							//unconfirmed email registration
-							$message = GetMessage("MAIN_LOGIN_EMAIL_CONFIRM", array("#EMAIL#" => $arUser["EMAIL"]));
+							$message = GetMessage("MAIN_LOGIN_EMAIL_CONFIRM", ["#EMAIL#" => $arUser["EMAIL"]]);
 						}
 						else
 						{
@@ -1930,12 +2015,12 @@ class CAllUser extends CDBResult
 							$message = GetMessage("LOGIN_BLOCK");
 
 							//or possibly unconfirmed phone registration
-							if(COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y")
+							if (Option::get('main', 'new_user_phone_auth', 'N') == 'Y')
 							{
 								$row = Main\UserPhoneAuthTable::getRowById($arUser["ID"]);
-								if($row && $row["CONFIRMED"] == 'N')
+								if ($row && $row["CONFIRMED"] == 'N')
 								{
-									$message = GetMessage("main_login_need_phone_confirmation", array("#PHONE#" => $row["PHONE_NUMBER"]));
+									$message = GetMessage("main_login_need_phone_confirmation", ["#PHONE#" => $row["PHONE_NUMBER"]]);
 								}
 							}
 						}
@@ -1949,10 +2034,10 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($user_id == 0)
+		if ($user_id == 0)
 		{
 			$APPLICATION->ThrowException($message);
-			$result_message = array("MESSAGE" => $message."<br>", "TYPE" => "ERROR", "ERROR_TYPE" => $errorType);
+			$result_message = ["MESSAGE" => $message."<br>", "TYPE" => "ERROR", "ERROR_TYPE" => $errorType];
 		}
 
 		return $user_id;
@@ -1961,65 +2046,76 @@ class CAllUser extends CDBResult
 	protected static function blockUser($userId, $blockTime, $loginAttempts)
 	{
 		$user = new CUser();
-		$user->Update($userId, ["BLOCKED" => "Y"], false);
+		$user->Update($userId, ["BLOCKED" => 'Y'], false);
 
 		$unblockDate = new Main\Type\DateTime();
 		$unblockDate->add("T{$blockTime}M"); //minutes
 
-		CAgent::AddAgent("CUser::UnblockAgent({$userId});", "main", "Y", 0, "", "Y", $unblockDate->toString());
+		CAgent::AddAgent("CUser::UnblockAgent({$userId});", 'main', 'Y', 0, '', 'Y', $unblockDate->toString());
 
-		if(COption::GetOptionString("main", "event_log_block_user", "N") === "Y")
+		if (Option::get('main', 'event_log_block_user', 'N') === 'Y')
 		{
-			CEventLog::Log("SECURITY", "USER_BLOCKED", "main", $userId, "Attempts: {$loginAttempts}, Block period: {$blockTime}");
+			CEventLog::Log('SECURITY', 'USER_BLOCKED', 'main', $userId, "Attempts: {$loginAttempts}, Block period: {$blockTime}");
 		}
 	}
 
-	protected static function CheckUsersCount($user_id)
+	private static function CheckUsersCount($user_id)
 	{
-		$limitUsersCount = intval(COption::GetOptionInt("main", "PARAM_MAX_USERS", 0));
+		$user_id = (int)$user_id;
+		$license = Main\Application::getInstance()->getLicense();
+		$limitUsersCount = $license->getMaxUsers();
+
 		if ($limitUsersCount > 0)
 		{
 			// users logged in today
 			$today = new Main\Type\Date();
-			$count = Main\UserTable::getActiveUsersCount($today);
+			$count = $license->getActiveUsersCount($today);
 
 			if ($count >= $limitUsersCount)
 			{
 				// additional check for the current user
 
-				$select = ["LAST_LOGIN"];
+				$select = ['LAST_LOGIN'];
 
 				$intranet = Main\ModuleManager::isModuleInstalled("intranet");
 				if ($intranet)
 				{
-					$select[] = "UF_DEPARTMENT";
+					$select[] = 'UF_DEPARTMENT';
 				}
 
 				// last_login in server time
 				CTimeZone::Disable();
 
 				$query = static::GetList('id', 'asc',
-					["ID_EQUAL_EXACT" => intval($user_id)],
-					["SELECT" => $select]
+					['ID_EQUAL_EXACT' => $user_id],
+					['SELECT' => $select]
 				);
 
 				CTimeZone::Enable();
 
-				if($currentUser = $query->Fetch())
+				if ($currentUser = $query->Fetch())
 				{
-					if($currentUser["LAST_LOGIN"] != '')
+					if ($currentUser["LAST_LOGIN"] != '')
 					{
 						$loginDate = new Main\Type\DateTime($currentUser["LAST_LOGIN"]);
-						if($loginDate->getTimestamp() > $today->getTimestamp())
+						if ($loginDate->getTimestamp() > $today->getTimestamp())
 						{
 							// if the user already logged in today, he is allowed
 							return true;
 						}
 					}
 
-					if($intranet && empty($currentUser["UF_DEPARTMENT"]))
+					if ($intranet && empty($currentUser["UF_DEPARTMENT"]))
 					{
-						// only intranet users are countable
+						// only intranet AND extranet users are countable
+						if ($license->isExtraCountable())
+						{
+							$groupId = (int)Option::get('extranet', 'extranet_group');
+							if ($groupId > 0 && in_array($groupId, static::GetUserGroup($user_id)))
+							{
+								return false;
+							}
+						}
 						return true;
 					}
 				}
@@ -2029,26 +2125,26 @@ class CAllUser extends CDBResult
 		return true;
 	}
 
-	public function LoginByOtp($otp, $remember_otp = "N", $captcha_word = "", $captcha_sid = "")
+	public function LoginByOtp($otp, $remember_otp = 'N', $captcha_word = '', $captcha_sid = '')
 	{
-		if(!CModule::IncludeModule("security") || !\Bitrix\Security\Mfa\Otp::isOtpRequired())
+		if (!CModule::IncludeModule("security") || !\Bitrix\Security\Mfa\Otp::isOtpRequired())
 		{
-			return array("MESSAGE" => GetMessage("USER_LOGIN_OTP_ERROR")."<br>", "TYPE" => "ERROR");
+			return ["MESSAGE" => GetMessage("USER_LOGIN_OTP_ERROR")."<br>", "TYPE" => "ERROR"];
 		}
 
 		$userParams = \Bitrix\Security\Mfa\Otp::getDeferredParams();
 
 		$userParams["OTP"] = $otp;
-		$userParams["OTP_REMEMBER"] = ($remember_otp === "Y");
+		$userParams["OTP_REMEMBER"] = ($remember_otp === 'Y');
 		$userParams["CAPTCHA_WORD"] = $captcha_word;
 		$userParams["CAPTCHA_SID"] = $captcha_sid;
 
-		if(!\Bitrix\Security\Mfa\Otp::verifyUser($userParams))
+		if (!\Bitrix\Security\Mfa\Otp::verifyUser($userParams))
 		{
-			return array("MESSAGE" => GetMessage("USER_LOGIN_OTP_INCORRECT")."<br>", "TYPE" => "ERROR");
+			return ["MESSAGE" => GetMessage("USER_LOGIN_OTP_INCORRECT")."<br>", "TYPE" => "ERROR"];
 		}
 
-		$this->Authorize($userParams["USER_ID"], ($userParams["REMEMBER"] == "Y"));
+		$this->Authorize($userParams["USER_ID"], ($userParams["REMEMBER"] == 'Y'));
 		return true;
 	}
 
@@ -2056,7 +2152,7 @@ class CAllUser extends CDBResult
 	{
 		$doAuthorize = true;
 
-		if(CModule::IncludeModule("security"))
+		if (CModule::IncludeModule("security"))
 		{
 			/*
 			MFA can allow or disallow authorization.
@@ -2064,10 +2160,10 @@ class CAllUser extends CDBResult
 			- OTP is not active for the user;
 			When authorization is disallowed the OTP form will be shown on the next hit.
 			*/
-			$doAuthorize = \Bitrix\Security\Mfa\Otp::verifyUser(array("USER_ID" => $user_id));
+			$doAuthorize = \Bitrix\Security\Mfa\Otp::verifyUser(["USER_ID" => $user_id]);
 		}
 
-		if($doAuthorize)
+		if ($doAuthorize)
 		{
 			return $this->Authorize($user_id, $bSave);
 		}
@@ -2075,12 +2171,12 @@ class CAllUser extends CDBResult
 		return false;
 	}
 
-	public function ChangePassword($LOGIN, $CHECKWORD, $PASSWORD, $CONFIRM_PASSWORD, $SITE_ID=false, $captcha_word = "", $captcha_sid = 0, $authActions = true, $phoneNumber = "", $currentPassword = "")
+	public function ChangePassword($LOGIN, $CHECKWORD, $PASSWORD, $CONFIRM_PASSWORD, $SITE_ID=false, $captcha_word = '', $captcha_sid = 0, $authActions = true, $phoneNumber = '', $currentPassword = '')
 	{
 		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
 
-		$arParams = array(
+		$arParams = [
 			"LOGIN" => &$LOGIN,
 			"CHECKWORD" => &$CHECKWORD,
 			"PASSWORD" => &$PASSWORD,
@@ -2088,85 +2184,85 @@ class CAllUser extends CDBResult
 			"SITE_ID" => &$SITE_ID,
 			"PHONE_NUMBER" => &$phoneNumber,
 			"CURRENT_PASSWORD" => &$currentPassword,
-		);
+		];
 
 		$APPLICATION->ResetException();
-		foreach(GetModuleEvents("main", "OnBeforeUserChangePassword", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserChangePassword', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams)) === false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams]) === false)
 			{
-				if($err = $APPLICATION->GetException())
+				if ($err = $APPLICATION->GetException())
 				{
-					return array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+					return ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
 				}
-				return array("MESSAGE"=>GetMessage("main_change_pass_error")."<br>", "TYPE"=>"ERROR");
+				return ["MESSAGE"=>GetMessage("main_change_pass_error")."<br>", "TYPE"=>"ERROR"];
 			}
 		}
 
-		if(COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y")
+		if (Option::get('main', 'captcha_restoring_password', 'N') == 'Y')
 		{
 			if (!($APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid)))
 			{
-				return array("MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR");
+				return ["MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR"];
 			}
 		}
 
-		$phoneAuth = ($arParams["PHONE_NUMBER"] <> '' && COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y");
+		$phoneAuth = ($arParams["PHONE_NUMBER"] != '' && Option::get('main', 'new_user_phone_auth', 'N') == 'Y');
 
-		$strAuthError = "";
-		if(mb_strlen($arParams["LOGIN"]) < 3 && !$phoneAuth)
+		$strAuthError = '';
+		if (mb_strlen($arParams["LOGIN"]) < 3 && !$phoneAuth)
 		{
 			$strAuthError .= GetMessage('MIN_LOGIN')."<br>";
 		}
-		if($arParams["CHECKWORD"] == '' && $arParams["CURRENT_PASSWORD"] == '')
+		if ($arParams["CHECKWORD"] == '' && $arParams["CURRENT_PASSWORD"] == '')
 		{
 			$strAuthError .= GetMessage("main_change_pass_empty_checkword")."<br>";
 		}
-		if($arParams["PASSWORD"] <> $arParams["CONFIRM_PASSWORD"])
+		if ($arParams["PASSWORD"] != $arParams["CONFIRM_PASSWORD"])
 		{
 			$strAuthError .= GetMessage('WRONG_CONFIRMATION')."<br>";
 		}
-		if($strAuthError <> '')
+		if ($strAuthError != '')
 		{
-			return array("MESSAGE"=>$strAuthError, "TYPE"=>"ERROR");
+			return ["MESSAGE"=>$strAuthError, "TYPE"=>"ERROR"];
 		}
 
-		$updateFields = array(
+		$updateFields = [
 			"PASSWORD" => $arParams["PASSWORD"],
-		);
+		];
 
 		$res = [];
-		if($phoneAuth)
+		if ($phoneAuth)
 		{
 			$userId = static::VerifyPhoneCode($arParams["PHONE_NUMBER"], $arParams["CHECKWORD"]);
 
-			if(!$userId)
+			if (!$userId)
 			{
-				return array("MESSAGE" => GetMessage("main_change_pass_code_error"), "TYPE" => "ERROR");
+				return ["MESSAGE" => GetMessage("main_change_pass_code_error"), "TYPE" => "ERROR"];
 			}
 
 			//activate user after phone number confirmation
-			$updateFields["ACTIVE"] = "Y";
+			$updateFields["ACTIVE"] = 'Y';
 		}
 		else
 		{
 			CTimeZone::Disable();
 			$db_check = $DB->Query(
-				"SELECT ID, LID, CHECKWORD, ".$DB->DateToCharFunction("CHECKWORD_TIME", "FULL")." as CHECKWORD_TIME, PASSWORD, LOGIN_ATTEMPTS, ACTIVE, BLOCKED ".
+				"SELECT ID, LID, CHECKWORD, ".$DB->DateToCharFunction("CHECKWORD_TIME")." as CHECKWORD_TIME, PASSWORD, LOGIN_ATTEMPTS, ACTIVE, BLOCKED ".
 				"FROM b_user ".
-				"WHERE LOGIN='".$DB->ForSql($arParams["LOGIN"], 0)."'".
+				"WHERE LOGIN='".$DB->ForSql($arParams["LOGIN"])."'".
 				(
 					// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeUserChangePassword event
-					$arParams["EXTERNAL_AUTH_ID"] <> ''?
+					$arParams["EXTERNAL_AUTH_ID"] != ''?
 						"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
 						"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 				)
 			);
 			CTimeZone::Enable();
 
-			if(!($res = $db_check->Fetch()))
+			if (!($res = $db_check->Fetch()))
 			{
-				return array("MESSAGE" => GetMessage('LOGIN_NOT_FOUND1'), "TYPE"=>"ERROR", "FIELD" => "LOGIN");
+				return ["MESSAGE" => GetMessage('LOGIN_NOT_FOUND1'), "TYPE"=>"ERROR", "FIELD" => "LOGIN"];
 			}
 
 			$userId = $res["ID"];
@@ -2178,23 +2274,23 @@ class CAllUser extends CDBResult
 		$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy);
 		if (!empty($passwordErrors))
 		{
-			return array("MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR");
+			return ["MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR"];
 		}
 
-		if(!$phoneAuth)
+		if (!$phoneAuth)
 		{
-			if($arParams["CHECKWORD"] <> '')
+			if ($arParams["CHECKWORD"] != '')
 			{
 				//change the password using the checkword
-				if($res["CHECKWORD"] == '' || !Password::equals($res["CHECKWORD"], $arParams["CHECKWORD"]))
+				if ($res["CHECKWORD"] == '' || !Password::equals($res["CHECKWORD"], $arParams["CHECKWORD"]))
 				{
-					return array("MESSAGE" => GetMessage("CHECKWORD_INCORRECT1")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD");
+					return ["MESSAGE" => GetMessage("CHECKWORD_INCORRECT1")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD"];
 				}
 
 				$site_format = CSite::GetDateFormat();
-				if(time() - $policy->getCheckwordTimeout() * 60 > MakeTimeStamp($res["CHECKWORD_TIME"], $site_format))
+				if (time() - $policy->getCheckwordTimeout() * 60 > MakeTimeStamp($res["CHECKWORD_TIME"], $site_format))
 				{
-					return array("MESSAGE" => GetMessage("CHECKWORD_EXPIRE")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD_EXPIRE");
+					return ["MESSAGE" => GetMessage("CHECKWORD_EXPIRE")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD_EXPIRE"];
 				}
 			}
 			else
@@ -2204,62 +2300,66 @@ class CAllUser extends CDBResult
 
 				//show captcha after a serial of incorrect login attempts
 				$policyLoginAttempts = (int)$policy->getLoginAttempts();
-				if($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
+				if ($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
 				{
 					$APPLICATION->SetNeedCAPTHA(true);
-					if(!$APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid))
+					if (!$APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid))
 					{
-						return array("MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR");
+						return ["MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR"];
 					}
 				}
 
 				$passwordCorrect = false;
 
-				if($res["BLOCKED"] <> "Y")
+				if ($res["BLOCKED"] != 'Y')
 				{
 					$passwordCorrect = Password::equals($res["PASSWORD"], $arParams["CURRENT_PASSWORD"]);
 
-					if(!$passwordCorrect)
+					if (!$passwordCorrect)
 					{
 						//block the user after numerous incorrect login attempts
 						$policyBlockAttempts = (int)$policy->getBlockLoginAttempts();
 						$policyBlockTime = (int)$policy->getBlockTime();
-						if($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
+						if ($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
 						{
-							if($res["ACTIVE"] == "Y")
+							if ($res["ACTIVE"] == 'Y')
 							{
 								static::blockUser($res["ID"], $policyBlockTime, $loginAttempts);
 							}
 						}
 					}
 
-					if($passwordCorrect)
+					if ($passwordCorrect)
 					{
 						$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy, $res["ID"]);
 						if (!empty($passwordErrors))
 						{
-							return array("MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR");
+							return ["MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR"];
 						}
 
 						$APPLICATION->SetNeedCAPTHA(false);
 					}
 				}
 
-				if(!$passwordCorrect)
+				if (!$passwordCorrect)
 				{
 					//incorrect password
 					$DB->Query("UPDATE b_user SET LOGIN_ATTEMPTS = ".$loginAttempts.", TIMESTAMP_X = TIMESTAMP_X WHERE ID = ".intval($res["ID"]));
 
-					return array("MESSAGE"=>GetMessage("main_change_pass_incorrect_pass")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CURRENT_PASSWORD");
+					return ["MESSAGE"=>GetMessage("main_change_pass_incorrect_pass")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CURRENT_PASSWORD"];
 				}
 			}
 
-			if($arParams["SITE_ID"] === false)
+			if ($arParams["SITE_ID"] === false)
 			{
-				if(defined("ADMIN_SECTION") && ADMIN_SECTION===true)
+				if (defined("ADMIN_SECTION") && ADMIN_SECTION===true)
+				{
 					$arParams["SITE_ID"] = CSite::GetDefSite($res["LID"]);
+				}
 				else
+				{
 					$arParams["SITE_ID"] = SITE_ID;
+				}
 			}
 		}
 
@@ -2267,20 +2367,20 @@ class CAllUser extends CDBResult
 		$obUser = new CUser;
 		$res = $obUser->Update($userId, $updateFields, $authActions);
 
-		if(!$res && $obUser->LAST_ERROR <> '')
+		if (!$res && $obUser->LAST_ERROR != '')
 		{
-			return array("MESSAGE"=>$obUser->LAST_ERROR."<br>", "TYPE"=>"ERROR");
+			return ["MESSAGE"=>$obUser->LAST_ERROR."<br>", "TYPE"=>"ERROR"];
 		}
 
-		if($phoneAuth)
+		if ($phoneAuth)
 		{
-			return array("MESSAGE"=>GetMessage("main_change_pass_changed")."<br>", "TYPE"=>"OK");
+			return ["MESSAGE"=>GetMessage("main_change_pass_changed")."<br>", "TYPE"=>"OK"];
 		}
 		else
 		{
 			static::SendUserInfo($userId, $arParams["SITE_ID"], GetMessage('CHANGE_PASS_SUCC'), true, 'USER_PASS_CHANGED');
 
-			return array("MESSAGE"=>GetMessage('PASSWORD_CHANGE_OK')."<br>", "TYPE"=>"OK");
+			return ["MESSAGE"=>GetMessage('PASSWORD_CHANGE_OK')."<br>", "TYPE"=>"OK"];
 		}
 	}
 
@@ -2310,7 +2410,7 @@ class CAllUser extends CDBResult
 		}
 		if (mb_strlen($password) < $passwordMinLength)
 		{
-			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH', array('#LENGTH#' => $arPolicy['PASSWORD_LENGTH']));
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH', ['#LENGTH#' => $arPolicy['PASSWORD_LENGTH']]);
 		}
 
 		if (($arPolicy['PASSWORD_UPPERCASE'] === 'Y') && !preg_match('/[A-Z]/', $password))
@@ -2335,9 +2435,9 @@ class CAllUser extends CDBResult
 
 		if (($arPolicy['PASSWORD_CHECK_WEAK'] === 'Y'))
 		{
-			if (COption::GetOptionString('main', 'custom_weak_passwords') === 'Y')
+			if (Option::get('main', 'custom_weak_passwords') === 'Y')
 			{
-				$uploadDir = COption::GetOptionString('main', 'upload_dir', 'upload');
+				$uploadDir = Option::get('main', 'upload_dir', 'upload');
 				$path = "{$_SERVER['DOCUMENT_ROOT']}/{$uploadDir}/main/weak_passwords";
 			}
 			else
@@ -2379,9 +2479,9 @@ class CAllUser extends CDBResult
 			"SITE_ID" => $SITE_ID,
 		];
 
-		foreach(GetModuleEvents("main", "OnBeforeSendUserInfo", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeSendUserInfo', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams)) === false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams]) === false)
 			{
 				return;
 			}
@@ -2389,7 +2489,7 @@ class CAllUser extends CDBResult
 
 		$ID = intval($ID);
 
-		if($checkword === null)
+		if ($checkword === null)
 		{
 			// change CHECKWORD
 			$checkword = Random::getString(32);
@@ -2402,7 +2502,7 @@ class CAllUser extends CDBResult
 				"WHERE ID = '".$ID."'".
 				(
 					// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeSendUserInfo event
-					$arParams["EXTERNAL_AUTH_ID"] <> ''?
+					isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != ''?
 						"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
 						"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 				);
@@ -2415,18 +2515,18 @@ class CAllUser extends CDBResult
 			"FROM b_user u ".
 			"WHERE ID='".$ID."'".
 			(
-				$arParams["EXTERNAL_AUTH_ID"] <> ''?
+				isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != ''?
 					"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
 					"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 			)
 		);
 
-		if($res_array = $res->Fetch())
+		if ($res_array = $res->Fetch())
 		{
 			$event = new CEvent;
-			$arFields = array(
+			$arFields = [
 				"USER_ID"=>$res_array["ID"],
-				"STATUS"=>($res_array["ACTIVE"]=="Y"?GetMessage("STATUS_ACTIVE"):GetMessage("STATUS_BLOCKED")),
+				"STATUS"=>($res_array["ACTIVE"] == 'Y' ? GetMessage("STATUS_ACTIVE") : GetMessage("STATUS_BLOCKED")),
 				"MESSAGE"=>$MSG,
 				"LOGIN"=>$res_array["LOGIN"],
 				"URL_LOGIN"=>urlencode($res_array["LOGIN"]),
@@ -2434,66 +2534,74 @@ class CAllUser extends CDBResult
 				"NAME"=>$res_array["NAME"],
 				"LAST_NAME"=>$res_array["LAST_NAME"],
 				"EMAIL"=>$res_array["EMAIL"]
-			);
+			];
 
-			$arParams = array(
+			$arParams = [
 				"FIELDS" => &$arFields,
 				"USER_FIELDS" => $res_array,
 				"SITE_ID" => &$SITE_ID,
 				"EVENT_NAME" => &$eventName,
-			);
+			];
 
-			foreach (GetModuleEvents("main", "OnSendUserInfo", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array(&$arParams));
+			foreach (GetModuleEvents('main', 'OnSendUserInfo', true) as $arEvent)
+			{
+				ExecuteModuleEventEx($arEvent, [&$arParams]);
+			}
 
 			if (!$bImmediate)
-				$event->Send($eventName, $SITE_ID, $arFields, "Y", "", array(), $res_array["LANGUAGE_ID"]);
+			{
+				$event->Send($eventName, $SITE_ID, $arFields, 'Y', '', [], $res_array["LANGUAGE_ID"]);
+			}
 			else
-				$event->SendImmediate($eventName, $SITE_ID, $arFields, "Y", "", array(), $res_array["LANGUAGE_ID"]);
+			{
+				$event->SendImmediate($eventName, $SITE_ID, $arFields, 'Y', '', [], $res_array["LANGUAGE_ID"]);
+			}
 		}
 	}
 
-	public static function SendPassword($LOGIN, $EMAIL, $SITE_ID = false, $captcha_word = "", $captcha_sid = 0, $phoneNumber = "", $shortCode = false)
+	public static function SendPassword($LOGIN, $EMAIL, $SITE_ID = false, $captcha_word = '', $captcha_sid = 0, $phoneNumber = '', $shortCode = false)
 	{
 		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
 
-		$arParams = array(
+		$arParams = [
 			"LOGIN" => $LOGIN,
 			"EMAIL" => $EMAIL,
 			"SITE_ID" => $SITE_ID,
 			"PHONE_NUMBER" => $phoneNumber,
 			"SHORT_CODE" => $shortCode,
-		);
+		];
 
-		$result_message = array("MESSAGE"=>GetMessage('ACCOUNT_INFO_SENT')."<br>", "TYPE"=>"OK");
+		$result_message = ["MESSAGE"=>GetMessage('ACCOUNT_INFO_SENT')."<br>", "TYPE"=>"OK"];
 		$APPLICATION->ResetException();
 		$bOk = true;
-		foreach(GetModuleEvents("main", "OnBeforeUserSendPassword", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserSendPassword', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams))===false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams]) === false)
 			{
-				if($err = $APPLICATION->GetException())
-					$result_message = array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+				if ($err = $APPLICATION->GetException())
+				{
+					$result_message = ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
+				}
 
 				$bOk = false;
 				break;
 			}
 		}
 
-		if($bOk && $arParams["SHORT_CODE"] == false && COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y")
+		if ($bOk && !$arParams["SHORT_CODE"] && Option::get('main', 'captcha_restoring_password', 'N') == 'Y')
 		{
 			if (!($APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid)))
 			{
-				$result_message = array("MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR");
+				$result_message = ["MESSAGE"=>GetMessage("main_user_captcha_error")."<br>", "TYPE"=>"ERROR"];
 				$bOk = false;
 			}
 		}
 
-		if($bOk)
+		if ($bOk)
 		{
 			$found = false;
-			if($arParams["PHONE_NUMBER"] <> '')
+			if ($arParams["PHONE_NUMBER"] != '')
 			{
 				//user registered by phone number
 
@@ -2501,33 +2609,33 @@ class CAllUser extends CDBResult
 
 				$result = static::SendPhoneCode($arParams["PHONE_NUMBER"], "SMS_USER_RESTORE_PASSWORD", $siteId);
 
-				if($result->isSuccess())
+				if ($result->isSuccess())
 				{
 					$found = true;
-					$result_message = array("MESSAGE"=>GetMessage("main_user_pass_request_sent")."<br>", "TYPE"=>"OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD");
+					$result_message = ["MESSAGE"=>GetMessage("main_user_pass_request_sent")."<br>", "TYPE"=>"OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD"];
 
-					if(COption::GetOptionString("main", "event_log_password_request", "N") === "Y")
+					if (Option::get('main', 'event_log_password_request', 'N') === 'Y')
 					{
 						$data = $result->getData();
-						CEventLog::Log("SECURITY", "USER_INFO", "main", $data["USER_ID"]);
+						CEventLog::Log('SECURITY', 'USER_INFO', 'main', $data["USER_ID"]);
 					}
 				}
 				else
 				{
-					if($result->getErrorCollection()->getErrorByCode("ERR_NOT_FOUND") === null)
+					if ($result->getErrorCollection()->getErrorByCode("ERR_NOT_FOUND") === null)
 					{
 						//user found but there is another error
 						$found = true;
-						$result_message = array("MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR");
+						$result_message = ["MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR"];
 					}
 				}
 			}
-			elseif($arParams["LOGIN"] <> '' || $arParams["EMAIL"] <> '')
+			elseif ($arParams["LOGIN"] != '' || $arParams["EMAIL"] != '')
 			{
-				$confirmation = (COption::GetOptionString("main", "new_user_registration_email_confirmation", "N") == "Y");
+				$confirmation = (Option::get('main', 'new_user_registration_email_confirmation', 'N') == 'Y');
 
-				$strSql = "";
-				if($arParams["LOGIN"] <> '')
+				$strSql = '';
+				if ($arParams["LOGIN"] != '')
 				{
 					$strSql =
 						"SELECT ID, LID, ACTIVE, BLOCKED, CONFIRM_CODE, LOGIN, EMAIL, NAME, LAST_NAME, LANGUAGE_ID ".
@@ -2536,14 +2644,14 @@ class CAllUser extends CDBResult
 						"	AND (ACTIVE='Y' OR NOT(CONFIRM_CODE IS NULL OR CONFIRM_CODE='')) ".
 						(
 							// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeUserSendPassword event
-							$arParams["EXTERNAL_AUTH_ID"] <> ''?
+							isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != ''?
 								"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
 								"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 						);
 				}
-				if($arParams["EMAIL"] <> '')
+				if ($arParams["EMAIL"] != '')
 				{
-					if($strSql <> '')
+					if ($strSql != '')
 					{
 						$strSql .= "\nUNION\n";
 					}
@@ -2553,40 +2661,44 @@ class CAllUser extends CDBResult
 						"WHERE EMAIL='".$DB->ForSQL($arParams["EMAIL"])."' ".
 						"	AND (ACTIVE='Y' OR NOT(CONFIRM_CODE IS NULL OR CONFIRM_CODE='')) ".
 						(
-							$arParams["EXTERNAL_AUTH_ID"] <> ''?
+							isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != ''?
 								"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
 								"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 						);
 				}
 				$res = $DB->Query($strSql);
 
-				while($arUser = $res->Fetch())
+				while ($arUser = $res->Fetch())
 				{
-					if($arParams["SITE_ID"]===false)
+					if ($arParams["SITE_ID"]===false)
 					{
-						if(defined("ADMIN_SECTION") && ADMIN_SECTION===true)
+						if (defined("ADMIN_SECTION") && ADMIN_SECTION===true)
+						{
 							$arParams["SITE_ID"] = CSite::GetDefSite($arUser["LID"]);
+						}
 						else
+						{
 							$arParams["SITE_ID"] = SITE_ID;
+						}
 					}
 
-					if($arUser["ACTIVE"] == "Y")
+					if ($arUser["ACTIVE"] == 'Y')
 					{
-						if($arUser["BLOCKED"] <> "Y")
+						if ($arUser["BLOCKED"] != 'Y')
 						{
 							$found = true;
 
-							if($arParams["SHORT_CODE"] == true)
+							if ($arParams["SHORT_CODE"])
 							{
 								$result = static::SendEmailCode($arUser["ID"], $arParams["SITE_ID"]);
 
-								if($result->isSuccess())
+								if ($result->isSuccess())
 								{
-									$result_message = array("MESSAGE"=>GetMessage("main_send_password_email_code")."<br>", "TYPE"=>"OK", "USER_ID" => $arUser["ID"], "RESULT" => $result);
+									$result_message = ["MESSAGE"=>GetMessage("main_send_password_email_code")."<br>", "TYPE"=>"OK", "USER_ID" => $arUser["ID"], "RESULT" => $result];
 								}
 								else
 								{
-									$result_message = array("MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR", "RESULT" => $result);
+									$result_message = ["MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR", "RESULT" => $result];
 								}
 							}
 							else
@@ -2595,12 +2707,12 @@ class CAllUser extends CDBResult
 							}
 						}
 					}
-					elseif($confirmation)
+					elseif ($confirmation)
 					{
 						$found = true;
 
 						//unconfirmed registration - resend confirmation email
-						$arFields = array(
+						$arFields = [
 							"USER_ID" => $arUser["ID"],
 							"LOGIN" => $arUser["LOGIN"],
 							"EMAIL" => $arUser["EMAIL"],
@@ -2609,29 +2721,29 @@ class CAllUser extends CDBResult
 							"CONFIRM_CODE" => $arUser["CONFIRM_CODE"],
 							"USER_IP" => $_SERVER["REMOTE_ADDR"],
 							"USER_HOST" => @gethostbyaddr($_SERVER["REMOTE_ADDR"]),
-						);
+						];
 
 						$event = new CEvent;
-						$event->SendImmediate("NEW_USER_CONFIRM", $arParams["SITE_ID"], $arFields, "Y", "", array(), $arUser["LANGUAGE_ID"]);
+						$event->SendImmediate("NEW_USER_CONFIRM", $arParams["SITE_ID"], $arFields, 'Y', '', [], $arUser["LANGUAGE_ID"]);
 
-						$result_message = array("MESSAGE"=>GetMessage("MAIN_SEND_PASS_CONFIRM")."<br>", "TYPE"=>"OK");
+						$result_message = ["MESSAGE"=>GetMessage("MAIN_SEND_PASS_CONFIRM")."<br>", "TYPE"=>"OK"];
 					}
 
-					if(COption::GetOptionString("main", "event_log_password_request", "N") === "Y")
+					if (Option::get('main', 'event_log_password_request', 'N') === 'Y')
 					{
-						CEventLog::Log("SECURITY", "USER_INFO", "main", $arUser["ID"]);
+						CEventLog::Log('SECURITY', 'USER_INFO', 'main', $arUser['ID']);
 					}
 				}
 			}
-			if(!$found)
+			if (!$found)
 			{
-				return array("MESSAGE"=>GetMessage('DATA_NOT_FOUND1')."<br>", "TYPE"=>"ERROR");
+				return ["MESSAGE"=>GetMessage('DATA_NOT_FOUND1')."<br>", "TYPE"=>"ERROR"];
 			}
 		}
 		return $result_message;
 	}
 
-	public function Register($USER_LOGIN, $USER_NAME, $USER_LAST_NAME, $USER_PASSWORD, $USER_CONFIRM_PASSWORD, $USER_EMAIL, $SITE_ID = false, $captcha_word = "", $captcha_sid = 0, $bSkipConfirm = false, $USER_PHONE_NUMBER = "")
+	public function Register($USER_LOGIN, $USER_NAME, $USER_LAST_NAME, $USER_PASSWORD, $USER_CONFIRM_PASSWORD, $USER_EMAIL, $SITE_ID = false, $captcha_word = '', $captcha_sid = 0, $bSkipConfirm = false, $USER_PHONE_NUMBER = '')
 	{
 		/**
 		 * @global CMain $APPLICATION
@@ -2640,15 +2752,15 @@ class CAllUser extends CDBResult
 		global $APPLICATION, $DB, $USER_FIELD_MANAGER;
 
 		$APPLICATION->ResetException();
-		if(defined("ADMIN_SECTION") && ADMIN_SECTION===true && $SITE_ID!==false)
+		if (defined("ADMIN_SECTION") && ADMIN_SECTION===true && $SITE_ID !== false)
 		{
 			$APPLICATION->ThrowException(GetMessage("MAIN_FUNCTION_REGISTER_NA_INADMIN"));
-			return array("MESSAGE"=>GetMessage("MAIN_FUNCTION_REGISTER_NA_INADMIN"), "TYPE"=>"ERROR");
+			return ["MESSAGE"=>GetMessage("MAIN_FUNCTION_REGISTER_NA_INADMIN"), "TYPE"=>"ERROR"];
 		}
 
-		$strError = "";
+		$strError = '';
 
-		if (COption::GetOptionString("main", "captcha_registration", "N") == "Y")
+		if (Option::get('main', 'captcha_registration', 'N') == 'Y')
 		{
 			if (!($APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid)))
 			{
@@ -2656,27 +2768,29 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($strError)
+		if ($strError)
 		{
-			if(COption::GetOptionString("main", "event_log_register_fail", "N") === "Y")
+			if (Option::get('main', 'event_log_register_fail', 'N') === 'Y')
 			{
-				CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", false, $strError);
+				CEventLog::Log('SECURITY', 'USER_REGISTER_FAIL', 'main', false, $strError);
 			}
 
 			$APPLICATION->ThrowException($strError);
-			return array("MESSAGE"=>$strError, "TYPE"=>"ERROR");
+			return ["MESSAGE"=>$strError, "TYPE"=>"ERROR"];
 		}
 
-		if($SITE_ID === false)
+		if ($SITE_ID === false)
+		{
 			$SITE_ID = SITE_ID;
+		}
 
-		$bConfirmReq = !$bSkipConfirm && (COption::GetOptionString("main", "new_user_registration_email_confirmation", "N") == "Y" && COption::GetOptionString("main", "new_user_email_required", "Y") <> "N");
-		$phoneRegistration = (COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y");
-		$phoneRequired = ($phoneRegistration && COption::GetOptionString("main", "new_user_phone_required", "N") == "Y");
+		$bConfirmReq = !$bSkipConfirm && (Option::get('main', 'new_user_registration_email_confirmation', 'N') == 'Y' && Option::get('main', 'new_user_email_required', 'Y') != 'N');
+		$phoneRegistration = (Option::get('main', 'new_user_phone_auth', 'N') == 'Y');
+		$phoneRequired = ($phoneRegistration && Option::get('main', 'new_user_phone_required', 'N') == 'Y');
 
-		$active = ($bConfirmReq || $phoneRequired? "N": "Y");
+		$active = ($bConfirmReq || $phoneRequired ? 'N' : 'Y');
 
-		$arFields = array(
+		$arFields = [
 			"LOGIN" => $USER_LOGIN,
 			"NAME" => $USER_NAME,
 			"LAST_NAME" => $USER_LAST_NAME,
@@ -2687,32 +2801,34 @@ class CAllUser extends CDBResult
 			"EMAIL" => $USER_EMAIL,
 			"PHONE_NUMBER" => $USER_PHONE_NUMBER,
 			"ACTIVE" => $active,
-			"CONFIRM_CODE" => ($bConfirmReq? Random::getString(8, true): ""),
+			"CONFIRM_CODE" => ($bConfirmReq ? Random::getString(8, true) : ''),
 			"SITE_ID" => $SITE_ID,
 			"LANGUAGE_ID" => LANGUAGE_ID,
 			"USER_IP" => $_SERVER["REMOTE_ADDR"],
 			"USER_HOST" => @gethostbyaddr($_SERVER["REMOTE_ADDR"]),
-		);
+		];
 		$USER_FIELD_MANAGER->EditFormAddFields("USER", $arFields);
 
-		$def_group = COption::GetOptionString("main", "new_user_registration_def_group", "");
-		if($def_group!="")
+		$def_group = Option::get('main', 'new_user_registration_def_group');
+		if ($def_group != '')
+		{
 			$arFields["GROUP_ID"] = explode(",", $def_group);
+		}
 
 		$bOk = true;
 		$result_message = true;
-		foreach(GetModuleEvents("main", "OnBeforeUserRegister", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserRegister', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+			if (ExecuteModuleEventEx($arEvent, [&$arFields]) === false)
 			{
-				if($err = $APPLICATION->GetException())
+				if ($err = $APPLICATION->GetException())
 				{
-					$result_message = array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
 				}
 				else
 				{
 					$APPLICATION->ThrowException("Unknown error");
-					$result_message = array("MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR"];
 				}
 
 				$bOk = false;
@@ -2722,24 +2838,24 @@ class CAllUser extends CDBResult
 
 		$ID = false;
 		$phoneReg = false;
-		if($bOk)
+		if ($bOk)
 		{
-			if($arFields["SITE_ID"] === false)
+			if ($arFields["SITE_ID"] === false)
 			{
 				$arFields["SITE_ID"] = CSite::GetDefSite();
 			}
 			$arFields["LID"] = $arFields["SITE_ID"];
 
-			if($ID = $this->Add($arFields))
+			if ($ID = $this->Add($arFields))
 			{
-				if($phoneRegistration && $arFields["PHONE_NUMBER"] <> '')
+				if ($phoneRegistration && $arFields["PHONE_NUMBER"] != '')
 				{
 					$phoneReg = true;
 
 					//added the phone number for the user, now sending a confirmation SMS
 					list($code, $phoneNumber) = static::GeneratePhoneCode($ID);
 
-					$sms = new \Bitrix\Main\Sms\Event(
+					$sms = new Main\Sms\Event(
 						"SMS_USER_CONFIRM_NUMBER",
 						[
 							"USER_PHONE" => $phoneNumber,
@@ -2749,35 +2865,35 @@ class CAllUser extends CDBResult
 					$sms->setSite($arFields["SITE_ID"]);
 					$smsResult = $sms->send(true);
 
-					$signedData = \Bitrix\Main\Controller\PhoneAuth::signData(['phoneNumber' => $phoneNumber]);
+					$signedData = Main\Controller\PhoneAuth::signData(['phoneNumber' => $phoneNumber]);
 
-					if($smsResult->isSuccess())
+					if ($smsResult->isSuccess())
 					{
-						$result_message = array(
+						$result_message = [
 							"MESSAGE" => GetMessage("main_register_sms_sent"),
 							"TYPE" => "OK",
 							"SIGNED_DATA" => $signedData,
 							"ID" => $ID,
-						);
+						];
 					}
 					else
 					{
-						$result_message = array(
+						$result_message = [
 							"MESSAGE" => $smsResult->getErrorMessages(),
 							"TYPE" => "ERROR",
 							"SIGNED_DATA" => $signedData,
 							"ID" => $ID,
-						);
+						];
 					}
 
 				}
 				else
 				{
-					$result_message = array(
+					$result_message = [
 						"MESSAGE" => GetMessage("USER_REGISTER_OK"),
 						"TYPE" => "OK",
 						"ID" => $ID
-					);
+					];
 				}
 
 				$arFields["USER_ID"] = $ID;
@@ -2789,7 +2905,7 @@ class CAllUser extends CDBResult
 
 				$event = new CEvent;
 				$event->SendImmediate("NEW_USER", $arEventFields["SITE_ID"], $arEventFields);
-				if($bConfirmReq)
+				if ($bConfirmReq)
 				{
 					$event->SendImmediate("NEW_USER_CONFIRM", $arEventFields["SITE_ID"], $arEventFields);
 				}
@@ -2797,49 +2913,51 @@ class CAllUser extends CDBResult
 			else
 			{
 				$APPLICATION->ThrowException($this->LAST_ERROR);
-				$result_message = array("MESSAGE"=>$this->LAST_ERROR, "TYPE"=>"ERROR");
+				$result_message = ["MESSAGE"=>$this->LAST_ERROR, "TYPE"=>"ERROR"];
 			}
 		}
 
-		if(is_array($result_message))
+		if (is_array($result_message))
 		{
-			if($result_message["TYPE"] == "OK")
+			if ($result_message["TYPE"] == "OK")
 			{
-				if(COption::GetOptionString("main", "event_log_register", "N") === "Y")
+				if (Option::get('main', 'event_log_register', 'N') === 'Y')
 				{
-					$res_log["user"] = ($USER_NAME != "" || $USER_LAST_NAME != "") ? trim($USER_NAME." ".$USER_LAST_NAME) : $USER_LOGIN;
-					CEventLog::Log("SECURITY", "USER_REGISTER", "main", $ID, serialize($res_log));
+					$res_log["user"] = ($USER_NAME != '' || $USER_LAST_NAME != '') ? trim($USER_NAME . ' ' . $USER_LAST_NAME) : $USER_LOGIN;
+					CEventLog::Log('SECURITY', 'USER_REGISTER', 'main', $ID, serialize($res_log));
 				}
 			}
 			else
 			{
-				if(COption::GetOptionString("main", "event_log_register_fail", "N") === "Y")
+				if (Option::get('main', 'event_log_register_fail', 'N') === 'Y')
 				{
-					CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", $ID, $result_message["MESSAGE"]);
+					CEventLog::Log('SECURITY', 'USER_REGISTER_FAIL', 'main', $ID, $result_message['MESSAGE']);
 				}
 			}
 		}
 
 		//authorize succesfully registered user, except email or phone confirmation is required
 		$isAuthorize = false;
-		if($ID !== false && $arFields["ACTIVE"] === "Y" && $phoneReg === false)
+		if ($ID !== false && $arFields["ACTIVE"] === 'Y' && $phoneReg === false)
 		{
 			$isAuthorize = $this->Authorize($ID);
 		}
 
-		$agreementId = intval(COption::getOptionString("main", "new_user_agreement", ""));
+		$agreementId = (int)Option::get('main', 'new_user_agreement');
 		if ($agreementId && $isAuthorize)
 		{
-			$agreementObject = new \Bitrix\Main\UserConsent\Agreement($agreementId);
-			if ($agreementObject->isExist() && $agreementObject->isActive() && $_REQUEST["USER_AGREEMENT"] == "Y")
+			$agreementObject = new Main\UserConsent\Agreement($agreementId);
+			if ($agreementObject->isExist() && $agreementObject->isActive() && $_REQUEST["USER_AGREEMENT"] == 'Y')
 			{
-				\Bitrix\Main\UserConsent\Consent::addByContext($agreementId, "main/reg", "register");
+				Main\UserConsent\Consent::addByContext($agreementId, "main/reg", "register");
 			}
 		}
 
 		$arFields["RESULT_MESSAGE"] = $result_message;
-		foreach (GetModuleEvents("main", "OnAfterUserRegister", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+		foreach (GetModuleEvents('main', 'OnAfterUserRegister', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [&$arFields]);
+		}
 
 		return $arFields["RESULT_MESSAGE"];
 	}
@@ -2850,53 +2968,57 @@ class CAllUser extends CDBResult
 		global $APPLICATION, $DB;
 
 		$APPLICATION->ResetException();
-		if(defined("ADMIN_SECTION") && ADMIN_SECTION===true && $SITE_ID===false)
+		if (defined("ADMIN_SECTION") && ADMIN_SECTION===true && $SITE_ID===false)
 		{
 			$APPLICATION->ThrowException(GetMessage("MAIN_FUNCTION_SIMPLEREGISTER_NA_INADMIN"));
-			return array("MESSAGE"=>GetMessage("MAIN_FUNCTION_SIMPLEREGISTER_NA_INADMIN"), "TYPE"=>"ERROR");
+			return ["MESSAGE"=>GetMessage("MAIN_FUNCTION_SIMPLEREGISTER_NA_INADMIN"), "TYPE"=>"ERROR"];
 		}
 
-		if($SITE_ID===false)
+		if ($SITE_ID===false)
+		{
 			$SITE_ID = SITE_ID;
+		}
 
 		global $REMOTE_ADDR;
 
-		$arFields = array(
+		$arFields = [
 			"CHECKWORD" => Random::getString(32),
 			"~CHECKWORD_TIME" => $DB->CurrentTimeFunction(),
 			"EMAIL" => $USER_EMAIL,
-			"ACTIVE" => "Y",
-			"NAME"=>"",
-			"LAST_NAME"=>"",
-			"USER_IP"=>$REMOTE_ADDR,
-			"USER_HOST"=>@gethostbyaddr($REMOTE_ADDR),
+			"ACTIVE" => 'Y',
+			"NAME" => '',
+			"LAST_NAME" => '',
+			"USER_IP" => $REMOTE_ADDR,
+			"USER_HOST" => @gethostbyaddr($REMOTE_ADDR),
 			"SITE_ID" => $SITE_ID,
 			"LANGUAGE_ID" => LANGUAGE_ID,
-		);
+		];
 
-		$def_group = COption::GetOptionString("main", "new_user_registration_def_group", "");
-		if($def_group!="")
+		$def_group = Option::get('main', 'new_user_registration_def_group');
+		if ($def_group != '')
 		{
 			$arFields["GROUP_ID"] = explode(",", $def_group);
 		}
 		else
 		{
-			$arFields["GROUP_ID"] = array();
+			$arFields["GROUP_ID"] = [];
 		}
 		$arFields["PASSWORD"] = $arFields["CONFIRM_PASSWORD"] = static::GeneratePasswordByPolicy($arFields["GROUP_ID"]);
 
 		$bOk = true;
 		$result_message = false;
-		foreach(GetModuleEvents("main", "OnBeforeUserSimpleRegister", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserSimpleRegister', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+			if (ExecuteModuleEventEx($arEvent, [&$arFields]) === false)
 			{
-				if($err = $APPLICATION->GetException())
-					$result_message = array("MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR");
+				if ($err = $APPLICATION->GetException())
+				{
+					$result_message = ["MESSAGE"=>$err->GetString()."<br>", "TYPE"=>"ERROR"];
+				}
 				else
 				{
 					$APPLICATION->ThrowException("Unknown error");
-					$result_message = array("MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR");
+					$result_message = ["MESSAGE"=>"Unknown error"."<br>", "TYPE"=>"ERROR"];
 				}
 
 				$bOk = false;
@@ -2905,23 +3027,23 @@ class CAllUser extends CDBResult
 		}
 
 		$bRandLogin = false;
-		if(!is_set($arFields, "LOGIN"))
+		if (!is_set($arFields, "LOGIN"))
 		{
 			$arFields["LOGIN"] = Random::getString(50);
 			$bRandLogin = true;
 		}
 
 		$ID = 0;
-		if($bOk)
+		if ($bOk)
 		{
 			$arFields["LID"] = $arFields["SITE_ID"];
 
-			if($ID = $this->Add($arFields))
+			if ($ID = $this->Add($arFields))
 			{
-				if($bRandLogin)
+				if ($bRandLogin)
 				{
-					$this->Update($ID, array("LOGIN"=>"user".$ID));
-					$arFields["LOGIN"] = "user".$ID;
+					$this->Update($ID, ["LOGIN" => "user" . $ID]);
+					$arFields["LOGIN"] = "user" . $ID;
 				}
 
 				$this->Authorize($ID);
@@ -2935,41 +3057,45 @@ class CAllUser extends CDBResult
 
 				$event->SendImmediate("NEW_USER", $arEventFields["SITE_ID"], $arEventFields);
 				static::SendUserInfo($ID, $arEventFields["SITE_ID"], GetMessage("USER_REGISTERED_SIMPLE"), true);
-				$result_message = array("MESSAGE"=>GetMessage("USER_REGISTER_OK"), "TYPE"=>"OK");
+				$result_message = ["MESSAGE"=>GetMessage("USER_REGISTER_OK"), "TYPE"=>"OK"];
 			}
 			else
-				$result_message = array("MESSAGE"=>$this->LAST_ERROR, "TYPE"=>"ERROR");
+			{
+				$result_message = ["MESSAGE"=>$this->LAST_ERROR, "TYPE"=>"ERROR"];
+			}
 		}
 
-		if(is_array($result_message))
+		if (is_array($result_message))
 		{
-			if($result_message["TYPE"] == "OK")
+			if ($result_message["TYPE"] == "OK")
 			{
-				if(COption::GetOptionString("main", "event_log_register", "N") === "Y")
+				if (Option::get('main', 'event_log_register', 'N') === 'Y')
 				{
 					$res_log["user"] = $arFields["LOGIN"];
-					CEventLog::Log("SECURITY", "USER_REGISTER", "main", $ID, serialize($res_log));
+					CEventLog::Log('SECURITY', 'USER_REGISTER', 'main', $ID, serialize($res_log));
 				}
 			}
 			else
 			{
-				if(COption::GetOptionString("main", "event_log_register_fail", "N") === "Y")
+				if (Option::get('main', 'event_log_register_fail', 'N') === 'Y')
 				{
-					CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", $ID, $result_message["MESSAGE"]);
+					CEventLog::Log('SECURITY', 'USER_REGISTER_FAIL', 'main', $ID, $result_message['MESSAGE']);
 				}
 			}
 		}
 
 		$arFields["RESULT_MESSAGE"] = $result_message;
-		foreach(GetModuleEvents("main", "OnAfterUserSimpleRegister", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+		foreach (GetModuleEvents('main', 'OnAfterUserSimpleRegister', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [&$arFields]);
+		}
 
 		return $arFields["RESULT_MESSAGE"];
 	}
 
 	public function IsAuthorized()
 	{
-		if(!isset($this))
+		if (!isset($this))
 		{
 			trigger_error("Static call CUser::IsAuthorized() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
 
@@ -2986,7 +3112,7 @@ class CAllUser extends CDBResult
 			return true;
 		}
 
-		$filePath = \Bitrix\Main\Context::getCurrent()->getRequest()->getScriptFile();
+		$filePath = Main\Context::getCurrent()->getRequest()->getScriptFile();
 
 		return !$this->CanDoFileOperation('fm_view_file', [SITE_ID, $filePath]);
 	}
@@ -2998,7 +3124,7 @@ class CAllUser extends CDBResult
 
 	public function IsJustBecameOnline()
 	{
-		if(!$this->GetParam('PREV_LAST_ACTIVITY'))
+		if (!$this->GetParam('PREV_LAST_ACTIVITY'))
 		{
 			return true;
 		}
@@ -3012,9 +3138,9 @@ class CAllUser extends CDBResult
 	{
 		if ($this->admin === null)
 		{
-			if(
-				COption::GetOptionString("main", "controller_member", "N") == "Y"
-				&& COption::GetOptionString("main", "~controller_limited_admin", "N") == "Y"
+			if (
+				Option::get('main', 'controller_member', 'N') == 'Y'
+				&& Option::get('main', '~controller_limited_admin', 'N') == 'Y'
 			)
 			{
 				$this->admin = ($this->GetParam("CONTROLLER_ADMIN") === true);
@@ -3040,14 +3166,14 @@ class CAllUser extends CDBResult
 	{
 		$logout = 'logout=yes';
 
-		if(Main\Config\Option::get("main", "secure_logout", "N") == "Y")
+		if (Option::get('main', 'secure_logout', 'N') == 'Y')
 		{
 			$logout .= '&'.bitrix_sessid_get();
 		}
 
-		if($deleteParms !== true)
+		if ($deleteParms !== true)
 		{
-			if(($s = DeleteParam(array_merge($deleteParms, ["logout", "sessid"]))) <> '')
+			if (($s = DeleteParam(array_merge($deleteParms, ["logout", "sessid"]))) != '')
 			{
 				$logout .= '&'.$s;
 			}
@@ -3063,17 +3189,17 @@ class CAllUser extends CDBResult
 
 		$USER_ID = $this->GetID();
 
-		$arParams = array(
+		$arParams = [
 			"USER_ID" => &$USER_ID
-		);
+		];
 
 		$APPLICATION->ResetException();
 		$bOk = true;
-		foreach(GetModuleEvents("main", "OnBeforeUserLogout", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnBeforeUserLogout', true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arParams))===false)
+			if (ExecuteModuleEventEx($arEvent, [&$arParams])===false)
 			{
-				if(!($APPLICATION->GetException()))
+				if (!($APPLICATION->GetException()))
 				{
 					$APPLICATION->ThrowException("Unknown logout error");
 				}
@@ -3083,14 +3209,14 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($bOk)
+		if ($bOk)
 		{
-			foreach(GetModuleEvents("main", "OnUserLogout", true) as $arEvent)
+			foreach (GetModuleEvents('main', 'OnUserLogout', true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array($USER_ID));
+				ExecuteModuleEventEx($arEvent, [$USER_ID]);
 			}
 
-			if(($storedAuthId = $this->getContext()->getStoredAuthId()) > 0)
+			if (($storedAuthId = $this->getContext()->getStoredAuthId()) > 0)
 			{
 				UserStoredAuthTable::delete($storedAuthId);
 			}
@@ -3099,7 +3225,7 @@ class CAllUser extends CDBResult
 			$this->admin = null;
 			$this->context = null;
 
-			static::$kernelSession["SESS_AUTH"] = array();
+			static::$kernelSession["SESS_AUTH"] = [];
 			unset(static::$kernelSession["SESS_AUTH"]);
 			unset(static::$kernelSession["SESS_OPERATIONS"]);
 			unset(static::$kernelSession['fixed_session_id']);
@@ -3112,14 +3238,14 @@ class CAllUser extends CDBResult
 			$compositeSessionManager->regenerateId();
 
 			$response = Main\Context::getCurrent()->getResponse();
-			$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
+			$spread = (Option::get('main', 'auth_multisite', 'N') == 'Y' ? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
 
-			$cookie = new Main\Web\Cookie("UIDH",  "", 0);
+			$cookie = new Main\Web\Cookie("UIDH", '', 0);
 			$cookie->setSpread($spread);
 			$cookie->setHttpOnly(true);
 			$response->addCookie($cookie);
 
-			$cookie = new Main\Web\Cookie("UIDL",  "", 0);
+			$cookie = new Main\Web\Cookie("UIDL", '', 0);
 			$cookie->setSpread($spread);
 			$cookie->setHttpOnly(true);
 			$response->addCookie($cookie);
@@ -3128,14 +3254,14 @@ class CAllUser extends CDBResult
 		}
 
 		$arParams["SUCCESS"] = $bOk;
-		foreach(GetModuleEvents("main", "OnAfterUserLogout", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnAfterUserLogout', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array(&$arParams));
+			ExecuteModuleEventEx($arEvent, [&$arParams]);
 		}
 
-		if(COption::GetOptionString("main", "event_log_logout", "N") === "Y")
+		if (Option::get('main', 'event_log_logout', 'N') === 'Y')
 		{
-			CEventLog::Log("SECURITY", "USER_LOGOUT", "main", $USER_ID);
+			CEventLog::Log('SECURITY', 'USER_LOGOUT', 'main', $USER_ID);
 		}
 	}
 
@@ -3144,10 +3270,12 @@ class CAllUser extends CDBResult
 		$ID = (int)$ID;
 		if (!isset(self::$userGroupCache[$ID]))
 		{
-			$arr = array();
+			$arr = [];
 			$res = static::GetUserGroupEx($ID);
 			while ($r = $res->Fetch())
+			{
 				$arr[] = $r["GROUP_ID"];
+			}
 
 			self::$userGroupCache[$ID] = $arr;
 		}
@@ -3161,8 +3289,8 @@ class CAllUser extends CDBResult
 
 		$strSql = "
 			SELECT UG.GROUP_ID, G.STRING_ID,
-				".$DB->DateToCharFunction("UG.DATE_ACTIVE_FROM", "FULL")." as DATE_ACTIVE_FROM,
-				".$DB->DateToCharFunction("UG.DATE_ACTIVE_TO", "FULL")." as DATE_ACTIVE_TO
+				".$DB->DateToCharFunction("UG.DATE_ACTIVE_FROM")." as DATE_ACTIVE_FROM,
+				".$DB->DateToCharFunction("UG.DATE_ACTIVE_TO")." as DATE_ACTIVE_TO
 			FROM b_user_group UG INNER JOIN b_group G ON G.ID=UG.GROUP_ID
 			WHERE UG.USER_ID = ".intval($ID)."
 				and ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction()."))
@@ -3182,8 +3310,8 @@ class CAllUser extends CDBResult
 		$strSql = "
 			SELECT
 				UG.GROUP_ID,
-				".$DB->DateToCharFunction("UG.DATE_ACTIVE_FROM", "FULL")." as DATE_ACTIVE_FROM,
-				".$DB->DateToCharFunction("UG.DATE_ACTIVE_TO", "FULL")." as DATE_ACTIVE_TO
+				".$DB->DateToCharFunction("UG.DATE_ACTIVE_FROM")." as DATE_ACTIVE_FROM,
+				".$DB->DateToCharFunction("UG.DATE_ACTIVE_TO")." as DATE_ACTIVE_TO
 			FROM
 				b_user_group UG
 			WHERE
@@ -3203,24 +3331,24 @@ class CAllUser extends CDBResult
 		 */
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER;
 
-		$this->LAST_ERROR = "";
+		$this->LAST_ERROR = '';
 
 		$bInternal = true;
-		if(is_set($arFields, "EXTERNAL_AUTH_ID"))
+		if (is_set($arFields, "EXTERNAL_AUTH_ID"))
 		{
-			if(trim($arFields["EXTERNAL_AUTH_ID"]) <> '')
+			if (trim($arFields["EXTERNAL_AUTH_ID"]) != '')
 			{
 				$bInternal = false;
 			}
 		}
 		else
 		{
-			if($ID > 0)
+			if ($ID > 0)
 			{
 				$dbr = $DB->Query("SELECT EXTERNAL_AUTH_ID FROM b_user WHERE ID=".intval($ID));
-				if(($ar = $dbr->Fetch()))
+				if (($ar = $dbr->Fetch()))
 				{
-					if($ar['EXTERNAL_AUTH_ID'] <> '')
+					if ($ar['EXTERNAL_AUTH_ID'] != '')
 					{
 						$bInternal = false;
 					}
@@ -3228,53 +3356,61 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($bInternal)
+		if ($bInternal)
 		{
 			$this->LAST_ERROR .= static::CheckInternalFields($arFields, $ID);
 		}
 		else
 		{
-			if(is_set($arFields, "EMAIL"))
+			if (is_set($arFields, "EMAIL"))
 			{
-				if($arFields["EMAIL"] <> '' && !check_email($arFields["EMAIL"], true))
+				if ($arFields["EMAIL"] != '' && !check_email($arFields["EMAIL"], true))
 				{
 					$this->LAST_ERROR .= GetMessage("WRONG_EMAIL")."<br>";
 				}
 			}
 		}
 
-		if(is_set($arFields, "PERSONAL_PHOTO") && $arFields["PERSONAL_PHOTO"]["name"] == '' && $arFields["PERSONAL_PHOTO"]["del"] == '')
+		if (
+			is_set($arFields, "PERSONAL_PHOTO")
+			&& (!isset($arFields["PERSONAL_PHOTO"]["name"]) || $arFields["PERSONAL_PHOTO"]["name"] == '')
+			&& (!isset($arFields["PERSONAL_PHOTO"]["del"]) || $arFields["PERSONAL_PHOTO"]["del"] == '')
+		)
 		{
 			unset($arFields["PERSONAL_PHOTO"]);
 		}
 
-		$maxWidth = COption::GetOptionInt("main", "profile_image_width", 0);
-		$maxHeight = COption::GetOptionInt("main", "profile_image_height", 0);
-		$maxSize = COption::GetOptionInt("main", "profile_image_size", 0);
+		$maxWidth = (int)Option::get('main', 'profile_image_width', 0);
+		$maxHeight = (int)Option::get('main', 'profile_image_height', 0);
+		$maxSize = (int)Option::get('main', 'profile_image_size', 0);
 
-		if(is_set($arFields, "PERSONAL_PHOTO"))
+		if (is_set($arFields, "PERSONAL_PHOTO"))
 		{
 			$res = CFile::CheckImageFile($arFields["PERSONAL_PHOTO"], $maxSize, $maxWidth, $maxHeight);
-			if($res <> '')
+			if ($res != '')
 			{
 				$this->LAST_ERROR .= $res."<br>";
 			}
 		}
 
-		if(is_set($arFields, "PERSONAL_BIRTHDAY") && $arFields["PERSONAL_BIRTHDAY"] <> '' && !CheckDateTime($arFields["PERSONAL_BIRTHDAY"]))
+		if (is_set($arFields, "PERSONAL_BIRTHDAY") && $arFields["PERSONAL_BIRTHDAY"] != '' && !CheckDateTime($arFields["PERSONAL_BIRTHDAY"]))
 		{
 			$this->LAST_ERROR .= GetMessage("WRONG_PERSONAL_BIRTHDAY")."<br>";
 		}
 
-		if(is_set($arFields, "WORK_LOGO") && $arFields["WORK_LOGO"]["name"] == '' && $arFields["WORK_LOGO"]["del"] == '')
+		if (
+			is_set($arFields, "WORK_LOGO")
+			&& (!isset($arFields["WORK_LOGO"]["name"]) || $arFields["WORK_LOGO"]["name"] == '')
+			&& (!isset($arFields["WORK_LOGO"]["del"]) || $arFields["WORK_LOGO"]["del"] == '')
+		)
 		{
 			unset($arFields["WORK_LOGO"]);
 		}
 
-		if(is_set($arFields, "WORK_LOGO"))
+		if (is_set($arFields, "WORK_LOGO"))
 		{
 			$res = CFile::CheckImageFile($arFields["WORK_LOGO"], $maxSize, $maxWidth, $maxHeight);
-			if($res <> '')
+			if ($res != '')
 			{
 				$this->LAST_ERROR .= $res."<br>";
 			}
@@ -3299,28 +3435,28 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if(is_object($APPLICATION))
+		if (is_object($APPLICATION))
 		{
 			$APPLICATION->ResetException();
 
-			if($ID === false)
+			if ($ID === false)
 			{
-				$events = GetModuleEvents("main", "OnBeforeUserAdd", true);
+				$events = GetModuleEvents('main', 'OnBeforeUserAdd', true);
 			}
 			else
 			{
 				$arFields["ID"] = $ID;
-				$events = GetModuleEvents("main", "OnBeforeUserUpdate", true);
+				$events = GetModuleEvents('main', 'OnBeforeUserUpdate', true);
 			}
 
-			foreach($events as $arEvent)
+			foreach ($events as $arEvent)
 			{
-				$bEventRes = ExecuteModuleEventEx($arEvent, array(&$arFields));
-				if($bEventRes === false)
+				$bEventRes = ExecuteModuleEventEx($arEvent, [&$arFields]);
+				if ($bEventRes === false)
 				{
-					if($err = $APPLICATION->GetException())
+					if ($err = $APPLICATION->GetException())
 					{
-						$this->LAST_ERROR .= $err->GetString()." ";
+						$this->LAST_ERROR .= $err->GetString() . ' ';
 					}
 					else
 					{
@@ -3332,13 +3468,13 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if(is_object($APPLICATION))
+		if (is_object($APPLICATION))
 		{
 			$APPLICATION->ResetException();
 		}
 		if (!$USER_FIELD_MANAGER->CheckFields("USER", $ID, $arFields))
 		{
-			if(is_object($APPLICATION) && $APPLICATION->GetException())
+			if (is_object($APPLICATION) && $APPLICATION->GetException())
 			{
 				$e = $APPLICATION->GetException();
 				$this->LAST_ERROR .= $e->GetString();
@@ -3350,7 +3486,7 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if($this->LAST_ERROR <> '')
+		if ($this->LAST_ERROR != '')
 		{
 			return false;
 		}
@@ -3369,58 +3505,58 @@ class CAllUser extends CDBResult
 
 		$resultError = '';
 
-		$emailRequired = (COption::GetOptionString("main", "new_user_email_required", "Y") <> "N");
-		$phoneRequired = (COption::GetOptionString("main", "new_user_phone_required", "N") == "Y");
+		$emailRequired = (Option::get('main', 'new_user_email_required', 'Y') != 'N');
+		$phoneRequired = (Option::get('main', 'new_user_phone_required', 'N') == 'Y');
 
-		if($ID === false)
+		if ($ID === false)
 		{
-			if(!isset($arFields["LOGIN"]))
+			if (!isset($arFields["LOGIN"]))
 			{
 				$resultError .= GetMessage("user_login_not_set")."<br>";
 			}
 
-			if(!isset($arFields["PASSWORD"]))
+			if (!isset($arFields["PASSWORD"]))
 			{
 				$resultError .= GetMessage("user_pass_not_set")."<br>";
 			}
 
-			if($emailRequired && !isset($arFields["EMAIL"]))
+			if ($emailRequired && !isset($arFields["EMAIL"]))
 			{
 				$resultError .= GetMessage("user_email_not_set")."<br>";
 			}
 
-			if($phoneRequired && !isset($arFields["PHONE_NUMBER"]))
+			if ($phoneRequired && !isset($arFields["PHONE_NUMBER"]))
 			{
 				$resultError .= GetMessage("main_user_check_no_phone")."<br>";
 			}
 		}
-		if(is_set($arFields, "LOGIN") && $arFields["LOGIN"] <> trim($arFields["LOGIN"]))
+		if (is_set($arFields, "LOGIN") && $arFields["LOGIN"] != trim($arFields["LOGIN"]))
 		{
 			$resultError .= GetMessage("LOGIN_WHITESPACE")."<br>";
 		}
 
-		if(is_set($arFields, "LOGIN") && mb_strlen($arFields["LOGIN"]) < 3)
+		if (is_set($arFields, "LOGIN") && mb_strlen($arFields["LOGIN"]) < 3)
 		{
 			$resultError .= GetMessage("MIN_LOGIN")."<br>";
 		}
 
-		if(is_set($arFields, "PASSWORD"))
+		if (is_set($arFields, "PASSWORD"))
 		{
-			if(is_set($arFields, "CONFIRM_PASSWORD") && $arFields["PASSWORD"] !== $arFields["CONFIRM_PASSWORD"])
+			if (is_set($arFields, "CONFIRM_PASSWORD") && $arFields["PASSWORD"] !== $arFields["CONFIRM_PASSWORD"])
 			{
 				//we shouldn't show that password is correct
 				$resultError .= GetMessage("WRONG_CONFIRMATION")."<br>";
 			}
 			else
 			{
-				if(array_key_exists("GROUP_ID", $arFields))
+				if (array_key_exists("GROUP_ID", $arFields))
 				{
-					$arGroups = array();
-					if(is_array($arFields["GROUP_ID"]))
+					$arGroups = [];
+					if (is_array($arFields["GROUP_ID"]))
 					{
-						foreach($arFields["GROUP_ID"] as $arGroup)
+						foreach ($arFields["GROUP_ID"] as $arGroup)
 						{
-							if(is_array($arGroup))
+							if (is_array($arGroup))
 							{
 								$arGroups[] = $arGroup["GROUP_ID"];
 							}
@@ -3432,7 +3568,7 @@ class CAllUser extends CDBResult
 					}
 					$policy = static::getPolicy($arGroups);
 				}
-				elseif($ID !== false)
+				elseif ($ID !== false)
 				{
 					$policy = static::getPolicy($ID);
 				}
@@ -3442,50 +3578,50 @@ class CAllUser extends CDBResult
 				}
 
 				$passwordErrors = static::CheckPasswordAgainstPolicy($arFields["PASSWORD"], $policy->getValues(), ($ID !== false? $ID : null));
-				if(!empty($passwordErrors))
+				if (!empty($passwordErrors))
 				{
 					$resultError .= implode("<br>", $passwordErrors)."<br>";
 				}
 			}
 		}
 
-		if(is_set($arFields, "EMAIL"))
+		if (is_set($arFields, "EMAIL"))
 		{
-			if(($emailRequired && mb_strlen($arFields["EMAIL"]) < 3) || ($arFields["EMAIL"] <> '' && !check_email($arFields["EMAIL"], true)))
+			if (($emailRequired && mb_strlen($arFields["EMAIL"]) < 3) || ($arFields["EMAIL"] != '' && !check_email($arFields["EMAIL"], true)))
 			{
 				$resultError .= GetMessage("WRONG_EMAIL")."<br>";
 			}
-			elseif(COption::GetOptionString("main", "new_user_email_uniq_check", "N") === "Y")
+			elseif (Option::get('main', 'new_user_email_uniq_check', 'N') === 'Y')
 			{
-				if($arFields["EMAIL"] <> '')
+				if ($arFields["EMAIL"] != '')
 				{
 					$oldEmail = '';
-					if($ID > 0)
+					if ($ID > 0)
 					{
-						//the option 'new_user_email_uniq_check' might have been switched on after the DB already contained identical emails
-						//so we let a user to have the old email, but not the existing new one
+						// the option 'new_user_email_uniq_check' might have been switched on after the DB already contained identical emails,
+						// so we let a user to have the old email, but not the existing new one
 						$dbr = $DB->Query("SELECT EMAIL FROM b_user WHERE ID=".intval($ID));
-						if(($ar = $dbr->Fetch()))
+						if (($ar = $dbr->Fetch()))
 						{
 							$oldEmail = $ar['EMAIL'];
 						}
 					}
-					if($ID == false || $arFields["EMAIL"] <> $oldEmail)
+					if (!$ID || $arFields["EMAIL"] != $oldEmail)
 					{
 						$res = static::GetList('', '',
-							array(
+							[
 								"=EMAIL" => $arFields["EMAIL"],
-								"EXTERNAL_AUTH_ID" => $arFields["EXTERNAL_AUTH_ID"]
-							),
-							array(
-								"FIELDS" => array("ID")
-							)
+								"EXTERNAL_AUTH_ID" => $arFields["EXTERNAL_AUTH_ID"] ?? null,
+							],
+							[
+								"FIELDS" => ["ID"]
+							]
 						);
-						while($ar = $res->Fetch())
+						while ($ar = $res->Fetch())
 						{
-							if(intval($ar["ID"]) !== intval($ID))
+							if (intval($ar["ID"]) !== intval($ID))
 							{
-								$resultError .= GetMessage("USER_WITH_EMAIL_EXIST", array("#EMAIL#" => htmlspecialcharsbx($arFields["EMAIL"])))."<br>";
+								$resultError .= GetMessage("USER_WITH_EMAIL_EXIST", ["#EMAIL#" => htmlspecialcharsbx($arFields["EMAIL"])])."<br>";
 							}
 						}
 					}
@@ -3493,13 +3629,13 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if(isset($arFields["PHONE_NUMBER"]))
+		if (isset($arFields["PHONE_NUMBER"]))
 		{
-			if($phoneRequired && $arFields["PHONE_NUMBER"] == '')
+			if ($phoneRequired && $arFields["PHONE_NUMBER"] == '')
 			{
 				$resultError .= GetMessage("main_user_check_no_phone")."<br>";
 			}
-			elseif($arFields["PHONE_NUMBER"] <> '')
+			elseif ($arFields["PHONE_NUMBER"] != '')
 			{
 				//normalize the number: we need it normalized for validation
 				$phoneNumber = Main\UserPhoneAuthTable::normalizePhoneNumber($arFields["PHONE_NUMBER"]);
@@ -3509,26 +3645,26 @@ class CAllUser extends CDBResult
 				$result = new Main\ORM\Data\Result();
 				$primary = ($ID === false? [] : ["USER_ID" => $ID]);
 				$field->validateValue($phoneNumber, $primary, [], $result);
-				if(!$result->isSuccess())
+				if (!$result->isSuccess())
 				{
 					$resultError .= implode("<br>", $result->getErrorMessages());
 				}
 			}
 		}
 
-		if(is_array($arFields["GROUP_ID"]) && count($arFields["GROUP_ID"]) > 0)
+		if (isset($arFields["GROUP_ID"]) && is_array($arFields["GROUP_ID"]) && !empty($arFields["GROUP_ID"]))
 		{
-			if(is_array($arFields["GROUP_ID"][0]) && count($arFields["GROUP_ID"][0]) > 0)
+			if (isset($arFields["GROUP_ID"][0]) && is_array($arFields["GROUP_ID"][0]) && !empty($arFields["GROUP_ID"][0]))
 			{
-				foreach($arFields["GROUP_ID"] as $arGroup)
+				foreach ($arFields["GROUP_ID"] as $arGroup)
 				{
-					if($arGroup["DATE_ACTIVE_FROM"] <> '' && !CheckDateTime($arGroup["DATE_ACTIVE_FROM"]))
+					if ($arGroup["DATE_ACTIVE_FROM"] != '' && !CheckDateTime($arGroup["DATE_ACTIVE_FROM"]))
 					{
 						$error = str_replace("#GROUP_ID#", $arGroup["GROUP_ID"], GetMessage("WRONG_DATE_ACTIVE_FROM"));
 						$resultError .= $error."<br>";
 					}
 
-					if($arGroup["DATE_ACTIVE_TO"] <> '' && !CheckDateTime($arGroup["DATE_ACTIVE_TO"]))
+					if ($arGroup["DATE_ACTIVE_TO"] != '' && !CheckDateTime($arGroup["DATE_ACTIVE_TO"]))
 					{
 						$error = str_replace("#GROUP_ID#", $arGroup["GROUP_ID"], GetMessage("WRONG_DATE_ACTIVE_TO"));
 						$resultError .= $error."<br>";
@@ -3546,7 +3682,7 @@ class CAllUser extends CDBResult
 
 		$ID = intval($ID);
 
-		if($ID < 1)
+		if ($ID < 1)
 		{
 			//actually, here should be an exception
 			$rs = new CDBResult;
@@ -3555,17 +3691,17 @@ class CAllUser extends CDBResult
 		}
 
 		$userID = (is_object($USER)? intval($USER->GetID()): 0);
-		if($userID > 0 && $ID == $userID && is_array(self::$CURRENT_USER))
+		if ($userID > 0 && $ID == $userID && is_array(self::$CURRENT_USER))
 		{
 			$rs = new CDBResult;
 			$rs->InitFromArray(self::$CURRENT_USER);
 		}
 		else
 		{
-			$rs = static::GetList('id', 'asc', array("ID_EQUAL_EXACT"=>intval($ID)), array("SELECT"=>array("UF_*")));
-			if($userID > 0 && $ID == $userID)
+			$rs = static::GetList('id', 'asc', ["ID_EQUAL_EXACT" => intval($ID)], ["SELECT" => ["UF_*"]]);
+			if ($userID > 0 && $ID == $userID)
 			{
-				self::$CURRENT_USER = array($rs->Fetch());
+				self::$CURRENT_USER = [$rs->Fetch()];
 				$rs = new CDBResult;
 				$rs->InitFromArray(self::$CURRENT_USER);
 			}
@@ -3575,7 +3711,7 @@ class CAllUser extends CDBResult
 
 	public static function GetByLogin($LOGIN)
 	{
-		$rs = static::GetList('id', 'asc', array("LOGIN_EQUAL_EXACT"=>$LOGIN), array("SELECT"=>array("UF_*")));
+		$rs = static::GetList('id', 'asc', ["LOGIN_EQUAL_EXACT" => $LOGIN], ["SELECT" => ["UF_*"]]);
 		return $rs;
 	}
 
@@ -3591,7 +3727,7 @@ class CAllUser extends CDBResult
 			return false;
 		}
 
-		if(!$this->CheckFields($arFields, $ID))
+		if (!$this->CheckFields($arFields, $ID))
 		{
 			$result = false;
 			$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
@@ -3600,21 +3736,29 @@ class CAllUser extends CDBResult
 		{
 			unset($arFields["ID"]);
 
-			if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"] != "Y")
-				$arFields["ACTIVE"] = "N";
-			if(is_set($arFields, "BLOCKED") && $arFields["BLOCKED"] != "Y")
-				$arFields["BLOCKED"] = "N";
-			if(is_set($arFields, "PASSWORD_EXPIRED") && $arFields["PASSWORD_EXPIRED"] != "Y")
-				$arFields["PASSWORD_EXPIRED"] = "N";
+			if (is_set($arFields, "ACTIVE") && $arFields["ACTIVE"] != 'Y')
+			{
+				$arFields["ACTIVE"] = 'N';
+			}
+			if (is_set($arFields, "BLOCKED") && $arFields["BLOCKED"] != 'Y')
+			{
+				$arFields["BLOCKED"] = 'N';
+			}
+			if (is_set($arFields, "PASSWORD_EXPIRED") && $arFields["PASSWORD_EXPIRED"] != 'Y')
+			{
+				$arFields["PASSWORD_EXPIRED"] = 'N';
+			}
 
-			if(is_set($arFields, "PERSONAL_GENDER") && ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
-				$arFields["PERSONAL_GENDER"] = "";
+			if (is_set($arFields, "PERSONAL_GENDER") && ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
+			{
+				$arFields["PERSONAL_GENDER"] = '';
+			}
 
-			$saveHistory = (Main\Config\Option::get("main", "user_profile_history") === "Y");
+			$saveHistory = (Option::get('main', 'user_profile_history') === 'Y');
 
 			//we need old values for some actions
 			$arUser = null;
-			if((isset($arFields["ACTIVE"]) && $arFields["ACTIVE"] == "N") || isset($arFields["PASSWORD"]) || $saveHistory)
+			if ((isset($arFields["ACTIVE"]) && $arFields["ACTIVE"] == 'N') || isset($arFields["PASSWORD"]) || $saveHistory)
 			{
 				$rUser = static::GetByID($ID);
 				$arUser = $rUser->Fetch();
@@ -3622,14 +3766,14 @@ class CAllUser extends CDBResult
 
 			$originalPassword = '';
 			$passwordChanged = false;
-			if(is_set($arFields, "PASSWORD"))
+			if (is_set($arFields, "PASSWORD"))
 			{
 				$originalPassword = $arFields["PASSWORD"];
 				$arFields["PASSWORD"] = Password::hash($arFields["PASSWORD"]);
 
-				if($arUser)
+				if ($arUser)
 				{
-					if(!Password::equals($arUser["PASSWORD"], $originalPassword))
+					if (!Password::equals($arUser["PASSWORD"], $originalPassword))
 					{
 						//password changed, remove stored authentication
 						UserStoredAuthTable::deleteByFilter(['=USER_ID' => $ID]);
@@ -3638,9 +3782,9 @@ class CAllUser extends CDBResult
 					}
 				}
 
-				if(COption::GetOptionString("main", "event_log_password_change", "N") === "Y")
+				if (Option::get('main', 'event_log_password_change', 'N') === 'Y')
 				{
-					CEventLog::Log("SECURITY", "USER_PASSWORD_CHANGED", "main", $ID);
+					CEventLog::Log('SECURITY', 'USER_PASSWORD_CHANGED', 'main', $ID);
 				}
 
 				if (!isset($arFields['PASSWORD_EXPIRED']))
@@ -3652,9 +3796,9 @@ class CAllUser extends CDBResult
 			unset($arFields["STORED_HASH"]);
 
 			$checkword = '';
-			if(!is_set($arFields, "CHECKWORD"))
+			if (!is_set($arFields, "CHECKWORD"))
 			{
-				if(is_set($arFields, "PASSWORD") || is_set($arFields, "EMAIL") || is_set($arFields, "LOGIN")  || is_set($arFields, "ACTIVE"))
+				if (is_set($arFields, "PASSWORD") || is_set($arFields, "EMAIL") || is_set($arFields, "LOGIN")  || is_set($arFields, "ACTIVE"))
 				{
 					$checkword = Random::getString(32);
 					$arFields["CHECKWORD"] = Password::hash($checkword);
@@ -3666,14 +3810,20 @@ class CAllUser extends CDBResult
 				$arFields["CHECKWORD"] = Password::hash($checkword);
 			}
 
-			if(is_set($arFields, "CHECKWORD") && !is_set($arFields, "CHECKWORD_TIME"))
+			if (is_set($arFields, "CHECKWORD") && !is_set($arFields, "CHECKWORD_TIME"))
+			{
 				$arFields["~CHECKWORD_TIME"] = $DB->CurrentTimeFunction();
+			}
 
-			if(is_set($arFields, "WORK_COUNTRY"))
+			if (is_set($arFields, "WORK_COUNTRY"))
+			{
 				$arFields["WORK_COUNTRY"] = intval($arFields["WORK_COUNTRY"]);
+			}
 
-			if(is_set($arFields, "PERSONAL_COUNTRY"))
+			if (is_set($arFields, "PERSONAL_COUNTRY"))
+			{
 				$arFields["PERSONAL_COUNTRY"] = intval($arFields["PERSONAL_COUNTRY"]);
+			}
 
 			if (
 				array_key_exists("PERSONAL_PHOTO", $arFields)
@@ -3684,10 +3834,10 @@ class CAllUser extends CDBResult
 				)
 			)
 			{
-				$arFields["PERSONAL_PHOTO"]["MODULE_ID"] = "main";
+				$arFields["PERSONAL_PHOTO"]["MODULE_ID"] = 'main';
 			}
 
-			CFile::SaveForDB($arFields, "PERSONAL_PHOTO", "main");
+			CFile::SaveForDB($arFields, 'PERSONAL_PHOTO', 'main');
 
 			if (
 				array_key_exists("WORK_LOGO", $arFields)
@@ -3698,15 +3848,17 @@ class CAllUser extends CDBResult
 				)
 			)
 			{
-				$arFields["WORK_LOGO"]["MODULE_ID"] = "main";
+				$arFields["WORK_LOGO"]["MODULE_ID"] = 'main';
 			}
 
-			CFile::SaveForDB($arFields, "WORK_LOGO", "main");
+			CFile::SaveForDB($arFields, 'WORK_LOGO', 'main');
 
 			$strUpdate = $DB->PrepareUpdate("b_user", $arFields);
 
-			if(!is_set($arFields, "TIMESTAMP_X"))
-				$strUpdate .= ($strUpdate <> ""? ",":"")." TIMESTAMP_X = ".$DB->GetNowFunction();
+			if (!is_set($arFields, "TIMESTAMP_X"))
+			{
+				$strUpdate .= ($strUpdate != '' ? ',' : '')." TIMESTAMP_X = ".$DB->GetNowFunction();
+			}
 
 			$strSql = "UPDATE b_user SET ".$strUpdate." WHERE ID=".$ID;
 
@@ -3714,10 +3866,10 @@ class CAllUser extends CDBResult
 
 			$USER_FIELD_MANAGER->Update("USER", $ID, $arFields);
 
-			if(isset($arFields["PHONE_NUMBER"]))
+			if (isset($arFields["PHONE_NUMBER"]))
 			{
 				$numberExists = false;
-				if($arFields["PHONE_NUMBER"] <> '')
+				if ($arFields["PHONE_NUMBER"] != '')
 				{
 					$arFields["PHONE_NUMBER"] = Main\UserPhoneAuthTable::normalizePhoneNumber($arFields["PHONE_NUMBER"]);
 
@@ -3726,12 +3878,12 @@ class CAllUser extends CDBResult
 						"=PHONE_NUMBER" => $arFields["PHONE_NUMBER"],
 					]])->fetch();
 				}
-				if($arFields["PHONE_NUMBER"] == '' || !$numberExists)
+				if ($arFields["PHONE_NUMBER"] == '' || !$numberExists)
 				{
 					//number changed or added
 					Main\UserPhoneAuthTable::delete($ID);
 
-					if($arFields["PHONE_NUMBER"] <> '')
+					if ($arFields["PHONE_NUMBER"] != '')
 					{
 						Main\UserPhoneAuthTable::add([
 							"USER_ID" => $ID,
@@ -3741,20 +3893,20 @@ class CAllUser extends CDBResult
 				}
 			}
 
-			if(COption::GetOptionString("main", "event_log_user_edit", "N") === "Y")
+			if (Option::get('main', 'event_log_user_edit', 'N') === 'Y')
 			{
-				$res_log["user"] = ($arFields["NAME"] != "" || $arFields["LAST_NAME"] != "") ? trim($arFields["NAME"]." ".$arFields["LAST_NAME"]) : $arFields["LOGIN"];
-				CEventLog::Log("SECURITY", "USER_EDIT", "main", $ID, serialize($res_log));
+				$res_log["user"] = ($arFields["NAME"] != '' || $arFields["LAST_NAME"] != '') ? trim($arFields["NAME"] . ' ' . $arFields["LAST_NAME"]) : $arFields["LOGIN"];
+				CEventLog::Log('SECURITY', 'USER_EDIT', 'main', $ID, serialize($res_log));
 			}
 
-			if(is_set($arFields, "GROUP_ID"))
+			if (is_set($arFields, "GROUP_ID"))
 			{
 				static::SetUserGroup($ID, $arFields["GROUP_ID"]);
 			}
 
-			if($arUser && $passwordChanged)
+			if ($arUser && $passwordChanged)
 			{
-				if(COption::GetOptionString('main', 'use_digest_auth', 'N') == 'Y')
+				if (Option::get('main', 'use_digest_auth', 'N') == 'Y')
 				{
 					//update digest hash for http digest authorization
 					static::UpdateDigest($arUser["ID"], $originalPassword);
@@ -3768,38 +3920,38 @@ class CAllUser extends CDBResult
 				]);
 			}
 
-			if($arUser && $authActions == true)
+			if ($arUser && $authActions)
 			{
 				$authAction = false;
-				if(isset($arFields["ACTIVE"]) && $arUser["ACTIVE"] == "Y" && $arFields["ACTIVE"] == "N")
+				if (isset($arFields["ACTIVE"]) && $arUser["ACTIVE"] == 'Y' && $arFields["ACTIVE"] == 'N')
 				{
 					$authAction = true;
 				}
 
 				$internalUser = true;
-				if(isset($arFields["EXTERNAL_AUTH_ID"]))
+				if (isset($arFields["EXTERNAL_AUTH_ID"]))
 				{
-					if($arFields["EXTERNAL_AUTH_ID"] <> '')
+					if ($arFields["EXTERNAL_AUTH_ID"] != '')
 					{
 						$internalUser = false;
 					}
 				}
-				elseif($arUser["EXTERNAL_AUTH_ID"] <> '')
+				elseif ($arUser["EXTERNAL_AUTH_ID"] != '')
 				{
 					$internalUser = false;
 				}
 
-				if($internalUser && isset($arFields["PASSWORD"]) && $passwordChanged)
+				if ($internalUser && isset($arFields["PASSWORD"]) && $passwordChanged)
 				{
 					$authAction = true;
-					if(is_object($USER) && $USER->GetID() == $ID)
+					if (is_object($USER) && $USER->GetID() == $ID)
 					{
 						//changed password by himself
 						$USER->SetParam("AUTH_ACTION_SKIP_LOGOUT", true);
 					}
 				}
 
-				if($authAction)
+				if ($authAction)
 				{
 					Main\UserAuthActionTable::addLogoutAction($ID);
 				}
@@ -3809,7 +3961,7 @@ class CAllUser extends CDBResult
 			$arFields["CHECKWORD"] = $checkword;
 
 			//update session information and cache for current user
-			if(is_object($USER) && $USER->GetID() == $ID)
+			if (is_object($USER) && $USER->GetID() == $ID)
 			{
 				static $arSessFields = [
 					'LOGIN' => 'LOGIN',
@@ -3823,18 +3975,22 @@ class CAllUser extends CDBResult
 					'AUTO_TIME_ZONE' => 'AUTO_TIME_ZONE',
 					'TIME_ZONE' => 'TIME_ZONE',
 				];
-				foreach($arSessFields as $key => $val)
-					if(isset($arFields[$val]))
+				foreach ($arSessFields as $key => $val)
+				{
+					if (isset($arFields[$val]))
+					{
 						$USER->SetParam($key, $arFields[$val]);
+					}
+				}
 				$name = $USER->GetParam("FIRST_NAME");
 				$last_name = $USER->GetParam("LAST_NAME");
-				$USER->SetParam("NAME", $name.($name == '' || $last_name == ''? "":" ").$last_name);
+				$USER->SetParam("NAME", $name.($name == '' || $last_name == '' ? '' : ' ').$last_name);
 
 				//cache for GetByID()
 				self::$CURRENT_USER = false;
 			}
 
-			if($saveHistory && $arUser)
+			if ($saveHistory && $arUser)
 			{
 				$rUser = static::GetByID($ID);
 				$newUser = $rUser->Fetch();
@@ -3846,17 +4002,19 @@ class CAllUser extends CDBResult
 		$arFields["ID"] = $ID;
 		$arFields["RESULT"] = &$result;
 
-		foreach (GetModuleEvents("main", "OnAfterUserUpdate", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
-
-		if($arFields["RESULT"] == true)
+		foreach (GetModuleEvents('main', 'OnAfterUserUpdate', true) as $arEvent)
 		{
-			\Bitrix\Main\UserTable::indexRecord($ID);
+			ExecuteModuleEventEx($arEvent, [&$arFields]);
+		}
 
-			if(defined("BX_COMP_MANAGED_CACHE"))
+		if ($arFields["RESULT"])
+		{
+			Main\UserTable::indexRecord($ID);
+
+			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$userData = \Bitrix\Main\UserTable::getById($ID)->fetch();
-				$isRealUser = !$userData['EXTERNAL_AUTH_ID'] || !in_array($userData['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes());
+				$userData = Main\UserTable::getById($ID)->fetch();
+				$isRealUser = !$userData['EXTERNAL_AUTH_ID'] || !in_array($userData['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
 
 				$CACHE_MANAGER->ClearByTag("USER_CARD_".intval($ID / TAGGED_user_card_size));
 				$CACHE_MANAGER->ClearByTag($isRealUser? "USER_CARD": "EXTERNAL_USER_CARD");
@@ -3870,9 +4028,9 @@ class CAllUser extends CDBResult
 					"AUTO_TIME_ZONE", "TIME_ZONE", "TIME_ZONE_OFFSET"
 				];
 				$bClear = false;
-				foreach($arNameFields as $val)
+				foreach ($arNameFields as $val)
 				{
-					if(isset($arFields[$val]))
+					if (isset($arFields[$val]))
 					{
 						$bClear = true;
 						break;
@@ -3892,7 +4050,6 @@ class CAllUser extends CDBResult
 	public static function SetUserGroup($USER_ID, $arGroups, $newUser = false)
 	{
 		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
 
 		$USER_ID = intval($USER_ID);
 
@@ -3902,11 +4059,15 @@ class CAllUser extends CDBResult
 		}
 
 		//remember previous groups of the user
-		$aPrevGroups = array();
+		$aPrevGroups = [];
 		$res = static::GetUserGroupList($USER_ID);
-		while($res_arr = $res->Fetch())
-			if($res_arr["GROUP_ID"] <> 2)
+		while ($res_arr = $res->Fetch())
+		{
+			if ($res_arr["GROUP_ID"] != 2)
+			{
 				$aPrevGroups[$res_arr["GROUP_ID"]] = $res_arr;
+			}
+		}
 
 		$inserted = [];
 		$values = [];
@@ -3916,17 +4077,17 @@ class CAllUser extends CDBResult
 			{
 				if (!is_array($group))
 				{
-					$group = array("GROUP_ID" => $group);
+					$group = ["GROUP_ID" => $group];
 				}
 				//we must preserve fields order for the insertion sql
 				$groupFields = [
 					"GROUP_ID" => $group["GROUP_ID"],
-					"DATE_ACTIVE_FROM" => (isset($group["DATE_ACTIVE_FROM"])? $group["DATE_ACTIVE_FROM"] : ''),
-					"DATE_ACTIVE_TO" => (isset($group["DATE_ACTIVE_TO"])? $group["DATE_ACTIVE_TO"] : ''),
+					"DATE_ACTIVE_FROM" => ($group["DATE_ACTIVE_FROM"] ?? ''),
+					"DATE_ACTIVE_TO" => ($group["DATE_ACTIVE_TO"] ?? ''),
 				];
 
 				$group_id = intval($groupFields["GROUP_ID"]);
-				if ($group_id > 0 && $group_id <> 2 && !isset($inserted[$group_id]))
+				if ($group_id > 0 && $group_id != 2 && !isset($inserted[$group_id]))
 				{
 					$arInsert = $GLOBALS['DB']->PrepareInsert("b_user_group", $groupFields);
 					$values[] = "(".$USER_ID.",	".$arInsert[1].")";
@@ -3951,25 +4112,25 @@ class CAllUser extends CDBResult
 
 		static::clearUserGroupCache($USER_ID);
 
-		foreach (GetModuleEvents("main", "OnAfterSetUserGroup", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnAfterSetUserGroup', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array($USER_ID, $inserted));
+			ExecuteModuleEventEx($arEvent, [$USER_ID, $inserted]);
 		}
 
-		if($aPrevGroups <> $inserted)
+		if ($aPrevGroups != $inserted)
 		{
-			if($newUser == false)
+			if (!$newUser)
 			{
 				$authActionCommon = false;
 				$now = new Main\Type\DateTime();
-				foreach($inserted as $group)
+				foreach ($inserted as $group)
 				{
-					foreach(array("DATE_ACTIVE_FROM", "DATE_ACTIVE_TO") as $field)
+					foreach (["DATE_ACTIVE_FROM", "DATE_ACTIVE_TO"] as $field)
 					{
-						if($group[$field] <> '')
+						if ($group[$field] != '')
 						{
 							$date = Main\Type\DateTime::createFromUserTime($group[$field]);
-							if($date->getTimestamp() > $now->getTimestamp())
+							if ($date->getTimestamp() > $now->getTimestamp())
 							{
 								//group membership is in the future, we need separate records for each group
 								Main\UserAuthActionTable::addUpdateAction($USER_ID, $date);
@@ -3986,24 +4147,26 @@ class CAllUser extends CDBResult
 					}
 				}
 
-				if($authActionCommon == true)
+				if ($authActionCommon)
 				{
 					//one action for all groups without dates in the future
 					Main\UserAuthActionTable::addUpdateAction($USER_ID);
 				}
 			}
 
-			if(COption::GetOptionString("main", "event_log_user_groups", "N") === "Y")
+			if (Option::get('main', 'event_log_user_groups', 'N') === 'Y')
 			{
 				$UserName = '';
 				$rsUser = static::GetByID($USER_ID);
-				if($arUser = $rsUser->GetNext())
-					$UserName = ($arUser["NAME"] != "" || $arUser["LAST_NAME"] != "") ? trim($arUser["NAME"]." ".$arUser["LAST_NAME"]) : $arUser["LOGIN"];
-				$res_log = array(
+				if ($arUser = $rsUser->GetNext())
+				{
+					$UserName = ($arUser["NAME"] != '' || $arUser["LAST_NAME"] != '') ? trim($arUser["NAME"] . ' ' . $arUser["LAST_NAME"]) : $arUser["LOGIN"];
+				}
+				$res_log = [
 					"groups" => serialize($aPrevGroups)." => ".serialize($inserted),
 					"user" => $UserName
-				);
-				CEventLog::Log("SECURITY", "USER_GROUP_CHANGED", "main", $USER_ID, serialize($res_log));
+				];
+				CEventLog::Log('SECURITY', 'USER_GROUP_CHANGED', 'main', $USER_ID, serialize($res_log));
 			}
 		}
 		return null;
@@ -4017,27 +4180,27 @@ class CAllUser extends CDBResult
 	 */
 	public static function AppendUserGroup($user_id, $groups)
 	{
-		$arGroups = array();
+		$arGroups = [];
 		$res = static::GetUserGroupList($user_id);
-		while($res_arr = $res->Fetch())
+		while ($res_arr = $res->Fetch())
 		{
-			$arGroups[] = array(
+			$arGroups[] = [
 				"GROUP_ID" => $res_arr["GROUP_ID"],
 				"DATE_ACTIVE_FROM" => $res_arr["DATE_ACTIVE_FROM"],
 				"DATE_ACTIVE_TO" => $res_arr["DATE_ACTIVE_TO"],
-			);
+			];
 		}
 
-		if(!is_array($groups))
+		if (!is_array($groups))
 		{
-			$groups = array($groups);
+			$groups = [$groups];
 		}
 
-		foreach($groups as $group)
+		foreach ($groups as $group)
 		{
-			if(!is_array($group))
+			if (!is_array($group))
 			{
-				$group = array("GROUP_ID" => $group);
+				$group = ["GROUP_ID" => $group];
 			}
 			$arGroups[] = $group;
 		}
@@ -4066,29 +4229,31 @@ class CAllUser extends CDBResult
 				AND ID <> 1
 		");
 		$arUser = $rsUser->Fetch();
-		if(!$arUser)
+		if (!$arUser)
 		{
 			return false;
 		}
 
-		$events = array_merge(GetModuleEvents("main", "OnBeforeUserDelete", true), GetModuleEvents("main", "OnUserDelete", true));
+		$events = array_merge(GetModuleEvents('main', 'OnBeforeUserDelete', true), GetModuleEvents('main', 'OnUserDelete', true));
 
-		foreach($events as $arEvent)
+		foreach ($events as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
+			if (ExecuteModuleEventEx($arEvent, [$ID]) === false)
 			{
 				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_MODULE_ID'];
-				if($ex = $APPLICATION->GetException())
-					$err .= ': '.$ex->GetString();
-				$APPLICATION->throwException($err);
-				if(COption::GetOptionString("main", "event_log_user_delete", "N") === "Y")
+				if ($ex = $APPLICATION->GetException())
 				{
-					$UserName = ($arUser["NAME"] != "" || $arUser["LAST_NAME"] != "") ? trim($arUser["NAME"]." ".$arUser["LAST_NAME"]) : $arUser["LOGIN"];
-					$res_log = array(
+					$err .= ': '.$ex->GetString();
+				}
+				$APPLICATION->throwException($err);
+				if (Option::get('main', 'event_log_user_delete', 'N') === 'Y')
+				{
+					$UserName = ($arUser["NAME"] != '' || $arUser["LAST_NAME"] != '') ? trim($arUser["NAME"] . ' ' . $arUser["LAST_NAME"]) : $arUser["LOGIN"];
+					$res_log = [
 						"user" => $UserName,
 						"err" => $err
-					);
-					CEventLog::Log("SECURITY", "USER_DELETE", "main", $ID, serialize($res_log));
+					];
+					CEventLog::Log('SECURITY', 'USER_DELETE', 'main', $ID, serialize($res_log));
 				}
 				return false;
 			}
@@ -4127,20 +4292,20 @@ class CAllUser extends CDBResult
 
 		$USER_FIELD_MANAGER->Delete("USER", $ID);
 
-		if(COption::GetOptionString("main", "event_log_user_delete", "N") === "Y")
+		if (Option::get('main', 'event_log_user_delete', 'N') === 'Y')
 		{
-			$res_log["user"] = ($arUser["NAME"] != "" || $arUser["LAST_NAME"] != "") ? trim($arUser["NAME"]." ".$arUser["LAST_NAME"]) : $arUser["LOGIN"];
-			CEventLog::Log("SECURITY", "USER_DELETE", "main", $arUser["LOGIN"], serialize($res_log));
+			$res_log["user"] = ($arUser["NAME"] != '' || $arUser["LAST_NAME"] != '') ? trim($arUser["NAME"] . ' ' . $arUser["LAST_NAME"]) : $arUser["LOGIN"];
+			CEventLog::Log('SECURITY', 'USER_DELETE', 'main', $arUser['LOGIN'], serialize($res_log));
 		}
 
-		if(!$DB->Query("DELETE FROM b_user WHERE ID=".$ID." AND ID<>1"))
+		if (!$DB->Query("DELETE FROM b_user WHERE ID=".$ID." AND ID<>1"))
 		{
 			return false;
 		}
 
-		if(defined("BX_COMP_MANAGED_CACHE"))
+		if (defined("BX_COMP_MANAGED_CACHE"))
 		{
-			$isRealUser = !$arUser['EXTERNAL_AUTH_ID'] || !in_array($arUser['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes());
+			$isRealUser = !$arUser['EXTERNAL_AUTH_ID'] || !in_array($arUser['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
 
 			$CACHE_MANAGER->ClearByTag("USER_CARD_".intval($ID / TAGGED_user_card_size));
 			$CACHE_MANAGER->ClearByTag($isRealUser? "USER_CARD": "EXTERNAL_USER_CARD");
@@ -4155,16 +4320,16 @@ class CAllUser extends CDBResult
 
 		UserProfileHistoryTable::deleteByFilter($userFilter);
 
-		if(Main\Config\Option::get("main", "user_profile_history") === "Y")
+		if (Option::get('main', 'user_profile_history') === 'Y')
 		{
 			UserProfileHistoryTable::addHistory($ID, UserProfileHistoryTable::TYPE_DELETE);
 		}
 
 		Main\UserTable::deleteIndexRecord($ID);
 
-		foreach(GetModuleEvents("main", "OnAfterUserDelete", true) as $arEvent)
+		foreach (GetModuleEvents('main', 'OnAfterUserDelete', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array($ID));
+			ExecuteModuleEventEx($arEvent, [$ID]);
 		}
 
 		return true;
@@ -4172,13 +4337,13 @@ class CAllUser extends CDBResult
 
 	public static function GetExternalAuthList()
 	{
-		$arAll = array();
-		foreach(GetModuleEvents("main", "OnExternalAuthList", true) as $arEvent)
+		$arAll = [];
+		foreach (GetModuleEvents('main', 'OnExternalAuthList', true) as $arEvent)
 		{
 			$arRes = ExecuteModuleEventEx($arEvent);
-			if(is_array($arRes))
+			if (is_array($arRes))
 			{
-				foreach($arRes as $v)
+				foreach ($arRes as $v)
 				{
 					$arAll[] = $v;
 				}
@@ -4199,19 +4364,19 @@ class CAllUser extends CDBResult
 		$ar = [
 			GetMessage("MAIN_GP_PASSWORD_LENGTH", ["#LENGTH#" => (int)$arPolicy["PASSWORD_LENGTH"]])
 		];
-		if ($arPolicy["PASSWORD_UPPERCASE"] === "Y")
+		if ($arPolicy["PASSWORD_UPPERCASE"] === 'Y')
 		{
 			$ar[] = GetMessage("MAIN_GP_PASSWORD_UPPERCASE");
 		}
-		if ($arPolicy["PASSWORD_LOWERCASE"] === "Y")
+		if ($arPolicy["PASSWORD_LOWERCASE"] === 'Y')
 		{
 			$ar[] = GetMessage("MAIN_GP_PASSWORD_LOWERCASE");
 		}
-		if ($arPolicy["PASSWORD_DIGITS"] === "Y")
+		if ($arPolicy["PASSWORD_DIGITS"] === 'Y')
 		{
 			$ar[] = GetMessage("MAIN_GP_PASSWORD_DIGITS");
 		}
-		if ($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
+		if ($arPolicy["PASSWORD_PUNCTUATION"] === 'Y')
 		{
 			$ar[] = GetMessage("MAIN_GP_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
 		}
@@ -4263,7 +4428,7 @@ class CAllUser extends CDBResult
 
 		if (is_array($userId))
 		{
-			$arGroups = array();
+			$arGroups = [];
 			foreach ($userId as $value)
 			{
 				$value = intval($value);
@@ -4289,7 +4454,7 @@ class CAllUser extends CDBResult
 			$sql =
 				"SELECT UG.GROUP_ID, G.SECURITY_POLICY ".
 				"FROM b_user_group UG, b_group G ".
-				"WHERE UG.USER_ID = ".intval($userId)." ".
+				"WHERE UG.USER_ID = ".intval($userId) . ' ' .
 				"AND UG.GROUP_ID = G.ID ".
 				"AND ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction().")) ".
 				"AND ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction().")) "
@@ -4304,9 +4469,9 @@ class CAllUser extends CDBResult
 		// default policy
 		$policy = new Policy\RulesCollection();
 
-		foreach($arPolicies as $ar)
+		foreach ($arPolicies as $ar)
 		{
-			if($ar["SECURITY_POLICY"])
+			if ($ar["SECURITY_POLICY"])
 			{
 				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"], ['allowed_classes' => false]);
 			}
@@ -4315,7 +4480,7 @@ class CAllUser extends CDBResult
 				continue;
 			}
 
-			if(!is_array($arGroupPolicy))
+			if (!is_array($arGroupPolicy))
 			{
 				continue;
 			}
@@ -4370,9 +4535,9 @@ class CAllUser extends CDBResult
 
 		$ipAddress = Main\Context::getCurrent()->getServer()->getRemoteAddr();
 
-		while($ar = $res->fetch())
+		while ($ar = $res->fetch())
 		{
-			if ($ar["TEMP_HASH"] == "N")
+			if ($ar["TEMP_HASH"] == 'N')
 			{
 				$cnt++;
 			}
@@ -4385,8 +4550,8 @@ class CAllUser extends CDBResult
 
 			if (
 				$cnt > $maxStoreNum
-				|| ($ar["TEMP_HASH"] == "N" && time() - ($storeTimeout * 60) > $lastAuthTime)
-				|| ($ar["TEMP_HASH"] == "Y" && time() - ($sessionTimeout * 60) > $lastAuthTime)
+				|| ($ar["TEMP_HASH"] == 'N' && time() - ($storeTimeout * 60) > $lastAuthTime)
+				|| ($ar["TEMP_HASH"] == 'Y' && time() - ($sessionTimeout * 60) > $lastAuthTime)
 			)
 			{
 				UserStoredAuthTable::delete($ar['ID']);
@@ -4394,7 +4559,7 @@ class CAllUser extends CDBResult
 			elseif (!$hashId)
 			{
 				//for domain spreaded external auth we should check only temporary hashes
-				if ($tempHash == false || $ar["TEMP_HASH"] == "Y")
+				if (!$tempHash || $ar["TEMP_HASH"] == 'Y')
 				{
 					$remote_net = $storeIpMask & ip2long($ipAddress);
 					$stored_net = $storeIpMask & (float)$ar["IP_ADDR"];
@@ -4449,9 +4614,11 @@ class CAllUser extends CDBResult
 		";
 
 		$z = $DB->Query($sql_str);
-		$arr = array();
-		while($r = $z->Fetch())
+		$arr = [];
+		while ($r = $z->Fetch())
+		{
 			$arr[$r['OPERATION_NAME']] = $r['OPERATION_NAME'];
+		}
 
 		return $arr;
 	}
@@ -4460,7 +4627,7 @@ class CAllUser extends CDBResult
 	{
 		if ($user_id > 0)
 		{
-			$arGroups = array();
+			$arGroups = [];
 			$rsGroups = $this->GetUserGroupEx($user_id);
 			while ($group = $rsGroups->Fetch())
 			{
@@ -4477,8 +4644,10 @@ class CAllUser extends CDBResult
 			if ($this->IsAdmin())
 				return true;
 
-			if(!isset(static::$kernelSession["SESS_OPERATIONS"]))
+			if (!isset(static::$kernelSession["SESS_OPERATIONS"]))
+			{
 				static::$kernelSession["SESS_OPERATIONS"] = $this->GetAllOperations();
+			}
 
 			return isset(static::$kernelSession["SESS_OPERATIONS"][$op_name]);
 		}
@@ -4490,7 +4659,7 @@ class CAllUser extends CDBResult
 		global $APPLICATION;
 
 		$ar = $APPLICATION->GetFileAccessPermission($arPath, $arGroups, true);
-		$arFileOperations = array();
+		$arFileOperations = [];
 
 		for ($i = 0, $len = count($ar); $i < $len; $i++)
 			$arFileOperations = array_merge($arFileOperations, CTask::GetOperations($ar[$i], true));
@@ -4505,13 +4674,17 @@ class CAllUser extends CDBResult
 		global $APPLICATION, $USER;
 
 		if ($this->IsAdmin())
+		{
 			return true;
+		}
 
-		if(!isset($APPLICATION->FILEMAN_OPERATION_CACHE))
-			$APPLICATION->FILEMAN_OPERATION_CACHE = array();
+		if (!isset($APPLICATION->FILEMAN_OPERATION_CACHE))
+		{
+			$APPLICATION->FILEMAN_OPERATION_CACHE = [];
+		}
 
 		$k = addslashes($arPath[0].'|'.$arPath[1]);
-		if(array_key_exists($k, $APPLICATION->FILEMAN_OPERATION_CACHE))
+		if (array_key_exists($k, $APPLICATION->FILEMAN_OPERATION_CACHE))
 		{
 			$arFileOperations = $APPLICATION->FILEMAN_OPERATION_CACHE[$k];
 		}
@@ -4521,11 +4694,15 @@ class CAllUser extends CDBResult
 			$APPLICATION->FILEMAN_OPERATION_CACHE[$k] = $arFileOperations;
 		}
 
-		$arAlowedOperations = array('fm_delete_file','fm_rename_folder','fm_view_permission');
-		if(mb_substr($arPath[1], -10) == "/.htaccess" && !$USER->CanDoOperation('edit_php') && !in_array($op_name,$arAlowedOperations))
+		$arAlowedOperations = ['fm_delete_file', 'fm_rename_folder', 'fm_view_permission'];
+		if (mb_substr($arPath[1], -10) == "/.htaccess" && !$USER->CanDoOperation('edit_php') && !in_array($op_name,$arAlowedOperations))
+		{
 			return false;
-		if(mb_substr($arPath[1], -12) == "/.access.php")
+		}
+		if (mb_substr($arPath[1], -12) == "/.access.php")
+		{
 			return false;
+		}
 
 		return in_array($op_name, $arFileOperations);
 	}
@@ -4534,60 +4711,73 @@ class CAllUser extends CDBResult
 	{
 		global $USER;
 
-		if($entity_id == "USER" && $USER->CanDoOperation('edit_other_settings'))
+		if ($entity_id == "USER" && $USER->CanDoOperation('edit_other_settings'))
 		{
 			return "W";
 		}
-		else
-			return "D";
+		return "D";
 	}
 
 	public function CanAccess($arCodes)
 	{
-		if(!is_array($arCodes) || empty($arCodes))
+		if (!is_array($arCodes) || empty($arCodes))
+		{
 			return false;
+		}
 
-		if(in_array('G2', $arCodes))
+		if (in_array('G2', $arCodes))
+		{
 			return true;
+		}
 
-		if($this->IsAuthorized() && in_array('AU', $arCodes))
+		if ($this->IsAuthorized() && in_array('AU', $arCodes))
+		{
 			return true;
+		}
 
 		$bEmpty = true;
-		foreach($arCodes as $code)
+		foreach ($arCodes as $code)
 		{
-			if(trim($code) <> '')
+			if (trim($code) != '')
 			{
 				$bEmpty = false;
 				break;
 			}
 		}
 
-		if($bEmpty)
+		if ($bEmpty)
+		{
 			return false;
+		}
 
-		$res = CAccess::GetUserCodes($this->GetID(), array("ACCESS_CODE"=>$arCodes));
-		if($res->Fetch())
+		$res = CAccess::GetUserCodes($this->GetID(), ["ACCESS_CODE" => $arCodes]);
+		if ($res->Fetch())
+		{
 			return true;
+		}
 
 		return false;
 	}
 
 	public function GetAccessCodes()
 	{
-		if(!$this->IsAuthorized())
-			return array('G2');
+		if (!$this->IsAuthorized())
+		{
+			return ['G2'];
+		}
 
-		static $arCodes = array();
+		static $arCodes = [];
 
 		$USER_ID = intval($this->GetID());
 
-		if(!array_key_exists($USER_ID, $arCodes))
+		if (!array_key_exists($USER_ID, $arCodes))
 		{
 			$arCodes[$USER_ID] = CAccess::GetUserCodesArray($USER_ID);
 
-			if($this->IsAuthorized())
+			if ($this->IsAuthorized())
+			{
 				$arCodes[$USER_ID][] = "AU";
+			}
 		}
 
 		return $arCodes[$USER_ID];
@@ -4595,59 +4785,59 @@ class CAllUser extends CDBResult
 
 	public static function CleanUpAgent()
 	{
-		$cleanup_days = COption::GetOptionInt("main", "new_user_registration_cleanup_days", 7);
-		if($cleanup_days > 0)
+		$cleanup_days = (int)Option::get('main', 'new_user_registration_cleanup_days', 7);
+		if ($cleanup_days > 0)
 		{
 			$date = new Main\Type\Date();
 			$date->add("-{$cleanup_days}D");
 
-			if(COption::GetOptionString("main", "new_user_registration_email_confirmation", "N") === "Y")
+			if (Option::get('main', 'new_user_registration_email_confirmation', 'N') === 'Y')
 			{
 				//unconfirmed email confirmations
-				$filter = array(
+				$filter = [
 					"!CONFIRM_CODE" => false,
-					"=ACTIVE" => "N",
+					"=ACTIVE" => 'N',
 					"<DATE_REGISTER" => $date,
-				);
+				];
 				$users = Main\UserTable::getList([
 					"filter" => $filter,
 					"select" => ["ID"],
 				]);
-				while($user = $users->fetch())
+				while ($user = $users->fetch())
 				{
 					static::Delete($user["ID"]);
 				}
 			}
 
-			if(COption::GetOptionString("main", "new_user_phone_auth", "N") === "Y")
+			if (Option::get('main', 'new_user_phone_auth', 'N') === 'Y')
 			{
 				//unconfirmed phone confirmations
-				$filter = array(
-					'=\Bitrix\Main\UserPhoneAuthTable:USER.CONFIRMED' => "N",
-					"=ACTIVE" => "N",
+				$filter = [
+					'=\Bitrix\Main\UserPhoneAuthTable:USER.CONFIRMED' => 'N',
+					"=ACTIVE" => 'N',
 					"<DATE_REGISTER" => $date,
-				);
+				];
 				$users = Main\UserTable::getList([
 					"filter" => $filter,
 					"select" => ["ID"],
 				]);
-				while($user = $users->fetch())
+				while ($user = $users->fetch())
 				{
 					static::Delete($user["ID"]);
 				}
 			}
 		}
 
-		$historyCleanupDays = COption::GetOptionInt("main", "profile_history_cleanup_days", 0);
-		if($historyCleanupDays > 0)
+		$historyCleanupDays = (int)Option::get('main', 'profile_history_cleanup_days', 0);
+		if ($historyCleanupDays > 0)
 		{
 			$date = new Main\Type\Date();
 			$date->add("-{$historyCleanupDays}D");
 			UserProfileHistoryTable::deleteByFilter(["<DATE_INSERT" => $date]);
 		}
 
-		$deviceCleanupDays = COption::GetOptionInt("main", "device_history_cleanup_days", 180);
-		if($deviceCleanupDays > 0)
+		$deviceCleanupDays = (int)Option::get('main', 'device_history_cleanup_days', 180);
+		if ($deviceCleanupDays > 0)
 		{
 			$date = new Main\Type\Date();
 			$date->add("-{$deviceCleanupDays}D");
@@ -4659,38 +4849,38 @@ class CAllUser extends CDBResult
 
 	public static function DeactivateAgent()
 	{
-		$blockDays = COption::GetOptionInt("main", "inactive_users_block_days", 0);
-		if($blockDays > 0)
+		$blockDays = (int)Option::get('main', 'inactive_users_block_days', 0);
+		if ($blockDays > 0)
 		{
-			$log = (COption::GetOptionString("main", "event_log_block_user", "N") === "Y");
+			$log = (Option::get('main', 'event_log_block_user', 'N') === 'Y');
 
 			$userObj = new CUser();
 
 			$date = new Main\Type\Date();
 			$date->add("-{$blockDays}D");
 
-			$filter = array(
-				"=ACTIVE" => "Y",
-				"=BLOCKED" => "N",
+			$filter = [
+				"=ACTIVE" => 'Y',
+				"=BLOCKED" => 'N',
 				"<LAST_LOGIN" => $date,
-			);
+			];
 			$users = Main\UserTable::getList([
 				"filter" => $filter,
 				"select" => ["ID"],
 			]);
-			while($user = $users->fetch())
+			while ($user = $users->fetch())
 			{
 				$groups = static::GetUserGroup($user["ID"]);
 				$admin = in_array(1, $groups);
 
 				//admins shouldn't be blocked
-				if($admin == false)
+				if (!$admin)
 				{
-					$userObj->Update($user["ID"], ["BLOCKED" => "Y"], false);
+					$userObj->Update($user["ID"], ["BLOCKED" => 'Y'], false);
 
-					if($log)
+					if ($log)
 					{
-						CEventLog::Log("SECURITY", "USER_BLOCKED", "main", $user["ID"], "Inactive days: {$blockDays}");
+						CEventLog::Log('SECURITY', 'USER_BLOCKED', 'main', $user['ID'], "Inactive days: {$blockDays}");
 					}
 				}
 			}
@@ -4701,14 +4891,17 @@ class CAllUser extends CDBResult
 	public static function UnblockAgent($userId)
 	{
 		$user = new CUser();
-		$user->Update($userId, ["BLOCKED" => "N"]);
+		$user->Update($userId, ["BLOCKED" => 'N']);
 
-		return "";
+		return '';
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function GetActiveUsersCount()
 	{
-		return Main\UserTable::getActiveUsersCount();
+		return Main\Application::getInstance()->getLicense()->getActiveUsersCount();
 	}
 
 	public static function SetLastActivityDate($userId = null, $cache = false)
@@ -4726,7 +4919,7 @@ class CAllUser extends CDBResult
 			return false;
 		}
 
-		if($userId == $USER->GetId())
+		if ($userId == $USER->GetId())
 		{
 			if ($cache)
 			{
@@ -4740,7 +4933,7 @@ class CAllUser extends CDBResult
 			$USER->SetParam('SET_LAST_ACTIVITY', time());
 		}
 
-		static::SetLastActivityDateByArray(array($userId), $_SERVER['REMOTE_ADDR']);
+		static::SetLastActivityDateByArray([$userId], $_SERVER['REMOTE_ADDR']);
 
 		return true;
 	}
@@ -4749,7 +4942,7 @@ class CAllUser extends CDBResult
 	{
 		global $DB;
 
-		if (!is_array($arUsers) || count($arUsers) <= 0)
+		if (!is_array($arUsers) || empty($arUsers))
 			return false;
 
 		$strSqlPrefix = "UPDATE b_user SET ".
@@ -4757,25 +4950,25 @@ class CAllUser extends CDBResult
 			"LAST_ACTIVITY_DATE = ".$DB->CurrentTimeFunction()." WHERE ID IN (";
 		$strSqlPostfix = ")";
 		$maxValuesLen = 2048;
-		$strSqlValues = "";
+		$strSqlValues = '';
 
 		$arUsers = array_map("intval", $arUsers);
-		foreach($arUsers as $userId)
+		foreach ($arUsers as $userId)
 		{
 			$strSqlValues .= ",$userId";
-			if(mb_strlen($strSqlValues) > $maxValuesLen)
+			if (mb_strlen($strSqlValues) > $maxValuesLen)
 			{
-				$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).$strSqlPostfix, false, "", array("ignore_dml"=>true));
-				$strSqlValues = "";
+				$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).$strSqlPostfix, false, '', ["ignore_dml" => true]);
+				$strSqlValues = '';
 			}
 		}
 
-		if($strSqlValues <> '')
+		if ($strSqlValues != '')
 		{
-			$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).$strSqlPostfix, false, "", array("ignore_dml"=>true));
+			$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).$strSqlPostfix, false, '', ["ignore_dml" => true]);
 		}
 
-		$event = new \Bitrix\Main\Event("main", "OnUserSetLastActivityDate", array($arUsers, $ip));
+		$event = new Main\Event('main', 'OnUserSetLastActivityDate', [$arUsers, $ip]);
 		$event->send();
 
 		return true;
@@ -4783,7 +4976,7 @@ class CAllUser extends CDBResult
 
 	public static function GetSecondsForLimitOnline()
 	{
-		return \Bitrix\Main\UserTable::getSecondsForLimitOnline();
+		return Main\UserTable::getSecondsForLimitOnline();
 	}
 
 	public static function GetExternalUserTypes()
@@ -4795,7 +4988,7 @@ class CAllUser extends CDBResult
 	{
 		$userId = intval($userId);
 
-		if ($lastseen instanceof \Bitrix\Main\Type\DateTime)
+		if ($lastseen instanceof Main\Type\DateTime)
 		{
 			$lastseen = $lastseen->getTimestamp();
 		}
@@ -4812,7 +5005,7 @@ class CAllUser extends CDBResult
 		{
 			$now = time();
 		}
-		else if ($now instanceof \Bitrix\Main\Type\DateTime)
+		else if ($now instanceof Main\Type\DateTime)
 		{
 			$now = $now->getTimestamp();
 		}
@@ -4821,14 +5014,14 @@ class CAllUser extends CDBResult
 			$now = intval($now);
 		}
 
-		$result = Array(
+		$result = [
 			'IS_ONLINE' => false,
 			'STATUS' => self::STATUS_OFFLINE,
 			'STATUS_TEXT' =>  GetMessage('USER_STATUS_OFFLINE'),
 			'LAST_SEEN' => $lastseen,
-			'LAST_SEEN_TEXT' => "",
+			'LAST_SEEN_TEXT' => '',
 			'NOW' => $now,
-		);
+		];
 
 		if ($lastseen === false)
 		{
@@ -4848,9 +5041,9 @@ class CAllUser extends CDBResult
 		{
 			if ($result['IS_ONLINE'])
 			{
-				foreach(GetModuleEvents("main", "OnUserOnlineStatusGetCustomOnlineStatus", true) as $arEvent)
+				foreach (GetModuleEvents('main', 'OnUserOnlineStatusGetCustomOnlineStatus', true) as $arEvent)
 				{
-					$customStatus = ExecuteModuleEventEx($arEvent, array($userId, $lastseen, $now, self::STATUS_ONLINE));
+					$customStatus = ExecuteModuleEventEx($arEvent, [$userId, $lastseen, $now, self::STATUS_ONLINE]);
 					if (is_array($customStatus))
 					{
 						if (!empty($customStatus['STATUS']) && !empty($customStatus['STATUS_TEXT']))
@@ -4871,9 +5064,9 @@ class CAllUser extends CDBResult
 			}
 			else
 			{
-				foreach(GetModuleEvents("main", "OnUserOnlineStatusGetCustomOfflineStatus", true) as $arEvent)
+				foreach (GetModuleEvents('main', 'OnUserOnlineStatusGetCustomOfflineStatus', true) as $arEvent)
 				{
-					$customStatus = ExecuteModuleEventEx($arEvent, array($userId, $lastseen, $now, self::STATUS_OFFLINE));
+					$customStatus = ExecuteModuleEventEx($arEvent, [$userId, $lastseen, $now, self::STATUS_OFFLINE]);
 					if (is_array($customStatus))
 					{
 						if (!empty($customStatus['STATUS']) && !empty($customStatus['STATUS_TEXT']))
@@ -4898,8 +5091,8 @@ class CAllUser extends CDBResult
 	}
 
 	/**
-	 * @param int|bool|\Bitrix\Main\Type\DateTime $timestamp
-	 * @param int|bool|\Bitrix\Main\Type\DateTime $now
+	 * @param int|bool|Main\Type\DateTime $timestamp
+	 * @param int|bool|Main\Type\DateTime $now
 	 *
 	 * @return string
 	 */
@@ -4907,7 +5100,7 @@ class CAllUser extends CDBResult
 	{
 		global $DB;
 
-		if ($timestamp instanceof \Bitrix\Main\Type\DateTime)
+		if ($timestamp instanceof Main\Type\DateTime)
 		{
 			$timestamp = $timestamp->getTimestamp();
 		}
@@ -4917,14 +5110,14 @@ class CAllUser extends CDBResult
 		}
 		else
 		{
-			return "";
+			return '';
 		}
 
 		if ($now === false)
 		{
 			$now = time();
 		}
-		else if ($now instanceof \Bitrix\Main\Type\DateTime)
+		else if ($now instanceof Main\Type\DateTime)
 		{
 			$now = $now->getTimestamp();
 		}
@@ -4936,12 +5129,12 @@ class CAllUser extends CDBResult
 		$ampm = IsAmPmMode(true);
 		$timeFormat = ($ampm === AM_PM_LOWER? "g:i a" : ($ampm === AM_PM_UPPER? "g:i A" : "H:i"));
 
-		$formattedDate = FormatDate(array(
+		$formattedDate = FormatDate([
 			"tomorrow" => "#01#{$timeFormat}",
 			"now" => "#02#",
 			"todayFuture" => "#03#{$timeFormat}",
 			"yesterday" => "#04#{$timeFormat}",
-			"-" => preg_replace('/:s$/', '', $DB->DateFormatToPHP(CSite::GetDateFormat("FULL"))),
+			"-" => preg_replace('/:s$/', '', $DB->DateFormatToPHP(CSite::GetDateFormat())),
 			"s60" => "sago",
 			"i60" => "iago",
 			"H5" => "Hago",
@@ -4949,8 +5142,8 @@ class CAllUser extends CDBResult
 			"d31" => "dago",
 			"m12>1" => "mago",
 			"m12>0" => "dago",
-			"" => "#05#",
-		), $timestamp, $now);
+			'' => "#05#",
+		], $timestamp, $now);
 
 		if (preg_match('/^#(\d+)#(.*)/', $formattedDate, $match))
 		{
@@ -4980,22 +5173,26 @@ class CAllUser extends CDBResult
 		return $formattedDate;
 	}
 
-	public static function SearchUserByName($arName, $email = "", $bLoginMode = false)
+	public static function SearchUserByName($arName, $email = '', $bLoginMode = false)
 	{
 		global $DB;
 
-		$arNameReady = array();
+		$arNameReady = [];
 		foreach ($arName as $s)
 		{
-			$s = Trim($s);
-			if ($s <> '')
+			$s = trim($s);
+			if ($s != '')
+			{
 				$arNameReady[] = $s;
+			}
 		}
 
-		if (Count($arNameReady) <= 0)
+		if (empty($arNameReady))
+		{
 			return false;
+		}
 
-		$strSqlWhereEMail = (($email <> '') ? " AND upper(U.EMAIL) = upper('".$DB->ForSql($email)."') " : "");
+		$strSqlWhereEMail = (($email != '') ? " AND upper(U.EMAIL) = upper('".$DB->ForSql($email)."') " : '');
 
 		if ($bLoginMode)
 		{
@@ -5215,47 +5412,63 @@ class CAllUser extends CDBResult
 		else
 			$ID = '';
 
-		$NAME_SHORT = (($arUser['NAME'] ?? '') <> ''? mb_substr($arUser['NAME'], 0, 1).'.' : '');
-		$LAST_NAME_SHORT = (($arUser['LAST_NAME'] ?? '') <> ''? mb_substr($arUser['LAST_NAME'], 0, 1).'.' : '');
-		$SECOND_NAME_SHORT = (($arUser['SECOND_NAME'] ?? '') <> ''? mb_substr($arUser['SECOND_NAME'], 0, 1).'.' : '');
+		$NAME_SHORT = (($arUser['NAME'] ?? '') != ''? mb_substr($arUser['NAME'], 0, 1).'.' : '');
+		$LAST_NAME_SHORT = (($arUser['LAST_NAME'] ?? '') != ''? mb_substr($arUser['LAST_NAME'], 0, 1).'.' : '');
+		$SECOND_NAME_SHORT = (($arUser['SECOND_NAME'] ?? '') != ''? mb_substr($arUser['SECOND_NAME'], 0, 1).'.' : '');
 
 		$res = str_replace(
-			array('#TITLE#', '#NAME#', '#LAST_NAME#', '#SECOND_NAME#', '#NAME_SHORT#', '#LAST_NAME_SHORT#', '#SECOND_NAME_SHORT#', '#EMAIL#', '#ID#'),
-			array(($arUser['TITLE'] ?? ''), ($arUser['NAME'] ?? ''), ($arUser['LAST_NAME'] ?? ''), ($arUser['SECOND_NAME'] ?? ''), $NAME_SHORT, $LAST_NAME_SHORT, $SECOND_NAME_SHORT, ($arUser['EMAIL'] ?? ''), $ID),
+			['#TITLE#', '#NAME#', '#LAST_NAME#', '#SECOND_NAME#', '#NAME_SHORT#', '#LAST_NAME_SHORT#', '#SECOND_NAME_SHORT#', '#EMAIL#', '#ID#'],
+			[($arUser['TITLE'] ?? ''), ($arUser['NAME'] ?? ''), ($arUser['LAST_NAME'] ?? ''), ($arUser['SECOND_NAME'] ?? ''), $NAME_SHORT, $LAST_NAME_SHORT, $SECOND_NAME_SHORT, ($arUser['EMAIL'] ?? ''), $ID],
 			$NAME_TEMPLATE
 		);
 
-		while(strpos($res, "  ") !== false)
+		while (strpos($res, '  ') !== false)
 		{
-			$res = str_replace("  ", " ", $res);
+			$res = str_replace('  ', ' ', $res);
 		}
 		$res = trim($res);
 
-		$res_check = "";
-		if (mb_strpos($NAME_TEMPLATE, '#NAME#') !== false || mb_strpos($NAME_TEMPLATE, '#NAME_SHORT#') !== false)
-			$res_check .= $arUser['NAME'];
-		if (mb_strpos($NAME_TEMPLATE, '#LAST_NAME#') !== false || mb_strpos($NAME_TEMPLATE, '#LAST_NAME_SHORT#') !== false)
-			$res_check .= $arUser['LAST_NAME'];
-		if (mb_strpos($NAME_TEMPLATE, '#SECOND_NAME#') !== false || mb_strpos($NAME_TEMPLATE, '#SECOND_NAME_SHORT#') !== false)
-			$res_check .= $arUser['SECOND_NAME'];
+		$res_check = '';
+		if (strpos($NAME_TEMPLATE, '#NAME#') !== false || strpos($NAME_TEMPLATE, '#NAME_SHORT#') !== false)
+		{
+			$res_check .= $arUser['NAME'] ?? '';
+		}
+		if (strpos($NAME_TEMPLATE, '#LAST_NAME#') !== false || strpos($NAME_TEMPLATE, '#LAST_NAME_SHORT#') !== false)
+		{
+			$res_check .= $arUser['LAST_NAME'] ?? '';
+		}
+		if (strpos($NAME_TEMPLATE, '#SECOND_NAME#') !== false || strpos($NAME_TEMPLATE, '#SECOND_NAME_SHORT#') !== false)
+		{
+			$res_check .= $arUser['SECOND_NAME'] ?? '';
+		}
 
 		if (trim($res_check) == '')
 		{
-			if ($bUseLogin && $arUser['LOGIN'] <> '')
+			if ($bUseLogin && !empty($arUser['LOGIN']))
+			{
 				$res = $arUser['LOGIN'];
-			else if($enabledEmptyNameStub)
+			}
+			elseif($enabledEmptyNameStub)
+			{
 				$res = GetMessage('FORMATNAME_NONAME');
+			}
 			else
+			{
 				$res = '';
+			}
 
-			if (mb_strpos($NAME_TEMPLATE, '[#ID#]') !== false)
+			if (strpos($NAME_TEMPLATE, '[#ID#]') !== false)
+			{
 				$res .= " [".$ID."]";
+			}
 		}
 
 		if ($bHTMLSpec)
+		{
 			$res = htmlspecialcharsbx($res);
+		}
 
-		$res = str_replace(array('#NOBR#', '#/NOBR#'), '', $res);
+		$res = str_replace(['#NOBR#', '#/NOBR#'], '', $res);
 
 		return $res;
 	}
@@ -5264,7 +5477,7 @@ class CAllUser extends CDBResult
 	{
 		if ($ID === false)
 		{
-			self::$userGroupCache = array();
+			self::$userGroupCache = [];
 		}
 		else
 		{
@@ -5276,47 +5489,47 @@ class CAllUser extends CDBResult
 
 	public function CheckAuthActions()
 	{
-		if(!$this->IsAuthorized())
+		if (!$this->IsAuthorized())
 		{
 			return;
 		}
 
-		if(!is_array(static::$kernelSession["AUTH_ACTIONS_PERFORMED"]))
+		if (!is_array(static::$kernelSession["AUTH_ACTIONS_PERFORMED"]))
 		{
-			static::$kernelSession["AUTH_ACTIONS_PERFORMED"] = array();
+			static::$kernelSession["AUTH_ACTIONS_PERFORMED"] = [];
 		}
 
 		$now = new Main\Type\DateTime();
 
-		$actions = Main\UserAuthActionTable::getList(array(
-			"filter" => array("=USER_ID" => $this->getContext()->getUserId()),
-			"order" => array("USER_ID" => "ASC", "PRIORITY" => "ASC", "ID" => "DESC"),
-			"cache" => array("ttl" => 3600),
-		));
+		$actions = Main\UserAuthActionTable::getList([
+			"filter" => ["=USER_ID" => $this->getContext()->getUserId()],
+			"order" => ["USER_ID" => "ASC", "PRIORITY" => "ASC", "ID" => "DESC"],
+			"cache" => ["ttl" => 3600],
+		]);
 
-		while($action = $actions->fetch())
+		while ($action = $actions->fetch())
 		{
-			if(isset(static::$kernelSession["AUTH_ACTIONS_PERFORMED"][$action["ID"]]))
+			if (isset(static::$kernelSession["AUTH_ACTIONS_PERFORMED"][$action["ID"]]))
 			{
 				//already processed the action in this session
 				continue;
 			}
 
-			if($action["APPLICATION_ID"] <> '' && $this->getContext()->getApplicationId() <> $action["APPLICATION_ID"])
+			if ($action["APPLICATION_ID"] != '' && $this->getContext()->getApplicationId() != $action["APPLICATION_ID"])
 			{
 				//this action is for the specific application only
 				continue;
 			}
 
-			/** @var Main\Type\DateTime() $actionDate */
+			/** @var Main\Type\DateTime $actionDate */
 			$actionDate = $action["ACTION_DATE"];
 
-			if($actionDate <= $now)
+			if ($actionDate <= $now)
 			{
 				//remember that we already did the action
 				static::$kernelSession["AUTH_ACTIONS_PERFORMED"][$action["ID"]] = true;
 
-				if($this->IsJustAuthorized())
+				if ($this->IsJustAuthorized())
 				{
 					//no need to update the session
 					continue;
@@ -5325,7 +5538,7 @@ class CAllUser extends CDBResult
 				switch($action["ACTION"])
 				{
 					case Main\UserAuthActionTable::ACTION_LOGOUT:
-						if($this->GetParam("AUTH_ACTION_SKIP_LOGOUT") == true)
+						if ($this->GetParam("AUTH_ACTION_SKIP_LOGOUT"))
 						{
 							//user's changed password by himself, skip logout
 							$this->SetParam("AUTH_ACTION_SKIP_LOGOUT", false);
@@ -5350,7 +5563,7 @@ class CAllUser extends CDBResult
 	{
 		$date = new Main\Type\DateTime();
 		$date->add("-1D");
-		Main\UserAuthActionTable::deleteByFilter(array("<ACTION_DATE" => $date));
+		Main\UserAuthActionTable::deleteByFilter(["<ACTION_DATE" => $date]);
 		return 'CUser::AuthActionsCleanUpAgent();';
 	}
 
@@ -5361,7 +5574,7 @@ class CAllUser extends CDBResult
 	public static function GeneratePhoneCode($userId)
 	{
 		$row = Main\UserPhoneAuthTable::getRowById($userId);
-		if($row && $row["OTP_SECRET"] <> '')
+		if ($row && $row["OTP_SECRET"] != '')
 		{
 			$totp = new Main\Security\Mfa\TotpAlgorithm();
 			$totp->setInterval(self::PHONE_CODE_OTP_INTERVAL);
@@ -5370,10 +5583,10 @@ class CAllUser extends CDBResult
 			$timecode = $totp->timecode(time());
 			$code = $totp->generateOTP($timecode);
 
-			Main\UserPhoneAuthTable::update($userId, array(
+			Main\UserPhoneAuthTable::update($userId, [
 				"ATTEMPTS" => 0,
 				"DATE_SENT" => new Main\Type\DateTime(),
-			));
+			]);
 
 			return [$code, $row["PHONE_NUMBER"]];
 		}
@@ -5387,7 +5600,7 @@ class CAllUser extends CDBResult
 	 */
 	public static function VerifyPhoneCode($phoneNumber, $code)
 	{
-		if($code == '')
+		if ($code == '')
 		{
 			return false;
 		}
@@ -5395,9 +5608,9 @@ class CAllUser extends CDBResult
 		$phoneNumber = Main\UserPhoneAuthTable::normalizePhoneNumber($phoneNumber);
 
 		$row = Main\UserPhoneAuthTable::getList(["filter" => ["=PHONE_NUMBER" => $phoneNumber]])->fetch();
-		if($row && $row["OTP_SECRET"] <> '')
+		if ($row && $row["OTP_SECRET"] != '')
 		{
-			if($row["ATTEMPTS"] >= 3)
+			if ($row["ATTEMPTS"] >= 3)
 			{
 				return false;
 			}
@@ -5410,17 +5623,17 @@ class CAllUser extends CDBResult
 			{
 				list($result, ) = $totp->verify($code);
 			}
-			catch(Main\ArgumentException $e)
+			catch (Main\ArgumentException $e)
 			{
 				return false;
 			}
 
-			$data = array();
-			if($result)
+			$data = [];
+			if ($result)
 			{
-				if($row["CONFIRMED"] == "N")
+				if ($row["CONFIRMED"] == 'N')
 				{
-					$data["CONFIRMED"] = "Y";
+					$data["CONFIRMED"] = 'Y';
 				}
 
 				$data['DATE_SENT'] = '';
@@ -5430,12 +5643,12 @@ class CAllUser extends CDBResult
 				$data["ATTEMPTS"] = (int)$row["ATTEMPTS"] + 1;
 			}
 
-			if(!empty($data))
+			if (!empty($data))
 			{
 				Main\UserPhoneAuthTable::update($row["USER_ID"], $data);
 			}
 
-			if($result)
+			if ($result)
 			{
 				return $row["USER_ID"];
 			}
@@ -5457,12 +5670,12 @@ class CAllUser extends CDBResult
 
 		$select = ["USER_ID", "DATE_SENT", "USER.LANGUAGE_ID"];
 
-		if($siteId === null)
+		if ($siteId === null)
 		{
 			$context = Main\Context::getCurrent();
 			$siteId = $context->getSite();
 
-			if($siteId === null)
+			if ($siteId === null)
 			{
 				$select[] = "USER.LID";
 			}
@@ -5475,17 +5688,17 @@ class CAllUser extends CDBResult
 			]
 		])->fetchObject();
 
-		if(!$userPhone)
+		if (!$userPhone)
 		{
 			$result->addError(new Main\Error(Loc::getMessage("main_register_no_user"), "ERR_NOT_FOUND"));
 			return $result;
 		}
 
 		//alowed only once in a minute
-		if($userPhone->getDateSent())
+		if ($userPhone->getDateSent())
 		{
 			$currentDateTime = new Main\Type\DateTime();
-			if(($currentDateTime->getTimestamp() - $userPhone->getDateSent()->getTimestamp()) < static::PHONE_CODE_RESEND_INTERVAL)
+			if (($currentDateTime->getTimestamp() - $userPhone->getDateSent()->getTimestamp()) < static::PHONE_CODE_RESEND_INTERVAL)
 			{
 				$result->addError(new Main\Error(Loc::getMessage("main_register_timeout"), "ERR_TIMEOUT"));
 				return $result;
@@ -5494,7 +5707,7 @@ class CAllUser extends CDBResult
 
 		list($code, $phoneNumber) = static::GeneratePhoneCode($userPhone->getUserId());
 
-		if($siteId === null)
+		if ($siteId === null)
 		{
 			$siteId = CSite::GetDefSite($userPhone->getUser()->getLid());
 		}
@@ -5509,7 +5722,7 @@ class CAllUser extends CDBResult
 		);
 
 		$sms->setSite($siteId);
-		if($language <> '')
+		if ($language != '')
 		{
 			//user preferred language
 			$sms->setLanguage($language);
@@ -5534,11 +5747,11 @@ class CAllUser extends CDBResult
 		//alowed only once in a minute
 		$check = $shortCode->checkDateSent();
 
-		if($check->isSuccess())
+		if ($check->isSuccess())
 		{
 			$code = $shortCode->generate();
 
-			static::SendUserInfo($userId, $siteId, "", true, 'USER_CODE_REQUEST', $code);
+			static::SendUserInfo($userId, $siteId, '', true, 'USER_CODE_REQUEST', $code);
 
 			$shortCode->saveDateSent();
 		}

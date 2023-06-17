@@ -9,8 +9,10 @@ IncludeModuleLangFile(__FILE__);
 $sTableID = "tbl_iblock_type";
 
 // Sorting init
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
-$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$oSort = new CAdminSorting($sTableID, "ID", "ASC");
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+$arOrder = ($by === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 // List init
 $lAdmin = new CAdminList($sTableID, $oSort);
 
@@ -60,7 +62,10 @@ if($USER->IsAdmin() && $lAdmin->EditAction()) // Save button was pressed
 			$lAdmin->AddUpdateError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_SAVE")." (&quot;".htmlspecialcharsbx($ID)."&quot;): ".$obBlocktype->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 if($USER->IsAdmin() && ($arID = $lAdmin->GroupAction()))
@@ -86,7 +91,10 @@ if($USER->IsAdmin() && ($arID = $lAdmin->GroupAction()))
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_DEL")." (&quot;".htmlspecialcharsbx($ID)."&quot;)", $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		}
 	}

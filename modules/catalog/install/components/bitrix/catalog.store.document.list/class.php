@@ -757,12 +757,14 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$resultColumn = $column;
 		foreach ($stores as $store)
 		{
+			$existingStoreTitle = $existingStores[$store]['TITLE'] ?? '';
+
 			$encodedFilter = Json::encode([
 				$fieldName => [$store],
-				$fieldName . '_label' => [$existingStores[$store]['TITLE']],
+				$fieldName . '_label' => [$existingStoreTitle],
 			]);
 			$resultColumn[$fieldName][$fieldName . '_LABEL_' . $store] = [
-				'text' => $existingStores[$store]['TITLE'] ?: Loc::getMessage('DOCUMENT_LIST_EMPTY_STORE_TITLE'),
+				'text' => $existingStoreTitle ?: Loc::getMessage('DOCUMENT_LIST_EMPTY_STORE_TITLE'),
 				'color' => 'ui-label-light',
 				'events' => [
 					'click' => 'BX.delegate(function() {BX.Catalog.DocumentGridManager.Instance.applyFilter(' . $encodedFilter . ')})',
@@ -1054,11 +1056,17 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$isGuideOver = filter_var($isGuideOver, FILTER_VALIDATE_BOOLEAN);
 		}
 
+		$canModifyAdjustDocument = AccessController::getCurrent()->checkByValue(
+			ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY,
+			StoreDocumentTable::TYPE_STORE_ADJUSTMENT
+		);
+
 		return (
 			$this->mode === self::ARRIVAL_MODE
 			&& !$isGuideOver
 			&& $this->isFirstTime()
 			&& Catalog\Component\UseStore::isUsed()
+			&& $canModifyAdjustDocument
 		);
 	}
 
@@ -1312,7 +1320,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	private function getZone()
 	{
-		if (Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 		{
 			$zone = \CBitrix24::getPortalZone();
 		}

@@ -37,132 +37,132 @@ $arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
 	$arParams["ID"] = intval($USER->GetID());
 
-if($arParams["USER_VAR"] == '')
+if (($arParams["USER_VAR"] ?? null) == '')
 	$arParams["USER_VAR"] = "user_id";
-if($arParams["PAGE_VAR"] == '')
+if (($arParams["PAGE_VAR"] ?? null) == '')
 	$arParams["PAGE_VAR"] = "page";
-if($arParams["GROUP_VAR"] == '')
+if (($arParams["GROUP_VAR"] ?? null) == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["SHOW_YEAR"] = $arParams["SHOW_YEAR"] === "Y" ? "Y" : ($arParams["SHOW_YEAR"] === "M" ? "M" : "N");
 // activation rating
 CRatingsComponentsMain::GetShowRating($arParams);
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = (($arParams["SET_NAV_CHAIN"] ?? null) === "N" ? "N" : "Y");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_FRIENDS"] = trim($arParams["PATH_TO_USER_FRIENDS"]);
+$arParams["PATH_TO_USER_FRIENDS"] = trim($arParams["PATH_TO_USER_FRIENDS"] ?? '');
 if($arParams["PATH_TO_USER_FRIENDS"] == '')
 	$arParams["PATH_TO_USER_FRIENDS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_FRIENDS_ADD"] = trim($arParams["PATH_TO_USER_FRIENDS_ADD"]);
+$arParams["PATH_TO_USER_FRIENDS_ADD"] = trim($arParams["PATH_TO_USER_FRIENDS_ADD"] ?? '');
 if($arParams["PATH_TO_USER_FRIENDS_ADD"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_add&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_FRIENDS_DELETE"] = trim($arParams["PATH_TO_USER_FRIENDS_DELETE"]);
+$arParams["PATH_TO_USER_FRIENDS_DELETE"] = trim($arParams["PATH_TO_USER_FRIENDS_DELETE"] ?? '');
 if($arParams["PATH_TO_USER_FRIENDS_DELETE"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_DELETE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_delete&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
+$arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"] ?? '');
 if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
-$arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"]);
+$arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"] ?? '');
 if ($arParams["PATH_TO_LOG"] == '')
 	$arParams["PATH_TO_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=log");
 
-$arParams["PATH_TO_ACTIVITY"] = trim($arParams["PATH_TO_ACTIVITY"]);
+$arParams["PATH_TO_ACTIVITY"] = trim($arParams["PATH_TO_ACTIVITY"] ?? '');
 if ($arParams["PATH_TO_ACTIVITY"] == '')
 	$arParams["PATH_TO_ACTIVITY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=activity&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_SUBSCRIBE"] = trim($arParams["PATH_TO_SUBSCRIBE"]);
+$arParams["PATH_TO_SUBSCRIBE"] = trim($arParams["PATH_TO_SUBSCRIBE"] ?? '');
 if ($arParams["PATH_TO_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=subscribe");
 
-$arParams["PATH_TO_SEARCH_INNER"] = trim($arParams["PATH_TO_SEARCH_INNER"]);
+$arParams["PATH_TO_SEARCH_INNER"] = trim($arParams["PATH_TO_SEARCH_INNER"] ?? '');
 if ($arParams["PATH_TO_SEARCH_INNER"] == '')
 	$arParams["PATH_TO_SEARCH_INNER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
-$arParams["PATH_TO_USER_GROUPS"] = trim($arParams["PATH_TO_USER_GROUPS"]);
+$arParams["PATH_TO_USER_GROUPS"] = trim($arParams["PATH_TO_USER_GROUPS"] ?? '');
 if($arParams["PATH_TO_USER_GROUPS"] == '')
 	$arParams["PATH_TO_USER_GROUPS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_groups&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
+$arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"] ?? '');
 if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
-$arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
+$arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"] ?? '');
 if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
-$arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
+$arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"] ?? '');
 if ($arParams["PATH_TO_GROUP_CREATE"] == '')
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_EDIT"] = trim($arParams["PATH_TO_USER_EDIT"]);
+$arParams["PATH_TO_USER_EDIT"] = trim($arParams["PATH_TO_USER_EDIT"] ?? '');
 if($arParams["PATH_TO_USER_EDIT"] == '')
 	$arParams["PATH_TO_USER_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_profile_edit&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
+$arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"] ?? '');
 if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"]);
+$arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"] ?? '');
 if ($arParams["PATH_TO_MESSAGES_CHAT"] == '')
 	$arParams["PATH_TO_MESSAGES_CHAT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_VIDEO_CALL"] = trim($arParams["PATH_TO_VIDEO_CALL"]);
+$arParams["PATH_TO_VIDEO_CALL"] = trim($arParams["PATH_TO_VIDEO_CALL"] ?? '');
 if ($arParams["PATH_TO_VIDEO_CALL"] == '')
 	$arParams["PATH_TO_VIDEO_CALL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=video_call&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] = trim($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"]);
+$arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] = trim($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] ?? '');
 if ($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] == '')
 	$arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_users_messages&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_FEATURES"] = trim($arParams["PATH_TO_USER_FEATURES"]);
+$arParams["PATH_TO_USER_FEATURES"] = trim($arParams["PATH_TO_USER_FEATURES"] ?? '');
 if ($arParams["PATH_TO_USER_FEATURES"] == '')
 	$arParams["PATH_TO_USER_FEATURES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_features&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_SUBSCRIBE"] = trim($arParams["PATH_TO_USER_SUBSCRIBE"]);
+$arParams["PATH_TO_USER_SUBSCRIBE"] = trim($arParams["PATH_TO_USER_SUBSCRIBE"] ?? '');
 if ($arParams["PATH_TO_USER_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_USER_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_subscribe&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_SETTINGS_EDIT"] = trim($arParams["PATH_TO_USER_SETTINGS_EDIT"]);
+$arParams["PATH_TO_USER_SETTINGS_EDIT"] = trim($arParams["PATH_TO_USER_SETTINGS_EDIT"] ?? '');
 if ($arParams["PATH_TO_USER_SETTINGS_EDIT"] == '')
 	$arParams["PATH_TO_USER_SETTINGS_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings_edit&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"]);
+$arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"] ?? '');
 if ($arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_group_search&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
+$arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"] ?? '');
 if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=conpany_department&department=#ID#");
 
-$arParams["PATH_TO_USER_SECURITY"] = trim($arParams["PATH_TO_USER_SECURITY"]);
+$arParams["PATH_TO_USER_SECURITY"] = trim($arParams["PATH_TO_USER_SECURITY"] ?? '');
 if ($arParams["PATH_TO_USER_SECURITY"] == '')
 	$arParams["PATH_TO_USER_SECURITY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_security&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_PASSWORDS"] = trim($arParams["PATH_TO_USER_PASSWORDS"]);
+$arParams["PATH_TO_USER_PASSWORDS"] = trim($arParams["PATH_TO_USER_PASSWORDS"] ?? '');
 if ($arParams["PATH_TO_USER_PASSWORDS"] == '')
 	$arParams["PATH_TO_USER_PASSWORDS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_passwords&".$arParams["USER_VAR"]."=#user_id#");
 
 if (Loader::includeModule('dav'))
 {
-	$arParams["PATH_TO_USER_SYNCHRONIZE"] = trim($arParams["PATH_TO_USER_SYNCHRONIZE"]);
+	$arParams["PATH_TO_USER_SYNCHRONIZE"] = trim($arParams["PATH_TO_USER_SYNCHRONIZE"] ?? '');
 	if ($arParams["PATH_TO_USER_SYNCHRONIZE"] == '')
 		$arParams["PATH_TO_USER_SYNCHRONIZE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_synchronize&".$arParams["USER_VAR"]."=#user_id#");
 }
 
-$arParams["PATH_TO_USER_CODES"] = trim($arParams["PATH_TO_USER_CODES"]);
+$arParams["PATH_TO_USER_CODES"] = trim($arParams["PATH_TO_USER_CODES"] ?? '');
 if ($arParams["PATH_TO_USER_CODES"] == '')
 	$arParams["PATH_TO_USER_CODES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_codes&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? CDatabase::DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["SHORT_FORM"] = $arParams["SHORT_FORM"] === "Y";
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"] ?? null) ? CDatabase::DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["SHORT_FORM"] = ($arParams["SHORT_FORM"] ?? null) === "Y";
 
 if (!isset($arParams["USER_PROPERTY_MAIN"]) || !is_array($arParams["USER_PROPERTY_MAIN"]))
 	$arParams["USER_PROPERTY_MAIN"] = array();
@@ -209,11 +209,11 @@ if (!empty($arParams["SONET_USER_PROPERTY_SEARCHABLE"]))
 }
 
 
-$arParams["PATH_TO_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_SEARCH"]);
+$arParams["PATH_TO_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_SEARCH"] ?? '');
 if ($arParams["PATH_TO_GROUP_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_search");
 
-$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"] ?? null);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 
@@ -224,9 +224,9 @@ $arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
 $arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (IsModuleInstalled("intranet"))
-	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] !== "Y" ? "N" : "Y";
+	$arParams['CAN_OWNER_EDIT_DESKTOP'] = ($arParams['CAN_OWNER_EDIT_DESKTOP'] ?? null) !== "Y" ? "N" : "Y";
 else
-	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] !== "N" ? "Y" : "N";
+	$arParams['CAN_OWNER_EDIT_DESKTOP'] = ($arParams['CAN_OWNER_EDIT_DESKTOP'] ?? null) !== "N" ? "Y" : "N";
 
 if ($arParams["ID"] <= 0)
 {
@@ -330,7 +330,10 @@ else
 		$arResult["Urls"]["GroupsAdd"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_CREATE"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["MessageForm"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGE_FORM"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["Features"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_FEATURES"], array("user_id" => $arResult["User"]["ID"]));
-		$arResult["Urls"]["UserRequests"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_REQUESTS"], array("user_id" => $arResult["User"]["ID"]));
+		$arResult["Urls"]["UserRequests"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["PATH_TO_USER_REQUESTS"] ?? null,
+			["user_id" => $arResult["User"]["ID"]]
+		);
 		$arResult["Urls"]["Subscribe"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SUBSCRIBE"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["SubscribeList"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SUBSCRIBE"], array());
 		$arResult["Urls"]["MessageChat"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGES_CHAT"], array("user_id" => $arResult["User"]["ID"]));
@@ -339,7 +342,10 @@ else
 		$arResult["Urls"]["RequestGroup"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["GroupSearch"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_SEARCH"], array());
 
-		$arResult["Urls"]["ExternalMail"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_EXTMAIL"], array());
+		$arResult["Urls"]["ExternalMail"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["PATH_TO_EXTMAIL"] ?? null,
+			[]
+		);
 		$arResult["Urls"]["ExternalMail"] .= ((mb_strpos($arResult["Urls"]["ExternalMail"], "?") !== false) ? "&" : "?")."page=home";
 
 		$arResult["Urls"]["Log"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG"], array());
@@ -381,32 +387,37 @@ else
 		}
 
 
-		elseif ($arResult["User"]["IS_EXTRANET"] === "Y")
+		elseif (($arResult["User"]["IS_EXTRANET"] ?? null) === "Y")
 		{
 			$arResult["User"]["TYPE"] = 'extranet';
 		}
 
 		$arResult["ALLOW_CREATE_GROUP"] = (\Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate());
 
-		if(!CModule::IncludeModule("video"))
-			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
-		elseif(!CVideo::CanUserMakeCall())
-			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
-
 		$arResult["IS_ONLINE"] = ($arResult["User"]["IS_ONLINE"] === "Y");
 
 		if (CModule::IncludeModule('intranet'))
 		{
 			$arResult['IS_HONOURED'] = CIntranetUtils::IsUserHonoured($arResult["User"]["ID"]);
-			$arResult['IS_ABSENT'] = CIntranetUtils::IsUserAbsent($arResult["User"]["ID"], $arParams['CALENDAR_USER_IBLOCK_ID']);
+			$arResult['IS_ABSENT'] = CIntranetUtils::IsUserAbsent(
+				$arResult["User"]["ID"],
+				$arParams['CALENDAR_USER_IBLOCK_ID'] ?? null
+			);
 
 			//departments and managers
 			$obCache = new CPHPCache;
 			$path = "/user_card_".intval($arResult["User"]["ID"] / TAGGED_user_card_size);
 
-			if($arParams["CACHE_TIME"] == 0 || $obCache->StartDataCache($arParams["CACHE_TIME"], $arResult["User"]["ID"], $path))
+			if (
+				($arParams["CACHE_TIME"] ?? null) == 0
+				|| $obCache->StartDataCache(
+					$arParams["CACHE_TIME"] ?? null,
+					$arResult["User"]["ID"],
+					$path
+				)
+			)
 			{
-				if($arParams["CACHE_TIME"] > 0 && defined("BX_COMP_MANAGED_CACHE"))
+				if (($arParams["CACHE_TIME"] ?? null) > 0 && defined("BX_COMP_MANAGED_CACHE"))
 				{
 					$CACHE_MANAGER->StartTagCache($path);
 					$CACHE_MANAGER->RegisterTag("USER_CARD_".intval($arResult["User"]["ID"] / TAGGED_user_card_size));
@@ -435,7 +446,7 @@ else
 				//managers
 				$arResult['MANAGERS'] = CIntranetUtils::GetDepartmentManager($arResult["User"]["UF_DEPARTMENT"], $arResult["User"]["ID"], true);
 
-				if($arParams["CACHE_TIME"] > 0)
+				if (($arParams["CACHE_TIME"] ?? null) > 0)
 				{
 					$obCache->EndDataCache(array(
 						'DEPARTMENTS' => $arResult['DEPARTMENTS'],
@@ -539,7 +550,7 @@ else
 			array("", ""),
 			$arParams["NAME_TEMPLATE"]
 		);
-		$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
+		$bUseLogin = ($arParams['SHOW_LOGIN'] ?? null) !== "N" ? true : false;
 
 		$arTmpUser = array(
 				"NAME" => $arResult["User"]["~NAME"],
@@ -550,20 +561,28 @@ else
 
 		$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 
-		if ($arParams["SET_TITLE"] === "Y")
-				$APPLICATION->SetTitle($strTitleFormatted);
+		if (($arParams["SET_TITLE"] ?? null) === "Y")
+		{
+			$APPLICATION->SetTitle($strTitleFormatted);
+		}
 
 		if (!$arParams["SHORT_FORM"] && $arParams["SET_NAV_CHAIN"] !== "N")
 			$APPLICATION->AddChainItem($strTitleFormatted);
 
 		$arResult["User"]["NAME_FORMATTED"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
 
-		if (intval($arParams["AVATAR_SIZE"]) > 0)
+		if (intval($arParams["AVATAR_SIZE"] ?? null) > 0)
+		{
 			$iSize = $arParams["AVATAR_SIZE"];
+		}
 		elseif ($arParams["SHORT_FORM"])
+		{
 			$iSize = 150;
+		}
 		else
+		{
 			$iSize = 300;
+		}
 
 		if (intval($arResult["User"]["PERSONAL_PHOTO"]) <= 0)
 		{

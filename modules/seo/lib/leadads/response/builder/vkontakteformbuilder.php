@@ -10,6 +10,7 @@ Loc::loadMessages(__FILE__);
 
 class VkontakteFormBuilder implements FormBuilderInterface
 {
+	protected const PAGE_TYPE_QUESTION = 'question';
 	/**@var LeadAds\Mapper $mapper*/
 	private $mapper;
 
@@ -31,13 +32,15 @@ class VkontakteFormBuilder implements FormBuilderInterface
 	 */
 	public function buildForm(array $form): LeadAdsForm
 	{
+		$fields = $this->buildFields($form['CONTACT_FIELDS'] ?? []);
+		$questions = $this->buildQuestions($form['PAGES'] ?? []);
 		return new LeadAdsForm(
 			[
 				"id" => $form['ID'],
 				"name" => $form['NAME'],
 				// "description" => $form['DESCRIPTION'],
 				"title" => $form['NAME'],
-				"fields" => $this->buildQuestions($form['CONTACT_FIELDS'] ?? []),
+				"fields" => array_merge($fields, $questions)
 				// "message" => $form['CONFIRMATION'],
 				// "link" => $form['URL'],
 			]
@@ -49,7 +52,7 @@ class VkontakteFormBuilder implements FormBuilderInterface
 	 *
 	 * @return LeadAds\Field[]
 	 */
-	private function buildQuestions(array $questions) : array
+	private function buildFields(array $questions) : array
 	{
 		foreach ($questions  as $key => $externalField)
 		{
@@ -85,4 +88,40 @@ class VkontakteFormBuilder implements FormBuilderInterface
 		return $phrase;
 	}
 
+	private function buildQuestions(array $pages)
+	{
+		$result = [];
+		foreach ($pages as $page)
+		{
+			if ( ! (isset($page['blocks']) && is_array($page['blocks'])))
+			{
+				continue;
+			}
+
+			foreach ($page['blocks'] as $block)
+			{
+				if (
+					! (isset($block['block_data']) && is_array($block['block_data']))
+					&& $block['type'] !== self::PAGE_TYPE_QUESTION
+					&& ! (isset($block['block_data']['data']) && is_array($block['block_data']['data']))
+				)
+				{
+					continue;
+				}
+
+
+				if ($fieldName = $this->mapper->getCrmName(self::PAGE_TYPE_QUESTION))
+				{
+					$result[] = new LeadAds\Field(
+						$fieldName,
+						self::EMPTY_FIELD_NAME,
+						$block['block_data']['data']['text'],
+						$block['id']
+					);
+				}
+			}
+		}
+
+		return $result;
+	}
 }

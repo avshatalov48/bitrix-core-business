@@ -132,16 +132,16 @@ if (in_array("CONTACT", $arParams["ENTITY_TYPE"], true))
 			{
 				$title = CCrmContact::PrepareFormattedName(
 					array(
-						"HONORIFIC" => isset($res["HONORIFIC"]) ? $res["HONORIFIC"] : '',
-						"NAME" => isset($res["NAME"]) ? $res["NAME"] : '',
-						"SECOND_NAME" => isset($res["SECOND_NAME"]) ? $res["SECOND_NAME"] : '',
-						"LAST_NAME" => isset($res["LAST_NAME"]) ? $res["LAST_NAME"] : ''
+						"HONORIFIC" => $res["HONORIFIC"] ?? '',
+						"NAME" => $res["NAME"] ?? '',
+						"SECOND_NAME" => $res["SECOND_NAME"] ?? '',
+						"LAST_NAME" => $res["LAST_NAME"] ?? ''
 					)
 				);
 			}
 			else
 			{
-				$title = isset($res["FULL_NAME"]) ? $res["FULL_NAME"] : '';
+				$title = $res["FULL_NAME"] ?? '';
 			}
 
 			$arResult["VALUE"]["CONTACT"][$res["SID"]] = array(

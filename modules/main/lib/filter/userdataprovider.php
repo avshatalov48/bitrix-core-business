@@ -375,10 +375,7 @@ class UserDataProvider extends EntityDataProvider
 			{
 				$whiteListPassed = true;
 			}
-			elseif (
-				!empty($whiteList)
-				&& !empty($field['whiteList'])
-			)
+			else
 			{
 				foreach($field['whiteList'] as $whiteListField)
 				{

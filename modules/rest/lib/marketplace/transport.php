@@ -58,6 +58,14 @@ class Transport
 	const METHOD_FILTER_APP = 'search_app_adv';
 	const METHOD_GET_SITE_LIST = 'sites_list';
 	const METHOD_GET_SITE_ITEM = 'sites_item';
+	const METHOD_GET_COLLECTIONS = 'get_collections';
+	const METHOD_GET_FULL_COLLECTION = 'get_full_collection';
+	const METHOD_GET_SLIDER = 'get_slider';
+	const METHOD_GET_CATEGORIES_V2 = 'get_categories_v2';
+	const METHOD_MARKET_APP = 'market_app';
+	const METHOD_TOTAL_APPS = 'total_apps';
+	const METHOD_GET_REVIEWS = 'get_reviews';
+	const METHOD_ADD_REVIEW = 'add_review';
 
 	protected static $instance = null;
 
@@ -123,8 +131,13 @@ class Transport
 	public function batch($actions)
 	{
 		$query = array();
+
 		foreach($actions as $key => $batch)
 		{
+			if (!isset($batch[1]))
+			{
+				$batch[1] = [];
+			}
 			$query[$key] = $this->prepareQuery($batch[0], $batch[1]);
 		}
 

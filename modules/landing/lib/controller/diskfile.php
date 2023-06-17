@@ -51,8 +51,8 @@ class DiskFile extends Controller
 		}
 
 		\Bitrix\Landing\Site\Type::setScope($scope);
-		$needed = '"' . Connector\Disk::FILE_PREFIX_HREF . $fileId . '"';
-		$needed2 = '"' . Connector\Disk::FILE_NEW_PREFIX_HREF . $fileId . '"';
+		$needed = Connector\Disk::FILE_PREFIX_HREF . $fileId;
+		$needed2 = Connector\Disk::FILE_NEW_PREFIX_HREF . $fileId;
 
 		return (
 			\Bitrix\Landing\Block::isContains($blockId, $needed)

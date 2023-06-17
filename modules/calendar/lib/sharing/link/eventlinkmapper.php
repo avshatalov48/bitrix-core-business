@@ -11,26 +11,45 @@ class EventLinkMapper extends LinkMapper
 			->setId($objectEO->getId())
 			->setEventId($objectEO->getObjectId())
 			->setDateCreate($objectEO->getDateCreate())
+			->setDateExpire($objectEO->getDateExpire())
 			->setActive($objectEO->getActive())
 			->setHash($objectEO->getHash())
+			->setOwnerId($objectEO->getOwnerId())
+			->setHostId($objectEO->getHostId())
+			->setConferenceId($objectEO->getConferenceId())
+			->setParentLinkHash($objectEO->getParentLinkHash())
 		;
 
-		$options = Json::decode($objectEO->getOptions() ?? '');
-		if (!empty($options['ownerId']))
+		//backward compatibility
+		$options = $objectEO->getOptions();
+		if (!empty($options))
+		{
+			$options = Json::decode($options);
+		}
+		if (empty($sharingEventLink->getOwnerId()) && !empty($options['ownerId']))
 		{
 			$sharingEventLink->setOwnerId($options['ownerId']);
 		}
-		if (!empty($options['hostId']))
+		if (empty($sharingEventLink->getHostId()) && !empty($options['hostId']))
 		{
 			$sharingEventLink->setHostId($options['hostId']);
 		}
-		if (!empty($options['conferenceId']))
+		if (empty($sharingEventLink->getConferenceId()) && !empty($options['conferenceId']))
 		{
 			$sharingEventLink->setConferenceId($options['conferenceId']);
 		}
-		if (!empty($options['userLinkHash']))
+		if (empty($sharingEventLink->getParentLinkHash()) && !empty($options['userLinkHash']))
 		{
-			$sharingEventLink->setUserLinkHash($options['userLinkHash']);
+			$sharingEventLink->setParentLinkHash($options['userLinkHash']);
+		}
+		if (!empty($options['canceledTimestamp']))
+		{
+			$sharingEventLink->setCanceledTimestamp($options['canceledTimestamp']);
+		}
+
+		if (!empty($options['externalUserName']))
+		{
+			$sharingEventLink->setExternalUserName($options['externalUserName']);
 		}
 
 		return $sharingEventLink;
@@ -48,7 +67,9 @@ class EventLinkMapper extends LinkMapper
 			'ownerId' => $sharingLink->getOwnerId(),
 			'hostId' => $sharingLink->getHostId(),
 			'conferenceId' => $sharingLink->getConferenceId(),
-			'userLinkHash' => $sharingLink->getUserLinkHash(),
+			'parentLinkHash' => $sharingLink->getParentLinkHash(),
+			'canceledTimestamp' => $sharingLink->getCanceledTimestamp(),
+			'externalUserName' => $sharingLink->getExternalUserName(),
 		]);
 	}
 
@@ -56,27 +77,27 @@ class EventLinkMapper extends LinkMapper
 	{
 		$options = [];
 
-		if (!empty($entity->getOwnerId()))
+		if (!empty($entity->getCanceledTimestamp()))
 		{
-			$options['ownerId'] = $entity->getOwnerId();
+			$options['canceledTimestamp'] = $entity->getCanceledTimestamp();
 		}
 
-		if (!empty($entity->getHostId()))
+		if (!empty($entity->getExternalUserName()))
 		{
-			$options['hostId'] = $entity->getHostId();
-		}
-
-		if (!empty($entity->getConferenceId()))
-		{
-			$options['conferenceId'] = $entity->getConferenceId();
-		}
-
-		if (!empty($entity->getUserLinkHash()))
-		{
-			$options['userLinkHash'] = $entity->getUserLinkHash();
+			$options['externalUserName'] = $entity->getExternalUserName();
 		}
 
 		return $options;
+	}
+
+	protected function getSpecificFields($entity): array
+	{
+		return [
+			'HOST_ID' => $entity->getHostId(),
+			'OWNER_ID' => $entity->getOwnerId(),
+			'CONFERENCE_ID' => $entity->getConferenceId(),
+			'PARENT_LINK_HASH' => $entity->getParentLinkHash(),
+		];
 	}
 
 	protected function getEntityClass(): string

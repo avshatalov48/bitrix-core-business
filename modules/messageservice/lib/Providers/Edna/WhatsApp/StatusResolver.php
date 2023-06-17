@@ -13,6 +13,7 @@ class StatusResolver implements \Bitrix\MessageService\Providers\StatusResolver
 		switch ($serviceStatus)
 		{
 			case 'read':
+				return MessageStatus::READ;
 			case 'sent':
 				return MessageStatus::SENT;
 			case 'enqueued':

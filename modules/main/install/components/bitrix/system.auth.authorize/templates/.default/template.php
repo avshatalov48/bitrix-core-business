@@ -2,8 +2,15 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 <?
-ShowMessage($arParams["~AUTH_RESULT"]);
-ShowMessage($arResult['ERROR_MESSAGE']);
+if (!empty($arParams["~AUTH_RESULT"]))
+{
+	ShowMessage($arParams["~AUTH_RESULT"]);
+}
+
+if (!empty($arResult['ERROR_MESSAGE']))
+{
+	ShowMessage($arResult['ERROR_MESSAGE']);
+}
 ?>
 
 <div class="bx-auth">

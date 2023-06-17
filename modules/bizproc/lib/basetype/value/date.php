@@ -4,7 +4,7 @@ namespace Bitrix\Bizproc\BaseType\Value;
 
 use Bitrix\Main;
 
-class Date
+class Date implements \JsonSerializable
 {
 	protected $timestamp;
 	protected $offset;
@@ -116,5 +116,10 @@ class Date
 				$date->setDate($y, $m, $d);
 			}
 		}
+	}
+
+	public function jsonSerialize()
+	{
+		return $this->serialize();
 	}
 }

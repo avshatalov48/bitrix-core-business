@@ -30,8 +30,10 @@ IncludeModuleLangFile(__FILE__);
 $aMsg = array();
 $message = null;
 $bVarsFromForm = false;
-$LID = $_REQUEST["LID"];
-$bNew = ($LID == '' || $_REQUEST['new'] == 'Y');
+$LID = $_REQUEST["LID"] ?? '';
+$COPY_ID = $_REQUEST['COPY_ID'] ?? '';
+
+$bNew = ($LID == '' || (isset($_REQUEST['new']) && $_REQUEST['new'] == 'Y'));
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB"), "ICON" => "site_edit", "TITLE" => GetMessage("MAIN_TAB_TITLE")),
@@ -46,26 +48,28 @@ if(!$bNew)
 		$arTemplates[$arSiteRes["ID"]] = $arSiteRes['CONDITION'];
 }
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && $isAdmin && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
-	$arFields = array(
-		"ACTIVE" => ($_POST["ACTIVE"] == "Y"? "Y" : "N"),
-		"SORT" => $_POST["SORT"],
-		"DEF" => ($_POST["DEF"] == "Y"? "Y" : "N"),
-		"NAME" => $_POST["NAME"],
-		"DIR" => $_POST["DIR"],
-		"SITE_NAME" => $_POST["SITE_NAME"],
-		"SERVER_NAME" => $_POST["SERVER_NAME"],
-		"EMAIL" => $_POST["EMAIL"],
-		"LANGUAGE_ID" => $_POST["LANGUAGE_ID"],
-		"DOC_ROOT" => $_POST["DOC_ROOT"],
-		"DOMAINS" => $_POST["DOMAINS"],
-		"CULTURE_ID" => $_POST["CULTURE_ID"],
-	);
+	$arFields = [
+		"ACTIVE" => isset($_POST["ACTIVE"]) && $_POST["ACTIVE"] == "Y" ? "Y" : "N",
+		"SORT" => $_POST["SORT"] ?? '',
+		"DEF" => isset($_POST["DEF"]) && $_POST["DEF"] == "Y" ? "Y" : "N",
+		"NAME" => $_POST["NAME"] ?? '',
+		"DIR" => $_POST["DIR"] ?? '',
+		"SITE_NAME" => $_POST["SITE_NAME"] ?? '',
+		"SERVER_NAME" => $_POST["SERVER_NAME"] ?? '',
+		"EMAIL" => $_POST["EMAIL"] ?? '',
+		"LANGUAGE_ID" => $_POST["LANGUAGE_ID"] ?? '',
+		"DOC_ROOT" => $_POST["DOC_ROOT"] ?? '',
+		"DOMAINS" => $_POST["DOMAINS"] ?? '',
+		"CULTURE_ID" => $_POST["CULTURE_ID"] ?? '',
+	];
 
 	$arFields["TEMPLATE"] = array();
 	$bSet = false;
-	foreach($_POST["SITE_TEMPLATE"] as $key=>$val)
+
+	$templates = isset($_POST["SITE_TEMPLATE"]) && is_array($_POST["SITE_TEMPLATE"]) ? $_POST["SITE_TEMPLATE"] : [];
+	foreach($templates as $key=>$val)
 	{
 		if ($USER->CanDoOperation('edit_php') || $_POST['selected_type'][$key] != 'php')
 		{
@@ -89,17 +93,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	if($bNew)
 	{
 		$arFields["LID"]=$LID;
-		if ($_POST["START_SITE_WIZARD"] == "Y")
+		if (isset($_POST["START_SITE_WIZARD"]) && $_POST["START_SITE_WIZARD"] == "Y")
 			unset($arFields["TEMPLATE"]);
 	}
 
 	$res = false;
 	$ber = true;
-	if ($bNew && $_POST["START_SITE_WIZARD"] == "Y")
+	if ($bNew && isset($_POST["START_SITE_WIZARD"]) && $_POST["START_SITE_WIZARD"] == "Y")
 	{
 		if (!array_key_exists("START_SITE_WIZARD_REWRITE", $_POST) || $_POST["START_SITE_WIZARD_REWRITE"] != "Y")
 		{
-			if ($arFields["DOC_ROOT"] <> '')
+			if (!empty($arFields["DOC_ROOT"]))
 				$sr = Rel2Abs($_SERVER["DOCUMENT_ROOT"], $arFields["DOC_ROOT"]);
 			else
 				$sr = rtrim($_SERVER["DOCUMENT_ROOT"], "/\\");
@@ -131,7 +135,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	else
 	{
 		$em = new CEventMessage;
-		if($_POST["SITE_MESSAGE_LINK"] == "C" && $_POST["SITE_MESSAGE_LINK_C_SITE"] <> '')
+		if(isset($_POST["SITE_MESSAGE_LINK"]) && $_POST["SITE_MESSAGE_LINK"] == "C" && !empty($_POST["SITE_MESSAGE_LINK_C_SITE"]))
 		{
 			$db_msg = CEventMessage::GetList('', '', array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_C_SITE"]));
 			while($ar_msg = $db_msg->Fetch())
@@ -141,7 +145,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 				$em->Add($ar_msg);
 			}
 		}
-		elseif($_POST["SITE_MESSAGE_LINK"] == "E" && $_POST["SITE_MESSAGE_LINK_E_SITE"] <> '')
+		elseif(isset($_POST["SITE_MESSAGE_LINK"]) && $_POST["SITE_MESSAGE_LINK"] == "E" && !empty($_POST["SITE_MESSAGE_LINK_E_SITE"]))
 		{
 			$db_msg = CEventMessage::GetList('', '', array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_E_SITE"]));
 			while($ar_msg = $db_msg->Fetch())
@@ -149,7 +153,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 				$msg_id = $ar_msg["ID"];
 				$db_msg_sites = CEventMessage::GetSite($ar_msg["ID"]);
 				$ar_msg = array(
-					"NAME"=>$ar_msg["NAME"],
+					"NAME"=>$ar_msg["NAME"] ?? '',
 					"LID"=>array($LID)
 				);
 
@@ -160,7 +164,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 			}
 		}
 
-		if ($bNew && $_POST["START_SITE_WIZARD"] == "Y")
+		if ($bNew && isset($_POST["START_SITE_WIZARD"]) && $_POST["START_SITE_WIZARD"] == "Y")
 		{
 			$rsSite = CSite::GetList("sort", "asc", array("ID" => $LID));
 			$arSite = $rsSite->GetNext();
@@ -191,12 +195,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 			LocalRedirect($u);
 		}
 
-		if ($_POST["save"] <> '')
+		if (!empty($_POST["save"]))
 			LocalRedirect(BX_ROOT."/admin/site_admin.php?lang=".LANGUAGE_ID);
 		else
 			LocalRedirect(BX_ROOT."/admin/site_edit.php?lang=".LANGUAGE_ID."&LID=".urlencode($LID)."&".$tabControl->ActiveTabParam());
 	}
 }
+
+$str_LID = '';
+$str_ACTIVE = '';
+$str_NAME = '';
+$str_DEF = '';
+$str_DOMAINS = '';
+$str_DIR = '';
+$str_SORT = '';
+$str_DOC_ROOT = '';
+$str_SITE_NAME = '';
+$str_SERVER_NAME = '';
+$str_EMAIL = '';
+$str_LANGUAGE_ID = '';
+$str_CULTURE_ID = '';
+$str_START_SITE_WIZARD = '';
+
 
 if($bNew && $COPY_ID == '')
 {
@@ -223,8 +243,12 @@ if($bVarsFromForm)
 {
 	$DB->InitTableVarsForEdit("b_lang", "", "str_");
 	$str_DOMAINS = htmlspecialcharsbx($DOMAINS);
-	$str_SERVER_NAME = htmlspecialcharsbx($_POST["SERVER_NAME"]);
+	$str_SERVER_NAME = htmlspecialcharsbx($_POST["SERVER_NAME"] ?? '');
 }
+
+$SITE_MESSAGE_LINK = $_REQUEST['SITE_MESSAGE_LINK'] ?? '';
+$SITE_MESSAGE_LINK_E_SITE = $_REQUEST['SITE_MESSAGE_LINK_E_SITE'] ?? '';
+$SITE_MESSAGE_LINK_C_SITE = $_REQUEST['SITE_MESSAGE_LINK_C_SITE'] ?? '';
 
 $APPLICATION->SetTitle(($bNew? GetMessage("NEW_SITE_TITLE") : GetMessage("EDIT_SITE_TITLE", array("#ID#"=>$str_LID))));
 
@@ -282,7 +306,7 @@ if ($e = $APPLICATION->GetException())
 if($message)
 	echo $message->Show();
 
-$limitSitesCount = intval(COption::GetOptionInt("main", "PARAM_MAX_SITES", 100));
+$limitSitesCount = COption::GetOptionInt("main", "PARAM_MAX_SITES", 100);
 ?>
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="bform" <?if($bNew && $limitSitesCount > 0 && $limitSitesCount <= $sites_cnt)echo ' OnSubmit="alert(\''.GetMessage("SITE_EDIT_WARNING_MAX").'\')"';?>>
 <?=bitrix_sessid_post()?>
@@ -515,7 +539,8 @@ endforeach;
 			else
 			{
 				$SITE_TEMPLATE = array();
-				foreach($_POST["SITE_TEMPLATE"] as $key=>$val)
+				$templates = isset($_POST["SITE_TEMPLATE"]) && is_array($_POST["SITE_TEMPLATE"]) ? $_POST["SITE_TEMPLATE"] : [];
+				foreach($templates as $key=>$val)
 				{
 					if ($USER->CanDoOperation('edit_php') || $_POST['selected_type'][$key] != 'php')
 					{
@@ -552,14 +577,14 @@ endforeach;
 
 			$bFirst = true;
 			foreach($SITE_TEMPLATE as $i=>$val):
-				ConditionParse($val['CONDITION']);
+				ConditionParse($val['CONDITION'] ?? '');
 			?>
 			<tr>
 				<td>
 					<select name="SITE_TEMPLATE[<?=$i?>][TEMPLATE]" id="SITE_TEMPLATE[<?=$i?>][TEMPLATE]">
 						<option value=""><?echo GetMessage("SITE_EDIT_TEMPL_NO")?></option>
 						<?foreach($arSiteTemplates as $arRes):?>
-						<option value="<?=$arRes["ID"]?>"<?if($val["TEMPLATE"]==$arRes["ID"])echo " selected"?>><?=$arRes["NAME"]?></option>
+						<option value="<?=$arRes["ID"]?>"<?if(isset($val["TEMPLATE"]) && $val["TEMPLATE"]==$arRes["ID"])echo " selected"?>><?=$arRes["NAME"]?></option>
 						<?endforeach;?>
 					</select>
 				</td>

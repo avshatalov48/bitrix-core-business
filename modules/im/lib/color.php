@@ -13,6 +13,8 @@ Loc::loadMessages(__FILE__);
  */
 class Color
 {
+	public const MAX_COLOR_COUNT = 99;
+
 	private static $colors = Array(
 		'RED' => '#df532d',
 		'GREEN' => '#64a513',

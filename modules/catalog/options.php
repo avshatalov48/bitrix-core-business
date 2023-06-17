@@ -2473,13 +2473,18 @@ if (!$useSaleDiscountOnly || $catalogCount > 0)
 		}
 		$boolStoreExists = false;
 		$arStores = array();
-		$arStores[] = array("ID" => -1, "ADDRESS" => Loc::getMessage("CAT_ALL_STORES"));
+		$arStores[] = [
+			'ID' => -1,
+			'TITLE' => '',
+			'ADDRESS' => Loc::getMessage("CAT_ALL_STORES"),
+			'SORT' => 0,
+		];
 		$rsStores = CCatalogStore::GetList(
 			array('SORT' => 'ASC', 'ID' => 'ASC'),
 			array('ACTIVE' => 'Y'),
 			false,
 			false,
-			array('ID', 'TITLE', 'ADDRESS')
+			array('ID', 'TITLE', 'ADDRESS', 'SORT')
 		);
 		while ($arStore = $rsStores->GetNext())
 		{

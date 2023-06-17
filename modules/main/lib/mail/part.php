@@ -99,7 +99,7 @@ class Part
 	 */
 	public function getHeader($name)
 	{
-		return isset($this->headers[$name]) ? $this->headers[$name] : null;
+		return $this->headers[$name] ?? null;
 	}
 
 	/**

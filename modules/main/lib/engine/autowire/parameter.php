@@ -7,14 +7,12 @@ use Bitrix\Main\Result;
 
 class Parameter
 {
-	/** @var string */
-	private $className;
-	/** @var \Closure */
-	private $constructor;
+	private string $className;
+	private \Closure $constructor;
 	/** @var \Closure */
 	private $externalNameConstructor;
 
-	public function __construct($className, \Closure $constructor, \Closure $externalNameConstructor = null)
+	public function __construct(string $className, \Closure $constructor, \Closure $externalNameConstructor = null)
 	{
 		$this
 			->setClassName($className)
@@ -26,7 +24,7 @@ class Parameter
 		{
 			if ($externalNameConstructor === null)
 			{
-				$externalNameConstructor = function(\ReflectionParameter $parameter){
+				$externalNameConstructor = static function(\ReflectionParameter $parameter){
 					return $parameter->getName() . 'Id';
 				};
 			}
@@ -48,8 +46,14 @@ class Parameter
 
 	public function constructValue(\ReflectionParameter $parameter, Result $captureResult, $newThis = null)
 	{
+		$reflectionClass = $this->buildReflectionClass($parameter);
+		if (!$reflectionClass)
+		{
+			throw new BinderArgumentException("Could not retrieve \\ReflectionClass for {$parameter->getName()}.");
+		}
+
 		$paramsToInvoke = array_merge(
-			[$parameter->getClass()->getName()],
+			[$reflectionClass->getName()],
 			$captureResult->getData()
 		);
 
@@ -113,11 +117,12 @@ class Parameter
 				return $source[$name];
 			}
 
-			if ($source instanceof \ArrayAccess && $source->offsetExists($name))
+			if (($source instanceof \ArrayAccess) && $source->offsetExists($name))
 			{
 				return $source[$name];
 			}
-			elseif (is_array($source) && array_key_exists($name, $source))
+
+			if (is_array($source) && array_key_exists($name, $source))
 			{
 				return $source[$name];
 			}
@@ -126,10 +131,29 @@ class Parameter
 
 		return null;
 	}
+
+	protected function buildReflectionClass(\ReflectionParameter $parameter): ?\ReflectionClass
+	{
+		$namedType = $parameter->getType();
+		if (!($namedType instanceof \ReflectionNamedType))
+		{
+			return null;
+		}
+		if ($namedType->isBuiltin())
+		{
+			return null;
+		}
+
+		return new \ReflectionClass($namedType->getName());
+	}
 	
 	public function match(\ReflectionParameter $parameter)
 	{
-		$class = $parameter->getClass();
+		$class = $this->buildReflectionClass($parameter);
+		if (!$class)
+		{
+			return false;
+		}
 
 		return
 			$class->isSubclassOf($this->getClassName()) ||

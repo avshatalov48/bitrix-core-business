@@ -6,8 +6,11 @@ import {PageObject} from 'landing.pageobject';
 import {Env} from 'landing.env';
 import {Embed} from 'crm.form.embed';
 import 'ui.feedback.form';
+import {PhoneVerify} from 'bitrix24.phoneverify';
 
 import './css/style.css';
+
+const PHONE_VERIFY_FORM_ENTITY = 'crm_webform';
 
 /**
  * @memberOf BX.Landing.Form
@@ -66,7 +69,19 @@ export class SharePopup extends EventEmitter
 									&& Type.isPlainObject(formEditorData.formOptions)
 								)
 								{
-									Embed.openSlider(formEditorData.formOptions.id);
+									if (this.getOptions()?.phoneVerified)
+									{
+										Embed.openSlider(formEditorData.formOptions.id);
+									}
+									else
+									{
+										this.#showPhoneVerifySlider(formEditorData.formOptions.id).then((verified) => {
+											if (verified)
+											{
+												Embed.openSlider(formEditorData.formOptions.id);
+											}
+										});
+									}
 								}
 							},
 						},
@@ -176,5 +191,21 @@ export class SharePopup extends EventEmitter
 	hide()
 	{
 		this.#getFeaturesPopup().hide();
+	}
+
+	#showPhoneVerifySlider(formId: number): Promise
+	{
+		if (typeof PhoneVerify !== 'undefined')
+		{
+			return PhoneVerify.getInstance()
+				.setEntityType(PHONE_VERIFY_FORM_ENTITY)
+				.setEntityId(formId)
+				.startVerify({
+					sliderTitle: Loc.getMessage('LANDING_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'),
+					title: Loc.getMessage('LANDING_FORM_PHONE_VERIFY_CUSTOM_TITLE'),
+					description: Loc.getMessage('LANDING_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'),
+				});
+		}
+		return Promise.resolve(true);
 	}
 }

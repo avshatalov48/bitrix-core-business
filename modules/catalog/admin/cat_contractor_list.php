@@ -60,6 +60,9 @@ $sTableID = "b_catalog_contractor";
 $oSort = new CAdminUiSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $filterFields = array(
 	array(
 		"id" => "PERSON_TYPE",
@@ -198,11 +201,6 @@ $arNavParams = (
 	? false
 	: array("nPageSize" => CAdminUiResult::GetNavSize($sTableID))
 );
-global $by, $order;
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
 
 $dbResultList = CCatalogContractor::GetList(
 	array($by => $order),

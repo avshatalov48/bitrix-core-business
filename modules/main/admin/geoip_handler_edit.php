@@ -15,7 +15,7 @@ if(!$USER->CanDoOperation('edit_other_settings'))
 Loc::loadMessages(__FILE__);
 
 $className = isset($_REQUEST['CLASS_NAME']) ? htmlspecialcharsbx($_REQUEST['CLASS_NAME']) : '';
-$id = intval($_REQUEST["ID"]) > 0 ? intval($_REQUEST["ID"]) : 0;
+$id = isset($_REQUEST["ID"]) && intval($_REQUEST["ID"]) > 0 ? intval($_REQUEST["ID"]) : 0;
 $errMess = null;
 
 $handler = GeoIp\Manager::getHandlerByClassName($className);
@@ -23,12 +23,12 @@ $handler = GeoIp\Manager::getHandlerByClassName($className);
 if(!$handler)
 	LocalRedirect(!empty($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : 'geoip_handlers_list.php?lang='.LANG);
 
-if($_SERVER['REQUEST_METHOD'] == "POST" && ($_POST['save'] <> "" || $_POST['apply'] <> "") && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD'] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid())
 {
 	$fields = array(
 		"CLASS_NAME" => $className,
-		"SORT" => intval($_POST["SORT"]),
-		"ACTIVE" => $_POST["ACTIVE"] == 'Y' ? 'Y' : 'N',
+		"SORT" => intval($_POST["SORT"] ?? 0),
+		"ACTIVE" => isset($_POST["ACTIVE"]) && $_POST["ACTIVE"] == 'Y' ? 'Y' : 'N',
 		"CONFIG" => $handler->createConfigField($_POST),
 	);
 

@@ -32,6 +32,23 @@ class Rating extends Main\Engine\Controller
 
 	public function voteAction(array $params = []): ?array
 	{
+		$signedKey = (string) ($params['RATING_VOTE_KEY_SIGNED'] ?? '');
+		$entityId = (int) ($params['RATING_VOTE_ENTITY_ID'] ?? 0);
+		$entityTypeId = (string) ($params['RATING_VOTE_TYPE_ID'] ?? '');
+
+		$payloadValue = $entityTypeId . '-' . $entityId;
+
+		$signer = new \Bitrix\Main\Security\Sign\TimeSigner();
+		if (
+			$signedKey === ''
+			|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
+		)
+		{
+			$this->addError(new Main\Error('Access denied'));
+
+			return null;
+		}
+
 		$key = self::LOCK_KEY_PREFIX.$this->getCurrentUser()->getId();
 
 		if (!Application::getConnection()->lock($key))
@@ -40,8 +57,6 @@ class Rating extends Main\Engine\Controller
 			return null;
 		}
 
-		$entityTypeId = (string)($params['RATING_VOTE_TYPE_ID'] ?? '');
-		$entityId = (int)($params['RATING_VOTE_ENTITY_ID'] ?? 0);
 		$action = (string)($params['RATING_VOTE_ACTION'] ?? '');
 		$reaction = (string)($params['RATING_VOTE_REACTION'] ?? '');
 
@@ -98,8 +113,23 @@ class Rating extends Main\Engine\Controller
 
 	public function listAction(array $params = []): ?array
 	{
-		$entityTypeId = (string)($params['RATING_VOTE_TYPE_ID'] ?? '');
-		$entityId = (int)($params['RATING_VOTE_ENTITY_ID'] ?? 0);
+		$signedKey = (string) ($params['RATING_VOTE_KEY_SIGNED'] ?? '');
+		$entityId = (int) ($params['RATING_VOTE_ENTITY_ID'] ?? 0);
+		$entityTypeId = (string) ($params['RATING_VOTE_TYPE_ID'] ?? '');
+
+		$payloadValue = $entityTypeId . '-' . $entityId;
+
+		$signer = new \Bitrix\Main\Security\Sign\TimeSigner();
+		if (
+			$signedKey === ''
+			|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
+		)
+		{
+			$this->addError(new Main\Error('Access denied'));
+
+			return null;
+		}
+
 		$page = (int)($params['RATING_VOTE_LIST_PAGE'] ?? 1);
 		$listType = (
 			isset($params['RATING_VOTE_LIST_TYPE'])

@@ -10,7 +10,7 @@ Loc::loadMessages(__FILE__);
 \Bitrix\Main\Page\Asset::getInstance()->addString('<link rel="stylesheet" type="text/css" href="/bitrix/css/sale/ebay.css">');
 $APPLICATION->SetTitle(Loc::getMessage("SALE_EBAY_TITLE"));
 
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once ($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 ?>
 <div class="adm-detail-block">
 	<div class="adm-detail-content-wrap">

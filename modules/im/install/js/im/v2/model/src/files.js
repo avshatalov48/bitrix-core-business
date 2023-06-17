@@ -1,480 +1,188 @@
+import {Type} from 'main.core';
 import {BuilderModel} from 'ui.vue3.vuex';
-import {FileStatus, FileType, MutationType} from 'im.v2.const';
+
+import {Core} from 'im.v2.application.core';
+import {FileStatus} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
+
+import type {ImModelFile} from 'im.v2.model';
+
+type FilesState = {
+	collection: {
+		[fileId: string]: ImModelFile
+	}
+};
 
 export class FilesModel extends BuilderModel
 {
-	static maxDiskFileSize = 5242880;
-
-	getName()
+	getName(): string
 	{
 		return 'files';
 	}
 
-	getState()
+	getState(): Object
 	{
 		return {
-			created: 0,
 			collection: {},
-			index: {},
 		};
 	}
 
-	getElementState(params = {})
+	getElementState()
 	{
-		const {
-			id = 0,
-			chatId = 0,
-			name = 'File is deleted',
-		} = params;
-
 		return {
-			id,
-			chatId,
-			name,
-			templateId: id,
+			id: 0,
+			chatId: 0,
+			name: 'File is deleted',
 			date: new Date(),
 			type: 'file',
-			extension: "",
-			icon: "empty",
+			extension: '',
+			icon: 'empty',
 			size: 0,
 			image: false,
 			status: FileStatus.done,
 			progress: 100,
 			authorId: 0,
-			authorName: "",
-			urlPreview: "",
-			urlShow: "",
-			urlDownload: "",
-			init: false,
-			viewerAttrs: {}
+			authorName: '',
+			urlPreview: '',
+			urlShow: '',
+			urlDownload: '',
+			viewerAttrs: null
 		};
 	}
 
 	getGetters()
 	{
 		return {
-			get: state => (chatId, fileId, getTemporary = false) =>
+			get: (state: FilesState) => (fileId: number, getTemporary = false): ?ImModelFile =>
 			{
-				if (!chatId || !fileId)
+				if (!fileId)
 				{
 					return null;
 				}
 
-				if (!state.index[chatId] || !state.index[chatId][fileId])
+				if (!getTemporary && !state.collection[fileId])
 				{
 					return null;
 				}
 
-				if (!getTemporary && !state.index[chatId][fileId].init)
-				{
-					return null;
-				}
-
-				return state.index[chatId][fileId];
+				return state.collection[fileId];
 			},
-			getList: state => chatId =>
+			isInCollection: (state: FilesState) => (payload: {fileId: number | string}): boolean =>
 			{
-				if (!state.index[chatId])
-				{
-					return null;
-				}
+				const {fileId} = payload;
 
-				return state.index[chatId];
-			},
-			getBlank: state => params =>
-			{
-				return this.getElementState(params);
+				return !!state.collection[fileId];
 			}
-		}
+		};
 	}
 
 	getActions()
 	{
 		return {
-			add: (store, payload) =>
+			add: (store, payload: Object) =>
 			{
-				let result = this.validate(Object.assign({}, payload));
-				if (payload.id)
-				{
-					result.id = payload.id;
-				}
-				else
-				{
-					result.id = 'temporary' + (new Date).getTime() + store.state.created;
-				}
-				result.templateId = result.id;
-				result.init = true;
+				const preparedFile = {...this.getElementState(), ...this.validate(payload)};
 
-				store.commit('add', Object.assign({}, this.getElementState(), result));
-
-				return result.id;
+				store.commit('add', {files: [preparedFile]});
 			},
-			set: (store, payload) =>
+			set: (store, payload: Object[]) =>
 			{
-				if (payload instanceof Array)
+				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
-					payload = payload.map(file => {
-						let result = this.validate(Object.assign({}, file));
-						result.templateId = result.id;
-						return Object.assign({}, this.getElementState(), result, {init: true});
-					});
-				}
-				else
-				{
-					let result = this.validate(Object.assign({}, payload));
-					result.templateId = result.id;
-					payload = [];
-					payload.push(
-						Object.assign({}, this.getElementState(), result, {init: true})
-					);
+					payload = [payload];
 				}
 
-				store.commit('set', {
-					insertType : MutationType.setAfter,
-					data : payload
+				payload = payload.map(file => {
+					return {...this.getElementState(), ...this.validate(file)};
 				});
-			},
-			setBefore: (store, payload) =>
-			{
-				if (payload instanceof Array)
-				{
-					payload = payload.map(file => {
-						let result = this.validate(Object.assign({}, file));
-						result.templateId = result.id;
-						return Object.assign({}, this.getElementState(), result, {init: true});
-					});
-				}
-				else
-				{
-					let result = this.validate(Object.assign({}, payload));
-					result.templateId = result.id;
-					payload = [];
-					payload.push(
-						Object.assign({}, this.getElementState(), result, {init: true})
-					);
-				}
 
-				store.commit('set', {
-					actionName: 'setBefore',
-					insertType : MutationType.setBefore,
-					data : payload
-				});
+				store.commit('add', {files: payload});
 			},
 			update: (store, payload) =>
 			{
-				let result = this.validate(Object.assign({}, payload.fields));
-
-				store.commit('initCollection', {chatId: payload.chatId});
-
-				let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-				if (index < 0)
+				const {id, fields} = payload;
+				const existingItem = store.state.collection[id];
+				if (!existingItem)
 				{
 					return false;
 				}
 
 				store.commit('update', {
-					id : payload.id,
-					chatId : payload.chatId,
-					index : index,
-					fields : result
+					id: id,
+					fields: this.validate(fields)
 				});
 
-				if (payload.fields.blink)
+				return true;
+			},
+			updateWithId: (store, payload: {id: string | number, fields: Object}) =>
+			{
+				const {id, fields} = payload;
+				if (!store.state.collection[id])
 				{
-					setTimeout(() => {
-						store.commit('update', {
-							id : payload.id ,
-							chatId : payload.chatId,
-							fields : {blink: false}
-						});
-					}, 1000);
+					return;
 				}
 
-				return true;
-			},
-			delete: (store, payload) =>
-			{
-				store.commit('delete', {
-					id : payload.id,
-					chatId : payload.chatId
+				store.commit('updateWithId', {
+					id,
+					fields: this.validate(fields)
 				});
-				return true;
 			},
-			saveState: (store, payload) =>
-			{
-				store.commit('saveState', {});
-				return true;
-			},
-		}
+		};
 	}
 
 	getMutations()
 	{
 		return {
-			initCollection: (state, payload) =>
+			add: (state: FilesState, payload: {files: ImModelFile[]}) =>
 			{
-				this.initCollection(state, payload);
-			},
-			add: (state, payload) =>
-			{
-				this.initCollection(state, payload);
-
-				state.collection[payload.chatId].push(payload);
-				state.index[payload.chatId][payload.id] = payload;
-
-				state.created += 1;
-
-				this.saveState(state);
-			},
-			set: (state, payload) =>
-			{
-				for (let element of payload.data)
-				{
-					this.initCollection(state, {chatId: element.chatId});
-
-					let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
-					if (index > -1)
-					{
-						delete element.templateId;
-						state.collection[element.chatId][index] = Object.assign(state.collection[element.chatId][index], element);
-					}
-					else if (payload.insertType === MutationType.setBefore)
-					{
-						state.collection[element.chatId].unshift(element);
-					}
-					else
-					{
-						state.collection[element.chatId].push(element);
-					}
-
-					state.index[element.chatId][element.id] = element;
-
-					this.saveState(state);
-				}
-			},
-			update: (state, payload) =>
-			{
-				this.initCollection(state, payload);
-
-				let index = -1;
-				if (typeof payload.index !== 'undefined' && state.collection[payload.chatId][payload.index])
-				{
-					index = payload.index;
-				}
-				else
-				{
-					index = state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-				}
-
-				if (index >= 0)
-				{
-					delete payload.fields.templateId;
-					let element = Object.assign(
-						state.collection[payload.chatId][index],
-						payload.fields
-					);
-					state.collection[payload.chatId][index] = element;
-					state.index[payload.chatId][element.id] = element;
-
-					this.saveState(state);
-				}
-			},
-			delete: (state, payload) =>
-			{
-				this.initCollection(state, payload);
-
-				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => element.id !== payload.id);
-				delete state.index[payload.chatId][payload.id];
-
-				this.saveState(state);
-			},
-			saveState: (state, payload) =>
-			{
-				this.saveState(state);
-			},
-		}
-	}
-
-	initCollection(state, payload)
-	{
-		if (typeof state.collection[payload.chatId] !== 'undefined')
-		{
-			return true;
-		}
-
-		state.collection[payload.chatId] = [];
-		state.index[payload.chatId] = [];
-
-		return true;
-	}
-
-	getLoadedState(state)
-	{
-		if (!state || typeof state !== 'object')
-		{
-			return state;
-		}
-
-		if (typeof state.collection !== 'object')
-		{
-			return state;
-		}
-
-		state.index = {};
-
-		for (let chatId in state.collection)
-		{
-			if (!state.collection.hasOwnProperty(chatId))
-			{
-				continue;
-			}
-
-			state.index[chatId] = {};
-
-			state.collection[chatId]
-				.filter(file => file != null)
-				.forEach(file => {
-					state.index[chatId][file.id] = file;
-			});
-		}
-
-		return state;
-	}
-
-	getSaveFileList()
-	{
-		if (!this.db)
-		{
-			return [];
-		}
-
-		if (!this.store.getters['messages/getSaveFileList'])
-		{
-			return [];
-		}
-
-		let list = this.store.getters['messages/getSaveFileList']();
-		if (!list)
-		{
-			return [];
-		}
-
-		return list;
-	}
-
-	getSaveTimeout()
-	{
-		return 250;
-	}
-
-	saveState(state)
-	{
-		if (!this.isSaveAvailable())
-		{
-			return false;
-		}
-
-		super.saveState(() =>
-		{
-			let list = this.getSaveFileList();
-			if (!list)
-			{
-				return false;
-			}
-
-			let storedState = {
-				collection: {},
-			};
-
-			for (let chatId in list)
-			{
-				if (!list.hasOwnProperty(chatId))
-				{
-					continue;
-				}
-
-				list[chatId].forEach(fileId =>
-				{
-					if (!state.index[chatId])
-					{
-						return false;
-					}
-
-					if (!state.index[chatId][fileId])
-					{
-						return false;
-					}
-
-					if (!storedState.collection[chatId])
-					{
-						storedState.collection[chatId] = [];
-					}
-
-					storedState.collection[chatId].push(
-						state.index[chatId][fileId]
-					);
+				payload.files.forEach(file => {
+					state.collection[file.id] = file;
 				});
-			}
+			},
+			update: (state: FilesState, payload) =>
+			{
+				Object.entries(payload.fields).forEach(([key, value]) => {
+					state.collection[payload.id][key] = value;
+				});
+			},
+			updateWithId: (state: FilesState, payload: {id: number | string, fields: Object}) =>
+			{
+				const {id, fields} = payload;
+				const currentFile = {...state.collection[id]};
 
-			return storedState;
-		});
+				delete state.collection[id];
+				state.collection[fields.id] = {...currentFile, ...fields};
+			},
+		};
 	}
 
-	validate(fields, options = {})
+	validate(file: Object): ImModelFile
 	{
 		const result = {};
 
-		if (typeof fields.id === "number")
+		if (Type.isNumber(file.id) || Type.isStringFilled(file.id))
 		{
-			result.id = fields.id;
-		}
-		else if (typeof fields.id === "string")
-		{
-			if (fields.id.startsWith('temporary'))
-			{
-				result.id = fields.id;
-			}
-			else
-			{
-				result.id = parseInt(fields.id);
-			}
+			result.id = file.id;
 		}
 
-		if (typeof fields.templateId === "number")
+		if (Type.isNumber(file.chatId) || Type.isString(file.chatId))
 		{
-			result.templateId = fields.templateId;
-		}
-		else if (typeof fields.templateId === "string")
-		{
-			if (fields.templateId.startsWith('temporary'))
-			{
-				result.templateId = fields.templateId;
-			}
-			else
-			{
-				result.templateId = parseInt(fields.templateId);
-			}
+			result.chatId = Number.parseInt(file.chatId, 10);
 		}
 
-		if (typeof fields.chatId === "number" || typeof fields.chatId === "string")
+		if (!Type.isUndefined(file.date))
 		{
-			result.chatId = parseInt(fields.chatId);
+			result.date = Utils.date.cast(file.date);
 		}
 
-		if (typeof fields.date !== "undefined")
+		if (Type.isString(file.type))
 		{
-			result.date = Utils.date.cast(fields.date);
+			result.type = file.type;
 		}
 
-		if (typeof fields.type === "string")
+		if (Type.isString(file.extension))
 		{
-			result.type = fields.type;
-		}
-
-		if (typeof fields.extension === "string")
-		{
-			result.extension = fields.extension.toString();
+			result.extension = file.extension.toString();
 
 			if (result.type === 'image')
 			{
@@ -486,39 +194,38 @@ export class FilesModel extends BuilderModel
 			}
 			else
 			{
-				result.icon = FilesModel.getIconType(result.extension);
+				result.icon = Utils.file.getIconTypeByExtension(result.extension);
 			}
 		}
 
-		if (typeof fields.name === "string" || typeof fields.name === "number")
+		if (Type.isString(file.name) || Type.isNumber(file.name))
 		{
-			result.name = fields.name.toString();
+			result.name = file.name.toString();
 		}
 
-
-		if (typeof fields.size === "number" || typeof fields.size === "string")
+		if (Type.isNumber(file.size) || Type.isString(file.size))
 		{
-			result.size = parseInt(fields.size);
+			result.size = Number.parseInt(file.size, 10);
 		}
 
-		if (typeof fields.image === 'boolean')
+		if (Type.isBoolean(file.image))
 		{
 			result.image = false;
 		}
-		else if (typeof fields.image === 'object' && fields.image)
+		else if (Type.isPlainObject(file.image))
 		{
 			result.image = {
 				width: 0,
 				height: 0,
 			};
 
-			if (typeof fields.image.width === "string" || typeof fields.image.width === "number")
+			if (Type.isString(file.image.width) || Type.isNumber(file.image.width))
 			{
-				result.image.width = parseInt(fields.image.width);
+				result.image.width = Number.parseInt(file.image.width, 10);
 			}
-			if (typeof fields.image.height === "string" || typeof fields.image.height === "number")
+			if (Type.isString(file.image.height) || Type.isNumber(file.image.height))
 			{
-				result.image.height = parseInt(fields.image.height);
+				result.image.height = Number.parseInt(file.image.height, 10);
 			}
 
 			if (result.image.width <= 0 || result.image.height <= 0)
@@ -527,213 +234,142 @@ export class FilesModel extends BuilderModel
 			}
 		}
 
-		if (typeof fields.status === "string" && typeof FileStatus[fields.status] !== 'undefined')
+		if (Type.isString(file.status) && !Type.isUndefined(FileStatus[file.status]))
 		{
-			result.status = fields.status;
+			result.status = file.status;
 		}
 
-		if (typeof fields.progress === "number" || typeof fields.progress === "string")
+		if (Type.isNumber(file.progress) || Type.isString(file.progress))
 		{
-			result.progress = parseInt(fields.progress);
+			result.progress = Number.parseInt(file.progress, 10);
 		}
 
-		if (typeof fields.authorId === "number" || typeof fields.authorId === "string")
+		if (Type.isNumber(file.authorId) || Type.isString(file.authorId))
 		{
-			result.authorId = parseInt(fields.authorId);
+			result.authorId = Number.parseInt(file.authorId, 10);
 		}
 
-		if (typeof fields.authorName === "string" || typeof fields.authorName === "number")
+		if (Type.isString(file.authorName) || Type.isNumber(file.authorName))
 		{
-			result.authorName = fields.authorName.toString();
+			result.authorName = file.authorName.toString();
 		}
 
-		if (typeof fields.urlPreview === 'string')
+		if (Type.isString(file.urlPreview))
 		{
 			if (
-				!fields.urlPreview
-				|| fields.urlPreview.startsWith('http')
-				|| fields.urlPreview.startsWith('bx')
-				|| fields.urlPreview.startsWith('file')
-				|| fields.urlPreview.startsWith('blob')
+				!file.urlPreview
+				|| file.urlPreview.startsWith('http')
+				|| file.urlPreview.startsWith('bx')
+				|| file.urlPreview.startsWith('file')
+				|| file.urlPreview.startsWith('blob')
 			)
 			{
-				result.urlPreview = fields.urlPreview;
+				result.urlPreview = file.urlPreview;
 			}
 			else
 			{
-				result.urlPreview = this.store.state.application.common.host + fields.urlPreview;
+				result.urlPreview = Core.getHost() + file.urlPreview;
 			}
 		}
 
-		if (typeof fields.urlDownload === 'string')
+		if (Type.isString(file.urlDownload))
 		{
 			if (
-				!fields.urlDownload
-				|| fields.urlDownload.startsWith('http')
-				|| fields.urlDownload.startsWith('bx')
-				|| fields.urlPreview.startsWith('file')
+				!file.urlDownload
+				|| file.urlDownload.startsWith('http')
+				|| file.urlDownload.startsWith('bx')
+				|| file.urlPreview.startsWith('file')
 			)
 			{
-				result.urlDownload = fields.urlDownload;
+				result.urlDownload = file.urlDownload;
 			}
 			else
 			{
-				result.urlDownload = this.store.state.application.common.host + fields.urlDownload;
+				result.urlDownload = Core.getHost() + file.urlDownload;
 			}
 		}
 
-		if (typeof fields.urlShow === 'string')
+		if (Type.isString(file.urlShow))
 		{
 			if (
-				!fields.urlShow
-				|| fields.urlShow.startsWith('http')
-				|| fields.urlShow.startsWith('bx')
-				|| fields.urlShow.startsWith('file')
+				!file.urlShow
+				|| file.urlShow.startsWith('http')
+				|| file.urlShow.startsWith('bx')
+				|| file.urlShow.startsWith('file')
 			)
 			{
-				result.urlShow = fields.urlShow;
+				result.urlShow = file.urlShow;
 			}
 			else
 			{
-				result.urlShow = this.store.state.application.common.host + fields.urlShow;
+				result.urlShow = Core.getHost() + file.urlShow;
 			}
 		}
 
-		if (typeof fields.viewerAttrs === 'object')
+		if (Type.isPlainObject(file.viewerAttrs))
 		{
-			if (result.type === 'image' && !Utils.platform.isBitrixMobile())
-			{
-				result.viewerAttrs = fields.viewerAttrs;
-			}
-
-			if (result.type === 'video' && !Utils.platform.isBitrixMobile() && result.size > FilesModel.maxDiskFileSize)
-			{
-				result.viewerAttrs = fields.viewerAttrs;
-			}
+			result.viewerAttrs = this.validateViewerAttributes(file.viewerAttrs);
 		}
 
 		return result;
 	}
 
-	static getType(type)
+	validateViewerAttributes(viewerAttrs)
 	{
-		type = type.toString().toLowerCase().split('.').splice(-1)[0];
+		const result = {
+			viewer: true,
+		};
 
-		switch(type)
+		if (Type.isString(viewerAttrs.actions))
 		{
-			case 'png':
-			case 'jpe':
-			case 'jpg':
-			case 'jpeg':
-			case 'gif':
-			case 'heic':
-			case 'bmp':
-			case 'webp':
-				return FileType.image;
-
-			case 'mp4':
-			case 'mkv':
-			case 'webm':
-			case 'mpeg':
-			case 'hevc':
-			case 'avi':
-			case '3gp':
-			case 'flv':
-			case 'm4v':
-			case 'ogg':
-			case 'wmv':
-			case 'mov':
-				return FileType.video;
-
-			case 'mp3':
-				return FileType.audio;
+			result.actions = viewerAttrs.actions;
 		}
 
-		return FileType.file
-	}
-
-	static getIconType(extension)
-	{
-		let icon = 'empty';
-
-		switch(extension.toString())
+		if (Type.isString(viewerAttrs.objectId))
 		{
-			case 'png':
-			case 'jpe':
-			case 'jpg':
-			case 'jpeg':
-			case 'gif':
-			case 'heic':
-			case 'bmp':
-			case 'webp':
-				icon = 'img';
-				break;
-
-			case 'mp4':
-			case 'mkv':
-			case 'webm':
-			case 'mpeg':
-			case 'hevc':
-			case 'avi':
-			case '3gp':
-			case 'flv':
-			case 'm4v':
-			case 'ogg':
-			case 'wmv':
-			case 'mov':
-				icon = 'mov';
-				break;
-
-			case 'txt':
-				icon = 'txt';
-				break;
-
-			case 'doc':
-			case 'docx':
-				icon = 'doc';
-				break;
-
-			case 'xls':
-			case 'xlsx':
-				icon = 'xls';
-				break;
-
-			case 'php':
-				icon = 'php';
-				break;
-
-			case 'pdf':
-				icon = 'pdf';
-				break;
-
-			case 'ppt':
-			case 'pptx':
-				icon = 'ppt';
-				break;
-
-			case 'rar':
-				icon = 'rar';
-				break;
-
-			case 'zip':
-			case '7z':
-			case 'tar':
-			case 'gz':
-			case 'gzip':
-				icon = 'zip';
-				break;
-
-			case 'set':
-				icon = 'set';
-				break;
-
-			case 'conf':
-			case 'ini':
-			case 'plist':
-				icon = 'set';
-				break;
+			result.objectId = viewerAttrs.objectId;
 		}
 
-		return icon;
+		if (Type.isString(viewerAttrs.src))
+		{
+			result.src = viewerAttrs.src;
+		}
+
+		if (Type.isString(viewerAttrs.title))
+		{
+			result.title = viewerAttrs.title;
+		}
+
+		if (Type.isString(viewerAttrs.viewerGroupBy))
+		{
+			result.viewerGroupBy = viewerAttrs.viewerGroupBy;
+		}
+
+		if (Type.isString(viewerAttrs.viewerType))
+		{
+			result.viewerType = viewerAttrs.viewerType;
+		}
+
+		if (Type.isString(viewerAttrs.viewerTypeClass))
+		{
+			result.viewerTypeClass = viewerAttrs.viewerTypeClass;
+		}
+
+		if (Type.isBoolean(viewerAttrs.viewerSeparateItem))
+		{
+			result.viewerSeparateItem = viewerAttrs.viewerSeparateItem;
+		}
+
+		if (Type.isString(viewerAttrs.viewerExtension))
+		{
+			result.viewerExtension = viewerAttrs.viewerExtension;
+		}
+
+		if (Type.isNumber(viewerAttrs.imChatId))
+		{
+			result.imChatId = viewerAttrs.imChatId;
+		}
+
+		return result;
 	}
 }

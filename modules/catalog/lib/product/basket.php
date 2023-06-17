@@ -565,6 +565,7 @@ class Basket
 		else
 		{
 			$fields['QUANTITY'] = $quantity;
+			$fields['DELAY'] ??= 'N';
 			$basketCode = !empty($fields['BASKET_CODE']) ? $fields['BASKET_CODE'] : null;
 			$basketItem = $basket->createItem($module, $productId, $basketCode);
 		}

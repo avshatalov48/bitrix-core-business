@@ -78,7 +78,9 @@
 	{
 		var headerSelector = event.makeRelativeSelector('.u-header');
 		// in edit mode menu must be like a usual block
-		if (BX.Landing.getMode() === "view" && event.block.querySelectorAll(headerSelector).length > 0)
+		if (
+			(BX.Landing.getMode() === "view" || BX.Landing.getMode() === "preview")
+			&& event.block.querySelectorAll(headerSelector).length > 0)
 		{
 			blockHeaders.add(event.block.querySelector('.u-header'));
 		}

@@ -176,7 +176,7 @@ $MESS["INS_STEP3_TITLE"] = "Выбор базы";
 $MESS["INS_STEP4_TITLE"] = "Предварительная проверка";
 $MESS["INS_STEP5_TITLE"] = "Создание базы данных";
 $MESS["INS_STEP6_TITLE"] = "Конфигурирование";
-$MESS["GOTO_IF_ERROR"] = "При возникновении проблем с установкой продукта \"1С-Битрикс: Управление сайтом\" обращайтесь <a href=\"http://www.1c-bitrix.ru/support/?referer1=bsm&referer2=install\" target=\"_blank\">в техподдержку</a>.";
+$MESS["GOTO_IF_ERROR"] = "При возникновении проблем с установкой продукта \"1С-Битрикс: Управление сайтом\" обращайтесь <a href=\"http://www.1c-bitrix.ru/support/\" target=\"_blank\">в техподдержку</a>.";
 $MESS["GOTO_README"] = "Инструкции по установке";
 $MESS["INS_SELECT_LANG"] = "Язык интерфейса";
 $MESS["SC_REGISTER_GLOBALS"] = "регистрация глобальных переменных";
@@ -190,9 +190,9 @@ $MESS["INS_AP_MEM_LIMIT_DESC"] = "Максимальный объем памят
 $MESS["IS1_BIT"] = "1С-Битрикс: Управление Сайтом";
 $MESS["IS1_BIT_LOZ"] = "Благодарим вас за выбор программных продуктов компании \"1С-Битрикс\". ";
 $MESS["COPYRIGHT"] = "&copy; &laquo;Битрикс&raquo;, #CURRENT_YEAR#";
-$MESS["SUPPORT"] = "<a href=\"http://www.1c-bitrix.ru/?referer1=bsm&referer2=install\" target=\"_blank\">www.1c-bitrix.ru</a> <span class=\"instal-footer-separator\"></span> <a href=\"http://www.1c-bitrix.ru/support/?referer1=bsm&referer2=install\" target=\"_blank\">Техподдержка</a>";
+$MESS["SUPPORT"] = "<a href=\"http://www.1c-bitrix.ru/\" target=\"_blank\">www.1c-bitrix.ru</a> <span class=\"instal-footer-separator\"></span> <a href=\"http://www.1c-bitrix.ru/support/\" target=\"_blank\">Техподдержка</a>";
 $MESS["SUPPORT_README"] = "<a href=\"/readme.php\" target=\"_blank\">Инструкции по установке</a> <span class=\"instal-footer-separator\"></span> ";
-$MESS["FIRST_PAGE"] = "<h4>Благодарим вас за выбор &quot;1С-Битрикс: Управление сайтом&quot;! </h4>«Мастер установки» протестирует ваше программное обеспечение на совместимость и проведет установку программного продукта «1С-Битрикс: Управление сайтом».<br><br>Сразу после установки вы сможете приступить к работе с сайтом.<br><br>Используя систему обновлений SiteUpdate, вы сможете обновлять программный продукт «1С-Битрикс: Управление сайтом» и пользоваться самой современной версией.<br><br>Получить более подробную информацию о программном продукте «1С-Битрикс: Управление сайтом» можно на сайте: <a href=\"http://www.1c-bitrix.ru/?referer1=bsm&referer2=install\" target=\"_blank\">http://www.1c-bitrix.ru</a><br><br>Если у вас возникнут вопросы по процессу установки, вы можете обратиться в службу <a href=\"http://www.1c-bitrix.ru/support/?referer1=bsm&referer2=install\" target=\"_blank\">технической поддержки</a>.";
+$MESS["FIRST_PAGE"] = "<h4>Благодарим вас за выбор &quot;1С-Битрикс: Управление сайтом&quot;! </h4>«Мастер установки» протестирует ваше программное обеспечение на совместимость и проведет установку программного продукта «1С-Битрикс: Управление сайтом».<br><br>Сразу после установки вы сможете приступить к работе с сайтом.<br><br>Используя систему обновлений SiteUpdate, вы сможете обновлять программный продукт «1С-Битрикс: Управление сайтом» и пользоваться самой современной версией.<br><br>Получить более подробную информацию о программном продукте «1С-Битрикс: Управление сайтом» можно на сайте: <a href=\"http://www.1c-bitrix.ru/\" target=\"_blank\">http://www.1c-bitrix.ru</a><br><br>Если у вас возникнут вопросы по процессу установки, вы можете обратиться в службу <a href=\"http://www.1c-bitrix.ru/support/\" target=\"_blank\">технической поддержки</a>.";
 $MESS["ERR_NO_DATABSEL"] = "Не выбрана база данных. ";
 $MESS["ERR_SAVE_LICENSE"] = "Не удается сохранить лицензионный ключ. Убедитесь, что PHP имеет права на запись в любую подпапку папки #ROOT#. ";
 $MESS["ERR_C_CREATE_TBL"] = "Не удается создать таблицу в базе данных. Проверьте наличие прав на создание таблиц. ";
@@ -218,7 +218,6 @@ $MESS["ERR_GRANT_USER"] = "Произошла ошибка при назначе
 $MESS["INS_USER_OR_DESCR"] = "Пользователь базы данных Oracle";
 $MESS["INS_PASSWORD_OR_DESCR"] = "Пароль пользователя базы данных Oracle";
 $MESS["INS_DB_CHARSET"] = "Кодировка базы данных:";
-$MESS["INS_CREATE_DB_CHAR_NOTE"] = "Кодировка UTF-8 доступна для версии MySQL начиная с 4.1.2";
 $MESS["INS_DB_DEFAULT"] = "по умолчанию";
 $MESS["ERR_ALTER_DB"] = "Не удалось установить указанную кодировку для базы данных";
 $MESS["SC_NO_FT_LIB_ER"] = "Free Type Library не установлена в PHP";

@@ -348,10 +348,9 @@ class ApiHelper
 		$http = new HttpClient();
 		$boundary = md5(rand() . time());
 
-		$file = $http->get($params["url"]);
-		
-		$data = '';
-		$data .= '--' . $boundary . "\r\n";
+		$file = $this->getFile($params["url"]);
+
+		$data = '--' . $boundary . "\r\n";
 		$data .= 'Content-Disposition: form-data; name="' . $params["param_name"] . '"; filename="' . $params["filename"] . '"' . "\r\n";
 		$data .= 'Content-Type: application/octet-stream' . "\r\n\r\n";
 		$data .= $file . "\r\n";
@@ -380,9 +379,14 @@ class ApiHelper
 		
 		return $result;
 	}
-	
-	
-	
+
+	private function getFile(string $url)
+	{
+		$http = new HttpClient();
+
+		return $http->get($url);
+	}
+
 	public function getUserGroupsSelector($selectedValue = null, $name = null, $id = null)
 	{
 //		todo: maybe cached this values

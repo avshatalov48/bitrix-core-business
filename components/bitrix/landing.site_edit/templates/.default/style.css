@@ -147,14 +147,14 @@
 
 .landing-form-type-page {
 	display: inline-block;
-	margin-left: 25px;
+	margin-right: 25px;
 	padding-left: 27px;
 	position: relative;
 	vertical-align: top;
 	width: 94px;
 }
 
-.landing-form-type-page:first-child {
+.landing-form-type-page:last-child {
 	margin-left: 0;
 }
 
@@ -482,6 +482,10 @@ a {
 	margin-bottom: 16px;
 }
 
+.landing-form-cookies-inner .main-user-consent-selector-block-link {
+	word-break: keep-all;
+}
+
 .landing-frame-btn-cookies {
 	border-bottom: 1px dashed rgba(33, 107, 182, .4);
 	transition: border .2s linear;
@@ -499,10 +503,17 @@ a {
 
 .landing-form-cookies-settings {
 	background: #fff;
-	display: flex;
-	align-items: center;
-	padding: 28px 28px 27px;
+	padding: 22px 28px 21px;
 	margin-bottom: 31px;
+}
+
+.landing-form-cookies-settings-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	overflow: hidden;
+	margin-top: -33px;
+	padding: 6px 0;
 }
 
 .landing-form-cookies-title {
@@ -540,11 +551,28 @@ a {
 	position: relative;
 	padding-right: 33px;
 	margin-right: 35px;
+	margin-top: 33px;
 	display: flex;
 	align-items: center;
 }
 
 .landing-form-cookies-settings-preview:after {
+	content: '';
+	width: 100%;
+	height: 1px;
+	background: #525c69;
+	opacity: .1;
+	position: absolute;
+	bottom: -18px;
+}
+
+.landing-form-cookies-settings-colors {
+	display: flex;
+	flex-wrap: nowrap;
+	margin-top: 33px;
+}
+
+.landing-form-cookies-settings-color-bg:before {
 	content: '';
 	width: 1px;
 	height: 40px;
@@ -552,8 +580,15 @@ a {
 	opacity: .1;
 	position: absolute;
 	top: 50%;
-	right: 0;
+	left: -35px;
 	transform: translateY(-50%);
+}
+
+.landing-form-cookies-settings-colors > div {
+	position: relative;
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
 }
 
 .landing-form-cookies-settings-type {
@@ -644,12 +679,12 @@ a {
 .landing-form-row-robots .ui-ctl-textarea,
 .landing-form-row-headblock .ui-ctl-textarea,
 .landing-form-row-cssblock .ui-ctl-textarea {
-	height: 200px;
+	height: 220px;
 }
 .landing-form-row-robots .ui-ctl-textarea textarea.ui-ctl-element,
 .landing-form-row-headblock .ui-ctl-textarea textarea.ui-ctl-element,
 .landing-form-row-cssblock .ui-ctl-textarea textarea.ui-ctl-element {
-	height: 198px;
+	height: 218px;
 }
 
 .landing-form-row-speed .ui-checkbox-hidden-input-hook-help {
@@ -767,4 +802,11 @@ a {
 	width: 132px;
 	height: 106px;
 	background: url(image/landing-landing-view__icon-404.svg) center no-repeat;
+}
+
+
+.landing-form .ui-ctl-textarea
+{
+	max-width: 640px;
+	width: 100%;
 }

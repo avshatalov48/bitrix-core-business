@@ -405,16 +405,16 @@ class Map
 		}
 
 		// check block/nodes style notation
-		if (!is_array($manifest['style']['block']) && !is_array($manifest['style']['nodes']))
+		if (!isset($manifest['style']['block']) && !isset($manifest['style']['nodes']))
 		{
 			$manifest['style'] = [
-				'block' => Block::DEFAULT_WRAPPER_STYLE,
+				'block' => ['type' => Block::DEFAULT_WRAPPER_STYLE],
 				'nodes' => $manifest['style'],
 			];
 		}
 		if (!empty($additional))
 		{
-			if (!is_array($manifest['style']['nodes'][self::MAP_SELECTOR]['additional']))
+			if (!isset($manifest['style']['nodes'][self::MAP_SELECTOR]['additional']))
 			{
 				$manifest['style']['nodes'][self::MAP_SELECTOR]['additional'] = [];
 			}

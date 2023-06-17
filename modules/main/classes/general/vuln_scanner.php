@@ -178,21 +178,31 @@ class CVulnScanner
 				{
 					if($var_declare || $this->scan_functions[$function][0] === 0 || in_array($c_params, $this->scan_functions[$function][0]))
 					{
-
-						if((is_array($tokens[$i - 1])
-							&& in_array($tokens[$i - 1][0], $this->tokens_type['CASTS']))
-							|| in_array($tokens[$i + 1], $this->tokens_type['ARITHMETIC_STR'])
-							|| in_array($tokens[$i - 1], $this->tokens_type['ARITHMETIC_STR'])
-							|| (is_array($tokens[$i + 1])
+						if(
+							(
+								isset($tokens[$i - 1])
+								&& is_array($tokens[$i - 1])
+								&& in_array($tokens[$i - 1][0], $this->tokens_type['CASTS'])
+							)
+							|| (isset($tokens[$i + 1]) && in_array($tokens[$i + 1], $this->tokens_type['ARITHMETIC_STR']))
+							|| (isset($tokens[$i - 1]) && in_array($tokens[$i - 1], $this->tokens_type['ARITHMETIC_STR']))
+							|| (
+								isset($tokens[$i + 1])
+								&& is_array($tokens[$i + 1])
 								&& (in_array($tokens[$i + 1][0], $this->tokens_type['ARITHMETIC'])
 									|| in_array($tokens[$i + 1][0], $this->tokens_type['OPERATOR'])
 									|| in_array($tokens[$i + 1][0], $this->tokens_type['LOGICAL'])
-								))
-							|| (is_array($tokens[$i - 1])
-								&& (in_array($tokens[$i - 1][0], $this->tokens_type['ARITHMETIC'])
+								)
+							)
+							|| (
+								isset($tokens[$i - 1])
+								&& is_array($tokens[$i - 1])
+								&& (
+									in_array($tokens[$i - 1][0], $this->tokens_type['ARITHMETIC'])
 									|| in_array($tokens[$i - 1][0], $this->tokens_type['OPERATOR'])
 									|| in_array($tokens[$i - 1][0], $this->tokens_type['LOGICAL'])
-								))
+								)
+							)
 						)
 						{
 							$skip = true;
@@ -257,8 +267,11 @@ class CVulnScanner
 					&& (
 						in_array($token_value, $this->sec_func['SECURES_ALL'])
 							|| in_array($token_value, $this->sec_func['STRING'])
-							|| (is_array($this->scan_functions[$function][1])
-							&& in_array($token_value, $this->scan_functions[$function][1]))
+							|| (
+								isset($this->scan_functions[$function][1])
+								&& is_array($this->scan_functions[$function][1])
+								&& in_array($token_value, $this->scan_functions[$function][1])
+							)
 					))
 					|| (in_array($token, $this->tokens_type['CASTS']) && $tokens[$i + 1] === '(')
 				)
@@ -297,7 +310,7 @@ class CVulnScanner
 
 			if($skip)
 			{
-				while (!($tokens[$i + 1] === ', ') && $i + 1 < $count)
+				while (($i + 1 < $count) && !($tokens[$i + 1] === ', '))
 				{
 					if($tokens[$i + 1] === ')')
 						$braces--;
@@ -388,7 +401,7 @@ class CVulnScanner
 							$this->objects[$token_value] = ltrim(strtoupper($className), '\\');
 							$i += $this->getBraceEnd($this->tokens, $i);
 						}
-						if(!(is_array($this->tokens[$i + 2]) && $this->tokens[$i + 2][0] === T_ARRAY))
+						if(!(isset($this->tokens[$i + 2]) && is_array($this->tokens[$i + 2]) && $this->tokens[$i + 2][0] === T_ARRAY))
 							$this->addVariable($this->tokens[$i], $i, $cur_line, $i, $this->getBraceEnd($this->tokens, $i), '');
 						else
 							$i += $this->getBraceEnd($this->tokens, $i);
@@ -448,7 +461,7 @@ class CVulnScanner
 								$result = $scanner->process();
 								if($result !== false)
 								{
-									if(count($scanner->arResult) > 0)
+									if(!empty($scanner->arResult))
 										$this->arResult = array_merge($this->arResult, $scanner->arResult);
 									$this->vuln_count += $scanner->vuln_count;
 								}
@@ -654,7 +667,7 @@ class CVulnScanner
 				elseif(in_array($token, $this->tokens_type['FLOW_CONTROL']))
 				{
 					$c = 1;
-					while ($this->tokens[$i + $c] !== '{' && ($i + $c) < count($this->tokens))
+					while (($i + $c) < count($this->tokens) && $this->tokens[$i + $c] !== '{')
 						$c++;
 
 					$this->dependency = array_slice($this->tokens, $i, $c);
@@ -746,8 +759,8 @@ class CVulnScanner
 
 	private function getVarName($token, $level = -1)
 	{
-		$var_name = $token[1];
-		if(is_array($token[3]))
+		$var_name = $token[1] ?? null;
+		if (isset($token[3]) && is_array($token[3]))
 		{
 			for ($i = 0, $count = count($token[3]); $i < $count && ($i < $level || $level === -1); $i++)
 			{
@@ -804,7 +817,7 @@ class CVulnScanner
 		{
 			$taintedVars = array();
 			foreach ($tokensInfo[1] as $res)
-				$taintedVars[] = $res['varName'];
+				$taintedVars[] = $res['varName'] ?? null;
 
 			if(!isset($this->variables[$varName]))
 				$var = new CVariable($varName);
@@ -848,7 +861,7 @@ class CVulnScanner
 				if(in_array($tokens[$i][0], $this->tokens_type['IGNORE']))
 					unset($tokens[$i]);
 				elseif($tokens[$i][0] === T_CLOSE_TAG)
-					if($tokens[$i - 1] !== '{' && $tokens[$i - 1] !== ';')
+					if(!isset($tokens[$i - 1]) || ($tokens[$i - 1] !== '{' && $tokens[$i - 1] !== ';'))
 						$tokens[$i] = ';'; else
 						unset($tokens[$i]);
 				elseif($tokens[$i][0] === T_OPEN_TAG_WITH_ECHO)
@@ -894,7 +907,7 @@ class CVulnScanner
 						{
 							$f++;
 						}
-						if(is_array($tokens[$i + $f - 1]) && $tokens[$i + $f - 1][0] === T_STRING)
+						if(isset($tokens[$i + $f - 1]) && is_array($tokens[$i + $f - 1]) && $tokens[$i + $f - 1][0] === T_STRING)
 						{
 							$this->sec_func['STRING'][] = strtolower($tokens[$i + $f - 1][1]);
 						}
@@ -902,7 +915,7 @@ class CVulnScanner
 
 					$f = 1;
 					$braces = 1;
-					while ($tokens[$i + $f] !== '{' && ($i + $f) < $c)
+					while (($i + $f) < $c && $tokens[$i + $f] !== '{')
 					{
 						unset($tokens[$i + $f]);
 						$f++;
@@ -910,9 +923,9 @@ class CVulnScanner
 					$f++;
 					while ($braces !== 0 && ($i + $f) < $c)
 					{
-						if($tokens[$i + $f] === '{')
+						if(isset($tokens[$i + $f]) && $tokens[$i + $f] === '{')
 							$braces++;
-						elseif($tokens[$i + $f] === '}')
+						elseif(isset($tokens[$i + $f]) && $tokens[$i + $f] === '}')
 							$braces--;
 						unset($tokens[$i + $f]);
 						$f++;
@@ -922,7 +935,7 @@ class CVulnScanner
 					$i += $f;
 				}
 			}
-			elseif($tokens[$i] === '@')
+			elseif(isset($tokens[$i]) && $tokens[$i] === '@')
 			{
 				unset($tokens[$i]);
 			}
@@ -952,7 +965,7 @@ class CVulnScanner
 			if($tokens[$i] === '`')
 			{
 				$f = 1;
-				while ($tokens[$i + $f] !== '`' && $i < $max)
+				while ($tokens[$i + $f] !== '`')
 				{
 					if(is_array($tokens[$i + $f]))
 						$line = $tokens[$i + $f][2];
@@ -975,7 +988,7 @@ class CVulnScanner
 			}
 			elseif(is_array($tokens[$i]))
 			{
-				if(is_array($tokens[$i]) && (strtolower($tokens[$i][1]) === 'includecomponenttemplate' || strtolower($tokens[$i][1]) === 'initcomponenttemplate'))
+				if(strtolower($tokens[$i][1]) === 'includecomponenttemplate' || strtolower($tokens[$i][1]) === 'initcomponenttemplate')
 				{
 					$tokens[$i][3] = $component_template;
 					$tokens[$i][1] = strtolower($tokens[$i][1]);
@@ -984,7 +997,7 @@ class CVulnScanner
 					array_splice($tokens, $i - 1, 0, $tmp);
 					$i++;
 				}
-				elseif(is_array($tokens[$i]) && (strtolower($tokens[$i][1]) == 'includecomponent'))
+				elseif(strtolower($tokens[$i][1]) == 'includecomponent')
 				{
 					$tokens[$i][1] = strtolower($tokens[$i][1]);
 					$tokens[$i][0] = T_INCLUDE_COMPONENT;
@@ -1281,11 +1294,11 @@ class CVulnScanner
 
 				$k = 1;
 				$braces = 0;
-				while (!(($tokens[$i - $k] === ';' || $tokens[$i - $k] === ', ' || $tokens[$i - $k] === '.' || $tokens[$i - $k] === '{' || $tokens[$i - $k] === '}') && $braces <= 0) && ($i - $k) > 0)
+				while (!(isset($tokens[$i - $k]) && ($tokens[$i - $k] === ';' || $tokens[$i - $k] === ', ' || $tokens[$i - $k] === '.' || $tokens[$i - $k] === '{' || $tokens[$i - $k] === '}') && $braces <= 0) && ($i - $k) > 0)
 				{
-					if($tokens[$i - $k] === ')')
+					if(isset($tokens[$i - $k]) && $tokens[$i - $k] === ')')
 						$braces++;
-					elseif($tokens[$i - $k] === '(')
+					elseif(isset($tokens[$i - $k]) && $tokens[$i - $k] === '(')
 						$braces--;
 					unset($tokens[$i - $k]);
 					$k++;
@@ -1293,11 +1306,11 @@ class CVulnScanner
 
 				$k = 1;
 				$braces = 0;
-				while (!(($tokens[$i + $k] === ';' || $tokens[$i + $k] === ', ' || $tokens[$i + $k] === '.' || $tokens[$i + $k] === '}') && $braces <= 0) && ($i + $k) < $max)
+				while (!(isset($tokens[$i + $k]) && ($tokens[$i + $k] === ';' || $tokens[$i + $k] === ', ' || $tokens[$i + $k] === '.' || $tokens[$i + $k] === '}') && $braces <= 0) && ($i + $k) < $max)
 				{
-					if($tokens[$i + $k] === '(')
+					if(isset($tokens[$i + $k]) && $tokens[$i + $k] === '(')
 						$braces++;
-					elseif($tokens[$i + $k] === ')')
+					elseif(isset($tokens[$i + $k]) && $tokens[$i + $k] === ')')
 						$braces--;
 					unset($tokens[$i + $k]);
 					$k++;
@@ -1486,14 +1499,18 @@ class CVulnScanner
 						}
 
 					$output .= $text;
-					if(is_array($token) && (in_array($token[0], $this->tokens_type['INCLUDES']) || in_array($token[0], $this->tokens_type['XSS']) || $token[0] === 'T_EVAL'))
+					if(in_array($token[0], $this->tokens_type['INCLUDES']) || in_array($token[0], $this->tokens_type['XSS']) || $token[0] === 'T_EVAL')
+					{
 						$output .= '&nbsp;';
+					}
 				}
 			}
 		}
 
 		if(!empty($comment))
+		{
 			$output .= '&nbsp;<span style="color: #808080;">// '.htmlentities($comment, ENT_QUOTES, 'utf-8').'</span>';
+		}
 
 		return '<div style="clear:both;">'.$output.'</div>';
 	}
@@ -2225,7 +2242,7 @@ class CQAACheckListTests
 	{
 		if(extension_loaded('tokenizer') === true)
 		{
-		if(!\Bitrix\Main\Application::getInstance()->getSession()['BX_CHECKLIST'][$arParams['TEST_ID']])
+		if(empty(\Bitrix\Main\Application::getInstance()->getSession()['BX_CHECKLIST'][$arParams['TEST_ID']]))
 			\Bitrix\Main\Application::getInstance()->getSession()['BX_CHECKLIST'][$arParams['TEST_ID']] = Array();
 		$NS = &\Bitrix\Main\Application::getInstance()->getSession()['BX_CHECKLIST'][$arParams['TEST_ID']];
 

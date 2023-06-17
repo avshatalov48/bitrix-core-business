@@ -166,7 +166,8 @@ HTML;
 			$res = new \ReflectionClass($updater);
 			self::$filesToUnlink[] = $res->getFileName();
 		}
-		Option::delete("main.stepper.".$updater->getModuleId(), array("name" => $className));
+		Option::delete('main.stepper.'.$updater->getModuleId(), ['name' => $className]);
+		Option::delete('main.stepper.'.$updater->getModuleId(), ['name' => '\\'.$className]);
 
 		return '';
 	}
@@ -338,7 +339,7 @@ HTML;
 			$name = $DB->ForSql($className.'::execAgent('.$arguments.');', 2000);
 			$className = $DB->ForSql($className);
 			$moduleId = $DB->ForSql($moduleId);
-			if (!(($agent = $DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()) && $agent))
+			if (!($DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()))
 			{
 				$DB->Query("INSERT INTO b_agent (MODULE_ID, SORT, NAME, ACTIVE, AGENT_INTERVAL, IS_PERIOD, NEXT_EXEC) VALUES ('".$moduleId."', 100, '".$name."', 'Y', 1, 'Y', ".($delay > 0 ? "DATE_ADD(now(), INTERVAL ".$delay." SECOND)" : $DB->GetNowFunction()).")");
 				$DB->Query("INSERT INTO b_option (`MODULE_ID`, `NAME`, `VALUE`)".

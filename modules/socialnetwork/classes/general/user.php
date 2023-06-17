@@ -17,7 +17,7 @@ class CAllSocNetUser
 			return false;
 		}
 
-		$ID = intval($ID);
+		$ID = (int)$ID;
 		$bSuccess = True;
 
 		if (!CSocNetGroup::DeleteNoDemand($ID))
@@ -53,7 +53,7 @@ class CAllSocNetUser
 	public static function OnBeforeUserUpdate(&$arFields)
 	{
 		$rsUser = CUser::GetByID($arFields["ID"]);
-		if ($arUser = $rsUser->Fetch())
+		if (($arUser = $rsUser->Fetch()) && !defined("GLOBAL_ACTIVE_VALUE"))
 		{
 			define("GLOBAL_ACTIVE_VALUE", $arUser["ACTIVE"]);
 		}
@@ -92,15 +92,13 @@ class CAllSocNetUser
 				$arGroups[] = $arResult["GROUP_ID"];
 			}
 
-			$cnt = count($arGroups);
-			for ($i = 0; $i < $cnt; $i++)
+			foreach ($arGroups as $group)
 			{
-				CSocNetGroup::SetStat($arGroups[$i]);
+				CSocNetGroup::SetStat($group);
 			}
-
 		}
 	}
-	
+
 	public static function OnBeforeProlog()
 	{
 		global $USER;
@@ -115,7 +113,7 @@ class CAllSocNetUser
 	{
 		global $CACHE_MANAGER;
 
-		if (intval($user_id) <= 0)
+		if ((int)$user_id <= 0)
 		{
 			return false;
 		}
@@ -123,20 +121,20 @@ class CAllSocNetUser
 		$bIM = Loader::includeModule('im');
 
 		$dbRelation = CSocNetUserToGroup::GetList(
-			array(), 
+			array(),
 			array(
-				"USER_ID" => $user_id, 
-				"ROLE" => SONET_ROLES_REQUEST, 
+				"USER_ID" => $user_id,
+				"ROLE" => SONET_ROLES_REQUEST,
 				"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP
-			), 
-			false, 
-			false, 
+			),
+			false,
+			false,
 			array("ID", "GROUP_ID")
 		);
 		while ($arRelation = $dbRelation->Fetch())
 		{
 			if (
-				CSocNetUserToGroup::UserConfirmRequestToBeMember($user_id, $arRelation["ID"], false) 
+				CSocNetUserToGroup::UserConfirmRequestToBeMember($user_id, $arRelation["ID"], false)
 				&& defined("BX_COMP_MANAGED_CACHE")
 			)
 			{
@@ -145,7 +143,7 @@ class CAllSocNetUser
 				$CACHE_MANAGER->ClearByTag("sonet_user2group");
 				if ($bIM)
 				{
-					CIMNotify::DeleteByTag("SOCNET|INVITE_GROUP|".$user_id."|".intval($arRelation["ID"]));
+					CIMNotify::DeleteByTag("SOCNET|INVITE_GROUP|".$user_id."|". (int)$arRelation["ID"]);
 				}
 			}
 		}
@@ -153,10 +151,12 @@ class CAllSocNetUser
 
 	public static function IsOnLine($userID)
 	{
-		$userID = intval($userID);
+		$userID = (int)$userID;
 		if ($userID <= 0)
+		{
 			return false;
-		
+		}
+
 		return CUser::IsOnLine($userID); // TODO change to use CUser::GetOnlineStatus see more in docs.bx
 	}
 
@@ -204,7 +204,9 @@ class CAllSocNetUser
 		static $cache = [];
 
 		if (!is_object($USER) || !$USER->IsAuthorized())
+		{
 			return false;
+		}
 
 		$result = $USER->isAdmin();
 
@@ -297,10 +299,14 @@ class CAllSocNetUser
 
 		$formatName = $name;
 		if ($formatName <> '' && $lastName <> '')
+		{
 			$formatName .= " ";
+		}
 		$formatName .= $lastName;
 		if ($formatName == '')
+		{
 			$formatName = $login;
+		}
 
 		return $formatName;
 	}
@@ -312,20 +318,28 @@ class CAllSocNetUser
 		$secondName = Trim($secondName);
 		$login = Trim($login);
 		$email = Trim($email);
-		$id = intval($id);
+		$id = (int)$id;
 
 		$formatName = $name;
 		if ($formatName <> '' && $secondName <> '')
+		{
 			$formatName .= " ";
+		}
 		$formatName .= $secondName;
 		if ($formatName <> '' && $lastName <> '')
+		{
 			$formatName .= " ";
+		}
 		$formatName .= $lastName;
 		if ($formatName == '')
+		{
 			$formatName = $login;
+		}
 
 		if ($email <> '')
-			$formatName .= " &lt;".$email."&gt;";
+		{
+			$formatName .= " &lt;" . $email . "&gt;";
+		}
 		$formatName .= " [".$id."]";
 
 		return $formatName;
@@ -338,14 +352,18 @@ class CAllSocNetUser
 			return false;
 
 		$userID = 0;
-		if ($user."|" == intval($user)."|")
-			$userID = intval($user);
+		if ($user."|" == (int)$user ."|")
+		{
+			$userID = (int)$user;
+		}
 
 		if ($userID <= 0)
 		{
 			$arMatches = array();
 			if (preg_match("#\[(\d+)\]#i", $user, $arMatches))
-				$userID = intval($arMatches[1]);
+			{
+				$userID = (int)$arMatches[1];
+			}
 		}
 
 
@@ -383,7 +401,9 @@ class CAllSocNetUser
 			{
 				$s = Trim($s);
 				if ($s <> '')
+				{
 					$arUser[] = $s;
+				}
 			}
 
 			if (
@@ -426,7 +446,7 @@ class CAllSocNetUser
 
 	public static function GetByID($ID)
 	{
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
 		$dbUser = CUser::GetByID($ID);
 		if ($arUser = $dbUser->GetNext())
@@ -436,7 +456,9 @@ class CAllSocNetUser
 			return $arUser;
 		}
 		else
+		{
 			return false;
+		}
 	}
 
 	public static function GetFields($bAdditional = false)
@@ -560,6 +582,11 @@ class CAllSocNetUser
 			return true;
 		}
 
+		if (self::isCalendarSharingUser($currentUserId, $arUser, $siteId, $arContext)) // only for calendar sharing users
+		{
+			return true;
+		}
+
 		$bFound = false;
 		foreach(GetModuleEvents("socialnetwork", "OnGetProfileView", true) as $arEvent)
 		{
@@ -617,7 +644,6 @@ class CAllSocNetUser
 
 		if (
 			!isset($arContext['ENTITY_TYPE'], $arContext['ENTITY_ID'], $arUser['ID'])
-			|| $currentUserId <= 0
 			|| (int)$arContext['ENTITY_ID'] <= 0
 			|| $arContext['ENTITY_TYPE'] !== 'LOG_ENTRY'
 			|| (int)$arUser['ID'] <= 0
@@ -645,11 +671,79 @@ class CAllSocNetUser
 		return false;
 	}
 
+	private static function isCalendarSharingUser($currentUserId, $arUser, $siteId, $arContext)
+	{
+		if (!ModuleManager::isModuleInstalled('calendar'))
+		{
+			return false;
+		}
+
+		$currentUserId = (int)$currentUserId;
+
+		if (
+			$currentUserId <= 0
+			|| !is_array($arUser)
+		)
+		{
+			return false;
+		}
+
+		if (
+			isset($arUser['EXTERNAL_AUTH_ID'])
+			&& $arUser['EXTERNAL_AUTH_ID'] === 'calendar_sharing'
+			&& Loader::includeModule('intranet')
+		)
+		{
+			$res = \Bitrix\Intranet\UserTable::getList([
+				'filter' => [
+					'=ID' => $currentUserId,
+				],
+				'select' => [ 'USER_TYPE' ],
+			]);
+
+			if (
+				($currentUserFields = $res->fetch())
+				&& $currentUserFields['USER_TYPE'] === 'employee'
+			)
+			{
+				return true;
+			}
+		}
+
+		if (
+			!isset($arContext['ENTITY_TYPE'], $arContext['ENTITY_ID'], $arUser['ID'])
+			|| (int)$arContext['ENTITY_ID'] <= 0
+			|| $arContext['ENTITY_TYPE'] !== 'LOG_ENTRY'
+			|| (int)$arUser['ID'] <= 0
+		)
+		{
+			return false;
+		}
+
+		if (
+			(
+				isset($arUser['EXTERNAL_AUTH_ID'])
+				&& $arUser['EXTERNAL_AUTH_ID'] === 'calendar_sharing'
+			) // -> calendar_sharing user
+			||
+			(
+				($res = \CUser::getById($currentUserId))
+				&& ($currentUserFields = $res->fetch())
+				&& ($currentUserFields['EXTERNAL_AUTH_ID'] === 'calendar_sharing')
+			) // calendar_sharing user ->
+		)
+		{
+			return self::CheckContext($currentUserId, $arUser['ID'], $arContext);
+		}
+
+		return false;
+	}
+
 	public static function CheckContext($currentUserId = false, $userId = false, $arContext = array())
 	{
 		if (
-			intval($currentUserId) <= 0
-			|| intval($userId) <= 0
+			(int)$currentUserId <= 0
+			|| (int)$userId <= 0
 			|| !is_array($arContext)
 			|| empty($arContext["ENTITY_TYPE"])
 			|| empty($arContext["ENTITY_ID"])
@@ -658,12 +752,12 @@ class CAllSocNetUser
 			return false;
 		}
 
-		if ($arContext["ENTITY_TYPE"] == "LOG_ENTRY")
+		if ($arContext["ENTITY_TYPE"] === "LOG_ENTRY")
 		{
 			$dbRes = CSocNetLogRights::GetList(
 				array(),
 				array(
-					"LOG_ID" => intval($arContext["ENTITY_ID"])
+					"LOG_ID" => (int)$arContext["ENTITY_ID"]
 				)
 			);
 
@@ -692,12 +786,12 @@ class CAllSocNetUser
 				{
 					$arDepartmentId[] = $matches[1];
 				}
-				elseif ($arRes["GROUP_CODE"] == 'G2')
+				elseif ($arRes["GROUP_CODE"] === 'G2')
 				{
 					if (!empty($arContext['SITE_ID']))
 					{
 						$arLogSite = array();
-						$rsSite = CSocNetLog::GetSite(intval($arContext["ENTITY_ID"]));
+						$rsSite = CSocNetLog::GetSite((int)$arContext["ENTITY_ID"]);
 						while ($arSite = $rsSite->Fetch())
 						{
 							$arLogSite[] = $arSite["SITE_ID"];
@@ -715,72 +809,70 @@ class CAllSocNetUser
 			{
 				return true;
 			}
-			else // check by log USER_ID field / author
+
+			if (in_array($userId, $arLogEntryUserId))
 			{
-				if (in_array($userId, $arLogEntryUserId))
+				if (!empty($arSonetGroupId))
 				{
-					if (!empty($arSonetGroupId))
+					foreach($arSonetGroupId as $groupId)
 					{
-						foreach($arSonetGroupId as $groupId)
-						{
-							if (CSocNetUserToGroup::GetUserRole($currentUserId, $groupId) <= SONET_ROLES_USER)
-							{
-								return true;
-							}
-						}
-					}
-
-					if (
-						!empty($arDepartmentId)
-						&& Loader::includeModule('intranet')
-					)
-					{
-						$arDepartmentUserId = array();
-
-						$rsDepartmentUserId = \Bitrix\Intranet\Util::getDepartmentEmployees(array(
-							'DEPARTMENTS' => $arDepartmentId,
-							'RECURSIVE' => 'Y',
-							'ACTIVE' => 'Y',
-							'CONFIRMED' => 'Y',
-							'SELECT' => array('ID')
-						));
-
-						while ($arUser = $rsDepartmentUserId->Fetch())
-						{
-							$arDepartmentUserId[] = $arUser["ID"];
-						}
-
-						if (in_array($currentUserId, $arDepartmentUserId))
+						if (CSocNetUserToGroup::GetUserRole($currentUserId, $groupId) <= SONET_ROLES_USER)
 						{
 							return true;
 						}
 					}
 				}
 
-				$rsLog = CSocNetLog::GetList(
-					array(),
-					array(
-						"ID" => intval($arContext["ENTITY_ID"])
-					),
-					false,
-					false,
-					array(
-						"USER_ID"
+				if (
+					!empty($arDepartmentId)
+					&& Loader::includeModule('intranet')
+				)
+				{
+					$arDepartmentUserId = array();
+
+					$rsDepartmentUserId = \Bitrix\Intranet\Util::getDepartmentEmployees(array(
+						'DEPARTMENTS' => $arDepartmentId,
+						'RECURSIVE' => 'Y',
+						'ACTIVE' => 'Y',
+						'CONFIRMED' => 'Y',
+						'SELECT' => array('ID')
+					));
+
+					while ($arUser = $rsDepartmentUserId->Fetch())
+					{
+						$arDepartmentUserId[] = $arUser["ID"];
+					}
+
+					if (in_array($currentUserId, $arDepartmentUserId))
+					{
+						return true;
+					}
+				}
+			}
+
+			$rsLog = CSocNetLog::GetList(
+				array(),
+				array(
+					"ID" => (int)$arContext["ENTITY_ID"]
+				),
+				false,
+				false,
+				array(
+					"USER_ID"
+				)
+			);
+			if ($arLog = $rsLog->Fetch())
+			{
+				return (
+					(
+						in_array($currentUserId, $arLogEntryUserId)
+						&& ($userId == $arLog["USER_ID"])
+					)
+					|| (
+						in_array($userId, $arLogEntryUserId)
+						&& ($currentUserId == $arLog["USER_ID"])
 					)
 				);
-				if ($arLog = $rsLog->Fetch())
-				{
-					return (
-						(
-							in_array($currentUserId, $arLogEntryUserId)
-							&& ($userId == $arLog["USER_ID"])
-						)
-						|| (
-							in_array($userId, $arLogEntryUserId)
-							&& ($currentUserId == $arLog["USER_ID"])
-						)
-					);
-				}
 			}
 		}
 

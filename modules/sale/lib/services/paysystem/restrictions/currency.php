@@ -72,6 +72,11 @@ class Currency extends Base\Restriction
 		return Loc::getMessage('SALE_PS_RESTRICTIONS_BY_CURRENCY_DESC');
 	}
 
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_PS_RESTRICTIONS_BY_CURRENCY_ON_APPLY_ERROR_MSG');
+	}
+
 	public static function getParamsStructure($entityId = 0)
 	{
 		$data = PaySystem\Manager::getById($entityId);

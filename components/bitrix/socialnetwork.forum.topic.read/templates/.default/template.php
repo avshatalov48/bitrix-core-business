@@ -17,8 +17,8 @@ CUtil::InitJSCore(array('tooltip'));
 				Input params
 ********************************************************************/
 $arParams["iIndex"] = $iIndex = rand();
-$message = ($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["message_id"] : $_GET["message_id"]);
-$action = mb_strtoupper($_SERVER['REQUEST_METHOD'] == "POST"? $_POST["ACTION"] : $_GET["ACTION"]);
+$message = ($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["message_id"] ?? null : $_GET["message_id"] ?? null);
+$action = mb_strtoupper($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["ACTION"] ?? '' : $_GET["ACTION"] ?? '');
 $message = (is_array($message) ? $message : array($message));
 
 $res = false;

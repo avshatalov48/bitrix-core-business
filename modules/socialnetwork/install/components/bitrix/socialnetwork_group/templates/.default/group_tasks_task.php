@@ -91,5 +91,5 @@ else
 	}
 
 	$backgroundForTask = true;
-	require_once('group_tasks.php');
+	require_once('group_tasks_task_background.php');
 }

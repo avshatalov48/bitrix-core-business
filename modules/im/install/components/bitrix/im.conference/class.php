@@ -133,6 +133,11 @@ class ImComponentConference extends CBitrixComponent
 			return false;
 		}
 
+		if (!Loader::includeModule('voximplant'))
+		{
+			return false;
+		}
+
 		return true;
 	}
 

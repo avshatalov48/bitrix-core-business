@@ -197,7 +197,7 @@ else:
 			"STATUS" => $arFields["STATE"]["STATUS"],
 			"IS_REQUIRE" => $arFields["REQUIRE"],
 			"AUTO" => $arFields["AUTO"],
-			"COMMENTS_COUNT"=>count($arFields["STATE"]["COMMENTS"])
+			"COMMENTS_COUNT" => count($arFields["STATE"]["COMMENTS"] ?? []),
 		);
 	}
 

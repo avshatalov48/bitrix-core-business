@@ -1,0 +1,61 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 104"
+     preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 104px" fill="none">
+    <svg height="104px">
+        <path
+        d="M308 96.0003C308 100.419 304.418 104 300 104L8 104C3.58172 104 -5.68587e-08 100.419 -1.26997e-07 96.0004L-1.52397e-06 8.00024C-1.59411e-06 3.58196 3.58172 0.000243955 8 0.000241828L300 0.000101246C304.418 9.91193e-05 308 3.58182 308 8.0001L308 96.0003Z"
+        fill="white" />
+
+    </svg>
+
+    <svg height="104px" id="animated-elements">
+        <rect x="14" y="16" width="127" height="8" rx="2" fill="#eeeff0" />
+        <rect x="60" y="48" width="127" height="8" rx="2" fill="#eeeff0" />
+        <rect x="60" y="64" width="59" height="8" rx="2" fill="#eeeff0" />
+
+
+        <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M14 44.2963C14 43.0281 15.0281 42 16.2963 42H34.8637C35.4727 42 36.0567 42.2419 36.4874 42.6726L44.3274 50.5126C44.7581 50.9433 45 51.5273 45 52.1363V79.8889C45 81.1571 43.9719 82.1852 42.7037 82.1852H16.2963C15.0281 82.1852 14 81.1571 14 79.8889V44.2963Z"
+        fill="#E5E8EB" />
+        <mask id="mask0_182_32412" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="14" y="42" width="31" height="41">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M14 44.2963C14 43.0281 15.0281 42 16.2963 42H34.8637C35.4727 42 36.0567 42.2419 36.4874 42.6726L44.3274 50.5126C44.7581 50.9433 45 51.5273 45 52.1363V79.8889C45 81.1571 43.9719 82.1852 42.7037 82.1852H16.2963C15.0281 82.1852 14 81.1571 14 79.8889V44.2963Z"
+                fill="#525C69" />
+        </mask>
+        <g mask="url(#mask0_182_32412)">
+            <path opacity="0.15" fill-rule="evenodd" clip-rule="evenodd"
+                d="M34.82 42C34.5392 42 45.0007 42 45.0007 42C45.0007 42 45.0007 52.5453 45.0007 52.205C45.0007 51.8647 44.7129 51.7593 44.5383 51.7593C44.4023 51.7593 38.8446 51.7593 36.3884 51.7593C35.7543 51.7593 35.2414 51.246 35.2414 50.6119C35.2414 48.1413 35.2414 42.5312 35.2414 42.4299C35.2414 42.2998 35.1008 42 34.82 42Z"
+                fill="#525C69" />
+        </g>
+    </svg>
+
+
+
+    <defs>
+        <filter id="filter0_i_3005_70593" x="44" y="433" width="90%" height="1" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"/>
+            <feOffset dy="-1"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_3005_70593"/>
+        </filter>
+    </defs>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#animated-elements"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

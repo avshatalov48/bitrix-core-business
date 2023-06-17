@@ -25,7 +25,7 @@ if($arResult["ID"] <> '')
 			<div class="col-md-12">
 				<?=$arResult["PERSON_TYPE"]["NAME"]?>
 			</div>
-		</div>		
+		</div>
 		<div class="form-group">
 			<label class="sale-personal-profile-detail-form-label col-md-3 text-md-right" for="sale-personal-profile-detail-name">
 				<?=Loc::getMessage('SALE_PNAME')?>:<span class="req">*</span>
@@ -50,7 +50,7 @@ if($arResult["ID"] <> '')
 				{
 					$key = (int)$property["ID"];
 					$name = "ORDER_PROP_".$key;
-					$currentValue = $arResult["ORDER_PROPS_VALUES"][$name];
+					$currentValue = $arResult["ORDER_PROPS_VALUES"][$name] ?? '';
 					$alignTop = ($property["TYPE"] === "LOCATION" && $arParams['USE_AJAX_LOCATIONS'] === 'Y') ? "vertical-align-top" : "";
 					?>
 					<div class="form-group sale-personal-profile-detail-property-<?= mb_strtolower($property["TYPE"])?>">
@@ -98,8 +98,8 @@ if($arResult["ID"] <> '')
 									}
 									?>
 									<span class="btn-themes btn-default btn-md btn input-add-multiple"
-										  data-add-type=<?=$property["TYPE"]?>
-										  data-add-name="<?=$name?>[]"><?=Loc::getMessage('SPPD_ADD')?></span>
+										data-add-type=<?=$property["TYPE"]?>
+										data-add-name="<?=$name?>[]"><?=Loc::getMessage('SPPD_ADD')?></span>
 									<?
 								}
 								else
@@ -209,10 +209,10 @@ if($arResult["ID"] <> '')
 									}
 									?>
 									<span class="btn-themes btn-default btn-md btn input-add-multiple"
-										  data-add-type=<?=$property["TYPE"]?>
-										  data-add-name="<?=$name?>"
-										  data-add-last-key="<?=$code?>"
-										  data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span>
+										data-add-type=<?=$property["TYPE"]?>
+										data-add-name="<?=$name?>"
+										data-add-last-key="<?=$code?>"
+										data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span>
 									<?
 								}
 								else

@@ -105,13 +105,13 @@ class Controller
 		{
 			$parameters = $eventResult->getParameters();
 			$result = [
-				'NEXT' => $parameters['NEXT'],
-				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-				'ERROR_ACTION' => $parameters['ERROR_ACTION'],
-				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
+				'NEXT' => $parameters['NEXT'] ?? null,
+				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'] ?? null,
+				'ERROR_ACTION' => $parameters['ERROR_ACTION'] ?? null,
+				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION'] ?? null
 			];
 
-			if (is_array($parameters['OWNER_DELETE']))
+			if (!empty($parameters['OWNER_DELETE']) && is_array($parameters['OWNER_DELETE']))
 			{
 				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
 			}
@@ -162,17 +162,17 @@ class Controller
 			$parameters = $eventResult->getParameters();
 			$result[] = [
 				'RATIO' => $parameters['RATIO'],
-				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-				'ERROR_ACTION' => $parameters['ERROR_ACTION'],
+				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'] ?? null,
+				'ERROR_ACTION' => $parameters['ERROR_ACTION'] ?? null,
 				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
 			];
 
-			if (is_array($parameters['OWNER_DELETE']))
+			if (isset($parameters['OWNER_DELETE']) && is_array($parameters['OWNER_DELETE']))
 			{
 				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
 			}
 
-			if ($parameters['OWNER'])
+			if (!empty($parameters['OWNER']))
 			{
 				OwnerEntityTable::saveMulti($owner, $ownerType, $parameters['OWNER']);
 			}

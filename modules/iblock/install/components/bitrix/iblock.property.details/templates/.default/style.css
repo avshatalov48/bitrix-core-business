@@ -1,0 +1,125 @@
+.iblock-property-details-container {
+	padding: 20px;
+}
+
+.iblock-property-details-tab {
+	display: none;
+}
+
+.iblock-property-details-tab_current {
+	display: block;
+}
+
+.iblock-property-details-custom,
+.iblock-property-details-boolean,
+.iblock-property-details-input {
+	margin-bottom: 12px;
+}
+
+.iblock-property-details-input > .ui-ctl-label-text > .ui-hint {
+	line-height: 18px;
+	height: 18px;
+	position: relative;
+	top: 2px;
+	left: -5px;
+}
+
+.iblock-property-details-boolean > .ui-ctl-checkbox
+{
+	margin-bottom: 0px;
+}
+
+.iblock-property-details-settings {
+	width: 100%;
+}
+
+.iblock-property-details-settings tr {
+	display: flex;
+	flex-direction: column;
+	padding-bottom: 13px;
+}
+
+/* settings */
+.iblock-property-details-settings tr.heading,
+.iblock-property-details-settings-title {
+	border-bottom: 1px solid #eeeff0;
+	padding-bottom: 10px;
+	margin-bottom: 14px;
+	margin-top: 14px;
+}
+
+.iblock-property-details-settings tr.heading td,
+.iblock-property-details-settings-title-text {
+	color: #333;
+	font: 15px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.iblock-property-details-settings td:first-child,
+.iblock-property-details-settings .adm-detail-label-text {
+	padding: 0 0 7px;
+	font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #525c69;
+}
+
+.iblock-property-details-settings .adm-detail-label-text {
+	padding: 0 0 0 5px;
+}
+
+.iblock-property-details-settings .main-ui-select .main-ui-select-name {
+	padding: 2px 0 0 0;
+}
+
+.iblock-property-details-settings select,
+.iblock-property-details-settings .typeselect,
+.iblock-property-details-settings .adm-detail-iblock-types,
+.iblock-property-details-settings .adm-detail-iblock-list,
+.iblock-property-details-settings .adm-detail-select {
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2211%22%20height%3D%227%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.372.114l4.113%204.114L9.6.114l1.372%201.371L5.485%206.97%200%201.485%201.372.114z%22/%3E%3C/svg%3E) no-repeat right 15px center;
+}
+
+.iblock-property-details-settings #tr_usertype_element_note {
+	display: flex !important;
+}
+
+.iblock-property-details-settings .adm-detail-label {
+	display: flex;
+	align-items: center;
+}
+
+.iblock-property-details-settings .adm-detail-label .adm-input-wrap-calendar {
+	margin-left: 5px;
+}
+
+.iblock-property-details-settings .adm-detail-label:last-child {
+	margin-bottom: 0;
+}
+
+.iblock-property-details-settings .adm-calendar-icon {
+	background: url(images/bx-admin-sprite-small-2.png) no-repeat 0 -1934px;
+	border: none !important;
+	cursor: pointer;
+	height: 15px;
+	right: 10px;
+	top: 11px;
+	outline: none;
+	position: absolute;
+	width: 16px;
+}
+
+.iblock-property-details-settings .adm-input-wrap-calendar {
+	display: inline-block;
+	position: relative;
+	min-width: 170px;
+}
+
+/* disable right align */
+.iblock-property-details-settings td[align="right"]
+{
+	text-align: left;
+}
+
+.iblock-property-details-settings-table
+{
+	width: 100%;
+}

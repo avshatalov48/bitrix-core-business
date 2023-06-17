@@ -68,6 +68,10 @@ class IntType extends Double
 				));
 			}
 		}
+		elseif (is_numeric($value))
+		{
+			$value = (int)$value;
+		}
 		else
 		{
 			$value = null;

@@ -156,7 +156,7 @@ class ThemeFonts extends Hook\Page
 			return HtmlFilter::encode(trim($field));
 		}
 
-		return self::getDefaultValues()[$name];
+		return self::getDefaultValues()[$name] ?? null;
 	}
 
 	protected static function getDefaultValues(): array

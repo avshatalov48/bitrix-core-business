@@ -23,7 +23,7 @@ class CAllSocNetLogComments
 		if (
 			!$arSiteWorkgroupsPage
 			&& IsModuleInstalled("extranet")
-			&& $arFields["ENTITY_TYPE"] == SONET_ENTITY_GROUP
+			&& ($arFields["ENTITY_TYPE"] ?? null) == SONET_ENTITY_GROUP
 		)
 		{
 			$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));

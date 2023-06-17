@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 $arComponentParameters = array(
 	"GROUPS" => array(
@@ -24,7 +30,7 @@ $arComponentParameters = array(
 			"SORT"  =>  "550",
 		)
 	),
-	"PARAMETERS" => array(		
+	"PARAMETERS" => array(
 		"SEF_MODE" => array(
 			"index" => array(
 				"NAME" => GetMessage("SPS_MAIN_PERSONAL"),
@@ -40,7 +46,7 @@ $arComponentParameters = array(
 				"NAME" => GetMessage("SPS_GROUP_ACCOUNT"),
 				"DEFAULT" => "account/",
 				"VARIABLES" => array("ID")
-			),		
+			),
 			"subscribe" => array(
 				"NAME" => GetMessage("SPS_GROUP_SUBSCRIBE"),
 				"DEFAULT" => "subscribe/",
@@ -65,13 +71,13 @@ $arComponentParameters = array(
 				"NAME" => GetMessage("SPS_DETAIL_DESC"),
 				"DEFAULT" => "orders/#ID#",
 				"VARIABLES" => array("ID")
-			),			
+			),
 			"order_cancel" => array(
 				"NAME" => GetMessage("SPS_CANCEL_ORDER_DESC"),
 				"DEFAULT" => "cancel/#ID#",
 				"VARIABLES" => array("ID")
 			),
-		),		
+		),
 		"SHOW_ACCOUNT_PAGE" => array(
 			"NAME" => GetMessage("SPS_SHOW_ACCOUNT_PAGE"),
 			"TYPE" => "CHECKBOX",
@@ -161,8 +167,8 @@ $arComponentParameters = array(
 			"COLS" => 25,
 			"PARENT" => "ADDITIONAL_SETTINGS",
 		),
-		'SET_TITLE' => array(),		
-		"CACHE_TIME"  =>  array("DEFAULT"=>3600),		
+		'SET_TITLE' => array(),
+		"CACHE_TIME"  =>  array("DEFAULT"=>3600),
 		"CACHE_GROUPS" => array(
 			"PARENT" => "CACHE_SETTINGS",
 			"NAME" => GetMessage("SPS_CACHE_GROUPS"),
@@ -187,7 +193,10 @@ $arComponentParameters = array(
 	)
 );
 
-if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabled('SaleAccounts'))
+if (
+	($arCurrentValues['SHOW_ACCOUNT_PAGE'] ?? 'Y') === 'Y'
+	&& CBXFeatures::IsFeatureEnabled('SaleAccounts')
+)
 {
 	$arComponentParameters["PARAMETERS"]["SHOW_ACCOUNT_COMPONENT"] = array(
 		"NAME" => GetMessage("SPS_SHOW_ACCOUNT_COMPONENT"),
@@ -205,17 +214,17 @@ if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabl
 		"REFRESH" => "Y"
 	);
 
-	if ($arCurrentValues["SHOW_ACCOUNT_PAY_COMPONENT"] !== "N")
+	if (($arCurrentValues['SHOW_ACCOUNT_PAY_COMPONENT'] ?? 'Y') === 'Y')
 	{
 		$currencyList = array();
 		$baseCurrencyCode = "";
-			
+
 		if (CModule::IncludeModule("currency"))
 		{
 			$currencyList = \Bitrix\Currency\CurrencyManager::getCurrencyList();
 		}
 
-		if ($_REQUEST['src_site'] && is_string($_REQUEST['src_site']))
+		if (isset($_REQUEST['src_site']) && $_REQUEST['src_site'] && is_string($_REQUEST['src_site']))
 		{
 			$siteId = $_REQUEST['src_site'];
 		}
@@ -224,6 +233,7 @@ if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabl
 			$siteId = \CSite::GetDefSite();
 		}
 
+		$personTypes = [];
 		if (Bitrix\Main\Loader::includeModule('sale'))
 		{
 			$personTypeList = Bitrix\Sale\PersonType::load($siteId);
@@ -266,7 +276,7 @@ if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabl
 			}
 		}
 
-		if (isset($personTypes))
+		if (!empty($personTypes))
 		{
 			$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_PERSON_TYPE'] = array(
 				"NAME"=>GetMessage("SPS_SELL_USER_TYPES"),
@@ -281,32 +291,30 @@ if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabl
 			);
 		}
 
-		if (isset($paySystemList))
-		{
-			$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS'] = array(
-				"NAME"=>GetMessage("SPS_ELIMINATED_PAY_SYSTEMS"),
-				"TYPE"=>"LIST",
-				"MULTIPLE"=>"Y",
-				"DEFAULT" => "0",
-				"VALUES"=>$paySystemList,
-				"SIZE" => 6,
-				"COLS"=>25,
-				"ADDITIONAL_VALUES"=>"N",
-				"PARENT" => "ACCOUNT",
-			);
-		}
+		$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS'] = array(
+			"NAME"=>GetMessage("SPS_ELIMINATED_PAY_SYSTEMS"),
+			"TYPE"=>"LIST",
+			"MULTIPLE"=>"Y",
+			"DEFAULT" => "0",
+			"VALUES"=>$paySystemList,
+			"SIZE" => 6,
+			"COLS"=>25,
+			"ADDITIONAL_VALUES"=>"N",
+			"PARENT" => "ACCOUNT",
+		);
 
 		$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_SELL_SHOW_FIXED_VALUES'] = array(
 			"NAME"=>GetMessage("SPS_SELL_SHOW_FIXED_VALUES"),
 			"TYPE"=>"CHECKBOX",
-			"MULTIPLE"=>"N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES"=>"N",
 			"REFRESH" => "Y",
 			"PARENT" => "ACCOUNT",
 		);
 
-		if ($arCurrentValues['SELL_SHOW_FIXED_VALUES'] != 'N')
+		if (
+			!isset($arCurrentValues['SELL_SHOW_FIXED_VALUES']) // Unknown parameter
+			|| $arCurrentValues['SELL_SHOW_FIXED_VALUES'] !== 'N'
+		)
 		{
 			$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_SELL_TOTAL'] = array(
 				"NAME"=>GetMessage("SPS_SELL_AMOUNT"),
@@ -322,15 +330,13 @@ if ($arCurrentValues["SHOW_ACCOUNT_PAGE"] !== "N" && CBXFeatures::IsFeatureEnabl
 		$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_SELL_USER_INPUT'] = array(
 			"NAME"=>GetMessage("SPS_ACCEPT_USER_AMOUNT"),
 			"TYPE"=>"CHECKBOX",
-			"MULTIPLE"=>"N",
 			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES"=>"N",
 			"PARENT" => "ACCOUNT",
 		);
 	}
 }
 
-if ($arCurrentValues["SHOW_ORDER_PAGE"] !== "N")
+if (($arCurrentValues["SHOW_ORDER_PAGE"] ?? 'Y') === 'Y')
 {
 	$arComponentParameters['PARAMETERS']['SAVE_IN_SESSION'] = array(
 		"NAME" => GetMessage("SPS_SAVE_IN_SESSION"),
@@ -341,7 +347,10 @@ if ($arCurrentValues["SHOW_ORDER_PAGE"] !== "N")
 
 	if(CModule::IncludeModule("iblock"))
 	{
-		$arComponentParameters["PARAMETERS"]["ACTIVE_DATE_FORMAT"] = CIBlockParameters::GetDateFormat(GetMessage("SPS_ACTIVE_DATE_FORMAT"), "ORDER");
+		$arComponentParameters["PARAMETERS"]["ACTIVE_DATE_FORMAT"] = CIBlockParameters::GetDateFormat(
+			GetMessage("SPS_ACTIVE_DATE_FORMAT"),
+			"ORDER"
+		);
 
 		$arComponentParameters["PARAMETERS"]["CUSTOM_SELECT_PROPS"] = array(
 			"NAME" => GetMessage("SPS_PARAM_CUSTOM_SELECT_PROPS"),
@@ -452,15 +461,6 @@ if ($arCurrentValues["SHOW_ORDER_PAGE"] !== "N")
 			"PARENT" => "ORDER",
 		);
 
-		$arComponentParameters['PARAMETERS']['ACCOUNT_PAYMENT_SELL_USER_INPUT'] = array(
-			"NAME"=>GetMessage("SPS_ACCEPT_USER_AMOUNT"),
-			"TYPE"=>"CHECKBOX",
-			"MULTIPLE"=>"N",
-			"DEFAULT" => "Y",
-			"ADDITIONAL_VALUES"=>"N",
-			"PARENT" => "ACCOUNT",
-		);
-
 		$arComponentParameters['PARAMETERS']['ORDER_DISALLOW_CANCEL'] = array(
 			"NAME" => GetMessage("SPS_DISALLOW_CANCEL"),
 			"TYPE" => "CHECKBOX",
@@ -502,7 +502,7 @@ if ($arCurrentValues["SHOW_ORDER_PAGE"] !== "N")
 	}
 }
 
-if ($arCurrentValues["SHOW_PRIVATE_PAGE"] !== "N")
+if (($arCurrentValues['SHOW_PRIVATE_PAGE'] ?? 'Y') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["SEND_INFO_PRIVATE"] = array(
 		"PARENT" => "PRIVATE",
@@ -519,12 +519,11 @@ if ($arCurrentValues["SHOW_PRIVATE_PAGE"] !== "N")
 	);
 }
 
-if ($arCurrentValues["SHOW_PROFILE_PAGE"] !== "N")
+if (($arCurrentValues['SHOW_PROFILE_PAGE'] ?? 'Y') === 'N')
 {
 	$arComponentParameters["PARAMETERS"]["USE_AJAX_LOCATIONS_PROFILE"] = array(
 		'NAME' => GetMessage("SPS_USE_AJAX_LOCATIONS"),
 		'TYPE' => 'CHECKBOX',
-		'MULTIPLE' => 'N',
 		'DEFAULT' => 'N',
 		"PARENT" => "PROFILE",
 	);
@@ -542,6 +541,3 @@ if ($arCurrentValues["SHOW_PROFILE_PAGE"] !== "N")
 		"PARENT" => "PROFILE",
 	);
 }
-
-
-

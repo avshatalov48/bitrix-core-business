@@ -1,9 +1,10 @@
 <?php
 namespace Bitrix\Landing;
 
-use \Bitrix\Rest\AppTable;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\ModuleManager;
+use Bitrix\Rest\AppTable;
+use Bitrix\Landing\Site\Type;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -122,6 +123,8 @@ class PublicAction
 
 	/**
 	 * Returns true if current user out of the extranet.
+	 * In extranet case allowed only GROUP scope.
+	 *
 	 * @return bool
 	 */
 	protected static function checkForExtranet(): bool
@@ -130,6 +133,12 @@ class PublicAction
 		{
 			return true;
 		}
+
+		if (Type::getCurrentScopeId() === Type::SCOPE_CODE_GROUP)
+		{
+			return true;
+		}
+
 		if (\Bitrix\Main\Loader::includeModule('extranet'))
 		{
 			return \CExtranet::isIntranetUser(
@@ -158,7 +167,7 @@ class PublicAction
 
 		if (isset($data['scope']))
 		{
-			\Bitrix\Landing\Site\Type::setScope($data['scope']);
+			Type::setScope($data['scope']);
 		}
 
 		if (!$isRest && (!defined('BX_UTF') || BX_UTF !== true))
@@ -342,7 +351,7 @@ class PublicAction
 		$files = $request->getFileList();
 		$postlist = $context->getRequest()->getPostList();
 
-		\Bitrix\Landing\Site\Type::setScope($request->get('type'));
+		Type::setScope($request->get('type'));
 
 		// multiple commands
 		if (

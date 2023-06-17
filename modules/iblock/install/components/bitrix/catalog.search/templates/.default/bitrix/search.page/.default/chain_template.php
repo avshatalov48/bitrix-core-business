@@ -1,4 +1,4 @@
-<?
+<?php
 //Navigation chain template
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
@@ -13,4 +13,3 @@ foreach($arCHAIN as $item)
 		$arChainBody[] = htmlspecialcharsex($item["TITLE"]);
 }
 return implode('&nbsp;/&nbsp;', $arChainBody);
-?>

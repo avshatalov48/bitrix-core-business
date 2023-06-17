@@ -757,8 +757,8 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 		foreach ($properties as $key => $property)
 		{
-			$a = (array)$property['Default'];
-			$b = (array)(isset($values[$property['Name']]) ? $values[$property['Name']] : null);
+			$a = (array)($property['Default'] ?? null);
+			$b = (array)($values[$property['Name']] ?? null);
 
 			if ($a != $b)
 			{

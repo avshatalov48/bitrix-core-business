@@ -1,0 +1,6 @@
+.bx-im-market-show-more-popup__scope .popup-window-titlebar-text {
+	font-size: var(--im-font-size-xl);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: #333333;
+	padding-left: 16px;
+}

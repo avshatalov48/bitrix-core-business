@@ -72,7 +72,13 @@
 			}).sort((e1, e2) => {
 				return (e1.from.getTime() > e2.from.getTime()) ? 1 : (e1.from.getTime() < e2.from.getTime()) ? -1 : 0;
 			});
-			return recursiveEntries[0].uid === entry.uid;
+
+			if (recursiveEntries.length === 0)
+			{
+				return true;
+			}
+
+			return recursiveEntries[0] && recursiveEntries[0]?.uid === entry?.uid;
 		},
 
 		highlightAll: function()

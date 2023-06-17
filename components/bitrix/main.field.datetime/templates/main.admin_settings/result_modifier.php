@@ -10,42 +10,51 @@ use Bitrix\Main\UserField\Types\DateType;
 
 $component = $this->getComponent();
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
-	$type =
-		$GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['TYPE'];
-	$defaultDateTime =
-		$GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['VALUE'];
-	$useSeconds =
-		($GLOBALS[$arResult['additionalParameters']['NAME']]['USE_SECOND'] === 'N' ?
-			'N' : 'Y'
-		);
-	$useTimezone =
-		($GLOBALS[$arResult['additionalParameters']['NAME']]['USE_TIMEZONE'] === 'N' ?
-			'N' : 'Y'
-		);
+	$type = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['TYPE'] ?? '';
+	$defaultDateTime = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['VALUE'] ?? '';
+	$useSeconds = (
+		isset($GLOBALS[$arResult['additionalParameters']['NAME']]['USE_SECOND'])
+		&& $GLOBALS[$arResult['additionalParameters']['NAME']]['USE_SECOND'] === 'N'
+			? 'N'
+			: 'Y'
+	);
+
+	$useTimezone = (
+		isset($GLOBALS[$arResult['additionalParameters']['NAME']]['USE_TIMEZONE'])
+		&& $GLOBALS[$arResult['additionalParameters']['NAME']]['USE_TIMEZONE'] === 'N'
+			? 'N'
+			: 'Y'
+	);
 }
-elseif(
-	is_array($arResult['userField'])
-	&&
-	is_array($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+elseif (
+	isset($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+	&& is_array($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 )
 {
-	$type = $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'];
+	$type = $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] ?? '';
 	$defaultDateTime = str_replace(
 		' 00:00:00',
 		'',
 		CDatabase::FormatDate(
-			$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['VALUE'],
+			$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['VALUE'] ?? '',
 			'YYYY-MM-DD HH:MI:SS',
 			CLang::GetDateFormat(DateType::FORMAT_TYPE_FULL)
 		)
 	);
-	$useSeconds = ($arResult['userField']['SETTINGS']['USE_SECOND'] === 'N' ?
-		'N' : 'Y'
+	$useSeconds = (
+		isset($arResult['userField']['SETTINGS']['USE_SECOND'])
+		&& $arResult['userField']['SETTINGS']['USE_SECOND'] === 'N'
+			? 'N'
+			: 'Y'
 	);
-	$useTimezone = ($arResult['userField']['SETTINGS']['USE_TIMEZONE'] === 'N' ?
-		'N' : 'Y'
+
+	$useTimezone = (
+		isset($arResult['userField']['SETTINGS']['USE_TIMEZONE'])
+		&& $arResult['userField']['SETTINGS']['USE_TIMEZONE'] === 'N'
+			? 'N'
+			: 'Y'
 	);
 }
 else

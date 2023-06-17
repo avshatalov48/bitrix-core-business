@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -42,7 +48,7 @@ function CheckFilter()
 		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_FROM_TILL_INSERT"));
 	}
-	return count($lAdmin->arFilterErrors)==0;
+	return empty($lAdmin->arFilterErrors);
 }
 
 $FilterArr = Array(
@@ -87,7 +93,10 @@ if($lAdmin->EditAction() && $isAdmin)
 			$lAdmin->AddUpdateError(GetMessage("SU_AF_SAVE_ERROR").$ID.": ".implode("\n ", CBXShortUri::GetErrors()), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -95,7 +104,7 @@ $strError = $strOk = "";
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CBXShortUri::GetList(array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -117,7 +126,10 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("SU_AF_del_err"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		}
 

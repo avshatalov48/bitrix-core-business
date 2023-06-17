@@ -34,7 +34,7 @@ export class SaveBlock extends Content
 	constructor(id, data)
 	{
 		data = data || {};
-		data.title = Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_TITLE');
+		data.title = Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_TITLE_MSGVER_1');
 		data.showFromRight = true;
 
 		if (!data.block)
@@ -46,11 +46,11 @@ export class SaveBlock extends Content
 		this.block = data.block;
 		this.mainInstance = Main.getInstance();
 
-		Dom.addClass(this.layout, 'landing-ui-panel-create-page');
-		Dom.addClass(this.overlay, 'landing-ui-panel-create-page');
+		Dom.addClass(this.layout, 'landing-ui-panel-save-block');
+		Dom.addClass(this.overlay, 'landing-ui-panel-save-block');
 
 		this.setButtons();
-		this.renderTo(document.body);
+		this.renderTo(window.parent.document.body);
 	}
 
 	setButtons()
@@ -139,8 +139,8 @@ export class SaveBlock extends Content
 		return this.cache.remember('message', () => {
 			return new MessageCard({
 				id: 'fieldsMessage',
-				header: Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TITLE'),
-				description: Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TEXT'),
+				header: Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TITLE_MSGVER_1'),
+				description: Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TEXT_MSGVER_1'),
 				//icon: messageIcon,
 				restoreState: true
 			});
@@ -208,8 +208,8 @@ export class SaveBlock extends Content
 	{
 		return this.cache.remember('failMessage', () => {
 			return Tag.render`
-				<div class="landing-ui-panel-create-page-fail">
-					<div class="landing-ui-panel-create-page-fail-header">
+				<div class="landing-ui-panel-save-block-fail">
+					<div class="landing-ui-panel-save-block-fail-header">
 						${Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_FAIL_MESSAGE_TITLE')}
 					</div>
 				</div>

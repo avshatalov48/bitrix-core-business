@@ -132,7 +132,7 @@ class Comment extends BaseObject
 		}
 
 		global $USER_FIELD_MANAGER;
-		if ($result["SERVICE_TYPE"])
+		if (!empty($result["SERVICE_TYPE"]))
 		{
 			$fields = $USER_FIELD_MANAGER->getUserFields("FORUM_MESSAGE");
 			if (($ufData = array_intersect_key($params, $fields)) && !empty($ufData))
@@ -181,11 +181,11 @@ class Comment extends BaseObject
 		$auxData = ($params['AUX_DATA'] ?? '');
 
 		$params = array(
-			"SOURCE_ID" => $params["SOURCE_ID"],
+			"SOURCE_ID" => $params["SOURCE_ID"] ?? 0,
 
 			"POST_DATE" => array_key_exists("POST_DATE", $params) ? $params["POST_DATE"] : new \Bitrix\Main\Type\DateTime(),
 			"POST_MESSAGE" => trim($params["POST_MESSAGE"]),
-			"FILES" => $params["FILES"],
+			"FILES" => $params["FILES"] ?? null,
 
 			"USE_SMILES" => $params["USE_SMILES"],
 
@@ -197,7 +197,7 @@ class Comment extends BaseObject
 			"AUTHOR_REAL_IP" => $params["AUTHOR_REAL_IP"] ?? "<no address>",
 			"GUEST_ID" => $params["GUEST_ID"] ?? null,
 
-			"AUX" => $params["AUX"],
+			"AUX" => $params["AUX"] ?? null,
 			"AUX_DATA" => $auxData,
 			"SERVICE_TYPE" => ($params["SERVICE_TYPE"] ?? null),
 			"SERVICE_DATA" => ($params["SERVICE_DATA"] ?? null),

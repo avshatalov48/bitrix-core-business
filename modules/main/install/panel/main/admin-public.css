@@ -562,7 +562,20 @@
 .adm-workarea input[disabled][type="button"].adm-btn-save:hover,
 .adm-workarea input[disabled][type="submit"].adm-btn-save:hover,
 .adm-workarea span.adm-btn-disabled.adm-btn-save:hover,
-.adm-workarea a.adm-btn-disabled.adm-btn-save:hover,
+.adm-workarea a.adm-btn-disabled.adm-btn-save:hover {
+	background: #86AD00 !important;
+	background: -webkit-linear-gradient(top, #97BA00, #729E00 ) !important;
+	background:    -moz-linear-gradient(top, #97BA00, #729E00 ) !important;
+	background:     -ms-linear-gradient(top, #97BA00, #729E00 ) !important;
+	background:      -o-linear-gradient(top, #97BA00, #729E00 )!important;
+	background:         linear-gradient(to bottom, #97BA00, #729E00) !important;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 1px 0 #CBDC00 inset !important;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 1px 0 #CBDC00 inset !important;
+	border: 1px solid !important;
+	border-color: #97C004 #7EA502 #648900 !important;
+	color: #b5cc80 !important;
+	text-shadow: none !important;
+}
 
 .adm-workarea span.adm-btn-disabled.adm-btn-green,
 .adm-workarea a.adm-btn-disabled.adm-btn-green,

@@ -207,22 +207,39 @@
 			}
 		}
 
-		var htmlWasInserted = false;
-		var scriptsLoaded = false;
-		var assets = getAssets();
-		processCSS(insertHTML);
-		processStrings();
-		processExternalJS(processInlineJS);
+		let htmlWasInserted = false;
+		let scriptsLoaded = false;
+		const assets = getAssets();
 
-		function processCSS(callback)
+		processStrings();
+		processAssets(() => {
+			scriptsLoaded = true;
+			insertHTML();
+		});
+
+		function processAssets(callback)
 		{
-			var styles = assets.styles;
+			let styles = assets.styles;
 			if (BX.type.isArray(block.PROPS.CSS) && block.PROPS.CSS.length > 0)
 			{
-				styles = BX.util.array_merge(block.PROPS.CSS, styles);
+				styles = block.PROPS.CSS.concat(styles);
 			}
 
-			styles.length > 0 ? BX.load(styles, callback) : callback();
+			let scripts = assets.externalJS;
+			if (BX.type.isArray(block.PROPS.JS) && block.PROPS.JS.length > 0)
+			{
+				scripts = scripts.concat(block.PROPS.JS);
+			}
+
+			const items = styles.concat(scripts);
+			if (items.length > 0)
+			{
+				BX.load(items, callback)
+			}
+			else
+			{
+				callback();
+			}
 		}
 
 		function insertHTML()
@@ -300,16 +317,6 @@
 			result.html = parts.HTML;
 
 			return result;
-		}
-
-		function processExternalJS(callback)
-		{
-			var scripts = assets.externalJS;
-			if (BX.type.isArray(block.PROPS.JS) && block.PROPS.JS.length > 0)
-			{
-				scripts = BX.util.array_merge(scripts, block.PROPS.JS);
-			}
-			scripts.length > 0 ? BX.load(scripts, callback) : callback();
 		}
 
 		function processInlineJS()
@@ -583,9 +590,9 @@
 			blocksToInsert.add(block);
 		}
 
-		var inserted = 0;
+		let inserted = 0;
 
-		var finalize = function() {
+		const finalize = () => {
 			if (window.performance)
 			{
 				var entries = performance.getEntries();
@@ -594,6 +601,7 @@
 					var entry = entries[i];
 					if (entry.initiatorType === 'xmlhttprequest' && entry.name && entry.name.match(/bxrand=[0-9]+/))
 					{
+						// uses in ba.js
 						this.requestTiming = entry;
 					}
 				}
@@ -605,6 +613,7 @@
 					var lcpEntries = performance.getEntriesByName('Composite:LCP');
 					if (lcpEntries.length > 0 && lcpEntries[0].duration)
 					{
+						// uses in ba.js
 						this.lcp = Math.ceil(lcpEntries[0].duration);
 					}
 				}
@@ -612,14 +621,14 @@
 
 			BX.onCustomEvent("onFrameDataProcessed", [blocks, fromCache]);
 			this.frameDataInserted = true;
-		}.bind(this);
+		};
 
-		var handleBlockInsertion = function() {
+		const handleBlockInsertion = () => {
 			if (++inserted === blocksToInsert.size)
 			{
 				finalize();
 			}
-		}.bind(this);
+		};
 
 		if (blocksToInsert.size === 0)
 		{

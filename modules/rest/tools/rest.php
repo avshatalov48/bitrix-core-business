@@ -1,19 +1,20 @@
 <?php
+
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Market\Subscription\Trial;
+use Bitrix\Rest\Marketplace\Application;
+
 define("NOT_CHECK_PERMISSIONS", true);
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
-
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Rest\Marketplace\Application;
-use Bitrix\Rest\Engine\Access;
-use Bitrix\Rest\Marketplace\Transport;
 
 Loc::loadMessages(__FILE__);
 
 $result = array();
 $request = Bitrix\Main\Context::getCurrent()->getRequest();
 
-if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeModule('rest'))
+if($request->isPost() && check_bitrix_sessid() && Loader::includeModule('rest'))
 {
 	$action = $request['action'];
 	$admin = \CRestUtil::isAdmin();
@@ -64,118 +65,22 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 		case 'activate_demo':
 			if ($admin)
 			{
-				if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+				if (Loader::includeModule('market') && Trial::isAvailable())
 				{
-					try
-					{
-						\Bitrix\Rest\OAuthService::register();
-						\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
-					}
-					catch(\Bitrix\Main\SystemException $e)
-					{
-						$result = [
-							'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-							'error_description' => $e->getMessage(),
-							'error_code' => $e->getCode()
-						];
-					}
+					$result = Trial::activate();
 				}
 				else
 				{
-					try
-					{
-						\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
-					}
-					catch(\Bitrix\Main\SystemException $e)
-					{
-						$result = [
-							'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-							'error_description' => $e->getMessage(),
-							'error_code' => 4
-						];
-					}
-				}
-
-				if (\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
-				{
-					$queryField = [];
-					$loadedBitrix24 = \Bitrix\Main\Loader::includeModule('bitrix24');
-					if ($loadedBitrix24)
-					{
-						$host = '';
-						if (defined('BX24_HOST_NAME'))
-						{
-							$host = BX24_HOST_NAME;
-						}
-						else
-						{
-							$server = \Bitrix\Main\Context::getCurrent()->getServer();
-							$host = $server->getHttpHost();
-						}
-
-						$queryField = [
-							'DEMO' => 'subscription',
-							'SITE' => $host
-						];
-
-						if (function_exists('bx_sign'))
-						{
-							$queryField['hash'] = bx_sign(md5(implode('|', $queryField)));
-						}
-					}
-					else
-					{
-						include $_SERVER['DOCUMENT_ROOT'] . '/bitrix/license_key.php';
-
-						if (!empty($LICENSE_KEY))
-						{
-							$queryField = [
-								'DEMO' => 'subscription',
-								'SITE' => 'cp',
-								'key' => md5($LICENSE_KEY),
-								'hash' => md5('cp'. '|' . 'subscription' . '|' . md5($LICENSE_KEY))
-							];
-						}
-					}
-
-					if ($queryField)
-					{
-						$transport = new Transport();
-						$httpClient = new \Bitrix\Main\Web\HttpClient();
-						if ($response = $httpClient->post($transport->getServiceUrl(Transport::SERVICE_TYPE_COUPON), $queryField))
-						{
-							if (mb_strpos($response, 'OK') === false)
-							{
-								$result = [
-									'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-									'error_code' => 2,
-								];
-							}
-							else
-							{
-								$result = ['result' => true];
-							}
-
-							if (!$loadedBitrix24)
-							{
-								require_once( $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/update_client.php');
-								$errorMessage = '';
-								CUpdateClient::GetUpdatesList($errorMessage, LANG);
-							}
-						}
-					}
-				}
-				elseif (!$result['error'])
-				{
 					$result = [
 						'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-						'error_code' => 1,
 					];
 				}
 			}
 			else
 			{
-				$result = ['error' => Loc::getMessage('REST_ACTIVATE_DEMO_ACCESS_DENIED')];
+				$result = [
+					'error' => Loc::getMessage('REST_ACTIVATE_DEMO_ACCESS_DENIED'),
+				];
 			}
 
 			break;

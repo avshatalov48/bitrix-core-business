@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Message\CounterServiceLegacy;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 
@@ -15,6 +16,11 @@ class Counter
 
 	public static function get($userId = null, $options = [])
 	{
+		if (isset($options['JSON']))
+		{
+			return \Bitrix\Im\Common::toJson((new CounterServiceLegacy($userId))->get());
+		}
+		return (new CounterServiceLegacy($userId))->get();
 		$result = [
 			'TYPE' => [
 				'ALL' => 0,
@@ -203,6 +209,8 @@ class Counter
 
 	public static function countingLostCountersAgent($notifyRelationId = 0, $chatRelationId = 0)
 	{
+		return '';
+
 		$foundNotify = false;
 		$foundChat = false;
 

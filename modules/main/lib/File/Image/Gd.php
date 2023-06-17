@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
@@ -29,7 +29,7 @@ class Gd extends Engine
 			$this->format = $info->getFormat();
 			$resource = null;
 
-			switch($this->format)
+			switch ($this->format)
 			{
 				case File\Image::FORMAT_GIF:
 					$resource = imagecreatefromgif($this->file);
@@ -63,18 +63,18 @@ class Gd extends Engine
 	 */
 	public function rotate($angle, Color $bgColor)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
 		$angle = 360 - $angle;
-		$alpha = (1.0 - $bgColor->getAlpha())*127;
+		$alpha = (1.0 - $bgColor->getAlpha()) * 127;
 		$color = imagecolorallocatealpha($this->resource, $bgColor->getRed(), $bgColor->getGreen(), $bgColor->getBlue(), $alpha);
 
 		$resource = imagerotate($this->resource, $angle, $color);
 
-		if($resource === false)
+		if ($resource === false)
 		{
 			return false;
 		}
@@ -90,7 +90,7 @@ class Gd extends Engine
 	 */
 	public function flipVertical()
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
@@ -103,7 +103,7 @@ class Gd extends Engine
 	 */
 	public function flipHorizontal()
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
@@ -116,7 +116,7 @@ class Gd extends Engine
 	 */
 	public function setOrientation($orientation)
 	{
-		//not implemented
+		// not implemented
 		return true;
 	}
 
@@ -125,49 +125,46 @@ class Gd extends Engine
 	 */
 	public function resize(Rectangle $source, Rectangle $destination)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
-		$transparentColor = -1;
-
 		$destinationWidth = $destination->getWidth();
 		$destinationHeight = $destination->getHeight();
 
-		if(($picture = imagecreatetruecolor($destinationWidth, $destinationHeight)))
+		if (($picture = imagecreatetruecolor($destinationWidth, $destinationHeight)))
 		{
+			$transparentColor = -1;
+
 			imagealphablending($picture, false);
 
-			if($this->format == File\Image::FORMAT_PNG || $this->format == File\Image::FORMAT_WEBP)
+			if ($this->format == File\Image::FORMAT_PNG || $this->format == File\Image::FORMAT_WEBP)
 			{
-				$transparentColor = imagecolorallocatealpha($picture, 0, 0, 0, 127);
-				imagefilledrectangle($picture, 0, 0, $destinationWidth, $destinationHeight, $transparentColor);
+				$color = imagecolorallocatealpha($picture, 0, 0, 0, 127);
+				imagefilledrectangle($picture, 0, 0, $destinationWidth, $destinationHeight, $color);
 			}
-			elseif($this->format == File\Image::FORMAT_GIF)
+			elseif ($this->format == File\Image::FORMAT_GIF)
 			{
-				//save transparency
-				$transparentColor = imagecolortransparent($this->resource);
-				if($transparentColor >= 0)
+				// save transparency
+				$transparentColor = $this->getTransparentColor();
+				if ($transparentColor >= 0)
 				{
 					$rgb = imagecolorsforindex($this->resource, $transparentColor);
-					$transparentColor = imagecolorallocatealpha($picture, $rgb["red"], $rgb["green"], $rgb["blue"], 127);
+					$transparentColor = imagecolorallocatealpha($picture, $rgb['red'], $rgb['green'], $rgb['blue'], 127);
 					imagefilledrectangle($picture, 0, 0, $destinationWidth, $destinationHeight, $transparentColor);
 				}
 			}
 
-			if(imagecopyresampled($picture, $this->resource, 0, 0, $source->getX(), $source->getY(), $destinationWidth, $destinationHeight, $source->getWidth(), $source->getHeight()))
+			if (imagecopyresampled($picture, $this->resource, 0, 0, $source->getX(), $source->getY(), $destinationWidth, $destinationHeight, $source->getWidth(), $source->getHeight()))
 			{
 				$this->clear();
 				$this->resource = $picture;
 
-				if($this->format == File\Image::FORMAT_GIF)
+				// restore transparency
+				if ($transparentColor >= 0)
 				{
-					//restore transparency
-					if($transparentColor >= 0)
-					{
-						$this->restoreTransparency($transparentColor);
-					}
+					$this->restoreTransparency($transparentColor);
 				}
 
 				return true;
@@ -181,36 +178,46 @@ class Gd extends Engine
 	 */
 	public function filter(Mask $mask)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
 		$transparentColor = -1;
-		if($this->format == File\Image::FORMAT_GIF)
+		if ($this->format == File\Image::FORMAT_GIF)
 		{
-			//Process transparency for GIFs
-			$transparentColor = imagecolortransparent($this->resource);
+			// Process transparency for GIFs
+			$transparentColor = $this->getTransparentColor();
 		}
 
-		//Fix left top corner
+		// Fix left top corner
 		$newPixel = $this->calculatePixel($mask, 0, 0);
 
 		$result = imageconvolution($this->resource, $mask->getValue(), 1, 0);
 
-		if($result)
+		if ($result)
 		{
-			//Fix left top corner
+			// Fix left top corner
 			imagealphablending($this->resource, false);
 			imagesetpixel($this->resource, 0, 0, $newPixel);
 
-			//restore transparency
+			// restore transparency
 			if ($transparentColor >= 0)
 			{
 				$this->restoreTransparency($transparentColor);
 			}
 		}
 		return $result;
+	}
+
+	protected function getTransparentColor(): int
+	{
+		$transparentColor = imagecolortransparent($this->resource);
+		if ($transparentColor < 0 || $transparentColor >= imagecolorstotal($this->resource))
+		{
+			return -1;
+		}
+		return $transparentColor;
 	}
 
 	protected function restoreTransparency($transparentColor)
@@ -220,11 +227,11 @@ class Gd extends Engine
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		for($y = 0; $y < $height; ++$y)
+		for ($y = 0; $y < $height; ++$y)
 		{
-			for($x = 0; $x < $width; ++$x)
+			for ($x = 0; $x < $width; ++$x)
 			{
-				if(((imagecolorat($this->resource, $x, $y) >> 24) & 0x7F) >= 100)
+				if (((imagecolorat($this->resource, $x, $y) >> 24) & 0x7F) >= 100)
 				{
 					imagesetpixel($this->resource,	$x,	$y,	$transparentColor);
 				}
@@ -246,26 +253,26 @@ class Gd extends Engine
 		$alpha = (imagecolorat($this->resource, $x, $y) >> 24) & 0xFF;
 		$newR = $newG = $newB = 0;
 
-		for($j = 0; $j < 3; ++$j)
+		for ($j = 0; $j < 3; ++$j)
 		{
 			$yv = $y - 1 + $j;
-			if($yv < 0)
+			if ($yv < 0)
 			{
 				$yv = 0;
 			}
-			elseif($yv >= $height)
+			elseif ($yv >= $height)
 			{
 				$yv = $height - 1;
 			}
 
-			for($i = 0; $i < 3; ++$i)
+			for ($i = 0; $i < 3; ++$i)
 			{
 				$xv = $x - 1 + $i;
-				if($xv < 0)
+				if ($xv < 0)
 				{
 					$xv = 0;
 				}
-				elseif($xv >= $width)
+				elseif ($xv >= $width)
 				{
 					$xv = $width - 1;
 				}
@@ -279,9 +286,9 @@ class Gd extends Engine
 			}
 		}
 
-		$newR = ($newR > 255? 255 : (($newR < 0? 0 : $newR)));
-		$newG = ($newG > 255? 255 : (($newG < 0? 0 : $newG)));
-		$newB = ($newB > 255? 255 : (($newB < 0? 0 : $newB)));
+		$newR = ($newR > 255 ? 255 : ($newR < 0 ? 0 : $newR));
+		$newG = ($newG > 255 ? 255 : ($newG < 0 ? 0 : $newG));
+		$newB = ($newB > 255 ? 255 : ($newB < 0 ? 0 : $newB));
 
 		return imagecolorallocatealpha($this->resource, $newR, $newG, $newB, $alpha);
 	}
@@ -291,14 +298,14 @@ class Gd extends Engine
 	 */
 	public function drawTextWatermark(TextWatermark $watermark)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
 		$font = $watermark->getFont();
 
-		if(!file_exists($font))
+		if (!file_exists($font))
 		{
 			return false;
 		}
@@ -308,9 +315,13 @@ class Gd extends Engine
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		if(($textWidth = $watermark->getWidth()) > 0)
+		if (($textWidth = $watermark->getWidth()) > 0)
 		{
 			$textBox = imagettfbbox(20, 0, $font, $utfText);
+			if (!is_array($textBox))
+			{
+				return false;
+			}
 
 			$scale = $textWidth / ($textBox[2] - $textBox[0]);
 			$fontSize = 20 * $scale;
@@ -331,17 +342,17 @@ class Gd extends Engine
 		$color = $watermark->getColor();
 		$textColor = imagecolorallocate($this->resource, $color->getRed(), $color->getGreen(), $color->getBlue());
 
-		if($watermark->getVerticalAlignment() == Watermark::ALIGN_BOTTOM)
+		if ($watermark->getVerticalAlignment() == Watermark::ALIGN_BOTTOM)
 		{
-			//Try to take into consideration font's descenders.
-			//Coordinates in imagettftext are for font's *baseline*.
-			//Let the descenders be 20% of the font size.
+			// Try to take into consideration font's descenders.
+			// Coordinates in imagettftext are for font's *baseline*.
+			// Let the descenders be 20% of the font size.
 			$descender = $fontSize * 0.2;
-			$y = $position->getY() + $position->getHeight() - $descender; //baseline
+			$y = $position->getY() + $position->getHeight() - $descender; // baseline
 		}
 		else
 		{
-			$y = $position->getY() + $fontSize; //baseline
+			$y = $position->getY() + $fontSize; // baseline
 		}
 
 		$result = imagettftext($this->resource, $fontSize, 0, $position->getX(), $y, $textColor, $font, $utfText);
@@ -354,12 +365,12 @@ class Gd extends Engine
 	 */
 	public function drawImageWatermark(ImageWatermark $watermark)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
-		if(($image = $this->loadWatermark($watermark)) === null)
+		if (($image = $this->loadWatermark($watermark)) === null)
 		{
 			return false;
 		}
@@ -380,47 +391,47 @@ class Gd extends Engine
 		$watermarkAlpha = $watermark->getAlpha();
 		$repeat = ($watermark->getMode() == ImageWatermark::MODE_REPEAT);
 
-		for($y = 0; $y < $watermarkHeight; $y++)
+		for ($y = 0; $y < $watermarkHeight; $y++)
 		{
-			for($x = 0; $x < $watermarkWidth; $x++)
+			for ($x = 0; $x < $watermarkWidth; $x++)
 			{
 				$posY = $watermarkY + $y;
-				while(true)
+				while (true)
 				{
 					$posX = $watermarkX + $x;
-					while(true)
+					while (true)
 					{
 						$alpha = $watermarkAlpha;
 
 						$mainRgb = imagecolorsforindex($this->resource, imagecolorat($this->resource, $posX, $posY));
 						$watermarkRgb = imagecolorsforindex($image->resource, imagecolorat($image->resource, $x, $y));
 
-						if($watermarkRgb['alpha'] == 127)
+						if ($watermarkRgb['alpha'] == 127)
 						{
 							$pixel = $mainRgb;
 						}
 						else
 						{
-							if($watermarkRgb['alpha'])
+							if ($watermarkRgb['alpha'])
 							{
 								$alpha = round((( 127 - $watermarkRgb['alpha']) / 127), 2);
 								$alpha = $alpha * $watermarkAlpha;
 							}
 
 							$pixel = [];
-							foreach(['red', 'green', 'blue', 'alpha'] as $k)
+							foreach (['red', 'green', 'blue', 'alpha'] as $k)
 							{
 								$pixel[$k] = round(($mainRgb[$k] * (1 - $alpha)) + ($watermarkRgb[$k] * $alpha));
 							}
 						}
 
-						$color = imagecolorexactalpha($this->resource, $pixel["red"], $pixel["green"], $pixel["blue"], $pixel["alpha"]);
-						if($color == -1)
+						$color = imagecolorexactalpha($this->resource, $pixel['red'], $pixel['green'], $pixel['blue'], $pixel['alpha']);
+						if ($color == -1)
 						{
-							$color = imagecolorallocatealpha($this->resource, $pixel["red"], $pixel["green"], $pixel["blue"], $pixel["alpha"]);
-							if($color === false)
+							$color = imagecolorallocatealpha($this->resource, $pixel['red'], $pixel['green'], $pixel['blue'], $pixel['alpha']);
+							if ($color === false)
 							{
-								$color = imagecolorclosestalpha($this->resource, $pixel["red"], $pixel["green"], $pixel["blue"], $pixel["alpha"]);
+								$color = imagecolorclosestalpha($this->resource, $pixel['red'], $pixel['green'], $pixel['blue'], $pixel['alpha']);
 							}
 						}
 
@@ -428,7 +439,7 @@ class Gd extends Engine
 
 						$posX += $watermarkWidth;
 
-						if($repeat == false || $posX > $width)
+						if (!$repeat || $posX > $width)
 						{
 							break;
 						}
@@ -436,7 +447,7 @@ class Gd extends Engine
 
 					$posY += $watermarkHeight;
 
-					if($repeat == false || $posY > $height)
+					if (!$repeat || $posY > $height)
 					{
 						break;
 					}
@@ -454,19 +465,19 @@ class Gd extends Engine
 	 */
 	public function save($file, $quality = 95, $format = null)
 	{
-		if($this->resource === null)
+		if ($this->resource === null)
 		{
 			return false;
 		}
 
-		if($format === null)
+		if ($format === null)
 		{
 			$format = $this->format;
 		}
 
 		$result = false;
 
-		switch($format)
+		switch ($format)
 		{
 			case File\Image::FORMAT_GIF:
 				$result = imagegif($this->resource, $file);
@@ -513,7 +524,7 @@ class Gd extends Engine
 	 */
 	public function clear()
 	{
-		if($this->resource !== null)
+		if ($this->resource !== null)
 		{
 			imagedestroy($this->resource);
 			$this->resource = null;

@@ -14,12 +14,13 @@
 @supports (backdrop-filter: none) {
 	.ui-popupcomponentmaker {
 		background: rgba(247,248,249,.88);
-		backdrop-filter: blur(40px);
+		backdrop-filter: blur(20px);
 	}
 
 	.ui-popupcomponentmaker .popup-window-angly--arrow {
-		background: rgba(247,248,249,.88);
-		backdrop-filter: none;
+		background: rgba(247,248,249,0.72);
+		backdrop-filter: blur(20px);
+		box-shadow: none;
 	}
 }
 
@@ -85,6 +86,16 @@
 	border-radius: var(--ui-border-radius-lg);
 	max-width: 100%;
 	transition: .2s;
+}
+
+.ui-popupcomponentmaker__content--section-item.--secondary {
+	background: rgba(255, 255, 255, 0.75);
+}
+
+.ui-popupcomponentmaker__content--section-item.--secondary:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 5px 0 rgba(0,0,0,.13);
+	background: #fff;
 }
 
 .ui-popupcomponentmaker__content--section-item:hover {

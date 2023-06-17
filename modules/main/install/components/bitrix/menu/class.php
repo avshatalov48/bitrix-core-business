@@ -20,17 +20,16 @@ class CBitrixMenuComponent extends CBitrixComponent
 		if($this->arParams["MENU_CACHE_TIME"])
 		{
 			if($this->arParams["CACHE_SELECTED_ITEMS"])
+			{
 				$strCacheID = $APPLICATION->GetCurPage();
-			else
-				$strCacheID = "";
+			}
 			$strCacheID .=
 				":".$this->arParams["USE_EXT"].
 				":".$this->arParams["MAX_LEVEL"].
 				":".$this->arParams["ROOT_MENU_TYPE"].
 				":".$this->arParams["CHILD_MENU_TYPE"].
 				":".LANGUAGE_ID.
-				":".SITE_ID.
-				""
+				":".SITE_ID
 			;
 
 			if(($this->arParams["MENU_CACHE_USE_GROUPS"] ?? '') === "Y")
@@ -93,11 +92,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 				{
 					if(mb_substr($arMenu[$menuIndex]["LINK"], -1) == "/")
 					{
-						if ($parentItem && $parentItem['LINK'] === $arMenu[$menuIndex]["LINK"])
-						{
-							$bDir = false;
-						}
-						else
+						if (!$parentItem || $parentItem['LINK'] !== $arMenu[$menuIndex]["LINK"])
 						{
 							$bDir = true;
 						}
@@ -114,13 +109,13 @@ class CBitrixMenuComponent extends CBitrixComponent
 					$menu = new CMenu($type);
 					$menu->disableDebug();
 					$success = $menu->Init($arMenu[$menuIndex]["LINK"], $use_ext, $menuTemplate, $onlyCurrentDir = true);
-					$subMenuExists = ($success && count($menu->arMenu) > 0);
+					$subMenuExists = ($success && !empty($menu->arMenu));
 
 					if ($subMenuExists)
 					{
 						$menu->RecalcMenu($bMultiSelect, $bCheckSelected);
 
-						$arResult[] = $arMenu[$menuIndex] + Array("DEPTH_LEVEL" => $currentLevel, "IS_PARENT" => (count($menu->arMenu) > 0));
+						$arResult[] = $arMenu[$menuIndex] + Array("DEPTH_LEVEL" => $currentLevel, "IS_PARENT" => (!empty($menu->arMenu)));
 
 						if($arMenu[$menuIndex]["SELECTED"])
 						{
@@ -128,7 +123,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 							$arResult["menuDir"] = $arMenu[$menuIndex]["LINK"];
 						}
 
-						if(count($menu->arMenu) > 0)
+						if(!empty($menu->arMenu))
 							$this->GetChildMenuRecursive($menu->arMenu, $arResult, $menuType, $use_ext, $menuTemplate, $currentLevel+1, $maxLevel, $bMultiSelect, $bCheckSelected, $arMenu[$menuIndex]);
 					}
 				}

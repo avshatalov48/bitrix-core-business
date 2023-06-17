@@ -507,9 +507,7 @@ this.BX.UI = this.BX.UI || {};
 	  _t3,
 	  _t4,
 	  _t5,
-	  _t6,
-	  _t7,
-	  _t8;
+	  _t6;
 	class BrowserNotification extends ui_notification.UI.Notification.Balloon {
 	  constructor(options) {
 	    super(options);
@@ -567,34 +565,53 @@ this.BX.UI = this.BX.UI || {};
 	    if (!main_core.Type.isStringFilled(this.getData().title)) {
 	      return '';
 	    }
-	    return main_core.Tag.render(_t3 || (_t3 = _`<div class="ui-notification-manager-browser-title">${0}<div>`), this.getData().title);
+	    const title = main_core.Dom.create({
+	      tag: 'span',
+	      attrs: {
+	        className: 'ui-notification-manager-browser-title'
+	      },
+	      text: this.getData().title
+	    }).outerHTML;
+	    return main_core.Tag.render(_t3 || (_t3 = _`<div class="ui-notification-manager-browser-title">${0}<div>`), title);
 	  }
 	  getTextNode() {
 	    if (!main_core.Type.isStringFilled(this.getData().text)) {
 	      return '';
 	    }
-	    return main_core.Tag.render(_t4 || (_t4 = _`<div class="ui-notification-manager-browser-text">${0}<div>`), this.getData().text);
+	    return main_core.Dom.create({
+	      tag: 'div',
+	      attrs: {
+	        className: 'ui-notification-manager-browser-text'
+	      },
+	      text: this.getData().text
+	    });
 	  }
 	  getIconNode() {
 	    if (!main_core.Type.isStringFilled(this.getData().icon)) {
 	      return '';
 	    }
-	    return main_core.Tag.render(_t5 || (_t5 = _`
-			<div class="ui-notification-manager-browser-column">
-				<img
-					class="ui-notification-manager-browser-icon"
-					style="height: 44px; width: 44px"
-					src="${0}"
-				>
-			</div>
-		`), this.getData().icon);
+	    return main_core.Dom.create({
+	      tag: 'div',
+	      className: 'ui-notification-manager-browser-column',
+	      children: [main_core.Dom.create({
+	        tag: 'img',
+	        style: {
+	          height: '44px',
+	          width: '44px'
+	        },
+	        attrs: {
+	          className: 'ui-notification-manager-browser-icon',
+	          src: this.getData().icon
+	        }
+	      })]
+	    });
 	  }
 	  getActionsNode() {
 	    const actions = this.getActions().map(action => action.getContainer());
 	    if (!main_core.Type.isArrayFilled(actions)) {
 	      return '';
 	    }
-	    return main_core.Tag.render(_t6 || (_t6 = _`
+	    return main_core.Tag.render(_t4 || (_t4 = _`
 			<div class="ui-notification-manager-browser-actions">
 				${0}
 			</div>
@@ -605,7 +622,9 @@ this.BX.UI = this.BX.UI || {};
 	      return '';
 	    }
 	    const onInputReplyClick = event => event.stopPropagation();
-	    return main_core.Tag.render(_t7 || (_t7 = _`
+	    const id = main_core.Text.encode(this.getId());
+	    const placeholderText = main_core.Text.encode(this.getData().inputPlaceholderText);
+	    return main_core.Tag.render(_t5 || (_t5 = _`
 			<div class="ui-notification-manager-browser-actions">
 				<div class="ui-notification-manager-browser-column ui-notification-manager-browser-column-wide">
 					<div class="ui-notification-manager-browser-row">
@@ -639,18 +658,19 @@ this.BX.UI = this.BX.UI || {};
 					</div>
 				</div>
 			</div>
-		`), this.getId(), this.toggleUserInputContainerNode.bind(this), main_core.Loc.getMessage('UI_NOTIFICATION_MANAGER_REPLY'), this.getId(), this.getData().inputPlaceholderText, this.getId(), this.handleUserInputEnter.bind(this), onInputReplyClick, this.handleUserInputClick.bind(this));
+		`), id, this.toggleUserInputContainerNode.bind(this), main_core.Loc.getMessage('UI_NOTIFICATION_MANAGER_REPLY'), id, placeholderText, id, this.handleUserInputEnter.bind(this), onInputReplyClick, this.handleUserInputClick.bind(this));
 	  }
 	  toggleUserInputContainerNode(event) {
 	    event.stopPropagation();
+	    const id = main_core.Text.encode(this.getId());
 	    if (!this.userInputContainerNode) {
-	      this.userInputContainerNode = document.getElementById('ui-notification-manager-browser-reply-container-' + this.getId());
+	      this.userInputContainerNode = document.getElementById('ui-notification-manager-browser-reply-container-' + id);
 	    }
 	    if (!this.userInputNode) {
-	      this.userInputNode = document.getElementById('ui-notification-manager-browser-reply-' + this.getId());
+	      this.userInputNode = document.getElementById('ui-notification-manager-browser-reply-' + id);
 	    }
 	    if (!this.replyToggleButton) {
-	      this.replyToggleButton = document.getElementById('ui-notification-manager-browser-reply-toggle-' + this.getId());
+	      this.replyToggleButton = document.getElementById('ui-notification-manager-browser-reply-toggle-' + id);
 	    }
 	    this.showUserInput = !this.showUserInput;
 	    if (this.showUserInput) {
@@ -672,7 +692,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (!this.isCloseButtonVisible()) {
 	      return '';
 	    }
-	    return main_core.Tag.render(_t8 || (_t8 = _`
+	    return main_core.Tag.render(_t6 || (_t6 = _`
 			<div
 				class="ui-notification-manager-browser-button-close"
 				onclick="${0}"
@@ -755,7 +775,7 @@ this.BX.UI = this.BX.UI || {};
 	      actions: [],
 	      width: 380,
 	      position: 'top-right',
-	      autoHideDelay: 4000
+	      autoHideDelay: 6000
 	    };
 	    if (notification.getInputPlaceholderText()) {
 	      balloonOptions.data.inputPlaceholderText = notification.getInputPlaceholderText();

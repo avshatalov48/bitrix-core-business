@@ -1,0 +1,78 @@
+.bx-im-list-recent__calls_container {
+	--im-list-recent__background-color: var(--im-list-recent__background-color_calls-section);
+	--im-list-recent__background-color_hover: var(--im-list-recent__background-color_calls-section);
+
+	flex-shrink: 0;
+	background: var(--im-list-recent__background-color_calls-section);
+	border: 1px solid var(--im-list-recent__border-color_calls-section);
+	border-radius: 10px;
+	margin: 4px 4px 6px 4px;
+	position: relative;
+}
+
+.bx-im-list-recent__calls_container.--with-shadow {
+	margin-bottom: 0;
+}
+
+.bx-im-list-recent__calls_container.--with-shadow::after {
+	position: absolute;
+	content: '';
+	left: 0;
+	width: 100%;
+	height: 40px;
+	background: linear-gradient(178.92deg, #FFFFFF 17.38%, rgba(255, 255, 255, 0.0001) 96.59%);
+	transform: matrix(-1, 0, 0, 1, 0, 0);
+	z-index: 1;
+}
+
+.bx-im-list-recent__calls_container + .bx-im-list-recent__pinned_container {
+	margin-top: 0;
+}
+
+.bx-im-list-recent__calls_container + .bx-im-list-recent__general_container {
+	margin-top: 0;
+}
+
+.bx-im-list-recent-active-call__title_container {
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 3px;
+}
+
+.bx-im-list-recent-active-call__title_icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	margin-left: 4px;
+	background-image: url('./images/active-call/videocall.svg');
+}
+
+.bx-im-list-recent-active-call__actions_container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-list-recent-active-call__actions_item {
+	max-width: 100%;
+}
+
+.bx-im-list-recent-active-call__actions_item + .bx-im-list-recent-active-call__actions_item {
+	margin-left: 8px;
+}
+
+.bx-im-list-recent-active-call__actions_item.--return .bx-im-button__container,
+.bx-im-list-recent-active-call__actions_item.--join .bx-im-button__container {
+	--im-button__padding: 15px;
+}
+
+.bx-im-list-recent-active-call__actions_item.--return {
+	max-width: calc(100% - 70px);
+}
+
+.bx-im-list-recent-active-call__actions_item.--another-device .bx-im-button__container {
+	 --im-button__padding: 15px;
+ }
+
+.bx-im-list-recent-active-call__container .bx-im-list-recent-item__content_container {
+	padding-bottom: 7px;
+}

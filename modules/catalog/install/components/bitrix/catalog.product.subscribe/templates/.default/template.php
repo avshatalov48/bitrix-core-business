@@ -45,10 +45,12 @@ $saleNotifyOption = Bitrix\Main\Config\Option::get('sale', 'subscribe_prod');
 if($saleNotifyOption <> '')
 	$saleNotifyOption = unserialize($saleNotifyOption, ['allowed_classes' => false]);
 $saleNotifyOption = is_array($saleNotifyOption) ? $saleNotifyOption : array();
-foreach($saleNotifyOption as $siteId => $data)
+foreach ($saleNotifyOption as $siteId => $data)
 {
-	if($siteId == SITE_ID && $data['use'] != 'Y')
+	if ($siteId == SITE_ID && ($data['use'] ?? 'N') !== 'Y')
+	{
 		$showSubscribe = false;
+	}
 }
 $templateData = $paramsForJs;
 $templateData['showSubscribe'] = $showSubscribe;

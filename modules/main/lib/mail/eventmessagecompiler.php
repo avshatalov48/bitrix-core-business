@@ -143,7 +143,7 @@ class EventMessageCompiler
 			{
 				$eventSiteFields["HTML_".$fieldKey] = nl2br(htmlspecialcharsbx($fieldValue, ENT_COMPAT, false));
 
-				if (mb_strpos($fieldValue, "<") === false)
+				if (strpos($fieldValue, "<") === false)
 				{
 					$eventSiteFields[$fieldKey] = nl2br($fieldValue);
 				}
@@ -208,9 +208,6 @@ class EventMessageCompiler
 		return $this->mailContentType;
 	}
 
-	/**
-	 * @param mixed $mailAttachment
-	 */
 	protected function setMailAttachment()
 	{
 		$eventMessageAttachment = [];
@@ -243,7 +240,7 @@ class EventMessageCompiler
 		}
 
 
-		if(count($eventMessageAttachment)>0)
+		if(!empty($eventMessageAttachment))
 		{
 			$attachFileList = array();
 			$eventMessageAttachment = array_unique($eventMessageAttachment);
@@ -266,7 +263,7 @@ class EventMessageCompiler
 			$this->mailAttachment = $attachFileList;
 		}
 
-		if (count($eventFilesContent) > 0)
+		if (!empty($eventFilesContent))
 		{
 			foreach ($eventFilesContent as $item)
 			{
@@ -290,8 +287,6 @@ class EventMessageCompiler
 		return $this->mailAttachment;
 	}
 
-
-
 	/**
 	 * @param
 	 */
@@ -307,7 +302,7 @@ class EventMessageCompiler
 		if(isset($messageFields["BCC"]) && $messageFields["BCC"]!='')
 		{
 			$bcc = $this->replaceTemplate($messageFields["BCC"], $arFields);
-			if(mb_strpos($bcc, "@") !== false)
+			if(strpos($bcc, "@") !== false)
 				$arMailFields["BCC"] = $bcc;
 		}
 
@@ -343,8 +338,8 @@ class EventMessageCompiler
 		//add those who want to receive all emails
 		if(isset($this->event["DUPLICATE"]) && $this->event["DUPLICATE"]=="Y")
 		{
-			$all_bcc = Config\Option::get("main", "all_bcc", "");
-			if(mb_strpos($all_bcc, "@") !== false)
+			$all_bcc = Config\Option::get("main", "all_bcc");
+			if(strpos($all_bcc, "@") !== false)
 				$arMailFields["BCC"] .= ($all_bcc <> ''?($arMailFields["BCC"] <> ''?",":"").$all_bcc:"");
 		}
 
@@ -419,7 +414,7 @@ class EventMessageCompiler
 	 * @param $str
 	 * @param $ar
 	 * @param bool $bNewLineToBreak
-	 * @return mixed
+	 * @return string
 	 */
 	protected function replaceTemplate($str, $ar, $bNewLineToBreak=false)
 	{
@@ -471,9 +466,10 @@ class EventMessageCompiler
 				$site_id = $arMessageSite['SITE_ID'];
 		}
 
-		$SITE_NAME = Config\Option::get("main", "site_name", $GLOBALS["SERVER_NAME"]);
-		$SERVER_NAME = Config\Option::get("main", "server_name", $GLOBALS["SERVER_NAME"]);
-		$DEFAULT_EMAIL_FROM = Config\Option::get("main", "email_from", "admin@".$GLOBALS["SERVER_NAME"]);
+		$globalName = $GLOBALS["SERVER_NAME"] ?? '';
+		$SITE_NAME = Config\Option::get("main", "site_name", $globalName);
+		$SERVER_NAME = Config\Option::get("main", "server_name", $globalName);
+		$DEFAULT_EMAIL_FROM = Config\Option::get("main", "email_from", "admin@" . $globalName);
 
 		if($site_id <> '')
 		{
@@ -503,7 +499,7 @@ class EventMessageCompiler
 	}
 
 	/**
-	 * @param string|array
+	 * @param $value string|array
 	 * @return string
 	 */
 	protected static function getFieldFlatValue($value)

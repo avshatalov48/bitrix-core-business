@@ -72,7 +72,11 @@ elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
 	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
 		die(GetMessage("expire_mess2"));
 
-	if (isset($GLOBALS['SiteExpireDate']) && $GLOBALS['SiteExpireDate'] < time())
+	if (
+		isset($GLOBALS['SiteExpireDate'])
+		&& $GLOBALS['SiteExpireDate'] < time()
+		&& !Main\ModuleManager::isModuleInstalled('intranet')
+	)
 	{
 		echo GetMessage("expire_mess_timelicense1");
 	}

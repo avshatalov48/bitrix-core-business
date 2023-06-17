@@ -192,11 +192,6 @@ class DataProvider
 			return false;
 		}
 
-		if (!isset($params['DATA']) || !$params['DATA'])
-		{
-			return false;
-		}
-
 		if (!is_array($params['DATA']) && !is_callable($params['DATA']))
 		{
 			return false;

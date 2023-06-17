@@ -1,24 +1,37 @@
-import {MenuManager} from 'main.popup';
+import {MenuManager, Menu} from 'main.popup';
 import {EventEmitter} from 'main.core.events';
+import {Store} from 'ui.vue3.vuex';
+import {RestClient} from 'rest.client';
+
+import {Core} from 'im.v2.application.core';
 import {EventType} from 'im.v2.const';
 
-export class BaseMenu
+import type {MenuItem} from '../type/menu';
+
+const EVENT_NAMESPACE = 'BX.Messenger.v2.Lib.Menu';
+
+export class BaseMenu extends EventEmitter
 {
-	menuInstance: Object = null;
-	context: Object = null;
-	target: HTMLElement = null;
-	store: Object = null;
-	restClient: Object = null;
+	menuInstance: Menu;
+	context: Object;
+	target: HTMLElement;
+	store: Store;
+	restClient: RestClient;
 	id: String = 'im-base-context-menu';
 
-	constructor($Bitrix: Object)
+	static events = {
+		onCloseMenu: 'onCloseMenu'
+	};
+
+	constructor()
 	{
-		this.$Bitrix = $Bitrix;
-		this.store = $Bitrix.Data.get('controller').store;
-		this.restClient = $Bitrix.RestClient.get();
+		super();
+		this.setEventNamespace(EVENT_NAMESPACE);
+
+		this.store = Core.getStore();
+		this.restClient = Core.getRestClient();
 
 		this.onClosePopupHandler = this.onClosePopup.bind(this);
-		EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 	}
 
 	// public
@@ -26,16 +39,17 @@ export class BaseMenu
 	{
 		if (this.menuInstance)
 		{
-			this.menuInstance.destroy();
-			this.menuInstance = null;
+			this.close();
 		}
 		this.context = context;
 		this.target = target;
 		this.menuInstance = this.getMenuInstance();
 		this.menuInstance.show();
+
+		EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 	}
 
-	getMenuInstance()
+	getMenuInstance(): Menu
 	{
 		return MenuManager.create(this.getMenuOptions());
 	}
@@ -49,32 +63,34 @@ export class BaseMenu
 			bindElement: this.target,
 			cacheable: false,
 			className: this.getMenuClassName(),
-			items: this.getMenuItems()
+			items: this.getMenuItems(),
+			events: {
+				onClose: () => {
+					this.emit(BaseMenu.events.onCloseMenu);
+					this.close();
+				}
+			}
 		};
 	}
 
-	getMenuItems(): Array
+	getMenuItems(): MenuItem[]
 	{
 		return [];
 	}
 
 	getMenuClassName(): string
 	{
-		return this.isDarkMode() ? 'im-context-menu-dark' : '';
-	}
-
-	isDarkMode(): boolean
-	{
-		return this.store.state.application.options.darkTheme;
+		return '';
 	}
 
 	onClosePopup()
 	{
-		this.destroy();
+		this.close();
 	}
 
 	close()
 	{
+		EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 		if (!this.menuInstance)
 		{
 			return;
@@ -87,6 +103,10 @@ export class BaseMenu
 	destroy()
 	{
 		this.close();
-		EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
+	}
+
+	getCurrentUserId(): number
+	{
+		return Core.getUserId();
 	}
 }

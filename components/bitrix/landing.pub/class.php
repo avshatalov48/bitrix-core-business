@@ -14,7 +14,6 @@ use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Rights;
-use Bitrix\Landing\Update\Block\DuplicateImages;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\EventManager;
@@ -97,6 +96,15 @@ class LandingPubComponent extends LandingBaseComponent
 	public static function getMainInstance()
 	{
 		return self::$landingMain;
+	}
+
+	/**
+	 * Return true if just preview (not view) mode
+	 * @return bool
+	 */
+	public function isPreviewMode(): bool
+	{
+		return $this->isPreviewMode;
 	}
 
 	/**
@@ -375,7 +383,7 @@ class LandingPubComponent extends LandingBaseComponent
 	public function detectPage()
 	{
 		// parse url
-		$serverHost = $this->arParams['HTTP_HOST'];
+		$serverHost = $this->arParams['HTTP_HOST'] ?? null;
 		$requestedPage = '/' . $this->arParams['PATH'];
 		$urlParts = parse_url($requestedPage);
 		if (isset($urlParts['path']))
@@ -438,8 +446,8 @@ class LandingPubComponent extends LandingBaseComponent
 		else if (
 			// for base work
 			(
-				$requestedPageParts[0] == 'preview' &&
-				$requestedPageParts[1] == Site::getPublicHash($siteId)
+				($requestedPageParts[0] ?? null) == 'preview' &&
+				($requestedPageParts[1] ?? null) == Site::getPublicHash($siteId)
 			)
 			||
 			// for cloud version
@@ -450,7 +458,7 @@ class LandingPubComponent extends LandingBaseComponent
 		)
 		{
 			$this->isPreviewMode = true;
-			if ($requestedPageParts[0] == 'preview')
+			if (($requestedPageParts[0] ?? null) == 'preview')
 			{
 				array_shift($requestedPageParts);
 				array_shift($requestedPageParts);
@@ -1244,25 +1252,24 @@ class LandingPubComponent extends LandingBaseComponent
 	 */
 	protected function onBlockPublicView(): void
 	{
-		$query = \htmlspecialcharsbx($this->request('q'));
-		if ($query)
+		if ($this->arParams['TYPE'] !== 'KNOWLEDGE' && $this->arParams['TYPE'] !== 'GROUP')
 		{
-			Cache::disableCache();
+			return;
 		}
+
+		$query = \htmlspecialcharsbx($this->request('q'));
+		if (!$query)
+		{
+			return;
+		}
+
+		Cache::disableCache();
 
 		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('landing', 'onBlockPublicView',
 			function(Event $event) use($query)
 			{
-				$block = $event->getParameter('block');
 				$outputContent = $event->getParameter('outputContent');
-
-				// UPDATE block
-				$blockUpdater = new DuplicateImages(null, [
-					'block' => $block,
-					'content' => $outputContent,
-				]);
-				$outputContent = $blockUpdater->update(false);
 
 				// SEARCH replaces
 				$isSearch =
@@ -1271,7 +1278,7 @@ class LandingPubComponent extends LandingBaseComponent
 						$this->arParams['TYPE'] === 'KNOWLEDGE'
 						|| $this->arParams['TYPE'] === 'GROUP'
 					);
-				if ($isSearch)
+				if ($query)
 				{
 					$isUtf = defined('BX_UTF') && BX_UTF === true;
 					if (strpos($outputContent, '<?') !== false)
@@ -1317,6 +1324,29 @@ class LandingPubComponent extends LandingBaseComponent
 
 				return $outputContent;
 			},
+		);
+	}
+
+	/**
+	 * Handler on preview mode.
+	 * @return void
+	 */
+	protected function onPreviewMode(): void
+	{
+		$eventManager = EventManager::getInstance();
+
+		Manager::setPageView('BodyClass', 'landing-mode-preview');
+
+		// remove all target="_self" in links
+		$eventManager->addEventHandler('main', 'OnEndBufferContent',
+			function(&$content)
+			{
+				$content = str_replace(
+					['target="_self"', 'href="#"'],
+					['', 'href=""'],
+					$content
+				);
+			}
 		);
 	}
 
@@ -1528,6 +1558,7 @@ class LandingPubComponent extends LandingBaseComponent
 				if ($this->isPreviewMode)
 				{
 					Hook::setEditMode();
+					$this->onPreviewMode();
 				}
 				// for cloud some magic for optimization
 				if (Manager::isB24())
@@ -1730,9 +1761,9 @@ class LandingPubComponent extends LandingBaseComponent
 				if ($this->arParams['CHECK_PERMISSIONS'] == 'Y')
 				{
 					$this->arParams['CHECK_PERMISSIONS'] = 'N';
+
 					if ($realLandingId = $this->detectPage())
 					{
-						$this->arResult['ADMINS'] = $this->getAdmins();
 						$this->arResult['REAL_LANDING'] = Landing::createInstance($realLandingId, [
 							'check_permissions' => false,
 							'blocks_limit' => 0
@@ -1742,6 +1773,7 @@ class LandingPubComponent extends LandingBaseComponent
 							$this->executeComponent();
 							return;
 						}
+
 						if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 						{
 							$this->setHttpStatusOnce($this::ERROR_STATUS_FORBIDDEN);
@@ -1750,10 +1782,15 @@ class LandingPubComponent extends LandingBaseComponent
 							'SITE_NOT_ALLOWED',
 							$this->getMessageType('LANDING_CMP_SITE_NOT_ALLOWED', null, 2)
 						);
+
 						$this->arParams['CHECK_PERMISSIONS'] = 'Y';
+						$this->arResult['ADMINS'] = $this->getAdmins();
+
 						parent::executeComponent();
+
 						return;
 					}
+
 					$this->arParams['CHECK_PERMISSIONS'] = 'Y';
 				}
 				// for 404 we need site url

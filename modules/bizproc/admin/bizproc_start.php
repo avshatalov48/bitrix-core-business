@@ -272,48 +272,6 @@ else
 							false,
 							true
 						);
-
-						/*switch ($arParameter["Type"])
-						{
-							case "int":
-							case "double":
-								?><input type="text" name="<?= $parameterKey ?>" size="10" value="<?= $arParametersValues[$parameterKey] ?>" /><?
-								break;
-							case "string":
-								?><input type="text" name="<?= $parameterKey ?>" size="50" value="<?= $arParametersValues[$parameterKey] ?>" /><?
-								break;
-							case "text":
-								?><textarea name="<?= $parameterKey ?>" rows="5" cols="40"><?= $arParametersValues[$parameterKey] ?></textarea><?
-								break;
-							case "select":
-								?><select name="<?= $parameterKey ?><?= $arParameter["Multiple"] ? "[]\" size='5' multiple" : "\"" ?>>
-								<?
-								if (is_array($arParameter["Options"]) && count($arParameter["Options"]) > 0)
-								{
-									foreach ($arParameter["Options"] as $key => $value)
-									{
-										?><option value="<?= htmlspecialcharsbx($key) ?>"<?= (!$arParameter["Multiple"] && $key == $arParametersValues[$parameterKey] || $arParameter["Multiple"] && is_array($arParametersValues[$parameterKey]) && in_array($key, $arParametersValues[$parameterKey])) ? " selected" : "" ?>><?= htmlspecialcharsbx($value) ?></option><?
-									}
-								}
-								?>
-								</select><?
-								break;
-							case "bool":
-								?><select name="<?= $parameterKey ?>">
-									<option value="Y"<?= ($arParametersValues[$parameterKey] == "Y") ? " selected" : "" ?>><?= GetMessage("BPABS_YES") ?></option>
-									<option value="N"<?= ($arParametersValues[$parameterKey] == "N") ? " selected" : "" ?>><?= GetMessage("BPABS_NO") ?></option>
-								</select><?
-								break;
-							case "date":
-							case "datetime":
-								echo CAdminCalendar::CalendarDate($parameterKey, $arParametersValues[$parameterKey], 19, ($arParameter["Type"] == "date"));
-								break;
-							case "user":
-								?><textarea name="<?= $parameterKey ?>" id="id_<?= $parameterKey ?>" rows="3" cols="40"><?= $arParametersValues[$parameterKey] ?></textarea><input type="button" value="..." onclick="BPAShowSelector('id_<?= $parameterKey ?>', 'user');" /><?
-								break;
-							default:
-								echo GetMessage("BPABS_INVALID_TYPE");
-						}*/
 					?></td>
 				</tr>
 				<?

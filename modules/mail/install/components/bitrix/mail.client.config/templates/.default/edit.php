@@ -606,7 +606,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 			</div>
 			<div class="mail-connect-notice-block">
 				<div class="mail-connect-notice-text">
-					<?=Loc::getMessage('MAIL_CLIENT_CONFIG_ACCESS_HINT') ?>
+					<?=Loc::getMessage('MAIL_CLIENT_CONFIG_ACCESS_HINT_MSGVER_1') ?>
 					<!--span class="mail-connect-notice-more"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_ACCESS_MORE') ?></span-->
 				</div>
 			</div>

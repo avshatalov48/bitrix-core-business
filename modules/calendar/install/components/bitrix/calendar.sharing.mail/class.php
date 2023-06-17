@@ -14,61 +14,38 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 class CalendarSharingMailComponent extends CBitrixComponent
 {
-	protected const STATUS_COLOR_DEFAULT = '#959CA4';
-	protected const STATUS_COLOR_Y = '#8DBB00';
-	protected const STATUS_COLOR_N = '#F4433E';
-
-	protected const CALENDAR_COLOR_DEFAULT = '#2FC6F6';
-	protected const CALENDAR_COLOR_N = '#FF5752';
+	protected const MEETING_STATUS_CREATED = 'created';
+	protected const MEETING_STATUS_CANCELLED = 'cancelled';
 
 	public function executeComponent()
 	{
-		$this->arParams['COMPONENT_PATH'] = $this->getPath();
-		$this->prepareStatusColors($this->arParams['STATUS']);
-		$this->prepareStatusPhrases($this->arParams['STATUS']);
-		$this->prepareAttendees();
+		Sharing\Helper::setSiteLanguage();
 
-		if (empty($this->arParams['OWNER_PHOTO']))
-		{
-			$this->arParams['OWNER_PHOTO'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/ui-user.png';
-		}
+		$this->arParams['COMPONENT_PATH'] = $this->getPath();
+		$status = $this->arParams['STATUS'];
+		$this->prepareStatusPhrases($status);
+		$this->arParams['IS_CREATED'] = $status === self::MEETING_STATUS_CREATED;
+		$this->arParams['IS_CANCELLED'] = $status === self::MEETING_STATUS_CANCELLED;
 
 		$this->includeComponentTemplate();
 	}
 
-	protected function prepareStatusColors($status): void
-	{
-		$statusColor = self::STATUS_COLOR_DEFAULT;
-		$path = $this->getPath();
-		$mailBackground = "$path/templates/.default/images/calendar-sharing-email-bg-success.jpg";
-		$calendarColor = self::CALENDAR_COLOR_DEFAULT;
-
-		if ($status === 'Y')
-		{
-			$statusColor = self::STATUS_COLOR_Y;
-		}
-
-		if ($status === 'N')
-		{
-			$statusColor = self::STATUS_COLOR_N;
-			$mailBackground = "$path/templates/.default/images/calendar-sharing-email-bg-error.jpg";
-			$calendarColor = self::CALENDAR_COLOR_N;
-		}
-
-		$this->arParams['STATUS_COLOR'] = $statusColor;
-		$this->arParams['MAIL_BACKGROUND'] = $mailBackground;
-		$this->arParams['CALENDAR_COLOR'] = $calendarColor;
-	}
-
 	protected function prepareStatusPhrases($status): void
 	{
-		$this->arParams['MESSAGE_TITLE'] = Loc::getMessage("CALENDAR_SHARING_MAIL_TITLE_{$status}");
-		$this->arParams['OWNER_STATUS'] = Sharing\Helper::getStatusLoc($status);
-	}
+		if ($status === self::MEETING_STATUS_CREATED)
+		{
+			$this->arParams['ICON'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/calendar-sharing-email-icon-success.png';
+			$this->arParams['ICON_BUTTON_CANCEL'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/calendar-sharing-email-icon-button-cancel-x2.png';
+			$this->arParams['LOC_MEETING_STATUS'] = Loc::getMessage('CALENDAR_SHARING_MAIL_TITLE_CREATED');
+		}
+		if ($status === self::MEETING_STATUS_CANCELLED)
+		{
+			$this->arParams['ICON'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/calendar-sharing-email-icon-decline.png';
+			$this->arParams['LOC_MEETING_STATUS'] = Loc::getMessage('CALENDAR_SHARING_MAIL_TITLE_CANCELLED');
+		}
 
-	protected function prepareAttendees(): void
-	{
-		$this->arParams['ATTENDEES'] = [];
+		$this->arParams['MAIL_BG_GRAY'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/calendar-sharing-email-bg-gray.jpg';
+		$this->arParams['LOGO_RU'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/logo-ru-x2.png';
 	}
 
 }

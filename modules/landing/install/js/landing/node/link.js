@@ -68,7 +68,6 @@
 
 			if (this.isAllowInlineEdit())
 			{
-				BX.Landing.UI.Button.FontAction.hideAll();
 				BX.Landing.UI.Button.ColorAction.hideAll();
 
 				if (!BX.Landing.UI.Panel.StylePanel.getInstance().isShown())

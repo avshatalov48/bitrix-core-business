@@ -6,9 +6,13 @@ export default class TableEditor
 {
 	constructor(node: HTMLElement)
 	{
+		this.table = node.querySelector('.landing-table');
+		if (!this.table)
+		{
+			return;
+		}
 		this.node = node;
 		this.tBody = this.node.getElementsByTagName('tbody')[0];
-		this.table = node.querySelector('.landing-table');
 		this.addTitles(this.node);
 		this.enableEditCells(this.table);
 		this.dragAndDropRows(this);
@@ -71,23 +75,26 @@ export default class TableEditor
 
 	unselect(tableEditor, isSelectAll = false)
 	{
-		if (!isSelectAll)
+		if (tableEditor.table)
 		{
-			tableEditor.table.classList.remove('table-selected-all');
-			this.removeClasses(tableEditor.table, 'landing-table-th-select-all-selected');
-			this.removeClasses(tableEditor.table, 'landing-table-cell-selected');
+			if (!isSelectAll)
+			{
+				tableEditor.table.classList.remove('table-selected-all');
+				this.removeClasses(tableEditor.table, 'landing-table-th-select-all-selected');
+				this.removeClasses(tableEditor.table, 'landing-table-cell-selected');
+			}
+			this.removeClasses(tableEditor.table, 'landing-table-row-selected');
+			this.removeClasses(tableEditor.table, 'landing-table-th-selected');
+			this.removeClasses(tableEditor.table, 'landing-table-th-selected-cell');
+			this.removeClasses(tableEditor.table, 'landing-table-th-selected-top');
+			this.removeClasses(tableEditor.table, 'landing-table-th-selected-x');
+			this.removeClasses(tableEditor.table, 'landing-table-tr-selected-left');
+			this.removeClasses(tableEditor.table, 'landing-table-tr-selected-y');
+			this.removeClasses(tableEditor.table, 'landing-table-col-selected');
+			this.removeClasses(tableEditor.table, 'landing-table-tr-selected');
+			this.removeClasses(tableEditor.table, 'table-selected-all-right');
+			this.removeClasses(tableEditor.table, 'table-selected-all-bottom');
 		}
-		this.removeClasses(tableEditor.table, 'landing-table-row-selected');
-		this.removeClasses(tableEditor.table, 'landing-table-th-selected');
-		this.removeClasses(tableEditor.table, 'landing-table-th-selected-cell');
-		this.removeClasses(tableEditor.table, 'landing-table-th-selected-top');
-		this.removeClasses(tableEditor.table, 'landing-table-th-selected-x');
-		this.removeClasses(tableEditor.table, 'landing-table-tr-selected-left');
-		this.removeClasses(tableEditor.table, 'landing-table-tr-selected-y');
-		this.removeClasses(tableEditor.table, 'landing-table-col-selected');
-		this.removeClasses(tableEditor.table, 'landing-table-tr-selected');
-		this.removeClasses(tableEditor.table, 'table-selected-all-right');
-		this.removeClasses(tableEditor.table, 'table-selected-all-bottom');
 	}
 
 	onUnselect(tableEditor)
@@ -109,7 +116,7 @@ export default class TableEditor
 
 	selectAll(tableEditor)
 	{
-		let thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
+		const thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
 		Event.bind(thTech, 'click', () => {
 			let isSelectedTable = false;
 			if (tableEditor.table.classList.contains('table-selected-all'))
@@ -117,10 +124,10 @@ export default class TableEditor
 				isSelectedTable = true;
 			}
 			tableEditor.unselect(tableEditor, true);
-			let setRows = tableEditor.table.querySelectorAll('.landing-table-tr');
+			const setRows = tableEditor.table.querySelectorAll('.landing-table-tr');
 			let count = 0;
 			setRows.forEach(function(row){
-				let setTh = row.childNodes;
+				const setTh = row.childNodes;
 				let index = 0;
 				let lastThIndex = 0;
 				row.childNodes.forEach(function(cell) {
@@ -176,13 +183,13 @@ export default class TableEditor
 		let setTrDnd = tableEditor.table.querySelectorAll('.landing-table-row-dnd');
 		if (neededPosition !== null)
 		{
-			var newSetTrDnd = [];
+			let newSetTrDnd = [];
 			newSetTrDnd[0] = setTrDnd[neededPosition];
 			setTrDnd = newSetTrDnd;
 		}
 		setTrDnd.forEach(function(trDnd){
 			Event.bind(trDnd, 'click', () => {
-				if (!event.srcElement.classList.contains('landing-table-row-add'))
+				if (!event.target.classList.contains('landing-table-row-add'))
 				{
 					tableEditor.unselect(tableEditor);
 					let setTh = trDnd.parentElement.childNodes;
@@ -213,17 +220,17 @@ export default class TableEditor
 		let setThDnd = tableEditor.table.querySelectorAll('.landing-table-col-dnd');
 		if (neededPosition !== null)
 		{
-			var newSetTrDnd = [];
+			let newSetTrDnd = [];
 			newSetTrDnd[0] = setThDnd[neededPosition];
 			setThDnd = newSetTrDnd;
 		}
 		setThDnd.forEach(function(thDnd){
 			Event.bind(thDnd, 'click', () => {
-				if (!event.srcElement.classList.contains('landing-table-col-add')
-					&& !event.srcElement.classList.contains('landing-table-col-resize'))
+				if (!event.target.classList.contains('landing-table-col-add')
+					&& !event.target.classList.contains('landing-table-col-resize'))
 				{
 					tableEditor.unselect(tableEditor);
-					let cellIndex = thDnd.cellIndex;
+					const cellIndex = thDnd.cellIndex;
 					let count = 0;
 					tableEditor.tBody.childNodes.forEach(function(tr) {
 						if (tr.nodeType === 1)
@@ -268,14 +275,14 @@ export default class TableEditor
 	{
 		if (tableEditor.node)
 		{
-			let width = tableEditor.node.querySelector('.landing-table').getBoundingClientRect().width;
-			let height = tableEditor.node.querySelector('.landing-table').getBoundingClientRect().height;
+			const width = tableEditor.node.querySelector('.landing-table').getBoundingClientRect().width;
+			const height = tableEditor.node.querySelector('.landing-table').getBoundingClientRect().height;
 			const offset = 5;
-			let linesX = document.querySelectorAll('.landing-table-row-add-line');
+			const linesX = document.querySelectorAll('.landing-table-row-add-line');
 			linesX.forEach(function(lineX) {
 				lineX.style.width = width + offset + "px";
 			});
-			let linesY = document.querySelectorAll('.landing-table-col-add-line');
+			const linesY = document.querySelectorAll('.landing-table-col-add-line');
 			linesY.forEach(function(lineY) {
 				lineY.style.height = height + offset + "px";
 			});
@@ -303,7 +310,7 @@ export default class TableEditor
 		buttons = Array.prototype.slice.call(buttons,0);
 		buttons.forEach(function(button){
 			Event.bind(button, 'click', () => {
-				let selectedCell = tableEditor.table.querySelector('.landing-table-th-selected-cell');
+				const selectedCell = tableEditor.table.querySelector('.landing-table-th-selected-cell');
 				let selectedCellPos = 0;
 				let nodeCount = 0;
 				if (selectedCell)
@@ -319,13 +326,13 @@ export default class TableEditor
 						}
 					})
 				}
-				let trDnd = document.createElement('th');
+				const trDnd = document.createElement('th');
 				trDnd.classList.add('landing-table-th', 'landing-table-row-dnd');
 				if (tableEditor.table.classList.contains('table-selected-all'))
 				{
 					trDnd.classList.add('landing-table-cell-selected');
 				}
-				let row = button.parentNode.parentNode;
+				const row = button.parentNode.parentNode;
 				let neededPosition = [...row.parentNode.children].indexOf(button.parentNode.parentNode)
 				let count = 0;
 				let lastElementPosition = 0;
@@ -336,11 +343,11 @@ export default class TableEditor
 					}
 					count++;
 				})
-				let tr = tableEditor.tBody.childNodes[lastElementPosition];
-				let newTd = document.createElement('td');
+				const tr = tableEditor.tBody.childNodes[lastElementPosition];
+				const newTd = document.createElement('td');
 				newTd.classList.add('landing-table-th', 'landing-table-td');
 				newTd.style.width = '50px';
-				let table = tableEditor.node.querySelector('.landing-table');
+				const table = tableEditor.node.querySelector('.landing-table');
 				if (table.hasAttribute('bg-color'))
 				{
 					newTd.style.backgroundColor = table.getAttribute('bg-color');
@@ -349,16 +356,16 @@ export default class TableEditor
 				{
 					newTd.style.color = table.getAttribute('text-color');
 				}
-				let newTr = document.createElement('tr');
+				const newTr = document.createElement('tr');
 				newTr.classList.add('landing-table-tr');
 				trDnd.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_DND_ROWS"));
 				trDnd.style.width = '16px';
-				let divAddRow = document.createElement('div');
+				const divAddRow = document.createElement('div');
 				divAddRow.classList.add('landing-table-row-add');
 				divAddRow.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_COL"));
-				let divLineX = document.createElement('div');
+				const divLineX = document.createElement('div');
 				divLineX.classList.add('landing-table-row-add-line');
-				let divRowDnd = document.createElement('div');
+				const divRowDnd = document.createElement('div');
 				divRowDnd.classList.add('landing-table-div-row-dnd');
 				divAddRow.appendChild(divLineX);
 				trDnd.appendChild(divAddRow);
@@ -414,8 +421,7 @@ export default class TableEditor
 		let buttons = tableEditor.getButtonsAddCol(tableEditor.node);
 		if (neededPosition !== null)
 		{
-			// todo: is ok?
-			let button = buttons[neededPosition];
+			const button = buttons[neededPosition];
 			buttons = [];
 			buttons[0] = button;
 		}
@@ -425,7 +431,7 @@ export default class TableEditor
 		}
 		buttons.forEach(function(button){
 			Event.bind(button, 'click', () => {
-				let selectedRow = tableEditor.table.querySelector('.landing-table-row-selected');
+				const selectedRow = tableEditor.table.querySelector('.landing-table-row-selected');
 				let selectedRowPos = 0;
 				let countNode = 0;
 				if (selectedRow)
@@ -459,28 +465,28 @@ export default class TableEditor
 						if (element.nodeType === 1)
 						{
 							newThFirstCloned = newThFirst.cloneNode(true);
-							let divColumnDnd = document.createElement('div');
+							const divColumnDnd = document.createElement('div');
 							divColumnDnd.classList.add('landing-table-div-col-dnd');
 							divColumnDnd.title = BX.Landing.Utils.escapeText(
 								BX.Landing.Loc.getMessage("LANDING_TABLE_DND_COLS")
 							);
-							let divColumnResize = document.createElement('div');
+							const divColumnResize = document.createElement('div');
 							divColumnResize.classList.add('landing-table-col-resize');
 							divColumnResize.title = BX.Landing.Utils.escapeText(
 								BX.Landing.Loc.getMessage("LANDING_TABLE_RESIZE_COLS")
 							);
-							let divAddColHere = document.createElement('div');
+							const divAddColHere = document.createElement('div');
 							divAddColHere.classList.add('landing-table-col-add');
 							divAddColHere.title = BX.Landing.Utils.escapeText(
 								BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_COL")
 							);
-							let divLineY = document.createElement('div');
+							const divLineY = document.createElement('div');
 							divLineY.classList.add('landing-table-col-add-line');
 							divAddColHere.appendChild(divLineY);
 							newThFirstCloned.appendChild(divColumnDnd);
 							newThFirstCloned.appendChild(divColumnResize);
 							newThFirstCloned.appendChild(divAddColHere);
-							let newTd = document.createElement('td');
+							const newTd = document.createElement('td');
 							newTd.classList.add('landing-table-th', 'landing-table-td');
 							newTd.style.width = '50px';
 							let table = tableEditor.node.querySelector('.landing-table');
@@ -622,8 +628,8 @@ export default class TableEditor
 				cloneRow.remove();
 				rows[currentPositionRow].classList.remove('landing-table-tr-taken');
 				rows[currentPositionRow].style = '';
-				let newDraggableRowPositionY = currentPositionRowY + draggableRowOffsetY;
-				let newDraggableRowPositionBottomY = newDraggableRowPositionY + rows[currentPositionRow].getBoundingClientRect().height;
+				const newDraggableRowPositionY = currentPositionRowY + draggableRowOffsetY;
+				const newDraggableRowPositionBottomY = newDraggableRowPositionY + rows[currentPositionRow].getBoundingClientRect().height;
 				if (draggableRowOffsetY < 0)
 				{
 					for (let i = 0; i < setRowPositionsY.length; i++) {
@@ -724,8 +730,7 @@ export default class TableEditor
 						return row.children[currentPositionCol];
 					});
 					setRows = tableEditor.tBody.querySelectorAll('.landing-table-tr');
-					let thListOfFirstRow = setRows[0].childNodes;
-					thListOfFirstRow.forEach(function(thOfFirstRow) {
+					setRows[0].childNodes.forEach(function(thOfFirstRow) {
 						if (thOfFirstRow.nodeType === 1)
 						{
 							setColPositionsX.push(thOfFirstRow.getBoundingClientRect().x);
@@ -773,8 +778,8 @@ export default class TableEditor
 				});
 				if (currentPositionCol)
 				{
-					let newDraggableColPositionX = setColPositionsX[currentPositionCol] + draggableColOffsetX;
-					let newDraggableColPositionRightX = setColPositionsX[currentPositionCol] + draggableColOffsetX + setColCells[0].getBoundingClientRect().width;
+					const newDraggableColPositionX = setColPositionsX[currentPositionCol] + draggableColOffsetX;
+					const newDraggableColPositionRightX = setColPositionsX[currentPositionCol] + draggableColOffsetX + setColCells[0].getBoundingClientRect().width;
 					let i = 0;
 					setColCells.forEach((cell) => {
 						cell.style = setColCellsStyles[i];
@@ -856,7 +861,7 @@ export default class TableEditor
 
 	resizeColumn(tableEditor)
 	{
-		let tbody = this.tBody;
+		const tbody = this.tBody;
 		this.resizeElement = new Draggable({
 			container: tbody,
 			draggable: '.landing-table-col-resize',
@@ -885,8 +890,8 @@ export default class TableEditor
 				})
 			})
 			.subscribe('end', () => {
-				let tBodyWidth = tbody.getBoundingClientRect().width;
-				let tableContainerWidth = tbody.parentElement.parentElement.getBoundingClientRect().width;
+				const tBodyWidth = tbody.getBoundingClientRect().width;
+				const tableContainerWidth = tbody.parentElement.parentElement.getBoundingClientRect().width;
 				if (tableContainerWidth > tBodyWidth)
 				{
 					tbody.parentElement.parentElement.classList.add('landing-table-scroll-hidden');
@@ -902,7 +907,7 @@ export default class TableEditor
 
 	enableEditCells(table)
 	{
-		let thContentList = table.querySelectorAll('.landing-table-td');
+		const thContentList = table.querySelectorAll('.landing-table-td');
 		thContentList.forEach(function(td) {
 			td.setAttribute('contenteditable', 'true');
 		})
@@ -910,7 +915,7 @@ export default class TableEditor
 
 	removeClasses(element, className)
 	{
-		let setElements = element.querySelectorAll('.' + className)
+		const setElements = element.querySelectorAll('.' + className)
 		setElements.forEach(function(element){
 			element.classList.remove(className);
 		})

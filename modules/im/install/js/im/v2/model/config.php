@@ -9,13 +9,14 @@ return [
 		'./dist/registry.bundle.js',
 	],
 	'rel' => [
-		'ui.vue3',
-		'im.v2.lib.logger',
 		'main.core.events',
+		'im.v2.lib.logger',
+		'ui.reactions-select',
+		'im.v2.application.core',
+		'im.v2.lib.utils',
 		'main.core',
 		'ui.vue3.vuex',
 		'im.v2.const',
-		'im.v2.lib.utils',
 	],
 	'skip_core' => false,
 ];

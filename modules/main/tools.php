@@ -72,8 +72,8 @@ function SelectBox($strBoxName, $a,	$strDetText = "", $strSelectedVal = "", $fie
 		$strReturnBox = $strReturnBox."<option value=\"NOT_REF\">".$strDetText."</option>";
 	while (($ar = $a->Fetch()))
 	{
-		$reference_id = $ar["REFERENCE_ID"];
-		$reference = $ar["REFERENCE"];
+		$reference_id = $ar["REFERENCE_ID"] ?? '';
+		$reference = $ar["REFERENCE"] ?? '';
 		if ($reference_id == '')
 			$reference_id = $ar["reference_id"];
 		if ($reference == '')
@@ -381,7 +381,7 @@ function CheckDateTime($datetime, $format=false)
 				$month = intval(date('m', strtotime($ar["M"])));
 		}
 	}
-	$year  = intval($ar["YYYY"]);
+	$year  = intval($ar["YYYY"] ?? 0);
 	if (isset($ar["HH"]))
 	{
 		$hour  = intval($ar["HH"]);
@@ -400,7 +400,7 @@ function CheckDateTime($datetime, $format=false)
 	}
 	if (isset($ar['TT']) || isset($ar['T']))
 	{
-		$middletime = isset($ar['TT']) ? $ar['TT'] : $ar['T'];
+		$middletime = $ar['TT'] ?? $ar['T'];
 		if (strcasecmp('pm', $middletime)===0)
 		{
 			if ($hour < 12)
@@ -509,7 +509,7 @@ function MakeTimeStamp($datetime, $format=false)
 	}
 	if (isset($ar['TT']) || isset($ar['T']))
 	{
-		$middletime = isset($ar['TT']) ? $ar['TT'] : $ar['T'];
+		$middletime = $ar['TT'] ?? $ar['T'];
 		if (strcasecmp('pm', $middletime)===0)
 		{
 			if ($hour < 12)
@@ -530,11 +530,7 @@ function MakeTimeStamp($datetime, $format=false)
 	if($hour>24 || $hour<0 || $min<0 || $min>59 || $sec<0 || $sec>59)
 		return false;
 
-	$ts = mktime($hour, $min, $sec, $month, $day, $year);
-	if($ts === false)
-		return false;
-
-	return $ts;
+	return mktime($hour, $min, $sec, $month, $day, $year);
 }
 
 /**
@@ -592,29 +588,26 @@ function AddToTimeStamp($arrAdd, $stmp=false)
 		foreach($arrAdd as $key => $value)
 		{
 			$value = intval($value);
-			if (is_int($value))
+			switch ($key)
 			{
-				switch ($key)
-				{
-					case "DD":
-						$stmp = AddTime($stmp, $value, "D");
-						break;
-					case "MM":
-						$stmp = AddTime($stmp, $value, "MN");
-						break;
-					case "YYYY":
-						$stmp = AddTime($stmp, $value, "Y");
-						break;
-					case "HH":
-						$stmp = AddTime($stmp, $value, "H");
-						break;
-					case "MI":
-						$stmp = AddTime($stmp, $value, "M");
-						break;
-					case "SS":
-						$stmp = AddTime($stmp, $value, "S");
-						break;
-				}
+				case "DD":
+					$stmp = AddTime($stmp, $value, "D");
+					break;
+				case "MM":
+					$stmp = AddTime($stmp, $value, "MN");
+					break;
+				case "YYYY":
+					$stmp = AddTime($stmp, $value, "Y");
+					break;
+				case "HH":
+					$stmp = AddTime($stmp, $value, "H");
+					break;
+				case "MI":
+					$stmp = AddTime($stmp, $value, "M");
+					break;
+				case "SS":
+					$stmp = AddTime($stmp, $value, "S");
+					break;
 			}
 		}
 	}
@@ -676,17 +669,17 @@ function IsAmPmMode($returnConst = false)
 {
 	if($returnConst)
 	{
-		if(mb_strpos(FORMAT_DATETIME, 'TT') !== false)
+		if(strpos(FORMAT_DATETIME, 'TT') !== false)
 		{
 			return AM_PM_UPPER;
 		}
-		if(mb_strpos(FORMAT_DATETIME, 'T') !== false)
+		if(strpos(FORMAT_DATETIME, 'T') !== false)
 		{
 			return AM_PM_LOWER;
 		}
 		return AM_PM_NONE;
 	}
-	return mb_strpos(FORMAT_DATETIME, 'T') !== false;
+	return strpos(FORMAT_DATETIME, 'T') !== false;
 }
 
 function convertTimeToMilitary ($strTime, $fromFormat = 'H:MI T', $toFormat = 'HH:MI')
@@ -710,7 +703,7 @@ function convertTimeToMilitary ($strTime, $fromFormat = 'H:MI T', $toFormat = 'H
 
 	if (isset($arParsedDate['TT']) || isset($arParsedDate['T']))
 	{
-		$middletime = isset($arParsedDate['TT']) ? $arParsedDate['TT'] : $arParsedDate['T'];
+		$middletime = $arParsedDate['TT'] ?? $arParsedDate['T'];
 		if (strcasecmp('pm', $middletime)===0)
 		{
 			if ($arParsedDate["HH"] < 12)
@@ -722,7 +715,7 @@ function convertTimeToMilitary ($strTime, $fromFormat = 'H:MI T', $toFormat = 'H
 		}
 	}
 
-	$ts = mktime($arParsedDate['HH'], $arParsedDate['MI'], (isset($arParsedDate['SS']) ? $arParsedDate['SS'] : 0), 3, 7, 2012);
+	$ts = mktime($arParsedDate['HH'], $arParsedDate['MI'], ($arParsedDate['SS'] ?? 0), 3, 7, 2012);
 	return FormatDate($DB->dateFormatToPHP($toFormat), $ts);
 }
 
@@ -1342,7 +1335,7 @@ function FormatDateEx($strDate, $format=false, $new_format=false)
 
 	if (isset($arParsedDate['TT']) || isset($arParsedDate['T']))
 	{
-		$middletime = isset($arParsedDate['TT']) ? $arParsedDate['TT'] : $arParsedDate['T'];
+		$middletime = $arParsedDate['TT'] ?? $arParsedDate['T'];
 		if (strcasecmp('pm', $middletime)===0)
 		{
 			if ($arParsedDate["HH"] < 12)
@@ -1699,7 +1692,7 @@ Array
 */
 function DelDuplicateSort(&$arSort)
 {
-	if (is_array($arSort) && count($arSort)>0)
+	if (is_array($arSort) && !empty($arSort))
 	{
 		$arSort2 = array();
 		foreach($arSort as $val)
@@ -1738,7 +1731,7 @@ function array_convert_name_2_value($arr)
 
 function InitBVarFromArr($arr)
 {
-	if (is_array($arr) && count($arr)>0)
+	if (is_array($arr) && !empty($arr))
 	{
 		foreach($arr as $value)
 		{
@@ -1930,7 +1923,7 @@ function convert_code_tag_for_email($text="", $arMsg=array())
 
 function PrepareTxtForEmail($text, $lang=false, $convert_url_tag=true, $convert_image_tag=true)
 {
-	$text = Trim($text);
+	$text = trim($text);
 	if($text == '')
 		return "";
 
@@ -2380,7 +2373,7 @@ function CheckDirPath($path)
 	return is_dir($path);
 }
 
-function CopyDirFiles($path_from, $path_to, $ReWrite = True, $Recursive = False, $bDeleteAfterCopy = False, $strExclude = "")
+function CopyDirFiles($path_from, $path_to, $ReWrite = true, $Recursive = false, $bDeleteAfterCopy = false, $strExclude = "")
 {
 	if (mb_strpos($path_to."/", $path_from."/") === 0 || realpath($path_to) === realpath($path_from))
 		return false;
@@ -2396,7 +2389,7 @@ function CopyDirFiles($path_from, $path_to, $ReWrite = True, $Recursive = False,
 		CheckDirPath($path_to_dir."/");
 
 		if (file_exists($path_to) && !$ReWrite)
-			return False;
+			return false;
 
 		@copy($path_from, $path_to);
 		if(is_file($path_to))
@@ -2405,11 +2398,11 @@ function CopyDirFiles($path_from, $path_to, $ReWrite = True, $Recursive = False,
 		if ($bDeleteAfterCopy)
 			@unlink($path_from);
 
-		return True;
+		return true;
 	}
 	else
 	{
-		return True;
+		return true;
 	}
 
 	if ($handle = @opendir($path_from))
@@ -2972,7 +2965,7 @@ function GetLangFileName($before, $after, $lang=false)
 	if(file_exists($before."en".$after))
 		return $before."en".$after;
 
-	if(mb_strpos($before, "/bitrix/modules/") === false)
+	if(strpos($before, "/bitrix/modules/") === false)
 		return $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/en/tools.php";
 
 	$old_path = Rtrim($before, "/");
@@ -3126,7 +3119,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 	);
 	foreach($dirs as $dir)
 	{
-		if(mb_strpos($filepath, $dir) !== false)
+		if(strpos($filepath, $dir) !== false)
 		{
 			$templ_path = $dir;
 			$templ_pos = mb_strlen($filepath) - mb_strpos(strrev($filepath), strrev($templ_path));
@@ -3144,7 +3137,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 	}
 	if($templ_path == "")
 	{
-		if(mb_strpos($filepath, $module_path) !== false)
+		if(strpos($filepath, $module_path) !== false)
 		{
 			$templ_pos = mb_strlen($filepath) - mb_strpos(strrev($filepath), strrev($module_path));
 			$rel_path = mb_substr($filepath, $templ_pos);
@@ -3277,7 +3270,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 
 	$filepath = rtrim(preg_replace("'[\\\\/]+'", "/", $filepath), "/ ");
 	$module_path = "/modules/";
-	if(mb_strpos($filepath, $module_path) !== false)
+	if(strpos($filepath, $module_path) !== false)
 	{
 		$pos = mb_strlen($filepath) - mb_strpos(strrev($filepath), strrev($module_path));
 		$rel_path = mb_substr($filepath, $pos);
@@ -3290,7 +3283,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 		$BX_DOC_ROOT = rtrim(preg_replace("'[\\\\/]+'", "/", $_SERVER["DOCUMENT_ROOT"]), "/ ");
 		$module_path = $BX_DOC_ROOT.getLocalPath($module_path.$module_name);
 	}
-	elseif(mb_strpos($filepath, "/.last_version/") !== false)
+	elseif(strpos($filepath, "/.last_version/") !== false)
 	{
 		$pos = mb_strlen($filepath) - mb_strpos(strrev($filepath), strrev("/.last_version/"));
 		$rel_path = mb_substr($filepath, $pos);
@@ -3619,7 +3612,7 @@ function IsIE()
 function GetCountryByID($id, $lang=LANGUAGE_ID)
 {
 	$msg = IncludeModuleLangFile(__FILE__, $lang, true);
-	return $msg["COUNTRY_".$id];
+	return $msg["COUNTRY_".$id] ?? '';
 }
 
 function GetCountryArray($lang=LANGUAGE_ID)
@@ -3756,7 +3749,7 @@ function QueryGetData($SITE, $PORT, $PATH, $QUERY_STR, &$errno, &$errstr, $sMeth
 			$sMethod,
 			$SITE,
 			$PORT,
-			$PATH . ($sMethod == 'GET' ? ((mb_strpos($PATH, '?') === false ? '?' : '&') . $QUERY_STR) : ''),
+			$PATH . ($sMethod == 'GET' ? ((strpos($PATH, '?') === false ? '?' : '&') . $QUERY_STR) : ''),
 			$sMethod == 'POST' ? $QUERY_STR : false,
 			$sProto,
 			$sContentType
@@ -3809,14 +3802,7 @@ function xml_depth_xmldata($vals, &$i)
 		switch ($vals[$i]['type'])
 		{
 			case 'open':
-				if (isset($vals[$i]['tag']))
-				{
-					$tagname = $vals[$i]['tag'];
-				}
-				else
-				{
-					$tagname = '';
-				}
+				$tagname = $vals[$i]['tag'] ?? '';
 
 				if (isset($children[$tagname]))
 				{
@@ -3993,7 +3979,7 @@ function ShowMessage($arMess)
 	if(!is_array($arMess))
 		$arMess=Array("MESSAGE" => $arMess, "TYPE" => "ERROR");
 
-	if($arMess["MESSAGE"] <> "")
+	if(!empty($arMess["MESSAGE"]))
 	{
 		$APPLICATION->IncludeComponent(
 			"bitrix:system.show_message",
@@ -4478,13 +4464,18 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 	$event->send();
 
 	$defaultMailConfiguration = Configuration::getValue("smtp");
+	$smtpEnabled =
+		is_array($defaultMailConfiguration)
+		&& isset($defaultMailConfiguration['enabled'])
+		&& $defaultMailConfiguration['enabled'] === true
+	;
+
 	if (
-		$defaultMailConfiguration
-		&& $defaultMailConfiguration['enabled']
-		&& $context->getSmtp()
-		|| $defaultMailConfiguration['enabled']
-		&& $defaultMailConfiguration['host']
-		&& $defaultMailConfiguration['login']
+		$smtpEnabled
+		&& (
+			$context->getSmtp() !== null
+			|| (!empty($defaultMailConfiguration['host']) && !empty($defaultMailConfiguration['login']))
+		)
 	)
 	{
 		$mailer = Main\Mail\Smtp\Mailer::getInstance($context);

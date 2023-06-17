@@ -1,0 +1,68 @@
+.bx-im-carousel-user__scope {
+	--im-carousel-user__color_extranet-name: #c48300;
+	--im-carousel-user__color_hover-extranet-name: #9f6a00;
+	--im-carousel-user__color_name: #959ca4;
+	--im-carousel-user__color_hover-name: #6a737f;
+	--im-carousel-user__background-image_selected: url('./images/selected-mark.svg');
+	--im-carousel-user__outline-color_selected: #2fc6f6;
+	--im-carousel-user__background-color_selected: var(--im-carousel-user__outline-color_selected);
+	--im-carousel-user__color_title-selected: #11a9d9;
+}
+
+.bx-im-carousel-user__container {
+	display: flex;
+	width: 62px;
+	height: 100%;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	position: relative;
+	color: var(--im-carousel-user__color_name);
+}
+
+.bx-im-carousel-user__container:hover {
+	color: var(--im-carousel-user__color_hover-name);
+}
+
+.bx-im-carousel-user__container.--extranet {
+	color: var(--im-carousel-user__color_extranet-name);
+}
+
+.bx-im-carousel-user__container.--selected .bx-im-avatar__content {
+	outline: 2px solid var(--im-carousel-user__outline-color_selected);
+	outline-offset: -1px;
+}
+
+.bx-im-carousel-user__selected-mark {
+	position: absolute;
+	top: 0;
+	right: 3px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	box-shadow: 0 1px 8px rgb(0 0 0 / 8%);
+	z-index: 1;
+	background-image: var(--im-carousel-user__background-image_selected);
+	background-repeat: no-repeat;
+	background-position: 5px 6px;
+	background-color: var(--im-carousel-user__background-color_selected);
+}
+
+.bx-im-carousel-user__container.--extranet:hover {
+	color: var(--im-carousel-user__color_hover-extranet-name);
+}
+
+.bx-im-carousel-user__title {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 3px;
+	width: 100%;
+}
+
+.bx-im-carousel-user__container.--selected .bx-im-carousel-user__title {
+	color: var(--im-carousel-user__color_title-selected);
+}

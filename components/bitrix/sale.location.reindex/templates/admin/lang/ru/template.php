@@ -2,7 +2,6 @@
 $MESS["SALE_SLRI_TAB_REINDEX_TITLE"] = "Переиндексация";
 $MESS["SALE_SLRI_TAB_REINDEX_TITLE_SETTINGS"] = "Настройки переиндексации";
 $MESS["SALE_SLRI_SETTINGS_BASE"] = "Основные настройки";
-$MESS["SALE_SLRI_JOB2DO"] = "Переиндексировать сейчас";
 $MESS["SALE_SLRI_JOB_DICTIONARY"] = "Поисковый словарь";
 $MESS["SALE_SLRI_JOB_SITE"] = "Привязки к сайтам";
 $MESS["SALE_SLRI_TYPES4INDEX_2"] = "Ускорять поиск для типов";

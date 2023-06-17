@@ -624,6 +624,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 			$unsetCurrentDefaultStoreResult = StoreTable::update($defaultStoreId, ['IS_DEFAULT' => 'N']);
 			if (!$unsetCurrentDefaultStoreResult->isSuccess())
 			{
+				$DB->Rollback();
 				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage(
 					'STORE_LIST_ACTION_SET_AS_DEFAULT_ERROR',
 					['#ERROR#' => implode('; ', $unsetCurrentDefaultStoreResult->getErrorMessages())]

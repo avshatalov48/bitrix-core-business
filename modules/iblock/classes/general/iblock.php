@@ -14,8 +14,185 @@ class CAllIBlock
 	protected static $disabledCacheTag = array();
 	protected static $enableClearTagCache = 0;
 
-	protected static $catalogIncluded = null;
-	protected static $workflowIncluded = null;
+	protected static ?bool $catalogIncluded = null;
+	protected static ?bool $workflowIncluded = null;
+
+	private static array $urlElementDataCache = [];
+
+	private static array $urlSectionDataCache = [];
+
+	private static array $productIblockDataCache = [];
+
+	private static array $urlParentCache = [];
+
+	public static function clearUrlDataCache(): void
+	{
+		self::$productIblockDataCache = [];
+		self::$urlParentCache = [];
+		self::$urlElementDataCache = [];
+		self::$urlSectionDataCache = [];
+	}
+
+	public static function fillUrlElementDataCache(int $id): void
+	{
+		if ($id <= 0)
+		{
+			return;
+		}
+		if (isset(self::$urlElementDataCache[$id]))
+		{
+			return;
+		}
+
+		$element = Iblock\ElementTable::getRow([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+				'CODE',
+				'XML_ID',
+				'IBLOCK_SECTION_ID',
+			],
+			'filter' => [
+				'=ID' => $id,
+			]
+		]);
+		if ($element !== null)
+		{
+			$element['ID'] = (int)$element['ID'];
+			$element['IBLOCK_ID'] = (int)$element['IBLOCK_ID'];
+			$element['CODE'] = (string)$element['CODE'];
+			$element['XML_ID'] = (string)$element['XML_ID'];
+			$element['IBLOCK_SECTION_ID'] = (int)$element['IBLOCK_SECTION_ID'];
+			$element['IBLOCK_SECTION_CODE'] = '';
+			$sectionId = $element['IBLOCK_SECTION_ID'];
+			if ($sectionId > 0)
+			{
+				if (!isset(self::$urlSectionDataCache[$sectionId]))
+				{
+					self::$urlSectionDataCache[$sectionId] = false;
+					$section = Iblock\SectionTable::getRow([
+						'select' => [
+							'ID',
+							'CODE',
+						],
+						'filter' => [
+							'=ID' => $sectionId,
+							'=IBLOCK_ID' => $element['IBLOCK_ID'],
+						]
+					]);
+					if ($section !== null)
+					{
+						$section['ID'] = (int)$section['ID'];
+						$section['CODE'] = (string)$section['CODE'];
+						self::$urlSectionDataCache[$sectionId] = $section;
+					}
+				}
+				if (!empty(self::$urlSectionDataCache[$sectionId]))
+				{
+					$element['IBLOCK_SECTION_CODE'] = self::$urlSectionDataCache[$sectionId]['CODE'];
+				}
+			}
+
+			self::$urlElementDataCache[$id] = $element;
+		}
+		else
+		{
+			self::$urlElementDataCache[$id] = false;
+		}
+	}
+
+	private static function getUrlElementData(int $id): ?array
+	{
+		if ($id <= 0)
+		{
+			return null;
+		}
+
+		if (!isset(self::$urlElementDataCache[$id]))
+		{
+			static::fillUrlElementDataCache($id);
+		}
+
+		return (
+			!empty(self::$urlElementDataCache[$id])
+				? self::$urlElementDataCache[$id]
+				: null
+		);
+	}
+
+	private static function getProductIblockData(int $iblockId): ?array
+	{
+		if ($iblockId <= 0)
+		{
+			return null;
+		}
+		if (self::$catalogIncluded === null)
+		{
+			self::$catalogIncluded = Loader::includeModule('catalog');
+		}
+		if (!self::$catalogIncluded)
+		{
+			return null;
+		}
+
+		if (!isset(self::$productIblockDataCache[$iblockId]))
+		{
+			$iblock = CCatalogSku::GetInfoByOfferIBlock($iblockId);
+			if (is_array($iblock))
+			{
+				$productIblock = CIBlock::GetArrayByID($iblock['PRODUCT_IBLOCK_ID']);
+				if (is_array($productIblock))
+				{
+					$iblock['PRODUCT_IBLOCK'] = [
+						'ID' => (int)$productIblock['ID'],
+						'IBLOCK_TYPE_ID' => $productIblock['IBLOCK_TYPE_ID'],
+						'CODE' => (string)$productIblock['CODE'],
+						'XML_ID' => (string)$productIblock['XML_ID'],
+						'DETAIL_PAGE_URL' => (string)$productIblock['DETAIL_PAGE_URL'],
+					];
+				}
+				else
+				{
+					$iblock = false;
+				}
+			}
+			self::$productIblockDataCache[$iblockId] = $iblock;
+		}
+
+		return (
+			!empty(self::$productIblockDataCache[$iblockId])
+				? self::$productIblockDataCache[$iblockId]
+				: null
+		);
+	}
+
+	private static function getProductId(int $elementId, int $iblockId): ?int
+	{
+		if ($elementId <= 0 || $iblockId <= 0)
+		{
+			return null;
+		}
+		if (self::$catalogIncluded === null)
+		{
+			self::$catalogIncluded = Loader::includeModule('catalog');
+		}
+		if (!self::$catalogIncluded)
+		{
+			return null;
+		}
+
+		if (!isset(self::$urlParentCache[$elementId]))
+		{
+			$list = CCatalogSku::getProductList($elementId, $iblockId);
+			self::$urlParentCache[$elementId] = $list[$elementId]['ID'] ?? false;
+		}
+
+		return (
+			!empty(self::$urlParentCache[$elementId])
+				? self::$urlParentCache[$elementId]
+				: null
+		);
+	}
 
 	public static function ShowPanel($IBLOCK_ID=0, $ELEMENT_ID=0, $SECTION_ID="", $type="news", $bGetIcons=false, $componentName="", $arLabels=array())
 	{
@@ -164,9 +341,12 @@ class CAllIBlock
 		$arResult = array();
 		foreach($arButtons[$mode] as $i=>$arButton)
 		{
-			$arButton['URL'] = $arButton['ACTION'];
-			unset($arButton['ACTION']);
-			$arButton['IMAGE'] = $arImages[$i];
+			if (!isset($arButton['SEPARATOR']))
+			{
+				$arButton['URL'] = $arButton['ACTION'] ?? null;
+				unset($arButton['ACTION']);
+				$arButton['IMAGE'] = $arImages[$i] ?? null;
+			}
 			$arResult[] = $arButton;
 		}
 		return $arResult;
@@ -1896,16 +2076,27 @@ REQ
 				{
 					unset($arFields[$fieldId]);
 				}
-				if (isset($defaultValues[$fieldId]) && is_array($defaultValues[$fieldId]))
+				if (isset($fields[$fieldId]['IS_REQUIRED']))
 				{
-					$value = $arFields[$fieldId]['DEFAULT_VALUE'] ?? [];
-					if (!is_array($value))
+					$arFields[$fieldId]['IS_REQUIRED'] ??= $fields[$fieldId]['IS_REQUIRED'];
+				}
+				if (isset($defaultValues[$fieldId]))
+				{
+					if (is_array($defaultValues[$fieldId]))
 					{
-						$value = [];
+						$value = $arFields[$fieldId]['DEFAULT_VALUE'] ?? [];
+						if (!is_array($value))
+						{
+							$value = [];
+						}
+						$value = array_intersect_key($value, $defaultValues[$fieldId]);
+						$value = array_merge($defaultValues[$fieldId], $value);
+						$arFields[$fieldId]['DEFAULT_VALUE'] = $value;
 					}
-					$value = array_intersect_key($value, $defaultValues[$fieldId]);
-					$value = array_merge($defaultValues[$fieldId], $value);
-					$arFields[$fieldId]['DEFAULT_VALUE'] = $value;
+					elseif ($defaultValues[$fieldId] === false)
+					{
+						$arFields[$fieldId]['DEFAULT_VALUE'] ??= $defaultValues[$fieldId];
+					}
 				}
 			}
 
@@ -2021,7 +2212,7 @@ REQ
 					{
 						$strSql = "UPDATE b_iblock_fields SET " . $strUpdate
 							. " WHERE IBLOCK_ID = " . $ID
-							. " AND FIELD_ID = '" . $fieldId . "'";
+							. " AND FIELD_ID = '" . $DB->ForSQL($fieldId) . "'";
 						$arBinds = [];
 						if (isset($arUpdate["DEFAULT_VALUE"]))
 						{
@@ -2703,255 +2894,266 @@ REQ
 
 	public static function ReplaceSectionUrl($url, $arr, $server_name = false, $arrType = false)
 	{
-		$url = (string)$url;
-		$url = str_replace("#ID#", "#SECTION_ID#", $url);
-		$url = str_replace("#CODE#", "#SECTION_CODE#", $url);
+		$url = str_replace(
+			[
+				'#ID#',
+				'#CODE#',
+			],
+			[
+				'#SECTION_ID#',
+				'#SECTION_CODE#',
+			],
+			(string)$url
+		);
+
 		return CIBlock::ReplaceDetailUrl($url, $arr, $server_name, $arrType);
 	}
 
+	/**
+	 * @deprecated
+	 * @see CIBlock::getProductUrlValue()
+	 *
+	 * @param $OF_ELEMENT_ID
+	 * @param $OF_IBLOCK_ID
+	 * @param $server_name
+	 * @param mixed $arrType
+	 * @return string
+	 */
 	public static function _GetProductUrl($OF_ELEMENT_ID, $OF_IBLOCK_ID, $server_name = false, $arrType = false)
 	{
-		static $arIBlockCache = array();
-		static $arElementCache = array();
-		static $arSectionCache = array();
-		static $catalogIncluded = null;
+		return self::getProductUrlValue(
+			[
+				'ID' => $OF_ELEMENT_ID,
+				'IBLOCK_ID' => $OF_IBLOCK_ID,
+			],
+			(bool)$server_name
+		);
+	}
 
-		$product_url = "";
-		$OF_ELEMENT_ID = (int)$OF_ELEMENT_ID;
-		$OF_IBLOCK_ID = (int)$OF_IBLOCK_ID;
-		if ($catalogIncluded === null)
-			$catalogIncluded = Loader::includeModule('catalog');
+	protected static function getProductUrlValue(array $element, bool $serverName): string
+	{
+		$result = '';
 
-		if(
-			$arrType === "E"
-			&& $OF_IBLOCK_ID > 0
-			&& $OF_ELEMENT_ID > 0
-			&& $catalogIncluded
-		)
+		$id = (int)($element['ID'] ?? 0);
+		$iblockId = (int)($element['IBLOCK_ID'] ?? 0);
+
+		if ($iblockId <= 0 || $id <= 0)
 		{
-			if (!isset($arIBlockCache[$OF_IBLOCK_ID]))
-			{
-				$arIBlockCache[$OF_IBLOCK_ID] = CCatalogSku::GetInfoByOfferIBlock($OF_IBLOCK_ID);
-				if (is_array($arIBlockCache[$OF_IBLOCK_ID]))
-				{
-					$productIblock = CIBlock::GetArrayByID($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK_ID"]);
-					if (is_array($productIblock))
-					{
-						$productIblock['DETAIL_PAGE_URL'] = (string)$productIblock['DETAIL_PAGE_URL'];
-					}
-					$arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"] = $productIblock;
-				}
-			}
-
-			if (is_array($arIBlockCache[$OF_IBLOCK_ID]) && is_array($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]))
-			{
-				if(!isset($arElementCache[$OF_ELEMENT_ID]))
-				{
-					$OF_PROP_ID = $arIBlockCache[$OF_IBLOCK_ID]["SKU_PROPERTY_ID"];
-					$rsOffer = CIBlockElement::GetList(
-						array(),
-						array(
-							"IBLOCK_ID" => $arIBlockCache[$OF_IBLOCK_ID]["IBLOCK_ID"],
-							"=ID" => $OF_ELEMENT_ID,
-						),
-						false, false,
-						array(
-							"LANG_DIR",
-							"PROPERTY_".$OF_PROP_ID.".ID",
-							"PROPERTY_".$OF_PROP_ID.".CODE",
-							"PROPERTY_".$OF_PROP_ID.".XML_ID",
-							"PROPERTY_".$OF_PROP_ID.".IBLOCK_ID",
-							"PROPERTY_".$OF_PROP_ID.".IBLOCK_SECTION_ID",
-						)
-					);
-					if($arOffer = $rsOffer->Fetch())
-					{
-						$arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_CODE"] = '';
-						$sectionId = (int)$arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_ID"];
-						if ($sectionId > 0)
-						{
-							if (!isset($arSectionCache[$sectionId]))
-							{
-								$arSectionCache[$sectionId] = array(
-									'ID' => $sectionId,
-									'CODE' => ''
-								);
-								$rsSections = CIBlockSection::GetList(
-									array(),
-									array(
-										'ID' => $sectionId,
-										'CHECK_PERMISSIONS' => 'N',
-									),
-									false,
-									array('ID', 'IBLOCK_ID', 'CODE')
-								);
-								if ($arSection = $rsSections->Fetch())
-								{
-									$arSectionCache[$sectionId]['CODE'] = $arSection['CODE'];
-								}
-								unset($arSection);
-								unset($rsSections);
-							}
-							$arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_CODE"] = $arSectionCache[$sectionId]['CODE'];
-						}
-						unset($sectionId);
-
-						$arElementCache[$OF_ELEMENT_ID] = array(
-							"LANG_DIR" => $arOffer["LANG_DIR"],
-							"ID" => $arOffer["PROPERTY_".$OF_PROP_ID."_ID"],
-							"ELEMENT_ID" => $arOffer["PROPERTY_".$OF_PROP_ID."_ID"],
-							"CODE" => $arOffer["PROPERTY_".$OF_PROP_ID."_CODE"],
-							"ELEMENT_CODE" => $arOffer["PROPERTY_".$OF_PROP_ID."_CODE"],
-							"EXTERNAL_ID" => $arOffer["PROPERTY_".$OF_PROP_ID."_XML_ID"],
-							"IBLOCK_TYPE_ID" => $arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]["IBLOCK_TYPE_ID"],
-							"IBLOCK_ID" => $arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_ID"],
-							"IBLOCK_CODE" => $arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]["CODE"],
-							"IBLOCK_EXTERNAL_ID" => $arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]["XML_ID"],
-							"IBLOCK_SECTION_ID" => $arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_ID"],
-							"SECTION_CODE" => $arOffer["PROPERTY_".$OF_PROP_ID."_IBLOCK_SECTION_CODE"],
-						);
-					}
-					unset($rsOffer);
-				}
-
-				if (!empty($arElementCache[$OF_ELEMENT_ID]) && is_array($arElementCache[$OF_ELEMENT_ID]))
-				{
-					$product_url = CIBlock::ReplaceDetailUrl($arIBlockCache[$OF_IBLOCK_ID]["PRODUCT_IBLOCK"]["DETAIL_PAGE_URL"], $arElementCache[$OF_ELEMENT_ID], $server_name, $arrType);
-				}
-			}
+			return $result;
 		}
 
-		return $product_url;
+		if (self::$catalogIncluded === null)
+		{
+			self::$catalogIncluded = Loader::includeModule('catalog');
+		}
+		if (!self::$catalogIncluded)
+		{
+			return $result;
+		}
+
+		$iblock = static::getProductIblockData($iblockId);
+		if ($iblock === null)
+		{
+			return $result;
+		}
+
+		$parentId = (int)($element['PROPERTY_' . $iblock['SKU_PROPERTY_ID'] . '_VALUE'] ?? self::getProductId($id, $iblockId));
+		if ($parentId <= 0)
+		{
+			return $result;
+		}
+
+		$parent = self::getUrlElementData($parentId);
+		if ($parent === null)
+		{
+			return $result;
+		}
+
+		return CIBlock::ReplaceDetailUrl(
+			$iblock['PRODUCT_IBLOCK']['DETAIL_PAGE_URL'],
+			[
+				'LANG_DIR' => (string)($element['LANG_DIR'] ?? ''),
+				'ID' => $parent['ID'],
+				'ELEMENT_ID' => $parent['ID'],
+				'CODE' => $parent['CODE'],
+				'ELEMENT_CODE' => $parent['CODE'],
+				'EXTERNAL_ID' => $parent['XML_ID'],
+				'IBLOCK_TYPE_ID' => $iblock['PRODUCT_IBLOCK']['IBLOCK_TYPE_ID'],
+				'IBLOCK_ID' => $parent['IBLOCK_ID'],
+				'IBLOCK_CODE' => $iblock['PRODUCT_IBLOCK']['CODE'],
+				'IBLOCK_EXTERNAL_ID' => $iblock['PRODUCT_IBLOCK']['XML_ID'],
+				'IBLOCK_SECTION_ID' => $parent['IBLOCK_SECTION_ID'],
+				'SECTION_CODE' => $parent['IBLOCK_SECTION_CODE'],
+			],
+			$serverName,
+			'E'
+		);
 	}
 
 	public static function ReplaceDetailUrl($url, $arr, $server_name = false, $arrType = false)
 	{
 		$url = (string)$url;
 
-		if($server_name)
+		if ($server_name)
 		{
-			$url = str_replace("#LANG#", ($arr["LANG_DIR"] ?? ''), $url);
-			if((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"))
+			$url = str_replace('#LANG#', (string)($arr['LANG_DIR'] ?? ''), $url);
+			if (
+				(defined('ADMIN_SECTION') && ADMIN_SECTION === true)
+				|| !defined('BX_STARTED')
+			)
 			{
 				static $cache = array();
-				if (isset($arr["LID"]))
+				if (isset($arr['LID']))
 				{
-					if (!isset($cache[$arr["LID"]]))
+					if (!isset($cache[$arr['LID']]))
 					{
-						$db_lang = CLang::GetByID($arr["LID"]);
+						$db_lang = CLang::GetByID($arr['LID']);
 						$arLang = $db_lang->Fetch();
-						$cache[$arr["LID"]] = $arLang;
+						if (!empty($arLang))
+						{
+							$arLang['DIR'] = (string)$arLang['DIR'];
+							$arLang['SERVER_NAME'] = (string)$arLang['SERVER_NAME'];
+						}
+						$cache[$arr['LID']] = $arLang;
 					}
-					$arLang = $cache[$arr["LID"]];
+					$arLang = $cache[$arr['LID']];
 					if (!empty($arLang))
 					{
-						$url = str_replace("#SITE_DIR#", $arLang["DIR"], $url);
-						$url = str_replace("#SERVER_NAME#", $arLang["SERVER_NAME"], $url);
+						$url = str_replace(
+							[
+								'#SITE_DIR#',
+								'#SERVER_NAME#',
+							],
+							[
+								$arLang['DIR'],
+								$arLang['SERVER_NAME'],
+							],
+							$url
+						);
 					}
 				}
 			}
 			else
 			{
-				$url = str_replace("#SITE_DIR#", SITE_DIR, $url);
-				$url = str_replace("#SERVER_NAME#", SITE_SERVER_NAME, $url);
+				$url = str_replace(
+					[
+						'#SITE_DIR#',
+						'#SERVER_NAME#',
+					],
+					[
+						SITE_DIR,
+						SITE_SERVER_NAME,
+					],
+					$url
+				);
 			}
 		}
 
-		$id = (int)$arr["ID"];
+		$id = (int)($arr['ID'] ?? 0);
 		$preparedId = $id > 0 ? $id : '';
 
-		if (strpos($url, "#PRODUCT_URL#") !== false)
-		{
-			$url = str_replace(
-				"#PRODUCT_URL#",
-				CIBlock::_GetProductUrl($id, $arr["IBLOCK_ID"], $server_name, $arrType),
-				$url
-			);
-		}
-
-		static $arSearch = array(
+		static $arSearch = [
 			/*Thees come from GetNext*/
-			"#SITE_DIR#",
-			"#ID#",
-			"#CODE#",
-			"#EXTERNAL_ID#",
-			"#IBLOCK_TYPE_ID#",
-			"#IBLOCK_ID#",
-			"#IBLOCK_CODE#",
-			"#IBLOCK_EXTERNAL_ID#",
+			'#SITE_DIR#',
+			'#ID#',
+			'#CODE#',
+			'#EXTERNAL_ID#',
+			'#IBLOCK_TYPE_ID#',
+			'#IBLOCK_ID#',
+			'#IBLOCK_CODE#',
+			'#IBLOCK_EXTERNAL_ID#',
 			/*And thees was born during components 2 development*/
-			"#ELEMENT_ID#",
-			"#ELEMENT_CODE#",
-			"#SECTION_ID#",
-			"#SECTION_CODE#",
-			"#SECTION_CODE_PATH#",
+			'#ELEMENT_ID#',
+			'#ELEMENT_CODE#',
+			'#SECTION_ID#',
+			'#SECTION_CODE#',
+			'#SECTION_CODE_PATH#',
+		];
+		$iblockId = (int)($arr['IBLOCK_ID'] ?? 0);
+		$preparedCode = rawurlencode(
+			(string)($arr['~CODE'] ?? ($arr['CODE'] ?? ''))
 		);
-		$arReplace = array(
-			($arr["LANG_DIR"] ?? ''),
+		$iblockSectionId = (int)($arr['IBLOCK_SECTION_ID'] ?? 0);
+		$arReplace = [
+			(string)($arr['LANG_DIR'] ?? ''),
 			$preparedId,
-			rawurlencode($arr["~CODE"] ?? $arr["CODE"] ?? ''),
-			rawurlencode($arr["~EXTERNAL_ID"] ?? $arr["EXTERNAL_ID"] ?? ''),
-			rawurlencode($arr["~IBLOCK_TYPE_ID"] ?? $arr["IBLOCK_TYPE_ID"]),
-			intval(($arr["IBLOCK_ID"] ?? 0)) > 0 ? intval($arr["IBLOCK_ID"]) : "",
-			rawurlencode($arr["~IBLOCK_CODE"] ?? $arr["IBLOCK_CODE"]),
-			rawurlencode($arr["~IBLOCK_EXTERNAL_ID"] ?? $arr["IBLOCK_EXTERNAL_ID"] ?? ''),
-		);
+			$preparedCode,
+			rawurlencode(
+				(string)($arr['~EXTERNAL_ID'] ?? ($arr['EXTERNAL_ID'] ?? ''))
+			),
+			rawurlencode(
+				(string)($arr['~IBLOCK_TYPE_ID'] ?? ($arr['IBLOCK_TYPE_ID'] ?? ''))
+			),
+			($iblockId > 0 ? $iblockId : ''),
+			rawurlencode(
+				(string)($arr['~IBLOCK_CODE'] ?? ($arr['IBLOCK_CODE'] ?? ''))
+			),
+			rawurlencode(
+				(string)($arr['~IBLOCK_EXTERNAL_ID'] ?? ($arr['IBLOCK_EXTERNAL_ID'] ?? ''))
+			),
+		];
 
-		if($arrType === "E")
+		if ($arrType === "E")
 		{
+			if (strpos($url, '#PRODUCT_URL#') !== false)
+			{
+				$url = str_replace(
+					'#PRODUCT_URL#',
+					self::getProductUrlValue($arr, $server_name),
+					$url
+				);
+			}
+
 			$arReplace[] = $preparedId;
 			$arReplace[] = rawurlencode(
-				(string)($arr["~CODE"] ?? $arr["CODE"])
+				(string)($arr['~CODE'] ?? ($arr['CODE'] ?? ''))
 			);
+
 			#Deal with symbol codes
-			$SECTION_ID = intval($arr["IBLOCK_SECTION_ID"]);
-
-			$SECTION_CODE = "";
-			if(
-				$SECTION_ID > 0
-				&& strpos($url, "#SECTION_CODE#") !== false
-			)
+			$SECTION_CODE = '';
+			$SECTION_CODE_PATH = '';
+			if ($iblockSectionId > 0)
 			{
-				$SECTION_CODE = CIBlockSection::getSectionCode($SECTION_ID);
+				if (strpos($url, '#SECTION_CODE#') !== false)
+				{
+					$SECTION_CODE = CIBlockSection::getSectionCode($iblockSectionId);
+				}
+
+				if (strpos($url, '#SECTION_CODE_PATH#') !== false)
+				{
+					$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($iblockSectionId);
+				}
 			}
 
-			$SECTION_CODE_PATH = "";
-			if(
-				$SECTION_ID > 0
-				&& strpos($url, "#SECTION_CODE_PATH#") !== false
-			)
-			{
-				$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($SECTION_ID);
-			}
-
-			$arReplace[] = $SECTION_ID > 0? $SECTION_ID: "";
+			$arReplace[] = $iblockSectionId > 0 ? $iblockSectionId: '';
 			$arReplace[] = $SECTION_CODE;
 			$arReplace[] = $SECTION_CODE_PATH;
 		}
-		elseif($arrType === "S")
+		elseif ($arrType === "S")
 		{
-			$SECTION_ID = $id;
-			$SECTION_CODE_PATH = "";
-			if(
-				$SECTION_ID > 0
-				&& strpos($url, "#SECTION_CODE_PATH#") !== false
+			$SECTION_CODE_PATH = '';
+			if (
+				$id > 0
+				&& strpos($url, '#SECTION_CODE_PATH#') !== false
 			)
 			{
-				$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($SECTION_ID);
+				$SECTION_CODE_PATH = CIBlockSection::getSectionCodePath($id);
 			}
-			$arReplace[] = "";
-			$arReplace[] = "";
-			$arReplace[] = $SECTION_ID > 0? $SECTION_ID: "";
-			$arReplace[] = rawurlencode($arr["~CODE"] ?? $arr["CODE"] ?? '');
+			$arReplace[] = '';
+			$arReplace[] = '';
+			$arReplace[] = $preparedId;
+			$arReplace[] = $preparedCode;
 			$arReplace[] = $SECTION_CODE_PATH;
 		}
 		else
 		{
-			$arReplace[] = intval(($arr["ELEMENT_ID"] ?? 0)) > 0? intval($arr["ELEMENT_ID"]): "";
-			$arReplace[] = rawurlencode($arr["~ELEMENT_CODE"] ?? $arr["ELEMENT_CODE"] ?? '');
-			$arReplace[] = intval(($arr["IBLOCK_SECTION_ID"] ?? 0)) > 0? intval($arr["IBLOCK_SECTION_ID"]): "";
-			$arReplace[] = rawurlencode($arr["~SECTION_CODE"] ?? $arr["SECTION_CODE"] ?? '');
-			$arReplace[] = "";
+			$elementId = (int)($arr['ELEMENT_ID'] ?? 0);
+			$preparedElementId = $elementId > 0 ? $elementId : '';
+			$arReplace[] = $preparedElementId;
+			$arReplace[] = rawurlencode((string)($arr['~ELEMENT_CODE'] ?? ($arr['ELEMENT_CODE'] ?? '')));
+			$arReplace[] = $iblockSectionId > 0 ? $iblockSectionId : '';
+			$arReplace[] = rawurlencode((string)($arr['~SECTION_CODE'] ?? ($arr['SECTION_CODE'] ?? '')));
+			$arReplace[] = '';
 		}
 
 		$url = str_replace($arSearch, $arReplace, $url);
@@ -3052,7 +3254,7 @@ REQ
 					$strNSFilter2.
 					"ORDER BY BE.ID ";
 
-				//For MySQL we have to solve client out of memory
+				//For MySQL, we have to solve client out of memory
 				//problem by limiting the query
 				if($DB->type=="MYSQL")
 				{
@@ -3282,7 +3484,9 @@ REQ
 			)
 		");
 		$ar = $res->Fetch();
-		return intval($ar["C"]);
+		unset($res);
+
+		return (int)($ar["C"] ?? 0);
 	}
 
 	public static function ResizePicture($arFile, $arResize)
@@ -3577,7 +3781,11 @@ REQ
 	public static function GetAdminIBlockEditLink($IBLOCK_ID, $arParams = array(), $strAdd = "")
 	{
 		if (
-			(defined("CATALOG_PRODUCT") || $arParams["force_catalog"] || array_key_exists('catalog', $arParams))
+			(
+				defined("CATALOG_PRODUCT")
+				|| (isset($arParams["force_catalog"]) && $arParams["force_catalog"])
+				|| array_key_exists('catalog', $arParams)
+			)
 			&& !array_key_exists("menu", $arParams)
 		)
 		{

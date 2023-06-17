@@ -88,6 +88,8 @@ function _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL, $SECTION_ID, $arSe
 {
 	global $adminMenu;
 
+	$arIBlock['ID'] = (int)$arIBlock['ID'];
+
 	static $adminMenuExists = null;
 	if ($adminMenuExists === null)
 	{
@@ -103,21 +105,35 @@ function _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL, $SECTION_ID, $arSe
 			$menu_id = "menu_iblock_/".$arType["ID"]."/".$arIBlock["ID"]."/";
 			if(strncmp($_REQUEST['admin_mnu_menu_id'], $menu_id, mb_strlen($menu_id)) == 0)
 			{
-				$rsSections = CIBlockSection::GetNavChain($arIBlock["ID"], mb_substr($_REQUEST['admin_mnu_menu_id'], mb_strlen($menu_id)), array('ID', 'IBLOCK_ID'));
-				while($arSection = $rsSections->Fetch())
+				$rsSections = CIBlockSection::GetNavChain(
+					$arIBlock["ID"],
+					(int)mb_substr($_REQUEST['admin_mnu_menu_id'], mb_strlen($menu_id)),
+					['ID'],
+					true
+				);
+				foreach ($rsSections as $arSection)
+				{
 					$arSectionsChain[$arSection["ID"]] = $arSection["ID"];
+				}
 			}
 		}
 		if(
 			isset($_REQUEST["find_section_section"])
 			&& (int)$_REQUEST["find_section_section"] > 0
 			&& isset($_REQUEST["IBLOCK_ID"])
-			&& $_REQUEST["IBLOCK_ID"] == $arIBlock["ID"]
+			&& (int)$_REQUEST["IBLOCK_ID"] === $arIBlock["ID"]
 		)
 		{
-			$rsSections = CIBlockSection::GetNavChain($arIBlock["ID"], $_REQUEST["find_section_section"], array('ID', 'IBLOCK_ID'));
-			while($arSection = $rsSections->Fetch())
+			$rsSections = CIBlockSection::GetNavChain(
+				$arIBlock["ID"],
+				(int)$_REQUEST["find_section_section"],
+				['ID'],
+				true
+			);
+			foreach ($rsSections as $arSection)
+			{
 				$arSectionsChain[$arSection["ID"]] = $arSection["ID"];
+			}
 		}
 	}
 

@@ -1,9 +1,5 @@
-import {BaseEvent} from 'main.core.events';
-import {Uploader as ProgressBar} from 'ui.progressbarjs.uploader';
+import {ProgressBarManager} from 'im.v2.lib.progressbar';
 
-import {FileStatus} from 'im.v2.const';
-
-import {ProgressBarManager} from '../classes/progress-bar-manager';
 import {Background} from '../classes/items/background';
 
 import '../css/background-item.css';

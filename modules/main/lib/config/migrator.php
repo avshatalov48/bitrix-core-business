@@ -36,7 +36,7 @@ class Migrator
 						unset($arList[$listKey]);
 				}
 
-				if (count($arList) > 0)
+				if (!empty($arList))
 				{
 					$cache["type"] = array(
 						"extension" => "memcache",

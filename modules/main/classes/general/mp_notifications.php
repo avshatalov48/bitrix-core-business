@@ -13,9 +13,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/adm
 
 class CMpNotifications
 {
-	public static function OnAdminInformerInsertItemsHandlerMP() {
+	public static function OnAdminInformerInsertItemsHandlerMP()
+	{
 		global $USER;
-		if(LICENSE_KEY == "DEMO")
+		if(\Bitrix\Main\Application::getInstance()->getLicense()->isDemoKey())
 		{
 			return false;
 		}
@@ -51,7 +52,9 @@ class CMpNotifications
 				);
 			}
 			self::addMpNotifications($arModulesResult);
-		}else{
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -124,7 +127,7 @@ class CMpNotifications
 		if ($strError_tmp == '')
 		{
 			CUpdateClientPartner::__ParseServerData($content, $arResult, $strError_tmp);
-			if (is_array($arResult['DATA']['#']['MODULE']) && count($arResult['DATA']['#']['MODULE']) > 0)
+			if (is_array($arResult['DATA']['#']['MODULE']) && !empty($arResult['DATA']['#']['MODULE']))
 			{
 				foreach ($arResult['DATA']['#']['MODULE'] as $arModule)
 				{
@@ -184,11 +187,11 @@ class CMpNotifications
 		$arClientModules = CUpdateClientPartner::GetCurrentModules($strError_tmp);
 		if ($strError_tmp == '')
 		{
-			if (count($arClientModules) > 0)
+			if (!empty($arClientModules))
 			{
 				foreach ($arClientModules as $key => $value)
 				{
-					if (mb_strpos($key, ".") !== false)
+					if (strpos($key, ".") !== false)
 					{
 						$arRequestedModules[] = $key;
 					}
@@ -203,19 +206,19 @@ class CMpNotifications
 	public static function addMpNotifications($arModulesResult)
 	{
 		$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-		if (count($arModulesResult['update_module']) <= 0 && count($arModulesResult['end_update']) <= 0 && ($arModulesResult['new_module']) <= 0)
+		if (empty($arModulesResult['update_module']) && empty($arModulesResult['end_update']) && ($arModulesResult['new_module']) <= 0)
 		{
 			return false;
 		}
-		if (count($arModulesResult['update_module']) > 0)
+		if (!empty($arModulesResult['update_module']))
 		{
 			self::addNotificationsToInformer($arModulesResult['update_module'], array('TITLE' => 'TOP_PANEL_AI_MODULE_UPDATE', 'HTML' => 'TOP_PANEL_AI_MODULE_UPDATE_DESC'), 'update_module', $serverName);
 		}
-		if (count($arModulesResult['end_update']) > 0)
+		if (!empty($arModulesResult['end_update']))
 		{
 			self::addNotificationsToInformer($arModulesResult['end_update'], array('TITLE' => 'TOP_PANEL_AI_MODULE_END_UPDATE', 'HTML' => 'TOP_PANEL_AI_MODULE_END_UPDATE_DESC'), 'end_update', $serverName);
 		}
-		if (count($arModulesResult['new_module']) > 0)
+		if (!empty($arModulesResult['new_module']))
 		{
 			self::addNotificationsPartnersNewModulesToInformer($arModulesResult['new_module'], $serverName);
 		}

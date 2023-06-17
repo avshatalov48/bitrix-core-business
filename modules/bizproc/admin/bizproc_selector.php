@@ -75,19 +75,18 @@ $documentService = $runtime->GetService("DocumentService");
 $documentFields = $documentService->GetDocumentFields($documentType);
 $documentFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
 
-$arUsers = Array();
+$arUsers = [];
 $arAllowableUserGroups = $documentService->GetAllowableUserGroups($documentType, true);
 foreach($arAllowableUserGroups as $gId=>$gName)
 {
 	$a = CBPHelper::extractUsersFromExtendedGroup($gId);
 	if ($a === false)
-		$a = $documentService->GetUsersFromUserGroup($gId, $documentType);
-	foreach ($a as $v)
 	{
-		if (!in_array($v, $arUsers))
-			$arUsers[] = $v;
+		$a = $documentService->GetUsersFromUserGroup($gId, $documentType);
 	}
+	$arUsers = array_merge($arUsers, $a);
 }
+$arUsers = array_values(array_unique($arUsers));
 
 switch($_POST['fieldType'])
 {

@@ -91,11 +91,15 @@ class Dictionary {
 
 	public function delete()
 	{
-		DictionaryTable::delete($this->id);
-		if ($this->data["TYPE"] == "T")
-			$DB->Query("DELETE FROM b_forum_letter WHERE DICTIONARY_ID=".$ID);
-		else
-			$DB->Query("DELETE FROM b_forum_filter WHERE DICTIONARY_ID=".$ID);
+		$result = DictionaryTable::delete($this->id);
+		if ($result->isSuccess())
+		{
+			global $DB;
+			if ($this->data["TYPE"] == "T")
+				$DB->Query("DELETE FROM b_forum_letter WHERE DICTIONARY_ID=".$this->id);
+			else
+				$DB->Query("DELETE FROM b_forum_filter WHERE DICTIONARY_ID=".$this->id);
+		}
 	}
 
 	private function getTranslitDictionary($multiLetter = true) : array
@@ -125,21 +129,21 @@ class Dictionary {
 				for ($ii = 0; $ii < count($arrRepl); $ii++)
 				{
 					$arrRepl[$ii] = trim($arrRepl[$ii]);
-					if (strlen($lett["LETTER"]) == 1)
+					if (mb_strlen($lett["LETTER"]) == 1)
 					{
-						if (strlen($arrRepl[$ii]) == 1)
+						if (mb_strlen($arrRepl[$ii]) == 1)
 						{
 							$arrRes[$ii] = $arrRepl[$ii]."+";
 						}
-						else if (strpos($arrRepl[$ii], "(") === 0 && substr($arrRepl[$ii], -1, 1) == ")")
+						else if (mb_strpos($arrRepl[$ii], "(") === 0 && mb_substr($arrRepl[$ii], -1, 1) == ")")
 						{
 							$arrRes[$ii] = $arrRepl[$ii]."+";
 						}
-						else if (strpos($arrRepl[$ii], "(") === 0 && substr($arrRepl[$ii], -2, 1) == ")")
+						else if (mb_strpos($arrRepl[$ii], "(") === 0 && mb_substr($arrRepl[$ii], -2, 1) == ")")
 						{
 							$arrRes[$ii] = $arrRepl[$ii];
 						}
-						else if (strlen($arrRepl[$ii]) > 1)
+						else if (mb_strlen($arrRepl[$ii]) > 1)
 						{
 							$arrRes[$ii] = "[".$arrRepl[$ii]."]+";
 						}
@@ -154,7 +158,7 @@ class Dictionary {
 					}
 				}
 
-				if (strlen($lett["LETTER"]) == 1)
+				if (mb_strlen($lett["LETTER"]) == 1)
 				{
 					if ($space)
 					{
@@ -176,9 +180,9 @@ class Dictionary {
 
 	public function translitAndCreatePattern(string $word) : string
 	{
-		//replace big constrction
+		//replace big construction
 		$letters = $this->getTranslitDictionary(true);
-		$word = preg_replace(array_keys($letters), array_values($letters), strtolower(trim($word)));
+		$word = preg_replace(array_keys($letters), array_values($letters), mb_strtolower(trim($word)));
 
 		//replace single letter construction
 		$letters = $this->getTranslitDictionary(false);

@@ -204,6 +204,17 @@ return [
 				],
 			],
 		],
+		'word-break' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_WORD_BREAK'),
+			'help' => Loc::getMessage('LANDING_BLOCK_STYLE_WORD_BREAK_HELP'),
+			'property' => 'font-family',
+			'type' => 'list',
+			'items' => [
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_WORD_BREAK_NORMAL'), 'value' => 'word-break-normal'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_WORD_BREAK_BREAK_ALL'), 'value' => 'word-break-break-all'],
+				//['name' => Loc::getMessage('LANDING_BLOCK_STYLE_WORD_BREAK_KEEP_ALL'), 'value' => 'word-break-keep-all'],
+			],
+		],
 		'row-align' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ROW_ALIGN'),
 			'type' => 'buttons',
@@ -1595,7 +1606,7 @@ return [
 		// ),
 
 		'hamburger-size' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_HAMBURGER_SIZE'),
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_HAMBURGER_SIZE_MSGVER_1'),
 			'type' => 'list',
 			'items' => [
 				['name' => Loc::getMessage('LANDING_BLOCK_STYLE_HAMBURGER_SIZE_MD'), 'value' => 'hamburger--md'],
@@ -3021,7 +3032,7 @@ return [
 		'margins' => ['margin-top', 'margin-bottom', 'margin-left', 'margin-right'],
 		'typo' => [
 			'text-align', 'color', 'font-size', 'font-family', 'font-weight',
-			'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'text-shadow',
+			'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'word-break', 'text-shadow',
 			'padding-top', 'padding-left', 'padding-right', 'margin-bottom'
 		],
 		'typo-simple' => [

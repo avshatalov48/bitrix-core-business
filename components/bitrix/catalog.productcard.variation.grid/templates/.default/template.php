@@ -132,6 +132,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'storeAmount' => $arResult['STORE_AMOUNT'],
 			'isShowedStoreReserve' => $arResult['IS_SHOWED_STORE_RESERVE'],
 			'reservedDealsSliderLink' => $arResult['RESERVED_DEALS_SLIDER_LINK'],
+			'supportedAjaxFields' => $arResult['SUPPORTED_AJAX_FIELDS'],
 		])?>);
 	});
 </script>

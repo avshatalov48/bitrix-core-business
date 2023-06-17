@@ -1,7 +1,22 @@
-import {Type, Loc} from 'main.core';
+import {Type} from 'main.core';
 import {BuilderModel} from 'ui.vue3.vuex';
-import {ChatTypes, MessageStatus, RecentCallStatus, RecentSettings} from 'im.v2.const';
+
+import {Core} from 'im.v2.application.core';
+import {DialogType, MessageStatus, Settings} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
+
+import {CallsModel} from './recent/calls';
+
+import type {RecentItem as ImModelRecentItem} from './type/recent-item';
+import type {Dialog as ImModelDialog} from './type/dialog';
+
+type RecentState = {
+	collection: {[dialogId: string]: ImModelRecentItem},
+	recentCollection: Set<string>,
+	unreadCollection: Set<string>,
+	markedCollection: Set<number>,
+	unloadedChatCounters: {[chatId: string]: number}
+};
 
 export class RecentModel extends BuilderModel
 {
@@ -10,16 +25,18 @@ export class RecentModel extends BuilderModel
 		return 'recent';
 	}
 
+	getNestedModules(): { [moduleName: string]: BuilderModel }
+	{
+		return {calls: CallsModel};
+	}
+
 	getState()
 	{
 		return {
 			collection: {},
-			activeCalls: [],
-			options: {
-				showBirthday: true,
-				showInvited: true,
-				showLastMessage: true
-			}
+			recentCollection: new Set(),
+			unreadCollection: new Set(),
+			unloadedChatCounters: {}
 		};
 	}
 
@@ -29,10 +46,15 @@ export class RecentModel extends BuilderModel
 			dialogId: '0',
 			message: {
 				id: 0,
-				text: '',
-				date: new Date(),
 				senderId: 0,
-				status: MessageStatus.received
+				date: new Date(),
+				status: MessageStatus.received,
+				sending: false,
+				text: '',
+				params: {
+					withFile: false,
+					withAttach: false,
+				}
 			},
 			draft: {
 				text: '',
@@ -50,24 +72,22 @@ export class RecentModel extends BuilderModel
 		};
 	}
 
-	getActiveCallDefaultState()
-	{
-		return {
-			dialogId: 0,
-			name: '',
-			call: {},
-			state: RecentCallStatus.waiting
-		};
-	}
-
 	getGetters()
 	{
 		return {
-			getCollection: (state): Object[] =>
+			getRecentCollection: (state: RecentState): ImModelRecentItem[] =>
 			{
-				return Object.values(state.collection);
+				return [...state.recentCollection].map(id => {
+					return state.collection[id];
+				});
 			},
-			getSortedCollection: (state): Object[] =>
+			getUnreadCollection: (state: RecentState): ImModelRecentItem[] =>
+			{
+				return [...state.unreadCollection].map(id => {
+					return state.collection[id];
+				});
+			},
+			getSortedCollection: (state: RecentState): ImModelRecentItem[] =>
 			{
 				const collectionAsArray = Object.values(state.collection).filter(item => {
 					const isBirthdayPlaceholder = item.options.birthdayPlaceholder;
@@ -80,7 +100,7 @@ export class RecentModel extends BuilderModel
 					return b.message.date - a.message.date;
 				});
 			},
-			get: (state) => (dialogId: string): Object | null =>
+			get: (state: RecentState) => (dialogId: string): ImModelRecentItem | null =>
 			{
 				if (Type.isNumber(dialogId))
 				{
@@ -95,31 +115,7 @@ export class RecentModel extends BuilderModel
 				return null;
 			},
 
-			getItemText: (state) => (dialogId): string =>
-			{
-				const currentItem = state.collection[dialogId];
-				if (!currentItem)
-				{
-					return '';
-				}
-
-				let result = currentItem.message.text;
-				// system mention (get current name from model, otherwise - from code)
-				result = result.replace(/\[user=(\d+) replace](.*?)\[\/user]/gi, (match, userId, userName) => {
-					const user = this.store.getters['users/get'](userId);
-					return user ? user.name : userName;
-				});
-
-				result = result.replace(/\[user=(\d+)]\[\/user]/gi, (match, userId) => {
-					const user = this.store.getters['users/get'](userId);
-					return user ? user.name : match;
-				});
-
-				// custom mention (keep name as it is)
-				return result.replace(/\[user=(\d+)](.+?)\[\/user]/gi, '$2');
-			},
-
-			needsBirthdayPlaceholder: (state) => (dialogId): boolean =>
+			needsBirthdayPlaceholder: (state: RecentState) => (dialogId): boolean =>
 			{
 				const currentItem = state.collection[dialogId];
 				if (!currentItem)
@@ -128,7 +124,7 @@ export class RecentModel extends BuilderModel
 				}
 
 				const dialog = this.store.getters['dialogues/get'](dialogId);
-				if (!dialog || dialog.type !== ChatTypes.user)
+				if (!dialog || dialog.type !== DialogType.user)
 				{
 					return false;
 				}
@@ -138,12 +134,39 @@ export class RecentModel extends BuilderModel
 					return false;
 				}
 
-				const hasTodayMessage = currentItem.message.id > 0 && Utils.date.isToday(currentItem.message.date);
+				const hasMessage = Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
+				const hasTodayMessage = hasMessage && Utils.date.isToday(currentItem.message.date);
 
-				return state.options.showBirthday && !hasTodayMessage && dialog.counter === 0;
+				const showBirthday = this.store.getters['application/settings/get'](Settings.recent.showBirthday);
+				return showBirthday && !hasTodayMessage && dialog.counter === 0;
 			},
 
-			getMessageDate: (state) => (dialogId): Date | null =>
+			needsVacationPlaceholder: (state: RecentState) => (dialogId): boolean =>
+			{
+				const currentItem = state.collection[dialogId];
+				if (!currentItem)
+				{
+					return false;
+				}
+
+				const dialog = this.store.getters['dialogues/get'](dialogId);
+				if (!dialog || dialog.type !== DialogType.user)
+				{
+					return false;
+				}
+				const hasVacation = this.store.getters['users/hasVacation'](dialogId);
+				if (!hasVacation)
+				{
+					return false;
+				}
+
+				const hasMessage = Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
+				const hasTodayMessage = hasMessage && Utils.date.isToday(currentItem.message.date);
+
+				return !hasTodayMessage && dialog.counter === 0;
+			},
+
+			getMessageDate: (state: RecentState) => (dialogId): Date | null =>
 			{
 				const currentItem = state.collection[dialogId];
 				if (!currentItem)
@@ -165,19 +188,33 @@ export class RecentModel extends BuilderModel
 				return currentItem.message.date;
 			},
 
-			hasActiveCall: (state): boolean =>
+			getTotalCounter: (state: RecentState): number =>
 			{
-				return state.activeCalls.some(item => item.state === RecentCallStatus.joined);
-			},
+				let loadedChatsCounter = 0;
+				[...state.recentCollection].forEach(dialogId => {
+					const dialog: ImModelDialog = this.store.getters['dialogues/get'](dialogId, true);
+					const recentItem: ImModelRecentItem = state.collection[dialogId];
 
-			getOption: (state) => (optionName: string): boolean =>
-			{
-				if (!RecentSettings[optionName])
-				{
-					return false;
-				}
+					const isMuted = dialog.muteList.includes(Core.getUserId());
+					if (isMuted)
+					{
+						return;
+					}
+					const isMarked = recentItem.unread;
+					if (dialog.counter === 0 && isMarked)
+					{
+						loadedChatsCounter++;
+						return;
+					}
+					loadedChatsCounter += dialog.counter;
+				});
 
-				return state.options[optionName];
+				let unloadedChatsCounter = 0;
+				Object.values(state.unloadedChatCounters).forEach(counter => {
+					unloadedChatsCounter += counter;
+				});
+
+				return loadedChatsCounter + unloadedChatsCounter;
 			}
 		};
 	}
@@ -185,6 +222,28 @@ export class RecentModel extends BuilderModel
 	getActions()
 	{
 		return {
+			setRecent: (store, payload: Array | Object) =>
+			{
+				this.store.dispatch('recent/set', payload).then(itemIds => {
+					store.commit('setRecentCollection', itemIds);
+				});
+
+				if (!Array.isArray(payload) && Type.isPlainObject(payload))
+				{
+					payload = [payload];
+				}
+				const zeroedCountersForNewItems = {};
+				payload.forEach(item => {
+					zeroedCountersForNewItems[item.chat_id] = 0;
+				});
+				this.store.dispatch('recent/setUnloadedChatCounters', zeroedCountersForNewItems);
+			},
+			setUnread: (store, payload: Array | Object) =>
+			{
+				this.store.dispatch('recent/set', payload).then(itemIds => {
+					store.commit('setUnreadCollection', itemIds);
+				});
+			},
 			set: (store, payload: Array | Object) =>
 			{
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -200,7 +259,7 @@ export class RecentModel extends BuilderModel
 					const existingItem = store.state.collection[element.dialogId];
 					if (existingItem)
 					{
-						itemsToUpdate.push({id: existingItem.dialogId, fields: {...element}});
+						itemsToUpdate.push({dialogId: existingItem.dialogId, fields: {...element}});
 					}
 					else
 					{
@@ -216,19 +275,26 @@ export class RecentModel extends BuilderModel
 				{
 					store.commit('update', itemsToUpdate);
 				}
+
+				return [...itemsToAdd, ...itemsToUpdate].map(item => item.dialogId);
 			},
 
 			update: (store, payload: {id: string | number, fields: Object}) =>
 			{
-				const existingItem = store.state.collection[payload.id];
+				const {id, fields} = payload;
+				const existingItem: ImModelRecentItem = store.state.collection[id];
 				if (!existingItem)
 				{
 					return false;
 				}
 
+				if (fields.message)
+				{
+					fields.message = {...existingItem.message, ...fields.message};
+				}
 				store.commit('update', {
-					id: existingItem.dialogId,
-					fields: this.validate(payload.fields)
+					dialogId: existingItem.dialogId,
+					fields: this.validate(fields)
 				});
 			},
 
@@ -241,7 +307,7 @@ export class RecentModel extends BuilderModel
 				}
 
 				store.commit('update', {
-					id: existingItem.dialogId,
+					dialogId: existingItem.dialogId,
 					fields: {unread: payload.action}
 				});
 			},
@@ -255,7 +321,7 @@ export class RecentModel extends BuilderModel
 				}
 
 				store.commit('update', {
-					id: existingItem.dialogId,
+					dialogId: existingItem.dialogId,
 					fields: {pinned: payload.action}
 				});
 			},
@@ -276,7 +342,7 @@ export class RecentModel extends BuilderModel
 				}
 
 				store.commit('update', {
-					id: existingItem.dialogId,
+					dialogId: existingItem.dialogId,
 					fields: {liked: payload.liked === true}
 				});
 			},
@@ -300,6 +366,7 @@ export class RecentModel extends BuilderModel
 						dialogId: payload.id.toString(),
 					};
 					store.commit('add', {...this.getElementState(), ...newItem});
+					store.commit('setRecentCollection', [newItem.dialogId]);
 					existingItem = store.state.collection[payload.id];
 				}
 
@@ -310,7 +377,7 @@ export class RecentModel extends BuilderModel
 				}
 
 				store.commit('update', {
-					id: existingItem.dialogId,
+					dialogId: existingItem.dialogId,
 					fields
 				});
 			},
@@ -326,69 +393,22 @@ export class RecentModel extends BuilderModel
 				store.commit('delete', {
 					id: existingItem.dialogId
 				});
+				store.commit('deleteFromRecentCollection', existingItem.dialogId);
 			},
 
-			addActiveCall: (store, payload) =>
+			clearUnread: (store) =>
 			{
-				const existingIndex = store.state.activeCalls.findIndex(item => {
-					return item.dialogId === payload.dialogId || item.call.id === payload.call.id;
-				});
-
-				if (existingIndex > -1)
-				{
-					store.commit('updateActiveCall', {
-						index: existingIndex,
-						fields: this.validateActiveCall(payload)
-					});
-
-					return true;
-				}
-
-				store.commit('addActiveCall', this.prepareActiveCall(payload));
+				store.commit('clearUnread');
 			},
 
-			updateActiveCall: (store, payload) =>
-			{
-				const existingIndex = store.state.activeCalls.findIndex(item => {
-					return item.dialogId === payload.dialogId;
-				});
-
-				store.commit('updateActiveCall', {
-					index: existingIndex,
-					fields: this.validateActiveCall(payload.fields)
-				});
-			},
-
-			deleteActiveCall: (store, payload) =>
-			{
-				const existingIndex = store.state.activeCalls.findIndex(item => {
-					return item.dialogId === payload.dialogId;
-				});
-
-				if (existingIndex === -1)
-				{
-					return false;
-				}
-
-				store.commit('deleteActiveCall', {
-					index: existingIndex
-				});
-			},
-
-			setOptions: (store, payload) =>
+			setUnloadedChatCounters: (store, payload: {[chatId: string]: number}) =>
 			{
 				if (!Type.isPlainObject(payload))
 				{
-					return false;
+					return;
 				}
 
-				payload = this.validateOptions(payload);
-				Object.entries(payload).forEach(([option, value]) => {
-					store.commit('setOptions', {
-						option,
-						value
-					});
-				});
+				store.commit('setUnloadedChatCounters', payload);
 			}
 		};
 	}
@@ -396,7 +416,20 @@ export class RecentModel extends BuilderModel
 	getMutations()
 	{
 		return {
-			add: (state, payload: Object[] | Object) => {
+			setRecentCollection: (state: RecentState, payload: string[]) => {
+				payload.forEach(dialogId => {
+					state.recentCollection.add(dialogId);
+				});
+			},
+			deleteFromRecentCollection: (state: RecentState, payload: string) => {
+				state.recentCollection.delete(payload);
+			},
+			setUnreadCollection: (state: RecentState, payload: string[]) => {
+				payload.forEach(dialogId => {
+					state.unreadCollection.add(dialogId);
+				});
+			},
+			add: (state: RecentState, payload: Object[] | Object) => {
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
 					payload = [payload];
@@ -406,12 +439,12 @@ export class RecentModel extends BuilderModel
 				});
 			},
 
-			update: (state, payload: Object[] | Object) => {
+			update: (state: RecentState, payload: Object[] | Object) => {
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
 					payload = [payload];
 				}
-				payload.forEach(({id, fields}) => {
+				payload.forEach(({dialogId, fields}) => {
 					// if we already got chat - we should not update it with default user chat (unless it's an accepted invitation)
 					const defaultUserElement = fields.options && fields.options.defaultUserRecord && !fields.invitation;
 					if (defaultUserElement)
@@ -419,37 +452,35 @@ export class RecentModel extends BuilderModel
 						return false;
 					}
 
-					const currentElement = state.collection[id];
+					const currentElement = state.collection[dialogId];
 					fields.message = {...currentElement.message, ...fields.message};
 					fields.options = {...currentElement.options, ...fields.options};
-					state.collection[id] = {
+					state.collection[dialogId] = {
 						...currentElement,
 						...fields
 					};
 				});
 			},
 
-			delete: (state, payload: {id: string}) => {
+			delete: (state: RecentState, payload: {id: string}) => {
 				delete state.collection[payload.id];
 			},
 
-			addActiveCall: (state, payload) => {
-				state.activeCalls.push(payload);
+			clearUnread: (state: RecentState) => {
+				Object.keys(state.collection).forEach(key => {
+					state.collection[key].unread = false;
+				});
 			},
 
-			updateActiveCall: (state, payload) => {
-				state.activeCalls[payload.index] = {
-					...state.activeCalls[payload.index],
-					...payload.fields
-				};
-			},
-
-			deleteActiveCall: (state, payload) => {
-				state.activeCalls.splice(payload.index, 1);
-			},
-
-			setOptions: (state, payload) => {
-				state.options[payload.option] = payload.value;
+			setUnloadedChatCounters: (state: RecentState, payload: {[chatId: string]: number}) => {
+				Object.entries(payload).forEach(([chatId, counter]) => {
+					if (counter === 0)
+					{
+						delete state.unloadedChatCounters[chatId];
+						return;
+					}
+					state.unloadedChatCounters[chatId] = counter;
+				});
 			}
 		};
 	}
@@ -548,40 +579,42 @@ export class RecentModel extends BuilderModel
 		return result;
 	}
 
-	prepareChatType(fields: Object): string
-	{
-		if (fields.type === ChatTypes.user)
-		{
-			return ChatTypes.user;
-		}
-
-		if (fields.chat)
-		{
-			return fields.chat.type;
-		}
-
-		return fields.type;
-	}
-
 	prepareMessage(fields: Object): Object
 	{
 		const {message} = this.getElementState();
-		if (Type.isNumber(fields.message.id))
+		if (Type.isNumber(fields.message.id) || Utils.text.isUuidV4(fields.message.id) || Type.isStringFilled(fields.message.id))
 		{
 			message.id = fields.message.id;
 		}
 		if (Type.isString(fields.message.text))
 		{
-			const textOptions = {};
-			if (fields.message.withAttach || fields.message.attach)
-			{
-				textOptions.WITH_ATTACH = true;
-			}
-			else if (fields.message.withFile || fields.message.file)
-			{
-				textOptions.WITH_FILE = true;
-			}
-			message.text = this.prepareText(fields.message.text, textOptions);
+			message.text = fields.message.text;
+		}
+
+		if (
+			Type.isStringFilled(fields.message.attach)
+			|| Type.isBoolean(fields.message.attach)
+			|| Type.isArray(fields.message.attach)
+		)
+		{
+			message.params.withAttach = fields.message.attach;
+		}
+		else if (
+			Type.isStringFilled(fields.message.params?.withAttach)
+			|| Type.isBoolean(fields.message.params?.withAttach)
+			|| Type.isArray(fields.message.params?.withAttach)
+		)
+		{
+			message.params.withAttach = fields.message.params.withAttach;
+		}
+
+		if (Type.isBoolean(fields.message.file) || Type.isPlainObject(fields.message.file))
+		{
+			message.params.withFile = fields.message.file;
+		}
+		else if (Type.isBoolean(fields.message.params?.withFile) || Type.isPlainObject(fields.message.params?.withFile))
+		{
+			message.params.withFile = fields.message.params.withFile;
 		}
 
 		if (Type.isDate(fields.message.date) || Type.isString(fields.message.date))
@@ -593,13 +626,22 @@ export class RecentModel extends BuilderModel
 		{
 			message.senderId = fields.message.author_id;
 		}
-		if (Type.isNumber(fields.message.senderId))
+		else if (Type.isNumber(fields.message.authorId))
+		{
+			message.senderId = fields.message.authorId;
+		}
+		else if (Type.isNumber(fields.message.senderId))
 		{
 			message.senderId = fields.message.senderId;
 		}
+
 		if (Type.isStringFilled(fields.message.status))
 		{
 			message.status = fields.message.status;
+		}
+		if (Type.isBoolean(fields.message.sending))
+		{
+			message.sending = fields.message.sending;
 		}
 
 		return message;
@@ -611,7 +653,7 @@ export class RecentModel extends BuilderModel
 
 		if (Type.isString(fields.draft.text))
 		{
-			draft.text = this.prepareText(fields.draft.text, {});
+			draft.text = fields.draft.text;
 		}
 
 		if (Type.isStringFilled(draft.text))
@@ -624,185 +666,5 @@ export class RecentModel extends BuilderModel
 		}
 
 		return draft;
-	}
-
-	prepareText(text: string, options: Object): string
-	{
-		let result = text.trim();
-
-		if (result.startsWith('/me'))
-		{
-			result = result.slice(4);
-		}
-		else if (result.startsWith('/loud'))
-		{
-			result = result.slice(6);
-		}
-
-		result = result.replace(/<br><br \/>/gi, '<br />');
-		result = result.replace(/<br \/><br>/gi, '<br />');
-
-		const codeReplacement = [];
-		result = result.replace(/\[code]\n?([\0-\uFFFF]*?)\[\/code]/gi, (whole, group) => {
-			const id = codeReplacement.length;
-			codeReplacement.push(group);
-			return `####REPLACEMENT_CODE_${id}####`;
-		});
-
-		result = result.replace(/\[put(?:=.+?)?](?:.+?)?\[\/put]/gi, (match) => {
-			return match.replace(/\[put(?:=(.+))?](.+?)?\[\/put]/gi, (whole, command, textToPut) => {
-				return textToPut || command;
-			});
-		});
-
-		result = result.replace(/\[send(?:=.+?)?](?:.+?)?\[\/send]/gi, (match) => {
-			return match.replace(/\[send(?:=(.+))?](.+?)?\[\/send]/gi, (whole, command, textToSend) => {
-				return textToSend || command;
-			});
-		});
-
-		result = result.replace(/\[[bisu]](.*?)\[\/[bisu]]/gi, '$1');
-		result = result.replace(/\[url](.*?)\[\/url]/gi, '$1');
-		result = result.replace(/\[url=(.*?)](.*?)\[\/url]/gi, '$2');
-		result = result.replace(/\[rating=([1-5])]/gi, () => `[${Loc.getMessage('IM_UTILS_TEXT_RATING')}] `);
-		result = result.replace(/\[attach=(\d+)]/gi, () => `[${Loc.getMessage('IM_UTILS_TEXT_ATTACH')}] `);
-		result = result.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
-		result = result.replace(/\[chat=(\d+)](.*?)\[\/chat]/gi, '$2');
-		result = result.replace(/\[send(?:=.+?)?](.+?)?\[\/send]/gi, '$1');
-		result = result.replace(/\[put(?:=.+?)?](.+?)?\[\/put]/gi, '$1');
-		result = result.replace(/\[call(?:=.+?)?](.*?)\[\/call]/gi, '$1');
-		result = result.replace(/\[pch=(\d+)](.*?)\[\/pch]/gi, '$2');
-		result = result.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1');
-		result = result.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/gi, '($1)');
-		result = result.replace(/<img.*?title="([^"]*)".*?>/gi, '($1)');
-		result = result.replace(/<s>([^"]*)<\/s>/gi, ' ');
-		result = result.replace(/\[s]([^"]*)\[\/s]/gi, ' ');
-		result = result.replace(/\[icon=([^\]]*)]/gi, this.prepareIconCode);
-
-		codeReplacement.forEach((element, index) => {
-			result = result.replace(`####REPLACEMENT_CODE_${index}####`, element);
-		});
-
-		result = result.replace(/-{54}(.*?)-{54}/gims, `[${Loc.getMessage('IM_UTILS_TEXT_QUOTE')}] `);
-		result = result.replace(/^(>>(.*)(\n)?)/gim, `[${Loc.getMessage('IM_UTILS_TEXT_QUOTE')}] `);
-
-		if (options.WITH_ATTACH && result.length === 0)
-		{
-			result = `[${Loc.getMessage('IM_UTILS_TEXT_ATTACH')}] ${result}`;
-		}
-		else if (options.WITH_FILE && result.length === 0)
-		{
-			result = `[${Loc.getMessage('IM_UTILS_TEXT_FILE')}] ${result}`;
-		}
-
-		result = result.replace(/\n/gi, ' ').trim();
-
-		const SPLIT_INDEX = 24;
-		const UNSEEN_SPACE = '\u200B';
-
-		if (result.length > SPLIT_INDEX)
-		{
-			let firstPart = result.slice(0, SPLIT_INDEX + 1);
-			const secondPart = result.slice(SPLIT_INDEX + 1);
-			const hasWhitespace = /\s/.test(firstPart);
-			const hasUserCode = /\[user=(\d+)](.*?)\[\/user]/i.test(result);
-			if (firstPart.length === SPLIT_INDEX + 1 && !hasWhitespace && !hasUserCode)
-			{
-				firstPart += UNSEEN_SPACE;
-			}
-			result = firstPart + secondPart;
-		}
-
-		return result;
-	}
-
-	prepareIconCode(wholeMatch: string): string
-	{
-		let title = wholeMatch.match(/title=(.*[^\s\]])/i);
-		if (title && title[1])
-		{
-			// eslint-disable-next-line prefer-destructuring
-			title = title[1];
-			if (title.includes('width='))
-			{
-				title = title.slice(0, Math.max(0, title.indexOf('width=')));
-			}
-			if (title.includes('height='))
-			{
-				title = title.slice(0, Math.max(0, title.indexOf('height=')));
-			}
-			if (title.includes('size='))
-			{
-				title = title.slice(0, Math.max(0, title.indexOf('size=')));
-			}
-			if (title)
-			{
-				title = `(${title.trim()})`;
-			}
-		}
-		else
-		{
-			title = `(${Loc.getMessage('IM_UTILS_TEXT_ICON')})`;
-		}
-		return title;
-	}
-
-	prepareActiveCall(call)
-	{
-		return {...this.getActiveCallDefaultState(), ...this.validateActiveCall(call)};
-	}
-
-	validateActiveCall(fields)
-	{
-		const result = {};
-
-		if (Type.isStringFilled(fields.dialogId) || Type.isNumber(fields.dialogId))
-		{
-			result.dialogId = fields.dialogId;
-		}
-
-		if (Type.isStringFilled(fields.name))
-		{
-			result.name = fields.name;
-		}
-
-		if (Type.isObjectLike(fields.call))
-		{
-			result.call = fields.call;
-
-			if (fields.call?.associatedEntity?.avatar === '/bitrix/js/im/images/blank.gif')
-			{
-				result.call.associatedEntity.avatar = '';
-			}
-		}
-
-		if (RecentCallStatus[fields.state])
-		{
-			result.state = fields.state;
-		}
-
-		return result;
-	}
-
-	validateOptions(fields)
-	{
-		const result = {};
-
-		if (Type.isBoolean(fields.showBirthday))
-		{
-			result.showBirthday = fields.showBirthday;
-		}
-
-		if (Type.isBoolean(fields.showInvited))
-		{
-			result.showInvited = fields.showInvited;
-		}
-
-		if (Type.isBoolean(fields.showLastMessage))
-		{
-			result.showLastMessage = fields.showLastMessage;
-		}
-
-		return result;
 	}
 }

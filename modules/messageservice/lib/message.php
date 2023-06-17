@@ -153,6 +153,8 @@ class Message
 	 */
 	public function send(): AddResult
 	{
+		global $USER;
+
 		$checkResult = $this->checkFields();
 
 		if (!$checkResult->isSuccess())
@@ -178,6 +180,11 @@ class Message
 		if ($result->isSuccess())
 		{
 			$this->id = $result->getId();
+			if (Main\Config\Option::get('messageservice', 'event_log_message_send', 'N') === 'Y')
+			{
+				$userId = is_object($USER) ? $USER->getId() : 0;
+				\CEventLog::Log('INFO', 'MESSAGE_SEND', 'messageservice', $userId, $this->getTo());
+			}
 		}
 
 		return $result;
@@ -185,6 +192,8 @@ class Message
 
 	public function sendDirectly(): Result\SendMessage
 	{
+		global $USER;
+
 		$checkResult = $this->checkFields();
 
 		if (!$checkResult->isSuccess())
@@ -244,6 +253,12 @@ class Message
 
 		$this->id = $addResult->getId();
 		$result->setId($this->id);
+
+		if (Main\Config\Option::get('messageservice', 'event_log_message_send', 'N') === 'Y')
+		{
+			$userId = is_object($USER) ? $USER->getId() : 0;
+			\CEventLog::Log('INFO', 'MESSAGE_SEND', 'messageservice', $userId, $this->getTo());
+		}
 
 		return $result;
 	}
@@ -441,10 +456,32 @@ class Message
 
 	public function updateStatusByExternalStatus(string $externalStatus): bool
 	{
-		return $this->update([
-			'EXTERNAL_STATUS' => $externalStatus,
-			'STATUS_ID' => $this->sender->resolveStatus($externalStatus),
-		]);
+
+		$newInternalStatus = $this->sender::resolveStatus($externalStatus);
+
+		$isUpdateSuccess = MessageTable::updateMessageStatuses(
+			$this->id,
+			$newInternalStatus,
+			$externalStatus
+		);
+
+		if (!$isUpdateSuccess)
+		{
+			return false;
+		}
+
+		$this->statusId = $newInternalStatus;
+
+		// events
+		$eventFields = ['ID' => $this->id, 'STATUS_ID' => $this->statusId];
+		Main\EventManager::getInstance()->send(new Main\Event(
+				'messageservice',
+				static::EVENT_MESSAGE_UPDATED,
+				$eventFields)
+		);
+		Pull::onMessagesUpdate([$eventFields]);
+
+		return true;
 	}
 
 	public function updateStatus(int $newStatusId): bool

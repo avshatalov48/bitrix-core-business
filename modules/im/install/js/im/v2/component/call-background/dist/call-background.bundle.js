@@ -1,126 +1,11 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_buttons,ui_fonts_opensans,ui_progressbarjs_uploader,ui_infoHelper,im_v2_lib_utils,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
+(function (exports,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var EVENT_NAMESPACE = 'BX.Messenger.v2.CallBackground.ProgressBar';
-	var SIZE_LOWER_THRESHOLD = 1024 * 1024 * 2;
-	var STARTING_PROGRESS = 5;
-	var _getProgressBarParams = /*#__PURE__*/new WeakSet();
-	var _adjustProgressBarTitleVisibility = /*#__PURE__*/new WeakSet();
-	var _isSmallSizeFile = /*#__PURE__*/new WeakSet();
-	var _isSmallContainer = /*#__PURE__*/new WeakSet();
-	var ProgressBarManager = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(ProgressBarManager, _EventEmitter);
-	  function ProgressBarManager(params) {
-	    var _this;
-	    babelHelpers.classCallCheck(this, ProgressBarManager);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ProgressBarManager).call(this));
-	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _isSmallContainer);
-	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _isSmallSizeFile);
-	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _adjustProgressBarTitleVisibility);
-	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getProgressBarParams);
-	    _this.setEventNamespace(EVENT_NAMESPACE);
-	    var container = params.container,
-	      uploadState = params.uploadState;
-	    _this.container = container;
-	    _this.uploadState = uploadState;
-	    _this.progressBar = new ui_progressbarjs_uploader.Uploader(_objectSpread(_objectSpread({}, _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _getProgressBarParams, _getProgressBarParams2).call(babelHelpers.assertThisInitialized(_this))), {}, {
-	      container: container
-	    }));
-	    _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _adjustProgressBarTitleVisibility, _adjustProgressBarTitleVisibility2).call(babelHelpers.assertThisInitialized(_this));
-	    return _this;
-	  }
-	  babelHelpers.createClass(ProgressBarManager, [{
-	    key: "start",
-	    value: function start() {
-	      this.progressBar.start();
-	      this.update();
-	    }
-	  }, {
-	    key: "update",
-	    value: function update() {
-	      if (this.uploadState.status === im_v2_const.FileStatus.error) {
-	        this.progressBar.setProgress(0);
-	        this.progressBar.setCancelDisable(false);
-	        this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.error);
-	        this.progressBar.setProgressTitle(main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_ERROR'));
-	      } else if (this.uploadState.status === im_v2_const.FileStatus.wait) {
-	        this.progressBar.setProgress(this.item.state.progress > STARTING_PROGRESS ? this.item.state.progress : STARTING_PROGRESS);
-	        this.progressBar.setCancelDisable(true);
-	        this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.cloud);
-	        this.progressBar.setProgressTitle(main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_SAVING'));
-	      } else if (this.uploadState.progress === 100) {
-	        this.progressBar.setProgress(100);
-	      } else if (this.uploadState.progress === -1) {
-	        this.progressBar.setProgress(10);
-	        this.progressBar.setProgressTitle(main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_WAITING'));
-	      } else {
-	        if (this.uploadState.progress === 0) {
-	          this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.cancel);
-	        }
-	        var progress = this.uploadState.progress > STARTING_PROGRESS ? this.uploadState.progress : STARTING_PROGRESS;
-	        this.progressBar.setProgress(progress);
-	        if (_classPrivateMethodGet(this, _isSmallSizeFile, _isSmallSizeFile2).call(this)) {
-	          this.progressBar.setProgressTitle(main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_LOADING'));
-	        } else {
-	          var byteSent = this.uploadState.size / 100 * this.uploadState.progress;
-	          this.progressBar.setByteSent(byteSent, this.uploadState.size);
-	        }
-	      }
-	    }
-	  }, {
-	    key: "destroy",
-	    value: function destroy() {
-	      this.progressBar.destroy(false);
-	    }
-	  }]);
-	  return ProgressBarManager;
-	}(main_core_events.EventEmitter);
-	function _getProgressBarParams2() {
-	  var _this2 = this;
-	  return {
-	    labels: {
-	      loading: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_LOADING'),
-	      completed: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_COMPLETED'),
-	      canceled: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_CANCELED'),
-	      cancelTitle: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_UPLOAD_CANCEL_TITLE'),
-	      megabyte: main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_SIZE_MB')
-	    },
-	    cancelCallback: function cancelCallback() {
-	      _this2.emit(ProgressBarManager.event.cancel);
-	    },
-	    destroyCallback: function destroyCallback() {
-	      _this2.emit(ProgressBarManager.event.destroy);
-	    }
-	  };
-	}
-	function _adjustProgressBarTitleVisibility2() {
-	  if (_classPrivateMethodGet(this, _isSmallSizeFile, _isSmallSizeFile2).call(this) || _classPrivateMethodGet(this, _isSmallContainer, _isSmallContainer2).call(this)) {
-	    this.progressBar.setProgressTitleVisibility(false);
-	  }
-	}
-	function _isSmallSizeFile2() {
-	  return this.uploadState.size < SIZE_LOWER_THRESHOLD;
-	}
-	function _isSmallContainer2() {
-	  var WIDTH_LOWER_THRESHOLD = 240;
-	  var HEIGHT_LOWER_THRESHOLD = 54;
-	  return this.container.offsetHeight <= HEIGHT_LOWER_THRESHOLD && this.container.offsetWidth < WIDTH_LOWER_THRESHOLD;
-	}
-	babelHelpers.defineProperty(ProgressBarManager, "event", {
-	  cancel: 'cancel',
-	  destroy: 'destroy'
-	});
-
-	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Background = /*#__PURE__*/function () {
 	  function Background(params) {
 	    babelHelpers.classCallCheck(this, Background);
@@ -160,7 +45,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }], [{
 	    key: "createDefaultFromRest",
 	    value: function createDefaultFromRest(restItem) {
-	      return new Background(_objectSpread$1(_objectSpread$1({}, restItem), {}, {
+	      return new Background(_objectSpread(_objectSpread({}, restItem), {}, {
 	        isVideo: restItem.id.includes(':video'),
 	        isCustom: false,
 	        canRemove: false,
@@ -174,7 +59,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!restItem.isSupported) {
 	        title = main_core.Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED');
 	      }
-	      return new Background(_objectSpread$1(_objectSpread$1({}, restItem), {}, {
+	      return new Background(_objectSpread(_objectSpread({}, restItem), {}, {
 	        title: title,
 	        isCustom: true,
 	        canRemove: true
@@ -270,14 +155,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.background.uploadState || this.background.uploadState.progress === 100) {
 	        return;
 	      }
-	      this.progressBarManager = new ProgressBarManager({
+	      this.progressBarManager = new im_v2_lib_progressbar.ProgressBarManager({
 	        container: this.$refs['container'],
 	        uploadState: this.background.uploadState
 	      });
-	      this.progressBarManager.subscribe(ProgressBarManager.event.cancel, function () {
+	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.cancel, function () {
 	        _this.$emit('cancel', _this.background);
 	      });
-	      this.progressBarManager.subscribe(ProgressBarManager.event.destroy, function () {
+	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.destroy, function () {
 	        if (_this.progressBar) {
 	          _this.progressBar = null;
 	        }
@@ -485,23 +370,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  template: "\n\t\t<div class=\"bx-im-call-background__loader\">\n\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n\t"
 	};
 
-	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _initLimits = /*#__PURE__*/new WeakSet();
 	var _initInfoHelper = /*#__PURE__*/new WeakSet();
 	var _limitIsActive = /*#__PURE__*/new WeakSet();
 	var LimitManager = /*#__PURE__*/function () {
 	  function LimitManager(params) {
 	    babelHelpers.classCallCheck(this, LimitManager);
-	    _classPrivateMethodInitSpec$1(this, _limitIsActive);
-	    _classPrivateMethodInitSpec$1(this, _initInfoHelper);
-	    _classPrivateMethodInitSpec$1(this, _initLimits);
+	    _classPrivateMethodInitSpec(this, _limitIsActive);
+	    _classPrivateMethodInitSpec(this, _initInfoHelper);
+	    _classPrivateMethodInitSpec(this, _initLimits);
 	    babelHelpers.defineProperty(this, "limits", {});
 	    var _limits = params.limits,
 	      _infoHelperUrlTemplate = params.infoHelperUrlTemplate;
-	    _classPrivateMethodGet$1(this, _initLimits, _initLimits2).call(this, _limits);
-	    _classPrivateMethodGet$1(this, _initInfoHelper, _initInfoHelper2).call(this, _infoHelperUrlTemplate);
+	    _classPrivateMethodGet(this, _initLimits, _initLimits2).call(this, _limits);
+	    _classPrivateMethodGet(this, _initInfoHelper, _initInfoHelper2).call(this, _infoHelperUrlTemplate);
 	  }
 	  babelHelpers.createClass(LimitManager, [{
 	    key: "isLimitedAction",
@@ -509,12 +394,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (action.isEmpty() || action.isUpload()) {
 	        return false;
 	      }
-	      return action.isBlur() && _classPrivateMethodGet$1(this, _limitIsActive, _limitIsActive2).call(this, LimitManager.limitCode.blur);
+	      return action.isBlur() && _classPrivateMethodGet(this, _limitIsActive, _limitIsActive2).call(this, LimitManager.limitCode.blur);
 	    }
 	  }, {
 	    key: "isLimitedBackground",
 	    value: function isLimitedBackground() {
-	      return _classPrivateMethodGet$1(this, _limitIsActive, _limitIsActive2).call(this, LimitManager.limitCode.image);
+	      return _classPrivateMethodGet(this, _limitIsActive, _limitIsActive2).call(this, LimitManager.limitCode.image);
 	    }
 	  }, {
 	    key: "showLimitSlider",
@@ -615,8 +500,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  template: "\n\t\t<div class=\"bx-im-call-background__tab-panel\">\n\t\t\t<div\n\t\t\t\tv-for=\"tab in tabs\"\n\t\t\t\t:key=\"tab.id\"\n\t\t\t\t@click=\"$emit('tabChange', tab.id)\"\n\t\t\t\t:class=\"{'--active': selectedTab === tab.id, '--new': tab.isNew}\"\n\t\t\t\tclass=\"bx-im-call-background__tab\"\n\t\t\t>\n\t\t\t\t<div v-if=\"tab.isNew\" class=\"bx-im-call-background__tab_new\">{{ loc('BX_IM_CALL_BG_TAB_NEW') }}</div>\n\t\t\t\t<div class=\"bx-im-call-background__tab_text\">{{ loc(tab.loc) }}</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
-	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var VIDEO_CONSTRAINT_WIDTH = 1280;
 	var VIDEO_CONSTRAINT_HEIGHT = 720;
 
@@ -664,7 +549,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 	      if (BX.Call.Hardware.defaultCamera) {
 	        this.selectedCamera = BX.Call.Hardware.defaultCamera;
-	        constraints.video = _objectSpread$2(_objectSpread$2({}, constraints.video), {
+	        constraints.video = _objectSpread$1(_objectSpread$1({}, constraints.video), {
 	          deviceId: {
 	            exact: this.selectedCamera
 	          }
@@ -749,15 +634,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return BackgroundService;
 	}();
 
-	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var FILE_MAX_SIZE = 100 * 1024 * 1024;
 	var FILE_MAX_SIZE_PHRASE_NUMBER = 100;
 	var UPLOAD_CHUNK_SIZE = 1024 * 1024;
 	var NOTIFICATION_HIDE_DELAY = 5000;
 	var CUSTOM_BG_TASK_PREFIX = 'custom';
-	var EVENT_NAMESPACE$1 = 'BX.Messenger.v2.CallBackground.UploadManager';
+	var EVENT_NAMESPACE = 'BX.Messenger.v2.CallBackground.UploadManager';
 	var _bindEvents = /*#__PURE__*/new WeakSet();
 	var _onFileMaxSizeExceeded = /*#__PURE__*/new WeakSet();
 	var _onSelectFile = /*#__PURE__*/new WeakSet();
@@ -774,24 +659,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, UploadManager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UploadManager).call(this));
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _showNotification);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _isAllowedType);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _addUploadTask);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onUploadError);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onComplete);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onProgress);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onStartUpload);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onSelectFile);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onFileMaxSizeExceeded);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _bindEvents);
-	    _this.setEventNamespace(EVENT_NAMESPACE$1);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _showNotification);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _isAllowedType);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _addUploadTask);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onUploadError);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onComplete);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onProgress);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onStartUpload);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onSelectFile);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onFileMaxSizeExceeded);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _bindEvents);
+	    _this.setEventNamespace(EVENT_NAMESPACE);
 	    var inputNode = params.inputNode;
 	    _this.uploader = new im_lib_uploader.Uploader({
 	      inputNode: inputNode,
 	      generatePreview: true,
 	      fileMaxSize: FILE_MAX_SIZE
 	    });
-	    _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _bindEvents, _bindEvents2).call(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _bindEvents, _bindEvents2).call(babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
 	  babelHelpers.createClass(UploadManager, [{
@@ -808,32 +693,32 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return UploadManager;
 	}(main_core_events.EventEmitter);
 	function _bindEvents2() {
-	  this.uploader.subscribe('onFileMaxSizeExceeded', _classPrivateMethodGet$2(this, _onFileMaxSizeExceeded, _onFileMaxSizeExceeded2).bind(this));
-	  this.uploader.subscribe('onSelectFile', _classPrivateMethodGet$2(this, _onSelectFile, _onSelectFile2).bind(this));
-	  this.uploader.subscribe('onStartUpload', _classPrivateMethodGet$2(this, _onStartUpload, _onStartUpload2).bind(this));
-	  this.uploader.subscribe('onProgress', _classPrivateMethodGet$2(this, _onProgress, _onProgress2).bind(this));
-	  this.uploader.subscribe('onComplete', _classPrivateMethodGet$2(this, _onComplete, _onComplete2).bind(this));
-	  this.uploader.subscribe('onUploadFileError', _classPrivateMethodGet$2(this, _onUploadError, _onUploadError2).bind(this));
-	  this.uploader.subscribe('onCreateFileError', _classPrivateMethodGet$2(this, _onUploadError, _onUploadError2).bind(this));
+	  this.uploader.subscribe('onFileMaxSizeExceeded', _classPrivateMethodGet$1(this, _onFileMaxSizeExceeded, _onFileMaxSizeExceeded2).bind(this));
+	  this.uploader.subscribe('onSelectFile', _classPrivateMethodGet$1(this, _onSelectFile, _onSelectFile2).bind(this));
+	  this.uploader.subscribe('onStartUpload', _classPrivateMethodGet$1(this, _onStartUpload, _onStartUpload2).bind(this));
+	  this.uploader.subscribe('onProgress', _classPrivateMethodGet$1(this, _onProgress, _onProgress2).bind(this));
+	  this.uploader.subscribe('onComplete', _classPrivateMethodGet$1(this, _onComplete, _onComplete2).bind(this));
+	  this.uploader.subscribe('onUploadFileError', _classPrivateMethodGet$1(this, _onUploadError, _onUploadError2).bind(this));
+	  this.uploader.subscribe('onCreateFileError', _classPrivateMethodGet$1(this, _onUploadError, _onUploadError2).bind(this));
 	}
 	function _onFileMaxSizeExceeded2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onFileMaxSizeExceeded', event);
 	  var eventData = event.getData();
 	  var file = eventData.file;
 	  var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_SIZE_EXCEEDED').replace('#LIMIT#', FILE_MAX_SIZE_PHRASE_NUMBER).replace('#FILE_NAME#', file.name);
-	  _classPrivateMethodGet$2(this, _showNotification, _showNotification2).call(this, phrase);
+	  _classPrivateMethodGet$1(this, _showNotification, _showNotification2).call(this, phrase);
 	}
 	function _onSelectFile2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onSelectFile', event);
 	  var _event$getData = event.getData(),
 	    file = _event$getData.file,
 	    previewData = _event$getData.previewData;
-	  if (!_classPrivateMethodGet$2(this, _isAllowedType, _isAllowedType2).call(this, file.type) || !previewData) {
+	  if (!_classPrivateMethodGet$1(this, _isAllowedType, _isAllowedType2).call(this, file.type) || !previewData) {
 	    var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name);
-	    _classPrivateMethodGet$2(this, _showNotification, _showNotification2).call(this, phrase);
+	    _classPrivateMethodGet$1(this, _showNotification, _showNotification2).call(this, phrase);
 	    return false;
 	  }
-	  _classPrivateMethodGet$2(this, _addUploadTask, _addUploadTask2).call(this, file, previewData);
+	  _classPrivateMethodGet$1(this, _addUploadTask, _addUploadTask2).call(this, file, previewData);
 	}
 	function _onStartUpload2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onStartUpload', event);
@@ -1313,5 +1198,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallBackground = CallBackground;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.UI,BX,BX.ProgressBarJs,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.UI,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
 //# sourceMappingURL=call-background.bundle.js.map

@@ -1,0 +1,11 @@
+.bx-im-media-audio__container {
+	width: 219px;
+}
+
+.bx-im-media-audio__container .ui-vue-audioplayer-timers-container {
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.bx-im-media-audio__container + .bx-im-media-audio__container {
+	margin-top: 25px
+}

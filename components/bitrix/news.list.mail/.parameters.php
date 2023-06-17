@@ -1,50 +1,87 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 /** @var array $arCurrentValues */
 
-if(!CModule::IncludeModule("iblock"))
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arTypesEx = CIBlockParameters::GetIBlockTypes(array("-"=>" "));
 
-$arIBlocks=array();
-$db_iblock = CIBlock::GetList(array("SORT"=>"ASC"), array("SITE_ID"=>$_REQUEST["site"], "TYPE" => ($arCurrentValues["IBLOCK_TYPE"]!="-"?$arCurrentValues["IBLOCK_TYPE"]:"")));
-while($arRes = $db_iblock->Fetch())
-	$arIBlocks[$arRes["ID"]] = "[".$arRes["ID"]."] ".$arRes["NAME"];
-
-$arSorts = array("ASC"=>GetMessage("T_IBLOCK_DESC_ASC"), "DESC"=>GetMessage("T_IBLOCK_DESC_DESC"));
-$arSortFields = array(
-		"ID"=>GetMessage("T_IBLOCK_DESC_FID"),
-		"NAME"=>GetMessage("T_IBLOCK_DESC_FNAME"),
-		"ACTIVE_FROM"=>GetMessage("T_IBLOCK_DESC_FACT"),
-		"SORT"=>GetMessage("T_IBLOCK_DESC_FSORT"),
-		"TIMESTAMP_X"=>GetMessage("T_IBLOCK_DESC_FTSAMP")
-	);
-
-$arProperty_LNS = array();
-$rsProp = CIBlockProperty::GetList(array("sort"=>"asc", "name"=>"asc"), array("ACTIVE"=>"Y", "IBLOCK_ID"=>(isset($arCurrentValues["IBLOCK_ID"])?$arCurrentValues["IBLOCK_ID"]:$arCurrentValues["ID"])));
-while ($arr=$rsProp->Fetch())
+$arIBlocks = [];
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
 {
-	$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-	if (in_array($arr["PROPERTY_TYPE"], array("L", "N", "S")))
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+if (isset($_REQUEST['site']))
+{
+	$iblockFilter['SITE_ID'] = $_REQUEST['site'];
+}
+$db_iblock = CIBlock::GetList(["SORT"=>"ASC"], $iblockFilter);
+while($arRes = $db_iblock->Fetch())
+{
+	$arIBlocks[$arRes["ID"]] = "[" . $arRes["ID"] . "] " . $arRes["NAME"];
+}
+
+$arSorts = [
+	"ASC"=>GetMessage("T_IBLOCK_DESC_ASC"),
+	"DESC"=>GetMessage("T_IBLOCK_DESC_DESC"),
+];
+$arSortFields = [
+	"ID"=>GetMessage("T_IBLOCK_DESC_FID"),
+	"NAME"=>GetMessage("T_IBLOCK_DESC_FNAME"),
+	"ACTIVE_FROM"=>GetMessage("T_IBLOCK_DESC_FACT"),
+	"SORT"=>GetMessage("T_IBLOCK_DESC_FSORT"),
+	"TIMESTAMP_X"=>GetMessage("T_IBLOCK_DESC_FTSAMP"),
+];
+
+$arProperty_LNS = [];
+$arProperty = [];
+if ($iblockExists)
+{
+	$rsProp = CIBlockProperty::GetList(
+		[
+			"SORT" => "ASC",
+			"NAME" => "ASC",
+		],
+		[
+			"ACTIVE" => "Y",
+			"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
+		]
+	);
+	while ($arr = $rsProp->Fetch())
 	{
-		$arProperty_LNS[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		$arProperty[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		if (in_array($arr["PROPERTY_TYPE"], ["L", "N", "S"]))
+		{
+			$arProperty_LNS[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		}
 	}
 }
 
-$arComponentParameters = array(
-	"GROUPS" => array(
-	),
-	"PARAMETERS" => array(
-		"IBLOCK_TYPE" => array(
+$arComponentParameters = [
+	"GROUPS" => [],
+	"PARAMETERS" => [
+		"IBLOCK_TYPE" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_LIST_TYPE"),
 			"TYPE" => "LIST",
 			"VALUES" => $arTypesEx,
 			"DEFAULT" => "news",
 			"REFRESH" => "Y",
-		),
-		"IBLOCK_ID" => array(
+		],
+		"IBLOCK_ID" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_LIST_ID"),
 			"TYPE" => "LIST",
@@ -52,22 +89,22 @@ $arComponentParameters = array(
 			"DEFAULT" => '',
 			"ADDITIONAL_VALUES" => "Y",
 			"REFRESH" => "Y",
-		),
-		"NEWS_COUNT" => array(
+		],
+		"NEWS_COUNT" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_LIST_CONT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "5",
-		),
-		"PREVENT_SEND_IF_NO_NEWS" => array(
+		],
+		"PREVENT_SEND_IF_NO_NEWS" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_PREVENT_SEND_IF_NO_NEWS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
 			"REFRESH" => "Y",
-		),
-	),
-);
+		],
+	],
+];
 
 if(isset($arCurrentValues['PREVENT_SEND_IF_NO_NEWS']) && $arCurrentValues['PREVENT_SEND_IF_NO_NEWS'] == 'Y')
 {
@@ -182,4 +219,3 @@ $arComponentParameters["PARAMETERS"] = array_merge(
 		),
 	)
 );
-?>

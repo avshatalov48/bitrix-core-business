@@ -14,6 +14,16 @@ declare module 'ui.vue3'
 		const eventEmitter: EventEmitter;
 	}
 
+	class BitrixInstance
+	{
+		Application: $BitrixApplication;
+		Data: $BitrixData;
+		RestClient: $BitrixRestClient;
+		PullClient: $BitrixPullClient;
+		Loc: $BitrixLoc;
+		eventEmitter: EventEmitter;
+	}
+
 	class $BitrixApplication {
 		get(): Object;
 		set(instance: Object): void

@@ -60,7 +60,11 @@ if (!empty($viewModeValue))
 		'black' => GetMessage('CP_BCT_TPL_THEME_BLACK')
 	);
 
-	$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__.'/'.ToLower($arCurrentValues['VIEW_MODE']).'/themes/'));
+	$dir = trim(preg_replace(
+		"'[\\\\/]+'",
+		"/",
+		__DIR__.'/'.ToLower($arCurrentValues['VIEW_MODE'] ?? 'SECTION').'/themes/'
+	));
 	if (is_dir($dir))
 	{
 		foreach ($arThemesList as $themeID => $themeName)
@@ -444,8 +448,8 @@ if ($viewModeValue === 'SECTION' || $viewModeValue === 'SLIDER')
 		);
 	}
 
-	$lineElementCount = (int)$arCurrentValues['LINE_ELEMENT_COUNT'] ?: 3;
-	$pageElementCount = (int)$arCurrentValues['ELEMENT_COUNT'] ?: 9;
+	$lineElementCount = (int)($arCurrentValues['LINE_ELEMENT_COUNT'] ?? 3);
+	$pageElementCount = (int)($arCurrentValues['ELEMENT_COUNT'] ?? 9);
 	$variantsMap = $viewModeValue === 'SLIDER' ? CatalogTopComponent::getTemplateVariantsMapForSlider() : CatalogTopComponent::getTemplateVariantsMap();
 
 	$arTemplateParameters['PRODUCT_ROW_VARIANTS'] = array(

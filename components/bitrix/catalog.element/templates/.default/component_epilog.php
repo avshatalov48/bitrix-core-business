@@ -1,4 +1,8 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Loader;
 
@@ -33,7 +37,7 @@ if (!empty($templateData['TEMPLATE_LIBRARY']))
 		<script>
 			BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
 		</script>
-		<?
+		<?php
 	}
 }
 
@@ -48,8 +52,7 @@ if (isset($templateData['JS_OBJ']))
 			}
 		}));
 	</script>
-
-	<?
+	<?php
 	// check compared state
 	if ($arParams['DISPLAY_COMPARE'])
 	{
@@ -59,7 +62,7 @@ if (isset($templateData['JS_OBJ']))
 
 		if (!empty($_SESSION[$arParams['COMPARE_NAME']][$item['IBLOCK_ID']]))
 		{
-			if (!empty($item['JS_OFFERS']))
+			if (!empty($item['JS_OFFERS']) && is_array($item['JS_OFFERS']))
 			{
 				foreach ($item['JS_OFFERS'] as $key => $offer)
 				{
@@ -89,13 +92,17 @@ if (isset($templateData['JS_OBJ']))
 					{
 						window.<?=$templateData['JS_OBJ']?>.setCompared('<?=$compared?>');
 
-						<? if (!empty($comparedIds)): ?>
+						<?php
+						if (!empty($comparedIds)):
+						?>
 						window.<?=$templateData['JS_OBJ']?>.setCompareInfo(<?=CUtil::PhpToJSObject($comparedIds, false, true)?>);
-						<? endif ?>
+						<?php
+						endif;
+						?>
 					}
 				}));
 			</script>
-			<?
+			<?php
 		}
 	}
 
@@ -125,6 +132,6 @@ if (isset($templateData['JS_OBJ']))
 				}
 			});
 		</script>
-		<?
+		<?php
 	}
 }

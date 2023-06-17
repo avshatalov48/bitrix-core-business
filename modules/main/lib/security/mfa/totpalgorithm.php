@@ -88,9 +88,11 @@ class TotpAlgorithm extends OtpAlgorithm
 		}
 
 		if ($isSuccess === true)
-			return array($isSuccess, sprintf('%d:%d', $resultOffset, $resultTimeCode));
+		{
+			return array(true, sprintf('%d:%d', $resultOffset, $resultTimeCode));
+		}
 
-		return array($isSuccess, null);
+		return array(false, null);
 	}
 
 	/**
@@ -150,13 +152,8 @@ class TotpAlgorithm extends OtpAlgorithm
 		$offset = 0;
 		$this->window = 0;
 
-		$isSuccess = false;
-
-		if (!$isSuccess)
-		{
-			// Before detect clock drift we must check current time :-)
-			list($isSuccess,) = $this->verify($inputA, $offset);
-		}
+		// Before detect clock drift we must check current time :-)
+		list($isSuccess,) = $this->verify($inputA, $offset);
 
 		if (!$isSuccess)
 		{

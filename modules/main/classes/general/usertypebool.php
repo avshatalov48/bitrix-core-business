@@ -21,7 +21,7 @@ class CUserTypeBoolean extends TypeBase
 		return BooleanType::getUserTypeDescription();
 	}
 
-	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
+	function GetSettingsHTML($arUserField, $arHtmlControl, $bVarsFromForm)
 	{
 		return BooleanType::renderSettings($arUserField, $arHtmlControl, $bVarsFromForm);
 	}

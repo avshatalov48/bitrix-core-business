@@ -493,4 +493,19 @@ class Agent
 
 		return '';
 	}
+
+	/**
+	 * Publication landing and drop public cache if success.
+	 * F.e. need for recovery form-loader file, that is not created at the moment of first public
+	 * @param $landingId
+	 * @return void
+	 */
+	public static function rePublicationLanding($landingId): void
+	{
+		$landing = Landing::createInstance($landingId);
+		if ($landing->publication())
+		{
+			Manager::clearCacheForSite($landing->getSiteId());
+		}
+	}
 }

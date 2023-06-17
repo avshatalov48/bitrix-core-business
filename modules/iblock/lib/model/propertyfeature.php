@@ -302,6 +302,27 @@ class PropertyFeature
 	}
 
 	/**
+	 * Parses the index into parts.
+	 *
+	 * @param string $index
+	 *
+	 * @return array|null if index correct, return array in format `[MODULE_ID => , FEATURE_ID =>]`
+	 */
+	public static function parseIndex(string $index): ?array
+	{
+		$parts = explode(':', $index);
+		if (count($parts) === 2)
+		{
+			return [
+				'MODULE_ID' => $parts[0],
+				'FEATURE_ID' => $parts[1],
+			];
+		}
+
+		return null;
+	}
+
+	/**
 	 * Build a list of available features for a property.
 	 *
 	 * @param array $property		Property description.

@@ -210,7 +210,7 @@ class Sender
 			return false;
 		}
 
-		if (!\CIMChat::GetRelationById($this->chat['ID'], $this->userId))
+		if (!\CIMChat::GetRelationById($this->chat['ID'], $this->userId, true, false))
 		{
 			$this->errorCollection[] = new Error("Getting chat relation error");
 

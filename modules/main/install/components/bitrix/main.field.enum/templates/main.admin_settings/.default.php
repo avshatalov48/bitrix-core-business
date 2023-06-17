@@ -5,9 +5,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Main\Localization\Loc;
 
-$name = $arResult['additionalParameters']['NAME'];
-$value = $arResult['default_value'];
-$type = $arResult['default_value_type'];
+$name = $arResult['additionalParameters']['NAME'] ?? '';
+$value = $arResult['default_value'] ?? '';
+$type = $arResult['default_value_type'] ?? '';
 ?>
 
 <tr>

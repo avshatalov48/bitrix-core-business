@@ -170,7 +170,10 @@ else
 	$arResult["Urls"]["User"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arResult["currentUserId"]));
 	$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arParams["GROUP_ID"]));
 
-	if ($arResult['TAB'] !== 'invite')
+
+	$arResult["CALLBACK"] = '';
+
+	if (($arResult['TAB'] ?? '') !== 'invite')
 	{
 		if ($arParams["GROUP_ID"] <= 0)
 		{
@@ -192,7 +195,7 @@ else
 		}
 	}
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if (StrLen($arResult["FatalError"] ?? '') <= 0)
 	{
 		if (
 			!isset($arResult['TAB'])
@@ -205,13 +208,15 @@ else
 		$arResult["ShowForm"] = "Input";
 		$arResult["ErrorFields"] = array();
 
+		$avatarType = '';
+
 		if (
 			$_SERVER['REQUEST_METHOD'] === 'POST'
-			&& strlen($_POST["save"]) > 0
+			&& strlen($_POST["save"] ?? '') > 0
 			&& check_bitrix_sessid()
 		)
 		{
-			if ($_POST['ajax_request'] === 'Y')
+			if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
 			{
 				CUtil::JSPostUnescape();
 			}
@@ -229,7 +234,7 @@ else
 				|| $arResult['TAB'] === 'edit'
 			)
 			{
-				$avatarType = (string)$_POST['GROUP_AVATAR_TYPE'];
+				$avatarType = (string) ($_POST['GROUP_AVATAR_TYPE'] ?? null);
 
 				if (
 					(int)$_POST['GROUP_IMAGE_ID'] > 0
@@ -243,7 +248,7 @@ else
 				)
 				{
 					if (
-						(int)$arResult['POST']['IMAGE_ID'] !== (int)$_POST['GROUP_IMAGE_ID']
+						(int) ($arResult['POST']['IMAGE_ID'] ?? 0) !== (int) $_POST['GROUP_IMAGE_ID']
 						&& (
 							in_array($_POST['GROUP_IMAGE_ID'], \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles('GROUP_IMAGE_ID', [ $_POST['GROUP_IMAGE_ID'] ]))
 							|| in_array((int)$_POST['GROUP_IMAGE_ID'], $_SESSION['workgroup_avatar_loader'], true)
@@ -251,7 +256,7 @@ else
 					)
 					{
 						$arImageID = CFile::MakeFileArray($_POST["GROUP_IMAGE_ID"]);
-						$arImageID["old_file"] = $arResult["POST"]["IMAGE_ID"];
+						$arImageID["old_file"] = $arResult["POST"]["IMAGE_ID"] ?? 0;
 						$arImageID["del"] = "N";
 						CFile::ResizeImage($arImageID, array("width" => 300, "height" => 300));
 						$avatarType = '';
@@ -261,7 +266,7 @@ else
 				{
 					$arImageID = [
 						'del' => 'Y',
-						'old_file' => $arResult['POST']['IMAGE_ID'],
+						'old_file' => $arResult['POST']['IMAGE_ID'] ?? 0,
 					];
 				}
 
@@ -276,15 +281,18 @@ else
 						? "Y"
 						: "N"
 				);
-				$arResult["POST"]["SUBJECT_ID"] = $_POST["GROUP_SUBJECT_ID"];
-				$arResult['POST']['VISIBLE'] = ($_POST['GROUP_VISIBLE'] === 'Y' ? 'Y' : 'N');
-				$arResult['POST']['OPENED'] = ($_POST['GROUP_OPENED'] === 'Y' ? 'Y' : 'N');
-				$arResult['POST']['IS_EXTRANET_GROUP'] = ($_POST['IS_EXTRANET_GROUP'] === 'Y' ? 'Y' : 'N');
-				$arResult['POST']['EXTRANET_INVITE_ACTION'] = (isset($_POST['EXTRANET_INVITE_ACTION']) && $_POST['EXTRANET_INVITE_ACTION'] === 'add' ? 'add' : 'invite');
-				$arResult['POST']['CLOSED'] = ($_POST["GROUP_CLOSED"] === 'Y' ? 'Y' : 'N');
-				$arResult["POST"]["KEYWORDS"] = $_POST["GROUP_KEYWORDS"];
-				$arResult["POST"]["INITIATE_PERMS"] = $_POST["GROUP_INITIATE_PERMS"];
-				$arResult["POST"]["SPAM_PERMS"] = $_POST["GROUP_SPAM_PERMS"];
+				$arResult["POST"]["SUBJECT_ID"] = $_POST["GROUP_SUBJECT_ID"] ?? null;
+				$arResult['POST']['VISIBLE'] = (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N');
+				$arResult['POST']['OPENED'] = (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N');
+				$arResult['POST']['IS_EXTRANET_GROUP'] = (($_POST['IS_EXTRANET_GROUP'] ?? null) === 'Y' ? 'Y' : 'N');
+				$arResult['POST']['EXTRANET_INVITE_ACTION'] = (
+					isset($_POST['EXTRANET_INVITE_ACTION'])
+					&& $_POST['EXTRANET_INVITE_ACTION'] === 'add' ? 'add' : 'invite'
+				);
+				$arResult['POST']['CLOSED'] = (($_POST["GROUP_CLOSED"] ?? null) === 'Y' ? 'Y' : 'N');
+				$arResult["POST"]["KEYWORDS"] = $_POST["GROUP_KEYWORDS"] ?? null;
+				$arResult["POST"]["INITIATE_PERMS"] = $_POST["GROUP_INITIATE_PERMS"] ?? null;
+				$arResult["POST"]["SPAM_PERMS"] = $_POST["GROUP_SPAM_PERMS"] ?? null;
 
 				foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
 				{
@@ -376,7 +384,7 @@ else
 
 				foreach ($arResult["POST"]["FEATURES"] as $feature => $arFeature)
 				{
-					$arResult['POST']['FEATURES'][$feature]['Active'] = ($_POST[$feature . '_active'] === 'Y');
+					$arResult['POST']['FEATURES'][$feature]['Active'] = (($_POST[$feature . '_active'] ?? '') === 'Y');
 					$arResult["POST"]["FEATURES"][$feature]["FeatureName"] = (strlen(trim($_POST[$feature."_name"])) > 0 ? trim($_POST[$feature."_name"]) : '');
 				}
 
@@ -391,7 +399,14 @@ else
 				}
 
 				// moderators
-				$moderatorCodeList = (is_array($_POST["MODERATOR_CODES"]) ? $_POST["MODERATOR_CODES"] : array($_POST["MODERATOR_CODES"]));
+				$moderatorCodeList = (
+					(
+						isset($_POST["MODERATOR_CODES"])
+						&& is_array($_POST["MODERATOR_CODES"])
+					)
+						? $_POST["MODERATOR_CODES"]
+						: [$_POST["MODERATOR_CODES"] ?? '']
+				);
 
 				foreach ($moderatorCodeList as $destinationCode)
 				{
@@ -426,7 +441,14 @@ else
 					$arDepartmentIDs = [];
 					$arUserCodes = [];
 
-					$arUserCodesFromPost = (is_array($_POST["USER_CODES"]) ? $_POST["USER_CODES"] : array($_POST["USER_CODES"]));
+					$arUserCodesFromPost = (
+						(
+							isset($_POST["USER_CODES"])
+							&& is_array($_POST["USER_CODES"])
+						)
+							? $_POST["USER_CODES"]
+							: [$_POST["USER_CODES"] ?? '']
+					);
 
 					foreach ($arUserCodesFromPost as $destinationCode)
 					{
@@ -574,6 +596,9 @@ else
 				}
 			}
 
+			$bFirstStepSuccess = false;
+			$bSecondStepSuccess = false;
+
 			if (
 				(
 					!array_key_exists("TAB", $arResult)
@@ -583,17 +608,17 @@ else
 			)
 			{
 				$arFields = array(
-					"NAME" => $_POST["GROUP_NAME"],
-					"DESCRIPTION" => $_POST["GROUP_DESCRIPTION"],
-					'VISIBLE' => ($_POST['GROUP_VISIBLE'] === 'Y' ? 'Y' : 'N'),
-					'OPENED' => ($_POST['GROUP_OPENED'] === 'Y' ? 'Y' : 'N'),
-					'CLOSED' => ($_POST['GROUP_CLOSED'] === 'Y' ? 'Y' : 'N'),
-					"SUBJECT_ID" => $_POST["GROUP_SUBJECT_ID"],
-					"KEYWORDS" => $_POST["GROUP_KEYWORDS"],
-					"INITIATE_PERMS" => $_POST["GROUP_INITIATE_PERMS"],
-					"SPAM_PERMS" => $_POST["GROUP_SPAM_PERMS"],
-					'PROJECT' => ($_POST['GROUP_PROJECT'] === 'Y' ? 'Y' : 'N'),
-					'LANDING' => ($_POST['GROUP_LANDING'] === 'Y' ? 'Y' : 'N'),
+					"NAME" => $_POST["GROUP_NAME"] ?? null,
+					"DESCRIPTION" => $_POST["GROUP_DESCRIPTION"] ?? null,
+					'VISIBLE' => (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N'),
+					'OPENED' => (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N'),
+					'CLOSED' => (($_POST['GROUP_CLOSED'] ?? null) === 'Y' ? 'Y' : 'N'),
+					"SUBJECT_ID" => $_POST["GROUP_SUBJECT_ID"] ?? null,
+					"KEYWORDS" => $_POST["GROUP_KEYWORDS"] ?? null,
+					"INITIATE_PERMS" => $_POST["GROUP_INITIATE_PERMS"] ?? null,
+					"SPAM_PERMS" => $_POST["GROUP_SPAM_PERMS"] ?? null,
+					'PROJECT' => (($_POST['GROUP_PROJECT'] ?? null) === 'Y' ? 'Y' : 'N'),
+					'LANDING' => (($_POST['GROUP_LANDING'] ?? null) === 'Y' ? 'Y' : 'N'),
 					'AVATAR_TYPE' => $avatarType,
 				);
 
@@ -645,7 +670,7 @@ else
 						$this->getSiteId()
 					];
 					if (
-						$_POST['IS_EXTRANET_GROUP'] === 'Y'
+						($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y'
 						&& Loader::includeModule('extranet')
 						&& !CExtranet::IsExtranetSite()
 					)
@@ -912,7 +937,7 @@ else
 
 			if (
 				!empty($arImageID)
-				&& strlen($arImageID["tmp_name"]) > 0
+				&& strlen($arImageID["tmp_name"] ?? '') > 0
 			)
 			{
 				CFile::ResizeImageDeleteCache($arImageID);
@@ -936,7 +961,7 @@ else
 							SONET_ENTITY_GROUP,
 							$arResult["GROUP_ID"],
 							$feature,
-							($_POST[$feature . '_active'] === 'Y'),
+							(($_POST[$feature . '_active'] ?? '') === 'Y'),
 							(
 								strlen($_REQUEST[$feature."_name"]) > 0
 									? $_REQUEST[$feature."_name"]
@@ -989,7 +1014,7 @@ else
 						$externalAuthIdList = ComponentHelper::checkPredefinedAuthIdList(array('bot', 'imconnector', 'replica'));
 
 						if (
-							$_POST['EXTRANET_INVITE_ACTION'] === 'invite'
+							($_POST['EXTRANET_INVITE_ACTION'] ?? '') === 'invite'
 							&& strlen($_POST["EMAILS"]) > 0
 						)
 						{
@@ -1185,7 +1210,7 @@ else
 							}
 						}
 						elseif (
-							$_POST['EXTRANET_INVITE_ACTION'] === 'add'
+							($_POST['EXTRANET_INVITE_ACTION'] ?? '') === 'add'
 							&& CModule::IncludeModule("intranet")
 						)
 						{
@@ -1335,7 +1360,14 @@ else
 
 							if (!$relationFields)
 							{
-								if (!CSocNetUserToGroup::SendRequestToJoinGroup($arResult["currentUserId"], $user_id, $arResult["GROUP_ID"], $_POST["MESSAGE"]))
+								if (
+									!CSocNetUserToGroup::SendRequestToJoinGroup(
+										$arResult["currentUserId"],
+										$user_id,
+										$arResult["GROUP_ID"],
+										$_POST["MESSAGE"] ?? ''
+									)
+								)
 								{
 									$rsUser = CUser::GetByID($user_id);
 									if ($arUser = $rsUser->Fetch())
@@ -1472,7 +1504,7 @@ else
 
 				//if no users were invited
 				if (
-					$arResult['TAB'] === 'invite'
+					($arResult['TAB'] ?? '') === 'invite'
 					&& empty($arUserIDs)
 					&& empty($arDepartmentIDs)
 				)
@@ -1498,7 +1530,7 @@ else
 				{
 					if (
 						$arResult["IS_POPUP"]
-						|| $_GET['IFRAME_TYPE'] === 'SIDE_SLIDER'
+						|| ($_GET['IFRAME_TYPE'] ?? null) === 'SIDE_SLIDER'
 					)
 					{
 						if (!array_key_exists("TAB", $arResult))
@@ -1529,21 +1561,21 @@ else
 						{
 							$redirectPath = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["GROUP_ID"], "user_id" => $arResult["currentUserId"]));
 						}
-						elseif ($arResult['TAB'] === 'edit')
+						elseif (($arResult['TAB'] ?? '') === 'edit')
 						{
 							$redirectPath = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["GROUP_ID"], "user_id" => $arResult["currentUserId"]));
 						}
-						elseif ($arResult['TAB'] === 'invite')
+						elseif (($arResult['TAB'] ?? '') === 'invite')
 						{
 							$redirectPath = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["GROUP_ID"], "user_id" => $arResult["currentUserId"]));
 						}
 
 						$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."POPUP=Y&SONET=Y";
-						if ($arResult['TAB'] === 'invite')
+						if (($arResult['TAB'] ?? '') === 'invite')
 						{
 							$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."tab=invite";
 						}
-						elseif ($arResult['TAB'] === 'edit')
+						elseif (($arResult['TAB'] ?? '') === 'edit')
 						{
 							$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."tab=edit";
 						}
@@ -1569,7 +1601,7 @@ else
 					);
 				}
 
-				if ($_POST['ajax_request'] === 'Y')
+				if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
 				{
 					$groupFieldsList = array(
 						'FIELDS' => array(),
@@ -1669,7 +1701,7 @@ else
 					}
 				}
 
-				if ($_POST['ajax_request'] === 'Y')
+				if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
 				{
 					ob_end_clean();
 
@@ -1893,15 +1925,15 @@ if ($arParams['GROUP_ID'] > 0)
 {
 	if ($arResult['isScrumProject'])
 	{
-		$arResult['PageTitle'] = ($arResult['TAB'] === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE_SCRUM') : Loc::getMessage('SONET_GCE_TITLE_EDIT_SCRUM'));
+		$arResult['PageTitle'] = (($arResult['TAB'] ?? '') === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE_SCRUM') : Loc::getMessage('SONET_GCE_TITLE_EDIT_SCRUM'));
 	}
 	elseif ($arResult['POST']['PROJECT'] === 'Y')
 	{
-		$arResult['PageTitle'] = ($arResult['TAB'] === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE_PROJECT') : Loc::getMessage('SONET_GCE_TITLE_EDIT_PROJECT'));
+		$arResult['PageTitle'] = (($arResult['TAB'] ?? '') === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE_PROJECT') : Loc::getMessage('SONET_GCE_TITLE_EDIT_PROJECT'));
 	}
 	else
 	{
-		$arResult['PageTitle'] = ($arResult['TAB'] === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE') : Loc::getMessage('SONET_GCE_TITLE_EDIT'));
+		$arResult['PageTitle'] = (($arResult['TAB'] ?? '') === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE') : Loc::getMessage('SONET_GCE_TITLE_EDIT'));
 	}
 }
 

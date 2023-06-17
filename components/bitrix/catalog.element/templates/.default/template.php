@@ -27,17 +27,22 @@ if (!empty($arResult['CURRENCIES']))
 	$currencyList = CUtil::PhpToJSObject($arResult['CURRENCIES'], false, true, true);
 }
 
-$templateData = array(
+$haveOffers = !empty($arResult['OFFERS']);
+
+$templateData = [
 	'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
 	'TEMPLATE_LIBRARY' => $templateLibrary,
 	'CURRENCIES' => $currencyList,
-	'ITEM' => array(
+	'ITEM' => [
 		'ID' => $arResult['ID'],
 		'IBLOCK_ID' => $arResult['IBLOCK_ID'],
-		'OFFERS_SELECTED' => $arResult['OFFERS_SELECTED'],
-		'JS_OFFERS' => $arResult['JS_OFFERS']
-	)
-);
+	],
+];
+if ($haveOffers)
+{
+	$templateData['ITEM']['OFFERS_SELECTED'] = $arResult['OFFERS_SELECTED'];
+	$templateData['ITEM']['JS_OFFERS'] = $arResult['JS_OFFERS'];
+}
 unset($currencyList, $templateLibrary);
 
 $mainId = $this->GetEditAreaId($arResult['ID']);
@@ -86,7 +91,6 @@ $alt = !empty($arResult['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT'])
 	? $arResult['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT']
 	: $arResult['NAME'];
 
-$haveOffers = !empty($arResult['OFFERS']);
 if ($haveOffers)
 {
 	$actualItem = $arResult['OFFERS'][$arResult['OFFERS_SELECTED']] ?? reset($arResult['OFFERS']);

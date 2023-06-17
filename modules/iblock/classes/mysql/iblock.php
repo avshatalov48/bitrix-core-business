@@ -73,7 +73,11 @@ class CIBlock extends CAllIBlock
 		}
 		if($bCheckPermissions && ($permissionsBy !== null || !$bIsAdmin))
 		{
-			$min_permission = (mb_strlen($arFilter["MIN_PERMISSION"]) == 1) ? $arFilter["MIN_PERMISSION"] : "R";
+			$min_permission =
+				isset($arFilter['MIN_PERMISSION']) && strlen($arFilter['MIN_PERMISSION']) === 1
+					? $arFilter['MIN_PERMISSION']
+					: \CIBlockRights::PUBLIC_READ
+			;
 
 			if ($permissionsBy !== null)
 			{

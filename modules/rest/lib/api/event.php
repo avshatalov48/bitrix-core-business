@@ -571,9 +571,13 @@ class Event extends \IRestService
 			$ts = $event['TIMESTAMP_X'];
 
 			$event['TIMESTAMP_X'] = \CRestUtil::convertDateTime($ts->toString());
-			$event['EVENT_ADDITIONAL'] = array(
-				'user_id' => $event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER],
-			);
+
+			if (isset($event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER]))
+			{
+				$event['EVENT_ADDITIONAL'] = [
+					'user_id' => $event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER],
+				];
+			}
 
 			$result[] = $event;
 		}
@@ -732,22 +736,29 @@ class Event extends \IRestService
 		$clientInfo = AppTable::getByClientId($server->getClientId());
 
 		$queryFilter['=APP_ID'] = $clientInfo['ID'];
-		$queryFilter['=CONNECTOR_ID'] = $connectorId;
+
+		$getEventQuery = EventOfflineTable::query();
+
+		if ($connectorId === '')
+		{
+			$getEventQuery->where('CONNECTOR_ID', '');
+		}
+		else
+		{
+			$queryFilter['=CONNECTOR_ID'] = $connectorId;
+		}
 
 		$navParams = static::getNavData($n, true);
 
-		$dbRes = EventOfflineTable::getList(array(
-			'select' => array(
-				'ID', 'TIMESTAMP_X', 'EVENT_NAME', 'EVENT_DATA', 'EVENT_ADDITIONAL', 'MESSAGE_ID', 'PROCESS_ID', 'ERROR'
-			),
-			'filter' => $queryFilter,
-			'limit' => $navParams['limit'],
-			'offset' => $navParams['offset'],
-			'count_total' => true,
-			'order' => $order,
-		));
+		$getEventQuery
+			->setSelect(['ID', 'TIMESTAMP_X', 'EVENT_NAME', 'EVENT_DATA', 'EVENT_ADDITIONAL', 'MESSAGE_ID', 'PROCESS_ID', 'ERROR'])
+			->setFilter($queryFilter)
+			->setOrder($order)
+			->setLimit($navParams['limit'])
+			->setOffset($navParams['offset']);
 
 		$result = array();
+		$dbRes = $getEventQuery->exec();
 
 		while($event = $dbRes->fetch())
 		{
@@ -755,15 +766,19 @@ class Event extends \IRestService
 			$ts = $event['TIMESTAMP_X'];
 
 			$event['TIMESTAMP_X'] = \CRestUtil::convertDateTime($ts->toString());
-			$event['EVENT_ADDITIONAL'] = array(
-				'user_id' => $event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER],
-			);
+
+			if (isset($event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER]))
+			{
+				$event['EVENT_ADDITIONAL'] = [
+					'user_id' => $event['EVENT_ADDITIONAL'][Auth::PARAM_LOCAL_USER],
+				];
+			}
 
 			$result[] = $event;
 		}
 
 		return static::setNavData($result, array(
-			"count" => $dbRes->getCount(),
+			"count" => $getEventQuery->countTotal(),
 			"offset" => $navParams['offset']
 		));
 	}

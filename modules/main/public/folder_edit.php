@@ -54,7 +54,7 @@ if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
-$back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
+$back_url = ($_REQUEST["back_url"] ?? "");
 
 //Check permissions
 if(!$USER->CanDoFileOperation('fm_edit_existent_folder',Array($site, $path)))
@@ -119,7 +119,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	if($bNeedSectionFile)
 	{
 		$APPLICATION->SaveFileContent($absolutePath."/.section.php", "<"."?\n".$strSectionName.$strDirProperties."?".">");
-		
+
 		$module_id = "fileman";
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 		{
@@ -144,9 +144,9 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	{
 		CUndo::ShowUndoMessage(CUndo::Add($arUndoParams));
 
-		if($_GET['subdialog'] == 'Y')
+		if (isset($_GET['subdialog']) && $_GET['subdialog'] == 'Y')
 			echo "<script>structReload('".urlencode($_REQUEST["path"])."');</script>";
-		
+
 		$popupWindow->Close($bReload=($_GET['subdialog'] <> 'Y'), $back_url);
 		die();
 	}
@@ -158,7 +158,7 @@ if (CModule::IncludeModule("fileman") && is_callable(Array("CFileMan", "GetProps
 	$arFilemanProperties = CFileMan::GetPropstypes($site);
 
 //Properties from current .section.php
-$arDirProperties = Array(); 
+$arDirProperties = Array();
 
 if ($strWarning != "")
 {
@@ -264,8 +264,8 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 	<tr style="height:30px;">
 		<td class="bx-popup-label bx-width30"><?=(
-			$arFilemanProperties[$propertyCode] <> '' ? 
-				htmlspecialcharsEx($arFilemanProperties[$propertyCode]) : 
+			$arFilemanProperties[$propertyCode] <> '' ?
+				htmlspecialcharsEx($arFilemanProperties[$propertyCode]) :
 				htmlspecialcharsEx($propertyCode))
 		?>:</td>
 		<td>
@@ -276,7 +276,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 			$jsInheritPropIds .= ",".$propertyIndex;
 		?>
 
-			<input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx($propertyCode)?>" /> 
+			<input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx($propertyCode)?>" />
 
 			<div id="bx_view_property_<?=$propertyIndex?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid white; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat;" onclick="BXEditProperty(<?=$propertyIndex?>)" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50';" onmouseout="this.style.borderColor = 'white'" class="edit-field"><?=htmlspecialcharsEx($inheritValue)?></div>
 
@@ -304,7 +304,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 		<td class="bx-popup-label bx-width30"><?=htmlspecialcharsEx($propertyCode)?>:</td>
 		<td>
 
-			<input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx($propertyCode)?>" /> 
+			<input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx($propertyCode)?>" />
 
 			<div id="bx_view_property_<?=$propertyIndex?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid white; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat;" onclick="BXEditProperty(<?=$propertyIndex?>)" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50'" onmouseout="this.style.borderColor = 'white'" class="edit-field"><?=htmlspecialcharsEx($propertyValue)?></div>
 
@@ -431,7 +431,7 @@ window.BXFolderEditHint = function()
 	}
 
 	<?=$jsInheritPropIds?>
-	
+
 	for (var index = 0; index < jsInheritProps.length; index++)
 		oBXHint = new BXHint("<?=GetMessage("FOLDER_EDIT_PROP_TITLE")?>", document.getElementById("bx_view_property_"+ jsInheritProps[index]), {"width":200});
 }

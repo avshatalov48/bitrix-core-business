@@ -1,5 +1,10 @@
 <?php
 
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var CBitrixComponentTemplate $this
  * @var $arParams
@@ -7,11 +12,6 @@
  * @global $APPLICATION
  */
 $component = $this->getComponent();
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
 
 global $USER;
 

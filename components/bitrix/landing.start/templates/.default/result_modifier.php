@@ -21,6 +21,11 @@ if ($request->get('IFRAME') !== 'Y' && $context->getServer()->getRequestMethod()
 	if (!in_array($this->getPageName(), ['template', 'sites', 'site_show', 'landing_view', 'roles', 'role_edit', 'notes']))
 	{
 		$session->set('LANDING_OPEN_SIDE_PANEL', Application::getInstance()->getContext()->getRequest()->getRequestUri());
+		//when opening link to create page in existing site
+		if ($arResult['VARS']['site_show'] > 0 && $arResult['VARS']['landing_edit'] === '0' && $this->getPageName() === 'landing_edit')
+		{
+			localRedirect('/sites/site/' . $arResult['VARS']['site_show'] . '/');
+		}
 		localRedirect($arParams['PAGE_URL_SITES']);
 	}
 }
@@ -46,7 +51,7 @@ if (in_array($this->getPageName(), ['site_domain', 'site_domain_switch', 'site_c
 
 Loc::loadMessages(__DIR__ . '/template.php');
 
-\Bitrix\Main\UI\Extension::load(['ajax', 'landing_master']);
+\Bitrix\Main\UI\Extension::load(['ajax', 'landing_master', 'bitrix24.phoneverify']);
 $disableFrame = $this->getPageName() == 'landing_view';
 
 ob_start();
@@ -108,38 +113,39 @@ elseif ($request->get('IS_AJAX') == 'Y')
 	\Bitrix\Landing\Manager::getApplication()->restartBuffer();
 }
 // add filter and action button
-elseif (in_array($this->getPageName(), array('template', 'site_show')))
+
+elseif (in_array($this->getPageName(), ['template', 'site_show']))
 {
 	$link = '';
 	$title = '';
 
-	if ($this->getPageName() == 'site_show')
-	{
-		if ($arResult['ACCESS_PAGE_NEW'] == 'Y')
-		{
-			$title = Loc::getMessage('LANDING_TPL_ADD_PAGE');
-			$link = $arParams['PAGE_URL_LANDING_EDIT'];
-			$link = str_replace(
-				array('#site_show#', '#landing_edit#'),
-				array($arResult['VARS']['site_show'], 0),
-				$link);
+	/**
+	 * @return LandingBaseComponent
+	 */
+	$getComponent = function () use ($arParams, $arResult) {
+		$componentClass = \CBitrixComponent::includeComponentClass('bitrix:landing.base');
+		$component = new $componentClass;
+		$component->arParams['TYPE'] = $arParams['TYPE'];
+		$component->arParams['PAGE_URL_LANDING_EDIT'] = $arParams['PAGE_URL_LANDING_EDIT'];
+		$component->arParams['PAGE_URL_SITE_EDIT'] = $arParams['PAGE_URL_SITE_EDIT'];
+		$component->arParams['ACTION_FOLDER'] = $arParams['ACTION_FOLDER'];
+		$component->arParams['SITE_ID'] = $arResult['VARS']['site_show'] ?? 0;
 
-			$folderId = $request->get($arParams['ACTION_FOLDER']);
-			if ($folderId)
-			{
-				$link = new \Bitrix\Main\Web\Uri($link);
-				$link->addParams(array(
-					$arParams['ACTION_FOLDER'] => $folderId
-				));
-				$link = $link->getUri();
-			}
-		}
+		return $component;
+	};
+
+	if (
+		$this->getPageName() == 'site_show'
+		&& $arResult['ACCESS_PAGE_NEW'] == 'Y'
+	)
+	{
+		$link = $getComponent()->getUrlAdd(false);
+		$title = Loc::getMessage('LANDING_TPL_ADD_PAGE');
 	}
 	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
 	{
+		$link = $getComponent()->getUrlAdd(true);
 		$title = Loc::getMessage('LANDING_TPL_ADD_SITE_2');
-		$link = $arParams['PAGE_URL_SITE_EDIT'];
-		$link = str_replace('#site_edit#', 0, $link);
 	}
 
 	$folderId = $request->get($arParams['ACTION_FOLDER']);
@@ -147,7 +153,7 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 	// settings menu
 	$settingsLink = [];
 	if (
-		$arResult['VARS']['site_show'] > 0 &&
+		($arResult['VARS']['site_show'] ?? 0) &&
 		$arResult['ACCESS_SITE_SETTINGS'] == 'Y'
 	)
 	{
@@ -187,8 +193,32 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 		];
 	}
 
+	if (\Bitrix\Landing\Manager::isAdmin() && \Bitrix\Landing\Connector\Ai::isAnyAvailable())
+	{
+		$settingsLink[] = [
+			'TITLE' => Loc::getMessage('LANDING_TPL_MENU_AI'),
+			'LINK' => $arParams['PAGE_URL_AI_SETTINGS'],
+		];
+		?>
+		<script>
+			BX.ready(function()
+			{
+				if (typeof BX.SidePanel !== 'undefined')
+				{
+					BX.SidePanel.Instance.bindAnchors({
+						rules: [{
+							condition: ['<?= CUtil::jsEscape($arParams['PAGE_URL_AI_SETTINGS'])?>'],
+							options: { allowChangeHistory: false, width: 600, }
+						}]
+					});
+				}
+			});
+		</script>
+		<?php
+	}
+
 	if (
-		$arResult['VARS']['site_show'] <= 0 &&
+		($arResult['VARS']['site_show'] ?? 0) <= 0 &&
 		(LANGUAGE_ID === 'ru' || LANGUAGE_ID === 'ua') &&
 		($arParams['TYPE'] == 'PAGE' || $arParams['TYPE'] == 'STORE') &&
 		!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') &&
@@ -244,7 +274,7 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 			'TYPE' => $arParams['TYPE'],
 			'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 			'FOLDER_ID' => $folderId,
-			'FOLDER_SITE_ID' => $arResult['VARS']['site_show']
+			'FOLDER_SITE_ID' => $arResult['VARS']['site_show'] ?? 0
 		),
 		$this->__component
 	);

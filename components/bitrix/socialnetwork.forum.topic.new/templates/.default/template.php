@@ -15,7 +15,7 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"] ?? 0) > 0 ? $arParams["IMAGE_SIZE"] : 500);
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && IsModuleInstalled("vote") ? "Y" : "N");
 $arParams["ATTACH_MODE"] = array("NAME", "THUMB");
 $arParams["ATTACH_SIZE"] = $arParams["IMAGE_SIZE"];
@@ -36,7 +36,7 @@ if ($arResult["VIEW"] == "Y"):
 	$component->__parent,
 	array("HIDE_ICONS" => "Y")
 );?><?
-elseif ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y"):
+elseif (($arResult["SHOW_MESSAGE_FOR_AJAX"] ?? '') === "Y"):
 
 	ob_end_clean();
 	ob_start();
@@ -49,7 +49,7 @@ if (!empty($arResult["MESSAGE"]["FILES"])):
 	<div class="forum-post-attachments">
 		<label><?=GetMessage("F_ATTACH_FILES")?></label>
 <?
-	foreach ($arResult["MESSAGE"]["FILES"] as $arFile): 
+	foreach ($arResult["MESSAGE"]["FILES"] as $arFile):
 ?>
 		<div class="forum-post-attachment"><?
 		?><?$GLOBALS["APPLICATION"]->IncludeComponent(
@@ -86,7 +86,7 @@ if (!empty($arResult["MESSAGE"]["EDITOR_NAME"])):
 	<span class="forum-post-lastedit-reason">(<span><?=$arResult["MESSAGE"]["EDIT_REASON"]?></span>)</span></span>
 </div><?
 endif;
-	
+
 	if(!function_exists("__ConverData"))
 	{
 		function __ConverData(&$item, $key)
@@ -102,15 +102,15 @@ endif;
 			}
 		}
 	}
-	
+
 	$post = ob_get_contents();
 	ob_end_clean();
 	$res = array(
 		"id" => $arParams["MID"],
 		"post" => $post);
-	if ($_REQUEST["CONVERT_DATA"] == "Y")
+	if (isset($_REQUEST["CONVERT_DATA"]) && $_REQUEST["CONVERT_DATA"] == "Y")
 		array_walk($res, "__ConverData");
-		
+
 	$GLOBALS["APPLICATION"]->RestartBuffer();
 	?><?=CUtil::PhpToJSObject($res)?><?
 	die();

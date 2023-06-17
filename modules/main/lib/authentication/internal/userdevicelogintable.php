@@ -82,8 +82,8 @@ class UserDeviceLoginTable extends Data\DataManager
 		$conn = $entity->getConnection();
 
 		$conn->query("
-			DELETE FROM b_user_device_login 
-			WHERE DEVICE_ID IN(
+			DELETE DL FROM b_user_device_login DL 
+			WHERE DL.DEVICE_ID IN(
 				SELECT ID FROM b_user_device 
 				{$where} 
 			)"

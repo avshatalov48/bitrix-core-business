@@ -771,10 +771,10 @@ class CAllForumUser
 		$USER_ID = intval($USER_ID);
 		if ($USER_ID <= 0) return 0;
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
-		$arAddParams["INCREMENT"] = intval($arAddParams["INCREMENT"]);
-		$arAddParams["DECREMENT"] = intval($arAddParams["DECREMENT"]);
+		$arAddParams["INCREMENT"] = intval($arAddParams["INCREMENT"] ?? 0);
+		$arAddParams["DECREMENT"] = intval($arAddParams["DECREMENT"] ?? 0);
 		$arAddParams["NUM_POSTS"] = (is_set($arAddParams, "NUM_POSTS") ? $arAddParams["NUM_POSTS"] : false);
-		$arAddParams["RETURN_FETCH"] = ($arAddParams["RETURN_FETCH"] == "Y" ? "Y" : "N");
+		$arAddParams["RETURN_FETCH"] = (isset($arAddParams["RETURN_FETCH"]) && $arAddParams["RETURN_FETCH"] == "Y" ? "Y" : "N");
 		$strSql = "
 			SELECT
 			(".
@@ -846,13 +846,13 @@ class CAllForumUser
 
 		if (!empty($arMessage))
 		{
-			$arParams["ACTION"] = ($arParams["ACTION"] == "DECREMENT" || $arParams["ACTION"] == "UPDATE" ? $arParams["ACTION"] : "INCREMENT");
+			$arParams["ACTION"] = isset($arParams["ACTION"]) && ($arParams["ACTION"] == "DECREMENT" || $arParams["ACTION"] == "UPDATE") ? $arParams["ACTION"] : "INCREMENT";
 			if ($arParams["ACTION"] == "UPDATE"):
 				$arParams["ACTION"] = ($arMessage["APPROVED"] == "Y" ? "INCREMENT" : "DECREMENT");
 				$arMessage["APPROVED"] = "Y";
 			endif;
 
-			$arParams["POSTS"] = intval($arParams["POSTS"] > 0 ? $arParams["POSTS"] : 1);
+			$arParams["POSTS"] = intval(isset($arParams["POSTS"]) && $arParams["POSTS"] > 0 ? $arParams["POSTS"] : 1);
 			$arUser = CForumUser::GetByUSER_ID($USER_ID);
 		}
 

@@ -4,39 +4,39 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Text\HtmlFilter;
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$arResult['values']['pattern'] =
-		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['PATTERN']);
+		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['PATTERN'] ?? '');
 	$arResult['values']['defaultValue'] =
-		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']);
+		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'] ?? '');
 	$arResult['values']['size'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['SIZE'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['SIZE'] ?? 0);
 	$arResult['values']['rows'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['ROWS'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['ROWS'] ?? 0);
 	$arResult['values']['min_length'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['MIN_LENGTH'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['MIN_LENGTH'] ?? 0);
 	$arResult['values']['max_length'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['MAX_LENGTH'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['MAX_LENGTH'] ?? 0);
 	$arResult['values']['regexp'] =
-		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['REGEXP']);
+		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['REGEXP'] ?? '');
 }
-elseif(is_array($arResult['userField']))
+elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
 	$arResult['values']['pattern'] =
-		HtmlFilter::encode($arResult['userField']['SETTINGS']['PATTERN']);
+		HtmlFilter::encode($arResult['userField']['SETTINGS']['PATTERN'] ?? '');
 	$arResult['values']['defaultValue'] =
-		HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE']);
+		HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '');
 	$arResult['values']['size'] =
-		(int)$arResult['userField']['SETTINGS']['SIZE'];
+		(int)($arResult['userField']['SETTINGS']['SIZE'] ?? 0);
 	$arResult['values']['rows'] =
-		(int)$arResult['userField']['SETTINGS']['ROWS'];
+		(int)($arResult['userField']['SETTINGS']['ROWS'] ?? 0);
 	$arResult['values']['min_length'] =
-		(int)$arResult['userField']['SETTINGS']['MIN_LENGTH'];
+		(int)($arResult['userField']['SETTINGS']['MIN_LENGTH'] ?? 0);
 	$arResult['values']['max_length'] =
-		(int)$arResult['userField']['SETTINGS']['MAX_LENGTH'];
+		(int)($arResult['userField']['SETTINGS']['MAX_LENGTH'] ?? 0);
 	$arResult['values']['regexp'] =
-		HtmlFilter::encode($arResult['userField']['SETTINGS']['REGEXP']);
+		HtmlFilter::encode($arResult['userField']['SETTINGS']['REGEXP'] ?? '');
 }
 else
 {

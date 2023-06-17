@@ -5,8 +5,9 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
 $arError = $arSmile = $arFields = $arLang = array();
+$message = null;
 
 /* LANGS */
 $arLangTitle = array("reference_id" => array(), "reference" => array());
@@ -23,7 +24,7 @@ $bImportComplete = false;
 $APPLICATION->SetTitle(GetMessage("SMILE_IMPORT_TITLE"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> ''))
+if ($REQUEST_METHOD == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])))
 {
 	$fileName = 'import'.$USER->GetID().time().'.zip';
 
@@ -101,8 +102,8 @@ if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> ''))
 
 
 $arSmile = array(
-	"SET_ID" => isset($_REQUEST['SET_ID'])? $_REQUEST['SET_ID']: 0,
-	"GALLERY_ID" => isset($_REQUEST['GALLERY_ID'])? $_REQUEST['GALLERY_ID']: 0,
+	"SET_ID" => $_REQUEST['SET_ID'] ?? 0,
+	"GALLERY_ID" => $_REQUEST['GALLERY_ID'] ?? 0,
 );
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -178,4 +179,4 @@ $tabControl->ShowWarnings("smile_import", $message);
 <div style="padding-top:5px"><?=GetMessage('IM_IMPORT_HELP_3')?></div>
 <div style="padding-top:15px"><?=GetMessage('IM_IMPORT_HELP_4')?></div>
 <?=EndNote();?>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

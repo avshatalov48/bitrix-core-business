@@ -27,6 +27,7 @@ export class CreatePage extends Content
 	}
 
 	cache = new Cache.MemoryCache();
+	range = null;
 
 	constructor(id, data)
 	{
@@ -51,7 +52,7 @@ export class CreatePage extends Content
 			}),
 		);
 
-		this.renderTo(document.body);
+		this.renderTo(window.parent.document.body);
 	}
 
 	getTitleField(): TextField
@@ -90,9 +91,12 @@ export class CreatePage extends Content
 	{
 		Dom.style(this.footer, 'display', null);
 
-		this.range = document.getSelection().getRangeAt(0);
+		this.range = this.contextDocument.getSelection().getRangeAt(0);
 		this.node = (() => {
-			if (BX.Landing.Block.Node.Text.currentNode.isEditable())
+			if (
+				BX.Landing.Block.Node.Text.currentNode
+				&& BX.Landing.Block.Node.Text.currentNode.isEditable()
+			)
 			{
 				return BX.Landing.Block.Node.Text.currentNode;
 			}
@@ -203,14 +207,14 @@ export class CreatePage extends Content
 					const value = {
 						href: `#landing${result}`,
 					};
-					document.getSelection().removeAllRanges();
-					document.getSelection().addRange(this.range);
+					this.contextDocument.getSelection().removeAllRanges();
+					this.contextDocument.getSelection().addRange(this.range);
 					this.node.enableEdit();
 
 					const tmpHref = Text.encode(`${value.href}${Text.getRandom()}`);
-					const selection = document.getSelection();
+					const selection = this.contextDocument.getSelection();
 
-					document.execCommand('createLink', false, tmpHref);
+					this.contextDocument.execCommand('createLink', false, tmpHref);
 
 					const link = selection.anchorNode
 						.parentElement

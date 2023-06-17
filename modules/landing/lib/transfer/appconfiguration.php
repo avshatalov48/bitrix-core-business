@@ -7,6 +7,7 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Site\Type;
+use \Bitrix\Main\Application;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Rest\Configuration;
@@ -86,6 +87,9 @@ class AppConfiguration
 	 */
 	public static function getManifestList(Event $event): array
 	{
+		$request = Application::getInstance()->getContext()->getRequest();
+		$additional = $request->get('additional');
+		$siteId = $additional['siteId'] ?? null;
 		$manifestList = [];
 
 		foreach (self::$accessManifest as $code)
@@ -118,7 +122,9 @@ class AppConfiguration
 				'IMPORT_DESCRIPTION_UPLOAD' => Loc::getMessage('LANDING_TRANSFER_IMPORT_DESCRIPTION_UPLOAD_' . $langCode),
 				'IMPORT_DESCRIPTION_START' => ' ',
 				'IMPORT_INSTALL_FINISH_TEXT' => '',
+				'IMPORT_TITLE_PAGE_CREATE' => Loc::getMessage('LANDING_TRANSFER_IMPORT_ACTION_TITLE_BLOCK_CREATE_' . $langCode),
 				'REST_IMPORT_AVAILABLE' => 'Y',
+				'SITE_ID' => $siteId,
 				'ACCESS' => [
 					'MODULE_ID' => 'landing',
 					'CALLBACK' => [
@@ -146,9 +152,10 @@ class AppConfiguration
 			\Bitrix\Landing\Site\Type::setScope($siteType);
 		}
 
+		$siteId = $manifest['SITE_ID'] ?? 0;
 		if ($type === 'export')
 		{
-			$access = in_array(Rights::ACCESS_TYPES['read'], Rights::getOperationsForSite(0));
+			$access = in_array(Rights::ACCESS_TYPES['read'], Rights::getOperationsForSite($siteId));
 			if ($access)
 			{
 				$access = !Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['unexportable'], null, false, true);
@@ -157,7 +164,7 @@ class AppConfiguration
 		else
 		{
 			$access = Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['create'])
-					&& in_array(Rights::ACCESS_TYPES['edit'], Rights::getOperationsForSite(0));
+					&& in_array(Rights::ACCESS_TYPES['edit'], Rights::getOperationsForSite($siteId));
 		}
 		return [
 			'result' => $access

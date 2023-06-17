@@ -319,7 +319,10 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (
+			is_array($arNavStartParams)
+			&& intval($arNavStartParams["nTopCount"] ?? 0) <= 0
+		)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".

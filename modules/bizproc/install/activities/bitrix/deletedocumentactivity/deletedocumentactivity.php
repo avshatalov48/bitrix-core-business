@@ -109,7 +109,7 @@ class CBPDeleteDocumentActivity extends CBPActivity
 	)
 	{
 		$properties = [
-			'TerminateCurrentWorkflow' => (string)$arCurrentValues['TerminateCurrentWorkflow'],
+			'TerminateCurrentWorkflow' => (string)($arCurrentValues['TerminateCurrentWorkflow'] ?? ''),
 		];
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);

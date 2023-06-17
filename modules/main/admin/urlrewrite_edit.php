@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 use Bitrix\Main\UrlRewriter;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -19,7 +25,8 @@ $bVarsFromForm = false;
 if ($site_id == '')
 	LocalRedirect("/bitrix/admin/urlrewrite_list.php?lang=".LANG);
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $isAdmin && check_bitrix_sessid())
+$CONDITION = $_REQUEST['CONDITION'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === "POST" && !empty($_POST['Update']) && $isAdmin && check_bitrix_sessid())
 {
 	if ($CONDITION == '')
 		$aMsg[] = array("id"=>"CONDITION", "text"=>GetMessage("MURL_NO_USL"));
@@ -29,7 +36,7 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $isAdmin && check_bitrix_sessid(
 		if ($CONDITION_OLD != $CONDITION)
 		{
 			$arResult = UrlRewriter::getList($site_id, array("CONDITION" => $CONDITION));
-			if (count($arResult) > 0)
+			if (!empty($arResult))
 				$aMsg[] = array("id"=>"CONDITION", "text"=>str_replace("#CONDITION#", htmlspecialcharsbx($CONDITION), GetMessage("MURL_DUPL_CONDITION")));
 		}
 	}
@@ -84,7 +91,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 $arResultList = UrlRewriter::getList($site_id, array("CONDITION" => $CONDITION));
 
-if (count($arResultList) <= 0)
+if (empty($arResultList))
 {
 	unset($CONDITION);
 	$arResult = array();
@@ -124,7 +131,7 @@ $aMenu = array(
 	)
 );
 
-if ($CONDITION <> '')
+if (!empty($CONDITION))
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 

@@ -170,7 +170,7 @@ class Element extends Node
 		{
 			if(self::$isNodeListAsArray)
 			{
-				$result = $this->attributes[$name];
+				$result = $this->attributes[$name] ?? null;
 			}
 			else
 			{

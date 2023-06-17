@@ -16,7 +16,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === BaseType::MODE_VIEW)
 	define('BX_SECURITY_SESSION_READONLY', true);
 }
 
-if(isset($_REQUEST['tpl']) && isset($_REQUEST['tpls']))
+if(isset($_REQUEST['tpl']) && isset($_REQUEST['tpls']) && !defined('SITE_TEMPLATE_ID'))
 {
 	define('SITE_TEMPLATE_ID', $_REQUEST['tpl']);
 }

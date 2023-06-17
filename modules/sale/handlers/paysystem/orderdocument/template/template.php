@@ -1,16 +1,20 @@
 <html>
 	<head>
-		<?$APPLICATION->ShowHeadStrings();?>
-		<?$APPLICATION->ShowHeadScripts();?>
+		<?php
+		/** @global CMain $APPLICATION */
+		$APPLICATION->ShowHeadStrings();
+		$APPLICATION->ShowHeadScripts();
+		?>
 	</head>
 	<body>
 		<?php
+		/** @var array $params */
 
 		use Bitrix\Main\Localization;
 
 		Localization\Loc::loadMessages(__FILE__);
 
-		if ($params['imageUrl'])
+		if (isset($params['imageUrl']) && $params['imageUrl'])
 		{
 			if (isset($_REQUEST['pdf'])
 				&& isset($params['pdfUrl'])
@@ -49,10 +53,10 @@
 					var preview = new BX.DocumentGenerator.DocumentPreview(options);
 				});
 			</script>
-			<?
+			<?php
 			$APPLICATION->IncludeComponent("bitrix:pull.request", "", [], false, ["HIDE_ICONS" => "Y"]);
 			?>
-		<?
+		<?php
 		}
 		?>
 	</body>

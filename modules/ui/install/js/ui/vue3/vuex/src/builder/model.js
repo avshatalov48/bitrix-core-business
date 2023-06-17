@@ -17,33 +17,16 @@ import {Type} from 'main.core';
 
 export class BuilderModel
 {
-	/**
-	 * Create new instance of model.
-	 *
-	 * @returns {BuilderModel}
-	 */
 	static create(): BuilderModel
 	{
-		return new this;
+		return new this();
 	}
 
-	/**
-	 * Get name of model
-	 *
-	 * @override
-	 * @returns {String}
-	 */
 	getName(): string
 	{
 		return '';
 	}
 
-	/**
-	 * Get default state
-	 *
- 	 * @override
-	 * @returns {Object}
-	 */
 	getState(): Object
 	{
 		return {};
@@ -71,57 +54,31 @@ export class BuilderModel
 		return undefined;
 	}
 
-	/**
-	 * Get getters
- 	 * @override
-	 * @returns {Object}
-	 */
-	getGetters(): object
+	getGetters(): Object
 	{
 		return {};
 	}
 
-	/**
-	 * Get actions
-	 *
- 	 * @override
-	 * @returns {Object}
-	 */
-	getActions(): object
+	getActions(): Object
 	{
 		return {};
 	}
 
-	/**
-	 * Get mutations
-	 *
- 	 * @override
-	 * @returns {Object}
-	 */
-	getMutations(): object
+	getMutations(): Object
 	{
 		return {};
 	}
 
-	/**
-	 * Method for validation and sanitizing input fields before save in model
-	 *
-	 * @override
-	 * @param fields {Object}
-	 * @param options {Object}
-	 * @returns {Object} - Sanitizing fields
-	 */
-	validate(fields, options = {}): object
+	getNestedModules(): {[moduleName: string]: BuilderModel}
 	{
 		return {};
 	}
 
-	/**
-	 * Set external variable.
-	 *
-	 * @param variables {Object}
-	 * @returns {BuilderModel}
-	 */
+	validate(fields, options = {}): Object
+	{
+		return {};
+	}
+
 	setVariables(variables = {}): BuilderModel
 	{
 		if (!Type.isObjectLike(variables))
@@ -135,12 +92,6 @@ export class BuilderModel
 		return this;
 	}
 
-	/**
-	 *
-	 * @param name
-	 * @param defaultValue
-	 * @return {undefined|*}
-	 */
 	getVariable(name, defaultValue = undefined): any
 	{
 		if (!name)
@@ -173,22 +124,11 @@ export class BuilderModel
 		return result;
 	}
 
-	/**
-	 * Get namespace
-	 *
-	 * @returns {String}
-	 */
 	getNamespace(): string
 	{
 		return this.namespace? this.namespace: this.getName();
 	}
 
-	/**
-	 * Set namespace
-	 *
-	 * @param name {String}
-	 * @returns {BuilderModel}
-	 */
 	setNamespace(name): BuilderModel
 	{
 		this.namespace = name.toString();
@@ -286,21 +226,15 @@ export class BuilderModel
 	 * @returns {Promise}
 	 * @deprecated use getModule instead.
 	 */
-	getStore(): Promise<object>
+	getStore(): Promise<Object>
 	{
 		console.warn('BuilderModel: Method `getStore` is deprecated, please remove this call.');
 		return this.getModule();
 	}
 
-	/**
-	 * Get Vuex module.
-	 *
-	 * @returns {Promise}
-	 */
-	getModule(): Promise<object>
+	getModule(): Promise<Object>
 	{
 		return new Promise((resolve, reject) => {
-
 			const namespace = this.namespace? this.namespace: this.getName();
 			if (!namespace)
 			{
@@ -325,12 +259,21 @@ export class BuilderModel
 		});
 	}
 
-	/**
-	 * Get default state of Vuex module.
-	 *
-	 * @returns {Object}
-	 */
-	getModuleWithDefaultState(): object
+	getNestedModule(nestedModule: BuilderModel): Object
+	{
+		const map = {'constructor': nestedModule};
+		const instance = new map['constructor']();
+
+		return {
+			namespaced: true,
+			state: instance.getState(),
+			getters: instance.getGetters(),
+			actions: instance.getActions(),
+			mutations: instance.getMutations()
+		};
+	}
+
+	getModuleWithDefaultState(): Object
 	{
 		const namespace = this.namespace? this.namespace: this.getName();
 		if (!namespace)
@@ -345,25 +288,11 @@ export class BuilderModel
 		};
 	}
 
-	/**
-	 * Get timeout for save to database
-	 *
- 	 * @override
-	 *
-	 * @returns {number}
-	 */
 	getSaveTimeout(): number
 	{
 		return 150;
 	}
 
-	/**
-	 * Get timeout for load from database
-	 *
-	 * @override
-	 *
-	 * @returns {number|boolean}
-	 */
 	getLoadTimeout(): number | boolean
 	{
 		return 1000;
@@ -378,7 +307,7 @@ export class BuilderModel
 	 *
 	 * @returns {Object}
 	 */
-	getLoadedState(state = {}): object
+	getLoadedState(state = {}): Object
 	{
 		return state;
 	}
@@ -434,7 +363,7 @@ export class BuilderModel
 			this.saveStateTimeout = null;
 		}, timeout);
 
-		return true
+		return true;
 	}
 
 	/**
@@ -442,7 +371,7 @@ export class BuilderModel
 	 **
 	 * @returns {Promise|boolean}
 	 */
-	clearState(): Promise<object> | boolean
+	clearState(): Promise<Object> | boolean
 	{
 		if (this.store)
 		{
@@ -481,11 +410,6 @@ export class BuilderModel
 		return this.db && this.databaseConfig.active;
 	}
 
-	/**
-	 *
-	 * @param payload
-	 * @return {boolean}
-	 */
 	isSaveNeeded(payload): boolean
 	{
 		if (!this.isSaveAvailable())
@@ -533,12 +457,12 @@ export class BuilderModel
 	constructor(): void
 	{
 		this.databaseConfig = {
-		 	type: BuilderDatabaseType.indexedDb,
-		 	active: null,
-		 	storage: 'default',
-		 	name: this.getName(),
-		 	siteId: 'default',
-		 	userId: 0,
+			type: BuilderDatabaseType.indexedDb,
+			active: null,
+			storage: 'default',
+			name: this.getName(),
+			siteId: 'default',
+			userId: 0,
 			timeout: null
 		};
 
@@ -562,7 +486,7 @@ export class BuilderModel
 		return this;
 	}
 
-	#getStoreFromDatabase(): Promise<object>
+	#getStoreFromDatabase(): Promise<Object>
 	{
 		clearTimeout(this.cacheTimeout);
 		return new Promise((resolve) =>
@@ -605,7 +529,7 @@ export class BuilderModel
 		});
 	}
 
-	static #mergeState(currentState, newState): object
+	static #mergeState(currentState, newState): Object
 	{
 		for (const key in currentState)
 		{
@@ -631,7 +555,7 @@ export class BuilderModel
 		return newState;
 	}
 
-	#createStore(state): object
+	#createStore(state): Object
 	{
 		const result = {
 			namespaced: true,
@@ -641,6 +565,12 @@ export class BuilderModel
 			mutations: this.getMutations()
 		};
 
+		const nestedModules = this.prepareNestedModules();
+		if (nestedModules)
+		{
+			result.modules = nestedModules;
+		}
+
 		result.mutations.vuexBuilderModelClearState = (state) => {
 			state = Object.assign(state, this.getState());
 			this.saveState(state);
@@ -649,11 +579,22 @@ export class BuilderModel
 		return result;
 	}
 
-	/**
-	 * Utils. Convert Object to Array
-	 * @param object
-	 * @returns {Array}
-	 */
+	prepareNestedModules(): ?Object
+	{
+		const nestedModules = Object.entries(this.getNestedModules());
+		if (nestedModules.length === 0)
+		{
+			return null;
+		}
+
+		const preparedNestedModules = {};
+		nestedModules.forEach(([moduleName, module]) => {
+			preparedNestedModules[moduleName] = this.getNestedModule(module);
+		});
+
+		return preparedNestedModules;
+	}
+
 	static convertToArray(object): Array
 	{
 		const result = [];
@@ -667,12 +608,7 @@ export class BuilderModel
 		return result;
 	}
 
-	/**
-	 * Clone state without observers
-	 * @param element {object}
-	 * @param exceptions {object}
-	 */
-	cloneState(element, exceptions = undefined): object
+	cloneState(element, exceptions = undefined): Object
 	{
 		let result;
 

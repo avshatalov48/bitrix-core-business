@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 if(array_key_exists("Preview", $_REQUEST) && $_REQUEST["Preview"] <> '')
 {
 	define("NO_KEEP_STATISTIC", "Y");
@@ -177,7 +183,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid() && $isAdmin)
+if($REQUEST_METHOD=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid() && $isAdmin)
 {
 	foreach($arSettings as $key => $value)
 	{
@@ -193,15 +199,15 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && check_bitrix_sess
 			COption::SetOptionString("main", "CAPTCHA_".$key, implode("", $arChars));
 		}
 		elseif($value[0] === "int")
-			COption::SetOptionInt("main", "CAPTCHA_".$key, intval($_POST[$key]));
+			COption::SetOptionInt("main", "CAPTCHA_".$key, intval($_POST[$key] ?? 0));
 		elseif($value[0] === "string")
-			COption::SetOptionString("main", "CAPTCHA_".$key, $_POST[$key]);
+			COption::SetOptionString("main", "CAPTCHA_".$key, $_POST[$key] ?? '');
 		elseif($value[0] === "checkbox")
-			COption::SetOptionString("main", "CAPTCHA_".$key, $_POST[$key]==="Y"? "Y": "N");
+			COption::SetOptionString("main", "CAPTCHA_".$key, isset($_POST[$key]) && $_POST[$key]==="Y"? "Y": "N");
 		elseif($value[0] === "list")
 		{
 			$ar = array();
-			if(is_array($_POST[$key]))
+			if(isset($_POST[$key]) && is_array($_POST[$key]))
 			{
 				foreach($_POST[$key] as $val)
 					if(array_key_exists($val, $value[1]))
@@ -215,7 +221,7 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && check_bitrix_sess
 	LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 }
 
-if($Preview <> '')
+if (!empty($_REQUEST["Preview"]))
 {
 	$cpt = new CCaptcha();
 

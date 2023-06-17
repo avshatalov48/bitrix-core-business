@@ -73,10 +73,14 @@ class Product extends Controller implements EventBindInterface
 		$fields = $arguments['fields'];
 		$productId = $arguments['id'];
 
-		$iblockId = $this->get($productId)['IBLOCK_ID'];
+		$iblockId = $this->getProductIblockId($productId);
 		$iblockIdOrigin = $fields['iblockId'] ?? null;
+		if ($iblockIdOrigin !== null)
+		{
+			$iblockIdOrigin = (int)$iblockIdOrigin;
+		}
 
-		if($iblockIdOrigin && $iblockIdOrigin !== $iblockId)
+		if ($iblockIdOrigin && $iblockIdOrigin !== $iblockId)
 		{
 			$r->addError(
 				new Error(
@@ -85,13 +89,6 @@ class Product extends Controller implements EventBindInterface
 					)
 				)
 			);
-		}
-		else
-		{
-			$fields['iblockId'] = $iblockId;
-			$arguments['fields'] = $fields;
-
-			$action->setArguments($arguments);
 		}
 
 		return $r;
@@ -232,7 +229,7 @@ class Product extends Controller implements EventBindInterface
 		$r = $this->checkPermissionAdd($fields['IBLOCK_ID']);
 		if($r->isSuccess())
 		{
-			if(isset($fields['IBLOCK_SECTION_ID']) && intval($fields['IBLOCK_SECTION_ID']>0))
+			if (isset($fields['IBLOCK_SECTION_ID']) && (int)$fields['IBLOCK_SECTION_ID'] > 0)
 			{
 				$r = $this->checkPermissionIBlockElementSectionBindUpdate($fields['IBLOCK_SECTION_ID']);
 			}
@@ -287,10 +284,11 @@ class Product extends Controller implements EventBindInterface
 
 	public function updateAction(int $id, array $fields): ?array
 	{
+		$fields['IBLOCK_ID'] ??= $this->getProductIblockId($id);
 		$r = $this->checkPermissionUpdate($id);
 		if($r->isSuccess())
 		{
-			if(isset($fields['IBLOCK_SECTION_ID']) && intval($fields['IBLOCK_SECTION_ID']>0))
+			if (isset($fields['IBLOCK_SECTION_ID']) && (int)$fields['IBLOCK_SECTION_ID'] > 0)
 			{
 				$r = $this->checkPermissionIBlockElementSectionBindUpdate($fields['IBLOCK_SECTION_ID']);
 			}
@@ -594,8 +592,10 @@ class Product extends Controller implements EventBindInterface
 				{
 					if($property['PROPERTY_TYPE'] !== 'F' && !array_key_exists($property['ID'], $propertyValues))
 					{
-						if(!array_key_exists($property['ID'], $fields['PROPERTY_VALUES']))
+						if (!array_key_exists($property['ID'], $fields))
+						{
 							$fields[$property['ID']] = [];
+						}
 
 						$fields[$property['ID']][] = [
 							'VALUE_ID' => $property['PROPERTY_VALUE_ID'],
@@ -606,6 +606,7 @@ class Product extends Controller implements EventBindInterface
 				}
 			}
 		}
+
 		return $fields;
 	}
 
@@ -1222,4 +1223,25 @@ class Product extends Controller implements EventBindInterface
 		];
 	}
 	// endregion
+
+	// region Internal tools
+
+	/**
+	 * Returns iblock id for product, if exists.
+	 *
+	 * @param int $productId
+	 * @return int|null
+	 */
+	protected static function getProductIblockId(int $productId): ?int
+	{
+		$iblockId = \CIBlockElement::GetIBlockByID($productId);
+
+		return
+			$iblockId === false
+				? null
+				: $iblockId
+		;
+	}
+
+	// endRegion
 }

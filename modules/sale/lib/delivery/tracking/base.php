@@ -96,7 +96,7 @@ abstract class Base
 		return \Bitrix\Sale\Internals\Input\Manager::getEditHtml(
 			$inputName,
 			$paramsStructure[$paramKey],
-			$this->params[$paramKey]
+			$this->params[$paramKey] ?? null
 		);
 	}
 

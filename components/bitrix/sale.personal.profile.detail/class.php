@@ -31,7 +31,7 @@ class PersonalProfileDetail extends CBitrixComponent
 
 	/**
 	 * Function checks and prepares all the parameters passed. Everything about $arParam modification is here.
-	 * @param $params		Parameters of component.
+	 * @param array $params		Parameters of component.
 	 * @return array		Checked and valid parameters.
 	 */
 	public function onPrepareComponentParams($params)
@@ -65,6 +65,7 @@ class PersonalProfileDetail extends CBitrixComponent
 			return false;
 		}
 
+		$params["PATH_TO_DETAIL"] = (string)($params["PATH_TO_DETAIL"] ?? '');
 		if ($params["PATH_TO_DETAIL"] !== '')
 		{
 			$params["PATH_TO_DETAIL"] = trim($params["PATH_TO_DETAIL"]);
@@ -87,8 +88,13 @@ class PersonalProfileDetail extends CBitrixComponent
 		}
 		else
 		{
-			$arParams['COMPATIBLE_LOCATION_MODE'] = $params['COMPATIBLE_LOCATION_MODE'] == 'Y' ? 'Y' : 'N';
+			$params['COMPATIBLE_LOCATION_MODE'] = ($params['COMPATIBLE_LOCATION_MODE'] ?? 'N') === 'Y' ? 'Y' : 'N';
 		}
+
+		$params['USE_AJAX_LOCATIONS'] = (string)($params['USE_AJAX_LOCATIONS'] ?? 'N');
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
+		$params['AUTH_FORM_IN_TEMPLATE'] = (string)($params['AUTH_FORM_IN_TEMPLATE'] ?? '');
+		$params['AJAX_CALL'] = (string)($params['AJAX_CALL'] ?? 'N');
 
 		return $params;
 	}
@@ -274,7 +280,7 @@ class PersonalProfileDetail extends CBitrixComponent
 	}
 
 	/**
-	 * Fill $arResult array for output in template 
+	 * Fill $arResult array for output in template
 	 * @param $property
 	 * @throws Main\ArgumentException
 	 * @return void
@@ -404,6 +410,7 @@ class PersonalProfileDetail extends CBitrixComponent
 	 */
 	protected function formatResultErrors()
 	{
+		$this->arResult['ERROR_MESSAGE'] = '';
 		if (!$this->errorCollection->isEmpty())
 		{
 			/** @var Main\Error $error */

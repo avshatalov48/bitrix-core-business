@@ -521,7 +521,8 @@ class Product
 						'PROPERTY_FIELDS' => array(
 							'ID', 'IBLOCK_ID', 'NAME', 'CODE', 'PROPERTY_TYPE',
 							'MULTIPLE', 'LINK_IBLOCK_ID',
-							'USER_TYPE', 'USER_TYPE_SETTINGS'
+							'USER_TYPE', 'USER_TYPE_SETTINGS',
+							'LIST_TYPE',
 						)
 					)
 				);

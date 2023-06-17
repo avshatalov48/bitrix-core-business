@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$UID = ($arResult["VARIABLES"]["user_id"] > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetID());
+$UID = ((int) ($arResult["VARIABLES"]["user_id"] ?? null) > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetID());
 foreach ($arDefaultUrlTemplates404 as $url => $value)
 {
 	if (mb_strpos($url, "user_forum") === false && mb_strpos($url, "group_forum") === false)
@@ -13,7 +13,7 @@ foreach ($arDefaultUrlTemplates404 as $url => $value)
 			"#action#"),
 		array(
 			$UID,
-			$arResult["VARIABLES"]["group_id"],
+			$arResult["VARIABLES"]["group_id"] ?? 0,
 			"#TID#",
 			"#MID#",
 			"#ACTION#"),
@@ -21,7 +21,7 @@ foreach ($arDefaultUrlTemplates404 as $url => $value)
 
 }
 $arResult["~PATH_TO_USER"] = str_replace("#user_id#", "#UID#", (empty($arResult["PATH_TO_USER"]) ? $arParams["PATH_TO_USER"] : $arResult["PATH_TO_USER"]));
-$arResult["~PATH_TO_GROUP"] = str_replace("#group_id#", "#GID#", $arResult["PATH_TO_GROUP"]);
+$arResult["~PATH_TO_GROUP"] = str_replace("#group_id#", "#GID#", $arResult["PATH_TO_GROUP"] ?? '');
 if ($componentPage == "user_forum_message")
 	$componentPage = "user_forum_topic";
 elseif ($componentPage == "user_forum_message_edit")
@@ -35,20 +35,20 @@ elseif ($componentPage == "group_forum_message_edit")
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intval($arParams["FORUM_ID"]);
-	$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
-	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
-	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+	$arParams["FID"] = intval($arParams["FORUM_ID"] ?? null);
+	$arParams["USE_DESC_PAGE"] = (($arParams["USE_DESC_PAGE"] ?? '') == "N" ? "N" : "Y");
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"] ?? 0);
+	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"] ?? 0) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = intval($GLOBALS["NavNum"] + 1);
+	$arParams["PAGEN"] = intval(($GLOBALS["NavNum"] ?? 0) + 1);
 	//$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = "forum"; 
 	$arParams["PAGE_NAVIGATION_WINDOW"] = 5;
 	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = "N";
 
-	$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
-	$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
-	$arParams["~DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
+	$arParams["TOPICS_PER_PAGE"] = intval(($arParams["TOPICS_PER_PAGE"] ?? 0) > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+	$arParams["MESSAGES_PER_PAGE"] = intval(($arParams["MESSAGES_PER_PAGE"] ?? 0) > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+	$arParams["~DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"] ?? '');
 	$arParams["DATE_TIME_FORMAT"] = (empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	if (empty($arParams["DATE_FORMAT"]) && !empty($arParams["~DATE_TIME_FORMAT"])) {
 		$res = CComponentUtil::GetDateFormatField();
@@ -61,19 +61,19 @@ elseif ($componentPage == "group_forum_message_edit")
 	}
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 
-	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"] ?? 0);
+	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"] ?? 0) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 
-	$arParams["AJAX_TYPE"] = ($arParams["AJAX_TYPE"] == "Y" ? "Y" : "N");
-	$arParams["AJAX_CALL"] = (($_REQUEST["AJAX_CALL"] == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
+	$arParams["AJAX_TYPE"] = (($arParams["AJAX_TYPE"] ?? '') == "Y" ? "Y" : "N");
+	$arParams["AJAX_CALL"] = ((($_REQUEST["AJAX_CALL"] ?? '') == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
 	$arParams["FORUM_AJAX_POST"] = ($arParams["AJAX_CALL"] == "Y" ? "N" : "Y");
 
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"] ?? null);
 	else
 		$arParams["CACHE_TIME"] = 0;
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
+	$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? null) == "N" ? "N" : "Y");
 /***************** TEMPATES ****************************************/
 /*	$arParams["SHOW_TAGS"] = "N"; 
 	$arParams["FILES_COUNT"] = "N"; 

@@ -14,8 +14,8 @@ class User extends \IRestService
 
 		$query = array_change_key_case($query, CASE_LOWER);
 
-		$filter = (isset($query['filter'])? $query['filter'] : array());
-		$order = (isset($query['order'])? $query['order'] : array('ID' => 'DESC'));
+		$filter = ($query['filter'] ?? array());
+		$order = ($query['order'] ?? array('ID' => 'DESC'));
 
 		static $filterFields = array("USER_ID", "DATE_INSERT", "EVENT_TYPE", "REMOTE_ADDR", "USER_AGENT", "REQUEST_URI", "FIELD");
 		static $orderFields = array("ID");
@@ -93,8 +93,8 @@ class User extends \IRestService
 
 		$query = array_change_key_case($query, CASE_LOWER);
 
-		$filter = (isset($query['filter'])? $query['filter'] : array());
-		$order = (isset($query['order'])? $query['order'] : array('ID' => 'ASC'));
+		$filter = ($query['filter'] ?? array());
+		$order = ($query['order'] ?? array('ID' => 'ASC'));
 
 		static $filterFields = array("HISTORY_ID", "FIELD");
 		static $orderFields = array("ID");

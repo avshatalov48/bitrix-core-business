@@ -1,28 +1,50 @@
-<?
-use Bitrix\Main;
-use Bitrix\Main\Config;
-use Bitrix\Main\Localization\Loc;
+<?php
 
+/** @global CMain $APPLICATION */
+use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location\Admin\LocationHelper as Helper;
 use Bitrix\Sale\Location\Admin\ExternalServiceHelper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
-$id = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
-$copyId = intval($_REQUEST['copy_id']) ? intval($_REQUEST['copy_id']) : false;
+$request = Context::getCurrent()->getRequest();
+
+$id = (int)($request->get('id'));
+if ($id <= 0)
+{
+	$id = false;
+}
+$copyId = (int)$request->get('copy_id');
+if ($copyId <= 0)
+{
+	$copyId = false;
+}
 
 // the following parameter will be present visibly only when copying or creating blank with the same parent
-$parentId = intval($_REQUEST['parent_id']) ? intval($_REQUEST['parent_id']) : '0';
-if(!$parentId && $id)
+$parentId = (int)$request->get('parent_id');
+if ($parentId <= 0)
+{
+	$parentId = '0';
+}
+if (!$parentId && $id)
+{
 	$parentId = Helper::getParentId($id);
+}
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = Helper::getListUrl($parentId);
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
@@ -42,6 +64,12 @@ $APPLICATION->AddHeadScript('/bitrix/js/sale/core_ui_widget.js');
 $APPLICATION->AddHeadScript('/bitrix/js/sale/core_ui_etc.js');
 $APPLICATION->AddHeadScript('/bitrix/js/sale/core_ui_dynamiclist.js');
 
+$returnUrl = trim((string)$request->get('return_url'));
+$externalReturnUrl = $returnUrl !== '';
+$nameToDisplay = '';
+$actionFailureMessage = '';
+$fatalFailureMessage = '';
+
 try
 {
 	$fatalFailure = false;
@@ -54,85 +82,103 @@ try
 
 	$adminSidePanelHelper->decodeUriComponent();
 
-	$actionSave = isset($_REQUEST['save']);
-	$actionApply = isset($_REQUEST['apply']);
-	$actionSaveAndAdd = isset($_REQUEST['save_and_add']);
-
+	$actionSave = $request->get('save') !== null;
+	$actionApply = $request->get('apply') !== null;
+	$actionSaveAndAdd = $request->get('save_and_add') !== null;
 	$formSubmitted = ($actionSave || $actionApply || $actionSaveAndAdd) && check_bitrix_sessid();
 
-	$returnUrl = $_REQUEST['return_url'] <> ''? $_REQUEST['return_url'] : '0';
+	$element = $request->get('element');
 
-	if($userIsAdmin && !empty($_REQUEST['element']) && $formSubmitted) // form submitted, handling it
+	if (
+		$userIsAdmin
+		&& !empty($element)
+		&& is_array($element)
+		&& $formSubmitted
+	) // form submitted, handling it
 	{
-		$saveAsId = intval($_REQUEST['element']['ID']);
+		$saveAsId = (int)($element['ID'] ?? 0);
 
 		global $DB;
 		$redirectUrl = false;
 
 		// parent id might be updated, so re-read it from request
-		if(intval($_REQUEST['PARENT_ID']))
-			$parentId = intval($_REQUEST['PARENT_ID']);
+		$requestParentId = (int)$request->get('PARENT_ID');
+		if ($requestParentId > 0)
+		{
+			$parentId = $requestParentId;
+		}
 
 		try
 		{
 			$DB->StartTransaction();
 
-			$saveUrl = "";
-			$applyUrl = "";
+			$saveUrl = '';
+			$applyUrl = '';
 
 			if($saveAsId) // existed, updating
 			{
-				$res = Helper::update($saveAsId, $_REQUEST['element']);
-
-				if($res['success']) // on successfull update ...
+				$res = Helper::update($saveAsId, $element);
+				if ($res['success']) // on successfull update ...
 				{
-					if($actionSave)
-						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the parent page
+					if ($actionSave)
+					{
+						$saveUrl = $returnUrl ?: $listUrl; // go to the parent page
+					}
 
-					if($actionApply)
-						$applyUrl = $returnUrl ? $returnUrl : Helper::getEditUrl($saveAsId);
+					if ($actionApply)
+					{
+						$applyUrl = $returnUrl ?: Helper::getEditUrl($saveAsId);
+					}
 				}
 			}
 			else // new or copyed item
 			{
-				$res = Helper::add($_REQUEST['element']);
-				if($res['success']) // on successfull add ...
+				$res = Helper::add($element);
+				if ($res['success']) // on successfull add ...
 				{
-					if($actionSave)
-						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the parent list page
+					if ($actionSave)
+					{
+						$saveUrl = $returnUrl ?: $listUrl; // go to the parent list page
+					}
 
-					if($actionApply)
-						$applyUrl = $returnUrl ? $returnUrl : Helper::getEditUrl($res['id']); // go to the page of just created item
+					if ($actionApply)
+					{
+						$applyUrl = $returnUrl ?: Helper::getEditUrl($res['id']); // go to the page of just created item
+					}
 				}
 			}
 
 			// no matter we updated or added a new item - we go to blank page on $actionSaveAndAdd
-			if($res['success'] && $actionSaveAndAdd)
-				$applyUrl = Helper::getEditUrl(false, array('parent_id' => $parentId)); // go to the blank page with correct parent_id to create
+			if ($res['success'] && $actionSaveAndAdd)
+			{
+				$applyUrl = Helper::getEditUrl(false, ['parent_id' => $parentId]);  // go to the blank page with correct parent_id to create
+			}
 
 			// on failure just show sad message
-			if(!$res['success'])
+			if (!$res['success'])
+			{
 				throw new Main\SystemException(implode('<br />', $res['errors']));
+			}
 
 			$DB->Commit();
 
-			$baseId = ($saveAsId ? $saveAsId : $res['id']);
-			$adminSidePanelHelper->sendSuccessResponse("base", array("element[ID]" => $baseId));
+			$baseId = ($saveAsId ?: $res['id']);
+			$adminSidePanelHelper->sendSuccessResponse("base", ["element[ID]" => $baseId]);
 
-			if($saveUrl)
+			if ($saveUrl)
 			{
 				$adminSidePanelHelper->localRedirect($saveUrl);
 				LocalRedirect($saveUrl);
 			}
-			elseif($applyUrl)
+			elseif ($applyUrl)
 			{
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 				LocalRedirect($applyUrl);
 			}
 			else
 			{
-				$adminSidePanelHelper->localRedirect($redirectUrl);
-				LocalRedirect($redirectUrl);
+				$adminSidePanelHelper->localRedirect($listUrl);
+				LocalRedirect($listUrl);
 			}
 		}
 		catch(Main\SystemException $e)
@@ -150,29 +196,33 @@ try
 		}
 	}
 
-	if(!$returnUrl)
+	if (!$returnUrl)
+	{
 		$returnUrl = Helper::getListUrl($parentId); // default return page for "cancel" action
+	}
 
 	#####################################
 	#### READ FORM DATA
 	#####################################
 
-	$readAsId = $id ? $id : $copyId;
+	$readAsId = $id ?: $copyId;
 
 	if($formSubmitted && $actionFailure) // if form were submitted, but form action (add or update) failed
 	{
 		// load from request
-		$formData = $_REQUEST['element'];
+		$formData = $element;
 
-		if($readAsId)
+		if ($readAsId)
+		{
 			$nameToDisplay = Helper::getNameToDisplay($readAsId);
+		}
 
 		// cleaning up empty external data
-		if(is_array($formData['EXTERNAL']) && !empty($formData['EXTERNAL']))
+		if (!empty($formData['EXTERNAL']) && is_array($formData['EXTERNAL']))
 		{
-			foreach($formData['EXTERNAL'] as $eId => $external)
+			foreach ($formData['EXTERNAL'] as $eId => $external)
 			{
-				if($external['XML_ID'] == '')
+				if ($external['XML_ID'] == '')
 					unset($formData['EXTERNAL'][$eId]);
 			}
 		}
@@ -184,27 +234,30 @@ try
 			// load from database
 			$formData = Helper::getFormData($readAsId);
 
-			if($readAsId)
+			$langU = mb_strtoupper(LANGUAGE_ID);
+			$nameToDisplay = trim((string)($formData['NAME_' . $langU] ?? ''));
+			if ($nameToDisplay === '')
 			{
-				$langU = ToUpper(LANGUAGE_ID);
-				$nameToDisplay = $formData['NAME_'.$langU] <> ''? $formData['NAME_'.$langU] : $formData['CODE'];
+				$nameToDisplay = (string)($formData['CODE'] ?? '');
 			}
 		}
 		else
 		{
 			// load blank form, optionally with parent id filled up
-			$formData = array();
-			if($parentId)
+			$formData = [];
+			if ($parentId)
+			{
 				$formData['PARENT_ID'] = $parentId;
+			}
 		}
 	}
 }
-catch(Main\SystemException $e)
+catch (Main\SystemException $e)
 {
 	$fatalFailure = true;
 
 	$code = $e->getCode();
-	$fatalFailureMessage = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
+	$fatalFailureMessage = $e->getMessage() . (!empty($code) ? ' (' . $code . ')' : '');
 }
 
 #####################################
@@ -213,13 +266,40 @@ catch(Main\SystemException $e)
 
 if(!$fatalFailure) // no fatals like "module not installed, etc."
 {
-	$topMenu = new CAdminContextMenu(array(
-		array(
-			"TEXT" => GetMessage("SALE_LOCATION_E_GO_BACK"),
-			"LINK" => $listUrl,
-			"ICON" => "btn_list",
-		)
-	));
+
+}
+
+$APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_ITEM_EDIT', array('#ITEM_NAME#' => $nameToDisplay)) : Loc::getMessage('SALE_LOCATION_E_ITEM_NEW'));
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+#####################################
+#### Data output
+#####################################
+
+//temporal code
+if (!CSaleLocation::locationProCheckEnabled())
+{
+	require $_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/epilog_admin.php";
+}
+
+SearchHelper::checkIndexesValid();
+
+if($fatalFailure):
+	CAdminMessage::ShowMessage(['MESSAGE' => $fatalFailureMessage, 'type' => 'ERROR']);
+else:
+	if($actionFailure):
+		CAdminMessage::ShowMessage(['MESSAGE' => $actionFailureMessage, 'type' => 'ERROR']);
+	endif;
+
+	$topMenu = new CAdminContextMenu([
+		[
+			'TEXT' => GetMessage('SALE_LOCATION_E_GO_BACK'),
+			'LINK' => $listUrl,
+			'ICON' => 'btn_list',
+		]
+	]);
+	$topMenu->Show();
 
 	$tabControl = new CAdminForm("tabcntrl_location_node_edit", array(
 		array(
@@ -237,74 +317,63 @@ if(!$fatalFailure) // no fatals like "module not installed, etc."
 	$tabControl->EndPrologContent();
 	$tabControl->BeginEpilogContent();
 
+	if ($externalReturnUrl):
+		?>
+		<input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl); ?>">
+	<?php
+	endif;
 	?>
-	<? if($_REQUEST['return_url'] <> ''):?>
-	<input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl) ?>">
-<?endif?>
-	<?=bitrix_sessid_post()?>
-	<?
+	<?= bitrix_sessid_post(); ?>
+	<?php
 	$tabControl->EndEpilogContent();
-}
 
-$APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_ITEM_EDIT', array('#ITEM_NAME#' => $nameToDisplay)) : Loc::getMessage('SALE_LOCATION_E_ITEM_NEW'));
-?>
+	$args = [];
+	$argParentId = (int)$request->get('parent_id');
+	if ($argParentId > 0)
+	{
+		$args['parent_id'] = $argParentId;
+	}
+	unset($argParentId);
 
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
-
-<?
-#####################################
-#### Data output
-#####################################
-?>
-
-<?//temporal code?>
-<?if(!CSaleLocation::locationProCheckEnabled())require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
-
-<?SearchHelper::checkIndexesValid();?>
-
-<?if($fatalFailure):?>
-
-	<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatalFailureMessage, 'type' => 'ERROR'))?>
-
-<?else:?>
-
-	<?if($actionFailure):?>
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $actionFailureMessage, 'type' => 'ERROR'))?>
-	<?endif?>
-
-	<?
-	$topMenu->Show();
-
-	$args = array();
-	if(intval($_REQUEST['parent_id']))
-		$args['parent_id'] = intval($_REQUEST['parent_id']);
-
-	$formActionUrl = Helper::getEditUrl(intval($_REQUEST[Helper::URL_PARAM_ID]) ? intval($_REQUEST[Helper::URL_PARAM_ID]) : false, $args); // generally, it is not safe to leave action empty
+	$formActionNodeId = (int)$request->get(Helper::URL_PARAM_ID);
+	if ($formActionNodeId <= 0)
+	{
+		$formActionNodeId = false;
+	}
+	$formActionUrl = Helper::getEditUrl($formActionNodeId, $args); // generally, it is not safe to leave action empty
 	$formActionUrl = $adminSidePanelHelper->setDefaultQueryParams($formActionUrl);
 	$tabControl->Begin(array("FORM_ACTION" => $formActionUrl));
 	$tabControl->BeginNextFormTab();
-	?>
 
-	<?$requiredFld = ' class="adm-detail-required-field"';?>
+	$requiredFld = ' class="adm-detail-required-field"';
 
-	<?$columns = Helper::getColumns('detail');?>
-	<?foreach($columns as $code => $field):?>
+	$columns = Helper::getColumns('detail');
+	$geoHeadingShown = false;
+	foreach($columns as $code => $field):
+		$field['required'] ??= false;
 
-		<?if($code == 'ID' && !$id) continue; // new node or copied ?>
-		<?if(Helper::checkIsNameField($code)) continue; // we`ll output names in a different manner ?>
+		if($code === 'ID' && !$id)
+		{
+			continue; // new node or copied
+		}
+		if(Helper::checkIsNameField($code))
+		{
+			continue; // we`ll output names in a different manner
+		}
+		$value = Helper::makeSafeDisplay($formData[$code], $code);
 
-		<?$value = Helper::makeSafeDisplay($formData[$code], $code);?>
+		$tabControl->BeginCustomField($code, $field['title']);
 
-		<?$tabControl->BeginCustomField($code, $field['title']);?>
-
-			<?if(!$geoHeadingShown && ($code == 'LATITUDE' || $code == 'LONGITUDE')):?>
+			if(!$geoHeadingShown && ($code == 'LATITUDE' || $code == 'LONGITUDE')):
+				?>
 				<tr class="heading">
 					<td colspan="2"><?=Loc::getMessage('SALE_LOCATION_E_GEODATA')?></td>
 				</tr>
-				<?$geoHeadingShown = true;?>
-			<?endif?>
+				<?php
+				$geoHeadingShown = true;
+			endif?>
 
-			<tr<?=($field['required'] || $code == 'ID' ? $requiredFld : '')?>>
+			<tr<?= ($field['required'] || $code === 'ID' ? $requiredFld : ''); ?>>
 				<td width="40%"><?=$field['title']?>:</td>
 				<td width="60%">
 
@@ -343,7 +412,7 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 								"SHOW_DEFAULT_LOCATIONS" => 'N',
 								"SEARCH_BY_PRIMARY" => 'Y',
 
-								"EXCLUDE_SUBTREE" => $nodeId,
+								"EXCLUDE_SUBTREE" => $nodeId ?? null, // TODO: nodeId is not exists, need correct parameter
 								),
 								false
 							);?>
@@ -358,40 +427,40 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 
 				</td>
 			</tr>
-		<?$tabControl->EndCustomField($code, '');?>
+		<?$tabControl->EndCustomField($code, '');
 
-	<?endforeach?>
+	endforeach;
 
-	<?
 	$languages = Helper::getLanguageList();
 	$nameMap = Helper::getNameMap();
-	?>
-	<?$tabControl->BeginCustomField('NAME', Loc::getMessage('SALE_LOCATION_E_HEADING_NAME_ALL'));?>
-	<?foreach($languages as $lang):?>
 
+	$tabControl->BeginCustomField('NAME', Loc::getMessage('SALE_LOCATION_E_HEADING_NAME_ALL'));
+	foreach($languages as $langValue):
+		?>
 		<tr class="heading">
-			<td colspan="2"><?=Loc::getMessage('SALE_LOCATION_E_HEADING_NAME', array('#LANGUAGE_ID#' => htmlspecialcharsbx($lang)))?></td>
+			<td colspan="2"><?=Loc::getMessage('SALE_LOCATION_E_HEADING_NAME', array('#LANGUAGE_ID#' => htmlspecialcharsbx($langValue)))?></td>
 		</tr>
 
-		<?$lang = ToUpper($lang);?>
+		<?php
+		$langValue = mb_strtoupper($langValue);
 
-		<?foreach($nameMap as $code => $field):?>
-			<?$value = Helper::makeSafeDisplay($formData[$code.'_'.$lang], $code);?>
-			<tr<?=($field['required'] || $code == 'ID' ? $requiredFld : '')?>>
+		foreach($nameMap as $code => $field):
+			$field['required'] ??= false;
+			$value = Helper::makeSafeDisplay($formData[$code.'_'.$langValue], $code);?>
+			<tr<?= ($field['required'] || $code == 'ID' ? $requiredFld : '')?>>
 				<td width="40%"><?=$field['title']?></td>
 				<td width="60%">
-					<input type="text" name="element[<?=$code?>_<?=$lang?>]" value="<?=$value?>" size="20" maxlength="255" />
+					<input type="text" name="element[<?=$code?>_<?=$langValue?>]" value="<?=$value?>" size="20" maxlength="255" />
 				</td>
 			</tr>
-		<?endforeach?>
+		<?php
+		endforeach;
+	endforeach;
+	$tabControl->EndCustomField('NAME', '');
 
-	<?endforeach?>
-	<?$tabControl->EndCustomField('NAME', '');?>
+	$tabControl->BeginNextFormTab();
+	$tabControl->BeginCustomField('EXTERNAL', Loc::getMessage('SALE_LOCATION_E_HEADING_EXTERNAL'));
 
-	<?$tabControl->BeginNextFormTab();?>
-	<?$tabControl->BeginCustomField('EXTERNAL', Loc::getMessage('SALE_LOCATION_E_HEADING_EXTERNAL'));?>
-
-		<?
 		$services = Helper::getExternalServicesList();
 		$yandexMarketEsId = Helper::getYandexMarketExternalServiceId();
 		$isUaPortal = (Bitrix\Sale\Delivery\Helper::getPortalZone() === 'ua');
@@ -418,9 +487,9 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 									<td><?=Loc::getMessage('SALE_LOCATION_E_HEADER_EXT_REMOVE')?></td>
 								</tr>
 
-								<?if(is_array($formData['EXTERNAL']) && !empty($formData['EXTERNAL'])):?>
+								<?if (!empty($formData['EXTERNAL']) && is_array($formData['EXTERNAL'])):
 
-									<?foreach($formData['EXTERNAL'] as $id => $ext):
+									foreach ($formData['EXTERNAL'] as $id => $ext):
 										$isYandexMarketOnUaPortal = (
 											$isUaPortal
 											&& (int)$ext['SERVICE_ID'] === $yandexMarketEsId
@@ -461,23 +530,26 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 												<?endif?>
 											</td>
 										</tr>
-									<?endforeach?>
-
-								<?endif?>
-
+									<?php
+									endforeach;
+								endif;
+								?>
 								<script type="text/html" data-template-id="bx-ui-dynamiclist-row">
 									<tr>
 										<td></td>
 										<td>
 											<select name="element[EXTERNAL][n{{column_id}}][SERVICE_ID]">
-												<?foreach($services as $sId => $serv):
+												<?php
+												foreach($services as $sId => $serv):
 													if ($isUaPortal && (int)$serv['ID'] === $yandexMarketEsId)
 													{
 														continue;
 													}
-												?>
+													?>
 													<option value="<?=intval($serv['ID'])?>"><?=htmlspecialcharsbx($serv['CODE'])?></option>
-												<?endforeach?>
+													<?php
+												endforeach;
+												?>
 											</select>
 										</td>
 										<td>
@@ -501,14 +573,14 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 							initiallyAdd: 3
 						});
 					</script>
-
-				<?endif?>
-
+				<?php
+				endif;
+				?>
 			</td>
 		</tr>
-	<?$tabControl->EndCustomField('EXTERNAL', '');?>
+	<?php
+	$tabControl->EndCustomField('EXTERNAL', '');
 
-	<?
 	$tabControl->Buttons(array(
 		"disabled" => !$userIsAdmin,
 		"btnSaveAndAdd" => true,
@@ -518,8 +590,7 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 	));
 
 	$tabControl->Show();
-	?>
 
-<?endif?>
+endif;
 
-<?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>
+require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");

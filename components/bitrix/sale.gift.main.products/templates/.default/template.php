@@ -15,8 +15,12 @@ $frame = $this->createFrame()->begin();
 
 $injectId = 'sale_gift_main_products_'.rand();
 
-$templateData['TEMPLATE_THEME'] = $this->GetFolder().'/themes/'.$arParams['TEMPLATE_THEME'].'/style.css';
-$templateData['TEMPLATE_CLASS'] = 'bx_'.$arParams['TEMPLATE_THEME'];
+$templateData = [];
+if (isset($arParams['TEMPLATE_THEME']))
+{
+	$templateData['TEMPLATE_THEME'] = $this->GetFolder() . '/themes/' . $arParams['TEMPLATE_THEME'] . '/style.css';
+	$templateData['TEMPLATE_CLASS'] = 'bx_' . $arParams['TEMPLATE_THEME'];
+}
 $templateData['JS_OBJ'] = "BX.Sale['GiftMainProductsClass_{$component->getComponentId()}']";
 
 // component parameters

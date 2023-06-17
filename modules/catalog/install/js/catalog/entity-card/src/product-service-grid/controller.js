@@ -1,9 +1,11 @@
 import {type BaseEvent, EventEmitter} from 'main.core.events';
 import {Dom, Reflection, Type} from 'main.core';
+import GridStore from '../grid/grid-store';
 
 export default class ProductServiceGridController extends BX.UI.EntityEditorController
 {
 	areaHeight = null
+	gridStore: GridStore;
 
 	constructor(id, settings)
 	{
@@ -17,7 +19,7 @@ export default class ProductServiceGridController extends BX.UI.EntityEditorCont
 
 		EventEmitter.subscribe('Grid::thereEditedRows', this.markAsChangedHandler.bind(this));
 		EventEmitter.subscribe('Grid::noEditedRows', this.checkEditorToolbar.bind(this));
-		EventEmitter.subscribe('Grid::updated', this.checkEditorToolbar.bind(this));
+		EventEmitter.subscribe('Grid::updated', this.onGridUpdated.bind(this));
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequest.bind(this));
 
 		EventEmitter.subscribe('onAjaxSuccess', this.ajaxSuccessHandler.bind(this));
@@ -27,6 +29,8 @@ export default class ProductServiceGridController extends BX.UI.EntityEditorCont
 		EventEmitter.subscribe("BX.UI.EntityEditor:onNothingChanged", this.onNothingChanged.bind(this));
 
 		this.subscribeToFormSubmit();
+
+		this.gridStore = new GridStore(this.getGridId());
 	}
 
 	onBeforeIncludedAreaLoaded(event: BaseEvent)
@@ -180,6 +184,23 @@ export default class ProductServiceGridController extends BX.UI.EntityEditorCont
 		return this._editor.getControlById('service_grid');
 	}
 
+	onGridUpdated(event: BaseEvent)
+	{
+		const [grid] = event.getCompatData();
+
+		this.checkEditorToolbar();
+
+		if (grid.getId() === this.getGrid().getId())
+		{
+			setTimeout(
+				() => {
+					this.gridStore.loadEditedRows();
+				},
+				0 // delay for re-render grid
+			);
+		}
+	}
+
 	onBeforeGridRequest(event: BaseEvent)
 	{
 		const [grid, eventArgs] = event.getCompatData();
@@ -189,11 +210,14 @@ export default class ProductServiceGridController extends BX.UI.EntityEditorCont
 			return;
 		}
 
+		this.gridStore.saveEditedRows();
+
 		eventArgs.sessid = BX.bitrix_sessid();
 		eventArgs.method = 'POST';
 		eventArgs.url = this.getReloadUrl();
 		eventArgs.data = {
 			...eventArgs.data,
+			rows: this.gridStore.getEditedRowsFields(),
 			signedParameters: this.getSignedParameters()
 		};
 

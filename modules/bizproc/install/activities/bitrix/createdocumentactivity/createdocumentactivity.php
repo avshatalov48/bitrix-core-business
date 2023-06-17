@@ -5,6 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @property-write string|null ErrorMessage */
 class CBPCreateDocumentActivity extends CBPActivity
 {
 	const EXECUTION_MAX_DEPTH = 1;
@@ -16,7 +17,13 @@ class CBPCreateDocumentActivity extends CBPActivity
 		$this->arProperties = [
 			"Title" => "",
 			"Fields" => null,
+			//return
+			'ErrorMessage' => null,
 		];
+
+		$this->setPropertiesTypes([
+			'ErrorMessage' => ['Type' => 'string'],
+		]);
 	}
 
 	public function Execute()
@@ -43,10 +50,17 @@ class CBPCreateDocumentActivity extends CBPActivity
 		catch (Exception $e)
 		{
 			$this->WriteToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+			$this->ErrorMessage = $e->getMessage();
 		}
 		self::resetExecutionDepth($executionKey);
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function reInitialize()
+	{
+		parent::reInitialize();
+		$this->ErrorMessage = null;
 	}
 
 	public static function GetPropertiesDialog(
@@ -273,7 +287,8 @@ class CBPCreateDocumentActivity extends CBPActivity
 				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
 				if ($fieldTypeObject)
 				{
-					$value = $fieldTypeObject->externalizeValue('Document', $value);
+					$fieldTypeObject->setValue($value);
+					$value = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
 				}
 			}
 

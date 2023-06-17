@@ -8,6 +8,9 @@ use Bitrix\Main,
 Loc::loadMessages(__FILE__);
 
 /**
+ * @deprecated use `ui.admin.page.stub`
+ * @todo replace using to `ui.admin.page.stub`
+ *
  * Class SaleAdminPageStub
  */
 class SaleAdminPageStub extends \CBitrixComponent

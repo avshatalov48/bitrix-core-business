@@ -246,22 +246,30 @@ CAdminMessage::ShowOldStyleError($strWarning);?>
 					<td><?= GetMessage("IBTYPE_E_ELEMENTS");?></td>
 				</tr>
 				<?php
-				foreach($arIBTLang as $ar)
+				$defaultTypeLang = [
+					'NAME' => '',
+					'SECTION_NAME' => '',
+					'ELEMENT_NAME' => '',
+				];
+				foreach ($arIBTLang as $ar)
 				{
-					if($bVarsFromForm)
+					if ($bVarsFromForm)
 					{
-						$ibtypelang = $langFields[$ar["LID"]] ?? [
-								'NAME' => '',
-								'SECTION_NAME' => '',
-								'ELEMENT_NAME' => '',
-							];
+						$ibtypelang = $langFields[$ar["LID"]] ?? $defaultTypeLang;
 					}
 					else
 					{
 						$ibtypelang = CIBlockType::GetByIDLang($ID, $ar["LID"], false);
-						$ibtypelang['NAME'] = $ibtypelang['~NAME'];
-						$ibtypelang['SECTION_NAME'] = $ibtypelang['~SECTION_NAME'];
-						$ibtypelang['ELEMENT_NAME'] = $ibtypelang['~ELEMENT_NAME'];
+						if (is_array($ibtypelang))
+						{
+							$ibtypelang['NAME'] = (string)($ibtypelang['~NAME'] ?? '');
+							$ibtypelang['SECTION_NAME'] = (string)($ibtypelang['~SECTION_NAME'] ?? '');
+							$ibtypelang['ELEMENT_NAME'] = (string)($ibtypelang['~ELEMENT_NAME'] ?? '');
+						}
+						else
+						{
+							$ibtypelang = $defaultTypeLang;
+						}
 					}
 				?>
 				<tr>

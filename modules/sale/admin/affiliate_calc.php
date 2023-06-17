@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
@@ -7,17 +12,19 @@ if ($saleModulePermissions=="D")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
+
+$request = Context::getCurrent()->getRequest();
 
 set_time_limit(0);
 
@@ -33,7 +40,7 @@ $arPossibleActions = array(
 	"F" => GetMessage("SAC_ACTION_CALC")
 );
 
-if ($REQUEST_METHOD=="GET" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($request->getRequestMethod() === 'GET' && $request->get('Update') !== null && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
 	if ($SUM_TODO == '' || !array_key_exists($SUM_TODO, $arPossibleActions))
 		$errorMessage = GetMessage("SAC_ERROR_NO_ACTION");
@@ -250,7 +257,7 @@ if ($REQUEST_METHOD=="GET" && $Update <> '' && $saleModulePermissions>="W" && ch
 		for ($i = 0; $i < $countArAffiliate; $i++)
 			$urlParams .= "&OID[]=".$arAffiliateID[$i];
 
-		LocalRedirect("/bitrix/admin/sale_affiliate_calc.php?lang=".LANG."&".$urlParams);
+		LocalRedirect("/bitrix/admin/sale_affiliate_calc.php?lang=" . LANGUAGE_ID . "&".$urlParams);
 	}
 }
 
@@ -265,7 +272,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 $aMenu = array(
 		array(
 				"TEXT" => GetMessage("SAC_AFFILIATE_LIST"),
-				"LINK" => "/bitrix/admin/sale_affiliate.php?lang=".LANG.GetFilterParams("filter_"),
+				"LINK" => "/bitrix/admin/sale_affiliate.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 				"ICON" => "btn_list"
 			)
 	);
@@ -356,7 +363,7 @@ $tabControl->BeginNextTab();
 			{
 				echo GetMessage("SAC_ALL_AFFILIATES");
 				echo "<br>";
-				echo str_replace("#LINK2#", "</a>", str_replace("#LINK1#", "<a href=\"/bitrix/admin/sale_affiliate.php?lang=".LANG."\">", GetMessage("SAC_ALL_AFFILIATES_HINT")));
+				echo str_replace("#LINK2#", "</a>", str_replace("#LINK1#", "<a href=\"/bitrix/admin/sale_affiliate.php?lang=" . LANGUAGE_ID . "\">", GetMessage("SAC_ALL_AFFILIATES_HINT")));
 			}
 			?>
 		</td>
@@ -422,4 +429,5 @@ $tabControl->End();
 <?echo GetMessage("SAC_NOTE5")?>
 <?echo EndNote();?>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

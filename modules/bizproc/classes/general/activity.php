@@ -12,7 +12,7 @@ abstract class CBPActivity
 	public $executionStatus = CBPActivityExecutionStatus::Initialized;
 	public $executionResult = CBPActivityExecutionResult::None;
 
-	private $arStatusChangeHandlers = array();
+	private $arStatusChangeHandlers = [];
 
 	const StatusChangedEvent = 0;
 	const ExecutingEvent = 1;
@@ -31,14 +31,14 @@ abstract class CBPActivity
 	const CalcPattern = '#^\s*(=\s*(.*)|\{\{=\s*(.*)\s*\}\})\s*$#is';
 	const CalcInlinePattern = '#\{\{=\s*(.*?)\s*\}\}([^\}]|$)#is';
 
-	protected $arProperties = array();
-	protected $arPropertiesTypes = array();
+	protected $arProperties = [];
+	protected $arPropertiesTypes = [];
 
-	protected $name = "";
+	protected $name = '';
 	/** @var CBPWorkflow | \Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow $workflow */
 	public $workflow = null;
 
-	public $arEventsMap = array();
+	public $arEventsMap = [];
 
 	/************************  PROPERTIES  ************************************************/
 
@@ -197,7 +197,9 @@ abstract class CBPActivity
 		if (count($arProperties) > 0)
 		{
 			foreach ($arProperties as $key => $value)
+			{
 				$this->arProperties[$key] = $value;
+			}
 		}
 	}
 
@@ -206,7 +208,9 @@ abstract class CBPActivity
 		if (count($arPropertiesTypes) > 0)
 		{
 			foreach ($arPropertiesTypes as $key => $value)
+			{
 				$this->arPropertiesTypes[$key] = $value;
+			}
 		}
 	}
 
@@ -835,12 +839,12 @@ abstract class CBPActivity
 		}
 		elseif ($object === Bizproc\Workflow\Template\SourceType::DocumentField)
 		{
-			$property = $documentFields[$field];
+			$property = $documentFields[$field] ?? null;
 			$result = $documentService->getFieldValue($documentId, $field, $documentType);
 		}
 		else
 		{
-			$activity = $rootActivity->workflow->GetActivityByName($object);
+			$activity = $rootActivity->workflow->getActivityByName($object);
 			if ($activity)
 			{
 				$result = $activity->__get($field);
@@ -975,6 +979,7 @@ abstract class CBPActivity
 	public function parseValue($value, $convertToType = null, ?callable $decorator = null)
 	{
 		[$t, $r] = $this->getPropertyValueRecursive($value, $convertToType, $decorator);
+
 		return $r;
 	}
 
@@ -1320,15 +1325,28 @@ abstract class CBPActivity
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		if (!$runtime->IncludeActivityFile($code))
-			return array(array("code" => "ActivityNotFound", "parameter" => $code, "message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND_1", array('#ACTIVITY#' => htmlspecialcharsbx($code)))));
+		{
+			return [
+				[
+					"code" => "ActivityNotFound",
+					"parameter" => $code,
+					"message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND_1", ['#ACTIVITY#' => htmlspecialcharsbx($code)])
+				]
+			];
+		}
 
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
+		{
 			throw new Exception("Activity '".$code."' is not valid");
+		}
 
 		$classname = 'CBP'.$code;
 
 		if (method_exists($classname,$method))
+		{
 			return call_user_func_array(array($classname, $method), $arParameters);
+		}
+
 		return false;
 	}
 

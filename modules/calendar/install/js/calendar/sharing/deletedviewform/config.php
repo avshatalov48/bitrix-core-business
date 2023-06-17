@@ -8,10 +8,8 @@ return [
 	'css' => 'dist/deletedviewform.bundle.css',
 	'js' => 'dist/deletedviewform.bundle.js',
 	'rel' => [
-		'ui.vue3',
-		'calendar.sharing.publicevent',
 		'main.core',
-		'calendar.util',
+		'calendar.sharing.public-v2',
 	],
 	'skip_core' => false,
 ];

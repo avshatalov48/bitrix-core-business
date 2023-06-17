@@ -34,7 +34,7 @@ export const MainContent = {
 		},
 	},
 	computed: {
-		...mapState(useGlobalState, ['filtersApplied']),
+		...mapState(useGlobalState, ['filtersApplied', 'shouldShowWelcomeStub']),
 		showAdvice(): boolean
 		{
 			return this.group && Type.isStringFilled(this.group.adviceTitle) && !this.searching;
@@ -42,6 +42,10 @@ export const MainContent = {
 		hasItems(): boolean
 		{
 			return this.group && this.items.length > 0;
+		},
+		showWelcomeStub(): boolean
+		{
+			return this.showNoSelectedGroupStub && this.shouldShowWelcomeStub;
 		},
 		showNoSelectedGroupStub(): boolean
 		{
@@ -80,7 +84,8 @@ export const MainContent = {
 			<hr class="ui-entity-catalog__main-separator" v-if="showSeparator">
 
 			<div class="ui-entity-catalog__main-content-body" ref="content">
-				<slot name="main-content-no-selected-group-stub" v-if="showNoSelectedGroupStub"/>
+				<slot name="main-content-welcome-stub" v-if="showWelcomeStub"/>
+				<slot name="main-content-no-selected-group-stub" v-else-if="showNoSelectedGroupStub"/>
 				<slot name="main-content-filter-stub" v-if="showFiltersStub">
 					<EmptyContent>
 						<slot name="main-content-filter-stub-title"/>

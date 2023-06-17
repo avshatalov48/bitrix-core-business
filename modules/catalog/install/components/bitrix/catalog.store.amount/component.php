@@ -210,7 +210,7 @@ if ($this->startResultCache())
 			$arParams['FIELDS'] = array_merge($arParams['FIELDS'], array('GPS_N', 'GPS_S'));
 
 		$select = array_merge(
-			array("ID", "ACTIVE", "PRODUCT_AMOUNT", "TITLE", "TYPE"),
+			array("ID", "ACTIVE", "PRODUCT_AMOUNT", "TITLE", "TYPE", "ADDRESS"),
 			$arParams["FIELDS"],
 			$arParams["USER_FIELDS"]
 		);

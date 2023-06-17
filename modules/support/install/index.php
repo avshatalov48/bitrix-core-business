@@ -49,7 +49,7 @@ class support extends CModule
 		
 		if ($EMPTY)
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.mb_strtolower($DB->type).'/install.sql');
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/mysql/install.sql');
 		}
 		
 		if (is_array($errors))
@@ -102,7 +102,7 @@ class support extends CModule
 
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/mysql/uninstall.sql');
 			if (!is_array($errors))
 			{
 				@set_time_limit(600);

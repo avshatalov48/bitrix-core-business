@@ -42,8 +42,8 @@ if ($obBucket->READ_ONLY == 'Y')
 }
 
 if (
-	/*$_SERVER["REQUEST_METHOD"] == "POST"
-	&& */$_REQUEST['act'] == 'process'
+	isset($_REQUEST['act'])
+	&& $_REQUEST['act'] == 'process'
 	&& check_bitrix_sessid()
 )
 {

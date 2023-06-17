@@ -7,10 +7,10 @@ class BizprocWorkflowStart extends \CBitrixComponent
 {
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams["MODULE_ID"] = trim(empty($arParams["MODULE_ID"]) ? $_REQUEST["module_id"] : $arParams["MODULE_ID"]);
-		$arParams["ENTITY"] = trim(empty($arParams["ENTITY"]) ? $_REQUEST["entity"] : $arParams["ENTITY"]);
-		$arParams["DOCUMENT_TYPE"] = trim(empty($arParams["DOCUMENT_TYPE"]) ? $_REQUEST["document_type"] : $arParams["DOCUMENT_TYPE"]);
-		$arParams["DOCUMENT_ID"] = trim(empty($arParams["DOCUMENT_ID"]) ? $_REQUEST["document_id"] : $arParams["DOCUMENT_ID"]);
+		$arParams["MODULE_ID"] = trim(empty($arParams["MODULE_ID"]) ? ($_REQUEST["module_id"] ?? '') : $arParams["MODULE_ID"]);
+		$arParams["ENTITY"] = trim(empty($arParams["ENTITY"]) ? ($_REQUEST["entity"] ?? '') : $arParams["ENTITY"]);
+		$arParams["DOCUMENT_TYPE"] = trim(empty($arParams["DOCUMENT_TYPE"]) ? ($_REQUEST["document_type"] ?? '') : $arParams["DOCUMENT_TYPE"]);
+		$arParams["DOCUMENT_ID"] = trim(empty($arParams["DOCUMENT_ID"]) ? ($_REQUEST["document_id"] ?? '') : $arParams["DOCUMENT_ID"]);
 		$arParams["TEMPLATE_ID"] = isset($arParams["TEMPLATE_ID"]) ? (int)$arParams["TEMPLATE_ID"] : (int)($_REQUEST["workflow_template_id"] ?? 0);
 		$arParams["AUTO_EXECUTE_TYPE"] = isset($arParams["AUTO_EXECUTE_TYPE"]) ? (int)$arParams["AUTO_EXECUTE_TYPE"] : null;
 
@@ -28,7 +28,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 
 		$this->arResult["DOCUMENT_ID"] = $this->arParams["DOCUMENT_ID"];
 		$this->arResult["DOCUMENT_TYPE"] = $this->arParams["DOCUMENT_TYPE"];
-		$this->arResult["back_url"] = trim($_REQUEST["back_url"]);
+		$this->arResult["back_url"] = trim($_REQUEST["back_url"] ?? '');
 
 		$arError = array();
 		if ($this->arParams["MODULE_ID"] == '')
@@ -154,7 +154,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 			{
 				$bCanStartWorkflow = true;
 			}
-			elseif ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '')
+			elseif ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["DoStartParamWorkflow"]))
 			{
 				$arErrorsTmp = array();
 
@@ -247,7 +247,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 			}
 			else
 			{
-				$p = ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '');
+				$p = ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["DoStartParamWorkflow"]));
 				$keys = array_keys($arWorkflowTemplate["PARAMETERS"]);
 				foreach ($keys as $key)
 				{

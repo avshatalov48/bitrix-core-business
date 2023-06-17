@@ -1389,7 +1389,6 @@
 			};
 		}
 
-
 		return BX.Landing.History.Highlight.getInstance().show(node, rect);
 	};
 
@@ -1571,9 +1570,6 @@
 		var slice = BX.Landing.Utils.slice;
 		var create = BX.Landing.Utils.create;
 		var attributes = slice(element.attributes);
-		var elementStyle = getComputedStyle(element);
-		var fontSize = elementStyle.getPropertyValue("font-size");
-		var fontWeight = elementStyle.getPropertyValue("font-weight");
 		var newElement = create(tagName);
 		var innerHTML = element.innerHTML;
 
@@ -1581,8 +1577,6 @@
 			newElement.setAttribute(attribute.nodeName, attribute.nodeValue);
 		});
 
-		newElement.style.fontSize = fontSize;
-		newElement.style.fontWeight = fontWeight;
 		newElement.innerHTML = innerHTML;
 
 		element.parentElement.replaceChild(newElement, element);
@@ -1748,16 +1742,25 @@
 		return path.split('\\').pop().split('/').pop();
 	};
 
-	BX.Landing.Utils.getSelectedElement = function() {
-		var range, sel, container;
-		if (document.selection)
+	BX.Landing.Utils.getSelectedElement = function(contextDocument)
+	{
+		const currentDocument =
+			(typeof contextDocument !== 'undefined' && contextDocument.nodeType === Node.DOCUMENT_NODE)
+				? contextDocument
+				: document
+		;
+
+		let range;
+		let sel;
+		let container;
+		if (currentDocument.selection)
 		{
-			range = document.selection.createRange();
+			range = currentDocument.selection.createRange();
 			return range.parentElement();
 		}
 		else
 		{
-			sel = window.getSelection();
+			sel = currentDocument.defaultView.getSelection();
 			if (sel.getRangeAt)
 			{
 				if (sel.rangeCount > 0)
@@ -1768,7 +1771,7 @@
 			else
 			{
 				// Old WebKit
-				range = document.createRange();
+				range = currentDocument.createRange();
 				range.setStart(sel.anchorNode, sel.anchorOffset);
 				range.setEnd(sel.focusNode, sel.focusOffset);
 

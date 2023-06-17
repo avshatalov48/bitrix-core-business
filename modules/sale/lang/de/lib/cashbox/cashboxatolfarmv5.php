@@ -1,2 +1,0 @@
-<?php
-$MESS["SALE_CASHBOX_ATOL_FARM_V5_TITLE"] = "Atol.Online (FFD 1.05)";

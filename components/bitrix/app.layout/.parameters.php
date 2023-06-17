@@ -26,7 +26,7 @@ $arComponentParameters = array(
 			"PARENT" => "BASE",
 			"NAME" => Loc::getMessage("RMP_DETAIL_URL_2"),
 			"TYPE" => "STRING",
-			"DEFAULT" => '/marketplace/detail/#code#/'
+			"DEFAULT" => '/marketplace/detail/#code#/?from=app_layout'
 		),
 
 //		"SET_TITLE" => array(),

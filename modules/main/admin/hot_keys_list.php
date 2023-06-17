@@ -1,5 +1,9 @@
 <?
-// v.091
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
@@ -52,7 +56,7 @@ if ($isAdmin)
 
 	if(($arID = $lAdmin->GroupAction()))
 	{
-		if($_REQUEST['action_target']=='selected')
+		if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 		{
 			$rsData = $hotKeyCodes->GetList(array($by=>$order), $arFilter);
 			while($arRes = $rsData->Fetch())
@@ -152,7 +156,7 @@ $lAdmin->AddAdminContextMenu($aContext);
 $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("HK_TITLE"));
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once ($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 
 $oFilter = new CAdminFilter(

@@ -36,9 +36,10 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	      return {
 	        paySystemList: {
 	          paySystems: settings.get('app.paySystems', []),
-	          selectedPaySystem: null // title: settings.get('app.title'),
-
+	          selectedPaySystem: null
+	          // title: settings.get('app.title'),
 	        },
+
 	        paySystemErrors: {
 	          errors: []
 	        },
@@ -142,9 +143,26 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	      required: false
 	    }
 	  },
+	  computed: {
+	    classes: function classes() {
+	      return {
+	        'order-payment-method-item-button': true,
+	        'btn': true,
+	        'btn-primary': true,
+	        'rounded-pill': true,
+	        'pay-mode': true,
+	        'order-payment-loader': this.loading
+	      };
+	    },
+	    buttonClasses: function buttonClasses() {
+	      return {
+	        'loading-button-text': this.loading
+	      };
+	    }
+	  },
 	  mixins: [sale_paymentPay_mixins_paymentSystem.MixinButton],
 	  // language=Vue
-	  template: "\n\t\t<div :class=\"classes\" @click=\"onClick($event)\">\n\t\t\t<slot></slot>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"classes\" @click=\"onClick($event)\">\n\t\t\t<span :class=\"buttonClasses\"><slot></slot></span>\n\t\t</div>\n\t"
 	});
 
 	ui_vue.BitrixVue.component('sale-payment_pay-components-payment_system-check', {
@@ -279,7 +297,7 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	    }
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"order-payment-buttons-container\">\n\t\t\t<div class=\"order-basket-section-description py-3\">\n\t\t\t\t{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_6 }}\n\t\t\t</div>\n\t\t\t<sale-payment_pay-components-payment_system-button @click=\"reset()\">\n\t\t\t\t{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_7 }}\n\t\t\t</sale-payment_pay-components-payment_system-button>\n\t\t</div>\t\n\t"
+	  template: "\n\t\t<div class=\"order-payment-buttons-container\">\n\t\t\t<div class=\"order-basket-section-description py-3\">\n\t\t\t\t{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_6 }}\n\t\t\t</div>\n\t\t\t<div class=\"order-basket-section-another-payment-button\">\n\t\t\t\t<sale-payment_pay-components-payment_system-button @click=\"reset()\">\n\t\t\t\t\t{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_7 }}\n\t\t\t\t</sale-payment_pay-components-payment_system-button>\n\t\t\t</div>\n\t\t</div>\t\n\t"
 	});
 
 	ui_vue.BitrixVue.component('sale-payment_pay-components-payment_system-backdrop', {
@@ -302,11 +320,9 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	    },
 	    getObjectClass: function getObjectClass() {
 	      var result = ['checkout-basket-item'];
-
 	      if (this.isShow === true) {
 	        result.push('active-backdrop-open-change-sku active-popup-open');
 	      }
-
 	      return result;
 	    },
 	    title: function title() {
@@ -341,11 +357,9 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	    },
 	    getObjectClass: function getObjectClass() {
 	      var result = ['checkout-order-payment-popup-wrap'];
-
 	      if (this.isShow === true) {
 	        result.push('active-popup-open');
 	      }
-
 	      return result;
 	    },
 	    logoStyle: function logoStyle() {

@@ -269,8 +269,6 @@
 
 		onApplyEventsClick: function(e)
 		{
-			e.preventDefault();
-
 			var form = this.getNode('form');
 			var eventsNodes = this.getNodes('events-select', form);
 			var hasEvents = false, events = {};
@@ -304,14 +302,11 @@
 
 		onStartClick: function(button, starter, e)
 		{
-			e.preventDefault();
 			starter.showTemplatesMenu(button);
 		},
 
 		onLoadCompletedClick: function(button, e)
 		{
-			e.preventDefault();
-
 			var list = this.getNode('workflows-list-completed');
 			var offset = list.children.length;
 

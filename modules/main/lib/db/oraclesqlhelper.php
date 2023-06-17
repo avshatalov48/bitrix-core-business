@@ -185,7 +185,7 @@ class OracleSqlHelper extends SqlHelper
 		$format = str_replace("HH", "HH24", $format);
 		$format = str_replace("GG", "HH24", $format);
 
-		if (mb_strpos($format, 'HH24') === false)
+		if (strpos($format, 'HH24') === false)
 		{
 			$format = str_replace("H", "HH", $format);
 		}
@@ -194,11 +194,11 @@ class OracleSqlHelper extends SqlHelper
 
 		$format = str_replace("MI", "II", $format);
 
-		if (mb_strpos($format, 'MMMM') !== false)
+		if (strpos($format, 'MMMM') !== false)
 		{
 			$format = str_replace("MMMM", "MONTH", $format);
 		}
-		elseif (mb_strpos($format, 'MM') === false)
+		elseif (strpos($format, 'MM') === false)
 		{
 			$format = str_replace("M", "MON", $format);
 		}
@@ -229,11 +229,7 @@ class OracleSqlHelper extends SqlHelper
 	 */
 	public function getConcatFunction()
 	{
-		$str = "";
-		$ar = func_get_args();
-		if (is_array($ar))
-			$str .= implode(" || ", $ar);
-		return $str;
+		return implode(" || ", func_get_args());
 	}
 
 	/**

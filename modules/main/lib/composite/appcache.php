@@ -322,7 +322,7 @@ JS;
 		if (array_key_exists("css", $arFilesByType))
 		{
 			$findImageRegexp = '#([;\s:]*(?:url|@import)\s*\(\s*)(\'|"|)(.+?)(\2)\s*\)#si';
-			if(count($this->excludeImagePatterns) > 0)
+			if(!empty($this->excludeImagePatterns))
 			{
 				$findImageRegexp = '#([;\s:]*(?:url|@import)\s*\(\s*)(\'|"|)((?:(?!'.implode("|",$this->excludeImagePatterns).').)+?)(\2)\s*\)#si';
 			}
@@ -398,7 +398,7 @@ JS;
 	 */
 	private static function replaceUrlCSS($url, $cssPath)
 	{
-		if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:") !== false)
+		if (strpos($url, "://") !== false || strpos($url, "data:") !== false)
 		{
 			return $url;
 		}
@@ -466,7 +466,7 @@ JS;
 
 	public function setFiles($arFiles)
 	{
-		if (count($this->files) > 0)
+		if (!empty($this->files))
 		{
 			$this->files = array_merge($this->files, $arFiles);
 		}
@@ -529,7 +529,7 @@ JS;
 
 		$manifestParams = "";
 		$arCacheParams = $this->params;
-		if (count($arCacheParams) > 0)
+		if (!empty($arCacheParams))
 		{
 			foreach ($arCacheParams as $key => $value)
 			{
@@ -595,7 +595,7 @@ JS;
 	private static function getManifestID($pageURI, $arParams)
 	{
 		$id = $pageURI;
-		if (count($arParams) > 0)
+		if (!empty($arParams))
 		{
 			$strCacheParams = "";
 			foreach ($arParams as $key => $value)

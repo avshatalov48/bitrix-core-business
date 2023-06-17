@@ -1,0 +1,78 @@
+.bx-im-list-container-recent__scope {
+	--im-list-container-recent__background-color: var(--im-color-palette-white-base);
+	--im-list-container-recent__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.08);
+	--im-list-container-recent__background-color_create-chat: rgba(var(--im-color-palette-blue-60-rgb), 0.12);
+	--im-list-container-recent__background-color_create-chat-hover: rgba(var(--im-color-palette-blue-60-rgb), 0.22);
+}
+
+.bx-im-list-container-recent__container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--im-list-container-recent__background-color);
+}
+
+.bx-im-list-container-recent__header_container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: var(--im-space-inset-md) 13px 14px 13px;
+	border-bottom: 1px solid var(--im-list-container-recent__background-color_separator);
+}
+
+.bx-im-list-container-recent__search-input_container {
+	flex-grow: 1;
+	/*width: 276px;*/
+	margin-right: var(--im-space-inline-md);
+}
+
+.bx-im-list-container-recent__header-menu_icon {
+	width: 30px;
+	height: 30px;
+	margin-right: var(--im-space-inline-xs);
+	background-image: url(./images/settings.svg);
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+.bx-im-list-container-recent__header-menu_icon:hover {
+	opacity: 0.6;
+}
+
+.bx-im-list-container-recent__header-menu_icon.--active {
+	background-image: url(./images/settings-active.svg);
+	opacity: 1;
+}
+
+.bx-im-list-container-recent__create-chat_icon {
+	width: 44px;
+	height: 34px;
+	border-radius: 80px;
+	background-color: var(--im-list-container-recent__background-color_create-chat);
+	background-image: url(./images/create-chat.svg);
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+.bx-im-list-container-recent__create-chat_icon:hover,
+.bx-im-list-container-recent__create-chat_icon.--active {
+	background-color: var(--im-list-container-recent__background-color_create-chat-hover);
+}
+
+.bx-im-list-container-recent__elements_container {
+	flex: 1 0 auto;
+	position: relative;
+	padding-top: 1px;
+}
+
+.bx-im-list-container-recent__elements {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: var(--im-list-container-recent__background-color);
+}

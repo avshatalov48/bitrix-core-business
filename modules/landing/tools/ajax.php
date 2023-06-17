@@ -15,6 +15,18 @@ if (
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
+if (($_REQUEST['redirect'] ?? null) === 'upgrade')
+{
+	if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+	{
+		localRedirect('/settings/license_all.php');
+	}
+	else
+	{
+		localRedirect('/bitrix/admin/update_system.php');
+	}
+}
+
 if (\Bitrix\Main\Loader::includeModule('landing'))
 {
 	header('Content-Type: application/json');

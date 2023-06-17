@@ -1,5 +1,6 @@
 import { type BaseEvent } from 'main.core.events';
 import { ZIndexComponentOptions } from 'main.core.z-index-manager';
+import type CloseIconSize from './popup-close-icon-size';
 
 export type PopupOptions = {
 	id?: string,
@@ -25,6 +26,7 @@ export type PopupOptions = {
 	contentBackground?: string,
 	animation?: PopupAnimationOptions,
 	closeIcon?: boolean,
+	closeIconSize?: $Values<CloseIconSize>,
 	autoHide?: boolean,
 	autoHideHandler?: (event: MouseEvent) => boolean,
 	zIndexOptions?: ZIndexComponentOptions,

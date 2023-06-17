@@ -288,7 +288,6 @@ class Hook
 	 */
 	protected static function copy($from, $to, $type, $publication = false)
 	{
-
 		$from = (int)$from;
 		$to = (int)$to;
 		$data = self::getData($from, $type);
@@ -306,7 +305,10 @@ class Hook
 				continue;
 			}
 			$classFull = __NAMESPACE__  . $classNamespace . $class;
-			if (method_exists($classFull, self::HOOKS_ON_COPY_HANDLER))
+			if (
+				isset($data[$class])
+				&& method_exists($classFull, self::HOOKS_ON_COPY_HANDLER)
+			)
 			{
 				$handler = self::HOOKS_ON_COPY_HANDLER;
 				if ($preparedData = $classFull::$handler($data[$class], $from, $type, $publication))
@@ -495,7 +497,7 @@ class Hook
 				}
 				else
 				{
-					$fieldsToDelete = $data[$hook->getCode()];
+					$fieldsToDelete = $data[$hook->getCode()] ?? [];
 				}
 
 				// del if not exists in public

@@ -25,6 +25,7 @@ Extension::load(
 		'ui.buttons',
 		'ui.alerts',
 		'ui.viewer',
+		'market.application',
 	]
 );
 
@@ -136,7 +137,7 @@ if ($arResult['CAN_INSTALL'])
 				$buttonList[] = [
 					'TAGS' => [
 						'href' => 'javascript:void(0)',
-						'onclick' => 'BX.rest.Marketplace.install(' . CUtil::PhpToJSObject($arParamsApp) . ');',
+						'onclick' => 'BX.Market.Application.install(' . CUtil::PhpToJSObject($arParamsApp) . ');',
 						'class' => 'ui-btn ui-btn-md ui-btn-primary ui-btn-round',
 					],
 					'TEXT' => GetMessage('MARKETPLACE_APP_UPDATE_BUTTON')
@@ -155,7 +156,7 @@ if ($arResult['CAN_INSTALL'])
 			{
 				if ($arResult['SUBSCRIPTION_AVAILABLE'])
 				{
-					$action = 'BX.rest.Marketplace.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
+					$action = 'BX.Market.Application.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
 				}
 				elseif (!empty($arResult['REST_ACCESS_HELPER_CODE']) && !$arResult['POPUP_BUY_SUBSCRIPTION_PRIORITY'])
 				{
@@ -213,7 +214,7 @@ if ($arResult['CAN_INSTALL'])
 			{
 				if ($arResult['REST_ACCESS'])
 				{
-					$action = 'BX.rest.Marketplace.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
+					$action = 'BX.Market.Application.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
 				}
 				$buttonList[] = [
 					'TAGS' => [
@@ -228,7 +229,7 @@ if ($arResult['CAN_INSTALL'])
 			{
 				if ($arResult['REST_ACCESS'])
 				{
-					$action = 'BX.rest.Marketplace.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
+					$action = 'BX.Market.Application.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
 				}
 				$buttonList[] = [
 					'TAGS' => [
@@ -261,7 +262,7 @@ if ($arResult['CAN_INSTALL'])
 					}
 					else
 					{
-						$action = 'BX.rest.Marketplace.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
+						$action = 'BX.Market.Application.install(' . CUtil::PhpToJSObject($arParamsApp) . ');';
 					}
 				}
 				$message = '';
@@ -294,7 +295,7 @@ if ($arResult['CAN_INSTALL'])
 			$arParamsApp['STATUS'] = 'F';
 			if ($arResult['REST_ACCESS'])
 			{
-				$action = 'BX.rest.Marketplace.install( ' . CUtil::PhpToJSObject($arParamsApp) . ');';
+				$action = 'BX.Market.Application.install( ' . CUtil::PhpToJSObject($arParamsApp) . ');';
 			}
 			$buttonList[] = [
 				'TAGS' => [
@@ -551,6 +552,6 @@ $arJSParams = array(
 	BX.Rest.Marketplace.Detail.init(<?=CUtil::PhpToJSObject($arJSParams)?>);
 	BX.viewImageBind('detail_img_block', {resize: 'WH',cycle: true}, {tag:'IMG'});
 	<?php if ($arResult['START_INSTALL'] && $arResult['REST_ACCESS']):?>
-		BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);
+		BX.Market.Application.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);
 	<?php endif;?>
 </script>

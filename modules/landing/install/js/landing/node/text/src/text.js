@@ -227,7 +227,6 @@ export class Text extends Node
 				}
 
 				BX.Landing.UI.Tool.ColorPicker.hideAll();
-				BX.Landing.UI.Button.FontAction.hideAll();
 			}
 
 			requestAnimationFrame(function() {

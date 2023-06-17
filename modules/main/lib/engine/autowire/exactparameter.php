@@ -7,10 +7,9 @@ use Bitrix\Main\Result;
 
 class ExactParameter extends Parameter
 {
-	/** @var string */
-	private $parameterName;
+	private string $parameterName;
 
-	public function __construct($className, $parameterName, \Closure $constructor)
+	public function __construct(string $className, string $parameterName, \Closure $constructor)
 	{
 		if (!$this->validateConstructor($constructor))
 		{
@@ -24,12 +23,8 @@ class ExactParameter extends Parameter
 	protected function validateConstructor(\Closure $constructor)
 	{
 		$reflectionFunction = new \ReflectionFunction($constructor);
-		if ($reflectionFunction->getNumberOfParameters() < 1)
-		{
-			return false;
-		}
 
-		return true;
+		return $reflectionFunction->getNumberOfParameters() >= 1;
 	}
 
 	public function constructValue(\ReflectionParameter $parameter, Result $captureResult, $newThis = null)
@@ -53,7 +48,13 @@ class ExactParameter extends Parameter
 		$binder = Binder::buildForFunction($this->getConstructor());
 		$binder->setAutoWiredParameters($autoWiredParameters);
 
-		array_unshift($sourceParameters, ['className' => $parameter->getClass()->getName()]);
+		$reflectionClass = $this->buildReflectionClass($parameter);
+		if (!$reflectionClass)
+		{
+			throw new BinderArgumentException("Could not retrieve \\ReflectionClass for {$parameter->getName()}.");
+		}
+
+		array_unshift($sourceParameters, ['className' => $reflectionClass->getName()]);
 		$binder->setSourcesParametersToMap($sourceParameters);
 		try
 		{

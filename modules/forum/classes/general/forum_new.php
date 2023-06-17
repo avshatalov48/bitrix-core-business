@@ -1,4 +1,4 @@
-<?
+<?php
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
@@ -135,34 +135,31 @@ class CAllForumNew
 			}
 		}
 
-
-		if (is_set($arFields, "SITES") || $ACTION == "ADD")
+		if (isset($arFields["SITES"]) || $ACTION == "ADD")
 		{
-			if (is_array($arFields["SITES"]) && !empty($arFields["SITES"]))
+			$oldForumSites = is_array($arFields["SITES"]) ? $arFields["SITES"] : [];
+			$newForumSites = [];
+			$dbSites = CSite::GetList();
+			while ($res = $dbSites->Fetch())
 			{
-				$db_res = CSite::GetList();
-				$arSites = array();
-				while ($res = $db_res->Fetch())
+				$siteId = $res["LID"];
+				if (isset($oldForumSites[$siteId]))
 				{
-					if (is_set($arFields["SITES"], $res["LID"]))
+					if (!empty($oldForumSites[$siteId]))
 					{
-						if ($arFields["SITES"][$res["LID"]] <> '')
-							$arSites[$res["LID"]] = $arFields["SITES"][$res["LID"]];
-						else
-							$aMsg[] = array(
-								"id" => "SITE_PATH[".$res["LID"]."]",
-								"text" => GetMessage("F_ERROR_EMPTY_SITE_PATH",
-									array("#SITE_ID#" => $res["LID"], "#SITE_NAME#" => $res["NAME"])));
+						$newForumSites[$siteId] = $oldForumSites[$siteId];
+					}
+					else
+					{
+						$aMsg[] = [
+							"id" => "SITE_PATH[".$siteId."]",
+							"text" => GetMessage("F_ERROR_EMPTY_SITE_PATH",
+								["#SITE_ID#" => $siteId, "#SITE_NAME#" => $res["NAME"]])
+						];
 					}
 				}
-				$arFields["SITES"] = $arSites;
 			}
-			if (!is_array($arFields["SITES"]) || empty($arFields["SITES"]))
-			{
-				$aMsg[] = array(
-					"id" => "SITES",
-					"text" => GetMessage("F_ERROR_EMPTY_SITES"));
-			}
+			$arFields["SITES"] = $newForumSites;
 		}
 		if(!empty($aMsg))
 		{
@@ -1171,7 +1168,7 @@ class CAllForumNew
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
-		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"])<=0))
+		if ($bCount || (isset($arAddParams['bDescPageNumbering']) && empty($arAddParams['nTopCount'])))
 		{
 			$arCountSqlFrom = $arSqlFrom;
 			if (isset($arSqlFrom['RENEW']) && (mb_strpos($strSqlSearch, "RENEW.") === false))
@@ -1198,7 +1195,7 @@ class CAllForumNew
 				return $iCnt;
 		}
 
-		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0 && isset($arAddParams['nav_result']))
+		if (!$iNum && isset($arAddParams['bDescPageNumbering']) && empty($arAddParams["nTopCount"]) && isset($arAddParams['nav_result']))
 		{
 			if (!$arAddParams['nav_result'])
 			{
@@ -1299,10 +1296,9 @@ class CAllForumNew
 			LEFT JOIN b_forum_topic FT_ABS ON FM_ABS.TOPIC_ID = FT_ABS.ID
 			".$strSqlOrder;
 
-		$iNum = intval($iNum);
-		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0)
+		$iNum = intval($iNum ?: ($arAddParams["nTopCount"] ?? 0));
+		if ($iNum > 0)
 		{
-			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
 			$strSql .= " LIMIT 0,".$iNum;
 		}
 
@@ -1407,7 +1403,7 @@ SQL;
 		$cache_id = "b_forum_".$ID;
 		if ($ID <= 0):
 			return false;
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
+		elseif (!isset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]) || !is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
 			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID] = array();
 		endif;
 
@@ -1448,17 +1444,22 @@ SQL;
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = intval($ID);
-		$SITE_ID = ($SITE_ID == false || empty($SITE_ID) ? false : $SITE_ID);
-		$key = ($SITE_ID == false ? "EX" : "EX_PATH_".mb_strtoupper($SITE_ID));
-		$cache_id = "b_forum_".$ID.mb_strtolower($key);
-		if ($ID <= 0):
+		if ($ID <= 0)
+		{
 			return false;
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
+		}
+
+		$SITE_ID = $SITE_ID ?? false;
+		$key = (empty($SITE_ID) ? "EX" : "EX_PATH_".mb_strtoupper($SITE_ID));
+
+		if (!isset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]))
+		{
 			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID] = array();
-		endif;
+		}
 
 		if (!array_key_exists($key, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]))
 		{
+			$cache_id = "b_forum_".$ID.mb_strtolower($key);
 			if (CACHED_b_forum !== false && $CACHE_MANAGER->Read(CACHED_b_forum, $cache_id, "b_forum"))
 			{
 				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID][$key] = $CACHE_MANAGER->Get($cache_id);
@@ -1648,8 +1649,8 @@ SQL;
 
 		$arForum = CForumNew::GetByID($ID);
 
-		$arParams["ACTION"] = ($arParams["ACTION"] == "DECREMENT" || $arParams["ACTION"] == "UPDATE" ? $arParams["ACTION"] : "INCREMENT");
-		$arParams["POSTS"] = intval($arParams["POSTS"] > 0 ? $arParams["POSTS"] : 1);
+		$arParams["ACTION"] = isset($arParams["ACTION"]) && ($arParams["ACTION"] == "DECREMENT" || $arParams["ACTION"] == "UPDATE") ? $arParams["ACTION"] : "INCREMENT";
+		$arParams["POSTS"] = intval(isset($arParams["POSTS"]) && $arParams["POSTS"] > 0 ? $arParams["POSTS"] : 1);
 
 		$arFields = array();
 
@@ -2239,7 +2240,7 @@ class CAllForumGroup
 		$LANGUAGE_ID = (!empty($LANGUAGE_ID) ? $LANGUAGE_ID : LANGUAGE_ID);
 		$cache_id = "b_forum_group".$LANGUAGE_ID;
 
-		if (!is_array($GLOBALS["FORUM_CACHE"]["GROUPS"])):
+		if (!isset($GLOBALS["FORUM_CACHE"]["GROUPS"])):
 			$GLOBALS["FORUM_CACHE"]["GROUPS"] = array();
 		endif;
 

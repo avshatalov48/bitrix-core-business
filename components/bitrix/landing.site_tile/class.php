@@ -274,6 +274,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'contactsUrl' => $this->replaceLink($this->arParams['PAGE_URL_CONTACTS'], $item),
 				'pagesUrl' => $this->replaceLink($this->arParams['PAGE_URL_SITE'], $item),
 				'ordersUrl' => $this->replaceLink($this->arParams['PAGE_URL_CRM_ORDERS'], $item),
+				'indexEditUrl' => ($item['INDEX_EDIT_URI'] ?? '') ?: '',
 				'menuItems' => array_values($menuItems),
 				'menuBottomItems' => $menuBottomItems,
 				'access' => [

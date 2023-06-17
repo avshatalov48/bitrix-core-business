@@ -13,8 +13,8 @@ abstract class BaseService
 	/** @var static */
 	protected static $instance;
 
-	protected function __clone(){}
-	protected function __wakeup(){}
+	public function __clone(){}
+	public function __wakeup(){}
 
 	/**
 	 * @return static

@@ -694,6 +694,7 @@
 			}
 			console.log(date, format);
 			console.trace();
+			return '';
 		}
 		return BX.Main.Date.format(format, Math.round(date.getTime()/1000)+parseInt(BX.message("SERVER_TZ_OFFSET"))+parseInt(BX.message("USER_TZ_OFFSET")), Math.round((new Date).getTime()/1000)+parseInt(BX.message("SERVER_TZ_OFFSET"))+parseInt(BX.message("USER_TZ_OFFSET")), true);
 	};
@@ -720,21 +721,21 @@
 		}
 
 		var textReplacement = [];
-		messageText = messageText.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/ig, function(whole)
+		messageText = messageText.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/gi, function(whole)
 		{
 			var id = textReplacement.length;
 			textReplacement.push(whole);
 			return '####REPLACEMENT_TEXT_'+id+'####';
 		});
 
-		messageText = messageText.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function(whole)
+		messageText = messageText.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/gi, function(whole)
 		{
 			var id = textReplacement.length;
 			textReplacement.push(whole);
 			return '####REPLACEMENT_TEXT_'+id+'####';
 		});
 
-		messageText = messageText.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function(whole)
+		messageText = messageText.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/gi, function(whole)
 		{
 			var id = textReplacement.length;
 			textReplacement.push(whole);
@@ -775,11 +776,10 @@
 			if (url && url.indexOf('/') === 0)
 			{
 				url = currentDomain + url;
-				return encodeURI(url)
 			}
 		}
 
-		return url;
+		return encodeURI(url);
 	};
 
 	MessengerCommon.prototype.isBlankAvatar = function(url)
@@ -825,7 +825,8 @@
 		if (element.parentNode && element.parentNode.parentNode)
 		{
 			element.parentNode.parentNode.className = 'bx-messenger-message';
-			element.parentNode.parentNode.innerHTML = '<a href="'+link+'" target="_blank">'+link+'</a>';
+			element.parentNode.parentNode.innerHTML = BX.create('a', {attrs: {href: link, target: "_blank"}, text: decodeURI(link)}).outerHTML;
+
 		}
 
 		return true;
@@ -836,6 +837,11 @@
 	/* Section: Text */
 	MessengerCommon.prototype.prepareText = function(text, prepare, quote, image, highlightText, objectReference)
 	{
+		if (!text)
+		{
+			return text;
+		}
+
 		var textElement = text;
 		prepare = prepare == true;
 		quote = quote == true;
@@ -860,21 +866,21 @@
 			textElement = '<b>'+textElement+'</b>';
 		}
 
-		textElement = this.decodeBbCode(textElement, quote);
+		textElement = this.decodeBbCode(textElement);
+
+		if (prepare)
+		{
+			textElement = textElement.replace(/\n/gi, '<br />');
+		}
 
 		if (quote)
 		{
-			textElement = textElement.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\]<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function(whole, p1, p2, p3, p4, offset){
+			textElement = textElement.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\](?: #(?:(?:chat)?\d+|\d+:\d+)\/\d+)?<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function(whole, p1, p2, p3, p4, offset){
 				return (offset > 0? '<br>':'')+"<div class=\"bx-messenger-content-quote\"><span class=\"bx-messenger-content-quote-icon\"></span><div class=\"bx-messenger-content-quote-wrap\"><div class=\"bx-messenger-content-quote-name\">"+p1+" <span class=\"bx-messenger-content-quote-time\">"+p2+"</span></div>"+p3+"</div></div><br />";
 			});
 			textElement = textElement.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function(whole, p1, p2, p3, offset){
 				return (offset > 0? '<br>':'')+"<div class=\"bx-messenger-content-quote\"><span class=\"bx-messenger-content-quote-icon\"></span><div class=\"bx-messenger-content-quote-wrap\">"+p1+"</div></div><br />";
 			});
-		}
-
-		if (prepare)
-		{
-			textElement = textElement.replace(/\n/gi, '<br />');
 		}
 
 		var quoteSign = "&gt;&gt;";
@@ -898,17 +904,19 @@
 			textElement = textPrepare.join("<br />");
 		}
 
+		textElement = textElement.replace(/( ){4}/gi, '\t');
 		textElement = textElement.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
 
 		if (image)
 		{
 			var changed = false;
-			textElement = textElement.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function(whole, aInner, text, offset)
+			textElement = textElement.replace(/(.)?((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/gi, function(whole, letter, url)
 			{
 				if(
-					!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
-					|| text.toLowerCase().indexOf("/docs/pub/") > 0
-					|| text.toLowerCase().indexOf("logout=yes") > 0
+					letter && !(['>', ']'].includes(letter))
+					|| !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
+					|| url.toLowerCase().indexOf("/docs/pub/") > 0
+					|| url.toLowerCase().indexOf("logout=yes") > 0
 				)
 				{
 					return whole;
@@ -916,19 +924,22 @@
 				else if (BX.MessengerCommon.isMobile())
 				{
 					changed = true;
-					return (offset > 0? '<br />':'')+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+text+'" class="bx-messenger-file-image-text" onclick="BXIM.messenger.openPhotoGallery(this.src);" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
+					return (letter? letter: '')+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" class="bx-messenger-file-image-text" onclick="BXIM.messenger.openPhotoGallery(this.src);" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
 				}
 				else
 				{
 					changed = true;
 
 					var chatId = typeof(this.BXIM.messenger.getChatId) != 'undefined'? this.BXIM.messenger.getChatId(): this.BXIM.messenger.currentTab;
-					return (offset > 0? '<br />':'')+'<span class="bx-messenger-file-image"><a' +aInner+ ' target="_blank" class="bx-messenger-file-image-src"><img src="'+text+'" data-viewer="null" data-viewer-group-by="'+chatId+'" data-title="'+BX.util.jsencode(text)+'" class="bx-messenger-file-image-text" onerror="BX.MessengerCommon.hideErrorImage(this)"></a></span>';
+					return (letter? letter: '')+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" data-viewer="null" data-viewer-group-by="'+chatId+'" data-title="'+BX.util.jsencode(url)+'" class="bx-messenger-file-image-text" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
 				}
 			});
 			if (changed)
 			{
-				textElement = textElement.replace(/<\/span>(\n?)<br(\s\/?)>/ig, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/ig, '<br /><span');
+				textElement = textElement
+					.replace(/<\/span>(\n?)<\/a>(\n?)<br(\s\/?)>/gi, '</span></a>')
+					.replace(/<\/span>(\n?)(\n?)<br(\s\/?)>/gi, '</span>')
+				;
 			}
 		}
 
@@ -952,8 +963,8 @@
 		{
 			textElement = textElement.substr(0, textElement.length-6);
 		}
-		textElement = textElement.replace(/<br><br \/>/ig, '<br />');
-		textElement = textElement.replace(/<br \/><br>/ig, '<br />');
+		textElement = textElement.replace(/<br><br \/>/gi, '<br />');
+		textElement = textElement.replace(/<br \/><br>/gi, '<br />');
 
 		return textElement;
 	};
@@ -984,44 +995,50 @@
 				text = text.substr(0, text.length-6);
 			}
 
-			text = text.replace(/<br><br \/>/ig, '<br />');
-			text = text.replace(/<br \/><br>/ig, '<br />');
+			text = text.replace(/<br><br \/>/gi, '<br />');
+			text = text.replace(/<br \/><br>/gi, '<br />');
 
-			text = text.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/ig, function(whole,text) {
+			text = text.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/gis, function(whole,text) {
 				return '['+BX.message('IM_M_CODE_BLOCK')+'] ';
 			});
 
-			text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function(match)
+			text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/gi, function(match)
 			{
-				return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function(whole, command, text) {
+				return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/gi, function(whole, command, text) {
 					return  text? text: command;
 				});
 			});
 
-			text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function(match)
+			text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/gi, function(match)
 			{
-				return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function(whole, command, text) {
+				return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/gi, function(whole, command, text) {
 					return  text? text: command;
 				});
 			});
 
-			text = text.replace(/\[[buis]\](.*?)\[\/[buis]\]/ig, '$1');
-			text = text.replace(/\[url\](.*?)\[\/url\]/ig, '$1');
-			text = text.replace(/\[url=([^\]]+)](.*?)\[\/url]/ig, '$2');
-			text = text.replace(/\[RATING=([1-5]{1})\]/ig, function(whole, rating) {return '['+BX.message('IM_F_RATING')+'] ';});
-			text = text.replace(/\[ATTACH=([0-9]{1,})\]/ig, function(whole, rating) {return '['+BX.message('IM_F_ATTACH')+'] ';});
-			text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, '$2');
-			text = text.replace(/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/ig, '$2');
-			text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
-			text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/ig, '$2');
-			text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, '$2');
-			text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
-			text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/ig, '($1)');
-			text = text.replace(/<img.*?title="([^"]*)".*?>/ig, '($1)');
-			text = text.replace(/\[ATTACH=([0-9]{1,})\]/ig, function(whole, command, text) {return command == 10000? '': '['+BX.message('IM_F_ATTACH')+'] ';});
-			text = text.replace(/<s>([^"]*)<\/s>/ig, ' ');
-			text = text.replace(/\[s\]([^"]*)\[\/s\]/ig, ' ');
-			text = text.replace(/\[icon\=([^\]]*)\]/ig, function(whole)
+			text = this.recursiveReplace(text, /\[b]([^[]*(?:\[(?!b]|\/b])[^[]*)*)\[\/b]/gi, (whole, text) => text);
+			text = this.recursiveReplace(text, /\[u]([^[]*(?:\[(?!u]|\/u])[^[]*)*)\[\/u]/gi, (whole, text) => text);
+			text = this.recursiveReplace(text, /\[i]([^[]*(?:\[(?!i]|\/i])[^[]*)*)\[\/i]/gi, (whole, text) => text);
+			text = this.recursiveReplace(text, /\[s]([^[]*(?:\[(?!s]|\/s])[^[]*)*)\[\/s]/gi, (whole, text) => text);
+
+			text = text.replace(/\[url(?:=([^\[\]]+))?](.*?)\[\/url]/gis, (whole, link, text) => {return text? text: link;});
+			text = text.replace(/\[url(?:=(.+))?](.*?)\[\/url]/gis, (whole, link, text) => {return text? text: link;});
+			text = text.replace(/\[RATING=([1-5]{1})\]/gi, function(whole, rating) {return '['+BX.message('IM_F_RATING')+'] ';});
+			text = text.replace(/\[ATTACH=([0-9]{1,})\]/gi, function(whole, rating) {return '['+BX.message('IM_F_ATTACH')+'] ';});
+			text = text.replace(/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER\]/gi, '$3');
+			text = text.replace(/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/gi, '$2');
+			text = text.replace(/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/gis, (whole, dialogId, messageId, message) => message);
+			text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/gi, '$2');
+			text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, '$2');
+			text = text.replace(/\[size=(\d+)](.*?)\[\/size]/gis, '$2');
+			text = text.replace(/\[color=#([0-9a-f]{3}|[0-9a-f]{6})](.*?)\[\/color]/gis, '$2');
+			text = text.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1');
+			text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/gi, '($1)');
+			text = text.replace(/<img.*?title="([^"]*)".*?>/gi, '($1)');
+			text = text.replace(/\[ATTACH=([0-9]{1,})\]/gi, function(whole, command, text) {return command == 10000? '': '['+BX.message('IM_F_ATTACH')+'] ';});
+			text = text.replace(/<s>([^"]*)<\/s>/gi, ' ');
+			text = text.replace(/\[s\]([^"]*)\[\/s\]/gi, ' ');
+			text = text.replace(/\[icon\=([^\]]*)\]/gi, function(whole)
 			{
 				var title = whole.match(/title\=(.*[^\s\]])/i);
 				if (title && title[1])
@@ -1052,13 +1069,39 @@
 			}.bind(this));
 
 			text = text.split('<br />')
-				.map(function(element) { return element.replace(/(&gt;&gt;).+/ig, " ["+BX.message("IM_M_QUOTE_BLOCK")+"] ") })
+				.map(function(element) { return element.replace(/(>>).+/gi, " ["+BX.message("IM_M_QUOTE_BLOCK")+"] ") })
 				.join(' ')
 				.replace(/<\/?[^>]+>/gi, '')
 				.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmi, " ["+BX.message("IM_M_QUOTE_BLOCK")+"] ")
+				.replace(/-{54}(.*?)-{54}/gs, "["+BX.message("IM_M_QUOTE_BLOCK")+"]")
 			;
 
 			text = this.trimText(text);
+		}
+
+		if (params && params.ATTACH && params.ATTACH.length > 0)
+		{
+			const attachText = [];
+
+			let skipAttachBlock = false;
+			params.ATTACH.forEach(element => {
+				if (element.DESCRIPTION === 'SKIP_MESSAGE')
+				{
+					skipAttachBlock = true;
+				}
+				else if (element.DESCRIPTION)
+				{
+					attachText.push(this.purifyText(element.DESCRIPTION));
+				}
+			});
+
+			if (!skipAttachBlock)
+			{
+				text = text
+					+ (text? ' ': '')
+					+ (attachText.length > 0? attachText.join(' '): '['+BX.message('IM_F_ATTACH')+']')
+				;
+			}
 		}
 
 		if (text.length <= 0)
@@ -1067,7 +1110,7 @@
 			{
 				text = '['+BX.message('IM_F_FILE')+']';
 			}
-			else if (params && (params.WITH_ATTACH ||params.ATTACH && params.ATTACH.length > 0))
+			else if (params && params.WITH_ATTACH)
 			{
 				text = '['+BX.message('IM_F_ATTACH')+']';
 			}
@@ -1080,12 +1123,25 @@
 		return text;
 	};
 
-	MessengerCommon.prototype.decodeBbCode = function(textElement, textOnly, messageId)
+	MessengerCommon.prototype.decodeBbCode = function(textElement, textOnly, specialchars)
 	{
-		textOnly = typeof(textOnly)? false: textOnly;
+		if (!textElement)
+		{
+			return textElement;
+		}
+
+		textElement = textElement.toString();
+
+		textOnly = typeof(textOnly) === 'undefined'? false: textOnly;
+		specialchars = typeof(specialchars) === 'undefined'? false: specialchars === true;
+
+		if (specialchars)
+		{
+			textElement = BX.util.htmlspecialchars(textElement);
+		}
 
 		var putReplacement = [];
-		textElement = textElement.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function(whole)
+		textElement = textElement.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/gi, function(whole)
 		{
 			var id = putReplacement.length;
 			putReplacement.push(whole);
@@ -1093,7 +1149,7 @@
 		});
 
 		var sendReplacement = [];
-		textElement = textElement.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function(whole)
+		textElement = textElement.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/gi, function(whole)
 		{
 			var id = sendReplacement.length;
 			sendReplacement.push(whole);
@@ -1101,16 +1157,17 @@
 		});
 
 		var codeReplacement = [];
-		textElement = textElement.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/ig, function(whole,text)
+		textElement = textElement.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/gis, function(whole,text)
 		{
 			var id = codeReplacement.length;
 			codeReplacement.push(text);
 			return '####REPLACEMENT_CODE_'+id+'####';
 		});
 
-		textElement = textElement.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
+		// base pattern for urls
+		textElement = textElement.replace(/\[url(?:=([^\[\]]+))?](.*?)\[\/url]/gis, function(whole, link, text)
 		{
-			link = BX.util.htmlspecialcharsback(link);
+			link = BX.util.htmlspecialcharsback(link? link: text);
 
 			try
 			{
@@ -1145,9 +1202,10 @@
 			return tag.outerHTML;
 		});
 
-		textElement = textElement.replace(/\[url\]([^\]]+)\[\/url\]/ig, function(whole, link)
+		// url like https://bitrix24.com/?params[1]="test"
+		textElement = textElement.replace(/\[url(?:=(.+?[^[\]]))?](.*?)\[\/url]/gis, (whole, link, text) =>
 		{
-			link = BX.util.htmlspecialcharsback(link);
+			link = BX.util.htmlspecialcharsback(link? link: text);
 
 			try
 			{
@@ -1174,21 +1232,70 @@
 				return whole;
 			}
 
-			var tag = document.createElement('a');
-			tag.href = url.href;
-			tag.target = '_blank';
-			tag.text = link;
+			url = url.href;
 
-			return tag.outerHTML;
+			if (!url.slice(url.lastIndexOf('[')).includes(']'))
+			{
+				if (text.startsWith(']'))
+				{
+					url = `${url}]`;
+					text = text.slice(1);
+				}
+				else if (text.startsWith('='))
+				{
+					const urlPart = BX.Text.decode(text.slice(1, text.lastIndexOf(']')));
+					url = `${url}]=${urlPart}`;
+					text = text.slice(text.lastIndexOf(']')+1);
+				}
+			}
+
+			return BX.Dom.create({
+				tag: 'a',
+				attrs: {
+					href: url,
+					target: '_blank'
+				},
+				html: text
+			}).outerHTML;
 		});
 
-		textElement = textElement.replace(/\[BR\]/ig, '<br/>');
-		textElement = textElement.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function(whole, open, inner, close) { return '<'+open+'>'+inner+'<'+close+'>' });
+		textElement = textElement.replace(/\[BR\]/gi, '<br/>');
 
-		textElement = textElement.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like" title="'+BX.message('IM_MESSAGE_LIKE')+'"></span>');
-		textElement = textElement.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike" title="'+BX.message('IM_MESSAGE_DISLIKE')+'"></span>');
+		textElement = this.recursiveReplace(textElement, /\[b]([^[]*(?:\[(?!b]|\/b])[^[]*)*)\[\/b]/gi, (whole, text) => '<b>'+text+'</b>');
+		textElement = this.recursiveReplace(textElement, /\[u]([^[]*(?:\[(?!u]|\/u])[^[]*)*)\[\/u]/gi, (whole, text) => '<u>'+text+'</u>');
+		textElement = this.recursiveReplace(textElement, /\[i]([^[]*(?:\[(?!i]|\/i])[^[]*)*)\[\/i]/gi, (whole, text) => '<i>'+text+'</i>');
+		textElement = this.recursiveReplace(textElement, /\[s]([^[]*(?:\[(?!s]|\/s])[^[]*)*)\[\/s]/gi, (whole, text) => '<s>'+text+'</s>');
 
-		textElement = textElement.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, BX.delegate(function(whole, userId, text)
+		textElement = textElement.replace(/\[size=(\d+)(?:pt|px)?](.*?)\[\/size]/gis, (whole, number, text) => {
+			number = Number.parseInt(number, 10);
+			if (number <= 8)
+			{
+				number = 8;
+			}
+			else if (number >= 30)
+			{
+				number = 30;
+			}
+
+			return BX.Dom.create({
+				tag: 'span',
+				style: { fontSize: number + 'px' },
+				html: text
+			}).outerHTML;
+		});
+
+		textElement = textElement.replace(/\[color=#([0-9a-f]{3}|[0-9a-f]{6})](.*?)\[\/color]/gis, (whole, hex, text) => {
+			return BX.Dom.create({
+				tag: 'span',
+				style: { color: '#'+ hex },
+				html: text
+			}).outerHTML;
+		});
+
+		textElement = textElement.replace(/\[LIKE\]/gi, '<span class="bx-smile bx-im-smile-like" title="'+BX.message('IM_MESSAGE_LIKE')+'"></span>');
+		textElement = textElement.replace(/\[DISLIKE\]/gi, '<span class="bx-smile bx-im-smile-dislike" title="'+BX.message('IM_MESSAGE_DISLIKE')+'"></span>');
+
+		textElement = textElement.replace(/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER\]/gi, BX.delegate(function(whole, userId, replace, text)
 		{
 			var html = '';
 
@@ -1204,7 +1311,7 @@
 			return html;
 		}, this));
 
-		textElement = textElement.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function(whole, openlines, chatId, text)
+		textElement = textElement.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/gi, function(whole, openlines, chatId, text)
 		{
 			var html = '';
 
@@ -1229,11 +1336,11 @@
 			return html;
 		});
 
-		textElement = textElement.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, text) => {
+		textElement = textElement.replace(/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/gis, (whole, dialogId, messageId, text) => {
 			return text;
 		});
 
-		textElement = textElement.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function(whole, historyId, text)
+		textElement = textElement.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, function(whole, historyId, text)
 		{
 			var html = '';
 
@@ -1247,7 +1354,7 @@
 		});
 
 
-		textElement = textElement.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, function(whole, command, text)
+		textElement = textElement.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/gi, function(whole, command, text)
 		{
 			var html = '';
 
@@ -1264,10 +1371,10 @@
 		var textElementSize = 0;
 		if (this.BXIM.settings.enableBigSmile)
 		{
-			textElementSize = BX.util.trim(textElement.replace(/\[icon\=([^\]]*)\]/ig, '')).length;
+			textElementSize = BX.util.trim(textElement.replace(/\[icon\=([^\]]*)\]/gi, '')).length;
 		}
 
-		textElement = textElement.replace(/\[icon\=([^\]]*)\]/ig, BX.delegate(function(whole)
+		textElement = textElement.replace(/\[icon\=([^\]]*)\]/gi, BX.delegate(function(whole)
 		{
 			var url = whole.match(/icon\=(\S+[^\s.,> )\];\'\"!?])/i);
 			if (url && url[1])
@@ -1363,7 +1470,7 @@
 
 
 
-		textElement = textElement.replace(/\[RATING\=([1-5]{1})\]/ig, BX.delegate(function(whole, rating)
+		textElement = textElement.replace(/\[RATING\=([1-5]{1})\]/gi, BX.delegate(function(whole, rating)
 		{
 			return this.linesVoteHeadNodes(0, rating, false).outerHTML;
 		}, this));
@@ -1381,6 +1488,12 @@
 		//	return "<strike>"+text+"</strike>";
 		//});
 
+		const Parser = BX.Reflection.getClass('BX.Messenger.v2.Lib.Parser');
+		if (Parser)
+		{
+			textElement = Parser.decodeSmileForLegacyCore(textElement, {enableBigSmile: this.BXIM.settings.enableBigSmile})
+		}
+
 		if (sendReplacement.length > 0)
 		{
 			for (var index = 0; index < sendReplacement.length; index++)
@@ -1389,9 +1502,9 @@
 			}
 		}
 
-		textElement = textElement.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function(match)
+		textElement = textElement.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/gi, function(match)
 		{
-			return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function(whole, command, text)
+			return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/gi, function(whole, command, text)
 			{
 				var html = '';
 
@@ -1424,9 +1537,9 @@
 			}
 		}
 
-		textElement = textElement.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function(match)
+		textElement = textElement.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/gi, function(match)
 		{
-			return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function(whole, command, text)
+			return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/gi, function(whole, command, text)
 			{
 				var html = '';
 
@@ -1489,6 +1602,29 @@
 		return textElement;
 	}
 
+	MessengerCommon.prototype.recursiveReplace = function(text, pattern, replacement)
+	{
+		if (!BX.Type.isStringFilled(text))
+		{
+			return text;
+		}
+
+		let count = 0;
+		let deep = true;
+		do
+		{
+			deep = false;
+			count++;
+			text = text.replace(pattern, (...params) => {
+				deep = true;
+				return replacement(...params);
+			});
+		}
+		while (deep && count <= 10);
+
+		return text;
+	}
+
 	MessengerCommon.prototype.openLink = function(link, target)
 	{
 		target = target || '_blank';
@@ -1548,12 +1684,12 @@
 		trueQuote = trueQuote === true;
 
 		textElement = BX.util.htmlspecialcharsback(textElement);
-		textElement = textElement.replace(/<(\/*)([buis]+)>/ig, '[$1$2]');
-		textElement = textElement.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
-		textElement = textElement.replace(/<a.*?href="([^"]*)".*?>.*?<\/a>/ig, '$1');
+		textElement = textElement.replace(/<(\/*)([buis]+)>/gi, '[$1$2]');
+		textElement = textElement.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1');
+		textElement = textElement.replace(/<a.*?href="([^"]*)".*?>.*?<\/a>/gi, '$1');
 		if (!trueQuote)
 		{
-			textElement = textElement.replace(/\[CODE\]\n?([\0-\uFFFF]*?)(<br\/?>)?\[\/CODE\]/ig, "["+BX.message("IM_M_CODE_BLOCK")+"]");
+			textElement = textElement.replace(/\[CODE\]\n?([\0-\uFFFF]*?)(<br\/?>)?\[\/CODE\]/gis, "["+BX.message("IM_M_CODE_BLOCK")+"]");
 			textElement = textElement.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmi, "["+BX.message("IM_M_QUOTE_BLOCK")+"]");
 		}
 		textElement = textElement.split('&nbsp;&nbsp;&nbsp;&nbsp;').join("\t");
@@ -1602,7 +1738,7 @@
 			try
 			{
 				text = text.replace(RegExp('-{54}\n(.*?)\n-{54}', 'gs'), function(whole){
-					return whole.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, '$2');
+					return whole.replace(/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER\]/gi, '$3');
 				});
 			}
 			catch(e) {}
@@ -3787,10 +3923,10 @@
 			}
 		}.bind(this));
 
-		this.BXIM.mailCount = counters.mail;
-		this.BXIM.notifyCount = counters.notify;
-		this.BXIM.messageCount = counters.dialog + counters.chat;
-		this.BXIM.linesCount = counters.lines;
+		this.BXIM.mailCount = counters.type.mail;
+		this.BXIM.notifyCount = counters.type.notify;
+		this.BXIM.messageCount = counters.type.dialog + counters.type.chat;
+		this.BXIM.linesCount = counters.type.lines;
 	}
 
 	MessengerCommon.prototype.recentListBirthdayApply = function()
@@ -3891,7 +4027,8 @@
 				'senderId': 0,
 				'recipientId': userId,
 				'date': birthdayDate,
-				'text': BX.message('IM_M_BIRTHDAY_MESSAGE').replace('#USER_NAME#', '<span class="bx-messenger-birthday-icon"></span><strong>'+this.BXIM.messenger.users[userId].name+'</strong>')
+				'text': BX.message('IM_M_BIRTHDAY_MESSAGE').replace('#USER_NAME#', '<span class="bx-messenger-birthday-icon"></span><strong>'+this.BXIM.messenger.users[userId].name+'</strong>'),
+				'textOriginal': BX.message('IM_M_BIRTHDAY_MESSAGE').replace('#USER_NAME#', this.BXIM.messenger.users[userId].name)
 			};
 
 			if (!this.BXIM.messenger.showMessage[userId])
@@ -5470,10 +5607,25 @@
 		return list;
 	}
 
+	MessengerCommon.prototype.convertMessage = function(message)
+	{
+		if (typeof message.textOriginal !== 'undefined')
+		{
+			return message;
+		}
+
+		message.textOriginal = message.text;
+		message.text = BX.MessengerCommon.prepareText(message.text, true, true, true);
+
+		return message;
+	}
+
 	MessengerCommon.prototype.drawMessage = function(dialogId, message, scroll, appendTop)
 	{
 		if (typeof(message) != 'object' || this.BXIM.messenger.popupMessenger == null)
 			return false;
+
+		message = this.convertMessage(message);
 
 		var placeholder = this.BXIM.messenger.popupMessengerBodyWrap;
 		var placeholderName = 'default';
@@ -5518,8 +5670,6 @@
 		var edited = message.params && message.params.IS_EDITED == 'Y';
 		var deleted = message.params && message.params.IS_DELETED == 'Y';
 
-		message.text = typeof message.textLegacy !== 'undefined'? message.textLegacy: message.text;
-
 		var messageText = deleted? BX.message('IM_M_DELETED'): message.text;
 		var temp = message.id.toString().indexOf('temp') == 0;
 		var retry = temp && message.retry;
@@ -5528,29 +5678,6 @@
 		var withAppsMenu = message.params && message.params.MENU && message.params.MENU != 'N';
 
 		messageText = this.replaceDateText(message.id, messageText, message.params);
-
-		if (temp)
-		{
-			messageText = messageText.replace(/(^|[^"'])((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/ig, function(whole, prelink, link)
-			{
-				if(
-					!link.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
-					|| link.toLowerCase().indexOf("/docs/pub/") > 0
-					|| link.toLowerCase().indexOf("logout=yes") > 0
-				)
-				{
-					return whole;
-				}
-				else if (BX.MessengerCommon.isMobile())
-				{
-					return prelink+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+link+'" class="bx-messenger-file-image-text" onclick="BXIM.messenger.openPhotoGallery(this.src);" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
-				}
-				else
-				{
-					return prelink+'<span class="bx-messenger-file-image"><a href="'+link+'" target="_blank" class="bx-messenger-file-image-src"><img src="'+link+'" class="bx-messenger-file-image-text" onerror="BX.MessengerCommon.hideErrorImage(this)"></a></span>';
-				}
-			});
-		}
 
 		if (customPlace)
 		{
@@ -5653,7 +5780,7 @@
 			&& !message.params.LINK_ACTIVE.map(function(userId) { return parseInt(userId) }).includes(this.BXIM.userId)
 		)
 		{
-			messageText = messageText.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/ig, '$2');
+			messageText = messageText.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/gi, '$2');
 		}
 
 		var extraClass = "";
@@ -5898,7 +6025,7 @@
 		{
 			if (messageText.length > 0)
 			{
-				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
+				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
 				if (!checkImages)
 				{
 					messageWithoutPadding = true;
@@ -5915,7 +6042,7 @@
 				messageOnlyRichLink = true;
 			}
 
-			parsedText = temp? messageText: this.prepareText(
+			parsedText = !temp? messageText: this.prepareText(
 				messageText,
 				false,
 				true,
@@ -5979,6 +6106,7 @@
 							]}),
 							BX.create("span", {  props : { className : "bx-messenger-content-item-params"}, children: [
 								BX.create("span", { props : { className : "bx-messenger-content-item-date"}, html: this.formatDate(message.date, this.getDateFormatType('MESSAGE'))}),
+								message.params.BETA != 'Y'? null: BX.create("span", { props : { className : "bx-messenger-content-item-beta"}, attrs: {title: BX.message('IM_BETA')}, html: '<beta>&beta;</beta>'}),
 							]}),
 							BX.create("span", { props : { className : "bx-messenger-clear"}})
 						]})
@@ -6035,6 +6163,7 @@
 									BX.create("span", { attrs : {'data-messageId': message.id}, props : { className : "bx-messenger-content-like-button"}, html: BX.message('IM_MESSAGE_LIKE')})
 								]}),
 								BX.create("span", { props : { className : "bx-messenger-content-item-date"}, html: (retry? BX.message('IM_M_NOT_DELIVERED') : this.formatDate(message.date, this.getDateFormatType('MESSAGE')))}),
+								message.params.BETA != 'Y'? null: BX.create("span", { props : { className : "bx-messenger-content-item-beta"}, attrs: {title: BX.message('IM_BETA')}, html: '<beta>&beta;</beta>'}),
 							]}),
 							BX.create("span", { props : { className : "bx-messenger-clear"}})
 						]})
@@ -6077,6 +6206,7 @@
 									BX.create("span", { attrs : {'data-messageId': message.id}, props : { className : "bx-messenger-content-like-button"}, html: BX.message('IM_MESSAGE_LIKE')})
 								]}),
 								BX.create("span", { props : { className : "bx-messenger-content-item-date"}, html: this.formatDate(message.date, this.getDateFormatType('MESSAGE'))}),
+								message.params.BETA != 'Y'? null: BX.create("span", { props : { className : "bx-messenger-content-item-beta"}, attrs: {title: BX.message('IM_BETA')}, html: '<beta>&beta;</beta>'}),
 							]}),
 							BX.create("span", { props : { className : "bx-messenger-clear"}})
 						]})
@@ -6349,6 +6479,14 @@
 			{
 				delete this.BXIM.messenger.popupMessengerSendingTimeout[messageId];
 			}
+			else if (
+				typeof this.BXIM.messenger.message[messageId].params.FILE_ID !== 'undefined'
+				&& this.BXIM.messenger.message[messageId].params.FILE_ID.length > 0
+				&& parseInt(this.BXIM.messenger.message[messageId].params.SENDING_TS)+3600 < ((new Date).getTime()/1000)
+			)
+			{
+				this.drawProgessMessage(messageId);
+			}
 			else if (parseInt(this.BXIM.messenger.message[messageId].params.SENDING_TS)+300 < ((new Date).getTime()/1000))
 			{
 				this.drawProgessMessage(messageId);
@@ -6363,7 +6501,7 @@
 			return false;
 
 		BX.addClass(element.parentNode.parentNode.parentNode.parentNode.parentNode, 'bx-messenger-content-item-content-progress');
-		BX.MessengerTimer.start('progressMessage', messageId, 5000, function(id) {
+		BX.MessengerTimer.start('progressMessage', messageId, 1000, function(id) {
 			var element = BX('im-message-'+id);
 			if (!element)
 				return false;
@@ -6374,12 +6512,23 @@
 		element.parentNode.parentNode.parentNode.previousSibling.innerHTML = '';
 
 		var isDelivered = true;
+
+		var hasParams = this.BXIM.messenger.message[messageId] && this.BXIM.messenger.message[messageId].params;
+		var isNotDelivered = this.BXIM.messenger.message[messageId].params.IS_DELIVERED == 'N';
+		var isSending = this.BXIM.messenger.message[messageId].params.SENDING == 'Y' && typeof this.BXIM.messenger.message[messageId].params.SENDING_TS !== 'undefined';
+		var hasFiles = typeof this.BXIM.messenger.message[messageId].params.FILE_ID === 'object' && this.BXIM.messenger.message[messageId].params.FILE_ID.length > 0;
+
 		if (
-			this.BXIM.messenger.message[messageId]
-			&& this.BXIM.messenger.message[messageId].params
+			hasParams
 			&& (
-				this.BXIM.messenger.message[messageId].params.SENDING == 'Y' && parseInt(this.BXIM.messenger.message[messageId].params.SENDING_TS)+300 < (new Date()).getTime()/1000
-				|| this.BXIM.messenger.message[messageId].params.IS_DELIVERED == 'N'
+				isNotDelivered
+				|| (
+					isSending
+					&& (
+						hasFiles && parseInt(this.BXIM.messenger.message[messageId].params.SENDING_TS)+3600 < ((new Date).getTime()/1000)
+						|| !hasFiles && parseInt(this.BXIM.messenger.message[messageId].params.SENDING_TS)+300 < (new Date()).getTime()/1000
+					)
+				)
 			)
 		)
 		{
@@ -6393,6 +6542,7 @@
 			if (lastMessageElementDate)
 				lastMessageElementDate.innerHTML = BX.message('IM_M_NOT_DELIVERED');
 		}
+
 		if (
 			this.BXIM.messenger.message[messageId]
 			&& this.BXIM.messenger.message[messageId].params
@@ -7324,7 +7474,6 @@
 				data.USERS_MESSAGE = {};
 
 				params.message.date = new Date(params.message.date);
-				params.message.text = typeof params.message.textLegacy !== 'undefined'? params.message.textLegacy: params.message.text;
 
 				for (var i in params.chat)
 				{
@@ -7432,6 +7581,20 @@
 						}
 					}
 
+					var messageKeyboardBox = BX('im-message-keyboard-'+params.message.templateId);
+					if (messageKeyboardBox)
+					{
+						messageKeyboardBox.id = 'im-message-keyboard-'+params.message.id;
+					}
+					else
+					{
+						messageKeyboardBox = BX('im-message-keyboard-empty-'+params.message.templateId);
+						if (messageKeyboardBox)
+						{
+							messageKeyboardBox.id = 'im-message-keyboard-empty-'+params.message.id;
+						}
+					}
+
 					this.BXIM.messenger.message[params.message.id] = params.message;
 					delete this.BXIM.messenger.message[params.message.templateId];
 
@@ -7449,6 +7612,50 @@
 					{
 						this.BXIM.disk.files[params.chatId][params.message.templateFileId] = params.files[params.message.params.FILE_ID[0]];
 						this.diskRedrawFile(params.chatId, params.message.templateFileId);
+					}
+
+					var messageBox = BX('im-message-'+params.message.id);
+					messageBox.innerHTML = this.prepareText(params.message.text, true, true, true);
+
+					if (params.message.params)
+					{
+						if (params.message.params.URL_ONLY == 'Y' && this.BXIM.settings.enableRichLink)
+						{
+							BX.addClass(messageBox.parentNode.parentNode.parentNode.parentNode, 'bx-messenger-content-item-content-rich-link');
+						}
+
+						if (params.message.params.LARGE_FONT == 'Y' && this.BXIM.settings.enableBigSmile)
+						{
+							BX.addClass(messageBox.parentNode.parentNode.parentNode.parentNode, 'bx-messenger-content-item-content-large-font');
+						}
+						else
+						{
+							BX.removeClass(messageBox.parentNode.parentNode.parentNode.parentNode, 'bx-messenger-content-item-content-large-font');
+						}
+						if (params.message.params.ATTACH)
+						{
+							var attachNode = BX.MessengerCommon.drawAttach(params.message.id, this.BXIM.messenger.message[params.message.id].chatId, params.message.params.ATTACH);
+							if (messageBox.nextElementSibling && BX.hasClass(messageBox.nextElementSibling, 'bx-messenger-attach-box'))
+							{
+								messageBox.nextElementSibling.innerHTML = '';
+								if (attachNode.length > 0)
+								{
+									BX.adjust(messageBox.nextElementSibling, {children: attachNode});
+								}
+							}
+							else if (attachNode.length > 0)
+							{
+								attachNode = BX.create("div", {props : {className : "bx-messenger-attach-box"}, children : attachNode});
+								if (messageBox.nextElementSibling)
+								{
+									messageBox.parentNode.insertBefore(attachNode, messageBox.nextElementSibling);
+								}
+								else
+								{
+									messageBox.parentNode.appendChild(attachNode);
+								}
+							}
+						}
 					}
 				}
 				else
@@ -7518,7 +7725,7 @@
 							date: params.message.date,
 							author_id: params.message.senderId,
 							status: 'received',
-							text: params.message.text,
+							text: BX.util.htmlspecialchars(params.message.textOriginal),
 							attach: params.message.params && params.message.params.ATTACH? params.message.params.ATTACH.length > 0: false,
 							file: params.message.params && params.message.params.FILE_ID? params.message.params.FILE_ID.length > 0: false,
 						},
@@ -7602,7 +7809,7 @@
 							date: params.message.date,
 							author_id: params.message.senderId,
 							status: 'delivered',
-							text: params.message.text,
+							text: BX.util.htmlspecialchars(params.message.textOriginal),
 							attach: params.message.params && params.message.params.ATTACH? params.message.params.ATTACH.length > 0: false,
 							file: params.message.params && params.message.params.FILE_ID? params.message.params.FILE_ID.length > 0: false,
 						},
@@ -7715,14 +7922,8 @@
 						this.BXIM.messenger.message[params.id].params = params.params;
 					}
 
-					if (typeof params.textLegacy !== 'undefined')
-					{
-						params.textOriginal = params.text;
-						params.text = params.textLegacy;
-					}
-
-					this.BXIM.messenger.message[params.id].text = params.text;
-					this.BXIM.messenger.message[params.id].textOriginal = params.textOriginal;
+					this.BXIM.messenger.message[params.id].text = BX.MessengerCommon.prepareText(params.text, true, true, true);
+					this.BXIM.messenger.message[params.id].textOriginal = params.text;
 
 					if (params.type == 'private')
 					{
@@ -7837,7 +8038,7 @@
 
 						if (!textAlreadyUpdated)
 						{
-							messageBox.innerHTML = BX.MessengerCommon.prepareText(this.BXIM.messenger.message[params.id].text, false, true, true);
+							messageBox.innerHTML = BX.MessengerCommon.prepareText(this.BXIM.messenger.message[params.id].text, true, true, true);
 						}
 
 						BX.addClass(messageBox, 'bx-messenger-message-edited-anim');
@@ -8373,6 +8574,7 @@
 						recipientId: recent.id,
 						senderId: recent.message.author_id,
 						text: recent.message.text,
+						textOriginal: recent.message.text,
 						fake: true,
 					};
 					if (!this.BXIM.messenger.flashMessage[recent.id])
@@ -8649,6 +8851,8 @@
 					return false;
 
 				params.date = new Date(params.date);
+				params.text = BX.MessengerCommon.prepareText(params.text, true, true, false);
+
 				var data = {};
 				data.UNREAD_NOTIFY = {};
 				data.UNREAD_NOTIFY[params.id] = [params.id];
@@ -8685,6 +8889,7 @@
 					return false;
 
 				this.BXIM.notify.initNotifyCount = params.counter;
+				this.BXIM.notify.notifyCount = params.counter;
 
 				params.list.forEach(function(id){
 					delete this.BXIM.notify.unreadNotify[id];
@@ -9129,13 +9334,14 @@
 		{
 			for (var i in data.MESSAGE)
 			{
-				data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
-				data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
-
 				if (this.BXIM.messenger.message[i] && this.BXIM.messenger.message[i].dropDuplicate)
 				{
 					data.MESSAGE[i].dropDuplicate = true;
 				}
+
+				data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
+				data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
+				data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, true, true, true);
 
 				this.BXIM.messenger.message[i] = data.MESSAGE[i];
 				this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
@@ -9864,7 +10070,8 @@
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
-						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+						data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
+						data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, true, true, true);
 
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 
@@ -10063,8 +10270,10 @@
 					for (var i in data.MESSAGE)
 					{
 						messageCnt++;
+
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
-						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+						data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
+						data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, true, true, true);
 
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 						this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
@@ -10498,8 +10707,10 @@
 				for (var i in data.MESSAGE)
 				{
 					messageCnt++;
+
 					data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
-					data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+					data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
+					data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, true, true, true);
 
 					this.BXIM.messenger.message[i] = data.MESSAGE[i];
 					this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
@@ -11372,9 +11583,10 @@
 
 					if (this.BXIM.messenger.message[data.TMP_ID])
 					{
-						this.BXIM.messenger.message[data.TMP_ID].text = data.SEND_MESSAGE;
-						this.BXIM.messenger.message[data.TMP_ID].id = data.ID;
 						this.BXIM.messenger.message[data.TMP_ID].date = new Date(data.SEND_DATE);
+						this.BXIM.messenger.message[data.TMP_ID].textOriginal = data.SEND_MESSAGE;
+						this.BXIM.messenger.message[data.TMP_ID].text = BX.MessengerCommon.prepareText(data.SEND_MESSAGE, true, true, true);
+						this.BXIM.messenger.message[data.TMP_ID].id = data.ID;
 
 						if (data.SEND_MESSAGE_PARAMS)
 						{
@@ -11443,6 +11655,20 @@
 							}
 						}
 
+						var messageKeyboardBox = BX('im-message-keyboard-'+data.TMP_ID);
+						if (messageKeyboardBox)
+						{
+							messageKeyboardBox.id = 'im-message-keyboard-'+data.ID;
+						}
+						else
+						{
+							messageKeyboardBox = BX('im-message-keyboard-empty-'+data.TMP_ID);
+							if (messageKeyboardBox)
+							{
+								messageKeyboardBox.id = 'im-message-keyboard-empty-'+data.ID;
+							}
+						}
+
 						BX.MessengerCommon.clearProgessMessage(data.TMP_ID);
 
 						var textElement = BX('im-message-'+data.TMP_ID);
@@ -11454,7 +11680,7 @@
 						{
 							textElement.id = 'im-message-'+data.ID;
 							var objectReference = {oneSmileInMessage: false};
-							textElement.innerHTML =  BX.MessengerCommon.prepareText(data.SEND_MESSAGE, false, true, true, null, objectReference);
+							textElement.innerHTML = BX.MessengerCommon.prepareText(data.SEND_MESSAGE, true, true, true, null, objectReference);
 							if (objectReference.oneSmileInMessage)
 							{
 								var elementContent = BX.findChildByClassName(element, "bx-messenger-content-item-content");
@@ -11571,7 +11797,7 @@
 					}
 
 					BX.MessengerCommon.updateStateVar(data, true, true);
-					BX.localStorage.set('msm', {'id': data.ID, 'recipientId': data.RECIPIENT_ID, 'date': data.SEND_DATE, 'text' : data.SEND_MESSAGE, 'senderId' : this.BXIM.userId, 'MESSAGE': data.MESSAGE, 'USERS_MESSAGE': data.USERS_MESSAGE, 'USERS': data.USERS, 'USER_IN_GROUP': data.USER_IN_GROUP}, 5);
+					BX.localStorage.set('msm2', {'id': data.ID, 'recipientId': data.RECIPIENT_ID, 'date': data.SEND_DATE, 'text' : data.SEND_MESSAGE, 'senderId' : this.BXIM.userId, 'MESSAGE': data.MESSAGE, 'USERS_MESSAGE': data.USERS_MESSAGE, 'USERS': data.USERS, 'USER_IN_GROUP': data.USER_IN_GROUP}, 5);
 
 					if (this.isMobile() && document.body.offsetHeight <= window.innerHeight)
 					{
@@ -12049,6 +12275,7 @@
 			return false;
 		}
 
+		this.BXIM.messenger.message[id].text = BX.MessengerCommon.prepareText(text, true, true, true);
 		this.BXIM.messenger.message[id].textOriginal = text;
 
 		text = BX.MessengerCommon.prepareMention(this.BXIM.messenger.currentTab, text);
@@ -12556,7 +12783,7 @@
 						}
 						else if (attach.USER[i].LINK)
 						{
-							linkTitle = BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.USER[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-attach-user-name"}, text: attach.USER[i].NAME});
+							linkTitle = BX.create("a", {attrs: {'href': this.formatUrl(attach.USER[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-attach-user-name"}, text: attach.USER[i].NAME});
 						}
 						else
 						{
@@ -12576,7 +12803,7 @@
 						var userNode = BX.create("span", { props : { className: "bx-messenger-attach-user"}, children: [
 							BX.create("span", { props : { className: "bx-messenger-attach-user-avatar"}, children: [
 								attach.USER[i].AVATAR?
-									BX.create("img", { attrs:{'src': BX.util.htmlspecialcharsback(this.formatUrl(attach.USER[i].AVATAR))}, props : { className: "bx-messenger-attach-user-avatar-img"}}):
+									BX.create("img", { attrs:{'src': this.formatUrl(attach.USER[i].AVATAR)}, props : { className: "bx-messenger-attach-user-avatar-img"}}):
 									BX.create("span", { attrs: {style: "background-color: "+color}, props : { className: "bx-messenger-attach-user-avatar-img bx-messenger-attach-"+avatarType+"-avatar-default "}})
 							]}),
 							linkTitle
@@ -12606,26 +12833,25 @@
 						else
 						{
 							linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-link-name"}, children: [
-								BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.LINK[i].LINK), 'target': '_blank'}, text: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK})
+								BX.create("a", {attrs: {'href': this.formatUrl(attach.LINK[i].LINK), 'target': '_blank'}, text: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK})
 							]});
 						}
 
 						var linkDesc = null;
-						if (attach.LINK[i].DESC)
+						if (attach.LINK[i].HTML)
 						{
-							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-link-desc"}, text: attach.LINK[i].DESC});
+							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-link-desc"}, html: BX.MessengerCommon.prepareText(attach.LINK[i].HTML, true, true, true)});
+						}
+						else if (attach.LINK[i].DESC)
+						{
+							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-link-desc"}, html: BX.MessengerCommon.prepareText(attach.LINK[i].DESC, true, true, true)});
 						}
 
 						var linkPreview = null;
-						if (attach.LINK[i].HTML)
-						{
-							linkPreview = BX.create("div", { props : { className: "bx-messenger-attach-link-html"}, html: attach.LINK[i].HTML});
-							var link = BX.create("span", {props : { className: "bx-messenger-attach-link"+(attach.LINK[i].PREVIEW? " bx-messenger-attach-link-with-preview": "")}, children: [linkTitle, linkDesc, linkPreview]})
-						}
-						else if (attach.LINK[i].PREVIEW)
+						if (attach.LINK[i].PREVIEW)
 						{
 							linkPreview = BX.create("span", { props : { className: "bx-messenger-file-image-src"}, children: [
-								BX.create("img", { attrs:{'src': BX.util.htmlspecialcharsback(attach.LINK[i].PREVIEW), 'onerror': "BX.MessengerCommon.hideErrorImage(this, true)"}, props : { className: "bx-messenger-file-image-text"}}),
+								BX.create("img", { attrs:{'src': this.formatUrl(attach.LINK[i].PREVIEW), 'onerror': "BX.MessengerCommon.hideErrorImage(this, true)"}, props : { className: "bx-messenger-file-image-text"}}),
 							]});
 							var link = BX.create("div", {children: [
 								linkTitle,
@@ -12649,8 +12875,6 @@
 					var linkNodes = [];
 					for (var i = 0; i < attach.RICH_LINK.length; i++)
 					{
-						var linkSource = null;
-
 						var convert = document.createElement("p");
 						if (attach.RICH_LINK[i].NAME)
 						{
@@ -12660,9 +12884,10 @@
 						if (attach.RICH_LINK[i].DESC)
 						{
 							convert.innerHTML = attach.RICH_LINK[i].DESC;
-						   attach.RICH_LINK[i].DESC = convert.innerText;
+							attach.RICH_LINK[i].DESC = convert.innerText;
 						}
 
+						var linkSource = null;
 						var linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-name"}, text: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK});
 						if (attach.RICH_LINK[i].NETWORK_ID)
 						{
@@ -12681,10 +12906,10 @@
 							if (attach.RICH_LINK[i].HTML)
 							{
 								linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-name"}, children: [
-									BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK), 'target': '_blank'}, text: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK})
+									BX.create("a", {attrs: {'href': attach.RICH_LINK[i].LINK, 'target': '_blank'}, text: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK})
 								]});
 							}
-							linkSource = BX.create("div", { props : { className: "bx-messenger-attach-rich-link-source"}, html: BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK)}}).hostname});
+							linkSource = BX.create("div", { props : { className: "bx-messenger-attach-rich-link-source"}, html: BX.create("a", {attrs: {'href': attach.RICH_LINK[i].LINK}}).hostname});
 						}
 
 						var linkDesc = null;
@@ -12696,22 +12921,22 @@
 						var linkPreview = null;
 						if (attach.RICH_LINK[i].HTML)
 						{
-							linkPreview = BX.create("div", { props : { className: "bx-messenger-attach-rich-link-html"}, html: attach.RICH_LINK[i].HTML});
+							linkPreview = BX.create("div", { props : { className: "bx-messenger-attach-rich-link-html"}, text: attach.RICH_LINK[i].HTML});
 							var link = BX.create("span", {props : { className: "bx-messenger-attach-rich-link"+(attach.RICH_LINK[i].PREVIEW? " bx-messenger-attach-rich-link-with-preview": "")}, children: [linkTitle, linkDesc, linkPreview]})
 						}
 						else if (attach.RICH_LINK[i].PREVIEW)
 						{
 							linkPreview = BX.create("span", { props : { className: "bx-messenger-file-image-src"}, children: [
-								BX.create("img", { attrs:{'src': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].PREVIEW), 'onerror': "BX.MessengerCommon.hideErrorImage(this, true)"}, props : { className: "bx-messenger-file-image-text"}}),
+								BX.create("img", { attrs:{'src': this.formatUrl(attach.RICH_LINK[i].PREVIEW), 'onerror': "BX.MessengerCommon.hideErrorImage(this, true)"}, props : { className: "bx-messenger-file-image-text"}}),
 							]});
-							var link = BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-file-image"}, children: [
+							var link = BX.create("a", {attrs: {'href': attach.RICH_LINK[i].LINK, 'target': '_blank'}, props : { className: "bx-messenger-file-image"}, children: [
 								linkPreview,
 								BX.create("span", {props : { className: "bx-messenger-attach-rich-link-panel"}, children: [linkTitle, linkDesc, linkSource]})
 							]});
 						}
 						else
 						{
-							var link = BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-file-image bx-messenger-file-image-without-preview"}, children: [
+							var link = BX.create("a", {attrs: {'href': attach.RICH_LINK[i].LINK, 'target': '_blank'}, props : { className: "bx-messenger-file-image bx-messenger-file-image-without-preview"}, children: [
 								BX.create("span", {props : { className: "bx-messenger-attach-rich-link-panel"}, children: [linkTitle, linkDesc, linkSource]})
 							]});
 						}
@@ -12721,18 +12946,18 @@
 				}
 				else if(attach.MESSAGE && attach.MESSAGE.length > 0)
 				{
-					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: this.decodeBbCode(BX.util.htmlspecialchars(attach.MESSAGE))});
+					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: BX.MessengerCommon.prepareText(attach.MESSAGE, true, true, true)});
 				}
 				else if(attach.HTML && attach.HTML.length > 0)
 				{
-					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: attach.HTML});
+					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: BX.MessengerCommon.prepareText(attach.HTML, true, true, true)});
 				}
 				else if(attach.GRID && attach.GRID.length > 0)
 				{
 					var gridNodes = [];
 					for (var i = 0; i < attach.GRID.length; i++)
 					{
-						var gridValue = this.decodeBbCode(BX.util.htmlspecialchars(attach.GRID[i].VALUE));
+						var gridValue = BX.MessengerCommon.prepareText(attach.GRID[i].VALUE, true, true, true);
 						if (attach.GRID[i].USER_ID)
 						{
 							gridValue = '<span class="bx-messenger-ajax '+(attach.GRID[i].USER_ID == this.BXIM.userId? 'bx-messenger-ajax-self': '')+'" data-entity="user" data-userId="'+attach.GRID[i].USER_ID+'">'+gridValue+'</span>';
@@ -12743,7 +12968,7 @@
 						}
 						else if (attach.GRID[i].LINK)
 						{
-							gridValue = '<a href="'+attach.GRID[i].LINK+'" target="_blank">'+gridValue+'</a>';
+							gridValue = '<a href="'+this.formatUrl(attach.GRID[i].LINK)+'" target="_blank">'+gridValue+'</a>';
 						}
 						var width = attach.GRID[i].WIDTH? 'width: '+attach.GRID[i].WIDTH+'px': '';
 						var height = attach.GRID[i].HEIGHT? 'max-height: '+attach.GRID[i].HEIGHT+'px;': '';
@@ -12827,7 +13052,7 @@
 						{
 							attach.IMAGE[i].PREVIEW = attach.IMAGE[i].LINK;
 						}
-						var imageNode = BX.create("a", { props : { className: "bx-messenger-file-image-src"}, attrs: {'href': BX.util.htmlspecialcharsback(attach.IMAGE[i].LINK), 'target': '_blank', 'title': attach.IMAGE[i].NAME}, children: [
+						var imageNode = BX.create("a", { props : { className: "bx-messenger-file-image-src"}, attrs: {'href': attach.IMAGE[i].LINK, 'target': '_blank', 'title': attach.IMAGE[i].NAME}, children: [
 							BX.create("img", { attrs:{'src': BX.util.htmlspecialcharsback(attach.IMAGE[i].PREVIEW), 'onerror': "BX.MessengerCommon.hideErrorImage(this)"}, props : { className: "bx-messenger-attach-image bx-messenger-file-image-link"}})
 						]})
 
@@ -13358,7 +13583,8 @@
 			'senderId': this.BXIM.userId,
 			'recipientId': recipientId,
 			'date': new Date(),
-			'text': BX.MessengerCommon.prepareText(agent.messageText, true),
+			'text': BX.MessengerCommon.prepareText(agent.messageText, true, true, true),
+			'textOriginal': agent.messageText,
 			'params': {'FILE_ID': paramsFileId, 'CLASS': olSilentMode == "Y"? "bx-messenger-content-item-system": ""}
 		};
 		if (!this.BXIM.messenger.showMessage[recipientId])
@@ -14801,7 +15027,8 @@
 					for (var i in data.MESSAGE)
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
-						data.MESSAGE[i].text = typeof data.MESSAGE[i].textLegacy !== 'undefined'? data.MESSAGE[i].textLegacy: data.MESSAGE[i].text;
+						data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
+						data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, false, true, true);
 
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 					}

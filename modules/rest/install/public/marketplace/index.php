@@ -1,6 +1,19 @@
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+<?php
+
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+
+global $APPLICATION;
 $APPLICATION->SetTitle("");
-?><?$APPLICATION->IncludeComponent(
+
+if (Loader::includeModule('market')) {
+	$path = str_replace('/marketplace/', '/market/', Context::getCurrent()->getRequest()->getRequestUri());
+	LocalRedirect($path);
+}
+
+$APPLICATION->IncludeComponent(
 	"bitrix:ui.sidepanel.wrapper",
 	"",
 	array(
@@ -26,6 +39,7 @@ $APPLICATION->SetTitle("");
 		"USE_PADDING" => false,
 		"PAGE_MODE" => false
 	),
-	$component
 );
-?><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+?>
+
+<?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php") ?>

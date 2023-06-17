@@ -23,7 +23,11 @@ if ($arResult['VOTE_AVAILABLE'] !== 'Y')
 	$classList[] = 'bx-ilike-button-disable';
 }
 ?><span class="ilike"><?php
-	?><span class="<?= implode(' ', $classList) ?>>" id="bx-ilike-button-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"><?php
+	?><span
+		class="<?= implode(' ', $classList) ?>>"
+		id="bx-ilike-button-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"
+		data-vote-key-signed="<?= htmlspecialcharsbx($arResult['VOTE_KEY_SIGNED']) ?>"
+	><?php
 		$classList = [
 			'bx-ilike-left-wrap',
 		];
@@ -68,18 +72,21 @@ BX.ready(function()
 		}
 
 		RatingLike.Set(
-			'<?= CUtil::JSEscape($arResult['VOTE_ID']) ?>',
-			'<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
-			'<?= (int)$arResult['ENTITY_ID'] ?>',
-			'<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
-			'<?= $USER->GetId() ?>',
 			{
-				'LIKE_Y': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_N'])) ?>',
-				'LIKE_N': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
-				'LIKE_D': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D'])) ?>',
+				likeId: '<?= CUtil::JSEscape($arResult['VOTE_ID']) ?>',
+				keySigned: '<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_KEY_SIGNED']))?>',
+				entityTypeId: '<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
+				entityId: '<?= (int)$arResult['ENTITY_ID'] ?>',
+				available: '<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
+				userId: '<?= $USER->GetId() ?>',
+				localize: {
+					'LIKE_Y': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_N'])) ?>',
+					'LIKE_N': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
+					'LIKE_D': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D'])) ?>',
+				},
+				template: 'standart',
+				pathToUserProfile: '<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>'
 			},
-			'standart',
-			'<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>'
 		);
 
 });	

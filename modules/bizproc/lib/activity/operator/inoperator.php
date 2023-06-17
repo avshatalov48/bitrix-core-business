@@ -30,14 +30,17 @@ class InOperator extends BaseOperator
 		$value = $this->value;
 
 		$result = false;
-
 		foreach (\CBPHelper::flatten($toCheck) as $f)
 		{
 			if (is_array($value))
 			{
 				$result = in_array($f, $value, false);
 			}
-			elseif ($f)
+			elseif (
+				\CBPHelper::hasStringRepresentation($value)
+				&& \CBPHelper::hasStringRepresentation($f)
+				&& (string)$f !== ''
+			)
 			{
 				$result = (mb_strpos($value, $f) !== false);
 			}

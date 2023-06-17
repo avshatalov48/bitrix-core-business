@@ -4,29 +4,26 @@ this.BX.UI = this.BX.UI || {};
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	class Header {
 	  constructor(options) {
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  setValue(value) {
 	    if (main_core.Type.isString(value) || main_core.Type.isNumber(value)) {
 	      this.getValueLayout().textContent = value;
 	    }
 	  }
-
 	  getValueLayout() {
 	    return this.cache.remember('valueLayout', () => {
 	      return main_core.Tag.render(_t || (_t = _`
@@ -36,7 +33,6 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Text.encode(this.getOptions().contact.label), main_core.Text.encode(this.getOptions().contact.label));
 	    });
 	  }
-
 	  getChangeContactButton() {
 	    return this.cache.remember('changeContactButton', () => {
 	      return new ui_buttons.Button({
@@ -47,7 +43,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('headerLayout', () => {
 	      return main_core.Tag.render(_t2 || (_t2 = _`
@@ -68,42 +63,36 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_HEADER_TITLE'), this.getValueLayout());
 	    });
 	  }
-
 	  appendTo(target) {
 	    if (main_core.Type.isDomNode(target)) {
 	      main_core.Dom.append(this.getLayout(), target);
 	    }
 	  }
-
 	  prependTo(target) {
 	    if (main_core.Type.isDomNode(target)) {
 	      main_core.Dom.prepend(this.getLayout(), target);
 	    }
 	  }
-
 	  renderTo(target) {
 	    this.appendTo(target);
 	  }
-
 	}
 
 	let _$1 = t => t,
-	    _t$1;
+	  _t$1;
 	class UploadLayout {
 	  constructor(options) {
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$1 || (_t$1 = _$1`
@@ -113,11 +102,10 @@ this.BX.UI = this.BX.UI || {};
 			`), this.getOptions().children.map(item => item.getLayout()));
 	    });
 	  }
-
 	}
 
 	let _$2 = t => t,
-	    _t$2;
+	  _t$2;
 	class Dropzone extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -126,16 +114,14 @@ this.BX.UI = this.BX.UI || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$2 || (_t$2 = _$2`
@@ -151,13 +137,12 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_DROPZONE_HEADER'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_DROPZONE_TEXT'));
 	    });
 	  }
-
 	}
 
 	let _$3 = t => t,
-	    _t$3,
-	    _t2$1,
-	    _t3;
+	  _t$3,
+	  _t2$1,
+	  _t3;
 	class ActionPanel extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -166,23 +151,20 @@ this.BX.UI = this.BX.UI || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getCropButton() {
 	    return this.cache.remember('cropButton', () => {
 	      const onClick = event => {
 	        event.preventDefault();
 	        this.emit('onCropClick');
 	      };
-
 	      return main_core.Tag.render(_t$3 || (_t$3 = _$3`
 				<div 
 					class="ui-stamp-uploader-crop-button"
@@ -193,7 +175,6 @@ this.BX.UI = this.BX.UI || {};
 			`), onClick, main_core.Loc.getMessage('UI_STAMP_UPLOADER_CROP_BUTTON_LABEL'));
 	    });
 	  }
-
 	  getApplyButton() {
 	    return this.cache.remember('applyButton', () => {
 	      return new ui_buttons.ApplyButton({
@@ -206,7 +187,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getCancelButton() {
 	    return this.cache.remember('cancelButton', () => {
 	      return new ui_buttons.CancelButton({
@@ -219,7 +199,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getCropActionsLayout() {
 	    return this.cache.remember('cropActionsLayout', () => {
 	      return main_core.Tag.render(_t2$1 || (_t2$1 = _$3`
@@ -230,17 +209,14 @@ this.BX.UI = this.BX.UI || {};
 			`), this.getApplyButton().render(), this.getCancelButton().render());
 	    });
 	  }
-
 	  showCropAction() {
 	    main_core.Dom.show(this.getCropActionsLayout());
 	    main_core.Dom.hide(this.getCropButton());
 	  }
-
 	  hideCropActions() {
 	    main_core.Dom.hide(this.getCropActionsLayout());
 	    main_core.Dom.show(this.getCropButton());
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t3 || (_t3 = _$3`
@@ -251,32 +227,27 @@ this.BX.UI = this.BX.UI || {};
 			`), this.getCropActionsLayout(), this.getCropButton());
 	    });
 	  }
-
 	  disable() {
 	    main_core.Dom.addClass(this.getLayout(), 'ui-stamp-uploader-action-panel-disabled');
 	  }
-
 	  enable() {
 	    main_core.Dom.removeClass(this.getLayout(), 'ui-stamp-uploader-action-panel-disabled');
 	  }
-
 	}
 
 	let _$4 = t => t,
-	    _t$4,
-	    _t2$2,
-	    _t3$1,
-	    _t4;
+	  _t$4,
+	  _t2$2,
+	  _t3$1,
+	  _t4;
 	class Status {
 	  constructor() {
 	    this.cache = new main_core.Cache.MemoryCache();
 	  }
-
 	  static formatSize(bytes) {
 	    if (bytes === 0) {
 	      return `0 ${main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_B')}`;
 	    }
-
 	    const sizes = [main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_B'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_KB'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_MB')];
 	    const textIndex = Math.floor(Math.log(bytes) / Math.log(1024));
 	    return {
@@ -284,7 +255,6 @@ this.BX.UI = this.BX.UI || {};
 	      text: sizes[textIndex]
 	    };
 	  }
-
 	  getUploadStatusLayout() {
 	    return this.cache.remember('statusLayout', () => {
 	      const loaderLayout = main_core.Tag.render(_t$4 || (_t$4 = _$4`
@@ -312,7 +282,6 @@ this.BX.UI = this.BX.UI || {};
 			`), loaderLayout, main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_TEXT'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_PERCENT'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE'));
 	    });
 	  }
-
 	  updateUploadStatus(options = {
 	    percent: 0,
 	    size: 0
@@ -327,7 +296,6 @@ this.BX.UI = this.BX.UI || {};
 	    const formatted = Status.formatSize(options.size);
 	    sizeNode.textContent = main_core.Loc.getMessage('UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE').replace('{{number}}', formatted.number).replace('{{text}}', formatted.text);
 	  }
-
 	  getPreparingStatusLayout() {
 	    return this.cache.remember('preparingStatusLayout', () => {
 	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$4`
@@ -340,7 +308,6 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_PREPARING_STATUS'));
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t4 || (_t4 = _$4`
@@ -348,7 +315,6 @@ this.BX.UI = this.BX.UI || {};
 			`));
 	    });
 	  }
-
 	  showUploadStatus(options = {
 	    reset: false
 	  }) {
@@ -357,18 +323,15 @@ this.BX.UI = this.BX.UI || {};
 	    const preparingStatusLayout = this.getPreparingStatusLayout();
 	    main_core.Dom.remove(preparingStatusLayout);
 	    main_core.Dom.append(uploadStatusLayout, layout);
-
 	    if (options.reset === true) {
 	      this.updateUploadStatus({
 	        percent: 0,
 	        size: 0
 	      });
 	    }
-
 	    this.setOpacity(1);
 	    this.show();
 	  }
-
 	  showPreparingStatus() {
 	    const layout = this.getLayout();
 	    const uploadStatusLayout = this.getUploadStatusLayout();
@@ -378,31 +341,24 @@ this.BX.UI = this.BX.UI || {};
 	    this.setOpacity(.45);
 	    this.show();
 	  }
-
 	  setOpacity(value) {
 	    main_core.Dom.style(this.getLayout(), 'background-color', `rgba(255, 255, 255, ${value})`);
 	  }
-
 	  hide() {
 	    main_core.Dom.removeClass(this.getLayout(), 'ui-stamp-uploader-status-show');
 	  }
-
 	  show() {
 	    main_core.Dom.addClass(this.getLayout(), 'ui-stamp-uploader-status-show');
 	  }
-
 	}
 
 	let _$5 = t => t,
-	    _t$5,
-	    _t2$3,
-	    _t3$2,
-	    _t4$1;
-
+	  _t$5,
+	  _t2$3,
+	  _t3$2,
+	  _t4$1;
 	var _loadImage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadImage");
-
 	var _setIsCropEnabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setIsCropEnabled");
-
 	class Preview extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -425,24 +381,20 @@ this.BX.UI = this.BX.UI || {};
 	    draggable.subscribe('move', this.onDragMove.bind(this));
 	    draggable.subscribe('end', this.onDragEnd.bind(this));
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getDraggable() {
 	    return this.cache.get('draggable');
 	  }
-
 	  getDevicePixelRatio() {
 	    return window.devicePixelRatio;
 	  }
-
 	  getCanvas() {
 	    const canvas = this.cache.remember('canvas', () => {
 	      return main_core.Tag.render(_t$5 || (_t$5 = _$5`
@@ -455,7 +407,6 @@ this.BX.UI = this.BX.UI || {};
 	          width: canvas.parentElement.clientWidth,
 	          height: canvas.parentElement.clientHeight
 	        };
-
 	        if (parentRect.width > 0 && parentRect.height > 0) {
 	          void this.cache.remember('adjustCanvas', () => {
 	            const ratio = this.getDevicePixelRatio();
@@ -469,21 +420,17 @@ this.BX.UI = this.BX.UI || {};
 	            const {
 	              context2d: context2dOptions = {}
 	            } = this.getOptions();
-
 	            if (main_core.Type.isPlainObject(context2dOptions)) {
 	              Object.assign(context2d, context2dOptions);
 	            }
-
 	            context2d.scale(ratio, ratio);
 	          });
 	        }
 	      }
-
 	      clearTimeout(timeoutId);
 	    });
 	    return canvas;
 	  }
-
 	  getImagePreviewLayout() {
 	    return this.cache.remember('imagePreviewLayout', () => {
 	      return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
@@ -493,7 +440,6 @@ this.BX.UI = this.BX.UI || {};
 			`), this.getCanvas());
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
@@ -507,37 +453,29 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_PREVIEW_TITLE'), this.getImagePreviewLayout(), this.getCropControl());
 	    });
 	  }
-
 	  clear() {
 	    const canvas = this.getCanvas();
 	    const context = canvas.getContext('2d');
 	    context.clearRect(0, 0, canvas.width, canvas.height);
 	  }
-
 	  setSourceImage(image) {
 	    this.cache.set('sourceImage', image);
 	  }
-
 	  getSourceImage() {
 	    return this.cache.get('sourceImage', null);
 	  }
-
 	  setSourceImageRect(rect) {
 	    this.cache.set('sourceImageRect', rect);
 	  }
-
 	  getSourceImageRect() {
 	    return this.cache.get('sourceImageRect', {});
 	  }
-
 	  setCurrentDrawOptions(drawOptions) {
 	    this.cache.set('currentDrawOptions', drawOptions);
 	  }
-
 	  getCurrentDrawOptions() {
 	    return this.cache.get('currentDrawOptions', {});
 	  }
-
 	  applyCrop() {
 	    const cropRect = this.getCropRect();
 	    const drawOptions = this.getCurrentDrawOptions();
@@ -556,7 +494,6 @@ this.BX.UI = this.BX.UI || {};
 	    };
 	    return this.renderImage(this.getSourceImage(), cropOptions);
 	  }
-
 	  renderImage(file, drawOptions = {}) {
 	    const canvas = this.getCanvas();
 	    const context2d = canvas.getContext('2d');
@@ -583,15 +520,12 @@ this.BX.UI = this.BX.UI || {};
 	      context2d.drawImage(sourceImage, preparedDrawOptions.sX, preparedDrawOptions.sY, preparedDrawOptions.sWidth, preparedDrawOptions.sHeight, preparedDrawOptions.dX, preparedDrawOptions.dY, preparedDrawOptions.dWidth, preparedDrawOptions.dHeight);
 	    });
 	  }
-
 	  setInitialCropRect(rect) {
 	    this.cache.set('initialCropRect', rect);
 	  }
-
 	  getInitialCropRect() {
 	    return this.cache.get('initialCropRect');
 	  }
-
 	  getCropControl() {
 	    return this.cache.remember('cropControl', () => {
 	      return main_core.Tag.render(_t4$1 || (_t4$1 = _$5`
@@ -605,11 +539,9 @@ this.BX.UI = this.BX.UI || {};
 			`));
 	    });
 	  }
-
 	  isCropEnabled() {
 	    return this.cache.get('isCropEnabled', false);
 	  }
-
 	  enableCrop() {
 	    this.renderImage(this.getSourceImage()).then(() => {
 	      const control = this.getCropControl();
@@ -621,17 +553,13 @@ this.BX.UI = this.BX.UI || {};
 	        right: `${drawOptions.dX}px`
 	      });
 	      main_core.Dom.addClass(control, 'ui-stamp-uploader-preview-crop-show');
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _setIsCropEnabled)[_setIsCropEnabled](true);
 	    });
 	  }
-
 	  disableCrop() {
 	    main_core.Dom.removeClass(this.getCropControl(), 'ui-stamp-uploader-preview-crop-show');
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _setIsCropEnabled)[_setIsCropEnabled](false);
 	  }
-
 	  onDragStart() {
 	    const cropControl = this.getCropControl();
 	    this.setInitialCropRect({
@@ -641,7 +569,6 @@ this.BX.UI = this.BX.UI || {};
 	      bottom: main_core.Text.toNumber(main_core.Dom.style(cropControl, 'bottom'))
 	    });
 	  }
-
 	  onDragMove(event) {
 	    const data = event.getData();
 	    const initialRect = this.getInitialCropRect();
@@ -649,28 +576,23 @@ this.BX.UI = this.BX.UI || {};
 	    const requiredOffset = 20;
 	    const canvasWidth = drawOptions.dX + drawOptions.dWidth + drawOptions.dX;
 	    const canvasHeight = drawOptions.dY + drawOptions.dHeight + drawOptions.dY;
-
 	    if (data.source.matches('.ui-stamp-uploader-preview-crop-right')) {
 	      const position = Math.max(Math.min(initialRect.right - data.offsetX, canvasWidth - initialRect.left - requiredOffset), drawOptions.dX);
 	      main_core.Dom.style(this.getCropControl(), 'right', `${position}px`);
 	    }
-
 	    if (data.source.matches('.ui-stamp-uploader-preview-crop-left')) {
 	      const position = Math.max(Math.min(initialRect.left + data.offsetX, canvasWidth - initialRect.right - requiredOffset), drawOptions.dX);
 	      main_core.Dom.style(this.getCropControl(), 'left', `${position}px`);
 	    }
-
 	    if (data.source.matches('.ui-stamp-uploader-preview-crop-top')) {
 	      const position = Math.max(drawOptions.dY, Math.min(initialRect.top + data.offsetY, canvasHeight - initialRect.bottom - requiredOffset));
 	      main_core.Dom.style(this.getCropControl(), 'top', `${position}px`);
 	    }
-
 	    if (data.source.matches('.ui-stamp-uploader-preview-crop-bottom')) {
 	      const position = Math.max(Math.min(canvasHeight - initialRect.top - requiredOffset, initialRect.bottom - data.offsetY), drawOptions.dY);
 	      main_core.Dom.style(this.getCropControl(), 'bottom', `${position}px`);
 	    }
 	  }
-
 	  getCropRect() {
 	    const cropControl = this.getCropControl();
 	    const width = cropControl.clientWidth;
@@ -690,28 +612,40 @@ this.BX.UI = this.BX.UI || {};
 	      bottom
 	    };
 	  }
-
 	  async getValue() {
 	    const canvas = this.getCanvas();
 	    return await new Promise(resolve => {
 	      canvas.toBlob(resolve, 'image/png');
 	    });
 	  }
-
 	  onDragEnd(event) {}
-
 	  show(file) {
 	    this.setSourceImage(file);
 	    void this.renderImage(file);
 	    main_core.Dom.addClass(this.getLayout(), 'ui-stamp-uploader-preview-show');
 	  }
-
 	  hide() {
 	    main_core.Dom.removeClass(this.getLayout(), 'ui-stamp-uploader-preview-show');
 	  }
-
+	  getFile() {
+	    const drawOptions = this.getCurrentDrawOptions();
+	    const canvas = document.createElement('canvas');
+	    const context2d = canvas.getContext('2d');
+	    return new Promise(resolve => {
+	      this.getCanvas().toBlob(blob => {
+	        void babelHelpers.classPrivateFieldLooseBase(Preview, _loadImage)[_loadImage](blob).then(image => {
+	          const ratio = this.getDevicePixelRatio();
+	          canvas.width = drawOptions.dWidth * ratio;
+	          canvas.height = drawOptions.dHeight * ratio;
+	          context2d.drawImage(image, 0, 0, image.width, image.height, -((image.width - canvas.width) / 2), -((image.height - canvas.height) / 2), image.width, image.height);
+	          canvas.toBlob(resultBlob => {
+	            resolve(resultBlob);
+	          });
+	        });
+	      });
+	    });
+	  }
 	}
-
 	function _loadImage2(file) {
 	  const fileReader = new FileReader();
 	  return new Promise(resolve => {
@@ -725,22 +659,19 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  });
 	}
-
 	function _setIsCropEnabled2(value) {
 	  this.cache.set('isCropEnabled', value);
 	}
-
 	Object.defineProperty(Preview, _loadImage, {
 	  value: _loadImage2
 	});
 
 	let _$6 = t => t,
-	    _t$6;
+	  _t$6;
 	class Message {
 	  constructor() {
 	    this.cache = new main_core.Cache.MemoryCache();
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$6 || (_t$6 = _$6`
@@ -758,11 +689,10 @@ this.BX.UI = this.BX.UI || {};
 			`), main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_MESSAGE_TITLE'), main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_MESSAGE_DESCRIPTION'));
 	    });
 	  }
-
 	}
 
 	let _$7 = t => t,
-	    _t$7;
+	  _t$7;
 	class FileSelect extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -771,16 +701,14 @@ this.BX.UI = this.BX.UI || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getTakePhotoButton() {
 	    return this.cache.remember('takePhotoButton', () => {
 	      return new ui_buttons.Button({
@@ -795,7 +723,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getSelectPhotoButton() {
 	    return this.cache.remember('selectPhotoButton', () => {
 	      return new ui_buttons.Button({
@@ -810,7 +737,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$7 || (_t$7 = _$7`
@@ -822,20 +748,15 @@ this.BX.UI = this.BX.UI || {};
 			`), this.getSelectPhotoButton().render());
 	    });
 	  }
-
 	}
 
 	let _$8 = t => t,
-	    _t$8,
-	    _t2$4,
-	    _t3$3;
-
+	  _t$8,
+	  _t2$4,
+	  _t3$3;
 	var _delay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("delay");
-
 	var _setPreventConfirmShow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setPreventConfirmShow");
-
 	var _isConfirmShowPrevented = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConfirmShowPrevented");
-
 	/**
 	 * @namespace BX.UI.Stamp
 	 */
@@ -876,21 +797,17 @@ this.BX.UI = this.BX.UI || {};
 	              file,
 	              error
 	            } = event.getData();
-
 	            if (main_core.Type.isNil(error)) {
 	              this.getPreview().show(file.getClientPreview());
 	              this.setUploaderFile(file);
-
 	              if (this.getMode() === Uploader.Mode.SLIDER) {
 	                this.getSliderButtons().saveButton.setDisabled(false);
 	                this.getActionPanel().enable();
 	              }
-
 	              if (this.getMode() === Uploader.Mode.INLINE) {
 	                this.getInlineSaveButton().setDisabled(false);
 	                this.getActionPanel().enable();
 	              }
-
 	              this.setIsChanged(true);
 	            }
 	          },
@@ -914,19 +831,15 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  static showAlert(...args) {
 	    const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
-
 	    if (!main_core.Type.isNil(TopMessageBox)) {
 	      TopMessageBox.alert(...args);
 	    }
 	  }
-
 	  static showConfirm(options) {
 	    const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
 	    const TopMessageBoxButtons = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBoxButtons');
-
 	    if (!main_core.Type.isNil(TopMessageBox)) {
 	      TopMessageBox.show({
 	        modal: true,
@@ -935,60 +848,48 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
-
 	  setIsChanged(value) {
 	    this.cache.set('isChanged', value);
 	  }
-
 	  isChanged() {
 	    return this.cache.get('isChanged', false);
 	  }
-
 	  getFileUploader() {
 	    return this.cache.get('fileUploader');
 	  }
-
 	  setUploaderFile(file) {
 	    this.cache.set('uploaderFile', file);
 	  }
-
 	  getUploaderFile() {
 	    return this.cache.get('uploaderFile', null);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getMode() {
 	    const {
 	      mode
 	    } = this.getOptions();
-
 	    if (Object.values(Uploader.Mode).includes(mode)) {
 	      return mode;
 	    }
-
 	    return Uploader.Mode.SLIDER;
 	  }
-
 	  getHeader() {
 	    return this.cache.remember('header', () => {
 	      return new Header(this.getOptions());
 	    });
 	  }
-
 	  getPreview() {
 	    return this.cache.remember('preview', () => {
 	      return new Preview({});
 	    });
 	  }
-
 	  getFileSelect() {
 	    return this.cache.remember('fileSelect', () => {
 	      return new FileSelect({
@@ -1001,7 +902,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getUploadLayout() {
 	    return this.cache.remember('uploadLayout', () => {
 	      return new UploadLayout({
@@ -1009,19 +909,16 @@ this.BX.UI = this.BX.UI || {};
 	          if (this.getMode() === Uploader.Mode.INLINE) {
 	            return this.getFileSelect();
 	          }
-
 	          return this.getDropzone();
 	        })(), this.getActionPanel(), this.getStatus(), this.getPreview()]
 	      });
 	    });
 	  }
-
 	  getDropzone() {
 	    return this.cache.remember('dropzone', () => {
 	      return new Dropzone({});
 	    });
 	  }
-
 	  getActionPanel() {
 	    return this.cache.remember('actionPanel', () => {
 	      return new ActionPanel({
@@ -1033,7 +930,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  onCropApplyClick() {
 	    this.getPreview().applyCrop();
 	    this.getPreview().disableCrop();
@@ -1041,27 +937,23 @@ this.BX.UI = this.BX.UI || {};
 	    this.getInlineSaveButton().setDisabled(false);
 	    this.getActionPanel().enable();
 	  }
-
 	  onCropCancelClick() {
 	    this.getPreview().disableCrop();
 	    this.getActionPanel().hideCropActions();
 	    this.getInlineSaveButton().setDisabled(false);
 	    this.getActionPanel().enable();
 	  }
-
 	  onCropClick() {
 	    this.getPreview().enableCrop();
 	    this.getActionPanel().showCropAction();
 	    this.getInlineSaveButton().setDisabled(true);
 	    this.getActionPanel().enable();
 	  }
-
 	  getStatus() {
 	    return this.cache.remember('status', () => {
 	      return new Status();
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      const mode = this.getMode();
@@ -1077,7 +969,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (mode === Uploader.Mode.SLIDER) {
 	          return this.getMessage().getLayout();
 	        }
-
 	        return '';
 	      })(), this.getHeader().getLayout(), this.getUploadLayout().getLayout(), (() => {
 	        if (mode === Uploader.Mode.INLINE) {
@@ -1087,12 +978,10 @@ this.BX.UI = this.BX.UI || {};
 								</div>
 							`), this.getInlineSaveButton().render());
 	        }
-
 	        return '';
 	      })(), this.getHiddenInput());
 	    });
 	  }
-
 	  getHiddenInput() {
 	    return this.cache.remember('hiddenInput', () => {
 	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$8`
@@ -1100,16 +989,14 @@ this.BX.UI = this.BX.UI || {};
 			`));
 	    });
 	  }
-
 	  renderTo(target) {
 	    if (main_core.Type.isDomNode(target)) {
 	      main_core.Dom.append(this.getLayout(), target);
 	    }
 	  }
-
 	  upload() {
 	    return new Promise(resolve => {
-	      this.getPreview().getCanvas().toBlob(blob => {
+	      this.getPreview().getFile().then(blob => {
 	        this.getFileUploader().addFile(blob);
 	        const [resultFile] = this.getFileUploader().getFiles();
 	        resultFile.subscribeOnce(ui_uploader_core.FileEvent.LOAD_COMPLETE, () => {
@@ -1127,13 +1014,11 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getMessage() {
 	    return this.cache.remember('message', () => {
 	      return new Message();
 	    });
 	  }
-
 	  getInlineSaveButton() {
 	    return this.cache.remember('inlineSaveButton', () => {
 	      const button = new ui_buttons.Button({
@@ -1145,17 +1030,17 @@ this.BX.UI = this.BX.UI || {};
 	          const saveButton = this.getInlineSaveButton();
 	          saveButton.setWaiting(true);
 	          this.upload().then(uploaderFile => {
-	            babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
-	              this.getPreview().show(uploaderFile.getClientPreview());
-	              this.getStatus().showPreparingStatus();
-	            }, 1000);
-
-	            return this.emitAsync('onSaveAsync', {
+	            return Promise.all([new Promise(resolve => {
+	              babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
+	                this.getPreview().show(uploaderFile.getClientPreview());
+	                this.getStatus().showPreparingStatus();
+	                resolve();
+	              }, 1000);
+	            }), this.emitAsync('onSaveAsync', {
 	              file: uploaderFile.toJSON()
-	            });
+	            })]);
 	          }).then(() => {
 	            this.getStatus().hide();
-
 	            babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	              saveButton.setWaiting(false);
 	              saveButton.setDisabled(true);
@@ -1169,25 +1054,20 @@ this.BX.UI = this.BX.UI || {};
 	      return button;
 	    });
 	  }
-
 	  setSliderButtons(buttons) {
 	    this.cache.set('sliderButtons', buttons);
 	  }
-
 	  getSliderButtons() {
 	    return this.cache.get('sliderButtons', {
 	      saveButton: null,
 	      cancelButton: null
 	    });
 	  }
-
 	  show() {
 	    const SidePanelInstance = main_core.Reflection.getClass('BX.SidePanel.Instance');
-
 	    if (main_core.Type.isNil(SidePanelInstance)) {
 	      return;
 	    }
-
 	    this.getPreview().hide();
 	    this.getStatus().hide();
 	    this.getActionPanel().disable();
@@ -1210,21 +1090,17 @@ this.BX.UI = this.BX.UI || {};
 	              onclick: () => {
 	                saveButton.setWaiting(true);
 	                this.setIsChanged(false);
-
 	                babelHelpers.classPrivateFieldLooseBase(this, _setPreventConfirmShow)[_setPreventConfirmShow](true);
-
 	                this.upload().then(uploaderFile => {
 	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	                    this.getPreview().show(uploaderFile.getClientPreview());
 	                    this.getStatus().showPreparingStatus();
 	                  }, 1000);
-
 	                  return this.emitAsync('onSaveAsync', {
 	                    file: uploaderFile.toJSON()
 	                  });
 	                }).then(() => {
 	                  this.getStatus().hide();
-
 	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	                    saveButton.setWaiting(false);
 	                    saveButton.setDisabled(true);
@@ -1248,7 +1124,6 @@ this.BX.UI = this.BX.UI || {};
 	        onClose: event => {
 	          if (this.isChanged()) {
 	            event.denyAction();
-
 	            if (!babelHelpers.classPrivateFieldLooseBase(this, _isConfirmShowPrevented)[_isConfirmShowPrevented]()) {
 	              Uploader.showConfirm({
 	                message: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM'),
@@ -1272,24 +1147,19 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	}
-
 	function _delay2(callback, delay) {
 	  const timeoutId = setTimeout(() => {
 	    callback();
 	    clearTimeout(timeoutId);
 	  }, delay);
 	}
-
 	function _setPreventConfirmShow2(value) {
 	  this.cache.set('preventConfirmShow', value);
 	}
-
 	function _isConfirmShowPrevented2() {
 	  return this.cache.get('preventConfirmShow', false);
 	}
-
 	Object.defineProperty(Uploader, _delay, {
 	  value: _delay2
 	});

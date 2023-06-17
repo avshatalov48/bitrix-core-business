@@ -57,8 +57,11 @@ class MainMailBlacklistComponent extends CBitrixComponent implements Controllera
 	}
 	protected function prepareNavigationParams()
 	{
-		$this->arParams["PAGE_SIZE"] = ((is_int($this->arParams["PAGE_SIZE"]) && $this->arParams["PAGE_SIZE"] > 0?
-			$this->arParams["PAGE_SIZE"] : self::DEFAULT_PAGE_SIZE));
+		$this->arParams["PAGE_SIZE"] =
+			isset($this->arParams["PAGE_SIZE"]) && is_int($this->arParams["PAGE_SIZE"]) && $this->arParams["PAGE_SIZE"] > 0
+				? $this->arParams["PAGE_SIZE"]
+				: self::DEFAULT_PAGE_SIZE
+		;
 		$this->arParams["NAVIGATION_KEY"] = $this->arParams["NAVIGATION_KEY"] ?? self::DEFAULT_NAV_KEY;
 	}
 	protected function prepareFilterParams()

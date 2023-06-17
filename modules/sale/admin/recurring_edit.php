@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
@@ -6,11 +11,11 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleRecurring'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -20,15 +25,17 @@ if(!CBXFeatures::IsFeatureEnabled('SaleRecurring'))
 
 IncludeModuleLangFile(__FILE__);
 
+$request = Context::getCurrent()->getRequest();
+
 $errorMessage = "";
 $bVarsFromForm = false;
 
 ClearVars();
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
 
 $simpleForm = COption::GetOptionString("sale", "lock_catalog", "Y");
-$bSimpleForm = (($simpleForm=="Y") ? True : False);
+$bSimpleForm = $simpleForm === "Y";
 
 if ($bSimpleForm)
 {
@@ -46,7 +53,7 @@ if ($bSimpleForm)
 	}
 }
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -458,6 +465,5 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

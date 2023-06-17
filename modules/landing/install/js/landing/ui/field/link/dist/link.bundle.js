@@ -217,7 +217,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.adjustTarget();
 	    });
 	    this.hrefInput.subscribe('buildCenter', event => {
-	      const button = document.querySelector('[data-id="center_cell_button"]');
+	      const button = this.hrefInput.gridCenterCell.querySelector('.landing-ui-button-grid-center-cell');
 	      const gridCenter = this.center.querySelector('.landing-ui-field-link-url-grid-center');
 
 	      if (button) {

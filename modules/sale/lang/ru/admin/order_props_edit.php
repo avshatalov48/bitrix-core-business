@@ -36,6 +36,7 @@ $MESS ['SALE_PROPERTY_LINKING_DESC'] = "Связь свойства с плат�
 $MESS ['SALE_PROPERTY_PAYSYSTEM'] = "Платежные системы";
 $MESS ['SALE_PROPERTY_DELIVERY'] = "Службы доставки";
 $MESS ['SALE_PROPERTY_TP_LANDING'] = "Лендинги";
+$MESS ['SALE_PROPERTY_TP'] = "Источник заказа";
 $MESS ['SALE_PROPERTY_SELECT_ALL'] = "Все";
 
 $MESS ['SALE_VARIANTS_CODE'] = "Код";

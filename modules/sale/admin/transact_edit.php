@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -9,9 +14,11 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 IncludeModuleLangFile(__FILE__);
+
+$request = Context::getCurrent()->getRequest();
 
 $errorMessage = "";
 $bVarsFromForm = false;
@@ -20,7 +27,7 @@ ClearVars();
 
 $ID = (int)($ID ?? 0);
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -182,6 +189,6 @@ $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "U"), "back_u
 $tabControl->End();
 ?>
 </form>
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>
+

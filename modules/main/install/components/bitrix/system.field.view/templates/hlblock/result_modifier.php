@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if (is_array($arResult['VALUE']) && count($arResult['VALUE']) > 0)
+if (is_array($arResult['VALUE']) && !empty($arResult['VALUE']))
 {
 	if(!CModule::IncludeModule("highloadblock"))
 		return;

@@ -136,9 +136,9 @@ class CFinder
 		$arResult['PROVIDER'] = CUtil::AddSlashes($arParams['PROVIDER']);
 
 		$arResult['ID'] = CUtil::AddSlashes($arItem['ID']);
-		$arResult['AVATAR'] = CUtil::AddSlashes($arItem['AVATAR']);
-		$arResult['NAME'] = htmlspecialcharsEx($arItem['NAME']);
-		$arResult['DESC'] = htmlspecialcharsEx($arItem['DESC']);
+		$arResult['AVATAR'] = CUtil::AddSlashes($arItem['AVATAR'] ?? '');
+		$arResult['NAME'] = htmlspecialcharsEx($arItem['NAME'] ?? '');
+		$arResult['DESC'] = htmlspecialcharsEx($arItem['DESC'] ?? '');
 
 		if (isset($arItem['SUBMENU']) && !empty($arItem['SUBMENU']))
 		{

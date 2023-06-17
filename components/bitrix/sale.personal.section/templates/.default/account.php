@@ -1,18 +1,30 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-	
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @var PersonalOrderSection $component */
+/** @var array $arParams */
+/** @var array $arResult */
+
+use Bitrix\Main\Localization\Loc;
+
+global $USER;
+
 if ($arParams['SHOW_ACCOUNT_PAGE'] !== 'Y')
 {
 	LocalRedirect($arParams['SEF_FOLDER']);
 }
 
-use Bitrix\Main\Localization\Loc;
-if ($arParams['SET_TITLE'] == 'Y')
+if ($arParams['SET_TITLE'] === 'Y')
 {
 	$APPLICATION->SetTitle(Loc::getMessage("SPS_TITLE_ACCOUNT"));
 }
 
-if ($arParams["MAIN_CHAIN_NAME"] <> '')
+if ($arParams["MAIN_CHAIN_NAME"] !== '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }
@@ -23,9 +35,9 @@ if ($arParams['SHOW_ACCOUNT_COMPONENT'] !== 'N')
 	$APPLICATION->IncludeComponent(
 		"bitrix:sale.personal.account",
 		"",
-		Array(
-			"SET_TITLE" => "N"
-		),
+		[
+			"SET_TITLE" => "N",
+		],
 		$component
 	);
 }
@@ -60,4 +72,3 @@ if ($arParams['SHOW_ACCOUNT_PAY_COMPONENT'] !== 'N' && $USER->IsAuthorized())
 		$component
 	);
 }
-?>

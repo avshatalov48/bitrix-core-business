@@ -6,6 +6,7 @@ export default class Interface
 	{
 		this.buttonWrap = options.buttonWrap;
 		this.userId = options.userId;
+		this.payAttentionToNewFeature = options.payAttentionToNewFeature ?? false;
 	}
 
 	showSharingButton()
@@ -13,6 +14,7 @@ export default class Interface
 		this.sharingButton = new SharingButton({
 			wrap: this.buttonWrap,
 			userId: this.userId,
+			payAttentionToNewFeature: this.payAttentionToNewFeature,
 		});
 		this.sharingButton.show();
 	}

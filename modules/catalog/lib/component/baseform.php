@@ -611,7 +611,9 @@ abstract class BaseForm
 					}
 					else
 					{
-						$controlId = $description['name'] . '_uploader_' . $this->entity->getId();
+						// generate new IDs for new elements to avoid duplicate IDs in HTML inputs
+						$entityId = $this->entity->getId() ?? uniqid();
+						$controlId = $description['name'] . '_uploader_' . $entityId;
 
 						$additionalValues[$descriptionData['view']] = '';
 						$additionalValues[$descriptionData['viewList']]['SINGLE'] = '';
@@ -1147,22 +1149,30 @@ abstract class BaseForm
 			elseif ($fieldName === 'MEASURE')
 			{
 				$measureList = [];
+				$defaultMeasure = null;
 
 				foreach ($this->getMeasures() as $measure)
 				{
+					$measureId = (int)$measure['ID'];
 					$measureTitle = $measure['MEASURE_TITLE'];
 
 					if (empty($measureTitle))
 					{
-						$measureTitle = \CCatalogMeasureClassifier::getMeasureTitle($measure['CODE'], 'MEASURE_TITLE');
+						$measureTitle = \CCatalogMeasureClassifier::getMeasureTitle($measure['CODE']);
 					}
 
 					$measureList[] = [
 						'NAME' => HtmlFilter::encode($measureTitle),
-						'VALUE' => $measure['ID'],
+						'VALUE' => $measureId,
 					];
+
+					if ($measure['IS_DEFAULT'] === 'Y')
+					{
+						$defaultMeasure = $measureId;
+					}
 				}
 
+				$description['defaultValue'] = $defaultMeasure;
 				$description['data']['items'] = $measureList;
 				$description['type'] = 'list';
 			}
@@ -2421,15 +2431,6 @@ abstract class BaseForm
 			}
 		}
 
-		if ($field['originalName'] === 'MEASURE' && $value === null)
-		{
-			$defaultMeasure = \CCatalogMeasure::getDefaultMeasure();
-			if ($defaultMeasure)
-			{
-				$value = $defaultMeasure['ID'];
-			}
-		}
-
 		if ($field['originalName'] === 'VAT_ID' && $value === null && !$this->entity->isNew())
 		{
 			$value = self::NOT_SELECTED_VAT_ID_VALUE;
@@ -2541,6 +2542,7 @@ abstract class BaseForm
 					'ID',
 					'CODE',
 					'MEASURE_TITLE',
+					'IS_DEFAULT',
 				],
 			];
 

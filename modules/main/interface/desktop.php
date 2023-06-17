@@ -1,4 +1,12 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ * @global \CAdminPage $adminPage
+ * @global \CAdminMenu $adminMenu
+ */
+
 require_once(__DIR__."/../include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
 

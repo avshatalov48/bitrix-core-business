@@ -1,3 +1,3 @@
 <?php
-$MESS["D_TEMPLATE_NAME"] = "Шаринг календаря";
-$MESS["D_TEMPLATE_DESC"] = "Шаблона шаринга календаря";
+$MESS["D_TEMPLATE_NAME"] = "Свободные слоты";
+$MESS["D_TEMPLATE_DESC"] = "Шаблон для свободных слотов в календаре";

@@ -24,7 +24,7 @@ class CAllTicketReminder
 
 	public static function RecalculateLastMessageDeadline($RSD = true)
 	{
-		global $DB, $DBType;
+		global $DB;
 		$err_mess = (self::err_mess())."<br>Function: RecalculateLastMessage<br>Line: ";
 
 		$DB->StartUsingMasterOnly();
@@ -94,41 +94,15 @@ class CAllTicketReminder
 					ON b_ticket.ID = M.TID
 		";
 
-		$arS = array(
-			"MySQL" =>	"
-	UPDATE $strSql0
-	SET
-	b_ticket.D_1_USER_M_AFTER_SUP_M = M.DATE_CREATE,
-	b_ticket.ID_1_USER_M_AFTER_SUP_M = M.ID,
-	b_ticket.LAST_MESSAGE_BY_SUPPORT_TEAM = M.LMBS
-					",
+		$sql = "
+			UPDATE $strSql0
+			SET
+			b_ticket.D_1_USER_M_AFTER_SUP_M = M.DATE_CREATE,
+			b_ticket.ID_1_USER_M_AFTER_SUP_M = M.ID,
+			b_ticket.LAST_MESSAGE_BY_SUPPORT_TEAM = M.LMBS
+		";
 
-			"MSSQL" =>	"
-	UPDATE b_ticket
-	SET
-	b_ticket.D_1_USER_M_AFTER_SUP_M = M.DATE_CREATE,
-	b_ticket.ID_1_USER_M_AFTER_SUP_M = M.ID,
-	b_ticket.LAST_MESSAGE_BY_SUPPORT_TEAM = M.LMBS
-	FROM $strSql0
-					",
-
-
-
-
-			"Oracle" =>	"
-	UPDATE b_ticket T0
-	SET (D_1_USER_M_AFTER_SUP_M, ID_1_USER_M_AFTER_SUP_M, LAST_MESSAGE_BY_SUPPORT_TEAM) = (
-		SELECT
-			M.DATE_CREATE,
-			M.ID,
-			M.LMBS
-		FROM ".str_replace(" AS ", " ", $strSql0)."
-		WHERE b_ticket.ID = T0.ID
-	)
-					",
-		);
-
-		$res = $DB->Query($arS[$DBType], true);
+		$res = $DB->Query($sql, true);
 
 		$res = $DB->Query("UPDATE b_ticket SET SUPPORT_DEADLINE = null, SUPPORT_DEADLINE_NOTIFY = null WHERE LAST_MESSAGE_BY_SUPPORT_TEAM = 'Y'", true);
 

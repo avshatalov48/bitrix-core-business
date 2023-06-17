@@ -202,7 +202,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 		}
 
-		if ($this->arParams['MODE'] == 'ROLLBACK')
+		if (isset($this->arParams['MODE']) && $this->arParams['MODE'] == 'ROLLBACK')
 		{
 			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
 			{
@@ -312,7 +312,8 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		}
 
 		if (
-			$this->arParams['MODE'] === 'ZIP'
+			isset($this->arParams['MODE'])
+			&& $this->arParams['MODE'] === 'ZIP'
 			&& (int)$this->arParams['ZIP_ID'] > 0
 		)
 		{
@@ -324,7 +325,12 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 
 			$app = AppTable::getByClientId($site['APP_CODE']);
 
-			if ($app['ACTIVE'] === 'Y' && $app['INSTALLED'] === 'Y')
+			if (
+				!empty($app['ACTIVE'])
+				&& $app['ACTIVE'] === 'Y'
+				&& !empty($app['INSTALLED'])
+				&& $app['INSTALLED'] === 'Y'
+			)
 			{
 				if (!empty($site['CONFIG']))
 				{
@@ -478,7 +484,10 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				return false;
 			}
 		}
-		elseif($result['IMPORT_ROLLBACK_DISK_FOLDER_ID'] && $result['IMPORT_ROLLBACK_STORAGE_PARAMS'])
+		elseif(
+			!empty($result['IMPORT_ROLLBACK_DISK_FOLDER_ID'])
+			&& !empty($result['IMPORT_ROLLBACK_STORAGE_PARAMS'])
+		)
 		{
 			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
 			{
@@ -536,7 +545,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		if (isset($this->arParams['SET_TITLE']) && $this->arParams['SET_TITLE'] == 'Y')
 		{
 			global $APPLICATION;
-			if ($this->arParams['MODE'] == 'ROLLBACK')
+			if (isset($this->arParams['MODE']) && $this->arParams['MODE'] == 'ROLLBACK')
 			{
 				$APPLICATION->SetTitle(Loc::getMessage('REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE'));
 			}

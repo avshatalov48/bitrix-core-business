@@ -9,12 +9,12 @@ return [
 	'js' => 'dist/entity-card.bundle.js',
 	'rel' => [
 		'ui.entity-editor',
-		'ui.notification',
 		'ui.feedback.form',
 		'ui.hint',
 		'ui.fonts.opensans',
 		'ui.design-tokens',
 		'translit',
+		'ui.notification',
 		'main.popup',
 		'main.core',
 		'main.core.events',

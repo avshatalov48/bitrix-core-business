@@ -27,13 +27,14 @@ if($arGadgetParams["CNT"] > 50)
 
 $cache = new CPageCache();
 if(
-	$arGadgetParams["CACHE_TIME"] > 0 
+	isset($arGadgetParams["CACHE_TIME"])
+	&& $arGadgetParams["CACHE_TIME"] > 0
 	&& !$cache->StartDataCache($arGadgetParams["CACHE_TIME"], 'c'.$arGadgetParams["RSS_URL"].'-'.$arGadgetParams["CNT"], "gdrss")
 )
 {
 	CMain::FinalActions();
 }
-	
+
 ?>
 <?php
 if($arGadgetParams["RSS_URL"]=="")
@@ -62,7 +63,7 @@ if($rss)
 	}
 	</script>
 	<div class="gdrsstitle"><?php
-	if($arGadgetParams["SHOW_URL"]=="Y" && preg_match("'^(http://|https://|ftp://)'i", $rss->link))
+	if(isset($arGadgetParams["SHOW_URL"]) && $arGadgetParams["SHOW_URL"]=="Y" && preg_match("'^(http://|https://|ftp://)'i", $rss->link))
 	{
 		?><a href="<?=htmlspecialcharsbx($rss->link)?>"><?=htmlspecialcharsEx($rss->title)?></a><?php
 	}
@@ -73,18 +74,19 @@ if($rss)
 	?></div>
 	<div class="gdrssitems"><?php
 	$cnt = 0;
-	
-	if ($arGadgetParams["IS_HTML"] == "Y")
+
+	if (isset($arGadgetParams["IS_HTML"]) && $arGadgetParams["IS_HTML"] == "Y")
 	{
 		$sanitizer = new CBXSanitizer();
 		$sanitizer->SetLevel(CBXSanitizer::SECURE_LEVEL_HIGH);
 	}
-	
+
 	foreach($rss->items as $item)
 	{
 		$cnt++;
 		if (
-			$arGadgetParams["CNT"] > 0 
+			isset($arGadgetParams["CNT"])
+			&& $arGadgetParams["CNT"] > 0
 			&& $arGadgetParams["CNT"] < $cnt
 		)
 		{
@@ -92,13 +94,13 @@ if($rss)
 		}
 
 		$item["DESCRIPTION"] = (isset($arGadgetParams["IS_HTML"]) && $arGadgetParams["IS_HTML"] == "Y" ? $sanitizer->SanitizeHtml($item["DESCRIPTION"]) : strip_tags($item["DESCRIPTION"]));
-		$item["TITLE"] = strip_tags($item["TITLE"]);
+		$item["TITLE"] = strip_tags($item["TITLE"] ?? '');
 
 		?><div class="gdrssitem">
 			<div class="gdrssitemtitle">&raquo; <a href="javascript:void(0)" onclick="ShowHide<?=$idAttr?>('z<?=$cnt.md5($item["TITLE"])?><?=$idAttr?>')"><?=htmlspecialcharsEx($item["TITLE"])?></a></div>
 			<div class="gdrssitemdetail" id="z<?=$cnt.md5($item["TITLE"])?><?=$idAttr?>" style="display:none">
 				<div class="gdrssitemdate"><?=htmlspecialcharsEx($item["PUBDATE"])?></div>
-				<div class="gdrssitemdesc"><?=$item["DESCRIPTION"]?> <?php if($arGadgetParams["SHOW_URL"]=="Y" && preg_match("'^(http://|https://|ftp://)'i", $item["LINK"])):?><a href="<?=htmlspecialcharsbx($item["LINK"])?>"><?echo GetMessage("GD_RSS_READER_RSS_MORE")?></a><?endif?></div>
+				<div class="gdrssitemdesc"><?=$item["DESCRIPTION"]?> <?php if(isset($arGadgetParams["SHOW_URL"]) && $arGadgetParams["SHOW_URL"]=="Y" && preg_match("'^(http://|https://|ftp://)'i", $item["LINK"])):?><a href="<?=htmlspecialcharsbx($item["LINK"])?>"><?echo GetMessage("GD_RSS_READER_RSS_MORE")?></a><?endif?></div>
 			</div>
 		</div><?php
 	}

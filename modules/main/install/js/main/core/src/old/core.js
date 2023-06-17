@@ -37,13 +37,6 @@
 
 	var CHECK_FORM_ELEMENTS = {tagName: /^INPUT|SELECT|TEXTAREA|BUTTON$/i};
 
-	var PRELOADING = 1;
-	var PRELOADED = 2;
-	var LOADING = 3;
-	var LOADED = 4;
-	var assets = {};
-	var isAsync = null;
-
 	BX.MSLEFT = 1;
 	BX.MSMIDDLE = 2;
 	BX.MSRIGHT = 4;
@@ -2389,6 +2382,10 @@
 		}
 	};
 
+	const LOADING = 3;
+	const LOADED = 4;
+	const assets = {};
+
 	BX.load = function(items, callback, doc)
 	{
 		if (!BX.isReady)
@@ -2397,61 +2394,44 @@
 			BX.ready(function() {
 				BX.load.apply(this, _args);
 			});
+
 			return null;
 		}
 
 		doc = doc || document;
-		if (isAsync === null)
-		{
-			isAsync = "async" in doc.createElement("script") || "MozAppearance" in doc.documentElement.style || window.opera;
-		}
 
-		return isAsync ? loadAsync(items, callback, doc) : loadAsyncEmulation(items, callback, doc);
+		callback = BX.Type.isFunction(callback) ? callback : () => {};
+
+		return loadAsync(items, callback, doc);
 	};
-
-	BX.convert =
-		{
-			toNumber: function(value)
-			{
-				if(BX.type.isNumber(value))
-				{
-					return value;
-				}
-
-				value = Number(value);
-				return !isNaN(value) ? value : 0;
-			},
-			nodeListToArray: function(nodes)
-			{
-				try
-				{
-					return (Array.prototype.slice.call(nodes, 0));
-				}
-				catch (ex)
-				{
-					var ary = [];
-					for(var i = 0, l = nodes.length; i < l; i++)
-					{
-						ary.push(nodes[i]);
-					}
-					return ary;
-				}
-			}
-		};
 
 	function loadAsync(items, callback, doc)
 	{
 		if (!BX.type.isArray(items))
 		{
+			callback();
+
 			return;
 		}
 
-		function allLoaded(items)
+		function onLoad()
 		{
-			items = items || assets;
-			for (var name in items)
+			const nextAsset = queue.shift();
+			if (nextAsset)
 			{
-				if (items.hasOwnProperty(name) && items[name].state !== LOADED)
+				load(nextAsset, onLoad, doc);
+			}
+			else if (allLoaded())
+			{
+				callback();
+			}
+		}
+
+		function allLoaded()
+		{
+			for (const name in assetMap)
+			{
+				if (assetMap[name].state !== LOADED)
 				{
 					return false;
 				}
@@ -2460,97 +2440,30 @@
 			return true;
 		}
 
-		if (!BX.type.isFunction(callback))
-		{
-			callback = null;
-		}
-
-		var itemSet = {}, item, i;
-		for (i = 0; i < items.length; i++)
-		{
-			item = items[i];
-			item = getAsset(item);
-			itemSet[item.name] = item;
-		}
-
-		var callbackWasCalled = false;
-		if (items.length > 0)
-		{
-			for (i = 0; i < items.length; i++)
+		const queue = [];
+		const assetMap = {};
+		items.forEach(item => {
+			const asset = getAsset(item);
+			if (asset && asset.state !== LOADED)
 			{
-				item = items[i];
-				item = getAsset(item);
-				load(item, function () {
-					if (allLoaded(itemSet))
-					{
-						if (!callbackWasCalled)
-						{
-							callback && callback();
-							callbackWasCalled = true;
-						}
-
-					}
-				}, doc);
+				queue.push(asset);
+				assetMap[asset.name] = asset;
 			}
+		});
+
+		if (queue.length > 0)
+		{
+			const maxParallelLoads = 6;
+			const parallelLoads = Math.min(queue.length, maxParallelLoads);
+			const firstPackage = queue.splice(0, parallelLoads);
+			firstPackage.forEach(asset => {
+				load(asset, onLoad, doc);
+			});
 		}
 		else
 		{
-			if (typeof callback === 'function')
-			{
-				callback();
-				callbackWasCalled = true;
-			}
+			callback();
 		}
-	}
-
-	function loadAsyncEmulation(items, callback, doc)
-	{
-		function onPreload(asset)
-		{
-			asset.state = PRELOADED;
-			if (BX.type.isArray(asset.onpreload) && asset.onpreload)
-			{
-				for (var i = 0; i < asset.onpreload.length; i++)
-				{
-					asset.onpreload[i].call();
-				}
-			}
-		}
-
-		function preLoad(asset)
-		{
-			if (asset.state === undefined)
-			{
-				asset.state = PRELOADING;
-				asset.onpreload = [];
-
-				loadAsset(
-					{ url: asset.url, type: "cache", ext: asset.ext},
-					function () { onPreload(asset); },
-					doc
-				);
-			}
-		}
-
-		if (!BX.type.isArray(items))
-		{
-			return;
-		}
-
-		if (!BX.type.isFunction(callback))
-		{
-			callback = null;
-		}
-
-		var rest = [].slice.call(items, 1);
-		for (var i = 0; i < rest.length; i++)
-		{
-			preLoad(getAsset(rest[i]));
-		}
-
-		load(getAsset(items[0]), items.length === 1 ? callback : function () {
-			loadAsyncEmulation.apply(null, [rest, callback, doc]);
-		}, doc);
 	}
 
 	function load(asset, callback, doc)
@@ -2560,14 +2473,6 @@
 		if (asset.state === LOADED)
 		{
 			callback();
-			return;
-		}
-
-		if (asset.state === PRELOADING)
-		{
-			asset.onpreload.push(function () {
-				load(asset, callback, doc);
-			});
 			return;
 		}
 
@@ -2623,8 +2528,8 @@
 			}
 		}
 
-		var ele;
-		var ext = BX.type.isNotEmptyString(asset.ext) ? asset.ext : BX.util.getExtension(asset.url);
+		let ele = null;
+		const ext = BX.type.isNotEmptyString(asset.ext) ? asset.ext : BX.util.getExtension(asset.url);
 
 		if (ext === "css")
 		{
@@ -2662,8 +2567,8 @@
 			jsList.push(normalizeMinUrl(normalizeUrl(asset.url)));
 		}
 
-		var templateLink = null;
-		var head = doc.head || doc.getElementsByTagName("head")[0];
+		let templateLink = null;
+		const head = doc.head || doc.getElementsByTagName("head")[0];
 		if (ext === "css" && (templateLink = getTemplateLink(head)) !== null)
 		{
 			templateLink.parentNode.insertBefore(ele, templateLink);
@@ -2700,6 +2605,7 @@
 		}
 
 		assets[asset.name] = asset;
+
 		return asset;
 	}
 
@@ -3297,6 +3203,35 @@
 			return e.srcElement;
 		}
 		return null;
+	};
+
+	BX.convert = {
+		toNumber: function(value)
+		{
+			if(BX.type.isNumber(value))
+			{
+				return value;
+			}
+
+			value = Number(value);
+			return !isNaN(value) ? value : 0;
+		},
+		nodeListToArray: function(nodes)
+		{
+			try
+			{
+				return (Array.prototype.slice.call(nodes, 0));
+			}
+			catch (ex)
+			{
+				var ary = [];
+				for(var i = 0, l = nodes.length; i < l; i++)
+				{
+					ary.push(nodes[i]);
+				}
+				return ary;
+			}
+		}
 	};
 
 	/******* HINT ***************/

@@ -45,7 +45,7 @@ CJSCore::Init(array("core"));
 				/Input params
 ********************************************************************/
 // Rapid Access $arParams["SHOW_FORUMS"] == "Y"
-if ($_GET["rapid_access"] == "Y"):
+if (($_GET["rapid_access"] ?? 'N') == "Y"):
 	$url = "";
 	if (mb_strpos($_GET["FID"], "GID_") !== false):
 		$iGid = intval(mb_substr($_GET["FID"], 4));
@@ -106,12 +106,10 @@ $arParams["SHOW_AUTH_FORM"] = ($arParams["SHOW_AUTH_FORM"] == "N" ? "N" : "Y");
 $arParams["SHOW_NAVIGATION"] = ($arParams["SHOW_NAVIGATION"] == "N" ? "N" : "Y");
 $arParams["SHOW_SUBSCRIBE_LINK"] = ($arParams["SHOW_SUBSCRIBE_LINK"] == "Y" ? "Y" : "N");
 $arParams["SHOW_LEGEND"] = ($arParams["SHOW_LEGEND"] == "N" ? "N" : "Y");
-$arParams["SHOW_STATISTIC"] = ($arParams["SHOW_STATISTIC"] == "N" ? "N" : "Y");
-if (!is_set($arParams, "SHOW_STATISTIC_BLOCK"))
-	$arParams["SHOW_STATISTIC_BLOCK"] = ($arParams["SHOW_STATISTIC"] == "Y" ? array("STATISTIC", "BIRTHDAY", "USERS_ONLINE") : array());
-$arParams["SHOW_STATISTIC_BLOCK"] = (is_array($arParams["SHOW_STATISTIC_BLOCK"]) ? $arParams["SHOW_STATISTIC_BLOCK"] : array($arParams["SHOW_STATISTIC_BLOCK"])); 
+$arParams["SHOW_STATISTIC"] = ($arParams["SHOW_STATISTIC"] ?? 'Y') == "N" ? "N" : "Y";
+$arParams["SHOW_STATISTIC_BLOCK"] = ($arParams["SHOW_STATISTIC"] == "Y" ? array("STATISTIC", "BIRTHDAY", "USERS_ONLINE") : array());
 $arParams["SHOW_NAME_LINK"] = "Y";
-$arParams["SHOW_FORUMS"] = ($arParams["SHOW_FORUMS"] == "N" ? "N" : "Y");
+$arParams["SHOW_FORUMS"] = ($arParams["SHOW_FORUMS"] ?? 'Y' == "N" ? "N" : "Y");
 $arParams["SHOW_FIRST_POST"] = ($arParams["SHOW_FIRST_POST"] == "Y" ? "Y" : "N");
 $arParams["SHOW_AUTHOR_COLUMN"] = ($arParams["SHOW_AUTHOR_COLUMN"] == "Y" ? "Y" : "N");
 $arParams["TMPLT_SHOW_ADDITIONAL_MARKER"] = trim($arParams["TMPLT_SHOW_ADDITIONAL_MARKER"]);

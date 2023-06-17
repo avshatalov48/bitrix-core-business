@@ -630,6 +630,10 @@ class File
 
 		if ($result->isSuccess())
 		{
+			$params["uploadMaxFilesize"] = $params["uploadMaxFilesize"] ?? 0;
+			$params["allowUploadExt"] = $params["allowUploadExt"] ?? false;
+			$params["allowUpload"] = $params["allowUpload"] ?? null; // 'I' - image, 'F' - files with ext in $params["allowUploadExt"]
+
 			if ($params["uploadMaxFilesize"] > 0 && $f->getSize() > $params["uploadMaxFilesize"])
 			{
 				$error = GetMessage("FILE_BAD_SIZE")." (".\CFile::FormatSize($f->getSize()).").";
@@ -638,11 +642,11 @@ class File
 			{
 				$name = $f->getName();
 				$ff = array_merge($file, array("name" => $name));
-				if ($params["allowUpload"] == "I")
+				if ($params["allowUpload"] === "I")
 				{
 					$error = \CFile::CheckFile($ff, $params["uploadMaxFilesize"], "image/", \CFile::GetImageExtensions());
 				}
-				elseif ($params["allowUpload"] == "F")
+				elseif ($params["allowUpload"] === "F" && $params["allowUploadExt"])
 				{
 					$error = \CFile::CheckFile($ff, $params["uploadMaxFilesize"], false, $params["allowUploadExt"]);
 				}

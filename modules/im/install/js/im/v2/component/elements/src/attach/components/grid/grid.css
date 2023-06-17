@@ -1,0 +1,55 @@
+/* common */
+.bx-im-attach-grid__name {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.bx-im-attach-grid__value.--link {
+	cursor: pointer;
+	color: #1d54a2;
+}
+
+.bx-im-attach-grid__value.--link:hover {
+	text-decoration: underline;
+}
+/* end common */
+
+
+/* block */
+.bx-im-attach-grid__item.--block {
+	max-width: 100%;
+}
+
+.bx-im-attach-grid__item.--block + .bx-im-attach-grid__item.--block {
+	margin-top: 5px;
+}
+/* end block */
+
+
+/* line */
+.bx-im-attach-grid__item.--line {
+	display: inline-block;
+	max-width: 100%;
+	padding-right: 10px;
+	box-sizing: border-box;
+}
+/* end line */
+
+
+/* row */
+.bx-im-attach-grid__item.--row table {
+	border-collapse: unset;
+	border-spacing: unset;
+}
+
+.bx-im-attach-grid__item.--row table .bx-im-attach-grid__name {
+	line-height: 20px;
+	vertical-align: top;
+	padding-right: 10px;
+	text-align: left;
+	min-width: 50px;
+}
+.bx-im-attach-grid__item.--row table .bx-im-attach-grid__value {
+	vertical-align: top;
+	line-height: 21px;
+}
+/* end row */

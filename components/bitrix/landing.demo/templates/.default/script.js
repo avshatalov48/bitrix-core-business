@@ -130,6 +130,7 @@
 				data: {
 					rightBoundary: 0,
 				},
+				customLeftBoundary: 60,
 				events: {
 					onClose: function (eventClosed)
 					{

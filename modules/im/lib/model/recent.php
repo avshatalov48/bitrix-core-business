@@ -125,6 +125,10 @@ class RecentTable extends Main\Entity\DataManager
 				'reference' => array('=this.ITEM_MID' => 'ref.MESSAGE_ID'),
 				'join_type' => 'LEFT',
 			),
+			'MARKED_ID' => array(
+				'data_type' => 'integer',
+				'default_value' => 0,
+			),
 		);
 	}
 

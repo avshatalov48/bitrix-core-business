@@ -6,6 +6,9 @@ import {RestUtil} from './rest';
 import {TextUtil} from './text';
 import {UserUtil} from './user';
 import {FileUtil} from './file';
+import {KeyUtil} from './key';
+import {DomUtil} from './dom';
+import {DialogUtil} from './dialog';
 
 export const Utils = {
 	browser: BrowserUtil,
@@ -16,4 +19,7 @@ export const Utils = {
 	text: TextUtil,
 	user: UserUtil,
 	file: FileUtil,
+	dom: DomUtil,
+	key: KeyUtil,
+	dialog: DialogUtil
 };

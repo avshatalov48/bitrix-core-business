@@ -16,7 +16,7 @@ class CBPFieldCondition extends CBPActivityCondition
 		$this->condition = $condition;
 	}
 
-	public function Evaluate(CBPActivity $ownerActivity)
+	public function evaluate(CBPActivity $ownerActivity)
 	{
 		if (!$this->isConditionGroupExist())
 		{
@@ -25,19 +25,19 @@ class CBPFieldCondition extends CBPActivityCondition
 
 		$this->conditionGroupToArray();
 
-		$rootActivity = $ownerActivity->GetRootActivity();
+		$rootActivity = $ownerActivity->getRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
-		$documentType = $rootActivity->GetDocumentType();
+		$documentType = $rootActivity->getDocumentType();
 
-		$documentService = $ownerActivity->workflow->GetService("DocumentService");
-		$document = $documentService->GetDocument($documentId, $documentType);
-		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentService = $ownerActivity->workflow->getRuntime()->getDocumentService();
+		$document = $documentService->getDocument($documentId, $documentType);
+		$documentFields = $documentService->getDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 
 		$items = [];
 		foreach ($this->condition as $cond)
 		{
-			if (!isset($document[$cond[0]]) && mb_substr($cond[0], -mb_strlen('_PRINTABLE')) == '_PRINTABLE')
+			if (!isset($document[$cond[0]]) && mb_substr($cond[0], -mb_strlen('_PRINTABLE')) === '_PRINTABLE')
 			{
 				$cond[0] = mb_substr($cond[0], 0, mb_strlen($cond[0]) - mb_strlen('_PRINTABLE'));
 			}
@@ -48,17 +48,17 @@ class CBPFieldCondition extends CBPActivityCondition
 			}
 
 			$fld = null;
-			if (isset($document[$cond[0] . "_XML_ID"]))
+			if (isset($document[$cond[0] . '_XML_ID']))
 			{
-				$fld = $document[$cond[0] . "_XML_ID"];
+				$fld = $document[$cond[0] . '_XML_ID'];
 			}
 			elseif(isset($document[$cond[0]]))
 			{
 				$fld = $document[$cond[0]];
 			}
 
-			$baseType = isset($documentFields[$cond[0]]) ? $documentFields[$cond[0]]["BaseType"] : null;
-			$type = isset($documentFields[$cond[0]]) ? $documentFields[$cond[0]]["Type"] : null;
+			$baseType = isset($documentFields[$cond[0]]) ? $documentFields[$cond[0]]['BaseType'] : null;
+			$type = isset($documentFields[$cond[0]]) ? $documentFields[$cond[0]]['Type'] : null;
 			if ($type === 'UF:boolean')
 			{
 				$baseType = 'bool';

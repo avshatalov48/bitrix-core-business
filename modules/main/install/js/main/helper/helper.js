@@ -133,9 +133,15 @@ BX.Helper =
 		{
 			sliderOptions = {};
 		}
-
-		var url = this.frameOpenUrl + ((this.frameOpenUrl.indexOf("?") < 0) ? "?" : "&") +
+		
+		//compote code
+		const frameOpenUrl = this.frameOpenUrl + ((this.frameOpenUrl.indexOf("?") < 0) ? "?" : "&") +
 			(BX.type.isNotEmptyString(additionalParam) ? additionalParam : "");
+
+		let url =  new URL(frameOpenUrl);
+		url.searchParams.delete('url');
+		url.searchParams.append('url', window.location.href);
+		url = url.toString();
 
 		if (this.getFrame().src !== url)
 		{
@@ -217,7 +223,8 @@ BX.Helper =
 		this.frameNode = BX.create('iframe', {
 			attrs: {
 				className: 'helper-panel-iframe',
-				src: "about:blank"
+				src: "about:blank",
+				allowfullscreen: 'on'
 			}
 		});
 

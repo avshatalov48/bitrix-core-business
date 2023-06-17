@@ -177,9 +177,9 @@ class CAllSocNetSubscription
 			return $arUserIDSent;
 		}
 
-		if (!is_array($arFields["GROUP_ID"]))
+		if (!is_array($arFields["GROUP_ID"] ?? null))
 		{
-			$arFields["GROUP_ID"] = array($arFields["GROUP_ID"]);
+			$arFields["GROUP_ID"] = array($arFields["GROUP_ID"] ?? null);
 		}
 
 		if (empty($arFields["GROUP_ID"]))
@@ -192,7 +192,7 @@ class CAllSocNetSubscription
 			$arFields["EXCLUDE_USERS"] = array();
 		}
 
-		if (intval($arFields["LOG_ID"]) > 0)
+		if (intval($arFields["LOG_ID"] ?? null) > 0)
 		{
 			$rsUnFollower = CSocNetLogFollow::GetList(
 				array(
@@ -207,7 +207,7 @@ class CAllSocNetSubscription
 				$arFields["EXCLUDE_USERS"][] = $arUnFollower["USER_ID"];
 			}
 
-			$arFields["EXCLUDE_USERS"] = array_unique($arFields["EXCLUDE_USERS"]);
+			$arFields["EXCLUDE_USERS"] = array_unique($arFields["EXCLUDE_USERS"], SORT_REGULAR);
 		}
 
 		$roleList = array();
@@ -288,7 +288,7 @@ class CAllSocNetSubscription
 			"NOTIFY_TAG" => ""
 		);
 
-		if (intval($arFields["FROM_USER_ID"]) > 0)
+		if (intval($arFields["FROM_USER_ID"] ?? null) > 0)
 		{
 			$arMessageFields["FROM_USER_ID"] = $arFields["FROM_USER_ID"];
 		}
@@ -301,7 +301,7 @@ class CAllSocNetSubscription
 				(intval($arFields["FROM_USER_ID"]) > 0 ? intval($arFields["FROM_USER_ID"]) : false)
 			);
 		}
-		elseif (intval($arFields["LOG_ID"]) > 0)
+		elseif (intval($arFields["LOG_ID"] ?? null) > 0)
 		{
 			$arMessageFields["NOTIFY_TAG"] = "SONET|EVENT|".intval($arFields["LOG_ID"]);
 		}
@@ -399,14 +399,14 @@ class CAllSocNetSubscription
 			}
 
 			$arMessageFields["TO_USER_ID"] = $arUser["USER_ID"];
-			if (intval($arFields["LOG_ID"]) > 0)
+			if (intval($arFields["LOG_ID"] ?? null) > 0)
 			{
 				$arMessageFields["NOTIFY_SUB_TAG"] = "SONET|EVENT|".intval($arFields["LOG_ID"])."|".intval($arUser["USER_ID"]);
 			}
 
 			$arTmp = CSocNetLogTools::ProcessPath(
 				array(
-					"URL" => $arFields["URL"],
+					"URL" => $arFields["URL"] ?? null,
 					"GROUP_URL" => str_replace(array("#group_id#", "#GROUP_ID#"), $arUser["GROUP_ID"], $groupUrlTemplate)
 				),
 				$arUser["USER_ID"],
@@ -427,12 +427,12 @@ class CAllSocNetSubscription
 			$arMessageFields["NOTIFY_MESSAGE"] = str_replace(
 				array("#URL#", "#url#", "#group_name#", "#GROUP_ID#", "#group_id#"),
 				array($url, $url, "<a href=\"".$groupUrl."\" class=\"bx-notifier-item-action\">".$group_name."</a>", $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
-				$arFields["MESSAGE"]
+				$arFields["MESSAGE"] ?? ''
 			);
 			$arMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
 				array("#URL#", "#url#", "#group_name#"),
 				array($serverName.$url, $serverName.$url, $group_name),
-				$arFields["MESSAGE_OUT"]
+				$arFields["MESSAGE_OUT"] ?? ''
 			);
 
 			$arMessageFields["PUSH_PARAMS"] = array(
@@ -440,7 +440,7 @@ class CAllSocNetSubscription
 				"TAG" => $arMessageFields["NOTIFY_TAG"]
 			);
 
-			if (intval($arFields["FROM_USER_ID"]) > 0)
+			if (intval($arFields["FROM_USER_ID"] ?? null) > 0)
 			{
 				$dbAuthor = CUser::getByID($arFields["FROM_USER_ID"]);
 				if($arAuthor = $dbAuthor->fetch())
@@ -482,7 +482,7 @@ class CAllSocNetSubscription
 			$arMessageFields["PUSH_MESSAGE"] = str_replace(
 				array("[URL=#URL#]", "[URL=#url#]", "[/URL]", "#group_name#", "#GROUP_ID#", "#group_id#"),
 				array('', '', '', $group_name, $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
-				$arFields["MESSAGE"]
+				$arFields["MESSAGE"] ?? ''
 			);
 
 			$arMessageFields2Send = $arMessageFields;

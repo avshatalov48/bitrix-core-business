@@ -3,10 +3,9 @@ namespace Bitrix\Main\Data;
 
 use Bitrix\Main;
 
-class CacheEngineFiles
-	implements ICacheEngine, ICacheEngineStat
+class CacheEngineFiles implements ICacheEngine, ICacheEngineStat
 {
-	private $TTL;
+	private $ttl;
 
 	//cache stats
 	private $written = false;
@@ -269,15 +268,15 @@ class CacheEngineFiles
 	/**
 	 * Reads cache from the file. Returns true if file exists, not expired, and successfully read.
 	 *
-	 * @param mixed &$allVars Cached result.
+	 * @param mixed &$vars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
-	 * @param integer $TTL Expiration period in seconds.
+	 * @param integer $ttl Expiration period in seconds.
 	 *
 	 * @return boolean
 	 */
-	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$vars, $baseDir, $initDir, $filename, $ttl)
 	{
 		$documentRoot = Main\Loader::getDocumentRoot();
 		$fn = $documentRoot."/".ltrim($baseDir.$initDir, "/").$filename;
@@ -291,7 +290,7 @@ class CacheEngineFiles
 		$zeroDanger = false;
 
 		$handle = null;
-		if (is_array($allVars))
+		if (is_array($vars))
 		{
 			$INCLUDE_FROM_CACHE = 'Y';
 
@@ -321,7 +320,7 @@ class CacheEngineFiles
 		$this->path = $fn;
 
 		$res = true;
-		if (intval($datecreate) < (time() - $TTL))
+		if (intval($datecreate) < (time() - $ttl))
 		{
 			if ($this->useLock)
 			{
@@ -338,13 +337,13 @@ class CacheEngineFiles
 
 		if($res == true)
 		{
-			if (is_array($allVars))
+			if (is_array($vars))
 			{
-				$allVars = unserialize($ser_content);
+				$vars = unserialize($ser_content);
 			}
 			else
 			{
-				$allVars = fread($handle, $this->read);
+				$vars = fread($handle, $this->read);
 			}
 		}
 
@@ -359,15 +358,15 @@ class CacheEngineFiles
 	/**
 	 * Writes cache into the file.
 	 *
-	 * @param mixed $allVars Cached result.
+	 * @param mixed $vars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
-	 * @param integer $TTL Expiration period in seconds.
+	 * @param integer $ttl Expiration period in seconds.
 	 *
 	 * @return void
 	 */
-	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($vars, $baseDir, $initDir, $filename, $ttl)
 	{
 		static $search = array("\\", "'", "\0");
 		static $replace = array("\\\\", "\\'", "'.chr(0).'");
@@ -381,20 +380,20 @@ class CacheEngineFiles
 
 		if ($handle = fopen($fnTmp, "wb+"))
 		{
-			if (is_array($allVars))
+			if (is_array($vars))
 			{
 				$contents = "<?";
 				$contents .= "\nif(\$INCLUDE_FROM_CACHE!='Y')return false;";
 				$contents .= "\n\$datecreate = '".str_pad(time(), 12, "0", STR_PAD_LEFT)."';";
-				$contents .= "\n\$dateexpire = '".str_pad(time() + intval($TTL), 12, "0", STR_PAD_LEFT)."';";
-				$contents .= "\n\$ser_content = '".str_replace($search, $replace, serialize($allVars))."';";
+				$contents .= "\n\$dateexpire = '".str_pad(time() + intval($ttl), 12, "0", STR_PAD_LEFT)."';";
+				$contents .= "\n\$ser_content = '".str_replace($search, $replace, serialize($vars))."';";
 				$contents .= "\nreturn true;";
 				$contents .= "\n?>";
 			}
 			else
 			{
-				$contents = "BX".str_pad(time(), 12, "0", STR_PAD_LEFT).str_pad(time() + intval($this->TTL), 12, "0", STR_PAD_LEFT);
-				$contents .= $allVars;
+				$contents = "BX".str_pad(time(), 12, "0", STR_PAD_LEFT).str_pad(time() + intval($this->ttl), 12, "0", STR_PAD_LEFT);
+				$contents .= $vars;
 			}
 
 			$this->written = fwrite($handle, $contents);

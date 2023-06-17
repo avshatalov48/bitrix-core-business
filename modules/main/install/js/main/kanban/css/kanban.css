@@ -11,7 +11,10 @@
 	--red: rgba(229,73,89,1);
 	--graphite: rgba(82,92,105,1);
 	--graphite_alpha_08: rgba(82,92,105,.08);
+	--graphite_alpha_10: rgba(82,92,105,.1);
+	--graphite_alpha_14: rgba(82,92,105,.14);
 	--graphite_alpha_15: rgba(82,92,105,.15);
+	--graphite_alpha_20: rgba(82,92,105,.2);
 	--graphite_alpha_30: rgba(82,92,105,.3);
 	--graphite_alpha_40: rgba(82,92,105,.4);
 	--graphite_alpha_50: rgba(82,92,105,.5);
@@ -613,8 +616,6 @@
 }
 
 .main-kanban-column-body {
-	-webkit-box-flex: 1;
-	-ms-flex: 1;
 	flex: 1;
 	padding: 1px 3px 0 1px;
 	margin: 0 -2px 0 0;
@@ -628,8 +629,10 @@
 	scrollbar-base-color: #ccc;
 	scrollbar-shadow-color: #fff;
 	scrollbar-highlight-color: #fff;
-	-webkit-transition: .2s;
 	transition: .2s;
+	/*Firefox fix */
+	scrollbar-width: thin;
+	scrollbar-color: #ccc transparent;
 }
 
 .main-kanban-search-mode .main-kanban-column-body {
@@ -919,7 +922,7 @@
 	overflow: hidden;
 	position: relative;
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-weight: var(--ui-font-weight-light, 300);
+	font-weight: var(--ui-font-weight-light);
 	min-height: 25px;
 	line-height: 70px;
 	color: #525c68;
@@ -928,8 +931,9 @@
 }
 
 .main-kanban-column-subtitle-box {
-	min-height: 35px;
-	padding-top: 5px;
+	/*min-height: 35px;*/
+	/*padding-top: 5px;*/
+	padding: 6px 1px 0 6px;
 }
 
 .main-kanban-column-add-item-button {
@@ -944,7 +948,7 @@
 	cursor: pointer;
 	background-color: transparent;
 	transition: .2s;
-	border-radius: var(--ui-border-radius-2xs);
+	border-radius: var(--ui-border-radius-3xl);
 }
 
 .main-kanban-column-add-item-button.--pulse {
@@ -1007,13 +1011,29 @@
 .main-kanban-column:hover .main-kanban-column-add-item-button,
 .main-kanban-column-add-item-button.--hover,
 .main-kanban-column-add-item-button:hover {
-	background-color: var(--graphite_alpha_08);
+	/*background-color: var(--graphite_alpha_08);*/
+	background-color: var(--white_alpha_40);
 }
 
 .bitrix24-light-theme .main-kanban-column:hover .main-kanban-column-add-item-button,
-.bitrix24-light-theme .main-kanban-column-add-item-button.--hover,
-.bitrix24-light-theme .main-kanban-column-add-item-button:hover {
+.bitrix24-light-theme .main-kanban-column-add-item-button.--hover {
 	background-color: var(--white_alpha_15);
+}
+
+.bitrix24-light-theme .main-kanban-column .main-kanban-column-add-item-button:hover {
+	background-color: var(--white_alpha_40);
+}
+
+.bitrix24-default-theme .main-kanban-column:hover .main-kanban-column-add-item-button,
+.bitrix24-default-theme .main-kanban-column-add-item-button.--hover,
+.bitrix24-dark-theme .main-kanban-column:hover .main-kanban-column-add-item-button,
+.bitrix24-dark-theme .main-kanban-column-add-item-button.--hover {
+	background: var(--graphite_alpha_08);
+}
+
+.bitrix24-default-theme .main-kanban-column .main-kanban-column-add-item-button:hover,
+.bitrix24-dark-theme .main-kanban-column .main-kanban-column-add-item-button:hover {
+	background: var(--graphite_alpha_14);
 }
 
 .main-kanban-column-add-item-button:before {
@@ -1040,10 +1060,8 @@
 	transition: .3s;
 }
 
-.main-kanban-column:hover .main-kanban-column-add-item-button-text,
-.main-kanban-column-add-item-button.--hover .main-kanban-column-add-item-button-text,
-.main-kanban-column-add-item-button:hover .main-kanban-column-add-item-button-text {
-	width: 105px;
+.main-kanban-column-add-item-button.--hover .main-kanban-column-add-item-button-text {
+	width: auto;
 }
 
 .bitrix24-light-theme .main-kanban-column-add-item-button-text {
@@ -1435,10 +1453,13 @@
 }
 
 .main-kanban-item-draft {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 	position: relative;
 	height: 92px;
 	border: 1px solid #65d2f6;
-	padding: 7px 12px 25px 12px;
+	padding: 7px 11px 7px 11px;
 	box-sizing: border-box;
 	background: #fff;
 	-webkit-border-radius: 2px;
@@ -1446,10 +1467,6 @@
 }
 
 .main-kanban-item-draft-info {
-	position: absolute;
-	bottom: 5px;
-	left: 12px;
-	right: 12px;
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
 	font-style: italic;

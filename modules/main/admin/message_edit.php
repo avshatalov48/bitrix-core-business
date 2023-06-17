@@ -31,8 +31,9 @@ IncludeModuleLangFile(__FILE__);
 
 $strError="";
 $bVarsFromForm = false;
-$ID=intval($ID);
-$COPY_ID=intval($COPY_ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$COPY_ID = intval($_REQUEST['COPY_ID'] ?? 0);
+
 $message=null;
 if($COPY_ID>0)
 	$ID = $COPY_ID;
@@ -42,8 +43,9 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['save']) || !empty($_POST['apply']))&& $isAdmin && check_bitrix_sessid())
 {
+	$MESSAGE = (string)($_POST['MESSAGE'] ?? '');
 	if(!$isUserHavePhpAccess)
 	{
 		$MESSAGE_OLD = false;
@@ -59,17 +61,15 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 		$MESSAGE = LPA::Process($MESSAGE, $MESSAGE_OLD);
 	}
 
-	if(is_array($ADDITIONAL_FIELD))
+	$ADDITIONAL_FIELD = '';
+	if(isset($_POST['ADDITIONAL_FIELD']['NAME']) && is_array($_POST['ADDITIONAL_FIELD']['NAME']))
 	{
 		$ADDITIONAL_FIELD_tmp = array();
-		foreach($ADDITIONAL_FIELD['NAME'] as $AddFieldNum => $addFieldName)
+		foreach($_POST['ADDITIONAL_FIELD']['NAME'] as $AddFieldNum => $addFieldName)
 		{
 			if($addFieldName <> '')
 			{
-				if(isset($ADDITIONAL_FIELD['VALUE'][$AddFieldNum]))
-					$addFieldValue = $ADDITIONAL_FIELD['VALUE'][$AddFieldNum];
-				else
-					$addFieldValue = '';
+				$addFieldValue = $_POST['ADDITIONAL_FIELD']['VALUE'][$AddFieldNum] ?? '';
 
 				$ADDITIONAL_FIELD_tmp[] = array('NAME'=> $addFieldName, 'VALUE'=> $addFieldValue);
 			}
@@ -81,25 +81,25 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 
 	$em = new CEventMessage;
 	$arFields = array(
-		"ACTIVE" => $ACTIVE,
+		"ACTIVE" => $_POST['ACTIVE'] ?? '',
 		"TIMESTAMP_X" => new \Bitrix\Main\Type\DateTime(),
-		"EVENT_NAME" => $EVENT_NAME,
-		"LID" => $LID,
-		"EMAIL_FROM" => $EMAIL_FROM,
-		"EMAIL_TO" => $EMAIL_TO,
-		"BCC" => $BCC,
-		"CC" => $CC,
-		"REPLY_TO" => $REPLY_TO,
-		"IN_REPLY_TO" => $IN_REPLY_TO,
-		"PRIORITY" => $PRIORITY,
-		"FIELD1_NAME" => $FIELD1_NAME,
-		"FIELD1_VALUE" => $FIELD1_VALUE,
-		"FIELD2_NAME" => $FIELD2_NAME,
-		"FIELD2_VALUE" => $FIELD2_VALUE,
-		"SUBJECT" => $SUBJECT,
+		"EVENT_NAME" => $_POST['EVENT_NAME'] ?? '',
+		"LID" => $_POST['LID'] ?? '',
+		"EMAIL_FROM" => $_POST['EMAIL_FROM'] ?? '',
+		"EMAIL_TO" => $_POST['EMAIL_TO'] ?? '',
+		"BCC" => $_POST['BCC'] ?? '',
+		"CC" => $_POST['CC'] ?? '',
+		"REPLY_TO" => $_POST['REPLY_TO'] ?? '',
+		"IN_REPLY_TO" => $_POST['IN_REPLY_TO'] ?? '',
+		"PRIORITY" => $_POST['PRIORITY'] ?? '',
+		"FIELD1_NAME" => $_POST['FIELD1_NAME'] ?? '',
+		"FIELD1_VALUE" => $_POST['FIELD1_VALUE'] ?? '',
+		"FIELD2_NAME" => $_POST['FIELD2_NAME'] ?? '',
+		"FIELD2_VALUE" => $_POST['FIELD2_VALUE'] ?? '',
+		"SUBJECT" => $_POST['SUBJECT'] ?? '',
 		"MESSAGE" => $MESSAGE,
-		"BODY_TYPE" => $BODY_TYPE,
-		"SITE_TEMPLATE_ID" => $SITE_TEMPLATE_ID,
+		"BODY_TYPE" => $_POST['BODY_TYPE'] ?? '',
+		"SITE_TEMPLATE_ID" => $_POST['SITE_TEMPLATE_ID'] ?? '',
 		"ADDITIONAL_FIELD" => $ADDITIONAL_FIELD,
 		"LANGUAGE_ID" => $_POST["LANGUAGE_ID"],
 	);
@@ -127,7 +127,7 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 		$arFiles = array();
 
 		//update files
-		if(is_array($_FILES["FILES"]))
+		if(isset($_FILES["FILES"]) && is_array($_FILES["FILES"]))
 		{
 			foreach($_FILES["FILES"] as $attribute=>$files)
 			{
@@ -164,7 +164,7 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 			}
 		}
 
-		if(count($FILE_ID_tmp)>0)
+		if(!empty($FILE_ID_tmp))
 		{
 			$deleteFileDb = \Bitrix\Main\Mail\Internal\EventMessageAttachmentTable::getList(array(
 				'select' => array('EVENT_MESSAGE_ID', 'FILE_ID'),
@@ -178,7 +178,7 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 		}
 
 		//Brandnew
-		if(is_array($_FILES["NEW_FILE"]))
+		if(isset($_FILES["NEW_FILE"]) && is_array($_FILES["NEW_FILE"]))
 		{
 			foreach($_FILES["NEW_FILE"] as $attribute=>$files)
 			{
@@ -247,7 +247,7 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 
 		foreach($arFiles as $file)
 		{
-			if($file["name"] <> '' and intval($file["size"])>0)
+			if (!empty($file["name"]) && isset($file["size"]) && intval($file["size"]) > 0)
 			{
 				$resultInsertAttachFile = false;
 				$file["MODULE_ID"] = "main";
@@ -265,8 +265,8 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 					break;
 			}
 		}
-	
-		if ($save <> '')
+
+		if (!empty($_POST['save']))
 		{
 			if (!empty($_REQUEST["type"]))
 				LocalRedirect(BX_ROOT."/admin/type_edit.php?EVENT_NAME=".$EVENT_NAME."&lang=".LANGUAGE_ID);
@@ -280,7 +280,23 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 
 $arEventMessageFile = array();
 $str_ACTIVE = "Y";
-$str_EVENT_NAME = $_REQUEST["EVENT_NAME"];
+$str_EVENT_NAME = $_REQUEST["EVENT_NAME"] ?? '';
+$str_TIMESTAMP_X = '';
+$str_LID = '';
+$str_LANGUAGE_ID = '';
+$str_EMAIL_FROM = '';
+$str_EMAIL_TO = '';
+$str_BCC = '';
+$str_PRIORITY = '';
+$str_ADDITIONAL_FIELD = '';
+$str_CC = '';
+$str_REPLY_TO = '';
+$str_IN_REPLY_TO = '';
+$str_SUBJECT = '';
+$str_MESSAGE = '';
+$str_BODY_TYPE = '';
+$str_SITE_TEMPLATE_ID = '';
+
 $em = CEventMessage::GetByID($ID);
 if(!$em->ExtractEditFields("str_"))
 {
@@ -306,7 +322,7 @@ else
 
 if($bVarsFromForm)
 {
-	$str_LID = $LID;
+	$str_LID = $_REQUEST['LID'] ?? '';
 	$DB->InitTableVarsForEdit("b_event_message", "", "str_");
 	$str_ADDITIONAL_FIELD = $ADDITIONAL_FIELD;
 }
@@ -333,7 +349,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 <input type="hidden" name="lang" value="<?echo LANG?>" />
 <input type="hidden" name="ID" value="<?echo $ID?>" />
 <input type="hidden" name="COPY_ID" value="<?echo $COPY_ID?>" />
-<input type="hidden" name="type" value="<?echo htmlspecialcharsbx($_REQUEST["type"])?>" />
+<input type="hidden" name="type" value="<?echo htmlspecialcharsbx($_REQUEST["type"] ?? '')?>" />
 <script type="text/javascript" language="JavaScript">
 <!--
 var t=null;
@@ -678,7 +694,7 @@ $tabControl->BeginNextTab();
 		}
 	}
 	?>
-	<?if(count($arAttachedImagePlaceHolders)>0):?>
+	<?if(!empty($arAttachedImagePlaceHolders)):?>
 	<tr>
 		<td align="left" colspan="2"><br><b><?=GetMessage("AVAILABLE_FIELDS_ATTACHMENT")?></b><br><br>
 			<?foreach($arAttachedImagePlaceHolders as $arFile):?>
@@ -706,7 +722,7 @@ $tabControl->BeginNextTab();
 			<?=EndNote()?>
 		</td>
 	</tr>
-	
+
 	<?
 	//********************
 	//Attachments

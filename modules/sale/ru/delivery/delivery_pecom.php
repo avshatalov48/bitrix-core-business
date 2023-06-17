@@ -115,9 +115,25 @@ class CDeliveryPecom
 		$shopLocationId = CSaleHelper::getShopLocationId($siteId);
 		$arShopLocation = CSaleHelper::getLocationByIdHitCached($shopLocationId);
 
-		$locString = $arShopLocation["COUNTRY_NAME_LANG"] <> '' ? $arShopLocation["COUNTRY_NAME_LANG"] : "";
-		$locString .= ($arShopLocation["REGION_NAME_LANG"] <> '' ? ($locString <> '' ? ", " : "").$arShopLocation["REGION_NAME_LANG"] : "");
-		$locString .= ($arShopLocation["CITY_NAME_LANG"] <> '' ? ($locString <> '' ? ", " : "").$arShopLocation["CITY_NAME_LANG"] : "");
+		$locDescription = [];
+		if (!empty($arShopLocation) && is_array($arShopLocation))
+		{
+			$descriptionFields = [
+				'COUNTRY_NAME_LANG',
+				'REGION_NAME_LANG',
+				'CITY_NAME_LANG',
+			];
+
+			foreach ($descriptionFields as $fieldName)
+			{
+				$value = trim((string)($arShopLocation[$fieldName] ?? ''));
+				if ($value !== '')
+				{
+					$locDescription[] = $value;
+				}
+			}
+		}
+		$locString = implode(', ', $locDescription);
 
 		$locDelivery = Adapter::mapLocation($shopLocationId);
 

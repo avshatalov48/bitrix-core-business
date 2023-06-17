@@ -711,10 +711,6 @@ final class CatalogStoreDocumentProductListComponent
 		foreach ($documentProducts as $id => $document)
 		{
 			$productId = (int)($document['ELEMENT_ID'] ?? null);
-			if (!$productId)
-			{
-				continue;
-			}
 
 			if (isset($productInfo[$productId]))
 			{
@@ -727,17 +723,15 @@ final class CatalogStoreDocumentProductListComponent
 			}
 
 			$productName = $product['NAME'] ?? '';
+			$rowId = (int)($product['ID'] ?? 0);
 			if (
 				isset($product)
 				&& $productName === ''
 				&& is_numeric($product['ID'])
-				&& $product['ID'] !== self::PRODUCT_ID_MASK
+				&& $rowId > 0
 			)
 			{
-				$productName = ((int)$product['ID'] > 0 && isset($product['NAME'])
-					? $product['NAME']
-					: "[{$product['ID']}]"
-				);
+				$productName = "[{$rowId}]";
 			}
 
 
@@ -750,14 +744,17 @@ final class CatalogStoreDocumentProductListComponent
 				$barcode = $barcodes[$productId] ?? '';
 			}
 
+			$existsStoreTo = isset($document['STORE_TO']) && (int)$document['STORE_TO'] > 0;
+			$existsStoreFrom = isset($document['STORE_FROM']) && (int)$document['STORE_FROM'] > 0;
+
 			$availableAmountTo = 0;
-			if (isset($document['STORE_TO']) && (int)$document['STORE_TO'] > 0)
+			if ($productId && $existsStoreTo)
 			{
 				$availableAmountTo = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_TO']);
 			}
 
 			$availableAmountFrom = 0;
-			if (isset($document['STORE_FROM']) && (int)$document['STORE_FROM'] > 0)
+			if ($productId && $existsStoreFrom)
 			{
 				$availableAmountFrom = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_FROM']);
 			}
@@ -770,13 +767,7 @@ final class CatalogStoreDocumentProductListComponent
 				'ROW_ID' => $this->getRowIdPrefix($document['ID']),
 				'BARCODE' => $barcode,
 				'DOC_BARCODE' => $barcode,
-				'STORE_TO_TITLE' => $this->stores[$document['STORE_TO']]['TITLE'] ?? '',
-				'STORE_TO_AMOUNT' => $productStoreInfo[$productId][$document['STORE_TO']]['AMOUNT'] ?? '',
-				'STORE_TO_RESERVED' => $productStoreInfo[$productId][$document['STORE_TO']]['QUANTITY_RESERVED'] ?? '',
 				'STORE_TO_AVAILABLE_AMOUNT' => $availableAmountTo,
-				'STORE_FROM_TITLE' => $this->stores[$document['STORE_FROM']]['TITLE'] ?? '',
-				'STORE_FROM_AMOUNT' => $productStoreInfo[$productId][$document['STORE_FROM']]['AMOUNT'] ?? '',
-				'STORE_FROM_RESERVED' => $productStoreInfo[$productId][$document['STORE_FROM']]['QUANTITY_RESERVED'] ?? '',
 				'STORE_FROM_AVAILABLE_AMOUNT' => $availableAmountFrom,
 				'STORE_AMOUNT_MAP' => $productStoreInfo[$productId] ?? null,
 				'IBLOCK_ID' => $product['IBLOCK_ID'] ?? $this->arParams['IBLOCK_ID'],
@@ -785,7 +776,7 @@ final class CatalogStoreDocumentProductListComponent
 				'OFFERS_IBLOCK_ID' => $product['OFFERS_IBLOCK_ID'] ?? null,
 				'SKU_ID' => $product['SKU_ID'] ?? null,
 				'PRODUCT_ID' => $product['PRODUCT_ID'] ?? null,
-				'SKU_TREE' => Json::encode($product['SKU_TREE']) ?? null,
+				'SKU_TREE' => !empty($product['SKU_TREE']) ? Json::encode($product['SKU_TREE']) : null,
 				'DETAIL_URL' => $product['DETAIL_URL'] ?? null,
 				'IMAGE_INFO' => $product['IMAGE_INFO'] ?? null,
 				'MEASURE_NAME' => $product['MEASURE_NAME'] ?? null,
@@ -797,6 +788,32 @@ final class CatalogStoreDocumentProductListComponent
 				'BASKET_ID' => $document['BASKET_ID'] ?? 0,
 				'TYPE' => $product['TYPE'] ?? null,
 			];
+
+			if ($existsStoreTo)
+			{
+				$additionalData['STORE_TO_TITLE'] = $this->stores[$document['STORE_TO']]['TITLE'] ?? '';
+				$additionalData['STORE_TO_AMOUNT'] = $productStoreInfo[$productId][$document['STORE_TO']]['AMOUNT'] ?? '';
+				$additionalData['STORE_TO_RESERVED'] = $productStoreInfo[$productId][$document['STORE_TO']]['QUANTITY_RESERVED'] ?? '';
+			}
+			else
+			{
+				$additionalData['STORE_TO_TITLE'] = '';
+				$additionalData['STORE_TO_AMOUNT'] = '';
+				$additionalData['STORE_TO_RESERVED'] = '';
+			}
+
+			if ($existsStoreFrom)
+			{
+				$additionalData['STORE_FROM_TITLE'] = $this->stores[$document['STORE_FROM']]['TITLE'] ?? '';
+				$additionalData['STORE_FROM_AMOUNT'] = $productStoreInfo[$productId][$document['STORE_FROM']]['AMOUNT'] ?? '';
+				$additionalData['STORE_FROM_RESERVED'] = $productStoreInfo[$productId][$document['STORE_FROM']]['QUANTITY_RESERVED'] ?? '';
+			}
+			else
+			{
+				$additionalData['STORE_FROM_TITLE'] = '';
+				$additionalData['STORE_FROM_AMOUNT'] = '';
+				$additionalData['STORE_FROM_RESERVED'] = '';
+			}
 
 			$documentProducts[$id] = array_merge($document, $additionalData);
 		}
@@ -1440,7 +1457,8 @@ final class CatalogStoreDocumentProductListComponent
 		{
 			$userColumnsOrder = array_filter(
 				$defaultColumnsOrder,
-				static function($columnName) use ($columnDescriptions) {
+				static function($columnName) use ($columnDescriptions)
+				{
 					return $columnDescriptions[$columnName]['default'] === true;
 				}
 			);
@@ -1992,11 +2010,12 @@ final class CatalogStoreDocumentProductListComponent
 						'NAME' => $row['NAME'],
 						'IBLOCK_ID' => $row['IBLOCK_ID'] ?? null,
 						'SKU_IBLOCK_ID' => $row['OFFERS_IBLOCK_ID'] ?? null,
-						'SKU_ID' => $row['OFFER_ID'] ?? null,
+						'SKU_ID' => $row['SKU_ID'] ?? null,
 						'BASE_PRICE_ID' => $row['BASE_PRICE_ID'] ?? null,
 					],
 					'SKU_TREE' => $row['SKU_TREE'] ? Json::decode($row['SKU_TREE']) : '',
 					'MODE' => 'view',
+					'VIEW_FORMAT' => 'short',
 					'ENABLE_SEARCH' => false,
 					'ENABLE_IMAGE_CHANGE_SAVING' => false,
 					'ENABLE_INPUT_DETAIL_LINK' => true,
@@ -2437,13 +2456,21 @@ final class CatalogStoreDocumentProductListComponent
 			return null;
 		}
 
-		$accessibleStores = array_filter($this->getStores(), static function($store) use($accessibleStoresIds) {
-			return in_array((int)$store['ID'], $accessibleStoresIds, true);
-		});
+		$accessibleStores = array_filter(
+			$this->getStores(),
+			static function($store) use($accessibleStoresIds)
+			{
+				return in_array((int)$store['ID'], $accessibleStoresIds, true);
+			}
+		);
 
-		$filteredStores = array_filter($accessibleStores, static function($store) {
-			return $store['IS_DEFAULT'] === 'Y';
-		});
+		$filteredStores = array_filter(
+			$accessibleStores,
+			static function($store)
+			{
+				return $store['IS_DEFAULT'] === 'Y';
+			}
+		);
 
 		$defaultStore = reset($filteredStores) ?: reset($accessibleStores);
 

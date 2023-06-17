@@ -1523,13 +1523,18 @@
 	font-size: 13px;
 	font-weight: var(--ui-font-weight-bold);
 	color: #0b66c3;
-	border-bottom: 1px dashed #0b66c3;
+	border-bottom: 1px dashed rgba(11,102,195,.4);
 	line-height: normal;
 	text-decoration: none;
 	cursor: pointer;
 	-webkit-transition: .1s;
 	-o-transition: .1s;
 	transition: .1s;
+}
+
+.bizproc-automation-popup-settings-link:hover,
+.bizproc-automation-popup-settings-button:hover {
+	border-bottom-color: rgba(11,102,195,1);
 }
 
 .bizproc-automation-popup-settings-link-light {
@@ -2317,7 +2322,42 @@
 	pointer-events: none;
 }
 
+.bizproc-automation-robot-broken-link-full-info {
+	height: 0;
+	margin-top: 10px;
+	overflow: hidden;
+	-webkit-transition: height 0.3s linear;
+	-o-transition: height 0.3s linear;
+	transition: height 0.3s linear;
+}
 
+.bizproc-automation-robot-broken-link-show-more {
+	margin: 0 2px;
+	border-bottom: 1px dashed rgba(145,113,30,.4);
+	cursor: pointer;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-robot-broken-link-show-more:hover {
+	border-bottom-color: rgba(145,113,30,1);
+}
+
+.bizproc-automation-robot-settings-popup-titlebar {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.bizproc-automation-robot-settings-popup-titlebar-text {
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	overflow: hidden;
+}
 
 .bizproc-automation-tour-guide-list {
 	padding: 0 0 0 25px;

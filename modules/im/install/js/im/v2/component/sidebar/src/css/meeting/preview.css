@@ -1,0 +1,54 @@
+.bx-im-sidebar-meeting-preview__scope {
+	--im-sidebar-meeting-preview__background_skeleton: url('../images/meeting-skeleton.svg');
+	--im-sidebar-meeting-preview__color_not-active-title: #959ca4;
+}
+
+.bx-im-sidebar-meeting-preview__container {
+	display: flex;
+	flex-direction: column;
+	height: 117px;
+	padding: 10px 13px 22px 12px;
+}
+
+.bx-im-sidebar-meeting-preview__skeleton {
+	height: 117px;
+	background: var(--im-sidebar-meeting-preview__background_skeleton)
+}
+
+.bx-im-sidebar-meeting-preview__header_container {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.bx-im-sidebar-meeting-preview__header_container.--active {
+	cursor: pointer;
+}
+
+.bx-im-sidebar-meeting-preview__title {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-meeting-preview__title-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-meeting-preview__color_not-active-title);
+	margin: 0 3px 0 2px;
+}
+
+.bx-im-sidebar-meeting-preview__header_container.--active .bx-im-sidebar-meeting-preview__title-text {
+	color: inherit;
+}
+
+.bx-im-sidebar-meeting-preview__header_container:hover .bx-im-sidebar__forward-icon {
+	opacity: 0.7;
+}
+
+.bx-im-sidebar-meeting-preview__title-button {
+	margin-right: 2px;
+}
+
+.bx-im-sidebar-meeting-preview__container .bx-im-sidebar-detail-empty-state__container {
+	margin-top: 7px;
+}

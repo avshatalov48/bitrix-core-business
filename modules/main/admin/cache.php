@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Application;
+
 if(
 	isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST"
 	&& isset($_REQUEST["ajax"]) && $_REQUEST["ajax"]=="y"
@@ -19,7 +22,9 @@ $isAdmin = $USER->CanDoOperation('cache_control');
 IncludeModuleLangFile(__FILE__);
 if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
+	&& isset($_REQUEST["ajax"])
 	&& $_REQUEST["ajax"]=="y"
+	&& isset($_REQUEST["clearcache"])
 	&& $_REQUEST["clearcache"] == "Y"
 )
 {
@@ -36,8 +41,9 @@ if(
 	}
 
 	if(
-		$_REQUEST["cachetype"] == "landing" &&
-		\Bitrix\Main\Loader::includeModule("landing")
+		isset($_REQUEST["cachetype"])
+		&& $_REQUEST["cachetype"] == "landing"
+		&& \Bitrix\Main\Loader::includeModule("landing")
 	)
 	{
 		\Bitrix\Landing\Block::clearRepositoryCache();
@@ -55,7 +61,7 @@ if(
 		require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
 	}
 	else if(
-		$_REQUEST["cachetype"] === "html"
+		(isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] === "html")
 		|| \Bitrix\Main\Data\Cache::getCacheEngineType() == "cacheenginefiles"
 	)
 	{
@@ -68,19 +74,23 @@ if(
 		else
 		{
 			$path = "";
-			\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"] = array();
+			Application::getInstance()->getSession()["CACHE_STAT"] = array();
 		}
 
 		$bDoNotCheckExpiredDate =
-			($_REQUEST["cachetype"] === "all")
-			|| ($_REQUEST["cachetype"] === "menu")
-			|| ($_REQUEST["cachetype"] === "managed")
-			|| ($_REQUEST["cachetype"] === "html");
+			isset($_REQUEST["cachetype"])
+			&& (
+				$_REQUEST["cachetype"] === "all"
+				|| $_REQUEST["cachetype"] === "menu"
+				|| $_REQUEST["cachetype"] === "managed"
+				|| $_REQUEST["cachetype"] === "html"
+			)
+		;
 
 		$curentTime = time();
 		$endTime = time()+5;
 
-		$obCacheCleaner = new CFileCacheCleaner($_REQUEST["cachetype"]);
+		$obCacheCleaner = new CFileCacheCleaner($_REQUEST["cachetype"] ?? '');
 		if(!$obCacheCleaner->InitPath($path))
 		{
 			ShowError(GetMessage("main_cache_wrong_cache_path"));
@@ -93,7 +103,7 @@ if(
 		}
 	}
 
-	if($_REQUEST["cachetype"] === "html")
+	if (isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] === "html")
 	{
 
 		$obCacheCleaner->Start();
@@ -106,18 +116,45 @@ if(
 			)
 			{
 				$file_size = filesize($file);
-				\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["scanned"]++;
-				\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_total"]+=$file_size;
+
+				if (!isset(Application::getInstance()->getSession()["CACHE_STAT"]["scanned"]))
+				{
+					Application::getInstance()->getSession()["CACHE_STAT"]["scanned"] = 0;
+				}
+				Application::getInstance()->getSession()["CACHE_STAT"]["scanned"]++;
+
+
+				if (!isset(Application::getInstance()->getSession()["CACHE_STAT"]["space_total"]))
+				{
+					Application::getInstance()->getSession()["CACHE_STAT"]["space_total"] = 0;
+				}
+
+				Application::getInstance()->getSession()["CACHE_STAT"]["space_total"]+=$file_size;
 
 				if(@unlink($file))
 				{
-					\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["deleted"]++;
-					\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"]+=$file_size;
+					if (!isset(Application::getInstance()->getSession()["CACHE_STAT"]["deleted"]))
+					{
+						Application::getInstance()->getSession()["CACHE_STAT"]["deleted"] = 0;
+					}
+					Application::getInstance()->getSession()["CACHE_STAT"]["deleted"]++;
+
+					if (!isset(Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"]))
+					{
+						Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"] = 0;
+					}
+
+					Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"]+=$file_size;
 					$space_freed+=$file_size;
 				}
 				else
 				{
-					\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["errors"]++;
+					if (!isset(Application::getInstance()->getSession()["CACHE_STAT"]["errors"]))
+					{
+						Application::getInstance()->getSession()["CACHE_STAT"]["errors"] = 0;
+					}
+
+					Application::getInstance()->getSession()["CACHE_STAT"]["errors"]++;
 				}
 
 				if(time() >= $endTime)
@@ -141,8 +178,8 @@ if(
 				{
 					$file_size = filesize($file);
 
-					\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["scanned"]++;
-					\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_total"]+=$file_size;
+					Application::getInstance()->getSession()["CACHE_STAT"]["scanned"]++;
+					Application::getInstance()->getSession()["CACHE_STAT"]["space_total"]+=$file_size;
 
 					if(
 						$bDoNotCheckExpiredDate
@@ -151,12 +188,12 @@ if(
 					{
 						if(@unlink($file))
 						{
-							\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["deleted"]++;
-							\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"]+=$file_size;
+							Application::getInstance()->getSession()["CACHE_STAT"]["deleted"]++;
+							Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"]+=$file_size;
 						}
 						else
 						{
-							\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["errors"]++;
+							Application::getInstance()->getSession()["CACHE_STAT"]["errors"]++;
 						}
 					}
 				}
@@ -172,7 +209,7 @@ if(
 	else
 	{
 		$file = false;
-		\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"] = array();
+		Application::getInstance()->getSession()["CACHE_STAT"] = array();
 	}
 
 	if(is_string($file))
@@ -182,11 +219,11 @@ if(
 		CAdminMessage::ShowMessage(array(
 			"MESSAGE"=>GetMessage("main_cache_in_progress"),
 			"DETAILS"=> ""
-				.GetMessage("main_cache_files_scanned_count", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["scanned"])."</b>"))."<br>"
-				.GetMessage("main_cache_files_scanned_size", array("#value#" => "<b>".CFile::FormatSize(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_total"])."</b>"))."<br>"
-				.GetMessage("main_cache_files_deleted_count", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["deleted"])."</b>"))."<br>"
-				.GetMessage("main_cache_files_deleted_size", array("#value#" => "<b>".CFile::FormatSize(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"])."</b>"))."<br>"
-				.GetMessage("main_cache_files_delete_errors", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["errors"])."</b>"))."<br>"
+				.GetMessage("main_cache_files_scanned_count", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["scanned"])."</b>"))."<br>"
+				.GetMessage("main_cache_files_scanned_size", array("#value#" => "<b>".CFile::FormatSize(Application::getInstance()->getSession()["CACHE_STAT"]["space_total"])."</b>"))."<br>"
+				.GetMessage("main_cache_files_deleted_count", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["deleted"])."</b>"))."<br>"
+				.GetMessage("main_cache_files_deleted_size", array("#value#" => "<b>".CFile::FormatSize(Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"])."</b>"))."<br>"
+				.GetMessage("main_cache_files_delete_errors", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["errors"])."</b>"))."<br>"
 				.GetMessage("main_cache_files_last_path", array("#value#" => "<b>".htmlspecialcharsbx($currentPath)."</b>"))."<br>"
 			,
 			"HTML"=>true,
@@ -201,42 +238,42 @@ if(
 	}
 	else
 	{
-		if($_REQUEST["cachetype"] == "menu")
+		if (isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] == "menu")
 		{
 			$GLOBALS["CACHE_MANAGER"]->CleanDir("menu");
 			CBitrixComponent::clearComponentCache("bitrix:menu");
 		}
-		elseif($_REQUEST["cachetype"] == "managed")
+		elseif (isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] == "managed")
 		{
 			$GLOBALS["CACHE_MANAGER"]->CleanAll();
 			$GLOBALS["stackCacheManager"]->CleanAll();
 		}
-		elseif($_REQUEST["cachetype"] == "html")
+		elseif (isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] == "html")
 		{
 			$page = \Bitrix\Main\Composite\Page::getInstance();
 			$page->deleteAll();
 		}
-		elseif($_REQUEST["cachetype"] == "all")
+		elseif (isset($_REQUEST["cachetype"]) && $_REQUEST["cachetype"] == "all")
 		{
 			BXClearCache(true);
 			$GLOBALS["CACHE_MANAGER"]->CleanAll();
 			$GLOBALS["stackCacheManager"]->CleanAll();
-			$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
+			$taggedCache = Application::getInstance()->getTaggedCache();
 			$taggedCache->deleteAllTags();
 			$page = \Bitrix\Main\Composite\Page::getInstance();
 			$page->deleteAll();
 		}
 
-		if (\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"])
+		if (Application::getInstance()->getSession()["CACHE_STAT"])
 		{
 			CAdminMessage::ShowMessage(array(
 				"MESSAGE"=>GetMessage("main_cache_finished"),
 				"DETAILS"=> ""
-					.GetMessage("main_cache_files_scanned_count", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["scanned"])."</b>"))."<br>"
-					.GetMessage("main_cache_files_scanned_size", array("#value#" => "<b>".CFile::FormatSize(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_total"])."</b>"))."<br>"
-					.GetMessage("main_cache_files_deleted_count", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["deleted"])."</b>"))."<br>"
-					.GetMessage("main_cache_files_deleted_size", array("#value#" => "<b>".CFile::FormatSize(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"])."</b>"))."<br>"
-					.GetMessage("main_cache_files_delete_errors", array("#value#" => "<b>".intval(\Bitrix\Main\Application::getInstance()->getSession()["CACHE_STAT"]["errors"])."</b>"))."<br>"
+					.GetMessage("main_cache_files_scanned_count", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["scanned"])."</b>"))."<br>"
+					.GetMessage("main_cache_files_scanned_size", array("#value#" => "<b>".CFile::FormatSize(Application::getInstance()->getSession()["CACHE_STAT"]["space_total"])."</b>"))."<br>"
+					.GetMessage("main_cache_files_deleted_count", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["deleted"])."</b>"))."<br>"
+					.GetMessage("main_cache_files_deleted_size", array("#value#" => "<b>".CFile::FormatSize(Application::getInstance()->getSession()["CACHE_STAT"]["space_freed"])."</b>"))."<br>"
+					.GetMessage("main_cache_files_delete_errors", array("#value#" => "<b>".intval(Application::getInstance()->getSession()["CACHE_STAT"]["errors"])."</b>"))."<br>"
 				,
 				"HTML"=>true,
 				"TYPE"=>"OK",
@@ -294,12 +331,12 @@ if($REQUEST_METHOD=="POST" && ($managed_cache_on=="Y" || $managed_cache_on=="N")
 	COption::SetOptionString("main", "component_managed_cache_on", $managed_cache_on);
 	if($managed_cache_on == "N")
 	{
-		$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
+		$taggedCache = Application::getInstance()->getTaggedCache();
 		$taggedCache->clearByTag(true);
 	}
 	LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&tabControl_active_tab=fedit4&res=managed_saved");
 }
-if($_REQUEST["res"] == "managed_saved")
+if (isset($_REQUEST["res"]) && $_REQUEST["res"] == "managed_saved")
 	$okMessage .= GetMessage("main_cache_managed_saved");
 
 $APPLICATION->SetTitle(GetMessage("MCACHE_TITLE"));

@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Helpers\Order\Builder\Converter;
 use Bitrix\Main;
 use Bitrix\Catalog\Product;
 use Bitrix\Catalog\VatTable;
+use Bitrix\Sale\Internals;
 
 class CatalogJSProductForm
 {
@@ -78,26 +79,61 @@ class CatalogJSProductForm
 		$basePrice = $fields['basePrice'] ?? 0;
 
 		$item = [
-			'NAME' => $fields['name'],
 			'QUANTITY' => (float)$fields['quantity'] > 0 ? (float)$fields['quantity'] : 1,
 			'PRODUCT_PROVIDER_CLASS' => '',
-			'SORT' => (int)$fields['sort'],
 			'BASKET_CODE' => $fields['code'] ?? '',
 			'PRODUCT_ID' => $fields['skuId'] ?? $fields['productId'] ?? 0,
 			'BASE_PRICE' => $basePrice,
 			'PRICE' => $priceExclusive,
-			'CUSTOM_PRICE' => $fields['isCustomPrice'] === 'Y' ? 'Y' : 'N',
 			'DISCOUNT_PRICE' => 0,
-			'MEASURE_NAME' => $fields['measureName'],
-			'MEASURE_CODE' => (int)$fields['measureCode'],
 			'ORIGIN_BASKET_ID' => (int)($fields['additionalFields']['originBasketId'] ?? 0),
 			'ORIGIN_PRODUCT_ID' => (int)($fields['additionalFields']['originProductId'] ?? 0),
 			'MANUALLY_EDITED' => 'Y',
 			'XML_ID' => $fields['innerId'],
-			'WEIGHT' => $fields['weight'],
-			'DIMENSIONS' => $fields['dimensions'] ?? [],
 			'TYPE' => null,
 		];
+
+		if (isset($fields['type']))
+		{
+			$type = (int)$fields['type'];
+
+			$item['TYPE'] = Internals\Catalog\ProductTypeMapper::getType($type);
+		}
+
+		if (isset($fields['name']))
+		{
+			$item['NAME'] = $fields['name'];
+		}
+
+		if (isset($fields['sort']))
+		{
+			$item['SORT'] = (int)$fields['sort'];
+		}
+
+		if (isset($fields['isCustomPrice']))
+		{
+			$item['CUSTOM_PRICE'] = $fields['isCustomPrice'] === 'Y' ? 'Y' : 'N';
+		}
+
+		if (isset($fields['measureName']))
+		{
+			$item['MEASURE_NAME'] = $fields['measureName'];
+		}
+
+		if (isset($fields['measureCode']))
+		{
+			$item['MEASURE_CODE'] = (int)$fields['measureCode'];
+		}
+
+		if (isset($fields['weight']))
+		{
+			$item['WEIGHT'] = $fields['weight'];
+		}
+
+		if (isset($fields['dimensions']))
+		{
+			$item['DIMENSIONS'] = $fields['dimensions'];
+		}
 
 		if (
 			isset($fields['taxIncluded'], $fields['taxId'])

@@ -437,7 +437,7 @@ class CBitrixComponent
 				self::$__classes_map[$componentPath] = "";
 			}
 		}
-		return self::$__classes_map[$componentPath];
+		return self::$__classes_map[$componentPath] ?? null;
 	}
 	/**
 	 * Function initializes the component. Returns true on success.
@@ -611,8 +611,8 @@ class CBitrixComponent
 	 *
 	 * <p>Note: component must be inited by initComponent method.</p>
 	 * @param string $componentTemplate
-	 * @param array[string]mixed $arParams
-	 * @param CBitrixComponent $parentComponent
+	 * @param array $arParams
+	 * @param CBitrixComponent|null $parentComponent
 	 * @return mixed
 	 *
 	 */
@@ -898,7 +898,7 @@ class CBitrixComponent
 			return true;
 
 		if ($cacheTime === false)
-			$cacheTime = intval($this->arParams["CACHE_TIME"]);
+			$cacheTime = intval($this->arParams["CACHE_TIME"] ?? 0);
 
 		$this->__cacheID = $this->getCacheID($additionalCacheID);
 		$this->__cachePath = $cachePath;
@@ -908,7 +908,7 @@ class CBitrixComponent
 		$this->__cache = \Bitrix\Main\Data\Cache::createInstance(['actual_data' => false]);
 		if ($this->__cache->startDataCache($cacheTime, $this->__cacheID, $this->__cachePath))
 		{
-			$this->__NavNum = $GLOBALS["NavNum"];
+			$this->__NavNum = $GLOBALS["NavNum"] ?? null;
 			$this->__currentCounters = self::$__componentCounter;
 
 			if (defined("BX_COMP_MANAGED_CACHE") && $this->__cache->isStarted())

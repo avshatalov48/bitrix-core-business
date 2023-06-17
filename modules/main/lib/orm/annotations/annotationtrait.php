@@ -203,6 +203,8 @@ trait AnnotationTrait
 			$code[] = "\t * @method void next() Iterator";
 			$code[] = "\t * @method bool valid() Iterator";
 			$code[] = "\t * @method int count() Countable";
+			$code[] = "\t * @method {$collectionClassName} merge(?{$collectionClassName} \$collection)";
+			$code[] = "\t * @method bool isEmpty()";
 		}
 
 		// xTODO we can put path to the original file here

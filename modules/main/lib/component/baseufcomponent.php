@@ -7,7 +7,6 @@ use Bitrix\Main\UserField\HtmlBuilder;
 use CBitrixComponent;
 use CBitrixComponentTemplate;
 use ReflectionClass;
-use Bitrix\Main\Localization\Loc;
 
 /**
  * Class BaseUfComponent
@@ -105,8 +104,8 @@ abstract class BaseUfComponent extends CBitrixComponent
 
 	final protected function initResult(): void
 	{
-		$this->setUserField($this->arParams['~userField']);
-		$this->setAdditionalParameters($this->arParams['additionalParameters']);
+		$this->setUserField($this->arParams['~userField'] ?? []);
+		$this->setAdditionalParameters($this->arParams['additionalParameters'] ?? []);
 		$this->setParentComponent($this->getAdditionalParameter('parentComponent'));
 
 		$this->arResult['additionalParameters'] = $this->getAdditionalParameters();
@@ -116,7 +115,7 @@ abstract class BaseUfComponent extends CBitrixComponent
 	}
 
 	/**
-	 * @return array|bool
+	 * @return array
 	 */
 	public function getUserField()
 	{
@@ -128,6 +127,11 @@ abstract class BaseUfComponent extends CBitrixComponent
 	 */
 	public function setUserField($userField): void
 	{
+		if (!is_array($userField))
+		{
+			$userField = [];
+		}
+
 		$this->userField = $userField;
 	}
 
@@ -149,7 +153,7 @@ abstract class BaseUfComponent extends CBitrixComponent
 	}
 
 	/**
-	 * @param array $additionalParameters
+	 * @param array|null $additionalParameters
 	 */
 	public function setAdditionalParameters(?array $additionalParameters): void
 	{
@@ -230,7 +234,12 @@ abstract class BaseUfComponent extends CBitrixComponent
 
 	protected function initMediaType(): void
 	{
-		$mediaType = ($this->additionalParameters['mediaType'] ?: static::MEDIA_TYPE_DEFAULT);
+		$mediaType = static::MEDIA_TYPE_DEFAULT;
+		if (isset($this->additionalParameters['mediaType']) && $this->additionalParameters['mediaType'])
+		{
+			$mediaType = $this->additionalParameters['mediaType'];
+		}
+
 		$this->setMediaType($mediaType);
 	}
 
@@ -244,7 +253,7 @@ abstract class BaseUfComponent extends CBitrixComponent
 
 	/**
 	 * Resolving a mode name to template name.
-	 * By default mode === templateFolderName, can be otherwise in child class
+	 * By default, mode === templateFolderName, can be otherwise in child class
 	 * @return string
 	 */
 	protected function resolveTemplateName(): string
@@ -421,16 +430,14 @@ abstract class BaseUfComponent extends CBitrixComponent
 	 */
 	protected function getFieldName(): string
 	{
-		if(
-			(!$this->userField || empty($this->userField['FIELD_NAME']))
-			&&
-			(!$this->additionalParameters || !isset($this->additionalParameters['NAME']))
-		)
+		$nameFromAdditionalParameters = ($this->additionalParameters['NAME'] ?? null);
+		$nameFromUserField = ($this->userField['FIELD_NAME'] ?? null);
+
+		$fieldName = $nameFromAdditionalParameters ?? $nameFromUserField;
+		if (!$fieldName)
 		{
 			return '';
 		}
-
-		$fieldName = $this->additionalParameters['NAME'] ?? $this->userField['FIELD_NAME'];
 
 		if($this->isMultiple() && !mb_substr_count($fieldName, '[]'))
 		{
@@ -453,25 +460,21 @@ abstract class BaseUfComponent extends CBitrixComponent
 	 */
 	protected function getFieldValue(): array
 	{
-		if(
-			!$this->additionalParameters['bVarsFromForm']
-			&&
-			!isset($this->additionalParameters['VALUE'])
-		)
+		$value = [];
+
+		if(empty($this->additionalParameters['bVarsFromForm']) && !isset($this->additionalParameters['VALUE']))
 		{
 			$value = (
-			isset($this->userField['ENTITY_VALUE_ID'])
-			&&
-			$this->userField['ENTITY_VALUE_ID'] <= 0
-				?
-				$this->userField['SETTINGS']['DEFAULT_VALUE'] : $this->userField['VALUE']
+				isset($this->userField['ENTITY_VALUE_ID']) && $this->userField['ENTITY_VALUE_ID'] <= 0
+					? ($this->userField['SETTINGS']['DEFAULT_VALUE'] ?? [])
+					: ($this->userField['VALUE'] ?? [])
 			);
 		}
 		elseif(isset($this->additionalParameters['VALUE']))
 		{
 			$value = $this->additionalParameters['VALUE'];
 		}
-		else
+		elseif(isset($this->userField['FIELD_NAME']))
 		{
 			$value = Context::getCurrent()->getRequest()->get($this->userField['FIELD_NAME']);
 		}

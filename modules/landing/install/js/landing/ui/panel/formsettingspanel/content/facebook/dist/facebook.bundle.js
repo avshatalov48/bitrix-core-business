@@ -8,19 +8,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	var FacebookContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(FacebookContent, _ContentWrapper);
-
 	  function FacebookContent(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FacebookContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FacebookContent).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.FacebookContent');
-
 	    _this.addItem(new landing_ui_card_headercard.HeaderCard({
 	      title: landing_loc.Loc.getMessage('LANDING_SIDEBAR_BUTTON_FACEBOOK')
 	    }));
-
 	    if (!_this.options.dictionary.integration.canUse) {
 	      _this.addItem(new landing_ui_card_messagecard.MessageCard({
 	        header: landing_loc.Loc.getMessage('LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_HEADER'),
@@ -28,10 +23,8 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        angle: false,
 	        closeable: false
 	      }));
-
 	      return babelHelpers.possibleConstructorReturn(_this);
 	    }
-
 	    var buttonCard = new landing_ui_card_basecard.BaseCard();
 	    main_core.Dom.style(buttonCard.getLayout(), {
 	      padding: 0,
@@ -45,23 +38,18 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    });
 	    integration.subscribe('change', _this.onChange.bind(babelHelpers.assertThisInitialized(_this)));
 	    main_core.Dom.append(integration.render(), buttonCard.getBody());
-
 	    _this.addItem(buttonCard);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FacebookContent, [{
 	    key: "prepareButtonText",
 	    value: function prepareButtonText(formOptions) {
 	      var enabled = formOptions.integration.cases.some(function (item) {
 	        return item.providerCode === 'facebook';
 	      });
-
 	      if (enabled) {
 	        return landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_FACEBOOK_BUTTON_ENABLED');
 	      }
-
 	      return landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_FACEBOOK_BUTTON');
 	    }
 	  }, {

@@ -480,7 +480,15 @@ class RestService extends \IRestService
 			self::deleteAppPlacement(self::getAppId($params['APP_ID']), $params['CODE']);
 		}
 
-		RestActivityTable::update($result['ID'], $toUpdate);
+		$updateResult = RestActivityTable::update($result['ID'], $toUpdate);
+
+		if (!$updateResult->isSuccess())
+		{
+			throw new RestException(
+				implode('; ', $updateResult->getErrorMessages()),
+				self::ERROR_ACTIVITY_VALIDATION_FAILURE
+			);
+		}
 
 		return true;
 	}
@@ -756,7 +764,8 @@ class RestService extends \IRestService
 		{
 			throw new RestException('Incorrect document type!');
 		}
-		if (!self::isEqualDocumentType($tplDocumentType, $documentType))
+
+		if (!\CBPHelper::isEqualDocument($tplDocumentType, $documentType))
 		{
 			throw new RestException('Template type and DOCUMENT_ID mismatch!');
 		}
@@ -1611,9 +1620,13 @@ class RestService extends \IRestService
 	private static function validateActivityCode($code)
 	{
 		if (empty($code))
+		{
 			throw new RestException('Empty activity code!', self::ERROR_ACTIVITY_VALIDATION_FAILURE);
-		if (!preg_match('#^[a-z0-9\.\-_]+$#i', $code))
+		}
+		if (!is_string($code) || !preg_match('#^[a-z0-9\.\-_]+$#i', $code))
+		{
 			throw new RestException('Wrong activity code!', self::ERROR_ACTIVITY_VALIDATION_FAILURE);
+		}
 	}
 
 	private static function validateActivityHandler($handler, $server)
@@ -1692,15 +1705,6 @@ class RestService extends \IRestService
 			return [$tpl['MODULE_ID'], $tpl['ENTITY'], $tpl['DOCUMENT_TYPE']];
 		}
 		return null;
-	}
-
-	private static function isEqualDocumentType(array $a, array $b)
-	{
-		return (
-			(string)$a[0] === (string)$b[0]
-			&& (string)$a[1] === (string)$b[1]
-			&& (string)$a[2] === (string)$b[2]
-		);
 	}
 
 	private static function validateTemplateName($name)

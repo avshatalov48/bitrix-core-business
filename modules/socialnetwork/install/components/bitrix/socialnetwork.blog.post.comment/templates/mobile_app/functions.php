@@ -16,8 +16,8 @@ function socialnetworkBlogPostCommentMobile(
 {
 	$arParams["AVATAR_SIZE"] = ((int)$arParams["AVATAR_SIZE"] ?: 58);
 	$arAvatarSizes = array(
-		"AVATAR_SIZE" => (int)($arParams["AVATAR_SIZE_COMMON"] ?? $arParams["AVATAR_SIZE"]),
-		"AVATAR_SIZE_COMMENT" => (int)$arParams["AVATAR_SIZE_COMMENT"]
+		"AVATAR_SIZE" => (int) ($arParams["AVATAR_SIZE_COMMON"] ?? $arParams["AVATAR_SIZE"]),
+		"AVATAR_SIZE_COMMENT" => (int) ($arParams["AVATAR_SIZE_COMMENT"] ?? null)
 	);
 	$arAvatarSizes["AVATAR_SIZE"] = ($arAvatarSizes["AVATAR_SIZE"] > 0 ? $arAvatarSizes["AVATAR_SIZE"] : 100); // reference to CBlogUser::GetUserInfoArray
 	$arAvatarSizes["AVATAR_SIZE_COMMENT"] = ($arAvatarSizes["AVATAR_SIZE_COMMENT"] > 0 ? $arAvatarSizes["AVATAR_SIZE_COMMENT"] : 100); // reference to CBlogUser::GetUserInfoArray
@@ -56,7 +56,7 @@ function socialnetworkBlogPostCommentMobile(
 			$parser->bMobile = true;
 			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === "Y" ? "Y" : "N");
 		}
-		if (is_array($comment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]))
+		if (is_array($comment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"] ?? null))
 		{
 			$parser->arUserfields = array(
 				"UF_BLOG_COMMENT_FILE" => array_merge(
@@ -112,7 +112,12 @@ function socialnetworkBlogPostCommentMobile(
 
 	$res = array(
 		"ID" => $comment["ID"],
-		"NEW" => ($arParams["FOLLOW"] !== "N" && $comment["NEW"] === "Y" ? "Y" : "N"),
+		"NEW" => (
+			(
+				($arParams["FOLLOW"] ?? null) !== "N"
+				&& ($comment["NEW"] ?? null) === "Y"
+			) ? "Y" : "N"
+		),
 		"APPROVED" => ($comment["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
 		"AUX" => (!empty($comment["AuxType"]) ? $comment["AuxType"] : ''),
 		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
@@ -162,15 +167,19 @@ function socialnetworkBlogPostCommentMobile(
 		}
 	}
 
-	if ($comment["COMMENT_PROPERTIES"]["SHOW"] === "Y")
+	if (($comment["COMMENT_PROPERTIES"]["SHOW"] ?? null) === "Y")
 	{
-		$res["UF"] = $comment["COMMENT_PROPERTIES"]["DATA"];
+		$res["UF"] = ($comment["COMMENT_PROPERTIES"]["DATA"] ?? []);
 		foreach ($res["UF"] as $key => $arPostField)
 		{
 			if (!empty($arPostField["VALUE"]))
 			{
 				$res["UF"][$key]['POST_ID'] = $arParams['POST_DATA']['ID'];
-				$res["UF"][$key]['URL_TO_POST'] = str_replace('#source_post_id#', $arPostField['POST_ID'], $arResult['urlToPost']);
+				$res["UF"][$key]['URL_TO_POST'] = str_replace(
+					'#source_post_id#',
+					$arPostField['POST_ID'] ?? '',
+					$arResult['urlToPost']
+				);
 			}
 		}
 	}

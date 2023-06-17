@@ -624,7 +624,7 @@ class MssqlSqlHelper extends SqlHelper
 				$sqlTmp = $sql;
 
 				preg_match_all("#\\sorder\\s+by\\s#i", $sql, $matches, PREG_OFFSET_CAPTURE);
-				if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0)
+				if (isset($matches[0]) && is_array($matches[0]) && !empty($matches[0]))
 				{
 					$idx = $matches[0][count($matches[0]) - 1][1];
 					$s = mb_substr($sql, $idx);

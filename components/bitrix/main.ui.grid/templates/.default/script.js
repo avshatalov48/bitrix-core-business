@@ -6407,12 +6407,26 @@
 	    },
 	    fetchColumns: function fetchColumns() {
 	      var promise = new BX.Promise();
-	      BX.ajax({
-	        url: this.parent.getParam("LAZY_LOAD")["GET_LIST"],
-	        method: "GET",
-	        dataType: "json",
-	        onsuccess: promise.fulfill.bind(promise)
-	      });
+	      var lazyLoadParams = this.parent.getParam("LAZY_LOAD");
+
+	      if (BX.Type.isPlainObject(lazyLoadParams)) {
+	        if (!BX.Type.isNil(lazyLoadParams.CONTROLLER)) {
+	          BX.ajax.runAction("".concat(lazyLoadParams.CONTROLLER, ".getColumnsList"), {
+	            method: 'GET',
+	            data: {
+	              gridId: this.parent.getId()
+	            }
+	          }).then(promise.fulfill.bind(promise));
+	        } else {
+	          BX.ajax({
+	            url: this.parent.getParam("LAZY_LOAD")["GET_LIST"],
+	            method: "GET",
+	            dataType: "json",
+	            onsuccess: promise.fulfill.bind(promise)
+	          });
+	        }
+	      }
+
 	      return promise;
 	    },
 	    prepareColumnOptions: function prepareColumnOptions(options) {
@@ -6829,11 +6843,15 @@
 	     */
 	    createPopup: function createPopup() {
 	      if (!this.popup) {
+	        console.log('create popup', document.body.offsetWidth);
+	        var leftIndentFromWindow = 20;
+	        var rightIndentFromWindow = 20;
+	        var popupWidth = document.body.offsetWidth > 1000 ? 1000 : document.body.offsetWidth - leftIndentFromWindow - rightIndentFromWindow;
 	        this.popup = new BX.PopupWindow(this.getPopupId(), null, {
 	          titleBar: this.createTitle(),
 	          autoHide: false,
 	          overlay: 0.6,
-	          width: 1000,
+	          width: popupWidth,
 	          closeIcon: true,
 	          closeByEsc: true,
 	          contentNoPaddings: true,
@@ -8085,7 +8103,6 @@
 	   * @param {boolean} arParams.ALLOW_PIN_HEADER
 	   * @param {boolean} arParams.SHOW_ACTION_PANEL
 	   * @param {boolean} arParams.PRESERVE_HISTORY
-	   * @param {boolean} arParams.BACKEND_URL
 	   * @param {boolean} arParams.ALLOW_CONTEXT_MENU
 	   * @param {object} arParams.DEFAULT_COLUMNS
 	   * @param {boolean} arParams.ENABLE_COLLAPSIBLE_ROWS

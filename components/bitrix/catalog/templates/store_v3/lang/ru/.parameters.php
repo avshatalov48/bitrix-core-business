@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CP_BC_TPL_DML_SIMPLE"] = "простой режим";
 $MESS["CP_BC_TPL_DML_EXT"] = "расширенный";
 $MESS["CPT_BC_TPL_THEME_SITE"] = "Брать тему из настроек сайта (для решения bitrix.eshop)";
@@ -18,7 +18,7 @@ $MESS["CPT_BC_SECTIONS_VIEW_MODE_LINE"] = "Список";
 $MESS["CPT_BC_SECTIONS_VIEW_MODE_TEXT"] = "Текст";
 $MESS["CPT_BC_SECTIONS_VIEW_MODE_TILE"] = "Плитка";
 $MESS["CP_BC_TPL_TEMPLATE_THEME"] = "Цветовая тема";
-$MESS["CP_BC_TPL_SEARCH_PAGE_RESULT_COUNT"] = "Количество результатов на странице";
+$MESS['CP_BC_TPL_SEARCH_PAGE_RESULT_COUNT_MSGVER_1'] = "Максимальное число результатов";
 $MESS["CP_BC_TPL_SEARCH_RESTART"] = "Искать без учета морфологии (при отсутствии результата поиска)";
 $MESS["CP_BC_TPL_SEARCH_NO_WORD_LOGIC"] = "Отключить обработку слов как логических операторов";
 $MESS["CP_BC_TPL_SEARCH_USE_LANGUAGE_GUESS"] = "Включить автоопределение раскладки клавиатуры";
@@ -188,5 +188,5 @@ Ecommerce и/или Яндекс.Метрике";
 $MESS["CP_BC_TPL_DATA_LAYER_NAME"] = "Имя контейнера данных";
 $MESS["CP_BC_TPL_BRAND_PROPERTY"] = "Свойство брендов";
 $MESS["CP_BC_TPL_USE_RATIO_IN_RANGES"] = "Учитывать коэффициенты для диапазонов цен";
+$MESS['SEARCH_PAGE_RESULT_COUNT_TIP'] = "Максимальное число результатов поиска, выводимых по одному запросу. Указать количество отображаемых результатов на одной странице можно в настройках списка.";
 $MESS["SEARCH_USE_SEARCH_RESULT_ORDER"] = "Результаты поиска будут выведены в порядке убывания релевантности.";
-?>

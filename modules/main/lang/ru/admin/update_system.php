@@ -182,9 +182,9 @@ $MESS["SUP_PHP_L439"] = "Вы используете версию PHP #VERS#, п
 $MESS["SUP_MYSQL_LCP_ERROR"] = "Кодировка используемой вами базы данных MySql '#CP1#', системе обновлений необходима кодировка '#CP#'. Обратитесь к администратору MySql для выполнения запроса alter database #DB# default character set #CP#";
 $MESS["SUP_MYSQL_COLL_ERROR"] = "Collation используемой вами базы данных MySql '#CD#' не совпадает с collation соединения '#CC#'";
 $MESS["SUP_CHECK_UPDATES_PARTNER"] = "Обновления партнерских модулей";
-$MESS["SUP_CURRENT_NUMBER_OF_USERS"] = ", из них используется <a href=\"/bitrix/admin/user_admin.php?lang=ru&INTRANET_USERS=Y&apply_filter=Y\">#NUM#</a>";
+$MESS["SUP_CURRENT_NUMBER_OF_USERS"] = ", всего используется #NUM#";
 $MESS["SUP_USERS_IS_NOT_LIMITED"] = "Лицензирование по пользователям не производится.";
-$MESS["SUP_CURRENT_NUMBER_OF_USERS1"] = "Активных пользователей: <a href=\"/bitrix/admin/user_admin.php?lang=ru&INTRANET_USERS=Y&apply_filter=Y\">#NUM#</a>.";
+$MESS["SUP_CURRENT_NUMBER_OF_USERS1"] = "Активных пользователей: #NUM#.";
 $MESS["SUP_RESERVED_KEY_HINT"] = "Перед использованием системы обновлений вам необходимо активировать ваш лицензионный ключ.";
 $MESS["SUP_SYSTEM_MESSAGE"] = "Внимание";
 $MESS["SUP_CANT_LOCK_UPDATES"] = "Система обновлений должна быть запущена в одном окне браузера";

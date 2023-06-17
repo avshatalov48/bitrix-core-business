@@ -153,7 +153,7 @@ class CAllForumMessage
 				"id"=>'empty_post_message',
 				"text" => GetMessage("F_ERR_EMPTY_POST_MESSAGE"));
 		}
-		elseif (is_set($arFields, "POST_MESSAGE") && $arFields["NEW_TOPIC"] != "Y")
+		elseif (is_set($arFields, "POST_MESSAGE") && (!isset($arFields["NEW_TOPIC"]) || $arFields["NEW_TOPIC"] != "Y"))
 		{
 			$arFields["POST_MESSAGE_CHECK"] = md5($arFields["POST_MESSAGE"] . (is_set($arFields, 'FILES')?serialize($arFields['FILES']):''));
 
@@ -234,11 +234,11 @@ class CAllForumMessage
 		else if(!$USER_FIELD_MANAGER->CheckFields("FORUM_MESSAGE", $ID, $arFields, (array_key_exists("USER_ID", $arFields) ? $arFields["USER_ID"] : false)))
 			return false;
 
-		if (is_set($arFields, "AUTHOR_ID") || $ACTION=="ADD") $arFields["AUTHOR_ID"] = intval($arFields["AUTHOR_ID"]) <= 0 ? false : $arFields["AUTHOR_ID"];
-		if (is_set($arFields, "USE_SMILES") || $ACTION=="ADD") $arFields["USE_SMILES"] = ($arFields["USE_SMILES"] == "N" ? "N" : "Y");
-		if (is_set($arFields, "NEW_TOPIC") || $ACTION=="ADD") $arFields["NEW_TOPIC"] = ($arFields["NEW_TOPIC"] == "Y" ? "Y" : "N");
-		if (is_set($arFields, "APPROVED") || $ACTION=="ADD") $arFields["APPROVED"] = ($arFields["APPROVED"] == "N" ? "N" : "Y");
-		if (is_set($arFields, "SOURCE_ID") || $ACTION=="ADD") $arFields["SOURCE_ID"] = ($arFields["SOURCE_ID"] == "EMAIL" ? "EMAIL" : "WEB");
+		if (is_set($arFields, "AUTHOR_ID") || $ACTION=="ADD") $arFields["AUTHOR_ID"] = !isset($arFields["AUTHOR_ID"]) || intval($arFields["AUTHOR_ID"]) <= 0 ? false : $arFields["AUTHOR_ID"];
+		if (is_set($arFields, "USE_SMILES") || $ACTION=="ADD") $arFields["USE_SMILES"] = (isset($arFields["USE_SMILES"]) && $arFields["USE_SMILES"] == "N" ? "N" : "Y");
+		if (is_set($arFields, "NEW_TOPIC") || $ACTION=="ADD") $arFields["NEW_TOPIC"] = (isset($arFields["NEW_TOPIC"]) && $arFields["NEW_TOPIC"] == "Y" ? "Y" : "N");
+		if (is_set($arFields, "APPROVED") || $ACTION=="ADD") $arFields["APPROVED"] = (isset($arFields["APPROVED"]) && $arFields["APPROVED"] == "N" ? "N" : "Y");
+		if (is_set($arFields, "SOURCE_ID") || $ACTION=="ADD") $arFields["SOURCE_ID"] = (isset($arFields["SOURCE_ID"]) && $arFields["SOURCE_ID"] == "EMAIL" ? "EMAIL" : "WEB");
 
 		return True;
 	}
@@ -596,8 +596,10 @@ class CAllForumMessage
 			return false;
 		endif;
 
-		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : []);
+		$arAddParams["FILTER"] = $arAddParams["FILTER"] ?? 'N';
 		$arAddParams["FILTER"] = ($arAddParams["FILTER"] == "Y" && COption::GetOptionString("forum", "FILTER", "Y") == "Y" ? "Y" : "N");
+		$arAddParams["getFiles"] = $arAddParams["getFiles"] ?? 'N';
 
 		if (!array_key_exists($ID, $GLOBALS["FORUM_CACHE"]["MESSAGE"]))
 		{
@@ -638,11 +640,11 @@ class CAllForumMessage
 			return false;
 
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
-		$arAddParams["GET_TOPIC_INFO"] = ($arAddParams["GET_TOPIC_INFO"] == "Y" ? "Y" : "N");
-		$arAddParams["FILTER_TOPIC_INFO"] = ($arAddParams["FILTER_TOPIC_INFO"] == "N" ? "N" : "Y");
-		$arAddParams["GET_FORUM_INFO"] = ($arAddParams["GET_FORUM_INFO"] == "Y" ? "Y" : "N");
-		$arAddParams["FILTER_FORUM_INFO"] = ($arAddParams["FILTER_FORUM_INFO"] == "N" ? "N" : "Y");
-		$arAddParams["FILTER_MESSAGE_INFO"] = ($arAddParams["FILTER_MESSAGE_INFO"] == "N" ? "N" : "Y");
+		$arAddParams["GET_TOPIC_INFO"] = (isset($arAddParams["GET_TOPIC_INFO"]) && $arAddParams["GET_TOPIC_INFO"] == "Y" ? "Y" : "N");
+		$arAddParams["FILTER_TOPIC_INFO"] = (isset($arAddParams["FILTER_TOPIC_INFO"]) && $arAddParams["FILTER_TOPIC_INFO"] == "N" ? "N" : "Y");
+		$arAddParams["GET_FORUM_INFO"] = (isset($arAddParams["GET_FORUM_INFO"]) && $arAddParams["GET_FORUM_INFO"] == "Y" ? "Y" : "N");
+		$arAddParams["FILTER_FORUM_INFO"] = (isset($arAddParams["FILTER_FORUM_INFO"]) && $arAddParams["FILTER_FORUM_INFO"] == "N" ? "N" : "Y");
+		$arAddParams["FILTER_MESSAGE_INFO"] = (isset($arAddParams["FILTER_MESSAGE_INFO"]) && $arAddParams["FILTER_MESSAGE_INFO"] == "N" ? "N" : "Y");
 		if (COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
 			$arAddParams["FILTER"] = (is_set($arAddParams, "FILTER") ? $arAddParams["FILTER"] : "P");
 			$arAddParams["FILTER"] = ($arAddParams["FILTER"] == "Y" || $arAddParams["FILTER"] == "P" ? $arAddParams["FILTER"] : "N");
@@ -733,7 +735,7 @@ class CAllForumMessage
 					$GLOBALS["FORUM_CACHE"]["FORUM"][intval($res["FORUM_INFO"]["ID"])] = $res["FORUM_INFO"];
 				endif;
 			endif;
-			if ($arAddParams["getFiles"] == "Y" && !empty($res))
+			if (isset($arAddParams["getFiles"]) && $arAddParams["getFiles"] == "Y" && !empty($res))
 				$res["FILES"] = CForumFiles::getByMessageID($ID);
 			return $res;
 		endif;
@@ -1369,7 +1371,7 @@ class CALLForumFiles
 		$res = array();
 		if ($ID > 0 )
 		{
-			if (!is_array($GLOBALS["FORUM_CACHE"]["MESSAGE_FILES"]))
+			if (!isset($GLOBALS["FORUM_CACHE"]["MESSAGE_FILES"]) || !is_array($GLOBALS["FORUM_CACHE"]["MESSAGE_FILES"]))
 				$GLOBALS["FORUM_CACHE"]["MESSAGE_FILES"] = array();
 
 			if (!array_key_exists($ID, $GLOBALS["FORUM_CACHE"]["MESSAGE_FILES"]))

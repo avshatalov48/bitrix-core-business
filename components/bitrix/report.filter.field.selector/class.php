@@ -1,9 +1,14 @@
 <?php
 
+use Bitrix\Crm\Service\Container;
+use Bitrix\Crm\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Selector\Entities;
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
 	die();
+}
 
 Loc::loadMessages(__FILE__);
 
@@ -159,265 +164,101 @@ class CReportComponent extends \CBitrixComponent
 
 	protected function prepareCrmSelectorItem($ufInfo)
 	{
-		/** @global CUser $USER */
-		global $USER;
-
-		$result = false;
-		$selectorItem = array();
-		
 		if(!Bitrix\Main\Loader::includeModule('crm'))
 		{
-			return $result;
+			return false;
 		}
 
-		$CCrmPerms = new CCrmPerms($USER->GetID());
-		$nPermittedEntityTypes = 0;
-		if ($ufInfo['SETTINGS']['LEAD'] == 'Y' && !$CCrmPerms->HavePerm('LEAD', BX_CRM_PERM_NONE, 'READ'))
-			$nPermittedEntityTypes++;
-		if ($ufInfo['SETTINGS']['CONTACT'] == 'Y' && !$CCrmPerms->HavePerm('CONTACT', BX_CRM_PERM_NONE, 'READ'))
-			$nPermittedEntityTypes++;
-		if ($ufInfo['SETTINGS']['COMPANY'] == 'Y' && !$CCrmPerms->HavePerm('COMPANY', BX_CRM_PERM_NONE, 'READ'))
-			$nPermittedEntityTypes++;
-		if ($ufInfo['SETTINGS']['DEAL'] == 'Y' && !$CCrmPerms->HavePerm('DEAL', BX_CRM_PERM_NONE, 'READ'))
-			$nPermittedEntityTypes++;
-		if ($ufInfo['SETTINGS']['QUOTE'] == 'Y' && !$CCrmPerms->HavePerm('QUOTE', BX_CRM_PERM_NONE, 'READ'))
-			$nPermittedEntityTypes++;
-		if ($ufInfo['SETTINGS']['PRODUCT'] == 'Y' && $CCrmPerms->HavePerm('CONFIG', BX_CRM_PERM_CONFIG, 'READ'))
-			$nPermittedEntityTypes++;
-		$usePrefix = $nPermittedEntityTypes > 1;
-
-		// last 50 entity
-		$entityTypes = array();
-		$elements = array();
-		$arSettings = $ufInfo['SETTINGS'];
-		if (isset($arSettings['LEAD']) && $arSettings['LEAD'] == 'Y')
+		$entityTypes = [];
+		$entityTypeTitles = [];
+		$selectorEntityTypeMap = [];
+		$selectorEntityTypeAbbr = [];
+		$permittedEntityTypeCount = 0;
+		if (is_array($ufInfo['SETTINGS']))
 		{
-			$entityTypes[] = 'lead';
-
-			$arSelect = array('ID', 'TITLE', 'FULL_NAME', 'STATUS_ID');
-			$obRes = CCrmLead::GetList(array('ID' => 'DESC'), array(), $arSelect, 50);
-			$arFiles = array();
-			while ($arRes = $obRes->Fetch())
+			$selectorEntityTypes = ElementType::getSelectorEntityTypes();
+			$userPermissions = Container::getInstance()->getUserPermissions(CCrmPerms::GetCurrentUserID());
+			foreach (ElementType::getPossibleEntityTypes() as $entityTypeName => $entityTypeTitle)
 			{
-				$arRes['SID'] = $usePrefix ? 'L_'.$arRes['ID']: $arRes['ID'];
-
-				$elements[] = array(
-					'title' => (str_replace(array(';', ','), ' ', $arRes['TITLE'])),
-					'desc' => $arRes['FULL_NAME'],
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_lead_show'),
-						array(
-							'lead_id' => $arRes['ID']
-						)
-					),
-					'type'  => 'lead',
-					'selected' => 'N'
-				);
-			}
-		}
-		if (isset($arSettings['CONTACT']) && $arSettings['CONTACT'] == 'Y')
-		{
-			$entityTypes[] = 'contact';
-
-			$arSelect = array('ID', 'FULL_NAME', 'COMPANY_TITLE', 'PHOTO');
-			$obRes = CCrmContact::GetList(array('ID' => 'DESC'), array('==CATEGORY_ID' => 0), $arSelect, 50);
-			while ($arRes = $obRes->Fetch())
-			{
-				$strImg = '';
-				if (!empty($arRes['PHOTO']) && !isset($arFiles[$arRes['PHOTO']]))
+				if (isset($ufInfo['SETTINGS'][$entityTypeName]) && $ufInfo['SETTINGS'][$entityTypeName] === 'Y')
 				{
-					if ($arFile = CFile::GetFileArray($arRes['PHOTO']))
+					$entityTypeId = CCrmOwnerType::ResolveID($entityTypeName);
+					if ($entityTypeId !== CCrmOwnerType::Undefined && $userPermissions->canReadType($entityTypeId))
 					{
-						$arImg =  CFile::ResizeImageGet($arFile, array('width' => 25, 'height' => 25), BX_RESIZE_IMAGE_EXACT);
-						if(is_array($arImg) && isset($arImg['src']))
+						$permittedEntityTypeCount++;
+						$entityTypeNameLower = mb_strtolower($entityTypeName);
+						$entityTypes[] = $entityTypeNameLower;
+						$entityTypeTitles[$entityTypeNameLower] = $entityTypeTitle;
+						if (CCrmOwnerType::isPossibleDynamicTypeId($entityTypeId))
 						{
-							$strImg = CHTTP::URN2URI($arImg['src'], '');
+							$selectorEntityTypeName =
+								mb_strtolower(CCrmOwnerType::CommonDynamicName) . '_' . $entityTypeId
+							;
 						}
+						else
+						{
+							$selectorEntityTypeName = $selectorEntityTypes[$entityTypeName];
+						}
+						$selectorEntityTypeMap[$selectorEntityTypeName] = $entityTypeNameLower;
+						$selectorEntityTypeAbbr[$selectorEntityTypeName] =
+							CCrmOwnerTypeAbbr::ResolveByTypeName($entityTypeName)
+						;
 					}
 				}
-
-				$arRes['SID'] = $usePrefix ? 'C_'.$arRes['ID']: $arRes['ID'];
-
-				$elements[] = array(
-					'title' => (str_replace(array(';', ','), ' ', $arRes['FULL_NAME'])),
-					'desc'  => empty($arRes['COMPANY_TITLE'])? '': $arRes['COMPANY_TITLE'],
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_contact_show'),
-						array(
-							'contact_id' => $arRes['ID']
-						)
-					),
-					'image' => $strImg,
-					'type'  => 'contact',
-					'selected' => 'N'
-				);
 			}
-		}
-		if (isset($arSettings['COMPANY']) && $arSettings['COMPANY'] == 'Y')
-		{
-			$entityTypes[] = 'company';
+			unset($entityTypeName, $isEnabled, $entityTypeId, $selectorEntityTypeName);
 
-			$arCompanyTypeList = CCrmStatus::GetStatusListEx('COMPANY_TYPE');
-			$arCompanyIndustryList = CCrmStatus::GetStatusListEx('INDUSTRY');
-			$arSelect = array('ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO');
-			$obRes = CCrmCompany::GetList(array('ID' => 'DESC'), array('==CATEGORY_ID' => 0), $arSelect, 50);
-			$arFiles = array();
-			while ($arRes = $obRes->Fetch())
-			{
-				$strImg = '';
-				if (!empty($arRes['LOGO']) && !isset($arFiles[$arRes['LOGO']]))
-				{
-					if ($arFile = CFile::GetFileArray($arRes['LOGO']))
-					{
-						$arImg =  CFile::ResizeImageGet($arFile, array('width' => 25, 'height' => 25), BX_RESIZE_IMAGE_EXACT);
-						if(is_array($arImg) && isset($arImg['src']))
-						{
-							$strImg = CHTTP::URN2URI($arImg['src'], '');
-						}
-					}
-
-					$arFiles[$arRes['LOGO']] = $strImg;
-				}
-
-				$arRes['SID'] = $usePrefix ? 'CO_'.$arRes['ID']: $arRes['ID'];
-
-				$arDesc = array();
-				if (isset($arCompanyTypeList[$arRes['COMPANY_TYPE']]))
-					$arDesc[] = $arCompanyTypeList[$arRes['COMPANY_TYPE']];
-				if (isset($arCompanyIndustryList[$arRes['INDUSTRY']]))
-					$arDesc[] = $arCompanyIndustryList[$arRes['INDUSTRY']];
-
-				$elements[] = array(
-					'title' => (str_replace(array(';', ','), ' ', $arRes['TITLE'])),
-					'desc' => implode(', ', $arDesc),
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_company_show'),
-						array(
-							'company_id' => $arRes['ID']
-						)
-					),
-					'image' => $strImg,
-					'type'  => 'company',
-					'selected' => 'N'
-				);
-			}
-		}
-		if (isset($arSettings['DEAL']) && $arSettings['DEAL'] == 'Y')
-		{
-			$entityTypes[] = 'deal';
-
-			$arDealStageList = CCrmStatus::GetStatusListEx('DEAL_STAGE');
-			$arSelect = array('ID', 'TITLE', 'STAGE_ID', 'COMPANY_TITLE', 'CONTACT_FULL_NAME');
-			$obRes = CCrmDeal::GetList(array('ID' => 'DESC'), array(), $arSelect, 50);
-			while ($arRes = $obRes->Fetch())
-			{
-				$arRes['SID'] = $usePrefix ? 'D_'.$arRes['ID']: $arRes['ID'];
-
-				$clientTitle = (!empty($arRes['COMPANY_TITLE'])) ? $arRes['COMPANY_TITLE'] : '';
-				$clientTitle .= (($clientTitle !== '' && !empty($arRes['CONTACT_FULL_NAME'])) ? ', ' : '').$arRes['CONTACT_FULL_NAME'];
-
-				$elements[] = array(
-					'title' => (str_replace(array(';', ','), ' ', $arRes['TITLE'])),
-					'desc' => $clientTitle,
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_deal_show'),
-						array(
-							'deal_id' => $arRes['ID']
-						)
-					),
-					'type'  => 'deal',
-					'selected' => 'N'
-				);
-			}
-		}
-		if (isset($arSettings['QUOTE']) && $arSettings['QUOTE'] == 'Y')
-		{
-			$entityTypes[] = 'quote';
-			$arSelect = array('ID', 'QUOTE_NUMBER', 'TITLE', 'COMPANY_TITLE', 'CONTACT_FULL_NAME');
-			$obRes = CCrmQuote::GetList(
-				array('ID' => 'DESC'),
-				array(),
-				false,
-				array('nTopCount' => 50),
-				array('ID', 'QUOTE_NUMBER', 'TITLE', 'COMPANY_TITLE', 'CONTACT_FULL_NAME')
+			$selectorParams = ElementType::getDestSelectorParametersForFilter(
+				$ufInfo['SETTINGS'],
+				isset($ufInfo['SETTINGS']['MULTIPLE']) && $ufInfo['SETTINGS']['MULTIPLE'] === 'Y'
 			);
-			while ($arRes = $obRes->Fetch())
-			{
-				$arRes['SID'] = $usePrefix ? 'Q_'.$arRes['ID']: $arRes['ID'];
-
-				$clientTitle = (!empty($arRes['COMPANY_TITLE'])) ? $arRes['COMPANY_TITLE'] : '';
-				$clientTitle .= (($clientTitle !== '' && !empty($arRes['CONTACT_FULL_NAME'])) ? ', ' : '').$arRes['CONTACT_FULL_NAME'];
-
-				$quoteTitle = empty($arRes['TITLE']) ? $arRes['QUOTE_NUMBER'] : $arRes['QUOTE_NUMBER'].' - '.$arRes['TITLE'];
-
-				$elements[] = array(
-					'title' => empty($quoteTitle) ? '' : str_replace(array(';', ','), ' ', $quoteTitle),
-					'desc' => $clientTitle,
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_quote_show'),
-						array(
-							'quote_id' => $arRes['ID']
-						)
-					),
-					'type'  => 'quote',
-					'selected' => 'N'
-				);
-			}
+			$selectorEntityTypeOptions = ElementType::getDestSelectorOptions($selectorParams);
+			$selectedItems = [];
+			$data = Entities::getData($selectorParams, $selectorEntityTypeOptions, $selectedItems);
 		}
-		if (isset($arSettings['PRODUCT']) && $arSettings['PRODUCT'] == 'Y')
+
+		$elements = [];
+		$useIdPrefix = ($permittedEntityTypeCount > 1);
+
+		if (is_array($data['ENTITIES']))
 		{
-			$entityTypes[] = 'product';
-
-			$arSelect = array('ID', 'NAME', 'PRICE', 'CURRENCY_ID');
-			$arPricesSelect = $arVatsSelect = array();
-			$arSelect = CCrmProduct::DistributeProductSelect($arSelect, $arPricesSelect, $arVatsSelect);
-			$obRes = CCrmProduct::GetList(array('ID' => 'DESC'), array('ACTIVE' => 'Y'), $arSelect, 50);
-
-			$arProducts = $arProductId = array();
-			while ($arRes = $obRes->Fetch())
+			foreach ($data['ENTITIES'] as $entities)
 			{
-				foreach ($arPricesSelect as $fieldName)
-					$arRes[$fieldName] = null;
-				foreach ($arVatsSelect as $fieldName)
-					$arRes[$fieldName] = null;
-				$arProductId[] = $arRes['ID'];
-				$arProducts[$arRes['ID']] = $arRes;
+				if (is_array($entities['ITEMS']))
+				{
+					foreach ($entities['ITEMS'] as $item)
+					{
+						$id =
+							$useIdPrefix
+							? $selectorEntityTypeAbbr[$item['entityType']] . '_' . $item['entityId']
+							: $item['entityId']
+						;
+						$elements[] = [
+							'id' =>$id,
+							'type' => $selectorEntityTypeMap[$item['entityType']],
+							'title' => htmlspecialcharsback($item['name']) ?? '',
+							'desc' => htmlspecialcharsback($item['desc']) ?? '',
+							'url' => $item['url'] ?? '',
+							'selected' => 'N',
+							'image' => $item['avatar'] ?? '',
+						];
+					}
+				}
 			}
-			CCrmProduct::ObtainPricesVats($arProducts, $arProductId, $arPricesSelect, $arVatsSelect);
-			unset($arProductId, $arPricesSelect, $arVatsSelect);
-
-			foreach ($arProducts as $arRes)
-			{
-				$arRes['SID'] = $usePrefix ? 'PROD_'.$arRes['ID']: $arRes['ID'];
-
-				$elements[] = array(
-					'title' => $arRes['NAME'],
-					'desc' => CCrmProduct::FormatPrice($arRes),
-					'id' => $arRes['SID'],
-					'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_product_show'),
-						array(
-							'product_id' => $arRes['ID']
-						)
-					),
-					'type'  => 'product',
-					'selected' => 'N'
-				);
-			}
-			unset($arProducts);
+			unset($id);
 		}
 
-		$selectorItem['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
-		$selectorItem['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
-		$selectorItem['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
-
-		$selectorItem['PREFIX'] = $usePrefix ? 'Y' : 'N';
-		$selectorItem['MULTIPLE'] = 'Y';//$ufInfo['MULTIPLE'];
-		$selectorItem['ENTITY_TYPE'] = $entityTypes;
-		$selectorItem['ELEMENT'] = $elements;
-
-		$result = $selectorItem;
-
-		return $result;
+		return [
+			'USER_TYPE_ID' => $ufInfo['USER_TYPE_ID'],
+			'ENTITY_ID' => $ufInfo['ENTITY_ID'],
+			'FIELD_NAME' => $ufInfo['FIELD_NAME'],
+			'PREFIX' => $useIdPrefix ? 'Y' : 'N',
+			'MULTIPLE' => 'Y',
+			'ENTITY_TYPE' => $entityTypes,
+			'ENTITY_TYPE_ABBR' => array_values($selectorEntityTypeAbbr),
+			'ELEMENT' => $elements,
+			'MESSAGES' => $entityTypeTitles,
+		];
 	}
 
 	protected function prepareEnumerationSelectorItem($ufInfo)

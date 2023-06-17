@@ -1,30 +1,26 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,landing_ui_panel_base,main_core) {
+(function (exports,ui_designTokens,ui_fonts_opensans,landing_main,landing_ui_panel_base,main_core) {
 	'use strict';
 
 	function getDeltaFromEvent(event) {
 	  var deltaX = event.deltaX;
 	  var deltaY = -1 * event.deltaY;
-
 	  if (main_core.Type.isUndefined(deltaX) || main_core.Type.isUndefined(deltaY)) {
 	    deltaX = -1 * event.wheelDeltaX / 6;
 	    deltaY = event.wheelDeltaY / 6;
 	  }
-
 	  if (event.deltaMode === 1) {
 	    deltaX *= 10;
 	    deltaY *= 10;
 	  }
+
 	  /** NaN checks */
-
-
 	  if (Number.isNaN(deltaX) && Number.isNaN(deltaY)) {
 	    deltaX = 0;
 	    deltaY = event.wheelDelta;
 	  }
-
 	  return {
 	    x: deltaX,
 	    y: deltaY
@@ -40,23 +36,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return new Promise(function (resolve) {
 	    var elementTop = 0;
 	    var duration = 0;
-
 	    if (element) {
 	      var defaultMargin = 20;
 	      var elementMarginTop = Math.max(parseInt(main_core.Dom.style(element, 'margin-top')), defaultMargin);
 	      var containerScrollTop = container.scrollTop;
-
 	      if (!(container instanceof HTMLIFrameElement)) {
 	        elementTop = element.offsetTop - (container.offsetTop || 0) - elementMarginTop;
 	      } else {
 	        containerScrollTop = container.contentWindow.scrollY;
 	        elementTop = BX.pos(element).top - elementMarginTop - 100;
 	      }
-
 	      duration = calculateDurationTransition(Math.abs(elementTop - containerScrollTop));
 	      var start = Math.max(containerScrollTop, 0);
 	      var finish = Math.max(elementTop, 0);
-
 	      if (start !== finish) {
 	        new BX.easing({
 	          duration: duration,
@@ -85,10 +77,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
-
 	var Content = /*#__PURE__*/function (_BasePanel) {
 	  babelHelpers.inherits(Content, _BasePanel);
 	  babelHelpers.createClass(Content, null, [{
@@ -143,14 +135,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return getDeltaFromEvent(event);
 	    }
 	  }]);
-
 	  function Content(id) {
 	    var _this;
-
 	    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, Content);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Content).call(this, id, data));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "adjustActionsPanels", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "closeByEsc", true);
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-content');
 	    _this.data = Object.freeze(data);
 	    _this.overlay = Content.createOverlay();
@@ -164,13 +155,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      className: 'landing-ui-panel-content-close',
 	      onClick: function onClick() {
 	        void _this.hide();
-
 	        _this.emit('onCancel');
+	        BX.onCustomEvent(babelHelpers.assertThisInitialized(_this), 'BX.Landing.Block:onBlockEditClose', []);
 	      },
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_SLIDER_CLOSE')
 	      }
 	    });
+	    if (main_core.Type.isBoolean(data.closeByEsc)) {
+	      _this.closeByEsc = data.closeByEsc;
+	    }
 	    _this.forms = new BX.Landing.UI.Collection.FormCollection();
 	    _this.buttons = new BX.Landing.UI.Collection.ButtonCollection();
 	    _this.sidebarButtons = new BX.Landing.UI.Collection.ButtonCollection();
@@ -187,43 +181,33 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Dom.append(_this.body, _this.layout);
 	    main_core.Dom.append(_this.footer, _this.layout);
 	    main_core.Dom.append(_this.closeButton.layout, _this.layout);
-
 	    if (main_core.Type.isString(data.className)) {
 	      main_core.Dom.addClass(_this.layout, [data.className, "".concat(data.className, "-overlay")]);
 	    }
-
 	    if (main_core.Type.isString(data.subTitle) && data.subTitle !== '') {
 	      _this.subTitle = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-subtitle\">", "</div>\n\t\t\t"])), data.subTitle);
 	      main_core.Dom.append(_this.subTitle, _this.header);
 	      main_core.Dom.addClass(_this.layout, 'landing-ui-panel-content-with-subtitle');
 	    }
-
 	    if (_this.data.showFromRight === true) {
 	      _this.setLayoutClass('landing-ui-panel-show-from-right');
 	    }
-
 	    _this.init();
-
 	    main_core.Event.bind(window.top, 'keydown', _this.onKeyDown.bind(babelHelpers.assertThisInitialized(_this)));
 	    BX.Landing.PageObject.getEditorWindow();
-
 	    if (_this.data.scrollAnimation) {
 	      _this.scrollObserver = new IntersectionObserver(_this.onIntersecting.bind(babelHelpers.assertThisInitialized(_this)));
 	    }
-
 	    _this.checkReadyToSave = _this.checkReadyToSave.bind(babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Content, [{
 	    key: "init",
 	    value: function init() {
 	      var _this2 = this;
-
-	      main_core.Dom.append(this.overlay, document.body);
+	      main_core.Dom.append(this.overlay, window.parent.document.body);
 	      main_core.Event.bind(this.overlay, 'click', function () {
 	        _this2.emit('onCancel');
-
 	        void _this2.hide();
 	      });
 	      main_core.Event.bind(this.layout, 'mouseenter', this.onMouseEnter);
@@ -236,18 +220,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Event.bind(this.header, 'mouseleave', this.onMouseLeave);
 	      main_core.Event.bind(this.footer, 'mouseenter', this.onMouseEnter);
 	      main_core.Event.bind(this.footer, 'mouseleave', this.onMouseLeave);
-
 	      if ('title' in this.data) {
 	        this.setTitle(this.data.title);
 	      }
-
 	      if ('footer' in this.data) {
 	        if (main_core.Type.isArray(this.data.footer)) {
 	          this.data.footer.forEach(function (item) {
 	            if (item instanceof BX.Landing.UI.Button.BaseButton) {
 	              _this2.appendFooterButton(item);
 	            }
-
 	            if (main_core.Type.isDomNode(item)) {
 	              main_core.Dom.append(item, _this2.footer);
 	            }
@@ -255,7 +236,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 	      }
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "onIntersecting",
 	    value: function onIntersecting(items) {
@@ -272,7 +252,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onKeyDown",
 	    value: function onKeyDown(event) {
-	      if (event.keyCode === 27) {
+	      if (this.closeByEsc && event.keyCode === 27) {
 	        this.emit('onCancel');
 	        void this.hide();
 	      }
@@ -283,7 +263,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      event.stopPropagation();
 	      main_core.Event.bind(this.layout, this.wheelEventName, this.onMouseWheel);
 	      main_core.Event.bind(this.layout, 'touchmove', this.onMouseWheel);
-
 	      if (this.sidebar.contains(event.target) || this.content.contains(event.target) || this.header.contains(event.target) || this.footer.contains(event.target) || this.right && this.right.contains(event.target)) {
 	        this.scrollTarget = event.currentTarget;
 	      }
@@ -299,7 +278,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onMouseWheel",
 	    value: function onMouseWheel(event) {
 	      var _this3 = this;
-
 	      event.preventDefault();
 	      event.stopPropagation();
 	      var delta = Content.getDeltaFromEvent(event);
@@ -323,43 +301,36 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function shouldAdjustActionsPanels() {
 	      return this.adjustActionsPanels;
 	    } // eslint-disable-next-line no-unused-vars
-
 	  }, {
 	    key: "show",
 	    value: function show(options) {
 	      var _this4 = this;
-
 	      if (!this.isShown()) {
 	        if (this.shouldAdjustActionsPanels()) {
 	          main_core.Dom.addClass(document.body, 'landing-ui-hide-action-panels');
 	        }
-
 	        main_core.Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 	        void BX.Landing.Utils.Show(this.overlay);
 	        return BX.Landing.Utils.Show(this.layout).then(function () {
 	          _this4.state = 'shown';
 	        });
 	      }
-
 	      return Promise.resolve(true);
 	    }
 	  }, {
 	    key: "hide",
 	    value: function hide() {
 	      var _this5 = this;
-
 	      if (this.isShown()) {
 	        if (this.shouldAdjustActionsPanels()) {
 	          main_core.Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
 	        }
-
 	        main_core.Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 	        void BX.Landing.Utils.Hide(this.overlay);
 	        return BX.Landing.Utils.Hide(this.layout).then(function () {
 	          _this5.state = 'hidden';
 	        });
 	      }
-
 	      return Promise.resolve(true);
 	    }
 	  }, {
@@ -375,7 +346,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        main_core.Dom.addClass(card.layout, 'landing-ui-is-not-visible');
 	        this.scrollObserver.observe(card.layout);
 	      }
-
 	      main_core.Dom.append(card.layout, this.content);
 	    }
 	  }, {
@@ -428,14 +398,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "checkReadyToSave",
 	    value: function checkReadyToSave() {
 	      var _this6 = this;
-
 	      var canSave = true;
 	      this.forms.forEach(function (form) {
 	        form.fields.forEach(function (field) {
 	          if (field.readyToSave === false) {
 	            canSave = false;
 	          }
-
 	          if (!field.getListeners('onChangeReadyToSave').has(_this6.checkReadyToSave)) {
 	            field.subscribe('onChangeReadyToSave', _this6.checkReadyToSave);
 	          }
@@ -447,7 +415,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "disableSave",
 	    value: function disableSave() {
 	      var saveButton = this.buttons.get('save_block_content');
-
 	      if (saveButton) {
 	        saveButton.disable();
 	      }
@@ -456,7 +423,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "enableSave",
 	    value: function enableSave() {
 	      var saveButton = this.buttons.get('save_block_content');
-
 	      if (saveButton) {
 	        saveButton.enable();
 	      }
@@ -467,5 +433,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Content = Content;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing.UI.Panel,BX));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing,BX.Landing.UI.Panel,BX));
 //# sourceMappingURL=content.bundle.js.map

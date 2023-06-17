@@ -141,13 +141,10 @@ if ($errorMessage == '')
 	}
 	else
 	{
-		if ($errorMessage == '')
+		if (!CUpdateClientPartner::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
 		{
-			if (!CUpdateClientPartner::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
-			{
-				$errorMessage .= "[CL04] ".GetMessage("SUPC_ME_UPDATE").". ";
-				CUpdateClientPartner::AddMessage2Log(GetMessage("SUPC_ME_UPDATE"), "CL04");
-			}
+			$errorMessage .= "[CL04] ".GetMessage("SUPC_ME_UPDATE").". ";
+			CUpdateClientPartner::AddMessage2Log(GetMessage("SUPC_ME_UPDATE"), "CL04");
 		}
 
 		if ($errorMessage <> '')
@@ -159,7 +156,7 @@ if ($errorMessage == '')
 		{
 			echo "STP";
 			echo count($arItemsUpdated)."|";
-			$bFirst = True;
+			$bFirst = true;
 			foreach ($arItemsUpdated as $key => $value)
 			{
 				$strModuleDescr = "";
@@ -176,7 +173,7 @@ if ($errorMessage == '')
 					CEventLog::Log("INFO", "MP_MODULE_DOWNLOADED", "main", $key, $value);
 
 				echo ($bFirst ? "" : ", ").$key.(($value <> '') ? " (".$value.")" : "");
-				$bFirst = False;
+				$bFirst = false;
 			}
 		}
 	}

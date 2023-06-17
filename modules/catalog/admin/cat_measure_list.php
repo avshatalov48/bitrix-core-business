@@ -52,8 +52,11 @@ if($ex = $APPLICATION->GetException())
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
 $sTableID = "b_catalog_measure";
-$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $arFilter = array();
 
@@ -142,8 +145,6 @@ if(array_key_exists("mode", $_REQUEST) && $_REQUEST["mode"] == "excel")
 	$arNavParams = false;
 else
 	$arNavParams = array("nPageSize"=>CAdminUiResult::GetNavSize($sTableID));
-
-global $by, $order;
 
 $dbResultList = CCatalogMeasure::getList(
 	array($by => $order),

@@ -278,6 +278,7 @@ BX.ready(function()
 
 						BX.PreventDefault(event);
 					}
+					BX.PopupMenu.getMenuById('landing-menu-settings').close();
 				};
 			}
 			var menu = (

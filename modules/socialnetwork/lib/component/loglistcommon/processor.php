@@ -163,7 +163,7 @@ class Processor
 	{
 		$result['UNREAD_COMMENTS_ID_LIST'] = [];
 
-		if ((int)$result['LOG_COUNTER'] <= 0)
+		if ((int) ($result['LOG_COUNTER'] ?? null) <= 0)
 		{
 			return;
 		}
@@ -307,7 +307,7 @@ class Processor
 		$result['MICROBLOG_USER_ID'] = (
 			$result['currentUserId'] > 0
 			&& (
-				$params['ENTITY_TYPE'] !== SONET_ENTITY_GROUP
+				($params['ENTITY_TYPE'] ?? null) !== SONET_ENTITY_GROUP
 				|| (
 					\CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'full_post', $this->getComponent()->getCurrentUserAdmin())
 					|| \CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'write_post')

@@ -93,7 +93,7 @@ this.BX = this.BX || {};
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onElementSelect = options.onElementSelect;
 
-	    _this.renderTo(document.body);
+	    _this.renderTo(parent.document.body ? parent.document.body : document.body);
 
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-repo');
 	    return _this;

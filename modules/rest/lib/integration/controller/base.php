@@ -235,34 +235,34 @@ class Base extends Controller
 	}
 
 	/**
-	 * @param $select
-	 * @param $filter
-	 * @param $order
-	 * @param PageNavigation $pageNavigation
+	 * @param array $select
+	 * @param array $filter
+	 * @param array $order
+	 * @param PageNavigation|null $pageNavigation
 	 * @return array
 	 * @throws NotImplementedException
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 */
-	protected function getList($select, $filter, $order, PageNavigation $pageNavigation)
+	protected function getList(array $select, array $filter, array $order, PageNavigation $pageNavigation = null): array
 	{
 		$entityTable = $this->getEntityTable();
 
-		$select = empty($select)? ['*']:$select;
-		$order = empty($order)? ['ID'=>'ASC']:$order;
+		$select = empty($select) ? ['*'] : $select;
+		$order = empty($order) ? ['ID' => 'ASC'] : $order;
+		$params = [
+			'select' => $select,
+			'filter' => $filter,
+			'order' => $order,
+		];
+		if ($pageNavigation)
+		{
+			$params['offset'] = $pageNavigation->getOffset();
+			$params['limit'] = $pageNavigation->getLimit();
+		}
 
-		$items = $entityTable::getList(
-			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
-				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getLimit()
-			]
-		)->fetchAll();
-
-		return $items;
+		return $entityTable::getList($params)->fetchAll();
 	}
 
 	/**

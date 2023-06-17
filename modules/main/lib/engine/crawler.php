@@ -64,7 +64,7 @@ final class Crawler
 				$classNamespace = mb_strtolower(trim($reflectionClass->getNamespaceName(), '\\'));
 				$namespace = mb_strtolower(trim($namespace, '\\'));
 
-				if (mb_strpos($classNamespace, $namespace) === false)
+				if (strpos($classNamespace, $namespace) === false)
 				{
 					continue;
 				}

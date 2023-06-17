@@ -9,7 +9,7 @@ class Settings
 
 	function __construct(array $params)
 	{
-		$this->ID = isset($params['ID']) ? $params['ID'] : '';
+		$this->ID = $params['ID'] ?? '';
 		if($this->ID === '')
 		{
 			throw new Main\ArgumentException('Collection does not contain value for ID.', 'params');

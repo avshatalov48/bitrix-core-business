@@ -108,7 +108,7 @@ class StatusTable extends Entity\DataManager
 			),
 			'USER' => array(
 				'data_type' => 'Bitrix\Main\User',
-				'reference' => array('=this.AUTHOR_ID' => 'ref.ID'),
+				'reference' => array('=this.USER_ID' => 'ref.ID'),
 			),
 		);
 	}

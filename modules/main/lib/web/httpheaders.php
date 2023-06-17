@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
+
 namespace Bitrix\Main\Web;
 
 use Bitrix\Main\Context;
@@ -14,64 +16,113 @@ use Traversable;
 
 class HttpHeaders implements IteratorAggregate
 {
-	protected $headers = array();
+	protected array $headers = [];
+	protected ?int $status = null;
+	protected ?string $reasonPhrase = null;
+	protected ?string $version = null;
 
-	public function __construct()
+	/**
+	 * @param string[] | string[][] | null $headers
+	 */
+	public function __construct(array $headers = null)
 	{
+		if ($headers !== null)
+		{
+			foreach ($headers as $header => $value)
+			{
+				$this->add($header, $value);
+			}
+		}
 	}
 
 	/**
-	 * Adds a header.
+	 * Adds a header value.
 	 * @param string $name
-	 * @param string $value
+	 * @param string | array $value
+	 * @throws \InvalidArgumentException
 	 */
 	public function add($name, $value)
 	{
-		$name = $this->refineString($name);
-		$value = $this->refineString($value);
+		// compatibility
+		$name = (string)$name;
+
+		// PSR-7: The implementation SHOULD reject invalid values and SHOULD NOT make any attempt to automatically correct the provided values.
+		if ($name == '' || !static::validateName($name))
+		{
+			throw new \InvalidArgumentException("Invalid header name '{$name}'.");
+		}
+
+		if (!is_array($value))
+		{
+			$value = [$value];
+		}
+
+		foreach ($value as $key => $val)
+		{
+			$value[$key] = (string)$val;
+			if (!static::validateValue($value[$key]))
+			{
+				throw new \InvalidArgumentException("Invalid header value '{$value[$key]}'.");
+			}
+		}
 
 		$nameLower = strtolower($name);
 
 		if (!isset($this->headers[$nameLower]))
 		{
 			$this->headers[$nameLower] = [
-				"name" => $name,
-				"values" => [],
+				'name' => $name,
+				'values' => [],
 			];
 		}
-		$this->headers[$nameLower]["values"][] = $value;
-	}
-
-	private function refineString($string)
-	{
-		return str_replace(["%0D", "%0A", "\r", "\n"], "", $string);
+		foreach ($value as $val)
+		{
+			$this->headers[$nameLower]['values'][] = $val;
+		}
 	}
 
 	/**
-	 * Sets a header value.
+	 * @see https://tools.ietf.org/html/rfc7230#section-3.2
+	 * field-name     = token
+	 * token          = 1*tchar
+	 * tchar          = "!" / "#" / "$" / "%" / "&" / "'" / "*"
+	 *                  / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
+	 *                  / DIGIT / ALPHA
+	 */
+	protected static function validateName(string $name): bool
+	{
+		return (strpos($name, "\0") === false && preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name));
+	}
+
+	/**
+     * @see https://tools.ietf.org/html/rfc7230#section-3.2
+	 * field-value    = *( field-content / obs-fold )
+     * field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+     * field-vchar    = VCHAR / obs-text
+     * VCHAR          = %x21-7E
+     * obs-text       = %x80-FF
+	 */
+	protected static function validateValue(string $value): bool
+	{
+		return (strpos($value, "\0") === false && preg_match('/^[\x20\x09\x21-\x7E\x80-\xFF]*$/', $value));
+	}
+
+	/**
+	 * Sets (replaces) a header value.
 	 * @param string $name
-	 * @param string|null $value
+	 * @param string | string[] $value
 	 */
 	public function set($name, $value)
 	{
-		$name = $this->refineString($name);
-		if ($value !== null)
-		{
-			$value = $this->refineString($value);
-		}
-		$nameLower = strtolower($name);
-
-		$this->headers[$nameLower] = [
-			"name" => $name,
-			"values" => [$value],
-		];
+		$this->delete($name);
+		$this->add($name, $value);
 	}
 
 	/**
 	 * Returns a header value by its name. If $returnArray is true then an array with multiple values is returned.
 	 * @param string $name
 	 * @param bool $returnArray
-	 * @return null|string|array
+	 * @return null | string | string[]
 	 */
 	public function get($name, $returnArray = false)
 	{
@@ -81,10 +132,10 @@ class HttpHeaders implements IteratorAggregate
 		{
 			if ($returnArray)
 			{
-				return $this->headers[$nameLower]["values"];
+				return $this->headers[$nameLower]['values'];
 			}
 
-			return $this->headers[$nameLower]["values"][0];
+			return $this->headers[$nameLower]['values'][0];
 		}
 
 		return null;
@@ -107,22 +158,34 @@ class HttpHeaders implements IteratorAggregate
 	}
 
 	/**
+	 * Returns true if a header is set.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function has(string $name): bool
+	{
+		$nameLower = strtolower($name);
+
+		return isset($this->headers[$nameLower]);
+	}
+
+	/**
 	 * Clears all headers.
 	 */
 	public function clear()
 	{
-		unset($this->headers);
 		$this->headers = [];
 	}
 
 	/**
-	 * Returns the string representation for a HTTP request.
+	 * Returns the string representation for an HTTP request.
 	 * @return string
 	 */
 	public function toString()
 	{
 		$str = "";
-		foreach($this->headers as $header)
+		foreach ($this->headers as $header)
 		{
 			foreach ($header["values"] as $value)
 			{
@@ -282,16 +345,109 @@ class HttpHeaders implements IteratorAggregate
 		$toIterate = [];
 		foreach ($this->headers as $header)
 		{
-			if (count($header["values"]) > 1)
-			{
-				$toIterate[$header["name"]] = $header["values"];
-			}
-			else
-			{
-				$toIterate[$header["name"]] = $header["values"][0];
-			}
+			$toIterate[$header['name']] = $header['values'];
 		}
 
 		return new \ArrayIterator($toIterate);
+	}
+
+	/**
+	 * Returns parsed cookies from 'set-cookie' headers.
+	 * @return HttpCookies
+	 */
+	public function getCookies(): HttpCookies
+	{
+		$cookies = new HttpCookies();
+
+		if ($this->has('set-cookie'))
+		{
+			foreach ($this->get('set-cookie', true) as $value)
+			{
+				$cookies->addFromString($value);
+			}
+		}
+
+		return $cookies;
+	}
+
+	/**
+	 * Retuns the headers as a two-dimentional array ('name' => values).
+	 *
+	 * @return string[][]
+	 */
+	public function getHeaders(): array
+	{
+		return iterator_to_array($this->getIterator());
+	}
+
+	/**
+	 * Creates an object from a http response string.
+	 *
+	 * @param string $response
+	 * @return HttpHeaders
+	 */
+	public static function createFromString(string $response): HttpHeaders
+	{
+		$headers = new static();
+
+		foreach (explode("\n", $response) as $k => $header)
+		{
+			if ($k == 0)
+			{
+				$headers->parseStatus($header);
+			}
+			elseif (strpos($header, ':') !== false)
+			{
+				[$headerName, $headerValue] = explode(':', $header, 2);
+				$headers->add($headerName, trim($headerValue));
+			}
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * @param string $status
+	 * @return $this
+	 */
+	public function parseStatus(string $status): HttpHeaders
+	{
+		if (preg_match('#^HTTP/(\S+) (\d+) *(.*)#', $status, $find))
+		{
+			$this->version = $find[1];
+			$this->setStatus((int)$find[2], trim($find[3]));
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Sets HTTP status code and prase.
+	 *
+	 * @param int $status
+	 * @param string|null $reasonPhrase
+	 * @return $this
+	 */
+	public function setStatus(int $status, ?string $reasonPhrase = null): HttpHeaders
+	{
+		$this->status = $status;
+		$this->reasonPhrase = $reasonPhrase;
+
+		return $this;
+	}
+
+	public function getStatus(): int
+	{
+		return $this->status ?? 0;
+	}
+
+	public function getVersion(): ?string
+	{
+		return $this->version;
+	}
+
+	public function getReasonPhrase(): string
+	{
+		return $this->reasonPhrase ?? '';
 	}
 }

@@ -42,17 +42,17 @@ interface IProviderInterface
 class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 {
 	const ID = 'group';
-	
+
 	public function __construct()
 	{
 		$this->id = self::ID;
 	}
-	
+
 	public function UpdateCodes($USER_ID)
 	{
 		global $DB;
 		$USER_ID = intval($USER_ID);
-		
+
 		$DB->Query("
 			INSERT INTO b_user_access (USER_ID, PROVIDER_ID, ACCESS_CODE)
 			SELECT UG.USER_ID, '".$DB->ForSQL($this->id)."', ".$DB->Concat("'G'", "UG.GROUP_ID")."
@@ -68,7 +68,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 			WHERE ID=".$USER_ID."
 		");
 	}
-	
+
 	public static function OnBeforeGroupUpdate($ID, &$arFields)
 	{
 		if(array_key_exists("ACTIVE", $arFields) || array_key_exists("USER_ID", $arFields))
@@ -85,13 +85,13 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 			self::RecalculateForGroup($arFields["ID"]);
 		}
 	}
-	
+
 	public static function OnBeforeGroupDelete($ID)
 	{
 		self::RecalculateForGroup($ID);
 		return true;
 	}
-	
+
 	public static function OnAfterSetUserGroup($USER_ID)
 	{
 		CAccess::RecalculateForUser($USER_ID, self::ID);
@@ -113,15 +113,15 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		global $USER;
 		if(!$USER->CanDoOperation('view_groups'))
 			return false;
-			
+
 		$elements = "";
 		$arFinderParams = array(
 			"PROVIDER" => $this->id,
 			"TYPE" => 1,
 		);
-		
+
 		$search = urldecode($_REQUEST['search']);
-		
+
 		$dbRes = CGroup::GetList('sort', 'asc', array("ANONYMOUS"=>"N", "NAME"=>$search));
 		$dbRes->NavStart(13);
 		while ($arGroup = $dbRes->NavNext(false))
@@ -130,7 +130,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 				"ID" => "G".$arGroup["ID"],
 				"NAME" => $arGroup["NAME"],
 			);
-			
+
 			$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 		}
 		return $elements;
@@ -140,18 +140,20 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 	{
 		global $USER;
 
-		if(is_array($arParams["groups"]) && $arParams["groups"]["disabled"] == "true")
+		if (isset($arParams["groups"]) && is_array($arParams["groups"]) && $arParams["groups"]["disabled"] == "true")
+		{
 			return false;
+		}
 
 		if(!$USER->CanDoOperation('view_groups'))
 			return false;
-			
+
 		$elements = $last = "";
 		$arFinderParams = array(
 			"PROVIDER" => $this->id,
 			"TYPE" => 1,
 		);
-		
+
 		$arLRU = CAccess::GetLastRecentlyUsed($this->id);
 
 		$res = CGroup::GetList('sort', 'asc', array("ANONYMOUS"=>"N"));
@@ -161,7 +163,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 				"ID" => "G".$arGroup["ID"],
 				"NAME" => $arGroup["NAME"],
 			);
-			
+
 			$element = CFinder::GetFinderItem($arFinderParams, $arItem);
 			$elements .= $element;
 
@@ -185,7 +187,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 			),
 		);
 		$html = CFinder::GetFinderAppearance($arFinderParams, $arPanels);
-		
+
 		return array("HTML"=>$html);
 	}
 
@@ -195,7 +197,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		foreach($arCodes as $code)
 			if(preg_match('/^G[0-9]+$/', $code))
 				$aID[] = substr($code, 1);
-		
+
 		if(!empty($aID))
 		{
 			$arResult = array();
@@ -204,7 +206,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 			{
 				$arResult["G".$arGroup["ID"]] = array("provider" => GetMessage("authprov_group_prov"), "name"=>$arGroup["NAME"]);
 			}
-				
+
 			return $arResult;
 		}
 		return false;
@@ -232,13 +234,13 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			where id=".$USER_ID."
 		");
 	}
-	
+
 	public function AjaxRequest()
 	{
 		global $USER;
 		if(!$USER->CanDoOperation('view_all_users'))
 			return false;
-			
+
 		$search = urldecode($_REQUEST['search']);
 		$elements = "";
 		$arFinderParams = array(
@@ -249,7 +251,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 		$nameFormat = CSite::GetNameFormat(false);
 
 		$arFilter = array(
-			'ACTIVE' => 'Y', 
+			'ACTIVE' => 'Y',
 			'NAME_SEARCH' => $search,
 			'!EXTERNAL_AUTH_ID' => \Bitrix\Main\UserTable::getExternalUserTypes(),
 		);
@@ -280,13 +282,15 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 		}
 		return $elements;
 	}
-	
+
 	public function GetFormHtml($arParams=false)
 	{
 		global $USER;
 
-		if(is_array($arParams["user"]) && $arParams["user"]["disabled"] == "true")
+		if (isset($arParams["user"]) && is_array($arParams["user"]) && $arParams["user"]["disabled"] == "true")
+		{
 			return false;
+		}
 
 		if(!$USER->CanDoOperation('view_all_users'))
 			return false;
@@ -296,7 +300,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			"PROVIDER" => $this->id,
 			"TYPE" => 2,
 		);
-		
+
 		$arLRU = CAccess::GetLastRecentlyUsed($this->id);
 		if(!empty($arLRU))
 		{
@@ -319,7 +323,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 				$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 			}
 		}
-		
+
 		$arPanels = array(
 			array(
 				"NAME" => GetMessage("authprov_last"),
@@ -377,9 +381,11 @@ class COtherAuthProvider implements IProviderInterface
 	{
 		global $USER;
 
-		if(is_array($arParams["other"]) && $arParams["other"]["disabled"] == "true")
+		if (isset($arParams["other"]) && is_array($arParams["other"]) && $arParams["other"]["disabled"] == "true")
+		{
 			return false;
-		
+		}
+
 		$elements = "";
 		$arFinderParams = array(
 			"PROVIDER" => "other",
@@ -394,7 +400,7 @@ class COtherAuthProvider implements IProviderInterface
 		);
 		$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 
-		if(!is_array($arParams["other"]) || $arParams["other"]["disabled_cr"] != "true")
+		if(!isset($arParams["other"]) || !is_array($arParams["other"]) || $arParams["other"]["disabled_cr"] != "true")
 		{
 			$arItem = array(
 				"ID" => "CR",
@@ -404,8 +410,8 @@ class COtherAuthProvider implements IProviderInterface
 			);
 			$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 		}
-		
-		if(!is_array($arParams["other"]) || $arParams["other"]["disabled_g2"] != "true")
+
+		if(!isset($arParams["other"]) || !is_array($arParams["other"]) || $arParams["other"]["disabled_g2"] != "true")
 		{
 			$arItem = array(
 				"ID" => "G2",
@@ -415,8 +421,8 @@ class COtherAuthProvider implements IProviderInterface
 			);
 			$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 		}
-		
-		if(!is_array($arParams["other"]) || $arParams["other"]["disabled_au"] != "true")
+
+		if(!isset($arParams["other"]["disabled_au"]) || $arParams["other"]["disabled_au"] != "true")
 		{
 			$arItem = array(
 				"ID" => "AU",
@@ -426,7 +432,7 @@ class COtherAuthProvider implements IProviderInterface
 			);
 			$elements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 		}
-		
+
 		$arPanels = array(
 			array(
 				"NAME" => GetMessage("authprov_other"),
@@ -435,7 +441,7 @@ class COtherAuthProvider implements IProviderInterface
 			),
 		);
 		$html = CFinder::GetFinderAppearance($arFinderParams, $arPanels);
-		
+
 		return array("HTML"=>$html);
 	}
 

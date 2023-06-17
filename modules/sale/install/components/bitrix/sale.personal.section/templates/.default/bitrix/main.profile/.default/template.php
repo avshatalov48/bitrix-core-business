@@ -10,7 +10,7 @@ use Bitrix\Main\Localization\Loc;
 	<?
 	ShowError($arResult["strProfileError"]);
 
-	if ($arResult['DATA_SAVED'] == 'Y')
+	if (($arResult['DATA_SAVED'] ?? 'N') === 'Y')
 	{
 		ShowNote(Loc::getMessage('PROFILE_DATA_SAVED'));
 	}
@@ -53,7 +53,7 @@ use Bitrix\Main\Localization\Loc;
 			{
 				?>
 				<div class="form-group">
-					<label class="main-profile-form-label col-sm-12 col-md-3 text-md-right" for="main-profile-title"><?=Loc::getMessage('main_profile_title')?></label>
+					<label class="main-profile-form-label col-sm-12 col-md-3 text-md-right" for="main-profile-title"><?=Loc::getMessage('MAIN_PROFILE_TITLE')?></label>
 					<div class="col-sm-12">
 						<input class="form-control" type="text" name="TITLE" maxlength="50" id="main-profile-title" value="<?=$arResult["arUser"]["TITLE"]?>" />
 					</div>

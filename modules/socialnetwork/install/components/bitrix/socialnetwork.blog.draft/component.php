@@ -101,9 +101,9 @@ if($user_id > 0 && $user_id == intval($arParams["USER_ID"]))
 		$arResult["OK_MESSAGE"] = Array();
 
 		//Message delete
-		if (intval($_GET["del_id"]) > 0)
+		if (isset($_GET["del_id"]) && intval($_GET["del_id"]) > 0)
 		{
-			if($_GET["success"] == "Y")
+			if (isset($_GET["success"]) && $_GET["success"] == "Y")
 				$arResult["OK_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_DELED");
 			else
 			{
@@ -142,9 +142,9 @@ if($user_id > 0 && $user_id == intval($arParams["USER_ID"]))
 				}
 			}
 		}
-		elseif (intval($_GET["pub_id"]) > 0)
+		elseif (isset($_GET["pub_id"]) && intval($_GET["pub_id"]) > 0)
 		{
-			if($_GET["success"] == "Y")
+			if (isset($_GET["success"]) && $_GET["success"] == "Y")
 				$arResult["OK_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_PUB");
 			else
 			{

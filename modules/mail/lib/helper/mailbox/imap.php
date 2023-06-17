@@ -859,23 +859,9 @@ class Imap extends Mail\Helper\Mailbox
 			return null;
 		}
 
-		$pushParams = ['dir' => $dir->getPath()];
-
 		$result = $this->syncDirInternal($dir);
 
 		$dir->stopSyncLock();
-
-		if (false === $result)
-		{
-			$pushParams['complete'] = -1;
-			$pushParams['status'] = -1;
-			$pushParams['errors'] = $this->client->getErrors()->toArray();
-		}
-		else
-		{
-			$pushParams['complete'] = $this->isTimeQuotaExceeded() ? -1 : $dir->getPath() !== $this->syncParams['currentDir'];
-			$pushParams['new'] = $result;
-		}
 
 		$this->lastSyncResult['newMessages'] += $result;
 		if (!$dir->isTrash() && !$dir->isSpam() && !$dir->isDraft() && !$dir->isOutcome())

@@ -75,7 +75,7 @@ final class WorkgroupDeptSync extends Stepper
 
 		$res = UserToGroupTable::getList([
 			'filter' => [
-				'=GROUP_ID' => (int)$groupFields['ID'],
+				'=GROUP_ID' => (int) ($groupFields['ID'] ?? 0),
 				'@ROLE' => UserToGroupTable::getRolesMember(),
 				'=AUTO_MEMBER' => 'Y',
 			],

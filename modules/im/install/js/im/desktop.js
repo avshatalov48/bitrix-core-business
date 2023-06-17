@@ -1139,13 +1139,13 @@
 		{
 			resultText = BX.util.htmlspecialcharsback(resultText);
 			resultText = resultText.split('&nbsp;&nbsp;&nbsp;&nbsp;').join("\t");
-			resultText = resultText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
-			resultText = resultText.replace(/&nbsp;/ig, ' ').replace(/&copy;/, '(c)');
-			resultText = resultText.replace(/<div class=\"bx-messenger-hr\"><\/div>/ig, '\n');
-			resultText = resultText.replace(/<span class=\"bx-messenger-clear\"><\/span>/ig, '\n');
-			resultText = resultText.replace(/<s>([^"]*)<\/s>/ig, '');
-			resultText = resultText.replace(/<(\/*)([buis]+)>/ig, '[$1$2]');
-			resultText = resultText.replace(/<a.*?href="([^"]*)".*?>.*?<\/a>/ig, '$1');
+			resultText = resultText.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1');
+			resultText = resultText.replace(/&nbsp;/gi, ' ').replace(/&copy;/, '(c)');
+			resultText = resultText.replace(/<div class=\"bx-messenger-hr\"><\/div>/gi, '\n');
+			resultText = resultText.replace(/<span class=\"bx-messenger-clear\"><\/span>/gi, '\n');
+			resultText = resultText.replace(/<s>([^"]*)<\/s>/gi, '');
+			resultText = resultText.replace(/<(\/*)([buis]+)>/gi, '[$1$2]');
+			resultText = resultText.replace(/<a.*?href="([^"]*)".*?>.*?<\/a>/gi, '$1');
 			resultText = resultText.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmi, "["+BX.message("BXD_QUOTE_BLOCK")+"]");
 			resultText = resultText.replace(/<br( \/)?>/gi, '\n').replace(/<\/?[^>]+>/gi, '');
 		}

@@ -1,5 +1,8 @@
 <?php
 
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Localization\Loc;
+
 define("NOT_CHECK_PERMISSIONS", true);
 define("STOP_STATISTICS", true);
 define("NO_KEEP_STATISTIC", "Y");
@@ -46,7 +49,14 @@ foreach ($jsonDataMap as $k => $v)
 {
 	if (isset($_REQUEST[$k]))
 	{
-		$jsonValues[$v] = \Bitrix\Main\Web\Json::decode($_REQUEST[$k]);
+		try
+		{
+			$jsonValues[$v] = \Bitrix\Main\Web\Json::decode($_REQUEST[$k]);
+		}
+		catch (ArgumentException $e)
+		{
+		}
+
 		unset($_REQUEST[$k]);
 	}
 }
@@ -115,7 +125,7 @@ if (!$documentInformation)
 {
 	$sendError('Invalid request [document_signed]');
 }
-list($documentType, $documentCategoryId, $documentId) = $documentInformation;
+[$documentType, $documentCategoryId, $documentId] = $documentInformation;
 
 try
 {
@@ -187,7 +197,7 @@ switch ($action)
 		$robotData = isset($_REQUEST['robot']) && is_array($_REQUEST['robot']) ? $_REQUEST['robot'] : null;
 		if (!$robotData)
 		{
-			$sendError('Empty robot data.');
+			$sendError(Loc::getMessage('BIZPROC_AUTOMATION_AJAX_NO_DATA_ERROR'));
 		}
 
 		$context = isset($_REQUEST['context']) && is_array($_REQUEST['context']) ? $_REQUEST['context'] : null;
@@ -216,7 +226,9 @@ switch ($action)
 
 		$robotData = isset($_REQUEST['robot']) && is_array($_REQUEST['robot']) ? $_REQUEST['robot'] : null;
 		if (!$robotData)
-			$sendError('Empty robot data.');
+		{
+			$sendError(Loc::getMessage('BIZPROC_AUTOMATION_AJAX_NO_DATA_ERROR'));
+		}
 
 		$requestData = isset($_REQUEST['form_data']) && is_array($_REQUEST['form_data']) ? $_REQUEST['form_data'] : [];
 

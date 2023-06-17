@@ -1,2 +1,0 @@
-<?php
-$MESS['STORE_STOCK_HANDLER_DEFAULT_STORE_NAME'] = 'Без названия';

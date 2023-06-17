@@ -3,7 +3,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 (function (exports,ui_designTokens,main_core,catalog_skuTree,main_core_events) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 
 	var SkuProperty = /*#__PURE__*/function () {
 	  function SkuProperty(options) {
@@ -58,13 +58,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        nameNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">-</span>"])));
 	      }
 
-	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, iconNode, nameNode);
+	      var titleItem = this.parent.isShortView && main_core.Type.isStringFilled(this.property.NAME) ? main_core.Text.encode(this.property.NAME) : propertyName;
+	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, titleItem, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, iconNode, nameNode);
 	    }
 	  }, {
 	    key: "renderTextSku",
 	    value: function renderTextSku(propertyValue, uniqueId) {
 	      var propertyName = main_core.Type.isStringFilled(propertyValue.NAME) ? main_core.Text.encode(propertyValue.NAME) : '-';
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
+	      var titleItem = this.parent.isShortView && main_core.Type.isStringFilled(this.property.NAME) ? main_core.Text.encode(this.property.NAME) : propertyName;
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, titleItem, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
 	    }
 	  }, {
 	    key: "layout",
@@ -75,14 +77,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this.skuList = this.renderProperties();
 	      this.toggleSkuPropertyValues();
-	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t<div class=\"product-item-detail-info-container-title\">", "</div>\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(this.property.NAME), this.skuList);
+	      var title = !this.parent.isShortView ? main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-detail-info-container-title\">", "</div>"])), main_core.Text.encode(this.property.NAME)) : '';
+	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t", "\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), title, this.skuList);
 	    }
 	  }, {
 	    key: "renderProperties",
 	    value: function renderProperties() {
 	      var _this = this;
 
-	      var skuList = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-list ui-ctl-spacing-right\"></div>"])));
+	      var skuList = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-list ui-ctl-spacing-right\"></div>"])));
 	      this.property.VALUES.forEach(function (propertyValue) {
 	        var propertyValueId = propertyValue.ID;
 	        var node;
@@ -229,6 +232,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    }
 
 	    _this.selectable = options.selectable !== false;
+	    _this.isShortView = options.isShortView === true;
 	    _this.hideUnselected = options.hideUnselected === true;
 
 	    if (_this.hasSku()) {
@@ -461,6 +465,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var _this4 = this;
 
 	      var container = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-wrapper\" id=\"", "\"></div>"])), this.id);
+
+	      if (this.isShortView) {
+	        main_core.Dom.addClass(container, '--short-format');
+	      }
+
 	      this.skuProperties = [];
 
 	      if (this.hasSku()) {

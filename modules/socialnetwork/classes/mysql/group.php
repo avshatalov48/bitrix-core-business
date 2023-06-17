@@ -290,7 +290,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			if (
 				!empty($arSiteID)
-				|| intval($arFields["SUBJECT_ID"]) > 0
+				|| intval($arFields["SUBJECT_ID"] ?? 0) > 0
 			)
 			{
 				$subjectId = 0;
@@ -629,7 +629,10 @@ class CSocNetGroup extends CAllSocNetGroup
 			}
 		}
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (
+			is_array($arNavStartParams)
+			&& intval($arNavStartParams["nTopCount"] ?? null) <= 0
+		)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".

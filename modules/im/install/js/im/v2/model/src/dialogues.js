@@ -1,9 +1,19 @@
-import {Type} from 'main.core';
+import {Text, Type} from 'main.core';
 import {BuilderModel} from 'ui.vue3.vuex';
-import {ChatTypes} from 'im.v2.const';
+
+import {Core} from 'im.v2.application.core';
+import {ChatOption, Color, DialogType} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 
+import type {Dialog as ImModelDialog} from './type/dialog';
+
 const WRITING_STATUS_TIME = 35000;
+
+type DialogState = {
+	collection: {[dialogId: string]: ImModelDialog},
+	writingStatusTimers: {[timerId: string]: number},
+	chatOptions: {[chatType: string]: {[option: string]: boolean}}
+};
 
 export class DialoguesModel extends BuilderModel
 {
@@ -26,23 +36,28 @@ export class DialoguesModel extends BuilderModel
 		return {
 			dialogId: '0',
 			chatId: 0,
-			type: ChatTypes.chat,
+			type: DialogType.chat,
 			name: '',
+			description: '',
 			avatar: '',
-			color: '#17A3EA',
+			color: Color.base,
 			extranet: false,
 			counter: 0,
 			userCounter: 0,
-			messageCounter: 0,
-			unreadId: 0,
+			lastReadId: 0,
+			markedId: 0,
 			lastMessageId: 0,
+			lastMessageViews: {
+				countOfViewers: 0,
+				firstViewer: null,
+				messageId: 0
+			},
+			savedPositionMessageId: 0,
 			managerList: [],
-			readList: [],
 			writingList: [],
 			muteList: [],
 			textareaMessage: '',
 			quoteId: 0,
-			editId: 0,
 			owner: 0,
 			entityType: '',
 			entityId: '',
@@ -50,14 +65,19 @@ export class DialoguesModel extends BuilderModel
 			public: {
 				code: '',
 				link: ''
-			}
+			},
+			inited: false,
+			loading: false,
+			hasPrevPage: false,
+			hasNextPage: false,
+			diskFolderId: 0,
 		};
 	}
 
 	getGetters()
 	{
 		return {
-			get: state => (dialogId, getBlank = false) =>
+			get: (state: DialogState) => (dialogId: string, getBlank: boolean = false) =>
 			{
 				if (!state.collection[dialogId] && getBlank)
 				{
@@ -70,7 +90,7 @@ export class DialoguesModel extends BuilderModel
 
 				return state.collection[dialogId];
 			},
-			getByChatId: state => chatId =>
+			getByChatId: (state: DialogState) => (chatId: number | string) =>
 			{
 				chatId = Number.parseInt(chatId, 10);
 				return Object.values(state.collection).find(item => {
@@ -81,7 +101,7 @@ export class DialoguesModel extends BuilderModel
 			{
 				return this.getElementState();
 			},
-			getChatOption: state => (chatType, option) =>
+			getChatOption: (state: DialogState) => (chatType: string, option: string) =>
 			{
 				if (!state.chatOptions[chatType])
 				{
@@ -90,7 +110,7 @@ export class DialoguesModel extends BuilderModel
 
 				return state.chatOptions[chatType][option];
 			},
-			getQuoteId: state => dialogId =>
+			getQuoteId: (state: DialogState) => (dialogId: string) =>
 			{
 				if (!state.collection[dialogId])
 				{
@@ -99,42 +119,80 @@ export class DialoguesModel extends BuilderModel
 
 				return state.collection[dialogId].quoteId;
 			},
-			getEditId: state => dialogId =>
+			isUser: (state: DialogState) => (dialogId: string) =>
+			{
+				if (!state.collection[dialogId])
+				{
+					return false;
+				}
+
+				return state.collection[dialogId].type === DialogType.user;
+			},
+			canLeave: (state: DialogState) => (dialogId: string) =>
+			{
+				if (!state.collection[dialogId])
+				{
+					return false;
+				}
+
+				const dialog = state.collection[dialogId];
+
+				const isExternalTelephonyCall = dialog.type === DialogType.call;
+				const isUser = dialog.type === DialogType.user;
+				if (isExternalTelephonyCall || isUser)
+				{
+					return false;
+				}
+
+				const currentUserId = Core.getUserId();
+				const optionToCheck = dialog.owner === currentUserId ? ChatOption.leaveOwner : ChatOption.leave;
+
+				return this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
+			},
+			canMute: (state: DialogState) => (dialogId: string) =>
+			{
+				if (!state.collection[dialogId])
+				{
+					return false;
+				}
+
+				const dialog = state.collection[dialogId];
+
+				const isUser = dialog.type === DialogType.user;
+				const isAnnouncement = dialog.type === DialogType.announcement;
+				if (isUser || isAnnouncement)
+				{
+					return null;
+				}
+
+				return this.store.getters['dialogues/getChatOption'](dialog.type, ChatOption.mute);
+			},
+			getLastReadId: (state: DialogState) => (dialogId: string): number =>
 			{
 				if (!state.collection[dialogId])
 				{
 					return 0;
 				}
 
-				return state.collection[dialogId].editId;
+				const {lastReadId, lastMessageId} = state.collection[dialogId];
+
+				return lastReadId === lastMessageId ? 0 : lastReadId;
 			},
-			areUnreadMessagesLoaded: state => dialogId =>
+			getInitialMessageId: (state: DialogState) => (dialogId: string): number =>
 			{
-				const dialog = state.collection[dialogId];
-				if (!dialog || dialog.lastMessageId === 0)
+				if (!state.collection[dialogId])
 				{
-					return true;
+					return 0;
 				}
 
-				const messagesCollection = this.store.getters['messages/get'](dialog.chatId);
-				if (messagesCollection.length === 0)
+				const {lastReadId, markedId} = state.collection[dialogId];
+				if (markedId === 0)
 				{
-					return true;
+					return lastReadId;
 				}
 
-				let lastElementId = 0;
-				for (let index = messagesCollection.length - 1; index >= 0; index--)
-				{
-					const lastElement = messagesCollection[index];
-					if (Type.isNumber(lastElement.id))
-					{
-						lastElementId = lastElement.id;
-						break;
-					}
-				}
-
-				return lastElementId >= dialog.lastMessageId;
-			}
+				return Math.min(lastReadId, markedId);
+			},
 		};
 	}
 
@@ -212,7 +270,7 @@ export class DialoguesModel extends BuilderModel
 					return false;
 				}
 
-				store.commit('delete', payload.dialogId);
+				store.commit('delete', {dialogId: payload.dialogId});
 			},
 
 			startWriting: (store, payload: {dialogId: string, userId: number, userName: string}) =>
@@ -270,56 +328,6 @@ export class DialoguesModel extends BuilderModel
 				const timerId = `${payload.dialogId}|${payload.userId}`;
 				clearTimeout(store.state.writingStatusTimers[timerId]);
 				delete store.state.writingStatusTimers[timerId];
-			},
-
-			addToReadList: (store, payload: {
-				dialogId: string,
-				userId: number,
-				userName: string,
-				messageId: number,
-				date: string
-			}) =>
-			{
-				const existingItem = store.state.collection[payload.dialogId];
-				if (!existingItem)
-				{
-					return false;
-				}
-
-				const readList = existingItem.readList.filter(el => el.userId !== payload.userId);
-
-				readList.push({
-					userId: payload.userId,
-					userName: payload.userName || '',
-					messageId: payload.messageId,
-					date: payload.date || (new Date()),
-				});
-
-				store.commit('update', {
-					actionName: 'addToReadList',
-					dialogId: payload.dialogId,
-					fields: this.validate({readList})
-				});
-			},
-
-			removeFromReadList: (store, payload: {
-				dialogId: string,
-				userId: number
-			}) =>
-			{
-				const existingItem = store.state.collection[payload.dialogId];
-				if (!existingItem)
-				{
-					return false;
-				}
-
-				const readList = existingItem.readList.filter(el => el.userId !== payload.userId);
-
-				store.commit('update', {
-					actionName: 'removeFromReadList',
-					dialogId: payload.dialogId,
-					fields: this.validate({readList})
-				});
 			},
 
 			increaseCounter: (store, payload: {dialogId: string, count: number}) =>
@@ -380,21 +388,9 @@ export class DialoguesModel extends BuilderModel
 				});
 			},
 
-			increaseMessageCounter: (store, payload: {dialogId: string, count: number}) =>
+			clearCounters: (store) =>
 			{
-				const existingItem = store.state.collection[payload.dialogId];
-				if (!existingItem)
-				{
-					return false;
-				}
-
-				store.commit('update', {
-					actionName: 'increaseMessageCount',
-					dialogId: payload.dialogId,
-					fields: {
-						messageCounter: existingItem.messageCounter + payload.count,
-					}
-				});
+				store.commit('clearCounters');
 			},
 
 			mute: (store, payload: {dialogId: string}) =>
@@ -405,7 +401,7 @@ export class DialoguesModel extends BuilderModel
 					return false;
 				}
 
-				const currentUserId = this.store.state.application.common.userId;
+				const currentUserId = Core.getUserId();
 				if (existingItem.muteList.includes(currentUserId))
 				{
 					return false;
@@ -427,7 +423,7 @@ export class DialoguesModel extends BuilderModel
 					return false;
 				}
 
-				const currentUserId = this.store.state.application.common.userId;
+				const currentUserId = Core.getUserId();
 				const muteList = existingItem.muteList.filter(item => item !== currentUserId);
 
 				store.commit('update', {
@@ -440,6 +436,72 @@ export class DialoguesModel extends BuilderModel
 			setChatOptions: (store, payload: Object) =>
 			{
 				store.commit('setChatOptions', this.validateChatOptions(payload));
+			},
+
+			setLastMessageViews: (store, payload: {
+				dialogId: string,
+				fields: {userId: number, userName: string, date: string, messageId: number}
+			}) =>
+			{
+				const {dialogId, fields: {userId, userName, date, messageId}} = payload;
+				const existingItem: ImModelDialog = store.state.collection[dialogId];
+				if (!existingItem)
+				{
+					return false;
+				}
+
+				const newLastMessageViews = {
+					countOfViewers: 1,
+					messageId,
+					firstViewer: {
+						userId,
+						userName,
+						date: Utils.date.cast(date)
+					}
+				};
+				store.commit('update', {
+					actionName: 'setLastMessageViews',
+					dialogId: dialogId,
+					fields: {
+						lastMessageViews: newLastMessageViews
+					}
+				});
+			},
+
+			clearLastMessageViews: (store, payload: {dialogId: string}) =>
+			{
+				const existingItem = store.state.collection[payload.dialogId];
+				if (!existingItem)
+				{
+					return false;
+				}
+
+				const {lastMessageViews: defaultLastMessageViews} = this.getElementState();
+				store.commit('update', {
+					actionName: 'clearLastMessageViews',
+					dialogId: payload.dialogId,
+					fields: {
+						lastMessageViews: defaultLastMessageViews
+					}
+				});
+			},
+
+			incrementLastMessageViews: (store, payload: {dialogId: string}) =>
+			{
+				const existingItem: ImModelDialog = store.state.collection[payload.dialogId];
+				if (!existingItem)
+				{
+					return false;
+				}
+
+				const newCounter = existingItem.lastMessageViews.countOfViewers + 1;
+				store.commit('update', {
+					actionName: 'incrementLastMessageViews',
+					dialogId: payload.dialogId,
+					fields: {
+						lastMessageViews: {...existingItem.lastMessageViews, countOfViewers: newCounter}
+					}
+				});
 			}
 		};
 	}
@@ -447,22 +509,29 @@ export class DialoguesModel extends BuilderModel
 	getMutations()
 	{
 		return {
-			add: (state, payload) =>
+			add: (state: DialogState, payload) =>
 			{
 				state.collection[payload.dialogId] = payload.fields;
 			},
-			update: (state, payload) =>
+			update: (state: DialogState, payload) =>
 			{
 				state.collection[payload.dialogId] = {...state.collection[payload.dialogId], ...payload.fields};
 			},
-			delete: (state, payload) =>
+			delete: (state: DialogState, payload) =>
 			{
 				delete state.collection[payload.dialogId];
 			},
-			setChatOptions: (state, payload) =>
+			setChatOptions: (state: DialogState, payload) =>
 			{
 				state.chatOptions = payload;
-			}
+			},
+			clearCounters: (state: DialogState) =>
+			{
+				Object.keys(state.collection).forEach(key => {
+					state.collection[key].counter = 0;
+					state.collection[key].markedId = 0;
+				});
+			},
 		};
 	}
 
@@ -511,10 +580,6 @@ export class DialoguesModel extends BuilderModel
 		{
 			result.quoteId = Number.parseInt(fields.quoteId, 10);
 		}
-		if (Type.isNumber(fields.editId))
-		{
-			result.editId = Number.parseInt(fields.editId, 10);
-		}
 
 		if (Type.isNumber(fields.counter) || Type.isStringFilled(fields.counter))
 		{
@@ -530,22 +595,22 @@ export class DialoguesModel extends BuilderModel
 			result.userCounter = Number.parseInt(fields.userCounter, 10);
 		}
 
-		if (!Type.isUndefined(fields.message_count))
+		if (!Type.isUndefined(fields.last_id))
 		{
-			result.messageCounter = fields.message_count;
+			fields.lastId = fields.last_id;
 		}
-		if (Type.isNumber(fields.messageCounter) || Type.isStringFilled(fields.messageCounter))
+		if (Type.isNumber(fields.lastId))
 		{
-			result.messageCounter = Number.parseInt(fields.messageCounter, 10);
+			result.lastReadId = fields.lastId;
 		}
 
-		if (!Type.isUndefined(fields.unread_id))
+		if (!Type.isUndefined(fields.marked_id))
 		{
-			fields.unreadId = fields.unread_id;
+			fields.markedId = fields.marked_id;
 		}
-		if (Type.isNumber(fields.unreadId) || Type.isStringFilled(fields.unreadId))
+		if (Type.isNumber(fields.markedId))
 		{
-			result.unreadId = Number.parseInt(fields.unreadId, 10);
+			result.markedId = fields.markedId;
 		}
 
 		if (!Type.isUndefined(fields.last_message_id))
@@ -555,6 +620,30 @@ export class DialoguesModel extends BuilderModel
 		if (Type.isNumber(fields.lastMessageId) || Type.isStringFilled(fields.lastMessageId))
 		{
 			result.lastMessageId = Number.parseInt(fields.lastMessageId, 10);
+		}
+
+		if (Type.isPlainObject(fields.last_message_views))
+		{
+			fields.lastMessageViews = fields.last_message_views;
+		}
+		if (Type.isPlainObject(fields.lastMessageViews))
+		{
+			result.lastMessageViews = this.prepareLastMessageViews(fields.lastMessageViews);
+		}
+
+		if (Type.isBoolean(fields.hasPrevPage))
+		{
+			result.hasPrevPage = fields.hasPrevPage;
+		}
+
+		if (Type.isBoolean(fields.hasNextPage))
+		{
+			result.hasNextPage = fields.hasNextPage;
+		}
+
+		if (Type.isNumber(fields.savedPositionMessageId))
+		{
+			result.savedPositionMessageId = fields.savedPositionMessageId;
 		}
 
 		if (!Type.isUndefined(fields.textareaMessage))
@@ -568,7 +657,7 @@ export class DialoguesModel extends BuilderModel
 		}
 		if (Type.isNumber(fields.name) || Type.isStringFilled(fields.name))
 		{
-			result.name = Utils.text.htmlspecialcharsback(fields.name.toString());
+			result.name = Text.decode(fields.name.toString());
 		}
 
 		if (!Type.isUndefined(fields.owner))
@@ -636,15 +725,6 @@ export class DialoguesModel extends BuilderModel
 			}
 		}
 
-		if (!Type.isUndefined(fields.readed_list))
-		{
-			fields.readList = fields.readed_list;
-		}
-		if (Type.isArray(fields.readList))
-		{
-			result.readList = this.prepareReadList(fields.readList);
-		}
-
 		if (!Type.isUndefined(fields.writing_list))
 		{
 			fields.writingList = fields.writing_list;
@@ -681,6 +761,26 @@ export class DialoguesModel extends BuilderModel
 			result.muteList = this.prepareMuteList(fields.muteList);
 		}
 
+		if (Type.isBoolean(fields.inited))
+		{
+			result.inited = fields.inited;
+		}
+
+		if (Type.isBoolean(fields.loading))
+		{
+			result.loading = fields.loading;
+		}
+
+		if (Type.isString(fields.description))
+		{
+			result.description = fields.description;
+		}
+
+		if (Type.isNumber(fields.disk_folder_id))
+		{
+			result.diskFolderId = fields.disk_folder_id;
+		}
+
 		return result;
 	}
 
@@ -698,7 +798,7 @@ export class DialoguesModel extends BuilderModel
 		}
 		else
 		{
-			result = this.store.state.application.common.host + avatar;
+			result = Core.getHost() + avatar;
 		}
 
 		if (result)
@@ -709,44 +809,7 @@ export class DialoguesModel extends BuilderModel
 		return result;
 	}
 
-	prepareReadList(readList: Object[]): Object[]
-	{
-		const result = [];
-
-		readList.forEach(element =>
-		{
-			const item = {};
-			if (!Type.isUndefined(element.user_id))
-			{
-				element.userId = element.user_id;
-			}
-			if (!Type.isUndefined(element.user_name))
-			{
-				element.userName = element.user_name;
-			}
-			if (!Type.isUndefined(element.message_id))
-			{
-				element.messageId = element.message_id;
-			}
-
-			if (!element.userId || !element.userName || !element.messageId)
-			{
-				return false;
-			}
-
-			item.userId = Number.parseInt(element.userId, 10);
-			item.userName = element.userName.toString();
-			item.messageId = Number.parseInt(element.messageId, 10);
-
-			item.date = Utils.date.cast(element.date);
-
-			result.push(item);
-		});
-
-		return result;
-	}
-
-	prepareWritingList(writingList: Object[]): Object[]
+	prepareWritingList(writingList: Object[]): Array<{userId: number, userName: string}>
 	{
 		const result = [];
 
@@ -799,6 +862,40 @@ export class DialoguesModel extends BuilderModel
 		}
 
 		return result;
+	}
+
+	prepareLastMessageViews(rawLastMessageViews): {countOfViewers: number, firstViewers: Object[], messageId: number}
+	{
+		const {
+			count_of_viewers: countOfViewers,
+			first_viewers: rawFirstViewers,
+			message_id: messageId
+		} = rawLastMessageViews;
+
+		let firstViewer;
+		rawFirstViewers.forEach(rawFirstViewer => {
+			if (rawFirstViewer.user_id === Core.getUserId())
+			{
+				return;
+			}
+
+			firstViewer = {
+				userId: rawFirstViewer.user_id,
+				userName: rawFirstViewer.user_name,
+				date: Utils.date.cast(rawFirstViewer.date)
+			};
+		});
+
+		if (countOfViewers > 0 && !firstViewer)
+		{
+			throw new Error('Dialogues model: no first viewer for message');
+		}
+
+		return {
+			countOfViewers,
+			firstViewer,
+			messageId
+		};
 	}
 
 	validateChatOptions(options: Object): Object

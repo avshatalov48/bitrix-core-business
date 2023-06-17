@@ -1,16 +1,17 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var array $arResult */
-/** @var \EnumUfComponent $component */
+/** @var EnumUfComponent $component */
 
 use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Main\Text\HtmlFilter;
 
-if(
-	$arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI
-)
+if ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 {
 	?>
 	<input
@@ -20,7 +21,7 @@ if(
 	>
 	<span <?= $component->getHtmlBuilder()->buildTagAttributes($arResult['spanAttrList']) ?>>
 			<?php
-			if(count($arResult['attrList']))
+			if(!empty($arResult['attrList']))
 			{
 				foreach($arResult['attrList'] as $attrList)
 				{
@@ -46,15 +47,14 @@ if(
 	]);
 	$script = <<<EOT
 <script>
-	BX.ready(function ()
-	{
+	BX.ready(function (){
 		new BX.Desktop.Field.Enum.Ui({$scriptParams});
 	});
 </script>
 EOT;
 	print $script;
 }
-elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_CHECKBOX)
+elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_CHECKBOX)
 {
 	if($arResult['userField']['MULTIPLE'] === 'Y')
 	{
@@ -118,7 +118,7 @@ EOL;
 	}
 	print $result;
 }
-elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
+elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
 {
 	?>
 	<select
@@ -131,12 +131,20 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
 		$isWasSelect = false;
 		$result = '';
 
+		$showNoValue = ($arParams['userField']['SETTINGS']['SHOW_NO_VALUE'] ?? 'N');
+		if ($showNoValue === 'Y')
+		{
+			$result .= '<option></option>';
+		}
+
 		foreach($arResult['additionalParameters']['items'] as $itemId => $item)
 		{
 			$isSelected = (
 				in_array($itemId, $arResult['additionalParameters']['VALUE'])
-				||
-				($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
+				|| (
+					(!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] <= 0)
+					&& $item['DEF'] === 'Y'
+				)
 			);
 
 			$fullValue = $shortValue = $item['VALUE'];

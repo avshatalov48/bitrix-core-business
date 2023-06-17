@@ -475,7 +475,7 @@ class Agreement
 	{
 		if (!$this->dataProvider)
 		{
-			$providerCode = isset($this->data['DATA_PROVIDER']) ? $this->data['DATA_PROVIDER'] : null;
+			$providerCode = $this->data['DATA_PROVIDER'] ?? null;
 			$this->dataProvider = DataProvider::getByCode($providerCode);
 		}
 
@@ -500,7 +500,7 @@ class Agreement
 		foreach ($fields as $field)
 		{
 			$fieldCode = $field['CODE'];
-			$field['VALUE'] = isset($fieldValues[$fieldCode]) ? $fieldValues[$fieldCode] : '';
+			$field['VALUE'] = $fieldValues[$fieldCode] ?? '';
 			$result[$fieldCode] = $field;
 		}
 
@@ -520,7 +520,7 @@ class Agreement
 		foreach ($fields as $field)
 		{
 			$fieldCode = $field['CODE'];
-			$result[$fieldCode] = isset($fieldValues[$fieldCode]) ? $fieldValues[$fieldCode] : '';
+			$result[$fieldCode] = $fieldValues[$fieldCode] ?? '';
 		}
 
 		return $result;

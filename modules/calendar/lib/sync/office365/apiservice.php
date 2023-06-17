@@ -408,7 +408,7 @@ class ApiService
 		{
 			return $this->apiClient->delete('subscriptions/' . $subscriptionId);
 		}
-		catch(NotFoundException $e)
+		catch (NotFoundException|AuthException $exception)
 		{
 			return [];
 		}

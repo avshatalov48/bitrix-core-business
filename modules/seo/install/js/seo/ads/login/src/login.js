@@ -15,7 +15,14 @@ export class Login
 	{
 		if(this.provider && Type.isString(this.provider['AUTH_URL']))
 		{
-			BX.util.popup(this.provider.AUTH_URL,800,600);
+			if (this.provider['TYPE'] && this.provider['TYPE'] === 'vkads')
+			{
+				BX.util.popup(this.provider.AUTH_URL,1200,600);
+			}
+			else
+			{
+				BX.util.popup(this.provider.AUTH_URL,800,600);
+			}
 
 		}
 	}

@@ -1,4 +1,5 @@
 import {
+	Designer,
 	FileSelector,
 	InlineSelector,
 	InlineSelectorHtml,
@@ -6,6 +7,7 @@ import {
 	TimeSelector,
 	UserSelector,
 } from 'bizproc.automation';
+import {Type} from "main.core";
 
 export class Manager
 {
@@ -15,6 +17,19 @@ export class Manager
 	static SELECTOR_ROLE_INLINE_HTML = 'inline-selector-html';
 	static SELECTOR_ROLE_TIME = 'time-selector';
 	static SELECTOR_ROLE_SAVE_STATE = 'save-state-checkbox';
+
+	static getSelectorByTarget(targetInput: HTMLElement): ?InlineSelector
+	{
+		// TODO - save created selectors with Manager
+		const template = Designer.getInstance().getRobotSettingsDialog()?.template;
+
+		if (template && Type.isArray(template.robotSettingsControls))
+		{
+			return template.robotSettingsControls.find(selector => selector.targetInput === targetInput);
+		}
+
+		return undefined;
+	}
 
 	static createSelectorByRole(role: string, selectorProps: object): InlineSelector | SaveStateCheckbox
 	{

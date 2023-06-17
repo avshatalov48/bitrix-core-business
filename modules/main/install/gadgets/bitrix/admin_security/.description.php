@@ -1,8 +1,12 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
-$bShowSecurity = (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/index.php") && $aGlobalOpt['messages']['security'] <> 'N');
+$messageSecurity = (string)($aGlobalOpt['messages']['security'] ?? 'Y');
+$bShowSecurity = (
+	file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/index.php")
+	&& $messageSecurity !== 'N'
+);
 
 $arDescription = Array(
 	"DISABLED" => !$bShowSecurity,

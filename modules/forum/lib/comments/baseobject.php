@@ -120,7 +120,7 @@ abstract class BaseObject
 		$event = new Event("forum", "OnCommentTopicAdd", array($this->getEntity()->getType(), $this->getEntity()->getId(), $post, &$topic));
 		$event->send();
 
-		if ($topic["AUTHOR_NAME"] == '')
+		if (!isset($topic["AUTHOR_NAME"]) || strlen($topic["AUTHOR_NAME"]) <= 0)
 			$topic["AUTHOR_NAME"] = ($topic["AUTHOR_ID"] <= 0 ? Loc::getMessage("FORUM_USER_SYSTEM") : self::getUserName($topic["AUTHOR_ID"]));
 
 		$topic = array_merge($topic, array(

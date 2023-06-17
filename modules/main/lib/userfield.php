@@ -623,7 +623,7 @@ class UserFieldTable extends ORM\Data\DataManager
 			{
 				$columnName = 'VALUE_DOUBLE';
 			}
-			elseif ($field instanceof ORM\Fields\DateField || $field instanceof ORM\Fields\DatetimeField)
+			elseif ($field instanceof ORM\Fields\DateField)
 			{
 				$columnName = 'VALUE_DATE';
 			}

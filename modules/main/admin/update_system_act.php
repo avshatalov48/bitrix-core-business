@@ -224,7 +224,7 @@ elseif ($queryType == "sources")
 				$arRequestedModules[] = $arRequestedModulesTmp[$i];
 	}
 
-	if (count($arRequestedModules) <= 0)
+	if (empty($arRequestedModules))
 	{
 		$errorMessage .= "[CL00] ".GetMessage("SUPA_ASE_NO_LIST").". ";
 		CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_NO_LIST"), "CL00");
@@ -293,13 +293,10 @@ elseif ($queryType == "sources")
 		}
 		else
 		{
-			if ($errorMessage == '')
+			if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
 			{
-				if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
-				{
-					$errorMessage .= "[CL04] ".GetMessage("SUPA_ASE_UPD").". ";
-					CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_UPD"), "CL04");
-				}
+				$errorMessage .= "[CL04] ".GetMessage("SUPA_ASE_UPD").". ";
+				CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_UPD"), "CL04");
 			}
 
 			if ($errorMessage <> '')
@@ -311,12 +308,12 @@ elseif ($queryType == "sources")
 			{
 				echo "STP";
 				echo count($arItemsUpdated)."|";
-				$bFirst = True;
+				$bFirst = true;
 				foreach ($arItemsUpdated as $key => $value)
 				{
 					CUpdateClient::AddMessage2Log("Sources loaded: ".$key.(($value <> '') ? "(".$value.")" : ""), "UPD_SUCCESS");
 					echo ($bFirst ? "" : ", ").$key.(($value <> '') ? "(".$value.")" : "");
-					$bFirst = False;
+					$bFirst = false;
 				}
 			}
 		}
@@ -338,7 +335,7 @@ elseif ($queryType == "support_full_load")
 				$arRequestedModules[] = $arRequestedModulesTmp[$i];
 	}
 
-	if (count($arRequestedModules) <= 0)
+	if (empty($arRequestedModules))
 	{
 		$errorMessage .= "[CL00] ".GetMessage("SUPA_ASE_NO_LIST").". ";
 		CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_NO_LIST"), "CL00");
@@ -407,13 +404,10 @@ elseif ($queryType == "support_full_load")
 		}
 		else
 		{
-			if ($errorMessage == '')
+			if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
 			{
-				if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
-				{
-					$errorMessage .= "[CL04] ".GetMessage("SUPA_ASE_UPD").". ";
-					CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_UPD"), "CL04");
-				}
+				$errorMessage .= "[CL04] ".GetMessage("SUPA_ASE_UPD").". ";
+				CUpdateClient::AddMessage2Log(GetMessage("SUPA_ASE_UPD"), "CL04");
 			}
 
 			if ($errorMessage <> '')
@@ -425,12 +419,12 @@ elseif ($queryType == "support_full_load")
 			{
 				echo "STP";
 				echo count($arItemsUpdated)."|";
-				$bFirst = True;
+				$bFirst = true;
 				foreach ($arItemsUpdated as $key => $value)
 				{
 					CUpdateClient::AddMessage2Log("Full loaded: ".$key.(($value <> '') ? "(".$value.")" : ""), "UPD_SUCCESS");
 					echo ($bFirst ? "" : ", ").$key.(($value <> '') ? "(".$value.")" : "");
-					$bFirst = False;
+					$bFirst = false;
 				}
 			}
 		}
@@ -443,11 +437,8 @@ elseif ($queryType == "support_full_load")
 }
 elseif ($queryType == "updateupdate")
 {
-	if ($errorMessage == '')
-	{
-		if (!CUpdateClient::UpdateUpdate($errorMessage, LANG, $stableVersionsOnly))
-			$errorMessage .= GetMessage("SUPA_AUE_UPD").". ";
-	}
+	if (!CUpdateClient::UpdateUpdate($errorMessage, LANG, $stableVersionsOnly))
+		$errorMessage .= GetMessage("SUPA_AUE_UPD").". ";
 
 	if ($errorMessage == '')
 	{

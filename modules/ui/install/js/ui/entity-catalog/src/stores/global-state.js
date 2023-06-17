@@ -6,5 +6,6 @@ export const useGlobalState = defineStore('global-state', {
 		searchApplied: false,
 		filtersApplied: false,
 		currentGroup: GroupData,
+		shouldShowWelcomeStub: true,
 	})
 });

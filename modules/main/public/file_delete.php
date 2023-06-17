@@ -180,7 +180,7 @@ if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
-$back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
+$back_url = ($_REQUEST["back_url"] ?? "");
 if ($back_url == "")
 	$back_url = ($io->ExtractNameFromPath($path) == "index.php" ? "/" : str_replace("\\", "/", dirname($path)));
 
@@ -245,7 +245,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 		if ($deleteFromMenu)
 			$arUndoParams['arContent']['menu'] = BXDeleteFromMenu($documentRoot, $path, $site);
 
-		if($_GET['subdialog'] == 'Y')
+		if (isset($_GET['subdialog']) && $_GET['subdialog'] == 'Y')
 			echo "<script>structReload('".urlencode($_REQUEST["path"])."');</script>";
 
 		$ID = CUndo::Add($arUndoParams);

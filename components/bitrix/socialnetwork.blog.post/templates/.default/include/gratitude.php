@@ -1,4 +1,7 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?
+use Bitrix\Main\Web\Uri;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -45,7 +48,7 @@ if (!empty($arResult['GRATITUDE']))
 								&& $gratUserFields['AVATAR_SRC'] <> ''
 							)
 							{
-								$stylesList[] = "background: url('".\CHTTP::urnEncode($gratUserFields['AVATAR_SRC'])."');";
+								$stylesList[] = "background: url('".Uri::urnEncode($gratUserFields['AVATAR_SRC'])."');";
 								$stylesList[] = "background-size: cover;";
 							}
 							?><i style="<?=implode(' ', $stylesList)?>"></i><?

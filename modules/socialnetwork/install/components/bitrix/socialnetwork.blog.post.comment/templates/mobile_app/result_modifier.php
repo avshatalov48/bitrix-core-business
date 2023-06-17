@@ -18,7 +18,7 @@ $arParams["SHOW_MINIMIZED"] = "Y";
 $arParams["ENTITY_TYPE"] = "BG";
 $arParams["ENTITY_XML_ID"] = "BLOG_".$arParams["ID"];
 $arParams["ENTITY_ID"] = $arParams["ID"];
-$arResult["newCount"] = $arResult["~newCount"];
+$arResult["newCount"] = $arResult["~newCount"] ?? null;
 
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../.default/functions.php");
@@ -52,14 +52,17 @@ if (
 			$commentId = (!!$arResult["ajax_comment"] ? $arResult["ajax_comment"] : $_REQUEST[$arParams["COMMENT_ID_VAR"]]);
 		}
 	}
-	else if ($_REQUEST[$arParams["COMMENT_ID_VAR"]] && in_array($_REQUEST[$arParams["COMMENT_ID_VAR"]], $arResult["IDS"]))
+	else if (
+		$_REQUEST[$arParams["COMMENT_ID_VAR"]] ?? null
+		&& in_array($_REQUEST[$arParams["COMMENT_ID_VAR"]], $arResult["IDS"])
+	)
 	{
 		$filter = ">=ID";
 		$commentId = $_REQUEST[$arParams["COMMENT_ID_VAR"]];
 	}
 	else if
 	(
-		$_REQUEST["ACTION"] === "CONVERT"
+		($_REQUEST["ACTION"] ?? null) === "CONVERT"
 		&& in_array($_REQUEST["ENTITY_TYPE_ID"], array('LOG_COMMENT', 'BLOG_COMMENT'))
 		&& $_REQUEST["ENTITY_ID"]
 		&& in_array((int)$_REQUEST["ENTITY_ID"], $arResult["IDS"])

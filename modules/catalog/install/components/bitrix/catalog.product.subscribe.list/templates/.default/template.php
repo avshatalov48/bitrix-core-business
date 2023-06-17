@@ -528,7 +528,7 @@ if (!empty($arResult['ITEMS']))
 
 		<div class="bx_catalog_item_controls touch">
 			<a class="bx_bt_button_type_2 bx_medium" href="<?=$arItem['DETAIL_PAGE_URL'];?>"><?
-				echo('' != $arParams['MESS_BTN_DETAIL'] 
+				echo('' != $arParams['MESS_BTN_DETAIL']
 					? $arParams['MESS_BTN_DETAIL'] : GetMessage('CPSL_TPL_MESS_BTN_DETAIL'));
 				?></a>
 		</div>
@@ -644,7 +644,6 @@ if (!empty($arResult['ITEMS']))
 			'TREE_ID' => $arItemIDs['PROP_DIV'],
 			'TREE_ITEM_ID' => $arItemIDs['PROP'],
 			'BUY_ID' => $arItemIDs['BUY_LINK'],
-			'ADD_BASKET_ID' => $arItemIDs['ADD_BASKET_ID'],
 			'DSC_PERC' => $arItemIDs['DSC_PERC'],
 			'SECOND_DSC_PERC' => $arItemIDs['SECOND_DSC_PERC'],
 			'DISPLAY_PROP_DIV' => $arItemIDs['DISPLAY_PROP_DIV'],

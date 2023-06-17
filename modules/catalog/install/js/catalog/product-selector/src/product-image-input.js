@@ -1,4 +1,4 @@
-import {Runtime, Tag, Text, Type} from 'main.core';
+import {Runtime, Tag, Text, Type, Dom} from 'main.core';
 import './component.css';
 import {ProductSelector} from 'catalog.product-selector';
 

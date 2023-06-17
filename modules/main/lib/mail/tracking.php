@@ -169,7 +169,7 @@ class Tracking
 			$uri .= "/tools/track_mail_$opCode.php";
 		}
 
-		$uri = $uri . (mb_strpos($uri, "?") === false ? "?" : "&");
+		$uri = $uri . (strpos($uri, "?") === false ? "?" : "&");
 		$uri .= 'tag=' . urlencode($tag);
 
 		return $uri;

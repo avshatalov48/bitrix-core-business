@@ -255,22 +255,18 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @return boolean
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		switch ((string)$offset)
 		{
-		case "BX_STATE":
-			return true;
-		case "TIME":
-			return true;
-		case "QUERY":
-			return true;
-		case "TRACE":
-			return true;
-		case "NODE_ID":
-			return true;
-		default:
-			return false;
+			case "BX_STATE":
+			case "TIME":
+			case "QUERY":
+			case "TRACE":
+			case "NODE_ID":
+				return true;
+			default:
+				return false;
 		}
 	}
 
@@ -282,22 +278,23 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		switch ($offset)
 		{
-		case "BX_STATE":
-			return $this->state;
-		case "TIME":
-			return $this->time;
-		case "QUERY":
-			return $this->sql;
-		case "TRACE":
-			return $this->trace;
-		case "NODE_ID":
-			return $this->node;
-		default:
-			return false;
+			case "BX_STATE":
+				return $this->state;
+			case "TIME":
+				return $this->time;
+			case "QUERY":
+				return $this->sql;
+			case "TRACE":
+				return $this->trace;
+			case "NODE_ID":
+				return $this->node;
+			default:
+				return false;
 		}
 	}
 
@@ -310,7 +307,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @return mixed
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 	}
 
@@ -322,7 +319,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @return mixed
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 	}
 

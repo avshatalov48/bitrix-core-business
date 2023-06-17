@@ -1,5 +1,8 @@
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");?>
-<?$APPLICATION->IncludeComponent(
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+
+$component = $component ?? null;
+$APPLICATION->IncludeComponent(
 	"bitrix:ui.sidepanel.wrapper",
 	"",
 	array(
@@ -22,5 +25,6 @@
 		"PLAIN_VIEW" => (\CRestUtil::isSlider() ? "Y" : "N")
 	),
 	$component
-);?>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+);
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");

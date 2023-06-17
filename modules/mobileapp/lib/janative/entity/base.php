@@ -46,7 +46,7 @@ abstract class Base
 		if (defined("JN_DEV_RELOAD")) {
 			return "1.0";
 		}
-		if(static::$modificationDates[$this->name])
+		if (!empty(static::$modificationDates[$this->name]))
 		{
 			return static::$modificationDates[$this->name];
 		}

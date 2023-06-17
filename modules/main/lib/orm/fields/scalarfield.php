@@ -55,8 +55,8 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 		$this->is_private = (isset($parameters['private']) && $parameters['private']);
 		$this->is_nullable = (isset($parameters['nullable']) && $parameters['nullable']);
 
-		$this->column_name = isset($parameters['column_name']) ? $parameters['column_name'] : $this->name;
-		$this->default_value = isset($parameters['default_value']) ? $parameters['default_value'] : null;
+		$this->column_name = $parameters['column_name'] ?? $this->name;
+		$this->default_value = $parameters['default_value'] ?? null;
 	}
 
 	/**

@@ -115,7 +115,7 @@ if (
 					(is_array($prop["VALUE"]) && count($prop["VALUE"]) > 0)
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
-					$arIBlockElement["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arIBlockElement, $prop, "catalog_out");
+					$arIBlockElement["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arIBlockElement, $prop);
 			}
 
 			?><div class="bx-gadgets-text" style="clear: both; padding: 0 0 10px 0;"><?
@@ -272,9 +272,9 @@ if (
 				}
 			?></div><?
 		}
+		\CIBlockFormatProperties::clearCache();
 
 		$urlElementAdminPage = CIBlock::GetAdminElementListLink($arIBlock["ID"], array());
 		?><div><a href="<?=$urlElementAdminPage?>"><?=GetMessage("GD_IBEL_NAME_ALL_ELEMENTS")?></a></div><?
 	}
 }
-?>

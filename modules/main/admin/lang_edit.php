@@ -33,9 +33,9 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $message = null;
 $bVarsFromForm = false;
-$ID = intval($_REQUEST["ID"]);
+$ID = intval($_REQUEST['ID'] ?? 0);
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && $isAdmin && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
 	$arFields = array(
 		"ACTIVE" => $_POST['ACTIVE'],
@@ -65,7 +65,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	}
 	else
 	{
-		if ($_POST["save"] <> '')
+		if (!empty($_POST["save"]))
 			LocalRedirect(BX_ROOT."/admin/lang_admin.php?lang=".LANGUAGE_ID);
 		else
 			LocalRedirect(BX_ROOT."/admin/lang_edit.php?lang=".LANGUAGE_ID."&LID=".$_POST["LID"]."&".$tabControl->ActiveTabParam());
@@ -76,12 +76,12 @@ if($bVarsFromForm == false)
 {
 	$ID = 0;
 	$language = false;
-	if($_REQUEST["COPY_ID"] <> '')
+	if (!empty($_REQUEST["COPY_ID"]))
 	{
 		$lng = CLanguage::GetByID($_REQUEST["COPY_ID"]);
 		$language = $lng->Fetch();
 	}
-	elseif($_REQUEST["LID"] <> '')
+	elseif (!empty($_REQUEST["LID"]))
 	{
 		$lng = CLanguage::GetByID($_REQUEST["LID"]);
 		if(($language = $lng->Fetch()))
@@ -157,7 +157,7 @@ if($message)
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 <input type="hidden" name="ID" value="<?echo $ID?>">
-<?if($_REQUEST["COPY_ID"] <> ''):?><input type="hidden" name="COPY_ID" value="<?echo HtmlFilter::encode($_REQUEST["COPY_ID"])?>"><?endif?>
+<?if (!empty($_REQUEST["COPY_ID"])):?><input type="hidden" name="COPY_ID" value="<?echo HtmlFilter::encode($_REQUEST["COPY_ID"])?>"><?endif?>
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();

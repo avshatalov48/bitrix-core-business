@@ -29,6 +29,10 @@ Loc::loadMessages(__FILE__);
 			}
 
 			const option = <?= CUtil::PhpToJsObject($arParams['OPTION']) ?>;
+			if (option.partnerId && option.partnerId === 0)
+			{
+				delete option.partnerId;
+			}
 			option.host = window.location.host;
 
 			const link1 = document.querySelector('.landing-block-link-1');

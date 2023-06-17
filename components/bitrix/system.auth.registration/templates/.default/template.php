@@ -23,7 +23,10 @@ if($arResult["SHOW_SMS_FIELD"] == true)
 ?>
 <div class="bx-auth">
 <?
-ShowMessage($arParams["~AUTH_RESULT"]);
+if (!empty($arParams["~AUTH_RESULT"]))
+{
+	ShowMessage($arParams["~AUTH_RESULT"]);
+}
 ?>
 <?if($arResult["SHOW_EMAIL_SENT_CONFIRMATION"]):?>
 	<p><?echo GetMessage("AUTH_EMAIL_SENT")?></p>

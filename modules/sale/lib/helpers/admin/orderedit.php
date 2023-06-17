@@ -527,7 +527,7 @@ class OrderEdit
 
 			foreach($formData["PRODUCT"] as $basketCode => $productData)
 			{
-				if($productData["IS_SET_ITEM"] == "Y")
+				if (($productData['IS_SET_ITEM'] ?? null) === 'Y')
 				{
 					continue;
 				}
@@ -1235,7 +1235,10 @@ class OrderEdit
 				}
 			}
 
-			$item->setField("NAME", $productData["NAME"]);
+			if (isset($productData['NAME']))
+			{
+				$item->setField('NAME', $productData['NAME']);
+			}
 			$res = $item->setField("QUANTITY", $productData["QUANTITY"]);
 
 			if(!$res->isSuccess())
@@ -1339,7 +1342,7 @@ class OrderEdit
 				{
 					unset($providerData[$basketCode]['QUANTITY']);
 				}
-				
+
 				$data[$basketCode] = $providerData[$basketCode];
 			}
 			elseif(!empty($trustData[$basketCode]))
@@ -1440,8 +1443,10 @@ class OrderEdit
 			if(!isset($product["CURRENCY"]) || $product["CURRENCY"] == '')
 				$product["CURRENCY"] = $order->getCurrency();
 
-			if($productData["IS_SET_PARENT"] == "Y")
-				$product["TYPE"] = BasketItem::TYPE_SET;
+			if (($productData['IS_SET_PARENT'] ?? null) === 'Y')
+			{
+				$product['TYPE'] = BasketItem::TYPE_SET;
+			}
 
 			OrderEdit::setProductDetails(
 				$productData["OFFER_ID"],

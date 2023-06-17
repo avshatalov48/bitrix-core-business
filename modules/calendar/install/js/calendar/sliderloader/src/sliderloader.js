@@ -104,6 +104,11 @@ export class SliderLoader
 			const isSharing = uri.getQueryParam('IS_SHARING');
 			this.isSharing = isSharing === '1';
 		}
+
+		if (Type.isBoolean(options.isSharing) && options.isSharing === true)
+		{
+			this.isSharing = true;
+		}
 	}
 
 	show()

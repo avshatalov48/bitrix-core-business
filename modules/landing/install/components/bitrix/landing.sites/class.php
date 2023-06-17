@@ -417,6 +417,12 @@ class LandingSitesComponent extends LandingBaseComponent
 							$item['PREVIEW'] = Manager::getUrlFromFile('/bitrix/images/landing/nopreview.jpg');
 						}
 					}
+
+					$item['INDEX_EDIT_URI'] = str_replace(
+						['#site_show#', '#landing_edit#'],
+						[$item['ID'], $item['LANDING_ID_INDEX']],
+						$this->arParams['~PAGE_URL_LANDING_VIEW']
+					);
 				}
 				unset($siteUrls, $item, $ids);
 			}

@@ -1,25 +1,34 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var array $arCurrentValues */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
-use Bitrix\Main\Config\Option,
-	Bitrix\Main\Loader,
-	Bitrix\Main\ModuleManager,
-	Bitrix\Iblock,
-	Bitrix\Catalog,
-	Bitrix\Currency;
+
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
+use Bitrix\Currency;
 
 global $USER_FIELD_MANAGER;
 
 if (!Loader::includeModule('iblock'))
+{
 	return;
+}
 $catalogIncluded = Loader::includeModule('catalog');
 
 $usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
-$compatibleMode = !(isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'N');
+$compatibleMode = (isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'Y');
+
+$hideBasketProperty = ($arCurrentValues['ADD_PROPERTIES_TO_BASKET'] ?? 'Y') === 'N';
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
@@ -36,11 +45,13 @@ if ($catalogIncluded)
 }
 
 $arIBlock = array();
-$iblockFilter = (
-	!empty($arCurrentValues['IBLOCK_TYPE'])
-	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
-	: array('ACTIVE' => 'Y')
-);
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
 {
@@ -463,7 +474,7 @@ $arComponentParameters = array(
 			"TYPE" => "LIST",
 			"DEFAULT" => "-",
 			"MULTIPLE" => "N",
-			"VALUES" => array_merge(array("-"=>" "), $arUserFields_F)
+			"VALUES" => $arUserFields_F,
 		),
 		"DETAIL_PROPERTY_CODE" => array(
 			"PARENT" => "DETAIL_SETTINGS",
@@ -645,14 +656,14 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("CP_BC_PRODUCT_PROPS_VARIABLE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "prop",
-			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
+			"HIDDEN" => ($hideBasketProperty ? 'Y' : 'N'),
 		),
 		"PARTIAL_PRODUCT_PROPERTIES" => array(
 			"PARENT" => "BASKET",
 			"NAME" => GetMessage("CP_BC_PARTIAL_PRODUCT_PROPERTIES"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
-			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
+			"HIDDEN" => ($hideBasketProperty ? 'Y' : 'N'),
 		),
 		"PRODUCT_PROPERTIES" => array(
 			"PARENT" => "BASKET",
@@ -660,7 +671,7 @@ $arComponentParameters = array(
 			"TYPE" => "LIST",
 			"MULTIPLE" => "Y",
 			"VALUES" => $arProperty_X,
-			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
+			"HIDDEN" => ($hideBasketProperty ? 'Y' : 'N'),
 		),
 		"LINK_IBLOCK_TYPE" => array(
 			"PARENT" => "LINK",
@@ -735,7 +746,7 @@ $arComponentParameters = array(
 			'PARENT' => 'EXTENDED_SETTINGS',
 			'NAME' => GetMessage('CP_BC_COMPATIBLE_MODE'),
 			'TYPE' => 'CHECKBOX',
-			'DEFAULT' => 'Y',
+			'DEFAULT' => 'N',
 			'REFRESH' => 'Y'
 		),
 		"USE_ELEMENT_COUNTER" => array(
@@ -779,12 +790,12 @@ CIBlockParameters::AddPagerSettings(
 	true, //$bDescNumbering
 	true, //$bShowAllParam
 	true, //$bBaseLink
-	$arCurrentValues["PAGER_BASE_LINK_ENABLE"]==="Y" //$bBaseLinkEnabled
+	($arCurrentValues['PAGER_BASE_LINK_ENABLE'] ?? 'N') === 'Y' //$bBaseLinkEnabled
 );
 
 CIBlockParameters::Add404Settings($arComponentParameters, $arCurrentValues);
 
-if($arCurrentValues["SEF_MODE"]=="Y")
+if (($arCurrentValues['SEF_MODE'] ?? 'N') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["VARIABLE_ALIASES"] = array();
 	$arComponentParameters["PARAMETERS"]["VARIABLE_ALIASES"]["ELEMENT_ID"] = array(
@@ -812,7 +823,11 @@ if($arCurrentValues["SEF_MODE"]=="Y")
 		"TEMPLATE" => "#SMART_FILTER_PATH#",
 	);
 
-	$smartBase = ($arCurrentValues["SEF_URL_TEMPLATES"]["section"]? $arCurrentValues["SEF_URL_TEMPLATES"]["section"]: "#SECTION_ID#/");
+	$smartBase = '#SECTION_ID#/';
+	if (isset($arCurrentValues['SEF_URL_TEMPLATES']['section']) && $arCurrentValues['SEF_URL_TEMPLATES']['section'])
+	{
+		$smartBase = (string)$arCurrentValues['SEF_URL_TEMPLATES']['section'];
+	}
 	$arComponentParameters["PARAMETERS"]["SEF_MODE"]["smart_filter"] = array(
 		"NAME" => GetMessage("CP_BC_SEF_MODE_SMART_FILTER"),
 		"DEFAULT" => $smartBase."filter/#SMART_FILTER_PATH#/apply/",
@@ -825,7 +840,7 @@ if($arCurrentValues["SEF_MODE"]=="Y")
 	);
 }
 
-if($arCurrentValues["USE_COMPARE"]=="Y")
+if (($arCurrentValues['USE_COMPARE'] ?? 'N') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["COMPARE_NAME"] = array(
 		"PARENT" => "COMPARE_SETTINGS",
@@ -879,7 +894,7 @@ if($arCurrentValues["USE_COMPARE"]=="Y")
 			"DEFAULT" => "N",
 			"REFRESH" => "Y",
 		);
-		if (isset($arCurrentValues["DISPLAY_ELEMENT_SELECT_BOX"]) && $arCurrentValues["DISPLAY_ELEMENT_SELECT_BOX"] == "Y")
+		if (($arCurrentValues['DISPLAY_ELEMENT_SELECT_BOX'] ?? 'N') === 'Y')
 		{
 			$arComponentParameters["PARAMETERS"]["ELEMENT_SORT_FIELD_BOX"] = array(
 				"PARENT" => "COMPARE_SETTINGS",
@@ -960,7 +975,7 @@ if (!empty($offers))
 	}
 }
 
-if($arCurrentValues["SHOW_TOP_ELEMENTS"]!="N")
+if (($arCurrentValues['SHOW_TOP_ELEMENTS'] ?? 'Y') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["TOP_ELEMENT_COUNT"] = array(
 		"PARENT" => "TOP_SETTINGS",
@@ -1049,7 +1064,7 @@ if($arCurrentValues["SHOW_TOP_ELEMENTS"]!="N")
 		);
 	}
 }
-if($arCurrentValues["USE_FILTER"]=="Y")
+if (($arCurrentValues['USE_FILTER'] ?? 'N') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["FILTER_NAME"] = array(
 		"PARENT" => "FILTER_SETTINGS",
@@ -1059,7 +1074,10 @@ if($arCurrentValues["USE_FILTER"]=="Y")
 	);
 	if ($compatibleMode)
 	{
-		$arComponentParameters["PARAMETERS"]["FILTER_FIELD_CODE"] = CIBlockParameters::GetFieldCode(GetMessage("IBLOCK_FIELD"), "FILTER_SETTINGS");
+		$arComponentParameters["PARAMETERS"]["FILTER_FIELD_CODE"] = CIBlockParameters::GetFieldCode(
+			GetMessage("IBLOCK_FIELD"),
+			"FILTER_SETTINGS"
+		);
 		$arComponentParameters["PARAMETERS"]["FILTER_PROPERTY_CODE"] = array(
 			"PARENT" => "FILTER_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_PROPERTY"),
@@ -1077,7 +1095,10 @@ if($arCurrentValues["USE_FILTER"]=="Y")
 		);
 		if (!empty($offers))
 		{
-			$arComponentParameters["PARAMETERS"]["FILTER_OFFERS_FIELD_CODE"] = CIBlockParameters::GetFieldCode(GetMessage("CP_BC_FILTER_OFFERS_FIELD_CODE"), "FILTER_SETTINGS");
+			$arComponentParameters["PARAMETERS"]["FILTER_OFFERS_FIELD_CODE"] = CIBlockParameters::GetFieldCode(
+				GetMessage("CP_BC_FILTER_OFFERS_FIELD_CODE"),
+				"FILTER_SETTINGS"
+			);
 			$arComponentParameters["PARAMETERS"]["FILTER_OFFERS_PROPERTY_CODE"] = array(
 				"PARENT" => "FILTER_SETTINGS",
 				"NAME" => GetMessage("CP_BC_FILTER_OFFERS_PROPERTY_CODE"),
@@ -1097,7 +1118,7 @@ if ($compatibleMode)
 		unset($arComponentParameters["PARAMETERS"]["USE_REVIEW"]);
 		unset($arComponentParameters["GROUPS"]["REVIEW_SETTINGS"]);
 	}
-	elseif ($arCurrentValues["USE_REVIEW"] == "Y")
+	elseif (($arCurrentValues['USE_REVIEW'] ?? 'N') === 'Y')
 	{
 		$arForumList = array();
 		if (Loader::includeModule("forum"))
@@ -1160,7 +1181,7 @@ else
 		unset($arComponentParameters["PARAMETERS"]["TOP_OFFERS_LIMIT"]);
 }
 
-if ($catalogIncluded && $arCurrentValues["USE_STORE"]=='Y')
+if ($catalogIncluded && ($arCurrentValues['USE_STORE'] ?? 'N') === 'Y')
 {
 	$arStore = array();
 	$storeIterator = CCatalogStore::GetList(
@@ -1177,7 +1198,9 @@ if ($catalogIncluded && $arCurrentValues["USE_STORE"]=='Y')
 	$propertyUF = array();
 
 	foreach($userFields as $fieldName => $userField)
-		$propertyUF[$fieldName] = $userField["LIST_COLUMN_LABEL"] ? $userField["LIST_COLUMN_LABEL"] : $fieldName;
+	{
+		$propertyUF[$fieldName] = $userField["LIST_COLUMN_LABEL"] ?? $fieldName;
+	}
 
 	$arComponentParameters["PARAMETERS"]['STORES'] = array(
 		'PARENT' => 'STORE_SETTINGS',
@@ -1219,7 +1242,7 @@ if ($catalogIncluded && $arCurrentValues["USE_STORE"]=='Y')
 			'COORDINATES'  => GetMessage('COORDINATES'),
 		)
 	);
-	if ($arCurrentValues['USE_MIN_AMOUNT']!="N")
+	if (($arCurrentValues['USE_MIN_AMOUNT'] ?? 'Y') === 'Y')
 	{
 		$arComponentParameters["PARAMETERS"]["MIN_AMOUNT"] = array(
 			"PARENT" => "STORE_SETTINGS",
@@ -1260,19 +1283,19 @@ if (!ModuleManager::isModuleInstalled("sale") || isset($templateProperties['HIDE
 	unset($arComponentParameters["PARAMETERS"]["USE_ALSO_BUY"]);
 	unset($arComponentParameters["GROUPS"]["ALSO_BUY_SETTINGS"]);
 }
-elseif ($arCurrentValues["USE_ALSO_BUY"] == "Y")
+elseif (($arCurrentValues['USE_ALSO_BUY'] ?? 'N') === 'Y')
 {
 	$arComponentParameters["PARAMETERS"]["ALSO_BUY_ELEMENT_COUNT"] = array(
 		"PARENT" => "ALSO_BUY_SETTINGS",
-		"NAME"		=> GetMessage("T_IBLOCK_DESC_ALSO_BUY_ELEMENT_COUNT"),
-		"TYPE"		=> "STRING",
-		"DEFAULT"	=> 5
+		"NAME" => GetMessage("T_IBLOCK_DESC_ALSO_BUY_ELEMENT_COUNT"),
+		"TYPE" => "STRING",
+		"DEFAULT" => 5
 	);
 	$arComponentParameters["PARAMETERS"]["ALSO_BUY_MIN_BUYES"] = array(
 		"PARENT" => "ALSO_BUY_SETTINGS",
-		"NAME"		=> GetMessage("T_IBLOCK_DESC_ALSO_BUY_MIN_BUYES"),
-		"TYPE"		=> "STRING",
-		"DEFAULT"	=> 1
+		"NAME" => GetMessage("T_IBLOCK_DESC_ALSO_BUY_MIN_BUYES"),
+		"TYPE" => "STRING",
+		"DEFAULT" => 1
 	);
 }
 
@@ -1285,9 +1308,9 @@ if (!ModuleManager::isModuleInstalled("sale"))
 }
 else
 {
-	$useGiftsDetail = $arCurrentValues["USE_GIFTS_DETAIL"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS_DETAIL']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS_DETAIL"] == "Y";
-	$useGiftsSection = $arCurrentValues["USE_GIFTS_SECTION"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS_SECTION']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS_SECTION"] == "Y";
-	$useGiftsMainPrSectionList = $arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"] === null && $arComponentParameters['PARAMETERS']['USE_GIFTS_MAIN_PR_SECTION_LIST']['DEFAULT'] == 'Y' || $arCurrentValues["USE_GIFTS_MAIN_PR_SECTION_LIST"] == "Y";
+	$useGiftsDetail = ($arCurrentValues['USE_GIFTS_DETAIL'] ?? 'Y') === 'Y';
+	$useGiftsSection = ($arCurrentValues['USE_GIFTS_SECTION'] ?? 'Y') === 'Y';
+	$useGiftsMainPrSectionList = ($arCurrentValues['USE_GIFTS_MAIN_PR_SECTION_LIST'] ?? 'Y') === 'Y';
 	if($useGiftsDetail || $useGiftsSection || $useGiftsMainPrSectionList)
 	{
 		if($useGiftsDetail)
@@ -1435,7 +1458,7 @@ if ($catalogIncluded)
 		'REFRESH' => 'Y',
 	);
 
-	if (isset($arCurrentValues['CONVERT_CURRENCY']) && $arCurrentValues['CONVERT_CURRENCY'] == 'Y')
+	if (($arCurrentValues['CONVERT_CURRENCY'] ?? 'N') === 'Y')
 	{
 		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
 			'PARENT' => 'PRICES',
@@ -1450,7 +1473,7 @@ if ($catalogIncluded)
 	$hiddenParam = 'N';
 	if (
 		!$compatibleMode
-		|| ((string)Option::get('catalog', 'enable_viewed_products') === 'N')
+		|| (Option::get('catalog', 'enable_viewed_products') === 'N')
 	)
 	{
 		$hiddenParam = 'Y';
@@ -1478,7 +1501,7 @@ else
 			"TYPE" => "LIST",
 			"MULTIPLE" => "Y",
 			"VALUES" => $arProperty_OffersWithoutFile,
-			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
+			"HIDDEN" => ($hideBasketProperty ? 'Y' : 'N'),
 		);
 	}
 

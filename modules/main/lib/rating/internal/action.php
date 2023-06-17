@@ -125,7 +125,6 @@ class Action
 	public static function list(array $params = []): array
 	{
 		$mailInstalled = ModuleManager::isModuleInstalled('mail');
-		$replicaInstalled = ModuleManager::isModuleInstalled('replica');
 		$extranetInstalled = ModuleManager::isModuleInstalled('extranet');
 
 		if ($extranetInstalled)
@@ -133,10 +132,7 @@ class Action
 			$params['USER_SELECT'] = [ 'UF_DEPARTMENT' ];
 		}
 
-		if (
-			$mailInstalled
-			|| $replicaInstalled
-		)
+		if ($mailInstalled)
 		{
 			$params['USER_FIELDS'] = [
 				'ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN',
@@ -185,16 +181,10 @@ class Action
 				$userVote['USER_TYPE'] = 'mail';
 			}
 			elseif (
-				(
-					$replicaInstalled
-					&& $value['EXTERNAL_AUTH_ID'] === 'replica'
-				)
-				|| (
-					$extranetInstalled
-					&& (
-						empty($value['UF_DEPARTMENT'])
-						|| (int)$value['UF_DEPARTMENT'][0] <= 0
-					)
+				$extranetInstalled
+				&& (
+					empty($value['UF_DEPARTMENT'])
+					|| (int)$value['UF_DEPARTMENT'][0] <= 0
 				)
 			)
 			{

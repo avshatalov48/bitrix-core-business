@@ -11,19 +11,19 @@ use Bitrix\Main\Text\HtmlFilter;
 
 $component = $this->getComponent();
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if(isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
-	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'];
-	$listHeight = (int)$GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'];
-	$captionNoValue = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['CAPTION_NO_VALUE']);
-	$showNoValue = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['SHOW_NO_VALUE']);
+	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'] ?? '';
+	$listHeight = (int)($GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'] ?? 0);
+	$captionNoValue = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['CAPTION_NO_VALUE'] ?? '');
+	$showNoValue = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['SHOW_NO_VALUE'] ?? '');
 }
-elseif(is_array($arResult['userField']))
+elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
-	$display = $arResult['userField']['SETTINGS']['DISPLAY'];
-	$listHeight = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
-	$captionNoValue = trim($arResult['userField']['SETTINGS']['CAPTION_NO_VALUE']);
-	$showNoValue = trim($arResult['userField']['SETTINGS']['SHOW_NO_VALUE']);
+	$display = $arResult['userField']['SETTINGS']['DISPLAY'] ?? '';
+	$listHeight = (int)($arResult['userField']['SETTINGS']['LIST_HEIGHT'] ?? 0);
+	$captionNoValue = trim($arResult['userField']['SETTINGS']['CAPTION_NO_VALUE'] ?? '');
+	$showNoValue = trim($arResult['userField']['SETTINGS']['SHOW_NO_VALUE'] ?? '');
 }
 else
 {

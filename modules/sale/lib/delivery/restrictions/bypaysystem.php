@@ -80,27 +80,31 @@ class ByPaySystem extends Base
 		return $result;
 	}
 
-	protected static function getPaySystemsList()
+	protected static function getPaySystemsList(): array
 	{
 		static $result = null;
 
-		if($result !== null)
-			return $result;
-
-		$result = array();
-
-		$dbResultList = \CSalePaySystem::GetList(
-			array("SORT"=>"ASC", "NAME"=>"ASC"),
-			array("ACTIVE" => "Y"),
-			false,
-			false,
-			array("ID", "NAME", "ACTIVE", "SORT", "LID")
-		);
-
-		while ($arPayType = $dbResultList->Fetch())
+		if ($result !== null)
 		{
-			$name = ($arPayType["LID"] <> '') ? htmlspecialcharsbx($arPayType["NAME"]). " (".$arPayType["LID"].")" : htmlspecialcharsbx($arPayType["NAME"]);
-			$result[$arPayType["ID"]] = $name;
+			return $result;
+		}
+
+		$result = [];
+
+		$iterator = PaySystem\Manager::getList([
+			'select' => [
+				'ID',
+				'NAME',
+				'SORT',
+			],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+			],
+			'order' => ['SORT' => 'ASC', 'NAME' => 'ASC']
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$result[$row['ID']] = htmlspecialcharsbx($row['NAME']);
 		}
 
 		return $result;
@@ -189,4 +193,4 @@ class ByPaySystem extends Base
 
 		self::$preparedData = \Bitrix\Sale\Internals\DeliveryPaySystemTable::prepareData($deliveryIds, DeliveryPaySystemTable::ENTITY_TYPE_DELIVERY);
 	}
-} 
+}

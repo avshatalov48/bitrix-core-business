@@ -27,7 +27,11 @@ this.BX = this.BX || {};
 	  },
 	  methods: {
 	    handleClick() {
-	      this.$emit(!this.groupData.selected ? 'selected' : 'unselected', this.groupData);
+	      if (this.groupData.deselectable) {
+	        this.$emit(!this.groupData.selected ? 'selected' : 'unselected', this.groupData);
+	      } else if (!this.groupData.selected) {
+	        this.$emit('selected', this.groupData);
+	      }
 	    }
 	  },
 	  template: `
@@ -379,7 +383,8 @@ this.BX = this.BX || {};
 	  state: () => ({
 	    searchApplied: false,
 	    filtersApplied: false,
-	    currentGroup: group.GroupData
+	    currentGroup: group.GroupData,
+	    shouldShowWelcomeStub: true
 	  })
 	});
 
@@ -408,12 +413,15 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  computed: {
-	    ...ui_vue3_pinia.mapState(useGlobalState, ['filtersApplied']),
+	    ...ui_vue3_pinia.mapState(useGlobalState, ['filtersApplied', 'shouldShowWelcomeStub']),
 	    showAdvice() {
 	      return this.group && main_core.Type.isStringFilled(this.group.adviceTitle) && !this.searching;
 	    },
 	    hasItems() {
 	      return this.group && this.items.length > 0;
+	    },
+	    showWelcomeStub() {
+	      return this.showNoSelectedGroupStub && this.shouldShowWelcomeStub;
 	    },
 	    showNoSelectedGroupStub() {
 	      return !this.group && !this.searching;
@@ -445,7 +453,8 @@ this.BX = this.BX || {};
 			<hr class="ui-entity-catalog__main-separator" v-if="showSeparator">
 
 			<div class="ui-entity-catalog__main-content-body" ref="content">
-				<slot name="main-content-no-selected-group-stub" v-if="showNoSelectedGroupStub"/>
+				<slot name="main-content-welcome-stub" v-if="showWelcomeStub"/>
+				<slot name="main-content-no-selected-group-stub" v-else-if="showNoSelectedGroupStub"/>
 				<slot name="main-content-filter-stub" v-if="showFiltersStub">
 					<EmptyContent>
 						<slot name="main-content-filter-stub-title"/>
@@ -727,11 +736,13 @@ this.BX = this.BX || {};
 	    ...ui_vue3_pinia.mapWritableState(useGlobalState, {
 	      searching: 'searchApplied',
 	      filtersApplied: 'filtersApplied',
-	      globalGroup: 'currentGroup'
+	      globalGroup: 'currentGroup',
+	      shouldShowWelcomeStub: 'shouldShowWelcomeStub'
 	    })
 	  },
 	  watch: {
 	    selectedGroup() {
+	      this.shouldShowWelcomeStub = false;
 	      this.globalGroup = this.selectedGroup;
 	    },
 	    selectedGroupId() {
@@ -845,6 +856,9 @@ this.BX = this.BX || {};
 				</template>
 				<template #main-content-no-selected-group-stub>
 					<slot name="main-content-no-selected-group-stub"/>
+				</template>
+				<template #main-content-welcome-stub>
+					<slot name="main-content-welcome-stub"/>
 				</template>
 				<template #main-content-filter-stub v-if="$slots['main-content-filter-stub']">
 					<slot name="main-content-filter-stub"/>
@@ -986,6 +1000,13 @@ this.BX = this.BX || {};
 	    this.setGroups(main_core.Type.isArray(props.groups) ? props.groups : []);
 	    this.setItems(main_core.Type.isArray(props.items) ? props.items : []);
 	    babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData] = props.recentGroupData;
+	    if (main_core.Type.isBoolean(props.canDeselectGroups)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups].forEach(groupList => {
+	        groupList.forEach(group$$1 => {
+	          group$$1.deselectable = props.canDeselectGroups;
+	        });
+	      });
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _showEmptyGroups)[_showEmptyGroups] = main_core.Type.isBoolean(props.showEmptyGroups) ? props.showEmptyGroups : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup] = main_core.Type.isBoolean(props.showRecentGroup) ? props.showRecentGroup : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showSearch)[_showSearch] = main_core.Type.isBoolean(props.showSearch) ? props.showSearch : false;
@@ -1006,6 +1027,7 @@ this.BX = this.BX || {};
 	      }
 	      return groupList.map(group$$1 => ({
 	        selected: false,
+	        deselectable: true,
 	        ...group$$1
 	      }));
 	    });
@@ -1043,7 +1065,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _attachTemplate2() {
-	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9;
+	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10;
 	  const context = this;
 	  const rootProps = {
 	    recentGroupData: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData],
@@ -1105,17 +1127,20 @@ this.BX = this.BX || {};
 						<template #main-content-search-not-found-stub>
 							${(_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr5 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
 						</template>
+						<template #main-content-welcome-stub>
+							${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]) != null ? _babelHelpers$classPr6 : ''}
+						</template>
 						<template #main-content-no-selected-group-stub>
-							${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr6 : ''}
+							${(_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr7 : ''}
 						</template>
 						<template #main-content-empty-group-stub>
-							${(_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr7 : ''}
+							${(_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr8 : ''}
 						</template>
 						<template #main-content-empty-group-stub-title>
-							${(_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr8 : ''}
+							${(_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr9 : ''}
 						</template>
 						<template #item="itemSlotProps">
-							${(_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr9 : ''}
+							${(_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr10 : ''}
 						</template>
 					</Application>
 				`
@@ -1167,6 +1192,7 @@ this.BX = this.BX || {};
 	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB = 'main-content-filter-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE = 'main-content-filter-stub-title';
 	EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND = 'search-not-found';
+	EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB = 'main-content-welcome-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB = 'main-content-no-selected-group-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB = 'main-content-empty-group-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE = 'main-content-empty-group-stub-title';

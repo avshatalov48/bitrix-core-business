@@ -13,6 +13,7 @@ if(!CModule::IncludeModule('clouds'))
 IncludeModuleLangFile(__FILE__);
 $sTableID = "tbl_clouds_file_list";
 $path = (string)$_GET["path"];
+$showSize = isset($_GET["size"]) && ($_GET["size"] === "y");
 
 $message = /*.(CAdminMessage).*/null;
 $oSort = new CAdminSorting($sTableID, "NAME", "asc");
@@ -37,8 +38,8 @@ else
 }
 
 if (
-	/*$_SERVER["REQUEST_METHOD"] == "POST"
-	&& */$_REQUEST['act'] == 'listing'
+	isset($_REQUEST['act'])
+	&& ($_REQUEST['act'] == 'listing')
 	&& check_bitrix_sessid()
 )
 {
@@ -818,8 +819,8 @@ if (CheckSession($obBucket->ID, $path))
 else
 {
 	$hasFinished = null;
-	$arFiles = ListFiles_admin($obBucket, $path, $_GET["size"] === "y", $hasFinished, $lastKey);
-	if ($_GET["size"] === "y" && $hasFinished)
+	$arFiles = ListFiles_admin($obBucket, $path, $showSize, $hasFinished, $lastKey);
+	if ($showSize && $hasFinished)
 	{
 		CheckSession($obBucket->ID, $path, true);
 		if ($path === "/")
@@ -882,7 +883,7 @@ if (is_array($arFiles))
 			$size = '';
 			$count = '';
 			$mtime = '';
-			if($_GET["size"] === "y")
+			if($showSize)
 			{
 				$arDirFiles = $obBucket->ListFiles($path.$dir."/", true);
 				$size = array_sum($arDirFiles["file_size"]);

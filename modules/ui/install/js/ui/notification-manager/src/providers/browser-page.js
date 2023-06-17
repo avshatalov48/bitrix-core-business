@@ -43,7 +43,7 @@ export default class BrowserPageProvider extends BaseProvider
 			actions: [],
 			width: 380,
 			position: 'top-right',
-			autoHideDelay: 4000,
+			autoHideDelay: 6000,
 		};
 
 		if (notification.getInputPlaceholderText())

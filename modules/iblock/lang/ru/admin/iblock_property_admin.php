@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBP_ADM_TO_ADD"] = "Добавить свойство";
 $MESS["IBP_ADM_TO_ADD_TITLE"] = "Добавить новое свойство";
 $MESS["IBP_ADM_ID"] = "ID";
@@ -27,4 +27,4 @@ $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "деактивировать";
 $MESS["IBLOCK_YES"] = "Да";
 $MESS["IBLOCK_NO"] = "Нет";
 $MESS["IBLOCK_ALL"] = "(любой)";
-?>
+$MESS['IBP_ADM_STUB_TITLE'] = 'Теперь все свойства торгового каталога обрабатываются в Битрикс24';

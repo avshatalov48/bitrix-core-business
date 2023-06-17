@@ -80,7 +80,7 @@ class CAllSaleLocation
 				CSaleLocation::locationProEnable();
 				return true;
 			}
-			
+
 			?>
 			<form action="" method="post">
 				Location 2.0 were disabled.&nbsp;<button name="l2switch" value="ON">Enable</button>
@@ -166,10 +166,13 @@ class CAllSaleLocation
 				//"JS_CONTROL_DEFERRED_INIT" => "soa_deferred"
 			), $additionalParams);
 
-			if(mb_strlen($parameters['SITE_ID']) || !defined('ADMIN_SECTION') || ADMIN_SECTION != 'Y')
+			$siteExists = isset($parameters['SITE_ID']) && $parameters['SITE_ID'];
+			if (
+				$siteExists || !defined('ADMIN_SECTION') || ADMIN_SECTION != 'Y'
+			)
 			{
 				$parametersProxed["FILTER_BY_SITE"] = "Y";
-				$parametersProxed["FILTER_SITE_ID"] = $parameters['SITE_ID'] <> ''? $parameters['SITE_ID'] : SITE_ID;
+				$parametersProxed["FILTER_SITE_ID"] = $siteExists ? $parameters['SITE_ID'] : SITE_ID;
 			}
 
 			if($wrapNewComponentWith <> '')
@@ -603,11 +606,11 @@ class CAllSaleLocation
 			"	LEFT JOIN b_sale_loc_name LN ON (L.ID = LN.LOCATION_ID AND LN.LANGUAGE_ID = 'en') ".
 			"	LEFT JOIN b_sale_loc_name LLN ON (L.ID = LLN.LOCATION_ID AND LLN.LANGUAGE_ID = '".$DB->ForSql($strLang, 2)."') ".
 
-			($joinLCO ? 
+			($joinLCO ?
 				" INNER JOIN b_sale_location LCO ON (L.COUNTRY_ID = LCO.ID) " :
 				"").
 
-			($joinLRE ? 
+			($joinLRE ?
 				" INNER JOIN b_sale_location LRE ON (L.REGION_ID = LRE.ID) " :
 				"").
 
@@ -670,7 +673,7 @@ class CAllSaleLocation
 		$item = $class::getList(array('select' => array($type.'_ID'), 'limit' => 1, 'order' => array($type.'_ID' => 'desc')))->fetch();
 
 		$fromLocTable = intval($item[$type.'_ID']);
-	
+
 		$res = self::GetLocationTypeList($type, array('ID' => 'desc'))->fetch();
 		$fromTypeTable = $res['ID'];
 
@@ -1103,7 +1106,7 @@ class CAllSaleLocation
 				return false;
 			}
 		}
-		
+
 		// and also drop old records, if any
 		$DB->Query("DELETE FROM b_sale_location_country_lang WHERE COUNTRY_ID = ".$ID."", true);
 		$bDelete = $DB->Query("DELETE FROM b_sale_location_country WHERE ID = ".$ID."", true);
@@ -1232,7 +1235,7 @@ class CAllSaleLocation
 	}
 
 	/////////////////////////////////////////////
-	
+
 	public static function RegionCheckFields($ACTION, &$arFields)
 	{
 		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '') return false;
@@ -1345,7 +1348,7 @@ class CAllSaleLocation
 				return false;
 			}
 		}
-		
+
 		// and also drop old records, if any
 		$DB->Query("DELETE FROM b_sale_location_region_lang WHERE REGION_ID = ".$ID."", true);
 		$bDelete = $DB->Query("DELETE FROM b_sale_location_region WHERE ID = ".$ID."", true);
@@ -1896,7 +1899,7 @@ class CAllSaleLocation
 		if(!is_array($fieldProxy) || empty($fieldProxy))
 			return $res;
 
-		$result = array(); 
+		$result = array();
 		while($item = $res->fetch())
 		{
 			$pItem = array();
@@ -2045,10 +2048,10 @@ class CAllSaleLocation
 
 					"CITY_NAME_ORIG" => array("FIELD" => "LG.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_city LG ON (L.CITY_ID = LG.ID)"),
 					"CITY_SHORT_NAME" => array("FIELD" => "LG.SHORT_NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_city LG ON (L.CITY_ID = LG.ID)"),
-				
+
 					"REGION_NAME_ORIG" => array("FIELD" => "LR.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_region LR ON (L.REGION_ID = LR.ID)"),
 					"REGION_SHORT_NAME" => array("FIELD" => "LR.SHORT_NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_region LR ON (L.REGION_ID = LR.ID)"),
-				
+
 					"COUNTRY_LID" => array("FIELD" => "LCL.LID", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_country_lang LCL ON (L.COUNTRY_ID = LCL.COUNTRY_ID".$additionalFilterLCL.")"),
 					"COUNTRY_NAME" => array("FIELD" => "LCL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_country_lang LCL ON (L.COUNTRY_ID = LCL.COUNTRY_ID".$additionalFilterLCL.")"),
 					"COUNTRY_NAME_LANG" => array("FIELD" => "LCL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_country_lang LCL ON (L.COUNTRY_ID = LCL.COUNTRY_ID".$additionalFilterLCL.")"),
@@ -2058,7 +2061,7 @@ class CAllSaleLocation
 					"REGION_NAME" => array("FIELD" => "LRL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_region_lang LRL ON (L.REGION_ID = LRL.REGION_ID".$additionalFilterLRL.")"),
 					"REGION_NAME_LANG" => array("FIELD" => "LRL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_region_lang LRL ON (L.REGION_ID = LRL.REGION_ID".$additionalFilterLRL.")"),
 					"REGION_SHORT_NAME_LANG" => array("FIELD" => "LRL.SHORT_NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_region_lang LRL ON (L.REGION_ID = LRL.REGION_ID".$additionalFilterLRL.")"),
-				
+
 					"CITY_LID" => array("FIELD" => "LGL.LID", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_city_lang LGL ON (L.CITY_ID = LGL.CITY_ID".$additionalFilterLGL.")"),
 					"CITY_NAME" => array("FIELD" => "LGL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_city_lang LGL ON (L.CITY_ID = LGL.CITY_ID".$additionalFilterLGL.")"),
 					"CITY_NAME_LANG" => array("FIELD" => "LGL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_location_city_lang LGL ON (L.CITY_ID = LGL.CITY_ID".$additionalFilterLGL.")"),
@@ -2133,12 +2136,13 @@ class CAllSaleLocation
 		";
 
 		$item = $DB->query($query)->fetch();
+		if(!is_array($item))
+		{
+			return [];
+		}
 
 		$item[$typeCode.'_NAME_ORIG'] = $item[$typeCode.'_NAME'];
 		$item[$typeCode.'_NAME_LANG'] = $item[$typeCode.'_NAME'];
-
-		if(!is_array($item))
-			return array();
 
 		return $item;
 	}
@@ -2157,7 +2161,13 @@ class CAllSaleLocation
 
 		$loc = CSaleLocation::GetByID($primary, $strLang);
 
-		if(!intval($loc['REGION_ID'])) // no region
+		$noRegion = empty($loc);
+		if (!$noRegion)
+		{
+			$noRegion = (int)($loc['REGION_ID'] ?? 0) <= 0;
+		}
+
+		if ($noRegion) // no region
 		{
 			if(isset(self::$city2RegionMap[(string) $primary])) // got CODE and this code in The List
 			{
@@ -2167,26 +2177,33 @@ class CAllSaleLocation
 			{
 				$regLoc = CSaleLocation::GetByID(self::$city2RegionMap[(string) $loc['CODE']], $strLang);
 			}
-			elseif((string) $loc['CITY_NAME_LANG'] != '') // search by name
+			elseif (!empty($loc))
 			{
-				$name = ToUpper(trim($loc['CITY_NAME_LANG']));
-				$regionName = false;
+				$nameNang = (string)($loc['CITY_NAME_LANG'] ?? '');
 
-				foreach(self::$specialCities as $city)
+				if ($nameNang !== '') // search by name
 				{
-					if($name == ToUpper(GetMessage('CITY_'.$city)))
-						$regionName = GetMessage('REGION_'.$city);
-				}
+					$name = ToUpper(trim($loc['CITY_NAME_LANG']));
+					$regionName = false;
 
-				if($regionName !== false)
-				{
-					$regLoc = CSaleLocation::GetList(
-						false, 
-						array('~REGION_NAME_LANG' => $regionName.'%', 'LID' => $strLang), 
-						false, 
-						array('nTopCount' => 1), 
-						array('REGION_ID', 'REGION_NAME', 'REGION_SHORT_NAME', 'REGION_NAME_ORIG', 'REGION_NAME_LANG')
-					)->fetch();
+					foreach (self::$specialCities as $city)
+					{
+						if ($name == ToUpper(GetMessage('CITY_' . $city)))
+						{
+							$regionName = GetMessage('REGION_' . $city);
+						}
+					}
+
+					if ($regionName !== false)
+					{
+						$regLoc = CSaleLocation::GetList(
+							false,
+							['~REGION_NAME_LANG' => $regionName . '%', 'LID' => $strLang],
+							false,
+							['nTopCount' => 1],
+							['REGION_ID', 'REGION_NAME', 'REGION_SHORT_NAME', 'REGION_NAME_ORIG', 'REGION_NAME_LANG']
+						)->fetch();
+					}
 				}
 			}
 		}
@@ -2195,11 +2212,11 @@ class CAllSaleLocation
 		{
 			if(intval($regLoc['REGION_ID']))
 			{
-				$loc['REGION_ID'] = 		$regLoc['REGION_ID'];
-				$loc['REGION_NAME'] = 		$regLoc['REGION_NAME'];
+				$loc['REGION_ID'] = $regLoc['REGION_ID'];
+				$loc['REGION_NAME'] = $regLoc['REGION_NAME'];
 				$loc['REGION_SHORT_NAME'] = $regLoc['REGION_SHORT_NAME'];
-				$loc['REGION_NAME_ORIG'] = 	$regLoc['REGION_NAME_ORIG'];
-				$loc['REGION_NAME_LANG'] = 	$regLoc['REGION_NAME_LANG'];
+				$loc['REGION_NAME_ORIG'] = $regLoc['REGION_NAME_ORIG'];
+				$loc['REGION_NAME_LANG'] = $regLoc['REGION_NAME_LANG'];
 			}
 		}
 
@@ -2216,7 +2233,7 @@ class CAllSaleLocation
 			// try code
 			$item = Location\LocationTable::getList(array('filter' => array(
 				array('=CODE' => $primary)
-			), 'select' => 
+			), 'select' =>
 				array('ID', 'SORT', 'LEFT_MARGIN', 'RIGHT_MARGIN', 'CODE')
 			))->fetch();
 
@@ -2225,7 +2242,7 @@ class CAllSaleLocation
 				// try id
 				$item = Location\LocationTable::getList(array('filter' => array(
 					array('=ID' => $primary)
-				), 'select' => 
+				), 'select' =>
 					array('ID', 'SORT', 'LEFT_MARGIN', 'RIGHT_MARGIN', 'CODE')
 				))->fetch();
 			}
@@ -2403,7 +2420,7 @@ class CAllSaleLocation
 				$region = self::getTypeValueToStore('REGION', $arFields);
 				$city = self::getTypeValueToStore('CITY', $arFields);
 
-				// Let`s treat a location 1.0 structure as a static structure where you can not move nodes up\down 
+				// Let`s treat a location 1.0 structure as a static structure where you can not move nodes up\down
 				// along a tree by passing just IDs in triplets like (COUNTRY_ID, REGION_ID, CITY_ID).
 				// Then parse out some meaningless situations to preserve tree integrity:
 
@@ -2708,7 +2725,7 @@ class CAllSaleLocation
 			$DB->Query("DELETE FROM ".Location\GroupLocationTable::getTableName());
 			$DB->Query("DELETE FROM ".Location\SiteLocationTable::getTableName());
 			$DB->Query("DELETE FROM ".Delivery\DeliveryLocationTable::getTableName());
-			
+
 			//other
 			$DB->Query("DELETE FROM ".Location\DefaultSiteTable::getTableName());
 			$DB->Query("DELETE FROM ".Location\ExternalTable::getTableName());
@@ -2976,7 +2993,7 @@ class CAllSaleLocation
 					'=TYPE_ID' => $types['REGION'],
 					'!=REGION_ID' => '0'
 				);
-				
+
 				if($countryId = intval($countryId))
 					$filterFields['=COUNTRY_ID'] = $countryId;
 

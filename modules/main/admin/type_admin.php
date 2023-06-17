@@ -63,7 +63,7 @@ if ($find_event_type <> '')
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CEventType::GetListEx(array($by => $order), $arFilter, array("type" => "none"));
 		while($arRes = $rsData->Fetch())
@@ -83,7 +83,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 				$db_res = CEventMessage::GetList('', '', $ID);
 				if ($db_res && ($res = $db_res->Fetch()))
 				{
-					do 
+					do
 					{
 						if (!CEventMessage::Delete($res["ID"]))
 						{
@@ -92,14 +92,16 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 						}
 					} while ($res = $db_res-> Fetch());
 				}
-				
+
 				if ($error || !CEventType::Delete($ID))
 				{
 					$DB->Rollback();
 					$lAdmin->AddGroupError(Loc::getMessage("DELETE_ERROR"), $ID);
 				}
 				else
+				{
 					$DB->Commit();
+				}
 			break;
 		}
 	}
@@ -108,7 +110,7 @@ $arLID = array();
 $db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->GetNext())
 {
-	do 
+	do
 	{
 		$arLID[$res["LID"]] = $res["LID"];
 	} while ($res = $db_res->GetNext());
@@ -200,7 +202,7 @@ foreach($resultList as $key => $type)
 		$type["DESCRIPTION"] = $type['BY_LANGUAGE'][LANGUAGE_ID]["DESCRIPTION"];
 	}
 
-	$type["TEMPLATES"] = $resultMessageByTypeList[$type["EVENT_NAME"]];
+	$type["TEMPLATES"] = $resultMessageByTypeList[$type["EVENT_NAME"]] ?? null;
 
 	unset($type['BY_LANGUAGE']);
 
@@ -237,7 +239,6 @@ foreach($resultList as $resultItem)
 	$templates = array();
 	if (is_array($resultItem['TEMPLATES']) && !empty($resultItem['TEMPLATES']))
 	{
-		$templates = array();
 		foreach ($resultItem['TEMPLATES'] as $k)
 		{
 			$templates[$k] = "<a href=\"".BX_ROOT."/admin/message_edit.php?ID=".intval($k)."&lang=".LANGUAGE_ID."\">".intval($k)."</a>";

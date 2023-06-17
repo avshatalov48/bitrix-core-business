@@ -855,7 +855,7 @@ class Site
 		\Bitrix\Landing\Site\Type::setScope('KNOWLEDGE');
 
 		if (
-			\Bitrix\landing\Connector\SocialNetwork::userInGroup($groupId) &&
+			\Bitrix\landing\Connector\SocialNetwork::canCreateNewBinding($groupId) &&
 			!\Bitrix\landing\Binding\Group::getList($groupId)
 		)
 		{
@@ -887,7 +887,7 @@ class Site
 	{
 		\Bitrix\Landing\Site\Type::setScope('GROUP');
 
-		if (\Bitrix\landing\Connector\SocialNetwork::userInGroup($groupId))
+		if (\Bitrix\landing\Connector\SocialNetwork::canCreateNewBinding($groupId))
 		{
 			$binding = new \Bitrix\Landing\Binding\Group($groupId);
 			$result = self::binding($id, $binding, false);

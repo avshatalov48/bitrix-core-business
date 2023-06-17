@@ -29,7 +29,10 @@ abstract class RoleDictionary
 
 	protected static function loadLoc()
 	{
-		if (!static::$locLoaded[static::class])
+		if (
+			!array_key_exists(static::class, static::$locLoaded)
+			|| !static::$locLoaded[static::class]
+		)
 		{
 			$r = new \ReflectionClass(static::class);
 			Loc::loadMessages($r->getFileName());

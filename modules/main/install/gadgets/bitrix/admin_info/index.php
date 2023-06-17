@@ -5,10 +5,7 @@ $bxProductConfig = array();
 if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
 	include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
 
-if(isset($bxProductConfig["admin"]["index"]))
-	$sProduct = $bxProductConfig["admin"]["index"];
-else
-	$sProduct = GetMessage("GD_INFO_product").' &quot;'.GetMessage("GD_INFO_product_name_".COption::GetOptionString("main", "vendor", "1c_bitrix")).'#VERSION#&quot;';
+$sProduct = $bxProductConfig["admin"]["index"] ?? GetMessage("GD_INFO_product").' &quot;'.GetMessage("GD_INFO_product_name_".COption::GetOptionString("main", "vendor", "1c_bitrix")).'#VERSION#&quot;';
 $sVer = ($GLOBALS['USER']->CanDoOperation('view_other_settings')? " ".SM_VERSION : "");
 $sProduct = str_replace("#VERSION#", $sVer, $sProduct);
 

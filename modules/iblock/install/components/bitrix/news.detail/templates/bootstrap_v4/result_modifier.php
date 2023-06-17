@@ -1,6 +1,14 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
 
 /*TAGS*/
+$arResult["FIELDS"]["TAGS"] ??= '';
 if ($arParams["SEARCH_PAGE"])
 {
 	if ($arResult["FIELDS"] && isset($arResult["FIELDS"]["TAGS"]))
@@ -27,6 +35,8 @@ if ($arParams["SEARCH_PAGE"])
 	}
 }
 /*VIDEO & AUDIO*/
+$arResult['VIDEO'] = '';
+$arResult['SOUND_CLOUD'] = '';
 $mediaProperty = trim($arParams["MEDIA_PROPERTY"]);
 if ($mediaProperty)
 {
@@ -88,6 +98,7 @@ if ($mediaProperty)
 }
 
 /*SLIDER*/
+$arResult["SLIDER"] = [];
 $sliderProperty = trim($arParams["SLIDER_PROPERTY"]);
 if ($sliderProperty)
 {
@@ -130,7 +141,6 @@ if ($sliderProperty)
 
 			if ($files)
 			{
-				$arResult["SLIDER"] = array();
 				foreach ($files as $fileId)
 				{
 					$file = CFile::GetFileArray($fileId);
@@ -143,4 +153,3 @@ if ($sliderProperty)
 		}
 	}
 }
-

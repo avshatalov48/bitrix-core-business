@@ -40,6 +40,11 @@ class Delivery extends Restriction
 		return Loc::getMessage("SALE_SRV_RSTR_BY_DELIVERY_DESC");
 	}
 
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_SRV_RSTR_BY_DELIVERY_ON_APPLY_ERROR_MSG');
+	}
+
 	/**
 	 * @param $params
 	 * @param array $restrictionParams

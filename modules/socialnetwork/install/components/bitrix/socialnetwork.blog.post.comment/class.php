@@ -211,7 +211,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$arParams['FORM_ID'] = $formId;
 		}
 
-		$arParams['SOCNET_GROUP_ID'] = (int)$arParams['SOCNET_GROUP_ID'];
+		$arParams['SOCNET_GROUP_ID'] = (int) ($arParams['SOCNET_GROUP_ID'] ?? 0);
 
 		$arParams['ID'] = (
 			preg_match('/^[1-9][0-9]*$/', trim($arParams['ID']))
@@ -219,7 +219,8 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 				: preg_replace('/[^a-zA-Z0-9_-]/i', '', $arParams['ID'])
 		);
 
-		$arParams['BLOG_URL'] = preg_replace('/[^a-zA-Z0-9_-]/i', '', $arParams['BLOG_URL']);
+		$arParams['BLOG_URL'] = preg_replace('/[^a-zA-Z0-9_-]/i', '', ($arParams['BLOG_URL'] ?? ''));
+		$arParams["GROUP_ID"] = $arParams["GROUP_ID"] ?? [];
 		if (!is_array($arParams['GROUP_ID']))
 		{
 			$arParams['GROUP_ID'] = [ $arParams['GROUP_ID'] ];
@@ -242,6 +243,13 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 				? (int)$arParams['CACHE_TIME']
 				: 0
 		);
+
+		$arParams["BLOG_VAR"] = $arParams["BLOG_VAR"] ?? '';
+		$arParams["PAGE_VAR"] = $arParams["PAGE_VAR"] ?? '';
+		$arParams["USER_VAR"] = $arParams["USER_VAR"] ?? '';
+		$arParams["POST_VAR"] = $arParams["POST_VAR"] ?? '';
+		$arParams["NAV_PAGE_VAR"] = $arParams["NAV_PAGE_VAR"] ?? '';
+		$arParams["COMMENT_ID_VAR"] = $arParams["COMMENT_ID_VAR"] ?? '';
 
 		if ($arParams["BLOG_VAR"] == '')
 		{
@@ -293,26 +301,26 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$arParams['COMMENTS_COUNT'] = 25;
 		}
 
-		if ($arParams['USE_ASC_PAGING'] !== 'Y')
+		if (($arParams['USE_ASC_PAGING'] ?? null) !== 'Y')
 		{
 			$arParams['USE_DESC_PAGING'] = 'Y';
 		}
 
 		$applicationPage = $APPLICATION->GetCurPage();
 
-		$arParams['PATH_TO_BLOG'] = trim($arParams['PATH_TO_BLOG']);
+		$arParams['PATH_TO_BLOG'] = trim($arParams['PATH_TO_BLOG'] ?? '');
 		if ($arParams['PATH_TO_BLOG'] === '')
 		{
 			$arParams['PATH_TO_BLOG'] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=blog&" . $arParams["BLOG_VAR"] . "=#blog#");
 		}
 
-		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
+		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"] ?? '');
 		if ($arParams["PATH_TO_USER"] === '')
 		{
 			$arParams["PATH_TO_USER"] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=user&" . $arParams["USER_VAR"] . "=#user_id#");
 		}
 
-		$arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
+		$arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"] ?? '');
 		if ($arParams["PATH_TO_POST"] === '')
 		{
 			$arParams["PATH_TO_POST"] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=post&" . $arParams["BLOG_VAR"] . "=#blog#" . "&" . $arParams["POST_VAR"] . "=#post_id#");
@@ -320,12 +328,12 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 		$arParams["PATH_TO_POST_CURRENT"] = $arParams["PATH_TO_POST"];
 
-		if ($arParams["bPublicPage"])
+		if ($arParams["bPublicPage"] ?? null)
 		{
 			$arParams["PATH_TO_POST"] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
 		}
 
-		$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
+		$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"] ?? '');
 		if ($arParams["PATH_TO_SMILE"] === '')
 		{
 			$arParams["PATH_TO_SMILE"] = false;
@@ -344,7 +352,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#user_id#/";
 		}
 
-		if (trim($arParams["NAME_TEMPLATE"]) == '')
+		if (trim($arParams["NAME_TEMPLATE"] ?? '') == '')
 		{
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 		}
@@ -353,6 +361,11 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		$arParams["IMAGE_MAX_WIDTH"] = (int)$arParams["IMAGE_MAX_WIDTH"];
 		$arParams["IMAGE_MAX_HEIGHT"] = (int)$arParams["IMAGE_MAX_HEIGHT"];
 		$arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
+
+		$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] = $arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] ?? 0;
+		$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"] = $arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"] ?? 0;
+		$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] = $arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] ?? 0;
+		$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] = $arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] ?? 0;
 
 		$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] = (
 			(int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] > 0
@@ -406,7 +419,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 				: "Y"
 		);
 
-		$arParams["PAGE_SIZE"] = (int)$arParams["PAGE_SIZE"];
+		$arParams["PAGE_SIZE"] = (int) ($arParams["PAGE_SIZE"] ?? 0);
 		if ($arParams["PAGE_SIZE"] <= 0)
 		{
 			$arParams["PAGE_SIZE"] = 20;
@@ -433,9 +446,9 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 	{
 		try
 		{
-			$this->arResult['deleteCommentId'] = (int)$_GET['delete_comment_id'];
-			$this->arResult['hideCommentId'] = (int)$_GET['hide_comment_id'];
-			$this->arResult['showCommentId'] = (int)$_GET['show_comment_id'];
+			$this->arResult['deleteCommentId'] = (int) ($_GET['delete_comment_id'] ?? 0);
+			$this->arResult['hideCommentId'] = (int) ($_GET['hide_comment_id'] ?? 0);
+			$this->arResult['showCommentId'] = (int) ($_GET['show_comment_id'] ?? 0);
 
 			$this->checkActions();
 			$this->fillParams();
@@ -453,7 +466,10 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 	*/
 	protected function checkActions(): void
 	{
-		if ($this->arParams['COMPONENT_AJAX'] === 'Y')
+		if (
+			isset($this->arParams['COMPONENT_AJAX'])
+			&& $this->arParams['COMPONENT_AJAX'] === 'Y'
+		)
 		{
 			$action = $this->request->getPost('ACTION');
 
@@ -478,17 +494,17 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		{
 			$action = '';
 
-			if ((int)$_GET["delete_comment_id"])
+			if ($this->arResult['deleteCommentId'])
 			{
 				$action = 'DELETE';
 				$this->arResult['deleteCommentId'] = (int)$this->request->get('delete_comment_id');
 			}
-			elseif ((int)$_GET["hide_comment_id"])
+			elseif ($this->arResult['hideCommentId'])
 			{
 				$action = 'HIDE';
 				$this->arResult['hideCommentId'] = (int)$this->request->get('hide_comment_id');
 			}
-			elseif ((int)$_GET["show_comment_id"])
+			elseif ($this->arResult['showCommentId'])
 			{
 				$action = 'SHOW';
 				$this->arResult['showCommentId'] = (int)$this->request->get('show_comment_id');
@@ -516,20 +532,19 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 	protected function fillParams(): void
 	{
-		$postId = 0;
+		$postId = ($_REQUEST["comment_post_id"] ?? 0);
 
 		if (
-			(int)$_REQUEST["comment_post_id"] > 0
-			|| $this->arParams['COMPONENT_AJAX'] === 'Y'
+			$postId
+			|| (
+				isset($this->arParams['COMPONENT_AJAX'])
+				&& $this->arParams['COMPONENT_AJAX'] === 'Y'
+			)
 		)
 		{
-			if ((int)$_REQUEST['comment_post_id'] > 0)
+			if (!$postId && (int) $this->arParams['ID'] > 0)
 			{
-				$postId = (int)$_REQUEST['comment_post_id'];
-			}
-			elseif ((int)$this->arParams['ID'] > 0)
-			{
-				$postId = (int)$this->arParams['ID'];
+				$postId = (int) $this->arParams['ID'];
 			}
 
 			if (
@@ -620,6 +635,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 	protected function getCommentsPerm(array $params = [], array &$arResult = []): void
 	{
+		// todo &$arResult ppc
 		global $USER;
 
 		$this->arResult['Perm'] = Permissions::DENY;
@@ -644,24 +660,22 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$isIntranetInstalled = ModuleManager::isModuleInstalled('intranet');
 		}
 
-		$permBySG = false;
-
 		if (
 			\CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, !$mobile)
 			|| \CMain::getGroupRight('blog') >= 'W'
 		)
 		{
-			$this->arResult['Perm'] = Permissions::FULL;
+			$this->arResult['Perm'] = $arResult['Perm'] = Permissions::FULL;
 		}
 		elseif ($isIntranetInstalled)
 		{
 			if ($postAuthorId === $currentUserId)
 			{
-				$this->arResult['Perm'] = Permissions::FULL;
+				$this->arResult['Perm'] = $arResult['Perm'] = Permissions::FULL;
 			}
 			else
 			{
-				$this->arResult['Perm'] = (
+				$this->arResult['Perm'] = $arResult['Perm'] = (
 					$postHasAllDestination
 						? Permissions::WRITE
 						: \CBlogComment::getSocNetUserPermsNew($postId, $postAuthorId, $currentUserId, $permBySG)
@@ -673,7 +687,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$this->arResult['Perm'] = \CBlogComment::getSocNetUserPermsNew($postId, $postAuthorId, $currentUserId, $permBySG);
 		}
 
-		$this->arResult['PermBySG'] = $permBySG;
+		$this->arResult['PermBySG'] = $arResult['PermBySG'] = false;
 	}
 
 	public function getAllCommentsCount(array $params = []): int

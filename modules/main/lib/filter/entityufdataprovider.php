@@ -72,7 +72,7 @@ class EntityUFDataProvider extends DataProvider
 			$typeID = $userField['USER_TYPE']['USER_TYPE_ID'];
 			//$isMultiple = isset($userField['MULTIPLE']) && $userField['MULTIPLE'] === 'Y';
 
-			$fieldLabel = isset($userField['LIST_FILTER_LABEL']) ? $userField['LIST_FILTER_LABEL'] : '';
+			$fieldLabel = $userField['LIST_FILTER_LABEL'] ?? '';
 			if($fieldLabel === '')
 			{
 				if(isset($userField['LIST_COLUMN_LABEL']))
@@ -165,6 +165,7 @@ class EntityUFDataProvider extends DataProvider
 			}
 			elseif(
 				($typeID === 'enumeration' || $typeID === 'crm_status')
+				&& isset($userField['SETTINGS']['DISPLAY'])
 				&& $userField['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_DIALOG
 			)
 			{

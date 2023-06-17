@@ -1,25 +1,30 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CIBlockPropertyUserID
 {
-	const USER_TYPE = 'UserID';
+	static array $cache = [];
+	public const USER_TYPE = 'UserID';
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
+		return [
 			"PROPERTY_TYPE" => "S",
 			"USER_TYPE" => self::USER_TYPE,
 			"DESCRIPTION" => GetMessage("IBLOCK_PROP_USERID_DESC"),
-			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"ConvertToDB" => array(__CLASS__, "ConvertToDB"),
-			"ConvertFromDB" => array(__CLASS__, "ConvertFromDB"),
-			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
-			"AddFilterFields" => array(__CLASS__,'AddFilterFields'),
-			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
-			"GetUIFilterProperty" => array(__CLASS__, 'GetUIFilterProperty')
-		);
+			"GetAdminListViewHTML" => [__CLASS__, "getAdminListViewHTMLExtended"],
+			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
+			"ConvertToDB" => [__CLASS__, "ConvertToDB"],
+			"ConvertFromDB" => [__CLASS__, "ConvertFromDB"],
+			"GetSettingsHTML" => [__CLASS__, "GetSettingsHTML"],
+			"GetPublicViewHTML" => [__CLASS__, "getPublicViewHTML"],
+			"AddFilterFields" => [__CLASS__,'AddFilterFields'],
+			"GetAdminFilterHTML" => [__CLASS__, "GetAdminFilterHTML"],
+			"GetUIFilterProperty" => [__CLASS__, 'GetUIFilterProperty'],
+			"GetUIEntityEditorProperty" => [__CLASS__, 'GetUIEntityEditorProperty'],
+			"GetUIEntityEditorPropertyEditHtml" => [__CLASS__, 'GetUIEntityEditorPropertyEditHtml'],
+			"GetUIEntityEditorPropertyViewHtml" => [__CLASS__, 'GetUIEntityEditorPropertyViewHtml'],
+		];
 	}
 
 	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName)
@@ -38,6 +43,33 @@ class CIBlockPropertyUserID
 		}
 		else
 			return "&nbsp;";
+	}
+
+	/**
+	 * Returns HTML of property in view mode depending on public/admin mode. Useful for admin grids used in public mode
+	 * @param array $property
+	 * @param array $value
+	 * @param $control
+	 * @return string
+	 */
+	public static function getAdminListViewHTMLExtended(array $property, array $value, $control): string
+	{
+		$result = '';
+		if ($value['VALUE'])
+		{
+			$isPublicMode = (defined("PUBLIC_MODE") && (int)PUBLIC_MODE === 1);
+
+			if ($isPublicMode)
+			{
+				$result .= self::getPublicViewHTML($property, $value, $control);
+			}
+			else
+			{
+				$result .= self::GetAdminListViewHTML($property, $value, $control);
+			}
+		}
+
+		return $result;
 	}
 
 	//PARAMETERS:
@@ -203,6 +235,227 @@ class CIBlockPropertyUserID
 		}
 
 		return $filterValue;
+	}
+
+	/**
+	 * Returns property description for ui.entity-editor extension
+	 * @param $property
+	 * @param $value
+	 * @return string[]
+	 */
+	public static function GetUIEntityEditorProperty($property, $value): array
+	{
+		return [
+			'type' => 'custom',
+		];
+	}
+
+	/**
+	 * Returns HTML of property in Edit mode in entity editors - ui.entity-selector extension is used
+	 * @param array $params
+	 * @return string
+	 */
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []): string
+	{
+		\Bitrix\Main\UI\Extension::load(['ui.entity-selector', 'ui.buttons', 'ui.forms']);
+		$fieldName = $params['FIELD_NAME'];
+
+		$containerId = $fieldName . '_container';
+		$inputsContainerId = $fieldName . '_inputs_container';
+
+		$isMultiple = $params['SETTINGS']['MULTIPLE'] === 'Y' ? 'true' : 'false';
+
+		if (!is_array($params['VALUE']))
+		{
+			if (empty($params['VALUE']))
+			{
+				$params['VALUE'] = [];
+			}
+			else
+			{
+				$params['VALUE'] = [$params['VALUE']];
+			}
+		}
+
+		$preselectedItems = [];
+		foreach ($params['VALUE'] as $value)
+		{
+			$preselectedItems[] = ['user', $value];
+		}
+		$dialogItems = \Bitrix\UI\EntitySelector\Dialog::getPreselectedItems($preselectedItems)->toArray();
+
+		foreach ($dialogItems as $index => $item)
+		{
+			/** @var \Bitrix\UI\EntitySelector\Item $item */
+			if (isset($item['hidden'], $item['id']))
+			{
+				$userId = (int)($item['id']);
+				$user = self::getUserArray($userId);
+				unset(
+					$dialogItems[$index]['searchable'],
+					$dialogItems[$index]['saveable'],
+					$dialogItems[$index]['hidden'],
+					$dialogItems[$index]['deselectable'],
+					$dialogItems[$index]['avatar'],
+					$dialogItems[$index]['link']
+				);
+				if ($user)
+				{
+					$dialogItems[$index]['title'] = $user['NAME'] . ' ' . $user['LAST_NAME'];
+				}
+			}
+		}
+		$selectedItems = CUtil::PhpToJSObject($dialogItems);
+
+		return <<<HTML
+			<div id="{$containerId}" name="{$containerId}"></div>
+			<div id="{$inputsContainerId}" name="{$inputsContainerId}"></div>
+			<script>
+				(function() {
+					var selector = new BX.UI.EntitySelector.TagSelector({
+						id: '{$containerId}',
+						multiple: {$isMultiple},
+						
+						dialogOptions: {
+							height: 300,
+							id: '{$containerId}',
+							multiple: {$isMultiple},
+							selectedItems: {$selectedItems},
+							
+							events: {
+								'Item:onSelect': setSelectedInputs.bind(this, 'Item:onSelect'),
+								'Item:onDeselect': setSelectedInputs.bind(this, 'Item:onDeselect'),
+							},
+							
+							entities: [
+								{
+									id: 'user',
+									options: {
+										'inviteEmployeeLink': false,
+									},
+								},
+							],
+					},
+					})
+					
+					function setSelectedInputs(eventName, event)
+					{
+						var dialog = event.getData().item.getDialog();
+						if (!dialog.isMultiple())
+						{
+							dialog.hide();
+						}
+						var selectedItems = dialog.getSelectedItems();
+						if (Array.isArray(selectedItems))
+						{
+							var htmlInputs = '';
+							selectedItems.forEach(function(item)
+							{
+								htmlInputs +=
+									'<input type="hidden" name="{$fieldName}[]" value="' + item['id'] + '" />'
+								;
+							});
+							if (htmlInputs === '')
+							{
+								htmlInputs =
+									'<input type="hidden" name="{$fieldName}[]" value="" />'
+								;
+							}
+							document.getElementById('{$inputsContainerId}').innerHTML = htmlInputs;
+							BX.Event.EventEmitter.emit('onChangeUser');
+						}
+					}
+					
+					selector.renderTo(document.getElementById('{$containerId}'));
+				})();
+			
+			</script>
+HTML;
+	}
+
+	/**
+	 * Returns HTML of property in View mode in entity editors
+	 * @param array $params
+	 * @return string
+	 */
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []): string
+	{
+		$result = [];
+		if (!is_array($params['VALUE']))
+		{
+			$params['VALUE'] = [$params['VALUE']];
+		}
+
+		$nameFormat = CSite::GetNameFormat();
+		foreach ($params['VALUE'] as $userId)
+		{
+			$userId = (int)$userId;
+			$user = static::getUserArray($userId);
+			if ($user)
+			{
+				$result[] = '<a href="/company/personal/user/' . $userId . '/">' . CUser::FormatName($nameFormat, $user) . '</a>';
+			}
+		}
+
+		return implode(', ', $result);
+	}
+
+	/**
+	 * Returns user data with keys from b_user table
+	 * @param int $userId
+	 * @return array|false|mixed
+	 */
+	private static function getUserArray(int $userId)
+	{
+		if (!isset(self::$cache[$userId]))
+		{
+			$userResult = \Bitrix\Main\UserTable::getRow([
+				'select' => [
+					'ID',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'TITLE',
+					'LOGIN',
+					'EMAIL',
+				],
+				'filter' => ['ID' => $userId],
+			]);
+			if ($userResult)
+			{
+				self::$cache[$userId] = $userResult;
+			}
+			else
+			{
+				self::$cache[$userId] = [];
+			}
+		}
+
+		return self::$cache[$userId];
+	}
+
+	/**
+	 * Returns HTML of property in View mode in public section
+	 * @param array $property
+	 * @param array $value
+	 * @param $control
+	 * @return string
+	 */
+	public static function getPublicViewHTML(array $property, array $value, $control): string
+	{
+		$userId = (int)$value['VALUE'];
+		$user = static::getUserArray($userId);
+		if ($user)
+		{
+			$link = '[<a href="/company/personal/user/' . $userId . '/">' . $userId . '</a>] ';
+			$login = '(' . htmlspecialcharsbx($user['LOGIN']) . ') ';
+			$nameFormat = CSite::GetNameFormat();
+			$name = CUser::FormatName($nameFormat, $user);
+
+			return $link . $login . $name;
+		}
+
+		return '';
 	}
 }
 

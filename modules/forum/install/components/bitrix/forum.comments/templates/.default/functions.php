@@ -5,9 +5,6 @@ function forumCommentsCommentWeb(
 	array $arResult,
 	ForumCommentsComponent $component)
 {
-	global $APPLICATION;
-	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
-
 	$res = array(
 		"ID" => $comment["ID"],
 		"NEW" => ($comment["NEW"] == "Y" ? "Y" : "N"),
@@ -24,10 +21,10 @@ function forumCommentsCommentWeb(
 			"LOGIN" => $comment["~LOGIN"],
 			"AVATAR" => ($comment["AVATAR"] && $comment["AVATAR"]["FILE"] ? $comment["AVATAR"]["FILE"]['src'] : ""),
 			"PERSONAL_GENDER" => !empty($comment["~PERSONAL_GENDER"]) ? $comment["~PERSONAL_GENDER"] : "",
-			"EXTERNAL_AUTH_ID" => $comment["~EXTERNAL_AUTH_ID"]
+			"EXTERNAL_AUTH_ID" => $comment["~EXTERNAL_AUTH_ID"] ?? null
 		),
-		"FILES" => $comment["FILES"],
-		"UF" => $comment["PROPS"],
+		"FILES" => $comment["FILES"] ?? null,
+		"UF" => $comment["PROPS"] ?? null,
 		"POST_MESSAGE_TEXT" => $comment["POST_MESSAGE_TEXT"],
 		"~POST_MESSAGE_TEXT" => $comment["~POST_MESSAGE_TEXT"],
 		"CLASSNAME" => "",
@@ -39,9 +36,9 @@ function forumCommentsCommentWeb(
 		"AFTER" => "",
 		"BEFORE_RECORD" => "",
 		"AFTER_RECORD" => "",
-		"AUX" => (!empty($comment["AUX"]) ? $comment["AUX"] : ''),
-		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
-		"CAN_DELETE" => (!empty($comment["CAN_DELETE"]) ? $comment["CAN_DELETE"] : "Y"),
+		"AUX" => $comment["AUX"] ?? '',
+		"AUX_LIVE_PARAMS" => $comment["AUX_LIVE_PARAMS"] ?? [],
+		"CAN_DELETE" => $comment["CAN_DELETE"] ?? "Y",
 	);
 
 	if (!empty($res["FILES"]))

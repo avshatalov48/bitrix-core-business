@@ -53,11 +53,11 @@ foreach ($data as $key => $item)
 	switch ($item["action"])
 	{
 		case Actions::GRID_SET_EXPANDED_ROWS:
-			$options->setExpandedRows($item["ids"]);
+			$options->setExpandedRows($item["ids"] ?? []);
 			break;
 
 		case Actions::GRID_SET_COLLAPSED_GROUPS:
-			$options->setCollapsedGroups($item["ids"]);
+			$options->setCollapsedGroups($item["ids"] ?? []);
 			break;
 
 		case Actions::GRID_RESET:
@@ -70,14 +70,16 @@ foreach ($data as $key => $item)
 				$options->deleteView("default");
 			}
 
-			if ($item["set_default_settings"] === "Y" &&
-				$USER->canDoOperation("edit_other_settings"))
+			if (
+				isset($item["set_default_settings"])
+				&& $item["set_default_settings"] === "Y"
+				&& $USER->canDoOperation("edit_other_settings"))
 			{
 				$viewSettings = $options->getOptions();
 
 				$options->setDefaultView($viewSettings["views"]["default"]);
 
-				if ($item["delete_user_settings"] === "Y")
+				if (isset($item["delete_user_settings"]) && $item["delete_user_settings"] === "Y")
 				{
 					$options->resetDefaultView();
 				}
@@ -86,22 +88,25 @@ foreach ($data as $key => $item)
 			break;
 
 		case Actions::GRID_SET_COLUMNS:
-			$options->setColumns($item["columns"]);
+			$options->setColumns($item["columns"] ?? '');
 			break;
 
 		case Actions::GRID_SET_THEME:
-			$options->setTheme($item["theme"]);
+			$options->setTheme($item["theme"] ?? '');
 			break;
 
 		case Actions::GRID_SAVE_SETTINGS:
 			$options->setViewSettings($item["view_id"], $options->getCurrentOptions());
 
-			if ($item["set_default_settings"] === "Y" &&
-				$USER->canDoOperation("edit_other_settings"))
+			if (
+				isset($item["set_default_settings"])
+				&& $item["set_default_settings"] === "Y"
+				&& $USER->canDoOperation("edit_other_settings")
+			)
 			{
 				$options->setDefaultView($options->getCurrentOptions());
 
-				if ($item["delete_user_settings"] === "Y")
+				if (isset($item["delete_user_settings"]) && $item["delete_user_settings"] === "Y")
 				{
 					$options->resetDefaultView();
 				}
@@ -109,31 +114,31 @@ foreach ($data as $key => $item)
 			break;
 
 		case Actions::SET_CUSTOM_NAMES:
-			$options->setCustomNames($item["custom_names"]);
+			$options->setCustomNames($item["custom_names"] ?? []);
 			break;
 
 		case Actions::GRID_DELETE_VIEW:
-			$options->deleteView($item["view_id"]);
+			$options->deleteView($item["view_id"] ?? '');
 			break;
 
 		case Actions::GRID_SET_VIEW:
-			$options->setView($item["view_id"]);
+			$options->setView($item["view_id"] ?? '');
 			break;
 
 		case Actions::GRID_SET_SORT:
-			$options->setSorting($item["by"], $item["order"]);
+			$options->setSorting($item["by"] ?? '', $item["order"] ?? '');
 			break;
 
 		case Actions::GRID_SET_COLUMN_SIZES:
-			$options->setColumnsSizes($item["expand"], $item['sizes']);
+			$options->setColumnsSizes($item["expand"] ?? 1, $item['sizes'] ?? []);
 			break;
 
 		case Actions::GRID_SET_PAGE_SIZE:
-			$options->setPageSize($item['pageSize']);
+			$options->setPageSize($item['pageSize'] ?? 20);
 			break;
 
 		case Actions::GRID_SET_STICKED_COLUMNS:
-			$options->setStickedColumns($item['stickedColumns']);
+			$options->setStickedColumns($item['stickedColumns'] ?? []);
 			break;
 
 		default:

@@ -66,9 +66,12 @@ class UserTransactTable extends DataManager
 			,
 			'TIMESTAMP_X' =>
 				(new DatetimeField('TIMESTAMP_X'))
-					->configureDefaultValue(static function() {
-						return new DateTime();
-					})
+					->configureDefaultValue(
+						static function()
+						{
+							return new DateTime();
+						}
+					)
 			,
 			'TRANSACT_DATE' =>
 				(new DatetimeField('TRANSACT_DATE'))

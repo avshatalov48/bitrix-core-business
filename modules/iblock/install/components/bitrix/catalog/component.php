@@ -1,15 +1,29 @@
 <?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CMain $APPLICATION */
-if (isset($arParams["USE_FILTER"]) && $arParams["USE_FILTER"]=="Y")
+
+// region Check common parameters
+$arParams['COMPATIBLE_MODE'] = (string)($arParams['COMPATIBLE_MODE'] ?? 'N');
+
+$arParams['USE_FILTER'] = (string)($arParams['USE_FILTER'] ?? 'N');
+if ($arParams['USE_FILTER'] !== 'Y')
 {
-	$arParams["FILTER_NAME"] = trim($arParams["FILTER_NAME"]);
-	if ($arParams["FILTER_NAME"] === '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
-		$arParams["FILTER_NAME"] = "arrFilter";
+	$arParams['USE_FILTER'] = 'N';
+}
+if ($arParams['USE_FILTER'] === 'Y')
+{
+	$arParams["FILTER_NAME"] = trim((string)($arParams['FILTER_NAME'] ?? ''));
+	if (
+		$arParams["FILTER_NAME"] === ''
+		|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams['FILTER_NAME'])
+	)
+	{
+		$arParams['FILTER_NAME'] = 'arrFilter';
+	}
 }
 else
 {
-	$arParams["FILTER_NAME"] = "";
+	$arParams['FILTER_NAME'] = '';
 }
 
 $arParams['ADD_PROPERTIES_TO_BASKET'] ??= '';
@@ -18,7 +32,44 @@ $arParams['SET_LAST_MODIFIED'] ??= '';
 
 $arParams['USE_MAIN_ELEMENT_SECTION'] ??= '';
 
+$arParams['USE_COMPARE'] = (string)($arParams['USE_COMPARE'] ?? 'N');
 $arParams['COMPARE_NAME'] ??= '';
+
+$arParams['COMPARE_FIELD_CODE'] = ($arParams['COMPARE_FIELD_CODE'] ?? []);
+if (!is_array($arParams['COMPARE_FIELD_CODE']))
+{
+	$arParams['COMPARE_FIELD_CODE'] = [];
+}
+$arParams['COMPARE_FIELD_CODE'] = array_filter($arParams['COMPARE_FIELD_CODE']);
+
+$arParams['COMPARE_PROPERTY_CODE'] = ($arParams['COMPARE_PROPERTY_CODE'] ?? []);
+if (!is_array($arParams['COMPARE_PROPERTY_CODE']))
+{
+	$arParams['COMPARE_PROPERTY_CODE'] = [];
+}
+$arParams['COMPARE_PROPERTY_CODE'] = array_filter($arParams['COMPARE_PROPERTY_CODE']);
+
+$arParams['COMPARE_OFFERS_FIELD_CODE'] = ($arParams['COMPARE_OFFERS_FIELD_CODE'] ?? []);
+if (!is_array($arParams['COMPARE_OFFERS_FIELD_CODE']))
+{
+	$arParams['COMPARE_OFFERS_FIELD_CODE'] = [];
+}
+$arParams['COMPARE_OFFERS_FIELD_CODE'] = array_filter($arParams['COMPARE_OFFERS_FIELD_CODE']);
+
+$arParams['COMPARE_OFFERS_PROPERTY_CODE'] = ($arParams['COMPARE_OFFERS_PROPERTY_CODE'] ?? []);
+if (!is_array($arParams['COMPARE_OFFERS_PROPERTY_CODE']))
+{
+	$arParams['COMPARE_OFFERS_PROPERTY_CODE'] = [];
+}
+$arParams['COMPARE_OFFERS_PROPERTY_CODE'] = array_filter($arParams['COMPARE_OFFERS_PROPERTY_CODE']);
+
+$arParams['COMPARE_ELEMENT_SORT_FIELD'] = (string)($arParams['COMPARE_ELEMENT_SORT_FIELD'] ?? 'SORT');
+$arParams['COMPARE_ELEMENT_SORT_ORDER'] = (string)($arParams['COMPARE_ELEMENT_SORT_ORDER'] ?? 'ASC');
+$arParams['DISPLAY_ELEMENT_SELECT_BOX'] = (string)($arParams['DISPLAY_ELEMENT_SELECT_BOX'] ?? 'N');
+$arParams['ELEMENT_SORT_FIELD_BOX'] = (string)($arParams['ELEMENT_SORT_FIELD_BOX'] ?? 'NAME');
+$arParams['ELEMENT_SORT_ORDER_BOX'] = (string)($arParams['ELEMENT_SORT_ORDER_BOX'] ?? 'ASC');
+$arParams['ELEMENT_SORT_FIELD_BOX2'] = (string)($arParams['ELEMENT_SORT_FIELD_BOX2'] ?? 'ID');
+$arParams['ELEMENT_SORT_ORDER_BOX2'] = (string)($arParams['ELEMENT_SORT_ORDER_BOX2'] ?? 'DESC');
 
 //default gifts
 if(empty($arParams['USE_GIFTS_SECTION']))
@@ -79,6 +130,7 @@ $arParams['PAGER_PARAMS_NAME'] ??= '';
 $arParams['PAGER_BASE_LINK_ENABLE'] ??= '';
 $arParams['PAGER_BASE_LINK'] ??= '';
 $arParams['FILE_404'] ??= '';
+// end region
 
 // region hidden parameters
 $arParams['SHOW_404'] ??= '';
@@ -151,10 +203,9 @@ $arComponentVariables = array(
 	"action",
 );
 
-if($arParams["SEF_MODE"] == "Y")
+$arVariables = array();
+if ($arParams["SEF_MODE"] === "Y")
 {
-	$arVariables = array();
-
 	$engine = new CComponentEngine($this);
 	if (\Bitrix\Main\Loader::includeModule('iblock'))
 	{
@@ -222,8 +273,6 @@ if($arParams["SEF_MODE"] == "Y")
 }
 else
 {
-	$arVariables = array();
-
 	$arVariableAliases = CComponentEngine::makeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
 	CComponentEngine::initComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 

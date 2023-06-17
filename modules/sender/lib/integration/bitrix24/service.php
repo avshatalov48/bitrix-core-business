@@ -345,9 +345,13 @@ class Service
 			}
 		}
 
-		if (self::isCloud() && !in_array(mb_substr(BX24_HOST_NAME, -7), ['.com.br', '.com.de'])) // exclude com.br & com.de domains
+		// exclude com.br & com.de domains
+		if (
+			self::isCloud()
+			&& defined('BX24_HOST_NAME')
+			&& !in_array(mb_substr(BX24_HOST_NAME, -7), ['.com.br', '.com.de'])
+		)
 		{
-			Loader::includeModule('bitrix24');
 			$domain = BX24_HOST_NAME;
 
 			if (!\CBitrix24::isCustomDomain())
@@ -432,5 +436,10 @@ class Service
 				$state->stop();
 			}
 		}
+	}
+
+	public static function isMasterYandexAvailable(): bool
+	{
+		return static::isCloud();
 	}
 }

@@ -7,6 +7,7 @@ use Bitrix\Im\Model\OptionStateTable;
 use Bitrix\Im\Model\OptionUserTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
@@ -72,7 +73,7 @@ class General extends Base
 	protected function fillUserSettings(): void
 	{
 		$preset = Configuration::getUserPresetFromCache($this->userId);
-		if (!empty($preset))
+		if (!empty($preset) && isset($preset['general']['settings']) && is_array($preset['general']['settings']))
 		{
 			$preset['general']['settings'] =
 				array_replace_recursive(self::getDefaultSettings(), $preset['general']['settings'])
@@ -133,6 +134,7 @@ class General extends Base
 			'privacySearch' => Option::get("im", "privacy_search"),
 			'privacyProfile' => Option::get("im", "privacy_profile"),
 			'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL,
+			'backgroundImageId' => 1,
 			'next' => false,
 		];
 	}
@@ -142,14 +144,17 @@ class General extends Base
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	public static function setSettings(int $groupId, array $settings): void
+	public static function setSettings(int $groupId, array $settings = [], bool $forInitialize = false): void
 	{
-		if (!$settings)
+		if (empty($settings) && !$forInitialize)
 		{
 			return;
 		}
 		$settings = self::checkingValues($settings);
 		$encodedSettings = self::encodeSettings($settings);
+		$defaultSettings = self::encodeSettings(self::getDefaultSettings());
+
+		$encodedSettings = array_merge($defaultSettings, $encodedSettings);
 
 		$rows = [];
 		foreach ($encodedSettings as $name => $value)
@@ -701,7 +706,7 @@ class General extends Base
 
 					break;
 				case 'sendByEnter': // for legacy
-					if ($value === 'Y')
+					if ($value === 'Y' || $value === true)
 					{
 						$verifiedSettings[$name] = true;
 
@@ -709,12 +714,15 @@ class General extends Base
 					}
 					//'break' is missing  specially
 				case 'enableSound': // for legacy
-					if ($value === 'N')
+					if ($value === 'N' || $value === false)
 					{
 						$verifiedSettings[$name] = false;
 
 						break;
 					}
+				case 'backgroundImageId':
+					$verifiedSettings[$name] = (int)$value > 0 ? (int)$value : 1;
+					break;
 					//'break' is missing  specially
 				default:
 					if (array_key_exists($name, $defaultSettings))

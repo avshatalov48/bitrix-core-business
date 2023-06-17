@@ -5,15 +5,17 @@ namespace Bitrix\Main\Session\Handlers;
 
 class NullSessionHandler extends AbstractSessionHandler
 {
-	public function gc($maxLifeTime)
-	{}
+	public function gc($maxLifeTime): int
+	{
+		return 0;
+	}
 
-	public function open($savePath, $sessionName)
+	public function open($savePath, $sessionName): bool
 	{
 		return true;
 	}
 
-	public function updateTimestamp($sessionId, $sessionData)
+	public function updateTimestamp($sessionId, $sessionData): bool
 	{
 		return true;
 	}

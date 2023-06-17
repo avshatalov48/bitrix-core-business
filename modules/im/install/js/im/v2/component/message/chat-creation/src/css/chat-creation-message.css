@@ -1,0 +1,75 @@
+.bx-im-message-chat-creation__scope {
+	--im-message-chat-creation__background-color_content: rgba(var(--im-color-palette-white-base-rgb), 0.9);
+
+	--im-message-chat-creation__font-color_title: #151515;
+	--im-message-chat-creation__font-color_description: var(--im-color-palette-gray-70);
+}
+
+.bx-im-message-chat-creation__container {
+	display: flex;
+	max-width: 100%;
+	min-width: 620px;
+	height: 154px;
+	max-height: 154px;
+	background: var(--im-message-chat-creation__background-color_content);
+	border-radius: 16px;
+	margin-right: 54px;
+}
+
+.bx-im-message-base__container + .bx-im-message-chat-creation__container {
+	margin-top: 24px;
+}
+.bx-im-message-chat-creation__container + .bx-im-message-base__container {
+	margin-top: 24px;
+}
+
+.bx-im-message-chat-creation__image {
+	width: 166px;
+	min-width: 166px;
+	background-image: url('./images/group-chat.svg');
+	background-repeat: no-repeat;
+	border-radius: 16px;
+}
+
+.bx-im-message-chat-creation__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: calc(100% - 166px);
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.bx-im-message-chat-creation__title {
+	font: var(--im-font-size-2xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_title);
+	font-weight: var(--im-font-weight-bold);
+	margin-bottom: 8px;
+	user-select: none;
+}
+
+.bx-im-message-chat-creation__description {
+	max-width: 100%;
+	margin-bottom: 16px;
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_description);
+	user-select: none;
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.bx-im-message-chat-creation__action {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.bx-im-message-chat-creation__buttons_container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-message-chat-creation__buttons_item + .bx-im-message-chat-creation__buttons_item {
+	margin-left: 8px;
+}

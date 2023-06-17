@@ -21,13 +21,19 @@ endif;
 /***************** BASE ********************************************/
 $GLOBALS["FID"] = $arParams["FID"] = intval($arParams["FID"]);
 $arParams["TID"] = intval((intval($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
-$arParams["MID_UNREAD"] = (trim($arParams["MID"]) == '' ? $_REQUEST["MID"] : $arParams["MID"]);
+$arParams["MID_UNREAD"] = (trim($arParams["MID"] ?? '') == '' ? $_REQUEST["MID"] ?? '' : $arParams["MID"]);
 $arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intval($arParams["MID"]));
 if (mb_strtolower($arParams["MID_UNREAD"]) == "unread_mid")
 	$arParams["MID"] = intval(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
 $arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
-$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : $_REQUEST["ACTION"]);
-$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : ($_POST["MESSAGE_TYPE"]=="REPLY" ? "REPLY" : false));
+if (empty($arParams["ACTION"]))
+{
+	$arParams["ACTION"] = $_REQUEST["ACTION"] ?? null;
+}
+if (empty($arParams["ACTION"]))
+{
+	$arParams["ACTION"] = (($_POST["MESSAGE_TYPE"] ?? null) === "REPLY" ? "REPLY" : false);
+}
 $arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 $arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
 $arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
@@ -60,8 +66,8 @@ if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
 $arParams["MESSAGES_PER_PAGE"] = intval(empty($arParams["MESSAGES_PER_PAGE"]) ?
 	COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
 
-$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
-$arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"] ?? '');
+$arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"] ?? '');
 
 $arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
 $arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
@@ -72,10 +78,21 @@ $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB-
 $arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
 
 // AJAX
-if ($arParams["AJAX_TYPE"] == "Y" || ($arParams["AJAX_TYPE"] == "A" && COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"))
+$arParams["AJAX_TYPE"] = $arParams["AJAX_TYPE"] ?? null;
+if (
+	$arParams["AJAX_TYPE"] == "Y"
+	|| (
+		$arParams["AJAX_TYPE"] == "A"
+		&& COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"
+	)
+)
+{
 	$arParams["AJAX_TYPE"] = "Y";
+}
 else
+{
 	$arParams["AJAX_TYPE"] = "N";
+}
 $arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $_REQUEST["AJAX_CALL"] == "Y") ? "Y" : "N");
 $arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 /***************** STANDART ****************************************/
@@ -172,10 +189,16 @@ elseif ($arParams["MODE"] == "USER")
 
 	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC"],
 		array("UID" => $arParams["USER_ID"], "TID" => $arParams["TID"], "GID" => $arParams["SOCNET_GROUP_ID"], "FID" => $arParams["FID"]));
-	if ((intval($_REQUEST["PAGEN_".$arParams["PAGEN"]]) > 1) && (intval($arParams["MID"]) <= 0)):
-		$arResult["CURRENT_PAGE"] = ForumAddPageParams($arResult["CURRENT_PAGE"],
-			array("PAGEN_".$arParams["PAGEN"] => intval($_REQUEST["PAGEN_".$arParams["PAGEN"]])));
-	endif;
+	if (
+		(intval($_REQUEST["PAGEN_".$arParams["PAGEN"]] ?? 0) > 1)
+		&& (intval($arParams["MID"]) <= 0)
+	)
+	{
+		$arResult["CURRENT_PAGE"] = ForumAddPageParams(
+			$arResult["CURRENT_PAGE"],
+			array("PAGEN_".$arParams["PAGEN"] => intval($_REQUEST["PAGEN_".$arParams["PAGEN"]]))
+		);
+	}
 /************** Message ********************************************/
 	if ($arParams["MID"] > 0):
 		$res = CForumMessage::GetByIDEx($arParams["MID"], array("GET_TOPIC_INFO" => "Y"));
@@ -282,7 +305,7 @@ elseif ($arParams["MODE"] == "USER")
 
 if ($USER->IsAuthorized()) {
 	$arResult["USER"]["INFO"] = CForumUser::GetByUSER_ID($USER->GetParam("USER_ID"));
-	$arResult["USER"]["SHOW_NAME"] = $_SESSION["FORUM"]["SHOW_NAME"];
+	$arResult["USER"]["SHOW_NAME"] = $_SESSION["FORUM"]["SHOW_NAME"] ?? null;
 	$arResult["USER"]["RANK"] = CForumUser::GetUserRank($USER->GetParam("USER_ID"));
 	$db_res = CForumSubscribe::GetList(
 		array(),
@@ -313,8 +336,8 @@ $parser = new forumTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
 $parser->MaxStringLen = $arParams["WORD_LENGTH"];
 $parser->image_params["width"] = $parser->image_params["height"] = $arParams["IMAGE_SIZE"];
 
-$_REQUEST["FILES"] = is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array();
-$_REQUEST["FILES_TO_UPLOAD"] = is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array();
+$_REQUEST["FILES"] = isset($_REQUEST["FILES"]) && is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array();
+$_REQUEST["FILES_TO_UPLOAD"] = isset($_REQUEST["FILES_TO_UPLOAD"]) && is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array();
 
 if (is_set($_REQUEST, "result"))
 {
@@ -551,9 +574,16 @@ while ($bNeedLoop)
 		array("MID" => $res["ID"], "ACTION" => ($res["APPROVED"] == "Y" ? "hide" : "show"), "MESSAGE_TYPE" => "EDIT"/*, "sessid" => bitrix_sessid()*/));
 	$res["URL"]["MESSAGE_SUPPORT"] = ForumAddPageParams($res["URL"]["~MESSAGE"],
 		array("MID" => $res["ID"], "ACTION" => "support", "MESSAGE_TYPE" => "EDIT", "sessid" => bitrix_sessid()));
-	$res["URL"]["AUTHOR_VOTE"] = ForumAddPageParams($res["URL"]["MESSAGE"],
-			array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intval($arResult["USER"]["RANK"]["VOTES"]),
-				"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"), "ACTION" => "VOTE4USER"))/*."&amp;".bitrix_sessid_get()*/;
+	$res["URL"]["AUTHOR_VOTE"] = ForumAddPageParams(
+		$res["URL"]["MESSAGE"],
+		array(
+			"UID" => $res["AUTHOR_ID"],
+			"MID" => $res["ID"],
+			"VOTES" => intval($arResult["USER"]["RANK"]["VOTES"] ?? 0),
+			"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"),
+			"ACTION" => "VOTE4USER",
+		)
+	)/*."&amp;".bitrix_sessid_get()*/;
 	$res["URL"]["MESSAGE_SPAM"] = ForumAddPageParams($res["URL"]["~MESSAGE"],
 		array("MID" => $res["ID"], "ACTION" => "spam", "MESSAGE_TYPE" => "EDIT"/*, "sessid" => bitrix_sessid()*/));
 /************** Urls/***********************************************/
@@ -635,7 +665,7 @@ if (!empty($arResult["MESSAGE_LIST"]))
 		}
 	}
 }
-$parser->arFiles = $arResult["FILES"];
+$parser->arFiles = $arResult["FILES"] ?? [];
 if (!empty($arResult["MESSAGE_FIRST"])):
 	$parser->arUserfields = $arResult["MESSAGE_FIRST"]["PROPS"];
 	$arResult["MESSAGE_FIRST"]["POST_MESSAGE_TEXT"] = $parser->convert($arResult["MESSAGE_FIRST"]["~POST_MESSAGE_TEXT"], $arResult["MESSAGE_FIRST"]["ALLOW"]);

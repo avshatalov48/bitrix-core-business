@@ -56,7 +56,7 @@ class Helper
 	 */
 	public static function convertArrayToModifiers(array $template)
 	{
-		$TEMPLATE = $template["TEMPLATE"];
+		$TEMPLATE = $template["TEMPLATE"] ?? '';
 		$modifiers = "";
 		if (isset($template["LOWER"]) && $template["LOWER"] === "Y")
 		{

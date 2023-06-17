@@ -4,9 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Connector;
-use \Bitrix\Landing\Binding;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Binding;
+use Bitrix\Landing\Connector;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -33,11 +33,13 @@ class LandingBindingGroupComponent extends LandingBaseComponent
 		$this->checkParam('PATH_AFTER_CREATE', '');
 		$this->arResult['ERROR'] = [];
 
+		\Bitrix\Landing\Site\Type::setScope($this->arParams['TYPE']);
+
 		if ($this->arParams['GROUP_ID'] <= 0)
 		{
 			$this->addError('NOT_GROUP_ID', Loc::getMessage('LANDING_CMP_NOT_GROUP_ID'));
 		}
-		else if (!Connector\SocialNetwork::userInGroup($this->arParams['GROUP_ID']))
+		else if (!Connector\SocialNetwork::canCreateNewBinding($this->arParams['GROUP_ID']))
 		{
 			$this->addError('NOT_IN_GROUP', Loc::getMessage('LANDING_CMP_NOT_IN_GROUP'));
 		}

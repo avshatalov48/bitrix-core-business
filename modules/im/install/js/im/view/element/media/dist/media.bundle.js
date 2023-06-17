@@ -22,7 +22,7 @@
 	    },
 	    file: {
 	      type: Object,
-	      "default": im_model.FilesModel.create().getElementState
+	      required: true
 	    }
 	  },
 	  methods: {

@@ -10,16 +10,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 global $APPLICATION;
 
-CUtil::InitJSCore([
-	'bp_field_type',
-	'date',
-]);
+CUtil::InitJSCore(['bp_field_type', 'date']);
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.forms',
 	'ui.layout-form',
-	'ui.switcher',
-	'sidepanel',
 	'ui.sidepanel-content',
 	'ui.dialogs.messagebox',
 	'bizproc.globals',
@@ -154,7 +149,6 @@ CUtil::InitJSCore([
 	</div>
 </form>
 
-
 <div data-role="globalfield-edit-buttons">
 	<?php $APPLICATION->IncludeComponent(
 		'bitrix:ui.button.panel',
@@ -181,6 +175,7 @@ CUtil::InitJSCore([
 			signedDocumentType: '<?= CUtil::JSEscape($arParams['~DOCUMENT_TYPE_SIGNED']) ?>',
 			mode: '<?= CUtil::JSEscape($arResult['mode']) ?>',
 			types: <?= CUtil::PhpToJSObject($arResult['fieldTypes']) ?>,
+			visibilityNames: <?= CUtil::PhpToJSObject($arResult['visibilityNames']) ?>,
 
 			inputValueId: 'bizproc_globalfield_edit_form_input_value',
 
@@ -188,7 +183,7 @@ CUtil::InitJSCore([
 			saveButtonNode: document.getElementById('bizproc.globalfield.edit-btn-save'),
 			form: document.forms['bizproc.globalfield.edit-form'],
 
-			slider: BX.getClass('BX.SidePanel.Instance') ? BX.SidePanel.Instance.getSliderByWindow(window) : null
+			slider: BX.getClass('BX.SidePanel.Instance') ? BX.SidePanel.Instance.getSliderByWindow(window) : null,
 		});
 
 		BX.Bizproc.Component.GlobalFieldEditComponent.Instance.init();

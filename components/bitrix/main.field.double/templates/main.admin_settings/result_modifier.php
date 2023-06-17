@@ -6,7 +6,7 @@ $defaultPrecision = 4;
 $defaultSize = 20;
 $defaultValue = '';
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if(isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$precision = $GLOBALS[$arResult['additionalParameters']['NAME']]['PRECISION'] ?? '';
 	$value = isset($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'])

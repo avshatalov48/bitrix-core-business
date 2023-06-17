@@ -7,7 +7,7 @@ use Bitrix\Main\Web;
 
 class HttpResponse extends Response
 {
-	public const STORE_COOKIE_NAME = "STORE_COOKIES";
+	public const STORE_COOKIE_NAME = 'STORE_COOKIES';
 
 	/** @var \Bitrix\Main\Web\Cookie[] */
 	protected $cookies = [];
@@ -34,7 +34,7 @@ class HttpResponse extends Response
 		//clear all buffers - the response is responsible alone for its content
 		while (@ob_end_clean());
 
-		if (function_exists("fastcgi_finish_request"))
+		if (function_exists('fastcgi_finish_request'))
 		{
 			//php-fpm
 			$this->writeHeaders();
@@ -62,7 +62,7 @@ class HttpResponse extends Response
 	}
 
 	/**
-	 *	Adds a HTTP header field to the response.
+	 *	Adds an HTTP header field to the response.
 	 *
 	 * @param string $name Header field name
 	 * @param string $value Header field value
@@ -72,7 +72,9 @@ class HttpResponse extends Response
 	public function addHeader($name, $value = '')
 	{
 		if (empty($name))
-			throw new ArgumentNullException("name");
+		{
+			throw new ArgumentNullException('name');
+		}
 
 		$this->getHeaders()->add($name, $value);
 
@@ -102,20 +104,20 @@ class HttpResponse extends Response
 	 */
 	public function addCookie(Web\Cookie $cookie, $replace = true, $checkExpires = true)
 	{
-		$key = $cookie->getName().".".$cookie->getDomain().".".$cookie->getPath();
-		if($replace || !isset($this->cookies[$key]))
+		$key = $cookie->getName() . '.' . $cookie->getDomain() . '.' . $cookie->getPath();
+		if ($replace || !isset($this->cookies[$key]))
 		{
-			if($checkExpires && $cookie->getExpires() > 0)
+			if ($checkExpires && $cookie->getExpires() > 0)
 			{
 				//it's a persistent cookie; we should check if we're allowed to store persistent cookies
 				static $askToStore = null;
-				if($askToStore === null)
+				if ($askToStore === null)
 				{
-					$askToStore = Config\Option::get("main", "ask_to_store_cookies");
+					$askToStore = Config\Option::get('main', 'ask_to_store_cookies');
 				}
-				if($askToStore === "Y")
+				if ($askToStore === 'Y')
 				{
-					if(Context::getCurrent()->getRequest()->getCookiesMode() !== "Y")
+					if (Context::getCurrent()->getRequest()->getCookiesMode() !== 'Y')
 					{
 						//user declined to store cookies - we're using session cookies only
 						$cookie->setExpires(0);
@@ -134,15 +136,15 @@ class HttpResponse extends Response
 	 */
 	public function allowPersistentCookies($mode)
 	{
-		if($mode === true)
+		if ($mode === true)
 		{
 			//persistent cookie to remember
-			$cookie = new Web\Cookie(self::STORE_COOKIE_NAME, "Y");
+			$cookie = new Web\Cookie(self::STORE_COOKIE_NAME, 'Y');
 		}
 		else
 		{
 			//session cookie: we're not allowed to store persistent cookies
-			$cookie = new Web\Cookie(self::STORE_COOKIE_NAME, "N", 0);
+			$cookie = new Web\Cookie(self::STORE_COOKIE_NAME, 'N', 0);
 		}
 		$this->addCookie($cookie, true, false);
 	}
@@ -168,9 +170,11 @@ class HttpResponse extends Response
 	 */
 	public function writeHeaders()
 	{
-		if($this->lastModified !== null)
+		$this->flushStatus();
+
+		if ($this->lastModified !== null)
 		{
-			$this->flushHeader(array("Last-Modified", gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()) . " GMT"));
+			$this->flushHeader(['Last-Modified', gmdate('D, d M Y H:i:s', $this->lastModified->getTimestamp()) . ' GMT']);
 		}
 
 		foreach ($this->getHeaders() as $name => $values)
@@ -182,7 +186,7 @@ class HttpResponse extends Response
 					$this->flushHeader([$name, $value]);
 				}
 			}
-			elseif($values !== '')
+			elseif ($values !== '')
 			{
 				$this->flushHeader([$name, $values]);
 			}
@@ -201,6 +205,7 @@ class HttpResponse extends Response
 			}
 			else
 			{
+				/** @var Web\CryptoCookie $cookie */
 				foreach ($cookiesCrypter->encrypt($cookie) as $cryptoCookie)
 				{
 					$this->setCookie($cryptoCookie);
@@ -209,11 +214,35 @@ class HttpResponse extends Response
 		}
 	}
 
+	protected function flushStatus()
+	{
+		if (($status = $this->headers->getStatus()) > 0)
+		{
+			$reasonPhrase = $this->headers->getReasonPhrase();
+			if ($reasonPhrase != '')
+			{
+				$status .= ' ' . $reasonPhrase;
+			}
+
+			$httpStatus = Config\Configuration::getValue('http_status');
+			$cgiMode = (stristr(php_sapi_name(), 'cgi') !== false);
+
+			if ($cgiMode && !$httpStatus)
+			{
+				header('Status: ' . $status);
+			}
+			else
+			{
+				header($this->getServerProtocol() . ' ' . $status);
+			}
+		}
+	}
+
 	protected function flushHeader($header)
 	{
 		if (is_array($header))
 		{
-			header(sprintf("%s: %s", $header[0], $header[1]));
+			header($header[0] . ': ' . $header[1]);
 		}
 		else
 		{
@@ -253,26 +282,14 @@ class HttpResponse extends Response
 	/**
 	 * Sets the HTTP status of the response.
 	 *
-	 * @param string $status
+	 * @param string | int $status
 	 * @return $this
 	 */
 	public function setStatus($status)
 	{
-		$httpStatus = Config\Configuration::getValue("http_status");
-
-		$cgiMode = (stristr(php_sapi_name(), "cgi") !== false);
-		if ($cgiMode && ($httpStatus == null || $httpStatus == false))
+		if (preg_match('#^(\d+) *(.*)#', $status, $find))
 		{
-			$this->addHeader("Status", $status);
-		}
-		else
-		{
-			$httpHeaders = $this->getHeaders();
-			$httpHeaders->delete($this->getStatus());
-
-			$proto = $this->getServerProtocol();
-
-			$this->addHeader("{$proto} {$status}");
+			$this->headers->setStatus((int)$find[1], trim($find[2]));
 		}
 
 		return $this;
@@ -280,27 +297,11 @@ class HttpResponse extends Response
 
 	/**
 	 * Returns the HTTP status of the response.
-	 * @return int|string|null
+	 * @return int
 	 */
 	public function getStatus()
 	{
-		$cgiStatus = $this->getHeaders()->get('Status');
-		if ($cgiStatus)
-		{
-			return $cgiStatus;
-		}
-
-		$prefixStatus = strtolower($this->getServerProtocol().' ');
-		$prefixStatusLength = strlen($prefixStatus);
-		foreach ($this->getHeaders() as $name => $value)
-		{
-			if (substr(strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
-			{
-				return $name;
-			}
-		}
-
-		return null;
+		return $this->getHeaders()->getStatus();
 	}
 
 	protected function getServerProtocol()
@@ -311,10 +312,10 @@ class HttpResponse extends Response
 			$server = $context->getServer();
 			if ($server !== null)
 			{
-				return $server->get("SERVER_PROTOCOL");
+				return $server->get('SERVER_PROTOCOL');
 			}
 		}
-		return "HTTP/1.0";
+		return 'HTTP/1.0';
 	}
 
 	/**
@@ -325,7 +326,7 @@ class HttpResponse extends Response
 	 */
 	public function setLastModified(Type\DateTime $time)
 	{
-		if($this->lastModified === null || $time->getTimestamp() > $this->lastModified->getTimestamp())
+		if ($this->lastModified === null || $time->getTimestamp() > $this->lastModified->getTimestamp())
 		{
 			$this->lastModified = $time;
 		}
@@ -348,16 +349,9 @@ class HttpResponse extends Response
 	{
 		$httpHeaders = $response->getHeaders();
 
-		$status = $response->getStatus();
-		$previousStatus = $this->getStatus();
 		foreach ($this->getHeaders() as $headerName => $values)
 		{
 			if ($this->shouldIgnoreHeaderToClone($headerName))
-			{
-				continue;
-			}
-
-			if ($status && $headerName === $previousStatus)
 			{
 				continue;
 			}

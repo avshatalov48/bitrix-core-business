@@ -1,0 +1,51 @@
+.bx-im-market-app-item__container {
+	--im-market-app-item__color_icon: #fff;
+	--im-market-app-item__background-color_item: #f5f7f8;
+	--im-market-app-item__color_item-text: #525c69;
+}
+
+.bx-im-market-app-item__container {
+	width: 120px;
+	height: 40px;
+	padding: 6px 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border-radius: 100px;
+}
+
+.bx-im-market-app-item__container.--short {
+	width: 40px;
+	padding: 6px;
+}
+
+.bx-im-market-app-item__container:hover {
+	background: var(--im-market-app-item__background-color_item);
+	cursor: pointer;
+}
+
+.bx-im-market-app-item__icon-container {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.bx-im-market-app-item__icon-container i {
+	color: var(--im-market-app-item__color_icon);
+}
+
+.bx-im-market-app-item__title-container {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-market-app-item__color_item-text);
+	overflow: hidden;
+}
+
+.bx-im-market-app-item__title-text {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}

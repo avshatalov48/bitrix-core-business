@@ -142,7 +142,7 @@ abstract class Helper
 		// order
 		if(is_array($proxed['ORDER']) && !empty($proxed['ORDER']))
 			$parameters['order'] = $proxed['ORDER'];
-		
+
 		// nav (unused)
 		if(($page = intval($proxed['NAV']['PAGE_NUM'])) && ($lop = intval($proxed['NAV']['LOP'])))
 		{
@@ -250,18 +250,21 @@ abstract class Helper
 	{
 		$columns = static::getColumns('');
 
+		$value = (string)$value;
 		if(!empty($columns[$code]))
 		{
-			if(!mb_strlen($value) && mb_strlen($columns[$code]['default']))
-				$value = $columns[$code]['default'];
+			if ($value === '' && isset($columns[$code]['default']))
+			{
+				$value = (string)$columns[$code]['default'];
+			}
 
 			switch($columns[$code]['data_type'])
 			{
 				case 'integer':
-					$value = intval($value);
+					$value = (int)$value;
 					break;
 				case 'float':
-					$value = floatval($value);
+					$value = (float)$value;
 					break;
 				default:
 					$value = htmlspecialcharsbx($value);
@@ -321,28 +324,32 @@ abstract class Helper
 				$from = 'find_'.$code.'_1';
 				$to = 'find_'.$code.'_2';
 
-				if($fld['data_type'] == 'integer' && (isset($GLOBALS[$from]) || isset($GLOBALS[$to])))
+				if ($fld['data_type'] === 'integer' && (isset($GLOBALS[$from]) || isset($GLOBALS[$to])))
 				{
 					// range expected
 
-					if(mb_strlen($GLOBALS[$from]) && mb_strlen($GLOBALS[$to])) // range
+					$valueFrom = trim((string)($GLOBALS[$from] ?? ''));
+					$valueTo = trim((string)($GLOBALS[$to] ?? ''));
+
+					if ($valueFrom !== '' && $valueTo !== '') // range
 					{
-						$filter['><'.$code] = array($GLOBALS[$from], $GLOBALS[$to]);
+						$filter['><'.$code] = [(int)$valueFrom, (int)$valueTo];
 					}
-					elseif(mb_strlen($GLOBALS[$from])) // greather than
+					elseif ($valueFrom !== '') // greather than
 					{
-						$filter['>='.$code] = $GLOBALS[$from];
+						$filter['>='.$code] = (int)$valueFrom;
 					}
-					elseif(mb_strlen($GLOBALS[$to])) // less than
+					elseif ($valueTo !== '') // less than
 					{
-						$filter['<='.$code] = $GLOBALS[$to];
+						$filter['<='.$code] = (int)$valueTo;
 					}
 				}
 				else
 				{
-					if($GLOBALS['find_'.$code] <> '')
+					$value = trim((string)($GLOBALS['find_'.$code] ?? ''));
+					if ($value !== '')
 					{
-						$filter[static::getFilterModifier($fld['data_type']).$code] = $GLOBALS['find_'.$code];
+						$filter[static::getFilterModifier($fld['data_type']).$code] = $value;
 					}
 				}
 			}
@@ -449,16 +456,17 @@ abstract class Helper
 	public static function getList($parameters = array(), $tableId = false, $navigation = 20, $params = array())
 	{
 		$entityClass = static::getEntityClass();
-		$navNum = $GLOBALS['NavNum'] + 1;
+		$navNum = ($GLOBALS['NavNum'] ?? 0) + 1;
 		$unique = md5($GLOBALS['APPLICATION']->GetCurPage());
-		$showAll = $_SESSION[$unique.'SESS_ALL_'.$navNum] || $_GET['SHOWALL_'.$navNum];
+		$showAll = ($_SESSION[$unique.'SESS_ALL_'.$navNum] ?? null) || ($GET['SHOWALL_'.$navNum] ?? null);
 		$isAdminSection = defined('ADMIN_SECTION') && ADMIN_SECTION === true;
+		$tableId = trim((string)$tableId);
 
-		if ($params["uiMode"])
+		if (($params["uiMode"] ?? null))
 		{
 			$result = new \CSaleProxyAdminUiResult($parameters, $entityClass, $tableId);
 		}
-		elseif($isAdminSection && mb_strlen($tableId))
+		elseif($isAdminSection && $tableId !== '')
 		{
 			$result = new \CSaleProxyAdminResult($parameters, $entityClass, $tableId); // being in admin and knowing table, do admin result api call
 		}
@@ -531,7 +539,7 @@ abstract class Helper
 	{
 		$map = static::getEntityRoadMap();
 
-		return $map['main']['primaryFieldName'] <> ''? $map['main']['primaryFieldName'] : 'ID';
+		return (string)($map['main']['primaryFieldName'] ?? '') !== '' ? $map['main']['primaryFieldName'] : 'ID';
 	}
 
 	// returns element name by it`s primary
@@ -591,7 +599,7 @@ abstract class Helper
 	// deprecated: too strong relation with admin grid
 	public static function checkUseFilter()
 	{
-		return $GLOBALS['filter'] == 'Y' && !$GLOBALS['del_filter'];
+		return ($GLOBALS['filter'] ?? null) === 'Y' && !$GLOBALS['del_filter'];
 	}
 
 	public static function readMap($entityRoadCode, $page = 'list')
@@ -607,12 +615,14 @@ abstract class Helper
 
 		$flds = array();
 		$class = $road['name'].'Table';
-		$excluded = $road['pages'][$page]['excludedColumns'];
-		$included = $road['pages'][$page]['includedColumns'];
+		$excluded = $road['pages'][$page]['excludedColumns'] ?? null;
+		$included = $road['pages'][$page]['includedColumns'] ?? null;
 
 		$map = $class::getMap();
-		if(is_array($road['additional']) && !empty($road['additional']))
+		if (!empty($road['additional']) && is_array($road['additional']))
+		{
 			$map = array_merge($map, $road['additional']);
+		}
 
 		foreach ($map as $fldCode => $fldDesc)
 		{
@@ -636,7 +646,8 @@ abstract class Helper
 				)
 			)
 			{
-				$fldDesc['title'] = $fldDesc['title'] <> ''? htmlspecialcharsbx($fldDesc['title']) : $fldCode;
+				$title = trim((string)($fldDesc['title'] ?? ''));
+				$fldDesc['title'] = $title !== ''? htmlspecialcharsbx($title) : $fldCode;
 				$fldDesc['ownerEntity'] = $road['name']; // map can be cumulative, from several entites, so we need to know who is an owner
 				$flds[$fldCode] = $fldDesc;
 			}

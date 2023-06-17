@@ -110,7 +110,7 @@ class Parser
 	public static function getUserDefaultCountry()
 	{
 		$userSettings = \CUserOptions::GetOption('main', 'phone_number');
-		return isset($userSettings['default_country']) ? $userSettings['default_country'] : '';
+		return $userSettings['default_country'] ?? '';
 	}
 
 	/**
@@ -500,7 +500,7 @@ class Parser
 	 */
 	protected static function stripNationalPrefix(&$phoneNumber, $countryMetadata)
 	{
-		$nationalPrefixForParsing = isset($countryMetadata['nationalPrefixForParsing']) ? $countryMetadata['nationalPrefixForParsing']: $countryMetadata['nationalPrefix'];
+		$nationalPrefixForParsing = $countryMetadata['nationalPrefixForParsing'] ?? $countryMetadata['nationalPrefix'];
 
 		if($phoneNumber == '' || $nationalPrefixForParsing == '')
 			return '';
@@ -512,7 +512,7 @@ class Parser
 			return '';
 		}
 
-		$nationalPrefixTransformRule = $countryMetadata['nationalPrefixTransformRule'];
+		$nationalPrefixTransformRule = $countryMetadata['nationalPrefixTransformRule'] ?? '';
 		if($nationalPrefixTransformRule && count($nationalPrefixMatches) > 1)
 		{
 			$nationalSignificantNumber = preg_replace($nationalPrefixRegex, $nationalPrefixTransformRule, $phoneNumber);

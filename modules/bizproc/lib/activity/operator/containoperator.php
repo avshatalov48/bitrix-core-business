@@ -42,7 +42,11 @@ class ContainOperator extends BaseOperator
 				{
 					$result = in_array($v, $f, false);
 				}
-				elseif ($f)
+				elseif (
+					\CBPHelper::hasStringRepresentation($f)
+					&& \CBPHelper::hasStringRepresentation($v)
+					&& (string)$v !== ''
+				)
 				{
 					$result = (mb_strpos($f, $v) !== false);
 				}

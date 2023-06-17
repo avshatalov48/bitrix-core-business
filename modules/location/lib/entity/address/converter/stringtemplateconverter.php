@@ -279,8 +279,8 @@ final class StringTemplateConverter
 	private function splitFieldName(string $fieldName): array
 	{
 		$fieldParts = explode(':', $fieldName);
-		$fieldName = $fieldParts[0];
-		$fieldModifiers = $fieldParts[1];
+		$fieldName = $fieldParts[0] ?? '';
+		$fieldModifiers = $fieldParts[1] ?? '';
 		if (!is_string($fieldModifiers))
 		{
 			$fieldModifiers = '';

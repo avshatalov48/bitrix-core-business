@@ -1,10 +1,6 @@
 <?php
 
 $MESS['BPSGCA_EMPTY_VARIABLES'] = 'Не указано значение ни одной глобальной переменной';
-$MESS['BPSGCA_ACCESS_DENIED'] = 'Настройки действия доступны только администраторам портала.';
-
-$MESS['BPSGVA_GLOBAL_VAR'] = 'Глобальные переменные';
-$MESS['BPSGVA_GLOBAL_CONST'] = 'Глобальные константы';
 $MESS['BPSGVA_TEXT'] = 'Своё значение';
 $MESS['BPSGVA_DOCUMENT'] = 'Значение поля';
 

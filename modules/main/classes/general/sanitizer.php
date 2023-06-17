@@ -651,8 +651,8 @@
 				{
 					//find tag type (open/close), tag name, attributies
 					preg_match('#^<\s*(/)?\s*([a-z0-9]+)(.*?)>$#si'.BX_UTF_PCRE_MODIFIER, $seg[$i]['value'], $matches);
-					$seg[$i]['tagType'] = ( $matches[1] ? 'close' : 'open' );
-					$seg[$i]['tagName'] = mb_strtolower($matches[2]);
+					$seg[$i]['tagType'] = !empty($matches[1]) ? 'close' : 'open';
+					$seg[$i]['tagName'] = mb_strtolower($matches[2] ?? '');
 
 					if(($seg[$i]['tagName']=='code') && ($seg[$i]['tagType']=='close'))
 						$isCode = false;
@@ -755,7 +755,7 @@
 							{
 								$this->CleanTable($seg, $openTagsStack, $i, false);
 
-								if($seg[$i]['action'] == self::ACTION_DEL)
+								if(isset($seg[$i]['action']) && $seg[$i]['action'] == self::ACTION_DEL)
 									continue;
 							}
 
@@ -787,7 +787,7 @@
 								$isCode = false;
 							}
 							//if open tags stack is empty, or not include it's name lets screen/erase it
-							if((count($openTagsStack) == 0) || (!in_array($seg[$i]['tagName'], $openTagsStack)))
+							if((empty($openTagsStack)) || (!in_array($seg[$i]['tagName'], $openTagsStack)))
 							{
 								if($this->bDelSanitizedTags || $this->arNoClose)
 								{
@@ -851,7 +851,7 @@
 						{
 							$filteredHTML .= '<'.$segt['tagName'];
 
-							if(is_array($segt['attr']))
+							if(isset($segt['attr']) && is_array($segt['attr']))
 								foreach($segt['attr'] as $attr_key => $attr_val)
 									$filteredHTML .= ' '.$attr_key.'="'.$attr_val.'"';
 
@@ -950,7 +950,7 @@
 					if ($seg[$j]['segType'] != 'tag' || !array_key_exists($seg[$j]['tagName'], $this->arTableTags))
 						continue;
 
-					if($seg[$j]['action'] == self::ACTION_DEL)
+					if(isset($seg[$j]['action']) && $seg[$j]['action'] == self::ACTION_DEL)
 						continue;
 
 					if($tElCategory == self::TABLE_COLS)
@@ -966,10 +966,16 @@
 						continue;
 
 					//count opened and closed tags
+					if (!isset($arOpenClose[$seg[$j]['tagName']][$seg[$j]['tagType']]))
+					{
+						$arOpenClose[$seg[$j]['tagName']][$seg[$j]['tagType']] = 0;
+					}
 					$arOpenClose[$seg[$j]['tagName']][$seg[$j]['tagType']]++;
 
 					//if opened tag not found yet, searching for more
-					if(($arOpenClose[$seg[$j]['tagName']]['open'] <= $arOpenClose[$seg[$j]['tagName']]['close']))
+					$openCount = $arOpenClose[$seg[$j]['tagName']]['open'] ?? 0;
+					$closeCount = $arOpenClose[$seg[$j]['tagName']]['close'] ?? 0;
+					if($openCount <= $closeCount)
 					{
 						$bFindUp = false;
 						continue;

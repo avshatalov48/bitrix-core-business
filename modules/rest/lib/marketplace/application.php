@@ -101,7 +101,7 @@ class Application
 					$queryFields = [
 						'CLIENT_ID' => $appDetailInfo['APP_CODE'],
 						'VERSION' => $appDetailInfo['VER'],
-						'BY_SUBSCRIPTION' => $appDetailInfo['BY_SUBSCRIPTION'] === 'Y' ? 'Y' : 'N',
+						'BY_SUBSCRIPTION' => $appDetailInfo['BY_SUBSCRIPTION'] ?? 'N',
 					];
 
 					if (!empty($checkHash) && !empty($installHash))
@@ -111,7 +111,7 @@ class Application
 					}
 
 					$installResult = OAuthService::getEngine()->getClient()->installApplication($queryFields);
-					if ($installResult['error'] === 'verification_needed')
+					if (isset($installResult['error']) && $installResult['error'] === 'verification_needed')
 					{
 						if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 						{
@@ -136,7 +136,7 @@ class Application
 						}
 					}
 
-					if ($installResult['error'])
+					if (isset($installResult['error']) && $installResult['error'])
 					{
 						$result['error'] = $installResult['error'];
 						$result['errorDescription'] = $installResult['error_description'];
@@ -217,7 +217,7 @@ class Application
 								CRestUtil::notifyInstall($appFields);
 							}
 
-							if (is_array($appDetailInfo['MENU_TITLE']))
+							if (isset($appDetailInfo['MENU_TITLE']) && is_array($appDetailInfo['MENU_TITLE']))
 							{
 								foreach ($appDetailInfo['MENU_TITLE'] as $lang => $langName)
 								{
@@ -269,6 +269,7 @@ class Application
 
 							$redirect = false;
 							$open = false;
+							$sliderUrl = false;
 							if ($appDetailInfo['TYPE'] !== AppTable::TYPE_CONFIGURATION)
 							{
 								$uriString = CRestUtil::getApplicationPage($appId);
@@ -284,6 +285,29 @@ class Application
 								$redirect = $uri->getUri();
 								$open = $appDetailInfo['OPEN_API'] !== 'Y';
 							}
+							else
+							{
+								if ((int)$appDetailInfo['IMPORT_ZIP_ID'] > 0)
+								{
+									$url = Url::getConfigurationImportZipUrl((int)$appDetailInfo['IMPORT_ZIP_ID']);
+								}
+								else
+								{
+									$url = Url::getConfigurationImportAppUrl($appDetailInfo['CODE']);
+								}
+
+								$uri = new Uri($url);
+								if (!empty($checkHash) && !empty($installHash))
+								{
+									$uri->addParams(
+										[
+											'check_hash' => $checkHash,
+											'install_hash' => $installHash,
+										]
+									);
+								}
+								$sliderUrl = $uri->getUri();
+							}
 
 							$result = [
 								'success' => 1,
@@ -291,6 +315,7 @@ class Application
 								'open' => $open,
 								'installed' => $appFields['INSTALLED'] === 'Y',
 								'redirect' => $redirect,
+								'openSlider' => $sliderUrl,
 							];
 
 							Analytic::logToFile(
@@ -304,6 +329,14 @@ class Application
 							$result['errorDescription'] = implode('<br />', $addResult->getErrorMessages());
 						}
 					}
+				}
+				elseif (
+					!empty($appInfo['HOLD_INSTALL_BY_TRIAL'])
+					&& $appInfo['HOLD_INSTALL_BY_TRIAL'] === 'Y'
+					&& Client::isSubscriptionDemo()
+				)
+				{
+					$result = ['error' => Loc::getMessage('RMP_TRIAL_HOLD_INSTALL')];
 				}
 				else
 				{
@@ -329,7 +362,7 @@ class Application
 			];
 		}
 
-		if ($result['error'])
+		if (isset($result['error']) && $result['error'])
 		{
 			if ($result['error'] === 'SUBSCRIPTION_REQUIRED')
 			{

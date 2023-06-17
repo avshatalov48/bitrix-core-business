@@ -36,22 +36,23 @@ class Mobile
 	{
 		global $APPLICATION;
 
-		$this->setDeviceWidth($_COOKIE["MOBILE_RESOLUTION_WIDTH"]);
-		$this->setDeviceHeight($_COOKIE["MOBILE_RESOLUTION_HEIGHT"]);
-		$this->setPixelratio($_COOKIE["MOBILE_SCALE"]);
-		$this->screenCategory = $_COOKIE["MOBILE_SCREEN_CATEGORY"];
-		if($_COOKIE["PG_VERSION"])
+		$this->setDeviceWidth($_COOKIE["MOBILE_RESOLUTION_WIDTH"] ?? null);
+		$this->setDeviceHeight($_COOKIE["MOBILE_RESOLUTION_HEIGHT"] ?? null);
+		$this->setPixelratio($_COOKIE["MOBILE_SCALE"] ?? null);
+		$this->screenCategory = $_COOKIE["MOBILE_SCREEN_CATEGORY"] ?? null;
+
+		if (!empty($_COOKIE["PG_VERSION"]))
 		{
 			self::$pgVersion = $_COOKIE["PG_VERSION"];
 		}
 
 		self::$isDev = (isset($_COOKIE["MOBILE_DEV"]) && $_COOKIE["MOBILE_DEV"] == "Y");
-		$this->device = $_COOKIE["MOBILE_DEVICE"];
-		if ($_COOKIE["IS_WEBRTC_SUPPORTED"] && $_COOKIE["IS_WEBRTC_SUPPORTED"] == "Y")
+		$this->device = $_COOKIE["MOBILE_DEVICE"] ?? null;
+		if (!empty($_COOKIE["IS_WEBRTC_SUPPORTED"]) && $_COOKIE["IS_WEBRTC_SUPPORTED"] == "Y")
 		{
 			$this->setWebRtcSupport(true);
 		}
-		if ($_COOKIE["IS_BXSCRIPT_SUPPORTED"] && $_COOKIE["IS_BXSCRIPT_SUPPORTED"] == "Y")
+		if (!empty($_COOKIE["IS_BXSCRIPT_SUPPORTED"]) && $_COOKIE["IS_BXSCRIPT_SUPPORTED"] == "Y")
 		{
 			$this->setBXScriptSupported(true);
 		}
@@ -86,7 +87,7 @@ class Mobile
 		}
 
 		$userAgent = \Bitrix\Main\Context::getCurrent()->getServer()->get("HTTP_USER_AGENT");
-		if ($_COOKIE["MOBILE_SYSTEM_VERSION"])
+		if (!empty($_COOKIE["MOBILE_SYSTEM_VERSION"]))
 		{
 			self::$systemVersion = $_COOKIE["MOBILE_SYSTEM_VERSION"];
 		}

@@ -82,7 +82,7 @@ final class Config implements \IteratorAggregate
 	/**
 	 * @inheritDoc
 	 */
-	public function getIterator()
+	public function getIterator(): \Traversable
 	{
 		usort(
 			$this->items,

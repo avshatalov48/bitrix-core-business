@@ -83,7 +83,7 @@ $containerId = 'main-user-selector-' . $arParams['ID'];
 				[
 					'lazyLoad' => (
 						(
-							$arParams["LAZYLOAD"] == 'Y'
+							(isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === 'Y')
 							|| (
 								!empty($arParams["SELECTOR_OPTIONS"])
 								&& !empty($arParams["SELECTOR_OPTIONS"]['lazyload'])
@@ -130,7 +130,7 @@ $containerId = 'main-user-selector-' . $arParams['ID'];
 					'isInputMultiple' => $arResult['IS_INPUT_MULTIPLE'],
 					'useSymbolicId' => $arParams['USE_SYMBOLIC_ID'],
 					'openDialogWhenInit' => $arParams['OPEN_DIALOG_WHEN_INIT'],
-					'lazyload' => ($arParams['LAZYLOAD'] == 'Y' && empty($arResult['ITEMS_SELECTED']))
+					'lazyload' => (isset($arParams['LAZYLOAD']) && $arParams['LAZYLOAD'] === 'Y' && empty($arResult['ITEMS_SELECTED']))
 				))?>);
 			}
 			catch (e)

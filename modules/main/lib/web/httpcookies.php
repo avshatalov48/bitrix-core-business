@@ -1,34 +1,58 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
+
 namespace Bitrix\Main\Web;
+
+use Bitrix\Main\ArgumentTypeException;
 
 class HttpCookies extends \Bitrix\Main\Type\Dictionary
 {
+	/** @var Http\Cookie[]  */
+	protected $values = [];
+
+	/**
+	 * @param string[] | Http\Cookie[] | null $values
+	 */
 	public function __construct(array $values = null)
 	{
-		parent::__construct($values);
+		if ($values !== null)
+		{
+			foreach ($values as $key => $value)
+			{
+				if (!($value instanceof Http\Cookie))
+				{
+					$value = new Http\Cookie($key, $value);
+				}
+				$this[$key] = $value;
+			}
+		}
 	}
 
-	public function toString()
+	/**
+	 * Implodes cookies to 'name=value' pairs with a '; ' separator (useful for 'Cookie' header).
+	 * @return string
+	 */
+	public function implode(): string
 	{
-		$str = "";
-		foreach($this->values as $name => $value)
+		$str = '';
+		foreach ($this->values as $cookie)
 		{
-			$str .= ($str == ""? "" : "; ").rawurlencode($name)."=".rawurlencode($value);
+			$str .= ($str == '' ? '' : '; ') . rawurlencode($cookie->getName()) . '=' . rawurlencode($cookie->getValue());
 		}
 		return $str;
 	}
 
-	public function addFromString($str)
+	public function addFromString(string $str): void
 	{
-		if (($pos = mb_strpos($str, ';')) !== false && $pos > 0)
+		if (($pos = strpos($str, ';')) !== false && $pos > 0)
 		{
-			$cookie = trim(mb_substr($str, 0, $pos));
+			$cookie = trim(substr($str, 0, $pos));
 		}
 		else
 		{
@@ -36,6 +60,30 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		}
 		$arCookie = explode('=', $cookie, 2);
 
-		$this[rawurldecode($arCookie[0])] = rawurldecode($arCookie[1]);
+		$name = rawurldecode($arCookie[0]);
+		$value = rawurldecode($arCookie[1]);
+
+		// TODO: a cookie has more attributes
+		$this[$name] = new Http\Cookie($name, $value);
+	}
+
+	public function toArray()
+	{
+		$cookies = [];
+		foreach ($this->values as $cookie)
+		{
+			$cookies[$cookie->getName()] = $cookie->getValue();
+		}
+		return $cookies;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetSet($offset, $value)
+	{
+		if (!($value instanceof Http\Cookie))
+		{
+			throw new ArgumentTypeException('value', Http\Cookie::class);
+		}
+		parent::offsetSet($offset, $value);
 	}
 }

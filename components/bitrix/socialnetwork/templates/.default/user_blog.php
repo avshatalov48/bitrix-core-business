@@ -50,9 +50,9 @@ if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAd
 $bType = "user";
 if(intval($arResult["VARIABLES"]["user_id"]) > 0 && $USER->GetID() == $arResult["VARIABLES"]["user_id"])
 {
-	if($_REQUEST["forme"] == "Y")
+	if (isset($_REQUEST["forme"]) && $_REQUEST["forme"] == "Y")
 		$bType = "forme";
-	elseif($_REQUEST["mine"] == "Y")
+	elseif (isset($_REQUEST["mine"]) && $_REQUEST["mine"] == "Y")
 		$bType = "mine";
 	else
 		$bType = "all";

@@ -282,8 +282,8 @@ final class Engine
 					$params["banner"] = array(
 						"url" => GetMessage("COMPOSITE_BANNER_URL"),
 						"text" => GetMessage("COMPOSITE_BANNER_TEXT"),
-						"bgcolor" => isset($options["BANNER_BGCOLOR"]) ? $options["BANNER_BGCOLOR"] : "",
-						"style" => isset($options["BANNER_STYLE"]) ? $options["BANNER_STYLE"] : ""
+						"bgcolor" => $options["BANNER_BGCOLOR"] ?? "",
+						"style" => $options["BANNER_STYLE"] ?? ""
 					);
 				}
 			}
@@ -545,7 +545,6 @@ final class Engine
 
 			$content = array(
 				"js" => $APPLICATION->arHeadScripts,
-				"additional_js" => $APPLICATION->arAdditionalJS,
 				"lang" => \CJSCore::GetCoreMessages(),
 				"css" => $APPLICATION->GetCSSArray(),
 				"htmlCacheChanged" => $htmlCacheChanged,
@@ -590,7 +589,7 @@ final class Engine
 		);
 
 		$dynamicAreas = StaticArea::getDynamicAreas();
-		if (count($dynamicAreas) > 0 && ($areas = self::getFrameIndexes($content)) !== false)
+		if (!empty($dynamicAreas) && ($areas = self::getFrameIndexes($content)) !== false)
 		{
 			$offset = 0;
 			$pageBlocks = self::getPageBlocks();
@@ -710,7 +709,7 @@ final class Engine
 			$offset = $closingTagEnd;
 		}
 
-		return count($areas) > 0 ? $areas : false;
+		return !empty($areas) ? $areas : false;
 	}
 
 	private static function getPageBlocks()
@@ -759,7 +758,7 @@ final class Engine
 				"TYPE" => Logger::TYPE_BUFFER_RESTART,
 				"MESSAGE" =>
 					"Script: ".
-					(isset($_SERVER["REAL_FILE_PATH"]) ? $_SERVER["REAL_FILE_PATH"] : $_SERVER["SCRIPT_NAME"])
+					($_SERVER["REAL_FILE_PATH"] ?? $_SERVER["SCRIPT_NAME"])
 			)
 		);
 	}
@@ -784,7 +783,7 @@ final class Engine
 				"TYPE" => Logger::TYPE_LOCAL_REDIRECT,
 				"MESSAGE" =>
 					"Script: ".
-					(isset($_SERVER["REAL_FILE_PATH"]) ? $_SERVER["REAL_FILE_PATH"] : $_SERVER["SCRIPT_NAME"])."\n".
+					($_SERVER["REAL_FILE_PATH"] ?? $_SERVER["SCRIPT_NAME"])."\n".
 					"Redirect Url: ".$url
 			)
 		);
@@ -1431,7 +1430,7 @@ CSS;
 
 		$diff = array_diff($USER->GetUserGroupArray(), $groups);
 
-		return count($diff) === 0;
+		return empty($diff);
 	}
 
 	/**

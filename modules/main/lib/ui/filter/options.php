@@ -45,8 +45,8 @@ class Options
 			$this->commonPresets = static::fetchCommonPresets($commonPresetsId);
 			$this->useCommonPresets = true;
 			$this->commonPresetsId = $commonPresetsId;
-			$this->options["filters"] = $this->commonPresets["filters"];
-			$this->options["deleted_presets"] = $this->commonPresets["deleted_presets"];
+			$this->options["filters"] = $this->commonPresets["filters"] ?? null;
+			$this->options["deleted_presets"] = $this->commonPresets["deleted_presets"] ?? null;
 		}
 
 		if (!isset($this->options["use_pin_preset"]))
@@ -407,7 +407,7 @@ class Options
 			$valueId = $id."_value";
 			$dateselId = $id."_datesel";
 			$numselId = $id."_numsel";
-			$type = $field["type"];
+			$type = $field["type"] ?? null;
 			$isEmpty = $id."_isEmpty";
 			$hasAnyValue = $id."_hasAnyValue";
 
@@ -592,7 +592,7 @@ class Options
 	 */
 	public function getFilterSettings($presetId)
 	{
-		return $this->options["filters"][$presetId];
+		return $this->options["filters"][$presetId] ?? null;
 	}
 
 
@@ -710,7 +710,7 @@ class Options
 
 			foreach ($sourceFields as $sourceKey => $sourceField)
 			{
-				if ($key === $sourceField["id"] && $sourceField["strict"])
+				if (isset($sourceField["id"]) && $key === $sourceField["id"] && isset($sourceField["strict"]))
 				{
 					$isStrictField = true;
 				}
@@ -801,7 +801,8 @@ class Options
 	public function getFilterLogic($sourceFields = array())
 	{
 		$filter = $this->getFilter($sourceFields);
-		if ($filter["FILTER_APPLIED"] === true)
+		$applied = ($filter["FILTER_APPLIED"] ?? false);
+		if ($applied === true)
 		{
 			return Type::getLogicFilter($filter, $sourceFields);
 		}
@@ -1140,7 +1141,7 @@ class Options
 
 			}
 
-			if (!is_array($this->options["filters"][$presetId]))
+			if (!isset($this->options["filters"][$presetId]) || !is_array($this->options["filters"][$presetId]))
 			{
 				$this->options["filters"][$presetId] = array();
 			}
@@ -1249,13 +1250,9 @@ class Options
 	 */
 	public function setupDefaultFilter(array $fields, array $rows)
 	{
-		$setAsCurrentPreset = true;
-		$useRequestParams = false;
-
-		$this->setFilterSettings("tmp_filter", array("fields" => $fields, "rows" => $rows), $setAsCurrentPreset, $useRequestParams);
+		$this->setFilterSettings("tmp_filter", array("fields" => $fields, "rows" => $rows), true, false);
 		$this->save();
 	}
-
 
 	/**
 	 * Calculate date value
@@ -1743,7 +1740,7 @@ class Options
 	 */
 	public static function fetchPresetFields($preset)
 	{
-		if (is_string($preset["filter_rows"]))
+		if (isset($preset["filter_rows"]) && is_string($preset["filter_rows"]))
 		{
 			$fields = explode(",", $preset["filter_rows"]);
 			return array_unique($fields);
@@ -1774,7 +1771,7 @@ class Options
 		{
 			$presetFields = static::fetchPresetFields($preset);
 			$fields = array_merge($fields, $presetFields);
-			if ($preset['default'])
+			if (isset($preset['default']))
 			{
 				$defaultPresetFieldsOrder = $presetFields;
 			}

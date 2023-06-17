@@ -88,11 +88,13 @@ export const Application = {
 			searching: 'searchApplied',
 			filtersApplied: 'filtersApplied',
 			globalGroup: 'currentGroup',
+			shouldShowWelcomeStub: 'shouldShowWelcomeStub',
 		}),
 	},
 	watch: {
 		selectedGroup()
 		{
+			this.shouldShowWelcomeStub = false;
 			this.globalGroup = this.selectedGroup;
 		},
 		selectedGroupId()
@@ -242,6 +244,9 @@ export const Application = {
 				</template>
 				<template #main-content-no-selected-group-stub>
 					<slot name="main-content-no-selected-group-stub"/>
+				</template>
+				<template #main-content-welcome-stub>
+					<slot name="main-content-welcome-stub"/>
 				</template>
 				<template #main-content-filter-stub v-if="$slots['main-content-filter-stub']">
 					<slot name="main-content-filter-stub"/>

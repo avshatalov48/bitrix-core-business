@@ -35,6 +35,14 @@ class OrderAnalysis extends \Bitrix\Sale\Helpers\Admin\Blocks\OrderAnalysis
 
 	protected static function renderShipmentItemLink($item)
 	{
-		return '<a class="fwb" href="'.htmlspecialcharsbx($item['EDIT_PAGE_URL']).'" target="_blank">'.htmlspecialcharsEx($item['NAME']).'</a>';
+		if (!isset($item['EDIT_PAGE_URL']))
+		{
+			return htmlspecialcharsEx($item['NAME']);
+		}
+		return
+			'<a class="fwb" href="' . htmlspecialcharsbx($item['EDIT_PAGE_URL']) . '" target="_blank">'
+			. htmlspecialcharsEx($item['NAME'])
+			. '</a>'
+		;
 	}
 }

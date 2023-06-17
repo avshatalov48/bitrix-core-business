@@ -20,7 +20,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 );?>
 <?else:?>
 <?
-ShowMessage($arParams["~AUTH_RESULT"]);
+if (!empty($arParams["~AUTH_RESULT"]))
+{
+	ShowMessage($arParams["~AUTH_RESULT"]);
+}
 ?>
 
 <div class="bx-auth">

@@ -232,7 +232,7 @@ class DateType extends BaseType
 					);
 				}
 			} else {
-				$value = $userField['VALUE'];
+				$value = $userField['VALUE'] ?? null;
 			}
 		}
 		elseif(isset($additionalParameters['VALUE']))

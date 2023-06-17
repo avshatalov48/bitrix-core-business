@@ -728,24 +728,25 @@ if ($arParams['SUCCESS_SAVE'])
 										>
 									<?php endforeach; ?>
 									<div class="landing-form-list">
-										<div class="landing-form-list-container">
-											<div class="landing-form-list-inner">
-												<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
-													<label class="landing-form-layout-item landing-form-layout-item-<?=$tpl['XML_ID']?>"
-														<?php
-														?>data-block="<?=$tpl['AREA_COUNT']?>"
-														<?php
-														?>data-layout="<?=$tpl['XML_ID']?>"
-														<?php
-														?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>">
-														<div class="landing-form-layout-item-img"></div>
-													</label>
-												<?php endforeach; ?>
-											</div>
-										</div>
 										<div class="landing-form-select-buttons">
 											<div class="landing-form-select-prev"></div>
 											<div class="landing-form-select-next"></div>
+										</div>
+										<div class="landing-form-list-container">
+											<div class="landing-form-list-inner">
+												<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
+													<div class="landing-form-layout-item-img-container">
+														<label class="landing-form-layout-item <?
+															?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
+															?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
+															?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
+															?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"
+														>
+															<div class="landing-form-layout-item-img"></div>
+														</label>
+													</div>
+												<?php endforeach; ?>
+											</div>
 										</div>
 									</div>
 								</div>

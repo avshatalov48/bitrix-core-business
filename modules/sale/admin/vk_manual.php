@@ -6,7 +6,7 @@ use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 global $APPLICATION;
 $APPLICATION->SetTitle(Loc::getMessage("SALE_VK_MANUAL_TITLE"));
-require_once($DOCUMENT_ROOT . BX_ROOT . "/modules/main/include/prolog_admin_after.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . "/modules/main/include/prolog_admin_after.php");
 
 //ONLY RUSSIAN!!!
 //todo: translate to other language
@@ -78,7 +78,7 @@ else
 				<h3><?= Loc::getMessage("SALE_VK_MANUAL__CONNECTION_TITLE_4") ?></h3>
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__CONNECTION_8") ?></p>
 				<img src="/bitrix/images/sale/vk/vk_man_3.png" alt="">
-				
+
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__CONNECTION_8a") ?></p>
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__CONNECTION_8b_") ?></p>
 				<img src="/bitrix/images/sale/vk/vk_man_3a.png" alt="">
@@ -114,7 +114,7 @@ else
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__EXPORT_2a") ?></p>
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__EXPORT_2b") ?></p>
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__EXPORT_2c") ?></p>
-				
+
 				<br>
 				<p><?= Loc::getMessage("SALE_VK_MANUAL__EXPORT_5") ?></p>
 			</div>

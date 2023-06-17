@@ -87,8 +87,13 @@
 	position: relative;
 	width: 50px;
 	min-height: 62px;
-	opacity: .3;
 	border: none;
+}
+
+.landing-ui-button-desktop:before,
+.landing-ui-button-tablet:before,
+.landing-ui-button-mobile:before {
+	opacity: .3;
 	transition: opacity 200ms ease;
 }
 
@@ -100,20 +105,21 @@
 	width: 35px;
 }
 
-
-.landing-ui-button-desktop:hover,
-.landing-ui-button-tablet:hover,
-.landing-ui-button-mobile:hover {
-	opacity: .8;
+.landing-ui-button-mobile .landing-ui-button-label {
+	top: 4px;
 }
 
-
-.landing-ui-button-desktop.active,
-.landing-ui-button-tablet.active,
-.landing-ui-button-mobile.active {
+.landing-ui-button-desktop:hover:before,
+.landing-ui-button-tablet:hover:before,
+.landing-ui-button-mobile:hover:before {
 	opacity: 1;
 }
 
+.landing-ui-button-desktop.active:before,
+.landing-ui-button-tablet.active:before,
+.landing-ui-button-mobile.active:before {
+	opacity: 1;
+}
 
 .landing-ui-button-desktop::before,
 .landing-ui-button-tablet::before,

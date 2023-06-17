@@ -4,7 +4,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Localization\Loc;
 
-$name = $arResult['additionalParameters']['NAME'];
+$name = $arResult['additionalParameters']['NAME'] ?? '';
 ?>
 
 <tr>
@@ -15,7 +15,7 @@ $name = $arResult['additionalParameters']['NAME'];
 			name="<?= $name ?>[DEFAULT_VALUE]"
 			size="20"
 			maxlength="225"
-			value="<?= $arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?>"
+			value="<?= ($arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '') ?>"
 		>
 	</td>
 </tr>

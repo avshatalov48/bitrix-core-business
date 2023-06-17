@@ -76,14 +76,14 @@ if (
 		"PATH_TO_POST" => $arParams["PATH_TO_USER_MICROBLOG_POST"],
 		"PATH_TO_GROUP_POST" => $arParams["PATH_TO_GROUP_MICROBLOG_POST"],
 		"PATH_TO_POST_EDIT" => $arParams["PATH_TO_USER_BLOG_POST_EDIT"],
-		"PATH_TO_SMILE" => $arParams["PATH_TO_BLOG_SMILE"],
+		"PATH_TO_SMILE" => $arParams["PATH_TO_BLOG_SMILE"] ?? '',
 		"SET_TITLE" => "N",
 		"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
 		"USER_ID" => $arResult["currentUserId"],
 		"SET_NAV_CHAIN" => "N",
 		"USE_SOCNET" => "Y",
 		"MICROBLOG" => "Y",
-		"USE_CUT" => $arParams["BLOG_USE_CUT"],
+		"USE_CUT" => $arParams["BLOG_USE_CUT"] ?? '',
 		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"CHECK_PERMISSIONS_DEST" => $arParams["CHECK_PERMISSIONS_DEST"],
 		"TOP_TABS_VISIBLE" => (array_key_exists("TOP_TABS_VISIBLE", $arParams) ? $arParams["TOP_TABS_VISIBLE"] : "Y"),
@@ -91,13 +91,14 @@ if (
 		"SELECTOR_VERSION" => 3,
 	];
 
+	$currentUserId = $arParams["CURRENT_USER_ID"] ?? 0;
 	if ($arParams["ENTITY_TYPE"] === SONET_ENTITY_GROUP)
 	{
 		$arBlogComponentParams["SOCNET_GROUP_ID"] = $arParams["GROUP_ID"];
 	}
-	elseif ((int)$arResult["currentUserId"] !== (int)$arParams["CURRENT_USER_ID"])
+	elseif ((int) $arResult["currentUserId"] !== (int) $currentUserId)
 	{
-		$arBlogComponentParams["SOCNET_USER_ID"] = $arParams["CURRENT_USER_ID"];
+		$arBlogComponentParams["SOCNET_USER_ID"] = $currentUserId;
 	}
 
 	if (isset($arParams["DISPLAY"]))

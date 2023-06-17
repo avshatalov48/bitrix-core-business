@@ -12,14 +12,23 @@ $path = str_replace(array("\\", "//"), "/", __DIR__."/lang/".LANGUAGE_ID."/add_m
 if (CModule::IncludeModule("socialnetwork"))
 {
 	$aUserId = array();
-	if(is_array($_REQUEST["user_id"]))
+	if (is_array($_REQUEST["user_id"] ?? null))
 	{
 		foreach($_REQUEST["user_id"] as $id)
-			if(intval($id) > 0)
+		{
+			if (intval($id) > 0)
+			{
 				$aUserId[] = intval($id);
+			}
+		}
 	}
-	elseif(intval($_REQUEST["user_id"]) > 0)
+	elseif (
+		isset($_REQUEST["user_id"])
+		&& intval($_REQUEST["user_id"]) > 0
+	)
+	{
 		$aUserId[] = intval($_REQUEST["user_id"]);
+	}
 
 	$aUserId = array_unique($aUserId);
 

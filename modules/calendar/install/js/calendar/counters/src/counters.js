@@ -34,15 +34,13 @@ export class Counters extends CounterPanel
 		
 		if (item.id === 'invitation')
 		{
-			this.search.filterApi.setFilter({
-				preset_id: "filter_calendar_meeting_status_q"
-			});
+			this.search.setPresetInvitation();
 		}
 	}
 	
 	onDeactivateItem(event)
 	{
-		this.search.resetFilter();
+		this.search.resetPreset();
 	}
 	
 	recalculateCounters()

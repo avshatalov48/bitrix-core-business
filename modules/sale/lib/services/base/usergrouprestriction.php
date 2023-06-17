@@ -35,6 +35,11 @@ class UserGroupRestriction extends Restriction
 		return Loc::getMessage("SALE_SRV_RSTR_BY_UG_DESC");
 	}
 
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_SRV_RSTR_BY_UG_ON_APPLY_ERROR_MSG');
+	}
+
 	/**
 	 * @param array $groups User groups
 	 * @param array $restrictionParams Restriction params.

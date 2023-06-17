@@ -39,7 +39,7 @@ class CCalendarSceleton
 			'calendar.sharing.public',
 		]);
 
-		if($config['type'] === 'location')
+		if(($config['type'] ?? null) === 'location')
 		{
 			\Bitrix\Main\UI\Extension::load([
 				'calendar.rooms',

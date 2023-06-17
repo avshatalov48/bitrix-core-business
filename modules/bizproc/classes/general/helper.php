@@ -191,7 +191,7 @@ class CBPHelper
 					$bCorrectUser = true;
 					$arResult[] = $k1;
 				}
-				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]#i', $user, $arMatches))
+				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]$#i', $user, $arMatches))
 				{
 					$bCorrectUser = true;
 					$arResult[] = 'group_' . mb_strtolower($arMatches[1]);
@@ -2236,7 +2236,12 @@ class CBPHelper
 
 	public static function getBool($value)
 	{
-		if (empty($value) || $value === 'false' || is_int($value) && ($value == 0) || (mb_strtoupper($value) == 'N'))
+		if (
+			empty($value)
+			|| $value === 'false'
+			|| (is_int($value) && ($value == 0))
+			|| (is_scalar($value) && mb_strtoupper($value) == 'N')
+		)
 		{
 			return false;
 		}
@@ -2336,7 +2341,9 @@ class CBPHelper
 		$group = mb_strtoupper($group);
 		$access = self::getAccessProvider();
 		$arNames = $access->GetNames(array($group));
-		return $arNames[$group]['name'].($appendId? ' ['.$group.']' : '');
+		$groupName = $arNames[$group]['name'] ?? null;
+
+		return $groupName . ($appendId ? ' ['.$group.']' : '');
 	}
 
 	/**
@@ -2547,7 +2554,12 @@ class CBPHelper
 			return $date->getTimestamp();
 		}
 
-		if (intval($date)."!" === $date."!")
+		if ($date instanceof Main\Type\Date)
+		{
+			return $date->getTimestamp();
+		}
+
+		if (intval($date) . '!' === $date . '!')
 		{
 			return $date;
 		}
@@ -2556,12 +2568,13 @@ class CBPHelper
 		{
 			if (($result = MakeTimeStamp($date, FORMAT_DATE)) === false)
 			{
-				if (($result = MakeTimeStamp($date, "YYYY-MM-DD HH:MI:SS")) === false)
+				if (($result = MakeTimeStamp($date, 'YYYY-MM-DD HH:MI:SS')) === false)
 				{
-					$result = MakeTimeStamp($date, "YYYY-MM-DD");
+					$result = MakeTimeStamp($date, 'YYYY-MM-DD');
 				}
 			}
 		}
+
 		return (int) $result;
 	}
 
@@ -2583,5 +2596,19 @@ class CBPHelper
 		}
 
 		return false;
+	}
+
+	public static function hasStringRepresentation($value): bool
+	{
+		return (is_scalar($value) || (is_object($value) && method_exists($value, '__toString')));
+	}
+
+	public static function isEqualDocument(array $documentA, array $documentB): bool
+	{
+		return (
+			(string)$documentA[0] === (string)$documentB[0]
+			&& (string)$documentA[1] === (string)$documentB[1]
+			&& (string)$documentA[2] === (string)$documentB[2]
+		);
 	}
 }

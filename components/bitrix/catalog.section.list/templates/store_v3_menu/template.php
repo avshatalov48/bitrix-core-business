@@ -54,4 +54,3 @@ if ($arResult['SECTIONS_COUNT'] > 0)
 	</div>
 	<?php
 }
-?>

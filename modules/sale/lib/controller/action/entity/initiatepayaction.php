@@ -6,7 +6,7 @@ use Bitrix\Main\Error;
 use Bitrix\Sale;
 use Bitrix\Sale\PaySystem\Internals\InitiatePayException;
 
-final class InitiatePayAction extends BaseAction
+final class InitiatePayAction extends Sale\Controller\Action\BaseAction
 {
 	/**
 	 * Input arguments
@@ -284,6 +284,11 @@ final class InitiatePayAction extends BaseAction
 		return $this->payment;
 	}
 
+	public function getServiceResult(): ?Sale\PaySystem\ServiceResult
+	{
+		return $this->serviceResult;
+	}
+
 	private function formatResponse(): ?array
 	{
 		if ($this->errorCollection->isEmpty())
@@ -291,6 +296,7 @@ final class InitiatePayAction extends BaseAction
 			return [
 				'html' => $this->serviceResult->getTemplate(),
 				'url' => $this->serviceResult->getPaymentUrl(),
+				'qr' => $this->serviceResult->getQr(),
 			];
 		}
 

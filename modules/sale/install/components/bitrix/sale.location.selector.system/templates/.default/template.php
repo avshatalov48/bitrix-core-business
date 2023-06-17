@@ -1,6 +1,13 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-<?
+/** @var CBitrixLocationSelectorSystemComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location;
 
@@ -12,36 +19,34 @@ if (!is_object($adminSidePanelHelper))
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/admin_lib.php");
 	$adminSidePanelHelper = new \CAdminSidePanelHelper();
 }
-?>
 
-<?if(!empty($arResult['ERRORS']['FATAL'])):?>
+if(!empty($arResult['ERRORS']['FATAL'])):
+	foreach($arResult['ERRORS']['FATAL'] as $error):
+		ShowError($error);
+	endforeach;
+else:
 
-	<?foreach($arResult['ERRORS']['FATAL'] as $error):?>
-		<?=ShowError($error)?>
-	<?endforeach?>
+	CJSCore::Init();
+	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_widget.js');
+	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_etc.js');
+	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_autocomplete.js');
+	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_itemtree.js');
 
-<?else:?>
-
-	<?CJSCore::Init();?>
-	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_widget.js')?>
-	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_etc.js')?>
-	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_autocomplete.js');?>
-	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_itemtree.js');?>
-
-	<?// to be able to launch this outside the admin section?>
-	<?$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/adminstyles_fixed.css');?>
-	<?$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/admin.css');?>
-	<?$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/admin-public.css');?>
+	// to be able to launch this outside the admin section
+	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/adminstyles_fixed.css');
+	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/admin.css');
+	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/admin-public.css');
+	?>
 
 	<div id="slss-<?=intval($arResult['RANDOM_TAG'])?>">
 
-		<?if(!empty($arResult['ERRORS']['NONFATAL'])):?>
-
-			<?foreach($arResult['ERRORS']['NONFATAL'] as $error):?>
-				<?=ShowError($error)?>
-			<?endforeach?>
-
-		<?endif?>
+		<?php
+		if(!empty($arResult['ERRORS']['NONFATAL'])):
+			foreach($arResult['ERRORS']['NONFATAL'] as $error):
+				ShowError($error);
+			endforeach;
+		endif;
+		?>
 
 		<div class="adm-location-popup-wrap" id="adm-location" style="height: 600px; min-width: 800px">
 			<div class="adm-loc-left-wrap">
@@ -124,7 +129,7 @@ if (!is_object($adminSidePanelHelper))
 											<?if(!empty($arResult['LOCATIONS'])):?>
 
 												<div class="adm-loc-i-tree-node bx-ui-item-tree-slss-node" data-node-id="0" data-is-parent="1" style="margin-left: 0px">
-													
+
 													<div class="adm-loc-i-selector-arrow bx-ui-item-tree-slss-expander"></div>
 													<div class="adm-loc-i-tree-label bx-ui-slss-selector-show-bundle" data-node-id="0">
 														<?=Loc::getMessage('SALE_SLSS_LOCATIONS')?>
@@ -158,7 +163,7 @@ if (!is_object($adminSidePanelHelper))
 
 											<?else:?>
 												<div class="adm-loc-error">
-													<? $importUrl = $adminSidePanelHelper->editUrlToPublicPage((string) $arParams['PATH_TO_LOCATION_IMPORT'] != '' ? $arParams['PATH_TO_LOCATION_IMPORT'] : Location\Admin\Helper::getImportUrl());?>
+													<? $importUrl = $adminSidePanelHelper->editUrlToPublicPage($arParams['PATH_TO_LOCATION_IMPORT']);?>
 													<?=Loc::getMessage('SALE_SLSS_NO_LOCATIONS', array(
 														'#ANCHOR_IMPORT#' => '<a href="'.$importUrl.'" target="_blank">',
 														'#ANCHOR_END#' => '</a>'
@@ -259,7 +264,7 @@ if (!is_object($adminSidePanelHelper))
 					</div>
 					<div class="adm-loc-cont-wrap">
 						<div class="adm-loc-table-block-wrap bx-ui-slss-selected-pane">
-							
+
 							<table class="adm-list-table">
 								<thead>
 									<tr class="adm-list-table-header">
@@ -344,7 +349,8 @@ if (!is_object($adminSidePanelHelper))
 		if (!window.BX && top.BX)
 			window.BX = top.BX;
 
-		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		<?php
+		if($arParams['JS_CONTROL_DEFERRED_INIT'] !== ''):?>
 		if (typeof window.BX.locationsDeferred == 'undefined') window.BX.locationsDeferred = {};
 		window.BX.locationsDeferred['<?=$arParams['JS_CONTROL_DEFERRED_INIT']?>'] = function () {
 			<?endif?>
@@ -372,17 +378,21 @@ if (!is_object($adminSidePanelHelper))
 					'pageSize' => $component::PAGE_SIZE, // this ...
 					'hugeTailLen' => $component::HUGE_TAIL_LEN, // and this are being used also in class.php, so could be in parameters, but only since parameters storage implemented
 
-					'connected' => ($arResult['EDIT_MODE'] ? array() : array(
-						'data' => array(
-							'l' => $arResult['FOR_JS']['DATA']['LOCATION'],
-							'g' => $arResult['GROUPS'], // we want all groups here, not only connected
-							'p' => $arResult['FOR_JS']['DATA']['PATH_NAMES']
-						),
-						'id' => array(
-							'l' => $arResult['FOR_JS']['CONNECTED']['LOCATION'],
-							'g' => $arResult['FOR_JS']['CONNECTED']['GROUP']
-						)
-					)),
+					'connected' => (
+						isset($arResult['EDIT_MODE']) && $arResult['EDIT_MODE']
+							? []
+							: [
+								'data' => [
+									'l' => $arResult['FOR_JS']['DATA']['LOCATION'],
+									'g' => $arResult['GROUPS'], // we want all groups here, not only connected
+									'p' => $arResult['FOR_JS']['DATA']['PATH_NAMES']
+								],
+								'id' => [
+									'l' => $arResult['FOR_JS']['CONNECTED']['LOCATION'],
+									'g' => $arResult['FOR_JS']['CONNECTED']['GROUP']
+								]
+						]
+					),
 
 					'messages' => array(
 						'title' => Loc::getMessage('SALE_SLSS_LOCATION_SELECTOR_TITLE'),
@@ -402,10 +412,11 @@ if (!is_object($adminSidePanelHelper))
 
 				), false, false, true)?>);
 
-		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		<?php
+		if($arParams['JS_CONTROL_DEFERRED_INIT'] !== ''):?>
 		};
 		<?endif?>
 
 	</script>
 
-<?endif?>
+<?endif;

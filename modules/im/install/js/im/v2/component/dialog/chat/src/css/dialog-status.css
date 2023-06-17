@@ -1,0 +1,86 @@
+.bx-im-dialog-chat-status__container {
+	--im-dialog-chat__scroll_width: 6px;
+	--im-dialog-chat-status__background-color: rgba(82, 92, 105, 0.12);
+	--im-dialog-chat-status__background-color_more-users: rgba(var(--im-color-palette-white-base-rgb), 0.5);
+	--im-dialog-chat-status__font-color: var(--im-color-palette-white-base);
+
+	align-self: center;
+	display: flex;
+	width: 100%;
+	max-width: 100%;
+	height: 28px;
+	max-height: 28px;
+	margin-top: 16px;
+	user-select: none;
+}
+
+.bx-im-messenger__container.--light-theme .bx-im-dialog-chat-status__container {
+	--im-dialog-chat-status__background-color: rgba(0, 0, 0, 0.2);
+}
+
+.bx-im-dialog-chat-status__content {
+	display: flex;
+	align-items: center;
+	max-width: 100%;
+	padding: 2px 16px 2px 10px;
+	background-color: var(--im-dialog-chat-status__background-color);
+	border-radius: 10px 10px 10px 2px;
+}
+
+.bx-im-dialog-chat-status__icon {
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+	flex-shrink: 0;
+}
+
+.bx-im-dialog-chat-status__icon.--read {
+	background-image: url('./images/read.svg');
+}
+
+.bx-im-dialog-chat-status__icon.--typing:before {
+	background-image: url('./images/typing.svg');
+	background-repeat: no-repeat;
+	background-size: 10px;
+	background-position: 0 3px;
+	content: '';
+	height: 16px;
+	position: absolute;
+	width: 19px;
+	margin-top: -1px;
+	margin-left: 1px;
+	animation: imAvatarTyping 1.6s linear infinite;
+}
+
+@keyframes imAvatarTyping {
+	0% { background-position-x: 0; }
+	20% { background-position-x: 3px; transform:rotate(-20deg); }
+	35% { background-position-x: 3px; transform:rotate(0deg); }
+	50% { background-position-x: 1px; transform:rotate(-30deg); }
+	65% { background-position-x: 3px; transform:rotate(0deg); }
+	80% { background-position-x: 3px; }
+	100% { background-position-x: 0; }
+}
+
+.bx-im-dialog-chat-status__text {
+	font: var(--im-font-size-sm)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-dialog-chat-status__font-color);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-dialog-chat-status__user-count {
+	cursor: pointer;
+	position: relative;
+}
+
+.bx-im-dialog-chat-status__user-count:after {
+	position: absolute;
+	content: '';
+	top: 15px;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: var(--im-dialog-chat-status__background-color_more-users);
+}

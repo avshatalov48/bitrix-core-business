@@ -84,7 +84,7 @@ $type = $arParams['TYPE'];
 
 <?php
 $buttons = [];
-$buttons[] = ['TYPE' => 'apply', 'ONCLICK' => 'window.seoAudience.apply()'];
+$buttons[] = ['TYPE' => 'apply', 'ONCLICK' => 'event.stopImmediatePropagation();window.seoAudience.apply(this);', 'WAIT' => false];
 $buttons[] = ['TYPE' => 'cancel'];
 $APPLICATION->IncludeComponent(
 	"bitrix:ui.button.panel",

@@ -56,7 +56,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 		$this->setFromArrayOrDefault('nowTime', $config, time());
 		if (isset($config['numeratorId']))
 		{
-			$this->lastInvocationTime = $config['lastInvocationTime'];
+			$this->lastInvocationTime = $config['lastInvocationTime'] ?? null;
 			$this->numeratorId = $config['numeratorId'];
 			if ($this->isDirectNumeration)
 			{
@@ -234,8 +234,8 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	public function parseTemplateForPreview($template)
 	{
 		$nextNumberSettings = $this->getSettings($this->numeratorId, false);
-		$this->lastInvocationTime = isset($nextNumberSettings['LAST_INVOCATION_TIME']) ? $nextNumberSettings['LAST_INVOCATION_TIME'] : $this->nowTime;
-		$this->calculateNextAndCurrentNumber(isset($nextNumberSettings['NEXT_NUMBER']) ? $nextNumberSettings['NEXT_NUMBER'] : $this->start);
+		$this->lastInvocationTime = $nextNumberSettings['LAST_INVOCATION_TIME'] ?? $this->nowTime;
+		$this->calculateNextAndCurrentNumber($nextNumberSettings['NEXT_NUMBER'] ?? $this->start);
 		return $this->replaceNumberInPattern($template);
 	}
 

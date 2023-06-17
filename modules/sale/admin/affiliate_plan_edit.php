@@ -1,4 +1,12 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Application;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Currency;
+use Bitrix\Iblock;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
@@ -7,11 +15,12 @@ if ($saleModulePermissions=="D")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
+$iblockIncluded = Loader::includeModule('iblock');
 
-if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
+if (!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -19,204 +28,353 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 	die();
 }
 
-ClearVars();
+$request = Context::getCurrent()->getRequest();
 
-$errorMessage = "";
+$errorMessage = '';
 $bVarsFromForm = false;
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
+
 $affiliatePlanType = COption::GetOptionString("sale", "affiliate_plan_type", "N");
 $simpleForm = COption::GetOptionString("sale", "lock_catalog", "Y");
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
+$formFields = [];
+$formSectionList = [];
+
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions >= "W" && check_bitrix_sessid())
 {
-	if ($SITE_ID == '')
-		$errorMessage .= GetMessage("SAPE1_NO_SITE").".<br>";
-	if ($NAME == '')
-		$errorMessage .= GetMessage("SAPE1_NO_NAME").".<br>";
-
-	$ACTIVE = (($ACTIVE == "Y") ? "Y" : "N");
-
-	$BASE_RATE = str_replace(",", ".", $BASE_RATE);
-	$BASE_RATE = DoubleVal($BASE_RATE);
-
-	$MIN_PAY = str_replace(",", ".", $MIN_PAY);
-	$MIN_PAY = DoubleVal($MIN_PAY);
-
-	if ($BASE_RATE_TYPE_CMN == "P")
+	$requiredStringList = [
+		'SITE_ID' => GetMessage('SAPE1_NO_SITE'),
+		'NAME' => GetMessage('SAPE1_NO_NAME'),
+	];
+	foreach ($requiredStringList as $fieldId => $fieldError)
 	{
-		$BASE_RATE_TYPE = "P";
-		$BASE_RATE_CURRENCY = False;
-	}
-	else
-	{
-		$BASE_RATE_TYPE = "F";
-		$BASE_RATE_CURRENCY = $BASE_RATE_TYPE_CMN;
-
-		if ($BASE_RATE_CURRENCY == '')
-			$errorMessage .= GetMessage("SAPE1_NO_RATE_CURRENCY").".<br>";
-	}
-
-	if ($affiliatePlanType == "N")
-	{
-		$MIN_PLAN_VALUE = intval($MIN_PLAN_VALUE);
-	}
-	else
-	{
-		$MIN_PLAN_VALUE = str_replace(",", ".", $MIN_PLAN_VALUE);
-		$MIN_PLAN_VALUE = DoubleVal($MIN_PLAN_VALUE);
-	}
-
-	$NUM_SECTIONS = intval($NUM_SECTIONS);
-	if ($NUM_SECTIONS >= 0)
-	{
-		for ($i = 0; $i <= $NUM_SECTIONS; $i++)
+		$value = $request->getPost($fieldId);
+		if (is_string($value) && $value !== '')
 		{
-			if (!isset(${"ID_".$i}))
-				continue;
-
-			if ($simpleForm == "Y")
-				${"MODULE_ID_".$i} = "catalog";
-
-			if (${"MODULE_ID_".$i} == "catalog")
-			{
-				if (isset(${"SECTION_SELECTOR_LEVEL_".$i}) && is_array(${"SECTION_SELECTOR_LEVEL_".$i}))
-				{
-					for ($j = 0, $maxCount = count(${"SECTION_SELECTOR_LEVEL_".$i}); $j < $maxCount; $j++)
-					{
-						if (intval(${"SECTION_SELECTOR_LEVEL_".$i}[$j]) > 0)
-							${"SECTION_ID_".$i} = intval(${"SECTION_SELECTOR_LEVEL_".$i}[$j]);
-					}
-				}
-
-				${"SECTION_ID_".$i} = intval(${"SECTION_ID_".$i});
-				if (${"SECTION_ID_".$i} <= 0)
-					$errorMessage .= GetMessage("SAPE1_NO_SECTION").".<br>";
-			}
-			else
-			{
-				${"MODULE_ID_".$i} = Trim(${"MODULE_ID_".$i});
-				if (${"MODULE_ID_".$i} == '')
-					$errorMessage .= GetMessage("SAPE1_NO_MODULE").".<br>";
-
-				${"SECTION_ID_".$i} = Trim(${"SECTION_ID_".$i});
-				if (${"SECTION_ID_".$i} == '')
-					$errorMessage .= GetMessage("SAPE1_NO_SECTION").".<br>";
-			}
-
-			${"RATE_".$i} = str_replace(",", ".", ${"RATE_".$i});
-			${"RATE_".$i} = DoubleVal(${"RATE_".$i});
-
-			if (${"RATE_TYPE_CMN_".$i} == "P")
-			{
-				${"RATE_TYPE_".$i} = "P";
-				${"RATE_CURRENCY_".$i} = False;
-			}
-			else
-			{
-				${"RATE_TYPE_".$i} = "F";
-				${"RATE_CURRENCY_".$i} = ${"RATE_TYPE_CMN_".$i};
-
-				if (${"RATE_CURRENCY_".$i} == '')
-					$errorMessage .= GetMessage("SAPE1_NO_RATE_CURRENCY").".<br>";
-			}
+			$formFields[$fieldId] = $value;
+		}
+		else
+		{
+			$errorMessage .= $fieldError . '<br>';
 		}
 	}
-
-
-	if ($errorMessage == '')
+	unset($requiredStringList);
+	$stringList = [
+		'DESCRIPTION',
+	];
+	foreach ($stringList as $fieldId)
 	{
-		$arFields = array(
-			"SITE_ID" => $SITE_ID,
-			"NAME" => $NAME,
-			"DESCRIPTION" => $DESCRIPTION,
-			"ACTIVE" => $ACTIVE,
-			"BASE_RATE" => $BASE_RATE,
-			"BASE_RATE_TYPE" => $BASE_RATE_TYPE,
-			"BASE_RATE_CURRENCY" => $BASE_RATE_CURRENCY,
-			"MIN_PAY" => $MIN_PAY,
-			"MIN_PLAN_VALUE" => $MIN_PLAN_VALUE
-		);
-
-		if ($ID > 0)
+		$value = $request->getPost($fieldId);
+		if (is_string($value))
 		{
-			if (!CSaleAffiliatePlan::Update($ID, $arFields))
+			$formFields[$fieldId] = $value;
+		}
+	}
+	unset($stringList);
+
+	$booleanList = [
+		'ACTIVE',
+	];
+	foreach ($booleanList as $fieldId)
+	{
+		$value = $request->getPost($fieldId);
+		if ($value === 'Y' || $value === 'N')
+		{
+			$formFields[$fieldId] = $value;
+		}
+	}
+	unset($booleanList);
+
+	$intList = [
+		'NUM_SECTIONS',
+	];
+	$floatList = [
+		'BASE_RATE',
+		'MIN_PAY',
+	];
+	if ($affiliatePlanType === 'N')
+	{
+		$intList[] = 'MIN_PLAN_VALUE';
+	}
+	else
+	{
+		$floatList[] = 'MIN_PLAN_VALUE';
+	}
+	foreach ($intList as $fieldId)
+	{
+		$value = $request->getPost($fieldId);
+		if (is_string($value))
+		{
+			$formFields[$fieldId] = (int)$value;
+		}
+	}
+	foreach ($floatList as $fieldId)
+	{
+		$value = $request->getPost($fieldId);
+		if (is_string($value))
+		{
+			$formFields[$fieldId] = (float)str_replace(',', '.', $value);
+		}
+	}
+	unset($floatList, $intList);
+
+	$baseRateType = $request->getPost('BASE_RATE_TYPE_CMN');
+	if (is_string($baseRateType) && $baseRateType !== '')
+	{
+		if ($baseRateType === 'P')
+		{
+			$formFields['BASE_RATE_TYPE'] = $baseRateType;
+			$formFields['BASE_RATE_CURRENCY'] = false;
+		}
+		else
+		{
+			$formFields['BASE_RATE_TYPE'] = 'F';
+			$formFields['BASE_RATE_CURRENCY'] = $baseRateType;
+		}
+	}
+	else
+	{
+		$errorMessage .= GetMessage('SAPE1_NO_RATE_CURRENCY') . '<br>';
+	}
+	unset($baseRateType);
+
+	$newCount = 0;
+	$defaultSectionValues = [
+		'MODULE_ID' => '',
+		'SECTION_ID' => '',
+		'RATE' => 0,
+		'RATE_TYPE' => 'P',
+		'RATE_CURRENCY' => '',
+	];
+
+	$numSection = $formFields['NUM_SECTIONS'] ?? 0;
+	for ($i = 0; $i <= $numSection; $i++)
+	{
+		$index = $request->getPost('ID_' . $i);
+		if (!is_string($index))
+		{
+			continue;
+		}
+		$index = (int)$index;
+		if ($index <= 0)
+		{
+			$index = 'n' . $newCount;
+			$newCount++;
+		}
+		$rowError = false;
+		$row = [];
+
+		if ($simpleForm === 'Y')
+		{
+			$row['MODULE_ID'] = 'catalog';
+		}
+		else
+		{
+			$moduleId = $request->getPost('MODULE_ID_' . $i);
+			$row['MODULE_ID'] = (is_string($moduleId) ? trim($moduleId) : '');
+			if ($row['MODULE_ID'] === '')
 			{
-				if ($ex = $APPLICATION->GetException())
-					$errorMessage .= $ex->GetString().".<br>";
-				else
-					$errorMessage .= GetMessage("SAPE1_ERROR_SAVE").".<br>";
+				$rowError = true;
+				$errorMessage .= GetMessage('SAPE1_NO_MODULE') . '<br>';
+			}
+			unset($moduleId);
+		}
+
+		if ($row['MODULE_ID'] === 'catalog')
+		{
+			$sectionId = '';
+			$selectorList = $request->getPost('SECTION_SELECTOR_LEVEL_' . $i);
+			if (is_array($selectorList))
+			{
+				foreach ($selectorList as $value)
+				{
+					$value = (is_string($value) ? (int)$value : 0);
+					if ($value > 0)
+					{
+						$sectionId = $value;
+					}
+				}
+			}
+			if ($sectionId === '')
+			{
+				$value = $request->getPost('SECTION_ID_' . $i);
+				if (is_string($value))
+				{
+					$value = (int)$value;
+					if ($value > 0)
+					{
+						$sectionId = $value;
+					}
+				}
+			}
+			$row['SECTION_ID'] = (string)$sectionId;
+		}
+		else
+		{
+			$sectionId = $request->getPost('SECTION_ID_' . $i);
+			$row['SECTION_ID'] = (is_string($sectionId) ? trim($sectionId) : '');
+		}
+		unset($sectionId);
+		if ($row['SECTION_ID'] === '')
+		{
+			$rowError = true;
+			$errorMessage .= GetMessage('SAPE1_NO_SECTION') .'<br>';
+		}
+
+		$rate = $request->getPost('RATE_'. $i);
+		if (!is_string($rate))
+		{
+			$rate = '';
+		}
+		$row['RATE'] = (float)str_replace(',', '.', $rate);
+		unset($rate);
+
+		$rateType = $request->getPost('RATE_TYPE_CMN_' . $i);
+		if (is_string($rateType) && $rateType !== '')
+		{
+			if ($rateType === 'P')
+			{
+				$row['RATE_TYPE'] = $rateType;
+				$row['RATE_CURRENCY'] = false;
+			}
+			else
+			{
+				$row['RATE_TYPE'] = 'F';
+				$row['RATE_CURRENCY'] = $rateType;
 			}
 		}
 		else
 		{
-			$ID = CSaleAffiliatePlan::Add($arFields);
-			$ID = intval($ID);
+			$rowError = true;
+			$errorMessage .= GetMessage('SAPE1_NO_RATE_CURRENCY') . '<br>';
+		}
+		unset($rateType);
+
+		if ($rowError)
+		{
+			$row = array_merge($defaultSectionValues, $row);
+		}
+		$formSectionList[$index] = $row;
+	}
+
+	$conn = Application::getConnection();
+	$transaction = false;
+
+	if ($errorMessage === '')
+	{
+		$transaction = true;
+		$conn->startTransaction();
+
+		if ($ID > 0)
+		{
+			if (!CSaleAffiliatePlan::Update($ID, $formFields))
+			{
+				$ex = $APPLICATION->GetException();
+				if ($ex)
+				{
+					$errorMessage .= $ex->GetString() . '<br>';
+				}
+				else
+				{
+					$errorMessage .= GetMessage('SAPE1_ERROR_SAVE') . '.<br>';
+				}
+				unset($ex);
+			}
+		}
+		else
+		{
+			$ID = (int)CSaleAffiliatePlan::Add($formFields);
 			if ($ID <= 0)
 			{
-				if ($ex = $APPLICATION->GetException())
-					$errorMessage .= $ex->GetString().".<br>";
+				$ex = $APPLICATION->GetException();
+				if ($ex)
+				{
+					$errorMessage .= $ex->GetString() . '<br>';
+				}
 				else
-					$errorMessage .= GetMessage("SAPE1_ERROR_SAVE").".<br>";
+				{
+					$errorMessage .= GetMessage("SAPE1_ERROR_SAVE") . '<br>';
+				}
+				unset($ex);
 			}
 		}
 	}
 
 	if ($errorMessage == '')
 	{
-		$arSectionIDs = array();
-
-		$NUM_SECTIONS = intval($NUM_SECTIONS);
-		if ($NUM_SECTIONS >= 0)
+		$sectionIds = [];
+		foreach ($formSectionList as $index => $row)
 		{
-			for ($i = 0; $i <= $NUM_SECTIONS; $i++)
+			$row['PLAN_ID'] = $ID;
+			if (is_int($index))
 			{
-				if (!isset(${"ID_".$i}))
-					continue;
-
-				${"ID_".$i} = intval(${"ID_".$i});
-
-				$arFields = array(
-					"PLAN_ID" => $ID,
-					"MODULE_ID" => ${"MODULE_ID_".$i},
-					"SECTION_ID" => ${"SECTION_ID_".$i},
-					"RATE" => ${"RATE_".$i},
-					"RATE_TYPE" => ${"RATE_TYPE_".$i},
-					"RATE_CURRENCY" => ${"RATE_CURRENCY_".$i}
-				);
-				if (${"ID_".$i} > 0)
+				if (!CSaleAffiliatePlanSection::Update($index, $row))
 				{
-					if (!CSaleAffiliatePlanSection::Update(${"ID_".$i}, $arFields))
+					$ex = $APPLICATION->GetException();
+					if ($ex)
 					{
-						if ($ex = $APPLICATION->GetException())
-							$errorMessage .= $ex->GetString().".<br>";
-						else
-							$errorMessage .= GetMessage("SAPE1_ERROR_SAVE_SECTION").".<br>";
+						$errorMessage .= $ex->GetString() . '<br>';
 					}
+					else
+					{
+						$errorMessage .= GetMessage('SAPE1_ERROR_SAVE_SECTION') . '<br>';
+					}
+					unset($ex);
 				}
 				else
 				{
-					${"ID_".$i} = CSaleAffiliatePlanSection::Add($arFields);
-					${"ID_".$i} = intval(${"ID_".$i});
-					if (${"ID_".$i} <= 0)
-					{
-						if ($ex = $APPLICATION->GetException())
-							$errorMessage .= $ex->GetString().".<br>";
-						else
-							$errorMessage .= GetMessage("SAPE1_ERROR_SAVE_SECTION").".<br>";
-					}
+					$sectionIds[] = $index;
 				}
-				$arSectionIDs[] = ${"ID_".$i};
+			}
+			else
+			{
+				$index = (int)CSaleAffiliatePlanSection::Add($row);
+				if ($index <= 0)
+				{
+					$ex = $APPLICATION->GetException();
+					if ($ex)
+					{
+						$errorMessage .= $ex->GetString() . '<br>';
+					}
+					else
+					{
+						$errorMessage .= GetMessage("SAPE1_ERROR_SAVE_SECTION") . '<br>';
+					}
+					unset($ex);
+				}
+				else
+				{
+					$sectionIds[] = $index;
+				}
 			}
 		}
 
-		CSaleAffiliatePlanSection::DeleteByPlan($ID, $arSectionIDs);
+		CSaleAffiliatePlanSection::DeleteByPlan($ID, $sectionIds);
 	}
 
-	if ($errorMessage == '')
+	if ($transaction)
 	{
-		if ($apply == '')
-			LocalRedirect("/bitrix/admin/sale_affiliate_plan.php?lang=".LANG.GetFilterParams("filter_", false));
+		if ($errorMessage === '')
+		{
+			$conn->commitTransaction();
+		}
+		else
+		{
+			$conn->rollbackTransaction();
+		}
+	}
+	unset($conn);
+
+	if ($errorMessage === '')
+	{
+		if ($request->getPost('apply') === null)
+		{
+			LocalRedirect(
+				'/bitrix/admin/sale_affiliate_plan.php?lang=' . LANGUAGE_ID
+					. GetFilterParams('filter_', false)
+			);
+		}
 	}
 	else
 	{
@@ -224,161 +382,250 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && c
 	}
 }
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
-
-if ($ID > 0)
-	$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("SAPE1_TITLE_UPDATE")));
-else
-	$APPLICATION->SetTitle(GetMessage("SAPE1_TITLE_ADD"));
-
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-
-$dbPlan = CSaleAffiliatePlan::GetList(array(), array("ID" => $ID));
-if (!$dbPlan->ExtractFields("str_"))
-	$ID = 0;
-
-if ($bVarsFromForm)
-	$DB->InitTableVarsForEdit("b_sale_affiliate_plan", "", "str_");
-?>
-
-<?
-$aMenu = array(
-		array(
-				"TEXT" => GetMessage("SAPE1_LIST"),
-				"LINK" => "/bitrix/admin/sale_affiliate_plan.php?lang=".LANG.GetFilterParams("filter_"),
-				"ICON" => "btn_list"
-			)
-	);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/prolog.php';
 
 if ($ID > 0)
 {
-	$aMenu[] = array("SEPARATOR" => "Y");
+	$APPLICATION->SetTitle(GetMessage(
+		"SAPE1_TITLE_UPDATE",
+		[
+			'#ID#' => $ID,
+		]
+	));
+}
+else
+{
+	$APPLICATION->SetTitle(GetMessage('SAPE1_TITLE_ADD'));
+}
 
-	$aMenu[] = array(
-			"TEXT" => GetMessage("SAPE1_ADD"),
-			"LINK" => "/bitrix/admin/sale_affiliate_plan_edit.php?lang=".LANG.GetFilterParams("filter_"),
-			"ICON" => "btn_new"
-		);
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
+
+$defaultValues = [
+	'ID' => 0,
+	'SITE_ID' => '',
+	'NAME' => '',
+	'DESCRIPTION' => '',
+	'TIMESTAMP_X' => '',
+	'ACTIVE' => 'Y',
+	'BASE_RATE' => '',
+	'BASE_RATE_TYPE' => '',
+	'BASE_RATE_CURRENCY' => 'P',
+	'MIN_PAY' => '',
+	'MIN_PLAN_VALUE' => 0,
+];
+$fields = null;
+$sectionList = null;
+
+if ($ID > 0)
+{
+	$iterator = CSaleAffiliatePlan::GetList([], ['ID' => $ID]);
+	$fields = $iterator->Fetch();
+	unset($iterator);
+}
+if (!$fields)
+{
+	$ID = 0;
+	$fields = $defaultValues;
+	$sectionList = [];
+}
+else
+{
+	$sectionList = [];
+
+	$iterator = CSaleAffiliatePlanSection::GetList([], ["PLAN_ID" => $ID]);
+	while ($row = $iterator->Fetch())
+	{
+		$sectionId = (int)$row['ID'];
+		$sectionList[$sectionId] = [
+			'MODULE_ID' => $row['MODULE_ID'],
+			'SECTION_ID' => (int)$row['SECTION_ID'],
+			'RATE' => (float)$row['RATE'],
+			'RATE_TYPE' => $row['RATE_TYPE'],
+			'RATE_CURRENCY' => $row['RATE_CURRENCY'],
+		];
+	}
+	unset($row, $iterator);
+}
+
+if ($bVarsFromForm)
+{
+	$fields = array_merge($fields, $formFields);
+
+	foreach ($formSectionList as $index => $row)
+	{
+		if (isset($sectionList[$index]))
+		{
+			$sectionList[$index] = array_merge($sectionList[$index], $row);
+		}
+		else
+		{
+			$sectionList[$index] = $row;
+		}
+	}
+}
+
+$aMenu = [
+	[
+		'TEXT' => GetMessage('SAPE1_LIST'),
+		'LINK' => '/bitrix/admin/sale_affiliate_plan.php?lang=' . LANGUAGE_ID . GetFilterParams('filter_'),
+		'ICON' => 'btn_list',
+	],
+];
+
+if ($ID > 0)
+{
+	$aMenu[] = [
+		"SEPARATOR" => "Y",
+	];
+
+	$aMenu[] = [
+		'TEXT' => GetMessage('SAPE1_ADD'),
+		'LINK' => '/bitrix/admin/sale_affiliate_plan_edit.php?lang=' . LANGUAGE_ID . GetFilterParams('filter_'),
+		'ICON' => 'btn_new',
+	];
 
 	if ($saleModulePermissions >= "W")
 	{
-		$aMenu[] = array(
-				"TEXT" => GetMessage("SAPE1_DELETE"),
-				"LINK" => "javascript:if(confirm('".GetMessage("SAPE1_DELETE_CONF")."')) window.location='/bitrix/admin/sale_affiliate_plan.php?ID=".$ID."&action=delete&lang=".LANG."&".bitrix_sessid_get()."#tb';",
-				"WARNING" => "Y",
-				"ICON" => "btn_delete"
-			);
+		$aMenu[] = [
+			'TEXT' => GetMessage('SAPE1_DELETE'),
+			'LINK' => "javascript:if(confirm('".GetMessage("SAPE1_DELETE_CONF")."')) window.location='/bitrix/admin/sale_affiliate_plan.php?ID=" . $ID. "&action=delete&lang=" . LANGUAGE_ID . "&" . bitrix_sessid_get() . "#tb';",
+			'WARNING' => 'Y',
+			'ICON' => 'btn_delete',
+		];
 	}
 }
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
+
+if ($errorMessage !== '')
+{
+	CAdminMessage::ShowMessage([
+		'DETAILS' => $errorMessage,
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('SAPE1_ERROR_SAVE'),
+		'HTML' => true,
+	]);
+}
 ?>
-
-<?if($errorMessage <> '')
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAPE1_ERROR_SAVE"), "HTML"=>true));?>
-
-
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1">
-<?echo GetFilterHiddens("filter_");?>
+<form method="POST" action="<?= $APPLICATION->GetCurPage(); ?>?" name="form1">
+<?= GetFilterHiddens("filter_"); ?>
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="lang" value="<?echo LANG ?>">
-<input type="hidden" name="ID" value="<?echo $ID ?>">
-<?=bitrix_sessid_post()?>
-
-<?
-$aTabs = array(
-	array("DIV" => "edit1", "TAB" => GetMessage("SAPE1_PLAN"), "ICON" => "sale", "TITLE" => GetMessage("SAPE1_PLAN_PARAM")),
-	array("DIV" => "edit2", "TAB" => GetMessage("SAPE1_SECTIONS"), "ICON" => "sale", "TITLE" => GetMessage("SAPE1_SECTIONS_ALT")),
-);
+<input type="hidden" name="lang" value="<?= LANGUAGE_ID; ?>">
+<input type="hidden" name="ID" value="<?= $ID ?>">
+<?= bitrix_sessid_post(); ?>
+<?php
+$aTabs = [
+	[
+		'DIV' => 'edit1',
+		'TAB' => GetMessage('SAPE1_PLAN'),
+		'ICON' => 'sale',
+		'TITLE' => GetMessage('SAPE1_PLAN_PARAM'),
+	],
+	[
+		'DIV' => 'edit2',
+		'TAB' => GetMessage('SAPE1_SECTIONS'),
+		'ICON' => 'sale',
+		'TITLE' => GetMessage('SAPE1_SECTIONS_ALT'),
+	],
+];
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
-?>
 
-<?
 $tabControl->BeginNextTab();
-?>
-
-	<?if ($ID > 0):?>
+	if ($ID > 0):
+		?>
 		<tr>
 			<td width="40%">ID:</td>
-			<td width="60%"><?=$ID?></td>
+			<td width="60%"><?= $ID; ?></td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("SAPE1_TIMESTAMP_X")?></td>
-			<td width="60%"><?=$str_TIMESTAMP_X?></td>
+			<td width="40%"><?= GetMessage("SAPE1_TIMESTAMP_X"); ?></td>
+			<td width="60%"><?= $fields['TIMESTAMP_X']; ?></td>
 		</tr>
-	<?endif;?>
+		<?php
+	endif;
+	?>
 	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("SAPE1_SITE")?></td>
+		<td width="40%"><?= GetMessage("SAPE1_SITE"); ?></td>
 		<td width="60%">
-			<?echo CSite::SelectBox("SITE_ID", $str_SITE_ID, "", "");?>
+			<?= CSite::SelectBox('SITE_ID', $fields['SITE_ID'], '', ''); ?>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td><?echo GetMessage("SAPE1_NAME")?></td>
+		<td><?= GetMessage("SAPE1_NAME"); ?></td>
 		<td>
-			<input type="text" name="NAME" size="60" maxlength="250" value="<?= $str_NAME ?>">
+			<input type="text" name="NAME" size="60" maxlength="250" value="<?= htmlspecialcharsbx($fields['NAME']); ?>">
 		</td>
 	</tr>
 	<tr>
-		<td class="adm-detail-valign-top"><?echo GetMessage("SAPE1_DESCR")?></td>
+		<td class="adm-detail-valign-top"><?= GetMessage("SAPE1_DESCR");?></td>
 		<td>
-			<textarea name="DESCRIPTION" rows="5" cols="60"><?= $str_DESCRIPTION ?></textarea>
+			<textarea name="DESCRIPTION" rows="5" cols="60"><?= htmlspecialcharsbx($fields['DESCRIPTION']); ?></textarea>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("SAPE1_ACTIVE")?></td>
+		<td><?= GetMessage("SAPE1_ACTIVE")?></td>
 		<td>
-			<input type="checkbox" name="ACTIVE" value="Y"<?if ($str_ACTIVE == "Y") echo " checked"?>>
+			<input type="hidden" name="ACTIVE" value="N">
+			<input type="checkbox" name="ACTIVE" value="Y"<?= ($fields['ACTIVE'] === 'Y' ? ' checked' : ''); ?>>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td><?echo GetMessage("SAPE1_RATE")?></td>
+		<td><?= GetMessage("SAPE1_RATE"); ?></td>
 		<td>
-			<input type="text" name="BASE_RATE" size="10" maxlength="10" value="<?= roundEx($str_BASE_RATE, SALE_VALUE_PRECISION) ?>">
-			<?
-			if ($bVarsFromForm)
-			{
-				$str_BASE_RATE_TYPE_CMN = $BASE_RATE_TYPE_CMN;
-			}
-			else
-			{
-				if ($str_BASE_RATE_TYPE == "P")
-					$str_BASE_RATE_TYPE_CMN = "P";
+			<input type="text" name="BASE_RATE" size="10" maxlength="10" value="<?= roundEx($fields['BASE_RATE'], SALE_VALUE_PRECISION) ?>">
+			<?php
+				if ($fields['BASE_RATE_TYPE'] === "P")
+				{
+					$baseRateType = "P";
+				}
 				else
-					$str_BASE_RATE_TYPE_CMN = $str_BASE_RATE_CURRENCY;
-			}
+				{
+					$baseRateType = $fields['BASE_RATE_CURRENCY'];
+				}
 			?>
 			<select name="BASE_RATE_TYPE_CMN">
-				<option value="P"<?= ($str_BASE_RATE_TYPE_CMN == "P") ? " selected" : "" ?>>%</option>
-				<?
-				$arCurrencies = array();
-				$dbCurrencyList = CCurrency::GetList("currency", "asc");
-				while ($arCurrency = $dbCurrencyList->Fetch())
-					$arCurrencies[$arCurrency["CURRENCY"]] = "[".$arCurrency["CURRENCY"]."] ".htmlspecialcharsbx($arCurrency["FULL_NAME"]);
-
+				<option value="P"<?= ($baseRateType === "P") ? " selected" : "" ?>>%</option>
+				<?php
+				$arCurrencies = [];
+				if (Loader::includeModule('currency'))
+				{
+					$arCurrencies = Currency\CurrencyManager::getCurrencyList();
+				}
 				foreach ($arCurrencies as $key => $value)
 				{
-					?><option value="<?= $key ?>"<?= ($key == $str_BASE_RATE_TYPE_CMN) ? " selected" : "" ?>><?= $value ?></option><?
+					?><option value="<?= $key ?>"<?= ($key === $baseRateType) ? " selected" : "" ?>><?= htmlspecialcharsbx($value); ?></option><?php
 				}
 				?>
 			</select>
 		</td>
 	</tr>
-	<tr>
-		<td><?= (($affiliatePlanType == "N") ? GetMessage("SAPE1_LIMIT") : GetMessage("SAPE1_LIMIT_HINT")) ?>:</td>
-		<td>
-			<input type="text" name="MIN_PLAN_VALUE" size="10" maxlength="10" value="<?= intval($str_MIN_PLAN_VALUE) ?>">
+	<tr><?php
+		if ($affiliatePlanType === 'N')
+		{
+			$value = (int)$fields['MIN_PLAN_VALUE'];
+			$fieldTitle = GetMessage('SAPE1_LIMIT');
+		}
+		else
+		{
+			$value = (float)$fields['MIN_PLAN_VALUE'];
+			$fieldTitle =  GetMessage('SAPE1_LIMIT_HINT');
+		}
+		?>
+		<td><?= $fieldTitle; ?>:</td>
+		<td><?php
+			if ($affiliatePlanType === 'N')
+			?>
+			<input type="text" name="MIN_PLAN_VALUE" size="10" maxlength="10" value="<?= $value; ?>">
 		</td>
 	</tr>
-<?
+<?php
 $tabControl->BeginNextTab();
 ?>
-
 	<tr>
 		<td colspan="2">
-			<script language="JavaScript">
+			<script>
 
 			function ShowHideSectionBox(cnt, val)
 			{
@@ -527,8 +774,7 @@ $tabControl->BeginNextTab();
 			}
 
 			</script>
-
-			<?
+			<?php
 			$arIBlockCache = array();
 			$arIBlockTypeCache = array();
 			$maxLevel = 0;
@@ -543,7 +789,7 @@ $tabControl->BeginNextTab();
 					if ($arIBlockType = CIBlockType::GetByIDLang($arIBlock["IBLOCK_TYPE_ID"], LANG, true))
 						$arIBlockTypeCache[$arIBlock["IBLOCK_TYPE_ID"]] = $arIBlockType["NAME"];
 
-				$arSections = Array();
+				$arSections = [];
 
 				$dbSectionTree = CIBlockSection::GetTreeList(
 					array("IBLOCK_ID" => $arIBlock["ID"])
@@ -553,15 +799,14 @@ $tabControl->BeginNextTab();
 					if ($maxLevel < $arSectionTree["DEPTH_LEVEL"])
 						$maxLevel = $arSectionTree["DEPTH_LEVEL"];
 
-					$arSectionTree["IBLOCK_SECTION_ID"] = intval($arSectionTree["IBLOCK_SECTION_ID"]);
+					$arSectionTree["IBLOCK_SECTION_ID"] = (int)$arSectionTree["IBLOCK_SECTION_ID"];
 
-					if (!is_array($arSections[$arSectionTree["IBLOCK_SECTION_ID"]]))
-						$arSections[$arSectionTree["IBLOCK_SECTION_ID"]] = array();
+					$arSections[$arSectionTree["IBLOCK_SECTION_ID"]] ??= [];
 
-					$arSections[$arSectionTree["IBLOCK_SECTION_ID"]][] = array(
+					$arSections[$arSectionTree["IBLOCK_SECTION_ID"]][] = [
 						"ID" => $arSectionTree["ID"],
 						"NAME" => $arSectionTree["NAME"]
-					);
+					];
 				}
 
 				$str1 = "";
@@ -581,13 +826,13 @@ $tabControl->BeginNextTab();
 				?>
 				<script type="text/javascript">
 
-				itm_name['<?= $arIBlock["ID"] ?>'] = new Object();
-				itm_id['<?= $arIBlock["ID"] ?>'] = new Object();
+				itm_name['<?= $arIBlock["ID"] ?>'] = {};
+				itm_id['<?= $arIBlock["ID"] ?>'] = {};
 				<?=$str1;?>
 				<?=$str2;?>
 
 				</script>
-				<?
+				<?php
 			}
 			?>
 			<script type="text/javascript">
@@ -625,7 +870,7 @@ $tabControl->BeginNextTab();
 
 				var str = "";
 
-				<?
+				<?php
 				if ($simpleForm != "Y")
 				{
 					?>
@@ -633,11 +878,11 @@ $tabControl->BeginNextTab();
 					oCell.vAlign = 'top';
 					str = '';
 					str += '<select name="MODULE_ID_' + cnt + '" id="ID_MODULE_ID_' + cnt + '" OnChange="ModuleChange(' + cnt + ')" style="width:150px;">';
-					<?
+					<?php
 					$dbModuleList = CModule::GetList();
 					while ($arModuleList = $dbModuleList->Fetch())
 					{
-						?>str += '<option value="<?= $arModuleList["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($arModuleList["ID"])) ?></option>';<?
+						?>str += '<option value="<?= $arModuleList["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($arModuleList["ID"])) ?></option>';<?php
 					}
 					?>
 					str += '</select>';
@@ -653,11 +898,9 @@ $tabControl->BeginNextTab();
 							break;
 						}
 					}
-					<?
+					<?php
 				}
 				?>
-
-
 				var oCell = oRow.insertCell(-1);
 				oCell.vAlign = 'top';
 				str = '';
@@ -665,22 +908,22 @@ $tabControl->BeginNextTab();
 				str += '<div id="ID_CATALOG_GROUP_' + cnt + '" style="display: none;">';
 				str += '<select name="SECTION_IBLOCK_ID_' + cnt + '" onChange="ChlistIBlock(' + cnt + ')" style="width:300px;">';
 				str += '<option value="0"> - </option>';
-				<?
+				<?php
 				foreach ($arIBlockCache as $key => $arIBlock)
 				{
-					?>str += '<option value="<?= $arIBlock["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSescape("[".$arIBlockTypeCache[$arIBlock["IBLOCK_TYPE_ID"]]."] ".$arIBlock["NAME"])) ?></option>';<?
+					?>str += '<option value="<?= $arIBlock["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSescape("[".$arIBlockTypeCache[$arIBlock["IBLOCK_TYPE_ID"]]."] ".$arIBlock["NAME"])) ?></option>';<?php
 				}
 				?>
 				str += '</select><br>';
-				<?
+				<?php
 				$initValue = 0;
 				for ($i = 0; $i < $maxLevel; $i++)
 				{
 					?>
 					str += '<select name="SECTION_SELECTOR_LEVEL_' + cnt + '[<?= $i ?>]" onChange="Chlist(' + cnt + ', <?= $i ?>)" style="width:300px;">';
-					str += '<option value=""><?echo GetMessage("SAPE1_NO")?></option>';
+					str += '<option value=""><?= GetMessage("SAPE1_NO")?></option>';
 					str += '</select><br>';
-					<?
+					<?php
 				}
 				?>
 				str += '</div>';
@@ -697,10 +940,10 @@ $tabControl->BeginNextTab();
 				str += '<input type="text" name="RATE_' + cnt + '" size="10" maxlength="10" value="' + rate + '">';
 				str += '<select name="RATE_TYPE_CMN_' + cnt + '" id="ID_RATE_TYPE_CMN_' + cnt + '" style="width:100px;">';
 				str += '<option value="P">%</option>';
-				<?
+				<?php
 				foreach ($arCurrencies as $key => $value)
 				{
-					?>str += '<option value="<?= $key ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($value)) ?></option>';<?
+					?>str += '<option value="<?= $key ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($value)) ?></option>';<?php
 				}
 				?>
 				str += '</select>';
@@ -720,25 +963,25 @@ $tabControl->BeginNextTab();
 				var oCell = oRow.insertCell(-1);
 				oCell.vAlign = 'top';
 				str = '';
-				str += '<a href="javascript:if(confirm(\'<?echo GetMessage("SAPE1_DELETE1_CONF")?>\')) AffDeleteSectionRow(' + cnt + ')"><?echo GetMessage("SAPE1_DELETE1")?></a>';
+				str += '<a href="javascript:if(confirm(\'<?= GetMessage("SAPE1_DELETE1_CONF")?>\')) AffDeleteSectionRow(' + cnt + ')"><?= GetMessage("SAPE1_DELETE1")?></a>';
 				oCell.innerHTML = str;
 
 				ChlistIBlock(cnt);
 
-				<?
+				<?php
 				if ($simpleForm != "Y")
 				{
-					?>ModuleChange(cnt);<?
+					?>ModuleChange(cnt);<?php
 				}
 				else
 				{
-					?>ShowHideSectionBox(cnt, true);<?
+					?>ShowHideSectionBox(cnt, true);<?php
 				}
 				?>
 
 				if (ar && ar.length > 0)
 					Fnd(cnt, ar);
-				
+
 				if (document.forms.form1.BXAUTOSAVE)
 				{
 					setTimeout(function() {
@@ -769,7 +1012,7 @@ $tabControl->BeginNextTab();
 				if (ind >= 0)
 					oTbl.deleteRow(ind);
 			}
-			
+
 			BX.ready(function() {
 				BX.addCustomEvent(document.forms.form1, 'onAutoSaveRestore', function(ob,data) {
 					if (data['MODULE_ID_' + aff_cnt])
@@ -789,112 +1032,87 @@ $tabControl->BeginNextTab();
 			<input type="hidden" name="NUM_SECTIONS" id="NUM_SECTIONS" value="-1">
 			<table cellpadding="3" cellspacing="1" border="0" width="100%" class="internal" id="SECTIONS_TABLE">
 				<tr class="heading">
-					<?
+					<?php
 					if ($simpleForm != "Y")
 					{
-						?><td><?echo GetMessage("SAPE1_MODULE")?></td><?
+						?><td><?= GetMessage("SAPE1_MODULE"); ?></td><?php
 					}
 					?>
-					<td><?echo GetMessage("SAPE1_SECTION")?></td>
-					<td><?echo GetMessage("SAPE1_RATE1")?></td>
+					<td><?= GetMessage("SAPE1_SECTION"); ?></td>
+					<td><?= GetMessage("SAPE1_RATE1"); ?></td>
 					<td>&nbsp;</td>
 				</tr>
-				<?
+				<script>
+				<?php
 				$cnt = -1;
-				if ($bVarsFromForm)
+				foreach ($sectionList as $index => $row)
 				{
-					$NUM_SECTIONS = intval($NUM_SECTIONS);
-					if ($NUM_SECTIONS > 0)
+					if (!is_int($index))
 					{
-						for ($i = 0; $i <= $NUM_SECTIONS; $i++)
+						$index = 0;
+					}
+					$rateType = ($row['RATE_TYPE'] === 'P' ? $row['RATE_TYPE'] : $row['RATE_CURRENCY']);
+
+					$sectionPath = [];
+					if ($iblockIncluded && $row['SECTION_ID'] > 0)
+					{
+						$section = Iblock\SectionTable::getRow([
+							'select' => [
+								'ID',
+								'IBLOCK_ID',
+							],
+							'filter' => [
+								'=ID' => $row['SECTION_ID']
+							]
+						]);
+						if ($section)
 						{
-							if (!isset(${"ID_".$i}))
-								continue;
-
-							$cnt++;
-
-							$str = "";
-							if (intval(${"SECTION_ID_".$i}) > 0)
+							$section['IBLOCK_ID'] = (int)$section['IBLOCK_ID'];
+							$chain = CIBlockSection::GetNavChain($section['IBLOCK_ID'], $section['ID'], ['ID'], true);
+							if (!empty($chain))
 							{
-								$dbSection = CIBlockSection::GetByID(${"SECTION_ID_".$i});
-								if ($arSection = $dbSection->Fetch())
+								$sectionPath[] = 0;
+								$sectionPath[] = $section['IBLOCK_ID'];
+								foreach ($chain as $chainItem)
 								{
-									$dbNavChain = CIBlockSection::GetNavChain($arSection["IBLOCK_ID"], ${"SECTION_ID_".$i});
-									$str = $arSection["IBLOCK_ID"];
-									while ($arNavChain = $dbNavChain->Fetch())
-										$str .= ",".$arNavChain["ID"];
+									$sectionPath[] = (int)$chainItem['ID'];
 								}
 							}
-
-							?>
-							<script language="JavaScript">
-
-							AffAddSectionRow(-1, <?= CUtil::JSEscape(${"ID_".$i}) ?>, '<?= CUtil::JSEscape(${"MODULE_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"SECTION_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_TYPE_CMN_".$i}) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
-
-							</script>
-							<?
+							unset($chain);
 						}
 					}
+					?>
+					AffAddSectionRow(
+						-1,
+						<?= CUtil::JSEscape($index); ?>,
+						'<?= CUtil::JSEscape($row['MODULE_ID']); ?>',
+						'<?= CUtil::JSEscape($row['SECTION_ID']); ?>',
+						'<?= CUtil::JSEscape($row['RATE']); ?>',
+						'<?= CUtil::JSEscape($rateType) ?>',
+						[<?= implode(',', $sectionPath); ?>]
+					);
+					<?php
 				}
-				else
-				{
-					$dbPlanSection = CSaleAffiliatePlanSection::GetList(array(), array("PLAN_ID" => $ID));
-					while ($arPlanSection = $dbPlanSection->Fetch())
-					{
-						$cnt++;
-						$str_MODULE_ID = $arPlanSection["MODULE_ID"];
-						$str_SECTION_ID = $arPlanSection["SECTION_ID"];
-						$str_RATE = $arPlanSection["RATE"];
-						if ($arPlanSection["RATE_TYPE"] == "P")
-							$str_RATE_TYPE_CMN = "P";
-						else
-							$str_RATE_TYPE_CMN = $arPlanSection["RATE_CURRENCY"];
-
-						$str = "";
-						if (intval($str_SECTION_ID) > 0)
-						{
-							$dbSection = CIBlockSection::GetByID($str_SECTION_ID);
-							if ($arSection = $dbSection->Fetch())
-							{
-								$dbNavChain = CIBlockSection::GetNavChain($arSection["IBLOCK_ID"], $str_SECTION_ID);
-								$str = $arSection["IBLOCK_ID"];
-								while ($arNavChain = $dbNavChain->Fetch())
-									$str .= ",".$arNavChain["ID"];
-							}
-						}
-						?>
-						<script language="JavaScript">
-
-						AffAddSectionRow(-1, <?= $arPlanSection["ID"] ?>, '<?= CUtil::JSEscape($str_MODULE_ID) ?>', '<?= CUtil::JSEscape($str_SECTION_ID) ?>', '<?= CUtil::JSEscape($str_RATE) ?>', '<?= CUtil::JSEscape($str_RATE_TYPE_CMN) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
-
-						</script>
-						<?
-					}
-				}
+				?>
+				</script>
+				<?php
 				?>
 			</table>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2"><input type="button" value="<?echo GetMessage("SAPE1_ADD1")?>" OnClick="AffAddSectionRow(-1);"></td>
+		<td colspan="2"><input type="button" value="<?= GetMessage("SAPE1_ADD1"); ?>" onclick="AffAddSectionRow(-1);"></td>
 	</tr>
-
-<?
+<?php
 $tabControl->EndTab();
-?>
 
-<?
-$tabControl->Buttons(
-	array(
-		"disabled" => ($saleModulePermissions < "W"),
-		"back_url" => "/bitrix/admin/sale_affiliate_plan.php?lang=".LANG.GetFilterParams("filter_")
-	)
-);
-?>
+$tabControl->Buttons([
+	'disabled' => ($saleModulePermissions < 'W'),
+	'back_url' => '/bitrix/admin/sale_affiliate_plan.php?lang=' . LANGUAGE_ID . GetFilterParams('filter_'),
+]);
 
-<?
 $tabControl->End();
 ?>
-
 </form>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

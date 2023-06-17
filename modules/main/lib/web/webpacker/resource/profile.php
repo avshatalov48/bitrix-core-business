@@ -71,7 +71,7 @@ class Profile
 	 */
 	public function getProperty($code)
 	{
-		return isset($this->properties[$code]) ? $this->properties[$code] : null;
+		return $this->properties[$code] ?? null;
 	}
 
 	/**

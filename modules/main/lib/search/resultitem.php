@@ -312,7 +312,7 @@ final class ResultItem implements \JsonSerializable, \ArrayAccess
 	 * which is a value of any type other than a resource.
 	 * @since 5.4.0
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		return [
 			'id' => $this->getId(),
@@ -340,7 +340,7 @@ final class ResultItem implements \JsonSerializable, \ArrayAccess
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 * @since 5.0.0
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		$data = $this->jsonSerialize();
 
@@ -358,6 +358,7 @@ final class ResultItem implements \JsonSerializable, \ArrayAccess
 	 * @return mixed Can return all value types.
 	 * @since 5.0.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		$data = $this->jsonSerialize();
@@ -384,7 +385,7 @@ final class ResultItem implements \JsonSerializable, \ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		throw new NotSupportedException('ResultItem provides ArrayAccess only for reading');
 	}
@@ -400,7 +401,7 @@ final class ResultItem implements \JsonSerializable, \ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		throw new NotSupportedException('ResultItem provides ArrayAccess only for reading');
 	}

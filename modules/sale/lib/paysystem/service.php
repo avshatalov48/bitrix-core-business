@@ -119,6 +119,11 @@ class Service implements RestrictableService
 			$error = implode("\n", $initResult->getErrorMessages());
 			Logger::addError(get_class($this->handler).". InitiatePay: ".$error);
 
+			(new PaymentMarker($this, $payment))
+				->mark($initResult)
+				->save()
+			;
+
 			$this->callEventOnInitiatePayError($payment, $initResult);
 		}
 
@@ -375,22 +380,23 @@ class Service implements RestrictableService
 
 				$serviceResult->setResultApplied(false);
 			}
+
+			PullManager::onSuccessfulPayment($payment);
 		}
 		else
 		{
 			$serviceResult->setResultApplied(false);
 			$processResult->addErrors($serviceResult->getErrors());
 
-			$markerClassName = $registry->getEntityMarkerClassName();
-			$markerResult = new Result();
-			$markerResult->addWarnings($serviceResult->getErrors());
-			$markerClassName::addMarker($order, $payment, $markerResult);
-			$payment->setField('MARKED', 'Y');
-
-			$order->save();
-
 			$error = implode("\n", $serviceResult->getErrorMessages());
 			Logger::addError(get_class($this->handler).'. ProcessRequest Error: '.$error);
+
+			(new PaymentMarker($this, $payment))
+				->mark($serviceResult)
+				->save()
+			;
+
+			PullManager::onFailurePayment($payment);
 		}
 
 		$event = new Event(

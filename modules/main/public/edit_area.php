@@ -27,7 +27,7 @@ class CEditArea
 	function IncludeStringBefore()
 	{
 		$this->includeLevel++;
-		$this->includeAreaIndex[$this->includeLevel] = intval($this->includeAreaIndex[$this->includeLevel])+1;
+		$this->includeAreaIndex[$this->includeLevel] = intval($this->includeAreaIndex[$this->includeLevel] ?? 0)+1;
 		unset($this->includeAreaIndex[$this->includeLevel+1]);
 
 		$areaId = $this->__GetAreaId();
@@ -52,7 +52,7 @@ class CEditArea
 
 	function DrawIcons($arIcons, $arParams=array())
 	{
-		$bStack = $this->includeLevel > ($GLOBALS['BX_GLOBAL_AREA_EDIT_ICON'] ? 1 : 0);
+		$bStack = $this->includeLevel > (isset($GLOBALS['BX_GLOBAL_AREA_EDIT_ICON']) && $GLOBALS['BX_GLOBAL_AREA_EDIT_ICON'] ? 1 : 0);
 
 		$arJSIcons = array();
 		$arOuterIcons = array();
@@ -79,9 +79,9 @@ class CEditArea
 
 				$jsIcon = CEditArea::GetJSIcon($arIcon);
 
-				if ($arIcon['IN_MENU'] || ($arIcon['TYPE'] == 'components2_props' && $bStack))
+				if ((isset($arIcon['IN_MENU']) && $arIcon['IN_MENU']) || (isset($arIcon['TYPE']) && $arIcon['TYPE'] == 'components2_props' && $bStack))
 					$arJSIcons[] = $jsIcon;
-				elseif ($arIcon['IN_PARAMS_MENU'])
+				elseif (isset($arIcon['IN_PARAMS_MENU']) && $arIcon['IN_PARAMS_MENU'])
 				{
 					$jsIcon['TYPE'] = 'components2_submenu_item';
 					$arOuterIcons[] = $jsIcon;
@@ -94,8 +94,8 @@ class CEditArea
 		$areaId = $this->__GetAreaId();
 
 		$this->includeAreaIcons[$areaId] = array(
-			'COMPONENT' => $arParams['COMPONENT'],
-			'DESCRIPTION' => $arParams['COMPONENT_DESCRIPTION'],
+			'COMPONENT' => $arParams['COMPONENT'] ?? '',
+			'DESCRIPTION' => $arParams['COMPONENT_DESCRIPTION'] ?? '',
 			'OUTER_ICONS' => $arOuterIcons,
 			'ICONS' => $arJSIcons
 		);
@@ -119,7 +119,7 @@ class CEditArea
 					$arAllInnerIcons,
 					array(
 						array(
-							'TEXT' => $arSubIcons['DESCRIPTION']['NAME'] ? ($arSubIcons['DESCRIPTION']['NAME'].' ('.$arSubIcons['COMPONENT'].')') : $arSubIcons['COMPONENT'],
+							'TEXT' => isset($arSubIcons['DESCRIPTION']['NAME']) ? ($arSubIcons['DESCRIPTION']['NAME'].' ('.$arSubIcons['COMPONENT'].')') : $arSubIcons['COMPONENT'],
 							'ICON' => 'parameters-2',
 							'MENU' => $arSubIcons['ICONS']
 						)
@@ -132,11 +132,11 @@ class CEditArea
 			$arAddInnerIcons = array();
 			foreach ($arAllOuterIcons as $aIcon)
 			{
-				if ($aIcon['TYPE'] == 'components2_props')
+				if (isset($aIcon['TYPE']) && $aIcon['TYPE'] == 'components2_props')
 				{
 					$arAddInnerIcons['components2_props'] = $aIcon;
 				}
-				elseif ($aIcon['TYPE'] == 'components2_submenu_item')
+				elseif (isset($aIcon['TYPE']) && $aIcon['TYPE'] == 'components2_submenu_item')
 				{
 					$arAddInnerIcons[] = $aIcon;
 				}
@@ -147,7 +147,7 @@ class CEditArea
 				$arAddInnerIcons[] = array('SEPARATOR' => 'Y');
 			}
 
-			if (count($arAddInnerIcons) > 0 && count($arAllInnerIcons) > 0)
+			if (!empty($arAddInnerIcons) && !empty($arAllInnerIcons))
 			{
 				$arJSIcons = array_merge(
 					$arAllOuterIcons,
@@ -167,7 +167,7 @@ class CEditArea
 			}
 
 			$arUserOptions = false;
-			if ($arParams['COMPONENT_ID'])
+			if (!empty($arParams['COMPONENT_ID']))
 			{
 				$arUserOptions = CUtil::GetPopupOptions($arParams['COMPONENT_ID']);
 			}
@@ -177,7 +177,7 @@ class CEditArea
 				'id' => 'comp_'.$areaId,
 			);
 
-			if ($arParams['COMPONENT_ID'])
+			if (!empty($arParams['COMPONENT_ID']))
 			{
 				$arJSParams['component_id'] = $arParams['COMPONENT_ID'];
 
@@ -197,15 +197,15 @@ class CEditArea
 				}
 			}
 
-			if (is_array($arParams['TOOLTIP']) && ($arParams['TOOLTIP']['TITLE'] || $arParams['TOOLTIP']['TEXT']))
+			if (isset($arParams['TOOLTIP']) && is_array($arParams['TOOLTIP']) && (!empty($arParams['TOOLTIP']['TITLE']) || !empty($arParams['TOOLTIP']['TEXT'])))
 			{
 				$arJSParams['HINT'] = array(
-					'TITLE' => $arParams['TOOLTIP']['TITLE'],
-					'TEXT' => $arParams['TOOLTIP']['TEXT']
+					'TITLE' => $arParams['TOOLTIP']['TITLE'] ?? '',
+					'TEXT' => $arParams['TOOLTIP']['TEXT'] ?? '',
 				);
 			}
 
-			if (count($arJSIcons) > 0)
+			if (!empty($arJSIcons))
 			{
 				$arJSParams['menu'] = $arJSIcons;
 
@@ -213,7 +213,7 @@ class CEditArea
 
 				$this->bDrawIcons = true;
 
-				$res = '<script type="text/javascript">if(window.BX)BX.ready(function() {(new BX.'.($arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'('.CUtil::PhpToJsObject($arJSParams).')).Show()});</script>';
+				$res = '<script type="text/javascript">if(window.BX)BX.ready(function() {(new BX.'.(isset($arParams['COMPONENT_ID']) && $arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'('.CUtil::PhpToJsObject($arJSParams).')).Show()});</script>';
 			}
 			else
 			{
@@ -228,7 +228,7 @@ class CEditArea
 
 	function GetJSIcon($arIcon)
 	{
-		$url = $arIcon['URL'];
+		$url = $arIcon['URL'] ?? '';
 		if ($url <> '')
 		{
 			if(mb_strtolower(mb_substr($url, 0, 11)) == 'javascript:')
@@ -238,9 +238,9 @@ class CEditArea
 		}
 
 		$jsIcon = array(
-			'ICONCLASS' => $arIcon['ICON'],
-			'TITLE' => $arIcon['ALT'],
-			'TEXT' => $arIcon['TITLE'],
+			'ICONCLASS' => $arIcon['ICON'] ?? '',
+			'TITLE' => $arIcon['ALT'] ?? '',
+			'TEXT' => $arIcon['TITLE'] ?? '',
 		);
 
 		if ($url)
@@ -253,10 +253,10 @@ class CEditArea
 		elseif(isset($arIcon['SRC']))
 			$jsIcon['IMAGE'] = $arIcon['SRC'];
 
-		if ($arIcon['TYPE'])
+		if (!empty($arIcon['TYPE']))
 			$jsIcon['TYPE'] = $arIcon['TYPE'];
 
-		if ($arIcon['MENU'])
+		if (isset($arIcon['MENU']) && is_array($arIcon['MENU']) && !empty($arIcon['MENU']))
 		{
 			$jsIcon['MENU'] = CEditArea::GetJSIconMenu($arIcon['MENU']);
 		}
@@ -268,7 +268,7 @@ class CEditArea
 	{
 		foreach ($arMenu as $k => $aMenuItem)
 		{
-			if ($aMenuItem['URL'])
+			if (!empty($aMenuItem['URL']))
 			{
 				$u = $aMenuItem['URL'];
 				if(mb_strtolower(mb_substr($u, 0, 11)) == 'javascript:')
@@ -279,7 +279,7 @@ class CEditArea
 				$aMenuItem['URL'] = $aMenuItem['ACTION'] = $u;
 			}
 
-			if ($aMenuItem['MENU'])
+			if (isset($aMenuItem['MENU']) && is_array($aMenuItem['MENU']) && !empty($aMenuItem['MENU']))
 				$aMenuItem['MENU'] = CEditArea::GetJSIconMenu($aMenuItem['MENU']);
 
 			$arMenu[$k] = $aMenuItem;

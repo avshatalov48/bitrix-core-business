@@ -129,7 +129,7 @@ else
 
 			if ($errorMessage == '')
 			{
-				if ($_POST["do_read"] <> '')
+				if (!empty($_POST["do_read"]))
 				{
 					if (!CSocNetMessages::MarkMessageReadMultiple($GLOBALS["USER"]->GetID(), $arIDs))
 					{
@@ -137,7 +137,7 @@ else
 							$errorMessage .= $e->GetString();
 					}
 				}
-				elseif ($_POST["do_delete"] <> '')
+				elseif (!empty($_POST["do_delete"]))
 				{
 					if (!CSocNetMessages::DeleteMessageMultiple($GLOBALS["USER"]->GetID(), $arIDs))
 					{
@@ -145,7 +145,7 @@ else
 							$errorMessage .= $e->GetString();
 					}
 				}
-				elseif ($_POST["do_delete_all_flag"] == "Y")
+				elseif (isset($_POST["do_delete_all_flag"]) && $_POST["do_delete_all_flag"] == "Y")
 				{
 					if (!CSocNetMessages::DeleteConversation($GLOBALS["USER"]->GetID(), $arResult["User"]["ID"]))
 					{

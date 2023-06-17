@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -9,12 +13,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock\InheritedProperty\ElementValues,
-	Bitrix\Iblock,
-	Bitrix\Catalog,
-	Bitrix\Currency;
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Iblock;
+use Bitrix\Iblock\InheritedProperty\ElementValues;
+use Bitrix\Catalog;
+use Bitrix\Currency;
 
 $this->setFrameMode(false);
 
@@ -26,98 +31,154 @@ if (!Loader::includeModule("iblock"))
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-unset($arParams["IBLOCK_TYPE"]); //was used only for IBLOCK_ID setup with Editor
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
+unset($arParams['IBLOCK_TYPE']); //was used only for IBLOCK_ID setup with Editor
+$arParams['IBLOCK_ID'] = (int)($arParams['IBLOCK_ID'] ?? 0);
 
-$arParams["NAME"] = trim($arParams["NAME"]);
-if ($arParams["NAME"] == '')
-	$arParams["NAME"] = "CATALOG_COMPARE_LIST";
+$arParams['NAME'] = trim((string)($arParams['NAME'] ?? ''));
+if ($arParams['NAME'] === '')
+{
+	$arParams['NAME'] = 'CATALOG_COMPARE_LIST';
+}
 
-if ($arParams["ELEMENT_SORT_FIELD"] == '')
-	$arParams["ELEMENT_SORT_FIELD"]="sort";
+$arParams['ELEMENT_SORT_FIELD'] = (string)($arParams['ELEMENT_SORT_FIELD'] ?? '');
+if ($arParams['ELEMENT_SORT_FIELD'] === '')
+{
+	$arParams['ELEMENT_SORT_FIELD'] = 'sort';
+}
 
-if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	$arParams["ELEMENT_SORT_ORDER"]="asc";
+$arParams['ELEMENT_SORT_ORDER'] = (string)($arParams['ELEMENT_SORT_ORDER'] ?? '');
+if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams['ELEMENT_SORT_ORDER']))
+{
+	$arParams['ELEMENT_SORT_ORDER'] = 'asc';
+}
 
-$arParams["DETAIL_URL"] = trim($arParams["DETAIL_URL"]);
-$arParams["BASKET_URL"] = trim($arParams["BASKET_URL"]);
-if ($arParams["BASKET_URL"] == '')
-	$arParams["BASKET_URL"] = "/personal/basket.php";
+$arParams['DETAIL_URL'] = trim((string)($arParams['DETAIL_URL'] ?? ''));
+$arParams['BASKET_URL'] = trim((string)($arParams['BASKET_URL'] ?? ''));
+if ($arParams['BASKET_URL'] === '')
+{
+	$arParams['BASKET_URL'] = '/personal/basket.php';
+}
 
-$arParams["ACTION_VARIABLE"] = trim($arParams["ACTION_VARIABLE"]);
-if ($arParams["ACTION_VARIABLE"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["ACTION_VARIABLE"]))
-	$arParams["ACTION_VARIABLE"] = "action";
+$arParams['ACTION_VARIABLE'] = trim((string)($arParams['ACTION_VARIABLE'] ?? ''));
+if (
+	$arParams['ACTION_VARIABLE'] === ''
+	|| !preg_match('/^[A-Za-z_][A-Za-z01-9_]*$/', $arParams['ACTION_VARIABLE'])
+)
+{
+	$arParams['ACTION_VARIABLE'] = 'action';
+}
 
-$arParams["PRODUCT_ID_VARIABLE"] = trim($arParams["PRODUCT_ID_VARIABLE"]);
-if ($arParams["PRODUCT_ID_VARIABLE"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PRODUCT_ID_VARIABLE"]))
-	$arParams["PRODUCT_ID_VARIABLE"] = "id";
+$arParams['PRODUCT_ID_VARIABLE'] = trim((string)($arParams['PRODUCT_ID_VARIABLE'] ?? ''));
+if (
+	$arParams['PRODUCT_ID_VARIABLE'] === ''
+	|| !preg_match('/^[A-Za-z_][A-Za-z01-9_]*$/', $arParams['PRODUCT_ID_VARIABLE'])
+)
+{
+	$arParams['PRODUCT_ID_VARIABLE'] = 'id';
+}
 
-$arParams["SECTION_ID_VARIABLE"] = trim($arParams["SECTION_ID_VARIABLE"]);
-if ($arParams["SECTION_ID_VARIABLE"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["SECTION_ID_VARIABLE"]))
-	$arParams["SECTION_ID_VARIABLE"] = "SECTION_ID";
+$arParams['SECTION_ID_VARIABLE'] = trim((string)($arParams['SECTION_ID_VARIABLE'] ?? ''));
+if (
+	$arParams['SECTION_ID_VARIABLE'] === ''
+	|| !preg_match('/^[A-Za-z_][A-Za-z01-9_]*$/', $arParams['SECTION_ID_VARIABLE'])
+)
+{
+	$arParams['SECTION_ID_VARIABLE'] = 'SECTION_ID';
+}
 
-if (!isset($arParams["PROPERTY_CODE"]) || !is_array($arParams["PROPERTY_CODE"]))
-	$arParams["PROPERTY_CODE"] = array();
-foreach($arParams["PROPERTY_CODE"] as $k=>$v)
-	if ($v==="")
-		unset($arParams["PROPERTY_CODE"][$k]);
+if (!isset($arParams['PROPERTY_CODE']) || !is_array($arParams['PROPERTY_CODE']))
+{
+	$arParams['PROPERTY_CODE'] = [];
+}
+$arParams['PROPERTY_CODE'] = array_filter($arParams['PROPERTY_CODE']);
 
-if (!is_array($arParams["FIELD_CODE"]))
-	$arParams["FIELD_CODE"] = array();
-foreach($arParams["FIELD_CODE"] as $k=>$v)
-	if ($v==="")
-		unset($arParams["FIELD_CODE"][$k]);
+if (!isset($arParams['FIELD_CODE']) || !is_array($arParams['FIELD_CODE']))
+{
+	$arParams['FIELD_CODE'] = [];
+}
+$arParams['FIELD_CODE'] = array_filter($arParams['FIELD_CODE']);
+if (!in_array('NAME', $arParams['FIELD_CODE']))
+{
+	$arParams['FIELD_CODE'][] = 'NAME';
+}
 
-if (!is_array($arParams["OFFERS_FIELD_CODE"]))
-	$arParams["OFFERS_FIELD_CODE"] = array();
-foreach($arParams["OFFERS_FIELD_CODE"] as $k=>$v)
-	if ($v==="")
-		unset($arParams["OFFERS_FIELD_CODE"][$k]);
+if (!isset($arParams['OFFERS_FIELD_CODE']) || !is_array($arParams['OFFERS_FIELD_CODE']))
+{
+	$arParams['OFFERS_FIELD_CODE'] = [];
+}
+$arParams['OFFERS_FIELD_CODE'] = array_filter($arParams['OFFERS_FIELD_CODE']);
 
-if (!isset($arParams["OFFERS_PROPERTY_CODE"]) || !is_array($arParams["OFFERS_PROPERTY_CODE"]))
-	$arParams["OFFERS_PROPERTY_CODE"] = array();
-foreach($arParams["OFFERS_PROPERTY_CODE"] as $k=>$v)
-	if ($v==="")
-		unset($arParams["OFFERS_PROPERTY_CODE"][$k]);
+if (!isset($arParams['OFFERS_PROPERTY_CODE']) || !is_array($arParams['OFFERS_PROPERTY_CODE']))
+{
+	$arParams['OFFERS_PROPERTY_CODE'] = [];
+}
+$arParams['OFFERS_PROPERTY_CODE'] = array_filter($arParams['OFFERS_PROPERTY_CODE']);
 
-if (!in_array("NAME", $arParams["FIELD_CODE"]))
-	$arParams["FIELD_CODE"][]="NAME";
-if (!is_array($arParams["PRICE_CODE"]))
-	$arParams["PRICE_CODE"] = array();
+if (!isset($arParams['PRICE_CODE']) || !is_array($arParams['PRICE_CODE']))
+{
+	$arParams['PRICE_CODE'] = [];
+}
+$arParams['PRICE_CODE'] = array_filter($arParams['PRICE_CODE']);
 
-$arParams["USE_PRICE_COUNT"] = $arParams["USE_PRICE_COUNT"]=="Y";
-$arParams["SHOW_PRICE_COUNT"] = intval($arParams["SHOW_PRICE_COUNT"]);
-if ($arParams["SHOW_PRICE_COUNT"]<=0)
-	$arParams["SHOW_PRICE_COUNT"]=1;
+$arParams['USE_PRICE_COUNT'] = ($arParams['USE_PRICE_COUNT'] ?? 'N') === 'Y';
+$arParams['SHOW_PRICE_COUNT'] = (int)($arParams['SHOW_PRICE_COUNT'] ?? 1);
+if ($arParams['SHOW_PRICE_COUNT'] <= 0)
+{
+	$arParams['SHOW_PRICE_COUNT'] = 1;
+}
 
-$arParams["DISPLAY_ELEMENT_SELECT_BOX"] = $arParams["DISPLAY_ELEMENT_SELECT_BOX"]=="Y";
-if (empty($arParams["ELEMENT_SORT_FIELD_BOX"]))
-	$arParams["ELEMENT_SORT_FIELD_BOX"]="sort";
-if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER_BOX"]))
-	$arParams["ELEMENT_SORT_ORDER_BOX"]="asc";
-if (empty($arParams["ELEMENT_SORT_FIELD_BOX2"]))
-	$arParams["ELEMENT_SORT_FIELD_BOX2"] = "id";
-if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER_BOX2"]))
-	$arParams["ELEMENT_SORT_ORDER_BOX2"] = "desc";
+$arParams['DISPLAY_ELEMENT_SELECT_BOX'] = ($arParams['DISPLAY_ELEMENT_SELECT_BOX'] ?? 'N') === 'Y';
+if (empty($arParams['ELEMENT_SORT_FIELD_BOX']))
+{
+	$arParams['ELEMENT_SORT_FIELD_BOX'] = 'sort';
+}
+if (
+	!isset($arParams['ELEMENT_SORT_ORDER_BOX'])
+	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams['ELEMENT_SORT_ORDER_BOX'])
+)
+{
+	$arParams['ELEMENT_SORT_ORDER_BOX'] = 'asc';
+}
+if (empty($arParams['ELEMENT_SORT_FIELD_BOX2']))
+{
+	$arParams['ELEMENT_SORT_FIELD_BOX2'] = 'id';
+}
+if (
+	!isset($arParams['ELEMENT_SORT_ORDER_BOX2'])
+	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams['ELEMENT_SORT_ORDER_BOX2'])
+)
+{
+	$arParams['ELEMENT_SORT_ORDER_BOX2'] = 'desc';
+}
 
-if (empty($arParams['HIDE_NOT_AVAILABLE']) || $arParams['HIDE_NOT_AVAILABLE'] != 'Y')
+if (empty($arParams['HIDE_NOT_AVAILABLE']) || $arParams['HIDE_NOT_AVAILABLE'] !== 'Y')
+{
 	$arParams['HIDE_NOT_AVAILABLE'] = 'N';
+}
 
-$arParams["PRICE_VAT_INCLUDE"] = $arParams["PRICE_VAT_INCLUDE"] !== "N";
+$arParams['PRICE_VAT_INCLUDE'] = ($arParams['PRICE_VAT_INCLUDE'] ?? 'Y') !== 'N';
 
-$arParams['CONVERT_CURRENCY'] = (isset($arParams['CONVERT_CURRENCY']) && 'Y' == $arParams['CONVERT_CURRENCY'] ? 'Y' : 'N');
-$arParams['CURRENCY_ID'] = trim(strval($arParams['CURRENCY_ID']));
-if ('' == $arParams['CURRENCY_ID'])
+$arParams['CONVERT_CURRENCY'] = (isset($arParams['CONVERT_CURRENCY']) && $arParams['CONVERT_CURRENCY'] === 'Y' ? 'Y' : 'N');
+$arParams['CURRENCY_ID'] = trim((string)($arParams['CURRENCY_ID'] ?? ''));
+if ($arParams['CURRENCY_ID'] === '')
+{
 	$arParams['CONVERT_CURRENCY'] = 'N';
-elseif ('N' == $arParams['CONVERT_CURRENCY'])
+}
+elseif ($arParams['CONVERT_CURRENCY'] === 'N')
+{
 	$arParams['CURRENCY_ID'] = '';
+}
 
-$arResult = array();
+$arResult = [];
 
-if (!isset($_SESSION[$arParams["NAME"]]))
-	$_SESSION[$arParams["NAME"]] = array();
-if (!isset($_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]))
-	$_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]] = array();
+if (!isset($_SESSION[$arParams['NAME']]))
+{
+	$_SESSION[$arParams['NAME']] = [];
+}
+if (!isset($_SESSION[$arParams['NAME']][$arParams['IBLOCK_ID']]))
+{
+	$_SESSION[$arParams['NAME']][$arParams['IBLOCK_ID']] = [];
+}
 
 /*************************************************************************
 			Handling the Compare button
@@ -918,13 +979,15 @@ if (!empty($arCompare) && is_array($arCompare))
 						$boolArr = is_array($prop['VALUE']);
 						if (
 							($boolArr && !empty($prop["VALUE"]))
-							|| (!$boolArr && $prop["VALUE"] <> '')
+							|| (!$boolArr && (string)$prop["VALUE"] !== '')
 							|| \Bitrix\Iblock\Component\Tools::isCheckboxProperty($prop)
 						)
 						{
-							$arItem['OFFER_DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arOffer, $prop, 'catalog_out');
+							$arItem['OFFER_DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arOffer, $prop);
 							if ($arItem['OFFER_DISPLAY_PROPERTIES'][$pid]['DISPLAY_VALUE'] !== false)
+							{
 								$arResult['EMPTY_OFFER_PROPERTIES'][$pid] = false;
+							}
 						}
 						unset($prop);
 					}
@@ -963,13 +1026,15 @@ if (!empty($arCompare) && is_array($arCompare))
 					$boolArr = is_array($prop['VALUE']);
 					if (
 						($boolArr && !empty($prop["VALUE"]))
-						|| (!$boolArr && $prop["VALUE"] <> '')
+						|| (!$boolArr && (string)$prop["VALUE"] !== '')
 						|| \Bitrix\Iblock\Component\Tools::isCheckboxProperty($prop)
 					)
 					{
-						$arItem['DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, 'catalog_out');
+						$arItem['DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 						if ($arItem['DISPLAY_PROPERTIES'][$pid]['DISPLAY_VALUE'] !== false)
+						{
 							$arResult['EMPTY_PROPERTIES'][$pid] = false;
+						}
 					}
 				}
 
@@ -1168,6 +1233,7 @@ if (!empty($arCompare) && is_array($arCompare))
 
 		$arResult["ITEMS"][] = $arItem;
 	}
+	\CIBlockFormatProperties::clearCache();
 
 	if (!empty($arResult['EMPTY_FIELDS']))
 	{

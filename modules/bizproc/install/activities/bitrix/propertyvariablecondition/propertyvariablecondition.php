@@ -16,7 +16,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 		$this->condition = $condition;
 	}
 
-	public function Evaluate(CBPActivity $ownerActivity)
+	public function evaluate(CBPActivity $ownerActivity)
 	{
 		if (!$this->isConditionGroupExist())
 		{
@@ -25,7 +25,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 
 		$this->conditionGroupToArray();
 
-		$rootActivity = $ownerActivity->GetRootActivity();
+		$rootActivity = $ownerActivity->getRootActivity();
 
 		$items = [];
 		foreach ($this->condition as $cond)
@@ -38,13 +38,13 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 			{
 				$valueToCheck = $rootActivity->{$cond[0]};
 				$property = $rootActivity->getTemplatePropertyType($cond[0]);
-				$baseType = $rootActivity->GetPropertyBaseType($cond[0]);
+				$baseType = $rootActivity->getPropertyBaseType($cond[0]);
 			}
 			elseif ($rootActivity->isVariableExists($cond[0]))
 			{
-				$valueToCheck = $rootActivity->GetVariable($cond[0]);
+				$valueToCheck = $rootActivity->getVariable($cond[0]);
 				$property = $rootActivity->getVariableType($cond[0]);
-				$baseType =  $rootActivity->GetVariableBaseType($cond[0]);
+				$baseType =  $rootActivity->getVariableBaseType($cond[0]);
 			}
 
 			$type = is_array($property) ? $property['Type'] : $baseType;
@@ -54,7 +54,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 				'operator' => $type ? $cond[1] : 'empty',
 				'valueToCheck' => $valueToCheck,
 				'fieldType' => $this->getFieldTypeObject($rootActivity, ['Type' => $type ?? 'string']),
-				'value' => $type ? $rootActivity->ParseValue($cond[2], $type) : null,
+				'value' => $type ? $rootActivity->parseValue($cond[2], $type) : null,
 				'fieldName' => ($property && $property['Name']) ?? $cond[0],
 			];
 		}
@@ -64,9 +64,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 			'parameterDocumentId' => $rootActivity->getDocumentId()
 		]);
 
-		$result = $conditionGroup->evaluate();
-
-		return $result;
+		return $conditionGroup->evaluate();
 	}
 
 	public function collectUsages(CBPActivity $ownerActivity)
@@ -132,6 +130,10 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 				$i = 0;
 				foreach ($defaultValue as $value)
 				{
+					if (!isset($arCurrentValues["variable_condition_count"]))
+					{
+						$arCurrentValues["variable_condition_count"] = '';
+					}
 					if (!CBPHelper::isEmptyValue($arCurrentValues["variable_condition_count"]))
 					{
 						$arCurrentValues["variable_condition_count"] .= ",";
@@ -272,7 +274,7 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 					];
 				}
 			}
-			$joiner = (int)$arCurrentValues["variable_condition_joiner_" . $i];
+			$joiner = (int)($arCurrentValues["variable_condition_joiner_" . $i] ?? 0);
 
 			$result[] = [$fieldId, $operator, $inputResult->getData()['value'] ?? '', $joiner];
 		}

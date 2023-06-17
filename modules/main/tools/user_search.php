@@ -187,7 +187,7 @@ while($arRes = $rsData->GetNext())
 	$row->AddViewField("NAME", $arRes["NAME"]);
 	$row->AddViewField("LAST_NAME", $arRes["LAST_NAME"]);
 	$row->AddViewField("EMAIL", TxtToHtml($arRes["EMAIL"]));
-	$row->AddViewField("PERSONAL_PROFESSION", $arRes[""]);
+	$row->AddViewField("PERSONAL_PROFESSION", $arRes["PERSONAL_PROFESSION"]);
 	$row->AddViewField("PERSONAL_WWW", TxtToHtml($arRes["PERSONAL_WWW"]));
 	$row->AddViewField("PERSONAL_ICQ", $arRes["PERSONAL_ICQ"]);
 	$row->AddViewField("PERSONAL_GENDER", $arRes["PERSONAL_GENDER"]);

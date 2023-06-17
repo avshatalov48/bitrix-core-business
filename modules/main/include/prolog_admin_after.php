@@ -1,7 +1,11 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-define("START_EXEC_PROLOG_AFTER_1", microtime(true));
+if (!defined('START_EXEC_PROLOG_AFTER_1'))
+{
+	define("START_EXEC_PROLOG_AFTER_1", microtime(true));
+}
+
 $GLOBALS["BX_STATE"] = "PA";
 
 if(!defined("BX_ROOT"))
@@ -24,6 +28,10 @@ else
 	}
 }
 
-define("START_EXEC_PROLOG_AFTER_2", microtime(true));
+if (!defined('START_EXEC_PROLOG_AFTER_2'))
+{
+	define("START_EXEC_PROLOG_AFTER_2", microtime(true));
+}
+
 $GLOBALS["BX_STATE"] = "WA";
 ?>

@@ -56,7 +56,7 @@ class CSocNetLogToolsPhoto
 
 		foreach($arComponentResult["SECTION"]["PATH"] as $arPathSection)
 		{
-			if (trim($arPathSection["UF_PASSWORD"]) <> '')
+			if (trim($arPathSection["UF_PASSWORD"] ?? '') <> '')
 			{
 				$bPassword = true;
 				break;
@@ -131,7 +131,7 @@ class CSocNetLogToolsPhoto
 		)
 			$strSectionName = $arComponentResult["SECTION"]["NAME"];
 		else
-			$strSectionName = $arComponentResult["SECTION"]["PATH"][count($arComponentResult["SECTION"]["PATH"])-1]["NAME"];
+			$strSectionName = $arComponentResult["SECTION"]["PATH"][count($arComponentResult["SECTION"]["PATH"])-1]["NAME"] ?? '';
 			
 		if (
 			array_key_exists("URL", $arComponentResult)
@@ -139,9 +139,13 @@ class CSocNetLogToolsPhoto
 		)
 			$strSectionUrl = $arComponentResult["URL"]["SECTION_EMPTY"];
 		else
-			$strSectionUrl = $arComponentResult["SECTION_URL"];
+			$strSectionUrl = $arComponentResult["SECTION_URL"] ?? '';
 
-		$strSectionUrl = str_replace(array("#SECTION_ID#", "#section_id#"), $arFields["IBLOCK_SECTION"], $strSectionUrl);
+		$strSectionUrl = str_replace(
+			array("#SECTION_ID#", "#section_id#"),
+			$arFields["IBLOCK_SECTION"],
+			$strSectionUrl
+		);
 
 		if ($db_res && $res = $db_res->Fetch())
 		{
@@ -392,6 +396,7 @@ class CSocNetLogToolsPhoto
 			&& $arComponentParams["IS_SOCNET"] == "Y"
 			&& array_key_exists("USER_ALIAS", $arComponentParams)
 			&& $arComponentParams["USER_ALIAS"] <> ''
+			&& array_key_exists("IBLOCK_ID", $arComponentParams)
 		)
 		{
 			$dbElement = CIBlockElement::GetList(
@@ -561,7 +566,7 @@ class CSocNetLogToolsPhoto
 			return;
 
 		if (
-			trim($arComponentResult["SECTION"]["PASSWORD"]) == ''
+			trim($arComponentResult["SECTION"]["PASSWORD"] ?? '') == ''
 			&& $arFields["UF_PASSWORD"] <> ''
 		)
 		{
@@ -625,7 +630,7 @@ class CSocNetLogToolsPhoto
 			}
 		}
 		elseif (
-			trim($arComponentResult["SECTION"]["PASSWORD"]) <> ''
+			trim($arComponentResult["SECTION"]["PASSWORD"] ?? '') <> ''
 			&& $arFields["UF_PASSWORD"] == ''
 		)
 		{
@@ -697,6 +702,14 @@ class CSocNetLogToolsPhoto
 
 class CSocNetPhotoCommentEvent
 {
+	public $IsSocnet = false;
+	public $arPath = [];
+	public $ForumID = '';
+
+	public $bIsGroup = false;
+	public $entity_type = false;
+	public $entity_id = false;
+
 	function AddComment_PhotoAlbum($arFields)
 	{
 		global $USER;

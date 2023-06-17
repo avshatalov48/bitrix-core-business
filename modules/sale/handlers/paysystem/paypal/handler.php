@@ -355,6 +355,7 @@ class PayPalHandler
 		$this->setExtraParams([
 			'URL' => $this->getUrl($payment, 'pay'),
 			'PAYPAL_RETURN' => $this->getReturnUrl($payment),
+			'PAYED' => $payment->isPaid() ? 'Y' : 'N',
 		]);
 
 		return $this->showTemplate($payment, 'template');

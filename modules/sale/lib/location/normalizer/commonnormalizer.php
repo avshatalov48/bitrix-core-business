@@ -30,7 +30,7 @@ class CommonNormalizer implements INormalizer
 			$result = Encoding::convertEncoding($result, 'utf-8', SITE_CHARSET);
 		}
 
-		$result = preg_replace('/\s+/i'.BX_UTF_PCRE_MODIFIER, ' ', $result);
+		$result = preg_replace('/\s+/i'.BX_UTF_PCRE_MODIFIER, ' ', (string)$result);
 		$result = trim($result);
 		$result = ToUpper($result);
 		return $result;

@@ -162,6 +162,30 @@ class MessageTable extends DataManager
 		return $connection->getAffectedRowsCount() === 1;
 	}
 
+	public static function updateMessageStatuses($id, $newInternalStatusId, $newExternalStatus)
+	{
+		$connection = Application::getConnection();
+		$tableName = static::getTableName();
+
+		$helper = $connection->getSqlHelper();
+		$newExternalStatus = $helper->forSql($newExternalStatus);
+
+		$update = "STATUS_ID = $newInternalStatusId, EXTERNAL_STATUS = '$newExternalStatus'";
+
+		$query = "
+			UPDATE
+				$tableName
+			SET
+				$update
+			WHERE
+				ID = $id
+				AND STATUS_ID < {$newInternalStatusId}
+		";
+
+		$connection->query($query);
+		return $connection->getAffectedRowsCount() === 1;
+	}
+
 	public static function getDailyCount($senderId, $fromId)
 	{
 		$connection = Application::getConnection();

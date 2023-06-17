@@ -477,7 +477,12 @@ class Call
 			{
 				$chatType = 'private';
 				// private chat, entity id === other user id
-				$otherUserState = $this->getUser($this->entityId)->getState();
+				$otherUserState =
+					$this->getUser($this->entityId)
+						? $this->getUser($this->entityId)->getState()
+						: ''
+				;
+
 				if ($otherUserState == CallUser::STATE_DECLINED)
 				{
 					$finishStatus = 'declined';

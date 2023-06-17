@@ -228,28 +228,8 @@ BitrixVue.component('bx-im-view-message-body',
 				return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_DELETED');
 			}
 
-			let message = this.message.textConverted;
+			let message = this.message.textConverted? this.message.textConverted: Utils.text.decode(this.message.text);
 			let messageParams = this.message.params;
-
-			let replacement = [];
-			message = message.replace(/<!--IM_COMMAND_START-->([\0-\uFFFF]+?)<!--IM_COMMAND_END-->/ig, function(whole, text) {
-				let id = replacement.length;
-				replacement.push(text);
-				return '####REPLACEMENT_'+id+'####';
-			});
-
-			message = message.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, userName) => {
-				if (!userName)
-				{
-					const user = this.$store.getters['users/get'](userId);
-					userName = user? Utils.text.htmlspecialchars(user.name): 'User '+userId;
-				}
-				return '<span class="bx-im-mention" data-type="USER" data-value="'+userId+'">'+userName+'</span>'
-			});
-
-			replacement.forEach((value, index) => {
-				message = message.replace('####REPLACEMENT_'+index+'####', value);
-			});
 
 			if (
 				typeof messageParams.LINK_ACTIVE !== 'undefined'
@@ -257,7 +237,7 @@ BitrixVue.component('bx-im-view-message-body',
 				&& !messageParams.LINK_ACTIVE.includes(this.userId)
 			)
 			{
-				message = message.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/ig, '$2');
+				message = message.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/gi, '$2');
 			}
 
 			return message;

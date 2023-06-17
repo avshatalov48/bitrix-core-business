@@ -221,7 +221,7 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 			if (isset($control['JS_VALUE']['multiple']) && $control['JS_VALUE']['multiple'] == 'Y')
 			{
 				$multi = true;
-				$joinOperator = (isset($logic['MULTI_SEP']) ? $logic['MULTI_SEP'] : ' && ');
+				$joinOperator = ($logic['MULTI_SEP'] ?? ' && ');
 			}
 			$field = $params['ORDER'].'[\''.$control['FIELD'].'\']';
 			switch ($control['FIELD_TYPE'])

@@ -71,7 +71,15 @@ class CCalendarNotify
 		}
 
 		$eventId = $params["eventId"] ?? null;
-		$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['TO_USER_ID'] ?? null);
+		if (($params['isSharing'] ?? false) && $params['mode'] === 'status_accept')
+		{
+			$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['FROM_USER_ID'] ?? null);
+		}
+		else
+		{
+			$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['TO_USER_ID'] ?? null);
+		}
+
 		if (!empty($params["pathToCalendar"]) && $eventId)
 		{
 			$params["pathToCalendar"] = CHTTP::urlDeleteParams($params["pathToCalendar"], ["action", "sessid", "bx_event_calendar_request", "EVENT_ID"]);
@@ -144,7 +152,7 @@ class CCalendarNotify
 			ExecuteModuleEventEx($arEvent, [$params]);
 		}
 
-		if (($params['isSharing'] ?? false) && in_array($mode, ['accept', 'decline']))
+		if (($params['isSharing'] ?? false) && $mode === 'decline')
 		{
 			self::notifySharingUser($params["eventId"]);
 		}
@@ -171,13 +179,6 @@ class CCalendarNotify
 		if ($userContact && Sharing\SharingEventManager::isEmailCorrect($userContact))
 		{
 			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-			;
-		}
-		if ($userContact && Sharing\SharingEventManager::isPhoneNumberCorrect($userContact))
-		{
-			$notificationService = (new Sharing\Notification\Sms())
 				->setEventLink($eventLink)
 				->setEvent($event)
 			;
@@ -626,15 +627,30 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|STATUS|".$params['eventId']."|". (int)$params["userId"];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|STATUS|".$params['eventId'];
 
-		$fields['MESSAGE'] = Loc::getMessage(
-			$params['mode'] === 'status_accept'
-				? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
-				: 'EC_MESS_STATUS_NOTIFY_N_SITE',
-			[
-				'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
+		if (($params['isSharing'] ?? false) && $params['mode'] === 'status_accept')
+		{
+			$fields['MESSAGE'] = Loc::getMessage(
+				'EC_MESS_AUTO_INVITE_ACCEPT',
+				[
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => $params["from_formatted"]
+				]
+			);
+
+			$fields['MESSAGE'] .=  "\n\n" . Loc::getMessage('EC_MESS_AUTO_INVITE_ACCEPT_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
+		}
+		else
+		{
+			$fields['MESSAGE'] = Loc::getMessage(
+				$params['mode'] === 'status_accept'
+					? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
+					: 'EC_MESS_STATUS_NOTIFY_N_SITE',
+				[
+					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
+					'#ACTIVE_FROM#' => $params["from_formatted"]
+				]
+			);
+		}
 
 		$fields['MESSAGE_OUT'] = Loc::getMessage(
 			$params['mode'] === 'status_accept'

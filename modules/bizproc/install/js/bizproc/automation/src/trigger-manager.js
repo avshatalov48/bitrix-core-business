@@ -343,6 +343,7 @@ export class TriggerManager extends EventEmitter
 					self.destroySettingsDialogControls();
 					popup.destroy();
 					Dom.removeClass(self.#triggersContainerNode, 'automation-base-blocked');
+					self.emit('TriggerManager:onCloseTriggerSettingsDialog')
 				}
 			},
 			buttons: [
@@ -538,7 +539,10 @@ export class TriggerManager extends EventEmitter
 
 		this.conditionSelector = new ConditionGroupSelector(
 			conditionGroup,
-			{fields: getGlobalContext().document.getFields()},
+			{
+				fields: getGlobalContext().document.getFields(),
+				showValuesSelector: false,
+			},
 		);
 		const selector = this.conditionSelector;
 
@@ -564,6 +568,7 @@ export class TriggerManager extends EventEmitter
 		const selector = new ConditionGroupSelector(new ConditionGroup(value), {
 			fields: property.Settings.Fields,
 			fieldPrefix: property.Id,
+			showValuesSelector: false,
 		});
 
 		Dom.append(

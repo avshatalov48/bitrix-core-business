@@ -71,6 +71,21 @@ class PropertyTable extends ORM\Data\DataManager
 
 	const DEFAULT_MULTIPLE_CNT = 5;
 
+	// iblock module
+	public const USER_TYPE_DATE = \CIBlockPropertyDate::USER_TYPE;
+	public const USER_TYPE_DATETIME = \CIBlockPropertyDateTime::USER_TYPE;
+	public const USER_TYPE_XML_ID = \CIBlockPropertyXmlID::USER_TYPE;
+	public const USER_TYPE_FILE_MAN = \CIBlockPropertyFileMan::USER_TYPE;
+	public const USER_TYPE_HTML = \CIBlockPropertyHTML::USER_TYPE;
+	public const USER_TYPE_ELEMENT_LIST = \CIBlockPropertyElementList::USER_TYPE;
+	public const USER_TYPE_SEQUENCE = \CIBlockPropertySequence::USER_TYPE;
+	public const USER_TYPE_ELEMENT_AUTOCOMPLETE = \CIBlockPropertyElementAutoComplete::USER_TYPE;
+	public const USER_TYPE_SKU = \CIBlockPropertySKU::USER_TYPE;
+	public const USER_TYPE_SECTION_AUTOCOMPLETE = \CIBlockPropertySectionAutoComplete::USER_TYPE;
+
+	// highload module
+	public const USER_TYPE_DIRECTORY = 'directory'; // \CIBlockPropertyDirectory::USER_TYPE
+
 	/**
 	 * Returns DB table name for entity
 	 *

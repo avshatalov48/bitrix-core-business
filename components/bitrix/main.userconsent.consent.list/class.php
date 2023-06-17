@@ -34,19 +34,19 @@ class MainUserConsentConsentListComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '';
+		$this->arParams['PATH_TO_LIST'] = $this->arParams['PATH_TO_LIST'] ?? '';
+		$this->arParams['PATH_TO_USER_PROFILE'] = $this->arParams['PATH_TO_USER_PROFILE'] ?? '';
 		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 
-		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'MAIN_USER_CONSENT_GRID';
+		$this->arParams['GRID_ID'] = $this->arParams['GRID_ID'] ?? 'MAIN_USER_CONSENT_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['GRID_FILTER_ID'] : $this->arParams['FILTER_ID'] . '_FILTER';
-		$this->arParams['AGREEMENT_ID'] = isset($this->arParams['AGREEMENT_ID']) ? $this->arParams['AGREEMENT_ID'] : '';
+		$this->arParams['AGREEMENT_ID'] = $this->arParams['AGREEMENT_ID'] ?? '';
 
-		$this->arParams['RENDER_FILTER_INTO_VIEW'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW']) ? $this->arParams['RENDER_FILTER_INTO_VIEW'] : '';
-		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW_SORT']) ? $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] : 10;
+		$this->arParams['RENDER_FILTER_INTO_VIEW'] = $this->arParams['RENDER_FILTER_INTO_VIEW'] ?? '';
+		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] ?? 10;
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT']) ? $this->arParams['CAN_EDIT'] : false;
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT'] ?? false;
 		$this->arParams['USE_TOOLBAR'] = isset($this->arParams['USE_TOOLBAR']) ? $this->arParams['USE_TOOLBAR'] == 'Y' : true;
 	}
 

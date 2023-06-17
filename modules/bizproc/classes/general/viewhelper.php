@@ -150,9 +150,11 @@ class CBPViewHelper
 		$fieldName = htmlspecialcharsbx($fieldName);
 
 		if (is_array($content) && isset($content['TEXT']))
+		{
 			$content = $content['TEXT'];
+		}
 
-		$result = '<textarea rows="5" cols="40" id="'.$id.'" name="'.$fieldName.'">'.htmlspecialcharsbx((string)$content).'</textarea>';
+		$result = '<textarea rows="5" cols="40" id="'.$id.'" name="'.$fieldName.'">'.htmlspecialcharsbx(\CBPHelper::stringify($content)).'</textarea>';
 
 		if (CModule::includeModule("fileman"))
 		{

@@ -27,9 +27,9 @@ $isLazyLoad = isset($arParams['LAZYLOAD']) && $arParams['LAZYLOAD'] === 'Y';
 <div class="bizproc-page-document" data-role="bizproc-document-base">
 <?php if ($arParams['StartWorkflowPermission'] === 'Y'): ?>
 	<div>
-		<button class="ui-btn ui-btn-dropdown ui-btn-primary" data-role="start-button">
+		<span class="ui-btn ui-btn-dropdown ui-btn-primary" data-role="start-button">
 			<?= GetMessage('IBEL_BIZPROC_START') ?>
-		</button>
+		</span>
 	</div>
 <?php endif;?>
 
@@ -72,12 +72,12 @@ foreach ($arDocumentStates as $arDocumentState)
 ?>
 </ul>
 	<div class="bizproc-document-toolbar-bottom" data-role="events-apply-container" style="display: none">
-		<button
+		<span
 				class="ui-btn ui-btn-success"
 				data-role="events-apply-button"
 				data-label-more="<?= htmlspecialcharsbx(GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE')) ?>"
 
-		><?= GetMessage('IBEL_BIZPROC_APPLY') ?></button>
+		><?= GetMessage('IBEL_BIZPROC_APPLY') ?></span>
 	</div>
 	<div class="" data-role="workflows-list-empty" style="display: none">
 		<div class="ui-alert ui-alert-xs">
@@ -93,12 +93,12 @@ foreach ($arDocumentStates as $arDocumentState)
 	<ul class="bizproc-document-list bizproc-document-workflow-list-item" data-role="workflows-list-completed">
 	</ul>
 	<div class="bizproc-document-toolbar-completed">
-		<button
+		<span
 				class="ui-btn ui-btn-light-border"
 				data-role="btn-load-completed"
 				data-label-more="<?= htmlspecialcharsbx(GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE')) ?>"
 
-		><?= GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW') ?></button>
+		><?= GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW') ?></span>
 	</div>
 <?php endif; ?>
 

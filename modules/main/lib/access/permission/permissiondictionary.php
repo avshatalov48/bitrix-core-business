@@ -158,7 +158,7 @@ abstract class PermissionDictionary
 
 	protected static function loadLoc()
 	{
-		if (!static::$locLoaded[static::class])
+		if (!isset(static::$locLoaded[static::class]))
 		{
 			$r = new \ReflectionClass(static::class);
 			Loc::loadMessages($r->getFileName());

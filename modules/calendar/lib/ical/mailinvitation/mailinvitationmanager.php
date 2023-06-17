@@ -63,12 +63,12 @@ class MailInvitationManager
 				}
 			}
 
-			if (count($unsuccessfulSent) > 0)
+			if (!empty($unsuccessfulSent))
 			{
 				self::createAgentSent($unsuccessfulSent);
 			}
 
-			if (count($failSent) > 0)
+			if (!empty($failSent))
 			{
 				self::sentFailSentNotify($failSent);
 			}

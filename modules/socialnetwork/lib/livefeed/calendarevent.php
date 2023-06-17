@@ -88,7 +88,7 @@ final class CalendarEvent extends Provider
 		$this->setSourceFields($calendarEvent);
 		$this->setSourceDescription($calendarEvent['DESCRIPTION']);
 		$this->setSourceTitle($calendarEvent['NAME']);
-		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($calendarEventId));
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 		$this->setSourceDiskObjects($this->getDiskObjects($calendarEventId, $this->cloneDiskObjects));
 	}
 

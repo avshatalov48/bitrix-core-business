@@ -1,5 +1,12 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var CBitrixComponent $this */
 
 $this->setFramemode(false);
 
@@ -17,21 +24,27 @@ if (!$USER->IsAuthorized())
 	return;
 }
 
-$id = urldecode(urldecode($arParams["ID"]));
+$id = urldecode(urldecode((string)($arParams["ID"] ?? '')));
 
-$arParams["PATH_TO_LIST"] = Trim($arParams["PATH_TO_LIST"]);
-if ($arParams["PATH_TO_LIST"] == '')
+$arParams["PATH_TO_LIST"] = trim((string)($arParams["PATH_TO_LIST"] ?? ''));
+if ($arParams["PATH_TO_LIST"] === '')
+{
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage());
+}
 
-$arParams["PATH_TO_DETAIL"] = Trim($arParams["PATH_TO_DETAIL"]);
-if ($arParams["PATH_TO_DETAIL"] == '')
-	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?"."ID=#ID#");
+$arParams["PATH_TO_DETAIL"] = trim((string)($arParams["PATH_TO_DETAIL"] ?? ''));
+if ($arParams["PATH_TO_DETAIL"] === '')
+{
+	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage() . "?" . "ID=#ID#");
+}
+$arParams['SET_TITLE'] = (string)($arParams['SET_TITLE'] ?? 'Y');
 
 if ($id == '' && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
 {
 	LocalRedirect($arParams["PATH_TO_LIST"]);
 }
 
+$arResult['ERROR_MESSAGE'] = '';
 if ($id == '')
 {
 	$arResult["URL_TO_LIST"] = $arParams['PATH_TO_LIST'];
@@ -40,8 +53,15 @@ if ($id == '')
 	return;
 }
 
-if ($arParams["SET_TITLE"] == 'Y')
-	$APPLICATION->SetTitle(str_replace("#ID#", $id, GetMessage("SPOC_TITLE")));
+if ($arParams['SET_TITLE'] === 'Y')
+{
+	$APPLICATION->SetTitle(GetMessage(
+		'SPOC_TITLE',
+		[
+			'#ID#' => $id,
+		]
+	));
+}
 
 $bUseAccountNumber = \Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder();
 
@@ -73,7 +93,7 @@ elseif ($order->isCanceled())
 else
 {
 	$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-	if ($request->get("CANCEL") == "Y" && $request->isPost() && $request->get("action") <> '' && check_bitrix_sessid())
+	if ($request->get("CANCEL") === "Y" && $request->isPost() && (string)$request->get("action") !== '' && check_bitrix_sessid())
 	{
 		if ($order->isPaid() || $order->isShipped())
 		{
@@ -95,17 +115,15 @@ else
 	}
 	else
 	{
-		$arResult = [
-			"ID" => $id,
-			"ACCOUNT_NUMBER" => $order->getField('ACCOUNT_NUMBER'),
-			"URL_TO_DETAIL" => CComponentEngine::MakePathFromTemplate(
-				$arParams["PATH_TO_DETAIL"],
-				[
-					"ID" => urlencode(urlencode($order->getField('ACCOUNT_NUMBER')))
-				]
-			),
-			"URL_TO_LIST" => $arParams["PATH_TO_LIST"],
-		];
+		$arResult['ID'] = $id;
+		$arResult['ACCOUNT_NUMBER'] = $order->getField('ACCOUNT_NUMBER');
+		$arResult['URL_TO_DETAIL'] = CComponentEngine::MakePathFromTemplate(
+			$arParams["PATH_TO_DETAIL"],
+			[
+				"ID" => urlencode(urlencode($order->getField('ACCOUNT_NUMBER'))),
+			]
+		);
+		$arResult['URL_TO_LIST'] = $arParams["PATH_TO_LIST"];
 	}
 }
 
@@ -118,4 +136,3 @@ if (!empty($errors) && is_array($errors))
 }
 
 $this->IncludeComponentTemplate();
-?>

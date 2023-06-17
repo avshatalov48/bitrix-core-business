@@ -439,6 +439,12 @@ class Landing
 			);
 		}
 
+		if (!self::checkNeedImport($event))
+		{
+			// todo: prepare data: remove layout, ...
+			return $return;
+		}
+
 		$data = $content['~DATA'];
 		$oldId = $data['ID'] ?? null;
 
@@ -763,6 +769,29 @@ class Landing
 		}
 
 		return $return;
+	}
+
+	/**
+	 * In some cases we don't need import current landing.
+	 * @param Event $event
+	 * @return bool - if false - need skip current page import
+	 */
+	protected static function checkNeedImport(Event $event): bool
+	{
+		$code = $event->getParameter('CODE');
+		$content = $event->getParameter('CONTENT');
+		$ratio = $event->getParameter('RATIO');
+
+		if (
+			$ratio[$code]['IS_PAGE_IMPORT']
+			&& isset($ratio[$code]['SPECIAL_PAGES']['LANDING_ID_INDEX'])
+			&& (int)$content['DATA']['ID'] !== $ratio[$code]['SPECIAL_PAGES']['LANDING_ID_INDEX']
+		)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

@@ -19,7 +19,7 @@ $componentParameters = array_merge(
 	$arResult,
 	array(
 		'PATH_TO_TRASHCAN_LIST' => CComponentEngine::MakePathFromTemplate(
-			$arResult['PATH_TO_USER_TRASHCAN'],
+			$arResult['PATH_TO_USER_TRASHCAN'] ?? null,
 			array('user_id' => $arResult['VARIABLES']['user_id'])
 		),
 		'PATH_TO_TRASHCAN_FILE_VIEW' => CComponentEngine::MakePathFromTemplate(

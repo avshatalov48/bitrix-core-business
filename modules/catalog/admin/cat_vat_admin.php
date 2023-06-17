@@ -47,6 +47,8 @@ $sTableID = "tbl_catalog_vat";
 
 $oSort = new CAdminUiSorting($sTableID, 'C_SORT', 'ASC');
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $filterFields = [
 	[
@@ -119,17 +121,6 @@ if ($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-global $by, $order;
-if (!isset($by))
-{
-	$by = 'C_SORT';
-}
-if (!isset($order))
-{
-	$order = 'asc';
-}
-$by = strtoupper($by);
-$order = strtoupper($order);
 switch ($by)
 {
 	case 'ID':
@@ -158,7 +149,7 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 	{
 		$arID = [];
 		$dbResultList = CCatalogVat::GetListEx(
-			$vatListOrder,
+			[],
 			$arFilter,
 			false,
 			false,

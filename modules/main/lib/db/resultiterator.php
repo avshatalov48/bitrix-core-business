@@ -29,6 +29,7 @@ class ResultIterator implements \Iterator
 	 * @return mixed Can return any type.
 	 * @since 5.0.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->currentData;
@@ -40,7 +41,7 @@ class ResultIterator implements \Iterator
 	 * @return void Any returned value is ignored.
 	 * @since 5.0.0
 	 */
-	public function next()
+	public function next(): void
 	{
 		$this->currentData = $this->result->fetch();
 		$this->counter++;
@@ -52,6 +53,7 @@ class ResultIterator implements \Iterator
 	 * @return mixed scalar on success, or null on failure.
 	 * @since 5.0.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->counter;
@@ -64,7 +66,7 @@ class ResultIterator implements \Iterator
 	 * Returns true on success or false on failure.
 	 * @since 5.0.0
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->currentData !== false;
 	}
@@ -75,7 +77,7 @@ class ResultIterator implements \Iterator
 	 * @throws NotSupportedException
 	 * @since 5.0.0
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		if ($this->counter > 0)
 		{

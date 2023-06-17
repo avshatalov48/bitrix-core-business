@@ -9,14 +9,14 @@
 class CAdminTabEngine
 {
 	var $name;
-	var $bInited = False;
+	var $bInited = false;
 	var $arEngines = array();
 	var $arArgs = array();
-	var $bVarsFromForm = False;
+	var $bVarsFromForm = false;
 
 	public function __construct($name, $arArgs = array())
 	{
-		$this->bInited = False;
+		$this->bInited = false;
 		$this->name = $name;
 		$this->arEngines = array();
 		$this->arArgs = $arArgs;
@@ -29,11 +29,11 @@ class CAdminTabEngine
 				$res["TABSET"] = preg_replace('/[^A-Za-z0-9_-]/', '', $res["TABSET"]);
 				$this->arEngines[$res["TABSET"]] = $res;
 			}
-			$this->bInited = True;
+			$this->bInited = true;
 		}
 	}
 
-	function SetErrorState($bVarsFromForm = False)
+	function SetErrorState($bVarsFromForm = false)
 	{
 		$this->bVarsFromForm = $bVarsFromForm;
 	}
@@ -46,9 +46,9 @@ class CAdminTabEngine
 	function Check()
 	{
 		if (!$this->bInited)
-			return True;
+			return true;
 
-		$result = True;
+		$result = true;
 
 		foreach ($this->arEngines as $value)
 		{
@@ -56,7 +56,7 @@ class CAdminTabEngine
 			{
 				$resultTmp = call_user_func_array($value["Check"], array($this->arArgs));
 				if ($result && !$resultTmp)
-					$result = False;
+					$result = false;
 			}
 		}
 
@@ -66,9 +66,9 @@ class CAdminTabEngine
 	function Action()
 	{
 		if (!$this->bInited)
-			return True;
+			return true;
 
-		$result = True;
+		$result = true;
 
 		foreach ($this->arEngines as $value)
 		{
@@ -76,7 +76,7 @@ class CAdminTabEngine
 			{
 				$resultTmp = call_user_func_array($value["Action"], array($this->arArgs));
 				if ($result && !$resultTmp)
-					$result = False;
+					$result = false;
 			}
 		}
 
@@ -86,7 +86,7 @@ class CAdminTabEngine
 	function GetTabs()
 	{
 		if (!$this->bInited)
-			return False;
+			return false;
 
 		$arTabs = array();
 		foreach ($this->arEngines as $key => $value)
@@ -112,7 +112,7 @@ class CAdminTabEngine
 	function ShowTab($divName)
 	{
 		if (!$this->bInited)
-			return False;
+			return false;
 
 		foreach ($this->arEngines as $key => $value)
 		{

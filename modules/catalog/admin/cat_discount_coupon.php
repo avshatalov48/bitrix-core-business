@@ -38,8 +38,11 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_catalog_discount_coupon";
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $arFilterFields = array(
 	"filter_id_start",
@@ -109,7 +112,7 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 	{
 		$arID = array();
 		$dbResultList = CCatalogDiscountCoupon::GetList(
-			array($by => $order),
+			array(),
 			$arFilter,
 			false,
 			false,

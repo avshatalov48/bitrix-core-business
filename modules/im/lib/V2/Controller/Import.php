@@ -237,7 +237,7 @@ class Import extends Controller
 			return null;
 		}
 
-		if (!$file || !str_starts_with($file['type'], "image/"))
+		if (!$file || !(mb_strpos($file['type'], 'image/') === 0))
 		{
 			return null;
 		}

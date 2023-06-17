@@ -77,6 +77,8 @@ Class mail extends CModule
 
 			$eventManager->registerEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 
+			$eventManager->registerEventHandler('mobile', 'onRequestSyncMail', 'mail', '\Bitrix\Mail\Integration\SyncRequest', 'onRequestSyncMail');
+
 			RegisterModule("mail");
 
 			if (CModule::IncludeModule("mail"))
@@ -278,6 +280,8 @@ Class mail extends CModule
 		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
 
 		$eventManager->unRegisterEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
+
+		$eventManager->unRegisterEventHandler('mobile', 'onRequestSyncMail', 'mail', '\Bitrix\Mail\Integration\SyncRequest', 'onRequestSyncMail');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");

@@ -26,9 +26,9 @@ class CUserFieldEnum
 		$salt = RandString(8);
 		foreach($values as $key => $value)
 		{
-			if(strncmp($key, "n", 1) === 0 && $value["DEL"] != "Y" && (string)$value["VALUE"] <> '')
+			if(strncmp($key, "n", 1) === 0 && (!isset($value["DEL"]) || $value["DEL"] != "Y") && (string)$value["VALUE"] <> '')
 			{
-				if($value["XML_ID"] == '')
+				if(!isset($value["XML_ID"]) || $value["XML_ID"] == '')
 				{
 					$values[$key]["XML_ID"] = $value["XML_ID"] = md5($salt . $value["VALUE"]);
 				}
@@ -46,6 +46,11 @@ class CUserFieldEnum
 					}
 					else
 					{
+						if (!isset($arAdded[$value["XML_ID"]]))
+						{
+							$arAdded[$value["XML_ID"]] = 0;
+						}
+
 						$arAdded[$value["XML_ID"]]++;
 					}
 				}
@@ -72,7 +77,7 @@ class CUserFieldEnum
 					$arEnum["XML_ID"] != $value["XML_ID"]
 				)
 				{
-					if($value["XML_ID"] == '')
+					if(!isset($value["XML_ID"]) || $value["XML_ID"] == '')
 						$value["XML_ID"] = md5($value["VALUE"]);
 
 					$bUnique = true;
@@ -113,9 +118,9 @@ class CUserFieldEnum
 
 		foreach($values as $key => $value)
 		{
-			if(strncmp($key, "n", 1) === 0 && $value["DEL"] != "Y" && (string)$value["VALUE"] <> '')
+			if(strncmp($key, "n", 1) === 0 && (!isset($value["DEL"]) || $value["DEL"] != "Y") && (string)$value["VALUE"] <> '')
 			{
-				if($value["XML_ID"] == '')
+				if(!isset($value["XML_ID"]) || $value["XML_ID"] == '')
 					$value["XML_ID"] = md5($value["VALUE"]);
 
 				if($value["DEF"] != "Y")
@@ -143,7 +148,7 @@ class CUserFieldEnum
 					$arEnum["SORT"] != $value["SORT"] ||
 					$arEnum["XML_ID"] != $value["XML_ID"])
 				{
-					if($value["XML_ID"] == '')
+					if(!isset($value["XML_ID"]) || $value["XML_ID"] == '')
 						$value["XML_ID"] = md5($value["VALUE"]);
 
 					unset($value["ID"]);
@@ -188,7 +193,7 @@ class CUserFieldEnum
 		{
 			if(is_array($val))
 			{
-				if(count($val) <= 0)
+				if(empty($val))
 					continue;
 				$val = array_map(array($DB, "ForSQL"), $val);
 				$val = "('" . implode("', '", $val) . "')";
@@ -235,7 +240,7 @@ class CUserFieldEnum
 					break;
 			}
 		}
-		if(count($arOrder) == 0)
+		if(empty($arOrder))
 		{
 			$arOrder[] = "UFE.SORT asc";
 			$arOrder[] = "UFE.ID asc";
@@ -243,7 +248,7 @@ class CUserFieldEnum
 		DelDuplicateSort($arOrder);
 		$sOrder = "\nORDER BY " . implode(", ", $arOrder);
 
-		if(count($arFilter) == 0)
+		if(empty($arFilter))
 			$sFilter = "";
 		else
 			$sFilter = "\nWHERE " . implode("\nAND ", $arFilter);

@@ -1,24 +1,33 @@
-<?
+<?php
+/** @global CMain $APPLICATION */
 use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-
 use Bitrix\Sale\Location;
 use Bitrix\Sale\Location\Admin\LocationHelper as Helper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if($APPLICATION->GetGroupRight("sale") < "W")
+if ($APPLICATION->GetGroupRight("sale") < "W")
+{
 	$APPLICATION->AuthForm(Loc::getMessage('SALE_MODULE_ACCES_DENIED'));
+}
 
 $userIsAdmin = $APPLICATION->GetGroupRight("sale") >= "W";
 
@@ -26,39 +35,58 @@ $userIsAdmin = $APPLICATION->GetGroupRight("sale") >= "W";
 #### Data prepare
 #####################################
 
+$request = Context::getCurrent()->getRequest();
+
+$itemId = (int)$request->get(Helper::URL_PARAM_PARENT_ID);
+if ($itemId <= 0)
+{
+	$itemId = false;
+}
+
+$fatal = '';
+$columns = [];
+$filterFields = [];
+$nameToDisplay = '';
+
+$listParams = [];
+
+$sTableID = 'tbl_location_node_list';
+$oSort = new CAdminUiSorting($sTableID, 'SORT', 'asc');
+$lAdmin = new CAdminUiList($sTableID, $oSort);
+
 try
 {
-	if(!\Bitrix\Sale\Location\LocationTable::checkIntegrity())
+	if (!Location\LocationTable::checkIntegrity())
 	{
 		throw new Main\SystemException(Loc::getMessage('SALE_LOCATION_L_ERROR'));
 	}
 
-	$itemId = intval($_REQUEST[Helper::URL_PARAM_PARENT_ID]) ? intval($_REQUEST[Helper::URL_PARAM_PARENT_ID]) : false;
 	$nameToDisplay = Helper::getNameToDisplay($itemId);
 
 	// get entity fields for columns & filter
 	$columns = Helper::getColumns('list');
 
-	$sTableID = "tbl_location_node_list";
-
-	$oSort = new CAdminUiSorting($sTableID, "SORT", "asc");
-	$lAdmin = new CAdminUiList($sTableID, $oSort);
-
 	ob_start();
-	$APPLICATION->IncludeComponent("bitrix:sale.location.selector.search", "", array(
-		"ID" => "PARENT_ID",
-		"CODE" => "",
-		"INPUT_NAME" => "PARENT_ID",
-		"PROVIDE_LINK_BY" => "id",
-		"SHOW_ADMIN_CONTROLS" => "N",
-		"SELECT_WHEN_SINGLE" => "N",
-		"FILTER_BY_SITE" => "N",
-		"SHOW_DEFAULT_LOCATIONS" => "N",
-		"SEARCH_BY_PRIMARY" => "Y",
-		"INITIALIZE_BY_GLOBAL_EVENT" => "onAdminFilterInited",
-		"GLOBAL_EVENT_SCOPE" => "window",
-		"UI_FILTER" => true
-	),false);
+	$APPLICATION->IncludeComponent(
+		"bitrix:sale.location.selector.search",
+		"",
+		[
+			"ID" => "PARENT_ID",
+			"CODE" => "",
+			"INPUT_NAME" => "PARENT_ID",
+			"PROVIDE_LINK_BY" => "id",
+			"SHOW_ADMIN_CONTROLS" => "N",
+			"SELECT_WHEN_SINGLE" => "N",
+			"FILTER_BY_SITE" => "N",
+			"SHOW_DEFAULT_LOCATIONS" => "N",
+			"SEARCH_BY_PRIMARY" => "Y",
+			"INITIALIZE_BY_GLOBAL_EVENT" => "onAdminFilterInited",
+			"GLOBAL_EVENT_SCOPE" => "window",
+			"UI_FILTER" => true,
+		],
+		false,
+		['HIDE_ICONS' => 'Y']
+	);
 	$locationInput = ob_get_clean();
 	$listTypes = array();
 	foreach (Helper::getTypeList() as $tId => $tName)
@@ -78,7 +106,6 @@ try
 		}
 	}
 
-	$filterFields = array();
 	$listDefaultFields = array("ID");
 	$listIgnoreFields = array("PARENT_ID", "TYPE_ID");
 	foreach ($columns as $code => $fld)
@@ -101,7 +128,7 @@ try
 		}
 		$filterField = array(
 			"id" => $code,
-			"name" => $columns[$code]["title"]
+			"name" => $fld["title"]
 		);
 		if ($fType)
 		{
@@ -112,6 +139,7 @@ try
 		{
 			$filterField["default"] = true;
 		}
+		$match = [];
 		if (preg_match("/^NAME_/", $code, $match) || preg_match("/^SHORT_NAME_/", $code, $match))
 		{
 			$langId = str_replace($match[0], "", $code);
@@ -194,14 +222,17 @@ try
 	global $DB;
 
 	// group UPDATE
-	if($lAdmin->EditAction() && $userIsAdmin)
+	if ($lAdmin->EditAction() && $userIsAdmin)
 	{
-		foreach($FIELDS as $id => $arFields)
+		foreach ($lAdmin->GetEditFields() as $id => $arFields)
 		{
-			$DB->StartTransaction();
-
-			if(!$lAdmin->IsUpdated($id)) // if there were no data change on this row - do nothing with it
+			if (!$lAdmin->IsUpdated($id))
+			{
+				// if there were no data change on this row - do nothing with it
 				continue;
+			}
+
+			$DB->StartTransaction();
 
 			try
 			{
@@ -215,6 +246,7 @@ try
 
 					throw new Main\SystemException(implode(',<br />', $res['errors']));
 				}
+				$DB->Commit();
 			}
 			catch(Main\SystemException $e)
 			{
@@ -222,45 +254,50 @@ try
 				$lAdmin->AddUpdateError(Loc::getMessage('SALE_LOCATION_L_ITEM_SAVE_ERROR', array('#ITEM#' => $id)).": <br />".$e->getMessage().'<br />', $id);
 				$DB->Rollback();
 			}
-
-			$DB->Commit();
 		}
 
 		Location\LocationTable::resetLegacyPath();
 	}
 
 	// group DELETE
-	if(($ids = $lAdmin->GroupAction()) && $userIsAdmin)
+	$ids = $lAdmin->GroupAction();
+	if ($ids && $userIsAdmin)
 	{
 		// all by filter or certain ids
-		if($_REQUEST['action_target'] == 'selected') // get all ids if they were not specified (user choice was "for all")
+		if ($lAdmin->IsGroupActionToAll()) // get all ids if they were not specified (user choice was "for all")
 		{
 			$ids = Helper::getIdsByFilter($listParams['filter']);
 		}
 
 		@set_time_limit(0);
 
-		foreach($ids as $id)
+		$action = $lAdmin->GetAction();
+		foreach ($ids as $id)
 		{
-			if(!($id = intval($id)))
+			$id = (int)$id;
+			if ($id <= 0)
 			{
 				continue;
 			}
 
-			if($_REQUEST['action'] == 'delete')
+			if ($action === 'delete')
 			{
 				$DB->StartTransaction();
 
 				try
 				{
 					$res = Helper::delete($id, true);
-					if(!$res['success'])
+					if (!$res['success'])
 					{
-						throw new Main\SystemException(Loc::getMessage('SALE_LOCATION_L_ITEM').' '.$id.' : '.implode('<br />', $res['errors']));
+						throw new Main\SystemException(
+							Loc::getMessage('SALE_LOCATION_L_ITEM')
+							. ' ' . $id . ' : '
+							. implode('<br />', $res['errors'])
+						);
 					}
 					$DB->Commit();
 				}
-				catch(Main\SystemException $e)
+				catch (Main\SystemException $e)
 				{
 					$lAdmin->AddGroupError(Loc::getMessage('SALE_LOCATION_L_ITEM_DELETE_ERROR').": <br /><br />".$e->getMessage(), $id);
 					$adminSidePanelHelper->sendJsonErrorResponse($e->getMessage());
@@ -273,10 +310,6 @@ try
 
 		$adminSidePanelHelper->sendSuccessResponse();
 	}
-
-	$adminResult = Helper::getList($listParams, $sTableID, CAdminUiResult::GetNavSize($sTableID), array("uiMode" => true));
-	$adminResult = new \CAdminUiResult($adminResult, $sTableID);
-	$lAdmin->SetNavigationParams($adminResult, array("BASE_LINK" => $selfFolderUrl."sale_location_node_list.php"));
 }
 catch(Main\SystemException $e)
 {
@@ -288,26 +321,40 @@ catch(Main\SystemException $e)
 #### PAGE INTERFACE GENERATION
 #####################################
 
-if(empty($fatal))
+if (empty($fatal))
 {
-	$headers = array();
+	$headers = [];
 	foreach(Helper::getListGridColumns() as $code => $fld)
 	{
-		$headers[] = array(
+		$headers[] = [
 			"id" => $code,
 			"content" => $columns[$code]['title'],
 			"default" => $fld['DEFAULT'],
-			"sort" => $code
-		);
+			"sort" => $code,
+		];
 	}
-
 	$lAdmin->AddHeaders($headers);
+
+	$adminResult = Helper::getList(
+		$listParams,
+		$sTableID,
+		CAdminUiResult::GetNavSize($sTableID),
+		["uiMode" => true]
+	);
+	$adminResult = new \CAdminUiResult($adminResult, $sTableID);
+	$lAdmin->SetNavigationParams(
+		$adminResult,
+		[
+			"BASE_LINK" => $selfFolderUrl."sale_location_node_list.php"
+		]
+	);
+
 	while($elem = $adminResult->NavNext(false))
 	{
 		// urls
 		$editUrl = Helper::getEditUrl($elem['ID']);
-		$copyUrl = Helper::getEditUrl(false, array('copy_id' => $elem['ID']));
-		$listUrl = Helper::getListUrl($elem['ID'], array());
+		$copyUrl = Helper::getEditUrl(false, ['copy_id' => $elem['ID']]);
+		$listUrl = Helper::getListUrl($elem['ID'], []);
 		$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
 		$copyUrl = $adminSidePanelHelper->editUrlToPublicPage($copyUrl);
 		$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
@@ -358,30 +405,31 @@ if(empty($fatal))
 	$aContext = array(
 		array(
 			"TEXT"	=> Loc::getMessage('SALE_LOCATION_L_ADD_ITEM'),
-			"LINK"	=> $adminSidePanelHelper->editUrlToPublicPage(Helper::getEditUrl(false, array('parent_id' => $itemId))),
+			"LINK"	=> $adminSidePanelHelper->editUrlToPublicPage(Helper::getEditUrl(false, ['parent_id' => $itemId])),
 			"TITLE"	=> Loc::getMessage('SALE_LOCATION_L_ADD_ITEM'),
 			"ICON"	=> "btn_new"
 		)
 	);
 
-	if($_REQUEST[Helper::URL_PARAM_PARENT_ID] > 0)
+	$parentId = (int)$request->get(Helper::URL_PARAM_PARENT_ID);
+	if ($parentId > 0)
 	{
 		$aContext[] = array(
 			"TEXT"	=> GetMessage('SALE_LOCATION_L_EDIT_CURRENT'),
-			"LINK"	=> $adminSidePanelHelper->editUrlToPublicPage(Helper::getEditUrl(false, array('id' => $_REQUEST[Helper::URL_PARAM_PARENT_ID]))),
+			"LINK"	=> $adminSidePanelHelper->editUrlToPublicPage(Helper::getEditUrl(false, ['id' => $parentId])),
 			"TITLE"	=> GetMessage('SALE_LOCATION_L_EDIT_CURRENT')
 		);
-	};
+	}
 	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_location_node_list.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 	$lAdmin->CheckListMode();
 
 } // empty($fatal)
-?>
 
-<?$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE').($nameToDisplay ? ': '.$nameToDisplay : ''))?>
 
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE').($nameToDisplay ? ': '.$nameToDisplay : ''));
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 {
 	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", ".default");
@@ -390,18 +438,23 @@ else
 {
 	SearchHelper::checkIndexesValid();
 
-	if($fatal <> '')
+	if ($fatal !== '')
 	{
-		$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
+		$messageParams = [
+			'MESSAGE' => $fatal,
+			'type' => 'ERROR',
+		];
 		if($publicMode)
 		{
 			$messageParams["SKIP_PUBLIC_MODE"] = true;
 		}
 		?>
 		<div class="error-message">
-			<? CAdminMessage::ShowMessage($messageParams) ?>
+			<?php
+			CAdminMessage::ShowMessage($messageParams);
+			?>
 		</div>
-		<?
+		<?php
 	}
 	else
 	{

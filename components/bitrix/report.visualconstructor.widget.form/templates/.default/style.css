@@ -108,10 +108,6 @@
 	min-width: 130px;
 }
 
-.bx-ie11 .report-configuration-item {
-	flex-basis: auto;
-}
-
 .report-configuration-item-inline {
 	display: flex;
 	flex: none;

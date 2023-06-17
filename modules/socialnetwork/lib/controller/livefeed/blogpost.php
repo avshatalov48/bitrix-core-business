@@ -27,6 +27,8 @@ class BlogPost extends Base
 		$currentUserId = (int)$this->getCurrentUser()->getId();
 		$currentModuleAdmin = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false);
 
+		$logPinnedUserId = 0;
+
 		if ($postId <= 0)
 		{
 			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_EMPTY'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_EMPTY'));

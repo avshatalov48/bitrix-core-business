@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Blog\Item\Post;
+use Bitrix\Crm\Activity\Provider\Tasks\Task;
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Disk\Driver;
 use Bitrix\Main\Loader;
@@ -2087,7 +2088,7 @@ class ComponentHelper
 			if (
 				!$optionValue
 				|| (
-					!!$value["CHECK_SEF_FOLDER"]
+					!!($value["CHECK_SEF_FOLDER"] ?? false)
 					&& $sefFolder
 					&& mb_substr($optionValue, 0, mb_strlen($sefFolder)) !== $sefFolder
 				)
@@ -2411,11 +2412,11 @@ class ComponentHelper
 
 		$commentFormatted = array(
 			'LOG_DATE' => $comment["LOG_DATE"],
-			"LOG_DATE_FORMAT" => $comment["LOG_DATE_FORMAT"],
+			"LOG_DATE_FORMAT" => $comment["LOG_DATE_FORMAT"] ?? null,
 			"LOG_DATE_DAY" => ConvertTimeStamp(MakeTimeStamp($comment['LOG_DATE']), 'SHORT'),
 			'LOG_TIME_FORMAT' => $result['timeFormatted'],
 			"MESSAGE" => $comment["MESSAGE"],
-			"MESSAGE_FORMAT" => $comment["~MESSAGE"],
+			"MESSAGE_FORMAT" => $comment["~MESSAGE"] ?? null,
 			'CREATED_BY' => $createdBy,
 			"AVATAR_SRC" => \CSocNetLogTools::formatEvent_CreateAvatar($authorFields, $params, ""),
 			'USER_ID' => $comment['USER_ID'],
@@ -4963,7 +4964,13 @@ class ComponentHelper
 			mb_strtoupper($eventFields["ENTITY_TYPE"]) === "CRMACTIVITY"
 			&& Loader::includeModule('crm')
 			&& ($activityFields = \CCrmActivity::getById($eventFields["ENTITY_ID"], false))
-			&& ($activityFields["TYPE_ID"] == \CCrmActivityType::Task)
+			&& (
+				$activityFields["TYPE_ID"] == \CCrmActivityType::Task
+				|| (
+					(int)$activityFields['TYPE_ID'] === \CCrmActivityType::Provider
+					&& $activityFields['PROVIDER_ID'] === Task::getId()
+				)
+			)
 		)
 		{
 			$result["ENTITY_XML_ID"] = "TASK_".$activityFields["ASSOCIATED_ENTITY_ID"];

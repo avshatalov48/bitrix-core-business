@@ -10,26 +10,48 @@ class BarcodeGenerator
 {
 	private Barcode $barcode;
 
-	private const DEFAULT_W = 512;
-	private const DEFAULT_H = 512;
+	private const DEFAULT_W = 380;
+	private const DEFAULT_H = 380;
+	private const DEFAULT_P = 0;
+	private const DEFAULT_WQ = 0;
 
-	public function __construct()
+	public function __construct(?array $options = null)
 	{
 		if ($this->includeUiModule())
 		{
-			$this->createBarcode();
+			$this->createBarcode($options);
 		}
 	}
 
-	private function createBarcode(): void
+	private function createBarcode(?array $options = null): void
 	{
+		$options =
+			is_null($options)
+				? [
+					'w' => self::DEFAULT_W,
+					'h' => self::DEFAULT_H,
+					'p' => self::DEFAULT_P,
+					'wq' => self::DEFAULT_WQ,
+				]
+				: array_intersect_key($options, array_flip(self::getAllowedOptions()))
+		;
+
 		$this->barcode = new Barcode();
 		$this->barcode
 			->type(BarcodeDictionary::TYPE_QR)
 			->format(BarcodeDictionary::FORMAT_PNG)
-			->option('w', self::DEFAULT_W)
-			->option('h', self::DEFAULT_H)
+			->options($options)
 		;
+	}
+
+	private static function getAllowedOptions(): array
+	{
+		return [
+			'w',
+			'h',
+			'p',
+			'wq',
+		];
 	}
 
 	public function generate(string $data): ?string

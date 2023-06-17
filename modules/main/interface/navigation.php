@@ -92,10 +92,6 @@ if($this->NavRecordCount>0)
 	} //endif; //($this->NavPageNomer < $this->NavPageCount):
 ?>
 	</div>
-<?
-	if($this->NavRecordCount>0)
-	{
-?>
 	<div class="adm-nav-pages-total-block"><?
 	echo $title." ".(($this->NavPageNomer-1)*$this->NavPageSize+1)." &ndash; ";
 	if($this->NavPageNomer <> $this->NavPageCount)
@@ -104,9 +100,6 @@ if($this->NavRecordCount>0)
 		echo($this->NavRecordCount);
 	echo " ".GetMessage("navigation_records_of")." ".$this->NavRecordCount;
 	?></div>
-<?
-	} // endif($this->NavRecordCount>0);
-?>
 	<div class="adm-nav-pages-number-block"><span class="adm-nav-pages-number">
 		<?if(!$this->NavRecordCountChangeDisable)
 		{
@@ -115,7 +108,7 @@ if($this->NavRecordCount>0)
 	$aSizes = array(10, 20, 50, 100, 200, 500);
 	if($this->nInitialSize > 0 && !in_array($this->nInitialSize, $aSizes))
 		array_unshift($aSizes, $this->nInitialSize);
-	$reqSize = intval($_REQUEST["SIZEN_".$this->NavNum]);
+	$reqSize = (int)($_REQUEST["SIZEN_".$this->NavNum] ?? 0);
 	if($reqSize > 0 && !in_array($reqSize, $aSizes))
 		array_unshift($aSizes, $reqSize);
 	foreach($aSizes as $size)

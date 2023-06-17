@@ -5,6 +5,7 @@ use Bitrix\Calendar\Integration\Bitrix24Manager;
 class PermissionManager
 {
 	/**
+	 * @deprecated
 	 * @param $operation
 	 *
 	 * @return boolean
@@ -22,6 +23,7 @@ class PermissionManager
 	}
 
 	/**
+	 * @deprecated
 	 * @param $operation
 	 * @param $sectionId
 	 *

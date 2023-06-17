@@ -62,8 +62,8 @@ else
 	$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
 	if (
-		!$arGroup 
-		|| !is_array($arGroup) 
+		!$arGroup
+		|| !is_array($arGroup)
 		|| $arGroup['ACTIVE'] !== 'Y'
 	)
 	{
@@ -141,11 +141,11 @@ else
 				$arResult["ShowForm"] = "Input";
 				if (
 					$_SERVER['REQUEST_METHOD'] === 'POST'
-					&& $_POST["save"] <> ''
+					&& !empty($_POST["save"])
 					&& check_bitrix_sessid()
 				)
 				{
-					if ($_POST['ajax_request'] === 'Y')
+					if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
 					{
 						CUtil::JSPostUnescape();
 					}
@@ -172,7 +172,7 @@ else
 						$arResult["ShowForm"] = "Confirm";
 					}
 
-					if ($_POST['ajax_request'] === 'Y')
+					if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
 					{
 						$APPLICATION->RestartBuffer();
 						echo CUtil::PhpToJsObject(array(

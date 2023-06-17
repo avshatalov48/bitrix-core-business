@@ -20,11 +20,11 @@ if ($arParams["SET_TITLE"] == "Y")
 		<div class="col">
 			<?=Loc::getMessage("SOA_ORDER_SUC", array(
 				"#ORDER_DATE#" => $arResult["ORDER"]["DATE_INSERT"]->toUserTime()->format('d.m.Y H:i'),
-				"#ORDER_ID#" => $arResult["ORDER"]["ACCOUNT_NUMBER"]
+				"#ORDER_ID#" => htmlspecialcharsbx($arResult["ORDER"]["ACCOUNT_NUMBER"])
 			))?>
 			<? if (!empty($arResult['ORDER']["PAYMENT_ID"])): ?>
 				<?=Loc::getMessage("SOA_PAYMENT_SUC", array(
-					"#PAYMENT_ID#" => $arResult['PAYMENT'][$arResult['ORDER']["PAYMENT_ID"]]['ACCOUNT_NUMBER']
+					"#PAYMENT_ID#" => htmlspecialcharsbx($arResult['PAYMENT'][$arResult['ORDER']["PAYMENT_ID"]]['ACCOUNT_NUMBER'])
 				))?>
 			<? endif ?>
 		</div>

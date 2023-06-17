@@ -304,6 +304,7 @@ class CCloudStorage
 						"cacheImageFile" => $cacheImageFile,
 						"width" => $arDestinationSize["width"],
 						"height" => $arDestinationSize["height"],
+						"size" => null,
 					);
 					$result = true;
 				}
@@ -353,6 +354,26 @@ class CCloudStorage
 			if (isset($callbackData["tmpFile"])) //have to upload to the cloud
 			{
 				$arFileToStore = CFile::MakeFileArray($io->GetPhysicalName($cacheImageFileTmp));
+				if (!$arFileToStore)
+				{
+					$cacheOBJ->AbortDataCache();
+
+					$tmpFile = $io->GetPhysicalName($callbackData["tmpFile"]);
+					unlink($tmpFile);
+					@rmdir(mb_substr($tmpFile, 0, -mb_strlen(bx_basename($tmpFile))));
+
+					unlink($cacheImageFileTmp);
+					@rmdir(mb_substr($cacheImageFileTmp, 0, -mb_strlen(bx_basename($cacheImageFileTmp))));
+
+					$obSourceBucket = new CCloudStorageBucket(intval($arFile["HANDLER_ID"]));
+					if ($obSourceBucket->Init())
+					{
+						$cacheImageFile = $obSourceBucket->GetFileSRC($arFile, false);
+					}
+
+					return false;
+				}
+
 				if (!preg_match("/^image\\//", $arFileToStore["type"]))
 					$arFileToStore["type"] = $arFile["CONTENT_TYPE"];
 
@@ -456,7 +477,7 @@ class CCloudStorage
 
 		foreach (GetModuleEvents("clouds", "OnAfterResizeImage", true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, [$callbackData["delayedResize"], &$cacheImageFile]);
+			ExecuteModuleEventEx($arEvent, [$callbackData["delayedResize"] ?? false, &$cacheImageFile]);
 		}
 
 		return true;
@@ -1184,7 +1205,7 @@ class CCloudStorage
 		}
 	}
 
-	public static function OnFileSave(&$arFile, $strFileName, $strSavePath, $bForceMD5 = false, $bSkipExt = false, $dirAdd = '', $checkDuplicates = true)
+	public static function OnFileSave(&$arFile, $strFileName, $strSavePath, $bForceMD5 = false, $bSkipExt = false, $dirAdd = '')
 	{
 		if (!$arFile["tmp_name"] && !array_key_exists("content", $arFile))
 			return false;
@@ -1301,7 +1322,7 @@ class CCloudStorage
 				}
 
 				//control of duplicates
-				if($checkDuplicates && $arFile["FILE_HASH"] <> '')
+				if ($arFile["FILE_HASH"] <> '')
 				{
 					$original = CFile::FindDuplicate($copySize, $arFile["FILE_HASH"], $bucket->ID);
 					if($original !== null)
@@ -1372,7 +1393,7 @@ class CCloudStorage
 				}
 
 				//control of duplicates
-				if($checkDuplicates && $arFile["FILE_HASH"] <> '')
+				if ($arFile["FILE_HASH"] <> '')
 				{
 					if (is_callable(['CFile', 'lockFileHash']))
 					{

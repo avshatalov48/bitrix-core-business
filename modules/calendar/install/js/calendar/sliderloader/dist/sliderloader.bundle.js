@@ -14,66 +14,54 @@ this.BX = this.BX || {};
 	      ownerId: parseInt(options.ownerId) || null,
 	      userId: parseInt(options.userId) || null
 	    };
-
 	    if (main_core.Type.isArray(options.participantsEntityList)) {
 	      this.extensionParams.participantsEntityList = options.participantsEntityList;
 	    }
-
 	    if (main_core.Type.isArray(options.participantsSelectorEntityList)) {
 	      this.extensionParams.participantsSelectorEntityList = options.participantsSelectorEntityList;
 	    }
-
 	    if (options.formDataValue) {
 	      this.extensionParams.formDataValue = options.formDataValue;
 	    }
-
 	    if (options.calendarContext) {
 	      this.extensionParams.calendarContext = options.calendarContext;
 	    }
-
 	    if (options.isLocationCalendar) {
 	      this.extensionParams.isLocationCalendar = options.isLocationCalendar;
 	    }
-
 	    if (options.roomsManager) {
 	      this.extensionParams.roomsManager = options.roomsManager;
 	    }
-
 	    if (options.locationAccess) {
 	      this.extensionParams.locationAccess = options.locationAccess;
 	    }
-
 	    if (options.locationCapacity) {
 	      this.extensionParams.locationCapacity = options.locationCapacity;
 	    }
-
 	    if (options.dayOfWeekMonthFormat) {
 	      this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
 	    }
-
 	    if (main_core.Type.isDate(options.entryDateFrom)) {
 	      this.extensionParams.entryDateFrom = options.entryDateFrom;
 	    }
-
 	    if (options.timezoneOffset) {
 	      this.extensionParams.timezoneOffset = options.timezoneOffset;
 	    }
-
 	    if (main_core.Type.isString(options.entryName)) {
 	      this.extensionParams.entryName = options.entryName;
 	    }
-
 	    if (main_core.Type.isString(options.entryDescription)) {
 	      this.extensionParams.entryDescription = options.entryDescription;
 	    }
-
 	    if (main_core.Type.isString(options.link)) {
 	      const uri = new main_core.Uri(options.link);
 	      const isSharing = uri.getQueryParam('IS_SHARING');
 	      this.isSharing = isSharing === '1';
 	    }
+	    if (main_core.Type.isBoolean(options.isSharing) && options.isSharing === true) {
+	      this.isSharing = true;
+	    }
 	  }
-
 	  show() {
 	    if (this.isSharing) {
 	      BX.SidePanel.Instance.open(this.sliderId, {
@@ -93,14 +81,12 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }
-
 	  loadExtension(slider) {
 	    return new Promise(resolve => {
 	      const extensionName = 'calendar.' + this.extensionName.toLowerCase();
 	      main_core.Runtime.loadExtension(extensionName).then(exports => {
 	        if (exports && exports[this.extensionName]) {
 	          const calendarForm = new exports[this.extensionName](this.extensionParams);
-
 	          if (typeof calendarForm.initInSlider) {
 	            calendarForm.initInSlider(slider, resolve);
 	          }
@@ -110,7 +96,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	}
 
 	exports.SliderLoader = SliderLoader;

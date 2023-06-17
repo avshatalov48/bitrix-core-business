@@ -17,7 +17,7 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CWizardUtil::GetWizardList(false, true);

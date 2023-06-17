@@ -59,7 +59,7 @@ else
 }
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/vk_admin.js", true);
-require_once($DOCUMENT_ROOT . BX_ROOT . "/modules/main/include/prolog_admin_after.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . "/modules/main/include/prolog_admin_after.php");
 
 //	check REQUIRED fields
 $errorRequiredFields = array();

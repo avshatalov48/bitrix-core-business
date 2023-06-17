@@ -150,11 +150,7 @@ BitrixVue.component('bx-im-component-notifications',
 		},
 		isNeedToReadAll()
 		{
-			const confirmCounterInModel = this.notification.filter(notificationItem => {
-				return notificationItem.sectionCode === NotificationTypesCodes.confirm
-			}).length;
-
-			return confirmCounterInModel < this.unreadCounter
+			return this.unreadCounter > 0;
 		},
 		panelStyles()
 		{
@@ -904,7 +900,7 @@ BitrixVue.component('bx-im-component-notifications',
 		readNotifications(notificationId)
 		{
 			const notification = this.$store.getters['notifications/getById'](notificationId);
-			if (notification.unread === false || notification.sectionCode === NotificationTypesCodes.confirm)
+			if (notification.unread === false)
 			{
 				return false;
 			}
@@ -1031,13 +1027,6 @@ BitrixVue.component('bx-im-component-notifications',
 			}
 
 			this.$store.dispatch('notifications/readAll');
-
-			//we need to count "confirms" because its always "unread"
-			const confirms = this.notification.filter((notificationItem) => {
-				return notificationItem.sectionCode === NotificationTypesCodes.confirm;
-			});
-			this.$store.dispatch('notifications/setCounter', { unreadTotal: confirms.length });
-			this.updateRecentList(confirms.length);
 
 			this.getRestClient().callMethod('im.notify.read', {
 				id: 0,

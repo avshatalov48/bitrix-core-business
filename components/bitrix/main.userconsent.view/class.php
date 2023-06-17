@@ -28,7 +28,7 @@ class MainUserConsentViewComponent extends CBitrixComponent
 	{
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? intval($this->arParams['ID']) : null;
 		$this->arParams['REPLACE'] = is_array($this->arParams['REPLACE']) ? $this->arParams['REPLACE'] : array();
-		$this->arParams['SECURITY_CODE'] = isset($this->arParams['SECURITY_CODE']) ? $this->arParams['SECURITY_CODE'] : null;
+		$this->arParams['SECURITY_CODE'] = $this->arParams['SECURITY_CODE'] ?? null;
 
 		if (!isset($this->arParams['PARAMS']))
 		{

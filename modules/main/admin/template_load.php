@@ -27,10 +27,10 @@ $strError="";
 $strOK="";
 $bVarsFromForm = false;
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST["action"]) && $_POST["action"]=="import" && $isAdmin && check_bitrix_sessid())
 {
-	$ID = $_POST["ID"];
-	if(!is_uploaded_file($_FILES["tpath_file"]["tmp_name"]))
+	$ID = $_POST["ID"] ?? '';
+	if(!is_uploaded_file($_FILES["tpath_file"]["tmp_name"] ?? null))
 	{
 		$strError .= GetMessage("MAIN_TEMPLATE_LOAD_ERR_LOAD");
 	}
@@ -38,7 +38,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 	{
 		if($ID == '')
 		{
-			$ID = basename($_FILES['tpath_file']['name']);
+			$ID = basename($_FILES['tpath_file']['name'] ?? '');
 			if($p = bxstrrpos($ID, ".gz"))
 				$ID = mb_substr($ID, 0, $p);
 			if($p = bxstrrpos($ID, ".tar"))
@@ -65,7 +65,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 				{
 					$strOK .= str_replace("#TEMPLATE_NAME#", $ID, GetMessage("MAIN_TEMPLATE_LOAD_OK"));
 
-					$SITE_ID = $_POST["SITE_ID"];
+					$SITE_ID = $_POST["SITE_ID"] ?? '';
 					if($SITE_ID <> '' && $SITE_ID!="NOT_REF")
 					{
 						$db_site = CSite::GetByID($SITE_ID);
@@ -76,7 +76,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 							$bW = false;
 							while($v = $dbSiteRes->Fetch())
 							{
-								if(!$bW && Trim($v["CONDITION"]) == '')
+								if(!$bW && trim($v["CONDITION"]) == '')
 								{
 									$v["TEMPLATE"] = $ID;
 									$bW = true;
@@ -100,7 +100,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 				{
 					$strError .= GetMessage("MAIN_T_EDIT_IMP_ERR");
 					$arErrors = &$oArchiver->GetErrors();
-					if(count($arErrors)>0)
+					if(!empty($arErrors))
 					{
 						$strError .= ":<br>";
 						foreach ($arErrors as $value)
@@ -115,7 +115,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 
 	if($strError <> '')
 		$bVarsFromForm = true;
-	elseif($_POST["goto_edit"] == "Y")
+	elseif (isset($_POST["goto_edit"]) && $_POST["goto_edit"] == "Y")
 		LocalRedirect(BX_ROOT."/admin/template_edit.php?lang=".LANGUAGE_ID."&ID=".$ID);
 	else
 		LocalRedirect(BX_ROOT."/admin/template_admin.php?lang=".LANGUAGE_ID);
@@ -123,8 +123,8 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 
 if($bVarsFromForm)
 {
-	$str_ID = htmlspecialcharsbx($_POST["ID"]);
-	$str_SITE_ID = htmlspecialcharsbx($_POST["SITE_ID"]);
+	$str_ID = htmlspecialcharsbx($_POST["ID"] ?? '');
+	$str_SITE_ID = htmlspecialcharsbx($_POST["SITE_ID"] ?? '');
 }
 else
 {

@@ -42,7 +42,7 @@ export const RestMethod = Object.freeze({
 	imCallGetCallLimits: 'im.call.getCallLimits',
 
 	imNotifyGet: 'im.notify.get',
-	imNotifySchemaGet: 'im.notify.schema.get',
+	imNotifySchemaGet: 'im.notify.schema.get'
 });
 
 export const RestMethodHandler = Object.freeze({

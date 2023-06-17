@@ -239,6 +239,16 @@
 						// we don't use "res"
 						this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange();
 						var extSel = this.getLHE().oEditor.action.actions.quote.getExternalSelection();
+
+						// removing container containing emoji
+						let tmpExtSel = BX.create('DIV', {html: extSel});
+						let emojiContainer = tmpExtSel.querySelector('.feed-post-emoji-container')
+						if (emojiContainer)
+						{
+							tmpExtSel.removeChild(emojiContainer);
+							extSel = tmpExtSel.innerHTML;
+						}
+
 						if (extSel === "" && origRes !== "")
 						{
 							extSel = origRes;
@@ -256,7 +266,13 @@
 				}
 			}
 
-			if (this.currentEntity)
+			// if the editor is reinit to a new location after editing.
+			const isReinitAction = (
+				this.currentEntity
+				&& parseInt(this.currentEntity.messageId, 10) // only for edit messageId is not false
+			);
+
+			if (this.currentEntity && !isReinitAction)
 			{
 				this.show(entity);
 				quote();

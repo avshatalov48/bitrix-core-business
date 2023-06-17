@@ -45,6 +45,7 @@ $MESS["SALE_PROPERTY_LINKING"] = "Property linkage";
 $MESS["SALE_PROPERTY_LINKING_DESC"] = "Links properties to payment systems and delivery services";
 $MESS["SALE_PROPERTY_PAYSYSTEM"] = "Payment systems";
 $MESS["SALE_PROPERTY_SELECT_ALL"] = "All";
+$MESS["SALE_PROPERTY_TP"] = "Order source";
 $MESS["SALE_PROPERTY_TP_LANDING"] = "Landings";
 $MESS["SALE_PROPS_GROUP"] = "Property groups";
 $MESS["SALE_RECORDS_LIST"] = "To the property list";

@@ -91,6 +91,7 @@ class Statistics
 		{
 			$result['error'] = $r->getErrorMessages();
 		}
+
 		return $result;
 	}
 
@@ -104,10 +105,14 @@ class Statistics
 
 		$res = static::proxyModify($params);
 
-		if(count($res['error'])>0)
+		if (!empty($res['error']))
 		{
-			$r->addError(new Error($res['error']));
+			foreach ($res['error'] as $error)
+			{
+				$r->addError(new Error($error));
+			}
 		}
+
 		return $r;
 	}
 

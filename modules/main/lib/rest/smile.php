@@ -5,7 +5,13 @@ class Smile extends \IRestService
 {
 	public static function getList($arParams, $n, \CRestServer $server)
 	{
-		$smiles = \CSmileGallery::getSmilesWithSets();
+		$options = [];
+		if ($arParams['FULL_TYPINGS'] === 'Y')
+		{
+			$options['FULL_TYPINGS'] = 'Y';
+		}
+
+		$smiles = \CSmileGallery::getSmilesWithSets(\CSmileGallery::GALLERY_DEFAULT, $options);
 
 		return self::objectEncode([
 			'SETS' => $smiles['SMILE_SET'],

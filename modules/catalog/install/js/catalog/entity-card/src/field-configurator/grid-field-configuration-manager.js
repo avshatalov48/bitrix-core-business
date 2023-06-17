@@ -89,19 +89,7 @@ export default class GridFieldConfigurationManager extends BX.UI.EntityConfigura
 
 	openCreationPageUrl(typeId)
 	{
-		const okCallback = () => this.openCreationPageSlider(this.getCreationPageUrl(typeId));
-		const variationGridInstance = Reflection.getClass('BX.Catalog.VariationGrid.Instance');
-
-		if (variationGridInstance)
-		{
-			variationGridInstance.askToLossGridData(okCallback, null, {
-				message: Loc.getMessage('CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE')
-			});
-		}
-		else
-		{
-			okCallback();
-		}
+		this.openCreationPageSlider(this.getCreationPageUrl(typeId));
 	}
 
 	openCreationPageSlider(url)

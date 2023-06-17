@@ -289,7 +289,6 @@
 				event.preventDefault();
 				event.stopPropagation();
 
-				BX.Landing.UI.Button.FontAction.hideAll();
 				BX.Landing.UI.Button.ColorAction.hideAll();
 
 				if (!this.editPanel)
@@ -314,7 +313,7 @@
 						})
 					);
 
-					document.body.appendChild(this.editPanel.layout);
+					window.parent.document.body.appendChild(this.editPanel.layout);
 				}
 
 				var form = new BX.Landing.UI.Form.BaseForm({title: this.manifest.name});

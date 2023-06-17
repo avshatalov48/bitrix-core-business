@@ -2661,10 +2661,6 @@ class CSaleReportSaleBasketHelper extends CBaseSaleReportHelper
 		{
 			if (is_null($v) || empty($v) || $v == '&nbsp;') unset($row['__HREF_'.$k]);
 		}
-		else if ($k === 'SALE_BASKET_ORDER_PERSON_TYPE_ID')
-		{
-			$v = self::$personTypes[$v]['NAME'];
-		}
 
 
 		// Inserting zero in numerical fields with null value.

@@ -30,11 +30,13 @@ if ($catalogIncluded)
 	unset($row, $iterator);
 }
 $arIBlock = array();
-$iblockFilter = (
-	!empty($arCurrentValues['IBLOCK_TYPE'])
-	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
-	: array('ACTIVE' => 'Y')
-);
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
 {
@@ -627,7 +629,7 @@ $arComponentParameters = array(
 			'PARENT' => 'EXTENDED_SETTINGS',
 			'NAME' => GetMessage('CP_BCE_COMPATIBLE_MODE'),
 			'TYPE' => 'CHECKBOX',
-			'DEFAULT' => 'Y',
+			'DEFAULT' => 'N',
 			'REFRESH' => 'Y'
 		),
 		"USE_ELEMENT_COUNTER" => array(

@@ -92,7 +92,12 @@ Loc::loadMessages(__FILE__);
 		<div class="<?= implode(' ', $classList) ?>" style="<?= $style ?>" data-role="group-avatar-image">
 			<div class="<?= implode(' ', $removeClassList) ?>" data-role="group-avatar-remove"></div>
 		</div>
-		<input type="hidden" name="GROUP_IMAGE_ID" value="<?= (int)$arResult['POST']['IMAGE_ID'] ?>" data-role="group-avatar-input">
+		<input
+			type="hidden"
+			name="GROUP_IMAGE_ID"
+			value="<?= (int) ($arResult['POST']['IMAGE_ID'] ?? 0) ?>"
+			data-role="group-avatar-input"
+		>
 		<input type="hidden" name="GROUP_AVATAR_TYPE" value="<?= htmlspecialcharsbx($arResult['POST']['AVATAR_TYPE']) ?>" data-role="group-avatar-type-input">
 	</div>
 </div>

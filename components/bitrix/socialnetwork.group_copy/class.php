@@ -59,7 +59,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 	{
 		$this->errorCollection = new ErrorCollection();
 
-		$params["GROUP_ID"] = (int) $params["GROUP_ID"] ?? 0;
+		$params["GROUP_ID"] = (int) ($params["GROUP_ID"] ?? 0);
 
 		return $params;
 	}
@@ -99,54 +99,47 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	public function copyGroupAction()
 	{
-		try
+		$this->checkModules();
+
+		if (!$this->isFeatureEnabled())
 		{
-			$this->checkModules();
-
-			if (!$this->isFeatureEnabled())
-			{
-				return null;
-			}
-
-			$request = Context::getCurrent()->getRequest();
-			$post = $request->getPostList()->toArray();
-
-			$this->checkRequiredCreationParams($post);
-			if ($this->hasErrors())
-			{
-				return null;
-			}
-
-			$executiveUserId = $this->getUser()->getID();
-
-			$groupId = $post["id"];
-			$groupIdsToCopy = [$groupId];
-
-			$this->checkAccess($executiveUserId, $groupId);
-
-			$features = $this->getFeaturesFromRequest($post["features"]);
-
-			$copyManager = new GroupManager($executiveUserId, $groupIdsToCopy);
-			$this->setFeatures($copyManager, $executiveUserId, $features, $post);
-			$copyManager->setProjectTerm($this->getProjectTerm($post));
-
-			$changedFields = $this->getChangedFields($post);
-			$copyManager->setChangedFields($changedFields);
-
-			$result = $copyManager->startCopy();
-
-			if ($result->getErrors())
-			{
-				$this->errorCollection->set($result->getErrors());
-				return null;
-			}
-
-			return $this->getUrlToCopiedGroup($copyManager, $groupId);
+			return null;
 		}
-		catch (\Exception $exception)
+
+		$request = Context::getCurrent()->getRequest();
+		$post = $request->getPostList()->toArray();
+
+		$this->checkRequiredCreationParams($post);
+		if ($this->hasErrors())
 		{
-			return $this->setErrors($exception);
+			return null;
 		}
+
+		$executiveUserId = $this->getUser()->getID();
+
+		$groupId = $post["id"];
+		$groupIdsToCopy = [$groupId];
+
+		$this->checkAccess($executiveUserId, $groupId);
+
+		$features = $this->getFeaturesFromRequest($post["features"]);
+
+		$copyManager = new GroupManager($executiveUserId, $groupIdsToCopy);
+		$this->setFeatures($copyManager, $executiveUserId, $features, $post);
+		$copyManager->setProjectTerm($this->getProjectTerm($post));
+
+		$changedFields = $this->getChangedFields($post);
+		$copyManager->setChangedFields($changedFields);
+
+		$result = $copyManager->startCopy();
+
+		if ($result->getErrors())
+		{
+			$this->errorCollection->set($result->getErrors());
+			return null;
+		}
+
+		return $this->getUrlToCopiedGroup($copyManager, $groupId);
 	}
 
 	private function isFeatureEnabled(): bool
@@ -156,43 +149,39 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	private function setFeatures(GroupManager $copyManager, $executiveUserId, array $features, array $post)
 	{
-		try
+		if (!array_key_exists("users", $features))
 		{
-			if (!array_key_exists("users", $features))
-			{
-				$copyManager->setMarkerUsers(false);
-			}
-			if (array_key_exists("tasks", $features) && Loader::includeModule("tasks"))
-			{
-				$copyManager->setFeature(new TasksFeature($executiveUserId, $features["tasks"]));
-			}
-			if (array_key_exists("files", $features) && Loader::includeModule("disk"))
-			{
-				$copyManager->setFeature(new DiskFeature($executiveUserId, $features["files"]));
-			}
-			if (array_key_exists("group_lists", $features) && Loader::includeModule("lists"))
-			{
-				$features["group_lists"][] = "field";
-				$copyManager->setFeature(new ListsFeature($executiveUserId, $features["group_lists"]));
-			}
-			if (array_key_exists("blog", $features) && Loader::includeModule("blog"))
-			{
-				$copyManager->setFeature(new BlogFeature($executiveUserId, $features["blog"]));
-			}
-			if (array_key_exists("photo", $features) && Loader::includeModule("photogallery"))
-			{
-				$copyManager->setFeature(new PhotoFeature($executiveUserId, $features["photo"]));
-			}
-			if (array_key_exists("landing_knowledge", $features) && Loader::includeModule("landing"))
-			{
-				$copyManager->setFeature(new LandingFeature($executiveUserId));
-			}
-
-			$ufIgnoreList = $this->getUfIgnoreList($features);
-
-			$copyManager->setUfIgnoreList($ufIgnoreList);
+			$copyManager->setMarkerUsers(false);
 		}
-		catch (LoaderException $exception) {}
+		if (array_key_exists("tasks", $features) && Loader::includeModule("tasks"))
+		{
+			$copyManager->setFeature(new TasksFeature($executiveUserId, $features["tasks"]));
+		}
+		if (array_key_exists("files", $features) && Loader::includeModule("disk"))
+		{
+			$copyManager->setFeature(new DiskFeature($executiveUserId, $features["files"]));
+		}
+		if (array_key_exists("group_lists", $features) && Loader::includeModule("lists"))
+		{
+			$features["group_lists"][] = "field";
+			$copyManager->setFeature(new ListsFeature($executiveUserId, $features["group_lists"]));
+		}
+		if (array_key_exists("blog", $features) && Loader::includeModule("blog"))
+		{
+			$copyManager->setFeature(new BlogFeature($executiveUserId, $features["blog"]));
+		}
+		if (array_key_exists("photo", $features) && Loader::includeModule("photogallery"))
+		{
+			$copyManager->setFeature(new PhotoFeature($executiveUserId, $features["photo"]));
+		}
+		if (array_key_exists("landing_knowledge", $features) && Loader::includeModule("landing"))
+		{
+			$copyManager->setFeature(new LandingFeature($executiveUserId));
+		}
+
+		$ufIgnoreList = $this->getUfIgnoreList($features);
+
+		$copyManager->setUfIgnoreList($ufIgnoreList);
 	}
 
 	/**
@@ -598,7 +587,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"SUBJECT_ID" => $post["subject_id"],
 			"KEYWORDS" => $post["keywords"],
 			"INITIATE_PERMS" => $post["initiate_perms"],
-			"SPAM_PERMS" => $post["spam_perms"],
+			"SPAM_PERMS" => $post["spam_perms"] ?? null,
 			"PROJECT" => ($post["project"] == "Y" ? "Y" : "N"),
 			"LANDING" => ($post["landing"] == "Y" ? "Y" : "N"),
 			"OWNER_ID" => $post["owner_id"],
@@ -664,7 +653,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			if (
 				Loader::includeModule("extranet") &&
 				!CExtranet::isExtranetSite() &&
-				$post["is_extranet_group"] == "Y"
+				($post["is_extranet_group"] ?? null) == "Y"
 			)
 			{
 				$changedFields["SITE_ID"][] = CExtranet::getExtranetSiteID();

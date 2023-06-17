@@ -402,7 +402,7 @@ class CAllSQLWhere
 			}
 		}
 
-		if(count($result)>0)
+		if(!empty($result))
 			return "\n".str_repeat("\t", $level).($inverted ? 'NOT (' : '').implode("\n".str_repeat("\t", $level).$logic." ", $result).($inverted ? ')' : '');
 		else
 			return "";

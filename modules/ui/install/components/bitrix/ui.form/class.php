@@ -410,6 +410,7 @@ class UIFormComponent extends \CBitrixComponent
 		$requiredFields = [];
 		$hasEmptyRequiredFields = false;
 		$htmlFieldNames = [];
+		$bbFieldNames = [];
 		foreach($entityFields as $field)
 		{
 			$name = $field['name'] ?? '';
@@ -422,6 +423,10 @@ class UIFormComponent extends \CBitrixComponent
 			if($fieldType === 'html')
 			{
 				$htmlFieldNames[] = $name;
+			}
+			if ($fieldType === 'bb')
+			{
+				$bbFieldNames[] = $name;
 			}
 
 			$availableFields[$name] = $field;
@@ -459,6 +464,7 @@ class UIFormComponent extends \CBitrixComponent
 			'required' => $requiredFields,
 			'hasEmptyRequiredFields' => $hasEmptyRequiredFields,
 			'html' => $htmlFieldNames,
+			'bb' => $bbFieldNames,
 		];
 	}
 
@@ -671,6 +677,7 @@ class UIFormComponent extends \CBitrixComponent
 
 		$this->arResult['ENTITY_AVAILABLE_FIELDS'] = array_values($fieldsInfo['available']);
 		$this->arResult['ENTITY_HTML_FIELD_NAMES'] = $fieldsInfo['html'];
+		$this->arResult['ENTITY_BB_FIELD_NAMES'] = $fieldsInfo['bb'];
 		$this->arResult['DISABLED_HTML_CONTROLS'] = $this->arParams['DISABLED_HTML_CONTROLS'] ?? [];
 	}
 

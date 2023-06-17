@@ -30,7 +30,7 @@ $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-paddings" : "no-paddings";
 $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
-if($arResult["FatalError"] <> '')
+if(!empty($arResult["FatalError"]))
 {
 	?><span class="sonet-groups-menu-errortext"><?=$arResult["FatalError"]?></span><br /><br /><?php
 }
@@ -74,7 +74,7 @@ else
 			array("HIDE_ICONS" => "Y")
 		);
 
-		if($arResult["ErrorMessage"] <> '')
+		if(!empty($arResult["ErrorMessage"]))
 		{
 			?><span class="sonet-groups-menu-errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?php
 		}

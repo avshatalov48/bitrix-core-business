@@ -667,23 +667,30 @@ class CDeliveryRusPost
 
 	private static function getLocationToCode($arLocationTo)
 	{
-		$code = self::getRegionCodeByOldName($arLocationTo['REGION_NAME_LANG']); // old location
-
-		if($code == '' && CSaleLocation::isLocationProMigrated())
+		if (!is_array($arLocationTo))
 		{
-			$dbRes = Location\LocationTable::getList(array(
-				'filter' => array(
-					'=TYPE.CODE' => 'REGION',
-					'=REGION_ID' => intval($arLocationTo["REGION_ID"]),
-					'=CITY_ID' => false
-				),
-				'select' => array(
-					'ID', 'CODE', 'NAME'
-				)
-			));
+			return '';
+		}
+		$code = (string)self::getRegionCodeByOldName($arLocationTo['REGION_NAME_LANG'] ?? ''); // old location
 
-			if($locReg = $dbRes->fetch())
-				$code = $locReg["CODE"];
+		if ($code === '' && CSaleLocation::isLocationProMigrated())
+		{
+			$dbRes = Location\LocationTable::getList([
+				'filter' => [
+					'=TYPE.CODE' => 'REGION',
+					'=REGION_ID' => (int)($arLocationTo["REGION_ID"] ?? 0),
+					'=CITY_ID' => false,
+				],
+				'select' => [
+					'ID',
+					'CODE',
+					'NAME',
+				],
+			]);
+
+			$locReg = $dbRes->fetch();
+			unset($dbRes);
+			$code = $locReg["CODE"] ?? '';
 		}
 
 		return $code;
@@ -778,10 +785,11 @@ class CDeliveryRusPost
 		if(empty($data))
 		{
 			require_once(__DIR__.'/rus_post/old_loc_to_codes.php');
+			/** @var array $locToCode */
 			$data = $locToCode;
 		}
 
-		return isset($data[$regionLangName]) ? $data[$regionLangName] : "";
+		return $data[$regionLangName] ?? "";
 	}
 
 	/**

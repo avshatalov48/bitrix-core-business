@@ -62,7 +62,7 @@ class StyleInliner
 	{
 		if($append)
 		{
-			if(count($styleList) <= 0)
+			if(empty($styleList))
 			{
 				return;
 			}

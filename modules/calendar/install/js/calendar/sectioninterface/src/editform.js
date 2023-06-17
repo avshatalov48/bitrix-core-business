@@ -324,7 +324,7 @@ export class EditForm extends EventEmitter
 			this.simpleColorPopup.close();
 		}
 
-		if (!this.fullColorPicker)
+		if (!this.fullColorPicker || this.fullColorPicker.getPopupWindow()?.isDestroyed())
 		{
 			this.fullColorPicker = new BX.ColorPicker({
 				bindElement: this.colorIcon,

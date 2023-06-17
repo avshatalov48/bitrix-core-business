@@ -42,19 +42,6 @@ class GoogleSource extends Source
 			]
 		);
 
-		if (defined('LOCATION_GOOGLE_PROXY_HOST'))
-		{
-			$proxyHost = LOCATION_GOOGLE_PROXY_HOST;
-			$proxyPort = null;
-
-			if(defined('LOCATION_GOOGLE_PROXY_PORT'))
-			{
-				$proxyPort = LOCATION_GOOGLE_PROXY_PORT;
-			}
-
-			$httpClient->setProxy($proxyHost, $proxyPort);
-		}
-
 		$cacheTTL = 2592000; //month
 		$poolSize = 100;
 		$pool = new Pool($poolSize);

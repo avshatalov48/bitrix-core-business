@@ -15,7 +15,11 @@ $APPLICATION->AddHeadScript("/bitrix/components/bitrix/rating.vote/templates/mob
 		RVRunEvent: '<?=(intval($arParams["VOTE_RAND"]) > 0 ? "Y" : "N")?>'
 	});
 </script><?
-?><div class="post-item-informers post-item-inform-likes<?=($arResult['USER_HAS_VOTED'] == 'Y' ? '-active' : '')?>" id="bx-ilike-box-<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_ID']))?>"><?
+?><div
+	class="post-item-informers post-item-inform-likes<?=($arResult['USER_HAS_VOTED'] == 'Y' ? '-active' : '')?>"
+	id="bx-ilike-box-<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_ID']))?>"
+	data-vote-key-signed="<?= htmlspecialcharsbx($arResult['VOTE_KEY_SIGNED']) ?>"
+><?
 
 	$like = COption::GetOptionString("main", "rating_text_like_y", GetMessage("RV_T_LIKE"));
 	$like2 = str_replace('#LIKE#', $like, GetMessage("RV_T_LIKE2_PATTERN"));

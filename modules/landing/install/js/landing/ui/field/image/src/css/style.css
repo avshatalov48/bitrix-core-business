@@ -22,6 +22,7 @@
 }
 
 .landing-ui-field-image--compact .landing-ui-field-image-right {
+	flex-wrap: wrap;
 	flex-direction: row;
 	justify-content: space-between;
 }
@@ -143,6 +144,11 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-ai-button {
+	flex-basis: 100%;
+	margin-bottom: 10px;
 }
 
 .landing-ui-field-image-dropzone {

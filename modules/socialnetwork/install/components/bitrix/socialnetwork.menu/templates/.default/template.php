@@ -3,7 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 \Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 
-if ($arResult["ErrorMessage"] <> '')
+if (!empty($arResult["ErrorMessage"]))
 {
 	?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><?
 	return;

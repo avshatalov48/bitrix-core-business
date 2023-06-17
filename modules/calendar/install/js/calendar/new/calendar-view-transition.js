@@ -113,7 +113,6 @@
 			BX.removeClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
 			BX.removeClass(monthView.gridMonthContainer, "calendar-events-holder-show");
 
-			this.calendar.viewsCont.style.overflow = "hidden";
 			var
 				topHolderWeekHeight = parseInt(weekView.fullDayEventsCont.style.height) || this.WEEK_TOP_MIN_HEIGHT,
 				weekViewOffsets = BX.pos(weekView.viewCont),
@@ -254,6 +253,7 @@
 			dayView.viewCont.style.zIndex = 110;
 
 			dayView.show();
+			this.calendar.viewsCont.style.height = dayView.viewCont.offsetHeight + 'px';
 
 			monthView.viewCont.style.position = "absolute";
 			monthView.viewCont.style.top = 0;
@@ -379,7 +379,6 @@
 			BX.removeClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
 			BX.removeClass(monthView.gridMonthContainer, "calendar-events-holder-show");
 
-			this.calendar.viewsCont.style.overflow = "hidden";
 			monthView.viewCont.style.display = "block";
 			var monthViewPos = BX.pos(monthView.viewCont);
 			monthView.viewCont.style.position = "absolute";
@@ -414,6 +413,7 @@
 
 			BX.addClass(weekView.viewCont, "calendar-animate-mod");
 			BX.addClass(monthView.viewCont, "calendar-animate-mod");
+			this.calendar.viewsCont.style.height = monthView.viewCont.offsetHeight + 'px';
 
 			this.firstStage = new BX.easing({
 				duration: duration1,
@@ -532,8 +532,8 @@
 			dayView.viewCont.style.left = "0px";
 			dayView.viewCont.style.width = dayViewOffsets.width + "px";
 			dayView.viewCont.style.height = dayViewOffsets.height + "px";
+			this.calendar.viewsCont.style.height = dayView.viewCont.offsetHeight + 'px';
 			dayView.viewCont.style.zIndex = "100";
-			this.calendar.viewsCont.style.overflow = "hidden";
 
 			BX.removeClass(weekView.grid, 'calendar-events-holder-show');
 			BX.removeClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
@@ -667,6 +667,7 @@
 				monthView.viewCont.style.position = "absolute";
 				monthView.viewCont.style.top = 0;
 				monthView.viewCont.style.left = 0;
+				this.calendar.viewsCont.style.height = monthView.viewCont.offsetHeight + 'px';
 
 				var
 					day = monthView.days[monthView.dayIndex[dayCode]],
@@ -792,7 +793,7 @@
 				weekView.viewCont.style.height = weekViewOffsets.height + "px";
 				weekView.viewCont.style.zIndex = 100;
 				weekView.fullDayEventsCont.style.height = this.WEEK_TOP_MIN_HEIGHT + 'px';
-				this.calendar.viewsCont.style.overflow = "hidden";
+				this.calendar.viewsCont.style.height = weekView.viewCont.offsetHeight + 'px';
 
 				BX.removeClass(weekView.grid, 'calendar-events-holder-show');
 				BX.removeClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
@@ -923,7 +924,6 @@
 
 		fromDayToList: function (dayView, listView)
 		{
-
 			listView.show();
 			this.adjustViewAnimate(dayView, listView);
 		},
@@ -947,6 +947,7 @@
 				monthView.viewCont.style.left = 0;
 				monthView.viewCont.style.width = monthViewPos.width + "px";
 				monthView.viewCont.style.height = monthViewPos.height + "px";
+				this.calendar.viewsCont.style.height = monthView.viewCont.offsetHeight + 'px';
 				monthView.viewCont.style.zIndex = 100;
 				this.calendar.viewsCont.style.overflow = "hidden";
 				this.firstStage.animate();
@@ -994,6 +995,7 @@
 				weekView.viewCont.style.left = 0;
 				weekView.viewCont.style.width = weekViewPos.width + "px";
 				weekView.viewCont.style.height = weekViewPos.height + "px";
+				this.calendar.viewsCont.style.height = weekView.viewCont.offsetHeight + 'px';
 				weekView.viewCont.style.zIndex = 100;
 				this.calendar.viewsCont.style.overflow = "hidden";
 				this.firstStage.animate();
@@ -1025,12 +1027,12 @@
 		fromListToDay: function (listView, dayView)
 		{
 			dayView.show();
+			this.calendar.viewsCont.style.height = dayView.viewCont.offsetHeight + 'px';
 			this.adjustViewAnimate(listView, dayView);
 		},
 
 		adjustViewAnimate: function (currentView, newView)
 		{
-			this.calendar.viewsCont.style.cssText = "";
 			newView.viewCont.style.cssText = "";
 			currentView.viewCont.style.cssText = "";
 
@@ -1041,14 +1043,11 @@
 
 			BX.addClass(newView.gridMonthContainer, "calendar-events-holder-show");
 
-			if (newView.getName() != this.calendar.currentViewName)
+			if (newView.getName() !== this.calendar.currentViewName)
+			{
 				currentView.hide();
+			}
 		},
-
-		getRgb: function ()
-		{
-
-		}
 	};
 
 	if (window.BXEventCalendar)

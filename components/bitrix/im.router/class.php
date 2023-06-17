@@ -95,10 +95,12 @@ class ImRouterComponent extends \CBitrixComponent
 		}
 
 		$this->request = \Bitrix\Main\Context::getCurrent()->getRequest();
-		$videoconfFlag = $this->request->get('videoconf');
+
+		$this->arResult['MESSENGER_V2'] = \Bitrix\Im\Settings::isBetaActivated()? 'Y': 'N';
 
 		if ($this->request->get('alias'))
 		{
+			$videoconfFlag = $this->request->get('videoconf');
 			$this->aliasData = \Bitrix\Im\Alias::get($this->request->get('alias'));
 			if ($this->aliasData['ENTITY_TYPE'] == \Bitrix\Im\Alias::ENTITY_TYPE_LIVECHAT && IsModuleInstalled('imopenlines'))
 			{

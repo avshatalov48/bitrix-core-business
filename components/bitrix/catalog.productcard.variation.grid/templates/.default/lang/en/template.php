@@ -18,7 +18,4 @@ $MESS["C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1"] = "Quantity at warehouse";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED"] = "Reserved";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_STORE"] = "Warehouse";
 $MESS["C_PVG_STORE_CREATE_BARCODE_PLACEHOLDER"] = "Enter new barcode";
-$MESS["C_PVG_UNSAVED_DATA_CONTINUE"] = "Continue without saving";
-$MESS["C_PVG_UNSAVED_DATA_MESSAGE"] = "Unsaved data will be lost when changing variant view settings.";
-$MESS["C_PVG_UNSAVED_DATA_TITLE"] = "There are unsaved data";
 $MESS["C_PVG_VARIATIONS_TITLE"] = "Variants";

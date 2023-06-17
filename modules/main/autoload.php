@@ -37,6 +37,8 @@ Loader::registerAutoLoadClasses(
 		"CComponentPanel" => "public/edit_area.php",
 		"CTextParser" => "classes/general/textparser.php",
 		"CPHPCacheFiles" => "classes/general/cache_files.php",
+		"CDataXMLNode" => "classes/general/xml.php",
+		"CDataXMLDocument" => "classes/general/xml.php",
 		"CDataXML" => "classes/general/xml.php",
 		"CXMLFileStream" => "classes/general/xml.php",
 		"CRsaProvider" => "classes/general/rsasecurity.php",

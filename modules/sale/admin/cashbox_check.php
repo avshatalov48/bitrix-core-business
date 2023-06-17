@@ -57,7 +57,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 		if ($_REQUEST['action'] === 'delete')
 		{
 			$check = Internals\CashboxCheckTable::getRowById($id);
-			if ($check['STATUS'] == 'E' || $check['STATUS'] == 'N')
+			if ($check['STATUS'] == 'E' || $check['STATUS'] == 'N' || $check['STATUS'] == 'P')
 			{
 				Cashbox\CheckManager::delete($id);
 			}
@@ -506,7 +506,7 @@ while ($check = $dbResultList->Fetch())
 	$row->AddField("STATUS", Loc::getMessage('SALE_CASHBOX_STATUS_'.$check['STATUS']) . $errorMessage);
 
 	$arActions = array();
-	if ($check['STATUS'] === 'E' || $check['STATUS'] == 'N')
+	if ($check['STATUS'] === 'E' || $check['STATUS'] == 'N' || $check['STATUS'] == 'P')
 	{
 		$arActions[] = array(
 			"ICON" => "delete",

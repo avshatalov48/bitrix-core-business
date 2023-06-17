@@ -54,10 +54,17 @@ class CatalogIblockSectionFieldController extends Controller
 	public function addSectionAction($iblockId, $name): array
 	{
 		$sectionObject = new \CIBlockSection();
-		$ID = $sectionObject->Add([
+
+		$fields = [
 			'IBLOCK_ID' => $iblockId,
 			'NAME' => $name,
-		]);
+		];
+		$code = $sectionObject->generateMnemonicCode($name, $iblockId);
+		if ($code !== null)
+		{
+			$fields['CODE'] = $code;
+		}
+		$ID = $sectionObject->Add($fields);
 
 		if (empty($ID))
 		{

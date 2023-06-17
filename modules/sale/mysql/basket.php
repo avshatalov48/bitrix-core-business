@@ -620,12 +620,6 @@ class CSaleBasket extends CAllSaleBasket
 					$boolOrder = (0 < (int)$arFields['ORDER_ID']);
 				}
 
-				if (!$boolOrder && !CSaleBasketHelper::isSetItem($arFields))
-				{
-					$siteID = (isset($arFields["LID"])) ? $arFields["LID"] : SITE_ID;
-					$_SESSION["SALE_BASKET_NUM_PRODUCTS"][$siteID]++;
-				}
-
 				if ($boolProps)
 				{
 					foreach ($arFields["PROPS"] as &$prop)
@@ -778,9 +772,6 @@ class CSaleBasket extends CAllSaleBasket
 
 		$DB->Query("DELETE FROM b_sale_basket_props WHERE BASKET_ID = ".$ID, true);
 
-		if(intval($_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID]) > 0 && !CSaleBasketHelper::isSetItem($arBasket))
-			$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID]--;
-
 		$DB->Query("DELETE FROM b_sale_store_barcode WHERE BASKET_ID = ".$ID, true);
 
 		$DB->Query("DELETE FROM b_sale_basket WHERE ID = ".$ID, true);
@@ -856,9 +847,6 @@ class CSaleBasket extends CAllSaleBasket
 				$DB->Query("DELETE FROM b_sale_basket WHERE ID = ".$arBasket["ID"], true);
 			}
 		}
-
-
-		$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] = 0;
 
 		return true;
 	}

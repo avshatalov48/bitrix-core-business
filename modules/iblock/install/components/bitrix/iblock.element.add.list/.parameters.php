@@ -1,18 +1,44 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule("iblock"))
+{
 	return;
+}
 
-if($arCurrentValues["IBLOCK_ID"] > 0)
-	$bWorkflowIncluded = CIBlock::GetArrayByID($arCurrentValues["IBLOCK_ID"], "WORKFLOW") == "Y" && CModule::IncludeModule("workflow");
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+
+if ($iblockExists)
+{
+	$arIBlock = CIBlock::GetArrayByID($arCurrentValues["IBLOCK_ID"]);
+
+	$bWorkflowIncluded = ($arIBlock["WORKFLOW"] == "Y") && Loader::includeModule("workflow");
+	$bBizproc = ($arIBlock["BIZPROC"] == "Y") && Loader::includeModule("bizproc");
+}
 else
-	$bWorkflowIncluded = CModule::IncludeModule("workflow");
+{
+	$bWorkflowIncluded = Loader::includeModule("workflow");
+	$bBizproc = false;
+}
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), $iblockFilter);
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -27,13 +53,27 @@ $arProperty_LNSF = array(
 	"DETAIL_TEXT" => GetMessage("IBLOCK_ADD_DETAIL_TEXT"),
 	"DETAIL_PICTURE" => GetMessage("IBLOCK_ADD_DETAIL_PICTURE"),
 );
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+
+$arProperty = [];
+if ($iblockExists)
 {
-	$arProperty[$arr["ID"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-	if (in_array($arr["PROPERTY_TYPE"], array("L", "N", "S", "F")))
+	$rsProp = CIBlockProperty::GetList(
+		[
+			"SORT" => "ASC",
+			"NAME" => "ASC",
+		],
+		[
+			"ACTIVE" => "Y",
+			"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
+		]
+	);
+	while ($arr = $rsProp->Fetch())
 	{
-		$arProperty_LNSF[$arr["ID"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		$arProperty[$arr["ID"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		if (in_array($arr["PROPERTY_TYPE"], ["L", "N", "S", "F"]))
+		{
+			$arProperty_LNSF[$arr["ID"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		}
 	}
 }
 
@@ -134,7 +174,7 @@ $arComponentParameters = array(
 	),
 );
 
-if ($arCurrentValues["ELEMENT_ASSOC"] == "PROPERTY_ID")
+if (($arCurrentValues["ELEMENT_ASSOC"] ?? 'CREATED_BY') === "PROPERTY_ID")
 {
 	$arComponentParameters["PARAMETERS"]["ELEMENT_ASSOC_PROPERTY"] = array(
 		"PARENT" => "ACCESS",
@@ -145,7 +185,7 @@ if ($arCurrentValues["ELEMENT_ASSOC"] == "PROPERTY_ID")
 		"ADDITIONAL_VALUES" => "Y",
 	);
 }
-if ($arCurrentValues["ELEMENT_ASSOC"] != "N")
+if (($arCurrentValues["ELEMENT_ASSOC"] ?? 'CREATED_BY') !== "N")
 {
 	$arComponentParameters["PARAMETERS"]["ALLOW_EDIT"] = array(
 		"PARENT" => "ACCESS",
@@ -162,7 +202,6 @@ if ($arCurrentValues["ELEMENT_ASSOC"] != "N")
 	);
 }
 
-
 $arComponentParameters["PARAMETERS"]["NAV_ON_PAGE"] = array(
 	"PARENT" => "PARAMS",
 	"NAME" => GetMessage("IBLOCK_NAV_ON_PAGE"),
@@ -176,5 +215,3 @@ $arComponentParameters["PARAMETERS"]["MAX_USER_ENTRIES"] = array(
 	"TYPE" => "TEXT",
 	"DEFAULT" => "100000",
 );
-
-?>

@@ -1,0 +1,7 @@
+.bx-im-content-notification-item-confirm-buttons__container {
+	padding-top: 15px;
+}
+
+.bx-im-content-notification-item-confirm-buttons__container button + button {
+	margin-left: 8px;
+}

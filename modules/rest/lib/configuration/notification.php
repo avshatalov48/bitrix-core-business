@@ -37,17 +37,17 @@ class Notification
 	{
 		$this->holdSaveToBase = true;
 
-		if ($result['ERROR_ACTION'])
+		if (isset($result['ERROR_ACTION']) && $result['ERROR_ACTION'])
 		{
 			$this->add($result['ERROR_ACTION'], '', self::TYPE_NOTICE);
 		}
 
-		if ($result['ERROR_MESSAGES'])
+		if (isset($result['ERROR_MESSAGES']) && $result['ERROR_MESSAGES'])
 		{
 			$this->add($result['ERROR_MESSAGES'], '', self::TYPE_ERROR);
 		}
 
-		if ($result['ERROR_EXCEPTION'])
+		if (isset($result['ERROR_EXCEPTION']) && $result['ERROR_EXCEPTION'])
 		{
 			$this->add($result['ERROR_EXCEPTION'], '', self::TYPE_EXCEPTION);
 		}

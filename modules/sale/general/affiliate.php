@@ -12,6 +12,9 @@ class CAllSaleAffiliate
 {
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
+		/** @global CDatabase $DB */
+		global $DB;
+
 		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("ACGA1_NO_SITE"), "EMPTY_SITE_ID");
@@ -99,6 +102,9 @@ class CAllSaleAffiliate
 			$arFields["ITEMS_SUM"] = DoubleVal($arFields["ITEMS_SUM"]);
 		}
 
+		unset($arFields['TIMESTAMP_X']);
+		$arFields['~TIMESTAMP_X'] = $DB->GetNowFunction();
+
 		return True;
 	}
 
@@ -182,7 +188,7 @@ class CAllSaleAffiliate
 		if ($affiliateID <= 0)
 		{
 			$cookieName = COption::GetOptionString("main", "cookie_name", "BITRIX_SM");
-			$affiliateID = intval($_COOKIE[$cookieName."_SALE_AFFILIATE"]);
+			$affiliateID = intval($_COOKIE[$cookieName."_SALE_AFFILIATE"] ?? 0);
 		}
 
 		if ($affiliateID > 0)

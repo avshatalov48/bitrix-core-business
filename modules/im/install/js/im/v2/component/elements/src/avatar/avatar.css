@@ -1,0 +1,347 @@
+.bx-im-avatar__scope {
+	/* size of avatar */
+	--im-avatar__size_xs: 18px;
+	--im-avatar__size_s: 22px;
+	--im-avatar__size_m: 32px;
+	--im-avatar__size_l: 42px;
+	--im-avatar__size_xl: 48px;
+	--im-avatar__size_xxl: 60px;
+	--im-avatar__size_xxxl: 94px;
+	/* font size for avatar letters */
+	--im-avatar__font-size_m: var(--im-font-size-md);
+	--im-avatar__font-size_l: var(--im-font-size-2xl);
+	--im-avatar__font-size_xl: var(--im-font-size-2xl);
+	--im-avatar__font-size_xxl: var(--im-font-size-5xl);
+	--im-avatar__font-size_xxxl: 34px;
+}
+
+.bx-im-avatar__container {
+	position: relative;
+}
+
+.bx-im-avatar__content {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+
+.bx-im-avatar__content.--image {
+	object-fit: cover;
+}
+
+/* Size of avatar */
+.bx-im-avatar__container.--size-xs {
+	width: var(--im-avatar__size_xs);
+	height: var(--im-avatar__size_xs);
+}
+
+.bx-im-avatar__container.--size-s {
+	width: var(--im-avatar__size_s);
+	height: var(--im-avatar__size_s);
+}
+
+.bx-im-avatar__container.--size-m {
+	width: var(--im-avatar__size_m);
+	height: var(--im-avatar__size_m);
+}
+
+.bx-im-avatar__container.--size-l {
+	width: var(--im-avatar__size_l);
+	height: var(--im-avatar__size_l);
+}
+
+.bx-im-avatar__container.--size-xl {
+	width: var(--im-avatar__size_xl);
+	height: var(--im-avatar__size_xl);
+}
+
+.bx-im-avatar__container.--size-xxl {
+	width: var(--im-avatar__size_xxl);
+	height: var(--im-avatar__size_xxl);
+}
+
+.bx-im-avatar__container.--size-xxxl {
+	width: var(--im-avatar__size_xxxl);
+	height: var(--im-avatar__size_xxxl);
+}
+/* End size of avatar */
+
+/* Square avatar for special chats */
+.bx-im-avatar__container.--special .bx-im-avatar__content {
+	border-radius: 9px;
+}
+
+.bx-im-avatar__container.--special.--size-s .bx-im-avatar__content {
+	border-radius: 5px;
+}
+
+.bx-im-avatar__container.--special.--size-xs .bx-im-avatar__content {
+	border-radius: 3px;
+}
+
+.bx-im-avatar__container.--special.--size-xs {
+	width: calc(var(--im-avatar__size_xs) - 2px);
+	height: calc(var(--im-avatar__size_xs) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-s {
+	width: calc(var(--im-avatar__size_s) - 2px);
+	height: calc(var(--im-avatar__size_s) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-m {
+	width: calc(var(--im-avatar__size_m) - 2px);
+	height: calc(var(--im-avatar__size_m) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-l {
+	width: calc(var(--im-avatar__size_l) - 2px);
+	height: calc(var(--im-avatar__size_l) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-xl {
+	width: calc(var(--im-avatar__size_xl) - 2px);
+	height: calc(var(--im-avatar__size_xl) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-xxl {
+	width: calc(var(--im-avatar__size_xxl) - 2px);
+	height: calc(var(--im-avatar__size_xxl) - 2px);
+}
+
+.bx-im-avatar__container.--special.--size-xxxl {
+	width: calc(var(--im-avatar__size_xxxl) - 2px);
+	height: calc(var(--im-avatar__size_xxxl) - 2px);
+}
+/* End square avatar for special chats */
+
+/* Square icon for special chats with image */
+.bx-im-avatar__special-type_icon {
+	position: absolute;
+	border-radius: 7px;
+	border: 2px solid var(--im-color-palette-white-base);
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-avatar__container.--size-m .bx-im-avatar__special-type_icon {
+	width: 15px;
+	height: 15px;
+	top: 20px;
+	left: 20px;
+	background-size: 12px;
+	border-width: 1px;
+	border-radius: 3px;
+}
+
+.bx-im-avatar__container.--size-l .bx-im-avatar__special-type_icon {
+	width: 19px;
+	height: 19px;
+	top: 26px;
+	left: 26px;
+	background-size: 15px;
+	border-radius: 5px;
+}
+
+.bx-im-avatar__container.--size-xl .bx-im-avatar__special-type_icon {
+	width: 22px;
+	height: 22px;
+	top: 29px;
+	left: 29px;
+	background-size: 18px;
+	border-radius: 7px;
+}
+
+.bx-im-avatar__container.--size-xxl .bx-im-avatar__special-type_icon {
+	width: 22px;
+	height: 22px;
+	top: 41px;
+	left: 41px;
+	background-size: 18px;
+	border-radius: 7px;
+}
+
+.bx-im-avatar__container.--size-xxxl .bx-im-avatar__special-type_icon {
+	width: 43px;
+	height: 43px;
+	top: 52px;
+	left: 52px;
+	background-size: 39px;
+	border-radius: 7px;
+}
+/* End square icon for special chats with image */
+
+/* Avatar text */
+.bx-im-avatar__content.--text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	text-transform: uppercase;
+	user-select: none;
+}
+
+.bx-im-avatar__container.--size-m .bx-im-avatar__content.--text {
+	font-size: var(--im-avatar__font-size_m);
+}
+
+.bx-im-avatar__container.--size-l .bx-im-avatar__content.--text {
+	font-size: var(--im-avatar__font-size_l);
+}
+
+.bx-im-avatar__container.--size-xl .bx-im-avatar__content.--text {
+	font-size: var(--im-avatar__font-size_xl);
+}
+
+.bx-im-avatar__container.--size-xxl .bx-im-avatar__content.--text {
+	font-size: var(--im-avatar__font-size_xxl);
+}
+
+.bx-im-avatar__container.--size-xxxl .bx-im-avatar__content.--text {
+	font-size: var(--im-avatar__font-size_xxxl);
+}
+/* End avatar text */
+
+/* Chat type icons */
+.bx-im-avatar__icon {
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-avatar__container.--size-xs .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_xs) - 4px);
+}
+
+.bx-im-avatar__container.--size-s .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_s) - 4px);
+}
+
+.bx-im-avatar__container.--size-m .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_m) - 4px);
+}
+
+.bx-im-avatar__container.--size-l .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_l) - 8px);
+}
+
+.bx-im-avatar__container.--size-xl .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_xl) - 8px);
+}
+
+.bx-im-avatar__container.--size-xxl .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_xxl) - 8px);
+}
+
+.bx-im-avatar__container.--size-xxxl .bx-im-avatar__icon {
+	background-size: calc(var(--im-avatar__size_xxxl) - 8px);
+}
+
+.bx-im-avatar__container.--user .bx-im-avatar__icon,
+.bx-im-avatar__container.--user .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/user.svg);
+}
+
+.bx-im-avatar__container.--default .bx-im-avatar__icon,
+.bx-im-avatar__container.--default .bx-im-avatar__special-type_icon,
+.bx-im-avatar__container.--chat .bx-im-avatar__icon,
+.bx-im-avatar__container.--chat .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/chat.svg);
+}
+
+.bx-im-avatar__container.--open .bx-im-avatar__icon,
+.bx-im-avatar__container.--open .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/open.svg);
+}
+
+.bx-im-avatar__container.--general .bx-im-avatar__icon,
+.bx-im-avatar__container.--general .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/general.svg);
+}
+
+.bx-im-avatar__container.--videoconf .bx-im-avatar__icon,
+.bx-im-avatar__container.--videoconf .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/videoconf.svg);
+}
+
+.bx-im-avatar__container.--announcement .bx-im-avatar__icon,
+.bx-im-avatar__container.--announcement .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/announcement.svg);
+}
+
+.bx-im-avatar__container.--call .bx-im-avatar__icon,
+.bx-im-avatar__container.--call .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/call.svg);
+}
+
+.bx-im-avatar__container.--support24Notifier .bx-im-avatar__icon,
+.bx-im-avatar__container.--support24Notifier .bx-im-avatar__special-type_icon,
+.bx-im-avatar__container.--support24Question .bx-im-avatar__icon,
+.bx-im-avatar__container.--support24Question .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/support24.svg);
+	background-color: #0165af!important;
+}
+
+.bx-im-avatar__container.--crm .bx-im-avatar__icon,
+.bx-im-avatar__container.--crm .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/crm.svg);
+}
+
+.bx-im-avatar__container.--sonetGroup .bx-im-avatar__icon,
+.bx-im-avatar__container.--sonetGroup .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/group.svg);
+}
+
+.bx-im-avatar__container.--calendar .bx-im-avatar__icon,
+.bx-im-avatar__container.--calendar .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/calendar.svg);
+}
+
+.bx-im-avatar__container.--tasks .bx-im-avatar__icon,
+.bx-im-avatar__container.--tasks .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/task.svg);
+}
+
+.bx-im-avatar__container.--thread .bx-im-avatar__icon,
+.bx-im-avatar__container.--thread .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/chat.svg);
+}
+
+.bx-im-avatar__container.--mail .bx-im-avatar__icon,
+.bx-im-avatar__container.--mail .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/mail.svg);
+}
+/* End chat type icons */
+
+/* Status icons */
+.bx-im-avatar__status-icon {
+	position: absolute;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}
+
+.bx-im-avatar__container.--size-m .bx-im-avatar__status-icon {
+	top: 20px;
+	left: 20px;
+}
+
+.bx-im-avatar__container.--size-l .bx-im-avatar__status-icon {
+	top: 26px;
+	left: 26px;
+}
+
+.bx-im-avatar__container.--size-xl .bx-im-avatar__status-icon {
+	top: 29px;
+	left: 29px;
+}
+
+.bx-im-avatar__container.--size-xxl .bx-im-avatar__status-icon {
+	top: 36px;
+	left: 36px;
+}
+
+.bx-im-avatar__container.--size-xxxl .bx-im-avatar__status-icon {
+	top: 55px;
+	left: 55px;
+}
+/* End status icons */

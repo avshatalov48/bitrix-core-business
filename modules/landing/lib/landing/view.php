@@ -8,6 +8,7 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Internals\ViewTable;
+use \Bitrix\Landing\Controller;
 
 class View
 {
@@ -149,36 +150,34 @@ class View
 				'LID' => $lid
 			]
 		]);
-		$setUserId = [];
-		$setUserName = [];
-		$setUserAvatarSrc = [];
-
+		$data = [];
 		while ($row = $res->fetch())
 		{
-			$setUserId[] = $row['USER_ID'];
-			$userInfo = Block::getUserNameById($row['USER_ID'])->getResult();
-			$setUserName[] = $userInfo['NAME'];
-			$userPersonalPhotoId = Block::getPersonalPhotoById($row['USER_ID']);
-			$avatar = '';
-			if ($userPersonalPhotoId)
+			$data['id'][] = $row['USER_ID'];
+		}
+		$usersInfo = Controller\User::getUsersInfoAction($data['id']);
+		$data['name'] = $usersInfo['name'];
+		$countUsers = count($usersInfo['name']);
+		for ($i = 0; $i < $countUsers; $i++)
+		{
+			if ($usersInfo['personalPhoto'][$i])
 			{
 				$avatar = \CFile::ResizeImageGet(
-					$userPersonalPhotoId,
-					['width' => 38, 'height' => 38],
+					$usersInfo['personalPhoto'][$i],
+					['width' => 58, 'height' => 58],
 					BX_RESIZE_IMAGE_EXACT
 				);
-				if ($avatar)
-				{
-					$avatar = $avatar['src'];
-				}
 			}
-			$setUserAvatarSrc[] = $avatar;
+			if (isset($avatar['src']))
+			{
+				$data['avatar'][] = $avatar['src'];
+			}
+			else
+			{
+				$data['avatar'][] = '';
+			}
+			unset($avatar);
 		}
-
-		$data = [];
-		$data['id'] = $setUserId;
-		$data['name'] = $setUserName;
-		$data['avatar'] = $setUserAvatarSrc;
 
 		return $data;
 	}

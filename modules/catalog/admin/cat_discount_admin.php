@@ -43,6 +43,9 @@ $sTableID = "tbl_catalog_discount";
 $oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $arFilterFields = array(
 	"filter_site_id",
 	"filter_active",
@@ -119,7 +122,7 @@ if (!$bReadOnly && ($arID = $lAdmin->GroupAction()))
 	{
 		$arID = array();
 		$dbResultList = CCatalogDiscount::GetList(
-			array($by => $order),
+			array(),
 			$arFilter,
 			false,
 			false,

@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["CC_BLL_MODULE_NOT_INSTALLED"] = "Модуль универсальных списков не установлен.";
 $MESS["CC_BLL_TITLE"] = "Мои процессы";
 $MESS["CC_BLL_DOCUMENT_NAME"] = "Документ";
@@ -23,3 +24,5 @@ $MESS["CC_BLL_ACCESS_DENIED"] = "Нет прав для просмотра и р
 $MESS["CC_BLL_DELETE_ERROR"] = "Ошибка удаления.";
 $MESS["BPATL_NAME"] = "Название";
 $MESS["CC_BLL_BIZPROC_MODULE_NOT_INSTALLED"] = "Модуль Бизнес-процессы не установлен.";
+$MESS["CC_BLL_FILTER_PRESET_RUNNING"] = "В работе";
+$MESS["CC_BLL_FILTER_PRESET_COMPLETED"] = "Завершены";

@@ -1,4 +1,4 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -11,13 +11,16 @@ if (!function_exists("__SetForumStatGroups"))
 {
 	function __SetForumStatGroups(&$arGroups, $deep = 0)
 	{
-		$result = array(
+		$result = [
 			"POSTS" => 0, 
 			"TOPICS" => 0, 
 			"LAST_MESSAGE_ID" => 0, 
-			"URL" => array(), 
-			"MODERATE" => array(
-				"POSTS" => 0, "TOPICS" => 0));
+			"URL" => [],
+			"MODERATE" => [
+				"POSTS" => 0, "TOPICS" => 0
+			],
+			"NewMessage" => "N"
+		];
 		if (!is_array($arGroups) || $deep > 50)
 			return $result;
 
@@ -36,7 +39,10 @@ if (!function_exists("__SetForumStatGroups"))
 					$result["~TITLE"] = $res["~TITLE"];
 					$result["URL"] = $res["URL"];
 				endif;
-				$result["NewMessage"] = ($result["NewMessage"] == "Y" ? "Y" : $res["NewMessage"]);
+				if ($result["NewMessage"] !== "Y" && isset($res["NewMessage"]))
+				{
+					$result["NewMessage"] = $res["NewMessage"];
+				}
 				if ($res["PERMISSION"] >= "Q"):
 					$result["MODERATE"]["POSTS"] += $res["MODERATE"]["POSTS"];
 					$result["MODERATE"]["TOPICS"] += $res["MODERATE"]["TOPICS"];

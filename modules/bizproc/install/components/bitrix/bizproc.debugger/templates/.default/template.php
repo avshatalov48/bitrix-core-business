@@ -12,20 +12,38 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $frame = $this->createFrame()->begin('');
 
-if ($arResult['shouldShowDebugger']): ?>
+if ($arResult['shouldShowDebugger'] === true): ?>
 
 	<script>
-		BX.ready(() => {
-			BX.Runtime.loadExtension('bizproc.debugger').then(
-				(exports) => {
-					const {Manager} = exports;
+		BX.Event.ready(() => {
 
-					Manager.Instance.initializeDebugger({
-						'session': <?= CUtil::PhpToJSObject($arResult['session']) ?>,
-						'documentSigned': '<?= CUtil::JSEscape($arResult['documentSigned']) ?>',
-					});
+			const initializeDebugger = () => {
+				BX.Runtime.loadExtension('bizproc.debugger').then(
+					(exports) => {
+						const {Manager} = exports;
+
+						Manager.Instance.initializeDebugger({
+							'session': <?= CUtil::PhpToJSObject($arResult['session']) ?>,
+							'documentSigned': '<?= CUtil::JSEscape($arResult['documentSigned']) ?>',
+						});
+					}
+				);
+			};
+			if (window.BX.frameCache)
+			{
+				if (window.BX.frameCache.frameDataInserted === true)
+				{
+					initializeDebugger();
 				}
-			);
+				else
+				{
+					BX.Event.EventEmitter.subscribe('onFrameDataProcessed', initializeDebugger);
+				}
+			}
+			else
+			{
+				BX.Event.ready(initializeDebugger);
+			}
 		});
 	</script>
 

@@ -1,0 +1,25 @@
+:root {
+	--im-notification-item-content-text-color: #333333;
+	--im-notification-item-content-more-users-text-color: #959ca4;
+	--im-notification-item-content-more-users-dropdown-text-color: #2066b0;
+}
+
+.bx-im-content-notification-item-content__container {
+	flex: 1;
+	overflow: hidden;
+	margin-right: 55px;
+}
+
+.bx-im-content-notification-item-content__content-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-notification-item-content-text-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-content-notification-item-content__content-text .bx-im-mention {
+	border-bottom: 1px dashed #2067B0;
+	cursor: pointer;
+	color: #2067B0;
+	display: inline-block;
+}

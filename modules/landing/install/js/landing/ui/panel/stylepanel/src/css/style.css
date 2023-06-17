@@ -7,6 +7,7 @@
 	transform: translateX(0) translateZ(0);
 	opacity: 0;
 	z-index: 22!important;
+	margin-top: 0;
 }
 
 .landing-ui-panel-style.landing-ui-style-form-mode {

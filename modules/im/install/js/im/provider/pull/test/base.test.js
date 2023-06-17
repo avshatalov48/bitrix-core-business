@@ -40,7 +40,6 @@ describe('Base pull handler', function() {
 			message: getDefaultMessageData({
 				id: getDefaultMessageData().id + 1,
 				text: 'message from messageAdd',
-				textOriginal: 'message from messageAdd',
 			}),
 			notify: true,
 			userBlockChat: {},

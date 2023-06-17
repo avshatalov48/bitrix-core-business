@@ -80,12 +80,12 @@ class Topic extends CopyImplementer
 	/**
 	 * Starts copying messages.
 	 *
-	 * @param Container $container
-	 * @param int $entityId Topic id.
-	 * @param int $copiedEntityId Copied topic id.
+	 * @param Container $topicContainer
+	 * @param int $topicId Topic id.
+	 * @param int $copiedTopicId Copied topic id.
 	 * @return Result
 	 */
-	public function copyChildren(Container $container, $entityId, $copiedEntityId)
+	public function copyChildren(Container $topicContainer, $topicId, $copiedTopicId)
 	{
 		if (!$this->commentCopier)
 		{
@@ -94,11 +94,14 @@ class Topic extends CopyImplementer
 
 		$containerCollection = new ContainerCollection();
 
-		$queryObject = \CForumMessage::getList([], ["TOPIC_ID" => $entityId]);
+		$topicDictionary = $topicContainer->getDictionary();
+
+		$queryObject = \CForumMessage::getList([], ["TOPIC_ID" => $topicId]);
 		while ($forumMessage = $queryObject->Fetch())
 		{
 			$container = new Container($forumMessage["ID"]);
-			$container->setParentId($copiedEntityId);
+			$container->setParentId($copiedTopicId);
+			$container->setDictionary($topicDictionary);
 			$containerCollection[] = $container;
 		}
 

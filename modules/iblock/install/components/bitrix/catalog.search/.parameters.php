@@ -14,6 +14,8 @@ if (!Loader::includeModule("iblock"))
 $searchIncluded = Loader::includeModule("search");
 $catalogIncluded = CModule::IncludeModule("catalog");
 
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $offersIblock = array();
@@ -29,10 +31,13 @@ if ($catalogIncluded)
 }
 
 $arIBlock = array();
-$iblockFilter = !empty($arCurrentValues['IBLOCK_TYPE'])
-	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
-	: array('ACTIVE' => 'Y');
-
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
 {
@@ -48,15 +53,18 @@ $arProperty = array();
 $arProperty_LNS = array();
 $arProperty_N = array();
 $arProperty_X = array();
-if ($arCurrentValues['IBLOCK_ID'] > 0)
+if ($iblockExists)
 {
-	$rsProp = CIBlockProperty::GetList(array(
-		"sort" => "asc",
-		"name" => "asc",
-	), array(
-		"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
-		"ACTIVE" => "Y",
-	));
+	$rsProp = CIBlockProperty::GetList(
+		[
+			"SORT" => "ASC",
+			"NAME" => "ASC",
+		],
+		[
+			"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
+			"ACTIVE" => "Y",
+		]
+	);
 	while ($arr = $rsProp->Fetch())
 	{
 		if ($arr["PROPERTY_TYPE"] != "F")
@@ -79,7 +87,11 @@ if ($arCurrentValues['IBLOCK_ID'] > 0)
 
 $arProperty_UF = array();
 $arSProperty_LNS = array();
-$arUserFields = $USER_FIELD_MANAGER->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION", 0, LANGUAGE_ID);
+$arUserFields =
+	$iblockExists
+		? $USER_FIELD_MANAGER->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION", 0, LANGUAGE_ID)
+		: []
+;
 foreach ($arUserFields as $FIELD_NAME => $arUserField)
 {
 	$arUserField['LIST_COLUMN_LABEL'] = (string)$arUserField['LIST_COLUMN_LABEL'];
@@ -88,7 +100,11 @@ foreach ($arUserFields as $FIELD_NAME => $arUserField)
 		$arSProperty_LNS[$FIELD_NAME] = $arProperty_UF[$FIELD_NAME];
 }
 
-$arOffers = CIBlockPriceTools::GetOffersIBlock($arCurrentValues["IBLOCK_ID"]);
+$arOffers =
+	$iblockExists
+		? CIBlockPriceTools::GetOffersIBlock($arCurrentValues['IBLOCK_ID'])
+		: false
+;
 $OFFERS_IBLOCK_ID = is_array($arOffers) ? $arOffers["OFFERS_IBLOCK_ID"] : 0;
 $arProperty_Offers = array();
 if ($OFFERS_IBLOCK_ID)

@@ -353,7 +353,7 @@ class CAllTicketDictionary
 
 		$strUpdate = $DB->PrepareUpdate('b_ticket_dictionary', $arFields);
 		$rs = $DB->Query('UPDATE b_ticket_dictionary SET ' . $strUpdate . ' WHERE ID=' . $id);
-		if ($rs->AffectedRowsCount() > 0);
+		if ($rs->AffectedRowsCount() > 0)
 		{
 			CTicketDictionary::__SetSites($id, $arFields);
 			$DB->Commit();

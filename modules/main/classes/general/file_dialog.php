@@ -25,10 +25,11 @@ class CAdminFileDialog
 
 		if(CModule::IncludeModule("fileman"))
 		{
-			$arConfig['path'] = (isset($arConfig['arPath']['PATH']) ? $arConfig['arPath']['PATH'] : '');
-			$arConfig['site'] = (isset($arConfig['arPath']['SITE']) ? $arConfig['arPath']['SITE'] : '');
-			$arConfig['lang'] = (isset($arConfig['lang']) ? $arConfig['lang'] : LANGUAGE_ID);
-			$arConfig['zIndex'] = isset($arConfig['zIndex']) ? $arConfig['zIndex'] : 2500;
+			$arConfig['path'] = ($arConfig['arPath']['PATH'] ?? '');
+			$arConfig['site'] = ($arConfig['arPath']['SITE'] ?? '');
+			$arConfig['lang'] = ($arConfig['lang'] ?? LANGUAGE_ID);
+			$arConfig['zIndex'] = $arConfig['zIndex'] ?? 2500;
+			$arConfig['saveConfig'] = $arConfig['saveConfig'] ?? true;
 
 			$path = $io->CombinePath("/", $arConfig['path']);
 			$path = CFileMan::SecurePathVar($path);
@@ -173,17 +174,17 @@ class CAdminFileDialog
 					select : '<?= CUtil::JSEscape($arConfig['select'])?>',
 					operation: '<?= CUtil::JSEscape($arConfig['operation'])?>',
 					showUploadTab : <?= $arConfig['showUploadTab'] ? 'true' : 'false';?>,
-					showAddToMenuTab : <?= $arConfig['showAddToMenuTab'] ? 'true' : 'false';?>,
-					site : '<?= CUtil::JSEscape($arConfig['site'])?>',
-					path : '<?= CUtil::JSEscape($arConfig['path'])?>',
-					lang : '<?= CUtil::JSEscape($arConfig['lang'])?>',
-					fileFilter : '<?= CUtil::JSEscape($arConfig['fileFilter'])?>',
-					allowAllFiles : <?= $arConfig['allowAllFiles'] !== false ? 'true' : 'false';?>,
-					saveConfig : <?= $arConfig['saveConfig'] !== false ? 'true' : 'false';?>,
+					showAddToMenuTab : <?= (isset($arConfig['showAddToMenuTab']) && $arConfig['showAddToMenuTab'] ? 'true' : 'false');?>,
+					site : '<?= CUtil::JSEscape($arConfig['site'] ?? '')?>',
+					path : '<?= CUtil::JSEscape($arConfig['path'] ?? '')?>',
+					lang : '<?= CUtil::JSEscape($arConfig['lang'] ?? '')?>',
+					fileFilter : '<?= CUtil::JSEscape($arConfig['fileFilter'] ?? '')?>',
+					allowAllFiles : <?= (!isset($arConfig['allowAllFiles']) || $arConfig['allowAllFiles'] !== false ? 'true' : 'false')?>,
+					saveConfig : <?= (!isset($arConfig['saveConfig']) || $arConfig['saveConfig'] !== false ? 'true' : 'false');?>,
 					sessid: "<?=bitrix_sessid()?>",
 					checkChildren: true,
 					genThumb: <?= COption::GetOptionString("fileman", "file_dialog_gen_thumb", "Y") == 'Y' ? 'true' : 'false';?>,
-					zIndex: <?= CUtil::JSEscape($arConfig['zIndex'])?>
+					zIndex: <?= CUtil::JSEscape($arConfig['zIndex'] ?? 0)?>
 				};
 
 				if(window.oBXFileDialog && window.oBXFileDialog.UserConfig)
@@ -600,7 +601,7 @@ if (!window.arFDDirs || !window.arFDFiles || !window.arFDPermission)
 if (!window.arFDMenuTypes)
 	arFDMenuTypes = {};
 <?
-		if ($Params['arMenuTypesScript'])
+		if (!empty($Params['arMenuTypesScript']))
 			echo $Params['arMenuTypesScript'];
 
 		self::GetItemsRecursively(array(

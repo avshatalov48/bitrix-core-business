@@ -151,7 +151,7 @@ class GeoIP2 extends Base
 	 */
 	public function isInstalled()
 	{
-		return ($this->config['FILE'] != '' && file_exists($this->config['FILE']));
+		return (isset($this->config['FILE']) && $this->config['FILE'] !== '' && file_exists($this->config['FILE']));
 	}
 
 	/**
@@ -187,7 +187,7 @@ class GeoIP2 extends Base
 				'NAME' => 'FILE',
 				'TITLE' => Loc::getMessage("geoip_geoip2_file"),
 				'TYPE' => 'TEXT',
-				'VALUE' => htmlspecialcharsbx($this->config['FILE']),
+				'VALUE' => htmlspecialcharsbx($this->config['FILE'] ?? ''),
 				'REQUIRED' => true,
 			],
 		];

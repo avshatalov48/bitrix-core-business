@@ -14,7 +14,7 @@ if ($saleModulePermissions <= "D")
 IncludeModuleLangFile(__FILE__);
 if(!CBXFeatures::IsFeatureEnabled('SaleReports'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -135,7 +135,13 @@ if (!$errorMessage)
 
 	if (($arID = $lReports->GroupAction()) && $saleModulePermissions >= 'W')
 	{
-		if ($_REQUEST['action_target'] === 'on' || $_REQUEST['action_target'] === 'selected')
+		if (
+			isset($_REQUEST['action_target'])
+			&& (
+				$_REQUEST['action_target'] === 'on'
+				|| $_REQUEST['action_target'] === 'selected'
+			)
+		)
 		{
 			$arID = array();
 			// Getting reports list.
@@ -165,7 +171,10 @@ if (!$errorMessage)
 						else
 							$lReports->AddGroupError(GetMessage("SALE_REPORT_ERROR_DELREPFROMLIST"), $ID);
 					}
-					$DB->Commit();
+					else
+					{
+						$DB->Commit();
+					}
 					break;
 			}
 		}
@@ -218,7 +227,7 @@ if (!$errorMessage)
 			$arRowActions[] = array(
 				"ICON"=>"view",
 				"TEXT"=>GetMessage('SALE_REPORT_LIST_ROW_ACTIONS_VIEW_TEXT'),
-				"ACTION"=>$lReports->ActionRedirect("sale_report_view.php?lang=".LANG."&ID=".$arRes['ID']),
+				"ACTION"=>$lReports->ActionRedirect("sale_report_view.php?lang=" . LANGUAGE_ID . "&ID=".$arRes['ID']),
 				"DEFAULT"=>true
 			);
 		}

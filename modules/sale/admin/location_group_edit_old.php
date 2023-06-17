@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
@@ -7,11 +12,13 @@ if ($saleModulePermissions < "W")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $ID = intval($ID);
+
+$request = Context::getCurrent()->getRequest();
 
 ClearVars();
 
@@ -28,7 +35,7 @@ while ($arLang = $db_lang->Fetch())
 
 $strError = "";
 $bInitVars = false;
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 	$SORT = intval($SORT);
@@ -83,7 +90,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermi
 	$adminSidePanelHelper->sendSuccessResponse("base");
 
 	if ($save <> '' && $strError == '')
-		LocalRedirect("sale_location_group_admin.php?lang=".LANG.GetFilterParams("filter_", false));
+		LocalRedirect("sale_location_group_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 }
 
 if ($ID>0)
@@ -115,7 +122,7 @@ $aMenu = array(
 		array(
 				"TEXT" => GetMessage("SLGEN_2FLIST"),
 				"ICON" => "btn_list",
-				"LINK" => "/bitrix/admin/sale_location_group_admin.php?lang=".LANG.GetFilterParams("filter_")
+				"LINK" => "/bitrix/admin/sale_location_group_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 
@@ -126,13 +133,13 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SLGEN_NEW_LGROUP"),
 			"ICON" => "btn_new",
-			"LINK" => "/bitrix/admin/sale_location_group_edit.php?lang=".LANG.GetFilterParams("filter_")
+			"LINK" => "/bitrix/admin/sale_location_group_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 		);
 
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SLGEN_DELETE_LGROUP"),
 			"ICON" => "btn_delete",
-			"LINK" => "javascript:if(confirm('".GetMessage("SLGEN_DELETE_LGROUP_CONFIRM")."')) window.location='/bitrix/admin/sale_location_group_admin.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+			"LINK" => "javascript:if(confirm('".GetMessage("SLGEN_DELETE_LGROUP_CONFIRM")."')) window.location='/bitrix/admin/sale_location_group_admin.php?action=delete&ID[]=".$ID."&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 		);
 }
 $context = new CAdminContextMenu($aMenu);
@@ -249,7 +256,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 		array(
 				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_location_group_admin.php?lang=".LANG.GetFilterParams("filter_")
+				"back_url" => "/bitrix/admin/sale_location_group_admin.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 ?>
@@ -258,4 +265,5 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");

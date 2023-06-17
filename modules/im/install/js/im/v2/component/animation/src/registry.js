@@ -1,0 +1,1 @@
+export {ExpandAnimation} from './expand';

@@ -31,11 +31,7 @@ Loc::loadMessages(__FILE__);
 
 $messageList = [
 	'REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR'),
-	'REST_CONFIGURATION_IMPORT_INSTALL_STEP_INIT_BACKGROUND' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP_INIT_BACKGROUND'),
-	'REST_CONFIGURATION_IMPORT_INSTALL_STEP_START' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP_START'),
-	'REST_CONFIGURATION_IMPORT_INSTALL_STEP_CLEAR' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP_CLEAR'),
-	'REST_CONFIGURATION_IMPORT_INSTALL_STEP' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP'),
-	'REST_CONFIGURATION_IMPORT_INSTALL_STEP_FINISH' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP_FINISH'),
+	'REST_CONFIGURATION_IMPORT_INSTALL_STEP_MSGVER_1' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_STEP_MSGVER_1'),
 	'REST_CONFIGURATION_IMPORT_INSTALL_FINISH_TEXT' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_FINISH_TEXT'),
 	'REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CONTINUE' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CONTINUE'),
 	'REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CANCEL' => Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CANCEL'),
@@ -46,7 +42,7 @@ $messageList = [
 	'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER' => Loc::getMessage('REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER'),
 	'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE' => Loc::getMessage('REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE'),
 	'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_BTN_COPY' => Loc::getMessage('REST_CONFIGURATION_IMPORT_ERRORS_POPUP_BTN_COPY'),
-	'REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION' => Loc::getMessage('REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION'),
+	'REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION_MSGVER_1' => Loc::getMessage('REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION_MSGVER_1'),
 	'REST_CONFIGURATION_IMPORT_FINISH_ERROR_DESCRIPTION' => Loc::getMessage('REST_CONFIGURATION_IMPORT_FINISH_ERROR_DESCRIPTION'),
 	'REST_CONFIGURATION_IMPORT_ERRORS_REPORT_BTN' => Loc::getMessage('REST_CONFIGURATION_IMPORT_ERRORS_REPORT_BTN'),
 	'REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE' => Loc::getMessage('REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE'),
@@ -88,7 +84,7 @@ else
 		? 'REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION'
 		: 'REST_CONFIGURATION_IMPORT_INSTALL_DESCRIPTION'
 	;
-	if ($arParams['MODE'])
+	if (isset($arParams['MODE']) && $arParams['MODE'])
 	{
 		$description .= '_' . $arParams['MODE'];
 	}
@@ -101,26 +97,26 @@ if (isset($arResult['MANIFEST']['IMPORT_INSTALL_FINISH_TEXT']))
 }
 if (isset($arResult['MANIFEST']['IMPORT_FINISH_DESCRIPTION']))
 {
-	$messageList['REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION'] = htmlspecialcharsbx($arResult['MANIFEST']['IMPORT_FINISH_DESCRIPTION']);
+	$messageList['REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION_MSGVER_1'] = htmlspecialcharsbx($arResult['MANIFEST']['IMPORT_FINISH_DESCRIPTION']);
 }
-if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_TITLE'])
+if (isset($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_TITLE']) && $arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_TITLE'])
 {
 	$messageList['REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE'] = htmlspecialcharsbx($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_TITLE']);
 }
-if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_DESCRIPTION'])
+if (isset($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_DESCRIPTION']) && $arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_DESCRIPTION'])
 {
 	$messageList['REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION'] = htmlspecialcharsbx($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_DESCRIPTION']);
 }
-if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CONTINUE'])
+if (isset($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CONTINUE']) && $arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CONTINUE'])
 {
 	$messageList['REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE'] = htmlspecialcharsbx($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CONTINUE']);
 }
-if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE'])
+if (isset($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE']) && $arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE'])
 {
 	$messageList['REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE'] = htmlspecialcharsbx($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE']);
 }
 ?>
-<? if(is_array($arResult['NOTIFY'])):?>
+<? if(isset($arResult['NOTIFY']) && is_array($arResult['NOTIFY'])):?>
 	<div class="rest-configuration-alert">
 		<? foreach ($arResult['NOTIFY'] as $notify): ?>
 			<div class="rest-configuration-alert-text"><?=$notify?></div>
@@ -128,10 +124,12 @@ if ($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE'])
 	</div>
 <? endif?>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="rest-configuration-import-install">
-	<div class="rest-configuration-start-icon-main rest-configuration-start-icon-main-zip">
-		<div class="rest-configuration-start-icon-refresh"></div>
-		<div class="rest-configuration-start-icon"></div>
-		<div class="rest-configuration-start-icon-circle"></div>
+	<div class="rest-configuration-start-icon-main-container">
+		<div class="rest-configuration-start-icon-main rest-configuration-start-icon-main-zip">
+			<div class="rest-configuration-start-icon-refresh"></div>
+			<div class="rest-configuration-start-icon"></div>
+			<div class="rest-configuration-start-icon-circle"></div>
+		</div>
 	</div>
 	<div class="rest-configuration-controls start-btn-block">
 		<? if($arResult['NEED_START_BTN']): ?>

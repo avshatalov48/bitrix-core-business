@@ -11,7 +11,7 @@ class Checkbox extends Base
 {
 	public function __construct($id, array $structure, $currency, $value = null, array $additionalParams = array())
 	{
-		$structure["PARAMS"]["ONCHANGE"] = $this->createJSOnchange($id, $structure["PARAMS"]["PRICE"]);
+		$structure["PARAMS"]["ONCHANGE"] = $this->createJSOnchange($id, $structure["PARAMS"]["PRICE"] ?? 0);
 		parent::__construct($id, $structure, $currency, $value, $additionalParams);
 		$this->params["TYPE"] = "Y/N";
 	}
@@ -38,13 +38,18 @@ class Checkbox extends Base
 
 	public static function getAdminParamsControl($name, array $params, $currency = "")
 	{
-		return \Bitrix\Sale\Internals\Input\Manager::getEditHtml(
-			$name."[PARAMS][PRICE]",
-			array(
-				"TYPE" => "NUMBER"
-			),
-			$params["PARAMS"]["PRICE"]
-		).($currency <> '' ? " (".$currency.")" : "");
+		$currency = (string)$currency;
+
+		return
+			\Bitrix\Sale\Internals\Input\Manager::getEditHtml(
+				$name."[PARAMS][PRICE]",
+				[
+					"TYPE" => "NUMBER"
+				],
+				$params["PARAMS"]["PRICE"] ?? 0
+			)
+			. ($currency !== '' ? ' (' . $currency . ')' : '')
+		;
 	}
 
 	public function setOperatingCurrency($currency)

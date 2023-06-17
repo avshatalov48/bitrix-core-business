@@ -7,13 +7,15 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\MimeType;
 
 class HtmlDocument
 {
 	const MAX_IMAGES = 4;
 	const MAX_IMAGE_URL_LENGTH = 2000;
+	const MAX_HTML_LENGTH = 1048576; // 1 MB
 
-	/** @var \Bitrix\Main\Web\Uri */
+	/** @var Uri */
 	protected $uri;
 
 	/** @var string */
@@ -47,7 +49,7 @@ class HtmlDocument
 	 */
 	public function __construct($html, Uri $uri)
 	{
-		$this->html = $html;
+		$this->html = substr($html, 0, self::MAX_HTML_LENGTH);
 		$this->uri = $uri;
 	}
 
@@ -82,7 +84,7 @@ class HtmlDocument
 					&& $this->metadata['DESCRIPTION'] != ''
 					&& $this->metadata['IMAGE'] != '');
 
-		if($this->isEmbeddingAllowed())
+		if ($this->isEmbeddingAllowed())
 		{
 			$result = $result && $this->metadata['EMBED'] != '';
 		}
@@ -119,7 +121,7 @@ class HtmlDocument
 	 */
 	public function setTitle($title)
 	{
-		if($title <> '')
+		if ($title <> '')
 		{
 			$this->metadata['TITLE'] = $this->filterString($title);
 		}
@@ -141,7 +143,7 @@ class HtmlDocument
 	 */
 	public function setDescription($description)
 	{
-		if($description <> '')
+		if ($description <> '')
 		{
 			$this->metadata['DESCRIPTION'] = $this->filterString($description);
 		}
@@ -163,11 +165,13 @@ class HtmlDocument
 	 */
 	public function setImage($image)
 	{
-		if($image <> '')
+		if ($image <> '')
 		{
 			$imageUrl = $this->normalizeImageUrl($image);
-			if(!is_null($imageUrl) && $this->validateImage($imageUrl, true))
+			if (!is_null($imageUrl) && $this->validateImage($imageUrl, true))
+			{
 				$this->metadata['IMAGE'] = $imageUrl;
+			}
 		}
 	}
 
@@ -187,7 +191,7 @@ class HtmlDocument
 	 */
 	public function setEmbed($embed)
 	{
-		if($this->isEmbeddingAllowed())
+		if ($this->isEmbeddingAllowed())
 		{
 			$this->metadata['EMBED'] = $embed;
 		}
@@ -204,23 +208,27 @@ class HtmlDocument
 	 */
 	public function setExtraField($fieldName, $fieldValue)
 	{
-		if($fieldName == 'FAVICON')
+		if ($fieldName == 'FAVICON')
 		{
 			$this->metadata['EXTRA'][$fieldName] = $this->convertRelativeUriToAbsolute($fieldValue);
 		}
-		else if($fieldName == 'IMAGES')
+		elseif ($fieldName == 'IMAGES')
 		{
-			if(is_array($fieldValue))
+			if (is_array($fieldValue))
 			{
 				$this->metadata['EXTRA']['IMAGES'] = array();
 				foreach($fieldValue as $image)
 				{
 					$image = $this->normalizeImageUrl($image);
-					if($image)
+					if ($image)
+					{
 						$this->metadata['EXTRA']['IMAGES'][] = $image;
+					}
 
-					if(count($this->metadata['EXTRA']['IMAGES']) >= self::MAX_IMAGES)
+					if (count($this->metadata['EXTRA']['IMAGES']) >= self::MAX_IMAGES)
+					{
 						break;
+					}
 				}
 			}
 		}
@@ -237,7 +245,7 @@ class HtmlDocument
 	 */
 	public function getExtraField($fieldName)
 	{
-		return isset($this->metadata['EXTRA'][$fieldName]) ? $this->metadata['EXTRA'][$fieldName] : null;
+		return $this->metadata['EXTRA'][$fieldName] ?? null;
 	}
 
 	/**
@@ -280,7 +288,7 @@ class HtmlDocument
 	 */
 	public function getEncoding()
 	{
-		if($this->htmlEncoding <> '')
+		if ($this->htmlEncoding <> '')
 		{
 			return $this->htmlEncoding;
 		}
@@ -297,22 +305,22 @@ class HtmlDocument
 	public function detectEncoding()
 	{
 		$result = '';
-		if(count($this->metaElements) == 0)
+		if (empty($this->metaElements))
 		{
 			$this->metaElements = $this->extractElementAttributes('meta');
 		}
 
 		foreach($this->metaElements as $metaElement)
 		{
-			if(isset($metaElement['http-equiv']) && mb_strtolower($metaElement['http-equiv']) == 'content-type')
+			if (isset($metaElement['http-equiv']) && mb_strtolower($metaElement['http-equiv']) == 'content-type')
 			{
-				if(preg_match('/charset=([\w\-]+)/', $metaElement['content'], $matches))
+				if (preg_match('/charset=([\w\-]+)/', $metaElement['content'], $matches))
 				{
 					$result = $matches[1];
 					break;
 				}
 			}
-			else if(isset($metaElement['charset']))
+			elseif (isset($metaElement['charset']))
 			{
 				$result = $metaElement['charset'];
 				break;
@@ -359,7 +367,7 @@ class HtmlDocument
 	 * */
 	public function getMetaContent($name)
 	{
-		if(count($this->metaElements) == 0)
+		if (empty($this->metaElements))
 		{
 			$this->metaElements = $this->extractElementAttributes('meta');
 		}
@@ -386,7 +394,7 @@ class HtmlDocument
 	 */
 	public function getLinkHref($rel)
 	{
-		if(count($this->linkElements) == 0)
+		if (empty($this->linkElements))
 		{
 			$this->linkElements = $this->extractElementAttributes('link');
 		}
@@ -394,7 +402,7 @@ class HtmlDocument
 
 		foreach ($this->linkElements as $linkElement)
 		{
-			if(isset($linkElement['rel'])
+			if (isset($linkElement['rel'])
 				&& mb_strtolower($linkElement['rel']) == $rel
 				&& $linkElement['href'] <> '')
 			{
@@ -428,23 +436,29 @@ class HtmlDocument
 	 */
 	protected function convertRelativeUriToAbsolute($uri)
 	{
-		if(mb_strpos($uri, '//') === 0)
+		if (strpos($uri, '//') === 0)
+		{
 			$uri = $this->uri->getScheme().":".$uri;
+		}
 
-		if(preg_match('#^https?://#', $uri))
+		if (preg_match('#^https?://#', $uri))
+		{
 			return $uri;
+		}
 
 		$pars = parse_url($uri);
-		if($pars === false)
+		if ($pars === false)
+		{
 			return null;
+		}
 
-		if(isset($pars['host']))
+		if (isset($pars['host']))
 		{
 			$result = $uri;
 		}
-		else if(isset($pars['path']))
+		elseif (isset($pars['path']))
 		{
-			if(mb_substr($pars['path'], 0, 1) !== '/')
+			if (mb_substr($pars['path'], 0, 1) !== '/')
 			{
 				$pathPrefix = preg_replace('/^(.+?)([^\/]*)$/', '$1', $this->uri->getPath());
 				$pars['path'] = $pathPrefix.$pars['path'];
@@ -480,7 +494,7 @@ class HtmlDocument
 	protected function normalizeImageUrl($url): ?string
 	{
 		$url = $this->convertRelativeUriToAbsolute($url);
-		if(mb_strlen($url) > self::MAX_IMAGE_URL_LENGTH)
+		if (mb_strlen($url) > self::MAX_IMAGE_URL_LENGTH)
 		{
 			$url = null;
 		}
@@ -498,21 +512,22 @@ class HtmlDocument
 		$httpClient->setTimeout(5);
 		$httpClient->setStreamTimeout(5);
 		$httpClient->setPrivateIp(false);
-		$httpClient->setHeader('User-Agent', UrlPreview::USER_AGENT, true);
-		if(!$httpClient->query('GET', $url))
+		$httpClient->setHeader('User-Agent', UrlPreview::USER_AGENT);
+
+		if (!$httpClient->query('HEAD', $url))
 		{
 			$errorCode = array_key_first($httpClient->getError());
 			return ($skipForPrivateIp && $errorCode === 'PRIVATE_IP');
 		}
 
-		if($httpClient->getStatus() !== 200)
+		if ($httpClient->getStatus() !== 200)
+		{
 			return false;
+		}
 
-		$contentType = mb_strtolower($httpClient->getHeaders()->getContentType());
-		if(mb_strpos($contentType, 'image/') === 0)
-			return true;
-		else
-			return false;
+		$contentType = $httpClient->getHeaders()->getContentType();
+
+		return MimeType::isImage($contentType);
 	}
 
 	/**

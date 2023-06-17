@@ -13,6 +13,9 @@
 	 * Not use as constructor
 	 *
 	 * @extends {BX.Landing.UI.Panel.BaseButtonPanel}
+	 *
+	 * @param bool outOfFrame - if panel place out of editor window
+	 *
 	 * @constructor
 	 */
 	BX.Landing.UI.Panel.EditorPanel = function()
@@ -21,10 +24,11 @@
 		this.layout.classList.add("landing-ui-panel-editor");
 		this.position = "absolute";
 		this.currentElement = null;
-		makeDraggable(this);
-		registerBaseActions(this);
-		appendToBody(this);
-		this.rect = this.layout.getBoundingClientRect();
+		this.outOfFrame = true;
+
+		this.onKeydown = this.onKeydown.bind(this);
+		this.onTabDown = this.onTabDown.bind(this);
+		this.onScroll = this.onScroll.bind(this);
 	};
 
 
@@ -46,6 +50,7 @@
 		if (!BX.Landing.UI.Panel.EditorPanel.instance)
 		{
 			BX.Landing.UI.Panel.EditorPanel.instance = new BX.Landing.UI.Panel.EditorPanel();
+			BX.Landing.UI.Panel.EditorPanel.instance.init();
 		}
 
 		return BX.Landing.UI.Panel.EditorPanel.instance;
@@ -54,154 +59,6 @@
 
 	var scrollHandler = null;
 	var target = null;
-
-	function onShow(node)
-	{
-		target = node;
-		scrollHandler = scrollHandler || onScroll.bind(null, node);
-		document.addEventListener("keydown", onKeydown);
-		window.addEventListener("resize", scrollHandler);
-
-
-		try {
-			document.addEventListener("scroll", scrollHandler, {passive: true});
-		} catch (err) {
-			document.addEventListener("scroll", scrollHandler);
-		}
-	}
-
-	function onHide()
-	{
-		document.removeEventListener("keydown", onKeydown);
-		window.removeEventListener("resize", scrollHandler);
-
-		try {
-			document.removeEventListener("scroll", scrollHandler, {passive: true});
-		} catch (err) {
-			document.removeEventListener("scroll", scrollHandler);
-		}
-	}
-
-	function onKeydown(event)
-	{
-		if (
-			event.which === 9
-			&& event.target.nodeName !== "LI"
-		)
-		{
-			event.preventDefault();
-
-			if (!event.shiftKey)
-			{
-				if (event.code === 'Tab')
-				{
-					onTabDown();
-				}
-				else
-				{
-					document.execCommand('indent');
-				}
-			}
-			else
-			{
-				document.execCommand('outdent');
-			}
-		}
-
-		if (
-			event.which === 13
-			&& event.target.nodeName !== "LI"
-			&& event.target.nodeName !== "UL"
-			&& event.metaKey === true
-		)
-		{
-			event.preventDefault();
-
-			var range = window.getSelection().getRangeAt(0);
-			var br = BX.create("br");
-			range.deleteContents();
-			range.insertNode(br);
-
-			range = document.createRange();
-			range.setStartAfter(br);
-			range.collapse(true);
-
-			var sel = window.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-
-		setTimeout(function() {
-			BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
-		}, 10);
-	}
-
-	function onTabDown()
-	{
-		var TAB_COUNT = 10;
-		var isAllowedTab = true;
-		var parentNode = window.getSelection().focusNode.parentNode.parentNode;
-		while (parentNode.tagName === 'DIV')
-		{
-			parentNode = parentNode.parentNode;
-		}
-		var countUlTag = 0;
-		var parentsNodeArr = [];
-		var allowedTagName = ['UL', 'LI', 'BLOCKQUOTE', 'DIV'];
-		while (allowedTagName.indexOf(parentNode.tagName) !== -1)
-		{
-			if (parentNode.tagName !== 'DIV')
-			{
-				countUlTag++;
-				parentsNodeArr.push(parentNode);
-			}
-			parentNode = parentNode.parentNode;
-		}
-		if (countUlTag > TAB_COUNT)
-		{
-			if (parentsNodeArr[parentsNodeArr.length - 1].tagName === 'BLOCKQUOTE')
-			{
-				var previousElement = parentsNodeArr[parentsNodeArr.length - 1].previousSibling;
-				while ((previousElement !== null) && (previousElement.nodeType !== 1))
-				{
-					previousElement = previousElement.previousSibling;
-				}
-				var countBlockquote = 0;
-				while (previousElement && previousElement.tagName === 'BLOCKQUOTE')
-				{
-					previousElement = previousElement.firstChild;
-					countBlockquote++;
-				}
-				if ((countUlTag - countBlockquote) > 0)
-				{
-					isAllowedTab = false;
-				}
-			}
-			else
-			{
-				for (var i = 1; i < parentsNodeArr.length; i++) {
-					if (parentsNodeArr[i].childNodes.length < 2)
-					{
-						isAllowedTab = false;
-						break;
-					}
-				}
-				if (parentsNodeArr[0].firstChild.nextSibling === null)
-				{
-					isAllowedTab = false;
-				}
-			}
-		}
-		if (isAllowedTab)
-		{
-			document.execCommand('indent');
-		}
-	}
-
-	function onScroll()
-	{
-		BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
-	}
 
 	/**
 	 * Makes editor as draggable
@@ -330,11 +187,6 @@
 			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
-		// editor.addButton(new BX.Landing.UI.Button.FontAction("font", {
-		// 	html: BX.Landing.Loc.getMessage("EDITOR_ACTION_FONT"),
-		// 	attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_FONT")}
-		// }));
-
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("insertUnorderedList", {
 			html: "<span class=\"fa fa-list-ul\"></span>",
 			attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_UL")},
@@ -364,7 +216,7 @@
 			attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_TEXT_BACKGROUND")},
 			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
-		
+
 		editor.addButton(new BX.Landing.UI.Button.CreateTable("createTable", {
 			html: "<span class=\"landing-ui-icon-editor-table\"></span>",
 			attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_CREATE_TABLE")},
@@ -383,23 +235,37 @@
 	function adjustAbsolutePosition(editor, node, force)
 	{
 		var nodeRect = node.getBoundingClientRect();
+
 		var left = nodeRect.left + (nodeRect.width / 2) - (editor.rect.width / 2);
 		var top = (nodeRect.top - editor.rect.height - 4);
 		var position = 'absolute';
-
+		var windowScope = editor.outOfFrame
+			? window.parent
+			: window;
 		var bodyContent = node.closest('.landing-ui-panel-content-body-content');
 		if (bodyContent)
 		{
-			top = bodyContent.getBoundingClientRect().top + 5;
-			position = 'fixed';
+			if (node.classList.contains('landing-ui-field'))
+			{
+				top += windowScope.pageYOffset;
+			}
+			else
+			{
+				top = bodyContent.getBoundingClientRect().top + 5;
+				position = 'fixed';
+			}
+		}
+		else if (BX.Landing.Main.getInstance().isControlsExternal())
+		{
+			top += 71;
 		}
 		else
 		{
 			if (
 				top <= 5
 				&& (
-					nodeRect.bottom > window.innerHeight
-					|| nodeRect.height > (window.innerHeight / 1.5)
+					nodeRect.bottom > windowScope.innerHeight
+					|| nodeRect.height > (windowScope.innerHeight / 1.5)
 				)
 			)
 			{
@@ -410,18 +276,18 @@
 			{
 				if (top > 5)
 				{
-					top += window.pageYOffset;
+					top += windowScope.pageYOffset + 66;
 				}
 				else
 				{
-					top = nodeRect.bottom + 4 + window.pageYOffset;
+					top = nodeRect.bottom + 4 + windowScope.pageYOffset;
 				}
 			}
 		}
 
-		if ((left + editor.rect.width) > (window.innerWidth - 20))
+		if ((left + editor.rect.width) > (windowScope.innerWidth - 20))
 		{
-			left -= ((left + editor.rect.width) - (window.innerWidth - 20));
+			left -= ((left + editor.rect.width) - (windowScope.innerWidth - 20));
 		}
 
 		left = Math.max(20, left);
@@ -447,7 +313,14 @@
 	 */
 	function appendToBody(editor)
 	{
-		document.body.appendChild(editor.layout);
+		if (editor.outOfFrame)
+		{
+			window.parent.document.body.appendChild(editor.layout);
+		}
+		else
+		{
+			window.document.body.appendChild(editor.layout);
+		}
 	}
 
 	var mouseTarget = null;
@@ -501,6 +374,16 @@
 		constructor: BX.Landing.UI.Panel.EditorPanel,
 		__proto__: BX.Landing.UI.Panel.BaseButtonPanel.prototype,
 
+		/**
+		 * Method for separate init actions from object create
+		 */
+		init: function()
+		{
+			makeDraggable(this);
+			registerBaseActions(this);
+			appendToBody(this);
+			this.rect = this.layout.getBoundingClientRect();
+		},
 
 		/**
 		 * Shows editor
@@ -543,6 +426,7 @@
 			}
 
 			this.currentElement = element;
+			this.setContextDocument(this.currentElement ? this.currentElement.ownerDocument : document);
 
 			if (this.additionalButtons)
 			{
@@ -579,9 +463,9 @@
 			if (!this.isShown())
 			{
 				BX.onCustomEvent("BX.Landing.Editor:enable", [element]);
-				document.addEventListener("mousedown", onMousedown, true);
-				document.addEventListener("mouseup", onMouseUp, true);
-				document.addEventListener("click", onClick, true);
+				this.contextDocument.addEventListener("mousedown", onMousedown, true);
+				this.contextDocument.addEventListener("mouseup", onMouseUp, true);
+				this.contextDocument.addEventListener("click", onClick, true);
 				this.currentElement.addEventListener("click", proxy(this.adjustButtonsState, this), true);
 
 				setTimeout(function() {
@@ -596,8 +480,23 @@
 				this.adjustPosition(element, position, true);
 			}.bind(this));
 
-			onShow(element);
+			this.onShow(element);
 			this.adjustButtonsState();
+			this.adjustButtonsContextDocument();
+		},
+
+		onShow: function(node)
+		{
+			target = node;
+			scrollHandler = scrollHandler || this.onScroll.bind(null, node);
+			this.contextDocument.addEventListener("keydown", this.onKeydown);
+			this.contextWindow.addEventListener("resize", scrollHandler);
+
+			try {
+				this.contextDocument.addEventListener("scroll", scrollHandler, {passive: true});
+			} catch (err) {
+				this.contextDocument.addEventListener("scroll", scrollHandler);
+			}
 		},
 
 		hide: function()
@@ -605,9 +504,9 @@
 			if (this.isShown())
 			{
 				BX.onCustomEvent("BX.Landing.Editor:disable", [null]);
-				document.removeEventListener("mousedown", onMousedown, true);
-				document.removeEventListener("mouseup", onMouseUp, true);
-				document.removeEventListener("click", onClick, true);
+				this.contextDocument.removeEventListener("mousedown", onMousedown, true);
+				this.contextDocument.removeEventListener("mouseup", onMouseUp, true);
+				this.contextDocument.removeEventListener("click", onClick, true);
 				this.currentElement.removeEventListener("click", proxy(this.adjustButtonsState, this), true);
 
 				setTimeout(function() {
@@ -617,7 +516,141 @@
 			}
 
 			BX.Landing.UI.Panel.BaseButtonPanel.prototype.hide.call(this, arguments);
-			onHide();
+			this.onHide();
+		},
+
+		onHide: function()
+		{
+			this.contextDocument.removeEventListener("keydown", this.onKeydown);
+			this.contextWindow.removeEventListener("resize", scrollHandler);
+
+			try {
+				this.contextDocument.removeEventListener("scroll", scrollHandler, {passive: true});
+			} catch (err) {
+				this.contextDocument.removeEventListener("scroll", scrollHandler);
+			}
+		},
+
+		onKeydown: function(event)
+		{
+			// TAB key
+			if (
+				event.key === 'Tab'
+				&& event.target.nodeName !== "LI"
+			)
+			{
+				event.preventDefault();
+
+				if (!event.shiftKey)
+				{
+					if (event.code === 'Tab')
+					{
+						this.onTabDown();
+					}
+					else
+					{
+						this.contextDocument.execCommand('indent');
+					}
+				}
+				else
+				{
+					this.contextDocument.execCommand('outdent');
+				}
+			}
+
+			// ENTER key
+			if (
+				event.key === 'Enter'
+				&& event.target.nodeName !== "LI"
+				&& event.target.nodeName !== "UL"
+				&& event.metaKey === true
+			)
+			{
+				event.preventDefault();
+				const range = this.contextWindow.getSelection().getRangeAt(0);
+				const br = BX.create("br");
+				range.deleteContents();
+				range.insertNode(br);
+
+				const newRange = this.contextDocument.createRange();
+				newRange.setStartAfter(br);
+				newRange.collapse(true);
+
+				const sel = this.contextWindow.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(newRange);
+			}
+
+			setTimeout(function() {
+				BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
+			}, 10);
+		},
+
+		onTabDown: function()
+		{
+			var TAB_COUNT = 10;
+			var isAllowedTab = true;
+			var parentNode = this.contextWindow.getSelection().focusNode.parentNode.parentNode;
+			while (parentNode.tagName === 'DIV')
+			{
+				parentNode = parentNode.parentNode;
+			}
+			var countUlTag = 0;
+			var parentsNodeArr = [];
+			var allowedTagName = ['UL', 'LI', 'BLOCKQUOTE', 'DIV'];
+			while (allowedTagName.indexOf(parentNode.tagName) !== -1)
+			{
+				if (parentNode.tagName !== 'DIV')
+				{
+					countUlTag++;
+					parentsNodeArr.push(parentNode);
+				}
+				parentNode = parentNode.parentNode;
+			}
+			if (countUlTag > TAB_COUNT)
+			{
+				if (parentsNodeArr[parentsNodeArr.length - 1].tagName === 'BLOCKQUOTE')
+				{
+					var previousElement = parentsNodeArr[parentsNodeArr.length - 1].previousSibling;
+					while ((previousElement !== null) && (previousElement.nodeType !== 1))
+					{
+						previousElement = previousElement.previousSibling;
+					}
+					var countBlockquote = 0;
+					while (previousElement && previousElement.tagName === 'BLOCKQUOTE')
+					{
+						previousElement = previousElement.firstChild;
+						countBlockquote++;
+					}
+					if ((countUlTag - countBlockquote) > 0)
+					{
+						isAllowedTab = false;
+					}
+				}
+				else
+				{
+					for (var i = 1; i < parentsNodeArr.length; i++) {
+						if (parentsNodeArr[i].childNodes.length < 2)
+						{
+							isAllowedTab = false;
+							break;
+						}
+					}
+					if (parentsNodeArr[0].firstChild.nextSibling === null)
+					{
+						isAllowedTab = false;
+					}
+				}
+			}
+			if (isAllowedTab)
+			{
+				this.contextDocument.execCommand('indent');
+			}
+		},
+
+		onScroll: function()
+		{
+			BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
 		},
 
 		adjustButtonsState: function()
@@ -643,9 +676,19 @@
 			}.bind(this));
 		},
 
+		adjustButtonsContextDocument: function()
+		{
+			this.buttons.forEach(button => {
+				if ('setContextDocument' in button)
+				{
+					button.setContextDocument(this.contextDocument);
+				}
+			});
+		},
+
 		getFormat: function()
 		{
-			var element = getSelectedElement();
+			var element = getSelectedElement(this.contextDocument);
 			var format = {};
 
 			if (element)
@@ -663,6 +706,11 @@
 					case "900":
 						format["bold"] = true;
 						break;
+				}
+
+				if (element.tagName === 'B')
+				{
+					format["bold"] = true;
 				}
 
 				if (style.getPropertyValue("font-style") === "italic")
@@ -729,10 +777,10 @@
 
 		showBaseButtons: function()
 		{
-			this.layout.childNodes.forEach(function(button){
+			this.layout.childNodes.forEach(button => {
 				if (button.dataset.id === 'pasteTable')
 				{
-					if (window.copiedTable)
+					if (top.window.copiedTable)
 					{
 						button.hidden = false;
 					}
@@ -747,5 +795,10 @@
 				}
 			});
 		},
+
+		isOutOfFrame: function()
+		{
+			return this.outOfFrame;
+		}
 	};
 })();

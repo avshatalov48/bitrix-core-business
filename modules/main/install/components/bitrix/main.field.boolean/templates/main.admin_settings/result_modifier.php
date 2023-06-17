@@ -5,21 +5,21 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserField\Types\BooleanType;
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$labels = [
-		trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL'][0]),
-		trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL'][1]),
+		trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL'][0] ?? ''),
+		trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL'][1] ?? ''),
 	];
-	$defaultValue = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'];
-	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'];
-	$labelCheckbox = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL_CHECKBOX']);
+	$defaultValue = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'] ?? '';
+	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'] ?? '';
+	$labelCheckbox = trim($GLOBALS[$arResult['additionalParameters']['NAME']]['LABEL_CHECKBOX'] ?? '');
 }
-elseif(is_array($arResult['userField']))
+elseif(isset($arResult['userField']) && is_array($arResult['userField']))
 {
 	$labels = BooleanType::getLabels($arResult['userField']);
-	$defaultValue = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
-	$display = $arResult['userField']['SETTINGS']['DISPLAY'];
+	$defaultValue = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '';
+	$display = $arResult['userField']['SETTINGS']['DISPLAY'] ?? '';
 
 	if (isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
 	{

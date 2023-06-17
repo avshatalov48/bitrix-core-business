@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 use Bitrix\Main\UrlRewriter;
 
@@ -55,7 +54,7 @@ if ($filter_path <> '') $arFilter["PATH"] = $filter_path;
 // обработка действий групповых и одиночных
 if (($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if ($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$dbResultList = UrlRewriter::getList($siteId, $arFilter);
@@ -102,12 +101,12 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 // построение списка
 while ($arResult = $dbResultList->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_CONDITION, $arResult, "urlrewrite_edit.php?CONDITION=".UrlEncode($arResult["CONDITION"])."&lang=".LANG."&site_id=".UrlEncode($filter_site_id), GetMessage("MURL_EDIT"));
+	$row =& $lAdmin->AddRow($f_CONDITION ?? '', $arResult, "urlrewrite_edit.php?CONDITION=".UrlEncode($arResult["CONDITION"])."&lang=".LANG."&site_id=".UrlEncode($filter_site_id), GetMessage("MURL_EDIT"));
 
-	$row->AddField("CONDITION", $f_CONDITION);
-	$row->AddField("ID", $f_ID);
-	$row->AddField("PATH", $f_PATH);
-	$row->AddField("RULE", $f_RULE);
+	$row->AddField("CONDITION", $f_CONDITION ?? '');
+	$row->AddField("ID", $f_ID ?? '');
+	$row->AddField("PATH", $f_PATH ?? '');
+	$row->AddField("RULE", $f_RULE ?? '');
 
 	$arActions = Array();
 	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("MURL_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("urlrewrite_edit.php?CONDITION=".UrlEncode($arResult["CONDITION"])."&lang=".LANG."&site_id=".UrlEncode($filter_site_id)), "DEFAULT"=>true);

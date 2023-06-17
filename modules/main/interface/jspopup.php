@@ -40,7 +40,7 @@ class CJSPopup
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		if (!$this->bInited && $_REQUEST['bxsender'] != 'core_window_cauthdialog')
+		if (!$this->bInited && (!isset($_REQUEST['bxsender']) || $_REQUEST['bxsender'] != 'core_window_cauthdialog'))
 		{
 			$this->InitScripts();
 
@@ -147,7 +147,7 @@ class CJSPopup
 		$this->EndDescription();
 		$this->bContentStarted = true;
 
-		if ($arAdditional['buffer'])
+		if (isset($arAdditional['buffer']) && $arAdditional['buffer'])
 		{
 			$this->bContentBuffered = true;
 			//ob_start();

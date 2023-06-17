@@ -26,9 +26,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 	/** @var bool */
 	private $releaseLockAfterClose = true;
 
-	/**
-	 * @return string
-	 */
+	#[\ReturnTypeWillChange]
 	public function read($sessionId)
 	{
 		if (!$this->validateSessionId($sessionId))
@@ -69,12 +67,13 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			$text .= $additionalText;
 		}
 
-		\CHTTP::SetStatus("500 Internal Server Error");
+		$httpResponse = new HttpResponse();
+		$httpResponse->setStatus('500 Internal Server Error');
 		trigger_error($text, E_USER_ERROR);
-		die;
+		Application::getInstance()->end(0, $httpResponse);
 	}
 
-	public function write($sessionId, $sessionData)
+	public function write($sessionId, $sessionData): bool
 	{
 		if (!$this->validateSessionId($sessionId))
 		{
@@ -105,7 +104,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 		}
 	}
 
-	public function close()
+	public function close(): bool
 	{
 		if (!$this->readOnly && $this->validateSessionId($this->sessionId))
 		{
@@ -128,7 +127,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 		return true;
 	}
 
-	public function destroy($sessionId)
+	public function destroy($sessionId): bool
 	{
 		if ($this->readOnly)
 		{
@@ -148,7 +147,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 	abstract protected function processDestroy($sessionId): bool;
 
-	public function validateId($sessionId)
+	public function validateId($sessionId): bool
 	{
 		if (\PHP_VERSION_ID < 70317 || (70400 <= \PHP_VERSION_ID && \PHP_VERSION_ID < 70405))
 		{
@@ -179,7 +178,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 		return $this->prefetchData !== '';
 	}
 
-	public function create_sid()
+	public function create_sid(): string
 	{
 		$this->lastCreatedId = Random::getString(32, true);
 

@@ -1,6 +1,11 @@
 .landing-ui-panel-image {
 	width: 600px;
 	z-index: 500;
+	margin-top: 0;
+}
+
+.landing-editor .landing-ui-panel-image {
+	margin-top: 65px;
 }
 
 .landing-ui-panel-content-overlay.landing-ui-panel-image {

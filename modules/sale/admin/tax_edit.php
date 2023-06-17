@@ -1,4 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -11,17 +16,19 @@ if ($saleModulePermissions < "W")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = intval($ID);
+$request = Context::getCurrent()->getRequest();
+
+$ID = (int)$request->get('ID');
 
 ClearVars();
 
 $strError = "";
 $bInitVars = false;
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 	if ($NAME == '') $strError .= GetMessage("ERROR_EMPTY_NAME")."<br>";
@@ -191,4 +198,5 @@ $tabControl->End();
 ?>
 
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");

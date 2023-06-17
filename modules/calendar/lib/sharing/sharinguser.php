@@ -16,6 +16,9 @@ final class SharingUser
 	{
 	}
 
+	/**
+	 * @return SharingUser
+	 */
 	public static function getInstance(): SharingUser
 	{
 		if (!self::$instance)
@@ -36,17 +39,19 @@ final class SharingUser
 	 */
 	public function login(bool $needToCreateUser = false, array $userParams = [])
 	{
+		global $USER;
+
 		if (
-			$GLOBALS['USER']->isAuthorized()
-			&& in_array($GLOBALS['USER']->GetParam('EXTERNAL_AUTH_ID'), ['calendar_sharing', null], true)
+			$USER->isAuthorized()
+			&& in_array($USER->GetParam('EXTERNAL_AUTH_ID'), ['calendar_sharing', null], true)
 		)
 		{
 			if ($needToCreateUser)
 			{
-				$this->updateUserPersonalInfo($GLOBALS['USER']->GetID(), $userParams);
+				$this->updateUserPersonalInfo($USER->GetID(), $userParams);
 			}
 
-			return $GLOBALS['USER']->GetID();
+			return $USER->GetID();
 		}
 
 		$user = $this->getByHash();
@@ -60,11 +65,9 @@ final class SharingUser
 		{
 			$this->saveAuthHashToCookie($user->getXmlId());
 
-			$GLOBALS['USER']->authorize($user->getId(), true, true, 'public');
-
 			if ($needToCreateUser)
 			{
-				$this->updateUserPersonalInfo($GLOBALS['USER']->GetID(), $userParams);
+				$this->updateUserPersonalInfo($USER->GetID(), $userParams);
 			}
 
 			return $user->getId();
@@ -195,7 +198,7 @@ final class SharingUser
 	{
 		$user = \CUser::GetByID($userId)->Fetch();
 
-		if ($user['EXTERNAL_AUTH_ID'] !== 'calendar_sharing')
+		if (($user['EXTERNAL_AUTH_ID'] ?? null) !== 'calendar_sharing')
 		{
 			return;
 		}
@@ -241,15 +244,5 @@ final class SharingUser
 		$authHash = str_replace(self::EXTERNAL_AUTH_ID . '|', '', $userXmlId);
 		$cookie = new Cookie(self::COOKIE_AUTH_HASH_NAME, $authHash, null, false);
 		Context::getCurrent()->getResponse()->addCookie($cookie);
-	}
-
-	public static function OnGetProfileView($currentUserId, $arUser, $siteId, $arContext, $bOnlyActive = true): bool
-	{
-		if (!Loader::includeModule('extranet'))
-		{
-			return true;
-		}
-
-		return $arUser['EXTERNAL_AUTH_ID'] === self::EXTERNAL_AUTH_ID;
 	}
 }

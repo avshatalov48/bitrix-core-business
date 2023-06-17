@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Restriction;
 
 use \Bitrix\Bitrix24\Feature;
+use \Bitrix\Bitrix24\PhoneVerify;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Entity;
 use \Bitrix\Landing\Domain;
@@ -396,4 +397,69 @@ class Site
 
 		return true;
 	}
+
+	/**
+	 * Checks showing terms footer.
+	 * @return bool
+	 */
+	public static function isTermsFooterShow(): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			return Feature::isFeatureEnabled('landing_show_terms_footer');
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns true if email is successfully confirmed.
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+	public static function isEmailConfirmed(int $siteId): bool
+	{
+		static $checkedSites = [];
+
+		if (array_key_exists($siteId, $checkedSites))
+		{
+			return $checkedSites[$siteId];
+		}
+
+		$checkedSites[$siteId] = true;
+
+		if (Loader::includeModule('bitrix24'))
+		{
+			if (!\CBitrix24::isEmailConfirmed())
+			{
+				$checkedSites[$siteId] = false;
+			}
+		}
+
+		return $checkedSites[$siteId];
+	}
+
+	/**
+	 * Returns true if phone is successfully confirmed.
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+    public static function isPhoneConfirmed(int $siteId): bool
+    {
+	    static $checkedSites = [];
+
+	    if (array_key_exists($siteId, $checkedSites))
+	    {
+		    return $checkedSites[$siteId];
+	    }
+
+	    $checkedSites[$siteId] = true;
+
+	    if (Loader::includeModule('bitrix24'))
+	    {
+		    $checkedSites[$siteId] = (new PhoneVerify('landing_site', $siteId))->isVerified();
+	    }
+
+	    return $checkedSites[$siteId];
+    }
 }

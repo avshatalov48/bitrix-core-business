@@ -1,4 +1,4 @@
-<?
+<?php
 class CSaleProxyResult extends CDBResult
 {
 	private $parameters = array();
@@ -18,8 +18,16 @@ class CSaleProxyResult extends CDBResult
 		// force to db resource type, although we got empty array on input
 		$en = $this->entityName;
 
-		$runtime = is_array($this->parameters['runtime']) ? $this->parameters['runtime'] : array();
-		$filter = is_array($this->parameters['filter']) ? $this->parameters['filter'] : array();
+		$runtime = $this->parameters['runtime'] ?? [];
+		if (!is_array($runtime))
+		{
+			$runtime = [];
+		}
+		$filter = $this->parameters['filter'] ?? [];
+		if (!is_array($filter))
+		{
+			$filter = [];
+		}
 
 		// to increase perfomance, have to throw away unused (in filter) runtimes
 		foreach($runtime as $fld => $desc)
@@ -51,7 +59,7 @@ class CSaleProxyResult extends CDBResult
 			))
 		))->fetch();
 		$this->NavRecordCount = $count['REC_CNT'];
-		
+
 		// the following code was taken from DBNavStart()
 
 		// here we could use Bitrix\Main\DB\Paginator

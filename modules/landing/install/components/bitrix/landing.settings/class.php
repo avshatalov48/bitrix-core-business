@@ -156,7 +156,7 @@ class LandingSettingsComponent extends LandingBaseComponent
 	{
 		if (!Rights::hasAccessForSite($this->arParams['SITE_ID'], Rights::ACCESS_TYPES['sett']))
 		{
-			$this->addError('LANDING_ERROR_SETTINGS_ACCESS_DENIED', '', true);
+			$this->addError('LANDING_ERROR_SETTINGS_ACCESS_DENIED_MSGVER_1', '', true);
 
 			foreach (self::AVAILABLE_PAGES as $code)
 			{

@@ -2,6 +2,7 @@ import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 
 import {Type, Dom, Tag, Event} from 'main.core';
+import {Main} from 'landing.main';
 import {BasePanel} from 'landing.ui.panel.base';
 import getDeltaFromEvent from './internal/get-delta-from-event';
 import calculateDurationTransition from './internal/calculate-duration-transition';
@@ -81,6 +82,12 @@ export class Content extends BasePanel
 
 	adjustActionsPanels: boolean = true;
 
+	/**
+	 * If panel must hide by press Esc
+	 * @type {boolean}
+	 */
+	closeByEsc: boolean = true;
+
 	constructor(id: string, data = {})
 	{
 		super(id, data);
@@ -101,11 +108,16 @@ export class Content extends BasePanel
 			onClick: () => {
 				void this.hide();
 				this.emit('onCancel');
+				BX.onCustomEvent(this, 'BX.Landing.Block:onBlockEditClose', []);
 			},
 			attrs: {
 				title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_SLIDER_CLOSE'),
 			},
 		});
+		if (Type.isBoolean(data.closeByEsc))
+		{
+			this.closeByEsc = data.closeByEsc;
+		}
 
 		this.forms = new BX.Landing.UI.Collection.FormCollection();
 		this.buttons = new BX.Landing.UI.Collection.ButtonCollection();
@@ -161,7 +173,7 @@ export class Content extends BasePanel
 
 	init()
 	{
-		Dom.append(this.overlay, document.body);
+		Dom.append(this.overlay, window.parent.document.body);
 
 		Event.bind(this.overlay, 'click', () => {
 			this.emit('onCancel');
@@ -221,7 +233,7 @@ export class Content extends BasePanel
 
 	onKeyDown(event)
 	{
-		if (event.keyCode === 27)
+		if (this.closeByEsc && event.keyCode === 27)
 		{
 			this.emit('onCancel');
 			void this.hide();
@@ -295,6 +307,7 @@ export class Content extends BasePanel
 			Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 
 			void BX.Landing.Utils.Show(this.overlay);
+
 			return BX.Landing.Utils.Show(this.layout).then(() => {
 				this.state = 'shown';
 			});
@@ -314,6 +327,7 @@ export class Content extends BasePanel
 			Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 
 			void BX.Landing.Utils.Hide(this.overlay);
+
 			return BX.Landing.Utils.Hide(this.layout).then(() => {
 				this.state = 'hidden';
 			});

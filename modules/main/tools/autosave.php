@@ -9,7 +9,7 @@ if(!$USER->IsAuthorized() || !check_bitrix_sessid())
 
 CUtil::JSPostUnescape();
 
-$arFormData = $_REQUEST['form_data'];
+$arFormData = $_REQUEST['form_data'] ?? null;
 
 $AUTOSAVE = new CAutoSave();
 

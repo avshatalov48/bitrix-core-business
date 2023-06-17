@@ -315,10 +315,14 @@ abstract class BasketBuilder
 				self::sendProductCachedDataToProvider($item, $this->getOrder(), $productData);
 			}
 
-			$item->setField('NAME', $productData['NAME']);
+			if (isset($productData['NAME']))
+			{
+				$item->setField('NAME', $productData['NAME']);
+			}
+
 			$item->setField('TYPE', $productData['TYPE'] ?? null);
 
-			if ($productData['CUSTOM_PRICE'] === 'Y')
+			if (isset($productData['CUSTOM_PRICE']) && $productData['CUSTOM_PRICE'] === 'Y')
 			{
 				$item->markFieldCustom('PRICE');
 			}

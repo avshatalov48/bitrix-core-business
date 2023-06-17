@@ -4,10 +4,13 @@ namespace Bitrix\Catalog\Integration\Report\StoreStock;
 
 \Bitrix\Main\Loader::includeModule('sale');
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\ProductInfo;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\Store\StoreInfo;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\Store\StoreWithProductsInfo;
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Sale\Internals\ShipmentItemStoreTable;
 use Bitrix\Sale\Internals\ShipmentItemTable;
@@ -162,6 +165,21 @@ final class StoreStockSale
 				'FROM' => $filter['REPORT_INTERVAL_from'],
 				'TO' => $filter['REPORT_INTERVAL_to'],
 			];
+		}
+
+		$accessController = AccessController::getCurrent();
+		if (!$accessController->checkCompleteRight(ActionDictionary::ACTION_STORE_VIEW))
+		{
+			$availableStores = $accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW) ?? [];
+
+			if (isset($filter['STORES']) && is_array($filter['STORES']))
+			{
+				$filter['STORES'] = array_values(array_intersect($availableStores, $filter['STORES']));
+			}
+			else
+			{
+				$filter['STORES'] = $availableStores;
+			}
 		}
 
 		if
@@ -405,6 +423,8 @@ final class StoreStockSale
 		$formedFilter = [
 			'>STORE_ID' => 0,
 		];
+
+		$filter = self::prepareFilter($filter);
 		if (isset($filter['STORES']))
 		{
 			$formedFilter['=STORE_ID'] = $filter['STORES'];

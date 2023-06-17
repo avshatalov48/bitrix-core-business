@@ -41,11 +41,11 @@ if (CCloudFailover::IsEnabled())
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-$ID = intval($_REQUEST["ID"]); // Id of the edited record
+$ID = intval($_REQUEST["ID"] ?? 0); // Id of the edited record
 $bVarsFromForm = false;
 $message = /*.(CAdminMessage).*/null;
 
-$FAILOVER_DELETE_DELAY = intval($_REQUEST['FAILOVER_DELETE_DELAY']);
+$FAILOVER_DELETE_DELAY = intval($_REQUEST['FAILOVER_DELETE_DELAY'] ?? 0);
 if (isset($_POST['FAILOVER_DELETE_DELAY_TYPE']))
 {
 	if ($_POST['FAILOVER_DELETE_DELAY_TYPE'] == 'H')
@@ -410,8 +410,8 @@ if(!is_array($arRules))
 	?>
 			<tr>
 				<td><input name="MODULE[]" type="text" value="<?echo htmlspecialcharsbx($rule["MODULE"])?>" style="width:100%"></td>
-				<td><input name="EXTENSION[]" type="text" value="<?echo htmlspecialcharsbx($rule["EXTENSION"])?>" style="width:100%"></td>
-				<td><input name="SIZE[]" type="text" value="<?echo htmlspecialcharsbx($rule["SIZE"])?>" style="width:100%"></td>
+				<td><input name="EXTENSION[]" type="text" value="<?echo htmlspecialcharsbx($rule["EXTENSION"] ?? '')?>" style="width:100%"></td>
+				<td><input name="SIZE[]" type="text" value="<?echo htmlspecialcharsbx($rule["SIZE"] ?? '')?>" style="width:100%"></td>
 				<td><img src="/bitrix/themes/.default/images/actions/delete_button.gif" onclick="editDeleteRule(this)" /></td>
 			</tr>
 	<?

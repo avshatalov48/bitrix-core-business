@@ -186,6 +186,15 @@
 	text-transform: uppercase;
 }
 
+.ui-sidepanel-menu-label {
+	position: relative;
+	top: -3px;
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	margin-left: 7px;
+}
+
 .salescenter-app-sidebar .ui-sidepanel-badge-new { left: 23px; }
 
 .ui-sidepanel-submenu-active .ui-sidepanel-badge-new {

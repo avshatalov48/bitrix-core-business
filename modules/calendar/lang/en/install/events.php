@@ -31,3 +31,19 @@ $MESS["CALENDAR_INVITATION_NAME"] = "Invitation";
 $MESS["CALENDAR_REPLY_MESSAGE_BODY"] = "
 <p>#NAME# replied #ANSWER#</p>
 ";
+$MESS["CALENDAR_SHARING_EVENT_TYPE_DESC"] = "
+#EVENT_NAME# - Event name
+#EVENT_DATETIME# - Event date and time
+#TIMEZONE# - Time zone
+#STATUS# - Confirmed by calendar owner or not
+#OWNER_NAME# - Calendar owner name
+#OWNER_PHOTO# - Calendar owner photo URL
+#CALENDAR_WEEKDAY# - Event weekday
+#CALENDAR_DAY# - Event day of month
+
+#NEW_EVENT_LINK# - New event create link
+#ICS_FILE# - Downloadable ics file link
+#CANCEL_LINK# - Event cancel link
+#VIDEOCONFERENCE_LINK# - Video conference link
+";
+$MESS["CALENDAR_SHARING_EVENT_TYPE_NAME"] = "Message to guest user to view open slots";

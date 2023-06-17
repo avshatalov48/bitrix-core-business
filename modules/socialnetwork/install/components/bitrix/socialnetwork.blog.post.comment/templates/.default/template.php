@@ -22,7 +22,7 @@ if (!empty($arResult["FATAL_MESSAGE"]))
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["FATAL_MESSAGE"]?></span>
 	</div><?php
 }
-else if($arResult["imageUploadFrame"] === "Y")
+else if(($arResult["imageUploadFrame"] ?? '') === "Y")
 {
 	?>
 	<script>
@@ -65,7 +65,11 @@ $eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlog
 $commentUrl = (
 	$arParams["bPublicPage"]
 		? ''
-		: str_replace([ '##comment_id#', '#comment_id#' ], [ '', '#ID#' ], $arResult["commentUrl"])
+		: str_replace(
+			[ '##comment_id#', '#comment_id#' ],
+			[ '', '#ID#' ],
+			$arResult["commentUrl"] ?? ''
+		)
 );
 
 $commentUrl = (new \Bitrix\Main\Web\Uri($commentUrl))->deleteParams([
@@ -89,8 +93,8 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] === "Y" ? "BLOG_COMMENT" : ""),
 		"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"],
 		"RECORDS" => $arResult["RECORDS"],
-		"NAV_STRING" => $arResult["NAV_STRING"],
-		"NAV_RESULT" => $arResult["NAV_RESULT"],
+		"NAV_STRING" => $arResult["NAV_STRING"] ?? '',
+		"NAV_RESULT" => $arResult["NAV_RESULT"] ?? '',
 		"PREORDER" => "N",
 		"RIGHTS" => array(
 			"MODERATE" => ($arResult["Perm"] >= BLOG_PERMS_MODERATE ? "Y" : "N"),
@@ -108,10 +112,10 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 				)
 		),
 
-		"ERROR_MESSAGE" => ($arResult["ERROR_MESSAGE"] ?: $arResult["COMMENT_ERROR"]),
-		"OK_MESSAGE" => $arResult["MESSAGE"],
-		"RESULT" => ($arResult["ajax_comment"] ?: $_GET["commentId"]),
-		'MODE' => $arResult['MODE'],
+		"ERROR_MESSAGE" => (($arResult["ERROR_MESSAGE"] ?? null) ?: ($arResult["COMMENT_ERROR"] ?? '')),
+		"OK_MESSAGE" => $arResult["MESSAGE"] ?? null,
+		"RESULT" => ($arResult["ajax_comment"] ?: ($_GET["commentId"] ?? '')),
+		'MODE' => $arResult['MODE'] ?? '',
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
 		"VIEW_URL" => $commentUrl,
 		"AUTHOR_URL" => ($arParams["bPublicPage"] ? "" : $arParams["PATH_TO_USER"]),
@@ -130,8 +134,8 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"SHOW_POST_FORM" => ($arResult["CanUserComment"] ? "Y" : "N"),
 		'FORM_ID' => ($arResult["CanUserComment"] ? $arResult['FORM_ID'] : ''),
 
-		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
-		"mfi" => $arParams["mfi"],
+		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"] ?? 0,
+		"mfi" => $arParams["mfi"] ?? '',
 		"AUTHOR_URL_PARAMS" => array(
 			"entityType" => 'LOG_ENTRY',
 			"entityId" => $arParams["LOG_ID"]
@@ -219,7 +223,7 @@ if ($arResult["CanUserComment"])
 	<?php
 	if (
 		(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"]))
-		|| ($_REQUEST["RELOAD"] === "Y" && !(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"])))
+		|| (($_REQUEST["RELOAD"] ?? '') === "Y" && !(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"])))
 		|| (isset($_REQUEST["noblog"]) && $_REQUEST["noblog"] === "Y")
 	)
 	{

@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2010 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
@@ -25,6 +24,7 @@ if (isset($_POST["CLEAR_DATA"]) && $_POST["CLEAR_DATA"] == 'Y' && $USER->IsAdmin
 // set default values
 $bTypeChange = isset($_POST["ACTION"]) && $_POST["ACTION"] == 'type_changed' ? true : false;
 $ratingId = isset($_POST["RATING_ID"]) ? intval($_POST["RATING_ID"]) : 0;
+$message = null;
 
 $sRatingWeightType = isset($_POST["RATING_WEIGHT_TYPE"]) && $_POST["RATING_WEIGHT_TYPE"] == 'auto' ? 'auto' : 'manual';
 $sRatingAuthrorityWeight = isset($_POST["RATING_AUTHORITY_WEIGHT"]) && $_POST["RATING_AUTHORITY_WEIGHT"] == 'N' ? 'N' : 'Y';
@@ -57,9 +57,9 @@ foreach ($arSites as $site)
 	$arRatingVoteShow[$site['ID']] = isset($_POST["RATING_VOTE_SHOW"][$site['ID']]) && $_POST["RATING_VOTE_SHOW"][$site['ID']] == 'Y' ? 'Y' : 'N';
 	$arRatingVoteType[$site['ID']] = isset($_POST["RATING_VOTE_TYPE"][$site['ID']]) && $_POST["RATING_VOTE_TYPE"][$site['ID']] == 'like' ? 'like' : 'standart';
 	$arRatingVoteTemplate[$site['ID']] = isset($_POST["RATING_VOTE_TEMPLATE"][$site['ID']]) && in_array($_POST["RATING_VOTE_TEMPLATE"][$site['ID']], Array('like', 'like_graphic', 'standart', 'standart_text'))? $_POST["RATING_VOTE_TEMPLATE"][$site['ID']] : ($arRatingVoteType == 'like'?'like': 'standart');
-	$arRatingTextLikeY[$site['ID']] = isset($_POST["RATING_TEXT_LIKE_Y"][$site['ID']]) ? $_POST["RATING_TEXT_LIKE_Y"][$site['ID']] : GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_Y_DEFAULT');
-	$arRatingTextLikeN[$site['ID']] = isset($_POST["RATING_TEXT_LIKE_N"][$site['ID']]) ? $_POST["RATING_TEXT_LIKE_N"][$site['ID']] : GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_N_DEFAULT');
-	$arRatingTextLikeD[$site['ID']] = isset($_POST["RATING_TEXT_LIKE_D"][$site['ID']]) ? $_POST["RATING_TEXT_LIKE_D"][$site['ID']] : GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_D_DEFAULT');
+	$arRatingTextLikeY[$site['ID']] = $_POST["RATING_TEXT_LIKE_Y"][$site['ID']] ?? GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_Y_DEFAULT');
+	$arRatingTextLikeN[$site['ID']] = $_POST["RATING_TEXT_LIKE_N"][$site['ID']] ?? GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_N_DEFAULT');
+	$arRatingTextLikeD[$site['ID']] = $_POST["RATING_TEXT_LIKE_D"][$site['ID']] ?? GetMessage('RATING_SETTINGS_FRM_BUTTON_LIKE_D_DEFAULT');
 }
 
 if (isset($_POST["RATING_ASSIGN_RATING_GROUP"]))
@@ -202,17 +202,23 @@ $APPLICATION->SetAdditionalCSS("/bitrix/themes/.default/ratings.css");
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 // displaying a message on the action taken
-if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_SUCCESS"]))
+if (
+	isset(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_SUCCESS"])
+	&& is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_SUCCESS"])
+)
 {
 	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_SUCCESS"]);
 	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_SUCCESS"]=false;
 }
-if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_CLEAR_DATA"]))
+if (
+	isset(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_CLEAR_DATA"])
+	&& is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_CLEAR_DATA"])
+)
 {
 	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_CLEAR_DATA"]);
 	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_CONFIG_CLEAR_DATA"]=false;
 }
-if($message)
+if ($message)
 	echo $message->Show();
 
 $aTabs = array(
@@ -530,7 +536,7 @@ endif;
 $editTab->Buttons();
 ?>
 	<input type="submit" accesskey="x" name="save" value="<?=GetMessage("RATING_SETTINGS_BUTTON_SAVE")?>" class="adm-btn-save">
-	<input type="button" name="cancel" value="<?=GetMessage("RATING_SETTINGS_BUTTON_RESET")?>" title="<?=GetMessage("RATING_SETTINGS_BUTTON_RESET_TITLE")?>" onclick="window.location='<?=(mb_strpos($_REQUEST["addurl"], '/') === 0? htmlspecialcharsbx(CUtil::addslashes($_REQUEST["addurl"])):"rating_settings.php?lang=".LANG)?>'">
+	<input type="button" name="cancel" value="<?=GetMessage("RATING_SETTINGS_BUTTON_RESET")?>" title="<?=GetMessage("RATING_SETTINGS_BUTTON_RESET_TITLE")?>" onclick="window.location='<?=(isset($_REQUEST["addurl"]) && mb_strpos($_REQUEST["addurl"], '/') === 0? htmlspecialcharsbx(CUtil::addslashes($_REQUEST["addurl"])):"rating_settings.php?lang=".LANG)?>'">
 <?
 $editTab->End();
 ?>

@@ -109,7 +109,13 @@ class CBPSocNetMessageActivity extends CBPActivity
 
 		$messageText = $this->getMessageText();
 
+		$attachDescription = ''
+			. GetMessage('BPSNMA_FORMAT_ROBOT') . '. '
+			. $messageText
+		;
+
 		$attach = new CIMMessageParamAttach(1, '#468EE5');
+		$attach->SetDescription($attachDescription);
 		$attach->AddUser(Array(
 			'NAME' => GetMessage('BPSNMA_FORMAT_ROBOT'),
 			'AVATAR' => '/bitrix/images/bizproc/message_robot.png'

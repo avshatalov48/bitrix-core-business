@@ -1208,33 +1208,26 @@ class CHotKeys
 					continue;
 
 				$resCodes = self::$codes->GetList(array(), array(
-					'CLASS_NAME' => isset($arHotKey['CLASS_NAME']) ? $arHotKey['CLASS_NAME'] : '',
+					'CLASS_NAME' => $arHotKey['CLASS_NAME'] ?? '',
 					'NAME' => $arHotKey['NAME'],
 					'CODE' => $arHotKey['CODE'],
 				));
 				$arCode = $resCodes->Fetch();
 				//if same code alredy exist
-				if(isset($arCode['ID']))
-				{
-					$codeID = $arCode['ID'];
-				}
-				else
-				{
-					$codeID = self::$codes->Add( array(
-						'CLASS_NAME' => isset($arHotKey['CLASS_NAME']) ? $arHotKey['CLASS_NAME'] : "",
-						'CODE' => $arHotKey['CODE'],
-						'NAME' => $arHotKey['NAME'],
-						'COMMENTS' => isset($arHotKey['COMMENTS']) ? $arHotKey['COMMENTS'] : "",
-						'TITLE_OBJ' => isset($arHotKey['TITLE_OBJ']) ? $arHotKey['TITLE_OBJ'] : "",
-						'URL' => isset($arHotKey['URL']) ? $arHotKey['URL'] : "",
-						'IS_CUSTOM' => $arHotKey['IS_CUSTOM']
-					));
-				}
+				$codeID = $arCode['ID'] ?? self::$codes->Add(array(
+					'CLASS_NAME' => $arHotKey['CLASS_NAME'] ?? "",
+					'CODE' => $arHotKey['CODE'],
+					'NAME' => $arHotKey['NAME'],
+					'COMMENTS' => $arHotKey['COMMENTS'] ?? "",
+					'TITLE_OBJ' => $arHotKey['TITLE_OBJ'] ?? "",
+					'URL' => $arHotKey['URL'] ?? "",
+					'IS_CUSTOM' => $arHotKey['IS_CUSTOM']
+				));
 			}
 			else //if system code
 			{
 				$resCodes = self::$codes->GetList(array(), array(
-					'CLASS_NAME' => isset($arHotKey['CLASS_NAME']) ? $arHotKey['CLASS_NAME'] : '',
+					'CLASS_NAME' => $arHotKey['CLASS_NAME'] ?? '',
 					'NAME' => $arHotKey['NAME']
 				));
 				$arCode = $resCodes->Fetch();

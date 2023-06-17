@@ -37,19 +37,16 @@ class MainUserSelectorComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
-		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? $this->arParams['INPUT_NAME'] : '';
-		$this->arParams['ID'] = isset($this->arParams['ID']) ?
-			$this->arParams['ID']
-			:
-			str_replace(['[', ']'], ['_', ''], $this->arParams['INPUT_NAME']);
+		$this->arParams['INPUT_NAME'] = $this->arParams['INPUT_NAME'] ?? '';
+		$this->arParams['ID'] = $this->arParams['ID'] ?? str_replace(['[', ']'], ['_', ''], $this->arParams['INPUT_NAME']);
 
-		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : [];
+		$this->arParams['LIST'] = $this->arParams['LIST'] ?? [];
 
 		$this->arParams['LIST'] = array_filter($this->arParams['LIST'], function($value) { return ($value <> ''); });
 
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;
-		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
-		$this->arParams['BUTTON_SELECT_CAPTION_MORE'] = isset($this->arParams['BUTTON_SELECT_CAPTION_MORE']) ? $this->arParams['BUTTON_SELECT_CAPTION_MORE'] : $this->arParams['BUTTON_SELECT_CAPTION'];
+		$this->arParams['BUTTON_SELECT_CAPTION'] = $this->arParams['BUTTON_SELECT_CAPTION'] ?? null;
+		$this->arParams['BUTTON_SELECT_CAPTION_MORE'] = $this->arParams['BUTTON_SELECT_CAPTION_MORE'] ?? $this->arParams['BUTTON_SELECT_CAPTION'];
 		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 		$this->arParams['SELECTOR_OPTIONS'] = is_array($this->arParams['SELECTOR_OPTIONS']) ? $this->arParams['SELECTOR_OPTIONS'] : [];
 		$this->arParams['FIRE_CLICK_EVENT'] = isset($this->arParams['FIRE_CLICK_EVENT']) && $this->arParams['FIRE_CLICK_EVENT'] == 'Y' ? 'Y' : 'N';
@@ -269,8 +266,8 @@ class MainUserSelectorComponent extends CBitrixComponent
 				$userIdPrefix . $id,
 				$item['name'],
 				$item['data'],
-				isset($item['bgcolor']) ? $item['bgcolor'] : null,
-				isset($item['color']) ? $item['color'] : null
+				$item['bgcolor'] ?? null,
+				$item['color'] ?? null
 			);
 		}
 		$this->arResult['TILE_ID_LIST'] = $tileIds;

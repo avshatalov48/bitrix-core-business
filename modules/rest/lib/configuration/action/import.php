@@ -113,12 +113,16 @@ class Import extends Base
 					break;
 				case self::STEP_CLEAN:
 					$manifest = Manifest::get($this->getManifestCode());
-					if ($data['MANIFEST']['SKIP_CLEARING'] === 'Y' || $manifest['SKIP_CLEARING'] === 'Y')
+					if (
+						(isset($data['MANIFEST']['SKIP_CLEARING']) && $data['MANIFEST']['SKIP_CLEARING'] === 'Y')
+						|| (isset($manifest['SKIP_CLEARING']) && $manifest['SKIP_CLEARING'] === 'Y')
+					)
 					{
 						$actionInfo['setting']['finish'] = true;
 					}
 					else
 					{
+						$actionInfo['section']['next'] = $actionInfo['section']['next'] ?? null;
 						$actionInfo['setting'] = $this->doClean(
 							$actionInfo['section'][$actionInfo['currentSection']],
 							$actionInfo['section']['next'],
@@ -134,7 +138,7 @@ class Import extends Base
 						$path = $data[self::PROPERTY_STRUCTURE][$type][$actionInfo['step']];
 						$http = DataProvider\Controller::getInstance()->get(DataProvider\Controller::CODE_IO);
 						$content = $http->getContent($path, $actionInfo['step']);
-						if ($content['ERROR_CODE'])
+						if (!empty($content['ERROR_CODE']))
 						{
 							$this->getNotificationInstance()->add(
 								Loc::getMessage(
@@ -182,6 +186,7 @@ class Import extends Base
 
 						if (!is_null($content['DATA']))
 						{
+							$actionInfo['setting']['step'] = $actionInfo['setting']['step'] ?? null;
 							$actionInfo['setting'] = $this->doLoad(
 								$actionInfo['setting']['step'],
 								$actionInfo['section'][$actionInfo['currentSection']],
@@ -227,7 +232,10 @@ class Import extends Base
 						!array_key_exists('finish', $actionInfo['setting'])
 						&& !isset($actionInfo['section'][$actionInfo['currentSection']])
 					)
-					|| 	$actionInfo['setting']['finish'] === true
+					|| 	(
+						isset($actionInfo['setting']['finish'])
+						&& $actionInfo['setting']['finish'] === true
+					)
 				)
 				{
 					$actionInfo['setting']['finish'] = false;
@@ -383,7 +391,7 @@ class Import extends Base
 			{
 				if (is_array($data['RATIO']))
 				{
-					if (!$ratio[$code])
+					if (empty($ratio[$code]))
 					{
 						$ratio[$code] = [];
 					}
@@ -437,7 +445,7 @@ class Import extends Base
 
 		if ($isEnd)
 		{
-			if ((int)$actionInfo['next'] === 0)
+			if (!empty($actionInfo['next']) && (int)$actionInfo['next'] === 0)
 			{
 				$fileName = Helper::STRUCTURE_SMALL_FILES_NAME . Helper::CONFIGURATION_FILE_EXTENSION;
 
@@ -457,7 +465,7 @@ class Import extends Base
 					}
 				}
 			}
-			elseif ((int)$actionInfo['next'] > 0)
+			elseif (!empty($actionInfo['next']) && (int)$actionInfo['next'] > 0)
 			{
 				//one more step will load small files
 				$isEnd = false;

@@ -476,8 +476,8 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 				$arSection["ID"],
 				array("SECTION_BUTTONS"=>false, "SESSID"=>false, "CATALOG"=>true)
 			);
-			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 			\Bitrix\Iblock\InheritedProperty\ElementValues::queue($arItem["IBLOCK_ID"], $arItem["ID"]);
 
@@ -492,7 +492,7 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 				if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
 				(!is_array($prop["VALUE"]) && $prop["VALUE"] <> ''))
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "catalog_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 
@@ -569,6 +569,7 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 		if(count($arResult["SECTIONS"])>=$arParams["SECTION_COUNT"])
 			break;
 	}
+	\CIBlockFormatProperties::clearCache();
 
 	foreach ($arResult["SECTIONS"] as &$arSection)
 	{
@@ -610,7 +611,6 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 	}
 	unset($currencyList);
 
-	$this->SetResultCacheKeys(array(
-	));
+	$this->SetResultCacheKeys([]);
 	$this->IncludeComponentTemplate();
 }

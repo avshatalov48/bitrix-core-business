@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * This class is for internal use only, not a part of public API.
  * It can be changed at any time without notification.
@@ -35,7 +35,7 @@ final class LocationHelper extends NameHelper
 
 	/**
 	* Function returns instructions from where and which columns we take to show in UI
-	* @return string Entity class name
+	* @return array
 	*/
 	public static function getEntityRoadMap()
 	{
@@ -131,27 +131,41 @@ final class LocationHelper extends NameHelper
 
 		// if type is set in data and not empty, it must exist
 		$typeError = false;
-		if(intval($data['TYPE_ID']))
+		$typeId = (int)($data['TYPE_ID'] ?? 0);
+		if ($typeId > 0)
 		{
-			$type = Location\TypeTable::getList(array('select' => array('ID'), 'filter' => array('=ID' => intval($data['TYPE_ID']))))->fetch();
+			$type = Location\TypeTable::getRow([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'=ID' => $typeId,
+				],
+			]);
 
-			if(!$type)
+			if (!$type)
+			{
 				$typeError = true;
+			}
 		}
 		else
+		{
 			$typeError = true;
+		}
 
-		if($typeError)
+		if ($typeError)
+		{
 			$errors[] = Loc::getMessage('SALE_LOCATION_ADMIN_LOCATION_HELPER_ENTITY_TYPE_ID_UNKNOWN_ERROR');
+		}
 
 		// formally check service ids in EXTERNAL parameter
-		if(is_array($data['EXTERNAL']) && !empty($data['EXTERNAL']))
+		if (!empty($data['EXTERNAL']) && is_array($data['EXTERNAL']))
 		{
 			$services = self::getExternalServicesList();
 
-			foreach($data['EXTERNAL'] as $external)
+			foreach ($data['EXTERNAL'] as $external)
 			{
-				if(!isset($services[$external['SERVICE_ID']]))
+				if (!isset($services[$external['SERVICE_ID']]))
 				{
 					$errors[] = Loc::getMessage('SALE_LOCATION_ADMIN_LOCATION_HELPER_ENTITY_UNKNOWN_EXTERNAL_SERVICE_ID_ERROR');
 					break;
@@ -159,20 +173,20 @@ final class LocationHelper extends NameHelper
 			}
 		}
 
-		if(is_array($data['NAME']) && !empty($data['NAME']))
+		if (!empty($data['NAME']) && is_array($data['NAME']))
 		{
 			$hasValidName = false;
 
-			foreach($data['NAME'] as $lang => $fields)
+			foreach($data['NAME'] as $fields)
 			{
-				if(!empty($fields['NAME']))
+				if (!empty($fields['NAME']))
 				{
 					$hasValidName = true;
 					break;
 				}
 			}
 
-			if(!$hasValidName)
+			if (!$hasValidName)
 			{
 				$errors[] = Loc::getMessage('SALE_LOCATION_ADMIN_LOCATION_HELPER_ENTITY_NAME_EMPTY_ERROR');
 			}
@@ -349,7 +363,7 @@ final class LocationHelper extends NameHelper
 
 	/**
 	 * @deprecated
-	 * 
+	 *
 	 * Use TypeHelper::getTypes() instead
 	 */
 	public static function getTypeList()
@@ -381,7 +395,7 @@ final class LocationHelper extends NameHelper
 
 	public static function getLocationSubMenu()
 	{
-		// how it works: every time when we call for the next sub-level, we must 
+		// how it works: every time when we call for the next sub-level, we must
 		// obtain not sublevel itself, but a whole parent-tree of it
 
 		$queryParams = self::unPackItemsQueryString();
@@ -403,14 +417,15 @@ final class LocationHelper extends NameHelper
 			{
 				$requiredToShow = true;
 
-				/*
-				if(intval($_REQUEST['id']))
-					$id = intval($_REQUEST['id']);
-				*/
-				if(intval($_REQUEST['PARENT_ID']))
-					$id = intval($_REQUEST['PARENT_ID']);
-				elseif(intval($_REQUEST['parent_id']))
-					$id = intval($_REQUEST['parent_id']);
+				$parentId = (int)($_REQUEST['PARENT_ID'] ?? 0);
+				if ($parentId <= 0)
+				{
+					$parentId = (int)($_REQUEST['parent_id'] ?? 0);
+				}
+				if ($parentId > 0)
+				{
+					$id = $parentId;
+				}
 			}
 		}
 		// 3) there is no node id at all
@@ -420,7 +435,7 @@ final class LocationHelper extends NameHelper
 		{
 			$parameters = array(
 				'select' => array(
-					'ID', 
+					'ID',
 					'LOCATION_NAME' => 'NAME.NAME',
 					'DEPTH_LEVEL',
 					'PARENT_ID',

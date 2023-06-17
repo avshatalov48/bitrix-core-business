@@ -136,7 +136,11 @@ class CIBlockPropertyResult extends CDBResult
 						}
 						if ($this->extMode)
 						{
-							$this->addPropertyData($arProp["ID"], $res["IBLOCK_ELEMENT_ID"].':'.$arProp["ID"], $res["DESCRIPTION_".$arProp["ID"]]);
+							$this->addPropertyData(
+								$arProp["ID"],
+								$res["IBLOCK_ELEMENT_ID"].':'.$arProp["ID"],
+								$res["DESCRIPTION_".$arProp["ID"]] ?? null
+							);
 						}
 					}
 				}

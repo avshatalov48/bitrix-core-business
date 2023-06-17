@@ -22,11 +22,19 @@ $APPLICATION->AddHeadString('<script src="/bitrix/components/bitrix/forum.interf
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["component"] = $component;
-$arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$USER->IsAuthorized())) ? "N" : "Y");
-$arParams["SHOW_RSS"] = ($arParams["SHOW_RSS"] == "N" ? "N" : "Y");
+$arParams["component"] = $component ?? null;
+$arParams["SEND_MAIL"] = $arParams["SEND_MAIL"] ?? null;
+$arParams["SHOW_MAIL"] = (
+	(
+		$arParams["SEND_MAIL"] <= "A"
+		|| (
+			$arParams["SEND_MAIL"] <= "E"
+			&& !$USER->IsAuthorized()
+		)
+	) ? "N" : "Y");
+$arParams["SHOW_RSS"] = (($arParams["SHOW_RSS"] ?? null) == "N" ? "N" : "Y");
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" ? "Y" : "N");
-$arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"]) <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");
+$arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"] ?? '') <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");
 $arParams["VOTE_CHANNEL_ID"] = (intval($arParams["VOTE_CHANNEL_ID"]) > 0 ? $arParams["VOTE_CHANNEL_ID"] : 1);
 
 if ($arParams["SHOW_RSS"] == "Y"):
@@ -35,8 +43,8 @@ if ($arParams["SHOW_RSS"] == "Y"):
 		$APPLICATION->AddHeadString('<link rel="alternate" type="application/rss+xml" href="'.$arResult["URL"]["RSS"].'" />');
 	endif;
 endif;
-$arParams["SHOW_NAME_LINK"] = ($arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
-$arParams["FIRST_MESSAGE_ID"] = $arResult["MESSAGE_FIRST"]["ID"];
+$arParams["SHOW_NAME_LINK"] = (($arParams["SHOW_NAME_LINK"] ?? null) == "N" ? "N" : "Y");
+$arParams["FIRST_MESSAGE_ID"] = $arResult["MESSAGE_FIRST"]["ID"] ?? null;
 $arParams["ATTACH_MODE"] = array("NAME", "THUMB");
 $arParams["ATTACH_SIZE"] = $arParams["IMAGE_SIZE"];
 /********************************************************************

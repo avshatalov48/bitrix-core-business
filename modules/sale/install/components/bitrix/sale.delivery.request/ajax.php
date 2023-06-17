@@ -1,4 +1,5 @@
-<?
+<?php
+
 use \Bitrix\Sale\Delivery\Requests,
 	\Bitrix\Main\Localization\Loc,
 	\Bitrix\Sale\Delivery\Services;
@@ -8,35 +9,40 @@ use \Bitrix\Sale\Delivery\Requests,
  * @global CMain $APPLICATION
  */
 
-define("NO_KEEP_STATISTIC", true);
-define("NO_AGENT_STATISTIC", true);
-define("NO_AGENT_CHECK", true);
-define("NOT_CHECK_PERMISSIONS", true);
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_STATISTIC = true;
+const NO_AGENT_CHECK = true;
+const NOT_CHECK_PERMISSIONS = true;
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
-$result = array("ERROR" => "");
+$result = [
+	'ERROR' => '',
+];
 
 if (!\Bitrix\Main\Loader::includeModule('sale'))
-	$result["ERROR"] = "Error! Can't include module \"Sale\"";
+{
+	$result['ERROR'] = "Error! Can't include module \"Sale\"";
+}
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if($result["ERROR"] == '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if ($result['ERROR'] === '' && $saleModulePermissions >= 'U' && check_bitrix_sessid())
 {
-	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';
+	$action = isset($_REQUEST['action']) && is_string($_REQUEST['action']) ? trim($_REQUEST['action']): '';
 
 	switch ($action)
 	{
-		case "createDeliveryRequest":
+		case 'createDeliveryRequest':
 			$shipmentIds = isset($_REQUEST['shipmentIds']) && is_array($_REQUEST['shipmentIds']) ? $_REQUEST['shipmentIds'] : array();
 			$deliveryId = isset($_REQUEST['deliveryId']) ? intval($_REQUEST['deliveryId']) : 0;
 			$weight = isset($_REQUEST['weight']) ? round(floatval($_REQUEST['weight']), 2) : 0;
 			$requestInputsValues = isset($_REQUEST['requestInputs']) && is_array($_REQUEST['requestInputs']) ? $_REQUEST['requestInputs']: array();
 			$requestInputs = array();
 			$dialogContent = '';
+			$isFinal = true;
 
-			if(!isset($_REQUEST['requestInputs']))
+			if (!isset($_REQUEST['requestInputs']))
 			{
 				$requestInputs = Requests\Manager::getDeliveryRequestFormFields($deliveryId, Requests\Manager::FORM_FIELDS_TYPE_CREATE, $shipmentIds);
 
@@ -80,7 +86,7 @@ if($result["ERROR"] == '' && $saleModulePermissions >= "U" && check_bitrix_sessi
 				$isFinal = true;
 			}
 
-			if($dialogContent <> '')
+			if($dialogContent !== '')
 			{
 				$result['DAILOG_PARAMS'] = array(
 					'TITLE' => Loc::getMessage('SALE_SDR_AJAX_CREATE'),
@@ -137,13 +143,12 @@ if($result["ERROR"] == '' && $saleModulePermissions >= "U" && check_bitrix_sessi
 					$dialogContent .= '<option value="'.$row['ID'].'">"'.$row['ID'].'" '.$row['DATE'].' ( '.htmlspecialcharsbx($row['EXTERNAL_ID']).' )</option>';
 				}
 
-				if($dialogContent <> '')
+				if ($dialogContent <> '')
 				{
+					$formFields = '';
 					$requestInputs = Requests\Manager::getDeliveryRequestFormFields($deliveryId, Requests\Manager::FORM_FIELDS_TYPE_ADD, $shipmentIds);
-					if(!empty($requestInputs))
+					if (!empty($requestInputs))
 					{
-						$formFields = '';
-
 						foreach($requestInputs as $name => $params)
 						{
 							$formFields .=
@@ -208,7 +213,6 @@ $APPLICATION->RestartBuffer();
 header('Content-Type: application/json');
 echo json_encode($result);
 \CMain::FinalActions();
-die;
 
 /**
  * @param Requests\Result $reqResult

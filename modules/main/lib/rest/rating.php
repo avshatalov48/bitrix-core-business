@@ -14,7 +14,7 @@ class Rating extends \IRestService
 	{
 		$query = array_change_key_case($query, CASE_LOWER);
 
-		$entityTypeId = (isset($query['entity_type_id']) ? $query['entity_type_id'] : '');
+		$entityTypeId = ($query['entity_type_id'] ?? '');
 		$entityId = (isset($query['entity_id']) ? intval($query['entity_id']) : 0);
 
 		if(
@@ -41,10 +41,10 @@ class Rating extends \IRestService
 		$query = array_change_key_case($query, CASE_LOWER);
 		$navParams = static::getNavData($nav, true);
 
-		$pathToUserProfile = (isset($query['path_to_user_profile']) ? $query['path_to_user_profile'] : '');
-		$entityTypeId = (isset($query['entity_type_id']) ? $query['entity_type_id'] : '');
+		$pathToUserProfile = ($query['path_to_user_profile'] ?? '');
+		$entityTypeId = ($query['entity_type_id'] ?? '');
 		$entityId = (isset($query['entity_id']) ? intval($query['entity_id']) : 0);
-		$reaction = (isset($query['reaction']) ? $query['reaction'] : false);
+		$reaction = ($query['reaction'] ?? false);
 		$page = ($navParams['offset'] / $navParams['limit']) + 1;
 
 		if(

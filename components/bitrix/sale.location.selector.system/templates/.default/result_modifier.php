@@ -1,5 +1,12 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var CBitrixLocationSelectorSystemComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
 
 // prepare data for inline js, try to make it smaller
 $pathNames = array();
@@ -49,7 +56,7 @@ unset($location);
 $arResult['FOR_JS']['DATA']['PATH_NAMES'] = $pathNames;
 
 // groups
-if(is_array($arResult['CONNECTIONS']['GROUP']))
+if(isset($arResult['CONNECTIONS']['GROUP']))
 {
 	$arResult['FOR_JS']['DATA']['GROUPS'] = $arResult['CONNECTIONS']['GROUP'];
 	foreach($arResult['FOR_JS']['DATA']['GROUPS'] as &$group)
@@ -61,8 +68,12 @@ if(is_array($arResult['CONNECTIONS']['GROUP']))
 
 // connected
 
-if(is_array($arResult['CONNECTIONS']['LOCATION']) && !empty($arResult['CONNECTIONS']['LOCATION']))
+if (!empty($arResult['CONNECTIONS']['LOCATION']) && is_array($arResult['CONNECTIONS']['LOCATION']))
+{
 	$arResult['FOR_JS']['CONNECTED']['LOCATION'] = array_keys($arResult['CONNECTIONS']['LOCATION']);
+}
 
-if(is_array($arResult['CONNECTIONS']['LOCATION']) && !empty($arResult['CONNECTIONS']['GROUP']))
+if (!empty($arResult['CONNECTIONS']['GROUP']) && is_array($arResult['CONNECTIONS']['GROUP']))
+{
 	$arResult['FOR_JS']['CONNECTED']['GROUP'] = array_keys($arResult['CONNECTIONS']['GROUP']);
+}

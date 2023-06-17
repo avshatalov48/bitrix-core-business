@@ -1,8 +1,11 @@
 import 'main.date';
 import {PopupManager} from 'main.popup';
 import {EventEmitter} from 'main.core.events';
-import {MessageStatus, ChatTypes, RecentSettings, EventType, AvatarSize, OpenTarget} from 'im.v2.const';
-import {Avatar, ChatTitle} from 'im.v2.component.old-chat-embedding.elements';
+
+import {MessageStatus, DialogType, RecentSettings, EventType, OpenTarget} from 'im.v2.const';
+import {Utils} from 'im.v2.lib.utils';
+import {Parser} from 'im.v2.lib.parser';
+import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.old-chat-embedding.elements';
 
 import {NewUserPopup} from './new-user-popup';
 
@@ -68,12 +71,19 @@ export const RecentItem = {
 
 		messageText(): string
 		{
-			if (!this.item.message || !this.item.message.text)
+			const formattedText = Parser.purifyRecent(this.item);
+			if (!formattedText)
 			{
 				return this.isUser ? this.$store.getters['users/getPosition'](this.item.dialogId) : this.hiddenMessageText;
 			}
 
-			return this.$store.getters['recent/getItemText'](this.item.dialogId);
+			return formattedText;
+		},
+
+		formattedMessageText(): string
+		{
+			const SPLIT_INDEX = 24;
+			return Utils.text.insertUnseenWhitespace(this.messageText, SPLIT_INDEX);
 		},
 
 		hiddenMessageText(): string
@@ -83,7 +93,7 @@ export const RecentItem = {
 				return this.$store.getters['users/getPosition'](this.item.dialogId);
 			}
 
-			if (this.dialog.type === ChatTypes.open)
+			if (this.dialog.type === DialogType.open)
 			{
 				return this.$Bitrix.Loc.getMessage('IM_RECENT_CHAT_TYPE_OPEN');
 			}
@@ -143,7 +153,7 @@ export const RecentItem = {
 
 		isUser()
 		{
-			return this.dialog.type === ChatTypes.user;
+			return this.dialog.type === DialogType.user;
 		},
 
 		isChat()
@@ -352,7 +362,7 @@ export const RecentItem = {
 									<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-recent-last-message-author-icon-user"></span>
 									<span v-else class="bx-im-recent-last-message-author-icon-user bx-im-recent-last-message-author-icon-user-default"></span>
 								</template>
-								<span>{{ messageText }}</span>
+								<span>{{ formattedMessageText }}</span>
 							</template>
 						</span>
 						<!-- End message text -->

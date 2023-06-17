@@ -576,7 +576,7 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 				"POST_MESSAGE_TEXT" => CUtil::JSEscape(htmlspecialcharsbx($res["POST_MESSAGE_TEXT"]))
 			);
 
-			$message["NEW"] = ($arResult["UNREAD_MID"] > 0 && $message["ID"] >= $arResult["UNREAD_MID"] ? "Y" : "N");
+			$message["NEW"] = ($arResult["UNREAD_MID"] > 0 && $message["ID"] >= $arResult["UNREAD_MID"] ? ForumCommentsComponent::MID_NEW : ForumCommentsComponent::MID_OLD);
 
 			if ($auxSuffix)
 			{
@@ -643,6 +643,7 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 			}
 			$messages[$message["ID"]] = $message;
 		}
+
 		$arResult["MESSAGES"] = $messages;
 		unset($messages);
 

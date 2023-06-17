@@ -29,6 +29,8 @@ export class BasePanel extends EventEmitter
 		this.classShow = 'landing-ui-show';
 		this.classHide = 'landing-ui-hide';
 		this.forms = new BX.Landing.UI.Collection.FormCollection();
+		this.contextDocument = document;
+		this.contextWindow = this.contextDocument.defaultView;
 	}
 
 	// eslint-disable-next-line no-unused-vars
@@ -117,5 +119,11 @@ export class BasePanel extends EventEmitter
 	setLayoutClass(className: string)
 	{
 		Dom.addClass(this.layout, className);
+	}
+
+	setContextDocument(contextDocument: Document)
+	{
+		this.contextDocument = contextDocument;
+		this.contextWindow = this.contextDocument.defaultView;
 	}
 }

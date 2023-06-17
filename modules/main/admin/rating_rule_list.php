@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2010 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
@@ -21,7 +20,7 @@ function CheckFilter()
 {
 	global $FilterArr, $lAdmin;
 	foreach ($FilterArr as $f) global $$f;
-	return count($lAdmin->arFilterErrors)==0;
+	return empty($lAdmin->arFilterErrors);
 }
 
 $FilterArr = Array(
@@ -64,7 +63,7 @@ if($lAdmin->EditAction())
 
 if(($arID = $lAdmin->GroupAction()))
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CRatingRule::GetList(array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())

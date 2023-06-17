@@ -289,7 +289,7 @@ export class Builder
 	 * @param callback {Function|null}
 	 * @returns {Promise<object>}
 	 */
-	build(callback = null): Promise<object>
+	build(callback = null): Promise<Object>
 	{
 		if (this.builded)
 		{
@@ -307,10 +307,10 @@ export class Builder
 		{
 			if (this.databaseConfig.active && model.databaseConfig.active !== false)
 			{
-				model.useDatabase(true, this.databaseConfig)
+				model.useDatabase(true, this.databaseConfig);
 			}
 
-			model.setStore(this.store)
+			model.setStore(this.store);
 
 			promises.push(model.getModule());
 		});
@@ -337,7 +337,6 @@ export class Builder
 				}
 
 				resolve(result);
-
 			}, error => {
 				console.error('BX.VuexBuilder.create: storage was not created due to runtime errors.', error? error: '');
 				if (!Type.isFunction(callback))
@@ -353,7 +352,7 @@ export class Builder
 	 *
 	 * @returns {Object}
 	 */
-	syncBuild(): object
+	syncBuild(): Object
 	{
 		if (this.builded)
 		{

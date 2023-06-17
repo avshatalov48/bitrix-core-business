@@ -4,22 +4,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,im_v2_lib_utils,ui_fonts_opensans,im_v2_const,ui_vue3) {
 	'use strict';
 
-	const DialogType = {
-	  user: 'user',
-	  chat: 'chat',
-	  open: 'open',
-	  general: 'general',
-	  videoconf: 'videoconf',
-	  announcement: 'announcement',
-	  call: 'call',
-	  support24Notifier: 'support24Notifier',
-	  support24Question: 'support24Question',
-	  crm: 'crm',
-	  sonetGroup: 'sonetGroup',
-	  calendar: 'calendar',
-	  tasks: 'tasks',
-	  thread: 'thread',
-	  mail: 'mail'
+	const AvatarSize = {
+	  XS: 'XS',
+	  S: 'S',
+	  M: 'M',
+	  L: 'L',
+	  XL: 'XL',
+	  XXL: 'XXL'
 	};
 	const Avatar = {
 	  name: 'Avatar',
@@ -30,7 +21,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    size: {
 	      type: String,
-	      default: im_v2_const.AvatarSize.M
+	      default: AvatarSize.M
 	    },
 	    withAvatarLetters: {
 	      type: Boolean,
@@ -61,7 +52,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.ChatTypes.user;
+	      return this.dialog.type === im_v2_const.DialogType.user;
 	    },
 	    isBot() {
 	      if (this.isUser) {
@@ -82,14 +73,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 	    },
 	    avatarText() {
-	      if (![im_v2_const.ChatTypes.user, im_v2_const.ChatTypes.open, im_v2_const.ChatTypes.chat].includes(this.dialog.type)) {
+	      if (![im_v2_const.DialogType.user, im_v2_const.DialogType.open, im_v2_const.DialogType.chat].includes(this.dialog.type)) {
 	        return '';
 	      }
 	      return im_v2_lib_utils.Utils.text.getFirstLetters(this.dialog.name);
 	    },
 	    chatTypeIconClasses() {
 	      const classes = [];
-	      if (DialogType[this.dialog.type]) {
+	      if (im_v2_const.DialogType[this.dialog.type]) {
 	        classes.push(`bx-im-component-avatar-icon-${this.dialog.type}`);
 	      } else {
 	        classes.push('bx-im-component-avatar-icon-default');
@@ -182,7 +173,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.getters['users/getBotType'](this.dialogId);
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.ChatTypes.user;
+	      return this.dialog.type === im_v2_const.DialogType.user;
 	    },
 	    isSelfChat() {
 	      return this.isUser && this.user.id === this.currentUserId;
@@ -191,7 +182,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isUser) {
 	        if (this.isExtranet) {
 	          return DialogSpecialType.extranet;
-	        } else if ([im_v2_const.ChatTypes.support24.notifier, im_v2_const.ChatTypes.support24.question].includes(this.dialog.type)) {
+	        } else if ([im_v2_const.DialogType.support24Notifier, im_v2_const.DialogType.support24Question].includes(this.dialog.type)) {
 	          return DialogSpecialType.support24;
 	        }
 	        return '';
@@ -323,6 +314,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	exports.Avatar = Avatar;
+	exports.AvatarSize = AvatarSize;
 	exports.ChatTitle = ChatTitle;
 	exports.RecentLoadingState = RecentLoadingState;
 

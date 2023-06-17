@@ -113,8 +113,8 @@ class Oembed extends Parser
 
 		foreach($linkElements[0] as $linkElement)
 		{
-			$typeJson = (mb_strpos($linkElement, $this::OEMBED_TYPE_JSON) !== false);
-			$typeXml = (mb_strpos($linkElement, $this::OEMBED_TYPE_XML) !== false);
+			$typeJson = (strpos($linkElement, $this::OEMBED_TYPE_JSON) !== false);
+			$typeXml = (strpos($linkElement, $this::OEMBED_TYPE_XML) !== false);
 			if($typeJson || $typeXml)
 			{
 				if(preg_match('/href=[\'"](.+?)[\'"]/', $linkElement, $attributes))

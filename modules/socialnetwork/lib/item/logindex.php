@@ -193,7 +193,7 @@ class LogIndex
 					$eventId = trim($logEntry['EVENT_ID'] ?? '');
 					$sourceId = (int)($logEntry['SOURCE_ID'] ?? 0);
 					$logDateUpdate = $logEntry['LOG_UPDATE'];
-					$dateCreate = $logEntry['LOG_DATE'];
+					$dateCreate = $logEntry['LOG_DATE'] ?? null;
 				}
 			}
 			elseif ($itemType === LogIndexTable::ITEM_TYPE_COMMENT)

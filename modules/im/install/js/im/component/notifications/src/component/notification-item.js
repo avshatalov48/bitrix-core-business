@@ -73,15 +73,10 @@ export const NotificationItem = {
 			{
 				return this.userData.name;
 			}
-			else if (this.isRealItem && this.rawListItem.authorId === 0)
-			{
-				// System notification
-				return this.rawListItem.title;
-			}
-			else
-			{
-				return '';
-			}
+
+			const {title} = this.rawListItem;
+
+			return title.length > 0 ? title : this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_ITEM_SYSTEM');
 		},
 		avatar()
 		{
@@ -128,7 +123,7 @@ export const NotificationItem = {
 		//events
 		onDoubleClick(event)
 		{
-			if (!this.searchMode && event.item.sectionCode === NotificationTypesCodes.simple)
+			if (!this.searchMode)
 			{
 				this.$emit('dblclick', event);
 			}

@@ -1,8 +1,5 @@
 <?php
 $MESS["C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON"] = "создать новое значение";
-$MESS["C_PVG_UNSAVED_DATA_TITLE"] = "У вас есть несохраненные данные";
-$MESS["C_PVG_UNSAVED_DATA_MESSAGE"] = "При изменении настроек отображения вариаций несохраненные данные будут потеряны.";
-$MESS["C_PVG_UNSAVED_DATA_CONTINUE"] = "Продолжить без сохранения";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_STORE"] = "Склад";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_AMOUNT"] = "Доступно";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_QUANTITY_AVAILABLE"] = "Доступный остаток";

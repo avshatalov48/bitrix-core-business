@@ -34,7 +34,6 @@ class CSupportSuperCoupon
 			$slaID = false;
 		}
 		
-		$coupon = false;
 		$DB->StartTransaction();
 		for ($i = 0; $i < 100; ++$i)
 		{
@@ -61,21 +60,19 @@ class CSupportSuperCoupon
 				'ACTIVE' => $arParams['ACTIVE'],
 			);
 
-			$ID = CSupportSuperCoupon::Add($arFields);
-			if ($ID === false)
+			if (CSupportSuperCoupon::Add($arFields) === false)
 			{	
 				$DB->Rollback();
-				return $ID;
+				return false;
 			}
-
+			$DB->Commit();
 		}
 		else 
 		{
 			$DB->Rollback();
 			$APPLICATION->ThrowException(GetMessage('SUP_ST_ERROR_NO_NEW_COUPON'));
 		}
-		$DB->Commit();
-		
+
 		return $coupon;
 	}
 	

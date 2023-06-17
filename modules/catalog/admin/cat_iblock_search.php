@@ -62,6 +62,9 @@ $arFilterFields = array(
 $oSort = new CAdminSorting($sTableID, "NAME", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array(
@@ -79,11 +82,6 @@ $arHeader[] = array("id" => "XML_ID", "content" => GetMessage("BX_MOD_CATALOG_AD
 $arHeader[] = array("id" => "CODE", "content" => GetMessage("BX_MOD_CATALOG_ADMIN_CIS_HEAD_CODE"), "sort" => "CODE");
 
 $lAdmin->AddHeaders($arHeader);
-
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
 
 $rsIBlocks = CIBlock::GetList(array($by=>$order), $arFilter);
 $rsIBlocks = new CAdminResult($rsIBlocks, $sTableID);

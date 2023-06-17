@@ -66,14 +66,13 @@ class RestHandler extends PaySystem\ServiceHandler
 			return $result;
 		}
 
-		$params = $this->getCheckoutPayParams($payment, $request);
-
-		if ($this->needMoreCheckoutParams($settings, $params))
+		if (!$this->canCheckout($payment, $request))
 		{
 			$template = $this->getCheckoutFormTemplate($payment);
 		}
 		else
 		{
+			$params = $this->getCheckoutPayParams($payment, $request);
 			$requestResult = Rest\Http::sendRequest($actionUri, $params);
 			if (!$requestResult->isSuccess())
 			{
@@ -102,6 +101,12 @@ class RestHandler extends PaySystem\ServiceHandler
 			$url = $requestData['PAYMENT_URL'];
 
 			$result->setPaymentUrl($url);
+
+			$qrCode = ((new PaySystem\BarcodeGenerator())->generate($url));
+			if ($qrCode)
+			{
+				$result->setQr(base64_encode($qrCode));
+			}
 
 			$template = $this->getCheckoutPayTemplate($url);
 		}
@@ -925,5 +930,30 @@ class RestHandler extends PaySystem\ServiceHandler
 		}
 
 		return $template;
+	}
+
+	public function canCheckout(Payment $payment, Request $request = null): bool
+	{
+		if ($request === null)
+		{
+			$request = Context::getCurrent()->getRequest();
+		}
+
+		$mode = $this->getMode();
+		if ($mode !== self::CHECKOUT_MODE)
+		{
+			return false;
+		}
+
+		$settings = $this->getHandlerSettings();
+		$actionUri = $settings['CHECKOUT_DATA']['ACTION_URI'] ?? null;
+		if (!isset($actionUri))
+		{
+			return false;
+		}
+
+		$params = $this->getCheckoutPayParams($payment, $request);
+
+		return !$this->needMoreCheckoutParams($settings, $params);
 	}
 }

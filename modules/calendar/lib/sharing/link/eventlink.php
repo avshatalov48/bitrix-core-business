@@ -10,7 +10,11 @@ class EventLink extends Link
 	/** @var string|null  */
 	private ?string $conferenceId = null;
 	/** @var string|null  */
-	private ?string $userLinkHash = null;
+	private ?string $parentLinkHash = null;
+	/** @var int|null  */
+	private ?int $canceledTimestamp = null;
+	/** @var string|null  */
+	private ?string $externalUserName = null;
 
 	/**
 	 * @param int $ownerId
@@ -32,10 +36,10 @@ class EventLink extends Link
 	}
 
 	/**
-	 * @param int $hostId
+	 * @param int|null $hostId
 	 * @return $this
 	 */
-	public function setHostId(int $hostId): self
+	public function setHostId(?int $hostId): self
 	{
 		$this->hostId = $hostId;
 
@@ -51,10 +55,10 @@ class EventLink extends Link
 	}
 
 	/**
-	 * @param string $conferenceId
+	 * @param string|null $conferenceId
 	 * @return $this
 	 */
-	public function setConferenceId(string $conferenceId): self
+	public function setConferenceId(?string $conferenceId): self
 	{
 		$this->conferenceId = $conferenceId;
 
@@ -72,18 +76,18 @@ class EventLink extends Link
 	/**
 	 * @return string|null
 	 */
-	public function getUserLinkHash(): ?string
+	public function getParentLinkHash(): ?string
 	{
-		return $this->userLinkHash;
+		return $this->parentLinkHash;
 	}
 
 	/**
-	 * @param string|null $userLinkHash
+	 * @param string|null $parentLinkHash
 	 * @return EventLink
 	 */
-	public function setUserLinkHash(?string $userLinkHash): self
+	public function setParentLinkHash(?string $parentLinkHash): self
 	{
-		$this->userLinkHash = $userLinkHash;
+		$this->parentLinkHash = $parentLinkHash;
 
 		return $this;
 	}
@@ -106,10 +110,48 @@ class EventLink extends Link
 	}
 
 	/**
+	 * @param int $timestamp
+	 * @return $this
+	 */
+	public function setCanceledTimestamp(?int $timestamp): self
+	{
+		$this->canceledTimestamp = $timestamp;
+
+		return $this;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function getCanceledTimestamp(): ?int
+	{
+		return $this->canceledTimestamp;
+	}
+
+	/**
+	 * @param string|null $name
+	 * @return $this
+	 */
+	public function setExternalUserName(?string $name)
+	{
+		$this->externalUserName = $name;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getExternalUserName()
+	{
+		return $this->externalUserName;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getObjectType(): string
 	{
-		return 'event';
+		return Helper::EVENT_SHARING_TYPE;
 	}
 }

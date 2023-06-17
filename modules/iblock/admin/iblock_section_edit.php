@@ -750,7 +750,7 @@ $tabControl->BeginPrologContent();
 if(method_exists($USER_FIELD_MANAGER, 'showscript'))
 	echo $USER_FIELD_MANAGER->ShowScript();
 CAdminCalendar::ShowScript();
-if(COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && $bFileman)
+if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && $bFileman)
 {
 	//TODO:This dirty hack will be replaced by special method like calendar do
 	echo '<div style="display:none">';
@@ -1031,8 +1031,8 @@ $tabControl->BeginCustomField("DESCRIPTION", GetMessage("IBSEC_E_DESCRIPTION"), 
 		<td colspan="2"><?echo $tabControl->GetCustomLabelHTML()?></td>
 	</tr>
 
-	<?if(COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && $bFileman):?>
-	<tr>
+	<?if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && $bFileman):?>
+	<tr id="tr_DESCRIPTION_EDITOR">
 		<td colspan="2" align="center">
 			<?CFileMan::AddHTMLEditorFrame(
 				"DESCRIPTION",
@@ -1057,14 +1057,24 @@ $tabControl->BeginCustomField("DESCRIPTION", GetMessage("IBSEC_E_DESCRIPTION"), 
 		</td>
 	</tr>
 	<?else:?>
-	<tr>
-		<td  ><?echo GetMessage("IBSEC_E_DESC_TYPE")?></td>
-		<td >
-			<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE_text" value="text"<?if($str_DESCRIPTION_TYPE!="html")echo " checked"?>> <label for="DESCRIPTION_TYPE_text"><?echo GetMessage("IBSEC_E_DESC_TYPE_TEXT")?></label> /
-			<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE_html" value="html"<?if($str_DESCRIPTION_TYPE=="html")echo " checked"?>> <label for="DESCRIPTION_TYPE_html"><?echo GetMessage("IBSEC_E_DESC_TYPE_HTML")?></label>
+	<tr id="tr_DESCRIPTION_TYPE">
+		<td><?echo GetMessage("IBSEC_E_DESC_TYPE")?></td>
+		<td>
+			<?php
+			$isHtml = $str_DESCRIPTION_TYPE === 'html';
+			if($arIBlock["FIELDS"]["SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE"]["DEFAULT_VALUE"] === "N"):
+				?>
+				<input type="hidden" name="DESCRIPTION_TYPE" value="<?= $str_DESCRIPTION_TYPE;?>"><?= ($isHtml ? GetMessage("IBSEC_E_DESC_TYPE_HTML"): GetMessage("IBSEC_E_DESC_TYPE_TEXT")); ?>
+				<?php
+			else:
+				?>
+				<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE_text" value="text"<?= (!$isHtml ? ' checked' : ''); ?>> <label for="DESCRIPTION_TYPE_text"><?= GetMessage("IBLOCK_DESC_TYPE_TEXT")?></label> / <input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE_html" value="html"<?= ($isHtml ? ' checked' : ''); ?>> <label for="DESCRIPTION_TYPE_html"><?= GetMessage("IBLOCK_DESC_TYPE_HTML")?></label>
+				<?php
+			endif;
+			?>
 		</td>
 	</tr>
-	<tr>
+	<tr id="tr_DESCRIPTION">
 		<td colspan="2" align="center">
 			<textarea cols="60" rows="15"  name="DESCRIPTION" style="width:100%"><?echo $str_DESCRIPTION?></textarea>
 		</td>

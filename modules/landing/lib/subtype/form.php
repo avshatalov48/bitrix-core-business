@@ -58,9 +58,7 @@ class Form
 	public static function prepareFormsToPublication(string $content): string
 	{
 		// change - replace markers always, not only if connector
-		$content = self::replaceFormMarkers($content);
-
-		return $content;
+		return self::replaceFormMarkers($content);
 	}
 
 	/**
@@ -89,10 +87,14 @@ class Form
 			'/(?<pre><a[^>]+href=|data-b24form=)["\'](form:)?#crmForm(?<type>Inline|Popup)(?<id>[\d]+)["\']/i',
 			static function ($matches)
 			{
-				if (
-					!(int)$matches['id']
-					|| !($form = self::getFormById((int)$matches['id']))
-				)
+				$id = (int)$matches['id'];
+				if (!$id)
+				{
+					return $matches[0];
+				}
+
+				$form = self::getFormById($id);
+				if (!$form || !$form['URL'])
 				{
 					return $matches[0];
 				}
@@ -106,7 +108,7 @@ class Form
 
 				if (strtolower($matches['type']) === 'popup')
 				{
-					$script = "<script data-b24-form=\"click/{$matches['id']}/{$form['SECURITY_CODE']}\" data-skip-moving=\"true\">
+					$script = "<script data-b24-form=\"click/{$id}/{$form['SECURITY_CODE']}\" data-skip-moving=\"true\">
 								(function(w,d,u){
 									var s=d.createElement('script');s.async=true;s.src=u+'?'+(Date.now()/180000|0);
 									var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
@@ -375,11 +377,13 @@ class Form
 		}
 
 		// style setting
-		if (!is_array($manifest['style']['block']) && !is_array($manifest['style']['nodes']))
+		if (
+			!isset($manifest['style']['block']) && !isset($manifest['style']['nodes'])
+		)
 		{
 			$manifest['style'] = [
-				'block' => Block::DEFAULT_WRAPPER_STYLE,
-				'nodes' => $manifest['style'],
+				'block' => ['type' => Block::DEFAULT_WRAPPER_STYLE],
+				'nodes' => $manifest['style'] ?? [],
 			];
 		}
 		$manifest['style']['nodes'][self::SELECTOR_FORM_NODE] = [

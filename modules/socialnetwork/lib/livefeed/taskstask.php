@@ -70,7 +70,7 @@ final class TasksTask extends Provider
 		$this->setSourceFields($task);
 		$this->setSourceDescription($task['DESCRIPTION']);
 		$this->setSourceTitle($task['TITLE']);
-		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 		$this->setSourceDiskObjects($this->getDiskObjects($taskId, $this->cloneDiskObjects));
 
 	}

@@ -402,15 +402,15 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		// additional
 		if (!Manager::isB24())
 		{
-			$settings[$id]['IBLOCK_ID'] = isset($hooks['SETTINGS']['IBLOCK_ID'])
-				? $hooks['SETTINGS']['IBLOCK_ID']
-				: 0;
+			$settings[$id]['IBLOCK_ID'] = $hooks['SETTINGS']['IBLOCK_ID'] ?? 0;
 		}
 		else
 		{
-			$settings[$id]['IBLOCK_ID'] = \Bitrix\Main\Config\Option::get(
-				'crm', 'default_product_catalog_id'
-			);
+			$settings[$id]['IBLOCK_ID'] = 0;
+			if (Loader::includeModule('crm'))
+			{
+				$settings[$id]['IBLOCK_ID'] = (int)\Bitrix\Crm\Product\Catalog::getDefaultId();
+			}
 		}
 
 		// agreement

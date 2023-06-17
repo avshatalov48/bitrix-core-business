@@ -145,7 +145,12 @@
 
 			if (options.style === "font-family")
 			{
-				field = new BX.Landing.UI.Field.Font(defaultOptions);
+				field = new BX.Landing.UI.Field.Font(Object.assign(
+					defaultOptions,
+					{
+						styleNode: options.styleNode
+					}
+				));
 			}
 
 			return field;

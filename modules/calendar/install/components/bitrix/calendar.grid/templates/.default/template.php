@@ -32,10 +32,8 @@ $this->SetViewTarget("inside_pagetitle");
 			"FILTER_ID" => $arParams["FILTER_ID"],
 			"FILTER" => $arParams["FILTER"],
 			"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
-			"ENABLE_LABEL" => true,
 			'ENABLE_LIVE_SEARCH' => true,
-			"RESET_TO_DEFAULT_MODE" => true,
-			"THEME" => $isBitrix24Template ? "DEFAULT" : "BORDER"
+			'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
 		),
 		$component,
 		array("HIDE_ICONS" => true)

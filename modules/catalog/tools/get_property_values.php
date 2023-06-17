@@ -50,7 +50,7 @@ if (check_bitrix_sessid() && $request->isPost() && Loader::includeModule('iblock
 						$entity = HighloadBlockTable::compileEntity($hlBlock);
 
 						$fieldsList = $entity->getFields();
-						$sortExist = isset($oneProperty['USER_TYPE_SETTINGS']['FIELDS_MAP']['UF_SORT']);
+						$sortExist = isset($fieldsList['UF_SORT']);
 						$directorySelect = array('ID', 'UF_NAME', 'UF_XML_ID');
 						$directoryOrder = array();
 						if ($sortExist)

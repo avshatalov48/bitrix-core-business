@@ -19,7 +19,7 @@ if (isset($_GET['k']) && isset($_GET['s']) && is_string($_GET['k']) && is_string
 	$application = Main\Application::getInstance();
 
 	$cookieString = base64_decode($_GET['s']);
-	$salt = $_SERVER['REMOTE_ADDR'] . '|' . @filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/version.php') . '|' . LICENSE_KEY;
+	$salt = $_SERVER['REMOTE_ADDR'] . '|' . @filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/version.php') . '|' . $application->getLicense()->getKey();
 
 	if (md5($cookieString . $salt) === $_GET['k'])
 	{
@@ -45,7 +45,7 @@ if (isset($_GET['k']) && isset($_GET['s']) && is_string($_GET['k']) && is_string
 						->setDomain($host)
 						->setSecure(true)
 						->setHttpOnly($ar[6])
-						->setSameSite(Web\Cookie::SAME_SITE_NONE)
+						->setSameSite(Web\Http\Cookie::SAME_SITE_NONE)
 					;
 
 					$response->addCookie($cookie);

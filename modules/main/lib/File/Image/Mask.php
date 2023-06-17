@@ -71,7 +71,7 @@ class Mask implements \ArrayAccess
 		return new static($mask);
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if(is_null($offset))
 		{
@@ -83,16 +83,17 @@ class Mask implements \ArrayAccess
 		}
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->mask[$offset]);
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->mask[$offset]);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return ($this->mask[$offset] ?? null);

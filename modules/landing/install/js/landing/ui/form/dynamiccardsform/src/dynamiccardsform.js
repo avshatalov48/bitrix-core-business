@@ -159,7 +159,7 @@ export class DynamicCardsForm extends BaseForm
 			content = this.dynamicParams.settings.detailPage;
 		}
 
-		return new BX.Landing.UI.Field.Link({
+		return new parent.BX.Landing.UI.Field.Link({
 			selector: 'detailPage',
 			title: Loc.getMessage('LANDING_CARDS__DETAIL_PAGE_FIELD_TITLE'),
 			textOnly: true,

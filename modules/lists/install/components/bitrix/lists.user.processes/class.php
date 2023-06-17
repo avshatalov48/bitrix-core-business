@@ -1,4 +1,9 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -9,7 +14,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 {
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams['ERROR'] = array();
+		$arParams['ERROR'] = [];
 		if (!Loader::includeModule('lists'))
 		{
 			$arParams['ERROR'][] = Loc::getMessage('CC_BLL_MODULE_NOT_INSTALLED');
@@ -31,9 +36,9 @@ class ListsSelectElementComponent extends CBitrixComponent
 			COption::GetOptionString("lists", "livefeed_iblock_type_id"),
 			false
 		);
-		if($arParams['LIST_PERM'] < 0)
+		if ($arParams['LIST_PERM'] < 0)
 		{
-			switch($arParams['LIST_PERM'])
+			switch ($arParams['LIST_PERM'])
 			{
 				case CListPermissions::WRONG_IBLOCK_TYPE:
 					$arParams['ERROR'][] = Loc::getMessage("CC_BLL_WRONG_IBLOCK_TYPE");
@@ -49,7 +54,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 					break;
 			}
 		}
-		elseif($arParams['LIST_PERM'] <= CListPermissions::ACCESS_DENIED)
+		elseif ($arParams['LIST_PERM'] <= CListPermissions::ACCESS_DENIED)
 		{
 			$arParams['ERROR'][] = Loc::getMessage("CC_BLL_ACCESS_DENIED");
 		}
@@ -59,10 +64,12 @@ class ListsSelectElementComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if($this->arParams['SET_TITLE'] == 'Y')
+		if ($this->arParams['SET_TITLE'] == 'Y')
+		{
 			$this->getApplication()->setTitle(Loc::getMessage('CC_BLL_TITLE'));
+		}
 
-		if(!empty($this->arParams['ERROR']))
+		if (!empty($this->arParams['ERROR']))
 		{
 			ShowError(array_shift($this->arParams['ERROR']));
 			return;
@@ -72,126 +79,117 @@ class ListsSelectElementComponent extends CBitrixComponent
 		$this->arResult['GRID_ID'] = 'lists_processes';
 		$this->arResult['FILTER_ID'] = 'lists_processes';
 
-		$selectFields = array('ID', 'IBLOCK_TYPE_ID', 'IBLOCK_ID', 'NAME');
+		$selectFields = ['ID', 'IBLOCK_TYPE_ID', 'IBLOCK_ID', 'NAME'];
 
 		$gridOptions = new CGridOptions($this->arResult['GRID_ID']);
-		$gridSort = $gridOptions->getSorting(array('sort' => array('ID' => 'desc')));
+		$gridSort = $gridOptions->getSorting(['sort' => ['ID' => 'desc']]);
 
-		$this->arResult['HEADERS'] = array(
-			array(
+		$this->arResult['HEADERS'] = [
+			[
 				"id" => "ID",
 				"name" => "ID",
 				"default" => false,
-				"sort" => "ID"
-			),
-			array(
+				"sort" => "ID",
+			],
+			[
 				'id' => 'DOCUMENT_NAME',
 				'name' => Loc::getMessage('CC_BLL_DOCUMENT_NAME'),
-				'default' => true, 'sort' => 'DOCUMENT_NAME'
-			),
-			array(
+				'default' => true,
+				'sort' => 'DOCUMENT_NAME',
+			],
+			[
 				'id' => 'COMMENTS',
 				'name' => Loc::getMessage('CC_BLL_COMMENTS'),
 				'default' => true,
 				'sort' => '',
 				'hideName' => true,
-				'iconCls' => 'bp-comments-icon'
-			),
-			array(
+				'iconCls' => 'bp-comments-icon',
+			],
+			[
 				'id' => 'WORKFLOW_PROGRESS',
 				'name' => Loc::getMessage('CC_BLL_WORKFLOW_PROGRESS'),
 				'default' => true,
-				'sort' => ''
-			),
-			array(
+				'sort' => '',
+			],
+			[
 				'id' => 'WORKFLOW_STATE',
 				'name' => Loc::getMessage('CC_BLL_WORKFLOW_STATE'),
 				'default' => true,
-				'sort' => ''
-			),
-		);
+				'sort' => '',
+			],
+		];
 
-		$this->arResult['FILTER'] = array(
-			array(
+		$this->arResult['FILTER'] = [
+			[
+				"id" => "ID",
+				"name" => 'ID',
+				"type" => "number",
+			],
+			[
 				"id" => "NAME",
 				"name" => Loc::getMessage("BPATL_NAME"),
 				"type" => "string",
-				'default' => true
-			),
-			array(
+				'default' => true,
+			],
+			[
 				'id' => 'TIMESTAMP_X',
 				'name' => Loc::getMessage('CC_BLL_MODIFIED'),
 				'type' => 'date',
-				'default' => true
-			),
-			array(
+				'default' => true,
+			],
+			[
 				'id' => 'DATE_CREATE',
 				'name' => Loc::getMessage('CC_BLL_CREATED'),
 				'type' => 'date',
-				'default' => true
-			),
-		);
+				'default' => true,
+			],
+			[
+				'id' => 'WORKFLOW_STATE',
+				'name' => Loc::getMessage('CC_BLL_WORKFLOW_STATE'),
+				'type' => 'list',
+				'items' => [
+					'A' => Loc::getMessage('CC_BLL_FILTER_STATUS_ALL'),
+					'R' => Loc::getMessage('CC_BLL_FILTER_STATUS_RUNNING'),
+					'C' => Loc::getMessage('CC_BLL_FILTER_STATUS_COMPLETE'),
+				],
+				'default' => true,
+			],
+		];
+
+		$this->arResult['FILTER_PRESETS'] = [
+			'01_running' => [
+				'name' => Loc::getMessage('CC_BLL_FILTER_PRESET_RUNNING'),
+				'default' => true,
+				'fields' => [
+					'WORKFLOW_STATE' => 'R',
+				]
+			],
+			'02_completed' => [
+				'name' => Loc::getMessage('CC_BLL_FILTER_PRESET_COMPLETED'),
+				'fields' => [
+					'WORKFLOW_STATE' => 'C',
+				]
+			],
+		];
+
+		$filterableFields = array_column($this->arResult['FILTER'], 'id');
+
 		$filterOption = new Bitrix\Main\UI\Filter\Options($this->arResult['FILTER_ID']);
 		$filterData = $filterOption->getFilter($this->arResult['FILTER']);
-		foreach($filterData as $key => $value)
-		{
-			if(empty($value))
-				continue;
 
-			if(mb_substr($key, -5) == "_from")
-			{
-				$op = ">=";
-				$new_key = mb_substr($key, 0, -5);
-			}
-			elseif(mb_substr($key, -3) == "_to")
-			{
-				$op = "<=";
-				$new_key = mb_substr($key, 0, -3);
-				$newKey = mb_substr($key, 0, -3);
-
-				if(in_array($newKey, array("TIMESTAMP_X", 'DATE_CREATE')))
-				{
-					global $DB;
-					$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
-					$dateParse = date_parse_from_format($dateFormat, $value);
-					if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
-					{
-						$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
-						$value .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
-					}
-				}
-			}
-			elseif($key == "NAME")
-			{
-				$op = "?";
-				$new_key = $key;
-			}
-			else
-			{
-				$op = "";
-				$new_key = $key;
-			}
-
-			$filter[$op.$new_key] = $value;
-
-			if($key == "FIND")
-			{
-				$op = "?";
-				$filter[$op."SEARCHABLE_CONTENT"] = $value;
-			}
-		}
+		$filter = $this->prepareElementFilter($filterData, $filterableFields);
 
 		$this->arResult['SORT'] = $gridSort['sort'];
 
 		$useComments = (bool)CModule::includeModule("forum");
-		$workflows = array();
-		$this->arResult['DATA'] = array();
-		$this->arResult["COMMENTS_COUNT"] = array();
+		$workflows = [];
+		$this->arResult['DATA'] = [];
+		$this->arResult["COMMENTS_COUNT"] = [];
 
 		$filter['CREATED_BY'] = $this->arParams['USER_ID'];
 		$iblockTypeId = COption::GetOptionString("lists", "livefeed_iblock_type_id");
 		$filter['=IBLOCK_TYPE'] = $iblockTypeId;
-		$filter['CHECK_PERMISSIONS'] = ($this->arParams['LIST_PERM'] >= CListPermissions::CAN_READ ? "N": "Y");
+		$filter['CHECK_PERMISSIONS'] = ($this->arParams['LIST_PERM'] >= CListPermissions::CAN_READ ? "N" : "Y");
 		$elementObject = CIBlockElement::getList(
 			$gridSort['sort'],
 			$filter,
@@ -199,90 +197,72 @@ class ListsSelectElementComponent extends CBitrixComponent
 			$gridOptions->getNavParams(),
 			$selectFields
 		);
-		$documentStates = true;
 		$path = rtrim(SITE_DIR, '/');
-		while($element = $elementObject->fetch())
+		while ($element = $elementObject->fetch())
 		{
-			$documentStates = CBPDocument::GetDocumentStates(
-				BizprocDocument::generateDocumentComplexType($iblockTypeId, $element['IBLOCK_ID']),
+			$documentState = $this->getActualElementState(
 				BizprocDocument::getDocumentComplexId($iblockTypeId, $element['ID'])
 			);
 
-			if(!empty($documentStates))
-			{
-				foreach($documentStates as $documentState)
-				{
-					if(empty($documentState['ID']))
-						continue;
-
-					$this->arResult['DATA'][$documentState['ID']]['ID'] = $element['ID'];
-					$this->arResult['DATA'][$documentState['ID']]['DOCUMENT_NAME'] = $element['NAME'];
-					$this->arResult['DATA'][$documentState['ID']]['DOCUMENT_URL'] = $path.COption::GetOptionString('lists', 'livefeed_url').'?livefeed=y&list_id='.$element["IBLOCK_ID"].'&element_id='.$element['ID'];
-					$this->arResult['DATA'][$documentState['ID']]['DOCUMENT_STATE'] = true;
-					$this->arResult['DATA'][$documentState['ID']]['WORKFLOW_ID'] = $documentState['ID'];
-					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_NAME"] = $documentState["TEMPLATE_NAME"];
-					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STATE"] = htmlspecialcharsbx($documentState["STATE_TITLE"]);
-					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED"] = FormatDateFromDB($documentState["STARTED_FORMATTED"]);
-					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED_BY"] = "";
-					if (intval($documentState["STARTED_BY"]) > 0)
-					{
-						$dbUserTmp = CUser::getByID($documentState["STARTED_BY"]);
-						$arUserTmp = $dbUserTmp->fetch();
-						$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED_BY"] = CUser::FormatName($this->arParams["NAME_TEMPLATE"], $arUserTmp, true);
-						$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED_BY"] .= " [".$documentState["STARTED_BY"]."]";
-					}
-
-					$this->arResult['DATA'][$documentState['ID']]['MODULE_ID'] = $documentState["DOCUMENT_ID"][0];
-					$this->arResult['DATA'][$documentState['ID']]['ENTITY'] = $documentState["DOCUMENT_ID"][1];
-					$this->arResult['DATA'][$documentState['ID']]['DOCUMENT_ID'] = $documentState["DOCUMENT_ID"][2];
-				}
-			}
+			$this->arResult['DATA'][] = [
+				'ID' => $element['ID'],
+				'DOCUMENT_NAME' => $element['NAME'],
+				'DOCUMENT_URL' => $path
+					. COption::GetOptionString('lists', 'livefeed_url')
+					. '?livefeed=y&list_id='
+					. $element["IBLOCK_ID"]
+					. '&element_id='
+					. $element['ID']
+				,
+				'WORKFLOW_ID' => $documentState ? $documentState['ID'] : '',
+				"WORKFLOW_STATE" => $documentState ? htmlspecialcharsbx($documentState["STATE_TITLE"]) : '',
+			];
 		}
 
 		foreach ($this->arResult['DATA'] as $data)
 		{
-			if($documentStates)
+			if ($useComments && $data['WORKFLOW_ID'])
 			{
-				if ($useComments)
-					$workflows[] = 'WF_'.$data['WORKFLOW_ID'];
+				$workflows[] = 'WF_' . $data['WORKFLOW_ID'];
 			}
 
-			$actions = array();
-			if ($data["DOCUMENT_URL"] <> '')
-				$actions[] = array('ICONCLASS'=>'', 'DEFAULT' => true, 'TEXT'=>Loc::getMessage('CC_BLL_C_DOCUMENT'),
-					'ONCLICK'=>'window.open("'.$data["DOCUMENT_URL"].'");');
-			$this->arResult['RECORDS'][] = array('data' => $data, 'actions' => $actions);
+			$actions = [];
+			if ($data["DOCUMENT_URL"])
+			{
+				$actions[] = [
+					'ICONCLASS' => '',
+					'DEFAULT' => true,
+					'TEXT' => Loc::getMessage('CC_BLL_C_DOCUMENT'),
+					'ONCLICK' => 'window.open("' . $data["DOCUMENT_URL"] . '");',
+				];
+			}
+			$this->arResult['RECORDS'][] = ['data' => $data, 'actions' => $actions];
 		}
 
-		if ($useComments && $documentStates)
+		$workflows = array_unique($workflows);
+		if ($useComments && $workflows)
 		{
-			$workflows = array_unique($workflows);
-			if ($workflows)
+			$iterator = CForumTopic::getList([], ["@XML_ID" => $workflows]);
+			while ($row = $iterator->fetch())
 			{
-				$iterator = CForumTopic::getList(array(), array("@XML_ID" => $workflows));
-				while ($row = $iterator->fetch())
-				{
-					$this->arResult["COMMENTS_COUNT"][$row['XML_ID']] = $row['POSTS'];
-				}
+				$this->arResult["COMMENTS_COUNT"][$row['XML_ID']] = $row['POSTS'];
 			}
 		}
 
-		$this->arResult['COUNTERS'] = array('all' => 0);
+		$this->arResult['COUNTERS'] = ['all' => 0];
 
 		$this->arResult["NAV_OBJECT"] = $elementObject;
 		$componentObject = null;
 		$this->arResult["GRID_ENABLE_NEXT_PAGE"] = ($elementObject->PAGEN < $elementObject->NavPageCount);
 		$this->arResult["NAV_STRING"] = $elementObject->getPageNavStringEx(
 			$componentObject, "", "grid", false, null, $gridOptions->getNavParams());
-		$this->arResult["GRID_PAGE_SIZES"] = array(
-			array("NAME" => "5", "VALUE" => "5"),
-			array("NAME" => "10", "VALUE" => "10"),
-			array("NAME" => "20", "VALUE" => "20"),
-			array("NAME" => "50", "VALUE" => "50"),
-			array("NAME" => "100", "VALUE" => "100"),
-			array("NAME" => "200", "VALUE" => "200"),
-			array("NAME" => "500", "VALUE" => "500")
-		);
+		$this->arResult["GRID_PAGE_SIZES"] = [
+			["NAME" => "5", "VALUE" => "5"],
+			["NAME" => "10", "VALUE" => "10"],
+			["NAME" => "20", "VALUE" => "20"],
+			["NAME" => "50", "VALUE" => "50"],
+			["NAME" => "100", "VALUE" => "100"],
+		];
 
 		$this->includeComponentTemplate();
 	}
@@ -291,6 +271,114 @@ class ListsSelectElementComponent extends CBitrixComponent
 	{
 		global $APPLICATION;
 		return $APPLICATION;
+	}
+
+	public function prepareElementFilter(array $filterData, array $filterableFields): array
+	{
+		$filter = [];
+		foreach ($filterData as $key => $value)
+		{
+			if (empty($value))
+			{
+				continue;
+			}
+
+			$op = "";
+			$filterKey = $key;
+
+			if (mb_substr($key, -5) == "_from")
+			{
+				$filterKey = mb_substr($key, 0, -5);
+				$op = (!empty($filterData[$filterKey . "_numsel"]) && $filterData[$filterKey . "_numsel"] === "more")
+					? ">"
+					: ">="
+				;
+			}
+			elseif (mb_substr($key, -3) == "_to")
+			{
+				$filterKey = mb_substr($key, 0, -3);
+				$op = (!empty($filterData[$filterKey . "_numsel"]) && $filterData[$filterKey . "_numsel"] == "less")
+					? "<"
+					: "<="
+				;
+
+				if (in_array($filterKey, ["TIMESTAMP_X", 'DATE_CREATE']))
+				{
+					global $DB;
+					$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
+					$dateParse = date_parse_from_format($dateFormat, $value);
+					if (
+						!mb_strlen($dateParse["hour"])
+						&& !mb_strlen($dateParse["minute"])
+						&& !mb_strlen($dateParse["second"])
+					)
+					{
+						$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
+						$value .= " " . date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
+					}
+				}
+			}
+			elseif ($key == "NAME")
+			{
+				$op = "?";
+			}
+
+			if ($key == "FIND")
+			{
+				$op = "?";
+				$filter[$op . "SEARCHABLE_CONTENT"] = $value;
+			}
+			elseif ($key === 'WORKFLOW_STATE')
+			{
+				if ($value === 'R' || $value === 'C')
+				{
+					$not = $value === 'C' ? '!' : '';
+					$filter[$not . '=ID'] = $this->getActiveWorkflowElementIds();
+				}
+			}
+			elseif (in_array($filterKey, $filterableFields))
+			{
+				$filter[$op . $filterKey] = $value;
+			}
+		}
+		return $filter;
+	}
+
+	private function getActiveWorkflowElementIds()
+	{
+		$userId = $this->getUser()->getId();
+		$moduleId = 'lists';
+		$entity = BizprocDocument::class;
+
+		$rows = \Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable::getList([
+			'filter' => [
+				'=MODULE_ID' => $moduleId,
+				'=ENTITY' => $entity,
+				'=STARTED_BY' => $userId,
+			],
+			'select' => ['DOCUMENT_ID'],
+		])->fetchAll();
+
+		$ids = array_unique(array_column($rows, 'DOCUMENT_ID'));
+
+		return $ids ?: [0];
+	}
+
+	private function getActualElementState(array $documentId): ?array
+	{
+		$state = \CBPDocument::getActiveStates($documentId, 1);
+		if ($state)
+		{
+			return array_shift($state);
+		}
+
+		$ids = \CBPStateService::getIdsByDocument($documentId, 1);
+		if ($ids)
+		{
+			return \CBPStateService::getWorkflowState(array_shift($ids));
+		}
+
+		return null;
 	}
 
 	protected function getUser()

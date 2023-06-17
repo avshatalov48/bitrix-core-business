@@ -1,0 +1,55 @@
+.bx-im-new-user-popup {
+	padding: 0;
+	border-radius: 25px;
+}
+
+.bx-im-new-user-popup .popup-window-content {
+	border-radius: 25px;
+}
+
+.bx-im-new-user-popup__container {
+	padding: 4px 22px 5px;
+	cursor: pointer;
+	border-radius: 25px;
+}
+
+.bx-im-new-user-popup__container:after {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2225%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M11.334.799c3.486%204.297%207.74%206.883%2012.765%207.758-3.234%204.418-8.339%206.666-15.313%206.744L.892%208.514%2011.334.799z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.96%22%2F%3E%3C%2Fsvg%3E ');
+	background-repeat: no-repeat;
+	content: '';
+	position: absolute;
+	height: 27px;
+	width: 33px;
+	right: -16px;
+	margin-top: -19px;
+}
+
+.bx-im-new-user-popup__title {
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #75797d;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.bx-im-new-user-popup__text {
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #333333;
+	max-width: 440px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.bx-im-new-user-popup__animation_show {
+	animation: newUserPopupShow 300ms;
+	animation-fill-mode: both;
+}
+
+.bx-im-new-user-popup__animation_hide {
+	animation: newUserPopupHide 300ms;
+	animation-fill-mode: both;
+}
+
+@keyframes newUserPopupShow { from { opacity: 0; } to { opacity: 1; } }
+@keyframes newUserPopupHide { from { opacity: 1; } to { opacity: 0; } }

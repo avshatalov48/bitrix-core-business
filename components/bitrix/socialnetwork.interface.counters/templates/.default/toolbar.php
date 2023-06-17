@@ -46,6 +46,7 @@ if (!empty($arResult['COUNTERS']))
 			style="opacity: 0.7;"
 			data-hint="<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_HINT') ?>"
 			data-hint-no-icon
+			data-hint-center
 		>
 			<div class="ui-counter-panel ui-counter-panel__scope">
 
@@ -155,7 +156,7 @@ if (!empty($arResult['COUNTERS']))
 			role: '<?= CUtil::JSEscape($arParams['ROLE']) ?>',
 			entityTitle: '<?= CUtil::JSEscape($arResult['ENTITY_TITLE']) ?>',
 			userId: <?= (int)$arParams['USER_ID'] ?>,
-			targetUserId: <?= (int)$arParams['TARGET_USER_ID'] ?>,
+			targetUserId: <?= (int) ($arParams['TARGET_USER_ID'] ?? 0) ?>,
 			counterTypes:  <?= CUtil::PhpToJSObject($arParams['COUNTERS']) ?>,
 			counters:  <?= CUtil::PhpToJSObject($arResult['COUNTERS']) ?>,
 			initialCounter: '<?= CUtil::JSEscape($arParams['CURRENT_COUNTER']) ?>',

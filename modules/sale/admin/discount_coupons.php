@@ -8,8 +8,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
@@ -49,58 +49,67 @@ $adminListTableID = 'tbl_sale_discount_coupons';
 $adminSort = new CAdminUiSorting($adminListTableID, 'ID', 'ASC');
 $adminList = new CAdminUiList($adminListTableID, $adminSort);
 
-$discountIterator = Internals\DiscountTable::getList(array(
-	'select' => array('ID', 'NAME'),
-	'filter' => array('=USE_COUPONS' => 'Y'),
-	'order' => array('SORT' => 'ASC', 'NAME' => 'ASC')
-));
-$listDiscount = array();
+$discountIterator = Internals\DiscountTable::getList([
+	'select' => [
+		'ID',
+		'NAME',
+		'SORT',
+	],
+	'filter' => [
+		'=USE_COUPONS' => 'Y',
+	],
+	'order' => [
+		'SORT' => 'ASC',
+		'NAME' => 'ASC',
+	],
+]);
+$listDiscount = [];
 while ($discount = $discountIterator->fetch())
 {
 	$discount['NAME'] = (string)$discount['NAME'];
 	$title = '[' . $discount['ID'] . ']' . ($discount['NAME'] !== '' ? ' ' . htmlspecialcharsbx($discount['NAME']) : '');
 	$listDiscount[$discount['ID']] = $title;
 }
-$listCouponType = array();
+$listCouponType = [];
 foreach ($couponTypeList as $id => $title)
 {
 	$listCouponType[$id] = $title;
 }
 
-$filterFields = array(
-	array(
+$filterFields = [
+	[
 		"id" => "COUPON",
 		"name" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_COUPON"),
 		"filterable" => "=",
-		"default" => true
-	),
-	array(
+		"default" => true,
+	],
+	[
 		"id" => "DISCOUNT_ID",
 		"name" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_DISCOUNT_ID"),
 		"type" => "list",
 		"items" => $listDiscount,
-		"filterable" => "="
-	),
-	array(
+		"filterable" => "=",
+	],
+	[
 		"id" => "ACTIVE",
 		"name" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_ACTIVE"),
 		"type" => "list",
-		"items" => array(
+		"items" => [
 			"Y" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_ACTIVE_YES"),
-			"N" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_ACTIVE_NO")
-		),
-		"filterable" => "="
-	),
-	array(
+			"N" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_ACTIVE_NO"),
+		],
+		"filterable" => "=",
+	],
+	[
 		"id" => "TYPE",
 		"name" => Loc::getMessage("SALE_DISCOUNT_COUPON_LIST_FILTER_TYPE"),
 		"type" => "list",
 		"items" => $listCouponType,
-		"filterable" => "="
-	),
-);
+		"filterable" => "=",
+	],
+];
 
-$filter = array();
+$filter = [];
 
 $adminList->AddFilter($filterFields, $filter);
 
@@ -136,32 +145,35 @@ if (!$readOnly && $adminList->EditAction())
 	Internals\DiscountCouponTable::enableCheckCouponsUse();
 }
 
-if (!$readOnly && ($listID = $adminList->GroupAction()))
+$listID = $adminList->GroupAction();
+if (!$readOnly && $listID)
 {
-	$action = $_REQUEST['action'];
-	if (!empty($_REQUEST['action_button']))
-		$action = $_REQUEST['action_button'];
+	$action = $adminList->GetAction();
 	$checkUseCoupons = ($action == 'delete');
-	$discountList = array();
+	$discountList = [];
 
 	Internals\DiscountCouponTable::clearDiscountCheckList();
-	if ($_REQUEST['action_target'] == 'selected')
+	if ($adminList->IsGroupActionToAll())
 	{
-		$listID = array();
-		$couponIterator = Internals\DiscountCouponTable::getList(array(
-			'select' => array('ID', 'DISCOUNT_ID'),
-			'filter' => $filter
-		));
+		$listID = [];
+		$couponIterator = Internals\DiscountCouponTable::getList([
+			'select' => [
+				'ID',
+				'DISCOUNT_ID',
+			],
+			'filter' => $filter,
+		]);
 		while ($coupon = $couponIterator->fetch())
 		{
 			$listID[] = $coupon['ID'];
 			if ($checkUseCoupons)
+			{
 				$discountList[$coupon['DISCOUNT_ID']] = $coupon['DISCOUNT_ID'];
+			}
 		}
 		unset($coupon, $couponIterator);
 	}
 
-	$listID = array_filter($listID);
 	if (!empty($listID))
 	{
 		switch ($action)
@@ -169,10 +181,10 @@ if (!$readOnly && ($listID = $adminList->GroupAction()))
 			case 'activate':
 			case 'deactivate':
 				Internals\DiscountCouponTable::disableCheckCouponsUse();
-				$fields = array(
+				$fields = [
 					'ACTIVE' => ($action == 'activate' ? 'Y' : 'N')
-				);
-				foreach ($listID as &$couponID)
+				];
+				foreach ($listID as $couponID)
 				{
 					$result = Internals\DiscountCouponTable::update($couponID, $fields);
 					if (!$result->isSuccess())
@@ -185,16 +197,24 @@ if (!$readOnly && ($listID = $adminList->GroupAction()))
 			case 'delete':
 				if (empty($discountList))
 				{
-					$couponIterator = Internals\DiscountCouponTable::getList(array(
-						'select' => array('ID', 'DISCOUNT_ID'),
-						'filter' => array('@ID' => $listID)
-					));
+					$couponIterator = Internals\DiscountCouponTable::getList([
+						'select' => [
+							'ID',
+							'DISCOUNT_ID',
+						],
+						'filter' => [
+							'@ID' => $listID,
+						]
+					]);
 					while ($coupon = $couponIterator->fetch())
+					{
 						$discountList[$coupon['DISCOUNT_ID']] = $coupon['DISCOUNT_ID'];
+					}
+					unset($coupon, $couponIterator);
 				}
 				Internals\DiscountCouponTable::setDiscountCheckList($discountList);
 				Internals\DiscountCouponTable::disableCheckCouponsUse();
-				foreach ($listID as &$couponID)
+				foreach ($listID as $couponID)
 				{
 					$result = Internals\DiscountCouponTable::delete($couponID);
 					if (!$result->isSuccess())
@@ -219,117 +239,117 @@ if (!$readOnly && ($listID = $adminList->GroupAction()))
 	}
 }
 
-$headerList = array();
-$headerList['ID'] = array(
+$headerList = [];
+$headerList['ID'] = [
 	'id' => 'ID',
 	'content' => 'ID',
 	'sort' => 'ID',
-	'default' => true
-);
-$headerList['DISCOUNT'] = array(
+	'default' => true,
+];
+$headerList['DISCOUNT'] = [
 	'id' => 'DISCOUNT',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_DISCOUNT'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_DISCOUNT'),
 	'sort' => 'DISCOUNT.NAME',
-	'default' => true
-);
-$headerList['COUPON'] = array(
+	'default' => true,
+];
+$headerList['COUPON'] = [
 	'id' => 'COUPON',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_COUPON'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_COUPON'),
 	'sort' => 'COUPON',
-	'default' => true
-);
-$headerList['ACTIVE'] = array(
+	'default' => true,
+];
+$headerList['ACTIVE'] = [
 	'id' => 'ACTIVE',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_ACTIVE'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_ACTIVE'),
 	'sort' => 'ACTIVE',
-	'default' => true
-);
-$headerList['ACTIVE_FROM'] = array(
+	'default' => true,
+];
+$headerList['ACTIVE_FROM'] = [
 	'id' => 'ACTIVE_FROM',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_ACTIVE_FROM'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_ACTIVE_FROM'),
 	'sort' => 'ACTIVE_FROM',
-	'default' => true
-);
-$headerList['ACTIVE_TO'] = array(
+	'default' => true,
+];
+$headerList['ACTIVE_TO'] = [
 	'id' => 'ACTIVE_TO',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_ACTIVE_TO'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_ACTIVE_TO'),
 	'sort' => 'ACTIVE_TO',
-	'default' => true
-);
-$headerList['TYPE'] = array(
+	'default' => true,
+];
+$headerList['TYPE'] = [
 	'id' => 'TYPE',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_TYPE'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_TYPE'),
 	'sort' => 'TYPE',
-	'default' => true
-);
-$headerList['MAX_USE'] = array(
+	'default' => true,
+];
+$headerList['MAX_USE'] = [
 	'id' => 'MAX_USE',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_MAX_USE'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_MAX_USE'),
 	'sort' => 'MAX_USE',
-	'default' => true
-);
-$headerList['USE_COUNT'] = array(
+	'default' => true,
+];
+$headerList['USE_COUNT'] = [
 	'id' => 'USE_COUNT',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_USE_COUNT'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_USE_COUNT'),
 	'sort' => 'USE_COUNT',
-	'default' => true
-);
-$headerList['USER_ID'] = array(
+	'default' => true,
+];
+$headerList['USER_ID'] = [
 	'id' => 'USER_ID',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_USER_ID'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_USER_ID'),
 	'sort' => 'USER_ID',
-	'default' => true
-);
-$headerList['DATE_APPLY'] = array(
+	'default' => true,
+];
+$headerList['DATE_APPLY'] = [
 	'id' => 'DATE_APPLY',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_DATE_APPLY'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_DATE_APPLY'),
 	'sort' => 'DATE_APPLY',
-	'default' => true
-);
-$headerList['MODIFIED_BY'] = array(
+	'default' => true,
+];
+$headerList['MODIFIED_BY'] = [
 	'id' => 'MODIFIED_BY',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_MODIFIED_BY'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_MODIFIED_BY'),
 	'sort' => 'MODIFIED_BY',
-	'default' => true
-);
-$headerList['TIMESTAMP_X'] = array(
+	'default' => true,
+];
+$headerList['TIMESTAMP_X'] = [
 	'id' => 'TIMESTAMP_X',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_TIMESTAMP_X'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_TIMESTAMP_X'),
 	'sort' => 'TIMESTAMP_X',
-	'default' => true
-);
-$headerList['CREATED_BY'] = array(
+	'default' => true,
+];
+$headerList['CREATED_BY'] = [
 	'id' => 'CREATED_BY',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_CREATED_BY'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_CREATED_BY'),
 	'sort' => 'CREATED_BY',
-	'default' => false
-);
-$headerList['DATE_CREATE'] = array(
+	'default' => false,
+];
+$headerList['DATE_CREATE'] = [
 	'id' => 'DATE_CREATE',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_DATE_CREATE'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_DATE_CREATE'),
 	'sort' => 'DATE_CREATE',
-	'default' => false
-);
-$headerList['DESCRIPTION'] = array(
+	'default' => false,
+];
+$headerList['DESCRIPTION'] = [
 	'id' => 'DESCRIPTION',
 	'content' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_NAME_DESCRIPTION'),
 	'title' => Loc::getMessage('SALE_ADM_DSC_CPN_HEADER_TITLE_DESCRIPTION'),
-	'default' => false
-);
+	'default' => false,
+];
 $adminList->AddHeaders($headerList);
 
 $selectFields = array_fill_keys($adminList->GetVisibleHeaderColumns(), true);
@@ -340,14 +360,14 @@ $selectFields['USE_COUNT'] = true;
 $selectFieldsMap = array_fill_keys(array_keys($headerList), false);
 $selectFieldsMap = array_merge($selectFieldsMap, $selectFields);
 
-$userList = array();
-$userIDs = array();
-$nameFormat = CSite::GetNameFormat(true);
+$userList = [];
+$userIDs = [];
+$nameFormat = CSite::GetNameFormat();
 
-$rowList = array();
+$rowList = [];
 $usePageNavigation = true;
-$navyParams = array();
-if ($request['mode'] == 'excel')
+$navyParams = [];
+if ($adminList->isExportMode())
 {
 	$usePageNavigation = false;
 }
@@ -377,13 +397,20 @@ else
 	$selectFields = array_keys($selectFields);
 }
 
-$by = $adminSort->getField();
-$order = $adminSort->getOrder();
-$getListParams = array(
+$by = mb_strtoupper($adminSort->getField());
+$order = mb_strtoupper($adminSort->getOrder());
+$sort = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$sort['ID'] = 'ASC';
+}
+$getListParams = [
 	'select' => $selectFields,
 	'filter' => $filter,
-	'order' => array($by => $order)
-);
+	'order' => $sort,
+];
 if ($usePageNavigation)
 {
 	$getListParams['limit'] = $navyParams['SIZEN'];
@@ -424,7 +451,7 @@ else
 }
 
 CTimeZone::Disable();
-$adminList->SetNavigationParams($couponIterator, array("BASE_LINK" => $selfFolderUrl."sale_discount_coupons.php"));
+$adminList->SetNavigationParams($couponIterator, ["BASE_LINK" => $selfFolderUrl."sale_discount_coupons.php"]);
 while ($coupon = $couponIterator->Fetch())
 {
 	$coupon['ID'] = (int)$coupon['ID'];
@@ -618,28 +645,28 @@ $adminList->AddGroupActionTable([
 	'deactivate' => Loc::getMessage('MAIN_ADMIN_LIST_DEACTIVATE')
 ]);
 
-$contextMenu = array();
+$contextMenu = [];
 if (!$readOnly)
 {
 	$addUrl = $selfFolderUrl."sale_discount_coupon_edit.php?lang=".LANGUAGE_ID;
 	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
-	$contextMenu[] = array(
+	$contextMenu[] = [
 		'ICON' => 'btn_new',
 		'TEXT' => Loc::getMessage('BT_SALE_DISCOUNT_COUPONT_LIST_MESS_NEW_COUPON'),
 		'TITLE' => Loc::getMessage('BT_SALE_DISCOUNT_COUPON_LIST_MESS_NEW_COUPON_TITLE'),
-		'LINK' => $addUrl
-	);
+		'LINK' => $addUrl,
+	];
 }
 if (!empty($contextMenu))
 {
-	$adminList->setContextSettings(array("pagePath" => $selfFolderUrl."sale_discount_coupons.php"));
+	$adminList->setContextSettings(["pagePath" => $selfFolderUrl."sale_discount_coupons.php"]);
 	$adminList->AddAdminContextMenu($contextMenu);
 }
 
 $adminList->CheckListMode();
 
 $APPLICATION->SetTitle(Loc::getMessage('BT_SALE_DISCOUNT_COUPON_LIST_TITLE'));
-require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php');
 if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 {
 	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", ".default");

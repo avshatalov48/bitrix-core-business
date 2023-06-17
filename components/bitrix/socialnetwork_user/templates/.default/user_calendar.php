@@ -47,11 +47,11 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
 					"SET_TITLE" => 'Y',
 					"SET_NAV_CHAIN" => 'Y',
 					'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
-					'PATH_TO_USER' => $arParams['PATH_TO_USER'],
+					'PATH_TO_USER' => $arParams['PATH_TO_USER'] ?? '',
 					'PATH_TO_COMPANY_DEPARTMENT' => $arParams['PATH_TO_CONPANY_DEPARTMENT'],
 					'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
 					'PATH_TO_USER_TASK' => $arResult["PATH_TO_USER_TASKS_TASK"],
-					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"]
+					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"] ?? ''
 				),
 				"POPUP_COMPONENT_PARENT" => $component,
 				'USE_PADDING' => false,

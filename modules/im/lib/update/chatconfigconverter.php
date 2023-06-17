@@ -197,7 +197,7 @@ class ChatConfigConverter extends Stepper
 	{
 		if (empty(self::$notifyDefaultSettings))
 		{
-			self::$notifyDefaultSettings = Manager::getSimpleNotifySettings(General::getDefaultSettings());
+			self::$notifyDefaultSettings = Notification::getSimpleNotifySettings(General::getDefaultSettings());
 		}
 
 		$newFormatSettings = [];
@@ -259,7 +259,7 @@ class ChatConfigConverter extends Stepper
 		$generalDefaultSettings = General::getDefaultSettings();
 		General::setSettings($defaultGroupId, $generalDefaultSettings);
 
-		$notifySettings = Manager::getSimpleNotifySettings($generalDefaultSettings);
+		$notifySettings = Notification::getSimpleNotifySettings($generalDefaultSettings);
 		Notification::setSettings($defaultGroupId, $notifySettings);
 
 
@@ -308,7 +308,7 @@ class ChatConfigConverter extends Stepper
 
 				if ($generalSettings['notifyScheme'] === 'simple' || empty($notifySettings))
 				{
-					$notifySettings = Manager::getSimpleNotifySettings($generalSettings);
+					$notifySettings = Notification::getSimpleNotifySettings($generalSettings);
 				}
 				else
 				{
@@ -413,7 +413,7 @@ class ChatConfigConverter extends Stepper
 			if ($generalSettings['notifyScheme'] === 'simple')
 			{
 				$generalSettings = $this->convertGeneralSettings($generalSettings);
-				$notifySettings = Manager::getSimpleNotifySettings($generalSettings);
+				$notifySettings = Notification::getSimpleNotifySettings($generalSettings);
 			}
 
 			if (!empty($notifySettings))

@@ -77,7 +77,7 @@ class GlobalField extends Base
 		{
 			return [
 				'error' => \Bitrix\Main\Localization\Loc::getMessage(
-					'BIZPROC_CONTROLLER_GLOBALFIELD_NOT_EXISTS_VARIABLE'
+					'BIZPROC_CONTROLLER_GLOBALFIELD_NOT_EXISTS_CONSTANT'
 				),
 			];
 		}
@@ -87,7 +87,7 @@ class GlobalField extends Base
 		{
 			return [
 				'error' => \Bitrix\Main\Localization\Loc::getMessage(
-					'BIZPROC_CONTROLLER_GLOBALFIELD_CANT_DELETE_VARIABLE'
+					'BIZPROC_CONTROLLER_GLOBALFIELD_CANT_DELETE_CONSTANT'
 				),
 			];
 		}
@@ -136,13 +136,11 @@ class GlobalField extends Base
 		$property['Name'] = trim($property['Name']);
 
 		$userId = (int)($this->getCurrentUser()->getId());
-		$result = \Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($variableId, $property, $userId);
-		if (!$result)
+		$result = \Bitrix\Bizproc\Workflow\Type\GlobalVar::upsertByProperty($variableId, $property, $userId);
+		if (!$result->isSuccess())
 		{
 			return [
-				'error' => \Bitrix\Main\Localization\Loc::getMessage(
-					'BIZPROC_CONTROLLER_GLOBALFIELD_CANT_UPSERT_VARIABLE'
-				),
+				'error' => $result->getErrorMessages()[0],
 			];
 		}
 
@@ -172,14 +170,11 @@ class GlobalField extends Base
 		$property['Name'] = trim($property['Name']);
 
 		$userId = (int)($this->getCurrentUser()->getId());
-		$result = \Bitrix\Bizproc\Workflow\Type\GlobalConst::upsert($constantId, $property, $userId);
-		if (!$result)
+		$result = \Bitrix\Bizproc\Workflow\Type\GlobalConst::upsertByProperty($constantId, $property, $userId);
+		if (!$result->isSuccess())
 		{
 			return [
-				'error' => \Bitrix\Main\Localization\Loc::getMessage(
-					'BIZPROC_CONTROLLER_GLOBALFIELD_CANT_UPSERT_VARIABLE'
-				),
-
+				'error' => $result->getErrorMessages()[0],
 			];
 		}
 

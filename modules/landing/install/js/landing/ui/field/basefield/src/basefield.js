@@ -101,7 +101,13 @@ export class BaseField extends EventEmitter
 
 		if (this.data.help)
 		{
-			BX.Dom.append(top.BX.UI.Hint.createNode(this.data.help), this.header);
+			const hintNode = document.createElement('span');
+
+			hintNode.setAttribute('data-hint', this.data.help);
+			hintNode.setAttribute('data-hint-html', 'y');
+			top.BX.UI.Hint.initNode(hintNode);
+			BX.Dom.append(hintNode, this.header);
+
 			top.BX.UI.Hint.init(BX.Landing.UI.Panel.StylePanel.getInstance().layout);
 		}
 	}

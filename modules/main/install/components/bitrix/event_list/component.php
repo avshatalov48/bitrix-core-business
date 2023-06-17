@@ -38,14 +38,14 @@ foreach(GetModuleEvents("main", "OnEventLogGetAuditHandlers", true) as $arEvent)
 	$arModuleObjects[] = $ModuleEvent;
 	$arAllFilter = $arAllFilter + $ModuleEvent->GetFilter();
 }
-if (is_array($arParams["FILTER"]))
+if (isset($arParams["FILTER"]) && is_array($arParams["FILTER"]))
 {
 	foreach($arParams["FILTER"] as $key => $val)
 	{
-		$arResult["ActiveFeatures"][$val] = $arAllFilter[$val];
+		$arResult["ActiveFeatures"][$val] = $arAllFilter[$val] ?? null;
 	}
 }
-if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) > 0)
+if (isset($arResult["ActiveFeatures"]) && is_array($arResult["ActiveFeatures"]) && !empty($arResult["ActiveFeatures"]))
 {
 	$arResult["NO_ACTIVE_FEATURES"] = false;
 	if (!isset($_REQUEST["flt_event_id"]))
@@ -124,11 +124,11 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 	}
 
 	//USER
-	if (is_array($_REQUEST["flt_created_by_id"]))
+	if (isset($_REQUEST["flt_created_by_id"]) && is_array($_REQUEST["flt_created_by_id"]))
 		$_REQUEST["flt_created_by_id"] = $_REQUEST["flt_created_by_id"][0];
 
 	$find_user_id = "";
-	if (intval($_REQUEST["flt_created_by_id"]) > 0)
+	if (isset($_REQUEST["flt_created_by_id"]) && intval($_REQUEST["flt_created_by_id"]) > 0)
 	{
 		$find_user_id = $_REQUEST["flt_created_by_id"];
 	}
@@ -136,8 +136,8 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 	{
 		if (CModule::IncludeModule("socialnetwork"))
 		{
-			$arFoundUsers = CSocNetUser::SearchUser($_REQUEST["flt_created_by_id"], false);
-			if (is_array($arFoundUsers) && count($arFoundUsers) > 0)
+			$arFoundUsers = CSocNetUser::SearchUser($_REQUEST["flt_created_by_id"] ?? '', false);
+			if (is_array($arFoundUsers) && !empty($arFoundUsers))
 				$find_user_id = key($arFoundUsers);
 		}
 	}
@@ -239,12 +239,12 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 	function CheckFilter()
 	{
-		if($_REQUEST["flt_date_from"] <> '')
+		if(!empty($_REQUEST["flt_date_from"]))
 		{
 			if(!CheckDateTime($_REQUEST["flt_date_from"], CSite::GetDateFormat("FULL")))
 				return false;
 		}
-		if($_REQUEST["flt_date_to"] <> '')
+		if(!empty($_REQUEST["flt_date_to"]))
 		{
 			if(!CheckDateTime($_REQUEST["flt_date_to"], CSite::GetDateFormat("FULL")))
 				return false;
@@ -254,15 +254,15 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 	if(CheckFilter())
 	{
-		if ($arFilter["MODULE_ITEM"] != "")
+		if (!empty($arFilter["MODULE_ITEM"]))
 			$arEventFilter["=MODULE_ITEM"] = $arFilter["MODULE_ITEM"];
-		if ($arParams["LOG_DATE_FROM"] != "")
+		if (!empty($arParams["LOG_DATE_FROM"]))
 			$arEventFilter["TIMESTAMP_X_1"] = $arParams["LOG_DATE_FROM"];
-		if ($arParams["LOG_DATE_TO"] != "")
+		if (!empty($arParams["LOG_DATE_TO"]))
 			$arEventFilter["TIMESTAMP_X_2"] = $arParams["LOG_DATE_TO"];
-		if ($arParams["IP"] != "")
+		if (!empty($arParams["IP"]))
 			$arEventFilter["REMOTE_ADDR"] = $arParams["IP"];
-		$arEventFilter["USER_ID"] =  ($find != '' && $find_type == "user_id" ? $find : $find_user_id);
+		$arEventFilter["USER_ID"] = !empty($find) && isset($find_type) && $find_type == "user_id" ? $find : ($find_user_id ?? null);
 
 		$nameFormat = CSite::GetNameFormat(false);
 
@@ -314,53 +314,45 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 			$dateFormated = FormatDateFromDB($row["TIMESTAMP_X"], CSite::GetDateFormat('SHORT'));
 			$time = FormatDateFromDB($row["TIMESTAMP_X"], CSite::GetTimeFormat());
-			foreach($arModuleObjects as $key => $val)
+
+			if (isset($arObjectTypes[$row['AUDIT_TYPE_ID']]))
 			{
-				if (isset($arObjectTypes[$row['AUDIT_TYPE_ID']]))
+				$eventName = preg_replace("/^\\[.*?]\\s+/", "", $arObjectTypes[$row['AUDIT_TYPE_ID']]);
+
+				if (in_array($row['AUDIT_TYPE_ID'], array("PAGE_EDIT", "PAGE_ADD", "PAGE_DELETE")))
 				{
-					$res = $val->GetEventInfo($row, $arParams, $arUserInfo, $arResult["ActiveFeatures"]);
-					$eventName = preg_replace("/^\\[.*?\\]\\s+/", "", $arObjectTypes[$row['AUDIT_TYPE_ID']]);
-
-					if (in_array($row['AUDIT_TYPE_ID'], array("PAGE_EDIT", "PAGE_ADD", "PAGE_DELETE")))
+					$path = unserialize($row["DESCRIPTION"], ['allowed_classes' => false]);
+					$path = $path["path"];
+					if ($path)
 					{
-						$path = unserialize($row["DESCRIPTION"], ['allowed_classes' => false]);
-						$path = $path["path"];
-						if ($path)
-						{
-							$eventName.= ": ".$path;
-						}
+						$eventName.= ": ".$path;
 					}
+				}
 
-					//for grid template
-					if ($currentTemplateName == "grid")
-					{
-						$userPath = CComponentEngine::MakePathFromTemplate($arParams["USER_PATH"], array("user_id" => $arUserInfo["ID"], "SITE_ID" => SITE_DIR));
-						$userVal = "<a href=\"".$userPath."\">".$arUserInfo["FULL_NAME"]."</a>";
+				//for grid template
+				if ($currentTemplateName == "grid")
+				{
+					$userPath = CComponentEngine::MakePathFromTemplate($arParams["USER_PATH"], array("user_id" => $arUserInfo["ID"], "SITE_ID" => SITE_DIR));
+					$userVal = "<a href=\"".$userPath."\">".$arUserInfo["FULL_NAME"]."</a>";
 
-						$arResult["ELEMENTS_ROWS"][] = array("data" => array(
-							"ID" => $row["ID"],
-							"IP" => $row["REMOTE_ADDR"],
-							"DATE_TIME" => FormatDateFromDB($row["TIMESTAMP_X"], CSite::GetDateFormat()),
-							"USER_NAME" => $userVal,
-							"EVENT_NAME" => $eventName
-						));
-					}
-					else //for default template
-					{
-						$res['user'] = array(
-							"name" => $arUserInfo["FULL_NAME"],
-							"id" => $arUserInfo["ID"],
-							"avatar" => $arUserInfo["avatar"]["src"]
-						);
-						if (empty($res["eventType"]))
-						{
-							$res["eventType"] = $eventName;
-						}
+					$arResult["ELEMENTS_ROWS"][] = array("data" => array(
+						"ID" => $row["ID"],
+						"IP" => $row["REMOTE_ADDR"],
+						"DATE_TIME" => FormatDateFromDB($row["TIMESTAMP_X"], CSite::GetDateFormat()),
+						"USER_NAME" => $userVal,
+						"EVENT_NAME" => $eventName
+					));
+				}
+				else //for default template
+				{
+					$res['user'] = array(
+						"name" => $arUserInfo["FULL_NAME"],
+						"id" => $arUserInfo["ID"],
+						"avatar" => $arUserInfo["avatar"]["src"]
+					);
+					$res["eventType"] = $eventName;
 
-						$arResult['EVENT'][$dateFormated][] = $res;
-					}
-
-					break;
+					$arResult['EVENT'][$dateFormated][] = $res;
 				}
 			}
 		}

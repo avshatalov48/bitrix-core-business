@@ -16,10 +16,10 @@ endif;
 /***************** BASE ********************************************/
 	$arParams["FID"] = intval($arParams["FID"]);
 	$arParams["TID"] = intval(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["MID"] = intval(empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["MID"] = intval(empty($arParams["MID"]) ? $_REQUEST["MID"] ?? 0 : $arParams["MID"]);
 
 	$arParams["PAGE_NAME"] = htmlspecialcharsbx(empty($arParams["PAGE_NAME"]) ? $_REQUEST["PAGE_NAME"] : $arParams["PAGE_NAME"]);
-	$arParams["MESSAGE_TYPE"] = (in_array(mb_strtoupper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW"))? mb_strtoupper($arParams["MESSAGE_TYPE"]) : "NEW");
+	$arParams["MESSAGE_TYPE"] = (in_array(mb_strtoupper($arParams["MESSAGE_TYPE"] ?? ''), array("REPLY", "EDIT", "NEW"))? mb_strtoupper($arParams["MESSAGE_TYPE"]) : "NEW");
 	$arParams["MID"] = ($arParams["MESSAGE_TYPE"] == "EDIT" ? $arParams["MID"] : 0);
 	$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] == "Y" || $arParams["bVarsFromForm"] === true ? "Y" : "N");
 
@@ -41,8 +41,8 @@ endif;
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["AJAX_TYPE"] = ($arParams["AJAX_TYPE"] == "Y" ? "Y" : "N");
-	$arParams["AJAX_CALL"] = (($_REQUEST["AJAX_CALL"] == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
-	$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
+	$arParams["AJAX_CALL"] = ((($_REQUEST["AJAX_CALL"] ?? '') == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
+	$arParams["EDITOR_CODE_DEFAULT"] = (($arParams["EDITOR_CODE_DEFAULT"] ?? '') === "Y" ? "Y" : "N");
 	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
 	
 	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
@@ -66,7 +66,7 @@ endif;
 	$arParams["PERMISSION_ORIGINAL"] = $arParams["PERMISSION"] = ForumCurrUserPermissions($arParams["FID"]);
 	$arResult["SHOW_SEARCH"] = (IsModuleInstalled("search") ? "Y" : "N");
 	$arResult["IS_AUTHORIZED"] = ($USER->IsAuthorized() ? "Y" : "N");
-	$arResult["ERROR_MESSAGE"] = trim($arParams["ERROR_MESSAGE"]);
+	$arResult["ERROR_MESSAGE"] = trim($arParams["ERROR_MESSAGE"] ?? '');
 
 	$arError = array();
 	$arNote = array();
@@ -306,21 +306,28 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 if ($arParams["bVarsFromForm"] == "Y")
 {
 	foreach ($arResult["DATA"] as $key => $val)
+	{
 		if ($key != "PROPS")
-			$arResult["DATA"][$key] = $_REQUEST[$key];
+		{
+			$arResult["DATA"][$key] = $_REQUEST[$key] ?? null;
+		}
+	}
 
 	$arResult["DATA"]["USE_SMILES"] = ($_REQUEST["USE_SMILES"] == "N" ? "N" : "Y");
 	$arResult["DATA"]["AUTHOR_ID"] = $USER->GetID();
 	$arResult["DATA"]["FILES"] = array();
 	
-	foreach ($_REQUEST["FILES"] as $key => $val){
-		if (intval($val) > 0) {
-			$arResult["DATA"]["FILES"][$val] = $val; }
+	foreach ($_REQUEST["FILES"] as $key => $val)
+	{
+		if (intval($val) > 0)
+		{
+			$arResult["DATA"]["FILES"][$val] = $val;
+		}
 	}
 	$arResult["QUESTIONS"] = array();
 
-	$_REQUEST["QUESTION"] = (is_array($_REQUEST["QUESTION"]) ? $_REQUEST["QUESTION"] : array());
-	$_REQUEST["ANSWER"] = (is_array($_REQUEST["ANSWER"]) ? $_REQUEST["ANSWER"] : array());
+	$_REQUEST["QUESTION"] = (isset($_REQUEST["QUESTION"]) && is_array($_REQUEST["QUESTION"]) ? $_REQUEST["QUESTION"] : array());
+	$_REQUEST["ANSWER"] = (isset($_REQUEST["ANSWER"]) && is_array($_REQUEST["ANSWER"]) ? $_REQUEST["ANSWER"] : array());
 	foreach ($_REQUEST["QUESTION"] as $key => $val) {
 		$res = array(
 			"ID" => intval($_REQUEST["QUESTION_ID"][$key]),

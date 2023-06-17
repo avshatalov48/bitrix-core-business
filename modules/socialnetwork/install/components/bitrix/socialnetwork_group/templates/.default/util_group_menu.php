@@ -18,8 +18,8 @@ $arReturnGroupMenu = $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.group_menu",
 	"",
 	[
-		"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["page"],
+		"GROUP_VAR" => ($arResult["ALIASES"]["group_id"] ?? 0),
+		"PAGE_VAR" => ($arResult["ALIASES"]["page"] ?? ''),
 		"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
 		"PATH_TO_GROUP_GENERAL" => $arResult["PATH_TO_GROUP_GENERAL"],
 		"PATH_TO_GROUP_MODS" => $arResult["PATH_TO_GROUP_MODS"],
@@ -46,7 +46,7 @@ $arReturnGroupMenu = $APPLICATION->IncludeComponent(
 		"PAGE_ID" => $pageId,
 		'componentPage' => $arResult['componentPage'],
 		"USE_MAIN_MENU" => $arParams["USE_MAIN_MENU"],
-		"MAIN_MENU_TYPE" => $arParams["MAIN_MENU_TYPE"],
+		"MAIN_MENU_TYPE" => ($arParams["MAIN_MENU_TYPE"] ?? 'left'),
 	],
 	$component,
 	[ 'HIDE_ICONS' => 'Y' ]

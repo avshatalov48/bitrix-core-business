@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Catalog\GroupAccessTable;
+use Bitrix\Catalog\GroupTable;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Currency;
 
@@ -41,11 +42,11 @@ final class CProductQueryBuilder
 	private const FIELD_TYPE_CHAR = 'char';
 	private const FIELD_TYPE_STRING = 'string';
 
-	private static $entityDescription = [];
+	private static array $entityDescription = [];
 
-	private static $entityFields = [];
+	private static array $entityFields = [];
 
-	private static $options = [];
+	private static array $options = [];
 
 	/**
 	 * @param array $filter
@@ -429,10 +430,12 @@ final class CProductQueryBuilder
 	 */
 	public static function convertOldFilter(array $filter): array
 	{
-		$result = [];
-
 		if (empty($filter))
-			return $result;
+		{
+			return [];
+		}
+
+		$result = [];
 
 		foreach ($filter as $field => $value)
 		{
@@ -442,20 +445,42 @@ final class CProductQueryBuilder
 			}
 			elseif (is_numeric($field))
 			{
-				if (is_array($value))
-					$result[$field] = self::convertOldFilter($value);
-				else
-					$result[$field] = $value;
+				$result[$field] =
+					is_array($value)
+						? self::convertOldFilter($value)
+						: $value
+				;
 			}
 			else
 			{
 				$filterItem = \CIBlock::MkOperationFilter($field);
-				$newField = self::convertOldField($filterItem['FIELD'], self::FIELD_ALLOWED_FILTER);
-				if ($newField !== null)
-					$result[$filterItem['PREFIX'].$newField] = $value;
-				else
+				if ($filterItem['FIELD'] === 'SUBQUERY')
+				{
+					if (
+						is_array($value)
+						&& isset($value['FIELD'])
+						&& isset($value['FILTER'])
+						&& is_array($value['FILTER'])
+					)
+					{
+						$value['FILTER'] = self::convertOldFilter($value['FILTER']);
+					}
 					$result[$field] = $value;
-				unset($newField, $filterItem);
+				}
+				else
+				{
+					$newField = self::convertOldField($filterItem['FIELD'], self::FIELD_ALLOWED_FILTER);
+					if ($newField !== null)
+					{
+						$result[$filterItem['PREFIX'] . $newField] = $value;
+					}
+					else
+					{
+						$result[$field] = $value;
+					}
+					unset($newField);
+				}
+				unset($filterItem);
 			}
 		}
 		unset($filed, $value);
@@ -1482,14 +1507,12 @@ final class CProductQueryBuilder
 			$compatible = true;
 			$entity = self::ENTITY_OLD_PRODUCT;
 			$field = $prepared[1];
-			$entityId = 0;
 			$checked = true;
 		}
 		elseif (preg_match(self::FIELD_PATTERN_PRODUCT_USER_FIELD, $field, $prepared))
 		{
 			$entity = self::ENTITY_PRODUCT_USER_FIELD;
 			$field = $prepared[1];
-			$entityId = 0;
 			$checked = true;
 		}
 		elseif (preg_match(self::FIELD_PATTERN_SEPARATE_ENTITY, $field, $prepared))
@@ -1508,7 +1531,6 @@ final class CProductQueryBuilder
 			if (!empty($entity))
 			{
 				$field = $prepared[1];
-				$entityId = 0;
 				$checked = true;
 			}
 		}
@@ -1585,12 +1607,12 @@ final class CProductQueryBuilder
 	 */
 	private static function isEntityFilterField(string $field, array $entityList): bool
 	{
-		$result = false;
-
-		if (!is_string($field))
-			return $result;
 		if (is_numeric($field))
-			return $result;
+		{
+			return false;
+		}
+
+		$result = false;
 
 		self::initEntityDescription();
 		self::initEntityFields();
@@ -1728,15 +1750,22 @@ final class CProductQueryBuilder
 
 		$field = self::getFieldDescription($queryItem['ENTITY'], $queryItem['FIELD']);
 		if (empty($field))
+		{
 			return null;
+		}
 
 		$entity = self::getEntityDescription($queryItem);
 		if (empty($entity))
+		{
 			return null;
+		}
 
 		$fantomField = self::isPhantomField($field);
 
-		$field['ALIAS'] = str_replace('#ENTITY_ID#', $queryItem['ENTITY_ID'], $field['ALIAS']);
+		if ($field['ALIAS'] !== null)
+		{
+			$field['ALIAS'] = str_replace('#ENTITY_ID#', $queryItem['ENTITY_ID'], $field['ALIAS']);
+		}
 		if (!$fantomField)
 		{
 			$field['FULL_NAME'] = $entity['ALIAS'].'.'.$field['NAME'];
@@ -2496,13 +2525,10 @@ final class CProductQueryBuilder
 	{
 		$result = '';
 		$id = $parameters['ENTITY_ID'];
-		$fullPriceTypeList = \CCatalogGroup::GetListArray();
+		$fullPriceTypeList = GroupTable::getTypeList();
 		if (!empty($fullPriceTypeList[$id]))
 		{
-			$result = (!empty($fullPriceTypeList[$id]['NAME_LANG'])
-				? $fullPriceTypeList[$id]['NAME_LANG']
-				: $fullPriceTypeList[$id]['NAME']
-			);
+			$result = $fullPriceTypeList[$id]['NAME_LANG'] ?? $fullPriceTypeList[$id]['NAME'];
 			$connection = Main\Application::getInstance()->getConnection();
 			$sqlHelper = $connection->getSqlHelper();
 			$result = $sqlHelper->forSql($result);

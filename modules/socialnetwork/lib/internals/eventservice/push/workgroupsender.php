@@ -77,7 +77,7 @@ class WorkgroupSender
 			'params' => [ 'GROUP_ID' => $groupId ],
 		];
 
-		if ($eventData['ROLE'] === UserToGroupTable::ROLE_REQUEST)
+		if (($eventData['ROLE'] ?? null) === UserToGroupTable::ROLE_REQUEST)
 		{
 			PushService::addEvent([ $eventData['USER_ID'] ], $pushParams);
 		}

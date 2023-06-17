@@ -249,7 +249,11 @@ class StoreProvider extends BaseProvider
 			'subtitle' => $store['ADDRESS'],
 			'avatar' => $store['IMAGE'],
 			'caption' => [
-				'text' => $store['PRODUCT_AMOUNT'] . ' ' . $this->getOptions()['measureSymbol'],
+				'text' =>
+					$this->getProductId() > 0
+						? $store['PRODUCT_AMOUNT'] . ' ' . $this->getOptions()['measureSymbol']
+						: ''
+				,
 				'type' => 'html',
 			],
 		]);

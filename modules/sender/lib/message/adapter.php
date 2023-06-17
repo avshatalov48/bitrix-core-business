@@ -650,20 +650,21 @@ class Adapter implements iBase
 		{
 			return Integration\Bitrix24\Service::isAdAvailable();
 		}
-		elseif ($this->message instanceof iReturnCustomer)
+
+		if ($this->message instanceof iReturnCustomer)
 		{
 			return Integration\Bitrix24\Service::isRcAvailable();
 		}
-		else
-		{
-			switch ($this->getCode())
-			{
-				case iBase::CODE_MAIL:
-					return Integration\Bitrix24\Service::isEmailAvailable();
 
-				default:
-					return Integration\Bitrix24\Service::isMailingsAvailable();
-			}
+		switch ($this->getCode())
+		{
+			case iBase::CODE_MAIL:
+				return Integration\Bitrix24\Service::isEmailAvailable();
+			case iBase::CODE_MASTER_YANDEX:
+				return Integration\Bitrix24\Service::isMasterYandexAvailable();
+
+			default:
+				return Integration\Bitrix24\Service::isMailingsAvailable();
 		}
 	}
 

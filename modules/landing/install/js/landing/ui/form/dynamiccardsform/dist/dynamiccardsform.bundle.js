@@ -105,7 +105,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        content = this.dynamicParams.settings.detailPage;
 	      }
 
-	      return new BX.Landing.UI.Field.Link({
+	      return new parent.BX.Landing.UI.Field.Link({
 	        selector: 'detailPage',
 	        title: landing_loc.Loc.getMessage('LANDING_CARDS__DETAIL_PAGE_FIELD_TITLE'),
 	        textOnly: true,

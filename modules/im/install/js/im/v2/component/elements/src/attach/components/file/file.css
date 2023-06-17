@@ -1,0 +1,37 @@
+.bx-im-attach-file__container + .bx-im-attach-file__container {
+	margin-top: 10px;
+}
+
+.bx-im-attach-file__item {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	min-width: 135px;
+	margin-left: -4px;
+	cursor: pointer;
+}
+
+.bx-im-attach-file__item + .bx-im-attach-file__item {
+	margin-top: 10px;
+}
+
+.bx-im-attach-file__icon {
+	display: flex;
+	flex-shrink: 0;
+	padding-right: 7px;
+}
+
+.bx-im-attach-file__block {
+	overflow: hidden;
+}
+
+.bx-im-attach-file__name {
+	display: flex;
+	flex-wrap: nowrap;
+	max-width: 100%;
+}
+
+.bx-im-attach-file__size {
+	color: #717171;
+	font-size: 12px;
+}

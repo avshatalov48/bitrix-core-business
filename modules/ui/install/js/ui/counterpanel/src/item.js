@@ -1,4 +1,4 @@
-import { Tag, Type, Dom } from 'main.core';
+import { Dom, Tag, Type } from 'main.core';
 import { Counter } from 'ui.cnt';
 import { EventEmitter } from "main.core.events";
 
@@ -11,6 +11,7 @@ export default class CounterItem
 		this.items = Type.isArray(args.items) ? args.items : [];
 		this.popupMenu = null;
 		this.isActive = Type.isBoolean(args.isActive) ? args.isActive : false;
+		this.isRestricted = Type.isBoolean(args.isRestricted) ? args.isRestricted : false;
 		this.panel = args.panel ? args.panel : null;
 		this.title = args.title ? args.title : null;
 		this.value = (Type.isNumber(args.value) && args.value !== undefined) ? args.value : null;
@@ -198,9 +199,13 @@ export default class CounterItem
 	{
 		if (!this.layout.value)
 		{
+			const counterValue = this.isRestricted
+				? Tag.render`<div class="ui-counter-panel__item-lock"></div>`
+				: this.#getCounter().getContainer();
+
 			this.layout.value = Tag.render`
 				<div class="ui-counter-panel__item-value">
-					${this.#getCounter().getContainer()}
+					${counterValue}
 				</div>
 			`;
 
@@ -381,6 +386,11 @@ export default class CounterItem
 			if (this.isActive)
 			{
 				this.activate();
+			}
+
+			if (this.isRestricted)
+			{
+				this.layout.container.classList.add('--restricted');
 			}
 
 			this.setEvents(this.layout.container);

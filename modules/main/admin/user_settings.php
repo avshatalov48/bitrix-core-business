@@ -22,14 +22,14 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $bFormValues = false;
 $sSuccessMsg = "";
 
-if($_REQUEST["action"] <> "" && $editable && check_bitrix_sessid())
+if(!empty($_REQUEST["action"]) && $editable && check_bitrix_sessid())
 {
-	if($_REQUEST["action"] == "clear")
+	if ($_REQUEST["action"] == "clear")
 	{
 		CUserOptions::DeleteUsersOptions($USER->GetID());
 		$sSuccessMsg .= GetMessage("user_sett_mess_del")."<br>";
 	}
-	if($_REQUEST["action"] == "clear_links")
+	if ($_REQUEST["action"] == "clear_links")
 	{
 		CUserOptions::DeleteOption("start_menu", "recent");
 		$sSuccessMsg .= GetMessage("user_sett_mess_links")."<br>";
@@ -51,32 +51,32 @@ if($_REQUEST["action"] <> "" && $editable && check_bitrix_sessid())
 	}
 }
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["Update"]=="Y" && $editable && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_REQUEST["Update"]) && $_REQUEST["Update"]=="Y" && $editable && check_bitrix_sessid())
 {
 	$aMsg = array();
 
 	if(empty($aMsg))
 	{
-		$aFields = array(
-			"context_menu" => ($_REQUEST["context_menu"] == "Y"? "Y":"N"),
-			"context_ctrl" => ($_REQUEST["context_ctrl"] == "Y"? "Y":"N"),
-			"autosave" => ($_REQUEST["autosave"] == "Y"? "Y":"N"),
-			"start_menu_links" => intval($_REQUEST["start_menu_links"]),
-			"start_menu_preload" => ($_REQUEST["start_menu_preload"] == "Y"? "Y":"N"),
-			"start_menu_title" => ($_REQUEST["start_menu_title"] == "Y"? "Y":"N"),
-			"panel_dynamic_mode" => ($_REQUEST["panel_dynamic_mode"] == "Y"? "Y":"N"),
-			"page_edit_control_enable" => ($_REQUEST["page_edit_control_enable"] == "Y"? "Y":"N"),
-			"messages" => array(
-				"support"=>($_REQUEST["messages_support"] == "Y"? "Y":"N"),
-				"security"=>($_REQUEST["messages_security"] == "Y"? "Y":"N"),
-				"perfmon"=>($_REQUEST["messages_perfmon"] == "Y"? "Y":"N"),
-			),
-			"sound" => ($_REQUEST["sound"] == "Y"? "Y":"N"),
-			"sound_login" => $_REQUEST["sound_login"],
-		);
+		$aFields = [
+			"context_menu" => isset($_REQUEST["context_menu"]) && $_REQUEST["context_menu"] == "Y"? "Y":"N",
+			"context_ctrl" => isset($_REQUEST["context_ctrl"]) && $_REQUEST["context_ctrl"] == "Y"? "Y":"N",
+			"autosave" => isset($_REQUEST["autosave"]) && $_REQUEST["autosave"] == "Y"? "Y":"N",
+			"start_menu_links" => intval($_REQUEST["start_menu_links"] ?? 0),
+			"start_menu_preload" => isset($_REQUEST["start_menu_preload"]) && $_REQUEST["start_menu_preload"] == "Y"? "Y":"N",
+			"start_menu_title" => isset($_REQUEST["start_menu_title"]) && $_REQUEST["start_menu_title"] == "Y"? "Y":"N",
+			"panel_dynamic_mode" => isset($_REQUEST["panel_dynamic_mode"]) && $_REQUEST["panel_dynamic_mode"] == "Y"? "Y":"N",
+			"page_edit_control_enable" => isset($_REQUEST["page_edit_control_enable"]) && $_REQUEST["page_edit_control_enable"] == "Y"? "Y":"N",
+			"messages" => [
+				"support"=> isset($_REQUEST["messages_support"]) && $_REQUEST["messages_support"] == "Y"? "Y":"N",
+				"security"=> isset($_REQUEST["messages_security"]) && $_REQUEST["messages_security"] == "Y"? "Y":"N",
+				"perfmon"=> isset($_REQUEST["messages_perfmon"]) && $_REQUEST["messages_perfmon"] == "Y"? "Y":"N",
+			],
+			"sound" => isset($_REQUEST["sound"]) && $_REQUEST["sound"] == "Y"? "Y":"N",
+			"sound_login" => $_REQUEST["sound_login"] ?? null,
+		];
 
 		//common default
-		if($USER->CanDoOperation('edit_other_settings') && $_REQUEST["default"] == "Y")
+		if($USER->CanDoOperation('edit_other_settings') && isset($_REQUEST["default"]) && $_REQUEST["default"] == "Y")
 		{
 			CUserOptions::SetOption("global", "settings", $aFields, true);
 			$sSuccessMsg .= GetMessage("user_sett_mess_save")."<br>";
@@ -102,39 +102,39 @@ require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_adm
 if($bFormValues)
 {
 	$aUserOpt = array(
-		"context_menu"=>$_REQUEST["context_menu"],
-		"context_ctrl"=>$_REQUEST["context_ctrl"],
-		"autosave"=>$_REQUEST["autosave"],
-		"start_menu_links"=>$_REQUEST["start_menu_links"],
-		"start_menu_preload"=>$_REQUEST["start_menu_preload"],
-		"start_menu_title"=>$_REQUEST["start_menu_title"],
-		"panel_dynamic_mode"=>$_REQUEST["panel_dynamic_mode"],
-		"page_edit_control_enable" => $_REQUEST['page_edit_control_enable'],
+		"context_menu"=>$_REQUEST["context_menu"] ?? null,
+		"context_ctrl"=>$_REQUEST["context_ctrl"] ?? null,
+		"autosave"=>$_REQUEST["autosave"] ?? null,
+		"start_menu_links"=>$_REQUEST["start_menu_links"] ?? null,
+		"start_menu_preload"=>$_REQUEST["start_menu_preload"] ?? null,
+		"start_menu_title"=>$_REQUEST["start_menu_title"] ?? null,
+		"panel_dynamic_mode"=>$_REQUEST["panel_dynamic_mode"] ?? null,
+		"page_edit_control_enable" => $_REQUEST['page_edit_control_enable'] ?? null,
 		"messages" => array(
-			"support"=>$_REQUEST["messages_support"],
-			"security"=>$_REQUEST["messages_security"],
-			"perfmon"=>$_REQUEST["messages_perfmon"],
+			"support"=>$_REQUEST["messages_support"] ?? null,
+			"security"=>$_REQUEST["messages_security"] ?? null,
+			"perfmon"=>$_REQUEST["messages_perfmon"] ?? null,
 		),
-		"sound" => $_REQUEST["sound"],
-		"sound_login" => $_REQUEST["sound_login"],
+		"sound" => $_REQUEST["sound"] ?? null,
+		"sound_login" => $_REQUEST["sound_login"] ?? null,
 	);
 }
 else
 {
 	$aUserOpt = CUserOptions::GetOption("global", "settings");
-	if($aUserOpt["context_menu"] == "") $aUserOpt["context_menu"] = "Y";
-	if($aUserOpt["context_ctrl"] == "") $aUserOpt["context_ctrl"] = "N";
-	if($aUserOpt["autosave"] == "") $aUserOpt["autosave"] = "Y";
-	if($aUserOpt["start_menu_links"] == "") $aUserOpt["start_menu_links"] = "5";
-	if($aUserOpt["start_menu_preload"] == "") $aUserOpt["start_menu_preload"] = "N";
-	if($aUserOpt["start_menu_title"] == "") $aUserOpt["start_menu_title"] = "Y";
-	if($aUserOpt["panel_dynamic_mode"] == "") $aUserOpt["panel_dynamic_mode"] = "N";
-	if($aUserOpt["page_edit_control_enable"] == "") $aUserOpt["page_edit_control_enable"] = "Y";
-	if($aUserOpt["messages"]["support"] == "") $aUserOpt["messages"]["support"] = "Y";
-	if($aUserOpt["messages"]["security"] == "") $aUserOpt["messages"]["security"] = "Y";
-	if($aUserOpt["messages"]["perfmon"] == "") $aUserOpt["messages"]["perfmon"] = "Y";
-	if($aUserOpt["sound"] == "") $aUserOpt["sound"] = "N";
-	if($aUserOpt["sound_login"] == "") $aUserOpt["sound_login"] = "/bitrix/sounds/main/bitrix_tune.mp3";
+	if(!isset($aUserOpt["context_menu"]) || $aUserOpt["context_menu"] == "") $aUserOpt["context_menu"] = "Y";
+	if(!isset($aUserOpt["context_ctrl"]) || $aUserOpt["context_ctrl"] == "") $aUserOpt["context_ctrl"] = "N";
+	if(!isset($aUserOpt["autosave"]) || $aUserOpt["autosave"] == "") $aUserOpt["autosave"] = "Y";
+	if(!isset($aUserOpt["start_menu_links"]) || $aUserOpt["start_menu_links"] == "") $aUserOpt["start_menu_links"] = "5";
+	if(!isset($aUserOpt["start_menu_preload"]) || $aUserOpt["start_menu_preload"] == "") $aUserOpt["start_menu_preload"] = "N";
+	if(!isset($aUserOpt["start_menu_title"]) || $aUserOpt["start_menu_title"] == "") $aUserOpt["start_menu_title"] = "Y";
+	if(!isset($aUserOpt["panel_dynamic_mode"]) || $aUserOpt["panel_dynamic_mode"] == "") $aUserOpt["panel_dynamic_mode"] = "N";
+	if(!isset($aUserOpt["page_edit_control_enable"]) || $aUserOpt["page_edit_control_enable"] == "") $aUserOpt["page_edit_control_enable"] = "Y";
+	if(!isset($aUserOpt["messages"]["support"]) || $aUserOpt["messages"]["support"] == "") $aUserOpt["messages"]["support"] = "Y";
+	if(!isset($aUserOpt["messages"]["security"]) || $aUserOpt["messages"]["security"] == "") $aUserOpt["messages"]["security"] = "Y";
+	if(!isset($aUserOpt["messages"]["perfmon"]) || $aUserOpt["messages"]["perfmon"] == "") $aUserOpt["messages"]["perfmon"] = "Y";
+	if(!isset($aUserOpt["sound"]) || $aUserOpt["sound"] == "") $aUserOpt["sound"] = "N";
+	if(!isset($aUserOpt["sound_login"]) || $aUserOpt["sound_login"] == "") $aUserOpt["sound_login"] = "/bitrix/sounds/main/bitrix_tune.mp3";
 }
 
 $message = null;

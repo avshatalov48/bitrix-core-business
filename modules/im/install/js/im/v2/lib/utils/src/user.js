@@ -1,10 +1,7 @@
 import {Extension, Type, Loc} from 'main.core';
+import {DateTimeFormat} from 'main.date';
 
-import {DateFormat} from 'im.v2.const';
-
-import {DateUtil} from './date';
-
-import 'main.date';
+import {DateFormatter, DateCode} from 'im.v2.lib.date-formatter';
 
 const settings = Extension.getSettings('im.v2.lib.utils');
 
@@ -21,22 +18,20 @@ export const UserUtil = {
 		const isMobileOnline = this.isMobileOnline(params.lastActivityDate, params.mobileLastDate);
 
 		let text = '';
+		const lastSeenText = this.getLastSeenText(params.lastActivityDate);
 
 		// "away for X minutes"
 		if (isOnline && params.idle && !isMobileOnline)
 		{
 			text = Loc.getMessage('IM_STATUS_AWAY_TITLE').replace('#TIME#', this.getIdleText(params.idle));
 		}
-
-		const lastSeenText = this.getLastSeenText(params.lastActivityDate);
 		// truly online, last activity date < 5 minutes ago - show status text
-		if (isOnline && !lastSeenText)
+		else if (isOnline && !lastSeenText)
 		{
 			text = this.getStatusTextForLastDate(params.status);
 		}
-
 		// last activity date > 5 minutes ago - "Was online X minutes ago"
-		if (lastSeenText)
+		else if (lastSeenText)
 		{
 			const phraseCode = `IM_LAST_SEEN_${params.gender}`;
 			text = Loc.getMessage(phraseCode).replace('#POSITION#. ', '').replace('#LAST_SEEN#', lastSeenText);
@@ -45,10 +40,8 @@ export const UserUtil = {
 		// if on vacation - add postfix with vacation info
 		if (params.absent)
 		{
-			const dateFunction = DateUtil.getDateFunction();
-			const vacationFormat = DateUtil.getFormatType(DateFormat.vacationTitle);
 			const vacationText = Loc.getMessage('IM_STATUS_VACATION_TITLE').replace('#DATE#',
-				dateFunction.format(vacationFormat, params.absent.getTime() / 1000)
+				DateFormatter.formatByCode(params.absent.getTime() / 1000, DateCode.shortDateFormat)
 			);
 
 			text = text ? `${text}. ${vacationText}`: vacationText;
@@ -64,7 +57,7 @@ export const UserUtil = {
 			return '';
 		}
 
-		return DateUtil.getDateFunction().format([
+		return DateTimeFormat.format([
 			['s60', 'sdiff'],
 			['i60', 'idiff'],
 			['H24', 'Hdiff'],
@@ -118,7 +111,7 @@ export const UserUtil = {
 		const FIVE_MINUTES = 5 * 60 * 1000;
 		if (Date.now() - lastActivityDate.getTime() > FIVE_MINUTES)
 		{
-			return DateUtil.getDateFunction().formatLastActivityDate(lastActivityDate);
+			return DateTimeFormat.formatLastActivityDate(lastActivityDate);
 		}
 
 		return '';
@@ -126,7 +119,7 @@ export const UserUtil = {
 
 	isBirthdayToday(birthday): boolean
 	{
-		return birthday === DateUtil.format(new Date(), 'd-m');
+		return birthday === DateTimeFormat.format('d-m', new Date());
 	},
 
 	getOnlineLimit(): number
@@ -154,7 +147,9 @@ export const UserUtil = {
 			userId = Number.parseInt(userId, 10);
 		}
 
-		return `/company/personal/user/${userId}/calendar/`;
+		const path = Extension.getSettings('im.v2.lib.utils').get('pathToUserCalendar');
+
+		return path.replace('#user_id#', userId);
 	},
 
 	getMentionBbCode(userId: number | string, name: string): string

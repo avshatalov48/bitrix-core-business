@@ -31,6 +31,10 @@ class Style
 					{
 						$stylesPrepared[$key] = $style;
 					}
+					if ($key === 'background-image' && $style === '')
+					{
+						$stylesPrepared[$key] = $style;
+					}
 				}
 				if (!empty($stylesPrepared))
 				{

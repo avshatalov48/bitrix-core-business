@@ -98,7 +98,7 @@ class BlogPost extends Provider
 		$this->setSourceFields($post);
 		$this->setSourceDescription($post['DETAIL_TEXT']);
 		$this->setSourceTitle(truncateText(($post['MICRO'] === 'N' ? $post['TITLE'] : htmlspecialcharsback($post['TITLE'])), 100));
-		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 		$this->setSourceDiskObjects($this->getDiskObjects($postId, $this->cloneDiskObjects));
 	}
 
@@ -259,7 +259,7 @@ class BlogPost extends Provider
 			return null;
 		}
 
-		$siteId = ($params['siteId'] ?: SITE_ID);
+		$siteId = ($params['siteId'] ?? SITE_ID);
 
 		if (isset($resultCache[$siteId]))
 		{

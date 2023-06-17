@@ -23,7 +23,7 @@ if (
 	|| $arResult['TAB'] === 'edit'
 )
 {
-	if (count($arResult['Subjects']) === 1)
+	if (count($arResult['Subjects'] ?? []) === 1)
 	{
 		$arKeysTmp = array_keys($arResult['Subjects']);
 		?><input type="hidden" name="GROUP_SUBJECT_ID" value="<?= (int)$arKeysTmp[0] ?>"><?php
@@ -38,16 +38,16 @@ if (
 				<?php
 
 				$defaultKey = (
-					isset($arResult['Subjects'][$arResult['POST']['SUBJECT_ID']])
-						? $arResult['POST']['SUBJECT_ID']
-						: array_key_first($arResult['Subjects'])
+					isset($arResult['Subjects'][($arResult['POST']['SUBJECT_ID'] ?? 0)])
+						? ($arResult['POST']['SUBJECT_ID'] ?? 0)
+						: array_key_first($arResult['Subjects'] ?? [])
 				);
 				$defaultValue = $arResult['Subjects'][$defaultKey];
 				?>
 				<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown"
 					 data-role="soc-net-dropdown"
 					 data-items="<?= htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['Subjects'])) ?>"
-					 data-value="<?= htmlspecialcharsbx($arResult['POST']['SUBJECT_ID']) ?>"
+					 data-value="<?= htmlspecialcharsbx($arResult['POST']['SUBJECT_ID'] ?? 0) ?>"
 					 data-sonet-control-id="project-theme">
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 					<div class="ui-ctl-element"><?= htmlspecialcharsEx($defaultValue) ?></div>

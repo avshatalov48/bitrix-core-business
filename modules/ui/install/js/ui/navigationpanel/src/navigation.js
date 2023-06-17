@@ -24,6 +24,7 @@ export default class NavigationPanel
 				active: item.active ? item.active : false,
 				events: item.events ? item.events : null,
 				link: item.link ? item.link : null,
+				locked: item.locked ? item.locked : false,
 			});
 		})
 	}

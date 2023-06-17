@@ -135,7 +135,6 @@
 		this.precisionFactor = Math.pow(10, this.precision);
 		this.bigData = false;
 		this.fullDisplayMode = false;
-		this.viewMode = '';
 		this.templateTheme = '';
 
 		this.currentPriceMode = '';
@@ -231,7 +230,6 @@
 			this.useCompare = arParams.DISPLAY_COMPARE;
 			this.fullDisplayMode = arParams.PRODUCT_DISPLAY_MODE === 'Y';
 			this.bigData = arParams.BIG_DATA;
-			this.viewMode = arParams.VIEW_MODE || '';
 			this.templateTheme = arParams.TEMPLATE_THEME || '';
 			this.useEnhancedEcommerce = arParams.USE_ENHANCED_ECOMMERCE === 'Y';
 			this.dataLayerName = arParams.DATA_LAYER_NAME;

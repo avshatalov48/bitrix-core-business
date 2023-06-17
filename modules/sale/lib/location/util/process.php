@@ -36,24 +36,29 @@ abstract class Process
 
 	public function __construct($options = array())
 	{
-		if(isset($options['INITIAL_TIME']))
-			$this->time = intval($options['INITIAL_TIME']);
+		if (isset($options['INITIAL_TIME']))
+			$this->time = (int)$options['INITIAL_TIME'];
 		else
 			$this->time = time();
 
-		$this->useLock = !!$options['USE_LOCK'];
+		$this->useLock = (bool)($options['USE_LOCK'] ?? null);
 		$this->options = $options;
 
 		$this->restore();
 
-		if(isset($options['STEP']) && $options['STEP'] == 0)
+		if (isset($options['STEP']) && $options['STEP'] == 0)
+		{
 			$this->reset();
+		}
 
 		$this->logMessage('#############################', false);
 		$this->logMessage('HIT STARTED '.$this->getTimeStampString(), false);
 
-		if(intval($options['TIME_LIMIT']))
-			$this->setTimeLimit(intval($options['TIME_LIMIT']));
+		$timeLimit = (int)($options['TIME_LIMIT'] ?? 0);
+		if ($timeLimit > 0)
+		{
+			$this->setTimeLimit($timeLimit);
+		}
 
 		$this->saveStartTime();
 		$this->saveMemoryPeak();
@@ -61,23 +66,41 @@ abstract class Process
 
 	public function addStage($params)
 	{
-		if(empty($params['CODE']) || empty($params['CALLBACK']))
+		if (empty($params['CODE']) || empty($params['CALLBACK']))
+		{
 			throw new Main\SystemException('Not enought params to add stage');
+		}
 
-		$ss = intval($params['STEP_SIZE']);
+		$ss = (int)($params['STEP_SIZE'] ?? 0);
+		$order = count($this->stages);
+		$type = (string)($params['TYPE'] ?? '');
+		if ($type === '')
+		{
+			$type = static::CALLBACK_TYPE_MANUAL;
+		}
 
-		$this->stages[] = array(
-			'STEP_SIZE' => 				$ss ? $ss : 1,
-			'PERCENT' => 				intval($params['PERCENT']),
-			'CODE' => 					$params['CODE'],
-			'ORDER' => 					count($this->stages),
-			'TYPE' => $params['TYPE'] <> ''? $params['TYPE'] : static::CALLBACK_TYPE_MANUAL,
+		$beforeCallback = (string)($params['ON_BEFORE_CALLBACK'] ?? '');
+		if ($beforeCallback === '')
+		{
+			$beforeCallback = false;
+		}
+		$afterCallback = (string)($params['ON_AFTER_CALLBACK'] ?? '');
+		if ($afterCallback === '')
+		{
+			$afterCallback = false;
+		}
 
-			'CALLBACK' => 				$params['CALLBACK'],
-			'SUBPERCENT_CALLBACK' => 	$params['SUBPERCENT_CALLBACK'],
-			'ON_BEFORE_CALLBACK' => $params['ON_BEFORE_CALLBACK'] <> ''? $params['ON_BEFORE_CALLBACK'] : false,
-			'ON_AFTER_CALLBACK' => $params['ON_AFTER_CALLBACK'] <> ''? $params['ON_AFTER_CALLBACK'] : false
-		);
+		$this->stages[] = [
+			'STEP_SIZE' => $ss ?: 1,
+			'PERCENT' => (int)($params['PERCENT'] ?? 0),
+			'CODE' => $params['CODE'],
+			'ORDER' => $order,
+			'TYPE' => $type,
+			'CALLBACK' => $params['CALLBACK'],
+			'SUBPERCENT_CALLBACK' => $params['SUBPERCENT_CALLBACK'] ?? null,
+			'ON_BEFORE_CALLBACK' => $beforeCallback,
+			'ON_AFTER_CALLBACK' => $afterCallback,
+		];
 		$this->stagesByCode[$params['CODE']] =& $this->stages[count($this->stages) - 1];
 	}
 
@@ -105,6 +128,9 @@ abstract class Process
 		$this->data = array();
 
 		$this->clearLogFile();
+
+		$this->saveStartTime();
+		$this->saveMemoryPeak();
 	}
 
 	public function performStage()
@@ -197,7 +223,20 @@ abstract class Process
 		$this->stage++;
 		$this->step = 0;
 
-		$this->logMessage('### NEXT STAGE >>> '.$this->stages[$this->stage]['CODE'].' in '.$this->getElapsedTimeString().', mem peak = '.$this->getMemoryPeakString().' mb');
+		if ($this->stage < count($this->stages))
+		{
+			$stageCode = $this->stages[$this->stage]['CODE'] ?? 'UNDEFINED for '.$this->stage;
+		}
+		else
+		{
+			$stageCode = 'FINAL';
+		}
+
+		$this->logMessage(
+			'### NEXT STAGE >>> ' . $stageCode
+			. ' in ' . $this->getElapsedTimeString()
+			. ', mem peak = ' . $this->getMemoryPeakString() . ' mb'
+		);
 	}
 
 	// move to next step
@@ -259,7 +298,7 @@ abstract class Process
 
 	public function getStageCode()
 	{
-		return $this->stages[$this->stage]['CODE'];
+		return $this->stages[$this->stage]['CODE'] ?? '';
 	}
 	public function getCurrStageIndex()
 	{
@@ -287,13 +326,23 @@ abstract class Process
 
 	public function getStagePercent($sNum = false)
 	{
-
-		if($sNum === false)
-			$stage = $this->stages[$this->stage]['PERCENT'];
+		if ($sNum === false)
+		{
+			$stage = $this->stages[$this->stage]['PERCENT'] ?? 0;
+		}
 		else
-			$stage = is_numeric($sNum) ? $this->stages[$sNum]['PERCENT'] : $this->stagesByCode[$sNum]['PERCENT'];
+		{
+			if (is_numeric($sNum))
+			{
+				$stage = $this->stages[$sNum]['PERCENT'] ?? 0;
+			}
+			else
+			{
+				$stage = $this->stagesByCode[$sNum]['PERCENT'] ?? 0;
+			}
+		}
 
-		return $stage ? $stage : 0;
+		return $stage ?: 0;
 	}
 
 	public function getPercentBetween($codeFrom, $codeTo)
@@ -313,11 +362,13 @@ abstract class Process
 	public function getPercent()
 	{
 		$percent = $this->stage > 0 ? $this->stages[$this->stage - 1]['PERCENT'] : 0;
-	
+
 		$addit = 0;
-		$cb = $this->stages[$this->stage]['SUBPERCENT_CALLBACK'];
-		if(mb_strlen($cb) && method_exists($this, $cb))
+		$cb = (string)($this->stages[$this->stage]['SUBPERCENT_CALLBACK'] ?? '');
+		if ($cb !== '' && method_exists($this, $cb))
+		{
 			$addit = $this->$cb();
+		}
 
 		return $percent + $addit;
 	}
@@ -351,12 +402,10 @@ abstract class Process
 
 	public function setTimeLimit($timeLimit)
 	{
-		if($timeLimit == intval($timeLimit))
+		$timeLimit = (int)$timeLimit;
+		if ($timeLimit > 0)
 		{
-			if($timeLimit < static::MIN_TIME_LIMIT)
-				$timeLimit = static::MIN_TIME_LIMIT;
-
-			$this->timeLimit = $timeLimit;
+			$this->timeLimit = max($timeLimit, static::MIN_TIME_LIMIT);
 		}
 	}
 
@@ -367,20 +416,26 @@ abstract class Process
 
 	protected function saveStartTime()
 	{
-		if(!isset($this->data['process_time']))
+		if (!isset($this->data['process_time']))
+		{
 			$this->data['process_time'] = time();
+		}
 	}
 
 	protected function saveMemoryPeak()
 	{
 		$mp = memory_get_peak_usage(false);
 
-		if(!isset($this->data['memory_peak']))
+		if (!isset($this->data['memory_peak']))
+		{
 			$this->data['memory_peak'] = $mp;
+		}
 		else
 		{
-			if($this->data['memory_peak'] < $mp)
+			if ($this->data['memory_peak'] < $mp)
+			{
 				$this->data['memory_peak'] = $mp;
+			}
 		}
 	}
 
@@ -493,7 +548,6 @@ abstract class Process
 
 	protected function getElapsedTimeString()
 	{
-		$time = time() - $this->data['process_time'];
 		return $this->getProcessTimeString();
 	}
 
@@ -567,5 +621,5 @@ abstract class Process
 		}
 
 		return $block;
-	}	
+	}
 }

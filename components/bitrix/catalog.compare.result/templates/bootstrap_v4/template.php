@@ -333,6 +333,10 @@ $templateData = array(
 						$arCompare = array();
 						foreach($arResult["ITEMS"] as $arElement)
 						{
+							if (!isset($arElement["DISPLAY_PROPERTIES"][$code]))
+							{
+								continue;
+							}
 							$arPropertyValue = $arElement["DISPLAY_PROPERTIES"][$code]["VALUE"];
 							if (is_array($arPropertyValue))
 							{
@@ -354,7 +358,16 @@ $templateData = array(
 							{
 								?>
 								<td>
-									<?=(is_array($arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])? implode("/ ", $arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"]): $arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])?>
+									<?php
+									if (isset($arElement["DISPLAY_PROPERTIES"][$code]))
+									{
+										echo
+											is_array($arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])
+												? implode("/ ", $arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])
+												: (string)$arElement["DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"]
+										;
+									}
+									?>
 								</td>
 							<?
 							}
@@ -376,6 +389,10 @@ $templateData = array(
 						$arCompare = array();
 						foreach($arResult["ITEMS"] as $arElement)
 						{
+							if (!isset($arElement["OFFER_DISPLAY_PROPERTIES"][$code]))
+							{
+								continue;
+							}
 							$arPropertyValue = $arElement["OFFER_DISPLAY_PROPERTIES"][$code]["VALUE"];
 							if(is_array($arPropertyValue))
 							{
@@ -396,7 +413,16 @@ $templateData = array(
 							{
 								?>
 								<td>
-									<?=(is_array($arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])? implode("/ ", $arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"]): $arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])?>
+									<?php
+									if (isset($arElement["OFFER_DISPLAY_PROPERTIES"][$code]))
+									{
+										echo
+											is_array($arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])
+												? implode("/ ", $arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"])
+												: (string)$arElement["OFFER_DISPLAY_PROPERTIES"][$code]["DISPLAY_VALUE"]
+										;
+									}
+									?>
 								</td>
 								<?
 							}

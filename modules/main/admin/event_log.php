@@ -50,12 +50,12 @@ $arFilterFields = array(
 function CheckFilter()
 {
 	$str = "";
-	if($_REQUEST["find_timestamp_x_1"] <> '')
+	if (!empty($_REQUEST["find_timestamp_x_1"]))
 	{
 		if(!CheckDateTime($_REQUEST["find_timestamp_x_1"], CSite::GetDateFormat("FULL")))
 			$str.= GetMessage("MAIN_EVENTLOG_WRONG_TIMESTAMP_X_FROM")."<br>";
 	}
-	if($_REQUEST["find_timestamp_x_2"] <> '')
+	if (!empty($_REQUEST["find_timestamp_x_2"]))
 	{
 		if(!CheckDateTime($_REQUEST["find_timestamp_x_2"], CSite::GetDateFormat("FULL")))
 			$str.= GetMessage("MAIN_EVENTLOG_WRONG_TIMESTAMP_X_TO")."<br>";
@@ -111,7 +111,7 @@ if(CheckFilter())
 		"ID" => $find_id,
 		"TIMESTAMP_X_1" => $find_timestamp_x_1,
 		"TIMESTAMP_X_2" => $find_timestamp_x_2,
-		"SEVERITY" => (is_array($find_severity) && count($find_severity) > 0? implode("|", $find_severity): ""),
+		"SEVERITY" => (is_array($find_severity) && !empty($find_severity) ? implode("|", $find_severity): ""),
 		$audit_type_id_op."AUDIT_TYPE_ID" => $audit_type_id_filter,
 		"MODULE_ID" => $find_module_id,
 		"ITEM_ID" => $find_item_id,

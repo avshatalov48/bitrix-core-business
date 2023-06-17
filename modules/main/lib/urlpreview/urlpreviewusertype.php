@@ -186,7 +186,7 @@ class UrlPreviewUserType
 	public static function onBeforeSave($userField, $value)
 	{
 		$imageUrl = null;
-		if(mb_strpos($value, ';') !== false)
+		if(strpos($value, ';') !== false)
 		{
 			list($value, $imageUrl) = explode(';', $value);
 		}

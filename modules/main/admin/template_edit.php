@@ -40,14 +40,23 @@ $strOK = "";
 $bVarsFromForm = false;
 $codeEditorId = false;
 
-$ID = _normalizePath($_REQUEST["ID"]);
+$ID = _normalizePath($_REQUEST["ID"] ?? '');
 
-if($lpa && $_REQUEST['edit'] != "Y" && $ID == '') // In lpa mode users can only edit existent templates
+if($lpa && (!isset($_REQUEST['edit']) || $_REQUEST['edit'] != "Y") && $ID == '') // In lpa mode users can only edit existent templates
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $bEdit = false;
 $templFields = array();
-if($ID <> '' && $_REQUEST['edit'] != "N")
+
+$str_ID = '';
+$str_NAME = '';
+$str_DESCRIPTION = '';
+$str_SORT = '';
+$str_TYPE = '';
+$str_CONTENT = '';
+$str_STYLES = '';
+$str_TEMPLATE_STYLES = '';
+if($ID <> '' && (!isset($_REQUEST['edit']) || $_REQUEST['edit'] != "N"))
 {
 	$templ = CSiteTemplate::GetByID($ID);
 	if(($templFields = $templ->ExtractFields("str_")))
@@ -64,12 +73,11 @@ if($bEdit)
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && check_bitrix_sessid() && ($edit_php || $lpa))
+if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid() && ($edit_php || $lpa))
 {
-	$strError = "";
 	if ($lpa)
 	{
-		$CONTENT = LPA::Process($_POST["CONTENT"], htmlspecialcharsback($str_CONTENT));
+		$CONTENT = LPA::Process($_POST["CONTENT"] ?? '', htmlspecialcharsback($str_CONTENT));
 		//Add ..->ShowPanel() and WORK_AREA
 		$ucont = mb_strtolower($CONTENT);
 		$sp = '<?$APPLICATION->ShowPanel();?>';
@@ -85,7 +93,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	}
 	else
 	{
-		$CONTENT = $_POST["CONTENT"];
+		$CONTENT = $_POST["CONTENT"] ?? '';
 	}
 
 	if(class_exists('CFileMan') && method_exists("CFileMan", "CheckOnAllowedComponents"))
@@ -102,29 +110,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	if($strError == "")
 	{
 		$stylesDesc = array();
-		$maxind = $_POST['maxind'];
+		$maxind = $_POST['maxind'] ?? '';
 		for($i = 0; $i <= $maxind; $i++)
 		{
-			if(trim($_POST["CODE_".$i]) == '')
+			if(!isset($_POST["CODE_".$i]) || trim($_POST["CODE_".$i]) == '')
 				continue;
 			$code = ltrim($_POST["CODE_".$i], ".");
-			$stylesDesc[$code] = $_POST["VALUE_".$i];
+			$stylesDesc[$code] = $_POST["VALUE_".$i] ?? '';
 		}
 
 		$ST = new CSiteTemplate();
 		$arFields = array(
 			"ID" => $ID,
-			"NAME" => $_POST["NAME"],
-			"DESCRIPTION" => $_POST["DESCRIPTION"],
+			"NAME" => $_POST["NAME"] ?? '',
+			"DESCRIPTION" => $_POST["DESCRIPTION"] ?? '',
 			"CONTENT" => $CONTENT,
-			"STYLES" => $_POST["STYLES"],
-			"TEMPLATE_STYLES" => $_POST["TEMPLATE_STYLES"],
-			"SORT" => $_POST["SORT"],
-			"TYPE" => $_POST["TYPE"],
+			"STYLES" => $_POST["STYLES"] ?? '',
+			"TEMPLATE_STYLES" => $_POST["TEMPLATE_STYLES"] ?? '',
+			"SORT" => $_POST["SORT"] ?? '',
+			"TYPE" => $_POST["TYPE"] ?? '',
 			"STYLES_DESCRIPTION" => $stylesDesc,
 		);
 
-		if($_REQUEST['edit']=="Y")
+		if (isset($_REQUEST['edit']) && $_REQUEST['edit']=="Y")
 			$res = $ST->Update($ID, $arFields);
 		else
 			$res = ($ST->Add($arFields) <> '');
@@ -137,7 +145,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		else
 		{
 			$useeditor_param = (isset($_REQUEST["CONTENT_editor"]) && $_REQUEST["CONTENT_editor"] == 'on') ? '&usehtmled=Y' : '';
-			if ($_POST["save"] <> '')
+			if (!empty($_POST["save"]))
 				LocalRedirect(BX_ROOT."/admin/".($isEditingMessageThemePage ? "message_theme_admin.php" : "template_admin.php")."?lang=".LANGUAGE_ID.$useeditor_param);
 			else
 				LocalRedirect(BX_ROOT."/admin/".($isEditingMessageThemePage ? "message_theme_edit.php" : "template_edit.php")."?lang=".LANGUAGE_ID."&ID=".$ID."&".$tabControl->ActiveTabParam().$useeditor_param);
@@ -147,14 +155,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 
 if($bVarsFromForm)
 {
-	$str_ID = htmlspecialcharsbx($_POST["ID"]);
-	$str_NAME = htmlspecialcharsbx($_POST["NAME"]);
-	$str_DESCRIPTION = htmlspecialcharsbx($_POST["DESCRIPTION"]);
-	$str_SORT = htmlspecialcharsbx($_POST["SORT"]);
-	$str_TYPE = htmlspecialcharsbx($_POST["TYPE"]);
-	$str_CONTENT = htmlspecialcharsbx($_POST["CONTENT"]);
-	$str_STYLES = htmlspecialcharsbx($_POST["STYLES"]);
-	$str_TEMPLATE_STYLES = htmlspecialcharsbx($_POST["TEMPLATE_STYLES"]);
+	$str_ID = htmlspecialcharsbx($_POST["ID"] ?? '');
+	$str_NAME = htmlspecialcharsbx($_POST["NAME"] ?? '');
+	$str_DESCRIPTION = htmlspecialcharsbx($_POST["DESCRIPTION"] ?? '');
+	$str_SORT = htmlspecialcharsbx($_POST["SORT"] ?? '');
+	$str_TYPE = htmlspecialcharsbx($_POST["TYPE"] ?? '');
+	$str_CONTENT = htmlspecialcharsbx($_POST["CONTENT"] ?? '');
+	$str_STYLES = htmlspecialcharsbx($_POST["STYLES"] ?? '');
+	$str_TEMPLATE_STYLES = htmlspecialcharsbx($_POST["TEMPLATE_STYLES"] ?? '');
 	$usehtmled = (isset($_REQUEST["CONTENT_editor"]) && $_REQUEST["CONTENT_editor"] == 'on') ? 'Y' : 'N';
 }
 
@@ -315,7 +323,7 @@ $tabControl->BeginNextTab();
 		<td align="center" colspan="2">
 		<?
 		$io = CBXVirtualIo::GetInstance();
-		$stylesPath = $io->RelativeToAbsolutePath($templFields["PATH"]."/.styles.php");
+		$stylesPath = $io->RelativeToAbsolutePath(($templFields["PATH"] ?? '')."/.styles.php");
 		$arStyles = array();
 		if($bVarsFromForm)
 		{
@@ -416,8 +424,8 @@ $tabControl->BeginNextTab();
 				$fType = GetFileType($arFiles["NAME"]);
 			?>
 			<tr>
-				<td><?=htmlspecialcharsbx($arFiles["NAME"])?></td>
-				<td><?=htmlspecialcharsbx($arFiles["DESCRIPTION"])?></td>
+				<td><?=htmlspecialcharsbx($arFiles["NAME"] ?? '')?></td>
+				<td><?=htmlspecialcharsbx($arFiles["DESCRIPTION"] ?? '')?></td>
 				<td>
 					<?if($fType == 'SOURCE'):?>
 						<a title ="<?=GetMessage("MAIN_MOD_FILE").htmlspecialcharsbx($arFiles["NAME"])?>" href="fileman_file_edit.php?lang=<?=LANG?>&amp;full_src=Y&amp;path=<?=urlencode($arFiles["ABS_PATH"])?>&amp;back_url=<?=urlencode($_SERVER["REQUEST_URI"])?>"><?echo GetMessage("MAIN_T_EDIT_CHANGE")?></a>

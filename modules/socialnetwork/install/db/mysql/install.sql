@@ -363,7 +363,8 @@ create table b_sonet_log_favorites
 (
 	USER_ID int(11) not null,
 	LOG_ID int(11) not null,
-	primary key (USER_ID, LOG_ID)
+	primary key (USER_ID, LOG_ID),
+	index IX_SONET_LOG_FAVORITES_1(LOG_ID)
 );
 
 create table b_sonet_log_view

@@ -20,7 +20,7 @@ if (!\Bitrix\Main\Loader::includeModule('sale'))
 $ebay = \Bitrix\Sale\TradingPlatform\Ebay\Ebay::getInstance();
 
 if(!$ebay->isActive())
-	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=".LANG."&back_url=".urlencode($APPLICATION->GetCurPageParam()));
+	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=" . LANGUAGE_ID . "&back_url=".urlencode($APPLICATION->GetCurPageParam()));
 
 $errorMsg = "";
 $bSaved = false;
@@ -57,7 +57,7 @@ if(isset($_POST["EBAY_SETTINGS"]) && is_array($_POST["EBAY_SETTINGS"]))
 }
 
 if(!isset($settings[$SITE_ID]))
-	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=".LANG."&SITE_ID=".$SITE_ID."&back_url=".urlencode($APPLICATION->GetCurPageParam()));
+	LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=" . LANGUAGE_ID . "&SITE_ID=".$SITE_ID."&back_url=".urlencode($APPLICATION->GetCurPageParam()));
 
 $siteSettings = $settings[$SITE_ID];
 $details = new \Bitrix\Sale\TradingPlatform\Ebay\Api\Details($SITE_ID);
@@ -93,7 +93,7 @@ elseif(!isset($siteSettings["API"]["AUTH_TOKEN"]) || $siteSettings["API"]["AUTH_
 
 $APPLICATION->SetTitle(Loc::getMessage("SALE_EBAY_TITLE"));
 
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once ($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 if($errorMsg <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>$errorMsg, "TYPE"=>"ERROR"));

@@ -80,3 +80,73 @@
 .sale-paysystem-yandex-checkout-button-item {
 	padding: 10px 22px;
 }
+
+.gray-theme #qr-code-hint {
+	display: none !important;
+}
+
+.gray-theme .qr-code {
+	border-radius: 12px;
+	padding: 14px;
+	background-color: #ffffff;
+}
+
+.gray-theme .qr-code-container {
+	margin-top: 35px;
+	display: flex;
+	justify-content: center;
+}
+
+.widget-paysystem-name {
+	font-weight: bold;
+}
+
+.gray-theme .widget-paysystem-name {
+	color: #ffffff;
+}
+
+.gray-theme .widget-paysystem-checkout-sum {
+	color: #ffffff;
+}
+
+.gray-theme .widget-payment-checkout-info {
+	margin-bottom: 5px;
+	color: #A8ADB4;
+	font-family: "SF UI Display", "SF UI Text", "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height: 21px;
+	letter-spacing: -0.35px;
+	font-size: 15px;
+	font-weight: 400;
+	word-wrap: break-word;
+}
+
+.gray-theme .btn {
+	flex-shrink: 0;
+	padding: 6px 20px;
+	border-radius: 99rem;
+	font-family: "SF Pro Text", "SF UI Text", "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	line-height: 24px;
+	font-weight: 700;
+	text-align: center;
+	letter-spacing: 0.2px;
+	text-transform: uppercase;
+	transition: .2s;
+	cursor: pointer;
+	border: none;
+}
+
+.gray-theme .btn-success {
+	color: rgba(255,255,255,.8);
+	background: #326446;
+}
+
+.gray-theme .btn-success:hover {
+	background: #348856;
+}
+
+.gray-theme #payment-widget-form {
+	background-color: #ffffff;
+	border-radius: 12px;
+	padding: 15px;
+}

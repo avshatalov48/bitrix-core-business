@@ -17,7 +17,7 @@ $arParams["SHOW_MINIMIZED"] = "Y";
 $arParams["ENTITY_TYPE"] = "BG";
 $arParams["ENTITY_XML_ID"] = "BLOG_".$arParams["ID"];
 $arParams["ENTITY_ID"] = $arParams["ID"];
-$arResult["newCount"] = $arResult["~newCount"];
+$arResult["newCount"] = ($arResult["~newCount"] ?? 0);
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../mobile_app/functions.php");
 $arResult["PUSH&PULL"] = false;
@@ -55,7 +55,11 @@ if (
 		)
 		{
 			$filter = "ID";
-			$commentId = (!!$arResult["ajax_comment"] ? $arResult["ajax_comment"] : $_REQUEST[$arParams["COMMENT_ID_VAR"]]);
+			$commentId = (
+				!!$arResult["ajax_comment"]
+					? $arResult["ajax_comment"]
+					: $_REQUEST[$arParams["COMMENT_ID_VAR"]] ?? null
+			);
 			if (empty($commentId))
 			{
 				$commentId = $_REQUEST["FILTER"][$filter];
@@ -63,7 +67,8 @@ if (
 		}
 	}
 	else if (
-		$_REQUEST[$arParams["COMMENT_ID_VAR"]]
+		isset($_REQUEST[$arParams["COMMENT_ID_VAR"]])
+		&& $_REQUEST[$arParams["COMMENT_ID_VAR"]]
 		&& in_array($_REQUEST[$arParams["COMMENT_ID_VAR"]], $arResult["IDS"])
 	)
 	{

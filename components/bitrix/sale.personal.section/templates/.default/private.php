@@ -1,5 +1,14 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @var PersonalOrderSection $component */
+/** @var array $arParams */
+/** @var array $arResult */
 
 use Bitrix\Main\Localization\Loc;
 
@@ -29,4 +38,4 @@ if ($arParams['SET_TITLE'] == 'Y')
 		"EDITABLE_EXTERNAL_AUTH_ID" => $arParams['EDITABLE_EXTERNAL_AUTH_ID'],
 	),
 	$component
-);?>
+);

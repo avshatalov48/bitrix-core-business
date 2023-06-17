@@ -53,7 +53,7 @@
 				}.bind(this)
 			};
 
-			return BX.calendar(params);
+			return top.BX.calendar(params);
 		},
 
 		getFormat: function()

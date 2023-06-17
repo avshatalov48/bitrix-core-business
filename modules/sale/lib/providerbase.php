@@ -757,13 +757,18 @@ abstract class ProviderBase
 			$basketItem = $shipmentItem->getBasketItem();
 			if (!$basketItem)
 			{
-				$result->addError( new ResultError(
-									   Loc::getMessage('SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',  array(
-										   '#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
-										   '#SHIPMENT_ID#' => $shipment->getId(),
-										   '#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
-									   )),
-									   'PROVIDER_SET_SHIPMENT_ITEM_RESERVED_WRONG_BASKET_ITEM') );
+				$result->addError(new ResultError(
+					Loc::getMessage(
+						'SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',
+						[
+							'#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
+							'#SHIPMENT_ID#' => $shipment->getId(),
+							'#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
+						]
+					),
+					'PROVIDER_SET_SHIPMENT_ITEM_RESERVED_WRONG_BASKET_ITEM')
+				);
+
 				return $result;
 			}
 
@@ -1347,12 +1352,14 @@ abstract class ProviderBase
 			$productId = $productData['PRODUCT_ID'];
 
 			$currentUseOrderProduct = $data['USE_ORDER_PRODUCT'];
-			if ($productData['IS_NEW'])
+			if (isset($productData['IS_NEW']) && $productData['IS_NEW'])
+			{
 				$currentUseOrderProduct = false;
+			}
 
 			$fields = $data;
 
-			if ($productData['IS_ORDERABLE'])
+			if (isset($productData['IS_ORDERABLE']) && $productData['IS_ORDERABLE'])
 			{
 				$fields['CHECK_COUPONS'] = 'Y';
 			}
@@ -1361,7 +1368,7 @@ abstract class ProviderBase
 				$fields['CHECK_COUPONS'] = 'N';
 			}
 
-			if ($productData['IS_BUNDLE_CHILD'])
+			if (isset($productData['IS_BUNDLE_CHILD']) && $productData['IS_BUNDLE_CHILD'])
 			{
 				$fields['CHECK_DISCOUNT'] = 'N';
 				$fields['CHECK_COUPONS'] = 'N';
@@ -1532,17 +1539,18 @@ abstract class ProviderBase
 
 //			$result[$itemCode]['ITEM_CODE'] = $productData['ITEM_CODE'];
 
-			if ($productData['IS_BUNDLE_PARENT'])
+			if (isset($productData['IS_BUNDLE_PARENT']) && $productData['IS_BUNDLE_PARENT'])
 			{
 				$result[$itemCode]["BUNDLE_ITEMS"] = array();
 				/** @var array $bundleChildList */
 				$bundleChildDataList = static::getBundleChildItemsByProductData($provider, $productData);
 				if (!empty($bundleChildDataList) && is_array($bundleChildDataList))
 				{
+					$quantity = $productData['QUANTITY'] ?? $productData['QUANTITY_LIST'][$basketCode] ?? 0;
 
 					foreach ($bundleChildDataList["ITEMS"] as &$itemData)
 					{
-						$itemData['QUANTITY'] = $itemData['QUANTITY'] * $productData['QUANTITY'];
+						$itemData['QUANTITY'] = $itemData['QUANTITY'] * $quantity;
 					}
 					unset($itemData);
 					$result[$itemCode]["BUNDLE_ITEMS"] = $bundleChildDataList["ITEMS"];
@@ -2770,13 +2778,18 @@ abstract class ProviderBase
 		/** @var BasketItem $basketItem */
 		if (!$basketItem = $shipmentItem->getBasketItem())
 		{
-			$result->addError( new ResultError(
-			   Loc::getMessage('SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',  array(
-				   '#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
-				   '#SHIPMENT_ID#' => $shipment->getId(),
-				   '#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
-			   )),
-			   'PROVIDER_RESERVE_SHIPMENT_ITEM_WRONG_BASKET_ITEM') );
+			$result->addError(new ResultError(
+				Loc::getMessage(
+					'SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',
+					[
+						'#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
+						'#SHIPMENT_ID#' => $shipment->getId(),
+						'#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
+					]
+				),
+				'PROVIDER_RESERVE_SHIPMENT_ITEM_WRONG_BASKET_ITEM')
+			);
+
 			return $result;
 		}
 
@@ -2933,9 +2946,9 @@ abstract class ProviderBase
 			}
 		}
 
-		$result->addData(array(
-							'CAN_RESERVE' => $canReserve
-						 ));
+		$result->addData([
+			'CAN_RESERVE' => $canReserve,
+		]);
 
 		return $result;
 	}
@@ -2981,14 +2994,18 @@ abstract class ProviderBase
 		/** @var BasketItem $basketItem */
 		if (!$basketItem = $shipmentItem->getBasketItem())
 		{
-			$result->addError( new ResultError(
-			   Loc::getMessage('SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',  array(
-				   '#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
-				   '#SHIPMENT_ID#' => $shipment->getId(),
-				   '#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
-			   )),
-			   'PROVIDER_TRY_UNRESERVED_SHIPMENT_ITEM_WRONG_BASKET_ITEM')
+			$result->addError(new ResultError(
+				Loc::getMessage(
+					'SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',
+					[
+						'#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
+						'#SHIPMENT_ID#' => $shipment->getId(),
+						'#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
+					]
+				),
+				'PROVIDER_TRY_UNRESERVED_SHIPMENT_ITEM_WRONG_BASKET_ITEM')
 			);
+
 			return $result;
 		}
 
@@ -3053,9 +3070,9 @@ abstract class ProviderBase
 			}
 		}
 
-		$result->addData(array(
-							 'CAN_RESERVE' => $canReserve
-						 ));
+		$result->addData([
+			'CAN_RESERVE' => $canReserve,
+		]);
 
 		return $result;
 	}
@@ -3337,22 +3354,25 @@ abstract class ProviderBase
 		$basketItem = $shipmentItem->getBasketItem();
 		if (!$basketItem)
 		{
-			$result->addError( new ResultError(
-			   Loc::getMessage('SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',  array(
-				   '#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
-				   '#SHIPMENT_ID#' => $shipment->getId(),
-				   '#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
-			   )),
-			   'PROVIDER_RESERVE_SHIPMENT_ITEM_WRONG_BASKET_ITEM') );
+			$result->addError(new ResultError(
+				Loc::getMessage(
+					'SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',
+					array(
+						'#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
+						'#SHIPMENT_ID#' => $shipment->getId(),
+						'#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
+					)
+				),
+			'PROVIDER_RESERVE_SHIPMENT_ITEM_WRONG_BASKET_ITEM')
+			);
+
 			return $result;
 		}
 
 		$provider = $basketItem->getProvider();
 
-
 		if ($provider && array_key_exists("IBXSaleProductProvider", class_implements($provider)))
 		{
-
 			$data = array(
 				"PRODUCT_ID" => $basketItem->getProductId(),
 				"UNDO_RESERVATION" => "N",
@@ -4401,9 +4421,10 @@ abstract class ProviderBase
 			{
 				$availableQuantity = $deltaQuantity;
 			}
-			$result->setData(array(
-								 'AVAILABLE_QUANTITY' => $availableQuantity
-							 ));
+			$result->setData([
+				'AVAILABLE_QUANTITY' => $availableQuantity,
+			]);
+
 			return $result;
 		}
 

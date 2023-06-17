@@ -746,7 +746,7 @@ class Element extends Base
 							'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_15_DESCRIPTION_METHOD_DESCRIPTION',
 						],
 						'CODE' => 'params',
-						'METHOD' => 'crm.invoice.add',
+						'METHOD' => 'task.elapseditem.getlist',
 						'METHOD_DOWNLOAD_EXAMPLE_TYPE' => 'query',
 						'QUERY_INFORMATION_URL.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_15_INCOMING_QUERY_INFORMATION_URL',
 						'ITEMS' => [

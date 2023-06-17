@@ -38,13 +38,11 @@ class CatalogProductsSubscribeListComponent extends \CCatalogViewedProductsCompo
 	{
 		$params = parent::onPrepareComponentParams($params);
 
-		if(!isset($params['LINE_ELEMENT_COUNT']))
+		$params['LINE_ELEMENT_COUNT'] = (int)($params['LINE_ELEMENT_COUNT'] ?? 3);
+		if ($params['LINE_ELEMENT_COUNT'] < 2 || $params['LINE_ELEMENT_COUNT'] > 5)
+		{
 			$params['LINE_ELEMENT_COUNT'] = 3;
-		$params['LINE_ELEMENT_COUNT'] = intval($params['LINE_ELEMENT_COUNT']);
-		if($params['LINE_ELEMENT_COUNT'] < 2 || $params['LINE_ELEMENT_COUNT'] > 5)
-			$params['LINE_ELEMENT_COUNT'] = 3;
-
-		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
+		}
 
 		if(Main\Loader::includeModule('catalog'))
 		{
@@ -190,7 +188,7 @@ class CatalogProductsSubscribeListComponent extends \CCatalogViewedProductsCompo
 					if($properties['ID'] == $sku['SKU_PROPERTY_ID'] || empty($properties['VALUE']))
 						continue;
 
-					if(!is_array($propertyValue[$propertiesCode]))
+					if(!isset($propertyValue[$propertiesCode]))
 						$propertyValue[$propertiesCode] = array();
 
 					if(!in_array($properties['VALUE'],$propertyValue[$propertiesCode]))
@@ -225,10 +223,20 @@ class CatalogProductsSubscribeListComponent extends \CCatalogViewedProductsCompo
 	protected function getPropertyCodeList(array $sku)
 	{
 		$codeList = array();
-		$propertyIterator = Iblock\PropertyTable::getList(array(
-			'select' => array('CODE', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE', 'IBLOCK_ID'),
-			'filter' => array('=IBLOCK_ID' => $sku['IBLOCK_ID'], '=ACTIVE' => 'Y')
-		));
+		$propertyIterator = Iblock\PropertyTable::getList([
+			'select' => [
+				'ID',
+				'CODE',
+				'PROPERTY_TYPE',
+				'MULTIPLE',
+				'USER_TYPE',
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $sku['IBLOCK_ID'],
+				'=ACTIVE' => 'Y',
+			]
+		]);
 		while ($property = $propertyIterator->fetch())
 		{
 			if($property['MULTIPLE'] == 'Y' || $property['ID'] == $sku['SKU_PROPERTY_ID'])

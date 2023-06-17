@@ -9,14 +9,14 @@ use Bitrix\Main\UI;
 
 UI\Extension::load("ui.tooltip");
 
-if($arResult["FatalError"] <> '')
+if(isset($arResult["FatalError"]) && !empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	$anchor_id = RandString(8);
-	
+
 	if ($arParams["INLINE"] != "Y")
 	{
 		$tooltipUserId = (
@@ -47,7 +47,7 @@ else
 				?><a href="<?=$arResult["User"]["HREF"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["PersonalPhotoImgThumbnail"]["Image"]?></a><?
 			}
 			elseif (
-				$arResult["User"]["DETAIL_URL"] <> '' 
+				$arResult["User"]["DETAIL_URL"] <> ''
 				&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 			)
 			{
@@ -65,7 +65,7 @@ else
 			?><a class="bx-user-info-name" href="<?=$arResult["User"]["HREF"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
 		}
 		elseif (
-			$arResult["User"]["DETAIL_URL"] <> '' 
+			$arResult["User"]["DETAIL_URL"] <> ''
 			&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 		)
 		{
@@ -92,7 +92,7 @@ else
 				$link = $arResult["User"]["HREF"];
 			}
 			elseif (
-				$arResult["User"]["DETAIL_URL"] <> '' 
+				$arResult["User"]["DETAIL_URL"] <> ''
 				&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 			)
 			{
@@ -121,21 +121,21 @@ else
 	else
 	{
 		if (
-			$arResult["User"]["DETAIL_URL"] <> '' 
+			$arResult["User"]["DETAIL_URL"] <> ''
 			&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 		)
 		{
-			?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?> id="anchor_<?=$anchor_id?>" bx-tooltip-user-id="<?=$arResult["User"]["ID"]?>"><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
+			?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?> id="anchor_<?=$anchor_id?>" bx-tooltip-user-id="<?=$arResult["User"]["ID"]?>"><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
 		}
 		elseif ($arResult["User"]["DETAIL_URL"] <> '' && !$arResult["bSocialNetwork"])
 		{
-			?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?> id="anchor_<?=$anchor_id?>"><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
+			?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?> id="anchor_<?=$anchor_id?>"><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
 		}
 		else
 		{
 			?><?=$arResult["User"]["NAME_FORMATTED"]?><?
 		}
-		?><?=($arResult["User"]["NAME_DESCRIPTION"] <> '' ? " (".$arResult["User"]["NAME_DESCRIPTION"].")": "")?><?
+		?><?=(isset($arResult["User"]["NAME_DESCRIPTION"]) && $arResult["User"]["NAME_DESCRIPTION"] <> '' ? " (".$arResult["User"]["NAME_DESCRIPTION"].")": "")?><?
 	}
 }
 ?>

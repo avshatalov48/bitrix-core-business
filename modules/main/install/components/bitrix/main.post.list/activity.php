@@ -26,7 +26,7 @@ $arParams["SHOW_LOGIN"] = ($_REQUEST["SHOW_LOGIN"] === "Y" ? "Y" : "N");
 global $USER;
 
 $arParams["SIGN"] = null;
-if (is_string($_REQUEST["sign"]) && !empty($_REQUEST["sign"]))
+if (isset($_REQUEST["sign"]) && is_string($_REQUEST["sign"]) && !empty($_REQUEST["sign"]))
 {
 	try
 	{
@@ -39,7 +39,7 @@ if (is_string($_REQUEST["sign"]) && !empty($_REQUEST["sign"]))
 	}
 }
 
-if (!is_array($_SESSION["UC_LAST_ACTIVITY"]))
+if (!isset($_SESSION["UC_LAST_ACTIVITY"]) || !is_array($_SESSION["UC_LAST_ACTIVITY"]))
 {
 	$_SESSION["UC_LAST_ACTIVITY"] = [
 		'TIME' => 0,
@@ -54,7 +54,8 @@ if (
 	&& check_bitrix_sessid()
  	&& $USER->IsAuthorized()
  	&& (
-		$_SESSION["UC_ACTIVITY"]["ENTITY_XML_ID"] !== $_REQUEST["ENTITY_XML_ID"]
+		!isset($_SESSION["UC_ACTIVITY"])
+		|| $_SESSION["UC_ACTIVITY"]["ENTITY_XML_ID"] !== $_REQUEST["ENTITY_XML_ID"]
 		|| (time() - $_SESSION["UC_ACTIVITY"]["TIME"]) > 10
 	)
 	&& Loader::includeModule('pull')

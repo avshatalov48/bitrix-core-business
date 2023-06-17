@@ -22,8 +22,8 @@
 			if (this.options)
 			{
 				BX.Event.EventEmitter.emit('BX.Landing.TableEditor:onCopyTable');
-				window.copiedTable = this.options.table.parentElement.cloneNode(true);
-				if (window.copiedTable)
+				top.window.copiedTable = this.options.table.parentElement.cloneNode(true);
+				if (top.window.copiedTable)
 				{
 					isCopied = true;
 				}

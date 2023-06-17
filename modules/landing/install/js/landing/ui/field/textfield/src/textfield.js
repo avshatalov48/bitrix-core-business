@@ -132,7 +132,6 @@ export class TextField extends BaseField
 		this.enableEdit();
 
 		BX.Landing.UI.Tool.ColorPicker.hideAll();
-		BX.Landing.UI.Button.FontAction.hideAll();
 
 		requestAnimationFrame(() => {
 			if (event.target.nodeName === 'A')

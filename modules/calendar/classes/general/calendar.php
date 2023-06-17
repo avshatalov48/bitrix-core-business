@@ -2,8 +2,17 @@
 
 /** var CMain $APPLICATION */
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\EventAccessController;
+use Bitrix\Calendar\Access\Model\EventModel;
+use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\SectionAccessController;
+use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Internals\EventTable;
+use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Google;
@@ -20,10 +29,12 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
+use Bitrix\Calendar\Sharing;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -235,7 +246,8 @@ class CCalendar
 			return false;
 		}
 
-		if (!CCalendarType::CanDo('calendar_type_view', self::$type))
+		$typeModel = TypeModel::createFromXmlId(self::$type);
+		if (!(new TypeAccessController(self::$userId))->check(ActionDictionary::ACTION_TYPE_VIEW,$typeModel, []))
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("EC_ACCESS_DENIED"));
 			return false;
@@ -342,8 +354,10 @@ class CCalendar
 			{
 				$date = trim($date);
 				$ardate = explode('.', $date);
-				if (count($ardate) == 2 && $ardate[0] && $ardate[1])
-					$yearWorkdays[] = (int)$ardate[0] .'.'.((int)$ardate[1] - 1);
+				if (count($ardate) === 2 && $ardate[0] && $ardate[1])
+				{
+					$yearWorkdays[] = (int)$ardate[0] . '.' . ((int)$ardate[1] - 1);
+				}
 			}
 		}
 
@@ -354,6 +368,7 @@ class CCalendar
 		$bGoogleApi = self::isGoogleApiEnabled() && self::$type === "user";
 		$bWebservice = self::IsWebserviceEnabled();
 		$bExtranet = self::IsExtranetEnabled();
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
 
 		$userTimezoneOffsetUTC = self::GetCurrentOffsetUTC(self::$userId);
 		$userTimezoneName = self::GetUserTimezoneName(self::$userId, false);
@@ -417,13 +432,15 @@ class CCalendar
 			'sectionCustomization' => UserSettings::getSectionCustomization(self::$userId),
 			'locationFeatureEnabled' => Bitrix24Manager::isFeatureEnabled("calendar_location"),
 			'plannerFeatureEnabled' => Bitrix24Manager::isPlannerFeatureEnabled(),
-			'isSharingFeatureEnabled' => \Bitrix\Calendar\Sharing\Helper::isSharingFeatureEnabled(),
+			'isSharingFeatureEnabled' => \Bitrix\Calendar\Sharing\SharingFeature::isEnabled(),
+			'payAttentionToNewSharingFeature' => \Bitrix\Calendar\Sharing\Helper::payAttentionToNewSharingFeature(),
 			'eventWithEmailGuestLimit'=> Bitrix24Manager::getEventWithEmailGuestLimit(),
 			'countEventWithEmailGuestAmount'=> Bitrix24Manager::getCountEventWithEmailGuestAmount(),
 			'showAfterSyncAccent' => isset($_GET['googleAuthSuccess']) && $_GET['googleAuthSuccess'] === 'y',
+			'isExtranetUser' => $isExtranetUser,
 		);
 
-		if(self::$type === 'user' && self::$userId != self::$ownerId)
+		if (self::$type === 'user' && (int)self::$userId !== (int)self::$ownerId)
 		{
 			$JSConfig['ownerUser'] = array(
 				'id' => self::$ownerId,
@@ -488,7 +505,9 @@ class CCalendar
 		}
 
 		// Access permissions for type
-		if (CCalendarType::CanDo('calendar_type_edit_access', self::$type))
+		$typeModel = TypeModel::createFromXmlId(self::$type);
+		$accessController = new TypeAccessController(self::$userId);
+		if ($accessController->check(ActionDictionary::ACTION_TYPE_ACCESS, $typeModel, []))
 		{
 			$JSConfig['TYPE_ACCESS'] = $arType['ACCESS'];
 		}
@@ -626,6 +645,7 @@ class CCalendar
 				];
 			}
 
+			$canEdit = $accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, []);
 			// We check access only for main sections because we can't edit superposed section
 			if (
 				$groupOrUser
@@ -638,7 +658,12 @@ class CCalendar
 					$noEditAccessedCalendars = false;
 				}
 
-				if ($readOnly && ($section['PERM']['edit'] || $section['PERM']['edit_section']) && !self::$isArchivedGroup)
+				if (
+					$readOnly
+					&& $canEdit
+					&& ($section['PERM']['edit'] || $section['PERM']['edit_section'])
+					&& !self::$isArchivedGroup
+				)
 				{
 					$readOnly = false;
 				}
@@ -711,7 +736,7 @@ class CCalendar
 			;
 			// Section exists but it closed to this user (Ref. mantis:#64037)
 			if (
-				count($fullSectionsList) > 0
+				!empty($fullSectionsList)
 				&& self::GetOwnerId() !== self::GetUserId()
 			)
 			{
@@ -730,14 +755,33 @@ class CCalendar
 		else if (!CCalendarSect::containsLocalSection($sectionList, self::$type))
 		{
 			$defCalendar = CCalendarSect::CreateDefault([
-                'type' => self::GetType(),
-                'ownerId' => self::GetOwnerId(),
-            ]);
+				'type' => self::GetType(),
+				'ownerId' => self::GetOwnerId(),
+			]);
 			$sections[] = $defCalendar;
 			self::$userMeetingSection = $defCalendar['ID'];
 		}
-
-		if (CCalendarType::CanDo('calendar_type_edit', self::$type))
+		//check if we need to create default calendar for user when he opens location calendar
+		if (self::$type === 'location')
+		{
+			$userSections = array_filter($sectionList, static function ($section) {
+				return $section['CAL_TYPE'] === 'user' && (int)$section['OWNER_ID'] === self::$userId;
+			});
+			if (empty($userSections))
+			{
+				$defUserCalendar = CCalendarSect::CreateDefault([
+					'type' => 'user',
+					'ownerId' => self::$userId,
+				]);
+				if ($defUserCalendar)
+				{
+					$sections[] = $defUserCalendar;
+					self::$userMeetingSection = $defUserCalendar['ID'];
+				}
+			}
+		}
+		$typeAccessController = new TypeAccessController(self::$userId);
+		if ($typeAccessController->check(ActionDictionary::ACTION_TYPE_EDIT, TypeModel::createFromXmlId(self::$type)))
 		{
 			$JSConfig['new_section_access'] = CCalendarSect::GetDefaultAccess(self::$type, self::$ownerId);
 		}
@@ -761,14 +805,21 @@ class CCalendar
 		$JSConfig['bSuperpose'] = self::$bSuperpose;
 		$JSConfig['additonalMeetingsId'] = $additionalMeetingsId;
 
-		$JSConfig['sharing'] =
-			\CUserOptions::getOption("calendar", "sharing")
-		;
+		$JSConfig['sharing'] = ['url' => (new Sharing\Sharing(self::$userId))->getActiveLinkShortUrl()];
 
 		$userSettings = UserSettings::get(self::$ownerId);
 		$meetSectionId = $userSettings['meetSection'];
 
-		if ($meetSectionId && \CCalendarSect::CanDo(\CCalendarSect::OPERATION_EDIT_SECTION, $meetSectionId))
+		$meetSection = CCalendarSect::GetById($meetSectionId);
+		$hasRightsForMeetSection = false;
+		if (is_array($meetSection))
+		{
+			$sectionAccessController = new SectionAccessController(self::$userId);
+			$sectionModel = SectionModel::createFromArray($meetSection);
+			$action = ActionDictionary::ACTION_SECTION_EDIT;
+			$hasRightsForMeetSection = $sectionAccessController->check($action, $sectionModel);
+		}
+		if ($meetSectionId && $hasRightsForMeetSection)
 		{
 			$JSConfig['meetSectionId'] = $meetSectionId;
 		}
@@ -860,13 +911,16 @@ class CCalendar
 
 	public static function CollectExchangeErrors($arErrors = [])
 	{
-		if (count($arErrors) == 0 || !is_array($arErrors))
-			return '[EC_NO_EXCH] '.Loc::getMessage('EC_NO_EXCHANGE_SERVER');
+		if (empty($arErrors) || !is_array($arErrors))
+		{
+			return '[EC_NO_EXCH] ' . Loc::getMessage('EC_NO_EXCHANGE_SERVER');
+		}
 
 		$str = "";
-		$errorCount = count($arErrors);
-		for($i = 0; $i < $errorCount; $i++)
-			$str .= "[".$arErrors[$i][0]."] ".$arErrors[$i][1]."\n";
+		foreach ($arErrors as $error)
+		{
+			$str .= "[" . $error[0] . "] " . $error[1] . "\n";
+		}
 
 		return $str;
 	}
@@ -920,14 +974,9 @@ class CCalendar
 				self::$ownerId = $event['OWNER_ID'];
 			}
 
-			if (
-				$checkPermissions
-				&& !self::IsPersonal($event['CAL_TYPE'], $event['OWNER_ID'], self::$userId)
-				&& (
-					!\CCalendarType::CanDo('calendar_type_edit', $event['CAL_TYPE'])
-					|| !CCalendarSect::CanDo('calendar_edit', $event['SECT_ID'], self::$userId)
-				)
-			)
+			$accessController = new EventAccessController(self::$userId);
+			$eventModel = \CCalendarEvent::getEventModelForPermissionCheck((int)$event['ID'], $event);
+			if ($checkPermissions && !$accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel))
 			{
 				return Loc::getMessage('EC_ACCESS_DENIED');
 			}
@@ -1024,14 +1073,15 @@ class CCalendar
 
 	public static function CollectCalDAVErros($arErrors = [])
 	{
-		if (count($arErrors) == 0 || !is_array($arErrors))
-			return '[EC_NO_EXCH] '.Loc::getMessage('EC_NO_CAL_DAV');
+		if (empty($arErrors) || !is_array($arErrors))
+		{
+			return '[EC_NO_EXCH] ' . Loc::getMessage('EC_NO_CAL_DAV');
+		}
 
 		$str = "";
-		$errorCount = count($arErrors);
-		for($i = 0; $i < $errorCount; $i++)
+		foreach ($arErrors as $error)
 		{
-			$str .= "[".$arErrors[$i][0]."] ".$arErrors[$i][1]."\n";
+			$str .= "[". $error[0]."] ". $error[1]."\n";
 		}
 
 		return $str;
@@ -1296,7 +1346,7 @@ class CCalendar
 		}
 
 		$arUsers = [];
-		if (!is_array($Params['arFoundUsers']) || count($Params['arFoundUsers']) <= 0)
+		if (!is_array($Params['arFoundUsers']) || empty($Params['arFoundUsers']))
 		{
 			if ($Params['addExternal'] !== false)
 			{
@@ -1519,7 +1569,8 @@ class CCalendar
 			$curUserId = (int)$params['userId'];
 		}
 
-		if (!CCalendarType::CanDo('calendar_type_view', $type, $curUserId))
+		$accessController = new TypeAccessController($curUserId);
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, TypeModel::createFromXmlId($type)))
 		{
 			return 'access_denied';
 		}
@@ -1788,26 +1839,35 @@ class CCalendar
 		[$sectionId, $entityType, $entityId] = $calendarId;
 		$entityType = mb_strtolower($entityType);
 
-		if ($sectionId == 0)
-		{
-			$res = array(
-				'bAccess' => CCalendarType::CanDo('calendar_type_view', $entityType, $userId),
-				'bReadOnly' => !CCalendarType::CanDo('calendar_type_edit', $entityType, $userId),
-			);
-		}
+		$accessController = new SectionAccessController((int)$userId);
+		$sectionModel =
+			SectionModel::createFromId((int)$sectionId)
+				->setType($entityType)
+				->setOwnerId((int)$entityId)
+		;
+		$request = [
+			ActionDictionary::ACTION_SECTION_EDIT => [],
+			ActionDictionary::ACTION_SECTION_EVENT_VIEW_FULL => [],
+			ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME => [],
+			ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE => [],
+		];
 
-		$bOwner = $entityType == 'user' && $entityId == $userId;
-		$res = array(
-			'bAccess' => $bOwner || CCalendarSect::CanDo('calendar_view_time', $sectionId, $userId),
-			'bReadOnly' => !$bOwner && !CCalendarSect::CanDo('calendar_edit', $sectionId, $userId),
-		);
+		$result = $accessController->batchCheck($request, $sectionModel);
+		$res = [
+			'bAccess' => $result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME],
+			'bReadOnly' => !$result[ActionDictionary::ACTION_SECTION_EDIT],
+		];
 
-		if ($res['bReadOnly'] && !$bOwner)
+		if ($res['bReadOnly'])
 		{
-			if (CCalendarSect::CanDo('calendar_view_time', $sectionId, $userId))
+			if ($result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TIME])
+			{
 				$res['privateStatus'] = 'time';
-			if (CCalendarSect::CanDo('calendar_view_title', $sectionId, $userId))
+			}
+			if ($result[ActionDictionary::ACTION_SECTION_EVENT_VIEW_TITLE])
+			{
 				$res['privateStatus'] = 'title';
+			}
 		}
 
 		return $res;
@@ -1938,6 +1998,7 @@ class CCalendar
 		$params['sendInvitesToDeclined'] = $params['sendInvitesToDeclined'] ?? false;
 		$params['autoDetectSection'] = $params['autoDetectSection'] ?? false;
 		$userId = $params['userId'] ?? self::getCurUserId();
+		$accessController = new EventAccessController($userId);
 
 		$result = [];
 		$sectionId =
@@ -2010,7 +2071,15 @@ class CCalendar
 			$arFields['CREATED_BY'] = $curEvent['CREATED_BY'];
 			$arFields['ACTIVE'] = $curEvent['ACTIVE'] ?? null;
 
-			$bChangeMeeting = !$checkPermission || CCalendarSect::CanDo('calendar_edit', $curEvent['SECT_ID'], $userId);
+			$eventModel = CCalendarEvent::getEventModelForPermissionCheck((int)($curEvent['ID'] ?? 0), $curEvent, $userId);
+
+			$accessCheckResult = $accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel);
+			$bChangeMeeting = !$checkPermission || $accessCheckResult;
+
+			if (!$bChangeMeeting)
+			{
+				return Loc::getMessage('EC_ACCESS_DENIED');
+			}
 
 			if (!isset($arFields['NAME']))
 			{
@@ -2031,7 +2100,7 @@ class CCalendar
 			if (!isset($arFields['SECTIONS']))
 			{
 				$arFields['SECTIONS'] = [$curEvent['SECT_ID']];
-				$sectionId = count($arFields['SECTIONS']) > 0 ? $arFields['SECTIONS'][0] : 0;
+				$sectionId = !empty($arFields['SECTIONS']) ? $arFields['SECTIONS'][0] : 0;
 			}
 			if (!isset($arFields['IS_MEETING']))
 			{
@@ -2186,15 +2255,6 @@ class CCalendar
 				$params['currentEvent'] = $curEvent;
 			}
 
-			if (
-				$checkPermission
-				&& !$bPersonal
-				&& !CCalendarSect::CanDo('calendar_edit', $curEvent['SECT_ID'], $userId)
-			)
-			{
-				return Loc::getMessage('EC_ACCESS_DENIED');
-			}
-
 			// if (is_array($arFields) && is_array($curEvent))
 			// {
 			// 	// TODO: check working ability of this code
@@ -2216,12 +2276,33 @@ class CCalendar
 			// 	}
 			// }
 		}
-		elseif (
-			($sectionId > 0)&& $checkPermission && !$bPersonal
-			&& !CCalendarSect::CanDo('calendar_add', $sectionId, $userId)
-		)
+		elseif ($checkPermission && $sectionId > 0 && !$bPersonal)
 		{
-			return self::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
+			$section = CCalendarSect::GetList(['arFilter' => ['ID' => $sectionId],
+				'checkPermissions' => false,
+				'getPermissions' => false
+			])[0] ?? null;
+
+			if ($section)
+			{
+				$arFields['CAL_TYPE'] = $section['CAL_TYPE'];
+			}
+			else
+			{
+				return self::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
+			}
+
+			$newEventModel =
+				EventModel::createNew()
+					->setOwnerId((int)$arFields['OWNER_ID'])
+					->setSectionId((int)$sectionId)
+					->setSectionType($arFields['CAL_TYPE'])
+			;
+
+			if (!$accessController->check(ActionDictionary::ACTION_EVENT_ADD, $newEventModel))
+			{
+				return self::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
+			}
 		}
 
 		if ($params['autoDetectSection'] && $sectionId <= 0)
@@ -2408,6 +2489,16 @@ class CCalendar
 		$params['arFields'] = $arFields;
 		$params['userId'] = $userId;
 		$params['path'] = self::GetPath($arFields['CAL_TYPE'], $arFields['OWNER_ID'], 1);
+
+		$isSharingEvent =
+			isset($curEvent['EVENT_TYPE'])
+			&& in_array($curEvent['EVENT_TYPE'], SharingEventManager::getSharingEventTypes(), true)
+		;
+
+		if (!empty($arFields['ID']) && $isSharingEvent)
+		{
+			SharingEventManager::onSharingEventEdit($arFields);
+		}
 
 		if (
 			$curEvent
@@ -2868,9 +2959,12 @@ class CCalendar
 			}
 
 			$arFields['ID'] = $id;
-			foreach(GetModuleEvents("calendar", "OnAfterCalendarEventEdit", true) as $arEvent)
+			if (($params['overSaving'] ?? false) !== true)
 			{
-				ExecuteModuleEventEx($arEvent, array($arFields, $bNew, $userId));
+				foreach(GetModuleEvents("calendar", "OnAfterCalendarEventEdit", true) as $arEvent)
+				{
+					ExecuteModuleEventEx($arEvent, array($arFields, $bNew, $userId));
+				}
 			}
 		}
 
@@ -3270,14 +3364,16 @@ class CCalendar
 
 	private static function FindSyncInstance($event)
 	{
-		$exchangeScheme = COption::GetOptionString("dav", "exchange_scheme", "http");
-		$exchangeServer = COption::GetOptionString("dav", "exchange_server", "");
-		$exchangePort = COption::GetOptionString("dav", "exchange_port", "80");
-		$exchangeUsername = COption::GetOptionString("dav", "exchange_username", "");
-		$exchangePassword = COption::GetOptionString("dav", "exchange_password", "");
+		$exchangeScheme = COption::GetOptionString('dav', 'exchange_scheme', 'http');
+		$exchangeServer = COption::GetOptionString('dav', 'exchange_server', '');
+		$exchangePort = COption::GetOptionString('dav', 'exchange_port', '80');
+		$exchangeUsername = COption::GetOptionString('dav', 'exchange_username', '');
+		$exchangePassword = COption::GetOptionString('dav', 'exchange_password', '');
 
 		if (empty($exchangeServer))
-			return "";
+		{
+			return '';
+		}
 
 		$exchange = new CDavExchangeCalendar($exchangeScheme, $exchangeServer, $exchangePort, $exchangeUsername, $exchangePassword);
 
@@ -3619,121 +3715,6 @@ class CCalendar
 		return self::$outerUrl;
 	}
 
-	public static function ManageConnections($arConnections = [])
-	{
-		global $APPLICATION;
-		$bSync = false;
-		$l = count($arConnections);
-
-		for ($i = 0; $i < $l; $i++)
-		{
-			$con = $arConnections[$i];
-			$conId = (int)$con['id'];
-			if ($conId <= 0) // It's new connection
-			{
-				if ($con['del'] !== 'Y')
-				{
-					if(!self::CheckCalDavUrl($con['link'], $con['user_name'], $con['pass']))
-					{
-						return Loc::getMessage("EC_CALDAV_URL_ERROR");
-					}
-
-					CDavConnection::Add(array(
-						"ENTITY_TYPE" => 'user',
-						"ENTITY_ID" => self::$ownerId,
-						"ACCOUNT_TYPE" => Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE,
-						"NAME" => $con['name'],
-						"SERVER" => $con['link'],
-						"SERVER_USERNAME" => $con['user_name'],
-						"SERVER_PASSWORD" => $con['pass'])
-					);
-					$bSync = true;
-				}
-			}
-			elseif ($con['del'] !== 'Y') // Edit connection
-			{
-				$arFields = [
-					"NAME" => $con['name'],
-					"SERVER" => $con['link'],
-					"SERVER_USERNAME" => $con['user_name'],
-				];
-				if ($con['pass'] !== 'bxec_not_modify_pass')
-				{
-					$arFields["SERVER_PASSWORD"] = $con['pass'];
-				}
-
-				$resCon = CDavConnection::GetList(["ID" => "ASC"], ["ID" => $conId]);
-				if ($resCon)
-				{
-					/** @var Google\Helper $googleHelper */
-					$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
-					if(!$googleHelper->isGoogleConnection($resCon['ACCOUNT_TYPE']))
-					{
-						CDavConnection::Update($conId, $arFields);
-					}
-				}
-
-				if (is_array($con['sections']))
-				{
-					foreach ($con['sections'] as $sectId => $active)
-					{
-						$sectId = (int)$sectId;
-
-						if(self::IsPersonal() || CCalendarSect::CanDo('calendar_edit_section', $sectId, self::$userId))
-						{
-							CCalendarSect::Edit(array('arFields' => array("ID" => $sectId, "ACTIVE" => $active == "Y" ? "Y" : "N")));
-						}
-					}
-				}
-
-				$bSync = true;
-			}
-			else
-			{
-				self::RemoveConnection(array('id' => $conId, 'del_calendars' => $con['del_calendars'] === 'Y'));
-			}
-		}
-
-		if($err = $APPLICATION->GetException())
-		{
-			return $err->GetString();
-		}
-
-		if ($bSync)
-		{
-			CDavGroupdavClientCalendar::DataSync("user", self::$ownerId);
-		}
-
-		$res = CDavConnection::GetList(
-			["ID" => "DESC"],
-			[
-				"ENTITY_TYPE" => "user",
-				"ENTITY_ID" => self::$ownerId,
-			],
-		);
-
-		while($arCon = $res->Fetch())
-		{
-			if (
-				$arCon['ACCOUNT_TYPE'] === Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV
-				|| $arCon['ACCOUNT_TYPE'] === Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE
-			)
-			{
-				if (mb_strpos($arCon['LAST_RESULT'], "[200]") === false)
-				{
-					return Loc::getMessage('EC_CALDAV_CONNECTION_ERROR',
-						[
-							'#CONNECTION_NAME#' => $arCon['NAME'],
-							'#ERROR_STR#' => $arCon['LAST_RESULT'],
-						]
-					);
-				}
-			}
-		}
-
-		return true;
-	}
-
 	public static function AddConnection($connection, $type = 'caldav')
 	{
 		if((!self::CheckCalDavUrl($connection['link'], $connection['user_name'], $connection['pass'])))
@@ -3954,10 +3935,10 @@ class CCalendar
 
 		if ($fetchUsers)
 		{
-			for ($i = 0, $l = count($users); $i < $l; $i++)
+			foreach ($users as $i => $user)
 			{
-				$users[$i]['FORMATTED_NAME'] = self::GetUserName($users[$i]);
-				$users[$i]['ID'] = (int)$users[$i]['ID'];
+				$users[$i]['FORMATTED_NAME'] = self::GetUserName($user);
+				$users[$i]['ID'] = (int)$user['ID'];
 			}
 		}
 		else
@@ -4457,10 +4438,10 @@ class CCalendar
 		}
 		$users = $ids;
 
-		if (count($users) > 0)
+		if (!empty($users))
 		{
-			$events = CCalendarEvent::GetList(array(
-				'arFilter' => array(
+			$events = CCalendarEvent::GetList([
+				'arFilter' => [
 					'CAL_TYPE' => 'user',
 					'OWNER_ID' => $users,
 					'FROM_LIMIT' => self::Date(time(), false),
@@ -4468,10 +4449,10 @@ class CCalendar
 					'IS_MEETING' => 1,
 					'MEETING_STATUS' => 'Q',
 					'DELETED' => 'N',
-				),
+				],
 				'parseRecursion' => false,
-				'checkPermissions' => false)
-			);
+				'checkPermissions' => false
+			]);
 
 			$counters = [];
 			foreach($events as $event)
@@ -4634,26 +4615,29 @@ class CCalendar
 		return self::$settings;
 	}
 
-	public static function GetPathes($forSite = false)
+	public static function GetPathes($forSite = null)
 	{
 		$pathes = [];
 		$pathes_for_sites = COption::GetOptionString('calendar', 'pathes_for_sites', true);
-		if ($forSite === false)
+		if ($forSite === null)
 		{
 			$arAffectedSites = COption::GetOptionString('calendar', 'pathes_sites', false);
 
 			if ($arAffectedSites != false && CheckSerializedData($arAffectedSites))
+			{
 				$arAffectedSites = unserialize($arAffectedSites, ['allowed_classes' => false]);
+			}
+		}
+		elseif (is_array($forSite))
+		{
+			$arAffectedSites = $forSite;
 		}
 		else
 		{
-			if (is_array($forSite))
-				$arAffectedSites = $forSite;
-			else
-				$arAffectedSites = array($forSite);
+			$arAffectedSites = [$forSite];
 		}
 
-		if(is_array($arAffectedSites) && count($arAffectedSites) > 0)
+		if(is_array($arAffectedSites) && !empty($arAffectedSites))
 		{
 			foreach($arAffectedSites as $s)
 			{
@@ -4662,7 +4646,9 @@ class CCalendar
 				{
 					$ar = unserialize($ar, ['allowed_classes' => false]);
 					if(is_array($ar))
+					{
 						$pathes[$s] = $ar;
+					}
 				}
 			}
 		}
@@ -4698,11 +4684,11 @@ class CCalendar
 		{
 			self::$pathesListEx = self::$pathesList;
 			$arTypes = CCalendarType::GetList(array('checkPermissions' => false));
-			for ($i = 0, $l = count($arTypes); $i < $l; $i++)
+			foreach ($arTypes as $type)
 			{
-				if ($arTypes[$i]['XML_ID'] !== 'user' && $arTypes[$i]['XML_ID'] !== 'group')
+				if ($type['XML_ID'] !== 'user' && $type['XML_ID'] !== 'group')
 				{
-					self::$pathesList[] = 'path_to_type_'.$arTypes[$i]['XML_ID'];
+					self::$pathesList[] = 'path_to_type_'. $type['XML_ID'];
 				}
 			}
 		}
@@ -4713,7 +4699,9 @@ class CCalendar
 	{
 		$user_name_template = COption::GetOptionString('calendar', 'user_name_template', '');
 		if ($fromSite && empty($user_name_template))
+		{
 			$user_name_template = CSite::GetNameFormat(false);
+		}
 		return $user_name_template;
 	}
 
@@ -4730,68 +4718,73 @@ class CCalendar
 	public static function GetPermissions($Params = [])
 	{
 		global $USER;
-		$type = isset($Params['type']) ? $Params['type'] : self::$type;
-		$ownerId = isset($Params['ownerId']) ? $Params['ownerId'] : self::$ownerId;
-		$userId = isset($Params['userId']) ? $Params['userId'] : self::$userId;
+		$type = $Params['type'] ?? self::$type;
+		$ownerId = (int)($Params['ownerId'] ?? self::$ownerId);
+		$userId = (int)($Params['userId'] ?? self::$userId);
 
 		$bView = true;
 		$bEdit = true;
 		$bEditSection = true;
 
-		if ($type == 'user' && $ownerId != $userId)
+		$accessController = new TypeAccessController($userId);
+		$typeModel = TypeModel::createFromXmlId($type);
+		$request = [
+			ActionDictionary::ACTION_TYPE_VIEW => [],
+			ActionDictionary::ACTION_TYPE_EDIT => [],
+		];
+
+		$result = $accessController->batchCheck($request, $typeModel);
+
+		if ($type === 'user' && (int)$ownerId !== (int)$userId)
 		{
 			$bEdit = false;
 			$bEditSection = false;
 		}
-
-		if ($type == 'group')
+		else
 		{
-			if (!$USER->CanDoOperation('edit_php'))
-			{
-				$keyOwner = 'SG'.$ownerId.'_A';
-				$keyMod = 'SG'.$ownerId.'_E';
-				$keyMember = 'SG'.$ownerId.'_K';
-
-				$codes = Util::getUserAccessCodes($userId);
-
-				if (Loader::includeModule("socialnetwork"))
-				{
-					$group = CSocNetGroup::getByID($ownerId);
-					if(!empty($group['CLOSED']) && $group['CLOSED'] === 'Y' &&
-						\Bitrix\Main\Config\Option::get('socialnetwork', 'work_with_closed_groups', 'N') === 'N')
-					{
-						self::$isArchivedGroup = true;
-					}
-				}
-
-				if (in_array($keyOwner, $codes))// Is owner
-				{
-					$bEdit = true;
-					$bEditSection = true;
-				}
-				elseif(in_array($keyMod, $codes) && !self::$isArchivedGroup)// Is moderator
-				{
-					$bEdit = true;
-					$bEditSection = true;
-				}
-				elseif(in_array($keyMember, $codes) && !self::$isArchivedGroup)// Is member
-				{
-					$bEdit = true;
-					$bEditSection = false;
-				}
-				else
-				{
-					$bEdit = false;
-					$bEditSection = false;
-				}
-			}
+			$bView = $result[ActionDictionary::ACTION_TYPE_VIEW];
+			$bEdit = $result[ActionDictionary::ACTION_TYPE_EDIT];
+			$bEditSection = $result[ActionDictionary::ACTION_TYPE_EDIT];
 		}
 
-		if ($type != 'user' && $type != 'group')
+		if (($type === 'group') && !$USER->CanDoOperation('edit_php'))
 		{
-			$bView = CCalendarType::CanDo('calendar_type_view', $type);
-			$bEdit = CCalendarType::CanDo('calendar_type_edit', $type);
-			$bEditSection = CCalendarType::CanDo('calendar_type_edit_section', $type);
+			$keyOwner = 'SG'.$ownerId.'_A';
+			$keyMod = 'SG'.$ownerId.'_E';
+			$keyMember = 'SG'.$ownerId.'_K';
+
+			$codes = Util::getUserAccessCodes($userId);
+
+			if (Loader::includeModule("socialnetwork"))
+			{
+				$group = CSocNetGroup::getByID($ownerId);
+				if(!empty($group['CLOSED']) && $group['CLOSED'] === 'Y' &&
+					\Bitrix\Main\Config\Option::get('socialnetwork', 'work_with_closed_groups', 'N') === 'N')
+				{
+					self::$isArchivedGroup = true;
+				}
+			}
+
+			if (in_array($keyOwner, $codes, true))// Is owner
+			{
+				$bEdit = true;
+				$bEditSection = true;
+			}
+			elseif(!self::$isArchivedGroup && in_array($keyMod, $codes, true))// Is moderator
+			{
+				$bEdit = true;
+				$bEditSection = true;
+			}
+			elseif(!self::$isArchivedGroup && in_array($keyMember, $codes, true))// Is member
+			{
+				$bEdit = true;
+				$bEditSection = false;
+			}
+			else
+			{
+				$bEdit = false;
+				$bEditSection = false;
+			}
 		}
 
 		if (($Params['setProperties'] ?? '') !== false)
@@ -4868,7 +4861,7 @@ class CCalendar
 		{
 			if ($isSharing)
 			{
-				$res = [\Bitrix\Calendar\ControllerHelper\SharingAjaxHelper::getDeletedSharedEvent($eventId)];
+				$res = [self::getDeletedSharedEvent($eventId)];
 			}
 			else
 			{
@@ -4907,34 +4900,76 @@ class CCalendar
 
 			if ($res && isset($res[0]) && ($event = $res[0]))
 			{
-				if ($event['MEETING_STATUS'] == 'Y' || $event['MEETING_STATUS'] == 'N' || $event['MEETING_STATUS'] == 'Q')
+				if (
+					$event['MEETING_STATUS'] === 'Y'
+					|| $event['MEETING_STATUS'] === 'N'
+					|| $event['MEETING_STATUS'] === 'Q'
+				)
 				{
 					$_GET['CONFIRM'] ??= null;
-					if ($event['IS_MEETING'] && self::$userId == self::$ownerId && self::$type == 'user' && ($_GET['CONFIRM'] == 'Y' || $_GET['CONFIRM'] == 'N'))
+					if (
+						$event['IS_MEETING']
+						&& (int)self::$userId === (int)self::$ownerId
+						&& self::$type === 'user'
+						&& ($_GET['CONFIRM'] === 'Y' || $_GET['CONFIRM'] === 'N')
+					)
 					{
 						CCalendarEvent::SetMeetingStatus(array(
 							'userId' => self::$userId,
 							'eventId' => $event['ID'],
-							'status' => $_GET['CONFIRM'] == 'Y' ? 'Y' : 'N',
+							'status' => $_GET['CONFIRM'] === 'Y' ? 'Y' : 'N',
 							'personalNotification' => true,
 						));
 					}
 				}
 
 				if ($event['RRULE'])
+				{
 					$event['RRULE'] = CCalendarEvent::ParseRRULE($event['RRULE']);
+				}
 
 				$event['~userIndex'] = CCalendarEvent::getUserIndex();
 
 				return $event;
 			}
-			else
-			{
-				CCalendarNotify::ClearNotifications($eventId);
-			}
+
+			CCalendarNotify::ClearNotifications($eventId);
 		}
 
 		return false;
+	}
+
+	public static function getDeletedSharedEvent(int $entryId): ?array
+	{
+		$result = EventTable::query()
+			->setSelect(['*'])
+			->where('DELETED', 'Y')
+			->where(Query::filter()
+				->logic('or')
+				->where([
+					['ID', $entryId],
+					['PARENT_ID', $entryId],
+				])
+			)
+			->where('OWNER_ID', self::GetCurUserId())
+			->whereIn('EVENT_TYPE', [
+				Core\Event\Tools\Dictionary::EVENT_TYPE['shared'],
+				Core\Event\Tools\Dictionary::EVENT_TYPE['shared_crm']
+			])
+			->exec()
+		;
+		$event = $result->fetch() ?: null;
+
+		if ($event)
+		{
+			$host = Sharing\Helper::getOwnerInfo((int)$event["MEETING_HOST"]);
+			$event['HOST_NAME'] = $host['name'];
+
+			$event['timestampFromUTC'] = Sharing\Helper::getEventTimestampUTC($event['DATE_FROM'], $event['TZ_FROM']);
+			$event['timestampToUTC'] = Sharing\Helper::getEventTimestampUTC($event['DATE_TO'], $event['TZ_TO']);
+		}
+
+		return $event;
 	}
 
 	public static function Timestamp($date, $bRound = true, $bTime = true)
@@ -5240,7 +5275,7 @@ class CCalendar
 			}
 		}
 
-		if (!$result && count($goodTz) > 0)
+		if (!$result && !empty($goodTz))
 		{
 			$result = $goodTz[0]['timezone_id'];
 		}
@@ -5621,7 +5656,7 @@ class CCalendar
 					'checkPermissions' => false,
 					'getPermissions' => false,
 				]);
-				if ($res && count($res) > 0 && $res[0]['ID'])
+				if ($res && !empty($res) && $res[0]['ID'])
 				{
 					$result = $res[0]['ID'];
 				}
@@ -5702,7 +5737,7 @@ class CCalendar
 					'checkPermissions' => false,
 					'getPermissions' => false,
 				]);
-				if ($res && count($res) > 0 && $res[0]['ID'])
+				if (!empty($res) && $res[0]['ID'])
 				{
 					$result = $res[0]['ID'];
 				}
@@ -5753,7 +5788,7 @@ class CCalendar
 			$arFilter['ACTIVE'] = $params['ACTIVE'];
 		}
 
-		if (isset($params['ADDITIONAL_IDS']) && count($params['ADDITIONAL_IDS']) > 0)
+		if (isset($params['ADDITIONAL_IDS']) && !empty($params['ADDITIONAL_IDS']))
 		{
 			$arFilter['ADDITIONAL_IDS'] = $params['ADDITIONAL_IDS'];
 		}
@@ -5837,12 +5872,12 @@ class CCalendar
 			}
 		}
 
-		if (count($userIdList))
+		if (!empty($userIdList))
 		{
 			$userIndexList = \CCalendarEvent::getUsersDetails($userIdList);
 		}
 
-		if (count($groupIdList) && Loader::includeModule("socialnetwork"))
+		if (!empty($groupIdList) && Loader::includeModule("socialnetwork"))
 		{
 			$res = Bitrix\Socialnetwork\WorkgroupTable::getList([
 				'filter' => [
@@ -5932,7 +5967,7 @@ class CCalendar
 		$ownerId = isset($params['ownerId']) ? (int)$params['ownerId'] : self::$ownerId;
 		$userId = isset($params['userId']) ? (int)$params['userId'] : self::$userId;
 
-		if (($type !== 'user' && !isset($params['section'])) || count($params['section']) <= 0)
+		if (empty($params['section']))
 		{
 			return [];
 		}
@@ -5974,7 +6009,7 @@ class CCalendar
 			)
 		);
 
-		if (count($params['section']) > 0)
+		if (!empty($params['section']))
 		{
 			$NewRes = [];
 			foreach($res as $event)

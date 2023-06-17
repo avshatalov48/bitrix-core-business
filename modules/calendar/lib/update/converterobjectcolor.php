@@ -92,7 +92,7 @@ final class ConverterObjectColor extends Stepper
 		// 2. Update events
 		$events = EventTable::getList([
 			'filter' => [
-				'>ID' =>$status['eventLastId'],
+				'>ID' =>$status['eventLastId'] ?? null,
 				'DELETED' => 'N',
 			],
 			'order' => [

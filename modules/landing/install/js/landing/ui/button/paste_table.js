@@ -18,15 +18,15 @@
 		{
 			event.preventDefault();
 			event.stopPropagation();
-			if (window.copiedTable)
+			if (top.window.copiedTable)
 			{
-				var newTable = document.createElement('div');
-				newTable.appendChild(window.copiedTable.cloneNode(true));
+				var newTable = this.contextDocument.createElement('div');
+				newTable.appendChild(top.window.copiedTable.cloneNode(true));
 				newTable.querySelector('.landing-table-container').classList.add('landing-table-pasted');
-				document.execCommand('insertHTML', null, newTable.innerHTML);
-				var pastedTable = document.querySelector('.landing-table-pasted');
+				this.contextDocument.execCommand('insertHTML', null, newTable.innerHTML);
+				var pastedTable = this.contextDocument.querySelector('.landing-table-pasted');
 				pastedTable.innerHTML = '';
-				pastedTable.appendChild(window.copiedTable.querySelector('.landing-table').cloneNode(true));
+				pastedTable.appendChild(top.window.copiedTable.querySelector('.landing-table').cloneNode(true));
 				pastedTable.classList.remove('landing-table-pasted');
 			}
 		}

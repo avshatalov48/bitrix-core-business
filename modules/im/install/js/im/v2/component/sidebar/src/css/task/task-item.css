@@ -1,0 +1,63 @@
+.bx-im-sidebar-task-item__scope {
+	--im-sidebar-task-item__background-color_container: #e5f9ff;
+	--im-sidebar-task-item__background-color_completed-task-container: #eef2f4;
+	--im-sidebar-task-item__color_task-title-text: #525c69;
+	--im-sidebar-task-item__color_task-title-text-hover: #2066b0;
+}
+
+.bx-im-sidebar-task-item__container {
+	display: flex;
+	height: 60px;
+	padding: 6px 11px 11px 10px;
+	margin: 0 10px 0 16px;
+	border-radius: 10px;
+	background-color: var(--im-sidebar-task-item__background-color_container);
+}
+
+.bx-im-sidebar-task-preview__container .bx-im-sidebar-task-item__container {
+	margin: 0;
+}
+
+.bx-im-sidebar-task-item__container.--completed {
+	background-color: var(--im-sidebar-task-item__background-color_completed-task-container);
+}
+
+.bx-im-sidebar-task-item__header-text {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-sidebar-task-item__color_task-title-text);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-bottom: 8px;
+	max-width: 90%;
+}
+
+.bx-im-sidebar-task-item__container:hover .bx-im-sidebar-task-item__header-text {
+	color: var(--im-sidebar-task-item__color_task-title-text-hover);
+}
+
+.bx-im-sidebar-task-item__content {
+	overflow: hidden;
+	cursor: pointer;
+	flex: 1;
+}
+
+.bx-im-sidebar-task-item__detail-container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-task-item__forward-small-icon {
+	margin: 0 4px;
+}
+
+.bx-im-sidebar-task-item__status-text {
+	margin-left: 16px;
+	padding: 0 8px;
+	border-radius: 58px;
+	background-color: var(--ui-label-background-color);
+	color: var(--ui-label-color);
+	font: var(--im-font-size-4xs)/18px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+}

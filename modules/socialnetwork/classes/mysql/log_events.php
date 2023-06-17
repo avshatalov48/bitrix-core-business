@@ -176,8 +176,10 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 		if ($arSqls["WHERE"] <> '')
 		{
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if ($arSqls["SUBSCRIBE"] <> '')
-				$strSql .= $arSqls["SUBSCRIBE"]." ";							
+			if (($arSqls["SUBSCRIBE"] ?? '') <> '')
+			{
+				$strSql .= $arSqls["SUBSCRIBE"]." ";
+			}
 		}
 		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
@@ -193,8 +195,10 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 			if ($arSqls["WHERE"] <> '')
 			{
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-				if ($arSqls["SUBSCRIBE"] <> '')
-					$strSql .= $arSqls["SUBSCRIBE"]." ";								
+				if (($arSqls["SUBSCRIBE"] ?? '') <> '')
+				{
+					$strSql .= $arSqls["SUBSCRIBE"]." ";
+				}
 			}
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";

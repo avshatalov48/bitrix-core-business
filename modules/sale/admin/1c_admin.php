@@ -1,4 +1,4 @@
-<?
+<?php
 ##############################################
 # Bitrix Site Manager 6                      #
 # Copyright (c) 2002-2007 Bitrix             #
@@ -6,17 +6,27 @@
 # admin@bitrixsoft.com                       #
 ##############################################
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+/** @global CMain $APPLICATION */
 
-if($APPLICATION->GetGroupRight("sale") < "R")
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Sale;
+
+require_once $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php";
+
+if ($APPLICATION->GetGroupRight("sale") < "R")
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 IncludeModuleLangFile(__FILE__);
 
-if (\Bitrix\Main\Loader::includeModule('sale') && !\Bitrix\Sale\Configuration::isCanUse1c())
+if (Loader::includeModule('sale') && !Sale\Configuration::isCanUse1c())
 {
 	LocalRedirect('/bitrix/admin/');
 }
+
+$request = Context::getCurrent()->getRequest();
 
 $aSTabs = array();
 if(IsModuleInstalled("catalog"))
@@ -68,11 +78,11 @@ if(count($aSTabs)<1)
 
 $tabControl = new CAdminTabControl("tabControl", $aSTabs);
 
-if($REQUEST_METHOD=="POST" && $Update <> '' && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && check_bitrix_sessid())
 {
 	foreach($aSTabs as $arTab)
 	{
-		if($arTab["FILE"])
+		if ($arTab["FILE"] ?? '')
 		{
 			include($arTab["FILE"]);
 		}
@@ -82,17 +92,17 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && check_bitrix_sessid())
 
 
 $APPLICATION->SetTitle(GetMessage("MAIN_1C_TITLE"));
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/main/include/prolog_admin_after.php';
 ?>
 
-<form method="post" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?=LANGUAGE_ID?>">
-<?
+<form method="post" action="<?= $APPLICATION->GetCurPage()?>?lang=<?=LANGUAGE_ID?>">
+<?php
 $tabControl->Begin();
 
 foreach($aSTabs as $arTab)
 {
 	$tabControl->BeginNextTab();
-	if($arTab["FILE"])
+	if ($arTab["FILE"] ?? '')
 	{
 		include($arTab["FILE"]);
 	}
@@ -101,27 +111,30 @@ foreach($aSTabs as $arTab)
 $tabControl->Buttons();?>
 	<input type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" class="adm-btn-save">
 	<?=bitrix_sessid_post();?>
-<?$tabControl->End();?>
+<?php
+$tabControl->End();
+?>
 </form>
-
-<?
+<?php
 $bNote = false;
 foreach($aSTabs as $arTab)
-	if($arTab["NOTE"])
+{
+	if ($arTab["NOTE"] ?? '')
+	{
 		$bNote = true;
+	}
+}
 if($bNote):
 	echo BeginNote();
-	?><table class="message"><tr><td valign="center"><div class="icon-error"></div></td><td><?
+	?><table class="message"><tr><td valign="center"><div class="icon-error"></div></td><td><?php
 	foreach($aSTabs as $arTab)
 	{
-		if($arTab["NOTE"]):
-			?><?echo $arTab["NOTE"]?><br><?
+		if ($arTab["NOTE"] ?? ''):
+			?><?= $arTab["NOTE"]; ?><br><?php
 		endif;
 	}
-	?></tr></table><?
+	?></tr></table><?php
 	echo EndNote();
-endif?>
+endif;
 
-<?
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-?>

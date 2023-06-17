@@ -225,14 +225,27 @@ HTML
 		$this->uploadSetts = array(
 			"upload" => '',
 			"uploadType" => "path",
-			"medialib" => ($inputs['medialib'] === true && \COption::GetOptionString('fileman', "use_medialib", "Y") != "N"),
-			"fileDialog" => ($inputs['file_dialog'] === true || $inputs['fileDialog'] === true),
-			"cloud" => ($inputs['cloud'] === true && $USER->CanDoOperation("clouds_browse") && \CModule::IncludeModule("clouds") && \CCloudStorage::HasActiveBuckets()),
-			"maxCount" => ($params["maxCount"] > 0 ? $params["maxCount"] : 0),
-			"maxSize" => ($params["maxSize"] > 0 ? $params["maxSize"] : 0),
+			"medialib" =>
+				isset($inputs['medialib'])
+				&& $inputs['medialib'] === true
+				&& \COption::GetOptionString('fileman', "use_medialib", "Y") != "N"
+			,
+			"fileDialog" =>
+				(isset($inputs['file_dialog']) && $inputs['file_dialog'] === true)
+				|| (isset($inputs['fileDialog']) && $inputs['fileDialog'] === true)
+			,
+			"cloud" =>
+				isset($inputs['cloud'])
+				&& $inputs['cloud'] === true
+				&& $USER->CanDoOperation("clouds_browse")
+				&& \CModule::IncludeModule("clouds")
+				&& \CCloudStorage::HasActiveBuckets()
+			,
+			"maxCount" => isset($params["maxCount"]) && $params["maxCount"] > 0 ? $params["maxCount"] : 0,
+			"maxSize" => isset($params["maxSize"]) && $params["maxSize"] > 0 ? $params["maxSize"] : 0,
 			"allowUpload" => $params["allowUpload"] ?? self::UPLOAD_ANY_FILES,
-			"allowUploadExt" => trim($params["allowUploadExt"]),
-			"allowSort" => ($params["allowSort"] == "N" ? "N" : "Y")
+			"allowUploadExt" => trim($params["allowUploadExt"] ?? ''),
+			"allowSort" => isset($params["allowSort"]) && $params["allowSort"] === "N" ? "N" : "Y",
 		);
 		if (!in_array(
 			$this->uploadSetts["allowUpload"],
@@ -289,8 +302,10 @@ HTML
 		\CJSCore::Init(array('fileinput'));
 
 		$files = '';
-		if (!is_array($values) || is_array($values) && array_key_exists("tmp_name", $values))
+		if (!is_array($values) || array_key_exists("tmp_name", $values))
+		{
 			$values = array($this->elementSetts["name"] => $values);
+		}
 		$maxIndex = 0;
 		$pattMaxIndex = mb_strpos($this->elementSetts["name"], "#IND#") > 0 ? str_replace("#IND#", "(\\d+)", preg_quote($this->elementSetts["name"])) : null;
 		foreach($values as $inputName => $fileId)
@@ -379,7 +394,7 @@ HTML
 			"nonPreview" => GetMessage("BXU_NonPreview")
 		);
 
-		$settings["modePin"] = ($settings["pinDescription"] == "Y" && $this->elementSetts["description"] ? "mode-with-description" : "");
+		$settings["modePin"] = (isset($settings["pinDescription"]) && $settings["pinDescription"] == "Y" && $this->elementSetts["description"] ? "mode-with-description" : "");
 		$t = <<<HTML
 <div class="adm-fileinput-wrapper {$classSingle}">
 <div class="adm-fileinput-btn-panel">
@@ -470,7 +485,7 @@ HTML;
 	}
 	private function getFile($fileId = "", $inputName = "file", $getDataFromRequest = false)
 	{
-		$result = NULL;
+		$result = null;
 		$properties = array();
 		if (is_array($fileId) && array_key_exists("ID", $fileId))
 		{

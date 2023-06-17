@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -6,12 +10,14 @@
 /** @global CDatabase $DB */
 /** @var CBitrixComponentTemplate $this */
 
+$arParams["SLIDER_PROPERTY"] = trim((string)($arParams["SLIDER_PROPERTY"] ?? ''));
+
 /*TAGS*/
 if ($arParams["SEARCH_PAGE"])
 {
 	foreach ($arResult["ITEMS"] as &$arItem)
 	{
-		if ($arItem["FIELDS"] && isset($arItem["FIELDS"]["TAGS"]))
+		if (isset($arItem["FIELDS"]["TAGS"]))
 		{
 			$tags = array();
 			foreach (explode(",", $arItem["FIELDS"]["TAGS"]) as $tag)
@@ -74,7 +80,7 @@ if ($mediaProperty)
 				"ID" => $ids,
 			), $propertyFilter);
 		}
-		
+
 		foreach ($elementIndex as $idx)
 		{
 			foreach ($idx["PROPERTIES"] as $property)
@@ -111,7 +117,7 @@ if ($mediaProperty)
 }
 
 /*SLIDER*/
-$sliderProperty = trim($arParams["SLIDER_PROPERTY"] ?? '');
+$sliderProperty = $arParams["SLIDER_PROPERTY"];
 if ($sliderProperty)
 {
 	if (is_numeric($sliderProperty))
@@ -147,7 +153,7 @@ if ($sliderProperty)
 				"ID" => $ids,
 			), $propertyFilter);
 		}
-		
+
 		foreach ($elementIndex as $idx)
 		{
 			foreach ($idx["PROPERTIES"] as $property)

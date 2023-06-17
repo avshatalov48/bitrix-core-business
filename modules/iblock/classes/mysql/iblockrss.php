@@ -217,12 +217,21 @@ class CIBlockRSS extends CAllIBlockRSS
 			else
 			{
 				$strPath = "";
-				$nav = CIBlockSection::GetNavChain($arIBLOCK["ID"], $arItem["IBLOCK_SECTION_ID"]);
-				while($ar_nav = $nav->GetNext())
+				$nav = CIBlockSection::GetNavChain(
+					$arIBLOCK["ID"],
+					$arItem["IBLOCK_SECTION_ID"],
+					[
+						'ID',
+						'NAME',
+					],
+					true
+				);
+				foreach ($nav as $ar_nav)
 				{
 					$strPath .= $ar_nav["NAME"]."/";
 				}
-				if ($strPath <> '')
+				unset($ar_nav, $nav);
+				if ($strPath !== '')
 				{
 					$strRes .= "<category>".htmlspecialcharsbx($strPath)."</category>\n";
 				}

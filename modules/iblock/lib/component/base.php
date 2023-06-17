@@ -267,6 +267,11 @@ abstract class Base extends \CBitrixComponent
 	 */
 	public function onPrepareComponentParams($params)
 	{
+		if (!is_array($params))
+		{
+			$params = [];
+		}
+
 		if (!isset($params['CURRENT_BASE_PAGE']))
 		{
 			$uri = new Main\Web\Uri($this->request->getRequestUri());
@@ -285,7 +290,7 @@ abstract class Base extends \CBitrixComponent
 		// save original parameters for further ajax requests
 		$this->arResult['ORIGINAL_PARAMETERS'] = $params;
 
-		if (isset($params['CUSTOM_SITE_ID']))
+		if (isset($params['CUSTOM_SITE_ID']) && is_string($params['CUSTOM_SITE_ID']))
 		{
 			$this->setSiteId($params['CUSTOM_SITE_ID']);
 		}
@@ -300,53 +305,71 @@ abstract class Base extends \CBitrixComponent
 			}
 			unset($ajaxId);
 		}
-		$params['AJAX_ID'] ??= '';
+		$params['AJAX_ID'] = trim((string)($params['AJAX_ID'] ?? ''));
 
-		if (!isset($params['CACHE_TIME']))
-		{
-			$params['CACHE_TIME'] = 36000000;
-		}
+		$params['CACHE_TIME'] = (int)($params['CACHE_TIME'] ?? 36000000);
 
-		$params['IBLOCK_ID'] = isset($params['IBLOCK_ID']) ? (int)$params['IBLOCK_ID'] : 0;
-		$params['SECTION_ID'] = isset($params['SECTION_ID']) ? (int)$params['SECTION_ID'] : 0;
-		$params['SECTION_CODE'] = isset($params['SECTION_CODE']) ? trim($params['SECTION_CODE']) : '';
-		$params['SECTION_URL'] = isset($params['SECTION_URL']) ? trim($params['SECTION_URL']) : '';
+		$params['IBLOCK_ID'] = (int)($params['IBLOCK_ID'] ?? 0);
+		$params['SECTION_ID'] = (int)($params['SECTION_ID'] ?? 0);
+
+		$params['SECTION_CODE'] = trim((string)($params['SECTION_CODE'] ?? ''));
+		$params['SECTION_URL'] = trim((string)($params['SECTION_URL'] ?? ''));
 		$params['STRICT_SECTION_CHECK'] = isset($params['STRICT_SECTION_CHECK']) && $params['STRICT_SECTION_CHECK'] === 'Y';
 
-		$params['CHECK_LANDING_PRODUCT_SECTION'] = (isset($params['CHECK_LANDING_PRODUCT_SECTION']) && $params['CHECK_LANDING_PRODUCT_SECTION'] === 'Y');
+		$params['CHECK_LANDING_PRODUCT_SECTION'] = (
+			isset($params['CHECK_LANDING_PRODUCT_SECTION'])
+			&& $params['CHECK_LANDING_PRODUCT_SECTION'] === 'Y'
+		);
 
-		$params['DETAIL_URL'] = isset($params['DETAIL_URL']) ? trim($params['DETAIL_URL']) : '';
-		$params['BASKET_URL'] = isset($params['BASKET_URL']) ? trim($params['BASKET_URL']) : '/personal/basket.php';
+		$params['DETAIL_URL'] = trim((string)($params['DETAIL_URL'] ?? ''));
+		$params['BASKET_URL'] = trim((string)($params['BASKET_URL'] ?? ''));
+		if ($params['BASKET_URL'] === '')
+		{
+			$params['BASKET_URL'] = '/personal/basket.php';
+		}
 
 		$params['SHOW_SKU_DESCRIPTION'] = $params['SHOW_SKU_DESCRIPTION'] ?? 'N';
 
 		$params['HIDE_DETAIL_URL'] = isset($params['HIDE_DETAIL_URL']) && $params['HIDE_DETAIL_URL'] === 'Y';
 
-		$params['ACTION_VARIABLE'] = isset($params['ACTION_VARIABLE']) ? trim($params['ACTION_VARIABLE']) : '';
-		if ($params['ACTION_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['ACTION_VARIABLE']))
+		$params['ACTION_VARIABLE'] = trim((string)($params['ACTION_VARIABLE'] ?? ''));
+		if ($params['ACTION_VARIABLE'] === '' || !preg_match(self::PARAM_TITLE_MASK, $params['ACTION_VARIABLE']))
 		{
 			$params['ACTION_VARIABLE'] = 'action';
 		}
 
-		$params['PRODUCT_ID_VARIABLE'] = isset($params['PRODUCT_ID_VARIABLE']) ? trim($params['PRODUCT_ID_VARIABLE']) : '';
-		if ($params['PRODUCT_ID_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_ID_VARIABLE']))
+		$params['PRODUCT_ID_VARIABLE'] = trim((string)($params['PRODUCT_ID_VARIABLE'] ?? ''));
+		if (
+			$params['PRODUCT_ID_VARIABLE'] === ''
+			|| !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_ID_VARIABLE'])
+		)
 		{
 			$params['PRODUCT_ID_VARIABLE'] = 'id';
 		}
-		$params['ACTION_COMPARE_VARIABLE'] = isset($params['ACTION_COMPARE_VARIABLE']) ? trim($params['ACTION_COMPARE_VARIABLE']) : '';
-		if ($params['ACTION_COMPARE_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['ACTION_COMPARE_VARIABLE']))
+
+		$params['ACTION_COMPARE_VARIABLE'] = trim((string)($params['ACTION_COMPARE_VARIABLE'] ?? ''));
+		if (
+			$params['ACTION_COMPARE_VARIABLE'] === ''
+			|| !preg_match(self::PARAM_TITLE_MASK, $params['ACTION_COMPARE_VARIABLE'])
+		)
 		{
 			$params['ACTION_COMPARE_VARIABLE'] = $params['ACTION_VARIABLE'];
 		}
 
-		$params['PRODUCT_QUANTITY_VARIABLE'] = isset($params['PRODUCT_QUANTITY_VARIABLE']) ? trim($params['PRODUCT_QUANTITY_VARIABLE']) : '';
-		if ($params['PRODUCT_QUANTITY_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_QUANTITY_VARIABLE']))
+		$params['PRODUCT_QUANTITY_VARIABLE'] = trim((string)($params['PRODUCT_QUANTITY_VARIABLE'] ?? ''));
+		if (
+			$params['PRODUCT_QUANTITY_VARIABLE'] === ''
+			|| !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_QUANTITY_VARIABLE'])
+		)
 		{
 			$params['PRODUCT_QUANTITY_VARIABLE'] = 'quantity';
 		}
 
-		$params['PRODUCT_PROPS_VARIABLE'] = isset($params['PRODUCT_PROPS_VARIABLE']) ? trim($params['PRODUCT_PROPS_VARIABLE']) : '';
-		if ($params['PRODUCT_PROPS_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_PROPS_VARIABLE']))
+		$params['PRODUCT_PROPS_VARIABLE'] = trim((string)($params['PRODUCT_PROPS_VARIABLE'] ?? ''));
+		if (
+			$params['PRODUCT_PROPS_VARIABLE'] === ''
+			|| !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_PROPS_VARIABLE'])
+		)
 		{
 			$params['PRODUCT_PROPS_VARIABLE'] = 'prop';
 		}
@@ -371,13 +394,18 @@ abstract class Base extends \CBitrixComponent
 		}
 		$params['SET_LAST_MODIFIED'] = isset($params['SET_LAST_MODIFIED']) && $params['SET_LAST_MODIFIED'] === 'Y';
 		$params['ADD_SECTIONS_CHAIN'] = isset($params['ADD_SECTIONS_CHAIN']) && $params['ADD_SECTIONS_CHAIN'] === 'Y';
+
 		$params['DISPLAY_COMPARE'] = isset($params['DISPLAY_COMPARE']) && $params['DISPLAY_COMPARE'] === 'Y';
-		$params['COMPARE_PATH'] = isset($params['COMPARE_PATH']) ? trim($params['COMPARE_PATH']) : '';
-		$params['COMPARE_NAME'] = isset($params['COMPARE_NAME']) ? trim($params['COMPARE_NAME']) : 'CATALOG_COMPARE_LIST';
+		$params['COMPARE_PATH'] = trim((string)($params['COMPARE_PATH'] ?? ''));
+		$params['COMPARE_NAME'] = trim((string)($params['COMPARE_NAME'] ?? ''));
+		if ($params['COMPARE_NAME'] === '')
+		{
+			$params['COMPARE_NAME'] = 'CATALOG_COMPARE_LIST';
+		}
 		$params['USE_COMPARE_LIST'] = (isset($params['USE_COMPARE_LIST']) && $params['USE_COMPARE_LIST'] === 'Y' ? 'Y' : 'N');
 
 		$params['USE_PRICE_COUNT'] = isset($params['USE_PRICE_COUNT']) && $params['USE_PRICE_COUNT'] === 'Y';
-		$params['SHOW_PRICE_COUNT'] = isset($params['SHOW_PRICE_COUNT']) ? (int)$params['SHOW_PRICE_COUNT'] : 1;
+		$params['SHOW_PRICE_COUNT'] = (int)($params['SHOW_PRICE_COUNT'] ?? 1);
 		if ($params['SHOW_PRICE_COUNT'] <= 0)
 		{
 			$params['SHOW_PRICE_COUNT'] = 1;
@@ -397,43 +425,58 @@ abstract class Base extends \CBitrixComponent
 
 		$params['PARTIAL_PRODUCT_PROPERTIES'] = isset($params['PARTIAL_PRODUCT_PROPERTIES']) && $params['PARTIAL_PRODUCT_PROPERTIES'] === 'Y' ? 'Y' : 'N';
 
-		if (empty($params['OFFERS_SORT_FIELD']))
+		$params['OFFERS_SORT_FIELD'] = trim((string)($params['OFFERS_SORT_FIELD'] ?? ''));
+		if ($params['OFFERS_SORT_FIELD'] === '')
 		{
 			$params['OFFERS_SORT_FIELD'] = 'sort';
 		}
 
-		if (!isset($params['OFFERS_SORT_ORDER']) || !preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER']))
+		$params['OFFERS_SORT_ORDER'] = trim((string)($params['OFFERS_SORT_ORDER'] ?? ''));
+		if (
+			$params['OFFERS_SORT_ORDER'] === ''
+			|| !preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER'])
+		)
 		{
 			$params['OFFERS_SORT_ORDER'] = 'asc';
 		}
 
-		if (empty($params['OFFERS_SORT_FIELD2']))
+		$params['OFFERS_SORT_FIELD2'] = trim((string)($params['OFFERS_SORT_FIELD2'] ?? ''));
+		if ($params['OFFERS_SORT_FIELD2'] === '')
 		{
 			$params['OFFERS_SORT_FIELD2'] = 'id';
 		}
 
-		if (!isset($params['OFFERS_SORT_ORDER2']) || !preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER2']))
+		$params['OFFERS_SORT_ORDER2'] = trim((string)($params['OFFERS_SORT_ORDER2'] ?? ''));
+		if (
+			$params['OFFERS_SORT_ORDER2'] === ''
+			|| !preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER2'])
+		)
 		{
 			$params['OFFERS_SORT_ORDER2'] = 'desc';
 		}
 
 		$params['PRICE_VAT_INCLUDE'] = !(isset($params['PRICE_VAT_INCLUDE']) && $params['PRICE_VAT_INCLUDE'] === 'N');
-		$params['CONVERT_CURRENCY'] = isset($params['CONVERT_CURRENCY']) && $params['CONVERT_CURRENCY'] === 'Y' ? 'Y' : 'N';
-		$params['CURRENCY_ID'] = isset($params['CURRENCY_ID']) ? trim($params['CURRENCY_ID']) : '';
 
+		$params['CONVERT_CURRENCY'] = isset($params['CONVERT_CURRENCY']) && $params['CONVERT_CURRENCY'] === 'Y' ? 'Y' : 'N';
+		$params['CURRENCY_ID'] ??= '';
+		if (!is_scalar($params['CURRENCY_ID']))
+		{
+			$params['CURRENCY_ID'] = '';
+		}
+		$params['CURRENCY_ID'] = trim((string)$params['CURRENCY_ID']);
 		if ($params['CURRENCY_ID'] === '' || $params['CONVERT_CURRENCY'] === 'N')
 		{
 			$params['CONVERT_CURRENCY'] = 'N';
 			$params['CURRENCY_ID'] = '';
 		}
 
-		$params['OFFERS_LIMIT'] = isset($params['OFFERS_LIMIT']) ? (int)$params['OFFERS_LIMIT'] : 0;
+		$params['OFFERS_LIMIT'] = (int)($params['OFFERS_LIMIT'] ?? 0);
 		if ($params['OFFERS_LIMIT'] < 0)
 		{
 			$params['OFFERS_LIMIT'] = 0;
 		}
 
-		$params['CACHE_GROUPS'] = trim($params['CACHE_GROUPS']);
+		$params['CACHE_GROUPS'] = trim((string)($params['CACHE_GROUPS'] ?? ''));
 		if ($params['CACHE_GROUPS'] !== 'N')
 		{
 			$params['CACHE_GROUPS'] = 'Y';
@@ -443,17 +486,18 @@ abstract class Base extends \CBitrixComponent
 		{
 			$params['PRICE_CODE'] = $params['~PRICE_CODE'];
 		}
-		if (!isset($params['PRICE_CODE']) || !is_array($params['PRICE_CODE']))
+		$params['PRICE_CODE'] ??= [];
+		if (!is_array($params['PRICE_CODE']))
 		{
-			$params['PRICE_CODE'] = array();
+			$params['PRICE_CODE'] = [];
 		}
 
 		$params['SHOW_FROM_SECTION'] = isset($params['SHOW_FROM_SECTION']) && $params['SHOW_FROM_SECTION'] === 'Y' ? 'Y' : 'N';
 		if ($params['SHOW_FROM_SECTION'] === 'Y')
 		{
-			$params['SECTION_ELEMENT_ID'] = isset($params['SECTION_ELEMENT_ID']) ? (int)$params['SECTION_ELEMENT_ID'] : 0;
-			$params['SECTION_ELEMENT_CODE'] = isset($params['SECTION_ELEMENT_CODE']) ? trim($params['SECTION_ELEMENT_CODE']) : '';
-			$params['DEPTH'] = isset($params['DEPTH']) ? (int)$params['DEPTH'] : 0;
+			$params['SECTION_ELEMENT_ID'] = (int)($params['SECTION_ELEMENT_ID'] ?? 0);
+			$params['SECTION_ELEMENT_CODE'] = trim((string)($params['SECTION_ELEMENT_CODE'] ?? ''));
+			$params['DEPTH'] = (int)($params['DEPTH'] ?? 0);
 
 			if (empty($params['SECTION_ID']))
 			{
@@ -474,13 +518,10 @@ abstract class Base extends \CBitrixComponent
 			}
 		}
 
-		if (!isset($params['FILTER_IDS']))
+		$params['FILTER_IDS'] ??= [];
+		if (!is_array($params['FILTER_IDS']))
 		{
-			$params['FILTER_IDS'] = array();
-		}
-		elseif (!is_array($params['FILTER_IDS']))
-		{
-			$params['FILTER_IDS'] = array($params['FILTER_IDS']);
+			$params['FILTER_IDS'] = [$params['FILTER_IDS']];
 		}
 
 		return $params;
@@ -1751,7 +1792,10 @@ abstract class Base extends \CBitrixComponent
 		while ($row = $iterator->Fetch())
 		{
 			$id = (int)$row['ID'];
-			$list[$id] = $row;
+			$list[$id] = [
+				'ID' => $row['ID'],
+				'IBLOCK_ID' => $row['IBLOCK_ID'],
+			];
 		}
 		unset($row);
 
@@ -1905,14 +1949,10 @@ abstract class Base extends \CBitrixComponent
 			);
 		}
 
-		if (!empty($order))
-		{
-			foreach (array_keys($order) as $field)
-				$select[] = mb_strtoupper($field);
-			unset($field);
-		}
 		if (!empty($select))
+		{
 			$select = array_unique($select);
+		}
 
 		return [
 			'SELECT' => $select,
@@ -2233,7 +2273,7 @@ abstract class Base extends \CBitrixComponent
 				{
 					if (($ind = mb_strpos($name, 'CondIBProp')) !== false)
 					{
-						list($prefix, $iblock, $propertyId) = explode(':', $name);
+						[$prefix, $iblock, $propertyId] = explode(':', $name);
 						$operator = $ind > 0? mb_substr($prefix, 0, $ind) : '';
 
 						$catalogInfo = \CCatalogSku::GetInfoByIBlock($iblock);
@@ -2442,8 +2482,8 @@ abstract class Base extends \CBitrixComponent
 			$element['IBLOCK_SECTION_ID'],
 			array('SECTION_BUTTONS' => false, 'SESSID' => false, 'CATALOG' => true)
 		);
-		$element['EDIT_LINK'] = $buttons['edit']['edit_element']['ACTION_URL'];
-		$element['DELETE_LINK'] = $buttons['edit']['delete_element']['ACTION_URL'];
+		$element['EDIT_LINK'] = ($buttons['edit']['edit_element']['ACTION_URL'] ?? null);
+		$element['DELETE_LINK'] = ($buttons['edit']['delete_element']['ACTION_URL'] ?? null);
 	}
 
 	/**
@@ -2525,7 +2565,7 @@ abstract class Base extends \CBitrixComponent
 		));
 		while ($row = $iterator->fetch())
 		{
-			$ratio = (max((float)$row['RATIO'], (int)$row['RATIO']));
+			$ratio = max((float)$row['RATIO'], (int)$row['RATIO']);
 			if ($ratio > CATALOG_VALUE_EPSILON)
 			{
 				$row['RATIO'] = $ratio;
@@ -3972,7 +4012,7 @@ abstract class Base extends \CBitrixComponent
 									(!$boolArr && (string)$prop["VALUE"] !== '')
 								)
 								{
-									$row["DISPLAY_PROPERTIES"][$pid] = \CIBlockFormatProperties::GetDisplayValue($row, $prop, "catalog_out");
+									$row["DISPLAY_PROPERTIES"][$pid] = \CIBlockFormatProperties::GetDisplayValue($row, $prop);
 								}
 								unset($boolArr, $prop);
 							}
@@ -3980,6 +4020,10 @@ abstract class Base extends \CBitrixComponent
 						}
 					}
 					unset($row);
+				}
+				if (!empty($propertyList))
+				{
+					\CIBlockFormatProperties::clearCache();
 				}
 
 				if ($this->useDiscountCache)
@@ -4265,7 +4309,7 @@ abstract class Base extends \CBitrixComponent
 				$this->request->set(Main\Text\Encoding::convertEncoding($this->request->toArray(), 'UTF-8', SITE_CHARSET));
 			}
 
-			list($successfulAdd, $errorMsg) = $this->addProductToBasket($productId, $action);
+			[$successfulAdd, $errorMsg] = $this->addProductToBasket($productId, $action);
 
 			if ($addByAjax)
 			{
@@ -4409,7 +4453,7 @@ abstract class Base extends \CBitrixComponent
 		{
 			if ($this->arParams['CHECK_LANDING_PRODUCT_SECTION'])
 			{
-				list($successfulAdd, $errorMsg) = $this->checkProductSection(
+				[$successfulAdd, $errorMsg] = $this->checkProductSection(
 					$productId, $this->arParams['SECTION_ID'], $this->arParams['SECTION_CODE']
 				);
 			}
@@ -4695,6 +4739,7 @@ abstract class Base extends \CBitrixComponent
 				$emptyPreview = array(
 					'ID' => 0,
 					'SRC' => $emptyPreviewPath,
+					'FILE_NAME' => 'no_photo.png',
 					'WIDTH' => (int)$size[0],
 					'HEIGHT' => (int)$size[1]
 				);

@@ -73,19 +73,19 @@ class CDatabase extends CDatabaseMysql
 	public function ForSql($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
-			$strValue = mb_substr($strValue, 0, $iMaxLength);
+			$strValue = mb_substr($strValue ?? '', 0, $iMaxLength);
 
 		$this->DoConnect();
-		return mysqli_real_escape_string($this->db_Conn, $strValue);
+		return mysqli_real_escape_string($this->db_Conn, $strValue ?? '');
 	}
 
 	public function ForSqlLike($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
-			$strValue = mb_substr($strValue, 0, $iMaxLength);
+			$strValue = mb_substr($strValue ?? '', 0, $iMaxLength);
 
 		$this->DoConnect();
-		return mysqli_real_escape_string($this->db_Conn, str_replace("\\", "\\\\", $strValue));
+		return mysqli_real_escape_string($this->db_Conn, str_replace("\\", "\\\\", $strValue ?? ''));
 	}
 
 	public function GetTableFields($table)

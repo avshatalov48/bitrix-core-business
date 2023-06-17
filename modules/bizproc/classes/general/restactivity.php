@@ -480,12 +480,12 @@ class CBPRestActivity extends CBPActivity implements
 			{
 				$map[$name] = [
 					'Name' => RestActivityTable::getLocalization($property['NAME'], LANGUAGE_ID),
-					'Description' => RestActivityTable::getLocalization($property['DESCRIPTION'], LANGUAGE_ID),
+					'Description' => RestActivityTable::getLocalization($property['DESCRIPTION'] ?? '', LANGUAGE_ID),
 					'FieldName' => static::PROPERTY_NAME_PREFIX . mb_strtolower($name),
-					'Type' => $property['TYPE'],
-					'Required' => $property['REQUIRED'],
-					'Multiple' => $property['MULTIPLE'],
-					'Default' => $property['DEFAULT'],
+					'Type' => $property['TYPE'] ?? 'string',
+					'Required' => $property['REQUIRED'] ?? false,
+					'Multiple' => $property['MULTIPLE'] ?? false,
+					'Default' => $property['DEFAULT'] ?? null,
 					'Options' => $property['OPTIONS'] ?? null,
 				];
 			}
@@ -752,7 +752,7 @@ class CBPRestActivity extends CBPActivity implements
 		$properties = [];
 		foreach ($map as $key => $value)
 		{
-			$properties[$value] = $currentValues[$key];
+			$properties[$value] = $currentValues[$key] ?? null;
 		}
 
 		$activityData = self::getRestActivityData();
@@ -838,7 +838,7 @@ class CBPRestActivity extends CBPActivity implements
 		foreach ($properties as $name => $property)
 		{
 			$value = $testProperties[$name] ?? $property['DEFAULT'] ?? null;
-			if (CBPHelper::getBool($property['REQUIRED']) && CBPHelper::isEmptyValue($value))
+			if (CBPHelper::getBool($property['REQUIRED'] ?? false) && CBPHelper::isEmptyValue($value))
 			{
 				$errors[] = [
 					'code' => 'NotExist',
@@ -854,7 +854,7 @@ class CBPRestActivity extends CBPActivity implements
 
 		if (
 			isset($testProperties['AuthUserId'], $activityData['AUTH_USER_ID'])
-			&& (string)$testProperties['AuthUserId'] !== $activityData['AUTH_USER_ID']
+			&& CBPHelper::stringify($testProperties['AuthUserId']) !== 'user_' . $activityData['AUTH_USER_ID']
 			&& !static::checkAdminPermissions()
 		)
 		{
@@ -912,7 +912,7 @@ class CBPRestActivity extends CBPActivity implements
 	private static function normalizeProperty(array $property): array
 	{
 		$property['NAME'] = RestActivityTable::getLocalization($property['NAME'], LANGUAGE_ID);
-		$property['DESCRIPTION'] = RestActivityTable::getLocalization($property['DESCRIPTION'], LANGUAGE_ID);
+		$property['DESCRIPTION'] = RestActivityTable::getLocalization($property['DESCRIPTION'] ?? '', LANGUAGE_ID);
 
 		return  Bizproc\FieldType::normalizeProperty($property);
 	}

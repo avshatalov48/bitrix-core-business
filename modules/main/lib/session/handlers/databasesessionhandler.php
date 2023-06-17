@@ -11,7 +11,7 @@ class DatabaseSessionHandler extends AbstractSessionHandler
 		$this->readOnly = $options['readOnly'] ?? false; //defined('BX_SECURITY_SESSION_READONLY');
 	}
 
-	public function open($savePath, $sessionName)
+	public function open($savePath, $sessionName): bool
 	{
 		return true;
 	}
@@ -62,16 +62,16 @@ class DatabaseSessionHandler extends AbstractSessionHandler
 
 	/**
 	 * @param int $maxLifeTime
-	 * @return bool
+	 * @return int
 	 */
-	public function gc($maxLifeTime)
+	public function gc($maxLifeTime): int
 	{
 		UserSessionTable::deleteOlderThan($maxLifeTime);
 
-		return true;
+		return 0;
 	}
 
-	public function updateTimestamp($sessionId, $sessionData)
+	public function updateTimestamp($sessionId, $sessionData): bool
 	{
 		$result = UserSessionTable::update($sessionId, [
 			'TIMESTAMP_X' => new \Bitrix\Main\Type\DateTime(),

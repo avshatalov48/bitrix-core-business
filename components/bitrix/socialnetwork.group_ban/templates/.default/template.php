@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if($arResult["FatalError"] <> '')
+if(!empty($arResult["FatalError"]))
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -8,7 +8,7 @@ if($arResult["FatalError"] <> '')
 }
 else
 {
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />

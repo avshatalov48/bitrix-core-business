@@ -43,6 +43,7 @@ export class ProductList extends VuexBuilderModel
 				productId: null,
 				skuId: null,
 				code: null,
+				type: null,
 				module: null,
 				sort: 0,
 				price: null,

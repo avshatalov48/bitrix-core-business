@@ -1,18 +1,27 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-use Bitrix\Sale\Delivery;
-use Bitrix\Main\Page\Asset;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Sale\Delivery;
+use Bitrix\Catalog\VatTable;
+use Bitrix\Currency;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Delivery\ExtraServices;
-use Bitrix\Currency;
-use Bitrix\Catalog\VatTable;
 
-use \Bitrix\Sale\Helpers\Admin\BusinessValueControl;
+use Bitrix\Sale\Helpers\Admin\BusinessValueControl;
 
 Loc::loadMessages(__FILE__);
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
+
+$request = Main\Context::getCurrent()->getRequest();
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."sale_delivery_service_list.php?lang=".LANGUAGE_ID;
@@ -31,9 +40,16 @@ $ID = isset($_REQUEST["ID"]) ? intval($_REQUEST["ID"]) : 0;
 $srvStrError = "";
 $fields = array();
 $tabControlName = "tabControl";
-$isItSavingProcess = ($_SERVER['REQUEST_METHOD'] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '')) ? true : false;
-$isItReloadingProcess = ($_SERVER['REQUEST_METHOD'] == "POST" && (!isset($_POST["save"]) && !isset($_POST["apply"]))) ? true : false;
-$isItViewProcess = $_SERVER['REQUEST_METHOD'] != "POST";
+$isItSavingProcess =
+	$request->isPost()
+	&& ($request->getPost('save') !== null || $request->getPost('apply') !== null)
+;
+$isItReloadingProcess =
+	$request->isPost()
+	&& $request->getPost('save') === null
+	&& $request->getPost('apply') === null
+;
+$isItViewProcess = !$request->isPost();
 $classNamesList = Services\Manager::getHandlersList();
 $disableButtonsFlag = false;
 $backUrlReq = !empty($_REQUEST["back_url"]) ? str_replace("mode=list", "", $_REQUEST["back_url"]) : '';
@@ -139,6 +155,7 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 
 	if ($isItSavingProcess)
 	{
+		$service = null;
 		if($fields["NAME"] == '' )
 			$srvStrError .= Loc::getMessage("SALE_DSE_ERROR_NO_NAME").$delimiter;
 
@@ -179,7 +196,7 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 
 					if ($res->isSuccess())
 					{
-						// update some fields in children if need
+						// update some fields in children if you need
 						if(!empty($changedFields))
 						{
 							$fieldsList = array();
@@ -263,7 +280,7 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 
 		if($srvStrError == '')
 		{
-			if ($_POST["apply"] <> '')
+			if ($request->getPost('apply') !== null)
 			{
 				$paramsToKill = array();
 				if(!empty($_REQUEST["RESET_TARIF_SETTINGS"]))
@@ -280,7 +297,7 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 				$redirectUrl = $adminSidePanelHelper->setDefaultQueryParams($redirectUrl);
 				LocalRedirect($redirectUrl);
 			}
-			elseif($_POST["save"] <> '')
+			elseif($request->getPost('save') !== null)
 			{
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 				$adminSidePanelHelper->localRedirect((!empty($backUrlReq) ? $backUrlReq : $listUrl));
@@ -301,13 +318,17 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
  */
 if(empty($fields) && $ID <= 0)
 {
-	$fields["PARENT_ID"] = $_REQUEST["PARENT_ID"] ? intval($_REQUEST["PARENT_ID"]) : 0;
-	$fields["PROFILE_ID"] = $_REQUEST["PROFILE_ID"] ? htmlspecialcharsbx($_REQUEST["PROFILE_ID"]) : "";
-	$fields["SERVICE_TYPE"] = $_REQUEST["SERVICE_TYPE"] ? htmlspecialcharsbx($_REQUEST["SERVICE_TYPE"]) : "";
-	$fields["REST_CODE"] = $_REQUEST["REST_CODE"] ? htmlspecialcharsbx($_REQUEST["REST_CODE"]) : "";
+	$fields["PARENT_ID"] = (int)($_REQUEST["PARENT_ID"] ?? 0);
+	$fields["PROFILE_ID"] = htmlspecialcharsbx((string)($_REQUEST["PROFILE_ID"] ?? ""));
+	$fields["SERVICE_TYPE"] = htmlspecialcharsbx((string)($_REQUEST["SERVICE_TYPE"] ?? ""));
+	$fields["REST_CODE"] = htmlspecialcharsbx((string)($_REQUEST["REST_CODE"] ?? ""));
 	$fields["CURRENCY"] = COption::GetOptionString("sale", "default_currency", "RUB");
 	$fields["RIGHTS"] = "YYY"; //Admin Manager Client
 	$fields["ACTIVE"] = "Y";
+	$fields['NAME'] = '';
+	$fields['DESCRIPTION'] = '';
+	$fields['CLASS_NAME'] = '';
+	$fields['LOGOTIP'] = '';
 
 	if(!empty($_REQUEST["CLASS_NAME"]))
 	{
@@ -370,9 +391,10 @@ elseif ($action === "profile_delete")
 }
 
 /* Ask parent service witch class_names for children are allowed */
-if(intval($fields["PARENT_ID"]) > 0)
+$parentId = (int)($fields['PARENT_ID'] ?? 0);
+if ($parentId > 0)
 {
-	$parentService = Services\Manager::getObjectById($fields["PARENT_ID"]);
+	$parentService = Services\Manager::getObjectById($parentId);
 
 	if($parentService)
 		$classNamesList = $parentService->getChildrenClassNames();
@@ -397,7 +419,7 @@ else /* get all available */
 if(empty($fields["CLASS_NAME"]) && count($classNamesList) == 1)
 	$fields["CLASS_NAME"] = current($classNamesList);
 
-$isGroup = $fields["CLASS_NAME"] == '\Bitrix\Sale\Delivery\Services\Group';
+$isGroup = ($fields["CLASS_NAME"] ?? '') === '\Bitrix\Sale\Delivery\Services\Group';
 
 /** @var Services\Base|null $service */
 $service = null;
@@ -435,6 +457,9 @@ if((isset($fields["CLASS_NAME"]) && $fields["CLASS_NAME"] <> '') || $parentServi
 			$srvStrError = implode("<br>\n", $res->getErrorMessages())."<br>";
 
 		$fields = $service->prepareFieldsForUsing($fields);
+		$fields['PROFILE_ID'] ??= '';
+		$fields['SERVICE_TYPE'] ??= '';
+		$fields['REST_CODE'] ??= '';
 
 		try
 		{
@@ -626,55 +651,90 @@ if($canHasProfiles)
 
 	$lAdminSubServices->AddHeaders($profileHeader);
 
-	while ($profileParams = $profilesList->NavNext(true, "f_"))
+	while ($profileParams = $profilesList->Fetch())
 	{
-		$actUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANG."&PARENT_ID=".$f_PARENT_ID."&ID=".$f_ID.'&'.$tabControl->ActiveTabParam();
+		$actUrl =
+			$selfFolderUrl . "sale_delivery_service_edit.php?lang=".LANGUAGE_ID
+			. "&PARENT_ID=" . $profileParams['PARENT_ID']
+			. "&ID=" . $profileParams['ID']
+			. '&' . $tabControl->ActiveTabParam()
+		;
 		$actUrl = $adminSidePanelHelper->editUrlToPublicPage($actUrl)."&back_url=".$backUrl;
-		$row =& $lAdminSubServices->AddRow($f_ID, $profileParams, $actUrl, Loc::getMessage("SALE_DSE_EDIT_DESCR"));
+		$row =& $lAdminSubServices->AddRow(
+			$profileParams['ID'],
+			$profileParams,
+			$actUrl,
+			Loc::getMessage("SALE_DSE_EDIT_DESCR")
+		);
 
 		$atrTarget = $adminSidePanelHelper->isPublicFrame() ? 'target="_top"' : '';
-		$row->AddField("NAME", '<a '.$atrTarget.' href="'.$actUrl.'" class="adm-list-table-icon-link">'.
-				'<span class="adm-list-table-link">'.
-					$f_NAME.
-				'</span>'.
-			'</a>');
+		$row->AddField(
+			"NAME",
+			'<a ' . $atrTarget . ' href="' . $actUrl . '" class="adm-list-table-icon-link">'
+				. '<span class="adm-list-table-link">'
+				. htmlspecialcharsbx($profileParams['NAME'])
+				. '</span>'
+				. '</a>'
+		);
 
-		$row->AddField("ID", $f_ID);
+		$row->AddField("ID", htmlspecialcharsbx($profileParams['ID']));
 
-		$logoHtml = intval($f_LOGOTIP) > 0 ? CFile::ShowImage(CFile::GetFileArray($f_LOGOTIP), 150, 150, "border=0", "", false) : "";
+		$logotipId = (int)$profileParams['LOGOTIP'];
+		$logoHtml =
+			$logotipId > 0
+				? CFile::ShowImage(CFile::GetFileArray($logotipId), 150, 150, "border=0", "", false)
+				: ""
+		;
 		$row->AddField("LOGOTIP", $logoHtml);
-		$row->AddField("ACTIVE", (($f_ACTIVE=="Y") ? Loc::getMessage("SALE_DSE_YES") : Loc::getMessage("SALE_DSE_NO")));
-		$row->AddField("CLASS_NAME", $f_CLASS_NAME);
+		$row->AddField(
+			"ACTIVE",
+			($profileParams['ACTIVE'] === 'Y'
+				? Loc::getMessage("SALE_DSE_YES")
+				: Loc::getMessage("SALE_DSE_NO")
+			)
+		);
+		$row->AddField("CLASS_NAME", htmlspecialcharsbx((string)($profileParams['CLASS_NAME'] ?? '')));
 
-		$arActions = Array();
-		$copyUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."&action=copy";
+		$arActions = [];
+		$copyUrl =
+			$selfFolderUrl . "sale_delivery_service_edit.php?lang=" . LANGUAGE_ID
+			. "&ID=" . $profileParams['ID']
+			. "&action=copy"
+		;
 		$copyUrl = $adminSidePanelHelper->editUrlToPublicPage($copyUrl)."&back_url=".$backUrl;
-		$arActions[] = array(
+		$arActions[] = [
 			"ICON" => "edit",
 			"TEXT" => Loc::getMessage("SALE_DSE_COPY"),
 			"LINK" => $copyUrl,
-			"DEFAULT" => true
-		);
-		$editUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".$f_PARENT_ID."&ID=".$f_ID;
+			"DEFAULT" => true,
+		];
+		$editUrl =
+			$selfFolderUrl . "sale_delivery_service_edit.php?lang=" . LANGUAGE_ID
+			. "&PARENT_ID=" . $profileParams['PARENT_ID']
+			. "&ID=" . $profileParams['ID']
+		;
 		$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl)."&back_url=".$backUrl;
-		$arActions[] = array(
+		$arActions[] = [
 			"ICON" => "edit",
 			"TEXT" => Loc::getMessage("SALE_DSE_EDIT_DESCR"),
 			"LINK" => $editUrl,
-			"DEFAULT" => true
-		);
+			"DEFAULT" => true,
+		];
 
 		if ($saleModulePermissions >= "W")
 		{
-			$deleteUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".$fields["PARENT_ID"]."&ID=".$ID.
-				"&action=profile_delete&ID_PROF=".$f_ID;
+			$deleteUrl =
+				$selfFolderUrl . "sale_delivery_service_edit.php?lang=" . LANGUAGE_ID
+				. "&PARENT_ID=" . $fields["PARENT_ID"] . "&ID=" . $ID
+				. "&action=profile_delete&ID_PROF=" . $profileParams['ID']
+			;
 			$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
-			$arActions[] = array("SEPARATOR" => true);
-			$arActions[] = array(
+			$arActions[] = ["SEPARATOR" => true];
+			$arActions[] = [
 				"ICON" => "delete",
 				"TEXT" => Loc::getMessage("SALE_DSE_DELETE"),
 				"ACTION" => "if(confirm('".Loc::getMessage('SALE_DSE_CONFIRM_DEL_PROFILE_MESSAGE')."')) ".$lAdminSubServices->ActionRedirect($deleteUrl)
-			);
+			];
 		}
 
 		$row->AddActions($arActions);
@@ -710,8 +770,10 @@ if($canHasProfiles)
 
 	}
 
-	if($_REQUEST["table_id"]==$sTableIDSubService)
+	if ($request->get('table_id') == $sTableIDSubService)
+	{
 		$lAdminSubServices->CheckListMode();
+	}
 }
 /* profiles end */
 
@@ -819,7 +881,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			var iname = BX('adm-sale-delivery-name');
 
 			if(iname)
-				 iname.value = params.name;
+				iname.value = params.name;
 		}
 
 		if(typeof params.description != 'undefined')
@@ -830,7 +892,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	});
 
 </script>
-<?
+<?php
 if(!empty($backUrlReq))
 	$link = $backUrlReq;
 elseif($isGroup)
@@ -922,18 +984,16 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID; ?>">
 <input type="hidden" name="ID" value="<?=$ID ?>">
 <input type="hidden" name="CODE" value="<?=(isset($fields["CODE"]) ? htmlspecialcharsbx($fields["CODE"]) : "" )?>">
-<input type="hidden" name="PARENT_ID" value="<?=(isset($fields["PARENT_ID"]) ? $fields["PARENT_ID"] : "0" )?>">
+<input type="hidden" name="PARENT_ID" value="<?=($fields["PARENT_ID"] ?? "0")?>">
 <?=bitrix_sessid_post()?>
-
-<?if(is_array($fields)):?>
-	<?foreach($fields as $fieldName => $fieldValue): /* if fields don't show let's make them hidden */?>
-		<?if(!is_array($fieldValue) && $fieldValue <> '' && !array_key_exists($fieldName, $showFieldsList)):?>
+<?if(is_array($fields)):
+	foreach($fields as $fieldName => $fieldValue): /* if fields don't show let's make them hidden */
+		if(!is_array($fieldValue) && $fieldValue <> '' && !array_key_exists($fieldName, $showFieldsList)):?>
 			<input type="hidden" name="<?=$fieldName?>" value="<?=$fieldValue?>">
-		<?endif;?>
-	<?endforeach;?>
-<?endif;?>
+		<?endif;
+	endforeach;
+endif;
 
-<?
 $tabControl->Begin();
 /* General settings */
 $tabControl->BeginNextTab();
@@ -980,7 +1040,7 @@ $tabControl->BeginNextTab();
 	<?if(array_key_exists("SORT", $showFieldsList)):?>
 		<tr>
 			<td width="40%"><?=Loc::getMessage("SALE_DSE_FORM_SORT")?>:</td>
-			<td width="60%"><input type="text" name="SORT" value="<?=(isset($fields["SORT"]) ? $fields["SORT"] : "100" )?>" size="5"></td>
+			<td width="60%"><input type="text" name="SORT" value="<?=($fields["SORT"] ?? "100")?>" size="5"></td>
 		</tr>
 	<?endif;?>
 
@@ -990,7 +1050,7 @@ $tabControl->BeginNextTab();
 			<td width="60%">
 				<?=wrapDescrLHE(
 					'DESCRIPTION',
-					isset($fields["DESCRIPTION"]) ? $fields["DESCRIPTION"] : '',
+					$fields["DESCRIPTION"] ?? '',
 					'hndl_dscr');?>
 				<script language="JavaScript">BX.Sale.Delivery.setLHEClass('bxlhe_frame_hndl_dscr'); </script>
 			</td>

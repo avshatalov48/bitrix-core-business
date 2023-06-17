@@ -106,7 +106,7 @@ final class BlogComment extends Provider
 		);
 
 		$this->setSourceTitle(truncateText($title, 100));
-		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 		$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
 		$this->setSourceOriginalText($comment['POST_TEXT']);
 		$this->setSourceAuxData($comment);

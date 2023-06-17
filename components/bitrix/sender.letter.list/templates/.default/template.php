@@ -86,7 +86,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonColor = 'grey'; // red, grey
 				$buttonIcon = 'play'; // play, resume
 				$buttonAction = $enablePhoneVerificationForLetter
-					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+					? "BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { verified && BX.Sender.LetterList.send({$letterId}); }});"
 					: "BX.Sender.LetterList.send({$letterId});";
 			}
 		}
@@ -116,7 +116,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonColor = 'red'; // red, grey
 				$buttonIcon = 'resume'; // play, resume
 				$buttonAction = $enablePhoneVerificationForLetter
-					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); });"
+					? "BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); }});"
 					: "BX.Sender.LetterList.resume({$letterId});";
 			}
 		}
@@ -133,7 +133,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonColor = 'green'; // red, grey
 				$buttonIcon = 'play'; // play, resume
 				$buttonAction = $enablePhoneVerificationForLetter
-					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+					? "BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { verified && BX.Sender.LetterList.send({$letterId}); }});"
 					: "BX.Sender.LetterList.send({$letterId});";
 			}
 		}
@@ -360,7 +360,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND'),
 			'ONCLICK' => $enablePhoneVerificationForLetter
-				? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+				? "BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { verified && BX.Sender.LetterList.send({$letterId}); }});"
 				: "BX.Sender.LetterList.send({$letterId});",
 		);
 	}
@@ -378,7 +378,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME'),
 			'ONCLICK' => $enablePhoneVerificationForLetter
-				? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); });"
+				? "BX.Bitrix24.PhoneVerify.getInstance().startVerify({callback: function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); }});"
 				: "BX.Sender.LetterList.resume({$letterId});",
 		);
 	}
@@ -510,10 +510,6 @@ $APPLICATION->IncludeComponent(
 ?>
 <script type="text/javascript">
 	BX.ready(function () {
-		<?php if (! $arParams['IS_PHONE_CONFIRMED'] && $arParams['IS_BX24_INSTALLED']): ?>
-		BX.Bitrix24.PhoneVerify.setVerified(false);
-		<?php endif; ?>
-
 		BX.Sender.LetterList.init(<?=Json::encode(array(
 			'actionUri' => $arResult['ACTION_URI'],
 			'messages' => $arResult['MESSAGES'],

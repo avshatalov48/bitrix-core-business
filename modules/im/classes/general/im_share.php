@@ -69,7 +69,7 @@ class CIMShare
 		if ($message['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE)
 		{
 			$dialogId = $this->user_id;
-			$relations = \Bitrix\Im\Chat::getRelation($parentChatId);
+			$relations = \Bitrix\Im\Chat::getRelation($parentChatId, ['WITHOUT_COUNTERS' => 'Y']);
 			foreach ($relations as $relation)
 			{
 				if ($relation['USER_ID'] != $this->user_id)
@@ -121,7 +121,7 @@ class CIMShare
 			CTextParser::clearAllTags($message['MESSAGE'])
 		)), 0, 255);
 		$task->title = $taskTitle? $taskTitle: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_TASK', Array('#LINK#' => '')));
-		$task->description = $this->PrepareText($message)."\n";
+		$task->description = self::PrepareText($message)."\n";
 		$task['RESPONSIBLE_ID'] = $this->user_id;
 		if (
 			$message['AUTHOR_ID'] > 0 && $message['AUTHOR_ID'] != $this->user_id
@@ -194,9 +194,18 @@ class CIMShare
 			return false;
 		}
 
+		$taskItem = new \Bitrix\Im\V2\Link\Task\TaskItem();
+		$taskItem
+			->setEntityId($task->getId())
+			->setChatId($message['CHAT_ID'])
+			->setMessageId($messageId)
+			->setAuthorId($this->user_id)
+			->save()
+		;
+
 		$link = CTaskNotifications::getNotificationPath(array('ID' => $this->user_id), $task->getId());
 
-		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_TASK', Array('#LINK#' => $link)), $message, $messageParams);
+		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_TASK', Array('#LINK#' => $link)), $message, $messageParams, true);
 
 		return true;
 	}
@@ -243,7 +252,7 @@ class CIMShare
 				'CAL_TYPE' => 'user',
 				'OWNER_ID' => $this->user_id,
 				'NAME' => CTextParser::clearAllTags($message['MESSAGE']),
-				'DESCRIPTION' => $this->PrepareText($message),
+				'DESCRIPTION' => self::PrepareText($message),
 				'SKIP_TIME' => false,
 				'DATE_FROM' => $dateFrom,
 				'DATE_TO' => $dateTo,
@@ -262,7 +271,7 @@ class CIMShare
 
 		$messageParams = Array('LINK_ACTIVE' => Array((string)$this->user_id));
 
-		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_CALEND', Array('#LINK#' => $link)), $message, $messageParams);
+		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_CALEND', Array('#LINK#' => $link)), $message, $messageParams, true);
 
 		return true;
 	}
@@ -293,7 +302,7 @@ class CIMShare
 		));
 		$title = $title? $title: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_POST_2', Array('#LINK#' => '')));
 
-		$messagePost = $this->PrepareText($message)."\n".GetMessage('IM_SHARE_POST_WELCOME');
+		$messagePost = self::PrepareText($message)."\n".GetMessage('IM_SHARE_POST_WELCOME');
 
 		$sonetRights = Array();
 		$messageParams = Array();
@@ -333,7 +342,7 @@ class CIMShare
 
 		if (empty($sonetRights))
 		{
-			$relations = CIMChat::GetRelationById($message['CHAT_ID']);
+			$relations = CIMChat::GetRelationById($message['CHAT_ID'], false, true, false);
 			$sonetRights = [];
 			foreach ($relations as $relation)
 			{
@@ -496,7 +505,7 @@ class CIMShare
 		return $task;
 	}
 
-	private function PrepareText($quoteMessage)
+	public static function PrepareText($quoteMessage)
 	{
 		$quoteMessage['MESSAGE'] = preg_replace("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", "$2", $quoteMessage['MESSAGE']);
 		$quoteMessage['MESSAGE'] = preg_replace("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", "$2", $quoteMessage['MESSAGE']);
@@ -510,7 +519,8 @@ class CIMShare
 			if ($chat)
 			{
 				$url = $chat['ENTITY_TYPE'] == 'LINES'? 'imol|'.$chat['ENTITY_ID']: 'chat'.$chat['ID'];
-				$result .= "[B]".GetMessage('IM_SHARE_CHAT').":[/B] [URL=/online/?IM_DIALOG=".$url."]".$chat['TITLE']."[/URL]\n";
+				$messageContext = isset($quoteMessage['MESSAGE_ID']) ? '&IM_MESSAGE=' . (int)$quoteMessage['MESSAGE_ID'] : '';
+				$result .= "[B]".GetMessage('IM_SHARE_CHAT').":[/B] [URL=/online/?IM_DIALOG=".$url.$messageContext."]".$chat['TITLE']."[/URL]\n";
 			}
 		}
 
@@ -530,7 +540,7 @@ class CIMShare
 		return $result;
 	}
 
-	private function SendMessage($startText, $endText, $quoteMessage, $messageParams = Array())
+	private function SendMessage($startText, $endText, $quoteMessage, $messageParams = Array(), bool $skipUrlIndex = false)
 	{
 		$userName = \Bitrix\Im\User::getInstance($quoteMessage['AUTHOR_ID'])->getFullName(false);
 		$messageDate = FormatDate('X', $quoteMessage['DATE_CREATE'], time() + CTimeZone::GetOffset());
@@ -581,6 +591,7 @@ class CIMShare
 				'SKIP_CONNECTOR' => 'Y',
 				'SKIP_COMMAND' => 'Y',
 				'SILENT_CONNECTOR' => 'Y',
+				'SKIP_URL_INDEX' => $skipUrlIndex ? 'Y' : 'N',
 			));
 		}
 		else
@@ -597,6 +608,7 @@ class CIMShare
 					'SKIP_CONNECTOR' => 'Y',
 					'SKIP_COMMAND' => 'Y',
 					'SILENT_CONNECTOR' => 'Y',
+					'SKIP_URL_INDEX' => $skipUrlIndex ? 'Y' : 'N',
 				));
 			}
 			else
@@ -610,6 +622,7 @@ class CIMShare
 					'SKIP_CONNECTOR' => 'Y',
 					'SKIP_COMMAND' => 'Y',
 					'SILENT_CONNECTOR' => 'Y',
+					'SKIP_URL_INDEX' => $skipUrlIndex ? 'Y' : 'N',
 				));
 			}
 		}

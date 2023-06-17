@@ -54,6 +54,7 @@
 	display: flex;
 	padding: 0;
 	color: #fff;
+	cursor: pointer;
 }
 
 .ui-notification-manager-browser-icon {

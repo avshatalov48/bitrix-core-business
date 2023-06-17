@@ -120,7 +120,7 @@ if (!empty($arResult['TOOLBAR_BUTTONS']))
 			'link' => $button['LINK'],
 			'color' => Buttons\Color::SUCCESS,
 			'text' => $button['TITLE'],
-			'click' => $button['CLICK']
+			'click' => $button['CLICK'] ?? '',
 		], ButtonLocation::AFTER_TITLE);
 	}
 }

@@ -386,11 +386,6 @@ class AdminFilterOption extends Stepper
 				}
 				break;
 			case "year":
-				$newDateType = DateType::RANGE;
-				break;
-			case "exact":
-				$newDateType = DateType::EXACT;
-				break;
 			case "before":
 			case "after":
 			case "interval":

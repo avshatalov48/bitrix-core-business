@@ -30,7 +30,6 @@ $this->setFrameMode(true);
 		"META_DESCRIPTION" => $arParams["META_DESCRIPTION"],
 		"BROWSER_TITLE" => $arParams["BROWSER_TITLE"],
 		"SET_CANONICAL_URL" => $arParams["DETAIL_SET_CANONICAL_URL"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"SET_LAST_MODIFIED" => $arParams["SET_LAST_MODIFIED"],
 		"SET_TITLE" => "Y",
 		"MESSAGE_404" => $arParams["MESSAGE_404"],
@@ -64,13 +63,13 @@ $this->setFrameMode(true);
 		"SHARE_HANDLERS" => $arParams["SHARE_HANDLERS"],
 		"SHARE_SHORTEN_URL_LOGIN" => $arParams["SHARE_SHORTEN_URL_LOGIN"],
 		"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
-		"ADD_ELEMENT_CHAIN" => (isset($arParams["ADD_ELEMENT_CHAIN"]) ? $arParams["ADD_ELEMENT_CHAIN"] : ''),
+		"ADD_ELEMENT_CHAIN" => $arParams["ADD_ELEMENT_CHAIN"],
 		"USE_RATING" => $arParams["USE_RATING"],
 		"MAX_VOTE" => $arParams["MAX_VOTE"],
 		"VOTE_NAMES" => $arParams["VOTE_NAMES"],
 		"MEDIA_PROPERTY" => $arParams["MEDIA_PROPERTY"],
-		"SLIDER_PROPERTY" => $arParams["SLIDER_PROPERTY"],
-		"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"],
+		"SLIDER_PROPERTY" => ($arParams["SLIDER_PROPERTY"] ?? ''),
+		"TEMPLATE_THEME" => ($arParams["TEMPLATE_THEME"] ?? ''),
 		"STRICT_SECTION_CHECK" => $arParams["STRICT_SECTION_CHECK"],
 	),
 	$component
@@ -157,4 +156,4 @@ $this->setFrameMode(true);
 	),
 	$component
 );?>
-<?endif?>
+<?endif;

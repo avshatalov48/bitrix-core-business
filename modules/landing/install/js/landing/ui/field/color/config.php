@@ -13,6 +13,7 @@ return [
 		'ui.fonts.opensans',
 		'ui.design-tokens',
 		'main.core.events',
+		'landing.ui.field.image',
 		'landing.backend',
 		'landing.pageobject',
 		'main.core',

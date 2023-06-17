@@ -1,4 +1,8 @@
 <?php
+$MESS["CALENDAR_SHARING_COMPONENT_CLASS_CALENDAR_TITLE"] = "Time slots";
+$MESS["CALENDAR_SHARING_COMPONENT_CLASS_EVENT_TITLE"] = "Meeting";
+$MESS["CALENDAR_SHARING_COMPONENT_OG_DESCRIPTION"] = "Please pick the time for meeting with me.";
+$MESS["CALENDAR_SHARING_COMPONENT_OG_TITLE"] = "My open slots";
 $MESS["DEL_CON_CALENDARS"] = "Delete Calendars";
 $MESS["EC_ACCEPTED_STATUS"] = "You will be attending this meeting.";
 $MESS["EC_ACCEPT_MAYBE_MEETING"] = "Maybe";
@@ -560,7 +564,6 @@ $MESS["EC_SELECT_USER"] = "Select User";
 $MESS["EC_SELECT_USERS_NOTICE"] = "Select a required department or user(s) and click \"Select\".";
 $MESS["EC_SEND_FROM_EMAIL"] = "Send invitations from email";
 $MESS["EC_SEND_FROM_EMAIL_HELP"] = "Learn more about this email";
-$MESS["EC_SEND_FROM_EMAIL_HELP_HREF"] = "https://helpdesk.bitrix24.com/open/12484934/";
 $MESS["EC_SEND_FROM_EMAIL_HELP_TITLE"] = "You can send email invitations to employees, partners or customers. Click to learn more.";
 $MESS["EC_SEP"] = "September";
 $MESS["EC_SEP_R"] = "September";

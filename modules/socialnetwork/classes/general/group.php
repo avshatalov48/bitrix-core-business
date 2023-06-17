@@ -62,7 +62,7 @@ class CAllSocNetGroup
 			}
 		}
 
-		if ((is_set($arFields, "NAME") || $ACTION === "ADD") && $arFields["NAME"] == '')
+		if ((is_set($arFields, "NAME") || $ACTION === "ADD") && ($arFields["NAME"] ?? '') === '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GB_EMPTY_NAME"), "EMPTY_NAME");
 			return false;
@@ -123,17 +123,29 @@ class CAllSocNetGroup
 			$arFields["ACTIVE"] = "Y";
 		}
 
-		if ((is_set($arFields, "VISIBLE") || $ACTION === "ADD") && $arFields["VISIBLE"] !== "Y" && $arFields["VISIBLE"] !== "N")
+		if (
+			(is_set($arFields, "VISIBLE") || $ACTION === "ADD")
+			&& ($arFields["VISIBLE"] ?? null) !== "Y"
+			&& ($arFields["VISIBLE"] ?? null) !== "N"
+		)
 		{
 			$arFields["VISIBLE"] = "Y";
 		}
 
-		if ((is_set($arFields, "OPENED") || $ACTION === "ADD") && $arFields["OPENED"] !== "Y" && $arFields["OPENED"] !== "N")
+		if (
+			(is_set($arFields, "OPENED") || $ACTION === "ADD")
+			&& ($arFields["OPENED"] ?? null) !== "Y"
+			&& ($arFields["OPENED"] ?? null) !== "N"
+		)
 		{
 			$arFields["OPENED"] = "N";
 		}
 
-		if ((is_set($arFields, "CLOSED") || $ACTION=="ADD") && $arFields["CLOSED"] != "Y" && $arFields["CLOSED"] !== "N")
+		if (
+			(is_set($arFields, "CLOSED") || $ACTION=="ADD")
+			&& ($arFields["CLOSED"] ?? null) != "Y"
+			&& ($arFields["CLOSED"] ?? null) !== "N"
+		)
 		{
 			$arFields["CLOSED"] = "N";
 		}
@@ -162,8 +174,15 @@ class CAllSocNetGroup
 			return false;
 		}
 
-		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] !== "Y"))
+		if (
+			is_set($arFields, "IMAGE_ID")
+			&& is_array($arFields["IMAGE_ID"])
+			&& ($arFields["IMAGE_ID"]["name"] ?? '') == ''
+			&& ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] !== "Y")
+		)
+		{
 			unset($arFields["IMAGE_ID"]);
+		}
 
 		if (is_set($arFields, "IMAGE_ID"))
 		{
@@ -530,8 +549,8 @@ class CAllSocNetGroup
 
 		if (
 			is_array($sonetGroupCache)
-			&& is_array($sonetGroupCache[$id])
-			&& is_array($sonetGroupCache[$id][$staticCacheKey])
+			&& is_array(($sonetGroupCache[$id] ?? null))
+			&& is_array(($sonetGroupCache[$id][$staticCacheKey] ?? null))
 		)
 		{
 			return $sonetGroupCache[$id][$staticCacheKey];
@@ -631,7 +650,7 @@ class CAllSocNetGroup
 
 				$result['NAME_FORMATTED'] = $result['NAME'];
 
-				if ($options['getSites'])
+				if (($options['getSites'] ?? false))
 				{
 					$result['SITE_LIST'] = [];
 					$res = CSocNetGroup::getSite($id);
@@ -1200,14 +1219,14 @@ class CAllSocNetGroup
 							$strSqlSelect .= $key."(".$arFields[$val]["FIELD"].") as ".$val;
 						else
 						{
-							if ($arFields[$val]["TYPE"] == "datetime")
+							if (($arFields[$val]["TYPE"] ?? null) === "datetime")
 							{
 								if (array_key_exists($val, $arOrder))
 									$strSqlSelect .= $arFields[$val]["FIELD"]." as ".$val."_X1, ";
 
 								$strSqlSelect .= $DB->DateToCharFunction($arFields[$val]["FIELD"])." as ".$val;
 							}
-							elseif ($arFields[$val]["TYPE"] == "date")
+							elseif (($arFields[$val]["TYPE"] ?? null) === "date")
 							{
 								if (array_key_exists($val, $arOrder))
 									$strSqlSelect .= $arFields[$val]["FIELD"]." as ".$val."_X1, ";

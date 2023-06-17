@@ -247,7 +247,7 @@ class CSocNetLogDestination
 		)
 		{
 			$result["department_relation"] = self::GetTreeList('DR'.(intval($department_id) > 0 ? $department_id : 0), $result["department"], true);
-			if (intval($arParams["HEAD_DEPT"]) > 0)
+			if ((int) ($arParams["HEAD_DEPT"] ?? 0) > 0)
 			{
 				$result["department_relation_head"] = self::GetTreeList('DR'.intval($arParams["HEAD_DEPT"]), $result["department"], true);
 			}
@@ -466,8 +466,8 @@ class CSocNetLogDestination
 		}
 
 		$avatarSize = array(
-			"width" => (intval($arParams["THUMBNAIL_SIZE_WIDTH"]) > 0 ? $arParams["THUMBNAIL_SIZE_WIDTH"] : 100),
-			"height" => (intval($arParams["THUMBNAIL_SIZE_HEIGHT"]) > 0 ? $arParams["THUMBNAIL_SIZE_HEIGHT"] : 100)
+			"width" => (intval($arParams["THUMBNAIL_SIZE_WIDTH"] ?? 0) > 0 ? $arParams["THUMBNAIL_SIZE_WIDTH"] : 100),
+			"height" => (intval($arParams["THUMBNAIL_SIZE_HEIGHT"] ?? 0) > 0 ? $arParams["THUMBNAIL_SIZE_HEIGHT"] : 100)
 		);
 
 		$cacheTtl = 3153600;
@@ -1726,12 +1726,16 @@ class CSocNetLogDestination
 					{
 						$arFileTmp = CFile::ResizeImageGet(
 							$imageFile,
-							array(
-								"width" => ((int)$arParams["THUMBNAIL_SIZE_WIDTH"] > 0 ? $arParams["THUMBNAIL_SIZE_WIDTH"] : 100),
-								"height" => ((int)$arParams["THUMBNAIL_SIZE_HEIGHT"] > 0 ? $arParams["THUMBNAIL_SIZE_HEIGHT"] : 100)
-							),
-							BX_RESIZE_IMAGE_PROPORTIONAL,
-							false
+							[
+								"width" => ((int) ($arParams["THUMBNAIL_SIZE_WIDTH"] ?? 0) > 0
+									? $arParams["THUMBNAIL_SIZE_WIDTH"]
+									: 100
+								),
+								"height" => ((int) ($arParams["THUMBNAIL_SIZE_HEIGHT"] ?? 0) > 0
+									? $arParams["THUMBNAIL_SIZE_HEIGHT"]
+									: 100
+								)
+							],
 						);
 						$group["avatar"] = $arFileTmp["src"];
 					}
@@ -1804,7 +1808,7 @@ class CSocNetLogDestination
 		}
 
 		$arRelations = Array();
-		if (is_array($relation[$id]))
+		if (is_array($relation[$id] ?? null))
 		{
 			foreach ($relation[$id] as $relId)
 			{
@@ -1851,7 +1855,7 @@ class CSocNetLogDestination
 			{
 				foreach ($tmpOps as $key=>$val)
 				{
-					if (!$arGroupsPerms[$key])
+					if (!($arGroupsPerms[$key] ?? null))
 					{
 						$arGroupsPerms[$key] = $val;
 					}

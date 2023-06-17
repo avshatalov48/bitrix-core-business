@@ -49,11 +49,12 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($lAdmin->GetEditFields() as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
+
+		$DB->StartTransaction();
 
 		$arFields = CSaleOrderPropsAdapter::convertNewToOld($arFields);
 		if (!CSaleOrderProps::Update($ID, $arFields))
@@ -65,8 +66,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -110,6 +113,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 							\Bitrix\Crm\Order\Matcher\Internals\OrderPropsMatchTable::delete($property['ID']);
 						}
 					}
+					$DB->Commit();
 				}
 				else
 				{
@@ -120,8 +124,6 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SOPAN_ERROR_DELETE"), $ID);
 				}
-
-				$DB->Commit();
 
 				break;
 		}
@@ -163,7 +165,7 @@ while ($arPersonType = $dbPersonType->Fetch())
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 while ($arOrderProp = $dbResultList->NavNext(true, "f_"))
 {
-	$editUrl = "sale_order_props_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_");
+	$editUrl = "sale_order_props_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_");
 	$row =& $lAdmin->AddRow($f_ID, $arOrderProp, $editUrl, GetMessage("SALE_EDIT_DESCR"));
 	$row->AddField("ID", "<b><a href='".$editUrl."' title='".GetMessage("SALE_EDIT_DESCR")."'>".$f_ID."</a>");
 
@@ -244,7 +246,7 @@ if ($saleModulePermissions == "W")
 	{
 		$arDDMenu[] = array(
 			"TEXT" => "[".$arRes["ID"]."] ".$arRes["NAME"]." (".$arRes["LID"].")",
-			"ACTION" => "window.location = 'sale_order_props_edit.php?lang=".LANG."&PERSON_TYPE_ID=".$arRes["ID"].GetFilterParams("filter_")."';"
+			"ACTION" => "window.location = 'sale_order_props_edit.php?lang=" . LANGUAGE_ID . "&PERSON_TYPE_ID=".$arRes["ID"].GetFilterParams("filter_")."';"
 		);
 	}
 

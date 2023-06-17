@@ -24,11 +24,12 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
+
+		$DB->StartTransaction();
 
 		if (!CSaleTax::Update($ID, $arFields))
 		{
@@ -39,8 +40,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -78,8 +81,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("ERROR_DEL_TAX"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}

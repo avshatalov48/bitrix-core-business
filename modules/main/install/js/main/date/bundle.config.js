@@ -1,6 +1,8 @@
 module.exports = {
 	input: './src/index.js',
+	output: './main.date.js',
 	namespace: 'BX.Main',
 	protected: true,
-	adjustConfigPhp: false,
+	browserslist: true,
+	transformClasses: true,
 };

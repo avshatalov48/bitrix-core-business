@@ -408,6 +408,19 @@ class Rights
 			return array_values($types);
 		}
 
+		// check scoped method
+		if (
+			$entityType == self::ENTITY_TYPE_SITE
+			&& !is_array($entityId) && $entityId > 0
+		)
+		{
+			$scopeOperationsSite = Site\Type::getOperationsForSite($entityId);
+			if ($scopeOperationsSite !== null)
+			{
+				return array_values($scopeOperationsSite);
+			}
+		}
+
 		$operations = [];
 		$operationsDefault = [];
 		$wasChecked = false;
@@ -498,11 +511,11 @@ class Rights
 	}
 
 	/**
-	 * Gets all available operations for site (for current user).
+	 * Returns  all available operations for site (for current user).
 	 * @param int|array $siteId Site id (id or array of id).
 	 * @return array
 	 */
-	public static function getOperationsForSite($siteId)
+	public static function getOperationsForSite($siteId): array
 	{
 		if (
 			is_array($siteId) ||

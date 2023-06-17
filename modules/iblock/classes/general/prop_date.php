@@ -1,35 +1,37 @@
 <?php
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class CIBlockPropertyDate extends CIBlockPropertyDateTime
 {
-	const USER_TYPE = 'Date';
+	public const USER_TYPE = 'Date';
+
+	private const INTERNAL_FORMAT = 'YYYY-MM-DD';
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
+		return [
 			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_STRING,
 			"USER_TYPE" => self::USER_TYPE,
 			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_DATE_DESC"),
 			//optional handlers
-			"GetPublicViewHTML" => array(__CLASS__, "GetPublicViewHTML"),
-			"GetPublicEditHTML" => array(__CLASS__, "GetPublicEditHTML"),
-			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"CheckFields" => array(__CLASS__, "CheckFields"),
-			"ConvertToDB" => array(__CLASS__, "ConvertToDB"),
-			"ConvertFromDB" => array(__CLASS__, "ConvertFromDB"),
-			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
-			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
-			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
-			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
-			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
+			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
+			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
+			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
+			"CheckFields" => [__CLASS__, "CheckFields"],
+			"ConvertToDB" => [__CLASS__, "ConvertToDB"],
+			"ConvertFromDB" => [__CLASS__, "ConvertFromDB"],
+			"GetSettingsHTML" => [__CLASS__, "GetSettingsHTML"],
+			"GetAdminFilterHTML" => [__CLASS__, "GetAdminFilterHTML"],
+			"GetPublicFilterHTML" => [__CLASS__, "GetPublicFilterHTML"],
+			"AddFilterFields" => [__CLASS__, "AddFilterFields"],
+			"GetUIFilterProperty" => [__CLASS__, "GetUIFilterProperty"],
+			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
 			//"GetORMFields" => array(__CLASS__, "GetORMFields"),
-		);
+		];
 	}
 
 	/**
@@ -43,30 +45,51 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 	{
 		$valueEntity->addField(
 			(new \Bitrix\Main\ORM\Fields\DateField('DATE'))
-				->configureFormat('Y-m-d')
+				->configureFormat(parent::FORMAT_SHORT)
 				->configureColumnName($valueEntity->getField('VALUE')->getColumnName())
 		);
 	}
 
 	public static function ConvertToDB($arProperty, $value)
 	{
-		if ($value["VALUE"] <> '')
-			$value["VALUE"] = CDatabase::FormatDate($value["VALUE"], CLang::GetDateFormat("SHORT"), "YYYY-MM-DD");
+		$dateTimeValue = (string)($value['VALUE'] ?? '');
+		if ($dateTimeValue !== '')
+		{
+			if (!static::checkInternalFormatValue($dateTimeValue))
+			{
+				$value['VALUE'] = CDatabase::FormatDate(
+					$dateTimeValue,
+					CLang::GetDateFormat('SHORT'),
+					self::INTERNAL_FORMAT
+				);
+			}
+			else
+			{
+				$value['VALUE'] = $dateTimeValue;
+			}
+		}
 
 		return $value;
 	}
 
 	public static function ConvertFromDB($arProperty, $value, $format = '')
 	{
-		if($value["VALUE"] <> '')
-			$value["VALUE"] = CDatabase::FormatDate($value["VALUE"], "YYYY-MM-DD", CLang::GetDateFormat("SHORT"));
+		$dateTimeValue = (string)($value['VALUE'] ?? '');
+		if ($dateTimeValue !== '')
+		{
+			$value['VALUE'] = CDatabase::FormatDate(
+				$dateTimeValue,
+				self::INTERNAL_FORMAT,
+				CLang::GetDateFormat('SHORT')
+			);
+		}
 
 		return $value;
 	}
 
 	public static function GetPublicEditHTML($arProperty, $value, $strHTMLControlName)
 	{
-		/** @var CMain */
+		/** @var CMain $APPLICATION*/
 		global $APPLICATION;
 
 		$s = '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" size="25" value="'.htmlspecialcharsbx($value["VALUE"]).'" />';
@@ -117,11 +140,26 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 	 */
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
+		$culture = Context::getCurrent()->getCulture();
+
 		$dateTimeResult = parent::GetUIEntityEditorProperty($settings, $value);
 		$dateTimeResult['data'] = [
 			'enableTime' => false,
-			'dateViewFormat' =>  \Bitrix\Main\Context::getCurrent()->getCulture()->getLongDateFormat(),
+			'dateViewFormat' =>  $culture->getLongDateFormat(),
 		];
+
 		return $dateTimeResult;
+	}
+
+	protected static function checkInternalFormatValue(string $value): bool
+	{
+		if ($value === '')
+		{
+			return false;
+		}
+
+		$correctValue = date_parse_from_format(parent::FORMAT_SHORT, $value);
+
+		return ($correctValue['warning_count'] === 0 && $correctValue['error_count'] === 0);
 	}
 }

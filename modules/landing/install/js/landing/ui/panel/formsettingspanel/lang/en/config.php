@@ -42,6 +42,9 @@ $MESS["LANDING_FORM_CALLBACK_WARNING_HEADER"] = "No suitable phone numbers found
 $MESS["LANDING_FORM_CALLBACK_WARNING_TEXT"] = "Please connect a phone number on the <a href=\"/telephony/\" class=\"landing-ui-component-link\" target=\"_blank\">Telephony</a> page to use callbacks.";
 $MESS["LANDING_FORM_DEFAULT_PHONE_NOT_SELECTED"] = "Not selected";
 $MESS["LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED"] = "Not selected";
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_DESCRIPTION"] = "For security reasons, you will have to enter a verification code that we send to your phone. This has to be done only once for each form.";
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_SLIDER_TITLE"] = "Edit form";
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_TITLE"] = "Receive confirmation code in SMS";
 $MESS["LANDING_FORM_EDITOR_SAVE_BUTTON_STATE_SAVED"] = "Saved";
 $MESS["LANDING_FORM_EMBED_AUTO_SHOW_SETTINGS_HEADER"] = "Show form";
 $MESS["LANDING_FORM_EMBED_CLICK_SETTINGS_HEADER"] = "Show form on click";
@@ -169,6 +172,7 @@ $MESS["LANDING_HEADER_AND_BUTTONS_VARIABLE_NAME"] = "First name";
 $MESS["LANDING_IDENTIFY_HEADER"] = "Client match";
 $MESS["LANDING_IDENTIFY_MESSAGE_DESCRIPTION"] = "The less time a customer needs to fill out a form, the more chance of winning a sale!<br>If a customer filled out a form on your site in the past, their information is already in your CRM. Why not use it? Have the form recognize the customer and prefill form fields with data obtained previously.";
 $MESS["LANDING_IDENTIFY_MESSAGE_HEADER"] = "Client match feature is enabled!";
+$MESS["LANDING_RULE_CONDITION_VALUE_EMPTY_MSGVER_1"] = "Not specified";
 $MESS["LANDING_RULE_CONDITION_VALUE_NO"] = "No";
 $MESS["LANDING_RULE_CONDITION_VALUE_YES"] = "Yes";
 $MESS["LANDING_RULE_ENTRY_ADD_FIELD_LABEL"] = "Select field";

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["DEVSERVER_ADMIN_MESSAGE"] = "This installation exists as a Bitrix Site Manager development workbench. It must not be used as a publicly available website.";
 $MESS["MAIN_PROLOG_ADMIN_LOGOUT"] = "Log off";
 $MESS["MAIN_PROLOG_ADMIN_TITLE"] = "Administrative section";
@@ -42,23 +42,21 @@ $MESS["prolog_main_m_e_n_u"] = "M<br>e<br>n<br>u<br>";
 $MESS["prolog_main_more_buttons"] = "Enlarge buttons";
 $MESS["prolog_main_show_menu"] = "Show menu";
 $MESS["prolog_main_support1"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>will expire</b> on #FINISH_DATE#, #DAYS_AGO#. You can buy <a href=\"http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Early subscription renewal</a> within one month after expiration date.";
-$MESS["prolog_main_support11"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>will expire</b> on #FINISH_DATE#, #DAYS_AGO#.#WHAT_IS_IT#";
-$MESS["prolog_main_support11_l"] = "<span class=\"required\">Attention!</span> Your license will <b>expire</b> on #FINISH_DATE#, #DAYS_AGO#.#WHAT_IS_IT#<br />Extend your license to receive updates and technical support.";
 $MESS["prolog_main_support2"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>has expired</b> on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;days</b> ago. You can buy <a href=\\http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Early subscription renewal</a> within one month after expiration date.";
-$MESS["prolog_main_support21"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription has expired on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;</b> days ago.#WHAT_IS_IT#<br />Your early renewal grace period will end on #SUP_FINISH_DATE#.";
-$MESS["prolog_main_support21_l"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;days</b> ago.#WHAT_IS_IT#<br />Extend your license today to receive updates and technical support.";
 $MESS["prolog_main_support3"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>has expired</b> on #FINISH_DATE#. You can buy <a href=\"http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Late subscription renewal</a>.";
+$MESS["prolog_main_support11"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>will expire</b> on #FINISH_DATE#, #DAYS_AGO#.#WHAT_IS_IT#";
+$MESS["prolog_main_support21"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription has expired on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;</b> days ago.#WHAT_IS_IT#<br />Your early renewal grace period will end on #SUP_FINISH_DATE#.";
 $MESS["prolog_main_support31"] = "<span class=\"required\"><span class=\"required\">Attention!</span> Your techsupport and update subscription has expired on #FINISH_DATE#.#WHAT_IS_IT#<br />You can now renew your subscription.";
-$MESS["prolog_main_support31_l"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#.#WHAT_IS_IT#<br />Extend your license today to receive update and technical support.";
+$MESS["prolog_main_support_almost_expire"] = "<span class=\"required\">Attention!</span> Your license will <b>expire</b> on #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Learn more</span>)<br />If you fail to renew your license, you will lose access to updates and technical support.";
 $MESS["prolog_main_support_button_no_prolong"] = "No, thanks";
 $MESS["prolog_main_support_button_no_prolong2"] = "Remind me later";
 $MESS["prolog_main_support_button_prolong"] = "Renew Subscription";
 $MESS["prolog_main_support_days"] = "in <b>#N_DAYS_AGO#&nbsp;day(s)</b>";
+$MESS["prolog_main_support_expired"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Learn more</span>)<br />You cannot access updates or technical support.";
 $MESS["prolog_main_support_menu1"] = "in:";
 $MESS["prolog_main_support_menu2"] = "week";
 $MESS["prolog_main_support_menu3"] = "two weeks";
 $MESS["prolog_main_support_menu4"] = "<span style=\"color:red;\">month</span>";
-$MESS["prolog_main_support_wit"] = "What's this?";
 $MESS["prolog_main_support_wit_descr1"] = "What is subscription expiration?";
 $MESS["prolog_main_support_wit_descr2"] = "As soon as your technical support and updates subscription expires, you will no longer have access Marketplace. Effectively
 it means that you will be unable to install platform updates, buy, install or
@@ -78,23 +76,20 @@ For older product editions (\"InfoPace\", \"TeamPace\", \"BizPace\", \"BizPace E
 <br /><br />
 For more details, please feel free to refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\">Licensing Policy</a> page.
 ";
-$MESS["prolog_main_support_wit_descr2_l"] = "When your commercial license expires, there will be certain restrictions imposed on the Update System, some of the system features and technical support availability.<br /><br />
-After expiration, no platform updates can be installed; you won't be able to get new product versions, install Marketplace solutions or extend their subscription. Cloud services like CDN or Cloud Backup will be unavailable.<br /><br />
-No technical support will be available.<br /><br />
-You have to extend your license to continue using all the features the full commercial license provides.<br /><br />
-Notice that you can still continue using the product under the terms of a limited commercial license.<br /><br />
-For details, please refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\" target=\"_blank\">License Agreement</a>.";
-$MESS["prolog_main_support_wit_descr2_l_cp"] = "When your commercial license expires, there will be certain restrictions imposed on the Update System, some of the system features and technical support availability.<br /><br />
-After expiration, no platform updates can be installed; you won't be able to get new product versions, install Marketplace solutions or extend their subscription. The Cloud Backup service will be unavailable.<br /><br />
-No technical support will be available.<br /><br />
-You have to extend your license to continue using all the features the full commercial license provides.<br /><br />
-Notice that you can still continue using the product under the terms of a limited commercial license.<br /><br />
-For details, please refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\" target=\"_blank\">License Agreement</a>.";
-$MESS["prolog_main_timelimit11"] = "<span class=\"required\">Attention!</span> The current license will expire #DAYS_AGO_TXT#. You have to renew your annual license until #FINISH_DATE# to ensure
-your product copy is running without interruption. Please contact <a href=\"mailto:sales@bitrix24.com\">Bitrix24 Sales Department</a>. ";
-$MESS["prolog_main_timelimit12"] = "<span class=\"required\">Attention!</span> The current license has expired on
-#FINISH_DATE#. Your project will stop functioning in #DAYS_AGO# days, any access
-will be blocked. Please contact <a href=\"mailto:sales@bitrix24.com\">Bitrix24
-Sales Department</a> immeadiately to renew your license.";
+$MESS["prolog_main_support_wit_description_bus"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
+The following features will not be available:<br /><br />
+- Security scanner updates;<br />
+- Bitrix24.Sites Designer;<br />
+- Bitrix24.Market solutions.<br /><br />
+You can find the full list of unavailable features <a href=\"https://www.bitrix24.com/eula/limitations.php\" target=\"_blank\">here</a>.<br /><br />
+For more details, please refer to the <a href=\"#LINK#\" target=\"_blank\">License Agreement</a>.";
+$MESS["prolog_main_support_wit_description_cp"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
+The following features will not be available:<br /><br />
+- Telephony;<br />
+- Open Channels;<br />
+- Bitrix24.Market solutions.<br /><br />
+You can find the full list of unavailable features <a href=\"https://www.bitrix24.com/eula/limitations.php\" target=\"_blank\">here</a>.<br /><br />
+For more details, please refer to the <a href=\"#LINK#\" target=\"_blank\">License Agreement</a>.";
+$MESS["prolog_main_timelimit_almost_expire"] = "<span class=\"required\">Attention!</span> Your license will <b>expire</b> on #FINISH_DATE#. You won't be able to use your Bitrix24 if you don't renew your license. <a href=\"#LINK#\" target=\"_blank\">Learn more</a>";
+$MESS["prolog_main_timelimit_expired"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#. You won't be able to use your Bitrix24 if you don't renew your license by #BLOCK_DATE#. <a href=\"#LINK#\" target=\"_blank\">Learn more</a>";
 $MESS["prolog_main_today"] = "<b>today</b>";
-?>

@@ -427,7 +427,7 @@ class Command
 		if (!($chat = $orm->fetch()))
 			return false;
 
-		$relations = \CIMChat::GetRelationById($message['CHAT_ID']);
+		$relations = \CIMChat::GetRelationById($message['CHAT_ID'], false, true, false);
 
 		$chatWithBot = false;
 		foreach ($relations as $userId => $relation)
@@ -619,7 +619,7 @@ class Command
 
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
-			$relations = \CIMChat::GetRelationById($messageFields['TO_CHAT_ID']);
+			$relations = \CIMChat::GetRelationById($messageFields['TO_CHAT_ID'], false, true, false);
 		}
 
 		$result = Array();

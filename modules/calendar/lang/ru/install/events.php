@@ -38,21 +38,21 @@ $MESS['CALENDAR_REPLY_MESSAGE_BODY'] = "
 ";
 
 // CALENDAR_SHARING
-$MESS['CALENDAR_SHARING_EVENT_TYPE_NAME'] = "Сообщение внешнему пользователю шаринга";
+$MESS['CALENDAR_SHARING_EVENT_TYPE_NAME'] = "Сообщение внешнему пользователю свободных слотов";
 $MESS['CALENDAR_SHARING_EVENT_TYPE_DESC'] = "
-#EVENT_NAME# - название события
-#EVENT_DATETIME# - дата и время события
-#TIMEZONE# - таймзона
-#STATUS# - статус подтверждения владельцем календаря
-#OWNER_NAME# - имя владельца календаря
-#OWNER_PHOTO# - src фотографии владельца календаря
-#CALENDAR_WEEKDAY# - день недели события для иконки календаря
-#CALENDAR_DAY# - день месяца события для иконки календаря
+#EVENT_NAME# - Название события
+#EVENT_DATETIME# - Дата и время события
+#TIMEZONE# - Часовой пояс
+#STATUS# - Статус подтверждения владельцем календаря
+#OWNER_NAME# - Имя владельца календаря
+#OWNER_PHOTO# - URL фотографии владельца календаря
+#CALENDAR_WEEKDAY# - День недели события
+#CALENDAR_DAY# - Дата месяца события
 
-#NEW_EVENT_LINK# - ссылка для создания нового события
-#ICS_FILE# - ссылка для скачивания ics
-#CANCEL_LINK# - ссылка для отмены события
-#VIDEOCONFERENCE_LINK# - ссылка для подключения к видеоконференции
+#NEW_EVENT_LINK# - Ссылка для создания нового события
+#ICS_FILE# - Ссылка для скачивания файла ics
+#CANCEL_LINK# - Ссылка для отмены события
+#VIDEOCONFERENCE_LINK# - Ссылка для подключения к видеоконференции
 ";
 
 ?>

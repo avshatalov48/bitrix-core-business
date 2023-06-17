@@ -338,6 +338,10 @@ export const AudioPlayer = BitrixVue.mutableComponent('ui-audioplayer',
 				|| eventName === 'loadedmetadata'
 			)
 			{
+				if (!this.source())
+				{
+					return;
+				}
 				this.timeTotal = this.source().duration;
 			}
 			else if (

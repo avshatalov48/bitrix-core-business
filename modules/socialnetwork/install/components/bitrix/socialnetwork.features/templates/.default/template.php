@@ -28,7 +28,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?php
 }
@@ -37,7 +37,7 @@ else
 	$isProject = ($arResult['Group']['PROJECT'] === 'Y');
 
 	if (
-		$arResult["ErrorMessage"] <> ''
+		!empty($arResult["ErrorMessage"])
 		&& $arResult["ShowForm"] != "Input"
 	)
 	{
@@ -58,7 +58,7 @@ else
 			});
 		</script>
 
-		<div id="sonet_features_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?php
+		<div id="sonet_features_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?php
 
 		$uri = new Bitrix\Main\Web\Uri(POST_FORM_ACTION_URI);
 		if (!empty($arResult["groupTypeCode"]))

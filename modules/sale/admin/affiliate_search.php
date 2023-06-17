@@ -16,7 +16,7 @@ if ($CATALOG_RIGHT == "D")
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -105,7 +105,7 @@ while ($arItems = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("ID", $f_ID);
 	$row->AddField("SITE_ID", $f_SITE_ID);
 
-	$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\" target=\"_blank\" title=\"".GetMessage("SAS1_GOTO_USER")."\">".$f_USER_ID."</a>] ";
+	$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=" . LANGUAGE_ID . "\" target=\"_blank\" title=\"".GetMessage("SAS1_GOTO_USER")."\">".$f_USER_ID."</a>] ";
 	$fieldValue .= $f_USER_NAME.(($f_USER_NAME == '' || $f_USER_LAST_NAME == '') ? "" : " ").$f_USER_LAST_NAME."<br>";
 	$fieldValue .= $f_USER_LOGIN."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".$f_USER_EMAIL."\" title=\"".GetMessage("SAS1_GOTO_USER_EMAIL")."\">".$f_USER_EMAIL."</a>";

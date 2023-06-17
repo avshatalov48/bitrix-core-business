@@ -242,10 +242,10 @@ class UrlRewriter
 				"max_file_size" => $nsOld["max_file_size"]
 			);
 
-			if ($nsOld["SITE_ID"] != "")
+			if (!empty($nsOld["SITE_ID"]))
 				$ns["SITE_ID"] = $nsOld["SITE_ID"];
 		}
-		$ns["CNT"] = intval($ns["CNT"]);
+		$ns["CNT"] = intval($ns["CNT"] ?? 0);
 
 		$arSites = array();
 		$filterRootPath = "";
@@ -267,11 +267,11 @@ class UrlRewriter
 				"path" => IO\Path::combine($ar["DOC_ROOT"], $ar["DIR"])
 			);
 
-			if ($ns["SITE_ID"] != "" && $ns["SITE_ID"] == $ar["LID"])
+			if (!empty($ns["SITE_ID"]) && $ns["SITE_ID"] == $ar["LID"])
 				$filterRootPath = $ar["DOC_ROOT"];
 		}
 
-		if ($ns["SITE_ID"] != "" && !empty($filterRootPath))
+		if (!empty($ns["SITE_ID"]) && !empty($filterRootPath))
 		{
 			$arSitesTmp = array();
 			$arKeys = array_keys($arSites);
@@ -370,9 +370,10 @@ class UrlRewriter
 					continue;
 
 				//this is not first step and we had stopped here, so go on to reindex
-				if ($maxExecutionTime <= 0 || $ns["FLG"] == ''
-					|| ($ns["FLG"] <> ''
-						&& mb_substr($ns["ID"]."/", 0, mb_strlen($child->getPath()."/")) == $child->getPath()."/"))
+				if ($maxExecutionTime <= 0
+					|| $ns["FLG"] == ''
+					|| mb_substr($ns["ID"]."/", 0, mb_strlen($child->getPath()."/")) == $child->getPath()."/"
+				)
 				{
 					if (static::recursiveReindex($rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $arSites, $maxExecutionTime, $ns) === false)
 						return false;

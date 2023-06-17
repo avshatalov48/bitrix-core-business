@@ -2,9 +2,21 @@
 // SequenceActivity
 /////////////////////////////////////////////////////////////////////////////////////
 var _SequenceActivityCurClick = null;
-function _SequenceActivityClick(act_i, i)
+function _SequenceActivityClick(act_i, i, presetId)
 {
-	_SequenceActivityCurClick.AddActivity(CreateActivity({'Properties': {'Title': HTMLEncode(arAllActivities[act_i]['NAME'])}, 'Type': arAllActivities[act_i]['CLASS'], 'Children': []}), i);
+	const preset = presetId ? arAllActivities[act_i]['PRESETS'].find((item) => item['ID'] === presetId) : null;
+	const defaultProps = preset ? preset['PROPERTIES'] : {};
+
+	const activity = {
+		Properties: {
+			Title: (preset && preset['NAME']) || HTMLEncode(arAllActivities[act_i]['NAME']),
+			...defaultProps,
+		},
+		Type: arAllActivities[act_i]['CLASS'],
+		Children: [],
+	};
+
+	_SequenceActivityCurClick.AddActivity(CreateActivity(activity), i);
 }
 function _SequenceActivityMyActivityClick(isn, i)
 {
@@ -70,6 +82,19 @@ SequenceActivity = function()
 					'TEXT': '<img src="'+(arAllActivities[act_i]['ICON']?arAllActivities[act_i]['ICON']:'/bitrix/images/bizproc/act_icon.gif')+'" align="left" style="margin-right: 7px;margin-left: 0px">' + '<b>' + HTMLEncode(arAllActivities[act_i]['NAME']) + '</b><br>' + HTMLEncode(arAllActivities[act_i]['DESCRIPTION']),
 					'ONCLICK': '_SequenceActivityClick(\''+act_i+'\', '+this.ind+');'
 				});
+
+				const presets = arAllActivities[act_i]['PRESETS'];
+
+				if (BX.Type.isArrayFilled(presets))
+				{
+					presets.forEach((preset) => {
+						oSubMenu.push({
+							'ICON': 'url('+arAllActivities[act_i]['ICON']+')',
+							'TEXT': '<img src="'+(arAllActivities[act_i]['ICON']?arAllActivities[act_i]['ICON']:'/bitrix/images/bizproc/act_icon.gif')+'" align="left" style="margin-right: 7px;margin-left: 0px">' + '<b>' + HTMLEncode(preset['NAME']) + '</b><br>' + HTMLEncode(preset['DESCRIPTION'] || arAllActivities[act_i]['DESCRIPTION']),
+							'ONCLICK': '_SequenceActivityClick(\''+act_i+'\', '+this.ind+', \'' + preset['ID'] + '\');'
+						});
+					});
+				}
 			}
 
 			if (groupId === 'rest' && BX.getClass('BX.rest.Marketplace'))

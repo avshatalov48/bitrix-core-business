@@ -1,9 +1,9 @@
 import {mapState} from 'ui.vue3.vuex';
 import {MenuManager} from 'main.popup';
 import {Loc} from 'main.core';
-import {RecentCallStatus, DialogType, AvatarSize} from 'im.v2.const';
+import {RecentCallStatus, DialogType} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
-import {Avatar} from 'im.v2.component.old-chat-embedding.elements';
+import {Avatar, AvatarSize} from 'im.v2.component.old-chat-embedding.elements';
 
 // @vue/component
 export const ActiveCall = {

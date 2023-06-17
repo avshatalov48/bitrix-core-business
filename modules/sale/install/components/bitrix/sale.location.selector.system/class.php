@@ -1,12 +1,8 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
-
-/**
- * Bitrix Framework
- * @package bitrix
- * @subpackage sale
- * @copyright 2001-2014 Bitrix
- */
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 use Bitrix\Main\DB;
@@ -33,7 +29,7 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 	protected $useCodes = false;
 
 	protected $dbResult = array();
-	
+
 	private $locationsFromRequest = false;
 	private $groupsFromRequest = false;
 
@@ -47,14 +43,37 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 	 */
 	public function onPrepareComponentParams($arParams)
 	{
+		if (!is_array($arParams))
+		{
+			$arParams = [];
+		}
+
 		//$arParams = parent::onPrepareComponentParams($arParams);
+
+		// from parent component, because author locked parent onPrepareComponentParams
+		$arParams = $this->prepareSiteFilterParams($arParams);
 
 		self::tryParseString($arParams['LINK_ENTITY_NAME']);
 		self::tryParseString($arParams['INPUT_NAME']);
 		self::tryParseString($arParams['ENTITY_PRIMARY']);
 		self::tryParseString($arParams['ENTITY_VARIABLE_NAME'], 'id');
-		self::tryParseInt($arParams['CACHE_TIME'], false, true);
+		$arParams['CACHE_TIME'] = (int)($arParams['CACHE_TIME'] ?? 0);
 		self::tryParseString($arParams['EDIT_MODE_SWITCH'], 'loc_selector_mode');
+
+		$arParams['SELECTED_IN_REQUEST'] ??= [];
+		if (!is_array($arParams['SELECTED_IN_REQUEST']))
+		{
+			$arParams['SELECTED_IN_REQUEST'] = [];
+		}
+
+		$arParams['PATH_TO_LOCATION_IMPORT'] = trim((string)($arParams['PATH_TO_LOCATION_IMPORT'] ?? ''));
+		if ($arParams['PATH_TO_LOCATION_IMPORT'] === '')
+		{
+			$arParams['PATH_TO_LOCATION_IMPORT'] = Location\Admin\Helper::getImportUrl();
+		}
+
+		$arParams['JS_CONTROL_DEFERRED_INIT'] = trim((string)($arParams['JS_CONTROL_DEFERRED_INIT'] ?? ''));
+		$arParams['JS_CONTROL_GLOBAL_ID'] = trim((string)($arParams['JS_CONTROL_GLOBAL_ID'] ?? ''));
 
 		return $arParams;
 	}
@@ -129,7 +148,7 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 
 	/**
 	 * Returns a list of items by supplying a set of their IDs or CODEs
-	 * 
+	 *
 	 * @param string $entityClass
 	 * @param string[]|integer[] $list
 	 * @param mixed[] $parameters
@@ -361,11 +380,26 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 		$this->groupFlag = $entityClass::DB_GROUP_FLAG;
 
 		// selected in request
-		if(is_array($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_LOCATION_FLAG]))
-			$this->locationsFromRequest = $this->normalizeList($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_LOCATION_FLAG], !$this->useCodes);
+		if (
+			isset($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_LOCATION_FLAG])
+			&& is_array($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_LOCATION_FLAG])
+		)
+		{
+			$this->locationsFromRequest = $this->normalizeList(
+				$this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_LOCATION_FLAG],
+				!$this->useCodes
+			);
+		}
 
-		if(is_array($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_GROUP_FLAG]))
-			$this->groupsFromRequest = $this->normalizeList($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_GROUP_FLAG], !$this->useCodes);
+		if (
+			isset($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_GROUP_FLAG])
+			&& is_array($this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_GROUP_FLAG])
+		)
+		{
+			$this->groupsFromRequest = $this->normalizeList(
+				$this->arParams['SELECTED_IN_REQUEST'][$entityClass::DB_GROUP_FLAG],
+				!$this->useCodes);
+		}
 
 		return $result;
 	}

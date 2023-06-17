@@ -25,19 +25,20 @@ if(in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
 	$show = "all";
 	$moduleCode = "";
 
-	if($_REQUEST["show"] <> '' && in_array($_REQUEST["show"], $arShow))
+	if(!empty($_REQUEST["show"]) && in_array($_REQUEST["show"], $arShow))
 		$show = $_REQUEST["show"];
-	elseif($_SESSION["mp_show"] <> '' && in_array($_SESSION["mp_show"], $arShow))
+	elseif(!empty($_SESSION["mp_show"]) && in_array($_SESSION["mp_show"], $arShow))
 		$show = $_SESSION["mp_show"];
 
-	if($_REQUEST["sort"] <> '' && in_array($_REQUEST["sort"], $arSort))
+	if(!empty($_REQUEST["sort"]) && in_array($_REQUEST["sort"], $arSort))
 		$sort = $_REQUEST["sort"];
-	elseif($_SESSION["mp_sort"] <> '' && in_array($_SESSION["mp_sort"], $arSort))
+	elseif(!empty($_SESSION["mp_sort"]) && in_array($_SESSION["mp_sort"], $arSort))
 		$sort = $_SESSION["mp_sort"];
 
-	if(intval($_REQUEST["category"]) > 0)
+	if(isset($_REQUEST["category"]) && intval($_REQUEST["category"]) > 0)
 		$category = intval($_REQUEST["category"]);
-	if($_REQUEST["module"] <> '')
+
+	if(!empty($_REQUEST["module"]))
 	{
 		$moduleCode = $_REQUEST["module"];
 		$moduleCode = preg_replace("/[^a-zA-Z0-9.]/is", "", $moduleCode);
@@ -52,7 +53,7 @@ if(in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
 	foreach($arShow as $val)
 	{
 		$aContext[] = array(
-			"TEXT" => (($val == "action") ? "<span style=\"color:#ba2211;\">" : "").GetMessage("USM_SHOW_".ToUpper($val)).(($val == "action") ? "</span>" : ""),
+			"TEXT" => (($val == "action") ? "<span style=\"color:#ba2211;\">" : "").GetMessage("USM_SHOW_".strtoupper($val)).(($val == "action") ? "</span>" : ""),
 			"ONCLICK" => $lAdmin->ActionDoGroup(0, "", "show=".$val.(($category) > 0 ? "&category=".$category : "")),
 			"ICON" => (($val == $show) ? "btn_active" : ""),
 		);
@@ -62,13 +63,13 @@ if(in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
 	foreach($arSort as $val)
 	{
 		$arDDSort[] = array(
-			"TEXT" => GetMessage("USM_SORT_".ToUpper($val)),
+			"TEXT" => GetMessage("USM_SORT_".strtoupper($val)),
 			"ACTION" => $lAdmin->ActionDoGroup(0, "", "sort=".$val.(($category) > 0 ? "&category=".$category : ""))
 		);
 	}
 
 	$aContext[] = array(
-			"TEXT" => GetMessage("USM_SORT")." ".GetMessage("USM_SORT_".ToUpper($sort)),
+			"TEXT" => GetMessage("USM_SORT")." ".GetMessage("USM_SORT_".strtoupper($sort)),
 			"TITLE" => "",
 			"MENU" => $arDDSort,
 		);
@@ -95,7 +96,7 @@ else
 	{
 		foreach($arClientModules as $k => $v)
 		{
-			if(mb_strpos($k, ".") !== false)
+			if(strpos($k, ".") !== false)
 				$m[htmlspecialcharsbx($k)] = $v["IS_DEMO"];
 		}
 	}
@@ -103,7 +104,7 @@ else
 	$url = "solutions/";
 	if(intval($category) > 0)
 		$url = "solutions/category/".intval($category)."/";
-	if($_REQUEST["search_mp"] <> '')
+	if(!empty($_REQUEST["search_mp"]))
 	{
 		$url = "search/";
 	}
@@ -143,9 +144,9 @@ else
 	}
 	$ht = new CHTTP();
 
-	if(intval($_REQUEST["PAGEN_1"]) > 0)
+	if(isset($_REQUEST["PAGEN_1"]) && intval($_REQUEST["PAGEN_1"]) > 0)
 		$arFields["PAGEN_1"] = intval($_REQUEST["PAGEN_1"]);
-	if($_REQUEST["search_mp"] <> '')
+	if(!empty($_REQUEST["search_mp"]))
 		$arFields["q"] = \Bitrix\Main\Text\Encoding::convertEncoding(htmlspecialcharsbx($_REQUEST["search_mp"]), SITE_CHARSET, "windows-1251");
 
 	$getData = "";
@@ -164,9 +165,9 @@ else
 	}
 
 	$sectionName = GetMessage("USM_ALL");
-	if($_REQUEST["search_mp"] <> '')
+	if(!empty($_REQUEST["search_mp"]))
 		$sectionName = GetMessage("USM_SEARCH");
-	
+
 	$arModules = array();
 	if($res = $ht->Get("https://marketplace.1c-bitrix.ru/".$url."?".$getData))
 	{
@@ -174,7 +175,6 @@ else
 		{
 			$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, "windows-1251", SITE_CHARSET);
 
-			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 			$objXML = new CDataXML();
 			$objXML->LoadString($res);
 			$arResult = $objXML->GetArray();
@@ -184,7 +184,7 @@ else
 				if(!empty($arResult["modules"]["#"]))
 				{
 					$arModules = $arResult["modules"]["#"]["items"][0]["#"]["item"];
-					if($arResult["modules"]["#"]["categoryName"][0]["#"] <> '')
+					if(!empty($arResult["modules"]["#"]["categoryName"][0]["#"]))
 						$sectionName = $arResult["modules"]["#"]["categoryName"][0]["#"];
 				}
 			}
@@ -219,7 +219,7 @@ else
 			</div>
 			<div class="mp-list-div">
 				<?
-				if(is_array($arModules) && count($arModules) > 0)
+				if(is_array($arModules) && !empty($arModules))
 				{
 					if($moduleCode == '')
 					{
@@ -228,7 +228,7 @@ else
 						<table class="mp-list" cellpadding="0" cellspacing="0">
 						<?
 					}
-					
+
 					function convert2normalArray($ar)
 					{
 						$res = array();
@@ -267,7 +267,7 @@ else
 						}
 						return $res;
 					}
-					
+
 
 					foreach($arModules as $Item)
 					{
@@ -285,9 +285,17 @@ else
 						{
 							$arM["installed"] = "Y";
 							if($m[$arM["code"]] == "Y")
+							{
 								$arM["installedDemo"] = "Y";
+							}
 						}
-						$arM["canDemo"] = (($arM["freeModule"] == "D" && $arM["installed"] != "Y") ? "Y" : "N");
+						$arM["canDemo"] =
+							isset($arM["freeModule"])
+							&& $arM["freeModule"] == "D"
+							&& (!isset($arM["installed"]) || $arM["installed"] != "Y")
+								? "Y"
+								: "N"
+						;
 
 						if($moduleCode == '')
 						{
@@ -314,17 +322,17 @@ else
 												?>
 										</span></a>
 										<div class="mp-content">
-											<span class="mp-ilike"><?=intval($arM["votes"])?></span>
+											<span class="mp-ilike"><?=intval($arM["votes"] ?? 0)?></span>
 											<div>
 												<?
-												if($arM["installed"] == "Y")
+												if(isset($arM["installed"]) && $arM["installed"] == "Y")
 												{
 													?><div class="mp-grey"><?=GetMessage("USM_INSTALLED")?></div><?
 												}
 
-												if($arM["freeModule"] == "Y")
+												if(isset($arM["freeModule"]) && $arM["freeModule"] == "Y")
 												{
-													if($arM["installed"] != "Y")
+													if(!isset($arM["installed"]) || $arM["installed"] != "Y")
 													{
 														?><div class="mp-install"><a href="<?=$arM["urlInstall"]?>"><?=GetMessage("USM_INSTALL")?></a></div>
 														<div class="mp-grey"><small><?=GetMessage("USM_FREE")?></small></div><?
@@ -332,7 +340,7 @@ else
 												}
 												else
 												{
-													if(intval($arM["oldPrice"]) > 0)
+													if(isset($arM["oldPrice"]) && intval($arM["oldPrice"]) > 0)
 													{
 														?><div class="mp-price"><s><?=intval($arM["oldPrice"])?></s>&nbsp;&nbsp;<span style="color:red;"><?=$arM["price"]?></span></div><?
 													}
@@ -341,7 +349,7 @@ else
 														?><div class="mp-price"><?=$arM["price"];?></div><?
 													}
 
-													if($arM["installedDemo"] != "Y")
+													if(!isset($arM["installedDemo"]) || $arM["installedDemo"] != "Y")
 													{
 														?><div class="mp-buy"><a href="<?=$arM["url2basket"]?>" target="_blank"><?=GetMessage("USM_BUY")?></a></div><?
 													}
@@ -367,7 +375,7 @@ else
 						{
 							?>
 							<div style="float:left; width:190px; padding-right: 15px;">
-								<div style="display: inline-block;"><span title="<?=htmlspecialcharsbx($arM["name"])?>" class="mp-list-slide-block-image" style="background: url('<?=$arM["logo"]["src"]?>') center center no-repeat; width:<?=$arM["logo"]["width"]?>px; height:<?=$arM["logo"]["height"]?>px; display:block; border: 1px solid #c0c0c0; float: left;">
+								<div style="display: inline-block;"><span title="<?=htmlspecialcharsbx($arM["name"] ?? '')?>" class="mp-list-slide-block-image" style="background: url('<?=$arM["logo"]["src"]?>') center center no-repeat; width:<?=$arM["logo"]["width"]?>px; height:<?=$arM["logo"]["height"]?>px; display:block; border: 1px solid #c0c0c0; float: left;">
 										<?
 										if(!empty($arM["icons"]) > 0)
 										{
@@ -383,11 +391,11 @@ else
 								<div id="mp-info-bar">
 									<div class="mp-item">
 										<p class="mp-title"><?=GetMessage("USM_RATING")?></p>
-										<span class="mp-ilike"><?=intval($arM["votes"])?></span>
+										<span class="mp-ilike"><?=intval($arM["votes"] ?? 0)?></span>
 									</div>
 									<div class="mp-item">
 										<p class="mp-title"><?=GetMessage("USM_DEVELOPER")?></p>
-										<p><?if($arM["partner"]["href"] <> ''):?>
+										<p><?if(!empty($arM["partner"]["href"])):?>
 											<a href="<?=htmlspecialcharsbx($arM["partner"]["href"])?>" target="_blank"><?=htmlspecialcharsbx($arM["partner"]["name"])?></a>
 											<?else:?>
 												<?=htmlspecialcharsbx($arM["partner"]["name"])?>
@@ -414,7 +422,7 @@ else
 								<div id="mp-price-bar">
 									<div style="float:left;">
 										<?
-										if($arM["freeModule"] == "Y")
+										if(isset($arM["freeModule"]) && $arM["freeModule"] == "Y")
 										{
 											?><div class="mp-grey"><?=GetMessage("USM_FREE")?></div><?
 										}
@@ -423,7 +431,7 @@ else
 											?><div class="mp-grey"><?=GetMessage("USM_PAID")?></div>
 											<div class="mp-price">
 											<?
-											if(intval($arM["oldPrice"]) > 0)
+											if(isset($arM["oldPrice"]) && intval($arM["oldPrice"]) > 0)
 											{
 												?><s><?=intval($arM["oldPrice"])?></s>&nbsp;&nbsp;<span style="color:red;"><?=$arM["price"]?></span><?
 											}
@@ -436,21 +444,21 @@ else
 										?>
 									</div>
 									<div class="mp-buttons">
-										<?if($arM["installed"] == "Y")
+										<?if(isset($arM["installed"]) && $arM["installed"] == "Y")
 										{
 											?><div class="mp-grey"><?=GetMessage("USM_INSTALLED")?></div><?
 										}
 
-										if($arM["freeModule"] == "Y")
+										if(isset($arM["freeModule"]) && $arM["freeModule"] == "Y")
 										{
-											if($arM["installed"] != "Y")
+											if(!isset($arM["installed"]) || $arM["installed"] != "Y")
 											{
 												?><a href="<?=$arM["urlInstall"]?>" class="adm-btn adm-btn-green"><?=GetMessage("USM_INSTALL")?></a><?
 											}
 										}
 										else
 										{
-											if($arM["installedDemo"] != "Y")
+											if(!isset($arM["installedDemo"]) || $arM["installedDemo"] != "Y")
 											{
 												?><a href="<?=$arM["url2basket"]?>" target="_blank" class="adm-btn adm-btn-green"><?=GetMessage("USM_BUY")?></a><?
 											}
@@ -459,7 +467,7 @@ else
 												?><a href="<?=$arM["urlInstall"]?>" target="_blank" class="adm-btn"><?=GetMessage("USM_TEST")?></a><?
 											}
 										}
-										if($arM["demoLink"] <> '')
+										if(!empty($arM["demoLink"]))
 										{
 											?><a class="adm-btn" href="<?=htmlspecialcharsbx($arM["demoLink"])?>" target="_blank"><?=GetMessage("USM_ONLINE_DEMO")?></a><?
 										}
@@ -504,7 +512,7 @@ else
 										$aTabs1[] = array("DIV"=>"oedit4", "TAB" => GetMessage("USM_SUPPORT"), "TITLE" => GetMessage("USM_SUPPORT"));
 									if(!empty($arM["install"]))
 										$aTabs1[] = array("DIV"=>"oedit5", "TAB" => GetMessage("USM_INSTALL_MODULE"), "TITLE" => GetMessage("USM_INSTALL_MODULE"));
-									
+
 									$tabControl1 = new CAdminViewTabControl("tabControl1", $aTabs1);
 									$tabControl1->Begin();
 									if(!empty($arM["action"]))
@@ -517,8 +525,8 @@ else
 									if(!empty($arM["images"]))
 									{
 										$tabControl1->BeginNextTab();
-										
-										if(!is_array($arM["images"]["image"][0]))
+
+										if(!isset($arM["images"]["image"][0]) || !is_array($arM["images"]["image"][0]))
 											$arM["images"]["image"] = array($arM["images"]["image"]);
 
 										if(!empty($arM["styles"]["style"]))
@@ -546,7 +554,7 @@ else
 												<ul style="margin: 0pt; padding: 0pt; position: relative; list-style-type: none; z-index: 1; width: 676px; left: 0px;">
 													<?foreach($arM["images"]["image"] as $val)
 													{
-														if($val["video"] == "Y")
+														if(isset($val["video"]) && $val["video"] == "Y")
 														{
 															?><li style="overflow: hidden; float: left; width: <?=$val["width"]?>px; height: <?=$val["height"]?>px; border: 1px solid #cfcfcf;">
 																<div style="display:none; width:645px; height:490px;" id="module-video"><?$APPLICATION->IncludeComponent(
@@ -618,7 +626,7 @@ else
 									if(!empty($arM["updates"]))
 									{
 										$tabControl1->BeginNextTab();
-										if(!is_array($arM["updates"]["version"][0]))
+										if(!isset($arM["updates"]["version"][0]) || !is_array($arM["updates"]["version"][0]))
 											$arM["updates"]["version"] = array($arM["updates"]["version"]);
 
 										?><table width="100%" border="0" cellpadding="2" cellspacing="2"><?
@@ -647,7 +655,7 @@ else
 
 									if(!empty($arM["moreItems"]["item"]))
 									{
-										if(!is_array($arM["moreItems"]["item"][0]))
+										if(!isset($arM["moreItems"]["item"][0]) || !is_array($arM["moreItems"]["item"][0]))
 											$arM["moreItems"]["item"] = array($arM["moreItems"]["item"]);
 										?>
 										<h3><?=GetMessage("USM_MORE_MODULES")?></h3>
@@ -663,7 +671,7 @@ else
 																{
 																	$moreItem["url"] = str_replace("#module#", $moreItem["code"], "update_system_market.php?module=#module#&lang=".LANGUAGE_ID);
 																	$moreItem["urlClick"] = str_replace("#module#", $moreItem["code"], $sTableID.".GetAdminList('/bitrix/admin/update_system_market.php?module=#module#&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&table_id=".$sTableID.((intval($category) > 0) ? "&category=".$category : "")."'); return false;");
-																	
+
 																	$moreItem["urlInstall"] = "update_system_partner.php?lang=".LANGUAGE_ID."&addmodule=".$moreItem["code"];
 																	if(!empty($m[$moreItem["code"]]))
 																	{
@@ -671,7 +679,13 @@ else
 																		if($m[$moreItem["code"]] == "Y")
 																			$moreItem["installedDemo"] = "Y";
 																	}
-																	$moreItem["canDemo"] = (($moreItem["freeModule"] == "D" && $moreItem["installed"] != "Y") ? "Y" : "N");
+																	$moreItem["canDemo"] =
+																		isset($moreItem["freeModule"])
+																		&& $moreItem["freeModule"] == "D"
+																		&& (!isset($moreItem["installed"]) || $moreItem["installed"] != "Y")
+																			? "Y"
+																			: "N"
+																	;
 
 																	?>
 																	<li style="overflow: hidden; float: left; width: 225px; height: 114px;">
@@ -690,17 +704,17 @@ else
 																				?>
 																		</span></a>
 																		<div class="mp-content">
-																			<span class="mp-ilike"><?=intval($moreItem["votes"])?></span>
+																			<span class="mp-ilike"><?=intval($moreItem["votes"] ?? 0)?></span>
 																			<div>
 																				<?
-																				if($moreItem["installed"] == "Y")
+																				if(isset($moreItem["installed"]) && $moreItem["installed"] == "Y")
 																				{
 																					?><div class="mp-grey"><?=GetMessage("USM_INSTALLED")?></div><?
 																				}
 
-																				if($moreItem["freeModule"] == "Y")
+																				if(isset($moreItem["freeModule"]) && $moreItem["freeModule"] == "Y")
 																				{
-																					if($moreItem["installed"] != "Y")
+																					if(!isset($moreItem["installed"]) || $moreItem["installed"] != "Y")
 																					{
 																						?><div class="mp-install"><a href="<?=$moreItem["urlInstall"]?>"><?=GetMessage("USM_INSTALL")?></a></div>
 																						<div class="mp-grey"><small><?=GetMessage("USM_FREE")?></small></div><?
@@ -708,7 +722,7 @@ else
 																				}
 																				else
 																				{
-																					if(intval($moreItem["oldPrice"]) > 0)
+																					if(isset($moreItem["oldPrice"]) && intval($moreItem["oldPrice"]) > 0)
 																					{
 																						?><div class="mp-price"><s><?=intval($moreItem["oldPrice"])?></s>&nbsp;&nbsp;<span style="color:red;"><?=$moreItem["price"]?></span></div><?
 																					}
@@ -717,7 +731,7 @@ else
 																						?><div class="mp-price"><?=$moreItem["price"];?></div><?
 																					}
 
-																					if($moreItem["installedDemo"] != "Y")
+																					if(!isset($moreItem["installedDemo"]) || $moreItem["installedDemo"] != "Y")
 																					{
 																						?><div class="mp-buy"><a href="<?=$moreItem["url2basket"]?>" target="_blank"><?=GetMessage("USM_BUY")?></a></div><?
 																					}
@@ -742,12 +756,12 @@ else
 										</table>
 									</div>
 
-									<?						
+									<?
 									}
-									
+
 									if(!empty($arM["comments"]) > 0)
 									{
-										if(!is_array($arM["comments"]["comment"][0]))
+										if(!isset($arM["comments"]["comment"][0]) || !is_array($arM["comments"]["comment"][0]))
 											$arM["comments"]["comment"] = array($arM["comments"]["comment"]);
 										?>
 										<h3><?=GetMessage("USM_COMMENTS")?></h3>
@@ -798,10 +812,10 @@ else
 	</div>
 	<?
 
-	if($arResult["modules"]["#"]["navData"][0]["#"] <> '')
+	if(!empty($arResult["modules"]["#"]["navData"][0]["#"]))
 	{
 		$dat = unserialize($arResult["modules"]["#"]["navData"][0]["#"], ['allowed_classes' => false]);
-		if(intval($dat["NavPageCount"]) > 1)
+		if(isset($dat["NavPageCount"]) && intval($dat["NavPageCount"]) > 1)
 		{
 			$dbRes = new CDBResult;
 			foreach($dat as $k => $v)
@@ -815,7 +829,7 @@ else
 
 	$lAdmin->EndCustomContent();
 
-	if($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame')
+	if (isset($_REQUEST["mode"]) && ($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame'))
 	{
 		$APPLICATION->RestartBuffer();
 		$lAdmin->Display();
@@ -824,21 +838,26 @@ else
 		die();
 	}
 
-	if($_REQUEST["instadm"] == "Y" && check_bitrix_sessid() && $moduleCode <> '' && !empty($arM))
+	if(isset($_REQUEST["instadm"]) && $_REQUEST["instadm"] == "Y" && check_bitrix_sessid() && $moduleCode <> '' && !empty($arM))
 	{
-		CAdminNotify::Add(array(
-		    'MODULE_ID' => 'main',
-		    'TAG' => 'mp_inst_'.$moduleCode,
-		    'MESSAGE' => GetMessage("USM_NOTIF_INST", array("#USER#" => htmlspecialchars($USER->GetFullName()." (".$USER->GetLogin().")"), "#MODULE_CODE#" => htmlspecialcharsbx($arM["code"]), "#MODULE_NAME#" => htmlspecialcharsbx($arM["name"]), "#LANG#" => LANG)),
-		    'NOTIFY_TYPE' => CAdminNotify::TYPE_NORMAL,
-		    'PUBLIC_SECTION' => 'N',
-		));
+		CAdminNotify::Add([
+			'MODULE_ID' => 'main',
+			'TAG' => 'mp_inst_' . $moduleCode,
+			'MESSAGE' => GetMessage("USM_NOTIF_INST", [
+				"#USER#" => htmlspecialchars($USER->GetFullName() . " (" . $USER->GetLogin() . ")"),
+				"#MODULE_CODE#" => htmlspecialcharsbx($arM["code"]),
+				"#MODULE_NAME#" => htmlspecialcharsbx($arM["name"]),
+				"#LANG#" => LANG,
+			]),
+			'NOTIFY_TYPE' => CAdminNotify::TYPE_NORMAL,
+			'PUBLIC_SECTION' => 'N',
+		]);
 
-		$m = new CAdminMessage(array(
-			                       "TYPE" => "OK",
-			                       "MESSAGE" => GetMessage("USM_NOTIF_INST_OK"),
-			                       "HTML" => false
-		                       ));
+		$m = new CAdminMessage([
+			"TYPE" => "OK",
+			"MESSAGE" => GetMessage("USM_NOTIF_INST_OK"),
+			"HTML" => false,
+		]);
 		echo $m->Show();
 	}
 	$lAdmin->DisplayList();

@@ -16,7 +16,7 @@ use Bitrix\Main\Localization\Loc;
 
 IncludeAJAX();
 
-if ($arParams['PARENT_FATAL_ERROR'] === 'Y')
+if (($arParams['PARENT_FATAL_ERROR'] ?? null) === 'Y')
 {
 	if (!empty($arParams['PARENT_ERROR_MESSAGE']))
 	{
@@ -28,7 +28,10 @@ if ($arParams['PARENT_FATAL_ERROR'] === 'Y')
 	}
 }
 
-if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['SHOW_CONTROLS'] === 'Y')
+if (
+	($arParams['PARENT_FATAL_ERROR'] ?? null) !== 'Y'
+	&& ($arParams['SHOW_CONTROLS'] ?? null) === 'Y'
+)
 {
 	?><noindex>
 	<div class="photo-top-controls">
@@ -39,7 +42,10 @@ if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['SHOW_CONTROLS'] === 'Y
 	<?php
 }
 
-if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['PARENT_PAGE'] === 'group_photo_section' )
+if (
+	($arParams['PARENT_FATAL_ERROR'] ?? null) !== 'Y'
+	&& ($arParams['PARENT_PAGE'] ?? null) === 'group_photo_section'
+)
 {
 	$result = $APPLICATION->IncludeComponent(
 		'bitrix:photogallery.section',

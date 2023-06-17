@@ -96,6 +96,7 @@ final class SearchHelper
 			{
 				foreach($map as $ixName => $ixInfo)
 				{
+					$ixInfo['DROP_ONLY'] ??= false;
 					if(!$ixInfo['DROP_ONLY'] && !DB\Helper::checkIndexNameExists($ixName, $ixInfo['TABLE']))
 					{
 						$allOk = false;

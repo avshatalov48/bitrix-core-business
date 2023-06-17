@@ -12,6 +12,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @var CBitrixComponent $component */
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -91,6 +92,7 @@ if (Context::getCurrent()->getRequest()->get('IFRAME'))
 }
 else
 {
+	$userId = CurrentUser::get()->getId();
 	$backgroundForTemplate = true;
-	require_once('user_tasks_templates.php');
+	require_once('user_templates_template_background.php');
 }

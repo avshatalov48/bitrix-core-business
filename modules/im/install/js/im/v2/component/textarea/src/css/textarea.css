@@ -1,0 +1,180 @@
+.bx-im-send-panel__scope {
+	--im-textarea__font-color_primary: var(--im-color-palette-black-base);
+	--im-textarea__font-color_placeholder: var(--im-color-palette-gray-40);
+	--im-textarea__font-color_edit-title: var(--im-color-palette-blue-60);
+	--im-textarea__font-color_edit-text: var(--im-color-palette-gray-70);
+	--im-textarea__background-color: var(--im-color-palette-white-base);
+	--im-textarea__background-color_edit-separator: var(--im-color-palette-blue-50);
+}
+
+.bx-im-send-panel__container {
+	display: flex;
+	align-items: flex-end;
+	padding: 0 3px 0 9px;
+	max-width: var(--im-content-chat__max-width_textarea_container);
+	width: 100%;
+}
+
+.bx-im-send-panel__container > div {
+	z-index: 90;
+}
+
+.bx-im-textarea__container {
+	width: 100%;
+	height: 100%;
+	margin-right: 12px;
+	padding-bottom: 11px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+	background-color: var(--im-textarea__background-color);
+	border-radius: var(--im-border-radius-sm);
+	position: relative;
+	border-top: 1px solid var(--im-content-chat__background-color);
+	overflow: hidden;
+}
+
+.bx-im-textarea__content {
+	width: 100%;
+	display: flex;
+	align-items: end;
+	padding: 11px 10px 0 10px;
+}
+
+.bx-im-textarea__left {
+	display: flex;
+	flex-grow: 1;
+}
+
+.bx-im-textarea__upload_container {
+	flex-shrink: 0;
+	flex-grow: 0;
+	margin-right: 6px;
+}
+
+.bx-im-textarea__icon {
+	width: 24px;
+	height: 24px;
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	/*opacity: 0.35;*/
+	transition: opacity .3s;
+}
+.bx-im-textarea__icon:hover,
+.bx-im-textarea__icon.--active {
+	/*opacity: 0.7;*/
+}
+
+.bx-im-textarea__icon.--disabled {
+	/*opacity: 0.1;*/
+	cursor: initial;
+}
+
+.bx-im-textarea__action-panel .bx-im-textarea__icon {
+	margin-right: 13px;
+}
+
+.bx-im-textarea__action-panel .bx-im-textarea__icon:last-child {
+	margin-right: 5px;
+}
+
+.bx-im-textarea__element {
+	flex-grow: 1;
+	resize: none;
+	outline: none;
+	border: none;
+	background: transparent;
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-textarea__font-color_primary);
+	margin: 0;
+	padding: 1px 0 0;
+}
+
+.bx-im-textarea__element::placeholder {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-textarea__font-color_placeholder);
+}
+
+.bx-im-textarea__right {
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
+.bx-im-textarea__action-panel {
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+}
+
+.bx-im-textarea__drag-handle {
+	display: none;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 10px;
+	background-image: url(./images/resize.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: ns-resize;
+}
+
+.bx-im-textarea__drag-handle:hover {
+	background-image: url(./images/resize-active.svg);
+}
+
+.bx-im-textarea__container:hover .bx-im-textarea__drag-handle {
+	display: block;
+}
+
+.bx-im-textarea__icon.--upload {
+	width: 22px;
+	height: 22px;
+	background-image: url(./images/upload.svg);
+}
+
+.bx-im-textarea__icon.--upload.--active {
+	background-image: url(./images/upload-active.svg);
+}
+
+.bx-im-textarea__icon.--market {
+	background-image: url(./images/market.svg);
+}
+
+.bx-im-textarea__icon.--market.--active {
+	background-image: url(./images/market-active.svg);
+}
+
+.bx-im-textarea__icon.--create {
+	background-image: url(./images/create.svg);
+}
+
+.bx-im-textarea__icon.--create.--active {
+	background-image: url(./images/create-active.svg);
+}
+
+.bx-im-textarea__icon.--smile {
+	background-image: url(./images/smile.svg);
+}
+
+.bx-im-textarea__icon.--smile.--active {
+	background-image: url(./images/smile-active.svg);
+}
+
+.bx-im-send-panel__button_container {
+	flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	background-color: #00ACE3;
+	background-image: url('./images/send.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.bx-im-send-panel__button_container.--edit {
+	background-image: url('./images/check.svg');
+}
+
+.bx-im-send-panel__button_container.--disabled {
+	background-image: url('./images/send-inactive.svg');
+}

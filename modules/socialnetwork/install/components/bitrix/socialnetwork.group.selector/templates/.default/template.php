@@ -6,7 +6,7 @@ $GLOBALS['APPLICATION']->SetAdditionalCSS("/bitrix/js/main/core/css/core_finder.
 CUtil::InitJSCore(array('popup'));
 ?>
 <script type="text/javascript">
-	var <?php echo $arParams["JS_OBJECT_NAME"] <> ''? CUtil::JSEscape($arParams["JS_OBJECT_NAME"]) : "groupsPopup"?>;
+	var <?php echo ($arParams["JS_OBJECT_NAME"] ?? '') <> '' ? CUtil::JSEscape($arParams["JS_OBJECT_NAME"]) : "groupsPopup"?>;
 	var __bx_group_site_id = '<?=CUtil::JSEscape(SITE_ID)?>';
 
 	BX.message({
@@ -17,7 +17,7 @@ CUtil::InitJSCore(array('popup'));
 	});
 
 	BX.ready(function() {
-		<?php echo $arParams["JS_OBJECT_NAME"] <> ''? CUtil::JSEscape($arParams["JS_OBJECT_NAME"]) : "groupsPopup"?> = BX.GroupsPopup.create("sonet-group-popup-<?php echo RandString(8)?>", <?php if ($arParams["BIND_ELEMENT"] <> ''):?>BX("<?php echo CUtil::JSEscape($arParams["BIND_ELEMENT"])?>")
+		<?php echo ($arParams["JS_OBJECT_NAME"] ?? '') <> '' ? CUtil::JSEscape($arParams["JS_OBJECT_NAME"]) : "groupsPopup"?> = BX.GroupsPopup.create("sonet-group-popup-<?php echo RandString(8)?>", <?php if ($arParams["BIND_ELEMENT"] <> ''):?>BX("<?php echo CUtil::JSEscape($arParams["BIND_ELEMENT"])?>")
 		<?php else:?>null<?php endif?>, {
 			lastGroups: <?php echo CUtil::PhpToJsObject($arResult["LAST_GROUPS"])?>,
 			myGroups: <?php echo CUtil::PhpToJsObject($arResult["MY_GROUPS"])?>,

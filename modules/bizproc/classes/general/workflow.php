@@ -5,8 +5,9 @@
 */
 class CBPWorkflow
 {
-	private $isNew = false;
-	private $instanceId = "";
+	private bool $isNew = false;
+	private bool $isAbandoned = false;
+	private string $instanceId = "";
 
 	protected CBPRuntime $runtime;
 	protected CBPWorkflowPersister $persister;
@@ -14,10 +15,10 @@ class CBPWorkflow
 	/** @var CBPCompositeActivity */
 	protected $rootActivity = null;
 
-	protected $activitiesQueue = array();
-	protected $eventsQueue = array();
+	protected array $activitiesQueue = [];
+	protected array $eventsQueue = [];
 
-	private $activitiesNamesMap = array();
+	private array $activitiesNamesMap = [];
 
 	/************************  PROPERTIES  *******************************/
 
@@ -64,7 +65,7 @@ class CBPWorkflow
 
 	/**
 	* Public constructor initializes a new workflow instance with the specified ID.
-	* 
+	*
 	* @param mixed $instanceId - ID of the new workflow instance.
 	* @param mixed $runtime - Runtime object.
 	* @return CBPWorkflow
@@ -92,7 +93,14 @@ class CBPWorkflow
 
 	/************************  CREATE / LOAD WORKFLOW  ****************************************/
 
-	public function initialize(CBPActivity $rootActivity, $documentId, $workflowParameters = array(), $workflowVariablesTypes = array(), $workflowParametersTypes = array(), $workflowTemplateId = 0)
+	public function initialize(
+		CBPActivity $rootActivity,
+		$documentId,
+		$workflowParameters = [],
+		$workflowVariablesTypes = [],
+		$workflowParametersTypes = [],
+		$workflowTemplateId = 0
+	)
 	{
 		$this->rootActivity = $rootActivity;
 		$rootActivity->SetWorkflow($this);
@@ -132,7 +140,7 @@ class CBPWorkflow
 		{
 			foreach ($workflowVariablesTypes as $k => $v)
 			{
-				$variableValue = $v["Default"];
+				$variableValue = $v["Default"] ?? null;
 				if ($documentType && $fieldTypeObject = $documentService->getFieldTypeObject($documentType, $v))
 				{
 					$fieldTypeObject->setDocumentId($arDocumentId);
@@ -185,7 +193,7 @@ class CBPWorkflow
 
 	/**
 	* Starts new workflow instance.
-	* 
+	*
 	*/
 	public function start()
 	{
@@ -227,7 +235,7 @@ class CBPWorkflow
 
 	/**
 	* Resume existing workflow.
-	* 
+	*
 	*/
 	public function resume()
 	{
@@ -264,11 +272,21 @@ class CBPWorkflow
 		return $this->isNew;
 	}
 
+	public function abandon(): void
+	{
+		$this->isAbandoned = true;
+	}
+
+	public function isAbandoned(): bool
+	{
+		return $this->isAbandoned;
+	}
+
 	/**********************  EXTERNAL EVENTS  **************************************************************/
 
 	/**
 	* Resume the workflow instance and transfer the specified event to it.
-	* 
+	*
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
 	*/
@@ -282,44 +300,54 @@ class CBPWorkflow
 
 	private function fillNameActivityMapInternal(CBPActivity $activity)
 	{
-		$this->activitiesNamesMap[$activity->GetName()] = $activity;
+		$this->activitiesNamesMap[$activity->getName()] = $activity;
 
-		if (is_a($activity, "CBPCompositeActivity"))
+		if (is_a($activity, 'CBPCompositeActivity'))
 		{
-			$arSubActivities = $activity->CollectNestedActivities();
+			$arSubActivities = $activity->collectNestedActivities();
 			foreach ($arSubActivities as $subActivity)
-				$this->FillNameActivityMapInternal($subActivity);
+			{
+				$this->fillNameActivityMapInternal($subActivity);
+			}
 		}
 	}
 
 	private function fillNameActivityMap()
 	{
 		if (!is_array($this->activitiesNamesMap))
-			$this->activitiesNamesMap = array();
+		{
+			$this->activitiesNamesMap = [];
+		}
 
 		if (count($this->activitiesNamesMap) > 0)
+		{
 			return;
+		}
 
-		$this->FillNameActivityMapInternal($this->rootActivity);
+		$this->fillNameActivityMapInternal($this->rootActivity);
 	}
 
 	/**
 	* Returns activity by its name.
-	* 
+	*
 	* @param mixed $activityName - Activity name.
 	* @return CBPActivity - Returns activity object or null if activity is not found.
 	*/
 	public function getActivityByName($activityName)
 	{
 		if ($activityName == '')
-			throw new Exception("activityName");
+		{
+			throw new Exception('activityName');
+		}
 
 		$activity = null;
 
-		$this->FillNameActivityMap();
+		$this->fillNameActivityMap();
 
 		if (array_key_exists($activityName, $this->activitiesNamesMap))
+		{
 			$activity = $this->activitiesNamesMap[$activityName];
+		}
 
 		return $activity;
 	}
@@ -328,7 +356,7 @@ class CBPWorkflow
 
 	/**
 	* Initializes the specified activity by calling its method Initialize.
-	* 
+	*
 	* @param CBPActivity $activity
 	*/
 	public function initializeActivity(CBPActivity $activity)
@@ -344,7 +372,7 @@ class CBPWorkflow
 
 	/**
 	* Plans specified activity for execution.
-	* 
+	*
 	* @param CBPActivity $activity - Activity object.
 	* @param mixed $arEventParameters - Optional parameters.
 	*/
@@ -362,7 +390,7 @@ class CBPWorkflow
 
 	/**
 	* Close specified activity.
-	* 
+	*
 	* @param CBPActivity $activity - Activity object.
 	* @param mixed $arEventParameters - Optional parameters.
 	*/
@@ -391,7 +419,7 @@ class CBPWorkflow
 
 	/**
 	* Cancel specified activity.
-	* 
+	*
 	* @param CBPActivity $activity - Activity object.
 	* @param mixed $arEventParameters - Optional parameters.
 	*/
@@ -661,7 +689,7 @@ class CBPWorkflow
 
 	/**
 	* Add new event handler to the specified event.
-	* 
+	*
 	* @param mixed $eventName - Event name.
 	* @param IBPActivityExternalEventListener $eventHandler - Event handler.
 	*/
@@ -683,7 +711,7 @@ class CBPWorkflow
 
 	/**
 	* Remove the event handler from the specified event.
-	* 
+	*
 	* @param mixed $eventName - Event name.
 	* @param IBPActivityExternalEventListener $eventHandler - Event handler.
 	*/
@@ -707,7 +735,7 @@ class CBPWorkflow
 
 	/**
 	* Returns available events for current state of state machine workflow activity.
-	* 
+	*
 	*/
 	public function getAvailableStateEvents()
 	{

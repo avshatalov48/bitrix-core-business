@@ -1,0 +1,10 @@
+.bx-im-attach-delimiter__container {
+	display: block;
+	height: 1px;
+	width: 300px;
+	max-width: 100%;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	background-color: #ccc;
+	font-size: 0;
+}

@@ -84,7 +84,7 @@ class CWizard
 
 		$this->__bInited = true;
 
-		if (count($this->arErrors) > 0)
+		if (!empty($this->arErrors))
 		{
 			/*Generate error step */
 			$this->__PackageError();
@@ -93,7 +93,7 @@ class CWizard
 		{
 			$package = $this;
 
-			if($this->arDescription["PARENT"] == "wizard_sol")
+			if(isset($this->arDescription["PARENT"]) && $this->arDescription["PARENT"] == "wizard_sol")
 			{
 				$lang = LANGUAGE_ID;
 				$wizardPath = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main";
@@ -479,7 +479,7 @@ class CWizard
 
 				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard_sol/template.php");
 
-				$stepID = (isset($arTemplate["STEP"]) ? $arTemplate["STEP"] : null);
+				$stepID = ($arTemplate["STEP"] ?? null);
 				$this->wizard->SetTemplate(new WizardTemplate, $stepID);
 				$this->wizard->DisableAdminTemplate();
 			}
@@ -500,7 +500,7 @@ class CWizard
 				if (!class_exists($arTemplate["CLASS"]))
 					continue;
 
-				$stepID = (isset($arTemplate["STEP"]) ? $arTemplate["STEP"] : null);
+				$stepID = ($arTemplate["STEP"] ?? null);
 				$this->wizard->SetTemplate(new $arTemplate["CLASS"], $stepID);
 				$this->wizard->DisableAdminTemplate();
 			}
@@ -511,11 +511,11 @@ class CWizard
 	function __InitVariables()
 	{
 		$this->licenseExists = ($this->__GetLicensePath() !== false);
-		$this->siteExists = (count($this->arSites)>0);
-		$this->groupExists = (count($this->arTemplateGroups)>0);
-		$this->templateExists = (count($this->arTemplates)>0);
-		$this->serviceExists = (count($this->arServices)>0);
-		$this->structureExists = (count($this->arStructure)>0);
+		$this->siteExists = (!empty($this->arSites));
+		$this->groupExists = (!empty($this->arTemplateGroups));
+		$this->templateExists = (!empty($this->arTemplates));
+		$this->serviceExists = (!empty($this->arServices));
+		$this->structureExists = (!empty($this->arStructure));
 
 		$wizard = $this->wizard;
 
@@ -962,7 +962,7 @@ class CWizard
 			$obTemplate = CSite::GetTemplateList($arSite["LID"]);
 			while($arTemplate = $obTemplate->Fetch())
 			{
-				if(!$found && Trim($arTemplate["CONDITION"]) == '')
+				if(!$found && trim($arTemplate["CONDITION"]) == '')
 				{
 					$arTemplate["TEMPLATE"] = $templateID;
 					$found = true;
@@ -1417,7 +1417,7 @@ class CWizard
 			if (array_key_exists("SERVICE_ID",$arPage) && $serviceID !== null)
 			{
 				$result = array_intersect(!is_array($arPage["SERVICE_ID"]) ? Array($arPage["SERVICE_ID"]) : $arPage["SERVICE_ID"], $serviceID);
-				if (count($result) > 0)
+				if (!empty($result))
 				{
 					$arResult[$pageID] = $arPage;
 					continue;
@@ -1427,7 +1427,7 @@ class CWizard
 			if (array_key_exists("SITE_ID",$arPage) && $siteID !== null)
 			{
 				$result = array_intersect(!is_array($arPage["SITE_ID"]) ? Array($arPage["SITE_ID"]) : $arPage["SITE_ID"], $siteID);
-				if (count($result) > 0)
+				if (!empty($result))
 				{
 					$arResult[$pageID] = $arPage;
 					continue;

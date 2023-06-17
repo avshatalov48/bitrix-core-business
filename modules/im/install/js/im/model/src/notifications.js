@@ -7,11 +7,11 @@
  * @copyright 2001-2021 Bitrix
  */
 
-import { Vue } from 'ui.vue';
-import { VuexBuilderModel } from 'ui.vue.vuex';
-import { Utils } from 'im.lib.utils';
-import { Type } from 'main.core';
-import { NotificationTypesCodes } from 'im.const';
+import {Vue} from 'ui.vue';
+import {VuexBuilderModel} from 'ui.vue.vuex';
+import {Utils} from 'im.lib.utils';
+import {Text, Type, Reflection} from 'main.core';
+import {NotificationTypesCodes} from 'im.const';
 
 class NotificationsModel extends VuexBuilderModel
 {
@@ -402,10 +402,7 @@ class NotificationsModel extends VuexBuilderModel
 			{
 				for (let index = 0; state.collection.length > index; index++)
 				{
-					if (state.collection[index].sectionCode === NotificationTypesCodes.simple)
-					{
-						state.collection[index].unread = false;
-					}
+					state.collection[index].unread = false;
 				}
 			},
 			updatePlaceholders: (state, payload) =>
@@ -482,38 +479,10 @@ class NotificationsModel extends VuexBuilderModel
 			result.date = Utils.date.cast(fields.date);
 		}
 
-		// previous P&P format
-		if (Type.isString(fields.textOriginal) || Type.isNumber(fields.textOriginal))
+		if (Type.isString(fields.text) || Type.isNumber(fields.text))
 		{
-			result.text = fields.textOriginal.toString();
-
-			if (Type.isString(fields.text) || Type.isNumber(fields.text))
-			{
-				result.textConverted = this.convertToHtml({
-					text: fields.text.toString(),
-				});
-			}
-		}
-		else // modern format
-		{
-			if (!Type.isNil(fields.text_converted))
-			{
-				fields.textConverted = fields.text_converted;
-			}
-			if (Type.isString(fields.textConverted) || Type.isNumber(fields.textConverted))
-			{
-				result.textConverted = fields.textConverted.toString();
-			}
-			if (Type.isString(fields.text) || Type.isNumber(fields.text))
-			{
-				result.text = fields.text.toString();
-
-				let isConverted = !Type.isNil(result.textConverted);
-
-				result.textConverted = this.convertToHtml({
-					text: isConverted? result.textConverted: result.text,
-				});
-			}
+			result.text = fields.text.toString();
+			result.textConverted = NotificationsModel.decodeText(result.text);
 		}
 
 		if (Type.isNumber(fields.author_id))
@@ -712,111 +681,26 @@ class NotificationsModel extends VuexBuilderModel
 	}
 	/* endregion Internal helpers */
 
-	/* region Text utils */
-	convertToHtml(params = {})
+	static decodeText(text: string)
 	{
-		let { text = '' } = params;
+		text = Text.decode(text.toString());
+		text = Utils.text.decode(text, {skipImages: true});
 
-		text = text.trim();
-		text = text.replace(/\n/gi, '<br />');
-		text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
-
-		text = NotificationsModel.decodeBbCode({ text });
-
-		if (Utils.platform.isBitrixDesktop())
+		const Parser = Reflection.getClass('BX.Messenger.v2.Lib.Parser');
+		if (Parser)
 		{
-			text = text.replace(/<a(.*?)>(.*?)<\/a>/ig, function(whole, anchor, text) {
-				return '<a'+anchor.replace('target="_self"', 'target="_blank"')+' class="bx-im-notifications-item-link">'+text+'</a>';
+			text = Parser.decodeSmileForLegacyCore(text, {enableBigSmile: false});
+		}
+
+		if (!Utils.platform.isBitrixDesktop())
+		{
+			text = text.replace(/<a(.*?)>(.*?)<\/a>/gi, (whole, anchor, innerText) => {
+				return `<a ${anchor.replace('target="_blank"', 'target="_self"')} class="bx-im-notifications-item-link">${innerText}</a>`;
 			});
 		}
 
 		return text;
-	};
-
-	static decodeBbCode(params = {})
-	{
-		let { text } = params;
-
-		text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
-		{
-			let tag = document.createElement('a');
-			tag.href = Utils.text.htmlspecialcharsback(link);
-			tag.target = '_blank';
-			tag.text = Utils.text.htmlspecialcharsback(text);
-
-			const allowList = [
-				'http:',
-				'https:',
-				'ftp:',
-				'file:',
-				'tel:',
-				'callto:',
-				'mailto:',
-				'skype:',
-				'viber:',
-			];
-			if (allowList.indexOf(tag.protocol) <= -1)
-			{
-				return whole;
-			}
-
-			return tag.outerHTML;
-		});
-
-		text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-		text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
-
-		text = text.replace(/\[RATING\=([1-5]{1})\]/ig, (whole, rating) => {
-			// todo: refactor legacy call
-			return BX.MessengerCommon.linesVoteHeadNodes(0, rating, false).outerHTML;
-		});
-
-		text = text.replace(/\[BR\]/ig, '<br/>');
-		text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, (whole, open, inner, close) => {
-			return '<' + open + '>' + inner + '<' + close + '>';
-		});
-
-		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => {
-			chatId = parseInt(chatId);
-
-			if (chatId <= 0)
-			{
-				return inner;
-			}
-
-			if (openlines)
-			{
-				return '<span class="bx-im-mention" data-type="OPENLINES" data-value="'+chatId+'">'+inner+'</span>';
-			}
-			else
-			{
-				return '<span class="bx-im-mention" data-type="CHAT" data-value="'+chatId+'">'+inner+'</span>';
-			}
-		});
-		text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, text) =>
-		{
-			let html = '';
-
-			userId = parseInt(userId);
-			if (userId > 0 && typeof(BXIM) != 'undefined')
-			{
-				html = `<span class="bx-im-mention ${userId === +BXIM.userId ? 'bx-messenger-ajax-self' : ''}" data-type="USER" data-value="${userId}">${text}</span>`;
-			}
-			else
-			{
-				html = text;
-			}
-
-			return html;
-		});
-
-		text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
-
-		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text);
-
-		return text;
 	}
-	/* endregion Text utils */
 }
 
 export {NotificationsModel};

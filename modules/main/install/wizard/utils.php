@@ -96,7 +96,7 @@ class BXInstallServices
 		$arWizardDescription = array();
 		include($path."/.description.php");
 
-		if (count($arWizardDescription) <= 0)
+		if (empty($arWizardDescription))
 			return false;
 
 		if (!array_key_exists("WIZARD_TYPE", $arWizardDescription))
@@ -437,13 +437,13 @@ class BXInstallServices
 				if (!($fp = @fopen($LOG_FILE, "rb")))
 				{
 					ignore_user_abort($old_abort_status);
-					return False;
+					return false;
 				}
 
 				if (!($fp1 = @fopen($LOG_FILE_TMP, "wb")))
 				{
 					ignore_user_abort($old_abort_status);
-					return False;
+					return false;
 				}
 
 				$iSeekLen = intval($log_size-$MAX_LOG_SIZE/2.0);
@@ -717,26 +717,33 @@ class BXInstallServices
 
 	public static function GetWizardsSettings()
 	{
-		$arWizardConfig = Array();
+		$arWizardConfig = [];
 		$configFile = $_SERVER["DOCUMENT_ROOT"]."/install.config";
 
-		if (!is_file($configFile))
-			return $arWizardConfig;
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/xml.php');
 
-		$configFileContent = file_get_contents($configFile);
-		if ($configFileContent == '')
-			return $arWizardConfig;
-
-		$configFileContent = str_replace(Array("<config>", "</config>"), "", $configFileContent);
-
-		preg_match_all("~<([a-zA-Z0-9]+[^>]*)>(.*?)</\\1>~s", $configFileContent, $arMatch);
-
-		if (isset($arMatch[1]) && isset($arMatch[2]) && is_array($arMatch[1]) && is_array($arMatch[2]))
+		$xml = new CDataXML();
+		if (!$xml->Load($configFile))
 		{
-			for ($i = 0, $length = count($arMatch[1]); $i < $length; $i++)
+			return $arWizardConfig;
+		}
+
+		$tree = $xml->GetTree()->toSimpleArray();
+
+		if (isset($tree['config']))
+		{
+			$arWizardConfig = $tree['config'];
+
+			if (isset($arWizardConfig['options']) && is_array($arWizardConfig['options']))
 			{
-				$tagContent = str_replace(Array("&amp;", "&gt;", "&lt;", "&apos;", "&quot;"), Array("&", ">", "<", "'", '"'), $arMatch[2][$i]);
-				$arWizardConfig[$arMatch[1][$i]] = $tagContent;
+				// normalize options array
+				foreach ($arWizardConfig['options'] as $module => $options)
+				{
+					if (isset($options['option']) && !isset($options['option'][0]))
+					{
+						$arWizardConfig['options'][$module]['option'] = [$options['option']];
+					}
+				}
 			}
 		}
 

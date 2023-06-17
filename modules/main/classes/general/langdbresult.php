@@ -67,7 +67,7 @@ class _CLangDBResult extends CDBResult
 				$arCache[$res["LID"]] = $res["DOMAINS"];
 			}
 
-			if(trim($res["DOC_ROOT"])=="")
+			if(empty($res["DOC_ROOT"]) || trim($res["DOC_ROOT"]) === "")
 				$res["ABS_DOC_ROOT"] = $_SERVER["DOCUMENT_ROOT"];
 			else
 				$res["ABS_DOC_ROOT"] = Rel2Abs($_SERVER["DOCUMENT_ROOT"], $res["DOC_ROOT"]);

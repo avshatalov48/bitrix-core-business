@@ -24,11 +24,20 @@ return [
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
+			'BACKGROUND_USE' => 'Y',
+			'BACKGROUND_COLOR' => '#1c1c22',
+			'BACKGROUND_PICTURE' => 'https://cdn.bitrix24.site/bitrix/images/landing/bg/store-chat-gray.jpg',
+			'BACKGROUND_POSITION' => 'no_repeat',
+			'CSSBLOCK_USE' => 'Y',
+			'CSSBLOCK_CODE' =>
+				'.landing-viewtype--mobile .landing-public-mode {'
+				. 'outline: none;'
+				. '}',
 		],
 	],
-	'layout' => array(
+	'layout' => [
 		'code' => 'empty',
-	),
+	],
 	
 	'items' => [
 		'0' => [
@@ -36,7 +45,7 @@ return [
 			'access' => 'W',
 			'nodes' => [
 				'bitrix:salescenter.order.details' => [
-					'TEMPLATE_MODE' => 'darkmode',
+					'TEMPLATE_MODE' => 'graymode',
 					'SHOW_HEADER' => 'Y',
 				]
 			],
@@ -46,30 +55,30 @@ return [
 			'access' => 'X',
 			'nodes' => [
 				'bitrix:landing.blocks.crm_contacts' => [
-					'BUTTON_POSITION' => 'right',
-					'TEMPLATE_MODE' => 'darkmode',
-					'TITLE' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT5'),
+					'TEMPLATE_MODE' => 'graymode',
 					'BUTTON_TITLE' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT3'),
+					'BUTTON_POSITION' => 'right',
+					'BUTTON_CLASSES' => 'btn g-rounded-50 g-btn-type-outline g-btn-px-l g-btn-size-md g-btn-darkgray text-uppercase',
 				],
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block g-pt-20 g-pb-20 g-theme-bitrix-bg-dark-v3 u-block-border-none',
+					0 => 'landing-block g-pt-20 g-pb-0 g-bg-transparent u-block-border-none',
 				],
 			],
 		],
 		'2' => [
 			'code' => '26.separator',
-			'nodes' => array(
-			),
-			'style' => array(
-				'#wrapper' => array(
-					0 => 'landing-block g-bg-transparent g-pt-15 g-pb-10',
-				),
-				'.landing-block-line' => array(
-					0 => 'landing-block-line g-brd-transparent my-0',
-				),
-			),
+			'nodes' => [
+			],
+			'style' => [
+				'#wrapper' => [
+					0 => 'landing-block g-bg-transparent g-pt-20 g-pb-10',
+				],
+				'.landing-block-line' => [
+					0 => 'landing-block-line g-brd-gray-dark-v2 my-0',
+				],
+			],
 		],
 	],
 ];

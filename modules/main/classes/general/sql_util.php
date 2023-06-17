@@ -207,7 +207,7 @@ class CSqlUtil
 		$arAlreadyJoined = array();
 
 		// GROUP BY -->
-		if (is_array($arGroupBy) && count($arGroupBy)>0)
+		if (is_array($arGroupBy) && !empty($arGroupBy))
 		{
 			$arSelectFields = $arGroupBy;
 			foreach ($arGroupBy as $key => $val)
@@ -237,7 +237,7 @@ class CSqlUtil
 		// SELECT -->
 		$arFieldsKeys = array_keys($arFields);
 
-		if (is_array($arGroupBy) && count($arGroupBy)==0)
+		if (is_array($arGroupBy) && empty($arGroupBy))
 		{
 			$strSqlSelect = "COUNT(%%_DISTINCT_%% ".$arFields[$arFieldsKeys[0]]["FIELD"].") as CNT ";
 		}
@@ -248,7 +248,7 @@ class CSqlUtil
 
 			if (!isset($arSelectFields)
 				|| !is_array($arSelectFields)
-				|| count($arSelectFields) <= 0)
+				|| empty($arSelectFields))
 			{
 				self::PrepareDefaultFields($arFields, $arOrder, $arAlreadyJoined, $strSqlSelect, $strSqlFrom);
 			}
@@ -439,7 +439,7 @@ class CSqlUtil
 			{
 				$arSqlSearch_tmp = array();
 
-				if (count($vals) > 0)
+				if (!empty($vals))
 				{
 					if ($strOperation == "IN")
 					{
@@ -465,7 +465,7 @@ class CSqlUtil
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
-								if (count($vals) <= 0)
+								if (empty($vals))
 									$arSqlSearch_tmp[] = "(1 = 2)";
 								else
 									$arSqlSearch_tmp[] = (($strNegative == "Y") ? " NOT " : "")."(".$arFields[$key]["FIELD"]." IN (".$val."))";
@@ -481,7 +481,7 @@ class CSqlUtil
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
-								if (count($vals) <= 0)
+								if (empty($vals))
 									$arSqlSearch_tmp[] = "(1 = 2)";
 								else
 									$arSqlSearch_tmp[] = (($strNegative == "Y") ? " NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." (".$val."))";
@@ -497,7 +497,7 @@ class CSqlUtil
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
-								if (count($vals) <= 0)
+								if (empty($vals))
 									$arSqlSearch_tmp[] = "(1 = 2)";
 								else
 									$arSqlSearch_tmp[] = (($strNegative == "Y") ? " NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." (".$val."))";
@@ -513,7 +513,7 @@ class CSqlUtil
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
-								if (count($vals) <= 0)
+								if (empty($vals))
 									$arSqlSearch_tmp[] = "1 = 2";
 								else
 									$arSqlSearch_tmp[] = ($strNegative=="Y"?" NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." (".$val."))";
@@ -529,7 +529,7 @@ class CSqlUtil
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
-								if (count($vals) <= 0)
+								if (empty($vals))
 									$arSqlSearch_tmp[] = "1 = 2";
 								else
 									$arSqlSearch_tmp[] = ($strNegative=="Y"?" NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." (".$val."))";
@@ -568,7 +568,7 @@ class CSqlUtil
 
 								if ($fieldType === "int")
 								{
-									if ((intval($val) === 0) && (mb_strpos($strOperation, "=") !== false))
+									if ((intval($val) === 0) && (strpos($strOperation, "=") !== false))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
 									{
@@ -579,7 +579,7 @@ class CSqlUtil
 								{
 									$val = str_replace(",", ".", $val);
 
-									if ((doubleval($val) === 0) && (mb_strpos($strOperation, "=") !== false))
+									if ((doubleval($val) === 0) && (strpos($strOperation, "=") !== false))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
 										$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".DoubleVal($val)." )";
@@ -592,7 +592,7 @@ class CSqlUtil
 									}
 									else
 									{
-										if (($val == '') && (mb_strpos($strOperation, "=") !== false))
+										if (($val == '') && (strpos($strOperation, "=") !== false))
 											$arSqlSearch_tmp[] = "(".$fieldName." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$DB->Length($fieldName)." <= 0) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$fieldName." ".$strOperation." '".$DB->ForSql($val)."' )";
 										else
 										{

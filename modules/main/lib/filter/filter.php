@@ -133,7 +133,7 @@ class Filter
 	public function getField($fieldID)
 	{
 		$fields = $this->getFields();
-		return isset($fields[$fieldID]) ? $fields[$fieldID] : null;
+		return $fields[$fieldID] ?? null;
 	}
 
 	/**

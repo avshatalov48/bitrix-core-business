@@ -43,7 +43,7 @@
 			})
 		);
 
-		document.body.appendChild(this.layout);
+		window.parent.document.body.appendChild(this.layout);
 	};
 
 
@@ -97,7 +97,7 @@
 
 			if (!!node && (node instanceof BX.Landing.Block.Node.Text || node instanceof BX.Landing.UI.Field.Text))
 			{
-				this.range = document.getSelection().getRangeAt(0);
+				this.range = this.contextDocument.getSelection().getRangeAt(0);
 				this.node = node;
 				this.textField = BX.Landing.UI.Field.BaseField.currentField;
 
@@ -176,14 +176,14 @@
 				else
 				{
 					var value = this.field.getValue();
-					document.getSelection().removeAllRanges();
-					document.getSelection().addRange(this.range);
+					this.contextDocument.getSelection().removeAllRanges();
+					this.contextDocument.getSelection().addRange(this.range);
 					this.node.enableEdit();
 
 					var tmpHref = escapeText(join(value.href, random()));
-					var selection = document.getSelection();
+					var selection = this.contextDocument.getSelection();
 
-					document.execCommand("createLink", false, tmpHref);
+					this.contextDocument.execCommand("createLink", false, tmpHref);
 
 					var link = selection.anchorNode
 						.parentElement

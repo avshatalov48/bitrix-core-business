@@ -1,0 +1,21 @@
+.bx-im-menu__container {
+	--im-menu__background-color: var(--im-color-palette-white-base);
+
+	box-sizing: border-box;
+}
+
+.bx-im-menu__container * {
+	box-sizing: border-box;
+}
+
+.bx-im-menu__container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 8px;
+	background-color: var(--im-menu__background-color);
+	border-radius: var(--popup-window-border-radius);
+	user-select: none;
+}

@@ -19,41 +19,69 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-if(!is_array($arParams["TABS"]))
-	$arParams["TABS"] = array();
+if(!isset($arParams["TABS"]) || !is_array($arParams["TABS"]))
+{
+	$arParams["TABS"] = [];
+}
 
-if($arParams["CAN_EXPAND_TABS"] !== 'N' && $arParams["CAN_EXPAND_TABS"] !== false)
-	$arParams["CAN_EXPAND_TABS"] = true;
-else
+if (
+	isset($arParams["CAN_EXPAND_TABS"])
+	&& ($arParams["CAN_EXPAND_TABS"] === 'N' || $arParams["CAN_EXPAND_TABS"] === false)
+)
+{
 	$arParams["CAN_EXPAND_TABS"] = false;
-
-if($arParams["SHOW_FORM_TAG"] !== 'N' && $arParams["SHOW_FORM_TAG"] !== false)
-	$arParams["SHOW_FORM_TAG"] = true;
+}
 else
+{
+	$arParams["CAN_EXPAND_TABS"] = true;
+}
+
+if (isset($arParams["SHOW_FORM_TAG"]) && ($arParams["SHOW_FORM_TAG"] === 'N' || $arParams["SHOW_FORM_TAG"] === false))
+{
 	$arParams["SHOW_FORM_TAG"] = false;
-
-if($arParams["SHOW_SETTINGS"] !== 'N' && $arParams["SHOW_SETTINGS"] !== false)
-	$arParams["SHOW_SETTINGS"] = true;
+}
 else
+{
+	$arParams["SHOW_FORM_TAG"] = true;
+}
+
+if (isset($arParams["SHOW_SETTINGS"]) && ($arParams["SHOW_SETTINGS"] === 'N' || $arParams["SHOW_SETTINGS"] === false))
+{
 	$arParams["SHOW_SETTINGS"] = false;
-
-if($arParams["USE_THEMES"] !== 'N' && $arParams["USE_THEMES"] !== false && CPageOption::GetOptionString("main.interface", "use_themes", "Y") !== "N")
-	$arParams["USE_THEMES"] = true;
+}
 else
+{
+	$arParams["SHOW_SETTINGS"] = true;
+}
+
+if (
+	(isset($arParams["USE_THEMES"]) && ($arParams["USE_THEMES"] === 'N' || $arParams["USE_THEMES"] === false))
+	|| CPageOption::GetOptionString("main.interface", "use_themes", "Y") === "N"
+)
+{
 	$arParams["USE_THEMES"] = false;
+}
+else
+{
+	$arParams["USE_THEMES"] = true;
+}
 
-if($arParams["MAX_FILE_SIZE"] == '')
+if(!isset($arParams["MAX_FILE_SIZE"]) || $arParams["MAX_FILE_SIZE"] == '')
+{
 	$arParams["MAX_FILE_SIZE"] = 102400;
+}
 
-$arParams["FORM_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["FORM_ID"]);
+$arParams["FORM_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["FORM_ID"] ?? '');
 
 //*********************
 //get saved options
 //*********************
 $aOptions = CUserOptions::GetOption("main.interface.form", $arParams["FORM_ID"], array());
 
-if(!is_array($aOptions["tabs"]))
-	$aOptions["tabs"] = array();
+if(!isset($aOptions["tabs"]) || !is_array($aOptions["tabs"]))
+{
+	$aOptions["tabs"] = [];
+}
 
 if($arParams["USE_THEMES"] && $arParams["THEME_GRID_ID"] <> '')
 {
@@ -132,7 +160,7 @@ if($arParams["SHOW_SETTINGS"])
 				foreach($tab["fields"] as $field)
 				{
 					$id = $field["id"];
-					$fieldType = isset($field["type"]) ? $field["type"] : "";
+					$fieldType = $field["type"] ?? "";
 					if(isset($arAllFields[$id]))
 					{
 						$aFields[$id] = $arAllFields[$id];
@@ -194,7 +222,7 @@ if($arParams["SHOW_SETTINGS"])
 		foreach($arAllFields as $id => $field)
 			if(!array_key_exists($id, $aUsedFields))
 				$arResult["AVAILABLE_FIELDS"][$id] = array("id"=>$id, "name"=>$field["name"], "type"=>$field["type"]);
-	
+
 		if($arResult["OPTIONS"]["settings_disabled"] <> "Y")
 		{
 			$arResult["TABS"] = $aTabs;
@@ -204,7 +232,7 @@ if($arParams["SHOW_SETTINGS"])
 	{
 		$arMeta = $arResult["TABS"];
 	}
-	
+
 	//tabs info for settings
 	foreach($arMeta as $id=>$tab)
 	{

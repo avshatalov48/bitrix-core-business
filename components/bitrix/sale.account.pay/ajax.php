@@ -1,11 +1,11 @@
 <?php
 
-define("STOP_STATISTICS", true);
-define("NO_KEEP_STATISTIC", "Y");
-define("NO_AGENT_STATISTIC","Y");
-define("DisableEventsCheck", true);
-define("BX_SECURITY_SHOW_MESSAGE", true);
-define('NOT_CHECK_PERMISSIONS', true);
+const STOP_STATISTICS = true;
+const NO_KEEP_STATISTIC = "Y";
+const NO_AGENT_STATISTIC = "Y";
+const DisableEventsCheck = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 $siteId = isset($_REQUEST['SITE_ID']) && is_string($_REQUEST['SITE_ID']) ? $_REQUEST['SITE_ID'] : '';
 $siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
@@ -46,7 +46,6 @@ if(empty($templateName))
 
 $orderPayment = new SaleAccountPay();
 $orderPayment->initComponent('bitrix:sale.account.pay');
-$orderPayment->includeComponent($params["TEMPLATE_PATH"], $params, null);
+$orderPayment->includeComponent($templateName, $params, null);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-?>

@@ -95,7 +95,7 @@ ShowMessage($arResult["MESSAGE_TEXT"])
 			}
 			?>
 			<?
-			if ($_REQUEST["USER_REMEMBER"] == "Y")
+			if (isset($_REQUEST["USER_REMEMBER"]) && $_REQUEST["USER_REMEMBER"] == "Y")
 				$checked = " checked";
 			else
 				$checked = "";

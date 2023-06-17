@@ -1,0 +1,111 @@
+.bx-im-user-list-content__scope{
+	--im-user-list-content__color_user-title: #525c69;
+	--im-user-list-content__background-color_user: #f5f7f8;
+	--im-user-list-content__border-color_online: #9dcf00;
+	--im-user-list-content__border-color_away: #f7ae3b;
+	--im-user-list-content__border-color_idle: #f6ae3b;
+	--im-user-list-content__border-color_dnd: #ff5752;
+	--im-user-list-content__border-color_break: #c48300;
+	--im-user-list-content__border-color_mobile-online: #11a9d9;
+	--im-user-list-content__background-color_scroll: rgb(82 92 105 / 30%);
+	--im-user-list-content__background-color_scroll-hover: rgb(82 92 105 / 50%);
+	--im-user-list-content__background-color_scroll-active: rgb(82 92 105 / 80%);
+}
+
+.bx-im-user-list-content__container {
+	display: flex;
+	flex-direction: column;
+	width: 200px;
+	max-width: 200px;
+	min-height: 30px;
+	max-height: 150px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 0 12px;
+	margin: 12px 0;
+}
+
+.bx-im-user-list-content__container::-webkit-scrollbar {
+	width: 6px;
+}
+
+.bx-im-user-list-content__container::-webkit-scrollbar-thumb {
+	background: var(--im-user-list-content__background-color_scroll);
+	border-radius: 32px;
+}
+
+.bx-im-user-list-content__container::-webkit-scrollbar-thumb:hover {
+	background: var(--im-user-list-content__background-color_scroll-hover);
+}
+
+.bx-im-user-list-content__container::-webkit-scrollbar-thumb:active {
+	background: var(--im-user-list-content__background-color_scroll-active);
+}
+
+.bx-im-user-list-content__user-container {
+	display: flex;
+	height: 30px;
+	cursor: pointer;
+	align-items: center;
+	padding: 3px 0 3px 8px;
+	box-sizing: border-box;
+}
+
+.bx-im-user-list-content__user-container:hover {
+	background-color: var(--im-user-list-content__background-color_user);
+	border-radius: 6px;
+}
+
+.bx-im-user-list-content__avatar-container {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.bx-im-user-list-content__chat-title-container {
+	margin-left: 8px;
+}
+
+.bx-im-user-list-content__user-container .bx-im-chat-title__text {
+	--im-chat-title__font-color: var(--im-user-list-content__color_user-title);
+
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-normal);
+}
+
+.bx-im-user-list-content__loader-container {
+	margin-top: 16px;
+}
+
+.bx-im-user-list-content__avatar-status {
+	border: 1px solid transparent;
+}
+
+.bx-im-user-list-content__avatar-status.--online {
+	border-color: var(--im-user-list-content__border-color_online);
+}
+
+.bx-im-user-list-content__avatar-status.--mobile-online {
+	border-color: var(--im-user-list-content__border-color_mobile-online);
+}
+
+.bx-im-user-list-content__avatar-status.--away {
+	border-color: var(--im-user-list-content__border-color_away);
+}
+
+.bx-im-user-list-content__avatar-status.--idle {
+	border-color: var(--im-user-list-content__border-color_idle);
+}
+
+.bx-im-user-list-content__avatar-status.--dnd {
+	border-color: var(--im-user-list-content__border-color_dnd);
+}
+
+.bx-im-user-list-content__avatar-status.--break {
+	border-color: var(--im-user-list-content__border-color_break);
+}

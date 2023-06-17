@@ -1,10 +1,15 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 
-if(!CModule::IncludeModule("iblock"))
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $mediaProperty = array(
 	"" => GetMessage("MAIN_NO"),
@@ -12,60 +17,64 @@ $mediaProperty = array(
 $sliderProperty = array(
 	"" => GetMessage("MAIN_NO"),
 );
-$propertyList = CIBlockProperty::GetList(
-	array("sort"=>"asc", "name"=>"asc"),
-	array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"])
-);
-while ($property = $propertyList->Fetch())
+
+if ($iblockExists)
 {
-	$id = $property["CODE"]? $property["CODE"]: $property["ID"];
-	if ($property["PROPERTY_TYPE"] == "S")
+	$propertyList = CIBlockProperty::GetList(
+		["sort" => "asc", "name" => "asc"],
+		["ACTIVE" => "Y", "IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"]]
+	);
+	while ($property = $propertyList->Fetch())
 	{
-		$mediaProperty[$id] = "[".$id."] ".$property["NAME"];
-	}
-	if ($property["PROPERTY_TYPE"] == "F")
-	{
-		$sliderProperty[$id] = "[".$id."] ".$property["NAME"];
+		$id = $property["CODE"] ?: $property["ID"];
+		if ($property["PROPERTY_TYPE"] == "S")
+		{
+			$mediaProperty[$id] = "[" . $id . "] " . $property["NAME"];
+		}
+		if ($property["PROPERTY_TYPE"] == "F")
+		{
+			$sliderProperty[$id] = "[" . $id . "] " . $property["NAME"];
+		}
 	}
 }
 
-$arTemplateParameters = array(
-	"DISPLAY_DATE" => array(
+$arTemplateParameters = [
+	"DISPLAY_DATE" => [
 		"NAME" => GetMessage("TP_BND_DISPLAY_DATE"),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y",
-	),
-	"DISPLAY_NAME" => array(
+	],
+	"DISPLAY_NAME" => [
 		"NAME" => GetMessage("TP_BND_DISPLAY_NAME"),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y",
-	),
-	"DISPLAY_PICTURE" => array(
+	],
+	"DISPLAY_PICTURE" => [
 		"NAME" => GetMessage("TP_BND_DISPLAY_PICTURE"),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y",
-	),
-	"DISPLAY_PREVIEW_TEXT" => array(
+	],
+	"DISPLAY_PREVIEW_TEXT" => [
 		"NAME" => GetMessage("TP_BND_DISPLAY_PREVIEW_TEXT"),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y",
-	),
-	"MEDIA_PROPERTY" => array(
+	],
+	"MEDIA_PROPERTY" => [
 		"NAME" => GetMessage("TP_BND_MEDIA_PROPERTY"),
 		"TYPE" => "LIST",
 		"VALUES" => $mediaProperty,
-	),
-	"SLIDER_PROPERTY" => array(
+	],
+	"SLIDER_PROPERTY" => [
 		"NAME" => GetMessage("TP_BND_SLIDER_PROPERTY"),
 		"TYPE" => "LIST",
 		"VALUES" => $sliderProperty,
-	),
-	"SEARCH_PAGE" => array(
+	],
+	"SEARCH_PAGE" => [
 		"NAME" => GetMessage("TP_BND_SEARCH_PAGE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => "/search/",
-	),
-);
+	],
+];
 
 $arTemplateParameters["USE_RATING"] = array(
 	"NAME" => GetMessage("TP_BND_USE_RATING"),
@@ -73,7 +82,7 @@ $arTemplateParameters["USE_RATING"] = array(
 	"DEFAULT" => "N",
 	"REFRESH" => "Y",
 );
-if($arCurrentValues["USE_RATING"]=="Y")
+if (($arCurrentValues["USE_RATING"] ?? 'N') === "Y")
 {
 	$arTemplateParameters["DISPLAY_AS_RATING"] = array(
 		"NAME" => GetMessage("TP_BND_DISPLAY_AS_RATING"),
@@ -107,7 +116,7 @@ $arTemplateParameters["USE_SHARE"] = array(
 	"DEFAULT" =>"N",
 	"REFRESH"=> "Y",
 );
-if ($arCurrentValues["USE_SHARE"] == "Y")
+if (($arCurrentValues["USE_SHARE"] ?? 'N') === "Y")
 {
 	$arTemplateParameters["SHARE_TEMPLATE"] = array(
 		"NAME" => GetMessage("TP_BND_SHARE_TEMPLATE"),
@@ -118,10 +127,11 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"REFRESH"=> "Y",
 	);
 
-	if (trim($arCurrentValues["SHARE_TEMPLATE"]) == '')
+	$shareComponentTemplate = (trim((string)($arCurrentValues["SHARE_TEMPLATE"] ?? '')));
+	if ($shareComponentTemplate === '')
+	{
 		$shareComponentTemplate = false;
-	else
-		$shareComponentTemplate = trim($arCurrentValues["SHARE_TEMPLATE"]);
+	}
 
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/main.share/util.php");
 

@@ -49,7 +49,7 @@ else
 		$arFieldsTmp[] = array("id" => "TASKS", "name" => GetMessage("BPWC_WNCT_TASKS"), "type" => "custom", "value" => $tasksTmp);
 	}
 
-	if (count($arResult["BP"]["DOCUMENT_STATE_EVENTS"]) > 0)
+	if (!empty($arResult["BP"]["DOCUMENT_STATE_EVENTS"]))
 	{
 		$eventsTmp = "";
 		foreach ($arResult["BP"]["DOCUMENT_STATE_EVENTS"] as $e)

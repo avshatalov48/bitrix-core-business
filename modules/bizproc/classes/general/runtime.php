@@ -48,7 +48,6 @@ class CBPRuntime
 	*/
 	private function __construct()
 	{
-		$this->isStarted = false;
 		$this->workflows = array();
 		$this->services = array(
 			"SchedulerService" => null,
@@ -372,6 +371,18 @@ class CBPRuntime
 		}
 	}
 
+	public function onDocumentDelete(array $documentId): void
+	{
+		/** @var CBPWorkflow $workflow */
+		foreach ($this->workflows as $workflow)
+		{
+			if (CBPHelper::isEqualDocument($documentId, $workflow->getDocumentId()))
+			{
+				$workflow->abandon();
+			}
+		}
+	}
+
 	public static function generateWorkflowId(): string
 	{
 		return uniqid("", true);
@@ -445,9 +456,18 @@ class CBPRuntime
 		{
 			//check if state exists
 			$stateExists = CBPStateService::exists($workflowId);
-			if (!$stateExists)
+			$documentExists = false;
+
+			if ($stateExists)
+			{
+				$documentService = $runtime->getDocumentService();
+				$documentExists = $documentService->isDocumentExists($workflow->getDocumentId());
+			}
+
+			if (!$stateExists || !$documentExists)
 			{
 				$workflow->Terminate();
+
 				return false;
 			}
 

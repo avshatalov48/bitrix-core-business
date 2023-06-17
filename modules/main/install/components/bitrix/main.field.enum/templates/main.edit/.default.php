@@ -76,7 +76,7 @@ $isMultiple = $arResult['isMultiple'];
 			>
 			<span <?= $component->getHtmlBuilder()->buildTagAttributes($arResult['spanAttrList']) ?>>
 			<?php
-			if(count($arResult['attrList']))
+			if(!empty($arResult['attrList']))
 			{
 				foreach($arResult['attrList'] as $attrList)
 				{

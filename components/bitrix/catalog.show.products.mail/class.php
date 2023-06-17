@@ -197,29 +197,43 @@ class CCatalogViewedProductsMailComponent extends CCatalogViewedProductsComponen
 
 	protected function getPropertyCodeList(array $sku)
 	{
-		$codeList = array();
-		$propertyIterator = Iblock\PropertyTable::getList(array(
-			'select' => array('CODE', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE'),
-			'filter' => array('=IBLOCK_ID' => $sku['IBLOCK_ID'], '=ACTIVE' => 'Y')
-		));
+		$codeList = [];
+		$propertyIterator = Iblock\PropertyTable::getList([
+			'select' => [
+				'ID',
+				'CODE',
+				'PROPERTY_TYPE',
+				'MULTIPLE',
+				'USER_TYPE',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $sku['IBLOCK_ID'],
+				'!=ID' => $sku['SKU_PROPERTY_ID'],
+				'=MULTIPLE' => 'N',
+				'=ACTIVE' => 'Y',
+			],
+		]);
 		while ($property = $propertyIterator->fetch())
 		{
-			if($property['MULTIPLE'] == 'Y' || $property['ID'] == $sku['SKU_PROPERTY_ID'])
-				continue;
-
 			$property['USER_TYPE'] = (string)$property['USER_TYPE'];
 			if (empty($property['CODE']))
+			{
 				$property['CODE'] = $property['ID'];
+			}
 
 			if (
-				$property['PROPERTY_TYPE'] == 'L'
-				|| $property['PROPERTY_TYPE'] == 'E'
-				|| ($property['PROPERTY_TYPE'] == 'S' && $property['USER_TYPE'] == 'directory')
+				$property['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_LIST
+				|| $property['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_ELEMENT
+				|| (
+					$property['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_STRING
+					&& $property['USER_TYPE'] === 'directory'
+				)
 			)
 			{
 				$codeList[] = $property['CODE'];
 			}
 		}
+
 		return $codeList;
 	}
 }

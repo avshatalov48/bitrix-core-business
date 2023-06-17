@@ -328,7 +328,7 @@ else
 						?>href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("preset_filter_top_id=".$preset_filter_top_id, array_merge($arResult["PageParamsToClear"], array("preset_filter_top_id")))?>" <?
 						?>class="<?=$className?><?=($isActive ? " ".$className."-active" : "")?>" style="white-space:nowrap;"><?
 							?><?=$arPresetFilter["NAME"]?><?
-							?> <sup id="sonet_log_counter_preset"><?=((intval($arResult["LOG_COUNTER"]) > 0) ? $arResult["LOG_COUNTER"] : "")?></sup><?
+							?> <sup id="sonet_log_counter_preset"><?=((intval($arResult["LOG_COUNTER"] ?? null) > 0) ? $arResult["LOG_COUNTER"] : "")?></sup><?
 					?></a><?
 
 					$cnt++;

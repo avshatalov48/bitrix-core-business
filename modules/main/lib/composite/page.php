@@ -389,7 +389,7 @@ class Page
 	{
 		$configuration = array();
 		$htmlCacheOptions = Helper::getOptions();
-		$storage = isset($htmlCacheOptions["STORAGE"]) ? $htmlCacheOptions["STORAGE"] : false;
+		$storage = $htmlCacheOptions["STORAGE"] ?? false;
 
 		if (in_array($storage, array("memcached", "memcached_cluster")))
 		{

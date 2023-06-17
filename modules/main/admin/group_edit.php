@@ -29,8 +29,8 @@ $asset = \Bitrix\Main\Page\Asset::getInstance();
 $asset->addJs('/bitrix/js/main/gp.js');
 
 $strError = "";
-$ID = intval($_REQUEST["ID"]);
-$COPY_ID = intval($_REQUEST["COPY_ID"]);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$COPY_ID = intval($_REQUEST["COPY_ID"] ?? 0);
 if($COPY_ID > 0)
 	$ID = $COPY_ID;
 
@@ -195,7 +195,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_REQUEST["save"] <> '' || $_REQUEST
 			}
 
 			$old_arTasks = CGroup::GetTasks($ID, true);
-			if (count(array_diff($old_arTasks, $arTasks)) > 0 || count(array_diff($arTasks, $old_arTasks)) > 0)
+			if (!empty(array_diff($old_arTasks, $arTasks)) || !empty(array_diff($arTasks, $old_arTasks)))
 				CGroup::SetTasks($ID, $arTasks);
 		}
 
@@ -629,7 +629,7 @@ $arBXGroupPolicy = [
 				if (
 					array_key_exists("use_site", $ar)
 					&& is_array($ar["use_site"])
-					&& count($ar["use_site"]) > 0
+					&& !empty($ar["use_site"])
 				)
 				{
 
@@ -659,7 +659,7 @@ $arBXGroupPolicy = [
 				if (
 					array_key_exists("use_site", $ar)
 					&& is_array($ar["use_site"])
-					&& count($ar["use_site"]) > 0
+					&& !empty($ar["use_site"])
 				)
 				{
 					foreach ($arSites["reference_id"] as $i => $site_id_tmp)
@@ -720,7 +720,7 @@ $arBXGroupPolicy = [
 		if (
 			array_key_exists("use_site", $ar)
 			&& is_array($ar["use_site"])
-			&& count($ar["use_site"]) > 0
+			&& !empty($ar["use_site"])
 		)
 		{
 			?><a href="javascript:void(0)" onclick="settingsAddRights(this)" class="bx-action-href"><?echo GetMessage("RIGHTS_ADD")?></a><?

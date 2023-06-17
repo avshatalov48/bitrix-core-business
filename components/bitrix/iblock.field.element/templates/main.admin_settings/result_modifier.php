@@ -5,25 +5,32 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\Loader;
 use Bitrix\Iblock\UserField\Types\ElementType;
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if(isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
-	$iblockId = $GLOBALS[$arResult['additionalParameters']['NAME']]['IBLOCK_ID'];
+	$iblockId = $GLOBALS[$arResult['additionalParameters']['NAME']]['IBLOCK_ID'] ?? '';
 	$activeFilter = (
-		$GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'] === 'Y' ? 'Y' : 'N'
+		isset($GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'])
+		&& $GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'] === 'Y'
+			? 'Y'
+			: 'N'
 	);
-	$value = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'];
-	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'];
-	$listHeight = (int)$GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'];
+
+	$value = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'] ?? '';
+	$display = ($GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'] ?? '');
+	$listHeight = (int)($GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'] ?? 0);
 }
 elseif(is_array($arResult['userField']))
 {
-	$iblockId = $arResult['userField']['SETTINGS']['IBLOCK_ID'];
+	$iblockId = $arResult['userField']['SETTINGS']['IBLOCK_ID'] ?? '';
 	$activeFilter =	(
-		$arResult['userField']['SETTINGS']['ACTIVE_FILTER'] === 'Y' ? 'Y' : 'N'
+		isset($arResult['userField']['SETTINGS']['ACTIVE_FILTER'])
+		&& $arResult['userField']['SETTINGS']['ACTIVE_FILTER'] === 'Y'
+			? 'Y'
+			: 'N'
 	);
-	$value = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
-	$display = $arResult['userField']['SETTINGS']['DISPLAY'];
-	$listHeight = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
+	$value = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '';
+	$display = $arResult['userField']['SETTINGS']['DISPLAY'] ?? '';
+	$listHeight = (int)($arResult['userField']['SETTINGS']['LIST_HEIGHT'] ?? 0);
 }
 else
 {

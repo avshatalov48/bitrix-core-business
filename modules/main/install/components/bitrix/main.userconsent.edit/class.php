@@ -31,13 +31,13 @@ class MainUserConsentEditComponent extends CBitrixComponent
 	{
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? intval($this->arParams['ID']) : null;
 
-		$this->arParams['PATH_TO_ADD'] = isset($this->arParams['PATH_TO_ADD']) ? $this->arParams['PATH_TO_ADD'] : '';
-		$this->arParams['PATH_TO_EDIT'] = isset($this->arParams['PATH_TO_EDIT']) ? $this->arParams['PATH_TO_EDIT'] : '';
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
+		$this->arParams['PATH_TO_ADD'] = $this->arParams['PATH_TO_ADD'] ?? '';
+		$this->arParams['PATH_TO_EDIT'] = $this->arParams['PATH_TO_EDIT'] ?? '';
+		$this->arParams['PATH_TO_LIST'] = $this->arParams['PATH_TO_LIST'] ?? '';
 
 		$this->arParams['IFRAME'] = isset($this->arParams['IFRAME']) ? $this->arParams['IFRAME'] == 'Y' : $this->request->get('IFRAME') == 'Y';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT']) ? $this->arParams['CAN_EDIT'] : false;
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT'] ?? false;
 	}
 
 	protected function processPost()

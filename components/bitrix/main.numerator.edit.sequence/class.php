@@ -44,8 +44,8 @@ class MainNumeratorEditSequence extends CBitrixComponent implements \Bitrix\Main
 
 		$this->arResult['GRID_ID'] = $this->gridId;
 
-		$this->arResult['FORM_ID'] = isset($this->arParams['FORM_ID']) ? $this->arParams['FORM_ID'] : '';
-		$this->arResult['TAB_ID'] = isset($this->arParams['TAB_ID']) ? $this->arParams['TAB_ID'] : '';
+		$this->arResult['FORM_ID'] = $this->arParams['FORM_ID'] ?? '';
+		$this->arResult['TAB_ID'] = $this->arParams['TAB_ID'] ?? '';
 
 		$this->arResult['HEADERS'] = [
 			[

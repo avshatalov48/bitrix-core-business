@@ -85,7 +85,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 								"\t".'"'.$comp_name.'",'.$br.
 								"\t".'"'.$template_name.'",'.$br;
 						// If exist at least one parameter with php code inside
-						if (count($arParams) > 0)
+						if (!empty($arParams))
 						{
 							// Get array with description of component params
 							$arCompParams = CComponentUtil::GetComponentProps($comp_name);
@@ -101,7 +101,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 							for ($e = 0; $e < $len; $e++)
 							{
 								$par_name = $arPHPparams[$e];
-								$arParams[$par_name] = isset($arParameters[$par_name]['DEFAULT']) ? $arParameters[$par_name]['DEFAULT'] : '';
+								$arParams[$par_name] = $arParameters[$par_name]['DEFAULT'] ?? '';
 							}
 
 							CComponentUtil::PrepareVariables($arParams);

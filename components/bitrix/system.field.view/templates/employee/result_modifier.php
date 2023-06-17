@@ -9,7 +9,7 @@ if (!$arParams['arUserField']['SETTINGS']['USER_URL'])
 
 $arResult['VALUE'] = array_filter($arResult['VALUE'], "intval");
 
-if (is_array($arResult['VALUE']) && count($arResult['VALUE']) > 0)
+if (is_array($arResult['VALUE']) && !empty($arResult['VALUE']))
 {
 
 	$dbRes = CUser::GetList(

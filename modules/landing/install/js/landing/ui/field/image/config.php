@@ -14,8 +14,12 @@ return [
 		'landing.ui.field.textfield',
 		'landing.imageuploader',
 		'landing.ui.button.basebutton',
-		'landing.imageeditor',
+		'landing.ui.button.aiimagebutton',
+		'landing.pageobject',
+		'landing.env',
+		'ai.picker',
 		'ui.fonts.opensans',
+		'ui.forms',
 	],
 	'skip_core' => false,
 ];

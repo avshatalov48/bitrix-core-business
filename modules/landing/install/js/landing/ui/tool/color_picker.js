@@ -9,6 +9,7 @@
 	 *
 	 * @param {BX.Landing.UI.Button.BaseButton} button
 	 * @param {function} onChange
+	 * @param Document - context document for get range
 	 *
 	 * @constructor
 	 */
@@ -18,12 +19,13 @@
 			bindElement: button.layout,
 			popupOptions: BX.Landing.UI.Tool.ColorPicker.getDefaultPopupOptions(button),
 			onColorSelected: BX.delegate(this.onColorSelected, this),
-			colors: BX.Landing.UI.Tool.ColorPicker.getDefaultColors()
+			colors: BX.Landing.UI.Tool.ColorPicker.getDefaultColors(),
 		});
 		this.button = button;
 		this.onChangeHandler = onChange;
 		this.pickerWindow = this.picker.getPopupWindow();
-		this.range = document.createRange();
+		this.contextDocument = document;
+		this.range = this.contextDocument.createRange();
 		BX.Landing.UI.Tool.ColorPicker.activePickers.add(this);
 	};
 
@@ -34,7 +36,12 @@
 	 */
 	BX.Landing.UI.Tool.ColorPicker.getDefaultPopupOptions = function(button)
 	{
-		return {angle: false, position: {top: 0, left: 0}, zIndex: -678};
+		return {
+			angle: false,
+			position: {top: 0, left: 0},
+			zIndex: -678,
+			overlay: { backgroundColor: '#ffffff', opacity: 10 },
+		};
 	};
 
 
@@ -108,17 +115,23 @@
 				var props = {};
 
 				props["left"] = parentRect.left + (offsetLeft / 2) + "px";
+				props["position"] = "fixed";
 
 				if (position === "fixed")
 				{
 					var buttonRect = this.button.layout.getBoundingClientRect();
 					props["top"] = buttonRect.bottom + "px";
-					props["position"] = "fixed";
 				}
 				else
 				{
 					var buttonPos = BX.pos(this.button.layout);
 					props["top"] = buttonPos.bottom + "px";
+				}
+
+				if (BX.Landing.Main.getInstance().isControlsExternal())
+				{
+					props["left"] = "3px";
+					props["height"] = "210px";
 				}
 
 
@@ -139,7 +152,7 @@
 		{
 			this.picker.open();
 			this.adjustPosition(position);
-			this.range = document.getSelection().getRangeAt(0);
+			this.range = this.contextDocument.getSelection().getRangeAt(0);
 		},
 
 
@@ -170,13 +183,29 @@
 		 */
 		onColorSelected: function(color, picker)
 		{
-			document.getSelection().removeAllRanges();
-			document.getSelection().addRange(this.range);
+			this.contextDocument.getSelection().removeAllRanges();
+			this.contextDocument.getSelection().addRange(this.range);
 
 			if (BX.type.isFunction(this.onChangeHandler))
 			{
 				this.onChangeHandler(color, picker);
 			}
-		}
+		},
+
+		/**
+		 * Set context docuemtn (for get ranges)
+		 * @param Document contextDocument
+		 */
+		setContextDocument: function(contextDocument)
+		{
+			if (contextDocument.nodeType === Node.DOCUMENT_NODE)
+			{
+				this.contextDocument = contextDocument;
+				if (!this.isShown())
+				{
+					this.range = this.contextDocument.createRange();
+				}
+			}
+		},
 	};
 })();

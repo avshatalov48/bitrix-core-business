@@ -26,6 +26,11 @@ if (!Loader::includeModule("socialnetwork"))
 	return;
 }
 
+$arParams["BLOG_VAR"] = $arParams["BLOG_VAR"] ?? '';
+$arParams["PAGE_VAR"] = $arParams["PAGE_VAR"] ?? '';
+$arParams["USER_VAR"] = $arParams["USER_VAR"] ?? '';
+$arParams["POST_VAR"] = $arParams["POST_VAR"] ?? '';
+
 if($arParams["BLOG_VAR"] == '')
 {
 	$arParams["BLOG_VAR"] = "blog";
@@ -61,7 +66,7 @@ if($arParams["PATH_TO_MODERATION"] == '')
 	$arParams["PATH_TO_MODERATION"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=moderation&".$arParams["BLOG_VAR"]."=#blog#");
 }
 
-$arParams["PATH_TO_TAGS"] = trim($arParams["PATH_TO_TAGS"]);
+$arParams["PATH_TO_TAGS"] = trim($arParams["PATH_TO_TAGS"] ?? '');
 if($arParams["PATH_TO_TAGS"] == '')
 {
 	$arParams["PATH_TO_TAGS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=tags&".$arParams["BLOG_VAR"]."=#blog#");
@@ -69,7 +74,7 @@ if($arParams["PATH_TO_TAGS"] == '')
 
 $arParams["USER_ID"] = (int)$arParams["USER_ID"];
 $userId = (int)$USER->GetID();
-$arParams["SOCNET_GROUP_ID"] = (int)$arParams["SOCNET_GROUP_ID"];
+$arParams["SOCNET_GROUP_ID"] = (int) ($arParams["SOCNET_GROUP_ID"] ?? 0);
 
 $groupMode = ($arParams["SOCNET_GROUP_ID"] > 0);
 
@@ -82,18 +87,18 @@ $arParams["GROUP_ID"] = array_filter($arParams["GROUP_ID"], function($v) { retur
 $currentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 $arResult["PostPerm"] = BLOG_PERMS_DENY;
 
-if($arParams["SET_TITLE"] !== "N")
+if (($arParams["SET_TITLE"] ?? '') !== "N")
 {
 	$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
 }
 
-if($arParams["USER_ID"] > 0)
+if ($arParams["USER_ID"] > 0)
 {
 	$res = CUser::GetByID($arParams["USER_ID"]);
 	$userFields = $res->Fetch();
 	if (
 		!empty($userFields)
-		&& $arParams["SET_TITLE"] !== "N"
+		&& ($arParams["SET_TITLE"] ?? null) !== "N"
 		&& CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "blog")
 	)
 	{
@@ -162,7 +167,7 @@ if($groupMode)
 			$arResult["PostPerm"] = BLOG_PERMS_MODERATE;
 		}
 
-		if ($arParams["SET_TITLE"] !== "N")
+		if (($arParams["SET_TITLE"] ?? '') !== "N")
 		{
 			$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
 		}
@@ -194,14 +199,14 @@ elseif(
 		$arResult["PATH_TO_4ME"] .= "forme=Y";
 	}
 
-	$arResult["forme"] = $_REQUEST["forme"];
+	$arResult["forme"] = $_REQUEST["forme"] ?? null;
 
-	if($_REQUEST["forme"] == '')
+	if (($_REQUEST["forme"] ?? null) == '')
 	{
 		$arResult["forme"] = "ALL";
 	}
 
-	if($_REQUEST["mine"] === "Y")
+	if (($_REQUEST["mine"] ?? null) === "Y")
 	{
 		$arResult["forme"] = "";
 	}
@@ -318,23 +323,23 @@ if($arResult["PostPerm"] >= BLOG_PERMS_WRITE)
 }
 
 $arResult["page"] = "all";
-if($arParams["CURRENT_PAGE"] === "moderation")
+if (($arParams["CURRENT_PAGE"] ?? null) === "moderation")
 {
 	$arResult["page"] = "moderation";
 }
-elseif($arParams["CURRENT_PAGE"] === "draft")
+elseif(($arParams["CURRENT_PAGE"] ?? null) === "draft")
 {
 	$arResult["page"] = "draft";
 }
-elseif($arParams["CURRENT_PAGE"] === "tags")
+elseif(($arParams["CURRENT_PAGE"] ?? null) === "tags")
 {
 	$arResult["page"] = "tags";
 }
-elseif($_REQUEST["mine"] === "Y")
+elseif(($_REQUEST["mine"] ?? null) === "Y")
 {
 	$arResult["page"] = "mine";
 }
-elseif($arResult["forme"] === "Y")
+elseif(($arResult["forme"] ?? null) === "Y")
 {
 	$arResult["page"] = "forme";
 }

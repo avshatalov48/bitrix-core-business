@@ -1,4 +1,4 @@
-import { Dom, Type, Event, Text, Loc, Tag } from 'main.core';
+import { Dom, Type, Event, Text, Loc, Runtime } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Document } from './document/document';
 import { Template } from './template';
@@ -970,7 +970,7 @@ export class Robot extends EventEmitter
 	getDescriptionTitle()
 	{
 		let name = 'untitled';
-		const description = this.template.getRobotDescription(this.#data['Type']);
+		const description = this.template?.getRobotDescription(this.#data['Type']) ?? {};
 		if (description['NAME'])
 		{
 			name = description['NAME'];
@@ -1208,13 +1208,18 @@ export class Robot extends EventEmitter
 		}
 	}
 
-	hasBrokenLink()
+	hasBrokenLink(): boolean
 	{
-		const usages = BX.clone(this.collectUsages());
+		return this.getBrokenLinks().length > 0;
+	}
+
+	getBrokenLinks(): []
+	{
+		const usages = Runtime.clone(this.collectUsages());
 
 		if (!this.template)
 		{
-			return false;
+			return [];
 		}
 
 		const objectsData = {
@@ -1227,6 +1232,7 @@ export class Robot extends EventEmitter
 			Activity: this.#template.getSerializedRobots()
 		};
 
+		const brokenLinks = [];
 		for (const object in usages)
 		{
 			if (usages[object].size > 0)
@@ -1258,7 +1264,31 @@ export class Robot extends EventEmitter
 
 					if (!source.has(searchInSource))
 					{
-						return true;
+						if (object === 'Activity')
+						{
+							brokenLinks.push('{=' + searchInSource + ':' + id + '}');
+						}
+						else
+						{
+							let brokenLinkObject = object;
+
+							if (brokenLinkObject === 'GlobalVariable')
+							{
+								brokenLinkObject = 'GlobalVar';
+							}
+							if (brokenLinkObject === 'GlobalConstant')
+							{
+								brokenLinkObject = 'GlobalConst';
+							}
+							if (brokenLinkObject === 'Parameter')
+							{
+								brokenLinkObject = 'Template';
+							}
+
+							brokenLinks.push('{=' + brokenLinkObject + ':' + searchInSource + '}');
+						}
+
+						continue;
 					}
 
 					if (object === 'Activity')
@@ -1266,13 +1296,13 @@ export class Robot extends EventEmitter
 						const robot = this.#template.getRobotById(searchInSource);
 						if (!robot.getReturnProperty(id))
 						{
-							return true;
+							brokenLinks.push('{=' + searchInSource + ':' + id + '}');
 						}
 					}
 				}
 			}
 		}
 
-		return false;
+		return brokenLinks;
 	}
 }

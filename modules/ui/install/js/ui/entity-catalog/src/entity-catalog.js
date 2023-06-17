@@ -48,6 +48,7 @@ export class EntityCatalog extends EventEmitter
 	static SLOT_MAIN_CONTENT_FILTERS_STUB = 'main-content-filter-stub';
 	static SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE = 'main-content-filter-stub-title';
 	static SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND = 'search-not-found';
+	static SLOT_MAIN_CONTENT_WELCOME_STUB = 'main-content-welcome-stub';
 	static SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB = 'main-content-no-selected-group-stub';
 	static SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB = 'main-content-empty-group-stub';
 	static SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE = 'main-content-empty-group-stub-title';
@@ -79,6 +80,7 @@ export class EntityCatalog extends EventEmitter
 		groups?: Array<Array<GroupData>>,
 		items?: Array<ItemData>,
 		recentGroupData?: GroupData,
+		canDeselectGroups?: boolean,
 		showEmptyGroups?: boolean,
 		showRecentGroup?: boolean,
 		showSearch?: boolean,
@@ -100,6 +102,16 @@ export class EntityCatalog extends EventEmitter
 		this.setGroups(Type.isArray(props.groups) ? props.groups : []);
 		this.setItems(Type.isArray(props.items) ? props.items : []);
 		this.#recentGroupData = props.recentGroupData;
+
+		if (Type.isBoolean(props.canDeselectGroups))
+		{
+			this.#groups.forEach((groupList) => {
+				groupList.forEach((group) => {
+					group.deselectable = props.canDeselectGroups
+				});
+			});
+		}
+
 		this.#showEmptyGroups = Type.isBoolean(props.showEmptyGroups) ? props.showEmptyGroups : false;
 		this.#showRecentGroup = Type.isBoolean(props.showRecentGroup) ? props.showRecentGroup : false;
 		this.#showSearch = Type.isBoolean(props.showSearch) ? props.showSearch : false;
@@ -131,6 +143,7 @@ export class EntityCatalog extends EventEmitter
 
 			return groupList.map(group => ({
 				selected: false,
+				deselectable: true,
 				...group
 			}));
 		});
@@ -236,6 +249,9 @@ export class EntityCatalog extends EventEmitter
 								this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]
 								?? Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')
 							}
+						</template>
+						<template #main-content-welcome-stub>
+							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB] ?? ''}
 						</template>
 						<template #main-content-no-selected-group-stub>
 							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB] ?? ''}

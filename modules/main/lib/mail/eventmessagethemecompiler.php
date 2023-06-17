@@ -423,7 +423,7 @@ class EventMessageThemeCompiler
 	{
 		$componentRelativePath = \CComponentEngine::MakeComponentPath($componentName);
 		if ($componentRelativePath == '')
-			return False;
+			return false;
 
 		if (is_object($parentComponent))
 		{

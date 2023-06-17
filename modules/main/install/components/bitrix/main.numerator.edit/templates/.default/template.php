@@ -28,7 +28,7 @@ if ($arResult['IS_SLIDER'])
 	<body>
 <? } ?>
 	<div class="<?= $arResult['IS_SLIDER'] ? 'main-numerator-edit-slider' : '' ?>
-	<?= htmlspecialcharsbx(isset($arParams['CSS_WRAP_CLASS']) ? $arParams['CSS_WRAP_CLASS'] : ''); ?>"
+	<?= htmlspecialcharsbx($arParams['CSS_WRAP_CLASS'] ?? ''); ?>"
 	>
 		<? if (!$arResult['IS_HIDE_PAGE_TITLE']): ?>
 			<div class="main-numerator-edit-title">

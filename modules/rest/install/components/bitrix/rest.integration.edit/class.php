@@ -139,7 +139,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 
 			if (!isset($presetData['OPTIONS']['QUERY_NEEDED']) || $presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
 			{
-				$result['QUERY_NEEDED'] = $presetData['OPTIONS']['QUERY_NEEDED'];
+				$result['QUERY_NEEDED'] = $presetData['OPTIONS']['QUERY_NEEDED'] ?? null;
 				$result['ERROR_MESSAGE'][] = Loc::getMessage(
 					'REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK',
 					[
@@ -461,11 +461,11 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			{
 				$saveData = [
 					'ELEMENT_CODE' => $presetData['ELEMENT_CODE'],
-					'TITLE' => $presetData['TITLE'],
+					'TITLE' => $presetData['TITLE'] ?? null,
 					'PASSWORD_ID' => $presetData['WEBHOOK']['ID'] ?? null,
-					'SCOPE' => $presetData['OPTIONS']['SCOPE'],
-					'QUERY' => $this->prepareQuery(null, $presetData['OPTIONS']['QUERY']),
-					'OUTGOING_EVENTS' => $presetData['OPTIONS']['OUTGOING_EVENTS']  ?? null,
+					'SCOPE' => $presetData['OPTIONS']['SCOPE'] ?? null,
+					'QUERY' => $this->prepareQuery(null, $presetData['OPTIONS']['QUERY'] ?? null),
+					'OUTGOING_EVENTS' => $presetData['OPTIONS']['OUTGOING_EVENTS'] ?? null,
 					'OUTGOING_NEEDED' => $presetData['OPTIONS']['OUTGOING_NEEDED'] ?? null,
 					'WIDGET_LIST' => $presetData['OPTIONS']['WIDGET_LIST'] ?? null,
 					'WIDGET_NEEDED' => $presetData['OPTIONS']['WIDGET_NEEDED'] ?? null,

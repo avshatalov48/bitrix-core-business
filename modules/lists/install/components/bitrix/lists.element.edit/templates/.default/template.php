@@ -5,8 +5,22 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @global CDatabase $DB */
+/** @var CBitrixComponentTemplate $this */
+/** @var string $templateName */
+/** @var string $templateFile */
+/** @var string $templateFolder */
+/** @var string $componentPath */
+/** @var CBitrixComponent $component */
+
+\Bitrix\Main\Loader::includeModule('ui');
+
 CJSCore::Init(array('window', 'lists'));
-Bitrix\Main\UI\Extension::load("ui.buttons");
+Bitrix\Main\UI\Extension::load(["ui.buttons", "ui.dialogs.messagebox"]);
 
 $jsClass = 'ListsElementEditClass_'.$arResult['RAND_STRING'];
 $urlTabBp = CHTTP::urlAddParams(
@@ -21,11 +35,10 @@ if (isset($arResult["LIST_COPY_ELEMENT_URL"]))
 {
 	if($arResult["CAN_ADD_ELEMENT"])
 	{
-		$listAction[] = array(
-			"id" => "copyElement",
+		$listAction[] = [
 			"text" => GetMessage("CT_BLEE_TOOLBAR_COPY_ELEMENT"),
-			"url" => $arResult["LIST_COPY_ELEMENT_URL"]
-		);
+			"href" => $arResult["LIST_COPY_ELEMENT_URL"]
+		];
 	}
 }
 
@@ -34,30 +47,25 @@ if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
 	!CIBlockElement::WF_IsLocked($arResult["ELEMENT_ID"], $lockedBy, $dateLock)))
 {
 	$listAction[] = [
-		"id" => "unLockElement",
 		"text" => GetMessage("CT_BLEE_UN_LOCK_ELEMENT"),
-		"action" => "BX.Lists['".$jsClass."'].unLock();"
+		"onclick" => new \Bitrix\UI\Buttons\JsCode(
+			"BX.Lists['".$jsClass."'].unLock();"
+		),
 	];
 }
 
 if($arResult["CAN_DELETE_ELEMENT"])
 {
-	$listAction[] = array(
-		"id" => "deleteElement",
+	$listAction[] = [
 		"text" => $arResult["IBLOCK"]["ELEMENT_DELETE"],
-		"action" => "BX.Lists['".$jsClass."'].elementDelete('form_".$arResult["FORM_ID"]."',
-			'".GetMessage("CT_BLEE_TOOLBAR_DELETE_WARNING")."')",
-	);
+		"onclick" => new \Bitrix\UI\Buttons\JsCode(
+			"BX.Lists['".$jsClass."'].elementDelete('form_".$arResult["FORM_ID"]."',
+			'".GetMessage("CT_BLEE_TOOLBAR_DELETE_WARNING")."')"
+		),
+	];
 }
 
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-$pagetitleAlignRightContainer = "lists-align-right-container";
-if($isBitrix24Template)
-{
-	$this->SetViewTarget("pagetitle", 100);
-	$pagetitleAlignRightContainer = "";
-}
-elseif(!IsModuleInstalled("intranet"))
+if(!IsModuleInstalled("intranet"))
 {
 	\Bitrix\Main\UI\Extension::load([
 		'ui.design-tokens',
@@ -66,21 +74,24 @@ elseif(!IsModuleInstalled("intranet"))
 
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
-?>
-<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_SECTION_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
-		<?=GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT")?>
-	</a>
-	<?if($listAction):?>
-	<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
-		<?=GetMessage("CT_BLEE_TOOLBAR_ACTION")?>
-	</span>
-	<?endif;?>
-</div>
-<?
-if($isBitrix24Template)
+
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+\Bitrix\UI\Toolbar\Facade\Toolbar::addButton([
+		'link' => $arResult["LIST_SECTION_URL"],
+		'color' => \Bitrix\UI\Buttons\Color::LINK,
+		'text' => GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT"),
+		'classList' => ['lists-list-back'],
+	]
+);
+
+if ($listAction)
 {
-	$this->EndViewTarget();
+	$settingsButton = new Bitrix\UI\Buttons\SettingsButton([
+		'menu' => [
+			'items' => $listAction,
+		],
+	]);
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($settingsButton);
 }
 
 $tabElement = array();
@@ -343,8 +354,7 @@ if (isset($arResult["RIGHTS"]))
 		/*$bDefault=*/true,
 		/*$bForceInherited=*/$arResult["ELEMENT_ID"] <= 0
 	);
-	$rights_html = ob_get_contents();
-	ob_end_clean();
+	$rights_html = ob_get_clean();
 
 	$rights_fields = array(
 		array(
@@ -420,7 +430,6 @@ $APPLICATION->IncludeComponent(
 			isConstantsTuned: <?= $arResult["isConstantsTuned"] ? 'true' : 'false' ?>,
 			elementUrl: '<?= $arResult["ELEMENT_URL"] ?>',
 			sectionUrl: '<?= $arResult["LIST_SECTION_URL"] ?>',
-			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,
 			lockStatus: <?=($lockStatus ? 'true' : 'false')?>
 		});
 

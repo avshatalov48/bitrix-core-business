@@ -9,7 +9,7 @@ if($this->sort)
 	if(empty($aOptions["order"]))
 		$aOptions["order"] = $this->sort->order_initial;
 }
-if(intval($aOptions["page_size"]) <= 0)
+if(isset($aOptions["page_size"]) && intval($aOptions["page_size"]) <= 0)
 {
 	$aOptions["page_size"] = 20;
 }
@@ -34,7 +34,7 @@ echo '</form>';
 $bNeedSort = false;
 foreach($aAllCols as $header)
 {
-	echo '<option value="'.$header["id"].'">'.($header["name"]<>""? $header["name"]:$header["content"]).'</option>';
+	echo '<option value="'.$header["id"].'">'.(!empty($header["name"]) ? $header["name"] : $header["content"]).'</option>';
 	if($header["sort"] <> "")
 	{
 		$bNeedSort = true;
@@ -52,7 +52,7 @@ foreach($this->aHeaders as $header)
 {
 	if(($bEmptyCols && $header["default"]==true) || in_array($header["id"], $aCols))
 	{
-		echo '<option value="'.$header["id"].'">'.($header["name"]<>""? $header["name"]:$header["content"]).'</option>';
+		echo '<option value="'.$header["id"].'">'.(!empty($header["name"]) ? $header["name"] : $header["content"]).'</option>';
 	}
 }
 ?>
@@ -82,7 +82,7 @@ $order = mb_strtoupper($aOptions["order"]);
 	{
 		if($header["sort"] <> "")
 		{
-			echo '<option value="'.$header["sort"].'"'.($by == mb_strtoupper($header["sort"])? ' selected':'').'>'.($header["name"]<>""? $header["name"]:$header["content"]).'</option>';
+			echo '<option value="'.$header["sort"].'"'.($by == mb_strtoupper($header["sort"])? ' selected':'').'>'.(!empty($header["name"]) ? $header["name"] : $header["content"]).'</option>';
 		}
 	}
 ?>
@@ -104,7 +104,7 @@ $order = mb_strtoupper($aOptions["order"]);
 $aSizes = array(10, 20, 50, 100, 200, 500);
 foreach($aSizes as $size)
 {
-	echo '<option value="'.$size.'"'.($aOptions["page_size"] == $size? ' selected':'').'>'.$size.'</option>';
+	echo '<option value="'.$size.'"'.(isset($aOptions["page_size"]) && $aOptions["page_size"] == $size? ' selected':'').'>'.$size.'</option>';
 }
 ?>
 			</select>

@@ -19,7 +19,7 @@ use Bitrix\Main\UserField\Types\BaseType;
  * @param CBitrixComponent $this
  */
 
-$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] ? true : false);
+$arParams["bVarsFromForm"] = isset($arParams["bVarsFromForm"]) && $arParams["bVarsFromForm"];
 $arResult["VALUE"] = false;
 
 if($arParams["arUserField"]["USER_TYPE"])
@@ -80,7 +80,7 @@ if($arParams["arUserField"]["USER_TYPE"])
 	}
 	else
 	{
-		if($arParams['skip_manager'] || $this->initComponentTemplate())
+		if ((isset($arParams['skip_manager']) && $arParams['skip_manager']) || $this->initComponentTemplate())
 		{
 			$this->IncludeComponentTemplate();
 		}

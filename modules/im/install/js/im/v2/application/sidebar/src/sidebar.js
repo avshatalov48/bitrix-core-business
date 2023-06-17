@@ -1,11 +1,10 @@
 import {Core} from 'im.v2.application.core';
 import {RecentList as RecentListComponent} from 'im.v2.component.old-chat-embedding.recent-list';
-import {RecentPullHandler} from 'im.v2.provider.pull';
-import {PullHandlers} from 'im.v2.const';
 
 type SidebarApplicationParams = {
 	node?: string | HTMLElement,
-	preloadedList?: Object
+	preloadedList?: Object,
+	loggerConfig?: Object
 }
 
 export class SidebarApplication
@@ -31,7 +30,6 @@ export class SidebarApplication
 		this.rootNode = this.params.node || document.createElement('div');
 
 		this.initCore()
-			.then(() => this.initPullHandler())
 			.then(() => this.initComponent())
 			.then(() => this.initComplete())
 		;
@@ -45,24 +43,6 @@ export class SidebarApplication
 				resolve();
 			});
 		});
-	}
-
-	initPullHandler()
-	{
-		if (this.controller.pullHandlers.includes(PullHandlers.recent))
-		{
-			return Promise.resolve();
-		}
-		this.controller.pullClient.subscribe(
-			new RecentPullHandler({
-				store: this.controller.getStore(),
-				controller: this.controller,
-				application: this
-			})
-		);
-		this.controller.pullHandlers.push(PullHandlers.recent);
-
-		return Promise.resolve();
 	}
 
 	initComponent()

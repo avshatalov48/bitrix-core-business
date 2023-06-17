@@ -5,11 +5,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2,
-	    _t3,
-	    _t4,
-	    _t5;
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5;
 	class SyncStatusPopup extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -20,15 +20,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.id = options.id;
 	    this.init();
 	  }
-
 	  static createInstance(options) {
 	    return new this(options);
 	  }
-
 	  init() {
 	    this.setPopupContent();
 	  }
-
 	  createPopup() {
 	    this.popup = new main_popup.Popup({
 	      className: this.id,
@@ -44,12 +41,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      zIndexAbsolute: 3010
 	    });
 	  }
-
 	  show() {
 	    this.createPopup();
 	    this.popup.show();
 	  }
-
 	  setPopupContent() {
 	    this.container = main_core.Tag.render(_t || (_t = _`
 			<div class="calendar-sync-popup-list"></div>
@@ -58,7 +53,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      if (connection.getConnectStatus() !== true) {
 	        return;
 	      }
-
 	      const options = {};
 	      options.syncTime = this.getFormattedTime(connection.getSyncDate());
 	      options.classStatus = connection.getSyncStatus() ? 'calendar-sync-popup-item-status-success' : 'calendar-sync-popup-item-status-fail';
@@ -67,46 +61,35 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      const block = this.getSyncElement(options);
 	      this.container.append(block);
 	    });
-
 	    if (this.withUpdateButton) {
 	      this.container.append(this.getContentRefreshBlock());
-
 	      if (SyncStatusPopup.IS_RUN_REFRESH) {
 	        this.showRefreshStatus();
 	      }
 	    }
-
 	    return this.container;
 	  }
-
 	  hide() {
 	    this.popup.destroy();
 	  }
-
 	  getContainer() {
 	    return this.container;
 	  }
-
 	  getPopup() {
 	    return this.popup;
 	  }
-
 	  getFormattedTime(date) {
 	    const now = new Date();
 	    let timestamp = date;
-
 	    if (main_core.Type.isDate(date)) {
 	      timestamp = Math.round(date.getTime() / 1000);
 	      let secondsAgo = parseInt((now - date) / 1000);
-
 	      if (secondsAgo < 60) {
 	        return main_core.Loc.getMessage('CAL_JUST');
 	      }
 	    }
-
 	    return BX.date.format([["tommorow", "tommorow, H:i:s"], ["i", "iago"], ["H", "Hago"], ["d", "dago"], ["m100", "mago"], ["m", "mago"], ["-", ""]], timestamp);
 	  }
-
 	  getSyncElement(options) {
 	    return main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="calendar-sync-popup-item">
@@ -118,13 +101,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 				</div>
 			`), options.classLable, BX.util.htmlspecialchars(options.title), options.syncTime, options.classStatus);
 	  }
-
 	  refresh(connections) {
 	    this.connections = connections;
 	    this.popup.setContent(this.setPopupContent());
 	    this.setRefreshStatusBlock();
 	  }
-
 	  setRefreshStatusBlock() {
 	    setTimeout(() => {
 	      this.removeRefreshStatusBlock();
@@ -132,25 +113,21 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      SyncStatusPopup.IS_RUN_REFRESH = false;
 	    }, 120000);
 	  }
-
 	  removeRefreshStatusBlock() {
 	    if (main_core.Type.isElementNode(this.refreshStatusBlock)) {
 	      this.refreshStatusBlock.remove();
 	    }
 	  }
-
 	  enableRefreshButton() {
 	    if (main_core.Type.isElementNode(this.refreshButton)) {
 	      this.refreshButton.className = 'calendar-sync-popup-footer-btn';
 	    }
 	  }
-
 	  disableRefreshButton() {
 	    if (main_core.Type.isElementNode(this.refreshButton)) {
 	      this.refreshButton.className = 'calendar-sync-popup-footer-btn calendar-sync-popup-footer-btn-disabled';
 	    }
 	  }
-
 	  getContentRefreshBlock() {
 	    this.footerWrapper = main_core.Tag.render(_t3 || (_t3 = _`
 			<div class="calendar-sync-popup-footer-wrap">
@@ -159,7 +136,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 		`), this.getContentRefreshButton());
 	    return this.footerWrapper;
 	  }
-
 	  getContentRefreshButton() {
 	    this.refreshButton = main_core.Tag.render(_t4 || (_t4 = _`
 			<button class="calendar-sync-popup-footer-btn">${0}</button>
@@ -172,27 +148,22 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    return this.refreshButton;
 	  }
-
 	  showRefreshStatus() {
 	    this.disableRefreshButton();
 	    this.footerWrapper.prepend(this.getRefreshStatus());
 	  }
-
 	  getRefreshStatus() {
 	    this.refreshStatusBlock = main_core.Tag.render(_t5 || (_t5 = _`
 			<span class="calendar-sync-popup-footer-status">${0}</span>
 		`), main_core.Loc.getMessage('CAL_REFRESH_JUST'));
 	    return this.refreshStatusBlock;
 	  }
-
 	  runRefresh() {
 	    this.emit('onRefresh', {});
 	  }
-
 	  getId() {
 	    return this.id;
 	  }
-
 	}
 	SyncStatusPopup.IS_RUN_REFRESH = false;
 
@@ -207,11 +178,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.buttonEnterTimeout = null;
 	    this.buttonLeaveTimeout = null;
 	  }
-
 	  static createInstance(options) {
 	    return new this(options);
 	  }
-
 	  show() {
 	    const buttonData = this.getButtonData();
 	    this.button = new BX.UI.Button({
@@ -230,14 +199,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    this.button.renderTo(this.wrapper);
 	  }
-
 	  showPopup(button) {
 	    if (this.status !== 'not_connected') {
 	      const connections = [];
 	      const providersCollection = Object.values(this.connectionsProviders);
 	      providersCollection.forEach(provider => {
 	        const providerConnections = provider.getConnections();
-
 	        if (providerConnections.length > 0) {
 	          providerConnections.forEach(connection => {
 	            if (connection.getConnectStatus() === true) {
@@ -262,13 +229,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    }
 	  }
-
 	  hidePopup() {
 	    if (this.popup) {
 	      this.popup.hide();
 	    }
 	  }
-
 	  refresh(status) {
 	    this.status = status;
 	    const buttonData = this.getButtonData();
@@ -277,7 +242,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock');
 	    this.button.addClass(buttonData.iconClass);
 	  }
-
 	  handleClick() {
 	    clearTimeout(this.buttonEnterTimeout);
 	    (window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then(exports => {
@@ -297,30 +261,25 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    });
 	  }
-
 	  handlerMouseEnter(button) {
 	    clearTimeout(this.buttonEnterTimeout);
 	    this.buttonEnterTimeout = setTimeout(() => {
 	      this.buttonEnterTimeout = null;
-
 	      if (!main_core.Dom.hasClass(button.button, 'ui-btn-clock')) {
 	        this.showPopup(button);
 	      }
 	    }, 500);
 	  }
-
 	  handlerMouseLeave() {
 	    if (this.buttonEnterTimeout !== null) {
 	      clearTimeout(this.buttonEnterTimeout);
 	      this.buttonEnterTimeout = null;
 	      return;
 	    }
-
 	    this.buttonLeaveTimeout = setTimeout(() => {
 	      this.hidePopup();
 	    }, 500);
 	  }
-
 	  getButtonData() {
 	    if (this.status === 'success') {
 	      return {
@@ -341,21 +300,17 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        iconClass: 'ui-btn-clock'
 	      };
 	    }
-
 	    return {
 	      text: main_core.Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
 	      color: BX.UI.Button.Color.PRIMARY
 	    };
 	  }
-
 	  getSyncPanel() {
 	    return this.syncPanel;
 	  }
-
 	  setConnectionProviders(connectionsProviders) {
 	    this.connectionsProviders = connectionsProviders;
 	  }
-
 	}
 
 	const isConnectionItemProperty = Symbol.for('BX.Calendar.Sync.Manager.ConnectionItem.isConnectionItem');
@@ -371,31 +326,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.id = options.type;
 	    this.userName = options.userName;
 	  }
-
 	  static createInstance(options) {
 	    return new this(options);
 	  }
-
 	  static isConnectionItem(target) {
 	    return main_core.Type.isObject(target) && target[isConnectionItemProperty] === true;
 	  }
-
 	  getSyncDate() {
 	    return this.syncDate;
 	  }
-
 	  getConnectionName() {
 	    return this.connectionName;
 	  }
-
 	  getSyncStatus() {
 	    return this.status;
 	  }
-
 	  getConnectStatus() {
 	    return this.connected;
 	  }
-
 	  getStatus() {
 	    if (this.connected) {
 	      return this.status ? "success" : "failed";
@@ -403,51 +351,41 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      return 'not_connected';
 	    }
 	  }
-
 	  getClassLabel() {
 	    return this.type;
 	  }
-
 	  getSections() {
 	    return this.addParams.sections;
 	  }
-
 	  getId() {
 	    return this.addParams.id;
 	  }
-
 	  getConnectionAccountName() {
 	    return this.userName;
 	  }
-
 	  getType() {
 	    return this.type;
 	  }
-
 	  setId(id) {
 	    this.addParams.id = id;
 	  }
-
 	  setStatus(status) {
 	    this.status = status;
 	  }
-
 	  setUserName(userName) {
 	    this.userName = userName;
 	  }
-
 	  setConnected(connected) {
 	    this.connected = connected;
 	  }
-
 	  setSyncDate(syncDate) {
 	    this.syncDate = syncDate;
 	  }
-
 	}
 
 	class ConnectionProvider extends main_core_events.EventEmitter {
 	  // 6 min
+
 	  constructor(options) {
 	    super();
 	    this.MENU_WIDTH = 200;
@@ -473,31 +411,25 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.gridIcon = options.gridIcon;
 	    this.type = options.type;
 	    this.viewClassification = options.viewClassification;
-	    this.templateClass = options.templateClass; // this.wizardClassName = options.wizardClass || null;
-
+	    this.templateClass = options.templateClass;
+	    // this.wizardClassName = options.wizardClass || null;
 	    this.connections = [];
 	    this.id = options.id || '';
 	  }
-
 	  static createInstance(options) {
 	    return new this(options);
 	  }
-
 	  isActive() {
 	    return this.connected;
 	  }
-
 	  hasMenu() {
 	    return false;
 	  }
-
 	  setAdditionalParams(options) {
 	    this.additionalParams = options;
 	  }
-
 	  setSyncDate(offset) {
 	    offset = parseInt(offset);
-
 	    if (offset > 60) {
 	      this.syncDate = new Date(new Date().getTime() - offset * 1000);
 	    } else if (!isNaN(offset)) {
@@ -505,50 +437,39 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    } else {
 	      this.syncDate = null;
 	    }
-
 	    if (this.getConnection()) {
 	      this.getConnection().syncDate = this.syncDate;
 	    }
 	  }
-
 	  getSyncDate() {
 	    return this.syncDate;
 	  }
-
 	  setSections(sections) {
 	    this.sections = sections;
 	  }
-
 	  setStatus(status) {
 	    if (this.STATUS_LIST.includes(status)) {
 	      this.status = status;
-
 	      if (!this.connected && (status === this.STATUS_SUCCESS || status === this.STATUS_FAILED)) {
 	        this.connected = true;
 	      } else if (this.connected && status === this.STATUS_NOT_CONNECTED) {
 	        this.connected = false;
 	      }
 	    }
-
 	    return this;
 	  }
-
 	  getGridTitle() {
 	    return this.gridTitle;
 	  }
-
 	  getGridColor() {
 	    return this.gridColor;
 	  }
-
 	  getGridIcon() {
 	    return this.gridIcon;
 	  }
-
 	  clearConnections() {
 	    this.connections = [];
 	  }
-
 	  setConnections() {
 	    this.connections.push(ConnectionItem.createInstance({
 	      syncDate: this.getSyncDate(),
@@ -563,44 +484,34 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      type: this.type
 	    }));
 	  }
-
 	  setInterfaceUnit(interfaceUnit) {
 	    this.interfaceUnit = interfaceUnit;
 	  }
-
 	  getInterfaceUnit() {
 	    return this.interfaceUnit;
 	  }
-
 	  getConnections() {
 	    return this.connections;
 	  }
-
 	  getConnection() {
 	    return this.connections[0];
 	  }
-
 	  getType() {
 	    return this.type;
 	  }
-
 	  getViewClassification() {
 	    return this.viewClassification;
 	  }
-
 	  getConnectStatus() {
 	    return this.connected;
 	  }
-
 	  getSyncStatus() {
 	    return this.status;
 	  }
-
 	  getStatus() {
 	    if (this.getWizardSyncMode()) {
 	      return 'synchronizing';
 	    }
-
 	    if (this.connected) {
 	      return this.status ? "success" : "failed";
 	    } else if (this.pendingStatus) {
@@ -609,11 +520,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      return 'not_connected';
 	    }
 	  }
-
 	  getTemplateClass() {
 	    return this.templateClass;
 	  }
-
 	  openSlider(options) {
 	    BX.SidePanel.Instance.open(options.sliderId, {
 	      contentCallback(slider) {
@@ -621,7 +530,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	          resolve(options.content);
 	        });
 	      },
-
 	      data: options.data || {},
 	      cacheable: options.cacheable,
 	      width: this.SLIDER_WIDTH,
@@ -633,13 +541,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    });
 	  }
-
 	  closeSlider() {
 	    if (this.itemSlider) {
 	      this.itemSlider.close();
 	    }
 	  }
-
 	  openInfoConnectionSlider() {
 	    const content = this.getClassTemplateItem().createInstance(this).getInfoConnectionContent();
 	    this.openSlider({
@@ -651,10 +557,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    });
 	  }
-
 	  openActiveConnectionSlider(connection) {
 	    const itemInterface = this.getClassTemplateItem().createInstance(this, connection);
-
 	    if (this.type === 'google') {
 	      itemInterface.getSectionsForGoogle().then(() => {
 	        this.openActiveConnectionSliderVendor(itemInterface, connection);
@@ -671,7 +575,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.openActiveConnectionSliderVendor(itemInterface, connection);
 	    }
 	  }
-
 	  openActiveConnectionSliderVendor(itemInterface, connection) {
 	    const content = itemInterface.getActiveConnectionContent();
 	    this.openSlider({
@@ -685,52 +588,39 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    });
 	  }
-
 	  getClassTemplateItem() {
 	    const itemClass = main_core.Reflection.getClass(this.getTemplateClass());
-
 	    if (main_core.Type.isFunction(itemClass)) {
 	      return itemClass;
 	    }
-
 	    return null;
 	  }
-
 	  getConnectionById(id) {
 	    const connections = this.getConnections();
-
 	    if (connections.length > 0) {
 	      const result = connections.filter(connection => {
 	        return connection.getId() == id;
 	      });
-
 	      if (result) {
 	        return result[0];
 	      }
 	    }
-
 	    return null;
 	  }
-
 	  getSyncPanelTitle() {
 	    return this.gridTitle;
 	  }
-
 	  getSyncPanelLogo() {
 	    return '--' + this.type;
 	  }
-
 	  setWizardSyncMode(value) {
 	    this.wizardSyncMode = value;
 	  }
-
 	  getWizardSyncMode() {
 	    return this.wizardSyncMode;
 	  }
-
 	  setWizardState(stateData) {
 	    const wizard = this.getActiveWizard();
-
 	    if (wizard) {
 	      if (stateData.status === this.ERROR_CODE) {
 	        wizard.setErrorState(stateData);
@@ -739,15 +629,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    }
 	  }
-
 	  setUserName(userName = '') {
 	    this.userName = userName;
-
 	    if (this.getConnection()) {
 	      this.getConnection().setUserName(userName);
 	    }
 	  }
-
 	  setActiveWizard(wizard) {
 	    this.activeWizard = wizard;
 	    wizard.subscribe('onConnectionCreated', this.handleCreatedConnection.bind(this));
@@ -755,11 +642,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    wizard.subscribe('startWizardWaitingMode', this.startWaitingMode.bind(this));
 	    wizard.subscribe('endWizardWaitingMode', this.endWaitingMode.bind(this));
 	  }
-
 	  getActiveWizard() {
 	    return this.activeWizard || null;
 	  }
-
 	  startWaitingMode() {
 	    this.emit('onStartWaitingMode');
 	    this.waitingModeReserveTimeout = setTimeout(() => {
@@ -768,16 +653,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    }, this.WAITING_MODE_MAX_TIME);
 	  }
-
 	  endWaitingMode() {
 	    this.emit('onEndWaitingMode');
-
 	    if (this.waitingModeReserveTimeout) {
 	      clearTimeout(this.waitingModeReserveTimeout);
 	      this.waitingModeReserveTimeout = null;
 	    }
 	  }
-
 	  handleCreatedConnection() {
 	    this.setStatus(this.STATUS_SUCCESS);
 	    this.getInterfaceUnit().setSyncStatus(this.STATUS_SUCCESS);
@@ -785,20 +667,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      data: {
 	        accountType: this.getType()
 	      }
-	    }); // TODO: It's better to avoid using of calendarContext.
+	    });
+
+	    // TODO: It's better to avoid using of calendarContext.
 	    //  Replace it with eventEmitter events and check for unnecessary requests
-
 	    const calendarContext = calendar_util.Util.getCalendarContext();
-
 	    if (calendarContext) {
 	      calendarContext.syncInterface.refreshDebounce();
 	    }
 	  }
-
 	  handleCloseWizard() {
 	    const wizard = this.getActiveWizard();
 	    this.setWizardSyncMode(false);
-
 	    if (wizard && wizard.isSyncFinished()) {
 	      this.setStatus(this.STATUS_SUCCESS);
 	      this.getInterfaceUnit().setSyncStatus(this.STATUS_SUCCESS);
@@ -811,31 +691,25 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      });
 	    }
-
 	    this.getInterfaceUnit().refreshButton();
 	    this.emit('onEndWaitingMode');
 	    this.emit('onCloseSyncWizard');
-
 	    if (wizard) {
 	      wizard.unsubscribeAll();
 	    }
 	  }
-
 	  refresh(options) {
 	    this.status = options.syncInfo.status || false;
 	    this.connected = options.syncInfo.connected || false;
 	    this.id = options.syncInfo.id || null;
-
 	    if (options.syncLink) {
 	      this.syncLink = options.syncLink;
 	    }
-
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setSections(options.sections);
 	    this.clearConnections();
 	    this.setConnections();
 	  }
-
 	}
 
 	class GoogleProvider extends ConnectionProvider {
@@ -861,24 +735,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSections(options.sections);
 	    this.setConnections();
 	  }
-
 	  getSyncLink() {
 	    return this.syncLink;
 	  }
-
 	  hasSetSyncGoogleSettings() {
 	    return this.isSetSyncGoogleSettings;
 	  }
-
 	  saveConnection() {
 	    BX.ajax.runAction('calendar.api.syncajax.createGoogleConnection', {
 	      data: {}
 	    }).then(response => {
 	      var _response$data;
-
 	      if ((response == null ? void 0 : (_response$data = response.data) == null ? void 0 : _response$data.status) === this.ERROR_CODE) {
 	        var _response$data2, _response$data2$googl;
-
 	        this.setStatus(this.STATUS_FAILED);
 	        this.setWizardState({
 	          status: this.ERROR_CODE,
@@ -887,14 +756,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        });
 	      } else {
 	        var _response$data3, _response$data3$googl;
-
 	        this.setWizardState({
 	          stage: 'connection_created',
 	          vendorName: this.type,
 	          accountName: response == null ? void 0 : (_response$data3 = response.data) == null ? void 0 : (_response$data3$googl = _response$data3.googleApiStatus) == null ? void 0 : _response$data3$googl.googleCalendarPrimaryId
 	        });
 	      }
-
 	      this.emit('onSyncInfoUpdated', new main_core.Event.BaseEvent({
 	        data: {
 	          syncInfo: response.data.syncInfo
@@ -908,7 +775,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    });
 	  }
-
 	}
 
 	class Office365Provider extends ConnectionProvider {
@@ -934,15 +800,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSections(options.sections);
 	    this.setConnections();
 	  }
-
 	  getSyncLink() {
 	    return this.syncLink;
 	  }
-
 	  hasSetSyncOffice365Settings() {
 	    return this.isSetSyncOffice365Settings;
 	  }
-
 	  removeConnection(id) {
 	    BX.ajax.runAction('calendar.api.syncajax.deactivateConnection', {
 	      data: {
@@ -952,7 +815,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      BX.reload();
 	    });
 	  }
-
 	}
 
 	class ICloudProvider extends ConnectionProvider {
@@ -976,7 +838,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSections(options.sections);
 	    this.setConnections();
 	  }
-
 	}
 
 	class AndroidProvider extends ConnectionProvider {
@@ -995,52 +856,42 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setConnections();
 	  }
-
 	}
 
 	class CaldavConnection extends ConnectionProvider {
 	  constructor(options) {
 	    super(options);
 	  }
-
 	  static calculateStatus(connections) {
 	    if (connections.length === 0) {
 	      return false;
 	    }
-
 	    for (let key in connections) {
 	      if (this.isFailedConnections(connections[key])) {
 	        return false;
 	      }
 	    }
-
 	    return true;
 	  }
-
 	  static isFailedConnections(connection) {
 	    if (connection.syncInfo.connected === true && connection.syncInfo.status === false) {
 	      return true;
 	    }
-
 	    return false;
 	  }
-
 	  hasMenu() {
 	    return this.connected;
 	  }
-
 	  showMenu(bindElement) {
 	    if (this.menu) {
 	      this.menu.destroy();
 	    }
-
 	    const menuItems = this.getMenuItems();
 	    menuItems.push(...this.getMenuItemConnect());
 	    this.menu = this.getMenu(bindElement, menuItems);
 	    this.addMenuHandler();
 	    this.menu.show();
 	  }
-
 	  addMenuHandler() {
 	    if (this.menu) {
 	      this.menu.getMenuContainer().addEventListener('click', () => {
@@ -1048,23 +899,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    }
 	  }
-
 	  getMenuItems() {
 	    const menuItems = [];
 	    this.connections.forEach(item => {
 	      item.type = this.type;
 	      item.id = item.addParams.id;
 	      item.text = item.connectionName;
-
 	      item.onclick = () => {
 	        this.openActiveConnectionSlider(item);
 	      };
-
 	      menuItems.push(item);
 	    });
 	    return menuItems;
 	  }
-
 	  getMenuItemConnect() {
 	    return [{
 	      delimiter: true
@@ -1076,7 +923,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    }];
 	  }
-
 	  getMenu(bindElement, menuItems) {
 	    return new (window.top.BX || window.BX).Main.Menu({
 	      className: 'calendar-sync-popup-status',
@@ -1091,7 +937,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      offsetLeft: -40
 	    });
 	  }
-
 	  setConnections() {
 	    if (this.connectionsSyncInfo.length > 0) {
 	      this.connectionsSyncInfo.forEach(connection => {
@@ -1110,7 +955,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    }
 	  }
-
 	}
 
 	class CaldavProvider extends CaldavConnection {
@@ -1126,14 +970,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      templateClass: 'BX.Calendar.Sync.Interface.CaldavTemplate'
 	    });
 	    this.connectionsSyncInfo = options.connections;
-
 	    if (options.connections && options.connections[0] && options.connections[0].syncInfo) {
 	      this.setSyncDate(options.connections[0].syncInfo.syncOffset);
 	    }
-
 	    this.setConnections();
 	  }
-
 	}
 
 	class ExchangeProvider extends ConnectionProvider {
@@ -1153,7 +994,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSections(options.sections);
 	    this.setConnections();
 	  }
-
 	}
 
 	class IphoneProvider extends ConnectionProvider {
@@ -1172,7 +1012,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setConnections();
 	  }
-
 	}
 
 	class MacProvider extends ConnectionProvider {
@@ -1192,11 +1031,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setConnections();
 	  }
-
 	  getPortalAddress() {
 	    return this.portalAddress;
 	  }
-
 	}
 
 	class OutlookProvider extends ConnectionProvider {
@@ -1217,23 +1054,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.infoBySections = options.infoBySections;
 	    this.setConnections();
 	  }
-
 	  hasMenu() {
 	    return this.sections.length > 0;
 	  }
-
 	  showMenu(bindElement) {
 	    if (this.hasMenu()) {
 	      if (this.menu) {
 	        this.menu.destroy();
 	      }
-
 	      const menuItems = this.getConnection().getSections();
 	      menuItems.forEach(item => {
 	        if (this.infoBySections[item.id]) {
 	          item.className = 'calendar-sync-outlook-popup-item';
 	        }
-
 	        item.onclick = () => {
 	          this.connectToOutlook(item);
 	        };
@@ -1255,7 +1088,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.menu.show();
 	    }
 	  }
-
 	  connectToOutlook(section) {
 	    if (section.id) {
 	      BX.ajax.runAction('calendar.api.syncajax.getOutlookLink', {
@@ -1268,7 +1100,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    }
 	  }
-
 	}
 
 	class YandexProvider extends CaldavConnection {
@@ -1285,14 +1116,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    this.connectionName = main_core.Loc.getMessage('CALENDAR_TITLE_YANDEX');
 	    this.connectionsSyncInfo = options.connections;
-
 	    if (options.connections && options.connections[0] && options.connections[0].syncInfo) {
 	      this.setSyncDate(options.connections[0].syncInfo.syncOffset);
 	    }
-
 	    this.setConnections();
 	  }
-
 	}
 
 	class Manager extends main_core_events.EventEmitter {
@@ -1324,7 +1152,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.init();
 	    this.subscribeOnEvent();
 	  }
-
 	  subscribeOnEvent() {
 	    main_core_events.EventEmitter.subscribe('BX.Calendar.Sync.Interface.SyncStatusPopup:onRefresh', event => {
 	      this.refreshDebounce(event);
@@ -1338,7 +1165,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    });
 	  }
-
 	  showSyncButton() {
 	    this.syncButton = new SyncButton({
 	      status: this.status,
@@ -1348,14 +1174,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    this.syncButton.show();
 	  }
-
 	  init() {
 	    this.connectionsProviders = {};
 	    const yandexConnections = [];
 	    const caldavConnections = [];
 	    const syncInfo = this.syncInfo;
 	    this.sectionsByType = this.sortSections();
-
 	    for (let key in syncInfo) {
 	      if (syncInfo.hasOwnProperty(key)) {
 	        switch (syncInfo[key].type) {
@@ -1366,7 +1190,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	              isRuZone: this.isRuZone
 	            });
 	            break;
-
 	          case 'caldav':
 	            caldavConnections.push({
 	              syncInfo: syncInfo[key],
@@ -1376,7 +1199,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      }
 	    }
-
 	    this.connectionsProviders = {
 	      google: this.getGoogleProvider(),
 	      office365: this.getOffice365Provider(),
@@ -1386,51 +1208,40 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      android: this.getAndroidProvider(),
 	      mac: this.getMacProvider()
 	    };
-
 	    if (this.isRuZone) {
 	      this.connectionsProviders.yandex = this.getYandexProvider(yandexConnections);
 	    }
-
 	    if (!BX.browser.IsMac()) {
 	      this.connectionsProviders.outlook = this.getOutlookProvider();
 	    }
-
 	    if (syncInfo.hasOwnProperty('exchange')) {
 	      this.connectionsProviders.exchange = this.getExchangeProvider();
 	    }
-
 	    this.status = this.getSummarySyncStatus();
 	    this.subscribeEventHandlers();
 	  }
-
 	  setSyncMode(value) {
 	    this.syncMode = value;
 	  }
-
 	  getSyncMode() {
 	    return this.syncMode;
 	  }
-
 	  isWizardSyncMode() {
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName) && this.connectionsProviders[providerName].getWizardSyncMode()) {
 	        return true;
 	      }
 	    }
-
 	    return false;
 	  }
-
 	  isSyncInProcess() {
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName) && this.connectionsProviders[providerName].getSyncStatus() === this.STATUS_SYNCHRONIZING) {
 	        return true;
 	      }
 	    }
-
 	    return false;
 	  }
-
 	  sortSections() {
 	    const sections = this.sections;
 	    const exchangeSections = [];
@@ -1448,7 +1259,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	          text: section.name
 	        });
 	      }
-
 	      if (section.data['IS_EXCHANGE'] === true) {
 	        exchangeSections.push(section.data);
 	      } else if (section.data['GAPI_CALENDAR_ID'] && section.data['CAL_DAV_CON'] && section.data['EXTERNAL_TYPE'] !== 'local') {
@@ -1468,7 +1278,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    sectionsByType.outlook = outlookSections;
 	    return sectionsByType;
 	  }
-
 	  refresh(event) {
 	    return new Promise(resolve => {
 	      BX.ajax.runAction('calendar.api.syncajax.updateConnection', {
@@ -1485,26 +1294,21 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    });
 	  }
-
 	  refreshContent(activePopup = {}) {
 	    this.init();
 	    this.refreshCalendarGrid();
-
 	    if (this.syncButton) {
 	      this.syncButton.refresh(this.status);
 	      this.syncButton.setConnectionProviders(this.connectionsProviders);
 	    }
-
 	    if (activePopup) {
 	      this.refreshActivePopup(activePopup);
 	      this.refreshOpenSliders(activePopup);
 	    }
 	  }
-
 	  refreshCalendarGrid() {
 	    this.calendarInstance.reload();
 	  }
-
 	  refreshActivePopup(activePopup) {
 	    if (activePopup instanceof SyncStatusPopup && activePopup.getId() === 'calendar-syncPanel-status') {
 	      activePopup.refresh(this.getConnections());
@@ -1512,10 +1316,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.syncButton.popup.refresh(this.getConnections());
 	    }
 	  }
-
 	  refreshOpenSliders(activePopup = {}) {
 	    const openSliders = BX.SidePanel.Instance.getOpenSliders();
-
 	    if (openSliders.length > 0) {
 	      openSliders.forEach(slider => {
 	        if (slider.getUrl() === 'calendar:auxiliary-sync-slider') {
@@ -1526,37 +1328,29 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      });
 	    }
 	  }
-
 	  refreshConnectionSlider(slider, activePopup) {
 	    let updatedConnection = undefined;
 	    const itemInterface = slider.getData().get('itemInterface');
 	    const connection = slider.getData().get('connection');
-
 	    if (connection) {
 	      updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
 	    }
-
 	    if (activePopup instanceof SyncStatusPopup && updatedConnection) {
 	      activePopup.refresh([updatedConnection]);
 	    }
-
 	    if (itemInterface && updatedConnection) {
 	      itemInterface.refresh(updatedConnection);
 	    }
-
 	    slider.reload();
 	  }
-
 	  refreshMainSlider(syncPanel) {
 	    syncPanel.refresh(this.status, this.connectionsProviders);
 	  }
-
 	  getConnections() {
 	    const connections = [];
 	    const items = Object.values(this.connectionsProviders);
 	    items.forEach(item => {
 	      const itemConnections = item.getConnections();
-
 	      if (itemConnections.length > 0) {
 	        itemConnections.forEach(connection => {
 	          if (connection.getConnectStatus() === true) {
@@ -1567,48 +1361,42 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    return connections;
 	  }
-
 	  reDrawCalendarGrid() {
 	    this.calendarInstance.reloadDebounce();
 	  }
-
 	  updateSyncStatus(params) {
 	    for (let connectionName in params.syncInfo) {
 	      if (params.syncInfo.hasOwnProperty(connectionName) && this.syncInfo[connectionName]) {
-	        this.syncInfo[connectionName] = { ...this.syncInfo[connectionName],
+	        this.syncInfo[connectionName] = {
+	          ...this.syncInfo[connectionName],
 	          ...params.syncInfo[connectionName]
 	        };
 	      }
 	    }
-
 	    this.status = this.STATUS_SUCCESS;
 	    this.refreshContentDebounce();
 	  }
-
 	  addSyncConnection(params) {
 	    for (const connectionName in params.syncInfo) {
 	      if (['yandex', 'caldav'].includes(params.syncInfo[connectionName].type)) {
 	        BX.reload();
 	      }
-
 	      if (BX.Calendar.Util.checkRequestId(params.requestUid)) {
 	        if (this.syncInfo[connectionName]) {
-	          this.syncInfo[connectionName] = { ...this.syncInfo[connectionName],
+	          this.syncInfo[connectionName] = {
+	            ...this.syncInfo[connectionName],
 	            ...params.syncInfo[connectionName]
 	          };
 	        }
 	      }
 	    }
-
 	    this.status = this.STATUS_SUCCESS;
 	    this.refreshContentDebounce();
 	  }
-
 	  deleteSyncConnection(params) {
 	    if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
 	      return;
 	    }
-
 	    if (params.connectionId) {
 	      for (const connectionName in this.syncInfo) {
 	        if (this.syncInfo.hasOwnProperty(connectionName) && this.syncInfo[connectionName] && parseInt(this.syncInfo[connectionName].id) === parseInt(params.connectionId)) {
@@ -1616,7 +1404,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      }
 	    }
-
 	    if (params.syncInfo) {
 	      for (const connectionName in params.syncInfo) {
 	        if (this.syncInfo[connectionName]) {
@@ -1624,81 +1411,62 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      }
 	    }
-
 	    if (this.status !== this.STATUS_NOT_CONNECTED) {
 	      this.status = this.STATUS_SUCCESS;
 	    }
-
 	    this.refreshDebounce();
 	  }
-
 	  getProviderById(id) {
 	    let connection;
-
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName) && this.connectionsProviders[providerName].connected && ['google', 'caldav', 'yandex', 'icloud', 'office365'].includes(providerName)) {
 	        connection = this.connectionsProviders[providerName].getConnectionById(id);
-
 	        if (connection) {
 	          return [this.connectionsProviders[providerName], connection];
 	        }
 	      }
 	    }
-
 	    return [undefined, undefined];
 	  }
-
 	  processSyncConnection(params) {
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName) && this.connectionsProviders[providerName].getWizardSyncMode() && providerName === (params == null ? void 0 : params.vendorName)) {
 	        if (params.accountName) {
 	          this.connectionsProviders[providerName].setUserName(params.accountName);
 	        }
-
 	        this.connectionsProviders[providerName].setWizardState(params);
 	        break;
 	      }
 	    }
 	  }
-
 	  handlePullEvent(params) {
 	    let wizardSyncMode = this.isWizardSyncMode();
-
 	    switch (params.command) {
 	      case 'refresh_sync_status':
 	        if (!wizardSyncMode) {
 	          this.updateSyncStatus(params);
 	        }
-
 	        break;
-
 	      case 'add_sync_connection':
 	        if (!wizardSyncMode) {
 	          this.addSyncConnection(params);
 	        }
-
 	        break;
-
 	      case 'delete_sync_connection':
 	        if (!wizardSyncMode) {
 	          this.deleteSyncConnection(params);
 	        }
-
 	        break;
-
 	      case 'process_sync_connection':
 	        if (wizardSyncMode) {
 	          this.processSyncConnection(params);
 	        }
-
 	        break;
 	    }
 	  }
-
 	  setSyncInfo(syncInfo) {
 	    this.syncInfo = syncInfo;
 	  }
-
 	  subscribeEventHandlers() {
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName)) {
@@ -1711,7 +1479,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    }
 	  }
-
 	  handleCloseSyncWizard() {
 	    if (this.isSyncInProcess()) {
 	      if (this.syncButton) {
@@ -1721,20 +1488,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.refreshContentDebounce();
 	    }
 	  }
-
 	  handleStartWaitingMode() {
 	    this.doPeriodicRefresh();
 	  }
-
 	  handleEndWaitingMode() {
 	    this.stopPeriodicRefresh();
 	  }
-
 	  doPeriodicRefresh() {
 	    if (!this.hasOpenedWizard()) {
 	      return;
 	    }
-
 	    if (calendar_util.Util.documentIsDisplayingNow()) {
 	      this.refresh().then(() => {
 	        this.refreshTimeout = setTimeout(this.doPeriodicRefresh.bind(this), this.WAITING_MODE_PERIODIC_TIMEOUT);
@@ -1743,21 +1506,17 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.refreshTimeout = setTimeout(this.doPeriodicRefresh.bind(this), this.WAITING_MODE_PERIODIC_TIMEOUT);
 	    }
 	  }
-
 	  stopPeriodicRefresh() {
 	    if (this.refreshTimeout) {
 	      clearInterval(this.refreshTimeout);
 	      this.refreshTimeout = null;
 	    }
 	  }
-
 	  openSyncPanel() {
 	    this.syncButton.handleClick();
 	  }
-
 	  getSummarySyncStatus() {
 	    let status = this.STATUS_NOT_CONNECTED;
-
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName)) {
 	        if ([this.STATUS_SUCCESS, this.STATUS_FAILED].includes(this.connectionsProviders[providerName].getStatus())) {
@@ -1766,10 +1525,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      }
 	    }
-
 	    return status;
 	  }
-
 	  getGoogleProvider() {
 	    if (!this.googleProvider) {
 	      this.googleProvider = GoogleProvider.createInstance({
@@ -1786,10 +1543,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        syncLink: this.syncLinks.google || null
 	      });
 	    }
-
 	    return this.googleProvider;
 	  }
-
 	  getOffice365Provider() {
 	    if (!this.office365Provider) {
 	      this.office365Provider = Office365Provider.createInstance({
@@ -1806,10 +1561,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        syncLink: this.syncLinks.office365 || null
 	      });
 	    }
-
 	    return this.office365Provider;
 	  }
-
 	  getIcloudProvider() {
 	    if (!this.icloudProvider) {
 	      this.icloudProvider = ICloudProvider.createInstance({
@@ -1823,10 +1576,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        sections: this.sectionsByType.icloud || {}
 	      });
 	    }
-
 	    return this.icloudProvider;
 	  }
-
 	  getCaldavProvider(caldavConnections) {
 	    return CaldavProvider.createInstance({
 	      status: CaldavConnection.calculateStatus(caldavConnections),
@@ -1834,26 +1585,22 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      connections: caldavConnections
 	    });
 	  }
-
 	  getIphoneProvider() {
 	    return IphoneProvider.createInstance({
 	      syncInfo: this.syncInfo.iphone
 	    });
 	  }
-
 	  getAndroidProvider() {
 	    return AndroidProvider.createInstance({
 	      syncInfo: this.syncInfo.android
 	    });
 	  }
-
 	  getMacProvider() {
 	    return MacProvider.createInstance({
 	      syncInfo: this.syncInfo.mac,
 	      portalAddress: this.portalAddress
 	    });
 	  }
-
 	  getYandexProvider(yandexConnections) {
 	    return YandexProvider.createInstance({
 	      status: CaldavConnection.calculateStatus(yandexConnections),
@@ -1861,7 +1608,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      connections: yandexConnections
 	    });
 	  }
-
 	  getOutlookProvider() {
 	    return OutlookProvider.createInstance({
 	      syncInfo: this.syncInfo.outlook,
@@ -1869,26 +1615,21 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      infoBySections: this.syncInfo.outlook.infoBySections || {}
 	    });
 	  }
-
 	  getExchangeProvider() {
 	    return ExchangeProvider.createInstance({
 	      syncInfo: this.syncInfo.exchange,
 	      sections: this.sectionsByType.exchange
 	    });
 	  }
-
 	  hasOpenedWizard() {
 	    const sliderList = BX.SidePanel.Instance.getOpenSliders();
-
 	    for (let i in sliderList) {
 	      if (sliderList.hasOwnProperty(i) && sliderList[i].getUrl().indexOf(this.WIZARD_SLIDER_PREFIX) !== -1) {
 	        return true;
 	      }
 	    }
-
 	    return false;
 	  }
-
 	}
 
 	exports.Manager = Manager;

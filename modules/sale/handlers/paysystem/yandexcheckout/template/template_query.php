@@ -11,11 +11,15 @@ $messages = Loc::loadLanguageFile(__FILE__);
 $sum = round($params['SUM'], 2);
 $documentRoot = Application::getDocumentRoot();
 ?>
-
+<style>
+	<?php
+		require 'style.css';
+	?>
+</style>
 <div class="paysystem-yandex mb-4" id="paysystem-yandex">
 	<form id="paysystem-yandex-form">
-		<p class="mb-2"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION'); ?></p>
-		<p class="mb-2"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_SUM')." ".SaleFormatCurrency($params['SUM'], $params['CURRENCY']); ?></p>
+		<p class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION'); ?></p>
+		<p class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_SUM')." ".SaleFormatCurrency($params['SUM'], $params['CURRENCY']); ?></p>
 		<?php if (isset($params['FIELDS'])): ?>
 			<fieldset class="form-group">
 				<?php foreach ($params['FIELDS'] as $field): ?>

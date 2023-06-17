@@ -81,7 +81,7 @@ class CHTTP
 			if (!is_resource($file))
 			{
 				fclose($this->fp);
-				unset($this->fp);
+				$this->fp = null;
 			}
 
 			return $res && ($this->status == 200);
@@ -369,7 +369,7 @@ class CHTTP
 					$this->status = intval($arFind[1]);
 				}
 			}
-			elseif(mb_strpos($header, ':') !== false)
+			elseif(strpos($header, ':') !== false)
 			{
 				$arHeader = explode(':', $header, 2);
 				if ($arHeader[0] == 'Set-Cookie')
@@ -520,7 +520,7 @@ class CHTTP
 	 */
 	public static function urlAddParams($url, $add_params, $options = array())
 	{
-		if(count($add_params))
+		if(!empty($add_params))
 		{
 			$params = array();
 			foreach($add_params as $name => $value)
@@ -533,7 +533,7 @@ class CHTTP
 					$params[] = $name.'='.$value;
 			}
 
-			if(count($params))
+			if(!empty($params))
 			{
 				$p1 = mb_strpos($url, "?");
 				if($p1 === false)

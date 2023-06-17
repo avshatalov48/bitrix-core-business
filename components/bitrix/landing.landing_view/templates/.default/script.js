@@ -74,6 +74,7 @@
 			this.helperFrameOpenUrl = options.helperFrameOpenUrl || null;
 			this.helpCodes = options.helpCodes || {};
 			this.sliderConditions = options.sliderConditions || [];
+			this.sliderFullConditions = options.sliderFullConditions || [];
 			top.window.autoPublicationEnabled = !!options.autoPublicationEnabled;
 			if (!this.rights.public)
 			{
@@ -198,19 +199,19 @@
 				return;
 			}
 
-			var conditions = [];
-
-			for (var i = 0, c = this.sliderConditions.length; i < c; i++)
+			const conditions = [];
+			for (let i = 0, c = this.sliderConditions.length; i < c; i++)
 			{
 				conditions.push(this.sliderConditions[i]);
 			}
+			const conditionsFull = this.sliderFullConditions;
 
-			if (conditions.length <= 0)
+			if (conditions.length <= 0 && conditionsFull.length <= 0)
 			{
 				return;
 			}
 
-			var sliderOptions = top.BX.clone({
+			const sliderOptions = top.BX.clone({
 				rules: [
 					{
 						condition: conditions,
@@ -225,8 +226,21 @@
 					}
 				]
 			});
-
 			BX.SidePanel.Instance.bindAnchors(sliderOptions);
+
+			const sliderFullOptions = top.BX.clone({
+				rules: [
+					{
+						condition: conditionsFull,
+						options: {
+							allowChangeHistory: false,
+							customLeftBoundary: 0,
+							cacheable: false,
+						}
+					}
+				]
+			});
+			BX.SidePanel.Instance.bindAnchors(sliderFullOptions);
 		},
 
 		/**
@@ -672,11 +686,8 @@
 												.action('Site::publication', {
 													id: this.siteId
 												});
-										});
-									backend
-										.action('Site::publication', {
-											id: this.siteId
-										});
+										})
+									;
 								}
 								else
 								{
@@ -814,7 +825,31 @@
 							window.removeEventListener('blur', listener);
 						});
 
-						oPopupPreview.toggle();
+						var formVerificationRequired = BX.data(BX('landing-popup-preview-btn'), 'form-verification-required') === '1';
+						if (formVerificationRequired && top.BX.Bitrix24 && BX.Type.isObject(BX.Bitrix24.PhoneVerify))
+						{
+							var formId = BX.data(BX('landing-popup-preview-btn'), 'form-verification-entity');
+							BX.Bitrix24.PhoneVerify
+								.getInstance()
+								.setEntityType('crm_webform')
+								.setEntityId(formId)
+								.startVerify({
+									sliderTitle: BX.Loc.getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'),
+									title: BX.Loc.getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE'),
+									description: BX.Loc.getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'),
+									callback: function (verified) {
+										if (verified)
+										{
+											oPopupPreview.toggle();
+										}
+									}
+								});
+						}
+						else
+						{
+							oPopupPreview.toggle();
+						}
+
 						BX.PreventDefault();
 					}.bind(this)
 				);
@@ -941,6 +976,7 @@
 
 																					checkFormNode();
 																				});
+																			scrollToBlock(formBlock);
 																		}
 																		else
 																		{
@@ -1127,8 +1163,11 @@
 
 			if (!this.formSharePopup)
 			{
+				var phoneVerified = BX.data(document.querySelector('#landing-popup-preview-btn'), 'form-verification-required') !== '1';
+
 				this.formSharePopup = new BX.Landing.Form.SharePopup({
 					bindElement: event.currentTarget,
+					phoneVerified: phoneVerified,
 				});
 			}
 
@@ -1161,6 +1200,25 @@
 				return function() {
 					BX.UI.InfoHelper.show('limit_sites_confirm_email');
 				};
+			}
+			else if (errorCode === 'PHONE_NOT_CONFIRMED' && top.BX.Bitrix24 && BX.Type.isObject(top.BX.Bitrix24.PhoneVerify))
+			{
+				return function() {
+					top.BX.Bitrix24.PhoneVerify
+						.getInstance()
+						.setEntityType('landing_site')
+						.setEntityId(this.siteId)
+						.startVerify({
+							mandatory: false,
+							callback: function (verified) {
+								if (verified)
+								{
+									top.window.location.reload();
+								}
+							}
+						})
+					;
+				}.bind(this);
 			}
 			else if (
 				errorCode === 'PUBLIC_PAGE_REACHED' ||
@@ -1207,7 +1265,10 @@
 			{
 				return BX.message('LANDING_PUBLICATION_GOTO_BLOCK');
 			}
-			else if (errorCode === 'EMAIL_NOT_CONFIRMED')
+			else if (
+				errorCode === 'EMAIL_NOT_CONFIRMED' ||
+				errorCode === 'PHONE_NOT_CONFIRMED'
+			)
 			{
 				return BX.message('LANDING_PUBLICATION_CONFIRM_EMAIL');
 			}

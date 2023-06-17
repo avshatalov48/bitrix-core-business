@@ -39,7 +39,7 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	 */
 	public function onPrepareComponentParams($arParams)
 	{
-		self::tryParseInt($arParams['INITIAL_TIME']);
+		$arParams['INITIAL_TIME'] = (int)($arParams['INITIAL_TIME'] ?? 0);
 
 		if (
 			isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y" &&
@@ -51,6 +51,8 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 				"IFRAME" => "Y", "IFRAME_TYPE" => "Y", "publicSidePanel" => "Y"
 			));
 		}
+
+
 
 		return $arParams;
 	}
@@ -75,22 +77,31 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 
 	protected static function checkAccessPermissions($parameters = array())
 	{
-		if(!is_array($parameters))
-			$parameters = array();
+		if (!is_array($parameters))
+		{
+			$parameters = [];
+		}
+		$parameters['CHECK_CSRF'] ??= false;
 
 		$errors = array();
 
 		if ($GLOBALS['APPLICATION']->GetGroupRight("sale") < "W")
-			$errors[] = Loc::getMessage("SALE_SLI_SALE_MODULE_WRITE_ACCESS_DENIED");
-
-		if(!LocationHelper::checkLocationEnabled())
-			$errors[] = 'Locations were disabled or data has not been converted';
-
-		if($parameters['CHECK_CSRF'])
 		{
-			$post = \Bitrix\Main\Context::getCurrent()->getRequest()->getPostList();
-			if(!mb_strlen($post['csrf']) || bitrix_sessid() != $post['csrf'])
+			$errors[] = Loc::getMessage("SALE_SLI_SALE_MODULE_WRITE_ACCESS_DENIED");
+		}
+
+		if (!LocationHelper::checkLocationEnabled())
+		{
+			$errors[] = 'Locations were disabled or data has not been converted';
+		}
+
+		if ($parameters['CHECK_CSRF'])
+		{
+			$csrf = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getPost('csrf');
+			if ($csrf === '' || bitrix_sessid() !== $csrf)
+			{
 				$errors[] = 'CSRF token is not valid';
+			}
 		}
 
 		return $errors;
@@ -136,6 +147,8 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	{
 		$this->dbResult['REQUEST'] = 	$this->getRequest();
 		$requestMethod = 				$this->getRequestMethod();
+
+		$this->dbResult['DISPLAY_FILE_UPLOAD_RESPONCE'] = false;
 
 		if($requestMethod == 'POST')
 		{
@@ -261,8 +274,13 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 
 						$GLOBALS['CACHE_MANAGER']->ClearByTag('sale-location-data');
 
-						if($request['POST']['OPTIONS']['DROP_ALL'] == 1 || $request['POST']['ONLY_DELETE_ALL'] == 1)
+						if (
+							(int)($request['POST']['OPTIONS']['DROP_ALL'] ?? null) === 1
+							|| (int)($request['POST']['ONLY_DELETE_ALL'] ?? null) === 1
+						)
+						{
 							Main\Config\Option::set('sale', self::LOC2_IMPORT_PERFORMED_OPTION, 'Y');
+						}
 					}
 				}
 				catch(Main\SystemException $e)
@@ -307,7 +325,7 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 			'USE_LOCK' => true,
 
 			// parameters from the form
-			'REQUEST' => $request['POST'],
+			'REQUEST' => $request['POST']->toArray(),
 			'LANGUAGE_ID' => isset($request['GET']['lang']) && (string) $request['GET']['lang'] != '' ? $request['GET']['lang'] : LANGUAGE_ID
 		));
 	}
@@ -316,10 +334,10 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	{
 		$request = Main\Context::getCurrent()->getRequest();
 
-		return array(
+		return [
 			'GET' => $request->getQueryList(),
 			'POST' => $request->getPostList(),
-		);
+		];
 	}
 
 	protected static function getRequestMethod()
@@ -343,8 +361,10 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 
 	private function resortLayoutBundleAlphabetically($code)
 	{
-		if(!is_array($this->dbResult['LAYOUT'][$code]))
+		if (!isset($this->dbResult['LAYOUT'][$code]))
+		{
 			return;
+		}
 
 		$sortedChildren = array();
 		foreach($this->dbResult['LAYOUT'][$code] as $item)
@@ -370,30 +390,42 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 		$alreadyPrinted[$pCode] = true;
 
 		$childrenHtml = '';
-		$children = $parameters['LAYOUT'][$pCode];
 
-		if(is_array($children) && !empty($children))
+		if (!empty($parameters['LAYOUT'][$pCode]) && is_array($parameters['LAYOUT'][$pCode]))
 		{
-			foreach($children as $code => $item)
-				$childrenHtml .= self::renderLayoutNode($item['CODE'], $item['NAME'], $parameters, $alreadyPrinted);
+			foreach ($parameters['LAYOUT'][$pCode] as $item)
+			{
+				$childrenHtml .= self::renderLayoutNode(
+					$item['CODE'],
+					$item['NAME'],
+					$parameters,
+					$alreadyPrinted
+				);
+			}
 		}
 
-		return 	str_replace(array(
-					'{{CODE}}', 
-					'{{NAME}}', 
-					'{{CHILDREN}}',
-					'{{INPUT_NAME}}',
-					'{{EXPANDER_CLASS}}'
-				), array(
-					$pCode == 'WORLD' ? '' : $pCode, // a little mixin with view, actually temporal
-					(string) $pName[ToUpper(LANGUAGE_ID)]['NAME'] != '' ? $pName[ToUpper(LANGUAGE_ID)]['NAME'] : $pName['EN']['NAME'],
-					$childrenHtml,
-					$parameters['INPUT_NAME'], //!strlen($childrenHtml) ? $parameters['INPUT_NAME'] : '',
-			$childrenHtml <> ''? $parameters['EXPANDER_CLASS'] : ''
-				), $parameters['TEMPLATE']);
+		return str_replace(
+			[
+				'{{CODE}}',
+				'{{NAME}}',
+				'{{CHILDREN}}',
+				'{{INPUT_NAME}}',
+				'{{EXPANDER_CLASS}}',
+			],
+			[
+				$pCode === 'WORLD' ? '' : $pCode, // a little mixin with view, actually temporal
+				(string) $pName[ToUpper(LANGUAGE_ID)]['NAME'] != '' ? $pName[ToUpper(LANGUAGE_ID)]['NAME'] : $pName['EN']['NAME'],
+				$childrenHtml,
+				$parameters['INPUT_NAME'], //!strlen($childrenHtml) ? $parameters['INPUT_NAME'] : '',
+				$childrenHtml !== '' ? $parameters['EXPANDER_CLASS'] : '',
+			],
+			$parameters['TEMPLATE']
+		);
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function reduces input value to integer type, and, if gets null, passes the default value
 	 * @param mixed $fld Field value
 	 * @param int $default Default value
@@ -405,7 +437,7 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 		$fld = intval($fld);
 		if(!$allowZero && !$fld && $default !== false)
 			$fld = $default;
-			
+
 		return $fld;
 	}
 }

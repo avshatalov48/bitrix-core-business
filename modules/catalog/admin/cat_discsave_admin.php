@@ -31,8 +31,11 @@ if (!Catalog\Config\Feature::isCumulativeDiscountsEnabled())
 IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_catalog_disc_save";
-$oSort = new CAdminSorting($sTableID, "ID", "desc");
+$oSort = new CAdminSorting($sTableID, "ID", "DESC");
 $lAdmin = new CAdminList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $FilterArr = array(
 	"find_id_from",
@@ -100,13 +103,16 @@ if($lAdmin->EditAction() && !$bReadOnly)
 					$lAdmin->AddGroupError(GetMessage("BT_CAT_DISC_SAVE_ADM_ERR_UPDATE_UNKNOWN"), $ID);
 				$DB->Rollback();
 			}
+			else
+			{
+				$DB->Commit();
+			}
 		}
 		else
 		{
 			$lAdmin->AddGroupError(GetMessage('BT_CAT_DISC_SAVE_ADM_ERR_UPDATE_ABSENT'), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
 	}
 }
 
@@ -115,7 +121,7 @@ if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 	$obDiscSave = new CCatalogDiscountSave();
 	if($_REQUEST['action_target']=='selected')
 	{
-		$rsDiscSaves = $obDiscSave->GetList(array($by => $order), $arFilter, false, false, array('ID'));
+		$rsDiscSaves = $obDiscSave->GetList(array(), $arFilter, false, false, array('ID'));
 		while($arRes = $rsDiscSaves->Fetch())
 			$arID[] = (int)$arRes['ID'];
 	}

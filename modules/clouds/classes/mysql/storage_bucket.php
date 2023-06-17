@@ -54,8 +54,8 @@ class CAllCloudStorageBucket
 		global $DB, $CACHE_MANAGER;
 		$res = $DB->Query("
 			UPDATE b_clouds_file_bucket
-			SET FILE_COUNT = if(FILE_COUNT - 1 >= 0, FILE_COUNT - 1, 0)
-			,FILE_SIZE = if(FILE_SIZE - ".roundDB($file_size)." >= 0, FILE_SIZE - ".roundDB($file_size).", 0)
+			SET FILE_COUNT = case when FILE_COUNT - 1 >= 0 then FILE_COUNT - 1 else 0 end
+			,FILE_SIZE = case when FILE_SIZE - ".roundDB($file_size)." >= 0 then FILE_SIZE - ".roundDB($file_size)." else 0 end
 			WHERE ID = ".$this->GetActualBucketId()."
 		");
 

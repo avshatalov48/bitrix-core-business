@@ -1,3 +1,3 @@
 <?
-require(dirname(__FILE__) . '/ru/' . basename(__FILE__));
+require(__DIR__ . '/ru/' . basename(__FILE__));
 ?>

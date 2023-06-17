@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'ui.fonts.opensans',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

@@ -131,10 +131,17 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 		if (!empty($data))
 		{
 			$items = [];
+			$itemsUnique = [];
+
 			foreach ($data as $methodList)
 			{
 				foreach ($methodList as $method)
 				{
+					if (in_array($method, $itemsUnique))
+					{
+						continue;
+					}
+					$itemsUnique[] = $method;
 					$items[] = [
 						'id' => $method,
 						'name' => $method
@@ -225,7 +232,15 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 			{
 				if (in_array($code, $codeList) && $scope != \CRestUtil::GLOBAL_SCOPE)
 				{
-					$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($scope));
+					if (mb_strtoupper($scope) === 'LOG')
+					{
+						$name = Loc::getMessage('REST_SCOPE_LOG_MSGVER_1');
+					}
+					else
+					{
+						$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($scope));
+					}
+
 					$result[] = [
 						'id' => $scope,
 						'name' => (!empty($name)) ? $name . ' (' . $scope . ')' : $scope

@@ -30,14 +30,22 @@ class PersonalProfileList extends CBitrixComponent
 	{
 		$this->errorCollection = new Main\ErrorCollection();
 
-		$params["PATH_TO_DETAIL"] = trim($params["PATH_TO_DETAIL"]);
-
-		if ($params["PATH_TO_DETAIL"] == '')
+		$params['PATH_TO_DETAIL'] = trim((string)($params['PATH_TO_DETAIL'] ?? ''));
+		if ($params['PATH_TO_DETAIL'] === '')
 		{
-			$params["PATH_TO_DETAIL"] = htmlspecialcharsbx(Main\Context::getCurrent()->getRequest()->getRequestedPage()."?ID=#ID#");
+			$params['PATH_TO_DETAIL'] = htmlspecialcharsbx(Main\Context::getCurrent()->getRequest()->getRequestedPage().'?ID=#ID#');
+		}
+		$params['PATH_TO_DELETE'] = trim((string)($params['PATH_TO_DELETE'] ?? ''));
+
+		$params['PER_PAGE'] = (int)($params['PER_PAGE'] ?? 0);
+		if ($params['PER_PAGE'] <= 0)
+		{
+			$params['PER_PAGE'] = 20;
 		}
 
-		$params["PER_PAGE"] = ((int)($params["PER_PAGE"]) <= 0 ? 20 : (int)($params["PER_PAGE"]));
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
+
+		$params['AUTH_FORM_IN_TEMPLATE'] = (string)($params['AUTH_FORM_IN_TEMPLATE'] ?? '');
 
 		return $params;
 	}
@@ -99,10 +107,18 @@ class PersonalProfileList extends CBitrixComponent
 				LocalRedirect($APPLICATION->GetCurPageParam("success_del_id=".$deleteElementId, Array("del_id", "sessid")));
 		}
 
-		if((int)($_REQUEST["del_id"]) > 0)
-			$errorMessage = GetMessage("SALE_DEL_PROFILE", array("#ID#" => (int)($_REQUEST["del_id"])));
-		elseif((int)($_REQUEST["success_del_id"]) > 0)
-			$errorMessage = GetMessage("SALE_DEL_PROFILE_SUC", array("#ID#" => (int)($_REQUEST["success_del_id"])));
+		if ($deleteElementId > 0)
+		{
+			$errorMessage = GetMessage("SALE_DEL_PROFILE", ["#ID#" => $deleteElementId]);
+		}
+		else
+		{
+			$successDeleteElementId = (int)$request->get('success_del_id');
+			if ($successDeleteElementId > 0)
+			{
+				$errorMessage = GetMessage("SALE_DEL_PROFILE_SUC", ["#ID#" => $successDeleteElementId]);
+			}
+		}
 
 		if($errorMessage <> '')
 		{
@@ -110,33 +126,53 @@ class PersonalProfileList extends CBitrixComponent
 			$this->arResult['ERRORS'][] = $errorMessage;
 		}
 
-		$by = ($_REQUEST["by"] <> '' ? $_REQUEST["by"]: "DATE_UPDATE");
-		$order = ($_REQUEST["order"] <> '' ? $_REQUEST["order"]: "DESC");
-
-		$dbUserProps = CSaleOrderUserProps::GetList(
-			array($by => $order),
-			array("USER_ID" => (int)($GLOBALS["USER"]->GetID()))
-		);
-		$dbUserProps->NavStart($this->arParams["PER_PAGE"]);
-		$this->arResult["NAV_STRING"] = $dbUserProps->GetPageNavString(GetMessage("SPPL_PAGES"));
-		$this->arResult["PROFILES"] = Array();
-		while($arUserProps = $dbUserProps->GetNext())
+		$by = (string)($request->get("by"));
+		if ($by === '')
 		{
-			$arResultTmp = $arUserProps;
-			$personTypeList = Bitrix\Sale\PersonType::load(SITE_ID, $arUserProps["PERSON_TYPE_ID"]);
-			$arResultTmp["PERSON_TYPE"] = $personTypeList[$arUserProps["PERSON_TYPE_ID"]];
-			$arResultTmp["PERSON_TYPE"]["NAME"] = htmlspecialcharsEx($arResultTmp["PERSON_TYPE"]["NAME"]);
+			$by = "DATE_UPDATE";
+		}
+		$order = (string)($request->get("order"));
+		if ($order === '')
+		{
+			$order = "DESC";
+		}
 
-			$arResultTmp["URL_TO_DETAIL"] = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_DETAIL"], Array("ID" => $arUserProps["ID"]));
-			if (empty($this->arParams['PATH_TO_DELETE']))
+		$this->arResult['PROFILES'] = [];
+		$personTypeList = $this->getPersonTypes();
+		if (!empty($personTypeList))
+		{
+			$dbUserProps = CSaleOrderUserProps::GetList(
+				[$by => $order],
+				[
+					"USER_ID" => (int)($GLOBALS["USER"]->GetID()),
+					"@PERSON_TYPE_ID" => array_keys($personTypeList),
+				]
+			);
+			$dbUserProps->NavStart($this->arParams["PER_PAGE"]);
+			$this->arResult["NAV_STRING"] = $dbUserProps->GetPageNavString(GetMessage("SPPL_PAGES"));
+			while ($arUserProps = $dbUserProps->GetNext())
 			{
-				$arResultTmp["URL_TO_DETELE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?del_id=".$arUserProps["ID"]."&".bitrix_sessid_get());
+				$arResultTmp = $arUserProps;
+				$arResultTmp["PERSON_TYPE"] = $personTypeList[$arUserProps["PERSON_TYPE_ID"]];
+				$arResultTmp["PERSON_TYPE"]["NAME"] = htmlspecialcharsEx($arResultTmp["PERSON_TYPE"]["NAME"]);
+
+				$arResultTmp["URL_TO_DETAIL"] = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_DETAIL"],
+					["ID" => $arUserProps["ID"]]);
+				if (empty($this->arParams['PATH_TO_DELETE']))
+				{
+					$arResultTmp["URL_TO_DETELE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()
+						. "?del_id="
+						. $arUserProps["ID"]
+						. "&"
+						. bitrix_sessid_get());
+				}
+				else
+				{
+					$arResultTmp["URL_TO_DETELE"] = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_DELETE"],
+							["ID" => $arUserProps["ID"]]) . "&" . bitrix_sessid_get();
+				}
+				$this->arResult["PROFILES"][] = $arResultTmp;
 			}
-			else
-			{
-				$arResultTmp["URL_TO_DETELE"] = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_DELETE"], Array("ID" => $arUserProps["ID"]))."&".bitrix_sessid_get();
-			}
-			$this->arResult["PROFILES"][] = $arResultTmp;
 		}
 
 		if ($request->get('SECTION'))
@@ -163,5 +199,27 @@ class PersonalProfileList extends CBitrixComponent
 		{
 			throw new Main\SystemException(Loc::getMessage("SALE_MODULE_NOT_INSTALL"), self::E_SALE_MODULE_NOT_INSTALLED);
 		}
+	}
+
+	protected function getPersonTypes(): array
+	{
+		$result = [];
+
+		$iterator = Bitrix\Sale\PersonType::getList([
+			'filter' => [
+				'=PERSON_TYPE_SITE.SITE_ID' => SITE_ID,
+			],
+			'order' => [
+				"SORT" => "ASC",
+				"ID"=>"ASC",
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$result[$row['ID']] = $row;
+		}
+		unset($row, $iterator);
+
+		return $result;
 	}
 }

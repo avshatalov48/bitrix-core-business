@@ -10,6 +10,10 @@
 	padding-top: 15px;
 }
 
+.catalog-product-form-container .product-item-scu-wrapper.--short-format {
+	padding-top: 8px;
+}
+
 .catalog-product-form-container .ui-image-input-img-item:before,
 .catalog-product-form-container .ui-image-input-img-item:after {
 	box-shadow: 0 0 0 1px #e3e3e3;
@@ -160,6 +164,10 @@
 	width: 100%;
 }
 
+.catalog-product-view.--short-format .catalog-product-field-input {
+	min-width: 370px;
+}
+
 .catalog-product-field-input button.ui-ctl-after:focus,
 .catalog-product-field-input button.ui-ctl-after:active {
 	background-color: #fff;
@@ -274,4 +282,31 @@
 .catalog-footers-container {
 	display: flex;
 	height: inherit;
+}
+
+.catalog-product-view.--short-format .ui-image-input-img-block-inner {
+	width: 27px;
+}
+
+.catalog-product-view.--short-format .ui-image-input-img {
+	width: 27px;
+	height: 27px;
+	border: 1px solid #D8D8D8;
+	border-radius: 50%;
+}
+
+.catalog-product-view.--short-format .catalog-product-img {
+	margin: -4px 10px 10px 10px;
+}
+
+.catalog-product-view.--short-format .ui-image-input-img-block-multiple .ui-image-input-img-item:before,
+.catalog-product-view.--short-format .ui-image-input-img-block-multiple .ui-image-input-img-item:after {
+	content: none;
+}
+
+.catalog-product-view.--short-format .ui-image-input-img-block.ui-image-input-img-block-empty .ui-image-input-img-item {
+	width: 27px;
+	height: 27px;
+	background-size: 45%;
+	border-radius: 50%;
 }

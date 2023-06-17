@@ -200,7 +200,7 @@ class CBXVirtualIoFileSystem
 
 		$res = preg_replace($pattern, "/", $path);
 
-		if (mb_strpos($res, "\0") !== false)
+		if (strpos($res, "\0") !== false)
 			throw new \Bitrix\Main\IO\InvalidPathException($path);
 
 		$arPath = explode('/', $res);
@@ -240,7 +240,7 @@ class CBXVirtualIoFileSystem
 			return false;
 		}
 
-		if (mb_strpos($path, "\0") !== false)
+		if (strpos($path, "\0") !== false)
 		{
 			return false;
 		}

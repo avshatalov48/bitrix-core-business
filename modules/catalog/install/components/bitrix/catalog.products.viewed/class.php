@@ -40,6 +40,8 @@ class CatalogProductsViewedComponent extends ElementList
 			$params['PAGE_ELEMENT_COUNT'] = 9;
 		}
 
+		$params['DEPTH'] = (int)($params['DEPTH'] ?? 0);
+
 		return $params;
 	}
 

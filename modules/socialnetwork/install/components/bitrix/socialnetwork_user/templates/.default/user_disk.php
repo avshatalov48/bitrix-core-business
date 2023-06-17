@@ -23,7 +23,7 @@ include("util_menu.php");
 include("util_profile.php");
 
 
-if ($_REQUEST['IFRAME'] == 'Y')
+if (($_REQUEST['IFRAME'] ?? null) === 'Y')
 {
 	$this->SetViewTarget("below_pagetitle");
 	$APPLICATION->IncludeComponent(

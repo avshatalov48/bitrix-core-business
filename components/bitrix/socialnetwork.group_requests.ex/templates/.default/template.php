@@ -22,14 +22,14 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	CUtil::InitJSCore(array("tooltip", "popup", "sidepanel"));
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -64,7 +64,7 @@ else
 		});
 	</script><?
 
-	?><div id="sonet_group_requests_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+	?><div id="sonet_group_requests_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 	if (in_array($arResult['MODE'], array('ALL', 'IN')))
 	{

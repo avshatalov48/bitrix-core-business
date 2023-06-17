@@ -191,12 +191,17 @@
 				_this = this,
 				inviteCont = BX('feed-event-invite-controls-' + this.id);
 
-			if (status && status != 'H')
+			if (!inviteCont)
+			{
+				return;
+			}
+
+			if (status && status !== 'H')
 			{
 				var rand = Math.round(Math.random() * 100000);
 				inviteCont.className = 'feed-cal-view-inv-controls' + ' feed-cal-view-inv-controls-' + status.toLowerCase();
 
-				if (status == 'Y')
+				if (status === 'Y')
 				{
 					var linkY = BX('feed-event-stat-link-y-' + this.id);
 					linkY.onclick = function()
@@ -235,7 +240,7 @@
 						BX('feed-rec-decline-' + this.id).style.display = 'none';
 					}
 				}
-				else if (status == 'N')
+				else if (status === 'N')
 				{
 					var linkN = BX('feed-event-stat-link-n-' + this.id);
 					linkN.onclick = function(){

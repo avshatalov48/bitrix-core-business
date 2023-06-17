@@ -173,8 +173,6 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		$order = $params['order'] ?? [];
 		$nav = $params['nav'] ?? false;
 
-		\CTimeZone::Disable();
-
 		$iblockElements = [];
 
 		$elementsIterator = \CIBlockElement::GetList(
@@ -199,8 +197,6 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		{
 			$iblockElements[$element['ID']] = $this->replaceRawFromTilda($element);
 		}
-
-		\CTimeZone::Enable();
 
 		$result = array_fill_keys(array_keys($iblockElements), false);
 

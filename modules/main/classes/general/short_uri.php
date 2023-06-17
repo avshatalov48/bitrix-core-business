@@ -50,7 +50,7 @@ abstract class CBXAllShortUri
 			"	".$strUpdate.", ".
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".$id;
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		return $id;
 	}
@@ -111,7 +111,7 @@ abstract class CBXAllShortUri
 			"	NUMBER_USED = NUMBER_USED + 1, ".
 			"	LAST_USED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".intval($id);
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	public static function Delete($id)
@@ -218,14 +218,14 @@ abstract class CBXAllShortUri
 
 		if (is_set($arFields, "NUMBER_USED") || $addMode)
 		{
-			$arFields["NUMBER_USED"] = intval($arFields["NUMBER_USED"]);
+			$arFields["NUMBER_USED"] = intval($arFields["NUMBER_USED"] ?? 0);
 			if ($arFields["NUMBER_USED"] <= 0)
 				$arFields["NUMBER_USED"] = 0;
 		}
 
 		return true;
 	}
-	
+
 	public static function GetHttpStatusCodeText($code)
 	{
 		$code = intval($code);

@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Copyright;
 use Bitrix\Main\Text\HtmlFilter;

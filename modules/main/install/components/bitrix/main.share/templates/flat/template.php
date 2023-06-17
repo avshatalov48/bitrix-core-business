@@ -5,7 +5,7 @@ if ($arResult["PAGE_URL"])
 	?>
 	<ul class="bx-share-social">
 		<?
-		if (is_array($arResult["BOOKMARKS"]) && count($arResult["BOOKMARKS"]) > 0)
+		if (is_array($arResult["BOOKMARKS"]) && !empty($arResult["BOOKMARKS"]))
 		{
 			foreach(array_reverse($arResult["BOOKMARKS"]) as $name => $arBookmark)
 			{

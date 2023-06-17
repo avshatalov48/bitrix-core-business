@@ -3591,7 +3591,10 @@ BX.adminTabControl.prototype.DisableTab = function(tab_id)
 	if(this.bExpandTabs)
 	{
 		var div = BX(tab_id);
-		div.style.display = 'none';
+		if (div && div.style)
+		{
+			div.style.display = 'none';
+		}
 	}
 };
 
@@ -3602,7 +3605,10 @@ BX.adminTabControl.prototype.EnableTab = function(tab_id)
 	if(this.bExpandTabs)
 	{
 		var div = BX(tab_id);
-		div.style.display = 'block';
+		if (div && div.style)
+		{
+			div.style.display = 'block';
+		}
 	}
 };
 

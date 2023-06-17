@@ -30,6 +30,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 		$convertedItem['NAME'] = isset($item['NAME_HTML']) ? $item['NAME_HTML'] : htmlspecialcharsbx($convertedItem['~NAME']);
 		$convertedItem['ACTIVE'] = isset($item['ACTIVE']) ? (bool)$item['ACTIVE'] : false;
 		$convertedItem['NOTICE'] = isset($item['NOTICE']) ? (bool)$item['NOTICE'] : false;
+		$convertedItem['LABEL'] = isset($item['LABEL']) ? $item['LABEL'] : '';
 
 		if (!empty($item['ATTRIBUTES']) && is_array($item['ATTRIBUTES']))
 		{

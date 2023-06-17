@@ -344,7 +344,7 @@ class CMainInterfaceButtons
 		$result = false;
 		$settings = $this->getItemSettingsByItemId($item['ID']);
 
-		if (is_array($settings) && is_bool($settings["isPinned"]))
+		if (is_array($settings) && isset($settings["isPinned"]) && is_bool($settings["isPinned"]))
 		{
 			$result = $settings["isPinned"];
 		}
@@ -394,6 +394,10 @@ class CMainInterfaceButtons
 			if (!empty($sublink["URL"]))
 			{
 				$sublink["URL"] = $this->prepareItemUrl($sublink["URL"]);
+			}
+			else
+			{
+				$sublink["URL"] = '';
 			}
 
 			if (!empty($sublink["CLASS"]))
@@ -586,14 +590,14 @@ class CMainInterfaceButtons
 		}
 
 		$item["IS_LOCKED"] = $this->prepareItemIsLocked($item);
-		$item["IS_DISABLED"] = $this->prepareItemIsDisabled($item["IS_DISABLED"], $item["ID"]);
+		$item["IS_DISABLED"] = $this->prepareItemIsDisabled($item["IS_DISABLED"] ?? false, $item["ID"]);
 		$item["SUB_LINK"] = $this->prepareItemSublink($item["SUB_LINK"] ?? '');
 		$item["SUPER_TITLE"] = $this->prepareItemSuperTitle($item);
 		$item["SORT"] = $this->prepareItemSort($item["ID"], $defaultSort);
 		$item["IS_ACTIVE"] = $this->prepareItemIsActive($item);
 		$item["IS_PASSIVE"] = $this->prepareItemIsPassive($item);
 
-		$item["HAS_MENU"] = isset($item['ITEMS']) && is_array($item['ITEMS']) && count($item['ITEMS']) > 0;
+		$item["HAS_MENU"] = isset($item['ITEMS']) && is_array($item['ITEMS']) && !empty($item['ITEMS']);
 		if ($item["HAS_MENU"])
 		{
 			$item["URL"] = '';
@@ -715,7 +719,7 @@ class CMainInterfaceButtons
 				return isset($currentItem['PARENT_ITEM_ID']) && $currentItem['PARENT_ITEM_ID'] === $item['DATA_ID'];
 			});
 
-			$items[$key]['HAS_CHILD'] = is_array($childItems) && count($childItems) > 0;
+			$items[$key]['HAS_CHILD'] = is_array($childItems) && !empty($childItems);
 
 			if ($items[$key]['HAS_CHILD'] === true)
 			{

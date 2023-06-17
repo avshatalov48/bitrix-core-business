@@ -7,33 +7,22 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var Callback = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(Callback, _ContentWrapper);
-
 	  function Callback(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Callback);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Callback).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.Callback');
-
 	    _this.addItem(_this.getHeader());
-
 	    if (!_this.isAvailable()) {
 	      _this.addItem(_this.getWarningMessage());
-
 	      _this.getSettingsForm().disable();
 	    }
-
 	    _this.addItem(_this.getSettingsForm());
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Callback, [{
 	    key: "getHeader",
 	    value: function getHeader() {
@@ -61,7 +50,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "isAvailable",
 	    value: function isAvailable() {
 	      var _this2 = this;
-
 	      return this.cache.remember('isAvailable', function () {
 	        return _this2.options.dictionary.callback.from.length > 0;
 	      });
@@ -70,7 +58,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getSettingsForm",
 	    value: function getSettingsForm() {
 	      var _this3 = this;
-
 	      return this.cache.remember('settingsForm', function () {
 	        return new landing_ui_form_formsettingsform.FormSettingsForm({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_CALLBACK_USE_CHECKBOX_LABEL'),
@@ -85,7 +72,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getUseCheckboxField",
 	    value: function getUseCheckboxField() {
 	      var _this4 = this;
-
 	      return this.cache.remember('useCheckboxField', function () {
 	        return new BX.Landing.UI.Field.Checkbox({
 	          selector: 'use',
@@ -102,7 +88,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getPhoneListField",
 	    value: function getPhoneListField() {
 	      var _this5 = this;
-
 	      return this.cache.remember('phoneListField', function () {
 	        return new BX.Landing.UI.Field.Dropdown({
 	          selector: 'from',
@@ -124,7 +109,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTextField",
 	    value: function getTextField() {
 	      var _this6 = this;
-
 	      return this.cache.remember('textField', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          selector: 'text',

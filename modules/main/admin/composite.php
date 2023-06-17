@@ -103,24 +103,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 	 isset($_REQUEST["composite_mode_button"]))
 )
 {
-	$compositeOptions["INCLUDE_MASK"] = $_REQUEST["composite_include_mask"];
-	$compositeOptions["EXCLUDE_MASK"] = $_REQUEST["composite_exclude_mask"];
-	$compositeOptions["EXCLUDE_PARAMS"] = $_REQUEST["composite_exclude_params"];
-	$compositeOptions["NO_PARAMETERS"] = $_REQUEST["composite_no_parameters"];
-	$compositeOptions["IGNORED_PARAMETERS"] = $_REQUEST["composite_ignored_parameters"];
-	$compositeOptions["FILE_QUOTA"] = $_REQUEST["composite_quota"];
-	$compositeOptions["BANNER_BGCOLOR"] = $_REQUEST["composite_banner_bgcolor"];
-	$compositeOptions["BANNER_STYLE"] = $_REQUEST["composite_banner_style"];
+	$compositeOptions["INCLUDE_MASK"] = $_REQUEST["composite_include_mask"] ?? '';
+	$compositeOptions["EXCLUDE_MASK"] = $_REQUEST["composite_exclude_mask"] ?? '';
+	$compositeOptions["EXCLUDE_PARAMS"] = $_REQUEST["composite_exclude_params"] ?? '';
+	$compositeOptions["NO_PARAMETERS"] = $_REQUEST["composite_no_parameters"] ?? '';
+	$compositeOptions["IGNORED_PARAMETERS"] = $_REQUEST["composite_ignored_parameters"] ?? '';
+	$compositeOptions["FILE_QUOTA"] = $_REQUEST["composite_quota"] ?? '';
+	$compositeOptions["BANNER_BGCOLOR"] = $_REQUEST["composite_banner_bgcolor"] ?? '';
+	$compositeOptions["BANNER_STYLE"] = $_REQUEST["composite_banner_style"] ?? '';
 	if (isset($_REQUEST["composite_only_parameters"]))
 	{
 		$compositeOptions["ONLY_PARAMETERS"] = $_REQUEST["composite_only_parameters"];
 	}
 
-	$storage = $_REQUEST["composite_storage"];
+	$storage = $_REQUEST["composite_storage"] ?? '';
 	if ( ($storage === "memcached" || $storage === "memcached_cluster") && extension_loaded("memcache"))
 	{
-		$compositeOptions["MEMCACHED_HOST"] = $_REQUEST["composite_memcached_host"];
-		$compositeOptions["MEMCACHED_PORT"] = $_REQUEST["composite_memcached_port"];
+		$compositeOptions["MEMCACHED_HOST"] = $_REQUEST["composite_memcached_host"] ?? '';
+		$compositeOptions["MEMCACHED_PORT"] = $_REQUEST["composite_memcached_port"] ?? '';
 
 		if (defined("BX_CLUSTER_GROUP"))
 		{
@@ -213,13 +213,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 
 	if (isset($_REQUEST["composite_cache_mode"]))
 	{
-		if ($_REQUEST["composite_cache_mode"] === "standard_ttl")
+		if (isset($_REQUEST["composite_cache_mode"]) && $_REQUEST["composite_cache_mode"] === "standard_ttl")
 		{
 			$compositeOptions["AUTO_UPDATE"] = "Y";
 			$ttl = isset($_REQUEST["composite_standard_ttl"]) ? intval($_REQUEST["composite_standard_ttl"]) : 120;
 			$compositeOptions["AUTO_UPDATE_TTL"] = $ttl;
 		}
-		elseif ($_REQUEST["composite_cache_mode"] === "no_update")
+		elseif (isset($_REQUEST["composite_cache_mode"]) && $_REQUEST["composite_cache_mode"] === "no_update")
 		{
 			$compositeOptions["AUTO_UPDATE"] = "N";
 			$ttl = isset($_REQUEST["composite_no_update_ttl"]) ? intval($_REQUEST["composite_no_update_ttl"]) : 600;
@@ -232,23 +232,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 		}
 	}
 
-	$compositeOptions["FRAME_MODE"] = isset($_REQUEST["composite_frame_mode"]) ? $_REQUEST["composite_frame_mode"] : "";
-	$compositeOptions["FRAME_TYPE"] = isset($_REQUEST["composite_frame_type"]) ? $_REQUEST["composite_frame_type"] : "";
+	$compositeOptions["FRAME_MODE"] = $_REQUEST["composite_frame_mode"] ?? "";
+	$compositeOptions["FRAME_TYPE"] = $_REQUEST["composite_frame_type"] ?? "";
 
 	if (empty($errors))
 	{
 		if (isset($_REQUEST["autocomposite_mode_button"]) && isset($_REQUEST["auto_composite"]))
 		{
-			if ($_REQUEST["auto_composite"] === "Y")
+			if (isset($_REQUEST["auto_composite"]) && $_REQUEST["auto_composite"] === "Y")
 			{
 				Helper::setEnabled(true);
 				$compositeOptions["AUTO_COMPOSITE"] = "Y";
 				$compositeOptions["FRAME_MODE"] = "Y";
 				$compositeOptions["FRAME_TYPE"] = "DYNAMIC_WITH_STUB";
 				$compositeOptions["AUTO_UPDATE"] = "Y";
-				$compositeOptions["AUTO_UPDATE_TTL"] = isset($_REQUEST["composite_standard_ttl"]) ? $_REQUEST["composite_standard_ttl"] : 120;
+				$compositeOptions["AUTO_UPDATE_TTL"] = $_REQUEST["composite_standard_ttl"] ?? 120;
 			}
-			else if ($_REQUEST["auto_composite"] === "N")
+			else if (isset($_REQUEST["auto_composite"]) && $_REQUEST["auto_composite"] === "N")
 			{
 				Helper::setEnabled(false);
 				$compositeOptions["AUTO_COMPOSITE"] = "N";
@@ -259,11 +259,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 		elseif (isset($_REQUEST["composite_mode_button"]) && isset($_REQUEST["composite"]))
 		{
 			$compositeOptions["AUTO_COMPOSITE"] = "N";
-			if ($_REQUEST["composite"] === "Y")
+			if (isset($_REQUEST["composite"]) && $_REQUEST["composite"] === "Y")
 			{
 				Helper::setEnabled(true);
 			}
-			elseif ($_REQUEST["composite"] == "N")
+			elseif (isset($_REQUEST["composite"]) && $_REQUEST["composite"] == "N")
 			{
 				Helper::setEnabled(false);
 			}
@@ -288,8 +288,8 @@ if (
 	&& $isAdmin
 )
 {
-	$host = isset($_REQUEST["host"]) ? $_REQUEST["host"] : "";
-	$port = isset($_REQUEST["port"]) ? $_REQUEST["port"] : "";
+	$host = $_REQUEST["host"] ?? "";
+	$port = $_REQUEST["port"] ?? "";
 
 	$status = "";
 	$text = "";

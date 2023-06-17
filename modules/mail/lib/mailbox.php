@@ -2,6 +2,7 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Main\DB\ArrayResult;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization;
 
@@ -36,6 +37,37 @@ class MailboxTable extends Entity\DataManager
 		return 'b_mail_mailbox';
 	}
 
+	/**
+	 * @param $email
+	 * @return ArrayResult
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getMailboxesWithEmail($email)
+	{
+		$result = [];
+		$list = self::getList(([
+			'select' => [
+				'ID',
+				'USER_ID',
+			],
+			'filter' => [
+				'=EMAIL' => $email,
+			],
+		]));
+
+		while ($item = $list->fetch())
+		{
+			$result[] = $item;
+		}
+
+		$dbResult = new ArrayResult($result);
+		$dbResult->setCount($list->getSelectedRowsCount());
+
+		return $dbResult;
+	}
+
 	public static function getUserMailbox($mailboxId, $userId = null)
 	{
 		$mailboxes = static::getUserMailboxes($userId);
@@ -43,8 +75,20 @@ class MailboxTable extends Entity\DataManager
 		return array_key_exists($mailboxId, $mailboxes) ? $mailboxes[$mailboxId] : false;
 	}
 
-	public static function getTheOwnersMailboxes($userId)
+	public static function getTheOwnersMailboxes($userId = null): array
 	{
+		global $USER;
+
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
+		{
+			return [];
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
 		static $mailboxes = [];
 		static $userMailboxes = [];
 
@@ -86,8 +130,20 @@ class MailboxTable extends Entity\DataManager
 		return $result;
 	}
 
-	public static function getTheSharedMailboxes($userId)
+	public static function getTheSharedMailboxes($userId = null): array
 	{
+		global $USER;
+
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
+		{
+			return [];
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
 		static $mailboxes = [];
 		static $userMailboxes = [];
 
@@ -153,14 +209,17 @@ class MailboxTable extends Entity\DataManager
 		return $result;
 	}
 
-	public static function getUserMailboxes($userId = null)
+	/**
+	 * Returns ACTIVE mailboxes that the user has access to
+	 *
+	 * @param $userId
+	 * @return array
+	 */
+	public static function getUserMailboxes($userId = null): array
 	{
 		global $USER;
 
-		if (!(
-			$userId > 0
-			|| (is_object($USER) && $USER->isAuthorized())
-		))
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
 		{
 			return [];
 		}

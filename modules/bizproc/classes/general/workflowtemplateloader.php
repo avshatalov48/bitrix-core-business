@@ -987,7 +987,7 @@ class CBPWorkflowTemplateLoader
 			unset($field["Name"], $field["Type"], $field["Multiple"], $field["Required"], $field["Options"]);
 			$documentField = array_merge($documentField, $field);
 
-			if (!array_key_exists($code, $currentDocumentFields))
+			if ($currentDocumentFields && !array_key_exists($code, $currentDocumentFields))
 			{
 				$documentService->AddDocumentField($documentType, $documentField);
 			}

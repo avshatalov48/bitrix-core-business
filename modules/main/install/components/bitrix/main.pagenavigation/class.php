@@ -13,10 +13,21 @@ class PageNavigationComponent extends CBitrixComponent
 
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams["PAGE_WINDOW"] = ((int)$arParams["PAGE_WINDOW"] > 0? (int)$arParams["PAGE_WINDOW"] : 5);
-		$arParams["SHOW_ALWAYS"] = ($arParams["SHOW_ALWAYS"] === "Y" || $arParams["SHOW_ALWAYS"] === true? true : false);
-		$arParams["SEF_MODE"] = ($arParams["SEF_MODE"] === "Y" || $arParams["SEF_MODE"] === true? true : false);
-		$arParams["SHOW_COUNT"] = ($arParams["SHOW_COUNT"] === "N" || $arParams["SHOW_COUNT"] === false? false : true);
+		$arParams["PAGE_WINDOW"] =
+			isset($arParams["PAGE_WINDOW"]) && (int)$arParams["PAGE_WINDOW"] > 0 ? (int)$arParams["PAGE_WINDOW"] : 5
+		;
+
+		$arParams["SHOW_ALWAYS"] =
+			isset($arParams["SHOW_ALWAYS"]) && ($arParams["SHOW_ALWAYS"] === "Y" || $arParams["SHOW_ALWAYS"] === true)
+		;
+
+		$arParams["SEF_MODE"] =
+			isset($arParams["SEF_MODE"]) && ($arParams["SEF_MODE"] === "Y" || $arParams["SEF_MODE"] === true)
+		;
+
+		$arParams["SHOW_COUNT"] =
+			!(isset($arParams["SHOW_COUNT"]) && ($arParams["SHOW_COUNT"] === "N" || $arParams["SHOW_COUNT"] === false))
+		;
 
 		return $arParams;
 	}
@@ -60,7 +71,7 @@ class PageNavigationComponent extends CBitrixComponent
 		/** @var \Bitrix\Main\UI\PageNavigation $nav */
 		$nav = $this->arParams["~NAV_OBJECT"];
 
-		if($this->arParams["~BASE_LINK"] <> '')
+		if(isset($this->arParams["~BASE_LINK"]) && $this->arParams["~BASE_LINK"] <> '')
 		{
 			$uri = new \Bitrix\Main\Web\Uri($this->arParams["~BASE_LINK"]);
 		}

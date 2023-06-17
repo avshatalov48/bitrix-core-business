@@ -216,7 +216,7 @@ array_unshift($tab["fields"], array(
 						{
 							if (!empty($sections))
 							{
-								while (($section = end($sections)) && $section)
+								while (($section = end($sections)))
 								{
 									if ($field["section"] == $section)
 									{
@@ -362,7 +362,6 @@ array_unshift($tab["fields"], array(
 										$className = "user";
 										$jsObjects[] = $field["~id"];
 										ob_start();
-										$html = '';
 
 										if (is_array($field["item"]))
 										{
@@ -452,7 +451,6 @@ array_unshift($tab["fields"], array(
 										$url = ($field["type"] === 'select-user' ? $userUrl : $groupUrl);
 										$className = "user";
 										$jsObjects[] = $field["~id"];
-										$html = '';
 										$u = 0;
 										ob_start();
 										if ($field["items"])
@@ -529,10 +527,14 @@ array_unshift($tab["fields"], array(
 										$u = 0;
 										$i++;
 										ob_start();
-										if ($field["items"])
+										if (isset($field["items"]) && is_array($field["items"]))
 										{
 											foreach($field["items"] as $item)
 											{
+												if (!is_array($item))
+												{
+													continue;
+												}
 												$u++;
 												$item = array_change_key_case($item, CASE_LOWER);
 

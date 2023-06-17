@@ -69,16 +69,16 @@ class Rest
 	public static function addConsent($query, $nav = 0, \CRestServer $server)
 	{
 		$query = array_change_key_case($query, CASE_UPPER);
-		$agreementId = isset($query['AGREEMENT_ID']) ? $query['AGREEMENT_ID'] : null;
+		$agreementId = $query['AGREEMENT_ID'] ?? null;
 		self::getAgreementById($agreementId);
 
 		$result = Internals\ConsentTable::add([
 			'AGREEMENT_ID' => $agreementId,
-			'USER_ID' => isset($query['USER_ID']) ? $query['USER_ID'] : null,
-			'IP' => isset($query['IP']) ? $query['IP'] : null,
-			'URL' => isset($query['URL']) ? $query['URL'] : null,
-			'ORIGIN_ID' => isset($query['ORIGIN_ID']) ? $query['ORIGIN_ID'] : null,
-			'ORIGINATOR_ID' => isset($query['ORIGINATOR_ID']) ? $query['ORIGINATOR_ID'] : null,
+			'USER_ID' => $query['USER_ID'] ?? null,
+			'IP' => $query['IP'] ?? null,
+			'URL' => $query['URL'] ?? null,
+			'ORIGIN_ID' => $query['ORIGIN_ID'] ?? null,
+			'ORIGINATOR_ID' => $query['ORIGINATOR_ID'] ?? null,
 		]);
 
 		if (!$result->isSuccess())

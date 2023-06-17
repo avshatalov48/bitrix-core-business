@@ -104,17 +104,17 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/
 		if ($mobile)
 		{
 			$topUsersMessage = Loc::getMessage('RATING_LIKE_TOP_TEXT3_'.($topCount > 1 ? '2' : '1'), [
-				"#OVERFLOW_START#" => ($mobile ? '<span class="feed-post-emoji-text-item-overflow">' : ''),
-				"#OVERFLOW_END#" => ($mobile ? '</span>' : ''),
+				"#OVERFLOW_START#" => '<span class="feed-post-emoji-text-item-overflow">',
+				"#OVERFLOW_END#" => '</span>',
 			]);
 		}
 		else
 		{
 			$topUsersMessage = Loc::getMessage('RATING_LIKE_TOP_TEXT2_'.($you ? 'YOU_' : '').($topCount).($more > 0 ? '_MORE' : ''), array(
-				"#OVERFLOW_START#" => ($mobile ? '<span class="feed-post-emoji-text-item-overflow">' : ''),
-				"#OVERFLOW_END#" => ($mobile ? '</span>' : ''),
-				"#MORE_START#" => ($mobile ? '<span class="feed-post-emoji-text-item-more">' : '&nbsp;'),
-				"#MORE_END#" => ($mobile ? '</span>' : '')
+				"#OVERFLOW_START#" => '',
+				"#OVERFLOW_END#" => '',
+				"#MORE_START#" => '&nbsp;',
+				"#MORE_END#" => '',
 			));
 		}
 	}
@@ -287,20 +287,22 @@ if ($arResult['AJAX_MODE'] === 'Y')
 	}
 
 	window.RatingLike.Set(
-		'<?= CUtil::JSEscape($arResult['VOTE_ID']) ?>',
-		'<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
-		'<?= (int)$arResult['ENTITY_ID'] ?>',
-		'<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
-		'<?= $USER->GetId() ?>',
 		{
-			'LIKE_Y': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
-			'LIKE_N': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
-			'LIKE_D': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D'])) ?>',
-		},
-		'<?= CUtil::JSEscape($arResult['LIKE_TEMPLATE']) ?>',
-		'<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>',
-		false,
-		<?= ($mobile ? 'true' : 'false') ?>
+			likeId: '<?= CUtil::JSEscape($arResult['VOTE_ID']) ?>',
+			keySigned: '<?= CUtil::JSEscape($arResult['VOTE_KEY_SIGNED']) ?>',
+			entityTypeId: '<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
+			entityId: '<?= (int) $arResult['ENTITY_ID'] ?>',
+			available: '<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
+			userId: '<?= $USER->GetId() ?>',
+			localize: {
+				'LIKE_Y': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
+				'LIKE_N': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
+				'LIKE_D': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D'])) ?>',
+			},
+			template: '<?= CUtil::JSEscape($arResult['LIKE_TEMPLATE']) ?>',
+			pathToUserProfile: '<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>',
+			mobile: <?= ($mobile ? 'true' : 'false') ?>
+		}
 	);
 });
 </script>

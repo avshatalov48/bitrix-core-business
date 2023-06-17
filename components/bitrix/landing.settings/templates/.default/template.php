@@ -47,10 +47,10 @@ if(Loader::includeModule('ui'))
 	{
 		$menuItem = [
 			'NAME' => $link['name'],
-			'ACTIVE' => (bool)$link['current'],
+			'ACTIVE' => (bool)($link['current'] ?? null),
 		];
 
-		if ($link['page'])
+		if ($link['page'] ?? null)
 		{
 			$menuItem['ATTRIBUTES'] = [
 				'data-page' => $link['page'],
@@ -60,11 +60,11 @@ if(Loader::includeModule('ui'))
 		elseif ($link['placement'])
 		{
 			$menuItem['ATTRIBUTES'] = [
-				'href' => $link['link'],
+				'href' => $link['link'] ?? null,
 				'data-app-id' => $link['appId'],
 				'data-placement' => $link['placement'],
 				'data-placement-id' => $link['placementId'],
-				'data-page' => $link['page'],
+				'data-page' => $link['page'] ?? null,
 			];
 		}
 

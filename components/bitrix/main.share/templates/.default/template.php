@@ -5,7 +5,7 @@ if ($arResult["PAGE_URL"] <> '')
 	?><div class="share-window-parent">
 	<div id="share-dialog<?echo $arResult["COUNTER"]?>" class="share-dialog share-dialog-<?=$arParams["ALIGN"]?>" style="display: <?=(array_key_exists("HIDE", $arParams) && $arParams["HIDE"] == "Y" ? "none" : "block")?>;">
 		<div class="share-dialog-inner share-dialog-inner-<?=$arParams["ALIGN"]?>"><?
-		if (is_array($arResult["BOOKMARKS"]) && count($arResult["BOOKMARKS"]) > 0)
+		if (is_array($arResult["BOOKMARKS"]) && !empty($arResult["BOOKMARKS"]))
 		{
 			?><table cellspacing="0" cellpadding="0" border="0" class="bookmarks-table">
 			<tr><?

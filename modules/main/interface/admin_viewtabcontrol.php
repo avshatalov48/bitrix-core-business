@@ -17,6 +17,13 @@ class CAdminViewTabControl
 	public function __construct($name, $tabs)
 	{
 		//array(array("DIV"=>"", "TAB"=>"", "ICON"=>, "TITLE"=>"", "ONSELECT"=>"javascript"), ...)
+		if (is_array($tabs))
+		{
+			foreach (array_keys($tabs) as $index)
+			{
+				$tabs[$index]['ONSELECT'] = (string)($tabs[$index]['ONSELECT'] ?? '');
+			}
+		}
 		$this->tabs = $tabs;
 		$this->name = $name;
 		if(isset($_REQUEST[$this->name."_active_tab"]))
@@ -90,7 +97,7 @@ echo '</div>';
 			$s .= ($s <> ""? ", ":"").
 			"{".
 			"'DIV': '".$tab["DIV"]."' ".
-			($tab["ONSELECT"] <> ""? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
+			($tab["ONSELECT"] !== '' ? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
 			"}";
 		}
 		echo 'var '.$this->name.' = new BX.adminViewTabControl(['.$s.']); ';

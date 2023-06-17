@@ -137,18 +137,19 @@ class CDeliveryKazPost
 		$arPacks = CSaleDeliveryHelper::getBoxesFromConfig($profile, $arConfig);
 
 		$arPackagesParams = CSaleDeliveryHelper::getRequiredPacks(
-													$arOrder["ITEMS"],
-													$arPacks,
-													self::$MAX_WEIGHT);
+			$arOrder["ITEMS"],
+			$arPacks,
+			self::$MAX_WEIGHT
+		);
 
 		$packageCount = count($arPackagesParams);
 
-		if(intval($packageCount) <= 0)
+		if ($packageCount <= 0)
 		{
-			return array(
-						"RESULT" => "ERROR",
-						"TEXT" => GetMessage("SALE_DH_KP_OVERLOAD"),
-					);
+			return [
+				"RESULT" => "ERROR",
+				"TEXT" => GetMessage("SALE_DH_KP_OVERLOAD"),
+			];
 		}
 
 		$totalPrice = 0;
@@ -158,14 +159,21 @@ class CDeliveryKazPost
 		$arLocationTo = CSaleHelper::getLocationByIdHitCached($arOrder['LOCATION_TO']);
 
 		foreach ($arPackagesParams as $arPackage)
-			$totalPrice += self::calculatePackPrice($arPackage, $profile, $arConfig, $arShopLocation['REGION_ID'], $arLocationTo['REGION_ID']);
+		{
+			$totalPrice += self::calculatePackPrice(
+				$arPackage,
+				$profile,
+				$arConfig,
+				$arShopLocation['REGION_ID'] ?? 0,
+				$arLocationTo['REGION_ID'] ?? 0
+			);
+		}
 
-		$arResult = array(
+		return [
 			'RESULT' => 'OK',
 			'VALUE' => $totalPrice,
-			'PACKS_COUNT' => $packageCount
-		);
-		return $arResult;
+			'PACKS_COUNT' => $packageCount,
+		];
 	}
 
 	public static function Compability($arOrder, $arConfig)

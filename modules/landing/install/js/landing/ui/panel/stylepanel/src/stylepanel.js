@@ -33,6 +33,7 @@ export class StylePanel extends Content
 		this.lsCache = new Cache.LocalStorageCache();
 		this.cache = new Cache.MemoryCache();
 		this.switcher = this.getSwitcher();
+		this.closeByEsc = false;
 
 		Dom.addClass(this.layout, 'landing-ui-panel-style');
 		Dom.addClass(this.overlay, 'landing-ui-panel-style-overlay');
@@ -128,20 +129,22 @@ export class StylePanel extends Content
 			{
 				Dom.addClass(this.layout, 'landing-ui-style-form-mode');
 
-				Dom.style(this.overlay, {
+				/*Dom.style(this.overlay, {
 					'z-index': 9998,
 					width: '880px',
-				});
+				});*/
 				Dom.insertAfter(this.overlay, this.layout);
 				Dom.removeClass(this.overlay, 'landing-ui-panel-style-overlay');
 			}
 		}
 		else
 		{
-			Dom.remove(this.overlay);
+			//Dom.remove(this.overlay);
 			Dom.addClass(this.overlay, 'landing-ui-panel-style-overlay');
 			Dom.removeClass(this.layout, 'landing-ui-style-form-mode');
 		}
+
+		Dom.remove(this.overlay);
 
 		return super.show()
 			.then(() => {
@@ -154,7 +157,7 @@ export class StylePanel extends Content
 
 				if (!formMode)
 				{
-					Dom.style(this.getViewWrapper(), 'width', 'calc(100% - 320px)');
+					Dom.style(this.getViewWrapper(), 'max-width', 'calc(100% - 320px)');
 					Dom.addClass(document.body, 'landing-ui-collapsed');
 				}
 
@@ -168,7 +171,7 @@ export class StylePanel extends Content
 	hide(): Promise<StylePanel>
 	{
 		StylePanel[disableEditorPointerEvents]();
-		Dom.style(this.getViewWrapper(), 'width', null);
+		Dom.style(this.getViewWrapper(), 'max-width', null);
 
 		return super.hide()
 			.then(() => {

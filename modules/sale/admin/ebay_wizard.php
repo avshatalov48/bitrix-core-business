@@ -32,7 +32,7 @@ namespace
 	$ebay = Ebay::getInstance();
 
 	if(!$ebay->isActive())
-		LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=".LANG."&back_url=".urlencode($APPLICATION->GetCurPageParam()));
+		LocalRedirect("/bitrix/admin/sale_ebay_general.php?lang=" . LANGUAGE_ID . "&back_url=".urlencode($APPLICATION->GetCurPageParam()));
 
 	$step = !empty($_REQUEST['STEP']) ? intval($_REQUEST['STEP']) : 0;
 

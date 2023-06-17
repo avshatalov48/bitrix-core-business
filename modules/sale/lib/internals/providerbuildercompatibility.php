@@ -87,7 +87,7 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			'SHIPMENT_ITEM' => $shipmentItem
 		);
 
-		if (strval(trim($providerName)) == '')
+		if (is_null($providerName) || strval(trim($providerName)) == '')
 		{
 			$callbackFunction = $basketItem->getCallbackFunction();
 			if (!empty($callbackFunction))

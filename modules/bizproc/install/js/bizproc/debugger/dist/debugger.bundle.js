@@ -775,9 +775,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 		`), templateData.DOCUMENT_STATUS);
 	  const template = new bizproc_automation.Template({
 	    constants: {},
-	    globalConstants: this.debugger.globalConstants,
 	    variables: {},
-	    globalVariables: this.debugger.globalVariables,
 	    templateContainerNode: node,
 	    delayMinLimitM: 0
 	    // userOptions: this.userOptions,
@@ -2750,8 +2748,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _workflowTrack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowTrack");
 	var _debuggerState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("debuggerState");
 	var _customActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customActionPanel");
-	var _globalVariables = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("globalVariables");
-	var _globalConstants = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("globalConstants");
 	var _resumeShowActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resumeShowActionPanel");
 	var _shouldSetCustomActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldSetCustomActionPanel");
 	var _initAutomationContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initAutomationContext");
@@ -2847,14 +2843,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _customActionPanel, {
 	      writable: true,
 	      value: null
-	    });
-	    Object.defineProperty(this, _globalVariables, {
-	      writable: true,
-	      value: []
-	    });
-	    Object.defineProperty(this, _globalConstants, {
-	      writable: true,
-	      value: []
 	    });
 	    this.setEventNamespace('BX.Bizproc.Debugger.Automation');
 	    this.session = parameters.session;
@@ -3044,18 +3032,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        babelHelpers.classPrivateFieldLooseBase(this, _workflowEvents)[_workflowEvents] = response.data.workflowEvents;
 	        babelHelpers.classPrivateFieldLooseBase(this, _workflowTrack)[_workflowTrack] = response.data.track;
 	        babelHelpers.classPrivateFieldLooseBase(this, _debuggerState)[_debuggerState] = response.data.debuggerState;
-	        babelHelpers.classPrivateFieldLooseBase(this, _globalVariables)[_globalVariables] = response.data.globalVariables;
-	        babelHelpers.classPrivateFieldLooseBase(this, _globalConstants)[_globalConstants] = response.data.globalConstants;
 	        bizproc_automation.getGlobalContext().document.setFields(this.getDocumentFields()).setStatusList(this.getStatusList()).setStatus(this.getDocumentStatus());
+	        bizproc_automation.getGlobalContext().automationGlobals.globalConstants = main_core.Type.isArrayFilled(response.data.globalConstants) ? response.data.globalConstants : [];
+	        bizproc_automation.getGlobalContext().automationGlobals.globalVariables = main_core.Type.isArrayFilled(response.data.globalVariables) ? response.data.globalVariables : [];
 	        resolve();
 	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 	  get globalConstants() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _globalConstants)[_globalConstants];
+	    const context = bizproc_automation.getGlobalContext();
+	    return context && context.automationGlobals ? context.automationGlobals.globalConstants : [];
 	  }
 	  get globalVariables() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _globalVariables)[_globalVariables];
+	    const context = bizproc_automation.getGlobalContext();
+	    return context && context.automationGlobals ? context.automationGlobals.globalVariables : [];
 	  }
 	  loadAllLog() {
 	    return new Promise(resolve => {
@@ -3225,7 +3215,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    }),
 	    documentSigned: this.documentSigned,
 	    canEdit: false,
-	    canManage: false
+	    canManage: false,
+	    automationGlobals: new bizproc_automation.AutomationGlobals({
+	      variables: [],
+	      constants: []
+	    })
 	  });
 	  bizproc_automation.setGlobalContext(context);
 	}

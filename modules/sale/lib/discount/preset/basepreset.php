@@ -163,14 +163,17 @@ abstract class BasePreset
 
 	public function processAjaxActionGetProductDetails(array $params = array())
 	{
-		$productId = $params['productId']?: $this->request->get('productId');
-		$quantity = $params['quantity']?: $this->request->get('quantity');
-		$siteId = $params['siteId']?: $this->request->get('siteId');
-
-		if(is_array($productId))
+		$productId = !empty($params['productId']) ? $params['productId'] : $this->request->get('productId');
+		if (is_array($productId))
 		{
 			$productId = array_pop($productId);
 		}
+
+		$quantity = !empty($params['quantity']) ? $params['quantity'] : $this->request->get('quantity');
+		$quantity = (float)$quantity;
+
+		$siteId = !empty($params['siteId']) ? $params['siteId'] : $this->request->get('siteId');
+		$siteId = (string)$siteId;
 
 		global $USER;
 		$userId = $USER->getId();

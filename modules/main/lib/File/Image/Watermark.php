@@ -159,7 +159,7 @@ class Watermark
 	 */
 	public static function createFromArray($params)
 	{
-		$params["position"] = strtolower(trim($params["position"]));
+		$params["position"] = strtolower(trim($params["position"] ?? ''));
 		$positions = ["topleft", "topcenter", "topright", "centerleft", "center", "centerright", "bottomleft", "bottomcenter", "bottomright"];
 		$shortPositions = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
 		$position = ['x' => 'right','y' => 'bottom']; // Default position
@@ -186,7 +186,7 @@ class Watermark
 			}
 		}
 
-		if($params["type"] == "text")
+		if(isset($params["type"]) && $params["type"] == "text")
 		{
 			$watermark = new TextWatermark(
 				$params['text'],
@@ -205,13 +205,13 @@ class Watermark
 		}
 		else
 		{
-			$watermark = new ImageWatermark($params["file"]);
+			$watermark = new ImageWatermark($params["file"] ?? null);
 
-			if($params["fill"] <> 'repeat')
+			if(!isset($params["fill"]) || $params["fill"] <> 'repeat')
 			{
-				if($params["fill"] <> 'exact')
+				if(!isset($params["fill"]) || $params["fill"] <> 'exact')
 				{
-					if($params["size"] == "real")
+					if(isset($params["size"]) && $params["size"] == "real")
 					{
 						$params["fill"] = 'exact';
 					}

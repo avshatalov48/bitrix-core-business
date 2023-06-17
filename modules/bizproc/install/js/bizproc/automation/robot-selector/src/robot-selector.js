@@ -111,6 +111,7 @@ export class RobotSelector extends EventEmitter
 						))
 						.getData()
 				,
+				canDeselectGroups: false,
 				customTitleBar: this.#getTitleBar(),
 				slots: this.#getSlots(),
 				showEmptyGroups: false,
@@ -406,11 +407,6 @@ export class RobotSelector extends EventEmitter
 					item: event.getData().eventData,
 					stageId: this.#stageId,
 				});
-
-				if (originalEvent.ctrlKey || originalEvent.metaKey)
-				{
-					this.#getCatalog().close();
-				}
 			}
 		};
 
@@ -540,7 +536,7 @@ export class RobotSelector extends EventEmitter
 		return {
 			[EntityCatalog.SLOT_GROUP_LIST_HEADER]: this.#getGroupsHeader(),
 			[EntityCatalog.SLOT_MAIN_CONTENT_HEADER]: this.#getItemsHeader(),
-			[EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]: this.#getItemsStub(),
+			[EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]: this.#getItemsStub(),
 			[EntityCatalog.SLOT_GROUP_LIST_FOOTER]: this.#getGroupsFooter(),
 			[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]: this.#getSearchNotFoundStub(),
 			[EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: `<EmptyGroupStub/>`,
@@ -570,7 +566,7 @@ export class RobotSelector extends EventEmitter
 				{zones: ['kz'], id: 1923, lang: 'ru', sec: 'skbmjc'},
 				{zones: ['by'], id: 1931, lang: 'ru', sec: 'om1f4c'},
 				{zones: ['en'], id: 1937, lang: 'en', sec: 'yu3ljc'},
-				{zones: ['es'], id: 1947, lang: 'es', sec: 'wuezi9'},
+				{zones: ['la', 'co', 'mx'], id: 1947, lang: 'es', sec: 'wuezi9'},
 				{zones: ['br'], id: 1948, lang: 'br', sec: 'j5gglp'},
 				{zones: ['de'], id: 1946, lang: 'de', sec: '6tpoy4'},
 			],

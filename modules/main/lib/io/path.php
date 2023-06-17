@@ -47,7 +47,7 @@ class Path
 		}
 		$pathTmp = preg_replace($pattern, "/", $path);
 
-		if (mb_strpos($pathTmp, "\0") !== false)
+		if (strpos($pathTmp, "\0") !== false)
 			throw new InvalidPathException($path);
 
 		if (preg_match("#(^|/)(\\.|\\.\\.)(/|\$)#", $pathTmp))
@@ -294,7 +294,7 @@ class Path
 			return false;
 		}
 
-		if (mb_strpos($path, "\0") !== false)
+		if (strpos($path, "\0") !== false)
 		{
 			return false;
 		}

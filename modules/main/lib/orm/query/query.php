@@ -1348,14 +1348,7 @@ class Query
 				{
 					// try to find it in filter chains if it is 2nd call of method (when dividing filter for where/having)
 					// and chain is still not registered in global (e.g. when forcesDataDoublingOff)
-					if (isset($this->filter_chains[$definition]))
-					{
-						$chain = $this->filter_chains[$definition];
-					}
-					else
-					{
-						$chain = Chain::getChainByDefinition($this->entity, $definition);
-					}
+					$chain = $this->filter_chains[$definition] ?? Chain::getChainByDefinition($this->entity, $definition);
 				}
 
 				// dirty hack for UF multiple fields: replace text UF_SMTH by UF_SMTH_SINGLE
@@ -1484,14 +1477,7 @@ class Query
 					{
 						// try to find it in filter chains if it is 2nd call of method (when dividing filter for where/having)
 						// and chain is still not registered in global (e.g. when forcesDataDoublingOff)
-						if (isset($this->filter_chains[$definition]))
-						{
-							$chain = $this->filter_chains[$definition];
-						}
-						else
-						{
-							$chain = Chain::getChainByDefinition($this->entity, $definition);
-						}
+						$chain = $this->filter_chains[$definition] ?? Chain::getChainByDefinition($this->entity, $definition);
 					}
 
 					// dirty hack for UF multiple fields: replace text UF_SMTH by UF_SMTH_SINGLE
@@ -1579,14 +1565,7 @@ class Query
 					{
 						$valueDefinition = $value->getDefinition();
 
-						if (isset($this->filter_chains[$valueDefinition]))
-						{
-							$chain = $this->filter_chains[$valueDefinition];
-						}
-						else
-						{
-							$chain = Chain::getChainByDefinition($this->entity, $valueDefinition);
-						}
+						$chain = $this->filter_chains[$valueDefinition] ?? Chain::getChainByDefinition($this->entity, $valueDefinition);
 
 						$this->registerChain($section, $chain, $valueDefinition);
 					}
@@ -1609,7 +1588,7 @@ class Query
 	{
 		// divide filter to where and having
 
-		$logic = isset($this->filter['LOGIC']) ? $this->filter['LOGIC'] : 'AND';
+		$logic = $this->filter['LOGIC'] ?? 'AND';
 
 		if ($logic == 'OR')
 		{
@@ -2374,7 +2353,7 @@ class Query
 		{
 			$sort = isset($this->order[$chain->getDefinition()])
 				? $this->order[$chain->getDefinition()]
-				: $this->order[$chain->getAlias()];
+				: ($this->order[$chain->getAlias()] ?? '');
 
 			$connection = $this->entity->getConnection();
 

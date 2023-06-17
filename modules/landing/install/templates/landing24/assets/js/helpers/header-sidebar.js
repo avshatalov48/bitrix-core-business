@@ -43,7 +43,10 @@
 	{
 		var headerSelector = event.makeRelativeSelector('.landing-block-node-navbar');
 		// in edit mode menu must be like a usual block
-		if (BX.Landing.getMode() === "view" && event.block.querySelectorAll(headerSelector).length > 0)
+		if (
+			(BX.Landing.getMode() === "view" || BX.Landing.getMode() === "preview")
+			&& event.block.querySelectorAll(headerSelector).length > 0
+		)
 		{
 			BX.Landing.BlockHeaderSidebar.init(event.block.querySelector(headerSelector));
 		}

@@ -18,7 +18,7 @@ if (
 	$pageId !== 'group_create'
 	&& (
 		SITE_TEMPLATE_ID !== 'bitrix24'
-		|| (int)$arResult['VARIABLES']['user_id'] !== (int)$USER->getId()
+		|| (int) ($arResult['VARIABLES']['user_id'] ?? null) !== (int) $USER->getId()
 		|| $pageId === 'user'
 		|| !$USER->isAuthorized()
 	)
@@ -28,8 +28,8 @@ if (
 		"bitrix:socialnetwork.user_menu",
 		"",
 		Array(
-			"USER_VAR" => $arResult["ALIASES"]["user_id"],
-			"PAGE_VAR" => $arResult["ALIASES"]["page"],
+			"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? '',
+			"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? '',
 			"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 			"PATH_TO_USER_EDIT" => $arResult["PATH_TO_USER_PROFILE_EDIT"],
 			"PATH_TO_USER_FRIENDS" => $arResult["PATH_TO_USER_FRIENDS"],
@@ -43,15 +43,15 @@ if (
 			"PATH_TO_USER_FORUM" => $arResult["PATH_TO_USER_FORUM"],
 			"PATH_TO_USER_CALENDAR" => $arResult["PATH_TO_USER_CALENDAR"],
 			"PATH_TO_USER_FILES" => $arResult["PATH_TO_USER_FILES"],
-			"PATH_TO_USER_DISK" => $arResult["PATH_TO_USER_DISK"],
+			"PATH_TO_USER_DISK" => $arResult["PATH_TO_USER_DISK"] ?? null,
 			"PATH_TO_USER_TASKS" => $arResult["PATH_TO_USER_TASKS"],
 			"PATH_TO_USER_CONTENT_SEARCH" => $arResult["PATH_TO_USER_CONTENT_SEARCH"],
 			"PATH_TO_LOG" => $arResult["PATH_TO_LOG"],
-			"FILES_USER_IBLOCK_ID" => $arParams["FILES_USER_IBLOCK_ID"],
-			"ID" => $arResult["VARIABLES"]["user_id"],
+			"FILES_USER_IBLOCK_ID" => $arParams["FILES_USER_IBLOCK_ID"] ?? null,
+			"ID" => $arResult["VARIABLES"]["user_id"] ?? null,
 			"PAGE_ID" => $pageId,
 			"USE_MAIN_MENU" => $arParams["USE_MAIN_MENU"],
-			"MAIN_MENU_TYPE" => $arParams["MAIN_MENU_TYPE"],
+			"MAIN_MENU_TYPE" => $arParams["MAIN_MENU_TYPE"] ?? '',
 		),
 		$component,
 		array("HIDE_ICONS" => "Y")

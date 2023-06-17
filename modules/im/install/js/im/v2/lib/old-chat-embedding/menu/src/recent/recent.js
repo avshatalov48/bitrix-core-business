@@ -2,7 +2,7 @@ import {Loc} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 
-import {ChatTypes, EventType, OpenTarget, ChatOption} from 'im.v2.const';
+import {DialogType, EventType, OpenTarget, ChatOption} from 'im.v2.const';
 
 import {BaseMenu} from '../base/base';
 import {PinManager} from './pin-manager';
@@ -130,8 +130,8 @@ export class RecentMenu extends BaseMenu
 	getMuteItem(): ?Object
 	{
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-		const isUser = dialog.type === ChatTypes.user;
-		const isAnnouncement = dialog.type === ChatTypes.announcement;
+		const isUser = dialog.type === DialogType.user;
+		const isAnnouncement = dialog.type === DialogType.announcement;
 		if (!dialog || isUser || isAnnouncement)
 		{
 			return null;
@@ -168,7 +168,7 @@ export class RecentMenu extends BaseMenu
 			return null;
 		}
 
-		const isChat = dialog.type !== ChatTypes.user;
+		const isChat = dialog.type !== DialogType.user;
 		const callAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, ChatOption.call);
 		if (isChat && !callAllowed)
 		{
@@ -176,8 +176,8 @@ export class RecentMenu extends BaseMenu
 		}
 
 		const callSupport = this.callHelper.checkCallSupport(this.context.dialogId);
-		const isAnnouncement = dialog.type === ChatTypes.announcement;
-		const isExternalTelephonyCall = dialog.type === ChatTypes.call;
+		const isAnnouncement = dialog.type === DialogType.announcement;
+		const isExternalTelephonyCall = dialog.type === DialogType.call;
 		const hasActiveCall = this.callHelper.hasActiveCall();
 		if (!callSupport || isAnnouncement || isExternalTelephonyCall || hasActiveCall)
 		{
@@ -196,7 +196,7 @@ export class RecentMenu extends BaseMenu
 	getHistoryItem(): ?Object
 	{
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-		const isUser = dialog.type === ChatTypes.user;
+		const isUser = dialog.type === DialogType.user;
 		if (isUser)
 		{
 			return null;
@@ -221,7 +221,7 @@ export class RecentMenu extends BaseMenu
 	getOpenProfileItem(): ?Object
 	{
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-		const isUser = dialog.type === ChatTypes.user;
+		const isUser = dialog.type === DialogType.user;
 		if (!isUser)
 		{
 			return null;
@@ -266,7 +266,7 @@ export class RecentMenu extends BaseMenu
 			return null;
 		}
 
-		const isUser = dialog.type === ChatTypes.user;
+		const isUser = dialog.type === DialogType.user;
 		if (isUser)
 		{
 			return null;
@@ -279,7 +279,7 @@ export class RecentMenu extends BaseMenu
 		}
 		const leaveAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
 
-		const isExternalTelephonyCall = dialog.type === ChatTypes.call;
+		const isExternalTelephonyCall = dialog.type === DialogType.call;
 		if (isExternalTelephonyCall || !leaveAllowed)
 		{
 			return null;

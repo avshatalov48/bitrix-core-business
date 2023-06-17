@@ -47,6 +47,9 @@ $adminListTableID = 'tbl_catalog_round_rules';
 $adminSort = new CAdminUiSorting($adminListTableID, 'ID', 'ASC');
 $adminList = new CAdminUiList($adminListTableID, $adminSort);
 
+$by = mb_strtoupper($adminSort->getField());
+$order = mb_strtoupper($adminSort->getOrder());
+
 $listType = array('' => Loc::getMessage('PRICE_ROUND_LIST_FILTER_PRICE_TYPE_ANY'));
 foreach (Catalog\Helpers\Admin\Tools::getPriceTypeList(false) as $id => $title)
 	$listType[$id] = $title;
@@ -249,12 +252,6 @@ $selectFields['CATALOG_GROUP_ID'] = true;
 $selectFieldsMap = array_fill_keys(array_keys($headerList), false);
 $selectFieldsMap = array_merge($selectFieldsMap, $selectFields);
 
-global $by, $order;
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
-
 $userList = array();
 $userIds = array();
 $nameFormat = CSite::GetNameFormat(true);
@@ -266,7 +263,7 @@ $rowList = array();
 
 $usePageNavigation = true;
 $navyParams = array();
-if ($request['mode'] == 'excel')
+if ($adminList->isExportMode())
 {
 	$usePageNavigation = false;
 }

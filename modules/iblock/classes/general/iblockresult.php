@@ -205,14 +205,32 @@ class CIBlockResult extends CDBResult
 					{
 						foreach($res[$strFieldName] as $key=>$value)
 						{
-							$arValue = call_user_func_array($arCallback["ConvertFromDB"], array($arCallback["PROPERTY"], array("VALUE"=>$value,"DESCRIPTION"=>"")));
-							$res[$strFieldName][$key] = $arValue["VALUE"];
+							$arValue = call_user_func_array(
+								$arCallback['ConvertFromDB'],
+								[
+									$arCallback['PROPERTY'],
+									[
+										'VALUE' => $value,
+										'DESCRIPTION' => '',
+									]
+								]
+							);
+							$res[$strFieldName][$key] = $arValue['VALUE'] ?? null;
 						}
 					}
 					else
 					{
-						$arValue = call_user_func_array($arCallback["ConvertFromDB"], array($arCallback["PROPERTY"], array("VALUE"=>$res[$strFieldName],"DESCRIPTION"=>"")));
-						$res[$strFieldName] = $arValue["VALUE"];
+						$arValue = call_user_func_array(
+							$arCallback['ConvertFromDB'],
+							[
+								$arCallback['PROPERTY'],
+								[
+									'VALUE' => $res[$strFieldName],
+									'DESCRIPTION' => '',
+								]
+							]
+						);
+						$res[$strFieldName] = $arValue['VALUE'] ?? null;
 					}
 				}
 			}

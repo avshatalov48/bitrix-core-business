@@ -15,7 +15,7 @@ class QuerySelectorEngine extends QueryEngine
 	{
 		//TODO: use children property
 		$instructionList = $this->parseQueryString($queryString);
-		if(count($instructionList) <= 0)
+		if(empty($instructionList))
 		{
 			return array();
 		}
@@ -79,7 +79,7 @@ class QuerySelectorEngine extends QueryEngine
 
 		}
 
-		if(count($filter) <= 0)
+		if(empty($filter))
 		{
 			return $resultList;
 		}
@@ -114,7 +114,7 @@ class QuerySelectorEngine extends QueryEngine
 			}
 		}
 
-		if(count($findNodeList) <= 0)
+		if(empty($findNodeList))
 		{
 			return $resultList;
 		}
@@ -126,7 +126,7 @@ class QuerySelectorEngine extends QueryEngine
 			$childInstructionList[] = $instruction = $instructionList[$i];
 		}
 
-		if(count($childInstructionList) <= 0)
+		if(empty($childInstructionList))
 		{
 			return $resultList;
 		}

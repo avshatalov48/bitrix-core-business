@@ -636,7 +636,7 @@ abstract class CCatalogDocsTypes
 			$documentRowId = $row['DOC_ELEMENT_ID'];
 			$elementId = $elements[$documentRowId];
 
-			$position = $productList[$elementId]['POSITION'][$documentRowId];
+			$position = $productList[$elementId]['POSITIONS'][$documentRowId];
 
 			$productList[$elementId]['BARCODES'][$row['BARCODE']] = [
 				'ROW_ID' => $rowId,

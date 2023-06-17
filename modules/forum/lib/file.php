@@ -126,7 +126,7 @@ class File
 		$existingFiles = [];
 		foreach ($files as $key => $file)
 		{
-			if ($file["FILE_ID"] > 0)
+			if (isset($file["FILE_ID"]) && $file["FILE_ID"] > 0)
 			{
 				$files[$key]["old_file"] = $file["FILE_ID"];
 				$existingFiles[] = $file["FILE_ID"];

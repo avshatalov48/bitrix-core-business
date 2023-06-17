@@ -50,6 +50,7 @@ class Background extends \Bitrix\Landing\Hook\Page
 					'center' => Loc::getMessage('LANDING_HOOK_BG_POSITION_CENTER_2'),
 					'repeat' => Loc::getMessage('LANDING_HOOK_BG_POSITION_REPEAT_2'),
 					'center_repeat_y' => Loc::getMessage('LANDING_HOOK_BG_POSITION_CENTER_REPEAT_Y'),
+					'no_repeat' => Loc::getMessage('LANDING_HOOK_BG_POSITION_CENTER_NO_REPEAT'),
 				)
 			)),
 			'COLOR' => new Field\Text('COLOR', array(
@@ -170,6 +171,20 @@ class Background extends \Bitrix\Landing\Hook\Page
 							background-attachment: fixed;
 							background-position: center;
 							background-repeat: repeat;
+						}
+					</style>'
+				);
+			}
+			elseif ($position === 'no_repeat')
+			{
+				Asset::getInstance()->addString(
+					'<style type="text/css">
+						body {
+							background-image: url("' . $picture . '");
+							background-size: 100%;
+							background-attachment: fixed;
+							background-position: top center;
+							background-repeat: no-repeat;
 						}
 					</style>'
 				);

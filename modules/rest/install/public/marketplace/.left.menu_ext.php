@@ -106,15 +106,15 @@ if(
 					}
 				}
 
-				if ($langList[$lang])
+				if (isset($langList[$lang]) && $langList[$lang])
 				{
 					$arApp["MENU_NAME"] = $langList[$lang];
 				}
-				elseif ($langList['en'])
+				elseif (isset($langList['en']) && $langList['en'])
 				{
 					$arApp["MENU_NAME"] = $langList['en'];
 				}
-				elseif (count($langList) > 0)
+				elseif (!empty($langList))
 				{
 					$arApp["MENU_NAME"] = reset($langList);
 				}

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBCONV_TITLE"] = "Information Block property convertor";
 $MESS["IBCONV_PERMISSION"] = "Not enough permissions.";
 $MESS["IBCONV_WRONG_CONVERSION"] = "Illegal conversion.";
@@ -17,4 +17,3 @@ $MESS["IBCONV_FINISHED"] = "Process of transferring property values for elements
 $MESS["IBCONV_TABLE_CREATION_ERROR"] = "Error creating tables for storing properties.";
 $MESS["IBCONV_FINISHED_HREF"] = "Return to the information block edit form.";
 $MESS["IBCONV_TOO_MANY_PROPERTIES"] = "Too many properties (over #NUM#). Cannot convert.";
-?>

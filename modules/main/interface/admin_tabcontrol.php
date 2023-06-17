@@ -164,7 +164,7 @@ class CAdminTabControl
 		foreach($this->tabs as $key => $tab)
 		{
 			$bSelected = ($tab["DIV"] == $this->selectedTab);
-			$tabs_html .= '<span title="'.$tab["TITLE"].$hkInst->GetTitle("tab-container").'" '.
+			$tabs_html .= '<span title="'.($tab["TITLE"] ?? '').$hkInst->GetTitle("tab-container").'" '.
 				'id="tab_cont_'.$tab["DIV"].'" '.
 				'class="adm-detail-tab'.($bSelected ? ' adm-detail-tab-active':'').($key==$len-1? ' adm-detail-tab-last':'').'" '.
 				'onclick="'.$this->name.'.SelectTab(\''.$tab["DIV"].'\');">'.htmlspecialcharsex($tab["TAB"]).'</span>';
@@ -241,7 +241,7 @@ class CAdminTabControl
 
 		if (!isset($options["showTitle"]) || $options["showTitle"] === true)
 		{
-			echo '<div class="adm-detail-title">'.$this->tabs[$this->tabIndex]["TITLE"].'</div>';
+			echo '<div class="adm-detail-title">'.($this->tabs[$this->tabIndex]["TITLE"] ?? '').'</div>';
 		}
 
 echo '
@@ -329,7 +329,7 @@ echo '
 
 			if ($this->bPublicMode)
 			{
-				if($_REQUEST['from_module'] <> '')
+				if(isset($_REQUEST['from_module']) && $_REQUEST['from_module'] <> '')
 				{
 					echo '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
 				}
@@ -375,7 +375,7 @@ echo '
 					echo '<input' . $disable .' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'.GetMessage("admin_lib_edit_apply_title").$hkInst->GetTitle("Edit_Apply_Button").'" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Apply_Button"));
 				}
-				if($aParams["btnCancel"] !== false && $aParams["back_url"] <> '' && !preg_match('/(javascript|data)[\s\0-\13]*:/i', $aParams["back_url"]))
+				if($aParams["btnCancel"] !== false && !empty($aParams["back_url"]) && !preg_match('/(javascript|data)[\s\0-\13]*:/i', $aParams["back_url"]))
 				{
 					echo '<input' . $disable . ' type="button" value="'.GetMessage("admin_lib_edit_cancel").'" name="cancel" onClick="top.window.location=\''.htmlspecialcharsbx(CUtil::addslashes($aParams["back_url"])).'\'" title="'.GetMessage("admin_lib_edit_cancel_title").$hkInst->GetTitle("Edit_Cancel_Button").'" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Cancel_Button"));
@@ -459,7 +459,7 @@ echo '
 
 		if ($this->bPublicMode)
 		{
-			if($_REQUEST['from_module'] <> '')
+			if(isset($_REQUEST['from_module']) && $_REQUEST['from_module'] <> '')
 			{
 				echo '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
 			}

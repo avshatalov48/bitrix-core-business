@@ -69,7 +69,7 @@ class CustomExtensions
 
 		if (!empty($newExtensions))
 		{
-			$extensions = $block->getAsset()['ext'] ?: [];
+			$extensions = ($block->getAsset()['ext'] ?? []) ?: [];
 			$extensions = array_merge($newExtensions, $extensions);
 			$block->saveAssets([
 				'ext' => array_unique($extensions)

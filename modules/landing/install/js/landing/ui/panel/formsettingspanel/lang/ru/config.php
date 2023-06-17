@@ -276,3 +276,7 @@ $MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type3'] = 'Менеджер, у ко�
 $MESS['LANDING_FORM_EXPERT_MODE_SWITCHER_LABEL'] = 'Экспертный режим';
 
 $MESS['LANDING_FORM_HISTORY_DISABLED_HINT'] = 'Кнопки доступны при редактировании дизайна страницы с формой';
+
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_SLIDER_TITLE"] = "Изменение формы";
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_TITLE"] = "Получите проверочный код в CMC";
+$MESS["LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_DESCRIPTION"] = "В целях безопасности для изменения формы вам необходимо указать проверочный код из СМС. Это выполняется однократно для каждой формы.";

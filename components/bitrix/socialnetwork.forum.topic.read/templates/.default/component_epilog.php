@@ -73,7 +73,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 			}
 		}
 	}
-	elseif (mb_strlen($arResult["ERROR_MESSAGE"]) < 1)
+	elseif (mb_strlen($arResult["ERROR_MESSAGE"] ?? '') < 1)
 	{
 		$messagePreview = $FHParser->getTagHTML('div[class=forum-preview]');
 		$JSResult += array(
@@ -106,7 +106,10 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 	}
 
 	$APPLICATION->RestartBuffer();
-	while (ob_end_clean());
+	if (ob_list_handlers())
+	{
+		while (ob_end_clean());
+	}
 
 	if ($request->getPost("dataType") == "json")
 	{

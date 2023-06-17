@@ -117,7 +117,7 @@ if(!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
-$back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
+$back_url = ($_REQUEST["back_url"] ?? "");
 
 //Template ID
 $templateID = false;
@@ -162,15 +162,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 {
 	CUtil::JSPostUnescape();
 
-	$fileName = (isset($_REQUEST["fileName"]) ? $_REQUEST["fileName"] : "");
-	$pageTitle = (isset($_REQUEST["pageTitle"]) ? $_REQUEST["pageTitle"] : "");
+	$fileName = ($_REQUEST["fileName"] ?? "");
+	$pageTitle = ($_REQUEST["pageTitle"] ?? "");
 	$editAfterSave = (isset($_REQUEST["editAfterSave"]) && $_REQUEST["editAfterSave"] == "Y");
 
 	$addToMenu = (isset($_REQUEST["addToMenu"]) && $_REQUEST["addToMenu"] == "Y");
-	$menuName = (isset($_REQUEST["menuName"]) ? $_REQUEST["menuName"] : "");
-	$menuType = (isset($_REQUEST["menuType"]) ? $_REQUEST["menuType"] : false);
+	$menuName = ($_REQUEST["menuName"] ?? "");
+	$menuType = ($_REQUEST["menuType"] ?? false);
 
-	$pageTags = (isset($_REQUEST["pageTags"]) ? $_REQUEST["pageTags"] : false);
+	$pageTags = ($_REQUEST["pageTags"] ?? false);
 	$menuItemPosition = (isset($_REQUEST["menuItemPosition"]) ? intval($_REQUEST["menuItemPosition"]) : 0);
 
 	$absoluteFilePath = $io->CombinePath($documentRoot, $path, $fileName);
@@ -406,13 +406,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 				);
 		}
 		// Limit access
-		if($_REQUEST["limitAccess"] == "Y")
+		if (isset($_REQUEST["limitAccess"]) && $_REQUEST["limitAccess"] == "Y")
 		{
 			$arGroups = false;
 			if($bAdmin)
 			{
 				//operation fm_edit_permission
-				if ($_REQUEST["limitAccessWho"] == 'extended')
+				if (isset($_REQUEST["limitAccessWho"]) && $_REQUEST["limitAccessWho"] == 'extended')
 				{
 					$arGroups = array();
 					foreach($_REQUEST["limitGroupList"] as $group)
@@ -515,7 +515,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 </script>
 		<?
 		else:
-			if($_GET['subdialog'] == 'Y')
+			if (isset($_GET['subdialog']) && $_GET['subdialog'] == 'Y')
 			{
 				echo "<script>structReload('".urlencode($pathToEdit)."');</script>";
 				$popupWindow->Close(false);

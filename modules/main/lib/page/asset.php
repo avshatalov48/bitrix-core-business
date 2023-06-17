@@ -431,8 +431,8 @@ class Asset
 						$cacheFull = [];
 					}
 
-					$fileList = $this->fileList[$type][$set['NAME']];
-					$targetList = $this->targetList['KERNEL'][$type.'_LIST'][$set['NAME']];
+					$fileList = $this->fileList[$type][$set['NAME']] ?? [];
+					$targetList = $this->targetList['KERNEL'][$type.'_LIST'][$set['NAME']] ?? [];
 
 					$items = [];
 					if ($mode === $set['MODE'] && isset($fileList['FILES']))
@@ -484,11 +484,11 @@ class Asset
 		}
 
 		return [
-			'JS' => $cacheInfo[$mode]['JS'][$id],
-			'BUNDLE_JS' => $cacheInfo[$mode]['BUNDLE_JS'][$id],
-			'CSS' => $cacheInfo[$mode]['CSS'][$id],
-			'BUNDLE_CSS' => $cacheInfo[$mode]['BUNDLE_CSS'][$id],
-			'STRINGS' => $cacheInfo[$mode]['STRINGS'][$id]
+			'JS' => $cacheInfo[$mode]['JS'][$id] ?? [],
+			'BUNDLE_JS' => $cacheInfo[$mode]['BUNDLE_JS'][$id] ?? [],
+			'CSS' => $cacheInfo[$mode]['CSS'][$id] ?? [],
+			'BUNDLE_CSS' => $cacheInfo[$mode]['BUNDLE_CSS'][$id] ?? [],
+			'STRINGS' => $cacheInfo[$mode]['STRINGS'][$id] ?? []
 		];
 	}
 
@@ -966,8 +966,8 @@ class Asset
 	public static function replaceUrlCss($url, $quote, $path)
 	{
 		if (
-			mb_strpos($url, "://") !== false
-			|| mb_strpos($url, "data:") !== false
+			strpos($url, "://") !== false
+			|| strpos($url, "data:") !== false
 			|| mb_substr($url, 0, 1) == "#"
 		)
 		{
@@ -1618,14 +1618,7 @@ class Asset
 
 			foreach ($additional as $bundle)
 			{
-				if (isset($this->assetList['CSS']['TEMPLATE']['TEMPLATE']))
-				{
-					$templateFiles = $this->assetList['CSS']['TEMPLATE']['TEMPLATE'];
-				}
-				else
-				{
-					$templateFiles = [];
-				}
+				$templateFiles = $this->assetList['CSS']['TEMPLATE']['TEMPLATE'] ?? [];
 
 				$this->assetList['CSS']['TEMPLATE']['TEMPLATE'] = array_merge($templateFiles, $bundle['FILES']);
 				$this->assetList['SOURCE_CSS']['TEMPLATE']['TEMPLATE'] = array_merge($templateFiles, $bundle['SOURCE_FILES']);
@@ -2366,7 +2359,7 @@ class Asset
 		$extendData = ($data != '' ? ' '.trim($data) : '');
 		$extendData .= ($label != '' ? ' '.trim($label) : '');
 
-		if ($writeResult || !$writeResult && $unique && $action == 'UP')
+		if ($writeResult || $unique && $action == 'UP')
 		{
 			$bundleFile = \CUtil::GetAdditionalFileURL($optimFile);
 			$currentFileList['FILES'][] = $bundleFile;
@@ -2538,12 +2531,11 @@ class Asset
 	 */
 	function write($filePath, $content, $gzip = true)
 	{
-		$result = false;
 		$fnTmp = $filePath.'.tmp';
 
 		if (!CheckDirPath($filePath) || !$fh = fopen($fnTmp, "wb"))
 		{
-			return $result;
+			return false;
 		}
 
 		$written = fwrite($fh, $content);
@@ -2555,6 +2547,7 @@ class Asset
 			@unlink($filePath);
 		}
 
+		$result = false;
 		if ($written === $len)
 		{
 			$result = true;

@@ -1,4 +1,4 @@
-import {Loc} from 'main.core';
+import {Text, Loc} from 'main.core';
 import {FileType} from 'im.v2.const';
 
 export const FileUtil = {
@@ -187,14 +187,22 @@ export const FileUtil = {
 			return {};
 		}
 
-		return {
+		const dataAttributes = {
 			'data-viewer': true,
-			'data-viewer-type': viewerAttributes.viewerType,
-			'data-object-id': viewerAttributes.objectId,
-			'data-src': viewerAttributes.src,
-			'data-viewer-group-by': viewerAttributes.viewerGroupBy,
-			'data-title': viewerAttributes.title,
-			'data-actions': viewerAttributes.actions,
 		};
+
+		Object.entries(viewerAttributes).forEach(([key, value]) => {
+			dataAttributes[`data-${Text.toKebabCase(key)}`] = value;
+		});
+
+		return dataAttributes;
+	},
+
+	isImage(fileName: string): boolean
+	{
+		const extension = FileUtil.getFileExtension(fileName);
+		const fileType = FileUtil.getFileTypeByExtension(extension);
+
+		return fileType === FileType.image;
 	}
 };

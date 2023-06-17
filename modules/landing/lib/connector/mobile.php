@@ -19,26 +19,38 @@ class Mobile
 
 	/**
 	 * Handler on build global mobile menu.
-	 * @param array $menu Mobile menu.
+	 * @param array $menu Current mobile menu.
 	 * @return array
 	 */
-	public static function onMobileMenuStructureBuilt($menu)
+	public static function onMobileMenuStructureBuilt($menu): array
 	{
 		if (!isset($menu[0]['items']) || !is_array($menu[0]['items']))
 		{
 			return $menu;
 		}
 
-		if (!\Bitrix\Landing\Site\Type::isEnabled('knowledge'))
+		if (\Bitrix\Landing\Site\Type::isEnabled('knowledge'))
 		{
-			return $menu;
+			$menu[0]['items'][] = self::getKnowledgeMenu();
 		}
 
+		//$menu[0]['items'][] = self::getLandingMenu();
+
+		return $menu;
+	}
+
+	/**
+	 * Returns menu item for knowledge base.
+	 * @return array
+	 */
+	private static function getKnowledgeMenu(): array
+	{
 		$componentId = 'knowledge.list';
 		$componentVersion = Janative\Manager::getComponentVersion(
 			$componentId
 		);
-		$menu[0]['items'][] = [
+
+		return [
 			'sort' => 100,
 			'title' => Loc::getMessage('LANDING_CONNECTOR_MB_MENU_TITLE'),
 			'imageUrl' => '/bitrix/images/landing/mobile/knowledge.png?4',
@@ -54,8 +66,30 @@ class Mobile
 JS
 			]
 		];
+	}
 
-		return $menu;
+	/**
+	 * Returns menu item for sites and stores.
+	 * @return array
+	 */
+	private static function getLandingMenu(): array
+	{
+		return [
+			'sort' => 100,
+			'title' => Loc::getMessage('LANDING_CONNECTOR_MB_LANDINGS_MENU_TITLE'),
+			'imageUrl' => '/bitrix/images/landing/mobile/knowledge.png',
+			'color' => '#e597ba',
+			'params' => [
+				'onclick' => <<<JS
+					PageManager.openComponent("JSLandingsComponent", {
+					    scriptPath:"/mobileapp/jn/landing.list/",    
+					    rootWidget:{
+					       name:"layout",
+					       settings:{objectName:"layoutWidget", title:"Hello World", modal: true}
+					    }});
+JS
+			]
+		];
 	}
 
 	/**

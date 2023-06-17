@@ -12,7 +12,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 class IblockElementProvider extends BaseProvider
 {
 	protected const ENTITY_ID = 'iblock-element';
-	private const ELEMENTS_LIMIT = 20;
+	protected const ELEMENTS_LIMIT = 100;
 
 	public function __construct(array $options = [])
 	{
@@ -57,7 +57,8 @@ class IblockElementProvider extends BaseProvider
 
 		if ($recentItemsCount < self::ELEMENTS_LIMIT)
 		{
-			foreach ($this->getElements() as $element)
+			$elements = $this->getElements([], self::ELEMENTS_LIMIT);
+			foreach ($elements as $element)
 			{
 				$dialog->addRecentItem($this->makeItem($element));
 			}
@@ -74,7 +75,11 @@ class IblockElementProvider extends BaseProvider
 			$filter = $this->getQueryFilter($query);
 		}
 
-		$elements = $this->getElements($filter);
+		$elements = $this->getElements($filter, self::ELEMENTS_LIMIT);
+		if (count($elements) === self::ELEMENTS_LIMIT)
+		{
+			$searchQuery->setCacheable(false);
+		}
 		foreach ($elements as $element)
 		{
 			$dialog->addItem(
@@ -95,7 +100,7 @@ class IblockElementProvider extends BaseProvider
 		];
 	}
 
-	protected function getElements(array $additionalFilter = []): array
+	protected function getElements(array $additionalFilter = [], ?int $limit = null): array
 	{
 		$elements = [];
 
@@ -105,7 +110,11 @@ class IblockElementProvider extends BaseProvider
 			$filter = array_merge($filter, $additionalFilter);
 		}
 
-		$navParams = ['nTopCount' => self::ELEMENTS_LIMIT];
+		$navParams = false;
+		if ($limit)
+		{
+			$navParams = ['nTopCount' => $limit];
+		}
 
 		$selectFields = [
 			'ID',

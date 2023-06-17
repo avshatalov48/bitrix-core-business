@@ -43,7 +43,7 @@ class CIMMessenger
 	 * 	(int) FROM_USER_ID - Sender user Id.
 	 * 	(int) AUTHOR_ID - Created by Id.
 	 * 	(string) MESSAGE - Message to send.
-	 * 	(string) MESSAGE_OUT -
+	 * 	(string) MESSAGE_OUT - Formated rich message.
 	 * 	(Y|N) SYSTEM - Display message as a system notification.
 	 *
 	 * 	(array | \CIMMessageParamAttach) ATTACH - Message attachment.
@@ -91,6 +91,7 @@ class CIMMessenger
 	 * 	(Y|N) CONVERT - Suppress events firing and pull sending on import operations.
 	 *
 	 * 	(Y|N) URL_PREVIEW - Generate URL preview attachment and insert date PUT/SEND command: Y|N.
+	 * 	(Y|N) SKIP_URL_INDEX - Skip Link\Url processing @see \Bitrix\Im\V2\Link\Url\UrlService::saveUrlsFromMessage
 	 *
 	 * 	(Y|N) SKIP_COMMAND - Skip command execution @see \Bitrix\Im\Command::onCommandAdd
 	 *
@@ -182,6 +183,7 @@ class CIMMessenger
 		$arFields['MESSAGE_OUT'] = isset($arFields['MESSAGE_OUT'])? trim($arFields['MESSAGE_OUT']): "";
 
 		$arFields['URL_PREVIEW'] = isset($arFields['URL_PREVIEW']) && $arFields['URL_PREVIEW'] == 'N'? 'N': 'Y';
+		$arFields['SKIP_URL_INDEX'] ??= 'N';
 
 		$bConvert = false;
 		if (isset($arFields['CONVERT']) && $arFields['CONVERT'] == 'Y')
@@ -392,7 +394,7 @@ class CIMMessenger
 			if (isset($arFields['TO_CHAT_ID']))
 			{
 				$chatId = $arFields['TO_CHAT_ID'];
-				$relations = CIMChat::GetRelationById($chatId);
+				$relations = CIMChat::GetRelationById($chatId, false, true, false);
 
 				$arFields['TO_USER_ID'] = $arFields['FROM_USER_ID'];
 				foreach ($relations as $rel)
@@ -428,25 +430,6 @@ class CIMMessenger
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_CANCELED"), "ERROR_NO_ACCESS");
 				return false;
-			}
-
-			// TODO: temporary, remove this after 22.0.0 release
-			if (
-				\Bitrix\Im\User::getInstance($arFields['TO_USER_ID'])->isNetwork()
-				&& !\Bitrix\Im\User::getInstance($arFields['TO_USER_ID'])->isBot()
-				&& $arFields['SYSTEM'] != 'Y'
-				&& \Bitrix\Im\Replica\Status::isDeprecated()
-			)
-			{
-				self::Add([
-					'TO_USER_ID' => $arFields['TO_USER_ID'],
-					'FROM_USER_ID' => $arFields['FROM_USER_ID'],
-					'MESSAGE_TYPE' => 'P',
-					'SYSTEM' => 'Y',
-					'MESSAGE' => \Bitrix\Im\Replica\Status::getMessageDialog()
-				]);
-
-				return true;
 			}
 
 			if ($chatId > 0)
@@ -505,6 +488,22 @@ class CIMMessenger
 					$messageUuid->updateMessageId($messageID);
 				}
 
+				\Bitrix\Im\Model\ChatTable::update($chatId, Array(
+					'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
+					//'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
+					'LAST_MESSAGE_ID' => $messageID,
+					//'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
+				));
+
+				if ($chatData['PARENT_MID'])
+				{
+					CIMMessageParam::set($chatData['PARENT_MID'], Array(
+						'CHAT_MESSAGE' => $chatData['MESSAGE_COUNT']+1,
+						'CHAT_LAST_DATE' => new \Bitrix\Main\Type\DateTime()
+					));
+					CIMMessageParam::SendPull($chatData['PARENT_MID'], Array('CHAT_MESSAGE', 'CHAT_LAST_DATE'));
+				}
+
 				if (empty($arFields['PARAMS']))
 				{
 					CIMMessageParam::UpdateTimestamp($messageID, $arParams['CHAT_ID']);
@@ -526,65 +525,53 @@ class CIMMessenger
 					}
 				}
 
+				$relations = CIMChat::GetRelationById($chatId, false, true, false);
+				$message = new \Bitrix\Im\V2\Message($arParams);
+				$message->setMessageId($messageID);
+				foreach ($relations as $relation)
+				{
+					if (\Bitrix\Im\User::getInstance($relation['USER_ID'])->isBot())
+					{
+						// bot
+					}
+					else if (!\Bitrix\Im\User::getInstance($relation['USER_ID'])->isActive())
+					{
+						continue;
+					}
+
+					if (isset($arFields['RECENT_SKIP_AUTHOR']) && $relation['USER_ID'] == $arParams['AUTHOR_ID'])
+					{
+						continue;
+					}
+
+					$addToRecent = true;
+					if ($incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter))
+					{
+						$addToRecent = \CIMContactList::InRecent($relation['USER_ID'], $arFields['MESSAGE_TYPE'], $relation['CHAT_ID']);
+					}
+					if ($addToRecent)
+					{
+						CIMContactList::SetRecent(Array(
+							'ENTITY_ID' => $relation['USER_ID'] == $arFields['TO_USER_ID']? $arFields['FROM_USER_ID']: $arFields['TO_USER_ID'],
+							'MESSAGE_ID' => $messageID,
+							'CHAT_TYPE' => IM_MESSAGE_PRIVATE,
+							'CHAT_ID' => $relation['CHAT_ID'],
+							'RELATION_ID' => $relation['ID'],
+							'USER_ID' => $relation['USER_ID']
+						));
+					}
+				}
+
 				if (!$bConvert)
 				{
-					\Bitrix\Im\Model\ChatTable::update($chatId, Array(
-						'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
-						'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
-						'LAST_MESSAGE_ID' => $messageID,
-						'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
-					));
-
-					if ($chatData['PARENT_MID'])
-					{
-						CIMMessageParam::set($chatData['PARENT_MID'], Array(
-							'CHAT_MESSAGE' => $chatData['MESSAGE_COUNT']+1,
-							'CHAT_LAST_DATE' => new \Bitrix\Main\Type\DateTime()
-						));
-						CIMMessageParam::SendPull($chatData['PARENT_MID'], Array('CHAT_MESSAGE', 'CHAT_LAST_DATE'));
-					}
-
-					$relations = CIMChat::GetRelationById($chatId);
-					foreach ($relations as $relation)
-					{
-						if (\Bitrix\Im\User::getInstance($relation['USER_ID'])->isBot())
-						{
-							// bot
-						}
-						else if (!\Bitrix\Im\User::getInstance($relation['USER_ID'])->isActive())
-						{
-							continue;
-						}
-
-						if (isset($arFields['RECENT_SKIP_AUTHOR']) && $relation['USER_ID'] == $arParams['AUTHOR_ID'])
-						{
-							continue;
-						}
-
-						$addToRecent = true;
-						if ($incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter))
-						{
-							$addToRecent = \CIMContactList::InRecent($relation['USER_ID'], $arFields['MESSAGE_TYPE'], $relation['CHAT_ID']);
-						}
-						if ($addToRecent)
-						{
-							CIMContactList::SetRecent(Array(
-								'ENTITY_ID' => $relation['USER_ID'] == $arFields['TO_USER_ID']? $arFields['FROM_USER_ID']: $arFields['TO_USER_ID'],
-								'MESSAGE_ID' => $messageID,
-								'CHAT_TYPE' => IM_MESSAGE_PRIVATE,
-								'CHAT_ID' => $relation['CHAT_ID'],
-								'RELATION_ID' => $relation['ID'],
-								'USER_ID' => $relation['USER_ID']
-							));
-						}
-					}
-
 					$pullIncluded = CModule::IncludeModule("pull");
 					$pullServerActive = $pullIncluded && CPullOptions::GetNginxStatus();
 					$relations = \Bitrix\Im\Chat::getRelation($chatId, Array(
-						'REAL_COUNTERS' => 'Y',
+						//'REAL_COUNTERS' => 'Y',
+						'WITHOUT_COUNTERS' => 'Y',
 						'USER_DATA' => 'Y',
 					));
+					$relationCollection = new \Bitrix\Im\V2\RelationCollection();
 					foreach ($relations as $id => $relation)
 					{
 						if (\Bitrix\Im\User::getInstance($relation["USER_ID"])->isBot())
@@ -596,28 +583,39 @@ class CIMMessenger
 							continue;
 						}
 
+						$relationObject = new \Bitrix\Im\V2\Relation([
+							'USER_ID' => (int)$relation['USER_ID'],
+							'CHAT_ID' => $relation['CHAT_ID'],
+							'MESSAGE_TYPE' => $relation['MESSAGE_TYPE'],
+							'NOTIFY_BLOCK' => $relation['NOTIFY_BLOCK'] === 'Y',
+						]);
+						$relationObject->setId((int)$relation['ID']);
+						$relationCollection->add($relationObject);
 						if ($isSelfChat || $relation["USER_ID"] == $arFields["FROM_USER_ID"])
 						{
 							$relations[$id]['COUNTER'] = 0;
 							$relationUpdate = array(
-								"STATUS" => IM_STATUS_READ,
-								"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
-								"UNREAD_ID" => $messageID,
-								"COUNTER" => 0,
+								//"STATUS" => IM_STATUS_READ,
+								//"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
+								//"UNREAD_ID" => $messageID,
+								//"COUNTER" => 0,
 								"LAST_ID" => $messageID,
-								"LAST_SEND_ID" => $messageID,
-								"LAST_READ" => new Bitrix\Main\Type\DateTime(),
+								//"LAST_SEND_ID" => $messageID,
+								//"LAST_READ" => new Bitrix\Main\Type\DateTime(),
 							);
-							if (!$pullServerActive)
+							/*if (!$pullServerActive)
 							{
 								unset($relationUpdate['STATUS']);
 								unset($relationUpdate['LAST_ID']);
+							}*/
+							if ($pullServerActive)
+							{
+								\Bitrix\Im\Model\RelationTable::update($relation["ID"], $relationUpdate);
 							}
-							\Bitrix\Im\Model\RelationTable::update($relation["ID"], $relationUpdate);
 						}
 						else
 						{
-							$updateRelation = array(
+							/*$updateRelation = array(
 								"STATUS" => IM_STATUS_UNREAD,
 								"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
 								"UNREAD_ID" => $messageID,
@@ -632,11 +630,15 @@ class CIMMessenger
 								unset($updateRelation['COUNTER']);
 							}
 
-							\Bitrix\Im\Model\RelationTable::update($relation["ID"], $updateRelation);
+							\Bitrix\Im\Model\RelationTable::update($relation["ID"], $updateRelation);*/
 						}
 
-						\Bitrix\Im\Counter::clearCache($relation['USER_ID']);
+						//\Bitrix\Im\Counter::clearCache($relation['USER_ID']);
 					}
+					$counters = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields["FROM_USER_ID"]))
+						->onAfterMessageSend($message, $relationCollection)
+						->getResult()['COUNTERS']
+					;
 
 					if (CModule::IncludeModule("pull"))
 					{
@@ -670,15 +672,14 @@ class CIMMessenger
 						$pullMessageFrom = $pullMessage;
 						$pullMessageFrom['params']['dialogId'] = $arParams['TO_USER_ID'];
 
-						$pullMessageFrom['params']['counter'] = $relations[$arParams['FROM_USER_ID']]['COUNTER'];
+						$pullMessageFrom['params']['counter'] = $counters[(int)$arParams['FROM_USER_ID']] ?? 0;
 						\Bitrix\Pull\Event::add($arParams['FROM_USER_ID'], $pullMessageFrom);
 
 						if ($arParams['FROM_USER_ID'] != $arParams['TO_USER_ID'])
 						{
-							$pullMessageTo['params']['counter'] = $relations[$arParams['TO_USER_ID']]['COUNTER'];
+							$pullMessageTo['params']['counter'] = $counters[(int)$arParams['TO_USER_ID']] ?? 0;
 							\Bitrix\Pull\Event::add($arParams['TO_USER_ID'], $pullMessageTo);
 
-							$pullMessageTo['params']['message']['text_push'] = $arParams['MESSAGE'];
 							$pullMessageTo = self::PreparePushForPrivate($pullMessageTo);
 							$pullMessageFrom = self::PreparePushForPrivate($pullMessageFrom);
 
@@ -695,10 +696,10 @@ class CIMMessenger
 									$pullMessageFrom['push']['advanced_params']['senderMessage'] = $arFields['MESSAGE_PUSH'];
 								}
 
-								$pullMessageTo['push']['advanced_params']['counter'] = $relations[$arParams['TO_USER_ID']]['COUNTER'];
+								$pullMessageTo['push']['advanced_params']['counter'] = $counters[$arParams['TO_USER_ID']] ?? 0;
 								\Bitrix\Pull\Push::add($arParams['TO_USER_ID'], $pullMessageTo);
 
-								$pullMessageFrom['push']['advanced_params']['counter'] = $relations[$arParams['FROM_USER_ID']]['COUNTER'];
+								$pullMessageFrom['push']['advanced_params']['counter'] = $counters[$arParams['FROM_USER_ID']] ?? 0;
 								\Bitrix\Pull\Push::add($arParams['FROM_USER_ID'], array_merge_recursive($pullMessageFrom, ['push' => [
 									'skip_users' => [$arParams['FROM_USER_ID']],
 									'advanced_params' => [
@@ -719,6 +720,13 @@ class CIMMessenger
 					{
 						\Bitrix\Im\Bot::onMessageAdd(intval($messageID), $arFields);
 					}
+
+					if ($arFields['SKIP_URL_INDEX'] !== 'Y')
+					{
+						(new \Bitrix\Im\V2\Link\Url\UrlService())->saveUrlsFromMessage($message);
+					}
+
+					(new \Bitrix\Im\V2\Link\File\FileService())->saveFilesFromMessage($arFields['FILES_FROM_TEXT'] ?? [], $message);
 				}
 
 				\Bitrix\Im\Model\MessageTable::indexRecord($messageID);
@@ -933,9 +941,9 @@ class CIMMessenger
 				{
 					\Bitrix\Im\Model\ChatTable::update($chatId, Array(
 						'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
-						'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
+						//'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
 						'LAST_MESSAGE_ID' => $messageID,
-						'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
+						//'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
 					));
 
 					if ($chatParentMid)
@@ -951,12 +959,13 @@ class CIMMessenger
 					$arParams['FROM_USER_ID'] = $arFields['FROM_USER_ID'];
 					$arParams['TO_CHAT_ID'] = $arFields['TO_CHAT_ID'];
 
-					$arBotInChat = [];
-					$relations = \Bitrix\Im\Chat::getRelation($chatId, [
-						'REAL_COUNTERS' => 'Y',
+					$arBotInChat = Array();
+					$relations = \Bitrix\Im\Chat::getRelation($chatId, Array(
+						//'REAL_COUNTERS' => 'Y',
+						'WITHOUT_COUNTERS' => 'Y',
 						'USER_DATA' => 'Y',
-						'SKIP_CONNECTOR' => $arRes['CHAT_ENTITY_TYPE'] == 'LINES' ? 'Y' : 'N'
-					]);
+						'SKIP_CONNECTOR' => $arRes['CHAT_ENTITY_TYPE'] == 'LINES'? 'Y': 'N'
+					));
 
 					$pullIncluded = CModule::IncludeModule("pull");
 					$pullServerActive = $pullIncluded && CPullOptions::GetNginxStatus();
@@ -967,6 +976,7 @@ class CIMMessenger
 					$pushUserSkip = [];
 					$pushUserSend = [];
 
+					$relationCollection = new \Bitrix\Im\V2\RelationCollection();
 					foreach ($relations as $id => $relation)
 					{
 						if ($arFields['RECENT_ADD'] != 'Y')
@@ -978,7 +988,7 @@ class CIMMessenger
 						{
 							$arBotInChat[$relation["USER_ID"]] = $relation["USER_ID"];
 						}
-						elseif ($relation['USER_DATA']['ACTIVE'] == 'N')
+						else if ($relation['USER_DATA']['ACTIVE'] == 'N')
 						{
 							$skippedRelations[$id] = true;
 							continue;
@@ -1018,46 +1028,57 @@ class CIMMessenger
 							]);
 						}
 
-						if ($relation["USER_ID"] == $arFields["FROM_USER_ID"])
-						{
-							$relations[$id]['COUNTER'] = $relation['COUNTER'] = 0;
+					$relationObject = new \Bitrix\Im\V2\Relation([
+						'USER_ID' => (int)$relation['USER_ID'],
+						'CHAT_ID' => $relation['CHAT_ID'],
+						'MESSAGE_TYPE' => $relation['MESSAGE_TYPE'],
+						'NOTIFY_BLOCK' => $relation['NOTIFY_BLOCK'] === 'Y',
+					]);
+					$relationObject->setId((int)$relation['ID']);
+					$relationCollection->add($relationObject);
+					if ($relation["USER_ID"] == $arFields["FROM_USER_ID"])
+					{
+						$relations[$id]['COUNTER'] = $relation['COUNTER'] = 0;
 
-							$relationUpdate = [
-								"STATUS" => IM_STATUS_READ,
-								"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
-								"COUNTER" => 0,
-								"UNREAD_ID" => $messageID,
-								"LAST_ID" => $messageID,
-								"LAST_SEND_ID" => $messageID,
-								"LAST_READ" => new Bitrix\Main\Type\DateTime(),
-							];
-							if (!$pullServerActive)
-							{
-								unset($relationUpdate['STATUS']);
-								unset($relationUpdate['LAST_ID']);
-							}
+						$relationUpdate = array(
+							//"STATUS" => IM_STATUS_READ,
+							//"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
+							//"COUNTER" => 0,
+							//"UNREAD_ID" => $messageID,
+							"LAST_ID" => $messageID,
+							//"LAST_SEND_ID" => $messageID,
+							//"LAST_READ" => new Bitrix\Main\Type\DateTime(),
+						);
+						/*if (!$pullServerActive)
+						{
+							unset($relationUpdate['STATUS']);
+							unset($relationUpdate['LAST_ID']);
+						}*/
+						if ($pullServerActive)
+						{
 							\Bitrix\Im\Model\RelationTable::update($relation["ID"], $relationUpdate);
 						}
-						else
+					}
+					else
+					{
+						/*$updateRelation = array(
+							"STATUS" => IM_STATUS_UNREAD,
+							"UNREAD_ID" => $messageID,
+							"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
+							"COUNTER" => $relation['COUNTER'],
+						);
+						if ($relation["UNREAD_ID"])
 						{
-							$updateRelation = [
-								"STATUS" => IM_STATUS_UNREAD,
-								"UNREAD_ID" => $messageID,
-								"MESSAGE_STATUS" => IM_MESSAGE_STATUS_RECEIVED,
-								"COUNTER" => $relation['COUNTER'],
-							];
-							if ($relation["UNREAD_ID"])
-							{
-								unset($updateRelation['UNREAD_ID']);
-							}
-							if ($incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter))
-							{
-								unset($updateRelation['COUNTER']);
-							}
-							\Bitrix\Im\Model\RelationTable::update($relation["ID"], $updateRelation);
+							unset($updateRelation['UNREAD_ID']);
 						}
+						if ($incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter))
+						{
+							unset($updateRelation['COUNTER']);
+						}
+						\Bitrix\Im\Model\RelationTable::update($relation["ID"], $updateRelation);*/
+					}
 
-						\Bitrix\Im\Counter::clearCache($relation['USER_ID']);
+					//\Bitrix\Im\Counter::clearCache($relation['USER_ID']);
 
 						if (!$pullIncluded)
 						{
@@ -1070,12 +1091,12 @@ class CIMMessenger
 							CPushManager::DeleteFromQueueBySubTag($arParams['FROM_USER_ID'], 'IM_MESS');
 							$sendPush = false;
 						}
-						elseif ($relation['NOTIFY_BLOCK'] == 'Y' && !$importantPush)
+						else if ($relation['NOTIFY_BLOCK'] == 'Y' && !$importantPush)
 						{
 							$pushUserSkip[] = $relation['USER_ID'];
 							$pushUserSend[] = $relation['USER_ID'];
 						}
-						elseif (isset($arFields['PUSH']) && $arFields['PUSH'] === 'N')
+						else if (isset($arFields['PUSH']) && $arFields['PUSH'] === 'N')
 						{
 							$sendPush = false;
 						}
@@ -1084,6 +1105,12 @@ class CIMMessenger
 							$pushUserSend[] = $relation['USER_ID'];
 						}
 					}
+					$message = new \Bitrix\Im\V2\Message($arParams);
+					$message->setMessageId($messageID);
+					$counters = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields["FROM_USER_ID"]))
+						->onAfterMessageSend($message, $relationCollection)
+						->getResult()['COUNTERS']
+					;
 
 					$pullMessage = [
 						'module_id' => 'im',
@@ -1108,17 +1135,18 @@ class CIMMessenger
 						'extra' => \Bitrix\Im\Common::getPullExtra()
 					];
 
-					foreach ($relations as $id => $relation)
+				foreach ($relations as $id => $relation)
+				{
+					$skippedRelation = $skippedRelations[$id] ?? null;
+					if ($skippedRelation)
 					{
-						$skippedRelation = $skippedRelations[$id] ?? null;
-						if ($skippedRelation)
-						{
-							continue;
-						}
-						$events[$relation['USER_ID']] = $pullMessage;
-						$events[$relation['USER_ID']]['params']['counter'] = $incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter) ? $relation['PREVIOUS_COUNTER'] : $relation['COUNTER'];
-						$events[$relation['USER_ID']]['groupId'] = 'im_chat_'.$chatId.'_'.$messageID.'_'.$events[$relation['USER_ID']]['params']['counter'];
+						continue;
 					}
+					$events[$relation['USER_ID']] = $pullMessage;
+					$events[$relation['USER_ID']]['params']['counter'] = $counters[$relation['USER_ID']] ?? 0;
+					//$events[$relation['USER_ID']]['params']['counter'] = $incrementCounter !== true && !in_array($relation['USER_ID'], $incrementCounter)? $relation['PREVIOUS_COUNTER']: $relation['COUNTER'];
+					$events[$relation['USER_ID']]['groupId'] = 'im_chat_'.$chatId.'_'.$messageID.'_'.$events[$relation['USER_ID']]['params']['counter'];
+				}
 
 					if (($arFields['SYSTEM'] ?? null) !== 'Y')
 					{
@@ -1154,7 +1182,6 @@ class CIMMessenger
 							{
 								$pushParams = $group['event'];
 
-								$pushParams['params']['message']['text_push'] = $arParams['MESSAGE'];
 								$pushParams = self::PreparePushForChat($pushParams);
 
 								if ($importantPush)
@@ -1193,6 +1220,13 @@ class CIMMessenger
 					{
 						\Bitrix\Im\Bot::onMessageAdd(intval($messageID), $arFields);
 					}
+
+					if ($arFields['SKIP_URL_INDEX'] !== 'Y')
+					{
+						(new \Bitrix\Im\V2\Link\Url\UrlService())->saveUrlsFromMessage($message);
+					}
+
+					(new \Bitrix\Im\V2\Link\File\FileService())->saveFilesFromMessage($arFields['FILES_FROM_TEXT'] ?? [], $message);
 				}
 
 				\Bitrix\Im\Model\MessageTable::indexRecord($messageID);
@@ -1236,24 +1270,40 @@ class CIMMessenger
 			}
 			else
 			{
-				$result = \Bitrix\Im\Model\ChatTable::add(Array('TYPE' => IM_MESSAGE_SYSTEM, 'AUTHOR_ID' => $arFields['TO_USER_ID']));
-				$chatId = $result->getId();
+				$result = \Bitrix\Im\V2\Chat\ChatFactory::getInstance()->addChat([
+					'TYPE' => IM_MESSAGE_SYSTEM,
+					'AUTHOR_ID' => $arFields['TO_USER_ID']
+				]);
+				if (!$result->isSuccess() || !$result->hasResult())
+				{
+					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_CREATE"), "CHAT_ID");
+					return false;
+				}
+
+				$chatId = $result->getResult()['CHAT_ID'];
+
 				if ($chatId <= 0)
 				{
 					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_CREATE"), "CHAT_ID");
 					return false;
 				}
 
-				\Bitrix\Im\Model\RelationTable::add(array(
+				/*\Bitrix\Im\Model\RelationTable::add(array(
 					"CHAT_ID" => $chatId,
 					"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 					"USER_ID" => intval($arFields['TO_USER_ID']),
-					"STATUS" => ($bConvert? 2: 0),
-				));
+					//"STATUS" => ($bConvert? 2: 0),
+				));*/
 			}
 
 			if ($chatId > 0)
 			{
+				$arFields['MESSAGE'] = \Bitrix\Im\Text::convertHtmlToBbCode($arFields['MESSAGE']);
+				if (isset($arFields['PUSH_MESSAGE']))
+				{
+					$arFields['PUSH_MESSAGE'] = $html = str_replace('&nbsp;', ' ', $arFields['PUSH_MESSAGE']);;
+				}
+
 				$arParams = Array();
 				$arParams['CHAT_ID'] = $chatId;
 				$arParams['AUTHOR_ID'] = intval($arFields['AUTHOR_ID']);
@@ -1401,7 +1451,7 @@ class CIMMessenger
 						CIMMessageParam::Set($messageID, $arFields['PARAMS']);
 					}
 
-					$counter = \CIMNotify::GetCounter($chatId);
+					/*$counter = \CIMNotify::GetCounter($chatId);
 					if ($counter > 100)
 					{
 						$counter += 1;
@@ -1409,15 +1459,15 @@ class CIMMessenger
 					else
 					{
 						$counter = \CIMNotify::GetRealCounter($chatId);
-					}
+					}*/
 
-					$DB->Query("
+					/*$DB->Query("
 						UPDATE b_im_relation
 						SET STATUS = '".IM_STATUS_UNREAD."', COUNTER = {$counter}
 						WHERE USER_ID = ".intval($arFields['TO_USER_ID'])." AND MESSAGE_TYPE = '".IM_MESSAGE_SYSTEM."' AND CHAT_ID = ".$chatId
-					);
+					);*/
 
-					\Bitrix\Im\Counter::clearCache($arFields['TO_USER_ID']);
+					//\Bitrix\Im\Counter::clearCache($arFields['TO_USER_ID']);
 
 					$messageCount = \Bitrix\Im\Model\MessageTable::getList(
 						[
@@ -1431,12 +1481,25 @@ class CIMMessenger
 
 					\Bitrix\Im\Model\ChatTable::update($chatId, Array(
 						'MESSAGE_COUNT' => $messageCount['CNT'],
-						'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
+						//'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
 						'LAST_MESSAGE_ID' => $messageID,
-						'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
+						//'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
 					));
 
 					CIMMessenger::SpeedFileDelete($arFields['TO_USER_ID'], IM_SPEED_NOTIFY);
+
+					$relationObject = new \Bitrix\Im\V2\Relation([
+						'USER_ID' => (int)$arFields['TO_USER_ID'],
+						'CHAT_ID' => $chatId,
+						'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
+						'NOTIFY_BLOCK' => false,
+					]);
+					$relationObject->setId(1);
+					$message = new \Bitrix\Im\V2\Message($arParams);
+					$message->setMessageId($messageID);
+					$counter = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields['TO_USER_ID']))
+						->onAfterNotificationSend($message, $relationObject)->getResult()['COUNTER']
+					;
 				}
 
 				foreach(GetModuleEvents("im", "OnAfterNotifyAdd", true) as $arEvent)
@@ -1724,13 +1787,13 @@ class CIMMessenger
 
 			$relations = CIMMessenger::GetRelationById($message['ID']);
 
-			$arPullMessage = [
+			$arPullMessage = Array(
 				'id' => (int)$arFields['ID'],
-				'type' => $arFields['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE ? 'private' : 'chat',
+				'type' => $arFields['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE? 'private': 'chat',
 				'text' => $pullMessage,
-				'textOriginal' => $arFields['MESSAGE'],
-			];
-			$arBotInChat = [];
+				'textLegacy' => \Bitrix\Im\Text::parseLegacyFormat($arFields['MESSAGE']),
+			);
+			$arBotInChat = Array();
 
 			if ($message['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE)
 			{
@@ -1863,6 +1926,14 @@ class CIMMessenger
 			}
 
 			\Bitrix\Im\Bot::onMessageUpdate(intval($id), $arFields);
+
+			$message = (new \Bitrix\Im\V2\Message())
+				->setMessageId((int)$id)
+				->setMessage($arFields['MESSAGE'])
+				->setChatId((int)$arFields['CHAT_ID'])
+				->setAuthorId((int)$arFields['AUTHOR_ID'])
+			;
+			(new \Bitrix\Im\V2\Link\Url\UrlService())->updateUrlsFromMessage($message);
 		}
 
 		\Bitrix\Im\Model\MessageTable::indexRecord($id);
@@ -2007,11 +2078,17 @@ class CIMMessenger
 				CIMMessageParam::SendPull($chatData['PARENT_MID'], Array('CHAT_MESSAGE', 'CHAT_LAST_DATE'));
 			}
 
+			$messageObject = new \Bitrix\Im\V2\Message((int)$id);
+			(new \Bitrix\Im\V2\Link\Favorite\FavoriteService())->unmarkMessageAsFavoriteForAll($messageObject);
+			(new \Bitrix\Im\V2\Message\ReadService())->deleteByMessageId(
+				$id,
+				\Bitrix\Im\V2\Chat::getInstance((int)$message['CHAT_ID'])->getRelations()->getUserIds()
+			);
 			$completeDelete = true;
 			CIMMessageParam::DeleteAll($message['ID']);
 			\Bitrix\Im\Model\MessageTable::delete($message['ID']);
 
-			$relationCounters = \Bitrix\Im\Chat::getRelation($message['CHAT_ID'], Array(
+			/*$relationCounters = \Bitrix\Im\Chat::getRelation($message['CHAT_ID'], Array(
 				'SELECT' => Array('ID', 'USER_ID'),
 				'REAL_COUNTERS' => 'Y',
 				'USER_DATA' => 'Y',
@@ -2026,9 +2103,9 @@ class CIMMessenger
 				{
 					continue;
 				}
-				\Bitrix\Im\Model\RelationTable::update($relation['ID'], Array('COUNTER' => $relation['COUNTER']));
+				//\Bitrix\Im\Model\RelationTable::update($relation['ID'], Array('COUNTER' => $relation['COUNTER']));
 				\Bitrix\Im\Counter::clearCache($relation['USER_ID']);
-			}
+			}*/
 
 			$result = \Bitrix\Im\Model\RecentTable::getList(Array('filter' => Array('=ITEM_MID' => $message['ID'])))->fetchAll();
 			if (!empty($result))
@@ -2116,6 +2193,16 @@ class CIMMessenger
 			\Bitrix\Im\Model\MessageIndexTable::delete($id);
 		}
 
+		$messageObject = new \Bitrix\Im\V2\Message(
+			[
+				'ID' => (int)$id,
+				'CHAT_ID' => (int)$message['CHAT_ID'],
+				'AUTHOR_ID' => (int)$arFields['AUTHOR_ID']
+			]
+		);
+		(new \Bitrix\Im\V2\Link\Url\UrlService())->deleteUrlsByMessage($messageObject);
+		(new \Bitrix\Im\V2\Link\Pin\PinService())->unpinMessage($messageObject);
+
 		foreach(GetModuleEvents("im", "OnAfterMessagesDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(intval($id), $arFields, $deleteFlags));
 
@@ -2198,7 +2285,7 @@ class CIMMessenger
 		return true;
 	}
 
-	public static function Like($id, $action = 'auto', $userId = null, $byEvent = false)
+	public static function Like($id, $action = 'auto', $userId = null, $byEvent = false, $withReaction = true)
 	{
 		if (!CModule::IncludeModule('pull'))
 			return false;
@@ -2235,7 +2322,7 @@ class CIMMessenger
 			{
 				foreach($message['PARAMS']['CONNECTOR_MID'] as $mid)
 				{
-					self::Like($mid, $action, $userId, true);
+					self::Like($mid, $action, $userId, true, false);
 				}
 			}
 		}
@@ -2243,7 +2330,7 @@ class CIMMessenger
 		{
 			foreach($message['PARAMS']['CONNECTOR_MID'] as $mid)
 			{
-				self::Like($mid, $action, $userId, true);
+				self::Like($mid, $action, $userId, true, false);
 			}
 		}
 
@@ -2285,6 +2372,26 @@ class CIMMessenger
 		sort($like);
 		CIMMessageParam::Set($id, Array('LIKE' => $like));
 
+		if ($withReaction)
+		{
+			$messageObject = new \Bitrix\Im\V2\Message([
+				'ID' => $message['ID'],
+				'CHAT_ID' => $message['CHAT_ID'],
+				'AUTHOR_ID' => $message['AUTHOR_ID'],
+				'MESSAGE' => $message['MESSAGE'],
+			]);
+			$reactionService = new \Bitrix\Im\V2\Message\Reaction\ReactionService($messageObject, false);
+
+			if ($isLike)
+			{
+				$reactionService->addReaction(\Bitrix\Im\V2\Message\Reaction\ReactionItem::LIKE);
+			}
+			else
+			{
+				$reactionService->deleteReaction(\Bitrix\Im\V2\Message\Reaction\ReactionItem::LIKE);
+			}
+		}
+
 		if ($message['AUTHOR_ID'] > 0 && $message['AUTHOR_ID'] != $userId && $isLike && $chat['ENTITY_TYPE'] != 'LIVECHAT')
 		{
 			$message['MESSAGE'] = self::PrepareParamsForPush($message);
@@ -2295,7 +2402,7 @@ class CIMMessenger
 			$message['MESSAGE'] = mb_substr($message['MESSAGE'], 0, 199).$dot;
 			$message['MESSAGE'] = $message['MESSAGE'] <> ''? $message['MESSAGE']: '-';
 
-			$arMessageFields = array(
+			/*$arMessageFields = array(
 				"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 				"TO_USER_ID" => $message['AUTHOR_ID'],
 				"FROM_USER_ID" => $userId,
@@ -2312,7 +2419,7 @@ class CIMMessenger
 					'#TITLE#' => $chat['TITLE']
 				)),
 			);
-			CIMNotify::Add($arMessageFields);
+			CIMNotify::Add($arMessageFields);*/
 		}
 
 		$pushUsers = $like;
@@ -2426,7 +2533,7 @@ class CIMMessenger
 			return false;
 		}
 
-		$relations = \CIMChat::GetRelationById($message['CHAT_ID']);
+		$relations = \CIMChat::GetRelationById($message['CHAT_ID'], false, true, false);
 		if (!isset($relations[$userId]))
 		{
 			return false;
@@ -2756,6 +2863,17 @@ class CIMMessenger
 		$currentVersion = intval(CUserOptions::GetOption('im', 'DesktopVersionApi', 0));
 
 		return $currentVersion >= $version;
+	}
+
+	public static function IsDesktopEnvironment()
+	{
+		$userAgent = \Bitrix\Main\Context::getCurrent()->getServer()->get("HTTP_USER_AGENT");
+		if (mb_strpos($userAgent, 'BitrixDesktop') === false)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public static function SetDesktopVersion($version)
@@ -3141,8 +3259,10 @@ class CIMMessenger
 
 	public static function GetUnreadCounter($userId)
 	{
-		$count = 0;
-		$userId = intval($userId);
+		//todo return counters for user
+		return (new \Bitrix\Im\V2\Message\CounterService($userId))->getForNotifyChat();
+		//$count = 0;
+		/*$userId = intval($userId);
 		if ($userId <= 0)
 			return $count;
 
@@ -3170,9 +3290,9 @@ class CIMMessenger
 			}
 			else
 				$count++;
-		}
+		}*/
 
-		return $count;
+		//return $count;
 	}
 
 	public static function GetMessageCounter($userId, $arMessages = Array())
@@ -3392,7 +3512,8 @@ class CIMMessenger
 			'SKIP_NOTIFICATION' => 'Y',
 			'SKIP_OPENLINES' => 'Y',
 			'JSON' => 'Y',
-			'GET_ORIGINAL_TEXT' => 'Y'
+			'GET_ORIGINAL_TEXT' => 'Y',
+			//'SHORT_INFO' => 'Y',
 		]);
 
 		$iframeRequest = $_REQUEST['IFRAME'] ?? null;
@@ -3429,10 +3550,10 @@ class CIMMessenger
 					'bitrixMobile': ".(IsModuleInstalled('mobile')? 'true': 'false').",
 					'bitrixOpenLines': ".(IsModuleInstalled('imopenlines')? 'true': 'false').",
 					'bitrixCrm': ".(IsModuleInstalled('crm')? 'true': 'false').",
-					'desktop': ".$arTemplate["DESKTOP"].",
+					'desktop': ".($arTemplate["DESKTOP"] ?? 'false').",
 					'desktopStatus': ".(CIMMessenger::CheckDesktopStatusOnline()? 'true': 'false').",
 					'desktopVersion': ".CIMMessenger::GetDesktopVersion().",
-					'desktopLinkOpen': ".$arTemplate["DESKTOP_LINK_OPEN"].",
+					'desktopLinkOpen': ".($arTemplate["DESKTOP_LINK_OPEN"] ?? 'false').",
 					'language': '".LANGUAGE_ID."',
 					'loggerConfig': ".\Bitrix\Im\Common::objectEncode(\Bitrix\Im\Settings::getLoggerConfig(), true).",
 					'broadcastingEnabled': ".\Bitrix\Im\Common::objectEncode(\Bitrix\Im\Settings::isBroadcastingEnabled(), true).",
@@ -3463,6 +3584,7 @@ class CIMMessenger
 					'canSendMessageGeneralChat': ".(CIMChat::CanSendMessageToGeneralChat($USER->GetID())? 'true': 'false').",
 					'debug': ".(defined('IM_DEBUG')? 'true': 'false').",
 					'next': ".(defined('IM_NEXT')? 'true': 'false').",
+					'betaAvailable': ".(\Bitrix\Im\Settings::isBetaAvailable()? 'true': 'false').",
 					'userId': ".$USER->GetID().",
 					'userEmail': '".CUtil::JSEscape($USER->GetEmail())."',
 					'userColor': '".\Bitrix\Im\Color::getCode(\Bitrix\Im\User::getInstance()->getColor())."',
@@ -3496,6 +3618,49 @@ class CIMMessenger
 		";
 
 		return $sJS;
+	}
+
+	public static function GetV2TemplateJS(): string
+	{
+		global $USER;
+
+		$counters = (new \Bitrix\Im\V2\Message\CounterService())->get();
+		$recentList = \Bitrix\Im\Recent::getList(null, [
+			'SKIP_NOTIFICATION' => 'Y',
+			'SKIP_OPENLINES' => 'Y',
+			'JSON' => 'Y',
+			'GET_ORIGINAL_TEXT' => 'Y',
+			//'SHORT_INFO' => 'Y',
+		]);
+
+		$chatOptions = CIMChat::GetChatOptions();
+		$marketApps = (new \Bitrix\Im\V2\Marketplace\Application())->toRestFormat();
+		$currentUser =  \CIMContactList::GetUserData([
+			'ID' => $USER->GetID(),
+			'PHONES' => 'Y',
+			'SHOW_ONLINE' => 'N',
+			'EXTRA_FIELDS' => 'Y',
+			'DATE_ATOM' => 'Y'
+		])['users'][$USER->GetID()];
+		$loggerConfig = \Bitrix\Im\Settings::getLoggerConfig();
+		$settings = (new \Bitrix\Im\V2\Settings\UserConfiguration($USER->GetID()))->getGeneralSettings();
+
+		$jsString = "
+			BX.ready(function() {
+				BX.Messenger.v2.Application.Launch('quickAccess', {
+					node: '#bx-im-external-recent-list',
+					preloadedList: " . \Bitrix\Main\Web\Json::encode($recentList) . ",
+					chatOptions: " . \Bitrix\Main\Web\Json::encode($chatOptions) . ",
+					marketApps: " . \Bitrix\Main\Web\Json::encode($marketApps) . ",
+					currentUser: " . \Bitrix\Main\Web\Json::encode($currentUser) . ",
+					loggerConfig: " . \Bitrix\Main\Web\Json::encode($loggerConfig) . ",
+					counters: " . \Bitrix\Main\Web\Json::encode($counters) . ",
+					settings: " . \Bitrix\Main\Web\Json::encode($settings) . ",
+				});
+			});
+		";
+
+		return $jsString;
 	}
 
 	public static function GetMobileDialogTemplateJS($arParams, $arTemplate)
@@ -3669,7 +3834,7 @@ class CIMMessenger
 				$orm = \Bitrix\Im\Model\ChatTable::getById(mb_substr($dialogId, 4));
 				$chat = $orm->fetch();
 
-				$arRelation = CIMChat::GetRelationById(mb_substr($dialogId, 4));
+				$arRelation = CIMChat::GetRelationById(mb_substr($dialogId, 4), false, true, false);
 				$relation = $arRelation;
 
 				if ($chat['ENTITY_TYPE'] != 'LIVECHAT' && !isset($arRelation[$userId]))
@@ -3760,11 +3925,13 @@ class CIMMessenger
 		if (preg_match_all("/\[DISK=([0-9]+)\]/i", $params['MESSAGE'], $matches))
 		{
 			$fileFound = false;
+			$files = [];
 			foreach ($matches[1] as $fileId)
 			{
-				$newFile = CIMDisk::SaveFromLocalDisk($params['CHAT_ID'], $fileId);
+				$newFile = CIMDisk::SaveFromLocalDisk($params['CHAT_ID'], $fileId, false, \Bitrix\Im\Common::getUserId());
 				if ($newFile)
 				{
+					$files[] = $newFile;
 					$fileFound = true;
 					$params['PARAMS']['FILE_ID'][] = $newFile->getId();
 				}
@@ -3772,6 +3939,7 @@ class CIMMessenger
 			if ($fileFound)
 			{
 				$params['MESSAGE'] = preg_replace("/\[DISK\=([0-9]+)\]/i", "", $params['MESSAGE']);
+				$params['FILES_FROM_TEXT'] = $files;
 			}
 		}
 
@@ -3814,11 +3982,11 @@ class CIMMessenger
 
 		if (!isset($params['CHAT_RELATION']))
 		{
-			$params['CHAT_RELATION'] = CIMChat::GetRelationById($params['CHAT_ID']);
+			$params['CHAT_RELATION'] = CIMChat::GetRelationById($params['CHAT_ID'], false, true, false);
 		}
 
 		$forUsers = Array();
-		if (preg_match_all("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", $params['MESSAGE'], $matches))
+		if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $params['MESSAGE'], $matches))
 		{
 			if ($params['CHAT_TYPE'] == IM_MESSAGE_OPEN)
 			{
@@ -4216,18 +4384,19 @@ class CIMMessenger
 		$hasAttach = mb_strpos($params['MESSAGE'], '[ATTACH=') !== false;
 
 		$params['MESSAGE'] = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", " [".GetMessage('IM_MESSAGE_CODE')."] ", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[s\].*?\[\/s\]/i", "-", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[s]([^[]*(?:\[(?!s]|\/s])[^[]*)*)\[\/s]/i", "-", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[b]([^[]*(?:\[(?!b]|\/b])[^[]*)*)\[\/b]/i", "$1", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[i]([^[]*(?:\[(?!i]|\/i])[^[]*)*)\[\/i]/i", "$1", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[u]([^[]*(?:\[(?!u]|\/u])[^[]*)*)\[\/u]/i", "$1", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/i".BX_UTF_PCRE_MODIFIER, "$1", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[USER=([0-9]{1,})\](.+?)\[\/USER\]/i", "$2", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.+?)\[\/USER]/i", "$3", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".GetMessage('IM_MESSAGE_ATTACH')."] ", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $params['MESSAGE']));
 		$params['MESSAGE'] = preg_replace('/^(>>(.*)(\n)?)/mi', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $params['MESSAGE']));
@@ -4246,60 +4415,77 @@ class CIMMessenger
 		{
 			$message['message']['text'] = $message['message']['text_push'];
 		}
-
-		$pushFiles = '';
-		if (isset($message['files']) && count($message['files']) > 0)
+		else
 		{
-			$file = array_values($message['files'])[0];
+			if (isset($message['message']['params']['ATTACH']) && count($message['message']['params']['ATTACH']) > 0)
+			{
+				$attachText = $message['message']['params']['ATTACH'][0]['DESCRIPTION'];
+				if (!$attachText)
+				{
+					$attachText = \Bitrix\Im\Text::getEmoji('attach').' '.GetMessage('IM_MESSAGE_ATTACH');
+				}
 
-			if ($file['type'] === 'image')
-			{
-				$fileName = GetMessage('IM_MESSAGE_IMAGE');
-			}
-			else if ($file['type'] === 'audio')
-			{
-				$fileName = GetMessage('IM_MESSAGE_AUDIO');
-			}
-			else if ($file['type'] === 'video')
-			{
-				$fileName = GetMessage('IM_MESSAGE_VIDEO');
-			}
-			else
-			{
-				$fileName = GetMessage('IM_MESSAGE_FILE').": ".$file['name'];
+				if ($attachText === \CIMMessageParamAttach::SKIP_MESSAGE)
+				{
+					$attachText = '';
+				}
+
+				$message['message']['text'] .=
+					(empty($message['message']['text'])? '': " ")
+					.$attachText
+				;
 			}
 
-			$message['message']['text'] .= $fileName;
+			if (isset($message['files']) && count($message['files']) > 0)
+			{
+				$file = array_values($message['files'])[0];
+
+				if ($file['type'] === 'image')
+				{
+					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_IMAGE');
+				}
+				else if ($file['type'] === 'audio')
+				{
+					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_AUDIO');
+				}
+				else if ($file['type'] === 'video')
+				{
+					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_VIDEO');
+				}
+				else
+				{
+					$fileName = \Bitrix\Im\Text::getEmoji('file', GetMessage('IM_MESSAGE_FILE').":")." ".$file['name'];
+				}
+
+				$message['message']['text'] .= trim($fileName);
+			}
 		}
 
-		$hasAttach = mb_strpos($message['message']['text'], '[ATTACH=') !== false;
+		$codeIcon = \Bitrix\Im\Text::getEmoji('code', "[".GetMessage('IM_MESSAGE_CODE')."]");
+		$quoteIcon = \Bitrix\Im\Text::getEmoji('quote', "[".GetMessage('IM_QUOTE')."]");
 
-		$message['message']['text'] = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", " [".GetMessage('IM_MESSAGE_CODE')."] ", $message['message']['text']);
+		$message['message']['text'] = str_replace("\n", " ", $message['message']['text']);
+
+		$message['message']['text'] = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", " ".$codeIcon." ", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[s\].*?\[\/s\]/i", "-", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/i".BX_UTF_PCRE_MODIFIER, "$1", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[USER=([0-9]{1,})\](.+?)\[\/USER\]/i", "$2", $message['message']['text']);
+		$message['message']['text'] = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.+?)\[\/USER]/i", "$3", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/i", "$3", $message['message']['text']);
+		$message['message']['text'] = preg_replace("/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/i", "$3", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".GetMessage('IM_MESSAGE_ATTACH')."] ", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $message['message']['text']);
-		$message['message']['text'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
-		$message['message']['text'] = preg_replace('/^(>>(.*)(\n)?)/mi', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
+		$message['message']['text'] = preg_replace('#\-{54}.+?\-{54}#s', " ".$quoteIcon." ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
+		$message['message']['text'] = preg_replace('/^(>>(.*)(\n)?)/mi', " ".$quoteIcon." ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
 		$message['message']['text'] = preg_replace("/\\[color\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/color\\]/is".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\\[size\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/size\\]/is".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
 
-		if (!$pushFiles && !$hasAttach && isset($message['message']['params']['ATTACH']))
-		{
-			$message['message']['text'] .= "\n [".GetMessage('IM_MESSAGE_ATTACH')."]";
-		}
-
-		return $message['message']['text'];
+		return trim($message['message']['text']);
 	}
 
 	public static function PrepareEventForPush($command, $event)
@@ -4494,10 +4680,6 @@ class CIMMessenger
 			{
 				$message['system'] = 'Y';
 			}
-			if ($eventMessage['textOriginal'] && mb_strlen($eventMessage['textOriginal']) < 500)
-			{
-				$message['textOriginal'] = (string)$eventMessage['textOriginal'];
-			}
 
 			$result['message'] = $message;
 		}
@@ -4541,7 +4723,7 @@ class CIMMessenger
 			"network" => 406,
 
 
-			"textOriginal" => 60,
+			"textLegacy" => 65,
 			"date" => 61,
 			"prevId" => 62,
 			"params" => 63,

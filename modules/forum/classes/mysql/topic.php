@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/topic.php");
 
 class CForumTopic extends CAllForumTopic
@@ -9,6 +9,8 @@ class CForumTopic extends CAllForumTopic
 		$arOrder = (is_array($arOrder) ? $arOrder : array());
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		$selectTopCount = isset($arAddParams['nTopCount']) ? (int) $arAddParams['nTopCount'] : 0;
+		$descPageNumbering = isset($arAddParams['bDescPageNumbering']) && $selectTopCount <= 0;
 		$arSqlSearch = array();
 		$arSqlSelect = array();
 		$arSqlGroup = array();
@@ -130,7 +132,7 @@ class CForumTopic extends CAllForumTopic
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
-		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0))
+		if ($bCount || $descPageNumbering)
 		{
 			$strSql = 
 				"SELECT COUNT(FT.ID) as CNT 
@@ -215,14 +217,13 @@ class CForumTopic extends CAllForumTopic
 				$strSqlOrder;
 		}
 
-		$iNum = intval($iNum);
-		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0)
+		$limit = $iNum > 0 ? (int)$iNum : $selectTopCount;
+		if ($limit > 0)
 		{
-			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
-			$strSql .= "\nLIMIT 0,".$iNum;
+			$strSql .= "\nLIMIT 0,".$limit;
 		}
 		
-		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0)
+		if (!$iNum && $descPageNumbering)
 		{
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
@@ -234,7 +235,7 @@ class CForumTopic extends CAllForumTopic
 		return new _CTopicDBResult($db_res, $arAddParams);
 	}
 
-	public static function GetListEx($arOrder = Array("SORT"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = array())
+	public static function GetListEx($arOrder = Array("SORT"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = [])
 	{
 		global $DB, $USER;
 		$arOrder = (is_array($arOrder) ? $arOrder : array());
@@ -251,6 +252,8 @@ class CForumTopic extends CAllForumTopic
 		$strSqlOrder = "";
 		$UseGroup = false;
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		$selectTopCount = isset($arAddParams['nTopCount']) ? (int) $arAddParams['nTopCount'] : 0;
+		$descPageNumbering = isset($arAddParams['bDescPageNumbering']) && $selectTopCount <= 0;
 
 		foreach ($arFilter as $key => $val)
 		{
@@ -511,7 +514,7 @@ class CForumTopic extends CAllForumTopic
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 		endif;
 
-		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"])<=0))
+		if ($bCount || $descPageNumbering)
 		{
 			$strSql = "SELECT COUNT(FT.ID) as CNT FROM b_forum_topic FT ";
 
@@ -610,12 +613,12 @@ class CForumTopic extends CAllForumTopic
 		}
 
 		$iNum = intval($iNum);
-		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0)
+		$limit = $iNum ?? $selectTopCount;
+		if ($limit > 0)
 		{
-			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
-			$strSql .= "\nLIMIT 0,".$iNum;
+			$strSql .= "\nLIMIT 0,".$limit;
 		}
-		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0)
+		if (!$iNum && $descPageNumbering)
 		{
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);

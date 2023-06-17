@@ -4,7 +4,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Landing\Update\Block\DuplicateImages;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Landing\Manager;
@@ -30,32 +29,12 @@ class LandingDesignBlockComponent extends LandingBaseComponent
 			function(\Bitrix\Main\Event $event) use ($params)
 			{
 				$result = new \Bitrix\Main\Entity\EventResult;
-				$options['params'] = (array)$params['PARAMS'];
+				$options['params'] = (array) ($params['PARAMS'] ?? []);
 				$options['params']['type'] = $params['TYPE'];
 				$result->modifyFields([
 					'options' => $options
 				]);
 				return $result;
-			}
-		);
-	}
-
-	/**
-	 * Handler on view block
-	 * @return void
-	 */
-	protected function onBlockEditView(): void
-	{
-		$eventManager = EventManager::getInstance();
-		$eventManager->addEventHandler('landing', 'onBlockEditView',
-			function(\Bitrix\Main\Event $event)
-			{
-				$blockUpdater = new DuplicateImages(null, [
-					'block' => $event->getParameter('block'),
-					'content' => $event->getParameter('outputContent'),
-				]);
-
-				return $blockUpdater->update(false);
 			}
 		);
 	}
@@ -133,7 +112,6 @@ class LandingDesignBlockComponent extends LandingBaseComponent
 						$this->arResult['BLOCK_INSTANCE'] = $blockInstance;
 						$this->arResult['BLOCK_MANIFEST'] = Block::getManifestFile($blockInstance->getCode());
 						$this->onLandingView();
-						$this->onBlockEditView();
 						$this->onEpilog();
 					}
 					else

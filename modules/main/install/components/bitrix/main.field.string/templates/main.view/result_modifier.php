@@ -1,6 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Page\Asset;
@@ -8,8 +11,14 @@ use Bitrix\Main\Page\Asset;
 CJSCore::init(['uf']);
 $i = 0;
 
+/** @var $arResult [] */
 foreach($arResult['value'] as $key => $value)
 {
+	if (!is_scalar($value))
+	{
+		$value = '';
+	}
+
 	if($arResult['userField']['SETTINGS']['ROWS'] < 2)
 	{
 		$value = HtmlFilter::encode($value);
@@ -20,7 +29,7 @@ foreach($arResult['value'] as $key => $value)
 	}
 
 	$href = '';
-	if($arResult['userField']['PROPERTY_VALUE_LINK'] <> '')
+	if (isset($arResult['userField']['PROPERTY_VALUE_LINK']) && $arResult['userField']['PROPERTY_VALUE_LINK'] <> '')
 	{
 		$href = HtmlFilter::encode(
 			str_replace(
@@ -33,7 +42,7 @@ foreach($arResult['value'] as $key => $value)
 
 	$arResult['value'][$key] = [
 		'value' => $value,
-		'href' => $href
+		'href' => $href,
 	];
 
 	/**

@@ -31,7 +31,7 @@ div.bx-debug-content-table tr.cache-row td {white-space:nowrap;}
 div.bx-debug-content-table tr.heading-bottom td {padding:3px 3px 9px 3px !important;}
 div.bx-debug-content-table td {padding-right:4px !important; padding-bottom:4px !important;}
 div.bx-debug-content-table td.number {padding-right:4px !important; padding-bottom:4px !important; text-align:right !important; white-space:nowrap !important}
-div.bx-debug-content-top {padding:12px; position:relative; top:0px; left:0px; height:120px; overflow:auto; border-bottom:1px solid #D0D0D0;}
+div.bx-debug-content-top {padding:12px; position:relative; top:0; left:0; height:120px; overflow:auto; border-bottom:1px solid #D0D0D0;}
 </style><?
 
 if ($bShowTime || $bShowStat || $bShowCacheStat)
@@ -46,38 +46,33 @@ if ($bShowExtTime)
 {
 	$CURRENT_TIME = microtime(true);
 
-	$PROLOG_AFTER_2 = (float)START_EXEC_PROLOG_AFTER_2;
-	$PROLOG_AFTER_1 = (float)START_EXEC_PROLOG_AFTER_1;
-	$PROLOG_AFTER = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
+	$PROLOG_BEFORE_1 = START_EXEC_PROLOG_BEFORE_1;
+	$PROLOG_BEFORE = START_EXEC_PROLOG_BEFORE_2 - $PROLOG_BEFORE_1;
 
-	$AGENTS = 0;
-	if (defined("START_EXEC_AGENTS_1") && defined("START_EXEC_AGENTS_2"))
+	$PROLOG_AFTER = 0;
+	$PROLOG_AFTER_2 = START_EXEC_PROLOG_BEFORE_2;
+	if (defined('START_EXEC_PROLOG_AFTER_2') && defined('START_EXEC_PROLOG_AFTER_1'))
 	{
-		$AGENTS_2 = (float)START_EXEC_AGENTS_2;
-		$AGENTS_1 = (float)START_EXEC_AGENTS_1;
-		$AGENTS = $AGENTS_2 - $AGENTS_1;
+		$PROLOG_AFTER_2 = START_EXEC_PROLOG_AFTER_2;
+		$PROLOG_AFTER_1 = START_EXEC_PROLOG_AFTER_1;
+		$PROLOG_AFTER = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
 	}
 
-	$PROLOG_BEFORE_1 = (float)START_EXEC_PROLOG_BEFORE_1;
-	$PROLOG_BEFORE = $PROLOG_AFTER_1 - $PROLOG_BEFORE_1 - $AGENTS;
+	$PROLOG = $PROLOG_BEFORE + $PROLOG_AFTER;
 
-	$PROLOG = $PROLOG_AFTER_2 - $PROLOG_BEFORE_1;
-
+	$EPILOG_BEFORE = 0;
+	$EPILOG_AFTER = 0;
+	$EPILOG = 0;
 	if (defined("START_EXEC_EPILOG_BEFORE_1"))
 	{
-		$EPILOG_BEFORE_1 = (float)START_EXEC_EPILOG_BEFORE_1;
+		$EPILOG_BEFORE_1 = START_EXEC_EPILOG_BEFORE_1;
 		$WORK_AREA = $EPILOG_BEFORE_1 - $PROLOG_AFTER_2;
 
 		if (defined("START_EXEC_EPILOG_AFTER_1"))
 		{
-			$EPILOG_AFTER_1 = (float)START_EXEC_EPILOG_AFTER_1;
+			$EPILOG_AFTER_1 = START_EXEC_EPILOG_AFTER_1;
 			$EPILOG_BEFORE = $EPILOG_AFTER_1 - $EPILOG_BEFORE_1;
 			$EPILOG_AFTER = $CURRENT_TIME - $EPILOG_AFTER_1;
-		}
-		else
-		{
-			$EPILOG_BEFORE = 0;
-			$EPILOG_AFTER = 0;
 		}
 
 		$EPILOG = $CURRENT_TIME - $EPILOG_BEFORE_1;
@@ -85,23 +80,19 @@ if ($bShowExtTime)
 	else
 	{
 		$WORK_AREA = $CURRENT_TIME - $PROLOG_AFTER_2;
-		$EPILOG_BEFORE = 0;
-		$EPILOG_AFTER = 0;
-		$EPILOG = 0;
 	}
 
 	$PAGE = $CURRENT_TIME - $PROLOG_BEFORE_1;
 
 	$arAreas = [
-		"PAGE" => ["FLT" => ["PB", "AG", "PA", "WA", "EB", "EV", "EA"], "TIME" => $PAGE],
-		"PROLOG" => ["FLT" => ["PB", "AG", "PA"                        ], "TIME" => $PROLOG],
-		"PROLOG_BEFORE" => ["FLT" => ["PB"                                    ], "TIME" => $PROLOG_BEFORE],
-		"AGENTS" => ["FLT" => [      "AG"                              ], "TIME" => $AGENTS],
-		"PROLOG_AFTER" => ["FLT" => [            "PA"                        ], "TIME" => $PROLOG_AFTER],
-		"WORK_AREA" => ["FLT" => [                  "WA"                  ], "TIME" => $WORK_AREA],
-		"EPILOG" => ["FLT" => [                        "EB", "EV", "EA"], "TIME" => $EPILOG],
-		"EPILOG_BEFORE" => ["FLT" => [                        "EB"            ], "TIME" => $EPILOG_BEFORE],
-		"EPILOG_AFTER" => ["FLT" => [                              "EV", "EA"], "TIME" => $EPILOG_AFTER],
+		"PAGE" => ["FLT" => ["PB", "PA", "WA", "EB", "EV", "EA"], "TIME" => $PAGE],
+		"PROLOG" => ["FLT" => ["PB", "PA"], "TIME" => $PROLOG],
+		"PROLOG_BEFORE" => ["FLT" => ["PB"], "TIME" => $PROLOG_BEFORE],
+		"PROLOG_AFTER" => ["FLT" => ["PA"], "TIME" => $PROLOG_AFTER],
+		"WORK_AREA" => ["FLT" => ["WA"], "TIME" => $WORK_AREA],
+		"EPILOG" => ["FLT" => ["EB", "EV", "EA"], "TIME" => $EPILOG],
+		"EPILOG_BEFORE" => ["FLT" => ["EB"], "TIME" => $EPILOG_BEFORE],
+		"EPILOG_AFTER" => ["FLT" => ["EV", "EA"], "TIME" => $EPILOG_AFTER],
 	];
 
 	$j = 1;
@@ -165,7 +156,7 @@ if ($bShowExtTime)
 		}
 	}
 
-	$bShowComps = count($APPLICATION->arIncludeDebug) > 0;
+	$bShowComps = !empty($APPLICATION->arIncludeDebug);
 
 	foreach ($arAreas as $i => $arArea)
 	{
@@ -382,9 +373,9 @@ if ($bShowStat || $bShowCacheStat) //2
 		$obJSPopup->jsPopup = 'BX_DEBUG_INFO_'.$i;
 		$obJSPopup->StartDescription('bx-core-debug-info');
 		?>
-		<p><?=Loc::getMessage("debug_info_path")?> <?=$arIncludeDebug["PATH"]?></p>
-		<p><?=Loc::getMessage("debug_info_time")?> <?=$arIncludeDebug["TIME"]?> <?echo Loc::getMessage("debug_info_sec")?></p>
-		<p><?=Loc::getMessage("debug_info_queries")?> <?=$arIncludeDebug["QUERY_COUNT"]?>, <?echo Loc::getMessage("debug_info_time1")?> <?=$arIncludeDebug["QUERY_TIME"]?> <?echo Loc::getMessage("debug_info_sec")?><?if($arIncludeDebug["TIME"] > 0):?> (<?=round($arIncludeDebug["QUERY_TIME"]/$arIncludeDebug["TIME"]*100, 2)?>%)<?endif?></p>
+		<p><?=Loc::getMessage("debug_info_path")?> <?=($arIncludeDebug["PATH"] ?? '')?></p>
+		<p><?=Loc::getMessage("debug_info_time")?> <?=($arIncludeDebug["TIME"] ?? '')?> <?echo Loc::getMessage("debug_info_sec")?></p>
+		<p><?=Loc::getMessage("debug_info_queries")?> <?=($arIncludeDebug["QUERY_COUNT"] ?? '')?>, <?echo Loc::getMessage("debug_info_time1")?> <?=($arIncludeDebug["QUERY_TIME"] ?? '')?> <?echo Loc::getMessage("debug_info_sec")?><?if(isset($arIncludeDebug["TIME"]) && $arIncludeDebug["TIME"] > 0):?> (<?=round($arIncludeDebug["QUERY_TIME"]/$arIncludeDebug["TIME"]*100, 2)?>%)<?endif?></p>
 		<p><?=Loc::getMessage("debug_info_search")?>: <input type="text" style="height:16px" onkeydown="filterTable(this, 'queryDebug<?echo $i?>', 1)" onpaste="filterTable(this, 'queryDebug<?echo $i?>', 1)" oninput="filterTable(this, 'queryDebug<?echo $i?>', 1)"></p><?
 
 		$obJSPopup->StartContent(['buffer' => true]);
@@ -395,6 +386,11 @@ if ($bShowStat || $bShowCacheStat) //2
 				foreach ($arIncludeDebug["QUERIES"] as $j => $arQueryDebug)
 				{
 					$strSql = $arQueryDebug["QUERY"];
+
+					if (!isset($arQueries[$strSql]["COUNT"]))
+					{
+						$arQueries[$strSql]["COUNT"] = 0;
+					}
 					$arQueries[$strSql]["COUNT"]++;
 					$arQueries[$strSql]["CALLS"][] = [
 						"TIME"=>$arQueryDebug["TIME"],
@@ -492,9 +488,9 @@ if ($bShowStat || $bShowCacheStat) //2
 		$obJSPopup = new CJSPopupOnPage('', array());
 		$obJSPopup->jsPopup = 'BX_DEBUG_INFO_CACHE_'.$i;
 		$obJSPopup->StartDescription('bx-core-debug-info');
-		?><p><?echo Loc::getMessage("debug_info_cache_size")?> <?=CFile::FormatSize($arIncludeDebug["CACHE_SIZE"], 0)?></p><?
+		?><p><?echo Loc::getMessage("debug_info_cache_size")?> <?=CFile::FormatSize($arIncludeDebug["CACHE_SIZE"] ?? 0, 0)?></p><?
 		$obJSPopup->StartContent(array('buffer' => true));
-		if ($arIncludeDebug["CACHE"] && !empty($arIncludeDebug["CACHE"]))
+		if (isset($arIncludeDebug["CACHE"]) && !empty($arIncludeDebug["CACHE"]))
 		{
 			?>
 			<div class="bx-debug-content bx-debug-content-table">
@@ -628,14 +624,12 @@ if($bShowExtTime)
 				<p><a style="font-weight:bold !important" href="javascript:jsDebugTimeWindow.ShowDetails('BX_DEBUG_TIME_1_2')"><?=Loc::getMessage("debug_info_prolog")?></a></p>
 				<p>
 					&nbsp;&nbsp;<a href="javascript:jsDebugTimeWindow.ShowDetails('BX_DEBUG_TIME_1_3')"><?=Loc::getMessage("debug_info_prolog_before")?></a><br>
-					&nbsp;&nbsp;<a href="javascript:jsDebugTimeWindow.ShowDetails('BX_DEBUG_TIME_1_4')"><?=Loc::getMessage("debug_info_agents")?></a><br>
 					&nbsp;&nbsp;<a href="javascript:jsDebugTimeWindow.ShowDetails('BX_DEBUG_TIME_1_5')"><?=Loc::getMessage("debug_info_prolog_after")?></a><br>
 				</p>
 			<?else:?>
 				<p><b><?=Loc::getMessage("debug_info_prolog")?></b></p>
 				<p>
 					&nbsp;&nbsp;<?=Loc::getMessage("debug_info_prolog_before")?><br>
-					&nbsp;&nbsp;<?=Loc::getMessage("debug_info_agents")?><br>
 					&nbsp;&nbsp;<?=Loc::getMessage("debug_info_prolog_after")?><br>
 				</p>
 			<?endif?>
@@ -644,7 +638,6 @@ if($bShowExtTime)
 			<p><b><?echo number_format($PROLOG/$PAGE*100, 2),"%"?></b></p>
 			<p>
 				<?echo number_format($PROLOG_BEFORE/$PAGE*100, 2),"%"?><br>
-				<?echo number_format($AGENTS/$PAGE*100, 2),"%"?><br>
 				<?echo number_format($PROLOG_AFTER/$PAGE*100, 2),"%"?><br>
 			</p>
 		</td>
@@ -652,7 +645,6 @@ if($bShowExtTime)
 			<p><b><?echo number_format($PROLOG, 4)?></b></p>
 			<p>
 				<?echo number_format($PROLOG_BEFORE, 4)?><br>
-				<?echo number_format($AGENTS, 4)?><br>
 				<?echo number_format($PROLOG_AFTER, 4)?><br>
 			</p>
 		</td>
@@ -661,7 +653,6 @@ if($bShowExtTime)
 				<p><b><?echo intval($arAreas["PROLOG"]["TRACE"]["COMPONENT_COUNT"])?></b></p>
 				<p>
 					<?echo intval($arAreas["PROLOG_BEFORE"]["TRACE"]["COMPONENT_COUNT"])?><br>
-					<?echo intval($arAreas["AGENTS"]["TRACE"]["COMPONENT_COUNT"])?><br>
 					<?echo intval($arAreas["PROLOG_AFTER"]["TRACE"]["COMPONENT_COUNT"])?><br>
 				</p>
 			</td>
@@ -669,7 +660,6 @@ if($bShowExtTime)
 				<p><b><?echo number_format($arAreas["PROLOG"]["TRACE"]["COMPONENT_TIME"], 4)?></b></p>
 				<p>
 					<?echo number_format($arAreas["PROLOG_BEFORE"]["TRACE"]["COMPONENT_TIME"], 4)?><br>
-					<?echo number_format($arAreas["AGENTS"]["TRACE"]["COMPONENT_TIME"], 4)?><br>
 					<?echo number_format($arAreas["PROLOG_AFTER"]["TRACE"]["COMPONENT_TIME"], 4)?><br>
 				</p>
 			</td>
@@ -679,7 +669,6 @@ if($bShowExtTime)
 				<p><b><?echo $arAreas["PROLOG"]["TRACE"]["QUERY_COUNT"]+$arAreas["PROLOG"]["TRACE"]["COMP_QUERY_COUNT"]?></b></p>
 				<p>
 					<?echo $arAreas["PROLOG_BEFORE"]["TRACE"]["QUERY_COUNT"]+$arAreas["PROLOG_BEFORE"]["TRACE"]["COMP_QUERY_COUNT"]?><br>
-					<?echo $arAreas["AGENTS"]["TRACE"]["QUERY_COUNT"]+$arAreas["AGENTS"]["TRACE"]["COMP_QUERY_COUNT"]?><br>
 					<?echo $arAreas["PROLOG_AFTER"]["TRACE"]["QUERY_COUNT"]+$arAreas["PROLOG_AFTER"]["TRACE"]["COMP_QUERY_COUNT"]?><br>
 				</p>
 			</td>
@@ -687,7 +676,6 @@ if($bShowExtTime)
 				<p><b><?echo number_format($arAreas["PROLOG"]["TRACE"]["QUERY_TIME"]+$arAreas["PROLOG"]["TRACE"]["COMP_QUERY_TIME"], 4)?></b></p>
 				<p>
 					<?echo number_format($arAreas["PROLOG_BEFORE"]["TRACE"]["QUERY_TIME"]+$arAreas["PROLOG_BEFORE"]["TRACE"]["COMP_QUERY_TIME"], 4)?><br>
-					<?echo number_format($arAreas["AGENTS"]["TRACE"]["QUERY_TIME"]+$arAreas["AGENTS"]["TRACE"]["COMP_QUERY_TIME"], 4)?><br>
 					<?echo number_format($arAreas["PROLOG_AFTER"]["TRACE"]["QUERY_TIME"]+$arAreas["PROLOG_AFTER"]["TRACE"]["COMP_QUERY_TIME"], 4)?><br>
 				</p>
 			</td>
@@ -868,8 +856,11 @@ if($bShowExtTime)
 
 ?></div><?
 	if (
-		$_GET["show_sql_stat"] === "Y"
+		isset($_GET["show_sql_stat"])
+		&& $_GET["show_sql_stat"] === "Y"
+		&& isset($_GET["show_page_exec_time"])
 		&& $_GET["show_page_exec_time"] === "Y"
+		&& isset($_GET["show_sql_stat_immediate"])
 		&& $_GET["show_sql_stat_immediate"] === "Y"
 		&& preg_match("#/admin/perfmon_hit_list.php#", $_SERVER["HTTP_REFERER"])
 	)

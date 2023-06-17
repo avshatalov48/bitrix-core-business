@@ -309,8 +309,11 @@ class Location extends ExternalLocationMap
 
 		$dbRes = $con->query($query);
 
-		while($ethLoc = $dbRes->fetch())
+		$lastLocationId = 0;
+
+		while ($ethLoc = $dbRes->fetch())
 		{
+			$lastLocationId = (int)$ethLoc['ID'];
 			$locationId = self::getLocationIdByNames($ethLoc['NAME'], $ethLoc['PCITY'], $ethLoc['PSUBREGION'], $ethLoc['PREGION'], $ethLoc['PCOUNTRY'], true);
 
 			if(!$locationId)
@@ -324,11 +327,13 @@ class Location extends ExternalLocationMap
 					$imported++;
 			}
 
-			if($timeout > 0 && (mktime(true)-$startTime) >= $timeout)
-				return intval($ethLoc['ID']);
+			if ($timeout > 0 && (mktime(true)-$startTime) >= $timeout)
+			{
+				return $lastLocationId;
+			}
 		}
 
-		return intval($ethLoc['ID']) > 0 ? intval($ethLoc['ID']) : 0;
+		return $lastLocationId;
 	}
 
 	protected static function mapByCodes($srvId)

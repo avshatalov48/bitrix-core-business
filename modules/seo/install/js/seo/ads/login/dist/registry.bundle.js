@@ -6,7 +6,6 @@ this.BX.Seo = this.BX.Seo || {};
 	var Login = /*#__PURE__*/function () {
 	  function Login() {
 	    var _options$provider;
-
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	      provider: {
 	        TYPE: null,
@@ -16,12 +15,15 @@ this.BX.Seo = this.BX.Seo || {};
 	    babelHelpers.classCallCheck(this, Login);
 	    this.provider = (_options$provider = options.provider) !== null && _options$provider !== void 0 ? _options$provider : null;
 	  }
-
 	  babelHelpers.createClass(Login, [{
 	    key: "login",
 	    value: function login() {
 	      if (this.provider && main_core.Type.isString(this.provider['AUTH_URL'])) {
-	        BX.util.popup(this.provider.AUTH_URL, 800, 600);
+	        if (this.provider['TYPE'] && this.provider['TYPE'] === 'vkads') {
+	          BX.util.popup(this.provider.AUTH_URL, 1200, 600);
+	        } else {
+	          BX.util.popup(this.provider.AUTH_URL, 800, 600);
+	        }
 	      }
 	    }
 	  }]);
@@ -106,28 +108,23 @@ this.BX.Seo = this.BX.Seo || {};
 	  created: function created() {
 	    for (var _i = 0, _Object$entries = Object.entries(this.setup); _i < _Object$entries.length; _i++) {
 	      var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	          field = _Object$entries$_i[0],
-	          value = _Object$entries$_i[1];
-
+	        field = _Object$entries$_i[0],
+	        value = _Object$entries$_i[1];
 	      if (this.defaultSetup[field] && this.defaultSetup[field].value) {
 	        this.setup[field] = this.defaultSetup[field].value;
 	      }
-
 	      if (this.defaultSetup[field] && this.defaultSetup[field].set) {
 	        this.values[field] = this.defaultSetup[field].set;
 	      }
 	    }
-
 	    for (var _i2 = 0, _Object$entries2 = Object.entries(this.config); _i2 < _Object$entries2.length; _i2++) {
 	      var _Object$entries2$_i = babelHelpers.slicedToArray(_Object$entries2[_i2], 2),
-	          _field = _Object$entries2$_i[0],
-	          _value = _Object$entries2$_i[1];
-
+	        _field = _Object$entries2$_i[0],
+	        _value = _Object$entries2$_i[1];
 	      if (this.defaultConfig[_field] && this.defaultConfig[_field].value) {
 	        this.checked[_field] = !!this.defaultConfig[_field].value;
 	        this.config[_field] = this.defaultConfig[_field].value;
 	      }
-
 	      this.available[_field] = !!this.defaultConfig[_field];
 	    }
 	  },
@@ -137,16 +134,13 @@ this.BX.Seo = this.BX.Seo || {};
 	    },
 	    getConfig: function getConfig() {
 	      var _this = this;
-
 	      return Object.entries(this.checked).reduce(function (result, _ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            field = _ref2[0],
-	            value = _ref2[1];
-
+	          field = _ref2[0],
+	          value = _ref2[1];
 	        if (value && _this.availableProps[field]) {
 	          result[field] = _this.config[field];
 	        }
-
 	        return result;
 	      }, {});
 	    },
@@ -163,80 +157,65 @@ this.BX.Seo = this.BX.Seo || {};
 	      if (main_core.Type.isString(url)) {
 	        return url.search(/^((https:\/\/)|(www\.)|(http:\/\/))([a-z0-9-].?)+(:[0-9]+)?(\/.*)?$/i) === 0;
 	      }
-
 	      return false;
 	    },
 	    checkDomain: function checkDomain(domain) {
 	      if (main_core.Type.isString(domain)) {
 	        return domain.search(/^((https:\/\/)|(http:\/\/)){1}[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}$/i) === 0;
 	      }
-
 	      return false;
 	    },
 	    getSetupPropertiesStatus: function getSetupPropertiesStatus() {
 	      var _this$getSetup,
-	          _this2 = this;
-
+	        _this2 = this;
 	      return Object.entries((_this$getSetup = this.getSetup()) !== null && _this$getSetup !== void 0 ? _this$getSetup : {}).reduce(function (result, _ref3) {
 	        var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
-	            key = _ref4[0],
-	            value = _ref4[1];
-
+	          key = _ref4[0],
+	          value = _ref4[1];
 	        if (main_core.Type.isString(value) && value.length > 0) {
 	          switch (key) {
 	            case 'timezone':
 	              result[key] = _this2.values.timezone.includes(value);
 	              break;
-
 	            case 'currency':
 	              result[key] = _this2.values.currency.includes(value);
 	              break;
-
 	            case 'business_vertical':
 	              result[key] = ['ECOMMERCE', 'SERVICES'].includes(value);
 	              break;
 	          }
 	        }
-
 	        return result;
 	      }, {});
 	    },
 	    getConfigPropertiesStatus: function getConfigPropertiesStatus() {
 	      var _this$getConfig,
-	          _this3 = this;
-
+	        _this3 = this;
 	      return Object.entries((_this$getConfig = this.getConfig()) !== null && _this$getConfig !== void 0 ? _this$getConfig : {}).reduce(function (result, _ref5) {
 	        var _ref6 = babelHelpers.slicedToArray(_ref5, 2),
-	            key = _ref6[0],
-	            value = _ref6[1];
-
+	          key = _ref6[0],
+	          value = _ref6[1];
 	        result[key] = Object.entries(value).reduce(function (propertyResult, _ref7) {
 	          var _ref8 = babelHelpers.slicedToArray(_ref7, 2),
-	              propertyKey = _ref8[0],
-	              propertyValue = _ref8[1];
-
+	            propertyKey = _ref8[0],
+	            propertyValue = _ref8[1];
 	          if (!['cta_button_text', 'see_all_url', 'cta_button_url', 'title', 'name', 'domains'].includes(propertyKey)) {
 	            return propertyResult;
 	          }
-
 	          switch (propertyKey) {
 	            case 'cta_button_text':
 	              return propertyResult = propertyResult && main_core.Type.isString(propertyValue) && propertyValue.length > 0 && ['Reserve', 'Book Now', 'Buy Now', 'Book'].includes(propertyValue);
-
 	            case 'see_all_url':
 	            case 'cta_button_url':
 	              return propertyResult = propertyResult && main_core.Type.isString(propertyValue) && propertyValue.length > 0 && _this3.checkUrl(propertyValue);
-
 	            case 'title':
 	            case 'name':
 	              return propertyResult = propertyResult && main_core.Type.isString(propertyValue) && propertyValue.length > 0;
-
 	            case 'domains':
 	              return propertyResult = propertyResult && main_core.Type.isArray(propertyValue) && propertyValue.length > 0 && propertyValue.reduce(function (value, domain) {
 	                return value && _this3.checkDomain(domain);
 	              }, true);
 	          }
-
 	          return propertyResult;
 	        }, true);
 	        return result;
@@ -252,22 +231,19 @@ this.BX.Seo = this.BX.Seo || {};
 	    focusOnWrongProperty: function focusOnWrongProperty() {
 	      for (var _i3 = 0, _Object$entries3 = Object.entries(this.getPropertiesStatus()); _i3 < _Object$entries3.length; _i3++) {
 	        var _Object$entries3$_i = babelHelpers.slicedToArray(_Object$entries3[_i3], 2),
-	            key = _Object$entries3$_i[0],
-	            value = _Object$entries3$_i[1];
-
+	          key = _Object$entries3$_i[0],
+	          value = _Object$entries3$_i[1];
 	        if (!value && this.$refs[key]) {
 	          this.$refs[key].scrollIntoView();
 	        }
 	      }
-
 	      return this;
 	    },
 	    validate: function validate() {
 	      return Object.entries(this.getPropertiesStatus()).reduce(function (result, _ref9) {
 	        var _ref10 = babelHelpers.slicedToArray(_ref9, 2),
-	            key = _ref10[0],
-	            value = _ref10[1];
-
+	          key = _ref10[0],
+	          value = _ref10[1];
 	        return result && value;
 	      }, true);
 	    }
@@ -294,19 +270,16 @@ this.BX.Seo = this.BX.Seo || {};
 
 	var FacebookLogin = /*#__PURE__*/function (_Login) {
 	  babelHelpers.inherits(FacebookLogin, _Login);
-
 	  function FacebookLogin() {
 	    babelHelpers.classCallCheck(this, FacebookLogin);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FacebookLogin).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(FacebookLogin, [{
 	    key: "login",
 	    value: function login() {
 	      var _this = this,
-	          _BX$SidePanel$Instanc,
-	          _BX$SidePanel$Instanc2;
-
+	        _BX$SidePanel$Instanc,
+	        _BX$SidePanel$Instanc2;
 	      BX.SidePanel.Instance.open('seo-fbe-install', {
 	        contentCallback: function contentCallback(slider) {
 	          return BX.UI.SidePanel.Layout.createContent({
@@ -325,7 +298,6 @@ this.BX.Seo = this.BX.Seo || {};
 	                }
 	              }).then(function (response) {
 	                var _slider$getData$set;
-
 	                return (_slider$getData$set = slider.getData().set('setup', response.data)) !== null && _slider$getData$set !== void 0 ? _slider$getData$set : true;
 	              }).then(function () {
 	                return BX.ajax.runAction('seo.api.business.config.default', {
@@ -333,7 +305,6 @@ this.BX.Seo = this.BX.Seo || {};
 	                });
 	              }).then(function (response) {
 	                var _slider$getData$set2;
-
 	                return (_slider$getData$set2 = slider.getData().set('config', response.data)) !== null && _slider$getData$set2 !== void 0 ? _slider$getData$set2 : true;
 	              }).then(function () {
 	                slider.getData().set('COMPONENT_KEY', new FacebookLoginComponent({
@@ -347,7 +318,7 @@ this.BX.Seo = this.BX.Seo || {};
 	            },
 	            buttons: function buttons(_ref) {
 	              var cancelButton = _ref.cancelButton,
-	                  SaveButton = _ref.SaveButton;
+	                SaveButton = _ref.SaveButton;
 	              return [new SaveButton({
 	                onclick: function onclick() {
 	                  return _this.submit();
@@ -366,19 +337,15 @@ this.BX.Seo = this.BX.Seo || {};
 	    key: "reject",
 	    value: function reject() {
 	      var _BX$SidePanel$Instanc3;
-
 	      (_BX$SidePanel$Instanc3 = BX.SidePanel.Instance.getSlider('seo-fbe-install')) === null || _BX$SidePanel$Instanc3 === void 0 ? void 0 : _BX$SidePanel$Instanc3.close();
 	    }
 	  }, {
 	    key: "submit",
 	    value: function submit() {
 	      var _this2 = this;
-
 	      var slider = BX.SidePanel.Instance.getSlider('seo-fbe-install');
-
 	      if (slider && slider.getData().has('COMPONENT_KEY')) {
 	        slider.close();
-
 	        if (slider.getData().get('COMPONENT_KEY').validate()) {
 	          this.servicePopup = BX.util.popup('', 800, 600);
 	          BX.ajax.runAction('seo.api.business.extension.install', {
@@ -398,13 +365,11 @@ this.BX.Seo = this.BX.Seo || {};
 	            }
 	          }, function (response) {
 	            _this2.servicePopup.close();
-
 	            BX.UI.Dialogs.MessageBox.alert(main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_ERROR_CONTENT'), main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_ERROR_TITLE'));
 	          });
 	        } else {
 	          slider.getData().get('COMPONENT_KEY').alert(main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_ERROR_TITLE'), main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_FIELDS_ERROR_CONTENT'), function (messageBox) {
 	            messageBox.close();
-
 	            _this2.login();
 	          });
 	        }
@@ -418,26 +383,21 @@ this.BX.Seo = this.BX.Seo || {};
 	  function LoginFactory() {
 	    babelHelpers.classCallCheck(this, LoginFactory);
 	  }
-
 	  babelHelpers.createClass(LoginFactory, null, [{
 	    key: "getLoginObject",
 	    value: function getLoginObject(provider) {
 	      if (provider && provider.TYPE) {
 	        var _this$pool$provider$E;
-
 	        var loginObject;
-
 	        switch (provider.TYPE) {
 	          case "facebook":
 	          case "instagram":
 	            loginObject = FacebookLogin;
 	            break;
-
 	          default:
 	            loginObject = Login;
 	            break;
 	        }
-
 	        return this.pool[provider.ENGINE_CODE] = (_this$pool$provider$E = this.pool[provider.ENGINE_CODE]) !== null && _this$pool$provider$E !== void 0 ? _this$pool$provider$E : new loginObject({
 	          provider: provider
 	        });

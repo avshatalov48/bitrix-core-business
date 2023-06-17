@@ -23,7 +23,7 @@ if ($arID = $lAdmin->GroupAction())
 		if ($ID == '')
 			continue;
 
-		if ($_REQUEST['action'] == 'delete')
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'delete')
 		{
 			$arSmileSet = CSmileSet::getById($ID);
 			if (!in_array($arSmileSet["STRING_ID"], Array('bitrix_main')))

@@ -247,16 +247,20 @@ class ByLocation extends Base
 		{
 			if($d2l['LOCATION_TYPE'] == $class::DB_LOCATION_FLAG)
 			{
-				if(!is_array($result[$d2l['LOCATION_CODE']]))
-					$result[$d2l['LOCATION_CODE']] = array();
+				if (!isset($result[$d2l['LOCATION_CODE']]))
+				{
+					$result[$d2l['LOCATION_CODE']] = [];
+				}
 
 				if(!in_array($d2l['DELIVERY_ID'] ,$result[$d2l['LOCATION_CODE']]))
 					$result[$d2l['LOCATION_CODE']][] = $d2l['DELIVERY_ID'];
 			}
 			elseif($d2l['LOCATION_TYPE'] == $class::DB_GROUP_FLAG)
 			{
-				if(!is_array($groups[$d2l['LOCATION_CODE']]))
-					$groups[$d2l['LOCATION_CODE']] = array();
+				if (!isset($groups[$d2l['LOCATION_CODE']]))
+				{
+					$groups[$d2l['LOCATION_CODE']] = [];
+				}
 
 				if(!in_array($d2l['DELIVERY_ID'] ,$groups[$d2l['LOCATION_CODE']]))
 					$groups[$d2l['LOCATION_CODE']][] = $d2l['DELIVERY_ID'];

@@ -103,11 +103,8 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 
 			if ($subDomain = $this->request('SUBDOMAIN'))
 			{
-				$prefix = null;
-				Domain::getBitrix24Subdomain($siteInfo['DOMAIN_NAME'], $prefix);
-				$newDomain = $subDomain . $prefix;
-
-				if ($siteInfo['DOMAIN_NAME'] !== $newDomain)
+				$newDomain = $subDomain . $this->getPostfix();
+				if ($siteInfo['DOMAIN_NAME'] != $newDomain)
 				{
 					$update['DOMAIN_ID'] = $newDomain;
 				}
@@ -161,7 +158,6 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 
 	/**
 	 * Returns postfix for bitrix24 domain.
-	 * @deprecated since 23.0.0
 	 * @return string
 	 */
 	protected function getPostfix(): string
@@ -785,9 +781,9 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 					$this->arResult['SITE']['ID']
 				);
 				$this->arResult['SITE']['SUBDOMAIN_NAME'] = Domain::getBitrix24Subdomain(
-					$this->arResult['SITE']['DOMAIN_NAME'],
-					$this->arResult['SITE']['POSTFIX']
+					$this->arResult['SITE']['DOMAIN_NAME']
 				);
+				$this->arResult['SITE']['POSTFIX'] = $this->getPostfix();
 			}
 			else
 			{

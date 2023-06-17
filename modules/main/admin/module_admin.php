@@ -29,7 +29,7 @@ $isAdmin = $USER->CanDoOperation('edit_other_settings');
 
 IncludeModuleLangFile(__FILE__);
 
-$id = $_REQUEST["id"];
+$id = $_REQUEST["id"] ?? null;
 
 $arModules = array();
 function OnModuleInstalledEvent($id)
@@ -47,6 +47,11 @@ $folders = array(
 );
 foreach ($folders as $folder)
 {
+	if (!file_exists($_SERVER["DOCUMENT_ROOT"].$folder))
+	{
+		continue;
+	}
+
 	$handle = @opendir($_SERVER["DOCUMENT_ROOT"].$folder);
 	if ($handle)
 	{
@@ -56,7 +61,7 @@ foreach ($folders as $folder)
 				!isset($arModules[$dir])
 				&& is_dir($_SERVER["DOCUMENT_ROOT"].$folder . "/" . $dir)
 				&& !in_array($dir, ['.', '..', 'main'], true)
-				&& mb_strpos($dir, ".") === false
+				&& strpos($dir, ".") === false
 			)
 			{
 				$module_dir = $_SERVER["DOCUMENT_ROOT"] . $folder . "/" . $dir;
@@ -68,8 +73,8 @@ foreach ($folders as $folder)
 					$arModules[$dir]["MODULE_VERSION"] = $info->MODULE_VERSION;
 					$arModules[$dir]["MODULE_VERSION_DATE"] = $info->MODULE_VERSION_DATE;
 					$arModules[$dir]["MODULE_SORT"] = $info->MODULE_SORT;
-					$arModules[$dir]["MODULE_PARTNER"] = (mb_strpos($dir, ".") !== false) ? $info->PARTNER_NAME : "";
-					$arModules[$dir]["MODULE_PARTNER_URI"] = (mb_strpos($dir, ".") !== false) ? $info->PARTNER_URI : "";
+					$arModules[$dir]["MODULE_PARTNER"] = (strpos($dir, ".") !== false) ? $info->PARTNER_NAME : "";
+					$arModules[$dir]["MODULE_PARTNER_URI"] = (strpos($dir, ".") !== false) ? $info->PARTNER_URI : "";
 					$arModules[$dir]["IsInstalled"] = $info->IsInstalled();
 				}
 			}
@@ -88,25 +93,18 @@ foreach ($folders as $folder)
 $fb = ($id === 'fileman' && !$USER->CanDoOperation('fileman_install_control'));
 if ($isAdmin && !$fb && check_bitrix_sessid())
 {
-	if ($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '')
+	if (!empty($_REQUEST["uninstall"]) || !empty($_REQUEST["install"]))
 	{
 		$id = str_replace("\\", "", str_replace("/", "", $id));
 		if ($Module = CModule::CreateModuleObject($id))
 		{
-			if (
-				$_REQUEST["uninstall"] <> ''
-				&& $Module->IsInstalled()
-			)
+			if (!empty($_REQUEST["uninstall"]) && $Module->IsInstalled())
 			{
 				OnModuleInstalledEvent($id);
 				$Module->DoUninstall();
 				LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID);
 			}
-			elseif (
-				$_REQUEST["install"] <> ''
-				&& !$Module->IsInstalled()
-
-			)
+			elseif (!empty($_REQUEST["install"]) && !$Module->IsInstalled())
 			{
 				if ($DB->type === "MYSQL" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 				{
@@ -123,7 +121,7 @@ if ($isAdmin && !$fb && check_bitrix_sessid())
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-		if ($_REQUEST["id"] === "main")
+		if (isset($_REQUEST["id"]) && $_REQUEST["id"] === "main")
 		{
 			$fn = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php";
 		}
@@ -132,7 +130,7 @@ if ($isAdmin && !$fb && check_bitrix_sessid())
 			$fn = $_SERVER["DOCUMENT_ROOT"].getLocalPath("modules/".preg_replace("/[^a-z0-9.]/", "", $_REQUEST["id"])."/install/version.php");
 		}
 
-		$count = (int)$_REQUEST['count'];
+		$count = isset($_REQUEST['count']) ? (int)$_REQUEST['count'] : 0;
 		$count = $count > 0? $count: 1;
 
 		if (file_exists($fn) && is_file($fn))

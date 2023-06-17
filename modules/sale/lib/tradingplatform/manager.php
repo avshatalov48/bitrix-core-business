@@ -35,6 +35,10 @@ class Manager
 		}
 
 		$platform = Sale\TradingPlatformTable::getRowById($id);
+		if ($platform === null)
+		{
+			return null;
+		}
 		if (class_exists($platform['CLASS']))
 		{
 			return $platform['CLASS']::getInstanceByCode($platform['CODE']);

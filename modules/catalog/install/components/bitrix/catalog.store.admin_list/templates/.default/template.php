@@ -11,9 +11,6 @@ global $APPLICATION;
 
 $APPLICATION->SetTitle(Loc::getMessage('CATALOG_STORE_LIST_TITLE'));
 
-$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'no-background');
-
 $this->setViewTarget('above_pagetitle');
 $APPLICATION->IncludeComponent(
 	'bitrix:catalog.store.document.control_panel',

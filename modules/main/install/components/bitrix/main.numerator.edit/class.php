@@ -21,8 +21,8 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 	/** @inheritdoc */
 	public function executeComponent()
 	{
-		$this->arResult['numeratorType'] = isset($this->arParams["NUMERATOR_TYPE"]) ? $this->arParams["NUMERATOR_TYPE"] : 'DEFAULT';
-		$this->arResult['isEmbedMode'] = isset($this->arParams["IS_EMBED_FORM"]) ? $this->arParams["IS_EMBED_FORM"] : false;
+		$this->arResult['numeratorType'] = $this->arParams["NUMERATOR_TYPE"] ?? 'DEFAULT';
+		$this->arResult['isEmbedMode'] = $this->arParams["IS_EMBED_FORM"] ?? false;
 		$numeratorSettingsFields = Numerator::getSettingsFields($this->arResult['numeratorType']);
 		$this->arResult['numeratorSettingsFields'] = $numeratorSettingsFields['settingsFields'];
 		$this->arResult['numeratorTemplateWords'] = $numeratorSettingsFields['settingsWords'];

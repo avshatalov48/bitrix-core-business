@@ -1,0 +1,105 @@
+.bx-im-smiles-content__scope {
+	--im-smiles-content__max-size_smile: 115px;
+	--im-smiles-content__min-size_smile: 28px;
+	--im-smiles-content__size_emoji: 28px;
+	--im-smiles-content__image-size_set: 28px;
+	--im-smiles-content__background-color_scroll: rgba(82, 92, 105, .3);
+	--im-smiles-content__background-color_scroll-hover: rgba(82, 92, 105, .5);
+	--im-smiles-content__background-color_scroll-active: rgba(82, 92, 105, .8);
+}
+
+.bx-im-smiles-content__smiles-box {
+	box-sizing: border-box;
+	height: 250px;
+	overflow-y: auto;
+	padding: 10px;
+	scrollbar-width: thin;
+}
+
+.bx-im-smiles-content__smiles-box::-webkit-scrollbar {
+	width: 6px;
+}
+
+.bx-im-smiles-content__smiles-box::-webkit-scrollbar-thumb {
+	background: var(--im-smiles-content__background-color_scroll);
+	border-radius: 32px;
+}
+
+.bx-im-smiles-content__smiles-box::-webkit-scrollbar-thumb:hover {
+	background: var(--im-smiles-content__background-color_scroll-hover);
+}
+
+.bx-im-smiles-content__smiles-box::-webkit-scrollbar-thumb:active {
+	background: var(--im-smiles-content__background-color_scroll-active);
+}
+
+.bx-im-smiles-content__smiles-box_smile {
+	cursor: pointer;
+	max-width: var(--im-smiles-content__max-size_smile);
+	max-height: var(--im-smiles-content__max-size_smile);
+	min-width: var(--im-smiles-content__min-size_smile);
+	min-height: var(--im-smiles-content__min-size_smile);
+	margin: 10px;
+	object-fit: contain;
+}
+
+.bx-im-smiles-content__smiles-box_category {
+	font: var(--im-font-size-xs) var(--im-font-family-open-sans);
+	font-weight: var(--im-font-weight-semi-bold);
+}
+
+.bx-im-smiles-content__smiles-box_category-title {
+	color: var(--im-color-palette-gray-70);
+	margin: 5px 0 0 0;
+	padding-left: 10px;
+}
+
+.bx-im-smiles-content__smiles-box_category-emoji {
+	cursor: pointer;
+	display: inline-block;
+	font-size: var(--im-smiles-content__size_emoji);
+	margin: 7px;
+	text-align: center;
+	width: calc(100%/6 - 14px);
+}
+
+.bx-im-smiles-content__sets {
+	background-color: var(--im-color-palette-gray-04);
+	border-radius: 0 0 10px 10px;
+	padding: 4px 0 0 19px;
+	user-select: none;
+}
+
+.bx-im-smiles-content__sets_set {
+	cursor: pointer;
+	display: inline-block;
+	margin-right: 7px;
+	padding: 0 3px 10px 3px;
+	position: relative;
+}
+
+.bx-im-smiles-content__sets_set.--selected:after {
+	background: #00ADE3;
+	border-radius: 2px 2px 0 0;
+	height: 3px;
+	content: '';
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: absolute;
+}
+
+.bx-im-smiles-content__sets_set.--emoji {
+	font-size: var(--im-smiles-content__size_emoji);
+	line-height: 36px;
+}
+
+.bx-im-smiles-content__sets_set.--img {
+	vertical-align: bottom;
+}
+
+.bx-im-smiles-content__sets_set.--img img {
+	object-fit: contain;
+	height: var(--im-smiles-content__image-size_set);
+	width: var(--im-smiles-content__image-size_set);
+}

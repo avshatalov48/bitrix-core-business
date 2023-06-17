@@ -17,6 +17,7 @@ $component = $this->getComponent();
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UI;
 use Bitrix\Main\Page\Asset;
 
@@ -25,13 +26,13 @@ $error = false;
 
 $this->setFrameMode(true);
 
-if ($arResult["NEED_AUTH"] === "Y")
+if (($arResult["NEED_AUTH"] ?? '') === "Y")
 {
 	$APPLICATION->AuthForm("");
 }
 elseif (
 	isset($arResult["FatalError"])
-	&& $arResult["FatalError"] <> ''
+	&& !empty($arResult["FatalError"])
 )
 {
 	if (in_array($arResult['PAGE_MODE'], ['refresh', 'next' ]))
@@ -89,7 +90,7 @@ if (
 		&& SITE_TEMPLATE_ID === "bitrix24"
 		&& (
 			(
-				ModuleManager::isModuleInstalled('bitrix24')
+				Loader::includeModule('bitrix24')
 				&& CBitrix24::isPortalAdmin($arResult["currentUserId"])
 			)
 			|| (
@@ -157,7 +158,7 @@ if (
 			"SHOW_YEAR" => $arParams["SHOW_YEAR"],
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
-			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
+			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"] ?? null,
 			"PATH_TO_VIDEO_CALL" => $arParams["~PATH_TO_VIDEO_CALL"],
 		],
 		false,
@@ -257,7 +258,7 @@ if (
 				sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
 				sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
 				sonetLCanDelete : '<?=($arResult["CAN_DELETE"] ? 'Y' : 'N')?>',
-				sonetLForumID : <?= (int)$arParams["FORUM_ID"] ?>,
+				sonetLForumID : <?= (int) ($arParams["FORUM_ID"] ?? null) ?>,
 				SONET_C30_T_LINK_COPIED: '<?=GetMessageJS("SONET_C30_T_LINK_COPIED")?>',
 				SONET_C30_T_EMPTY: '<?=GetMessageJS("SONET_C30_T_EMPTY")?>',
 				SONET_C30_T_EMPTY_SEARCH: '<?=GetMessageJS("SONET_C30_T_EMPTY_SEARCH")?>'
@@ -288,7 +289,7 @@ if (
 			?>
 			BX.ready(function(){
 				oLF.init({
-					firstPageLastTS : <?= (int)$arResult["dateLastPageTS"] ?>,
+					firstPageLastTS : <?= (int) ($arResult["dateLastPageTS"] ?? 0) ?>,
 					firstPageLastId : <?= (int)$arResult["dateLastPageId"] ?>,
 					useBXMainFilter: '<?=(isset($arParams["useBXMainFilter"]) && $arParams["useBXMainFilter"] === 'Y' ? 'Y' : 'N')?>',
 					blogCommentFormUID: '<?= (!empty($arParams['BLOG_UID']) ? CUtil::JSEscape($arParams['BLOG_UID']) : '') ?>',
@@ -451,7 +452,7 @@ if (
 
 	if(
 		$arResult['PAGE_MODE'] === 'first'
-		&& $arResult["ErrorMessage"] <> ''
+		&& ($arResult["ErrorMessage"] ?? '') <> ''
 	)
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?php
@@ -522,7 +523,7 @@ if (
 	}
 
 	if (
-		$arParams["SHOW_NAV_STRING"] !== "N"
+		($arParams["SHOW_NAV_STRING"] ?? '') !== "N"
 		&& is_array($arResult["Events"])
 	)
 	{

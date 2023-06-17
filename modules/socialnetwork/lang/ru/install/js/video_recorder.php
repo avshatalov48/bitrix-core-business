@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BLOG_VIDEO_RECORD_BUTTON"] = "Записать видео";
 $MESS["BLOG_VIDEO_RECORD_CANCEL_BUTTON"] = "Отменить";
 $MESS["BLOG_VIDEO_RECORD_LOGO"] = "<span class=\"logo\"><span class=\"logo-text\">Битрикс</span><span class=\"logo-color\">24</span></span>";
@@ -17,4 +17,4 @@ $MESS["BLOG_VIDEO_RECORD_SPOTLIGHT_MESSAGE"] = "<b>Записывайте вид
 $MESS["BLOG_VIDEO_RECORD_TRANFORM_LIMIT_TEXT"] = "Чтобы видео можно было запустить прямо в Битрикс24, закончите запись в течение <span class=\"bx-videomessage-transform-time-tip\">60 секунд</span> Если получится дольше, то мы обязательно сохраним его, но файл может воспроизводиться не во всех браузерах.";
 $MESS["BLOG_VIDEO_RECORD_RESTART_BUTTON"] = "Записать заново";
 $MESS["BLOG_VIDEO_RECORD_ERROR_CHROME_HTTPS"] = "К сожалению, в вашем браузере не поддерживается http протокол.<br /><br />Попробуйте другой браузер, например, Firefox";
-?>
+$MESS["BLOG_VIDEO_RECORD_DEFAULT_CAMERA_NAME"] = "Камера";

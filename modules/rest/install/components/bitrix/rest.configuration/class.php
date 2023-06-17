@@ -82,9 +82,10 @@ class RestConfigurationComponent extends CBitrixComponent
 				'APP'
 			];
 			$variableList = [];
+			$sefUrlTemplate = $this->arParams['SEF_URL_TEMPLATES'] ?? null;
 			$urlTemplateList = CComponentEngine::makeComponentUrlTemplates(
 				$defaultUrlTemplate404List,
-				$this->arParams['SEF_URL_TEMPLATES']
+				$sefUrlTemplate
 			);
 			$variableAliasList = CComponentEngine::makeComponentVariableAliases(
 				$defaultVariableAliases404,

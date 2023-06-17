@@ -74,12 +74,6 @@ $enablePhoneVerification =
 
 <script type="text/javascript">
 	BX.ready(function () {
-		<?php if ($enablePhoneVerification): ?>
-		BX.Bitrix24.PhoneVerify
-			.setVerified(false)
-			.setMandatory(false);
-		<?php endif; ?>
-
 		BX.Sender.Message.Tester.init(<?=Json::encode(array(
 			'id' => $arParams['ID'],
 			'containerId' => $containerId,

@@ -20,7 +20,6 @@ import {DeviceType, DeviceOrientation} from 'im.const';
 import {Utils} from "im.lib.utils";
 import {ImBasePullHandler} from "im.provider.pull";
 import {CoreRestHandler} from "im.provider.rest";
-
 import {ApplicationController} from "./application";
 import {Logger} from "im.lib.logger";
 

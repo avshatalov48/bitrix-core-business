@@ -218,7 +218,7 @@ Loc::loadMessages(__FILE__);
 										false
 									);
 									?>
-									<? if (isset($data['METHOD_URL_NEEDED']) && $data['METHOD_URL_NEEDED'] !== 'N'): ?>
+									<?php if (!isset($data['METHOD_URL_NEEDED']) || $data['METHOD_URL_NEEDED'] !== 'N'): ?>
 										<div class="integration-method-href">
 											<a
 												href="" target="_blank" data-key="<?=$data['CODE']?>"
@@ -607,7 +607,7 @@ Loc::loadMessages(__FILE__);
 										<?php
 										$needShowMoreBtn = false;
 										foreach ($arResult['LANG_LIST_AVAILABLE'] as $lid => $lang):
-											$value = $arResult['APPLICATION_LANG_DATA'][$lid];
+											$value = $arResult['APPLICATION_LANG_DATA'][$lid] ?? null;
 											$required = in_array($lid, $arResult['LANG_LIST'], true);
 											$hidden = empty($value) && !$required;
 											if ($hidden)

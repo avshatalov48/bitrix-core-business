@@ -7,6 +7,8 @@
  * UPDATE: Loader idea doesn't work because of type hints and instanceof - alias should be loaded before these constructions.
  */
 
+use Bitrix\Main\Data\ICacheEngineStat;
+
 class_alias('Bitrix\Main\ORM\Fields\IReadable', 'Bitrix\Main\Entity\Field\IReadable');
 class_alias('Bitrix\Main\ORM\Fields\IStorable', 'Bitrix\Main\Entity\Field\IStorable');
 class_alias('Bitrix\Main\ORM\Fields\BooleanField', 'Bitrix\Main\Entity\BooleanField');
@@ -71,3 +73,6 @@ class_alias('Bitrix\Main\ORM\EventResult', 'Bitrix\Main\Entity\EventResult');
 
 class_alias('Bitrix\Main\Entity\UField', 'Bitrix\Main\ORM\UField');
 #class_alias('Bitrix\Main\UserField\Types\BaseType', 'Bitrix\Main\UserField\TypeBase');
+
+class_alias('Bitrix\Main\Data\CacheEngineInterface', 'Bitrix\Main\Data\ICacheEngine');
+class_alias('Bitrix\Main\Data\CacheEngineStatInterface', 'Bitrix\Main\Data\ICacheEngineStat');

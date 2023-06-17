@@ -247,7 +247,7 @@ class EventManager
 			$connection->query($strSql);
 		}
 
-		return count($rows) > 0 ? self::class . '::cleanUpAttachmentAgent();' : '';
+		return !empty($rows) ? self::class . '::cleanUpAttachmentAgent();' : '';
 	}
 
 	/**

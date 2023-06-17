@@ -18,7 +18,4 @@ $MESS["C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1"] = "Menge auf Lager";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED"] = "Reserviert";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_STORE"] = "Lager";
 $MESS["C_PVG_STORE_CREATE_BARCODE_PLACEHOLDER"] = "Neuen Strichcode eingeben";
-$MESS["C_PVG_UNSAVED_DATA_CONTINUE"] = "Ohne Speichern fortfahren";
-$MESS["C_PVG_UNSAVED_DATA_MESSAGE"] = "Nicht gespeicherte Daten gehen verloren, wenn die Einstellungen der Variantenansicht geändert werden.";
-$MESS["C_PVG_UNSAVED_DATA_TITLE"] = "Es gibt nicht gespeicherte Daten";
 $MESS["C_PVG_VARIATIONS_TITLE"] = "Varianten";

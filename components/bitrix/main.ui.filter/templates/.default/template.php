@@ -30,9 +30,10 @@ global $USER;
 $arParams["CONFIG"] = $component->prepareConfig();
 $currentPreset = $arResult["CURRENT_PRESET"];
 $isCurrentPreset = (
-		(($currentPreset["ID"] !== "default_filter" && $currentPreset["ID"] !== "tmp_filter") ||
-		 ($currentPreset["ID"] === "default_filter" && $currentPreset["FIELDS_COUNT"] > 0) ||
-		 ($currentPreset["ID"] === "tmp_filter" && $currentPreset["FIELDS_COUNT"] > 0))
+		!isset($currentPreset["ID"])
+		|| ($currentPreset["ID"] !== "default_filter" && $currentPreset["ID"] !== "tmp_filter")
+		|| ($currentPreset["ID"] === "default_filter" && $currentPreset["FIELDS_COUNT"] > 0)
+		|| ($currentPreset["ID"] === "tmp_filter" && $currentPreset["FIELDS_COUNT"] > 0)
 );
 
 if (!empty($arResult["TARGET_VIEW_ID"]))
@@ -67,6 +68,7 @@ if ($arResult["DISABLE_SEARCH"] || !$arParams["CONFIG"]["SEARCH"])
 
 if (
 	$arResult["THEME"] === \Bitrix\Main\UI\Filter\Theme::LIGHT
+	&& isset($arResult["CURRENT_PRESET"]["FIND"])
 	&& strlen($arResult["CURRENT_PRESET"]["FIND"]) > 0
 )
 {
@@ -143,7 +145,7 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 				<div class="main-ui-filter-sidebar-item-container">
 					<? if (is_array($arResult["PRESETS"])) : ?>
 						<? foreach ($arResult["PRESETS"] as $key => $preset) : ?>
-							<div class="main-ui-filter-sidebar-item<?=$preset["ID"] === $arResult["CURRENT_PRESET"]["ID"] ? " main-ui-filter-current-item" : ""?><?
+							<div class="main-ui-filter-sidebar-item<?=(isset($arResult["CURRENT_PRESET"]["ID"]) && $preset["ID"] === $arResult["CURRENT_PRESET"]["ID"]) ? " main-ui-filter-current-item" : ""?><?
 							?><?=$preset["ID"] === "default_filter" || $preset["ID"] === "tmp_filter" ? " main-ui-hide" : ""?><?
 							?><?=!empty($preset["IS_PINNED"]) && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " main-ui-item-pin" : ""?>" data-id="<?=htmlspecialcharsbx($preset["ID"])?>"<?
 							?><?=!empty($preset["IS_PINNED"]) && $arParams["CONFIG"]["DEFAULT_PRESET"] ? " title=\"".Loc::getMessage("MAIN_UI_FILTER__IS_SET_AS_DEFAULT_PRESET")."\"" : " "?>>

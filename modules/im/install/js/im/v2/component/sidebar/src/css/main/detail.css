@@ -1,0 +1,83 @@
+.bx-im-sidebar-main-detail__scope {
+	--im-sidebar-main-detail__color_user-separator: #f9fafa;
+	--im-sidebar-main-detail__background-color_user: #f1f4f6;
+	--im-sidebar-main-detail__color_position: #959CA4;
+	--im-sidebar-main-detail__border-color_invitation-button: #DFE0E3;
+	--im-sidebar-main-detail__color_invitation-button-text: #11A9D9;
+	--im-sidebar-main-detail__background-color_invitation-button: #fff;
+	--im-sidebar-main-detail__background_link-icon: url('../images/invitation-link-icon.svg') no-repeat center;
+}
+
+.bx-im-sidebar-main-detail__invitation-button-container {
+	display: flex;
+	justify-content: center;
+	padding: 16px 17px 9px 17px;
+}
+
+.bx-im-sidebar-main-detail__user {
+	display: flex;
+	height: 70px;
+	padding: 0 19px 16px 10px;
+	margin-left: 6px;
+	border-radius: 8px;
+	align-items: center;
+	position: relative;
+}
+
+.bx-im-sidebar-main-detail__user:hover {
+	background-color: var(--im-sidebar-main-detail__background-color_user);
+}
+
+.bx-im-sidebar-main-detail__user:before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: auto;
+	height: 1px;
+	width: calc(100% - 30px);
+	background-color: var(--im-sidebar-main-detail__color_user-separator);
+}
+
+.bx-im-sidebar-main-detail__avatar-container {
+	position: relative;
+	padding-top: 12px;
+}
+
+.bx-im-sidebar-main-detail__avatar-moderator-icon {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: 10px;
+	left: 29px;
+	border-radius: 50%;
+	background: #fff url('../images/moderator-crown.svg') no-repeat center;
+}
+
+.bx-im-sidebar-main-detail__user-info-container {
+	display: flex;
+	flex-direction: column;
+	margin-left: 10px;
+	flex-grow: 1;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-main-detail__user-title-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 5px;
+}
+
+.bx-im-sidebar-main-detail__position-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-sidebar-main-detail__color_position);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-main-detail__context-menu-icon {
+	flex-shrink: 0;
+	cursor: pointer;
+}

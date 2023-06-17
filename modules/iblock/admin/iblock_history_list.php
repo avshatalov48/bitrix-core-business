@@ -41,8 +41,10 @@ if(!$zr=$z->Fetch())
 // this is uniqu ajax id
 $sTableID = "tbl_iblock_history";
 // sort init
-$oSort = new CAdminSorting($sTableID, "ID", "desc");
-$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$oSort = new CAdminSorting($sTableID, "ID", "DESC");
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+$arOrder = ($by === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 // list init
 $lAdmin = new CAdminList($sTableID, $oSort);
 
@@ -144,8 +146,6 @@ if(($arID = $lAdmin->GroupAction()))
 }
 
 // dataset
-global $by, $order;
-
 $rsData = CIBlockElement::WF_GetHistoryList($ELEMENT_ID, $by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
@@ -267,8 +267,16 @@ $chain->AddItem(array(
 
 if($find_section_section > 0)
 {
-	$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
-	while($ar_nav = $nav->GetNext())
+	$nav = CIBlockSection::GetNavChain(
+		$IBLOCK_ID,
+		$find_section_section,
+		[
+			'ID',
+			'NAME',
+		],
+		true
+	);
+	foreach ($nav as $ar_nav)
 	{
 		$sSectionUrl = CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>$ar_nav["ID"]));
 		$chain->AddItem(array(

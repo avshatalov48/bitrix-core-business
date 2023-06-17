@@ -1568,7 +1568,12 @@ class CAllIBlockSection
 
 		if(($IBLOCK_SECTION_ID > 0) && ($this->LAST_ERROR == ''))
 		{
-			$rsParent = $DB->Query("SELECT ID, IBLOCK_ID FROM b_iblock_section WHERE ID = ".$IBLOCK_SECTION_ID);
+			$sqlCheck = 'select ID, IBLOCK_ID from b_iblock_section where ID = ' . $IBLOCK_SECTION_ID;
+			if ($ID !== false)
+			{
+				$sqlCheck .= ' and ID != '.(int)$ID;
+			}
+			$rsParent = $DB->Query($sqlCheck);
 			$arParent = $rsParent->Fetch();
 			if(!$arParent)
 				$this->LAST_ERROR = GetMessage("IBLOCK_BAD_BLOCK_SECTION_PARENT")."<br>";
@@ -2227,7 +2232,8 @@ class CAllIBlockSection
 		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre>";
 		$res = $DB->Query($strSql);
 		$res = $res->Fetch();
-		return $res["CNT"];
+
+		return (int)($res['CNT'] ?? 0);
 	}
 
 	protected static function _check_rights_sql($min_permission, $permissionsBy = null)
@@ -2342,7 +2348,7 @@ class CAllIBlockSection
 		return $strResult;
 	}
 
-	public static function GetCount($arFilter=Array())
+	public static function GetCount($arFilter = [])
 	{
 		global $DB, $USER;
 
@@ -2357,8 +2363,13 @@ class CAllIBlockSection
 			if ($permissionsBy < 0)
 				$permissionsBy = null;
 		}
-		if($bCheckPermissions && ($permissionsBy !== null || !$bIsAdmin))
-			$arSqlSearch[] = self::_check_rights_sql($arFilter["MIN_PERMISSION"], $permissionsBy);
+		if ($bCheckPermissions && ($permissionsBy !== null || !$bIsAdmin))
+		{
+			$arSqlSearch[] = self::_check_rights_sql(
+				$arFilter['MIN_PERMISSION'] ?? CIBlockRights::PUBLIC_READ,
+				$permissionsBy
+			);
+		}
 		unset($permissionsBy);
 
 		$strSqlSearch = "";
@@ -2376,7 +2387,8 @@ class CAllIBlockSection
 
 		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		$res_cnt = $res->Fetch();
-		return (int)$res_cnt["C"];
+
+		return (int)($res_cnt["C"] ?? 0);
 	}
 
 	public static function UserTypeRightsCheck($entity_id)
@@ -2458,20 +2470,23 @@ class CAllIBlockSection
 		return self::$arSectionPathCache[$sectionId];
 	}
 
-	public static function getSectionCode($sectionId)
+	public static function getSectionCode($sectionId): string
 	{
 		global $DB;
 
-		$sectionId = intval($sectionId);
-		if (!array_key_exists($sectionId, self::$arSectionCodeCache))
+		$sectionId = (int)$sectionId;
+		if (!isset(self::$arSectionCodeCache[$sectionId]))
 		{
-			self::$arSectionCodeCache[$sectionId] = "";
+			self::$arSectionCodeCache[$sectionId] = '';
 			$res = $DB->Query("SELECT IBLOCK_ID, CODE FROM b_iblock_section WHERE ID = ".$sectionId);
-			while ($a = $res->Fetch())
+			$a = $res->Fetch();
+			unset($res);
+			if ($a)
 			{
-				self::$arSectionCodeCache[$sectionId] = rawurlencode($a["CODE"]);
+				self::$arSectionCodeCache[$sectionId] = rawurlencode($a['CODE']);
 			}
 		}
+
 		return self::$arSectionCodeCache[$sectionId];
 	}
 

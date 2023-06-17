@@ -170,26 +170,41 @@ class Site
 			Rights::setContextUserId($userId);
 		}
 
-		$data = $content['~DATA'];
-
-		// if created page in exists site
-		$isPageImport = false;
+		// if all import - add page in current site
+		$isPageImport = $return['RATIO']['IS_PAGE_IMPORT'] ?? false;
+		// if only current step add page
+		$isPageStep = false;
 		if (isset($ratio[$code]['SITE_ID']) && (int)$ratio[$code]['SITE_ID'] > 0)
 		{
-			$isPageImport = true;
+			$isPageStep = true;
 		}
 		elseif ($additional && (int)$additional['siteId'] > 0)
 		{
-			$isPageImport = true;
+			$isPageStep = true;
 			$return['RATIO']['SITE_ID'] = (int)$additional['siteId'];
+			if (!isset($return['RATIO']['IS_PAGE_IMPORT']))
+			{
+				$isPageImport = true;
+			}
+		}
+
+		$return['RATIO']['IS_PAGE_IMPORT'] = $isPageImport;
+
+		// common ratio params
+		$data = self::prepareData($content['~DATA']);
+		$data = self::prepareAdditionalFields($data, $additional);
+		if (!isset($return['RATIO']['SPECIAL_PAGES']))
+		{
+			$return['RATIO']['SPECIAL_PAGES'] = [
+				'LANDING_ID_INDEX' => isset($data['LANDING_ID_INDEX']) ? (int)$data['LANDING_ID_INDEX'] : 0,
+				'LANDING_ID_404' => isset($data['LANDING_ID_404']) ? (int)$data['LANDING_ID_404'] : 0,
+				'LANDING_ID_503' => isset($data['LANDING_ID_503']) ? (int)$data['LANDING_ID_503'] : 0
+			];
 		}
 
 		// site import
-		if (!$isPageImport)
+		if (!$isPageStep)
 		{
-			$data = self::prepareData($data);
-			$data = self::prepareAdditionalFields($data, $additional);
-
 			Type::setScope($data['TYPE']);
 			$res = self::importSite($data, $structure);
 			if ($res->isSuccess())
@@ -203,11 +218,7 @@ class Site
 				$return['RATIO']['TYPE'] = $data['TYPE'];
 				$return['RATIO']['FOLDERS_NEW'] = $data['FOLDERS_NEW'] ?? [];
 				$return['RATIO']['SYS_PAGES'] = $data['SYS_PAGES'];
-				$return['RATIO']['SPECIAL_PAGES'] = [
-					'LANDING_ID_INDEX' => isset($data['LANDING_ID_INDEX']) ? (int)$data['LANDING_ID_INDEX'] : 0,
-					'LANDING_ID_404' => isset($data['LANDING_ID_404']) ? (int)$data['LANDING_ID_404'] : 0,
-					'LANDING_ID_503' => isset($data['LANDING_ID_INDEX']) ? (int)$data['LANDING_ID_503'] : 0
-				];
+
 				if (isset($data['TEMPLATES']) && is_array($data['TEMPLATES']))
 				{
 					$return['RATIO']['TEMPLATES'] = $data['TEMPLATES'];
@@ -230,14 +241,14 @@ class Site
 		}
 
 		// something went wrong, site was not created
-		if (!$isPageImport && !isset($return['RATIO']['SITE_ID']))
+		if (!isset($return['RATIO']['SITE_ID']))
 		{
 			$return['ERROR_EXCEPTION'][] = Loc::getMessage('LANDING_IMPORT_ERROR_SITE_ID_NOT_FOUND');
 			return $return;
 		}
 
 		// skip import site step if import page in existing site
-		if ($isPageImport && !isset($data['SITE_ID']))
+		if (!isset($data['SITE_ID']))
 		{
 			return $return;
 		}
@@ -646,13 +657,16 @@ class Site
 			}
 
 			//set default additional fields for page
-			self::setAdditionalPageFields($mainPageId, $additional);
+			if ($mainPageId)
+			{
+				self::setAdditionalPageFields($mainPageId, $additional);
+			}
 
 			Rights::setGlobalOn();
 
 			// link for "go to site" button
 			$linkAttrs = [
-				'class' => 'ui-btn ui-btn-lg ui-btn-primary',
+				'class' => 'ui-btn ui-btn-md ui-btn-success ui-btn-round',
 				'data-is-site' => 'Y',
 				'data-site-id' => $siteId,
 				'href' => '#' . $siteId,
@@ -663,12 +677,14 @@ class Site
 				$linkAttrs['data-is-landing'] = 'Y';
 				$linkAttrs['data-landing-id'] = $mainPageId;
 			}
+			$linkText = Loc::getMessage('LANDING_IMPORT_FINISH_GOTO_SITE');
 			if ($siteType === 'KNOWLEDGE')
 			{
 				$linkAttrs['href'] = \Bitrix\Landing\Site::getPublicUrl($siteId);
 			}
 			elseif ($siteType === 'PAGE' && empty($additional))
 			{
+				$linkText = Loc::getMessage('LANDING_IMPORT_FINISH_GOTO_PAGE');
 				$url = Manager::getOption('tmp_last_show_url', '');
 				if ($url === '' && ModuleManager::isModuleInstalled('bitrix24'))
 				{
@@ -695,7 +711,7 @@ class Site
 					'TAG' => 'a',
 					'DATA' => [
 						'attrs' => $linkAttrs,
-						'text' => Loc::getMessage('LANDING_IMPORT_FINISH_GOTO_SITE')
+						'text' => $linkText,
 					]
 				]
 			];

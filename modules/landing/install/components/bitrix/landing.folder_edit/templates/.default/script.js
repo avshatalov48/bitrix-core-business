@@ -43,6 +43,8 @@ this.BX.Landing = this.BX.Landing || {};
 
 	var _pathToLandingCreate = /*#__PURE__*/new WeakMap();
 
+	var _isUseNewMarket = /*#__PURE__*/new WeakMap();
+
 	var _linkUrlSelector = /*#__PURE__*/new WeakMap();
 
 	var _linkPictureSelector = /*#__PURE__*/new WeakMap();
@@ -61,7 +63,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	var _loadPreview = /*#__PURE__*/new WeakSet();
 
-	var FolderEdit = function FolderEdit(options) {
+	var FolderEdit = function FolderEdit(_options) {
 	  babelHelpers.classCallCheck(this, FolderEdit);
 
 	  _classPrivateMethodInitSpec(this, _loadPreview);
@@ -156,6 +158,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: void 0
 	  });
 
+	  _classPrivateFieldInitSpec(this, _isUseNewMarket, {
+	    writable: true,
+	    value: void 0
+	  });
+
 	  _classPrivateFieldInitSpec(this, _linkUrlSelector, {
 	    writable: true,
 	    value: void 0
@@ -171,22 +178,23 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: '/bitrix/services/main/ajax.php?action=landing.api.landing.getById&landingId=#id#'
 	  });
 
-	  babelHelpers.classPrivateFieldSet(this, _siteId, options.siteId);
-	  babelHelpers.classPrivateFieldSet(this, _siteType, options.siteType);
-	  babelHelpers.classPrivateFieldSet(this, _folderId, options.folderId);
-	  babelHelpers.classPrivateFieldSet(this, _selectorCreateIndex, options.selectorCreateIndex);
-	  babelHelpers.classPrivateFieldSet(this, _selectorIndexMetaBlock, options.selectorIndexMetaBlock);
-	  babelHelpers.classPrivateFieldSet(this, _selectorSelect, options.selectorSelect);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPageLink, options.selectorPageLink);
-	  babelHelpers.classPrivateFieldSet(this, _selectorFieldId, options.selectorFieldId);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewBlock, options.selectorPreviewBlock);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewTitle, options.selectorPreviewTitle);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewDescription, options.selectorPreviewDescription);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewPicture, options.selectorPreviewPicture);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewSrcPicture, options.selectorPreviewSrcPicture);
-	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewPictureWrapper, options.selectorPreviewPictureWrapper);
-	  babelHelpers.classPrivateFieldSet(this, _pathToLandingEdit, options.pathToLandingEdit);
-	  babelHelpers.classPrivateFieldSet(this, _pathToLandingCreate, options.pathToLandingCreate);
+	  babelHelpers.classPrivateFieldSet(this, _siteId, _options.siteId);
+	  babelHelpers.classPrivateFieldSet(this, _siteType, _options.siteType);
+	  babelHelpers.classPrivateFieldSet(this, _folderId, _options.folderId);
+	  babelHelpers.classPrivateFieldSet(this, _selectorCreateIndex, _options.selectorCreateIndex);
+	  babelHelpers.classPrivateFieldSet(this, _selectorIndexMetaBlock, _options.selectorIndexMetaBlock);
+	  babelHelpers.classPrivateFieldSet(this, _selectorSelect, _options.selectorSelect);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPageLink, _options.selectorPageLink);
+	  babelHelpers.classPrivateFieldSet(this, _selectorFieldId, _options.selectorFieldId);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewBlock, _options.selectorPreviewBlock);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewTitle, _options.selectorPreviewTitle);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewDescription, _options.selectorPreviewDescription);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewPicture, _options.selectorPreviewPicture);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewSrcPicture, _options.selectorPreviewSrcPicture);
+	  babelHelpers.classPrivateFieldSet(this, _selectorPreviewPictureWrapper, _options.selectorPreviewPictureWrapper);
+	  babelHelpers.classPrivateFieldSet(this, _pathToLandingEdit, _options.pathToLandingEdit);
+	  babelHelpers.classPrivateFieldSet(this, _pathToLandingCreate, _options.pathToLandingCreate);
+	  babelHelpers.classPrivateFieldSet(this, _isUseNewMarket, _options.isUseNewMarket);
 
 	  _classPrivateMethodGet(this, _initSelector, _initSelector2).call(this);
 
@@ -265,7 +273,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }
 
 	  var path = babelHelpers.classPrivateFieldGet(this, _pathToLandingEdit).replace('#landing_edit#', id);
-	  babelHelpers.classPrivateFieldGet(this, _selectorPageLink).text = title;
+	  babelHelpers.classPrivateFieldGet(this, _selectorPageLink).innerHTML = "<span id=\"landing-folder-index-link-text\" class=\"landing-folder-index-link-text\">".concat(title, "</span>");
 	  babelHelpers.classPrivateFieldGet(this, _selectorPageLink).setAttribute('href', path);
 	  babelHelpers.classPrivateFieldGet(this, _selectorFieldId).setAttribute('value', id);
 
@@ -277,14 +285,21 @@ this.BX.Landing = this.BX.Landing || {};
 	}
 
 	function _onClickIndexCreate2(e) {
-	  BX.SidePanel.Instance.open(babelHelpers.classPrivateFieldGet(this, _pathToLandingCreate), {
+	  var options = {
 	    allowChangeHistory: false,
 	    events: {
 	      onClose: function onClose() {
 	        window.location.reload();
 	      }
 	    }
-	  });
+	  };
+
+	  if (babelHelpers.classPrivateFieldGet(this, _isUseNewMarket)) {
+	    options.cacheable = false;
+	    options.customLeftBoundary = 0;
+	  }
+
+	  BX.SidePanel.Instance.open(babelHelpers.classPrivateFieldGet(this, _pathToLandingCreate), options);
 	  BX.PreventDefault(e);
 	}
 

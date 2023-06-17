@@ -42,22 +42,22 @@ $livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
 
 $componentParameters = [
 	"ENTITY_TYPE" => "",
-	"USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"],
-	"GROUP_VAR" => $arParams["VARIABLE_ALIASES"]["group_id"],
+	"USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"] ?? '',
+	"GROUP_VAR" => $arParams["VARIABLE_ALIASES"]["group_id"] ?? '',
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
 	"SET_TITLE" => "N",
 	"AUTH" => "Y",
 	"SET_NAV_CHAIN" => "N",
-	"PATH_TO_MESSAGES_CHAT" => $arParams["PM_URL"],
-	"PATH_TO_USER_BLOG_POST_EDIT" => $arParams["PATH_TO_USER_BLOG_POST_EDIT"],
+	"PATH_TO_MESSAGES_CHAT" => $arParams["PM_URL"] ?? '',
+	"PATH_TO_USER_BLOG_POST_EDIT" => $arParams["PATH_TO_USER_BLOG_POST_EDIT"] ?? '',
 	"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
 	"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
 	"PATH_TO_GROUP_PHOTO_SECTION" => $arResult["PATH_TO_GROUP_PHOTO_SECTION"],
 	"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"],
 	"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
 	"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arResult["DATE_TIME_FORMAT_WITHOUT_YEAR"],
-	"SHOW_YEAR" => $arParams["SHOW_YEAR"],
+	"SHOW_YEAR" => $arParams["SHOW_YEAR"] ?? '',
 	"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"SUBSCRIBE_ONLY" => "N",
@@ -88,8 +88,8 @@ $componentParameters = [
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y"
 		? "Y" : "N"),
-	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? '',
+	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? '',
 ];
 
 ?>

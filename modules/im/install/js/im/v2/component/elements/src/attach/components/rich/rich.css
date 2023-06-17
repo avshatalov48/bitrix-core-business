@@ -1,0 +1,25 @@
+.bx-im-attach-rich__image {
+	cursor: pointer;
+}
+
+.bx-im-attach-rich__block {
+	background: #fff;
+	border-radius: 10px;
+	border: 1px solid #e8e8e8;
+	overflow: hidden;
+	margin-top: 4px;
+}
+.bx-im-attach-rich__name {
+	cursor: pointer;
+    color: #000000;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+.bx-im-attach-rich__name:hover {
+	text-decoration: underline;
+}
+
+.bx-im-attach-rich__desc {
+	padding: 0 10px 10px;
+}

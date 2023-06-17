@@ -29,6 +29,7 @@ $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'] = 'Настройки по
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ADYEN'] = 'Настройки подключения Adyen';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY'] = 'Настройки подключения Apple Pay';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB'] = 'Настройки подключения СКБ банк';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SINARA'] = 'Настройки подключения Синара банк';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'] = 'Настройки подключения BePaid';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WOOPPAY'] = 'Настройки подключения Wooppay';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_PLATON'] = 'Настройки подключения Platon';

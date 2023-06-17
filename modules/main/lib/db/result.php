@@ -218,7 +218,7 @@ abstract class Result implements \IteratorAggregate
 			{
 				$data[$key] = $converter->encode(
 					$val,
-					(isset($data[$key."_TYPE"])? $data[$key."_TYPE"] : \Bitrix\Main\Text\Converter::TEXT)
+					($data[$key."_TYPE"] ?? \Bitrix\Main\Text\Converter::TEXT)
 				);
 			}
 		}

@@ -412,7 +412,7 @@
 	display: -ms-flexbox;
 	display: flex;
 	position: absolute;
-	right: 5px;
+	right: 11px;
 }
 
 .bx-im-notifications-item-header-delete {
@@ -546,7 +546,8 @@
 	color: #151515;
 }
 
-.bx-im-notifications-item-bottom-subtitle-text .bx-smile {
+.bx-im-notifications-item-bottom-subtitle-text .bx-smile,
+.bx-im-notifications-item-bottom-no-subtitle-text .bx-smile {
 	vertical-align: text-bottom;
 }
 
@@ -661,6 +662,43 @@
 	opacity: 0;
 	max-height: 0;
 }
+
+/* Temporary styles */
+.bx-im-message-content-quote {
+	display: inline-block;
+	vertical-align: top;
+}
+.bx-im-message-content-quote-wrap {
+	border-left: 2px solid #c2c4c6;
+	padding-left: 8px;
+	font-size: 12px;
+	color: #505050;
+	padding-bottom: 2px;
+	padding-top: 0;
+}
+.bx-im-message-content-quote-name {
+	padding-bottom: 0;
+	font-size: 12px;
+	color: #767a7e;
+	padding-top: 1px;
+}
+.bx-im-message-content-quote-name-text {
+	padding-right: 5px;
+}
+.bx-im-message-content-quote-name-time {
+	display: inline-block;
+	font-size: 11px;
+}
+.bx-im-message-content-code {
+	white-space: pre-line;
+	padding-left: 5px;
+	color: #505050;
+	border-left: 3px solid #505050;
+}
+.bx-im-message-command-wrap { display: inline-block; }
+.bx-im-message-command { border-bottom: 1px dashed #2067B0; cursor: pointer; color: #2067B0; display: inline-block; }
+.bx-im-message-command-data { display: none; }
+
 
 .bx-messenger-dark .bx-messenger-panel-next-wrapper {
 	border-color: #505152;

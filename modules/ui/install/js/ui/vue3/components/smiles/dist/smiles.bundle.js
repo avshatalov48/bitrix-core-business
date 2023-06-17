@@ -10,14 +10,12 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    } else {
 	      this.restClient = new rest_client.RestClient();
 	    }
-
 	    this.db = new ui_dexie.Dexie('bx-ui-smiles');
 	    this.db.version(1).stores({
 	      sets: "id, parentId, name, type, image",
 	      smiles: "id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition"
 	    });
 	  }
-
 	  loadFromCache() {
 	    let promise = new BX.Promise();
 	    let sets = [];
@@ -25,7 +23,8 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    this.db.transaction('r', this.db.sets, this.db.smiles, () => {
 	      this.db.sets.each(set => {
 	        return this.db.smiles.where('setId').equals(set.id).first().then(smile => {
-	          sets.push({ ...set,
+	          sets.push({
+	            ...set,
 	            image: smile.image
 	          });
 	        }).catch(error => promise.reject(error));
@@ -43,7 +42,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    });
 	    return promise;
 	  }
-
 	  loadFromServer() {
 	    let promise = new BX.Promise();
 	    this.restClient.callMethod('smile.get').then(result => {
@@ -55,30 +53,27 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        if (!setImage[smile.setId]) {
 	          setImage[smile.setId] = smile.image;
 	        }
-
 	        let originalWidth = smile.width;
-
 	        if (smile.definition == 'HD') {
 	          originalWidth = originalWidth * 2;
 	        } else if (smile.definition == 'UHD') {
 	          originalWidth = originalWidth * 4;
 	        }
-
 	        let originalHeight = smile.height;
-
 	        if (smile.definition == 'HD') {
 	          originalHeight = originalHeight * 2;
 	        } else if (smile.definition == 'UHD') {
 	          originalHeight = originalHeight * 4;
 	        }
-
-	        return { ...smile,
+	        return {
+	          ...smile,
 	          originalWidth,
 	          originalHeight
 	        };
 	      });
 	      answer.sets.forEach(set => {
-	        sets.push({ ...set,
+	        sets.push({
+	          ...set,
 	          image: setImage[set.id]
 	        });
 	      });
@@ -101,7 +96,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    }).catch(error => promise.reject(error));
 	    return promise;
 	  }
-
 	  changeSet(setId) {
 	    let promise = new BX.Promise();
 	    this.db.smiles.where('setId').equals(setId).toArray(smiles => {
@@ -109,7 +103,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    }).catch(error => promise.reject(error));
 	    return promise;
 	  }
-
 	}
 
 	let emoji = [{
@@ -3078,7 +3071,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	 */
 	const Smiles = {
 	  emits: ['selectSmile', 'selectSet'],
-
 	  data() {
 	    return {
 	      smiles: [],
@@ -3088,11 +3080,9 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      emojiIcon: '\uD83D\uDE0D'
 	    };
 	  },
-
 	  directives: {
 	    lazyload: ui_vue3_directives_lazyload.lazyload
 	  },
-
 	  created() {
 	    this.setSelected = 0;
 	    this.serverLoad = false;
@@ -3101,7 +3091,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      if (this.serverLoad) {
 	        return true;
 	      }
-
 	      this.smiles = result.smiles;
 	      this.sets = result.sets.map((element, index) => {
 	        element.selected = this.setSelected === index;
@@ -3117,7 +3106,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    });
 	    this.emoji = emoji;
 	  },
-
 	  methods: {
 	    selectSet(setId) {
 	      this.mode = "smile";
@@ -3128,30 +3116,25 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        this.smiles = result;
 	        this.sets.map(set => {
 	          set.selected = set.id === setId;
-
 	          if (set.selected) {
 	            this.setSelected = setId;
 	          }
-
 	          return set;
 	        });
 	        this.$refs.elements.scrollTop = 0;
 	      });
 	    },
-
 	    selectSmile(text) {
 	      this.$emit('selectSmile', {
 	        text: ' ' + text + ' '
 	      });
 	    },
-
 	    switchToEmoji() {
 	      this.mode = 'emoji';
 	      this.sets.map(set => {
 	        set.selected = false;
 	      });
 	    },
-
 	    showCategory(category) {
 	      if (this.isWindows()) {
 	        return category.showForWindows;
@@ -3159,36 +3142,28 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        return true;
 	      }
 	    },
-
 	    isMac() {
 	      return navigator.userAgent.toLowerCase().includes('macintosh');
 	    },
-
 	    isLinux() {
 	      return navigator.userAgent.toLowerCase().includes('linux');
 	    },
-
 	    isWindows() {
 	      return navigator.userAgent.toLowerCase().includes('windows') || !this.isMac() && !this.isLinux();
 	    }
-
 	  },
 	  computed: {
 	    showEmoji() {
 	      return this.$Bitrix.Loc.getMessage('UTF_MODE') === 'Y';
 	    },
-
 	    isEmojiMode() {
 	      return this.mode === 'emoji';
 	    },
-
 	    isSmileMode() {
 	      return this.mode === "smile";
 	    },
-
 	    emojiIconStyle() {
 	      let style = 'bx-ui-smiles-set-emoji';
-
 	      if (this.isMac()) {
 	        return style += '-mac';
 	      } else if (this.isLinux()) {
@@ -3199,7 +3174,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        return style;
 	      }
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -3268,6 +3242,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	};
 
 	exports.Smiles = Smiles;
+	exports.emoji = emoji;
 
 }((this.BX.Vue3.Components = this.BX.Vue3.Components || {}),BX.Vue3.Directives,BX.Vue3,BX.Dexie3,BX));
 //# sourceMappingURL=smiles.bundle.js.map

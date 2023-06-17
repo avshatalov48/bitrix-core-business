@@ -1,0 +1,87 @@
+:root {
+	--im-notification-item-header__color_date: #a8adb4;
+	--im-notification-item-header__color_hover-title: #525c69;
+	--im-notification-item-header__color_hover-title-extranet: #e89b06;
+	--im-notification-item-header__background_delete-icon: url('./images/delete.svg');
+}
+
+.bx-im-content-notification-item-header__container {
+	display: flex;
+	justify-content: space-between;
+}
+
+.bx-im-content-notification-item-header__title-container {
+	display: flex;
+	margin-bottom: 6px;
+	align-items: flex-start;
+	overflow: hidden;
+}
+
+.bx-im-content-notification-item-header__date-container {
+	display: flex;
+	align-items: flex-start;
+	flex-shrink: 0;
+}
+
+.bx-im-content-notification-item-header__date {
+	font: var(--im-font-size-sm)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-notification-item-header__color_date);
+}
+
+.bx-im-content-notification-item-header__delete-button {
+	margin-left: 9px;
+	cursor: pointer;
+	width: 16px;
+	height: 14px;
+	background: var(--im-notification-item-header__background_delete-icon) no-repeat center 3px;
+	opacity: 0.4;
+}
+
+.bx-im-content-notification-item-header__delete-button:hover {
+	opacity: 0.7;
+}
+
+.bx-im-content-notification-item-header__title-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--ui-font-weight-medium);
+	white-space: nowrap;
+	outline: none;
+}
+
+.bx-im-content-notification-item-header__title-text.--short {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.bx-im-content-notification-item-header__title-user-text:hover {
+	--im-chat-title__font-color: var(--im-notification-item-header__color_hover-title);
+	cursor: pointer;
+}
+
+.--extranet.bx-im-content-notification-item-header__title-user-text:hover {
+	--im-chat-title-extranet-color: var(--im-notification-item-header__color_hover-title-extranet);
+}
+
+.bx-im-content-notification-item-header__more-users {
+	display: flex;
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-notification-item-content-more-users-text-color);
+	margin-left: 5px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-content-notification-item-header__more-users-start {
+	margin-right: 5px;
+}
+
+.bx-im-content-notification-item-header__more-users-dropdown {
+	display: inline-block;
+	color: var(--im-notification-item-content-more-users-dropdown-text-color);
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

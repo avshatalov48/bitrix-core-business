@@ -1,0 +1,154 @@
+.bx-messenger-call-floating-screenshare {
+	overflow: hidden;
+}
+
+.bx-messenger-call-floating-screenshare-wrap {
+	display: flex;
+	flex-direction: column;
+}
+
+.bx-messenger-call-floating-screenshare-top {
+	display: flex;
+	align-items: center;
+	height: 31px;
+	background: #3785D4;
+}
+
+.bx-messenger-call-floating-screenshare-top-icon {
+	width: 14px;
+	min-width: 14px;
+	height: 12px;
+	min-height: 12px;
+	margin-left: 10px;
+	margin-right: 8px;
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6.875.078v1.771H1.933V9.1h10.2l-.001-1.414h1.934v2.403c0%20.432-.35.782-.783.782H9.725l.607.66c.05.054.083.12.096.192l.007.073a.391.391%200%2001-.32.385l-.071.006H4.178a.391.391%200%2001-.348-.57l.038-.06.529-.686H.783A.783.783%200%20010%2010.088V.86C0%20.429.35.078.783.078h6.092zm6.408%200c.433%200%20.783.35.783.783v4.637h-1.803V2.905L9.502%205.666A.783.783%200%20118.395%204.56l2.761-2.76.059-.053H8.989V.078h4.294z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-messenger-call-floating-screenshare-top-text {
+	color: #fff;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
+.bx-messenger-call-floating-screenshare-bottom {
+	display: flex;
+	align-items: center;
+	height: 50px;
+	padding: 10px 22px;
+	box-sizing: border-box;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom {
+	background: #313131;
+}
+
+
+.bx-messenger-call-floating-screenshare-bottom-left,
+.bx-messenger-call-floating-screenshare-bottom-center,
+.bx-messenger-call-floating-screenshare-bottom-right {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+}
+
+.bx-messenger-call-floating-screenshare-bottom-left,
+.bx-messenger-call-floating-screenshare-bottom-center {
+	margin-right: 22px;
+}
+
+
+.bx-messenger-call-floating-screenshare-bottom-left:hover .bx-messenger-call-floating-screenshare-back-icon,
+.bx-messenger-call-floating-screenshare-bottom-center:hover .bx-messenger-call-floating-screenshare-change-screen-icon,
+.bx-messenger-call-floating-screenshare-bottom-right:hover .bx-messenger-call-floating-screenshare-stop-icon {
+	opacity: 1;
+}
+
+.bx-messenger-call-floating-screenshare-back-icon {
+	width: 16px;
+	min-width: 16px;
+	height: 14px;
+	min-height: 14px;
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.51%2010.679L3.67%206.934H14V5.066H3.67L7.51%201.32%206.156%200%200%206l6.155%206z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	margin-right: 5px;
+	margin-bottom: 6px;
+	opacity: 0.7;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-back-icon {
+	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.51%2010.679L3.67%206.934H14V5.066H3.67L7.51%201.32%206.156%200%200%206l6.155%206z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.bx-messenger-call-floating-screenshare-change-screen-icon {
+	width: 16px;
+	min-width: 16px;
+	height: 14px;
+	min-height: 14px;
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2214%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.555%200h12.89C15.304%200%2016%20.708%2016%201.582v10.836c0%20.874-.696%201.582-1.555%201.582H1.555C.696%2014%200%2013.292%200%2012.418V1.582C0%20.708.696%200%201.555%200zM2%204v8h12V4H2zm1-1a1%201%200%20100-2%201%201%200%20000%202zm3%200a1%201%200%20100-2%201%201%200%20000%202z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	margin-right: 5px;
+	margin-bottom: 7px;
+	opacity: 0.7;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-change-screen-icon {
+	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2214%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.555%200h12.89C15.304%200%2016%20.708%2016%201.582v10.836c0%20.874-.696%201.582-1.555%201.582H1.555C.696%2014%200%2013.292%200%2012.418V1.582C0%20.708.696%200%201.555%200zM2%204v8h12V4H2zm1-1a1%201%200%20100-2%201%201%200%20000%202zm3%200a1%201%200%20100-2%201%201%200%20000%202z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.bx-messenger-call-floating-screenshare-stop-icon {
+	width: 16px;
+	min-width: 16px;
+	height: 14px;
+	min-height: 14px;
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20x%3D%2230%22%20width%3D%2213%22%20height%3D%2213%22%20rx%3D%221%22%20transform%3D%22translate%28-30%29%22%20fill%3D%22%23FF5752%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-right: 5px;
+	margin-bottom: 7px;
+	opacity: 0.7;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-stop-icon {
+	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20x%3D%2230%22%20width%3D%2213%22%20height%3D%2213%22%20rx%3D%221%22%20transform%3D%22translate%28-30%29%22%20fill%3D%22%23FF5752%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.bx-messenger-call-floating-screenshare-back-text,
+.bx-messenger-call-floating-screenshare-change-screen-text,
+.bx-messenger-call-floating-screenshare-stop-text {
+	cursor: pointer;
+	color: #525C69;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	line-height: 13px;
+	white-space: nowrap;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-back-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-change-screen-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-stop-text {
+	color: #FFF;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-left .bx-messenger-call-floating-screenshare-back-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-center .bx-messenger-call-floating-screenshare-change-screen-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-right .bx-messenger-call-floating-screenshare-stop-text {
+	opacity: 0.7;
+}
+
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-left:hover .bx-messenger-call-floating-screenshare-back-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-center:hover .bx-messenger-call-floating-screenshare-change-screen-text,
+.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-right:hover .bx-messenger-call-floating-screenshare-stop-text {
+	opacity: 1;
+}
+
+.bx-messenger-call-floating-screenshare .bx-messenger-dark.bx-messenger-mark {
+	border: none;
+}

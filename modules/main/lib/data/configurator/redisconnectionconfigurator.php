@@ -40,7 +40,7 @@ class RedisConnectionConfigurator
 		{
 			$this->servers[] = [
 				'host' => $server['host'] ?? 'localhost',
-				'port' => $server['port'] ?? '11211',
+				'port' => $server['port'] ?? '6379',
 			];
 		}
 

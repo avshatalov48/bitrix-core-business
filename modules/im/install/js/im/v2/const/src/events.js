@@ -1,13 +1,10 @@
-/**
- * Bitrix Messenger
- * Event names constants
- *
- * @package bitrix
- * @subpackage im
- * @copyright 2001-2020 Bitrix
- */
-
 export const EventType = Object.freeze({
+	layout:
+	{
+		onLayoutChange: 'IM.Layout:onLayoutChange',
+		onOpenChat: 'IM.Layout:onOpenChat',
+		onOpenNotifications: 'IM.Layout:onOpenNotifications',
+	},
 	dialog:
 	{
 		open: 'IM.Dialog:open',
@@ -16,7 +13,7 @@ export const EventType = Object.freeze({
 		clearHistory: 'IM.Dialog:clearHistory',
 		hide: 'IM.Dialog:hide',
 		leave: 'IM.Dialog:leave',
-		newMessage: 'EventType.dialog.newMessage',
+		newMessage: 'IM.Dialog:newMessage',
 
 		scrollOnStart: 'IM.Dialog:scrollOnStart',
 		scrollToBottom: 'IM.Dialog:scrollToBottom',
@@ -30,7 +27,6 @@ export const EventType = Object.freeze({
 		clickOnUserName: 'IM.Dialog:clickOnUserName',
 		clickOnMessageMenu: 'IM.Dialog:clickOnMessageMenu',
 		clickOnMessageRetry: 'IM.Dialog:clickOnMessageRetry',
-		clickOnUploadCancel: 'IM.Dialog:clickOnUploadCancel',
 		clickOnReadList: 'IM.Dialog:clickOnReadList',
 		setMessageReaction: 'IM.Dialog:setMessageReaction',
 		openMessageReactionList: 'IM.Dialog:openMessageReactionList',
@@ -39,6 +35,7 @@ export const EventType = Object.freeze({
 		clickOnDialog: 'IM.Dialog:clickOnDialog',
 		quotePanelClose: 'IM.Dialog:quotePanelClose',
 		beforeMobileKeyboard: 'IM.Dialog:beforeMobileKeyboard',
+		goToMessageContext: 'IM.Dialog:goToMessageContext',
 
 		messagesSet: 'IM.Dialog:messagesSet',
 		settingsChange: 'IM.Dialog:settingsChange',
@@ -46,7 +43,9 @@ export const EventType = Object.freeze({
 
 		errors: {
 			accessDenied: 'IM.Dialog.errors:accessDenied',
-		}
+		},
+
+		onDialogInited: 'IM.Dialog:onDialogInited'
 	},
 	textarea:
 	{
@@ -55,8 +54,9 @@ export const EventType = Object.freeze({
 		blur: 'IM.Textarea:blur',
 		setBlur: 'IM.Textarea:setBlur',
 		keyUp: 'IM.Textarea:keyUp',
-		edit: 'IM.Textarea:edit',
+		editMessage: 'IM.Textarea:editMessage',
 		insertText: 'IM.Textarea:insertText',
+		insertMention: 'IM.Textarea:insertMention',
 		sendMessage: 'IM.Textarea:sendMessage',
 		fileSelected: 'IM.Textarea:fileSelected',
 		startWriting: 'IM.Textarea:startWriting',
@@ -65,7 +65,8 @@ export const EventType = Object.freeze({
 	},
 	uploader:
 	{
-		addMessageWithFile: 'IM.Uploader:addMessageWithFile'
+		addMessageWithFile: 'IM.Uploader:addMessageWithFile', // todo: delete legacy event?
+		cancel: 'IM.Uploader:cancel'
 	},
 	conference:
 	{
@@ -90,9 +91,11 @@ export const EventType = Object.freeze({
 	},
 	search:
 	{
-		selectItem: 'IM.Search:selectItem',
+		close: 'IM.Search:close',
+		keyPressed: 'IM.Search:keyPressed',
+		selectItem: 'IM.Search:selectItem', //deprecated
+		openNetworkItem: 'IM.Search:openNetworkItem', //deprecated
 		openContextMenu: 'IM.Search:openContextMenu',
-		openNetworkItem: 'IM.Search:openNetworkItem',
 	},
 	recent:
 	{
@@ -108,5 +111,14 @@ export const EventType = Object.freeze({
 		updateState: 'IM.Recent:updateState',
 		clearLike: 'IM.Recent:clearLike',
 		setDraftMessage: 'IM.Recent:setDraftMessage'
+	},
+	sidebar:
+	{
+		open: 'IM.Sidebar:open',
+		close: 'IM.Sidebar:close'
+	},
+	mention:
+	{
+		openChatInfo: 'IM.Mention:openChatInfo'
 	}
 });

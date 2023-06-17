@@ -1,11 +1,13 @@
 import Interface from './interface';
 import SharingButton from './controls/sharingbutton';
-import Checkbox from './controls/checkbox';
-import Dialog from './controls/dialog';
+import DialogNew from './controls/dialog-new';
+import DialogQr from './controls/dialog-qr.js';
 import './css/style.css';
+import './css/style-new.css';
+
 export {
 	Interface,
 	SharingButton,
-	Checkbox,
-	Dialog,
+	DialogNew,
+	DialogQr,
 }

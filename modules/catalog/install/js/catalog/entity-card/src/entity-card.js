@@ -221,7 +221,9 @@ class EntityCard extends BaseCard
 		const [popup] = event.getCompatData();
 		if (popup && popup.getId() === 'popupFM' && popup.onApplyFlag)
 		{
-			this.showNotification(Loc.getMessage('CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION'), {
+			this.showNotification(Loc.getMessage('CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION_2'), {
+				id: 'fileCloseNotification',
+				blinkOnUpdate: false,
 				autoHideDelay: 5000
 			});
 		}
@@ -383,11 +385,10 @@ class EntityCard extends BaseCard
 
 		BX.UI.Notification.Center.notify({
 			content: content,
-			stack: options.stack || null,
 			position: 'top-right',
 			width: 'auto',
-			category: options.category || null,
-			autoHideDelay: options.autoHideDelay || 3000
+			autoHideDelay: 3000,
+			...options
 		});
 	}
 
@@ -521,17 +522,7 @@ class EntityCard extends BaseCard
 
 	showCardSettingsPopup()
 	{
-		const okCallback = () => this.getCardSettingsPopup().show();
-		const variationGridInstance = Reflection.getClass('BX.Catalog.VariationGrid.Instance');
-
-		if (variationGridInstance)
-		{
-			variationGridInstance.askToLossGridData(okCallback);
-		}
-		else
-		{
-			okCallback();
-		}
+		this.getCardSettingsPopup().show();
 	}
 
 	prepareCardSettingsContent()

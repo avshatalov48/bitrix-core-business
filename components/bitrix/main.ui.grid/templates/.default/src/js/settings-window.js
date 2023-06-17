@@ -107,14 +107,34 @@
 
 		fetchColumns: function()
 		{
-			var promise = new BX.Promise();
-
-			BX.ajax({
-				url: this.parent.getParam("LAZY_LOAD")["GET_LIST"],
-				method: "GET",
-				dataType: "json",
-				onsuccess: promise.fulfill.bind(promise)
-			});
+			const promise = new BX.Promise();
+			const lazyLoadParams = this.parent.getParam("LAZY_LOAD");
+			if (BX.Type.isPlainObject(lazyLoadParams))
+			{
+				if (!BX.Type.isNil(lazyLoadParams.CONTROLLER))
+				{
+					BX.ajax
+						.runAction(
+							`${lazyLoadParams.CONTROLLER}.getColumnsList`,
+							{
+								method: 'GET',
+								data: {
+									gridId: this.parent.getId(),
+								},
+							},
+						)
+						.then(promise.fulfill.bind(promise));
+				}
+				else
+				{
+					BX.ajax({
+						url: this.parent.getParam("LAZY_LOAD")["GET_LIST"],
+						method: "GET",
+						dataType: "json",
+						onsuccess: promise.fulfill.bind(promise),
+					});
+				}
+			}
 
 			return promise;
 		},
@@ -660,6 +680,12 @@
 		{
 			if (!this.popup)
 			{
+				console.log('create popup', document.body.offsetWidth);
+				const leftIndentFromWindow = 20;
+				const rightIndentFromWindow = 20;
+				const popupWidth = document.body.offsetWidth > 1000
+					? 1000
+					: document.body.offsetWidth - leftIndentFromWindow - rightIndentFromWindow;
 				this.popup = new BX.PopupWindow(
 					this.getPopupId(),
 					null,
@@ -667,7 +693,7 @@
 						titleBar: this.createTitle(),
 						autoHide: false,
 						overlay: 0.6,
-						width: 1000,
+						width: popupWidth,
 						closeIcon: true,
 						closeByEsc: true,
 						contentNoPaddings: true,

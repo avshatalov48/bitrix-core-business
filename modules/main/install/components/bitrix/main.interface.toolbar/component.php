@@ -11,12 +11,18 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 //	...
 //)
 
-if(!is_array($arParams["BUTTONS"]))
-	$arParams["BUTTONS"] = array();
+if (!isset($arParams["BUTTONS"]) && !is_array($arParams["BUTTONS"]))
+{
+	$arParams["BUTTONS"] = [];
+}
 
-if($arParams["TOOLBAR_ID"] == '')
-	$arParams["TOOLBAR_ID"] = "toolbar_".randString(5);
+if (!isset($arParams["TOOLBAR_ID"]) || $arParams["TOOLBAR_ID"] == '')
+{
+	$arParams["TOOLBAR_ID"] = "toolbar_" . randString(5);
+}
 else
+{
 	$arParams["TOOLBAR_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["TOOLBAR_ID"]);
+}
 $this->IncludeComponentTemplate();
 ?>

@@ -30,7 +30,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	  };
 	  if (!BX.Messenger.v2.Application[`${application}Application`] && (_BX = BX) != null && (_BX$Runtime = _BX.Runtime) != null && _BX$Runtime.loadExtension) {
-	    const loadExtension = `im.application.${application.toString().toLowerCase()}`;
+	    const loadExtension = `im.v2.application.${application.toString().toLowerCase()}`;
 	    return BX.Runtime.loadExtension(loadExtension).then(() => launch());
 	  }
 	  return launch();

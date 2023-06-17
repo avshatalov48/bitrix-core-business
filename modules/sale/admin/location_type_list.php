@@ -1,23 +1,33 @@
-<?
-use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
+<?php
 
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location\Admin\TypeHelper as Helper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
+/** @global CMain $APPLICATION */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if($APPLICATION->GetGroupRight("sale") < "W")
+if ($APPLICATION->GetGroupRight("sale") < "W")
+{
 	$APPLICATION->AuthForm(Loc::getMessage('SALE_MODULE_ACCES_DENIED'));
+}
 
 $userIsAdmin = $APPLICATION->GetGroupRight("sale") >= "W";
 
@@ -25,14 +35,19 @@ $userIsAdmin = $APPLICATION->GetGroupRight("sale") >= "W";
 #### Data prepare
 #####################################
 
+$fatal = '';
+$columns = [];
+$filterFields = [];
+
+$sTableID = 'tbl_type_list';
+$oSort = new CAdminUiSorting($sTableID, 'SORT', 'asc');
+$lAdmin = new CAdminUiList($sTableID, $oSort);
+
 try
 {
-	$itemId = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
-
 	// get entity fields for columns & filter
 	$columns = Helper::getColumns('list');
-	$filterFields = array();
-	$listDefaultFields = array("ID");
+		$listDefaultFields = array("ID");
 	foreach($columns as $code => $fld)
 	{
 		$fType = "";
@@ -49,7 +64,7 @@ try
 		}
 		$filterField = array(
 			"id" => $code,
-			"name" => $columns[$code]["title"]
+			"name" => $fld["title"]
 		);
 		if ($fType)
 		{
@@ -67,10 +82,6 @@ try
 		$filterFields[] = $filterField;
 	}
 
-	$sTableID = "tbl_type_list";
-	$oSort = new CAdminUiSorting($sTableID, "SORT", "asc");
-	$lAdmin = new CAdminUiList($sTableID, $oSort);
-
 	// order, select and filter for the list
 	$listParams = Helper::proxyListRequest('list');
 
@@ -82,14 +93,14 @@ try
 
 	global $DB;
 
-	if($lAdmin->EditAction() && $userIsAdmin)
+	if ($lAdmin->EditAction() && $userIsAdmin)
 	{
-		foreach($FIELDS as $id => $arFields)
+		foreach ($lAdmin->GetEditFields() as $id => $arFields)
 		{
-			$DB->StartTransaction();
-
-			if(!$lAdmin->IsUpdated($id)) // if there were no data change on this row - do nothing with it
+			if (!$lAdmin->IsUpdated($id)) // if there were no data change on this row - do nothing with it
 				continue;
+
+			$DB->StartTransaction();
 
 			try
 			{
@@ -103,6 +114,7 @@ try
 
 					throw new Main\SystemException(implode(',<br />', $res['errors']));
 				}
+				$DB->Commit();
 			}
 			catch(Main\SystemException $e)
 			{
@@ -110,24 +122,27 @@ try
 				$lAdmin->AddUpdateError(Loc::getMessage('SALE_LOCATION_L_ITEM_SAVE_ERROR', array('#ITEM#' => $id)).": <br />".$e->getMessage().'<br />', $id);
 				$DB->Rollback();
 			}
-
-			$DB->Commit();
 		}
 	}
 
-	if(($ids = $lAdmin->GroupAction()) && $userIsAdmin)
+	$ids = $lAdmin->GroupAction();
+	if ($ids && $userIsAdmin)
 	{
-		if($_REQUEST['action_target'] == 'selected') // get all ids if they were not specified (user choice was "for all")
+		if ($lAdmin->IsGroupActionToAll())
+		{
+			// get all ids if they were not specified (user choice was "for all")
 			$ids = Helper::getIdsByFilter($listParams['filter']);
+		}
 
 		@set_time_limit(0);
 
+		$action = $lAdmin->GetAction();
 		foreach($ids as $id)
 		{
 			if(!($id = intval($id)))
 				continue;
 
-			if($_REQUEST['action'] == 'delete')
+			if ($action === 'delete')
 			{
 				$DB->StartTransaction();
 
@@ -237,20 +252,21 @@ if(empty($fatal))
 	$lAdmin->CheckListMode();
 
 } // empty($fatal)
-?>
 
-<?$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'))?>
+$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'));
 
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-<?
 #####################################
 #### Data output
 #####################################
-?>
 
-<?//temporal code?>
-<?if(!CSaleLocation::locationProCheckEnabled())require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");
+//temporal code
+
+if (!CSaleLocation::locationProCheckEnabled())
+{
+	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
+}
 if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 {
 	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", ".default");
@@ -259,7 +275,7 @@ else
 {
 	SearchHelper::checkIndexesValid();
 
-	if($fatal <> '')
+	if ($fatal !== '')
 	{
 		$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
 		if($publicMode)
@@ -268,9 +284,11 @@ else
 		}
 		?>
 		<div class="error-message">
-			<? CAdminMessage::ShowMessage($messageParams) ?>
+			<?php
+			CAdminMessage::ShowMessage($messageParams);
+			?>
 		</div>
-		<?
+		<?php
 	}
 	else
 	{
@@ -278,4 +296,4 @@ else
 		$lAdmin->DisplayList();
 	}
 }
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

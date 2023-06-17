@@ -273,7 +273,7 @@ abstract class Base
 		}
 		else
 		{
-			$r->addError(new Error('Wrong type deta'));
+			$r->addError(new Error('Wrong type date'));
 		}
 
 		if($r->isSuccess())

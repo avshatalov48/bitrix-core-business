@@ -56,10 +56,25 @@ final class ChainTable extends Entity\DataManager implements \Serializable
 	{
 		return serialize($this->procData);
 	}
-	public function unserialize($data)
+
+	public function unserialize($data): void
 	{
 		$this->procData = unserialize($data, ['allowed_classes' => false]);
 		$this->initInsertHandles();
+	}
+
+	public function __serialize()
+	{
+		return $this->procData;
+	}
+
+	public function __unserialize($data): void
+	{
+		if (is_array($data))
+		{
+			$this->procData = $data;
+			$this->initInsertHandles();
+		}
 	}
 
 	public function __construct($parameters = array())
@@ -172,7 +187,7 @@ final class ChainTable extends Entity\DataManager implements \Serializable
 
 		$res = Location\LocationTable::getList(array(
 			'select' => array(
-				'ID', 
+				'ID',
 				'TYPE_ID',
 				'DEPTH_LEVEL',
 				'SORT'

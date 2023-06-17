@@ -62,8 +62,10 @@ if (!$fCriticalError)
 	//</editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="POST action">
-	if ($_REQUEST['cancel'])
+	if ($_REQUEST['cancel'] ?? false)
+	{
 		LocalRedirect($arParams['PATH_TO_REPORT_LIST']);
+	}
 
 	$siteList = CBaseSaleReportHelper::getSiteList();
 	if (isset($_REQUEST['F_SALE_SITE']))
@@ -110,7 +112,7 @@ if (!$fCriticalError)
 	}
 	CBaseSaleReportHelper::setSelectedPriceTypes($arSelectedPriceTypes);
 
-	if ($_REQUEST['REPORT_AJAX'] === 'Y')
+	if (($_REQUEST['REPORT_AJAX'] ?? '') === 'Y')
 	{
 		$arResponse = array();
 		if (is_array($_REQUEST['filterTypes']))
@@ -196,7 +198,7 @@ if (!$fCriticalError)
 
 		// Product custom "types of prices" filter (set report setting to helper)
 		$arRepSetting = unserialize($arRepParams['SETTINGS'], ['allowed_classes' => false]);
-		if ($arRepSetting['helper_spec']['ucspt'] === true)
+		if (($arRepSetting['helper_spec']['ucspt'] ?? false) === true)
 		{
 			call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'enablePriceTypesColumns'), true);
 		}

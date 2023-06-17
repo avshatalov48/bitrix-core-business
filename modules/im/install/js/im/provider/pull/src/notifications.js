@@ -71,6 +71,18 @@ export class ImNotificationsPullHandler
 		});
 	}
 
+	handleNotifyReadAll(params)
+	{
+		this.store.dispatch('notifications/readAll');
+		this.store.dispatch('notifications/setCounter', {unreadTotal: 0});
+		this.store.dispatch('recent/update', {
+			id: 'notify',
+			fields: {
+				counter: 0
+			}
+		});
+	}
+
 	handleNotifyConfirm(params, extra)
 	{
 		if (extra.server_time_ago > 30)

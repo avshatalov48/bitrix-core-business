@@ -143,7 +143,7 @@ if(!$hasErrors) {
 			<?php endif; ?>
 		</div>
 		<?php foreach($arResult['form']['editFormLabel'] as $label):
-			if(!$label['language']['isCurrent'])
+			if(empty($label['language']['isCurrent']))
 			{
 				continue;
 			}
@@ -239,7 +239,7 @@ if(!$hasErrors) {
 							type="text"
 							class="ui-ctl-element"
 							name="EDIT_FORM_LABEL[<?= htmlspecialcharsbx($label['language']['id']); ?>]"
-							value="<?= htmlspecialcharsbx($arResult['field']['EDIT_FORM_LABEL'][$label['language']['id']]); ?>"
+							value="<?= htmlspecialcharsbx($arResult['field']['EDIT_FORM_LABEL'][$label['language']['id']] ?? ''); ?>"
 							data-role="main-user-field-editFormLabel-<?= htmlspecialcharsbx($label['language']['id']); ?>"
 					>
 				</div>

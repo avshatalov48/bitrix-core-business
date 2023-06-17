@@ -135,7 +135,7 @@ function ForumInitParams()
 		}
 
 		// synhronize guest session with authorized user session
-		if (is_array($_SESSION["FORUM"]["GUEST_TID"]) && !empty($_SESSION["FORUM"]["GUEST_TID"]))
+		if (isset($_SESSION["FORUM"]) && isset($_SESSION["FORUM"]["GUEST_TID"]) && !empty($_SESSION["FORUM"]["GUEST_TID"]))
 		{
 			foreach ($_SESSION["FORUM"]["GUEST_TID"] as $key => $val):
 				CForumTopic::SetReadLabelsNew($key, false, $val, array("UPDATE_TOPIC_VIEWS" => "N"));
@@ -353,8 +353,11 @@ function ForumSetLastVisit($forumId = false, $TID = false, $arAddParams = array(
 
 	ForumInitParams();
 
-	if (!($_SESSION["SESS_SEARCHER_ID"] > 0 && CModule::IncludeModule("statistic")))
+	if (IsModuleInstalled('statistic') && !empty($_SESSION["SESS_SEARCHER_ID"]))
+	{
 		CForumStat::RegisterUSER(array("SITE_ID" => SITE_ID, "FORUM_ID" => $forumId, "TOPIC_ID" => $TID));
+	}
+
 	return true;
 }
 /**

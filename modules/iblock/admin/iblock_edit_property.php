@@ -29,7 +29,7 @@ $bSectionPopup = isset($_REQUEST["return_url"]) && ($_REQUEST["return_url"] === 
 $bReload = isset($_REQUEST["checkAction"]) && $_REQUEST["checkAction"] === "reload";
 $useCatalog = Loader::includeModule('catalog');
 
-$return_url = (string)($_REQUEST["return_url"] ?? '');
+$returnUrl = trim((string)($_REQUEST["return_url"] ?? ''));
 
 $enablePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 $propertyFeatureName = 'PROPERTY_FEATURES';
@@ -257,6 +257,8 @@ if (
 	&& is_array($_POST['PROPERTY_DIRECTORY_VALUES'])
 )
 {
+	$result = null;
+	$highBlockID = null;
 	if (isset($_POST["HLB_NEW_TITLE"]) && $_POST["PROPERTY_USER_TYPE_SETTINGS"]["TABLE_NAME"] == '-1')
 	{
 		$highBlockName = trim($_POST["HLB_NEW_TITLE"]);
@@ -365,7 +367,11 @@ if (
 			);
 			if(isset($_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$fieldName]))
 			{
-				$arUserField["EDIT_FORM_LABEL"] = $arUserField["LIST_COLUMN_LABEL"] = $arUserField["LIST_FILTER_LABEL"] = array(LANGUAGE_ID => $_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$fieldName]);
+				$arUserField["EDIT_FORM_LABEL"] = [
+					LANGUAGE_ID => $_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$fieldName],
+				];
+				$arUserField["LIST_COLUMN_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
+				$arUserField["LIST_FILTER_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 			}
 			$obUserField->Add($arUserField);
 			$intSortStep += 100;
@@ -390,7 +396,50 @@ if (
 	{
 		$fieldsList = $entityDataClass::getEntity()->getFields();
 	}
+	$arAddField = array();
+	if (!isset($fieldsList['UF_DESCRIPTION']))
+	{
+		$arAddField[] = 'UF_DESCRIPTION';
+	}
+	if (!isset($fieldsList['UF_FULL_DESCRIPTION']))
+	{
+		$arAddField[] = 'UF_FULL_DESCRIPTION';
+	}
+	if (!empty($arAddField))
+	{
+		$obUserField = new CUserTypeEntity();
+		foreach ($arAddField as $addField)
+		{
+			$arUserField = [
+				"ENTITY_ID" => "HLBLOCK_" . $hlblock["ID"],
+				"FIELD_NAME" => $addField,
+				"USER_TYPE_ID" => 'string',
+				"XML_ID" => "",
+				"SORT" => 100,
+				"MULTIPLE" => "N",
+				"MANDATORY" => "N",
+				"SHOW_FILTER" => "N",
+				"SHOW_IN_LIST" => "Y",
+				"EDIT_IN_LIST" => "Y",
+				"IS_SEARCHABLE" => "N",
+				"SETTINGS" => [],
+			];
+			if (isset($_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$addField]))
+			{
+				$arUserField["EDIT_FORM_LABEL"] = [
+					LANGUAGE_ID => $_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$addField],
+				];
+				$arUserField["LIST_COLUMN_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
+				$arUserField["LIST_FILTER_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
+			}
+			$obUserField->Add($arUserField);
+			$fieldsList[$addField] = [];
+		}
+		unset($obUserField);
+	}
+	unset($arAddField);
 
+	$defaultValueId = (string)($_POST['PROPERTY_VALUES_DEF'] ?? '');
 	foreach($_POST['PROPERTY_DIRECTORY_VALUES'] as $dirKey => $arDirValue)
 	{
 		$existRow = isset($arDirValue["ID"]) && (int)$arDirValue["ID"] > 0;
@@ -411,10 +460,7 @@ if (
 		if((isset($arImageResult[$dirKey]["FILE"]) && is_array($arImageResult[$dirKey]["FILE"]) && $arImageResult[$dirKey]["FILE"]['name'] != '') || (isset($_POST['PROPERTY_DIRECTORY_VALUES_del'][$dirKey]["FILE"]) && $_POST['PROPERTY_DIRECTORY_VALUES_del'][$dirKey]["FILE"] == 'Y'))
 			$arDirValue['UF_FILE'] = $arImageResult[$dirKey]["FILE"];
 
-		if($arDirValue["ID"] == $_POST['PROPERTY_VALUES_DEF'])
-			$arDirValue['UF_DEF'] = true;
-		else
-			$arDirValue['UF_DEF'] = false;
+		$arDirValue['UF_DEF'] = ($arDirValue["ID"] === $defaultValueId);
 		if(!isset($arDirValue["UF_XML_ID"]) || $arDirValue["UF_XML_ID"] == '')
 			$arDirValue['UF_XML_ID'] = Main\Security\Random::getString(8, true);
 
@@ -426,56 +472,25 @@ if (
 		{
 			if ($existRow)
 			{
-				$rsData = $entityDataClass::getList(array());
-				while($arData = $rsData->fetch())
+				$arData = $entityDataClass::getRow(array(
+					'select' => ['*'],
+					'filter' => [
+						'=ID' => $arDirValue["ID"]
+					],
+				));
+				if (!empty($arData))
 				{
-					$arAddField = array();
-					if(!isset($arData["UF_DESCRIPTION"]))
+					unset($arDirValue["ID"]);
+					$dirValueKeys = array_keys($arDirValue);
+					foreach ($dirValueKeys as $oneKey)
 					{
-						$arAddField[] = 'UF_DESCRIPTION';
+						if (!isset($fieldsList[$oneKey]))
+							unset($arDirValue[$oneKey]);
 					}
-					if(!isset($arData["UF_FULL_DESCRIPTION"]))
+					unset($oneKey);
+					if (!empty($arDirValue))
 					{
-						$arAddField[] = 'UF_FULL_DESCRIPTION';
-					}
-					$obUserField = new CUserTypeEntity();
-					foreach($arAddField as $addField)
-					{
-						$arUserField = array(
-							"ENTITY_ID" => "HLBLOCK_".$hlblock["ID"],
-							"FIELD_NAME" => $addField,
-							"USER_TYPE_ID" => 'string',
-							"XML_ID" => "",
-							"SORT" => 100,
-							"MULTIPLE" => "N",
-							"MANDATORY" => "N",
-							"SHOW_FILTER" => "N",
-							"SHOW_IN_LIST" => "Y",
-							"EDIT_IN_LIST" => "Y",
-							"IS_SEARCHABLE" => "N",
-							"SETTINGS" => array(),
-						);
-						if(isset($_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$addField]))
-						{
-							$arUserField["EDIT_FORM_LABEL"] = $arUserField["LIST_COLUMN_LABEL"] = $arUserField["LIST_FILTER_LABEL"] = array(LANGUAGE_ID => $_POST['PROPERTY_USER_TYPE_SETTINGS']['LANG'][$addField]);
-						}
-						$obUserField->Add($arUserField);
-					}
-					if($arDirValue["ID"] == $arData["ID"])
-					{
-						unset($arDirValue["ID"]);
-						$dirValueKeys = array_keys($arDirValue);
-						foreach ($dirValueKeys as $oneKey)
-						{
-							if (!isset($fieldsList[$oneKey]))
-								unset($arDirValue[$oneKey]);
-						}
-						if (isset($oneKey))
-							unset($oneKey);
-						if (!empty($arDirValue))
-						{
-							$entityDataClass::update($arData["ID"], $arDirValue);
-						}
+						$entityDataClass::update($arData["ID"], $arDirValue);
 					}
 				}
 			}
@@ -607,10 +622,10 @@ if ($isPost && isset($_POST["checkAction"]) && $_POST["checkAction"] === "delete
 	}
 	else
 	{
-		if ($return_url <> '')
+		if ($returnUrl !== '')
 		{
-			$adminSidePanelHelper->localRedirect($return_url);
-			LocalRedirect($return_url);
+			$adminSidePanelHelper->localRedirect($returnUrl);
+			LocalRedirect($returnUrl);
 		}
 		else
 		{
@@ -900,10 +915,10 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => intval($str_PROPERTY_ID)));
 			}
 
-			if($return_url <> '')
+			if($returnUrl !== '')
 			{
-				$adminSidePanelHelper->localRedirect($return_url);
-				LocalRedirect($return_url);
+				$adminSidePanelHelper->localRedirect($returnUrl);
+				LocalRedirect($returnUrl);
 			}
 			else
 			{
@@ -919,7 +934,7 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 
 		$applyUrl = $selfFolderUrl."iblock_edit_property.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$intIBlockID.
 			"&find_section_section=".(int)($_REQUEST['find_section_section'] ?? 0).'&ID='.intval($str_PROPERTY_ID).
-			($return_url <> ''?"&return_url=".UrlEncode($return_url):"").($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
+			($returnUrl <> ''?"&return_url=".UrlEncode($returnUrl):"").($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N");
 		$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 		LocalRedirect($applyUrl);
 	}

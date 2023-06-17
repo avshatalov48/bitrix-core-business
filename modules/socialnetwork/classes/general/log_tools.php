@@ -392,23 +392,23 @@ class CSocNetLogTools
 	public static function FormatEvent_FillTooltip($arFields, $arParams)
 	{
 		return [
-			"ID" => $arFields["ID"],
-			"NAME" => $arFields["NAME"],
-			"LAST_NAME" => $arFields["LAST_NAME"],
-			"SECOND_NAME" => $arFields["SECOND_NAME"],
-			"LOGIN" => $arFields["LOGIN"],
-			"PERSONAL_GENDER" => $arFields["PERSONAL_GENDER"],
+			"ID" => $arFields["ID"] ?? null,
+			"NAME" => $arFields["NAME"] ?? null,
+			"LAST_NAME" => $arFields["LAST_NAME"] ?? null,
+			"SECOND_NAME" => $arFields["SECOND_NAME"] ?? null,
+			"LOGIN" => $arFields["LOGIN"] ?? null,
+			"PERSONAL_GENDER" => $arFields["PERSONAL_GENDER"] ?? '',
 			"USE_THUMBNAIL_LIST" => "N",
-			"PATH_TO_SONET_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
-			"PATH_TO_SONET_USER_PROFILE" => $arParams["PATH_TO_USER"],
-			"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
-			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-			"SHOW_YEAR" => $arParams["SHOW_YEAR"],
-			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-			"CACHE_TIME" => $arParams["CACHE_TIME"],
-			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
-			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
+			"PATH_TO_SONET_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"] ?? null,
+			"PATH_TO_SONET_USER_PROFILE" => $arParams["PATH_TO_USER"] ?? null,
+			"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"] ?? null,
+			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"] ?? null,
+			"SHOW_YEAR" => $arParams["SHOW_YEAR"] ?? null,
+			"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? null,
+			"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
+			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"] ?? null,
+			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"] ?? null,
 			"INLINE" => "Y"
 		];
 	}
@@ -422,7 +422,7 @@ class CSocNetLogTools
 		{
 			$arParams["AVATAR_SIZE"] = (int)$arParams["AVATAR_SIZE_COMMON"];
 		}
-		elseif ((int)$arParams["AVATAR_SIZE"] <= 0)
+		elseif ((int) ($arParams["AVATAR_SIZE"] ?? null) <= 0)
 		{
 			$arParams["AVATAR_SIZE"] = 30;
 		}
@@ -434,9 +434,9 @@ class CSocNetLogTools
 
 		$AvatarPath = false;
 
-		if ((int)$arFields[$source . "PERSONAL_PHOTO"] <= 0)
+		if ((int) ($arFields[$source . "PERSONAL_PHOTO"] ?? null) <= 0)
 		{
-			switch ($arFields[$source."PERSONAL_GENDER"])
+			switch ($arFields[$source."PERSONAL_GENDER"] ?? null)
 			{
 				case "M":
 					$suffix = "male";
@@ -531,11 +531,13 @@ class CSocNetLogTools
 
 	public static function FormatEvent_GetCreatedBy($arFields, $arParams, $bMail, $bFirstCaps = false)
 	{
+		$suffix = '';
+
 		if ((int)$arFields["USER_ID"] > 0)
 		{
 			$arCreatedBy = array();
 			if (
-				is_array($GLOBALS["arExtranetUserID"])
+				is_array($GLOBALS["arExtranetUserID"] ?? null)
 				&& in_array($arFields["USER_ID"], $GLOBALS["arExtranetUserID"])
 			)
 			{
@@ -560,13 +562,13 @@ class CSocNetLogTools
 			{
 				$arFieldsTooltip = array(
 					"ID" => $arFields["USER_ID"],
-					"NAME" => $arFields["~CREATED_BY_NAME"],
-					"LAST_NAME" => $arFields["~CREATED_BY_LAST_NAME"],
-					"SECOND_NAME" => $arFields["~CREATED_BY_SECOND_NAME"],
-					"LOGIN" => $arFields["~CREATED_BY_LOGIN"],
+					"NAME" => $arFields["~CREATED_BY_NAME"] ?? null,
+					"LAST_NAME" => $arFields["~CREATED_BY_LAST_NAME"] ?? null,
+					"SECOND_NAME" => $arFields["~CREATED_BY_SECOND_NAME"] ?? null,
+					"LOGIN" => $arFields["~CREATED_BY_LOGIN"] ?? null,
 					"PERSONAL_GENDER" => (!empty($arFields["~CREATED_BY_PERSONAL_GENDER"]) ? $arFields["~CREATED_BY_PERSONAL_GENDER"] : '')
 				);
-				$arParams["NAME_TEMPLATE"] .= $suffix;
+				$arParams["NAME_TEMPLATE"] = ($arParams["NAME_TEMPLATE"] ?? '') . $suffix;
 				$arCreatedBy["TOOLTIP_FIELDS"] = CSocNetLogTools::FormatEvent_FillTooltip($arFieldsTooltip, $arParams);
 			}
 		}
@@ -585,7 +587,12 @@ class CSocNetLogTools
 			&& intval($arFields["ENTITY_ID"]) > 0
 		)
 		{
-			$suffix = (is_array($GLOBALS["arExtranetUserID"]) && in_array($arFields["ENTITY_ID"], $GLOBALS["arExtranetUserID"]) ? GetMessage("SONET_LOG_EXTRANET_SUFFIX") : "");
+			$suffix = (
+				is_array($GLOBALS["arExtranetUserID"] ?? null)
+				&& in_array($arFields["ENTITY_ID"], $GLOBALS["arExtranetUserID"])
+					? GetMessage("SONET_LOG_EXTRANET_SUFFIX")
+					: ""
+			);
 
 			if ($bMail)
 			{
@@ -602,12 +609,12 @@ class CSocNetLogTools
 			{
 				$arFieldsTooltip = array(
 					"ID" => $arFields["ENTITY_ID"],
-					"NAME" => $arFields["~USER_NAME"],
-					"LAST_NAME" => $arFields["~USER_LAST_NAME"],
-					"SECOND_NAME" => $arFields["~USER_SECOND_NAME"],
-					"LOGIN" => $arFields["~USER_LOGIN"],
+					"NAME" => $arFields["~USER_NAME"] ?? null,
+					"LAST_NAME" => $arFields["~USER_LAST_NAME"] ?? null,
+					"SECOND_NAME" => $arFields["~USER_SECOND_NAME"] ?? null,
+					"LOGIN" => $arFields["~USER_LOGIN"] ?? null,
 				);
-				$arParams["NAME_TEMPLATE"] .= $suffix;
+				$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ?? '' . $suffix;
 				$arEntity["TOOLTIP_FIELDS"] = CSocNetLogTools::FormatEvent_FillTooltip($arFieldsTooltip, $arParams);
 				$arEntity["FORMATTED"] = "";
 			}
@@ -617,7 +624,14 @@ class CSocNetLogTools
 			&& intval($arFields["ENTITY_ID"]) > 0
 		)
 		{
-			$suffix = (is_array($GLOBALS["arExtranetGroupID"]) && in_array($arFields["ENTITY_ID"], $GLOBALS["arExtranetGroupID"]) ? GetMessage("SONET_LOG_EXTRANET_SUFFIX") : "");
+			$suffix = (
+				(
+					is_array($GLOBALS["arExtranetGroupID"] ?? null)
+					&& in_array($arFields["ENTITY_ID"], $GLOBALS["arExtranetGroupID"])
+				)
+					? GetMessage("SONET_LOG_EXTRANET_SUFFIX")
+					: ""
+			);
 
 			if ($bMail)
 			{
@@ -626,7 +640,10 @@ class CSocNetLogTools
 			}
 			else
 			{
-				$url = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arFields["ENTITY_ID"]));
+				$url = CComponentEngine::MakePathFromTemplate(
+					$arParams["PATH_TO_GROUP"] ?? null,
+					array("group_id" => $arFields["ENTITY_ID"])
+				);
 
 				$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
 				$arEntity["FORMATTED"]["TYPE_NAME"] = $arSocNetAllowedSubscribeEntityTypesDesc[$arFields["ENTITY_TYPE"]]["TITLE_ENTITY"];
@@ -665,7 +682,7 @@ class CSocNetLogTools
 			if (!$bAbsolute)
 			{
 				if (
-					$arFields["ENTITY_TYPE"] == SONET_ENTITY_GROUP
+					($arFields["ENTITY_TYPE"] ?? null) == SONET_ENTITY_GROUP
 					&& CModule::IncludeModule("extranet")
 				)
 				{
@@ -673,7 +690,8 @@ class CSocNetLogTools
 				}
 				else
 				{
-					$rsLogSite = CSocNetLog::GetSite($arFields["ID"]);
+					$rsLogSite = CSocNetLog::GetSite($arFields["ID"] ?? null);
+					$siteID = null;
 					if($arLogSite = $rsLogSite->Fetch())
 					{
 						$siteID = $arLogSite["LID"];
@@ -829,7 +847,10 @@ class CSocNetLogTools
 					htmlspecialcharsEx($arResult["EVENT_FORMATTED"]["MESSAGE"])
 				);
 
-				$arResult["EVENT_FORMATTED"]["IS_MESSAGE_SHORT"] = CSocNetLogTools::FormatEvent_IsMessageShort($arResult["EVENT_FORMATTED"]["MESSAGE"], $arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"]);
+				$arResult["EVENT_FORMATTED"]["IS_MESSAGE_SHORT"] = CSocNetLogTools::FormatEvent_IsMessageShort(
+					$arResult["EVENT_FORMATTED"]["MESSAGE"] ?? null,
+					$arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"] ?? null
+				);
 
 				if ($arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP)
 					$arResult["EVENT_FORMATTED"]["DESTINATION"] = array(
@@ -847,7 +868,7 @@ class CSocNetLogTools
 				$arRights[] = $arRight["GROUP_CODE"];
 			}
 
-			if ($arParams["MOBILE"] == "Y")
+			if (($arParams["MOBILE"] ?? null) == "Y")
 			{
 				$arResult["EVENT_FORMATTED"]["DESTINATION"] = CSocNetLogTools::FormatDestinationFromRights($arRights, array_merge($arParams, array("CREATED_BY" => $arFields["USER_ID"], "USE_ALL_DESTINATION" => true)), $iMoreCount);
 				if (intval($iMoreCount) > 0)
@@ -902,7 +923,7 @@ class CSocNetLogTools
 			$arResult["CREATED_BY"]["ACTION_TYPE"] = "wrote";
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arLog, $arParams, $bMail);
 		}
-		elseif($arParams["USE_COMMENT"] != "Y")
+		elseif (($arParams["USE_COMMENT"] ?? null) != "Y")
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arFields, $arParams, false);
 
 		if ($bMail)
@@ -1246,8 +1267,16 @@ class CSocNetLogTools
 		);
 
 		$title = str_replace(
-			array("#TITLE#", "#ENTITY#", "#CREATED_BY#"),
-			array($topic_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
+			[
+				"#TITLE#",
+				"#ENTITY#",
+				"#CREATED_BY#",
+			],
+			[
+				$topic_tmp,
+				(is_string($arResult["ENTITY"]["FORMATTED"]) ? $arResult["ENTITY"]["FORMATTED"] : ''),
+				($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")
+			],
 			$title_tmp
 		);
 
@@ -1261,7 +1290,7 @@ class CSocNetLogTools
 
 			$parser->pathToUser = $arParams["PATH_TO_USER"];
 			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N");
-			$parser->bMobile = ($arParams["MOBILE"] == "Y");
+			$parser->bMobile = (($arParams["MOBILE"] ?? null) == "Y");
 
 			$arFields["FILES"] = CForumFiles::getByMessageID($arFields["SOURCE_ID"]);
 		}
@@ -1277,7 +1306,7 @@ class CSocNetLogTools
 		if (!$bMail)
 		{
 			static $parserLog = false;
-			if ($arParams["MOBILE"] != "Y")
+			if (($arParams["MOBILE"] ?? null) != "Y")
 			{
 				if (!$parserLog)
 				{
@@ -1364,7 +1393,10 @@ class CSocNetLogTools
 				htmlspecialcharsbx($arResult["EVENT_FORMATTED"]["MESSAGE"])
 			);
 
-			if ($arParams["MOBILE"] !== "Y" && $arParams["NEW_TEMPLATE"] !== "Y")
+			if (
+				($arParams["MOBILE"] ?? null) !== "Y"
+				&& ($arParams["NEW_TEMPLATE"] ?? null) !== "Y"
+			)
 			{
 				$arResult["EVENT_FORMATTED"]["IS_MESSAGE_SHORT"] = CSocNetLogTools::FormatEvent_IsMessageShort(
 					$arResult["EVENT_FORMATTED"]["MESSAGE"],
@@ -1425,7 +1457,7 @@ class CSocNetLogTools
 			$arResult["CREATED_BY"] = CSocNetLogTools::FormatEvent_GetCreatedBy($arFields, $arParams, $bMail);
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arLog, $arParams, $bMail);
 		}
-		elseif ($arParams["USE_COMMENT"] !== "Y")
+		elseif (($arParams["USE_COMMENT"] ?? null) !== "Y")
 		{
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arFields, $arParams, false);
 		}
@@ -1439,14 +1471,22 @@ class CSocNetLogTools
 		$topic_tmp = (
 			!$bMail
 			&& array_key_exists("URL", $arLog)
-			&& $arLog["URL"] <> ''
-				? '<a href="'.$arLog["URL"].'">'.$arLog["TITLE"].'</a>'
-				: $arLog["TITLE"]
+			&& !empty($arLog["URL"])
+				? '<a href="'.$arLog["URL"].'">'.($arLog["TITLE"] ?? '').'</a>'
+				: ($arLog["TITLE"] ?? '')
 		);
 
 		$title = str_replace(
-			array("#TITLE#", "#ENTITY#", "#CREATED_BY#"),
-			array($topic_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
+			[
+				"#TITLE#",
+				"#ENTITY#",
+				"#CREATED_BY#"
+			],
+			[
+				$topic_tmp,
+				is_string($arResult["ENTITY"]["FORMATTED"]) ? $arResult["ENTITY"]["FORMATTED"] : '',
+				($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")
+			],
 			$title_tmp
 		);
 
@@ -1459,11 +1499,11 @@ class CSocNetLogTools
 			}
 
 			$parser->pathToUser = $parser->userPath = $arParams["PATH_TO_USER"];
-			$parser->bMobile = ($arParams["MOBILE"] === "Y");
+			$parser->bMobile = (($arParams["MOBILE"] ?? null) === "Y");
 			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === "Y" ? "Y" : "N");
 
 			$arFields["FILES"] = CForumFiles::GetByMessageID($arFields["SOURCE_ID"]);
-			if ($arParams['MOBILE'] !== 'Y')
+			if (($arParams['MOBILE'] ?? null) !== 'Y')
 			{
 				if (!empty($arParams['IMAGE_MAX_WIDTH']))
 				{
@@ -1484,7 +1524,7 @@ class CSocNetLogTools
 
 		if (!$bMail)
 		{
-			if ($arParams["MOBILE"] !== "Y")
+			if (($arParams["MOBILE"] ?? null) !== "Y")
 			{
 				static $parserLog = false;
 				if (!$parserLog)
@@ -1576,8 +1616,8 @@ class CSocNetLogTools
 			}
 
 			if (
-				$arParams["MOBILE"] !== "Y"
-				&& $arParams["NEW_TEMPLATE"] !== "Y"
+				($arParams["MOBILE"] ?? null) !== "Y"
+				&& (!isset($arParams["NEW_TEMPLATE"]) || $arParams["NEW_TEMPLATE"] !== "Y")
 			)
 			{
 				$arResult["EVENT_FORMATTED"]["IS_MESSAGE_SHORT"] = CSocNetLogTools::FormatEvent_IsMessageShort($arResult["EVENT_FORMATTED"]["MESSAGE"], $arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"]);
@@ -1725,9 +1765,10 @@ class CSocNetLogTools
 			$album_tmp_24_mobile = ($section_name ? $album_default_24_mobile.': '.$section_name : $album_default_24_mobile);
 		}
 
+		$title_tmp = '';
 		if ($bMail)
 			$title_tmp = GetMessage("SONET_GL_EVENT_TITLE_".($arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP ? "GROUP" : "USER")."_PHOTO_MAIL");
-		elseif ($arParams["MOBILE"] == "Y")
+		elseif (($arParams["MOBILE"] ?? null) == "Y")
 			$title_tmp_24 = GetMessage("SONET_GL_EVENT_TITLE_PHOTO_24_MOBILE");
 		else
 		{
@@ -1747,22 +1788,42 @@ class CSocNetLogTools
 		}
 
 		$title = str_replace(
-			array("#ALBUM#", "#COUNT#", "#ENTITY#", "#CREATED_BY#"),
-			array($album_tmp, $count_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
+			[
+				"#ALBUM#",
+				"#COUNT#",
+				"#ENTITY#",
+				"#CREATED_BY#"
+			],
+			[
+				$album_tmp,
+				$count_tmp,
+				(is_string($arResult["ENTITY"]["FORMATTED"]) ? $arResult["ENTITY"]["FORMATTED"] : ''),
+				($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")
+			],
 			$title_tmp
 		);
 
 		if (!$bMail)
 		{
 			$title_24 = str_replace(
-				array("#ALBUM#", "#COUNT#", "#ENTITY#", "#CREATED_BY#"),
-				array(($arParams["MOBILE"] === "Y" ? $album_tmp_24_mobile : $album_tmp_24), $count_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
+				[
+					"#ALBUM#",
+					"#COUNT#",
+					"#ENTITY#",
+					"#CREATED_BY#"
+				],
+				[
+					(($arParams["MOBILE"] ?? null) === "Y" ? $album_tmp_24_mobile : $album_tmp_24),
+					$count_tmp,
+					(is_string($arResult["ENTITY"]["FORMATTED"]) ? $arResult["ENTITY"]["FORMATTED"] : ''),
+					($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")
+				],
 				$title_tmp_24
 			);
 		}
 
 		$arResult["EVENT_FORMATTED"] = (
-			$arParams["MOBILE"] === "Y"
+			(($arParams["MOBILE"] ?? null) === "Y")
 				? [
 					"TITLE_24" => $title_24,
 					"MESSAGE" => "",
@@ -1850,7 +1911,7 @@ class CSocNetLogTools
 					}
 
 					$album_tmp .= (
-						$arParams["MOBILE"] === "Y"
+						($arParams["MOBILE"] ?? null) === "Y"
 							? ' '.htmlspecialcharsbx($arTmp["SECTION_NAME"])
 							: ' <a href="'.$arTmp["SECTION_URL"].'">'.htmlspecialcharsbx($arTmp["SECTION_NAME"]).'</a>'
 					);
@@ -1866,14 +1927,14 @@ class CSocNetLogTools
 			array("#ALBUM#", "#ENTITY#", "#CREATED_BY#"),
 			array($album_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
 			(
-				$arParams["MOBILE"] === "Y"
+				($arParams["MOBILE"] ?? null) === "Y"
 					? GetMessage("SONET_GL_EVENT_TITLE_PHOTOPHOTO_MOBILE")
 					: GetMessage("SONET_GL_EVENT_TITLE_PHOTOPHOTO")
 			)
 		);
 
 		$arResult["EVENT_FORMATTED"] = (
-			$arParams["MOBILE"] === "Y"
+			($arParams["MOBILE"] ?? null) === "Y"
 				? [
 					"TITLE" => $title,
 					"MESSAGE" => "",
@@ -1998,7 +2059,7 @@ class CSocNetLogTools
 
 				$parserLog->arUserfields = $arFields["UF"];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
-				$parserLog->bMobile = ($arParams["MOBILE"] === "Y");
+				$parserLog->bMobile = (($arParams["MOBILE"] ?? null) === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));
 				$arResult['EVENT_FORMATTED']['MESSAGE'] = Mention::clear($arResult['EVENT_FORMATTED']['MESSAGE']);
 			}
@@ -2024,7 +2085,7 @@ class CSocNetLogTools
 			}
 
 			if (
-				$arParams["MOBILE"] != "Y"
+				($arParams["MOBILE"] ?? null) != "Y"
 				&& $arParams["NEW_TEMPLATE"] != "Y"
 			)
 			{
@@ -2057,14 +2118,19 @@ class CSocNetLogTools
 
 		$arResult = array(
 			"EVENT_FORMATTED" => array(
-				"TITLE" => ($bMail || $arParams["USE_COMMENT"] !== "Y" ? GetMessage("SONET_GL_COMMENT_TITLE_PHOTO_ALBUM") : ""),
+				"TITLE" => (
+					$bMail
+					|| ($arParams["USE_COMMENT"] ?? null) !== "Y"
+						? GetMessage("SONET_GL_COMMENT_TITLE_PHOTO_ALBUM")
+						: ""
+				),
 				"MESSAGE" => ($bMail ? $arFields["TEXT_MESSAGE"] : $arFields["MESSAGE"])
 			),
 		);
 
 		if(
 			!$bMail
-			&& $arParams["USE_COMMENT"] !== "Y"
+			&& ($arParams["USE_COMMENT"] ?? null) !== "Y"
 		)
 		{
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arFields, $arParams, false);
@@ -2087,7 +2153,7 @@ class CSocNetLogTools
 					"MULTIPLE_BR" => "N",
 					"VIDEO" => "Y", "LOG_VIDEO" => "N",
 					"USERFIELDS" => $arFields["UF"],
-					"USER" => ($arParams["IM"] === "Y" ? "N" : "Y")
+					"USER" => (($arParams["IM"] ?? null) === "Y" ? "N" : "Y")
 				);
 
 				if (!$parserLog)
@@ -2095,7 +2161,7 @@ class CSocNetLogTools
 
 				$parserLog->arUserfields = $arFields["UF"];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
-				$parserLog->bMobile = ($arParams["MOBILE"] === "Y");
+				$parserLog->bMobile = (($arParams["MOBILE"] ?? null) === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));
 				$arResult['EVENT_FORMATTED']['MESSAGE'] = Mention::clear($arResult['EVENT_FORMATTED']['MESSAGE']);
 			}
@@ -2192,7 +2258,7 @@ class CSocNetLogTools
 			$title_tmp
 		);
 
-		if ($arParams["MOBILE"] == "Y")
+		if (($arParams["MOBILE"] ?? null) == "Y")
 			$arResult["EVENT_FORMATTED"] = array(
 				"TITLE_24" => GetMessage("SONET_GL_EVENT_TITLE_FILE_24_MOBILE"),
 				"MESSAGE" => $arFields["MESSAGE"]
@@ -2990,7 +3056,7 @@ class CSocNetLogTools
 					$classname = "";
 			}
 
-			if ($arParams["MOBILE"] == "Y")
+			if (($arParams["MOBILE"] ?? null) == "Y")
 				$arResult["EVENT_FORMATTED"] = array(
 					"TITLE_24" => $title_tmp_24,
 					"DESTINATION" => array(
@@ -3028,7 +3094,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	public static function SetCacheLastLogID($type = "log", $id)
+	public static function SetCacheLastLogID($type = "log", $id = 0)
 	{
 		global $CACHE_MANAGER;
 
@@ -3049,7 +3115,15 @@ class CSocNetLogTools
 		return $id;
 	}
 
-	public static function SetUserCache($type = "log", $user_id, $max_id, $max_viewed_id, $count, $bSetViewTime = false, $LastViewTS = 0)
+	public static function SetUserCache(
+		$type = "log",
+		$user_id = null,
+		$max_id = null,
+		$max_viewed_id = null,
+		$count = null,
+		$bSetViewTime = false,
+		$LastViewTS = 0
+	)
 	{
 		global $CACHE_MANAGER;
 
@@ -3070,7 +3144,7 @@ class CSocNetLogTools
 		));
 	}
 
-	public static function GetUserCache($type = "log", $user_id)
+	public static function GetUserCache($type = "log", $user_id = 0)
 	{
 		global $CACHE_MANAGER;
 
@@ -4665,7 +4739,7 @@ class CSocNetLogTools
 
 		$avatarSize = (isset($arParams['AVATAR_SIZE']) ? (int)$arParams['AVATAR_SIZE'] : 100);
 
-		$arParams["DESTINATION_LIMIT"] = (intval($arParams["DESTINATION_LIMIT"]) <= 0 ? 3 : $arParams["DESTINATION_LIMIT"]);
+		$arParams["DESTINATION_LIMIT"] = !isset($arParams["DESTINATION_LIMIT"]) || intval($arParams["DESTINATION_LIMIT"]) <= 0 ? 3 : $arParams["DESTINATION_LIMIT"];
 
 		$arModuleEvents = array();
 		$db_events = GetModuleEvents("socialnetwork", "OnSocNetLogFormatDestination");
@@ -4796,9 +4870,21 @@ class CSocNetLogTools
 							"TYPE" => "SG",
 							"ID" => $workgroupFields["ID"],
 							"STYLE" => "sonetgroups",
-							"TITLE" => ($htmlEncode ? $workgroupFields["NAME"] : htmlspecialcharsback($workgroupFields["NAME"])),
-							"URL" => str_replace("#group_id#", $workgroupFields["ID"], $arParams["PATH_TO_GROUP"]),
-							"IS_EXTRANET" => (is_array($GLOBALS["arExtranetGroupID"]) && in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"]) ? "Y" : "N"),
+							"TITLE" => ($htmlEncode ?
+								$workgroupFields["NAME"]
+								: htmlspecialcharsback($workgroupFields["NAME"])
+							),
+							"URL" => str_replace(
+								"#group_id#",
+								$workgroupFields["ID"],
+								$arParams["PATH_TO_GROUP"] ?? ''
+							),
+							"IS_EXTRANET" => (
+								is_array($GLOBALS["arExtranetGroupID"] ?? null)
+								&& in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"])
+									? "Y"
+									: "N"
+							),
 							'AVATAR' => $avatarUrl,
 						);
 
@@ -4872,8 +4958,17 @@ class CSocNetLogTools
 								"ID" => $workgroupFields["ID"],
 								"STYLE" => "sonetgroups",
 								"TITLE" => ($htmlEncode ? $workgroupFields["NAME"] : htmlspecialcharsback($workgroupFields["NAME"])).GetMessage("SONET_GL_DESTINATION_SG_OWNER"),
-								"URL" => str_replace("#group_id#", $workgroupFields["ID"], $arParams["PATH_TO_GROUP"]),
-								"IS_EXTRANET" => (is_array($GLOBALS["arExtranetGroupID"]) && in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"]) ? "Y" : "N"),
+								"URL" => str_replace(
+									"#group_id#",
+									$workgroupFields["ID"],
+									$arParams["PATH_TO_GROUP"] ?? ''
+								),
+								"IS_EXTRANET" => (
+									is_array($GLOBALS["arExtranetGroupID"] ?? null)
+									&& in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"])
+										? "Y"
+										: "N"
+								),
 								'AVATAR' => $avatarUrl,
 							);
 
@@ -4952,7 +5047,7 @@ class CSocNetLogTools
 				);
 
 				$isEmail = (isset($arUserTmp['EXTERNAL_AUTH_ID']) && $arUserTmp['EXTERNAL_AUTH_ID'] === 'email');
-				$url = str_replace("#user_id#", $arUserTmp["ID"], $arParams["PATH_TO_USER"]);
+				$url = str_replace("#user_id#", $arUserTmp["ID"], $arParams["PATH_TO_USER"] ?? '');
 				if (
 					$isEmail
 					&& !empty($arParams['LOG_ID'])
@@ -4972,7 +5067,7 @@ class CSocNetLogTools
 					"TITLE" => CUser::FormatName($arParams["NAME_TEMPLATE"], $arUserTmp, ($arParams["SHOW_LOGIN"] === "Y"), $htmlEncode),
 					'SHORT_TITLE' => trim($htmlEncode ? htmlspecialcharsEx($arUserTmp['NAME']) : $arUserTmp['NAME']),
 					'URL' => $url,
-					"IS_EXTRANET" => (is_array($GLOBALS["arExtranetUserID"]) && in_array($arUserTmp["ID"], $GLOBALS["arExtranetUserID"]) ? "Y" : "N"),
+					"IS_EXTRANET" => (isset($GLOBALS["arExtranetUserID"]) && is_array($GLOBALS["arExtranetUserID"]) && in_array($arUserTmp["ID"], $GLOBALS["arExtranetUserID"]) ? "Y" : "N"),
 					'IS_EMAIL' => ($isEmail ? 'Y' : 'N'),
 					"CRM_ENTITY" => (!empty($arUserTmp["UF_USER_CRM_ENTITY"]) ? $arUserTmp["UF_USER_CRM_ENTITY"] : false),
 					'AVATAR' => $avatarUrl,
@@ -5206,14 +5301,16 @@ class CSocNetLogTools
 				: ($explicit_site_id ? $explicit_site_id : SITE_ID)
 		);
 
-		$server_name = (CMain::IsHTTPS() ? "https" : "http")."://".$arSiteData[$user_site_id]["SERVER_NAME"];
+		$server_name = (CMain::IsHTTPS() ? "https" : "http")
+			. "://" . ($arSiteData[$user_site_id]["SERVER_NAME"] ?? '')
+		;
 
 		$arUrl = str_replace(
 			array("#SERVER_NAME#", "#GROUPS_PATH#", "#USER_PATH#"),
 			array(
 				$server_name,
-				$arSiteData[$user_site_id]["GROUPS_PATH"],
-				$arSiteData[$user_site_id]["USER_PATH"]
+				$arSiteData[$user_site_id]["GROUPS_PATH"] ?? '',
+				$arSiteData[$user_site_id]["USER_PATH"] ?? ''
 			),
 			$arUrl
 		);
@@ -5221,7 +5318,7 @@ class CSocNetLogTools
 		return array(
 			"SERVER_NAME" => $server_name,
 			"URLS" => $arUrl,
-			"DOMAIN" => (count($arSiteData) > 1 ? $arSiteData[$user_site_id]["SERVER_NAME"] : false)
+			"DOMAIN" => (count($arSiteData) > 1 ? $arSiteData[$user_site_id]["SERVER_NAME"] ?? null : false)
 		);
 	}
 
@@ -5375,6 +5472,9 @@ class CSocNetLogTools
 				break;
 			default:
 		}
+
+		$log_id = null;
+		$log_comment_id = null;
 
 		if ($log_type === "log")
 		{
@@ -6227,6 +6327,8 @@ class logTextParser extends CTextParser
 	var $matchNum = 0;
 	var $matchNum2 = 0;
 
+	public $MaxStringLen = 0;
+
 	function sonet_sortlen($a, $b)
 	{
 		if (mb_strlen($a["TYPING"]) == mb_strlen($b["TYPING"]))
@@ -6238,7 +6340,7 @@ class logTextParser extends CTextParser
 	public function __construct($strLang = False, $pathToSmile = false)
 	{
 		parent::__construct();
-		$this->MaxStringLen = 0;
+
 		if ($strLang === False)
 		{
 			$strLang = LANGUAGE_ID;
@@ -6250,8 +6352,8 @@ class logTextParser extends CTextParser
 		$this->allow = array(
 			"HTML" => ($allow["HTML"] === "Y" ? "Y" : "N"),
 			"NL2BR" => ($allow["NL2BR"] === "Y" ? "Y" : "N"),
-			"LOG_NL2BR" => ($allow["LOG_NL2BR"] === "N" ? "N" : "Y"),
-			"MULTIPLE_BR" => ($allow["MULTIPLE_BR"] === "N" ? "N" : "Y"),
+			"LOG_NL2BR" => (($allow["LOG_NL2BR"] ?? null) === "N" ? "N" : "Y"),
+			"MULTIPLE_BR" => (($allow["MULTIPLE_BR"] ?? null) === "N" ? "N" : "Y"),
 			"CODE" => ($allow["CODE"] === "N" ? "N" : "Y"),
 			"LOG_CODE" => (isset($allow["LOG_CODE"]) && $allow["LOG_CODE"] === "N" ? "N" : "Y"),
 			"VIDEO" => ($allow["VIDEO"] === "N" ? "N" : "Y"),
@@ -6269,7 +6371,7 @@ class logTextParser extends CTextParser
 			"SMILES" => ($allow["SMILES"] === "N" ? "N" : "Y"),
 			"TABLE" => (isset($allow["TABLE"]) && $allow["TABLE"] === "N" ? "N" : "Y"),
 			"ALIGN" => (isset($allow["ALIGN"]) && $allow["ALIGN"] === "N" ? "N" : "Y"),
-			"CUT_ANCHOR" => ($allow["CUT_ANCHOR"] === "Y" ? "Y" : "N"),
+			"CUT_ANCHOR" => (($allow["CUT_ANCHOR"] ?? null) === "Y" ? "Y" : "N"),
 			"SHORT_ANCHOR" => (isset($allow["SHORT_ANCHOR"]) && $allow["SHORT_ANCHOR"] === "Y" ? "Y" : "N"),
 			"HEADER" => (isset($allow["HEADER"]) && $allow["HEADER"] === "N" ? "N" : "Y"),
 			"USERFIELDS" => (isset($allow["USERFIELDS"]) && $allow["USERFIELDS"] ? $allow["USERFIELDS"] : "N"),
@@ -6882,7 +6984,7 @@ class CSocNetLogComponent
 		}
 	}
 
-	public static function saveFileToUF($arFile = array(), &$type, $userId = false)
+	public static function saveFileToUF($arFile = array(), &$type = null, $userId = false)
 	{
 		global $USER, $DB, $USER_FIELD_MANAGER;
 

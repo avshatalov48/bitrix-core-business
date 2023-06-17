@@ -600,14 +600,22 @@ abstract class Connection extends Data\Connection
 					{
 						$p1 = mb_strpos($sqlBatch, "\r");
 						if ($p1 === false)
+						{
 							$sqlBatch = "";
+						}
 						elseif ($p < $p1)
+						{
 							$sqlBatch = mb_substr($sqlBatch, $p);
+						}
 						else
+						{
 							$sqlBatch = mb_substr($sqlBatch, $p1);
+						}
 					}
 					else
+					{
 						$sqlBatch = mb_substr($sqlBatch, $p);
+					}
 				}
 				//Delimiter!
 				else
@@ -786,7 +794,7 @@ abstract class Connection extends Data\Connection
 	{
 		$tableFields = $this->getTableFields($tableName);
 
-		return (isset($tableFields[$columnName])? $tableFields[$columnName] : null);
+		return ($tableFields[$columnName] ?? null);
 	}
 
 	/**

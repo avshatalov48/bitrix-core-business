@@ -98,8 +98,18 @@ class Cache
 	{
 		$result = "cachePrefixIdx";
 
-		if(!empty($ids))
-			$result .= implode('_',$ids);
+		if (!empty($ids))
+		{
+			foreach (array_keys($ids) as $index)
+			{
+				if (is_array($ids[$index]))
+				{
+					$ids[$index] = serialize($ids[$index]);
+				}
+			}
+
+			$result .= implode('_', $ids);
+		}
 
 		return $result;
 	}
@@ -136,8 +146,10 @@ class CacheSession extends Cache
 	{
 		$cacheId = $this->getCacheId($ids);
 
-		if(!is_array($_SESSION[$this->cacheIdBase]))
-			$_SESSION[$this->cacheIdBase] = array();
+		if (!isset($_SESSION[$this->cacheIdBase]))
+		{
+			$_SESSION[$this->cacheIdBase] = [];
+		}
 
 		$_SESSION[$this->cacheIdBase][$cacheId] = $value;
 	}

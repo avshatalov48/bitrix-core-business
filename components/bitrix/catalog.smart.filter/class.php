@@ -29,9 +29,9 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams["CACHE_TIME"] = isset($arParams["CACHE_TIME"]) ? $arParams["CACHE_TIME"]: 36000000;
-		$arParams["IBLOCK_ID"] = (int)$arParams["IBLOCK_ID"];
-		$arParams["SECTION_ID"] = (int)$arParams["SECTION_ID"];
+		$arParams["CACHE_TIME"] = (int)($arParams["CACHE_TIME"] ?? 36000000);
+		$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
+		$arParams["SECTION_ID"] = (int)($arParams["SECTION_ID"] ?? 0);
 		if ($arParams["SECTION_ID"] <= 0 && Loader::includeModule('iblock'))
 		{
 			$arParams["SECTION_ID"] = CIBlockFindTools::GetSectionID(
@@ -58,23 +58,25 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 				unset($arParams["PRICE_CODE"][$k]);
 		}
 
-		$arParams["SAVE_IN_SESSION"] = $arParams["SAVE_IN_SESSION"] == "Y";
-		$arParams["CACHE_GROUPS"] = $arParams["CACHE_GROUPS"] !== "N";
-		$arParams["INSTANT_RELOAD"] = $arParams["INSTANT_RELOAD"] === "Y";
-		$arParams["SECTION_TITLE"] = trim($arParams["SECTION_TITLE"]);
-		$arParams["SECTION_DESCRIPTION"] = trim($arParams["SECTION_DESCRIPTION"]);
+		$arParams['SMART_FILTER_PATH'] = (string)($arParams['SMART_FILTER_PATH'] ?? '');
+		$arParams["SAVE_IN_SESSION"] = ($arParams["SAVE_IN_SESSION"] ?? 'N') === "Y";
+		$arParams["CACHE_GROUPS"] = ($arParams["CACHE_GROUPS"] ?? '') !== "N";
+		$arParams["INSTANT_RELOAD"] = ($arParams["INSTANT_RELOAD"] ?? '') === "Y";
+		$arParams['XML_EXPORT'] = (string)($arParams['XML_EXPORT'] ?? 'N');
+		$arParams["SECTION_TITLE"] = trim((string)($arParams["SECTION_TITLE"] ?? ''));
+		$arParams["SECTION_DESCRIPTION"] = trim((string)($arParams["SECTION_DESCRIPTION"] ?? ''));
 
-		$arParams["FILTER_NAME"] = (isset($arParams["FILTER_NAME"]) ? (string)$arParams["FILTER_NAME"] : '');
-		if(
-			$arParams["FILTER_NAME"] == ''
+		$arParams["FILTER_NAME"] = (string)($arParams["FILTER_NAME"] ?? '');
+		if (
+			$arParams["FILTER_NAME"] === ''
 			|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"])
 		)
 		{
 			$arParams["FILTER_NAME"] = "arrFilter";
 		}
-		$arParams["PREFILTER_NAME"] = (isset($arParams["PREFILTER_NAME"]) ? (string)$arParams["PREFILTER_NAME"] : '');
-		if(
-			$arParams["PREFILTER_NAME"] == ''
+		$arParams["PREFILTER_NAME"] = (string)($arParams["PREFILTER_NAME"] ?? '');
+		if (
+			$arParams["PREFILTER_NAME"] === ''
 			|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PREFILTER_NAME"])
 		)
 		{
@@ -1013,7 +1015,10 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 				$arSubFilter["ACTIVE"] = "Y";
 				if ('Y' == $this->arParams['HIDE_NOT_AVAILABLE'])
 					$arSubFilter['AVAILABLE'] = 'Y';
-				$arFilter["=ID"] = CIBlockElement::SubQuery("PROPERTY_".$this->SKU_PROPERTY_ID, $arSubFilter);
+				$arFilter['=SUBQUERY'] = [
+					'FIELD' => 'PROPERTY_' . $this->SKU_PROPERTY_ID,
+					'FILTER' => $arSubFilter,
+				];
 			}
 			elseif(!empty($arPriceFilter))
 			{
@@ -1022,11 +1027,14 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 				$arSubFilter["IBLOCK_ID"] = $this->SKU_IBLOCK_ID;
 				$arSubFilter["ACTIVE_DATE"] = "Y";
 				$arSubFilter["ACTIVE"] = "Y";
-				$arFilter[] = array(
+				$arFilter[] = [
 					"LOGIC" => "OR",
-					array($arPriceFilter),
-					"=ID" => CIBlockElement::SubQuery("PROPERTY_".$this->SKU_PROPERTY_ID, $arSubFilter),
-				);
+					[$arPriceFilter],
+					'=SUBQUERY' => [
+						'FIELD' => 'PROPERTY_' . $this->SKU_PROPERTY_ID,
+						'FILTER' => $arSubFilter
+					],
+				];
 			}
 
 			unset($gFilter["OFFERS"]);

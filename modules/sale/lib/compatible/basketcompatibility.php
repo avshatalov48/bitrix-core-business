@@ -645,12 +645,7 @@ class BasketCompatibility extends Internals\EntityCompatibility
 			}
 
 			$r = $basket->save();
-			if ($r->isSuccess() && $isNew && !$item->isBundleChild())
-			{
-				$siteID = (isset($fields["LID"])) ? $fields["LID"] : SITE_ID;
-				$_SESSION["SALE_BASKET_NUM_PRODUCTS"][$siteID]++;
-			}
-			elseif (!$r->isSuccess())
+			if (!$r->isSuccess())
 			{
 				$result->addErrors($r->getErrors());
 			}

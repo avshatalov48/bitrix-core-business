@@ -218,7 +218,6 @@ foreach ($gridData as $key => $row)
 				pathToUser: "'. htmlspecialcharsbx($arParams['PATH_TO_USER']) . '",
 				userId: ' . $userItem->getId() . '
 			})',
-			'DEFAULT' => true
 		];
 	}
 

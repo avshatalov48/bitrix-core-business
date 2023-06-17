@@ -49,9 +49,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	<script type="text/javascript">
 		BX.ready(function()
 		{
-			BX.SidePanel.Instance.open(
-				window.location.href
-			);
+			BX.SidePanel.Instance.open(window.location.href, { customLeftBoundary: 60});
 		});
 	</script>
 <?php endif?>

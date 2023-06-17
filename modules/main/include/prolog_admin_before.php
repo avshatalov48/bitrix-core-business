@@ -1,7 +1,12 @@
-<?
+<?php
+
 require_once(__DIR__."/../bx_root.php");
 
-define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
+if (!defined('START_EXEC_PROLOG_BEFORE_1'))
+{
+	define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
+}
+
 $GLOBALS["BX_STATE"] = "PB";
 unset($_REQUEST["BX_STATE"]);
 unset($_GET["BX_STATE"]);
@@ -45,3 +50,5 @@ require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/admin_tools.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_admin.php");
 
 CMain::PrologActions();
+
+define("START_EXEC_PROLOG_BEFORE_2", microtime(true));

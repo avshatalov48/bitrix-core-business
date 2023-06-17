@@ -75,7 +75,7 @@ if($lAdmin->EditAction() && $USER->CanDoOperation('edit_tasks'))
 
 if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_tasks'))
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CTask::GetList(Array($by=>$order), $arFilter);
@@ -83,7 +83,7 @@ if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_tasks'))
 			$arID[] = $arRes['ID'];
 	}
 
-	if ($_REQUEST['action'] == "delete")
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == "delete")
 	{
 		foreach($arID as $ID)
 		{
@@ -234,7 +234,7 @@ $oFilter->Begin();
 			}
 		}
 		$arr = array("reference" => $arRef, "reference_id" => $arRefId);
-		echo SelectBoxFromArray("find_binding", array("reference" => $arRef, "reference_id" => $arRefId), htmlspecialcharsbx($find_binding));	
+		echo SelectBoxFromArray("find_binding", array("reference" => $arRef, "reference_id" => $arRefId), htmlspecialcharsbx($find_binding));
 		?>
 	</td>
 </tr>

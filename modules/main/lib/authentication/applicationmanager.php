@@ -27,7 +27,7 @@ class ApplicationManager
 			$result = $eventResult->getParameters();
 			if(is_array($result))
 			{
-				if(!is_array($result[0]))
+				if(!isset($result[0]) || !is_array($result[0]))
 				{
 					$result = array($result);
 				}

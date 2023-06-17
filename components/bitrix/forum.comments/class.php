@@ -24,6 +24,9 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 	const STATUS_DENIED  = 'denied';
 	const STATUS_ERROR   = 'error';
 
+	const MID_NEW = 'Y';
+	const MID_OLD = 'N';
+
 	/** @var  string */
 	protected $actionPrefix = 'action';
 	/** @var  string */

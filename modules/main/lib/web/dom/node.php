@@ -47,6 +47,8 @@ abstract class Node
 	/*@var bool $bxClosable*/
 	public $bxClosable = true;
 
+	public $bxNodeFoundCloseTag = false;
+
 	public function __construct()
 	{
 		$this->init();
@@ -88,7 +90,7 @@ abstract class Node
 
 		if(self::$isNodeListAsArray)
 		{
-			return count($this->attributes) > 0;
+			return !empty($this->attributes);
 		}
 		else
 		{
@@ -234,7 +236,7 @@ abstract class Node
 	{
 		if(self::$isNodeListAsArray)
 		{
-			return (count($this->getChildNodes()) > 0);
+			return (!empty($this->getChildNodes()));
 		}
 		else
 		{

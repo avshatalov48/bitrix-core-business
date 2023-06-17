@@ -1,8 +1,14 @@
 <?
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\EventAccessController;
+use Bitrix\Calendar\Access\Model\EventModel;
+use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals;
+use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
@@ -18,6 +24,10 @@ Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/contr
  */
 class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 {
+	protected const DIRECTION_PREVIOUS = 'previous';
+	protected const DIRECTION_NEXT = 'next';
+	protected const DIRECTION_BOTH = 'both';
+
 	public function configureActions(): array
 	{
 		return [];
@@ -52,19 +62,19 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 	public function loadEntriesAction()
 	{
 		$request = $this->getRequest();
-		$finish = false;
 		$monthFrom = (int)$request->getPost('month_from');
 		$yearFrom = (int)$request->getPost('year_from');
 		$monthTo = (int)$request->getPost('month_to');
 		$yearTo = (int)$request->getPost('year_to');
-		$loadLimit = (int)$request->getPost('loadLimit');
 		$ownerId = (int)$request->getPost('ownerId');
 		$calendarType = $request->getPost('type');
 
-		$loadNext = $request->getPost('loadNext') === 'Y';
-		$loadPrevious = $request->getPost('loadPrevious') === 'Y';
+		$direction = $request->getPost('direction');
+		if (!in_array($direction, [self::DIRECTION_PREVIOUS, self::DIRECTION_NEXT, self::DIRECTION_BOTH], true))
+		{
+			$direction = null;
+		}
 
-		$parseRecursion = true;
 		$activeSectionIds = is_array($request->getPost('active_sect'))
 			? $request->getPost('active_sect')
 			: [];
@@ -72,25 +82,15 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			? $request->getPost('sup_sect')
 			: [];
 
-		$params = [
-			'type' => $calendarType,
-			'section' => [],
-			'fromLimit' => $monthFrom ? \CCalendar::Date(mktime(0, 0, 0, $monthFrom, 1, $yearFrom), false) : false,
-			'toLimit' => $monthTo ? \CCalendar::Date(mktime(0, 0, 0, $monthTo, 1, $yearTo), false) : false,
-		];
+		$sections = [];
+		$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
 
 		$connections = false;
-		if ($loadNext|| $loadPrevious)
-		{
-			$params['limit'] = $loadLimit;
-			$parseRecursion = false;
-		}
 
 		if ($request->getPost('cal_dav_data_sync') === 'Y' && \CCalendar::IsCalDAVEnabled())
 		{
 			$config = [];
 			\CCalendar::InitExternalCalendarsSyncParams($config);
-			// \CDavGroupdavClientCalendar::DataSync("user", $ownerId);
 
 			if ($config['connections'])
 			{
@@ -100,7 +100,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 		$fetchTasks = false;
 		$sectionIdList = [];
-		$entries = [];
 
 		foreach(array_unique(array_merge($activeSectionIds, $additionalSectionIds)) as $sectId)
 		{
@@ -125,87 +124,117 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			]);
 			foreach($sect as $section)
 			{
-				$params['section'][] = (int)$section['ID'];
+				$sections[] = (int)$section['ID'];
 			}
 		}
 
-		if (count($params['section']) > 0)
+		$isBoundaryOfPastReached = false;
+		$isBoundaryOfFutureReached = false;
+		$entries = [];
+		if (count($sections) > 0)
 		{
-			$arFilter = [
-				'SECTION' => $params['section']
-			];
+			$entries = $this->getEntries($sections, $limits);
 
-			if (isset($params['fromLimit']))
+			if (
+				$direction === self::DIRECTION_BOTH
+				&& count($this->getShownEntries($entries)) < 5
+			)
 			{
-				$arFilter["FROM_LIMIT"] = $params['fromLimit'];
-			}
-			if (isset($params['toLimit']))
-			{
-				$arFilter["TO_LIMIT"] = $params['toLimit'];
-			}
+				$isBoundaryOfPastReached = true;
+				$isBoundaryOfFutureReached = true;
+				//Load all events
+				$limits = [
+					'from' => false,
+					'to' => false,
+				];
+				$entries = $this->getEntries($sections, $limits);
 
-			if ($params['type'] === 'user')
-			{
-				$fetchMeetings = in_array(\CCalendar::GetMeetingSection($arFilter['OWNER_ID'] ?? null), $params['section']);
-			}
-			else
-			{
-				$fetchMeetings = in_array(\CCalendar::GetCurUserMeetingSection(), $params['section']);
-			}
-
-			$res = \CCalendarEvent::GetList(
-				[
-					'arFilter' => $arFilter,
-					'parseRecursion' => $parseRecursion,
-					'fetchAttendees' => true,
-					'userId' => \CCalendar::GetCurUserId(),
-					'fetchMeetings' => $fetchMeetings,
-					'setDefaultLimit' => false,
-					'limit' => ($params['limit'] ?? null)
-				]
-			);
-
-			$finish = ($params['limit'] ?? false) && count($res) < $params['limit'];
-			$lastDateTimestamp = 0;
-			$firstDateTimestamp = INF;
-			foreach($res as $entry)
-			{
-				if (in_array($entry['SECT_ID'], $params['section']))
+				if (!empty($entries))
 				{
-					$entries[] = $entry;
-
-					if ($loadNext && !\CCalendarEvent::CheckRecurcion($entry) && $entry['DATE_TO_TS_UTC'] > $lastDateTimestamp)
+					$earliestEvent = $this->getEarliestEvent($entries);
+					$timestamp = strtotime($earliestEvent['DATE_FROM']);
+					if($timestamp < strtotime("01.$monthFrom.$yearFrom"))
 					{
-						$lastDateTimestamp = $entry['DATE_TO_TS_UTC'];
+						$yearFrom = (int)date('Y', $timestamp);
+						$monthFrom = (int)date('m', $timestamp);
 					}
-					elseif ($loadPrevious && !\CCalendarEvent::CheckRecurcion($entry) && $entry['DATE_FROM_TS_UTC'] < $lastDateTimestamp)
+
+					$latestEvent = $this->getLatestEvent($entries);
+					$timestamp = strtotime($latestEvent['DATE_FROM']);
+					if($timestamp > strtotime("01.$monthTo.$yearTo"))
 					{
-						$firstDateTimestamp = $entry['DATE_FROM_TS_UTC'];
+						$yearTo = (int)date('Y', $timestamp);
+						$monthTo = (int)date('m', $timestamp);
+						[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 1);
 					}
 				}
 			}
 
-			if ($loadNext)
+			if (
+				($direction === self::DIRECTION_PREVIOUS)
+				&& !$this->hasArrayEntriesInMonth($entries, $yearFrom, $monthFrom)
+			)
 			{
-				$params['toLimit'] = \CCalendar::Date($lastDateTimestamp);
-			}
-			if ($loadPrevious)
-			{
-				$params['fromLimit'] = \CCalendar::Date($firstDateTimestamp);
+				//Load one month further
+				[$yearFrom, $monthFrom] = $this->getValidYearAndMonth($yearFrom, $monthFrom - 1);
+				$entries = $this->getEntries($sections, $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
+
+				if (!$this->hasArrayEntriesInMonth($entries, $yearFrom, $monthFrom))
+				{
+					//Load half year further
+					[$yearFrom, $monthFrom] = $this->getValidYearAndMonth($yearFrom, $monthFrom - 5);
+					$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
+					$entries = $this->getEntries($sections, $limits);
+
+					if (!$this->hasArrayEntriesInRange($entries, $yearFrom, $monthFrom, (int)$request->getPost('year_from'), (int)$request->getPost('month_from')))
+					{
+						$isBoundaryOfPastReached = true;
+						//Load all events
+						$limits['from'] = false;
+						$entries = $this->getEntries($sections, $limits);
+
+						if (!empty($entries))
+						{
+							$earliestEvent = $this->getEarliestEvent($entries);
+							$timestamp = strtotime($earliestEvent['DATE_FROM']);
+							$yearFrom = (int)date('Y', $timestamp);
+							$monthFrom = (int)date('m', $timestamp);
+						}
+					}
+				}
 			}
 
-			if (!$parseRecursion)
+			if (
+				($direction === self::DIRECTION_NEXT)
+				&& !$this->hasArrayEntriesInMonth($entries, $yearTo, $monthTo - 1)
+			)
 			{
-				foreach($entries as $entry)
+				//Load one month further
+				[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 1);
+				$entries = $this->getEntries($sections, $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
+
+				if (!$this->hasArrayEntriesInMonth($entries, $yearTo, $monthTo - 1))
 				{
-					if (in_array($entry['SECT_ID'], $params['section']) && \CCalendarEvent::CheckRecurcion($entry))
+					//Load half year further
+					[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 5);
+					$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
+					$entries = $this->getEntries($sections, $limits);
+
+					if (!$this->hasArrayEntriesInRange($entries, (int)$request->getPost('year_to'), (int)$request->getPost('month_to') - 1, $yearTo, $monthTo - 1))
 					{
-						\CCalendarEvent::ParseRecursion($entries, $entry, [
-							'fromLimit' => $params['fromLimit'],
-							'toLimit' => $params['toLimit'],
-							'instanceCount' => false,
-							'preciseLimits' => true
-						]);
+						$isBoundaryOfFutureReached = true;
+						//Load all events
+						$limits['to'] = false;
+						$entries = $this->getEntries($sections, $limits);
+
+						if (!empty($entries))
+						{
+							$latestEvent = $this->getLatestEvent($entries);
+							$timestamp = strtotime($latestEvent['DATE_FROM']);
+							$yearTo = (int)date('Y', $timestamp);
+							$monthTo = (int)date('m', $timestamp);
+							[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 1);
+						}
 					}
 				}
 			}
@@ -217,7 +246,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$tasksEntries = \CCalendar::getTaskList(
 				[
 					'type' => $calendarType,
-					'ownerId' => $ownerId
+					'ownerId' => $ownerId,
 				]
 			);
 
@@ -230,17 +259,139 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$response = [
 			'entries' => $entries,
 			'userIndex' => \CCalendarEvent::getUserIndex(),
+			'isBoundaryOfPastReached' => $isBoundaryOfPastReached,
+			'isBoundaryOfFutureReached' => $isBoundaryOfFutureReached,
 		];
 		if (is_array($connections))
 		{
 			$response['connections'] = $connections;
 		}
-		if (isset($params['limit']) && $params['limit'])
+
+		if (
+			(int)$request->getPost('month_from') !== $monthFrom
+			|| (int)$request->getPost('year_from') !== $yearFrom
+		)
 		{
-			$response['finish'] = $finish;
+			$response['newYearFrom'] = $yearFrom;
+			$response['newMonthFrom'] = $monthFrom;
+		}
+
+		if (
+			(int)$request->getPost('month_to') !== $monthTo
+			|| (int)$request->getPost('year_to') !== $yearTo
+		)
+		{
+			$response['newYearTo'] = $yearTo;
+			$response['newMonthTo'] = $monthTo;
 		}
 
 		return $response;
+	}
+
+	protected function getShownEntries(array $entries): array
+	{
+		return CalendarFilter::filterByShowDeclined($entries);
+	}
+
+	protected function getEntries(array $sections, array $limits): array
+	{
+		return \CCalendarEvent::GetList(
+			[
+				'arFilter' => [
+					'SECTION' => $sections,
+					'FROM_LIMIT' => $limits['from'],
+					'TO_LIMIT' => $limits['to'],
+				],
+				'parseRecursion' => true,
+				'fetchAttendees' => true,
+				'userId' => \CCalendar::GetCurUserId(),
+				'setDefaultLimit' => false,
+			]
+		);
+	}
+
+	protected function getValidYearAndMonth(int $year, int $month): array
+	{
+		if ($month <= 0)
+		{
+			return [$year - 1, $month + 12];
+		}
+
+		if ($month > 12)
+		{
+			return [$year + 1, $month - 12];
+		}
+
+		return [$year, $month];
+	}
+
+	protected function getLimitDates(int $yearFrom, int $monthFrom, int $yearTo, int $monthTo): array
+	{
+		return [
+			'from' => \CCalendar::Date(mktime(0, 0, 0, $monthFrom, 1, $yearFrom), false),
+			'to' => \CCalendar::Date(mktime(0, 0, 0, $monthTo, 1, $yearTo), false),
+		];
+	}
+
+	protected function hasArrayEntriesInMonth(array $entries, int $yearFrom, int $monthFrom): bool
+	{
+		return $this->hasArrayEntriesInRange($entries, $yearFrom, $monthFrom, $yearFrom, $monthFrom);
+	}
+
+	protected function hasArrayEntriesInRange(array $entries, int $yearFrom, int $monthFrom, int $yearTo, int $monthTo): bool
+	{
+		$monthsFrom = $yearFrom * 12 + $monthFrom;
+		$monthsTo = $yearTo * 12 + $monthTo;
+		$settings = UserSettings::get();
+		$showDeclined = $settings['showDeclined'];
+		foreach ($entries as $entry)
+		{
+			if (!$showDeclined && $entry['MEETING_STATUS'] === 'N')
+			{
+				continue;
+			}
+
+			$timestamp = strtotime($entry['DATE_FROM']);
+			$entryYear = (int)date('Y', $timestamp);
+			$entryMonth = (int)date('m', $timestamp);
+			$entryMonths = $entryYear * 12 + $entryMonth;
+
+			if ($entryMonths >= $monthsFrom && $entryMonths <= $monthsTo)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected function getEarliestEvent(array $entries): array
+	{
+		return array_reduce($entries, static function($firstEntry, $entry) {
+			if (!$firstEntry)
+			{
+				return $entry;
+			}
+			if (strtotime($entry['DATE_FROM']) < strtotime($firstEntry['DATE_FROM']))
+			{
+				return $entry;
+			}
+			return $firstEntry;
+		});
+	}
+
+	protected function getLatestEvent(array $entries): array
+	{
+		return array_reduce($entries, static function($lastEntry, $entry) {
+			if (!$lastEntry)
+			{
+				return $entry;
+			}
+			if (strtotime($entry['DATE_FROM']) > strtotime($lastEntry['DATE_FROM']))
+			{
+				return $entry;
+			}
+			return $lastEntry;
+		});
 	}
 
 	public function moveEventAction()
@@ -250,9 +401,25 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$id = (int)$request->getPost('id');
 		$sectionId = (int)$request->getPost('section');
 
+		if ($id)
+		{
+			$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($id, [], $userId);
+		}
+		else
+		{
+			$section = \CCalendarSect::GetById($sectionId);
+
+			$eventModel =
+				EventModel::createNew()
+					->setOwnerId((int)($section['OWNER_ID'] ?? 0))
+					->setSectionId($sectionId ?? 0)
+					->setSectionType($section['TYPE'] ?? '')
+			;
+		}
+		$accessController = new EventAccessController($userId);
 		if (
-			(!$id && !\CCalendarSect::CanDo('calendar_add', $sectionId, $userId))
-			|| ($id && !\CCalendarSect::CanDo('calendar_edit', $sectionId, $userId))
+			(!$id && !$accessController->check(ActionDictionary::ACTION_EVENT_ADD, $eventModel))
+			|| ($id && !$accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel))
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'move_entry_access_denied'));
@@ -275,11 +442,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		if (!($section = $sectionList->fetch()))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
-		}
-
-		if (!\CCalendarType::CanDo('calendar_type_edit', $section['CAL_TYPE']))
-		{
-			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'type_access_denied'));
 		}
 
 		if (
@@ -425,9 +587,26 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$isPlannerFeatureEnabled = Bitrix24Manager::isPlannerFeatureEnabled();
 		$checkCurrentUsersAccessibility = !$id || $request->getPost('checkCurrentUsersAccessibility') !== 'N';
 
+		if ($id)
+		{
+			$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($id, [], $userId);
+		}
+		else
+		{
+			$section = \CCalendarSect::GetById($sectionId, false);
+
+			$eventModel =
+				EventModel::createNew()
+					->setOwnerId((int)($section['OWNER_ID'] ?? 0))
+					->setSectionId($sectionId)
+					->setSectionType($section['CAL_TYPE'] ?? '')
+			;
+		}
+		$accessController = new EventAccessController($userId);
 		if (
-			(!$id && !\CCalendarSect::CanDo('calendar_add', $sectionId, $userId))
-			|| (!$id && !\CCalendarSect::CanDo('calendar_edit', $sectionId, $userId)))
+			(!$id && !$accessController->check(ActionDictionary::ACTION_EVENT_ADD, $eventModel))
+			|| ($id && !$accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel))
+		)
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_access_denied'));
 		}
@@ -454,11 +633,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		if (!($section = $sectionList->fetch()))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
-		}
-
-		if (!\CCalendarType::CanDo('calendar_type_edit', $section['CAL_TYPE']))
-		{
-			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'type_access_denied'));
 		}
 
 		if (

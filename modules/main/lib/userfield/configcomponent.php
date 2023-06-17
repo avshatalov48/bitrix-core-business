@@ -24,8 +24,8 @@ abstract class ConfigComponent extends \CBitrixComponent
 		$this->errorCollection = new ErrorCollection();
 
 		$request = Application::getInstance()->getContext()->getRequest();
-		$this->entityId = $this->arParams['entityId'] ?: $request->get('entityId');
-		$this->moduleId = $this->arParams['moduleId'] ?: $request->get('moduleId');
+		$this->entityId = !empty($this->arParams['entityId']) ? $this->arParams['entityId'] : $request->get('entityId');
+		$this->moduleId = !empty($this->arParams['moduleId']) ? $this->arParams['moduleId'] : $request->get('moduleId');
 
 		if(!$this->moduleId)
 		{
@@ -33,11 +33,6 @@ abstract class ConfigComponent extends \CBitrixComponent
 			return;
 		}
 		$this->access = UserFieldAccess::getInstance($this->moduleId);
-		if(!$this->access)
-		{
-			$this->errorCollection[] = $this->getAccessDeniedError();
-			return;
-		}
 	}
 
 	protected function getNoModuleError(): Error

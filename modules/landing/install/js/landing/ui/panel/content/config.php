@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'ui.design-tokens',
 		'ui.fonts.opensans',
+		'landing.main',
 		'landing.ui.panel.base',
 		'main.core',
 		'landing.utils',

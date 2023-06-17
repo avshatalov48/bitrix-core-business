@@ -33,13 +33,14 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
 		unset($arFields["PERSON_TYPE_ID"]);
+
+		$DB->StartTransaction();
 
 		if (!CSaleOrderPropsGroup::Update($ID, $arFields))
 		{
@@ -50,8 +51,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -92,8 +95,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SOPGAN_DELETE_ERROR"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}
@@ -138,7 +143,7 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 while ($arPropsGroup = $dbResultList->NavNext(true, "f_"))
 {
-	$editUrl = "sale_order_props_group_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_");
+	$editUrl = "sale_order_props_group_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_");
 	$row =& $lAdmin->AddRow($f_ID, $arPropsGroup, $editUrl, GetMessage("SOPGAN_EDIT_PROMT"));
 
 	$row->AddField("ID", "<b><a href='".$editUrl."' title='".GetMessage("SOPGAN_EDIT_PROMT")."'>".$f_ID."</a>");
@@ -170,7 +175,7 @@ while ($arPropsGroup = $dbResultList->NavNext(true, "f_"))
 		])->fetch()['CNT'];
 
 		if ($numProps > 0)
-			$fieldValue = "<a href=\"sale_order_props.php?lang=".LANG."&set_filter=Y&filter_group=".$f_ID."\">".$numProps."</a>";
+			$fieldValue = "<a href=\"sale_order_props.php?lang=" . LANGUAGE_ID . "&set_filter=Y&filter_group=".$f_ID."\">".$numProps."</a>";
 		else
 			$fieldValue = "0";
 	}

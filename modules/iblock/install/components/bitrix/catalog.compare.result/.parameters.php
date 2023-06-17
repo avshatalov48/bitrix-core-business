@@ -17,11 +17,13 @@ $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues[
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
 $arIBlock = array();
-$iblockFilter = (
-	!empty($arCurrentValues['IBLOCK_TYPE'])
-	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
-	: array('ACTIVE' => 'Y')
-);
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
 	$arIBlock[$arr['ID']] = '['.$arr['ID'].'] '.$arr['NAME'];
@@ -50,7 +52,11 @@ if ($iblockExists)
 	unset($propertyCode, $propertyName, $property, $propertyIterator);
 }
 
-$arOffers = CIBlockPriceTools::GetOffersIBlock($arCurrentValues["IBLOCK_ID"]);
+$arOffers =
+	$iblockExists
+		? CIBlockPriceTools::GetOffersIBlock($arCurrentValues['IBLOCK_ID'])
+		: false
+;
 $OFFERS_IBLOCK_ID = is_array($arOffers)? $arOffers["OFFERS_IBLOCK_ID"]: 0;
 $arProperty_Offers = array();
 if ($OFFERS_IBLOCK_ID)

@@ -4,6 +4,8 @@ namespace Bitrix\Socialnetwork\Component\LogList;
 
 class Assets
 {
+	public $component = null;
+
 	private static $assetFiles = [
 		'/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css',
 	];

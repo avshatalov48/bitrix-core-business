@@ -20,7 +20,7 @@ $componentParameters = array(
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 );
 
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:socialnetwork.pageslider.wrapper",

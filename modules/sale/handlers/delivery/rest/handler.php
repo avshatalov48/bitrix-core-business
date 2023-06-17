@@ -66,8 +66,11 @@ final class RestHandler extends Base
 		if ((int)$this->id <= 0)
 		{
 			$settings = $this->getHandlerSettings();
-			$this->name = $settings['NAME'];
-			$this->description = $settings['DESCRIPTION'];
+			if ($settings !== null)
+			{
+				$this->name = $settings['NAME'];
+				$this->description = $settings['DESCRIPTION'];
+			}
 		}
 	}
 
@@ -79,12 +82,12 @@ final class RestHandler extends Base
 		return self::HANDLER_CODE_PREFIX . (string)$this->handlerCode;
 	}
 
-	private function getHandlerSettings()
+	private function getHandlerSettings(): ?array
 	{
 		$handlerList = \Bitrix\Sale\Delivery\Services\Manager::getRestHandlerList();
 		$code = str_replace(self::HANDLER_CODE_PREFIX, '', $this->getHandlerCode());
 
-		return $handlerList[$code];
+		return $handlerList[$code] ?? null;
 	}
 
 	/**
@@ -111,7 +114,7 @@ final class RestHandler extends Base
 			'TYPE' => 'STRING',
 			'NAME' => Loc::getMessage('SALE_DELIVERY_REST_HANDLER_SETTING_REST_CODE'),
 			'READONLY' => true,
-			'DEFAULT' => $settings['CODE'],
+			'DEFAULT' => $settings['CODE'] ?? '',
 		];
 
 		return $result;
@@ -156,7 +159,8 @@ final class RestHandler extends Base
 	public function getProfilesListFull(): array
 	{
 		$settings = $this->getHandlerSettings();
-		return $settings['PROFILES'];
+
+		return $settings['PROFILES'] ?? [];
 	}
 
 	/**

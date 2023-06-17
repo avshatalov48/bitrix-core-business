@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_date,main_core,im_v2_const) {
+(function (exports,im_v2_lib_desktop,main_date,im_v2_lib_dateFormatter,im_v2_const,main_core) {
 	'use strict';
 
 	const UA = navigator.userAgent.toLowerCase();
@@ -45,46 +45,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    }
 	    return null;
+	  },
+	  openLink(link, target = '_blank') {
+	    window.open(link, target, '', true);
+	    return true;
 	  }
 	};
 
 	const DateUtil = {
-	  getFormatType(type = im_v2_const.DateFormat.default) {
-	    let format = [];
-	    if (type === im_v2_const.DateFormat.groupTitle) {
-	      format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE")]];
-	    } else if (type === im_v2_const.DateFormat.message) {
-	      format = [["", main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")]];
-	    } else if (type === im_v2_const.DateFormat.recentTitle) {
-	      format = [["tommorow", "today"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_RECENT")]];
-	    } else if (type === im_v2_const.DateFormat.recentLinesTitle) {
-	      format = [["tommorow", "tommorow"], ["today", "today"], ["yesterday", "yesterday"], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_RECENT")]];
-	    } else if (type === im_v2_const.DateFormat.readedTitle) {
-	      format = [["tommorow", "tommorow, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["today", "today, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["yesterday", "yesterday, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_READED")]];
-	    } else if (type === im_v2_const.DateFormat.vacationTitle) {
-	      format = [["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_SHORT")]];
-	    } else {
-	      format = [["tommorow", "tommorow, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["today", "today, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["yesterday", "yesterday, " + main_core.Loc.getMessage("IM_UTILS_FORMAT_TIME")], ["", main_core.Loc.getMessage("IM_UTILS_FORMAT_DATE_TIME")]];
-	    }
-	    return format;
-	  },
-	  getDateFunction(localize = null) {
-	    if (this.dateFormatFunction) {
-	      return this.dateFormatFunction;
-	    }
-	    this.dateFormatFunction = Object.create(BX.Main.Date);
-	    if (localize) {
-	      // eslint-disable-next-line bitrix-rules/no-pseudo-private
-	      this.dateFormatFunction._getMessage = phrase => localize[phrase];
-	    }
-	    return this.dateFormatFunction;
-	  },
-	  format(timestamp, format = null, localize = null) {
-	    if (!format) {
-	      format = this.getFormatType(im_v2_const.DateFormat.default, localize);
-	    }
-	    return this.getDateFunction(localize).format(format, timestamp);
-	  },
 	  cast(date, def = new Date()) {
 	    let result = def;
 	    if (date instanceof Date) {
@@ -148,24 +116,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return UA$2.includes('bitrixmobile');
 	  },
 	  isBitrixDesktop() {
-	    return UA$2.includes('bitrixdesktop');
+	    return im_v2_lib_desktop.DesktopManager.isDesktop();
 	  },
 	  getDesktopVersion() {
-	    if (!main_core.Type.isUndefined(this.getDesktopVersionStatic)) {
-	      return this.getDesktopVersionStatic;
-	    }
-	    if (main_core.Type.isUndefined(window.BXDesktopSystem)) {
-	      return 0;
-	    }
-	    const version = window.BXDesktopSystem.GetProperty('versionParts');
-	    this.getDesktopVersionStatic = version[3];
-	    return this.getDesktopVersionStatic;
+	    return im_v2_lib_desktop.DesktopManager.getInstance().getDesktopVersion();
 	  },
 	  isDesktopFeatureEnabled(code) {
-	    if (!this.isBitrixDesktop() || !main_core.Type.isFunction(BXDesktopSystem.FeatureEnabled)) {
-	      return false;
-	    }
-	    return !!BXDesktopSystem.FeatureEnabled(code);
+	    return im_v2_lib_desktop.DesktopManager.getInstance().isDesktopFeatureEnabled(code);
 	  },
 	  isMobile() {
 	    return this.isAndroid() || this.isIos() || this.isBitrixMobile();
@@ -318,11 +275,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    let firstPart = text.slice(0, splitIndex + 1);
 	    const secondPart = text.slice(splitIndex + 1);
 	    const hasWhitespace = /\s/.test(firstPart);
-	    const hasUserCode = /\[user=(\d+)(\s)?(replace)?](.*?)\[\/user]/ig.test(text);
+	    const hasUserCode = /\[user=(\d+)(\s)?(replace)?](.*?)\[\/user]/gi.test(text);
 	    if (firstPart.length === splitIndex + 1 && !hasWhitespace && !hasUserCode) {
 	      firstPart += UNSEEN_SPACE;
 	    }
 	    return firstPart + secondPart;
+	  },
+	  getUuidV4() {
+	    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+	      var r = Math.random() * 16 | 0,
+	        v = c == 'x' ? r : r & 0x3 | 0x8;
+	      return v.toString(16);
+	    });
 	  },
 	  isUuidV4(uuid) {
 	    if (!main_core.Type.isString(uuid)) {
@@ -330,6 +294,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const uuidV4pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
 	    return uuid.search(uuidV4pattern) === 0;
+	  },
+	  isTempMessage(messageId) {
+	    return this.isUuidV4(messageId) || messageId.toString().startsWith('temp');
 	  },
 	  checkUrl(url) {
 	    const allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
@@ -372,28 +339,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const isOnline = this.isOnline(params.lastActivityDate);
 	    const isMobileOnline = this.isMobileOnline(params.lastActivityDate, params.mobileLastDate);
 	    let text = '';
+	    const lastSeenText = this.getLastSeenText(params.lastActivityDate);
 
 	    // "away for X minutes"
 	    if (isOnline && params.idle && !isMobileOnline) {
 	      text = main_core.Loc.getMessage('IM_STATUS_AWAY_TITLE').replace('#TIME#', this.getIdleText(params.idle));
 	    }
-	    const lastSeenText = this.getLastSeenText(params.lastActivityDate);
 	    // truly online, last activity date < 5 minutes ago - show status text
-	    if (isOnline && !lastSeenText) {
+	    else if (isOnline && !lastSeenText) {
 	      text = this.getStatusTextForLastDate(params.status);
 	    }
-
 	    // last activity date > 5 minutes ago - "Was online X minutes ago"
-	    if (lastSeenText) {
+	    else if (lastSeenText) {
 	      const phraseCode = `IM_LAST_SEEN_${params.gender}`;
 	      text = main_core.Loc.getMessage(phraseCode).replace('#POSITION#. ', '').replace('#LAST_SEEN#', lastSeenText);
 	    }
 
 	    // if on vacation - add postfix with vacation info
 	    if (params.absent) {
-	      const dateFunction = DateUtil.getDateFunction();
-	      const vacationFormat = DateUtil.getFormatType(im_v2_const.DateFormat.vacationTitle);
-	      const vacationText = main_core.Loc.getMessage('IM_STATUS_VACATION_TITLE').replace('#DATE#', dateFunction.format(vacationFormat, params.absent.getTime() / 1000));
+	      const vacationText = main_core.Loc.getMessage('IM_STATUS_VACATION_TITLE').replace('#DATE#', im_v2_lib_dateFormatter.DateFormatter.formatByCode(params.absent.getTime() / 1000, im_v2_lib_dateFormatter.DateCode.shortDateFormat));
 	      text = text ? `${text}. ${vacationText}` : vacationText;
 	    }
 	    return text;
@@ -402,7 +366,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!idle) {
 	      return '';
 	    }
-	    return DateUtil.getDateFunction().format([['s60', 'sdiff'], ['i60', 'idiff'], ['H24', 'Hdiff'], ['', 'ddiff']], idle);
+	    return main_date.DateTimeFormat.format([['s60', 'sdiff'], ['i60', 'idiff'], ['H24', 'Hdiff'], ['', 'ddiff']], idle);
 	  },
 	  isOnline(lastActivityDate) {
 	    if (!lastActivityDate) {
@@ -433,12 +397,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const FIVE_MINUTES = 5 * 60 * 1000;
 	    if (Date.now() - lastActivityDate.getTime() > FIVE_MINUTES) {
-	      return DateUtil.getDateFunction().formatLastActivityDate(lastActivityDate);
+	      return main_date.DateTimeFormat.formatLastActivityDate(lastActivityDate);
 	    }
 	    return '';
 	  },
 	  isBirthdayToday(birthday) {
-	    return birthday === DateUtil.format(new Date(), 'd-m');
+	    return birthday === main_date.DateTimeFormat.format('d-m', new Date());
 	  },
 	  getOnlineLimit() {
 	    const limitOnline = settings.get('limitOnline', false);
@@ -455,7 +419,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (main_core.Type.isString(userId)) {
 	      userId = Number.parseInt(userId, 10);
 	    }
-	    return `/company/personal/user/${userId}/calendar/`;
+	    const path = main_core.Extension.getSettings('im.v2.lib.utils').get('pathToUserCalendar');
+	    return path.replace('#user_id#', userId);
 	  },
 	  getMentionBbCode(userId, name) {
 	    if (main_core.Type.isString(userId)) {
@@ -606,15 +571,99 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!viewerAttributes) {
 	      return {};
 	    }
-	    return {
-	      'data-viewer': true,
-	      'data-viewer-type': viewerAttributes.viewerType,
-	      'data-object-id': viewerAttributes.objectId,
-	      'data-src': viewerAttributes.src,
-	      'data-viewer-group-by': viewerAttributes.viewerGroupBy,
-	      'data-title': viewerAttributes.title,
-	      'data-actions': viewerAttributes.actions
+	    const dataAttributes = {
+	      'data-viewer': true
 	    };
+	    Object.entries(viewerAttributes).forEach(([key, value]) => {
+	      dataAttributes[`data-${main_core.Text.toKebabCase(key)}`] = value;
+	    });
+	    return dataAttributes;
+	  },
+	  isImage(fileName) {
+	    const extension = FileUtil.getFileExtension(fileName);
+	    const fileType = FileUtil.getFileTypeByExtension(extension);
+	    return fileType === im_v2_const.FileType.image;
+	  }
+	};
+
+	const LETTER_CODE_PREFIX = 'Key';
+	const DIGIT_CODE_PREFIX = 'Digit';
+	const CTRL = 'Ctrl';
+	const ALT = 'Alt';
+	const SHIFT = 'Shift';
+	const MODIFIERS = new Set([CTRL, ALT, SHIFT]);
+	const KeyUtil = {
+	  isCmdOrCtrl(event) {
+	    if (PlatformUtil.isMac()) {
+	      return event.metaKey;
+	    }
+	    if (PlatformUtil.isLinux() || PlatformUtil.isWindows()) {
+	      return event.ctrlKey;
+	    }
+	    return false;
+	  },
+	  isAltOrOption(event) {
+	    return event.altKey;
+	  },
+	  isCombination(event, combinationList) {
+	    if (main_core.Type.isString(combinationList)) {
+	      combinationList = [combinationList];
+	    }
+	    return combinationList.some(combination => {
+	      return checkCombination(event, combination);
+	    });
+	  }
+	};
+	function checkCombination(event, combination) {
+	  if (combination.includes(SHIFT) && !event.shiftKey) {
+	    return false;
+	  }
+	  if (combination.includes(ALT) && !event.altKey) {
+	    return false;
+	  }
+	  if (combination.includes(CTRL) && !this.isCmdOrCtrl(event)) {
+	    return false;
+	  }
+	  const keys = combination.split('+').filter(key => {
+	    return !MODIFIERS.has(key);
+	  }).map(key => {
+	    const singleLetterRegexp = /^[A-Za-z]$/;
+	    const singleDigitRegexp = /^\d$/;
+	    if (singleLetterRegexp.test(key)) {
+	      return `${LETTER_CODE_PREFIX}${key.toUpperCase()}`;
+	    } else if (singleDigitRegexp.test(key)) {
+	      return `${DIGIT_CODE_PREFIX}${key}`;
+	    }
+	    return key;
+	  });
+	  let result = true;
+	  keys.forEach(key => {
+	    if (key !== event.code) {
+	      result = false;
+	    }
+	  });
+	  return result;
+	}
+
+	const DomUtil = {
+	  recursiveBackwardNodeSearch(node, className, maxNodeLevel = 10) {
+	    while (maxNodeLevel > 0) {
+	      if (main_core.Dom.hasClass(node, className)) {
+	        return node;
+	      }
+	      if (!node || !node.parentNode) {
+	        return null;
+	      }
+	      node = node.parentNode;
+	      maxNodeLevel--;
+	    }
+	    return null;
+	  }
+	};
+
+	const DialogUtil = {
+	  isDialogId(dialogId) {
+	    return /(chat\d+)|\d+/i.test(dialogId);
 	  }
 	};
 
@@ -626,10 +675,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  rest: RestUtil,
 	  text: TextUtil,
 	  user: UserUtil,
-	  file: FileUtil
+	  file: FileUtil,
+	  dom: DomUtil,
+	  key: KeyUtil,
+	  dialog: DialogUtil
 	};
 
 	exports.Utils = Utils;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main,BX,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Main,BX.Im.V2.Lib,BX.Messenger.v2.Const,BX));
 //# sourceMappingURL=utils.bundle.js.map

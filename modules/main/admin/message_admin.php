@@ -49,8 +49,9 @@ $arFilterFields = Array(
 	"find_bcc",
 	"find_subject",
 	"find_body_type",
-	"find_body"
-	);
+	"find_body",
+	'find_event_type',
+);
 
 $lAdmin->InitFilter($arFilterFields);
 
@@ -140,14 +141,17 @@ if($lAdmin->EditAction() && $isAdmin) // if saving from list
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$em->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 // Actions
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CEventMessage::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -172,7 +176,9 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 				$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 			}
 			else
+			{
 				$DB->Commit();
+			}
 			break;
 		case "activate":
 		case "deactivate":
@@ -280,7 +286,7 @@ $lAdmin->AddGroupActionTable(Array(
 $aContext = array(
 	array(
 		"TEXT" => GetMessage("ADD_TEMPL"),
-		"LINK" => "message_edit.php?lang=".LANG.'&'.GetFilterParams("find_".$type."_"),
+		"LINK" => "message_edit.php?lang=".LANG.'&'.GetFilterParams("find_".($type ?? '')."_"),
 		"TITLE" => GetMessage("ADD_TEMPL_TITLE"),
 		"ICON" => "btn_new"
 	),

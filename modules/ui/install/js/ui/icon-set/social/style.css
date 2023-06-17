@@ -1,0 +1,184 @@
+@import "../icon-base.css";
+
+.ui-icon-set {
+	--ui-icon-set__path_cloud-sifre: url('/bitrix/js/ui/icon-set/social/images/cloud-sifre.svg');
+	--ui-icon-set__path_skype: url('/bitrix/js/ui/icon-set/social/images/skype.svg');
+	--ui-icon-set__path_telegram-in-circle-1: url('/bitrix/js/ui/icon-set/social/images/telegram-in-circle-1.svg');
+	--ui-icon-set__path_telegram-in-circle: url('/bitrix/js/ui/icon-set/social/images/telegram-in-circle.svg');
+	--ui-icon-set__path_telegram: url('/bitrix/js/ui/icon-set/social/images/telegram.svg');
+	--ui-icon-set__path_instagram: url('/bitrix/js/ui/icon-set/social/images/instagram.svg');
+	--ui-icon-set__path_instagram-facebook: url('/bitrix/js/ui/icon-set/social/images/instagram-facebook.svg');
+	--ui-icon-set__path_windows: url('/bitrix/js/ui/icon-set/social/images/windows.svg');
+	--ui-icon-set__path_window-screen: url('/bitrix/js/ui/icon-set/social/images/window-screen.svg');
+	--ui-icon-set__path_vk-lists: url('/bitrix/js/ui/icon-set/social/images/vk-lists.svg');
+	--ui-icon-set__path_vk-shop: url('/bitrix/js/ui/icon-set/social/images/vk-shop.svg');
+	--ui-icon-set__path_facebook: url('/bitrix/js/ui/icon-set/social/images/facebook.svg');
+	--ui-icon-set__path_facebook-chats: url('/bitrix/js/ui/icon-set/social/images/facebook-chats.svg');
+	--ui-icon-set__path_vk: url('/bitrix/js/ui/icon-set/social/images/vk.svg');
+	--ui-icon-set__path_viber: url('/bitrix/js/ui/icon-set/social/images/viber.svg');
+	--ui-icon-set__path_avito: url('/bitrix/js/ui/icon-set/social/images/avito.svg');
+	--ui-icon-set__path_snowflake: url('/bitrix/js/ui/icon-set/social/images/snowflake.svg');
+	--ui-icon-set__path_globe: url('/bitrix/js/ui/icon-set/social/images/globe.svg');
+	--ui-icon-set__path_kik: url('/bitrix/js/ui/icon-set/social/images/kik.svg');
+	--ui-icon-set__path_slack: url('/bitrix/js/ui/icon-set/social/images/slack.svg');
+	--ui-icon-set__path_messenger-meta: url('/bitrix/js/ui/icon-set/social/images/messenger-meta.svg');
+	--ui-icon-set__path_messenger: url('/bitrix/js/ui/icon-set/social/images/messenger.svg');
+	--ui-icon-set__path_odnoklassniki: url('/bitrix/js/ui/icon-set/social/images/odnoklassniki.svg');
+	--ui-icon-set__path_edna: url('/bitrix/js/ui/icon-set/social/images/edna.svg');
+	--ui-icon-set__path_call-infomation: url('/bitrix/js/ui/icon-set/social/images/call-infomation.svg');
+	--ui-icon-set__path_evernote: url('/bitrix/js/ui/icon-set/social/images/evernote.svg');
+	--ui-icon-set__path_google-ads: url('/bitrix/js/ui/icon-set/social/images/google-ads.svg');
+	--ui-icon-set__path_chats-24: url('/bitrix/js/ui/icon-set/social/images/chats-24.svg');
+	--ui-icon-set__path_android: url('/bitrix/js/ui/icon-set/social/images/android.svg');
+	--ui-icon-set__path_apple-and-ios: url('/bitrix/js/ui/icon-set/social/images/apple-and-ios.svg');
+	--ui-icon-set__path_chats-computer: url('/bitrix/js/ui/icon-set/social/images/chats-computer.svg');
+	--ui-icon-set__path_shape: url('/bitrix/js/ui/icon-set/social/images/shape.svg');
+	--ui-icon-set__path_shape-1: url('/bitrix/js/ui/icon-set/social/images/shape-1.svg');
+	--ui-icon-set__path_instagram-direct: url('/bitrix/js/ui/icon-set/social/images/instagram-direct.svg');
+	--ui-icon-set__path_whatsapp: url('/bitrix/js/ui/icon-set/social/images/whatsapp.svg');
+	--ui-icon-set__path_zoom: url('/bitrix/js/ui/icon-set/social/images/zoom.svg');
+}
+
+.ui-icon-set.--cloud-sifre {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_cloud-sifre);
+}
+
+.ui-icon-set.--skype {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_skype);
+}
+
+.ui-icon-set.--telegram-in-circle-1 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_telegram-in-circle-1);
+}
+
+.ui-icon-set.--telegram-in-circle {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_telegram-in-circle);
+}
+
+.ui-icon-set.--telegram {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_telegram);
+}
+
+.ui-icon-set.--instagram {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_instagram);
+}
+
+.ui-icon-set.--instagram-facebook {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_instagram-facebook);
+}
+
+.ui-icon-set.--windows {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_windows);
+}
+
+.ui-icon-set.--window-screen {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_window-screen);
+}
+
+.ui-icon-set.--vk-lists {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_vk-lists);
+}
+
+.ui-icon-set.--vk-shop {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_vk-shop);
+}
+
+.ui-icon-set.--facebook {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_facebook);
+}
+
+.ui-icon-set.--facebook-chats {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_facebook-chats);
+}
+
+.ui-icon-set.--vk {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_vk);
+}
+
+.ui-icon-set.--viber {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_viber);
+}
+
+.ui-icon-set.--avito {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_avito);
+}
+
+.ui-icon-set.--snowflake {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_snowflake);
+}
+
+.ui-icon-set.--globe {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_globe);
+}
+
+.ui-icon-set.--kik {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_kik);
+}
+
+.ui-icon-set.--slack {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_slack);
+}
+
+.ui-icon-set.--messenger-meta {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_messenger-meta);
+}
+
+.ui-icon-set.--messenger {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_messenger);
+}
+
+.ui-icon-set.--odnoklassniki {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_odnoklassniki);
+}
+
+.ui-icon-set.--edna {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_edna);
+}
+
+.ui-icon-set.--call-infomation {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_call-infomation);
+}
+
+.ui-icon-set.--evernote {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_evernote);
+}
+
+.ui-icon-set.--google-ads {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_google-ads);
+}
+
+.ui-icon-set.--chats-24 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_chats-24);
+}
+
+.ui-icon-set.--android {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_android);
+}
+
+.ui-icon-set.--apple-and-ios {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_apple-and-ios);
+}
+
+.ui-icon-set.--chats-computer {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_chats-computer);
+}
+
+.ui-icon-set.--shape {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shape);
+}
+
+.ui-icon-set.--shape-1 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shape-1);
+}
+
+.ui-icon-set.--instagram-direct {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_instagram-direct);
+}
+
+.ui-icon-set.--whatsapp {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_whatsapp);
+}
+
+.ui-icon-set.--zoom {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_zoom);
+}

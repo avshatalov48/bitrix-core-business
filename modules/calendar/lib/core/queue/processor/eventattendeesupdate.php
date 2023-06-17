@@ -85,6 +85,7 @@ class EventAttendeesUpdate implements Interfaces\Processor
 		if (
 			$result
 			&& Loader::includeModule('im')
+			&& $event->getMeetingDescription()
 			&& !empty($event->getMeetingDescription()->getFields()['CHAT_ID'])
 		)
 		{

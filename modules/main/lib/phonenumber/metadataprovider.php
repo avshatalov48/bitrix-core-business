@@ -56,7 +56,7 @@ class MetadataProvider
 	public function getCountryMetadata($country)
 	{
 		$country = mb_strtoupper($country);
-		return isset($this->metadata[$country]) ?  $this->metadata[$country] : false;
+		return $this->metadata[$country] ?? false;
 	}
 
 	public function toArray()

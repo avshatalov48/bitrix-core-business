@@ -12,7 +12,7 @@ use Bitrix\Catalog;
  * @example BX.ajax.runAction("sale.entity.updateBasketItem", { data: { id: 1, fields: { quantity: 2 }}});
  * @internal
  */
-final class UpdateBasketItemAction extends BaseAction
+final class UpdateBasketItemAction extends Sale\Controller\Action\BaseAction
 {
 	public function run(int $id, array $fields)
 	{
@@ -206,5 +206,10 @@ final class UpdateBasketItemAction extends BaseAction
 			},
 			ARRAY_FILTER_USE_KEY
 		);
+	}
+
+	private function filterBasketFieldsOnUpdate(array $basketFields): array
+	{
+		return (new Sale\Rest\Entity\BasketItem())->internalizeFieldsUpdate($basketFields);
 	}
 }

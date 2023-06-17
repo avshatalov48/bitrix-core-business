@@ -61,6 +61,7 @@ class ExportOffer implements \Iterator
 	 *
 	 * @return array
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->currentRecord;
@@ -71,6 +72,7 @@ class ExportOffer implements \Iterator
 	 *
 	 * @return int
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->currentKey;
@@ -81,6 +83,7 @@ class ExportOffer implements \Iterator
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->currentKey++;
@@ -93,6 +96,7 @@ class ExportOffer implements \Iterator
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		$this->currentKey = 0;
@@ -107,6 +111,7 @@ class ExportOffer implements \Iterator
 	 *
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid ()
 	{
 		return is_array($this->currentRecord);
@@ -130,7 +135,7 @@ class ExportOffer implements \Iterator
 			$filter["INCLUDE_SUBSECTIONS"] = $this->includeSubsections ? "Y" : "N";
 			$filter["SECTION_ID"] = $this->arSections;
 		}
-		
+
 		if($this->onlyAvailableElements)
 			$filter["CATALOG_AVAILABLE"] = "Y";
 		$filter["ACTIVE"] = "Y";
@@ -155,50 +160,100 @@ class ExportOffer implements \Iterator
 
 	protected function getAvailGroups()
 	{
-		$arAvailGroups = array();
+		$arAvailGroups = [];
 
 		if (!$this->bAllSections)
 		{
-			for ($i = 0, $intSectionsCount = count($this->arSections); $i < $intSectionsCount; $i++)
+			$intSectionsCount = count($this->arSections);
+			for ($i = 0; $i < $intSectionsCount; $i++)
 			{
-				$db_res = \CIBlockSection::GetNavChain($this->iBlockId, $this->arSections[$i]);
+				$list = \CIBlockSection::GetNavChain(
+					$this->iBlockId,
+					$this->arSections[$i],
+					[
+						'ID',
+						'IBLOCK_ID',
+						'IBLOCK_SECTION_ID',
+						'NAME',
+						'LEFT_MARGIN',
+						'RIGHT_MARGIN',
+					],
+					true
+				);
 				$curLEFT_MARGIN = 0;
 				$curRIGHT_MARGIN = 0;
-				while ($ar_res = $db_res->Fetch())
+				foreach ($list as $ar_res)
 				{
-					$curLEFT_MARGIN = (int)$ar_res["LEFT_MARGIN"];
-					$curRIGHT_MARGIN = (int)$ar_res["RIGHT_MARGIN"];
-					$arAvailGroups[$ar_res["ID"]] = array(
-						"ID" => (int)$ar_res["ID"],
-						"IBLOCK_SECTION_ID" => (int)$ar_res["IBLOCK_SECTION_ID"],
-						"NAME" => $ar_res["NAME"]
-					);
+					$curLEFT_MARGIN = (int)$ar_res['LEFT_MARGIN'];
+					$curRIGHT_MARGIN = (int)$ar_res['RIGHT_MARGIN'];
+					$arAvailGroups[$ar_res['ID']] = [
+						'ID' => (int)$ar_res['ID'],
+						'IBLOCK_SECTION_ID' => (int)$ar_res['IBLOCK_SECTION_ID'],
+						'NAME' => $ar_res['NAME'],
+					];
 				}
+				unset($ar_res, $list);
 
-				$filter = array("IBLOCK_ID"=>$this->iBlockId, ">LEFT_MARGIN"=>$curLEFT_MARGIN, "<RIGHT_MARGIN"=>$curRIGHT_MARGIN, "ACTIVE"=>"Y", "IBLOCK_ACTIVE"=>"Y", "GLOBAL_ACTIVE"=>"Y");
-				$db_res = \CIBlockSection::GetList(array("left_margin"=>"asc"), $filter);
+				$filter = [
+					'IBLOCK_ID' => $this->iBlockId,
+					'>LEFT_MARGIN' => $curLEFT_MARGIN,
+					'<RIGHT_MARGIN' => $curRIGHT_MARGIN,
+					'ACTIVE' => 'Y',
+					'IBLOCK_ACTIVE' => 'Y',
+					'GLOBAL_ACTIVE' => 'Y',
+				];
+				$db_res = \CIBlockSection::GetList(
+					['LEFT_MARGIN '=> 'ASC'],
+					$filter,
+					false,
+					[
+						'ID',
+						'IBLOCK_ID',
+						'IBLOCK_SECTION_ID',
+						'NAME',
+						'LEFT_MARGIN',
+					]
+				);
 				while ($ar_res = $db_res->Fetch())
 				{
-					$arAvailGroups[$ar_res["ID"]] = array(
-						"ID" => (int)$ar_res["ID"],
-						"IBLOCK_SECTION_ID" => (int)$ar_res["IBLOCK_SECTION_ID"],
-						"NAME" => $ar_res["NAME"]
-					);
+					$arAvailGroups[$ar_res['ID']] = [
+						'ID' => (int)$ar_res['ID'],
+						'IBLOCK_SECTION_ID' => (int)$ar_res['IBLOCK_SECTION_ID'],
+						'NAME' => $ar_res['NAME'],
+					];
 				}
+				unset($ar_res, $db_res);
 			}
 		}
 		else
 		{
-			$filter = array("IBLOCK_ID"=>$this->iBlockId, "ACTIVE"=>"Y", "IBLOCK_ACTIVE"=>"Y", "GLOBAL_ACTIVE"=>"Y");
-			$db_res = \CIBlockSection::GetList(array("left_margin"=>"asc"), $filter);
+			$filter = [
+				'IBLOCK_ID' => $this->iBlockId,
+				'ACTIVE' => 'Y',
+				'IBLOCK_ACTIVE' => 'Y',
+				'GLOBAL_ACTIVE' => 'Y',
+			];
+			$db_res = \CIBlockSection::GetList(
+				['LEFT_MARGIN' => 'ASC'],
+				$filter,
+				false,
+				[
+					'ID',
+					'IBLOCK_ID',
+					'IBLOCK_SECTION_ID',
+					'NAME',
+					'LEFT_MARGIN',
+				]
+			);
 			while ($ar_res = $db_res->Fetch())
 			{
-				$arAvailGroups[$ar_res["ID"]] = array(
-					"ID" => (int)$ar_res["ID"],
-					"IBLOCK_SECTION_ID" => (int)$ar_res["IBLOCK_SECTION_ID"],
-					"NAME" => $ar_res["NAME"]
-				);
+				$arAvailGroups[$ar_res['ID']] = [
+					'ID' => (int)$ar_res['ID'],
+					'IBLOCK_SECTION_ID' => (int)$ar_res['IBLOCK_SECTION_ID'],
+					'NAME' => $ar_res['NAME'],
+				];
 			}
+			unset($ar_res, $db_res);
 		}
 
 		return $arAvailGroups;
@@ -301,7 +356,7 @@ class ExportOffer implements \Iterator
 
 		return (isset($currencyList['RUR']) ? 'RUR' : 'RUB');
 	}
-	
+
 	/**
 	 * Change setting "export only available elements".
 	 *

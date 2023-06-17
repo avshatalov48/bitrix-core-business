@@ -35,10 +35,10 @@ class CAdminInformer
 		$item = array(
 			"TITLE" => $arParams["TITLE"],
 			"HTML" => $arParams["HTML"],
-			"FOOTER" => isset($arParams["FOOTER"]) ? $arParams["FOOTER"] : false,
-			"LINK" => isset($arParams["LINK"]) ? $arParams["LINK"] : false,
-			"ALERT" => isset($arParams["ALERT"]) ? $arParams["ALERT"] : false,
-			"COLOR" => isset($arParams["COLOR"]) ? $arParams["COLOR"] : "green",
+			"FOOTER" => $arParams["FOOTER"] ?? false,
+			"LINK" => $arParams["LINK"] ?? false,
+			"ALERT" => $arParams["ALERT"] ?? false,
+			"COLOR" => $arParams["COLOR"] ?? "green",
 		);
 		if($arParams["ALERT"])
 		{
@@ -46,7 +46,7 @@ class CAdminInformer
 			self::$alertCounter++;
 		}
 		else
-			$item["SORT"] = isset($arParams["SORT"]) ? $arParams["SORT"] : 20;
+			$item["SORT"] = $arParams["SORT"] ?? 20;
 
 		self::$items[] = $item;
 
@@ -231,8 +231,10 @@ class CAdminInformer
 		{
 			$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 			$arModules = array();
-			if($cModules <> '')
-				$arModules = unserialize($cModules, ['allowed_classes' => false]);
+			if ($cModules <> '')
+			{
+				$arModules = unserialize($cModules, ['allowed_classes' => false]) ?: [];
+			}
 
 			$mCnt = count($arModules);
 			if($mCnt > 0)

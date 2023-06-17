@@ -698,9 +698,13 @@ class ProductProvider extends BaseProvider
 
 	private function filterProductsWithOffers(array $products): array
 	{
-		return array_filter($products, static function ($item) {
-			return $item['TYPE'] === ProductTable::TYPE_SKU;
-		});
+		return array_filter(
+			$products,
+			static function ($item)
+			{
+				return $item['TYPE'] === ProductTable::TYPE_SKU;
+			}
+		);
 	}
 
 	protected function loadProperties(array $elements, int $iblockId, IblockInfo $iblockInfo): array

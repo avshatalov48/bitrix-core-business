@@ -240,6 +240,12 @@ class CBPWorkflowPersister
 		}
 
 		$workflowStatus = $rootActivity->GetWorkflowStatus();
+
+		if ($rootActivity->workflow->isAbandoned())
+		{
+			$workflowStatus = CBPWorkflowStatus::Completed;
+		}
+
 		$buffer = "";
 		if (($workflowStatus != CBPWorkflowStatus::Completed) && ($workflowStatus != CBPWorkflowStatus::Terminated))
 		{

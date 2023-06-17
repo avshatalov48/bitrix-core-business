@@ -16,6 +16,8 @@ use Bitrix\Tasks\Internals\Counter as TasksCounter;
 
 class FilterManager
 {
+	public $runtimeFieldsManager = null;
+
 	/**
 	 * @var array
 	 */
@@ -104,6 +106,7 @@ class FilterManager
 		{
 			if ($this->mode === WorkgroupList::MODE_TASKS_SCRUM)
 			{
+				$filter['=PROJECT'] = 'Y';
 				$filter['=SCRUM'] = 'Y';
 			}
 			elseif ($this->mode === WorkgroupList::MODE_TASKS_PROJECT)
@@ -151,13 +154,13 @@ class FilterManager
 				'FILTER_FIELD_NAME' => 'OWNER',
 				'FIELD_NAME' => 'OWNER_ID',
 				'OPERATION' => '=',
-				'VALUE' => preg_replace('/^U(\d+)$/', '$1', $this->gridFilter['OWNER']),
+				'VALUE' => preg_replace('/^U(\d+)$/', '$1', ($this->gridFilter['OWNER'] ?? '')),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'MEMBER',
 				'FIELD_NAME' => 'MEMBER_ID',
 				'OPERATION' => '=',
-				'VALUE' => preg_replace('/^U(\d+)$/', '$1', $this->gridFilter['MEMBER']),
+				'VALUE' => preg_replace('/^U(\d+)$/', '$1', ($this->gridFilter['MEMBER'] ?? '')),
 			],
 		];
 
@@ -166,13 +169,13 @@ class FilterManager
 				'FILTER_FIELD_NAME' => 'NAME',
 				'FIELD_NAME' => 'NAME',
 				'OPERATION' => '%=',
-				'VALUE' => $this->gridFilter['NAME'] . '%',
+				'VALUE' => ($this->gridFilter['NAME'] ?? '') . '%',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'TAG',
 				'FIELD_NAME' => 'TAG',
 				'OPERATION' => '%=',
-				'VALUE' => $this->gridFilter['TAG'] . '%',
+				'VALUE' => ($this->gridFilter['TAG'] ?? '') . '%',
 			],
 		];
 
@@ -181,37 +184,37 @@ class FilterManager
 				'FILTER_FIELD_NAME' => 'CLOSED',
 				'FIELD_NAME' => 'CLOSED',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['CLOSED'],
+				'VALUE' => ($this->gridFilter['CLOSED'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'VISIBLE',
 				'FIELD_NAME' => 'VISIBLE',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['VISIBLE'],
+				'VALUE' => ($this->gridFilter['VISIBLE'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'OPENED',
 				'FIELD_NAME' => 'OPENED',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['OPENED'],
+				'VALUE' => ($this->gridFilter['OPENED'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'PROJECT',
 				'FIELD_NAME' => 'PROJECT',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['PROJECT'],
+				'VALUE' => ($this->gridFilter['PROJECT'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'SCRUM',
 				'FIELD_NAME' => 'SCRUM',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['SCRUM'],
+				'VALUE' => ($this->gridFilter['SCRUM'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'LANDING',
 				'FIELD_NAME' => 'LANDING',
 				'OPERATION' => '=',
-				'VALUE' => $this->gridFilter['LANDING'],
+				'VALUE' => ($this->gridFilter['LANDING'] ?? ''),
 			],
 		];
 

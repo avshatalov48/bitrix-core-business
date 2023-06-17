@@ -333,6 +333,7 @@ else if (isImPostRequest('IM_UPDATE_STATE') || isImPostRequest('IM_UPDATE_STATE_
 	$isOperator = $_POST["IS_OPERATOR"] === 'Y';
 
 	$recent = [];
+	$getOriginalTextOption = isImPostRequest('IM_UPDATE_STATE') ? 'Y' : 'N';
 	if (isset($_POST['RECENT_LAST_UPDATE']) && $_POST['RECENT_LAST_UPDATE'] !== 'N')
 	{
 		try
@@ -342,6 +343,7 @@ else if (isImPostRequest('IM_UPDATE_STATE') || isImPostRequest('IM_UPDATE_STATE_
 				'LAST_SYNC_DATE' => $lastUpdate,
 				'SKIP_NOTIFICATION' => 'Y',
 				'SKIP_OPENLINES' => ($isOperator? 'Y': 'N'),
+				'GET_ORIGINAL_TEXT' => $getOriginalTextOption,
 				'JSON' => 'Y'
 			]);
 		}
@@ -357,6 +359,7 @@ else if (isImPostRequest('IM_UPDATE_STATE') || isImPostRequest('IM_UPDATE_STATE_
 			$linesList = \Bitrix\Im\Recent::get(null, [
 				'LAST_SYNC_DATE' => $lastUpdate,
 				'ONLY_OPENLINES' => 'Y',
+				'GET_ORIGINAL_TEXT' => $getOriginalTextOption,
 				'JSON' => 'Y'
 			]);
 		}
@@ -540,7 +543,7 @@ else if (isImPostRequest('IM_BOT_COMMAND'))
 	{
 		$orm = \Bitrix\Im\Model\ChatTable::getById($message['CHAT_ID']);
 		$chat = $orm->fetch();
-		$relations = \CIMChat::GetRelationById($message['CHAT_ID']);
+		$relations = \CIMChat::GetRelationById($message['CHAT_ID'], false, true, false);
 		if (isset($relations[$userId]))
 		{
 			if (mb_substr($_POST['DIALOG_ID'], 0, 4) == 'chat')
@@ -843,7 +846,7 @@ else if (isImPostRequest('IM_LOAD_LAST_MESSAGE'))
 
 	if ($error == '')
 	{
-		$relation = \CIMChat::GetRelationById($chatId);
+		$relation = \CIMChat::GetRelationById($chatId, false, true, false);
 
 		$dialogId = $_POST['USER_ID'];
 		$userId = $USER->GetId();
@@ -1394,7 +1397,8 @@ else if (isImPostRequest('IM_CHAT_ADD'))
 			'TITLE' => $_POST['TITLE'],
 			'MESSAGE' => $_POST['MESSAGE'],
 			'ENTITY_TYPE' => $entityType,
-			'SEARCH_MARK' => $_POST['SEARCH_MARK'] ?? null
+			'SEARCH_MARK' => $_POST['SEARCH_MARK'] ?? null,
+			'AVATAR' => $_POST['AVATAR']
 		));
 		if ($chatId)
 		{

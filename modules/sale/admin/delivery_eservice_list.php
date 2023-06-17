@@ -1,17 +1,25 @@
-<?
+<?php
 namespace Bitrix\Sale\Delivery\AdminPage\DeliveryExtraServiceEdit
 {
 	if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 		die();
 
+	use Bitrix\Main;
+	use Bitrix\Main\Localization\Loc;
+	use Bitrix\Sale\Delivery\ExtraServices;
+	use Bitrix\Sale\Delivery\Services;
+
 	/**
-	 * @var \Bitrix\Sale\Delivery\Services\Base $service
+	 * @var Services\Base $service
 	 */
 
 	global $tabControl, $APPLICATION, $service, $adminSidePanelHelper;
 
+	$request = Main\Context::getCurrent()->getRequest();
+
 	$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 	$backUrl = urlencode($APPLICATION->GetCurPageParam("", array("IFRAME", "IFRAME_TYPE")));
+	$requestedBackUrl = trim((string)($request->get('back_url') ?? ''));
 
 	$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
@@ -19,17 +27,13 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryExtraServiceEdit
 		$APPLICATION->AuthForm(Loc::getMessage("SALE_ESDL_ACCESS_DENIED"));
 
 	/**
-	 * @var CDatabase $DB
-	 * @var CMain  $APPLICATION
+	 * @var \CDatabase $DB
+	 * @var \CMain  $APPLICATION
 	 */
-
-	use Bitrix\Main\Localization\Loc;
-	use Bitrix\Sale\Delivery\ExtraServices;
-	use Bitrix\Sale\Delivery\Services;
 
 	Loc::loadMessages(__FILE__);
 
-	$ID = intval($_GET['ID']);
+	$ID = (int)$request->get('ID');
 	global $srvStrError;
 
 	if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "delete_extra_service" && isset($_REQUEST["ES_ID"]) && $saleModulePermissions == "W" && check_bitrix_sessid())
@@ -112,7 +116,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryExtraServiceEdit
 			);
 			$arActions[] = array("SEPARATOR" => true);
 			$deleteUrl = $APPLICATION->GetCurPageParam("action=delete_extra_service&ES_ID=".$record['ID']."&". bitrix_sessid_get(), array("back_url", "ES_ID"));
-			$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl).'&back_url='.urlencode($_REQUEST["back_url"]);
+			$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl).'&back_url='.urlencode($requestedBackUrl);
 			$arActions[] = array(
 				"ICON"=>"delete",
 				"TEXT"=>Loc::getMessage("SALE_ESDL_DELETE"),

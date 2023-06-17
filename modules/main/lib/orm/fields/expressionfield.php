@@ -324,7 +324,7 @@ class ExpressionField extends Field implements IReadable
 		// then check for aggr functions
 		preg_match_all('/(?:^|[^a-z0-9_])('.join('|', self::$aggrFunctions).')[\s\(]+/i', $expression, $matches);
 
-		return isset($matches[1]) ? $matches[1] : null;
+		return $matches[1] ?? null;
 	}
 
 	public static function checkSubquery($expression)

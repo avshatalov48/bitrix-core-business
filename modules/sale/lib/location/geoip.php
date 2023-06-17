@@ -35,10 +35,12 @@ class GeoIp
 		$fields = array();
 		$geoData = self::getData($ip, $lang);
 
-		if($geoData)
+		if ($geoData)
+		{
 			$fields = self::getLocationFields($geoData, $lang);
+		}
 
-		return $fields['CODE'] <> '' ? $fields['CODE'] : '';
+		return isset($fields['CODE']) && $fields['CODE'] !== '' ? $fields['CODE'] : '';
 	}
 
 	/**

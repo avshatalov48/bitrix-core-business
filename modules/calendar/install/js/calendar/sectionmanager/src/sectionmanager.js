@@ -178,7 +178,7 @@ export class SectionManager
 		for (let i = 0; i < this.sections.length; i++)
 		{
 			if (
-				this.sections[i].canDo('add')
+				this.sections[i].canDo('edit')
 				&& !this.sections[i].isPseudo()
 				&& this.sections[i].isActive()
 				&& !this.sections[i].isLocationRoom()
@@ -532,6 +532,7 @@ export class SectionManager
 			section = sections.find((item) => {
 				return item.type === calendarType
 					&& item.ownerId === ownerId
+					&& item.canDo('edit')
 			});
 		}
 

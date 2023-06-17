@@ -375,10 +375,10 @@ class CSocNetSearch
 		static $arSiteData;
 
 		$SECTION_ID = "";
-		$ELEMENT_ID = intval($_REQUEST["photo_element_id"]);
+		$ELEMENT_ID = intval($_REQUEST["photo_element_id"] ?? 0);
 		if (empty($ELEMENT_ID))
 		{
-			$ELEMENT_ID = intval($_REQUEST["ELEMENT_ID"]);
+			$ELEMENT_ID = intval($_REQUEST["ELEMENT_ID"] ?? 0);
 		}
 
 		if(
@@ -545,7 +545,7 @@ class CSocNetSearch
 		{
 			if(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["FORUM_ID"] ?? null)
 			)
 			{
 				// forum feature
@@ -564,7 +564,7 @@ class CSocNetSearch
 			}
 			elseif(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["FILES_FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["FILES_FORUM_ID"] ?? null)
 				&& isModuleInstalled("webdav")
 			)
 			{
@@ -586,14 +586,12 @@ class CSocNetSearch
 				&& preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match)
 			)
 			{
-				$arFields = array(
-					"TITLE" => "",
-					"BODY" => ""
-				);
+				$arFields["TITLE"] = "";
+				$arFields["BODY"] = "";
 			}
 			elseif (
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["PHOTO_FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["PHOTO_FORUM_ID"] ?? null)
 			)
 			{
 				$arFields = $this->BeforeIndexForum($arFields,
@@ -607,7 +605,7 @@ class CSocNetSearch
 		{
 			if(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["FORUM_ID"] ?? null)
 			)
 			{
 				// forum feature
@@ -621,7 +619,7 @@ class CSocNetSearch
 			}
 			elseif(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["FILES_FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["FILES_FORUM_ID"] ?? null)
 				&& isModuleInstalled("webdav")
 			)
 			{
@@ -633,7 +631,7 @@ class CSocNetSearch
 			}
 			elseif(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["TASK_FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["TASK_FORUM_ID"] ?? null)
 			)
 			{
 			}
@@ -642,14 +640,12 @@ class CSocNetSearch
 				&& preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match)
 			) // don't index calendar comments!
 			{
-				$arFields = array(
-					"TITLE" => "",
-					"BODY" => ""
-				);
+				$arFields["TITLE"] = "";
+				$arFields["BODY"] = "";
 			}
 			elseif(
 				$arFields["MODULE_ID"] === "forum"
-				&& (int)$arFields["PARAM1"] === (int)$this->_params["PHOTO_FORUM_ID"]
+				&& (int) $arFields["PARAM1"] === (int) ($this->_params["PHOTO_FORUM_ID"] ?? null)
 			)
 			{
 				$arFields = $this->BeforeIndexForum(
@@ -668,8 +664,8 @@ class CSocNetSearch
 			elseif(
 				$arFields["MODULE_ID"] === "blog"
 				&& (
-					$arFields["PARAM1"] === "POST"
-					|| $arFields["PARAM1"] === "MICROBLOG"
+					($arFields["PARAM1"] ?? null) === "POST"
+					|| ($arFields["PARAM1"] ?? null) === "MICROBLOG"
 				)
 			)
 			{
@@ -677,18 +673,26 @@ class CSocNetSearch
 					SONET_ENTITY_USER, $this->_user_id,
 					'blog', 'view_post'
 				);
-				$arFields["PARAMS"] = (!empty($arFields["PARAMS"]) ? array_merge($paramsTmp, $arFields["PARAMS"]) : $paramsTmp);
+				$arFields["PARAMS"] = (
+					!empty($arFields["PARAMS"])
+						? array_merge($paramsTmp, $arFields["PARAMS"])
+						: $paramsTmp
+				);
 			}
 			elseif(
 				$arFields["MODULE_ID"] === "blog"
-				&& $arFields["PARAM1"] === "COMMENT"
+				&& ($arFields["PARAM1"] ?? null) === "COMMENT"
 			)
 			{
 				$paramsTmp = self::GetSearchParams(
 					SONET_ENTITY_USER, $this->_user_id,
 					'blog', 'view_comment'
 				);
-				$arFields["PARAMS"] = (!empty($arFields["PARAMS"]) ? array_merge($paramsTmp, $arFields["PARAMS"]) : $paramsTmp);
+				$arFields["PARAMS"] = (
+					!empty($arFields["PARAMS"])
+						? array_merge($paramsTmp, $arFields["PARAMS"])
+						: $paramsTmp
+				);
 			}
 		}
 
@@ -708,13 +712,11 @@ class CSocNetSearch
 	{
 		if(
 			$arFields["MODULE_ID"] === "blog"
-			&& $arFields["PARAM1"] === "USER"
+			&& ($arFields["PARAM1"] ?? null) === "USER"
 		)
 		{
-			$arFields = array(
-				"TITLE" => "",
-				"BODY" => ""
-			);
+			$arFields["TITLE"] = "";
+			$arFields["BODY"] = "";
 		}
 
 		return $arFields;
@@ -816,7 +818,7 @@ class CSocNetSearch
 	function IBlockElementUpdate(&$arFields)
 	{
 		//Do not index workflow history
-		$WF_PARENT_ELEMENT_ID = intval($arFields["WF_PARENT_ELEMENT_ID"]);
+		$WF_PARENT_ELEMENT_ID = intval($arFields["WF_PARENT_ELEMENT_ID"] ?? null);
 		if($WF_PARENT_ELEMENT_ID > 0 && $WF_PARENT_ELEMENT_ID != intval($arFields["ID"]))
 			return;
 
@@ -876,7 +878,7 @@ class CSocNetSearch
 			}
 			break;
 
-		case intval($this->_params["FILES_GROUP_IBLOCK_ID"]):
+		case intval($this->_params["FILES_GROUP_IBLOCK_ID"] ?? null):
 			$path_template = trim($this->_params["PATH_TO_GROUP_FILES_ELEMENT"]);
 			if($path_template <> '')
 			{
@@ -908,7 +910,7 @@ class CSocNetSearch
 			}
 			break;
 
-		case intval($this->_params["FILES_USER_IBLOCK_ID"]):
+		case intval($this->_params["FILES_USER_IBLOCK_ID"] ?? null):
 			$path_template = trim($this->_params["PATH_TO_USER_FILES_ELEMENT"]);
 			if($path_template <> '')
 			{
@@ -1032,7 +1034,7 @@ class CSocNetSearch
 
 		switch(intval($arFields["IBLOCK_ID"]))
 		{
-			case intval($this->_params["FILES_USER_IBLOCK_ID"]):
+			case intval($this->_params["FILES_USER_IBLOCK_ID"] ?? null):
 				$path_template = trim($this->_params["PATH_TO_USER_FILES"]);
 				if($path_template <> '')
 				{
@@ -1040,7 +1042,7 @@ class CSocNetSearch
 				}
 			break;
 
-			case intval($this->_params["FILES_GROUP_IBLOCK_ID"]):
+			case intval($this->_params["FILES_GROUP_IBLOCK_ID"] ?? null):
 				$path_template = trim($this->_params["PATH_TO_GROUP_FILES"]);
 				if($path_template <> '')
 				{

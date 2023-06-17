@@ -161,7 +161,7 @@ function socialnetworkBlogPostCommentWeb(
 
 	$res = array(
 		"ID" => $comment["ID"],
-		"NEW" => ($arParams["FOLLOW"] !== "N" && $comment["NEW"] === "Y" ? "Y" : "N"),
+		"NEW" => ($arParams["FOLLOW"] !== "N" && ($comment["NEW"] ?? '') === "Y" ? "Y" : "N"),
 		"APPROVED" => ($comment["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
 		"AUX" => (!empty($comment["AuxType"]) ? $comment["AuxType"] : ''),
 		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
@@ -208,8 +208,8 @@ function socialnetworkBlogPostCommentWeb(
 		"AFTER_RECORD" => ""
 	);
 
-	$aditStyle = ($comment["AuthorIsAdmin"] === "Y" ? "blog-comment-admin" : "") .
-		($comment["AuthorIsPostAuthor"] === "Y" ? "blog-comment-author" : "");
+	$aditStyle = (($comment["AuthorIsAdmin"] ?? '') === "Y" ? "blog-comment-admin" : "") .
+		(($comment["AuthorIsPostAuthor"] ?? '') === "Y" ? "blog-comment-author" : "");
 	if ($aditStyle)
 	{
 		$res["BEFORE_RECORD"] = "<div class='".$aditStyle."'>";
@@ -242,7 +242,7 @@ function socialnetworkBlogPostCommentWeb(
 		}
 	}
 
-	if ($comment["COMMENT_PROPERTIES"]["SHOW"] === "Y")
+	if (($comment["COMMENT_PROPERTIES"]["SHOW"] ?? '') === "Y")
 	{
 		$res["UF"] = $comment["COMMENT_PROPERTIES"]["DATA"];
 		foreach ($res["UF"] as $key => $arPostField)
@@ -250,7 +250,11 @@ function socialnetworkBlogPostCommentWeb(
 			if(!empty($arPostField["VALUE"]))
 			{
 				$res["UF"][$key]['POST_ID'] = $arParams['POST_DATA']['ID'];
-				$res["UF"][$key]['URL_TO_POST'] = str_replace('#source_post_id#', $arPostField['POST_ID'], $arResult['urlToPost']);
+				$res["UF"][$key]['URL_TO_POST'] = str_replace(
+					'#source_post_id#',
+					$arPostField['POST_ID'] ?? '',
+					$arResult['urlToPost']
+				);
 			}
 		}
 	}
@@ -258,11 +262,14 @@ function socialnetworkBlogPostCommentWeb(
 	ob_start();
 
 	?><script>
-		top.text<?=$comment["ID"]?> = text<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode($comment["POST_TEXT"]))?>';
-		top.title<?=$comment["ID"]?> = title<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode($comment["TITLE"]))?>';
+		top.text<?=$comment["ID"]?> = text<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode(($comment["POST_TEXT"] ?? '')))?>';
+		top.title<?=$comment["ID"]?> = title<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode(($comment["TITLE"] ?? '')))?>';
 		top.arComFiles<?=$comment["ID"]?> = [];<?
 
-		if ($comment["COMMENT_PROPERTIES"]["DATA"])
+		if (
+			isset($comment["COMMENT_PROPERTIES"]["DATA"])
+			&& is_array($comment["COMMENT_PROPERTIES"]["DATA"])
+		)
 		{
 			foreach($comment["COMMENT_PROPERTIES"]["DATA"] as $userField)
 			{
@@ -289,7 +296,10 @@ function socialnetworkBlogPostCommentWeb(
 			}
 		}
 
-		if (is_array($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"]))
+		if (
+			isset($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"])
+			&& is_array($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"])
+		)
 		{
 			foreach($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"] as $userField)
 			{

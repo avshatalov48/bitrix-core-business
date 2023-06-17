@@ -34,7 +34,7 @@ class CatalogElementComponent extends Element
 	{
 		$params = parent::onPrepareComponentParams($params);
 
-		$params['COMPATIBLE_MODE'] = (isset($params['COMPATIBLE_MODE']) && $params['COMPATIBLE_MODE'] === 'N' ? 'N' : 'Y');
+		$params['COMPATIBLE_MODE'] = ($params['COMPATIBLE_MODE'] ?? 'N') === 'Y' ? 'Y' : 'N';
 		if ($params['COMPATIBLE_MODE'] === 'N')
 		{
 			$params['SET_VIEWED_IN_COMPONENT'] = 'N';
@@ -52,7 +52,7 @@ class CatalogElementComponent extends Element
 			\CJSCore::Init(array('popup'));
 		}
 
-		$params['ADDITIONAL_FILTER_NAME'] = trim($params['ADDITIONAL_FILTER_NAME'] ?? '');
+		$params['ADDITIONAL_FILTER_NAME'] = trim((string)($params['ADDITIONAL_FILTER_NAME'] ?? ''));
 		if (!preg_match(self::PARAM_TITLE_MASK, $params['ADDITIONAL_FILTER_NAME']))
 		{
 			$params['ADDITIONAL_FILTER_NAME'] = '';

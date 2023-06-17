@@ -85,7 +85,7 @@ class Helper
 			'=DATE_CREATE' => $helper->getCurrentDateTimeFunction(),
 			'=DATE_PUBLISH' => $helper->getCurrentDateTimeFunction(),
 			'MICRO' => 'N',
-			'TITLE' => ($params['POST_TITLE'] <> '' ? $params['POST_TITLE'] : ''),
+			'TITLE' => (($params['POST_TITLE'] ?? '') <> '' ? $params['POST_TITLE'] : ''),
 			'DETAIL_TEXT' => $params['POST_MESSAGE'],
 			'DETAIL_TEXT_TYPE' => 'text',
 			'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH,
@@ -127,7 +127,7 @@ class Helper
 				'MOBILE' => ($params['MOBILE'] ?? 'N'),
 			], $resultFields);
 
-			if ($resultFields['ERROR_MESSAGE_PUBLIC'])
+			if ($resultFields['ERROR_MESSAGE_PUBLIC'] ?? null)
 			{
 				return false;
 			}
@@ -326,6 +326,7 @@ class Helper
 
 			if (
 				isset($params['FILES'])
+				&& is_array($params['FILES'])
 				&& $scope === Controller::SCOPE_REST
 			)
 			{
@@ -459,7 +460,7 @@ class Helper
 	{
 		global $USER, $USER_FIELD_MANAGER, $APPLICATION, $CACHE_MANAGER;
 
-		$postId = (int)$params['POST_ID'];
+		$postId = (int) ($params['POST_ID'] ?? null);
 
 		if ($postId <= 0)
 		{
@@ -540,7 +541,7 @@ class Helper
 			$updateFields['TITLE'] = trim($updateFields['TITLE'], " \t\n\r\0\x0B\xA0");
 		}
 
-		if ($params['POST_MESSAGE'] <> '')
+		if (($params['POST_MESSAGE'] ?? '') <> '')
 		{
 			$updateFields['DETAIL_TEXT'] = $params['POST_MESSAGE'];
 		}
@@ -573,7 +574,7 @@ class Helper
 				'MOBILE' => ($params['MOBILE'] ?? 'N'),
 			], $resultFields);
 
-			if ($resultFields['ERROR_MESSAGE_PUBLIC'])
+			if ($resultFields['ERROR_MESSAGE_PUBLIC'] ?? null)
 			{
 				return false;
 			}
@@ -676,6 +677,8 @@ class Helper
 			{
 				$filesList = [];
 
+				$needToDelete = false;
+
 				if (
 					(
 						!empty($params['FILES'])
@@ -692,8 +695,6 @@ class Helper
 					{
 						$filesList = array_merge($filesList, $postUF['UF_BLOG_POST_FILE']['VALUE']);
 					}
-
-					$needToDelete = false;
 
 					if (!empty($params['FILES']))
 					{

@@ -298,7 +298,7 @@ class FileType extends BaseType
 		}
 
 		$value = array_filter($value, 'strlen');
-		if(count($value))
+		if(!empty($value))
 		{
 			$value = array_map([static::class, 'getFileContent'], $value);
 			$result = implode('\r\n', $value);

@@ -1,0 +1,26 @@
+.bx-im-recent-users-carousel__scope {
+	--im-recent-users-carousel__color_section-title: #959ca4;
+}
+
+.bx-im-recent-users-carousel__container {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 13px;
+}
+
+.bx-im-recent-users-carousel__title-container {
+	height: 32px;
+	overflow: hidden;
+	padding: 6px 0 0 11px;
+}
+
+.bx-im-recent-users-carousel__section-title {
+	font: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-recent-users-carousel__color_section-title);
+}
+
+.bx-im-recent-users-carousel__users-container {
+	display: flex;
+	padding: 5px 0 0 4px;
+}

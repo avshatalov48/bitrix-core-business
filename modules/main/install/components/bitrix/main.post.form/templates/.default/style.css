@@ -515,13 +515,11 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 	padding: 20px;
 }
 
-.feed-add-post-form-wrap .disk-file-control[style*="display: none;"] + .feed-add-post-tags-block[style*="display: block;"] {
+.feed-add-post-tags-block {
 	border-top: 1px solid #ebeded;
 }
 
-.feed-add-post-destination-block + .feed-add-post-destination-block,
-.feed-add-post-form-wrap .disk-file-control[style*="display: none;"] + .feed-add-post-tags-block + .feed-add-post-destination-block,
-.feed-add-post-form-wrap .feed-add-post-tags-block[style*="display: block;"] + .feed-add-post-destination-block {
+.feed-add-post-destination-block {
 	border-top: 1px solid #ebeded;
 }
 

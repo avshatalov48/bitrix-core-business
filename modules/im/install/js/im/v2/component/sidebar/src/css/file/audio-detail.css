@@ -1,0 +1,7 @@
+.bx-im-sidebar-detail__scope.bx-im-sidebar-file-audio-detail__scope {
+	height: calc(100% - var(--im-sidebar-detail__height_header) - var(--im-sidebar-detail__height_tabs));
+}
+
+.bx-im-sidebar-file-audio-detail__scope .bx-im-sidebar-detail-empty-state__container {
+	margin-top: 54px;
+}

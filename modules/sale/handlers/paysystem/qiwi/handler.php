@@ -56,9 +56,10 @@ class QiwiHandler extends PaySystem\ServiceHandler implements PaySystem\ICheckab
 	 */
 	private function getPhone(Payment $payment, Request $request): string
 	{
-		if (trim($_POST["NEW_PHONE"]))
+		$newPhone = trim((string)$request->getPost('NEW_PHONE'));
+		if ($newPhone !== '')
 		{
-			return trim($_POST["NEW_PHONE"]);
+			return $newPhone;
 		}
 
 		return (string)$this->getBusinessValue($payment, 'BUYER_PERSON_PHONE');

@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && ($_REQUEST['gdhtmlform'] ?? '') == 'Y
 	$arGadget["FORCE_REDIRECT"] = true;
 }
 $arData = $arGadget["USERDATA"];
-$content = $arData["content"];
+$content = $arData["content"] ?? '';
 ?>
 
 <?if(!$bEdit):?>
@@ -20,19 +20,19 @@ $content = $arData["content"];
 	{
 		$parser = new CTextParser();
 		$parser->allow = array(
-			"HTML"=>($arParams["MODE"] != "AI" ? "N" : "Y"), 
-			"ANCHOR"=>"Y", 
-			"BIU"=>"Y", 
-			"IMG"=>"Y", 
-			"QUOTE"=>"Y", 
-			"CODE"=>"Y", 
-			"FONT"=>"Y", 
-			"LIST"=>"Y", 
-			"SMILES"=>"N", 
-			"NL2BR"=>"N", 
-			"VIDEO"=>"N", 
-			"TABLE"=>"Y", 
-			"CUT_ANCHOR"=>"N", 
+			"HTML"=>($arParams["MODE"] != "AI" ? "N" : "Y"),
+			"ANCHOR"=>"Y",
+			"BIU"=>"Y",
+			"IMG"=>"Y",
+			"QUOTE"=>"Y",
+			"CODE"=>"Y",
+			"FONT"=>"Y",
+			"LIST"=>"Y",
+			"SMILES"=>"N",
+			"NL2BR"=>"N",
+			"VIDEO"=>"N",
+			"TABLE"=>"Y",
+			"CUT_ANCHOR"=>"N",
 			"ALIGN"=>"Y"
 		);
 		$parser->parser_nofollow = "Y";

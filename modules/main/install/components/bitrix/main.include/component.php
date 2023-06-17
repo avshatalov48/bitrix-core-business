@@ -267,7 +267,7 @@ if($APPLICATION->GetShowIncludeAreas())
 			);
 		}
 
-		if (is_array($arIcons) && count($arIcons) > 0)
+		if (is_array($arIcons) && !empty($arIcons))
 		{
 			$this->AddIncludeAreaIcons($arIcons);
 		}

@@ -4,7 +4,7 @@
  * @package Bitrix\Sale\Location
  * @subpackage sale
  * @copyright 2001-2015 Bitrix
- * 
+ *
  * This class is for internal use only, not a part of public API.
  * It can be changed at any time without notification.
  *
@@ -33,7 +33,7 @@ final class Helper extends CommonHelper
 		if(!mb_strlen($toTable) || !mb_strlen($toTable) || !is_array($fldMap) || empty($fldMap) || empty($fldCondition))
 			return false;
 
-		// update tab1, tab2 set tab1.aa = tab2.bb, tab1.cc = tab2.dd where tab1.ee = tab2.ff 
+		// update tab1, tab2 set tab1.aa = tab2.bb, tab1.cc = tab2.dd where tab1.ee = tab2.ff
 
 		$sql = 'update '.$toTable.', '.$fromTable.' set ';
 
@@ -59,18 +59,26 @@ final class Helper extends CommonHelper
 		$dbConnection = Main\HttpApplication::getConnection();
 		$dbHelper = $dbConnection->getSqlHelper();
 
-		$indexName = trim($indexName);
-		$tableName = $dbHelper->forSql(trim($tableName));
+		$indexName = trim((string)$indexName);
+		$tableName = $dbHelper->forSql(trim((string)$tableName));
 
-		if(!mb_strlen($indexName) || !mb_strlen($tableName))
+		if ($indexName === '' || $tableName === '')
+		{
 			return false;
+		}
 
 		$res = $dbConnection->query("show index from ".$tableName);
 
 		while($item = $res->fetch())
 		{
-			if($item['Key_name'] == $indexName || $item['KEY_NAME'] == $indexName)
+			if (isset($item['Key_name']) && $item['Key_name'] === $indexName)
+			{
 				return true;
+			}
+			if (isset($item['KEY_NAME']) && $item['KEY_NAME'] === $indexName)
+			{
+				return true;
+			}
 		}
 
 		return false;

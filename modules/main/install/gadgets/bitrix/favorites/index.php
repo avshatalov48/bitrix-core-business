@@ -6,12 +6,12 @@ $rnd = rand();
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/favorites/styles.css');
 ?>
 <?
-if(!$arGadget["USERDATA"]["LINKS"])
+if(!isset($arGadget["USERDATA"]["LINKS"]))
 	$arGadget["USERDATA"]["LINKS"] = Array();
 
 if($arParams["PERMISSION"]>"R")
 {
-	if($_REQUEST['gdfavorites']=='Y' && $_REQUEST['gdfav']==$id)
+	if(isset($_REQUEST['gdfavorites']) && $_REQUEST['gdfavorites']=='Y' && isset($_REQUEST['gdfav']) && $_REQUEST['gdfav']==$id)
 	{
 		if($_REQUEST['gdfvadd'] && $_SERVER['REQUEST_METHOD']=='POST')
 		{

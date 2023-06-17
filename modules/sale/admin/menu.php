@@ -852,7 +852,10 @@ if ($APPLICATION->GetGroupRight("sale") == "W" ||
 						"text" => GetMessage("sale_menu_locations"),
 						"title" => GetMessage("sale_menu_locations_title"),
 						"url" => (new Uri(Location\Admin\LocationHelper::getListUrl(0)))->addParams(["apply_filter" => "y"])->getUri(),
-						"more_url" => array(Location\Admin\LocationHelper::getEditUrl()),
+						"more_url" => array(
+							Location\Admin\LocationHelper::getEditUrl(),
+							(new Uri(Location\Admin\LocationHelper::getListUrl(false)))->getUri(),
+						),
 						"module_id" => "sale",
 						"items_id" => "sale_location_node_list",
 						"dynamic" => true,

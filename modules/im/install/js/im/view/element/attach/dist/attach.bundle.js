@@ -88,8 +88,8 @@
 	      },
 	      fileSize: function fileSize(element) {
 	        var size = element.SIZE;
-	        if (size <= 0) {
-	          return '';
+	        if (!size || size <= 0) {
+	          size = 0;
 	        }
 	        var sizes = ["BYTE", "KB", "MB", "GB", "TB"];
 	        var position = 0;
@@ -198,24 +198,21 @@
 	        }
 	        return element.WIDTH ? element.WIDTH + 'px' : '';
 	      },
+	      getValueColor: function getValueColor(element) {
+	        if (!element.COLOR) {
+	          return false;
+	        }
+	        return element.COLOR;
+	      },
 	      getValue: function getValue(element) {
-	        var _this = this;
 	        if (!element.VALUE) {
 	          return '';
 	        }
-	        var text = im_lib_utils.Utils.text.htmlspecialchars(element.VALUE);
-	        text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
-	          var user = _this.$store.getters['users/get'](userId);
-	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : userName;
-	          return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
-	        });
-	        return im_model.MessagesModel.decodeBbCode({
-	          text: text
-	        });
+	        return im_lib_utils.Utils.text.decode(element.VALUE);
 	      }
 	    },
 	    //language=Vue
-	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-grid\">\n\t\t\t\t<template v-for=\"(element, index) in config.GRID\">\n\t\t\t\t\t<template v-if=\"element.DISPLAY.toLowerCase() === 'block'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-block\" :style=\"{width: getWidth(element)}\">\n\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-name\">{{element.NAME}}</div>\n\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\"\n\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-value\" v-html=\"getValue(element)\"></div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else-if=\"element.DISPLAY.toLowerCase() === 'line'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-card\" :style=\"{width: getWidth(element)}\">\n\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-name\">{{element.NAME}}</div>\n\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\"\n\t\t\t\t\t\t\t\t\t:style=\"{color: element.COLOR? element.COLOR: ''}\"\n\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-value\" :style=\"{color: element.COLOR? element.COLOR: ''}\" v-html=\"getValue(element)\"></div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else-if=\"element.DISPLAY.toLowerCase() === 'row'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-column\">\n\t\t\t\t\t\t\t<table class=\"bx-im-element-attach-type-display-column-table\">\n\t\t\t\t\t\t\t\t<tbody>\n\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.NAME\">\n\t\t\t\t\t\t\t\t\t\t\t<td class=\"bx-im-element-attach-type-grid-element-name\" :colspan=\"element.VALUE? 1: 2\" :style=\"{width: getWidth(element)}\">{{element.NAME}}</td>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.VALUE\">\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t\t\t\t\t<td\n\t\t\t\t\t\t\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t:colspan=\"element.NAME? 1: 2\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t:style=\"{color: element.COLOR? element.COLOR: ''}\"\n\t\t\t\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t\t\t\t\t<td class=\"bx-im-element-attach-type-grid-element-value\" :colspan=\"element.NAME? 1: 2\" :style=\"{color: element.COLOR? element.COLOR: ''}\" v-html=\"getValue(element)\"></td>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t</tbody>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
+	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-grid\">\n\t\t\t\t<template v-for=\"(element, index) in config.GRID\">\n\t\t\t\t\t<template v-if=\"element.DISPLAY.toLowerCase() === 'block'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-block\" :style=\"{width: getWidth(element)}\">\n\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-name\">{{element.NAME}}</div>\n\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\">\n\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" :style=\"{color: getValueColor(element)}\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-value\" :style=\"{color: getValueColor(element)}\" v-html=\"getValue(element)\"></div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else-if=\"element.DISPLAY.toLowerCase() === 'line'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-card\" :style=\"{width: getWidth(element)}\">\n\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-name\">{{element.NAME}}</div>\n\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\"\n\t\t\t\t\t\t\t\t\t:style=\"{color: element.COLOR? element.COLOR: ''}\"\n\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-element-value\" :style=\"{color: element.COLOR? element.COLOR: ''}\" v-html=\"getValue(element)\"></div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else-if=\"element.DISPLAY.toLowerCase() === 'row'\">\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-column\">\n\t\t\t\t\t\t\t<table class=\"bx-im-element-attach-type-display-column-table\">\n\t\t\t\t\t\t\t\t<tbody>\n\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.NAME\">\n\t\t\t\t\t\t\t\t\t\t\t<td class=\"bx-im-element-attach-type-grid-element-name\" :colspan=\"element.VALUE? 1: 2\" :style=\"{width: getWidth(element)}\">{{element.NAME}}</td>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.VALUE\">\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"element.LINK\">\n\t\t\t\t\t\t\t\t\t\t\t\t<td\n\t\t\t\t\t\t\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t:colspan=\"element.NAME? 1: 2\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t:style=\"{color: element.COLOR? element.COLOR: ''}\"\n\t\t\t\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<a :href=\"element.LINK\" target=\"_blank\" @click=\"openLink({element: element, event: $event})\" v-html=\"getValue(element)\"></a>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t\t\t\t\t<td class=\"bx-im-element-attach-type-grid-element-value\" :colspan=\"element.NAME? 1: 2\" :style=\"{color: element.COLOR? element.COLOR: ''}\" v-html=\"getValue(element)\"></td>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t</tbody>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
 	  }
 	};
 
@@ -243,7 +240,13 @@
 	        "default": 'transparent'
 	      }
 	    },
-	    template: "<div class=\"bx-im-element-attach-type-html\" v-html=\"config.HTML\"></div>"
+	    computed: {
+	      html: function html() {
+	        var text = this.config.HTML.replace(/&nbsp;/gi, " ");
+	        return im_lib_utils.Utils.text.decode(text);
+	      }
+	    },
+	    template: "<div class=\"bx-im-element-attach-type-html\" v-html=\"html\"></div>"
 	  }
 	};
 
@@ -303,9 +306,6 @@
 	      getElementSource: function getElementSource(element) {
 	        return element.PREVIEW ? element.PREVIEW : element.LINK;
 	      },
-	      getElementTitle: function getElementTitle(element) {
-	        return im_lib_utils.Utils.text.htmlspecialcharsback(element.NAME);
-	      },
 	      lazyLoadCallback: function lazyLoadCallback(event) {
 	        if (!event.element.style.width) {
 	          event.element.style.width = event.element.offsetWidth + 'px';
@@ -342,7 +342,7 @@
 	        };
 	      }
 	    },
-	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-image\">\n\t\t\t\t<template v-for=\"(image, index) in config.IMAGE\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-image-block\" @click=\"open(image.LINK)\" :style=\"styleBoxSizes(image)\" :key=\"index\">\n\t\t\t\t\t\t<img v-bx-lazyload=\"{callback: lazyLoadCallback}\"\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-image-source\"\n\t\t\t\t\t\t\t:data-lazyload-src=\"getElementSource(image)\"\n\t\t\t\t\t\t\t:style=\"styleFileSizes(image)\"\n\t\t\t\t\t\t\t:title=\"getElementTitle(image)\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
+	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-image\">\n\t\t\t\t<template v-for=\"(image, index) in config.IMAGE\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-image-block\" @click=\"open(image.LINK)\" :style=\"styleBoxSizes(image)\" :key=\"index\">\n\t\t\t\t\t\t<img v-bx-lazyload=\"{callback: lazyLoadCallback}\"\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-image-source\"\n\t\t\t\t\t\t\t:data-lazyload-src=\"getElementSource(image)\"\n\t\t\t\t\t\t\t:style=\"styleFileSizes(image)\"\n\t\t\t\t\t\t\t:title=\"image.NAME\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
 	  }
 	};
 
@@ -384,6 +384,10 @@
 	      },
 	      getLinkName: function getLinkName(element) {
 	        return element.NAME ? element.NAME : element.LINK;
+	      },
+	      getDescription: function getDescription(element) {
+	        var text = element.HTML ? element.HTML : element.DESC;
+	        return im_lib_utils.Utils.text.decode(text);
 	      }
 	    },
 	    computed: {
@@ -393,7 +397,7 @@
 	    },
 	    components: babelHelpers.defineProperty({}, AttachTypeImage.name, AttachTypeImage.component),
 	    //language=Vue
-	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-link\">\n\t\t\t\t<template v-for=\"(element, index) in config.LINK\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-link-element\" :key=\"index\">\n\t\t\t\t\t\t<a \n\t\t\t\t\t\t\tv-if=\"element.LINK\"\n\t\t\t\t\t\t\t:href=\"element.LINK\"\n\t\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-link-name\" \n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t{{getLinkName(element)}}\n\t\t\t\t\t\t</a>\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tv-else\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-ajax-link\"\n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t{{getLinkName(element)}}\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<div v-if=\"element.DESC\" class=\"bx-im-element-attach-type-link-desc\">{{element.DESC}}</div>\n\t\t\t\t\t\t<div \n\t\t\t\t\t\t\tv-if=\"element.PREVIEW\" \n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-link-image\"\n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<component :is=\"imageComponentName\" :config=\"getImageConfig(element)\" :color=\"color\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
+	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-link\">\n\t\t\t\t<template v-for=\"(element, index) in config.LINK\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-link-element\" :key=\"index\">\n\t\t\t\t\t\t<a \n\t\t\t\t\t\t\tv-if=\"element.LINK\"\n\t\t\t\t\t\t\t:href=\"element.LINK\"\n\t\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-link-name\" \n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t{{getLinkName(element)}}\n\t\t\t\t\t\t</a>\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tv-else\n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-ajax-link\"\n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t{{getLinkName(element)}}\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<div v-if=\"element.DESC || element.HTML\" class=\"bx-im-element-attach-type-link-desc\" v-html=\"getDescription(element)\"></div>\n\t\t\t\t\t\t<div \n\t\t\t\t\t\t\tv-if=\"element.PREVIEW\" \n\t\t\t\t\t\t\tclass=\"bx-im-element-attach-type-link-image\"\n\t\t\t\t\t\t\t@click=\"openLink({element: element, event: $event})\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<component :is=\"imageComponentName\" :config=\"getImageConfig(element)\" :color=\"color\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
 	  }
 	};
 
@@ -423,16 +427,7 @@
 	    },
 	    computed: {
 	      message: function message() {
-	        var _this = this;
-	        var text = im_lib_utils.Utils.text.htmlspecialchars(this.config.MESSAGE);
-	        text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
-	          var user = _this.$store.getters['users/get'](userId);
-	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : userName;
-	          return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
-	        });
-	        return im_model.MessagesModel.decodeBbCode({
-	          text: text
-	        });
+	        return im_lib_utils.Utils.text.decode(this.config.MESSAGE);
 	      }
 	    },
 	    template: "<div class=\"bx-im-element-attach-type-message\" v-html=\"message\"></div>"
@@ -483,7 +478,7 @@
 	    },
 	    components: babelHelpers.defineProperty({}, AttachTypeImage.name, AttachTypeImage.component),
 	    //language=Vue
-	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-rich\">\n\t\t\t\t<template v-for=\"(element, index) in config.RICH_LINK\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-rich-element\" :key=\"index\">\n\t\t\t\t\t\t<div v-if=\"element.PREVIEW\" class=\"bx-im-element-attach-type-rich-image\" @click=\"openLink({element: element, event: $event})\">\n\t\t\t\t\t\t\t<component :is=\"imageComponentName\" :config=\"getImageConfig(element)\" :color=\"color\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-rich-name\" @click=\"openLink({element: element, event: $event})\">{{element.NAME}}</div>\n\t\t\t\t\t\t<div v-if=\"element.DESC\" class=\"bx-im-element-attach-type-rich-desc\">{{element.DESC}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
+	    template: "\n\t\t\t<div class=\"bx-im-element-attach-type-rich\">\n\t\t\t\t<template v-for=\"(element, index) in config.RICH_LINK\">\n\t\t\t\t\t<div class=\"bx-im-element-attach-type-rich-element\" :key=\"index\">\n\t\t\t\t\t\t<div v-if=\"element.PREVIEW\" class=\"bx-im-element-attach-type-rich-image\" @click=\"openLink({element: element, event: $event})\">\n\t\t\t\t\t\t\t<component :is=\"imageComponentName\" :config=\"getImageConfig(element)\" :color=\"color\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-element-attach-type-rich-name\" @click=\"openLink({element: element, event: $event})\">{{element.NAME}}</div>\n\t\t\t\t\t\t<div v-if=\"element.HTML || element.DESC\" class=\"bx-im-element-attach-type-rich-desc\">{{element.HTML || element.DESC}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t"
 	  }
 	};
 

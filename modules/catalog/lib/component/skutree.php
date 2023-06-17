@@ -347,7 +347,7 @@ class SkuTree
 					|| (!$boolArr && (string)$prop['VALUE'] !== '')
 				)
 				{
-					$offer['DISPLAY_PROPERTIES'][$code] = \CIBlockFormatProperties::GetDisplayValue($offer, $prop, 'catalog_out');
+					$offer['DISPLAY_PROPERTIES'][$code] = \CIBlockFormatProperties::GetDisplayValue($offer, $prop);
 				}
 			}
 

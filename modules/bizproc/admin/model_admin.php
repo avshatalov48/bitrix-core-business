@@ -49,22 +49,30 @@ if ($adminList->EditAction())
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
-		if(!$adminList->IsUpdated($ID))
+		if (!$adminList->IsUpdated($ID))
+		{
 			continue;
+		}
 
 		if(!CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit"))
+		{
 			continue;
+		}
+
+		$DB->StartTransaction();
 
 		$ib = new CIBlock;
-		if(!$ib->Update($ID, $arFields))
+		if ($ib->Update($ID, $arFields))
+		{
+			$DB->Commit();
+		}
+		else
 		{
 			$adminList->AddUpdateError(GetMessage("IBLOCK_ADM_SAVE_ERROR", array("#ID#"=>$ID, "#ERROR_TEXT#"=>$ib->LAST_ERROR)), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
 	}
 }
 
@@ -109,8 +117,8 @@ if($arID = $adminList->GroupAction())
 						serialize($res_log)
 					);
 				}
+				$DB->Commit();
 			}
-			$DB->Commit();
 			break;
 		case "activate":
 		case "deactivate":

@@ -17,8 +17,7 @@ endif;
 /***************** BASE ********************************************/
 	$arParams["FID"] = (intval($arParams["FID"]) <= 0 ? false : intval($arParams["FID"]));
 	$arParams["TID"] = (intval($arParams["TID"]) <= 0 ? false : intval($arParams["TID"]));
-	$arParams["TITLE_SEO"] = trim($arParams["TITLE_SEO"]);
-	$arParams["TITLE_SEO"] = $arParams["TITLE_SEO"] <> '' ? $arParams["TITLE_SEO"] : trim($_REQUEST["TITLE_SEO"]);
+	$arParams["TITLE_SEO"] = trim($arParams["TITLE_SEO"] ?? ($_REQUEST["TITLE_SEO"] ?? ''));
 	if ($arParams["TID"] <= 0 && $arParams["TITLE_SEO"] <> '')
 		$arParams["TID"] = intval(strtok($arParams["TITLE_SEO"], "-"));
 	$arParams["PERIOD"] = (intval($arParams["PERIOD"]) <= 0 ? 10 : intval($arParams["PERIOD"])); // input params in minuts
@@ -249,8 +248,8 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 			do 
 			{
 				$arResult["STATISTIC"]["FORUMS"]++;
-				$arResult["STATISTIC"]["TOPICS"] += intval($res["TOPICS"]);
-				$arResult["STATISTIC"]["POSTS"] += intval($res["POSTS"]);
+				$arResult["STATISTIC"]["TOPICS"] += intval($res["TOPICS"] ?? 0);
+				$arResult["STATISTIC"]["POSTS"] += intval($res["POSTS"] ?? 0);
 			} while ($res = $db_res->GetNext());
 		}
 		

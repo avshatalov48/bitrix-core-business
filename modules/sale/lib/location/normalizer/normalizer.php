@@ -1,8 +1,6 @@
 <?
 namespace Bitrix\Sale\Location\Normalizer;
 
-use Bitrix\Main\ArgumentOutOfRangeException;
-
 /**
  * Normalize Locations names for search and mapping purposes.
  * Class Normalizer
@@ -27,15 +25,9 @@ class Normalizer implements INormalizer
 
 	/**
 	 * @param INormalizer $normalizer
-	 * @throws ArgumentOutOfRangeException
 	 */
-	protected function addNormalizer($normalizer)
+	protected function addNormalizer(INormalizer $normalizer)
 	{
-		if(!($normalizer instanceof INormalizer))
-		{
-			throw new ArgumentOutOfRangeException('Normalizer does not implements INormalizer');
-		}
-
 		$this->normalizers[] = $normalizer;
 	}
 

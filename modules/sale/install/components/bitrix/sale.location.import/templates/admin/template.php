@@ -1,10 +1,17 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
-global $APPLICATION;
-?>
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-<?if($arResult['DISPLAY_FILE_UPLOAD_RESPONCE']):?>
-	<?
+/** @global CMain $APPLICATION */
+/** @var CBitrixSaleLocationImportComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+
+global $APPLICATION;
+
+if($arResult['DISPLAY_FILE_UPLOAD_RESPONCE']):
 	$APPLICATION->RestartBuffer();
 	while (@ob_end_clean());
 	?>
@@ -16,26 +23,27 @@ global $APPLICATION;
 		}
 		currentWindow.BX['file-async-loader']['<?=$arResult['FILE_UPLOAD_ID']?>'].<?=(empty($arResult['ERRORS']['FATAL']) ? 'uploadSuccess' : 'uploadFail')?>();
 	</script>
-	<?die();?>
-<?endif?>
+	<?php
+	die();
+endif;
 
-<?
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
-?>
 
-<?if(!empty($arResult['ERRORS']['FATAL'])):?>
+if(!empty($arResult['ERRORS']['FATAL'])):
+	CAdminMessage::ShowMessage([
+		'MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['FATAL'])),
+		'type' => 'ERROR',
+	]);
+else:
+	if(!empty($arResult['ERRORS']['NONFATAL'])):
+		CAdminMessage::ShowMessage([
+			'MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['NONFATAL'])),
+			'type' => 'ERROR'
+		]);
+	endif;
 
-	<?CAdminMessage::ShowMessage(array('MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['FATAL'])), 'type' => 'ERROR'))?>
-
-<?else:?>
-
-	<?if(!empty($arResult['ERRORS']['NONFATAL'])):?>
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['NONFATAL'])), 'type' => 'ERROR'))?>
-	<?endif?>
-
-	<?
 	$aTabs = array(
 		array(
 			"DIV" => "tab_import",
@@ -76,11 +84,15 @@ Loc::loadMessages(__FILE__);
 		<?=BeginNote()?>
 			<?=Loc::getMessage('SALE_SLI_STAT_TITLE')?>:
 			<ul class="bx-ui-loc-i-stat-list">
-				<?foreach($arResult['STATISTICS'] as $code => $stat):?>
-					<? if($stat['NAME'] <> ''): ?>
+				<?php
+				foreach($arResult['STATISTICS'] as $code => $stat):
+					if (!empty($stat['NAME'])):
+					?>
 						<li><?= htmlspecialcharsbx($stat['NAME']) ?>: <?= intval($stat['CNT']) ?></li>
-					<? endif?>
-				<?endforeach?>
+					<?php
+					endif;
+				endforeach;
+				?>
 				<script type="text/html" data-template-id="bx-ui-loc-i-stat-item">
 					<li>{{type}}: {{count}}</li>
 				</script>
@@ -92,20 +104,25 @@ Loc::loadMessages(__FILE__);
 		<?=EndNote();?>
 
 		<div class="bx-ui-loc-i-progressbar">
-			<?
-			CAdminMessage::ShowMessage(array(
+			<?php
+			CAdminMessage::ShowMessage([
 				"TYPE" => "PROGRESS",
-				"DETAILS" => '#PROGRESS_BAR#'.
-					'<div class="adm-loc-i-statusbar">'.Loc::getMessage('SALE_SLI_STATUS').': <span class="bx-ui-loc-i-loader"></span>&nbsp;<span class="bx-ui-loc-i-status-text">'.Loc::getMessage('SALE_SLI_STAGE_INITIAL').'</span></div>',
+				"DETAILS" => '#PROGRESS_BAR#'
+					. '<div class="adm-loc-i-statusbar">'
+					. Loc::getMessage('SALE_SLI_STATUS')
+					. ': <span class="bx-ui-loc-i-loader"></span>&nbsp;<span class="bx-ui-loc-i-status-text">'
+					. Loc::getMessage('SALE_SLI_STAGE_INITIAL')
+					. '</span></div>'
+				,
 				"HTML" => true,
 				"PROGRESS_TOTAL" => 100,
 				"PROGRESS_VALUE" => 0,
-				"PROGRESS_TEMPLATE" => '<span class="bx-ui-loc-i-percents">#PROGRESS_VALUE#</span>%'
-			));
+				"PROGRESS_TEMPLATE" => '<span class="bx-ui-loc-i-percents">#PROGRESS_VALUE#</span>%',
+			]);
 			?>
 		</div>
 
-		<?
+		<?php
 		$tabControl->Begin();
 		$tabControl->BeginNextTab();
 		?>
@@ -156,7 +173,7 @@ Loc::loadMessages(__FILE__);
 					$externalServiceHtml = ($adminSidePanelHelper->isPublicSidePanel() ?  :'<a href="'.$arResult['URLS']['EXTERNAL_SERVICE_LIST'].'" target="_blank">');
 					?>
 						<?=Loc::getMessage('SALE_SLI_SOURCE_FILE_NOTES', array(
-							'#ANCHOR_LOCTYPES#' => '<a href="'.$arResult['URLS']['TYPE_LIST'].'" target="_blank">', 
+							'#ANCHOR_LOCTYPES#' => '<a href="'.$arResult['URLS']['TYPE_LIST'].'" target="_blank">',
 							'#ANCHOR_EXT_SERVS#' => $anchorExtServs,
 							'#ANCHOR_END#' => '</a>'
 						))?>
@@ -313,7 +330,7 @@ Loc::loadMessages(__FILE__);
 				</td>
 			</tr>
 
-		<?
+		<?php
 		$tabControl->BeginNextTab();
 		?>
 
@@ -329,12 +346,12 @@ Loc::loadMessages(__FILE__);
 				</td>
 			</tr>
 
-		<?
+		<?php
 		$tabControl->EndTab();
 		$tabControl->Buttons();
 		?>
 			<input type="submit" class="adm-btn-save bx-ui-loc-i-button-start" value="<?=Loc::getMessage('SALE_SLI_START')?>">
-		<?
+		<?php
 		$tabControl->End();
 		?>
 
@@ -348,7 +365,6 @@ Loc::loadMessages(__FILE__);
 
 	<script>
 		BX.locationImport = new BX.Sale.component.location.import(<?=CUtil::PhpToJSObject(array(
-
 				// common
 				'url' => CHTTP::urlAddParams($arResult['URLS']['IMPORT_AJAX'], array('lang' => LANGUAGE_ID)),
 				'pageUrl' => $arResult['URLS']['IMPORT'],
@@ -386,5 +402,5 @@ Loc::loadMessages(__FILE__);
 
 		), false, false, true)?>);
 	</script>
-
-<?endif?>
+<?php
+endif;

@@ -105,7 +105,7 @@ class AutomaticProfile extends Base
 	{
 		if($this->profileOldConfig === null)
 		{
-			$own = Automatic::createConfig($this->parentHandlerInitParams, $this->config["MAIN"]["OLD_SETTINGS"]);
+			$own = Automatic::createConfig($this->parentHandlerInitParams, $this->config["MAIN"]["OLD_SETTINGS"] ?? '');
 			$parent = $this->getParentService()->getOldConfig();
 
 			$profileOldConfig = array(
@@ -193,7 +193,7 @@ class AutomaticProfile extends Base
 
 			if($this->profileId <> '')
 			{
-				$oldConfig = Automatic::createConfig($this->parentHandlerInitParams, $this->config["MAIN"]["OLD_SETTINGS"]);
+				$oldConfig = Automatic::createConfig($this->parentHandlerInitParams, $this->config["MAIN"]["OLD_SETTINGS"] ?? '');
 				$newConfig = Automatic::convertOldConfigToNew($oldConfig);
 
 				foreach($newConfig as $groupId => $groupParams)
@@ -267,7 +267,7 @@ class AutomaticProfile extends Base
 					"PROFILE_NAME" => array(
 						"TYPE" => "STRING",
 						"NAME" => Loc::getMessage("SALE_DLVR_HANDL_AUTP_CONF_MAIN_PROFILE_ID"),
-						"DEFAULT" => $profiles[$this->profileId],
+						"DEFAULT" => $profiles[$this->profileId] ?? '',
 						"READONLY" => true
 					)
 				)
@@ -317,8 +317,16 @@ class AutomaticProfile extends Base
 						unset($oldAutoConfig["CONFIG_GROUPS"][$key]);
 
 				foreach($oldAutoConfig["CONFIG"] as $key => $params)
-					if($this->profileId != $params["CONFIG"])
+				{
+					if (!isset($params["CONFIG"]))
+					{
 						unset($oldAutoConfig["CONFIG"][$key]);
+					}
+					elseif ($this->profileId != $params["CONFIG"])
+					{
+						unset($oldAutoConfig["CONFIG"][$key]);
+					}
+				}
 			}
 
 			$oldConfig = Automatic::convertOldConfigToNew($oldAutoConfig);
@@ -379,8 +387,12 @@ class AutomaticProfile extends Base
 			$parentTP = $this->parentAutomatic->getTrackingParams();
 
 			foreach($fields['TRACKING_PARAMS'] as $k => $v)
-			 	if(!empty($parentTP[$k]) && $v == $parentTP[$k])
-					$fields['TRACKING_PARAMS'][$k] ='';
+			{
+				if (!empty($parentTP[$k]) && $v == $parentTP[$k])
+				{
+					$fields['TRACKING_PARAMS'][$k] = '';
+				}
+			}
 		}
 
 		return $fields;

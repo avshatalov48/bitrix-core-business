@@ -20,8 +20,8 @@ class UrlPreviewComponent extends \CBitrixComponent
 
 	protected function prepareParams()
 	{
-		$this->editMode = ($this->arParams['EDIT'] === 'Y');
-		$this->mobileApp = ($this->arParams['PARAMS']['MOBILE'] === 'Y');
+		$this->editMode = isset($this->arParams['EDIT']) && $this->arParams['EDIT'] === 'Y';
+		$this->mobileApp = isset($this->arParams['PARAMS']['MOBILE']) && $this->arParams['PARAMS']['MOBILE'] === 'Y';
 
 		if($this->mobileApp)
 			$this->setTemplateName('mobile');
@@ -40,13 +40,17 @@ class UrlPreviewComponent extends \CBitrixComponent
 		$this->setDynamicPreview();
 
 		$this->arResult['FIELD_NAME'] = $this->arParams['PARAMS']['arUserField']['FIELD_NAME'];
-		if($this->arResult['METADATA']['ID'] > 0)
+		if (isset($this->arResult['METADATA']['ID']) && $this->arResult['METADATA']['ID'] > 0)
+		{
 			$this->arResult['FIELD_VALUE'] = Main\UrlPreview\UrlPreview::sign($this->arResult['METADATA']['ID']);
+		}
 		else
+		{
 			$this->arResult['FIELD_VALUE'] = null;
+		}
 
-		$this->arResult['FIELD_ID'] = $this->arParams['PARAMS']['arUserField']['ID'];
-		$this->arResult['ELEMENT_ID'] = $this->arParams['PARAMS']['urlPreviewId'];
+		$this->arResult['FIELD_ID'] = $this->arParams['PARAMS']['arUserField']['ID'] ?? null;
+		$this->arResult['ELEMENT_ID'] = $this->arParams['PARAMS']['urlPreviewId'] ?? null;
 
 		if(isset($this->arParams['~METADATA']['EMBED']) && $this->arParams['~METADATA']['EMBED'] != '')
 		{
@@ -59,7 +63,7 @@ class UrlPreviewComponent extends \CBitrixComponent
 		}
 		else
 		{
-			if($this->arParams['METADATA']['EXTRA']['VIDEO'])
+			if(isset($this->arParams['METADATA']['EXTRA']['VIDEO']) && $this->arParams['METADATA']['EXTRA']['VIDEO'])
 			{
 				$this->arResult['METADATA']['EMBED'] = $this->invokePlayer();
 			}
@@ -72,7 +76,9 @@ class UrlPreviewComponent extends \CBitrixComponent
 		$this->arResult['SELECT_IMAGE'] = (
 				$this->editMode
 				&& empty($this->arResult['METADATA']['EMBED'])
+				&& isset($this->arResult['METADATA']['EXTRA'])
 				&& is_array($this->arResult['METADATA']['EXTRA'])
+				&& isset($this->arResult['METADATA']['EXTRA']['IMAGES'])
 				&& is_array($this->arResult['METADATA']['EXTRA']['IMAGES'])
 		);
 
@@ -84,8 +90,10 @@ class UrlPreviewComponent extends \CBitrixComponent
 		{
 			$this->arResult['METADATA']['CONTAINER']['CLASSES'] = "";
 
-			if ($this->arResult['METADATA']['IMAGE_ID'] > 0
-					&& $imageFile = \CFile::GetFileArray($this->arResult['METADATA']['IMAGE_ID']))
+			if (
+				isset($this->arResult['METADATA']['IMAGE_ID'])
+				&& $this->arResult['METADATA']['IMAGE_ID'] > 0
+				&& $imageFile = \CFile::GetFileArray($this->arResult['METADATA']['IMAGE_ID']))
 			{
 				$this->arResult['METADATA']['IMAGE'] = $imageFile['SRC'];
 				if($imageFile['HEIGHT'] > $imageFile['WIDTH'] * 1.5)
@@ -114,7 +122,7 @@ class UrlPreviewComponent extends \CBitrixComponent
 		{
 			$document = new Main\UrlPreview\HtmlDocument($embed, new Main\Web\Uri('/'));
 			$attributes = $document->extractElementAttributes('iframe');
-			if(count($attributes) > 0)
+			if(!empty($attributes))
 			{
 				$attributes = $attributes[0];
 				$attributes['height'] = '100%';
@@ -151,7 +159,10 @@ class UrlPreviewComponent extends \CBitrixComponent
 
 	protected function setDynamicPreview()
 	{
-		if ($this->arParams['METADATA']['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC)
+		if (
+			isset($this->arParams['METADATA']['TYPE'])
+			&& $this->arParams['METADATA']['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC
+		)
 		{
 			if (is_array($this->arParams['METADATA']['HANDLER']))
 			{
@@ -219,8 +230,14 @@ class UrlPreviewComponent extends \CBitrixComponent
 		{
 			$this->prepareData();
 			$this->prepareStyle();
-			if($this->arParams['METADATA']['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC && $this->arResult['DYNAMIC_PREVIEW'] == '')
+			if (
+				isset($this->arParams['METADATA']['TYPE'])
+				&& $this->arParams['METADATA']['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC
+				&& $this->arResult['DYNAMIC_PREVIEW'] == ''
+			)
+			{
 				return;
+			}
 
 			$this->includeComponentTemplate($this->editMode ? 'edit' : 'show');
 		}

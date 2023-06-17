@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Calendar\Sharing\Link;
 
-use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Mappers\Mapper;
 use Bitrix\Main\ORM\Query\Result;
@@ -46,7 +45,6 @@ abstract class LinkMapper extends Mapper
 	}
 
 	/**
-	 * @throws BaseException
 	 * @throws \Exception
 	 */
 	protected function createEntity($entity, array $params = []): ?Link
@@ -58,7 +56,9 @@ abstract class LinkMapper extends Mapper
 			'OPTIONS' => $this->getOptionsJSON($entity),
 			'DATE_CREATE' => new DateTime(),
 			'ACTIVE' => $entity->isActive(),
+			'DATE_EXPIRE' => $entity->getDateExpire(),
 		];
+		$data = array_merge($data, $this->getSpecificFields($entity));
 
 		$result = SharingLinkTable::add($data);
 		if ($result->isSuccess())
@@ -66,13 +66,10 @@ abstract class LinkMapper extends Mapper
 			return $entity->setId($result->getId());
 		}
 
-		throw new BaseException("Error of create {$this->getEntityName()}: "
-			. implode('; ', $result->getErrorMessages()),
-			400);
+		return null;
 	}
 
 	/**
-	 * @throws BaseException
 	 * @throws \Exception
 	 */
 	protected function updateEntity($entity, array $params = []): ?Link
@@ -80,7 +77,9 @@ abstract class LinkMapper extends Mapper
 		$data = [
 			'OPTIONS' => $this->getOptionsJSON($entity),
 			'ACTIVE' => $entity->isActive(),
+			'DATE_EXPIRE' => $entity->getDateExpire(),
 		];
+		$data = array_merge($data, $this->getSpecificFields($entity));
 
 		$result = SharingLinkTable::update($entity->getId(), $data);
 
@@ -89,29 +88,19 @@ abstract class LinkMapper extends Mapper
 			return $entity;
 		}
 
-		throw new BaseException("Error of update {$this->getEntityName()}: "
-			. implode('; ', $result->getErrorMessages()),
-			400);
+		return null;
 	}
 
 	/**
 	 * @param EntityInterface $entity
 	 * @param array $params
 	 * @return Link|null
-	 * @throws BaseException
 	 */
 	protected function deleteEntity(EntityInterface $entity, array $params): ?Link
 	{
-		$result = SharingLinkTable::delete($entity->getId());
+		SharingLinkTable::delete($entity->getId());
 
-		if ($result->isSuccess())
-		{
-			return null;
-		}
-
-		throw new BaseException("Error of delete {$this->getEntityName()}: "
-			. implode('; ', $result->getErrorMessages()),
-			400);
+		return null;
 	}
 
 	/**
@@ -139,7 +128,12 @@ abstract class LinkMapper extends Mapper
 	{
 		$options = $this->getOptionsArray($entity);
 
-		return Json::encode($options);
+		$result = null;
+		if (!empty($options))
+		{
+			$result = Json::encode($options);
+		}
+		return $result;
 	}
 
 	/**
@@ -147,4 +141,10 @@ abstract class LinkMapper extends Mapper
 	 * @return array
 	 */
 	abstract protected function getOptionsArray($entity): array;
+
+	/**
+	 * @param $entity
+	 * @return array
+	 */
+	abstract protected function getSpecificFields($entity): array;
 }

@@ -7,7 +7,7 @@ use Bitrix\Main\UserField\Types\BooleanType;
 
 $label = BooleanType::getLabels($arResult['userField']);
 
-if($arResult['userField']['ENTITY_VALUE_ID'] < 1)
+if(!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] < 1)
 {
 	$arResult['additionalParameters']['VALUE'] =
 		(int)$arResult['userField']['SETTINGS']['DEFAULT_VALUE'];

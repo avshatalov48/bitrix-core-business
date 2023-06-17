@@ -172,7 +172,7 @@ if ($allowEdit)
 	}
 	// endregion
 
-	$barcodeMultiply = $_POST["CAT_BARCODE_MULTIPLY"];
+	$barcodeMultiply = $_POST["CAT_BARCODE_MULTIPLY"] ?? null;
 	if(!$barcodeMultiply || $barcodeMultiply == '')
 		$barcodeMultiply = 'N';
 
@@ -275,9 +275,9 @@ if ($allowEdit)
 	}
 
 	$productFields = [
-		'WIDTH' => $CAT_BASE_WIDTH,
-		'LENGTH' => $CAT_BASE_LENGTH,
-		'HEIGHT' => $CAT_BASE_HEIGHT,
+		'WIDTH' => $CAT_BASE_WIDTH ?? null,
+		'LENGTH' => $CAT_BASE_LENGTH ?? null,
+		'HEIGHT' => $CAT_BASE_HEIGHT ?? null,
 		'VAT_ID' => $CAT_VAT_ID,
 		'VAT_INCLUDED' => $CAT_VAT_INCLUDED,
 		'PRICE_TYPE' => false,
@@ -325,7 +325,7 @@ if ($allowEdit)
 		}
 	}
 
-	if(!$bUseStoreControl)
+	if(!$bUseStoreControl && !$isService)
 	{
 		$productFields['QUANTITY'] = $CAT_BASE_QUANTITY;
 		if ($productFields['QUANTITY'] === '' || $productFields['QUANTITY'] === null)

@@ -67,7 +67,7 @@ $url = (CMain::IsHTTPS() ? "https://" : "http://").$server_name;
 define('LOCK_FILE', $_SERVER['DOCUMENT_ROOT'].'/bitrix/backup/auto_lock');
 
 $dump_auto_enable = IntOption('dump_auto_enable');
-if($_REQUEST['save'])
+if(!empty($_REQUEST['save']))
 {
 	if (!check_bitrix_sessid())
 	{
@@ -79,28 +79,28 @@ if($_REQUEST['save'])
 	}
 	else
 	{
-		$BUCKET_ID = $_REQUEST['dump_bucket_id'];
+		$BUCKET_ID = $_REQUEST['dump_bucket_id'] ?? 0;
 		if (!$encrypt)
 		{
 			$_REQUEST['dump_encrypt_key'] = '';
 			if ($BUCKET_ID == -1)
 				$BUCKET_ID = 0;
 		}
-		CPasswordStorage::Set('dump_temporary_cache', $_REQUEST['dump_encrypt_key']);
+		CPasswordStorage::Set('dump_temporary_cache', $_REQUEST['dump_encrypt_key'] ?? '');
 
 		IntOptionSet("dump_bucket_id", $BUCKET_ID);
 
-		$dump_auto_set = intval($_REQUEST['dump_auto_enable']);
+		$dump_auto_set = intval($_REQUEST['dump_auto_enable'] ?? 0);
 		if ($bBitrixCloud)
 			CBitrixCloudBackup::getInstance()->deleteBackupJob();
-		$dump_site_id = $_REQUEST['dump_site_id'];
+		$dump_site_id = $_REQUEST['dump_site_id'] ?? '';
 		if ($dump_auto_set)
 		{
-			$t = preg_match('#^([0-9]{2}):([0-9]{2})$#', $_REQUEST['dump_auto_time'], $regs) ? $regs[1] * 60 + $regs[2] : 0;
+			$t = preg_match('#^([0-9]{2}):([0-9]{2})$#', $_REQUEST['dump_auto_time'] ?? '', $regs) ? $regs[1] * 60 + $regs[2] : 0;
 			IntOptionSet("dump_auto_time", $t);
 			$sec = $t * 60;
 
-			$i = intval($_REQUEST['dump_auto_interval']);
+			$i = intval($_REQUEST['dump_auto_interval'] ?? 0);
 			if (!$i)
 				$i = 1;
 			IntOptionSet("dump_auto_interval", $i);
@@ -169,7 +169,7 @@ if($_REQUEST['save'])
 				$strMessage .= '<br>'.GetMessage('DUMP_CHECK_BITRIXCLOUD', array('#LINK#' => '/bitrix/admin/bitrixcloud_backup_job.php?lang='.LANGUAGE_ID));
 			}
 		}
-		elseif ($_REQUEST['dump_auto_green_button'])
+		elseif (!empty($_REQUEST['dump_auto_green_button']))
 			$strError = GetMessage('DUMP_WARN_NO_BITRIXCLOUD');
 		else
 			$strMessage = GetMessage('DUMP_SAVED_DISABLED');
@@ -181,18 +181,18 @@ if($_REQUEST['save'])
 		}
 
 		COption::SetOptionString("main", "dump_site_id"."_auto", serialize($dump_site_id));
-		IntOptionSet("dump_delete_old", $_REQUEST['dump_delete_old']);
-		IntOptionSet("dump_old_time", $_REQUEST['dump_old_time']);
-		IntOptionSet("dump_old_cnt", $_REQUEST['dump_old_cnt']);
-		IntOptionSet("dump_old_size", $_REQUEST['dump_old_size']);
+		IntOptionSet("dump_delete_old", $_REQUEST['dump_delete_old'] ?? 0);
+		IntOptionSet("dump_old_time", $_REQUEST['dump_old_time'] ?? 0);
+		IntOptionSet("dump_old_cnt", $_REQUEST['dump_old_cnt'] ?? 0);
+		IntOptionSet("dump_old_size", $_REQUEST['dump_old_size'] ?? 0);
 
-		IntOptionSet("dump_integrity_check", $_REQUEST['dump_integrity_check'] == 'Y');
-		IntOptionSet("dump_use_compression", $bGzip && $_REQUEST['dump_disable_gzip'] != 'Y');
+		IntOptionSet("dump_integrity_check", isset($_REQUEST['dump_integrity_check']) && $_REQUEST['dump_integrity_check'] == 'Y');
+		IntOptionSet("dump_use_compression", $bGzip && (!isset($_REQUEST['dump_disable_gzip']) || $_REQUEST['dump_disable_gzip'] != 'Y'));
 
-		IntOptionSet("dump_max_exec_time", $_REQUEST['dump_max_exec_time']);
-		IntOptionSet("dump_max_exec_time_sleep", $_REQUEST['dump_max_exec_time_sleep']);
+		IntOptionSet("dump_max_exec_time", $_REQUEST['dump_max_exec_time'] ?? 0);
+		IntOptionSet("dump_max_exec_time_sleep", $_REQUEST['dump_max_exec_time_sleep'] ?? 0);
 
-		$dump_archive_size_limit = intval($_REQUEST['dump_archive_size_limit'] * 1024 * 1024);
+		$dump_archive_size_limit = isset($_REQUEST['dump_archive_size_limit']) ? intval($_REQUEST['dump_archive_size_limit'] * 1024 * 1024) : 0;
 		if ($dump_archive_size_limit <= 10240 * 1024)
 			$dump_archive_size_limit = 100 * 1024 * 1024;
 		IntOptionSet("dump_archive_size_limit", $dump_archive_size_limit);
@@ -206,18 +206,18 @@ if($_REQUEST['save'])
 		}
 		IntOptionSet('dump_do_clouds', $bDumpCloud);
 		*/
-		IntOptionSet('dump_do_clouds', $_REQUEST['dump_do_clouds'] == 'Y');
+		IntOptionSet('dump_do_clouds', isset($_REQUEST['dump_do_clouds']) && $_REQUEST['dump_do_clouds'] == 'Y');
 
-		IntOptionSet('dump_base', $_REQUEST['dump_base'] == 'Y');
-		IntOptionSet('dump_base_skip_stat', $_REQUEST['dump_base_skip_stat'] == 'Y');
-		IntOptionSet('dump_base_skip_search', $_REQUEST['dump_base_skip_search'] == 'Y');
-		IntOptionSet('dump_base_skip_log', $_REQUEST['dump_base_skip_log'] == 'Y');
+		IntOptionSet('dump_base', isset($_REQUEST['dump_base']) && $_REQUEST['dump_base'] == 'Y');
+		IntOptionSet('dump_base_skip_stat', isset($_REQUEST['dump_base_skip_stat']) && $_REQUEST['dump_base_skip_stat'] == 'Y');
+		IntOptionSet('dump_base_skip_search', isset($_REQUEST['dump_base_skip_search']) && $_REQUEST['dump_base_skip_search'] == 'Y');
+		IntOptionSet('dump_base_skip_log', isset($_REQUEST['dump_base_skip_log']) && $_REQUEST['dump_base_skip_log'] == 'Y');
 
-		IntOptionSet('dump_file_kernel', $_REQUEST['dump_file_kernel'] == 'Y');
-		IntOptionSet('dump_file_public', $_REQUEST['dump_file_public'] == 'Y');
+		IntOptionSet('dump_file_kernel', isset($_REQUEST['dump_file_kernel']) && $_REQUEST['dump_file_kernel'] == 'Y');
+		IntOptionSet('dump_file_public', isset($_REQUEST['dump_file_public']) && $_REQUEST['dump_file_public'] == 'Y');
 
-		IntOptionSet('skip_mask', $_REQUEST['skip_mask'] == 'Y');
-		$arMask = array_unique($_REQUEST['arMask']);
+		IntOptionSet('skip_mask', isset($_REQUEST['skip_mask']) && $_REQUEST['skip_mask'] == 'Y');
+		$arMask = array_unique($_REQUEST['arMask'] ?? []);
 		foreach($arMask as $mask)
 		{
 			if (trim($mask))
@@ -228,7 +228,7 @@ if($_REQUEST['save'])
 		}
 		COption::SetOptionString("main", "skip_mask_array_auto", serialize($skip_mask_array));
 
-		IntOptionSet('dump_max_file_size', intval($_REQUEST['max_file_size']));
+		IntOptionSet('dump_max_file_size', intval($_REQUEST['max_file_size'] ?? 0));
 
 		if ($strError)
 			CAdminMessage::ShowMessage(array(
@@ -304,9 +304,9 @@ CAdminFileDialog::ShowScript(
 		"showUploadTab" => false,
 		"showAddToMenuTab" => false,
 		"allowAllFiles" => true,
-		"SaveConfig" => true 
+		"SaveConfig" => true
 	)
-);		
+);
 ?>
 <script>
 var numRows=0;
@@ -502,7 +502,7 @@ $editTab->BeginNextTab();
 	<td colspan=2>
 <? echo BeginNote();
 	echo nl2br(GetMessage('DUMP_AUTO_INFO_TEXT'));
-echo EndNote(); 
+echo EndNote();
 
 ?>
 	</td>
@@ -615,10 +615,15 @@ if ($BUCKET_ID == -1 && !$bBitrixCloud)
 		<td class="adm-detail-valign-top"><?=GetMessage("DUMP_MAIN_SITE")?></td>
 		<td>
 			<?
+				$dump_site_id = array();
 				if ($s = COption::GetOptionString("main", "dump_site_id"."_auto", ($NS['dump_site_id'])))
-					$dump_site_id = unserialize($s, ['allowed_classes' => false]);
-				else
-					$dump_site_id = array();
+				{
+					$sites = unserialize($s, ['allowed_classes' => false]);
+					if (is_array($sites))
+					{
+						$dump_site_id = $sites;
+					}
+				}
 				$i = 0;
 				foreach($arSitePath as $path => $val)
 				{
@@ -652,7 +657,7 @@ if ($arAllBucket)
 }
 ?>
 <?
-if ($DB->type == 'MYSQL') 
+if ($DB->type == 'MYSQL')
 {
 ?>
 <tr>
@@ -766,7 +771,7 @@ function IntOption($name, $def = 0)
 	static $CACHE;
 	$name .= '_auto';
 
-	if (!$CACHE[$name])
+	if (!isset($CACHE[$name]))
 		$CACHE[$name] = COption::GetOptionInt("main", $name, $def);
 	return $CACHE[$name];
 }

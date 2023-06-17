@@ -64,6 +64,7 @@ class ProductForm
 			showResults: true,
 			showCompilationModeSwitcher: false,
 			enableEmptyProductError: true,
+			isShortProductViewFormat: false,
 			pricePrecision: 2,
 			currency: settingsCollection.get('currency'),
 			currencySymbol: settingsCollection.get('currencySymbol'),

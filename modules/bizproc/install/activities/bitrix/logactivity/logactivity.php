@@ -77,7 +77,11 @@ class CBPLogActivity extends CBPActivity
 			if (is_array($arCurrentActivity["Properties"]))
 			{
 				$arCurrentValues["text"] = $arCurrentActivity["Properties"]["Text"] ?? null;
-				$arCurrentValues["set_variable"] = ($arCurrentActivity["Properties"]["SetVariable"] ? "Y" : "N");
+				$arCurrentValues["set_variable"] = (
+					isset($arCurrentActivity['Properties']['SetVariable']) && $arCurrentActivity['Properties']['SetVariable']
+						? 'Y'
+						: 'N'
+				);
 			}
 		}
 

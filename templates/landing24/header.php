@@ -12,30 +12,30 @@ if (!\Bitrix\Main\Loader::includeModule('landing'))
 }
 
 \Bitrix\Landing\Connector\Mobile::prologMobileHit();
-$language= \Bitrix\Landing\Manager::getLangISO();
+$language = \Bitrix\Landing\Manager::getLangISO();
 ?><!DOCTYPE html>
-<html xml:lang="<?= $language;?>" lang="<?= $language;?>" class="<?$APPLICATION->ShowProperty('HtmlClass');?>">
+<html xml:lang="<?= $language;?>" lang="<?= $language;?>" class="<?php $APPLICATION->ShowProperty('HtmlClass');?>">
 <head>
-	<?$APPLICATION->ShowProperty('AfterHeadOpen');?>
+	<?php $APPLICATION->ShowProperty('AfterHeadOpen');?>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
 	<meta name="HandheldFriendly" content="true" >
 	<meta name="MobileOptimized" content="width">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	<title><?$APPLICATION->ShowTitle();?></title>
-	<?
+	<title><?php $APPLICATION->ShowTitle();?></title>
+	<?php
 	$APPLICATION->ShowHead();
 	$APPLICATION->ShowProperty('MetaOG');
 	$APPLICATION->ShowProperty('BeforeHeadClose');
 	?>
 </head>
-<body class="<?$APPLICATION->ShowProperty('BodyClass');?>" <?$APPLICATION->ShowProperty('BodyTag');?>>
-<?
+<body class="<?php $APPLICATION->ShowProperty('BodyClass');?>" <?php $APPLICATION->ShowProperty('BodyTag');?>>
+<?php
 /*
 This is commented to avoid Project Quality Control warning
 $APPLICATION->ShowPanel();
 */
 ?>
-<?$APPLICATION->ShowProperty('Noscript');?>
-<?$APPLICATION->ShowProperty('AfterBodyOpen');?>
-<main class="w-100 <?$APPLICATION->ShowProperty('MainClass');?>" <?$APPLICATION->ShowProperty('MainTag');?>>
+<?php $APPLICATION->ShowProperty('Noscript');?>
+<?php $APPLICATION->ShowProperty('AfterBodyOpen');?>
+<main class="w-100 <?php $APPLICATION->ShowProperty('MainClass');?>" <?php $APPLICATION->ShowProperty('MainTag');?>>

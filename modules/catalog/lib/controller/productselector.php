@@ -912,7 +912,7 @@ class ProductSelector extends JsonController
 			$fields['MEASURE'] = $this->getMeasureIdByCode($fields['MEASURE_CODE']);
 		}
 
-		$sectionId = $fields['IBLOCK_SECTION_ID'];
+		$sectionId = $fields['IBLOCK_SECTION_ID'] ?? null;
 		unset($fields['IBLOCK_SECTION_ID']);
 
 		$sku->setFields($fields);

@@ -455,6 +455,10 @@
 					this.cancelDragAndDrop = true;
 					this.draggedNode = false;
 					this.shake(node);
+					if (params.entry.isSharingEvent())
+					{
+						this.showCantDragSharedEventPopup(node);
+					}
 					return;
 				}
 
@@ -858,7 +862,7 @@
 			}
 			if (this.previousDuration < currentDuration || currentDuration === this.startDuration)
 			{
-				this.closeDurationChangedPopup();
+				this.closeEntryDragPopup();
 				this.hideDurationChanged();
 			}
 
@@ -897,52 +901,65 @@
 
 		showDurationChangedPopup: function(from, to)
 		{
-			const popup = this.getDurationChangedPopup(- 500, 'right', from, to);
-			if (!popup)
-			{
-				return;
-			}
-			popup.show();
-			const popupWidth = popup.popupContainer.offsetWidth;
-			this.popupHeight = popup.popupContainer.offsetHeight;
-			popup.destroy();
+			const text = BX.Loc.getMessage('CALENDAR_EVENT_DURATION_CHANGE_NEW')
+				.replace('#DURATION#', this.getDurationHint(from, to));
+			this.showEntryDragPopup(this.draggedNode, text);
+		},
 
-			this.closeDurationChangedPopup();
-			this.showDurationChangedPopupTimeout = setTimeout(() => {
-				if (BX.pos(this.draggedNode).left + this.draggedNode.offsetWidth + popupWidth > window.innerWidth)
-				{
-					this.durationChangedPopup = this.getDurationChangedPopup(- popupWidth - 10, 'right', from, to);
-				}
-				else
-				{
-					this.durationChangedPopup = this.getDurationChangedPopup(this.draggedNode.offsetWidth + 10, 'left', from, to);
-				}
+		showCantDragSharedEventPopup: function(node)
+		{
+			const text = BX.message('EC_CALENDAR_CANT_DRAG_SHARED_EVENT');
+			this.showEntryDragPopup(node, text);
+		},
 
-				if (this.durationChangedPopup)
+		showEntryDragPopup: function(pivotNode, text)
+		{
+			this.closeEntryDragPopup();
+			this.showEntryDragPopupTimeout = setTimeout(() => {
+				this.entryDragPopup = this.getEntryDragPopup(pivotNode, text);
+
+				if (this.entryDragPopup)
 				{
-					this.durationChangedPopup.show();
+					this.entryDragPopup.show();
 				}
 			}, 200);
 		},
 
-		getDurationChangedPopup: function(offsetLeft, anglePosition, from, to)
+		getEntryDragPopup: function(pivotNode, text)
 		{
-			if (!this.draggedNode || this.draggedNode.offsetHeight === 0)
+			if (!pivotNode || pivotNode.offsetHeight === 0)
 			{
 				return null;
 			}
 
-			const popupHeight = this.popupHeight ?? 0;
-			const popup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), this.draggedNode, {
-				darkMode: true,
-				className: 'calendar-duration-changed-popup',
-				content: BX.Loc.getMessage('CALENDAR_EVENT_DURATION_CHANGE') +': '+ this.getDurationHint(from, to),
-				offsetTop:  - this.draggedNode.offsetHeight / 2 - popupHeight / 2,
-				offsetLeft,
-				angle: { position: anglePosition },
-			});
-			popup.angle.element.style.top = '3px';
+			const { popupWidth, popupHeight } = this.getEntryDragPopupSize(pivotNode, text);
+			const angleSize = 10;
 
+			let offsetLeft, offsetTop, anglePosition;
+			if (this.isDay())
+			{
+				offsetLeft = 0;
+				offsetTop = -pivotNode.offsetHeight - popupHeight - angleSize;
+				anglePosition = 'bottom';
+				if(pivotNode.getBoundingClientRect().top - popupHeight - angleSize < 0)
+				{
+					offsetTop = angleSize;
+					anglePosition = 'top';
+				}
+			}
+			else
+			{
+				offsetTop = (-pivotNode.offsetHeight / 2 - popupHeight / 2);
+				offsetLeft = pivotNode.offsetWidth + angleSize;
+				anglePosition = 'left';
+				if (pivotNode.getBoundingClientRect().right + popupWidth + angleSize > window.innerWidth)
+				{
+					offsetLeft = - popupWidth - angleSize;
+					anglePosition = 'right';
+				}
+			}
+
+			const popup = this.createHintPopup(pivotNode, text, offsetLeft, offsetTop, anglePosition);
 			popup.popupContainer.style.cursor = 'pointer';
 			popup.popupContainer.style.whiteSpace = 'nowrap';
 			popup.popupContainer.addEventListener('click', () => {
@@ -961,13 +978,55 @@
 			return popup;
 		},
 
-		closeDurationChangedPopup: function()
+		closeEntryDragPopup: function()
 		{
-			clearTimeout(this.showDurationChangedPopupTimeout);
-			if (this.durationChangedPopup)
+			clearTimeout(this.showEntryDragPopupTimeout);
+			if (this.entryDragPopup)
 			{
-				this.durationChangedPopup.destroy();
+				this.entryDragPopup.destroy();
 			}
+		},
+
+		getEntryDragPopupSize: function(pivotNode, text)
+		{
+			const temporaryPopup = this.createHintPopup(pivotNode, text, 0, 0, 'right');
+			temporaryPopup.show();
+			const popupWidth = temporaryPopup.popupContainer.offsetWidth;
+			const popupHeight = temporaryPopup.popupContainer.offsetHeight;
+			temporaryPopup.destroy();
+
+			return { popupWidth, popupHeight };
+		},
+
+		createHintPopup: function(pivotNode, text, offsetLeft, offsetTop, anglePosition)
+		{
+			const isAngleTopBottom = (anglePosition === 'bottom' || anglePosition === 'top');
+			const hintPopup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), pivotNode, {
+				darkMode: true,
+				className: 'calendar-entry-drag-popup',
+				content: text,
+				offsetLeft,
+				offsetTop,
+				angle: isAngleTopBottom ? false : { position: anglePosition },
+			});
+
+			if (hintPopup.angle)
+			{
+				hintPopup.angle.element.style.top = '3px';
+			}
+
+			BX.addCustomEvent(this.calendar, 'afterSetView', () => {
+				hintPopup.destroy();
+			});
+
+			if (isAngleTopBottom)
+			{
+				hintPopup.subscribe('onAfterShow', () => {
+					hintPopup.setAngle({offset: 0, position: anglePosition});
+				})
+			}
+
+			return hintPopup;
 		},
 
 		dragMonthEntry: function(x, y)
@@ -1204,7 +1263,17 @@
 
 		isDayWeek: function()
 		{
-			return this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day';
+			return this.isDay() || this.isWeek();
+		},
+
+		isDay: function()
+		{
+			return this.calendar.currentViewName === 'day';
+		},
+
+		isWeek: function()
+		{
+			return this.calendar.currentViewName === 'week';
 		},
 
 		formatTimePeriod: function(from, to)

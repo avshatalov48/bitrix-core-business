@@ -22,14 +22,14 @@ if(!$edit_php && !$USER->CanDoOperation('view_other_settings') && !$USER->CanDoO
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $isEditingMessageThemePage = $APPLICATION->GetCurPage() == '/bitrix/admin/message_theme_admin.php';
-	
+
 IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_template";
 $oSort = new CAdminSorting($sTableID, "id", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-if($_REQUEST['mode']=='list' || $_REQUEST['mode']=='frame')
+if(isset($_REQUEST['mode']) && ($_REQUEST['mode']=='list' || $_REQUEST['mode']=='frame'))
 	CFile::DisableJSFunction(true);
 
 if($lAdmin->EditAction() && $edit_php)
@@ -47,7 +47,7 @@ if($lAdmin->EditAction() && $edit_php)
 
 if(($arID = $lAdmin->GroupAction()) && $edit_php)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CSiteTemplate::GetList(array(), array(), array("ID"));
@@ -125,11 +125,8 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	{
 		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionDoGroup($u_ID, "copy"));
 		$arActions[] = array("ICON"=>"export", "TEXT"=>GetMessage("MAIN_ADMIN_LIST_EXPORT"), "ACTION"=>"exportData('".$u_ID."')");
-		if($edit_php)
-		{
-				$arActions[] = array("SEPARATOR"=>true);
-				$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("MAIN_T_ADMIN_DEL"), "ACTION"=>"if(confirm('".GetMessage('MAIN_T_ADMIN_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($u_ID, "delete"));
-		}
+		$arActions[] = array("SEPARATOR"=>true);
+		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("MAIN_T_ADMIN_DEL"), "ACTION"=>"if(confirm('".GetMessage('MAIN_T_ADMIN_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($u_ID, "delete"));
 	}
 
 	$row->AddActions($arActions);

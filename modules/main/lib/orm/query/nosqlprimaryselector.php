@@ -40,7 +40,7 @@ class NosqlPrimarySelector
 		}
 
 		// skip empty select - useless case for nosql api
-		if (!count($query->getSelect()))
+		if (empty($query->getSelect()))
 		{
 			return false;
 		}

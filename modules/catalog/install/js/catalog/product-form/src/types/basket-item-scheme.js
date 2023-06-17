@@ -4,6 +4,7 @@ export type BasketItemScheme = {
 	innerId: string,
 	productId?: number,
 	skuId?: number,
+	type?: number,
 	code?: string | number,
 	module?: string,
 	sort: number,

@@ -232,15 +232,18 @@ this.BX.Landing = this.BX.Landing || {};
 	  return LeaderShip;
 	}();
 
-	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
+	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16;
 
 	var PopupHelper = /*#__PURE__*/function () {
 	  function PopupHelper(options) {
 	    babelHelpers.classCallCheck(this, PopupHelper);
 	    this.id = options.id;
 	    this.url = options.url;
+	    this.itemObj = options.itemObj;
 	    this.fullUrl = options.fullUrl;
 	    this.ordersUrl = options.ordersUrl;
+	    this.indexEditUrl = options.indexEditUrl;
+	    this.notPublishedText = options.notPublishedText;
 	    this.qr = null;
 	    this.$container = null;
 	    this.$containerClose = null;
@@ -271,7 +274,16 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (param === 'link') {
 	        this.getContainerFirstStep().style.display = 'none';
 	        this.getContainerSecondStep().style.display = 'none';
+	        this.getContainerNotPublished().style.display = 'none';
+	        this.getContainerQr().style.display = null;
+	      } else if (param === 'notPublished') {
+	        this.getContainerFirstStep().style.display = 'none';
+	        this.getContainerSecondStep().style.display = 'none';
+	        this.getContainerQr().style.display = 'none';
+	        this.getContainerNotPublished().style.display = null;
 	      } else {
+	        this.getContainerQr().style.display = 'none';
+	        this.getContainerNotPublished().style.display = 'none';
 	        this.getContainerFirstStep().style.display = null;
 	        this.getContainerSecondStep().style.display = null;
 	      }
@@ -363,7 +375,10 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerQr) {
 	        var closeIcon = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
-	        this.$containerQr = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --qr\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"landing-sites__popup-url\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_3'), this.getContainerQrImage(), this.fullUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SITE'), this.fullUrl, this.url, this.getContainerInputUrl(), this.getContainerCopyLink());
+	        var isShop = this.indexEditUrl.startsWith('/shop/');
+	        var popupText = isShop ? main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_3') : main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_SITE_TEXT');
+	        var popupButtonText = isShop ? main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SHOP') : main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SITE');
+	        this.$containerQr = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --qr\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"landing-sites__popup-url\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, popupText, this.getContainerQrImage(), this.fullUrl, popupButtonText, this.fullUrl, this.url, this.getContainerInputUrl(), this.getContainerCopyLink());
 	      }
 
 	      return this.$containerQr;
@@ -384,7 +399,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerFirstStep) {
 	        var closeIcon = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
-	        this.$containerFirstStep = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-image --first-order\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_TEXT'), this.getContainerTestOrder(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
+	        this.$containerFirstStep = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-image --first-order\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_TEXT'), this.getContainerTestOrder(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
 
 	      return this.$containerFirstStep;
@@ -397,16 +412,42 @@ this.BX.Landing = this.BX.Landing || {};
 	        var prevIcon = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-prev\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
 	        main_core.Event.bind(prevIcon, 'click', this.showFirstStep.bind(this));
-	        this.$containerSecondStep = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --hide-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>1</span> ", "</div>\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>2</span> ", "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, prevIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_2'), this.getContainerQrImage(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
+	        this.$containerSecondStep = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --hide-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>1</span> ", "</div>\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>2</span> ", "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, prevIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_2'), this.getContainerQrImage(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
 
 	      return this.$containerSecondStep;
 	    }
 	  }, {
+	    key: "getContainerNotPublished",
+	    value: function getContainerNotPublished() {
+	      var _this2 = this;
+
+	      if (!this.$containerNotPublished) {
+	        var closeIcon = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
+	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
+	        var buttPublish = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH'));
+	        main_core.Event.bind(buttPublish, 'click', function () {
+	          main_core_events.EventEmitter.emit('BX.Landing.SiteTile:publish', _this2.itemObj);
+
+	          _this2.hide();
+	        });
+	        var buttOpen = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_OPEN'));
+	        main_core.Event.bind(buttOpen, 'click', function () {
+	          // todo: loader?
+	          if (_this2.indexEditUrl) {
+	            window.location.href = _this2.indexEditUrl;
+	          }
+	        });
+	        this.$containerNotPublished = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --not-published\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, this.notPublishedText ? this.notPublishedText.title : 'title', this.notPublishedText ? this.notPublishedText.message : 'message', buttPublish, buttOpen);
+	      }
+
+	      return this.$containerNotPublished;
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr());
+	        this.$container = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr(), this.getContainerNotPublished());
 	      }
 
 	      return this.$container;
@@ -415,7 +456,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return PopupHelper;
 	}();
 
-	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21;
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1, _templateObject16$1, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21;
 
 	var Item = /*#__PURE__*/function () {
 	  function Item(options) {
@@ -430,6 +471,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.ordersUrl = options.ordersUrl;
 	    this.domainUrl = options.domainUrl;
 	    this.contactsUrl = options.contactsUrl;
+	    this.indexEditUrl = options.indexEditUrl;
 	    this.ordersCount = options.ordersCount;
 	    this.phone = options.phone;
 	    this.preview = options.preview;
@@ -440,6 +482,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.domainStatusMessage = options.domainStatusMessage;
 	    this.menuItems = options.menuItems || [];
 	    this.menuBottomItems = options.menuBottomItems || [];
+	    this.notPublishedText = options.notPublishedText || null;
 	    this.access = options.access || {};
 	    this.articles = options.articles || [];
 	    this.editableTitle = null;
@@ -539,13 +582,17 @@ this.BX.Landing = this.BX.Landing || {};
 	        return;
 	      }
 
-	      this.popupStatus.destroy();
+	      if (this.popupStatus) {
+	        this.popupStatus.destroy();
+	      }
+
 	      this.popupStatus = null;
 
 	      if (status) {
 	        this.published = true;
 	        this.getContainerSiteStatusRound().className = 'landing-sites__status-round --success';
 	        this.getContainerSiteStatusTitle().innerText = main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_PUBLISHED');
+	        this.getContainerPreviewImage().classList.remove('--not-published');
 	        this.getContainerPreviewStatus().classList.add('--hide');
 	        return;
 	      }
@@ -553,6 +600,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      this.published = false;
 	      this.getContainerSiteStatusRound().className = 'landing-sites__status-round --alert';
 	      this.getContainerSiteStatusTitle().innerText = main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED');
+	      this.getContainerPreviewImage().classList.add('--not-published');
 	      this.getContainerPreviewStatus().classList.remove('--hide');
 	    }
 	  }, {
@@ -646,7 +694,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this4 = this;
 
 	      if (!this.popupConfig) {
-	        this.popupConfig = new main_popup.PopupMenuWindow({
+	        this.popupConfig = new main_popup.Menu({
 	          className: 'landing-sites__status-popup',
 	          bindElement: this.getContainerSiteMore(),
 	          offsetLeft: -61,
@@ -677,7 +725,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this5 = this;
 
 	      if (!this.popupStatus) {
-	        this.popupStatus = new main_popup.PopupMenuWindow({
+	        this.popupStatus = new main_popup.Menu({
 	          className: 'landing-sites__status-popup',
 	          bindElement: this.getContainerSiteStatus(),
 	          minWidth: 220,
@@ -885,7 +933,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerDomainLink) {
 	        this.$containerDomainLink = main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status landing-sites__status-", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.id, this.getContainerDomainStatusIcon(), this.getContainerDomainStatusTitle());
 	        main_core.Event.bind(this.$containerDomainLink, 'click', function () {
-	          _this8.getPopupHelper().show('link');
+	          _this8.getPopupHelper().show(_this8.published ? 'link' : 'notPublished');
 	        });
 	      }
 
@@ -895,7 +943,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerDomain",
 	    value: function getContainerDomain() {
 	      if (!this.$containerDomain) {
-	        this.$containerDomain = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
+	        this.$containerDomain = main_core.Tag.render(_templateObject13$1 || (_templateObject13$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
 	      }
 
 	      return this.$containerDomain;
@@ -904,7 +952,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerPreviewImage",
 	    value: function getContainerPreviewImage() {
 	      if (!this.$containerPreviewImage) {
-	        this.$containerPreviewImage = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
+	        this.$containerPreviewImage = main_core.Tag.render(_templateObject14$1 || (_templateObject14$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
 	        this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
 	        this.$containerPreviewImage.style.backgroundSize = 'cover';
 
@@ -942,7 +990,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this10 = this;
 
 	      if (!this.$containerPreviewStatus) {
-	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
+	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject15$1 || (_templateObject15$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseenter', function () {
 	          _this10.$containerPreviewStatus.style.width = _this10.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
 	        });
@@ -957,7 +1005,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerPreviewShowPages",
 	    value: function getContainerPreviewShowPages() {
 	      if (!this.$containerPreviewShowPages) {
-	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
+	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject16$1 || (_templateObject16$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
 	      }
 
 	      return this.$containerPreviewShowPages;
@@ -1077,8 +1125,11 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.popupHelper = new PopupHelper({
 	          id: this.id,
 	          url: this.url,
+	          itemObj: this,
 	          fullUrl: this.fullUrl,
-	          ordersUrl: this.ordersUrl
+	          ordersUrl: this.ordersUrl,
+	          indexEditUrl: this.indexEditUrl,
+	          notPublishedText: this.notPublishedText
 	        });
 	      }
 
@@ -1227,6 +1278,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.renderTo = options.renderTo || null;
 	    this.items = options.items || [];
 	    this.scrollerText = options.scrollerText || null;
+	    this.notPublishedText = options.notPublishedText || null;
 	    this.siteTileItems = [];
 	    this.$container = null;
 	    this.scroller = null;
@@ -1265,6 +1317,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          ordersUrl: item.ordersUrl || null,
 	          domainUrl: item.domainUrl || null,
 	          contactsUrl: item.contactsUrl || null,
+	          indexEditUrl: item.indexEditUrl || null,
 	          ordersCount: parseInt(item.ordersCount) || null,
 	          phone: item.phone || null,
 	          preview: item.preview || null,
@@ -1275,6 +1328,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          domainStatusMessage: item.domainStatusMessage || null,
 	          menuItems: item.menuItems || null,
 	          menuBottomItems: item.menuBottomItems || null,
+	          notPublishedText: _this.notPublishedText || null,
 	          access: item.access || {},
 	          articles: item.articles || null,
 	          grid: _this

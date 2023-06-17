@@ -319,14 +319,24 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			$arFilter["INCLUDE_SUBSECTIONS"] = "Y";
 
 		$arResult["SECTION"]= array("PATH" => array());
-		$rsPath = CIBlockSection::GetNavChain($arResult["ID"], $arParams["PARENT_SECTION"]);
+		$rsPath = CIBlockSection::GetNavChain(
+			$arResult["ID"],
+			$arParams["PARENT_SECTION"],
+			[
+				'ID',
+				'IBLOCK_ID',
+				'NAME',
+				'SECTION_PAGE_URL',
+			]
+		);
 		$rsPath->SetUrlTemplates("", $arParams["SECTION_URL"], $arParams["IBLOCK_URL"]);
-		while($arPath = $rsPath->GetNext())
+		while ($arPath = $rsPath->GetNext())
 		{
 			$ipropValues = new Iblock\InheritedProperty\SectionValues($arParams["IBLOCK_ID"], $arPath["ID"]);
 			$arPath["IPROPERTY_VALUES"] = $ipropValues->getValues();
 			$arResult["SECTION"]["PATH"][] = $arPath;
 		}
+		unset($arPath, $rsPath);
 
 		$ipropValues = new Iblock\InheritedProperty\SectionValues($arResult["ID"], $arParams["PARENT_SECTION"]);
 		$arResult["IPROPERTY_VALUES"] = $ipropValues->getValues();
@@ -387,8 +397,8 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 				0,
 				array("SECTION_BUTTONS" => false, "SESSID" => false)
 			);
-			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 			if ($arParams["PREVIEW_TRUNCATE_LEN"] > 0)
 				$arItem["PREVIEW_TEXT"] = $obParser->html_cut($arItem["PREVIEW_TEXT"], $arParams["PREVIEW_TRUNCATE_LEN"]);
@@ -454,7 +464,7 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "news_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 		}
@@ -473,6 +483,10 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 				$arItem["FIELDS"][$code] = $arItem[$code];
 	}
 	unset($arItem);
+	if ($bGetProperty)
+	{
+		\CIBlockFormatProperties::clearCache();
+	}
 
 	$navComponentParameters = array();
 	if ($arParams["PAGER_BASE_LINK_ENABLE"] === "Y")
@@ -568,11 +582,14 @@ if(isset($arResult["ID"]))
 
 				if($arParams["SET_TITLE"])
 				{
-					$arTitleOptions = array(
-						'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_iblock"]["ACTION"],
-						'PUBLIC_EDIT_LINK' => "",
-						'COMPONENT_NAME' => $this->getName(),
-					);
+					if (isset($arButtons["submenu"]["edit_iblock"]))
+					{
+						$arTitleOptions = [
+							'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_iblock"]["ACTION"],
+							'PUBLIC_EDIT_LINK' => "",
+							'COMPONENT_NAME' => $this->getName(),
+						];
+					}
 				}
 			}
 		}

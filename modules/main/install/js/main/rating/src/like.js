@@ -7,6 +7,19 @@ import { ListPopup } from './listpopup';
 import './css/reaction.css';
 import './css/mobile.css';
 
+type Params = {
+	likeId: string,
+	keySigned: string,
+	entityTypeId: string,
+	entityId: number,
+	available: number,
+	userId?: number,
+	localize?: Object,
+	template?: string,
+	pathToUserProfile?: string,
+	mobile?: boolean | 'true' | 'false'
+}
+
 export class RatingLike
 {
 	static repo = new Map();
@@ -14,32 +27,17 @@ export class RatingLike
 	static lastReactionRepo = new Map();
 	static additionalParams = new Map();
 
-	constructor(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile)
+	constructor(params: Params)
 	{
-		if (Type.isObject(arguments[0]))
-		{
-			const params = arguments[0];
-
-			this.likeId = Type.isStringFilled(params.likeId) ? params.likeId : '';
-			this.entityTypeId = Type.isStringFilled(params.entityTypeId) ? params.entityTypeId : '';
-			this.entityId = !Type.isUndefined(params.entityId) ? Number(params.entityId) : 0;
-			this.available = Type.isStringFilled(params.available) ? params.available === 'Y' : false;
-			this.userId = !Type.isUndefined(params.userId) ? Number(params.userId) : 0;
-			this.localize = Type.isPlainObject(params.localize) ? params.localize : {};
-			this.template = Type.isStringFilled(params.template) ? params.template : '';
-			this.pathToUserProfile = Type.isStringFilled(params.pathToUserProfile) ? params.pathToUserProfile : '';
-		}
-		else
-		{
-			this.likeId = Type.isStringFilled(arguments[0]) ? arguments[0] : '';
-			this.entityTypeId = Type.isStringFilled(arguments[1]) ? arguments[1] : '';
-			this.entityId = !Type.isUndefined(arguments[2]) ? Number(arguments[2]) : 0;
-			this.available = Type.isStringFilled(arguments[3]) ? arguments[3] === 'Y' : false;
-			this.userId = !Type.isUndefined(arguments[4]) ? Number(arguments[4]) : 0;
-			this.localize = Type.isPlainObject(arguments[5]) ? arguments[5] : {};
-			this.template = Type.isStringFilled(arguments[6]) ? arguments[6] : '';
-			this.pathToUserProfile = Type.isStringFilled(arguments[7]) ? arguments[7] : '';
-		}
+		this.likeId = Type.isStringFilled(params.likeId) ? params.likeId : '';
+		this.keySigned = Type.isStringFilled(params.keySigned) ? params.keySigned : '';
+		this.entityTypeId = Type.isStringFilled(params.entityTypeId) ? params.entityTypeId : '';
+		this.entityId = !Type.isUndefined(params.entityId) ? Number(params.entityId) : 0;
+		this.available = Type.isStringFilled(params.available) ? params.available === 'Y' : false;
+		this.userId = !Type.isUndefined(params.userId) ? Number(params.userId) : 0;
+		this.localize = Type.isPlainObject(params.localize) ? params.localize : {};
+		this.template = Type.isStringFilled(params.template) ? params.template : '';
+		this.pathToUserProfile = Type.isStringFilled(params.pathToUserProfile) ? params.pathToUserProfile : '';
 
 		const key = `${this.entityTypeId}_${this.entityId}`;
 
@@ -52,7 +50,13 @@ export class RatingLike
 			return false;
 		}
 
-		this.box.setAttribute('data-rating-vote-id', likeId);
+		this.box.setAttribute('data-rating-vote-id', this.likeId);
+
+		if (this.keySigned === '')
+		{
+			const keySigned = this.box.getAttribute('data-vote-key-signed');
+			this.keySigned = keySigned ? keySigned : '';
+		}
 
 		this.button = this.box.querySelector('.bx-ilike-left-wrap');
 		this.buttonText = this.button.querySelector('.bx-ilike-text');
@@ -75,7 +79,9 @@ export class RatingLike
 		this.popupTimeoutIdShow = null;
 		this.popupTimeoutIdList = null;
 
-		this.popupContent = document.getElementById(`bx-ilike-popup-cont-${this.likeId}`).querySelector('span.bx-ilike-popup');
+		this.popupContent = document.getElementById(`bx-ilike-popup-cont-${this.likeId}`)
+			.querySelector('span.bx-ilike-popup')
+		;
 		this.popupContentPage = 1;
 		this.popupTimeout = false;
 		this.likeTimeout = false;
@@ -107,7 +113,7 @@ export class RatingLike
 					});
 
 					RatingRender.drawReactions({
-						likeId: likeId,
+						likeId: this.likeId,
 						container: container,
 						data: elementsNew,
 					});
@@ -122,7 +128,7 @@ export class RatingLike
 		{
 			this.lastVote = RatingLike.lastVoteRepo.get(key);
 
-			const ratingNode = (template === 'standart' ? this.button : this.count);
+			const ratingNode = (this.template === 'standart' ? this.button : this.count);
 			if (this.lastVote === 'plus')
 			{
 				ratingNode.classList.add('bx-you-like');
@@ -782,6 +788,7 @@ export class RatingLike
 			data: {
 				params: {
 					RATING_VOTE_TYPE_ID: likeInstance.entityTypeId,
+					RATING_VOTE_KEY_SIGNED: likeInstance.keySigned,
 					RATING_VOTE_ENTITY_ID: likeInstance.entityId,
 					RATING_VOTE_ACTION: voteAction,
 					RATING_VOTE_REACTION: voteReaction,
@@ -819,21 +826,21 @@ export class RatingLike
 		RatingManager.live(params);
 	}
 
-	static Set(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax, mobile)
+	static Set(params: Params)
 	{
-		mobile = !!mobile;
+		const mobile = !!params.mobile;
 
-		if (template === undefined)
+		if (params.template === undefined)
 		{
-			template = 'standart';
+			params.template = 'standart';
 		}
 
 		if (this.additionalParams.get('pathToUserProfile'))
 		{
-			pathToUserProfile = this.additionalParams.get('pathToUserProfile');
+			params.pathToUserProfile = this.additionalParams.get('pathToUserProfile');
 		}
 
-		let likeInstance = this.getInstance(likeId);
+		let likeInstance = this.getInstance(params.likeId);
 
 		if (likeInstance && likeInstance.tryToSet > 5)
 		{
@@ -842,23 +849,26 @@ export class RatingLike
 
 		const tryToSend = likeInstance && likeInstance.tryToSet ? likeInstance.tryToSet : 1;
 
-		likeInstance = new RatingLike(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile);
+		likeInstance = new RatingLike(params);
 		this.setInstance(
-			likeId,
+			params.likeId,
 			likeInstance
 		);
 
 		if (likeInstance.enabled)
 		{
-			this.Init(likeId, {
-				mobile: mobile,
-			});
+			this.Init(
+				params.likeId,
+				{
+					mobile: mobile,
+				}
+			);
 		}
 		else
 		{
 			setTimeout(() => {
 				likeInstance.tryToSet = tryToSend + 1;
-				this.Set(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax, mobile);
+				this.Set(params);
 			}, 500);
 		}
 	}

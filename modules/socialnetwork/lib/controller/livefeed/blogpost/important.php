@@ -141,8 +141,13 @@ class Important extends Base
 								false,
 								true
 							);
-							$userFields['PHOTO_SRC'] = ($fileFields['src'] ? $fileFields['src'] : '');
-							$userFields["PHOTO"] = \CFile::showImage($fileFields['src'], 21, 21, 'border=0');
+							$userFields['PHOTO_SRC'] = ($fileFields['src'] ?? '');
+							$userFields["PHOTO"] = \CFile::showImage(
+								($fileFields['src'] ?? ''),
+								21,
+								21,
+								'border=0'
+							);
 						}
 
 						$result['items'][$userFields['ID']] = $userFields;

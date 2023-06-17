@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:sources@bitrixsoft.com              #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 define("NOT_CHECK_PERMISSIONS", true);
 define("SKIP_SITE_CLOSE", true);

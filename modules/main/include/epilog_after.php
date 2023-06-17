@@ -19,7 +19,7 @@ if (\Bitrix\Main\ModuleManager::isModuleInstalled('translate'))
 	}
 }
 
-$canEditPHP = $USER->CanDoOperation('edit_php');
+$canEditPHP = is_object($USER) && $USER->CanDoOperation('edit_php');
 if($canEditPHP)
 	\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"] = ($DB->ShowSqlStat? "Y": "N");
 

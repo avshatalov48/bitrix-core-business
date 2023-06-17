@@ -95,6 +95,14 @@ class Access
 			||
 			$this->canViewRc()
 			||
+			$this->canViewTemplates()
+			||
+			$this->canViewToloka()
+			||
+			$this->canViewBlacklist()
+			||
+			$this->canViewClientList()
+			||
 			$this->canViewSegments()
 			||
 			$this->canViewTemplates()

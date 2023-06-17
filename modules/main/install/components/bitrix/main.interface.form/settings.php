@@ -22,32 +22,32 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 	//get saved columns and sorting from user settings
 	$aOptions = CUserOptions::GetOption("main.interface.form", $_REQUEST["FORM_ID"], array());
 
-	if($_REQUEST["action"] == "expand")
+	if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "expand")
 	{
 		$aOptions["expand_tabs"] = ($_REQUEST["expand"] == "Y"? "Y":"N");
 	}
-	elseif($_REQUEST["action"] == "enable")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "enable")
 	{
 		$aOptions["settings_disabled"] = ($_REQUEST["enabled"] == "Y"? "N":"Y");
 	}
-	elseif($_REQUEST["action"] == "settheme")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "settheme")
 	{
 		$aOptions["theme"] = $_REQUEST["theme"];
-		if($_REQUEST["GRID_ID"] <> '')
+		if (!empty($_REQUEST["GRID_ID"]))
 		{
 			$aGridOptions = CUserOptions::GetOption("main.interface.grid", $_REQUEST["GRID_ID"], array());
 			$aGridOptions["theme"] = $_REQUEST["theme"];
 			CUserOptions::SetOption("main.interface.grid", $_REQUEST["GRID_ID"], $aGridOptions);
 		}
 	}
-	elseif($_REQUEST["action"] == "savesettings")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savesettings")
 	{
 		CUtil::decodeURIComponent($_POST);
 		$aOptions["tabs"] = $_POST["tabs"];
 
 		if($_REQUEST["set_default_settings"] == "Y" && $USER->CanDoOperation('edit_other_settings'))
 		{
-			if($_REQUEST["delete_users_settings"] == "Y")
+			if (isset($_REQUEST["delete_users_settings"]) && $_REQUEST["delete_users_settings"] == "Y")
 			{
 				CUserOptions::DeleteOptionsByName("main.interface.form", $_REQUEST["FORM_ID"]);
 			}

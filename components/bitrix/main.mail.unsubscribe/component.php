@@ -51,7 +51,7 @@ try
 			if (isset($_REQUEST['ABUSE']) && $_REQUEST['ABUSE'] === 'Y')
 			{
 				$arTag['FIELDS']['ABUSE'] = true;
-				$arTag['FIELDS']['ABUSE_TEXT'] = isset($_REQUEST['ABUSE_TEXT']) ? $_REQUEST['ABUSE_TEXT'] : null;
+				$arTag['FIELDS']['ABUSE_TEXT'] = $_REQUEST['ABUSE_TEXT'] ?? null;
 			}
 
 			$result = \Bitrix\Main\Mail\Tracking::unsubscribe($arTag);

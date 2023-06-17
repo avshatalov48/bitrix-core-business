@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["Update"]) && check
 		if ($errorsList == '')
 		{
 			if ($_REQUEST["apply"] <> '')
-				LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&SID=".urlencode($SID));
+				LocalRedirect($APPLICATION->GetCurPage()."?lang=" . LANGUAGE_ID . "&SID=".urlencode($SID));
 			else
 				LocalRedirect('/bitrix/admin/sale_delivery_handlers.php?lang='.LANG);
 
@@ -831,7 +831,7 @@ $parentTabControl->End();
 </form>
 
 <?
-require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");
 
 function wrapDescrLHE($inputName, $content = '', $divId = false)
 {

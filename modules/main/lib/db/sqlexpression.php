@@ -62,7 +62,7 @@ class SqlExpression
 	{
 		$this->i = -1;
 
-		if (mb_strpos($this->expression, '\\') === false)
+		if (strpos($this->expression, '\\') === false)
 		{
 			// regular case
 			return preg_replace_callback($this->pattern, array($this, 'execPlaceholders'), $this->expression);
@@ -102,11 +102,15 @@ class SqlExpression
 		$pre = $matches[1];
 		$ph = $matches[2];
 
-		if (isset($this->args[$this->i]))
+		if (array_key_exists($this->i, $this->args))
 		{
 			$value = $this->args[$this->i];
 
-			if ($ph == '?' || $ph == '?s')
+			if ($value === null && $ph !== '?#')
+			{
+				$value = 'NULL';
+			}
+			elseif ($ph == '?' || $ph == '?s')
 			{
 				$value = "'" . $sqlHelper->forSql($value) . "'";
 			}

@@ -33,8 +33,6 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 	{
 		$arParams = parent::onPrepareComponentParams($arParams);
 
-		self::tryParseInt($arParams['EXCLUDE_SUBTREE']);
-
 		self::tryParseBoolean($arParams['PRESELECT_TREE_TRUNK']);
 
 		// about preloading
@@ -137,13 +135,14 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 		}
 
 		// filter through site link, if needed
-		foreach($this->dbResult['PRECACHED_POOL'] as $parent => &$items)
+		foreach($this->dbResult['PRECACHED_POOL'] as &$items)
 		{
 			if(is_array($items))
 			{
 				$this->identifyLinkType($items);
 				foreach($items as $k => &$item)
 				{
+					$item['IS_UNCHOOSABLE'] = false;
 					if(isset($item['LINK_TYPE']))
 					{
 						if($item['LINK_TYPE'] != Location\SiteLocationTable::LSTAT_IS_CONNECTOR && $item['LINK_TYPE'] != Location\SiteLocationTable::LSTAT_BELOW_CONNECTOR)
@@ -238,6 +237,7 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 			$this->identifyLinkType($this->dbResult['PATH']);
 			foreach($this->dbResult['PATH'] as &$item)
 			{
+				$item['IS_UNCHOOSABLE'] = false;
 				if(isset($item['LINK_TYPE']))
 				{
 					if($item['LINK_TYPE'] != Location\SiteLocationTable::LSTAT_IS_CONNECTOR && $item['LINK_TYPE'] != Location\SiteLocationTable::LSTAT_BELOW_CONNECTOR)

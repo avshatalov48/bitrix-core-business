@@ -297,6 +297,10 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 
 	    audioEventRouter(eventName, event) {
 	      if (eventName === 'durationchange' || eventName === 'loadeddata' || eventName === 'loadedmetadata') {
+	        if (!this.source()) {
+	          return;
+	        }
+
 	        this.timeTotal = this.source().duration;
 	      } else if (eventName === 'abort' || eventName === 'error') {
 	        console.error('BxAudioPlayer: load failed', this.id, event);

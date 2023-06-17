@@ -29,18 +29,17 @@ class Tag
 				$tg = trim($tg);
 				if (
 					$tg !== ''
-					&& !in_array($blogCategoryList[ToLower($tg)], $result, true)
+					&& !in_array($blogCategoryList[ToLower($tg)] ?? null, $result, true)
 				)
 				{
-					$result[] = (int)(
-					(int)$blogCategoryList[ToLower($tg)] > 0
-						? $blogCategoryList[ToLower($tg)]
-						: \CBlogCategory::add([
-						'BLOG_ID' => $blogId,
-						'NAME' => $tg,
-					])
+					$result[] = (int) (
+						((int) ($blogCategoryList[ToLower($tg)] ?? null) > 0)
+							? $blogCategoryList[ToLower($tg)]
+							: \CBlogCategory::add([
+								'BLOG_ID' => $blogId,
+								'NAME' => $tg,
+							])
 					);
-					$tagList[] = $tg;
 				}
 			}
 		}

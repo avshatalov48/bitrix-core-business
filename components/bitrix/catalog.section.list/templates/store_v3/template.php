@@ -100,10 +100,10 @@ if ($arResult['SECTIONS_COUNT'] > 0)
 				{
 					$section['PICTURE'] = [
 						'SRC' => $emptyImagePath,
-						'ALT' => $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] !== ''
+						'ALT' => ($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] ?? '') !== ''
 							? $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT']
 							: $section['NAME'],
-						'TITLE' => $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] !== ''
+						'TITLE' => ($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] ?? '') !== ''
 							? $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE']
 							: $section['NAME'],
 					];

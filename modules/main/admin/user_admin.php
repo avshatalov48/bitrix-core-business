@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
@@ -37,23 +37,23 @@ use Bitrix\Main\Type\DateTime;
 IncludeModuleLangFile(__FILE__);
 
 //authorize as user
-if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
 	$USER->Logout();
-	$USER->Authorize(intval($_REQUEST["ID"]), false, true, null, false);
+	$USER->Authorize(intval($_REQUEST["ID"] ?? 0), false, true, null, false);
 	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
 }
 
 //logout user
-if($_REQUEST["action"] == "logout_user" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "logout_user" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
-	\Bitrix\Main\UserAuthActionTable::addLogoutAction($_REQUEST["ID"]);
+	\Bitrix\Main\UserAuthActionTable::addLogoutAction($_REQUEST["ID"] ?? 0);
 	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
 }
 
 $sTableID = "tbl_user";
 
-$excelMode = ($_REQUEST["mode"] == "excel");
+$excelMode = isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "excel";
 
 $oSort = new CAdminUiSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
@@ -192,7 +192,7 @@ if($lAdmin->EditAction())
 			}
 			elseif($USER->CanDoOperation('edit_subordinate_users'))
 			{
-				if(count(array_diff($UGroups, $arUserSubordinateGroups)) > 0)
+				if(!empty(array_diff($UGroups, $arUserSubordinateGroups)))
 					continue;
 			}
 			elseif($USER->CanDoOperation('edit_own_profile'))
@@ -247,8 +247,8 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 		}
 	}
 
-	$gr_id = intval($_REQUEST['groups']);
-	$struct_id = intval($_REQUEST['UF_DEPARTMENT']);
+	$gr_id = intval($_REQUEST['groups'] ?? 0);
+	$struct_id = intval($_REQUEST['UF_DEPARTMENT'] ?? 0);
 
 	foreach($arID as $ID)
 	{
@@ -264,10 +264,11 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 		if(isset($arGroups[1]) && !$USER->CanDoOperation('edit_php')) // not admin can't edit admins
 			continue;
 
-		if(!$USER->CanDoOperation('edit_all_users') && $USER->CanDoOperation('edit_subordinate_users') && count(array_diff(array_keys($arGroups), $arUserSubordinateGroups))>0)
+		if(!$USER->CanDoOperation('edit_all_users') && $USER->CanDoOperation('edit_subordinate_users') && !empty(array_diff(array_keys($arGroups), $arUserSubordinateGroups)))
 			continue;
 
-		switch($_REQUEST['action'])
+		$action = $_REQUEST['action'] ?? '';
+		switch($action)
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -288,7 +289,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 			case "activate":
 			case "deactivate":
 				$ob = new CUser();
-				$arFields = Array("ACTIVE"=>($_REQUEST['action']=="activate"?"Y":"N"));
+				$arFields = Array("ACTIVE"=>(isset($_REQUEST['action']) && $_REQUEST['action']=="activate"?"Y":"N"));
 				if(!$ob->Update($ID, $arFields))
 					$lAdmin->AddGroupError(GetMessage("MAIN_EDIT_ERROR").$ob->LAST_ERROR, $ID);
 				break;
@@ -300,7 +301,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 					break;
 				if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users') && !in_array($gr_id, $arUserSubordinateGroups))
 					break;
-				if($_REQUEST['action'] == "add_group")
+				if (isset($_REQUEST['action']) && $_REQUEST['action'] == "add_group")
 					$arGroups[$gr_id] = array("GROUP_ID" => $gr_id);
 				else
 					unset($arGroups[$gr_id]);
@@ -317,7 +318,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 				if(!is_array($arDep))
 					$arDep = array();
 
-				if($_REQUEST['action']=="add_structure")
+				if (isset($_REQUEST['action']) && $_REQUEST['action']=="add_structure")
 					$arDep[] = $struct_id;
 				else
 					$arDep = array_diff($arDep, array($struct_id));
@@ -392,7 +393,7 @@ while ($userData = $result->fetch())
 	if ($can_edit && $edit)
 	{
 		$row->addField("LOGIN", "<a href='user_edit.php?lang=".LANGUAGE_ID."&ID=".$userId.
-			"' title='".GetMessage("MAIN_EDIT_TITLE")."'>".HtmlFilter::encode($userData["LOGIN"])."</a>", true);
+			"' title='".GetMessage("MAIN_EDIT_TITLE")."'>".HtmlFilter::encode($userData["LOGIN"] ?? '')."</a>", true);
 		$row->addInputField("TITLE");
 		$row->addInputField("NAME");
 		$row->addInputField("LAST_NAME");
@@ -400,7 +401,7 @@ while ($userData = $result->fetch())
 		$row->addViewField("EMAIL", TxtToHtml($userData["EMAIL"]));
 		$row->addInputField("EMAIL");
 		$row->addInputField("PERSONAL_PROFESSION");
-		$row->addViewField("PERSONAL_WWW", TxtToHtml($userData["PERSONAL_WWW"]));
+		$row->addViewField("PERSONAL_WWW", TxtToHtml($userData["PERSONAL_WWW"] ?? ''));
 		$row->addInputField("PERSONAL_WWW");
 		$row->addInputField("PERSONAL_ICQ");
 		$row->addSelectField("PERSONAL_GENDER", array(
@@ -415,7 +416,7 @@ while ($userData = $result->fetch())
 		$row->addInputField("WORK_COMPANY");
 		$row->addInputField("WORK_DEPARTMENT");
 		$row->addInputField("WORK_POSITION");
-		$row->addViewField("WORK_WWW", TxtToHtml($userData["WORK_WWW"]));
+		$row->addViewField("WORK_WWW", TxtToHtml($userData["WORK_WWW"] ?? ''));
 		$row->addInputField("WORK_WWW");
 		$row->addInputField("WORK_PHONE");
 		$row->addInputField("WORK_CITY");
@@ -424,10 +425,10 @@ while ($userData = $result->fetch())
 	else
 	{
 		$row->addViewField("LOGIN", "<a href='user_edit.php?lang=".LANGUAGE_ID."&ID=".$userId.
-			"' title='".GetMessage("MAIN_EDIT_TITLE")."'>".HtmlFilter::encode($userData["LOGIN"])."</a>");
-		$row->addViewField("EMAIL", TxtToHtml($userData["EMAIL"]));
-		$row->addViewField("PERSONAL_WWW", TxtToHtml($userData["PERSONAL_WWW"]));
-		$row->addViewField("WORK_WWW", TxtToHtml($userData["WORK_WWW"]));
+			"' title='".GetMessage("MAIN_EDIT_TITLE")."'>".HtmlFilter::encode($userData["LOGIN"] ?? '')."</a>");
+		$row->addViewField("EMAIL", TxtToHtml($userData["EMAIL"] ?? ''));
+		$row->addViewField("PERSONAL_WWW", TxtToHtml($userData["PERSONAL_WWW"] ?? ''));
+		$row->addViewField("WORK_WWW", TxtToHtml($userData["WORK_WWW"] ?? ''));
 	}
 
 	$arActions = array();
@@ -735,7 +736,7 @@ function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode
 			$userQuery->whereNot("UGS");
 		}
 	}
-	if ($arFilter["NOT_ADMIN"])
+	if (!empty($arFilter["NOT_ADMIN"]))
 	{
 		$userGroupQuery = UserGroupTable::query();
 		$userGroupQuery->addSelect("USER_ID");
@@ -745,7 +746,7 @@ function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode
 			(new Reference("UGNA", $userGroupQuery, Join::on("this.ID", "ref.USER_ID")))->configureJoinType("inner")
 		);
 	}
-	if ($arFilter["INTRANET_USERS"] === "Y")
+	if (isset($arFilter["INTRANET_USERS"]) && $arFilter["INTRANET_USERS"] === "Y")
 	{
 		$userQuery->where("ACTIVE", "Y");
 		$userQuery->whereNotNull("LAST_LOGIN");
@@ -841,4 +842,3 @@ function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode
 
 	return $userQuery;
 }
-?>

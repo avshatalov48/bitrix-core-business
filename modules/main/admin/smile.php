@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 if(!$USER->CanDoOperation('edit_other_settings'))
@@ -27,7 +33,7 @@ else
 
 if ($arID = $lAdmin->GroupAction())
 {
-	if ($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$res = CSmile::getList(Array(
@@ -45,7 +51,7 @@ if ($arID = $lAdmin->GroupAction())
 		if ($ID == '')
 			continue;
 
-		if ($_REQUEST['action'] == 'delete')
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'delete')
 		{
 			CSmile::delete($ID);
 		}

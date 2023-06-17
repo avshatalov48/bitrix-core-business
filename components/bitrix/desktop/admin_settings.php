@@ -112,7 +112,7 @@ if (isset($_POST["type"]) && $_POST["type"] == "desktop")
 		{
 			?>
 			top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
-			top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl)).(mb_strpos($desktop_backurl, "?") === false ? "?" : "&")."dt_page=".$desktop_page?>';
+			top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl)).(strpos($desktop_backurl, "?") === false ? "?" : "&")."dt_page=".$desktop_page?>';
 			<?php
 		}
 		else

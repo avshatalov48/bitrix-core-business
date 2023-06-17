@@ -1444,6 +1444,8 @@ a.feed-post-title:hover {
 .feed-post-text-block-inner-inner {
 	padding-bottom: 15px;
 	overflow-x: auto;
+	padding-left: 2px;
+	margin-left: -2px;
 }
 
 .feed-post-block-has-bottom:not(.feed-imp-post):not(.feed-post-block-grat) .feed-post-text-block-inner-inner {

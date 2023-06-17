@@ -17,5 +17,19 @@ describe('Loc', () => {
 
 		Loc.setMessage('TEST_MESS_ID3', 'One two three two one');
 		assert.equal(Loc.getMessage('TEST_MESS_ID3', { one: '---', two: '###' }), '--- ### three ### ---');
+
+		Loc.setMessage('TEST_MESS_ID4', 'Come on baby, [LINK]light[/LINK] my [#a#]fire[/a]');
+		assert.equal(
+			Loc.getMessage(
+				'TEST_MESS_ID4',
+				{
+					'[LINK]': '<a>',
+					'[/link]': '</a>',
+					'[#a#]': '<a href="/">',
+					'[/a]': '</a>',
+				}
+			),
+			'Come on baby, <a>light</a> my <a href="/">fire</a>'
+		);
 	});
 });

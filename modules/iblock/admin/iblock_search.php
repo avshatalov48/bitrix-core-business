@@ -1,16 +1,22 @@
-<?
+<?php
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
-CModule::IncludeModule('iblock');
+Loader::includeModule('iblock');
 global $APPLICATION, $USER, $DB;
 
 IncludeModuleLangFile(__FILE__);
 
-$boolMultiSelect = (isset($_REQUEST['m']) && 'y' == $_REQUEST['m']);
-$n = preg_replace("/[^a-zA-Z0-9_:\\[\\]]/", "", $_GET["n"]);
-$k = preg_replace("/[^a-zA-Z0-9_:]/", "", $_GET["k"]);
-$lookup = preg_replace("/[^a-zA-Z0-9_:]/", "", $_GET["lookup"]);
-$boolDiscount = (array_key_exists('discount', $_REQUEST) && 'Y' == $_REQUEST['discount']);
+$request = Main\Context::getCurrent()->getRequest();
+
+$boolMultiSelect = $request->get('m') === 'y';
+$n = preg_replace("/[^a-zA-Z0-9_:\\[\\]]/", "", (string)$request->get('n'));
+$k = preg_replace("/[^a-zA-Z0-9_:]/", "", (string)$request->get('k'));
+$lookup = preg_replace("/[^a-zA-Z0-9_:]/", "", (string)$request->get('lookup'));
+$boolDiscount = $request->get('discount') === 'Y';
 
 $sTableID = ($boolDiscount ? "tbl_cat_iblock_search".md5('discount') : "tbl_cat_iblock_search".md5($n));
 $lAdmin = new CAdminList($sTableID);
@@ -51,8 +57,10 @@ $arFilterFields = array(
 	'filter_iblock_type_id'
 );
 
-$oSort = new CAdminSorting($sTableID, "NAME", "asc");
+$oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $lAdmin->InitFilter($arFilterFields);
 
@@ -71,11 +79,6 @@ $arHeader[] = array("id" => "XML_ID", "content" => GetMessage("BX_MOD_CATALOG_AD
 $arHeader[] = array("id" => "CODE", "content" => GetMessage("BX_MOD_CATALOG_ADMIN_CIS_HEAD_CODE"), "sort" => "CODE");
 
 $lAdmin->AddHeaders($arHeader);
-
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
 
 $rsIBlocks = CIBlock::GetList(array($by=>$order), $arFilter);
 $rsIBlocks = new CAdminResult($rsIBlocks, $sTableID);
@@ -96,32 +99,42 @@ while ($arRes = $rsIBlocks->GetNext())
 	$row->AddViewField("XML_ID", $arRes["XML_ID"]);
 	$row->AddViewField("CODE", $arRes["CODE"]);
 
-	$row->AddActions(array(
-		array(
-			"DEFAULT" => "Y",
-			"TEXT" => GetMessage("BX_MOD_CATALOG_ADMIN_CIS_SELECT"),
-			"ACTION"=>"javascript:SelEl('".CUtil::JSEscape($arRes["ID"])."', '".CUtil::JSEscape($arRes["NAME"])."')",
-		),
-	));
+	$row->AddActions([
+		[
+			'DEFAULT' => 'Y',
+			'TEXT' => GetMessage('BX_MOD_CATALOG_ADMIN_CIS_SELECT'),
+			'ACTION' => "javascript:SelEl('" . CUtil::JSEscape($arRes['ID']) . "', '" . CUtil::JSEscape($arRes['NAME']) . "')",
+		],
+	]);
 }
 
-$lAdmin->AddFooter(
-	array(
-		array("title"=>GetMessage("BX_MOD_CATALOG_ADMIN_CIS_MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsIBlocks->SelectedRowsCount()),
-		array("counter"=>true, "title"=>GetMessage("BX_MOD_CATALOG_ADMIN_CIS_MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-	)
-);
+$lAdmin->AddFooter([
+	[
+		'title'=>GetMessage('BX_MOD_CATALOG_ADMIN_CIS_MAIN_ADMIN_LIST_SELECTED'),
+		'value'=>$rsIBlocks->SelectedRowsCount(),
+	],
+	[
+		'counter' => true,
+		'title' => GetMessage('BX_MOD_CATALOG_ADMIN_CIS_MAIN_ADMIN_LIST_CHECKED'),
+		'value' => '0',
+	],
+]);
 
 if ($boolMultiSelect)
 {
-	$lAdmin->AddGroupActionTable(array(
-		array(
-			"action" => "SelAll()",
-			"value" => "select",
-			"type" => "button",
-			"name" => GetMessage("BX_MOD_CATALOG_ADMIN_CIS_SELECT"),
-			)
-	), array("disable_action_target"=>true));
+	$lAdmin->AddGroupActionTable(
+		[
+			[
+				'action' => 'SelAll()',
+				'value' => 'select',
+				'type' => 'button',
+				'name' => GetMessage('BX_MOD_CATALOG_ADMIN_CIS_SELECT'),
+			]
+		],
+		[
+			'disable_action_target' => true,
+		]
+	);
 }
 
 $lAdmin->AddAdminContextMenu(array(), false);
@@ -133,39 +146,39 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 ?><script type="text/javascript">
 function SelEl(id, name)
 {
-<?
+<?php
 if ('' != $lookup)
 {
 	if ('' != $boolMultiSelect)
 	{
-		?>window.opener.<? echo $lookup; ?>.AddValue(id);<?
+		?>window.opener.<?= $lookup; ?>.AddValue(id);<?php
 	}
 	else
 	{
-		?>window.opener.<? echo $lookup; ?>.AddValue(id); window.close();<?
+		?>window.opener.<?= $lookup; ?>.AddValue(id); window.close();<?php
 	}
 }
 else
 {
 	if($boolMultiSelect)
 	{
-		?>window.opener.InS<? echo md5($n); ?>(id, name);<?
+		?>window.opener.InS<?= md5($n); ?>(id, name);<?php
 	}
 	else
 	{
-		?>el = window.opener.document.getElementById('<? echo $n?>[<? echo $k?>]');
+		?>el = window.opener.document.getElementById('<?= $n; ?>[<?= $k; ?>]');
 	if(!el)
-		el = window.opener.document.getElementById('<? echo $n?>');
+		el = window.opener.document.getElementById('<?= $n; ?>');
 	if(el)
 	{
 		el.value = id;
 	}
-	el = window.opener.document.getElementById('<? echo md5($n)?>_<? echo $k?>_link');
+	el = window.opener.document.getElementById('<?= md5($n); ?>_<?= $k; ?>_link');
 	if(!el)
-		el = window.opener.document.getElementById('<?echo $n?>_link');
+		el = window.opener.document.getElementById('<?= $n; ?>_link');
 	if(el)
 		el.innerHTML = name;
-	window.close();<?
+	window.close();<?php
 	}
 }
 ?>
@@ -173,7 +186,7 @@ else
 
 function SelAll()
 {
-	var frm = document.getElementById('form_<? echo $sTableID?>');
+	var frm = document.getElementById('form_<?= $sTableID; ?>');
 	if (frm)
 	{
 		var e = frm.elements['ID[]'];
@@ -200,7 +213,7 @@ function SelAll()
 		window.close();
 	}
 }
-</script><?
+</script><?php
 
 $lAdmin->DisplayList();
 

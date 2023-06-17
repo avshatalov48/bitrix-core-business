@@ -133,7 +133,7 @@ class CMainUiSelector extends CBitrixComponent
 
 			$resultOptions = array();
 			$result = Selector\Actions::processAjax($action, $options, $requestFields);
-			if ($result['dataOnly'])
+			if (isset($result['dataOnly']))
 			{
 				unset($result['dataOnly']);
 				$resultOptions['dataOnly'] = true;
@@ -160,7 +160,7 @@ class CMainUiSelector extends CBitrixComponent
 
 	protected static function displayAjax($data, $errors, $html, $options = array())
 	{
-		if ($options['dataOnly'])
+		if (isset($options['dataOnly']))
 		{
 			$result = $data;
 		}

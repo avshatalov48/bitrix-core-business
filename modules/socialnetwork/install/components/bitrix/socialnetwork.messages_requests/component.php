@@ -48,7 +48,7 @@ $arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
 $arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (!$GLOBALS["USER"]->IsAuthorized())
-{	
+{
 	$arResult["NEED_AUTH"] = "Y";
 }
 else
@@ -58,7 +58,7 @@ else
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "add")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -66,7 +66,7 @@ else
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] === "reject")
+		elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -85,7 +85,7 @@ else
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] === "add")
+		if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -93,7 +93,7 @@ else
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] === "reject")
+		elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -104,7 +104,7 @@ else
 
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
-			
+
 		if ($_REQUEST["action"] <> '' && $_REQUEST["backurl"] <> '' && $arResult["ErrorMessage"] == '')
 			LocalRedirect($_REQUEST["backurl"]);
 	}
@@ -161,8 +161,8 @@ else
 			"SECOND_NAME" => $arUserRequests["FIRST_USER_SECOND_NAME"],
 			"LOGIN" => $arUserRequests["FIRST_USER_LOGIN"],
 		);
-		$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);		
-		
+		$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
+
 		$arEventTmp["Event"] = array(
 			"ID" => $arUserRequests["ID"],
 			"USER_ID" => $arUserRequests["FIRST_USER_ID"],
@@ -241,8 +241,8 @@ else
 			"SECOND_NAME" => $arUserRequests["INITIATED_BY_USER_SECOND_NAME"],
 			"LOGIN" => $arUserRequests["INITIATED_BY_USER_LOGIN"],
 		);
-		$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);	
-		
+		$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
+
 		$arEventTmp["Event"] = array(
 			"ID" => $arUserRequests["ID"],
 			"USER_ID" => $arUserRequests["INITIATED_BY_USER_ID"],
@@ -250,7 +250,7 @@ else
 			"USER_LAST_NAME" => $arUserRequests["INITIATED_BY_USER_LAST_NAME"],
 			"USER_SECOND_NAME" => $arUserRequests["INITIATED_BY_USER_SECOND_NAME"],
 			"USER_LOGIN" => $arUserRequests["INITIATED_BY_USER_LOGIN"],
-			"USER_NAME_FORMATTED" => $strNameFormatted,			
+			"USER_NAME_FORMATTED" => $strNameFormatted,
 			"USER_PERSONAL_PHOTO" => $arUserRequests["INITIATED_BY_USER_PHOTO"],
 			"USER_PERSONAL_PHOTO_FILE" => $arImage["FILE"],
 			"USER_PERSONAL_PHOTO_IMG" => $arImage["IMG"],

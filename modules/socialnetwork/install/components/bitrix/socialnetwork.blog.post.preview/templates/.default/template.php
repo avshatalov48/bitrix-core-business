@@ -11,6 +11,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 
 use Bitrix\Main\UI;
+use Bitrix\Main\Web\Uri;
 
 UI\Extension::load([
 	'ui.tooltip',
@@ -22,7 +23,7 @@ UI\Extension::load([
 	<table class="blog-post-preview-info">
 		<tr>
 			<td><?php
-				$style = (!empty($arResult['arUser']['PERSONAL_PHOTO_resized']['src']) ? 'background-image: url('. \CHTTP::urnEncode($arResult['arUser']['PERSONAL_PHOTO_resized']['src']) .');' : '');
+				$style = (!empty($arResult['arUser']['PERSONAL_PHOTO_resized']['src']) ? 'background-image: url('. Uri::urnEncode($arResult['arUser']['PERSONAL_PHOTO_resized']['src']) .');' : '');
 				?><span class="ui-icon ui-icon-common-user blog-post-preview-header-icon" title="<?= htmlspecialcharsbx($arResult['POST']['AUTHOR_FORMATTED_NAME']) ?>">
 					<i style="<?= $style ?>"></i>
 				</span>

@@ -567,6 +567,11 @@
 	white-space: nowrap;
 }
 
+.catalog-pf-product-item-section.catalog-product-view.--short-format {
+	margin-top: 4px;
+	overflow: inherit;
+}
+
 .catalog-pf-product-item-section.catalog-product-edit {
 	overflow: initial;
 }
@@ -623,6 +628,7 @@
 	flex: 1;
 	overflow: hidden;
 	height: 39px;
+	min-width: 35px;
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0 0 0 11px;
@@ -715,6 +721,8 @@
 .catalog-pf-product-input-info {
 	display: flex;
 	align-items: center;
+	max-width: 100%;
+	overflow: hidden;
 	padding: 0 11px 0 5px;
 	background: #fff;
 	border: 1px solid #c6cdd3;
@@ -733,6 +741,10 @@
 .catalog-pf-product-input-info--action span {
 	display: inline-block;
 	border-bottom: 1px dashed rgba(130,139,140,.4);
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .catalog-pf-product-input-info--action:hover span {

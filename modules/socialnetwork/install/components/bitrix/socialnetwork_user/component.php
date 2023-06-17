@@ -209,7 +209,7 @@ if ($bExtranetEnabled)
 	{
 		$bExtranetEnabled = false;
 	}
-	elseif ($arParams["SEF_MODE"] === "Y")
+	elseif (($arParams["SEF_MODE"] ?? null) === "Y")
 	{
 		$arRedirectSite = CSocNetLogComponent::getExtranetRedirectSite($extranetSiteId);
 	}
@@ -394,7 +394,7 @@ if ($davEnabled)
 }
 
 if (
-	$_REQUEST["auth"] === "Y"
+	($_REQUEST["auth"] ?? '') === "Y"
 	&& $USER->IsAuthorized()
 )
 {
@@ -403,11 +403,11 @@ if (
 
 if (!array_key_exists("SET_NAV_CHAIN", $arParams))
 {
-	$arParams["SET_NAV_CHAIN"] = $arParams["SET_NAVCHAIN"];
+	$arParams["SET_NAV_CHAIN"] = $arParams["SET_NAVCHAIN"] ?? null;
 }
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
-$arParams["LOG_AUTH"] = (mb_strtoupper($arParams["LOG_AUTH"]) === "Y" ? "Y" : "N");
-$arParams["HIDE_OWNER_IN_TITLE"] = ($arParams["HIDE_OWNER_IN_TITLE"] === "Y" ? "Y" : "N");
+$arParams["LOG_AUTH"] = (mb_strtoupper($arParams["LOG_AUTH"] ?? '') === "Y" ? "Y" : "N");
+$arParams["HIDE_OWNER_IN_TITLE"] = (($arParams["HIDE_OWNER_IN_TITLE"] ?? null) === "Y" ? "Y" : "N");
 
 if (!array_key_exists("ALLOW_GROUP_CREATE_REDIRECT_REQUEST", $arParams))
 {
@@ -417,7 +417,7 @@ if (!array_key_exists("ALLOW_GROUP_CREATE_REDIRECT_REQUEST", $arParams))
 if (
 	$arParams["ALLOW_GROUP_CREATE_REDIRECT_REQUEST"] !== "N"
 	&& (
-		!array_key_exists("GROUP_CREATE_REDIRECT_REQUEST", $arParams) 
+		!array_key_exists("GROUP_CREATE_REDIRECT_REQUEST", $arParams)
 		|| trim($arParams["GROUP_CREATE_REDIRECT_REQUEST"]) == ''
 	)
 )
@@ -425,23 +425,29 @@ if (
 	$arParams["GROUP_CREATE_REDIRECT_REQUEST"] = $folderWorkgroups."group/#group_id#/user_search/";
 }
 
-if (trim($arParams["NAME_TEMPLATE"]) == '')
+if (trim($arParams["NAME_TEMPLATE"] ?? '') == '')
 {
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 }
-$arParams["SHOW_LOGIN"] = $arParams['SHOW_LOGIN'] !== "N" ? "Y" : "N";
+$arParams["SHOW_LOGIN"] = ($arParams['SHOW_LOGIN'] ?? '') !== "N" ? "Y" : "N";
 
-if ($arParams["GROUP_USE_KEYWORDS"] !== "N") $arParams["GROUP_USE_KEYWORDS"] = "Y";
+if (($arParams["GROUP_USE_KEYWORDS"] ?? '') !== "N")
+{
+	$arParams["GROUP_USE_KEYWORDS"] = "Y";
+}
 
-if (!is_array($arParams["VARIABLE_ALIASES"]))
+if (
+	!isset($arParams["VARIABLE_ALIASES"])
+	|| !is_array($arParams["VARIABLE_ALIASES"])
+)
 {
 	$arParams["VARIABLE_ALIASES"] = array();
 }
 
 $arParams['CAN_OWNER_EDIT_DESKTOP'] = (
 	IsModuleInstalled("intranet")
-		? ($arParams['CAN_OWNER_EDIT_DESKTOP'] !== "Y" ? "N" : "Y")
-		: ($arParams['CAN_OWNER_EDIT_DESKTOP'] !== "N" ? "Y" : "N")
+		? (($arParams['CAN_OWNER_EDIT_DESKTOP'] ?? '') !== "Y" ? "N" : "Y")
+		: (($arParams['CAN_OWNER_EDIT_DESKTOP'] ?? '') !== "N" ? "Y" : "N")
 );
 
 $tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
@@ -493,7 +499,7 @@ if (
 	$arParams["MAIN_MENU_TYPE"] = "left";
 }
 
-$arParams["ALLOW_RATING_SORT"] = ($arParams["ALLOW_RATING_SORT"] !== "Y" ? "N" : "Y");
+$arParams["ALLOW_RATING_SORT"] = (($arParams["ALLOW_RATING_SORT"] ?? '') !== "Y" ? "N" : "Y");
 
 // activation rating
 CRatingsComponentsMain::GetShowRating($arParams);
@@ -524,12 +530,12 @@ if (IsModuleInstalled("search"))
 
 ComponentHelper::setModuleUsed();
 
-$arCustomPagesPath = array();
+$arCustomPagesPath = [];
+$arVariables = [];
+$arUrlTemplates = [];
 
-if ($arParams["SEF_MODE"] === "Y")
+if (($arParams["SEF_MODE"] ?? null) === "Y")
 {
-	$arVariables = array();
-
 	$events = GetModuleEvents("socialnetwork", "OnParseSocNetComponentPath");
 	while ($arEvent = $events->Fetch())
 	{
@@ -563,8 +569,10 @@ if ($arParams["SEF_MODE"] === "Y")
 
 //	$componentPage = CComponentEngine::ParseComponentPath($arParams["SEF_FOLDER"], $arUrlTemplates, $arVariables);
 
-	if (array_key_exists($arVariables["page"], $arDefaultUrlTemplates404))
+	if (isset($arVariables["page"]) && array_key_exists($arVariables["page"], $arDefaultUrlTemplates404))
+	{
 		$componentPage = $arVariables["page"];
+	}
 
 	if (empty($componentPage) || (!array_key_exists($componentPage, $arDefaultUrlTemplates404)))
 	{
@@ -573,7 +581,7 @@ if ($arParams["SEF_MODE"] === "Y")
 
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 
-	if (intval($arVariables["user_id"]) <= 0)
+	if (intval($arVariables["user_id"] ?? null) <= 0)
 		$arVariables["user_id"] = $USER->GetID();
 
 	foreach ($arUrlTemplates as $url => $value)
@@ -585,7 +593,7 @@ if ($arParams["SEF_MODE"] === "Y")
 		);
 	}
 
-	if ($_REQUEST["auth"] === "Y")
+	if (($_REQUEST["auth"] ?? '') === "Y")
 	{
 		$componentPage = "auth";
 	}
@@ -661,7 +669,7 @@ else
 		$arParamsKill = array_merge($arParamsKill, $arParams["VARIABLE_ALIASES"], array_values($arVariableAliases));
 		$arResult["PATH_TO_".mb_strtoupper($url)] = $APPLICATION->GetCurPageParam($value, $arParamsKill);
 	}
-	if (array_key_exists($arVariables["page"], $arDefaultUrlTemplatesN404))
+	if (array_key_exists($arVariables["page"] ?? null, $arDefaultUrlTemplatesN404))
 	{
 		$componentPage = $arVariables["page"];
 	}
@@ -674,12 +682,13 @@ else
 		$componentPage = "index";
 	}
 
-	if ($_REQUEST["auth"] === "Y")
+	if (isset($_REQUEST["auth"]) && $_REQUEST["auth"] === "Y")
 	{
 		$componentPage = "auth";
 	}
 }
 
+$arRedirectSite ??= null;
 if (
 	$arRedirectSite
 	&& $arParams["SEF_MODE"] === "Y"
@@ -704,11 +713,11 @@ ComponentHelper::setComponentOption(
 	array(
 		array(
 			'OPTION' => array('MODULE_ID' => 'socialnetwork', 'NAME' => 'userbloggroup_id'),
-			'VALUE' => $arParams["BLOG_GROUP_ID"]
+			'VALUE' => $arParams["BLOG_GROUP_ID"] ?? null,
 		),
 		array(
 			'OPTION' => array('MODULE_ID' => 'socialnetwork', 'NAME' => 'smile_page'),
-			'VALUE' => $arParams["PATH_TO_SMILE"]
+			'VALUE' => $arParams["PATH_TO_SMILE"] ?? null,
 		),
 		array(
 			'CHECK_SEF_FOLDER' => true,
@@ -732,42 +741,42 @@ ComponentHelper::setComponentOption(
 		)
 	),
 	array(
-		'SEF_FOLDER' => $arParams["SEF_FOLDER"],
+		'SEF_FOLDER' => $arParams["SEF_FOLDER"] ?? null,
 		'SITE_ID' => SITE_ID
 	)
 );
 
 $arResult = array_merge(
 	array(
-		"SEF_MODE" => $arParams["SEF_MODE"],
-		"SEF_FOLDER" => $arParams["SEF_FOLDER"],
+		"SEF_MODE" => $arParams["SEF_MODE"] ?? null,
+		"SEF_FOLDER" => $arParams["SEF_FOLDER"] ?? null,
 		"VARIABLES" => $arVariables,
-		"ALIASES" => $arParams["SEF_MODE"] === "Y"? array(): $arVariableAliases,
-		"SET_TITLE" => $arParams["SET_TITLE"],
-		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
+		"ALIASES" => ($arParams["SEF_MODE"] ?? null) === "Y" ? array(): $arVariableAliases,
+		"SET_TITLE" => $arParams["SET_TITLE"] ?? null,
+		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"] ?? null,
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		"CACHE_TIME_LONG" => $arParams["CACHE_TIME_LONG"],
+		"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+		"CACHE_TIME_LONG" => $arParams["CACHE_TIME_LONG"] ?? null,
 		"SET_NAV_CHAIN" => $arParams["SET_NAV_CHAIN"],
 		"SET_NAVCHAIN" => $arParams["SET_NAV_CHAIN"],
-		"ITEM_DETAIL_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
-		"ITEM_MAIN_COUNT" => $arParams["ITEM_MAIN_COUNT"],
-		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
+		"ITEM_DETAIL_COUNT" => $arParams["ITEM_DETAIL_COUNT"] ?? null,
+		"ITEM_MAIN_COUNT" => $arParams["ITEM_MAIN_COUNT"] ?? null,
+		"DATE_TIME_FORMAT" => $arParams['DATE_TIME_FORMAT'] ?? \Bitrix\Main\Context::getCurrent()->getCulture()->getFullDateFormat(),
 		"DATE_TIME_FORMAT_WITHOUT_YEAR" => (isset($arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"]) ? $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"] : false),
-		"USER_PROPERTY_MAIN" => $arParams["USER_PROPERTY_MAIN"],
-		"USER_PROPERTY_CONTACT" => $arParams["USER_PROPERTY_CONTACT"],
-		"USER_PROPERTY_PERSONAL" => $arParams["USER_PROPERTY_PERSONAL"],
-		"USER_FIELDS_MAIN" => $arParams["USER_FIELDS_MAIN"],
-		"USER_FIELDS_CONTACT" => $arParams["USER_FIELDS_CONTACT"],
-		"USER_FIELDS_PERSONAL" => $arParams["USER_FIELDS_PERSONAL"],
-		"USER_FIELDS_SEARCH_SIMPLE" => $arParams["USER_FIELDS_SEARCH_SIMPLE"],
-		"USER_FIELDS_SEARCH_ADV" => $arParams["USER_FIELDS_SEARCH_ADV"],
-		"USER_PROPERTIES_SEARCH_SIMPLE" => $arParams["USER_PROPERTIES_SEARCH_SIMPLE"],
-		"USER_PROPERTIES_SEARCH_ADV" => $arParams["USER_PROPERTIES_SEARCH_ADV"],
-		"USER_FIELDS_LIST" => $arParams["SONET_USER_FIELDS_LIST"],
-		"USER_PROPERTY_LIST" => $arParams["SONET_USER_PROPERTY_LIST"],
-		"USER_FIELDS_SEARCHABLE" => $arParams["SONET_USER_FIELDS_SEARCHABLE"],
-		"USER_PROPERTY_SEARCHABLE" => $arParams["SONET_USER_PROPERTY_SEARCHABLE"],
+		"USER_PROPERTY_MAIN" => $arParams["USER_PROPERTY_MAIN"] ?? null,
+		"USER_PROPERTY_CONTACT" => $arParams["USER_PROPERTY_CONTACT"] ?? null,
+		"USER_PROPERTY_PERSONAL" => $arParams["USER_PROPERTY_PERSONAL"] ?? null,
+		"USER_FIELDS_MAIN" => $arParams["USER_FIELDS_MAIN"] ?? null,
+		"USER_FIELDS_CONTACT" => $arParams["USER_FIELDS_CONTACT"] ?? null,
+		"USER_FIELDS_PERSONAL" => $arParams["USER_FIELDS_PERSONAL"] ?? null,
+		"USER_FIELDS_SEARCH_SIMPLE" => $arParams["USER_FIELDS_SEARCH_SIMPLE"] ?? null,
+		"USER_FIELDS_SEARCH_ADV" => $arParams["USER_FIELDS_SEARCH_ADV"] ?? null,
+		"USER_PROPERTIES_SEARCH_SIMPLE" => $arParams["USER_PROPERTIES_SEARCH_SIMPLE"] ?? null,
+		"USER_PROPERTIES_SEARCH_ADV" => $arParams["USER_PROPERTIES_SEARCH_ADV"] ?? null,
+		"USER_FIELDS_LIST" => $arParams["SONET_USER_FIELDS_LIST"] ?? null,
+		"USER_PROPERTY_LIST" => $arParams["SONET_USER_PROPERTY_LIST"] ?? null,
+		"USER_FIELDS_SEARCHABLE" => $arParams["SONET_USER_FIELDS_SEARCHABLE"] ?? null,
+		"USER_PROPERTY_SEARCHABLE" => $arParams["SONET_USER_PROPERTY_SEARCHABLE"] ?? null,
 	),
 	$arResult
 );
@@ -779,7 +788,7 @@ if (!$tooltipPathToUser)
 	COption::SetOptionString("main", "TOOLTIP_PATH_TO_USER", $arResult["PATH_TO_USER"], false, SITE_ID);
 	$tooltipPathToUser = $arResult["PATH_TO_USER"];
 }
-if (mb_substr($tooltipPathToUser, 0, mb_strlen($arParams["SEF_FOLDER"])) !== $arParams["SEF_FOLDER"])
+if (mb_substr($tooltipPathToUser, 0, mb_strlen($arParams["SEF_FOLDER"] ?? '')) !== ($arParams["SEF_FOLDER"] ?? ''))
 {
 	COption::SetOptionString("main", "TOOLTIP_PATH_TO_USER", $arParams["SEF_FOLDER"]."user/#user_id#/", false, SITE_ID);
 }
@@ -802,7 +811,7 @@ ComponentHelper::setComponentOption(
 		),
 		array(
 			'OPTION' => array('MODULE_ID' => 'main', 'NAME' => 'TOOLTIP_SHOW_YEAR'),
-			'VALUE' => $arParams["SHOW_YEAR"]
+			'VALUE' => $arParams["SHOW_YEAR"] ?? null,
 		),
 		array(
 			'OPTION' => array('MODULE_ID' => 'main', 'NAME' => 'TOOLTIP_NAME_TEMPLATE'),
@@ -818,13 +827,13 @@ ComponentHelper::setComponentOption(
 		)
 	),
 	array(
-		'SEF_FOLDER' => $arParams["SEF_FOLDER"],
+		'SEF_FOLDER' => $arParams["SEF_FOLDER"] ?? null,
 		'SITE_ID' => SITE_ID
 	)
 );
 
 $arResult["PATH_TO_SEARCH_INNER"] = (IsModuleInstalled("intranet") ? SITE_DIR."company/structure.php" : $arResult["PATH_TO_SEARCH"]);
-$arParams["PATH_TO_SEARCH_EXTERNAL"] = Trim($arParams["PATH_TO_SEARCH_EXTERNAL"]);
+$arParams["PATH_TO_SEARCH_EXTERNAL"] = Trim($arParams["PATH_TO_SEARCH_EXTERNAL"] ?? '');
 if ($arParams["PATH_TO_SEARCH_EXTERNAL"] <> '')
 {
 	$arResult["PATH_TO_SEARCH"] = $arParams["PATH_TO_SEARCH_EXTERNAL"];
@@ -884,7 +893,11 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] === "PUT")
 			$arSocNetSearchParams["PATH_TO_USER_FILES"] = $arResult["PATH_TO_USER_FILES"];
 		}
 
-		$bxSocNetSearch = new CSocNetSearch($arResult["VARIABLES"]["user_id"], $arResult["VARIABLES"]["group_id"], $arSocNetSearchParams);
+		$bxSocNetSearch = new CSocNetSearch(
+			$arResult["VARIABLES"]["user_id"] ?? 0,
+			$arResult["VARIABLES"]["group_id"] ?? 0,
+			$arSocNetSearchParams
+		);
 
 		AddEventHandler("search", "BeforeIndex", Array($bxSocNetSearch, "BeforeIndex"));
 		AddEventHandler("iblock", "OnAfterIBlockElementUpdate", Array($bxSocNetSearch, "IBlockElementUpdate"));
@@ -1286,7 +1299,7 @@ if (
 
 if (
 	!in_array($componentPage, array("message_form_mess", "messages_chat", "messages_users_messages"))
-	&& (int)$arResult['VARIABLES']['user_id'] > 0
+	&& (int) ($arResult['VARIABLES']['user_id'] ?? null) > 0
 	&& $arResult["VARIABLES"]["user_id"] != $USER->GetID()
 )
 {
@@ -1402,40 +1415,47 @@ if (
 }
 
 //registering routes for building preview
-Bitrix\Main\UrlPreview\Router::setRouteHandler(
-		$arParams['SEF_FOLDER'].$arUrlTemplates['user_blog_post'],
+$blogPostRoute = ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user_blog_post'] ?? '');
+if ($blogPostRoute)
+{
+	Bitrix\Main\UrlPreview\Router::setRouteHandler(
+		$blogPostRoute,
 		'socialnetwork',
 		'\Bitrix\Socialnetwork\Ui\Preview\Post',
 		array(
-				'postId' => '$post_id',
-				'userId' => '$user_id',
-				'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'].$arUrlTemplates['user'],
+			'postId' => '$post_id',
+			'userId' => '$user_id',
+			'PATH_TO_USER_PROFILE' => ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user'] ?? ''),
 		)
-);
-if(\Bitrix\Main\ModuleManager::isModuleInstalled('tasks'))
+	);
+}
+
+$tasksRoute = ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user_tasks_task'] ?? '');
+if (\Bitrix\Main\ModuleManager::isModuleInstalled('tasks') && $tasksRoute)
 {
 	Bitrix\Main\UrlPreview\Router::setRouteHandler(
-		$arParams['SEF_FOLDER'] . $arUrlTemplates['user_tasks_task'],
+		$tasksRoute,
 		'tasks',
 		'\Bitrix\Tasks\Ui\Preview\Task',
 		[
 			'taskId' => '$task_id',
 			'userId' => '$user_id',
 			'action' => '$action',
-			'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'] . $arUrlTemplates['user'],
+			'PATH_TO_USER_PROFILE' => ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user'] ?? ''),
 		]
 	);
 }
 
-if(\Bitrix\Main\ModuleManager::isModuleInstalled('calendar'))
+$calendarRoute = ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user_calendar'] ?? '');
+if (\Bitrix\Main\ModuleManager::isModuleInstalled('calendar') && $calendarRoute)
 {
 	Bitrix\Main\UrlPreview\Router::setRouteHandler(
-		$arParams['SEF_FOLDER'] . $arUrlTemplates['user_calendar'],
+		$calendarRoute,
 		'calendar',
 		'\Bitrix\Calendar\Ui\Preview\Event',
 		[
 			'userId' => '$user_id',
-			'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'] . $arUrlTemplates['user'],
+			'PATH_TO_USER_PROFILE' => ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['user'] ?? ''),
 			'eventId' => '$EVENT_ID',
 		]
 	);

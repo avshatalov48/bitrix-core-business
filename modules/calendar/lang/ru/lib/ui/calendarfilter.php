@@ -17,4 +17,5 @@ $MESS["CALENDAR_FILTER_IS_RECURSIVE"] = "Повторяемое событие";
 $MESS["CALENDAR_PRESET_MEETING_STATUS_Q"] = "Приглашения";
 $MESS["CALENDAR_PRESET_I_AM_HOST"] = "Я организатор";
 $MESS["CALENDAR_PRESET_I_AM_ATTENDEE"] = "Я участник";
+$MESS["CALENDAR_PRESET_I_DECLINED"] = "Я отказался от участия";
 ?>

@@ -1,20 +1,32 @@
-<?
-define("ADMIN_SECTION", true);
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-header("Content-Type: text/xml");
-CModule::IncludeModule("iblock");
+<?php
+const ADMIN_SECTION = true;
 
-if (intval($ID)>0)
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
+require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
+header("Content-Type: text/xml");
+if (!Loader::includeModule('iblock'))
 {
-	$ID = intval($ID);
+	return;
+}
+
+$request = Context::getCurrent()->getRequest();
+
+$rawId = $request->get('ID');
+if ((int)$rawId > 0)
+{
+	$ID = (int)$rawId;
 }
 else
 {
-	$ID = Trim($ID);
+	$ID = trim($rawId);
 }
-$LANG = Trim($_REQUEST["LANG"]);
-$TYPE = Trim($TYPE);
-$LIMIT = intval($LIMIT);
+
+$LANG = trim((string)$request->get('LANG'));
+$TYPE = trim((string)$request->get('TYPE'));
+$LIMIT = (int)($request->get('LIMIT'));
 
 CIBlockRSS::GetRSS($ID, $LANG, $TYPE, $LIMIT, false, false);
-?>
+
+CMain::FinalActions();

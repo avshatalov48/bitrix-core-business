@@ -64,6 +64,11 @@ function getKeyFormat(key)
 	return 'default';
 }
 
+function isAllowedKey(key: string): boolean
+{
+	return !String(key).startsWith('__proto__');
+}
+
 function parseQuery(input)
 {
 	if (!Type.isString(input))
@@ -78,14 +83,19 @@ function parseQuery(input)
 		return {};
 	}
 
-	return url.split('&')
-		.reduce((acc, param) => {
-			const [key, value] = param.replace(/\+/g, ' ').split('=');
-			const keyFormat = getKeyFormat(key);
-			const formatter = getParser(keyFormat);
-			formatter(key, value, acc);
-			return acc;
-		}, {});
+	return {
+		...url.split('&')
+			.reduce((acc, param) => {
+				const [key, value] = param.replace(/\+/g, ' ').split('=');
+				if (isAllowedKey(key))
+				{
+					const keyFormat = getKeyFormat(key);
+					const formatter = getParser(keyFormat);
+					formatter(key, value, acc);
+				}
+				return acc;
+			}, Object.create(null)),
+	};
 }
 
 const urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#(\w*))?/;

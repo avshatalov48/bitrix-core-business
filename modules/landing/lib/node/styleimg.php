@@ -193,6 +193,15 @@ class StyleImg extends Node
 
 			foreach ($resultList as $pos => $res)
 			{
+				$data[$pos] = [
+					'src' => '',
+					'src2x' => '',
+					'id' => null,
+					'id2x' => null,
+					'alt' => '',
+					'isLazy' => 'N',
+				];
+
 				if ($res->getTagName() !== 'IMG')
 				{
 					$isLazy =

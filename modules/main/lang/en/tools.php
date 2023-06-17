@@ -285,6 +285,7 @@ $MESS["expire_mess1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">
 $MESS["expire_mess2"] = "Your free 30-day trial period is over. You are welcome to continue using your product copy with a commercial license key (no need to make a new product installation). To purchase a commercial license key, please visit our site: <a href=\"https://www.bitrix24.com\" target=\"_blank\">www.bitrix24.com</a>.
 <br /><br />
 If you have a commercial license key, please use it to <a href=\"/bitrix/coupon_activation.php?lang=en\" target=\"_blank\">activate and unblock</a> your product copy.";
+$MESS["expire_mess3"] = "Your free 30-day trial period is over. You are welcome to continue using your product copy with a commercial license key (no need to make a new product installation). To purchase a commercial license key, please visit our site: <a href=\"https://www.bitrix24.com\" target=\"_blank\">www.bitrix24.com</a>.";
 $MESS["main_tools_menu_left"] = "Section menu";
 $MESS["main_tools_menu_top"] = "Main menu";
 $MESS["MONTH_1"] = "January";

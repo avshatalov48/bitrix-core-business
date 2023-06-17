@@ -498,6 +498,11 @@ final class Location implements \Serializable
 		);
 	}
 
+	public function __serialize(): array
+	{
+		return \Bitrix\Location\Entity\Location\Converter\ArrayConverter::convertToArray($this);
+	}
+
 	/**
 	 * Unserialize the Location
 	 *
@@ -508,7 +513,17 @@ final class Location implements \Serializable
 		$this->copyDataFrom(
 			Location::fromArray(
 				unserialize($serialized, ['allowed_classes' => false])
-			));
+			)
+		);
+	}
+
+	public function __unserialize(array $data): void
+	{
+		$this->copyDataFrom(
+			Location::fromArray(
+				$data
+			)
+		);
 	}
 
 	/**

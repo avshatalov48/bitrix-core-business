@@ -1,5 +1,9 @@
 <?
-// v.091
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
@@ -10,22 +14,30 @@ if(!$USER->CanDoOperation('edit_other_settings'))
 
 IncludeModuleLangFile(__FILE__);
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
 
 $hotKeyCodes = new CHotKeysCode;
 $str_IS_CUSTOM = true;
-$errMess = "";
+$str_ID = '';
+$str_NAME = '';
+$str_CODE = '';
+$str_CLASS_NAME = '';
+$str_COMMENTS = '';
+$str_TITLE_OBJ = '';
+$str_URL = '';
+
+$errMess = null;
 $bVarsFromForm = false;
 
-if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<>"") && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid())
 {
 	$arFields = array(
-			"CLASS_NAME"=>$_REQUEST["CLASS_NAME"],
-			"CODE"=>$_REQUEST["CODE"],
-			"NAME"=>$_REQUEST["NAME"],
-			"COMMENTS" => $_REQUEST["COMMENTS"],
-			"TITLE_OBJ"=>$_REQUEST["TITLE_OBJ"],
-			"URL"=>$_REQUEST["URL"],
+			"CLASS_NAME"=>$_REQUEST["CLASS_NAME"] ?? '',
+			"CODE"=>$_REQUEST["CODE"] ?? '',
+			"NAME"=>$_REQUEST["NAME"] ?? '',
+			"COMMENTS" => $_REQUEST["COMMENTS"] ?? '',
+			"TITLE_OBJ"=>$_REQUEST["TITLE_OBJ"] ?? '',
+			"URL"=>$_REQUEST["URL"] ?? '',
 	);
 
 	if($ID>0)
@@ -42,7 +54,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 		if(isset($_POST['apply']))
 			LocalRedirect("hot_keys_edit.php?ID=".$ID."&lang=".LANG."&applied=ok");
 		else
-			LocalRedirect(($_REQUEST["addhk"]<>""? $_REQUEST["addhk"]:"hot_keys_list.php?lang=".LANG));
+			LocalRedirect(!empty($_REQUEST["addhk"]) ? $_REQUEST["addhk"] : "hot_keys_list.php?lang=" . LANG);
 	}
 	else
 	{
@@ -102,7 +114,7 @@ if($ID>0)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if($_GET["applied"]=="ok")
+if (isset($_GET["applied"]) && $_GET["applied"]=="ok")
 	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("HK_EDIT_SUCCESS"), "TYPE"=>"OK"));
 
 if($errMess)
@@ -121,7 +133,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 <input type="hidden" name="ID" value=<?=$ID?>>
 <input type="hidden" name="IS_CUSTOM" value=<?=$str_IS_CUSTOM?>>
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
-<?if($_REQUEST["addhk"]<>""):?>
+<?if (!empty($_REQUEST["addhk"])):?>
 <input type="hidden" name="addhk" value="<?= htmlspecialcharsbx($_REQUEST["addhk"])?>">
 <?endif;?>
 <?
@@ -164,7 +176,7 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->Buttons(array(
 	"disabled"=>$str_IS_CUSTOM ? false : true,
-	"back_url"=>($_REQUEST["addhk"]<>""? $_REQUEST["addhk"]:"hot_keys_list.php?lang=".LANG),
+	"back_url" => (!empty($_REQUEST["addhk"]) ? $_REQUEST["addhk"] : "hot_keys_list.php?lang=" . LANG),
 ));
 $tabControl->End();
 ?>

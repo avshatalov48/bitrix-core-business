@@ -1,2 +1,2 @@
 <?php
-$MESS["STORE_STOCK_CHART_STORES_GRID_TITLE"] = "Balance and sales";
+$MESS["STORE_STOCK_CHART_STORES_GRID_TITLE_2"] = "Balance";

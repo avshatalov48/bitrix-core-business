@@ -14,7 +14,7 @@ use Bitrix\Main\SiteTable;
 IncludeModuleLangFile(__FILE__);
 
 /**
- * @deprecated 
+ * @deprecated
  */
 class CAllSite
 {
@@ -44,7 +44,7 @@ class CAllSite
 	{
 		global $USER;
 		$arUserGroups = $USER->GetUserGroupArray();
-		if (count(array_intersect($arUserGroups,$arGroups))>0)
+		if (!empty(array_intersect($arUserGroups,$arGroups)))
 			return true;
 		return false;
 	}
@@ -921,7 +921,8 @@ class CAllSite
 				}
 				$CACHE_MANAGER->Set("b_site_template", $arSiteTemplateBySite);
 			}
-			if(is_array($arSiteTemplateBySite[SITE_ID]))
+
+			if (isset($arSiteTemplateBySite[SITE_ID]) && is_array($arSiteTemplateBySite[SITE_ID]))
 			{
 				foreach($arSiteTemplateBySite[SITE_ID] as $ar)
 				{

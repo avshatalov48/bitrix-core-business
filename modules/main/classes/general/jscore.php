@@ -76,7 +76,7 @@ class CJSCore
 		$bReturn = ($bReturn === true); // prevent syntax mistake
 
 		$bNeedCore = false;
-		if (count($arExt) > 0)
+		if (!empty($arExt))
 		{
 			foreach ($arExt as $ext)
 			{
@@ -123,8 +123,7 @@ class CJSCore
 
 			if (is_array($config['rel']))
             {
-                $return = true;
-                $relativities .= self::init($config['rel'], $return);
+                $relativities .= self::init($config['rel'], true);
             }
 
 			$coreLang = self::_loadLang($config['lang'], true);
@@ -245,7 +244,8 @@ class CJSCore
 			$autoTimeZone = "N";
 			if (is_object($USER))
 			{
-				$autoTimeZone = trim($USER->GetParam("AUTO_TIME_ZONE"));
+				$autoTimeZone = $USER->GetParam("AUTO_TIME_ZONE");
+				$autoTimeZone = $autoTimeZone ? trim($USER->GetParam("AUTO_TIME_ZONE")) : null;
 				if ($USER->GetID() > 0)
 				{
 					$userId = $USER->GetID();
@@ -255,7 +255,7 @@ class CJSCore
 			$arMessages["USER_ID"] = $userId;
 			$arMessages["SERVER_TIME"] = time();
 			$arMessages["USER_TZ_OFFSET"] = CTimeZone::GetOffset();
-			$arMessages["USER_TZ_AUTO"] = $autoTimeZone == "N" ? "N": "Y";
+			$arMessages["USER_TZ_AUTO"] = $autoTimeZone === "N" ? "N": "Y";
 			$arMessages["bitrix_sessid"] = bitrix_sessid();
 		}
 
@@ -454,7 +454,7 @@ JS;
 		if (isset(self::$arRegisteredExt[$ext]['lang']) || isset(self::$arRegisteredExt[$ext]['lang_additional']))
 		{
 			$ret .= self::_loadLang(
-				isset(self::$arRegisteredExt[$ext]['lang']) ? self::$arRegisteredExt[$ext]['lang'] : null,
+				self::$arRegisteredExt[$ext]['lang'] ?? null,
 				$bReturn,
 				!empty(self::$arRegisteredExt[$ext]['lang_additional'])? self::$arRegisteredExt[$ext]['lang_additional']: false
 			);
@@ -505,7 +505,7 @@ JS;
 
 	public static function getExtInfo($ext)
 	{
-		return self::$arRegisteredExt[$ext];
+		return self::$arRegisteredExt[$ext] ?? null;
 	}
 
 	private static function _RegisterStandardExt()
@@ -631,7 +631,7 @@ JS;
 	 */
 	private static function loadSettings($extension, $settings, $bReturn = false)
 	{
-		if (is_array($settings) && count($settings) > 0)
+		if (is_array($settings) && !empty($settings))
 		{
 			$encodedSettings = Main\Web\Json::encode($settings);
 			$result = '<script type="extension/settings" data-extension="'.$extension.'">';

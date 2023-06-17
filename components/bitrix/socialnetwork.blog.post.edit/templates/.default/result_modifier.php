@@ -92,7 +92,10 @@ if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 $arResult['bVarsFromForm'] = (
 	array_key_exists("POST_MESSAGE", $_REQUEST)
 	|| (string)$arResult["ERROR_MESSAGE"] !== ''
-	|| $arResult["needShow"]
+	|| (
+		isset($arResult["needShow"])
+		&& $arResult["needShow"]
+	)
 );
 $arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
 
@@ -133,7 +136,7 @@ if (
 
 	if (
 		array_key_exists("GRAT_CURRENT", $arResult["PostToShow"])
-		&& is_array($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"])
+		&& is_array(($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"] ?? null))
 	)
 	{
 		foreach($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"] as $grat_user_id)

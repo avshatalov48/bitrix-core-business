@@ -1038,7 +1038,7 @@ class CIBlockCMLImport
 			if($this->bCatalog && $this->next_step["bOffer"])
 			{
 				$obCatalog = new CCatalog();
-				$intParentID = $this->GetIBlockByXML_ID($arIBlock["CATALOG_XML_ID"] ?? $arIBlock["XML_ID"]);
+				$intParentID = $this->GetIBlockByXML_ID($arIBlock["CATALOG_XML_ID"] ?? '');
 				if (0 < intval($intParentID) && $this->use_offers)
 				{
 					$mxSKUProp = $obCatalog->LinkSKUIBlock($intParentID,$arIBlock["ID"]);
@@ -1952,8 +1952,14 @@ class CIBlockCMLImport
 					continue;
 			}
 
-			if($arProperty["SERIALIZED"] == "Y")
-				$arProperty["DEFAULT_VALUE"] = unserialize($arProperty["DEFAULT_VALUE"], ['allowed_classes' => false]);
+			if (isset($arProperty['SERIALIZED']))
+			{
+				if ($arProperty['SERIALIZED'] === 'Y')
+				{
+					$arProperty['DEFAULT_VALUE'] = unserialize($arProperty['DEFAULT_VALUE'], ['allowed_classes' => false]);
+				}
+				unset($arProperty['SERIALIZED']);
+			}
 
 			$rsProperty = $obProperty->GetList(array(), array("IBLOCK_ID"=>$IBLOCK_ID, "XML_ID"=>$arProperty["XML_ID"]));
 			if($arDBProperty = $rsProperty->Fetch())
@@ -3661,6 +3667,10 @@ class CIBlockCMLImport
 						$lPV = mb_strlen($strPV);
 						foreach($value as $k=>$prop_value)
 						{
+							if ($prop_value === null)
+							{
+								continue;
+							}
 							if(mb_substr($k, 0, $lPV) === $strPV)
 							{
 								if(array_key_exists($this->mess["IBLOCK_XML2_SERIALIZED"], $prop_value))
@@ -3693,7 +3703,7 @@ class CIBlockCMLImport
 
 								$arElement["PROPERTY_VALUES"][$prop_id]["n".$i] = array(
 									"VALUE" => $prop_value[$this->mess["IBLOCK_XML2_VALUE"]],
-									"DESCRIPTION" => $prop_value[$this->mess["IBLOCK_XML2_DESCRIPTION"]],
+									"DESCRIPTION" => $prop_value[$this->mess["IBLOCK_XML2_DESCRIPTION"]] ?? null,
 								);
 								$i++;
 							}
@@ -6131,7 +6141,7 @@ class CIBlockCMLExport
 		}
 	}
 
-	function ExportSmartFilter($level, $iblockId, $sectionId = false, $PROPERTY_MAP, $productIblockId = 0)
+	function ExportSmartFilter($level, $iblockId, $sectionId, $PROPERTY_MAP, $productIblockId = 0)
 	{
 		$propertyLinksBySection = array();
 		if ($sectionId === false)

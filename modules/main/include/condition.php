@@ -33,7 +33,7 @@ function ConditionCompose($arRequest, $i=0)
 		$cond='false';
 	elseif ($type=='php')
 		$cond=$arRequest['CONDITION_php'];
-	return $cond;
+	return $cond ?? null;
 }
 
 // Parse string and init vars
@@ -178,7 +178,7 @@ function ConditionJS($arOpt = array())
 		"php"		=> GetMessage("TYPES_PHP")
 	);
 
-	if ($arOpt['enable_false'])
+	if (isset($arOpt['enable_false']) && $arOpt['enable_false'])
 		$arConditionTypes["false"] = GetMessage("TYPES_FALSE");
 ?>
 <script>

@@ -9,10 +9,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @var CBitrixComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
-/** @var bool $backgroundForTask */
-/** @var bool $showPersonalTasks */
-/** @var string $action */
-/** @var int $taskId */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 
@@ -26,26 +22,12 @@ use Bitrix\Tasks\Ui\Filter\Task;
 $pageId = "group_tasks";
 $groupId = (int)$arResult['VARIABLES']['group_id'];
 
-$isBackground = isset($showPersonalTasks) && $showPersonalTasks === true;
-
-if (!$isBackground)
-{
-	include("util_group_menu.php");
-	include("util_group_profile.php");
-}
+include("util_group_menu.php");
+include("util_group_profile.php");
 
 if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 {
-	if (!$isBackground)
-	{
-		include("util_copy_tasks.php");
-	}
-
-	$getParams = [];
-	if ($backgroundForTask)
-	{
-		$getParams = '?' . http_build_query(Context::getCurrent()->getRequest()->getQueryList()->toArray());
-	}
+	include("util_copy_tasks.php");
 
 	$sprintId = -1;
 	$kanbanIsTimelineMode = 'N';
@@ -92,7 +74,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 	}
 
 	$group = Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
-	if (!$isBackground && $group && $group->isScrumProject())
+	if ($group && $group->isScrumProject())
 	{
 		$componentName = 'bitrix:tasks.scrum';
 	}
@@ -105,11 +87,11 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 		"SPRINT_ID" => $sprintId,
 		"GROUP_ID" => $groupId,
 		"ITEMS_COUNT" => "50",
-		"PAGE_VAR" => $arResult["ALIASES"]["page"],
-		"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
-		"VIEW_VAR" => $arResult["ALIASES"]["view_id"],
-		"TASK_VAR" => $arResult["ALIASES"]["task_id"],
-		"ACTION_VAR" => $arResult["ALIASES"]["action"],
+		"PAGE_VAR" => ($arResult["ALIASES"]["page"] ?? ''),
+		"GROUP_VAR" => ($arResult["ALIASES"]["group_id"] ?? ''),
+		"VIEW_VAR" => ($arResult["ALIASES"]["view_id"] ?? ''),
+		"TASK_VAR" => ($arResult["ALIASES"]["task_id"] ?? ''),
+		"ACTION_VAR" => ($arResult["ALIASES"]["action"] ?? ''),
 		"PATH_TO_USER_TASKS_TEMPLATES" => $arParams["PATH_TO_USER_TASKS_TEMPLATES"],
 		"PATH_TO_GROUP_TASKS" => $arResult["PATH_TO_GROUP_TASKS"],
 		"PATH_TO_SCRUM_TEAM_SPEED" => $arResult["PATH_TO_SCRUM_TEAM_SPEED"],
@@ -128,7 +110,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 		"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
-		"SHOW_YEAR" => $arParams["SHOW_YEAR"],
+		"SHOW_YEAR" => ($arParams["SHOW_YEAR"] ?? ''),
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"USE_THUMBNAIL_LIST" => "N",
@@ -136,22 +118,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 		"HIDE_OWNER_IN_TITLE" => $arParams['HIDE_OWNER_IN_TITLE'],
 		"TASKS_ALWAYS_EXPANDED" => 'Y',
 		'LAZY_LOAD' => 'Y',
-		'BACKGROUND_FOR_TASK' => $backgroundForTask,
-		'TASK_ID' => $taskId,
-		'TASK_ACTION' => $action,
-		'GET_PARAMS' => $getParams,
 	];
-
-	if ($isBackground)
-	{
-		$componentParams['PATH_TO_USER_TASKS_REPORT'] = '/company/personal/user/#user_id#/tasks/report/';
-		$componentParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'] = '/company/personal/user/#user_id#/tasks/projects/';
-		$componentParams['USER_ID'] = CurrentUser::get()->getId();
-		$componentParams['STATE'] = $state;
-		$componentParams['PATH_TO_USER_TASKS'] = RouteDictionary::PATH_TO_USER_TASKS_LIST;
-		$componentParams['PATH_TO_USER_TASKS_TASK'] = RouteDictionary::PATH_TO_USER_TASK;
-		unset($componentParams['GROUP_ID']);
-	}
 
 	$APPLICATION->IncludeComponent(
 		"bitrix:ui.sidepanel.wrapper",
@@ -164,7 +131,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 			'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 			'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 			'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $groupId,
-			'USE_PADDING' => !(!$isBackground && $group && $group->isScrumProject()),
+			'USE_PADDING' => !($group && $group->isScrumProject()),
 			'USE_UI_TOOLBAR' => 'Y',
 			'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => $arResult['PAGES_TITLE_TEMPLATE'],
 		]

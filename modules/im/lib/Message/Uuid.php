@@ -59,8 +59,6 @@ class Uuid
 	 * If there is already a record with the same UUID, then we will get false.
 	 *
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @throws \Bitrix\Main\DB\SqlQueryException
 	 */
 	public function add(): bool
 	{
@@ -93,9 +91,6 @@ class Uuid
 	 * Loads record from the table by UUID.
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function loadMessage(): void
 	{
@@ -133,8 +128,6 @@ class Uuid
 
 	/**
 	 * Updates date create in the record by UUID.
-	 *
-	 * @throws \Exception
 	 */
 	private function updateDateCreate(): void
 	{
@@ -147,8 +140,6 @@ class Uuid
 	 * Updates message_id for the certain UUID.
 	 *
 	 * @param int $messageId Message id.
-	 *
-	 * @throws \Exception
 	 */
 	public function updateMessageId(int $messageId): void
 	{
@@ -161,7 +152,6 @@ class Uuid
 	 * Deletes UUID record from the DB table.
 	 *
 	 * @return bool
-	 * @throws \Exception
 	 */
 	public function delete(): bool
 	{
@@ -196,7 +186,6 @@ class Uuid
 	 * Updates UUID record with current date and time, if it is expired.
 	 *
 	 * @return bool
-	 * @throws \Exception
 	 */
 	public function updateIfExpired(): bool
 	{
@@ -214,8 +203,6 @@ class Uuid
 	 * Agent. Deletes old records (older than 30 days) from the table.
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function cleanOldRecords(): string
 	{
@@ -230,6 +217,6 @@ class Uuid
 		$query = "DELETE FROM $tableName WHERE DATE_CREATE < $expiredDateTimePrepared;";
 		$connection->queryExecute($query);
 
-		return '\Bitrix\Im\Message\Uuid::cleanOldRecords();';
+		return __METHOD__. '();';
 	}
 }

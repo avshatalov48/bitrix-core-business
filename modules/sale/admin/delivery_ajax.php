@@ -1,17 +1,17 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @global CMain $APPLICATION
  */
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Delivery\Restrictions;
 
-define("NO_KEEP_STATISTIC", true);
-define("NO_AGENT_STATISTIC", true);
-define("NO_AGENT_CHECK", true);
-define("NOT_CHECK_PERMISSIONS", true);
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_STATISTIC = true;
+const NO_AGENT_CHECK = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 if (isset($_REQUEST['publicMode']) && $_REQUEST['publicMode'] === 'Y')
 {
@@ -25,15 +25,19 @@ if (isset($_REQUEST['publicMode']) && $_REQUEST['publicMode'] === 'Y')
 	define('SELF_FOLDER_URL', '/shop/settings/');
 }
 
-$lang = isset($_REQUEST['lang']) ? trim($_REQUEST['lang']) : "ru";
-\Bitrix\Main\Context::getCurrent()->setLanguage($lang);
+$instance = Application::getInstance();
+$context = $instance->getContext();
+$request = $context->getRequest();
 
-Loc::loadMessages(__FILE__);
+$lang = isset($_REQUEST['lang']) ? trim($_REQUEST['lang']) : "ru";
+$context->setLanguage($lang);
 
 $arResult = array("ERROR" => "");
 
 if (!\Bitrix\Main\Loader::includeModule('sale'))
+{
 	$arResult["ERROR"] = "Error! Can't include module \"Sale\"";
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/delivery/inputs.php");
 
@@ -41,7 +45,7 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
 if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_sessid())
 {
-	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';
+	$action = trim((string)$request->get('action'));
 
 	switch ($action)
 	{
@@ -59,28 +63,44 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			break;
 
 		case "get_restriction_params_html":
-			$className = isset($_REQUEST['className']) ? trim($_REQUEST['className']): '';
-			$params = isset($_REQUEST['params']) ? $_REQUEST['params']: array();
-			$deliveryId = isset($_REQUEST['deliveryId']) ? intval($_REQUEST['deliveryId']) : 0;
-			$sort = isset($_REQUEST['sort']) ? intval($_REQUEST['sort']) : 100;
+			Restrictions\Manager::getClassesList();
+			$className = trim((string)$request->get('className'));
+			$params = $request->get('params');
+			if (!is_array($params))
+			{
+				$params = [];
+			}
+			$sort = (int)($request->get('sort') ?? 100);
+			$deliveryId = (int)$request->get('deliveryId');
+
+			if (!($className && class_exists($className) && is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
+			{
+				throw new \Bitrix\Main\ArgumentNullException('className');
+			}
 
 			/** @var \Bitrix\Sale\Delivery\Restrictions\Base $className*/
-			if(!$className)
-				throw new \Bitrix\Main\ArgumentNullException("className");
-
-			Restrictions\Manager::getClassesList();
 			$paramsStructure = $className::getParamsStructure($deliveryId);
 			$params = htmlspecialcharsback($params);
 			$params = $className::prepareParamsValues($params, $deliveryId);
 
-			$paramsField = "<table width='100%'>";
+			$paramsField = '<table width="100%">';
 
 			foreach($paramsStructure as $name => $param)
 			{
-				$paramsField .= "<tr>".
-					"<td valign=\"top\" style=\"padding-right:20px;\">".($param["LABEL"] <> '' ? $param["LABEL"].": " : "")."</td>".
-					"<td>".\Bitrix\Sale\Internals\Input\Manager::getEditHtml("RESTRICTION[".$name."]", $param, (isset($params[$name]) ? $params[$name] : null))."</td>".
-					"</tr>";
+				$param['LABEL'] = (string)($param['LABEL'] ?? '');
+				$paramsField .= '<tr>'
+					. '<td valign="top" style="padding-right:20px;">'
+					.($param['LABEL'] !== '' ? $param['LABEL'] . ': ' : '')
+					. '</td>'
+					. '<td>'
+					. \Bitrix\Sale\Internals\Input\Manager::getEditHtml(
+						'RESTRICTION[' . $name . ']',
+						$param,
+						$params[$name] ?? null
+					)
+					. '</td>'
+					. '</tr>'
+				;
 			}
 
 			$paramsField .= '<tr>'.
@@ -88,43 +108,55 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				'<td><input type="text" name="SORT" value="'.$sort.'"></td>'.
 				'</tr>';
 
-			if($className::getClassDescription() <> '')
-				$paramsField .= '<tr>'.
-				'<td>'.Loc::getMessage("SALE_DA_DESCR") .':</td>'.
-				'<td><div class="adm-sale-delivery-restriction-descr">'.$className::getClassDescription().'</div></td>'.
-				'</tr>';
+			$description = (string)$className::getClassDescription();
+			if ($description !== '')
+			{
+				$paramsField .=
+					'<tr>'
+					. '<td>'
+					. Loc::getMessage("SALE_DA_DESCR")
+					. ':</td>'
+					. '<td><div class="adm-sale-delivery-restriction-descr">'
+					. $description
+					. '</div></td>'
+					. '</tr>'
+				;
+			}
 
 			$arResult["RESTRICTION_HTML"] = $paramsField."</table>";
 			break;
 
 		case "save_restriction":
-			$className = isset($_REQUEST['className']) ? trim($_REQUEST['className']): '';
-			$params = isset($_REQUEST['params']) ? $_REQUEST['params'] : array();
-			$sort = isset($_REQUEST['sort']) ? intval($_REQUEST['sort']) : 100;
-			$deliveryId = isset($_REQUEST['deliveryId']) ? intval($_REQUEST['deliveryId']) : 0;
-			$restrictionId = isset($_REQUEST['restrictionId']) ? intval($_REQUEST['restrictionId']) : 0;
-
-			if(!$className)
-				throw new \Bitrix\Main\ArgumentNullException("className");
-
-			if(!$deliveryId)
-				throw new \Bitrix\Main\ArgumentNullException("deliveryId");
-
 			Restrictions\Manager::getClassesList();
-
-			/** @var \Bitrix\Sale\Delivery\Restrictions\Base $className*/
-
-			if(!is_subclass_of($className, 'Bitrix\Sale\Services\Base\Restriction'))
+			$className = trim((string)$request->get('className'));
+			$params = $request->get('params');
+			if (!is_array($params))
 			{
-				throw new \Bitrix\Main\SystemException($className.' is not a child of Bitrix\Sale\Services\Base\Restriction'.' ('.get_parent_class($className).')');
+				$params = [];
+			}
+			$sort = (int)($request->get('sort') ?? 100);
+			$deliveryId = (int)$request->get('deliveryId');
+			$restrictionId = (int)$request->get('restrictionId');
+
+			if (!($className && class_exists($className) && is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
+			{
+				throw new \Bitrix\Main\ArgumentNullException('className');
 			}
 
+			if(!$deliveryId)
+			{
+				throw new \Bitrix\Main\ArgumentNullException('deliveryId');
+			}
+
+			/** @var \Bitrix\Sale\Delivery\Restrictions\Base $className*/
 			foreach($className::getParamsStructure() as $key => $rParams)
 			{
 				$errors = \Bitrix\Sale\Internals\Input\Manager::getError($rParams, $params[$key]);
 
-				if(!empty($errors))
-					$arResult["ERROR"] = "Field: \"".$rParams["LABEL"]."\" ".implode("<br>", $errors)."<br>\n";
+				if (!empty($errors))
+				{
+					$arResult['ERROR'] = 'Field: "' . $rParams['LABEL'] . '" ' . implode('<br>', $errors) . "<br>\n";
+				}
 			}
 
 			$fields = array(
@@ -144,14 +176,14 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			break;
 
 		case "delete_restriction":
-			$restrictionId = isset($_REQUEST['restrictionId']) ? intval($_REQUEST['restrictionId']) : 0;
-			$deliveryId = isset($_REQUEST['deliveryId']) ? intval($_REQUEST['deliveryId']) : 0;
+			Restrictions\Manager::getClassesList();
+			$deliveryId = (int)$request->get('deliveryId');
+			$restrictionId = (int)$request->get('restrictionId');
 
 			if(!$restrictionId)
 				throw new \Bitrix\Main\ArgumentNullException('restrictionId');
 
 			$dbRes =  \Bitrix\Sale\Internals\ServiceRestrictionTable::getById($restrictionId);
-			Restrictions\Manager::getClassesList();
 			if($fields = $dbRes->fetch())
 			{
 				$res = $fields["CLASS_NAME"]::delete($restrictionId, $deliveryId);
@@ -184,11 +216,20 @@ if($arResult["ERROR"] <> '')
 else
 	$arResult["RESULT"] = "OK";
 
-if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
-
-header('Content-Type: application/json');
-die(json_encode($arResult));
+$APPLICATION->RestartBuffer();
+header('Content-Type: application/json;  charset=UTF-8');
+try
+{
+	$body = \Bitrix\Main\Web\Json::encode($arResult);
+}
+catch (\Bitrix\Main\ArgumentException $e)
+{
+	$body = json_encode([
+		'RESULT' => 'ERROR',
+		'ERROR' => $e->getMessage(),
+	]);
+}
+\CMain::FinalActions($body);
 
 function getRestrictionHtml($deliveryId)
 {

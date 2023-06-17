@@ -136,6 +136,8 @@ Vue.component(config.templateFieldDiscount,
 				@input="onInputDiscount"
 				placeholder="0"
 				:disabled="!editable"
+				data-name="discount"
+				:data-value="getDiscountInputValue"
 			/>
 			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action"
 				@click="showPopupMenu">

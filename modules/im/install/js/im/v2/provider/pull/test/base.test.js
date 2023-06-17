@@ -1,9 +1,9 @@
 import 'im.test';
 
 import 'im.v2.provider.pull';
-import { EventType } from 'im.v2.const';
-import { Controller } from "im.v2.controller";
-import { ImBasePullHandler } from "im.v2.provider.pull";
+import {EventType} from 'im.v2.const';
+import {Controller} from "im.v2.controller";
+import {ImBasePullHandler} from "im.v2.provider.pull";
 
 //setting controller and pullHandler before each test
 let controller = null;
@@ -40,7 +40,6 @@ describe('Base pull handler', function() {
 			message: getDefaultMessageData({
 				id: getDefaultMessageData().id + 1,
 				text: 'message from messageAdd',
-				textOriginal: 'message from messageAdd',
 			}),
 			notify: true,
 			userBlockChat: {},
@@ -230,7 +229,6 @@ function getDefaultMessageData(additionalData = {})
 		templateFileId: '',
 		templateId: '',
 		text: 'Test message',
-		textOriginal: 'Test message'
 	}, additionalData);
 }
 

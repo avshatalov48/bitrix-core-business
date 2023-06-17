@@ -73,7 +73,7 @@ $APPLICATION->IncludeComponent(
 		'SHOW_CLOSE_POPUP' => (isset($arParams["SHOW_CLOSE_POPUP"]) ? $arParams["SHOW_CLOSE_POPUP"] : ""),
 		'DISPLAY_COMPARE' => (isset($arParams['DISPLAY_COMPARE']) ? $arParams['DISPLAY_COMPARE'] : ''),
 		'COMPARE_PATH' => (isset($arParams['COMPARE_PATH']) ? $arParams['COMPARE_PATH'] : ''),
-		'COMPATIBLE_MODE' => (isset($arParams['COMPATIBLE_MODE']) ? $arParams['COMPATIBLE_MODE'] : '')
+		'COMPATIBLE_MODE' => $arParams['COMPATIBLE_MODE'] ?? 'N',
 	),
 	$component,
 	array('HIDE_ICONS' => 'Y')

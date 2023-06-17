@@ -1,5 +1,4 @@
 <?php
-$MESS["BIPZROC_DEBUGGER_START_TEMPLATE_COMING_SOON"] = "Dieser Modus ist in der Entwicklung. Er wird bald verfügbar sein.";
 $MESS["BIPZROC_DEBUGGER_START_TEMPLATE_FINISH"] = "Stoppen";
 $MESS["BIPZROC_DEBUGGER_START_TEMPLATE_START"] = "Starten";
 $MESS["BIZPROC_DEBUGGER_START_TEMPLATE_INFO_MESSAGE"] = "Mehr über Testmodi";

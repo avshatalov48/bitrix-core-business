@@ -1,12 +1,20 @@
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 IncludeModuleLangFile(__FILE__);
 
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
 $arError = $arSmile = $arFields = $arLang = array();
+$message = null;
 
 /* LANGS */
 $arLangTitle = array("reference_id" => array(), "reference" => array());
@@ -22,7 +30,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '' || $save_and_add <> ''))
+if ($REQUEST_METHOD == "POST" && (!empty($_POST['save']) || !empty($_POST['apply']) || $save_and_add <> ''))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -37,27 +45,27 @@ if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '' || $save_and_add <
 	{
 		$sUploadDir = ($_POST['TYPE'] == CSmile::TYPE_ICON? CSmile::PATH_TO_ICON: CSmile::PATH_TO_SMILE).intval($_REQUEST["SET_ID"]).'/';
 		CheckDirPath($_SERVER["DOCUMENT_ROOT"].$sUploadDir);
-		
+
 		$arSmile = ($ID > 0 ? CSmile::getByID($ID) : $arSmile);
 		$res = CFile::CheckImageFile($_FILES["IMAGE"], 300000, 0, 0);
 		if ($res <> '')
 		{
 			$arError[] = array(
-				"id" => "IMAGE", 
+				"id" => "IMAGE",
 				"text" => $res
 			);
 		}
 		elseif (file_exists($_SERVER["DOCUMENT_ROOT"].$sUploadDir . $fileName) && !(isset($arSmile["IMAGE"]) && $arSmile["IMAGE"] == $fileName))
 		{
 			$arError[] = array(
-				"id" => "IMAGE", 
+				"id" => "IMAGE",
 				"text" => GetMessage("ERROR_EXISTS_IMAGE", array("#FILE#" => str_replace("//", "/", $sUploadDir.$fileName)))
 			);
 		}
 		elseif (!@copy($_FILES["IMAGE"]["tmp_name"], $_SERVER["DOCUMENT_ROOT"].$sUploadDir.$fileName))
 		{
 			$arError[] = array(
-				"id" => "IMAGE", 
+				"id" => "IMAGE",
 				"text" => GetMessage("ERROR_COPY_IMAGE"));
 		}
 		else
@@ -80,7 +88,7 @@ if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '' || $save_and_add <
 	if (empty($arError))
 	{
 		$GLOBALS["APPLICATION"]->ResetException();
-		
+
 		$arFields = array(
 			"SET_ID" => $_REQUEST["SET_ID"],
 			"SORT" => $_REQUEST["SORT"],
@@ -143,7 +151,7 @@ if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '' || $save_and_add <
 					);
 				}
 			}
-			LocalRedirect($apply <> ''?
+			LocalRedirect(!empty($_POST['save']) || !empty($_POST['apply'])?
 				"smile_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false) :
 				($save_and_add <> '' ?
 					"smile_edit.php?lang=".LANG."&TYPE=".($arSmile['TYPE'] == CSmile::TYPE_ICON? CSmile::TYPE_ICON: CSmile::TYPE_SMILE)."&SET_ID=".intval($_REQUEST['SET_ID'])."&".GetFilterParams("filter_", false) :
@@ -166,11 +174,11 @@ if ($bInitVars && !empty($arFields))
 		"SORT" => isset($arFields['SORT'])? intval($arFields['SORT']): 300,
 		"TYPE" => isset($arFields['TYPE'])? htmlspecialcharsbx($arFields['TYPE']): CSmile::TYPE_SMILE,
 		"TYPING" => isset($arFields['TYPING'])? htmlspecialcharsbx($arFields['TYPING']): "",
-		"HIDDEN" => isset($arFields['HIDDEN'])? $arFields['HIDDEN']: "N",
+		"HIDDEN" => $arFields['HIDDEN'] ?? "N",
 		"IMAGE" => "",
-		"IMAGE_DEFINITION" => isset($arFields['IMAGE_DEFINITION'])? $arFields['IMAGE_DEFINITION']: CSmile::IMAGE_SD,
+		"IMAGE_DEFINITION" => $arFields['IMAGE_DEFINITION'] ?? CSmile::IMAGE_SD,
 		"SET_ID" => isset($arFields['SET_ID'])? intval($arFields['SET_ID']): 0,
-		"LANG" => isset($arFields['LANG'])? $arFields['LANG']: array()
+		"LANG" => $arFields['LANG'] ?? array()
 	);
 }
 elseif ($ID > 0)
@@ -178,7 +186,7 @@ elseif ($ID > 0)
 	$arSmile = CSmile::getById($ID, CSmile::GET_ALL_LANGUAGE);
 	$arSmile['LANG'] = $arSmile['NAME'];
 }
-else 
+else
 {
 	if (isset($_REQUEST['LANG']))
 		foreach ($_REQUEST['LANG'] as $key => $value)
@@ -190,9 +198,9 @@ else
 		"TYPING" => isset($_REQUEST['TYPING'])? htmlspecialcharsbx($_REQUEST['TYPING']): "",
 		"HIDDEN" => isset($_REQUEST['HIDDEN'])? "Y": "N",
 		"IMAGE" => "",
-		"IMAGE_DEFINITION" => isset($_REQUEST['IMAGE_DEFINITION'])? $_REQUEST['IMAGE_DEFINITION']: CSmile::IMAGE_SD,
+		"IMAGE_DEFINITION" => $_REQUEST['IMAGE_DEFINITION'] ?? CSmile::IMAGE_SD,
 		"SET_ID" => isset($_REQUEST['SET_ID'])? intval($_REQUEST['SET_ID']): 0,
-		"LANG" => isset($_REQUEST['LANG'])? $_REQUEST['LANG']: array()
+		"LANG" => $_REQUEST['LANG'] ?? array()
 	);
 }
 
@@ -313,7 +321,7 @@ $tabControl->BeginNextTab();
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
 		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
-		<td><input type="text" name="LANG[<?=$key?>]" value="<?=$arSmile["LANG"][$key]?>" size="40" /></td>
+		<td><input type="text" name="LANG[<?=$key?>]" value="<?=($arSmile["LANG"][$key] ?? '')?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>
 
@@ -329,4 +337,4 @@ $tabControl->Buttons(array(
 $tabControl->End();
 $tabControl->ShowWarnings("smile_edit", $message);
 ?>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

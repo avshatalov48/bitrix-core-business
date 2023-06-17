@@ -49,7 +49,7 @@ is_array($arResult['userField']['VALUE'])
 foreach($values as $key => $value)
 {
 	if(
-		$arResult['userField']['ENTITY_VALUE_ID'] < 1
+		(!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] < 1)
 		&&
 		mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 	)

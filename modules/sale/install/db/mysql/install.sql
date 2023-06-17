@@ -1016,92 +1016,92 @@ create table if not exists b_sale_user_transact
 
 create table if not exists b_sale_affiliate_plan
 (
-		 ID int not null auto_increment
-	,  SITE_ID char(2) not null
-	,  NAME varchar(250) not null
-	,  DESCRIPTION text null
-	,  TIMESTAMP_X timestamp not null
-	,  ACTIVE char(1) not null default 'Y'
-	,  BASE_RATE decimal(18,4) not null default '0'
-	,  BASE_RATE_TYPE char(1) not null default 'P'
-	,  BASE_RATE_CURRENCY char(3) null
-	,  MIN_PAY decimal(18,4) not null default '0'
-	,  MIN_PLAN_VALUE decimal(18,4) null
-	,  VALUE_CURRENCY char(3) null
-	,  primary key (ID)
+	ID int not null auto_increment,
+	SITE_ID char(2) not null,
+	NAME varchar(250) not null,
+	DESCRIPTION text null,
+	TIMESTAMP_X timestamp not null,
+	ACTIVE char(1) not null default 'Y',
+	BASE_RATE decimal(18,4) not null default '0',
+	BASE_RATE_TYPE char(1) not null default 'P',
+	BASE_RATE_CURRENCY char(3) null,
+	MIN_PAY decimal(18,4) not null default '0',
+	MIN_PLAN_VALUE decimal(18,4) null,
+	VALUE_CURRENCY char(3) null,
+	primary key (ID)
 );
 
 create table if not exists b_sale_affiliate
 (
-		 ID int not null auto_increment
-	,  SITE_ID char(2) not null
-	,  USER_ID int not null
-	,  AFFILIATE_ID int null
-	,  PLAN_ID int not null
-	,  ACTIVE char(1) not null default 'Y'
-	,  TIMESTAMP_X timestamp not null
-	,  DATE_CREATE datetime not null
-	,  PAID_SUM decimal(18,4) not null default '0'
-	,  APPROVED_SUM decimal(18,4) not null default '0'
-	,  PENDING_SUM decimal(18,4) not null default '0'
-	,  ITEMS_NUMBER int not null default '0'
-	,  ITEMS_SUM decimal(18,4) not null default '0'
-	,  LAST_CALCULATE datetime null
-	,  AFF_SITE varchar(200) null
-	,  AFF_DESCRIPTION text null
-	,  FIX_PLAN char(1) not null default 'N'
-	,  primary key (ID)
-	,  unique IX_SAA_USER_ID(USER_ID, SITE_ID)
-	,  index IX_SAA_AFFILIATE_ID(AFFILIATE_ID)
+	ID int not null auto_increment,
+	SITE_ID char(2) not null,
+	USER_ID int not null,
+	AFFILIATE_ID int null,
+	PLAN_ID int not null,
+	ACTIVE char(1) not null default 'Y',
+	TIMESTAMP_X timestamp not null,
+	DATE_CREATE datetime not null,
+	PAID_SUM decimal(18,4) not null default '0',
+	APPROVED_SUM decimal(18,4) not null default '0',
+	PENDING_SUM decimal(18,4) not null default '0',
+	ITEMS_NUMBER int not null default '0',
+	ITEMS_SUM decimal(18,4) not null default '0',
+	LAST_CALCULATE datetime null,
+	AFF_SITE varchar(200) null,
+	AFF_DESCRIPTION text null,
+	FIX_PLAN char(1) not null default 'N',
+	primary key (ID),
+	unique IX_SAA_USER_ID(USER_ID, SITE_ID),
+	index IX_SAA_AFFILIATE_ID(AFFILIATE_ID)
 );
 
 create table if not exists b_sale_affiliate_plan_section
 (
-		 ID int not null auto_increment
-	,  PLAN_ID int not null
-	,  MODULE_ID varchar(50) not null default 'catalog'
-	,  SECTION_ID varchar(255) not null
-	,  RATE decimal(18,4) not null default '0'
-	,  RATE_TYPE char(1) not null default 'P'
-	,  RATE_CURRENCY char(3) null
-	,  primary key (ID)
-	,  unique IX_SAP_PLAN_ID(PLAN_ID, MODULE_ID, SECTION_ID)
+	ID int not null auto_increment,
+	PLAN_ID int not null,
+	MODULE_ID varchar(50) not null default 'catalog',
+	SECTION_ID varchar(255) not null,
+	RATE decimal(18,4) not null default '0',
+	RATE_TYPE char(1) not null default 'P',
+	RATE_CURRENCY char(3) null,
+	primary key (ID),
+	unique IX_SAP_PLAN_ID(PLAN_ID, MODULE_ID, SECTION_ID)
 );
 
 create table if not exists b_sale_affiliate_tier
 (
-		 ID int not null auto_increment
-	,  SITE_ID char(2) not null
-	,  RATE1 decimal(18,4) not null default '0'
-	,  RATE2 decimal(18,4) not null default '0'
-	,  RATE3 decimal(18,4) not null default '0'
-	,  RATE4 decimal(18,4) not null default '0'
-	,  RATE5 decimal(18,4) not null default '0'
-	,  primary key (ID)
-	,  unique IX_SAT_SITE_ID(SITE_ID)
+	ID int not null auto_increment,
+	SITE_ID char(2) not null,
+	RATE1 decimal(18,4) not null default '0',
+	RATE2 decimal(18,4) not null default '0',
+	RATE3 decimal(18,4) not null default '0',
+	RATE4 decimal(18,4) not null default '0',
+	RATE5 decimal(18,4) not null default '0',
+	primary key (ID),
+	unique IX_SAT_SITE_ID(SITE_ID)
 );
 
 create table if not exists b_sale_affiliate_transact
 (
-		 ID int not null auto_increment
-	,  AFFILIATE_ID int not null
-	,  TIMESTAMP_X timestamp not null
-	,  TRANSACT_DATE datetime not null
-	,  AMOUNT decimal(18,4) not null
-	,  CURRENCY char(3) not null
-	,  DEBIT char(1) not null default 'N'
-	,  DESCRIPTION varchar(100) not null
-	,  EMPLOYEE_ID int null
-	,  primary key (ID)
-	,  index IX_SAT_AFFILIATE_ID(AFFILIATE_ID)
+	ID int not null auto_increment,
+	AFFILIATE_ID int not null,
+	TIMESTAMP_X timestamp not null,
+	TRANSACT_DATE datetime not null,
+	AMOUNT decimal(18,4) not null,
+	CURRENCY char(3) not null,
+	DEBIT char(1) not null default 'N',
+	DESCRIPTION varchar(100) not null,
+	EMPLOYEE_ID int null,
+	primary key (ID),
+	index IX_SAT_AFFILIATE_ID(AFFILIATE_ID)
 );
 
 create table if not exists b_sale_export
 (
-		 ID int not null auto_increment
-	,  PERSON_TYPE_ID int not null
-	,  VARS text null
-	,  primary key (ID)
+	ID int not null auto_increment,
+	PERSON_TYPE_ID int not null,
+	VARS text null,
+	primary key (ID)
 );
 
 create table if not exists b_sale_order_delivery (
@@ -1252,7 +1252,8 @@ create table if not exists b_sale_order_payment_item(
 	QUANTITY DECIMAL(18,4) NOT NULL,
 	XML_ID varchar(255) null,
 	PRIMARY KEY (ID),
-	INDEX IX_S_O_PI_ENTITY_ID_TYPE (ENTITY_ID, ENTITY_TYPE)
+	INDEX IX_S_O_PI_ENTITY_ID_TYPE (ENTITY_ID, ENTITY_TYPE),
+	INDEX IX_S_O_PI_PAYMENT_ID (PAYMENT_ID)
 );
 
 create table if not exists b_sale_product2product

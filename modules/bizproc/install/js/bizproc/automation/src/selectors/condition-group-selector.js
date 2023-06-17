@@ -13,6 +13,7 @@ export class ConditionGroupSelector
 	#itemSelectors: Array<ConditionSelector>;
 	#onOpenFieldMenu: ?(BaseEvent) => void;
 	#onOpenMenu: ?(BaseEvent) => void;
+	#showValuesSelector: boolean;
 	#rootGroupTitle: ?string;
 
 	constructor(conditionGroup: ConditionGroup, options: Object)
@@ -36,37 +37,37 @@ export class ConditionGroupSelector
 			this.#rootGroupTitle = options.rootGroupTitle
 			this.#onOpenFieldMenu = options.onOpenFieldMenu;
 			this.#onOpenMenu = options.onOpenMenu;
+			this.#showValuesSelector = options.showValuesSelector ?? true;
 		}
 	}
 
 	createNode()
 	{
-		const me = this;
 		const conditionNodes = [];
-		const fields = this.#fields;
 
-		this.#conditionGroup.getItems().forEach(function(item)
-		{
+		this.#conditionGroup.getItems().forEach((item) => {
 			const conditionSelector = new ConditionSelector(item[0], {
-				fields: fields,
+				fields: this.#fields,
 				joiner: item[1],
-				fieldPrefix: me.#fieldPrefix,
+				fieldPrefix: this.#fieldPrefix,
 				rootGroupTitle: this.#rootGroupTitle,
 				onOpenFieldMenu: this.#onOpenFieldMenu,
 				onOpenMenu: this.#onOpenMenu,
+				showValuesSelector: this.#showValuesSelector,
 			});
 
 			this.#itemSelectors.push(conditionSelector);
 			conditionNodes.push(conditionSelector.createNode());
-		}, this);
+		});
 
+		const self = this;
 		conditionNodes.push(Dom.create("a", {
 			attrs: { className: "bizproc-automation-popup-settings-link" },
 			text: '[+]',
 			events: {
 				click()
 				{
-					me.addItem(this);
+					self.addItem(this);
 				}
 			}
 		}));
@@ -85,6 +86,7 @@ export class ConditionGroupSelector
 			rootGroupTitle: this.#rootGroupTitle,
 			onOpenFieldMenu: this.#onOpenFieldMenu,
 			onOpenMenu: this.#onOpenMenu,
+			showValuesSelector: this.#showValuesSelector,
 		});
 		this.#itemSelectors.push(conditionSelector);
 

@@ -37,14 +37,7 @@ class CUrlRewriter
 
 	public static function Add($arFields)
 	{
-		if (isset($arFields["SITE_ID"]))
-		{
-			$siteId = $arFields["SITE_ID"];
-		}
-		else
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = $arFields["SITE_ID"] ?? SITE_ID;
 
 		UrlRewriter::add($siteId, $arFields);
 	}

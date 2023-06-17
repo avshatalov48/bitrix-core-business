@@ -70,11 +70,8 @@ class NodeList implements \Iterator {
 
 	public function set(array $values)
 	{
-		if($values !== null)
-		{
-			$this->values = array_values($values);
-			$this->length = count($this->values);
-		}
+		$this->values = array_values($values);
+		$this->length = count($this->values);
 	}
 
 	public function get()

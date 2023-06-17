@@ -6,13 +6,13 @@ namespace Bitrix\Catalog\Controller;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Model\Event;
+use Bitrix\Catalog\RestView\CatalogViewManager;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Rest\Event\EventBind;
 use Bitrix\Rest\Event\EventBindInterface;
-use Bitrix\Rest\Integration\CatalogViewManager;
 use Bitrix\Rest\Integration\Controller\Base;
 
 class Controller extends Base

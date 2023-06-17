@@ -1,30 +1,40 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPStateActivity
-	extends CBPCompositeActivity
-	implements IBPActivityEventListener
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @property-read array Permission */
+/** @property-read int PermissionMode */
+/** @property-read int PermissionScope */
+class CBPStateActivity extends CBPCompositeActivity implements IBPActivityEventListener
 {
 	public $isListenTrigerred = false;
-	public $arActivityState = array();
+	public $arActivityState = [];
 
 	protected $nextStateName = "";
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "", "Permission" => array());
+		$this->arProperties = [
+			"Title" => "",
+			"Permission" => [],
+			"PermissionMode" => null,
+			"PermissionScope" => null,
+		];
 	}
 
 	public function ToString()
 	{
-		return $this->name.
-			" [".get_class($this)."] (status=".
-			CBPActivityExecutionStatus::Out($this->executionStatus).
-			", isListenTrigerred=".
-			$this->isListenTrigerred.
-			", count(arActivityState)=".
-			count($this->arActivityState).
+		return $this->name .
+			" [" . get_class($this) . "] (status=" .
+			CBPActivityExecutionStatus::Out($this->executionStatus) .
+			", isListenTrigerred=" .
+			$this->isListenTrigerred .
+			", count(arActivityState)=" .
+			count($this->arActivityState) .
 			")";
 	}
 
@@ -36,25 +46,45 @@ class CBPStateActivity
 	public function Execute()
 	{
 		$this->nextStateName = "";
-		$this->arActivityState = array();
+		$this->arActivityState = [];
 		$this->isListenTrigerred = false;
 
-		$s = array();
-		$arPermissionTmp = $this->Permission;
-		if (is_array($arPermissionTmp))
+		$permissionText = [];
+		$permissions = $this->Permission;
+		$permissionMode = $this->PermissionMode;
+		$permissionScope = $this->PermissionScope;
+
+		if (is_array($permissions))
 		{
-			foreach ($arPermissionTmp as $k1 => $v1)
+			foreach ($permissions as $k1 => $v1)
 			{
-				$v2 = array();
+				$v2 = [];
 				foreach ($v1 as $v3)
-					$v2[] = (mb_strpos($v3, "{=") === 0 ? $v3 : "{=user:".$v3."}");
+				{
+					$v2[] = (mb_strpos($v3, "{=") === 0 ? $v3 : "{=user:" . $v3 . "}");
+				}
 				if (count($v2) > 0)
-					$s[] = $k1.": ".implode(", ", $v2);
+				{
+					$permissionText[] = $k1 . ": " . implode(", ", $v2);
+				}
 			}
 		}
 
-		if (count($s) > 0)
-			$this->WriteToTrackingService(str_replace("#VAL#", implode(";", $s), GetMessage("BPSA_TRACK_1")));
+		if (!empty($permissionMode))
+		{
+			$permissions['__mode'] = $permissionMode;
+		}
+		if (!empty($permissionScope))
+		{
+			$permissions['__scope'] = $permissionScope;
+		}
+
+		if ($permissionText)
+		{
+			$this->WriteToTrackingService(
+				GetMessage("BPSA_TRACK_1", ['#VAL#' => implode(";", $permissionText)])
+			);
+		}
 
 		$stateService = $this->workflow->GetService("StateService");
 
@@ -62,19 +92,21 @@ class CBPStateActivity
 		for ($i = 0, $sz = sizeof($this->arActivities); $i < $sz; $i++)
 		{
 			if (is_a($this->arActivities[$i], "CBPStateInitializationActivity"))
+			{
 				$stateInitialization = $this->arActivities[$i];
+			}
 		}
 
 		if ($stateInitialization != null)
 		{
 			$stateService->SetState(
 				$this->GetWorkflowInstanceId(),
-				array(
+				[
 					"STATE" => $this->name,
 					"TITLE" => $this->Title,
-					"PARAMETERS" => array(),
-				),
-				$this->Permission
+					"PARAMETERS" => [],
+				],
+				$permissions
 			);
 
 			$stateInitialization->AddStatusChangeHandler(self::ClosedEvent, $this);
@@ -86,12 +118,12 @@ class CBPStateActivity
 		{
 			$stateService->SetState(
 				$this->GetWorkflowInstanceId(),
-				array(
+				[
 					"STATE" => $this->name,
 					"TITLE" => $this->Title,
-					"PARAMETERS" => array(),//$this->GetAvailableStateEvents(),
-				),
-				$this->Permission
+					"PARAMETERS" => [],
+				],
+				$permissions
 			);
 
 			return $this->ExecuteState();
@@ -104,7 +136,9 @@ class CBPStateActivity
 		{
 			$eventDriven = $this->arActivities[$i];
 			if (!is_a($eventDriven, "CBPEventDrivenActivity"))
+			{
 				continue;
+			}
 
 			$l = new CBPStateEventActivitySubscriber($eventDriven);
 			$this->arActivityState[$i] = $l;
@@ -114,12 +148,14 @@ class CBPStateActivity
 		}
 
 		if (count($this->arActivityState) > 0)
+		{
 			return CBPActivityExecutionStatus::Executing;
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public function OnEvent(CBPActivity $sender, $arEventParameters = array())
+	public function OnEvent(CBPActivity $sender, $arEventParameters = [])
 	{
 		$sender->RemoveStatusChangeHandler(self::ClosedEvent, $this);
 
@@ -133,7 +169,9 @@ class CBPStateActivity
 				for ($i = 0, $s = sizeof($this->arActivities); $i < $s; $i++)
 				{
 					if (is_a($this->arActivities[$i], "CBPStateFinalizationActivity"))
+					{
 						$stateFinalization = $this->arActivities[$i];
+					}
 				}
 				if ($stateFinalization != null)
 				{
@@ -147,12 +185,11 @@ class CBPStateActivity
 			}
 			else
 			{
-				//$stateService = $this->workflow->GetService("StateService");
-				//$stateService->SetStateParameters($this->GetWorkflowInstanceId(), $this->GetAvailableStateEvents());
-
 				$status = $this->ExecuteState();
 				if ($status != CBPActivityExecutionStatus::Executing)
+				{
 					$bCloseActivity = true;
+				}
 			}
 		}
 		elseif (is_a($sender, "CBPStateFinalizationActivity"))
@@ -167,7 +204,9 @@ class CBPStateActivity
 				for ($i = 0, $s = sizeof($this->arActivities); $i < $s; $i++)
 				{
 					if (is_a($this->arActivities[$i], "CBPStateFinalizationActivity"))
+					{
 						$stateFinalization = $this->arActivities[$i];
+					}
 				}
 			}
 
@@ -184,12 +223,14 @@ class CBPStateActivity
 
 		if ($bCloseActivity)
 		{
-			$this->arActivityState = array();
+			$this->arActivityState = [];
 			$this->isListenTrigerred = false;
 
-			$arEP = array();
+			$arEP = [];
 			if ($this->nextStateName <> '')
+			{
 				$arEP["NextStateName"] = $this->nextStateName;
+			}
 
 			$this->workflow->CloseActivity($this, $arEP);
 		}
@@ -210,54 +251,32 @@ class CBPStateActivity
 
 			$flag = false;
 			if ($activity2->executionStatus == CBPActivityExecutionStatus::Executing)
+			{
 				$this->workflow->CancelActivity($activity2);
+			}
 		}
 
 		if (!$flag)
+		{
 			return $this->executionStatus;
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	/**
-	* Returns available events for current state
-	*
-	*/
-	private function GetAvailableStateEvents()
-	{
-		$ar = array();
-
-		for ($i = 0, $cnt = count($this->arActivities); $i < $cnt; $i++)
-		{
-			$activity2 = $this->arActivities[$i];
-			if (is_a($activity2, "CBPEventDrivenActivity"))
-			{
-				$activity3 = $activity2->GetEventActivity();
-
-				if (is_a($activity3, "CBPHandleExternalEventActivity"))
-				{
-					$ar[] = array(
-						"NAME" => $activity3->name,
-						"TITLE" => $activity3->Title,
-						"PERMISSION" => $activity3->Permission,
-					);
-				}
-			}
-		}
-
-		return $ar;
-	}
-
 	public static function ValidateChild($childActivity, $bFirstChild = false)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		$child = "CBP".$childActivity;
+		$child = "CBP" . $childActivity;
 
 		$bCorrect = false;
 		while ($child <> '')
 		{
-			if (in_array($child, array("CBPStateInitializationActivity", "CBPStateFinalizationActivity", "CBPEventDrivenActivity")))
+			if (
+				in_array($child,
+					["CBPStateInitializationActivity", "CBPStateFinalizationActivity", "CBPEventDrivenActivity"])
+			)
 			{
 				$bCorrect = true;
 				break;
@@ -266,24 +285,22 @@ class CBPStateActivity
 		}
 
 		if (!$bCorrect)
-			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPSA_INVALID_CHILD_1"));
+		{
+			$arErrors[] = ["code" => "WrongChildType", "message" => GetMessage("BPSA_INVALID_CHILD_1")];
+		}
 
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
-	{
-		$arErrors = array();
-
-//		if (!array_key_exists("Permission", $arTestProperties) || count($arTestProperties["Permission"]) <= 0)
-//		{
-//			$arErrors[] = array("code" => "NotExist", "parameter" => "Permission", "message" => GetMessage("BPSA_EMPTY_PERMS_1"));
-//		}
-
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
-	}
-
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = ""
+	)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 
@@ -292,64 +309,104 @@ class CBPStateActivity
 
 		if (!is_array($arCurrentValues))
 		{
+			$arCurrentValues = [
+				'perm_mode' => CBPSetPermissionsMode::Clear,
+				'perm_scope' => CBPSetPermissionsMode::ScopeWorkflow,
+			];
+
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"]) && array_key_exists("Permission", $arCurrentActivity["Properties"]))
+			if (
+				is_array($arCurrentActivity["Properties"])
+				&& array_key_exists("Permission", $arCurrentActivity["Properties"])
+			)
 			{
 				foreach ($arAllowableOperations as $operationKey => $operationValue)
 				{
-					$current = $documentService->toExternalOperations($documentType, $arCurrentActivity["Properties"]["Permission"]);
+					$current = $documentService->toExternalOperations(
+						$documentType,
+						$arCurrentActivity["Properties"]["Permission"]
+					);
 
-					$arCurrentValues["permission_".$operationKey] = CBPHelper::UsersArrayToString(
+					$arCurrentValues["permission_" . $operationKey] = CBPHelper::UsersArrayToString(
 						$current[$operationKey],
 						$arWorkflowTemplate,
 						$documentType
 					);
 				}
 			}
+
+			if (!empty($arCurrentActivity["Properties"]["PermissionMode"]))
+			{
+				$arCurrentValues["perm_mode"] = $arCurrentActivity["Properties"]["PermissionMode"];
+			}
+			if (!empty($arCurrentActivity["Properties"]["PermissionScope"]))
+			{
+				$arCurrentValues["perm_scope"] = $arCurrentActivity["Properties"]["PermissionScope"];
+			}
 		}
-		
+
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
 			"properties_dialog.php",
-			array(
+			[
 				"arAllowableOperations" => $arAllowableOperations,
 				"arCurrentValues" => $arCurrentValues,
 				"formName" => $formName,
-			)
+				'isExtendedPermsSupported' => $documentService->isExtendedPermsSupported($documentType),
+			]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$errors
+	)
 	{
-		$arErrors = array();
+		$errors = [];
+		$properties = ["Permission" => []];
 
-		$runtime = CBPRuntime::GetRuntime();
-
-		$arProperties = array("Permission" => array());
-
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::GetRuntime()->GetService("DocumentService");
 		$arAllowableOperations = $documentService->GetAllowableOperations($documentType);
 
 		foreach ($arAllowableOperations as $operationKey => $operationValue)
 		{
-			$arProperties["Permission"][$operationKey] = CBPHelper::UsersStringToArray($arCurrentValues["permission_".$operationKey], $documentType, $arErrors);
-			if (count($arErrors) > 0)
+			$properties["Permission"][$operationKey] = CBPHelper::UsersStringToArray(
+				$arCurrentValues["permission_" . $operationKey],
+				$documentType,
+				$errors
+			);
+			if ($errors)
+			{
 				return false;
+			}
 		}
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
-		if (count($arErrors) > 0)
+		$properties["PermissionMode"] = $arCurrentValues["perm_mode"] ?? null;
+		$properties["PermissionScope"] = $arCurrentValues["perm_scope"] ?? null;
+
+		$errors = self::ValidateProperties(
+			$properties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
+
+		if ($errors)
+		{
 			return false;
+		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+		$arCurrentActivity["Properties"] = $properties;
 
 		return true;
 	}
 }
 
-final class CBPStateEventActivitySubscriber
-	implements IBPActivityExternalEventListener
+final class CBPStateEventActivitySubscriber implements IBPActivityExternalEventListener
 {
 	private $eventDrivenActivity;
 
@@ -360,16 +417,18 @@ final class CBPStateEventActivitySubscriber
 
 	public function ToString()
 	{
-		return "eventDrivenActivity = ".$this->eventDrivenActivity->ToString();
+		return "eventDrivenActivity = " . $this->eventDrivenActivity->ToString();
 	}
 
-	public function OnExternalEvent($arEventParameters = array())
+	public function OnExternalEvent($arEventParameters = [])
 	{
 		$stateActivity = $this->eventDrivenActivity->parent;
 
-		if (!$stateActivity->isListenTrigerred
+		if (
+			!$stateActivity->isListenTrigerred
 			&& ($stateActivity->executionStatus != CBPActivityExecutionStatus::Canceling)
-			&& ($stateActivity->executionStatus != CBPActivityExecutionStatus::Closed))
+			&& ($stateActivity->executionStatus != CBPActivityExecutionStatus::Closed)
+		)
 		{
 			$stateActivity->isListenTrigerred = true;
 
@@ -378,13 +437,17 @@ final class CBPStateEventActivitySubscriber
 			{
 				$activity2 = $arActivities[$i];
 				if (!is_a($activity2, "CBPEventDrivenActivity"))
+				{
 					continue;
+				}
 
 				$parentEventHandler = $stateActivity->arActivityState[$i];
 
 				$activity3 = $activity2->GetEventActivity();
 				if (method_exists($activity3, 'OnStateExternalEvent'))
+				{
 					$activity3->OnStateExternalEvent($arEventParameters);
+				}
 				$activity3->Unsubscribe($parentEventHandler);
 			}
 
@@ -393,4 +456,3 @@ final class CBPStateEventActivitySubscriber
 		}
 	}
 }
-?>

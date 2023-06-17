@@ -61,12 +61,12 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		$this->preparePathsParams($params);
 
 		$params['DATE_TIME_FORMAT'] = trim(empty($params['DATE_TIME_FORMAT']) ? CDatabase::dateFormatToPHP(CSite::getDateFormat()) : $params['DATE_TIME_FORMAT']);
-		$params['SHORT_FORM'] = ($params['SHORT_FORM'] === 'Y');
+		$params['SHORT_FORM'] = (($params['SHORT_FORM'] ?? '') === 'Y');
 		$params['ITEMS_COUNT'] = ((int)$params['ITEMS_COUNT'] > 0 ? (int)$params['ITEMS_COUNT'] : 6);
 		$params['USE_MAIN_MENU'] = (isset($params['USE_MAIN_MENU']) && $params['USE_MAIN_MENU'] === 'Y' ? 'Y' : 'N');
 		$params['GROUP_PROPERTY'] = (isset($params['GROUP_PROPERTY']) && is_array($params['GROUP_PROPERTY']) ? $params['GROUP_PROPERTY'] : []);
 		$params['NAME_TEMPLATE'] = ($params['NAME_TEMPLATE'] ?? CSite::getNameFormat());
-		$params['SHOW_LOGIN'] = ($params['SHOW_LOGIN'] !== 'N' ? 'Y' : 'N');
+		$params['SHOW_LOGIN'] = (($params['SHOW_LOGIN'] ?? null) !== 'N' ? 'Y' : 'N');
 
 		$tooltipParams = ComponentHelper::checkTooltipComponentParams($params);
 		$params['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
@@ -74,11 +74,11 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 
 		$params['CAN_OWNER_EDIT_DESKTOP'] = (
 			ModuleManager::isModuleInstalled('intranet')
-			? ($params['CAN_OWNER_EDIT_DESKTOP'] !== 'Y' ? 'N' : 'Y')
-			: ($params['CAN_OWNER_EDIT_DESKTOP'] !== 'N' ? 'Y' : 'N')
+			? (($params['CAN_OWNER_EDIT_DESKTOP'] ?? null) !== 'Y' ? 'N' : 'Y')
+			: (($params['CAN_OWNER_EDIT_DESKTOP'] ?? null) !== 'N' ? 'Y' : 'N')
 		);
 
-		$params['GROUP_USE_BAN'] = $params['GROUP_USE_BAN'] !== 'N' ? 'Y' : 'N';
+		$params['GROUP_USE_BAN'] = ($params['GROUP_USE_BAN'] ?? null) !== 'N' ? 'Y' : 'N';
 
 		return $params;
 	}
@@ -86,6 +86,10 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 	public function executeComponent()
 	{
 		$this->arResult = $this->prepareData();
+		if ($this->arResult === false)
+		{
+			$this->arResult = [];
+		}
 
 		if (!empty($this->getErrors()))
 		{
@@ -144,21 +148,23 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			}
 		}
 
+		$groupUsers = ($params['group_users'] ?? '');
+
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_CREATE', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_create&' . $params['USER_VAR'] . '=#user_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_REQUEST_SEARCH', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_request_search&' . $params['GROUP_VAR'] . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_USER_REQUEST_GROUP', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=user_request_group&' . $params['USER_VAR'] . '=#user_id#&' . $params['GROUP_VAR'] . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_REQUESTS', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_requests&' . $params['GROUP_VAR'] . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_REQUESTS_OUT', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_requests_out&' . $params['GROUP_VAR'] . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_MODS', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_mods&' . $params['GROUP_VAR'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_USERS', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_mods&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_USER_LEAVE_GROUP', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=user_leave_group&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_FEATURES', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_features&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_SUBSCRIBE', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_subscribe&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_DELETE', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_delete&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_BAN', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_ban&' . $params['group_users'] . '=#group_id#'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_MESSAGE_TO_GROUP', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=message_to_group&' . $params['group_users'] . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_USERS', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_mods&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_USER_LEAVE_GROUP', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=user_leave_group&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_FEATURES', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_features&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_SUBSCRIBE', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_subscribe&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_DELETE', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_delete&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_BAN', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group_ban&' . $groupUsers . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_MESSAGE_TO_GROUP', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=message_to_group&' . $groupUsers . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_SEARCH', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=search'));
-		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_LOG', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group-log&' . $params['group_users'] . '=#group_id#'));
+		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_GROUP_LOG', htmlspecialcharsbx($APPLICATION->getCurPage() . '?' . $params['PAGE_VAR'] . '=group-log&' . $groupUsers . '=#group_id#'));
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_CONPANY_DEPARTMENT', Path::get('department_path_template'));
 
 		ComponentHelper::checkEmptyParamString($params, 'PATH_TO_USER_LOG', (ModuleManager::isModuleInstalled('intranet') ? SITE_DIR . 'company/personal/log/' : SITE_DIR . '/club/log/'));
@@ -176,7 +182,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 
 		$result['IS_IFRAME'] = (
 			\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
-			|| $this->arParams['IFRAME'] === 'Y'
+			|| ($this->arParams['IFRAME'] ?? null) === 'Y'
 		);
 
 		$groupFields = CSocNetGroup::getById($this->arParams['GROUP_ID']);
@@ -245,6 +251,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			&& CSocNetSubscription::isUserSubscribed($USER->getId(), 'SG'.$this->arParams['GROUP_ID'])
 		);
 
+		$result['bUserCanRequestGroup'] = null;
 		if (
 			$result['Group']['VISIBLE'] === 'Y'
 			&& !$result['bExtranet']
@@ -271,6 +278,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			$result['bDescriptionOpen'] = true;
 		}
 
+		$result['bShowRequestSentMessage'] = null;
 		//display flag to show information when the group request is sent
 		if (
 			$result['CurrentUserPerms']['UserRole'] === UserToGroupTable::ROLE_REQUEST
@@ -342,7 +350,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		$result['Urls']['Subscribe'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_SUBSCRIBE'], [ 'group_id' => $result['Group']['ID'] ]);
 		$result['Urls']['MessageToGroup'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_MESSAGE_TO_GROUP'], [ 'group_id' => $result['Group']['ID'] ]);
 		$result['Urls']['GroupLog'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_LOG'], [ 'group_id' => $result['Group']['ID'] ]);
-		$result['Urls']['Copy'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_COPY'], [ 'group_id' => $result['Group']['ID'] ]);
+		$result['Urls']['Copy'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_COPY'] ?? '', [ 'group_id' => $result['Group']['ID'] ]);
 	}
 
 	private function setGroupAvatar(&$result): void
@@ -569,7 +577,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		]);
 
 		$result = [
-			'ID' => $userFields['ID'],
+			'ID' => $userFields['ID'] ?? 0,
 			'USER_ID' => $userFields['USER_ID'],
 			'USER_NAME' => $userFields['USER_NAME'],
 			'USER_LAST_NAME' => $userFields['USER_LAST_NAME'],
@@ -602,9 +610,13 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 		else
 		{
-			$resizedImageFields = [ 'src' => '' ];
+			$resizedImageFields = ['src' => ''];
 		}
 
+		if (!is_array($result['USER_PERSONAL_PHOTO_FILE']))
+		{
+			$result['USER_PERSONAL_PHOTO_FILE'] = [];
+		}
 		$result['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'] = $resizedImageFields['src'];
 		$result['NAME_FORMATTED'] = \CUser::formatName(
 			$this->arParams['NAME_TEMPLATE'],

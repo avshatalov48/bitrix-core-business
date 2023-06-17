@@ -51,7 +51,7 @@ $nodes = [$arResult['userField']['~id']];
 	id="<?= $arResult['userField']['~id'] ?>_select"
 >
 	<?php
-	if(count($arResult['value']))
+	if(!empty($arResult['value']))
 	{
 		foreach($arResult['value'] as $value)
 		{

@@ -218,11 +218,11 @@ if ($bAutocomplete)
 }
 else
 {
-	if ($return_url != '' && mb_strtolower(mb_substr($return_url, mb_strlen($APPLICATION->GetCurPage()))) == mb_strtolower($APPLICATION->GetCurPage()))
+	if ($return_url !== '' && mb_strtolower(mb_substr($return_url, mb_strlen($APPLICATION->GetCurPage()))) == mb_strtolower($APPLICATION->GetCurPage()))
 		$return_url = '';
-	if ($return_url == '')
+	if ($return_url === '')
 	{
-		if ($from == 'iblock_section_admin')
+		if ($from === 'iblock_section_admin')
 		{
 			$return_url = CIBlock::GetAdminSectionListLink($IBLOCK_ID, [
 				"find_section_section" => $find_section_section,
@@ -693,7 +693,7 @@ do{ //one iteration loop
 				{
 					$PROP[$k1][$prop_value_id] = CIBlock::makeFilePropArray(
 						$PROP[$k1][$prop_value_id],
-						$PROP_del[$k1][$prop_value_id] === "Y",
+						($PROP_del[$k1][$prop_value_id] ?? 'N') === "Y",
 						$_POST["DESCRIPTION_PROP"][$k1][$prop_value_id] ?? $_POST["PROP_descr"][$k1][$prop_value_id]
 					);
 				}
@@ -1386,7 +1386,7 @@ do{ //one iteration loop
 
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-				if($apply == '' && $save_and_add == '')
+				if($request->getPost('apply') === null && $request->getPost('save_and_add') === null)
 				{
 					if ($bAutocomplete)
 					{
@@ -1624,7 +1624,8 @@ else
 		}
 	}
 
-	$str_IBLOCK_ELEMENT_SECTION = Array();
+	$str_IBLOCK_ELEMENT_SECTION = [];
+	$str_IBLOCK_SECTION_ID = null;
 	$str_ACTIVE = $arIBlock["FIELDS"]["ACTIVE"]["DEFAULT_VALUE"] === "N"? "N": "Y";
 	$str_NAME = htmlspecialcharsbx($arIBlock["FIELDS"]["NAME"]["DEFAULT_VALUE"]);
 	$str_CODE = '';
@@ -1770,9 +1771,10 @@ else
 				[
 					'ID',
 					'NAME',
-				]
+				],
+				true
 			);
-			while($ar_nav = $nav->GetNext())
+			foreach ($nav as $ar_nav)
 			{
 				$sSectionUrl = CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>$ar_nav["ID"]));
 				$adminChain->AddItem(array(
@@ -2646,7 +2648,7 @@ $tabControl->EndCustomField("PREVIEW_PICTURE", "");
 $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("IBLOCK_FIELD_PREVIEW_TEXT"), $arIBlock["FIELDS"]["PREVIEW_TEXT"]["IS_REQUIRED"] === "Y");
 ?>
 	<tr class="heading" id="tr_PREVIEW_TEXT_LABEL">
-		<td colspan="2"><?echo $tabControl->GetCustomLabelHTML()?></td>
+		<td colspan="2"><?= $tabControl->GetCustomLabelHTML()?></td>
 	</tr>
 	<?if($ID && $PREV_ID && $bWorkflow):?>
 	<tr id="tr_PREVIEW_TEXT_DIFF">
@@ -2984,25 +2986,35 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 		<td width="40%" class="adm-detail-valign-top"><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<td width="60%">
 			<table class="internal" id="sections">
-			<?
+			<?php
 			if(is_array($str_IBLOCK_ELEMENT_SECTION))
 			{
 				$i = 0;
 				foreach($str_IBLOCK_ELEMENT_SECTION as $section_id)
 				{
-					$rsChain = CIBlockSection::GetNavChain($IBLOCK_ID, $section_id);
+					$rsChain = CIBlockSection::GetNavChain(
+						$IBLOCK_ID,
+						$section_id,
+						[
+							'ID',
+							'NAME',
+						],
+						true
+					);
 					$strPath = "";
-					while($arChain = $rsChain->GetNext())
-						$strPath .= $arChain["NAME"]."&nbsp;/&nbsp;";
-					if($strPath <> '')
+					foreach ($rsChain as $arChain)
+					{
+						$strPath .= htmlspecialcharsbx($arChain["NAME"]) . "&nbsp;/&nbsp;";
+					}
+					if ($strPath !== '')
 					{
 						?><tr>
-							<td nowrap><?echo $strPath?></td>
+							<td nowrap><?= $strPath; ?></td>
 							<td>
-							<input type="button" value="<?echo GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">
-							<input type="hidden" name="IBLOCK_SECTION[]" value="<?echo intval($section_id)?>">
+							<input type="button" value="<?= GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">
+							<input type="hidden" name="IBLOCK_SECTION[]" value="<?= (int)$section_id; ?>">
 							</td>
-						</tr><?
+						</tr><?php
 					}
 					$i++;
 				}
@@ -3192,25 +3204,35 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 		<td width="40%" class="adm-detail-valign-top"><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<td width="60%">
 			<table id="sections" class="internal">
-			<?
+			<?php
 			if(is_array($str_IBLOCK_ELEMENT_SECTION))
 			{
 				$i = 0;
 				foreach($str_IBLOCK_ELEMENT_SECTION as $section_id)
 				{
-					$rsChain = CIBlockSection::GetNavChain($IBLOCK_ID, $section_id);
+					$rsChain = CIBlockSection::GetNavChain(
+						$IBLOCK_ID,
+						$section_id,
+						[
+							'ID',
+							'NAME',
+						],
+						true
+					);
 					$strPath = "";
-					while($arChain = $rsChain->GetNext())
-						$strPath .= $arChain["NAME"]."&nbsp;/&nbsp;";
-					if($strPath <> '')
+					foreach ($rsChain as $arChain)
+					{
+						$strPath .= htmlspecialcharsbx($arChain["NAME"]) . "&nbsp;/&nbsp;";
+					}
+					if ($strPath !== '')
 					{
 						?><tr>
-							<td><?echo $strPath?></td>
+							<td><?= $strPath; ?></td>
 							<td>
-							<input type="button" value="<?echo GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">
-							<input type="hidden" name="IBLOCK_SECTION[]" value="<?echo intval($section_id)?>">
+							<input type="button" value="<?= GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">
+							<input type="hidden" name="IBLOCK_SECTION[]" value="<?= (int)$section_id; ?>">
 							</td>
-						</tr><?
+						</tr><?php
 					}
 					$i++;
 				}

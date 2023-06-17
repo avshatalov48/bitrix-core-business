@@ -116,6 +116,7 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	 * @return mixed Can return all value types.
 	 * @since 5.0.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		if (isset($this->items[$offset]) || array_key_exists($offset, $this->items))
@@ -140,7 +141,7 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if($offset === null)
 		{
@@ -163,7 +164,7 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->items[$offset]);
 	}
@@ -175,7 +176,7 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	 * which is a value of any type other than a resource.
 	 * @since 5.4.0
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		return $this->toArray();
 	}

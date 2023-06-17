@@ -55,7 +55,7 @@ class CAllEventMessage
 			($ID===false && !is_set($arFields, "LID")) ||
 			(is_set($arFields, "LID")
 			&& (
-				(is_array($arFields["LID"]) && count($arFields["LID"])<=0)
+				(is_array($arFields["LID"]) && empty($arFields["LID"]))
 				||
 				(!is_array($arFields["LID"]) && $arFields["LID"] == '')
 				)
@@ -156,7 +156,7 @@ class CAllEventMessage
 		{
 			$ID = $result->getId();
 
-			if(count($arLID)>0)
+			if(!empty($arLID))
 			{
 				Mail\Internal\EventMessageSiteTable::delete($ID);
 				$resultDb = \Bitrix\Main\SiteTable::getList(array(
@@ -172,7 +172,7 @@ class CAllEventMessage
 				}
 			}
 
-			if(count($arATTACHMENT_FILE)>0)
+			if(!empty($arATTACHMENT_FILE))
 			{
 				foreach($arATTACHMENT_FILE as $file_id)
 				{
@@ -236,7 +236,7 @@ class CAllEventMessage
 
 		$ID = intval($ID);
 		Mail\Internal\EventMessageTable::update($ID, $arFields);
-		if(count($arLID)>0)
+		if(!empty($arLID))
 		{
 			Mail\Internal\EventMessageSiteTable::delete($ID);
 			$resultDb = \Bitrix\Main\SiteTable::getList(array(
@@ -252,7 +252,7 @@ class CAllEventMessage
 			}
 		}
 
-		if(count($arATTACHMENT_FILE)>0)
+		if(!empty($arATTACHMENT_FILE))
 		{
 			foreach($arATTACHMENT_FILE as $file_id)
 			{
@@ -391,7 +391,7 @@ class CAllEventMessage
 			{
 				if(is_array($val))
 				{
-					if(count($val) <= 0)
+					if(empty($val))
 						continue;
 				}
 				else
@@ -404,18 +404,18 @@ class CAllEventMessage
 				switch($key)
 				{
 					case "ID":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%='.$key] = $val;
 						break;
 					case "TYPE":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch[] = array('LOGIC' => 'OR', 'EVENT_NAME' => $val, 'EVENT_MESSAGE_TYPE.NAME' => $val);
 						break;
 					case "EVENT_NAME":
 					case "TYPE_ID":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%=EVENT_NAME'] = $val;
 						break;
@@ -440,22 +440,22 @@ class CAllEventMessage
 						$arSearch['='.$key] = $val;
 						break;
 					case "FROM":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%=EMAIL_FROM'] = $val;
 						break;
 					case "TO":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%=EMAIL_TO'] = $val;
 						break;
 					case "BCC":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%='.$key] = $val;
 						break;
 					case "SUBJECT":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%='.$key] = $val;
 						break;
@@ -463,7 +463,7 @@ class CAllEventMessage
 						$arSearch[$key] = ($val=="text") ? 'text' : 'html';
 						break;
 					case "BODY":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						if($match == 'Y') $val = '%'.$val.'%';
 						$arSearch['%=MESSAGE'] = $val;
 						break;
@@ -569,12 +569,9 @@ class CEventType
 		}
 		elseif ($action == "UPDATE")
 		{
-			if (empty($ID) && (empty($ID["ID"]) || (empty($ID["EVENT_NAME"]))))
+			if (empty($ID))
 			{
-				if (empty($ID))
-					$aMsg[] = array("id"=>"EVENT_ID_EMPTY", "text"=>GetMessage("EVENT_ID_EMPTY"));
-				else
-					$aMsg[] = array("id"=>"EVENT_NAME_LID_EMPTY", "text"=>GetMessage("EVENT_ID_EMPTY"));
+				$aMsg[] = array("id"=>"EVENT_ID_EMPTY", "text"=>GetMessage("EVENT_ID_EMPTY"));
 			}
 
 			if(isset($arFields["EVENT_TYPE"]) && $arFields["EVENT_TYPE"] == '')
@@ -599,11 +596,10 @@ class CEventType
 
 					if ($db_res && ($res = $db_res->Fetch()))
 					{
-						if (($action == "UPDATE") &&
-							((is_set($ID, "EVENT_NAME") && is_set($ID, "LID") &&
+						if ((is_set($ID, "EVENT_NAME") && is_set($ID, "LID") &&
 								(($res["EVENT_NAME"] != $ID["EVENT_NAME"]) || ($res["LID"] != $ID["LID"]))) ||
 								(is_set($ID, "ID") && $res["ID"] != $ID["ID"]) ||
-								(is_set($ID, "EVENT_NAME") && ($res["EVENT_NAME"] != $ID["EVENT_NAME"]))))
+								(is_set($ID, "EVENT_NAME") && ($res["EVENT_NAME"] != $ID["EVENT_NAME"])))
 						{
 							$aMsg[] = array("id"=>"EVENT_NAME_EXIST", "text"=>str_replace(
 								array("#SITE_ID#", "#EVENT_NAME#"),

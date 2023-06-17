@@ -362,7 +362,7 @@ class EventManager
 			$handlers = [];
 			foreach ($handlersTmp as $handler)
 			{
-				if (in_array($handler['TO_MODULE_ID'], $filter))
+				if (isset($handler['TO_MODULE_ID']) && in_array($handler['TO_MODULE_ID'], $filter))
 				{
 					$handlers[] = $handler;
 				}
@@ -450,7 +450,7 @@ class EventManager
 
 				if (($result != null) && !($result instanceof EventResult))
 				{
-					$result = new EventResult(EventResult::UNDEFINED, $result, $handler['TO_MODULE_ID']);
+					$result = new EventResult(EventResult::UNDEFINED, $result, $handler['TO_MODULE_ID'] ?? null);
 				}
 
 				$event->addDebugInfo($result);

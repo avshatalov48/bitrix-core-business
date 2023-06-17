@@ -65,14 +65,14 @@ class CSVUserImport
 		}
 
 		$success = array_search("NAME", $this->arHeader);
-		if ($success === false || $success === null)
+		if ($success === false)
 		{
 			$this->errorMessage = GetMessage("CSV_IMPORT_NAME_NOT_FOUND");
 			return false;
 		}
 
 		$success = array_search("LAST_NAME", $this->arHeader);
-		if ($success === false || $success === null)
+		if ($success === false)
 		{
 			$this->errorMessage = GetMessage("CSV_IMPORT_LAST_NAME_NOT_FOUND");
 			return false;

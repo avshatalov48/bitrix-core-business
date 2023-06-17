@@ -1,25 +1,16 @@
-import {ChatTypes, RecentSettings, AvatarSize} from 'im.v2.const';
+import {DialogType, RecentSettings} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 
 import 'ui.fonts.opensans';
 import './avatar.css';
 
-const DialogType = {
-	user: 'user',
-	chat: 'chat',
-	open: 'open',
-	general: 'general',
-	videoconf: 'videoconf',
-	announcement: 'announcement',
-	call: 'call',
-	support24Notifier: 'support24Notifier',
-	support24Question: 'support24Question',
-	crm: 'crm',
-	sonetGroup: 'sonetGroup',
-	calendar: 'calendar',
-	tasks: 'tasks',
-	thread: 'thread',
-	mail: 'mail'
+export const AvatarSize = {
+	XS: 'XS',
+	S: 'S',
+	M: 'M',
+	L: 'L',
+	XL: 'XL',
+	XXL: 'XXL',
 };
 
 export const Avatar = {
@@ -66,7 +57,7 @@ export const Avatar = {
 		},
 		isUser()
 		{
-			return this.dialog.type === ChatTypes.user;
+			return this.dialog.type === DialogType.user;
 		},
 		isBot()
 		{
@@ -93,7 +84,7 @@ export const Avatar = {
 		},
 		avatarText(): string
 		{
-			if (![ChatTypes.user, ChatTypes.open, ChatTypes.chat].includes(this.dialog.type))
+			if (![DialogType.user, DialogType.open, DialogType.chat].includes(this.dialog.type))
 			{
 				return '';
 			}

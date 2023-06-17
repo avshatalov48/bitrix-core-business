@@ -23,7 +23,7 @@
 
 		if (!!document.body.querySelector('.landing-edit-mode'))
 		{
-			document.body.appendChild(this.layout);
+			parent.document.body.appendChild(this.layout);
 		}
 
 		this.runInterval();

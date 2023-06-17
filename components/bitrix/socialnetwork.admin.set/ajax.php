@@ -37,7 +37,7 @@ if (check_bitrix_sessid())
 
 	if (CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, false))
 	{
-		if ($_POST["ACTION"] == "SET")
+		if (isset($_POST["ACTION"]) && $_POST["ACTION"] == "SET")
 		{
 			if (CSocNetUser::IsEnabledModuleAdmin())
 				\CSocNetUser::DisableModuleAdmin();
@@ -48,7 +48,7 @@ if (check_bitrix_sessid())
 	}
 	else
 		echo CUtil::PhpToJsObject(Array('ERROR' => 'CURRENT_USER_NOT_ADMIN'));
-	
+
 }
 else
 	echo CUtil::PhpToJsObject(Array('ERROR' => 'SESSION_ERROR'));

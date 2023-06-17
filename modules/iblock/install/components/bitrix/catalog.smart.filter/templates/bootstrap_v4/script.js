@@ -217,10 +217,17 @@ JCSmartFilter.prototype.postHandler = function (result, fromCache)
 					modef.style.display = 'inline-block';
 				}
 
-				if (this.viewMode == "VERTICAL")
+				if (this.viewMode === "VERTICAL")
 				{
 					curProp = BX.findChild(BX.findParent(this.curFilterinput, {'class':'smart-filter-parameters-box'}), {'class':'smart-filter-container-modef'}, true, false);
-					curProp.appendChild(modef);
+					const modefPosition = BX.Dom.getPosition(modef);
+					if (modefPosition.x < 0)
+					{
+						BX.Dom.removeClass(modef, 'left');
+						BX.Dom.addClass(modef, 'right');
+					}
+
+					BX.Dom.append(modef, curProp);
 				}
 
 				if (result.SEF_SET_FILTER_URL)

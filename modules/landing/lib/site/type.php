@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Landing\Site;
 
-use \Bitrix\Landing\Role;
-use \Bitrix\Landing\Site;
+use Bitrix\Landing\Role;
+use Bitrix\Landing\Site;
 
 class Type
 {
@@ -214,5 +214,24 @@ class Type
 		}
 
 		return false;
+	}
+
+	/**
+	 * Scoped method for returning available operations of site.
+	 * @param int $siteId Site id.
+	 * @see \Bitrix\Landing\Rights::getOperationsForSite
+	 * @return array|null
+	 */
+	public static function getOperationsForSite(int $siteId): ?array
+	{
+		if (
+			self::$currentScopeClass !== null
+			&& is_callable([self::$currentScopeClass, 'getOperationsForSite'])
+		)
+		{
+			return self::$currentScopeClass::getOperationsForSite($siteId);
+		}
+
+		return null;
 	}
 }

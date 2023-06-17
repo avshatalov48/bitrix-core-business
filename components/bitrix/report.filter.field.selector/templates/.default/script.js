@@ -386,6 +386,36 @@ if (typeof(BX.Report.CrmFilterFieldSelectorClass) === "undefined")
 
 			this.crmId = [];
 			this.crmName = [];
+
+			this.ajaxUrl = "/bitrix/components/bitrix/report.filter.field.selector/ajax.php";
+			this.searchResultHandlerStub = function () {};
+			this.searchHandler =
+				function (data, onSuccess, onFailure)
+				{
+					if (!onSuccess || !BX.Type.isFunction(onSuccess))
+					{
+						onSuccess = this.searchResultHandlerStub;
+					}
+					if (!onFailure || !BX.Type.isFunction(onFailure))
+					{
+						onFailure = this.searchResultHandlerStub;
+					}
+					BX.ajax({
+						'url': BX.util.add_url_param(
+							this.ajaxUrl,
+							{
+								'sessid': BX.bitrix_sessid(),
+								'action': 'CrmElementSearch'
+							}
+						),
+						'method': 'POST',
+						'dataType': 'json',
+						'data': data,
+						'onsuccess': onSuccess,
+						'onfailure': onFailure
+					});
+				}.bind(this)
+			;
 		};
 
 		FilterFieldSelectorClass.prototype = {
@@ -465,7 +495,12 @@ if (typeof(BX.Report.CrmFilterFieldSelectorClass) === "undefined")
 					this.getSetting("PREFIX", "Y") === "Y",
 					this.getSetting("MULTIPLE", "N") === "Y",
 					this.getSetting("ENTITY_TYPE", {}),
-					this.getSetting("MESSAGES", {})
+					this.getSetting("MESSAGES", {}),
+					false,
+					{
+						entityTypeAbbr: this.getSetting("ENTITY_TYPE_ABBR", []),
+						customSearchHandler: this.searchHandler
+					}
 				);
 				this.crmId.push(crmId);
 				this.crmName.push(controlId);

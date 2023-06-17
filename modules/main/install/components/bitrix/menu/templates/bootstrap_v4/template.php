@@ -34,7 +34,7 @@ $menuBlockId = "catalog_menu_".$this->randString();
 			{
 				$class .= " bx-active";
 			}
-			if(is_array($arColumns) && count($arColumns) > 0)
+			if(is_array($arColumns) && !empty($arColumns))
 			{
 				$class .= " bx-nav-parent";
 			}
@@ -43,7 +43,7 @@ $menuBlockId = "catalog_menu_".$this->randString();
 				class="<?=$class?>"
 				onmouseover="BX.CatalogMenu.itemOver(this);"
 				onmouseout="BX.CatalogMenu.itemOut(this)"
-				<?if (is_array($arColumns) && count($arColumns) > 0):?>
+				<?if (is_array($arColumns) && !empty($arColumns)):?>
 					data-role="bx-menu-item"
 					onclick="if (BX.hasClass(document.documentElement, 'bx-touch')) obj_<?=$menuBlockId?>.clickInMobile(this, event);"
 				<?endif?>
@@ -51,17 +51,17 @@ $menuBlockId = "catalog_menu_".$this->randString();
 				<a
 					class="bx-nav-1-lvl-link"
 					href="<?=$arResult["ALL_ITEMS"][$itemID]["LINK"]?>"
-					<?if (is_array($arColumns) && count($arColumns) > 0 && $existPictureDescColomn):?>
+					<?if (is_array($arColumns) && !empty($arColumns) && $existPictureDescColomn):?>
 						onmouseover="window.obj_<?=$menuBlockId?> && obj_<?=$menuBlockId?>.changeSectionPicure(this, '<?=$itemID?>');"
 					<?endif?>
 				>
 					<span class="bx-nav-1-lvl-link-text">
 						<?=htmlspecialcharsbx($arResult["ALL_ITEMS"][$itemID]["TEXT"], ENT_COMPAT, false)?>
-						<?if (is_array($arColumns) && count($arColumns) > 0):?> <i class="bx-nav-angle-bottom"></i><?endif?>
+						<?if (is_array($arColumns) && !empty($arColumns)):?> <i class="bx-nav-angle-bottom"></i><?endif?>
 					</span>
 				</a>
 				<?
-				if (is_array($arColumns) && count($arColumns) > 0)
+				if (is_array($arColumns) && !empty($arColumns))
 				{
 				?>
 					<span class="bx-nav-parent-arrow" onclick="obj_<?=$menuBlockId?>.toggleInMobile(this)"><i class="bx-nav-angle-bottom"></i></span> <!-- for mobile -->
@@ -83,7 +83,7 @@ $menuBlockId = "catalog_menu_".$this->randString();
 									>
 										<span class="bx-nav-2-lvl-link-text"><?=$arResult["ALL_ITEMS"][$itemIdLevel_2]["TEXT"]?></span>
 									</a>
-								<?if (is_array($arLevel_3) && count($arLevel_3) > 0):?>
+								<?if (is_array($arLevel_3) && !empty($arLevel_3)):?>
 									<ul class="bx-nav-list-3-lvl">
 									<?foreach($arLevel_3 as $itemIdLevel_3):?>	<!-- third level-->
 										<li class="bx-nav-3-lvl">

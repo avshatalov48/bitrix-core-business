@@ -25,7 +25,7 @@ $arActivityDescription = [
 	'RETURN' => [],
 ];
 
-$userService = CBPRuntime::getRuntime(true)->getUserService();
+$userService = CBPRuntime::getRuntime()->getUserService();
 foreach ($userService->getUserBaseFields() as $key => $property)
 {
 	$arActivityDescription['RETURN']['USER_' . $key] = array_change_key_case($property, CASE_UPPER);
@@ -42,5 +42,11 @@ $arActivityDescription['RETURN']['TIMEMAN_STATUS'] = [
 
 foreach ($userService->getUserExtendedFields() as $key => $property)
 {
+	if ($key === 'UF_DEPARTMENT')
+	{
+		unset($arActivityDescription['RETURN']['USER_UF_DEPARTMENT']);
+		$key = 'USER_UF_DEPARTMENT';
+	}
+
 	$arActivityDescription['RETURN'][$key] = array_change_key_case($property, CASE_UPPER);
 }

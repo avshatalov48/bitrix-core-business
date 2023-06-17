@@ -36,7 +36,7 @@
 		promise
 			.then(function()
 				{
-					top.window.location.href = '/settings/license_all.php';
+					top.window.location.href = '/bitrix/tools/landing/ajax.php?redirect=upgrade';
 				},
 				function()
 				{
@@ -56,7 +56,7 @@
 		promise
 			.then(function()
 				{
-					top.window.location.href = '/settings/license_all.php';
+					top.window.location.href = '/bitrix/tools/landing/ajax.php?redirect=upgrade';
 				},
 				function()
 				{

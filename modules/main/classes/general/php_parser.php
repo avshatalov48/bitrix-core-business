@@ -282,14 +282,14 @@ class PHPParser
 
 			$arIncludeParams = array();
 			$arFuncParams = array();
-			PHPParser::GetParamsRec($arParams[2], $arAllStr, $arIncludeParams);
-			PHPParser::GetParamsRec($arParams[4], $arAllStr, $arFuncParams);
+			PHPParser::GetParamsRec($arParams[2] ?? '', $arAllStr, $arIncludeParams);
+			PHPParser::GetParamsRec($arParams[4] ?? '', $arAllStr, $arFuncParams);
 
 			return array(
-				"COMPONENT_NAME" => PHPParser::ReplString($arParams[0], $arAllStr),
-				"TEMPLATE_NAME" => PHPParser::ReplString($arParams[1], $arAllStr),
+				"COMPONENT_NAME" => PHPParser::ReplString($arParams[0] ?? '', $arAllStr),
+				"TEMPLATE_NAME" => PHPParser::ReplString($arParams[1] ?? '', $arAllStr),
 				"PARAMS" => $arIncludeParams,
-				"PARENT_COMP" => $arParams[3],
+				"PARENT_COMP" => $arParams[3] ?? '',
 				"VARIABLE" => $var_name,
 				"FUNCTION_PARAMS" => $arFuncParams,
 			);

@@ -7,6 +7,8 @@ use Bitrix\Landing\Landing;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Field;
 use Bitrix\Landing\Internals\HookDataTable;
+use Bitrix\Landing\Restriction\Site;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 class Copyright extends \Bitrix\Landing\Hook\Page
@@ -15,6 +17,9 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	protected const PAGE_TYPE_STORE = 'STORE';
 
 	protected const REGIONS_RU_LANG = ['ru', 'by', 'kz'];
+
+	private $lang;
+	private $siteId;
 
 	/**
 	 * Actual only for ru/by/kz, for any languages always 1
@@ -65,6 +70,11 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		if ($this->isLocked())
 		{
 			return true;
@@ -75,13 +85,16 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 
 	/**
 	 * Exec hook. Now do nothing, because using print in template
-	 * @return boolean
+	 * @return void
 	 */
 	public function exec()
 	{
-		$this->setLang(Manager::getZone());
+		if ($this->execCustom())
+		{
+			return;
+		}
 
-		return true;
+		$this->setLang(Manager::getZone());
 	}
 
 	/**
@@ -104,6 +117,25 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
+	 * Save current site id
+	 * @param int $siteId
+	 * @return void
+	 */
+	public function setSiteId(?string $siteId): void
+	{
+		$this->siteId = $this->siteId ?: $siteId;
+	}
+
+	/**
+	 * Get current site id
+	 * @return int
+	 */
+	protected function getSiteId(): string
+	{
+		return $this->siteId ?: 0;
+	}
+
+	/**
 	 * Check is current site lang in ru region
 	 * @return bool
 	 */
@@ -118,14 +150,31 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	 */
 	public function view(): string
 	{
-		$footer = '<div class="bitrix-footer">';
-		$footer .= '<span class="bitrix-footer-text">';
-		$footer .= $this->getCommonText();
-		$footer .= $this->getAdditionalText();
-		$footer .= '</span>';
-		$footer .= '</div>';
+		$isTermsFooterShow = Site::isTermsFooterShow();
+		$isHookEnabled = $this->enabled();
+		if ($isTermsFooterShow || $isHookEnabled)
+		{
+			$footer = '<div class="bitrix-footer">';
+			$footer .= '<span class="bitrix-footer-text">';
+			if ($isHookEnabled)
+			{
+				$footer .= '<div class="bitrix-footer-seo">';
+				$footer .= $this->getCommonText();
+				$footer .= $this->getAdditionalText();
+				$footer .= '</div>';
+				$footer .= $this->getTermsContent();
+			}
+			if ($isTermsFooterShow && !$isHookEnabled)
+			{
+				$footer .= $this->getTermsContent();
+			}
+			$footer .= '</span>';
+			$footer .= '</div>';
 
-		return $footer;
+			return $footer;
+		}
+
+		return '';
 	}
 
 	protected function getCommonText(): string
@@ -159,9 +208,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			);
 		}
 
-		$componentClass = \CBitrixComponent::includeComponentClass('bitrix:landing.pub');
-		$component = new $componentClass;
-		$component->setZone($this->getLang());
+		$component = $this->getPublicComponent();
 
 		// SMN
 		if (!$isB24)
@@ -171,7 +218,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			return
 				Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_SMN_1')
 				. '<a href="https://www.1c-bitrix.ru/?' . $advCode . '" target="_blank" class="bitrix-footer-link">'
-				. Loc::getMessage('LANDING_TPL_COPY_NAME_SMN_1')
+				. Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_SMN_2')
 				. '</a>'
 			;
 		}
@@ -216,9 +263,9 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 
 	/**
 	 * Return random additional phrase with link
-	 * @return mixed
+	 * @return string
 	 */
-	protected function getAdditionalText()
+	protected function getAdditionalText(): string
 	{
 		if (!$this->isRuLang() || !Manager::isB24())
 		{
@@ -226,18 +273,86 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 		}
 
 		$type = strtoupper(Landing::getSiteType());
-
 		$phrases = $this->getRandomPhraseCollection($type);
 		$code = (int)$this->fields['CODE']->getValue() ?: 1;
 		$text = $phrases[$code] ?: $phrases[1];
+		$component = $this->getPublicComponent();
 
-		$link =
-			$type === self::PAGE_TYPE_STORE
-				? 'https://www.bitrix24.ru/features/shop.php'
-				: 'https://www.bitrix24.ru/features/sites.php'
-		;
+		$link = $component->getRefLink('websites', true, true);
+		if ($type === self::PAGE_TYPE_STORE)
+		{
+			$link = str_replace('features/sites.php', 'features/shop.php', $link);
+		}
 
 		return '. <a href="' . $link . '">' . $text . '</a>';
+	}
+
+	protected function getPublicComponent(): \LandingPubComponent
+	{
+		/**
+		 * @var $component ?\LandingPubComponent
+		 */
+		static $component = null;
+
+		if (!$component)
+		{
+			$componentClass = \CBitrixComponent::includeComponentClass('bitrix:landing.pub');
+			$component = new $componentClass;
+			$component->setZone($this->getLang());
+		}
+
+		return $component;
+	}
+
+	protected function getTermsContent(): string
+	{
+		$content = '<div class="bitrix-footer-terms">';
+		$lang = $this->getLang();
+		$setLinks = [
+			'com' => [
+				'report' => 'https://www.bitrix24.com/abuse/',
+			],
+			'ru' => [
+				'report' => 'https://www.bitrix24.ru/abuse/',
+			],
+			'br' => [
+				'report' => 'https://www.bitrix24.com.br/abuse/',
+			],
+			'de' => [
+				'report' => 'https://www.bitrix24.de/abuse/',
+			],
+			'es' => [
+				'report' => 'https://www.bitrix24.es/abuse/',
+			],
+			'ua' => [
+				'report' => 'https://www.bitrix24.ua/abuse/',
+			],
+			'kz' => [
+				'report' => 'https://www.bitrix24.kz/abuse/',
+			],
+			'by' => [
+				'report' => 'https://www.bitrix24.by/abuse/',
+			],
+		];
+		$region = Application::getInstance()->getLicense()->getRegion();
+		$hrefLinkReport = $setLinks[$region]['report'] ?? $setLinks['com']['report'];
+		$url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$siteId = $this->getSiteId();
+		$portalName = \COption::GetOptionString("main", "server_name", '');
+		$senderPage = strtoupper(Landing::getSiteType());
+		$urlParams = [
+			'sender_page' => urlencode($senderPage),
+			'hostname' => urlencode($portalName),
+			'siteId' => urlencode($siteId),
+			'from_url' => urlencode($url),
+		];
+		$hrefLinkReportWithParams = $hrefLinkReport . '?' . http_build_query($urlParams);
+		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" href="' . $hrefLinkReportWithParams . '">'. Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT', null, $lang) . '</a>';
+		$hintText = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT_HINT', null, $lang);
+		$hint = '<span class="bitrix-footer-hint" data-hint="' . $hintText . '"></span>';
+		$content .= $linkReport . $hint;
+		$content .= '</div>';
+		return $content;
 	}
 
 	/**

@@ -478,9 +478,14 @@ export class InlineSelector extends EventEmitter
 			}
 			else
 			{
-				const beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd);
+				let beforePart = '';
 				const middlePart = field.Expression;
-				const afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
+				let afterPart = '';
+				if (Type.isStringFilled(this.targetInput.value))
+				{
+					beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd);
+					afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
+				}
 
 				this.targetInput.value = beforePart + middlePart + afterPart;
 				this.targetInput.selectionEnd = beforePart.length + middlePart.length;
@@ -488,7 +493,7 @@ export class InlineSelector extends EventEmitter
 		}
 
 		BX.fireEvent(this.targetInput, 'change');
-		this.emit('change', { field });
+		this.emit('Field:Selected', { field });
 	}
 
 	destroy()

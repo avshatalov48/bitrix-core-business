@@ -560,10 +560,23 @@ class CBPStateService extends CBPRuntimeService
 			if (!isset($runtime) || !is_object($runtime))
 				$runtime = CBPRuntime::GetRuntime();
 			$documentService = $runtime->GetService("DocumentService");
-			$documentService->SetPermissions($arState["DOCUMENT_ID"], $workflowId, $arStatePermissions, true);
+
+			$permissionRewrite = true;
+			if (isset($arStatePermissions['__mode']) || isset($arStatePermissions['__scope']))
+			{
+				$permissionRewrite = [
+					'setMode' => $arStatePermissions['__mode'] ?? CBPSetPermissionsMode::Clear,
+					'setScope' => $arStatePermissions['__scope'] ?? CBPSetPermissionsMode::ScopeWorkflow,
+				];
+				unset($arStatePermissions['__mode'], $arStatePermissions['__scope']);
+			}
+
+			$documentService->SetPermissions($arState["DOCUMENT_ID"], $workflowId, $arStatePermissions, $permissionRewrite);
 			$documentType = $documentService->GetDocumentType($arState["DOCUMENT_ID"]);
 			if ($documentType)
+			{
 				$arStatePermissions = $documentService->toInternalOperations($documentType, $arStatePermissions);
+			}
 
 			$DB->Query(
 				"DELETE FROM b_bp_workflow_permissions ".

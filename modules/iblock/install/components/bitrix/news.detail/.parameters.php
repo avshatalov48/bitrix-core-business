@@ -1,24 +1,61 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arTypes = CIBlockParameters::GetIBlockTypes();
 
-$arIBlocks=array();
-$db_iblock = CIBlock::GetList(array("SORT"=>"ASC"), array("SITE_ID"=>$_REQUEST["site"], "TYPE" => ($arCurrentValues["IBLOCK_TYPE"]!="-"?$arCurrentValues["IBLOCK_TYPE"]:"")));
+$arIBlocks= [];
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+if (isset($_REQUEST['site']))
+{
+	$iblockFilter['SITE_ID'] = $_REQUEST['site'];
+}
+$db_iblock = CIBlock::GetList(["SORT"=>"ASC"], $iblockFilter);
 while($arRes = $db_iblock->Fetch())
-	$arIBlocks[$arRes["ID"]] = "[".$arRes["ID"]."] ".$arRes["NAME"];
+{
+	$arIBlocks[$arRes["ID"]] = "[" . $arRes["ID"] . "] " . $arRes["NAME"];
+}
 
 $arProperty_LNS = array();
-$rsProp = CIBlockProperty::GetList(array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>(isset($arCurrentValues["IBLOCK_ID"])?$arCurrentValues["IBLOCK_ID"]:$arCurrentValues["ID"])));
-while ($arr=$rsProp->Fetch())
+$arProperty = [];
+if ($iblockExists)
 {
-	$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-	if (in_array($arr["PROPERTY_TYPE"], array("L", "N", "S")))
+	$rsProp = CIBlockProperty::GetList(
+		[
+			"SORT" => "ASC",
+			"NAME" => "ASC",
+		],
+		[
+			"ACTIVE" => "Y",
+			"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
+		]
+	);
+	while ($arr = $rsProp->Fetch())
 	{
-		$arProperty_LNS[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		$arProperty[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		if (in_array($arr["PROPERTY_TYPE"], ["L", "N", "S"]))
+		{
+			$arProperty_LNS[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		}
 	}
 }
 
@@ -209,11 +246,13 @@ CIBlockParameters::AddPagerSettings(
 	false, //$bDescNumbering
 	true, //$bShowAllParam
 	true, //$bBaseLink
-	$arCurrentValues["PAGER_BASE_LINK_ENABLE"]==="Y" //$bBaseLinkEnabled
+	($arCurrentValues['PAGER_BASE_LINK_ENABLE'] ?? 'N') === 'Y' //$bBaseLinkEnabled
 );
 unset($arComponentParameters["PARAMETERS"]["PAGER_SHOW_ALWAYS"]);
 
 CIBlockParameters::Add404Settings($arComponentParameters, $arCurrentValues);
 
-if($arCurrentValues["USE_PERMISSIONS"]!="Y")
-	unset($arComponentParameters["PARAMETERS"]["GROUP_PERMISSIONS"]);
+if (($arCurrentValues['USE_PERMISSIONS'] ?? 'N') !== 'Y')
+{
+	unset($arComponentParameters['PARAMETERS']['GROUP_PERMISSIONS']);
+}

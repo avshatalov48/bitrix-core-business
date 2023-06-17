@@ -59,14 +59,14 @@ define("USER_IMPORT_EXECUTION_TIME", 20);
 //Params
 $strError = false;
 $dataSource = (isset($_REQUEST["dataSource"]) && in_array($_REQUEST["dataSource"], array("ldap", "1c")) ? $_REQUEST["dataSource"] : "csv");
-$csvDataFile = (isset($_REQUEST["csvDataFile"]) ? $_REQUEST["csvDataFile"] : "");
+$csvDataFile = ($_REQUEST["csvDataFile"] ?? "");
 $delimeter = (isset($_REQUEST["delimeter"]) && array_key_exists($_REQUEST["delimeter"], $arDelimeters) ? $_REQUEST["delimeter"] : "semicolon");
 $sendEmail = (isset($_REQUEST["sendEmail"]) && $_REQUEST["sendEmail"] == "Y" ? "Y" : "N");
-$eventLangID = (isset($_REQUEST["eventLangID"]) ? $_REQUEST["eventLangID"] : "");
-$eventLdapLangID = (isset($_REQUEST["eventLdapLangID"]) ? $_REQUEST["eventLdapLangID"] : "");
+$eventLangID = ($_REQUEST["eventLangID"] ?? "");
+$eventLdapLangID = ($_REQUEST["eventLdapLangID"] ?? "");
 $userGroups = (isset($_REQUEST["userGroups"]) && is_array($_REQUEST["userGroups"]) ? $_REQUEST["userGroups"] : array());
 $ignoreDuplicate = (isset($_REQUEST["ignoreDuplicate"]) && $_REQUEST["ignoreDuplicate"] == "Y" ? "Y" : "N");
-$pathToImages = (isset($_REQUEST["pathToImages"]) ? $_REQUEST["pathToImages"] : "");
+$pathToImages = ($_REQUEST["pathToImages"] ?? "");
 $ldapServer = (isset($_REQUEST["ldapServer"]) ? intval($_REQUEST["ldapServer"]) : 0);
 $attachIBlockID = (isset($_REQUEST["attachIBlockID"]) && intval($_REQUEST["attachIBlockID"]) > 0 ? intval($_REQUEST["attachIBlockID"]) : 0);
 
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep > 2 && check_bitrix_sessid(
 
 			if(isset($arLdap['CONNECTION_TYPE']))
 				$ldap->arFields["CONNECTION_TYPE"] = $arLdap['CONNECTION_TYPE'];
-				
+
 			if($ldap->Connect())
 			{
 				$ldp = $ldap;
@@ -280,7 +280,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep > 2 && check_bitrix_sessid(
 					);
 				}
 			}
-			
+
 			AddEventHandler("ldap", "OnLdapBeforeSync", "OnLdapBeforeSyncMainImport");
 			$cntUsersImport = \CLdapServer::Sync($ldapServer);
 
@@ -726,7 +726,7 @@ $tabControl->Buttons();
 	<?endforeach?>
 <?endif?>
 
-<?if(is_array($_REQUEST["LDAPMAP"]) &&  $tabStep != 2):?>
+<?if(isset($_REQUEST["LDAPMAP"]) && is_array($_REQUEST["LDAPMAP"]) &&  $tabStep != 2):?>
 	<?foreach($_REQUEST["LDAPMAP"] as $map=>$y):?>
 		<input type="hidden" name="LDAPMAP[<?=htmlspecialcharsbx($map)?>]" value="<?=htmlspecialcharsbx($y)?>" />
 	<?endforeach?>

@@ -1,10 +1,11 @@
-<?
+<?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Web;
+use Bitrix\Pull\Push\Service\PushService;
 
 IncludeModuleLangFile(__FILE__);
-require_once('pushservices/services_descriptions.php');
-
 
 /**
  * Class CPullPush
@@ -109,7 +110,6 @@ class CPullPush
 	}
 }
 
-
 class CPushManager
 {
 	const SEND_IMMEDIATELY = 'IMMEDIATELY';
@@ -120,29 +120,15 @@ class CPushManager
 
 	public const DEFAULT_APP_ID = "Bitrix24";
 
-	public static $pushServices = false;
-	protected static $appAliases = [];
-	private $remoteProviderUrl ;
+	public static ?array $pushServices;
+	protected static array $appAliases = [];
+	private string $remoteProviderUrl ;
 
 	public function __construct()
 	{
-		if (!is_array(self::$pushServices))
+		if (!isset(self::$pushServices))
 		{
-			self::$pushServices = [];
-
-			foreach (GetModuleEvents("pull", "OnPushServicesBuildList", true) as $arEvent)
-			{
-				$res = ExecuteModuleEventEx($arEvent);
-				if (is_array($res))
-				{
-					if (!is_array($res[0]))
-					{
-						$res = [$res];
-					}
-					foreach ($res as $serv)
-						self::$pushServices[$serv["ID"]] = $serv;
-				}
-			}
+			self::$pushServices = \Bitrix\Pull\Push\ServiceList::getServiceList();
 		}
 		$this->remoteProviderUrl = Option::get("pull", "push_service_url");
 	}
@@ -665,7 +651,7 @@ class CPushManager
 		return $result;
 	}
 
-	private function getUniqueHashes($userId, $appId)
+	private function getUniqueHashes(string $userId, string $appId): array
 	{
 		$uniqueHashes = [];
 		$uniqueHashes[] = CPullPush::getUniqueHash($userId, $appId);
@@ -677,6 +663,16 @@ class CPushManager
 		}
 
 		return array_unique($uniqueHashes);
+	}
+
+	private function getAppMode(string $appId): string
+	{
+		$aliases = $this->getAppIDAliases($appId);
+		if ((isset($aliases[$appId]) && $aliases[$appId]["mode"] == "dev") || mb_strpos($appId, "_bxdev") > 0 )
+		{
+			return "SANDBOX";
+		}
+		return "PRODUCTION";
 	}
 
 	private function getAppIDAliases($appId)
@@ -704,8 +700,12 @@ class CPushManager
 		return $aliases;
 	}
 
-	protected function shouldSendMessage(&$message)
+	protected function shouldSendMessage($message)
 	{
+		if (!$message['USER_ID'])
+		{
+			return false;
+		}
 		$delegates = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("pull", "ShouldMessageBeSent");
 		$shouldBeSent = true;
 		foreach ($delegates as $delegate)
@@ -727,7 +727,7 @@ class CPushManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function SendMessage($arMessages = [], $arDevices = [])
+	public function SendMessage(array $arMessages = [], array $arDevices = []): bool
 	{
 		if (empty($arMessages))
 		{
@@ -739,15 +739,10 @@ class CPushManager
 		$arVoipMessages = [];
 		foreach ($arMessages as $message)
 		{
-			$shouldBeSent = $this->shouldSendMessage($message);
-
-			if (!$message["USER_ID"] || !$shouldBeSent)
+			if (!$this->shouldSendMessage($message))
 			{
 				continue;
 			}
-
-			$uniqueHashes = array_merge($uniqueHashes, $this->getUniqueHashes($message["USER_ID"], $message["APP_ID"]));
-
 			if($message["ADVANCED_PARAMS"]["isVoip"])
 			{
 				if (!array_key_exists("USER_" . $message["USER_ID"], $arVoipMessages))
@@ -764,6 +759,8 @@ class CPushManager
 				}
 				$arTmpMessages["USER_" . $message["USER_ID"]][] = htmlspecialcharsback($message);
 			}
+
+			array_push($uniqueHashes, ...$this->getUniqueHashes($message["USER_ID"], $message["APP_ID"]));
 		}
 		if (empty($arDevices))
 		{
@@ -772,6 +769,11 @@ class CPushManager
 					"=UNIQUE_HASH" => array_unique($uniqueHashes)
 				]
 			])->fetchAll();
+
+			if (empty($arDevices))
+			{
+				return false;
+			}
 		}
 
 		$arPushMessages = [];
@@ -779,15 +781,7 @@ class CPushManager
 		foreach ($arDevices as $arDevice)
 		{
 			$arDevice["APP_ID"] = \Bitrix\Main\Config\Option::get("mobileapp", "app_id_replaced_".$arDevice["APP_ID"], $arDevice["APP_ID"]);
-			$aliases = $this->getAppIDAliases($arDevice["APP_ID"]);
-			$mode = "PRODUCTION";
-			if (
-				$aliases[$arDevice["APP_ID"]] && $aliases[$arDevice["APP_ID"]]["mode"] == "dev"
-				|| mb_strpos($arDevice["APP_ID"], "_bxdev") > 0
-			)
-			{
-				$mode = "SANDBOX";
-			}
+			$mode = $this->getAppMode($arDevice["APP_ID"]);
 
 			$tmpMessage = $arTmpMessages["USER_" . $arDevice["USER_ID"]];
 			$voipMessage = $arVoipMessages["USER_" . $arDevice["USER_ID"]];
@@ -827,9 +821,6 @@ class CPushManager
 
 		$batches = [];
 
-		/**
-		 * @var CPushService $obPush
-		 */
 		$batchMessageCount = CPullOptions::GetPushMessagePerHit();
 		$useChunks = ($batchMessageCount > 0);
 		if(!$useChunks)
@@ -843,16 +834,16 @@ class CPushManager
 			{
 				continue;
 			}
-			if (!class_exists($className) || !method_exists($className, "getBatch"))
+			// replace with check of interface implementation maybe
+			$service = new $className;
+			if (!($service instanceof PushService))
 			{
 				continue;
 			}
 
-			$obPush = new $className;
-
 			if(!$useChunks)
 			{
-				$batches[0] .= $obPush->getBatch($arPushMessages[$serviceID]);
+				$batches[0] .= $service->getBatch($arPushMessages[$serviceID]);
 			}
 			else
 			{
@@ -860,7 +851,7 @@ class CPushManager
 				$messages = null;
 				while($messages = array_slice($arPushMessages[$serviceID],$offset, $batchMessageCount))
 				{
-					$batches[] = $obPush->getBatch($messages);
+					$batches[] = $service->getBatch($messages);
 					$offset += count($messages);
 				}
 			}
@@ -874,18 +865,21 @@ class CPushManager
 		return true;
 	}
 
-	public function sendBatch($batch)
+	private function sendBatch($batch)
 	{
- 		require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/classes/general/update_client.php");
-		$key = CUpdateClient::GetLicenseKey();
-		if ($key <> '' && $batch <> '')
+		if ($batch <> '')
 		{
-			$postData = [
-				"Action" => "SendMessage",
-				"MessageBody" => $batch
-			];
-			$httpClient = new \Bitrix\Main\Web\HttpClient(["waitResponse" => true]);
-			$httpClient->query("POST", $this->remoteProviderUrl . "?key=" . md5($key), $postData);
+			$request = new Web\Http\Request(
+				Web\Http\Method::POST,
+				new Web\Uri($this->remoteProviderUrl . "?key=" . Application::getInstance()->getLicense()->getHashLicenseKey()),
+				null,
+				new Web\Http\FormStream([
+					"Action" => "SendMessage",
+					"MessageBody" => $batch
+				])
+			);
+			$httpClient = new Web\HttpClient(["waitResponse" => false]);
+			$httpClient->sendAsyncRequest($request);
 
 			return true;
 		}
@@ -893,7 +887,7 @@ class CPushManager
 		return false;
 	}
 
-	protected static function filterMessagesBeforeSend(array $messages, string $deviceType, string $deviceToken)
+	protected static function filterMessagesBeforeSend(array $messages, string $deviceType, string $deviceToken): array
 	{
 		foreach ($messages as $k => $message)
 		{
@@ -1007,7 +1001,7 @@ class CPushManager
 			}
 			try
 			{
-				$arRes['ADVANCED_PARAMS'] = $arRes['ADVANCED_PARAMS'] <> '' ? Bitrix\Main\Web\Json::decode($arRes['ADVANCED_PARAMS']) : [];
+				$arRes['ADVANCED_PARAMS'] = $arRes['ADVANCED_PARAMS'] != '' ? Bitrix\Main\Web\Json::decode($arRes['ADVANCED_PARAMS']) : [];
 			}
 			catch (Exception $e)
 			{
@@ -1020,7 +1014,7 @@ class CPushManager
 				$count++;
 			}
 
-			$maxId = $maxId < $arRes['ID'] ? $arRes['ID'] : $maxId;
+			$maxId = max($maxId, $arRes['ID']);
 		}
 
 		if ($maxId > 0)

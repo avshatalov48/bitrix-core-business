@@ -62,7 +62,7 @@ if (isset($arParams['ADD_NAVCHAIN_GROUP']) && $arParams["ADD_NAVCHAIN_GROUP"] ==
 	}
 }
 
-if (isset($arParams['ADD_NAVCHAIN_LIST']) && $arParams["ADD_NAVCHAIN_LIST"] !== "N")
+if (!isset($arParams['ADD_NAVCHAIN_LIST']) || $arParams["ADD_NAVCHAIN_LIST"] !== "N")
 {
 	$arResult["~LIST_URL"] = CHTTP::urlAddParams(str_replace(
 		array("#list_id#", "#section_id#", "#group_id#"),

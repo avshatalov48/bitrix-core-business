@@ -1,12 +1,11 @@
 <?php
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\SystemException;
 use Bitrix\Location\Entity\Address\FieldType;
 
-if(!Loader::includeModule('location'))
+if (!Loader::includeModule('location'))
 {
-	throw new SystemException('Can\'t include module location');
+	return [];
 }
 
 return array(

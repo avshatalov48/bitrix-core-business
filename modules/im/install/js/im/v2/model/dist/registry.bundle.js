@@ -1,74 +1,25 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3,im_v2_lib_logger,main_core_events,main_core,ui_vue3_vuex,im_v2_const,im_v2_lib_utils) {
+(function (exports,main_core_events,im_v2_lib_logger,ui_reactionsSelect,im_v2_application_core,im_v2_lib_utils,main_core,ui_vue3_vuex,im_v2_const) {
 	'use strict';
 
-	class ApplicationModel extends ui_vue3_vuex.BuilderModel {
-	  getName() {
-	    return 'application';
-	  }
+	class SettingsModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
-	      common: {
-	        host: this.getVariable('common.host', location.protocol + '//' + location.host),
-	        siteId: this.getVariable('common.siteId', 'default'),
-	        userId: this.getVariable('common.userId', 0),
-	        languageId: this.getVariable('common.languageId', 'en')
-	      },
-	      dialog: {
-	        dialogId: this.getVariable('dialog.dialogId', '0'),
-	        chatId: this.getVariable('dialog.chatId', 0),
-	        diskFolderId: this.getVariable('dialog.diskFolderId', 0),
-	        messageLimit: this.getVariable('dialog.messageLimit', 20),
-	        enableReadMessages: this.getVariable('dialog.enableReadMessages', true),
-	        messageExtraCount: 0
-	      },
-	      disk: {
-	        enabled: false,
-	        maxFileSize: 5242880
-	      },
-	      call: {
-	        serverEnabled: false,
-	        maxParticipants: 24
-	      },
-	      mobile: {
-	        keyboardShow: false
-	      },
-	      device: {
-	        type: this.getVariable('device.type', im_v2_const.DeviceType.desktop),
-	        orientation: this.getVariable('device.orientation', im_v2_const.DeviceOrientation.portrait)
-	      },
-	      options: {
-	        quoteEnable: this.getVariable('options.quoteEnable', true),
-	        quoteFromRight: this.getVariable('options.quoteFromRight', true),
-	        autoplayVideo: this.getVariable('options.autoplayVideo', true),
-	        darkTheme: this.getVariable('options.darkTheme', false),
-	        showSmiles: false
-	      },
-	      error: {
-	        active: false,
-	        code: '',
-	        description: ''
-	      }
+	      [im_v2_const.Settings.application.darkTheme]: false,
+	      [im_v2_const.Settings.application.enableSound]: true,
+	      [im_v2_const.Settings.dialog.bigSmiles]: true,
+	      [im_v2_const.Settings.dialog.background]: 1,
+	      [im_v2_const.Settings.recent.showBirthday]: true,
+	      [im_v2_const.Settings.recent.showInvited]: true,
+	      [im_v2_const.Settings.recent.showLastMessage]: true
 	    };
-	  }
-	  getStateSaveException() {
-	    return Object.assign({
-	      common: this.getVariable('saveException.common', null),
-	      dialog: this.getVariable('saveException.dialog', null),
-	      mobile: this.getVariable('saveException.mobile', null),
-	      device: this.getVariable('saveException.device', null),
-	      error: this.getVariable('saveException.error', null)
-	    });
 	  }
 	  getGetters() {
 	    return {
-	      getOption: state => optionName => {
-	        if (!im_v2_const.Settings[optionName]) {
-	          return false;
-	        }
-	        return state.options[optionName];
+	      get: state => key => {
+	        return state[key];
 	      }
 	    };
 	  }
@@ -76,1409 +27,951 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      set: (store, payload) => {
 	        store.commit('set', this.validate(payload));
-	      },
-	      showSmiles: (store, payload) => {
-	        store.commit('showSmiles');
-	      },
-	      hideSmiles: (store, payload) => {
-	        store.commit('hideSmiles');
-	      },
-	      setOptions: (store, payload) => {
-	        if (!main_core.Type.isPlainObject(payload)) {
-	          return false;
-	        }
-	        payload = this.validateOptions(payload);
-	        Object.entries(payload).forEach(([option, value]) => {
-	          store.commit('setOptions', {
-	            option,
-	            value
-	          });
-	        });
 	      }
 	    };
 	  }
 	  getMutations() {
 	    return {
 	      set: (state, payload) => {
-	        let hasChange = false;
-	        for (let group in payload) {
-	          if (!payload.hasOwnProperty(group)) {
-	            continue;
-	          }
-	          for (let field in payload[group]) {
-	            if (!payload[group].hasOwnProperty(field)) {
-	              continue;
-	            }
-	            state[group][field] = payload[group][field];
-	            hasChange = true;
-	          }
-	        }
-	        if (hasChange && this.isSaveNeeded(payload)) {
-	          this.saveState(state);
-	        }
-	      },
-	      increaseDialogExtraCount(state, payload = {}) {
-	        let {
-	          count = 1
-	        } = payload;
-	        state.dialog.messageExtraCount += count;
-	      },
-	      decreaseDialogExtraCount(state, payload = {}) {
-	        let {
-	          count = 1
-	        } = payload;
-	        let newCounter = state.dialog.messageExtraCount - count;
-	        if (newCounter <= 0) {
-	          newCounter = 0;
-	        }
-	        state.dialog.messageExtraCount = newCounter;
-	      },
-	      clearDialogExtraCount(state) {
-	        state.dialog.messageExtraCount = 0;
-	      },
-	      showSmiles(state) {
-	        state.options.showSmiles = true;
-	      },
-	      hideSmiles(state) {
-	        state.options.showSmiles = false;
-	      },
-	      setOptions: (state, payload) => {
-	        state.options[payload.option] = payload.value;
+	        Object.entries(payload).forEach(([key, value]) => {
+	          state[key] = value;
+	        });
 	      }
 	    };
 	  }
 	  validate(fields) {
 	    const result = {};
-	    if (typeof fields.common === 'object' && fields.common) {
-	      result.common = {};
-	      if (typeof fields.common.userId === 'number') {
-	        result.common.userId = fields.common.userId;
-	      }
-	      if (typeof fields.common.languageId === 'string') {
-	        result.common.languageId = fields.common.languageId;
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.application.darkTheme])) {
+	      result[im_v2_const.Settings.application.darkTheme] = fields[im_v2_const.Settings.application.darkTheme];
 	    }
-	    if (typeof fields.dialog === 'object' && fields.dialog) {
-	      result.dialog = {};
-	      if (typeof fields.dialog.dialogId === 'number') {
-	        result.dialog.dialogId = fields.dialog.dialogId.toString();
-	        result.dialog.chatId = 0;
-	      } else if (typeof fields.dialog.dialogId === 'string') {
-	        result.dialog.dialogId = fields.dialog.dialogId;
-	        if (typeof fields.dialog.chatId !== 'number') {
-	          let chatId = fields.dialog.dialogId;
-	          if (chatId.startsWith('chat')) {
-	            chatId = fields.dialog.dialogId.substr(4);
-	          }
-	          chatId = parseInt(chatId);
-	          result.dialog.chatId = !isNaN(chatId) ? chatId : 0;
-	          fields.dialog.chatId = result.dialog.chatId;
-	        }
-	      }
-	      if (typeof fields.dialog.chatId === 'number') {
-	        result.dialog.chatId = fields.dialog.chatId;
-	      }
-	      if (typeof fields.dialog.diskFolderId === 'number') {
-	        result.dialog.diskFolderId = fields.dialog.diskFolderId;
-	      }
-	      if (typeof fields.dialog.messageLimit === 'number') {
-	        result.dialog.messageLimit = fields.dialog.messageLimit;
-	      }
-	      if (typeof fields.dialog.messageExtraCount === 'number') {
-	        result.dialog.messageExtraCount = fields.dialog.messageExtraCount;
-	      }
-	      if (typeof fields.dialog.enableReadMessages === 'boolean') {
-	        result.dialog.enableReadMessages = fields.dialog.enableReadMessages;
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.application.enableSound])) {
+	      result[im_v2_const.Settings.application.enableSound] = fields[im_v2_const.Settings.application.enableSound];
 	    }
-	    if (typeof fields.disk === 'object' && fields.disk) {
-	      result.disk = {};
-	      if (typeof fields.disk.enabled === 'boolean') {
-	        result.disk.enabled = fields.disk.enabled;
-	      }
-	      if (typeof fields.disk.maxFileSize === 'number') {
-	        result.disk.maxFileSize = fields.disk.maxFileSize;
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.dialog.bigSmiles])) {
+	      result[im_v2_const.Settings.dialog.bigSmiles] = fields[im_v2_const.Settings.dialog.bigSmiles];
 	    }
-	    if (typeof fields.call === 'object' && fields.call) {
-	      result.call = {};
-	      if (typeof fields.call.serverEnabled === 'boolean') {
-	        result.call.serverEnabled = fields.call.serverEnabled;
-	      }
-	      if (typeof fields.call.maxParticipants === 'number') {
-	        result.call.maxParticipants = fields.call.maxParticipants;
-	      }
+	    if (main_core.Type.isStringFilled(fields[im_v2_const.Settings.dialog.background])) {
+	      fields[im_v2_const.Settings.dialog.background] = Number.parseInt(fields[im_v2_const.Settings.dialog.background], 10);
 	    }
-	    if (typeof fields.mobile === 'object' && fields.mobile) {
-	      result.mobile = {};
-	      if (typeof fields.mobile.keyboardShow === 'boolean') {
-	        result.mobile.keyboardShow = fields.mobile.keyboardShow;
-	      }
+	    if (main_core.Type.isNumber(fields[im_v2_const.Settings.dialog.background])) {
+	      result[im_v2_const.Settings.dialog.background] = fields[im_v2_const.Settings.dialog.background];
 	    }
-	    if (typeof fields.device === 'object' && fields.device) {
-	      result.device = {};
-	      if (typeof fields.device.type === 'string' && typeof im_v2_const.DeviceType[fields.device.type] !== 'undefined') {
-	        result.device.type = fields.device.type;
-	      }
-	      if (typeof fields.device.orientation === 'string' && typeof im_v2_const.DeviceOrientation[fields.device.orientation] !== 'undefined') {
-	        result.device.orientation = fields.device.orientation;
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.recent.showBirthday])) {
+	      result[im_v2_const.Settings.recent.showBirthday] = fields[im_v2_const.Settings.recent.showBirthday];
 	    }
-	    if (typeof fields.error === 'object' && fields.error) {
-	      if (typeof fields.error.active === 'boolean') {
-	        result.error = {
-	          active: fields.error.active,
-	          code: fields.error.code.toString() || '',
-	          description: fields.error.description.toString() || ''
-	        };
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.recent.showInvited])) {
+	      result[im_v2_const.Settings.recent.showInvited] = fields[im_v2_const.Settings.recent.showInvited];
 	    }
-	    return result;
-	  }
-	  validateOptions(fields) {
-	    const result = {};
-	    if (!main_core.Type.isUndefined(fields.darkTheme) && main_core.Type.isStringFilled(fields.darkTheme)) {
-	      if (fields.darkTheme === 'auto' && BX.MessengerProxy) {
-	        result.darkTheme = BX.MessengerProxy.isDarkTheme();
-	      } else {
-	        result.darkTheme = fields.darkTheme === 'dark';
-	      }
+	    if (main_core.Type.isBoolean(fields[im_v2_const.Settings.recent.showLastMessage])) {
+	      result[im_v2_const.Settings.recent.showLastMessage] = fields[im_v2_const.Settings.recent.showLastMessage];
 	    }
 	    return result;
 	  }
 	}
 
-	const IntersectionType = {
-	  empty: 'empty',
-	  equal: 'equal',
-	  none: 'none',
-	  found: 'found',
-	  foundReverse: 'foundReverse'
-	};
-	class MessagesModel extends ui_vue3_vuex.BuilderModel {
+	class ApplicationModel extends ui_vue3_vuex.BuilderModel {
 	  getName() {
-	    return 'messages';
+	    return 'application';
+	  }
+	  getNestedModules() {
+	    return {
+	      settings: SettingsModel
+	    };
 	  }
 	  getState() {
 	    return {
-	      created: 0,
-	      collection: {},
-	      mutationType: {},
-	      saveMessageList: {},
-	      saveFileList: {},
-	      saveUserList: {}
-	    };
-	  }
-	  getElementState() {
-	    return {
-	      templateId: 0,
-	      templateType: 'message',
-	      placeholderType: 0,
-	      id: 0,
-	      chatId: 0,
-	      authorId: 0,
-	      date: new Date(),
-	      text: '',
-	      textConverted: '',
-	      params: {
-	        TYPE: 'default',
-	        COMPONENT_ID: 'bx-im-view-message'
-	      },
-	      push: false,
-	      unread: false,
-	      sending: false,
-	      error: false,
-	      retry: false,
-	      blink: false
+	      layout: {
+	        name: im_v2_const.Layout.chat.name,
+	        entityId: '',
+	        contextId: 0
+	      }
 	    };
 	  }
 	  getGetters() {
 	    return {
-	      getMutationType: state => chatId => {
-	        if (!state.mutationType[chatId]) {
-	          return {
-	            initialType: im_v2_const.MutationType.none,
-	            appliedType: im_v2_const.MutationType.none
-	          };
-	        }
-	        return state.mutationType[chatId];
+	      getLayout: state => {
+	        return state.layout;
 	      },
-	      getLastId: state => chatId => {
-	        if (!state.collection[chatId] || state.collection[chatId].length <= 0) {
-	          return null;
+	      isChatOpen: state => dialogId => {
+	        if (!state.layout.name === im_v2_const.Layout.chat.name) {
+	          return false;
 	        }
-	        let lastId = 0;
-	        for (let i = 0; i < state.collection[chatId].length; i++) {
-	          let element = state.collection[chatId][i];
-	          if (element.push || element.sending || element.id.toString().startsWith('temporary')) {
-	            continue;
-	          }
-	          if (lastId < element.id) {
-	            lastId = element.id;
-	          }
-	        }
-	        return lastId ? lastId : null;
+	        return state.layout.entityId === dialogId.toString();
 	      },
-	      getMessage: state => (chatId, messageId) => {
-	        if (!state.collection[chatId] || state.collection[chatId].length <= 0) {
-	          return null;
-	        }
-	        for (let index = state.collection[chatId].length - 1; index >= 0; index--) {
-	          if (state.collection[chatId][index].id === messageId) {
-	            return state.collection[chatId][index];
-	          }
-	        }
-	        return null;
-	      },
-	      get: state => chatId => {
-	        if (!state.collection[chatId] || state.collection[chatId].length <= 0) {
-	          return [];
-	        }
-	        return state.collection[chatId];
-	      },
-	      getBlank: state => params => {
-	        return this.getElementState();
-	      },
-	      getSaveFileList: state => params => {
-	        return state.saveFileList;
-	      },
-	      getSaveUserList: state => params => {
-	        return state.saveUserList;
+	      areNotificationsOpen: state => {
+	        return state.layout.name === im_v2_const.Layout.notification.name;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
-	      add: (store, payload) => {
-	        let result = this.validate(Object.assign({}, payload));
-	        result.params = Object.assign({}, this.getElementState().params, result.params);
-	        if (payload.id) {
-	          if (store.state.collection[payload.chatId]) {
-	            const countMessages = store.state.collection[payload.chatId].length - 1;
-	            for (let index = countMessages; index >= 0; index--) {
-	              const message = store.state.collection[payload.chatId][index];
-	              if (message.templateId === payload.id) {
-	                return;
-	              }
-	            }
-	          }
-	          result.id = payload.id;
-	        } else {
-	          result.id = 'temporary' + new Date().getTime() + store.state.created;
-	        }
-	        result.templateId = result.id;
-	        result.unread = false;
-	        store.commit('add', Object.assign({}, this.getElementState(), result));
-	        if (payload.sending !== false) {
-	          store.dispatch('actionStart', {
-	            id: result.id,
-	            chatId: result.chatId
-	          });
-	        }
-	        return result.id;
-	      },
-	      actionStart: (store, payload) => {
-	        if (/^\d+$/.test(payload.id)) {
-	          payload.id = parseInt(payload.id);
-	        }
-	        payload.chatId = parseInt(payload.chatId);
-	        ui_vue3.nextTick(() => {
-	          store.commit('update', {
-	            id: payload.id,
-	            chatId: payload.chatId,
-	            fields: {
-	              sending: true
-	            }
-	          });
-	        });
-	      },
-	      actionError: (store, payload) => {
-	        if (/^\d+$/.test(payload.id)) {
-	          payload.id = parseInt(payload.id);
-	        }
-	        payload.chatId = parseInt(payload.chatId);
-	        ui_vue3.nextTick(() => {
-	          store.commit('update', {
-	            id: payload.id,
-	            chatId: payload.chatId,
-	            fields: {
-	              sending: false,
-	              error: true,
-	              retry: payload.retry !== false
-	            }
-	          });
-	        });
-	      },
-	      actionFinish: (store, payload) => {
-	        if (/^\d+$/.test(payload.id)) {
-	          payload.id = parseInt(payload.id);
-	        }
-	        payload.chatId = parseInt(payload.chatId);
-	        ui_vue3.nextTick(() => {
-	          store.commit('update', {
-	            id: payload.id,
-	            chatId: payload.chatId,
-	            fields: {
-	              sending: false,
-	              error: false,
-	              retry: false
-	            }
-	          });
-	        });
-	      },
-	      set: (store, payload) => {
-	        if (payload instanceof Array) {
-	          payload = payload.map(message => this.prepareMessage(message));
-	        } else {
-	          let result = this.prepareMessage(payload);
-	          (payload = []).push(result);
-	        }
-	        store.commit('set', {
-	          insertType: im_v2_const.MutationType.set,
-	          data: payload
-	        });
-	        return 'set is done';
-	      },
-	      addPlaceholders: (store, payload) => {
-	        if (payload.placeholders instanceof Array) {
-	          payload.placeholders = payload.placeholders.map(message => this.prepareMessage(message));
-	        } else {
+	      setLayout: (store, payload) => {
+	        const {
+	          layoutName,
+	          entityId = '',
+	          contextId = 0
+	        } = payload;
+	        if (!main_core.Type.isStringFilled(layoutName)) {
 	          return false;
 	        }
-	        const insertType = payload.requestMode === 'history' ? im_v2_const.MutationType.setBefore : im_v2_const.MutationType.setAfter;
-	        if (insertType === im_v2_const.MutationType.setBefore) {
-	          payload.placeholders = payload.placeholders.reverse();
-	        }
-	        store.commit('set', {
-	          insertType,
-	          data: payload.placeholders
-	        });
-	        return payload.placeholders[0].id;
-	      },
-	      clearPlaceholders: (store, payload) => {
-	        store.commit('clearPlaceholders', payload);
-	      },
-	      updatePlaceholders: (store, payload) => {
-	        if (payload.data instanceof Array) {
-	          payload.data = payload.data.map(message => this.prepareMessage(message));
-	        } else {
-	          return false;
-	        }
-	        store.commit('updatePlaceholders', payload);
-	        return true;
-	      },
-	      setAfter: (store, payload) => {
-	        if (payload instanceof Array) {
-	          payload = payload.map(message => this.prepareMessage(message));
-	        } else {
-	          let result = this.prepareMessage(payload);
-	          (payload = []).push(result);
-	        }
-	        store.commit('set', {
-	          insertType: im_v2_const.MutationType.setAfter,
-	          data: payload
-	        });
-	      },
-	      setBefore: (store, payload) => {
-	        if (payload instanceof Array) {
-	          payload = payload.map(message => this.prepareMessage(message));
-	        } else {
-	          let result = this.prepareMessage(payload);
-	          (payload = []).push(result);
-	        }
-	        store.commit('set', {
-	          insertType: im_v2_const.MutationType.setBefore,
-	          data: payload
-	        });
-	      },
-	      update: (store, payload) => {
-	        if (/^\d+$/.test(payload.id)) {
-	          payload.id = parseInt(payload.id);
-	        }
-	        if (/^\d+$/.test(payload.chatId)) {
-	          payload.chatId = parseInt(payload.chatId);
-	        }
-	        store.commit('initCollection', {
-	          chatId: payload.chatId
-	        });
-	        if (!store.state.collection[payload.chatId]) {
-	          return false;
-	        }
-	        let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-	        if (index < 0) {
-	          return false;
-	        }
-	        let result = this.validate(Object.assign({}, payload.fields));
-	        if (result.params) {
-	          result.params = Object.assign({}, this.getElementState().params, store.state.collection[payload.chatId][index].params, result.params);
-	        }
+	        const previousLayout = {
+	          ...store.state.layout
+	        };
+	        const newLayout = {
+	          name: this.validateLayout(layoutName),
+	          entityId: this.validateLayoutEntityId(layoutName, entityId),
+	          contextId: contextId
+	        };
 	        store.commit('update', {
-	          id: payload.id,
-	          chatId: payload.chatId,
-	          index: index,
-	          fields: result
+	          layout: newLayout
 	        });
-	        if (payload.fields.blink) {
-	          setTimeout(() => {
-	            store.commit('update', {
-	              id: payload.id,
-	              chatId: payload.chatId,
-	              fields: {
-	                blink: false
-	              }
-	            });
-	          }, 1000);
-	        }
-	        return true;
-	      },
-	      delete: (store, payload) => {
-	        if (!(payload.id instanceof Array)) {
-	          payload.id = [payload.id];
-	        }
-	        payload.id = payload.id.map(id => {
-	          if (/^\d+$/.test(id)) {
-	            id = parseInt(id);
-	          }
-	          return id;
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onLayoutChange, {
+	          from: previousLayout,
+	          to: newLayout
 	        });
-	        store.commit('delete', {
-	          chatId: payload.chatId,
-	          elements: payload.id
-	        });
-	        return true;
-	      },
-	      clear: (store, payload) => {
-	        payload.chatId = parseInt(payload.chatId);
-	        if (payload.keepPlaceholders) {
-	          store.commit('clearMessages', {
-	            chatId: payload.chatId
-	          });
-	        } else {
-	          store.commit('clear', {
-	            chatId: payload.chatId
-	          });
-	        }
-	        return true;
-	      },
-	      applyMutationType: (store, payload) => {
-	        payload.chatId = parseInt(payload.chatId);
-	        store.commit('applyMutationType', {
-	          chatId: payload.chatId
-	        });
-	        return true;
-	      },
-	      readMessages: (store, payload) => {
-	        payload.readId = parseInt(payload.readId) || 0;
-	        payload.chatId = parseInt(payload.chatId);
-	        if (typeof store.state.collection[payload.chatId] === 'undefined') {
-	          return {
-	            count: 0
-	          };
-	        }
-	        let count = 0;
-	        for (let index = store.state.collection[payload.chatId].length - 1; index >= 0; index--) {
-	          let element = store.state.collection[payload.chatId][index];
-	          if (!element.unread) continue;
-	          if (payload.readId === 0 || element.id <= payload.readId) {
-	            count++;
-	          }
-	        }
-	        store.commit('readMessages', {
-	          chatId: payload.chatId,
-	          readId: payload.readId
-	        });
-	        return {
-	          count
-	        };
-	      },
-	      unreadMessages: (store, payload) => {
-	        payload.unreadId = parseInt(payload.unreadId) || 0;
-	        payload.chatId = parseInt(payload.chatId);
-	        if (typeof store.state.collection[payload.chatId] === 'undefined' || !payload.unreadId) {
-	          return {
-	            count: 0
-	          };
-	        }
-	        let count = 0;
-	        for (let index = store.state.collection[payload.chatId].length - 1; index >= 0; index--) {
-	          let element = store.state.collection[payload.chatId][index];
-	          if (element.unread) continue;
-	          if (element.id >= payload.unreadId) {
-	            count++;
-	          }
-	        }
-	        store.commit('unreadMessages', {
-	          chatId: payload.chatId,
-	          unreadId: payload.unreadId
-	        });
-	        return {
-	          count
-	        };
 	      }
 	    };
 	  }
 	  getMutations() {
 	    return {
-	      initCollection: (state, payload) => {
-	        return this.initCollection(state, payload);
-	      },
-	      add: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
+	      update: (state, payload) => {
+	        Object.keys(payload).forEach(group => {
+	          Object.entries(payload[group]).forEach(([key, value]) => {
+	            state[group][key] = value;
+	          });
 	        });
-	        state.collection[payload.chatId].push(payload);
-	        state.saveMessageList[payload.chatId].push(payload.id);
-	        state.created += 1;
-	        state.collection[payload.chatId].sort((a, b) => a.id - b.id);
-	        this.saveState(state, payload.chatId);
-	        im_v2_lib_logger.Logger.warn('Messages model: saving state after add');
+	      }
+	    };
+	  }
+	  validateLayout(layoutName) {
+	    if (!im_v2_const.Layout[layoutName]) {
+	      return im_v2_const.Layout.chat.name;
+	    }
+	    return layoutName;
+	  }
+	  validateLayoutEntityId(layoutName, entityId) {
+	    if (!im_v2_const.Layout[layoutName]) {
+	      return '';
+	    }
+
+	    // TODO check `entityId` by layout name
+
+	    return entityId;
+	  }
+	}
+
+	class PinModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      getPinned: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId]].map(pinnedMessageId => {
+	          return im_v2_application_core.Core.getStore().getters['messages/getById'](pinnedMessageId);
+	        });
 	      },
-	      clearPlaceholders: (state, payload) => {
-	        if (!state.collection[payload.chatId]) {
+	      isPinned: state => payload => {
+	        const {
+	          chatId,
+	          messageId
+	        } = payload;
+	        if (!state.collection[chatId]) {
 	          return false;
 	        }
-	        state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
-	          return !element.id.toString().startsWith('placeholder');
+	        return state.collection[chatId].has(messageId);
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      setPinned: (store, payload) => {
+	        const {
+	          chatId,
+	          pinnedMessages
+	        } = payload;
+	        if (pinnedMessages.length === 0) {
+	          return;
+	        }
+	        store.commit('setPinned', {
+	          chatId,
+	          pinnedMessageIds: pinnedMessages
 	        });
 	      },
-	      updatePlaceholders: (state, payload) => {
-	        const firstPlaceholderId = `placeholder${payload.firstMessage}`;
-	        const firstPlaceholderIndex = state.collection[payload.chatId].findIndex(message => {
-	          return message.id === firstPlaceholderId;
-	        });
-	        // Logger.warn('firstPlaceholderIndex', firstPlaceholderIndex);
-	        if (firstPlaceholderIndex >= 0) {
-	          // Logger.warn('before delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
-	          state.collection[payload.chatId].splice(firstPlaceholderIndex, payload.amount);
-	          // Logger.warn('after delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
-	          state.collection[payload.chatId].splice(firstPlaceholderIndex, 0, ...payload.data);
-	          // Logger.warn('after add', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+	      set: (store, payload) => {
+	        store.commit('set', payload);
+	      },
+	      add: (store, payload) => {
+	        store.commit('add', payload);
+	      },
+	      delete: (store, payload) => {
+	        store.commit('delete', payload);
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setPinned: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages/pin model: setPinned mutation', payload);
+	        const {
+	          chatId,
+	          pinnedMessageIds
+	        } = payload;
+	        state.collection[chatId] = new Set(pinnedMessageIds.reverse());
+	      },
+	      add: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages/pin model: add pin mutation', payload);
+	        const {
+	          chatId,
+	          messageId
+	        } = payload;
+	        if (!state.collection[chatId]) {
+	          state.collection[chatId] = new Set();
 	        }
+	        state.collection[chatId].add(messageId);
+	      },
+	      delete: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages/pin model: delete pin mutation', payload);
+	        const {
+	          chatId,
+	          messageId
+	        } = payload;
+	        if (!state.collection[chatId]) {
+	          return;
+	        }
+	        state.collection[chatId].delete(messageId);
+	      }
+	    };
+	  }
+	}
 
-	        state.collection[payload.chatId].sort((a, b) => a.id - b.id);
-	        im_v2_lib_logger.Logger.warn('Messages model: saving state after updating placeholders');
-	        this.saveState(state, payload.chatId);
+	const USERS_TO_SHOW = 5;
+	class ReactionsModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      reactionCounters: {},
+	      reactionUsers: {},
+	      ownReactions: new Set()
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      getByMessageId: state => messageId => {
+	        return state.collection[messageId];
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        store.commit('set', this.prepareSetPayload(payload));
 	      },
+	      setReaction: (store, payload) => {
+	        if (!ui_reactionsSelect.reactionType[payload.reaction]) {
+	          return;
+	        }
+	        if (!store.state.collection[payload.messageId]) {
+	          store.state.collection[payload.messageId] = this.getElementState();
+	        }
+	        store.commit('setReaction', payload);
+	      },
+	      removeReaction: (store, payload) => {
+	        if (!store.state.collection[payload.messageId] || !ui_reactionsSelect.reactionType[payload.reaction]) {
+	          return;
+	        }
+	        store.commit('removeReaction', payload);
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
 	      set: (state, payload) => {
-	        im_v2_lib_logger.Logger.warn('Messages model: set mutation', payload);
-	        let chats = [];
-	        let chatsSave = [];
-	        let isPush = false;
-	        payload.data = MessagesModel.getPayloadWithTempMessages(state, payload);
-	        const initialType = payload.insertType;
-	        if (payload.insertType === im_v2_const.MutationType.set) {
-	          payload.insertType = im_v2_const.MutationType.setAfter;
-	          let elements = {};
-	          payload.data.forEach(element => {
-	            if (!elements[element.chatId]) {
-	              elements[element.chatId] = [];
-	            }
-	            elements[element.chatId].push(element.id);
-	          });
-	          for (let chatId in elements) {
-	            if (!elements.hasOwnProperty(chatId)) continue;
-	            this.initCollection(state, {
-	              chatId
-	            });
-	            im_v2_lib_logger.Logger.warn('Messages model: messages before adding from request - ', state.collection[chatId].length);
-	            if (state.saveMessageList[chatId].length > elements[chatId].length || elements[chatId].length < im_v2_const.StorageLimit.messages) {
-	              state.collection[chatId] = state.collection[chatId].filter(element => elements[chatId].includes(element.id));
-	              state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => elements[chatId].includes(id));
-	            }
-	            im_v2_lib_logger.Logger.warn('Messages model: cache length', state.saveMessageList[chatId].length);
-	            let intersection = this.manageCacheBeforeSet([...state.saveMessageList[chatId].reverse()], elements[chatId]);
-	            im_v2_lib_logger.Logger.warn('Messages model: set intersection with cache', intersection);
-	            if (intersection.type === IntersectionType.none) {
-	              if (intersection.foundElements.length > 0) {
-	                state.collection[chatId] = state.collection[chatId].filter(element => !intersection.foundElements.includes(element.id));
-	                state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !intersection.foundElements.includes(id));
-	              }
-	              im_v2_lib_logger.Logger.warn('Messages model: no intersection - removing cache');
-	              this.removeIntersectionCacheElements = state.collection[chatId].map(element => element.id);
-	              state.collection[chatId] = state.collection[chatId].filter(element => !this.removeIntersectionCacheElements.includes(element.id));
-	              state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !this.removeIntersectionCacheElements.includes(id));
-	              this.removeIntersectionCacheElements = [];
-	            } else if (intersection.type === IntersectionType.foundReverse) {
-	              im_v2_lib_logger.Logger.warn('Messages model: found reverse intersection');
-	              payload.insertType = im_v2_const.MutationType.setBefore;
-	              payload.data = payload.data.reverse();
-	            }
+	        payload.forEach(item => {
+	          const newItem = {
+	            reactionCounters: item.reactionCounters,
+	            reactionUsers: item.reactionUsers
+	          };
+	          const currentItem = state.collection[item.messageId];
+	          const newOwnReaction = !!item.ownReactions;
+	          if (newOwnReaction) {
+	            newItem.ownReactions = item.ownReactions;
+	          } else {
+	            newItem.ownReactions = currentItem ? currentItem.ownReactions : new Set();
 	          }
+	          state.collection[item.messageId] = newItem;
+	        });
+	      },
+	      setReaction: (state, payload) => {
+	        const {
+	          messageId,
+	          userId,
+	          reaction
+	        } = payload;
+	        const reactions = state.collection[messageId];
+	        if (im_v2_application_core.Core.getUserId() === userId) {
+	          this.removeAllCurrentUserReactions(reactions);
+	          reactions.ownReactions.add(reaction);
 	        }
-	        im_v2_lib_logger.Logger.warn('Messages model: adding messages to model', payload.data);
-	        for (let element of payload.data) {
-	          this.initCollection(state, {
-	            chatId: element.chatId
-	          });
-	          let index = state.collection[element.chatId].findIndex(localMessage => {
-	            if (MessagesModel.isTemporaryMessage(localMessage)) {
-	              return localMessage.templateId === element.templateId;
-	            }
-	            return localMessage.id === element.id;
-	          });
-	          if (index > -1) {
-	            state.collection[element.chatId][index] = Object.assign(state.collection[element.chatId][index], element);
-	          } else if (payload.insertType === im_v2_const.MutationType.setBefore) {
-	            state.collection[element.chatId].unshift(element);
-	          } else if (payload.insertType === im_v2_const.MutationType.setAfter) {
-	            state.collection[element.chatId].push(element);
-	          }
-	          chats.push(element.chatId);
-	          if (this.store.getters['dialogues/canSaveChat'] && this.store.getters['dialogues/canSaveChat'](element.chatId)) {
-	            chatsSave.push(element.chatId);
-	          }
+	        if (!reactions.reactionCounters[reaction]) {
+	          reactions.reactionCounters[reaction] = 0;
 	        }
-	        chats = [...new Set(chats)];
-	        chatsSave = [...new Set(chatsSave)];
-	        isPush = payload.data.every(element => element.push === true);
-	        im_v2_lib_logger.Logger.warn('Is it fake push message?', isPush);
-	        chats.forEach(chatId => {
-	          state.collection[chatId].sort((a, b) => a.id - b.id);
-	          if (!isPush) {
-	            //send event that messages are ready and we can start reading etc
-	            im_v2_lib_logger.Logger.warn('setting messagesSet = true for chatId = ', chatId);
-	            setTimeout(() => {
-	              main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.messagesSet, {
-	                chatId
-	              });
-	              main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.readVisibleMessages, {
-	                chatId
-	              });
-	            }, 100);
+	        const currentCounter = reactions.reactionCounters[reaction];
+	        if (currentCounter + 1 <= USERS_TO_SHOW) {
+	          if (!reactions.reactionUsers[reaction]) {
+	            reactions.reactionUsers[reaction] = new Set();
+	          }
+	          reactions.reactionUsers[reaction].add(userId);
+	        }
+	        reactions.reactionCounters[reaction]++;
+	      },
+	      removeReaction: (state, payload) => {
+	        var _reactions$reactionUs;
+	        const {
+	          messageId,
+	          userId,
+	          reaction
+	        } = payload;
+	        const reactions = state.collection[messageId];
+	        if (im_v2_application_core.Core.getUserId() === userId) {
+	          reactions.ownReactions.delete(reaction);
+	        }
+	        (_reactions$reactionUs = reactions.reactionUsers[reaction]) == null ? void 0 : _reactions$reactionUs.delete(userId);
+	        reactions.reactionCounters[reaction]--;
+	        if (reactions.reactionCounters[reaction] === 0) {
+	          delete reactions.reactionCounters[reaction];
+	        }
+	      }
+	    };
+	  }
+	  removeAllCurrentUserReactions(reactions) {
+	    reactions.ownReactions.forEach(reaction => {
+	      var _reactions$reactionUs2;
+	      (_reactions$reactionUs2 = reactions.reactionUsers[reaction]) == null ? void 0 : _reactions$reactionUs2.delete(im_v2_application_core.Core.getUserId());
+	      reactions.reactionCounters[reaction]--;
+	      if (reactions.reactionCounters[reaction] === 0) {
+	        delete reactions.reactionCounters[reaction];
+	      }
+	    });
+	    reactions.ownReactions = new Set();
+	  }
+	  prepareSetPayload(payload) {
+	    return payload.map(item => {
+	      var _item$ownReactions;
+	      const reactionUsers = {};
+	      Object.entries(item.reactionUsers).forEach(([reaction, users]) => {
+	        reactionUsers[reaction] = new Set(users);
+	      });
+	      const reactionCounters = {};
+	      Object.entries(item.reactionCounters).forEach(([reaction, counter]) => {
+	        reactionCounters[reaction] = counter;
+	      });
+	      const result = {
+	        messageId: item.messageId,
+	        reactionCounters: reactionCounters,
+	        reactionUsers: reactionUsers
+	      };
+	      if (((_item$ownReactions = item.ownReactions) == null ? void 0 : _item$ownReactions.length) > 0) {
+	        result.ownReactions = new Set(item.ownReactions);
+	      }
+	      return result;
+	    });
+	  }
+	}
+
+	var _getMaxMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMaxMessageId");
+	var _findLowestMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findLowestMessageId");
+	var _findMaxMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findMaxMessageId");
+	var _findLastOwnMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findLastOwnMessageId");
+	var _findFirstUnread = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findFirstUnread");
+	class MessagesModel extends ui_vue3_vuex.BuilderModel {
+	  constructor(...args) {
+	    super(...args);
+	    Object.defineProperty(this, _findFirstUnread, {
+	      value: _findFirstUnread2
+	    });
+	    Object.defineProperty(this, _findLastOwnMessageId, {
+	      value: _findLastOwnMessageId2
+	    });
+	    Object.defineProperty(this, _findMaxMessageId, {
+	      value: _findMaxMessageId2
+	    });
+	    Object.defineProperty(this, _findLowestMessageId, {
+	      value: _findLowestMessageId2
+	    });
+	    Object.defineProperty(this, _getMaxMessageId, {
+	      value: _getMaxMessageId2
+	    });
+	  }
+	  getName() {
+	    return 'messages';
+	  }
+	  getNestedModules() {
+	    return {
+	      pin: PinModel,
+	      reactions: ReactionsModel
+	    };
+	  }
+	  getState() {
+	    return {
+	      collection: {},
+	      chatCollection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      date: new Date(),
+	      text: '',
+	      replaces: [],
+	      files: [],
+	      attach: [],
+	      unread: false,
+	      viewed: true,
+	      viewedByOthers: false,
+	      sending: false,
+	      error: false,
+	      retry: false,
+	      componentId: im_v2_const.MessageComponent.base,
+	      isEdited: false,
+	      isDeleted: false,
+	      removeLinks: false
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return [];
+	        }
+	        return [...state.chatCollection[chatId]].map(messageId => {
+	          return state.collection[messageId];
+	        }).sort((a, b) => {
+	          return a.id - b.id;
+	        });
+	      },
+	      getById: state => id => {
+	        return state.collection[id];
+	      },
+	      getByIdList: state => idList => {
+	        const result = [];
+	        idList.forEach(id => {
+	          if (state.collection[id]) {
+	            result.push(state.collection[id]);
 	          }
 	        });
-	        if (initialType !== im_v2_const.MutationType.setBefore) {
-	          chatsSave.forEach(chatId => {
-	            im_v2_lib_logger.Logger.warn('Messages model: saving state after set');
-	            this.saveState(state, chatId);
+	        return result;
+	      },
+	      hasMessage: state => ({
+	        chatId,
+	        messageId
+	      }) => {
+	        if (!state.chatCollection[chatId]) {
+	          return false;
+	        }
+	        return state.chatCollection[chatId].has(messageId);
+	      },
+	      isInChatCollection: state => payload => {
+	        var _state$chatCollection;
+	        const {
+	          messageId
+	        } = payload;
+	        const message = state.collection[messageId];
+	        if (!message) {
+	          return false;
+	        }
+	        const {
+	          chatId
+	        } = message;
+	        return (_state$chatCollection = state.chatCollection[chatId]) == null ? void 0 : _state$chatCollection.has(messageId);
+	      },
+	      getFirstId: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return;
+	        }
+	        return babelHelpers.classPrivateFieldLooseBase(this, _findLowestMessageId)[_findLowestMessageId](state, chatId);
+	      },
+	      getLastId: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return;
+	        }
+	        return babelHelpers.classPrivateFieldLooseBase(this, _findMaxMessageId)[_findMaxMessageId](state, chatId);
+	      },
+	      getLastOwnMessageId: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return 0;
+	        }
+	        return babelHelpers.classPrivateFieldLooseBase(this, _findLastOwnMessageId)[_findLastOwnMessageId](state, chatId);
+	      },
+	      getFirstUnread: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return 0;
+	        }
+	        return babelHelpers.classPrivateFieldLooseBase(this, _findFirstUnread)[_findFirstUnread](state, chatId);
+	      },
+	      getChatUnreadMessages: state => chatId => {
+	        if (!state.chatCollection[chatId]) {
+	          return [];
+	        }
+	        const messages = [...state.chatCollection[chatId]].map(messageId => {
+	          return state.collection[messageId];
+	        });
+	        return messages.filter(message => {
+	          return message.unread === true;
+	        });
+	      },
+	      getMessageFiles: state => payload => {
+	        const messageId = payload;
+	        if (!state.collection[messageId]) {
+	          return [];
+	        }
+	        return state.collection[messageId].files.map(fileId => {
+	          return this.store.getters['files/get'](fileId, true);
+	        });
+	      },
+	      getMessageType: state => payload => {
+	        const message = state.collection[payload];
+	        if (!message) {
+	          return;
+	        }
+	        const currentUserId = im_v2_application_core.Core.getUserId();
+	        if (message.authorId === 0) {
+	          return im_v2_const.MessageType.system;
+	        } else if (message.authorId === currentUserId) {
+	          return im_v2_const.MessageType.self;
+	        }
+	        return im_v2_const.MessageType.opponent;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      setChatCollection: (store, payload) => {
+	        var _clearCollection, _messages$;
+	        let {
+	          messages,
+	          clearCollection
+	        } = payload;
+	        clearCollection = (_clearCollection = clearCollection) != null ? _clearCollection : false;
+	        if (!Array.isArray(messages) && main_core.Type.isPlainObject(messages)) {
+	          messages = [messages];
+	        }
+	        messages = messages.map(message => {
+	          return {
+	            ...this.getElementState(),
+	            ...this.validate(message)
+	          };
+	        });
+	        const chatId = (_messages$ = messages[0]) == null ? void 0 : _messages$.chatId;
+	        if (chatId && clearCollection) {
+	          store.commit('clearCollection', {
+	            chatId
 	          });
+	        }
+	        store.commit('store', {
+	          messages
+	        });
+	        store.commit('setChatCollection', {
+	          messages
+	        });
+	      },
+	      store: (store, payload) => {
+	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
+	          payload = [payload];
+	        }
+	        payload = payload.map(message => {
+	          return {
+	            ...this.getElementState(),
+	            ...this.validate(message)
+	          };
+	        });
+	        if (payload.length === 0) {
+	          return;
+	        }
+	        store.commit('store', {
+	          messages: payload
+	        });
+	      },
+	      add: (store, payload) => {
+	        const message = {
+	          ...this.getElementState(),
+	          ...this.validate(payload)
+	        };
+	        store.commit('store', {
+	          messages: [message]
+	        });
+	        store.commit('setChatCollection', {
+	          messages: [message]
+	        });
+	        return message.id;
+	      },
+	      updateWithId: (store, payload) => {
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        if (!store.state.collection[id]) {
+	          return;
+	        }
+	        store.commit('updateWithId', {
+	          id,
+	          fields: this.validate(fields)
+	        });
+	      },
+	      update: (store, payload) => {
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        const currentMessage = store.state.collection[id];
+	        if (!currentMessage) {
+	          return;
+	        }
+	        store.commit('update', {
+	          id,
+	          fields: {
+	            ...currentMessage,
+	            ...this.validate(fields)
+	          }
+	        });
+	      },
+	      readMessages: (store, payload) => {
+	        const {
+	          chatId,
+	          messageIds
+	        } = payload;
+	        if (!store.state.chatCollection[chatId]) {
+	          return 0;
+	        }
+	        const chatMessages = [...store.state.chatCollection[chatId]].map(messageId => {
+	          return store.state.collection[messageId];
+	        });
+	        let messagesToReadCount = 0;
+	        const maxMessageId = babelHelpers.classPrivateFieldLooseBase(this, _getMaxMessageId)[_getMaxMessageId](messageIds);
+	        const messageIdsToView = messageIds;
+	        const messageIdsToRead = [];
+	        chatMessages.forEach(chatMessage => {
+	          if (!chatMessage.unread) {
+	            return;
+	          }
+	          if (chatMessage.id <= maxMessageId) {
+	            messagesToReadCount++;
+	            messageIdsToRead.push(chatMessage.id);
+	          }
+	        });
+	        store.commit('readMessages', {
+	          messageIdsToRead,
+	          messageIdsToView
+	        });
+	        return messagesToReadCount;
+	      },
+	      setViewedByOthers: (store, payload) => {
+	        const {
+	          ids
+	        } = payload;
+	        store.commit('setViewedByOthers', {
+	          ids
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          id
+	        } = payload;
+	        if (!store.state.collection[id]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          id
+	        });
+	      },
+	      clearChatCollection: (store, payload) => {
+	        const {
+	          chatId
+	        } = payload;
+	        store.commit('clearCollection', {
+	          chatId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setChatCollection: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages model: setChatCollection mutation', payload);
+	        payload.messages.forEach(message => {
+	          if (!state.chatCollection[message.chatId]) {
+	            state.chatCollection[message.chatId] = new Set();
+	          }
+	          state.chatCollection[message.chatId].add(message.id);
+	        });
+	      },
+	      store: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages model: store mutation', payload);
+	        payload.messages.forEach(message => {
+	          state.collection[message.id] = message;
+	        });
+	      },
+	      updateWithId: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages model: updateWithId mutation', payload);
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        const currentMessage = {
+	          ...state.collection[id]
+	        };
+	        delete state.collection[id];
+	        state.collection[fields.id] = {
+	          ...currentMessage,
+	          ...fields,
+	          sending: false
+	        };
+	        if (state.chatCollection[currentMessage.chatId].has(id)) {
+	          state.chatCollection[currentMessage.chatId].delete(id);
+	          state.chatCollection[currentMessage.chatId].add(fields.id);
 	        }
 	      },
 	      update: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        let index = -1;
-	        if (typeof payload.index !== 'undefined' && state.collection[payload.chatId][payload.index]) {
-	          index = payload.index;
-	        } else {
-	          index = state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-	        }
-	        if (index >= 0) {
-	          let isSaveState = state.saveMessageList[payload.chatId].includes(state.collection[payload.chatId][index].id) || payload.fields.id && !payload.fields.id.toString().startsWith('temporary') && state.collection[payload.chatId][index].id.toString().startsWith('temporary');
-	          state.collection[payload.chatId][index] = Object.assign(state.collection[payload.chatId][index], payload.fields);
-	          if (isSaveState) {
-	            im_v2_lib_logger.Logger.warn('Messages model: saving state after update');
-	            this.saveState(state, payload.chatId);
-	          }
-	        }
+	        im_v2_lib_logger.Logger.warn('Messages model: update mutation', payload);
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        state.collection[id] = {
+	          ...state.collection[id],
+	          ...fields
+	        };
 	      },
 	      delete: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => !payload.elements.includes(element.id));
-	        if (state.saveMessageList[payload.chatId].length > 0) {
-	          for (let id of payload.elements) {
-	            if (state.saveMessageList[payload.chatId].includes(id)) {
-	              im_v2_lib_logger.Logger.warn('Messages model: saving state after delete');
-	              this.saveState(state, payload.chatId);
-	              break;
-	            }
-	          }
-	        }
+	        im_v2_lib_logger.Logger.warn('Messages model: delete mutation', payload);
+	        const {
+	          id
+	        } = payload;
+	        const {
+	          chatId
+	        } = state.collection[id];
+	        state.chatCollection[chatId].delete(id);
+	        delete state.collection[id];
 	      },
-	      clear: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        state.collection[payload.chatId] = [];
-	        state.saveMessageList[payload.chatId] = [];
-	      },
-	      clearMessages: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
-	          return element.id.toString().startsWith('placeholder');
-	        });
-	        state.saveMessageList[payload.chatId] = [];
-	      },
-	      applyMutationType: (state, payload) => {
-	        if (typeof state.mutationType[payload.chatId] === 'undefined') {
-	          state.mutationType[payload.chatId] = {
-	            applied: false,
-	            initialType: im_v2_const.MutationType.none,
-	            appliedType: im_v2_const.MutationType.none,
-	            scrollStickToTop: 0,
-	            scrollMessageId: 0
-	          };
-	        }
-	        state.mutationType[payload.chatId].applied = true;
+	      clearCollection: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Messages model: clear collection mutation', payload.chatId);
+	        state.chatCollection[payload.chatId] = new Set();
 	      },
 	      readMessages: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        let saveNeeded = false;
-	        for (let index = state.collection[payload.chatId].length - 1; index >= 0; index--) {
-	          let element = state.collection[payload.chatId][index];
-	          if (!element.unread) continue;
-	          if (payload.readId === 0 || element.id <= payload.readId) {
-	            state.collection[payload.chatId][index] = Object.assign(state.collection[payload.chatId][index], {
-	              unread: false
-	            });
-	            saveNeeded = true;
+	        const {
+	          messageIdsToRead,
+	          messageIdsToView
+	        } = payload;
+	        messageIdsToRead.forEach(messageId => {
+	          const message = state.collection[messageId];
+	          if (!message) {
+	            return;
 	          }
-	        }
-	        if (saveNeeded) {
-	          im_v2_lib_logger.Logger.warn('Messages model: saving state after reading');
-	          this.saveState(state, payload.chatId);
-	        }
+	          message.unread = false;
+	        });
+	        messageIdsToView.forEach(messageId => {
+	          const message = state.collection[messageId];
+	          if (!message) {
+	            return;
+	          }
+	          message.viewed = true;
+	        });
 	      },
-	      unreadMessages: (state, payload) => {
-	        this.initCollection(state, {
-	          chatId: payload.chatId
-	        });
-	        let saveNeeded = false;
-	        for (let index = state.collection[payload.chatId].length - 1; index >= 0; index--) {
-	          let element = state.collection[payload.chatId][index];
-	          if (element.unread) continue;
-	          if (element.id >= payload.unreadId) {
-	            state.collection[payload.chatId][index] = Object.assign(state.collection[payload.chatId][index], {
-	              unread: true
-	            });
-	            saveNeeded = true;
+	      setViewedByOthers: (state, payload) => {
+	        const {
+	          ids
+	        } = payload;
+	        ids.forEach(id => {
+	          const message = state.collection[id];
+	          if (!message) {
+	            return;
 	          }
-	        }
-	        if (saveNeeded) {
-	          im_v2_lib_logger.Logger.warn('Messages model: saving state after unreading');
-	          this.saveState(state, payload.chatId);
-	          this.updateSubordinateStates();
-	        }
+	          const isOwnMessage = message.authorId === im_v2_application_core.Core.getUserId();
+	          if (!isOwnMessage || message.viewedByOthers) {
+	            return;
+	          }
+	          message.viewedByOthers = true;
+	        });
 	      }
 	    };
 	  }
-	  initCollection(state, payload) {
-	    if (typeof payload.chatId === 'undefined') {
-	      return false;
-	    }
-	    if (typeof payload.chatId === 'undefined' || typeof state.collection[payload.chatId] !== 'undefined') {
-	      return true;
-	    }
-	    state.collection[payload.chatId] = payload.messages ? [...payload.messages] : [];
-	    state.saveMessageList[payload.chatId] = [];
-	    state.saveFileList[payload.chatId] = [];
-	    state.saveUserList[payload.chatId] = [];
-	    return true;
-	  }
-	  prepareMessage(message, options = {}) {
-	    let result = this.validate(Object.assign({}, message), options);
-	    result.params = Object.assign({}, this.getElementState().params, result.params);
-	    if (!result.templateId) {
-	      result.templateId = result.id;
-	    }
-	    return Object.assign({}, this.getElementState(), result);
-	  }
-	  manageCacheBeforeSet(cache, elements, recursive = false) {
-	    im_v2_lib_logger.Logger.warn('manageCacheBeforeSet', cache, elements);
-	    let result = {
-	      type: IntersectionType.empty,
-	      foundElements: [],
-	      noneElements: []
-	    };
-	    if (!cache || cache.length <= 0) {
-	      return result;
-	    }
-	    for (let id of elements) {
-	      if (cache.includes(id)) {
-	        if (result.type === IntersectionType.empty) {
-	          result.type = IntersectionType.found;
-	        }
-	        result.foundElements.push(id);
-	      } else {
-	        if (result.type === IntersectionType.empty) {
-	          result.type = IntersectionType.none;
-	        }
-	        result.noneElements.push(id);
-	      }
-	    }
-	    if (result.type === IntersectionType.found && cache.length === elements.length && result.foundElements.length === elements.length) {
-	      result.type = IntersectionType.equal;
-	    } else if (result.type === IntersectionType.none && !recursive && result.foundElements.length > 0) {
-	      let reverseResult = this.manageCacheBeforeSet(cache.reverse(), elements.reverse(), true);
-	      if (reverseResult.type === IntersectionType.found) {
-	        reverseResult.type = IntersectionType.foundReverse;
-	        return reverseResult;
-	      }
-	    }
-	    return result;
-	  }
-	  updateSaveLists(state, chatId) {
-	    if (!this.isSaveAvailable()) {
-	      return true;
-	    }
-	    if (!chatId || !this.store.getters['dialogues/canSaveChat'] || !this.store.getters['dialogues/canSaveChat'](chatId)) {
-	      return false;
-	    }
-	    this.initCollection(state, {
-	      chatId: chatId
-	    });
-	    let count = 0;
-	    let saveMessageList = [];
-	    let saveFileList = [];
-	    let saveUserList = [];
-	    let dialog = this.store.getters['dialogues/getByChatId'](chatId);
-	    if (dialog && dialog.type === 'private') {
-	      saveUserList.push(parseInt(dialog.dialogId));
-	    }
-	    let readCounter = 0;
-	    for (let index = state.collection[chatId].length - 1; index >= 0; index--) {
-	      if (state.collection[chatId][index].id.toString().startsWith('temporary')) {
-	        continue;
-	      }
-	      if (!state.collection[chatId][index].unread) {
-	        readCounter++;
-	      }
-	      if (count >= im_v2_const.StorageLimit.messages && readCounter >= 50) {
-	        break;
-	      }
-	      saveMessageList.unshift(state.collection[chatId][index].id);
-	      count++;
-	    }
-	    saveMessageList = saveMessageList.slice(0, im_v2_const.StorageLimit.messages);
-	    state.collection[chatId].filter(element => saveMessageList.includes(element.id)).forEach(element => {
-	      if (element.authorId > 0) {
-	        saveUserList.push(element.authorId);
-	      }
-	      if (element.params.FILE_ID instanceof Array) {
-	        saveFileList = element.params.FILE_ID.concat(saveFileList);
-	      }
-	    });
-	    state.saveMessageList[chatId] = saveMessageList;
-	    state.saveFileList[chatId] = [...new Set(saveFileList)];
-	    state.saveUserList[chatId] = [...new Set(saveUserList)];
-	    return true;
-	  }
-	  getSaveTimeout() {
-	    return 150;
-	  }
-	  saveState(state, chatId) {
-	    if (!this.updateSaveLists(state, chatId)) {
-	      return false;
-	    }
-	    super.saveState(() => {
-	      let storedState = {
-	        collection: {},
-	        saveMessageList: {},
-	        saveUserList: {},
-	        saveFileList: {}
-	      };
-	      for (let chatId in state.saveMessageList) {
-	        if (!state.saveMessageList.hasOwnProperty(chatId)) {
-	          continue;
-	        }
-	        if (!state.collection[chatId]) {
-	          continue;
-	        }
-	        if (!storedState.collection[chatId]) {
-	          storedState.collection[chatId] = [];
-	        }
-	        state.collection[chatId].filter(element => state.saveMessageList[chatId].includes(element.id)).forEach(element => {
-	          if (element.templateType !== 'placeholder') {
-	            storedState.collection[chatId].push(element);
-	          }
-	        });
-	        im_v2_lib_logger.Logger.warn('Cache after updating', storedState.collection[chatId]);
-	        storedState.saveMessageList[chatId] = state.saveMessageList[chatId];
-	        storedState.saveFileList[chatId] = state.saveFileList[chatId];
-	        storedState.saveUserList[chatId] = state.saveUserList[chatId];
-	      }
-	      return storedState;
-	    });
-	  }
-	  updateSubordinateStates() {
-	    this.store.dispatch('users/saveState');
-	    this.store.dispatch('files/saveState');
-	  }
-	  validate(fields, options) {
-	    const result = {};
-	    if (typeof fields.id === "number") {
+	  validate(fields) {
+	    let result = {};
+	    if (main_core.Type.isNumber(fields.id)) {
 	      result.id = fields.id;
-	    } else if (typeof fields.id === "string") {
-	      if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || im_v2_lib_utils.Utils.text.isUuidV4(fields.id)) {
-	        result.id = fields.id;
-	      } else {
-	        result.id = parseInt(fields.id);
-	      }
+	    } else if (im_v2_lib_utils.Utils.text.isUuidV4(fields.temporaryId)) {
+	      result.id = fields.temporaryId;
 	    }
-	    if (typeof fields.uuid === "string") {
-	      result.templateId = fields.uuid;
-	    } else if (typeof fields.templateId === "number") {
-	      result.templateId = fields.templateId;
-	    } else if (typeof fields.templateId === "string") {
-	      if (fields.templateId.startsWith('temporary') || im_v2_lib_utils.Utils.text.isUuidV4(fields.templateId)) {
-	        result.templateId = fields.templateId;
-	      } else {
-	        result.templateId = parseInt(fields.templateId);
-	      }
-	    }
-	    if (typeof fields.templateType === "string") {
-	      result.templateType = fields.templateType;
-	    }
-	    if (typeof fields.placeholderType === "number") {
-	      result.placeholderType = fields.placeholderType;
-	    }
-	    if (typeof fields.chat_id !== 'undefined') {
+	    if (!main_core.Type.isUndefined(fields.chat_id)) {
 	      fields.chatId = fields.chat_id;
 	    }
-	    if (typeof fields.chatId === "number" || typeof fields.chatId === "string") {
-	      result.chatId = parseInt(fields.chatId);
+	    if (main_core.Type.isNumber(fields.chatId) || main_core.Type.isStringFilled(fields.chatId)) {
+	      result.chatId = Number.parseInt(fields.chatId, 10);
 	    }
-	    if (typeof fields.date !== "undefined") {
+	    if (main_core.Type.isStringFilled(fields.date)) {
 	      result.date = im_v2_lib_utils.Utils.date.cast(fields.date);
 	    }
-
-	    // previous P&P format
-	    if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number") {
-	      result.text = fields.textOriginal.toString();
-	      if (typeof fields.text === "string" || typeof fields.text === "number") {
-	        result.textConverted = this.convertToHtml({
-	          text: fields.text.toString(),
-	          isConverted: true
-	        });
-	      }
-	    } else
-	      // modern format
-	      {
-	        if (typeof fields.text_converted !== 'undefined') {
-	          fields.textConverted = fields.text_converted;
-	        }
-	        if (typeof fields.textConverted === "string" || typeof fields.textConverted === "number") {
-	          result.textConverted = fields.textConverted.toString();
-	        }
-	        if (typeof fields.text === "string" || typeof fields.text === "number") {
-	          result.text = fields.text.toString();
-	          let isConverted = typeof result.textConverted !== 'undefined';
-	          result.textConverted = this.convertToHtml({
-	            text: isConverted ? result.textConverted : result.text,
-	            isConverted
-	          });
-	        }
-	      }
-	    if (typeof fields.senderId !== 'undefined') {
+	    if (main_core.Type.isNumber(fields.text) || main_core.Type.isString(fields.text)) {
+	      result.text = fields.text.toString();
+	    }
+	    if (main_core.Type.isStringFilled(fields.system)) {
+	      fields.isSystem = fields.system === 'Y';
+	    }
+	    if (!main_core.Type.isUndefined(fields.senderId)) {
 	      fields.authorId = fields.senderId;
-	    } else if (typeof fields.author_id !== 'undefined') {
+	    } else if (!main_core.Type.isUndefined(fields.author_id)) {
 	      fields.authorId = fields.author_id;
 	    }
-	    if (typeof fields.authorId === "number" || typeof fields.authorId === "string") {
-	      if (fields.system === true || fields.system === 'Y') {
-	        result.authorId = 0;
-	      } else {
-	        result.authorId = parseInt(fields.authorId);
-	      }
+	    if (main_core.Type.isNumber(fields.authorId) || main_core.Type.isStringFilled(fields.authorId)) {
+	      result.authorId = Number.parseInt(fields.authorId, 10);
 	    }
-	    if (typeof fields.params === "object" && fields.params !== null) {
-	      const params = this.validateParams(fields.params, options);
-	      if (params) {
-	        result.params = params;
-	      }
+	    if (fields.isSystem === true) {
+	      result.authorId = 0;
 	    }
-	    if (typeof fields.push === "boolean") {
-	      result.push = fields.push;
+	    if (main_core.Type.isArray(fields.replaces)) {
+	      result.replaces = fields.replaces;
 	    }
-	    if (typeof fields.sending === "boolean") {
+	    if (main_core.Type.isBoolean(fields.sending)) {
 	      result.sending = fields.sending;
 	    }
-	    if (typeof fields.unread === "boolean") {
+	    if (main_core.Type.isBoolean(fields.unread)) {
 	      result.unread = fields.unread;
 	    }
-	    if (typeof fields.blink === "boolean") {
-	      result.blink = fields.blink;
+	    if (main_core.Type.isBoolean(fields.viewed)) {
+	      result.viewed = fields.viewed;
 	    }
-	    if (typeof fields.error === "boolean" || typeof fields.error === "string") {
+	    if (main_core.Type.isBoolean(fields.viewedByOthers)) {
+	      result.viewedByOthers = fields.viewedByOthers;
+	    }
+	    if (main_core.Type.isBoolean(fields.error)) {
 	      result.error = fields.error;
 	    }
-	    if (typeof fields.retry === "boolean") {
+	    if (main_core.Type.isBoolean(fields.retry)) {
 	      result.retry = fields.retry;
+	    }
+	    if (main_core.Type.isString(fields.componentId)) {
+	      result.componentId = fields.componentId;
+	    }
+	    if (main_core.Type.isArray(fields.files)) {
+	      result.files = fields.files;
+	    }
+	    if (main_core.Type.isArray(fields.attach)) {
+	      result.attach = fields.attach;
+	    }
+	    if (main_core.Type.isBoolean(fields.isEdited)) {
+	      result.isEdited = fields.isEdited;
+	    }
+	    if (main_core.Type.isBoolean(fields.isDeleted)) {
+	      result.isDeleted = fields.isDeleted;
+	    }
+	    if (main_core.Type.isBoolean(fields.removeLinks)) {
+	      result.removeLinks = fields.removeLinks;
+	    }
+	    if (main_core.Type.isPlainObject(fields.params)) {
+	      const preparedParams = this.prepareParams(fields.params);
+	      result = {
+	        ...result,
+	        ...preparedParams
+	      };
 	    }
 	    return result;
 	  }
-	  validateParams(params, options) {
+	  prepareParams(rawParams) {
 	    const result = {};
-	    try {
-	      for (let field in params) {
-	        if (!params.hasOwnProperty(field)) {
-	          continue;
-	        }
-	        if (field === 'COMPONENT_ID') {
-	          if (typeof params[field] === "string" && BX.Vue.isComponent(params[field])) {
-	            result[field] = params[field];
-	          }
-	        } else if (field === 'LIKE') {
-	          if (params[field] instanceof Array) {
-	            result['REACTION'] = {
-	              like: params[field].map(element => parseInt(element))
-	            };
-	          }
-	        } else if (field === 'CHAT_LAST_DATE') {
-	          result[field] = im_v2_lib_utils.Utils.date.cast(params[field]);
-	        } else if (field === 'AVATAR') {
-	          if (params[field]) {
-	            result[field] = params[field].startsWith('http') ? params[field] : options.host + params[field];
-	          }
-	        } else if (field === 'NAME') {
-	          if (params[field]) {
-	            result[field] = params[field];
-	          }
-	        } else if (field === 'LINK_ACTIVE') {
-	          if (params[field]) {
-	            result[field] = params[field].map(function (userId) {
-	              return parseInt(userId);
-	            });
-	          }
-	        } else if (field === 'ATTACH') {
-	          result[field] = this.decodeAttach(params[field]);
-	        } else {
-	          result[field] = params[field];
-	        }
+	    Object.entries(rawParams).forEach(([key, value]) => {
+	      if (key === 'COMPONENT_ID' && main_core.Type.isStringFilled(value)) {
+	        result.componentId = value;
+	      } else if (key === 'FILE_ID' && main_core.Type.isArray(value)) {
+	        result.files = value;
+	      } else if (key === 'IS_EDITED' && main_core.Type.isStringFilled(value)) {
+	        result.isEdited = value === 'Y';
+	      } else if (key === 'IS_DELETED' && main_core.Type.isStringFilled(value)) {
+	        result.isDeleted = value === 'Y';
+	      } else if (key === 'ATTACH' && (main_core.Type.isArray(value) || main_core.Type.isBoolean(value) || main_core.Type.isString(value))) {
+	        result.attach = value;
+	      } else if (key === 'LINK_ACTIVE' && main_core.Type.isArrayFilled(value)) {
+	        result.removeLinks = value.includes(im_v2_application_core.Core.getUserId());
 	      }
-	    } catch (e) {}
-	    let hasResultElements = false;
-	    for (let field in result) {
-	      if (!result.hasOwnProperty(field)) {
-	        continue;
-	      }
-	      hasResultElements = true;
+	    });
+	    return result;
+	  }
+	}
+	function _getMaxMessageId2(messageIds) {
+	  let maxMessageId = 0;
+	  messageIds.forEach(messageId => {
+	    if (maxMessageId < messageId) {
+	      maxMessageId = messageId;
+	    }
+	  });
+	  return maxMessageId;
+	}
+	function _findLowestMessageId2(state, chatId) {
+	  let firstId = null;
+	  const messages = [...state.chatCollection[chatId]];
+	  for (const messageId of messages) {
+	    const element = state.collection[messageId];
+	    if (!firstId) {
+	      firstId = element.id;
+	    }
+	    if (im_v2_lib_utils.Utils.text.isTempMessage(element.id)) {
+	      continue;
+	    }
+	    if (element.id < firstId) {
+	      firstId = element.id;
+	    }
+	  }
+	  return firstId;
+	}
+	function _findMaxMessageId2(state, chatId) {
+	  let lastId = 0;
+	  const messages = [...state.chatCollection[chatId]];
+	  for (const messageId of messages) {
+	    const element = state.collection[messageId];
+	    if (im_v2_lib_utils.Utils.text.isTempMessage(element.id)) {
+	      continue;
+	    }
+	    if (element.id > lastId) {
+	      lastId = element.id;
+	    }
+	  }
+	  return lastId;
+	}
+	function _findLastOwnMessageId2(state, chatId) {
+	  let lastOwnMessageId = 0;
+	  const messages = [...state.chatCollection[chatId]].sort((a, z) => z - a);
+	  for (const messageId of messages) {
+	    const element = state.collection[messageId];
+	    if (im_v2_lib_utils.Utils.text.isTempMessage(element.id)) {
+	      continue;
+	    }
+	    if (element.authorId === im_v2_application_core.Core.getUserId()) {
+	      lastOwnMessageId = element.id;
 	      break;
 	    }
-	    return hasResultElements ? result : null;
 	  }
-	  convertToHtml(params = {}) {
-	    let {
-	      quote = true,
-	      image = true,
-	      text = '',
-	      isConverted = false,
-	      enableBigSmile = true
-	    } = params;
-	    text = text.trim();
-	    if (!isConverted) {
-	      text = text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	  return lastOwnMessageId;
+	}
+	function _findFirstUnread2(state, chatId) {
+	  let resultId = 0;
+	  for (const messageId of state.chatCollection[chatId]) {
+	    const message = state.collection[messageId];
+	    if (message.unread) {
+	      resultId = messageId;
+	      break;
 	    }
-	    if (text.startsWith('/me')) {
-	      text = `<i>${text.substr(4)}</i>`;
-	    } else if (text.startsWith('/loud')) {
-	      text = `<b>${text.substr(6)}</b>`;
-	    }
-	    const quoteSign = "&gt;&gt;";
-	    if (quote && text.indexOf(quoteSign) >= 0) {
-	      let textPrepare = text.split(isConverted ? "<br />" : "\n");
-	      for (let i = 0; i < textPrepare.length; i++) {
-	        if (textPrepare[i].startsWith(quoteSign)) {
-	          textPrepare[i] = textPrepare[i].replace(quoteSign, '<div class="bx-im-message-content-quote"><div class="bx-im-message-content-quote-wrap">');
-	          while (++i < textPrepare.length && textPrepare[i].startsWith(quoteSign)) {
-	            textPrepare[i] = textPrepare[i].replace(quoteSign, '');
-	          }
-	          textPrepare[i - 1] += '</div></div><br>';
-	        }
-	      }
-	      text = textPrepare.join("<br />");
-	    }
-	    text = text.replace(/\n/gi, '<br />');
-	    text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
-	    text = this.decodeBbCode(text, false, enableBigSmile);
-	    if (quote) {
-	      text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\]<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
-	        return (offset > 0 ? '<br>' : '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\"><div class=\"bx-im-message-content-quote-name\"><span class=\"bx-im-message-content-quote-name-text\">" + p1 + "</span><span class=\"bx-im-message-content-quote-name-time\">" + p2 + "</span></div>" + p3 + "</div></div><br />";
-	      });
-	      text = text.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, offset) {
-	        return (offset > 0 ? '<br>' : '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\">" + p1 + "</div></div><br />";
-	      });
-	    }
-	    if (image) {
-	      let changed = false;
-	      text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function (whole, aInner, text, offset) {
-	        if (!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0) {
-	          return whole;
-	        } else {
-	          changed = true;
-	          return (offset > 0 ? '<br />' : '') + '<a' + aInner + ' target="_blank" class="bx-im-element-file-image"><img src="' + text + '" class="bx-im-element-file-image-source-text" onerror="BX.Messenger.Model.MessagesModel.hideErrorImage(this)"></a></span>';
-	        }
-	      });
-	      if (changed) {
-	        text = text.replace(/<\/span>(\n?)<br(\s\/?)>/ig, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/ig, '<br /><span');
-	      }
-	    }
-	    if (enableBigSmile) {
-	      text = text.replace(/^(\s*<img\s+src=[^>]+?data-code=[^>]+?data-definition="UHD"[^>]+?style="width:)(\d+)(px[^>]+?height:)(\d+)(px[^>]+?class="bx-smile"\s*\/?>\s*)$/, function doubleSmileSize(match, start, width, middle, height, end) {
-	        return start + parseInt(width, 10) * 1.7 + middle + parseInt(height, 10) * 1.7 + end;
-	      });
-	    }
-	    if (text.substr(-6) == '<br />') {
-	      text = text.substr(0, text.length - 6);
-	    }
-	    text = text.replace(/<br><br \/>/ig, '<br />');
-	    text = text.replace(/<br \/><br>/ig, '<br />');
-	    return text;
 	  }
-	  decodeBbCode(text, textOnly = false, enableBigSmile = true) {
-	    return MessagesModel.decodeBbCode({
-	      text,
-	      textOnly,
-	      enableBigSmile
-	    });
-	  }
-	  decodeAttach(item) {
-	    if (Array.isArray(item)) {
-	      item.forEach(arrayElement => {
-	        arrayElement = this.decodeAttach(arrayElement);
-	      });
-	    } else if (typeof item === 'object' && item !== null) {
-	      for (const prop in item) {
-	        if (item.hasOwnProperty(prop)) {
-	          item[prop] = this.decodeAttach(item[prop]);
-	        }
-	      }
-	    } else {
-	      if (typeof item === 'string') {
-	        item = im_v2_lib_utils.Utils.text.htmlspecialcharsback(item);
-	      }
-	    }
-	    return item;
-	  }
-	  static decodeBbCode(params = {}) {
-	    let {
-	      text,
-	      textOnly = false,
-	      enableBigSmile = true
-	    } = params;
-	    let putReplacement = [];
-	    text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function (whole) {
-	      var id = putReplacement.length;
-	      putReplacement.push(whole);
-	      return '####REPLACEMENT_PUT_' + id + '####';
-	    });
-	    let sendReplacement = [];
-	    text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function (whole) {
-	      var id = sendReplacement.length;
-	      sendReplacement.push(whole);
-	      return '####REPLACEMENT_SEND_' + id + '####';
-	    });
-	    let codeReplacement = [];
-	    text = text.replace(/\[CODE\]\n?(.*?)\[\/CODE\]/sig, function (whole, text) {
-	      let id = codeReplacement.length;
-	      codeReplacement.push(text);
-	      return '####REPLACEMENT_CODE_' + id + '####';
-	    });
-	    text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
-	      let tag = document.createElement('a');
-	      tag.href = im_v2_lib_utils.Utils.text.htmlspecialcharsback(link);
-	      tag.target = '_blank';
-	      tag.text = im_v2_lib_utils.Utils.text.htmlspecialcharsback(text);
-	      let allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
-	      if (allowList.indexOf(tag.protocol) <= -1) {
-	        return whole;
-	      }
-	      return tag.outerHTML;
-	    });
-	    text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function (whole, link) {
-	      link = im_v2_lib_utils.Utils.text.htmlspecialcharsback(link);
-	      let tag = document.createElement('a');
-	      tag.href = link;
-	      tag.target = '_blank';
-	      tag.text = link;
-	      let allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
-	      if (allowList.indexOf(tag.protocol) <= -1) {
-	        return whole;
-	      }
-	      return tag.outerHTML;
-	    });
-	    text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-	    text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
-	    text = text.replace(/\[BR\]/ig, '<br/>');
-	    text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, (whole, open, inner, close) => '<' + open + '>' + inner + '<' + close + '>'); // TODO tag USER
-
-	    // this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
-	    text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => openlines ? inner : '<span class="bx-im-mention" data-type="CHAT" data-value="chat' + chatId + '">' + inner + '</span>'); // TODO tag CHAT
-	    text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="' + im_v2_lib_utils.Utils.text.htmlspecialchars(number) + '">' + text + '</span>'); // TODO tag CHAT
-
-	    text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text); // TODO tag PCH
-
-	    let textElementSize = 0;
-	    if (enableBigSmile) {
-	      textElementSize = text.replace(/\[icon\=([^\]]*)\]/ig, '').trim().length;
-	    }
-	    text = text.replace(/\[icon\=([^\]]*)\]/ig, whole => {
-	      let url = whole.match(/icon\=(\S+[^\s.,> )\];\'\"!?])/i);
-	      if (url && url[1]) {
-	        url = url[1];
-	      } else {
-	        return '';
-	      }
-	      let attrs = {
-	        'src': url,
-	        'border': 0
-	      };
-	      let size = whole.match(/size\=(\d+)/i);
-	      if (size && size[1]) {
-	        attrs['width'] = size[1];
-	        attrs['height'] = size[1];
-	      } else {
-	        let width = whole.match(/width\=(\d+)/i);
-	        if (width && width[1]) {
-	          attrs['width'] = width[1];
-	        }
-	        let height = whole.match(/height\=(\d+)/i);
-	        if (height && height[1]) {
-	          attrs['height'] = height[1];
-	        }
-	        if (attrs['width'] && !attrs['height']) {
-	          attrs['height'] = attrs['width'];
-	        } else if (attrs['height'] && !attrs['width']) {
-	          attrs['width'] = attrs['height'];
-	        } else if (attrs['height'] && attrs['width']) ; else {
-	          attrs['width'] = 20;
-	          attrs['height'] = 20;
-	        }
-	      }
-	      attrs['width'] = attrs['width'] > 100 ? 100 : attrs['width'];
-	      attrs['height'] = attrs['height'] > 100 ? 100 : attrs['height'];
-	      if (enableBigSmile && textElementSize === 0 && attrs['width'] === attrs['height'] && attrs['width'] === 20) {
-	        attrs['width'] = 40;
-	        attrs['height'] = 40;
-	      }
-	      let title = whole.match(/title\=(.*[^\s\]])/i);
-	      if (title && title[1]) {
-	        title = title[1];
-	        if (title.indexOf('width=') > -1) {
-	          title = title.substr(0, title.indexOf('width='));
-	        }
-	        if (title.indexOf('height=') > -1) {
-	          title = title.substr(0, title.indexOf('height='));
-	        }
-	        if (title.indexOf('size=') > -1) {
-	          title = title.substr(0, title.indexOf('size='));
-	        }
-	        if (title) {
-	          attrs['title'] = im_v2_lib_utils.Utils.text.htmlspecialchars(title).trim();
-	          attrs['alt'] = attrs['title'];
-	        }
-	      }
-	      let attributes = '';
-	      for (let name in attrs) {
-	        if (attrs.hasOwnProperty(name)) {
-	          attributes += name + '="' + attrs[name] + '" ';
-	        }
-	      }
-	      return '<img class="bx-smile bx-icon" ' + attributes + '>';
-	    });
-	    sendReplacement.forEach((value, index) => {
-	      text = text.replace('####REPLACEMENT_SEND_' + index + '####', value);
-	    });
-	    text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, match => {
-	      return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, (whole, command, text) => {
-	        let html = '';
-	        text = text ? text : command;
-	        command = (command ? command : text).replace('<br />', '\n');
-	        if (!textOnly && text) {
-	          text = text.replace(/<([\w]+)[^>]*>(.*?)<\\1>/i, "$2", text);
-	          text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-	          command = command.split('####REPLACEMENT_PUT_').join('####REPLACEMENT_SP_');
-	          html = '<!--IM_COMMAND_START-->' + '<span class="bx-im-message-command-wrap">' + '<span class="bx-im-message-command" data-entity="send">' + text + '</span>' + '<span class="bx-im-message-command-data">' + command + '</span>' + '</span>' + '<!--IM_COMMAND_END-->';
-	        } else {
-	          html = text;
-	        }
-	        return html;
-	      });
-	    });
-	    putReplacement.forEach((value, index) => {
-	      text = text.replace('####REPLACEMENT_PUT_' + index + '####', value);
-	    });
-	    text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, match => {
-	      return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, (whole, command, text) => {
-	        let html = '';
-	        text = text ? text : command;
-	        command = (command ? command : text).replace('<br />', '\n');
-	        if (!textOnly && text) {
-	          text = text.replace(/<([\w]+)[^>]*>(.*?)<\/\1>/i, "$2", text);
-	          text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-	          html = '<!--IM_COMMAND_START-->' + '<span class="bx-im-message-command-wrap">' + '<span class="bx-im-message-command" data-entity="put">' + text + '</span>' + '<span class="bx-im-message-command-data">' + command + '</span>' + '</span>' + '<!--IM_COMMAND_END-->';
-	        } else {
-	          html = text;
-	        }
-	        return html;
-	      });
-	    });
-	    codeReplacement.forEach((code, index) => {
-	      text = text.replace('####REPLACEMENT_CODE_' + index + '####', !textOnly ? '<div class="bx-im-message-content-code">' + code + '</div>' : code);
-	    });
-	    if (sendReplacement.length > 0) {
-	      do {
-	        sendReplacement.forEach((value, index) => {
-	          text = text.replace('####REPLACEMENT_SEND_' + index + '####', value);
-	        });
-	      } while (text.includes('####REPLACEMENT_SEND_'));
-	    }
-	    text = text.split('####REPLACEMENT_SP_').join('####REPLACEMENT_PUT_');
-	    if (putReplacement.length > 0) {
-	      do {
-	        putReplacement.forEach((value, index) => {
-	          text = text.replace('####REPLACEMENT_PUT_' + index + '####', value);
-	        });
-	      } while (text.includes('####REPLACEMENT_PUT_'));
-	    }
-	    return text;
-	  }
-	  static hideErrorImage(element) {
-	    if (element.parentNode && element.parentNode) {
-	      element.parentNode.innerHTML = '<a href="' + element.src + '" target="_blank">' + element.src + '</a>';
-	    }
-	    return true;
-	  }
-	  static isTemporaryMessage(element) {
-	    return element.id && (im_v2_lib_utils.Utils.text.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
-	  }
-	  static getPayloadWithTempMessages(state, payload) {
-	    const payloadData = [...payload.data];
-	    if (!im_v2_lib_utils.Utils.platform.isBitrixMobile()) {
-	      return payloadData;
-	    }
-	    if (!payload.data || payload.data.length <= 0) {
-	      return payloadData;
-	    }
-
-	    // consider that in the payload we have messages only for one chat, so we get the value from the first message.
-	    const payloadChatId = payload.data[0].chatId;
-	    if (!state.collection[payloadChatId]) {
-	      return payloadData;
-	    }
-	    state.collection[payloadChatId].forEach(message => {
-	      if (MessagesModel.isTemporaryMessage(message) && !MessagesModel.existsInPayload(payload, message.templateId) && MessagesModel.doesTaskExist(message)) {
-	        payloadData.push(message);
-	      }
-	    });
-	    return payloadData;
-	  }
-	  static existsInPayload(payload, templateId) {
-	    return payload.data.find(payloadMessage => payloadMessage.templateId === templateId);
-	  }
-	  static doesTaskExist(message) {
-	    if (Array.isArray(message.params.FILE_ID)) {
-	      let foundUploadTasks = false;
-	      message.params.FILE_ID.forEach(fileId => {
-	        if (!foundUploadTasks) {
-	          foundUploadTasks = window.imDialogUploadTasks.find(task => task.taskId.split('|')[1] === fileId);
-	        }
-	      });
-	      return !!foundUploadTasks;
-	    }
-	    if (message.templateId) {
-	      const foundMessageTask = window.imDialogMessagesTasks.find(task => task.taskId.split('|')[1] === message.templateId);
-	      return !!foundMessageTask;
-	    }
-	    return false;
-	  }
+	  return resultId;
 	}
 
 	const WRITING_STATUS_TIME = 35000;
@@ -1497,23 +990,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      dialogId: '0',
 	      chatId: 0,
-	      type: im_v2_const.ChatTypes.chat,
+	      type: im_v2_const.DialogType.chat,
 	      name: '',
+	      description: '',
 	      avatar: '',
-	      color: '#17A3EA',
+	      color: im_v2_const.Color.base,
 	      extranet: false,
 	      counter: 0,
 	      userCounter: 0,
-	      messageCounter: 0,
-	      unreadId: 0,
+	      lastReadId: 0,
+	      markedId: 0,
 	      lastMessageId: 0,
+	      lastMessageViews: {
+	        countOfViewers: 0,
+	        firstViewer: null,
+	        messageId: 0
+	      },
+	      savedPositionMessageId: 0,
 	      managerList: [],
-	      readList: [],
 	      writingList: [],
 	      muteList: [],
 	      textareaMessage: '',
 	      quoteId: 0,
-	      editId: 0,
 	      owner: 0,
 	      entityType: '',
 	      entityId: '',
@@ -1521,7 +1019,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      public: {
 	        code: '',
 	        link: ''
-	      }
+	      },
+	      inited: false,
+	      loading: false,
+	      hasPrevPage: false,
+	      hasNextPage: false,
+	      diskFolderId: 0
 	    };
 	  }
 	  getGetters() {
@@ -1555,30 +1058,60 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return state.collection[dialogId].quoteId;
 	      },
-	      getEditId: state => dialogId => {
+	      isUser: state => dialogId => {
+	        if (!state.collection[dialogId]) {
+	          return false;
+	        }
+	        return state.collection[dialogId].type === im_v2_const.DialogType.user;
+	      },
+	      canLeave: state => dialogId => {
+	        if (!state.collection[dialogId]) {
+	          return false;
+	        }
+	        const dialog = state.collection[dialogId];
+	        const isExternalTelephonyCall = dialog.type === im_v2_const.DialogType.call;
+	        const isUser = dialog.type === im_v2_const.DialogType.user;
+	        if (isExternalTelephonyCall || isUser) {
+	          return false;
+	        }
+	        const currentUserId = im_v2_application_core.Core.getUserId();
+	        const optionToCheck = dialog.owner === currentUserId ? im_v2_const.ChatOption.leaveOwner : im_v2_const.ChatOption.leave;
+	        return this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
+	      },
+	      canMute: state => dialogId => {
+	        if (!state.collection[dialogId]) {
+	          return false;
+	        }
+	        const dialog = state.collection[dialogId];
+	        const isUser = dialog.type === im_v2_const.DialogType.user;
+	        const isAnnouncement = dialog.type === im_v2_const.DialogType.announcement;
+	        if (isUser || isAnnouncement) {
+	          return null;
+	        }
+	        return this.store.getters['dialogues/getChatOption'](dialog.type, im_v2_const.ChatOption.mute);
+	      },
+	      getLastReadId: state => dialogId => {
 	        if (!state.collection[dialogId]) {
 	          return 0;
 	        }
-	        return state.collection[dialogId].editId;
+	        const {
+	          lastReadId,
+	          lastMessageId
+	        } = state.collection[dialogId];
+	        return lastReadId === lastMessageId ? 0 : lastReadId;
 	      },
-	      areUnreadMessagesLoaded: state => dialogId => {
-	        const dialog = state.collection[dialogId];
-	        if (!dialog || dialog.lastMessageId === 0) {
-	          return true;
+	      getInitialMessageId: state => dialogId => {
+	        if (!state.collection[dialogId]) {
+	          return 0;
 	        }
-	        const messagesCollection = this.store.getters['messages/get'](dialog.chatId);
-	        if (messagesCollection.length === 0) {
-	          return true;
+	        const {
+	          lastReadId,
+	          markedId
+	        } = state.collection[dialogId];
+	        if (markedId === 0) {
+	          return lastReadId;
 	        }
-	        let lastElementId = 0;
-	        for (let index = messagesCollection.length - 1; index >= 0; index--) {
-	          const lastElement = messagesCollection[index];
-	          if (main_core.Type.isNumber(lastElement.id)) {
-	            lastElementId = lastElement.id;
-	            break;
-	          }
-	        }
-	        return lastElementId >= dialog.lastMessageId;
+	        return Math.min(lastReadId, markedId);
 	      }
 	    };
 	  }
@@ -1642,7 +1175,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!existingItem) {
 	          return false;
 	        }
-	        store.commit('delete', payload.dialogId);
+	        store.commit('delete', {
+	          dialogId: payload.dialogId
+	        });
 	      },
 	      startWriting: (store, payload) => {
 	        const existingItem = store.state.collection[payload.dialogId];
@@ -1693,40 +1228,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        clearTimeout(store.state.writingStatusTimers[timerId]);
 	        delete store.state.writingStatusTimers[timerId];
 	      },
-	      addToReadList: (store, payload) => {
-	        const existingItem = store.state.collection[payload.dialogId];
-	        if (!existingItem) {
-	          return false;
-	        }
-	        const readList = existingItem.readList.filter(el => el.userId !== payload.userId);
-	        readList.push({
-	          userId: payload.userId,
-	          userName: payload.userName || '',
-	          messageId: payload.messageId,
-	          date: payload.date || new Date()
-	        });
-	        store.commit('update', {
-	          actionName: 'addToReadList',
-	          dialogId: payload.dialogId,
-	          fields: this.validate({
-	            readList
-	          })
-	        });
-	      },
-	      removeFromReadList: (store, payload) => {
-	        const existingItem = store.state.collection[payload.dialogId];
-	        if (!existingItem) {
-	          return false;
-	        }
-	        const readList = existingItem.readList.filter(el => el.userId !== payload.userId);
-	        store.commit('update', {
-	          actionName: 'removeFromReadList',
-	          dialogId: payload.dialogId,
-	          fields: this.validate({
-	            readList
-	          })
-	        });
-	      },
 	      increaseCounter: (store, payload) => {
 	        const existingItem = store.state.collection[payload.dialogId];
 	        if (!existingItem) {
@@ -1769,25 +1270,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	        });
 	      },
-	      increaseMessageCounter: (store, payload) => {
-	        const existingItem = store.state.collection[payload.dialogId];
-	        if (!existingItem) {
-	          return false;
-	        }
-	        store.commit('update', {
-	          actionName: 'increaseMessageCount',
-	          dialogId: payload.dialogId,
-	          fields: {
-	            messageCounter: existingItem.messageCounter + payload.count
-	          }
-	        });
+	      clearCounters: store => {
+	        store.commit('clearCounters');
 	      },
 	      mute: (store, payload) => {
 	        const existingItem = store.state.collection[payload.dialogId];
 	        if (!existingItem) {
 	          return false;
 	        }
-	        const currentUserId = this.store.state.application.common.userId;
+	        const currentUserId = im_v2_application_core.Core.getUserId();
 	        if (existingItem.muteList.includes(currentUserId)) {
 	          return false;
 	        }
@@ -1805,7 +1296,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!existingItem) {
 	          return false;
 	        }
-	        const currentUserId = this.store.state.application.common.userId;
+	        const currentUserId = im_v2_application_core.Core.getUserId();
 	        const muteList = existingItem.muteList.filter(item => item !== currentUserId);
 	        store.commit('update', {
 	          actionName: 'unmute',
@@ -1817,6 +1308,70 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      setChatOptions: (store, payload) => {
 	        store.commit('setChatOptions', this.validateChatOptions(payload));
+	      },
+	      setLastMessageViews: (store, payload) => {
+	        const {
+	          dialogId,
+	          fields: {
+	            userId,
+	            userName,
+	            date,
+	            messageId
+	          }
+	        } = payload;
+	        const existingItem = store.state.collection[dialogId];
+	        if (!existingItem) {
+	          return false;
+	        }
+	        const newLastMessageViews = {
+	          countOfViewers: 1,
+	          messageId,
+	          firstViewer: {
+	            userId,
+	            userName,
+	            date: im_v2_lib_utils.Utils.date.cast(date)
+	          }
+	        };
+	        store.commit('update', {
+	          actionName: 'setLastMessageViews',
+	          dialogId: dialogId,
+	          fields: {
+	            lastMessageViews: newLastMessageViews
+	          }
+	        });
+	      },
+	      clearLastMessageViews: (store, payload) => {
+	        const existingItem = store.state.collection[payload.dialogId];
+	        if (!existingItem) {
+	          return false;
+	        }
+	        const {
+	          lastMessageViews: defaultLastMessageViews
+	        } = this.getElementState();
+	        store.commit('update', {
+	          actionName: 'clearLastMessageViews',
+	          dialogId: payload.dialogId,
+	          fields: {
+	            lastMessageViews: defaultLastMessageViews
+	          }
+	        });
+	      },
+	      incrementLastMessageViews: (store, payload) => {
+	        const existingItem = store.state.collection[payload.dialogId];
+	        if (!existingItem) {
+	          return false;
+	        }
+	        const newCounter = existingItem.lastMessageViews.countOfViewers + 1;
+	        store.commit('update', {
+	          actionName: 'incrementLastMessageViews',
+	          dialogId: payload.dialogId,
+	          fields: {
+	            lastMessageViews: {
+	              ...existingItem.lastMessageViews,
+	              countOfViewers: newCounter
+	            }
+	          }
+	        });
 	      }
 	    };
 	  }
@@ -1836,6 +1391,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      setChatOptions: (state, payload) => {
 	        state.chatOptions = payload;
+	      },
+	      clearCounters: state => {
+	        Object.keys(state.collection).forEach(key => {
+	          state.collection[key].counter = 0;
+	          state.collection[key].markedId = 0;
+	        });
 	      }
 	    };
 	  }
@@ -1869,9 +1430,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (main_core.Type.isNumber(fields.quoteId)) {
 	      result.quoteId = Number.parseInt(fields.quoteId, 10);
 	    }
-	    if (main_core.Type.isNumber(fields.editId)) {
-	      result.editId = Number.parseInt(fields.editId, 10);
-	    }
 	    if (main_core.Type.isNumber(fields.counter) || main_core.Type.isStringFilled(fields.counter)) {
 	      result.counter = Number.parseInt(fields.counter, 10);
 	    }
@@ -1881,23 +1439,38 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (main_core.Type.isNumber(fields.userCounter) || main_core.Type.isStringFilled(fields.userCounter)) {
 	      result.userCounter = Number.parseInt(fields.userCounter, 10);
 	    }
-	    if (!main_core.Type.isUndefined(fields.message_count)) {
-	      result.messageCounter = fields.message_count;
+	    if (!main_core.Type.isUndefined(fields.last_id)) {
+	      fields.lastId = fields.last_id;
 	    }
-	    if (main_core.Type.isNumber(fields.messageCounter) || main_core.Type.isStringFilled(fields.messageCounter)) {
-	      result.messageCounter = Number.parseInt(fields.messageCounter, 10);
+	    if (main_core.Type.isNumber(fields.lastId)) {
+	      result.lastReadId = fields.lastId;
 	    }
-	    if (!main_core.Type.isUndefined(fields.unread_id)) {
-	      fields.unreadId = fields.unread_id;
+	    if (!main_core.Type.isUndefined(fields.marked_id)) {
+	      fields.markedId = fields.marked_id;
 	    }
-	    if (main_core.Type.isNumber(fields.unreadId) || main_core.Type.isStringFilled(fields.unreadId)) {
-	      result.unreadId = Number.parseInt(fields.unreadId, 10);
+	    if (main_core.Type.isNumber(fields.markedId)) {
+	      result.markedId = fields.markedId;
 	    }
 	    if (!main_core.Type.isUndefined(fields.last_message_id)) {
 	      fields.lastMessageId = fields.last_message_id;
 	    }
 	    if (main_core.Type.isNumber(fields.lastMessageId) || main_core.Type.isStringFilled(fields.lastMessageId)) {
 	      result.lastMessageId = Number.parseInt(fields.lastMessageId, 10);
+	    }
+	    if (main_core.Type.isPlainObject(fields.last_message_views)) {
+	      fields.lastMessageViews = fields.last_message_views;
+	    }
+	    if (main_core.Type.isPlainObject(fields.lastMessageViews)) {
+	      result.lastMessageViews = this.prepareLastMessageViews(fields.lastMessageViews);
+	    }
+	    if (main_core.Type.isBoolean(fields.hasPrevPage)) {
+	      result.hasPrevPage = fields.hasPrevPage;
+	    }
+	    if (main_core.Type.isBoolean(fields.hasNextPage)) {
+	      result.hasNextPage = fields.hasNextPage;
+	    }
+	    if (main_core.Type.isNumber(fields.savedPositionMessageId)) {
+	      result.savedPositionMessageId = fields.savedPositionMessageId;
 	    }
 	    if (!main_core.Type.isUndefined(fields.textareaMessage)) {
 	      result.textareaMessage = fields.textareaMessage.toString();
@@ -1906,7 +1479,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      fields.name = fields.title;
 	    }
 	    if (main_core.Type.isNumber(fields.name) || main_core.Type.isStringFilled(fields.name)) {
-	      result.name = im_v2_lib_utils.Utils.text.htmlspecialcharsback(fields.name.toString());
+	      result.name = main_core.Text.decode(fields.name.toString());
 	    }
 	    if (!main_core.Type.isUndefined(fields.owner)) {
 	      fields.ownerId = fields.owner;
@@ -1950,12 +1523,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        result.public.link = fields.public.link;
 	      }
 	    }
-	    if (!main_core.Type.isUndefined(fields.readed_list)) {
-	      fields.readList = fields.readed_list;
-	    }
-	    if (main_core.Type.isArray(fields.readList)) {
-	      result.readList = this.prepareReadList(fields.readList);
-	    }
 	    if (!main_core.Type.isUndefined(fields.writing_list)) {
 	      fields.writingList = fields.writing_list;
 	    }
@@ -1980,6 +1547,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (main_core.Type.isArray(fields.muteList) || main_core.Type.isPlainObject(fields.muteList)) {
 	      result.muteList = this.prepareMuteList(fields.muteList);
 	    }
+	    if (main_core.Type.isBoolean(fields.inited)) {
+	      result.inited = fields.inited;
+	    }
+	    if (main_core.Type.isBoolean(fields.loading)) {
+	      result.loading = fields.loading;
+	    }
+	    if (main_core.Type.isString(fields.description)) {
+	      result.description = fields.description;
+	    }
+	    if (main_core.Type.isNumber(fields.disk_folder_id)) {
+	      result.diskFolderId = fields.disk_folder_id;
+	    }
 	    return result;
 	  }
 	  prepareAvatar(avatar) {
@@ -1989,35 +1568,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else if (avatar.startsWith('http')) {
 	      result = avatar;
 	    } else {
-	      result = this.store.state.application.common.host + avatar;
+	      result = im_v2_application_core.Core.getHost() + avatar;
 	    }
 	    if (result) {
 	      result = encodeURI(result);
 	    }
-	    return result;
-	  }
-	  prepareReadList(readList) {
-	    const result = [];
-	    readList.forEach(element => {
-	      const item = {};
-	      if (!main_core.Type.isUndefined(element.user_id)) {
-	        element.userId = element.user_id;
-	      }
-	      if (!main_core.Type.isUndefined(element.user_name)) {
-	        element.userName = element.user_name;
-	      }
-	      if (!main_core.Type.isUndefined(element.message_id)) {
-	        element.messageId = element.message_id;
-	      }
-	      if (!element.userId || !element.userName || !element.messageId) {
-	        return false;
-	      }
-	      item.userId = Number.parseInt(element.userId, 10);
-	      item.userName = element.userName.toString();
-	      item.messageId = Number.parseInt(element.messageId, 10);
-	      item.date = im_v2_lib_utils.Utils.date.cast(element.date);
-	      result.push(item);
-	    });
 	    return result;
 	  }
 	  prepareWritingList(writingList) {
@@ -2055,6 +1610,32 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return result;
 	  }
+	  prepareLastMessageViews(rawLastMessageViews) {
+	    const {
+	      count_of_viewers: countOfViewers,
+	      first_viewers: rawFirstViewers,
+	      message_id: messageId
+	    } = rawLastMessageViews;
+	    let firstViewer;
+	    rawFirstViewers.forEach(rawFirstViewer => {
+	      if (rawFirstViewer.user_id === im_v2_application_core.Core.getUserId()) {
+	        return;
+	      }
+	      firstViewer = {
+	        userId: rawFirstViewer.user_id,
+	        userName: rawFirstViewer.user_name,
+	        date: im_v2_lib_utils.Utils.date.cast(rawFirstViewer.date)
+	      };
+	    });
+	    if (countOfViewers > 0 && !firstViewer) {
+	      throw new Error('Dialogues model: no first viewer for message');
+	    }
+	    return {
+	      countOfViewers,
+	      firstViewer,
+	      messageId
+	    };
+	  }
 	  validateChatOptions(options) {
 	    const result = {};
 	    Object.entries(options).forEach(([type, typeOptions]) => {
@@ -2091,6 +1672,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      name: '',
 	      firstName: '',
 	      lastName: '',
+	      avatar: '',
+	      color: im_v2_const.Color.base,
 	      workPosition: '',
 	      gender: 'M',
 	      extranet: false,
@@ -2165,6 +1748,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return user.isBirthday;
 	      },
+	      hasVacation: state => userId => {
+	        userId = Number.parseInt(userId, 10);
+	        const user = state.collection[userId];
+	        if (userId <= 0 || !user) {
+	          return false;
+	        }
+	        return user.isAbsent;
+	      },
 	      getStatus: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -2196,7 +1787,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
 	        if (userId <= 0 || !user) {
-	          return false;
+	          return '';
 	        }
 	        if (user.workPosition) {
 	          return user.workPosition;
@@ -2278,6 +1869,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      setBotList: (store, payload) => {
 	        store.commit('setBotList', payload);
+	      },
+	      setStatus: (store, payload) => {
+	        store.commit('update', {
+	          id: im_v2_application_core.Core.getUserId(),
+	          fields: this.validate(payload)
+	        });
 	      }
 	    };
 	  }
@@ -2360,6 +1957,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      fields.name = im_v2_lib_utils.Utils.text.htmlspecialcharsback(fields.name);
 	      result.name = fields.name;
 	    }
+	    if (main_core.Type.isStringFilled(fields.color)) {
+	      result.color = fields.color;
+	    }
+	    if (main_core.Type.isStringFilled(fields.avatar)) {
+	      result.avatar = this.prepareAvatar(fields.avatar);
+	    }
 	    if (main_core.Type.isStringFilled(fields.work_position)) {
 	      fields.workPosition = fields.work_position;
 	    }
@@ -2422,6 +2025,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    if (main_core.Type.isPlainObject(fields.phones)) {
 	      result.phones = this.preparePhones(fields.phones);
+	    }
+	    return result;
+	  }
+	  prepareAvatar(avatar) {
+	    let result = '';
+	    if (!avatar || avatar.endsWith('/js/im/images/blank.gif')) {
+	      result = '';
+	    } else if (avatar.startsWith('http')) {
+	      result = avatar;
+	    } else {
+	      result = im_v2_application_core.Core.getHost() + avatar;
+	    }
+	    if (result) {
+	      result = encodeURI(result);
 	    }
 	    return result;
 	  }
@@ -2537,516 +2154,371 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getState() {
 	    return {
-	      created: 0,
-	      collection: {},
-	      index: {}
+	      collection: {}
 	    };
 	  }
-	  getElementState(params = {}) {
-	    const {
-	      id = 0,
-	      chatId = 0,
-	      name = 'File is deleted'
-	    } = params;
+	  getElementState() {
 	    return {
-	      id,
-	      chatId,
-	      name,
-	      templateId: id,
+	      id: 0,
+	      chatId: 0,
+	      name: 'File is deleted',
 	      date: new Date(),
 	      type: 'file',
-	      extension: "",
-	      icon: "empty",
+	      extension: '',
+	      icon: 'empty',
 	      size: 0,
 	      image: false,
 	      status: im_v2_const.FileStatus.done,
 	      progress: 100,
 	      authorId: 0,
-	      authorName: "",
-	      urlPreview: "",
-	      urlShow: "",
-	      urlDownload: "",
-	      init: false,
-	      viewerAttrs: {}
+	      authorName: '',
+	      urlPreview: '',
+	      urlShow: '',
+	      urlDownload: '',
+	      viewerAttrs: null
 	    };
 	  }
 	  getGetters() {
 	    return {
-	      get: state => (chatId, fileId, getTemporary = false) => {
-	        if (!chatId || !fileId) {
+	      get: state => (fileId, getTemporary = false) => {
+	        if (!fileId) {
 	          return null;
 	        }
-	        if (!state.index[chatId] || !state.index[chatId][fileId]) {
+	        if (!getTemporary && !state.collection[fileId]) {
 	          return null;
 	        }
-	        if (!getTemporary && !state.index[chatId][fileId].init) {
-	          return null;
-	        }
-	        return state.index[chatId][fileId];
+	        return state.collection[fileId];
 	      },
-	      getList: state => chatId => {
-	        if (!state.index[chatId]) {
-	          return null;
-	        }
-	        return state.index[chatId];
-	      },
-	      getBlank: state => params => {
-	        return this.getElementState(params);
+	      isInCollection: state => payload => {
+	        const {
+	          fileId
+	        } = payload;
+	        return !!state.collection[fileId];
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
 	      add: (store, payload) => {
-	        let result = this.validate(Object.assign({}, payload));
-	        if (payload.id) {
-	          result.id = payload.id;
-	        } else {
-	          result.id = 'temporary' + new Date().getTime() + store.state.created;
-	        }
-	        result.templateId = result.id;
-	        result.init = true;
-	        store.commit('add', Object.assign({}, this.getElementState(), result));
-	        return result.id;
-	      },
-	      set: (store, payload) => {
-	        if (payload instanceof Array) {
-	          payload = payload.map(file => {
-	            let result = this.validate(Object.assign({}, file));
-	            result.templateId = result.id;
-	            return Object.assign({}, this.getElementState(), result, {
-	              init: true
-	            });
-	          });
-	        } else {
-	          let result = this.validate(Object.assign({}, payload));
-	          result.templateId = result.id;
-	          payload = [];
-	          payload.push(Object.assign({}, this.getElementState(), result, {
-	            init: true
-	          }));
-	        }
-	        store.commit('set', {
-	          insertType: im_v2_const.MutationType.setAfter,
-	          data: payload
+	        const preparedFile = {
+	          ...this.getElementState(),
+	          ...this.validate(payload)
+	        };
+	        store.commit('add', {
+	          files: [preparedFile]
 	        });
 	      },
-	      setBefore: (store, payload) => {
-	        if (payload instanceof Array) {
-	          payload = payload.map(file => {
-	            let result = this.validate(Object.assign({}, file));
-	            result.templateId = result.id;
-	            return Object.assign({}, this.getElementState(), result, {
-	              init: true
-	            });
-	          });
-	        } else {
-	          let result = this.validate(Object.assign({}, payload));
-	          result.templateId = result.id;
-	          payload = [];
-	          payload.push(Object.assign({}, this.getElementState(), result, {
-	            init: true
-	          }));
+	      set: (store, payload) => {
+	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
+	          payload = [payload];
 	        }
-	        store.commit('set', {
-	          actionName: 'setBefore',
-	          insertType: im_v2_const.MutationType.setBefore,
-	          data: payload
+	        payload = payload.map(file => {
+	          return {
+	            ...this.getElementState(),
+	            ...this.validate(file)
+	          };
+	        });
+	        store.commit('add', {
+	          files: payload
 	        });
 	      },
 	      update: (store, payload) => {
-	        let result = this.validate(Object.assign({}, payload.fields));
-	        store.commit('initCollection', {
-	          chatId: payload.chatId
-	        });
-	        let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-	        if (index < 0) {
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        const existingItem = store.state.collection[id];
+	        if (!existingItem) {
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: payload.id,
-	          chatId: payload.chatId,
-	          index: index,
-	          fields: result
+	          id: id,
+	          fields: this.validate(fields)
 	        });
-	        if (payload.fields.blink) {
-	          setTimeout(() => {
-	            store.commit('update', {
-	              id: payload.id,
-	              chatId: payload.chatId,
-	              fields: {
-	                blink: false
-	              }
-	            });
-	          }, 1000);
+	        return true;
+	      },
+	      updateWithId: (store, payload) => {
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        if (!store.state.collection[id]) {
+	          return;
 	        }
-	        return true;
-	      },
-	      delete: (store, payload) => {
-	        store.commit('delete', {
-	          id: payload.id,
-	          chatId: payload.chatId
+	        store.commit('updateWithId', {
+	          id,
+	          fields: this.validate(fields)
 	        });
-	        return true;
-	      },
-	      saveState: (store, payload) => {
-	        store.commit('saveState', {});
-	        return true;
 	      }
 	    };
 	  }
 	  getMutations() {
 	    return {
-	      initCollection: (state, payload) => {
-	        this.initCollection(state, payload);
-	      },
 	      add: (state, payload) => {
-	        this.initCollection(state, payload);
-	        state.collection[payload.chatId].push(payload);
-	        state.index[payload.chatId][payload.id] = payload;
-	        state.created += 1;
-	        this.saveState(state);
-	      },
-	      set: (state, payload) => {
-	        for (let element of payload.data) {
-	          this.initCollection(state, {
-	            chatId: element.chatId
-	          });
-	          let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
-	          if (index > -1) {
-	            delete element.templateId;
-	            state.collection[element.chatId][index] = Object.assign(state.collection[element.chatId][index], element);
-	          } else if (payload.insertType === im_v2_const.MutationType.setBefore) {
-	            state.collection[element.chatId].unshift(element);
-	          } else {
-	            state.collection[element.chatId].push(element);
-	          }
-	          state.index[element.chatId][element.id] = element;
-	          this.saveState(state);
-	        }
+	        payload.files.forEach(file => {
+	          state.collection[file.id] = file;
+	        });
 	      },
 	      update: (state, payload) => {
-	        this.initCollection(state, payload);
-	        let index = -1;
-	        if (typeof payload.index !== 'undefined' && state.collection[payload.chatId][payload.index]) {
-	          index = payload.index;
-	        } else {
-	          index = state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-	        }
-	        if (index >= 0) {
-	          delete payload.fields.templateId;
-	          let element = Object.assign(state.collection[payload.chatId][index], payload.fields);
-	          state.collection[payload.chatId][index] = element;
-	          state.index[payload.chatId][element.id] = element;
-	          this.saveState(state);
-	        }
+	        Object.entries(payload.fields).forEach(([key, value]) => {
+	          state.collection[payload.id][key] = value;
+	        });
 	      },
-	      delete: (state, payload) => {
-	        this.initCollection(state, payload);
-	        state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => element.id !== payload.id);
-	        delete state.index[payload.chatId][payload.id];
-	        this.saveState(state);
-	      },
-	      saveState: (state, payload) => {
-	        this.saveState(state);
+	      updateWithId: (state, payload) => {
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        const currentFile = {
+	          ...state.collection[id]
+	        };
+	        delete state.collection[id];
+	        state.collection[fields.id] = {
+	          ...currentFile,
+	          ...fields
+	        };
 	      }
 	    };
 	  }
-	  initCollection(state, payload) {
-	    if (typeof state.collection[payload.chatId] !== 'undefined') {
-	      return true;
-	    }
-	    state.collection[payload.chatId] = [];
-	    state.index[payload.chatId] = [];
-	    return true;
-	  }
-	  getLoadedState(state) {
-	    if (!state || typeof state !== 'object') {
-	      return state;
-	    }
-	    if (typeof state.collection !== 'object') {
-	      return state;
-	    }
-	    state.index = {};
-	    for (let chatId in state.collection) {
-	      if (!state.collection.hasOwnProperty(chatId)) {
-	        continue;
-	      }
-	      state.index[chatId] = {};
-	      state.collection[chatId].filter(file => file != null).forEach(file => {
-	        state.index[chatId][file.id] = file;
-	      });
-	    }
-	    return state;
-	  }
-	  getSaveFileList() {
-	    if (!this.db) {
-	      return [];
-	    }
-	    if (!this.store.getters['messages/getSaveFileList']) {
-	      return [];
-	    }
-	    let list = this.store.getters['messages/getSaveFileList']();
-	    if (!list) {
-	      return [];
-	    }
-	    return list;
-	  }
-	  getSaveTimeout() {
-	    return 250;
-	  }
-	  saveState(state) {
-	    if (!this.isSaveAvailable()) {
-	      return false;
-	    }
-	    super.saveState(() => {
-	      let list = this.getSaveFileList();
-	      if (!list) {
-	        return false;
-	      }
-	      let storedState = {
-	        collection: {}
-	      };
-	      for (let chatId in list) {
-	        if (!list.hasOwnProperty(chatId)) {
-	          continue;
-	        }
-	        list[chatId].forEach(fileId => {
-	          if (!state.index[chatId]) {
-	            return false;
-	          }
-	          if (!state.index[chatId][fileId]) {
-	            return false;
-	          }
-	          if (!storedState.collection[chatId]) {
-	            storedState.collection[chatId] = [];
-	          }
-	          storedState.collection[chatId].push(state.index[chatId][fileId]);
-	        });
-	      }
-	      return storedState;
-	    });
-	  }
-	  validate(fields, options = {}) {
+	  validate(file) {
 	    const result = {};
-	    if (typeof fields.id === "number") {
-	      result.id = fields.id;
-	    } else if (typeof fields.id === "string") {
-	      if (fields.id.startsWith('temporary')) {
-	        result.id = fields.id;
-	      } else {
-	        result.id = parseInt(fields.id);
-	      }
+	    if (main_core.Type.isNumber(file.id) || main_core.Type.isStringFilled(file.id)) {
+	      result.id = file.id;
 	    }
-	    if (typeof fields.templateId === "number") {
-	      result.templateId = fields.templateId;
-	    } else if (typeof fields.templateId === "string") {
-	      if (fields.templateId.startsWith('temporary')) {
-	        result.templateId = fields.templateId;
-	      } else {
-	        result.templateId = parseInt(fields.templateId);
-	      }
+	    if (main_core.Type.isNumber(file.chatId) || main_core.Type.isString(file.chatId)) {
+	      result.chatId = Number.parseInt(file.chatId, 10);
 	    }
-	    if (typeof fields.chatId === "number" || typeof fields.chatId === "string") {
-	      result.chatId = parseInt(fields.chatId);
+	    if (!main_core.Type.isUndefined(file.date)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(file.date);
 	    }
-	    if (typeof fields.date !== "undefined") {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.date);
+	    if (main_core.Type.isString(file.type)) {
+	      result.type = file.type;
 	    }
-	    if (typeof fields.type === "string") {
-	      result.type = fields.type;
-	    }
-	    if (typeof fields.extension === "string") {
-	      result.extension = fields.extension.toString();
+	    if (main_core.Type.isString(file.extension)) {
+	      result.extension = file.extension.toString();
 	      if (result.type === 'image') {
 	        result.icon = 'img';
 	      } else if (result.type === 'video') {
 	        result.icon = 'mov';
 	      } else {
-	        result.icon = FilesModel.getIconType(result.extension);
+	        result.icon = im_v2_lib_utils.Utils.file.getIconTypeByExtension(result.extension);
 	      }
 	    }
-	    if (typeof fields.name === "string" || typeof fields.name === "number") {
-	      result.name = fields.name.toString();
+	    if (main_core.Type.isString(file.name) || main_core.Type.isNumber(file.name)) {
+	      result.name = file.name.toString();
 	    }
-	    if (typeof fields.size === "number" || typeof fields.size === "string") {
-	      result.size = parseInt(fields.size);
+	    if (main_core.Type.isNumber(file.size) || main_core.Type.isString(file.size)) {
+	      result.size = Number.parseInt(file.size, 10);
 	    }
-	    if (typeof fields.image === 'boolean') {
+	    if (main_core.Type.isBoolean(file.image)) {
 	      result.image = false;
-	    } else if (typeof fields.image === 'object' && fields.image) {
+	    } else if (main_core.Type.isPlainObject(file.image)) {
 	      result.image = {
 	        width: 0,
 	        height: 0
 	      };
-	      if (typeof fields.image.width === "string" || typeof fields.image.width === "number") {
-	        result.image.width = parseInt(fields.image.width);
+	      if (main_core.Type.isString(file.image.width) || main_core.Type.isNumber(file.image.width)) {
+	        result.image.width = Number.parseInt(file.image.width, 10);
 	      }
-	      if (typeof fields.image.height === "string" || typeof fields.image.height === "number") {
-	        result.image.height = parseInt(fields.image.height);
+	      if (main_core.Type.isString(file.image.height) || main_core.Type.isNumber(file.image.height)) {
+	        result.image.height = Number.parseInt(file.image.height, 10);
 	      }
 	      if (result.image.width <= 0 || result.image.height <= 0) {
 	        result.image = false;
 	      }
 	    }
-	    if (typeof fields.status === "string" && typeof im_v2_const.FileStatus[fields.status] !== 'undefined') {
-	      result.status = fields.status;
+	    if (main_core.Type.isString(file.status) && !main_core.Type.isUndefined(im_v2_const.FileStatus[file.status])) {
+	      result.status = file.status;
 	    }
-	    if (typeof fields.progress === "number" || typeof fields.progress === "string") {
-	      result.progress = parseInt(fields.progress);
+	    if (main_core.Type.isNumber(file.progress) || main_core.Type.isString(file.progress)) {
+	      result.progress = Number.parseInt(file.progress, 10);
 	    }
-	    if (typeof fields.authorId === "number" || typeof fields.authorId === "string") {
-	      result.authorId = parseInt(fields.authorId);
+	    if (main_core.Type.isNumber(file.authorId) || main_core.Type.isString(file.authorId)) {
+	      result.authorId = Number.parseInt(file.authorId, 10);
 	    }
-	    if (typeof fields.authorName === "string" || typeof fields.authorName === "number") {
-	      result.authorName = fields.authorName.toString();
+	    if (main_core.Type.isString(file.authorName) || main_core.Type.isNumber(file.authorName)) {
+	      result.authorName = file.authorName.toString();
 	    }
-	    if (typeof fields.urlPreview === 'string') {
-	      if (!fields.urlPreview || fields.urlPreview.startsWith('http') || fields.urlPreview.startsWith('bx') || fields.urlPreview.startsWith('file') || fields.urlPreview.startsWith('blob')) {
-	        result.urlPreview = fields.urlPreview;
+	    if (main_core.Type.isString(file.urlPreview)) {
+	      if (!file.urlPreview || file.urlPreview.startsWith('http') || file.urlPreview.startsWith('bx') || file.urlPreview.startsWith('file') || file.urlPreview.startsWith('blob')) {
+	        result.urlPreview = file.urlPreview;
 	      } else {
-	        result.urlPreview = this.store.state.application.common.host + fields.urlPreview;
+	        result.urlPreview = im_v2_application_core.Core.getHost() + file.urlPreview;
 	      }
 	    }
-	    if (typeof fields.urlDownload === 'string') {
-	      if (!fields.urlDownload || fields.urlDownload.startsWith('http') || fields.urlDownload.startsWith('bx') || fields.urlPreview.startsWith('file')) {
-	        result.urlDownload = fields.urlDownload;
+	    if (main_core.Type.isString(file.urlDownload)) {
+	      if (!file.urlDownload || file.urlDownload.startsWith('http') || file.urlDownload.startsWith('bx') || file.urlPreview.startsWith('file')) {
+	        result.urlDownload = file.urlDownload;
 	      } else {
-	        result.urlDownload = this.store.state.application.common.host + fields.urlDownload;
+	        result.urlDownload = im_v2_application_core.Core.getHost() + file.urlDownload;
 	      }
 	    }
-	    if (typeof fields.urlShow === 'string') {
-	      if (!fields.urlShow || fields.urlShow.startsWith('http') || fields.urlShow.startsWith('bx') || fields.urlShow.startsWith('file')) {
-	        result.urlShow = fields.urlShow;
+	    if (main_core.Type.isString(file.urlShow)) {
+	      if (!file.urlShow || file.urlShow.startsWith('http') || file.urlShow.startsWith('bx') || file.urlShow.startsWith('file')) {
+	        result.urlShow = file.urlShow;
 	      } else {
-	        result.urlShow = this.store.state.application.common.host + fields.urlShow;
+	        result.urlShow = im_v2_application_core.Core.getHost() + file.urlShow;
 	      }
 	    }
-	    if (typeof fields.viewerAttrs === 'object') {
-	      if (result.type === 'image' && !im_v2_lib_utils.Utils.platform.isBitrixMobile()) {
-	        result.viewerAttrs = fields.viewerAttrs;
-	      }
-	      if (result.type === 'video' && !im_v2_lib_utils.Utils.platform.isBitrixMobile() && result.size > FilesModel.maxDiskFileSize) {
-	        result.viewerAttrs = fields.viewerAttrs;
-	      }
+	    if (main_core.Type.isPlainObject(file.viewerAttrs)) {
+	      result.viewerAttrs = this.validateViewerAttributes(file.viewerAttrs);
 	    }
 	    return result;
 	  }
-	  static getType(type) {
-	    type = type.toString().toLowerCase().split('.').splice(-1)[0];
-	    switch (type) {
-	      case 'png':
-	      case 'jpe':
-	      case 'jpg':
-	      case 'jpeg':
-	      case 'gif':
-	      case 'heic':
-	      case 'bmp':
-	      case 'webp':
-	        return im_v2_const.FileType.image;
-	      case 'mp4':
-	      case 'mkv':
-	      case 'webm':
-	      case 'mpeg':
-	      case 'hevc':
-	      case 'avi':
-	      case '3gp':
-	      case 'flv':
-	      case 'm4v':
-	      case 'ogg':
-	      case 'wmv':
-	      case 'mov':
-	        return im_v2_const.FileType.video;
-	      case 'mp3':
-	        return im_v2_const.FileType.audio;
+	  validateViewerAttributes(viewerAttrs) {
+	    const result = {
+	      viewer: true
+	    };
+	    if (main_core.Type.isString(viewerAttrs.actions)) {
+	      result.actions = viewerAttrs.actions;
 	    }
-	    return im_v2_const.FileType.file;
-	  }
-	  static getIconType(extension) {
-	    let icon = 'empty';
-	    switch (extension.toString()) {
-	      case 'png':
-	      case 'jpe':
-	      case 'jpg':
-	      case 'jpeg':
-	      case 'gif':
-	      case 'heic':
-	      case 'bmp':
-	      case 'webp':
-	        icon = 'img';
-	        break;
-	      case 'mp4':
-	      case 'mkv':
-	      case 'webm':
-	      case 'mpeg':
-	      case 'hevc':
-	      case 'avi':
-	      case '3gp':
-	      case 'flv':
-	      case 'm4v':
-	      case 'ogg':
-	      case 'wmv':
-	      case 'mov':
-	        icon = 'mov';
-	        break;
-	      case 'txt':
-	        icon = 'txt';
-	        break;
-	      case 'doc':
-	      case 'docx':
-	        icon = 'doc';
-	        break;
-	      case 'xls':
-	      case 'xlsx':
-	        icon = 'xls';
-	        break;
-	      case 'php':
-	        icon = 'php';
-	        break;
-	      case 'pdf':
-	        icon = 'pdf';
-	        break;
-	      case 'ppt':
-	      case 'pptx':
-	        icon = 'ppt';
-	        break;
-	      case 'rar':
-	        icon = 'rar';
-	        break;
-	      case 'zip':
-	      case '7z':
-	      case 'tar':
-	      case 'gz':
-	      case 'gzip':
-	        icon = 'zip';
-	        break;
-	      case 'set':
-	        icon = 'set';
-	        break;
-	      case 'conf':
-	      case 'ini':
-	      case 'plist':
-	        icon = 'set';
-	        break;
+	    if (main_core.Type.isString(viewerAttrs.objectId)) {
+	      result.objectId = viewerAttrs.objectId;
 	    }
-	    return icon;
+	    if (main_core.Type.isString(viewerAttrs.src)) {
+	      result.src = viewerAttrs.src;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.title)) {
+	      result.title = viewerAttrs.title;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.viewerGroupBy)) {
+	      result.viewerGroupBy = viewerAttrs.viewerGroupBy;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.viewerType)) {
+	      result.viewerType = viewerAttrs.viewerType;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.viewerTypeClass)) {
+	      result.viewerTypeClass = viewerAttrs.viewerTypeClass;
+	    }
+	    if (main_core.Type.isBoolean(viewerAttrs.viewerSeparateItem)) {
+	      result.viewerSeparateItem = viewerAttrs.viewerSeparateItem;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.viewerExtension)) {
+	      result.viewerExtension = viewerAttrs.viewerExtension;
+	    }
+	    if (main_core.Type.isNumber(viewerAttrs.imChatId)) {
+	      result.imChatId = viewerAttrs.imChatId;
+	    }
+	    return result;
 	  }
 	}
-	FilesModel.maxDiskFileSize = 5242880;
+
+	class CallsModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      dialogId: 0,
+	      name: '',
+	      call: {},
+	      state: im_v2_const.RecentCallStatus.waiting
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => {
+	        return Object.values(state.collection);
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      addActiveCall: (store, payload) => {
+	        const existingCall = Object.values(store.state.collection).find(item => {
+	          return item.dialogId === payload.dialogId || item.call.id === payload.call.id;
+	        });
+	        if (existingCall) {
+	          store.commit('updateActiveCall', {
+	            dialogId: existingCall.dialogId,
+	            fields: this.validateActiveCall(payload)
+	          });
+	          return true;
+	        }
+	        store.commit('addActiveCall', this.prepareActiveCall(payload));
+	      },
+	      updateActiveCall: (store, payload) => {
+	        const existingCall = store.state.collection[payload.dialogId];
+	        if (!existingCall) {
+	          return;
+	        }
+	        store.commit('updateActiveCall', {
+	          dialogId: existingCall.dialogId,
+	          fields: this.validateActiveCall(payload.fields)
+	        });
+	      },
+	      deleteActiveCall: (store, payload) => {
+	        const existingCall = store.state.collection[payload.dialogId];
+	        if (!existingCall) {
+	          return;
+	        }
+	        store.commit('deleteActiveCall', {
+	          dialogId: existingCall.dialogId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      addActiveCall: (state, payload) => {
+	        state.collection[payload.dialogId] = payload;
+	      },
+	      updateActiveCall: (state, payload) => {
+	        state.collection[payload.dialogId] = {
+	          ...state.collection[payload.dialogId],
+	          ...payload.fields
+	        };
+	      },
+	      deleteActiveCall: (state, payload) => {
+	        delete state.collection[payload.dialogId];
+	      }
+	    };
+	  }
+	  prepareActiveCall(call) {
+	    return {
+	      ...this.getElementState(),
+	      ...this.validateActiveCall(call)
+	    };
+	  }
+	  validateActiveCall(fields) {
+	    const result = {};
+	    if (main_core.Type.isStringFilled(fields.dialogId) || main_core.Type.isNumber(fields.dialogId)) {
+	      result.dialogId = fields.dialogId;
+	    }
+	    if (main_core.Type.isStringFilled(fields.name)) {
+	      result.name = fields.name;
+	    }
+	    if (main_core.Type.isObjectLike(fields.call)) {
+	      var _fields$call, _fields$call$associat;
+	      result.call = fields.call;
+	      if (((_fields$call = fields.call) == null ? void 0 : (_fields$call$associat = _fields$call.associatedEntity) == null ? void 0 : _fields$call$associat.avatar) === '/bitrix/js/im/images/blank.gif') {
+	        result.call.associatedEntity.avatar = '';
+	      }
+	    }
+	    if (im_v2_const.RecentCallStatus[fields.state]) {
+	      result.state = fields.state;
+	    }
+	    return result;
+	  }
+	}
 
 	class RecentModel extends ui_vue3_vuex.BuilderModel {
 	  getName() {
 	    return 'recent';
 	  }
+	  getNestedModules() {
+	    return {
+	      calls: CallsModel
+	    };
+	  }
 	  getState() {
 	    return {
 	      collection: {},
-	      activeCalls: [],
-	      options: {
-	        showBirthday: true,
-	        showInvited: true,
-	        showLastMessage: true
-	      }
+	      recentCollection: new Set(),
+	      unreadCollection: new Set(),
+	      unloadedChatCounters: {}
 	    };
 	  }
 	  getElementState() {
@@ -3054,10 +2526,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      dialogId: '0',
 	      message: {
 	        id: 0,
-	        text: '',
-	        date: new Date(),
 	        senderId: 0,
-	        status: im_v2_const.MessageStatus.received
+	        date: new Date(),
+	        status: im_v2_const.MessageStatus.received,
+	        sending: false,
+	        text: '',
+	        params: {
+	          withFile: false,
+	          withAttach: false
+	        }
 	      },
 	      draft: {
 	        text: '',
@@ -3074,18 +2551,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      options: {}
 	    };
 	  }
-	  getActiveCallDefaultState() {
-	    return {
-	      dialogId: 0,
-	      name: '',
-	      call: {},
-	      state: im_v2_const.RecentCallStatus.waiting
-	    };
-	  }
 	  getGetters() {
 	    return {
-	      getCollection: state => {
-	        return Object.values(state.collection);
+	      getRecentCollection: state => {
+	        return [...state.recentCollection].map(id => {
+	          return state.collection[id];
+	        });
+	      },
+	      getUnreadCollection: state => {
+	        return [...state.unreadCollection].map(id => {
+	          return state.collection[id];
+	        });
 	      },
 	      getSortedCollection: state => {
 	        const collectionAsArray = Object.values(state.collection).filter(item => {
@@ -3106,40 +2582,40 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return null;
 	      },
-	      getItemText: state => dialogId => {
-	        const currentItem = state.collection[dialogId];
-	        if (!currentItem) {
-	          return '';
-	        }
-	        let result = currentItem.message.text;
-	        // system mention (get current name from model, otherwise - from code)
-	        result = result.replace(/\[user=(\d+) replace](.*?)\[\/user]/gi, (match, userId, userName) => {
-	          const user = this.store.getters['users/get'](userId);
-	          return user ? user.name : userName;
-	        });
-	        result = result.replace(/\[user=(\d+)]\[\/user]/gi, (match, userId) => {
-	          const user = this.store.getters['users/get'](userId);
-	          return user ? user.name : match;
-	        });
-
-	        // custom mention (keep name as it is)
-	        return result.replace(/\[user=(\d+)](.+?)\[\/user]/gi, '$2');
-	      },
 	      needsBirthdayPlaceholder: state => dialogId => {
 	        const currentItem = state.collection[dialogId];
 	        if (!currentItem) {
 	          return false;
 	        }
 	        const dialog = this.store.getters['dialogues/get'](dialogId);
-	        if (!dialog || dialog.type !== im_v2_const.ChatTypes.user) {
+	        if (!dialog || dialog.type !== im_v2_const.DialogType.user) {
 	          return false;
 	        }
 	        const hasBirthday = this.store.getters['users/hasBirthday'](dialogId);
 	        if (!hasBirthday) {
 	          return false;
 	        }
-	        const hasTodayMessage = currentItem.message.id > 0 && im_v2_lib_utils.Utils.date.isToday(currentItem.message.date);
-	        return state.options.showBirthday && !hasTodayMessage && dialog.counter === 0;
+	        const hasMessage = im_v2_lib_utils.Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
+	        const hasTodayMessage = hasMessage && im_v2_lib_utils.Utils.date.isToday(currentItem.message.date);
+	        const showBirthday = this.store.getters['application/settings/get'](im_v2_const.Settings.recent.showBirthday);
+	        return showBirthday && !hasTodayMessage && dialog.counter === 0;
+	      },
+	      needsVacationPlaceholder: state => dialogId => {
+	        const currentItem = state.collection[dialogId];
+	        if (!currentItem) {
+	          return false;
+	        }
+	        const dialog = this.store.getters['dialogues/get'](dialogId);
+	        if (!dialog || dialog.type !== im_v2_const.DialogType.user) {
+	          return false;
+	        }
+	        const hasVacation = this.store.getters['users/hasVacation'](dialogId);
+	        if (!hasVacation) {
+	          return false;
+	        }
+	        const hasMessage = im_v2_lib_utils.Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
+	        const hasTodayMessage = hasMessage && im_v2_lib_utils.Utils.date.isToday(currentItem.message.date);
+	        return !hasTodayMessage && dialog.counter === 0;
 	      },
 	      getMessageDate: state => dialogId => {
 	        const currentItem = state.collection[dialogId];
@@ -3155,19 +2631,50 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return currentItem.message.date;
 	      },
-	      hasActiveCall: state => {
-	        return state.activeCalls.some(item => item.state === im_v2_const.RecentCallStatus.joined);
-	      },
-	      getOption: state => optionName => {
-	        if (!im_v2_const.RecentSettings[optionName]) {
-	          return false;
-	        }
-	        return state.options[optionName];
+	      getTotalCounter: state => {
+	        let loadedChatsCounter = 0;
+	        [...state.recentCollection].forEach(dialogId => {
+	          const dialog = this.store.getters['dialogues/get'](dialogId, true);
+	          const recentItem = state.collection[dialogId];
+	          const isMuted = dialog.muteList.includes(im_v2_application_core.Core.getUserId());
+	          if (isMuted) {
+	            return;
+	          }
+	          const isMarked = recentItem.unread;
+	          if (dialog.counter === 0 && isMarked) {
+	            loadedChatsCounter++;
+	            return;
+	          }
+	          loadedChatsCounter += dialog.counter;
+	        });
+	        let unloadedChatsCounter = 0;
+	        Object.values(state.unloadedChatCounters).forEach(counter => {
+	          unloadedChatsCounter += counter;
+	        });
+	        return loadedChatsCounter + unloadedChatsCounter;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      setRecent: (store, payload) => {
+	        this.store.dispatch('recent/set', payload).then(itemIds => {
+	          store.commit('setRecentCollection', itemIds);
+	        });
+	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
+	          payload = [payload];
+	        }
+	        const zeroedCountersForNewItems = {};
+	        payload.forEach(item => {
+	          zeroedCountersForNewItems[item.chat_id] = 0;
+	        });
+	        this.store.dispatch('recent/setUnloadedChatCounters', zeroedCountersForNewItems);
+	      },
+	      setUnread: (store, payload) => {
+	        this.store.dispatch('recent/set', payload).then(itemIds => {
+	          store.commit('setUnreadCollection', itemIds);
+	        });
+	      },
 	      set: (store, payload) => {
 	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	          payload = [payload];
@@ -3180,7 +2687,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          const existingItem = store.state.collection[element.dialogId];
 	          if (existingItem) {
 	            itemsToUpdate.push({
-	              id: existingItem.dialogId,
+	              dialogId: existingItem.dialogId,
 	              fields: {
 	                ...element
 	              }
@@ -3198,15 +2705,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (itemsToUpdate.length > 0) {
 	          store.commit('update', itemsToUpdate);
 	        }
+	        return [...itemsToAdd, ...itemsToUpdate].map(item => item.dialogId);
 	      },
 	      update: (store, payload) => {
-	        const existingItem = store.state.collection[payload.id];
+	        const {
+	          id,
+	          fields
+	        } = payload;
+	        const existingItem = store.state.collection[id];
 	        if (!existingItem) {
 	          return false;
 	        }
+	        if (fields.message) {
+	          fields.message = {
+	            ...existingItem.message,
+	            ...fields.message
+	          };
+	        }
 	        store.commit('update', {
-	          id: existingItem.dialogId,
-	          fields: this.validate(payload.fields)
+	          dialogId: existingItem.dialogId,
+	          fields: this.validate(fields)
 	        });
 	      },
 	      unread: (store, payload) => {
@@ -3215,7 +2733,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: existingItem.dialogId,
+	          dialogId: existingItem.dialogId,
 	          fields: {
 	            unread: payload.action
 	          }
@@ -3227,7 +2745,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: existingItem.dialogId,
+	          dialogId: existingItem.dialogId,
 	          fields: {
 	            pinned: payload.action
 	          }
@@ -3244,7 +2762,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: existingItem.dialogId,
+	          dialogId: existingItem.dialogId,
 	          fields: {
 	            liked: payload.liked === true
 	          }
@@ -3267,6 +2785,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            ...this.getElementState(),
 	            ...newItem
 	          });
+	          store.commit('setRecentCollection', [newItem.dialogId]);
 	          existingItem = store.state.collection[payload.id];
 	        }
 	        const fields = this.validate({
@@ -3278,7 +2797,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: existingItem.dialogId,
+	          dialogId: existingItem.dialogId,
 	          fields
 	        });
 	      },
@@ -3290,56 +2809,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        store.commit('delete', {
 	          id: existingItem.dialogId
 	        });
+	        store.commit('deleteFromRecentCollection', existingItem.dialogId);
 	      },
-	      addActiveCall: (store, payload) => {
-	        const existingIndex = store.state.activeCalls.findIndex(item => {
-	          return item.dialogId === payload.dialogId || item.call.id === payload.call.id;
-	        });
-	        if (existingIndex > -1) {
-	          store.commit('updateActiveCall', {
-	            index: existingIndex,
-	            fields: this.validateActiveCall(payload)
-	          });
-	          return true;
-	        }
-	        store.commit('addActiveCall', this.prepareActiveCall(payload));
+	      clearUnread: store => {
+	        store.commit('clearUnread');
 	      },
-	      updateActiveCall: (store, payload) => {
-	        const existingIndex = store.state.activeCalls.findIndex(item => {
-	          return item.dialogId === payload.dialogId;
-	        });
-	        store.commit('updateActiveCall', {
-	          index: existingIndex,
-	          fields: this.validateActiveCall(payload.fields)
-	        });
-	      },
-	      deleteActiveCall: (store, payload) => {
-	        const existingIndex = store.state.activeCalls.findIndex(item => {
-	          return item.dialogId === payload.dialogId;
-	        });
-	        if (existingIndex === -1) {
-	          return false;
-	        }
-	        store.commit('deleteActiveCall', {
-	          index: existingIndex
-	        });
-	      },
-	      setOptions: (store, payload) => {
+	      setUnloadedChatCounters: (store, payload) => {
 	        if (!main_core.Type.isPlainObject(payload)) {
-	          return false;
+	          return;
 	        }
-	        payload = this.validateOptions(payload);
-	        Object.entries(payload).forEach(([option, value]) => {
-	          store.commit('setOptions', {
-	            option,
-	            value
-	          });
-	        });
+	        store.commit('setUnloadedChatCounters', payload);
 	      }
 	    };
 	  }
 	  getMutations() {
 	    return {
+	      setRecentCollection: (state, payload) => {
+	        payload.forEach(dialogId => {
+	          state.recentCollection.add(dialogId);
+	        });
+	      },
+	      deleteFromRecentCollection: (state, payload) => {
+	        state.recentCollection.delete(payload);
+	      },
+	      setUnreadCollection: (state, payload) => {
+	        payload.forEach(dialogId => {
+	          state.unreadCollection.add(dialogId);
+	        });
+	      },
 	      add: (state, payload) => {
 	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	          payload = [payload];
@@ -3353,7 +2850,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          payload = [payload];
 	        }
 	        payload.forEach(({
-	          id,
+	          dialogId,
 	          fields
 	        }) => {
 	          // if we already got chat - we should not update it with default user chat (unless it's an accepted invitation)
@@ -3361,7 +2858,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          if (defaultUserElement) {
 	            return false;
 	          }
-	          const currentElement = state.collection[id];
+	          const currentElement = state.collection[dialogId];
 	          fields.message = {
 	            ...currentElement.message,
 	            ...fields.message
@@ -3370,7 +2867,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            ...currentElement.options,
 	            ...fields.options
 	          };
-	          state.collection[id] = {
+	          state.collection[dialogId] = {
 	            ...currentElement,
 	            ...fields
 	          };
@@ -3379,20 +2876,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      delete: (state, payload) => {
 	        delete state.collection[payload.id];
 	      },
-	      addActiveCall: (state, payload) => {
-	        state.activeCalls.push(payload);
+	      clearUnread: state => {
+	        Object.keys(state.collection).forEach(key => {
+	          state.collection[key].unread = false;
+	        });
 	      },
-	      updateActiveCall: (state, payload) => {
-	        state.activeCalls[payload.index] = {
-	          ...state.activeCalls[payload.index],
-	          ...payload.fields
-	        };
-	      },
-	      deleteActiveCall: (state, payload) => {
-	        state.activeCalls.splice(payload.index, 1);
-	      },
-	      setOptions: (state, payload) => {
-	        state.options[payload.option] = payload.value;
+	      setUnloadedChatCounters: (state, payload) => {
+	        Object.entries(payload).forEach(([chatId, counter]) => {
+	          if (counter === 0) {
+	            delete state.unloadedChatCounters[chatId];
+	            return;
+	          }
+	          state.unloadedChatCounters[chatId] = counter;
+	        });
 	      }
 	    };
 	  }
@@ -3458,42 +2954,42 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return result;
 	  }
-	  prepareChatType(fields) {
-	    if (fields.type === im_v2_const.ChatTypes.user) {
-	      return im_v2_const.ChatTypes.user;
-	    }
-	    if (fields.chat) {
-	      return fields.chat.type;
-	    }
-	    return fields.type;
-	  }
 	  prepareMessage(fields) {
+	    var _fields$message$param, _fields$message$param2, _fields$message$param3, _fields$message$param4, _fields$message$param5;
 	    const {
 	      message
 	    } = this.getElementState();
-	    if (main_core.Type.isNumber(fields.message.id)) {
+	    if (main_core.Type.isNumber(fields.message.id) || im_v2_lib_utils.Utils.text.isUuidV4(fields.message.id) || main_core.Type.isStringFilled(fields.message.id)) {
 	      message.id = fields.message.id;
 	    }
 	    if (main_core.Type.isString(fields.message.text)) {
-	      const textOptions = {};
-	      if (fields.message.withAttach || fields.message.attach) {
-	        textOptions.WITH_ATTACH = true;
-	      } else if (fields.message.withFile || fields.message.file) {
-	        textOptions.WITH_FILE = true;
-	      }
-	      message.text = this.prepareText(fields.message.text, textOptions);
+	      message.text = fields.message.text;
+	    }
+	    if (main_core.Type.isStringFilled(fields.message.attach) || main_core.Type.isBoolean(fields.message.attach) || main_core.Type.isArray(fields.message.attach)) {
+	      message.params.withAttach = fields.message.attach;
+	    } else if (main_core.Type.isStringFilled((_fields$message$param = fields.message.params) == null ? void 0 : _fields$message$param.withAttach) || main_core.Type.isBoolean((_fields$message$param2 = fields.message.params) == null ? void 0 : _fields$message$param2.withAttach) || main_core.Type.isArray((_fields$message$param3 = fields.message.params) == null ? void 0 : _fields$message$param3.withAttach)) {
+	      message.params.withAttach = fields.message.params.withAttach;
+	    }
+	    if (main_core.Type.isBoolean(fields.message.file) || main_core.Type.isPlainObject(fields.message.file)) {
+	      message.params.withFile = fields.message.file;
+	    } else if (main_core.Type.isBoolean((_fields$message$param4 = fields.message.params) == null ? void 0 : _fields$message$param4.withFile) || main_core.Type.isPlainObject((_fields$message$param5 = fields.message.params) == null ? void 0 : _fields$message$param5.withFile)) {
+	      message.params.withFile = fields.message.params.withFile;
 	    }
 	    if (main_core.Type.isDate(fields.message.date) || main_core.Type.isString(fields.message.date)) {
 	      message.date = im_v2_lib_utils.Utils.date.cast(fields.message.date);
 	    }
 	    if (main_core.Type.isNumber(fields.message.author_id)) {
 	      message.senderId = fields.message.author_id;
-	    }
-	    if (main_core.Type.isNumber(fields.message.senderId)) {
+	    } else if (main_core.Type.isNumber(fields.message.authorId)) {
+	      message.senderId = fields.message.authorId;
+	    } else if (main_core.Type.isNumber(fields.message.senderId)) {
 	      message.senderId = fields.message.senderId;
 	    }
 	    if (main_core.Type.isStringFilled(fields.message.status)) {
 	      message.status = fields.message.status;
+	    }
+	    if (main_core.Type.isBoolean(fields.message.sending)) {
+	      message.sending = fields.message.sending;
 	    }
 	    return message;
 	  }
@@ -3502,7 +2998,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      draft
 	    } = this.getElementState();
 	    if (main_core.Type.isString(fields.draft.text)) {
-	      draft.text = this.prepareText(fields.draft.text, {});
+	      draft.text = fields.draft.text;
 	    }
 	    if (main_core.Type.isStringFilled(draft.text)) {
 	      draft.date = new Date();
@@ -3511,134 +3007,1460 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return draft;
 	  }
-	  prepareText(text, options) {
-	    let result = text.trim();
-	    if (result.startsWith('/me')) {
-	      result = result.slice(4);
-	    } else if (result.startsWith('/loud')) {
-	      result = result.slice(6);
-	    }
-	    result = result.replace(/<br><br \/>/gi, '<br />');
-	    result = result.replace(/<br \/><br>/gi, '<br />');
-	    const codeReplacement = [];
-	    result = result.replace(/\[code]\n?([\0-\uFFFF]*?)\[\/code]/gi, (whole, group) => {
-	      const id = codeReplacement.length;
-	      codeReplacement.push(group);
-	      return `####REPLACEMENT_CODE_${id}####`;
-	    });
-	    result = result.replace(/\[put(?:=.+?)?](?:.+?)?\[\/put]/gi, match => {
-	      return match.replace(/\[put(?:=(.+))?](.+?)?\[\/put]/gi, (whole, command, textToPut) => {
-	        return textToPut || command;
-	      });
-	    });
-	    result = result.replace(/\[send(?:=.+?)?](?:.+?)?\[\/send]/gi, match => {
-	      return match.replace(/\[send(?:=(.+))?](.+?)?\[\/send]/gi, (whole, command, textToSend) => {
-	        return textToSend || command;
-	      });
-	    });
-	    result = result.replace(/\[[bisu]](.*?)\[\/[bisu]]/gi, '$1');
-	    result = result.replace(/\[url](.*?)\[\/url]/gi, '$1');
-	    result = result.replace(/\[url=(.*?)](.*?)\[\/url]/gi, '$2');
-	    result = result.replace(/\[rating=([1-5])]/gi, () => `[${main_core.Loc.getMessage('IM_UTILS_TEXT_RATING')}] `);
-	    result = result.replace(/\[attach=(\d+)]/gi, () => `[${main_core.Loc.getMessage('IM_UTILS_TEXT_ATTACH')}] `);
-	    result = result.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
-	    result = result.replace(/\[chat=(\d+)](.*?)\[\/chat]/gi, '$2');
-	    result = result.replace(/\[send(?:=.+?)?](.+?)?\[\/send]/gi, '$1');
-	    result = result.replace(/\[put(?:=.+?)?](.+?)?\[\/put]/gi, '$1');
-	    result = result.replace(/\[call(?:=.+?)?](.*?)\[\/call]/gi, '$1');
-	    result = result.replace(/\[pch=(\d+)](.*?)\[\/pch]/gi, '$2');
-	    result = result.replace(/<img.*?data-code="([^"]*)".*?>/gi, '$1');
-	    result = result.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/gi, '($1)');
-	    result = result.replace(/<img.*?title="([^"]*)".*?>/gi, '($1)');
-	    result = result.replace(/<s>([^"]*)<\/s>/gi, ' ');
-	    result = result.replace(/\[s]([^"]*)\[\/s]/gi, ' ');
-	    result = result.replace(/\[icon=([^\]]*)]/gi, this.prepareIconCode);
-	    codeReplacement.forEach((element, index) => {
-	      result = result.replace(`####REPLACEMENT_CODE_${index}####`, element);
-	    });
-	    result = result.replace(/-{54}(.*?)-{54}/gims, `[${main_core.Loc.getMessage('IM_UTILS_TEXT_QUOTE')}] `);
-	    result = result.replace(/^(>>(.*)(\n)?)/gim, `[${main_core.Loc.getMessage('IM_UTILS_TEXT_QUOTE')}] `);
-	    if (options.WITH_ATTACH && result.length === 0) {
-	      result = `[${main_core.Loc.getMessage('IM_UTILS_TEXT_ATTACH')}] ${result}`;
-	    } else if (options.WITH_FILE && result.length === 0) {
-	      result = `[${main_core.Loc.getMessage('IM_UTILS_TEXT_FILE')}] ${result}`;
-	    }
-	    result = result.replace(/\n/gi, ' ').trim();
-	    const SPLIT_INDEX = 24;
-	    const UNSEEN_SPACE = '\u200B';
-	    if (result.length > SPLIT_INDEX) {
-	      let firstPart = result.slice(0, SPLIT_INDEX + 1);
-	      const secondPart = result.slice(SPLIT_INDEX + 1);
-	      const hasWhitespace = /\s/.test(firstPart);
-	      const hasUserCode = /\[user=(\d+)](.*?)\[\/user]/i.test(result);
-	      if (firstPart.length === SPLIT_INDEX + 1 && !hasWhitespace && !hasUserCode) {
-	        firstPart += UNSEEN_SPACE;
-	      }
-	      result = firstPart + secondPart;
-	    }
-	    return result;
+	}
+
+	class NotificationsModel extends ui_vue3_vuex.BuilderModel {
+	  getName() {
+	    return 'notifications';
 	  }
-	  prepareIconCode(wholeMatch) {
-	    let title = wholeMatch.match(/title=(.*[^\s\]])/i);
-	    if (title && title[1]) {
-	      // eslint-disable-next-line prefer-destructuring
-	      title = title[1];
-	      if (title.includes('width=')) {
-	        title = title.slice(0, Math.max(0, title.indexOf('width=')));
-	      }
-	      if (title.includes('height=')) {
-	        title = title.slice(0, Math.max(0, title.indexOf('height=')));
-	      }
-	      if (title.includes('size=')) {
-	        title = title.slice(0, Math.max(0, title.indexOf('size=')));
-	      }
-	      if (title) {
-	        title = `(${title.trim()})`;
-	      }
-	    } else {
-	      title = `(${main_core.Loc.getMessage('IM_UTILS_TEXT_ICON')})`;
-	    }
-	    return title;
-	  }
-	  prepareActiveCall(call) {
+	  getState() {
 	    return {
-	      ...this.getActiveCallDefaultState(),
-	      ...this.validateActiveCall(call)
+	      collection: new Map(),
+	      searchCollection: new Map(),
+	      unreadCounter: 0
 	    };
 	  }
-	  validateActiveCall(fields) {
-	    const result = {};
-	    if (main_core.Type.isStringFilled(fields.dialogId) || main_core.Type.isNumber(fields.dialogId)) {
-	      result.dialogId = fields.dialogId;
-	    }
-	    if (main_core.Type.isStringFilled(fields.name)) {
-	      result.name = fields.name;
-	    }
-	    if (main_core.Type.isObjectLike(fields.call)) {
-	      var _fields$call, _fields$call$associat;
-	      result.call = fields.call;
-	      if (((_fields$call = fields.call) == null ? void 0 : (_fields$call$associat = _fields$call.associatedEntity) == null ? void 0 : _fields$call$associat.avatar) === '/bitrix/js/im/images/blank.gif') {
-	        result.call.associatedEntity.avatar = '';
+	  getElementState() {
+	    return {
+	      id: 0,
+	      authorId: 0,
+	      date: new Date(),
+	      title: '',
+	      text: '',
+	      params: {},
+	      replaces: [],
+	      notifyButtons: [],
+	      sectionCode: im_v2_const.NotificationTypesCodes.simple,
+	      read: false,
+	      settingName: 'im|default'
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      getSortedCollection: state => {
+	        return [...state.collection.values()].sort(this.sortByType);
+	      },
+	      getSearchResultCollection: state => {
+	        return [...state.searchCollection.values()].sort(this.sortByType);
+	      },
+	      getConfirmsCount: state => {
+	        return [...state.collection.values()].filter(notification => {
+	          return notification.sectionCode === im_v2_const.NotificationTypesCodes.confirm;
+	        }).length;
+	      },
+	      getById: state => notificationId => {
+	        if (main_core.Type.isString(notificationId)) {
+	          notificationId = Number.parseInt(notificationId, 10);
+	        }
+	        const existingItem = state.collection.get(notificationId);
+	        if (!existingItem) {
+	          return false;
+	        }
+	        return existingItem;
+	      },
+	      getCounter: state => {
+	        return state.unreadCounter;
 	      }
-	    }
-	    if (im_v2_const.RecentCallStatus[fields.state]) {
-	      result.state = fields.state;
-	    }
-	    return result;
+	    };
 	  }
-	  validateOptions(fields) {
+	  getActions() {
+	    return {
+	      initialSet: (store, payload) => {
+	        if (main_core.Type.isNumber(payload.total_unread_count)) {
+	          store.commit('setCounter', payload.total_unread_count);
+	        }
+	        if (!main_core.Type.isArrayFilled(payload.notifications)) {
+	          return;
+	        }
+	        const itemsToUpdate = [];
+	        const itemsToAdd = [];
+	        const currentUserId = im_v2_application_core.Core.getUserId();
+	        payload.notifications.map(element => {
+	          return NotificationsModel.validate(element, currentUserId);
+	        }).forEach(element => {
+	          const existingItem = store.state.collection.get(element.id);
+	          if (existingItem) {
+	            itemsToUpdate.push({
+	              id: existingItem.id,
+	              fields: {
+	                ...element
+	              }
+	            });
+	          } else {
+	            itemsToAdd.push({
+	              ...this.getElementState(),
+	              ...element
+	            });
+	          }
+	        });
+	        if (itemsToAdd.length > 0) {
+	          store.commit('add', itemsToAdd);
+	        }
+	        if (itemsToUpdate.length > 0) {
+	          store.commit('update', itemsToUpdate);
+	        }
+	      },
+	      set: (store, payload) => {
+	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
+	          payload = [payload];
+	        }
+	        const itemsToUpdate = [];
+	        const itemsToAdd = [];
+	        const currentUserId = im_v2_application_core.Core.getUserId();
+	        payload.map(element => {
+	          return NotificationsModel.validate(element, currentUserId);
+	        }).forEach(element => {
+	          const existingItem = store.state.collection.get(element.id);
+	          if (existingItem) {
+	            itemsToUpdate.push({
+	              id: existingItem.id,
+	              fields: {
+	                ...element
+	              }
+	            });
+	          } else {
+	            itemsToAdd.push({
+	              ...this.getElementState(),
+	              ...element
+	            });
+	          }
+	        });
+	        if (itemsToAdd.length > 0) {
+	          store.commit('add', itemsToAdd);
+	          itemsToAdd.forEach(() => {
+	            store.commit('increaseCounter');
+	          });
+	        }
+	        if (itemsToUpdate.length > 0) {
+	          store.commit('update', itemsToUpdate);
+	        }
+	      },
+	      setSearchResult: (store, payload) => {
+	        const itemsToUpdate = [];
+	        const itemsToAdd = [];
+	        let {
+	          notifications
+	        } = payload;
+	        const skipValidation = !!payload.skipValidation;
+	        if (!skipValidation) {
+	          const currentUserId = im_v2_application_core.Core.getUserId();
+	          notifications = notifications.map(element => {
+	            return NotificationsModel.validate(element, currentUserId);
+	          });
+	        }
+	        notifications.forEach(element => {
+	          const existingItem = store.state.searchCollection.get(element.id);
+	          if (existingItem) {
+	            itemsToUpdate.push({
+	              id: existingItem.id,
+	              fields: {
+	                ...element
+	              }
+	            });
+	          } else {
+	            itemsToAdd.push({
+	              ...this.getElementState(),
+	              ...element
+	            });
+	          }
+	        });
+	        if (itemsToAdd.length > 0) {
+	          store.commit('addSearchResult', itemsToAdd);
+	        }
+	        if (itemsToUpdate.length > 0) {
+	          store.commit('updateSearchResult', itemsToUpdate);
+	        }
+	      },
+	      read: (store, payload) => {
+	        payload.ids.forEach(notificationId => {
+	          const existingItem = store.state.collection.get(notificationId);
+	          if (!existingItem || existingItem.read === payload.read) {
+	            return false;
+	          }
+	          if (payload.read) {
+	            store.commit('decreaseCounter');
+	          } else {
+	            store.commit('increaseCounter');
+	          }
+	          store.commit('read', {
+	            id: existingItem.id,
+	            read: payload.read
+	          });
+	        });
+	      },
+	      readAll: store => {
+	        store.commit('readAll');
+	        store.commit('setCounter', 0);
+	      },
+	      delete: (store, payload) => {
+	        const existingItem = store.state.collection.get(payload.id);
+	        if (!existingItem) {
+	          return;
+	        }
+	        if (existingItem.read === false) {
+	          store.commit('decreaseCounter');
+	        }
+	        store.commit('delete', {
+	          id: existingItem.id
+	        });
+	      },
+	      clearSearchResult: store => {
+	        store.commit('clearSearchResult');
+	      },
+	      setCounter: (store, payload) => {
+	        store.commit('setCounter', payload);
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      add: (state, payload) => {
+	        payload.forEach(item => {
+	          state.collection.set(item.id, item);
+	        });
+	      },
+	      addSearchResult: (state, payload) => {
+	        payload.forEach(item => {
+	          state.searchCollection.set(item.id, item);
+	        });
+	      },
+	      update: (state, payload) => {
+	        payload.forEach(item => {
+	          state.collection.set(item.id, {
+	            ...state.collection.get(item.id),
+	            ...item.fields
+	          });
+	        });
+	      },
+	      updateSearchResult: (state, payload) => {
+	        payload.forEach(item => {
+	          state.searchCollection.set(item.id, {
+	            ...state.searchCollection.get(item.id),
+	            ...item.fields
+	          });
+	        });
+	      },
+	      delete: (state, payload) => {
+	        state.collection.delete(payload.id);
+	      },
+	      read: (state, payload) => {
+	        state.collection.set(payload.id, {
+	          ...state.collection.get(payload.id),
+	          read: payload.read
+	        });
+	      },
+	      readAll: state => {
+	        [...state.collection.values()].forEach(item => {
+	          if (!item.read) {
+	            item.read = true;
+	          }
+	        });
+	      },
+	      setCounter: (state, payload) => {
+	        state.unreadCounter = Number.parseInt(payload, 10);
+	      },
+	      decreaseCounter: state => {
+	        if (state.unreadCounter > 0) {
+	          state.unreadCounter--;
+	        }
+	      },
+	      increaseCounter: state => {
+	        state.unreadCounter++;
+	      },
+	      clearSearchResult: state => {
+	        state.searchCollection.clear();
+	      }
+	    };
+	  }
+	  static validate(fields) {
 	    const result = {};
-	    if (main_core.Type.isBoolean(fields.showBirthday)) {
-	      result.showBirthday = fields.showBirthday;
+	    if (main_core.Type.isString(fields.id) || main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
 	    }
-	    if (main_core.Type.isBoolean(fields.showInvited)) {
-	      result.showInvited = fields.showInvited;
+	    if (main_core.Type.isNumber(fields.author_id)) {
+	      result.authorId = fields.author_id;
+	    } else if (main_core.Type.isNumber(fields.userId)) {
+	      result.authorId = fields.userId;
 	    }
-	    if (main_core.Type.isBoolean(fields.showLastMessage)) {
-	      result.showLastMessage = fields.showLastMessage;
+	    if (!main_core.Type.isNil(fields.date)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.date);
+	    }
+	    if (main_core.Type.isString(fields.notify_title)) {
+	      result.title = fields.notify_title;
+	    } else if (main_core.Type.isString(fields.title)) {
+	      result.title = fields.title;
+	    }
+	    if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
+	      result.text = main_core.Text.decode(fields.text.toString());
+	    }
+	    if (main_core.Type.isObjectLike(fields.params)) {
+	      result.params = fields.params;
+	    }
+	    if (main_core.Type.isArray(fields.replaces)) {
+	      result.replaces = fields.replaces;
+	    }
+	    if (!main_core.Type.isNil(fields.notify_buttons)) {
+	      result.notifyButtons = JSON.parse(fields.notify_buttons);
+	    } else if (!main_core.Type.isNil(fields.buttons)) {
+	      result.notifyButtons = fields.buttons.map(button => {
+	        return {
+	          COMMAND: 'notifyConfirm',
+	          COMMAND_PARAMS: `${result.id}|${button.VALUE}`,
+	          TEXT: `${button.TITLE}`,
+	          TYPE: 'BUTTON',
+	          DISPLAY: 'LINE',
+	          BG_COLOR: button.VALUE === 'Y' ? '#8bc84b' : '#ef4b57',
+	          TEXT_COLOR: '#fff'
+	        };
+	      });
+	    }
+	    if (fields.notify_type === im_v2_const.NotificationTypesCodes.confirm || fields.type === im_v2_const.NotificationTypesCodes.confirm) {
+	      result.sectionCode = im_v2_const.NotificationTypesCodes.confirm;
+	    } else {
+	      result.sectionCode = im_v2_const.NotificationTypesCodes.simple;
+	    }
+	    if (!main_core.Type.isNil(fields.notify_read)) {
+	      result.read = fields.notify_read === 'Y';
+	    } else if (!main_core.Type.isNil(fields.read)) {
+	      result.read = fields.read === 'Y';
+	    }
+	    if (main_core.Type.isString(fields.setting_name)) {
+	      result.settingName = fields.setting_name;
+	    } else if (main_core.Type.isString(fields.settingName)) {
+	      result.settingName = fields.settingName;
 	    }
 	    return result;
 	  }
+	  sortByType(a, b) {
+	    if (a.sectionCode === im_v2_const.NotificationTypesCodes.confirm && b.sectionCode !== im_v2_const.NotificationTypesCodes.confirm) {
+	      return -1;
+	    } else if (a.sectionCode !== im_v2_const.NotificationTypesCodes.confirm && b.sectionCode === im_v2_const.NotificationTypesCodes.confirm) {
+	      return 1;
+	    } else {
+	      return b.id - a.id;
+	    }
+	  }
+	}
+
+	class LinksModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {},
+	      counters: {}
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	      },
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].size;
+	      },
+	      getCounter: state => chatId => {
+	        if (!state.counters[chatId]) {
+	          return 0;
+	        }
+	        return state.counters[chatId];
+	      }
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      messageId: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      source: '',
+	      date: new Date(),
+	      richData: {
+	        id: null,
+	        description: null,
+	        link: null,
+	        name: null,
+	        previewUrl: null,
+	        type: null
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      setCounter: (store, payload) => {
+	        if (!main_core.Type.isNumber(payload.counter) || !main_core.Type.isNumber(payload.chatId)) {
+	          return;
+	        }
+	        store.commit('setCounter', payload);
+	      },
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          links
+	        } = payload;
+	        if (!main_core.Type.isArrayFilled(links) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          store.state.collection[chatId] = new Map();
+	        }
+	        links.forEach(link => {
+	          const preparedLink = {
+	            ...this.getElementState(),
+	            ...this.validate(link)
+	          };
+	          store.commit('add', {
+	            chatId,
+	            link: preparedLink
+	          });
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        if (!main_core.Type.isNumber(id) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId] || !store.state.collection[chatId].has(id)) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          chatId,
+	          id
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setCounter: (state, payload) => {
+	        const {
+	          chatId,
+	          counter
+	        } = payload;
+	        state.counters[chatId] = counter;
+	      },
+	      add: (state, payload) => {
+	        const {
+	          chatId,
+	          link
+	        } = payload;
+	        state.collection[chatId].set(link.id, link);
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        state.collection[chatId].delete(id);
+	        state.counters[chatId]--;
+	      }
+	    };
+	  }
+	  validate(fields) {
+	    const result = {
+	      richData: {}
+	    };
+	    if (main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
+	    }
+	    if (main_core.Type.isNumber(fields.messageId)) {
+	      result.messageId = fields.messageId;
+	    }
+	    if (main_core.Type.isNumber(fields.chatId)) {
+	      result.chatId = fields.chatId;
+	    }
+	    if (main_core.Type.isNumber(fields.authorId)) {
+	      result.authorId = fields.authorId;
+	    }
+	    if (main_core.Type.isString(fields.url.source)) {
+	      result.source = fields.url.source;
+	    }
+	    if (main_core.Type.isString(fields.dateCreate)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
+	    }
+	    if (main_core.Type.isPlainObject(fields.url.richData)) {
+	      result.richData = this.validateRichData(fields.url.richData);
+	    }
+	    return result;
+	  }
+	  validateRichData(richData) {
+	    const result = {};
+	    if (main_core.Type.isNumber(richData.id)) {
+	      result.id = richData.id;
+	    }
+	    if (main_core.Type.isString(richData.description)) {
+	      result.description = richData.description;
+	    }
+	    if (main_core.Type.isString(richData.link)) {
+	      result.link = richData.link;
+	    }
+	    if (main_core.Type.isString(richData.name)) {
+	      result.name = richData.name;
+	    }
+	    if (main_core.Type.isString(richData.previewUrl)) {
+	      result.previewUrl = richData.previewUrl;
+	    }
+	    if (main_core.Type.isString(richData.type)) {
+	      result.type = richData.type;
+	    }
+	    return result;
+	  }
+	}
+
+	class FavoritesModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {},
+	      counters: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      messageId: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      date: new Date()
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	      },
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].size;
+	      },
+	      getCounter: state => chatId => {
+	        if (state.counters[chatId]) {
+	          return state.counters[chatId];
+	        }
+	        return 0;
+	      },
+	      isFavoriteMessage: state => (chatId, messageId) => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        const chatFavorites = Object.fromEntries(state.collection[chatId]);
+	        const targetMessage = Object.values(chatFavorites).find(element => element.messageId === messageId);
+	        return !!targetMessage;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      setCounter: (store, payload) => {
+	        if (!main_core.Type.isNumber(payload.counter) || !main_core.Type.isNumber(payload.chatId)) {
+	          return;
+	        }
+	        store.commit('setCounter', payload);
+	      },
+	      set: (store, payload) => {
+	        if (main_core.Type.isNumber(payload.favorites)) {
+	          payload.favorites = [payload.favorites];
+	        }
+	        const {
+	          chatId,
+	          favorites
+	        } = payload;
+	        if (!main_core.Type.isArrayFilled(favorites) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          store.state.collection[chatId] = new Map();
+	        }
+	        favorites.forEach(favorite => {
+	          const preparedFavoriteMessage = {
+	            ...this.getElementState(),
+	            ...this.validate(favorite)
+	          };
+	          store.commit('add', {
+	            chatId,
+	            favorite: preparedFavoriteMessage
+	          });
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        if (!main_core.Type.isNumber(id) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId] || !store.state.collection[chatId].has(id)) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          chatId,
+	          id
+	        });
+	      },
+	      deleteByMessageId: (store, payload) => {
+	        const {
+	          chatId,
+	          messageId
+	        } = payload;
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        const chatCollection = store.state.collection[chatId];
+	        let targetLinkId = null;
+	        for (const [linkId, linkObject] of chatCollection) {
+	          if (linkObject.messageId === messageId) {
+	            targetLinkId = linkId;
+	            break;
+	          }
+	        }
+	        if (!targetLinkId) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          chatId,
+	          id: targetLinkId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setCounter: (state, payload) => {
+	        const {
+	          chatId,
+	          counter
+	        } = payload;
+	        state.counters[chatId] = counter;
+	      },
+	      add: (state, payload) => {
+	        const {
+	          chatId,
+	          favorite
+	        } = payload;
+	        state.collection[chatId].set(favorite.id, favorite);
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        state.collection[chatId].delete(id);
+	        state.counters[chatId]--;
+	      }
+	    };
+	  }
+	  validate(fields) {
+	    const result = {};
+	    if (main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
+	    }
+	    if (main_core.Type.isNumber(fields.messageId)) {
+	      result.messageId = fields.messageId;
+	    }
+	    if (main_core.Type.isNumber(fields.chatId)) {
+	      result.chatId = fields.chatId;
+	    }
+	    if (main_core.Type.isNumber(fields.authorId)) {
+	      result.authorId = fields.authorId;
+	    }
+	    if (main_core.Type.isString(fields.dateCreate)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
+	    }
+	    return result;
+	  }
+	}
+
+	class MembersModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId]];
+	      },
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].size;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          users
+	        } = payload;
+	        if (!main_core.Type.isArray(users) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (users.length > 0) {
+	          store.commit('set', {
+	            chatId,
+	            users
+	          });
+	        }
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          userId
+	        } = payload;
+	        if (!main_core.Type.isNumber(chatId) || !main_core.Type.isNumber(userId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          userId,
+	          chatId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      set: (state, payload) => {
+	        if (!state.collection[payload.chatId]) {
+	          state.collection[payload.chatId] = new Set(payload.users);
+	        } else {
+	          payload.users.forEach(id => {
+	            state.collection[payload.chatId].add(id);
+	          });
+	        }
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          chatId,
+	          userId
+	        } = payload;
+	        state.collection[chatId].delete(userId);
+	      }
+	    };
+	  }
+	}
+
+	class TasksModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      messageId: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      date: new Date(),
+	      task: {
+	        id: 0,
+	        title: '',
+	        creatorId: 0,
+	        responsibleId: 0,
+	        status: 0,
+	        statusTitle: '',
+	        deadline: new Date(),
+	        state: '',
+	        color: '',
+	        source: ''
+	      }
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	      },
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].size;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          tasks
+	        } = payload;
+	        if (!main_core.Type.isArrayFilled(tasks) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          store.state.collection[chatId] = new Map();
+	        }
+	        tasks.forEach(task => {
+	          const preparedTask = {
+	            ...this.getElementState(),
+	            ...this.validate(task)
+	          };
+	          store.commit('add', {
+	            chatId,
+	            task: preparedTask
+	          });
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        if (!main_core.Type.isNumber(chatId) || !main_core.Type.isNumber(id)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          id,
+	          chatId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      add: (state, payload) => {
+	        const {
+	          chatId,
+	          task
+	        } = payload;
+	        state.collection[chatId].set(task.id, task);
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          id,
+	          chatId
+	        } = payload;
+	        state.collection[chatId].delete(id);
+	      }
+	    };
+	  }
+	  validate(fields) {
+	    const result = {
+	      task: {}
+	    };
+	    if (main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
+	    }
+	    if (main_core.Type.isNumber(fields.messageId)) {
+	      result.messageId = fields.messageId;
+	    }
+	    if (main_core.Type.isNumber(fields.chatId)) {
+	      result.chatId = fields.chatId;
+	    }
+	    if (main_core.Type.isNumber(fields.authorId)) {
+	      result.authorId = fields.authorId;
+	    }
+	    if (main_core.Type.isString(fields.dateCreate)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
+	    }
+	    if (main_core.Type.isPlainObject(fields.task)) {
+	      result.task = this.validateTask(fields.task);
+	    }
+	    return result;
+	  }
+	  validateTask(task) {
+	    const result = {};
+	    if (main_core.Type.isNumber(task.id)) {
+	      result.id = task.id;
+	    }
+	    if (main_core.Type.isString(task.title)) {
+	      result.title = task.title;
+	    }
+	    if (main_core.Type.isNumber(task.creatorId)) {
+	      result.creatorId = task.creatorId;
+	    }
+	    if (main_core.Type.isNumber(task.responsibleId)) {
+	      result.responsibleId = task.responsibleId;
+	    }
+	    if (main_core.Type.isNumber(task.status)) {
+	      result.status = task.status;
+	    }
+	    if (main_core.Type.isString(task.statusTitle)) {
+	      result.statusTitle = task.statusTitle;
+	    }
+	    if (main_core.Type.isString(task.deadline)) {
+	      result.deadline = im_v2_lib_utils.Utils.date.cast(task.deadline);
+	    }
+	    if (main_core.Type.isString(task.state)) {
+	      result.state = task.state;
+	    }
+	    if (main_core.Type.isString(task.color)) {
+	      result.color = task.color;
+	    }
+	    if (main_core.Type.isString(task.source)) {
+	      result.source = task.source;
+	    }
+	    return result;
+	  }
+	}
+
+	class MeetingsModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      messageId: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      date: new Date(),
+	      meeting: {
+	        id: 0,
+	        title: '',
+	        dateFrom: new Date(),
+	        dateTo: new Date(),
+	        source: ''
+	      }
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	      },
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].size;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          meetings
+	        } = payload;
+	        if (!main_core.Type.isArrayFilled(meetings) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          store.state.collection[chatId] = new Map();
+	        }
+	        meetings.forEach(meeting => {
+	          const preparedMeeting = {
+	            ...this.getElementState(),
+	            ...this.validate(meeting)
+	          };
+	          store.commit('add', {
+	            chatId,
+	            meeting: preparedMeeting
+	          });
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        if (!main_core.Type.isNumber(chatId) || !main_core.Type.isNumber(id)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          id,
+	          chatId
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      add: (state, payload) => {
+	        const {
+	          chatId,
+	          meeting
+	        } = payload;
+	        state.collection[chatId].set(meeting.id, meeting);
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          id,
+	          chatId
+	        } = payload;
+	        state.collection[chatId].delete(id);
+	      }
+	    };
+	  }
+	  validate(fields) {
+	    const result = {
+	      meeting: {}
+	    };
+	    if (main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
+	    }
+	    if (main_core.Type.isNumber(fields.messageId)) {
+	      result.messageId = fields.messageId;
+	    }
+	    if (main_core.Type.isNumber(fields.chatId)) {
+	      result.chatId = fields.chatId;
+	    }
+	    if (main_core.Type.isNumber(fields.authorId)) {
+	      result.authorId = fields.authorId;
+	    }
+	    if (main_core.Type.isString(fields.dateCreate)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
+	    }
+	    if (main_core.Type.isPlainObject(fields.calendar)) {
+	      result.meeting = this.validateMeeting(fields.calendar);
+	    }
+	    return result;
+	  }
+	  validateMeeting(meeting) {
+	    const result = {};
+	    if (main_core.Type.isNumber(meeting.id)) {
+	      result.id = meeting.id;
+	    }
+	    if (main_core.Type.isString(meeting.title)) {
+	      result.title = meeting.title;
+	    }
+	    if (main_core.Type.isString(meeting.dateFrom)) {
+	      result.dateFrom = im_v2_lib_utils.Utils.date.cast(meeting.dateFrom);
+	    }
+	    if (main_core.Type.isString(meeting.dateTo)) {
+	      result.dateTo = im_v2_lib_utils.Utils.date.cast(meeting.dateTo);
+	    }
+	    if (main_core.Type.isString(meeting.source)) {
+	      result.source = meeting.source;
+	    }
+	    return result;
+	  }
+	}
+
+	class FilesModel$1 extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      messageId: 0,
+	      chatId: 0,
+	      authorId: 0,
+	      date: new Date(),
+	      fileId: 0
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      get: state => (chatId, subType) => {
+	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId][subType].values()].sort((a, b) => b.id - a.id);
+	      },
+	      getLatest: (state, getters, rootState, rootGetters) => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        let media = [];
+	        let audio = [];
+	        let documents = [];
+	        let other = [];
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.media]) {
+	          media = [...state.collection[chatId][im_v2_const.SidebarFileTypes.media].values()];
+	        }
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.audio]) {
+	          audio = [...state.collection[chatId][im_v2_const.SidebarFileTypes.audio].values()];
+	        }
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.document]) {
+	          documents = [...state.collection[chatId][im_v2_const.SidebarFileTypes.document].values()];
+	        }
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.other]) {
+	          other = [...state.collection[chatId][im_v2_const.SidebarFileTypes.other].values()];
+	        }
+	        const sortedFlatCollection = [media, audio, documents, other].flat().sort((a, b) => b.id - a.id);
+	        return this.getTopThreeCompletedFiles(sortedFlatCollection, rootGetters);
+	      },
+	      getLatestUnsorted: (state, getters, rootState, rootGetters) => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        let unsorted = [];
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.fileUnsorted]) {
+	          unsorted = [...state.collection[chatId][im_v2_const.SidebarFileTypes.fileUnsorted].values()];
+	        }
+	        const sortedCollection = unsorted.sort((a, b) => b.id - a.id);
+	        return this.getTopThreeCompletedFiles(sortedCollection, rootGetters);
+	      },
+	      getSize: state => (chatId, subType) => {
+	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
+	          return 0;
+	        }
+	        return state.collection[chatId][subType].size;
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          files
+	        } = payload;
+	        if (!main_core.Type.isArrayFilled(files) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          store.state.collection[chatId] = {};
+	        }
+	        files.forEach(file => {
+	          const preparedFile = {
+	            ...this.getElementState(),
+	            ...this.validate(file)
+	          };
+	          const {
+	            subType
+	          } = file;
+	          store.commit('add', {
+	            chatId,
+	            subType,
+	            file: preparedFile
+	          });
+	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        if (!main_core.Type.isNumber(id) || !main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          chatId,
+	          id
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      add: (state, payload) => {
+	        const {
+	          chatId,
+	          file,
+	          subType
+	        } = payload;
+	        if (!state.collection[chatId][subType]) {
+	          state.collection[chatId][subType] = new Map();
+	        }
+	        state.collection[chatId][subType].set(file.id, file);
+	      },
+	      delete: (state, payload) => {
+	        const {
+	          chatId,
+	          id
+	        } = payload;
+	        Object.values(im_v2_const.SidebarFileTypes).forEach(subType => {
+	          if (state.collection[chatId][subType] && state.collection[chatId][subType].has(id)) {
+	            state.collection[chatId][subType].delete(id);
+	          }
+	        });
+	      }
+	    };
+	  }
+	  validate(fields) {
+	    const result = {};
+	    if (main_core.Type.isNumber(fields.id)) {
+	      result.id = fields.id;
+	    }
+	    if (main_core.Type.isNumber(fields.messageId)) {
+	      result.messageId = fields.messageId;
+	    }
+	    if (main_core.Type.isNumber(fields.chatId)) {
+	      result.chatId = fields.chatId;
+	    }
+	    if (main_core.Type.isNumber(fields.authorId)) {
+	      result.authorId = fields.authorId;
+	    }
+	    if (main_core.Type.isString(fields.dateCreate)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
+	    } else if (main_core.Type.isString(fields.date)) {
+	      result.date = im_v2_lib_utils.Utils.date.cast(fields.date);
+	    }
+	    result.fileId = main_core.Type.isNumber(fields.fileId) ? fields.fileId : result.id;
+	    return result;
+	  }
+	  getTopThreeCompletedFiles(collection, rootGetters) {
+	    return collection.filter(sidebarFile => {
+	      const file = rootGetters['files/get'](sidebarFile.fileId, true);
+	      return file.progress === 100;
+	    }).slice(0, 3);
+	  }
+	}
+
+	class SidebarModel extends ui_vue3_vuex.BuilderModel {
+	  getName() {
+	    return 'sidebar';
+	  }
+	  getNestedModules() {
+	    return {
+	      members: MembersModel,
+	      links: LinksModel,
+	      favorites: FavoritesModel,
+	      tasks: TasksModel,
+	      meetings: MeetingsModel,
+	      files: FilesModel$1
+	    };
+	  }
+	  getState() {
+	    return {
+	      initedList: new Set(),
+	      isFilesMigrated: false,
+	      isLinksMigrated: false
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      isInited: state => chatId => {
+	        return state.initedList.has(chatId);
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      setInited: (store, chatId) => {
+	        if (!main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        store.commit('setInited', chatId);
+	      },
+	      setFilesMigrated: (store, value) => {
+	        if (!main_core.Type.isBoolean(value)) {
+	          return;
+	        }
+	        store.commit('setFilesMigrated', value);
+	      },
+	      setLinksMigrated: (store, value) => {
+	        if (!main_core.Type.isBoolean(value)) {
+	          return;
+	        }
+	        store.commit('setLinksMigrated', value);
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setInited: (state, payload) => {
+	        state.initedList.add(payload);
+	      },
+	      setFilesMigrated: (state, payload) => {
+	        state.isFilesMigrated = payload;
+	      },
+	      setLinksMigrated: (state, payload) => {
+	        state.isLinksMigrated = payload;
+	      }
+	    };
+	  }
+	}
+
+	var _validate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("validate");
+	var _validateOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("validateOptions");
+	var _validateLoadConfiguration = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("validateLoadConfiguration");
+	class MarketModel extends ui_vue3_vuex.BuilderModel {
+	  constructor(...args) {
+	    super(...args);
+	    Object.defineProperty(this, _validateLoadConfiguration, {
+	      value: _validateLoadConfiguration2
+	    });
+	    Object.defineProperty(this, _validateOptions, {
+	      value: _validateOptions2
+	    });
+	    Object.defineProperty(this, _validate, {
+	      value: _validate2
+	    });
+	  }
+	  getName() {
+	    return 'market';
+	  }
+	  getState() {
+	    return {
+	      collection: new Map(),
+	      placementCollection: {
+	        [im_v2_const.PlacementType.contextMenu]: new Set(),
+	        [im_v2_const.PlacementType.navigation]: new Set(),
+	        [im_v2_const.PlacementType.textarea]: new Set(),
+	        [im_v2_const.PlacementType.sidebar]: new Set(),
+	        [im_v2_const.PlacementType.smilesSelector]: new Set()
+	      }
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      id: 0,
+	      title: '',
+	      options: {
+	        role: '',
+	        extranet: '',
+	        context: null,
+	        width: null,
+	        height: null,
+	        color: null,
+	        iconName: null
+	      },
+	      placement: '',
+	      order: 0,
+	      loadConfiguration: {
+	        ID: 0,
+	        PLACEMENT: '',
+	        PLACEMENT_ID: 0
+	      }
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      getByPlacement: state => placement => {
+	        const appIds = [...state.placementCollection[placement].values()];
+	        return appIds.map(id => {
+	          return state.collection.get(id);
+	        });
+	      },
+	      getById: state => id => {
+	        return state.collection.get(id);
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      set: (store, payload) => {
+	        const {
+	          items
+	        } = payload;
+	        items.forEach(item => {
+	          store.commit('setPlacementCollection', {
+	            placement: item.placement,
+	            id: item.id
+	          });
+	          store.commit('setCollection', item);
+	        });
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      setPlacementCollection: (state, payload) => {
+	        state.placementCollection[payload.placement].add(payload.id);
+	      },
+	      setCollection: (state, payload) => {
+	        state.collection.set(payload.id, {
+	          ...this.getElementState(),
+	          ...babelHelpers.classPrivateFieldLooseBase(this, _validate)[_validate](payload)
+	        });
+	      }
+	    };
+	  }
+	}
+	function _validate2(app) {
+	  const result = {};
+	  if (main_core.Type.isNumber(app.id) || main_core.Type.isStringFilled(app.id)) {
+	    result.id = app.id.toString();
+	  }
+	  if (main_core.Type.isString(app.title)) {
+	    result.title = app.title;
+	  }
+	  result.options = babelHelpers.classPrivateFieldLooseBase(this, _validateOptions)[_validateOptions](app.options);
+	  if (main_core.Type.isString(app.placement)) {
+	    result.placement = app.placement;
+	  }
+	  if (main_core.Type.isNumber(app.order)) {
+	    result.order = app.order;
+	  }
+	  result.loadConfiguration = babelHelpers.classPrivateFieldLooseBase(this, _validateLoadConfiguration)[_validateLoadConfiguration](app.loadConfiguration);
+	  return result;
+	}
+	function _validateOptions2(options) {
+	  const result = {
+	    context: null,
+	    width: null,
+	    height: null,
+	    color: null,
+	    iconName: null
+	  };
+	  if (!main_core.Type.isPlainObject(options)) {
+	    return result;
+	  }
+	  if (main_core.Type.isArrayFilled(options.context)) {
+	    result.context = options.context;
+	  }
+	  if (main_core.Type.isNumber(options.width)) {
+	    result.width = options.width;
+	  }
+	  if (main_core.Type.isNumber(options.height)) {
+	    result.height = options.height;
+	  }
+	  if (main_core.Type.isStringFilled(options.color)) {
+	    result.color = options.color;
+	  }
+	  if (main_core.Type.isStringFilled(options.iconName)) {
+	    result.iconName = options.iconName;
+	  }
+	  return result;
+	}
+	function _validateLoadConfiguration2(configuration) {
+	  const result = {
+	    ID: 0,
+	    PLACEMENT: '',
+	    PLACEMENT_ID: 0
+	  };
+	  if (!main_core.Type.isPlainObject(configuration)) {
+	    return result;
+	  }
+	  if (main_core.Type.isNumber(configuration.ID)) {
+	    result.ID = configuration.ID;
+	  }
+	  if (main_core.Type.isStringFilled(configuration.PLACEMENT)) {
+	    result.PLACEMENT = configuration.PLACEMENT;
+	  }
+	  if (main_core.Type.isNumber(configuration.PLACEMENT_ID)) {
+	    result.PLACEMENT_ID = configuration.PLACEMENT_ID;
+	  }
+	  return result;
 	}
 
 	exports.ApplicationModel = ApplicationModel;
@@ -3647,6 +4469,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.UsersModel = UsersModel;
 	exports.FilesModel = FilesModel;
 	exports.RecentModel = RecentModel;
+	exports.NotificationsModel = NotificationsModel;
+	exports.SidebarModel = SidebarModel;
+	exports.MarketModel = MarketModel;
 
-}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Vue3,BX.Messenger.v2.Lib,BX.Event,BX,BX.Vue3.Vuex,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Messenger.v2.Lib,BX.Ui,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

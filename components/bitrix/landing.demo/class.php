@@ -182,7 +182,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			return true;
 		}
 		$landing = Landing::createInstance($landingId, [
-			'skip_blocks' => true
+			'skip_blocks' => true,
+			'check_permissions' => false,
 		]);
 		if ($landing->exist())
 		{
@@ -1639,7 +1640,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 
 				if ($code)
 				{
-					$data = [$code => $data[$code]];
+					$data = [$code => $data[$code] ?? null];
 				}
 			}
 
@@ -1659,7 +1660,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// endregion
 
 			// region fill from APPs
-			if (!$this->arResult['IS_SEARCH'])
+			if (!($this->arResult['IS_SEARCH'] ?? false))
 			{
 				$res = Demos::getList([
 					'select' => [
@@ -1769,7 +1770,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$cacheId .= $subDir . $cacheStarted . $this->arParams['TYPE'];
 			$cacheId .= $siteTemplateId . LANGUAGE_ID;
 			$cacheId .= $code ?? 'all';
-			$cacheId .= $this->arParams['SITE_ID'] > 0 ? 'onePage' : 'multiPage';
+			$cacheId .= ($this->arParams['SITE_ID'] ?? 0) > 0 ? 'onePage' : 'multiPage';
 			$cacheId .= $this->getFilterToString();
 
 			$navigation = $this->getLastNavigation();
@@ -1785,7 +1786,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$marketPrefix = 'market';
 			$marketIdDelimiter = '/';
 			$isNeedMarket =
-				$this->arParams['SKIP_REMOTE'] !== 'Y'
+				($this->arParams['SKIP_REMOTE'] ?? 'N') !== 'Y'
 				&& (!$code || mb_strpos($code, $marketPrefix . $marketIdDelimiter) === 0)
 				&& $this->arParams['TYPE'] === 'PAGE'
 			;
@@ -1800,7 +1801,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$this->setErrors(new Bitrix\Main\Error(Loc::getMessage('LANDING_TPL_REPO_NOT_INSTALL')));
 				}
 			}
-			$cacheId .= ($isNeedMarket && $hasMarket) ? 'Market' : 'NoMarket';
+			$cacheId .= ($isNeedMarket && $hasMarket) ? 'Market_v2' : 'NoMarket';
 
 			// nfr - without cache
 			$cachePath = 'landing/demo';
@@ -1810,7 +1811,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			)
 			{
 				$data = $cache->getVars();
-				$navigation->setRecordCount($data['navigation']['recordCount']);
+				$navigation->setRecordCount($data['navigation']['recordCount'] ?? 0);
 
 				if (!empty($data[$subDir]))
 				{
@@ -1828,12 +1829,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			}
 
 			$data[$subDir] = [];
-			$data['navigation'] = [];
+			$data['navigation'] = ['recordCount' => 0];
 			$siteTypeDef = Site::getDefaultType();
 			$siteTypeCurr = $this->arParams['TYPE'];
 
 			// region get LOCAL
-			if (!$this->arResult['IS_SEARCH'])
+			if (!($this->arResult['IS_SEARCH'] ?? false))
 			{
 				$pathLocal = '/bitrix/components/bitrix/landing.demo/data/' . $subDir;//@todo make better
 				$path = Manager::getDocRoot() . $pathLocal;
@@ -1957,7 +1958,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				$query = array_merge($query, $this->getQueryFromFilter());
 
 				$siteList = Client::getSiteList($query);
-				if (is_array($siteList) && is_array($siteList['ITEMS']))
+				if (is_array($siteList) && is_array($siteList['ITEMS'] ?? null))
 				{
 					$fakeRecordCount = $siteList['PAGES'] * $navigation->getPageSize();
 					$navigation->setRecordCount($fakeRecordCount);
@@ -1969,8 +1970,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							$marketIdDelimiter,
 							[
 								$marketPrefix,
-								$site['APP_CODE'],
-								$site['ID'],
+								$site['APP_CODE']
 							]
 						);
 						if ($code && ($code !== $key))
@@ -1993,7 +1993,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							'PREVIEW_URL' => $site['URL'] ?? '',
 							'ZIP_ID' => $site['ID'] ?? '',
 							'APP_CODE' => $site['APP_CODE'] ?? '',
-							'DATA' => $site['DATA'],
+							'DATA' => $site['DATA'] ?? [],
 							'IS_NEW' => $site['IS_NEW'],
 							'REST' => 0,
 							'LANG' => $site['LANG'] ?? LANGUAGE_ID,
@@ -2730,6 +2730,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$this->checkParam('SITE_ID', 0);
 		$this->checkParam('FOLDER_ID', 0);
 		$this->checkParam('TYPE', '');
+		$this->checkParam('SKIP_REMOTE', 'N');
+		$this->checkParam('FILTER', []);
 
 		\Bitrix\Landing\Hook::setEditMode(true);
 		Type::setScope($this->arParams['TYPE']);
@@ -3917,13 +3919,13 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	protected function getFilterToString(): string
 	{
 		$result = '';
-		$filter = $this->arResult['FILTER'];
+		$filter = $this->arResult['FILTER'] ?? [];
 		if (is_array($filter) && !empty($filter))
 		{
 			$keys = array_merge(['FIND'], array_keys(self::getFilterFields()));
 			foreach ($keys as $key)
 			{
-				if ($filter[$key])
+				if ($filter[$key] ?? null)
 				{
 					$result .= "{$key}:{$filter[$key]}_";
 				}
@@ -3938,7 +3940,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	protected function getQueryFromFilter(): array
 	{
-		$filter = $this->arResult['FILTER'];
+		$filter = $this->arResult['FILTER'] ?? [];
 		$query = [];
 
 		if (!empty($filter) && $filter['FILTER_APPLIED'])
@@ -3950,19 +3952,22 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			}
 
 			// type
-			if ($filter['PAYMENT'] === 'free')
+			if ($filter['PAYMENT'] ?? null)
 			{
-				$query['free'] = 'Y';
-				unset($query['by_subscription']);
-			}
-			elseif ($filter['PAYMENT'] === 'subscribe')
-			{
-				$query['by_subscription'] = 'Y';
-				unset($query['free']);
+				if ($filter['PAYMENT'] === 'free')
+				{
+					$query['free'] = 'Y';
+					unset($query['by_subscription']);
+				}
+				elseif ($filter['PAYMENT'] === 'subscribe')
+				{
+					$query['by_subscription'] = 'Y';
+					unset($query['free']);
+				}
 			}
 
 			// install count
-			if ($filter['INSTALLS'] && $filter['INSTALLS'] !== 'all')
+			if (($filter['INSTALLS'] ?? null) && $filter['INSTALLS'] !== 'all')
 			{
 				if ($filter['INSTALLS'] === '100')
 				{
@@ -3994,7 +3999,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 			}
 
-			if ($filter['DATE'])
+			if ($filter['DATE'] ?? null)
 			{
 				$now = new Date();
 				$toPhpFormat = Date::convertFormatToPhp('DD.MM.YYYY HH:MI:SS');

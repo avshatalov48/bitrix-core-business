@@ -84,8 +84,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("ERROR_DELETING"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}
@@ -116,7 +118,7 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 while ($arLocation = $dbResultList->NavNext(true, "f_"))
 {
-	$editUrl = "sale_location_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_");
+	$editUrl = "sale_location_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_");
 	$row =& $lAdmin->AddRow($f_ID, $arLocation, $editUrl, GetMessage("SALE_EDIT_DESCR"));
 
 	$row->AddField("ID", "<b><a href='".$editUrl."' title='".GetMessage("SALE_EDIT_DESCR")."'>".$f_ID."</a>");

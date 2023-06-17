@@ -10,7 +10,7 @@ foreach (GetModuleEvents('forum', 'OnCommentFormDisplay', true) as $arEvent)
 	if ($arExt !== null)
 	{
 		foreach($arExt as $arTpl)
-			$APPLICATION->AddViewContent(implode('_', array($tplID, 'EDIT', $arTpl['DISPLAY'])), $arTpl['TEXT'], $arTpl['SORT']);
+			$APPLICATION->AddViewContent(implode('_', array($arParams["tplID"], 'EDIT', $arTpl['DISPLAY'])), $arTpl['TEXT'], $arTpl['SORT']);
 	}
 }
 ob_start();
@@ -78,7 +78,6 @@ if(!empty($arResult["Smiles"]))
 		?>id="<?=$arParams["FORM_ID"]?>" <?
 		?>name="<?=$arParams["FORM_ID"]?>" <?
 		?>method="POST" enctype="multipart/form-data" class="comments-form">
-		<input type="hidden" name="back_page" value="<?=$arResult["CURRENT_PAGE"]?>" />
 		<input type="hidden" name="ENTITY_XML_ID" value="<?=$arParams["ENTITY_XML_ID"]?>" />
 		<input type="hidden" name="ENTITY_TYPE" value="<?=$arParams["ENTITY_TYPE"]?>" />
 		<input type="hidden" name="ENTITY_ID" value="<?=$arParams["ENTITY_ID"]?>" />
@@ -124,8 +123,8 @@ $APPLICATION->IncludeComponent("bitrix:main.post.form",
 			array_merge((is_array($arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"]) ? $arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"] : array()), (is_array($arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MESSAGE_DOC"]) ? $arParams["USER_FIELDS_SETTINGS"]["UF_FORUM_MESSAGE_DOC"] : array())),
 		),
 		"SMILES" => array("VALUE" => $arSmiles),
-		"HTML_BEFORE_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($tplID, 'EDIT', 'BEFORE'))).$html_before_textarea,
-		"HTML_AFTER_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($tplID, 'EDIT', 'AFTER'))).$html_after_textarea,
+		"HTML_BEFORE_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'BEFORE'))).$html_before_textarea,
+		"HTML_AFTER_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'AFTER'))).$html_after_textarea,
 		"FORUM_CONTEXT" => (!empty($arParams["POST_CONTENT_TYPE_ID"]) ? $arParams["POST_CONTENT_TYPE_ID"] : '')
 	),
 	false,

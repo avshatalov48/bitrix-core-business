@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -11,32 +15,40 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
-?>
 
-<?if($arParams["USE_RSS"]=="Y"):?>
-	<?
-	if(method_exists($APPLICATION, 'addheadstring'))
-		$APPLICATION->AddHeadString('<link rel="alternate" type="application/rss+xml" title="'.$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["rss"].'" href="'.$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["rss"].'" />');
-	?>
-<?endif?>
+if($arParams["USE_RSS"]=="Y"):
+	if (method_exists($APPLICATION, 'addheadstring'))
+	{
+		$APPLICATION->AddHeadString(
+			'<link rel="alternate" type="application/rss+xml" title="'
+			. $arResult["FOLDER"]
+			. $arResult["URL_TEMPLATES"]["rss"]
+			. '" href="'
+			. $arResult["FOLDER"]
+			. $arResult["URL_TEMPLATES"]["rss"]
+			. '" />'
+		);
+	}
+endif;
 
-<?if($arParams["USE_SEARCH"]=="Y"):?>
-	<?$APPLICATION->IncludeComponent(
+if($arParams["USE_SEARCH"]=="Y"):
+	$APPLICATION->IncludeComponent(
 		"bitrix:search.form",
 		"",
-		Array(
+		[
 			"PAGE" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["search"],
-			"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"]
-		),
-		$component
-	);?>
-<?endif?>
+			"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"],
+		],
+		$component,
+		['HIDE_ICONS' => 'Y']
+	);
+endif;
 
-<?if($arParams["USE_FILTER"]=="Y"):?>
-<?$APPLICATION->IncludeComponent(
+if($arParams["USE_FILTER"]=="Y"):
+$APPLICATION->IncludeComponent(
 	"bitrix:catalog.filter",
 	"bootstrap_v4",
-	Array(
+	[
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
@@ -47,16 +59,16 @@ $this->setFrameMode(true);
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
 		"PAGER_PARAMS_NAME" => $arParams["PAGER_PARAMS_NAME"],
 		"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"]
-	),
-	$component
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
 );
-?>
-<?endif?>
+endif;
 
-<?$APPLICATION->IncludeComponent(
+$APPLICATION->IncludeComponent(
 	"bitrix:news.list",
 	"bootstrap_v4",
-	Array(
+	[
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"NEWS_COUNT" => $arParams["NEWS_COUNT"],
@@ -103,8 +115,8 @@ $this->setFrameMode(true);
 		"DISPLAY_NAME" => "Y",
 		"DISPLAY_PICTURE" => $arParams["DISPLAY_PICTURE"],
 		"DISPLAY_PREVIEW_TEXT" => $arParams["DISPLAY_PREVIEW_TEXT"],
-		"MEDIA_PROPERTY" => $arParams["MEDIA_PROPERTY"],
-		"SLIDER_PROPERTY" => $arParams["SLIDER_PROPERTY"],
+		"MEDIA_PROPERTY" => ($arParams["MEDIA_PROPERTY"] ?? ''),
+		"SLIDER_PROPERTY" => ($arParams["SLIDER_PROPERTY"] ?? ''),
 
 		"PAGER_TEMPLATE" => $arParams["PAGER_TEMPLATE"],
 		"DISPLAY_TOP_PAGER" => $arParams["DISPLAY_TOP_PAGER"],
@@ -130,7 +142,8 @@ $this->setFrameMode(true);
 		"SHARE_SHORTEN_URL_LOGIN" => $arParams["SHARE_SHORTEN_URL_LOGIN"],
 		"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
 
-		"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"],
-	),
-	$component
-);?>
+		"TEMPLATE_THEME" => ($arParams["TEMPLATE_THEME"] ?? ''),
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
+);

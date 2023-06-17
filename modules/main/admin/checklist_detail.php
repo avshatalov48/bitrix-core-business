@@ -51,14 +51,14 @@ if($_REQUEST["TEST_ID"] && $arPoints[$_REQUEST["TEST_ID"]])
 			break;
 	}
 	$arTotal = count($arPoints);
-	if($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"] <> '')
+	if(!empty($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"]))
 		$display="inline-block";
 	else
 		$display="none";
 	$display_result = (!empty($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"])? "block" : "none");
 	$APPLICATION->RestartBuffer();?>
 
-	
+
 <?
 
 $aTabs = array(
@@ -66,8 +66,8 @@ $aTabs = array(
 		array("DIV" => "edit2", "TAB" => GetMessage("CL_TAB_DESC"), "ICON" => "checklist_detail", "TITLE" => GetMessage('CL_TAB_DESC')),
 	);
 	$tabControl = new CAdminTabControl("tabControl", $aTabs);
-	
-	
+
+
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
@@ -76,14 +76,14 @@ $tabControl->BeginNextTab();
 			<div id="bx_test_result" style="display:<?=$display_result;?>" class="checklist-popup-test">
 				<div class="checklist-popup-name-test"><?=GetMessage("CL_RESULT_TEST");?>:</div>
 				<div>
-					<span id="system_comment"><?=($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["PREVIEW"])?$arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["PREVIEW"]:"&mdash;";?></span>
+					<span id="system_comment"><?=(!empty($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["PREVIEW"]))?$arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["PREVIEW"]:"&mdash;";?></span>
 					<div><span class="checklist-popup-test-link" onclick="ShowDetailComment()" id="show_detail_link"><?=GetMessage("CL_MORE_DETAILS");?></span></div>
 					<div style="display:none" id="detail_system_comment_<?=$htmlTestID;?>">
-						<div class="checklist-system-textarea"><?=preg_replace("/\r\n|\r|\n/",'<br>',$arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"]);?></div>
+						<div class="checklist-system-textarea"><?=preg_replace("/\r\n|\r|\n/",'<br>',$arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"] ?? '');?></div>
 					</div>
 				</div>
 			</div>
-			<?if($arPoints[$arTestID]["AUTO"] == "Y"):?>
+			<?if(isset($arPoints[$arTestID]["AUTO"]) && $arPoints[$arTestID]["AUTO"] == "Y"):?>
 				<div class="checklist-popup-start-test-block checklist-popup-name-test">
 					<a id="bx_start_button_detail" onclick="StartPointAutoCheck()" class="adm-btn adm-btn-green adm-btn">
 						<span class="checklist-button-cont" style="color: #ffffff; font-weight: bold"><?=GetMessage("CL_AUTOTEST_START");?></span>
@@ -96,8 +96,8 @@ $tabControl->BeginNextTab();
 					<div class="checklist-form-textar-block">
 						<div class="checklist-form-textar-status"><?=GetMessage("CL_STATUS_COMMENT");?></div>
 						<div class="checklist-dot-line"></div>
-						<div OnClick = "BX('performer_comment_edit_area').style.display ='block'; this.style.display='none';BX('performer_comment').focus();" OnMouseOver="BX.addClass(this,'checklist-form-textar');BX.removeClass(this,'checklist-form-textar-non-active');" OnMouseOut="BX.addClass(this,'checklist-form-textar-non-active');BX.removeClass(this,'checklist-form-textar');" id="performer_comment_area"  class="checklist-form-textar-non-active" ><?=preg_replace("/\r\n|\r|\n/",'<br>', htmlspecialcharsbx($arPoints[$arTestID]["STATE"]["COMMENTS"]["PERFOMER"]));?></div>
-						<div id="performer_comment_edit_area" style="display:none;"><textarea id="performer_comment" OnBlur = "SaveStatus(); BX('performer_comment_area').style.display ='block';BX('performer_comment_edit_area').style.display='none';CopyText(this,BX('performer_comment_area'));" class="checklist-form-textar"><?=htmlspecialcharsbx($arPoints[$arTestID]["STATE"]["COMMENTS"]["PERFOMER"])?></textarea></div>
+						<div OnClick = "BX('performer_comment_edit_area').style.display ='block'; this.style.display='none';BX('performer_comment').focus();" OnMouseOver="BX.addClass(this,'checklist-form-textar');BX.removeClass(this,'checklist-form-textar-non-active');" OnMouseOut="BX.addClass(this,'checklist-form-textar-non-active');BX.removeClass(this,'checklist-form-textar');" id="performer_comment_area"  class="checklist-form-textar-non-active" ><?=preg_replace("/\r\n|\r|\n/",'<br>', htmlspecialcharsbx($arPoints[$arTestID]["STATE"]["COMMENTS"]["PERFOMER"] ?? ''));?></div>
+						<div id="performer_comment_edit_area" style="display:none;"><textarea id="performer_comment" OnBlur = "SaveStatus(); BX('performer_comment_area').style.display ='block';BX('performer_comment_edit_area').style.display='none';CopyText(this,BX('performer_comment_area'));" class="checklist-form-textar"><?=htmlspecialcharsbx($arPoints[$arTestID]["STATE"]["COMMENTS"]["PERFOMER"] ?? '')?></textarea></div>
 					</div>
 				</div>
 			</div>
@@ -127,7 +127,7 @@ $tabControl->BeginNextTab();
 <?
 
 $tabControl->BeginNextTab();
-?>		
+?>
 				<div class="checklist-popup-test">
 					<div class="checklist-popup-name-test"><?=GetMessage("CL_DESC");?></div>
 						<?if($arPoints[$arTestID]["DESC"]):
@@ -145,7 +145,7 @@ $tabControl->BeginNextTab();
 						<div class="checklist-popup-test-text">
 							<div class="checklist-popup-result-form checklist-popup-code">
 								<?=$arPoints[$arTestID]["HOWTO"];?>
-						</div></div>	
+						</div></div>
 						<?else:?>
 							<?=GetMessage("CL_EMPTY_DESC");?>
 						<?endif;?>
@@ -348,7 +348,7 @@ $tabControl->BeginNextTab();
 							ShowCloseProject();
 					}
 					BX("bx_per_point_done").innerHTML = '<?=GetMessageJS("CL_AUTOTEST_DONE")?>';
-					
+
 					var buttonText = BX.findChild(BX("bx_start_button_detail"), {className:'checklist-button-cont'}, true, false);
 					buttonText.innerHTML = '<?=GetMessageJS("CL_AUTOTEST_START");?>';
 
@@ -408,7 +408,7 @@ $tabControl->BeginNextTab();
 				testtitle = arStates["POINTS"][current].NAME+" - "+arStates["POINTS"][current].TEST_ID;
 				if (arStates["POINTS"][current].IS_REQUIRE == "Y")
 					testtitle = testtitle+" ("+'<?=GetMessageJS("CL_TEST_IS_REQUIRE");?>'+")";
-				
+
 				Dialog.SetTitle(testtitle);
 				Dialog.SetContent(data);
 				CloseWaitWindow();

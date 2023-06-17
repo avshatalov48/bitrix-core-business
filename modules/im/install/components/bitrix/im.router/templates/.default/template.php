@@ -1,5 +1,7 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+
+\Bitrix\Main\UI\Extension::load(['im.public', 'translit']);
 ?>
 <div class="bx-messenger-box-hello-wrap">
 	<div class="bx-messenger-box-hello"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE');?></div>
@@ -13,4 +15,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 		im.openMessenger();
 	});
 	<?endif;?>
+
+	<? if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'): ?>
+		<?if (isset($_GET['IM_NOTIFY'])):?>
+			BX.Messenger.Public.openNotifications();
+		<?else:?>
+			BX.Messenger.Public.openChat('<?=(isset($_GET['IM_DIALOG'])? CUtil::JSEscape($_GET['IM_DIALOG']): '')?>');
+		<?endif;?>
+	<? endif; ?>
 </script>

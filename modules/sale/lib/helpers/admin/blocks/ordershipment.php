@@ -2019,7 +2019,7 @@ class OrderShipment
 				'DELIVERY_DOC_NUM' => $item['DELIVERY_DOC_NUM'],
 				'TRACKING_NUMBER' => $item['TRACKING_NUMBER'],
 				'CURRENCY' => $order->getCurrency(),
-				'COMMENTS' => $item['COMMENTS'],
+				'COMMENTS' => $item['COMMENTS'] ?? null,
 				'WEIGHT' => $item['WEIGHT'] * self::getWeightKoef($order->getSiteId())
 			);
 
@@ -2071,7 +2071,7 @@ class OrderShipment
 				}
 			}
 
-			$shipmentFields['DELIVERY_ID'] = ($item['PROFILE'] > 0) ? $item['PROFILE'] : $item['DELIVERY_ID'];
+			$shipmentFields['DELIVERY_ID'] = (($item['PROFILE'] ?? 0) > 0) ? $item['PROFILE'] : $item['DELIVERY_ID'];
 
 			try
 			{
@@ -2093,7 +2093,7 @@ class OrderShipment
 			}
 
 			$responsibleId = self::$shipment->getField('RESPONSIBLE_ID');
-			if ($item['RESPONSIBLE_ID'] != $responsibleId || empty($responsibleId))
+			if (($item['RESPONSIBLE_ID'] ?? null) != $responsibleId || empty($responsibleId))
 			{
 				if (isset($item['RESPONSIBLE_ID']))
 					$shipmentFields['RESPONSIBLE_ID'] = $item['RESPONSIBLE_ID'];

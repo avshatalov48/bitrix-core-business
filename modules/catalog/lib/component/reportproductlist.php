@@ -505,6 +505,7 @@ abstract class ReportProductList extends ProductList
 				],
 				'SKU_TREE' => $product['FIELDS']['SKU_TREE'],
 				'MODE' => 'view',
+				'VIEW_FORMAT' => 'short',
 				'ENABLE_SEARCH' => false,
 				'ENABLE_IMAGE_CHANGE_SAVING' => false,
 				'ENABLE_IMAGE_INPUT' => false,

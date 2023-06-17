@@ -36,7 +36,6 @@ class Img extends \Bitrix\Landing\Node
 		foreach ($data as $pos => $value)
 		{
 			// 2x - this for retina support
-
 			$src = (isset($value['src']) && is_string($value['src'])) ? trim($value['src']) : '';
 			$src2x = (isset($value['src2x']) && is_string($value['src2x'])) ? trim($value['src2x']) : '';
 			$alt = (isset($value['alt']) && is_string($value['alt'])) ? trim($value['alt']) : '';
@@ -218,7 +217,7 @@ class Img extends \Bitrix\Landing\Node
 	 */
 	public static function getNode(\Bitrix\Landing\Block $block, $selector)
 	{
-		$data = array();
+		$data = [];
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
 		if (!$resultList)
@@ -228,6 +227,15 @@ class Img extends \Bitrix\Landing\Node
 
 		foreach ($resultList as $pos => $res)
 		{
+			$data[$pos] = [
+				'src' => '',
+				'src2x' => '',
+				'id' => null,
+				'id2x' => null,
+				'alt' => '',
+				'isLazy' => 'N',
+			];
+
 			if ($res->getTagName() !== 'IMG')
 			{
 				$styles = StyleInliner::getStyle($res);
@@ -245,7 +253,7 @@ class Img extends \Bitrix\Landing\Node
 					{
 						for ($i = 0, $c = count($matches[1]); $i < $c; $i++)
 						{
-							if ($matches[2][$i] == 2)
+							if ($matches[2][$i] === '2x')
 							{
 								$src2x = $matches[1][$i];
 							}
@@ -257,7 +265,6 @@ class Img extends \Bitrix\Landing\Node
 					}
 					if ($src || $src2x)
 					{
-						$data[$pos] = [];
 						if ($src)
 						{
 							$data[$pos]['src'] = Manager::getUrlFromFile($src);
@@ -295,10 +302,9 @@ class Img extends \Bitrix\Landing\Node
 				$src = $res->getAttribute('src');
 				$srcSet = $res->getAttribute('srcset');
 
-				$data[$pos] = array(
-					'alt' => $res->getAttribute('alt'),
-					'src' => Manager::getUrlFromFile($src),
-				);
+				$data[$pos]['src'] = Manager::getUrlFromFile($src);
+				$data[$pos]['alt'] = $res->getAttribute('alt');
+
 				if (preg_match('/[\,\s]*(.*?)\s+2x/is', $srcSet, $matches))
 				{
 					$data[$pos]['src2x'] = Manager::getUrlFromFile($matches[1]);
@@ -379,18 +385,14 @@ class Img extends \Bitrix\Landing\Node
 		return $searchContent;
 	}
 
-	public static function prepareManifest($block, $node)
-	{
-		return self::prepareNode($node, $block);
-	}
-
 	/**
 	 * Prepare node if is styleImg type.
-	 * @param array $node Selector.
 	 * @param \Bitrix\Landing\Block $block Block instance.
+	 * @param array $node Selector.
+	 * @param $manifest
 	 * @return array
 	 */
-	public static function prepareNode(array $node, \Bitrix\Landing\Block $block): array
+	public static function prepareManifest(\Bitrix\Landing\Block $block, array $node, $manifest): array
 	{
 		$matches = [];
 		$pattern = '/' . substr($node['code'], 1) . '[^\"]*/i';

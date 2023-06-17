@@ -41,37 +41,36 @@ class SaleAccountPay extends \CBitrixComponent
 			return $params;
 		}
 
-		if ((!isset($params["VAR"]) || $params["VAR"] == ''))
+		$params['PATH_TO_BASKET'] = trim((string)($params['PATH_TO_BASKET'] ?? ''));
+		if ($params['PATH_TO_BASKET'] === '')
 		{
-			$params["VAR"] = "buyMoney";
+			$params['PATH_TO_BASKET'] = '/personal/cart';
 		}
 
-		if (!isset($params["REFRESHED_COMPONENT_MODE"]))
+		$params['PATH_TO_PAYMENT'] = trim((string)($params['PATH_TO_PAYMENT'] ?? ''));
+		if ($params['PATH_TO_PAYMENT'] === '')
 		{
-			$params["REFRESHED_COMPONENT_MODE"] = "Y";
+			$params['PATH_TO_PAYMENT'] = '/personal/order/payment';
+		}
+
+		$params['SELL_CURRENCY'] = trim((string)($params['SELL_CURRENCY'] ?? ''));
+		if ($params['SELL_CURRENCY'] === '')
+		{
+			$params['SELL_CURRENCY'] = Sale\Internals\SiteCurrencyTable::getSiteCurrency(SITE_ID);
+		}
+
+		$params['REFRESHED_COMPONENT_MODE'] = (string)($params['REFRESHED_COMPONENT_MODE'] ?? 'Y');
+
+		$params['REDIRECT_TO_CURRENT_PAGE'] = (string)($params['REDIRECT_TO_CURRENT_PAGE'] ?? 'N');
+		$params['VAR'] = trim((string)($params['VAR'] ?? ''));
+		if ($params['VAR'] === '')
+		{
+			$params['VAR'] = 'buyMoney';
 		}
 
 		if (!isset($params['PERSON_TYPE']))
 		{
 			$params['PERSON_TYPE'] = 1;
-		}
-
-		if ($params["PATH_TO_PAYMENT"] == '')
-		{
-			$params["PATH_TO_PAYMENT"] = "/personal/order/payment";
-		}
-		else
-		{
-			$params["PATH_TO_PAYMENT"] = trim($params["PATH_TO_PAYMENT"]);
-		}
-
-		if ($params["PATH_TO_BASKET"] == '')
-		{
-			$params["PATH_TO_BASKET"] = "/personal/cart";
-		}
-		else
-		{
-			$params["PATH_TO_BASKET"] = trim($params["PATH_TO_BASKET"]);
 		}
 
 		if (empty($params['SELL_CURRENCY']))
@@ -90,7 +89,8 @@ class SaleAccountPay extends \CBitrixComponent
 				$params["SELL_USER_INPUT"] = "Y";
 			}
 
-			if ($params["PRODUCT_PROVIDER_CLASS"] == '')
+			$params['PRODUCT_PROVIDER_CLASS'] = (string)($params['PRODUCT_PROVIDER_CLASS'] ?? '');
+			if ($params["PRODUCT_PROVIDER_CLASS"] === '')
 			{
 				$params["PRODUCT_PROVIDER_CLASS"] = "\\Bitrix\\Sale\\ProviderAccountPay";
 			}
@@ -100,7 +100,7 @@ class SaleAccountPay extends \CBitrixComponent
 				$params['SELL_TOTAL'] = array_diff($params['SELL_TOTAL'], array(''));
 			}
 
-			if (!isset($params["ELIMINATED_PAY_SYSTEMS"]) && !is_array($params["ELIMINATED_PAY_SYSTEMS"]))
+			if (!isset($params["ELIMINATED_PAY_SYSTEMS"]) || !is_array($params["ELIMINATED_PAY_SYSTEMS"]))
 			{
 				$params["ELIMINATED_PAY_SYSTEMS"] = array();
 			}
@@ -128,6 +128,9 @@ class SaleAccountPay extends \CBitrixComponent
 		{
 			$params['RETURN_URL'] = (new Sale\PaySystem\Context())->getUrl();
 		}
+
+		$params['AJAX_DISPLAY'] = (string)($params['AJAX_DISPLAY'] ?? 'N');
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
 
 		return $params;
 	}
@@ -173,7 +176,7 @@ class SaleAccountPay extends \CBitrixComponent
 				array ('AMOUNT' => 40,'CURRENCY' => 'EUR')
 			);
 		}
-		
+
 		if (empty($this->arParams["SELL_AMOUNT"]))
 		{
 			$this->arResult["PAY_ACCOUNT_AMOUNT"] = $amountArray;
@@ -585,7 +588,7 @@ class SaleAccountPay extends \CBitrixComponent
 			$this->errorCollection->setError(new Main\Error(Loc::getMessage("SAP_WRONG_ID")));
 		}
 	}
-	
+
 	/**
 	 * Preparing data for ordering payment
 	 * @param Main\HttpRequest $request
@@ -652,7 +655,6 @@ class SaleAccountPay extends \CBitrixComponent
 		{
 			return;
 		}
-		/** @var \Bitrix\Sale\Order $order */
 		$order = $this->initOrder($basket, (int)$this->arParams['PERSON_TYPE']);
 
 		if (!$order)
@@ -669,7 +671,6 @@ class SaleAccountPay extends \CBitrixComponent
 
 		$paymentCollection = $order->getPaymentCollection();
 
-		/** @var \Bitrix\Sale\Payment $payment */
 		$payment = $paymentCollection->createItem();
 
 		$paymentResult = $payment->setFields(array(

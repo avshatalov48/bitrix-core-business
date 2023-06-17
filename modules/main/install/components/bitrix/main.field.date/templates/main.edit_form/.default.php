@@ -11,11 +11,9 @@ use Bitrix\Main\Localization\Loc;
 
 $result = [];
 if(
-	$arResult['userField']['EDIT_IN_LIST'] === 'Y'
-	&&
-	$arResult['userField']['ENTITY_VALUE_ID'] < 1
-	&&
-	$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] === DateType::TYPE_NOW
+	(isset($arResult['userField']['EDIT_IN_LIST']) && $arResult['userField']['EDIT_IN_LIST'] === 'Y')
+	&& (!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] < 1)
+	&& $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] === DateType::TYPE_NOW
 )
 {
 	$value = ConvertTimeStamp(
@@ -30,11 +28,9 @@ if(
 	);
 }
 else if(
-	$arResult['userField']['EDIT_IN_LIST'] === 'Y'
-	&&
-	$arResult['userField']['ENTITY_VALUE_ID'] < 1
-	&&
-	$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] !== DateType::TYPE_NONE
+	(isset($arResult['userField']['EDIT_IN_LIST']) && $arResult['userField']['EDIT_IN_LIST'] === 'Y')
+	&& (!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] < 1)
+	&& $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] !== DateType::TYPE_NONE
 )
 {
 	$value = str_replace(
@@ -54,7 +50,7 @@ else if(
 		false
 	);
 }
-else if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
+else if(isset($arResult['userField']['EDIT_IN_LIST']) && $arResult['userField']['EDIT_IN_LIST'] === 'Y')
 {
 	foreach($arResult['value'] as $key => $value)
 	{
@@ -79,7 +75,7 @@ else if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 		);
 	}
 }
-elseif($arResult['additionalParameters']['VALUE'] <> '')
+elseif(!empty($arResult['additionalParameters']['VALUE']))
 {
 	foreach($arResult['value'] as $key => $value)
 	{

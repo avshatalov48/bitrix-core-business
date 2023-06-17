@@ -1007,6 +1007,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      groups: babelHelpers.classPrivateFieldLooseBase(this, _getDefaultRobotGroups)[_getDefaultRobotGroups](),
 	      items: babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems](),
 	      recentGroupData: new RecentGroup().setSelected(babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().length > 0).setCompare((lhsItem, rhsItem) => this.recentGroupIdsSort.get(lhsItem.id) - this.recentGroupIdsSort.get(rhsItem.id)).getData(),
+	      canDeselectGroups: false,
 	      customTitleBar: babelHelpers.classPrivateFieldLooseBase(this, _getTitleBar)[_getTitleBar](),
 	      slots: babelHelpers.classPrivateFieldLooseBase(this, _getSlots)[_getSlots](),
 	      showEmptyGroups: false,
@@ -1205,9 +1206,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        item: event.getData().eventData,
 	        stageId: babelHelpers.classPrivateFieldLooseBase(this, _stageId)[_stageId]
 	      });
-	      if (originalEvent.ctrlKey || originalEvent.metaKey) {
-	        babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().close();
-	      }
 	    };
 	  };
 	  const availableTriggers = babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].availableTriggers;
@@ -1300,7 +1298,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return {
 	    [ui_entityCatalog.EntityCatalog.SLOT_GROUP_LIST_HEADER]: babelHelpers.classPrivateFieldLooseBase(this, _getGroupsHeader)[_getGroupsHeader](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_HEADER]: babelHelpers.classPrivateFieldLooseBase(this, _getItemsHeader)[_getItemsHeader](),
-	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]: babelHelpers.classPrivateFieldLooseBase(this, _getItemsStub)[_getItemsStub](),
+	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]: babelHelpers.classPrivateFieldLooseBase(this, _getItemsStub)[_getItemsStub](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_GROUP_LIST_FOOTER]: babelHelpers.classPrivateFieldLooseBase(this, _getGroupsFooter)[_getGroupsFooter](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]: babelHelpers.classPrivateFieldLooseBase(this, _getSearchNotFoundStub)[_getSearchNotFoundStub](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: `<EmptyGroupStub/>`,
@@ -1342,7 +1340,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      lang: 'en',
 	      sec: 'yu3ljc'
 	    }, {
-	      zones: ['es'],
+	      zones: ['la', 'co', 'mx'],
 	      id: 1947,
 	      lang: 'es',
 	      sec: 'wuezi9'

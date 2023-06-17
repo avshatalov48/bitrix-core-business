@@ -945,7 +945,7 @@ BX.ImMobile.prototype.mobileActionReady = function()
 				return false;
 			}
 
-			var messageText = BX.MessengerCommon.prepareTextBack(this.messenger.message[messageId].text, true);
+			var messageText = this.messenger.message[messageId].textOriginal;
 			if (this.messenger.message[messageId].params && this.messenger.message[messageId].params['FILE_ID'] && this.messenger.message[messageId].params['FILE_ID'].length > 0)
 			{
 				for (var j = 0; j < this.messenger.message[messageId].params.FILE_ID.length; j++)
@@ -1801,8 +1801,8 @@ BX.ImMessengerMobile.prototype.newMessage = function()
 					messageText = '['+BX.message('IM_F_FILE')+']';
 				}
 
-				messageText = messageText.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function(whole, userId, text) {return text;});
-				messageText = messageText.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function(whole, historyId, text) {return text;});
+				messageText = messageText.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/gi, function(whole, userId, text) {return text;});
+				messageText = messageText.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, function(whole, historyId, text) {return text;});
 
 				var avatarType = 'private';
 				var avatarImage = isChat? this.chat[recipientId.substr(4)].avatar: this.users[senderId].avatar;
@@ -2786,7 +2786,15 @@ BX.ImMessengerMobile.prototype.sendMessage = function(recipientId, text)
 	}
 
 	var messageTmpIndex = this.messageTmpIndex;
-	this.message['temp'+messageTmpIndex] = {'id' : 'temp'+messageTmpIndex, chatId: chatId, 'senderId' : this.BXIM.userId, 'recipientId' : recipientId, 'date' : new Date(), 'text' : BX.MessengerCommon.prepareText(text, true) };
+	this.message['temp'+messageTmpIndex] = {
+		'id': 'temp'+messageTmpIndex,
+		'chatId': chatId,
+		'senderId': this.BXIM.userId,
+		'recipientId': recipientId,
+		'date': new Date(),
+		'textOriginal': text,
+		'text': BX.MessengerCommon.prepareText(text, true, true, true)
+	};
 	if (!this.showMessage[recipientId])
 		this.showMessage[recipientId] = [];
 	this.showMessage[recipientId].push('temp'+messageTmpIndex);
@@ -3164,7 +3172,7 @@ BX.ImMessengerMobile.prototype.editMessage = function(messageId, check)
 		},
 		smileButton: {},
 		message : {
-			text : BX.MessengerCommon.prepareTextBack(this.message[messageId].text, true)
+			text : this.message[messageId].textOriginal
 		},
 		okButton: {
 			callback : function(data){
@@ -3455,7 +3463,8 @@ BX.ImDiskManagerMobile.prototype.uploadFromDisk = function(selected, text)
 		'senderId': this.BXIM.userId,
 		'recipientId': recipientId,
 		'date': new Date(),
-		'text': BX.MessengerCommon.prepareText(text, true),
+		'text': BX.MessengerCommon.prepareText(text, true, true, true),
+		'textOriginal': text,
 		'params': {'FILE_ID': paramsFileId, 'CLASS': olSilentMode == "Y"? "bx-messenger-content-item-system": ""}
 	};
 	if (!this.messenger.showMessage[recipientId])

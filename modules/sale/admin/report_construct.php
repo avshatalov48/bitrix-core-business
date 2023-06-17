@@ -12,7 +12,7 @@ IncludeModuleLangFile(__FILE__);
 
 if(!CBXFeatures::IsFeatureEnabled('SaleReports'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -52,7 +52,7 @@ $copyID = (int)$_REQUEST['copyID'];
 $fCopyMode = ($copyID > 0) ? true : false;
 
 // If exists $ID parameter and it more than 0, then will creating a new report.
-$ID = (int)$_REQUEST['ID'];
+$ID = (int)($_REQUEST['ID'] ?? 0);
 $fEditMode = ($ID > 0) ? true : false;
 
 // If editing report that exists, then beforehand we gets its parameters.
@@ -83,14 +83,14 @@ $arParams = array(
 	'TITLE' => GetMessage('SALE_REPORT_CONSTRUCT_NEW_REPORT_TAB'),
 	'PATH_TO_REPORT_LIST' => '/bitrix/admin/sale_report.php?lang='.LANG,
 	'PATH_TO_REPORT_CONSTRUCT' => '/bitrix/admin/sale_report_construct.php',
-	'PATH_TO_REPORT_VIEW' => '/bitrix/admin/sale_report_view.php?lang='.LANG.'&ID=#report_id#',
+	'PATH_TO_REPORT_VIEW' => '/bitrix/admin/sale_report_view.php?lang=' . LANGUAGE_ID . '&ID=#report_id#',
 	'USE_CHART' => true
 );
 
 // check helper selection
 $fSelectHelperMode = false;
 $rep_owner = '';
-if ($rep_owner = $_REQUEST['rep_owner'])
+if ($rep_owner = ($_REQUEST['rep_owner'] ?? ''))
 {
 	try
 	{
@@ -142,7 +142,7 @@ if ($arParams['ACTION'] == 'create' && !$arParams['REPORT_HELPER_CLASS']) $fSele
 //</editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="POST action">
-if ($_REQUEST['cancel'])
+if ($_REQUEST['cancel'] ?? false)
 {
 	if (!empty($_POST['rep_referer']))
 	{
@@ -188,7 +188,7 @@ else
 	}
 }
 
-if ($_REQUEST['REPORT_AJAX'] === 'Y')
+if (($_REQUEST['REPORT_AJAX'] ?? '') === 'Y')
 {
 	$arResponse = array();
 	if (is_array($_REQUEST['filterTypes']))
@@ -261,7 +261,7 @@ if (!$fCriticalError)
 			<input type="hidden" name="ID" value="<?=$ID?>" />
 			<?php if (!$fSelectHelperMode && $arParams['REPORT_HELPER_CLASS']) : ?>
 			<input type="hidden" name="rep_owner" value="<?=$rep_owner?>" />
-			<input type="hidden" name="rep_referer" value="<?=htmlspecialcharsbx(!empty($rep_referer) ? $rep_referer : $_SERVER['HTTP_REFERER'])?>" />
+			<input type="hidden" name="rep_referer" value="<?=htmlspecialcharsbx(!empty($rep_referer) ? $rep_referer : ($_SERVER['HTTP_REFERER'] ?? ''))?>" />
 			<?php else : ?>
 			<input type="hidden" name="rep_referer" value="<?=htmlspecialcharsbx($_SERVER['HTTP_REFERER'])?>" />
 			<?php endif; ?>

@@ -137,7 +137,7 @@ class CAllGroup
 			{
 				if(is_array($val))
 				{
-					if(count($val) <= 0)
+					if(empty($val))
 						continue;
 				}
 				else
@@ -338,7 +338,7 @@ class CAllGroup
 		$arAlreadyJoined = array();
 
 		// GROUP BY -->
-		if (is_array($arGroupBy) && count($arGroupBy)>0)
+		if (is_array($arGroupBy) && !empty($arGroupBy))
 		{
 			$arSelectFields = $arGroupBy;
 			foreach ($arGroupBy as $key => $val)
@@ -368,7 +368,7 @@ class CAllGroup
 		// SELECT -->
 		$arFieldsKeys = array_keys($arFields);
 
-		if (is_array($arGroupBy) && count($arGroupBy)==0)
+		if (is_array($arGroupBy) && empty($arGroupBy))
 		{
 			$strSqlSelect = "COUNT(%%_DISTINCT_%% ".$arFields[$arFieldsKeys[0]]["FIELD"].") as CNT ";
 		}
@@ -379,7 +379,7 @@ class CAllGroup
 
 			if (!isset($arSelectFields)
 				|| !is_array($arSelectFields)
-				|| count($arSelectFields)<=0
+				|| empty($arSelectFields)
 				|| in_array("*", $arSelectFields))
 			{
 				foreach ($arFields as $FIELD_ID => $arField)
@@ -617,7 +617,7 @@ class CAllGroup
 	{
 		global $DB;
 
-		if (count($arSelectFields) <= 0)
+		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "TIMESTAMP_X", "ACTIVE", "C_SORT", "ANONYMOUS", "NAME", "DESCRIPTION");
 
 		// FIELDS -->
@@ -641,7 +641,7 @@ class CAllGroup
 
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "DISTINCT", $arSqls["SELECT"]);
 
-		if (is_array($arGroupBy) && count($arGroupBy)==0)
+		if (is_array($arGroupBy) && empty($arGroupBy))
 		{
 			$strSql =
 				"SELECT ".$arSqls["SELECT"]." ".
@@ -656,7 +656,7 @@ class CAllGroup
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
-				return False;
+				return false;
 		}
 
 		$strSql =
@@ -743,9 +743,9 @@ class CAllGroup
 		if(is_set($arFields, "NAME") && $arFields["NAME"] == '')
 			$this->LAST_ERROR .= GetMessage("BAD_GROUP_NAME")."<br>";
 
-		if (is_array($arFields["USER_ID"]) && count($arFields["USER_ID"]) > 0)
+		if (is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
 		{
-			if (is_array($arFields["USER_ID"][0]) && count($arFields["USER_ID"][0]) > 0)
+			if (is_array($arFields["USER_ID"][0]) && !empty($arFields["USER_ID"][0]))
 			{
 				foreach($arFields["USER_ID"] as $arUser)
 				{

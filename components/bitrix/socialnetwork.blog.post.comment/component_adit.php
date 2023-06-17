@@ -62,7 +62,7 @@ if($arResult["CanUserComment"])
 	if ($arResult["SELECTOR_VERSION"] < 2)
 	{
 		$lastAuthors = Array();
-		if($arParams["FROM_LOG"] != "Y")
+		if (($arParams["FROM_LOG"] ?? null) !== "Y")
 		{
 			$lastAuthors["U".$arPost["AUTHOR_ID"]] = "U".$arPost["AUTHOR_ID"];
 			if (

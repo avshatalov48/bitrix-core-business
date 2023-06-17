@@ -93,7 +93,7 @@ class CComponentUtil
 		$arBXTopComponentCatalogLevel = array("content", "service", "communication", "e-store", "utility");
 		$arBXTopComponentCatalogLevelSort = array(600, 700, 800, 900, 1000);
 
-		if (!is_array($arTree["#"]))
+		if (!isset($arTree["#"]) || !is_array($arTree["#"]))
 			$arTree["#"] = array();
 
 		if (!array_key_exists($arPath["ID"], $arTree["#"]))
@@ -101,14 +101,14 @@ class CComponentUtil
 			$arTree["#"][$arPath["ID"]] = array();
 			$arTree["#"][$arPath["ID"]]["@"] = array();
 			$arTree["#"][$arPath["ID"]]["@"]["NAME"] = "";
-			$arTree["#"][$arPath["ID"]]["@"]["SORT"] = intval($arPath["SORT"]);
+			$arTree["#"][$arPath["ID"]]["@"]["SORT"] = intval($arPath["SORT"] ?? 0);
 			if ($level == 1 && in_array($arPath["ID"], $arBXTopComponentCatalogLevel))
 			{
 				$arTree["#"][$arPath["ID"]]["@"]["NAME"] = GetMessage("VRT_COMP_CAT_".mb_strtoupper($arPath["ID"]));
 				$arTree["#"][$arPath["ID"]]["@"]["SORT"] = intval($arBXTopComponentCatalogLevelSort[array_search($arPath["ID"], $arBXTopComponentCatalogLevel)]);
 			}
 			if ($arTree["#"][$arPath["ID"]]["@"]["NAME"] == '')
-				$arTree["#"][$arPath["ID"]]["@"]["NAME"] = $arPath["NAME"];
+				$arTree["#"][$arPath["ID"]]["@"]["NAME"] = $arPath["NAME"] ?? '';
 			if ($arTree["#"][$arPath["ID"]]["@"]["SORT"] <= 0)
 				$arTree["#"][$arPath["ID"]]["@"]["SORT"] = 100;
 		}
@@ -119,7 +119,7 @@ class CComponentUtil
 		}
 		else
 		{
-			if (!is_array($arTree["#"][$arPath["ID"]]["*"]))
+			if (!isset($arTree["#"][$arPath["ID"]]["*"]) || !is_array($arTree["#"][$arPath["ID"]]["*"]))
 				$arTree["#"][$arPath["ID"]]["*"] = array();
 
 			$arTree["#"][$arPath["ID"]]["*"][$arComponent["NAME"]] = $arComponent;
@@ -252,7 +252,7 @@ class CComponentUtil
 													$arComponentDescription = array();
 													include($_SERVER["DOCUMENT_ROOT"].$componentFolder."/".$file."/".$file1."/.description.php");
 
-													if (isset($arFilter["TYPE"]) && $arFilter["TYPE"] != $arComponentDescription["TYPE"])
+													if (isset($arFilter["TYPE"]) && (!isset($arComponentDescription["TYPE"]) || $arFilter["TYPE"] != $arComponentDescription["TYPE"]))
 														continue;
 
 													if (array_key_exists("PATH", $arComponentDescription) && array_key_exists("ID", $arComponentDescription["PATH"]))
@@ -275,7 +275,7 @@ class CComponentUtil
 															$arComponent["COMPLEX"] = "Y";
 														else
 															$arComponent["COMPLEX"] = "N";
-														$arComponent["SORT"] = intval($arComponentDescription["SORT"]);
+														$arComponent["SORT"] = intval($arComponentDescription["SORT"] ?? 0);
 														if ($arComponent["SORT"] <= 0)
 															$arComponent["SORT"] = 100;
 
@@ -589,7 +589,7 @@ class CComponentUtil
 			{
 				$arComponentParameters["PARAMETERS"]["SEF_RULE"]["TYPE"] = "TEMPLATES";
 				$arComponentParameters["PARAMETERS"]["SEF_RULE"]["NAME"] = GetMessage("COMP_PARAM_SEF_RULE");
-				if ($arCurrentValues["SEF_MODE"] == "Y")
+				if (isset($arCurrentValues["SEF_MODE"]) && $arCurrentValues["SEF_MODE"] === "Y")
 				{
 					if (is_array($arComponentParameters["PARAMETERS"]["SEF_RULE"]["VALUES"]))
 					{
@@ -631,7 +631,7 @@ class CComponentUtil
 					"COLS" => 30
 				);
 
-				if (is_array($arSEFModeSettings) && count($arSEFModeSettings) > 0)
+				if (is_array($arSEFModeSettings) && !empty($arSEFModeSettings))
 				{
 					if (!isset($arVariableAliasesSettings))
 						$arVariableAliasesSettings = $arComponentParameters["PARAMETERS"]["VARIABLE_ALIASES"];
@@ -649,7 +649,7 @@ class CComponentUtil
 							"VARIABLES" => array(),
 						);
 
-						if (is_array($arVariableAliasesSettings) && count($arVariableAliasesSettings) > 0)
+						if (is_array($arVariableAliasesSettings) && !empty($arVariableAliasesSettings))
 						{
 							foreach ($arTemplateValue["VARIABLES"] as $variable)
 							{
@@ -831,7 +831,7 @@ class CComponentUtil
 			}
 			else
 			{
-				$parent = $arComponentParameters["PARAMETERS"][$arParamKeys[$i]]["PARENT"];
+				$parent = $arComponentParameters["PARAMETERS"][$arParamKeys[$i]]["PARENT"] ?? null;
 				if (!isset($parent) || !isset($arComponentParameters["GROUPS"][$parent]))
 				{
 					$arComponentParameters["PARAMETERS"][$arParamKeys[$i]]["PARENT"] = "ADDITIONAL_SETTINGS";
@@ -891,7 +891,7 @@ class CComponentUtil
 
 		if(
 			(CPageOption::GetOptionString("main","tips_creation","no")=="allowed")
-			&& (mb_strpos($componentPath, "/forum") !== false)
+			&& (strpos($componentPath, "/forum") !== false)
 		)
 		{
 			//Create directories
@@ -919,7 +919,7 @@ class CComponentUtil
 				fclose($handle);
 				$lang_file_modified = false;
 				//Bug fix
-				if(mb_strpos($lang_contents, "\$MESS['") !== false)
+				if(strpos($lang_contents, "\$MESS['") !== false)
 				{
 					$lang_contents = str_replace("\$MESS['", "\$MESS ['", $lang_contents);
 					$lang_file_modified = true;
@@ -927,7 +927,7 @@ class CComponentUtil
 				//Check out parameters
 				foreach($arComponentParameters["PARAMETERS"] as $strName=>$arParameter)
 				{
-					if(mb_strpos($lang_contents, "\$MESS ['${strName}_TIP'] = ") === false)
+					if(strpos($lang_contents, "\$MESS ['${strName}_TIP'] = ") === false)
 					{
 						$lang_contents = str_replace("?>", "\$MESS ['${strName}_TIP'] = \"".str_replace("\$", "\\\$", str_replace('"','\\"',$arParameter["NAME"]))."\";\n?>", $lang_contents);
 						$lang_file_modified = true;
@@ -1180,7 +1180,7 @@ class CComponentUtil
 		}
 
 		if ($namespace == $newNamespace
-			&& ($newName === false || $newName !== false && $name == $newName))
+			&& ($newName === false || $name == $newName))
 		{
 			$APPLICATION->ThrowException(GetMessage("comp_util_err5"), "ERROR_DUPL1");
 			return false;
@@ -1294,7 +1294,7 @@ class CComponentUtil
 
 		if ($siteTemplate !== false
 			&& $siteTemplate == $newSiteTemplate
-			&& ($newName === false || $newName !== false && $templateName == $newName))
+			&& ($newName === false || $templateName == $newName))
 		{
 			$APPLICATION->ThrowException(GetMessage("comp_util_err11"), "ERROR_DUPL1");
 			return false;
@@ -1445,9 +1445,9 @@ class CComponentUtil
 		if (is_array($timestamp))
 		{
 			$params = $timestamp;
-			$timestamp = (isset($params['TIMESTAMP']) ? $params['TIMESTAMP'] : false);
+			$timestamp = ($params['TIMESTAMP'] ?? false);
 			$offset = (isset($params['TZ_OFFSET']) ? intval($params['TZ_OFFSET']) : 0);
-			$hideToday = (isset($params['HIDE_TODAY']) ? $params['HIDE_TODAY'] : false);
+			$hideToday = ($params['HIDE_TODAY'] ?? false);
 		}
 
 		if (empty($timestamp))

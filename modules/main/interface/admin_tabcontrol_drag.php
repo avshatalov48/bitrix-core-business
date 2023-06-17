@@ -104,11 +104,11 @@ class CAdminTabControlDrag extends CAdminTabControl
 
 		$tabSettings = CUserOptions::getOption($this->moduleId, $this->getCurrentTabOptionName($tabIdx));
 
-		$tabSettings["order"] = isset($tabSettings["order"]) ? $tabSettings["order"] : array();
+		$tabSettings["order"] = $tabSettings["order"] ?? array();
 		if (!empty($tabSettings["order"]))
 			$tabSettings["order"] = explode(",", $tabSettings["order"]);
 
-		$tabSettings["hidden"] = isset($tabSettings["hidden"]) ? $tabSettings["hidden"] : array();
+		$tabSettings["hidden"] = $tabSettings["hidden"] ?? array();
 		if (!empty($tabSettings["hidden"]))
 			$tabSettings["hidden"] = explode(",", $tabSettings["hidden"]);
 
@@ -222,7 +222,7 @@ class CAdminDraggableBlockEngine
  	 */
 	public function check()
 	{
-		$result = True;
+		$result = true;
 
 		foreach ($this->engines as $value)
 		{
@@ -243,7 +243,7 @@ class CAdminDraggableBlockEngine
 	 */
 	public function action()
 	{
-		$result = True;
+		$result = true;
 
 		foreach ($this->engines as $value)
 		{
@@ -252,7 +252,7 @@ class CAdminDraggableBlockEngine
 				$resultTmp = call_user_func_array($value["action"], array($this->args));
 
 				if ($result && !$resultTmp)
-					$result = False;
+					$result = false;
 			}
 		}
 

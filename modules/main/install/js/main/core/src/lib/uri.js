@@ -131,7 +131,7 @@ export default class Uri
 	{
 		const params = this.getQueryParams();
 
-		if (key in params)
+		if (Object.hasOwn(params, key))
 		{
 			return params[key];
 		}
@@ -188,7 +188,7 @@ export default class Uri
 		const currentParams = {...map.get(this).queryParams};
 
 		keys.forEach((key) => {
-			if (key in currentParams)
+			if (Object.hasOwn(currentParams, key))
 			{
 				delete currentParams[key];
 			}

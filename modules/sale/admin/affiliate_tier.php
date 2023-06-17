@@ -9,7 +9,7 @@ if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -42,12 +42,12 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
+		$DB->StartTransaction();
 		if (!CSaleAffiliateTier::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -57,8 +57,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -93,8 +95,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SAT1_ERROR_DELETE"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}
@@ -133,7 +137,7 @@ while ($arSite = $dbSiteList->Fetch())
 
 while ($arAffiliateTier = $dbResultList->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arAffiliateTier, "sale_affiliate_tier_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_"), GetMessage("SAT1_UPDATE_TIER"));
+	$row =& $lAdmin->AddRow($f_ID, $arAffiliateTier, "sale_affiliate_tier_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_"), GetMessage("SAT1_UPDATE_TIER"));
 
 	$row->AddField("ID", $f_ID);
 	$row->AddSelectField("SITE_ID", $arSites, array());
@@ -144,7 +148,7 @@ while ($arAffiliateTier = $dbResultList->NavNext(true, "f_"))
 	$row->AddInputField("RATE5", array("size" => "10"));
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAT1_UPDATE"), "ACTION"=>$lAdmin->ActionRedirect("sale_affiliate_tier_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAT1_UPDATE"), "ACTION"=>$lAdmin->ActionRedirect("sale_affiliate_tier_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_").""), "DEFAULT"=>true);
 	if ($saleModulePermissions >= "W")
 	{
 		$arActions[] = array("SEPARATOR" => true);

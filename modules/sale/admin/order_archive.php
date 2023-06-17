@@ -1,10 +1,13 @@
-<?/** @global CMain $APPLICATION */
+<?php
+
+/** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global string $DBType */
 /** @global CDatabase $DB */
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Type\Collection;
 use Bitrix\Sale\Internals\StatusTable;
 use Bitrix\Sale;
 
@@ -44,61 +47,97 @@ while ($arAccessibleSite = $dbAccessibleSites->Fetch())
 		$arAccessibleSites[] = $arAccessibleSite["SITE_ID"];
 }
 
-$exportMode = (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel');
+$WEIGHT_UNIT = [];
+$WEIGHT_KOEF = [];
+$dbSite = CSite::GetList();
+while ($arSite = $dbSite->Fetch())
+{
+	$WEIGHT_UNIT[$arSite["LID"]] = htmlspecialcharsbx(Option::get('sale', 'weight_unit', "", $arSite["LID"]));
+	$WEIGHT_KOEF[$arSite["LID"]] = htmlspecialcharsbx(Option::get('sale', 'weight_koef', 1, $arSite["LID"]));
+}
 
 $sTableID = "tbl_sale_order_archive";
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminSaleList($sTableID, $oSort);
 $runtimeFields = array();
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
+$exportMode = $lAdmin->isExportMode();
 
 /** Filter*/
 //----------------------------------------------------------------------------------------------------------------------
-$arFilterFields = array(
+$arFilterFields = [
 	"filter_universal",
 	"filter_order_id_from",
-	"filter_id_from",
 	"filter_order_id_to",
-	"filter_id_to",
-	"filter_account_number",
 	"filter_date_from",
 	"filter_date_to",
+	"filter_price_from",
+	"filter_price_to",
+	"filter_id_from",
+	"filter_id_to",
+	"filter_account_number",
 	"filter_date_archived_from",
 	"filter_date_archived_to",
 	"filter_lang",
 	"filter_date_order_from",
 	"filter_date_order_to",
-	"filter_price_from",
-	"filter_price_to",
 	"filter_buyer",
 	"filter_person_type",
 	"filter_user_id",
 	"filter_user_login",
 	"filter_user_email",
-	"filter_status"
-);
+	"filter_status",
+	'filter_product_id',
+	'filter_canceled',
+	'filter_deducted',
+	'filter_payed',
+	'filter_xml_id',
+];
 
-$lAdmin->InitFilter($arFilterFields);
+$currentFilter = $lAdmin->InitFilter($arFilterFields);
+foreach ($arFilterFields as $fieldName)
+{
+	if (
+		$fieldName === 'filter_group_id'
+		|| $fieldName === 'filter_person_type'
+		|| $fieldName === 'filter_status'
+	)
+	{
+		$currentFilter[$fieldName] ??= [];
+		if (!is_array($currentFilter[$fieldName]))
+		{
+			$currentFilter[$fieldName] = [];
+		}
+	}
+	else
+	{
+		$currentFilter[$fieldName] = (string)($currentFilter[$fieldName] ?? '');
+	}
+}
 
-$filter_lang = trim($filter_lang);
-if ($filter_lang <> '')
+$arFilter = [];
+$filter_lang = $currentFilter['filter_lang'];
+if ($filter_lang !== '')
 {
 	if (!in_array($filter_lang, $arAccessibleSites) && $saleModulePermissions < "W")
 		$filter_lang = "";
 }
-
-
-if ($filter_lang <> '' && $filter_lang!="NOT_REF")
-	$arFilter["=LID"] = trim($filter_lang);
-
-if($saleModulePermissions < "W")
+if ($filter_lang !== '' && $filter_lang !== "NOT_REF")
 {
-	if($filter_lang == '' && count($arAccessibleSites) > 0)
-		$arFilter["=LID"] = $arAccessibleSites;
+	$arFilter["=LID"] = trim($filter_lang);
 }
 
-$arFilter = array();
+if ($saleModulePermissions < "W")
+{
+	if ($filter_lang == '' && !empty($arAccessibleSites))
+	{
+		$arFilter["=LID"] = $arAccessibleSites;
+	}
+}
 
-if($saleModulePermissions == "P")
+if ($saleModulePermissions == "P")
 {
 	$userCompanyList = Sale\Services\Company\Manager::getUserCompanyList($USER->GetID());
 
@@ -113,123 +152,142 @@ if($saleModulePermissions == "P")
 
 }
 
-if ((int)($filter_id_from)>0)
-	$arFilter[">=ID"] = (int)($filter_id_from);
-if ((int)($filter_id_to)>0)
-	$arFilter["<=ID"] = (int)($filter_id_to);
-if ((int)($filter_order_id_from)>0)
-	$arFilter[">=ORDER_ID"] = (int)($filter_order_id_from);
-if ((int)($filter_order_id_to)>0)
-	$arFilter["<=ORDER_ID"] = (int)($filter_order_id_to);
-if ($filter_date_from <> '')
-	$arFilter[">=DATE_INSERT"] = trim($filter_date_from);
-if ($filter_date_to <> '')
+$filter_id_from = (int)$currentFilter['filter_id_from'];
+if ($filter_id_from > 0)
 {
-	if ($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
+	$arFilter[">=ID"] = $filter_id_from;
+}
+$filter_id_to = (int)$currentFilter['filter_id_to'];
+if ($filter_id_to > 0)
+{
+	$arFilter["<=ID"] = $filter_id_to;
+}
+$filter_order_id_from = (int)$currentFilter['filter_order_id_from'];
+if ($filter_order_id_from > 0)
+{
+	$arFilter[">=ORDER_ID"] = $filter_order_id_from;
+}
+$filter_order_id_to = (int)$currentFilter['filter_order_id_to'];
+if ($filter_order_id_to > 0)
+{
+	$arFilter["<=ORDER_ID"] = $filter_order_id_to;
+}
+if ($currentFilter['filter_date_from'] !== '')
+{
+	$arFilter[">=DATE_INSERT"] = $currentFilter['filter_date_from'];
+}
+if ($currentFilter['filter_date_to'] !== '')
+{
+	if ($arDate = ParseDateTime($currentFilter['filter_date_to'], CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (mb_strlen($filter_date_to) < 11)
+		if (mb_strlen($currentFilter['filter_date_to']) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
 			$arDate["SS"] = 59;
 		}
 
-		$filter_date_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$arFilter["<=DATE_INSERT"] = $filter_date_to;
+		$currentFilter['filter_date_to'] = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
+		$arFilter["<=DATE_INSERT"] = $currentFilter['filter_date_to'];
 	}
 	else
 	{
-		$filter_date_to = "";
+		$currentFilter['filter_date_to'] = "";
 	}
 }
 
-if ($filter_date_archived_from <> '')
-	$arFilter[">=DATE_ARCHIVED"] = trim($filter_date_archived_from);
-if ($filter_date_archived_to <> '')
+if ($currentFilter['filter_date_archived_from'] !== '')
 {
-	if ($arDate = ParseDateTime($filter_date_archived_to, CSite::GetDateFormat("FULL", SITE_ID)))
+	$arFilter[">=DATE_ARCHIVED"] = $currentFilter['filter_date_archived_from'];
+}
+if ($currentFilter['filter_date_archived_to'] !== '')
+{
+	if ($arDate = ParseDateTime($currentFilter['filter_date_archived_to'], CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (mb_strlen($filter_date_archived_to) < 11)
+		if (mb_strlen($currentFilter['filter_date_archived_to']) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
 			$arDate["SS"] = 59;
 		}
 
-		$filter_date_archived_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$arFilter["<=DATE_ARCHIVED"] = $filter_date_archived_to;
+		$currentFilter['filter_date_archived_to'] = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
+		$arFilter["<=DATE_ARCHIVED"] = $currentFilter['filter_date_archived_to'];
 	}
 	else
 	{
-		$filter_date_archived_to = "";
+		$currentFilter['filter_date_archived_to'] = '';
 	}
 }
 
-if ((int)($filter_user_id)>0)
-	$arFilter["=USER_ID"] = (int)($filter_user_id);
-if (is_array($filter_group_id) && count($filter_group_id) > 0)
+$filter_user_id = (int)$currentFilter['filter_user_id'];
+if ($filter_user_id > 0)
 {
-	foreach($filter_group_id as $v)
-	{
-		if((int)($v) > 0)
-			$arFilter["USER_GROUP.GROUP_ID"][] = $v;
-	}
+	$arFilter["=USER_ID"] = $filter_user_id;
 }
-
-if (isset($filter_person_type) && is_array($filter_person_type) && count($filter_person_type) > 0)
+if (!empty($currentFilter['filter_group_id']))
 {
-	$countFilterPerson = count($filter_person_type);
-	for ($i = 0; $i < $countFilterPerson; $i++)
+	Collection::normalizeArrayValuesByInt($currentFilter['filter_group_id']);
+	if (!empty(($currentFilter['filter_group_id'])))
 	{
-		if ((int)($filter_person_type[$i]) > 0)
-			$arFilter["=PERSON_TYPE_ID"][] = $filter_person_type[$i];
+		$arFilter["USER_GROUP.GROUP_ID"] = $currentFilter['filter_group_id'];
 	}
 }
 
-if ((float)($filter_price_from)>0)
-	$arFilter[">=PRICE"] = (float)($filter_price_from);
-if ((float)($filter_price_to)>0)
-	$arFilter["<PRICE"] = (float)($filter_price_to);
-if ($filter_account_number <> '')
-	$arFilter["ACCOUNT_NUMBER"] = trim($filter_account_number);
+if (!empty($currentFilter['filter_person_type']))
+{
+	Collection::normalizeArrayValuesByInt($currentFilter['filter_person_type']);
+	if (!empty($currentFilter['filter_person_type']))
+	{
+		$arFilter["=PERSON_TYPE_ID"] = $currentFilter['filter_person_type'];
+	}
+}
+
+$filter_price_from = (float)$currentFilter['filter_price_from'];
+if ($filter_price_from > 0)
+{
+	$arFilter[">=PRICE"] = $filter_price_from;
+}
+$filter_price_to = (float)$currentFilter['filter_price_to'];
+if ($filter_price_to > 0)
+{
+	$arFilter["<PRICE"] = $filter_price_to;
+}
+if ($currentFilter['filter_account_number'] !== '')
+{
+	$arFilter["ACCOUNT_NUMBER"] = $currentFilter['filter_account_number'];
+}
 
 if (!empty($_REQUEST['OID']) && is_array($_REQUEST['OID']))
 {
-	foreach ($_REQUEST['OID'] as $orderId)
+	$oid = $_REQUEST['OID'];
+	Collection::normalizeArrayValuesByInt($oid);
+	if (!empty($oid))
 	{
-		if ((int)($orderId) > 0)
-		{
-			$arFilter['=ID'][] = (int)($orderId);
-		}
+		$arFilter['=ID'] = $oid;
 	}
 }
 
-if (!empty($filter_product_id))
+$filter_product_id = (int)$currentFilter['filter_product_id'];
+if ($filter_product_id> 0)
 {
-	if ((int)($filter_product_id) > 0)
-	{
-		$runtimeFields["ARCHIVED_BASKET_ITEMS"] = array(
-			'select' => "PRODUCT_ID",
-			'data_type' => '\Bitrix\Sale\Internals\BasketArchiveTable',
-			'reference' => array(
-				'=this.ID' => 'ref.ARCHIVE_ID'
-			)
-		);
+	$runtimeFields["ARCHIVED_BASKET_ITEMS"] = [
+		'select' => "PRODUCT_ID",
+		'data_type' => '\Bitrix\Sale\Internals\BasketArchiveTable',
+		'reference' => [
+			'=this.ID' => 'ref.ARCHIVE_ID',
+		],
+	];
 
-		$arFilter["=ARCHIVED_BASKET_ITEMS.PRODUCT_ID"] = (int)($filter_product_id);
-	}
+	$arFilter["=ARCHIVED_BASKET_ITEMS.PRODUCT_ID"] = $filter_product_id;
 }
 
-if (isset($filter_status) && !is_array($filter_status) && $filter_status <> '')
-	$filter_status = array($filter_status);
-if (isset($filter_status) && is_array($filter_status) && count($filter_status) > 0)
+if (!empty($currentFilter['filter_status']))
 {
-	$countFilter = count($filter_status);
-	for ($i = 0; $i < $countFilter; $i++)
+	Collection::normalizeArrayValuesByInt($currentFilter['filter_status']);
+	if (!empty($currentFilter['filter_status']))
 	{
-		$filter_status[$i] = trim($filter_status[$i]);
-		if ($filter_status[$i] <> '')
-			$arFilter["=STATUS_ID"][] = $filter_status[$i];
+		$arFilter["=STATUS_ID"] = $currentFilter['filter_status'];
 	}
 }
 
@@ -237,8 +295,7 @@ $allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations(
 
 if($saleModulePermissions < "W")
 {
-	if(!$arFilter["=STATUS_ID"])
-		$arFilter["=STATUS_ID"] = array();
+	$arFilter["=STATUS_ID"] ??= [];
 
 	$intersected = array_intersect($arFilter["=STATUS_ID"], $allowedStatusesView);
 
@@ -261,21 +318,42 @@ if($saleModulePermissions < "W")
 	}
 }
 
-if ($filter_payed <> '') $arFilter["=PAYED"] = trim($filter_payed);
-if ($filter_canceled <> '') $arFilter["=CANCELED"] = trim($filter_canceled);
-if ($filter_deducted <> '') $arFilter["=DEDUCTED"] = trim($filter_deducted);
-if ((int)($filter_user_id)>0) $arFilter["=USER_ID"] = (int)($filter_user_id);
-if ($filter_user_login <> '') $arFilter["USER.LOGIN"] = trim($filter_user_login);
-if ($filter_user_email <> '') $arFilter["USER.EMAIL"] = trim($filter_user_email);
-if ($filter_xml_id <> '') $arFilter["%XML_ID"] = trim($filter_xml_id);
-
-if (isset($filter_person_type) && is_array($filter_person_type) && count($filter_person_type) > 0)
+if ($currentFilter['filter_payed'] !== '')
 {
-	$countFilterPerson = count($filter_person_type);
-	for ($i = 0; $i < $countFilterPerson; $i++)
+	$arFilter["=PAYED"] = $currentFilter['filter_payed'];
+}
+if ($currentFilter['filter_canceled'] !== '')
+{
+	$arFilter["=CANCELED"] = $currentFilter['filter_canceled'];
+}
+if ($currentFilter['filter_deducted'] !== '')
+{
+	$arFilter["=DEDUCTED"] = $currentFilter['filter_deducted'];
+}
+$filter_user_id = (int)$currentFilter['filter_user_id'];
+if ($filter_user_id > 0)
+{
+	$arFilter["=USER_ID"] = $filter_user_id;
+}
+if ($currentFilter['filter_user_login'] !== '')
+{
+	$arFilter["USER.LOGIN"] = $currentFilter['filter_user_login'];
+}
+if ($currentFilter['filter_user_email'] !== '')
+{
+	$arFilter["USER.EMAIL"] = $currentFilter['filter_user_email'];
+}
+if ($currentFilter['filter_xml_id'] !== '')
+{
+	$arFilter["%XML_ID"] = $currentFilter['filter_xml_id'];
+}
+
+if (!empty($currentFilter['filter_person_type']))
+{
+	Collection::normalizeArrayValuesByInt($currentFilter['filter_person_type']);
+	if (!empty($currentFilter['filter_person_type']))
 	{
-		if ((int)($filter_person_type[$i]) > 0)
-			$arFilter["=PERSON_TYPE_ID"][] = $filter_person_type[$i];
+		$arFilter["=PERSON_TYPE_ID"] = $currentFilter['filter_person_type'];
 	}
 }
 
@@ -283,14 +361,12 @@ $arFilterTmp = $arFilter;
 
 $idLists = array();
 
-if ($_REQUEST['action_target'] == 'selected')
+if ($lAdmin->IsGroupActionToAll())
 {
-	$archiveData = Sale\Archive\Manager::getList(
-		array(
-			"filter" => $arFilterTmp,
-			"select" => array("ID")
-		)
-	);
+	$archiveData = Sale\Archive\Manager::getList([
+		"filter" => $arFilterTmp,
+		"select" => ["ID"],
+	]);
 	while ($archive = $archiveData->fetch())
 	{
 		$idLists[] = $archive['ID'];
@@ -305,7 +381,7 @@ else
 //----------------------------------------------------------------------------------------------------------------------
 if ($idLists && $saleModulePermissions == "W")
 {
-	switch ($_REQUEST['action_button'])
+	switch ($lAdmin->GetAction())
 	{
 		case "delete":
 			foreach ($idLists as $id)
@@ -329,7 +405,6 @@ $arColumn2Field = array(
 	);
 
 $arHeaders = array(
-
 	array("id"=>"ORDER_ID","content"=>Loc::getMessage("SALE_F_ORDER_ID"), "sort"=>"ORDER_ID", "default"=>true),
 	array("id"=>"ACCOUNT_NUMBER","content"=>Loc::getMessage("SOA_ACCOUNT_NUMBER"), "sort"=>"ACCOUNT_NUMBER", "default"=>true),
 	array("id"=>"DATE_INSERT","content"=>Loc::getMessage("SI_DATE_INSERT_ORDER"), "sort"=>"DATE_INSERT", "default"=>true),
@@ -398,13 +473,12 @@ if (in_array('USER_EMAIL', $arSelectFields))
 		unset($arSelectFields[$searchIndex]);
 }
 
-$filterOrderSelection = array();
-
-if (!empty($by) && in_array($by, $arSelectFields))
+$filterOrderSelection = [
+	$by => $order,
+];
+if ($by !== 'ID')
 {
-	if (!isset($order))
-		$order = "DESC";
-	$filterOrderSelection[mb_strtoupper($by)] = $order;
+	$filterOrderSelection['ID'] = 'ASC';
 }
 
 $ordersIds = array();
@@ -452,8 +526,9 @@ while($order = $orderIterator->fetch())
 {
 	$orderList[$order['ID']] = $order;
 }
+unset($order, $orderIterator);
 
-if (!empty($orderList) && is_array($orderList))
+if (!empty($orderList))
 {
 	if(\Bitrix\Main\Analytics\Catalog::isOn() || $bNeedBasket)
 	{
@@ -514,8 +589,7 @@ if (!empty($orderList) && is_array($orderList))
 		$fieldValue = "";
 		if(in_array("LID", $arVisibleColumns))
 		{
-			if(!isset($LOCAL_SITE_LIST_CACHE[$arOrder["LID"]])
-				|| empty($LOCAL_SITE_LIST_CACHE[$arOrder["LID"]]))
+			if (empty($LOCAL_SITE_LIST_CACHE[$arOrder["LID"]]))
 			{
 				$dbSite = CSite::GetByID($arOrder["LID"]);
 				if($arSite = $dbSite->Fetch())
@@ -529,8 +603,7 @@ if (!empty($orderList) && is_array($orderList))
 		$fieldValue = "";
 		if(in_array("PERSON_TYPE", $arVisibleColumns))
 		{
-			if(!isset($LOCAL_PERSON_TYPE_CACHE[$arOrder["PERSON_TYPE_ID"]])
-				|| empty($LOCAL_PERSON_TYPE_CACHE[$arOrder["PERSON_TYPE_ID"]]))
+			if (empty($LOCAL_PERSON_TYPE_CACHE[$arOrder["PERSON_TYPE_ID"]]))
 			{
 				$personTypeList = Sale\PersonType::load($arOrder["LID"]);
 
@@ -556,8 +629,10 @@ if (!empty($orderList) && is_array($orderList))
 		$row->AddField("PAYED", $fieldValue);
 
 		//CANCELED
-		if($row->bEditMode != true
-			|| $row->bEditMode == true && !CSaleOrder::CanUserCancelOrder($orderId, $arUserGroups, $intUserID))
+		if(
+			!$row->bEditMode
+			|| !CSaleOrder::CanUserCancelOrder($id, $arUserGroups, $intUserID)
+		)
 		{
 			$fieldValue = "";
 			if(in_array("CANCELED", $arVisibleColumns))
@@ -587,8 +662,7 @@ if (!empty($orderList) && is_array($orderList))
 			$fieldValueTmp = "";
 			if(in_array("STATUS_ID", $arVisibleColumns))
 			{
-				if(!isset($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]])
-					|| empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
+				if (empty($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]))
 				{
 					$arStatus =  StatusTable::getList(array(
 						'select' => array(
@@ -638,7 +712,7 @@ if (!empty($orderList) && is_array($orderList))
 				if((int)($arOrder["EMP_STATUS_ID"]) > 0)
 					$fieldValueTmp .= '<br />'.$formattedUserNames[$arOrder["EMP_STATUS_ID"]];
 
-				$sScript .= "
+				$fieldValue .= "
 					new top.BX.CHint({
 						parent: top.BX('status_order_".$arOrder["ID"]."'),
 						show_timeout: 10,
@@ -658,7 +732,6 @@ if (!empty($orderList) && is_array($orderList))
 		$fieldValue = "";
 
 		//BASKET POSITIONS
-		$fieldValue = "";
 		$fieldName = "";
 		$fieldQuantity = "";
 		$fieldProductID = "";
@@ -694,6 +767,7 @@ if (!empty($orderList) && is_array($orderList))
 			{
 				$measure = (isset($arItem["MEASURE_TEXT"])) ? $arItem["MEASURE_TEXT"] : Loc::getMessage("SO_SHT");
 
+				$separator = '';
 				if($bNeedLine)
 				{
 					if(!CSaleBasketHelper::isSetItem($arItem))
@@ -755,11 +829,14 @@ if (!empty($orderList) && is_array($orderList))
 				if($arItem["NAME"] <> '')
 				{
 					$fieldName .= "<nobr>";
-					if($arItem["DETAIL_PAGE_URL"] <> '')
-						$fieldName .= '<a href="'.$url.'">';
-					$fieldName .= htmlspecialcharsbx($arItem["NAME"]);
-					if($arItem["DETAIL_PAGE_URL"] <> '')
-						$fieldName .= "</a>";
+					if ($arItem["DETAIL_PAGE_URL"] !== '')
+					{
+						$fieldName .= '<a href="' . $arItem["DETAIL_PAGE_URL"] . '">'. htmlspecialcharsbx($arItem["NAME"]) . '</a>';
+					}
+					else
+					{
+						$fieldName .= htmlspecialcharsbx($arItem["NAME"]);
+					}
 					$fieldName .= "</nobr>";
 				}
 				else
@@ -824,6 +901,7 @@ if (!empty($orderList) && is_array($orderList))
 
 		$allowedStatusesUpdate = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
 
+		$arActions = [];
 		if (in_array($arOrder["STATUS_ID"], $allowedStatusesUpdate))
 		{
 			$arActions[] = array("ICON"=>"copy", "TEXT"=>Loc::getMessage("SOA_RESTORE_ORDER"), "ACTION"=>$lAdmin->ActionRedirect("sale_order_create.php?restoreID=".$arOrder['ID']."&lang=".LANGUAGE_ID."&".'SITE_ID='.$arOrder['LID'].'&'.bitrix_sessid_get().GetFilterParams("filter_")));
@@ -839,20 +917,20 @@ if (!empty($orderList) && is_array($orderList))
 		unset($arActions);
 	}
 }
-
 unset($rowsList);
+
+$arGroupActionsTmp = [];
 if ($saleModulePermissions == "W")
 {
 	$arGroupActionsTmp = array(
 		"delete" => Loc::getMessage("MAIN_ADMIN_LIST_DELETE")
 	);
 }
-
 $lAdmin->AddGroupActionTable($arGroupActionsTmp);
+unset($arGroupActionsTmp);
+
 $aContext = array();
-
 $allowedStatusesDelete = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($intUserID, array('delete'));
-
 if($saleModulePermissions >= "W" || !empty($allowedStatusesDelete))
 {
 	$aContext = array(
@@ -863,8 +941,9 @@ if($saleModulePermissions >= "W" || !empty($allowedStatusesDelete))
 		),
 	);
 }
-
 $lAdmin->AddAdminContextMenu($aContext);
+unset($aContext);
+
 $lAdmin->CheckListMode();
 
 \Bitrix\Main\Page\Asset::getInstance()->addString('<style>.adm-filter-item-center, .adm-filter-content {overflow: visible !important;}</style>');
@@ -885,7 +964,7 @@ function fToggleSetItems(setParentId)
 
 	for (var i = 0; i < elements.length; ++i)
 	{
-		if(elements[i].style.display == 'none' || elements[i].style.display == '')
+		if(elements[i].style.display === 'none' || elements[i].style.display === '')
 		{
 			elements[i].style.display = 'table-row';
 			hide = true;
@@ -900,8 +979,8 @@ function fToggleSetItems(setParentId)
 		BX("set_toggle_link_" + setParentId).innerHTML = '<?=Loc::getMessage("SOA_SHOW_SET")?>';
 }
 </script>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
+<form name="find_form" method="GET" action="<?= $APPLICATION->GetCurPage(); ?>?">
+<?php
 $arFilterFieldsTmp = array(
 	"filter_order_id_from" => Loc::getMessage("SALE_F_ORDER_ID"),
 	"filter_account_number" => Loc::getMessage("SALE_F_ACCOUNT_NUMBER"),
@@ -925,8 +1004,10 @@ $oFilter = new CAdminFilter(
 	$sTableID."_filter",
 	$arFilterFieldsTmp
 );
-
-$oFilter->SetDefaultRows(array("filter_id_from", "filter_id_to"));
+$oFilter->SetDefaultRows([
+	"filter_id_from",
+	"filter_id_to",
+]);
 
 /***********************************************************************************************************************
  * Filter
@@ -934,7 +1015,7 @@ $oFilter->SetDefaultRows(array("filter_id_from", "filter_id_to"));
 $oFilter->Begin();
 ?>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_ORDER_ID");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_ORDER_ID"); ?>:</td>
 		<td>
 			<script type="text/javascript">
 				function filter_id_from_Change()
@@ -945,40 +1026,47 @@ $oFilter->Begin();
 					}
 				}
 			</script>
-			<?echo Loc::getMessage("SALE_F_FROM");?>
-			<input type="text" name="filter_order_id_from" OnChange="filter_id_from_Change()" value="<?echo ((int)($filter_order_id_from)>0)?(int)($filter_order_id_from):""?>" size="10">
-			<?echo Loc::getMessage("SALE_F_TO");?>
-			<input type="text" name="filter_order_id_to" value="<?echo ((int)($filter_order_id_to)>0)?(int)($filter_order_id_to):""?>" size="10">
+			<?= Loc::getMessage("SALE_F_FROM"); ?>
+			<input type="text" name="filter_order_id_from" OnChange="filter_id_from_Change()" value="<?= htmlspecialcharsbx($currentFilter['filter_order_id_from']); ?>" size="10">
+			<?= Loc::getMessage("SALE_F_TO"); ?>
+			<input type="text" name="filter_order_id_to" value="<?= htmlspecialcharsbx($currentFilter['filter_order_id_to']); ?>" size="10">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_ACCOUNT_NUMBER");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_ACCOUNT_NUMBER"); ?>:</td>
 		<td>
-			<input type="text" name="filter_account_number" value="<?echo htmlspecialcharsbx($filter_account_number)?>" size="10">
+			<input type="text" name="filter_account_number" value="<?= htmlspecialcharsbx($currentFilter['filter_account_number']); ?>" size="10">
 		</td>
 	</tr>
 	<tr>
-		<td><b><?echo Loc::getMessage("SALE_F_DATE");?>:</b></td>
+		<td><b><?= Loc::getMessage("SALE_F_DATE"); ?>:</b></td>
 		<td>
-			<?echo CalendarPeriod("filter_date_from", $filter_date_from, "filter_date_to", $filter_date_to, "find_form", "Y")?>
+			<?= CalendarPeriod(
+				"filter_date_from",
+				$currentFilter['filter_date_from'],
+				"filter_date_to",
+				$currentFilter['filter_date_to'],
+				"find_form",
+				"Y"
+			); ?>
 		</td>
 	</tr>
 	<tr>
-		<td><?=Loc::getMessage("SOA_F_PRICE");?>:</td>
+		<td><?= Loc::getMessage("SOA_F_PRICE"); ?>:</td>
 		<td>
-			<?echo Loc::getMessage("SOA_F_PRICE_FROM");?>
-			<input type="text" name="filter_price_from" value="<?=((float)($filter_price_from)>0)?(float)($filter_price_from):""?>" size="3">
+			<?= Loc::getMessage("SOA_F_PRICE_FROM"); ?>
+			<input type="text" name="filter_price_from" value="<?= htmlspecialcharsbx($currentFilter['filter_price_from']); ?>" size="3">
 
-			<?echo Loc::getMessage("SOA_F_PRICE_TO");?>
-			<input type="text" name="filter_price_to" value="<?=((float)($filter_price_to)>0)?(float)($filter_price_to):""?>" size="3">
+			<?= Loc::getMessage("SOA_F_PRICE_TO"); ?>
+			<input type="text" name="filter_price_to" value="<?= htmlspecialcharsbx($currentFilter['filter_price_to']); ?>" size="3">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_PERSON_TYPE");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_PERSON_TYPE"); ?>:</td>
 		<td>
 			<select name="filter_person_type[]" multiple size="3">
-				<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
-				<?
+				<option value=""><?= Loc::getMessage("SALE_F_ALL"); ?></option>
+				<?php
 					$ptRes = Sale\Internals\PersonTypeTable::getList(array(
 						'order' => array("SORT"=>"ASC", "NAME"=>"ASC")
 					));
@@ -987,41 +1075,48 @@ $oFilter->Begin();
 					while ($personType = $ptRes->fetch())
 						$personTypes[$personType['ID']] = $personType;
 					foreach ($personTypes as $personType):
-						?><option value="<?echo htmlspecialcharsbx($personType["ID"])?>"<?if(is_array($filter_person_type) && in_array($personType["ID"], $filter_person_type)) echo " selected"?>>[<?echo htmlspecialcharsbx($personType["ID"]) ?>] <?echo htmlspecialcharsbx($personType["NAME"])?> <?echo "(".htmlspecialcharsbx($personType["LID"]).")";?></option><?
+						?><option value="<?= htmlspecialcharsbx($personType["ID"]); ?>"<?= (in_array($personType["ID"], $currentFilter['filter_person_type']) ? ' selected' : ''); ?>>[<?= htmlspecialcharsbx($personType["ID"]) ?>] <?= htmlspecialcharsbx($personType["NAME"])?> <?= "(".htmlspecialcharsbx($personType["LID"]).")";?></option><?php
 					endforeach;
 				?>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_USER_ID");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_USER_ID"); ?>:</td>
 		<td>
-			<?echo FindUserID("filter_user_id", $filter_user_id, "", "find_form");?>
+			<?= FindUserID("filter_user_id", $currentFilter['filter_user_id'], "", "find_form");?>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_USER_LOGIN");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_USER_LOGIN"); ?>:</td>
 		<td>
-			<input type="text" name="filter_user_login" value="<?echo htmlspecialcharsbx($filter_user_login)?>" size="40">
+			<input type="text" name="filter_user_login" value="<?= htmlspecialcharsbx($currentFilter['filter_user_login']); ?>" size="40">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_USER_EMAIL");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_USER_EMAIL");?>:</td>
 		<td>
-			<input type="text" name="filter_user_email" value="<?echo htmlspecialcharsbx($filter_user_email)?>" size="40">
+			<input type="text" name="filter_user_email" value="<?= htmlspecialcharsbx($currentFilter['filter_user_email']); ?>" size="40">
 		</td>
 	</tr>
 	<tr>
-		<td><b><?echo Loc::getMessage("SALE_F_DATE_ARCHIVED");?>:</b></td>
+		<td><b><?= Loc::getMessage("SALE_F_DATE_ARCHIVED"); ?>:</b></td>
 		<td>
-			<?echo CalendarPeriod("filter_date_archived_from", $filter_date_archived_from, "filter_date_archived_to", $filter_date_archived_to, "find_form", "Y")?>
+			<?= CalendarPeriod(
+				"filter_date_archived_from",
+				$currentFilter['filter_date_archived_from'],
+				"filter_date_archived_to",
+				$currentFilter['filter_date_archived_to'],
+				"find_form",
+				"Y"
+			); ?>
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><?echo Loc::getMessage("SALE_F_STATUS")?>:</td>
+		<td valign="top"><?= Loc::getMessage("SALE_F_STATUS"); ?>:</td>
 		<td valign="top">
 			<select name="filter_status[]" multiple size="3">
-				<?
+				<?php
 					$statusesList = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations(
 						$USER->GetID(),
 						array('view')
@@ -1033,44 +1128,44 @@ $oFilter->Begin();
 					{
 						if (!$statusName = $allStatusNames[$statusCode])
 							continue;
-						?><option value="<?= htmlspecialcharsbx($statusCode) ?>"<?if(is_array($filter_status) && in_array($statusCode, $filter_status)) echo " selected"?>>[<?= htmlspecialcharsbx($statusCode) ?>] <?= htmlspecialcharsbx($statusName) ?></option><?
+						?><option value="<?= htmlspecialcharsbx($statusCode) ?>"<?= (in_array($statusCode, $currentFilter['filter_status']) ? ' selected' : ''); ?>>[<?= htmlspecialcharsbx($statusCode) ?>] <?= htmlspecialcharsbx($statusName) ?></option><?php
 					}
 				?>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_CANCELED")?>:</td>
+		<td><?= Loc::getMessage("SALE_F_CANCELED"); ?>:</td>
 		<td>
 			<select name="filter_canceled">
-				<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
-				<option value="Y"<?if($filter_canceled=="Y") echo " selected"?>><?echo Loc::getMessage("SALE_YES")?></option>
-				<option value="N"<?if($filter_canceled=="N") echo " selected"?>><?echo Loc::getMessage("SALE_NO")?></option>
+				<option value=""><?= Loc::getMessage("SALE_F_ALL"); ?></option>
+				<option value="Y"<?= ($currentFilter['filter_canceled'] === 'Y' ? ' selected' : ''); ?>><?= Loc::getMessage("SALE_YES"); ?></option>
+				<option value="N"<?= ($currentFilter['filter_canceled'] === 'N' ? ' selected' : ''); ?>><?= Loc::getMessage("SALE_NO"); ?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_DEDUCTED")?>:</td>
+		<td><?= Loc::getMessage("SALE_F_DEDUCTED"); ?>:</td>
 		<td>
 			<select name="filter_deducted">
-				<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
-				<option value="Y"<?if($filter_deducted=="Y") echo " selected"?>><?echo Loc::getMessage("SALE_YES")?></option>
-				<option value="N"<?if($filter_deducted=="N") echo " selected"?>><?echo Loc::getMessage("SALE_NO")?></option>
+				<option value=""><?= Loc::getMessage("SALE_F_ALL"); ?></option>
+				<option value="Y"<?= ($currentFilter['filter_deducted'] === 'Y' ? ' selected' :  ''); ?>><?= Loc::getMessage("SALE_YES"); ?></option>
+				<option value="N"<?= ($currentFilter['filter_deducted'] === 'N' ? ' selected' :  ''); ?>><?= Loc::getMessage("SALE_NO")?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_PAYED")?>:</td>
+		<td><?= Loc::getMessage("SALE_F_PAYED"); ?>:</td>
 		<td>
 			<select name="filter_payed">
-				<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
-				<option value="Y"<?if($filter_payed=="Y") echo " selected"?>><?echo Loc::getMessage("SALE_YES")?></option>
-				<option value="N"<?if($filter_payed=="N") echo " selected"?>><?echo Loc::getMessage("SALE_NO")?></option>
+				<option value=""><?= Loc::getMessage("SALE_F_ALL"); ?></option>
+				<option value="Y"<?= ($currentFilter['filter_payed'] === 'Y' ? ' selected' : ''); ?>><?= Loc::getMessage("SALE_YES"); ?></option>
+				<option value="N"<?= ($currentFilter['filter_payed'] === 'N' ? ' selected' : ''); ?>><?= Loc::getMessage("SALE_NO"); ?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SALE_F_ID");?>:</td>
+		<td><?= Loc::getMessage("SALE_F_ID"); ?>:</td>
 		<td>
 			<script type="text/javascript">
 				function filter_id_from_Change()
@@ -1081,14 +1176,14 @@ $oFilter->Begin();
 					}
 				}
 			</script>
-			<?echo Loc::getMessage("SALE_F_FROM");?>
-			<input type="text" name="filter_id_from" OnChange="filter_id_from_Change()" value="<?echo ((int)($filter_id_from)>0)?(int)($filter_id_from):""?>" size="10">
-			<?echo Loc::getMessage("SALE_F_TO");?>
-			<input type="text" name="filter_id_to" value="<?echo ((int)($filter_id_to)>0)?(int)($filter_id_to):""?>" size="10">
+			<?= Loc::getMessage("SALE_F_FROM"); ?>
+			<input type="text" name="filter_id_from" OnChange="filter_id_from_Change()" value="<?= htmlspecialcharsbx($currentFilter['filter_id_from']); ?>" size="10">
+			<?= Loc::getMessage("SALE_F_TO"); ?>
+			<input type="text" name="filter_id_to" value="<?= htmlspecialcharsbx($currentFilter['filter_id_to']); ?>" size="10">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo Loc::getMessage("SO_PRODUCT_ID")?></td>
+		<td><?= Loc::getMessage("SO_PRODUCT_ID"); ?></td>
 		<td>
 			<script type="text/javascript">
 				function FillProductFields(arParams)
@@ -1135,13 +1230,13 @@ $oFilter->Begin();
 					return popup;
 				}
 			</script>
-			<input name="filter_product_id" value="<?= htmlspecialcharsbx($filter_product_id) ?>" size="5" type="text">&nbsp;<input type="button" value="..." id="cat_prod_button" onClick="showProductSearchDialog()"><span id="product_name_alt" class="adm-filter-text-search"></span>
+			<input name="filter_product_id" value="<?= htmlspecialcharsbx($currentFilter['filter_product_id']); ?>" size="5" type="text">&nbsp;<input type="button" value="..." id="cat_prod_button" onClick="showProductSearchDialog()"><span id="product_name_alt" class="adm-filter-text-search"></span>
 		</td>
 	</tr>
 	<tr>
 		<td><?=Loc::getMessage('SO_XML_ID')?>:</td>
 		<td>
-			<input type="text" name="filter_xml_id" value="<?echo htmlspecialcharsbx($filter_xml_id)?>" size="40">
+			<input type="text" name="filter_xml_id" value="<?= htmlspecialcharsbx($currentFilter['filter_xml_id']); ?>" size="40">
 		</td>
 	</tr>
 	<script>
@@ -1156,10 +1251,12 @@ $oFilter->Begin();
 				var num = oForm.elements.length;
 				for (var i = 0; i < num; i++)
 				{
-					if(oForm.elements[i].tagName.toUpperCase() == "INPUT"
-						&& oForm.elements[i].type.toUpperCase() == "CHECKBOX"
-						&& oForm.elements[i].name.toUpperCase() == "ID[]"
-						&& oForm.elements[i].checked == true)
+					if (
+						oForm.elements[i].tagName.toUpperCase() === "INPUT"
+						&& oForm.elements[i].type.toUpperCase() === "CHECKBOX"
+						&& oForm.elements[i].name.toUpperCase() === "ID[]"
+						&& oForm.elements[i].checked
+					)
 					{
 						par += "&OID[]=" + oForm.elements[i].value;
 					}
@@ -1173,7 +1270,7 @@ $oFilter->Begin();
 
 			if(par.length > 0)
 			{
-				if (val == "excel")
+				if (val === "excel")
 				{
 					url = 'sale_order_archive.php';
 					window.open(url + "?EXPORT_FORMAT="+val+"&"+par, "vvvvv");
@@ -1181,8 +1278,7 @@ $oFilter->Begin();
 			}
 		}
 	</script>
-<?
-
+<?php
 $oFilter->Buttons(
 	array(
 		"table_id" => $sTableID,
@@ -1193,8 +1289,7 @@ $oFilter->Buttons(
 $oFilter->End();
 ?>
 </form>
-
-<?
+<?php
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

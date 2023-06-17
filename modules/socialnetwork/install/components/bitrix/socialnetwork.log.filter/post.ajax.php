@@ -100,13 +100,13 @@ if (check_bitrix_sessid())
 
 		echo CUtil::PhpToJsObject($searchResults);
 	}
-	elseif ($_POST['LD_DEPARTMENT_RELATION'] == 'Y')
+	elseif (isset($_POST['LD_DEPARTMENT_RELATION']) && $_POST['LD_DEPARTMENT_RELATION'] == 'Y')
 	{
 		echo CUtil::PhpToJsObject(Array(
-			'USERS' => CSocNetLogDestination::GetUsers(Array('deportament_id' => $_POST['DEPARTMENT_ID'], "NAME_TEMPLATE" => $nameTemplate)), 
+			'USERS' => CSocNetLogDestination::GetUsers(Array('deportament_id' => $_POST['DEPARTMENT_ID'], "NAME_TEMPLATE" => $nameTemplate)),
 		));
 	}
-	elseif ($_POST['LD_ALL'] == 'Y')
+	elseif (isset($_POST['LD_ALL']) && $_POST['LD_ALL'] == 'Y')
 	{
 		echo CUtil::PhpToJsObject(Array(
 			'USERS' => CSocNetLogDestination::GetUsers(Array('all' => 'Y', "NAME_TEMPLATE" => $nameTemplate)),

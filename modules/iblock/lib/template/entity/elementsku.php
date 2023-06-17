@@ -44,7 +44,7 @@ class ElementSku extends Base
 		{
 			if (!$this->property && $this->loadFromDatabase())
 			{
-				if ($this->skuIblockId)
+				if ($this->skuIblockId && $this->skuList)
 				{
 					$this->property = new ElementSkuProperty($this->fields["ID"]);
 					$this->property->setIblockId($this->skuIblockId);
@@ -58,7 +58,7 @@ class ElementSku extends Base
 		{
 			if (!$this->price && $this->loadFromDatabase())
 			{
-				if ($this->skuIblockId)
+				if ($this->skuIblockId && $this->skuList)
 				{
 					$this->price = new ElementSkuPrice($this->fields["ID"]);
 				}
@@ -109,6 +109,7 @@ class ElementSku extends Base
 				}
 			}
 		}
+
 		return is_array($this->fields);
 	}
 }

@@ -258,4 +258,84 @@ class CCloudStorageService_AmazonS3 extends CCloudStorageService_S3
 			return $proto."://$host/".$URI;
 		}
 	}
+	/**
+	 * @param array[string]string $arBucket
+	 * @return bool
+	*/
+	function CreateBucket($arBucket)
+	{
+		global $APPLICATION;
+
+		$arFiles = $this->ListFiles($arBucket, '/', false, 1);
+		if(is_array($arFiles))
+			return true;
+
+		// The bucket already exists and user has specified wrong location
+		if (
+			$this->status == 301
+			&& $arBucket["LOCATION"] != ""
+			&& $this->GetLastRequestHeader('x-amz-bucket-region') != ''
+			&& $this->GetLastRequestHeader('x-amz-bucket-region') != $arBucket["LOCATION"]
+		)
+		{
+			return false;
+		}
+
+		if($arBucket["LOCATION"] != "")
+			$content =
+				'<CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'.
+				'<LocationConstraint>'.$arBucket["LOCATION"].'</LocationConstraint>'.
+				'</CreateBucketConfiguration>';
+		else
+			$content = '';
+
+		$this->SetLocation($arBucket["LOCATION"]);
+		$response = $this->SendRequest(
+			$arBucket["SETTINGS"],
+			'PUT',
+			$arBucket["BUCKET"],
+			'/',
+			'',
+			$content,
+			['x-amz-object-ownership' => 'ObjectWriter']
+		);
+
+		if($this->status == 409/*Already exists*/)
+		{
+			$APPLICATION->ResetException();
+			return true;
+		}
+		elseif ($this->status == 200)
+		{
+			$response = $this->SendRequest(
+				$arBucket["SETTINGS"],
+				'DELETE',
+				$arBucket["BUCKET"],
+				'/',
+				'?publicAccessBlock='
+			);
+			if ($this->status == 204)
+			{
+				return true;
+			}
+
+			if (defined("BX_CLOUDS_ERROR_DEBUG"))
+			{
+				AddMessage2Log($this);
+			}
+			return false;
+		}
+		elseif (is_array($response))
+		{
+			return true;
+		}
+		else
+		{
+			if (defined("BX_CLOUDS_ERROR_DEBUG"))
+			{
+				AddMessage2Log($this);
+			}
+			return false;
+		}
+	}
 }

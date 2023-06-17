@@ -21,14 +21,7 @@ $colorSchemes = array(
 	"red" => "bx-red",
 	"blue" => "bx-blue",
 );
-if(isset($colorSchemes[$arParams["TEMPLATE_THEME"]]))
-{
-	$colorScheme = $colorSchemes[$arParams["TEMPLATE_THEME"]];
-}
-else
-{
-	$colorScheme = "";
-}
+$colorScheme = $colorSchemes[$arParams["TEMPLATE_THEME"]] ?? "";
 ?>
 
 <div class="bx-pagination <?=$colorScheme?>">

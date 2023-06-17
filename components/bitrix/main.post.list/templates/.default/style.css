@@ -120,7 +120,7 @@ a.feed-time.feed-com-time:hover {
 }
 
 .feed-com-block.feed-com-block-urlpreview .feed-com-text-inner {
-	padding-bottom: 5px;
+	margin-bottom: 5px;
 }
 
 @-webkit-keyframes feed-com-block-point-message {

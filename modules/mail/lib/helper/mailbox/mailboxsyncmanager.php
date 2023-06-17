@@ -2,19 +2,34 @@
 namespace Bitrix\Mail\Helper\Mailbox;
 
 use COption;
-use CUserOptions;
+use Bitrix\Mail\MailboxTable;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Mail\Internals\MailEntityOptionsTable;
+use Bitrix\Mail\MailFilterTable;
+use Bitrix\Main\Loader;
 
 class MailboxSyncManager
 {
 	private $userId;
 	private $mailCheckInterval;
-	private $syncOptionCategory = 'global';
-	private $syncOptionName = 'user_mailboxes_sync_info';
 
 	public function __construct($userId)
 	{
 		$this->userId = $userId;
 		$this->mailCheckInterval = COption::getOptionString('intranet', 'mail_check_period', 10) * 60;
+	}
+
+	public static function checkSyncWithCrm(int $mailboxId): bool
+	{
+		if (Loader::includeModule('crm'))
+		{
+			return (bool)MailFilterTable::getCount([
+				'=MAILBOX_ID' => $mailboxId,
+				'=ACTION_TYPE' => 'crm_imap',
+			]);
+		}
+
+		return false;
 	}
 
 	public function getFailedToSyncMailboxes()
@@ -47,6 +62,17 @@ class MailboxSyncManager
 		return $mailboxesToSync;
 	}
 
+	/*
+	 *	It's time for synchronization for at least one mailbox.
+	 */
+	public function isMailNeedsToBeSynced()
+	{
+		return count($this->getNeedToBeSyncedMailboxes()) > 0;
+	}
+
+	/*
+	 *	Returns mailboxes that are recommended to be synchronized.
+	 */
 	public function getNeedToBeSyncedMailboxes()
 	{
 		$mailboxesSyncData = $this->getSuccessSyncedMailboxes();
@@ -68,59 +94,152 @@ class MailboxSyncManager
 
 	public function deleteSyncData($mailboxId)
 	{
-		$mailboxesOptions = $this->getMailboxesSyncInfo();
-		if (empty($mailboxesOptions))
-		{
-			return;
-		}
-		unset($mailboxesOptions[$mailboxId]);
-		if (empty($mailboxesOptions))
-		{
-			CUserOptions::deleteOption($this->syncOptionCategory, $this->syncOptionName, false, $this->userId);
-		}
-		else
-		{
-			$this->setOption($mailboxesOptions);
-		}
+		$filter = [
+			'=MAILBOX_ID' => $mailboxId,
+			'=ENTITY_TYPE' => 'MAILBOX',
+			'=ENTITY_ID' => $mailboxId,
+			'=PROPERTY_NAME' => 'SYNC_STATUS',
+		];
+
+		return MailEntityOptionsTable::deleteList($filter);
 	}
 
 	public function setDefaultSyncData($mailboxId)
 	{
-		$mailboxesOptions = $this->getMailboxesSyncInfo();
-		$mailboxesOptions[$mailboxId] = ['isSuccess' => true, 'timeStarted' => 0];
-		$this->setOption($mailboxesOptions);
+		$this->saveSyncStatus($mailboxId, true, 0);
+	}
+
+	private function buildTimeForSyncStatus($time): int
+	{
+		if($time !== null && (int)$time >= 0)
+		{
+			return (int)$time;
+		}
+
+		return time();
 	}
 
 	public function setSyncStartedData($mailboxId, $time = null)
 	{
-		$mailboxesOptions = $this->getMailboxesSyncInfo();
-		$mailboxesOptions[$mailboxId] = ['isSuccess' => true, 'timeStarted' => $time !== null && (int)$time >= 0 ? (int)$time : time()];
-		$this->setOption($mailboxesOptions);
+		$this->saveSyncStatus($mailboxId, true, $this->buildTimeForSyncStatus($time));
 	}
 
 	public function setSyncStatus($mailboxId, $isSuccess, $time = null)
 	{
-		$mailboxesOptions = $this->getMailboxesSyncInfo();
-		$mailboxesOptions[$mailboxId] = ['isSuccess' => $isSuccess, 'timeStarted' => $time !== null && (int)$time >= 0 ? (int)$time : time()];
-		$this->setOption($mailboxesOptions);
+		$this->saveSyncStatus($mailboxId, $isSuccess, $this->buildTimeForSyncStatus($time));
 	}
 
-	private function setOption($mailboxesSyncInfo)
+	private function saveSyncStatus($mailboxID, $status, $date)
 	{
-		CUserOptions::setOption($this->syncOptionCategory, $this->syncOptionName, $mailboxesSyncInfo, false, $this->userId);
+		$filter = [
+			'=MAILBOX_ID' => $mailboxID,
+			'=ENTITY_TYPE' => 'MAILBOX',
+			'=ENTITY_ID' => $mailboxID,
+			'=PROPERTY_NAME' => 'SYNC_STATUS',
+		];
+
+		$keyRow = [
+			'MAILBOX_ID' => $mailboxID,
+			'ENTITY_TYPE' => 'MAILBOX',
+			'ENTITY_ID' => $mailboxID,
+			'PROPERTY_NAME' => 'SYNC_STATUS',
+		];
+
+		$fields = $keyRow;
+
+		$fields['VALUE'] = $status;
+		$fields['DATE_INSERT'] = DateTime::createFromTimestamp($date);
+
+		if(MailEntityOptionsTable::getCount($filter))
+		{
+			MailEntityOptionsTable::update(
+				$keyRow,
+				[
+					'DATE_INSERT' => $fields['DATE_INSERT'],
+					'VALUE' => $fields['VALUE'],
+				],
+			);
+		}
+		else
+		{
+			MailEntityOptionsTable::add(
+				$fields
+			);
+		}
+	}
+
+	public function getMailboxSyncInfo($mailboxID)
+	{
+		$dateLastOpening = \Bitrix\Mail\Internals\MailEntityOptionsTable::getList(
+			[
+				'select' => [
+					'VALUE',
+					'DATE_INSERT',
+				],
+				'filter' => [
+					'=MAILBOX_ID' => $mailboxID,
+					'=ENTITY_TYPE' => 'MAILBOX',
+					'=ENTITY_ID' => $mailboxID,
+					'=PROPERTY_NAME' => 'SYNC_STATUS',
+				],
+				'limit' => 1,
+			]
+		)->fetch();
+
+		if(isset($dateLastOpening['VALUE']))
+		{
+			return [
+				'isSuccess' => (bool)$dateLastOpening['VALUE'],
+				'timeStarted' => $dateLastOpening['DATE_INSERT']->getTimestamp(),
+			];
+		}
+
+		return false;
 	}
 
 	/**
 	 * @return mixed
 	 */
-	private function getMailboxesSyncInfo()
+	public function getMailboxesSyncInfo()
 	{
-		return CUserOptions::getOption($this->syncOptionCategory, $this->syncOptionName, [], $this->userId);
+		$mailboxesSyncInfo = [];
+
+		$userMailboxIds = array_keys(MailboxTable::getUserMailboxes());
+		foreach ($userMailboxIds as $id)
+		{
+			$id = (int)$id;
+			$mailboxSyncInfo = $this->getMailboxSyncInfo($id);
+			if($mailboxSyncInfo !== false)
+			{
+				$mailboxesSyncInfo[$id] = $mailboxSyncInfo;
+			}
+		}
+		return $mailboxesSyncInfo;
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Mail\Helper\Mailbox\MailboxSyncManager::getTimeBeforeNextSync()
+	 */
 	public function getNextTimeToSync($lastMailCheckData)
 	{
 		return intval($lastMailCheckData['timeStarted']) + $this->mailCheckInterval - time();
+	}
+
+	/*
+	 * Returns the time remaining until the required recommended mail synchronization.
+	 * If it's time to synchronize, it will return 0.
+	 */
+	public function getTimeBeforeNextSync()
+	{
+		$mailboxesSuccessSynced = $this->getSuccessSyncedMailboxes();
+		$timeBeforeNextSyncMailboxes = [];
+
+		foreach ($mailboxesSuccessSynced as $mailboxId => $lastMailCheckData)
+		{
+			$timeBeforeNextSyncMailboxes[] = intval($lastMailCheckData['timeStarted']) + $this->mailCheckInterval - time();
+		}
+
+		return !empty($timeBeforeNextSyncMailboxes) && min($timeBeforeNextSyncMailboxes) > 0 ? min($timeBeforeNextSyncMailboxes) : 0;
 	}
 
 	/**

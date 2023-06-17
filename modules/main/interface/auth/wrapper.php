@@ -33,7 +33,7 @@ function dump_post_var($vname, $vvalue, $var_stack=array())
 	}
 	else
 	{
-		if(count($var_stack)>0)
+		if(!empty($var_stack))
 		{
 			$var_name=$var_stack[0];
 			$varStackCount = count($var_stack);

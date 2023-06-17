@@ -255,9 +255,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        if (typeof params.textLegacy !== 'undefined') {
 	          fields.textLegacy = params.textLegacy;
 	        }
-	        if (typeof params.textOriginal !== 'undefined') {
-	          fields.textOriginal = params.textOriginal;
-	        }
 	        if (typeof params.text !== 'undefined') {
 	          fields.text = params.text;
 	        }
@@ -727,6 +724,20 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            date: params.date
 	          },
 	          counter: params.counter
+	        }
+	      });
+	    }
+	  }, {
+	    key: "handleNotifyReadAll",
+	    value: function handleNotifyReadAll(params) {
+	      this.store.dispatch('notifications/readAll');
+	      this.store.dispatch('notifications/setCounter', {
+	        unreadTotal: 0
+	      });
+	      this.store.dispatch('recent/update', {
+	        id: 'notify',
+	        fields: {
+	          counter: 0
 	        }
 	      });
 	    }

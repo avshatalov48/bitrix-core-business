@@ -38,7 +38,7 @@ $arParams["YEAR"] = intval($arParams["YEAR"]);
 $arParams["MONTH"] = intval($arParams["MONTH"]);
 $arParams["DAY"] = intval($arParams["DAY"]);
 $arParams["CATEGORY_ID"] = intval($arParams["CATEGORY_ID"]);
-$arParams["~BLOG_GROUP_ID"] = (!empty($arParams["GROUP_ID"]) ? $arParams["GROUP_ID"] : $arParams["BLOG_GROUP_ID"]);
+$arParams["~BLOG_GROUP_ID"] = (!empty($arParams["GROUP_ID"]) ? $arParams["GROUP_ID"] : ($arParams["BLOG_GROUP_ID"] ?? 0));
 $arParams["~BLOG_GROUP_ID"] = (is_array($arParams["~BLOG_GROUP_ID"]) ? $arParams["~BLOG_GROUP_ID"] : array($arParams["~BLOG_GROUP_ID"]));
 $arParams["BLOG_GROUP_ID"] = array();
 foreach($arParams["~BLOG_GROUP_ID"] as $k => $val)
@@ -92,7 +92,7 @@ $arParams["SHOW_LOGIN"] = ($arParams["SHOW_LOGIN"] == "Y");
 $arParams["AVATAR_SIZE"] = (isset($_REQUEST["avatar_size"]) && intval($_REQUEST["avatar_size"]) > 0 ? intval($_REQUEST["avatar_size"]) : intval($arParams["AVATAR_SIZE"]));
 $arParams["SET_TITLE"] = "N";
 CRatingsComponentsMain::GetShowRating($arParams); // $arParams["SHOW_RATING"]
-$arParams["MESSAGE_LENGTH"] = ($arParams["MESSAGE_LENGTH"] > 0 ? $arParams["MESSAGE_LENGTH"] : 90);
+$arParams["MESSAGE_LENGTH"] = (($arParams["MESSAGE_LENGTH"] ?? 0) > 0 ? $arParams["MESSAGE_LENGTH"] : 90);
 /************** CACHE **********************************************/
 if (!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600*24*7;
@@ -174,11 +174,16 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 /********************************************************************
 				Actions
 ********************************************************************/
+$del_id = (int) ($_GET["del_id"] ?? 0);
+$hide_id = (int) ($_GET["hide_id"] ?? 0);
+
 //Message delete
-if ((intval($_GET["del_id"]) > 0 || intval($_GET["hide_id"]) > 0) && CModule::IncludeModule("blog"))
+if (
+	($del_id > 0 || $hide_id > 0)
+	&& CModule::IncludeModule("blog")
+)
 {
-	$del_id = intval($_GET["del_id"]); $hide_id = intval($_GET["hide_id"]);
-	if ($_GET["success"] == "Y")
+	if (($_GET["success"] ?? '') == "Y")
 	{
 		$arResult["OK_MESSAGE"][] = (!!$_GET["del_id"] ?
 			array(
@@ -277,18 +282,19 @@ if (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite())
 
 if($arParams["USER_ID"] > 0 && $arParams["USER_ID"] == $user_id) // in own profile
 {
-	if($arParams["4ME"] == "ALL")
+	$fourMe = ($arParams["4ME"] ?? '');
+	if ($fourMe === "ALL")
 	{
 		$arFilter["FOR_USER"] = $user_id;
 		$arFilter["FOR_USER_TYPE"] = "ALL";
 	}
-	elseif($arParams["4ME"] == "Y")
+	elseif($fourMe === "Y")
 	{
 		$arFilter["FOR_USER"] = $user_id;
 		$arFilter["!AUTHOR_ID"] = $user_id;
 		$arFilter["FOR_USER_TYPE"] = "SELF";
 	}
-	elseif($arParams["4ME"] == "DR")
+	elseif($fourMe === "DR")
 	{
 		$arFilter["FOR_USER"] = $user_id;
 		$arFilter["!AUTHOR_ID"] = $user_id;
@@ -373,7 +379,7 @@ $arResult["POST"] = Array();
 $arResult["IDS"] = Array();
 $arResult["userCache"] = array();
 $arParams["FILTER"] = array_merge($arParams["FILTER"], $arFilter);
-$PAGEN=($GLOBALS["PAGEN_".($GLOBALS["NavNum"]+1)] || $arParams["PAGE_SETTINGS"]["iNumPage"]);
+$PAGEN=(($GLOBALS["PAGEN_".($GLOBALS["NavNum"]+1)] ?? '') || ($arParams["PAGE_SETTINGS"]["iNumPage"] ?? ''));
 $arCacheID = array(
 	"filter" => array_merge($arParams["FILTER"], ($dfc === true ? array("<=DATE_PUBLISH" => "") : array())),
 	$arParams["SORT"],
@@ -386,8 +392,8 @@ $cache_id = "blog_blog_".md5(serialize($arCacheID));
 				Actions
 ********************************************************************/
 if(
-	is_array($_REQUEST["options"])
-	&& !empty($_REQUEST["options"])
+	!empty($_REQUEST["options"])
+	&& is_array($_REQUEST["options"])
 	&& check_bitrix_sessid()
 	&& $USER->IsAuthorized()
 	&& CModule::IncludeModule("blog")
@@ -419,7 +425,7 @@ if(
 				/Actions
 ********************************************************************/
 
-if ($_REQUEST["return"] == "users")
+if (($_REQUEST["return"] ?? '') == "users")
 {
 	include(str_replace(array("\\", "//"), "/", __DIR__."/")."users.php");
 }
@@ -431,12 +437,30 @@ elseif ($PAGEN == null && $arParams["CACHE_TIME"] > 0) // cache only the first p
 		$arResult["POST"] = $arRes["POST"];
 		$arResult["IDS"] = $arRes["IDS"];
 		$arResult["userCache"] = $arRes["userCache"];
-		$arResult["NAV_RESULT"] = $arRes["NAV_RESULT"];
 		$arResult["NAV_STRING"] = $arRes["NAV_STRING"];
 		$arResult["USER"] = $arRes["USER"];
+
+		if (CModule::IncludeModule("blog"))
+		{
+			$dbPost = CBlogPost::GetList(
+				$arParams["SORT"],
+				$arParams["FILTER"],
+				false,
+				$arParams["PAGE_SETTINGS"],
+				array("ID")
+			);
+			$arResult["NAV_RESULT"] = $dbPost;
+		}
 	}
 }
-if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
+if (
+	CModule::IncludeModule("blog")
+	&& (
+		$PAGEN
+		|| $arParams["CACHE_TIME"] <= 0
+		|| !($cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
+	)
+)
 {
 	$dbPost = CBlogPost::GetList(
 		$arParams["SORT"],
@@ -511,14 +535,27 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 
 		$arUser = $arResult["userCache"][$arPost["AUTHOR_ID"]];
 
-		$arPost["AUTHOR_AVATAR"] = $arUser["PERSONAL_PHOTO_resized"];
+		$arPost["AUTHOR_AVATAR"] = $arUser["PERSONAL_PHOTO_resized"] ?? null;
 
-		$arPost["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_POST"],
-			array("post_id"=> CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arParams["ALLOW_POST_CODE"]), "user_id" => $arPost["BLOG_OWNER_ID"]));
+		$arPost["urlToPost"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["~PATH_TO_POST"],
+			[
+				"post_id"=> CBlogPost::GetPostID(
+					$arPost["ID"],
+					$arPost["CODE"],
+					$arParams["ALLOW_POST_CODE"] ?? false
+				),
+				"user_id" => $arPost["BLOG_OWNER_ID"]
+			]
+		);
 		$arPost["urlToPosts"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_BLOG_POSTS"],
 			array("user_id" => $arPost["BLOG_OWNER_ID"]));
-		$arPost["urlToPostsImportant"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_POST_IMPORTANT"],
-			array("user_id" => $arPost["BLOG_OWNER_ID"]));
+		$arPost["urlToPostsImportant"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["~PATH_TO_POST_IMPORTANT"] ?? '',
+			[
+				"user_id" => $arPost["BLOG_OWNER_ID"]
+			]
+		);
 
 		$arPost["urlToUser"] = $arPost["urlToAuthor"] = $arUser["url"];
 		if($arPost["perms"] >= BLOG_PERMS_WRITE)
@@ -575,7 +612,6 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 			"POST" => $arResult["POST"],
 			"IDS" => $arResult["IDS"],
 			"userCache" => $arResult["userCache"],
-			"NAV_RESULT" => $arResult["NAV_RESULT"],
 			"NAV_STRING" => $arResult["NAV_STRING"],
 			"USER" => $arResult["USER"]
 		));

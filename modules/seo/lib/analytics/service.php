@@ -14,6 +14,7 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService, 
 	const TYPE_FACEBOOK = 'facebook';
 	const TYPE_INSTAGRAM = 'instagram';
 	const TYPE_VKONTAKTE = 'vkontakte';
+	const TYPE_VKADS = 'vkads';
 	const TYPE_GOOGLE = 'google';
 	const TYPE_YANDEX = 'yandex';
 
@@ -86,6 +87,7 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService, 
 		return array(
 			static::TYPE_FACEBOOK,
 			static::TYPE_VKONTAKTE,
+			static::TYPE_VKADS,
 			static::TYPE_GOOGLE,
 			static::TYPE_INSTAGRAM,
 			static::TYPE_YANDEX,

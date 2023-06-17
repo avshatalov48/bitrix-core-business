@@ -18,7 +18,7 @@ class CBXShortUri
 		$strSql =
 			"INSERT INTO b_short_uri (".$arInsert[0].", MODIFIED) ".
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		$taskId = intval($DB->LastID());
 
@@ -87,7 +87,7 @@ class CBXShortUri
 		}
 
 		$strWherePart = "";
-		if (count($arWherePart) > 0)
+		if (!empty($arWherePart))
 		{
 			foreach ($arWherePart as $val)
 			{
@@ -119,7 +119,7 @@ class CBXShortUri
 		}
 
 		$strOrderByPart = "";
-		if (count($arOrderByPart) > 0)
+		if (!empty($arOrderByPart))
 		{
 			foreach ($arOrderByPart as $val)
 			{

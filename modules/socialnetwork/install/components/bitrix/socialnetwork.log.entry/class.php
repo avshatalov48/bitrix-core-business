@@ -99,7 +99,7 @@ final class SocialnetworkLogEntry extends LogEntry
 
 	protected function checkActions(): void
 	{
-		if ($this->arParams['COMPONENT_AJAX'] !== 'Y')
+		if (($this->arParams['COMPONENT_AJAX'] ?? '') !== 'Y')
 		{
 			return;
 		}
@@ -130,11 +130,11 @@ final class SocialnetworkLogEntry extends LogEntry
 					'pathToLogEntry' => $this->arParams['PATH_TO_LOG_ENTRY'],
 					'pathToUser' => $this->arParams['PATH_TO_USER'],
 					'pathToUserBlogPost' => $this->arParams['PATH_TO_USER_BLOG_POST'],
-					'pathToGroupBlogPost' => $this->arParams['PATH_TO_USER_GROUP_POST'],
+					'pathToGroupBlogPost' => $this->arParams['PATH_TO_USER_GROUP_POST'] ?? '',
 					'pathToUserMicroBlogPost' => $this->arParams['PATH_TO_USER_MICROBLOG_POST'],
 					'pathToGroupMicroBlogPost' => $this->arParams['PATH_TO_GROUP_MICROBLOG_POST'],
 					'dateTimeFormat' => $this->arParams['DATE_TIME_FORMAT'],
-					'blogAllowPostCode' => $this->arParams['BLOG_ALLOW_POST_CODE'],
+					'blogAllowPostCode' => $this->arParams['BLOG_ALLOW_POST_CODE'] ?? null,
 					'message' => $this->request->getPost('comment'),
 					'forumId' => $this->arParams['FORUM_ID'],
 					'siteId' => SITE_ID,
@@ -229,7 +229,7 @@ final class SocialnetworkLogEntry extends LogEntry
 
 	protected function handleException(Exception $e): void
 	{
-		if ($this->arParams['COMPONENT_AJAX'] === 'Y')
+		if (($this->arParams['COMPONENT_AJAX'] ?? '') === 'Y')
 		{
 			$this->sendJsonResponse([
 				'status' => self::STATUS_ERROR,

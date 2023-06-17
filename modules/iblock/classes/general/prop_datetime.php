@@ -1,89 +1,98 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Type\Date,
-	Bitrix\Iblock;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\UI\Filter;
+use Bitrix\Iblock;
 
 class CIBlockPropertyDateTime
 {
-	const USER_TYPE = 'DateTime';
+	public const USER_TYPE = 'DateTime';
+
+	public const FORMAT_FULL = 'Y-m-d H:i:s';
+	public const FORMAT_SHORT = 'Y-m-d';
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
+		return [
 			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_STRING,
 			"USER_TYPE" => self::USER_TYPE,
 			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_DATETIME_DESC"),
 			//optional handlers
-			"GetPublicViewHTML" => array(__CLASS__, "GetPublicViewHTML"),
-			"GetPublicEditHTML" => array(__CLASS__, "GetPublicEditHTML"),
-			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"CheckFields" => array(__CLASS__, "CheckFields"),
-			"ConvertToDB" => array(__CLASS__, "ConvertToDB"),
-			"ConvertFromDB" => array(__CLASS__, "ConvertFromDB"),
-			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
-			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
-			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
-			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
-			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
-		);
+			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
+			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
+			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
+			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
+			"CheckFields" => [__CLASS__, "CheckFields"],
+			"ConvertToDB" => [__CLASS__, "ConvertToDB"],
+			"ConvertFromDB" => [__CLASS__, "ConvertFromDB"],
+			"GetSettingsHTML" => [__CLASS__, "GetSettingsHTML"],
+			"GetAdminFilterHTML" => [__CLASS__, "GetAdminFilterHTML"],
+			"GetPublicFilterHTML" => [__CLASS__, "GetPublicFilterHTML"],
+			"AddFilterFields" => [__CLASS__, "AddFilterFields"],
+			"GetUIFilterProperty" => [__CLASS__, "GetUIFilterProperty"],
+			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
+		];
 	}
 
 	public static function AddFilterFields($arProperty, $strHTMLControlName, &$arFilter, &$filtered)
 	{
 		$filtered = false;
 
-		$from = "";
-		$from_name = $strHTMLControlName["VALUE"].'_from';
-		if (isset($strHTMLControlName["FILTER_ID"]))
+		$from = '';
+		$from_name = $strHTMLControlName['VALUE'] . '_from';
+		if (isset($strHTMLControlName['FILTER_ID']))
 		{
-			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
+			$filterOption = new Filter\Options($strHTMLControlName['FILTER_ID']);
 			$filterData = $filterOption->getFilter();
-			$from = !empty($filterData[$from_name]) ? $filterData[$from_name] : "";
+			$from = !empty($filterData[$from_name]) ? $filterData[$from_name] : '';
 		}
 		elseif (isset($_REQUEST[$from_name]))
 		{
 			$from = $_REQUEST[$from_name];
 		}
-		elseif(isset($strHTMLControlName["GRID_ID"]) &&
-			isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name]))
+		elseif (
+			isset($strHTMLControlName['GRID_ID'])
+			&& isset($_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$from_name])
+		)
 		{
-			$from = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name];
+			$from = $_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$from_name];
 		}
 
-		if($from)
+		if ($from)
 		{
-			if(CheckDateTime($from))
+			$filterKey = '>=PROPERTY_' . $arProperty['ID'];
+			if (CheckDateTime($from))
 			{
-				$from = static::ConvertToDB($arProperty, array("VALUE"=>$from));
-				$arFilter[">=PROPERTY_".$arProperty["ID"]] = $from["VALUE"];
-				$filtered = true;
+				$from = static::ConvertToDB(
+					$arProperty,
+					['VALUE' => $from]
+				);
+				$arFilter[$filterKey] = $from['VALUE'];
 			}
 			else
 			{
-				$arFilter[">=PROPERTY_".$arProperty["ID"]] = $from;
-				$filtered = true;
+				$arFilter[$filterKey] = $from;
 			}
+			$filtered = true;
 		}
 
-		$to = "";
-		$to_name = $strHTMLControlName["VALUE"].'_to';
-		if (isset($strHTMLControlName["FILTER_ID"]))
+		$to = '';
+		$to_name = $strHTMLControlName['VALUE'] . '_to';
+		if (isset($strHTMLControlName['FILTER_ID']))
 		{
-			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
+			$filterOption = new Filter\Options($strHTMLControlName['FILTER_ID']);
 			$filterData = $filterOption->getFilter();
-			$to = !empty($filterData[$to_name]) ? $filterData[$to_name] : "";
-			if($to)
+			$to = !empty($filterData[$to_name]) ? $filterData[$to_name] : '';
+			if ($to)
 			{
 				$dateFormat = Date::convertFormatToPhp(CSite::getDateFormat());
 				$dateParse = date_parse_from_format($dateFormat, $to);
-				if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
+				if (!mb_strlen($dateParse['hour']) && !mb_strlen($dateParse['minute']) && !mb_strlen($dateParse['second']))
 				{
 					$timeFormat = Date::convertFormatToPhp(CSite::getTimeFormat());
-					$to .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
+					$to .= ' ' . date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
 				}
 			}
 		}
@@ -91,32 +100,37 @@ class CIBlockPropertyDateTime
 		{
 			$to = $_REQUEST[$to_name];
 		}
-		elseif(isset($strHTMLControlName["GRID_ID"]) &&
-			isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name]))
+		elseif (
+			isset($strHTMLControlName['GRID_ID'])
+			&& isset($_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$to_name])
+		)
 		{
-			$to = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name];
+			$to = $_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$to_name];
 		}
 
-		if($to)
+		if ($to)
 		{
-			if(CheckDateTime($to))
+			$filterKey = '<=PROPERTY_'.$arProperty['ID'];
+			if (CheckDateTime($to))
 			{
-				$to = static::ConvertToDB($arProperty, array("VALUE"=>$to));
-				$arFilter["<=PROPERTY_".$arProperty["ID"]] = $to["VALUE"];
-				$filtered = true;
+				$to = static::ConvertToDB(
+					$arProperty,
+					['VALUE' => $to]
+				);
+				$arFilter[$filterKey] = $to['VALUE'];
 			}
 			else
 			{
-				$arFilter["<=PROPERTY_".$arProperty["ID"]] = $to;
-				$filtered = true;
+				$arFilter[$filterKey] = $to;
 			}
+			$filtered = true;
 		}
 	}
 
 	public static function GetAdminFilterHTML($arProperty, $strHTMLControlName)
 	{
-		$from_name = $strHTMLControlName["VALUE"].'_from';
-		$to_name = $strHTMLControlName["VALUE"].'_to';
+		$from_name = $strHTMLControlName["VALUE"] . '_from';
+		$to_name = $strHTMLControlName["VALUE"] . '_to';
 
 		$lAdmin = new CAdminList($strHTMLControlName["TABLE_ID"]);
 		$lAdmin->InitFilter(array(
@@ -124,39 +138,51 @@ class CIBlockPropertyDateTime
 			$to_name,
 		));
 
-		$from = isset($GLOBALS[$from_name])? $GLOBALS[$from_name]: "";
-		$to = isset($GLOBALS[$to_name])? $GLOBALS[$to_name]: "";
+		$from = $GLOBALS[$from_name] ?? "";
+		$to = $GLOBALS[$to_name] ?? "";
 
 		return  CAdminCalendar::CalendarPeriod($from_name, $to_name, $from, $to);
 	}
 
 	public static function GetPublicFilterHTML($arProperty, $strHTMLControlName)
 	{
-		/** @var CMain */
+		/** @var CMain $APPLICATION*/
 		global $APPLICATION;
 
-		$from_name = $strHTMLControlName["VALUE"].'_from';
-		$to_name = $strHTMLControlName["VALUE"].'_to';
+		$from_name = $strHTMLControlName['VALUE'] . '_from';
+		$to_name = $strHTMLControlName['VALUE'] . '_to';
 
 		if (isset($_REQUEST[$from_name]))
+		{
 			$from = $_REQUEST[$from_name];
+		}
 		elseif (
-			isset($strHTMLControlName["GRID_ID"])
-			&& isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name])
+			isset($strHTMLControlName['GRID_ID'])
+			&& isset($_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$from_name])
 		)
-			$from = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name];
+		{
+			$from = $_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$from_name];
+		}
 		else
-			$from = "";
+		{
+			$from = '';
+		}
 
 		if (isset($_REQUEST[$to_name]))
+		{
 			$to = $_REQUEST[$to_name];
+		}
 		elseif (
-			isset($strHTMLControlName["GRID_ID"])
-			&& isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name])
+			isset($strHTMLControlName['GRID_ID'])
+			&& isset($_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$to_name])
 		)
-			$to = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name];
+		{
+			$to = $_SESSION['main.interface.grid'][$strHTMLControlName['GRID_ID']]['filter'][$to_name];
+		}
 		else
-			$to = "";
+		{
+			$to = '';
+		}
 
 		ob_start();
 
@@ -164,7 +190,7 @@ class CIBlockPropertyDateTime
 			'bitrix:main.calendar',
 			'',
 			array(
-				'FORM_NAME' => $strHTMLControlName["FORM_NAME"],
+				'FORM_NAME' => $strHTMLControlName['FORM_NAME'],
 				'SHOW_INPUT' => 'Y',
 				'INPUT_NAME' => $from_name,
 				'INPUT_VALUE' => $from,
@@ -178,6 +204,7 @@ class CIBlockPropertyDateTime
 
 		$s = ob_get_contents();
 		ob_end_clean();
+
 		return  $s;
 	}
 
@@ -205,7 +232,7 @@ class CIBlockPropertyDateTime
 
 	public static function GetPublicEditHTML($arProperty, $value, $strHTMLControlName)
 	{
-		/** @var CMain */
+		/** @var CMain $APPLICATION*/
 		global $APPLICATION;
 
 		$s = '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" size="25" value="'.htmlspecialcharsbx($value["VALUE"]).'" />';
@@ -261,9 +288,24 @@ class CIBlockPropertyDateTime
 	//array of error messages
 	public static function CheckFields($arProperty, $value)
 	{
-		$arResult = array();
-		if($value["VALUE"] <> '' && !CheckDateTime($value["VALUE"]))
-			$arResult[] = Loc::getMessage("IBLOCK_PROP_DATETIME_ERROR_NEW", array("#FIELD_NAME#" => $arProperty["NAME"]));
+		$arResult = [];
+		$dateTimeValue = (string)($value["VALUE"] ?? '');
+		if ($dateTimeValue !== '')
+		{
+			if (
+				!CheckDateTime($dateTimeValue)
+				&& !static::checkInternalFormatValue($dateTimeValue)
+			)
+			{
+				$arResult[] = Loc::getMessage(
+					'IBLOCK_PROP_DATETIME_ERROR_NEW',
+					[
+						'#FIELD_NAME#' => $arProperty['NAME'],
+					]
+				);
+			}
+		}
+
 		return $arResult;
 	}
 
@@ -274,16 +316,24 @@ class CIBlockPropertyDateTime
 	//DB form of the value
 	public static function ConvertToDB($arProperty, $value)
 	{
-		if ($value["VALUE"] <> '')
+		$dateTimeValue = (string)($value['VALUE'] ?? '');
+		if ($dateTimeValue !== '')
 		{
-			try
+			if (!static::checkInternalFormatValue($dateTimeValue))
 			{
-				$time = Bitrix\Main\Type\DateTime::createFromUserTime($value['VALUE']);
+				try
+				{
+					$time = Bitrix\Main\Type\DateTime::createFromUserTime($dateTimeValue);
 
-				$value['VALUE'] = $time->format("Y-m-d H:i:s");
+					$value['VALUE'] = $time->format(static::FORMAT_FULL);
+				}
+				catch (Bitrix\Main\ObjectException $e)
+				{
+				}
 			}
-			catch(Bitrix\Main\ObjectException $e)
+			else
 			{
+				$value['VALUE'] = $dateTimeValue;
 			}
 		}
 
@@ -292,11 +342,12 @@ class CIBlockPropertyDateTime
 
 	public static function ConvertFromDB($arProperty, $value, $format = '')
 	{
-		if ($value["VALUE"] <> '')
+		$dateTimeValue = (string)($value['VALUE'] ?? '');
+		if ($dateTimeValue !== '')
 		{
 			try
 			{
-				$time = new Bitrix\Main\Type\DateTime($value['VALUE'], "Y-m-d H:i:s");
+				$time = new Bitrix\Main\Type\DateTime($dateTimeValue, self::FORMAT_FULL);
 				$time->toUserTime();
 
 				if ($format === 'SHORT')
@@ -321,9 +372,12 @@ class CIBlockPropertyDateTime
 
 	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
 	{
-		$arPropertyFields = array(
-			"HIDE" => array("ROW_COUNT", "COL_COUNT"),
-		);
+		$arPropertyFields = [
+			'HIDE' => [
+				'ROW_COUNT',
+				'COL_COUNT',
+			],
+		];
 
 		return '';
 	}
@@ -336,26 +390,46 @@ class CIBlockPropertyDateTime
 	 */
 	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
 	{
-		$fields["type"] = "date";
-		$fields["time"] = true;
-		$fields["filterable"] = "";
-		$fields["operators"] = array(
-			"default" => "=",
-			"exact" => "=",
-			"range" => "><",
-			"more" => ">",
-			"less" => "<"
-		);
+		$fields['type'] = 'date';
+		$fields['time'] = true;
+		$fields['filterable'] = '';
+		$fields['operators'] = [
+			'default' => '=',
+			'exact' => '=',
+			'range' => '><',
+			'more' => '>',
+			'less' => '<',
+		];
 	}
 
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
+		$culture = Context::getCurrent()->getCulture();
+
 		return [
 			'type' => ($settings['MULTIPLE'] === 'Y') ? 'multidatetime' : 'datetime',
 			'data' => [
 				'enableTime' => true,
-				'dateViewFormat' =>  \Bitrix\Main\Context::getCurrent()->getCulture()->getLongDateFormat().' '.\Bitrix\Main\Context::getCurrent()->getCulture()->getShortTimeFormat(),
+				'dateViewFormat' =>  $culture->getLongDateFormat() . ' ' . $culture->getShortTimeFormat(),
 			]
 		];
+	}
+
+	protected static function checkInternalFormatValue(string $value): bool
+	{
+		if ($value === '')
+		{
+			return false;
+		}
+
+		$correctValue = date_parse_from_format(self::FORMAT_FULL, $value);
+		if ($correctValue['warning_count'] === 0 && $correctValue['error_count'] === 0)
+		{
+			return true;
+		}
+
+		$correctValue = date_parse_from_format(self::FORMAT_SHORT, $value);
+
+		return ($correctValue['warning_count'] === 0 && $correctValue['error_count'] === 0);
 	}
 }

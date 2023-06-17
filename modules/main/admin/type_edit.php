@@ -35,7 +35,7 @@ $arLangs = array();
 $db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->GetNext())
 {
-	do 
+	do
 	{
 		$arParams["LANGUAGE"][$res["LID"]] = $res;
 		$arLangs[$res["LID"]] = true;
@@ -43,13 +43,13 @@ if ($db_res && $res = $db_res->GetNext())
 	while ($res = $db_res->GetNext());
 }
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && $isAdmin && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
 	$_POST["EVENT_NAME"] = trim($_POST["EVENT_NAME"]);
 
 	$res = array();
 	$DB->StartTransaction();
-	if($_POST["EVENT_NAME"] <> '')
+	if (!empty($_POST["EVENT_NAME"]))
 	{
 		$db_res = CEventType::GetListEx(array(), array("EVENT_NAME" => $_POST["EVENT_NAME"]), array("type" => "full"));
 		if(!($db_res) || !($res = $db_res->Fetch()))
@@ -57,20 +57,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 			$res["EVENT_NAME"] = $_POST["EVENT_NAME"];
 		}
 	}
-	
+
 	foreach ($arParams["LANGUAGE"] as $idLang => $arLang)
 	{
 		$arType = array(
-			"ID" => $_POST["FIELDS"][$idLang]["ID"],
-			"SORT" => $_POST["FIELDS"][$idLang]["SORT"],
-			"NAME" => $_POST["FIELDS"][$idLang]["NAME"],
-			"DESCRIPTION" => $_POST["FIELDS"][$idLang]["DESCRIPTION"],
+			"ID" => $_POST["FIELDS"][$idLang]["ID"] ?? '',
+			"SORT" => $_POST["FIELDS"][$idLang]["SORT"] ?? '',
+			"NAME" => $_POST["FIELDS"][$idLang]["NAME"] ?? '',
+			"DESCRIPTION" => $_POST["FIELDS"][$idLang]["DESCRIPTION"] ?? '',
 			"LID" => $idLang,
-			"EVENT_NAME" => $res["EVENT_NAME"],
-			"EVENT_TYPE" => ($_POST["EVENT_TYPE"] == EventTypeTable::TYPE_SMS? EventTypeTable::TYPE_SMS : EventTypeTable::TYPE_EMAIL),
+			"EVENT_NAME" => $res["EVENT_NAME"] ?? '',
+			"EVENT_TYPE" => (isset($_POST["EVENT_TYPE"]) && $_POST["EVENT_TYPE"] == EventTypeTable::TYPE_SMS? EventTypeTable::TYPE_SMS : EventTypeTable::TYPE_EMAIL),
 		);
 		$admList = new CAdminList("dummy");
-		if ($admList->IsUpdated($idLang) && $_REQUEST[$idLang] == "Y")
+		if ($admList->IsUpdated($idLang) && isset($_REQUEST[$idLang]) && $_REQUEST[$idLang] == "Y")
 		{
 			if ((intval($arType["ID"]) > 0 && (!CEventType::Update(array("ID" => $arType["ID"]), $arType))) ||
 				((intval($arType["ID"]) <= 0) && !CEventType::Add($arType)))
@@ -78,10 +78,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 				$bVarsFromForm = true;
 			}
 		}
-		if ($_REQUEST[$idLang] != "Y")
+		if (!isset($_REQUEST[$idLang]) || $_REQUEST[$idLang] != "Y")
 		{
 			unset($arLangs[$idLang]);
-			
+
 			if (intval($arType["ID"]) > 0)
 			{
 				if (!CEventType::Delete(array("ID" => $arType["ID"])))
@@ -91,14 +91,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		if ($bVarsFromForm)
 			break;
 	}
-	
+
 	if (empty($arLangs))
 	{
 		$arMsg = array();
 		if ($res["EVENT_NAME"] == '')
 			$arMsg[] = array("id" => "EVENT_NAME_EMPTY", "text" => GetMessage("EVENT_NAME_EMPTY"));
 		$arMsg[] = array("id" => "LID_EMPTY", "text" => GetMessage("ERROR_LANG_EMPTY"));
-		
+
 		$e = new CAdminException($arMsg);
 		$APPLICATION->ThrowException($e);
 		$bVarsFromForm = true;
@@ -107,10 +107,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	{
 		$DB->Rollback();
 	}
-	else 
+	else
 	{
 		$DB->Commit();
-		if ($_POST["save"] <> '')
+		if (!empty($_POST["save"]))
 			LocalRedirect(BX_ROOT."/admin/type_admin.php?lang=".LANGUAGE_ID);
 		else
 			LocalRedirect(BX_ROOT."/admin/type_edit.php?EVENT_NAME=".$res["EVENT_NAME"]."&lang=".LANGUAGE_ID);
@@ -119,7 +119,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 if ($bVarsFromForm && ($e = $APPLICATION->GetException()))
 	$message = new CAdminMessage(GetMessage("MAIN_ERROR_SAVING"), $e);
 
-$arParams["EVENT_NAME"] = $_REQUEST["EVENT_NAME"];
+$arParams["EVENT_NAME"] = $_REQUEST["EVENT_NAME"] ?? '';
 
 if ($arParams["EVENT_NAME"] <> '')
 {
@@ -140,7 +140,7 @@ if ($arParams["EVENT_NAME"] <> '')
 $aTabs = array(array("DIV" => "edit1", "TAB" => GetMessage("EVENT_NAME_TITLE"), "ICON" => "mail", "TITLE" => GetMessage("EVENT_NAME_DESCR1")));
 if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL)
 	$aTabs[] = array("DIV" => "edit2", "TAB" => GetMessage("TEMPLATES_TITLE"), "ICON" => "mail", "TITLE" => GetMessage("TEMPLATES_DESCR"));
-	
+
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 if ($bVarsFromForm)
@@ -161,7 +161,7 @@ if ($arParams["ACTION"]=="ADD")
 				"LINK"	=> "/bitrix/admin/type_admin.php?lang=".LANGUAGE_ID,
 				"TITLE"	=> GetMessage("RECORD_LIST_TITLE"),
 				"ICON"	=> "btn_list"
-			), 
+			),
 		)
 	);
 }
@@ -175,7 +175,7 @@ else
 				"LINK"	=> "/bitrix/admin/type_admin.php?lang=".LANGUAGE_ID,
 				"TITLE"	=> GetMessage("RECORD_LIST_TITLE"),
 				"ICON"	=> "btn_list"
-			), 
+			),
 			array(
 				"TEXT"	=> GetMessage("MAIN_NEW_RECORD"),
 				"LINK"	=> "/bitrix/admin/type_edit.php?lang=".LANGUAGE_ID,
@@ -211,7 +211,7 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 	<?if ($arParams["ACTION"] == "ADD"):?>
 		<input type="text" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>" size="50">
 	<?else:?>
-		<input type="hidden" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>"> 
+		<input type="hidden" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>">
 		<?=$arParams["EVENT_NAME"]?>
 	<?endif;?>
 	</td>
@@ -220,8 +220,8 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 	<td><?echo GetMessage("type_edit_event_type")?></td>
 	<td>
 		<select name="EVENT_TYPE">
-			<option value="<?=EventTypeTable::TYPE_EMAIL?>"<?if($arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL) echo " selected"?>><?echo GetMessage("type_edit_event_type_email")?></option>
-			<option value="<?=EventTypeTable::TYPE_SMS?>"<?if($arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_SMS) echo " selected"?>><?echo GetMessage("type_edit_event_type_sms")?></option>
+			<option value="<?=EventTypeTable::TYPE_EMAIL?>"<?if(isset($arParams["DATA"]["EVENT_TYPE"]) && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL) echo " selected"?>><?echo GetMessage("type_edit_event_type_email")?></option>
+			<option value="<?=EventTypeTable::TYPE_SMS?>"<?if(isset($arParams["DATA"]["EVENT_TYPE"]) && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_SMS) echo " selected"?>><?echo GetMessage("type_edit_event_type_sms")?></option>
 		</select>
 	</td>
 </tr>
@@ -231,39 +231,39 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 <tr class="heading">
 	<td colspan="2">
 		<input type="hidden" name="<?=$idLang?>" value="N">
-		<input type="checkbox" id="box_<?=$idLang?>" name="<?=$idLang?>" <?=($arParams["DATA"][$idLang]["ID"] <> '' && $_REQUEST[$idLang] <> "N" || $_REQUEST[$idLang] == "Y" || $arParams["EVENT_NAME"] == ''? " checked" : "")?> value="Y">
+		<input type="checkbox" id="box_<?=$idLang?>" name="<?=$idLang?>" <?=(!empty($arParams["DATA"][$idLang]["ID"]) && (!isset($_REQUEST[$idLang]) || $_REQUEST[$idLang] <> "N") || (isset($_REQUEST[$idLang]) && $_REQUEST[$idLang] == "Y") || empty($arParams["EVENT_NAME"])? " checked" : "")?> value="Y">
 		<label for="box_<?=$idLang?>" >[<?=$arLang["ID"]?>] <?=$arLang["NAME"]?></label></td>
 </tr>
-<?if ($arParams["DATA"][$arLang["ID"]]["ID"] > 0):?>
+<?if (isset($arParams["DATA"][$arLang["ID"]]["ID"]) && $arParams["DATA"][$arLang["ID"]]["ID"] > 0):?>
 <tr><td>ID:</td><td>
 <?=htmlspecialcharsEx($arParams["DATA"][$arLang["ID"]]["ID"])?>
-<input type="hidden" name="FIELDS[<?=$arLang["ID"]?>][ID]" value="<?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["ID"])?>">
+<input type="hidden" name="FIELDS[<?=$arLang["ID"]?>][ID]" value="<?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["ID"] ?? '')?>">
 </td></tr>
 <?endif;?>
 <tr>
 	<td><?=GetMessage("EVENT_SORT_LANG")?>:</td>
 	<td>
-		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][SORT]" value="<?=(int)$arParams["DATA_OLD"][$arLang["ID"]]["SORT"]?>">
-		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][SORT]" value="<?=(int)($arParams["DATA"][$arLang["ID"]]["SORT"] ?: "150")?>">
+		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][SORT]" value="<?=(int)($arParams["DATA_OLD"][$arLang["ID"]]["SORT"] ?? 0)?>">
+		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][SORT]" value="<?=(isset($arParams["DATA"][$arLang["ID"]]["SORT"]) ? (int)$arParams["DATA"][$arLang["ID"]]["SORT"]: "150")?>">
 	</td>
 </tr>
 <tr>
 	<td><?=GetMessage("EVENT_NAME_LANG")?>:</td>
 	<td>
-		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsbx($arParams["DATA_OLD"][$arLang["ID"]]["NAME"])?>">
-		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["NAME"])?>" style="width:100%;">
+		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsbx($arParams["DATA_OLD"][$arLang["ID"]]["NAME"] ?? '')?>">
+		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["NAME"] ?? '')?>" style="width:100%;">
 	</td>
 </tr>
 <tr>
 	<td class="adm-detail-valign-top"><?=GetMessage("EVENT_DESCR_LANG")?>:</td>
 	<td>
-		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][DESCRIPTION]" value="<?=htmlspecialcharsbx($arParams["DATA_OLD"][$arLang["ID"]]["DESCRIPTION"])?>">
-		<textarea name="FIELDS[<?=$arLang["ID"]?>][DESCRIPTION]" style="width:100%;" rows="10"><?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["DESCRIPTION"])?></textarea>
+		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][DESCRIPTION]" value="<?=htmlspecialcharsbx($arParams["DATA_OLD"][$arLang["ID"]]["DESCRIPTION"] ?? '')?>">
+		<textarea name="FIELDS[<?=$arLang["ID"]?>][DESCRIPTION]" style="width:100%;" rows="10"><?=htmlspecialcharsbx($arParams["DATA"][$arLang["ID"]]["DESCRIPTION"] ?? '')?></textarea>
 	</td>
 </tr>
 <?endforeach;?>
 <?
-if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL):
+if ($arParams["ACTION"] == "UPDATE" && isset($arParams["DATA"]["EVENT_TYPE"]) && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL):
 	$tabControl->BeginNextTab();
 ?>
 <tr>
@@ -297,12 +297,12 @@ $tabControl->End();
 </form>
 <?
 $tabControl->ShowWarnings(
-	"form1", $message, 
+	"form1", $message,
 	array(
-		"EVENT_NAME_EMPTY" => "EVENT_NAME", 
+		"EVENT_NAME_EMPTY" => "EVENT_NAME",
 		"LID_EMPTY" => "LID",
-		"EVENT_NAME_EXIST" => "EVENT_NAME", 
-		"EVENT_ID_EMPTY" => "EVENT_NAME", 
+		"EVENT_NAME_EXIST" => "EVENT_NAME",
+		"EVENT_ID_EMPTY" => "EVENT_NAME",
 	)
 );
 ?>

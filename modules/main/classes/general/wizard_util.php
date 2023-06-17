@@ -437,7 +437,7 @@ class CWizardUtil
 		if (function_exists("gd_info"))
 		{
 			$arGDInfo = gd_info();
-			$bGD2 = ((mb_strpos($arGDInfo['GD Version'], "2.") !== false) ? true : false);
+			$bGD2 = strpos($arGDInfo['GD Version'], "2.") !== false;
 		}
 
 		//Create Preview

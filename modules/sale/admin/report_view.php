@@ -12,7 +12,7 @@ IncludeModuleLangFile(__FILE__);
 
 if(!CBXFeatures::IsFeatureEnabled('SaleReports'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -119,7 +119,7 @@ if (!$fCriticalError)
 								'ROWS_PER_PAGE' => $arParams['ROWS_PER_PAGE'],
 								'NAV_TEMPLATE' => $arParams['NAV_TEMPLATE'],
 								'F_SALE_SITE' => $arParams['F_SALE_SITE'],
-								'F_SALE_PRODUCT' => $arParams['F_SALE_PRODUCT'],
+								'F_SALE_PRODUCT' => $arParams['F_SALE_PRODUCT'] ?? '',
 								'USE_CHART' => $arParams['USE_CHART'],
 								'USER_NAME_FORMAT' => $arParams['USER_NAME_FORMAT'],
 								'SHOW_EDIT_BUTTON' => $arParams['SHOW_EDIT_BUTTON'],

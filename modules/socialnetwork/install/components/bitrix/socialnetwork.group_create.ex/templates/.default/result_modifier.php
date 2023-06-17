@@ -101,7 +101,7 @@ switch ($arResult['preset'])
 
 $arResult['POST']['IMAGE_SRC'] = '';
 
-if ((int)$arResult['POST']['IMAGE_ID'] > 0)
+if ((int) ($arResult['POST']['IMAGE_ID'] ?? 0) > 0)
 {
 	if ($fileTmp = \CFile::resizeImageGet(
 		(int)$arResult['POST']['IMAGE_ID'],

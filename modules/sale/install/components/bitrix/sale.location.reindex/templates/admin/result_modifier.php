@@ -1,31 +1,36 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
 
 $smthSelected = false;
-if(is_array($arResult['TYPES']))
+if (!empty($arResult['TYPES']) && is_array($arResult['TYPES']))
 {
 	foreach($arResult['TYPES'] as $type)
 	{
-		if($type['SELECTED'])
+		if ($type['SELECTED'])
 		{
 			$smthSelected = true;
 			break;
 		}
 	}
 }
-if(!$smthSelected)
-	$arResult['TYPES_UNSELECTED'] = true;
+$arResult['TYPES_UNSELECTED'] = !$smthSelected;
 
 $smthSelected = false;
-if(is_array($arResult['LANGS']))
+if (!empty($arResult['LANGS']) && is_array($arResult['LANGS']))
 {
 	foreach($arResult['LANGS'] as $lang)
 	{
-		if($lang['SELECTED'])
+		if ($lang['SELECTED'])
 		{
 			$smthSelected = true;
 			break;
 		}
 	}
 }
-if(!$smthSelected)
-	$arResult['LANGS_UNSELECTED'] = true;
+$arResult['LANGS_UNSELECTED'] = !$smthSelected;

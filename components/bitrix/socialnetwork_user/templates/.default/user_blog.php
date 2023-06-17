@@ -22,9 +22,9 @@ $APPLICATION->IncludeComponent(
 		"PATH_TO_DRAFT" => $arResult["PATH_TO_USER_BLOG_DRAFT"],
 		"PATH_TO_TAGS" => $arResult["PATH_TO_USER_BLOG_TAGS"],
 		"USER_ID" => $arResult["VARIABLES"]["user_id"],
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
-		"POST_VAR" => $arResult["ALIASES"]["post_id"],
+		"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"] ?? null,
+		"POST_VAR" => $arResult["ALIASES"]["post_id"] ?? null,
 		"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"],
 		"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 		"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
@@ -48,32 +48,38 @@ if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAd
 }
 
 $bType = "user";
-if(intval($arResult["VARIABLES"]["user_id"]) > 0 && $USER->GetID() == $arResult["VARIABLES"]["user_id"])
+if (intval($arResult["VARIABLES"]["user_id"]) > 0 && $USER->GetID() == $arResult["VARIABLES"]["user_id"])
 {
-	if($_REQUEST["forme"] == "Y")
+	if (($_REQUEST["forme"] ?? null) === "Y")
+	{
 		$bType = "forme";
-	elseif($_REQUEST["mine"] == "Y")
+	}
+	elseif (($_REQUEST["mine"] ?? null) === "Y")
+	{
 		$bType = "mine";
+	}
 	else
+	{
 		$bType = "all";
+	}
 }
 
 $livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
 
 $arLogParams = Array(
 	"ENTITY_TYPE" => "",
-	"USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"],
-	"GROUP_VAR" => $arParams["VARIABLE_ALIASES"]["group_id"],
+	"USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"] ?? null,
+	"GROUP_VAR" => $arParams["VARIABLE_ALIASES"]["group_id"] ?? null,
 	"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
 	"SET_TITLE" => "N",
 	"AUTH" => "Y",
 	"SET_NAV_CHAIN" => "N",
-	"PATH_TO_MESSAGES_CHAT" => $arParams["PM_URL"],
-	"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
+	"PATH_TO_MESSAGES_CHAT" => $arParams["PM_URL"] ?? null,
+	"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"] ?? null,
 	"PATH_TO_USER_BLOG_POST_IMPORTANT" => $arResult["PATH_TO_USER_BLOG_POST_IMPORTANT"],
 	"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
-	"PATH_TO_GROUP_PHOTO_SECTION" => $arParams["PARENT_COMPONENT_RESULT"]["PATH_TO_GROUP_PHOTO_SECTION"],
+	"PATH_TO_GROUP_PHOTO_SECTION" => $arParams["PARENT_COMPONENT_RESULT"]["PATH_TO_GROUP_PHOTO_SECTION"] ?? null,
 	"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"],
 	"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
 	"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arResult["DATE_TIME_FORMAT_WITHOUT_YEAR"],
@@ -110,8 +116,8 @@ $arLogParams = Array(
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
-	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? null,
+	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? null,
 	"USE_FOLLOW" => "Y"
 );
 if($bType == "all")

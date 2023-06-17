@@ -34,30 +34,39 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach($arID as $ID)
 	{
-		if($ID == '')
-			continue;
-
-		switch($_REQUEST['action'])
+		if ($ID == '')
 		{
-			case "reset":
-				CSaleDeliveryHandler::Reset($ID);
-			break;
-
-			case 'activate':
-				CSaleDeliveryHandler::Set($ID, array('ACTIVE' => 'Y'));
-			break;
-
-			case 'deactivate':
-				CSaleDeliveryHandler::Set($ID, array('ACTIVE' => 'N'));
-			break;
+			continue;
 		}
 
-		if ($bError) break;
+		switch ($_REQUEST['action'])
+		{
+			case "reset":
+				$bError = (CSaleDeliveryHandler::Reset($ID) === false);
+				break;
+
+			case 'activate':
+				$bError = (CSaleDeliveryHandler::Set($ID, array('ACTIVE' => 'Y')) === false);
+				break;
+
+			case 'deactivate':
+				$bError = (CSaleDeliveryHandler::Set($ID, array('ACTIVE' => 'N')) === false);
+				break;
+		}
+
+		if ($bError)
+		{
+			break;
+		}
 	}
 	if (!$bError)
+	{
 		$DB->Commit();
+	}
 	else
+	{
 		$DB->Rollback();
+	}
 }
 
 $arList = array();
@@ -285,7 +294,7 @@ else
 	echo '<br />';
 }
 
-echo '<a href="/bitrix/admin/settings.php?mid=sale&lang='.LANG.'&back_url_settings='.$APPLICATION->GetCurPage().'&tabControl_active_tab=edit5">'.GetMessage('SALE_DH_SHOP_ADDRESS_CHANGE').'</a>';
+echo '<a href="/bitrix/admin/settings.php?mid=sale&lang=' . LANGUAGE_ID . '&back_url_settings='.$APPLICATION->GetCurPage().'&tabControl_active_tab=edit5">'.GetMessage('SALE_DH_SHOP_ADDRESS_CHANGE').'</a>';
 
 echo EndNote();
 
@@ -323,9 +332,9 @@ echo '<li>'.GetMessage('SALE_DH_LOCATIONS_GROUP_STATS').': '.$numGroups.'</li>';
 
 echo '</ul>';
 
-echo '<a href="/bitrix/admin/sale_location_admin.php?lang='.LANG.'">'.GetMessage('SALE_DH_LOCATIONS_LINK').'</a>';
+echo '<a href="/bitrix/admin/sale_location_admin.php?lang=' . LANGUAGE_ID . '">'.GetMessage('SALE_DH_LOCATIONS_LINK').'</a>';
 echo '&nbsp;|&nbsp;';
-echo '<a href="/bitrix/admin/sale_location_import.php?lang='.LANG.'">'.GetMessage('SALE_DH_LOCATIONS_IMPORT_LINK').'</a>';
+echo '<a href="/bitrix/admin/sale_location_import.php?lang=' . LANGUAGE_ID . '">'.GetMessage('SALE_DH_LOCATIONS_IMPORT_LINK').'</a>';
 
 echo EndNote();
 

@@ -194,14 +194,13 @@ class PhotoUploader
 			"filename" => IO\Path::getName($data[$this->params['keyPhotoUrl']]),
 			"param_name" => 'file',
 		);
-		
+
 		$http = new HttpClient();
+
 		$boundary = md5(rand() . time());
-		
-		$file = $http->get($postParams["url"]);
-		
-		$request = '';
-		$request .= '--' . $boundary . "\r\n";
+		$file = $this->getFile($postParams["url"]);
+
+		$request = '--' . $boundary . "\r\n";
 		$request .= 'Content-Disposition: form-data; name="' . $postParams["param_name"] . '"; filename="' . $postParams["filename"] . '"' . "\r\n";
 		$request .= 'Content-Type: application/octet-stream' . "\r\n\r\n";
 		$request .= $file . "\r\n";
@@ -239,6 +238,13 @@ class PhotoUploader
 		}
 		
 		return $result;
+	}
+
+	private function getFile(string $url)
+	{
+		$http = new HttpClient();
+
+		return $http->get($url);
 	}
 	
 	

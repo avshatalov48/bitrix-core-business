@@ -1,32 +1,31 @@
-import {Loc} from 'main.core';
+import {Loc, Type} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 
-import {ChatTypes, EventType, OpenTarget, ChatOption} from 'im.v2.const';
+import {Core} from 'im.v2.application.core';
+import {DialogType, EventType, OpenTarget} from 'im.v2.const';
+import {CallManager} from 'im.v2.lib.call';
+import {ChatService, RecentService} from 'im.v2.provider.service';
+import {Utils} from 'im.v2.lib.utils';
+import {Messenger} from 'im.public';
 
 import {BaseMenu} from '../base/base';
-import {PinManager} from './pin-manager';
-import {UnreadManager} from './unread-manager';
-import {MuteManager} from './mute-manager';
 import {InviteManager} from './invite-manager';
-import {CallHelper} from './call-helper';
+
+import type {MenuItem} from 'im.v2.lib.menu';
 
 export class RecentMenu extends BaseMenu
 {
-	pinManager: Object = null;
-	unreadManager: Object = null;
-	muteManager: Object = null;
-	callHelper: Object = null;
+	callManager: CallManager;
+	chatService: ChatService;
 
-	constructor($Bitrix)
+	constructor()
 	{
-		super($Bitrix);
+		super();
 
 		this.id = 'im-recent-context-menu';
-		this.pinManager = new PinManager($Bitrix);
-		this.unreadManager = new UnreadManager($Bitrix);
-		this.muteManager = new MuteManager($Bitrix);
-		this.callHelper = new CallHelper($Bitrix);
+		this.callManager = CallManager.getInstance();
+		this.chatService = new ChatService();
 	}
 
 	getMenuOptions(): Object
@@ -39,12 +38,12 @@ export class RecentMenu extends BaseMenu
 		};
 	}
 
-	getMenuClassName(): String
+	getMenuClassName(): string
 	{
 		return this.context.compactMode ? '' : super.getMenuClassName();
 	}
 
-	getMenuItems(): Array
+	getMenuItems(): MenuItem[]
 	{
 		if (this.context.invitation.isActive)
 		{
@@ -57,154 +56,120 @@ export class RecentMenu extends BaseMenu
 			this.getPinMessageItem(),
 			this.getMuteItem(),
 			this.getCallItem(),
-			this.getHistoryItem(),
+			// this.getHistoryItem(),
 			this.getOpenProfileItem(),
 			this.getHideItem(),
 			this.getLeaveItem()
 		];
 	}
 
-	getSendMessageItem(): Object
+	getSendMessageItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_WRITE'),
-			onclick: function() {
-				const target = this.context.target === OpenTarget.current? OpenTarget.current: OpenTarget.auto;
-
-				EventEmitter.emit(EventType.dialog.open, {
-					...this.context,
-					chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
-					user: this.store.getters['users/get'](this.context.dialogId, true),
-					target
-				});
+			text: Loc.getMessage('IM_LIB_MENU_WRITE'),
+			onclick: () => {
+				Messenger.openChat(this.context.dialogId);
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getUnreadMessageItem(): Object
+	getUnreadMessageItem(): MenuItem
 	{
-		let isUnreaded = this.context.unread;
-		if (!isUnreaded)
-		{
-			const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-			isUnreaded = dialog.counter > 0;
-		}
+		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+		const showReadOption = this.context.unread || dialog.counter > 0;
 
 		return {
-			text: isUnreaded ? Loc.getMessage('IM_RECENT_CONTEXT_MENU_READ') : Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNREAD'),
-			onclick: function() {
-				if (isUnreaded)
+			text: showReadOption ? Loc.getMessage('IM_LIB_MENU_READ') : Loc.getMessage('IM_LIB_MENU_UNREAD'),
+			onclick: () => {
+				if (showReadOption)
 				{
-					this.unreadManager.readDialog(this.context.dialogId);
+					this.chatService.readDialog(this.context.dialogId);
 				}
 				else
 				{
-					this.unreadManager.unreadDialog(this.context.dialogId);
+					this.chatService.unreadDialog(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getPinMessageItem(): Object
+	getPinMessageItem(): MenuItem
 	{
 		const isPinned = this.context.pinned;
 
 		return {
-			text: isPinned ? Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNPIN') : Loc.getMessage('IM_RECENT_CONTEXT_MENU_PIN'),
-			onclick: function() {
+			text: isPinned ? Loc.getMessage('IM_LIB_MENU_UNPIN') : Loc.getMessage('IM_LIB_MENU_PIN'),
+			onclick: () => {
 				if (isPinned)
 				{
-					this.pinManager.unpinDialog(this.context.dialogId);
+					this.chatService.unpinChat(this.context.dialogId);
 				}
 				else
 				{
-					this.pinManager.pinDialog(this.context.dialogId);
+					this.chatService.pinChat(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getMuteItem(): ?Object
+	getMuteItem(): ?MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-		const isUser = dialog.type === ChatTypes.user;
-		const isAnnouncement = dialog.type === ChatTypes.announcement;
-		if (!dialog || isUser || isAnnouncement)
+		const canMute = this.store.getters['dialogues/canMute'](this.context.dialogId);
+		if (!canMute)
 		{
 			return null;
 		}
 
-		const muteAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, ChatOption.mute);
-		if (!muteAllowed)
-		{
-			return null;
-		}
-
-		const isMuted = dialog.muteList.includes(this.getCurrentUserId());
+		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+		const isMuted = dialog.muteList.includes(Core.getUserId());
 		return {
-			text: isMuted? Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNMUTE') : Loc.getMessage('IM_RECENT_CONTEXT_MENU_MUTE'),
-			onclick: function() {
+			text: isMuted? Loc.getMessage('IM_LIB_MENU_UNMUTE') : Loc.getMessage('IM_LIB_MENU_MUTE'),
+			onclick: () => {
 				if (isMuted)
 				{
-					this.muteManager.unmuteDialog(this.context.dialogId);
+					this.chatService.unmuteChat(this.context.dialogId);
 				}
 				else
 				{
-					this.muteManager.muteDialog(this.context.dialogId);
+					this.chatService.muteChat(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getCallItem(): ?Object
+	getCallItem(): ?MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-		if (!dialog)
-		{
-			return null;
-		}
-
-		const isChat = dialog.type !== ChatTypes.user;
-		const callAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, ChatOption.call);
-		if (isChat && !callAllowed)
-		{
-			return null;
-		}
-
-		const callSupport = this.callHelper.checkCallSupport(this.context.dialogId);
-		const isAnnouncement = dialog.type === ChatTypes.announcement;
-		const isExternalTelephonyCall = dialog.type === ChatTypes.call;
-		const hasActiveCall = this.callHelper.hasActiveCall();
-		if (!callSupport || isAnnouncement || isExternalTelephonyCall || hasActiveCall)
+		const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
+		if (!chatCanBeCalled)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_CALL'),
-			onclick: function() {
-				EventEmitter.emit(EventType.dialog.call, this.context);
+			text: Loc.getMessage('IM_LIB_MENU_CALL'),
+			onclick: () => {
+				this.callManager.startCall(this.context.dialogId);
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getHistoryItem(): ?Object
+	getHistoryItem(): ?MenuItem
 	{
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-		const isUser = dialog.type === ChatTypes.user;
+		const isUser = dialog.type === DialogType.user;
 		if (isUser)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_HISTORY'),
-			onclick: function() {
+			text: Loc.getMessage('IM_LIB_MENU_OPEN_HISTORY'),
+			onclick: () => {
 				const target = this.context.target === OpenTarget.current? OpenTarget.current: OpenTarget.auto;
 
 				EventEmitter.emit(EventType.dialog.openHistory, {
@@ -214,87 +179,60 @@ export class RecentMenu extends BaseMenu
 					target
 				});
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getOpenProfileItem(): ?Object
+	getOpenProfileItem(): ?MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-		const isUser = dialog.type === ChatTypes.user;
+		const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
 		if (!isUser)
 		{
 			return null;
 		}
 
-		const profileUri = `/company/personal/user/${this.context.dialogId}/`;
+		const profileUri = Utils.user.getProfileLink(this.context.dialogId);
 
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_PROFILE'),
+			text: Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE'),
 			href: profileUri,
-			onclick: function() {
+			onclick: () => {
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getHideItem(): ?Object
+	getHideItem(): ?MenuItem
 	{
-		if (this.context.invitation.isActive || this.context.options.default_user_record)
+		if (this.context.invitation?.isActive || this.context.options?.default_user_record)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_HIDE'),
-			onclick: function() {
-				EventEmitter.emit(EventType.dialog.hide, {
-					...this.context,
-					chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
-					user: this.store.getters['users/get'](this.context.dialogId, true)
-				});
+			text: Loc.getMessage('IM_LIB_MENU_HIDE'),
+			onclick: () => {
+				RecentService.getInstance().hideChat(this.context.dialogId);
+
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getLeaveItem(): ?Object
+	getLeaveItem(): ?MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-		if (!dialog)
-		{
-			return null;
-		}
-
-		const isUser = dialog.type === ChatTypes.user;
-		if (isUser)
-		{
-			return null;
-		}
-
-		let optionToCheck = ChatOption.leave;
-		if (dialog.owner === this.getCurrentUserId())
-		{
-			optionToCheck = ChatOption.leaveOwner;
-		}
-		const leaveAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
-
-		const isExternalTelephonyCall = dialog.type === ChatTypes.call;
-		if (isExternalTelephonyCall || !leaveAllowed)
+		const canLeaveChat = this.store.getters['dialogues/canLeave'](this.context.dialogId);
+		if (!canLeaveChat)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_LEAVE'),
-			onclick: function() {
-				EventEmitter.emit(EventType.dialog.leave, {
-					...this.context,
-					chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
-					user: this.store.getters['users/get'](this.context.dialogId, true)
-				});
+			text: Loc.getMessage('IM_LIB_MENU_LEAVE'),
+			onclick: () => {
+				this.chatService.leaveChat(this.context.dialogId);
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
@@ -306,7 +244,18 @@ export class RecentMenu extends BaseMenu
 			this.getOpenProfileItem()
 		];
 
-		const canManageInvite = BX.MessengerProxy.canInvite() && this.getCurrentUserId() === this.context.invitation.originator;
+		let canInvite; // TODO change to APPLICATION variable
+		if (Type.isUndefined(BX.MessengerProxy))
+		{
+			canInvite = true;
+			console.error('BX.MessengerProxy.canInvite() method not found in v2 version!');
+		}
+		else
+		{
+			canInvite = BX.MessengerProxy.canInvite();
+		}
+
+		const canManageInvite = canInvite && Core.getUserId() === this.context.invitation.originator;
 		if (canManageInvite)
 		{
 			items.push(
@@ -319,24 +268,24 @@ export class RecentMenu extends BaseMenu
 		return items;
 	}
 
-	getResendInviteItem(): Object
+	getResendInviteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_RESEND'),
-			onclick: function() {
+			text: Loc.getMessage('IM_LIB_MENU_INVITE_RESEND'),
+			onclick: () => {
 				InviteManager.resendInvite(this.context.dialogId);
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 
-	getCancelInviteItem(): Object
+	getCancelInviteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_CANCEL'),
-			onclick: function() {
+			text: Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL'),
+			onclick: () => {
 				MessageBox.show({
-					message: Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_CANCEL_CONFIRM'),
+					message: Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL_CONFIRM'),
 					modal: true,
 					buttons: MessageBoxButtons.OK_CANCEL,
 					onOk: (messageBox) => {
@@ -348,7 +297,7 @@ export class RecentMenu extends BaseMenu
 					}
 				});
 				this.menuInstance.close();
-			}.bind(this)
+			}
 		};
 	}
 	// invitation end
@@ -356,10 +305,5 @@ export class RecentMenu extends BaseMenu
 	getDelimiter(): Object
 	{
 		return {delimiter: true};
-	}
-
-	getCurrentUserId(): number
-	{
-		return this.store.state.application.common.userId;
 	}
 }

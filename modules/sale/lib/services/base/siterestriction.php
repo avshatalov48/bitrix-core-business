@@ -13,7 +13,7 @@ Loc::loadMessages(__FILE__);
  * Class SiteRestriction
  * @package Bitrix\Sale\Services\Base
  */
-abstract class SiteRestriction extends Base
+abstract class SiteRestriction extends Restriction
 {
 	/**
 	 * @return string
@@ -29,6 +29,11 @@ abstract class SiteRestriction extends Base
 	public static function getClassDescription()
 	{
 		return Loc::getMessage("SALE_RV_RSTR_BY_SITE_DESCRIPT");
+	}
+
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_SRV_RSTR_BY_SITE_ON_APPLY_ERROR_MSG');
 	}
 
 	/**

@@ -222,6 +222,7 @@ class ConverterDocumentPayment extends Converter
 				case 'NUMBER':
 					$value = $traits['ID'];
 					break;
+				case 'TIME':
 				case 'DATE':
 					$value = $traits['DATE_BILL'];
 					break;
@@ -247,14 +248,11 @@ class ConverterDocumentPayment extends Converter
 				case 'NUMBER_BASE':// ?????
 					$value = $traits['ORDER_ID'];
 					break;
-				case 'TIME':
-					$value = $traits['DATE_BILL'];
-					break;
 				case 'COMMENT':
 					$value = $traits['COMMENTS'];
 					break;
 				case 'CASH_BOX_CHECKS':
-					if(count($checks)>0)
+					if (!empty($checks))
 					{
 						$value = $this->externalizeCashBoxChecksFields(current($checks), $v);
 					}

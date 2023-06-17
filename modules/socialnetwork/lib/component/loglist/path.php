@@ -6,6 +6,9 @@ use Bitrix\Main\Config\Option;
 
 class Path
 {
+	public $component = null;
+	public $request = null;
+
 	protected $folderUsers = '';
 	protected $folderWorkgroups = '';
 	protected $pathToUserBlogPost = '';

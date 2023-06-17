@@ -45,7 +45,7 @@ foreach ($arParams['WIDGETS'] as $widget) :?>
 				<div
 					class="openlines-style-circle g-cursor-pointer g-pointer-events-none--edit-mode <?= $widget['classList'] ?>"
 					target="_blank"
-					onclick="<?= $widget['show']['js']['desktop'] ?>"
+					onclick='<?= $widget['show']['js']['desktop'] ?>'
 				>
 				</div>
 			<?php endif; ?>

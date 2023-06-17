@@ -226,6 +226,10 @@
 			inputNode.value = value;
 			this.container.appendChild(inputNode);
 			BX.fireEvent(inputNode, "change");
+			BX.Event.EventEmitter.emit(window, 'BX.Main.User.SelectorController:itemRendered', [{
+				selectorId: this.id,
+				value: value,
+			}]);
 		},
 		addInputs: function(list)
 		{

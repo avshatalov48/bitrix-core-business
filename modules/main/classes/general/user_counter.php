@@ -8,7 +8,7 @@ class CAllUserCounter
 	public const LIVEFEED_CODE = '**';
 	public const SYSTEM_USER_ID = 0;
 
-	protected static $counters = false;
+	protected static $counters = [];
 
 	public static function GetValue($user_id, $code, $site_id = SITE_ID)
 	{
@@ -283,7 +283,7 @@ class CAllUserCounter
 			AND (SITE_ID = '" . $site_id . "' OR SITE_ID = '" . self::ALL_SITES . "')";
 		$DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		self::$counters = false;
+		self::$counters = [];
 		$CACHE_MANAGER->CleanDir("user_counter");
 
 		if ($sendPull && self::CheckLiveMode())

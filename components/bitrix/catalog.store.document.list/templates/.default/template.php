@@ -22,9 +22,6 @@ global $APPLICATION;
 $title = Loc::getMessage('CATALOG_DOCUMENT_LIST_TITLE_' . mb_strtoupper($arResult['MODE']));
 $APPLICATION->SetTitle($title);
 
-$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'no-background');
-
 $this->setViewTarget('above_pagetitle');
 $APPLICATION->IncludeComponent(
 	'bitrix:catalog.store.document.control_panel',

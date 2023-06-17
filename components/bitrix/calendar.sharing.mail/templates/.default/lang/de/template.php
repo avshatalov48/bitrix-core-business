@@ -1,7 +1,7 @@
 <?php
-$MESS["CALENDAR_SHARING_MAIL_ADD_EVENT_TO_MY_CALENDAR"] = "Besprechung zu meinem Kalender hinzufügen";
+$MESS["CALENDAR_SHARING_MAIL_ADD_TO_CALENDAR"] = "Zum Kalender hinzufügen";
 $MESS["CALENDAR_SHARING_MAIL_CANCEL_EVENT"] = "Besprechung absagen";
-$MESS["CALENDAR_SHARING_MAIL_CONNECT_TO_VIDEOCONFERENCE"] = "Verbindung zur Videokonferenz herstellen";
-$MESS["CALENDAR_SHARING_MAIL_CREATE_NEW_EVENT"] = "Neue Besprechung hinzufügen";
-$MESS["CALENDAR_SHARING_MAIL_MORE_ATTENDEES"] = "Mehr Teilnehmer";
-$MESS["CALENDAR_SHARING_MAIL_YOU_INVITED"] = "Sie haben eingeladen";
+$MESS["CALENDAR_SHARING_MAIL_CREATE_NEW_MEETING"] = "Einen neuen Termin erstellen";
+$MESS["CALENDAR_SHARING_MAIL_FOOTER_LOGO_FREE_SITES_AND_CRM"] = "Erstellt mit <b>Bitrix24</b> - Kostenlose <#TAG# style=\"#STYLE#\" href=\"#HREF#\">Aufgaben und CRM</#TAG#>";
+$MESS["CALENDAR_SHARING_MAIL_FOOTER_REPORT"] = "Wenn Sie einen Link zu den Zeitfenstern erhalten, ihn aber nicht erwartet haben, bitte <a class=\"#CLASS#\" href=\"#HREF#\">melden Sie das</a>";
+$MESS["CALENDAR_SHARING_MAIL_WHO_CANCELLED"] = "Abgesagt von: #NAME#";

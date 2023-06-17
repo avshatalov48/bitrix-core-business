@@ -107,6 +107,8 @@ class UserTagTable extends Entity\DataManager
 				: false
 		);
 
+		$params['tagName'] = $params['tagName'] ?? null;
+
 		$tagName = (
 			(is_array($params['tagName']) && !empty($params['tagName']))
 			|| (!is_array($params['tagName']) && $params['tagName'] <> '')
@@ -176,6 +178,8 @@ class UserTagTable extends Entity\DataManager
 		$connection = \Bitrix\Main\Application::getConnection();
 		$connection->queryExecute('SET @user_rank = 0');
 		$connection->queryExecute('SET @current_entity_id = 0');
+
+		$params['tagName'] = $params['tagName'] ?? null;
 
 		$tagName = (
 			(is_array($params['tagName']) && !empty($params['tagName']))

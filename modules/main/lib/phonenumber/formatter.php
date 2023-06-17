@@ -273,7 +273,7 @@ class Formatter
 			$countriesForCode = MetadataProvider::getInstance()->getCountriesByCode($countryCode);
 			$mainCountry = $countriesForCode[0];
 			$mainCountryMetadata = MetadataProvider::getInstance()->getCountryMetadata($mainCountry);
-			return isset($mainCountryMetadata['nationalPrefixFormattingRule']) ? $mainCountryMetadata['nationalPrefixFormattingRule'] : '';
+			return $mainCountryMetadata['nationalPrefixFormattingRule'] ?? '';
 		}
 	}
 
@@ -282,10 +282,7 @@ class Formatter
 	{
 		if(is_array($format) && isset($format['nationalPrefixOptionalWhenFormatting']))
 			return $format['nationalPrefixOptionalWhenFormatting'];
-		else if(isset($countryMetadata['nationalPrefixOptionalWhenFormatting']))
-			return $countryMetadata['nationalPrefixOptionalWhenFormatting'];
-		else
-			return false;
+		else return $countryMetadata['nationalPrefixOptionalWhenFormatting'] ?? false;
 	}
 
 	/**

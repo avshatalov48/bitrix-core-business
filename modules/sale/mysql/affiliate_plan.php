@@ -8,8 +8,22 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 	{
 		global $DB;
 
-		if (count($arSelectFields) <= 0)
-			$arSelectFields = array("ID", "SITE_ID", "NAME", "DESCRIPTION", "TIMESTAMP_X", "ACTIVE", "BASE_RATE", "BASE_RATE_TYPE", "BASE_RATE_CURRENCY", "MIN_PAY", "MIN_PLAN_VALUE");
+		if (empty($arSelectFields) || !is_array($arSelectFields))
+		{
+			$arSelectFields = [
+				'ID',
+				'SITE_ID',
+				'NAME',
+				'DESCRIPTION',
+				'TIMESTAMP_X',
+				'ACTIVE',
+				'BASE_RATE',
+				'BASE_RATE_TYPE',
+				'BASE_RATE_CURRENCY',
+				'MIN_PAY',
+				'MIN_PLAN_VALUE',
+			];
+		}
 
 		// FIELDS -->
 		$arFields = array(
@@ -39,7 +53,7 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
 
-		if (is_array($arGroupBy) && count($arGroupBy)==0)
+		if (empty($arGroupBy) && is_array($arGroupBy))
 		{
 			$strSql =
 				"SELECT ".$arSqls["SELECT"]." ".
@@ -50,8 +64,6 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
@@ -59,7 +71,7 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 				return False;
 		}
 
-		$strSql = 
+		$strSql =
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sale_affiliate_plan AP ".
 			"	".$arSqls["FROM"]." ";
@@ -70,7 +82,14 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
+		$topCount = 0;
+		$useNavParams = is_array($arNavStartParams);
+		if ($useNavParams && isset($arNavStartParams['nTopCount']))
+		{
+			$topCount = (int)$arNavStartParams['nTopCount'];
+		}
+
+		if ($useNavParams && $topCount <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
@@ -80,8 +99,6 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-
-			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -98,16 +115,14 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
-
-			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
+			if ($useNavParams && $topCount > 0)
+			{
+				$strSql .= 'LIMIT ' . $topCount;
+			}
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

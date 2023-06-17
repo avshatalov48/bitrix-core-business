@@ -38,7 +38,7 @@ class LastSearch
 		if (\Bitrix\Im\Common::isChatId($dialogId))
 		{
 			$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
-			$relations = Chat::getRelation($chatId);
+			$relations = Chat::getRelation($chatId, ['WITHOUT_COUNTERS' => 'Y']);
 			if (!$relations[$userId])
 			{
 				return false;
@@ -48,7 +48,7 @@ class LastSearch
 		}
 		else
 		{
-			$relations = \Bitrix\Im\Dialog::getRelation($userId, $dialogId);
+			$relations = \Bitrix\Im\Dialog::getRelation($userId, $dialogId, ['WITHOUT_COUNTERS' => 'Y']);
 			if (!$relations[$userId])
 			{
 				return false;

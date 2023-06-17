@@ -106,10 +106,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 
 				if ($saleModulePermissions >= "W")
 				{
-					$DB->StartTransaction();
-
 					if ($arDelAccount = CSaleUserAccount::GetByID($ID))
 					{
+						$DB->StartTransaction();
+
 						if (CSaleUserAccount::UpdateAccount($arDelAccount["USER_ID"], -$arDelAccount["CURRENT_BUDGET"], $arDelAccount["CURRENCY"], "DEL_ACCOUNT", 0))
 						{
 							if (!CSaleUserAccount::Delete($ID))
@@ -120,6 +120,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 									$lAdmin->AddGroupError($ex->GetString(), $ID);
 								else
 									$lAdmin->AddGroupError(str_replace("#ID#", $ID, GetMessage("SAA_ERROR_DELETE")), $ID);
+							}
+							else
+							{
+								$DB->Commit();
 							}
 						}
 						else
@@ -134,15 +138,11 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 					}
 					else
 					{
-						$DB->Rollback();
-
 						if ($ex = $APPLICATION->GetException())
 							$lAdmin->AddGroupError($ex->GetString(), $ID);
 						else
 							$lAdmin->AddGroupError(str_replace("#ID#", $ID, GetMessage("SAA_ERROR_GET")), $ID);
 					}
-
-					$DB->Commit();
 				}
 				else
 				{

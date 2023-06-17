@@ -26,20 +26,24 @@ if (!empty($arResult['CURRENCIES']))
 	$currencyList = CUtil::PhpToJSObject($arResult['CURRENCIES'], false, true, true);
 }
 
-$templateData = array(
+$haveOffers = !empty($arResult['OFFERS']);
+
+$templateData = [
 	'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
 	'TEMPLATE_LIBRARY' => $templateLibrary,
 	'CURRENCIES' => $currencyList,
-	'ITEM' => array(
+	'ITEM' => [
 		'ID' => $arResult['ID'],
 		'IBLOCK_ID' => $arResult['IBLOCK_ID'],
-		'OFFERS_SELECTED' => $arResult['OFFERS_SELECTED'],
-		'JS_OFFERS' => $arResult['JS_OFFERS']
-	)
-);
+	],
+];
+if ($haveOffers)
+{
+	$templateData['ITEM']['OFFERS_SELECTED'] = $arResult['OFFERS_SELECTED'];
+	$templateData['ITEM']['JS_OFFERS'] = $arResult['JS_OFFERS'];
+}
 unset($currencyList, $templateLibrary);
 
-$haveOffers = !empty($arResult['OFFERS']);
 $mainId = $this->GetEditAreaId($arResult['ID']);
 $itemIds = array(
 	'ID' => $mainId,

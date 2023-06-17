@@ -118,13 +118,9 @@ class EnumType extends BaseType
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
 		$values = [];
-		if(!$enum)
+		if ($enum)
 		{
-			$values = [];
-		}
-		else
-		{
-			while($item = $enum->GetNext())
+			while ($item = $enum->GetNext())
 			{
 				$values[$item['ID']] = $item['VALUE'];
 			}
@@ -148,10 +144,10 @@ class EnumType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$height = (int)$userField['SETTINGS']['LIST_HEIGHT'];
-		$display = $userField['SETTINGS']['DISPLAY'];
-		$caption_no_value = trim($userField['SETTINGS']['CAPTION_NO_VALUE']);
-		$show_no_value = ($userField['SETTINGS']['SHOW_NO_VALUE'] === 'N' ? 'N' : 'Y');
+		$height = (int)($userField['SETTINGS']['LIST_HEIGHT'] ?? 0);
+		$display = $userField['SETTINGS']['DISPLAY'] ?? '';
+		$caption_no_value = trim($userField['SETTINGS']['CAPTION_NO_VALUE'] ?? '');
+		$show_no_value = (isset($userField['SETTINGS']['SHOW_NO_VALUE']) && $userField['SETTINGS']['SHOW_NO_VALUE'] === 'N' ? 'N' : 'Y');
 
 		$displays = [
 			self::DISPLAY_CHECKBOX,
@@ -200,7 +196,7 @@ class EnumType extends BaseType
 		}
 
 		$val = array_filter($val, 'strlen');
-		if(count($val))
+		if(!empty($val))
 		{
 			$ob = new CUserFieldEnum();
 			$rs = $ob->GetList([], [
@@ -250,7 +246,7 @@ class EnumType extends BaseType
 	public static function getList(array $userField)
 	{
 		$userFieldEnum = new CUserFieldEnum();
-		return $userFieldEnum->GetList([], ['USER_FIELD_ID' => $userField['ID']]);
+		return $userFieldEnum->GetList([], ['USER_FIELD_ID' => $userField['ID'] ?? null]);
 	}
 
 	/**
@@ -260,9 +256,9 @@ class EnumType extends BaseType
 	public static function getEnumList(array &$userField, array $additionalParameters = []): void
 	{
 		$showNoValue = (
-			$userField['MANDATORY'] !== 'Y'
+			(!isset($userField['MANDATORY']) || $userField['MANDATORY'] !== 'Y')
 			||
-			$userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N'
+			(!isset($userField['SETTINGS']['SHOW_NO_VALUE']) || $userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N')
 			||
 			(
 				isset($additionalParameters['SHOW_NO_VALUE'])
@@ -275,9 +271,9 @@ class EnumType extends BaseType
 			$showNoValue
 			&&
 			(
-				$userField['SETTINGS']['DISPLAY'] !== 'CHECKBOX'
+				(!isset($userField['SETTINGS']['DISPLAY']) || $userField['SETTINGS']['DISPLAY'] !== 'CHECKBOX')
 				||
-				$userField['MULTIPLE'] !== 'Y'
+				(!isset($userField['MULTIPLE']) || $userField['MULTIPLE'] !== 'Y')
 			)
 		)
 		{
@@ -302,10 +298,11 @@ class EnumType extends BaseType
 	 */
 	public static function getEmptyCaption(array $userField): string
 	{
+		$message = ($userField['SETTINGS']['CAPTION_NO_VALUE'] ?? '');
 		return (
-		$userField['SETTINGS']['CAPTION_NO_VALUE'] != '' ?
-			HtmlFilter::encode($userField['SETTINGS']['CAPTION_NO_VALUE']) :
-			Loc::getMessage('USER_TYPE_ENUM_NO_VALUE')
+			$message !== ''
+				? HtmlFilter::encode($userField['SETTINGS']['CAPTION_NO_VALUE'])
+				: Loc::getMessage('USER_TYPE_ENUM_NO_VALUE')
 		);
 	}
 
@@ -424,7 +421,7 @@ class EnumType extends BaseType
 			}
 			else
 			{
-				$value = $userField['VALUE'];
+				$value = $userField['VALUE'] ?? null;
 			}
 		}
 		elseif(isset($additionalParameters['VALUE']))

@@ -179,6 +179,15 @@ else
 	<script type="text/javascript">
 		BX.ready(function() {
 			BX.Landing.Component.View.loadEditor();
+			let deviceCode = '<?= \CUtil::jsEscape($component->request('deviceCode'))?>';
+			if (deviceCode === 'mobile')
+			{
+				BX.Landing.UI.Panel.Top.getInstance().onMobileSizeChange();
+			}
+			else if (deviceCode === 'tablet')
+			{
+				BX.Landing.UI.Panel.Top.getInstance().onTabletSizeChange();
+			}
 		});
 	</script>
 	<div class="landing-ui-view-wrapper">

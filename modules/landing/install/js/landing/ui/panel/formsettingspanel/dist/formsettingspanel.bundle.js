@@ -17,6 +17,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var PHONE_VERIFY_FORM_ENTITY = 'crm_webform';
+	/**
+	 * @memberOf BX.Landing.UI.Panel
+	 */
 
 	var _phoneDoesntVerifiedResponseCode = /*#__PURE__*/new WeakMap();
 
@@ -24,9 +28,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	var _showPhoneVerifySlider = /*#__PURE__*/new WeakSet();
 
-	/**
-	 * @memberOf BX.Landing.UI.Panel
-	 */
 	var FormSettingsPanel = /*#__PURE__*/function (_BasePresetPanel) {
 	  babelHelpers.inherits(FormSettingsPanel, _BasePresetPanel);
 	  babelHelpers.createClass(FormSettingsPanel, null, [{
@@ -65,6 +66,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.setTitle(landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_TITLE'));
 
 	    _this.lsCache = new main_core.Cache.LocalStorageCache();
+	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-form-settings');
+
+	    _this.subscribe('onCancel', function () {
+	      BX.onCustomEvent(babelHelpers.assertThisInitialized(_this), 'BX.Landing.Block:onFormSettingsClose', [_this.getCurrentBlock().id]);
+	    });
 
 	    _this.disableOverlay();
 
@@ -554,6 +560,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	          landing_pageobject.PageObject.getEditorWindow().scrollTo(0, y);
 	        }, 300);
+	        BX.onCustomEvent(_this10, 'BX.Landing.Block:onFormSettingsOpen', [_this10.getCurrentBlock().id]);
 	        return Promise.resolve(true);
 	      });
 	    }
@@ -1159,6 +1166,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this20 = this;
 
 	      var dictionary = this.getFormDictionary();
+	      BX.onCustomEvent(this, 'BX.Landing.Block:onFormSave', [this.getCurrentBlock().id]);
 
 	      if (main_core.Type.isPlainObject(dictionary.permissions) && main_core.Type.isPlainObject(dictionary.permissions.form) && dictionary.permissions.form.edit === false) {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
@@ -1222,6 +1230,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 
 	          void crm_form_client.FormClient.getInstance().saveOptions(options).then(function (result) {
+	            BX.onCustomEvent(_this20, 'BX.Landing.Block:onAfterFormSave', [_this20.getCurrentBlock().id]);
+
 	            _this20.setFormOptions(result);
 
 	            _this20.setInitialFormOptions(result);
@@ -1365,8 +1375,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function _showPhoneVerifySlider2() {
-	  if (main_core.Type.isObject(bitrix24_phoneverify.PhoneVerify)) {
-	    bitrix24_phoneverify.PhoneVerify.setVerified(false).showSlider();
+	  if (typeof bitrix24_phoneverify.PhoneVerify !== 'undefined') {
+	    bitrix24_phoneverify.PhoneVerify.getInstance().setEntityType(PHONE_VERIFY_FORM_ENTITY).setEntityId(this.getCurrentFormId()).startVerify({
+	      sliderTitle: landing_loc.Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'),
+	      title: landing_loc.Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_TITLE'),
+	      description: landing_loc.Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_DESCRIPTION')
+	    });
 	  }
 	}
 

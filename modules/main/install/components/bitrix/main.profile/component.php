@@ -334,7 +334,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["
 // verify phone code
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '' && check_bitrix_sessid())
 {
-	if($_REQUEST["SIGNED_DATA"] <> '')
+	if (!empty($_REQUEST["SIGNED_DATA"]))
 	{
 		if(($params = \Bitrix\Main\Controller\PhoneAuth::extractData($_REQUEST["SIGNED_DATA"])) !== false)
 		{
@@ -478,21 +478,20 @@ $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 if (!empty($arParams["USER_PROPERTY"]))
 {
 	$arUserFields = $USER_FIELD_MANAGER->GetUserFields("USER", $arResult["ID"], LANGUAGE_ID);
-	if (count($arParams["USER_PROPERTY"]) > 0)
+	foreach ($arUserFields as $FIELD_NAME => $arUserField)
 	{
-		foreach ($arUserFields as $FIELD_NAME => $arUserField)
-		{
-			if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]))
-				continue;
-			$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
-			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
-			$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
-			$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;
-		}
+		if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]))
+			continue;
+		$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+		$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
+		$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
+		$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;
 	}
 	if (!empty($arResult["USER_PROPERTIES"]["DATA"]))
+	{
 		$arResult["USER_PROPERTIES"]["SHOW"] = "Y";
-	$arResult["bVarsFromForm"] = ($strError == ''? false : true);
+	}
+	$arResult["bVarsFromForm"] = $strError != '';
 }
 // ******************** /User properties ***************************************************
 

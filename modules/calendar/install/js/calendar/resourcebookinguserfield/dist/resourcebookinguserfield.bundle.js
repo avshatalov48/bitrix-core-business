@@ -12,7 +12,6 @@ this.BX = this.BX || {};
 	    this.displayCheckboxDisabled = false;
 	    this.DOM = {};
 	  }
-
 	  build(params) {
 	    this.updateConfig(params.params);
 	    this.DOM.fieldWrap = calendar_resourcebooking.Dom.create("div", {
@@ -30,8 +29,9 @@ this.BX = this.BX || {};
 	        className: 'calendar-resbook-webform-settings-popup-field-title'
 	      },
 	      text: this.getLabel()
-	    })); // Label in form
+	    }));
 
+	    // Label in form
 	    this.DOM.formTitleWrap = this.DOM.labelWrap.appendChild(calendar_resourcebooking.Dom.create("span", {
 	      props: {
 	        className: 'calendar-resbook-webform-settings-popup-field-subtitle' + (this.isDisplayed() ? ' show' : '')
@@ -53,8 +53,9 @@ this.BX = this.BX || {};
 	      events: {
 	        click: this.enableFormTitleEditMode.bind(this)
 	      }
-	    })); // Display checkbox
+	    }));
 
+	    // Display checkbox
 	    this.DOM.checkboxNode = this.DOM.fieldWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: 'calendar-resbook-webform-settings-popup-checkbox-container'
@@ -69,83 +70,68 @@ this.BX = this.BX || {};
 	      events: {
 	        click: this.checkDisplayMode.bind(this)
 	      }
-	    })); // State popup
+	    }));
 
+	    // State popup
 	    this.buildStatePopup({
-	      wrap: this.DOM.fieldWrap,
-	      config: params.config || {}
-	    }); // Value popup
-
-	    this.buildValuePopup({
 	      wrap: this.DOM.fieldWrap,
 	      config: params.config || {}
 	    });
 
+	    // Value popup
+	    this.buildValuePopup({
+	      wrap: this.DOM.fieldWrap,
+	      config: params.config || {}
+	    });
 	    if (calendar_resourcebooking.Type.isFunction(params.changeSettingsCallback)) {
 	      this.changeSettingsCallback = params.changeSettingsCallback;
 	    }
-
 	    params.wrap.appendChild(this.DOM.fieldWrap);
 	  }
-
 	  destroy() {
 	    if (this.valuePopup && calendar_resourcebooking.Type.isFunction(this.valuePopup.closePopup)) {
 	      this.valuePopup.closePopup();
 	    }
-
 	    if (this.statePopup && calendar_resourcebooking.Type.isFunction(this.statePopup.closePopup)) {
 	      this.statePopup.closePopup();
 	    }
 	  }
-
 	  updateConfig(params = {}) {
 	    this.setFormLabel(params.label || this.formLabel);
-
 	    if (params.show) {
 	      this.displayed = params.show !== 'N';
 	    }
 	  }
-
 	  buildStatePopup(params) {}
-
 	  buildValuePopup(params) {}
-
 	  getLabel() {
 	    return this.label;
 	  }
-
 	  getFormLabel() {
 	    return this.formLabel;
 	  }
-
 	  setFormLabel(formLabel) {
 	    this.formLabel = formLabel || '';
 	  }
-
 	  isDisplayed() {
 	    return this.displayed;
 	  }
-
 	  checkDisplayMode() {
 	    this.displayed = !!this.DOM.checkboxNode.checked;
-
 	    if (this.displayed) {
 	      this.displayInForm();
 	    } else {
 	      this.hideInForm();
 	    }
 	  }
-
 	  displayInForm() {
 	    calendar_resourcebooking.Dom.addClass(this.DOM.formTitleWrap, 'show');
 	    this.triggerChangeRefresh();
 	  }
-
 	  hideInForm() {
 	    calendar_resourcebooking.Dom.removeClass(this.DOM.formTitleWrap, 'show');
 	    this.triggerChangeRefresh();
 	  }
-
 	  enableFormTitleEditMode() {
 	    if (!this.DOM.formTitleInputNode) {
 	      this.DOM.formTitleInputNode = this.DOM.formTitleWrap.appendChild(calendar_resourcebooking.Dom.create("input", {
@@ -158,14 +144,12 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	    }
-
 	    this.DOM.formTitleInputNode.value = this.getFormLabel();
 	    this.DOM.formTitleInputNode.style.display = '';
 	    this.DOM.formTitleLabel.style.display = 'none';
 	    this.DOM.formTitleEditIcon.style.display = 'none';
 	    this.DOM.formTitleInputNode.focus();
 	  }
-
 	  finishFormTitleEditMode() {
 	    this.setFormLabel(this.DOM.formTitleInputNode.value);
 	    calendar_resourcebooking.Dom.adjust(this.DOM.formTitleLabel, {
@@ -176,15 +160,12 @@ this.BX = this.BX || {};
 	    this.DOM.formTitleInputNode.style.display = 'none';
 	    this.triggerChangeRefresh();
 	  }
-
 	  getSettingsValue() {}
-
 	  triggerChangeRefresh() {
 	    setTimeout(function () {
 	      BX.onCustomEvent('ResourceBooking.webformSettings:onChanged');
 	    }.bind(this), 50);
 	  }
-
 	}
 
 	class FormFieldTunnerPopupAbstract {
@@ -196,7 +177,6 @@ this.BX = this.BX || {};
 	    };
 	    this.handleClickFunc = this.handleClick.bind(this);
 	  }
-
 	  build() {
 	    this.DOM.innerWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create("div", {
 	      props: {
@@ -213,12 +193,10 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	  }
-
 	  showPopup() {
 	    if (this.isPopupShown() || this.disabled) {
 	      return this.closePopup();
 	    }
-
 	    this.menuItems = this.getMenuItems();
 	    main_core.Event.unbind(document, 'click', this.handleClickFunc);
 	    this.popup = BX.PopupMenu.create(this.id, this.DOM.currentStateLink, this.menuItems, {
@@ -234,7 +212,10 @@ this.BX = this.BX || {};
 	      position: 'top'
 	    });
 	    this.popup.show(true);
-	    this.popupContainer = this.popup.popupWindow.popupContainer; //this.popupContainer.style.width = parseInt(this.DOM.blocksWrap.offsetWidth) + 'px';
+	    this.popupContainer = this.popup.popupWindow.popupContainer;
+
+	    //this.popupContainer.style.width = parseInt(this.DOM.blocksWrap.offsetWidth) + 'px';
+
 	    // BX.addCustomEvent(this.popup.popupWindow, 'onPopupClose', function()
 	    // {
 	    // 	BX.PopupMenu.destroy(this.id);
@@ -243,18 +224,15 @@ this.BX = this.BX || {};
 
 	    this.popup.menuItems.forEach(function (menuItem) {
 	      let inputType = false,
-	          className,
-	          checked,
-	          inputNameStr = '';
-
+	        className,
+	        checked,
+	        inputNameStr = '';
 	      if (menuItem.dataset && menuItem.dataset.type) {
 	        checked = menuItem.dataset.checked;
 	        let menuItemClassName = 'menu-popup-item';
-
 	        if (menuItem.dataset.type === 'radio') {
 	          inputType = 'radio';
 	          className = 'menu-popup-item-resource-radio';
-
 	          if (menuItem.dataset.inputName) {
 	            inputNameStr = ' name="' + menuItem.dataset.inputName + '" ';
 	          }
@@ -262,22 +240,17 @@ this.BX = this.BX || {};
 	          inputType = 'checkbox';
 	          className = 'menu-popup-item-resource-checkbox';
 	        }
-
 	        let innerHtml = '<div class="menu-popup-item-inner">';
-
 	        if (menuItem.dataset.type === 'submenu-list') {
 	          menuItemClassName += ' menu-popup-item-submenu';
 	          innerHtml += '<div class="menu-popup-item-resource menu-popup-item-resource-wide">' + '<span class="menu-popup-item-text">' + '<span>' + menuItem.text + '</span>' + '<span class="menu-popup-item-resource-subvalue">' + (menuItem.dataset.textValue || menuItem.dataset.value) + '</span>' + '</span>' + '</div>';
 	        } else if (inputType) {
 	          innerHtml += '<div class="menu-popup-item-resource">';
-
 	          if (inputType) {
 	            innerHtml += '<input class="' + className + '" type="' + inputType + '"' + (checked ? 'checked="checked"' : '') + ' id="' + menuItem.id + '" ' + inputNameStr + '>' + '<label class="menu-popup-item-text"  for="' + menuItem.id + '">' + menuItem.text + '</label>';
 	          }
-
 	          innerHtml += '</div>';
 	        }
-
 	        innerHtml += '</div>';
 	        menuItem.layout.item.className = menuItemClassName;
 	        menuItem.layout.item.innerHTML = innerHtml;
@@ -287,26 +260,21 @@ this.BX = this.BX || {};
 	      main_core.Event.bind(document, 'click', this.handleClickFunc);
 	    }, 50);
 	  }
-
 	  closePopup() {
 	    if (this.isPopupShown()) {
 	      this.popup.close();
 	      this.popupContainer.style.maxHeight = '';
 	    }
 	  }
-
 	  isPopupShown() {
 	    return this.popup && this.popup.popupWindow && this.popup.popupWindow.isShown && this.popup.popupWindow.isShown() && this.popup.popupWindow.popupContainer && BX.isNodeInDom(this.popup.popupWindow.popupContainer);
 	  }
-
 	  getCurrentModeState() {
 	    return '';
 	  }
-
 	  getMenuItems() {
 	    return [];
 	  }
-
 	  getPopupContent() {
 	    this.DOM.innerWrap = main_core.Dom.create("div", {
 	      props: {
@@ -315,54 +283,42 @@ this.BX = this.BX || {};
 	    });
 	    return this.DOM.innerWrap;
 	  }
-
 	  handlePopupClick(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (target.hasAttribute('data-bx-resbook-control-node') || BX.findParent(target, {
 	      attribute: 'data-bx-resbook-control-node'
 	    }, this.DOM.innerWrap)) {
 	      this.handleControlChanges();
 	    }
 	  }
-
 	  handleControlChanges() {
 	    if (this.changesTimeout) {
 	      this.changesTimeout = clearTimeout(this.changesTimeout);
 	    }
-
 	    this.changesTimeout = setTimeout(BX.delegate(function () {
 	      BX.onCustomEvent('ResourceBooking.webformSettings:onChanged');
 	    }, this), 50);
 	  }
-
 	  menuItemClick(e, menuItem) {}
-
 	  handleClick(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (this.isPopupShown() && !BX.isParentForNode(this.popupContainer, target)) {
 	      return this.closePopup({
 	        animation: true
 	      });
 	    }
 	  }
-
 	  setDisabled() {
 	    this.disabled = true;
-
 	    if (this.isPopupShown()) {
 	      this.closePopup();
 	    }
-
 	    main_core.Dom.addClass(this.DOM.innerWrap, 'disabled');
 	  }
-
 	  setEnabled() {
 	    this.disabled = false;
 	    main_core.Dom.removeClass(this.DOM.innerWrap, 'disabled');
 	  }
-
 	}
 
 	class FormFieldTunnerValuePopupAbstract {
@@ -373,7 +329,6 @@ this.BX = this.BX || {};
 	      outerWrap: params.wrap
 	    };
 	  }
-
 	  build() {
 	    this.DOM.innerWrap = this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
@@ -392,12 +347,10 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	  }
-
 	  showPopup() {
 	    if (this.popup && this.popup.isShown()) {
 	      return this.popup.close();
 	    }
-
 	    this.popup = new BX.PopupWindow(this.id, this.DOM.valueLink, {
 	      autoHide: true,
 	      loseByEsc: true,
@@ -420,27 +373,20 @@ this.BX = this.BX || {};
 	      this.popup = null;
 	    }, this));
 	  }
-
 	  closePopup() {
 	    if (this.isPopupShown()) {
 	      this.popup.close();
 	    }
 	  }
-
 	  isPopupShown() {
 	    return this.popup && this.popup.popupWindow && this.popup.popupWindow.isShown && this.popup.popupWindow.isShown() && this.popup.popupWindow.popupContainer && BX.isNodeInDom(this.popup.popupWindow.popupContainer);
 	  }
-
 	  showHoverPopup() {}
-
 	  hideHoverPopup() {}
-
 	  handlePopupCloose() {}
-
 	  getCurrentValueState() {
 	    return BX.message('WEBF_RES_NO_VALUE');
 	  }
-
 	  getPopupContent() {
 	    this.DOM.innerWrap = calendar_resourcebooking.Dom.create("div", {
 	      props: {
@@ -451,50 +397,41 @@ this.BX = this.BX || {};
 	    this.DOM.innerWrap.style.minHeight = '30px';
 	    return this.DOM.innerWrap;
 	  }
-
 	  getPopupWidth() {
 	    return null;
 	  }
-
 	  handlePopupClick(e) {
 	    var target = e.target || e.srcElement;
-
 	    if (target.hasAttribute('data-bx-resbook-control-node') || BX.findParent(target, {
 	      attribute: 'data-bx-resbook-control-node'
 	    }, this.DOM.innerWrap)) {
 	      this.handleControlChanges();
 	    }
 	  }
-
 	  handleControlChanges() {
 	    setTimeout(BX.delegate(function () {
 	      BX.onCustomEvent('ResourceBooking.webformSettings:onChanged');
 	    }, this), 50);
 	  }
-
 	  showPopupLoader() {
 	    if (this.DOM.innerWrap) {
 	      this.hidePopupLoader();
 	      this.DOM.popupLoader = this.DOM.innerWrap.appendChild(calendar_resourcebooking.BookingUtil.getLoader(50));
 	    }
 	  }
-
 	  hidePopupLoader() {
 	    calendar_resourcebooking.Dom.remove(this.DOM.popupLoader);
 	  }
-
 	}
 	class FormFieldTunnerMultipleChecknoxPopupAbstract extends FormFieldTunnerValuePopupAbstract {
 	  constructor(params) {
 	    super(params);
 	    this.id = 'resourcebooking-settings-multiple-checknox-' + Math.round(Math.random() * 100000);
 	  }
-
 	  showPopup() {
 	    if (this.isPopupShown()) {
 	      return this.closePopup();
 	    }
-
 	    var menuItems = [];
 	    this.values.forEach(function (item) {
 	      menuItems.push({
@@ -504,7 +441,6 @@ this.BX = this.BX || {};
 	        onclick: BX.proxy(this.menuItemClick, this)
 	      });
 	    }, this);
-
 	    if (menuItems.length > 1) {
 	      this.selectAllMessage = this.selectAllMessage || 'select all';
 	      menuItems.push({
@@ -512,7 +448,6 @@ this.BX = this.BX || {};
 	        onclick: BX.proxy(this.selectAllItemClick, this)
 	      });
 	    }
-
 	    this.popup = BX.PopupMenu.create(this.id, this.DOM.valueLink, menuItems, {
 	      className: 'popup-window-resource-select',
 	      closeByEsc: true,
@@ -533,7 +468,6 @@ this.BX = this.BX || {};
 	    }, this));
 	    this.popup.menuItems.forEach(function (menuItem) {
 	      var checked;
-
 	      if (menuItem.dataset && menuItem.dataset.id) {
 	        checked = this.selectedValues.find(function (itemId) {
 	          return itemId === menuItem.id;
@@ -554,94 +488,74 @@ this.BX = this.BX || {};
 	      BX.bind(document, 'click', BX.proxy(this.handleClick, this));
 	    }, this), 50);
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    var selectAllcheckbox,
-	        target = e.target || e.srcElement,
-	        checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox'),
-	        foundValue = this.values.find(function (value) {
-	      return value.id === menuItem.id;
-	    });
-
+	      target = e.target || e.srcElement,
+	      checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox'),
+	      foundValue = this.values.find(function (value) {
+	        return value.id === menuItem.id;
+	      });
 	    if (foundValue) {
 	      if (target && (calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item") || calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item-resource-checkbox") || calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item-inner"))) {
 	        if (!calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item-resource-checkbox")) {
 	          checkbox.checked = !checkbox.checked;
 	        }
-
 	        if (checkbox.checked) {
 	          this.selectItem(foundValue);
 	        } else {
 	          this.deselectItem(foundValue);
 	          selectAllcheckbox = this.popupContainer.querySelector('.menu-popup-item-all-resources-checkbox');
 	          this.selectAllChecked = false;
-
 	          if (selectAllcheckbox) {
 	            selectAllcheckbox.checked = false;
 	          }
 	        }
 	      }
-
 	      this.handleControlChanges();
 	    }
 	  }
-
 	  selectItem(value) {
 	    if (!BX.util.in_array(value.id, this.selectedValues)) {
 	      this.selectedValues.push(value.id);
 	    }
 	  }
-
 	  deselectItem(value) {
 	    var index = BX.util.array_search(value.id, this.selectedValues);
-
 	    if (index >= 0) {
 	      this.selectedValues = BX.util.deleteFromArray(this.selectedValues, index);
 	    }
 	  }
-
 	  selectAllItemClick(e, menuItem) {
 	    var target = e.target || e.srcElement;
-
 	    if (target && (calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item") || calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item-resource-checkbox"))) {
 	      var checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox');
-
 	      if (calendar_resourcebooking.Dom.hasClass(target, "menu-popup-item")) {
 	        checkbox.checked = !checkbox.checked;
 	      }
-
 	      var i,
-	          checkboxes = this.popupContainer.querySelectorAll('input.menu-popup-item-resource-checkbox');
+	        checkboxes = this.popupContainer.querySelectorAll('input.menu-popup-item-resource-checkbox');
 	      this.selectAllChecked = checkbox.checked;
-
 	      for (i = 0; i < checkboxes.length; i++) {
 	        checkboxes[i].checked = this.selectAllChecked;
 	      }
-
 	      this.selectedValues = [];
-
 	      if (this.selectAllChecked) {
 	        this.values.forEach(function (value) {
 	          this.selectedValues.push(value.id);
 	        }, this);
 	      }
-
 	      this.handleControlChanges();
 	    }
 	  }
-
 	  handleClick(e) {
 	    var target = e.target || e.srcElement;
-
 	    if (this.isPopupShown() && !BX.isParentForNode(this.popupContainer, target)) {
 	      this.closePopup({
 	        animation: true
 	      });
 	    }
-
 	    this.handleControlChanges();
 	  }
-
 	  closePopup() {
 	    if (this.isPopupShown()) {
 	      this.popup.close();
@@ -649,16 +563,14 @@ this.BX = this.BX || {};
 	      BX.unbind(document, 'click', BX.proxy(this.handleClick, this));
 	    }
 	  }
-
 	  getSelectedValues() {
 	    return this.selectedValues;
 	  }
-
 	}
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 	  constructor() {
 	    super();
@@ -667,18 +579,15 @@ this.BX = this.BX || {};
 	    this.displayed = true;
 	    this.selectedUsers = [];
 	  }
-
 	  updateConfig(params) {
 	    super.updateConfig(params);
 	    this.defaultMode = params.defaultMode;
 	  }
-
 	  buildStatePopup(params) {
 	    params.isDisplayed = this.isDisplayed.bind(this);
 	    params.defaultMode = params.defaultMode || this.defaultMode;
 	    this.statePopup = new UsersStatePopup(params);
 	  }
-
 	  buildValuePopup(params) {
 	    this.selectedUsers = main_core.Type.isArray(params.config.selected) ? params.config.selected : params.config.selected.split('|');
 	    this.DOM.valueWrap = params.wrap;
@@ -695,12 +604,10 @@ this.BX = this.BX || {};
 						</span>
 					`), this.showUserSelectorDialog.bind(this), this.getCurrentUsersValueText())));
 	  }
-
 	  getCurrentUsersValueText() {
 	    const count = this.selectedUsers.length;
 	    return count ? count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_USER', count) : main_core.Loc.getMessage('WEBF_RES_NO_VALUE');
 	  }
-
 	  showUserSelectorDialog() {
 	    if (!(this.userSelectorDialog instanceof ui_entitySelector.Dialog)) {
 	      this.userSelectorDialog = new ui_entitySelector.Dialog({
@@ -724,10 +631,8 @@ this.BX = this.BX || {};
 	        }]
 	      });
 	    }
-
 	    this.userSelectorDialog.show();
 	  }
-
 	  handleUserSelectorChanges() {
 	    this.selectedUsers = [];
 	    this.userSelectorDialog.getSelectedItems().forEach(item => {
@@ -741,19 +646,16 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.emit('ResourceBooking.webformSettings:onChanged');
 	    }, 50);
 	  }
-
 	  displayInForm() {
 	    super.displayInForm();
 	    this.statePopup.handleControlChanges();
 	    this.statePopup.setEnabled();
 	  }
-
 	  hideInForm() {
 	    super.hideInForm();
 	    this.statePopup.handleControlChanges();
 	    this.statePopup.setDisabled();
 	  }
-
 	  getValue() {
 	    return {
 	      show: this.isDisplayed() ? 'Y' : 'N',
@@ -762,9 +664,7 @@ this.BX = this.BX || {};
 	      value: this.selectedUsers
 	    };
 	  }
-
 	}
-
 	class UsersStatePopup extends FormFieldTunnerPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -777,12 +677,10 @@ this.BX = this.BX || {};
 	    };
 	    this.build();
 	  }
-
 	  build() {
 	    super.build();
 	    this.handleControlChanges();
 	  }
-
 	  getMenuItems() {
 	    return [new main_popup.MenuItem({
 	      text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
@@ -809,32 +707,25 @@ this.BX = this.BX || {};
 	      onclick: this.menuItemClick.bind(this)
 	    }];
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    var target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input' && menuItem.dataset && menuItem.dataset.inputName === this.inputName) {
 	      this.defaultMode = menuItem.dataset.value;
 	    }
-
 	    this.handleControlChanges();
 	    setTimeout(this.closePopup.bind(this), 50);
 	  }
-
 	  getCurrentModeState() {
 	    return this.isDisplayed() ? main_core.Loc.getMessage('WEBF_RES_SELECT_USER_FROM_LIST_SHORT') + (this.defaultMode === 'none' ? '' : ',<br>' + main_core.Loc.getMessage('WEBF_RES_AUTO_SELECT_USER_SHORT')) : main_core.Loc.getMessage('WEBF_RES_SELECT_USER_FROM_LIST_AUTO');
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    this.DOM.currentStateLink.innerHTML = this.getCurrentModeState();
 	    BX.onCustomEvent(this, "ResourceBooking.userSettingsField:onControlChanged", []);
 	  }
-
 	  getDefaultMode() {
 	    return this.defaultMode;
 	  }
-
 	}
 
 	class ResourceSelectorFieldTunner extends FormFieldTunnerAbstract {
@@ -844,36 +735,30 @@ this.BX = this.BX || {};
 	    this.formLabel = main_core.Loc.getMessage('WEBF_RES_RESOURCES_LABEL');
 	    this.displayed = true;
 	  }
-
 	  updateConfig(params) {
 	    super.updateConfig(params);
 	    this.defaultMode = params.defaultMode;
 	    this.multiple = params.multiple === 'Y';
 	  }
-
 	  buildStatePopup(params) {
 	    params.isDisplayed = this.isDisplayed.bind(this);
 	    params.defaultMode = params.defaultMode || this.defaultMode;
 	    params.multiple = params.multiple == null ? this.multiple : params.multiple;
 	    this.statePopup = new ResourcesStatePopup(params);
 	  }
-
 	  buildValuePopup(params) {
 	    this.valuePopup = new ResourcesValuePopup(params);
 	  }
-
 	  displayInForm() {
 	    super.displayInForm();
 	    this.statePopup.handleControlChanges();
 	    this.statePopup.setEnabled();
 	  }
-
 	  hideInForm() {
 	    super.hideInForm();
 	    this.statePopup.handleControlChanges();
 	    this.statePopup.setDisabled();
 	  }
-
 	  getValue() {
 	    return {
 	      show: this.isDisplayed() ? 'Y' : 'N',
@@ -883,9 +768,7 @@ this.BX = this.BX || {};
 	      value: this.valuePopup.getSelectedId()
 	    };
 	  }
-
 	}
-
 	class ResourcesStatePopup extends FormFieldTunnerPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -898,12 +781,10 @@ this.BX = this.BX || {};
 	    };
 	    this.build();
 	  }
-
 	  build() {
 	    super.build();
 	    this.handleControlChanges();
 	  }
-
 	  getMenuItems() {
 	    return [new main_popup.MenuItem({
 	      text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
@@ -941,20 +822,16 @@ this.BX = this.BX || {};
 	      onclick: this.menuItemClick.bind(this)
 	    }];
 	  }
-
 	  getCurrentModeState() {
 	    return this.isDisplayed() ? main_core.Loc.getMessage('WEBF_RES_SELECT_RES_FROM_LIST_SHORT') + (this.defaultMode === 'none' ? '' : ',<br>' + main_core.Loc.getMessage('WEBF_RES_AUTO_SELECT_RES_SHORT')) : main_core.Loc.getMessage('WEBF_RES_SELECT_RES_FROM_LIST_AUTO');
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    this.DOM.currentStateLink.innerHTML = this.getCurrentModeState();
 	    BX.onCustomEvent(this, "ResourceBooking.userSettingsField:onControlChanged", []);
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    let target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input' && menuItem.dataset) {
 	      if (menuItem.dataset.inputName === this.inputName) {
 	        this.defaultMode = menuItem.dataset.value;
@@ -962,44 +839,35 @@ this.BX = this.BX || {};
 	        this.multiple = !!target.checked;
 	      }
 	    }
-
 	    this.handleControlChanges();
 	  }
-
 	  getDefaultMode() {
 	    return this.defaultMode;
 	  }
-
 	  getMultiple() {
 	    return this.multiple;
 	  }
-
 	}
-
 	class ResourcesValuePopup extends FormFieldTunnerMultipleChecknoxPopupAbstract {
 	  constructor(params) {
 	    super(params);
 	    this.name = 'resourcesValuePopup';
 	    this.selectAllMessage = main_core.Loc.getMessage('USER_TYPE_RESOURCE_SELECT_ALL');
 	    let selectedItems,
-	        selectedIndex = {},
-	        selectAll = params.config.selected === null;
-
+	      selectedIndex = {},
+	      selectAll = params.config.selected === null;
 	    if (main_core.Type.isArray(params.config.selected)) {
 	      selectedItems = params.config.selected;
 	    } else if (main_core.Type.isString(params.config.selected)) {
 	      selectedItems = params.config.selected.split('|');
 	    }
-
 	    if (main_core.Type.isArray(selectedItems)) {
 	      for (let i = 0; i < selectedItems.length; i++) {
 	        selectedIndex[selectedItems[i]] = true;
 	      }
 	    }
-
 	    this.values = [];
 	    this.selectedValues = [];
-
 	    if (main_core.Type.isArray(params.config.resources)) {
 	      params.config.resources.forEach(function (resource) {
 	        let valueId = this.prepareValueId(resource);
@@ -1008,44 +876,36 @@ this.BX = this.BX || {};
 	          title: resource.title,
 	          dataset: resource
 	        });
-
 	        if (selectAll || selectedIndex[resource.id]) {
 	          this.selectedValues.push(valueId);
 	        }
 	      }, this);
 	    }
-
 	    this.build();
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    main_core.Dom.adjust(this.DOM.valueLink, {
 	      text: this.getCurrentValueState()
 	    });
 	  }
-
 	  getCurrentValueState() {
 	    let count = this.selectedValues.length;
 	    return count ? count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_RESOURCE', count) : main_core.Loc.getMessage('WEBF_RES_NO_VALUE');
 	  }
-
 	  prepareValueId(resource) {
 	    return resource.type + '|' + resource.id;
 	  }
-
 	  getSelectedId() {
 	    let result = [];
 	    this.getSelectedValues().forEach(function (value) {
 	      let val = value.split('|');
-
 	      if (val && val[1]) {
 	        result.push(parseInt(val[1]));
 	      }
 	    });
 	    return result;
 	  }
-
 	}
 
 	class ServiceSelectorFieldTunner extends FormFieldTunnerAbstract {
@@ -1055,7 +915,6 @@ this.BX = this.BX || {};
 	    this.formLabel = main_core.Loc.getMessage('WEBF_RES_SERVICE_LABEL');
 	    this.displayed = true;
 	  }
-
 	  buildStatePopup(params) {
 	    if (params && main_core.Type.isDomNode(params.wrap)) {
 	      params.wrap.appendChild(main_core.Dom.create("div", {
@@ -1066,11 +925,9 @@ this.BX = this.BX || {};
 	      }));
 	    }
 	  }
-
 	  buildValuePopup(params) {
 	    this.valuePopup = new ServiceValuePopup(params);
 	  }
-
 	  getValue() {
 	    return {
 	      show: this.isDisplayed() ? 'Y' : 'N',
@@ -1078,9 +935,7 @@ this.BX = this.BX || {};
 	      value: this.valuePopup.getSelectedValues()
 	    };
 	  }
-
 	}
-
 	class ServiceValuePopup extends FormFieldTunnerMultipleChecknoxPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -1090,58 +945,48 @@ this.BX = this.BX || {};
 	    this.values = [];
 	    this.selectedValues = [];
 	    let selectedItems,
-	        selectedIndex = {};
-
+	      selectedIndex = {};
 	    if (main_core.Type.isArray(params.config.selected)) {
 	      selectedItems = params.config.selected;
 	    } else if (main_core.Type.isString(params.config.selected)) {
 	      selectedItems = params.config.selected.split('|');
 	    }
-
 	    if (main_core.Type.isArray(selectedItems)) {
 	      for (let i = 0; i < selectedItems.length; i++) {
 	        selectedIndex[calendar_resourcebooking.BookingUtil.translit(selectedItems[i])] = true;
 	      }
 	    }
-
 	    if (main_core.Type.isArray(params.config.services)) {
 	      params.config.services.forEach(function (service) {
 	        service.id = calendar_resourcebooking.BookingUtil.translit(service.name);
-
 	        if (service.id !== '') {
 	          this.values.push({
 	            id: service.id,
 	            title: service.name + ' - ' + calendar_resourcebooking.BookingUtil.getDurationLabel(service.duration),
 	            dataset: service
 	          });
-
 	          if (selectAll || selectedIndex[calendar_resourcebooking.BookingUtil.translit(service.name)]) {
 	            this.selectedValues.push(service.id);
 	          }
 	        }
 	      }, this);
 	    }
-
 	    this.config = {};
 	    this.build();
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    main_core.Dom.adjust(this.DOM.valueLink, {
 	      text: this.getCurrentValueState()
 	    });
 	  }
-
 	  getSelectedValues() {
 	    return this.selectedValues.length ? this.selectedValues : '#EMPTY-SERVICE-LIST#';
 	  }
-
 	  getCurrentValueState() {
 	    let count = this.selectedValues.length;
 	    return count ? count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_SERVICE', count) : main_core.Loc.getMessage('WEBF_RES_NO_VALUE');
 	  }
-
 	}
 
 	class DurationSelectorFieldTunner extends FormFieldTunnerAbstract {
@@ -1150,30 +995,25 @@ this.BX = this.BX || {};
 	    this.label = main_core.Loc.getMessage('WEBF_RES_DURATION');
 	    this.formLabel = main_core.Loc.getMessage('WEBF_RES_DURATION_LABEL');
 	  }
-
 	  updateConfig(params) {
 	    super.updateConfig();
 	    this.defaultValue = params.defaultValue;
 	    this.manualInput = params.manualInput === 'Y';
 	  }
-
 	  buildStatePopup(params) {
 	    params.isDisplayed = this.isDisplayed.bind(this);
 	    params.defaultValue = this.defaultValue;
 	    params.manualInput = this.manualInput;
 	    this.statePopup = new DurationStatePopup(params);
 	  }
-
 	  displayInForm() {
 	    super.displayInForm();
 	    this.statePopup.handleControlChanges();
 	  }
-
 	  hideInForm() {
 	    super.hideInForm();
 	    this.statePopup.handleControlChanges();
 	  }
-
 	  getValue() {
 	    return {
 	      show: this.isDisplayed() ? 'Y' : 'N',
@@ -1182,9 +1022,7 @@ this.BX = this.BX || {};
 	      manualInput: this.statePopup.getManualInput() ? 'Y' : 'N'
 	    };
 	  }
-
 	}
-
 	class DurationStatePopup extends FormFieldTunnerPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -1198,12 +1036,10 @@ this.BX = this.BX || {};
 	    this.durationList = calendar_resourcebooking.BookingUtil.getDurationList(params.fullDay);
 	    this.build();
 	  }
-
 	  build() {
 	    super.build();
 	    this.handleControlChanges();
 	  }
-
 	  getMenuItems() {
 	    return [{
 	      id: 'duration-default-value',
@@ -1227,10 +1063,8 @@ this.BX = this.BX || {};
 	      onclick: this.menuItemClick.bind(this)
 	    }] : []);
 	  }
-
 	  getDefaultMenuItems() {
 	    let menuItems = [];
-
 	    if (main_core.Type.isArray(this.durationList)) {
 	      this.durationList.forEach(function (item) {
 	        menuItems.push({
@@ -1244,30 +1078,24 @@ this.BX = this.BX || {};
 	        });
 	      }, this);
 	    }
-
 	    return menuItems;
 	  }
-
 	  getDurationLabelByValue(duration) {
 	    let foundDuration = this.durationList.find(function (item) {
 	      return parseInt(item.value) === parseInt(duration);
 	    });
 	    return foundDuration ? foundDuration.label : null;
 	  }
-
 	  getCurrentModeState() {
 	    return this.isDisplayed() ? main_core.Loc.getMessage('WEBF_RES_SELECT_DURATION_FROM_LIST_SHORT') + (',<br>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DURATION_BY_DEFAULT') + ' ' + this.getDurationLabelByValue(this.defaultValue)) : main_core.Loc.getMessage('WEBF_RES_SELECT_DURATION_AUTO') + ' ' + this.getDurationLabelByValue(this.defaultValue);
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    this.DOM.currentStateLink.innerHTML = this.getCurrentModeState();
 	    BX.onCustomEvent(this, "ResourceBooking.userSettingsField:onControlChanged", []);
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    let target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input' && menuItem.dataset) {
 	      if (menuItem.id === 'duration-manual-input') {
 	        this.manualInput = !!target.checked;
@@ -1275,18 +1103,14 @@ this.BX = this.BX || {};
 	    } else if (menuItem.dataset && menuItem.dataset.type === 'duration') {
 	      this.defaultValue = parseInt(menuItem.dataset.value);
 	    }
-
 	    this.handleControlChanges();
 	  }
-
 	  getManualInput() {
 	    return this.manualInput;
 	  }
-
 	  getDefaultValue() {
 	    return this.defaultValue;
 	  }
-
 	}
 
 	class DateSelectorFieldTunner extends FormFieldTunnerAbstract {
@@ -1297,19 +1121,16 @@ this.BX = this.BX || {};
 	    this.displayed = true;
 	    this.displayCheckboxDisabled = true;
 	  }
-
 	  updateConfig(params) {
 	    super.updateConfig();
 	    this.style = params.style;
 	    this.start = params.start;
 	  }
-
 	  buildStatePopup(params) {
 	    params.style = params.style || this.style;
 	    params.start = params.start || this.start;
 	    this.statePopup = new DateStatePopup(params);
 	  }
-
 	  getValue() {
 	    return {
 	      label: this.getFormLabel(),
@@ -1317,9 +1138,7 @@ this.BX = this.BX || {};
 	      start: this.statePopup.getStart()
 	    };
 	  }
-
 	}
-
 	class DateStatePopup extends FormFieldTunnerPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -1327,12 +1146,9 @@ this.BX = this.BX || {};
 	    this.styleInputName = 'date-select-style';
 	    this.startInputName = 'date-select-start';
 	    this.style = params.style === 'popup' ? 'popup' : 'line'; // popup|line
-
 	    this.start = params.start === 'today' ? 'today' : 'free'; // today|free
-
 	    this.build();
 	  }
-
 	  getMenuItems() {
 	    return [new main_popup.MenuItem({
 	      text: main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE'),
@@ -1382,21 +1198,17 @@ this.BX = this.BX || {};
 	      onclick: this.menuItemClick.bind(this)
 	    }];
 	  }
-
 	  getCurrentModeState() {
 	    return (this.style === 'popup' ? main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE_POPUP') : main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE_LINE')) + ', ' + (this.start === 'today' ? main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM_TODAY_SHORT') : main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM_FREE_SHORT'));
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    main_core.Dom.adjust(this.DOM.currentStateLink, {
 	      text: this.getCurrentModeState()
 	    });
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    let target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input' && menuItem.dataset) {
 	      if (menuItem.dataset.inputName === this.styleInputName) {
 	        this.style = menuItem.dataset.value;
@@ -1404,18 +1216,14 @@ this.BX = this.BX || {};
 	        this.start = menuItem.dataset.value;
 	      }
 	    }
-
 	    this.handleControlChanges();
 	  }
-
 	  getStyle() {
 	    return this.style;
 	  }
-
 	  getStart() {
 	    return this.start;
 	  }
-
 	}
 
 	class TimeSelectorFieldTunner extends FormFieldTunnerAbstract {
@@ -1426,7 +1234,6 @@ this.BX = this.BX || {};
 	    this.displayed = true;
 	    this.displayCheckboxDisabled = true;
 	  }
-
 	  updateConfig(params) {
 	    super.updateConfig();
 	    this.style = params.style;
@@ -1434,7 +1241,6 @@ this.BX = this.BX || {};
 	    this.showFinishTime = params.showFinishTime === 'Y';
 	    this.scale = parseInt(params.scale);
 	  }
-
 	  buildStatePopup(params) {
 	    params.style = params.style || this.style;
 	    params.showOnlyFree = this.showOnlyFree;
@@ -1442,7 +1248,6 @@ this.BX = this.BX || {};
 	    params.scale = this.scale;
 	    this.statePopup = new TimeStatePopup(params);
 	  }
-
 	  getValue() {
 	    return {
 	      label: this.getFormLabel(),
@@ -1452,9 +1257,7 @@ this.BX = this.BX || {};
 	      scale: this.statePopup.getScale()
 	    };
 	  }
-
 	}
-
 	class TimeStatePopup extends FormFieldTunnerPopupAbstract {
 	  constructor(params) {
 	    super(params);
@@ -1469,12 +1272,10 @@ this.BX = this.BX || {};
 
 	    this.build();
 	  }
-
 	  build() {
 	    super.build();
 	    this.handleControlChanges();
 	  }
-
 	  getMenuItems() {
 	    return [new main_popup.MenuItem({
 	      text: main_core.Loc.getMessage('WEBF_RES_TIME_STYLE'),
@@ -1532,19 +1333,15 @@ this.BX = this.BX || {};
 	      onclick: this.menuItemClick.bind(this)
 	    }];
 	  }
-
 	  getCurrentModeState() {
 	    return (this.style === 'select' ? main_core.Loc.getMessage('WEBF_RES_TIME_STYLE_SELECT') : main_core.Loc.getMessage('WEBF_RES_TIME_STYLE_SLOT')) + ',<br>' + main_core.Loc.getMessage('WEBF_RES_TIME_BOOKING_SIZE') + ': ' + this.getDurationLabelByValue(this.scale);
 	  }
-
 	  handleControlChanges() {
 	    super.handleControlChanges();
 	    this.DOM.currentStateLink.innerHTML = this.getCurrentModeState();
 	  }
-
 	  menuItemClick(e, menuItem) {
 	    let target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input' && menuItem.dataset) {
 	      if (menuItem.dataset.inputName === this.styleInputName) {
 	        this.style = menuItem.dataset.value;
@@ -1556,13 +1353,11 @@ this.BX = this.BX || {};
 	    } else if (menuItem.dataset && menuItem.dataset.type === 'scale') {
 	      this.scale = parseInt(menuItem.dataset.value);
 	    }
-
 	    this.handleControlChanges();
 	  }
-
 	  getDurationMenuItems() {
 	    let durationList = this.getDurationList(),
-	        menuItems = [];
+	      menuItems = [];
 	    durationList.forEach(function (duration) {
 	      menuItems.push({
 	        id: 'duration-' + duration.value,
@@ -1576,7 +1371,6 @@ this.BX = this.BX || {};
 	    }, this);
 	    return menuItems;
 	  }
-
 	  getDurationList() {
 	    if (!this.durationList) {
 	      this.durationList = calendar_resourcebooking.BookingUtil.getDurationList(false);
@@ -1584,33 +1378,26 @@ this.BX = this.BX || {};
 	        return duration.value && duration.value >= 15 && duration.value <= 240;
 	      });
 	    }
-
 	    return this.durationList;
 	  }
-
 	  getDurationLabelByValue(duration) {
 	    let foundDuration = this.getDurationList().find(function (item) {
 	      return item.value === duration;
 	    });
 	    return foundDuration ? foundDuration.label : null;
 	  }
-
 	  getStyle() {
 	    return this.style;
 	  }
-
 	  getScale() {
 	    return this.scale;
 	  }
-
 	  getShowOnlyFree() {
 	    return this.showOnlyFree ? 'Y' : 'N';
 	  }
-
 	  getShowFinishTime() {
 	    return this.showFinishTime ? 'Y' : 'N';
 	  }
-
 	}
 
 	class AdjustFieldController extends calendar_resourcebooking.EventEmitter {
@@ -1634,7 +1421,6 @@ this.BX = this.BX || {};
 	      settingsInputs: {}
 	    };
 	  }
-
 	  init() {
 	    // Request field params
 	    this.showFieldLoader();
@@ -1660,7 +1446,6 @@ this.BX = this.BX || {};
 	      }));
 	    });
 	  }
-
 	  showSettingsPopup() {
 	    ResourcebookingUserfield.getUserFieldParams({
 	      fieldName: this.params.entityName,
@@ -1702,14 +1487,12 @@ this.BX = this.BX || {};
 	        this.destroyControls();
 	        this.settingsPopup.destroy(this.id);
 	        this.settingsPopup = null;
-
 	        if (this.previewFieldLayout) {
 	          this.previewFieldLayout.destroy();
 	        }
 	      }.bind(this));
 	    }.bind(this));
 	  }
-
 	  getSettingsContentNode() {
 	    let outerWrap = calendar_resourcebooking.Dom.create("div", {
 	      props: {
@@ -1738,11 +1521,10 @@ this.BX = this.BX || {};
 	    BX.addCustomEvent('ResourceBooking.webformSettings:onChanged', this.handleWebformSettingsChanges.bind(this));
 	    return outerWrap;
 	  }
-
 	  buildSettingsForm(params) {
 	    let settings = this.getSettings(),
-	        wrap = params.wrap,
-	        titleId = 'title-' + this.id;
+	      wrap = params.wrap,
+	      titleId = 'title-' + this.id;
 	    this.DOM.captionWrap = wrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: 'calendar-resbook-webform-settings-popup-title'
@@ -1774,7 +1556,6 @@ this.BX = this.BX || {};
 	        className: 'calendar-resbook-webform-settings-popup-list'
 	      }
 	    }));
-
 	    if (settings.userfieldSettings.useUsers) {
 	      this.buildComplexField('users', {
 	        wrap: this.DOM.fieldsWrap,
@@ -1787,7 +1568,6 @@ this.BX = this.BX || {};
 	      });
 	      BX.addCustomEvent('ResourceBooking.settingsUserSelector:onChanged', this.checkBitrix24Limitation.bind(this));
 	    }
-
 	    if (settings.userfieldSettings.useResources) {
 	      this.buildComplexField('resources', {
 	        wrap: this.DOM.fieldsWrap,
@@ -1799,7 +1579,6 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    if (settings.userfieldSettings.useServices) {
 	      this.buildComplexField('services', {
 	        wrap: this.DOM.fieldsWrap,
@@ -1817,13 +1596,11 @@ this.BX = this.BX || {};
 	        params: settings.data.duration
 	      });
 	    }
-
 	    this.buildComplexField('date', {
 	      wrap: this.DOM.fieldsWrap,
 	      changeSettingsCallback: this.updateSettings.bind(this),
 	      params: settings.data.date
 	    });
-
 	    if (!settings.userfieldSettings.fullDay) {
 	      this.buildComplexField('time', {
 	        wrap: this.DOM.fieldsWrap,
@@ -1831,7 +1608,6 @@ this.BX = this.BX || {};
 	        params: settings.data.time
 	      });
 	    }
-
 	    this.DOM.fieldsWrap.appendChild(calendar_resourcebooking.Dom.create('div', {
 	      props: {
 	        className: 'calendar-resbook-webform-settings-popup-item'
@@ -1839,7 +1615,6 @@ this.BX = this.BX || {};
 	      html: '<div class="calendar-resbook-webform-settings-popup-decs">' + calendar_resourcebooking.Loc.getMessage('WEBF_RES_BOOKING_SETTINGS_HELP').replace('#START_LINK#', '<a href="javascript:void(0);"' + ' onclick="if (top.BX.Helper){top.BX.Helper.show(\'redirect=detail&code=8366733\');}">').replace('#END_LINK#', '</a>') + '</div>'
 	    }));
 	  }
-
 	  destroyControls() {
 	    for (let k in this.complexFields) {
 	      if (this.complexFields.hasOwnProperty(k) && calendar_resourcebooking.Type.isFunction(this.complexFields[k].destroy)) {
@@ -1847,12 +1622,10 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  handleWebformSettingsChanges() {
 	    if (this.refreshLayoutTimeout) {
 	      this.refreshLayoutTimeout = clearTimeout(this.refreshLayoutTimeout);
 	    }
-
 	    this.refreshLayoutTimeout = setTimeout(function () {
 	      // Update settings and inputs
 	      for (let k in this.complexFields) {
@@ -1860,54 +1633,46 @@ this.BX = this.BX || {};
 	          this.settingsData[k] = this.complexFields[k].getValue();
 	        }
 	      }
+	      this.updateSettingsDataInputs();
 
-	      this.updateSettingsDataInputs(); // Refresh preview
+	      // Refresh preview
+	      this.previewFieldLayout.refreshLayout(this.settingsData);
+	      // Refresh form layout (behind the settings popup)
+	      this.fieldLayout.refreshLayout(this.settingsData);
 
-	      this.previewFieldLayout.refreshLayout(this.settingsData); // Refresh form layout (behind the settings popup)
-
-	      this.fieldLayout.refreshLayout(this.settingsData); // Small Hack to make form look better - height adjusment
-
+	      // Small Hack to make form look better - height adjusment
 	      this.previewFieldLayout.getOuterWrap().style.maxHeight = Math.round(this.previewFieldLayout.getInnerWrap().offsetHeight * 0.73) + 'px';
 	    }.bind(this), 100);
 	  }
-
 	  buildComplexField(type, params) {
 	    switch (type) {
 	      case 'users':
 	        this.complexFields[type] = new UserSelectorFieldTunner();
 	        break;
-
 	      case 'resources':
 	        this.complexFields[type] = new ResourceSelectorFieldTunner();
 	        break;
-
 	      case 'services':
 	        this.complexFields[type] = new ServiceSelectorFieldTunner();
 	        break;
-
 	      case 'duration':
 	        this.complexFields[type] = new DurationSelectorFieldTunner();
 	        break;
-
 	      case 'date':
 	        this.complexFields[type] = new DateSelectorFieldTunner();
 	        break;
-
 	      case 'time':
 	        this.complexFields[type] = new TimeSelectorFieldTunner();
 	        break;
 	    }
-
 	    if (calendar_resourcebooking.Type.isObject(this.complexFields[type])) {
 	      this.complexFields[type].build(params);
 	    }
 	  }
-
 	  static getSettingsData(data) {
 	    let field,
-	        option,
-	        settingsData = BX.clone(AdjustFieldController.getDefaultSettingsData(), true);
-
+	      option,
+	      settingsData = BX.clone(AdjustFieldController.getDefaultSettingsData(), true);
 	    if (calendar_resourcebooking.Type.isPlainObject(data)) {
 	      for (field in data) {
 	        if (data.hasOwnProperty(field) && settingsData[field]) {
@@ -1923,10 +1688,8 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    }
-
 	    return settingsData;
 	  }
-
 	  static getDefaultSettingsData() {
 	    return {
 	      users: {
@@ -1970,14 +1733,11 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  }
-
 	  getSelectedUsers() {
 	    return this.settingsData && this.settingsData.users && calendar_resourcebooking.Type.isString(this.settingsData.users.value) ? this.settingsData.users.value.split('|') : [];
 	  }
-
 	  updateSettingsDataInputs() {
 	    let field, option;
-
 	    for (field in this.settingsData) {
 	      if (this.settingsData.hasOwnProperty(field)) {
 	        if (calendar_resourcebooking.Type.isPlainObject(this.settingsData[field])) {
@@ -1992,10 +1752,8 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  updateSettingsInputValue(key, value) {
 	    let uniKey = key.join('-');
-
 	    if (!this.DOM.settingsInputs[uniKey]) {
 	      this.DOM.settingsInputs[uniKey] = this.DOM.settingsWrap.appendChild(calendar_resourcebooking.Dom.create('input', {
 	        attrs: {
@@ -2004,25 +1762,20 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	    }
-
 	    if (calendar_resourcebooking.Type.isArray(value)) {
 	      value = value.join('|');
 	    }
-
 	    this.DOM.settingsInputs[uniKey].value = value;
 	  }
-
 	  showFieldLoader() {
 	    if (this.DOM.innerWrap) {
 	      this.hideFieldLoader();
 	      this.DOM.fieldLoader = this.DOM.innerWrap.appendChild(calendar_resourcebooking.BookingUtil.getLoader(100));
 	    }
 	  }
-
 	  hideFieldLoader() {
 	    calendar_resourcebooking.Dom.remove(this.DOM.fieldLoader);
 	  }
-
 	  getSettings() {
 	    if (!this.params.settings.userfieldSettings) {
 	      this.params.settings.userfieldSettings = {
@@ -2037,27 +1790,21 @@ this.BX = this.BX || {};
 	        userIndex: this.userFieldParams.SETTINGS.USER_INDEX
 	      };
 	    }
-
 	    return this.params.settings;
 	  }
-
 	  updateSettings(settings) {}
-
 	  getCaption() {
 	    return this.params.settings.caption;
 	  }
-
 	  updateCaption() {
 	    let caption = this.DOM.captionInput.value;
-
 	    if (this.params.settings.caption !== caption || !this.DOM.settingsInputs.caption) {
 	      this.params.settings.caption = caption;
-
 	      if (this.previewFieldLayout) {
 	        this.previewFieldLayout.updateTitle(this.params.settings.caption);
-	      } // Update title
+	      }
 
-
+	      // Update title
 	      if (!this.DOM.settingsInputs.caption) {
 	        this.DOM.settingsInputs.caption = this.DOM.settingsWrap.appendChild(calendar_resourcebooking.Dom.create("input", {
 	          attrs: {
@@ -2066,9 +1813,7 @@ this.BX = this.BX || {};
 	          }
 	        }));
 	      }
-
 	      this.DOM.settingsInputs.caption.value = this.params.settings.caption;
-
 	      if (this.DOM.captionNode) {
 	        calendar_resourcebooking.Dom.adjust(this.DOM.captionNode, {
 	          text: this.params.settings.caption
@@ -2076,14 +1821,11 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  isRequired() {
 	    return this.params.settings.required === 'Y';
 	  }
-
 	  updateRequiredValue() {
 	    this.params.settings.required = this.DOM.requiredCheckbox.checked ? 'Y' : 'N';
-
 	    if (!this.DOM.settingsInputs.required) {
 	      this.DOM.settingsInputs.required = this.DOM.settingsWrap.appendChild(calendar_resourcebooking.Dom.create("input", {
 	        attrs: {
@@ -2092,31 +1834,24 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	    }
-
 	    this.DOM.settingsInputs.required.value = this.params.settings.required;
 	  }
-
 	  checkBitrix24Limitation() {
 	    let count = 0,
-	        settings = this.getSettings();
-
+	      settings = this.getSettings();
 	    if (calendar_resourcebooking.Type.isArray(this.params.settings.userfieldSettings.resources)) {
 	      count += this.params.settings.userfieldSettings.resources.length;
 	    }
-
 	    if (settings.userfieldSettings.useUsers && this.complexFields.users) {
 	      let usersValue = this.complexFields.users.getValue();
-
 	      if (usersValue && calendar_resourcebooking.Type.isArray(usersValue.value)) {
 	        count += usersValue.value.length;
 	      }
 	    }
-
 	    if (settings.userfieldSettings.resourceLimit > 0 && count > settings.userfieldSettings.resourceLimit) {
 	      calendar_resourcebooking.BookingUtil.showLimitationPopup();
 	    }
 	  }
-
 	}
 
 	class UserSelectorFieldEditControl {
@@ -2128,34 +1863,29 @@ this.BX = this.BX || {};
 	    this.params.selectGroups = false;
 	    this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
 	    this.checkLimit = BX.type.isFunction(params.checkLimitCallback) ? params.checkLimitCallback : false;
-
 	    if (!this.params.itemsSelected) {
 	      this.params.itemsSelected = this.getSocnetDestinationConfig('itemsSelected');
 	    }
-
 	    this.DOM = {
 	      outerWrap: this.params.outerWrap,
 	      wrapNode: this.params.wrapNode
 	    };
 	    this.create();
 	  }
-
 	  create() {
 	    if (this.DOM.outerWrap) {
 	      calendar_resourcebooking.Dom.addClass(this.DOM.outerWrap, 'calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
 	    }
-
 	    let id = this.id;
 	    BX.bind(this.wrapNode, 'click', BX.delegate(function (e) {
 	      let target = e.target || e.srcElement;
-
-	      if (target.className === 'calendar-resourcebook-content-block-control-delete') // Delete button
+	      if (target.className === 'calendar-resourcebook-content-block-control-delete')
+	        // Delete button
 	        {
 	          BX.SocNetLogDestination.deleteItem(target.getAttribute('data-item-id'), target.getAttribute('data-item-type'), id);
 	          let block = BX.findParent(target, {
 	            className: 'calendar-resourcebook-content-block-control-inner'
 	          });
-
 	          if (block && BX.hasClass(block, 'shown')) {
 	            BX.removeClass(block, 'shown');
 	            setTimeout(function () {
@@ -2205,39 +1935,31 @@ this.BX = this.BX || {};
 	    }));
 	    this.init();
 	  }
-
 	  show() {
 	    if (this.DOM.outerWrap) {
 	      calendar_resourcebooking.Dom.addClass(this.DOM.outerWrap, 'shown');
 	    }
 	  }
-
 	  hide() {
 	    if (this.DOM.outerWrap) {
 	      BX.removeClass(this.DOM.outerWrap, 'shown');
 	    }
 	  }
-
 	  isShown() {
 	    if (this.DOM.outerWrap) {
 	      return BX.hasClass(this.DOM.outerWrap, 'shown');
 	    }
 	  }
-
 	  init() {
 	    if (!this.socnetDestinationInput || !this.wrapNode) return;
-
 	    let _this = this;
-
 	    this.params.items = this.getSocnetDestinationConfig('items');
 	    this.params.itemsLast = this.getSocnetDestinationConfig('itemsLast');
-
 	    if (this.params.selectGroups === false) {
 	      this.params.items.groups = {};
 	      this.params.items.department = {};
 	      this.params.items.sonetgroups = {};
 	    }
-
 	    BX.SocNetLogDestination.init({
 	      name: this.id,
 	      searchInput: this.socnetDestinationInput,
@@ -2269,15 +1991,12 @@ this.BX = this.BX || {};
 	      departmentSelectDisable: this.params.selectGroups === false
 	    });
 	  }
-
 	  closeAll() {
 	    if (BX.SocNetLogDestination.isOpenDialog()) {
 	      BX.SocNetLogDestination.closeDialog();
 	    }
-
 	    BX.SocNetLogDestination.closeSearch();
 	  }
-
 	  selectCallback(item, type) {
 	    if (type === 'users') {
 	      this.addUserBlock(item);
@@ -2285,22 +2004,17 @@ this.BX = this.BX || {};
 	      this.socnetDestinationInput.value = '';
 	    }
 	  }
-
 	  addUserBlock(item, animation) {
 	    if (this.checkLimit && !this.checkLimit()) {
 	      return calendar_resourcebooking.BookingUtil.showLimitationPopup();
 	    }
-
 	    if (this.getAttendeesCodesList().includes(item.id)) {
 	      return;
 	    }
-
 	    const blocks = this.wrapNode.querySelectorAll(`calendar-resourcebook-content-block-control-inner[data-id='${item.id}']`);
-
 	    for (let i = 0; i < blocks.length; i++) {
 	      BX.remove(blocks[i]);
 	    }
-
 	    const itemWrap = this.wrapNode.appendChild(BX.create("DIV", {
 	      attrs: {
 	        'data-id': item.id,
@@ -2308,7 +2022,6 @@ this.BX = this.BX || {};
 	      },
 	      html: '<div class="calendar-resourcebook-content-block-control-text">' + item.name + '</div>' + '<div data-item-id="' + item.id + '" data-item-type="users" class="calendar-resourcebook-content-block-control-delete"></div>' + '<input type="hidden" name="' + this.destinationInputName + '[U][]' + '" value="' + item.id + '">'
 	    }));
-
 	    if (animation !== false) {
 	      setTimeout(BX.delegate(function () {
 	        calendar_resourcebooking.Dom.addClass(itemWrap, 'shown');
@@ -2316,41 +2029,36 @@ this.BX = this.BX || {};
 	    } else {
 	      calendar_resourcebooking.Dom.addClass(itemWrap, 'shown');
 	    }
-
 	    this.wrapNode.appendChild(this.socnetDestinationInputWrap);
 	    this.wrapNode.appendChild(this.socnetDestinationLink);
 	  }
-
 	  unSelectCallback(item) {
 	    let elements = BX.findChildren(this.wrapNode, {
 	      attribute: {
 	        'data-id': item.id
 	      }
 	    }, true);
-
 	    if (elements != null) {
 	      for (let j = 0; j < elements.length; j++) {
 	        BX.remove(elements[j]);
 	      }
 	    }
-
 	    BX.onCustomEvent('OnResourceBookDestinationUnselect', [item, this.id]);
 	    this.socnetDestinationInput.value = '';
 	    this.socnetDestinationLink.innerHTML = this.addMessage;
 	  }
-
 	  openDialogCallback() {
 	    BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 	    BX.style(this.socnetDestinationLink, 'display', 'none');
 	    BX.focus(this.socnetDestinationInput);
 	  }
-
 	  closeDialogCallback(cleanInputValue) {
 	    if (!BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0) {
 	      BX.style(this.socnetDestinationInputWrap, 'display', 'none');
 	      BX.style(this.socnetDestinationLink, 'display', 'inline-block');
-	      if (cleanInputValue === true) this.socnetDestinationInput.value = ''; // Disable backspace
+	      if (cleanInputValue === true) this.socnetDestinationInput.value = '';
 
+	      // Disable backspace
 	      if (BX.SocNetLogDestination.backspaceDisable || BX.SocNetLogDestination.backspaceDisable != null) BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
 	      BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function (e) {
 	        if (e.keyCode === 8) {
@@ -2364,39 +2072,30 @@ this.BX = this.BX || {};
 	      }, 5000);
 	    }
 	  }
-
 	  getCodes() {
 	    let inputsList = this.wrapNode.getElementsByTagName('INPUT'),
-	        codes = [],
-	        i,
-	        value;
-
+	      codes = [],
+	      i,
+	      value;
 	    for (i = 0; i < inputsList.length; i++) {
 	      value = BX.util.trim(inputsList[i].value);
-
 	      if (value) {
 	        codes.push(inputsList[i].value);
 	      }
 	    }
-
 	    return codes;
 	  }
-
 	  getAttendeesCodes() {
 	    let inputsList = this.wrapNode.getElementsByTagName('INPUT'),
-	        values = [],
-	        i;
-
+	      values = [],
+	      i;
 	    for (i = 0; i < inputsList.length; i++) {
 	      values.push(inputsList[i].value);
 	    }
-
 	    return this.convertAttendeesCodes(values);
 	  }
-
 	  convertAttendeesCodes(values) {
 	    let attendeesCodes = {};
-
 	    if (BX.type.isArray(values)) {
 	      values.forEach(function (code) {
 	        if (code.substr(0, 2) === 'DR') {
@@ -2410,27 +2109,21 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    return attendeesCodes;
 	  }
-
 	  getAttendeesCodesList(codes) {
 	    let result = [];
 	    if (!codes) codes = this.getAttendeesCodes();
-
 	    for (let i in codes) {
 	      if (codes.hasOwnProperty(i)) {
 	        result.push(i);
 	      }
 	    }
-
 	    return result;
 	  }
-
 	  getSocnetDestinationConfig(key) {
 	    let res,
-	        socnetDestination = this.params.socnetDestination || {};
-
+	      socnetDestination = this.params.socnetDestination || {};
 	    if (key === 'items') {
 	      res = {
 	        users: socnetDestination.USERS || {},
@@ -2456,15 +2149,12 @@ this.BX = this.BX || {};
 	    } else if (key === 'itemsSelected') {
 	      res = socnetDestination.SELECTED || {};
 	    }
-
 	    return res || {};
 	  }
-
 	  getSelectedValues() {
 	    let result = [],
-	        i,
-	        inputs = this.wrapNode.querySelectorAll('input');
-
+	      i,
+	      inputs = this.wrapNode.querySelectorAll('input');
 	    for (i = 0; i < inputs.length; i++) {
 	      if (inputs[i].type === 'hidden' && inputs[i].value) {
 	        if (inputs[i].value.substr(0, 1) === 'U') {
@@ -2472,22 +2162,17 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    }
-
 	    return result;
 	  }
-
 	  setValues(userList, trigerOnChange) {
 	    let i, user;
 	    const blocks = this.wrapNode.querySelectorAll('.calendar-resourcebook-content-block-control-inner');
-
 	    for (i = 0; i < blocks.length; i++) {
 	      BX.remove(blocks[i]);
 	    }
-
 	    for (i = 0; i < userList.length; i++) {
 	      if (BX.SocNetLogDestination.obItems[this.id]['users']) {
 	        user = BX.SocNetLogDestination.obItems[this.id]['users']['U' + userList[i]];
-
 	        if (user) {
 	          this.addUserBlock({
 	            id: 'U' + userList[i],
@@ -2496,16 +2181,13 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    }
-
 	    if (trigerOnChange !== false && this.onChangeCallback && BX.type.isFunction(this.onChangeCallback)) {
 	      setTimeout(BX.proxy(this.onChangeCallback, this), 100);
 	    }
 	  }
-
 	  getId() {
 	    return this.id;
 	  }
-
 	}
 
 	class ResourceSelectorFieldEditControl {
@@ -2525,7 +2207,6 @@ this.BX = this.BX || {};
 	      blocksWrap: this.params.blocksWrap || false,
 	      listWrap: this.params.listWrap
 	    };
-
 	    if (this.editMode) {
 	      this.DOM.controlsWrap = this.params.controlsWrap;
 	    } else {
@@ -2535,15 +2216,12 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    this.onChangeCallback = this.params.onChangeCallback || null;
 	    this.create();
 	    this.setValues(params.values);
 	  }
-
 	  create() {
 	    BX.addClass(this.DOM.outerWrap, 'calendar-resourcebook-resource-list-wrap calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
-
 	    if (this.editMode) {
 	      this.DOM.addButton = this.DOM.controlsWrap.appendChild(BX.create("span", {
 	        props: {
@@ -2554,7 +2232,6 @@ this.BX = this.BX || {};
 	          click: BX.delegate(this.addResourceBlock, this)
 	        }
 	      }));
-
 	      if (this.resourceList.length > 0) {
 	        this.DOM.selectButton = this.DOM.controlsWrap.appendChild(BX.create("span", {
 	          props: {
@@ -2570,26 +2247,20 @@ this.BX = this.BX || {};
 	      BX.bind(this.DOM.blocksWrap, 'click', BX.delegate(this.handleBlockClick, this));
 	    }
 	  }
-
 	  show() {
 	    BX.addClass(this.DOM.outerWrap, 'shown');
 	  }
-
 	  hide() {
 	    this.DOM.outerWrap.style.maxHeight = '';
 	    BX.removeClass(this.DOM.outerWrap, 'shown');
 	  }
-
 	  isShown() {
 	    return BX.hasClass(this.DOM.outerWrap, 'shown');
 	  }
-
 	  handleBlockClick(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (target) {
 	      let blockValue = target.getAttribute('data-bx-remove-block');
-
 	      if (blockValue) {
 	        // Remove from blocks
 	        this.selectedBlocks.find(function (element, index) {
@@ -2600,42 +2271,36 @@ this.BX = this.BX || {};
 	            }, this), 300);
 	            this.selectedBlocks = BX.util.deleteFromArray(this.selectedBlocks, index);
 	          }
-	        }, this); // Remove from values
+	        }, this);
 
+	        // Remove from values
 	        this.selectedValues.find(function (element, index) {
 	          if (element.title === blockValue) {
 	            this.selectedValues = BX.util.deleteFromArray(this.selectedValues, index);
 	          }
 	        }, this);
-
 	        if (BX.type.isFunction(this.onChangeCallback)) {
 	          setTimeout(BX.proxy(this.onChangeCallback, this), 100);
 	        }
-
 	        this.checkBlockWrapState();
 	      }
-
 	      if (!blockValue) {
 	        this.openResourcesPopup();
 	      }
 	    }
 	  }
-
 	  openResourcesPopup() {
 	    if (!this.resourceList.length) {
 	      return this.addResourceBlock();
 	    }
-
 	    if (this.isResourcesPopupShown()) {
 	      return;
 	    }
-
 	    let menuItems = [];
 	    this.resourceList.forEach(function (resource) {
 	      if (resource.deleted) {
 	        return;
 	      }
-
 	      menuItems.push({
 	        text: BX.util.htmlspecialchars(resource.title),
 	        dataset: {
@@ -2645,12 +2310,11 @@ this.BX = this.BX || {};
 	        },
 	        onclick: BX.delegate(function (e, menuItem) {
 	          let selectAllcheckbox,
-	              target = e.target || e.srcElement,
-	              checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox'),
-	              foundResource = this.resourceList.find(function (resource) {
-	            return parseInt(resource.id) === parseInt(menuItem.dataset.id) && resource.type === menuItem.dataset.type;
-	          }, this);
-
+	            target = e.target || e.srcElement,
+	            checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox'),
+	            foundResource = this.resourceList.find(function (resource) {
+	              return parseInt(resource.id) === parseInt(menuItem.dataset.id) && resource.type === menuItem.dataset.type;
+	            }, this);
 	          if (foundResource) {
 	            // Complete removing of the resource
 	            if (target && BX.hasClass(target, "calendar-resourcebook-content-block-control-delete")) {
@@ -2662,31 +2326,25 @@ this.BX = this.BX || {};
 	              this.checkResourceInputs();
 	              selectAllcheckbox = this.popupContainer.querySelector('.menu-popup-item-all-resources-checkbox');
 	              this.selectAllChecked = false;
-
 	              if (selectAllcheckbox) {
 	                selectAllcheckbox.checked = false;
 	              }
-
 	              let menuItemNode = BX.findParent(target, {
 	                className: 'menu-popup-item'
 	              });
-
 	              if (menuItemNode) {
 	                BX.addClass(menuItemNode, 'menu-popup-item-resource-remove-loader');
 	                menuItemNode.appendChild(calendar_resourcebooking.BookingUtil.getLoader(25));
 	                let textNode = menuItemNode.querySelector('.menu-popup-item-text');
-
 	                if (textNode) {
 	                  textNode.innerHTML = BX.message('USER_TYPE_RESOURCE_DELETING');
 	                }
 	              }
-
 	              foundResource.deleted = true;
 	              setTimeout(BX.delegate(function () {
 	                if (menuItemNode) {
 	                  menuItemNode.style.maxHeight = '0';
 	                }
-
 	                if (!this.resourceList.find(function (resource) {
 	                  return !resource.deleted;
 	                })) {
@@ -2701,7 +2359,6 @@ this.BX = this.BX || {};
 	              if (!BX.hasClass(target, "menu-popup-item-resource-checkbox")) {
 	                checkbox.checked = !checkbox.checked;
 	              }
-
 	              if (checkbox.checked) {
 	                this.addResourceBlock({
 	                  resource: foundResource,
@@ -2718,7 +2375,6 @@ this.BX = this.BX || {};
 	                this.checkResourceInputs();
 	                selectAllcheckbox = this.popupContainer.querySelector('.menu-popup-item-all-resources-checkbox');
 	                this.selectAllChecked = false;
-
 	                if (selectAllcheckbox) {
 	                  selectAllcheckbox.checked = false;
 	                }
@@ -2728,33 +2384,26 @@ this.BX = this.BX || {};
 	        }, this)
 	      });
 	    }, this);
-
 	    if (menuItems.length > 1) {
 	      menuItems.push({
 	        text: BX.message('USER_TYPE_RESOURCE_SELECT_ALL'),
 	        onclick: BX.delegate(function (e, menuItem) {
 	          let target = e.target || e.srcElement;
-
 	          if (target && (BX.hasClass(target, "menu-popup-item") || BX.hasClass(target, "menu-popup-item-resource-checkbox"))) {
 	            let checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox');
-
 	            if (BX.hasClass(target, "menu-popup-item")) {
 	              checkbox.checked = !checkbox.checked;
 	            }
-
 	            let i,
-	                checkboxes = this.popupContainer.querySelectorAll('input.menu-popup-item-resource-checkbox');
+	              checkboxes = this.popupContainer.querySelectorAll('input.menu-popup-item-resource-checkbox');
 	            this.selectAllChecked = checkbox.checked;
-
 	            for (i = 0; i < checkboxes.length; i++) {
 	              checkboxes[i].checked = this.selectAllChecked;
 	            }
-
 	            this.resourceList.forEach(function (resource) {
 	              if (resource.deleted) {
 	                return;
 	              }
-
 	              if (this.selectAllChecked) {
 	                this.addResourceBlock({
 	                  resource: resource,
@@ -2774,7 +2423,6 @@ this.BX = this.BX || {};
 	        }, this)
 	      });
 	    }
-
 	    this.popup = BX.PopupMenu.create(this.id, this.DOM.selectButton || this.DOM.blocksWrap, menuItems, {
 	      className: 'popup-window-resource-select',
 	      closeByEsc: true,
@@ -2784,17 +2432,14 @@ this.BX = this.BX || {};
 	    });
 	    this.popup.show(true);
 	    this.popupContainer = this.popup.popupWindow.popupContainer;
-
 	    if (!this.editMode) {
 	      this.popupContainer.style.width = parseInt(this.DOM.blocksWrap.offsetWidth) + 'px';
 	    }
-
 	    BX.addCustomEvent(this.popup.popupWindow, 'onPopupClose', BX.proxy(function () {
 	      BX.PopupMenu.destroy(this.id);
 	    }, this));
 	    this.popup.menuItems.forEach(function (menuItem) {
 	      let checked;
-
 	      if (menuItem.dataset && menuItem.dataset.type) {
 	        checked = this.selectedValues.find(function (item) {
 	          return parseInt(item.id) === parseInt(menuItem.dataset.id) && item.type === menuItem.dataset.type;
@@ -2815,30 +2460,24 @@ this.BX = this.BX || {};
 	      BX.bind(document, 'click', BX.proxy(this.handleClick, this));
 	    }, this), 50);
 	  }
-
 	  addResourceBlock(params) {
 	    if (!BX.type.isPlainObject(params)) {
 	      params = {};
 	    }
-
 	    if (params.resource && this.checkLimit && !this.checkLimit() && window.B24 || !params.resource && this.checkLimitForNew && !this.checkLimitForNew() && window.B24) {
 	      return calendar_resourcebooking.BookingUtil.showLimitationPopup();
 	    }
-
 	    let _this = this,
-	        blockEntry;
-
+	      blockEntry;
 	    if (this.editMode) {
 	      if (params.resource && this.selectedValues.find(function (val) {
 	        return val.id && parseInt(val.id) === parseInt(params.resource.id) && val.type === params.resource.type;
 	      })) {
 	        return;
 	      }
-
 	      if (!params.value) {
 	        params.value = '';
 	      }
-
 	      blockEntry = {
 	        value: params.value,
 	        wrap: this.DOM.listWrap.appendChild(BX.create("div", {
@@ -2877,13 +2516,10 @@ this.BX = this.BX || {};
 	              className: 'calendar-resourcebook-outer-resource-wrap'
 	            }));
 	            _this.selectedValues = _this.getSelectedValues();
-
 	            _this.checkResourceInputs();
 	          }
-
 	        }
 	      }));
-
 	      if (params.focusInput !== false) {
 	        BX.focus(blockEntry.input);
 	      }
@@ -2893,7 +2529,6 @@ this.BX = this.BX || {};
 	      })) {
 	        return;
 	      }
-
 	      blockEntry = {
 	        value: params.value,
 	        resource: params.resource || false,
@@ -2916,22 +2551,21 @@ this.BX = this.BX || {};
 	          })]
 	        }))
 	      };
-	      this.selectedBlocks.push(blockEntry); // Show it with animation
+	      this.selectedBlocks.push(blockEntry);
 
+	      // Show it with animation
 	      if (params.animation) {
 	        setTimeout(BX.delegate(function () {
 	          BX.addClass(blockEntry.wrap, 'shown');
 	        }, this), 1);
 	      }
-
 	      if (params.trigerOnChange !== false && this.onChangeCallback && BX.type.isFunction(this.onChangeCallback)) {
 	        setTimeout(BX.proxy(this.onChangeCallback, this), 100);
 	      }
-
 	      this.checkBlockWrapState();
-	    } // Adjust outer wrap max height
+	    }
 
-
+	    // Adjust outer wrap max height
 	    if (this.DOM.listWrap && this.DOM.outerWrap) {
 	      if (BX.hasClass(this.DOM.outerWrap, 'shown')) {
 	        this.DOM.outerWrap.style.maxHeight = Math.max(10000, this.DOM.listWrap.childNodes.length * 45 + 100) + 'px';
@@ -2939,21 +2573,17 @@ this.BX = this.BX || {};
 	        this.DOM.outerWrap.style.maxHeight = '';
 	      }
 	    }
-
 	    return blockEntry;
 	  }
-
 	  removeResourceBlock(params) {
 	    if (this.editMode) {
 	      let resourceType,
-	          resourceId,
-	          i,
-	          inputs = this.DOM.listWrap.querySelectorAll('.calendar-resourcebook-content-input');
-
+	        resourceId,
+	        i,
+	        inputs = this.DOM.listWrap.querySelectorAll('.calendar-resourcebook-content-input');
 	      for (i = 0; i < inputs.length; i++) {
 	        resourceType = inputs[i].getAttribute('data-resource-type');
 	        resourceId = inputs[i].getAttribute('data-resource-id');
-
 	        if (resourceType === params.resource.type && parseInt(resourceId) === parseInt(params.resource.id)) {
 	          BX.remove(BX.findParent(inputs[i], {
 	            className: 'calendar-resourcebook-outer-resource-wrap'
@@ -2972,15 +2602,12 @@ this.BX = this.BX || {};
 	          }
 	        }, this);
 	      }
-
 	      this.checkBlockWrapState();
-
 	      if (params.trigerOnChange !== false && this.onChangeCallback && BX.type.isFunction(this.onChangeCallback)) {
 	        setTimeout(BX.proxy(this.onChangeCallback, this), 100);
 	      }
 	    }
 	  }
-
 	  checkResourceInputs() {
 	    if (this.editMode) {
 	      if (!this.selectedValues.length) {
@@ -2990,7 +2617,6 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  checkBlockWrapState() {
 	    if (!this.editMode) {
 	      if (!this.selectedBlocks.length) {
@@ -3005,7 +2631,6 @@ this.BX = this.BX || {};
 	          this.DOM.emptyPlaceholder.className = "calendar-resourcebook-content-block-control-empty";
 	          this.DOM.blocksWrap.appendChild(this.DOM.emptyPlaceholder);
 	        }
-
 	        setTimeout(BX.delegate(function () {
 	          if (BX.isNodeInDom(this.DOM.emptyPlaceholder)) {
 	            BX.addClass(this.DOM.emptyPlaceholder, 'show');
@@ -3016,21 +2641,17 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  handleClick(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (this.isResourcesPopupShown() && !BX.isParentForNode(this.popupContainer, target)) {
 	      this.closeResourcesPopup({
 	        animation: true
 	      });
 	    }
 	  }
-
 	  isResourcesPopupShown() {
 	    return this.popup && this.popup.popupWindow && this.popup.popupWindow.isShown && this.popup.popupWindow.isShown() && this.popup.popupWindow.popupContainer && BX.isNodeInDom(this.popup.popupWindow.popupContainer);
 	  }
-
 	  closeResourcesPopup(params) {
 	    if (this.popup) {
 	      this.popup.close();
@@ -3038,11 +2659,9 @@ this.BX = this.BX || {};
 	      BX.unbind(document, 'click', BX.proxy(this.handleClick, this));
 	    }
 	  }
-
 	  getValues() {
 	    return this.resourceList;
 	  }
-
 	  addToSelectedValues(value) {
 	    if (!this.selectedValues.find(function (val) {
 	      return parseInt(val.id) === parseInt(value.id) && val.type === value.type;
@@ -3050,20 +2669,16 @@ this.BX = this.BX || {};
 	      this.selectedValues.push(value);
 	    }
 	  }
-
 	  getSelectedValues() {
 	    this.selectedValues = [];
-
 	    if (this.editMode) {
 	      let resourceType,
-	          resourceId,
-	          i,
-	          inputs = this.DOM.listWrap.querySelectorAll('.calendar-resourcebook-content-input');
-
+	        resourceId,
+	        i,
+	        inputs = this.DOM.listWrap.querySelectorAll('.calendar-resourcebook-content-input');
 	      for (i = 0; i < inputs.length; i++) {
 	        resourceType = inputs[i].getAttribute('data-resource-type');
 	        resourceId = inputs[i].getAttribute('data-resource-id');
-
 	        if (resourceType && resourceId) {
 	          this.selectedValues.push({
 	            type: resourceType,
@@ -3085,29 +2700,24 @@ this.BX = this.BX || {};
 	        });
 	      }, this);
 	    }
-
 	    return this.selectedValues;
 	  }
-
 	  getDeletedValues() {
 	    return this.resourceList.filter(function (resource) {
 	      return resource.deleted;
 	    });
 	  }
-
 	  setValues(values, trigerOnChange) {
 	    this.selectedBlocks.forEach(function (element) {
 	      BX.remove(element.wrap);
 	    });
 	    this.selectedBlocks = [];
 	    trigerOnChange = trigerOnChange !== false;
-
 	    if (BX.type.isArray(values)) {
 	      values.forEach(function (value) {
 	        let foundResource = this.resourceList.find(function (resource) {
 	          return parseInt(resource.id) === parseInt(value.id) && resource.type === value.type;
 	        }, this);
-
 	        if (foundResource) {
 	          this.addResourceBlock({
 	            resource: foundResource,
@@ -3118,7 +2728,6 @@ this.BX = this.BX || {};
 	        }
 	      }, this);
 	    }
-
 	    if (this.editMode) {
 	      this.selectedValues = this.getSelectedValues();
 	      this.checkResourceInputs();
@@ -3127,35 +2736,28 @@ this.BX = this.BX || {};
 	        this.DOM.blocksWrap.appendChild(this.DOM.arrowNode);
 	      }
 	    }
-
 	    this.checkBlockWrapState();
 	  }
-
 	}
 
 	class PlannerPopup {
 	  constructor(params) {}
-
 	  show(params) {
 	    if (!params) {
 	      params = {};
 	    }
-
 	    this.params = params;
 	    this.bindNode = params.bindNode;
 	    this.plannerId = this.params.plannerId;
 	    this.config = this.params.plannerConfig;
-
 	    if (this.isShown() || !this.bindNode) {
 	      return;
 	    }
-
 	    if (this.lastPlannerIdShown && this.lastPlannerIdShown !== this.plannerId) {
 	      this.close({
 	        animation: false
 	      });
 	    }
-
 	    this.currentEntries = [];
 	    this.plannerWrap = calendar_resourcebooking.Dom.create('DIV', {
 	      attrs: {
@@ -3178,54 +2780,46 @@ this.BX = this.BX || {};
 	    this.popup.show();
 	    this.lastPlannerIdShown = this.plannerId;
 	    let bindPos = BX.pos(this.bindNode),
-	        winSize = BX.GetWindowSize();
+	      winSize = BX.GetWindowSize();
 	    this.plannerWidth = winSize.innerWidth - bindPos.right - 160;
 	    this.config.width = this.plannerWidth;
-
 	    if (this.popup && this.popup.popupContainer) {
 	      calendar_resourcebooking.Dom.addClass(this.popup.popupContainer, 'calendar-resbook-planner-popup');
 	      calendar_resourcebooking.Dom.addClass(this.popup.popupContainer, 'show');
 	      this.popup.popupContainer.style.width = this.plannerWidth + 40 + 'px';
 	      calendar_resourcebooking.Event.bind(document, 'click', this.handleClick.bind(this));
 	    }
-
 	    this.showPlanner();
 	    BX.addCustomEvent(this.popup, 'onPopupClose', this.close.bind(this));
 	  }
-
 	  update(params, refreshParams) {
 	    if (!this.isShown()) {
 	      return;
 	    }
-
 	    let codes = [],
-	        i,
-	        k,
-	        code,
-	        codeIndex = {},
-	        plannerConfig = BX.clone(this.config, true),
-	        fromTimestamp,
-	        toTimestamp,
-	        dateFrom,
-	        dateTo;
-
+	      i,
+	      k,
+	      code,
+	      codeIndex = {},
+	      plannerConfig = BX.clone(this.config, true),
+	      fromTimestamp,
+	      toTimestamp,
+	      dateFrom,
+	      dateTo;
 	    if (calendar_resourcebooking.Type.isPlainObject(this.lastUpdateParams) && calendar_resourcebooking.Type.isPlainObject(params) && refreshParams !== true) {
 	      for (k in params) {
 	        if (params.hasOwnProperty(k)) {
 	          this.lastUpdateParams[k] = params[k];
 	        }
 	      }
-
 	      params = this.lastUpdateParams;
-	    } // Save selector information
+	    }
 
-
+	    // Save selector information
 	    if (calendar_resourcebooking.Type.isPlainObject(params)) {
 	      this.lastUpdateParams = params;
 	    }
-
 	    params.focusSelector = params.focusSelector !== false;
-
 	    if (params.from && params.to) {
 	      dateFrom = calendar_resourcebooking.BookingUtil.parseDate(params.from);
 	      dateTo = calendar_resourcebooking.BookingUtil.parseDate(params.to);
@@ -3239,35 +2833,29 @@ this.BX = this.BX || {};
 	        fromTimestamp = params.selector.from.getTime() - calendar_resourcebooking.BookingUtil.getDayLength() * 3;
 	        toTimestamp = params.selector.from.getTime() + calendar_resourcebooking.BookingUtil.getDayLength() * 5;
 	      }
-
 	      dateFrom = new Date(fromTimestamp);
 	      dateTo = new Date(toTimestamp);
 	      plannerConfig.scaleDateFrom = dateFrom;
 	      plannerConfig.scaleDateTo = dateTo;
 	    }
-
 	    if (calendar_resourcebooking.Type.isArray(params.userList)) {
 	      for (i = 0; i < params.userList.length; i++) {
 	        code = 'U' + params.userList[i].id;
-
 	        if (!codeIndex[code]) {
 	          codes.push(code);
 	          codeIndex[code] = true;
 	        }
 	      }
 	    }
-
 	    if (calendar_resourcebooking.Type.isArray(params.selectedUsers)) {
 	      for (i = 0; i < params.selectedUsers.length; i++) {
 	        code = 'U' + params.selectedUsers[i];
-
 	        if (!codeIndex[code]) {
 	          codes.push(code);
 	          codeIndex[code] = true;
 	        }
 	      }
 	    }
-
 	    let requestData = {
 	      codes: codes,
 	      resources: params.resourceList,
@@ -3275,23 +2863,19 @@ this.BX = this.BX || {};
 	      to: calendar_resourcebooking.BookingUtil.formatDate(null, toTimestamp / 1000),
 	      currentEventList: this.params.currentEventList || []
 	    };
-
 	    if (this.checkUpdateParams(requestData) && this.isShown()) {
 	      this.showPlannerLoader();
 	      BX.ajax.runAction('calendar.api.resourcebookingajax.getplannerdata', {
 	        data: requestData
 	      }).then(function (response) {
 	        this.hidePlannerLoader();
-
 	        if (this.lastRequestData) {
 	          this.lastRequestData.response = response;
 	        }
-
 	        this.currentEntries = response.data.entries;
 	        this.currentAccessibility = response.data.accessibility;
 	        this.currentLoadedDataFrom = dateFrom;
 	        this.currentLoadedDataTo = dateTo;
-
 	        if (calendar_resourcebooking.Type.isArray(response.data.entries)) {
 	          response.data.entries.forEach(function (entry) {
 	            entry.selected = entry.type === 'user' && params.selectedUsers.find(function (userId) {
@@ -3301,7 +2885,6 @@ this.BX = this.BX || {};
 	            });
 	          });
 	        }
-
 	        if (this.isShown()) {
 	          BX.onCustomEvent('OnCalendarPlannerDoUpdate', [{
 	            plannerId: this.plannerId,
@@ -3330,7 +2913,6 @@ this.BX = this.BX || {};
 	      this.currentAccessibility = response.data.accessibility;
 	      this.currentLoadedDataFrom = dateFrom;
 	      this.currentLoadedDataTo = dateTo;
-
 	      if (calendar_resourcebooking.Type.isArray(response.data.entries)) {
 	        response.data.entries.forEach(function (entry) {
 	          entry.selected = entry.type === 'user' && params.selectedUsers.find(function (userId) {
@@ -3340,7 +2922,6 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      if (this.isShown()) {
 	        BX.onCustomEvent('OnCalendarPlannerDoUpdate', [{
 	          plannerId: this.plannerId,
@@ -3364,25 +2945,22 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  checkUpdateParams(requestData) {
 	    let requestPlannerUpdate = false;
-
 	    if (!this.lastRequestData || this.lastRequestPlannerId !== this.plannerId) {
 	      requestPlannerUpdate = true;
-	    } // 1. Compare dates
+	    }
 
-
+	    // 1. Compare dates
 	    if (!requestPlannerUpdate && requestData.from !== this.lastRequestData.from) {
 	      requestPlannerUpdate = true;
-	    } // 2. Compare users
-
-
+	    }
+	    // 2. Compare users
 	    if (!requestPlannerUpdate && calendar_resourcebooking.Type.isArray(requestData.codes) && calendar_resourcebooking.Type.isArray(this.lastRequestData.codes) && BX.util.array_diff(requestData.codes, this.lastRequestData.codes).length > 0) {
 	      requestPlannerUpdate = true;
-	    } // 3. Compare resources
+	    }
 
-
+	    // 3. Compare resources
 	    if (!requestPlannerUpdate && calendar_resourcebooking.Type.isArray(requestData.resources) && calendar_resourcebooking.Type.isArray(this.lastRequestData.resources)) {
 	      if (requestData.resources.length !== this.lastRequestData.resources.length) {
 	        requestPlannerUpdate = true;
@@ -3397,17 +2975,15 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-	    } // Save request data for future comparing
+	    }
 
-
+	    // Save request data for future comparing
 	    if (requestPlannerUpdate) {
 	      this.lastRequestData = requestData;
 	      this.lastRequestPlannerId = this.plannerId;
 	    }
-
 	    return requestPlannerUpdate;
 	  }
-
 	  showPlanner() {
 	    this.planner = new CalendarPlanner(this.params.plannerConfig, {
 	      config: this.config,
@@ -3430,20 +3006,18 @@ this.BX = this.BX || {};
 	      focusSelector: true,
 	      plannerId: this.plannerId,
 	      show: true
-	    }); // planner events
+	    });
 
+	    // planner events
 	    if (calendar_resourcebooking.Type.isFunction(this.params.selectorOnChangeCallback)) {
 	      BX.addCustomEvent('OnCalendarPlannerSelectorChanged', this.params.selectorOnChangeCallback);
 	    }
-
 	    if (calendar_resourcebooking.Type.isFunction(this.params.selectEntriesOnChangeCallback)) {
 	      BX.addCustomEvent('OnCalendarPlannerSelectedEntriesOnChange', this.params.selectEntriesOnChangeCallback);
 	    }
-
 	    if (calendar_resourcebooking.Type.isFunction(this.params.checkSelectorStatusCallback)) {
 	      BX.addCustomEvent('OnCalendarPlannerSelectorStatusOnChange', this.params.checkSelectorStatusCallback);
 	    }
-
 	    BX.addCustomEvent('OnCalendarPlannerScaleChanged', BX.proxy(function (params) {
 	      this.update({
 	        from: params.from,
@@ -3452,24 +3026,20 @@ this.BX = this.BX || {};
 	      });
 	    }, this));
 	  }
-
 	  showPlannerLoader() {
 	    if (this.planner && this.planner.outerWrap) {
 	      if (this.loader) {
 	        calendar_resourcebooking.Dom.remove(this.loader);
 	      }
-
 	      this.loader = this.planner.outerWrap.appendChild(calendar_resourcebooking.BookingUtil.getLoader(150));
 	    }
 	  }
-
 	  hidePlannerLoader() {
 	    if (this.loader) {
 	      calendar_resourcebooking.Dom.remove(this.loader);
 	      this.loader = false;
 	    }
 	  }
-
 	  close(params) {
 	    if (this.popup) {
 	      if (params && params.animation) {
@@ -3487,22 +3057,17 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	  isShown() {
 	    return this.lastPlannerIdShown === this.plannerId && this.popup && this.popup.isShown();
 	  }
-
 	  getPlannerId() {
 	    if (typeof this.plannerId === 'undefined') {
 	      this.plannerId = 'calendar-planner-' + Math.round(Math.random() * 100000);
 	    }
-
 	    return this.plannerId;
 	  }
-
 	  handleClick(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (this.isShown() && !BX.isParentForNode(this.bindNode, target) && !BX.isParentForNode(BX('BXSocNetLogDestination'), target) && !BX.isParentForNode(this.popup.popupContainer, target) && !calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete')) {
 	      if (!document.querySelector('div.popup-window-resource-select')) {
 	        this.close({
@@ -3511,7 +3076,6 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
-
 	}
 
 	class EditFieldController {
@@ -3523,18 +3087,15 @@ this.BX = this.BX || {};
 	      valueInputs: []
 	    };
 	    this.isNew = !this.params.value || !this.params.value.DATE_FROM;
-
 	    if (this.params.socnetDestination) {
 	      calendar_resourcebookinguserfield.ResourcebookingUserfield.setSocnetDestination(this.params.socnetDestination);
 	    }
 	  }
-
 	  init() {
 	    this.buildUserfieldWrap();
 	    this.createEventHandlers();
 	    this.setControlValues();
 	  }
-
 	  buildUserfieldWrap() {
 	    this.buildDateControl();
 	    this.buildTimeControl();
@@ -3543,7 +3104,6 @@ this.BX = this.BX || {};
 	    this.buildUserSelectorControl();
 	    this.buildResourceSelectorControl();
 	  }
-
 	  createEventHandlers() {
 	    calendar_resourcebooking.Event.bind(this.DOM.outerWrap, 'click', this.showPlannerPopup.bind(this));
 	    calendar_resourcebooking.Event.bind(this.DOM.fromInput, 'focus', this.showPlannerPopup.bind(this));
@@ -3557,7 +3117,6 @@ this.BX = this.BX || {};
 	            }));
 	          }
 	        }
-
 	        return new Promise(resolve => {
 	          resolve();
 	        });
@@ -3565,32 +3124,27 @@ this.BX = this.BX || {};
 	    }.bind(this), 100);
 	    setTimeout(this.onChangeValues.bind(this), 100);
 	  }
-
 	  setControlValues() {
 	    this.allValuesValue = null;
 	    let dateFrom,
-	        duration,
-	        defaultDuration = this.params.fullDay ? 1440 : 60,
-	        // One day or one hour as default
-	    dateTo;
-
+	      duration,
+	      defaultDuration = this.params.fullDay ? 1440 : 60,
+	      // One day or one hour as default
+	      dateTo;
 	    if (this.isNew) {
 	      let params = calendar_resourcebookinguserfield.ResourcebookingUserfield.getParamsFromHash(this.params.userfieldId);
-
 	      if (params && params.length > 1) {
 	        dateFrom = BX.parseDate(params[0]);
 	        dateTo = BX.parseDate(params[1]);
-
 	        if (dateFrom && dateTo) {
 	          duration = Math.round(Math.max((dateTo.getTime() - dateFrom.getTime()) / 60000, 0));
 	        }
 	      }
-
 	      if (!dateFrom) {
 	        dateFrom = new Date();
 	        let roundMin = 30,
-	            r = (roundMin) * 60 * 1000,
-	            timestamp = Math.ceil(dateFrom.getTime() / r) * r;
+	          r = (roundMin) * 60 * 1000,
+	          timestamp = Math.ceil(dateFrom.getTime() / r) * r;
 	        dateFrom = new Date(timestamp);
 	      }
 	    } else {
@@ -3598,28 +3152,21 @@ this.BX = this.BX || {};
 	      dateTo = BX.parseDate(this.params.value.DATE_TO);
 	      duration = Math.round(Math.max((dateTo.getTime() - dateFrom.getTime()) / 60000, 0));
 	    }
-
 	    if (!duration) {
 	      duration = defaultDuration;
 	    }
-
 	    this.DOM.fromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getDateFormat(), dateFrom);
-
 	    if (this.DOM.timeFromInput) {
 	      this.DOM.timeFromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getTimeFormatShort(), dateFrom);
 	    }
-
 	    if (this.durationList) {
 	      this.durationList.setValue(duration);
 	    }
-
 	    if (this.serviceList) {
 	      this.serviceList.setValue(this.params.value.SERVICE_NAME || '');
 	    }
-
 	    let selectedUsers = [];
 	    let selectedResources = [];
-
 	    if (this.params.value && calendar_resourcebooking.Type.isArray(this.params.value.ENTRIES)) {
 	      this.params.value.ENTRIES.forEach(function (entry) {
 	        if (entry.TYPE === 'user') {
@@ -3632,16 +3179,13 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    if (this.resourceSelector) {
 	      this.resourceSelector.setValues(selectedResources, false);
 	    }
-
 	    if (this.userSelector) {
 	      this.userSelector.setValues(selectedUsers, false);
 	    }
 	  }
-
 	  buildDateControl() {
 	    this.DOM.dateTimeWrap = this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
@@ -3682,7 +3226,6 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	  }
-
 	  buildTimeControl() {
 	    if (!this.params.fullDay) {
 	      this.DOM.timeWrap = this.DOM.dateTimeWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
@@ -3721,11 +3264,9 @@ this.BX = this.BX || {};
 	              h: dateFrom.getHours(),
 	              m: dateFrom.getMinutes()
 	            });
-
 	            if (nearestTimeValue && nearestTimeValue.label) {
 	              for (i = 0; i < popupMenu.menuItems.length; i++) {
 	                menuItem = popupMenu.menuItems[i];
-
 	                if (menuItem && nearestTimeValue.label === menuItem.text && menuItem.layout) {
 	                  popupMenu.layout.menuContainer.scrollTop = menuItem.layout.item.offsetTop - 2;
 	                }
@@ -3736,7 +3277,6 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }
-
 	  buildServiceControl() {
 	    if (this.params.useServices && calendar_resourcebooking.Type.isArray(this.params.serviceList) && this.params.serviceList.length > 0) {
 	      if (this.params.fullDay) {
@@ -3748,7 +3288,6 @@ this.BX = this.BX || {};
 	          }
 	        }));
 	      }
-
 	      this.DOM.servicesWrap = this.DOM.durationWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	        props: {
 	          className: "calendar-resourcebook-content-block-detail-inner calendar-resourcebook-content-block-detail-wrap-down"
@@ -3782,9 +3321,9 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      });
-
 	      if (this.isNew && serviceListValues.length >= 1) {
-	        this.DOM.serviceInput.value = serviceListValues[0].label; //duration = parseInt(serviceListValues[0].value);
+	        this.DOM.serviceInput.value = serviceListValues[0].label;
+	        //duration = parseInt(serviceListValues[0].value);
 	      }
 
 	      this.serviceList = new calendar_resourcebooking.SelectInput({
@@ -3800,13 +3339,12 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }
-
 	  buildDurationControl() {
 	    if (!this.DOM.durationWrap) {
 	      this.DOM.durationWrap = this.DOM.dateTimeWrap;
-	    } // region Duration
+	    }
 
-
+	    // region Duration
 	    this.DOM.durationControlWrap = this.DOM.durationWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-detail-inner calendar-resourcebook-content-block-detail-wrap-down"
@@ -3829,8 +3367,9 @@ this.BX = this.BX || {};
 	      props: {
 	        className: 'calendar-resbook-date-input calendar-resbook-field-datetime-menu'
 	      }
-	    })); //this.duration = parseInt(duration);
+	    }));
 
+	    //this.duration = parseInt(duration);
 	    this.durationList = new calendar_resourcebooking.SelectInput({
 	      input: this.DOM.durationInput,
 	      values: calendar_resourcebooking.BookingUtil.getDurationList(this.params.fullDay),
@@ -3841,7 +3380,6 @@ this.BX = this.BX || {};
 	      }.bind(this)
 	    });
 	  }
-
 	  buildUserSelectorControl() {
 	    if (this.params.useUsers) {
 	      this.DOM.userSelectorWrap = this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create('DIV', {
@@ -3871,7 +3409,6 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	      let itemsSelected = {};
-
 	      if (this.params.value && calendar_resourcebooking.Type.isArray(this.params.value.ENTRIES)) {
 	        this.params.value.ENTRIES.forEach(function (entry) {
 	          if (entry.TYPE === 'user') {
@@ -3880,7 +3417,6 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      this.userSelector = new UserSelectorFieldEditControl({
 	        wrapNode: this.DOM.userListWrap,
 	        socnetDestination: calendar_resourcebookinguserfield.ResourcebookingUserfield.getSocnetDestination(),
@@ -3892,7 +3428,6 @@ this.BX = this.BX || {};
 	      BX.addCustomEvent('OnResourceBookDestinationUnselect', this.triggerUpdatePlanner.bind(this));
 	    }
 	  }
-
 	  buildResourceSelectorControl() {
 	    if (this.params.useResources) {
 	      this.DOM.resourcesWrap = this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
@@ -3926,7 +3461,6 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }
-
 	  static showCalendarPicker(e) {
 	    let target = e.target || e.srcElement;
 	    BX.calendar({
@@ -3936,31 +3470,27 @@ this.BX = this.BX || {};
 	    });
 	    BX.focus(target);
 	  }
-
 	  onChangeValues() {
 	    this.duration = this.duration || calendar_resourcebooking.BookingUtil.parseDuration(this.DOM.durationInput.value);
 	    const duration = this.duration * 60;
 	    let allValuesValue = '',
-	        formatDatetime = BX.isAmPmMode() ? calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME").replace(':SS', '') : calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME"),
-	        dateFrom,
-	        dateFromValue = '',
-	        serviceName = this.DOM.serviceInput ? this.DOM.serviceInput.value : '',
-	        entries = [];
+	      formatDatetime = BX.isAmPmMode() ? calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME").replace(':SS', '') : calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME"),
+	      dateFrom,
+	      dateFromValue = '',
+	      serviceName = this.DOM.serviceInput ? this.DOM.serviceInput.value : '',
+	      entries = [];
 	    dateFrom = this.params.fullDay ? calendar_resourcebooking.BookingUtil.parseDate(this.DOM.fromInput.value) : calendar_resourcebooking.BookingUtil.parseDate(this.DOM.fromInput.value + ' ' + this.DOM.timeFromInput.value, false, false, formatDatetime);
-
 	    if (calendar_resourcebooking.Type.isDate(dateFrom)) {
 	      if (this.params.useResources) {
 	        entries = entries.concat(this.getSelectedResourceList());
 	      }
-
 	      if (this.params.useUsers) {
 	        entries = entries.concat(this.getSelectedUserList());
 	      }
-
 	      dateFromValue = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getDateTimeFormat(), dateFrom.getTime() / 1000);
-	    } // Clear inputs
+	    }
 
-
+	    // Clear inputs
 	    this.DOM.valueInputs.forEach(function (input) {
 	      BX.remove(input);
 	    });
@@ -3976,7 +3506,6 @@ this.BX = this.BX || {};
 	        }
 	      })));
 	    }, this);
-
 	    if (!entries.length) {
 	      this.DOM.valueInputs.push(this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create('INPUT', {
 	        attrs: {
@@ -3986,28 +3515,22 @@ this.BX = this.BX || {};
 	        }
 	      })));
 	    }
-
 	    if (this.allValuesValue !== null && this.allValuesValue !== allValuesValue) {
 	      BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [this.params.controlId]);
 	      BX.fireEvent(this.DOM.emptyInput, 'change');
 	    }
-
 	    this.allValuesValue = allValuesValue;
 	  }
-
 	  showPlannerPopup() {
 	    let currentEventList = [];
-
 	    if (this.params.value && calendar_resourcebooking.Type.isArray(this.params.value.ENTRIES)) {
 	      this.params.value.ENTRIES.forEach(function (entry) {
 	        currentEventList.push(entry.EVENT_ID);
 	      });
 	    }
-
 	    if (calendar_resourcebooking.Type.isNull(this.plannerPopup)) {
 	      this.plannerPopup = new PlannerPopup();
 	    }
-
 	    this.plannerPopup.show({
 	      plannerId: this.params.plannerId,
 	      bindNode: this.DOM.outerWrap,
@@ -4020,7 +3543,6 @@ this.BX = this.BX || {};
 	    });
 	    this.triggerUpdatePlanner();
 	  }
-
 	  triggerUpdatePlanner() {
 	    if (!calendar_resourcebooking.Type.isNull(this.plannerPopup) && this.plannerPopup.plannerId === this.params.plannerId && this.plannerPopup.isShown()) {
 	      this.plannerPopup.update({
@@ -4033,10 +3555,8 @@ this.BX = this.BX || {};
 	        selectedUsers: this.userSelector ? this.userSelector.getSelectedValues() : false
 	      }, true);
 	    }
-
 	    this.onChangeValues();
 	  }
-
 	  getPlannerConfig() {
 	    if (!this.params.plannerConfig) {
 	      this.params.plannerConfig = {
@@ -4053,33 +3573,29 @@ this.BX = this.BX || {};
 	        workTime: [parseInt(this.params.workTime[0]), parseInt(this.params.workTime[1])]
 	      };
 	    }
-
 	    this.params.plannerConfig.clickSelectorScaleAccuracy = Math.max(this.duration * 60 || 300, 3600);
 	    return this.params.plannerConfig;
 	  }
-
 	  plannerSelectorOnChange(params) {
 	    if (params.plannerId === this.params.plannerId && calendar_resourcebooking.Type.isDate(params.dateFrom) && calendar_resourcebooking.Type.isDate(params.dateTo)) {
 	      let dateFrom = params.dateFrom,
-	          dateTo = params.dateTo;
+	        dateTo = params.dateTo;
 	      this.DOM.fromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getDateFormat(), dateFrom);
-
 	      if (this.DOM.timeFromInput) {
 	        this.DOM.timeFromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getTimeFormatShort(), dateFrom);
-	      } // Duration in minutes
+	      }
 
-
+	      // Duration in minutes
 	      this.duration = (dateTo.getTime() - dateFrom.getTime() + (this.params.fullDay ? calendar_resourcebooking.BookingUtil.getDayLength() : 0)) / 60000;
 	      this.duration = Math.round(Math.max(this.duration, 0));
 	      this.durationList.setValue(this.duration);
 	      this.onChangeValues();
 	    }
 	  }
-
 	  plannerSelectedEntriesOnChange(params) {
 	    if (params.plannerId === this.params.plannerId && calendar_resourcebooking.Type.isArray(params.entries)) {
 	      let selectedResources = [],
-	          selectedUsers = [];
+	        selectedUsers = [];
 	      params.entries.forEach(function (entry) {
 	        if (entry.selected) {
 	          if (entry.type === 'user') {
@@ -4092,24 +3608,19 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      });
-
 	      if (this.resourceSelector) {
 	        this.resourceSelector.setValues(selectedResources, false);
 	      }
-
 	      if (this.userSelector) {
 	        this.userSelector.setValues(selectedUsers, false);
 	      }
-
 	      this.onChangeValues();
 	    }
 	  }
-
 	  checkSelectorStatusCallback(params) {
 	    if (params.plannerId === this.params.plannerId && !this.params.allowOverbooking) {
 	      let errorClass = 'calendar-resbook-error';
 	      this.overbooked = params.status === 'busy';
-
 	      if (this.overbooked) {
 	        if (!this.DOM.errorNode) {
 	          this.DOM.errorNode = this.DOM.dateTimeWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
@@ -4119,15 +3630,12 @@ this.BX = this.BX || {};
 	            text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_BOOKED_ERROR')
 	          }));
 	        }
-
 	        if (this.DOM.fromInput) {
 	          BX.addClass(this.DOM.fromInput, errorClass);
 	        }
-
 	        if (this.DOM.timeFromInput) {
 	          BX.addClass(this.DOM.timeFromInput, errorClass);
 	        }
-
 	        setTimeout(BX.delegate(function () {
 	          BX.focus(this.DOM.fromInput);
 	        }, this), 50);
@@ -4136,33 +3644,27 @@ this.BX = this.BX || {};
 	          BX.remove(this.DOM.errorNode);
 	          this.DOM.errorNode = null;
 	        }
-
 	        if (this.DOM.fromInput) {
 	          BX.removeClass(this.DOM.fromInput, errorClass);
 	        }
-
 	        if (this.DOM.timeFromInput) {
 	          BX.removeClass(this.DOM.timeFromInput, errorClass);
 	        }
 	      }
 	    }
 	  }
-
 	  getSelectorData() {
 	    let formatDatetime = BX.isAmPmMode() ? calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME").replace(':SS', '') : calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME"),
-	        selector,
-	        dateTo,
-	        duration = this.duration,
-	        dateFrom = calendar_resourcebooking.BookingUtil.parseDate(this.DOM.fromInput.value + (this.DOM.timeFromInput ? ' ' + this.DOM.timeFromInput.value : ''), false, false, formatDatetime);
-
+	      selector,
+	      dateTo,
+	      duration = this.duration,
+	      dateFrom = calendar_resourcebooking.BookingUtil.parseDate(this.DOM.fromInput.value + (this.DOM.timeFromInput ? ' ' + this.DOM.timeFromInput.value : ''), false, false, formatDatetime);
 	    if (!duration) {
 	      duration = this.params.fullDay ? 1440 : 60;
 	    }
-
 	    if (!calendar_resourcebooking.Type.isDate(dateFrom)) {
 	      dateFrom = new Date();
 	    }
-
 	    dateTo = new Date(dateFrom.getTime() + duration * 60000 - (this.params.fullDay ? calendar_resourcebooking.BookingUtil.getDayLength() : 0));
 	    selector = {
 	      from: dateFrom,
@@ -4172,10 +3674,8 @@ this.BX = this.BX || {};
 	    };
 	    return selector;
 	  }
-
 	  getResourceList() {
 	    let entries = [];
-
 	    if (this.resourceSelector) {
 	      this.resourceSelector.getValues().forEach(function (value) {
 	        entries.push({
@@ -4185,13 +3685,10 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    return entries;
 	  }
-
 	  getSelectedResourceList() {
 	    let entries = [];
-
 	    if (this.resourceSelector) {
 	      this.resourceSelector.getSelectedValues().forEach(function (value) {
 	        entries.push({
@@ -4201,15 +3698,12 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    return entries;
 	  }
-
 	  getUserList() {
 	    let entries = [],
-	        index = {},
-	        userId;
-
+	      index = {},
+	      userId;
 	    if (this.userSelector) {
 	      if (calendar_resourcebooking.Type.isArray(this.params.userList)) {
 	        this.params.userList.forEach(function (userId) {
@@ -4222,11 +3716,9 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      this.userSelector.getAttendeesCodesList().forEach(function (code) {
 	        if (code.substr(0, 1) === 'U') {
 	          userId = parseInt(code.substr(1));
-
 	          if (!index[userId]) {
 	            entries.push({
 	              id: userId,
@@ -4237,13 +3729,10 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    return entries;
 	  }
-
 	  getSelectedUserList() {
 	    let entries = [];
-
 	    if (this.userSelector) {
 	      this.userSelector.getAttendeesCodesList().forEach(function (code) {
 	        if (code.substr(0, 1) === 'U') {
@@ -4254,32 +3743,24 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    return entries;
 	  }
-
 	  checkResourceCountLimit() {
 	    return this.params.resourceLimit <= 0 || this.getTotalResourceCount() <= this.params.resourceLimit;
 	  }
-
 	  getTotalResourceCount() {
 	    let result = 0;
-
 	    if (this.params.useResources && this.resourceSelector) {
 	      result += this.resourceSelector.getValues().length;
 	    }
-
 	    if (this.params.useUsers) {
 	      result += this.getSelectedUserList().length;
 	    }
-
 	    return result;
 	  }
-
 	  isOverbooked() {
 	    return this.overbooked;
 	  }
-
 	}
 
 	class ServiceSelector {
@@ -4289,7 +3770,6 @@ this.BX = this.BX || {};
 	    this.fieldSettings = this.params.fieldSettings || {};
 	    this.create();
 	  }
-
 	  create() {
 	    this.serviceListOuterWrap = this.outerCont.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
@@ -4313,7 +3793,6 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	    BX.bind(this.serviceListRowsWrap, 'click', this.handlePopupClick.bind(this));
-
 	    if (calendar_resourcebooking.Type.isArray(this.fieldSettings.SERVICE_LIST) && this.fieldSettings.SERVICE_LIST.length > 0) {
 	      this.fieldSettings.SERVICE_LIST.forEach(function (service) {
 	        this.addRow(service, false);
@@ -4321,7 +3800,6 @@ this.BX = this.BX || {};
 	    } else {
 	      this.addRow(false, false);
 	    }
-
 	    this.serviceListAddWrap = this.serviceListOuterWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: "calendar-resource-content-block-add-field"
@@ -4340,7 +3818,6 @@ this.BX = this.BX || {};
 	    this.checkDurationTitlePosition();
 	    this.show(this.fieldSettings.USE_SERVICES === 'Y');
 	  }
-
 	  show(show) {
 	    if (show) {
 	      this.serviceListOuterWrap.style.display = '';
@@ -4350,17 +3827,14 @@ this.BX = this.BX || {};
 	      calendar_resourcebooking.Dom.removeClass(this.serviceListOuterWrap, 'show');
 	    }
 	  }
-
 	  addRow(row, animation) {
 	    animation = animation !== false;
-
 	    if (!calendar_resourcebooking.Type.isPlainObject(row)) {
 	      row = {
 	        name: '',
 	        duration: this.getDefaultDuration()
 	      };
 	    }
-
 	    let service = {
 	      outerWrap: this.serviceListRowsWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	        props: {
@@ -4368,7 +3842,6 @@ this.BX = this.BX || {};
 	        }
 	      }))
 	    };
-
 	    if (animation) {
 	      setTimeout(function () {
 	        calendar_resourcebooking.Dom.addClass(service.outerWrap, 'show');
@@ -4376,7 +3849,6 @@ this.BX = this.BX || {};
 	    } else {
 	      calendar_resourcebooking.Dom.addClass(service.outerWrap, 'show');
 	    }
-
 	    service.wrap = service.outerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-detail-resource-inner"
@@ -4403,11 +3875,9 @@ this.BX = this.BX || {};
 	      input: service.durationInput,
 	      getValues: function () {
 	        let fullday = false;
-
 	        if (calendar_resourcebooking.Type.isFunction(this.params.getFullDayValue)) {
 	          fullday = this.params.getFullDayValue();
 	        }
-
 	        return calendar_resourcebooking.BookingUtil.getDurationList(fullday);
 	      }.bind(this),
 	      value: row.duration
@@ -4417,49 +3887,41 @@ this.BX = this.BX || {};
 	        className: "calendar-resourcebook-content-block-detail-delete"
 	      },
 	      html: '<span class="calendar-resourcebook-content-block-control-delete calendar-resourcebook-content-block-control-delete-detail"></span>'
-	    })); // Adjust outer wrap max height
+	    }));
 
+	    // Adjust outer wrap max height
 	    this.serviceListOuterWrap.style.maxHeight = Math.max(500, this.serviceListRowsWrap.childNodes.length * 45 + 100) + 'px';
 	  }
-
 	  checkDurationTitlePosition(timeout) {
 	    if (timeout !== false) {
 	      if (this.checkDurationTitlePositionTimeout) {
 	        clearTimeout(this.checkDurationTitlePositionTimeout);
 	      }
-
 	      this.checkDurationTitlePositionTimeout = setTimeout(function () {
 	        this.checkDurationTitlePosition(false);
 	      }.bind(this), 100);
 	      return;
 	    }
-
 	    let durationInput = this.serviceListOuterWrap.querySelector('input.calendar-resbook-duration-input');
-
 	    if (this.durationTitleId && BX(this.durationTitleId) && durationInput) {
 	      BX(this.durationTitleId).style.left = durationInput.offsetLeft + 15 + 'px';
 	    }
 	  }
-
 	  getDefaultDuration() {
 	    let fullday = false;
-
 	    if (calendar_resourcebooking.Type.isFunction(this.params.getFullDayValue)) {
 	      fullday = this.params.getFullDayValue();
 	    }
-
 	    return fullday ? 1440 : 30;
 	  }
-
 	  clickHandler(e) {
 	    let target = e.target || e.srcElement;
-
-	    if (calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete') || calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-detail-delete')) // Delete button
+	    if (calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete') || calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-detail-delete'))
+	      // Delete button
 	      {
 	        let resWrap = BX.findParent(target, {
 	          className: 'calendar-resourcebook-service-row'
 	        });
-
 	        if (resWrap) {
 	          calendar_resourcebooking.Dom.removeClass(resWrap, 'show');
 	          setTimeout(function () {
@@ -4469,19 +3931,16 @@ this.BX = this.BX || {};
 	        }
 	      }
 	  }
-
 	  getValues(e) {
 	    let serviceList = [],
-	        nameInput,
-	        durationInput,
-	        i,
-	        rows = this.serviceListRowsWrap.querySelectorAll('.calendar-resourcebook-service-row');
-
+	      nameInput,
+	      durationInput,
+	      i,
+	      rows = this.serviceListRowsWrap.querySelectorAll('.calendar-resourcebook-service-row');
 	    for (i = 0; i < rows.length; i++) {
 	      if (calendar_resourcebooking.Dom.hasClass(rows[i], 'show')) {
 	        nameInput = rows[i].querySelector('input.calendar-resourcebook-service-input');
 	        durationInput = rows[i].querySelector('input.calendar-resbook-duration-input');
-
 	        if (nameInput && durationInput) {
 	          serviceList.push({
 	            name: nameInput.value,
@@ -4490,33 +3949,26 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    }
-
 	    return serviceList;
 	  }
-
 	  checkRows() {
 	    let serviceList = this.getValues();
-
 	    if (!serviceList.length) {
 	      this.show(false);
-
 	      if (calendar_resourcebooking.Type.isFunction(this.params.onFullClearHandler)) {
 	        this.params.onFullClearHandler();
 	      }
-
 	      this.addRow(false, false);
 	    }
 	  }
-
 	  handlePopupClick(e) {
 	    let target = e.target || e.srcElement;
-
-	    if (calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete') || calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-detail-delete')) // Delete button
+	    if (calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete') || calendar_resourcebooking.Dom.hasClass(target, 'calendar-resourcebook-content-block-detail-delete'))
+	      // Delete button
 	      {
 	        let resWrap = BX.findParent(target, {
 	          className: 'calendar-resourcebook-service-row'
 	        });
-
 	        if (resWrap) {
 	          BX.removeClass(resWrap, 'show');
 	          setTimeout(function () {
@@ -4526,7 +3978,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	  }
-
 	}
 
 	class TimezoneSelector {
@@ -4538,7 +3989,6 @@ this.BX = this.BX || {};
 	    calendar_resourcebooking.Dom.addClass(this.DOM.outerWrap, 'fields enumeration field-item');
 	    this.create();
 	  }
-
 	  create() {
 	    this.DOM.select = this.DOM.outerWrap.appendChild(calendar_resourcebooking.Dom.create('select'));
 	    this.DOM.select.options.add(new Option(calendar_resourcebooking.Loc.getMessage('USER_TYPE_LOADING_TIMEZONE_LIST'), this.params.selectedValue || '', true, true));
@@ -4550,14 +4000,12 @@ this.BX = this.BX || {};
 	      }, this);
 	    }.bind(this));
 	  }
-
 	  getTimezoneList(params) {
 	    params = params || {};
 	    return new Promise(resolve => {
 	      if (!TimezoneSelector.timezoneList || params.clearCache) {
 	        BX.ajax.runAction('calendar.api.calendarajax.getTimezoneList').then(function (response) {
 	          TimezoneSelector.timezoneList = [];
-
 	          for (let key in response.data) {
 	            if (response.data.hasOwnProperty(key)) {
 	              TimezoneSelector.timezoneList.push({
@@ -4567,7 +4015,6 @@ this.BX = this.BX || {};
 	              });
 	            }
 	          }
-
 	          resolve(TimezoneSelector.timezoneList);
 	        }.bind(this), function (response) {
 	          resolve(response);
@@ -4577,11 +4024,9 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-
 	  getValue() {
 	    return this.DOM.select.value;
 	  }
-
 	}
 
 	class ModeSelector {
@@ -4589,50 +4034,45 @@ this.BX = this.BX || {};
 	    this.params = params;
 	    this.outerWrap = this.create();
 	  }
-
 	  create() {
 	    let wrapNode = calendar_resourcebooking.Dom.create("span", {
-	      props: {
-	        className: "calendar-resourcebook-content-block-select calendar-resourcebook-mode-selector"
-	      }
-	    }),
-	        menuItems = [{
-	      text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_RESOURCES'),
-	      onclick: function (e, item) {
-	        if (calendar_resourcebooking.Type.isFunction(this.params.showResources)) {
-	          this.params.showResources();
+	        props: {
+	          className: "calendar-resourcebook-content-block-select calendar-resourcebook-mode-selector"
 	        }
-
-	        wrapNode.innerHTML = item.text;
-	        this.modeSwitcherPopup.close();
-	      }.bind(this)
-	    }, {
-	      text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_USERS'),
-	      onclick: function (e, item) {
-	        if (calendar_resourcebooking.Type.isFunction(this.params.showUsers)) {
-	          this.params.showUsers();
-	        }
-
-	        wrapNode.innerHTML = item.text;
-	        this.modeSwitcherPopup.close();
-	      }.bind(this)
-	    }, {
-	      text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_RESOURCES_AND_USERS'),
-	      onclick: function (e, item) {
-	        if (calendar_resourcebooking.Type.isFunction(this.params.showResourcesAndUsers)) {
-	          this.params.showResourcesAndUsers();
-	        }
-
-	        wrapNode.innerHTML = item.text;
-	        this.modeSwitcherPopup.close();
-	      }.bind(this)
-	    }],
-	        switcherId = 'mode-switcher-' + Math.round(Math.random() * 100000);
+	      }),
+	      menuItems = [{
+	        text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_RESOURCES'),
+	        onclick: function (e, item) {
+	          if (calendar_resourcebooking.Type.isFunction(this.params.showResources)) {
+	            this.params.showResources();
+	          }
+	          wrapNode.innerHTML = item.text;
+	          this.modeSwitcherPopup.close();
+	        }.bind(this)
+	      }, {
+	        text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_USERS'),
+	        onclick: function (e, item) {
+	          if (calendar_resourcebooking.Type.isFunction(this.params.showUsers)) {
+	            this.params.showUsers();
+	          }
+	          wrapNode.innerHTML = item.text;
+	          this.modeSwitcherPopup.close();
+	        }.bind(this)
+	      }, {
+	        text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_RESOURCES_AND_USERS'),
+	        onclick: function (e, item) {
+	          if (calendar_resourcebooking.Type.isFunction(this.params.showResourcesAndUsers)) {
+	            this.params.showResourcesAndUsers();
+	          }
+	          wrapNode.innerHTML = item.text;
+	          this.modeSwitcherPopup.close();
+	        }.bind(this)
+	      }],
+	      switcherId = 'mode-switcher-' + Math.round(Math.random() * 100000);
 	    calendar_resourcebooking.Event.bind(wrapNode, 'click', function () {
 	      if (this.modeSwitcherPopup && this.modeSwitcherPopup.popupWindow && this.modeSwitcherPopup.popupWindow.isShown()) {
 	        return this.modeSwitcherPopup.close();
 	      }
-
 	      this.modeSwitcherPopup = BX.PopupMenu.create(switcherId, wrapNode, menuItems, {
 	        closeByEsc: true,
 	        autoHide: true,
@@ -4646,7 +4086,6 @@ this.BX = this.BX || {};
 	        this.modeSwitcherPopup = null;
 	      }.bind(this));
 	    }.bind(this));
-
 	    if (this.params.useUsers && !this.params.useResources) {
 	      wrapNode.innerHTML = calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_USERS');
 	    } else if (this.params.useUsers && this.params.useResources) {
@@ -4654,48 +4093,38 @@ this.BX = this.BX || {};
 	    } else {
 	      wrapNode.innerHTML = calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_CHOOSE_RESOURCES');
 	    }
-
 	    return wrapNode;
 	  }
-
 	  getOuterWrap() {
 	    return this.outerWrap;
 	  }
-
 	}
 
 	let customizeCrmEntityEditor = function (CrmConfigurator) {
 	  let Configurator = function () {
 	    Configurator.superclass.constructor.apply(this);
 	  };
-
 	  BX.extend(Configurator, CrmConfigurator);
-
 	  Configurator.create = function (id, settings) {
 	    let self = new Configurator();
 	    self.initialize(id, settings);
 	    return self;
 	  };
-
 	  Configurator.prototype.layout = function (options, params) {
 	    if (this._hasLayout) {
 	      return;
 	    }
-
 	    if (!BX.type.isPlainObject(params)) {
 	      params = {};
 	    }
-
 	    if (this._mode === BX.Crm.EntityEditorMode.view) {
 	      throw "EntityEditorUserFieldConfigurator. View mode is not supported by this control type.";
 	    }
-
 	    this.getBitrix24Limitation({
 	      callback: BX.delegate(function (limit) {
 	        this.RESOURCE_LIMIT = limit;
 	      }, this)
 	    });
-
 	    if (this._field) {
 	      this.fieldInfo = this._field.getFieldInfo();
 	    } else if (!params.settings) {
@@ -4707,7 +4136,6 @@ this.BX = this.BX || {};
 	        }, this)
 	      });
 	    }
-
 	    this._wrapper = BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content"
@@ -4722,17 +4150,16 @@ this.BX = this.BX || {};
 	        className: "calendar-resourcebook-content-block-inner"
 	      }
 	    }));
-
 	    var fieldSettings = this.fieldInfo ? this.fieldInfo.SETTINGS : params.settings,
-	        resourceList = [],
-	        selectedResourceList = [],
-	        isNew = this._field === null,
-	        title = this.getMessage("labelField"),
-	        manager = this._editor.getUserFieldManager(),
-	        label = this._field ? this._field.getTitle() : manager.getDefaultFieldLabel(this._typeId);
+	      resourceList = [],
+	      selectedResourceList = [],
+	      isNew = this._field === null,
+	      title = this.getMessage("labelField"),
+	      manager = this._editor.getUserFieldManager(),
+	      label = this._field ? this._field.getTitle() : manager.getDefaultFieldLabel(this._typeId);
+	    this.RESOURCE_LIMIT = fieldSettings.RESOURCE_LIMIT || 0;
 
-	    this.RESOURCE_LIMIT = fieldSettings.RESOURCE_LIMIT || 0; // region Field Title
-
+	    // region Field Title
 	    this._labelInput = BX.create("input", {
 	      attrs: {
 	        className: "crm-entity-widget-content-input",
@@ -4740,12 +4167,12 @@ this.BX = this.BX || {};
 	        value: label
 	      }
 	    });
-
 	    this._innerWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block"
 	      },
-	      children: [// Title
+	      children: [
+	      // Title
 	      BX.create("div", {
 	        props: {
 	          className: "crm-entity-widget-content-block-title"
@@ -4756,22 +4183,24 @@ this.BX = this.BX || {};
 	          },
 	          text: title
 	        })]
-	      }), // Input
+	      }),
+	      // Input
 	      BX.create("div", {
 	        props: {
 	          className: "calendar-resourcebook-content-block-field"
 	        },
 	        children: [this._labelInput]
-	      }), // Hr
+	      }),
+	      // Hr
 	      BX.create("hr", {
 	        props: {
 	          className: "crm-entity-widget-hr"
 	        }
 	      })]
-	    })); // endregion
+	    }));
+	    // endregion
+
 	    // region Users&Resources Mode selector
-
-
 	    this._innerWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block"
@@ -4797,16 +4226,16 @@ this.BX = this.BX || {};
 	          this.userList.show();
 	        }.bind(this)
 	      }).getOuterWrap()]
-	    })); // endregion
-
+	    }));
+	    // endregion
 
 	    var optionWrapper = this._innerWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block"
 	      }
-	    })); // region Use Resources Option
+	    }));
 
-
+	    // region Use Resources Option
 	    this.resourcesWrap = optionWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-control-field calendar-resourcebook-content-block-control-field-add"
@@ -4832,7 +4261,6 @@ this.BX = this.BX || {};
 	        className: "calendar-resource-content-block-add-field"
 	      }
 	    }));
-
 	    if (fieldSettings.RESOURCES && BX.type.isPlainObject(fieldSettings.RESOURCES['resource']) && BX.type.isArray(fieldSettings.RESOURCES['resource'].SECTIONS)) {
 	      fieldSettings.RESOURCES['resource'].SECTIONS.forEach(function (resource) {
 	        resourceList.push({
@@ -4842,7 +4270,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    if (BX.type.isArray(fieldSettings.SELECTED_RESOURCES)) {
 	      fieldSettings.SELECTED_RESOURCES.forEach(function (resource) {
 	        selectedResourceList.push({
@@ -4851,7 +4278,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    this.resourceList = new ResourceSelectorFieldEditControl({
 	      shown: fieldSettings.USE_RESOURCES === 'Y',
 	      editMode: true,
@@ -4862,9 +4288,10 @@ this.BX = this.BX || {};
 	      resourceList: resourceList,
 	      checkLimitCallback: this.checkResourceCountLimit.bind(this),
 	      checkLimitCallbackForNew: this.checkResourceCountLimitForNewEntries.bind(this)
-	    }); // endregion
-	    // region Users Selector
+	    });
+	    // endregion
 
+	    // region Users Selector
 	    this.userSelectorWrap = optionWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-control-field calendar-resourcebook-content-block-control-field-add"
@@ -4886,13 +4313,11 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	    var itemsSelected = [];
-
 	    if (BX.type.isArray(fieldSettings.SELECTED_USERS)) {
 	      fieldSettings.SELECTED_USERS.forEach(function (user) {
 	        itemsSelected.push('U' + parseInt(user));
 	      });
 	    }
-
 	    this.userList = new UserSelectorFieldEditControl({
 	      shown: fieldSettings.USE_USERS === 'Y',
 	      outerWrap: this.userSelectorWrap,
@@ -4900,9 +4325,10 @@ this.BX = this.BX || {};
 	      socnetDestination: calendar_resourcebookinguserfield.ResourcebookingUserfield.getSocnetDestination(),
 	      itemsSelected: itemsSelected,
 	      checkLimitCallback: this.checkResourceCountLimit.bind(this)
-	    }); // endregion
-	    // Region Data, Time and services
+	    });
+	    // endregion
 
+	    // Region Data, Time and services
 	    optionWrapper.appendChild(BX.create("hr", {
 	      props: {
 	        className: "crm-entity-widget-hr"
@@ -4981,9 +4407,11 @@ this.BX = this.BX || {};
 	      events: {
 	        click: BX.proxy(this.handleUserTimezoneCheckbox, this)
 	      }
-	    })); // endregion
-	    //region Checkbox "Full day"
+	    }));
 
+	    // endregion
+
+	    //region Checkbox "Full day"
 	    this._fulldayCheckBox = BX.create("input", {
 	      props: {
 	        type: "checkbox",
@@ -5000,9 +4428,10 @@ this.BX = this.BX || {};
 	      children: [this._fulldayCheckBox, BX.create("span", {
 	        text: BX.message('USER_TYPE_RESOURCE_FULL_DAY')
 	      })]
-	    })); //endregion
-	    //region Checkbox "Add services"
+	    }));
+	    //endregion
 
+	    //region Checkbox "Add services"
 	    this._servicesCheckBox = BX.create("input", {
 	      props: {
 	        type: "checkbox",
@@ -5038,8 +4467,9 @@ this.BX = this.BX || {};
 	      props: {
 	        className: "crm-entity-widget-hr"
 	      }
-	    })); //region Checkbox "Is Required"
+	    }));
 
+	    //region Checkbox "Is Required"
 	    this.additionaOptionsWrap = optionWrapper.appendChild(BX.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-options"
@@ -5058,21 +4488,20 @@ this.BX = this.BX || {};
 	      children: [this._isRequiredCheckBox, BX.create("span", {
 	        text: this.getMessage("isRequiredField")
 	      })]
-	    })); //endregion
-	    //region Checkbox "Show Always"
+	    }));
+	    //endregion
 
+	    //region Checkbox "Show Always"
 	    this._showAlwaysCheckBox = BX.create("input", {
 	      props: {
 	        type: "checkbox"
 	      }
 	    });
-
 	    if (isNew) {
 	      this._showAlwaysCheckBox.checked = BX.prop.getBoolean(this._settings, "showAlways", true);
 	    } else {
 	      this._showAlwaysCheckBox.checked = this._field.checkOptionFlag(BX.Crm.EntityEditorControlOptions.showAlways);
 	    }
-
 	    this.additionaOptionsWrap.appendChild(BX.create("label", {
 	      props: {
 	        className: 'calendar-resourcebook-content-block-option'
@@ -5080,9 +4509,10 @@ this.BX = this.BX || {};
 	      children: [this._showAlwaysCheckBox, BX.create("span", {
 	        text: this.getMessage("showAlways")
 	      })]
-	    })); //endregion
-	    //region Checkbox "Overbooking"
+	    }));
+	    //endregion
 
+	    //region Checkbox "Overbooking"
 	    this._overbookingCheckBox = BX.create("input", {
 	      props: {
 	        type: "checkbox",
@@ -5096,7 +4526,8 @@ this.BX = this.BX || {};
 	      children: [this._overbookingCheckBox, BX.create("span", {
 	        text: BX.message('USER_TYPE_RESOURCE_OVERBOOKING')
 	      })]
-	    })); //endregion
+	    }));
+	    //endregion
 
 	    this._innerWrapper.appendChild(BX.create("div", {
 	      props: {
@@ -5126,12 +4557,10 @@ this.BX = this.BX || {};
 	        }
 	      })]
 	    }));
-
 	    this.fieldSettings = fieldSettings;
 	    this.registerLayout(options);
 	    this._hasLayout = true;
 	  };
-
 	  Configurator.prototype.getDefaultUserfieldSettings = function (params) {
 	    BX.ajax.runAction('calendar.api.resourcebookingajax.getdefaultuserfieldsettings', {
 	      data: {}
@@ -5148,7 +4577,6 @@ this.BX = this.BX || {};
 	       **/
 	    });
 	  };
-
 	  Configurator.prototype.getBitrix24Limitation = function (params) {
 	    BX.ajax.runAction('calendar.api.resourcebookingajax.getbitrix24limitation', {
 	      data: {}
@@ -5165,17 +4593,14 @@ this.BX = this.BX || {};
 	       **/
 	    });
 	  };
-
 	  Configurator.prototype.onSaveButtonClick = function () {
 	    if (this._isLocked) {
 	      return;
 	    }
-
 	    if (this.RESOURCE_LIMIT > 0 && this.getTotalResourceCount() > this.RESOURCE_LIMIT) {
 	      calendar_resourcebooking.BookingUtil.showLimitationPopup();
 	      return;
 	    }
-
 	    var params = {
 	      typeId: this._typeId,
 	      label: this._labelInput.value,
@@ -5183,14 +4608,11 @@ this.BX = this.BX || {};
 	      showAlways: this._showAlwaysCheckBox.checked,
 	      multiple: true
 	    };
-
 	    if (this._field) {
 	      params["field"] = this._field;
 	    }
-
 	    this.fieldSettings.USE_RESOURCES = this.resourceList.isShown() ? 'Y' : 'N';
 	    this.fieldSettings.USE_USERS = this.userList.isShown() ? 'Y' : 'N';
-
 	    if (this.fieldSettings && BX.type.isPlainObject(this.fieldSettings.RESOURCES) && BX.type.isPlainObject(this.fieldSettings.RESOURCES['resource'])) {
 	      this.fieldSettings.SELECTED_RESOURCES = [];
 	      this.resourceList.getSelectedValues().forEach(function (value) {
@@ -5200,7 +4622,6 @@ this.BX = this.BX || {};
 	        this.fieldSettings.SELECTED_RESOURCES.push(value);
 	      }, this);
 	    }
-
 	    if (this.fieldSettings && this.userList) {
 	      this.fieldSettings.SELECTED_USERS = [0];
 	      this.userList.getAttendeesCodesList().forEach(function (code) {
@@ -5209,17 +4630,13 @@ this.BX = this.BX || {};
 	        }
 	      }, this);
 	    }
-
 	    this.fieldSettings.USE_SERVICES = this._servicesCheckBox.checked ? 'Y' : 'N';
 	    this.fieldSettings.SERVICE_LIST = [];
-
 	    if (this._servicesCheckBox.checked && this.serviceList) {
 	      this.fieldSettings.SERVICE_LIST = this.serviceList.getValues();
 	    }
-
 	    this.fieldSettings.FULL_DAY = this._fulldayCheckBox.checked ? 'Y' : 'N';
 	    this.fieldSettings.ALLOW_OVERBOOKING = this._overbookingCheckBox.checked ? 'Y' : 'N';
-
 	    if (this.fieldSettings.FULL_DAY === 'N') {
 	      this.fieldSettings.TIMEZONE = this.timezoneSelector.getValue();
 	      this.fieldSettings.USE_USER_TIMEZONE = this.useUserTimezoneCheckBox.checked ? 'Y' : 'N';
@@ -5227,50 +4644,39 @@ this.BX = this.BX || {};
 	      this.fieldSettings.TIMEZONE = '';
 	      this.fieldSettings.USE_USER_TIMEZONE = 'N';
 	    }
-
 	    params["settings"] = this.fieldSettings;
 	    BX.onCustomEvent(this, "onSave", [this, params]);
 	  };
-
 	  Configurator.prototype.getTotalResourceCount = function () {
 	    var result = 0;
-
 	    if (this.fieldSettings) {
 	      if (BX.type.isPlainObject(this.fieldSettings.RESOURCES) && BX.type.isPlainObject(this.fieldSettings.RESOURCES.resource) && BX.type.isArray(this.fieldSettings.RESOURCES.resource.SECTIONS)) {
 	        result += this.fieldSettings.RESOURCES.resource.SECTIONS.length;
 	      }
-
 	      result -= this.resourceList.getDeletedValues().length;
 	      this.resourceList.getSelectedValues().forEach(function (value) {
 	        if (!value.id && value.title !== '') {
 	          result++;
 	        }
 	      }, this);
-
 	      if (this.userList) {
 	        result += this.userList.getAttendeesCodesList().length;
 	      }
 	    }
-
 	    return result;
 	  };
-
 	  Configurator.prototype.checkResourceCountLimitForNewEntries = function () {
 	    return this.RESOURCE_LIMIT <= 0 || this.getTotalResourceCount() < this.RESOURCE_LIMIT;
 	  };
-
 	  Configurator.prototype.checkResourceCountLimit = function () {
 	    return this.RESOURCE_LIMIT <= 0 || this.getTotalResourceCount() <= this.RESOURCE_LIMIT;
 	  };
-
 	  Configurator.prototype.handleFullDayMode = function () {
 	    this.timezoneSettingsWrap.style.display = this._fulldayCheckBox.checked ? 'none' : '';
 	  };
-
 	  Configurator.prototype.handleUserTimezoneCheckbox = function () {
 	    this.timezoneSelectorWrap.style.display = this.useUserTimezoneCheckBox.checked ? 'none' : '';
 	  };
-
 	  return Configurator;
 	};
 
@@ -5284,7 +4690,6 @@ this.BX = this.BX || {};
 	    this.DOM = {};
 	    this.params = params;
 	  }
-
 	  show() {
 	    BX.SidePanel.Instance.open(this.sliderId, {
 	      contentCallback: BX.delegate(this.create, this),
@@ -5296,11 +4701,9 @@ this.BX = this.BX || {};
 	    BX.addCustomEvent("SidePanel.Slider:onClose", this.hideHandler);
 	    BX.addCustomEvent("SidePanel.Slider:onCloseComplete");
 	  }
-
 	  close() {
 	    BX.SidePanel.Instance.close();
 	  }
-
 	  hide(event) {
 	    if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId) {
 	      // if (this.denyClose)
@@ -5309,7 +4712,8 @@ this.BX = this.BX || {};
 	      // }
 	      // else
 	      // {
-	      BX.removeCustomEvent("SidePanel.Slider:onClose", this.hideHandler); //}
+	      BX.removeCustomEvent("SidePanel.Slider:onClose", this.hideHandler);
+	      //}
 	    }
 	  }
 
@@ -5319,7 +4723,6 @@ this.BX = this.BX || {};
 	      BX.SidePanel.Instance.destroy(this.sliderId);
 	    }
 	  }
-
 	  create() {
 	    let promise = new BX.Promise();
 	    let html = '<div class="webform-buttons calendar-form-buttons-fixed">' + '<span id="' + this.id + '_save" class="webform-small-button webform-small-button-blue">' + BX.message('USER_TYPE_RESOURCE_SAVE') + '</span>' + '<span id="' + this.id + '_close" class="webform-button-link">' + BX.message('USER_TYPE_RESOURCE_CLOSE') + '</span>' + '</div>' + '<div class="calendar-slider-calendar-wrap">' + '<div class="calendar-slider-header"><div class="calendar-head-area"><div class="calendar-head-area-inner"><div class="calendar-head-area-title">' + '<span class="calendar-head-area-name">' + BX.message('USER_TYPE_RESOURCE_SETTINGS') + '</span>' + '</div></div></div></div>' + '<div class="resource-booking-slider-workarea"><div class="resource-booking-slider-content"><div id="' + this.id + '_content" class="resource-booking-settings"></div></div></div></div>';
@@ -5327,12 +4730,12 @@ this.BX = this.BX || {};
 	    setTimeout(this.initControls.bind(this), 100);
 	    return promise;
 	  }
-
 	  initControls() {
 	    this.DOM.content = BX(this.id + '_content');
 	    BX.bind(BX(this.id + '_save'), 'click', this.save.bind(this));
-	    BX.bind(BX(this.id + '_close'), 'click', this.close.bind(this)); // 1. Field
+	    BX.bind(BX(this.id + '_close'), 'click', this.close.bind(this));
 
+	    // 1. Field
 	    if (this.params && BX.type.isArray(this.params.filterSelectValues)) {
 	      this.DOM.fieldOuterWrap = this.DOM.content.appendChild(BX.create('DIV', {
 	        attrs: {
@@ -5363,14 +4766,12 @@ this.BX = this.BX || {};
 	      }, this);
 	    }
 	  }
-
 	  save() {
 	    let entityType = this.params.entityType || 'none';
 	    BX.userOptions.save('calendar', 'resourceBooking', entityType, this.DOM.fieldSelect.value);
 	    this.close();
 	    BX.reload();
 	  }
-
 	}
 
 	class AdminSettingsViewer {
@@ -5382,7 +4783,6 @@ this.BX = this.BX || {};
 	      form: document.forms[this.params.formName]
 	    };
 	  }
-
 	  showLayout() {
 	    if (!this.DOM.outerWrap || !this.DOM.form) return;
 	    calendar_resourcebooking.Event.bind(this.DOM.form, 'submit', this.onSubmit.bind(this));
@@ -5397,7 +4797,7 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	    let resourceList = [],
-	        selectedResourceList = [];
+	      selectedResourceList = [];
 	    this.DOM.innerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block"
@@ -5428,8 +4828,9 @@ this.BX = this.BX || {};
 	      props: {
 	        className: "calendar-resourcebook-content-block"
 	      }
-	    })); // region Use Resources Option
+	    }));
 
+	    // region Use Resources Option
 	    this.resourcesWrap = this.DOM.optionWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	      props: {
 	        className: "calendar-resourcebook-content-block-control-field calendar-resourcebook-content-block-control-field-add"
@@ -5455,7 +4856,6 @@ this.BX = this.BX || {};
 	        className: "calendar-resource-content-block-add-field"
 	      }
 	    }));
-
 	    if (this.fieldSettings.RESOURCES && calendar_resourcebooking.Type.isPlainObject(this.fieldSettings.RESOURCES['resource']) && calendar_resourcebooking.Type.isArray(this.fieldSettings.RESOURCES['resource'].SECTIONS)) {
 	      this.fieldSettings.RESOURCES['resource'].SECTIONS.forEach(function (resource) {
 	        resourceList.push({
@@ -5465,7 +4865,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    if (calendar_resourcebooking.Type.isArray(this.fieldSettings.SELECTED_RESOURCES)) {
 	      this.fieldSettings.SELECTED_RESOURCES.forEach(function (resource) {
 	        selectedResourceList.push({
@@ -5474,7 +4873,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    }
-
 	    this.resourceList = new ResourceSelectorFieldEditControl({
 	      shown: this.fieldSettings.USE_RESOURCES === 'Y',
 	      editMode: true,
@@ -5506,21 +4904,20 @@ this.BX = this.BX || {};
 	      }
 	    }));
 	    let itemsSelected = [];
-
 	    if (calendar_resourcebooking.Type.isArray(this.fieldSettings.SELECTED_USERS)) {
 	      this.fieldSettings.SELECTED_USERS.forEach(function (user) {
 	        itemsSelected.push('U' + parseInt(user));
 	      });
 	    }
-
 	    this.userList = new UserSelectorFieldEditControl({
 	      shown: this.fieldSettings.USE_USERS === 'Y',
 	      outerWrap: this.userSelectorWrap,
 	      wrapNode: this.usersListWrap,
 	      socnetDestination: this.params.socnetDestination,
 	      itemsSelected: itemsSelected
-	    }); // Region Data, Time and services
+	    });
 
+	    // Region Data, Time and services
 	    this.DOM.optionWrap.appendChild(calendar_resourcebooking.Dom.create("hr", {
 	      props: {
 	        className: "calendar-resbook-hr"
@@ -5545,9 +4942,10 @@ this.BX = this.BX || {};
 	      props: {
 	        className: "calendar-resourcebook-content-block-options"
 	      }
-	    })); // endregion
-	    //region Checkbox "Full day"
+	    }));
+	    // endregion
 
+	    //region Checkbox "Full day"
 	    this.DOM.fulldayCheckBox = calendar_resourcebooking.Dom.create("input", {
 	      props: {
 	        type: "checkbox",
@@ -5561,9 +4959,10 @@ this.BX = this.BX || {};
 	      children: [this.DOM.fulldayCheckBox, calendar_resourcebooking.Dom.create("span", {
 	        text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_FULL_DAY')
 	      })]
-	    })); //endregion
-	    //region Checkbox "Add services"
+	    }));
+	    //endregion
 
+	    //region Checkbox "Add services"
 	    this.DOM.useServicedayCheckBox = calendar_resourcebooking.Dom.create("input", {
 	      props: {
 	        type: "checkbox",
@@ -5610,7 +5009,8 @@ this.BX = this.BX || {};
 	      children: [this.DOM.overbookingCheckbox, calendar_resourcebooking.Dom.create("span", {
 	        text: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_OVERBOOKING')
 	      })]
-	    })); //endregion
+	    }));
+	    //endregion
 	  }
 
 	  onSubmit(e) {
@@ -5619,7 +5019,6 @@ this.BX = this.BX || {};
 	    } else {
 	      calendar_resourcebooking.Dom.clean(this.DOM.inputsWrap);
 	    }
-
 	    let inputName = this.params.htmlControl.NAME;
 	    this.DOM.inputsWrap.appendChild(calendar_resourcebooking.Dom.create('INPUT', {
 	      attrs: {
@@ -5655,13 +5054,14 @@ this.BX = this.BX || {};
 	        value: this.DOM.overbookingCheckbox.checked ? 'Y' : 'N',
 	        type: 'hidden'
 	      }
-	    })); // Selected resources
+	    }));
 
+	    // Selected resources
 	    if (this.resourceList) {
 	      this.prepareFormDataInputs(this.DOM.inputsWrap, this.resourceList.getSelectedValues().concat(this.resourceList.getDeletedValues()), inputName + '[SELECTED_RESOURCES]');
-	    } // // Selected users
+	    }
 
-
+	    // // Selected users
 	    if (this.userList) {
 	      let SELECTED_USERS = [];
 	      this.userList.getAttendeesCodesList().forEach(function (code) {
@@ -5671,17 +5071,14 @@ this.BX = this.BX || {};
 	      }, this);
 	      this.prepareFormDataInputs(this.DOM.inputsWrap, SELECTED_USERS, inputName + '[SELECTED_USERS]');
 	    }
-
 	    if (this.DOM.useServicedayCheckBox.checked && this.serviceList) {
 	      this.prepareFormDataInputs(this.DOM.inputsWrap, this.serviceList.getValues(), inputName + '[SERVICE_LIST]');
 	    }
 	  }
-
 	  prepareFormDataInputs(wrap, data, inputName) {
 	    data.forEach(function (value, ind) {
 	      if (calendar_resourcebooking.Type.isPlainObject(value)) {
 	        let k;
-
 	        for (k in value) {
 	          if (value.hasOwnProperty(k)) {
 	            wrap.appendChild(calendar_resourcebooking.Dom.create('INPUT', {
@@ -5704,15 +5101,12 @@ this.BX = this.BX || {};
 	      }
 	    }, this);
 	  }
-
 	  getTotalResourceCount() {
 	    let result = 0;
-
 	    if (this.fieldSettings) {
 	      if (calendar_resourcebooking.Type.isPlainObject(this.fieldSettings.RESOURCES) && calendar_resourcebooking.Type.isPlainObject(this.fieldSettings.RESOURCES.resource) && calendar_resourcebooking.Type.isArray(this.fieldSettings.RESOURCES.resource.SECTIONS)) {
 	        result += this.fieldSettings.RESOURCES.resource.SECTIONS.length;
 	      }
-
 	      if (this.resourceList) {
 	        result -= this.resourceList.getDeletedValues().length;
 	        this.resourceList.getSelectedValues().forEach(function (value) {
@@ -5721,23 +5115,18 @@ this.BX = this.BX || {};
 	          }
 	        }, this);
 	      }
-
 	      if (this.userList) {
 	        result += this.userList.getAttendeesCodesList().length;
 	      }
 	    }
-
 	    return result;
 	  }
-
 	  checkResourceCountLimitForNewEntries() {
 	    return this.RESOURCE_LIMIT <= 0 || this.getTotalResourceCount() < this.RESOURCE_LIMIT;
 	  }
-
 	  checkResourceCountLimit() {
 	    return this.RESOURCE_LIMIT <= 0 || this.getTotalResourceCount() <= this.RESOURCE_LIMIT;
 	  }
-
 	}
 
 	class ResourcebookingUserfield {
@@ -5754,21 +5143,16 @@ this.BX = this.BX || {};
 	        field: {}
 	      };
 	    }
-
 	    let bookingFieldParams = {};
-
 	    if (main_core.Type.isDomNode(params.field.node)) {
 	      bookingFieldParams.outerWrap = params.field.node;
 	    } else {
 	      throw new Error("The argument \"params.field.node\" must be a DOM node.");
 	    }
-
 	    bookingFieldParams.innerWrap = bookingFieldParams.outerWrap.querySelector('.crm-webform-resourcebooking-wrap');
-
 	    if (!bookingFieldParams.innerWrap) {
 	      throw new Error("Can't find necessary DOM node \"div.crm-webform-resourcebooking-wrap\"");
 	    }
-
 	    bookingFieldParams.name = params.field.name;
 	    bookingFieldParams.formName = 'FIELD[' + params.field.name + ']';
 	    bookingFieldParams.captionNode = params.field.lblCaption;
@@ -5783,23 +5167,19 @@ this.BX = this.BX || {};
 	    adjustFieldController.init();
 	    return adjustFieldController;
 	  }
-
 	  static initEditFieldController(params) {
 	    let editFieldController = new EditFieldController(params);
 	    editFieldController.init();
 	    return editFieldController;
 	  }
-
 	  static getCrmFieldConfigurator(id, settings) {
 	    if (window.BX && BX.Crm && main_core.Type.isFunction(BX.Crm.EntityEditorUserFieldConfigurator)) {
 	      return customizeCrmEntityEditor(BX.Crm.EntityEditorUserFieldConfigurator).create(id, settings);
 	    }
 	  }
-
 	  static getUserFieldParams(params = {}) {
 	    return new Promise(resolve => {
 	      let fieldName = params.fieldName || '';
-
 	      if (params.clearCache || !ResourcebookingUserfield.fieldParamsCache[params.fieldName]) {
 	        BX.ajax.runAction('calendar.api.resourcebookingajax.getfieldparams', {
 	          data: {
@@ -5815,16 +5195,13 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-
 	  static getPluralMessage(messageId, number) {
 	    let pluralForm, langId;
 	    langId = BX.message('LANGUAGE_ID') || 'en';
 	    number = parseInt(number);
-
 	    if (number < 0) {
 	      number = -1 * number;
 	    }
-
 	    if (langId) {
 	      switch (langId) {
 	        case 'ru':
@@ -5834,18 +5211,14 @@ this.BX = this.BX || {};
 	          } else {
 	            pluralForm = number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
 	          }
-
 	          break;
-
 	        case 'pl':
 	          if (number <= 4) {
 	            pluralForm = number === 1 ? 0 : 1;
 	          } else {
 	            pluralForm = 2;
 	          }
-
 	          break;
-
 	        default:
 	          // en, de and other languages
 	          pluralForm = number !== 1 ? 1 : 0;
@@ -5854,39 +5227,30 @@ this.BX = this.BX || {};
 	    } else {
 	      pluralForm = 1;
 	    }
-
 	    return BX.message(messageId + '_PLURAL_' + pluralForm);
 	  }
-
 	  static getParamsFromHash(userfieldId) {
 	    let params,
-	        regRes,
-	        hash = unescape(window.location.hash);
-
+	      regRes,
+	      hash = unescape(window.location.hash);
 	    if (hash) {
 	      regRes = new RegExp('#calendar:' + userfieldId + '\\|(.*)', 'ig').exec(hash);
-
 	      if (regRes && regRes.length > 1) {
 	        params = regRes[1].split('|');
 	      }
 	    }
-
 	    return params;
 	  }
-
 	  static openExternalSettingsSlider(params) {
 	    let settingsSlider = new CalendarViewSettingsSlider(params);
 	    settingsSlider.show();
 	  }
-
 	  static setSocnetDestination(socnetDestination) {
 	    ResourcebookingUserfield.socnetDestination = socnetDestination;
 	  }
-
 	  static getSocnetDestination() {
 	    return ResourcebookingUserfield.socnetDestination;
 	  }
-
 	}
 	ResourcebookingUserfield.fieldParamsCache = {};
 	ResourcebookingUserfield.socnetDestination = null;

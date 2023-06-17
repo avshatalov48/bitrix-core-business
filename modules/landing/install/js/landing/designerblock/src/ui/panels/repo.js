@@ -38,7 +38,12 @@ export class RepoPanel extends Content
 		this.cache = new Cache.MemoryCache();
 		this.onElementSelect = options.onElementSelect;
 
-		this.renderTo(document.body);
+		this.renderTo(
+			parent.document.body
+			? parent.document.body
+			: document.body
+		);
+
 		Dom.addClass(this.layout, 'landing-ui-panel-repo');
 	}
 

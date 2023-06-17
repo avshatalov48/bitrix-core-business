@@ -124,7 +124,7 @@ class Log implements \ArrayAccess
 	 * @param mixed $offset
 	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return array_key_exists($offset, $this->data);
 	}
@@ -133,6 +133,7 @@ class Log implements \ArrayAccess
 	 * @param mixed $offset
 	 * @return mixed|null
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		if (array_key_exists($offset, $this->data))
@@ -144,7 +145,7 @@ class Log implements \ArrayAccess
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->setLog($offset, $value);
 	}
@@ -152,7 +153,7 @@ class Log implements \ArrayAccess
 	/**
 	 * @param mixed $offset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		if (array_key_exists($offset, $this->data))
 		{
@@ -195,7 +196,7 @@ class Uploader
 	public $script;
 	protected $path = "";
 	protected $CID = null;
-	protected $version = null;
+	protected int $version = 0;
 	protected $mode = "view";
 	protected $param = array();
 	protected $requestMethods = array(
@@ -219,8 +220,8 @@ class Uploader
 		$this->script = $APPLICATION->GetCurPageParam();
 
 		$params = is_array($params) ? $params : array($params);
-		$params["copies"] = (is_array($params["copies"]) ? $params["copies"] : array()) + $this->params["copies"];
-		$params["storage"] = (is_array($params["storage"]) ? $params["storage"] : array()) + $this->params["storage"];
+		$params["copies"] = (isset($params["copies"]) && is_array($params["copies"]) ? $params["copies"] : array()) + $this->params["copies"];
+		$params["storage"] = (isset($params["storage"]) && is_array($params["storage"]) ? $params["storage"] : array()) + $this->params["storage"];
 		$params["storage"]["moduleId"] = preg_replace("/[^a-z_-]/i", "_", $params["storage"]["moduleId"]);
 		$this->params = $params;
 		if (array_key_exists("controlId", $params))
@@ -318,7 +319,7 @@ class Uploader
 		if ($this->mode != "view" && !check_bitrix_sessid())
 			throw new AccessDeniedException("Bad sessid.");
 
-		$this->version = $this->getRequest("version");
+		$this->version = (int) $this->getRequest("version");
 
 		$directory = \CBXVirtualIo::GetInstance()->GetDirectory($this->path);
 		$directoryExists = $directory->IsExists();
@@ -331,8 +332,10 @@ class Uploader
 
 			if (!$access->IsExists() || mb_strpos($access->GetContents(), $content) === false)
 			{
-				if (($fd = $access->Open('ab')) && $fd)
+				if (($fd = $access->Open('ab')))
+				{
 					fwrite($fd, $content);
+				}
 				fclose($fd);
 			}
 		}
@@ -442,7 +445,7 @@ class Uploader
 
 				$response = $package->checkPost($this->params);
 
-				if (is_null($this->version) || true)
+				if ($this->version <= 1)
 				{
 					$response2 = array();
 					foreach ($response as $k => $r)

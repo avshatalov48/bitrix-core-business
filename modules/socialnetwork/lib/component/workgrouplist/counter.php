@@ -188,7 +188,7 @@ class Counter
 
 		$sliderOptionsData = [
 			'contentClassName' => 'bitrix24-group-slider-content',
-			'loader' => 'intranet:tasklist',
+			'loader' => 'intranet:slider-tasklist',
 			'cacheable' => false,
 			'customLeftBoundary' => 0,
 			'newWindowLabel' => true,

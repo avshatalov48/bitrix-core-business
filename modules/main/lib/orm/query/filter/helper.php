@@ -71,7 +71,7 @@ class Helper
 		if($ftMinTokenSize === null)
 		{
 			$config = \Bitrix\Main\Application::getConnection()->getConfiguration();
-			$ftMinTokenSize = (isset($config["ft_min_token_size"])? $config["ft_min_token_size"] : self::FT_MIN_TOKEN_SIZE);
+			$ftMinTokenSize = ($config["ft_min_token_size"] ?? self::FT_MIN_TOKEN_SIZE);
 		}
 		return $ftMinTokenSize;
 	}

@@ -60,14 +60,18 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		{
 			$arSource = CSocNetLogComments::SetSource($arFields);
 			if (
-				$arSource["NO_SOURCE"] === "Y"
+				($arSource["NO_SOURCE"] ?? null) === "Y"
 				|| intval($arSource["SOURCE_ID"]) > 0
 			)
 			{
-				if ($arSource["NO_SOURCE"] === "Y")
+				if (($arSource["NO_SOURCE"] ?? null) === "Y")
+				{
 					$bSetSource = false;
+				}
 				else
+				{
 					$arFields["SOURCE_ID"] = $arSource["SOURCE_ID"];
+				}
 
 				if (
 					array_key_exists("RATING_ENTITY_ID", $arSource)
@@ -698,7 +702,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		}
 
 		if (
-			$arParams["USE_SUBSCRIBE"] == "Y"
+			($arParams["USE_SUBSCRIBE"] ?? '') == "Y"
 			&& intval($arParams["SUBSCRIBE_USER_ID"]) > 0
 		)
 		{
@@ -808,7 +812,10 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] <= 0)
+		if (
+			is_array($arNavStartParams)
+			&& (int) ($arNavStartParams["nTopCount"] ?? 0) <= 0
+		)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".

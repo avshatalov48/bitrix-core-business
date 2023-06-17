@@ -113,6 +113,10 @@ final class Manager
 
 		$discounts = $this->getDiscounts($basket);
 		$predictionDiscount = $this->findFirstPredictionDiscount($discounts, ConnectedProduct::className());
+		if ($predictionDiscount === null)
+		{
+			return null;
+		}
 
 		$manager = Discount\Preset\Manager::getInstance();
 		$preset = $manager->getPresetById($predictionDiscount['PRESET_ID']);

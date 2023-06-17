@@ -36,7 +36,7 @@ class CatalogTopComponent extends ElementList
 			$params['LINE_ELEMENT_COUNT'] = 3;
 		}
 
-		$params['COMPATIBLE_MODE'] = (isset($params['COMPATIBLE_MODE']) && $params['COMPATIBLE_MODE'] === 'N' ? 'N' : 'Y');
+		$params['COMPATIBLE_MODE'] = ($params['COMPATIBLE_MODE'] ?? 'N') === 'Y' ? 'Y' : 'N';
 		if ($params['COMPATIBLE_MODE'] === 'N')
 		{
 			$params['OFFERS_LIMIT'] = 0;

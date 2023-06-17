@@ -44,7 +44,7 @@ if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
-$back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
+$back_url = ($_REQUEST["back_url"] ?? "");
 
 //Is a folder?
 $isFolder = $io->DirectoryExists($documentRoot.$path);
@@ -135,7 +135,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	CUtil::JSPostUnescape();
 	$arSavePermission = array();
 
-	if($_POST["REMOVE_PERMISSIONS"] == "Y")
+	if (isset($_POST["REMOVE_PERMISSIONS"]) && $_POST["REMOVE_PERMISSIONS"] == "Y")
 	{
 		if($path != "/")
 		{

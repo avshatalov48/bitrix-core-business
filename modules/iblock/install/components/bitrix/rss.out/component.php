@@ -335,13 +335,22 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 		else
 		{
 			$arItem["category"] = "";
-			$rsNavChain = CIBlockSection::GetNavChain($arResult["ID"], $arElement["IBLOCK_SECTION_ID"]);
-			while($arNavChain = $rsNavChain->Fetch())
+			$rsNavChain = CIBlockSection::GetNavChain(
+				$arResult["ID"],
+				$arElement["IBLOCK_SECTION_ID"],
+				[
+					'ID',
+					'NAME',
+				],
+				true
+			);
+			foreach ($rsNavChain as $arNavChain)
 			{
 				if ($arItem["category"])
 					$arItem["category"] .= "/";
 				$arItem["category"] .= htmlspecialcharsbx($arNavChain["NAME"]);
 			}
+			unset($arNavChain, $rsNavChain);
 		}
 
 		if($arParams["YANDEX"])

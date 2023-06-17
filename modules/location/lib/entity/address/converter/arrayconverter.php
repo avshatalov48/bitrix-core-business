@@ -19,7 +19,7 @@ final class ArrayConverter
 	 * @param bool $convertLocation
 	 * @return array
 	 */
-	public static function convertToArray(Address $address, $convertLocation = true): array
+	public static function convertToArray(Address $address, bool $convertLocation = true): array
 	{
 		$result = [
 			'id' => $address->getId(),
@@ -30,7 +30,7 @@ final class ArrayConverter
 			'links' => self::convertLinksToArray($address)
 		];
 
-		if($convertLocation && $location = $address->getLocation())
+		if ($convertLocation && $location = $address->getLocation())
 		{
 			$result['location'] = Location\Converter\ArrayConverter::convertToArray($location);
 		}
@@ -43,17 +43,29 @@ final class ArrayConverter
 	 *
 	 * @param array $data
 	 * @return Address
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function convertFromArray(array $data): Address
 	{
-		$result = (new Address((string)$data['languageId']))
-			->setId((int)$data['id'])
-			->setLatitude((string)$data['latitude'])
-			->setLongitude((string)$data['longitude']);
+		$languageId = (string)($data['languageId'] ?? '');
 
-		if(is_array($data['fieldCollection']))
+		$result = new Address($languageId);
+
+		if (isset($data['id']))
+		{
+			$result->setId((int)$data['id']);
+		}
+
+		if (isset($data['latitude']))
+		{
+			$result->setLatitude((string)$data['latitude']);
+		}
+
+		if (isset($data['longitude']))
+		{
+			$result->setLongitude((string)$data['longitude']);
+		}
+
+		if (isset($data['fieldCollection']) && is_array($data['fieldCollection']))
 		{
 			foreach ($data['fieldCollection'] as $itemType => $itemValue)
 			{
@@ -61,7 +73,7 @@ final class ArrayConverter
 			}
 		}
 
-		if(is_array($data['links']))
+		if (isset($data['links']) && is_array($data['links']))
 		{
 			foreach ($data['links'] as $link)
 			{
@@ -69,9 +81,9 @@ final class ArrayConverter
 			}
 		}
 
-		if(isset($data['location']))
+		if (isset($data['location']) && is_array($data['location']))
 		{
-			if($location = Location::fromArray($data['location']))
+			if ($location = Location::fromArray($data['location']))
 			{
 				$result->setLocation($location);
 			}
@@ -108,7 +120,7 @@ final class ArrayConverter
 		{
 			$result[] = [
 				'entityId' => $link->getAddressLinkEntityId(),
-				'entityType' => $link->getAddressLinkEntityType()
+				'entityType' => $link->getAddressLinkEntityType(),
 			];
 		}
 

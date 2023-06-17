@@ -28,7 +28,7 @@ class Diff
 		preg_match_all("/(<.*?>\\s*|\\s+)([^\\s<]*)/", " ".$b, $matchB);
 
 		$diffScript = $this->getDiffScript($matchA[2], $matchB[2]);
-		if(count($diffScript) == 0)
+		if(empty($diffScript))
 		{
 			// no difference found
 			return $a;
@@ -291,7 +291,7 @@ class Diff
 		$result = array();
 		while ($indexA < count($a) || $indexB < count($b))
 		{
-			if (($indexA < count($a)) && (!$this->modifiedA[$indexA]) && ($indexB < count($b)) && (!$this->modifiedB[$indexB]))
+			if (($indexA < count($a)) && (empty($this->modifiedA[$indexA])) && ($indexB < count($b)) && empty($this->modifiedB[$indexB]))
 			{
 				// equal lines
 				$indexA++;
@@ -303,12 +303,12 @@ class Diff
 				$startA = $indexA;
 				$startB = $indexB;
 
-				while ($indexA < count($a) && ($indexB >= count($b) || $this->modifiedA[$indexA]))
+				while ($indexA < count($a) && ($indexB >= count($b) || !empty($this->modifiedA[$indexA])))
 				{
 					$indexA++;
 				}
 
-				while ($indexB < count($b) && ($indexA >= count($a) || $this->modifiedB[$indexB]))
+				while ($indexB < count($b) && ($indexA >= count($a) || !empty($this->modifiedB[$indexB])))
 				{
 					$indexB++;
 				}

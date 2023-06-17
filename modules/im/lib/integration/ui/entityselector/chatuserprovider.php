@@ -60,7 +60,7 @@ class ChatUserProvider extends ChatProvider
 		{
 			return [];
 		}
-		
+
 		$options['order'] ??= ['LAST_MESSAGE_ID' => 'DESC'];
 		$chatIdList = static::getChatIdList($options['searchQuery'], $chatTypeList, $options['order']);
 		if (empty($chatIdList))
@@ -73,11 +73,11 @@ class ChatUserProvider extends ChatProvider
 			->addSelect('*')
 			->addSelect('RELATION.USER_ID', 'RELATION_USER_ID')
 			->addSelect('RELATION.NOTIFY_BLOCK', 'RELATION_NOTIFY_BLOCK')
-			->addSelect('RELATION.COUNTER', 'RELATION_COUNTER')
+			//->addSelect('RELATION.COUNTER', 'RELATION_COUNTER')
 			->addSelect('RELATION.START_COUNTER', 'RELATION_START_COUNTER')
 			->addSelect('RELATION.LAST_ID', 'RELATION_LAST_ID')
-			->addSelect('RELATION.STATUS', 'RELATION_STATUS')
-			->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
+			//->addSelect('RELATION.STATUS', 'RELATION_STATUS')
+			//->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
 			->addSelect('ALIAS.ALIAS', 'ALIAS_NAME')
 		;
 		$query->registerRuntimeField(
@@ -94,7 +94,7 @@ class ChatUserProvider extends ChatProvider
 		$query->setOrder($options['order']);
 		$query->setLimit(static::MAX_CHATS_IN_SAMPLE);
 
-		return $query->fetchAll();
+		return Chat::fillCounterData($query->fetchAll());
 	}
 
 	protected static function getChatIdList(string $searchQuery, array $chatTypeList, array $order): array

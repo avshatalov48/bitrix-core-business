@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (!empty($arResult["FatalError"]))
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,20 +12,20 @@ elseif ($arResult["FatalError"] <> '')
 }
 else
 {
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
 		<?
 	}
 
-	if($_REQUEST["invite_sent"] == "Y")
+	if (isset($_REQUEST["invite_sent"]) && $_REQUEST["invite_sent"] == "Y")
 	{
 		?>
 		<span class='notetext'><?=GetMessage("SONET_C12_REINVITE_SENT")?></span><br /><br />
 		<?
 	}
-	?>	
+	?>
 	<script language="javascript">
 	<!--
 	function SelectAllRows(checkbox)
@@ -78,7 +78,7 @@ else
 						<td valign="top">
 							<?= $friend["USER_PERSONAL_PHOTO_IMG"]; ?><br />
 							<?
-							
+
 							$APPLICATION->IncludeComponent("bitrix:main.user.link",
 								'',
 								array(
@@ -108,13 +108,13 @@ else
 								false,
 								array("HIDE_ICONS" => "Y")
 							);
-							
+
 							?><br />
 							<?= $friend["DATE_CREATE"] ?>
 						</td>
 						<td valign="top">
-							<?= $friend["MESSAGE"]; 
-							
+							<?= $friend["MESSAGE"];
+
 							if (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite()):
 
 								$rsInvitedUser = CUser::GetByID($friend["USER_ID"]);

@@ -132,12 +132,17 @@ class ImageRepository implements ImageRepositoryContract
 				'=ID' => $morePhotoIds,
 			],
 		]);
+		if (empty($fields))
+		{
+			return [];
+		}
+
 
 		$fields = array_combine(array_column($fields, 'ID'), $fields);
 		/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValue $value */
 		foreach ($morePhotoValueCollection as $value)
 		{
-			$fileId = $value->getValue();
+			$fileId = (int)$value->getValue();
 			if ($fileId > 0 && isset($fields[$fileId]))
 			{
 				$fileFields = $fields[$fileId];

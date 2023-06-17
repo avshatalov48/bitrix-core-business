@@ -69,7 +69,7 @@ $i=0;
 
 foreach($arResult['value'] as $key => $value)
 {
-	$attrList['value'] = HtmlFilter::encode($value);
+	$attrList['value'] = $value;
 
 	$arResult['fieldValues'][$key] = [
 		'attrList' => $attrList,
@@ -85,7 +85,7 @@ foreach($arResult['value'] as $key => $value)
 		$attrList['name'] = str_replace('[]', '['.$key.']', $arResult['fieldName']);
 		$attrList['id'] = $arParams['userField']['~id'] . '_' . $i++;
 		$attrList['size'] = (int)$arResult['userField']['SETTINGS']['SIZE'];
-		$attrList['value'] = $value;
+		$attrList['value'] = HtmlFilter::encode($value);
 		$arResult['fieldValues'][$key]['attrList'] = $attrList;
 	}
 }

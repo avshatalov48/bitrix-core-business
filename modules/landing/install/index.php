@@ -27,6 +27,10 @@ class Landing extends \CModule
 
 	public $docRoot = '';
 	public $eventsData = [
+		'ai' => [
+			'onTuningLoad' => ['\Bitrix\Landing\Connector\Ai', 'onTuningLoad'],
+			'onBeforeCompletions' => ['\Bitrix\Landing\Connector\Ai', 'onBeforeCompletions'],
+		],
 		'crm' => [
 			'onAfterCrmCompanyAdd' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange'],
 			'onAfterCrmCompanyUpdate' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange']

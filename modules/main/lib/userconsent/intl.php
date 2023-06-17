@@ -75,7 +75,7 @@ class Intl
 	 */
 	public function getFields()
 	{
-		return isset($this->data['FIELDS']) ? $this->data['FIELDS'] : array();
+		return $this->data['FIELDS'] ?? array();
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Intl
 	 */
 	public function getText()
 	{
-		return isset($this->data['AGREEMENT_TEXT']) ? $this->data['AGREEMENT_TEXT'] : '';
+		return $this->data['AGREEMENT_TEXT'] ?? '';
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Intl
 	 */
 	public function getLabelText()
 	{
-		return isset($this->data['LABEL_TEXT']) ? $this->data['LABEL_TEXT'] : '';
+		return $this->data['LABEL_TEXT'] ?? '';
 	}
 
 	/**
@@ -105,7 +105,7 @@ class Intl
 	 */
 	public function getNotifyText()
 	{
-		return isset($this->data['NOTIFY_TEXT']) ? $this->data['NOTIFY_TEXT'] : '';
+		return $this->data['NOTIFY_TEXT'] ?? '';
 	}
 
 	/**
@@ -116,7 +116,7 @@ class Intl
 	 */
 	public function getPhrase($code)
 	{
-		return isset($this->data['PHRASES'][$code]) ? $this->data['PHRASES'][$code] : '';
+		return $this->data['PHRASES'][$code] ?? '';
 	}
 
 	/**
@@ -127,7 +127,7 @@ class Intl
 	 */
 	public function getDataValue($code)
 	{
-		return isset($this->data[$code]) ? $this->data[$code] : null;
+		return $this->data[$code] ?? null;
 	}
 
 
@@ -295,7 +295,7 @@ class Intl
 			}
 
 			$item['NAME'] = Loc::getMessage('MAIN_USER_CONSENT_INTL_NAME', array('%language_name%' => $languageName));
-			$item['BASE_LANGUAGE_ID'] = isset(self::$virtualLanguageMap[$languageId]) ? self::$virtualLanguageMap[$languageId] : $languageId;
+			$item['BASE_LANGUAGE_ID'] = self::$virtualLanguageMap[$languageId] ?? $languageId;
 			$item['LANGUAGE_ID'] = $languageId;
 			$item['LANGUAGE_NAME'] = $languageName;
 
@@ -383,7 +383,7 @@ class Intl
 			$dirLanguages[] = $childDir->getName();
 		}
 
-		if (count($dirLanguages) == 0)
+		if (empty($dirLanguages))
 		{
 			return $list;
 		}
@@ -425,7 +425,7 @@ class Intl
 		// load messages
 		$messages = Loc::loadLanguageFile(__FILE__, $languageId, true);
 		// set map by all message codes
-		if (count($map) === 0)
+		if (empty($map))
 		{
 			$keys = array_keys($messages);
 			foreach ($keys as $key)
@@ -463,7 +463,7 @@ class Intl
 		$item = array();
 		foreach ($map as $itemKey => $messageKey)
 		{
-			$message = isset($messages[$messageKey]) ? $messages[$messageKey] : '';
+			$message = $messages[$messageKey] ?? '';
 			$message = trim($message);
 			$message = $message == '-' ? '' : $message;
 

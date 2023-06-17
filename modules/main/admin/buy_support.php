@@ -1,10 +1,11 @@
 <?php
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ * @global CDatabase $DB
+ */
+
+use Bitrix\Main\Application;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/update_client.php");
@@ -19,26 +20,15 @@ IncludeModuleLangFile(__FILE__);
 $APPLICATION->SetTitle(GetMessage("BUY_SUP_TITLE"));
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/desktop/templates/admin/style.css");
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
-$lkeySign = md5(CUpdateClient::GetLicenseKey());
 
-$region = Bitrix\Main\Config\Option::get('main', '~PARAM_CLIENT_LANG', LANGUAGE_ID);
+$license = Application::getInstance()->getLicense();
+$lkeySign = $license->getHashLicenseKey();
+$domain = $license->getDomainStoreLicense();
+$partner_id = $license->getPartnerId();
 
-$queryUrl = [
-	'ru' => 'https://util.1c-bitrix.ru',
-	'ua' => 'https://util.bitrix.ua',
-	'en' => 'https://util.bitrixsoft.com',
-	'kz' => 'https://util.1c-bitrix.kz',
-	'by' => 'https://util.1c-bitrix.by'
-];
-if (!isset($queryUrl[$region]))
-	$queryUrl[$region] = $queryUrl['ru'];
-
-$domain = $queryUrl[$region];
-$partner_id = COption::GetOptionString("main", "~PARAM_PARTNER_ID");
-
-if(intval($partner_id) <= 0)
+if($partner_id <= 0)
 {
-	LocalRedirect($domain."/key_update.php?license_key=".$lkeySign."&tobasket=y&lang=".LANGUAGE_ID, true);
+	LocalRedirect($license->getBuyLink(), true);
 }
 else
 {
@@ -152,7 +142,7 @@ else
 							{
 								BX.ajax.post(
 									'<?=$domain?>/key_update.php',
-									{"action": "send_partner_info", "partner_id": "<?=intval($partner_id)?>", "phone": pn, "email": em, "name": nm, "license_key": "<?=CUtil::JSEscape($lkeySign)?>", "site" : "<?=CUtil::JSEscape($_SERVER["HTTP_HOST"])?>"}
+									{"action": "send_partner_info", "partner_id": "<?=$partner_id?>", "phone": pn, "email": em, "name": nm, "license_key": "<?=CUtil::JSEscape($lkeySign)?>", "site" : "<?=CUtil::JSEscape($_SERVER["HTTP_HOST"])?>"}
 								);
 								BX.show(BX('ok'));
 								BX.hide(BX('req'));
@@ -192,8 +182,7 @@ else
 				</div>
 				<br /><br />
 				<div style="color:#464f57;">
-					<?=GetMessage("BUY_SUP_BUY_1_1", ["#LINK#" => GetMessage("BUY_SUP_BUY_EULA_LINK".(IsModuleInstalled("intranet") ? "_CP" : ""))]);?>
-					<a href="<?=$res["toBasket"]?>" target="_blank"><?=GetMessage("BUY_SUP_BUY_SELF")?></a><br /><br />
+					<a href="<?=$res["toBasket"]?>" target="_blank"><?= GetMessage("BUY_SUP_BUY_SELF") ?></a><br /><br />
 				</div>
 			</div>
 		</div>

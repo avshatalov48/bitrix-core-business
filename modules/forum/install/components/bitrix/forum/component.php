@@ -1,4 +1,4 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 if (!IsModuleInstalled("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
@@ -19,7 +19,7 @@ endif;
 $componentPage = "index";
 $arResult = array();
 
-$arParams["SHOW_FORUM_USERS"] = ($arParams["SHOW_FORUM_USERS"] == "Y" ? "Y" : "N");
+$arParams["SHOW_FORUM_USERS"] = ($arParams["SHOW_FORUM_USERS"] ?? 'N') === 'Y' ? 'Y' : 'N';
 
 $arDefaultUrlTemplates404 = array(
 	"active" => "topic/new/",
@@ -118,8 +118,9 @@ $arVariables = array();
 ********************************************************************/
 
 $arAuthPageParams = array("login", "logout", "register", "forgot_password", "change_password", "auth");
-if (($_REQUEST["auth"]=="yes" || $_REQUEST["register"] == "yes" ||  $_REQUEST["login"] == "yes") &&
-	$USER->IsAuthorized() || $_REQUEST["logout"] == "yes")
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+if (($request->get('auth') === 'yes' || $request->get('register') === 'yes' || $request->get('login') === 'yes') &&
+	$USER->IsAuthorized() || $request->get('logout') === 'yes')
 {
 	LocalRedirect($APPLICATION->GetCurPageParam("", $arAuthPageParams));
 }
@@ -220,7 +221,7 @@ if (in_array($componentPage, array("message", "message_small"))):
 elseif ($componentPage == 'user_list' && $arParams['SHOW_FORUM_USERS'] !== 'Y'):
 	$componentPage = "index";
 	$bFounded = true;
-elseif (in_array($componentPage, array("forums"))):
+elseif ($componentPage === "forums"):
 	$componentPage = "index";
 	$bFounded = true;
 elseif ($componentPage && array_key_exists($componentPage, $arDefaultUrlTemplates404)):
@@ -242,57 +243,95 @@ if (!$bFounded)
 		CHTTP::SetStatus("404 Not Found");
 }
 
-$arResult = array_merge(
-	array(
-		"SEF_MODE" => $arParams["SEF_MODE"],
-		"SEF_FOLDER" => $arParams["SEF_FOLDER"],
-		"URL_TEMPLATES" => $arUrlTemplates,
-		"VARIABLES" => $arVariables,
-		"ALIASES" => $arVariableAliases,
-		"PAGE_NAME" => $arVariables["PAGE_NAME"],
-		"FID" => ($arVariables["PAGE_NAME"] == "index") ? $arParams["FID"] : $arVariables["FID"],
-		"GID" => $arVariables["GID"],
-		"TID" => $arVariables["TID"],
-		"TITLE_SEO" => $arVariables["TITLE_SEO"],
-		"MID" => $arVariables["MID"],
-		"UID" => $arVariables["UID"],
-		"IID" => $arVariables["IID"],
-		"ACTION" => $arVariables["ACTION"],
-		"TYPE" => $arVariables["TYPE"],
-		"mode" => $arVariables["mode"],
-		"MODE" => $arVariables["MODE"],
-		"SET_TITLE" => $arParams["SET_TITLE"],
-		"SET_PAGE_PROPERTY" => $arParams["SET_PAGE_PROPERTY"],
-		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"],
-		"DATE_FORMAT" => $arParams["DATE_FORMAT"],
-		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-		"FORUMS_PER_PAGE" => $arParams["FORUMS_PER_PAGE"],
-		"TOPICS_PER_PAGE" => $arParams["TOPICS_PER_PAGE"],
-		"MESSAGES_PER_PAGE" => $arParams["MESSAGES_PER_PAGE"],
-		"PATH_TO_AUTH_FORM" => $arParams["PATH_TO_AUTH_FORM"],
-		"SHOW_FORUM_ANOTHER_SITE" => $arParams["SHOW_FORUM_ANOTHER_SITE"],
-		"SHOW_FORUMS_LIST" => $arParams["SHOW_FORUMS_LIST"],
-		"HELP_CONTENT" => $arParams["HELP_CONTENT"],
-		"RULES_CONTENT" => $arParams["RULES_CONTENT"],
-		),
-	$arResult);
+$arVariables['FID'] = $arVariables['FID'] ?? null;
+$arVariables['GID'] = $arVariables['GID'] ?? null;
+$arVariables['TID'] = $arVariables['TID'] ?? null;
+$arVariables['TITLE_SEO'] = $arVariables['TITLE_SEO'] ?? null;
+$arVariables['MID'] = $arVariables['MID'] ?? null;
+$arVariables['UID'] = $arVariables['UID'] ?? null;
+$arVariables['IID'] = $arVariables['IID'] ?? null;
+$arVariables['ACTION'] = $arVariables['ACTION'] ?? null;
+$arVariables['TYPE'] = $arVariables['TYPE'] ?? null;
+$arVariables['mode'] = $arVariables['mode'] ?? null;
+$arVariables['MODE'] = $arVariables['MODE'] ?? null;
+
 // BASE
+$arParams["SEF_MODE"] = $arParams["SEF_MODE"] ?? 'N';
+$arParams["SEF_FOLDER"] = $arParams["SEF_FOLDER"] ?? '';
+$arParams["SET_TITLE"] = $arParams["SET_TITLE"] ?? 'Y';
+$arParams["SET_PAGE_PROPERTY"] = $arParams["SET_PAGE_PROPERTY"] ?? 'Y';
+$arParams["CACHE_TIME"] = $arParams["CACHE_TIME"] ?? 3600;
+$arParams["CACHE_TYPE"] = $arParams["CACHE_TYPE"] ?? 'A';
+$arParams["SET_NAVIGATION"] = $arParams["SET_NAVIGATION"] ?? 'Y';
+$arParams["DATE_FORMAT"] = $arParams["DATE_FORMAT"] ?? null;
+$arParams["DATE_TIME_FORMAT"] = $arParams["DATE_TIME_FORMAT"] ?? null;
+$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ?? null;
+$arParams["FORUMS_PER_PAGE"] = $arParams["FORUMS_PER_PAGE"] ?? null;
+$arParams["TOPICS_PER_PAGE"] = $arParams["TOPICS_PER_PAGE"] ?? null;
+$arParams["MESSAGES_PER_PAGE"] = $arParams["MESSAGES_PER_PAGE"] ?? null;
+$arParams["PATH_TO_AUTH_FORM"] = $arParams["PATH_TO_AUTH_FORM"] ?? '';
+$arParams["SHOW_FORUM_ANOTHER_SITE"] = $arParams["SHOW_FORUM_ANOTHER_SITE"] ?? 'Y';
+$arParams["SHOW_FORUMS_LIST"] = $arParams["SHOW_FORUMS_LIST"] ?? 'Y';
+$arParams["HELP_CONTENT"] = $arParams["HELP_CONTENT"] ?? '';
+$arParams["RULES_CONTENT"] = $arParams["RULES_CONTENT"] ?? '';
+$arParams["TIME_INTERVAL_FOR_USER_STAT"] = ($arParams["TIME_INTERVAL_FOR_USER_STAT"] ?? 60) / 60;
+$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] ?? "Y");
+$arParams["USE_DESC_PAGE_TOPIC"] = ($arParams["USE_DESC_PAGE_TOPIC"] ?? "Y");
 $arParams["FID"] = (is_array($arParams["FID"]) ? $arParams["FID"] : array());
-if ($arResult["TID"] <= 0 && $arResult["TITLE_SEO"] <> '')
+$arParams["RSS_FID_RANGE"] = (!empty($arParams["RSS_FID_RANGE"]) ? $arParams["RSS_FID_RANGE"] : (!empty($arParams["FID"]) ? $arParams["FID"] : []));
+$arParams['RSS_TYPE_RANGE'] = !empty($arParams['RSS_TYPE_RANGE']) ? $arParams['RSS_TYPE_RANGE'] : [];
+$arParams["RSS_YANDEX"] = ($arParams["RSS_YANDEX"] ?? ''); 
+$arParams["RSS_TN_TITLE"] = ($arParams["RSS_TN_TITLE"] ?? ''); 
+$arParams["RSS_TN_DESCRIPTION"] = ($arParams["RSS_TN_DESCRIPTION"] ?? ''); 
+$arParams["RSS_TN_TEMPLATE"] = ($arParams["RSS_TN_TEMPLATE"] ?? ''); 
+if (empty($arResult["TID"]) && !empty($arResult["TITLE_SEO"]))
 	$arResult["TID"] = intval(strtok($arResult["TITLE_SEO"], "-"));
+$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['DISPLAY_PANEL'] = ($arParams["DISPLAY_PANEL"] ?? 'N') === 'Y' ? 'Y' : 'N';
+
 //$arParams["TID"] - topic id
 //$arParams["MID"] - message id || message id (pm)
 //$arParams["UID"] - user id
 //$arParams["HELP_CONTENT"]
 //$arParams["RULES_CONTENT"]
-$arParams["TIME_INTERVAL_FOR_USER_STAT"] = intval($arParams["TIME_INTERVAL_FOR_USER_STAT"]);
-$arParams["TIME_INTERVAL_FOR_USER_STAT"] = ($arParams["TIME_INTERVAL_FOR_USER_STAT"] > 0 ? $arParams["TIME_INTERVAL_FOR_USER_STAT"] : 60) / 60;
-$arParams["USE_DESC_PAGE_TOPIC"] = ($arParams["USE_DESC_PAGE_TOPIC"] == "N" ? "N" : "Y");
-$arParams["RSS_FID_RANGE"] = (!is_array($arParams["RSS_FID_RANGE"]) ? array() : $arParams["RSS_FID_RANGE"]);
-$arParams["RSS_FID_RANGE"] = (empty($arParams["RSS_FID_RANGE"]) && !empty($arParams["FID"]) ? $arParams["FID"] : array());
+
+$arResult = array_merge(
+	array(
+		"SEF_MODE" => $arParams["SEF_MODE"] ?? 'N',
+		"SEF_FOLDER" => $arParams["SEF_FOLDER"] ?? '',
+		"URL_TEMPLATES" => $arUrlTemplates ?? [],
+		"VARIABLES" => $arVariables,
+		"ALIASES" => $arVariableAliases,
+		"PAGE_NAME" => $arVariables["PAGE_NAME"],
+		"FID" => $arVariables["PAGE_NAME"] == "index" ? $arParams["FID"] : $arVariables["FID"],
+		"GID" => $arVariables["GID"] ?? null,
+		"TID" => $arVariables["TID"] ?? null,
+		"TITLE_SEO" => $arVariables["TITLE_SEO"] ?? null,
+		"MID" => $arVariables["MID"] ?? null,
+		"UID" => $arVariables["UID"] ?? null,
+		"IID" => $arVariables["IID"] ?? null,
+		"ACTION" => $arVariables["ACTION"] ?? null,
+		"TYPE" => $arVariables["TYPE"] ?? null,
+		"mode" => $arVariables["mode"] ?? null,
+		"MODE" => $arVariables["MODE"]?? null,
+		"SET_TITLE" => $arParams["SET_TITLE"] ?? 'Y',
+		"SET_PAGE_PROPERTY" => $arParams["SET_PAGE_PROPERTY"] ?? 'Y',
+		"CACHE_TIME" => $arParams["CACHE_TIME"] ?? 3600,
+		"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? 'A',
+		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"] ?? 'Y',
+		"DATE_FORMAT" => $arParams["DATE_FORMAT"] ?? null,
+		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
+		"FORUMS_PER_PAGE" => $arParams["FORUMS_PER_PAGE"] ?? null,
+		"TOPICS_PER_PAGE" => $arParams["TOPICS_PER_PAGE"] ?? null,
+		"MESSAGES_PER_PAGE" => $arParams["MESSAGES_PER_PAGE"] ?? null,
+		"PATH_TO_AUTH_FORM" => $arParams["PATH_TO_AUTH_FORM"] ?? '',
+		"SHOW_FORUM_ANOTHER_SITE" => $arParams["SHOW_FORUM_ANOTHER_SITE"] ?? 'Y',
+		"SHOW_FORUMS_LIST" => $arParams["SHOW_FORUMS_LIST"] ?? 'Y',
+		"HELP_CONTENT" => $arParams["HELP_CONTENT"] ?? '',
+		"RULES_CONTENT" => $arParams["RULES_CONTENT"] ?? '',
+		),
+	$arResult);
 //
 // URL
 //$arParams["SEF_MODE"]
@@ -312,10 +351,6 @@ $arParams["RSS_FID_RANGE"] = (empty($arParams["RSS_FID_RANGE"]) && !empty($arPar
 //$arParams["COLOR_TYPE"]
 //$arParams["WIDTH"]
 //$arParams["RESTART"]
-
-$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
-
-
 //$arParams["DATE_FORMAT"],
 //$arParams["DATE_TIME_FORMAT"],
 //$arParams["FORUMS_PER_PAGE"],
@@ -335,10 +370,10 @@ if (!isset($arParams["ATTACH_MODE"]))
 		$arParams["ATTACH_SIZE"] = 0;
 	}
 }
-$arParams["IMAGE_SIZE"] = intval(intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
+$arParams["IMAGE_SIZE"] = intval($arParams["IMAGE_SIZE"] ?: 500);
 $arParams["ATTACH_MODE"] = (is_array($arParams["ATTACH_MODE"]) ? $arParams["ATTACH_MODE"] : array("NAME"));
 $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_array("THUMB", $arParams["ATTACH_MODE"]) ? array("NAME") : $arParams["ATTACH_MODE"]);
-$arParams["ATTACH_SIZE"] = intval(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
+$arParams["ATTACH_SIZE"] = intval($arParams["ATTACH_SIZE"] ?: 90);
 if (!array_key_exists("USER_FIELDS", $arParams))
 {
 	$arParams["USER_FIELDS"] = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("FORUM_MESSAGE", 0, LANGUAGE_ID);
@@ -351,10 +386,8 @@ $arParams["MINIMIZE_SQL"] = "N";
 //$arParams["USER_PROPERTY"] - user property
 //$arParams["SHOW_FORUM_ANOTHER_SITE"]
 //$arParams["SHOW_FORUMS_LIST"]
-$arParams["SHOW_TAGS"] = (is_set($arParams["SHOW_TAGS"]) ? $arParams["SHOW_TAGS"] : "Y");
-
-
-$arParams["SEND_MAIL"] = (in_array($arParams["SEND_MAIL"], array("A", "E", "U", "Y")) ? $arParams["SEND_MAIL"] : "E");
+$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] ?? "Y");
+$arParams["SEND_MAIL"] = (in_array(($arParams["SEND_MAIL"] ?? 'E'), array("A", "E", "U", "Y")) ? $arParams["SEND_MAIL"] : "E");
 $arParams["SEND_ICQ"] = "A";
 
 //$arParams["SHOW_FORUM_ANOTHER_SITE"]
@@ -363,24 +396,23 @@ $arParams["SEND_ICQ"] = "A";
 //$arParams["SHOW_USER_STATUS"]
 //$arParams["FORUMS_ANOTHER"]
 
-$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y"); // add items into chain item
+$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] ?? "Y") === 'N' ? 'N' : 'Y'; // add items into chain item
 // $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N"); // add buttons unto top panel
 if (!array_key_exists("CACHE_TIME_USER_STAT", $arParams))
 	$arParams["CACHE_TIME_USER_STAT"] = 60;
 
-$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
-
-$arParams["USE_RSS"] = ($arParams["USE_RSS"] == "N" ? "N" : "Y");
-$arParams["AJAX_MODE"] = ($arParams["AJAX_MODE"] == "Y" ? "Y" : "N");
-$arParams["AJAX_TYPE"] = (($arParams["AJAX_TYPE"] == "Y" && $arParams["AJAX_MODE"] == "N") ? "Y" : "N");
+$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] ?? "N") === 'Y' ? 'Y' : 'N';
+$arParams["USE_RSS"] = ($arParams["USE_RSS"] ?? 'Y') == "N" ? "N" : "Y";
+$arParams["AJAX_MODE"] = (($arParams["AJAX_MODE"] ?? 'N') == "Y" ? "Y" : "N");
+$arParams["AJAX_TYPE"] = ((($arParams["AJAX_TYPE"] ?? 'N') == "Y" && $arParams["AJAX_MODE"] == "N") ? "Y" : "N");
 // CACHE & TITLE
 //$arParams["CACHE_TIME"]
 //$arParams["CACHE_TYPE"]
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
-$arParams["SET_PAGE_PROPERTY"] = ($arParams["SET_PAGE_PROPERTY"] == "N" ? "N" : "Y");
-$arParams["SET_DESCRIPTION"] = ($arParams["SET_DESCRIPTION"] == "Y" ? "Y" : "N");
+$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? 'Y') == "N" ? "N" : "Y");
+$arParams["SET_PAGE_PROPERTY"] = (($arParams["SET_PAGE_PROPERTY"] ?? 'Y') == "N" ? "N" : "Y");
+$arParams["SET_DESCRIPTION"] = (($arParams["SET_DESCRIPTION"] ?? 'N') == "Y" ? "Y" : "N");
 
-$arParams["USE_NAME_TEMPLATE"] = ($arParams["USE_NAME_TEMPLATE"] == "Y" ? "Y" : "N");
+$arParams["USE_NAME_TEMPLATE"] = (($arParams["USE_NAME_TEMPLATE"] ?? 'N') == "Y" ? "Y" : "N");
 if ($arParams["USE_NAME_TEMPLATE"] == "Y")
 {
 	$arParams["NAME_TEMPLATE"] = str_replace(
@@ -392,21 +424,21 @@ else
 {
 	$arParams["NAME_TEMPLATE"] = false;
 }
-$arParams["SHOW_ADD_MENU"] = ($arParams["TMPLT_SHOW_BOTTOM"] == "SET_BE_READ" ? "N" : "Y");
+$arParams["SHOW_ADD_MENU"] = (($arParams["TMPLT_SHOW_BOTTOM"] ?? '') == "SET_BE_READ" ? "N" : "Y");
 if (!$GLOBALS["USER"]->IsAuthorized() && COption::GetOptionString("forum", "USE_COOKIE", "N") == "N")
 {
 	$arParams["SHOW_ADD_MENU"] = "N";
 	$arParams["TMPLT_SHOW_BOTTOM"] = "";
 }
 
-$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
-$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
+$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"] ?? 0);
+$arParams["SHOW_VOTE"] = (($arParams["SHOW_VOTE"] ?? 'N') == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
 if ($arParams["SHOW_VOTE"] == "Y"):
 	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
 	$arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"]) <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");
 endif;
 
-$arParams["RATING_ID"] = $arParams["RATING_ID"];
+$arParams["RATING_ID"] = ($arParams["RATING_ID"] ?? 0);
 // activation rating
 CRatingsComponentsMain::GetShowRating($arParams);
 
@@ -414,4 +446,3 @@ if ($arVariables["PAGE_NAME"] !== "rss" && CModule::IncludeModule("forum"))
 	ForumSetLastVisit((mb_strpos($arVariables["PAGE_NAME"], "pm_") !== 0 ? $arResult["FID"] : 0), $arResult["TID"]);
 
 $this->IncludeComponentTemplate($arVariables["PAGE_NAME"]);
-?>

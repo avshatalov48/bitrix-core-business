@@ -240,7 +240,7 @@ BX.UI.InfoHelper =
 				width: width,
 				loader: 'default-loader',
 				cacheable: false,
-				data: { rightBoundary: 0 },
+				customRightBoundary: 0,
 				events: {
 					onLoad: function () {
 						BX.UI.InfoHelper.showFrame(frame);
@@ -309,7 +309,7 @@ BX.UI.InfoHelper =
 			width: 700,
 			loader: 'default-loader',
 			cacheable: false,
-			data: { rightBoundary: 0 },
+			customRightBoundary: 0,
 			events: {
 				onCloseComplete: function() {
 					BX.UI.InfoHelper.close();

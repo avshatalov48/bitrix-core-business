@@ -16,17 +16,17 @@ UI\Extension::load([
 	"socialnetwork.common",
 ]);
 
-if ($arResult["NEED_AUTH"] == "Y")
+if (($arResult["NEED_AUTH"] ?? '') == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (($arResult["FatalError"] ?? '') <> '')
 {
 	?><div class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger"><?=$arResult["FatalError"]?></div><?
 }
 else
 {
-	if($arResult["ErrorMessage"] <> '')
+	if (($arResult["ErrorMessage"] ?? '') <> '')
 	{
 		?><div class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger"><?=$arResult["ErrorMessage"]?></div><?
 	}
@@ -43,7 +43,10 @@ else
 			});
 		</script>
 
-		<div id="sonet_group_delete_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div>
+		<div
+			id="sonet_group_delete_error_block"
+			class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(($arResult["ErrorMessage"] ?? '') <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"
+		><?=$arResult["ErrorMessage"] ?? ''?></div>
 
 		<div class="socialnetwork-group-delete-content">
 			<div class="socialnetwork-group-delete-text"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C9_SUBTITLE_PROJECT" : "SONET_C9_SUBTITLE")?></div>

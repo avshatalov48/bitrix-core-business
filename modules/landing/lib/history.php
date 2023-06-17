@@ -130,6 +130,12 @@ class History
 		while ($row = $res->fetch())
 		{
 			$row['ID'] = (int)$row['ID'];
+			if (!is_array($row['ACTION_PARAMS']))
+			{
+				$this->fixBroken($row['ID']);
+				continue;
+			}
+
 			$row['STEP'] = $step;
 			$row['ENTITY_ID'] = (int)$row['ENTITY_ID'];
 			$row['MULTIPLY_ID'] = (int)$row['MULTIPLY_ID'];
@@ -175,24 +181,75 @@ class History
 		}
 	}
 
+	/**
+	 * For some reasons history row can be broken.
+	 * For consistency need remove row and decrease step.
+	 * @param int $id
+	 * @return bool
+	 */
+	protected function fixBroken(int $id): bool
+	{
+		$resDelete = HistoryTable::delete($id);
+		if ($resDelete->isSuccess())
+		{
+			if ($this->entityType === self::ENTITY_TYPE_LANDING)
+			{
+				$landing = LandingTable::query()
+					->addSelect('HISTORY_STEP')
+					->where('ID', '=', $this->entityId)
+					->exec()
+					->fetch()
+				;
+				$currentStep = $landing['HISTORY_STEP'] ?? 0;
+				$newStep = max(--$currentStep, 0);
+				$resUpdate = LandingTable::update(
+					$this->entityId,
+					['HISTORY_STEP' => $newStep]
+				);
+
+				return $resUpdate->isSuccess();
+			}
+
+			if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
+			{
+				$block = BlockTable::query()
+					->addSelect('HISTORY_STEP_DESIGNER')
+					->where('ID', '=', $this->entityId)
+					->exec()
+					->fetch()
+				;
+				$currentStep = $block['HISTORY_STEP_DESIGNER'] ?? 0;
+				$newStep = max(--$currentStep, 0);
+				$resUpdate = BlockTable::update(
+					$this->entityId,
+					['HISTORY_STEP_DESIGNER' => $newStep]
+				);
+
+				return $resUpdate->isSuccess();
+			}
+		}
+
+		return false;
+	}
+
 	protected function loadStep(): void
 	{
 		$this->step = 0;
 
 		if ($this->entityType === self::ENTITY_TYPE_LANDING)
 		{
-			$block = Internals\LandingTable::query()
+			$landing = LandingTable::query()
 				->addSelect('HISTORY_STEP')
 				->where('ID', '=', $this->entityId)
 				->exec()
 				->fetch()
 			;
-			$this->step = $block['HISTORY_STEP'] ?? 0;
+			$this->step = $landing['HISTORY_STEP'] ?? 0;
 		}
 
 		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
 		{
-			$block = Internals\BlockTable::query()
+			$block = BlockTable::query()
 				->addSelect('HISTORY_STEP_DESIGNER')
 				->where('ID', '=', $this->entityId)
 				->exec()
@@ -322,7 +379,7 @@ class History
 			return false;
 		}
 
-		if (is_array($item['MULTIPLY']) && !empty($item['MULTIPLY']))
+		if (isset($item['MULTIPLY']) && is_array($item['MULTIPLY']) && !empty($item['MULTIPLY']))
 		{
 			foreach ($item['MULTIPLY'] as $multyId)
 			{
@@ -429,28 +486,30 @@ class History
 	protected function getActionForStep(int $step, bool $undo): ?BaseAction
 	{
 		$step = $undo ? $step : ++$step;
-		$action = $this->actions[$step];
+		if (isset($this->actions[$step]))
+		{
+			return $this->actions[$step];
+		}
+
+		$current = $this->stack[$step];
+		$params = $current['ACTION_PARAMS'];
+		if ($this->entityType === self::ENTITY_TYPE_LANDING)
+		{
+			$params['lid'] = $this->entityId;
+		}
+		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
+		{
+			$params['blockId'] = $this->entityId;
+		}
+
+		$action = ActionFactory::getAction($current['ACTION'], $undo);
 		if (!$action)
 		{
-			$current = $this->stack[$step];
-			$params = $current['ACTION_PARAMS'];
-			if ($this->entityType === self::ENTITY_TYPE_LANDING)
-			{
-				$params['lid'] = $this->entityId;
-			}
-			if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-			{
-				$params['blockId'] = $this->entityId;
-			}
-
-			$action = ActionFactory::getAction($current['ACTION'], $undo);
-			if (!$action)
-			{
-				return null;
-			}
-			$action->setParams($params, true);
-			$this->actions[$step] = $action;
+			return null;
 		}
+
+		$action->setParams($params, true);
+		$this->actions[$step] = $action;
 
 		return $action;
 	}

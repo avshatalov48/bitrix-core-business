@@ -237,5 +237,17 @@ if (Loader::requireModule('bizproc'))
 
 			return parent::externalizeValue($fieldType, $context, $value);
 		}
+
+		protected static function generateControlName(array $field)
+		{
+			$name = $field['Field'];
+			$index = isset($field['Index']) ? (int)$field['Index'] : null;
+			if ($index !== null)
+			{
+				$name .= "[n{$field['Index']}]";
+			}
+
+			return $name;
+		}
 	}
 }

@@ -491,9 +491,14 @@ class CAllIBlockProperty
 		}
 		else
 		{
-			if(isset($arFields["USER_TYPE"]))
+			$arUserType = [];
+			$userTypeId = (string)($arFields['USER_TYPE'] ?? '');
+			if ($userTypeId !== '')
 			{
-				$arUserType = CIBlockProperty::GetUserType($arFields["USER_TYPE"]);
+				$arUserType = CIBlockProperty::GetUserType($userTypeId);
+			}
+			if (!empty($arUserType))
+			{
 				if(array_key_exists("ConvertToDB", $arUserType))
 				{
 					$arValue = array(
@@ -521,8 +526,8 @@ class CAllIBlockProperty
 							{
 								$arFields["USER_TYPE_SETTINGS"] = (
 									is_array($oldData["USER_TYPE_SETTINGS"])
-									? $oldData["USER_TYPE_SETTINGS"]
-									: unserialize($oldData["USER_TYPE_SETTINGS"], ['allowed_classes' => false])
+										? $oldData["USER_TYPE_SETTINGS"]
+										: unserialize($oldData["USER_TYPE_SETTINGS"], ['allowed_classes' => false])
 								);
 							}
 						}
@@ -538,12 +543,32 @@ class CAllIBlockProperty
 					{
 						$arFields["USER_TYPE_SETTINGS"] = serialize($arFieldsResult);
 					}
+					unset($arFieldsResult);
 				}
 				else
 				{
 					$arFields["USER_TYPE_SETTINGS"] = false;
 				}
 			}
+			else
+			{
+				if (isset($arFields['DEFAULT_VALUE']) && !is_scalar($arFields['DEFAULT_VALUE']))
+				{
+					$arFields['DEFAULT_VALUE'] = false;
+				}
+				if (isset($arFields["USER_TYPE_SETTINGS"]))
+				{
+					if (is_array($arFields["USER_TYPE_SETTINGS"]))
+					{
+						$arFields["USER_TYPE_SETTINGS"] = serialize($arFields["USER_TYPE_SETTINGS"]);
+					}
+					if (!is_scalar($arFields["USER_TYPE_SETTINGS"]))
+					{
+						$arFields["USER_TYPE_SETTINGS"] = false;
+					}
+				}
+			}
+			unset($arUserType);
 
 			unset($arFields["ID"]);
 			unset($arFields["VERSION"]);

@@ -2,6 +2,7 @@
 namespace Bitrix\Main\Analytics;
 
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
@@ -60,9 +61,10 @@ JS;
 
 	public static function getAccountId()
 	{
-		if (defined("LICENSE_KEY"))
+		$license = Application::getInstance()->getLicense();
+		if (!$license->isDemoKey())
 		{
-			return md5("BITRIX".LICENSE_KEY."LICENCE");
+			return $license->getPublicHashKey();
 		}
 		else
 		{
@@ -72,9 +74,10 @@ JS;
 
 	public static function getPrivateKey()
 	{
-		if (defined("LICENSE_KEY"))
+		$license = Application::getInstance()->getLicense();
+		if (!$license->isDemoKey())
 		{
-			return md5(LICENSE_KEY);
+			return $license->getHashLicenseKey();
 		}
 		else
 		{

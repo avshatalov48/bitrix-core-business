@@ -232,8 +232,8 @@ class CMenu
 			}
 
 			$bSkipMenuItem = false;
-			$ADDITIONAL_LINKS = $MenuItem[2];
-			$PARAMS = $MenuItem[3];
+			$ADDITIONAL_LINKS = $MenuItem[2] ?? [];
+			$PARAMS = $MenuItem[3] ?? [];
 
 			//Calculate menu items stack for iblock items only
 			if($this->MenuExtDir <> '' && is_array($PARAMS) && isset($PARAMS["FROM_IBLOCK"]))
@@ -251,7 +251,7 @@ class CMenu
 				{
 					//Unwind parents stack
 					while(
-						count($arParents) > 0
+						!empty($arParents)
 						&& $arParents[count($arParents)-1]["DEPTH_LEVEL"] > $PARAMS["DEPTH_LEVEL"]
 					)
 					{
@@ -431,7 +431,7 @@ class CMenu
 						$varvalue = urldecode(mb_substr($param, $eqpos + 1));
 					}
 
-					$globvarvalue = (isset($GLOBALS[$varname])? $GLOBALS[$varname] : "");
+					$globvarvalue = ($GLOBALS[$varname] ?? "");
 					if($globvarvalue != $varvalue)
 					{
 						$bOK = false;
@@ -492,7 +492,7 @@ class CMenu
 					"TITLE"=>GetMessage("MAIN_MENU_TEMPLATE_EDIT")
 				);
 			}
-			if(count($arIcons) > 0)
+			if(!empty($arIcons))
 			{
 				$result = $APPLICATION->IncludeStringBefore().$result;
 				$bShowButtons = true;
@@ -583,7 +583,7 @@ class CMenu
 				);
 			}
 
-			if(count($arIcons) > 0)
+			if(!empty($arIcons))
 			{
 				$result = $APPLICATION->IncludeStringBefore().$result;
 				$bShowButtons = true;

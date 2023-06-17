@@ -105,6 +105,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		'AVATAR_TYPE',
 		'SCRUM',
 		'ACTIVITY_DATE',
+		'IS_PINNED',
 	];
 
 	protected $actionData;
@@ -230,7 +231,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			foreach ($result as $key => $column)
 			{
 				if (
-					!$column['default']
+					!($column['default'] ?? false)
 					&& in_array($column['id'], $defaultSelectedGridHeaders, true)
 				)
 				{
@@ -388,7 +389,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			foreach ($tasksResult as $key => $column)
 			{
 				if (
-					!$column['default']
+					!($column['default'] ?? false)
 					&& in_array($column['id'], $defaultSelectedGridHeaders, true)
 				)
 				{
@@ -488,9 +489,9 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 	{
 		$result = [];
 
-		if (in_array('PIN', $this->runtimeFieldsManager->get(), true))
+		if (in_array('IS_PINNED', $this->runtimeFieldsManager->get(), true))
 		{
-			$result['PIN.ID'] = 'DESC';
+			$result['IS_PINNED'] = 'DESC';
 		}
 
 		$gridSort = $this->gridOptions->getSorting();
@@ -602,6 +603,17 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 				)
 			);
 			$this->runtimeFieldsManager->add('PIN');
+
+			$this->query->registerRuntimeField(
+				'IS_PINNED',
+				new ExpressionField(
+					'IS_PINNED',
+					WorkgroupPinTable::getSelectExpression(),
+					['ID', 'PIN.USER_ID', 'PIN.CONTEXT']
+				)
+			);
+			$this->runtimeFieldsManager->add('IS_PINNED');
+
 		}
 	}
 
@@ -912,6 +924,11 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		if ($this->runtimeFieldsManager->has('PIN'))
 		{
 			$result[] = 'PIN.ID';
+		}
+
+		if ($this->runtimeFieldsManager->has('IS_PINNED'))
+		{
+			$result[] = 'IS_PINNED';
 		}
 
 		foreach ($this->gridColumns as $column)
@@ -1228,7 +1245,12 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			'CURRENT_USER_ID' => $this->currentUserId,
 		];
 
-		$result['TOURS'] = is_array($this->arParams['TOURS']) ? $this->arParams['TOURS'] : [];
+		$result['TOURS'] = (
+			isset($this->arParams['TOURS'])
+			&& is_array($this->arParams['TOURS'])
+				? $this->arParams['TOURS']
+				: []
+		);
 
 		$result['CURRENT_COUNTER'] = $this->getCounter();
 
@@ -1250,6 +1272,8 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$nav->allowAllRecords(false)
 			->setPageSize($result['PAGE_SIZE'])
 			->initFromUri();
+
+		$result['CURRENT_PAGE'] = $nav->getCurrentPage();
 
 		if (in_array($this->arParams['MODE'], self::getTasksModeList(), true))
 		{
@@ -1277,30 +1301,12 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$this->queryInitAlias = mb_strtoupper($query->getInitAlias());
 		$rowsList = $this->prepareRowList($res->fetchAll());
 
-		$groupIdList = [];
-		$showActionsColumn = false;
-
-		foreach ($rowsList as $row)
-		{
-			$groupIdList[] = $row['id'];
-			if (
-				!$showActionsColumn
-				&& !empty(array_intersect($row['actions'], $this->getViewableActionList()))
-			)
-			{
-				$showActionsColumn = true;
-			}
-		}
-
-		if (!$showActionsColumn)
-		{
-			$this->gridColumns = array_filter($this->gridColumns, static function($item) { return $item !== 'ACTIONS'; });
-			$result['HEADERS'] = array_filter($result['HEADERS'], static function($item) { return $item['id'] !== 'ACTIONS'; });
-		}
+		$this->gridColumns = array_filter($this->gridColumns, static function($item) { return $item !== 'ACTIONS'; });
+		$result['HEADERS'] = array_filter($result['HEADERS'], static function($item) { return $item['id'] !== 'ACTIONS'; });
 
 		$result['ROWS'] = $rowsList;
 		$result['ROWS_COUNT'] = $res->getCount();
-		$result['GROUP_ID_LIST'] = $groupIdList;
+		$result['GROUP_ID_LIST'] = array_column($rowsList, 'id');
 
 		$nav->setRecordCount($result['ROWS_COUNT']);
 		$result['NAV_OBJECT'] = $nav;
@@ -1469,7 +1475,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 	{
 		global $APPLICATION;
 
-		if ($this->arParams['SET_NAV_CHAIN'] === 'N')
+		if (($this->arParams['SET_NAV_CHAIN'] ?? '') === 'N')
 		{
 			return;
 		}
@@ -1646,6 +1652,16 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$this->addQuerySelect();
 		$this->addQueryOrder();
 
+		$nav = new \Bitrix\Main\UI\PageNavigation('page');
+
+		$currentPage = ($currentPage >= 1) ? $currentPage : 1;
+		$nav->allowAllRecords(false)
+			->setPageSize($this->pageSize)
+			->setCurrentPage($currentPage);
+
+		$query->setOffset($nav->getOffset());
+		$query->setLimit($nav->getLimit());
+
 		$rows = $query->exec()->fetchAll();
 
 		$workgroupIdList = array_map(static function($row) {
@@ -1781,6 +1797,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$groupIdList = [];
 		$scrumIdList = [];
 		$scrumMasterIdList = [];
+		$members = [];
 
 		$entityManagerInstance = new EntityManager([
 			'queryInitAlias' => $this->queryInitAlias,
@@ -1857,10 +1874,13 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		{
 			if ($this->selectFieldsManager->has('MEMBERS'))
 			{
-				$members = WorkgroupList\User::fillUsers([
-					'groupIdList' => $groupIdList,
-					'scrumMasterIdList' => $scrumMasterIdList,
-				]);
+				if (empty($members))
+				{
+					$members = WorkgroupList\User::fillUsers([
+						'groupIdList' => $groupIdList,
+						'scrumMasterIdList' => $scrumMasterIdList,
+					]);
+				}
 
 				foreach ($rowsList as $key => $value)
 				{
@@ -1909,21 +1929,35 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 			if ($this->currentUserId === $this->arParams['USER_ID'])
 			{
-				$this->counterData = WorkgroupList\Counter::getCounterData([
-					'mode' => $this->arParams['MODE'],
-					'groupIdList' => $groupIdList,
-					'scrumIdList' => $scrumIdList,
-				]);
-
 				if (!in_array($this->arParams['MODE'], self::getTasksModeList(), true))
 				{
 					$counters = [];
 				}
 				else
 				{
+					if (empty($members))
+					{
+						$members = WorkgroupList\User::fillUsers([
+							'groupIdList' => $groupIdList,
+							'scrumMasterIdList' => $scrumMasterIdList,
+						]);
+					}
+
+					$groupIds = $this->getGroupIdsForCounters(
+						$this->currentUserId,
+						$groupIdList,
+						$members
+					);
+
+					$this->counterData = WorkgroupList\Counter::getCounterData([
+						'mode' => $this->arParams['MODE'],
+						'groupIdList' => $groupIds,
+						'scrumIdList' => $scrumIdList,
+					]);
+
 					$counters = WorkgroupList\Counter::fillCounters([
 						'counterData' => $this->counterData,
-						'groupIdList' => $groupIdList,
+						'groupIdList' => $groupIds,
 						'scrumIdList' => $scrumIdList,
 						'mode' => $this->arParams['MODE'],
 						'groupUrl' => $groupUrl,
@@ -2189,5 +2223,31 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 			$rowsList[$key] = $processedRow;
 		}
+	}
+
+	private function getGroupIdsForCounters(int $userId, array $groupIdList, array $members): array
+	{
+		$groupIds = [];
+
+		foreach ($groupIdList as $groupId)
+		{
+			if (!isset($members[$groupId]))
+			{
+				continue;
+			}
+
+			$listUserIds = array_merge(
+				array_keys($members[$groupId]['HEADS']),
+				array_keys($members[$groupId]['MEMBERS'])
+			);
+			if (!in_array($userId, $listUserIds))
+			{
+				continue;
+			}
+
+			$groupIds[] = $groupId;
+		}
+
+		return $groupIds;
 	}
 }

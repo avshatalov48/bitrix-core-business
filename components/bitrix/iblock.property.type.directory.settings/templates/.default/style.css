@@ -1,0 +1,21 @@
+.iblock-property-type-directory-settings
+{
+	background: #fff;
+	margin-bottom: 4px;
+	padding: 9px;
+	border-radius: var(--ui-border-radius-md);
+}
+
+.iblock-property-type-directory-settings-group:not(:last-child)
+{
+	margin-bottom: 12px;
+}
+
+.iblock-property-type-directory-settings-errors-container
+{
+	margin: 0;
+	border-radius: 0;
+	overflow: hidden;
+	max-height: 150px;
+	justify-content: center;
+}

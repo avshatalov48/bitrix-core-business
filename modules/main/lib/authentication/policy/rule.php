@@ -103,7 +103,7 @@ abstract class Rule implements \JsonSerializable
 	 * JsonSerializable::jsonSerialize — Specify data which should be serialized to JSON
 	 * @return array
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		$class = get_class($this);
 		$class = substr($class, (int)strrpos($class, '\\') + 1);

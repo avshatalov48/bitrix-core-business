@@ -1,4 +1,13 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();?>
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+/** @global CMain $APPLICATION */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var CBitrixComponent $component */
+?>
 <div class="search-page">
 <form action="" method="get">
 <?if($arParams["USE_SUGGEST"] === "Y"):

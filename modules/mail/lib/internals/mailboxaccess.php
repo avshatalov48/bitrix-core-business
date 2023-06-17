@@ -55,4 +55,119 @@ class MailboxAccessTable extends Entity\DataManager
 		);
 	}
 
+	/**
+	 * @param int $mailboxId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getUserIdsWithAccessToTheMailbox(int $mailboxId): array
+	{
+		$accesses = self::getList([
+			'filter' => [
+				'=MAILBOX_ID' => $mailboxId,
+				'TASK_ID' => 0,
+			],
+		]);
+
+		$userIds = [];
+
+		while ($item = $accesses->fetch())
+		{
+			if (preg_match('/^(U)(\d+)$/', $item['ACCESS_CODE'], $matches))
+			{
+				if ('U' == $matches[1])
+				{
+					$userIds[] = (int)$matches[2];
+				}
+			}
+		}
+		return $userIds;
+	}
+
+	/**
+	 * @param int $mailboxId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getUsersDataWithAccessToTheMailbox(int $mailboxId): array
+	{
+		$userIds = self::getUserIdsWithAccessToTheMailbox($mailboxId);
+		if (empty($userIds))
+		{
+			return [];
+		}
+		$users = \Bitrix\Main\UserTable::getList([
+			'select' => [
+				'ID',
+				'NAME',
+				'LAST_NAME',
+				'SECOND_NAME',
+				'LOGIN',
+			],
+			'filter' => [
+				'@ID' => $userIds,
+			],
+		]);
+
+		$userCards = [];
+
+		while ($user = $users->fetch())
+		{
+			$userCards[] = [
+				'id' => (int) $user['ID'],
+				'name' => trim(\CUser::formatName(\CSite::getNameFormat(), $user, true, false)),
+			];
+		}
+		return $userCards;
+	}
+
+	/**
+	 * Get mailbox users data by name
+	 * There may be namesakes
+	 *
+	 * @param int $mailboxId
+	 * @param $name
+	 * @return array
+	 */
+	public static function getUsersDataByName(int $mailboxId, $name): array
+	{
+		$usersData = self::getUsersDataWithAccessToTheMailbox($mailboxId);
+		$foundUsers = [];
+
+		foreach ($usersData as $user)
+		{
+			if ($user['name'] === trim($name))
+			{
+				$foundUsers[] = $user;
+			}
+		}
+
+		return $foundUsers;
+	}
+
+	/**
+	 * @param int $mailboxId
+	 * @param int $userId
+	 * @return array
+	 */
+	public static function getUserDataById(int $mailboxId, int $userId): array
+	{
+		$usersData = self::getUsersDataWithAccessToTheMailbox($mailboxId);
+		$foundUser = [];
+
+		foreach ($usersData as $user)
+		{
+			if ($user['id'] === $userId)
+			{
+				$foundUser = $user;
+				break;
+			}
+		}
+		return $foundUser;
+	}
+
 }

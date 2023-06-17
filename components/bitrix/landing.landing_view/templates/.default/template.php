@@ -9,16 +9,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 
-use \Bitrix\Landing\Config;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Assets;
-use \Bitrix\Landing\Site;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\UI\Extension;
-use \Bitrix\Main\ModuleManager;
+use Bitrix\Landing\Assets;
+use Bitrix\Landing\Config;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Site;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
 Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/mutator.php');
+
+$isKnowledge = $arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP';
 
 // assets, extensions
 Extension::load([
@@ -38,8 +40,15 @@ Extension::load([
 	'helper',
 	'landing.metrika',
 	'main.qrcode',
-	'ui.hint'
+	'ui.hint',
+	'bitrix24.phoneverify',
 ]);
+
+if ($arResult['ALLOW_AI_TEXT'] || $arResult['ALLOW_AI_IMAGE'])
+{
+	Extension::load('ai.picker');
+}
+
 $assets = Assets\Manager::getInstance();
 $assets->addAsset(
 	'landing_master',
@@ -49,6 +58,19 @@ $assets->addAsset(
 	Config::get('js_core_edit'),
 	Assets\Location::LOCATION_KERNEL
 );
+
+Manager::setPageView(
+	'BodyClass',
+	'landing-editor'
+);
+
+if (!$isKnowledge)
+{
+    Manager::setPageView(
+        'BodyClass',
+        'enable-external-controls'
+    );
+}
 
 // errors output
 if ($arResult['ERRORS'])
@@ -166,9 +188,8 @@ $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
 $this->getComponent()->initAPIKeys();
 $formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 
-$urlLandingAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['landing_edit'] ?? '');
+$urlLandingAdd = $component->getUrlAdd(false);
 $urlFolderAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['site_show'] ?? '');
-$urlLandingAdd = $component->getPageParam($urlLandingAdd, ['folderId' => $folderId]);
 $urlFolderAdd = $component->getPageParam($urlFolderAdd, ['folderId' => $folderId, 'folderNew' => 'Y']);
 $urlFormAdd = '/crm/webform/edit/0/';
 
@@ -212,7 +233,7 @@ if (!$request->offsetExists('landing_mode')):
 	$formCode = '';
 	if (!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 	{
-		$formCode = ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP') ? 'knowledge' : 'developer';
+		$formCode = $isKnowledge ? 'knowledge' : 'developer';
 		?>
 		<div style="display: none">
 			<?$APPLICATION->includeComponent(
@@ -309,6 +330,7 @@ if (!$request->offsetExists('landing_mode')):
 			if ($arResult['FAKE_PUBLICATION']):
 				?><div id="landing-popup-publication-error-area" style="display: none;"></div><?
 			else:
+				$errTitle = null;
 				$errorCode = array_key_first($arResult['ERRORS']);
 				$errDesc = $arResult['ERRORS'][$errorCode];
 				if ($errorCode === 'PUBLIC_SITE_REACHED_FREE')
@@ -328,7 +350,19 @@ if (!$request->offsetExists('landing_mode')):
 		endif;
 		// endregion
 
-		?><div style="flex:1"></div>
+		?>
+
+		<div class="landing-ui-panel-top-devices">
+			<div class="landing-ui-panel-top-devices-inner">
+				<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button"></button>
+				<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button"></button>
+				<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button">
+					<span class="landing-ui-button-label"><?=Loc::getMessage('LANDING_LABEL_NEW');?></span>
+				</button>
+			</div>
+		</div>
+
+		<div style="flex:1"></div>
 
 		<!-- region History-->
 		<div class="landing-ui-panel-top-history">
@@ -342,6 +376,8 @@ if (!$request->offsetExists('landing_mode')):
 			<a href="<?= $urls['preview']->getUri();?>" <?
 				?>id="landing-popup-preview-btn" <?
 				?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
+				?>data-form-verification-required="<?=(($formEditor && $arResult['FORM_VERIFICATION_REQUIRED']) ? '1' : '0')?>" <?
+				?>data-form-verification-entity="<?=(int)$arResult['VERIFY_FORM_ID']?>" <?
 				?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
 				<?= $formEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
 			</a>
@@ -385,7 +421,7 @@ if (!$request->offsetExists('landing_mode')):
 			LANDING_TPL_SETTINGS_PAGE_DIZ_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'));?>',
 			LANDING_PREVIEW_MOBILE_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_TITLE'));?>',
 			LANDING_PREVIEW_MOBILE_TEXT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_TEXT'));?>',
-			LANDING_PREVIEW_MOBILE_NEW_TAB: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_NEW_TAB'));?>',
+			LANDING_PREVIEW_MOBILE_NEW_TAB: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_NEW_TAB_MSGVER_1'));?>',
 			LANDING_PREVIEW_MOBILE_COPY_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_COPY_LINK'));?>',
 			LANDING_PUBLICATION_SUBMIT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SUBMIT'));?>',
 			LANDING_PUBLICATION_AUTO: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO'));?>',
@@ -411,6 +447,9 @@ if (!$request->offsetExists('landing_mode')):
 			LANDING_TPL_PREVIEW_URL_HINT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_URL_HINT'));?>',
 			LANDING_PAR_PAGE_URL_SITE_EDIT: '<?= \CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']);?>',
 			LANDING_TPL_PREVIEW_EXIT: '<?= \CUtil::jsEscape($arParams['LANDING_TPL_PREVIEW_EXIT']);?>',
+			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'));?>',
+			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE'));?>',
+			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'));?>',
 		});
 	});
 </script>
@@ -440,6 +479,10 @@ if ($request->offsetExists('landing_mode'))
 	<style>
 		.bx-session-message {
 			display: none;
+		}
+		.landing-ui-external-controls .main-color-picker-box {
+			width: 14px!important;
+			height: 14px!important;
 		}
 	</style>
 	<script type="text/javascript">
@@ -550,6 +593,8 @@ if ($request->offsetExists('landing_mode'))
 // top panel
 else
 {
+	Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.landing_view/templates/.default/es6/script.js');
+
 	// exec theme-hooks for design panel
 	$hooksLanding = \Bitrix\Landing\Hook::getForLanding($arResult['LANDING']->getId());
 	$hooksSite = \Bitrix\Landing\Hook::getForSite($arResult['LANDING']->getSiteId());
@@ -592,6 +637,13 @@ else
 	</style>
 	<script type="text/javascript">
 		BX.ready(function() {
+			window.addEventListener('scroll', (e) => {
+				e.preventDefault();
+				window.requestAnimationFrame(() => {
+					window.scroll(0, 0); }
+				);
+			});
+
 			<?if ($successSave):?>
 			if (typeof BX.SidePanel !== 'undefined')
 			{
@@ -602,6 +654,39 @@ else
 				<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>,
 				true
 			);
+			<?php if (!$isKnowledge):?>
+			new BX.Landing.View.Device({
+				editorFrameWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
+				frameUrl: '<?= \CUtil::JSEscape($urls['preview_device']->getUri())?>',
+				messages: {
+					LANDING_PREVIEW_DEVICE_MOBILES: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_MOBILES'));?>',
+					LANDING_PREVIEW_DEVICE_TABLETS: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_TABLETS'));?>',
+				}
+			});
+			new BX.Landing.View.ExternalControls({
+				container: document.querySelector('.landing-ui-view-wrapper'),
+				iframeWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
+				messages: {
+					LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_STYLE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE'))?>',
+					LANDING_TPL_EXT_BUTTON_EDIT_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE'))?>',
+					LANDING_TPL_EXT_BUTTON_DOWN_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DOWN_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_UP_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_UP_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_CUT: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_CUT'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_COPY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_COPY'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK_MSGVER_1'))?>',
+					LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY_MSGVER_1'))?>',
+					LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK'))?>',
+				}
+			});
+			<?php endif?>
 		});
 	</script>
 	<div class="landing-ui-view-wrapper">

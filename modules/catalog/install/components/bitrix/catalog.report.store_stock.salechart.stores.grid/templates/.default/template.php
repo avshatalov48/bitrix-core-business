@@ -17,7 +17,7 @@ if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])
 	return;
 endif;
 
-$APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('STORE_STOCK_CHART_STORES_GRID_TITLE'));
+$APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('STORE_STOCK_CHART_STORES_GRID_TITLE_2'));
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',

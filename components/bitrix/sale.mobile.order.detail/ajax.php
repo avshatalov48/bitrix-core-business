@@ -1,12 +1,16 @@
-<?
-define("NO_KEEP_STATISTIC", true);
-define('NO_AGENT_CHECK', true);
-define("NO_AGENT_STATISTIC", true);
-define("NOT_CHECK_PERMISSIONS", true);
-define('DisableEventsCheck', true);
+<?php
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-CComponentUtil::__IncludeLang(dirname($_SERVER["SCRIPT_NAME"]), "/ajax.php");
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_CHECK = true;
+const NO_AGENT_STATISTIC = true;
+const NOT_CHECK_PERMISSIONS = true;
+const DisableEventsCheck = true;
+
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+CComponentUtil::__IncludeLang(dirname($_SERVER['SCRIPT_NAME']), '/ajax.php');
 
 if (!CModule::IncludeModule('sale')) die(GetMessage("SMOD_SALE_NOT_INSTALLED"));
 
@@ -86,7 +90,8 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $isAllowView)
 
 			$bUserCanCancelOrder = CSaleOrder::CanUserCancelOrder($id, $GLOBALS["USER"]->GetUserGroupArray(), $GLOBALS["USER"]->GetID());
 
-
+			$lockedBY = '';
+			$dateLock = '';
 			if (!$bUserCanCancelOrder || CSaleOrder::IsLocked($id, $lockedBY, $dateLock))
 				break;
 
@@ -156,4 +161,3 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $isAllowView)
 
 	echo $result;
 }
-?>

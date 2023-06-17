@@ -68,6 +68,11 @@ export class Document
 		return this.#title;
 	}
 
+	getId(): number
+	{
+		return this.#id;
+	}
+
 	getRawType(): Array<string>
 	{
 		return this.#rawType;
@@ -80,7 +85,9 @@ export class Document
 
 	getCurrentStatusId(): ?string
 	{
-		return this.#statusList[this.#currentStatusIndex]?.STATUS_ID;
+		const documentStatus = this.#statusList[this.#currentStatusIndex]?.STATUS_ID;
+
+		return !Type.isNil(documentStatus) ? String(documentStatus) : documentStatus;
 	}
 
 	getSortedStatusId(index: number): ?string

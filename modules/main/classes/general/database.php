@@ -647,12 +647,13 @@ abstract class CAllDBResult
 			'nSelectedCount',
 			'arGetNextCache',
 			'bDescPageNumbering',
-			'arUserMultyFields',
 		);
 	}
 
 	/**
-	 * @return array
+	 * Returns the next row of the result in a form of associated array or false on empty set.
+	 *
+	 * @return array | false
 	 */
 	abstract public function Fetch();
 
@@ -673,7 +674,7 @@ abstract class CAllDBResult
 	{
 		if (
 			is_array($this->arResultAdd)
-			&& count($this->arResultAdd) > 0
+			&& !empty($this->arResultAdd)
 		)
 		{
 			$this->arResult = $this->arResultAdd;
@@ -923,7 +924,7 @@ abstract class CAllDBResult
 				$arTilda = array();
 				foreach($arRes as $FName=>$arFValue)
 				{
-					if($this->arGetNextCache[$FName] && $bTextHtmlAuto)
+					if(isset($this->arGetNextCache[$FName]) && $this->arGetNextCache[$FName] && $bTextHtmlAuto)
 						$arTilda[$FName] = FormatText($arFValue, $arRes[$FName."_TYPE"]);
 					elseif(is_array($arFValue))
 						$arTilda[$FName] = htmlspecialcharsEx($arFValue);
@@ -1266,8 +1267,10 @@ abstract class CAllDBResult
 				$this->usedUserFields = array();
 				foreach($this->arUserFields as $userField)
 				{
-					if (array_key_exists($userField['FIELD_NAME'], $res))
+					if (isset($userField['FIELD_NAME']) && array_key_exists($userField['FIELD_NAME'], $res))
+					{
 						$this->usedUserFields[] = $userField;
+					}
 				}
 			}
 			// We need to call OnAfterFetch for each user field

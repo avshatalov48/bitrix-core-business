@@ -7,6 +7,7 @@
 	right: 0;
 	z-index: 319;
 	opacity: 0;
+	margin-top: 65px;
 }
 
 .landing-ui-panel-content-overlay.landing-ui-show {
@@ -37,6 +38,13 @@
 	/*box-shadow: 0 0 16px 0 rgba(0,0,0,.1);*/  /* chrome have bug with box shadow, see 0145815 */
 	transform: translateX(-100%);
 	opacity: 0;
+	margin-top: 65px;
+}
+
+.landing-ui-panel-fields,
+.landing-ui-panel-separator,
+.landing-ui-panel-form-settings {
+	margin-top: 0;
 }
 
 main.landing-edit-mode .landing-ui-panel-content
@@ -53,6 +61,7 @@ main.landing-edit-mode .landing-ui-panel-content
 
 .landing-ui-panel.landing-ui-panel-link {
 	z-index: 333;
+	margin-top: 65px;
 }
 
 .landing-ui-panel-link.landing-ui-panel-content-overlay {
@@ -288,6 +297,11 @@ main.landing-edit-mode .landing-ui-panel-content
 .landing-ui-hide-action-panels .landing-ui-panel-create-action,
 .landing-ui-hide-action-panels .landing-ui-panel-content-action,
 .landing-ui-hide-action-panels .landing-ui-panel-block-action {
+	display: none!important;
+}
+
+.landing-ui-external-controls .landing-ui-panel-content-action,
+.landing-ui-external-controls .landing-ui-panel-block-action {
 	display: none!important;
 }
 

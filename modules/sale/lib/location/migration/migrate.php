@@ -222,8 +222,14 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 		while($item = $res->fetch())
 		{
-			if($item['Key_name'] == $indexName || $item['KEY_NAME'] == $indexName)
+			if (isset($item['Key_name']) && $item['Key_name'] === $indexName)
+			{
 				return true;
+			}
+			if (isset($item['KEY_NAME']) && $item['KEY_NAME'] === $indexName)
+			{
+				return true;
+			}
 		}
 
 		return false;

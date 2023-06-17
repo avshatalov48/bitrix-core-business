@@ -10,15 +10,11 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	var AgreementsContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(AgreementsContent, _ContentWrapper);
-
 	  function AgreementsContent(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, AgreementsContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AgreementsContent).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.AgreementsContent');
-
 	    var header = new landing_ui_card_headercard.HeaderCard({
 	      title: landing_loc.Loc.getMessage('LANDING_AGREEMENTS_TITLE')
 	    });
@@ -38,26 +34,19 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        value: _this.options.formOptions.data.agreements
 	      })]
 	    });
-
 	    if (!message.isShown()) {
 	      main_core.Dom.style(header.getLayout(), 'margin-bottom', '0');
 	      main_core.Dom.style(listForm.getLayout(), 'margin-top', '-19px');
 	    }
-
 	    message.subscribe('onClose', function () {
 	      main_core.Dom.style(header.getLayout(), 'margin-bottom', '0');
 	      main_core.Dom.style(listForm.getLayout(), 'margin-top', '-19px');
 	    });
-
 	    _this.addItem(header);
-
 	    _this.addItem(message);
-
 	    _this.addItem(listForm);
-
 	    return _this;
 	  }
-
 	  return AgreementsContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 

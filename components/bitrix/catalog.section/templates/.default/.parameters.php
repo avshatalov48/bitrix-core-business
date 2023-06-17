@@ -71,8 +71,8 @@ $arTemplateParameters['TEMPLATE_THEME'] = array(
 	'ADDITIONAL_VALUES' => 'Y'
 );
 
-$lineElementCount = (int)$arCurrentValues['LINE_ELEMENT_COUNT'] ?: 3;
-$pageElementCount = (int)$arCurrentValues['PAGE_ELEMENT_COUNT'] ?: 18;
+$lineElementCount = (int)($arCurrentValues['LINE_ELEMENT_COUNT'] ?? 3);
+$pageElementCount = (int)($arCurrentValues['PAGE_ELEMENT_COUNT'] ?? 18);
 
 $arTemplateParameters['PRODUCT_ROW_VARIANTS'] = array(
 	'PARENT' => 'VISUAL',

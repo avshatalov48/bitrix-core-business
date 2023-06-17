@@ -15,6 +15,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+Extension::load(
+	[
+		'market.application',
+	]
+);
+
 ?>
 
 <div class="mp_section">
@@ -124,22 +130,22 @@ if (is_array($arResult["ITEMS_DB"]) && !empty($arResult["ITEMS_DB"])):
 <?php
 			if ($app["STATUS"] == "P"):
 ?>
-					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
+					<a href="javascript:void(0)" class="bt_green" onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
 <?php
 			else:
 				if ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "D"):
 ?>
-					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?></a>
+					<a href="javascript:void(0)" class="bt_green" onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?></a>
 <?php
 				elseif ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "T" && ($app["IS_TRIALED"] == "N" || MakeTimeStamp($app["DATE_FINISH"]) > time())):
 ?>
-					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_TRIAL")?></a>
+					<a href="javascript:void(0)" class="bt_green" onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_TRIAL")?></a>
 <?php
 				endif;
 			endif;
 		else:
 ?>
-					<a href="javascript:void(0)" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);" class="bt_green" ><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
+					<a href="javascript:void(0)" onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);" class="bt_green" ><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
 <?php
 		endif;
 ?>

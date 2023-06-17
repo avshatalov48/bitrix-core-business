@@ -1284,7 +1284,7 @@ class OrderPayment
 				'PAY_VOUCHER_NUM' => $payment['PAY_VOUCHER_NUM'],
 				'PAY_RETURN_NUM' => $payment['PAY_RETURN_NUM'],
 				'PAY_RETURN_COMMENT' => $payment['PAY_RETURN_COMMENT'],
-				'COMMENTS' => $payment['COMMENTS'],
+				'COMMENTS' => $payment['COMMENTS'] ?? null,
 				'PAY_SYSTEM_NAME' => ($psService) ? $psService->getField('NAME') : ''
 			);
 
@@ -1373,8 +1373,10 @@ class OrderPayment
 						$result->addErrors($setResult->getErrors());
 				}
 
-				if ($payment['ORDER_STATUS_ID'])
+				if (isset($payment['ORDER_STATUS_ID']) && $payment['ORDER_STATUS_ID'])
+				{
 					$order->setField('STATUS_ID', $payment['ORDER_STATUS_ID']);
+				}
 			}
 
 			$verify = $paymentItem->verify();

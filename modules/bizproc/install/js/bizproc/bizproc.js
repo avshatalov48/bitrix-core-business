@@ -527,6 +527,7 @@ BizProcActivity = function()
 		commentNode.setAttribute('data-hint',
 			BX.util.nl2br(BX.util.htmlspecialchars(ob['Properties']['EditorComment']))
 		);
+		commentNode.setAttribute('data-hint-html', 'y');
 
 		BX.UI.Hint.init(this.div);
 	}

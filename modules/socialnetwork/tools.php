@@ -7,7 +7,7 @@ function SonetShowInFrame(&$component, $bPopup)
 
 	if (!$bPopup)
 	{
-		?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">		
+		?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 		<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?=LANGUAGE_ID?>" lang="<?=LANGUAGE_ID?>">
 			<head><?
 				$APPLICATION->ShowHead();
@@ -25,7 +25,7 @@ function SonetShowInFrame(&$component, $bPopup)
 				</head>
 				<body class="<?$APPLICATION->ShowProperty("BodyClass");?>"><?
 
-				if ($_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
+				if (isset($_REQUEST['IFRAME_TYPE']) && $_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
 				{
 					?><div class="pagetitle-wrap">
 					<div class="pagetitle-inner-container">

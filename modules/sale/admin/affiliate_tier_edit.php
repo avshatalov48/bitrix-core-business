@@ -1,4 +1,10 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
@@ -7,11 +13,11 @@ if ($saleModulePermissions=="D")
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -19,14 +25,16 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 	die();
 }
 
+$request = Context::getCurrent()->getRequest();
+
 ClearVars();
 
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = intval($ID);
+$ID = (int)$request->get('ID');
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
 	if ($SITE_ID == '')
 		$errorMessage .= GetMessage("SATE1_NO_SITE").".<br>";
@@ -91,7 +99,7 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && c
 	if ($errorMessage == '')
 	{
 		if ($apply == '')
-			LocalRedirect("/bitrix/admin/sale_affiliate_tier.php?lang=".LANG.GetFilterParams("filter_", false));
+			LocalRedirect("/bitrix/admin/sale_affiliate_tier.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 	}
 	else
 	{
@@ -120,7 +128,7 @@ if ($bVarsFromForm)
 $aMenu = array(
 		array(
 				"TEXT" => GetMessage("SATE1_LIST"),
-				"LINK" => "/bitrix/admin/sale_affiliate_tier.php?lang=".LANG.GetFilterParams("filter_"),
+				"LINK" => "/bitrix/admin/sale_affiliate_tier.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 				"ICON" => "btn_list"
 			)
 	);
@@ -131,7 +139,7 @@ if ($ID > 0)
 
 	$aMenu[] = array(
 			"TEXT" => GetMessage("SATE1_ADD"),
-			"LINK" => "/bitrix/admin/sale_affiliate_tier_edit.php?lang=".LANG.GetFilterParams("filter_"),
+			"LINK" => "/bitrix/admin/sale_affiliate_tier_edit.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_"),
 			"ICON" => "btn_new"
 		);
 
@@ -139,7 +147,7 @@ if ($ID > 0)
 	{
 		$aMenu[] = array(
 				"TEXT" => GetMessage("SATE1_DELETE"),
-				"LINK" => "javascript:if(confirm('".GetMessage("SATE1_DELETE_CONF")."')) window.location='/bitrix/admin/sale_affiliate_tier.php?ID=".$ID."&action=delete&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+				"LINK" => "javascript:if(confirm('".GetMessage("SATE1_DELETE_CONF")."')) window.location='/bitrix/admin/sale_affiliate_tier.php?ID=".$ID."&action=delete&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 				"WARNING" => "Y",
 				"ICON" => "btn_delete"
 			);
@@ -222,7 +230,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 	array(
 		"disabled" => ($saleModulePermissions < "W"),
-		"back_url" => "/bitrix/admin/sale_affiliate_plan.php?lang=".LANG.GetFilterParams("filter_")
+		"back_url" => "/bitrix/admin/sale_affiliate_plan.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 	)
 );
 ?>
@@ -231,4 +239,5 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

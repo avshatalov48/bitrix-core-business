@@ -218,13 +218,13 @@ class CAllSaleBasket
 				if ($productProvider = CSaleBasket::GetProductProvider($arItemsBasket))
 				{
 					$arCallback = $productProvider::GetProductData(array(
-																	   "PRODUCT_ID" => $ID,
-																	   "QUANTITY"   => 1,
-																	   "RENEWAL"    => "N",
-																	   "USER_ID"    => $USER_ID,
-																	   "SITE_ID"    => $LID,
-																	   "BASKET_ID" => $arItemsBasket["ID"]
-																   ));
+						"PRODUCT_ID" => $ID,
+						"QUANTITY" => 1,
+						"RENEWAL" => "N",
+						"USER_ID" => $USER_ID,
+						"SITE_ID" => $LID,
+						"BASKET_ID" => $arItemsBasket["ID"],
+					));
 				}
 				elseif (isset($arItemsBasket["CALLBACK_FUNC"]) && !empty($arItemsBasket["CALLBACK_FUNC"]))
 				{
@@ -1856,8 +1856,8 @@ class CAllSaleBasket
 	//************** CALLBACK FUNCTIONS ********************//
 	public static function ExecuteCallbackFunction($callbackFunc = "", $module = "", $productID = 0)
 	{
-		$callbackFunc = trim($callbackFunc);
-		$module = trim($module);
+		$callbackFunc = trim((string)$callbackFunc);
+		$module = trim((string)$module);
 		$productID = intval($productID);
 
 		$result = False;
@@ -1915,9 +1915,9 @@ class CAllSaleBasket
 		if (CSaleBasket::GetProductProvider(array("MODULE" => $module, "PRODUCT_PROVIDER_CLASS" => $productProvider)))
 		{
 			$productProvider::GetProductData(array(
-												 "PRODUCT_ID" => $productID,
-												 "QUANTITY"   => $quantity
-											 ));
+				"PRODUCT_ID" => $productID,
+				"QUANTITY"   => $quantity
+			));
 		}
 		else
 			CSaleBasket::ExecuteCallbackFunction($callbackFunc, $module, $productID, $quantity);
@@ -1987,16 +1987,19 @@ class CAllSaleBasket
 			unset($basket, $basketIterator);
 		}
 
-		$providerName = CSaleBasket::GetProductProvider(array("MODULE" => $module, "PRODUCT_PROVIDER_CLASS" => $productProvider));
+		$providerName = CSaleBasket::GetProductProvider([
+			"MODULE" => $module,
+			"PRODUCT_PROVIDER_CLASS" => $productProvider,
+		]);
 		if ($providerName)
 		{
-			$arFields = $providerName::GetProductData(array(
-															 "PRODUCT_ID" => $productID,
-															 "QUANTITY"   => $quantity,
-															 "RENEWAL"    => $renewal,
-															 "BASKET_ID" => $ID,
-															 "NOTES" => $notes
-														 ));
+			$arFields = $providerName::GetProductData([
+				"PRODUCT_ID" => $productID,
+				"QUANTITY"   => $quantity,
+				"RENEWAL"    => $renewal,
+				"BASKET_ID" => $ID,
+				"NOTES" => $notes,
+			]);
 		}
 		else
 		{
@@ -2150,10 +2153,10 @@ class CAllSaleBasket
 							'CAN_BUY' => 'N'
 						);
 						$removeCoupon = DiscountCouponsManager::deleteApplyByProduct(array(
-																						 'MODULE' => $arBasket['MODULE'],
-																						 'PRODUCT_ID' => $arBasket['PRODUCT_ID'],
-																						 'BASKET_ID' => $arBasket['ID']
-																					 ));
+							'MODULE' => $arBasket['MODULE'],
+							'PRODUCT_ID' => $arBasket['PRODUCT_ID'],
+							'BASKET_ID' => $arBasket['ID']
+						));
 					}
 				}
 				else
@@ -2171,16 +2174,10 @@ class CAllSaleBasket
 						if (\Bitrix\Sale\Compatible\DiscountCompatibility::isInited())
 							\Bitrix\Sale\Compatible\DiscountCompatibility::setRepeatSave(true);
 					}
-					if (CSaleBasket::Update($arBasket["ID"], $arFields))
-					{
-						$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID]--;
-					}
+					CSaleBasket::Update($arBasket["ID"], $arFields);
 				}
 			}
 		}//end of while
-
-		if ($_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] < 0)
-			$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] = 0;
 
 		foreach(GetModuleEvents("sale", "OnBasketOrder", true) as $arEvent)
 		{
@@ -2248,12 +2245,12 @@ class CAllSaleBasket
 						if ($productProvider = CSaleBasket::GetProductProvider($arBasket))
 						{
 							$arFields = $productProvider::DeliverProduct(array(
-																			 "PRODUCT_ID" => $arBasket["PRODUCT_ID"],
-																			 "USER_ID"    => $arOrder["USER_ID"],
-																			 "PAID"       => $bPaid,
-																			 "ORDER_ID"   => $orderID,
-																			 'BASKET_ID' => $arBasket['ID']
-																		 ));
+								"PRODUCT_ID" => $arBasket["PRODUCT_ID"],
+								"USER_ID" => $arOrder["USER_ID"],
+								"PAID" => $bPaid,
+								"ORDER_ID" => $orderID,
+								'BASKET_ID' => $arBasket['ID']
+							));
 						}
 						else
 						{
@@ -2290,12 +2287,12 @@ class CAllSaleBasket
 						if ($productProvider = CSaleBasket::GetProductProvider($arBasket))
 						{
 							$productProvider::DeliverProduct(array(
-																 "PRODUCT_ID" => $arBasket["PRODUCT_ID"],
-																 "USER_ID"    => $arOrder["USER_ID"],
-																 "PAID"       => $bPaid,
-																 "ORDER_ID"   => $orderID,
-																 'BASKET_ID' => $arBasket['ID']
-															 ));
+								"PRODUCT_ID" => $arBasket["PRODUCT_ID"],
+								"USER_ID" => $arOrder["USER_ID"],
+								"PAID" => $bPaid,
+								"ORDER_ID" => $orderID,
+								'BASKET_ID' => $arBasket['ID']
+							));
 						}
 						else
 						{
@@ -2711,13 +2708,13 @@ class CAllSaleBasket
 				}
 
 				$res = $productProvider::DeductProduct(array(
-														   "PRODUCT_ID" => $arBasket["PRODUCT_ID"],
-														   "QUANTITY" => (empty($arStoreBarcodeData)) ? $deltaQuantity : 0,
-														   "UNDO_DEDUCTION" => ($bUndoDeduction) ? "Y" : "N",
-														   "EMULATE" => "N",
-														   "PRODUCT_RESERVED" => $arBasket["RESERVED"],
-														   "STORE_DATA" => $arStoreBarcodeData
-													   ));
+					"PRODUCT_ID" => $arBasket["PRODUCT_ID"],
+					"QUANTITY" => (empty($arStoreBarcodeData)) ? $deltaQuantity : 0,
+					"UNDO_DEDUCTION" => ($bUndoDeduction) ? "Y" : "N",
+					"EMULATE" => "N",
+					"PRODUCT_RESERVED" => $arBasket["RESERVED"],
+					"STORE_DATA" => $arStoreBarcodeData
+				));
 
 				$arResult["RESULT"] = $res["RESULT"];
 
@@ -2930,13 +2927,12 @@ class CAllSaleBasket
 
 							if ($bAutoDeduction) //get the only possible store to deduct from it
 							{
-								if (
 								$arProductStore = $productProvider::GetProductStores(array(
-																						 "PRODUCT_ID" => $arBasket["PRODUCT_ID"],
-																						 "SITE_ID" => $arBasket["LID"],
-																						 'BASKET_ID' => $arBasket['ID']
-																					 ))
-								)
+									"PRODUCT_ID" => $arBasket["PRODUCT_ID"],
+									"SITE_ID" => $arBasket["LID"],
+									'BASKET_ID' => $arBasket['ID']
+								));
+								if ($arProductStore)
 								{
 									$arFields["STORE_DATA"] = array(
 										"0" => array(
@@ -2962,13 +2958,12 @@ class CAllSaleBasket
 
 							if ($bAutoDeduction)
 							{
-								if (
 								$arProductStore = $productProvider::GetProductStores(array(
-																						 "PRODUCT_ID" => $arBasket["PRODUCT_ID"],
-																						 "SITE_ID" => $arBasket["LID"],
-																						 'BASKET_ID' => $arBasket['ID']
-																					 ))
-								)
+									"PRODUCT_ID" => $arBasket["PRODUCT_ID"],
+									"SITE_ID" => $arBasket["LID"],
+									'BASKET_ID' => $arBasket['ID']
+								));
+								if ($arProductStore)
 								{
 									foreach ($arProductStore as $storeData)
 									{
@@ -3224,7 +3219,6 @@ class CAllSaleBasket
 
 		if ($TO_FUSER_ID > 0 && $FROM_FUSER_ID > 0)
 		{
-			$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] = 0;
 			$dbTmp = CSaleUser::GetList(array("ID" => $TO_FUSER_ID));
 			if (!empty($dbTmp))
 			{
@@ -3238,7 +3232,6 @@ class CAllSaleBasket
 
 				if ($basketFromFUser->count() > 0)
 				{
-					$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID] = $basketToFUser->count();
 					/** @var Sale\BasketItem $basketItemFrom */
 					foreach ($basketFromFUser as $basketItemFrom)
 					{
@@ -3267,7 +3260,6 @@ class CAllSaleBasket
 						else
 						{
 							$basketItemFrom->setFieldNoDemand('FUSER_ID', $TO_FUSER_ID);
-							$_SESSION["SALE_BASKET_NUM_PRODUCTS"][SITE_ID]++;
 						}
 					}
 
@@ -3344,14 +3336,14 @@ class CAllSaleBasket
 						if ($productProvider = CSaleBasket::GetProductProvider($basketItem))
 						{
 							$fields = $productProvider::GetProductData(array(
-																			 "PRODUCT_ID" => $basketItem["PRODUCT_ID"],
-																			 "QUANTITY"   => $basketItem["QUANTITY"],
-																			 "RENEWAL"    => "N",
-																			 "CHECK_COUPONS" => ('Y' == $basketItem['CAN_BUY'] && 'N' == $basketItem['DELAY'] ? 'Y' : 'N'),
-																			 "CHECK_DISCOUNT" => (CSaleBasketHelper::isSetItem($basketItem) ? 'N' : 'Y'),
-																			 "BASKET_ID" => $basketItem["ID"],
-																			 "NOTES" => $basketItem["NOTES"]
-																		 ));
+								"PRODUCT_ID" => $basketItem["PRODUCT_ID"],
+								"QUANTITY" => $basketItem["QUANTITY"],
+								"RENEWAL" => "N",
+								"CHECK_COUPONS" => ('Y' == $basketItem['CAN_BUY'] && 'N' == $basketItem['DELAY'] ? 'Y' : 'N'),
+								"CHECK_DISCOUNT" => (CSaleBasketHelper::isSetItem($basketItem) ? 'N' : 'Y'),
+								"BASKET_ID" => $basketItem["ID"],
+								"NOTES" => $basketItem["NOTES"]
+							));
 						}
 						else
 						{
@@ -3672,9 +3664,9 @@ class CAllSaleUser
 		}
 		elseif (is_array($payerName))
 		{
-			$autoName = $payerName["NAME"];
-			$autoLastName = $payerName["LAST_NAME"];
-			$autoSecondName = $payerName["SECOND_NAME"];
+			$autoName = $payerName["NAME"] ?? '';
+			$autoLastName = $payerName["LAST_NAME"] ?? '';
+			$autoSecondName = $payerName["SECOND_NAME"] ?? '';
 		}
 
 		if (!empty($autoEmail))
@@ -4050,7 +4042,6 @@ class CAllSaleUser
 		CSaleUser::Update($ID, $allowUpdate);
 
 		$_SESSION["SALE_USER_ID"] = $ID;
-		$_SESSION["SALE_BASKET_NUM_PRODUCTS"] = Array();
 
 		return true;
 	}
@@ -4111,8 +4102,6 @@ class CAllSaleUser
 		global $APPLICATION;
 
 		unset($_SESSION["SALE_USER_ID"]);
-		$_SESSION["SALE_BASKET_NUM_PRODUCTS"] = Array();
-		$_SESSION["SALE_BASKET_PRICE"] = Array();
 
 		$secure = false;
 		if(COption::GetOptionString("sale", "use_secure_cookies", "N") == "Y" && CMain::IsHTTPS())

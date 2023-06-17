@@ -58,7 +58,7 @@ export class TopPanel
 	{
 		BX.SidePanel.Instance.open(url, {
 			cacheable: false,
-			customLeftBoundary: 240,
+			customLeftBoundary: 60,
 			allowChangeHistory: false,
 			events: {
 				onClose() {
@@ -229,37 +229,38 @@ export class TopPanel
 		event.preventDefault();
 		const link = BX.util.remove_url_param(window.location.href, ["IFRAME", "IFRAME_TYPE"]);
 		const node = event.target;
-		navigator.clipboard.writeText(link)
-			.then(() => {
-				this.timeoutIds = this.timeoutIds || [];
-				const popupParams = {
-					content: Loc.getMessage('LANDING_TPL_PUB_COPIED_LINK'),
-					darkMode: true,
-					autoHide: true,
-					zIndex: 1000,
-					angle: true,
-					offsetLeft: 20,
-					bindOptions: {
-						position: 'top'
-					}
-				};
-				const popup = new BX.PopupWindow(
-					'landing_clipboard_copy',
-					node,
-					popupParams
-				);
-				popup.show();
+		if (BX.clipboard.isCopySupported())
+		{
+			BX.clipboard.copy(link);
+			this.timeoutIds = this.timeoutIds || [];
+			const popupParams = {
+				content: Loc.getMessage('LANDING_TPL_PUB_COPIED_LINK'),
+				darkMode: true,
+				autoHide: true,
+				zIndex: 1000,
+				angle: true,
+				offsetLeft: 20,
+				bindOptions: {
+					position: 'top'
+				}
+			};
+			const popup = new BX.PopupWindow(
+				'landing_clipboard_copy',
+				node,
+				popupParams
+			);
+			popup.show();
 
-				let timeoutId;
-				while(timeoutId = this.timeoutIds.pop()) clearTimeout(timeoutId);
-				timeoutId = setTimeout(function(){
-					popup.close();
-				}, 2000);
-				this.timeoutIds.push(timeoutId);
-			})
-			.catch(err => {
-				console.error(err);
-			});
+			let timeoutId;
+			while (timeoutId = this.timeoutIds.pop())
+			{
+				clearTimeout(timeoutId);
+			}
+			timeoutId = setTimeout(function(){
+				popup.close();
+			}, 2000);
+			this.timeoutIds.push(timeoutId);
+		}
 	}
 
 	[onUniqueViewIconClick](event)

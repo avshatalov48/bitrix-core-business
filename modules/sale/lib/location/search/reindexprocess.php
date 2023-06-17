@@ -150,7 +150,7 @@ final class ReindexProcess extends Location\Util\Process
 			$this->data['LOC_NAMES_2_INDEX_COUNT'] = intval($item['CNT']);
 		}
 
-		return $this->getSubPercentByTotalAndDone($this->data['LOC_NAMES_2_INDEX_COUNT'], $this->data['OFFSET']);
+		return $this->getSubPercentByTotalAndDone($this->data['LOC_NAMES_2_INDEX_COUNT'], $this->data['OFFSET'] ?? 0);
 	}
 
 	///////////////////////////////////////////////

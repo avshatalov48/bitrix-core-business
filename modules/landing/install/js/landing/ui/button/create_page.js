@@ -30,12 +30,12 @@
 			event.preventDefault();
 			event.stopPropagation();
 
-			var range = document.getSelection().getRangeAt(0);
-			var title = range.toString();
+			const range = this.contextDocument.getSelection().getRangeAt(0);
+			const title = range.toString();
 
-			void BX.Landing.UI.Panel.CreatePage.getInstance().show({
-				title: title
-			});
+			const createPagePanel = BX.Landing.UI.Panel.CreatePage.getInstance();
+			createPagePanel.setContextDocument(this.contextDocument);
+			createPagePanel.show({title: title});
 		}
 	};
 })();

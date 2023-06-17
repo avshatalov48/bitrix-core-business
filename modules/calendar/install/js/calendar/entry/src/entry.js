@@ -122,6 +122,11 @@ export class Entry
 			}, this);
 			delete this.data.remind;
 		}
+
+		if (this.data.permissions)
+		{
+			this.permissions = this.data.permissions;
+		}
 	}
 
 	getAttendeesCodes()
@@ -261,7 +266,7 @@ export class Entry
 
 	isSharingEvent()
 	{
-		return this.data['EVENT_TYPE'] === '#shared#';
+		return this.data['EVENT_TYPE'] === '#shared#' || this.data['EVENT_TYPE'] === '#shared_crm#';
 	}
 
 	isInvited()

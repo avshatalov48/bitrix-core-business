@@ -23,7 +23,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 global $adminSidePanelHelper;
 
 $componentParameters = [
-	'ID' => $_REQUEST['ID'],
+	'ID' => $_REQUEST['ID'] ?? '',
 	'PATH_TO_USER_PROFILE' => BX_ROOT . '/admin/user_edit.php?ID=#user_id#&lang=' . LANGUAGE_ID,
 	'PATH_TO_LIST' => BX_ROOT . '/admin/agreement_admin.php?lang=' . LANGUAGE_ID,
 	'PATH_TO_ADD' => BX_ROOT . '/admin/agreement_edit.php?ID=0&lang=' . LANGUAGE_ID,

@@ -1616,6 +1616,16 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 	{
 		$return = new \Bitrix\Main\Result;
 
+		if ($mark)
+		{
+			$verificationError = new Error();
+			if (!Mutator::checkSiteVerification($id, $verificationError))
+			{
+				$return->addError($verificationError->getFirstError());
+				return $return;
+			}
+		}
+
 		// work with pages
 		$res = Landing::getList([
 			'select' => [

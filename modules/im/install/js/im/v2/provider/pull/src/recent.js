@@ -1,25 +1,21 @@
 import {Type, Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+
+import {Core} from 'im.v2.application.core';
 import {Logger} from 'im.v2.lib.logger';
-import {ChatTypes, MessageStatus, EventType} from 'im.v2.const';
+import {UserManager} from 'im.v2.lib.user';
+import {MessageStatus} from 'im.v2.const';
 
 export class RecentPullHandler
 {
-	static create(params = {})
+	constructor()
 	{
-		return new this(params);
+		this.store = Core.getStore();
+		this.userManager = new UserManager();
 	}
 
 	getModuleId()
 	{
 		return 'im';
-	}
-
-	constructor(params)
-	{
-		this.controller = params.controller;
-		this.store = params.store;
-		this.application = params.application;
 	}
 
 	handleMessage(params)
@@ -39,22 +35,36 @@ export class RecentPullHandler
 			return false;
 		}
 
-		const currentUserId = this.store.state.application.common.userId;
+		const currentUserId = Core.getUserId();
 		if (currentUserId && params.userInChat[params.chatId] && !params.userInChat[params.chatId].includes(currentUserId))
 		{
 			return false;
 		}
 
+		let attach = false;
+		if (Type.isArray(params.message.params['ATTACH']))
+		{
+			attach = params.message.params['ATTACH'];
+		}
+
+		let file = false;
+		if (Type.isArray(params.message.params['FILE_ID']))
+		{
+			file = params.files[params.message.params['FILE_ID'][0]];
+		}
+
 		Logger.warn('RecentPullHandler: handleMessageAdd', params);
+
 		const newRecentItem = {
 			id: params.dialogId,
 			message: {
 				id: params.message.id,
-				text: params.message.textOriginal,
+				text: params.message.text,
 				date: params.message.date,
 				senderId: params.message.senderId,
-				withFile: !Type.isUndefined(params.message.params['FILE_ID']),
-				withAttach: !Type.isUndefined(params.message.params['ATTACH']),
+				sending: false,
+				attach,
+				file,
 			}
 		};
 
@@ -77,13 +87,13 @@ export class RecentPullHandler
 		{
 			const {text} = params.message;
 			setTimeout(() => {
-				this.store.dispatch('recent/set', newRecentItem);
+				this.store.dispatch('recent/setRecent', newRecentItem);
 			}, this.getWaitTimeForHumanBot(text));
 
 			return;
 		}
 
-		this.store.dispatch('recent/set', newRecentItem);
+		this.store.dispatch('recent/setRecent', newRecentItem);
 	}
 
 	handleMessageUpdate(params, extra, command)
@@ -96,7 +106,7 @@ export class RecentPullHandler
 
 		Logger.warn('RecentPullHandler: handleMessageUpdate', params, command);
 
-		let text = params.textOriginal;
+		let text = params.text;
 		if (command === 'messageDelete')
 		{
 			text = Loc.getMessage('IM_PULL_RECENT_MESSAGE_DELETED');
@@ -110,7 +120,11 @@ export class RecentPullHandler
 					text: text,
 					date: recentItem.message.date,
 					status: recentItem.message.status,
-					senderId: params.senderId
+					senderId: params.senderId,
+					params: {
+						withFile: false,
+						withAttach: false,
+					}
 				}
 			}
 		});
@@ -120,6 +134,50 @@ export class RecentPullHandler
 	{
 		this.handleMessageUpdate(params, extra, command);
 	}
+
+	/* region Counters handling */
+	handleReadMessage(params)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleReadMessageChat(params)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleUnreadMessage(params)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleUnreadMessageChat(params)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleChatMuteNotify(params)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleChatUnread(params)
+	{
+		Logger.warn('RecentPullHandler: handleChatUnread', params);
+		this.updateUnloadedChatCounter({
+			dialogId: params.dialogId,
+			chatId: params.chatId,
+			counter: params.counter,
+			muted: params.muted,
+			unread: params.active
+		});
+
+		this.store.dispatch('recent/unread', {
+			id: params.dialogId,
+			action: params.active
+		});
+	}
+	/* endregion Counters handling */
 
 	handleReadMessageOpponent(params)
 	{
@@ -161,24 +219,40 @@ export class RecentPullHandler
 		});
 	}
 
-	handleMessageLike(params)
+	handleUnreadMessageChatOpponent(params)
 	{
-		Logger.warn('RecentPullHandler: handleMessageLike', params);
+		Logger.warn('RecentPullHandler: handleUnreadMessageChatOpponent', params);
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
 			return false;
 		}
 
-		const currentDialogId = BX.MessengerProxy.getCurrentDialogId(); // TODO: change to Core variable
-		if (currentDialogId === params.dialogId)
+		this.store.dispatch('recent/update', {
+			id: params.dialogId,
+			fields: {
+				message: {...recentItem.message, status: params.chatMessageStatus}
+			}
+		});
+	}
+
+	handleAddReaction(params)
+	{
+		Logger.warn('RecentPullHandler: handleAddReaction', params);
+		const recentItem = this.store.getters['recent/get'](params.dialogId);
+		if (!recentItem)
 		{
 			return false;
 		}
 
-		const currentUserId = this.store.state.application.common.userId;
-		const isOwnLike = currentUserId === params.senderId;
-		const isOwnLastMessage = recentItem.message.senderId === currentUserId;
+		const chatIsOpened = this.store.getters['application/isChatOpen'](params.dialogId);
+		if (chatIsOpened)
+		{
+			return false;
+		}
+
+		const isOwnLike = Core.getUserId() === params.senderId;
+		const isOwnLastMessage = Core.getUserId() === recentItem.message.senderId;
 		if (isOwnLike || !isOwnLastMessage)
 		{
 			return false;
@@ -187,8 +261,18 @@ export class RecentPullHandler
 		this.store.dispatch('recent/like', {
 			id: params.dialogId,
 			messageId: params.id,
-			liked: params.set
+			liked: true
 		});
+	}
+
+	handleDeleteReaction(params)
+	{
+		// Logger.warn('RecentPullHandler: handleDeleteReaction', params);
+		// const recentItem = this.store.getters['recent/get'](params.dialogId);
+		// if (!recentItem)
+		// {
+		// 	return false;
+		// }
 	}
 
 	handleChatPin(params)
@@ -201,21 +285,6 @@ export class RecentPullHandler
 		}
 
 		this.store.dispatch('recent/pin', {
-			id: params.dialogId,
-			action: params.active
-		});
-	}
-
-	handleChatUnread(params)
-	{
-		Logger.warn('RecentPullHandler: handleChatUnread', params);
-		const recentItem = this.store.getters['recent/get'](params.dialogId);
-		if (!recentItem)
-		{
-			return false;
-		}
-
-		this.store.dispatch('recent/unread', {
 			id: params.dialogId,
 			action: params.active
 		});
@@ -244,8 +313,7 @@ export class RecentPullHandler
 			return false;
 		}
 
-		const currentUserId = this.store.state.application.common.userId;
-		if (currentUserId !== params.userId)
+		if (params.userId !== Core.getUserId())
 		{
 			return false;
 		}
@@ -258,36 +326,11 @@ export class RecentPullHandler
 	handleUserInvite(params)
 	{
 		Logger.warn('RecentPullHandler: handleUserInvite', params);
-		this.store.dispatch('recent/set', {
+		this.store.dispatch('recent/setRecent', {
 			id: params.user.id,
 			invited: params.invited ?? false
 		});
-		this.store.dispatch('users/set', params.user);
-		this.store.dispatch('dialogues/set', {
-			dialogId: params.user.id,
-			title: params.user.name,
-			type: ChatTypes.user,
-			avatar: params.user.avatar,
-			color: params.user.color
-		});
-	}
-
-	parseUserMention(text)
-	{
-		const hasUserMention = /\[user=(\d+)]\[\/user]/gi.exec(text);
-		if (!hasUserMention)
-		{
-			return;
-		}
-
-		const userId = hasUserMention[1];
-		console.warn('FOUND USER MENTION', userId);
-		const user = this.store.getters['users/get'](userId);
-		if (!user)
-		{
-			console.warn('NO SUCH USER, NEED REQUEST FOR -', userId);
-			EventEmitter.emit(EventType.recent.requestUser, {userId});
-		}
+		this.userManager.setUsersToModel([params.user]);
 	}
 
 	getWaitTimeForHumanBot(text)
@@ -303,5 +346,41 @@ export class RecentPullHandler
 		}
 
 		return waitTime;
+	}
+
+	updateUnloadedChatCounter(params: {
+		dialogId: string,
+		chatId: number,
+		counter: number,
+		muted: boolean,
+		unread: boolean
+	})
+	{
+		const {dialogId, chatId, counter, muted, unread} = params;
+		const recentItem = this.store.getters['recent/get'](dialogId);
+		if (recentItem)
+		{
+			return;
+		}
+		Logger.warn('RecentPullHandler: updateUnloadedChatCounter:', {dialogId, chatId, counter, muted, unread});
+
+		let newCounter;
+		if (muted)
+		{
+			newCounter = 0;
+		}
+		else if (unread && counter === 0)
+		{
+			newCounter = 1;
+		}
+		else if (unread && counter > 0)
+		{
+			newCounter = counter;
+		}
+		else if (!unread)
+		{
+			newCounter = counter;
+		}
+		this.store.dispatch('recent/setUnloadedChatCounters', {[chatId]: newCounter});
 	}
 }

@@ -238,11 +238,11 @@ class Responder
 			$compress = "";
 			if ($compositeOptions["COMPRESS"] && isset($_SERVER["HTTP_ACCEPT_ENCODING"]))
 			{
-				if (mb_strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "x-gzip") !== false)
+				if (strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "x-gzip") !== false)
 				{
 					$compress = "x-gzip";
 				}
-				elseif (mb_strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false)
+				elseif (strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false)
 				{
 					$compress = "gzip";
 				}
@@ -355,7 +355,7 @@ class Responder
 		parse_str($queryString, $queryParams);
 		if (isset($compositeOptions["~GET"]) &&
 			!empty($compositeOptions["~GET"]) &&
-			count(array_diff(array_keys($queryParams), $compositeOptions["~GET"])) === 0
+			empty(array_diff(array_keys($queryParams), $compositeOptions["~GET"]))
 		)
 		{
 			return true;
@@ -391,7 +391,7 @@ class Responder
 	{
 		$configuration = array();
 		$compositeOptions = Helper::getOptions();
-		$storage = isset($compositeOptions["STORAGE"]) ? $compositeOptions["STORAGE"] : false;
+		$storage = $compositeOptions["STORAGE"] ?? false;
 		if (in_array($storage, array("memcached", "memcached_cluster")))
 		{
 			if (extension_loaded("memcache"))
@@ -618,8 +618,7 @@ final class MemcachedResponse extends AbstractResponse
 		$arServers = array();
 		if ($htmlCacheOptions["STORAGE"] === "memcached_cluster")
 		{
-			$groupId = isset($htmlCacheOptions["MEMCACHED_CLUSTER_GROUP"])
-				? $htmlCacheOptions["MEMCACHED_CLUSTER_GROUP"] : 1;
+			$groupId = $htmlCacheOptions["MEMCACHED_CLUSTER_GROUP"] ?? 1;
 			$arServers = self::getClusterServers($groupId);
 		}
 		elseif (isset($htmlCacheOptions["MEMCACHED_HOST"]) && isset($htmlCacheOptions["MEMCACHED_PORT"]))

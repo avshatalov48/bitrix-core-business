@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBCONV_TITLE"] = "Конвертер свойств ИБ";
 $MESS["IBCONV_PERMISSION"] = "Не достаточно прав.";
 $MESS["IBCONV_WRONG_CONVERSION"] = "Недопустимое преобразование.";
@@ -17,4 +17,3 @@ $MESS["IBCONV_FINISHED"] = "Процесс перемещения значени
 $MESS["IBCONV_TABLE_CREATION_ERROR"] = "Ошибка создания таблиц для хранения свойств.";
 $MESS["IBCONV_TOO_MANY_PROPERTIES"] = "Слишком много свойств (больше #NUM#). Преобразование невозможно.";
 $MESS["IBCONV_FINISHED_HREF"] = "Вернуться на форму редактирования информационного блока.";
-?>

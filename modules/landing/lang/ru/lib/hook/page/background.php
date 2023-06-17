@@ -11,4 +11,5 @@ $MESS['LANDING_HOOK_BG_POSITION_HELP_3'] = 'Варианты отображен�
 $MESS['LANDING_HOOK_BG_POSITION_CENTER_2'] = 'На весь экран';
 $MESS['LANDING_HOOK_BG_POSITION_REPEAT_2'] = 'Мозаика';
 $MESS['LANDING_HOOK_BG_POSITION_CENTER_REPEAT_Y'] = 'По ширине';
+$MESS['LANDING_HOOK_BG_POSITION_CENTER_NO_REPEAT'] = 'Без повторов';
 $MESS['LANDING_HOOK_BG_COLOR'] = 'Цвет фона';

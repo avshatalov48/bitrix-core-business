@@ -56,6 +56,8 @@ type ResponseErrors = Array<{
 	customData: any
 }>;
 
+const PHONE_VERIFY_FORM_ENTITY = 'crm_webform';
+
 /**
  * @memberOf BX.Landing.UI.Panel
  */
@@ -83,6 +85,12 @@ export class FormSettingsPanel extends BasePresetPanel
 		this.setTitle(Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_TITLE'));
 
 		this.lsCache = new Cache.LocalStorageCache();
+
+		Dom.addClass(this.layout, 'landing-ui-panel-form-settings');
+
+		this.subscribe('onCancel', () => {
+			BX.onCustomEvent(this, 'BX.Landing.Block:onFormSettingsClose', [this.getCurrentBlock().id]);
+		});
 
 		this.disableOverlay();
 
@@ -620,6 +628,8 @@ export class FormSettingsPanel extends BasePresetPanel
 				const y = this.getCurrentBlock().node.offsetTop;
 				PageObject.getEditorWindow().scrollTo(0, y);
 			}, 300);
+
+			BX.onCustomEvent(this, 'BX.Landing.Block:onFormSettingsOpen', [this.getCurrentBlock().id]);
 
 			return Promise.resolve(true);
 		});
@@ -1342,6 +1352,8 @@ export class FormSettingsPanel extends BasePresetPanel
 	{
 		const dictionary = this.getFormDictionary();
 
+		BX.onCustomEvent(this, 'BX.Landing.Block:onFormSave', [this.getCurrentBlock().id]);
+
 		if (
 			Type.isPlainObject(dictionary.permissions)
 			&& Type.isPlainObject(dictionary.permissions.form)
@@ -1424,6 +1436,8 @@ export class FormSettingsPanel extends BasePresetPanel
 					void FormClient.getInstance()
 						.saveOptions(options)
 						.then((result) => {
+							BX.onCustomEvent(this, 'BX.Landing.Block:onAfterFormSave', [this.getCurrentBlock().id]);
+
 							this.setFormOptions(result);
 							this.setInitialFormOptions(result);
 							FormClient.getInstance().resetCache(result.id);
@@ -1519,9 +1533,17 @@ export class FormSettingsPanel extends BasePresetPanel
 
 	#showPhoneVerifySlider(): void
 	{
-		if (Type.isObject(PhoneVerify))
+		if (typeof PhoneVerify !== 'undefined')
 		{
-			PhoneVerify.setVerified(false).showSlider();
+			PhoneVerify
+				.getInstance()
+				.setEntityType(PHONE_VERIFY_FORM_ENTITY)
+				.setEntityId(this.getCurrentFormId())
+				.startVerify({
+					sliderTitle: Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'),
+					title: Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_TITLE'),
+					description: Loc.getMessage('LANDING_FORM_EDITOR_PHONE_VERIFY_CUSTOM_DESCRIPTION'),
+				});
 		}
 	}
 

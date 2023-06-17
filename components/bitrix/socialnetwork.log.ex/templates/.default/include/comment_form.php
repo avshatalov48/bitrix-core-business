@@ -14,7 +14,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $component = $this->getComponent();
 
-$arParams["ALLOW_VIDEO"] = ($arParams["ALLOW_VIDEO"] === "Y" ? "Y" : "N");
+$arParams["ALLOW_VIDEO"] = (($arParams["ALLOW_VIDEO"] ?? '') === "Y" ? "Y" : "N");
 
 if (is_array($arResult["Smiles"]))
 {
@@ -102,7 +102,7 @@ $formParams = [
 	],
 	"FILES" => [
 		"VALUE" => [],
-		"DEL_LINK" => $arResult["urlToDelImage"],
+		"DEL_LINK" => $arResult["urlToDelImage"] ?? '',
 		"SHOW" => "N"
 	],
 	"SMILES" => $smiles,
@@ -166,7 +166,7 @@ $formParams = [
 		{
 /*
 			window["UC"]["f<?=$arParams["FORM_ID"]?>"] = new FCForm({
-				entitiesId : <?=CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"])?>,
+				entitiesId : <?=CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"] ?? [])?>,
 				formId : '<?=$arParams["FORM_ID"]?>',
 				editorId : 'id<?=$arParams["FORM_ID"]?>'});
 
@@ -222,7 +222,7 @@ $formParams = [
 
 			window.SLEC = {
 				form : BX('<?=$formParams["FORM_ID"]?>'),
-				actionUrl : '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=<?=str_replace("%23", "#", urlencode($arResult["urlToPost"]))?>',
+				actionUrl : '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=<?=str_replace("%23", "#", urlencode(($arResult["urlToPost"] ?? '')))?>',
 				editorId : '<?=$formParams["LHE"]["id"]?>',
 				jsMPFName : 'PlEditor<?=$formParams["FORM_ID"]?>',
 				formKey : 'f<?=$formParams["FORM_ID"]?>'

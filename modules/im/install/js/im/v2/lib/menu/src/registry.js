@@ -1,4 +1,3 @@
-import {BaseMenu} from './base/base';
-import {RecentMenu} from './recent/recent';
-
-export {BaseMenu, RecentMenu};
+export {RecentMenu} from './recent/recent';
+export {BaseMenu} from './base/base';
+export type {MenuItem} from './type/menu';

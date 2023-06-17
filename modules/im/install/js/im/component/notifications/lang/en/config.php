@@ -7,6 +7,7 @@ $MESS["IM_NOTIFICATIONS_CONTEXT_POPUP_SET_READ"] = "Mark as read";
 $MESS["IM_NOTIFICATIONS_CONTEXT_POPUP_SET_UNREAD"] = "Mark as unread";
 $MESS["IM_NOTIFICATIONS_DELETED_ITEM_STUB"] = "Notification has been deleted";
 $MESS["IM_NOTIFICATIONS_HEADER"] = "Notifications";
+$MESS["IM_NOTIFICATIONS_ITEM_SYSTEM"] = "System notification";
 $MESS["IM_NOTIFICATIONS_MORE_USERS"] = "and #COUNT# more user(s)";
 $MESS["IM_NOTIFICATIONS_NO_ITEMS"] = "There are no notifications.";
 $MESS["IM_NOTIFICATIONS_NO_ITEMS_30_DAYS"] = "There were no notifications for the last 30 days";

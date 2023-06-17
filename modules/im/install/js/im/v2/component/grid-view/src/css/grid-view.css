@@ -1,0 +1,37 @@
+.bx-im-grid-view__scope {
+	font-family: var(--im-font-family-system);
+	font-size: var(--im-font-size-md);
+}
+
+.bx-im-grid-view__head {
+	display: flex;
+	font-weight: 500;
+	line-height: 17px;
+	text-align: center;
+}
+
+.bx-im-grid-view__row {
+	display: flex;
+	font-weight: var(--im-font-weight-normal);
+	line-height: 18px;
+}
+
+.bx-im-grid-view__cell {
+	flex: 1 0;
+	overflow: hidden;
+	padding: 14px 0;
+	text-overflow: ellipsis;
+}
+
+.bx-im-grid-view__head_cell {
+	border: 1px solid var(--im-color-palette-gray-10);
+	border-right: none;
+}
+
+.bx-im-grid-view__head_cell:first-child {
+	border-left: none;
+}
+
+.bx-im-grid-view__row_cell:nth-child(2n) {
+	background: #F8FAFB;
+}

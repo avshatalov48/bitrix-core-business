@@ -32,7 +32,7 @@ $componentParameters = array(
 
 );
 
-if ($_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
 {
 	$APPLICATION->IncludeComponent(
 		"bitrix:socialnetwork.pageslider.wrapper",

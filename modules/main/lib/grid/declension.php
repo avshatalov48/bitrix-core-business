@@ -50,11 +50,7 @@ class Declension
 		$result = $this->fiveItem;
 		$number = $number % 100;
 
-		if ($number >= 11 && $number <= 19)
-		{
-			$result = $this->fiveItem;
-		}
-		else
+		if ($number < 11 || $number > 19)
 		{
 			$number = $number % 10;
 

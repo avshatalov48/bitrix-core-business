@@ -13,7 +13,6 @@ this.BX = this.BX || {};
 	  getName() {
 	    return 'productList';
 	  }
-
 	  getState() {
 	    return {
 	      currency: '',
@@ -27,7 +26,6 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  }
-
 	  static getBaseProduct() {
 	    const random = main_core.Text.getRandom();
 	    return {
@@ -38,6 +36,7 @@ this.BX = this.BX || {};
 	        productId: null,
 	        skuId: null,
 	        code: null,
+	        type: null,
 	        module: null,
 	        sort: 0,
 	        price: null,
@@ -76,7 +75,6 @@ this.BX = this.BX || {};
 	      errors: []
 	    };
 	  }
-
 	  getActions() {
 	    return {
 	      resetBasket({
@@ -85,14 +83,12 @@ this.BX = this.BX || {};
 	        commit('clearBasket');
 	        commit('addItem', {});
 	      },
-
 	      removeItem({
 	        dispatch,
 	        commit,
 	        state
 	      }, payload) {
 	        commit('deleteItem', payload);
-
 	        if (state.basket.length === 0) {
 	          commit('addItem', {});
 	        } else {
@@ -105,10 +101,8 @@ this.BX = this.BX || {};
 	            });
 	          });
 	        }
-
 	        dispatch('calculateTotal');
 	      },
-
 	      changeItem: ({
 	        dispatch,
 	        commit
@@ -160,7 +154,6 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  }
-
 	  getGetters() {
 	    return {
 	      getBasket: state => () => {
@@ -171,19 +164,16 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  }
-
 	  getMutations() {
 	    return {
 	      addItem: (state, payload) => {
 	        let item = ProductList.getBaseProduct();
 	        item = Object.assign(item, payload.item);
-
 	        if (payload.position === FormElementPosition.BOTTOM) {
 	          state.basket.push(item);
 	        } else {
 	          state.basket.unshift(item);
 	        }
-
 	        state.basket.forEach((item, index) => {
 	          item.fields.sort = index;
 	        });
@@ -192,7 +182,6 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isNil(state.basket[payload.index])) {
 	          ui_vue.Vue.set(state.basket, payload.index, ProductList.getBaseProduct());
 	        }
-
 	        state.basket[payload.index] = Object.assign(state.basket[payload.index], payload.product);
 	      },
 	      clearBasket: state => {
@@ -215,7 +204,6 @@ this.BX = this.BX || {};
 	      },
 	      setTotal: (state, payload) => {
 	        const formattedTotal = payload;
-
 	        if (main_core.Type.isStringFilled(state.currency)) {
 	          for (const key in payload) {
 	            if (payload.hasOwnProperty(key)) {
@@ -223,12 +211,10 @@ this.BX = this.BX || {};
 	            }
 	          }
 	        }
-
 	        state.total = Object.assign(state.total, formattedTotal);
 	      }
 	    };
 	  }
-
 	}
 
 	const config = Object.freeze({
@@ -280,6 +266,7 @@ this.BX = this.BX || {};
 	   * @emits 'onChangeQuantity' {quantity: number}
 	   * @emits 'onSelectMeasure' {quantity: number, }
 	   */
+
 	  props: {
 	    measureCode: Number,
 	    measureRatio: Number,
@@ -290,52 +277,41 @@ this.BX = this.BX || {};
 	    hasError: Boolean,
 	    options: Object
 	  },
-
 	  created() {
 	    this.onInputQuantityHandler = main_core.Runtime.debounce(this.onInputQuantity, 500, this);
 	  },
-
 	  methods: {
 	    onInputQuantity(event) {
 	      if (!this.editable) {
 	        return;
 	      }
-
 	      event.target.value = event.target.value.replace(/[^.\d]/g, '.');
 	      const newQuantity = main_core.Text.toNumber(event.target.value);
 	      const lastSymbol = event.target.value.substr(-1);
-
 	      if (lastSymbol === '.') {
 	        return;
 	      }
-
 	      this.changeQuantity(newQuantity);
 	    },
-
 	    calculateCorrectionFactor(quantity, measureRatio) {
 	      let factoredQuantity = quantity;
 	      let factoredRatio = measureRatio;
 	      let correctionFactor = 1;
-
 	      while (!(Number.isInteger(factoredQuantity) && Number.isInteger(factoredRatio))) {
 	        correctionFactor *= 10;
 	        factoredQuantity = quantity * correctionFactor;
 	        factoredRatio = measureRatio * correctionFactor;
 	      }
-
 	      return correctionFactor;
 	    },
-
 	    incrementValue() {
 	      if (!this.editable) {
 	        return;
 	      }
-
 	      const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
 	      const quantity = (this.quantity * correctionFactor + this.measureRatio * correctionFactor) / correctionFactor;
 	      this.changeQuantity(quantity);
 	    },
-
 	    decrementValue() {
 	      if (this.quantity > this.measureRatio && this.editable) {
 	        const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
@@ -343,16 +319,13 @@ this.BX = this.BX || {};
 	        this.changeQuantity(quantity);
 	      }
 	    },
-
 	    changeQuantity(value) {
 	      this.$emit('onChangeQuantity', value);
 	    },
-
 	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.measures)) {
 	        return;
 	      }
-
 	      const menuItems = [];
 	      this.options.measures.forEach(item => {
 	        menuItems.push({
@@ -361,7 +334,6 @@ this.BX = this.BX || {};
 	          onclick: this.selectMeasure
 	        });
 	      });
-
 	      if (menuItems.length > 0) {
 	        this.popupMenu = new main_popup.Menu({
 	          bindElement: target,
@@ -370,20 +342,16 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    },
-
 	    selectMeasure(event, params) {
 	      var _params$options, _params$options2;
-
 	      this.$emit('onSelectMeasure', {
 	        code: (_params$options = params.options) == null ? void 0 : _params$options.item.CODE,
 	        name: (_params$options2 = params.options) == null ? void 0 : _params$options2.item.SYMBOL
 	      });
-
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -394,12 +362,14 @@ this.BX = this.BX || {};
 				:value="quantity"
 				@input="onInputQuantityHandler"
 				:disabled="!editable"
+				data-name="quantity"
+				:data-value="quantity"
 			>
 			<div 
 				class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
 				@click="showPopupMenu($event.target)"
 			>
-				<span>{{ measureName }}</span>
+				<span :title="measureName">{{ measureName }}</span>
 			</div>
 		</div>
 	`
@@ -410,6 +380,7 @@ this.BX = this.BX || {};
 	   * @emits 'onChangePrice' {price: number}
 	   * @emits 'saveCatalogField' {}
 	   */
+
 	  props: {
 	    selectorId: String,
 	    price: Number,
@@ -417,66 +388,49 @@ this.BX = this.BX || {};
 	    hasError: Boolean,
 	    options: Object
 	  },
-
 	  created() {
 	    this.onInputPriceHandler = main_core.Runtime.debounce(this.onInputPrice, 500, this);
 	  },
-
 	  mounted() {
 	    BX.UI.Hint.init();
 	  },
-
 	  methods: {
 	    onInputPrice(event) {
 	      if (!this.editable) {
 	        return;
 	      }
-
 	      event.target.value = event.target.value.replace(/[^.,\d]/g, '');
-
 	      if (event.target.value === '') {
 	        event.target.value = 0;
 	      }
-
 	      const lastSymbol = event.target.value.substr(-1);
-
 	      if (lastSymbol === ',') {
 	        event.target.value = event.target.value.replace(',', ".");
 	      }
-
 	      let newPrice = main_core.Text.toNumber(event.target.value);
-
 	      if (lastSymbol === '.' || lastSymbol === ',') {
 	        return;
 	      }
-
 	      if (newPrice < 0) {
 	        newPrice *= -1;
 	      }
-
 	      this.$emit('onChangePrice', newPrice);
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-
 	    currencySymbol() {
 	      return this.options.currencySymbol || '';
 	    },
-
 	    hintText() {
 	      var _this$options;
-
 	      if (!this.editable && !((_this$options = this.options) != null && _this$options.isCatalogPriceEditEnabled)) {
 	        return main_core.Loc.getMessage('CATALOG_FORM_PRICE_ACCESS_DENIED_HINT');
 	      }
-
 	      return null;
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -491,6 +445,8 @@ this.BX = this.BX || {};
 					v-model.lazy="price"
 					@input="onInputPriceHandler"
 					:disabled="!editable"
+					data-name="price"
+					:data-value="price"
 			>
 			<div class="catalog-pf-product-input-info" v-html="currencySymbol"></div>
 		</div>
@@ -502,6 +458,7 @@ this.BX = this.BX || {};
 	   * @emits 'changeDiscountType' {type: Y|N}
 	   * @emits 'changeDiscount' {discountValue: number}
 	   */
+
 	  props: {
 	    editable: Boolean,
 	    options: Object,
@@ -509,49 +466,37 @@ this.BX = this.BX || {};
 	    discountType: Number,
 	    discountRate: Number
 	  },
-
 	  created() {
 	    this.onInputDiscount = main_core.Runtime.debounce(this.onChangeDiscount, 500, this);
 	    this.currencySymbol = this.options.currencySymbol;
 	  },
-
 	  mounted() {
 	    BX.UI.Hint.init();
 	  },
-
 	  methods: {
 	    onChangeType(event, params) {
 	      var _params$options;
-
 	      if (!this.editable) {
 	        return;
 	      }
-
 	      const type = main_core.Text.toNumber(params == null ? void 0 : (_params$options = params.options) == null ? void 0 : _params$options.type) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
 	      this.$emit('changeDiscountType', type);
-
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    },
-
 	    onChangeDiscount(event) {
 	      const discountValue = main_core.Text.toNumber(event.target.value) || 0;
-
 	      if (discountValue === main_core.Text.toNumber(this.discount) || !this.editable) {
 	        return;
 	      }
-
 	      this.$emit('changeDiscount', discountValue);
 	    },
-
 	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.allowedDiscountTypes)) {
 	        return;
 	      }
-
 	      const menuItems = [];
-
 	      if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
 	        menuItems.push({
 	          text: '%',
@@ -559,7 +504,6 @@ this.BX = this.BX || {};
 	          type: catalog_productCalculator.DiscountType.PERCENTAGE
 	        });
 	      }
-
 	      if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
 	        menuItems.push({
 	          text: this.currencySymbol,
@@ -567,7 +511,6 @@ this.BX = this.BX || {};
 	          type: catalog_productCalculator.DiscountType.MONETARY
 	        });
 	      }
-
 	      if (menuItems.length > 0) {
 	        this.popupMenu = new main_popup.Menu({
 	          bindElement: target,
@@ -576,37 +519,29 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    }
-
 	  },
 	  computed: {
 	    getDiscountInputValue() {
 	      if (main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE) {
 	        return main_core.Text.toNumber(this.discountRate);
 	      }
-
 	      return main_core.Text.toNumber(this.discount);
 	    },
-
 	    getDiscountSymbol() {
 	      return main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
 	    },
-
 	    wrapperClasses() {
 	      return {
 	        'catalog-pf-product-input-wrapper--disabled': !this.editable
 	      };
 	    },
-
 	    hintText() {
 	      var _this$options;
-
 	      if (!this.editable && !((_this$options = this.options) != null && _this$options.isCatalogDiscountSetEnabled)) {
 	        return main_core.Loc.getMessage('CATALOG_FORM_DISCOUNT_ACCESS_DENIED_HINT');
 	      }
-
 	      return null;
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -624,6 +559,8 @@ this.BX = this.BX || {};
 				@input="onInputDiscount"
 				placeholder="0"
 				:disabled="!editable"
+				data-name="discount"
+				:data-value="getDiscountInputValue"
 			/>
 			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action"
 				@click="showPopupMenu">
@@ -637,47 +574,39 @@ this.BX = this.BX || {};
 	  /**
 	   * @emits 'changeTax' {taxValue: number}
 	   */
+
 	  props: {
 	    taxId: Number,
 	    editable: Boolean,
 	    options: Object
 	  },
-
 	  data() {
 	    return {
 	      taxValue: this.getTaxList()[this.taxId] || 0
 	    };
 	  },
-
 	  methods: {
 	    onChangeValue(event, params) {
 	      var _params$options, _params$options2;
-
 	      const taxValue = main_core.Text.toNumber(params == null ? void 0 : (_params$options = params.options) == null ? void 0 : _params$options.item);
-
 	      if (taxValue === main_core.Text.toNumber(this.taxValue) || !this.editable) {
 	        return;
 	      }
-
 	      this.$emit('changeTax', {
 	        taxValue,
 	        taxId: params == null ? void 0 : (_params$options2 = params.options) == null ? void 0 : _params$options2.id
 	      });
-
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    },
-
 	    getTaxList() {
 	      return main_core.Type.isArray(this.options.taxList) ? this.options.taxList : [];
 	    },
-
 	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.taxList)) {
 	        return;
 	      }
-
 	      const menuItems = [];
 	      this.options.taxList.forEach((item, id) => {
 	        menuItems.push({
@@ -687,7 +616,6 @@ this.BX = this.BX || {};
 	          onclick: this.onChangeValue
 	        });
 	      });
-
 	      if (menuItems.length > 0) {
 	        this.popupMenu = new main_popup.Menu({
 	          bindElement: target,
@@ -696,7 +624,6 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -711,6 +638,7 @@ this.BX = this.BX || {};
 	  /**
 	   * @emits 'onProductChange' {fields: object}
 	   */
+
 	  props: {
 	    editable: Boolean,
 	    basketLength: Number,
@@ -718,7 +646,6 @@ this.BX = this.BX || {};
 	    basketItem: Object,
 	    model: Object
 	  },
-
 	  data() {
 	    return {
 	      currencySymbol: null,
@@ -727,40 +654,33 @@ this.BX = this.BX || {};
 	      selectorId: this.basketItem.selectorId
 	    };
 	  },
-
 	  created() {
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
 	    main_core_events.EventEmitter.subscribe(this.$root.$app, 'onChangeCompilationMode', this.changeProductSelectorImageRequire.bind(this));
 	  },
-
 	  mounted() {
 	    this.productSelector = new catalog_productSelector.ProductSelector(this.selectorId, this.prepareSelectorParams());
 	    this.productSelector.renderTo(this.$refs.selectorWrapper);
 	  },
-
 	  methods: {
 	    changeProductSelectorImageRequire(event) {
 	      var _event$getData, _event$getData2;
-
 	      const isCompilationMode = (_event$getData = event.getData()) == null ? void 0 : _event$getData.isCompilationMode;
 	      const isFacebookForm = (_event$getData2 = event.getData()) == null ? void 0 : _event$getData2.isFacebookForm;
 	      this.productSelector.setConfig('ENABLE_EMPTY_IMAGES_ERROR', isCompilationMode && isFacebookForm);
 	      this.productSelector.checkEmptyImageError();
 	      this.productSelector.layoutErrors();
 	    },
-
 	    prepareSelectorParams() {
 	      const fields = {
 	        NAME: this.getField('name') || ''
 	      };
-
 	      if (!main_core.Type.isNil(this.getField('basePrice'))) {
 	        fields.PRICE = this.getField('basePrice');
 	        fields.CURRENCY = this.options.currency;
 	      }
-
 	      const basketItemOfferId = this.basketItem.offerId;
 	      const facebookFailProducts = this.options.facebookFailProducts;
 	      const hasFacebookError = main_core.Type.isObject(facebookFailProducts) && facebookFailProducts.hasOwnProperty(basketItemOfferId);
@@ -783,57 +703,46 @@ this.BX = this.BX || {};
 	          ROW_ID: this.selectorId,
 	          ENABLE_SKU_SELECTION: this.editable,
 	          HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
-	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
+	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
+	          VIEW_FORMAT: this.options.isShortProductViewFormat ? catalog_productSelector.ProductSelector.SHORT_VIEW_FORMAT : catalog_productSelector.ProductSelector.FULL_VIEW_FORMAT
 	        },
 	        failedProduct: hasFacebookError,
 	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
 	        fields
 	      };
 	      const formImage = this.basketItem.image;
-
 	      if (main_core.Type.isObject(formImage)) {
 	        selectorOptions.fileView = formImage.preview;
 	        selectorOptions.fileInput = formImage.input;
 	        selectorOptions.fileInputId = formImage.id;
 	        selectorOptions.morePhotoValues = formImage.values;
 	      }
-
 	      return selectorOptions;
 	    },
-
 	    isEnabledSaving() {
 	      return this.options.enableCatalogSaving && this.basketItem.hasEditRights;
 	    },
-
 	    isRequiredField(code) {
 	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
 	    },
-
 	    getDefaultSkuTree() {
 	      let skuTree = this.basketItem.skuTree || {};
-
 	      if (main_core.Type.isStringFilled(skuTree)) {
 	        skuTree = JSON.parse(skuTree);
 	      }
-
 	      return skuTree;
 	    },
-
 	    getField(name, defaultValue = null) {
 	      return this.basketItem.fields[name] || defaultValue;
 	    },
-
 	    onProductSelect(event) {
 	      const data = event.getData();
-
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
 	        this.$emit('onProductSelect');
 	      }
 	    },
-
 	    onProductChange(event) {
 	      const data = event.getData();
-
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
 	        const basePrice = data.fields.BASE_PRICE;
 	        const fields = {
@@ -842,6 +751,7 @@ this.BX = this.BX || {};
 	          NAME: data.fields.NAME,
 	          ID: data.fields.ID,
 	          PRODUCT_ID: data.fields.PRODUCT_ID,
+	          TYPE: data.fields.TYPE,
 	          SKU_ID: data.fields.SKU_ID,
 	          PROPERTIES: data.fields.PROPERTIES,
 	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
@@ -855,15 +765,12 @@ this.BX = this.BX || {};
 	        this.$emit('onProductChange', fields);
 	      }
 	    },
-
 	    onProductClear(event) {
 	      const data = event.getData();
-
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
 	        this.$emit('onProductClear');
 	      }
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -872,13 +779,14 @@ this.BX = this.BX || {};
 	});
 
 	let _ = t => t,
-	    _t,
-	    _t2,
-	    _t3;
+	  _t,
+	  _t2,
+	  _t3;
 	ui_vue.Vue.component(config.templateFieldBrand, {
 	  /**
 	   * @emits 'changeBrand' {values: Array<any>}
 	   */
+
 	  props: {
 	    brands: [Array, String],
 	    options: Object,
@@ -886,13 +794,11 @@ this.BX = this.BX || {};
 	    hasError: Boolean,
 	    selectorId: String
 	  },
-
 	  data() {
 	    return {
 	      cache: new main_core.Cache.MemoryCache()
 	    };
 	  },
-
 	  created() {
 	    if (this.editable) {
 	      this.selector = new ui_entitySelector.TagSelector({
@@ -932,7 +838,6 @@ this.BX = this.BX || {};
 	      this.$parent.$on('onInlineSelectorProductChange', this.selectCurrentBrands.bind(this));
 	    }
 	  },
-
 	  mounted() {
 	    if (this.editable) {
 	      this.selector.renderTo(this.$refs.brandSelectorWrapper);
@@ -951,12 +856,10 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  },
-
 	  methods: {
 	    selectCurrentBrands(brands) {
 	      this.isSelectedByProductChange = true;
 	      this.brands = brands;
-
 	      if (this.selector.getDialog().isLoaded()) {
 	        this.selector.getDialog().deselectAll();
 	        this.selectDialogItems();
@@ -965,7 +868,6 @@ this.BX = this.BX || {};
 	        main_core_events.EventEmitter.subscribe(this.selector.getDialog(), 'onLoad', this.selectDialogItems.bind(this));
 	      }
 	    },
-
 	    selectDialogItems() {
 	      this.brands.forEach(brand => {
 	        const item = this.selector.getDialog().getItem({
@@ -976,21 +878,17 @@ this.BX = this.BX || {};
 	      });
 	      this.isSelectedByProductChange = false;
 	    },
-
 	    getPreselectedBrands() {
 	      if (!main_core.Type.isArray(this.brands) || this.brands.length === 0) {
 	        return [];
 	      }
-
 	      return this.brands.map(item => {
 	        return ['brand', item['VALUE']];
 	      });
 	    },
-
 	    onBrandChange(event) {
 	      const items = event.getTarget().getSelectedItems();
 	      const resultValues = [];
-
 	      if (main_core.Type.isArray(items)) {
 	        items.forEach(item => {
 	          resultValues.push({
@@ -1000,14 +898,12 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      const eventData = {
 	        resultValues: resultValues,
 	        isSelectedByProductChange: this.isSelectedByProductChange
 	      };
 	      this.$emit('changeBrand', eventData);
 	    },
-
 	    createBrand(event) {
 	      const {
 	        searchQuery
@@ -1032,23 +928,19 @@ this.BX = this.BX || {};
 	            title: searchQuery.getQuery(),
 	            tabs: dialog.getRecentTab().getId()
 	          });
-
 	          if (item) {
 	            item.select();
 	          }
-
 	          dialog.hide();
 	          resolve();
 	        }).catch(() => reject());
 	      });
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -1062,57 +954,45 @@ this.BX = this.BX || {};
 	  /**
 	   * @emits 'onChangeSum' {sum: number}
 	   */
+
 	  props: {
 	    sum: Number,
 	    editable: Boolean,
 	    options: Object
 	  },
-
 	  created() {
 	    this.onInputSumHandler = main_core.Runtime.debounce(this.onInputSum, 500, this);
 	  },
-
 	  methods: {
 	    onInputSum(event) {
 	      if (!this.editable) {
 	        return;
 	      }
-
 	      event.target.value = event.target.value.replace(/[^.,\d]/g, '');
-
 	      if (event.target.value === '') {
 	        event.target.value = 0;
 	      }
-
 	      const lastSymbol = event.target.value.substr(-1);
-
 	      if (lastSymbol === ',') {
 	        event.target.value = event.target.value.replace(',', ".");
 	      }
-
 	      let newSum = main_core.Text.toNumber(event.target.value);
-
 	      if (lastSymbol === '.' || lastSymbol === ',') {
 	        return;
 	      }
-
 	      if (newSum < 0) {
 	        newSum *= -1;
 	      }
-
 	      this.$emit('onChangeSum', newSum);
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-
 	    currencySymbol() {
 	      return this.options.currencySymbol || '';
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -1123,6 +1003,8 @@ this.BX = this.BX || {};
 					:value="sum"
 					@input="onInputSumHandler"
 					:disabled="!editable"
+					data-name="sum"
+					:data-value="sum"
 			>
 			<div class="catalog-pf-product-input-info"
 				 :class="{ 'catalog-pf-product-input--disabled': !editable }"
@@ -1140,6 +1022,7 @@ this.BX = this.BX || {};
 	   * @emits 'refreshBasket'
 	   * @emits 'removeItem' {index: number}
 	   */
+
 	  props: {
 	    basketItem: Object,
 	    basketItemIndex: Number,
@@ -1148,7 +1031,6 @@ this.BX = this.BX || {};
 	    options: Object,
 	    mode: String
 	  },
-
 	  data() {
 	    return {
 	      model: null,
@@ -1179,17 +1061,14 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  },
-
 	  created() {
 	    this.currencySymbol = this.options.currencySymbol;
 	    this.model = this.initModel();
-
 	    if (main_core.Type.isArray(this.options.measures)) {
 	      this.options.measures.map(measure => {
 	        if (measure['IS_DEFAULT'] === 'Y') {
 	          this.defaultMeasure.name = measure.SYMBOL;
 	          this.defaultMeasure.code = measure.CODE;
-
 	          if (!this.basketItem.fields.measureName && !this.basketItem.fields.measureCode) {
 	            this.changeProductFields({
 	              measureCode: this.defaultMeasure.code,
@@ -1200,19 +1079,15 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  },
-
 	  methods: {
 	    prepareModelFields() {
 	      var _this$basketItem$fiel, _this$basketItem$fiel2, _this$basketItem$fiel3, _this$basketItem$fiel4, _this$basketItem$fiel5, _this$basketItem$fiel6, _this$basketItem$fiel7, _this$basketItem$fiel8;
-
 	      const defaultFields = this.basketItem.fields;
 	      const defaultPrice = main_core.Text.toNumber(defaultFields.price);
 	      let basePrice = defaultFields.basePrice ? defaultFields.basePrice : defaultFields.price;
-
 	      if (!main_core.Type.isNil(basePrice)) {
 	        basePrice = main_core.Text.toNumber(basePrice);
 	      }
-
 	      return {
 	        NAME: ((_this$basketItem$fiel = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel.name) || '',
 	        MODULE: ((_this$basketItem$fiel2 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel2.module) || '',
@@ -1237,23 +1112,21 @@ this.BX = this.BX || {};
 	        MEASURE_NAME: defaultFields.measureName || this.defaultMeasure.name
 	      };
 	    },
-
 	    initModel() {
 	      var _this$basketItem$fiel9, _this$basketItem$fiel10, _this$basketItem$fiel11;
-
 	      const productId = main_core.Text.toNumber((_this$basketItem$fiel9 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel9.productId);
 	      const skuId = main_core.Text.toNumber((_this$basketItem$fiel10 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel10.skuId);
 	      const model = new catalog_productModel.ProductModel({
 	        iblockId: main_core.Text.toNumber(this.options.iblockId),
 	        basePriceId: main_core.Text.toNumber(this.options.basePriceId),
 	        currency: this.options.currency,
+	        isStoreCollectable: false,
 	        isSimpleModel: main_core.Type.isStringFilled((_this$basketItem$fiel11 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel11.name) && productId <= 0 && skuId <= 0,
 	        fields: this.prepareModelFields()
 	      });
 	      main_core_events.EventEmitter.subscribe(model, 'onErrorsChange', this.onErrorsChange);
 	      return model;
 	    },
-
 	    onErrorsChange() {
 	      const errors = Object.values(this.model.getErrorCollection().getErrors());
 	      this.changeRowData({
@@ -1264,24 +1137,19 @@ this.BX = this.BX || {};
 	        errors
 	      });
 	    },
-
 	    setCalculatedFields(fields) {
 	      this.model.getCalculator().setFields(fields);
 	      const map = {
 	        calculatedFields: fields
 	      };
-
 	      if (main_core.Text.toNumber(fields.SUM) >= 0) {
 	        map.sum = main_core.Text.toNumber(fields.SUM);
 	      }
-
 	      if (!main_core.Type.isNil(fields.ID)) {
 	        map.offerId = main_core.Text.toNumber(fields.ID);
 	      }
-
 	      this.changeRowData(map);
 	    },
-
 	    getProductFieldsFromModel() {
 	      const modelFields = this.model.getFields();
 	      return {
@@ -1302,17 +1170,16 @@ this.BX = this.BX || {};
 	        properties: modelFields.PROPERTIES || {},
 	        brands: modelFields.BRANDS || [],
 	        taxId: modelFields.TAX_ID,
+	        type: modelFields.TYPE,
 	        morePhoto: modelFields.MORE_PHOTO
 	      };
 	    },
-
 	    changeRowData(product) {
 	      this.$emit('changeRowData', {
 	        index: this.basketItemIndex,
 	        product
 	      });
 	    },
-
 	    changeProductFields(fields) {
 	      fields = Object.assign(this.basketItem.fields, fields);
 	      this.$emit('changeProduct', {
@@ -1323,11 +1190,9 @@ this.BX = this.BX || {};
 	        skipFieldChecking: this.model.isSimple() && this.basketLength === 1
 	      });
 	    },
-
 	    saveCatalogField(changedFields) {
 	      return this.model.save(changedFields);
 	    },
-
 	    onProductChange(fields) {
 	      fields = Object.assign(this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE), fields);
 	      this.changeRowData({
@@ -1337,7 +1202,6 @@ this.BX = this.BX || {};
 	      this.setCalculatedFields(fields);
 	      this.$emit('onInlineSelectorProductChange', this.basketItem.fields.brands);
 	    },
-
 	    onProductSelect() {
 	      this.changeProductFields({
 	        additionalFields: {
@@ -1346,7 +1210,6 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    },
-
 	    onProductClear() {
 	      if (main_core.Type.isPlainObject(this.options.facebookFailProducts)) {
 	        delete this.options.facebookFailProducts[this.basketItem.offerId];
@@ -1359,12 +1222,10 @@ this.BX = this.BX || {};
 	      fields.SKU_ID = 0;
 	      fields.MODULE = '';
 	      	this.setCalculatedFields(fields);*/
-
 	    },
 
 	    onChangeSum(sum) {
 	      const priceItem = sum / main_core.Text.toNumber(this.basketItem.fields.quantity);
-
 	      if (this.isEditablePrice()) {
 	        const price = priceItem + main_core.Text.toNumber(this.basketItem.fields.discount);
 	        this.onChangePrice(price);
@@ -1375,10 +1236,8 @@ this.BX = this.BX || {};
 	        this.changeDiscount(discount);
 	      }
 	    },
-
 	    onChangePrice(newPrice) {
 	      this.changeBasePrice(newPrice);
-
 	      if (this.isSaveablePrice()) {
 	        this.saveCatalogField(['BASE_PRICE']).then(() => {
 	          this.changeRowData({
@@ -1387,7 +1246,6 @@ this.BX = this.BX || {};
 	        });
 	      }
 	    },
-
 	    onSelectMeasure(measure) {
 	      this.changeMeasure(measure);
 	      this.model.showSaveNotifier('measureChanger_' + this.selectorId, {
@@ -1399,62 +1257,52 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    },
-
 	    toggleDiscount(value) {
 	      if (this.isReadOnly) {
 	        return;
 	      }
-
 	      this.changeRowData({
 	        showDiscount: value
 	      });
-
 	      if (value === 'Y') {
 	        setTimeout(() => {
 	          var _this$$refs, _this$$refs$discountW, _this$$refs$discountW2, _this$$refs$discountW3;
-
 	          return (_this$$refs = this.$refs) == null ? void 0 : (_this$$refs$discountW = _this$$refs.discountWrapper) == null ? void 0 : (_this$$refs$discountW2 = _this$$refs$discountW.$refs) == null ? void 0 : (_this$$refs$discountW3 = _this$$refs$discountW2.discountInput) == null ? void 0 : _this$$refs$discountW3.focus();
 	        });
 	      }
 	    },
-
 	    toggleTax(value) {
 	      this.changeRowData({
 	        showTax: value
 	      });
 	    },
-
 	    processFields(fields) {
 	      this.model.getCalculator().setFields(fields);
 	      this.model.setFields(fields);
-	      this.changeProductFields({ ...this.basketItem.fields,
+	      this.changeProductFields({
+	        ...this.basketItem.fields,
 	        ...this.getProductFieldsFromModel()
 	      });
-
 	      if (!main_core.Type.isNil(fields.SUM)) {
 	        this.changeRowData({
 	          sum: fields.SUM
 	        });
 	      }
 	    },
-
 	    changeBrand(eventData) {
 	      const brands = main_core.Type.isArray(eventData.resultValues) ? eventData.resultValues : [];
 	      const isSelectedByProductChange = eventData.isSelectedByProductChange;
 	      this.processFields({
 	        BRANDS: brands
 	      });
-
 	      if (!isSelectedByProductChange) {
 	        this.saveCatalogField(['BRANDS']);
 	      }
 	    },
-
 	    onChangeQuantity(quantity) {
 	      this.model.getCalculator().setFields();
 	      this.processFields(this.model.getCalculator().calculateQuantity(quantity));
 	    },
-
 	    changeMeasure(measure) {
 	      const productFields = this.basketItem.fields;
 	      productFields['measureCode'] = measure.code;
@@ -1464,117 +1312,110 @@ this.BX = this.BX || {};
 	        MEASURE_NAME: measure.name
 	      });
 	    },
-
 	    changeBasePrice(price) {
 	      this.model.setField('BASE_PRICE', price);
 	      this.processFields(this.model.getCalculator().calculateBasePrice(price));
 	    },
-
 	    changePrice(price) {
 	      this.model.getCalculator().setFields(this.model.getCalculator().calculateBasePrice(this.basketItem.catalogPrice));
 	      const calculatedFields = this.model.getCalculator().calculatePrice(price);
 	      this.processFields(calculatedFields);
 	      return calculatedFields;
 	    },
-
 	    changeDiscountType(discountType) {
 	      const type = main_core.Text.toNumber(discountType) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
 	      const calculatedFields = this.model.getCalculator().calculateDiscountType(type);
 	      this.processFields(calculatedFields);
 	      return calculatedFields;
 	    },
-
 	    changeDiscount(discount) {
 	      const calculatedFields = this.model.getCalculator().calculateDiscount(discount);
 	      this.processFields(calculatedFields);
 	      return calculatedFields;
 	    },
-
 	    changeTax(fields) {
 	      const calculatedFields = this.model.getCalculator().calculateTax(fields.taxValue);
 	      calculatedFields.TAX_ID = fields.taxId;
 	      this.processFields(calculatedFields);
 	      return calculatedFields;
 	    },
-
 	    changeTaxIncluded(taxIncluded) {
 	      if (taxIncluded === this.basketItem.taxIncluded || !this.isEditableField(this.blocks.tax)) {
 	        return;
 	      }
-
 	      const calculatedFields = this.model.getCalculator().calculateTaxIncluded(taxIncluded);
 	      this.processFields(calculatedFields);
 	      return calculatedFields;
 	    },
-
 	    removeItem() {
 	      if (main_core.Type.isPlainObject(this.options.facebookFailProducts)) {
 	        delete this.options.facebookFailProducts[this.basketItem.offerId];
 	      }
-
 	      this.$emit('removeItem', {
 	        index: this.basketItemIndex
 	      });
 	    },
-
 	    isRequiredField(code) {
 	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
 	    },
-
 	    isVisibleBlock(code) {
 	      return main_core.Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code);
 	    },
-
+	    isCompilationMode() {
+	      return this.mode === FormMode.COMPILATION_READ_ONLY || this.mode === FormMode.COMPILATION;
+	    },
 	    getPriceValue() {
-	      return this.isEditableField(this.blocks.price) ? this.basketItem.fields.basePrice : this.basketItem.catalogPrice;
+	      if (this.isCompilationMode()) {
+	        return this.isEditableField(this.blocks.price) ? this.basketItem.fields.basePrice : this.basketItem.catalogPrice;
+	      }
+	      return this.basketItem.fields.basePrice;
 	    },
-
 	    getQuantityValue() {
-	      return this.isEditableField(this.blocks.quantity) ? this.basketItem.fields.quantity : 1;
+	      if (this.isCompilationMode()) {
+	        return this.isEditableField(this.blocks.quantity) ? this.basketItem.fields.quantity : 1;
+	      }
+	      return this.basketItem.fields.quantity;
 	    },
-
 	    getSumValue() {
-	      return this.isEditableField(this.blocks.result) ? this.basketItem.sum : this.basketItem.catalogPrice;
+	      if (this.isCompilationMode()) {
+	        return this.isEditableField(this.blocks.result) ? this.basketItem.sum : this.basketItem.catalogPrice;
+	      }
+	      return this.basketItem.sum;
 	    },
-
 	    getDiscountValue() {
-	      return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discount : 0;
+	      if (this.isCompilationMode()) {
+	        return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discount : 0;
+	      }
+	      return this.basketItem.fields.discount;
 	    },
-
 	    getDiscountRateValue() {
-	      return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discountRate : 0;
+	      if (this.isCompilationMode()) {
+	        return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discountRate : 0;
+	      }
+	      return this.basketItem.fields.discountRate;
 	    },
-
 	    hasError(code) {
 	      if (this.basketItem.errors.length === 0 || this.model.isEmpty() && !this.model.isChanged()) {
 	        return false;
 	      }
-
 	      const filteredErrors = this.basketItem.errors.filter(error => {
 	        return error.code === code;
 	      });
 	      return filteredErrors.length > 0;
 	    },
-
 	    isEditablePrice() {
 	      var _this$options, _this$options2;
-
 	      return ((_this$options = this.options) == null ? void 0 : _this$options.editableFields.includes(FormInputCode.PRICE)) && (this.model.isNew() || !this.model.isCatalogExisted() || ((_this$options2 = this.options) == null ? void 0 : _this$options2.isCatalogPriceEditEnabled));
 	    },
-
 	    isEditableDiscount() {
 	      var _this$options3;
-
 	      return (_this$options3 = this.options) == null ? void 0 : _this$options3.isCatalogDiscountSetEnabled;
 	    },
-
 	    isSaveablePrice() {
 	      return this.options.isCatalogPriceEditEnabled && this.options.isCatalogPriceSaveEnabled && this.model.isNew();
 	    },
-
 	    isEditableField(code) {
 	      var _this$options4, _this$options5;
-
 	      if (code === FormInputCode.PRICE && !this.isEditablePrice()) {
 	        return false;
 	      } else if (code === FormInputCode.DISCOUNT && !this.isEditableDiscount()) {
@@ -1582,26 +1423,19 @@ this.BX = this.BX || {};
 	      } else if (code === FormInputCode.RESULT && !((_this$options4 = this.options) != null && _this$options4.isCatalogDiscountSetEnabled) && !this.isEditablePrice()) {
 	        return false;
 	      }
-
 	      return (_this$options5 = this.options) == null ? void 0 : _this$options5.editableFields.includes(code);
 	    },
-
 	    getHint(code) {
 	      var _this$options6;
-
 	      return (_this$options6 = this.options) == null ? void 0 : _this$options6.fieldHints[code];
 	    },
-
 	    hasHint(code) {
 	      var _this$options7;
-
 	      if (code === FormInputCode.PRICE && !((_this$options7 = this.options) != null && _this$options7.isCatalogPriceEditEnabled)) {
 	        return !this.isEditablePrice();
 	      }
-
 	      return false;
 	    }
-
 	  },
 	  watch: {
 	    taxIncluded(value, oldValue) {
@@ -1609,98 +1443,75 @@ this.BX = this.BX || {};
 	        this.changeTaxIncluded(value);
 	      }
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_FORM_');
 	    },
-
 	    showDiscount() {
 	      return this.showDiscountBlock && this.basketItem.showDiscount === 'Y';
 	    },
-
 	    getBrandsSelectorId() {
 	      return this.basketItem.selectorId + '_brands';
 	    },
-
 	    getPriceExclusive() {
 	      return this.basketItem.fields.priceExclusive || this.basketItem.fields.price;
 	    },
-
 	    showDiscountBlock() {
 	      return this.options.showDiscountBlock === 'Y' && this.isVisibleBlock(this.blocks.discount) && !this.isReadOnly;
 	    },
-
 	    showTaxBlock() {
 	      return this.options.showTaxBlock === 'Y' && this.getTaxList.length > 0 && this.isVisibleBlock(this.blocks.tax) && !this.isReadOnly;
 	    },
-
 	    showRemoveIcon() {
 	      if (this.isReadOnly) {
 	        return false;
 	      }
-
 	      if (this.countItems > 1) {
 	        return true;
 	      }
-
 	      return !main_core.Type.isNil(this.basketItem.offerId);
 	    },
-
 	    showTaxSelector() {
 	      return this.basketItem.showTax === 'Y';
 	    },
-
 	    showBasePrice() {
 	      return this.basketItem.fields.discount > 0 || main_core.Text.toNumber(this.basketItem.fields.price) !== main_core.Text.toNumber(this.basketItem.fields.basePrice);
 	    },
-
 	    getMeasureName() {
 	      return this.basketItem.fields.measureName || this.defaultMeasure.name;
 	    },
-
 	    getMeasureCode() {
 	      return this.basketItem.fields.measureCode || this.defaultMeasure.code;
 	    },
-
 	    getTaxList() {
 	      return main_core.Type.isArray(this.options.taxList) ? this.options.taxList : [];
 	    },
-
 	    taxIncluded() {
 	      return this.basketItem.fields.taxIncluded;
 	    },
-
 	    isTaxIncluded() {
 	      return this.taxIncluded === 'Y';
 	    },
-
 	    isReadOnly() {
 	      return this.mode === FormMode.READ_ONLY || this.mode === FormMode.COMPILATION_READ_ONLY;
 	    },
-
 	    getErrorsText() {
 	      let errorText = this.basketItem.errors.length !== 0 && !this.model.isEmpty() && this.model.isChanged() ? main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_ERROR_NOTIFICATION') : '';
 	      const basketItemOfferId = this.basketItem.offerId;
 	      const facebookFailProducts = this.options.facebookFailProducts;
 	      const facebookFailProductErrorText = main_core.Type.isObject(facebookFailProducts) ? facebookFailProducts[basketItemOfferId] : null;
-
 	      if (facebookFailProductErrorText) {
 	        if (errorText) {
 	          errorText += '<br>';
 	        }
-
 	        errorText += main_core.Loc.getMessage('CATALOG_FORM_FACEBOOK_ERROR') + ':<br>' + facebookFailProductErrorText;
 	      }
-
 	      return errorText;
 	    },
-
 	    hasSku() {
 	      return this.basketItem.skuTree !== '';
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -1711,7 +1522,7 @@ this.BX = this.BX || {};
 					<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 				</div>
 				<div class="catalog-pf-product-item--left">
-					<div v-if="isVisibleBlock(blocks.productSelector)">
+					<div v-if="isVisibleBlock(blocks.productSelector)" class="catalog-pf-product-item-inline-selector">
 						<div v-if="!this.isReadOnly" class="catalog-pf-product-item-section">
 							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
 						</div>
@@ -1860,21 +1671,20 @@ this.BX = this.BX || {};
 	FormHelpdeskCode.COMMON_COMPILATION = 13841876;
 
 	let _$1 = t => t,
-	    _t$1,
-	    _t2$1,
-	    _t3$1,
-	    _t4,
-	    _t5,
-	    _t6,
-	    _t7,
-	    _t8,
-	    _t9;
+	  _t$1,
+	  _t2$1,
+	  _t3$1,
+	  _t4,
+	  _t5,
+	  _t6,
+	  _t7,
+	  _t8,
+	  _t9;
 	ui_vue.Vue.component(config.templatePanelCompilation, {
 	  props: {
 	    compilationOptions: Object,
 	    mode: String
 	  },
-
 	  created() {
 	    this.newLabel = new ui_label.Label({
 	      text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
@@ -1889,7 +1699,6 @@ this.BX = this.BX || {};
 	    main_core.Event.bind(moreMessageButton, 'click', this.openHelpDesk);
 	    let header = '';
 	    let description = '';
-
 	    if (this.isFacebookForm()) {
 	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE_FACEBOOK;
 	      description = main_core.Tag.render(_t2$1 || (_t2$1 = _$1`
@@ -1900,7 +1709,6 @@ this.BX = this.BX || {};
 	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE;
 	      description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING_2;
 	    }
-
 	    this.message = new ui_messagecard.MessageCard({
 	      id: 'compilationInfo',
 	      header,
@@ -1911,52 +1719,42 @@ this.BX = this.BX || {};
 	    });
 	    main_core_events.EventEmitter.subscribe(this.message, 'onClose', this.hideMessage);
 	  },
-
 	  mounted() {
 	    this.$refs.label.appendChild(this.newLabel.render());
 	    this.$refs.message.appendChild(this.message.getLayout());
-
 	    if (!this.compilationOptions.hiddenInfoMessage) {
 	      this.showMessage();
 	    }
 	  },
-
 	  data() {
 	    return {
 	      compilationLink: null
 	    };
 	  },
-
 	  methods: {
 	    isFacebookForm() {
 	      return this.compilationOptions.type === FormCompilationType.FACEBOOK;
 	    },
-
 	    openHelpDesk() {
 	      this.helpdeskCode = this.isFacebookForm() ? FormHelpdeskCode.COMPILATION_FACEBOOK : FormHelpdeskCode.COMMON_COMPILATION;
 	      top.BX.Helper.show('redirect=detail&code=' + this.helpdeskCode);
 	    },
-
 	    showPopup(event) {
 	      if (this.compilationOptions.disabledSwitcher) {
 	        return;
 	      }
-
 	      if (this.isFacebookForm()) {
 	        this.openHelpDesk();
 	        return;
 	      }
-
 	      if (this.popup instanceof main_popup.Popup) {
 	        this.popup.setBindElement(this.$refs.qrLink);
 	        this.popup.show();
 	        return;
 	      }
-
 	      const basket = this.$store.getters['productList/getBasket']();
 	      const productIds = basket.map(basketItem => {
 	        var _basketItem$fields;
-
 	        return basketItem == null ? void 0 : (_basketItem$fields = basketItem.fields) == null ? void 0 : _basketItem$fields.skuId;
 	      });
 	      return new Promise((resolve, reject) => {
@@ -1972,7 +1770,6 @@ this.BX = this.BX || {};
 	          }
 	        }).then(response => {
 	          var _response$data$link, _response$data$compil, _response$data$ownerI;
-
 	          this.compilationLink = (_response$data$link = response.data.link) != null ? _response$data$link : null;
 	          main_core_events.EventEmitter.emit(this.$root.$app, 'ProductForm:onCompilationCreated', {
 	            compilationId: (_response$data$compil = response.data.compilationId) != null ? _response$data$compil : null,
@@ -2000,12 +1797,10 @@ this.BX = this.BX || {};
 	        }).catch(() => reject());
 	      });
 	    },
-
 	    getQRPopupContent() {
 	      if (!this.compilationLink) {
 	        return '';
 	      }
-
 	      const buttonCopy = main_core.Tag.render(_t3$1 || (_t3$1 = _$1`
 				<div class="catalog-pf-product-qr-popup-copy">${0}</div>
 			`), this.localize.CATALOG_FORM_COMPILATION_QR_COPY);
@@ -2039,12 +1834,10 @@ this.BX = this.BX || {};
 	      });
 	      return content;
 	    },
-
 	    setSetting(event) {
 	      const value = event.target.checked ? 'Y' : 'N';
 	      this.$root.$app.changeFormOption('isCompilationMode', value);
 	    },
-
 	    getOnBeforeCreationStorePopupContent() {
 	      const loaderContent = main_core.Tag.render(_t6 || (_t6 = _$1`
 				<div class="catalog-product-form-popup--loader-block"></div>
@@ -2064,7 +1857,6 @@ this.BX = this.BX || {};
 	      loader.show();
 	      return node;
 	    },
-
 	    getOnAfterCreationStorePopupContent(creationStorePopup) {
 	      const continueButton = main_core.Tag.render(_t8 || (_t8 = _$1`
 				<button class="ui-btn ui-btn-md ui-btn-primary">
@@ -2081,58 +1873,47 @@ this.BX = this.BX || {};
 				</div>
 			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING1'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO1'), continueButton);
 	    },
-
 	    closeCreationStorePopup(creationStorePopup) {
 	      creationStorePopup.close();
 	    },
-
 	    onLabelClick() {
 	      if (this.compilationOptions.isLimitedStore) {
 	        BX.UI.InfoHelper.show('limit_sites_number');
 	      }
 	    },
-
 	    onClickHint(event) {
 	      event.preventDefault();
 	      event.stopImmediatePropagation();
-
 	      if (!this.message) {
 	        return;
 	      }
-
 	      if (this.message.isShown()) {
 	        this.hideMessage();
 	      } else {
 	        this.showMessage();
 	      }
 	    },
-
 	    showMessage() {
 	      if (this.message) {
 	        main_core.Dom.addClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 	        this.message.show();
 	      }
 	    },
-
 	    hideMessage() {
 	      if (this.message) {
 	        main_core.Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 	      }
-
 	      this.message.hide();
 	      this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-
 	    showQrLink() {
 	      return this.mode === FormMode.COMPILATION;
 	    },
-
 	    ...ui_vue_vuex.Vuex.mapState({
 	      productList: state => state.productList
 	    })
@@ -2176,50 +1957,44 @@ this.BX = this.BX || {};
 	});
 
 	let _$2 = t => t,
-	    _t$2,
-	    _t2$2,
-	    _t3$2,
-	    _t4$1;
+	  _t$2,
+	  _t2$2,
+	  _t3$2,
+	  _t4$1;
 	ui_vue.Vue.component(config.templatePanelButtons, {
 	  /**
 	   * @emits 'changeRowData' {index: number, fields: object}
 	   * @emits 'refreshBasket'
 	   * @emits 'addItem'
 	   */
+
 	  props: {
 	    options: Object,
 	    mode: String
 	  },
-
 	  data() {
 	    return {
 	      settings: []
 	    };
 	  },
-
 	  methods: {
 	    refreshBasket() {
 	      this.$emit('refreshBasket');
 	    },
-
 	    changeBasketItem(item) {
 	      this.$emit('changeRowData', item);
 	    },
-
 	    addBasketItemForm() {
 	      this.$emit('addItem');
 	    },
-
 	    getInternalIndexByProductId(skuId) {
 	      const basket = this.$store.getters['productList/getBasket']();
 	      return Object.keys(basket).findIndex(inx => {
 	        return parseInt(basket[inx].skuId) === parseInt(skuId);
 	      });
 	    },
-
 	    handleAddItem(id, params) {
 	      const skuType = 4;
-
 	      if (main_core.Text.toNumber(params.type) === skuType) {
 	        main_core.ajax.runAction('catalog.productSelector.getSelectedSku', {
 	          json: {
@@ -2245,10 +2020,8 @@ this.BX = this.BX || {};
 	        }).then(response => this.processResponse(response, params.isAddAnyway));
 	      }
 	    },
-
 	    processResponse(response, isAddAnyway) {
 	      const index = isAddAnyway ? -1 : this.getInternalIndexByProductId(response.data.skuId);
-
 	      if (index < 0) {
 	        const productData = response.data;
 	        const basePrice = main_core.Text.toNumber(productData.fields.BASE_PRICE);
@@ -2276,7 +2049,6 @@ this.BX = this.BX || {};
 	        this.$root.$app.addProduct(newItem);
 	      }
 	    },
-
 	    onUpdateBasketItem(inx, item) {
 	      this.$store.dispatch('productList/changeRowData', {
 	        index: inx,
@@ -2287,7 +2059,6 @@ this.BX = this.BX || {};
 	        fields: item.fields
 	      });
 	    },
-
 	    /*
 	    * By default, basket collection contains a fake|empty item,
 	    *  that is deleted when you select items from the catalog.
@@ -2304,13 +2075,10 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    },
-
 	    modifyBasketItem(params) {
 	      const skuId = parseInt(params.id);
-
 	      if (skuId > 0) {
 	        const index = this.getInternalIndexByProductId(skuId);
-
 	        if (index >= 0) {
 	          this.showDialogProductExists(params);
 	        } else {
@@ -2319,7 +2087,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    showDialogProductExists(params) {
 	      this.popup = new main_popup.Popup(null, null, {
 	        events: {
@@ -2342,7 +2109,6 @@ this.BX = this.BX || {};
 	      });
 	      this.popup.show();
 	    },
-
 	    getButtons(product) {
 	      const buttons = [];
 	      const params = product;
@@ -2351,13 +2117,12 @@ this.BX = this.BX || {};
 	        onclick: () => {
 	          const productId = parseInt(params.id);
 	          const index = this.getInternalIndexByProductId(productId);
-
 	          if (index >= 0) {
-	            this.handleAddItem(productId, { ...params,
+	            this.handleAddItem(productId, {
+	              ...params,
 	              isAddAnyway: true
 	            });
 	          }
-
 	          this.popup.destroy();
 	        }
 	      }));
@@ -2369,14 +2134,12 @@ this.BX = this.BX || {};
 	      }));
 	      return buttons;
 	    },
-
 	    showDialogProductSearch() {
 	      const funcName = 'addBasketItemFromDialogProductSearch';
-
 	      window[funcName] = params => this.modifyBasketItem(params);
-
 	      const popup = new BX.CDialog({
-	        content_url: '/bitrix/tools/sale/product_search_dialog.php?' + //todo: 'lang='+this._settings.languageId+
+	        content_url: '/bitrix/tools/sale/product_search_dialog.php?' +
+	        //todo: 'lang='+this._settings.languageId+
 	        //todo: '&LID='+this._settings.siteId+
 	        '&caller=order_edit' + '&func_name=' + funcName + '&STORE_FROM_ID=0' + '&public_mode=Y',
 	        height: Math.max(500, window.innerHeight - 400),
@@ -2389,7 +2152,6 @@ this.BX = this.BX || {};
 	      });
 	      popup.Show();
 	    },
-
 	    setSetting(event) {
 	      if (event.target.dataset.settingId === 'taxIncludedOption') {
 	        const value = event.target.checked ? 'Y' : 'N';
@@ -2402,7 +2164,6 @@ this.BX = this.BX || {};
 	        this.$root.$app.changeFormOption('showTaxBlock', value);
 	      } else if (event.target.dataset.settingId === 'warehouseOption') {
 	        const value = event.target.checked ? 'Y' : 'N';
-
 	        if (value === 'Y') {
 	          this.popupMenu.close();
 	          new catalog_storeUse.Slider().open('/bitrix/components/bitrix/catalog.warehouse.master.clear/slider.php', {}).then(() => {
@@ -2417,10 +2178,8 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    getSettingItem(item) {
 	      var _item$disabled;
-
 	      const input = main_core.Tag.render(_t$2 || (_t$2 = _$2`
 					<input type="checkbox"  class="ui-ctl-element">
 				`));
@@ -2438,9 +2197,9 @@ this.BX = this.BX || {};
 	      main_core.Event.bind(setting, 'change', this.setSetting.bind(this));
 	      return setting;
 	    },
-
 	    getSettingItems() {
-	      const items = [// {
+	      const items = [
+	      // {
 	      // 	id: 'taxIncludedOption',
 	      // 	checked: (this.options.taxIncluded === 'Y'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_TAX_INCLUDED,
@@ -2449,7 +2208,8 @@ this.BX = this.BX || {};
 	        id: 'showDiscountInputOption',
 	        checked: this.options.showDiscountBlock !== 'N',
 	        title: this.localize.CATALOG_FORM_ADD_SHOW_DISCOUNTS_OPTION
-	      } // {
+	      }
+	      // {
 	      // 	id: 'showTaxInputOption',
 	      // 	checked: (this.options.showTaxBlock !== 'N'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
@@ -2465,10 +2225,8 @@ this.BX = this.BX || {};
 	          hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : ''
 	        });
 	      }
-
 	      return items;
 	    },
-
 	    prepareSettingsContent() {
 	      const content = main_core.Tag.render(_t4$1 || (_t4$1 = _$2`
 					<div class='catalog-pf-product-config-popup'></div>
@@ -2478,7 +2236,6 @@ this.BX = this.BX || {};
 	      });
 	      return content;
 	    },
-
 	    showConfigPopup(event) {
 	      // if (!this.popupMenu)
 	      // {
@@ -2493,17 +2250,17 @@ this.BX = this.BX || {};
 	        },
 	        closeByEsc: true,
 	        content: this.prepareSettingsContent()
-	      }); // }
+	      });
+	      // }
 
 	      this.popupMenu.show();
 	    },
-
 	    openSlider(url, options) {
 	      if (!main_core.Type.isPlainObject(options)) {
 	        options = {};
 	      }
-
-	      options = { ...{
+	      options = {
+	        ...{
 	          cacheable: false,
 	          allowChangeHistory: false,
 	          events: {}
@@ -2515,38 +2272,31 @@ this.BX = this.BX || {};
 	          options.events.onClose = function (event) {
 	            resolve(event.getSlider());
 	          };
-
 	          BX.SidePanel.Instance.open(url, options);
 	        } else {
 	          resolve();
 	        }
 	      });
 	    }
-
 	  },
 	  computed: {
 	    hasAccessToCatalog() {
 	      return this.options.isCatalogAccess;
 	    },
-
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-
 	    countItems() {
 	      return this.order.basket.length;
 	    },
-
 	    ...ui_vue_vuex.Vuex.mapState({
 	      productList: state => state.productList
 	    })
 	  },
-
 	  mounted() {
 	    this.settings = this.getSettingItems();
 	    BX.UI.Hint.init();
 	  },
-
 	  // language=Vue
 	  template: `
 		<div>
@@ -2572,7 +2322,7 @@ this.BX = this.BX || {};
 	});
 
 	let _$3 = t => t,
-	    _t$3;
+	  _t$3;
 	ui_vue.Vue.component(config.templateSummaryTotal, {
 	  props: {
 	    currency: {
@@ -2588,11 +2338,9 @@ this.BX = this.BX || {};
 	  computed: {
 	    formattedSum() {
 	      var _this$sumAdditionalCl;
-
 	      const element = main_core.Tag.render(_t$3 || (_t$3 = _$3`<span class="catalog-pf-text ${0}">${0}</span>`), (_this$sumAdditionalCl = this.sumAdditionalClass) != null ? _this$sumAdditionalCl : '', this.sum);
 	      return currency_currencyCore.CurrencyCore.getPriceControl(element, this.currency);
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -2605,7 +2353,6 @@ this.BX = this.BX || {};
 	    options: Object,
 	    mode: String
 	  },
-
 	  created() {
 	    BX.ajax.runAction("catalog.productSelector.getFileInput", {
 	      json: {
@@ -2613,67 +2360,52 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  },
-
 	  methods: {
 	    refreshBasket() {
 	      this.$store.dispatch('productList/refreshBasket');
 	    },
-
 	    changeProduct(item) {
 	      this.$root.$app.changeProduct(item);
 	    },
-
 	    emitErrorsChange() {
 	      this.$root.$app.emitErrorsChange();
 	    },
-
 	    changeRowData(item) {
 	      delete item.product.fields;
 	      this.$store.commit('productList/updateItem', item);
 	    },
-
 	    removeItem(item) {
 	      this.$root.$app.removeProduct(item);
 	    },
-
 	    addItem() {
 	      this.$root.$app.addProduct();
 	    }
-
 	  },
 	  computed: {
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-
 	    showTaxResult() {
 	      return this.options.showTaxBlock !== 'N';
 	    },
-
 	    showResults() {
 	      return this.options.showResults !== false;
 	    },
-
 	    showButtonsTop() {
 	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.mode !== FormMode.COMPILATION_READ_ONLY && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
 	    },
-
 	    showButtonsBottom() {
 	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.mode !== FormMode.COMPILATION_READ_ONLY && this.options.buttonsPosition === FormElementPosition.BOTTOM;
 	    },
-
 	    showResultBlock() {
 	      return this.showResults || this.enableAddButtons;
 	    },
-
 	    countItems() {
 	      return this.productList.basket.length;
 	    },
-
 	    totalResultLabel() {
 	      return this.options.hasOwnProperty('totalResultLabel') && this.options.totalResultLabel ? this.options.totalResultLabel : this.localize.CATALOG_FORM_TOTAL_RESULT;
 	    },
-
 	    ...ui_vue_vuex.Vuex.mapState({
 	      productList: state => state.productList
 	    })
@@ -2778,16 +2510,11 @@ this.BX = this.BX || {};
 	});
 
 	let _$4 = t => t,
-	    _t$4;
-
+	  _t$4;
 	var _onBasketChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onBasketChange");
-
 	var _checkRequiredFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkRequiredFields");
-
 	var _changeCompilationModeSetting = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("changeCompilationModeSetting");
-
 	var _setMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMode");
-
 	class ProductForm {
 	  constructor(options = {}) {
 	    Object.defineProperty(this, _setMode, {
@@ -2805,23 +2532,17 @@ this.BX = this.BX || {};
 	    this.options = this.prepareOptions(options);
 	    this.defaultOptions = Object.assign({}, this.options);
 	    this.editable = true;
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
-
 	    this.wrapper = main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class=""></div>`));
-
 	    if (main_core.Text.toNumber(options.iblockId) <= 0) {
 	      return;
 	    }
-
 	    ProductForm.initStore().then(result => this.initTemplate(result)).catch(error => ProductForm.showError(error));
 	  }
-
 	  static initStore() {
 	    const builder = new ui_vue_vuex.VuexBuilder();
 	    return builder.addModel(ProductList.create()).build();
 	  }
-
 	  prepareOptions(options = {}) {
 	    const settingsCollection = main_core.Extension.getSettings('catalog.product-form');
 	    const defaultOptions = {
@@ -2834,6 +2555,7 @@ this.BX = this.BX || {};
 	      showResults: true,
 	      showCompilationModeSwitcher: false,
 	      enableEmptyProductError: true,
+	      isShortProductViewFormat: false,
 	      pricePrecision: 2,
 	      currency: settingsCollection.get('currency'),
 	      currencySymbol: settingsCollection.get('currencySymbol'),
@@ -2863,20 +2585,17 @@ this.BX = this.BX || {};
 	      dialogId: null,
 	      sessionId: null
 	    };
-
 	    if (options.visibleBlocks && !main_core.Type.isArray(options.visibleBlocks)) {
 	      delete options.visibleBlocks;
 	    }
-
 	    if (options.requiredFields && !main_core.Type.isArray(options.requiredFields)) {
 	      delete options.requiredFields;
 	    }
-
-	    options = { ...defaultOptions,
+	    options = {
+	      ...defaultOptions,
 	      ...options
 	    };
 	    options.showTaxBlock = 'N';
-
 	    if (settingsCollection.get('isEnabledLanding')) {
 	      options.compilationFormOption = {
 	        type: options.compilationFormType,
@@ -2888,9 +2607,7 @@ this.BX = this.BX || {};
 	    } else {
 	      options.showCompilationModeSwitcher = false;
 	    }
-
 	    options.defaultDiscountType = '';
-
 	    if (main_core.Type.isArray(options.allowedDiscountTypes)) {
 	      if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
 	        options.defaultDiscountType = catalog_productCalculator.DiscountType.PERCENTAGE;
@@ -2898,14 +2615,11 @@ this.BX = this.BX || {};
 	        options.defaultDiscountType = catalog_productCalculator.DiscountType.MONETARY;
 	      }
 	    }
-
 	    return options;
 	  }
-
 	  layout() {
 	    return this.wrapper;
 	  }
-
 	  initTemplate(result) {
 	    return new Promise(resolve => {
 	      const context = this;
@@ -2917,32 +2631,26 @@ this.BX = this.BX || {};
 	          options: this.options,
 	          mode: this.mode
 	        },
-
 	        created() {
 	          this.$app = context;
 	        },
-
 	        mounted() {
 	          resolve();
 	        },
-
 	        template: `<${config.templateName} :options="options" :mode="mode"/>`
 	      });
-
 	      if (main_core.Type.isStringFilled(this.options.currency)) {
 	        this.setData({
 	          currency: this.options.currency
 	        });
 	        currency_currencyCore.CurrencyCore.loadCurrencyFormat(this.options.currency);
 	      }
-
 	      if (this.options.basket.length > 0) {
 	        this.setData({
 	          basket: this.options.basket
 	        }, {
 	          newItemPosition: FormElementPosition.BOTTOM
 	        });
-
 	        if (main_core.Type.isObject(this.options.totals)) {
 	          this.store.commit('productList/setTotal', this.options.totals);
 	        } else {
@@ -2953,11 +2661,9 @@ this.BX = this.BX || {};
 	        newItem.fields.discountType = this.options.defaultDiscountType;
 	        this.addProduct(newItem);
 	      }
-
 	      main_core_events.EventEmitter.emit(this, 'onAfterInit');
 	    });
 	  }
-
 	  addProduct(item = {}) {
 	    this.store.dispatch('productList/addItem', {
 	      item,
@@ -2966,21 +2672,16 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
 	    });
 	  }
-
 	  emitErrorsChange() {
 	    main_core_events.EventEmitter.emit(this, 'ProductForm:onErrorsChange');
 	  }
-
 	  changeProduct(item) {
 	    const product = item.product;
 	    product.errors = [];
-
 	    if (item.skipFieldChecking !== true) {
 	      const result = babelHelpers.classPrivateFieldLooseBase(this, _checkRequiredFields)[_checkRequiredFields](product);
-
 	      product.errors = (result == null ? void 0 : result.errors) || [];
 	    }
-
 	    this.store.dispatch('productList/changeItem', {
 	      index: item.index,
 	      product
@@ -2988,7 +2689,6 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
 	    });
 	  }
-
 	  removeProduct(product) {
 	    this.store.dispatch('productList/removeItem', {
 	      index: product.index
@@ -2996,7 +2696,6 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
 	    });
 	  }
-
 	  setData(data, option = {}) {
 	    if (main_core.Type.isObject(data.basket)) {
 	      const formBasket = this.store.getters['productList/getBasket']();
@@ -3004,10 +2703,8 @@ this.BX = this.BX || {};
 	        if (!main_core.Type.isObject(fields)) {
 	          return;
 	        }
-
 	        const itemPosition = option.newItemPosition || this.options.newItemPosition;
 	        const innerId = fields.selectorId;
-
 	        if (main_core.Type.isNil(innerId)) {
 	          this.store.dispatch('productList/addItem', {
 	            item: fields,
@@ -3015,9 +2712,7 @@ this.BX = this.BX || {};
 	          });
 	          return;
 	        }
-
 	        const basketIndex = formBasket.findIndex(item => item.selectorId === innerId);
-
 	        if (basketIndex === -1) {
 	          this.store.dispatch('productList/addItem', {
 	            item: fields,
@@ -3031,11 +2726,9 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-
 	    if (main_core.Type.isStringFilled(data.currency)) {
 	      this.store.dispatch('productList/setCurrency', data.currency);
 	    }
-
 	    if (main_core.Type.isObject(data.total)) {
 	      this.store.commit('productList/setTotal', {
 	        sum: data.total.sum,
@@ -3044,33 +2737,25 @@ this.BX = this.BX || {};
 	        result: data.total.result
 	      });
 	    }
-
 	    if (main_core.Type.isObject(data.errors)) {
 	      this.store.commit('productList/setErrors', data.errors);
 	    }
 	  }
-
 	  changeFormOption(optionName, value) {
 	    value = value === 'Y' ? 'Y' : 'N';
-
 	    if (optionName === 'isCompilationMode') {
 	      if (!this.options.showCompilationModeSwitcher) {
 	        return;
 	      }
-
 	      main_core_events.EventEmitter.emit(this, 'onChangeCompilationMode', {
 	        isCompilationMode: value === 'Y',
 	        isFacebookForm: this.options.compilationFormType === FormCompilationType.FACEBOOK
 	      });
 	      const mode = value === 'Y' ? FormMode.COMPILATION : FormMode.REGULAR;
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _changeCompilationModeSetting)[_changeCompilationModeSetting](mode);
-
 	      return;
 	    }
-
 	    this.options[optionName] = value;
-
 	    if (optionName !== 'hiddenCompilationInfoMessage') {
 	      const basket = this.store.getters['productList/getBasket']();
 	      basket.forEach((item, index) => {
@@ -3081,14 +2766,12 @@ this.BX = this.BX || {};
 	        } else if (optionName === 'taxIncluded') {
 	          item.fields.taxIncluded = value;
 	        }
-
 	        this.store.dispatch('productList/changeItem', {
 	          index,
 	          fields: item
 	        });
 	      });
 	    }
-
 	    main_core.ajax.runAction('catalog.productForm.setConfig', {
 	      data: {
 	        configName: optionName,
@@ -3096,14 +2779,11 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-
 	  getTotal() {
 	    this.store.dispatch('productList/getTotal');
 	  }
-
 	  setEditable(editable, isCompilationMode) {
 	    this.editable = editable;
-
 	    if (!editable && !isCompilationMode) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.READ_ONLY);
 	    } else if (!editable && isCompilationMode) {
@@ -3114,36 +2794,28 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
 	    }
 	  }
-
 	  hasErrors() {
 	    if (!this.store) {
 	      return false;
 	    }
-
 	    const basket = this.store.getters['productList/getBasket']();
 	    const errorItems = basket.filter(item => item.errors.length > 0);
 	    return errorItems.length > 0;
 	  }
-
 	  static showError(error) {
 	    console.error(error);
 	  }
-
 	}
-
 	function _onBasketChange2() {
 	  main_core_events.EventEmitter.emit(this, 'ProductForm:onBasketChange', {
 	    basket: this.store.getters['productList/getBasket']()
 	  });
 	}
-
 	function _checkRequiredFields2(product) {
 	  const result = {};
-
 	  if (!main_core.Type.isArray(this.options.requiredFields) || this.options.requiredFields.length === 0) {
 	    return result;
 	  }
-
 	  result.errors = [];
 	  this.options.requiredFields.forEach(code => {
 	    switch (code) {
@@ -3159,9 +2831,7 @@ this.BX = this.BX || {};
 	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE_1')
 	          });
 	        }
-
 	        break;
-
 	      case FormInputCode.QUANTITY:
 	        if (product.fields.quantity <= 0) {
 	          result.errors.push({
@@ -3169,9 +2839,7 @@ this.BX = this.BX || {};
 	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY_1')
 	          });
 	        }
-
 	        break;
-
 	      case FormInputCode.BRAND:
 	        if (!main_core.Type.isArray(product.fields.brands) || product.fields.brands.length === 0) {
 	          result.errors.push({
@@ -3179,9 +2847,7 @@ this.BX = this.BX || {};
 	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND_1')
 	          });
 	        }
-
 	        break;
-
 	      case FormInputCode.IMAGE_EDITOR:
 	        if (!main_core.Type.isObject(product.fields.morePhoto) || Object.keys(product.fields.morePhoto).length === 0) {
 	          result.errors.push({
@@ -3189,16 +2855,13 @@ this.BX = this.BX || {};
 	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PICTURE_1')
 	          });
 	        }
-
 	        break;
 	    }
 	  });
 	  return result;
 	}
-
 	function _changeCompilationModeSetting2(mode) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](mode);
-
 	  const basket = this.store.getters['productList/getBasket']();
 	  basket.forEach((item, index) => this.changeProduct({
 	    index,
@@ -3206,10 +2869,8 @@ this.BX = this.BX || {};
 	    skipFieldChecking: basket.length === 1 && index === 0 && item.offerId === null
 	  }));
 	}
-
 	function _setMode2(mode) {
 	  this.mode = mode;
-
 	  if (mode === FormMode.READ_ONLY) {
 	    this.options.editableFields = [];
 	  } else if (mode === FormMode.COMPILATION_READ_ONLY) {
@@ -3219,13 +2880,11 @@ this.BX = this.BX || {};
 	  } else if (mode === FormMode.COMPILATION) {
 	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.BRAND];
 	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
-
 	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
 	      this.options.visibleBlocks = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.IMAGE_EDITOR, FormInputCode.PRICE, FormInputCode.BRAND];
 	    } else {
 	      this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 	    }
-
 	    this.options.showResults = false;
 	  } else {
 	    mode = FormMode.REGULAR;
@@ -3233,24 +2892,18 @@ this.BX = this.BX || {};
 	    this.options.showResults = this.defaultOptions.showResults;
 	    this.options.editableFields = this.defaultOptions.visibleBlocks;
 	  }
-
 	  if (this.templateEngine) {
 	    this.templateEngine.mode = mode;
 	  }
-
 	  this.options.requiredFields = [];
-
 	  if (mode === FormMode.COMPILATION) {
 	    let compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE];
-
 	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
 	      compilationRequiredFields.push(FormInputCode.IMAGE_EDITOR);
 	      compilationRequiredFields.push(FormInputCode.BRAND);
 	    }
-
 	    this.options.requiredFields = this.options.visibleBlocks.filter(item => compilationRequiredFields.includes(item));
 	  }
-
 	  main_core_events.EventEmitter.emit(this, 'ProductForm:onModeChange', {
 	    mode
 	  });

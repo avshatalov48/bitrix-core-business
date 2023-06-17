@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
-if ($this->__buffer_template === true)
+if (($this->__buffer_template ?? false) === true)
 {
 	if (!in_array($this->__template->__page, array("user_files_menu", "group_files_menu")))
 	{

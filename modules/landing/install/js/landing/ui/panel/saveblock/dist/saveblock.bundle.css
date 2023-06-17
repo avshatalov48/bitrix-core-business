@@ -1,18 +1,17 @@
-.landing-ui-panel.landing-ui-panel-create-page {
+.landing-ui-panel.landing-ui-panel-save-block {
 	width: 496px;
 	z-index: 333;
 }
 
-.landing-ui-panel-content-overlay.landing-ui-panel-create-page {
+.landing-ui-panel-content-overlay.landing-ui-panel-save-block {
 	z-index: 332;
 }
 
-.landing-ui-panel.landing-ui-panel-create-page .landing-ui-form-header {
+.landing-ui-panel.landing-ui-panel-save-block .landing-ui-form-header {
 	display: none;
 }
 
-.landing-ui-panel-create-page-success,
-.landing-ui-panel-create-page-fail {
+.landing-ui-panel-save-block-fail {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -27,20 +26,4 @@
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: column;
 	        flex-direction: column;
-}
-
-.landing-ui-panel-create-page-actions a,
-.landing-ui-panel-create-page-actions a:active,
-.landing-ui-panel-create-page-actions a:focus  {
-	color: rgba(32, 102, 176, .75);
-	border-bottom: 1px solid rgba(32, 102, 176, .45);
-	-webkit-transition: all 200ms ease;
-	-o-transition: all 200ms ease;
-	transition: all 200ms ease;
-}
-
-.landing-ui-panel-create-page-actions a:hover {
-	color: rgba(32, 102, 176, 1);
-	border-bottom: 1px solid rgba(32, 102, 176, .85);
-	text-decoration: none;
 }

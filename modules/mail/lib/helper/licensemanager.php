@@ -4,12 +4,82 @@ namespace Bitrix\Mail\Helper;
 
 use Bitrix\Main;
 use Bitrix\Bitrix24;
+use Bitrix\Mail\MailboxTable;
 
 /**
  * Class LicenseManager
  */
 class LicenseManager
 {
+	public static function isEnabledNotificationOfMailMessageInCrm($userId): bool
+	{
+		if (Main\Loader::includeModule('crm') && Main\Loader::includeModule('im'))
+		{
+			foreach (
+				[
+					\CIMSettings::CLIENT_SITE,
+					\CIMSettings::CLIENT_MAIL,
+					\CIMSettings::CLIENT_PUSH,
+				] as $clientId
+			)
+			{
+				if (
+					\CIMSettings::GetNotifyAccess(
+						$userId,
+						'crm',
+						\CCrmNotifierSchemeType::IncomingEmailName,
+						$clientId
+					)
+				)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public static function isMailClientReadyToUse(): bool
+	{
+		if (
+			self::isSyncAvailable()
+			&& count(MailboxTable::getUserMailboxes()) > 0
+			&& self::checkUserHasNotExceededTheConnectedMailboxesLimit()
+		)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function checkUserHasNotExceededTheConnectedMailboxesLimit($userId = null): bool
+	{
+		global $USER;
+
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
+		{
+			return false;
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
+		$userMailboxesLimit = LicenseManager::getUserMailboxesLimit();
+
+		if (
+			$userMailboxesLimit >= 0
+			&& count(MailboxTable::getTheOwnersMailboxes($userId)) > $userMailboxesLimit
+		)
+		{
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Checks if mailboxes synchronization is available

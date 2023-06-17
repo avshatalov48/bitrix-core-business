@@ -94,7 +94,7 @@ if (!$excelMode)
 $filterOption = new Filter\Options($tableId);
 $filter = $filterOption->getFilter($filterFields);
 
-if ($filter['FIND'] != '')
+if (!empty($filter['FIND']))
 {
 	$query->whereLike('USER_AGENT', '%' . $filter['FIND'] . '%');
 }

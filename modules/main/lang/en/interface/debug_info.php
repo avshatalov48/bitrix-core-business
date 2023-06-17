@@ -26,7 +26,6 @@ $MESS["debug_info_comps_exec"] = "Components";
 $MESS["debug_info_queries_exec"] = "SQL queries";
 $MESS["debug_info_prolog"] = "Header";
 $MESS["debug_info_prolog_before"] = "Kernel";
-$MESS["debug_info_agents"] = "Agents";
 $MESS["debug_info_prolog_after"] = "Template";
 $MESS["debug_info_work_area"] = "Workarea";
 $MESS["debug_info_epilog"] = "Footer";

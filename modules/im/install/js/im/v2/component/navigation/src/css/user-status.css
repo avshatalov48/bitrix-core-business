@@ -1,0 +1,52 @@
+.bx-im-user-status-popup__scope {
+	--im-user-status-popup__background-color_item-hover: var(--im-color-palette-gray-03);
+	--im-user-status-popup__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.05);
+	--im-user-status-popup__font-color_text: var(--im-color-palette-black-base);
+}
+
+.bx-im-user-status-popup__container * {
+	box-sizing: border-box;
+}
+
+.bx-im-user-status-popup__container {
+	padding: 8px 0;
+}
+
+.bx-im-user-status-popup__item {
+	position: relative;
+	display: flex;
+	align-items: center;
+	height: 42px;
+	margin: 0 5px;
+	padding: 0 5px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.bx-im-user-status-popup__item:after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	width: 166px;
+	height: 1px;
+	background-color: var(--im-user-status-popup__background-color_separator);
+}
+
+.bx-im-user-status-popup__item:last-child:after {
+	display: none;
+}
+
+.bx-im-user-status-popup__item:hover {
+	background-color: var(--im-user-status-popup__background-color_item-hover);
+}
+
+.bx-im-user-status-popup__text {
+	max-width: calc(100% - 45px);
+	margin-left: 4px;
+	font: var(--im-font-size-sm)/var(--im-font-line-height-lg) var(--im-font-family-open-sans);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-user-status-popup__font-color_text);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}

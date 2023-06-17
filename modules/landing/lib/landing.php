@@ -252,7 +252,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		// check landing folder if exists
 		if (!empty($landing['FOLDER_ID']))
 		{
-			$breadCrumbs = Folder::getBreadCrumbs($landing['FOLDER_ID'], $landing['SITE_ID_ID']);
+			$breadCrumbs = Folder::getBreadCrumbs($landing['FOLDER_ID'], $landing['SITE_ID']);
 			foreach ($breadCrumbs as $crumb)
 			{
 				if ($crumb['DELETED'] === 'Y')
@@ -1008,7 +1008,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 									($bitrix24 ? $row['SITE_ID'] : '/') .
 									($previewMode ? 'preview/' . $publicHash . '/' : '') .
 									($row['FOLDER_ID'] ? ltrim(Folder::getFullPath($row['FOLDER_ID'], $row['SITE_ID_ORIG'], $lastFolderItem), '/') : '');
-				$folderIndex = $row['ID'] == $lastFolderItem['INDEX_ID'] || !$lastFolderItem['INDEX_ID'] && trim($row['CODE'], '/') === $lastFolderItem['CODE'];
+				$folderIndex = $row['ID'] == ($lastFolderItem['INDEX_ID'] ?? 0)
+												||
+											!($lastFolderItem['INDEX_ID'] ?? 0)
+											&& ($row['CODE'] ?? null)
+											&& ($lastFolderItem['CODE'] ?? null)
+											&& trim($row['CODE'], '/') === $lastFolderItem['CODE']
+				;
 				$data[$row['ID']] = $fullUrl[$row['ID']] .
 									(($row['ID'] == $row['SITE_ID_INDEX'] || $folderIndex || $row['RULE']) ? '' : $row['CODE']);
 				if (!$row['RULE'])
@@ -1136,7 +1142,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 			}
-			else if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
+			else if (($this->siteRow['LANDING_ID_INDEX'] ?? 0) != $this->id)
 			{
 				Manager::getApplication()->addChainItem(
 					$this->title,
@@ -2036,10 +2042,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		}
 		if ($this->version <= 10)
 		{
-			// $needUpdate = true;
-			// Update\Block\DuplicateImages::updateLanding($this->id);
+			$needUpdate = true;
+			Update\Block\DuplicateImages::updateLanding($this->id);
 
-			// $this->version = 11;
+			$this->version = 11;
 		}
 		if ($needUpdate)
 		{
@@ -2215,7 +2221,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$this->blocks[$id]->getLandingId() == $this->getId()
 		)
 		{
-			if ($this->blocks[$id]->getAccess() >= $this->blocks[$id]->ACCESS_X)
+			if ($this->blocks[$id]->getAccess() >= $this->blocks[$id]::ACCESS_X)
 			{
 				$this->blocks[$id]->markDeleted($mark);
 				if (!$mark)

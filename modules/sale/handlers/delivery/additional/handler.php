@@ -76,10 +76,17 @@ class AdditionalHandler extends Base
 		if($this->serviceType == '')
 			throw new ArgumentNullException('initParams[SERVICE_TYPE]');
 
-		if($initParams['CONFIG']['MAIN']['SERVICE_TYPE'] == "RUSPOST")
+		if (
+			isset($initParams['CONFIG']['MAIN']['SERVICE_TYPE'])
+			&& $initParams['CONFIG']['MAIN']['SERVICE_TYPE'] === "RUSPOST"
+		)
+		{
 			$this->setTrackingClass('\Bitrix\Sale\Delivery\Tracking\RusPost');
+		}
 		elseif(empty($this->config['MAIN']['TRACKING_TITLE']))
+		{
 			$this->trackingClass = '';
+		}
 
 		if(intval($this->id) <= 0)
 		{
@@ -228,7 +235,7 @@ class AdditionalHandler extends Base
 				$errors = array();
 				$notes = array();
 				$nothingFound = false;
-				
+
 				/** @var Error $error */
 				foreach($res->getErrorCollection() as $error)
 				{
@@ -870,11 +877,11 @@ class AdditionalHandler extends Base
 
 		$result = array(
 			"ITEMS" => array(),
-			"LOCATION_FROM" => $locFromRequest['EXTERNAL_ID'],
-			"LOCATION_FROM_NAME" => $locFromRequest['NAME'],
+			"LOCATION_FROM" => $locFromRequest['EXTERNAL_ID'] ?? null,
+			"LOCATION_FROM_NAME" => $locFromRequest['NAME'] ??  null,
 			"LOCATION_FROM_CODE" => (!empty($shopLocation['CODE'])) ? $shopLocation['CODE'] : '',
-			"LOCATION_TO" => $locToRequest['EXTERNAL_ID'],
-			"LOCATION_TO_NAME" => $locToRequest['NAME'],
+			"LOCATION_TO" => $locToRequest['EXTERNAL_ID'] ?? null,
+			"LOCATION_TO_NAME" => $locToRequest['NAME'] ?? null,
 			"LOCATION_TO_CODE" => $locToInternalCode,
 			"LOCATION_TO_TYPES" => self::getLocationChainByTypes($locToInternalCode, LANGUAGE_ID)
 		);

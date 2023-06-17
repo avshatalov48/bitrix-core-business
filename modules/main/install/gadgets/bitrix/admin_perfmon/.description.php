@@ -1,8 +1,12 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
-$bShowPerfmon = (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/index.php") && $aGlobalOpt['messages']['perfmon'] <> 'N');
+$messagePerfMon = (string)($aGlobalOpt['messages']['perfmon'] ?? 'Y');
+$bShowPerfmon = (
+	file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/index.php")
+	&& $messagePerfMon !== 'N'
+);
 
 $arDescription = array(
 	"DISABLED" => !$bShowPerfmon,

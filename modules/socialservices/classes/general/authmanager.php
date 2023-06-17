@@ -111,7 +111,11 @@ class CSocServAuthManager
 		}
 
 		$service = self::$arAuthServices[$code];
-		if ($service["__active"] === true && $service["DISABLED"] !== true)
+		if (
+			isset($service["__active"])
+			&& $service["__active"] === true
+			&& empty($service["DISABLED"])
+		)
 		{
 			$serviceObject = new $service["CLASS"];
 			if (is_callable([$serviceObject, "CheckSettings"]))
@@ -135,7 +139,8 @@ class CSocServAuthManager
 
 		foreach(self::$arAuthServices as $key=>$service)
 		{
-			if($service["__active"] === true && $service["DISABLED"] !== true)
+			$isDisabled = $service["DISABLED"] ?? null;
+			if($service["__active"] === true && $isDisabled !== true)
 			{
 				$cl = new $service["CLASS"];
 				if(is_callable(array($cl, "CheckSettings")))
@@ -286,10 +291,11 @@ class CSocServAuthManager
 		{
 			$service = self::$arAuthServices[$service_id];
 
+			$isDisabled = $service["DISABLED"] ?? null;
 			if(
 				(
 					$service["__active"] === true
-					&& $service["DISABLED"] !== true
+					&& $isDisabled !== true
 				)
 				|| (
 					$service_id == CSocServBitrix24Net::ID
@@ -368,7 +374,7 @@ class CSocServAuthManager
 			$checkKey = $arState['check_key'];
 		}
 
-		if($_SESSION["UNIQUE_KEY"] != '' && $checkKey != '' && ($checkKey === $_SESSION["UNIQUE_KEY"]))
+		if(!empty($_SESSION["UNIQUE_KEY"]) && $checkKey && ($checkKey === $_SESSION["UNIQUE_KEY"]))
 		{
 			if($bUnset)
 			{
@@ -1490,11 +1496,7 @@ class CSocServAuth
 
 				if(!$USER_ID)
 				{
-					if
-					(
-						COption::GetOptionString("main", "new_user_registration", "N") == "Y"
-						&& COption::GetOptionString("socialservices", "allow_registration", "Y") == "Y"
-					)
+					if ($this->isAllowedRegisterNewUser())
 					{
 						$socservUserFields['PASSWORD'] = randString(30); //not necessary but...
 						$socservUserFields['LID'] = SITE_ID;
@@ -1600,19 +1602,29 @@ class CSocServAuth
 
 	public static function OnFindExternalUser($login)
 	{
-		global $DB;
+		$userRow = \Bitrix\Main\UserTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'=EXTERNAL_AUTH_ID' => 'socservices',
+				'=LOGIN' => $login,
+			],
+		]);
 
-		$res = $DB->Query("
-SELECT bsu.USER_ID
-FROM b_socialservices_user bsu
-LEFT JOIN b_user bu ON bsu.USER_ID=bu.ID
-WHERE bsu.LOGIN='".$DB->ForSql($login)."' AND bu.ACTIVE='Y'
-");
-		if(($user = $res->Fetch()))
+		if (isset($userRow['ID']))
 		{
-			return $user["USER_ID"];
+			return $userRow['ID'];
 		}
-		return 0;
+
+		$socialserviceRow = UserTable::getRow([
+			'select' => ['USER_ID'],
+			'filter' => [
+				'=USER.ACTIVE' => 'Y',
+				'=LOGIN' => $login,
+			],
+		]);
+
+		return $socialserviceRow['USER_ID'] ?? 0;
 	}
 
 	public function setAllowChangeOwner($value)
@@ -1646,6 +1658,12 @@ WHERE bsu.LOGIN='".$DB->ForSql($login)."' AND bu.ACTIVE='Y'
 
 		if (array_key_exists('REFRESH_TOKEN', $arFields))
 			$arFields['REFRESH_TOKEN'] = $cryptoField->encrypt($arFields['REFRESH_TOKEN']);
+	}
+
+	protected function isAllowedRegisterNewUser(): bool
+	{
+		return COption::GetOptionString("main", "new_user_registration", "N") === "Y"
+			&& COption::GetOptionString("socialservices", "allow_registration", "Y") === "Y";
 	}
 }
 

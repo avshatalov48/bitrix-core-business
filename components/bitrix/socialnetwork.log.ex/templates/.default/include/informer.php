@@ -32,7 +32,10 @@ if (!in_array($arParams['MODE'], ['PUB', 'LANDING']))
 	}
 
 	?><div class="<?= implode(' ', $classList) ?>"><?php
-	if ($arParams["SHOW_REFRESH"] !== "N")
+	if (
+		!isset($arParams["SHOW_REFRESH"])
+		|| $arParams["SHOW_REFRESH"] !== "N"
+	)
 	{
 		?><div class="feed-new-message-inform-wrap new-message-balloon-wrap" id="sonet_log_counter_2_wrap" style="visibility: hidden;"><?php
 			?><div onclick="BX.Livefeed.PageInstance.refresh()" id="sonet_log_counter_2_container" class="feed-new-message-informer"><?php

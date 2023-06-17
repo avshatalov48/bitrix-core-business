@@ -22,7 +22,14 @@ export const Group = {
 	methods: {
 		handleClick()
 		{
-			this.$emit(!this.groupData.selected ? 'selected' : 'unselected', this.groupData);
+			if (this.groupData.deselectable)
+			{
+				this.$emit(!this.groupData.selected ? 'selected' : 'unselected', this.groupData);
+			}
+			else if (!this.groupData.selected)
+			{
+				this.$emit('selected', this.groupData);
+			}
 		},
 	},
 	template: `

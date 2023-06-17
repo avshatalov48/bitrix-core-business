@@ -124,7 +124,8 @@
 	width: calc(100% - 30px);
 }
 
-.ui-counter-panel__item.--locked {
+.ui-counter-panel__item.--locked,
+.ui-counter-panel__item.--restricted {
 	pointer-events: none;
 	opacity: .5;
 }
@@ -138,6 +139,15 @@
 	align-items: center;
 	margin: auto 6px auto 7px;
 	z-index: 1;
+}
+
+.ui-counter-panel__item-lock {
+	display: block;
+	width: 12px;
+	height: 16px;
+	content: '';
+	background: url(../images/ui-counter-panel__icon-lock.svg) center no-repeat;
+	margin-right: 5px;
 }
 
 .ui-counter-panel__item-title + .ui-counter-panel__item-value {

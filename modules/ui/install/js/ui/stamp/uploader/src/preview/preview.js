@@ -445,4 +445,40 @@ export default class Preview extends EventEmitter
 	{
 		Dom.removeClass(this.getLayout(), 'ui-stamp-uploader-preview-show');
 	}
+
+	getFile(): Promise<Blob | File>
+	{
+		const drawOptions = this.getCurrentDrawOptions();
+		const canvas = document.createElement('canvas');
+		const context2d = canvas.getContext('2d');
+
+		return new Promise((resolve) => {
+			this.getCanvas().toBlob((blob) => {
+				void Preview
+					.#loadImage(blob)
+					.then((image) => {
+						const ratio = this.getDevicePixelRatio();
+
+						canvas.width = drawOptions.dWidth * ratio;
+						canvas.height = drawOptions.dHeight * ratio;
+
+						context2d.drawImage(
+							image,
+							0,
+							0,
+							image.width,
+							image.height,
+							-((image.width - canvas.width) / 2),
+							-((image.height - canvas.height) / 2),
+							image.width,
+							image.height,
+						);
+
+						canvas.toBlob((resultBlob) => {
+							resolve(resultBlob);
+						});
+					});
+			});
+		});
+	}
 }

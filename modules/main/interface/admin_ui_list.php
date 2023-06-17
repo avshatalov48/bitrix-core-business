@@ -173,6 +173,7 @@ class CAdminUiList extends CAdminList
 		if(
 			$_SERVER["REQUEST_METHOD"] == "POST" &&
 			!empty($_REQUEST["action_button_".$this->table_id]) &&
+			isset($_POST["FIELDS"]) &&
 			is_array($_POST["FIELDS"]) &&
 			check_bitrix_sessid()
 		)
@@ -360,7 +361,7 @@ class CAdminUiList extends CAdminList
 			{
 				$quickSearchKey = $filterField["quickSearch"].$filterField["id"];
 			}
-			$filterable[$filterField["id"]] = $filterField["filterable"];
+			$filterable[$filterField["id"]] = $filterField["filterable"] ?? null;
 		}
 
 		foreach ($filterData as $fieldId => $fieldValue)
@@ -455,7 +456,7 @@ class CAdminUiList extends CAdminList
 
 		if (isset($config['excel']))
 		{
-			if ($this->contextSettings["pagePath"])
+			if (!empty($this->contextSettings["pagePath"]))
 			{
 				$pagePath = $this->contextSettings['pagePath'];
 				$queryString = DeleteParam([self::MODE_FIELD_NAME]);
@@ -794,6 +795,16 @@ class CAdminUiList extends CAdminList
 		foreach(GetModuleEvents("main", "OnAdminListDisplay", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$this));
 
+		// Check after event handlers
+		if (!is_array($this->arActions))
+		{
+			$this->arActions = [];
+		}
+		if (!is_array($this->arActionsParams))
+		{
+			$this->arActionsParams = [];
+		}
+
 		$errorMessages = [];
 		foreach ($this->arFilterErrors as $error)
 		{
@@ -960,7 +971,7 @@ class CAdminUiList extends CAdminList
 					$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
 					break;
 				default:
-					if ($arParams["DEFAULT_ACTION"])
+					if (isset($arParams["DEFAULT_ACTION"]) && $arParams["DEFAULT_ACTION"])
 					{
 						if ($this->isPublicMode)
 						{
@@ -976,7 +987,7 @@ class CAdminUiList extends CAdminList
 						if ($this->isPublicMode)
 						{
 							$skipUrlModificationEnabled = ($arParams['SKIP_URL_MODIFICATION'] ?? false) === true;
-							$skipUrlModification = $skipUrlModificationEnabled && mb_strpos($row->link, '/bitrix/admin/') === false
+							$skipUrlModification = $skipUrlModificationEnabled && strpos($row->link, '/bitrix/admin/') === false
 								? 'true'
 								: 'false';
 							$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModification.");";
@@ -2092,7 +2103,7 @@ class CAdminUiContextMenu extends CAdminContextMenu
 						</div>
 					<? else: ?>
 						<div class="ui-btn-split ui-btn-primary">
-							<a <?=$buttonId?> href="<?=HtmlFilter::encode($firstItem["LINK"])?>" class="ui-btn-main">
+							<a <?=$buttonId?> href="<?=HtmlFilter::encode($firstItem["LINK"] ?? '')?>" class="ui-btn-main">
 								<?=HtmlFilter::encode($firstItem["TEXT"])?>
 							</a>
 							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>

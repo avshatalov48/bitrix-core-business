@@ -29,4 +29,5 @@ export type ConditionSelectorOptions = {
 	rootGroupTitle: ?string,
 	onOpenFieldMenu?: (BaseEvent) => void,
 	onOpenMenu?: (BaseEvent) => void,
+	showValuesSelector: ?boolean,
 }

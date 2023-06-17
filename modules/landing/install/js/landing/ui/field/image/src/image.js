@@ -4,13 +4,21 @@ import {Main} from 'landing.main'
 import {TextField} from 'landing.ui.field.textfield';
 import {ImageUploader} from 'landing.imageuploader';
 import {BaseButton} from 'landing.ui.button.basebutton';
-import {ImageEditor} from 'landing.imageeditor';
+import {AiImageButton} from 'landing.ui.button.aiimagebutton';
+import {PageObject} from 'landing.pageobject';
+import {Env} from 'landing.env';
+import {Picker} from 'ai.picker';
 
 import 'ui.fonts.opensans';
+// todo: remove most likely
+import 'ui.forms';
 import './css/style.css';
 
 export class Image extends TextField
 {
+	static CONTEXT_TYPE_CONTENT = 'content';
+	static CONTEXT_TYPE_STYLE = 'style';
+
 	constructor(data)
 	{
 		super(data);
@@ -20,6 +28,7 @@ export class Image extends TextField
 		this.uploadParams = typeof data.uploadParams === "object" ? data.uploadParams : {};
 		this.onValueChangeHandler = data.onValueChange ? data.onValueChange : (() => {});
 		this.type = this.content.type || "image";
+		this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 		this.allowClear = data.allowClear;
 		this.input.innerText = this.content.src;
 		this.input.hidden = true;
@@ -28,7 +37,8 @@ export class Image extends TextField
 		this.input2x.hidden = true;
 
 		this.layout.classList.add("landing-ui-field-image");
-		if (data.compactMode === true)
+		this.compactMode = data.compactMode === true;
+		if (this.compactMode)
 		{
 			this.layout.classList.add("landing-ui-field-image--compact");
 		}
@@ -37,13 +47,13 @@ export class Image extends TextField
 
 		this.fileInput = Image.createFileInput(this.selector);
 		this.fileInput.addEventListener("change", this.onFileInputChange.bind(this));
+		// Do not append input to layout! Ticket 172032
 
 		this.linkInput = Image.createLinkInput();
 		this.linkInput.onInputHandler = Runtime.debounce(this.onLinkInput.bind(this), 777);
 
 		this.dropzone = Image.createDropzone(this.selector);
 		this.dropzone.hidden = true;
-		this.dropzone.insertBefore(this.fileInput, this.dropzone.firstElementChild);
 
 		this.onDragOver = this.onDragOver.bind(this);
 		this.onDragLeave = this.onDragLeave.bind(this);
@@ -98,16 +108,26 @@ export class Image extends TextField
 		this.left.appendChild(this.altField.layout);
 		this.left.appendChild(this.linkInput.layout);
 
-		this.uploadButton = Image.createUploadButton();
+		this.aiButton = Image.createAiButton(this.compactMode);
+		this.aiButton.on("click", this.onAiClick.bind(this));
+		this.aiPicker = null;
+
+		this.uploadButton = Image.createUploadButton(this.compactMode);
 		this.uploadButton.on("click", this.onUploadClick.bind(this));
 
 		this.editButton = Image.createEditButton();
 		this.editButton.on("click", this.onEditClick.bind(this));
 
 		this.right = Image.createRightLayout();
+		if (
+			Env.getInstance().getOptions()['allow_ai_image']
+			&& (this.type === "background" || this.type === "image")
+		)
+		{
+			this.right.appendChild(this.aiButton.layout);
+		}
 		this.right.appendChild(this.uploadButton.layout);
 		this.right.appendChild(this.editButton.layout);
-
 		this.form = Image.createForm();
 		this.form.appendChild(this.left);
 		this.form.appendChild(this.right);
@@ -320,6 +340,20 @@ export class Image extends TextField
 	 * Creates upload button
 	 * @return {BaseButton}
 	 */
+	static createAiButton(compactMode: boolean = false)
+	{
+		return new AiImageButton("ai", {
+			text: Loc.getMessage(
+				"LANDING_FIELD_IMAGE_AI_BUTTON" + (compactMode ? '_COMPACT' : '')
+			),
+			className: "landing-ui-field-image-ai-button" + (compactMode ? ' --compact' : ''),
+		});
+	}
+
+	/**
+	 * Creates ia create button
+	 * @return {BaseButton}
+	 */
 	static createUploadButton()
 	{
 		return new BaseButton("upload", {
@@ -434,6 +468,58 @@ export class Image extends TextField
 	onFileInputChange(event)
 	{
 		this.onFileChange(event.currentTarget.files[0]);
+	}
+
+	onAiClick()
+	{
+		this.getAiPicker().image()
+	}
+
+	getAiPicker(): Picker
+	{
+		if (!this.aiPicker)
+		{
+			const demoPrompt =
+				this.contextType === Image.CONTEXT_TYPE_CONTENT
+					? 'large, heart shaped bouquet of red roses on a white background'
+					: 'background, smooth, blue color'
+			;
+			this.aiPicker = new Picker({
+				startMessage: demoPrompt,
+				moduleId: 'landing',
+				contextId: this.getAiContext(),
+				analyticLabel: 'landing_image',
+				history: true,
+				popupContainer: PageObject.getRootWindow().document.body,
+				onSelect: (url: string) => {
+					const proxyUrl = BX.util.add_url_param("/bitrix/tools/landing/proxy.php", {
+						"sessid": BX.bitrix_sessid(),
+						"url": url
+					});
+					BX.Landing.Utils.urlToBlob(proxyUrl)
+						.then(blob => {
+							blob.lastModifiedDate = new Date();
+							blob.name = url.slice(url.lastIndexOf('/') + 1);
+
+							return blob;
+						})
+						.then(this.upload.bind(this))
+						.then(this.setValue.bind(this))
+						.then(this.hideLoader.bind(this))
+				},
+				onTariffRestriction: () => {
+					BX.UI.InfoHelper.show('limit_sites_ImageAssistant_AI');
+				},
+			});
+			this.aiPicker.setLangSpace('image');
+		}
+
+		return this.aiPicker;
+	}
+
+	getAiContext(): string
+	{
+		return 'image_site_' + Env.getInstance().getSiteId();
 	}
 
 	onUploadClick(event)
@@ -827,7 +913,7 @@ export class Image extends TextField
 
 	edit(data)
 	{
-		ImageEditor
+		parent.BX.Landing.ImageEditor
 			.edit({
 				image: data.src,
 				dimensions: this.dimensions,

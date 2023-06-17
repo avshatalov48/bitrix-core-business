@@ -12,18 +12,20 @@
 	      constant: 'Constant',
 	      variable: 'Variable'
 	    });
-	    if (main_core.Type.isPlainObject(options)) {
-	      this.oldProperty = options.property;
-	      this.documentType = options.documentType;
-	      this.signedDocumentType = options.signedDocumentType;
-	      this.mode = options.mode;
-	      this.availableTypes = options.types;
-	      this.inputValueId = options.inputValueId;
-	      this.multipleNode = options.multipleNode;
-	      this.saveButtonNode = options.saveButtonNode;
-	      this.form = options.form;
-	      this.slider = options.slider;
+	    if (!main_core.Type.isPlainObject(options)) {
+	      return;
 	    }
+	    this.oldProperty = options.property;
+	    this.documentType = options.documentType;
+	    this.signedDocumentType = options.signedDocumentType;
+	    this.mode = options.mode;
+	    this.availableTypes = options.types;
+	    this.visibilityNames = options.visibilityNames;
+	    this.inputValueId = options.inputValueId;
+	    this.multipleNode = options.multipleNode;
+	    this.saveButtonNode = options.saveButtonNode;
+	    this.form = options.form;
+	    this.slider = options.slider;
 	  }
 	  babelHelpers.createClass(GlobalFieldEditComponent, [{
 	    key: "init",
@@ -110,6 +112,7 @@
 	  }, {
 	    key: "saveHandler",
 	    value: function saveHandler() {
+	      var _this = this;
 	      var formElements = this.form.elements;
 	      var id = main_core.Type.isStringFilled(this.oldProperty['id']) ? this.oldProperty['id'] : '';
 	      var property = {
@@ -140,7 +143,9 @@
 	            return true;
 	          });
 	        } else {
-	          me.sliderDict.set(id, property);
+	          me.sliderDict.set(id, _objectSpread(_objectSpread({}, property), {}, {
+	            VisibilityName: _this.visibilityNames[property.Visibility]
+	          }));
 	          me.slider.close();
 	        }
 	      });

@@ -194,13 +194,16 @@ class Random
 			}
 		}
 
-		if ($file = @fopen('/dev/urandom','rb'))
+		if (file_exists('/dev/urandom'))
 		{
-			$bytes = @fread($file, $length + 1);
-			@fclose($file);
-			if ($bytes && strlen($bytes) >= $length)
+			if ($file = @fopen('/dev/urandom', 'rb'))
 			{
-				return substr($bytes, 0, $length);
+				$bytes = @fread($file, $length + 1);
+				@fclose($file);
+				if ($bytes && strlen($bytes) >= $length)
+				{
+					return substr($bytes, 0, $length);
+				}
 			}
 		}
 

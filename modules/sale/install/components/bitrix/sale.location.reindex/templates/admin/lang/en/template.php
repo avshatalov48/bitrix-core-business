@@ -2,7 +2,6 @@
 $MESS["SALE_SLRI_TAB_REINDEX_TITLE"] = "Re-index";
 $MESS["SALE_SLRI_TAB_REINDEX_TITLE_SETTINGS"] = "Re-indexing parameters";
 $MESS["SALE_SLRI_SETTINGS_BASE"] = "Main settings";
-$MESS["SALE_SLRI_JOB2DO"] = "Re-index now";
 $MESS["SALE_SLRI_JOB_DICTIONARY"] = "Search dictionary";
 $MESS["SALE_SLRI_JOB_SITE"] = "Binding to sites";
 $MESS["SALE_SLRI_AP_TIMELIMIT"] = "Re-indexing step, sec.";

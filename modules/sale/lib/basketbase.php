@@ -56,7 +56,7 @@ abstract class BasketBase extends BasketItemCollection
 	}
 
 	/**
-	 * @return OrderBase
+	 * @return OrderBase|null
 	 */
 	protected function getEntityParent()
 	{
@@ -180,7 +180,7 @@ abstract class BasketBase extends BasketItemCollection
 	/**
 	 * Getting the object of the order
 	 *
-	 * @return OrderBase
+	 * @return OrderBase|null
 	 */
 	public function getOrder()
 	{
@@ -1119,10 +1119,10 @@ abstract class BasketBase extends BasketItemCollection
 
 		return $this->refresh($strategy);
 	}
-	
+
 	/**
 	 * @deprecated the basket can contain duplicate items
-	 * 
+	 *
 	 * @param BasketItemBase $item
 	 * @return BasketItemBase|null
 	 * @throws Main\ArgumentException

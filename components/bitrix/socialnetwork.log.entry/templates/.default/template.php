@@ -31,7 +31,7 @@ if ($arResult["bTasksAvailable"])
 	CJSCore::Init(array('tasks_util_query'));
 }
 
-if ($arResult["FatalError"] <> '')
+if (($arResult["FatalError"] ?? '') <> '')
 {
 	?><span class='errortext'><?= $arResult["FatalError"] ?></span><br /><br /><?php
 }
@@ -41,7 +41,9 @@ else
 	$randomString = RandString(8);
 	$randomId = 0;
 
-	if ($arResult["ErrorMessage"] <> '')
+	$anchor_id = $randomString . $randomId;
+
+	if (($arResult["ErrorMessage"] ?? '') <> '')
 	{
 		?><span class='errortext'><?= $arResult["ErrorMessage"] ?></span><br /><br /><?php
 	}
@@ -54,10 +56,12 @@ else
 	{
 		$arEvent = &$arResult['Event'];
 
-		?><div
-		 class="feed-item-wrap"
-		 data-livefeed-id="<?= (int)$arEvent["EVENT"]["ID"] ?>"
-		 bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
+		?>
+		<div
+			class="feed-item-wrap"
+			data-livefeed-id="<?= (int)$arEvent["EVENT"]["ID"] ?>"
+			bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>"
+		><?php
 
 		if (!defined("SONET_LOG_JS"))
 		{
@@ -68,7 +72,7 @@ else
 				'sonetLESetPath' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php',
 				'sonetLPathToUser' => $arParams["PATH_TO_USER"],
 				'sonetLPathToGroup' => $arParams["PATH_TO_GROUP"],
-				'sonetLPathToDepartment' => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
+				'sonetLPathToDepartment' => $arParams["PATH_TO_CONPANY_DEPARTMENT"] ?? null,
 				'sonetLPathToSmile' => $arParams["PATH_TO_SMILE"],
 				'sonetLShowRating' => $arParams["SHOW_RATING"],
 				'sonetLTextLikeY' => Option::get("main", "rating_text_like_y", Loc::getMessage("SONET_C30_TEXT_LIKE_Y")),
@@ -93,7 +97,7 @@ else
 				'sonetLCurrentUserID' => (int)$USER->getId(),
 				'sonetLAvatarSize' => $arParams["AVATAR_SIZE"],
 				'sonetLAvatarSizeComment' => $arParams["AVATAR_SIZE_COMMON"],
-				'sonetLBlogAllowPostCode' => $arParams["BLOG_ALLOW_POST_CODE"],
+				'sonetLBlogAllowPostCode' => $arParams["BLOG_ALLOW_POST_CODE"] ?? '',
 				'sonetLDestinationHidden1' => Loc::getMessage("SONET_C30_DESTINATION_HIDDEN_1"),
 				'sonetLDestinationHidden2' => Loc::getMessage("SONET_C30_DESTINATION_HIDDEN_2"),
 				'sonetLDestinationHidden3' => Loc::getMessage("SONET_C30_DESTINATION_HIDDEN_3"),
@@ -275,12 +279,12 @@ else
 		}
 
 		?><div
-			 class="<?=implode(' ', $classNameList)?>"
-			 id="log-entry-<?=$arEvent["EVENT"]["ID"]?>"
-			 ondragenter="BX('feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>').style.display = 'block'"
-			 data-livefeed-id="<?=(int)$arEvent["EVENT"]["ID"]?>"
-			 bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"
-			 data-menu-id="post-menu-<?=$ind?>"
+			class="<?=implode(' ', $classNameList)?>"
+			id="log-entry-<?=$arEvent["EVENT"]["ID"]?>"
+			ondragenter="BX('feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>').style.display = 'block'"
+			data-livefeed-id="<?=(int)$arEvent["EVENT"]["ID"]?>"
+			bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>"
+			data-menu-id="post-menu-<?=$ind?>"
 			<?php
 			if (isset($pinned))
 			{
@@ -331,7 +335,7 @@ else
 
 			?><div id="sonet_log_day_item_<?=$ind?>" class="<?=implode(' ', $aditStylesList)?>"><?php
 
-				if ($_REQUEST["action"] === "get_entry")
+				if (($_REQUEST["action"] ?? '') === "get_entry")
 				{
 					$APPLICATION->RestartBuffer();
 					$strEntryText = "";
@@ -432,7 +436,7 @@ else
 							$i++;
 						}
 
-						$iMoreDest = (int)$arEvent["EVENT_FORMATTED"]["DESTINATION_MORE"];
+						$iMoreDest = (int) ($arEvent["EVENT_FORMATTED"]["DESTINATION_MORE"] ?? 0);
 
 						if ($iMoreDest > 0)
 						{
@@ -767,10 +771,11 @@ else
 				{
 
 					?><div
-					 class="feed-post-item feed-post-contentview"
-					 id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>"
-					 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
-					 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
+						class="feed-post-item feed-post-contentview"
+						id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>"
+						bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+						bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>"
+					><?php
 
 						?><?=$title24_2?><?php
 
@@ -874,15 +879,18 @@ else
 									$photo_permission = "R";
 								}
 
+								$arParams["PHOTO_COUNT"] = $arParams["PHOTO_COUNT"] ?? null;
+
 								$APPLICATION->IncludeComponent(
 									"bitrix:photogallery.detail.list.ex",
 									"",
 									Array(
 										"IBLOCK_TYPE" => $photo_iblock_type,
 										"IBLOCK_ID" => $photo_iblock_id,
-										"SHOWN_PHOTOS" => (count($arPhotoItems) > $arParams["PHOTO_COUNT"]
-											? array_slice($arPhotoItems, 0, $arParams["PHOTO_COUNT"])
-											: $arPhotoItems
+										"SHOWN_PHOTOS" => (
+											count($arPhotoItems) > $arParams["PHOTO_COUNT"]
+												? array_slice($arPhotoItems, 0, $arParams["PHOTO_COUNT"])
+												: $arPhotoItems
 										),
 										"DRAG_SORT" => "N",
 										"MORE_PHOTO_NAV" => "N",
@@ -890,13 +898,18 @@ else
 										//"USE_PERMISSIONS" => "N",
 										"PERMISSION" => $photo_permission,
 
-										"THUMBNAIL_SIZE" => $arParams["PHOTO_THUMBNAIL_SIZE"],
+										"THUMBNAIL_SIZE" => $arParams["PHOTO_THUMBNAIL_SIZE"] ?? null,
 										"SHOW_CONTROLS" => "Y",
-										"USE_RATING" => ($arParams["PHOTO_USE_RATING"] === "Y" || $arParams["SHOW_RATING"] === "Y" ? "Y" : "N"),
+										"USE_RATING" => (
+											(
+												($arParams["PHOTO_USE_RATING"] ?? '') === "Y"
+												|| ($arParams["SHOW_RATING"] ?? '') === "Y"
+											) ? "Y" : "N"
+										),
 										"SHOW_RATING" => $arParams["SHOW_RATING"],
 										"SHOW_SHOWS" => "N",
 										"SHOW_COMMENTS" => "Y",
-										"MAX_VOTE" => $arParams["PHOTO_MAX_VOTE"],
+										"MAX_VOTE" => $arParams["PHOTO_MAX_VOTE"] ?? '',
 										"VOTE_NAMES" => $arParams["PHOTO_VOTE_NAMES"] ?? [],
 										"DISPLAY_AS_RATING" => ($arParams["SHOW_RATING"] === "Y" ? "rating_main" : ($arParams["PHOTO_DISPLAY_AS_RATING"] ?? "rating")),
 										"RATING_MAIN_TYPE" => ($arParams["SHOW_RATING"] === "Y" ? $arParams["RATING_TYPE"] : ""),
@@ -904,7 +917,7 @@ else
 										"BEHAVIOUR" => "SIMPLE",
 										"SET_TITLE" => "N",
 										"CACHE_TYPE" => "A",
-										"CACHE_TIME" => $arParams["CACHE_TIME"],
+										"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
 										"CACHE_NOTES" => "",
 										"SECTION_ID" => $photo_section_id,
 										"ELEMENT_LAST_TYPE"	=> "none",
@@ -914,8 +927,11 @@ else
 										"ELEMENT_SORT_ORDER1" => "asc",
 										"PROPERTY_CODE" => array(),
 
-										"INDEX_URL" => CComponentEngine::MakePathFromTemplate(
-											$arParams["PATH_TO_".($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP ? "GROUP" : "USER")."_PHOTO"],
+										"INDEX_URL" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_"
+											. ($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP
+												? "GROUP"
+												: "USER")."_PHOTO"
+										] ?? null,
 											array(
 												"user_id" => $arEvent["EVENT"]["ENTITY_ID"],
 												"group_id" => $arEvent["EVENT"]["ENTITY_ID"]
@@ -929,8 +945,11 @@ else
 											)
 										),
 										"GALLERY_URL" => "",
-										"SECTION_URL" => CComponentEngine::MakePathFromTemplate(
-											$arParams["PATH_TO_".($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP ? "GROUP" : "USER")."_PHOTO_SECTION"],
+										"SECTION_URL" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_"
+											.($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP
+												? "GROUP"
+												: "USER")."_PHOTO_SECTION"
+											] ?? null,
 											array(
 												"user_id" => $arEvent["EVENT"]["ENTITY_ID"],
 												"group_id" => $arEvent["EVENT"]["ENTITY_ID"],
@@ -942,22 +961,28 @@ else
 										"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 										"GROUP_PERMISSIONS" => array(),
 										"PAGE_ELEMENTS" => $arParams["PHOTO_COUNT"],
-										"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+										"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"] ?? '',
 										"SET_STATUS_404" => "N",
 										"ADDITIONAL_SIGHTS" => array(),
 										"PICTURES_SIGHT" => "real",
-										"USE_COMMENTS" => $arParams["PHOTO_USE_COMMENTS"],
-										"COMMENTS_TYPE" => ($arParams["PHOTO_COMMENTS_TYPE"] === "blog" ? "blog" : "forum"),
-										"FORUM_ID" => $arParams["PHOTO_FORUM_ID"],
-										"BLOG_URL" => $arParams["PHOTO_BLOG_URL"],
-										"USE_CAPTCHA" => $arParams["PHOTO_USE_CAPTCHA"],
+										"USE_COMMENTS" => $arParams["PHOTO_USE_COMMENTS"] ?? null,
+										"COMMENTS_TYPE" => (($arParams["PHOTO_COMMENTS_TYPE"] ?? null) === "blog"
+											? "blog"
+											: "forum"
+										),
+										"FORUM_ID" => $arParams["PHOTO_FORUM_ID"] ?? null,
+										"BLOG_URL" => $arParams["PHOTO_BLOG_URL"] ?? null,
+										"USE_CAPTCHA" => $arParams["PHOTO_USE_CAPTCHA"] ?? null,
 										"SHOW_LINK_TO_FORUM" => "N",
 										"IS_SOCNET" => "Y",
 										"USER_ALIAS" => ($alias ?: ($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP ? "group" : "user")."_".$arEvent["EVENT"]["ENTITY_ID"]),
 										//these two params below used to set action url and unique id - for any ajax actions
 										"~UNIQUE_COMPONENT_ID" => 'bxfg_ucid_from_req_'.$photo_iblock_id.'_'.($EVENT_ID === "photo_photo" ? $photo_section_id : $arEvent["EVENT"]["SOURCE_ID"])."_".$arEvent["EVENT"]["ID"],
 										"ACTION_URL" => CComponentEngine::MakePathFromTemplate(
-											$arParams['PATH_TO_' . ($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP ? "GROUP" : "USER") . "_PHOTO_SECTION"],
+											$arParams['PATH_TO_'
+											. ($arEvent["EVENT"]["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP
+												? "GROUP"
+												: "USER") . "_PHOTO_SECTION"] ?? null,
 											[
 												"user_id" => $arEvent["EVENT"]["ENTITY_ID"],
 												"group_id" => $arEvent["EVENT"]["ENTITY_ID"],
@@ -1130,7 +1155,7 @@ else
 				}
 
 				// Used to display some HTML before informers
-				if ($arEvent["EVENT_FORMATTED"]["FOOTER_MESSAGE"] !== '')
+				if (($arEvent["EVENT_FORMATTED"]["FOOTER_MESSAGE"] ?? '') !== '')
 				{
 					echo $arEvent["EVENT_FORMATTED"]["FOOTER_MESSAGE"];
 				}
@@ -1264,7 +1289,7 @@ else
 							id="feed-logentry-menuanchor-<?=$arEvent["EVENT"]["ID"]?>"
 							href="#"
 							data-log-entry-url="<?=$strLogEntryURL?>"
-							data-log-entry-createtask="<?= ($arResult["canGetPostContent"] && $arResult["bTasksAvailable"] && !$stub ? 'Y' : 'N') ?>"
+							data-log-entry-createtask="<?= (($arResult["canGetPostContent"] ?? null) && $arResult["bTasksAvailable"] && !$stub ? 'Y' : 'N') ?>"
 							data-log-entry-entity-type="<?= (!empty($arResult["POST_CONTENT_TYPE_ID"]) ? htmlspecialcharsbx($arResult["POST_CONTENT_TYPE_ID"]) : "") ?>"
 							data-log-entry-entity-id="<?=(!empty($arResult["POST_CONTENT_ID"]) ? (int)$arResult["POST_CONTENT_ID"] : "")?>"
 							data-log-entry-log-id="<?=(int)$arEvent["EVENT"]["ID"]?>"
@@ -1317,7 +1342,7 @@ else
 								'feed-post-emoji-top-panel-box'
 							];
 
-							if ((int)$arEvent["RATING"]["TOTAL_POSITIVE_VOTES"] > 0)
+							if ((int) ($arEvent["RATING"]["TOTAL_POSITIVE_VOTES"] ?? 0) > 0)
 							{
 								$classNameList[] = 'feed-post-emoji-top-panel-container-active';
 							}
@@ -1329,15 +1354,15 @@ else
 									array(
 										"ENTITY_TYPE_ID" => $arEvent["EVENT"]["RATING_TYPE_ID"],
 										"ENTITY_ID" => $arEvent["EVENT"]["RATING_ENTITY_ID"],
-										"OWNER_ID" => $arEvent["CREATED_BY"]["TOOLTIP_FIELDS"]["ID"],
-										"USER_VOTE" => $arEvent["RATING"]["USER_VOTE"],
-										"USER_REACTION" => $arEvent["RATING"]["USER_REACTION"],
-										"USER_HAS_VOTED" => $arEvent["RATING"]["USER_HAS_VOTED"],
-										"TOTAL_VOTES" => $arEvent["RATING"]["TOTAL_VOTES"],
-										"TOTAL_POSITIVE_VOTES" => $arEvent["RATING"]["TOTAL_POSITIVE_VOTES"],
-										"TOTAL_NEGATIVE_VOTES" => $arEvent["RATING"]["TOTAL_NEGATIVE_VOTES"],
-										"TOTAL_VALUE" => $arEvent["RATING"]["TOTAL_VALUE"],
-										"REACTIONS_LIST" => $arEvent["RATING"]["REACTIONS_LIST"],
+										"OWNER_ID" => ($arEvent["CREATED_BY"]["TOOLTIP_FIELDS"]["ID"] ?? 0),
+										"USER_VOTE" => $arEvent["RATING"]["USER_VOTE"] ?? '',
+										"USER_REACTION" => $arEvent["RATING"]["USER_REACTION"] ?? '',
+										"USER_HAS_VOTED" => $arEvent["RATING"]["USER_HAS_VOTED"] ?? '',
+										"TOTAL_VOTES" => $arEvent["RATING"]["TOTAL_VOTES"] ?? '',
+										"TOTAL_POSITIVE_VOTES" => $arEvent["RATING"]["TOTAL_POSITIVE_VOTES"] ?? '',
+										"TOTAL_NEGATIVE_VOTES" => $arEvent["RATING"]["TOTAL_NEGATIVE_VOTES"] ?? '',
+										"TOTAL_VALUE" => $arEvent["RATING"]["TOTAL_VALUE"] ?? '',
+										"REACTIONS_LIST" => $arEvent["RATING"]["REACTIONS_LIST"] ?? [],
 										"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"],
 										'TOP_DATA' => (!empty($arResult['TOP_RATING_DATA']) ? $arResult['TOP_RATING_DATA'] : false),
 										'VOTE_ID' => $voteId
@@ -1350,7 +1375,7 @@ else
 					}
 				?></div><?php // feed-post-informers
 
-				if ($_REQUEST["action"] === "get_entry")
+				if (($_REQUEST["action"] ?? '') === "get_entry")
 				{
 					$strEntryText = ob_get_clean();
 
@@ -1393,13 +1418,13 @@ else
 							return BX.type.isElementNode(node) && (node.getAttribute('data-bx-viewer') || node.getAttribute('data-bx-image'));
 						}
 					);
-					top.postFollow<?= $arParams["ID"] ?> = postFollow<?= $arParams["ID"] ?> = '<?= $arParams["FOLLOW"] ?>';
+					top.postFollow<?= ($arParams["ID"] ?? '') ?> = postFollow<?= ($arParams["ID"] ?? '') ?> = '<?= ($arParams["FOLLOW"] ?? '') ?>';
 				</script><?php
 
 				$arRecords = [];
 				if (!!$component && $component->__parent && $component->__parent->arResult)
 				{
-					$component->__parent->arResult["ENTITIES_XML_ID"] = ($component->__parent->arResult["ENTITIES_XML_ID"] ?: []);
+					$component->__parent->arResult["ENTITIES_XML_ID"] = ($component->__parent->arResult["ENTITIES_XML_ID"] ?? []);
 					$component->__parent->arResult["ENTITIES_XML_ID"][$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]] = array($arEvent["COMMENTS_PARAMS"]["ENTITY_TYPE"], $arEvent["EVENT"]["SOURCE_ID"]);
 					$component->__parent->arResult["ENTITIES_CORRESPONDENCE"] = ($component->__parent->arResult["ENTITIES_CORRESPONDENCE"] ?: []);
 					$component->__parent->arResult["ENTITIES_CORRESPONDENCE"][$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]."-0"] = array($arEvent["EVENT"]["ID"], 0);
@@ -1413,8 +1438,8 @@ else
 						$commentId = (int)($arComment["EVENT"]["SOURCE_ID"] ?: $arComment["EVENT"]["ID"]);
 
 						if (
-							$arResult['RESULT']
-							&& (int)$arComment["EVENT"]["ID"] === $arResult['RESULT']
+							($arResult['RESULT'] ?? 0)
+							&& (int)$arComment["EVENT"]["ID"] === ($arResult['RESULT'] ?? 0)
 						)
 						{
 							$arResult['RESULT'] = $commentId;
@@ -1431,7 +1456,7 @@ else
 						$event_date_log_ts = ($arComment["EVENT"]["LOG_DATE_TS"] ?? (MakeTimeStamp($arComment["EVENT"]["LOG_DATE"]) - (int)$arResult["TZ_OFFSET"]));
 						$isNew = (
 							$USER->isAuthorized()
-							&& $arEvent['EVENT']['FOLLOW'] !== "N"
+							&& ($arEvent['EVENT']['FOLLOW'] ?? null) !== "N"
 							&& (int)$arComment['EVENT']['USER_ID'] !== (int)$USER->getId()
 							&& (int)$arResult['LAST_LOG_TS'] > 0
 							&& $event_date_log_ts > $arResult['LAST_LOG_TS']
@@ -1441,7 +1466,7 @@ else
 								|| $arResult['COUNTER_TYPE'] === "blog_post"
 							)
 							&& (
-								!is_array($arParams['UNREAD_COMMENTS_ID_LIST'])
+								!is_array($arParams['UNREAD_COMMENTS_ID_LIST'] ?? null)
 								|| in_array((int)$arComment['EVENT']['ID'], $arParams['UNREAD_COMMENTS_ID_LIST'], true)
 							)
 						);
@@ -1463,7 +1488,7 @@ else
 							"APPROVED" => "Y",
 							"POST_TIMESTAMP" => $arComment["LOG_DATE_TS"],
 							'POST_MESSAGE_TEXT' => ($arComment['EVENT_FORMATTED']['FULL_MESSAGE_CUT'] ?? ''),
-							"~POST_MESSAGE_TEXT" => (htmlspecialcharsback($arComment['EVENT']['MESSAGE']) ?? ''),
+							"~POST_MESSAGE_TEXT" => (htmlspecialcharsback(($arComment['EVENT']['MESSAGE'] ?? '')) ?? ''),
 							"AUX" => (!empty($arComment["AUX"]) ? $arComment["AUX"] : ''),
 							"AUX_LIVE_PARAMS" => (!empty($arComment["AUX_LIVE_PARAMS"]) ? $arComment["AUX_LIVE_PARAMS"] : []),
 							"CAN_DELETE" => (!empty($arComment["CAN_DELETE"]) ? $arComment["CAN_DELETE"] : 'Y'),
@@ -1489,8 +1514,8 @@ else
 								$voteId = $arComment["EVENT"]["RATING_TYPE_ID"].'_'.$RATING_ENTITY_ID.'-'.(time() + random_int(0, 1000));
 
 								$arRecords[$commentId]["RATING_VOTE_ID"] = $voteId;
-								$arRecords[$commentId]["RATING_USER_HAS_VOTED"] = $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_HAS_VOTED"];
-								$arRecords[$commentId]["RATING_USER_REACTION"] = $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_REACTION"];
+								$arRecords[$commentId]["RATING_USER_HAS_VOTED"] = ($arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_HAS_VOTED"] ?? '');
+								$arRecords[$commentId]["RATING_USER_REACTION"] = ($arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_REACTION"] ?? '');
 
 								$APPLICATION->IncludeComponent(
 									"bitrix:rating.vote",
@@ -1500,14 +1525,14 @@ else
 										"ENTITY_TYPE_ID" => $arComment["EVENT"]["RATING_TYPE_ID"],
 										"ENTITY_ID" => $RATING_ENTITY_ID,
 										"OWNER_ID" => $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["ID"],
-										"USER_VOTE" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_VOTE"],
-										"USER_REACTION" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_REACTION"],
-										"USER_HAS_VOTED" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_HAS_VOTED"],
-										"TOTAL_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_VOTES"],
-										"TOTAL_POSITIVE_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_POSITIVE_VOTES"],
-										"TOTAL_NEGATIVE_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_NEGATIVE_VOTES"],
-										"TOTAL_VALUE" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_VALUE"],
-										"REACTIONS_LIST" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["REACTIONS_LIST"],
+										"USER_VOTE" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_VOTE"] ?? '',
+										"USER_REACTION" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_REACTION"] ?? '',
+										"USER_HAS_VOTED" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["USER_HAS_VOTED"] ?? '',
+										"TOTAL_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_VOTES"] ?? '',
+										"TOTAL_POSITIVE_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_POSITIVE_VOTES"] ?? '',
+										"TOTAL_NEGATIVE_VOTES" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_NEGATIVE_VOTES"] ?? '',
+										"TOTAL_VALUE" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["TOTAL_VALUE"] ?? '',
+										"REACTIONS_LIST" => $arResult["RATING_COMMENTS"][$RATING_ENTITY_ID]["REACTIONS_LIST"] ?? [],
 										"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"],
 										"VOTE_ID" => $voteId,
 									),
@@ -1662,12 +1687,12 @@ else
 						),
 						"VISIBLE_RECORDS_COUNT" => count($arRecords),
 
-						"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"],
-						"OK_MESSAGE" => $arResult["OK_MESSAGE"],
-						"RESULT" => $arResult["RESULT"],
+						"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"] ?? '',
+						"OK_MESSAGE" => $arResult["OK_MESSAGE"] ?? '',
+						"RESULT" => $arResult["RESULT"] ?? '',
 						"PUSH&PULL" => array (
-							"ACTION" => $arResult['PUSH&PULL_ACTION'],
-							"ID" => $arResult["RESULT"]
+							"ACTION" => $arResult['PUSH&PULL_ACTION'] ?? '',
+							"ID" => $arResult["RESULT"] ?? ''
 						),
 						"VIEW_URL" => $commentUrl->getUri(),
 						"MODERATE_URL" => "",
@@ -1686,13 +1711,13 @@ else
 						"NOTIFY_TEXT" => TruncateText(str_replace(Array("\r\n", "\n"), " ", $arEvent["EVENT"]["MESSAGE"]), 100),
 						"SHOW_MINIMIZED" => "Y",
 						"SHOW_POST_FORM" => ($canComment ? 'Y' : 'N'),
-						"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
-						"mfi" => $arParams["mfi"],
+						"IMAGE_SIZE" => $arParams["IMAGE_SIZE"] ?? 0,
+						"mfi" => $arParams["mfi"] ?? '',
 						"AUTHOR_URL_PARAMS" => [
 							'entityType' => 'LOG_ENTRY',
 							'entityId' => $arEvent['EVENT']['ID'],
 						],
-						'FORM_ID' => ($canComment ? $arParams['FORM_ID'] : ''),
+						'FORM_ID' => ($canComment ? ($arParams['FORM_ID'] ?? '') : ''),
 					),
 					$this->__component
 				);
@@ -1711,7 +1736,7 @@ else
 				 class="<?=$blockClassName?>"
 				 id="feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>"
 				 data-bx-comments-entity-xml-id="<?= \Bitrix\Main\Text\HtmlFilter::encode($arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]) ?>"
-				 data-bx-follow="<?=($arEvent['EVENT']['FOLLOW'] === 'Y' ? 'Y' : 'N')?>"
+				 data-bx-follow="<?=(($arEvent['EVENT']['FOLLOW'] ?? null) === 'Y' ? 'Y' : 'N')?>"
 				><?php
 					?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?php
 					?><script>

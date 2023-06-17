@@ -91,7 +91,7 @@ $additionalParameters = $arResult['additionalParameters'];
 	</tr>
 
 <?php
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	?>
 	<tr>

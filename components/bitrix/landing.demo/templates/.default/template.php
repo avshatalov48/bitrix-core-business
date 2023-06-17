@@ -14,8 +14,9 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI\Extension;
 
-\Bitrix\Main\UI\Extension::load([
+Extension::load([
 	'ui.fonts.opensans',
 	'sidepanel',
 	'ui.design-tokens',
@@ -134,9 +135,9 @@ if (!$component->isAjax())
 	}
 
 	// create empty button
-	if ($arParams['TYPE'] !== 'STORE')
+	if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP')
 	{
-		$emptyTpl = ($arParams['TYPE'] === 'KNOWLEDGE' && !$arParams['SITE_ID'])
+		$emptyTpl = !$arParams['SITE_ID']
 			? 'empty-multipage/main'
 			: 'empty'
 		;
@@ -262,7 +263,7 @@ if (!$component->isAjax())
 					<div class="landing-title-overflow">
 						<?= \htmlspecialcharsbx($item['TITLE'])?>
 					</div>
-					<?if ($item['IS_NEW'] === 'Y'): ?>
+					<?if (($item['IS_NEW'] ?? null) === 'Y'): ?>
 						<span class="landing-title-new"><?= Loc::getMessage('LANDING_TPL_LABEL_NEW');?></span>
 					<?endif;?>
 				</div>
@@ -275,7 +276,7 @@ if (!$component->isAjax())
 						srcset="<?= \htmlspecialcharsbx($item['PREVIEW2X'] ? $item['PREVIEW2X'] : $item['PREVIEW'])?> 2x,
 									<?= \htmlspecialcharsbx($item['PREVIEW3X'] ? $item['PREVIEW3X'] : $item['PREVIEW'])?> 3x">
 				<?endif;?>
-				<?php if ($item['LABELS']):?>
+				<?php if ($item['LABELS'] ?? null):?>
 					<span class="landing-item-label">
 						<?=Loc::getMessage('LANDING_TPL_LABEL_SUBSCRIPTION')?>
 					</span>

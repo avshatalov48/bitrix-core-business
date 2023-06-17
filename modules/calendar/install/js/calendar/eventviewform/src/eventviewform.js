@@ -301,16 +301,21 @@ export class EventViewForm {
 			this.BX.remove(this.DOM.delButton);
 		}
 
-		this.BX.viewElementBind(
-			uid + '_' + this.entry.id + '_files_wrap',
-			{
-				showTitle: true
-			},
-			function(node)
-			{
-				return Type.isElementNode(node) && (node.getAttribute('data-bx-viewer') || node.getAttribute('data-bx-image'));
-			}
-		);
+		const filesWrap = uid + '_' + this.entry.id + '_files_wrap';
+		if (filesWrap)
+		{
+			const currentTop = (typeof window.top.BX.viewElementBind === 'function' ? window.top.BX : window.BX);
+			currentTop.viewElementBind(
+				filesWrap,
+				{
+					showTitle: true
+				},
+				function(node)
+				{
+					return Type.isElementNode(node) && (node.getAttribute('data-bx-viewer') || node.getAttribute('data-bx-image'));
+				}
+			);
+		}
 
 		if (this.entry && this.entry.isMeeting())
 		{
@@ -339,7 +344,10 @@ export class EventViewForm {
 			Type.isElementNode(this.DOM.videoCall)
 			&& this.entry
 			&& this.entry.data['PARENT_ID']
-			&& this.entry.data['EVENT_TYPE'] === '#shared#'
+			&& (
+				this.entry.data['EVENT_TYPE'] === '#shared#'
+				|| this.entry.data['EVENT_TYPE'] === '#shared_crm#'
+			)
 		)
 		{
 			this.DOM.videoCall.style.display = '';
@@ -583,11 +591,21 @@ export class EventViewForm {
 				return false;
 			}
 
+			if (this.entry.permissions)
+			{
+				return this.entry.permissions?.['edit'];
+			}
+
 			return this.section.canDo('edit');
 		}
 
 		if ((action === 'view'))
 		{
+			if (this.entry.permissions)
+			{
+				return this.entry.permissions?.['view_full'];
+			}
+
 			return this.permissions.view_full;
 		}
 

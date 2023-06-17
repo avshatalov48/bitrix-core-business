@@ -162,6 +162,7 @@ if ($arParams['SUCCESS_SAVE'])
 		<input type="hidden" name="fields[TITLE]" value="<?= $row['TITLE']['CURRENT'] ?>"/>
 		<input type="hidden" name="fields[LANDING_ID_INDEX]" value="<?= $row['LANDING_ID_INDEX']['CURRENT'];?>" />
 		<input type="hidden" name="fields[TPL_ID]" value="<?= $row['TPL_ID']['CURRENT'] ?>"/>
+		<input type="hidden" name="fields[LANG]" value="<?= $row['LANG']['CURRENT']?>"/>
 
 		<div class="ui-form ui-form-section">
 			<!--Theme color-->

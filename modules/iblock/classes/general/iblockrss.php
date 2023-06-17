@@ -84,7 +84,6 @@ class CAllIBlockRSS
 
 		if ($text != "")
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 			$objXML = new CDataXML();
 			$res = $objXML->LoadString($text);
 			if($res !== false)

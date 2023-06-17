@@ -1173,7 +1173,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	{
 		$providerInstance = null;
 
-		if (is_array($mapping))
+		if (is_array($mapping) && isset($mapping['PROVIDER_KEY']))
 		{
 			switch ($mapping['PROVIDER_KEY'])
 			{

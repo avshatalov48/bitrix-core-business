@@ -846,7 +846,7 @@ class Workgroup extends Base
 
 			$members[] = [
 				'ID' => $id,
-				'PHOTO' => $avatars[$imageIds[$id]],
+				'PHOTO' => $avatars[$imageIds[$id] ?? null] ?? '',
 				'HREF' => $userUrl,
 				'FORMATTED_NAME' => $userNameFormatted,
 				'ROLE' => ($isScrumMembers ? $this->getScrumRole($member) : $member->get('ROLE')),
@@ -861,7 +861,7 @@ class Workgroup extends Base
 				{
 					$members[] = [
 						'ID' => $id,
-						'PHOTO' => $avatars[$imageIds[$id]],
+						'PHOTO' => $avatars[$imageIds[$id] ?? null] ?? '',
 						'HREF' => $userUrl,
 						'FORMATTED_NAME' => $userNameFormatted,
 						'ROLE' => 'M',

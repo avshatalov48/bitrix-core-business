@@ -26,12 +26,12 @@ function checkSmtp(array &$fields, Main\ErrorCollection &$errors)
 		return false;
 	}
 	$smtpConfig = new Bitrix\Main\Mail\Smtp\Config([
-		'from' => $fields['EMAIL'],
-		'host' => $smtpConfig['server'],
-		'port' => $smtpConfig['port'],
-		'protocol' => $smtpConfig['protocol'],
-		'login' => $smtpConfig['login'],
-		'password' => $smtpConfig['password'],
+		'from' => $fields['EMAIL'] ?? '',
+		'host' => $smtpConfig['server'] ?? '',
+		'port' => $smtpConfig['port'] ?? '',
+		'protocol' => $smtpConfig['protocol'] ?? '',
+		'login' => $smtpConfig['login'] ?? '',
+		'password' => $smtpConfig['password'] ?? '',
 	]);
 	$context = new Main\Mail\Context();
 	$context->setSmtp($smtpConfig);
@@ -126,6 +126,7 @@ $COPY_ID = intval($request["COPY_ID"]);
 
 $entity = Main\Mail\Internal\SenderTable::getEntity();
 $fields = $entity->getFields();
+$configuration = null;
 
 if ($request->isPost() && ($request["save"] <> '' || $request["apply"] <> '') && $isAdmin && check_bitrix_sessid())
 {
@@ -289,7 +290,7 @@ if (!empty($errors))
 		<tr class="adm-detail-field">
 			<td><?= Loc::getMessage('smtp_configuration_edit_port') ?>:</td>
 			<td><input type="number" name="port" size="30" maxlength="10"
-					value="<?= HtmlFilter::encode($options['port'] ?? "") ?>" 
+					value="<?= HtmlFilter::encode($options['port'] ?? "") ?>"
 					onfocus="window.bxCurrentControl=this"/></td>
 		</tr>
 		<tr class="adm-detail-field">

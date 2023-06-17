@@ -140,7 +140,7 @@ class Package
 	{
 		if (!is_string($CID))
 			throw new ArgumentNullException("CID");
-		else if (mb_strpos($CID, "/") !== false)
+		else if (strpos($CID, "/") !== false)
 			throw new ArgumentException("CID contains a forbidden symbol /");
 		$this->CID = preg_replace("/[^a-z0-9_\\-.]/i", "_", $CID);
 	}
@@ -261,7 +261,8 @@ class Package
 		);
 		$files = $files[Uploader::FILE_NAME];
 
-		if ($post["type"] != "brief") // If it is IE8
+		$type = $post["type"] ?? null;
+		if ($type !== "brief") // If it is IE8
 		{
 			$error = "";
 			if ($this->log["executeStatus"] != "executed")
@@ -386,7 +387,7 @@ class Package
 					break;
 				if (!array_key_exists($fileRaw["id"], $filesOnThisPack))
 				{
-					if ($fileRaw["removed"])
+					if (!empty($fileRaw["removed"]))
 					{
 						$file = new FileRemoved($this, [
 							'id' => $fileRaw['id'],
@@ -420,7 +421,7 @@ class Package
 				}
 				$result = File::checkFile($fileRaw, $file, $fileLimits + array("path" => $this->getPath()));
 				if ($result->isSuccess() && ($result = $file->saveFile($fileRaw, $this->getStorage(), $this->getCopies())) && $result->isSuccess() &&
-					$post["type"] != "brief" &&
+					$type !== "brief" &&
 					$file->isUploaded() &&
 					!$file->isExecuted()
 				)
@@ -469,7 +470,7 @@ class Package
 
 		if ($declaredFiles > 0 && $declaredFiles <= $cnt)
 		{
-			if ($post["type"] != "brief") // If it is IE8
+			if ($type !== "brief") // If it is IE8
 			{
 				$this->log["uploadStatus"] = "uploaded";
 				$error = "";

@@ -66,6 +66,10 @@ class ActionFactory
 			self::UNDO => 'ChangeAnchorAction',
 			self::REDO => 'ChangeAnchorAction',
 		],
+		'CHANGE_NODE_NAME_ACTION' => [
+			self::UNDO => 'ChangeNodeNameAction',
+			self::REDO => 'ChangeNodeNameAction',
+		],
 		'UPDATE_DYNAMIC' => [
 			self::UNDO => 'UpdateDynamicAction',
 			self::REDO => 'UpdateDynamicAction',

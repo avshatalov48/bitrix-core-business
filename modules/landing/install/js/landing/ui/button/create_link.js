@@ -38,7 +38,9 @@
 				this.textNode = this.textField;
 			}
 
-			BX.Landing.UI.Panel.Link.getInstance().show(this.textNode);
+			const linkPanel = BX.Landing.UI.Panel.Link.getInstance();
+			linkPanel.setContextDocument(this.contextDocument);
+			linkPanel.show(this.textNode);
 		}
 	};
 })();

@@ -1,0 +1,169 @@
+.ui-vue-reactions {
+	display: flex;
+	white-space: nowrap;
+}
+.ui-vue-reactions * {
+	box-sizing: content-box!important;
+}
+.ui-vue-reactions-result {
+	background-color: #fff;
+	border: 1px solid rgba(0,0,0,.14);
+	border-radius: 10px;
+	padding: 0 2px;
+	display: flex;
+}
+.ui-vue-reactions-result-active {
+	cursor: pointer;
+}
+
+.ui-vue-reactions-result-types {
+    display: inline-block;
+    height: 19px;
+    vertical-align: top;
+	line-height: 13px;
+}
+.ui-vue-reactions-result-type {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	position: relative;
+	background-size: cover;
+}
+.ui-vue-reactions-result-type + .ui-vue-reactions-result-type {
+	margin-left: -5px;
+}
+
+.ui-vue-reactions-result-counter {
+	display: inline-block;
+    height: 19px;
+	font: 10px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	color: #484848;
+	vertical-align: top;
+	margin-right: 5px;
+    margin-left: 2px;
+	background-color: rgba(255,255,255,.5);
+	z-index: 10;
+}
+
+.ui-vue-reactions-button {
+	display: inline-block;
+	height: 21px;
+	width: 21px;
+	margin-left: 4px;
+}
+.ui-vue-reactions-button-container {
+	display: inline-block;
+	height: 29px;
+	width: 52px;
+	margin-top: -4px;
+    margin-left: -17px;
+	box-sizing: border-box;
+	padding-top: 4px;
+	padding-left: 17px;
+	cursor: pointer;
+}
+
+.ui-vue-reactions-button-icon {
+	display: inline-block;
+	height: 19px;
+	width: 19px;
+	border: 1px solid #fff;
+	border-radius: 50%;
+	background-size: cover;
+	vertical-align: top;
+}
+
+.ui-vue-reactions-button-icon.ui-vue-reactions-icon-none {
+	border-color: rgba(0,0,0,.14);
+}
+
+.ui-vue-reactions-button-press-enter-active, .ui-vue-reactions-button-press-leave-active {
+  transition: opacity .5s;
+}
+.ui-vue-reactions-button-press-enter-from, .ui-vue-reactions-button-press-leave-to {
+  opacity: 0;
+}
+
+.ui-vue-reactions-button-pressed {
+	animation: ui-vue-reactions-button-pressed .4s 1;
+}
+
+@keyframes ui-vue-reactions-button-pressed {
+	0% {
+		transform: scale(1);
+	}
+	20% {
+		transform: scale(2);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+.ui-vue-reactions-result-type-animation-enter-active, .ui-vue-reactions-result-type-animation-leave-active {
+	transition: all .4s;
+	margin-right: 0;
+}
+.ui-vue-reactions-result-type-animation-enter-from, .ui-vue-reactions-result-type-animation-leave-to {
+	margin-right: -14px;
+}
+.ui-vue-reactions-result-type:last-child.ui-vue-reactions-result-type-animation-leave-active {
+	opacity: 1;
+}
+.ui-vue-reactions-result-type:last-child.ui-vue-reactions-result-type-animation-leave-to {
+	opacity: 0;
+}
+
+.ui-vue-reactions-result-animation-enter-active, .ui-vue-reactions-result-animation-leave-active {
+  transition: opacity .7s;
+}
+.ui-vue-reactions-result-animation-enter-from, .ui-vue-reactions-result-animation-leave-to {
+  opacity: 0;
+}
+
+.ui-vue-reactions-mobile .ui-vue-reactions-result-types {
+    height: 24px;
+}
+.ui-vue-reactions-mobile .ui-vue-reactions-result-type {
+	width: 20px;
+	height: 20px;
+}
+.ui-vue-reactions-mobile .ui-vue-reactions-result-type + .ui-vue-reactions-result-type {
+	margin-left: -5px;
+}
+
+.ui-vue-reactions-mobile .ui-vue-reactions-result-counter {
+	height: 24px;
+	font-size: 14px;
+	line-height: 24px;
+	margin-left: 4px;
+}
+
+.ui-vue-reactions-mobile .ui-vue-reactions-button {
+	height: 26px;
+	width: 26px;
+}
+.ui-vue-reactions-mobile .ui-vue-reactions-button-container {
+	display: inline-block;
+	height: 29px;
+	width: 52px;
+	margin-top: -4px;
+    margin-left: -17px;
+	box-sizing: border-box;
+	padding-top: 4px;
+	padding-left: 17px;
+	cursor: pointer;
+}
+
+.ui-vue-reactions-mobile .ui-vue-reactions-button-icon {
+	height: 24px;
+	width: 24px;
+}
+
+.ui-vue-reactions-mobile .ui-vue-reactions-result-type-animation-enter,
+.ui-vue-reactions-mobile .ui-vue-reactions-result-type-animation-leave-to {
+	margin-right: -19px;
+}

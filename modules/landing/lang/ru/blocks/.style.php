@@ -1,5 +1,9 @@
-<?
+<?php
 $MESS["LANDING_BLOCK_STYLE_TEXT_ALIGN"] = "Выравнивание текста";
+$MESS["LANDING_BLOCK_STYLE_WORD_BREAK"] = "Перенос текста на новую строку";
+$MESS["LANDING_BLOCK_STYLE_WORD_BREAK_HELP"] = "<li> Переносить слова полностью — перенос целого слова на следующую строку, если оно не помещается на текущей<li> Разделять слова на части — перенос части слова на следующую строку при достижении границ редактора";
+$MESS["LANDING_BLOCK_STYLE_WORD_BREAK_NORMAL"] = "Переносить слова полностью";
+$MESS["LANDING_BLOCK_STYLE_WORD_BREAK_BREAK_ALL"] = "Разделять слова на части";
 $MESS["LANDING_BLOCK_STYLE_TEXT_ALIGN_SHORT"] = "Выравнивание";
 $MESS["LANDING_BLOCK_STYLE_ROW_ALIGN"] = "Выравнивание элементов";
 $MESS["LANDING_BLOCK_STYLE_TEXT_COLOR"] = "Цвет текста";
@@ -80,7 +84,7 @@ $MESS["LANDING_BLOCK_STYLE_NAVBAR_COLLAPSE_BG"] = "Фон раскрывающе
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_OPEN_TYPE"] = "Тип раскрытия";
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_MODAL"] = "Поверх всех";
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_NO_MODAL"] = "Обычное раскрытие";
-$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE"] = "Размер гамбургера";
+$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_MSGVER_1"] = "Размер гамбургера";
 $MESS["LANDING_BLOCK_STYLE_HAMBURGER_ANIMATION"] = "Анимация гамбургера";
 $MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_SM"] = "Маленький";
 $MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_MD"] = "Стандартный";

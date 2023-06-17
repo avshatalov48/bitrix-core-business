@@ -13,21 +13,6 @@ export const StorageLimit = Object.freeze({
 	messages: 100,
 });
 
-export const Settings = Object.freeze({
-	darkTheme: 'darkTheme'
-});
-
-// old chat names -> new model names
-export const SettingsMap = Object.freeze({
-	enableDarkTheme: 'darkTheme'
-});
-
-export const AvatarSize = Object.freeze({
-	S: 'S',
-	M: 'M',
-	L: 'L'
-});
-
 export const OpenTarget = Object.freeze({
 	current: 'current',
 	auto: 'auto',

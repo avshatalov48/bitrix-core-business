@@ -29,11 +29,15 @@ export class MenuForm extends BaseForm
 
 		this.draggable = new Draggable({
 			container: this.getBody(),
+			context: parent.window,
 			draggable: '.landing-ui-form-menuitem',
 			dragElement: '.landing-ui-form-header-drag-button',
 			type: Draggable.DROP_PREVIEW,
 			depth: {
 				margin: 20,
+			},
+			offset: {
+				y: -65,
 			},
 		});
 

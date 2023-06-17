@@ -85,7 +85,9 @@ class im extends CModule
 		CAgent::AddAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im", "N", 86400);
 		CAgent::AddAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im", "N", 3600);
 		CAgent::AddAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im", "N", 86400);
-		CAgent::AddAgent("\\Bitrix\\Im\\Message\\Uuid::cleanOldRecords();", "im", "N", 86400);
+		CAgent::AddAgent('\Bitrix\Im\Message\Uuid::cleanOldRecords();', 'im', 'N', 86400);/** @see \Bitrix\Im\Message\Uuid::cleanOldRecords */
+		CAgent::AddAgent('\Bitrix\Im\V2\Link\Reminder\ReminderService::remindAgent();', 'im', 'N', 60);
+		CAgent::AddAgent('\Bitrix\Im\V2\Link\File\TemporaryFileService::cleanAgent();', 'im', 'N', 3600);
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
@@ -93,6 +95,12 @@ class im extends CModule
 		$eventManager->registerEventHandler('voximplant', 'onConferenceFinished', 'im', '\Bitrix\Im\Call\Call', 'onVoximplantConferenceFinished');
 
 		$eventManager->registerEventHandler('rest', 'onRestCheckAuth', 'im', '\Bitrix\Im\Call\Auth', 'onRestCheckAuth');
+
+		$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEntryUpdate', 'im', '\Bitrix\Im\V2\Service\Messenger', 'updateCalendar');
+		$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEventDelete', 'im', '\Bitrix\Im\V2\Service\Messenger', 'unregisterCalendar');
+
+		//marketplace
+		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'im','\Bitrix\Im\V2\Marketplace\Placement', 'onRestServiceBuildDescription');
 
 		$solution = COption::GetOptionString("main", "wizard_solution", false);
 		if ($solution == 'community')
@@ -337,7 +345,7 @@ class im extends CModule
 		$generalDefaultSettings = \Bitrix\Im\Configuration\General::getDefaultSettings();
 		\Bitrix\Im\Configuration\General::setSettings($defaultGroupId, $generalDefaultSettings);
 
-		$notifySettings = \Bitrix\Im\Configuration\Manager::getSimpleNotifySettings($generalDefaultSettings);
+		$notifySettings = \Bitrix\Im\Configuration\Notification::getSimpleNotifySettings($generalDefaultSettings);
 		\Bitrix\Im\Configuration\Notification::setSettings($defaultGroupId, $notifySettings);
 
 
@@ -348,6 +356,26 @@ class im extends CModule
 				'GROUP_ID' => $defaultGroupId,
 				'ACCESS_CODE' => $topDepartmentId ? 'DR' . $topDepartmentId : 'AU'
 			]);
+		}
+
+		$usersQuery =
+			\Bitrix\Main\UserTable::query()
+				->addSelect('ID')
+				->where('IS_REAL_USER', 'Y')
+		;
+
+		$userBindings = [];
+		foreach ($usersQuery->exec() as $row)
+		{
+			$userBindings[] = [
+				'USER_ID' => $row['ID'],
+				'GENERAL_GROUP_ID' => $defaultGroupId,
+				'NOTIFY_GROUP_ID' => $defaultGroupId,
+			];
+		}
+		if (!empty($userBindings))
+		{
+			\Bitrix\Im\Model\OptionUserTable::addMulti($userBindings, true);
 		}
 
 		\Bitrix\Main\Config\Option::set('im', \Bitrix\Im\Configuration\Configuration::DEFAULT_PRESET_SETTING_NAME, (int)$defaultGroupId);
@@ -413,6 +441,8 @@ class im extends CModule
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Message\\Uuid::cleanOldRecords();", "im");
+		CAgent::RemoveAgent('\Bitrix\Im\V2\Link\Reminder\ReminderService::remindAgent();', 'im');
+		CAgent::RemoveAgent('\Bitrix\Im\V2\Link\File\TemporaryFileService::cleanAgent();', 'im');
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "im", "CIMNotifySchema", "OnGetNotifySchema");
 		UnRegisterModuleDependences("main", "OnFileDelete", "im", "CIMEvent", "OnFileDelete");
 		UnRegisterModuleDependences("disk", "onAfterDeleteFile", "im", "CIMDisk", "OnAfterDeleteFile");
@@ -440,6 +470,10 @@ class im extends CModule
 		$eventManager->unRegisterEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
 		$eventManager->unRegisterEventHandler('pull', 'onGetMobileCounterTypes', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounterTypes');
 		$eventManager->unRegisterEventHandler('voximplant', 'onConferenceFinished', 'im', '\Bitrix\Im\Call\Call', 'onVoximplantConferenceFinished');
+
+		$eventManager->unregisterEventHandler('calendar', 'OnAfterCalendarEntryUpdate', 'im', '\Bitrix\Im\V2\Service\Messenger', 'updateCalendar');
+		$eventManager->unregisterEventHandler('calendar', 'OnAfterCalendarEventDelete', 'im', '\Bitrix\Im\V2\Service\Messenger', 'unregisterCalendar');
+		$eventManager->unregisterEventHandler('rest', 'OnRestServiceBuildDescription', 'im','\Bitrix\Im\V2\Marketplace\Placement', 'onRestServiceBuildDescription');
 
 		$this->UnInstallUserFields($arParams);
 

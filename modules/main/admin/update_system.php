@@ -1,4 +1,4 @@
-<?
+<?php
 //**********************************************************************/
 //**    DO NOT MODIFY THIS FILE                                       **/
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
@@ -6,7 +6,7 @@
 // region environment initialization
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "22.600.100");
+	define("UPDATE_SYSTEM_VERSION", "23.300.0");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -228,7 +228,7 @@ if (version_compare(SM_VERSION, "20.0.1500") >= 0)
 // MySQL 5.0.0, PHP 5.3.0
 if ($DB->type === "MYSQL")
 {
-	$dbQueryRes = $DB->Query("select VERSION() as ver", True);
+	$dbQueryRes = $DB->Query("select VERSION() as ver", true);
 	if ($arQueryRes = $dbQueryRes->Fetch())
 	{
 		$curMySqlVer = trim($arQueryRes["ver"]);
@@ -303,10 +303,10 @@ if ($DB->type === "MYSQL")
 	$dbLangTmp = CLanguage::GetByID("ru");
 	if ((defined("BX_UTF") && BX_UTF) || $dbLangTmp->Fetch())
 	{
-		$dbQueryRes = $DB->Query("show variables like 'character_set_database'", True);
+		$dbQueryRes = $DB->Query("show variables like 'character_set_database'", true);
 		if ($dbQueryRes && ($arQueryRes = $dbQueryRes->Fetch()))
 		{
-			$curCharacterSet = strtolower(Trim($arQueryRes["Value"]));
+			$curCharacterSet = strtolower(trim($arQueryRes["Value"]));
 			if (defined("BX_UTF") && BX_UTF)
 			{
 				if (substr($curCharacterSet, 0, 3) !== "utf")
@@ -338,7 +338,7 @@ if (version_compare($curPhpVer, $minPhpErrorVersion) < 0)
 			)
 		);
 }
-if (($minPhpWarningVersion !== "") && (version_compare($curPhpVer, $minPhpWarningVersion) < 0))
+if (version_compare($curPhpVer, $minPhpWarningVersion) < 0)
 {
 	$messageTmp = "<br>".GetMessage("SUP_PHP_LWARN_F",
 		array("#VERS#" => $curPhpVer,
@@ -348,10 +348,7 @@ if (($minPhpWarningVersion !== "") && (version_compare($curPhpVer, $minPhpWarnin
 		)
 	);
 
-	if ($minPhpWarningVersion == "8.0")
-	{
-		$messageTmp .= ' ' . GetMessage('SUP_PHP_LWARN_PHP8');
-	}
+	$messageTmp .= ' ' . GetMessage('SUP_PHP_LWARN_PHP8');
 
 	if ((MakeTimeStamp($minPhpWarningVersionDate, "YYYY-MM-DD") - time()) / (60 * 60 * 24) < 30)
 	{
@@ -813,11 +810,9 @@ $tabControl->BeginNextTab();
 					}
 				}
 
-				$countHelpUpdatesInst = 0;
 				if (isset($arUpdateList["HELPS"]) && is_array($arUpdateList["HELPS"]) && isset($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]))
 					$countHelpUpdatesInst = count($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]);
 
-				$countHelpUpdatesOther = 0;
 				if (isset($arUpdateList["HELPS"]) && is_array($arUpdateList["HELPS"]) && isset($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]))
 					$countHelpUpdatesOther = count($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]);
 
@@ -825,54 +820,52 @@ $tabControl->BeginNextTab();
 				$newLicenceSigned = COption::GetOptionString("main", $newLicenceSignedKey, "N");
 				if ($newLicenceSigned !== "Y")
 				{
-					$bLockControls = True;
+					$bLockControls = true;
 					UpdateSystemRenderLicenseIsNotSigned();
 				}
 
-				$bLicenseNotFound = False;
-				if ($arUpdateList !== false
-					&& isset($arUpdateList["ERROR"])
-					&& count($arUpdateList["ERROR"]) > 0)
+				$bLicenseNotFound = false;
+				if (!empty($arUpdateList["ERROR"]))
 				{
 					for ($i = 0, $cntTmp = count($arUpdateList["ERROR"]); $i < $cntTmp; $i++)
 					{
 						if ($arUpdateList["ERROR"][$i]["@"]["TYPE"] == "LICENSE_NOT_FOUND")
 						{
-							$bLicenseNotFound = True;
+							$bLicenseNotFound = true;
 							break;
 						}
 					}
 				}
 				$strLicenseKeyTmp = CUpdateClient::GetLicenseKey();
 				$bLicenseNotFound = $strLicenseKeyTmp == '' || strtolower($strLicenseKeyTmp) == "demo" || $bLicenseNotFound;
-				$bFullVersion = ($arUpdateList !== false && isset($arUpdateList["CLIENT"]) && ($arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "F" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "E" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "T"));
+				$bFullVersion = (isset($arUpdateList["CLIENT"]) && ($arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "F" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "E" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "T"));
 
 				if ($bLicenseNotFound  || (defined("DEMO") && DEMO == "Y" && !$bFullVersion))
 				{
 					if($bLicenseNotFound)
-						$bLockControls = True;
+						$bLockControls = true;
 
 					UpdateSystemRenderLicenceNotFound($bLicenseNotFound);
 				}
 
 				if (!$bLicenseNotFound)
 				{
-					if (isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"]) && count($arUpdateList["CLIENT"]) > 0 && $arUpdateList["CLIENT"][0]["@"]["RESERVED"] == "Y")
+					if (isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"]) && !empty($arUpdateList["CLIENT"]) && $arUpdateList["CLIENT"][0]["@"]["RESERVED"] == "Y")
 					{
-						$bLockControls = True;
+						$bLockControls = true;
 						UpdateSystemRenderLicenseIsNotActive();
 					}
 					else
 					{
-						if ($arUpdateList !== false && isset($arUpdateList["UPDATE_SYSTEM"]))
+						if (isset($arUpdateList["UPDATE_SYSTEM"]))
 						{
-							$bLockControls = True;
+							$bLockControls = true;
 							UpdateSystemRenderUpdateClient();
 						}
 					}
 				}
 
-				if (empty($errorMessage) && ($arUpdateList !== false)
+				if (empty($errorMessage)
 					&& defined("DEMO") && DEMO == "Y"
 					&& isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"])
 					&& ($arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "F" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "E" || $arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "T"))
@@ -880,7 +873,7 @@ $tabControl->BeginNextTab();
 					UpdateSystemRenderRegisterProduct($bLockControls);
 				}
 
-				if (empty($errorMessage) && ($arUpdateList !== false)
+				if (empty($errorMessage)
 					&& defined("ENCODE") && ENCODE=="Y"
 					&& isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"])
 					&& ($arUpdateList["CLIENT"][0]["@"]["ENC_TYPE"] == "F"))
@@ -891,7 +884,7 @@ $tabControl->BeginNextTab();
 
 
 				<?
-				if ($arUpdateList !== false && (isset($_REQUEST[_32763223666625(0)]) && ($_REQUEST[_32763223666625(0)] == "Y")) && isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"]))
+				if (isset($_REQUEST[_32763223666625(0)]) && ($_REQUEST[_32763223666625(0)] == "Y") && isset($arUpdateList["CLIENT"]) && !isset($arUpdateList["UPDATE_SYSTEM"]))
 				{
 					UpdateSystemRenderSupport($bLockControls, $arClientModules);
 				}
@@ -967,18 +960,18 @@ $tabControl->BeginNextTab();
 											<td>
 								<b><?= GetMessage("SUP_SU_RECOMEND") ?>:</b>
 								<?
-								$bComma = False;
+								$bComma = false;
 								if ($countModuleUpdates > 0)
 								{
 									echo str_replace("#NUM#", $countModuleUpdates, GetMessage("SUP_SU_RECOMEND_MOD"));
-									$bComma = True;
+									$bComma = true;
 								}
 								if ($countLangUpdatesInst > 0)
 								{
 									if ($bComma)
 										echo ", ";
 									echo str_replace("#NUM#", $countLangUpdatesInst, GetMessage("SUP_SU_RECOMEND_LAN"));
-									$bComma = True;
+									$bComma = true;
 								}
 								if ($countModuleUpdates <= 0 && $countLangUpdatesInst <= 0)
 									echo GetMessage("SUP_SU_RECOMEND_NO");
@@ -987,11 +980,11 @@ $tabControl->BeginNextTab();
 								{
 									echo "<br>";
 									echo "<b>".GetMessage("SUP_SU_OPTION").":</b> ";
-									$bComma = False;
+									$bComma = false;
 									if ($countLangUpdatesOther > 0)
 									{
 										echo str_replace("#NUM#", $countLangUpdatesOther, GetMessage("SUP_SU_OPTION_LAN"));
-										$bComma = True;
+										$bComma = true;
 									}
 									if ($countHelpUpdatesOther > 0 || $countHelpUpdatesInst > 0)
 									{
@@ -1579,7 +1572,7 @@ $tabControl->End();
 			if ($i > 0)
 				echo ", ";
 			echo "\"".$arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["@"]["ID"]."\" : [";
-			$bFlagTmp = False;
+			$bFlagTmp = false;
 			if (isset($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"])
 				&& is_array($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]))
 			{
@@ -1637,7 +1630,7 @@ $tabControl->End();
 		txt += '<form name="license_form">';
 		txt += '<h2><?= GetMessage("SUP_SUBT_LICENCE") ?></h2>';
 		txt += '<table cellspacing="0"><tr><td>';
-		txt += '<iframe name="license_text" src="<?= CUpdateClient::getLicenseTextPath() ?>" style="width:450px; height:250px; display:block;"></iframe>';
+		txt += '<iframe name="license_text" src="<?= CUpdateClient::getLicenseTextPath() ?>" style="width:770px; height:450px; display:block;"></iframe>';
 		txt += '</td></tr><tr><td>';
 		txt += '<input name="agree_license" type="checkbox" value="Y" id="agree_license_id" onclick="AgreeLicenceCheckbox(this)">';
 		txt += '<label for="agree_license_id"><?= GetMessage("SUP_SUBT_AGREE") ?></label>';
@@ -2992,4 +2985,3 @@ COption::SetOptionString("main", "update_system_check", Date($DB->DateFormatToPH
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 //endregion
-?>

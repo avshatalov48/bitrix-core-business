@@ -54,6 +54,7 @@ class User extends \CBPRuntimeService
 		$schedule = $this->getUserSchedule($userId);
 		$user['IS_ABSENT'] = $schedule->isAbsent();
 		$user['TIMEMAN_STATUS'] = $schedule->getWorkDayStatus();
+		$user['UF_HEAD'] = $this->convertUserValue($this->getUserHeads($userId));
 
 		return $user;
 	}
@@ -70,10 +71,25 @@ class User extends \CBPRuntimeService
 				'Multiple' => true,
 			];
 
+			$fields['UF_DEPARTMENT_PRINTABLE'] = [
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_PRINTABLE'),
+				'Type' => 'string',
+				'Multiple' => true,
+			];
+
 			$fields['IS_ABSENT'] = [
 				'Name' => Loc::getMessage('BP_SERVICE_USER_IS_ABSENT'),
 				'Type' => 'bool',
 			];
+
+			if ($this->canUseIblockApi())
+			{
+				$fields['UF_HEAD'] = [
+					'Name' => Loc::getMessage('BP_SERVICE_USER_HEAD'),
+					'Type' => 'user',
+					'Multiple' => true,
+				];
+			}
 		}
 
 		if ($this->canUseTimeman())
@@ -305,12 +321,7 @@ class User extends \CBPRuntimeService
 		{
 			$field = Main\UserFieldTable::getFieldData($fieldId['ID']);
 			$fieldName = $field['FIELD_NAME'];
-			$fieldType = FieldType::convertUfType($field['USER_TYPE_ID']);
-
-			if (!$fieldType)
-			{
-				continue;
-			}
+			$fieldType = FieldType::convertUfType($field['USER_TYPE_ID']) ?? "UF:{$field['USER_TYPE_ID']}";
 
 			$name = in_array(\LANGUAGE_ID, $field['LANGUAGE_ID'])
 				? $field['LIST_COLUMN_LABEL'][\LANGUAGE_ID]
@@ -349,6 +360,11 @@ class User extends \CBPRuntimeService
 				$values[$id] = $this->convertSelectValue($values[$id], $field);
 			}
 		}
+
+		if (!empty($values['UF_DEPARTMENT']))
+		{
+			$values['UF_DEPARTMENT_PRINTABLE'] = $this->loadDepartmentNames($values['UF_DEPARTMENT']);
+		}
 	}
 
 	private function convertSelectValue($value, $field)
@@ -372,6 +388,22 @@ class User extends \CBPRuntimeService
 		$xmlId = array_search($value, $enumIds);
 
 		return $xmlId !== false ? $xmlId : '';
+	}
+
+	private function convertUserValue($value): array
+	{
+		$users = [];
+
+		$value = is_array($value) ? $value : [$value];
+		foreach ($value as $userId)
+		{
+			if (is_int($userId))
+			{
+				$users[] = 'user_' . $userId;
+			}
+		}
+
+		return $users;
 	}
 
 	private function loadUser(int $userId, array $fields): ?array
@@ -413,5 +445,39 @@ class User extends \CBPRuntimeService
 		$user = $dbUsers->fetch();
 
 		return is_array($user) ? $user : null;
+	}
+
+	private function loadDepartmentNames(array $ids): array
+	{
+		$names = [];
+
+		if (!Main\Loader::includeModule('intranet') || !Main\Loader::includeModule('iblock'))
+		{
+			return $names;
+		}
+
+		$iblockId = Main\Config\Option::get('intranet', 'iblock_structure');
+
+		$iterator = \CIBlockSection::GetList(
+			['ID' => 'ASC'],
+			[
+				'=IBLOCK_ID' => $iblockId,
+				'ID' => $ids
+			],
+			false,
+			['ID', 'NAME']
+		);
+
+		while ($row = $iterator->fetch())
+		{
+			$names[$row['ID']] = $row['NAME'];
+		}
+
+		return array_values(array_filter(
+			array_map(
+				fn($id) => $names[$id] ?? null,
+				$ids
+			)
+		));
 	}
 }

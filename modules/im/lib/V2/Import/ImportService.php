@@ -298,7 +298,7 @@ class ImportService
 
 	private function showInRecent(array $chatData): Result
 	{
-		$relations = Chat::getRelation((int)$chatData['ID']);
+		$relations = Chat::getRelation((int)$chatData['ID'], ['WITHOUT_COUNTERS' => 'Y']);
 
 		foreach ($relations as $userId => $relation)
 		{

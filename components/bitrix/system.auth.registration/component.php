@@ -88,7 +88,7 @@ $arResult["USER_EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"] <> '' ? $_REQ
 // ********************* User properties ***************************************************
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 $arUserFields = $USER_FIELD_MANAGER->GetUserFields("USER", 0, LANGUAGE_ID);
-if (is_array($arUserFields) && count($arUserFields) > 0)
+if (is_array($arUserFields) && !empty($arUserFields))
 {
 	foreach ($arUserFields as $FIELD_NAME => $arUserField)
 	{
@@ -156,7 +156,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 // verify phone code
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '' && !$USER->IsAuthorized())
 {
-	if($_REQUEST["SIGNED_DATA"] <> '')
+	if (!empty($_REQUEST["SIGNED_DATA"]))
 	{
 		if(($params = \Bitrix\Main\Controller\PhoneAuth::extractData($_REQUEST["SIGNED_DATA"])) !== false)
 		{

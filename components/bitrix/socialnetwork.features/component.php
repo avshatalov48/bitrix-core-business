@@ -362,11 +362,11 @@ else
 
 		if (
 			$_SERVER["REQUEST_METHOD"] == "POST"
-			&& $_POST["save"] <> ''
+			&& !empty($_POST["save"])
 			&& check_bitrix_sessid()
 		)
 		{
-			if ($_POST["ajax_request"] == "Y")
+			if (isset($_POST["ajax_request"]) && $_POST["ajax_request"] == "Y")
 			{
 				CUtil::JSPostUnescape();
 			}
@@ -464,7 +464,7 @@ else
 				}
 			}
 
-			if ($_REQUEST["ajax_request"] == "Y")
+			if (isset($_REQUEST["ajax_request"]) && $_REQUEST["ajax_request"] == "Y")
 			{
 				$APPLICATION->RestartBuffer();
 				echo CUtil::PhpToJsObject(array(
@@ -491,7 +491,7 @@ else
 				}
 				else
 				{
-					if ($_REQUEST['backurl'])
+					if (!empty($_REQUEST['backurl']))
 					{
 						LocalRedirect($_REQUEST['backurl']);
 					}

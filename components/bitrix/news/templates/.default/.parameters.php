@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 $arTemplateParameters = array(
 	"DISPLAY_DATE" => Array(
@@ -20,14 +25,12 @@ $arTemplateParameters = array(
 	"USE_SHARE" => Array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_USE_SHARE"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
-		"VALUE" => "Y",
 		"DEFAULT" =>"N",
 		"REFRESH"=> "Y",
 	),
 );
 
-if ($arCurrentValues["USE_SHARE"] == "Y")
+if (($arCurrentValues['USE_SHARE'] ?? 'N') === 'Y')
 {
 	$arTemplateParameters["SHARE_HIDE"] = array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_SHARE_HIDE"),
@@ -44,15 +47,16 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"COLS" => 25,
 		"REFRESH"=> "Y",
 	);
-	
-	if (trim($arCurrentValues["SHARE_TEMPLATE"]) == '')
-		$shareComponentTemlate = false;
-	else
-		$shareComponentTemlate = trim($arCurrentValues["SHARE_TEMPLATE"]);
+
+	$shareComponentTemplate = (trim((string)($arCurrentValues["SHARE_TEMPLATE"] ?? '')));
+	if ($shareComponentTemplate === '')
+	{
+		$shareComponentTemplate = false;
+	}
 
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/main.share/util.php");
 
-	$arHandlers = __bx_share_get_handlers($shareComponentTemlate);
+	$arHandlers = __bx_share_get_handlers($shareComponentTemplate);
 
 	$arTemplateParameters["SHARE_HANDLERS"] = array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_SHARE_SYSTEM"),
@@ -67,12 +71,10 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"TYPE" => "STRING",
 		"DEFAULT" => "",
 	);
-	
+
 	$arTemplateParameters["SHARE_SHORTEN_URL_KEY"] = array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_SHARE_SHORTEN_URL_KEY"),
 		"TYPE" => "STRING",
 		"DEFAULT" => "",
 	);
 }
-
-?>

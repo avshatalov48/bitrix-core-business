@@ -37,6 +37,10 @@
 	      this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
 	    }
 
+	    if (settings.supportedAjaxFields) {
+	      this.getGrid().arParams.SUPPORTED_AJAX_FIELDS = settings.supportedAjaxFields;
+	    }
+
 	    if (this.isReadOnly) {
 	      return;
 	    }
@@ -138,13 +142,10 @@
 	  }, {
 	    key: "showGridSettingsWindowHandler",
 	    value: function showGridSettingsWindowHandler(event) {
-	      var _this = this;
-
 	      event.preventDefault();
 	      event.stopPropagation();
-	      this.askToLossGridData(function () {
-	        _this.getGrid().getSettingsWindow()._onSettingsButtonClick();
-	      });
+
+	      this.getGrid().getSettingsWindow()._onSettingsButtonClick();
 	    }
 	  }, {
 	    key: "onScrollHandler",
@@ -227,7 +228,7 @@
 	      }
 
 	      var propertyId = bindElementId.replace('SKU_GRID_PROPERTY_', '').replace('_control', '');
-	      var addButton = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new\">\n\t\t\t\t<label \n\t\t\t\t\tclass=\"catalog-productcard-popup-select-label main-dropdown-item\">\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	      var addButton = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new\">\n\t\t\t\t<label\n\t\t\t\t\tclass=\"catalog-productcard-popup-select-label main-dropdown-item\">\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
 	      main_core.Event.bind(addButton, 'mousedown', BX.Catalog.ServiceGrid.firePropertyModification.bind(this, propertyId));
 	      popup.contentContainer.appendChild(addButton);
 	    }
@@ -261,7 +262,7 @@
 	  }, {
 	    key: "bindSliderToReservedQuantityNodes",
 	    value: function bindSliderToReservedQuantityNodes() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      var rows = this.getGrid().getRows().getRows();
 	      rows.forEach(function (row) {
@@ -269,7 +270,7 @@
 	          var reservedQuantityNode = row.getNode().querySelector('.main-grid-cell-content-catalog-reserved-quantity');
 
 	          if (main_core.Type.isDomNode(reservedQuantityNode)) {
-	            main_core.Event.bind(reservedQuantityNode, 'click', _this2.openDealsWithReservedProductSlider.bind(_this2, row.getId()));
+	            main_core.Event.bind(reservedQuantityNode, 'click', _this.openDealsWithReservedProductSlider.bind(_this, row.getId()));
 	          }
 	        }
 	      });
@@ -338,18 +339,18 @@
 	  }, {
 	    key: "prepareNewNodes",
 	    value: function prepareNewNodes() {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      this.getGrid().getRows().getBodyChild().map(function (row) {
 	        var newNode = row.getNode();
 
-	        _this3.markNodeAsNew(newNode);
+	        _this2.markNodeAsNew(newNode);
 
-	        _this3.addSkuListCreationItem(newNode);
+	        _this2.addSkuListCreationItem(newNode);
 
-	        _this3.modifyCustomSkuProperties(newNode);
+	        _this2.modifyCustomSkuProperties(newNode);
 
-	        _this3.disableCheckbox(row);
+	        _this2.disableCheckbox(row);
 	      });
 	    }
 	  }, {
@@ -369,11 +370,11 @@
 	  }, {
 	    key: "bindInlineEdit",
 	    value: function bindInlineEdit() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      this.getGrid().getRows().getBodyChild().forEach(function (item) {
 	        return main_core.Event.bind(item.node, 'click', function (event) {
-	          return _this4.toggleInlineEdit(item, event);
+	          return _this3.toggleInlineEdit(item, event);
 	        });
 	      });
 	    }
@@ -394,7 +395,7 @@
 	  }, {
 	    key: "toggleInlineEdit",
 	    value: function toggleInlineEdit(item, event) {
-	      var _this5 = this;
+	      var _this4 = this;
 
 	      var changed = false;
 
@@ -420,12 +421,12 @@
 	            }
 
 	            main_core.Event.unbindAll(item);
-	            main_core.Event.bind(item, 'click', _this5.openSimpleProductRestrictionPopup.bind(_this5));
+	            main_core.Event.bind(item, 'click', _this4.openSimpleProductRestrictionPopup.bind(_this4));
 	          });
 	          (_item$getNode2 = item.getNode()) === null || _item$getNode2 === void 0 ? void 0 : _item$getNode2.querySelectorAll('.catalog-productcard-select-container .catalog-productcard-select-block').forEach(function (item) {
 	            item.onclick = null;
 	            main_core.Event.unbindAll(item);
-	            main_core.Event.bind(item, 'click', _this5.openSimpleProductRestrictionPopup.bind(_this5));
+	            main_core.Event.bind(item, 'click', _this4.openSimpleProductRestrictionPopup.bind(_this4));
 	          });
 	        }
 	      }
@@ -465,14 +466,14 @@
 	  }, {
 	    key: "deactivateInlineEdit",
 	    value: function deactivateInlineEdit(item) {
-	      var _this6 = this;
+	      var _this5 = this;
 
 	      item.editCancel();
 	      item.unselect(); // disable multi-selection(and self re-selection) while disabling editing
 
 	      this.getGrid().clickPrevent = true;
 	      setTimeout(function () {
-	        _this6.getGrid().clickPrevent = false;
+	        _this5.getGrid().clickPrevent = false;
 	      }, 100);
 	    }
 	  }, {
@@ -514,7 +515,7 @@
 	      var rowId = row === null || row === void 0 ? void 0 : (_row$dataset = row.dataset) === null || _row$dataset === void 0 ? void 0 : _row$dataset.id;
 
 	      if (rowId) {
-	        var deleteButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
+	        var deleteButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span\n\t\t\t\t\tclass=\"main-grid-delete-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
 	        main_core.Dom.append(deleteButton, actionCellContentContainer);
 	      }
 	    }
@@ -623,7 +624,7 @@
 	  }, {
 	    key: "addPropertyToGridHeader",
 	    value: function addPropertyToGridHeader(item) {
-	      var _this7 = this;
+	      var _this6 = this;
 
 	      BX.ajax.runComponentAction('bitrix:catalog.productcard.service.grid', 'addPropertyHeader', {
 	        mode: 'ajax',
@@ -634,7 +635,7 @@
 	          currentHeaders: this.getHeaderNames()
 	        }
 	      }).then(function (response) {
-	        _this7.reloadGrid();
+	        _this6.reloadGrid();
 	      });
 	    }
 	  }, {
@@ -645,10 +646,10 @@
 	  }, {
 	    key: "onGridUpdated",
 	    value: function onGridUpdated(event) {
-	      var _this8 = this;
+	      var _this7 = this;
 
 	      this.getGrid().getSettingsWindow().getItems().forEach(function (column) {
-	        if (_this8.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
+	        if (_this7.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
 	          column.state.selected = true;
 	          column.checkbox.checked = true;
 	        } else {
@@ -683,37 +684,11 @@
 	          propertyId = _event$getData6[0];
 
 	      var link = this.modifyPropertyLink.replace('#PROPERTY_ID#', propertyId);
-	      this.askToLossGridData(function () {
-	        BX.SidePanel.Instance.open(link, {
-	          width: 550,
-	          allowChangeHistory: false,
-	          cacheable: false
-	        });
+	      BX.SidePanel.Instance.open(link, {
+	        width: 550,
+	        allowChangeHistory: false,
+	        cacheable: false
 	      });
-	    }
-	  }, {
-	    key: "askToLossGridData",
-	    value: function askToLossGridData(okCallback, cancelCallback, options) {
-	      if (this.isGridInEditMode()) {
-	        var defaultOptions = {
-	          title: main_core.Loc.getMessage('C_PVG_UNSAVED_DATA_TITLE'),
-	          message: main_core.Loc.getMessage('C_PVG_UNSAVED_DATA_MESSAGE'),
-	          modal: true,
-	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
-	          okCaption: main_core.Loc.getMessage('C_PVG_UNSAVED_DATA_CONTINUE'),
-	          onOk: function onOk(messageBox) {
-	            okCallback && okCallback();
-	            messageBox.close();
-	          },
-	          onCancel: function onCancel(messageBox) {
-	            cancelCallback && cancelCallback();
-	            messageBox.close();
-	          }
-	        };
-	        ui_dialogs_messagebox.MessageBox.show(_objectSpread(_objectSpread({}, defaultOptions), options));
-	      } else {
-	        okCallback && okCallback();
-	      }
 	    }
 	  }, {
 	    key: "isGridInEditMode",

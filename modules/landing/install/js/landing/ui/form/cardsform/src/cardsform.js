@@ -13,6 +13,8 @@ import './css/cards_form.css';
 
 export class CardsForm extends BaseForm
 {
+	static popups: Array<> = [];
+
 	constructor(options = {})
 	{
 		super(options);
@@ -36,9 +38,13 @@ export class CardsForm extends BaseForm
 		this.addButton = this.createAddButton();
 		this.draggable = new Draggable({
 			container: this.body,
+			context: parent.window,
 			draggable: '.landing-ui-form-cards-item',
 			dragElement: '.landing-ui-form-card-item-header-drag',
 			type: Draggable.MOVE,
+			offset: {
+				y: -65,
+			},
 		});
 
 		this.draggable.subscribe('end', this.onDragEnd);
@@ -168,41 +174,41 @@ export class CardsForm extends BaseForm
 
 	showPresetsPopup()
 	{
-		if (!this.popup)
+		if (this.popup)
 		{
-			this.popup = new BX.PopupMenuWindow({
-				id: 'catalog_blocks_list',
-				bindElement: this.addButton.layout,
-				items: Object.keys(this.presets).map((preset) => {
-					return {
-						html: this.presets[preset].name,
-						className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
-						onclick: this.onPresetItemClick.bind(this, preset),
-					};
-				}),
-				autoHide: true,
-				maxHeight: 176,
-				minHeight: 87,
+			CardsForm.popups.map(popup => {
+				popup.popupWindow.close();
+				popup.popupWindow.destroy();
 			});
-
-			Event.bind(this.popup.popupWindow.popupContainer, 'mouseover', this.onMouseOver.bind(this));
-			Event.bind(this.popup.popupWindow.popupContainer, 'mouseleave', this.onMouseLeave.bind(this));
-			const rootWindow = PageObject.getRootWindow();
-			Event.bind(rootWindow.document, 'click', this.onDocumentClick.bind(this));
-			Dom.append(
-				this.popup.popupWindow.popupContainer,
-				this.addButton.layout.closest('.landing-ui-panel-content-body-content'),
-			);
 		}
 
-		if (this.popup.popupWindow.isShown())
-		{
-			this.popup.popupWindow.close();
-		}
-		else
-		{
-			this.popup.popupWindow.show();
-		}
+		this.popup = new BX.PopupMenuWindow({
+			id: 'cards_list_' + Text.getRandom(),
+			bindElement: this.addButton.layout,
+			items: Object.keys(this.presets).map((preset) => {
+				return {
+					html: this.presets[preset].name,
+					className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
+					onclick: this.onPresetItemClick.bind(this, preset),
+				};
+			}),
+			autoHide: true,
+			maxHeight: 176,
+			minHeight: 87,
+		});
+
+		CardsForm.popups.push(this.popup);
+
+		Event.bind(this.popup.popupWindow.popupContainer, 'mouseover', this.onMouseOver.bind(this));
+		Event.bind(this.popup.popupWindow.popupContainer, 'mouseleave', this.onMouseLeave.bind(this));
+		const rootWindow = PageObject.getRootWindow();
+		Event.bind(rootWindow.document, 'click', this.onDocumentClick.bind(this));
+		Dom.append(
+			this.popup.popupWindow.popupContainer,
+			this.addButton.layout.closest('.landing-ui-panel-content-body-content'),
+		);
+
+		this.popup.popupWindow.show();
 
 		this.adjustPopupPosition();
 	}
@@ -234,9 +240,13 @@ export class CardsForm extends BaseForm
 		});
 	}
 
-	onDocumentClick()
+	onDocumentClick(event)
 	{
-		if (this.popup.popupWindow)
+		if (
+			this.popup.popupWindow
+			&& !Dom.hasClass(event.target, 'landing-ui-button-text')
+			&& !Dom.hasClass(event.target, 'landing-ui-card-add-button')
+		)
 		{
 			this.popup.popupWindow.close();
 		}

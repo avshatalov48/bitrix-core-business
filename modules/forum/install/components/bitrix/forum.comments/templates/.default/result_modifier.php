@@ -110,7 +110,7 @@ if (!empty($arResult["MESSAGES"]))
 	foreach ($arResult["MESSAGES"] as $key => $res)
 	{
 		$arResult["MESSAGES"][$key] = forumCommentsCommentWeb($res, $arParams, $arResult, $this->__component);
-		if (in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
+		if (!empty($arResult["ACTION"]) && in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
 		{
 			if ($this->__component->prepareMobileData)
 			{
@@ -137,7 +137,7 @@ if (!empty($arResult["MESSAGES"]))
 		}
 	}
 }
-if ($arResult["ACTION"] == "del" && $arResult["RESULT"] > 0)
+if (isset($arResult["ACTION"]) && $arResult["ACTION"] == "del" && !empty($arResult["RESULT"]))
 {
 	$arResult["PUSH&PULL"] = array(
 		"ID" => $arResult["RESULT"],

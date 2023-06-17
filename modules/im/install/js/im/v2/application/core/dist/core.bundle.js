@@ -1,12 +1,13 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_application_launch,pull_client,rest_client,main_core,ui_vue3,ui_vue3_vuex,im_v2_model,im_v2_const,im_v2_provider_pull,im_v2_lib_logger,im_v2_lib_utils) {
+(function (exports,main_core,ui_vue3,ui_vue3_vuex,pull_client,rest_client,im_v2_application_launch,im_v2_model,im_v2_provider_pull,im_v2_lib_logger) {
 	'use strict';
 
 	class CoreApplication {
 	  /* region 01. Initialize and store data */
-	  constructor(params = {}) {
+	  constructor() {
+	    this.applicationData = {};
 	    this.inited = false;
 	    this.initPromise = new Promise(resolve => {
 	      this.initPromiseResolver = resolve;
@@ -15,66 +16,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.vuexAdditionalModel = [];
 	    this.store = null;
 	    this.storeBuilder = null;
-	    this.pullHandlers = [];
-	    this.prepareParams(params);
+	    this.prepareVariables();
 	    this.initStorage().then(() => this.initPullClient()).then(() => this.initComplete()).catch(error => {
 	      im_v2_lib_logger.Logger.error('Error initializing core controller', error);
 	    });
 	  }
-	  prepareParams(params) {
-	    var _params$host;
-	    if (!main_core.Type.isUndefined(params.localize)) {
-	      this.localize = params.localize;
-	    } else {
-	      this.localize = BX ? {
-	        ...BX.message
-	      } : {};
-	    }
-	    this.host = (_params$host = params.host) != null ? _params$host : location.origin;
-	    this.userId = this.prepareUserId(params.userId);
-	    this.siteId = this.getLocalize('SITE_ID') || 's1';
-	    if (main_core.Type.isStringFilled(params.siteId)) {
-	      this.siteId = params.siteId;
-	    }
-	    this.siteDir = this.getLocalize('SITE_DIR') || 's1';
-	    if (main_core.Type.isStringFilled(params.siteDir)) {
-	      this.siteDir = params.siteDir;
-	    }
-	    this.languageId = this.getLocalize('LANGUAGE_ID') || 'en';
-	    if (main_core.Type.isStringFilled(params.languageId)) {
-	      this.languageId = params.languageId;
-	    }
-	    this.initPull(params);
-	    this.initRest(params);
-	    this.initVuexBuilder(params);
+	  prepareVariables() {
+	    var _Number$parseInt, _Loc$getMessage, _Loc$getMessage2, _Loc$getMessage3;
+	    this.localize = BX ? {
+	      ...BX.message
+	    } : {};
+	    this.host = location.origin;
+	    this.userId = (_Number$parseInt = Number.parseInt(main_core.Loc.getMessage('USER_ID'), 10)) != null ? _Number$parseInt : 0;
+	    this.siteId = (_Loc$getMessage = main_core.Loc.getMessage('SITE_ID')) != null ? _Loc$getMessage : 's1';
+	    this.siteDir = (_Loc$getMessage2 = main_core.Loc.getMessage('SITE_DIR')) != null ? _Loc$getMessage2 : 's1';
+	    this.languageId = (_Loc$getMessage3 = main_core.Loc.getMessage('LANGUAGE_ID')) != null ? _Loc$getMessage3 : 'en';
+	    this.initPull();
+	    this.initRest();
 	  }
 	  initStorage() {
-	    const applicationVariables = {
-	      common: {
-	        host: this.getHost(),
-	        userId: this.getUserId(),
-	        siteId: this.getSiteId(),
-	        languageId: this.getLanguageId()
-	      },
-	      dialog: {
-	        messageLimit: 50,
-	        enableReadMessages: true
-	      },
-	      device: {
-	        type: im_v2_lib_utils.Utils.device.isMobile() ? im_v2_const.DeviceType.mobile : im_v2_const.DeviceType.desktop,
-	        orientation: im_v2_lib_utils.Utils.device.getOrientation()
-	      }
-	    };
-	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create().useDatabase(false).setVariables(applicationVariables)).addModel(im_v2_model.MessagesModel.create().useDatabase(false)).addModel(im_v2_model.DialoguesModel.create().useDatabase(false)).addModel(im_v2_model.FilesModel.create().useDatabase(false)).addModel(im_v2_model.UsersModel.create().useDatabase(false)).addModel(im_v2_model.RecentModel.create().useDatabase(false));
-	    this.vuexAdditionalModel.forEach(model => {
-	      builder.addModel(model);
-	    });
-	    builder.setDatabaseConfig({
-	      name: this.vuexBuilder.databaseName,
-	      type: this.vuexBuilder.databaseType,
-	      siteId: this.getSiteId(),
-	      userId: this.getUserId()
-	    });
+	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.DialoguesModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create());
 	    return builder.build().then(result => {
 	      this.store = result.store;
 	      this.storeBuilder = result.builder;
@@ -85,17 +46,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!this.pullClient) {
 	      return false;
 	    }
-	    this.pullClient.subscribe(this.pullBaseHandler = new im_v2_provider_pull.ImBasePullHandler({
-	      store: this.store,
-	      controller: this
-	    }));
+	    this.pullClient.subscribe(new im_v2_provider_pull.BasePullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.RecentPullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.NotificationPullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.NotifierPullHandler());
 	    this.pullClient.subscribe({
 	      type: this.pullInstance.SubscriptionType.Status,
-	      callback: this.eventStatusInteraction.bind(this)
+	      callback: this.onPullStatusChange.bind(this)
 	    });
 	    this.pullClient.subscribe({
 	      type: this.pullInstance.SubscriptionType.Online,
-	      callback: this.eventOnlineInteraction.bind(this)
+	      callback: this.onUsersOnlineChange.bind(this)
 	    });
 	    return Promise.resolve();
 	  }
@@ -103,79 +64,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.inited = true;
 	    this.initPromiseResolver(this);
 	  }
-	  initRest(params) {
+	  initRest() {
 	    this.restInstance = rest_client.RestClient;
 	    this.restClient = rest_client.rest;
-	    if (!main_core.Type.isUndefined(params.rest)) {
-	      if (!main_core.Type.isUndefined(params.rest.instance)) {
-	        this.restInstance = params.rest.instance;
-	      }
-	      if (!main_core.Type.isUndefined(params.rest.client)) {
-	        this.restClient = params.rest.client;
-	      }
-	    }
 	    return Promise.resolve();
 	  }
-	  initPull(params) {
+	  initPull() {
 	    this.pullInstance = pull_client.PullClient;
 	    this.pullClient = pull_client.PULL;
-	    if (params.pull) {
-	      if (params.pull.instance) {
-	        this.pullInstance = params.pull.instance;
-	      }
-	      if (params.pull.client) {
-	        this.pullClient = params.pull.client;
-	      }
-	    }
 	  }
-	  initVuexBuilder(params) {
-	    this.vuexBuilder = {
-	      database: false,
-	      databaseName: 'desktop/im',
-	      databaseType: ui_vue3_vuex.BuilderDatabaseType.indexedDb
-	    };
-	    if (params.vuexBuilder) {
-	      if (main_core.Type.isBoolean(params.vuexBuilder.database)) {
-	        this.vuexBuilder.database = params.vuexBuilder.database;
-	      }
-	      if (main_core.Type.isStringFilled(params.vuexBuilder.databaseName)) {
-	        this.vuexBuilder.databaseName = params.vuexBuilder.databaseName;
-	      }
-	      if (main_core.Type.isStringFilled(params.vuexBuilder.databaseType)) {
-	        this.vuexBuilder.databaseType = params.vuexBuilder.databaseType;
-	      }
-	      if (main_core.Type.isArray(params.vuexBuilder.models)) {
-	        params.vuexBuilder.models.forEach(model => {
-	          this.addVuexModel(model);
-	        });
-	      }
-	    }
-	  }
-	  prepareUserId(userId) {
-	    let result = 0;
-	    if (!main_core.Type.isUndefined(userId)) {
-	      const parsedUserId = Number.parseInt(params.userId, 10);
-	      if (parsedUserId) {
-	        result = parsedUserId;
-	      }
-	    } else if (this.getLocalize('USER_ID')) {
-	      result = Number.parseInt(this.getLocalize('USER_ID'), 10);
-	    }
-	    return result;
-	  }
-
 	  /* endregion 01. Initialize and store data */
 
 	  /* region 02. Push & Pull */
-
-	  eventStatusInteraction(data) {
+	  onPullStatusChange(data) {
 	    if (data.status === this.pullInstance.PullStatus.Online) {
 	      this.offline = false;
 	    } else if (data.status === this.pullInstance.PullStatus.Offline) {
 	      this.offline = true;
 	    }
 	  }
-	  eventOnlineInteraction(data) {
+	  onUsersOnlineChange(data) {
 	    if (!['list', 'userStatus'].includes(data.command)) {
 	      return false;
 	    }
@@ -186,57 +94,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    });
 	  }
-
 	  /* endregion 02. Push & Pull */
 
 	  /* region 04. Template engine */
-
 	  createVue(application, config = {}) {
-	    let beforeCreateFunction = () => {};
-	    if (config.beforeCreate) {
-	      beforeCreateFunction = config.beforeCreate;
-	    }
-	    let unmountedFunction = () => {};
-	    if (config.unmounted) {
-	      unmountedFunction = config.unmounted;
-	    }
-	    let createdFunction = () => {};
-	    if (config.created) {
-	      createdFunction = config.created;
-	    }
-	    const controller = this;
-	    const initConfig = {
-	      // store: this.store,
-	      beforeCreate() {
-	        this.$bitrix.Data.set('controller', controller);
-	        this.$bitrix.Application.set(application);
-	        this.$bitrix.Loc.setMessage(controller.localize);
-	        if (controller.restClient) {
-	          this.$bitrix.RestClient.set(controller.restClient);
-	        }
-	        if (controller.pullClient) {
-	          this.$bitrix.PullClient.set(controller.pullClient);
-	        }
-	        beforeCreateFunction.bind(this)();
-	      },
-	      created() {
-	        createdFunction.bind(this)();
-	      },
-	      unmounted() {
-	        unmountedFunction.bind(this)();
-	      }
-	    };
+	    const initConfig = {};
 	    if (config.el) {
 	      initConfig.el = config.el;
 	    }
 	    if (config.template) {
 	      initConfig.template = config.template;
-	    }
-	    if (config.computed) {
-	      initConfig.computed = config.computed;
-	    }
-	    if (config.data) {
-	      initConfig.data = config.data;
 	    }
 	    if (config.name) {
 	      initConfig.name = config.name;
@@ -244,10 +111,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (config.components) {
 	      initConfig.components = config.components;
 	    }
-	    const initConfigCreatedFunction = initConfig.created;
 	    return new Promise(resolve => {
 	      initConfig.created = function () {
-	        initConfigCreatedFunction.bind(this)();
 	        resolve(this);
 	      };
 	      const bitrixVue = ui_vue3.BitrixVue.createApp(initConfig);
@@ -261,7 +126,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      bitrixVue.use(this.store).mount(initConfig.el);
 	    });
 	  }
-
 	  /* endregion 04. Template engine */
 
 	  /* region 05. Core methods */
@@ -280,11 +144,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getStore() {
 	    return this.store;
 	  }
-	  addVuexModel(model) {
-	    this.vuexAdditionalModel.push(model);
+	  getRestClient() {
+	    return this.restClient;
+	  }
+	  setApplicationData(applicationName, applicationData) {
+	    this.applicationData[applicationName] = applicationData;
+	  }
+	  getApplicationData(applicationName) {
+	    var _this$applicationData;
+	    return (_this$applicationData = this.applicationData[applicationName]) != null ? _this$applicationData : {};
 	  }
 	  isOnline() {
 	    return !this.offline;
+	  }
+	  isCloud() {
+	    const settings = main_core.Extension.getSettings('im.v2.application.core');
+	    return settings.get('isCloud');
 	  }
 	  ready() {
 	    if (this.inited) {
@@ -294,54 +169,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 
 	  /* endregion 05. Methods */
-
-	  /* region 06. Interaction and utils */
-
-	  setError(code = '', description = '') {
-	    im_v2_lib_logger.Logger.error(`Messenger.Application.error: ${code} (${description})`);
-	    let localizeDescription = '';
-	    if (code.endsWith('LOCALIZED')) {
-	      localizeDescription = description;
-	    }
-	    this.store.commit('application/set', {
-	      error: {
-	        active: true,
-	        code,
-	        description: localizeDescription
-	      }
-	    });
-	  }
-	  clearError() {
-	    this.store.commit('application/set', {
-	      error: {
-	        active: false,
-	        code: '',
-	        description: ''
-	      }
-	    });
-	  }
-	  addLocalize(phrases) {
-	    if (!main_core.Type.isPlainObject(phrases)) {
-	      return false;
-	    }
-	    Object.entries(phrases).forEach(([key, value]) => {
-	      this.localize[key] = value;
-	    });
-	    return true;
-	  }
-	  getLocalize(name) {
-	    let phrase = '';
-	    if (typeof name === 'undefined') {
-	      return this.localize;
-	    } else if (typeof this.localize[name.toString()] === 'undefined') {
-	      im_v2_lib_logger.Logger.warn(`Controller.Core.getLocalize: message with code '${name.toString()}' is undefined.`);
-	    } else {
-	      phrase = this.localize[name];
-	    }
-	    return phrase;
-	  }
-
-	  /* endregion 06. Interaction and utils */
 	}
 
 	const Core = new CoreApplication();
@@ -349,5 +176,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.Core = Core;
 	exports.CoreApplication = CoreApplication;
 
-}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX,BX,BX,BX.Vue3,BX.Vue3.Vuex,BX.Messenger.v2.Model,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX,BX.Vue3,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Model,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Lib));
 //# sourceMappingURL=core.bundle.js.map

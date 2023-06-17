@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "settings/userfield_admin.php");
 
@@ -7,7 +13,7 @@ if(!$USER->CanDoOperation('view_other_settings'))
 
 IncludeModuleLangFile(__FILE__);
 
-$back_url = $_REQUEST["back_url"];
+$back_url = $_REQUEST["back_url"] ?? '';
 if(mb_substr($back_url, 0, 1) <> '/')
 	$back_url = '';
 
@@ -65,13 +71,16 @@ if($lAdmin->EditAction())
 				$lAdmin->AddGroupError(GetMessage("USERTYPE_UPDATE_ERROR")." ".$e->GetString(), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 if($arID = $lAdmin->GroupAction())
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CUserTypeEntity::GetList(array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -98,7 +107,10 @@ if($arID = $lAdmin->GroupAction())
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("USERTYPE_DEL_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		}
 	}
@@ -214,7 +226,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$arActions[] = array(
 		"ICON"=>"delete",
 		"TEXT"=>GetMessage("MAIN_DELETE"),
-		"ACTION"=>"if(confirm('".GetMessageJS('USERTYPE_DELETE_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", 'back_url='.urlencode($back_url).'&list_url='.urlencode($list_url))
+		"ACTION"=>"if(confirm('".GetMessageJS('USERTYPE_DELETE_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", 'back_url='.urlencode($back_url).'&list_url='.urlencode($_REQUEST['list_url'] ?? ''))
 	);
 
 	$row->AddActions($arActions);

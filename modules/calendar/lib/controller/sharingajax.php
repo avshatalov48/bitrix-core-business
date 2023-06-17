@@ -1,28 +1,33 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
-use Bitrix\Calendar\ControllerHelper\SharingAjaxHelper;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\ICal\IcsManager;
 use Bitrix\Calendar\Sharing;
+use Bitrix\Calendar\Util;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Calendar\Sharing\SharingUser;
+use Bitrix\Crm;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\ActionFilter;
-use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Cookie;
 
 Loc::loadMessages(__FILE__);
 
 class SharingAjax extends \Bitrix\Main\Engine\Controller
 {
-	public function configureActions()
+	private ?Sharing\Link\Factory $factory = null;
+
+	public function configureActions(): array
 	{
 		return [
 			'getUserAccessibility' => [
@@ -35,6 +40,15 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 				],
 			],
 			'saveEvent' => [
+				'-prefilters' => [
+					ActionFilter\Authentication::class,
+					ActionFilter\Csrf::class
+				],
+				'+postfilters' => [
+					new ActionFilter\Cors()
+				],
+			],
+			'saveCrmEvent' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
 					ActionFilter\Csrf::class
@@ -79,83 +93,65 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 					new ActionFilter\Cors()
 				],
 			],
+			'handleTimelineNotify' => [
+				'-prefilters' => [
+					ActionFilter\Authentication::class,
+					ActionFilter\Csrf::class
+				],
+				'+postfilters' => [
+					new ActionFilter\Cors()
+				],
+			],
 		];
 	}
 
-	public function toggleLinkAction(int $userLinkId, string $isActive): void
+	public function disableOptionPayAttentionToNewSharingFeatureAction(): void
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return;
-		}
-
-		$sharingLinkFactory = new Sharing\Link\Factory();
-		$userId = \CCalendar::GetUserId();
-
-		$userLinks = $sharingLinkFactory->getUserLinks($userId);
-		$userLink = current(array_filter($userLinks, static function($userLink) use ($userLinkId) {
-			return $userLink->getId() === $userLinkId;
-		}));
-
-		if ($userLink)
-		{
-			$userLink->setActive($isActive === 'true');
-			(new Sharing\Link\UserLinkMapper())->update($userLink);
-		}
+		Sharing\Helper::disableOptionPayAttentionToNewSharingFeature();
 	}
 
-	public function deleteUserLinksAction()
+	public function enableUserSharingAction(): ?array
 	{
 		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			return;
+			return null;
 		}
 
-		$sharingLinkFactory = new Sharing\Link\Factory();
-		$userId = \CCalendar::GetUserId();
-
-		$userLinks = $sharingLinkFactory->getUserLinks($userId);
-
-		$userLinkMapper = new Sharing\Link\UserLinkMapper();
-		foreach ($userLinks as $userLink)
+		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$result = $sharing->enable();
+		if (!$result->isSuccess())
 		{
-			$userLinkMapper->delete($userLink);
+			$this->addErrors($this->getErrors());
+			return null;
 		}
+
+		$userLink = $sharing->getUserLink();
+		if (!$userLink)
+		{
+			return null;
+		}
+
+		return [
+			'url' => Sharing\Helper::getShortUrl($userLink->getUrl()),
+		];
 	}
 
-	public function getDialogDataAction(): array
+	public function disableUserSharingAction(): ?bool
 	{
 		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			return [];
+			return null;
 		}
 
-		$request = $this->getRequest();
-
-		$isSharingOn = $request->getPost('isSharingOn') === 'true';
-
-		$sharingLinkFactory = new Sharing\Link\Factory();
-		$userId = \CCalendar::GetUserId();
-
-		$userLinks = $sharingLinkFactory->getUserLinksArray($userId);
-		if (empty($userLinks))
+		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$result = $sharing->disable();
+		if (!$result->isSuccess())
 		{
-			$userLinks =
-				$sharingLinkFactory
-					->createUserLink($userId, $isSharingOn)
-					->getUserLinksArray($userId)
-			;
+			$this->addErrors($this->getErrors());
+			return null;
 		}
 
-		$serverPath = \CCalendar::GetServerPath();
-		//TODO We need a method to process batch of userLinks, not a cycle
-		foreach ($userLinks as &$userLink)
-		{
-			$userLink['url'] = Sharing\Helper::getShortUrl($userLink['url']);
-			$userLink['serverPath'] = $serverPath;
-		}
-
-		return ['links' => $userLinks];
+		return true;
 	}
 
 	public function getUserAccessibilityAction(): array
@@ -187,14 +183,15 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 	 */
 	public function saveEventAction(): array
 	{
-		global $DB;
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 
 		$result = [];
 		$request = $this->getRequest();
 
-		$userName = $DB->ForSql(trim($request['userName'] ?? ''));
-		$userContact = $DB->ForSql(trim($request['userContact'] ?? ''));
-		$userLinkHash = trim($request['userLinkHash'] ?? '');
+		$userName = $sqlHelper->forSql(trim($request['userName'] ?? ''));
+		$userContact = $sqlHelper->forSql(trim($request['userContact'] ?? ''));
+		$parentLinkHash = $sqlHelper->forSql(trim($request['parentLinkHash'] ?? ''));
 		$ownerId = (int)($request['ownerId'] ?? null);
 		$ownerCreated = ($request['ownerCreated'] ?? null) === 'true';
 
@@ -210,9 +207,15 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			];
 		}
 
-		/** @var Sharing\Link\UserLink $userLink */
-		$userLink = (new Sharing\Link\Factory())->getLinkByHash($userLinkHash);
-		if (!$userLink || !$userLink->isActive() || $userLink->getObjectType() !== 'user')
+		/** @var Sharing\Link\Link $link */
+		$link = $this->getSharingLinkFactory()->getLinkByHash($parentLinkHash);
+
+		if (
+			!$link
+			|| !$link->isActive()
+			|| $link->getObjectType() !== Sharing\Link\Helper::USER_SHARING_TYPE
+			|| $link->getObjectId() !== $ownerId
+		)
 		{
 			$this->addError(new Error('Link not found'));
 
@@ -240,54 +243,218 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			return $result;
 		}
 
-		$event = Sharing\SharingEventManager::prepareEventForSave($request, $userId);
+		$eventData = Sharing\SharingEventManager::getEventDataFromRequest($request);
+		$eventData['eventName'] = Sharing\SharingEventManager::getSharingEventNameByUserName($userName);
 
-		$eventCreateResult = (new Sharing\SharingEventManager($event, $userId, $ownerId, $userLinkHash))
-			->createEvent()
-		;
+		$event = Sharing\SharingEventManager::prepareEventForSave($eventData, $userId);
+
+		$sharingEventManager = new Sharing\SharingEventManager($event, $userId, $ownerId, $parentLinkHash);
+		$eventCreateResult = $sharingEventManager->createEvent(false, $userParams['NAME']);
 
 		if ($errors = $eventCreateResult->getErrors())
 		{
 			$this->addError($errors[0]);
+
+			return $result;
+		}
+
+		/** @var Event $event */
+		$event = $eventCreateResult->getData()['event'];
+		/** @var Sharing\Link\EventLink $eventLink */
+		$eventLink = $eventCreateResult->getData()['eventLink'];
+
+		// Auto-accepting meeting for manager
+		\CCalendarEvent::SetMeetingStatus([
+			'eventId' => $event->getId(),
+			'userId' => $ownerId,
+			'status' => 'Y',
+			'hostNotification' => false,
+			'sharingAutoAccept' => true,
+		]);
+
+		/** @var Event $event */
+		$event = (new Mappers\Factory())->getEvent()->getById($event->getId());
+
+		$notificationService = null;
+		if (SharingEventManager::isEmailCorrect($userContact))
+		{
+			$notificationService = (new Sharing\Notification\Mail())
+				->setEventLink($eventLink)
+				->setEvent($event)
+			;
+		}
+
+		if ($notificationService !== null)
+		{
+			$notificationService->notifyAboutMeetingStatus($userContact);
+		}
+
+		return [
+			'eventId' => $event->getId(),
+			'eventName' => $event->getName(),
+			'eventLinkId' => $eventLink->getId(),
+			'eventLinkHash' => $eventLink->getHash(),
+			'eventLinkShortUrl' => Sharing\Helper::getShortUrl($eventLink->getUrl()),
+		];
+	}
+
+	public function saveCrmEventAction(): array
+	{
+		$result = [];
+		$request = $this->getRequest();
+
+		if (!Loader::includeModule('crm'))
+		{
+			$this->addError(new Error('Module crm not found'));
+
+			return $result;
+		}
+
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
+
+		$crmDealLinkHash = $sqlHelper->forSql(trim($request['crmDealLinkHash'] ?? ''));
+		$ownerId = (int)($request['ownerId'] ?? null);
+		$ownerCreated = ($request['ownerCreated'] ?? null) === 'true';
+
+		/** @var Sharing\Link\CrmDealLink $crmDealLink */
+		$crmDealLink = $this->getSharingLinkFactory()->getLinkByHash($crmDealLinkHash);
+
+		if (
+			!$crmDealLink
+			|| !$crmDealLink->isActive()
+			|| $crmDealLink->getObjectType() !== Sharing\Link\Helper::CRM_DEAL_SHARING_TYPE
+			|| $crmDealLink->getOwnerId() !== $ownerId
+		)
+		{
+			$this->addError(new Error('Link not found'));
+
+			return $result;
+		}
+
+		if (!$crmDealLink->getContactId()|| !$crmDealLink->getContactType())
+		{
+			$userName = $sqlHelper->forSql(trim($request['userName'] ?? ''));
+			$userContact = $sqlHelper->forSql(trim($request['userContact'] ?? ''));
+
+			$contactDataError = !Sharing\SharingEventManager::validateContactData($userContact);
+			$contactNameError = !Sharing\SharingEventManager::validateContactName($userName);
+			if ($contactDataError || $contactNameError)
+			{
+				$this->addError(new Error(Loc::getMessage('EC_SHARINGAJAX_INCORRECT_CONTACT_DATA')));
+
+				return [
+					'contactDataError' => $contactDataError,
+					'contactNameError' => $contactNameError,
+				];
+			}
 		}
 		else
 		{
-			/** @var Event $event */
-			$event = $eventCreateResult->getData()['event'];
-			/** @var Sharing\Link\EventLink $eventLink */
-			$eventLink = $eventCreateResult->getData()['eventLink'];
+			$contactType = $crmDealLink->getContactType();
+			$contactId = $crmDealLink->getContactId();
+			$contactData = \Bitrix\Crm\Service\Container::getInstance()
+				->getEntityBroker($contactType)
+				->getById($contactId)
+			;
+			if (!$contactData)
+			{
+				$this->addError(new Error('Contact not found'));
 
-			$notificationService = null;
-			if (SharingEventManager::isEmailCorrect($userContact))
-			{
-				$notificationService = (new Sharing\Notification\Mail())
-					->setEventLink($eventLink)
-					->setEvent($event)
-				;
-			}
-			if (SharingEventManager::isPhoneNumberCorrect($userContact))
-			{
-				$notificationService = (new Sharing\Notification\Sms())
-					->setEventLink($eventLink)
-					->setEvent($event)
-				;
+				return $result;
 			}
 
-			if ($notificationService !== null)
+			$userName = '';
+			if ($contactType === \CCrmOwnerType::Contact)
 			{
-				$notificationService->notifyAboutMeetingStatus($userContact);
+				$userName = $contactData->getFullName();
 			}
-
-			$result = [
-				'eventId' => $event->getId(),
-				'eventName' => $event->getName(),
-				'eventLinkId' => $eventLink->getId(),
-				'eventLinkHash' => $eventLink->getHash(),
-				'eventLinkShortUrl' => Sharing\Helper::getShortUrl($eventLink->getUrl()),
-			];
+			elseif ($contactType === \CCrmOwnerType::Company)
+			{
+				$userName = $contactData->getTitle();
+			}
+			$userContact = '';
 		}
 
-		return $result;
+		$userParams = [
+			'NAME' => $userName,
+			'CONTACT_DATA' => $userContact,
+		];
+		if ($ownerCreated)
+		{
+			$userId = SharingUser::getInstance()->getAnonymousUserForOwner($userParams);
+		}
+		else
+		{
+			$userId = SharingUser::getInstance()->login(true, $userParams);
+		}
+
+		$eventData = Sharing\SharingEventManager::getCrmEventDataFromRequest($request);
+		$eventData['eventName'] = Sharing\SharingEventManager::getSharingEventNameByUserName($userName);
+
+		$event = Sharing\SharingEventManager::prepareEventForSave($eventData, $userId);
+
+		$sharingEventManager = new Sharing\SharingEventManager($event, $userId, $ownerId, $crmDealLinkHash);
+		$eventCreateResult = $sharingEventManager->createEvent(false, $userParams['NAME']);
+
+		if ($errors = $eventCreateResult->getErrors())
+		{
+			$this->addError($errors[0]);
+
+			return $result;
+		}
+
+		/** @var Event $event */
+		$event = $eventCreateResult->getData()['event'];
+		/** @var Sharing\Link\EventLink $eventLink */
+		$eventLink = $eventCreateResult->getData()['eventLink'];
+
+		$dateFrom = $request['dateFrom'] ?? null;
+		$timezone = $request['timezone'] ?? null;
+
+		/** @var DateTime $eventStart */
+		$eventStart = Util::getDateObject($dateFrom, false, $timezone);
+		$activityName = Loc::getMessage('EC_SHARINGAJAX_ACTIVITY_SUBJECT');
+		(new Sharing\Crm\ActivityManager($event->getId(), $crmDealLink, $userName))
+			->createCalendarSharingActivity($activityName, $event->getDescription(), $eventStart)
+		;
+
+		// Auto-accepting meeting for manager
+		\CCalendarEvent::SetMeetingStatus([
+			'eventId' => $event->getId(),
+			'userId' => $ownerId,
+			'status' => 'Y',
+			'hostNotification' => false,
+			'sharingAutoAccept' => true,
+		]);
+
+		//notify client about meeting is auto-accepted
+		if ($crmDealLink->getContactId() > 0)
+		{
+			(new Crm\Integration\Calendar\Notification\NotificationService())
+				->setCrmDealLink($crmDealLink)
+				->setEvent($event)
+				->setEventLink($eventLink)
+				->sendCrmSharingAutoAccepted()
+			;
+		}
+		else
+		{
+			(new Sharing\Notification\Mail())
+				->setEventLink($eventLink)
+				->setEvent($event)
+				->notifyAboutMeetingCreated($userContact)
+			;
+		}
+
+		return [
+			'eventId' => $event->getId(),
+			'eventName' => $event->getName(),
+			'eventLinkId' => $eventLink->getId(),
+			'eventLinkHash' => $eventLink->getHash(),
+			'eventLinkShortUrl' => Sharing\Helper::getShortUrl($eventLink->getUrl()),
+		];
 	}
 
 	/**
@@ -300,11 +467,15 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		$result = [];
 		$request = $this->getRequest();
 		$eventId = (int)$request['eventId'];
-		$eventLinkHash = trim($request['eventLinkHash']);
+		$eventLinkHash = Application::getConnection()->getSqlHelper()->forSql($request['eventLinkHash']);
 
 		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = (new Sharing\Link\Factory())->getLinkByHash($eventLinkHash);
-		if (!$eventLink || !$eventLink->isActive() || $eventLink->getObjectType() !== 'event')
+		$eventLink = $this->getSharingLinkFactory()->getLinkByHash($eventLinkHash);
+		if (
+			!$eventLink
+			|| !$eventLink->isActive()
+			|| $eventLink->getObjectType() !== Sharing\Link\Helper::EVENT_SHARING_TYPE
+		)
 		{
 			$this->addError(new Error('Link not found'));
 
@@ -327,8 +498,14 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			return $result;
 		}
 
+		if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared_crm'])
+		{
+			SharingEventManager::onSharingCrmEventClientDelete($event->getId());
+		}
+
 		$eventDeleteResult = (new Sharing\SharingEventManager($event, $eventLink->getHostId(), $eventLink->getOwnerId()))
-			->deleteEvent($eventLink->getId())
+			->deactivateEventLink($eventLink)
+			->deleteEvent()
 		;
 		if ($eventDeleteResult->getErrors())
 		{
@@ -357,10 +534,11 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 	public function getConferenceLinkAction(string $eventLinkHash): array
 	{
 		$result = [];
+		$eventLinkHash = Application::getConnection()->getSqlHelper()->forSql($eventLinkHash);
 
 		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = (new Sharing\Link\Factory())->getLinkByHash($eventLinkHash);
-		if (!$eventLink || !$eventLink->isActive() || $eventLink->getObjectType() !== 'event')
+		$eventLink = $this->getSharingLinkFactory()->getLinkByHash($eventLinkHash);
+		if (!$eventLink || !$eventLink->isActive() || $eventLink->getObjectType() !== Sharing\Link\Helper::EVENT_SHARING_TYPE)
 		{
 			$this->addError(new Error('Link not found'));
 
@@ -386,13 +564,20 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 	 */
 	public function getIcsFileContentAction(string $eventLinkHash): string
 	{
+		$result = '';
+		$eventLinkHash = Application::getConnection()->getSqlHelper()->forSql($eventLinkHash);
+
 		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = (new Sharing\Link\Factory())->getLinkByHash($eventLinkHash);
-		if (!$eventLink || !$eventLink->isActive() || $eventLink->getObjectType() !== 'event')
+		$eventLink = $this->getSharingLinkFactory()->getLinkByHash($eventLinkHash);
+		if (
+			!$eventLink
+			|| !$eventLink->isActive()
+			|| $eventLink->getObjectType() !== Sharing\Link\Helper::EVENT_SHARING_TYPE
+		)
 		{
 			$this->addError(new Error('Link not found'));
 
-			return '';
+			return $result;
 		}
 
 		/** @var Event $event */
@@ -402,9 +587,10 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SHARINGAJAX_EVENT_ACCESS_DENIED')));
 
-			return '';
+			return $result;
 		}
 
+		$event->setName(SharingEventManager::getSharingEventNameByUserId($eventLink->getOwnerId()));
 		return IcsManager::getInstance()->getIcsFileContent($event, [
 			'eventUrl' => Sharing\Helper::getShortUrl($eventLink->getUrl()),
 			'conferenceUrl' => Sharing\Helper::getShortUrl($eventLink->getUrl() . Sharing\Helper::ACTION_CONFERENCE),
@@ -413,10 +599,86 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getDeletedSharedEventAction(int $entryId): array
 	{
+		$event = \CCalendar::getDeletedSharedEvent($entryId);
+		$linkArray = [];
+		if (is_array($event))
+		{
+			/** @var Sharing\Link\EventLink $link */
+			$eventId = $entryId === $event['ID'] ? $entryId : $event['PARENT_ID'];
+			$link = (new Sharing\Link\Factory())->getDeletedEventLinkByEventId($eventId);
+			if (!is_null($link))
+			{
+				$linkArray = [
+					'canceledTimestamp' => $link->getCanceledTimestamp(),
+					'externalUserName' => $link->getExternalUserName(),
+					'externalUserId' => $link->getHostId(),
+				];
+			}
+		}
+
 		return [
-			'entry' => SharingAjaxHelper::getDeletedSharedEvent($entryId),
-			'userTimezone' => SharingAjaxHelper::getUserTimezoneName(),
+			'entry' => $event,
+			'link' => $linkArray,
+			'userTimezone' => $this->getUserTimezoneName(),
 		];
 	}
 
+	public function handleTimelineNotifyAction(): array
+	{
+		$result = [];
+
+		if (!Loader::includeModule('crm'))
+		{
+			$this->addError(new Error('Module crm not installed'));
+
+			return $result;
+		}
+
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$request = $this->getRequest();
+		$linkHash = $sqlHelper->forSql(trim($request['linkHash'] ?? ''));
+		$entityType = $sqlHelper->forSql(trim($request['entityType'] ?? ''));
+		$notifyType = $sqlHelper->forSql(trim($request['notifyType']) ?? '');
+		$entityId = (int)($request['entityId'] ?? null);
+		$dateFrom = $request['dateFrom'] ?? null;
+		$timezone = $request['timezone'] ?? null;
+
+
+		/** @var Sharing\Link\CrmDealLink $link */
+		$link = $this->getSharingLinkFactory()->getLinkByHash($linkHash);
+		if (
+			!$link
+			|| !$link->isActive()
+			|| $link->getObjectId() !== $entityId
+			|| $link->getObjectType() !== $entityType
+		)
+		{
+			$this->addError(new Error('Link not found'));
+
+			return $result;
+		}
+
+		(new Sharing\Crm\NotifyManager($link, $notifyType))
+			->sendSharedCrmActionsEvent(Util::getDateTimestamp($dateFrom, $timezone));
+
+		return $result;
+	}
+
+	private function getUserTimezoneName(): string
+	{
+		$userId = \CCalendar::GetCurUserId();
+
+		return \CCalendar::getUserTimezoneName($userId);
+	}
+
+	private function getSharingLinkFactory(): Sharing\Link\Factory
+	{
+		if (!$this->factory)
+		{
+			$this->factory = new Sharing\Link\Factory();
+		}
+
+		return $this->factory;
+	}
 }

@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "favorites/favorite_edit.php");
@@ -27,7 +26,7 @@ $isAdmin = $USER->CanDoOperation('edit_other_settings');
 
 IncludeModuleLangFile(__FILE__);
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
 $message = null;
 $bVarsFromForm = false;
 
@@ -38,11 +37,11 @@ if($ID > 0 && !$isAdmin)
 	if(($db_fav_arr = $db_fav->Fetch()) && $USER->GetID() <> $db_fav_arr["USER_ID"])
 	{
 		CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("fav_edit_access_error"), "DETAILS"=>GetMessage("fav_edit_access_error_mess")));
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php"); 
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 	}
 }
 
-if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<>"") && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid())
 {
 	$arFields = array(
 		"C_SORT"		=> $_POST['C_SORT'],
@@ -95,7 +94,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 
 }
 
-if($_REQUEST["encoded"] == "Y")
+if (isset($_REQUEST["encoded"]) && $_REQUEST["encoded"] == "Y")
 	CUtil::decodeURIComponent($_REQUEST["name"]);
 $str_NAME = htmlspecialcharsbx($_REQUEST["name"]);
 $str_URL = htmlspecialcharsbx($_REQUEST["addurl"]);
@@ -164,7 +163,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="ID" value=<?=$ID?>>
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
-<?if($_REQUEST["addurl"]<>""):?>
+<?if (!empty($_REQUEST["addurl"])):?>
 <input type="hidden" name="addurl" value="<?echo htmlspecialcharsbx($_REQUEST["addurl"])?>">
 <?endif;?>
 <?
@@ -266,5 +265,5 @@ $tabControl->ShowWarnings("favform", $message);
 ?>
 
 <?
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php"); 
+require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 ?>

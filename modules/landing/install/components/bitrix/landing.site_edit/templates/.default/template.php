@@ -732,23 +732,26 @@ if ($arParams['SUCCESS_SAVE'])
 									>
 								<?php endforeach;?>
 								<div class="landing-form-list">
-									<div class="landing-form-list-container">
-										<div class="landing-form-list-inner">
-											<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl):?>
-												<label class="landing-form-layout-item <?
-												?><?= (!$row['TPL_ID']['CURRENT'] && $tpl['XML_ID'] == 'empty') ? 'landing-form-layout-item-selected ' : ''?><?
-												?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
-												?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
-												?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
-												?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>">
-													<div class="landing-form-layout-item-img"></div>
-												</label>
-											<?php endforeach;?>
-										</div>
-									</div>
 									<div class="landing-form-select-buttons">
 										<div class="landing-form-select-prev"></div>
 										<div class="landing-form-select-next"></div>
+									</div>
+									<div class="landing-form-list-container">
+										<div class="landing-form-list-inner">
+											<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl):?>
+												<div class="landing-form-layout-item-img-container">
+													<label class="landing-form-layout-item <?
+														?><?= (!$row['TPL_ID']['CURRENT'] && $tpl['XML_ID'] == 'empty') ? 'landing-form-layout-item-selected ' : ''?><?
+														?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
+														?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
+														?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
+														?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"
+													>
+														<div class="landing-form-layout-item-img"></div>
+													</label>
+												</div>
+											<?php endforeach;?>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1083,33 +1086,41 @@ if ($arParams['SUCCESS_SAVE'])
 								<div class="landing-form-cookies-settings-wrapper">
 									<div class="landing-form-cookies-title"><?= Loc::getMessage('LANDING_TPL_HOOK_COOKIES_VIEW') ?></div>
 									<div class="landing-form-cookies-settings">
-										<div class="landing-form-cookies-settings-preview">
-											<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-simple">
-												<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
-													<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
-												</svg>
+										<div class="landing-form-cookies-settings-inner">
+											<div class="landing-form-cookies-settings-preview">
+												<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-simple">
+													<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
+														<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
+													</svg>
+												</div>
+												<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-advanced">
+													<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
+														<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
+													</svg>
+													<span class="landing-form-cookies-settings-preview-text">Cookies</span>
+												</div>
 											</div>
-											<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-advanced">
-												<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
-													<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
-												</svg>
-												<span class="landing-form-cookies-settings-preview-text">Cookies</span>
+											<div class="landing-form-cookies-settings-colors">
+												<?php if (isset($pageFields['COOKIES_COLOR_BG'])):?>
+													<div class="landing-form-cookies-settings-color-bg">
+														<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_BG']->getLabel() ?></span>
+														<?$pageFields['COOKIES_COLOR_BG']->viewForm([
+															'class' => 'landing-form-cookies-color landing-form-cookies-color-bg',
+															'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+														]);?>
+													</div>
+												<?php endif;?>
+												<?php if (isset($pageFields['COOKIES_COLOR_TEXT'])):?>
+													<div class="landing-form-cookies-settings-color-text">
+														<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_TEXT']->getLabel() ?></span>
+														<?$pageFields['COOKIES_COLOR_TEXT']->viewForm([
+															'class' => 'landing-form-cookies-color landing-form-cookies-color-text',
+															'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+														]);?>
+													</div>
+												<?php endif;?>
 											</div>
 										</div>
-										<?php if (isset($pageFields['COOKIES_COLOR_BG'])):?>
-											<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_BG']->getLabel() ?></span>
-											<?$pageFields['COOKIES_COLOR_BG']->viewForm([
-												'class' => 'landing-form-cookies-color landing-form-cookies-color-bg',
-												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-											]);?>
-										<?php endif;?>
-										<?php if (isset($pageFields['COOKIES_COLOR_TEXT'])):?>
-											<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_TEXT']->getLabel() ?></span>
-											<?$pageFields['COOKIES_COLOR_TEXT']->viewForm([
-												'class' => 'landing-form-cookies-color landing-form-cookies-color-text',
-												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-											]);?>
-										<?php endif;?>
 									</div>
 									<div class="landing-form-cookies-position">
 										<?php if (isset($pageFields['COOKIES_POSITION'])):?>

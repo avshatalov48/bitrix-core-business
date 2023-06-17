@@ -140,7 +140,7 @@ class MssqlConnection extends Connection
 	public function isTableExists($tableName)
 	{
 		$tableName = preg_replace("/[^A-Za-z0-9%_]+/i", "", $tableName);
-		$tableName = Trim($tableName);
+		$tableName = trim($tableName);
 
 		if ($tableName == '')
 			return false;
@@ -166,7 +166,7 @@ class MssqlConnection extends Connection
 	 */
 	public function getIndexName($tableName, array $columns, $strict = false)
 	{
-		if (!is_array($columns) || count($columns) <= 0)
+		if (empty($columns))
 		{
 			return null;
 		}

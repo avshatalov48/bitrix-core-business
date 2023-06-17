@@ -44,9 +44,11 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_catalog_group";
 
-$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
-
+$oSort = new CAdminUiSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $arFilterFields = array();
 
@@ -85,7 +87,7 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 	if ($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$dbResultList = CCatalogGroup::GetListEx(array($by => $order), $arFilter, false, false, array('ID'));
+		$dbResultList = CCatalogGroup::GetListEx(array(), $arFilter, false, false, array('ID'));
 		while ($arResult = $dbResultList->Fetch())
 			$arID[] = $arResult['ID'];
 	}
@@ -241,10 +243,7 @@ if ($arSelectFieldsMap['NAME_LID'])
 		$arLangDefList[$arPriceLang['LID']] = str_replace('#LANG#', htmlspecialcharsbx($arPriceLang['NAME']), GetMessage('BT_CAT_GROUP_ADM_LANG_MESS'));
 	}
 	unset($arPriceLang, $rsPriceLangs);
-	unset($order1, $by1);
 }
-
-global $by, $order;
 
 if (!in_array('ID', $arSelectFields))
 {

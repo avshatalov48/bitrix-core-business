@@ -244,14 +244,6 @@ if($this->startResultCache(false, array($arParams)))
 				$arFilter["INCLUDE_SUBSECTIONS"] = "Y";
 
 			$arResult["SECTION"]= array("PATH" => array());
-			$rsPath = CIBlockSection::GetNavChain($arResult["ID"], $arParams["PARENT_SECTION"]);
-			$rsPath->SetUrlTemplates("", $arParams["SECTION_URL"], $arParams["IBLOCK_URL"]);
-			while($arPath = $rsPath->GetNext())
-			{
-				$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arParams["IBLOCK_ID"], $arPath["ID"]);
-				$arPath["IPROPERTY_VALUES"] = $ipropValues->getValues();
-				$arResult["SECTION"]["PATH"][] = $arPath;
-			}
 
 			$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arResult["ID"], $arParams["PARENT_SECTION"]);
 			$arResult["IPROPERTY_VALUES"] = $ipropValues->getValues();
@@ -323,12 +315,16 @@ if($this->startResultCache(false, array($arParams)))
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "news_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 
 			$arResult["ITEMS"][] = $arItem;
 			$arResult["ELEMENTS"][] = $arItem["ID"];
+		}
+		if ($bGetProperty)
+		{
+			\CIBlockFormatProperties::clearCache();
 		}
 		$arResult["NAV_STRING"] = $rsElement->GetPageNavStringEx($navComponentObject, $arParams["PAGER_TITLE"], $arParams["PAGER_TEMPLATE"], $arParams["PAGER_SHOW_ALWAYS"]);
 		/** @var CBitrixComponent $navComponentObject */

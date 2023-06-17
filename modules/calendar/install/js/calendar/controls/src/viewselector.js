@@ -174,6 +174,16 @@ export class ViewSelector extends EventEmitter
 			this.menuPopup.close();
 		}
 	}
+
+	show()
+	{
+		this.DOM.wrap.style.display = '';
+	}
+
+	hide()
+	{
+		this.DOM.wrap.style.display = 'none';
+	}
 }
 
 

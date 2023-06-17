@@ -20,9 +20,9 @@ if((!$USER->CanDoOperation('edit_other_settings') && !$USER->CanDoOperation('vie
 
 $ID = str_replace("\\", "", $_REQUEST["ID"]);
 $ID = str_replace("/", "", $ID);
-$bUseCompression = True;
+$bUseCompression = true;
 if(!extension_loaded('zlib') || !function_exists("gzcompress"))
-	$bUseCompression = False;
+	$bUseCompression = false;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 
@@ -41,7 +41,7 @@ if(is_dir($_SERVER["DOCUMENT_ROOT"].$path))
 	{
 		$strError = "Archiver error";
 		$arErrors = &$oArchiver->GetErrors();
-		if(count($arErrors)>0)
+		if(!empty($arErrors))
 		{
 			$strError .= ":<br>";
 			foreach ($arErrors as $value)

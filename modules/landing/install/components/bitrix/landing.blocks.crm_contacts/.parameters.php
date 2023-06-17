@@ -24,14 +24,15 @@ $arComponentParameters = [
 			'MULTIPLE' => 'N',
 			'VALUES' => [
 				'darkmode' => GetMessage('LNDNG_BLPHB_TEMPLATE_MODE_DARK'),
-				'lightmode' => GetMessage('LNDNG_BLPHB_TEMPLATE_MODE_LIGHT')
+				'graymode' => GetMessage('LNDNG_BLPHB_TEMPLATE_MODE_GRAY'),
+				'lightmode' => GetMessage('LNDNG_BLPHB_TEMPLATE_MODE_LIGHT'),
 			],
 			'DEFAULT' => '',
 			'COLS' => 25,
 			'PARENT' => 'BASE',
 		],
 		'BUTTON_POSITION' => [
-			'NAME' => GetMessage('LNDNG_BLPHB_TEMPLATE_MODE_NAME'),
+			'NAME' => GetMessage('LNDNG_BLPHB_BUTTON_POSITION'),
 			'TYPE' => 'LIST',
 			'MULTIPLE' => 'N',
 			'VALUES' => [
@@ -41,6 +42,10 @@ $arComponentParameters = [
 			'DEFAULT' => '',
 			'COLS' => 25,
 			'PARENT' => 'BASE',
+		],
+		'BUTTON_CLASSES' => [
+			'NAME' => GetMessage('LNDNG_BLPHB_BUTTON_CLASSES'),
+			'TYPE' => 'STRING',
 		],
 	],
 ];

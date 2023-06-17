@@ -10,6 +10,7 @@
 
 		if (typeof params === 'object')
 		{
+			this.siteId = params.siteId;
 			this.siteType = params.siteType;
 			this.wrapper = params.wrapper;
 			this.inner = params.inner;
@@ -188,6 +189,15 @@
 							else if (data.result[0].error === 'EMAIL_NOT_CONFIRMED')
 							{
 								top.BX.UI.InfoHelper.show('limit_sites_confirm_email');
+							}
+							else if (data.result[0].error === 'PHONE_NOT_CONFIRMED' && BX.Bitrix24 && BX.Bitrix24.PhoneVerify)
+							{
+								BX.Bitrix24.PhoneVerify
+									.getInstance()
+									.setEntityType('landing_site')
+									.setEntityId(this.siteId)
+									.startVerify({mandatory: false})
+								;
 							}
 							else if (
 								typeof BX.Landing.PaymentAlertShow !== 'undefined' &&

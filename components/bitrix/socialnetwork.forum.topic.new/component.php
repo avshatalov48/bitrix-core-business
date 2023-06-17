@@ -26,8 +26,12 @@ endif;
 /***************** BASE ********************************************/
 	$arParams["FID"] = intval($arParams["FID"]);
 	$arParams["TID"] = 0;
-	$arParams["MID"] = (intval($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
-	$arParams["MESSAGE_TYPE"] = (empty($arParams["MESSAGE_TYPE"]) ? $_REQUEST["MESSAGE_TYPE"] : $arParams["MESSAGE_TYPE"]);
+	$arParams["MID"] = (intval($arParams["MID"] ?? 0) <= 0 ? ($_REQUEST["MID"] ?? 0) : $arParams["MID"]);
+	$arParams["MESSAGE_TYPE"] = (
+		empty($arParams["MESSAGE_TYPE"])
+			? $_REQUEST["MESSAGE_TYPE"] ?? ''
+			: $arParams["MESSAGE_TYPE"] ?? ''
+	);
 	$arParams["MESSAGE_TYPE"] = ($arParams["MESSAGE_TYPE"] != "EDIT" ? "NEW" : "EDIT");
 	
 	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
@@ -61,11 +65,11 @@ $isSlider = $request->get('IFRAME') === 'Y';
 		$arParams["AJAX_TYPE"] = "Y";
 	else
 		$arParams["AJAX_TYPE"] = "N";
-	$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
+	$arParams["AJAX_CALL"] = (($_REQUEST["AJAX_CALL"] ?? '') === "Y" ? "Y" : "N");
 	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $arParams["AJAX_CALL"] == "Y") ? "Y" : "N");
 	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
-	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
+	$arParams["VOTE_GROUP_ID"] = (empty($arParams["VOTE_GROUP_ID"]) || !is_array($arParams["VOTE_GROUP_ID"])) ? array() : $arParams["VOTE_GROUP_ID"];
 	if (!is_array($arParams['VOTE_UNIQUE'])) $arParams['VOTE_UNIQUE'] = array();
 	if (!(isset($arParams['VOTE_UNIQUE_IP_DELAY']) && trim($arParams['VOTE_UNIQUE_IP_DELAY']) <> '' && mb_strpos($arParams['VOTE_UNIQUE_IP_DELAY'], " ") !== false))
 		$arParams['VOTE_UNIQUE_IP_DELAY'] = "10 D";
@@ -199,13 +203,18 @@ if (!empty($arError))
 /*******************************************************************/
 $strErrorMessage = ""; $strOKMessage = "";
 $bVarsFromForm = false;
-$arResult["VIEW"] = ((mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
-$_REQUEST["FILES"] = (is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
-$_REQUEST["FILES_TO_UPLOAD"] = (is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
+$arResult["VIEW"] = (
+	(
+		mb_strtoupper($_REQUEST["MESSAGE_MODE"] ?? '') == "VIEW"
+		&& $_SERVER["REQUEST_METHOD"] == "POST"
+	) ? "Y" : "N"
+);
+$_REQUEST["FILES"] = (!empty($_REQUEST["FILES"]) && is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
+$_REQUEST["FILES_TO_UPLOAD"] = (!empty($_REQUEST["FILES_TO_UPLOAD"]) && is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
 
 $arResult["MESSAGE_VIEW"] = array();
 $arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
-$arAllow["SMILES"] = ($_POST["USE_SMILES"] == "Y" ? $arAllow["SMILES"] : "N");
+$arAllow["SMILES"] = (($_POST["USE_SMILES"] ?? '') === "Y" ? $arAllow["SMILES"] : "N");
 /*******************************************************************/
 $arResult["URL"] = array(
 	"~LIST" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_TOPIC_LIST"], 
@@ -419,8 +428,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				$arFieldsG["EDITOR_EMAIL"] = $_REQUEST["EDITOR_EMAIL"];
 				$arFieldsG["EDIT_REASON"] = $_REQUEST["EDIT_REASON"];
 			}
-			$MID1 = intval(ForumAddMessage($arParams["MESSAGE_TYPE"], $arParams["FID"], $TID1, $MID1, $arFieldsG,
-				$strErrorMessage, $strOKMessage, false, $_POST["captcha_word"], 0, $_POST["captcha_code"], $arParams["NAME_TEMPLATE"]));
+			$MID1 = intval(
+				ForumAddMessage(
+					$arParams["MESSAGE_TYPE"],
+					$arParams["FID"],
+					$TID1,
+					$MID1,
+					$arFieldsG,
+					$strErrorMessage,
+					$strOKMessage,
+					false,
+					$_POST["captcha_word"] ?? null,
+					0,
+					$_POST["captcha_code"] ?? null,
+					$arParams["NAME_TEMPLATE"]
+				)
+			);
 
 			if ($MID1 > 0)
 			{
@@ -462,7 +485,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 						"PATH_TO_MESSAGE" => CComponentEngine::MakePathFromTemplate(
 							(!empty($workgroups_path) ? $workgroups_path : $arParams["~URL_TEMPLATES_MESSAGE"]),
 							array("TID" => $arParams["TID"])),
-						"VOTE_ID" => ($arFieldsG["PARAM1"] == "VT" ? $arFieldsG["PARAM2"] : 0),
+						"VOTE_ID" => (
+							($arFieldsG["PARAM1"] ?? null) === "VT"
+								? $arFieldsG["PARAM2"]
+								: 0
+						),
 						"PARSED" => "N"
 						)),
 					"MODULE_ID" => false,
@@ -619,7 +646,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 						],
 					),
 					[
-						'result' => $arNote['code']
+						'result' => $arNote['code'] ?? null
 					],
 				);
 
@@ -632,7 +659,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
 				LocalRedirect($url);
 			}
-			elseif (intval($arFieldsG["PARAM2"]) > 0 && $arFieldsG["PARAM1"] == "VT")
+			elseif (
+				intval($arFieldsG["PARAM2"] ?? null) > 0
+				&& $arFieldsG["PARAM1"] == "VT"
+			)
 			{
 				CVote::Delete($arFieldsG["PARAM2"]);
 			}

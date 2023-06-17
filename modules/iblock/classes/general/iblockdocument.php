@@ -2364,10 +2364,10 @@ class CIBlockDocument
 	}
 
 	/**
-	* Метод создает новый документ с указанными свойствами (полями).
+	* Create document.
 	*
-	* @param array $arFields - массив значений свойств документа в виде array(код_свойства => значение, ...). Коды свойств соответствуют кодам свойств, возвращаемым методом GetDocumentFields.
-	* @return int - код созданного документа.
+	* @param array $arFields - document fields.
+	* @return int
 	*/
 	public static function CreateDocument($parentDocumentId, $arFields)
 	{
@@ -2511,10 +2511,10 @@ class CIBlockDocument
 	}
 
 	/**
-	* Метод удаляет указанный документ.
-	*
-	* @param string $documentId - код документа.
-	*/
+	 * Remove document.
+	 *
+	 * @param string $documentId - document id.
+	 */
 	public static function DeleteDocument($documentId)
 	{
 		$documentId = intval($documentId);
@@ -2525,10 +2525,10 @@ class CIBlockDocument
 	}
 
 	/**
-	* Метод публикует документ. То есть делает его доступным в публичной части сайта.
-	*
-	* @param string $documentId - код документа.
-	*/
+	 * Publish document.
+	 *
+	 * @param string $documentId - document id.
+	 */
 	public static function PublishDocument($documentId)
 	{
 		global $DB;
@@ -2569,8 +2569,6 @@ class CIBlockDocument
 			$PARENT_ID = intval($ar_element["WF_PARENT_ELEMENT_ID"]);
 			if($PARENT_ID)
 			{
-				// TODO: Если в документе $documentId поле WF_PARENT_ELEMENT_ID не NULL, то при публикации нужно перенести данные
-				// (скопировать документ) из документа $documentId в документ WF_PARENT_ELEMENT_ID,
 				$obElement = new CIBlockElement;
 				$ar_element["WF_PARENT_ELEMENT_ID"] = false;
 
@@ -2632,29 +2630,30 @@ class CIBlockDocument
 				}
 
 				$obElement->Update($PARENT_ID, $ar_element);
-				// вызвать CBPDocument::MergeDocuments(WF_PARENT_ELEMENT_ID, $documentId) для переноса состояний и истории БП,
+
 				CBPDocument::MergeDocuments(
 					array("iblock", "CIBlockDocument", $PARENT_ID),
 					array("iblock", "CIBlockDocument", $documentId)
 				);
-				// грохнуть документ $documentId,
+
 				CIBlockElement::Delete($ID);
-				// опубликовать документ WF_PARENT_ELEMENT_ID
+
 				CIBlockElement::WF_CleanUpHistoryCopies($PARENT_ID, 0);
 				$strSql = "update b_iblock_element set WF_STATUS_ID='1', WF_NEW=NULL WHERE ID=".$PARENT_ID." AND WF_PARENT_ELEMENT_ID IS NULL";
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
 				CIBlockElement::UpdateSearch($PARENT_ID);
 				\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($ar_element["IBLOCK_ID"], $PARENT_ID);
+
 				return $PARENT_ID;
 			}
 			else
 			{
-				// Если WF_PARENT_ELEMENT_ID равно NULL, то все как раньше.
 				CIBlockElement::WF_CleanUpHistoryCopies($ID, 0);
 				$strSql = "update b_iblock_element set WF_STATUS_ID='1', WF_NEW=NULL WHERE ID=".$ID." AND WF_PARENT_ELEMENT_ID IS NULL";
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
 				CIBlockElement::UpdateSearch($ID);
 				\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($ar_element["IBLOCK_ID"], $ID);
+
 				return $ID;
 			}
 		}
@@ -2784,10 +2783,10 @@ class CIBlockDocument
 	}
 
 	/**
-	* Метод снимает документ с публикации. То есть делает его недоступным в публичной части сайта.
-	*
-	* @param string $documentId - код документа.
-	*/
+	 * Canceling publication document.
+	 *
+	 * @param string $documentId - document id.
+	 */
 	public static function UnpublishDocument($documentId)
 	{
 		global $DB;
@@ -2797,7 +2796,7 @@ class CIBlockDocument
 		CIBlockElement::UpdateSearch($documentId);
 	}
 
-	// array("read" => "Ета чтение", "write" => "Ета запысь")
+	// array("read" => "it's reading", "write" => "it's writing")
 	public static function GetAllowableOperations($documentType)
 	{
 		$iblockId = intval(mb_substr($documentType, mb_strlen("iblock_")));

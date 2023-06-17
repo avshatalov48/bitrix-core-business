@@ -47,20 +47,23 @@ $isAjax = $component->isAjax();
 			]
 		});
 		<?endif;?>
-		<?if ($arResult['SIDE_PANEL'] && !$isAjax):?>
+		<?php if ($arResult['SIDE_PANEL'] && !$isAjax): ?>
+		<?php $addUrlCondition = $component->getUrlAddSidepanelCondition(); ?>
 		BX.SidePanel.Instance.bindAnchors({
 			rules: [
-				<?if ($arParams['PAGE_URL_SITE_ADD']):?>
+				<?php if ($addUrlCondition): ?>
 				{
-					condition: ['<?= strpos($arParams['PAGE_URL_SITE_ADD'], '?') ? explode('?', $arParams['PAGE_URL_SITE_ADD'])[0] : $arParams['PAGE_URL_SITE_ADD']?>'],
+					condition: [<?= CUtil::phpToJSObject($addUrlCondition) ?>],
 					options: {
-						allowChangeHistory: false
-						<?if ($arParams['TYPE'] === 'STORE'):?>
-						,width: 1200
-						<?endif;?>
+						allowChangeHistory: false,
+						customLeftBoundary: 0,
+						cacheable: false,
+						<?php if ($arParams['TYPE'] === 'STORE'): ?>
+							width: 1200,
+						<?php endif; ?>
 					}
 				},
-				<?endif?>
+				<?php endif; ?>
 				{
 					condition: <?= \CUtil::PhpToJSObject($arResult['SIDE_PANEL'])?>,
 					stopParameters: ['tab', 'action'],
@@ -68,7 +71,7 @@ $isAjax = $component->isAjax();
 				}
 			]
 		});
-		<?endif;?>
+		<?php endif; ?>
 	});
 </script>
 
@@ -179,7 +182,11 @@ $isAjax = $component->isAjax();
 		new BX.Landing.Component.SiteTile({
 			renderTo: BX('landing-sites'),
 			items: items,
-			scrollerText: '<?= $component->getMessageType('LANDING_SITE_TILE_SCROLLER')?>'
+			scrollerText: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_SCROLLER'))?>',
+			notPublishedText: {
+				title: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_NOT_PUBLISHED_TITLE')) ?>',
+				message: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_NOT_PUBLISHED_MSG')) ?>',
+			},
 		});
 
 		BX.addCustomEvent('BX.Landing.SiteTile:unPublish', function(param) {
@@ -236,6 +243,15 @@ $isAjax = $component->isAjax();
 						else if (errorCode === 'EMAIL_NOT_CONFIRMED')
 						{
 							BX.UI.InfoHelper.show('limit_sites_confirm_email');
+						}
+						else if (errorCode === 'PHONE_NOT_CONFIRMED' && top.BX.Bitrix24 && top.BX.Bitrix24.PhoneVerify)
+						{
+							top.BX.Bitrix24.PhoneVerify
+								.getInstance()
+								.setEntityType('landing_site')
+								.setEntityId(item.id)
+								.startVerify({mandatory: false})
+							;
 						}
 						else if (typeof BX.Landing.AlertShow !== 'undefined')
 						{

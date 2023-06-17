@@ -23,5 +23,6 @@ $MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE"] = "Deaktivieren";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT"] = "Möchten Sie Bestandsverwaltung wirklich deaktivieren?";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Bestandsverwaltung deaktivieren";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_ENABLED"] = "Bestandsverwaltung aktiviert";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_RIGHTS_RESTRICTED"] = "Sie haben nicht genügend Rechte, um die Bestandsverwaltung zu nutzen. Wenden Sie sich bitte an Ihren Bitrix24 Administrator.";
 $MESS["CAT_WAREHOUSE_MASTER_STORE_LEAD_ENABLED_MODE_ERROR"] = "Bestandsverwaltung kann nur im Modus \"Basis-CRM\" genutzt werden.";
 $MESS["CAT_WAREHOUSE_MASTER_STORE_ORDER_DEAL_MODE_ERROR"] = "Bestandsverwaltung kann nicht im Modus \"Aufträge & Bestellungen\" genutzt werden. Sie müssen den Modus \"Aufträge\" einschalten, um Bestandsverwaltung nutzen zu können.";

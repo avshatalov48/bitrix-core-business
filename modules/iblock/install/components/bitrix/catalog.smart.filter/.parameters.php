@@ -1,23 +1,32 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
+
+/** @var array $arCurrentValues */
 
 use Bitrix\Main\Loader;
 use Bitrix\Currency;
 
 if (!Loader::includeModule('iblock'))
+{
 	return;
+}
 
 $catalogIncluded = Loader::includeModule('catalog');
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 $arIBlock = array();
-$iblockFilter = (
-	!empty($arCurrentValues['IBLOCK_TYPE'])
-	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
-	: array('ACTIVE' => 'Y')
-);
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
 	$arIBlock[$arr['ID']] = '['.$arr['ID'].'] '.$arr['NAME'];
@@ -36,9 +45,16 @@ if ($iblockExists)
 	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION");
 	foreach($arUserFields as $FIELD_NAME=>$arUserField)
 	{
-		$arProperty_UF[$FIELD_NAME] = $arUserField["LIST_COLUMN_LABEL"]? $arUserField["LIST_COLUMN_LABEL"]: $FIELD_NAME;
+		$userFieldTitle =
+			($arUserField["LIST_COLUMN_LABEL"] ?? '') !== ''
+				? $arUserField["LIST_COLUMN_LABEL"]
+				: $FIELD_NAME
+		;
+		$arProperty_UF[$FIELD_NAME] = $userFieldTitle;
 		if($arUserField["USER_TYPE"]["BASE_TYPE"]=="string")
+		{
 			$arSProperty_LNS[$FIELD_NAME] = $arProperty_UF[$FIELD_NAME];
+		}
 	}
 	unset($arUserFields, $FIELD_NAME, $arUserField);
 }
@@ -186,7 +202,7 @@ $arComponentParameters = array(
 	),
 );
 
-if ($arCurrentValues["SEF_MODE"] == "Y")
+if (($arCurrentValues["SEF_MODE"] ?? '') === "Y")
 {
 	$arComponentParameters["PARAMETERS"]["SECTION_CODE_PATH"] = array(
 		"NAME" => GetMessage("CP_BCSF_SECTION_CODE_PATH"),
@@ -217,7 +233,7 @@ if ($catalogIncluded)
 		'REFRESH' => 'Y',
 	);
 
-	if (isset($arCurrentValues['CONVERT_CURRENCY']) && $arCurrentValues['CONVERT_CURRENCY'] == 'Y')
+	if (($arCurrentValues['CONVERT_CURRENCY'] ?? 'N') === 'Y')
 	{
 		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
 			'PARENT' => 'PRICES',

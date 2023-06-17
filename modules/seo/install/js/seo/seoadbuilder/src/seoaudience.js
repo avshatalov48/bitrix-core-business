@@ -50,7 +50,6 @@ export class SeoAudience
 				Event.bind(element, 'input', this.onInputRange.bind(this));
 			}
 		});
-
 		this.buildSelector();
 	}
 
@@ -187,10 +186,9 @@ export class SeoAudience
 		this.listContent.parentNode.style.display = 'none';
 	}
 
-	apply()
+	apply(applyBtn)
 	{
-		const applyBtn = document.getElementById('ui-button-panel-apply');
-
+		applyBtn.classList.remove('ui-btn-wait');
 		BX.SidePanel.Instance.close();
 		let genders = [];
 		let genderTitles = [];
@@ -221,12 +219,11 @@ export class SeoAudience
 			'seo-fb-audience-configured',
 			{
 				interests: interests,
-				ageFrom: this.inputMin.value,
-				ageTo: this.inputMax.value,
+				ageFrom: Math.min(this.inputMin.value, this.inputMax.value),
+				ageTo: Math.max(this.inputMin.value, this.inputMax.value),
 				genderTitles: genderTitles,
 				genders: genders
 			}
 		);
-		document.getElementById('ui-button-panel-apply').classList.remove('ui-btn-wait');
 	}
 }

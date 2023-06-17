@@ -173,7 +173,10 @@ export class UserPlannerSelector extends EventEmitter
 			this.entryId
 			&& this.entry
 			&& this.entry.data['PARENT_ID']
-			&& this.entry.data['EVENT_TYPE'] === '#shared#'
+			&& (
+				this.entry.data['EVENT_TYPE'] === '#shared#'
+				|| this.entry.data['EVENT_TYPE'] === '#shared_crm#'
+			)
 			&& this.entry.getCurrentStatus() !== false
 		)
 		{

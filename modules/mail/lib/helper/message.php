@@ -16,10 +16,19 @@ class Message
 	// entity types with special access rules (group tokens)
 	public const ENTITY_TYPE_IM_CHAT = MessageAccessTable::ENTITY_TYPE_IM_CHAT;
 	public const ENTITY_TYPE_CALENDAR_EVENT = MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT;
+	private const MAX_FILE_SIZE_MAIL_ATTACHMENT = 20000000;
 
 	public static function getMaxAttachedFilesSize()
 	{
-		return (int)Option::get('main', 'max_file_size', 0);
+		// @TODO: Until the 'Main' module update of is released with the reset of the option for the cloud
+		if (IsModuleInstalled('bitrix24'))
+		{
+			return self::MAX_FILE_SIZE_MAIL_ATTACHMENT;
+		}
+		else
+		{
+			return (int)Option::get('main', 'max_file_size');
+		}
 	}
 
 	public static function getMaxAttachedFilesSizeAfterEncoding()

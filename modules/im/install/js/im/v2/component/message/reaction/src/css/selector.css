@@ -1,0 +1,22 @@
+.bx-im-reaction-selector__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 28px;
+	height: 24px;
+	border-radius: 38px;
+	background-color: rgba(255, 255, 255, 0.6);
+	cursor: pointer;
+}
+
+.bx-im-reaction-selector__icon {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background-image: url('./images/like.svg');
+	background-position: center;
+}
+
+.bx-im-reaction-selector__icon.--active {
+	background-image: url('./images/like-active.svg');
+}

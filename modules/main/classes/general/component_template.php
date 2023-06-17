@@ -336,13 +336,13 @@ class CBitrixComponentTemplate
 		if (
 			array_key_exists("arCustomTemplateEngines", $GLOBALS)
 			&& is_array($GLOBALS["arCustomTemplateEngines"])
-			&& count($GLOBALS["arCustomTemplateEngines"]) > 0
+			&& !empty($GLOBALS["arCustomTemplateEngines"])
 		)
 		{
 			$arBXAvailableTemplateEngines = $arBXAvailableTemplateEngines + $GLOBALS["arCustomTemplateEngines"];
 		}
 
-		if (is_array($arTemplateEngines) && count($arTemplateEngines) > 0)
+		if (is_array($arTemplateEngines) && !empty($arTemplateEngines))
 		{
 			$arBXAvailableTemplateEngines = $arBXAvailableTemplateEngines + $arTemplateEngines;
 		}
@@ -701,7 +701,7 @@ class CBitrixComponentTemplate
 					elseif (is_file($_SERVER["DOCUMENT_ROOT"].$fname))
 					{
 						$this->__file = $fname;
-						if (mb_strpos($this->__name, "/") !== false)
+						if (strpos($this->__name, "/") !== false)
 							$this->__folder = $folder["path"]."/".mb_substr($this->__name, 0, bxstrrpos($this->__name, "/"));
 					}
 				}

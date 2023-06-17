@@ -25,9 +25,7 @@ abstract class BaseSender
 	 */
 	public function performRequest($action, array $parameters = []): Result
 	{
-		$result = new Result();
-
-		$httpClient = new HttpClient($this->getHttpClientParameters());
+		$httpClient = $this->buildHttpClient();
 
 		$url = $this->getServiceUrl() . "/api/?action=".$action;
 
@@ -44,6 +42,11 @@ abstract class BaseSender
 		$result = $httpClient->query(HttpClient::HTTP_POST, $url, $request);
 
 		return $this->buildResult($httpClient, $result);
+	}
+
+	protected function buildHttpClient(): HttpClient
+	{
+		return new HttpClient($this->getHttpClientParameters());
 	}
 
 	protected function buildResult(HttpClient $httpClient, bool $requestResult): Result

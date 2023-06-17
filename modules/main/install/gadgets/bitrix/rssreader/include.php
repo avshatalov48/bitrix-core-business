@@ -1,8 +1,6 @@
 <?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/xml.php');
-
 class gdRssFeeds
 {
 	var $title;
@@ -61,7 +59,7 @@ function gdGetRss($rss_url, $cache_time = 0, $isHtml = false)
 		if($oSubNode = $oNode->elementsByName("cdata-section"))
 			$oRssFeeds->title = $oSubNode[0]->content;
 	}
-	
+
 	if($oNode = $xml->SelectNodes("/rss/channel/link"))
 		$oRssFeeds->link = $oNode->content;
 
@@ -109,7 +107,7 @@ function gdGetRss($rss_url, $cache_time = 0, $isHtml = false)
 
 			if($oSubNode = $oNode->elementsByName("author"))
 				$item["AUTHOR"] = $oSubNode[0]->content;
-			if (trim($item["AUTHOR"]) == '' && !empty($oSubNode))
+			if ((!isset($item["AUTHOR"]) || trim($item["AUTHOR"]) == '') && !empty($oSubNode))
 			{
 				if($oSubNode = $oSubNode[0]->elementsByName("cdata-section"))
 					$item["AUTHOR"] = $oSubNode[0]->content;

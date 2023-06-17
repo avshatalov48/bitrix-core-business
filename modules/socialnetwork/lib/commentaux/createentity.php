@@ -261,7 +261,7 @@ class CreateEntity extends Base
 
 		if ($provider = $this->getLivefeedProvider())
 		{
-			$options['suffix'] = $provider->getSuffix($options['suffix']);
+			$options['suffix'] = $provider->getSuffix($options['suffix'] ?? null);
 			$this->setOptions($options);
 		}
 
@@ -434,8 +434,8 @@ class CreateEntity extends Base
 		];
 
 		$params = $this->params;
-		$entityType = $params['entityType'];
-		$entityId = (int)$params['entityId'];
+		$entityType = $params['entityType'] ?? null;
+		$entityId = (int) ($params['entityId'] ?? null);
 
 		$result = false;
 		$permissionCacheKey = ($checkPermissions ? 'Y' : 'N');

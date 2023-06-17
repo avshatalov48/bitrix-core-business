@@ -32,6 +32,7 @@ $request = Main\Context::getCurrent()->getRequest();
 $arFilterFields = [
 	"find",
 	"find_type",
+	"find_name",
 	"find_id",
 	"find_email",
 	"find_public",

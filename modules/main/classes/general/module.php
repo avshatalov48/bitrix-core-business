@@ -6,6 +6,8 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\SystemException;
+
 define("MODULE_NOT_FOUND", 0);
 define("MODULE_INSTALLED", 1);
 define("MODULE_DEMO", 2);
@@ -363,30 +365,30 @@ function GetModuleEvents($MODULE_ID, $MESSAGE_ID, $bReturnArray = false)
  *
  * @deprecated
  */
-function ExecuteModuleEvent($arEvent, $param1=NULL, $param2=NULL, $param3=NULL, $param4=NULL, $param5=NULL, $param6=NULL, $param7=NULL, $param8=NULL, $param9=NULL, $param10=NULL)
+function ExecuteModuleEvent($arEvent, $param1=null, $param2=null, $param3=null, $param4=null, $param5=null, $param6=null, $param7=null, $param8=null, $param9=null, $param10=null)
 {
 	$CNT_PREDEF = 10;
 	$r = true;
-	if($arEvent["TO_MODULE_ID"] <> '' && $arEvent["TO_MODULE_ID"] <> 'main')
+	if(!empty($arEvent["TO_MODULE_ID"]) && $arEvent["TO_MODULE_ID"] <> 'main')
 	{
 		if(!CModule::IncludeModule($arEvent["TO_MODULE_ID"]))
 			return null;
 		$r = include_once($_SERVER["DOCUMENT_ROOT"].getLocalPath("modules/".$arEvent["TO_MODULE_ID"]."/include.php"));
 	}
-	elseif($arEvent["TO_PATH"] <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT.$arEvent["TO_PATH"]))
+	elseif(!empty($arEvent["TO_PATH"]) && file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT.$arEvent["TO_PATH"]))
 	{
 		$r = include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT.$arEvent["TO_PATH"]);
 	}
-	elseif($arEvent["FULL_PATH"]<>"" && file_exists($arEvent["FULL_PATH"]))
+	elseif(!empty($arEvent["FULL_PATH"]) && file_exists($arEvent["FULL_PATH"]))
 	{
 		$r = include_once($arEvent["FULL_PATH"]);
 	}
 
-	if(($arEvent["TO_CLASS"] == '' || $arEvent["TO_METHOD"] == '') && !is_set($arEvent, "CALLBACK"))
+	if((empty($arEvent["TO_CLASS"]) || empty($arEvent["TO_METHOD"])) && !is_set($arEvent, "CALLBACK"))
 		return $r;
 
 	$args = array();
-	if (is_array($arEvent["TO_METHOD_ARG"]) && count($arEvent["TO_METHOD_ARG"]) > 0)
+	if (isset($arEvent["TO_METHOD_ARG"]) && is_array($arEvent["TO_METHOD_ARG"]) && !empty($arEvent["TO_METHOD_ARG"]))
 	{
 		foreach ($arEvent["TO_METHOD_ARG"] as $v)
 			$args[] = $v;
@@ -476,8 +478,17 @@ function ExecuteModuleEventEx($arEvent, $arParams = array())
 			$args = $arParams;
 
 		//php bug: http://bugs.php.net/bug.php?id=47948
-		class_exists($arEvent["TO_CLASS"]);
-		return call_user_func_array(array($arEvent["TO_CLASS"], $arEvent["TO_METHOD"]), $args);
+		if (class_exists($arEvent["TO_CLASS"]) && is_callable([$arEvent["TO_CLASS"], $arEvent["TO_METHOD"]]))
+		{
+			return call_user_func_array([$arEvent["TO_CLASS"], $arEvent["TO_METHOD"]], $args);
+		}
+
+		$exception = new SystemException("Event handler error: could not invoke {$arEvent["TO_CLASS"]}::{$arEvent["TO_METHOD"]}. Class or method does not exist.");
+		$application = \Bitrix\Main\Application::getInstance();
+		$exceptionHandler = $application->getExceptionHandler();
+		$exceptionHandler->writeToLog($exception);
+
+		return null;
 	}
 	else
 	{

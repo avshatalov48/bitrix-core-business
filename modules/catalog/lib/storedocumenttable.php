@@ -551,5 +551,6 @@ class StoreDocumentTable extends DataManager
 				['join_type' => 'INNER']
 			)
 		);
+		$query->addGroup('ID');
 	}
 }

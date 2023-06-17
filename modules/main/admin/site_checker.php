@@ -178,7 +178,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 				SetStatus("302 Found");
 				$protocol = (IsHTTPS() ? "https" : "http");
 				$host = $_SERVER['HTTP_HOST'];
-				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && mb_strpos($_SERVER['HTTP_HOST'], ":") === false)
+				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && strpos($_SERVER['HTTP_HOST'], ":") === false)
 					$host .= ":".$_SERVER['SERVER_PORT'];
 				$url = "?redirect_test=Y&done=Y&unique_id=".checker_get_unique_id();
 				header("Request-URI: ".$protocol."://".$host.$url);
@@ -198,7 +198,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 			define('LANG_CHARSET', preg_replace('#[^a-z0-9\-]#i', '', $_REQUEST['charset']));
 			header('Content-type: text/plain; charset='.LANG_CHARSET);
 		}
-		define('LANGUAGE_ID', preg_match('#[a-z]{2}#',$_REQUEST['lang'],$regs) ? $regs[0] : 'en');
+		define('LANGUAGE_ID', preg_match('#[a-z]{2}#',$_REQUEST['lang'] ?? '',$regs) ? $regs[0] : 'en');
 		if (file_exists($file = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/lang/'.LANGUAGE_ID.'/admin/site_checker.php'))
 			include_once($file);
 		else
@@ -206,7 +206,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 
 		InitPureDB();
 
-		$oTest = new CSiteCheckerTest($_REQUEST['step'], 0, $fix_mode);
+		$oTest = new CSiteCheckerTest($_REQUEST['step'] ?? 0, 0, $fix_mode);
 		if (file_exists(DEBUG_FLAG))
 			$oTest->timeout = 30;
 
@@ -272,17 +272,19 @@ if ($USER->CanDoOperation('view_other_settings'))
 elseif(!defined('NOT_CHECK_PERMISSIONS') || NOT_CHECK_PERMISSIONS !== true)
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if ($_POST['access_check'])
+if (isset($_POST['access_check']) && $_POST['access_check'])
 {
 	if (defined('NOT_CHECK_PERMISSIONS') && NOT_CHECK_PERMISSIONS ===true || check_bitrix_sessid())
 	{
 		$ob = new CSearchFiles;
 		$ob->TimeLimit = 10;
 
-		if ($_REQUEST['break_point'])
+		if (isset($_REQUEST['break_point']) && $_REQUEST['break_point'])
+		{
 			$ob->SkipPath = $_REQUEST['break_point'];
+		}
 
-		$check_type = $_REQUEST['check_type'];
+		$check_type = $_REQUEST['check_type'] ?? '';
 
 		$sNextPath = '';
 		if ($check_type == 'upload')
@@ -291,7 +293,7 @@ if ($_POST['access_check'])
 				mkdir($tmp);
 			$upload = $_SERVER['DOCUMENT_ROOT'].'/'.COption::GetOptionString('main', 'upload_dir', 'upload');
 
-			if (0 === mb_strpos($_REQUEST['break_point'], $upload))
+			if (0 === mb_strpos($_REQUEST['break_point'] ?? '', $upload))
 				$path = $upload;
 			else
 			{
@@ -315,7 +317,7 @@ if ($_POST['access_check'])
 			{
 				if ($ob->BreakPoint)
 					$sNextPath = $ob->BreakPoint;
-				$cnt_total = intval($_REQUEST['cnt_total']) + $ob->FilesCount;
+				$cnt_total = intval($_REQUEST['cnt_total'] ?? 0) + $ob->FilesCount;
 				?><form method=post id=postform>
 					<input type=hidden name=access_check value="Y">
 					<input type=hidden name=lang value="<?=LANGUAGE_ID?>">
@@ -363,12 +365,13 @@ if ($_POST['access_check'])
 		echo '<h1>Permission denied: BITRIX SESSID ERROR</h1>';
 	exit;
 }
-elseif($_REQUEST['test_start'])
+elseif(isset($_REQUEST['test_start']) && $_REQUEST['test_start'])
 {
 	if (defined('NOT_CHECK_PERMISSIONS') && NOT_CHECK_PERMISSIONS ===true || check_bitrix_sessid())
 	{
-		$oTest = new CSiteCheckerTest($_REQUEST['step'], (int) $_REQUEST['fast']);
-		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
+		$fast = isset($_REQUEST['fast']) ? (int)$_REQUEST['fast'] : 0;
+		$oTest = new CSiteCheckerTest($_REQUEST['step'] ?? 0, $fast);
+		if (isset($_REQUEST['global_test_vars']) && ($d = base64_decode($_REQUEST['global_test_vars'])))
 		{
 			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		}
@@ -403,7 +406,7 @@ elseif($_REQUEST['test_start'])
 		echo '<h1>Permission denied: BITRIX SESSID ERROR</h1>';
 	exit;
 }
-elseif ($_REQUEST['read_log']) // after prolog to send correct charset
+elseif (isset($_REQUEST['read_log']) && $_REQUEST['read_log']) // after prolog to send correct charset
 {
 	$oTest = new CSiteCheckerTest();
 	$str = htmlspecialcharsEx(file_get_contents($_SERVER['DOCUMENT_ROOT'].$oTest->LogFile));
@@ -413,8 +416,12 @@ elseif ($_REQUEST['read_log']) // after prolog to send correct charset
 
 	?><!DOCTYPE HTML><html><body style="color:#666"><h1 style="color:#000"><?=GetMessage("MAIN_SC_SYSTEST_LOG")?></h1><?
 	$str = preg_replace('#^[0-9]{4}-...-[0-9]{2} .*\):#m','<span style="color:#000">$0</span>', $str);
-	if (preg_match('#[a-z_0-9]+#', $a = $_REQUEST['anchor']))
-		$str = preg_replace('#^.+\('.$a.'\)#m','<a name="'.$a.'" style="background-color:#EE3">$0</a>', $str);
+
+	$a = $_REQUEST['anchor'] ?? '';
+	if (preg_match('#[a-z_0-9]+#', $a))
+	{
+		$str = preg_replace('#^.+\(' . $a . '\)#m', '<a name="' . $a . '" style="background-color:#EE3">$0</a>', $str);
+	}
 
 	$str = preg_replace('#Ok$#m', '<span style="color:#408218">$0</span>', $str);
 	$str = preg_replace('#Warning$#m', '<span style="color:#663300">$0</span>', $str);
@@ -422,7 +429,7 @@ elseif ($_REQUEST['read_log']) // after prolog to send correct charset
 	echo '<pre>'.$str.'</pre>';
 	exit;
 }
-elseif ($fix_mode = intval($_REQUEST['fix_mode']))
+elseif (isset($_REQUEST['fix_mode']) && ($fix_mode = intval($_REQUEST['fix_mode'])))
 {
 	?>
 	<table id="fix_table" width="100%" class="internal" style="padding:20px;padding-bottom:0;">
@@ -696,7 +703,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 				if (strNextRequest)
 				{
-					<? if ($_GET['HTTP_HOST'])
+					<? if (isset($_GET['HTTP_HOST']))
 					{
 						?>
 						BX.ajax.get('site_checker.php?HTTP_HOST=<?=urlencode($_GET['HTTP_HOST'])?>&SERVER_PORT=<?=urlencode($_GET['SERVER_PORT'])?>&HTTPS=<?=urlencode($_GET['HTTPS'])?>&test_start=Y&lang=<?=LANGUAGE_ID?>&<?=bitrix_sessid_get()?>' + strNextRequest, test_onload);
@@ -832,9 +839,9 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 				}
 			}
 
-			HTTP_HOST = 	(tmp = "<?=urlencode($_GET['HTTP_HOST'])?>") ? tmp : window.location.hostname;
-			SERVER_PORT = 	(tmp = "<?=urlencode($_GET['SERVER_PORT'])?>") ? tmp : window.location.port;
-			HTTPS = 	(tmp = "<?=urlencode($_GET['HTTPS'])?>") ? tmp : (window.location.protocol == 'https:' ? 'on' : '');
+			HTTP_HOST = 	(tmp = "<?=urlencode($_GET['HTTP_HOST'] ?? '')?>") ? tmp : window.location.hostname;
+			SERVER_PORT = 	(tmp = "<?=urlencode($_GET['SERVER_PORT'] ?? '')?>") ? tmp : window.location.port;
+			HTTPS = 	(tmp = "<?=urlencode($_GET['HTTPS'] ?? '')?>") ? tmp : (window.location.protocol == 'https:' ? 'on' : '');
 
 			if (strNextRequest || begin)
 				BX.ajax.get('site_checker.php?test_start=Y&fast=1&lang=<?=LANGUAGE_ID?>&<?=bitrix_sessid_get()?>&HTTP_HOST=' + HTTP_HOST + '&SERVER_PORT=' + SERVER_PORT + '&HTTPS=' + HTTPS + strNextRequest, ExpressTest);
@@ -881,8 +888,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			return (test_result == 1 ? '<span class="sc_success">' : test_result == 0 ? '<span class="sc_warning">' : '<span class="sc_error">') + text + '</span>';
 		}
 
-		<?=$_REQUEST['express_test'] ? 'window.setTimeout(\'ExpressTest("", true)\', 500);' : ''?>
-		<?=$_REQUEST['start_test'] ? 'window.setTimeout(\'set_start(1)\', 500);' : ''?>
+		<?=(isset($_REQUEST['express_test']) && $_REQUEST['express_test'] ? 'window.setTimeout(\'ExpressTest("", true)\', 500);' : '')?>
+		<?=(isset($_REQUEST['start_test']) && $_REQUEST['start_test'] ? 'window.setTimeout(\'set_start(1)\', 500);' : '')?>
 	</script>
 
 <?

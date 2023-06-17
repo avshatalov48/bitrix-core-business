@@ -15,7 +15,7 @@ class CBackup
 			foreach($arAllBucket as $arBucket)
 				if (IntOption('dump_cloud_'.$arBucket['ID']))
 					$arRes[] = $arBucket['ID'];
-			if (count($arRes))
+			if (!empty($arRes))
 				return $arRes;
 		}
 		return false;
@@ -81,7 +81,7 @@ class CBackup
 			if (mb_strpos($path, $clouds) === 0 || mb_strpos($clouds, $path) === 0)
 				return false;
 		}
-		
+
 		## Backups
 		if (mb_strpos($path, self::$DOCUMENT_ROOT_SITE.BX_ROOT.'/backup/') === 0)
 			return true;
@@ -98,7 +98,7 @@ class CBackup
 		elseif (($max_file_size = IntOption("dump_max_file_size")) > 0 && filesize($path) > $max_file_size * 1024)
 			return true;
 
-		## Skip mask	
+		## Skip mask
 		if (CBackup::skipMask($path))
 			return true;
 
@@ -118,7 +118,7 @@ class CBackup
 		$path_root = mb_substr($path, mb_strlen(self::$DOCUMENT_ROOT_SITE));
 		if (preg_match('#^/bitrix/(.settings.php|php_interface|templates)/([^/]*)#',$path_root.'/',$regs))
 			return !$dump_file_public;
-	
+
 		if (preg_match('#^/bitrix/(activities|components|gadgets|wizards)/([^/]*)#',$path_root.'/',$regs))
 		{
 			if (!$regs[2])
@@ -136,7 +136,7 @@ class CBackup
 	{
 		static $CACHE;
 
-		if ($CACHE[$BUCKET_ID])
+		if (isset($CACHE[$BUCKET_ID]))
 			$obBucket = $CACHE[$BUCKET_ID];
 		else
 			$CACHE[$BUCKET_ID] = $obBucket = new CCloudStorageBucket($BUCKET_ID);
@@ -155,14 +155,19 @@ class CBackup
 
 	public static function skipMask($abs_path)
 	{
+		global $skip_mask_array;
+
 		if (!IntOption('skip_mask'))
 			return false;
 
-		global $skip_mask_array;
+		if (!is_array($skip_mask_array))
+		{
+			return false;
+		}
 
 		$path = mb_substr($abs_path, mb_strlen(self::$DOCUMENT_ROOT_SITE));
 		$path = str_replace('\\','/',$path);
-		
+
 		static $preg_mask_array;
 		if (!$preg_mask_array)
 		{
@@ -171,12 +176,11 @@ class CBackup
 				$preg_mask_array[] = CBackup::_preg_escape($a);
 		}
 
-		reset($skip_mask_array);
 		foreach($skip_mask_array as $k => $mask)
 		{
-			if (mb_strpos($mask, '/') === 0) // absolute path
+			if (strpos($mask, '/') === 0) // absolute path
 			{
-				if (mb_strpos($mask, '*') === false) // нет звездочки
+				if (strpos($mask, '*') === false) // нет звездочки
 				{
 					if (mb_strpos($path.'/', $mask.'/') === 0)
 						return true;
@@ -184,9 +188,9 @@ class CBackup
 				elseif (preg_match('#^'.str_replace('*','[^/]*?',$preg_mask_array[$k]).'$#i',$path))
 					return true;
 			}
-			elseif (mb_strpos($mask, '/') === false)
+			elseif (strpos($mask, '/') === false)
 			{
-				if (mb_strpos($mask, '*') === false)
+				if (strpos($mask, '*') === false)
 				{
 					if (mb_substr($path, -mb_strlen($mask)) == $mask)
 						return true;
@@ -253,7 +257,7 @@ class CBackup
 						if(count($arIndexColumns) != 1)
 							unset($arIndexes[$IndexName]);
 
-					if(count($arIndexes) > 0)
+					if(!empty($arIndexes))
 					{
 						foreach($arIndexes as $IndexName => $arIndexColumns)
 						{
@@ -271,7 +275,7 @@ class CBackup
 				{
 					$key_column = false;
 				}
-				
+
 				$arState['TABLES'][$table] = array(
 					"TABLE_NAME" => $table,
 					"KEY_COLUMN" => $key_column,
@@ -282,7 +286,7 @@ class CBackup
 			while($arTable = $rsTables->Fetch())
 			{
 				$table = current($arTable);
-				
+
 				$arState['TABLES'][$table] = array(
 					"TABLE_NAME" => $table,
 					"KEY_COLUMN" => false,
@@ -352,7 +356,7 @@ class CBackup
 			while($cnt == $LIMIT)
 			{
 				$i = $arTable['LAST_ID'];
-				if($arTable["KEY_COLUMN"])
+				if(!empty($arTable["KEY_COLUMN"]))
 				{
 					$strSelect = "
 						SELECT *
@@ -399,7 +403,7 @@ class CBackup
 
 					$strInsert .= "\n(".implode(", ", $arSource).")";
 
-					$arState['TABLES'][$table]['LAST_ID'] = $arTable['LAST_ID'] = $arTable["KEY_COLUMN"] ? $arSource[$arTable["KEY_COLUMN"]] : ++$i;
+					$arState['TABLES'][$table]['LAST_ID'] = $arTable['LAST_ID'] = !empty($arTable["KEY_COLUMN"]) ? $arSource[$arTable["KEY_COLUMN"]] : ++$i;
 
 					if (strlen($strInsert) > 1000000)
 					{
@@ -424,7 +428,7 @@ class CBackup
 			if ($cnt < $LIMIT)
 				unset($arState['TABLES'][$table]);
 		}
-		
+
 		if(!$B->file_put_contents_ex($strDumpFile, "-- Finished: ".date('Y-m-d H:i:s')))
 			return false;
 
@@ -565,7 +569,10 @@ class CDirScan
 			if (mb_strpos($this->startPath.'/', $f.'/') === 0)
 			{
 				if ($this->startPath == $f)
-					unset($this->startPath);
+				{
+					$this->startPath = '';
+				}
+
 				return false;
 			}
 			else
@@ -732,13 +739,16 @@ class CDirRealScan extends CDirScan
 			if (mb_strpos($this->startPath.'/', $f.'/') === 0)
 			{
 				if ($this->startPath == $f)
-					unset($this->startPath);
+				{
+					$this->startPath = '';
+				}
+
 				return false;
 			}
 			else
 				return true;
 		}
-		elseif ($this->arSkip[$f])
+		elseif (!empty($this->arSkip[$f]))
 			return true;
 		elseif ($bFoundDocumentRoot)
 			$res = CBackup::ignorePath($f);
@@ -993,7 +1003,7 @@ class CTar
 				return $this->Error('Wrong long header, block: '.$this->Block);
 			$header['filename'] = substr($filename, 0, strpos($filename, chr(0)));
 		}
-		
+
 		if (strpos($header['filename'], '/') === 0) // trailing slash
 			$header['type'] = 5; // Directory
 
@@ -1030,7 +1040,7 @@ class CTar
 			}
 
 			$this->lastPath = $f = $this->path.'/'.$header['filename'];
-		
+
 			if ($this->ReadBlockCurrent == 0)
 			{
 				if ($header['type']==5) // dir
@@ -1256,7 +1266,7 @@ class CTar
 	function writeHeader($ar)
 	{
 		$header0 = pack("a100a8a8a8a12a12", $ar['filename'], decoct($ar['mode']), decoct($ar['uid']), decoct($ar['gid']), decoct($ar['size']), decoct($ar['mtime']));
-		$header1 = pack("a1a100a6a2a32a32a8a8a155", $ar['type'],'','','','','','', '', $ar['prefix']);
+		$header1 = pack("a1a100a6a2a32a32a8a8a155", $ar['type'],'','','','','','', '', $ar['prefix'] ?? null);
 
 		$checksum = pack("a8",decoct($this->checksum($header0.'        '.$header1)));
 		$header = pack("a512", $header0.$checksum.$header1);
@@ -1352,7 +1362,7 @@ class CTar
 
 		if ($this->EncryptKey && !function_exists('openssl_encrypt'))
 			return $this->Error('Function openssl_encrypt is not available');
-		
+
 		if ($mode == 'r' && !file_exists($file))
 			return $this->Error('File does not exist: '.$file);
 

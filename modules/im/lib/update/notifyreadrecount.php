@@ -20,6 +20,8 @@ final class NotifyReadRecount  extends Stepper
 	 */
 	public function execute(array &$result): bool
 	{
+		Option::delete(self::$moduleId, ['name' => self::OPTION_NAME]);
+		return false;
 		global $DB;
 
 		if (!Loader::includeModule(self::$moduleId))

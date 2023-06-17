@@ -28,6 +28,7 @@ Event.bind(document, 'click', (event: MouseEvent) => {
 			if (
 				Text.toBoolean(urlParams.enabled)
 				&& Type.isStringFilled(urlParams.href)
+				&& urlParams.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') !== 0
 			)
 			{
 				if (urlParams.query)

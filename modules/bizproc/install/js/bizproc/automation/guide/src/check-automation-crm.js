@@ -190,6 +190,7 @@ export class CheckAutomationCrm
 			target: '[data-id="tab_automation"]',
 			title: Loc.getMessage('BIZPROC_JS_WOW_MOMENT_CRM_CHECK_AUTOMATION_TITLE'),
 			text: Loc.getMessage('BIZPROC_JS_WOW_MOMENT_CRM_CHECK_AUTOMATION_TEXT'),
+			condition: {top: true, bottom: false, color: 'primary'},
 		});
 
 		if (
@@ -319,7 +320,7 @@ export class CheckAutomationCrm
 					title: options.title,
 					text: options.text,
 					position: options.position | 'bottom',
-					condition: Type.isPlainObject(options.condition) ? options.condition : {top: true, bottom: false, color: 'primary'},
+					condition: Type.isPlainObject(options.condition) ? options.condition : null,
 					article: options.article ?? null,
 				}
 			],

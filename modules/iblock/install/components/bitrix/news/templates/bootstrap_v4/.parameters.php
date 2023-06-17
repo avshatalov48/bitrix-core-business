@@ -1,10 +1,19 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Iblock\PropertyTable;
 
-if(!CModule::IncludeModule("iblock"))
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
 
 $mediaProperty = array(
 	"" => GetMessage("MAIN_NO"),
@@ -12,21 +21,24 @@ $mediaProperty = array(
 $sliderProperty = array(
 	"" => GetMessage("MAIN_NO"),
 );
-$propertyList = CIBlockProperty::GetList(
-	array("sort"=>"asc", "name"=>"asc"),
-	array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"])
-);
-while ($property = $propertyList->Fetch())
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+if ($iblockExists)
 {
-	$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-	$id = $property["CODE"]? $property["CODE"]: $property["ID"];
-	if ($property["PROPERTY_TYPE"] == "S")
+	$propertyList = CIBlockProperty::GetList(
+		["sort" => "asc", "name" => "asc"],
+		["ACTIVE" => "Y", "IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"]]
+	);
+	while ($property = $propertyList->Fetch())
 	{
-		$mediaProperty[$id] = "[".$id."] ".$property["NAME"];
-	}
-	if ($property["PROPERTY_TYPE"] == "F")
-	{
-		$sliderProperty[$id] = "[".$id."] ".$property["NAME"];
+		$id = $property["CODE"] ?: $property["ID"];
+		if ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_STRING)
+		{
+			$mediaProperty[$id] = "[" . $id . "] " . $property["NAME"];
+		}
+		if ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_FILE)
+		{
+			$sliderProperty[$id] = "[" . $id . "] " . $property["NAME"];
+		}
 	}
 }
 
@@ -49,12 +61,10 @@ $arTemplateParameters = array(
 	"USE_SHARE" => array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_USE_SHARE"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
-		"VALUE" => "Y",
 		"DEFAULT" =>"N",
 		"REFRESH"=> "Y",
 	),
-	"MEDIA_PROPERTY" => array(
+	"LIST_USE_SHARE" => array(
 		"NAME" => GetMessage("TP_BN_MEDIA_PROPERTY"),
 		"TYPE" => "LIST",
 		"VALUES" => $mediaProperty,
@@ -66,7 +76,7 @@ $arTemplateParameters = array(
 	),
 );
 
-if ($arCurrentValues["USE_SHARE"] == "Y")
+if (($arCurrentValues['USE_SHARE'] ?? 'N') === 'Y')
 {
 	$arTemplateParameters["LIST_USE_SHARE"] = array(
 		"NAME" => GetMessage("TP_BN_LIST_USE_SHARE"),
@@ -84,10 +94,11 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"REFRESH"=> "Y",
 	);
 
-	if (trim($arCurrentValues["SHARE_TEMPLATE"]) == '')
+	$shareComponentTemplate = (trim((string)($arCurrentValues["SHARE_TEMPLATE"] ?? '')));
+	if ($shareComponentTemplate === '')
+	{
 		$shareComponentTemplate = false;
-	else
-		$shareComponentTemplate = trim($arCurrentValues["SHARE_TEMPLATE"]);
+	}
 
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/main.share/util.php");
 
@@ -106,7 +117,7 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"TYPE" => "STRING",
 		"DEFAULT" => "",
 	);
-	
+
 	$arTemplateParameters["SHARE_SHORTEN_URL_KEY"] = array(
 		"NAME" => GetMessage("T_IBLOCK_DESC_NEWS_SHARE_SHORTEN_URL_KEY"),
 		"TYPE" => "STRING",

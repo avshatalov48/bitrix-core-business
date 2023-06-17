@@ -6,7 +6,14 @@ import AutomationLogView from "./views/automation-log";
 import { Settings } from 'bizproc.local-settings';
 import {MessageBox, MessageBoxButtons} from "ui.dialogs.messagebox";
 import {Manager} from "./index";
-import { setGlobalContext, getGlobalContext, Context, Document, WorkflowStatus } from 'bizproc.automation';
+import {
+	setGlobalContext,
+	getGlobalContext,
+	Context,
+	Document,
+	WorkflowStatus,
+	AutomationGlobals
+} from 'bizproc.automation';
 import {CustomCrmActionPanel} from "./actionpanel/custom-crm-action-panel";
 
 export default class Automation extends EventEmitter
@@ -33,9 +40,6 @@ export default class Automation extends EventEmitter
 	#debuggerState: number;
 
 	#customActionPanel: CustomCrmActionPanel = null;
-
-	#globalVariables: [] = [];
-	#globalConstants: [] = [];
 
 	constructor(parameters = {})
 	{
@@ -109,6 +113,10 @@ export default class Automation extends EventEmitter
 			documentSigned: this.documentSigned,
 			canEdit: false,
 			canManage: false,
+			automationGlobals: new AutomationGlobals({
+				variables: [],
+				constants: [],
+			}),
 		});
 
 		setGlobalContext(context);
@@ -384,13 +392,21 @@ export default class Automation extends EventEmitter
 					this.#workflowTrack = response.data.track;
 					this.#debuggerState = response.data.debuggerState;
 
-					this.#globalVariables = response.data.globalVariables;
-					this.#globalConstants = response.data.globalConstants;
-
 					getGlobalContext().document
 						.setFields(this.getDocumentFields())
 						.setStatusList(this.getStatusList())
 						.setStatus(this.getDocumentStatus())
+					;
+					getGlobalContext().automationGlobals.globalConstants =
+						Type.isArrayFilled(response.data.globalConstants)
+							? response.data.globalConstants
+							: []
+					;
+
+					getGlobalContext().automationGlobals.globalVariables =
+						Type.isArrayFilled(response.data.globalVariables)
+							? response.data.globalVariables
+							: []
 					;
 
 					resolve();
@@ -400,14 +416,18 @@ export default class Automation extends EventEmitter
 		});
 	}
 
-	get globalConstants()
+	get globalConstants(): []
 	{
-		return this.#globalConstants;
+		const context = getGlobalContext();
+
+		return context && context.automationGlobals ? context.automationGlobals.globalConstants : [];
 	}
 
-	get globalVariables()
+	get globalVariables(): []
 	{
-		return this.#globalVariables;
+		const context = getGlobalContext();
+
+		return context && context.automationGlobals ? context.automationGlobals.globalVariables : [];
 	}
 
 	loadAllLog(): Promise

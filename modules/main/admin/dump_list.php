@@ -1,10 +1,10 @@
 <?php
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2010 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "utilities/dump_list.php");
 
@@ -25,23 +25,25 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $path = BX_ROOT."/backup";
 
-if ($_REQUEST['debug'])
+if (!empty($_REQUEST['debug']))
 	define('DUMP_DEBUG_MODE', true);
 // xdebug_start_trace();
 $arAllBucket = CBackup::GetBucketList();
-if ($_REQUEST['action'])
+if (!empty($_REQUEST['action']))
 {
 	if (!check_bitrix_sessid())
+	{
 		die(GetMessage("DUMP_MAIN_SESISON_ERROR"));
+	}
 
 	if ($_REQUEST['action'] == 'download')
 	{
 		$arLink = array();
 
-		$name = $path.'/'.$_REQUEST['f_id'];
+		$name = $path.'/'.($_REQUEST['f_id'] ?? '');
 
 		$tar = new CTar;
-		if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID']))
+		if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID'] ?? 0))
 		{
 			if (CModule::IncludeModule('clouds'))
 			{
@@ -70,13 +72,13 @@ if ($_REQUEST['action'])
 	}
 	elseif ($_REQUEST['action'] == 'link')
 	{
-		$name = $path.'/'.$_REQUEST['f_id'];
+		$name = $path.'/'.($_REQUEST['f_id'] ?? '');
 		echo '
 		<script>
 		';
 
 		$url = '';
-		if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID']))
+		if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID'] ?? 0))
 		{
 			if (CModule::IncludeModule('clouds'))
 			{
@@ -111,8 +113,8 @@ if ($_REQUEST['action'])
 		else
 		{
 			$url = '';
-			$name = $path.'/'.$_REQUEST['f_id'];
-			$BUCKET_ID = intval($_REQUEST['BUCKET_ID']);
+			$name = $path.'/'.($_REQUEST['f_id'] ?? '');
+			$BUCKET_ID = intval($_REQUEST['BUCKET_ID'] ?? 0);
 			if ($BUCKET_ID == -1)
 					$url = 'bitrixcloud_backup='.htmlspecialcharsbx(basename($name));
 			elseif ($BUCKET_ID > 0)
@@ -140,7 +142,7 @@ $lAdmin->BeginPrologContent();
 
 if ($arID = $lAdmin->GroupAction())
 {
-	if($_REQUEST['action_target'] == 'selected')
+	if(isset($_REQUEST['action_target']) && $_REQUEST['action_target'] == 'selected')
 	{
 		$arID = array();
 		if (is_dir($p = DOCUMENT_ROOT.BX_ROOT.'/backup'))
@@ -183,7 +185,8 @@ if ($arID = $lAdmin->GroupAction())
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		$action = $_REQUEST['action'] ?? '';
+		switch ($action)
 		{
 			case "delete":
 				if (preg_match('#^(-?[0-9]+)_(.+)$#', $ID, $regs))
@@ -236,12 +239,12 @@ if ($arID = $lAdmin->GroupAction())
 				}
 			break;
 			case "rename":
-				if (preg_match('#^[a-z0-9\-\._]+$#i',$_REQUEST['name']))
+				if (preg_match('#^[a-z0-9\-\._]+$#i',$_REQUEST['name'] ?? ''))
 				{
-					$arName = ParseFileName($_REQUEST['ID']);
-					$new_name = $_REQUEST['name'].'.'.$arName['ext'];
+					$arName = ParseFileName($_REQUEST['ID'] ?? '');
+					$new_name = ($_REQUEST['name'] ?? '').'.'.$arName['ext'];
 
-					if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID']))
+					if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID'] ?? 0))
 					{
 						// Not realized 'cos no cloud API
 					}
@@ -345,9 +348,20 @@ foreach($arTmpFiles as $k=>$ar)
 	{
 		$i++;
 		$BUCKET_ID = intval($ar['BUCKET_ID']);
+
+		if (!isset($arParts[$BUCKET_ID.$regs[1]]))
+		{
+			$arParts[$BUCKET_ID.$regs[1]] = 0;
+		}
+
+		if (!isset($arSize[$BUCKET_ID.$regs[1]]))
+		{
+			$arSize[$BUCKET_ID.$regs[1]] = 0;
+		}
+
 		$arParts[$BUCKET_ID.$regs[1]]++;
 		$arSize[$BUCKET_ID.$regs[1]] += $ar['SIZE'];
-		if (!$regs[3])
+		if (empty($regs[3]))
 		{
 			if ($by == 'size')
 				$key = $arSize[$BUCKET_ID.$regs[1]];

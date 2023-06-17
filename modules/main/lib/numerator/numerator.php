@@ -713,7 +713,7 @@ class Numerator
 					}
 				}
 			}
-			elseif (is_string($numeratorBaseConfig['code']) && empty($numeratorBaseConfig['code']))
+			elseif (is_string($numeratorBaseConfig['code']))
 			{
 				$result->addError(new Error('Numerator code should be a non-empty string, if it is provided'));
 			}

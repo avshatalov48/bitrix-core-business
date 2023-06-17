@@ -10,7 +10,7 @@ return [
 	'rel' => [
 		'ui.buttons',
 		'ui.fonts.opensans',
-		'ui.progressbarjs.uploader',
+		'im.v2.lib.progressbar',
 		'ui.info-helper',
 		'im.v2.lib.utils',
 		'rest.client',

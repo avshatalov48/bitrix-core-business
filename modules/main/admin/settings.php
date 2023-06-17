@@ -19,8 +19,14 @@ define("HELP_FILE", "settings/settings/settings.php");
 if(!$USER->CanDoOperation('view_other_settings') && !$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if(mb_strpos($_REQUEST["back_url_settings"], '/') !== 0 || mb_strpos($_REQUEST["back_url_settings"], '//') === 0)
+if (
+	!isset($_REQUEST["back_url_settings"])
+	|| mb_strpos($_REQUEST["back_url_settings"], '/') !== 0
+	|| mb_strpos($_REQUEST["back_url_settings"], '//') === 0
+)
+{
 	$_REQUEST["back_url_settings"] = '';
+}
 
 IncludeModuleLangFile(__FILE__);
 
@@ -56,7 +62,7 @@ foreach($adminPage->aModules as $module)
 	true
 );
 
-$mid = $_REQUEST["mid"];
+$mid = $_REQUEST["mid"] ?? '';
 if($mid == "" || !isset($arModules[$mid]) || !file_exists($arModules[$mid]["PAGE"]))
 	$mid = "main";
 
@@ -101,7 +107,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 		return false;
 
 	$name = $arOption[0];
-	$isChoiceSites = array_key_exists(6, $arOption) && $arOption[6] == "Y" ? true : false;
+	$isChoiceSites = array_key_exists(6, $arOption) && $arOption[6] == "Y";
 
 	if ($isChoiceSites)
 	{
@@ -119,14 +125,23 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 			if (isset($_REQUEST[$name."_".$site["LID"]]) && $_REQUEST[$name."_".$site["LID"]] <> '' &&
 				!isset($_REQUEST[$name."_all"]))
 			{
-				$val = $_REQUEST[$name."_".$site["LID"]];
-				if($arOption[3][0] == "checkbox" && $val != "Y")
+				$val = $_REQUEST[$name."_".$site["LID"]] ?? null;
+
+				if ($arOption[3][0] == "checkbox" && $val != "Y")
 				{
 					$val = "N";
 				}
-				if($arOption[3][0] == "multiselectbox" && is_array($val))
+				elseif ($arOption[3][0] == "multiselectbox" && is_array($val))
 				{
 					$val = implode(",", $val);
+				}
+				elseif ($val === null)
+				{
+					$val = '';
+				}
+				elseif (!is_scalar($val))
+				{
+					continue;
 				}
 				COption::SetOptionString($module_id, $name, $val, $arOption[1], $site["LID"]);
 			}
@@ -146,15 +161,23 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 			}
 		}
 
-		$val = $_REQUEST[$name];
+		$val = $_REQUEST[$name] ?? null;
 
-		if($arOption[3][0] == "checkbox" && $val != "Y")
+		if ($arOption[3][0] == "checkbox" && $val != "Y")
 		{
 			$val = "N";
 		}
-		if($arOption[3][0] == "multiselectbox" && is_array($val))
+		elseif ($arOption[3][0] == "multiselectbox" && is_array($val))
 		{
 			$val = implode(",", $val);
+		}
+		elseif ($val === null)
+		{
+			$val = '';
+		}
+		elseif (!is_scalar($val))
+		{
+			return false;
 		}
 
 		COption::SetOptionString($module_id, $name, $val, $arOption[1]);

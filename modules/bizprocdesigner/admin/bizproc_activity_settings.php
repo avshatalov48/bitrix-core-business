@@ -11,7 +11,7 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_j
 IncludeModuleLangFile(__FILE__);
 
 \Bitrix\Main\Loader::includeModule('ui');
-\Bitrix\Main\UI\Extension::load('ui.alerts');
+\Bitrix\Main\UI\Extension::load(['ui.alerts']);
 
 if (empty($_POST['document_type']))
 {
@@ -186,20 +186,19 @@ CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENT
 <input type="hidden" name="document_type" value="<?= htmlspecialcharsbx($document_type) ?>">
 <input type="hidden" name="id" value="<?= htmlspecialcharsbx($activityName) ?>">
 <input type="hidden" name="current_site_id" value="<?= htmlspecialcharsbx($currentSiteId) ?>">
-
+<?php
+	if(count($arErrors)>0)
+	{
+		foreach($arErrors as $e)
+			echo '<div><font color="red">'.htmlspecialcharsbx($e["message"]) . '</font></div>';
+	}
+?>
 <?php $tableID = "tbl-activity-".randString(5); ?>
 <table class="adm-detail-content-table edit-table" id="<?= $tableID ?>">
 <?php
-if(count($arErrors)>0)
-{
-	echo '<tr><td colspan="2">';
-	foreach($arErrors as $e)
-		echo '<font color="red">'.htmlspecialcharsbx($e["message"]) . '</font><br>';
-	echo '</td></tr>';
-}
 
 $arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-$hasBrokenLink = false;
+$brokenLinks = [];
 if (!empty($_POST["postback"]))
 {
 	$activityTitle = $_POST["title"];
@@ -262,8 +261,12 @@ else
 		{
 			if (!array_key_exists($field, $checkMap[$object]))
 			{
-				$hasBrokenLink = true;
-				break;
+				if ($object === \Bitrix\Bizproc\Workflow\Template\SourceType::Parameter)
+				{
+					$object = 'Template';
+				}
+
+				$brokenLinks[] = htmlspecialcharsbx('{=' . $object . ':' . $field . '}');
 			}
 		}
 		elseif ($object === \Bitrix\Bizproc\Workflow\Template\SourceType::Activity)
@@ -271,8 +274,7 @@ else
 			$activityUsage = CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $field);
 			if (!array_key_exists($returnField, $runtime->getActivityReturnProperties($activityUsage)))
 			{
-				$hasBrokenLink = true;
-				break;
+				$brokenLinks[] = htmlspecialcharsbx('{=' . $field . ':' . $returnField . '}');
 			}
 		}
 	}
@@ -287,14 +289,31 @@ function HideShowId(id)
 	else
 		act_id.style.display = 'none';
 }
+function ShowBrokenLinkDetail(element)
+{
+	BX.Dom.style(BX('bp_act_set_broken_link_detail'), 'height', (BX('bp_act_set_broken_link_detail').scrollHeight) + 'px');
+	BX.Dom.remove(element);
+}
 </script>
-	<?php if ($hasBrokenLink):?>
-		<div class="ui-alert ui-alert-warning ui-alert-icon-info ui-alert-xs" id="bp_act_set_broken_link" style="width: auto;">
-			<span class="ui-alert-message">
-				<?= htmlspecialcharsbx(\Bitrix\Main\Localization\Loc::getMessage(
-					'BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR'
-				)) ?>
-			</span>
+	<?php if ($brokenLinks):?>
+		<div class="ui-alert ui-alert-warning ui-alert-icon-info" id="bp_act_set_broken_link" style="width: auto;">
+			<div class="ui-alert-message">
+				<div>
+					<span>
+						<?= htmlspecialcharsbx(\Bitrix\Main\Localization\Loc::getMessage(
+							'BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR'
+						)) ?>
+					</span>
+					<span class="bizprocdesigner-activity-broken-link-show-more" onclick="ShowBrokenLinkDetail(this)">
+						<?= htmlspecialcharsbx(
+							\Bitrix\Main\Localization\Loc::getMessage('BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR_SHOW_LINKS')
+						) ?>
+					</span>
+				</div>
+				<div class="bizprocdesigner-activity-broken-link-detail" id="bp_act_set_broken_link_detail">
+					<?= (implode('<br>', $brokenLinks)) ?>
+				</div>
+			</div>
 			<span class="ui-alert-close-btn" onclick="HideShowId('bp_act_set_broken_link')"></span>
 		</div>
 	<?php endif ?>
@@ -406,6 +425,24 @@ setTimeout("document.getElementById('bpastitle').focus();", 100);
 
 
 </script>
+<style>
+	.bizprocdesigner-activity-broken-link-show-more {
+		border-bottom: 1px dashed rgba(145,113,30,.4);
+		cursor: pointer;
+		transition: .2s;
+	}
+
+	.bizprocdesigner-activity-broken-link-show-more:hover {
+		border-bottom-color: rgba(145,113,30,1);
+	}
+
+	.bizprocdesigner-activity-broken-link-detail {
+		height: 0;
+		margin-top: 10px;
+		overflow: hidden;
+		transition: height 0.3s linear;
+	}
+</style>
 
 <input type="hidden" name="save" value="Y" />
 <input type="hidden" name="postback" value="Y" />

@@ -1,10 +1,9 @@
 <?php
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -37,25 +36,37 @@ $arFilterFields = Array(
 function CheckFilter($FilterArr) // проверка введенных полей
 {
 	foreach($FilterArr as $f)
+	{
 		global $$f;
+	}
 
 	$str = "";
 	if(trim($find_last_exec) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_last_exec,"D.M.Y"),"d.m.Y");
-		if (!$date1_stm && trim($find_last_exec) <> '')
+		if (!$date1_stm)
+		{
 			$str.= GetMessage("MAIN_AGENT_WRONG_LAST_EXEC")."<br>";
-		else $date_1_ok = true;
+		}
+		else
+		{
+			$date_1_ok = true;
+		}
 	}
 
 	if(trim($find_next_exec) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_next_exec,"D.M.Y"),"d.m.Y");
-		if (!$date1_stm && trim($find_next_exec) <> '')
+		if (!$date1_stm)
+		{
 			$str.= GetMessage("MAIN_AGENT_WRONG_NEXT_EXEC")."<br>";
-		else $date_1_ok = true;
+		}
+		else
+		{
+			$date_1_ok = true;
+		}
 	}
 
 	if($str <> '')
@@ -92,27 +103,32 @@ if($lAdmin->EditAction() && $isAdmin)
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 
 		$APPLICATION->ResetException();
+
+		$DB->StartTransaction();
+
 		if(!CAgent::Update($ID, $arFields))
 		{
 			$e = $APPLICATION->GetException();
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CAgent::GetList(array($by => $order), $arFilter);

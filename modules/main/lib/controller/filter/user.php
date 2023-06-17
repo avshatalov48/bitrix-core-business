@@ -10,7 +10,7 @@ class User extends Base
 
 		return $this->getList(\Bitrix\Main\UserTable::getUfId(), [
 			'ID' => $filterId != '' ? $filterId : 'INTRANET_USER_LIST',
-			'WHITE_LIST' => (isset($unsignedParameters['USER_PROPERTY_LIST']) ? $unsignedParameters['USER_PROPERTY_LIST'] : [])
+			'WHITE_LIST' => ($unsignedParameters['USER_PROPERTY_LIST'] ?? [])
 		]);
 	}
 
@@ -23,7 +23,7 @@ class User extends Base
 
 		return $this->getField(\Bitrix\Main\UserTable::getUfId(), [
 			'ID' => $filterId != '' ? $filterId : 'INTRANET_USER_LIST',
-			'WHITE_LIST' => (isset($unsignedParameters['USER_PROPERTY_LIST']) ? $unsignedParameters['USER_PROPERTY_LIST'] : [])
+			'WHITE_LIST' => ($unsignedParameters['USER_PROPERTY_LIST'] ?? [])
 		], $id);
 	}
 }

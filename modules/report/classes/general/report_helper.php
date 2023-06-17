@@ -1,6 +1,10 @@
 <?php
 
+use Bitrix\Crm\Service\Container;
+use Bitrix\Crm\UserField\Types\ElementType;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Loader;
+use Bitrix\Main\UI\Selector\Entities;
 
 abstract class CReportHelper
 {
@@ -379,6 +383,32 @@ abstract class CReportHelper
 		return $value;
 	}
 
+	public static function getUserFieldCrmTypePrefixMap(): array
+	{
+		$result = [];
+
+		if  (Loader::includeModule('crm'))
+		{
+			$userPermissions = Container::getInstance()->getUserPermissions(CCrmPerms::GetCurrentUserID());
+			foreach (array_keys(ElementType::getPossibleEntityTypes()) as $entityTypeName)
+			{
+				$entityTypeNameLower = mb_strtolower($entityTypeName);
+				$entityTypeId = CCrmOwnerType::ResolveID($entityTypeName);
+				if (
+					$entityTypeId !== CCrmOwnerType::Undefined
+					&& $userPermissions->canReadType($entityTypeId)
+				)
+				{
+					$result[$entityTypeNameLower] =
+						CCrmOwnerTypeAbbr::ResolveByTypeName($entityTypeName)
+					;
+				}
+			}
+		}
+
+		return $result;
+	}
+
 	public static function getUserFieldCrmValue($valueKey, $ufInfo)
 	{
 		$valueKey = trim(strval($valueKey));
@@ -386,14 +416,9 @@ abstract class CReportHelper
 
 		if ($valueKey <> '')
 		{
-			$prefixByType = array(
-				'lead' => 'L',
-				'contact' => 'C',
-				'company' => 'CO',
-				'deal' => 'D',
-				'quote' => 'Q'
-			);
-			$maxPrefixLength = 2;    // 'CO'
+			$prefixByType = static::getUserFieldCrmTypePrefixMap();
+
+			$maxPrefixLength = 3;    // 'SSI'
 			$singleTypePrefix = '';
 			if (is_array($ufInfo['SETTINGS']))
 			{
@@ -423,47 +448,23 @@ abstract class CReportHelper
 			{
 				$element = self::$ufCrmElements[$valueKey];
 				$item = explode('_', $valueKey);
-				$arEntityType = array_flip($prefixByType);
-				if ($item[0] <> '' && $item[1] <> '')
+				if ($item[0] !== '' && $item[1] !== '')
 				{
-					$entityTitle = $entityLink = '';
-					switch ($item[0])
+					$entityTitle = $element['title'];
+					$entityUrl = $element['url'];
+					if ($entityTitle !== '')
 					{
-						case 'L':
-						case 'CO':
-						case 'D':
-							$entityTitle = $element['TITLE'];
-							break;
-						case 'C':
-							$entityTitle = CUser::FormatName(
-								static::getUserNameFormat(),
-								array(
-									'LOGIN' => '',
-									'NAME' => $element['NAME'],
-									'SECOND_NAME' => $element['SECOND_NAME'],
-									'LAST_NAME' => $element['LAST_NAME']
-								),
-								false,
-								false
-							);
-							break;
-					}
-					if (isset($arEntityType[$item[0]]))
-					{
-						$entityLink = CComponentEngine::MakePathFromTemplate(
-							COption::GetOptionString('crm', 'path_to_'.$arEntityType[$item[0]].'_show'),
-							array($arEntityType[$item[0]].'_id' => $element['ID'])
-						);
-					}
-					if ($entityTitle <> '')
-					{
-						if ($entityLink <> '')
+						if ($entityUrl !== '')
 						{
-							$value = '<a target="_blank" href="'.$entityLink.'">'.
-								htmlspecialcharsbx($entityTitle).'</a>';
+							$value =
+								'<a target="_blank" href="' . $entityUrl . '">'
+								. htmlspecialcharsbx($entityTitle) .'</a>'
+							;
 						}
 						else
+						{
 							$value = htmlspecialcharsbx($entityTitle);
+						}
 					}
 				}
 			}
@@ -479,14 +480,9 @@ abstract class CReportHelper
 
 		if ($valueKey <> '')
 		{
-			$prefixByType = array(
-				'lead' => 'L',
-				'contact' => 'C',
-				'company' => 'CO',
-				'deal' => 'D',
-				'quote' => 'Q'
-			);
-			$maxPrefixLength = 2;    // 'CO'
+			$prefixByType = static::getUserFieldCrmTypePrefixMap();
+
+			$maxPrefixLength = 3;    // 'SSI'
 			$singleTypePrefix = '';
 			if (is_array($ufInfo['SETTINGS']))
 			{
@@ -518,27 +514,7 @@ abstract class CReportHelper
 				$item = explode('_', $valueKey);
 				if ($item[0] <> '' && $item[1] <> '')
 				{
-					switch ($item[0])
-					{
-						case 'L':
-						case 'CO':
-						case 'D':
-							$value = $element['TITLE'];
-							break;
-						case 'C':
-							$value = CUser::FormatName(
-								static::getUserNameFormat(),
-								array(
-									'LOGIN' => '',
-									'NAME' => $element['NAME'],
-									'SECOND_NAME' => $element['SECOND_NAME'],
-									'LAST_NAME' => $element['LAST_NAME']
-								),
-								false,
-								false
-							);
-							break;
-					}
+					$value = htmlspecialcharsbx($element['title']);
 				}
 			}
 		}
@@ -1272,14 +1248,9 @@ abstract class CReportHelper
 					// crm
 					if (isset($crmColumns[$k]))
 					{
-						$prefixByType = array(
-							'lead' => 'L',
-							'contact' => 'C',
-							'company' => 'CO',
-							'deal' => 'D',
-							'quote' => 'Q'
-						);
-						$maxPrefixLength = 2;    // 'CO'
+						$prefixByType = static::getUserFieldCrmTypePrefixMap();
+
+						$maxPrefixLength = 3;    // 'SSI'
 						$singleTypePrefix = '';
 						if (is_array($columnInfo[$k]['ufInfo']['SETTINGS']))
 						{
@@ -1553,7 +1524,7 @@ abstract class CReportHelper
 		}
 
 		// collect crm elements
-		if (count($crmColumns) > 0 && CModule::IncludeModule('crm'))
+		if (count($crmColumns) > 0 && Loader::includeModule('crm'))
 		{
 			foreach ($arCrmID as $typeIndex => $arSubID)
 			{
@@ -1572,45 +1543,29 @@ abstract class CReportHelper
 
 					if ($cnt === $stepCnt || $i === $nIDs)
 					{
-						$res = null;
-						switch ($typeIndex)
+						$entityTypeName = CCrmOwnerTypeAbbr::ResolveName($typeIndex);
+						$settings = [mb_strtoupper($entityTypeName) => 'Y'];
+						$selectorParams = ElementType::getDestSelectorParametersForFilter($settings, true);
+						$selectorEntityTypeOptions = ElementType::getDestSelectorOptions($selectorParams);
+						if ($description = reset($selectorEntityTypeOptions))
 						{
-							case 'L':
-								$res = CCrmLead::GetList(
-									array('ID' => 'DESC'),
-									array('ID' => $arID),
-									array('ID', 'TITLE', 'FULL_NAME', 'STATUS_ID')
-								);
-								break;
-							case 'C':
-								$res = CCrmContact::GetList(
-									array('ID' => 'DESC'),
-									array('ID' => $arID),
-									array(
-										'ID', 'NAME', 'SECOND_NAME', 'LAST_NAME',
-										'FULL_NAME', 'COMPANY_TITLE', 'PHOTO'
-									)
-								);
-								break;
-							case 'CO':
-								$res = CCrmCompany::GetList(
-									array('ID' => 'DESC'),
-									array('ID' => $arID),
-									array('ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO')
-								);
-								break;
-							case 'D':
-								$res = CCrmDeal::GetList(
-									array('ID' => 'DESC'),
-									array('ID' => $arID),
-									array('ID', 'TITLE', 'STAGE_ID', 'COMPANY_TITLE', 'CONTACT_FULL_NAME')
-								);
-								break;
-						}
-						if (is_object($res))
-						{
-							while ($arCrmElement = $res->Fetch())
-								self::$ufCrmElements[$typeIndex.'_'.$arCrmElement['ID']] = $arCrmElement;
+							$provider = Entities::getProviderByEntityType(key($selectorEntityTypeOptions));
+							if (
+								$provider !== false
+								&& is_callable([$provider, 'getByIds'])
+							)
+							{
+								$options = (!empty($description['options']) ? $description['options'] : array());
+								foreach ($provider->getByIds($arID, $options) as $item)
+								{
+									self::$ufCrmElements[$typeIndex . '_' . $item['entityId']] = [
+										'id' => $item['entityId'],
+										'type' => $entityTypeName,
+										'title' => htmlspecialcharsback($item['name']) ?? '',
+										'url' => $item['url'] ?? '',
+									];
+								}
+							}
 						}
 
 						$cnt = 0;
@@ -2078,4 +2033,3 @@ abstract class CReportHelper
 		);
 	}
 }
-

@@ -95,7 +95,7 @@ class PushService
 	private function registerEvent(array $parameters): void
 	{
 		$this->registry[] = [
-			'TAG' => $parameters['TAG'],
+			'TAG' => $parameters['TAG'] ?? '',
 			'RECIPIENTS' => $parameters['RECIPIENTS'],
 			'PARAMS' => $parameters['PARAMS'],
 		];

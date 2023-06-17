@@ -36,7 +36,12 @@ if (
 	$classList[] = 'post-comment-liked';
 }
 ?>
-<span><div class="<?= implode(' ', $classList) ?>" id="bx-ilike-button-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"><?php
+<span>
+	<div
+		class="<?= implode(' ', $classList) ?>"
+		id="bx-ilike-button-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"
+		data-vote-key-signed="<?= htmlspecialcharsbx($arResult['VOTE_KEY_SIGNED']) ?>"
+	><?php
 
 	$like = COption::GetOptionString("main", "rating_text_like_y", GetMessage("RATING_COMMENT_LIKE"));
 
@@ -44,7 +49,8 @@ if (
 	?><div class="post-comment-likes-counter" id="bx-ilike-count-<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_ID']))?>"><?php
 		?><?=htmlspecialcharsEx($arResult['TOTAL_VOTES'])?><?php
 	?></div><?php
-?></div></span><?php
+	?></div>
+</span><?php
 
 ?><script>
 BX.ready(function() {

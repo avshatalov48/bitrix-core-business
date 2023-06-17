@@ -2,12 +2,9 @@
 
 $MESS["BIZPROC_SEL_USERS_TAB_GROUPS"] = "– Группы";
 $MESS["BIZPROC_SEL_USERS_TAB_USERS"] = "– Пользователи";
-$MESS["BIZPROC_SEL_TITLEBAR"] = "Вставка полей";
-$MESS["BIZPROC_SEL_CANCEL"] = "Отмена";
 $MESS["BIZPROC_SEL_FIELDS_TAB"] = "Поля документа";
 $MESS["BIZPROC_SEL_TITLEBAR_DESC"] = "Выберите необходимое поле двойным кликом или нажатием на кнопку &quot;Вставить&quot;.";
 $MESS["BIZPROC_SEL_INSERT"] = "Вставить";
-$MESS["BIZPROC_SEL_TITLE"] = "Выберите поле";
 $MESS["BIZPROC_SEL_PARAMS_TAB"] = "Параметры шаблона";
 $MESS["BIZPROC_SEL_USERS_TAB"] = "Пользователи";
 $MESS["BIZPROC_SEL_GROUPS_TAB"] = "Категории пользователей";

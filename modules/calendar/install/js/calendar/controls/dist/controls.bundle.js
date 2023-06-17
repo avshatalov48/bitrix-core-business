@@ -11,7 +11,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      wrap: params.wrap,
 	      input: params.input
 	    };
-
 	    for (let hour = 0; hour < 24; hour++) {
 	      this.valueList.push({
 	        value: hour * 60,
@@ -22,7 +21,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        label: calendar_util.Util.formatTime(hour, 30)
 	      });
 	    }
-
 	    this.onChangeCallback = main_core.Type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
 	    this.selectContol = new BX.Calendar.Controls.SelectInput({
 	      input: this.DOM.input,
@@ -35,7 +33,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    });
 	  }
-
 	  highlightValue(date) {
 	    this.valueList.forEach(el => el.selected = false); // unselect previous time
 
@@ -45,15 +42,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }); // this is needed for correct scroll
 
 	    let selectedValue = this.valueList.find(el => el.value === minutes);
-
 	    if (!selectedValue) {
 	      return;
 	    }
-
 	    selectedValue.selected = true;
 	    this.selectContol.setValueList(this.valueList);
 	  }
-
 	  updateDurationHints(fromTime, toTime, fromDate, toDate) {
 	    const parsedFromTime = calendar_util.Util.parseTime(fromTime);
 	    const parsedToTime = calendar_util.Util.parseTime(toTime);
@@ -65,18 +59,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    const iterateFrom = isSameDate ? this.approximate(fromMinutes + 15, 15) : 0;
 	    const firstHour = this.approximate(fromMinutes + 60 + 15 / 2, 30);
 	    this.valueList = [];
-
 	    if (fromDate === toDate) {
 	      this.valueList.push(this.getValueElement(fromMinutes, fromMinutes, toMinutes, parsedFromDate, parsedToDate));
 	    }
-
 	    for (let minute = iterateFrom; minute <= 24 * 60; minute += isSameDate && minute < firstHour ? 15 : 30) {
 	      this.valueList.push(this.getValueElement(fromMinutes, minute, toMinutes, parsedFromDate, parsedToDate));
 	    }
-
 	    this.selectContol.setValueList(this.valueList);
 	  }
-
 	  getValueElement(fromMinute, currentMinute, toMinute, fromDate, toDate) {
 	    const hour = Math.floor(currentMinute / 60);
 	    const min = currentMinute % 60;
@@ -90,17 +80,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      selected
 	    };
 	  }
-
 	  getStyledDurationHint(fromMinute, currentMinute, fromDate, toDate) {
 	    const durationHint = this.getDurationHint(fromMinute, currentMinute, fromDate, toDate);
-
 	    if (durationHint !== '') {
 	      return `<div class="menu-popup-item-hint">${durationHint}</div>`;
 	    }
-
 	    return '';
 	  }
-
 	  getDurationHint(fromMinutes, toMinutes, fromDate, toDate) {
 	    const from = new Date(fromDate.getTime() + fromMinutes * 60 * 1000);
 	    const to = new Date(toDate.getTime() + toMinutes * 60 * 1000);
@@ -109,44 +95,38 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    const diffHours = this.approximate(diff / (1000 * 60 * 60), 0.5);
 	    const diffMinutes = this.approximate(diff / (1000 * 60), 1);
 	    const diffMinutesApproximation = this.approximate(diffMinutes, 15);
-
 	    if (diffDays >= 1) {
 	      return '';
 	    }
-
 	    if (diffMinutes >= 60) {
 	      const approximationMark = diffMinutes !== diffMinutesApproximation ? '~' : '';
 	      return `${approximationMark}${this.formatDecimal(diffHours)} ${main_core.Loc.getMessage('EC_HOUR_SHORT')}`;
 	    }
-
 	    return `${this.formatDecimal(diffMinutes)} ${main_core.Loc.getMessage('EC_MINUTE_SHORT')}`;
 	  }
-
 	  formatDecimal(decimal) {
 	    return `${decimal}`.replace('.', ',');
 	  }
-
 	  approximateFloor(value, accuracy) {
 	    return Math.floor(value / accuracy) * accuracy;
 	  }
-
 	  approximate(value, accuracy) {
 	    return Math.round(value / accuracy) * accuracy;
 	  }
-
 	}
 
 	let _ = t => t,
-	    _t,
-	    _t2,
-	    _t3,
-	    _t4,
-	    _t5,
-	    _t6,
-	    _t7,
-	    _t8;
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5,
+	  _t6,
+	  _t7,
+	  _t8;
 	class Reminder extends main_core_events.EventEmitter {
 	  // 9.00
+
 	  constructor(params) {
 	    super();
 	    this.defaultReminderTime = 540;
@@ -170,18 +150,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setValue(params.selectedValues || []);
 	    this.bindEventHandlers();
 	  }
-
 	  create(params) {
 	    if (main_core.Type.isElementNode(params.wrap)) {
 	      this.DOM.wrap = params.wrap;
 	    }
-
 	    if (!main_core.Type.isElementNode(this.DOM.wrap)) {
 	      return;
 	    }
-
 	    main_core.Dom.addClass(this.DOM.wrap, 'calendar-notification-values');
-
 	    if (!this.viewMode) {
 	      this.DOM.addButton = this.DOM.wrap.appendChild(main_core.Tag.render(_t || (_t = _`
 				<span class="calendar-notification-add-btn-wrap">
@@ -192,20 +168,16 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</span>`), main_core.Loc.getMessage('EC_REMIND1_ADD')));
 	    }
 	  }
-
 	  bindEventHandlers() {
 	    if (main_core.Type.isDomNode(this.DOM.addButton)) {
 	      main_core.Event.bind(this.DOM.addButton, 'click', this.showPopup.bind(this));
 	    }
-
 	    if (main_core.Type.isDomNode(this.DOM.wrap)) {
 	      main_core.Event.bind(this.DOM.wrap, 'click', this.handleClick.bind(this));
 	    }
 	  }
-
 	  getValues() {
 	    let values = [];
-
 	    if (!this.fullDayMode) {
 	      values = values.concat([{
 	        value: 0,
@@ -239,7 +211,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        value: 120,
 	        label: main_core.Loc.getMessage("EC_REMIND1_120"),
 	        shortLabel: main_core.Loc.getMessage("EC_REMIND1_SHORT_120")
-	      } //{value: 1440, label: Loc.getMessage("EC_REMIND1_1440"), shortLabel: Loc.getMessage("EC_REMIND1_SHORT_1440")},
+	      }
+	      //{value: 1440, label: Loc.getMessage("EC_REMIND1_1440"), shortLabel: Loc.getMessage("EC_REMIND1_SHORT_1440")},
 	      //{value: 2880, label: Loc.getMessage("EC_REMIND1_2880"), shortLabel: Loc.getMessage("EC_REMIND1_SHORT_2880")}
 	      ]);
 	    }
@@ -277,26 +250,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }]);
 	    }
-
 	    return values;
 	  }
-
 	  setValue(reminderList, emitChanges = true, changedByUser = true) {
 	    this.selectedValues.forEach(value => {
 	      this.removeValue(value, emitChanges);
 	    });
-
 	    if (main_core.Type.isArray(reminderList)) {
 	      reminderList.forEach(value => {
 	        this.addValue(value, emitChanges, changedByUser);
 	      }, this);
 	    }
 	  }
-
 	  getSelectedValues() {
 	    return this.selectedValues;
 	  }
-
 	  getSelectedRawValues() {
 	    let selectedRawValues = [];
 	    this.selectedValues.forEach(value => {
@@ -304,22 +272,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    return selectedRawValues;
 	  }
-
 	  setFullDayMode(fullDayMode) {
 	    if (fullDayMode !== this.fullDayMode) {
 	      this.fullDayMode = fullDayMode;
 	      this.values = this.getValues();
 	    }
 	  }
-
 	  showPopup(params = {}) {
 	    const _this = this;
-
 	    const menuItems = [];
 	    this.values.forEach(item => {
 	      if (item.mode === 'time-menu' || item.mode === 'custom' || !BX.util.in_array(item.value, this.selectedValues)) {
 	        let menuItem = {};
-
 	        if (item.dataset && item.dataset.mode === 'time-menu') {
 	          menuItem.id = item.id;
 	          let defaultReminderTime = calendar_util.Util.getTimeByInt(this.defaultReminderTime);
@@ -329,18 +293,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            value: this.defaultReminderTime
 	          }, item.dataset);
 	          menuItem.items = this.getSubmenuTimeValues(menuItem, item.label, params);
-
 	          menuItem.onclick = function () {
 	            return function () {
 	              _this.addValue({
 	                before: item.dataset.daysBefore,
 	                time: item.dataset.time
 	              });
-
 	              BX.defer(function () {
 	                _this.reminderMenu.close();
 	              }, _this)();
-
 	              if (main_core.Type.isFunction(params.addValueCallback)) {
 	                params.addValueCallback();
 	              }
@@ -355,20 +316,16 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }];
 	        } else {
 	          menuItem.text = item.label;
-
 	          menuItem.onclick = function (value, mode) {
 	            return () => {
 	              _this.addValue(value);
-
 	              _this.reminderMenu.close();
-
 	              if (main_core.Type.isFunction(params.addValueCallback)) {
 	                params.addValueCallback();
 	              }
 	            };
 	          }(item.value, item.mode);
 	        }
-
 	        menuItems.push(menuItem);
 	      }
 	    }, this);
@@ -391,7 +348,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.reminderMenu.show();
 	  }
-
 	  getSubmenuTimeValues(parentItem, parentItemMessage, params) {
 	    let menuItems = [];
 	    Reminder.getTimeValueList(60).forEach(function (menuItem) {
@@ -405,11 +361,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        onclick: function (e, item) {
 	          let time = calendar_util.Util.getTimeByInt(item.dataset.value);
 	          let parentMenuItem = this.reminderMenu.getMenuItem(parentItem.id);
-
 	          if (parentMenuItem) {
 	            parentMenuItem.setText(parentItemMessage.replace('#TIME#', calendar_util.Util.formatTime(time.hour, time.min)));
 	          }
-
 	          this.addValue({
 	            time: item.dataset.value,
 	            before: item.dataset.daysBefore
@@ -417,7 +371,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          BX.defer(function () {
 	            this.reminderMenu.close();
 	          }, this)();
-
 	          if (main_core.Type.isFunction(params.addValueCallback)) {
 	            params.addValueCallback();
 	          }
@@ -426,15 +379,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }, this);
 	    return menuItems;
 	  }
-
 	  addValue(value, emitChanges = true, changedByUser = true) {
 	    let item;
 	    const formattedValue = Reminder.formatValue(value);
-
 	    if (main_core.Type.isPlainObject(value) && value.count) {
 	      value = parseInt(formattedValue);
 	    }
-
 	    if (main_core.Type.isPlainObject(value) && !this.selectedValues.includes(formattedValue)) {
 	      if (main_core.Type.isInteger(parseInt(value.before)) && main_core.Type.isInteger(parseInt(value.time))) {
 	        item = this.DOM.wrap.appendChild(main_core.Tag.render(_t2 || (_t2 = _`
@@ -443,7 +393,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 							${0}
 						</span>
 					</span>`), Reminder.getReminderLabel(value)));
-
 	        if (!this.viewMode) {
 	          item.appendChild(main_core.Tag.render(_t3 || (_t3 = _`<span class="calendar-reminder-clear-icon" data-bxc-value="${0}"/>`), formattedValue));
 	        }
@@ -453,12 +402,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 						${0}
 					</span>
 				</span>`), calendar_util.Util.formatDateUsable(value.value) + ' ' + calendar_util.Util.formatTime(value.value)));
-
 	        if (!this.viewMode) {
 	          item.appendChild(main_core.Tag.render(_t5 || (_t5 = _`<span class="calendar-reminder-clear-icon" data-bxc-value="${0}"/>`), formattedValue));
 	        }
 	      }
-
 	      this.selectedValues.push(formattedValue);
 	      this.controlList[formattedValue] = item;
 	      this.rawValuesMap.set(formattedValue, value);
@@ -471,18 +418,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 							${0}
 						</span>
 					</span>`), this.values[i].shortLabel || this.values[i].label));
-
 	          if (!this.viewMode) {
 	            item.appendChild(main_core.Tag.render(_t7 || (_t7 = _`<span class="calendar-reminder-clear-icon" data-bxc-value="${0}"/>`), formattedValue));
 	          }
-
 	          this.selectedValues.push(formattedValue);
 	          this.controlList[formattedValue] = item;
 	          this.rawValuesMap.set(formattedValue, value);
 	          break;
 	        }
 	      }
-
 	      if (item === undefined) {
 	        item = this.DOM.wrap.appendChild(main_core.Dom.create('SPAN', {
 	          props: {
@@ -490,7 +434,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          },
 	          text: Reminder.getText(value)
 	        }));
-
 	        if (!this.viewMode) {
 	          item.appendChild(main_core.Dom.create('SPAN', {
 	            props: {
@@ -503,17 +446,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            }
 	          }));
 	        }
-
 	        this.selectedValues.push(value);
 	        this.controlList[value] = item;
 	        this.rawValuesMap.set(value, value);
 	      }
 	    }
-
 	    if (this.changeCallack) {
 	      this.changeCallack(this.selectedValues);
 	    }
-
 	    if (emitChanges) {
 	      this.emit('onChange', new main_core_events.BaseEvent({
 	        data: {
@@ -521,25 +461,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }));
 	    }
-
 	    this.changedByUser = emitChanges && changedByUser;
-
 	    if (main_core.Type.isElementNode(this.DOM.addButton)) {
 	      this.DOM.wrap.appendChild(this.DOM.addButton);
 	    }
 	  }
-
 	  removeValue(value, emitChanges = true) {
 	    if (this.controlList[value] && main_core.Type.isDomNode(this.controlList[value])) {
 	      main_core.Dom.remove(this.controlList[value]);
 	    }
-
 	    this.selectedValues = BX.util.deleteFromArray(this.selectedValues, BX.util.array_search(value, this.selectedValues));
-
 	    if (this.changeCallack) {
 	      this.changeCallack(this.selectedValues);
 	    }
-
 	    if (emitChanges) {
 	      this.emit('onChange', new main_core_events.BaseEvent({
 	        data: {
@@ -549,18 +483,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.changedByUser = true;
 	    }
 	  }
-
 	  static getTimeValueList(mode = 30) {
 	    if (!Reminder.timeValueList) {
 	      Reminder.timeValueList = [];
 	      let i;
-
 	      for (i = 0; i < 24; i++) {
 	        Reminder.timeValueList.push({
 	          value: i * 60,
 	          label: calendar_util.Util.formatTime(i, 0)
 	        });
-
 	        if (mode <= 30) {
 	          Reminder.timeValueList.push({
 	            value: i * 60 + 30,
@@ -569,24 +500,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-
 	    return Reminder.timeValueList;
 	  }
-
 	  handleClick(e) {
 	    let target = e.target || e.srcElement;
 	    let remValue = target.getAttribute('data-bxc-value');
-
 	    if (!main_core.Type.isNull(remValue) && this.selectedValues.includes(remValue)) {
 	      this.removeValue(remValue);
 	    }
-
 	    if (main_core.Dom.hasClass(target, 'calendar-reminder-item-title')) {
 	      this.showPopup({
 	        bindTarget: target,
 	        addValueCallback: () => {
 	          const removeIcon = target.parentNode.querySelector('.calendar-reminder-clear-icon');
-
 	          if (main_core.Type.isElementNode(removeIcon) && !main_core.Type.isNull(removeIcon.getAttribute('data-bxc-value'))) {
 	            this.removeValue(removeIcon.getAttribute('data-bxc-value'));
 	          }
@@ -594,29 +520,24 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	  static inputCalendarClosePopupHandler(e) {
 	    BX.onCustomEvent(window, 'onCalendarControlChildPopupClosed');
 	  }
-
 	  static getReminderLabel(value) {
 	    let label = '';
 	    value.before = parseInt(value.before);
 	    value.time = parseInt(value.time);
-
 	    if (main_core.Type.isInteger(value.before) && main_core.Type.isInteger(value.time) && [0, 1, 2].includes(value.before)) {
 	      let time = calendar_util.Util.getTimeByInt(value.time);
 	      label = main_core.Loc.getMessage('EC_REMIND1_DAY_' + value.before + '_SHORT').replace('#TIME#', calendar_util.Util.formatTime(time.hour, time.min));
 	    }
-
 	    return label;
-	  } // Used to scroll into view and highlight default item in time menu
+	  }
 
-
+	  // Used to scroll into view and highlight default item in time menu
 	  adjustSubmenuPopup(event) {
 	    if (event instanceof main_core_events.BaseEvent) {
 	      let submenuPopup = event.getTarget();
-
 	      if (submenuPopup instanceof main_popup.Popup) {
 	        if (/^menu-popup-popup-submenu-time-menu-day-\d$/.test(submenuPopup.getId())) {
 	          this.adjustTimeSubmenuPopup(submenuPopup);
@@ -626,16 +547,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  closeSubmenuPopup(event) {
 	    if (event instanceof main_core_events.BaseEvent) {
 	      let submenuPopup = event.getTarget();
-
 	      if (submenuPopup instanceof main_popup.Popup) {
 	        if (/^menu-popup-popup-submenu-time-menu-day-\d$/.test(submenuPopup.getId())) ; else if (/^menu-popup-popup-submenu-custom$/.test(submenuPopup.getId())) {
 	          let layout = submenuPopup.bindElement;
 	          let textNode = layout.querySelector('.menu-popup-item-text');
-
 	          if (main_core.Type.isDomNode(textNode)) {
 	            main_core.Dom.clean(textNode);
 	            textNode.innerHTML = main_core.Loc.getMessage("EC_REMIND1_CUSTOM");
@@ -644,10 +562,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  adjustTimeSubmenuPopup(popup) {
 	    let selectedMenuItem = popup.getContentContainer().querySelector('span[data-value="' + this.defaultReminderTime + '"]');
-
 	    if (main_core.Type.isDomNode(selectedMenuItem)) {
 	      setTimeout(() => {
 	        popup.getContentContainer().scrollTop = parseInt(selectedMenuItem.offsetTop) - 10;
@@ -655,34 +571,30 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }, 50);
 	    }
 	  }
-
 	  adjustCalendarSubmenuPopup(popup) {
 	    let layout = popup.bindElement;
 	    let textNode = layout.querySelector('.menu-popup-item-text');
-
 	    if (main_core.Type.isDomNode(textNode)) {
 	      main_core.Dom.clean(textNode);
 	      const input = textNode.appendChild(main_core.Tag.render(_t8 || (_t8 = _`<input id="inp-${0}" type="text" class="calendar-field calendar-field-datetime" value="" autocomplete="off" placeholder="${0}"/>`), Math.round(Math.random() * 100000), main_core.Loc.getMessage('EC_REMIND1_CUSTOM_PLACEHOLDER')));
-	      const calendarControl = BX.calendar.get(); // Hacks for BX.calendar - it works as singleton and has troubles with using inside menupopups
-	      // We trying to reinitialize it everytime
+	      const calendarControl = BX.calendar.get();
 
+	      // Hacks for BX.calendar - it works as singleton and has troubles with using inside menupopups
+	      // We trying to reinitialize it everytime
 	      if (calendarControl.popup) {
 	        calendarControl.popup.destroy();
 	        calendarControl.popup = null;
 	        calendarControl._current_layer = null;
 	        calendarControl._layers = {};
 	      }
-
 	      if (calendarControl.popup_month) {
 	        calendarControl.popup_month.destroy();
 	        calendarControl.popup_month = null;
 	      }
-
 	      if (calendarControl.popup_year) {
 	        calendarControl.popup_year.destroy();
 	        calendarControl.popup_year = null;
 	      }
-
 	      calendarControl.Show({
 	        node: input,
 	        value: calendar_util.Util.formatDateTime(calendar_util.Util.getUsableDateTime(new Date())),
@@ -692,22 +604,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	      let calendarPopup = calendarControl.popup;
 	      calendarPopup.cacheable = false;
-
 	      if (calendarPopup && calendarPopup.popupContainer) {
 	        let calendarWrap = calendarPopup.popupContainer.querySelector('.bx-calendar');
-
 	        if (main_core.Type.isDomNode(calendarWrap)) {
 	          popup.contentContainer.appendChild(calendarWrap);
 	        }
-
 	        calendarPopup.close();
 	        main_popup.MenuManager.destroy(calendarPopup.uniquePopupId);
 	      }
-
 	      main_core.Event.bind(input, 'change', () => {
 	        let value = input.value,
-	            dateValue = calendar_util.Util.parseDate(value);
-
+	          dateValue = calendar_util.Util.parseDate(value);
 	        if (main_core.Type.isDate(dateValue)) {
 	          this.addValue({
 	            type: 'date',
@@ -718,13 +625,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
-
 	    if (this.viewMode) {
 	      main_core.Dom.addClass(this.DOM.wrap, 'calendar-reminder-readonly');
-
 	      if (main_core.Type.isElementNode(this.DOM.addButton)) {
 	        this.DOM.addButton.style.display = 'none';
 	      }
@@ -732,18 +636,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.removeClass(this.DOM.wrap, 'calendar-reminder-readonly');
 	    }
 	  }
-
 	  wasChangedByUser() {
 	    return this.changedByUser;
 	  }
-
 	  static getText(value) {
 	    let tempValue = value,
-	        dividers = [60, 24],
-	        //list of time dividers
-	    messageCodes = ['EC_REMIND1_MIN_COUNT', 'EC_REMIND1_HOUR_COUNT', 'EC_REMIND1_DAY_COUNT'],
-	        result = '';
-
+	      dividers = [60, 24],
+	      //list of time dividers
+	      messageCodes = ['EC_REMIND1_MIN_COUNT', 'EC_REMIND1_HOUR_COUNT', 'EC_REMIND1_DAY_COUNT'],
+	      result = '';
 	    for (let i = 0; i < messageCodes.length; i++) {
 	      if (tempValue < dividers[i] || i === dividers.length) {
 	        result = main_core.Loc.getMessage(messageCodes[i]).toString();
@@ -753,10 +654,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        tempValue = Math.ceil(tempValue / dividers[i]);
 	      }
 	    }
-
 	    return result;
 	  }
-
 	  static formatValue(remindValue) {
 	    if (main_core.Type.isPlainObject(remindValue) && main_core.Type.isInteger(parseInt(remindValue.before)) && main_core.Type.isInteger(parseInt(remindValue.time))) {
 	      return 'daybefore|' + remindValue.before + '|' + remindValue.time;
@@ -766,30 +665,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (remindValue.type === 'min') {
 	        return remindValue.count.toString();
 	      }
-
 	      if (remindValue.type === 'hour') {
 	        return (parseInt(remindValue.count) * 60).toString();
 	      }
-
 	      if (remindValue.type === 'day') {
 	        return (parseInt(remindValue.count) * 60 * 24).toString();
 	      }
 	    }
-
 	    return remindValue.toString();
 	  }
-
 	}
 	Reminder.timeValueList = null;
 
 	let _$1 = t => t,
-	    _t$1,
-	    _t2$1,
-	    _t3$1,
-	    _t4$1,
-	    _t5$1,
-	    _t6$1,
-	    _t7$1;
+	  _t$1,
+	  _t2$1,
+	  _t3$1,
+	  _t4$1,
+	  _t5$1,
+	  _t6$1,
+	  _t7$1;
 	class Location {
 	  constructor(params) {
 	    this.datesRange = [];
@@ -812,18 +707,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.meetingRooms = params.iblockMeetingRoomList || [];
 	    Location.setMeetingRoomList(params.iblockMeetingRoomList);
 	    Location.setLocationList(params.locationList);
-
 	    if (!this.disabled) {
 	      this.default = this.setDefaultRoom(params.locationList) || '';
 	    }
-
 	    this.create();
 	    this.setViewMode(params.viewMode === true);
 	    this.processValue();
 	    this.setCategoryManager();
 	    this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 70);
 	  }
-
 	  create() {
 	    this.DOM.wrapNode.style.display = 'flex';
 	    this.DOM.inputWrap = this.DOM.wrapNode.appendChild(main_core.Tag.render(_t$1 || (_t$1 = _$1`
@@ -834,7 +726,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 			<i></i>
 			</div>
 		`), main_core.Loc.getMessage('EC_LOCATION_OVERFLOW'));
-
 	    if (this.inlineEditModeEnabled) {
 	      this.DOM.inlineEditLinkWrap = this.DOM.wrapNode.appendChild(main_core.Tag.render(_t3$1 || (_t3$1 = _$1`
 				<div class="calendar-field-place-link calendar-location-readonly">${0}
@@ -846,7 +737,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.selectContol.showPopup();
 	      });
 	    }
-
 	    this.DOM.inputWrapInner = this.DOM.inputWrap.appendChild(main_core.Tag.render(_t5$1 || (_t5$1 = _$1`
 				<div class="calendar-event-location-input-wrap-inner">
 				</div>`)));
@@ -866,7 +756,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        maxWidth: 300 + 'px'
 	      }
 	    }));
-
 	    if (this.disabled) {
 	      main_core.Dom.addClass(this.DOM.wrapNode, 'locked');
 	      this.DOM.lockIcon = main_core.Tag.render(_t6$1 || (_t6$1 = _$1`
@@ -878,27 +767,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.append(this.DOM.lockIcon, this.DOM.inputWrapInner);
 	    }
 	  }
-
 	  setValues() {
 	    var _this$categoryManager;
-
 	    this.addLocationRemoveButton();
-
 	    if (!this.categoryManagerFromDB) {
 	      var _this$setValuesDeboun;
-
 	      (_this$setValuesDeboun = this.setValuesDebounced) == null ? void 0 : _this$setValuesDeboun.call(this);
 	      return;
 	    }
-
 	    this.prohibitClick();
 	    let menuItemList = [],
-	        selectedIndex = false,
-	        meetingRooms = Location.getMeetingRoomList(),
-	        locationList = Location.getLocationList();
+	      selectedIndex = false,
+	      meetingRooms = Location.getMeetingRoomList(),
+	      locationList = Location.getLocationList();
 	    const roomList = this.createRoomList(locationList);
 	    this.categoriesWithRooms = this == null ? void 0 : (_this$categoryManager = this.categoryManagerFromDB) == null ? void 0 : _this$categoryManager.getCategoriesWithRooms(roomList);
-
 	    if (main_core.Type.isArray(meetingRooms)) {
 	      meetingRooms.forEach(function (room) {
 	        room.ID = parseInt(room.ID);
@@ -910,19 +793,16 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          capacity: 0,
 	          type: 'mr'
 	        });
-
 	        if (this.value.type === 'mr' && parseInt(this.value.value) === room.ID) {
 	          selectedIndex = menuItemList.length - 1;
 	        }
 	      }, this);
-
 	      if (menuItemList.length > 0) {
 	        menuItemList.push({
 	          delimiter: true
 	        });
 	      }
 	    }
-
 	    const pushRoomToItemList = room => {
 	      room.id = parseInt(room.id);
 	      room.location_id = parseInt(room.location_id);
@@ -938,13 +818,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        value: room.id,
 	        type: 'calendar'
 	      });
-
 	      if (this.value.type === 'calendar' && parseInt(this.value.value) === parseInt(room.id)) {
 	        selectedIndex = menuItemList.length - 1;
 	      }
-	    }; //TODO think about delimiter draw
-
-
+	    };
+	    //TODO think about delimiter draw
 	    if (main_core.Type.isObject(this.categoriesWithRooms)) {
 	      if (this.categoriesWithRooms.categories.length || this.categoriesWithRooms.default.length) {
 	        this.categoriesWithRooms.categories.forEach(category => {
@@ -956,7 +834,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            category.rooms.forEach(room => pushRoomToItemList(room), this);
 	          }
 	        });
-
 	        if (this.categoriesWithRooms.default.length) {
 	          menuItemList.push({
 	            text: "\0",
@@ -965,7 +842,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          });
 	          this.categoriesWithRooms.default.forEach(room => pushRoomToItemList(room), this);
 	        }
-
 	        if (this.locationAccess) {
 	          this.loadRoomSlider();
 	          menuItemList.push({
@@ -986,17 +862,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-
 	    if (this.selectContol) {
 	      this.selectContol.destroy();
 	    }
-
 	    let disabledControl = this.disabled;
-
 	    if (!menuItemList.length) {
 	      disabledControl = true;
 	    }
-
 	    this.processValue();
 	    this.selectContol = new BX.Calendar.Controls.SelectInput({
 	      input: this.DOM.input,
@@ -1008,11 +880,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      onChangeCallback: () => {
 	        main_core_events.EventEmitter.emit('Calendar.LocationControl.onValueChange');
 	        let i,
-	            value = this.DOM.input.value;
+	          value = this.DOM.input.value;
 	        this.value = {
 	          text: value
 	        };
-
 	        for (i = 0; i < menuItemList.length; i++) {
 	          if (menuItemList[i].labelRaw === value) {
 	            this.value.type = menuItemList[i].type;
@@ -1021,31 +892,25 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            break;
 	          }
 	        }
-
 	        if (main_core.Type.isFunction(this.params.onChangeCallback)) {
 	          this.params.onChangeCallback();
 	        }
-
 	        if (this.value.text === '') {
 	          this.removeLocationRemoveButton();
 	        }
-
 	        this.addLocationRemoveButton();
 	        this.allowClick();
 	      }
 	    });
 	    this.allowClick();
 	  }
-
 	  processValue() {
 	    if (this.value) {
 	      this.DOM.input.value = this.value.str || '';
-
 	      if (this.value.type && (this.value.str === this.getTextLocation(this.value) || this.getTextLocation(this.value) === main_core.Loc.getMessage('EC_LOCATION_EMPTY'))) {
 	        this.DOM.input.value = '';
 	        this.value = '';
 	      }
-
 	      for (const locationListElement of Location.locationList) {
 	        if (parseInt(locationListElement.ID) === this.value.room_id) {
 	          Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
@@ -1054,41 +919,32 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  setValuesDebounce() {
 	    this.setCategoryManager();
 	    this.setValuesDebounced();
 	  }
-
 	  removeValue() {
 	    this.setValue(false, false);
 	    this.selectContol.onChangeCallback();
 	    this.removeLocationRemoveButton();
 	  }
-
 	  removeLocationRemoveButton() {
 	    if (this.DOM.inputWrap.contains(this.DOM.removeLocationButton)) {
 	      this.DOM.inputWrap.removeChild(this.DOM.removeLocationButton);
 	    } else if (this.DOM.wrapNode.contains(this.DOM.removeLocationButton)) {
 	      this.DOM.wrapNode.removeChild(this.DOM.removeLocationButton);
 	    }
-
 	    this.DOM.removeLocationButton = null;
-
 	    if (main_core.Type.isDomNode(this.DOM.inlineEditLink)) {
 	      this.displayInlineEditControls();
 	    }
 	  }
-
 	  addLocationRemoveButton() {
 	    var _this$DOM, _this$DOM$inlineEditL;
-
 	    let wrap = this.DOM.inputWrap;
-
 	    if (((_this$DOM = this.DOM) == null ? void 0 : (_this$DOM$inlineEditL = _this$DOM.inlineEditLinkWrap) == null ? void 0 : _this$DOM$inlineEditL.style.display) === '') {
 	      wrap = this.DOM.wrapNode;
 	    }
-
 	    if ((this.value.value || this.value.str || this.value.text) && !this.viewMode && !this.DOM.removeLocationButton && this.value.text !== '') {
 	      this.DOM.removeLocationButton = wrap.appendChild(main_core.Tag.render(_t7$1 || (_t7$1 = _$1`
 				<span class="calendar-location-clear-btn-wrap calendar-location-readonly">
@@ -1097,118 +953,95 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Event.bind(this.DOM.removeLocationButton, 'click', this.removeValue.bind(this));
 	    }
 	  }
-
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
-
 	    if (this.viewMode) {
 	      main_core.Dom.addClass(this.DOM.wrapNode, 'calendar-location-readonly');
 	    } else {
 	      main_core.Dom.removeClass(this.DOM.wrapNode, 'calendar-location-readonly');
 	    }
 	  }
-
 	  addCapacityAlert() {
 	    if (!main_core.Dom.hasClass(this.DOM.input, 'calendar-field-location-select-border')) {
 	      main_core.Dom.addClass(this.DOM.input, 'calendar-field-location-select-border');
 	    }
-
 	    if (main_core.Type.isDomNode(this.DOM.alertIconLocation)) {
 	      calendar_util.Util.initHintNode(this.DOM.alertIconLocation);
 	    }
-
 	    setTimeout(() => {
 	      this.DOM.inputWrapInner.after(this.DOM.alertIconLocation);
 	    }, 200);
 	  }
-
 	  removeCapacityAlert() {
 	    if (main_core.Dom.hasClass(this.DOM.input, 'calendar-field-location-select-border')) {
 	      main_core.Dom.removeClass(this.DOM.input, 'calendar-field-location-select-border');
 	    }
-
 	    if (this.DOM.alertIconLocation.parentNode === this.DOM.inputWrap) {
 	      main_core.Dom.remove(this.DOM.alertIconLocation);
 	    }
 	  }
-
 	  getCapacityMessage(capacity) {
 	    let suffix;
-
 	    if (capacity % 100 > 10 && capacity % 100 < 20) {
 	      suffix = 5;
 	    } else {
 	      suffix = capacity % 10;
 	    }
-
 	    return main_core.Loc.getMessage('EC_LOCATION_CAPACITY_' + suffix, {
 	      '#NUM#': capacity
 	    });
 	  }
-
 	  checkLocationAccessibility(params) {
 	    this.getLocationAccessibility(params.from, params.to).then(() => {
 	      let eventTsFrom;
 	      let eventTsTo;
 	      let fromTs = params.from.getTime();
 	      let toTs = params.to.getTime();
-
 	      if (params.fullDay) {
 	        toTs += Location.DAY_LENGTH;
 	      }
-
 	      for (const index in Location.locationList) {
 	        Location.locationList[index].reserved = false;
 	        let roomId = Location.locationList[index].ID;
-
 	        for (const date of this.datesRange) {
 	          if (main_core.Type.isUndefined(Location.accessibility[date][roomId])) {
 	            continue;
 	          }
-
 	          for (const event of Location.accessibility[date][roomId]) {
 	            if (parseInt(event.PARENT_ID) === parseInt(params.currentEventId)) {
 	              continue;
 	            }
-
 	            eventTsFrom = calendar_util.Util.parseDate(event.DATE_FROM).getTime();
 	            eventTsTo = calendar_util.Util.parseDate(event.DATE_TO).getTime();
-
 	            if (event.DT_SKIP_TIME !== 'Y') {
 	              eventTsFrom -= event['~USER_OFFSET_FROM'] * 1000;
 	              eventTsTo -= event['~USER_OFFSET_TO'] * 1000;
 	            } else {
 	              eventTsTo += Location.DAY_LENGTH;
 	            }
-
 	            if (eventTsFrom < toTs && eventTsTo > fromTs) {
 	              Location.locationList[index].reserved = true;
 	              break;
 	            }
 	          }
-
 	          if (Location.locationList[index].reserved) {
 	            break;
 	          }
 	        }
 	      }
-
 	      this.setValuesDebounce();
 	    });
 	  }
-
 	  getLocationAccessibility(from, to) {
 	    return new Promise(resolve => {
 	      this.datesRange = Location.getDatesRange(from, to);
 	      let isCheckedAccessibility = true;
-
 	      for (let date of this.datesRange) {
 	        if (main_core.Type.isUndefined(Location.accessibility[date])) {
 	          isCheckedAccessibility = false;
 	          break;
 	        }
 	      }
-
 	      if (!isCheckedAccessibility) {
 	        BX.ajax.runAction('calendar.api.locationajax.getLocationAccessibility', {
 	          data: {
@@ -1219,7 +1052,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          for (let date of this.datesRange) {
 	            Location.accessibility[date] = response.data[date];
 	          }
-
 	          resolve(Location.accessibility, this.datesRange);
 	        }, response => {
 	          resolve(response.errors);
@@ -1229,28 +1061,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    });
 	  }
-
 	  static handlePull(params) {
 	    if (!params.fields.DATE_FROM || !params.fields.DATE_TO) {
 	      return;
 	    }
-
 	    let dateFrom = calendar_util.Util.parseDate(params.fields.DATE_FROM);
 	    let dateTo = calendar_util.Util.parseDate(params.fields.DATE_TO);
 	    let datesRange = Location.getDatesRange(dateFrom, dateTo);
-
 	    for (let date of datesRange) {
 	      if (Location.accessibility[date]) {
 	        delete Location.accessibility[date];
 	      }
 	    }
 	  }
-
 	  loadRoomSlider() {
 	    this.setRoomsManager();
 	    this.setCategoryManager();
 	  }
-
 	  openRoomsSlider() {
 	    this.getRoomsInterface().then(function (RoomsInterface) {
 	      if (!this.roomsInterface) {
@@ -1262,31 +1089,24 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          isConfigureList: true
 	        });
 	      }
-
 	      this.roomsInterface.show();
 	    }.bind(this));
 	  }
-
 	  getTextValue(value) {
 	    if (!value) {
 	      value = this.value;
 	    }
-
 	    let res = value.str || value.text || '';
-
 	    if (value && value.type === 'mr') {
 	      res = 'ECMR_' + value.value + (value.mrevid ? '_' + value.mrevid : '');
 	    } else if (value && value.type === 'calendar') {
 	      res = 'calendar_' + value.value + (value.room_event_id ? '_' + value.room_event_id : '');
 	    }
-
 	    return res;
 	  }
-
 	  getValue() {
 	    return this.value;
 	  }
-
 	  setValue(value, debounced = true) {
 	    if (main_core.Type.isPlainObject(value)) {
 	      this.value.text = value.text || '';
@@ -1295,44 +1115,37 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else {
 	      this.value = Location.parseStringValue(value);
 	    }
-
 	    if (debounced) {
 	      this.setValuesDebounce();
 	    } else {
 	      this.setValues();
 	    }
-
 	    if (this.inlineEditModeEnabled) {
 	      let textLocation = this.getTextLocation(this.value);
 	      this.DOM.inlineEditLink.innerHTML = main_core.Text.encode(textLocation || main_core.Loc.getMessage('EC_REMIND1_ADD'));
-
 	      if (textLocation) {
 	        this.addLocationRemoveButton();
 	      }
 	    }
-	  } // parseLocation
+	  }
 
-
+	  // parseLocation
 	  static parseStringValue(str) {
 	    if (!main_core.Type.isString(str)) {
 	      str = '';
 	    }
-
 	    let res = {
 	      type: false,
 	      value: false,
 	      str: str
 	    };
-
 	    if (str.substr(0, 5) === 'ECMR_') {
 	      res.type = 'mr';
 	      let value = str.split('_');
-
 	      if (value.length >= 2) {
 	        if (!isNaN(parseInt(value[1])) && parseInt(value[1]) > 0) {
 	          res.value = res.mrid = parseInt(value[1]);
 	        }
-
 	        if (!isNaN(parseInt(value[2])) && parseInt(value[2]) > 0) {
 	          res.mrevid = parseInt(value[2]);
 	        }
@@ -1340,29 +1153,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else if (str.substr(0, 9) === 'calendar_') {
 	      res.type = 'calendar';
 	      let value = str.split('_');
-
 	      if (value.length >= 2) {
 	        if (!isNaN(parseInt(value[1])) && parseInt(value[1]) > 0) {
 	          res.value = res.room_id = parseInt(value[1]);
 	        }
-
 	        if (!isNaN(parseInt(value[2])) && parseInt(value[2]) > 0) {
 	          res.room_event_id = parseInt(value[2]);
 	        }
 	      }
 	    }
-
 	    return res;
 	  }
-
 	  getTextLocation(location) {
 	    let value = main_core.Type.isPlainObject(location) ? location : Location.parseStringValue(location),
-	        i,
-	        str = value.str;
-
+	      i,
+	      str = value.str;
 	    if (main_core.Type.isArray(this.meetingRooms) && value.type === 'mr') {
 	      str = main_core.Loc.getMessage('EC_LOCATION_EMPTY');
-
 	      for (i = 0; i < this.meetingRooms.length; i++) {
 	        if (parseInt(value.value) === parseInt(this.meetingRooms[i].ID)) {
 	          str = this.meetingRooms[i].NAME;
@@ -1370,10 +1177,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-
 	    if (main_core.Type.isArray(Location.locationList) && value.type === 'calendar') {
 	      str = main_core.Loc.getMessage('EC_LOCATION_EMPTY');
-
 	      for (i = 0; i < Location.locationList.length; i++) {
 	        if (parseInt(value.value) === parseInt(Location.locationList[i].ID)) {
 	          str = Location.locationList[i].NAME;
@@ -1381,74 +1186,58 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-
 	    return str;
 	  }
-
 	  static setLocationList(locationList) {
 	    if (main_core.Type.isArray(locationList)) {
 	      Location.locationList = locationList;
 	      this.sortLocationList();
 	    }
 	  }
-
 	  static sortLocationList() {
 	    Location.locationList.sort((a, b) => {
 	      if (a.NAME.toLowerCase() > b.NAME.toLowerCase()) {
 	        return 1;
 	      }
-
 	      if (a.NAME.toLowerCase() < b.NAME.toLowerCase()) {
 	        return -1;
 	      }
-
 	      return 0;
 	    });
 	  }
-
 	  static getLocationList() {
 	    return Location.locationList;
 	  }
-
 	  static setMeetingRoomList(meetingRoomList) {
 	    if (main_core.Type.isArray(meetingRoomList)) {
 	      Location.meetingRoomList = meetingRoomList;
 	    }
 	  }
-
 	  static getMeetingRoomList() {
 	    return Location.meetingRoomList;
 	  }
-
 	  static setLocationAccessibility(accessibility) {
 	    Location.accessibility = accessibility;
 	  }
-
 	  static getLocationAccessibility() {
 	    return Location.accessibility;
 	  }
-
 	  static setCurrentCapacity(capacity) {
 	    Location.currentRoomCapacity = capacity;
 	  }
-
 	  static getCurrentCapacity() {
 	    return Location.currentRoomCapacity || 0;
 	  }
-
 	  displayInlineEditControls() {
 	    this.DOM.inlineEditLinkWrap.style.display = 'none';
 	    this.DOM.inputWrap.style.display = '';
 	    this.addLocationRemoveButton();
 	  }
-
 	  setDefaultRoom(locationList) {
 	    if (this.roomsManager && !calendar_roomsmanager.RoomsManager.isEmpty(locationList)) {
 	      this.activeRooms = this.roomsManager.getRoomsInfo().active;
-
 	      if (!calendar_roomsmanager.RoomsManager.isEmpty(this.activeRooms)) {
 	        const activeRoomId = this.activeRooms[0];
-
 	        for (const locationListElement of locationList) {
 	          if (parseInt(locationListElement.ID) === activeRoomId) {
 	            Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
@@ -1463,7 +1252,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return '';
 	    }
 	  }
-
 	  getRoomsInterface() {
 	    return new Promise(resolve => {
 	      const bx = BX.Calendar.Util.getBX();
@@ -1478,7 +1266,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	  getRoomsManager() {
 	    return new Promise(resolve => {
 	      const bx = BX.Calendar.Util.getBX();
@@ -1493,7 +1280,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	  getRoomsManagerData() {
 	    return new Promise(resolve => {
 	      BX.ajax.runAction('calendar.api.locationajax.getRoomsManagerData').then(response => {
@@ -1514,26 +1300,24 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          accessNames: response.data.config.accessNames
 	        });
 	        resolve(response.data);
-	      }, // Failure
+	      },
+	      // Failure
 	      response => {
 	        console.error('Extension not found');
 	        resolve(response.data);
 	      });
 	    });
 	  }
-
 	  createRoomList(locationList) {
 	    return locationList.map(location => {
 	      return new calendar_roomsmanager.RoomsSection(location);
 	    });
 	  }
-
 	  setRoomsManager() {
 	    if (!this.roomsManagerFromDB) {
 	      this.getRoomsManager().then(this.getRoomsManagerData());
 	    }
 	  }
-
 	  getCategoryManager() {
 	    return new Promise(resolve => {
 	      const bx = BX.Calendar.Util.getBX();
@@ -1548,7 +1332,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	  getCategoryManagerData() {
 	    return new Promise(resolve => {
 	      BX.ajax.runAction('calendar.api.locationajax.getCategoryManagerData').then(response => {
@@ -1557,62 +1340,53 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }, {
 	          perm: response.data.permissions,
 	          locationContext: this //for updating list of locations in event creation menu
-
 	        });
+
 	        resolve(response.data);
-	      }, // Failure
+	      },
+	      // Failure
 	      response => {
 	        console.error('Extension not found');
 	        resolve(response.data);
 	      });
 	    });
 	  }
-
 	  setCategoryManager() {
 	    if (!this.categoryManagerFromDB) {
 	      this.getCategoryManager().then(this.getCategoryManagerData());
 	    }
 	  }
-
 	  prohibitClick() {
 	    if (this.DOM.inlineEditLinkWrap && !main_core.Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly')) {
 	      main_core.Dom.addClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
 	    }
-
 	    if (this.DOM.removeLocationButton && !main_core.Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly')) {
 	      main_core.Dom.addClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
 	    }
 	  }
-
 	  allowClick() {
 	    if (this.DOM.inlineEditLinkWrap && main_core.Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly')) {
 	      main_core.Dom.removeClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
 	    }
-
 	    if (this.DOM.removeLocationButton && main_core.Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly')) {
 	      main_core.Dom.removeClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
 	    }
 	  }
-
 	  static getDateInFormat(date) {
 	    return ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
 	  }
-
 	  static getDatesRange(from, to) {
 	    let fromDate = new Date(from);
 	    let toDate = new Date(to);
 	    let startDate = fromDate.setHours(0, 0, 0, 0);
 	    let finishDate = toDate.setHours(0, 0, 0, 0);
 	    let result = [];
-
 	    while (startDate <= finishDate) {
 	      result.push(Location.getDateInFormat(new Date(startDate)));
 	      startDate += Location.DAY_LENGTH;
 	    }
-
 	    return result;
 	  }
-
 	}
 	Location.locationList = [];
 	Location.meetingRoomList = [];
@@ -1629,14 +1403,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      wrapNode: params.wrapNode
 	    };
 	    this.destinationInputName = params.inputName || 'EVENT_DESTINATION';
-
 	    if (main_core.Type.isArray(this.params.itemsSelected) && this.params.itemsSelected.length) {
 	      this.params.itemsSelected = this.convertAttendeesCodes(this.params.itemsSelected);
 	    }
-
 	    this.create();
 	  }
-
 	  create() {
 	    let id = this.id;
 	    this.DOM.socnetDestinationWrap = this.DOM.wrapNode.appendChild(main_core.Dom.create('DIV', {
@@ -1656,8 +1427,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      events: {
 	        click: function (e) {
 	          var targ = e.target || e.srcElement;
-
-	          if (targ.className === 'feed-event-del-but') // Delete button
+	          if (targ.className === 'feed-event-del-but')
+	            // Delete button
 	            {
 	              top.BX.SocNetLogDestination.deleteItem(targ.getAttribute('data-item-id'), targ.getAttribute('data-item-type'), id);
 	              e.preventDefault();
@@ -1666,12 +1437,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        },
 	        mouseover: function (e) {
 	          var targ = e.target || e.srcElement;
-	          if (targ.className === 'feed-event-del-but') // Delete button
+	          if (targ.className === 'feed-event-del-but')
+	            // Delete button
 	            BX.addClass(targ.parentNode, 'event-grid-dest-hover');
 	        },
 	        mouseout: function (e) {
 	          var targ = e.target || e.srcElement;
-	          if (targ.className === 'feed-event-del-but') // Delete button
+	          if (targ.className === 'feed-event-del-but')
+	            // Delete button
 	            BX.removeClass(targ.parentNode, 'event-grid-dest-hover');
 	        }
 	      }
@@ -1729,7 +1502,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          });
 	        }
 	      }
-	    })); // if (this.params.itemsSelected && !this.checkItemsSelected(
+	    }));
+
+	    // if (this.params.itemsSelected && !this.checkItemsSelected(
 	    // 	this.params.items,
 	    // 	this.params.itemsLast,
 	    // 	this.params.itemsSelected,
@@ -1741,24 +1516,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	    this.init();
 	  }
-
 	  init() {
 	    if (!this.socnetDestinationInput || !this.DOM.socnetDestinationWrap || !this.params.items) {
 	      return;
 	    }
-
 	    if (this.params.selectGroups === false) {
 	      this.params.items.groups = {};
 	      this.params.items.department = {};
 	      this.params.items.sonetgroups = {};
 	    }
-
 	    if (this.params.selectUsers === false) {
 	      this.params.items.users = {};
 	      this.params.items.groups = {};
 	      this.params.items.department = {};
 	    }
-
 	    BX.SocNetLogDestination.init({
 	      name: this.id,
 	      searchInput: this.socnetDestinationInput,
@@ -1790,19 +1561,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      departmentSelectDisable: this.params.selectGroups === false
 	    });
 	  }
-
 	  closeAll() {
 	    if (top.BX.SocNetLogDestination.isOpenDialog()) {
 	      top.BX.SocNetLogDestination.closeDialog();
 	    }
-
 	    top.BX.SocNetLogDestination.closeSearch();
 	  }
-
 	  selectCallback(item, type) {
 	    var type1 = type,
-	        prefix = 'S';
-
+	      prefix = 'S';
 	    if (type === 'sonetgroups') {
 	      prefix = 'SG';
 	    } else if (type === 'groups') {
@@ -1813,7 +1580,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else if (type === 'department') {
 	      prefix = 'DR';
 	    }
-
 	    this.socnetDestinationItems.appendChild(main_core.Dom.create("span", {
 	      attrs: {
 	        'data-id': item.id
@@ -1846,37 +1612,33 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.socnetDestinationInput.value = '';
 	    this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (top.BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
 	  }
-
 	  unSelectCallback(item, type, search) {
 	    var elements = BX.findChildren(this.socnetDestinationItems, {
 	      attribute: {
 	        'data-id': item.id
 	      }
 	    }, true);
-
 	    if (elements != null) {
 	      for (var j = 0; j < elements.length; j++) {
 	        BX.remove(elements[j]);
 	      }
 	    }
-
 	    BX.onCustomEvent('OnDestinationUnselect');
 	    this.socnetDestinationInput.value = '';
 	    this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (top.BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
 	  }
-
 	  openDialogCallback() {
 	    BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 	    BX.style(this.socnetDestinationLink, 'display', 'none');
 	    BX.focus(this.socnetDestinationInput);
 	  }
-
 	  closeDialogCallback(cleanInputValue) {
 	    if (!top.BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0) {
 	      BX.style(this.socnetDestinationInputWrap, 'display', 'none');
 	      BX.style(this.socnetDestinationLink, 'display', 'inline-block');
-	      if (cleanInputValue === true) this.socnetDestinationInput.value = ''; // Disable backspace
+	      if (cleanInputValue === true) this.socnetDestinationInput.value = '';
 
+	      // Disable backspace
 	      if (top.BX.SocNetLogDestination.backspaceDisable || top.BX.SocNetLogDestination.backspaceDisable != null) BX.unbind(window, 'keydown', top.BX.SocNetLogDestination.backspaceDisable);
 	      BX.bind(window, 'keydown', top.BX.SocNetLogDestination.backspaceDisable = function (e) {
 	        if (e.keyCode === 8) {
@@ -1890,34 +1652,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }, 5000);
 	    }
 	  }
-
 	  getCodes() {
 	    var inputsList = this.socnetDestinationItems.getElementsByTagName('INPUT'),
-	        codes = [],
-	        i;
-
+	      codes = [],
+	      i;
 	    for (i = 0; i < inputsList.length; i++) {
 	      codes.push(inputsList[i].value);
 	    }
-
 	    return codes;
 	  }
-
 	  getAttendeesCodes() {
 	    var inputsList = this.socnetDestinationItems.getElementsByTagName('INPUT'),
-	        values = [],
-	        i;
-
+	      values = [],
+	      i;
 	    for (i = 0; i < inputsList.length; i++) {
 	      values.push(inputsList[i].value);
 	    }
-
 	    return this.convertAttendeesCodes(values);
 	  }
-
 	  convertAttendeesCodes(values) {
 	    let attendeesCodes = {};
-
 	    if (main_core.Type.isArray(values)) {
 	      values.forEach(function (code) {
 	        if (code.substr(0, 2) === 'DR') {
@@ -1931,40 +1685,32 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      });
 	    }
-
 	    return attendeesCodes;
 	  }
-
 	  getAttendeesCodesList(codes) {
 	    let result = [];
 	    if (!codes) codes = this.getAttendeesCodes();
-
 	    for (let i in codes) {
 	      if (codes.hasOwnProperty(i)) {
 	        result.push(i);
 	      }
 	    }
-
 	    return result;
 	  }
-
 	  setValue(value) {
 	    if (this.socnetDestinationItems) {
 	      main_core.Dom.clean(this.socnetDestinationItems);
 	    }
-
 	    if (main_core.Type.isArray(value)) {
 	      this.params.itemsSelected = this.convertAttendeesCodes(value);
 	    }
-
 	    this.init();
 	  }
-
 	}
 
 	let _$2 = t => t,
-	    _t$2,
-	    _t2$2;
+	  _t$2,
+	  _t2$2;
 	class ColorSelector extends main_core_events.EventEmitter {
 	  constructor(params) {
 	    super();
@@ -1983,7 +1729,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.create();
 	    this.setViewMode(params.viewMode || false);
 	  }
-
 	  create() {
 	    if (this.mode === this.LINE_MODE) {
 	      for (let i = 0; i < this.defaultColors.length; i++) {
@@ -2003,7 +1748,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }))
 	        });
 	      }
-
 	      this.DOM.customColorNode = this.DOM.wrap.appendChild(main_core.Dom.create('LI', {
 	        props: {
 	          className: 'calendar-field-colorpicker-color-item'
@@ -2030,7 +1774,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	                }
 	              });
 	            }
-
 	            this.colorPickerPopup.open();
 	          }
 	        }
@@ -2047,44 +1790,34 @@ this.BX.Calendar = this.BX.Calendar || {};
 			`)));
 	    }
 	  }
-
 	  handleColorClick(e) {
 	    if (this.viewMode) {
 	      return;
 	    }
-
 	    let target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.wrap);
-
 	    if (target && target.getAttribute) {
 	      let value = target.getAttribute('data-bx-calendar-color');
-
 	      if (value !== null) {
 	        this.setValue(value);
 	      }
 	    }
 	  }
-
 	  setValue(color, emitChanges = true) {
 	    if (this.viewMode) {
 	      return;
 	    }
-
 	    this.activeColor = color;
-
 	    if (this.mode === this.LINE_MODE) {
 	      if (this.DOM.activeColorNode) {
 	        BX.removeClass(this.DOM.activeColorNode, 'active');
 	      }
-
 	      if (!BX.util.in_array(this.activeColor, this.defaultColors) && this.activeColor) {
 	        this.DOM.customColorNode.style.backgroundColor = this.activeColor;
 	        this.DOM.customColorNode.style.width = '';
 	        this.DOM.activeColorNode = this.DOM.customColorNode;
 	        BX.addClass(this.DOM.activeColorNode, 'active');
 	      }
-
 	      let i;
-
 	      for (i = 0; i < this.colors.length; i++) {
 	        if (this.colors[i].color === this.activeColor) {
 	          this.DOM.activeColorNode = this.colors[i].node;
@@ -2096,12 +1829,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (this.DOM.colorIcon) {
 	        this.DOM.colorIcon.style.backgroundColor = this.activeColor;
 	      }
-
 	      if (this.viewMode) {
 	        this.DOM.wrap.style.backgroundColor = this.activeColor;
 	      }
 	    }
-
 	    if (emitChanges) {
 	      this.emit('onChange', new main_core_events.BaseEvent({
 	        data: {
@@ -2110,23 +1841,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }));
 	    }
 	  }
-
 	  getValue() {
 	    return this.activeColor;
 	  }
-
 	  openPopup() {
 	    if (this.viewMode) {
 	      return;
 	    }
-
 	    if (this.popup && this.popup.popupWindow && this.popup.popupWindow.isShown()) {
 	      return this.popup.close();
 	    }
-
 	    let i,
-	        menuItems = [],
-	        icon;
+	      menuItems = [],
+	      icon;
 	    this.defaultColors.forEach(color => {
 	      menuItems.push({
 	        text: color,
@@ -2151,42 +1878,38 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      angle: true,
 	      cacheable: false
 	    });
-	    this.popup.show(); // Paint round icons for section menu
+	    this.popup.show();
 
+	    // Paint round icons for section menu
 	    for (i = 0; i < this.popup.menuItems.length; i++) {
 	      if (this.popup.menuItems[i].layout.item) {
 	        icon = this.popup.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
-
 	        if (main_core.Type.isDomNode(icon)) {
 	          icon.style.backgroundColor = this.popup.menuItems[i].color;
 	        }
 	      }
 	    }
-
 	    this.popup.popupWindow.angle.element.style.left = '6px';
 	  }
-
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
-
 	    if (this.viewMode) {
 	      main_core.Dom.clean(this.DOM.wrap);
 	      this.DOM.wrap.className = 'calendar-field-select-icon';
 	      this.DOM.wrap.style.backgroundColor = this.activeColor;
 	    }
 	  }
-
 	}
 
 	let _$3 = t => t,
-	    _t$3,
-	    _t2$3,
-	    _t3$2,
-	    _t4$2,
-	    _t5$2,
-	    _t6$2,
-	    _t7$2,
-	    _t8$1;
+	  _t$3,
+	  _t2$3,
+	  _t3$2,
+	  _t4$2,
+	  _t5$2,
+	  _t6$2,
+	  _t7$2,
+	  _t8$1;
 	class SectionSelector {
 	  constructor(params) {
 	    this.id = params.id || 'section-select-' + Math.round(Math.random() * 1000000);
@@ -2200,14 +1923,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.defaultOwnerId = parseInt(params.defaultOwnerId) || 0;
 	    this.zIndex = params.zIndex || 3200;
 	    this.mode = params.mode; // full|compact|textselect
-
 	    this.DOM = {
 	      outerWrap: params.outerWrap
 	    };
 	    this.create();
 	    this.initEventHandlers();
 	  }
-
 	  create() {
 	    if (this.mode === 'textselect') {
 	      this.DOM.select = this.DOM.outerWrap;
@@ -2231,7 +1952,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          backgroundColor: this.getCurrentColor()
 	        }
 	      }));
-
 	      if (this.mode === 'full') {
 	        this.DOM.selectInnerText = this.DOM.select.appendChild(main_core.Dom.create('SPAN', {
 	          text: this.getCurrentTitle()
@@ -2239,29 +1959,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  initEventHandlers() {
 	    main_core.Event.bind(this.DOM.select, 'click', BX.delegate(this.openPopup, this));
 	  }
-
 	  openPopup() {
 	    if (this.viewMode) {
 	      return false;
 	    }
-
 	    if (this.sectionMenu && this.sectionMenu.popupWindow && this.sectionMenu.popupWindow.isShown()) {
 	      return this.sectionMenu.close();
 	    }
-
 	    const menuItems = [];
 	    const sectionIdList = [];
 	    const sectionList = this.getSectionList();
 	    let i;
-
 	    if (main_core.Type.isArray(this.sectionGroupList)) {
 	      this.sectionGroupList.forEach(sectionGroup => {
 	        let filteredList;
-
 	        if (sectionGroup.belongsToView) {
 	          filteredList = sectionList.filter(section => {
 	            return SectionSelector.getSectionType(section) === this.defaultCalendarType && SectionSelector.getSectionOwner(section) === this.defaultOwnerId;
@@ -2279,20 +1993,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            return SectionSelector.getSectionType(section) === sectionGroup.type;
 	          });
 	        }
-
 	        filteredList = filteredList.filter(section => {
 	          const id = parseInt(section.id || section.ID);
 	          if (sectionIdList.includes(id)) return false;
 	          sectionIdList.push(id);
 	          return true;
 	        });
-
 	        if (filteredList.length > 0) {
 	          menuItems.push(new main_popup.MenuItem({
 	            text: sectionGroup.title,
 	            delimiter: true
 	          }));
-
 	          for (let i = 0; i < filteredList.length; i++) {
 	            menuItems.push(this.getMenuItem(filteredList[i]));
 	          }
@@ -2303,15 +2014,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        menuItems.push(this.getMenuItem(sectionList[i]));
 	      }
 	    }
-
 	    let offsetLeft = 0;
-
 	    if (this.mode === 'compact') {
 	      offsetLeft = 40;
 	    } else if (this.mode === 'textselect' || this.mode === 'location') {
 	      offsetLeft = 0;
 	    }
-
 	    this.sectionMenu = main_popup.MenuManager.create(this.id, this.DOM.select, menuItems, {
 	      closeByEsc: true,
 	      autoHide: true,
@@ -2322,70 +2030,57 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.sectionMenu.popupWindow.contentContainer.style.overflow = "auto";
 	    this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "400px";
-
 	    if (this.mode === 'full') {
 	      this.sectionMenu.popupWindow.setWidth(this.DOM.select.offsetWidth - 2);
 	      this.sectionMenu.popupWindow.contentContainer.style.overflowX = "hidden";
 	    }
+	    this.sectionMenu.show();
 
-	    this.sectionMenu.show(); // Paint round icons for section menu
-
+	    // Paint round icons for section menu
 	    for (i = 0; i < this.sectionMenu.menuItems.length; i++) {
 	      if (this.sectionMenu.menuItems[i].layout.item) {
 	        let icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
-
 	        if (icon) {
 	          icon.style.backgroundColor = this.sectionMenu.menuItems[i].color;
 	        }
 	      }
 	    }
-
 	    BX.addClass(this.DOM.select, 'active');
-
 	    if (main_core.Type.isFunction(this.openPopupCallback)) {
 	      this.openPopupCallback(this);
 	    }
-
 	    BX.addCustomEvent(this.sectionMenu.popupWindow, 'onPopupClose', BX.delegate(function () {
 	      if (main_core.Type.isFunction(this.openPopupCallback)) {
 	        this.closePopupCallback();
 	      }
-
 	      BX.removeClass(this.DOM.select, 'active');
 	      BX.PopupMenu.destroy(this.id);
 	      this.sectionMenu = null;
 	    }, this));
 	  }
-
 	  getCurrentColor() {
 	    return (this.getCurrentSection() || {}).color || false;
 	  }
-
 	  getCurrentTitle() {
 	    return (this.getCurrentSection() || {}).name || '';
 	  }
-
 	  getSectionList() {
 	    return this.sectionList.filter(section => {
 	      return section.PERM && section.PERM.edit || main_core.Type.isFunction(section.canDo) && section.canDo('edit');
 	    });
 	  }
-
 	  updateSectionImageNode(section) {
 	    if (!main_core.Type.isElementNode(this.DOM.selectImageWrap)) {
 	      return;
 	    }
-
 	    if (section === undefined) {
 	      section = this.sectionList.find(section => {
 	        return parseInt(section.id) === parseInt(this.getCurrentSection().id);
 	      });
 	    }
-
 	    if (section && section.type) {
 	      const imageSrc = SectionSelector.getSectionImage(section);
 	      let imageNode;
-
 	      if (imageSrc) {
 	        imageNode = main_core.Tag.render(_t5$2 || (_t5$2 = _$3`<img class="calendar-field-choice-calendar-img-value" src="${0}">`), encodeURI(imageSrc));
 	      } else if (section.type === 'group') {
@@ -2395,19 +2090,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      } else {
 	        imageNode = main_core.Tag.render(_t8$1 || (_t8$1 = _$3`<div class="ui-icon ui-icon-common-bitrix24"><i></i></div>`));
 	      }
-
 	      main_core.Dom.clean(this.DOM.selectImageWrap);
 	      this.DOM.selectImageWrap.appendChild(imageNode);
 	    }
 	  }
-
 	  getPopup() {
 	    return this.sectionMenu;
 	  }
-
 	  getMenuItem(sectionItem) {
 	    let _this = this;
-
 	    return {
 	      html: BX.util.htmlspecialchars(sectionItem.name || sectionItem.NAME),
 	      color: sectionItem.color || sectionItem.COLOR,
@@ -2417,46 +2108,35 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          if (main_core.Type.isDomNode(_this.DOM.innerValue)) {
 	            _this.DOM.innerValue.style.backgroundColor = section.color || sectionItem.COLOR;
 	          }
-
 	          _this.updateSectionImageNode(section);
-
 	          if (main_core.Type.isFunction(_this.selectCallback)) {
 	            if (!section.color && sectionItem.COLOR) {
 	              section.color = sectionItem.COLOR;
 	            }
-
 	            if (!section.id && sectionItem.ID) {
 	              section.id = sectionItem.ID;
 	            }
-
 	            _this.selectCallback(section);
 	          }
-
 	          _this.sectionMenu.close();
-
 	          _this.updateValue();
 	        };
 	      }(sectionItem)
 	    };
 	  }
-
 	  static getSectionType(section) {
 	    return section.type || section.CAL_TYPE;
 	  }
-
 	  static getSectionImage(section = {}) {
 	    return section.data ? section.data.IMAGE : section.IMAGE || '';
 	  }
-
 	  static getSectionOwner(section) {
 	    return parseInt(section.OWNER_ID || section.data.OWNER_ID);
 	  }
-
 	  updateValue() {
 	    if (main_core.Type.isDomNode(this.DOM.innerValue)) {
 	      this.DOM.innerValue.style.backgroundColor = this.getCurrentColor();
 	    }
-
 	    if (this.mode === 'full') {
 	      this.DOM.select.appendChild(main_core.Dom.adjust(this.DOM.selectInnerText, {
 	        text: this.getCurrentTitle(),
@@ -2482,13 +2162,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }));
 	    }
 	  }
-
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
-
 	    if (this.viewMode) {
 	      main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-section-selector-readonly');
-
 	      if (this.DOM.outerWrap !== this.DOM.select) {
 	        main_core.Dom.removeClass(this.DOM.select, 'calendar-field-select');
 	        main_core.Dom.addClass(this.DOM.select, 'calendar-section-selector-readonly');
@@ -2497,7 +2174,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.removeClass(this.DOM.outerWrap, 'calendar-section-selector-readonly');
 	    }
 	  }
-
 	}
 
 	class RepeatSelector {
@@ -2520,7 +2196,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    };
 	    this.create();
 	  }
-
 	  create() {
 	    BX.bind(this.DOM.rruleType, 'change', () => {
 	      this.changeType(this.DOM.rruleType.value);
@@ -2533,15 +2208,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.DOM.rruleEndsOn.count.checked = true;
 	    });
 	  }
-
 	  changeType(type) {
 	    this.DOM.rruleType.value = type ? type.toUpperCase() : 'NONE';
 	    let rruleType = this.DOM.rruleType.value.toLowerCase();
 	    this.DOM.wrap.className = 'calendar-rrule-type-' + rruleType;
-
 	    if (rruleType === 'weekly' && BX.type.isFunction(this.getDate)) {
 	      let fromDate = this.getDate();
-
 	      if (BX.type.isDate(fromDate)) {
 	        let day = calendar_util.Util.getWeekDayByInd(fromDate.getDay());
 	        this.DOM.formElements['EVENT_RRULE[BYDAY][]'].forEach(function (input) {
@@ -2555,11 +2227,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  setValue(rrule = {}) {
 	    this.changeType(rrule.FREQ);
 	    this.DOM.interval.value = rrule.INTERVAL || 1;
-
 	    if (rrule.COUNT) {
 	      this.DOM.rruleEndsOn.count.checked = 'checked';
 	      this.DOM.count.value = rrule.COUNT;
@@ -2569,18 +2239,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else {
 	      this.DOM.rruleEndsOn.never.checked = 'checked';
 	    }
-
 	    if (BX.type.isPlainObject(rrule.BYDAY)) {
 	      this.DOM.formElements['EVENT_RRULE[BYDAY][]'].forEach(function (input) {
 	        input.checked = rrule.BYDAY.hasOwnProperty(input.value);
 	      }, this);
 	    }
 	  }
-
 	  getType() {
 	    return this.DOM.rruleType.value.toLowerCase();
 	  }
-
 	}
 
 	class SelectInput {
@@ -2601,10 +2268,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.curInd = false;
 	    this.bindEventHandlers();
 	  }
-
 	  bindEventHandlers() {
 	    if (this.onChangeCallback) {
-	      BX.bind(this.input, 'change', this.onChangeCallback); // BX.bind(this.input, 'keyup', this.onChangeCallback);
+	      BX.bind(this.input, 'change', this.onChangeCallback);
+	      // BX.bind(this.input, 'keyup', this.onChangeCallback);
 	    }
 
 	    if (this.values) {
@@ -2614,35 +2281,28 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      BX.bind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
 	    }
 	  }
-
 	  setValue(params) {
 	    this.currentValue = {
 	      value: params.value
 	    };
 	    this.currentValueIndex = params.valueIndex;
-
 	    if (this.currentValueIndex !== undefined && this.values[this.currentValueIndex]) {
 	      this.input.value = this.values[this.currentValueIndex].label;
 	    }
 	  }
-
 	  setValueList(valueList) {
 	    this.values = valueList;
 	  }
-
 	  getInputValue() {
 	    return this.input.value;
 	  }
-
 	  showPopup() {
 	    if (this.shown || this.disabled) return;
-
 	    let ind = 0,
-	        j = 0,
-	        menuItems = [],
-	        i,
-	        _this = this;
-
+	      j = 0,
+	      menuItems = [],
+	      i,
+	      _this = this;
 	    for (i = 0; i < this.values.length; i++) {
 	      if (this.values[i].delimiter) {
 	        menuItems.push(this.values[i]);
@@ -2650,9 +2310,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        if (this.currentValue && this.values[i] && i > 0 && this.currentValue.value >= this.values[i - 1].value && this.currentValue.value <= this.values[i].value) {
 	          ind = j;
 	        }
-
 	        let htmlTemp;
-
 	        if (this.values[i].reserved) {
 	          htmlTemp = `
 						<span class="calendar-menu-item-title-with-status">
@@ -2675,7 +2333,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 							${BX.util.htmlspecialchars(this.values[i].label)}
 						</span>`;
 	        }
-
 	        if (this.values[i].color) {
 	          menuItems.push({
 	            id: this.values[i].value,
@@ -2686,9 +2343,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            onclick: this.values[i].callback || function (value, label) {
 	              return function () {
 	                _this.input.value = label;
-
 	                _this.popupMenu.close();
-
 	                _this.onChange();
 	              };
 	            }(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
@@ -2703,19 +2358,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            onclick: this.values[i].callback || function (value, label) {
 	              return function () {
 	                _this.input.value = label;
-
 	                _this.popupMenu.close();
-
 	                _this.onChange(value);
 	              };
 	            }(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 	          });
 	        }
-
 	        j++;
 	      }
 	    }
-
 	    this.popupMenu = BX.PopupMenu.create(this.id, this.input, menuItems, {
 	      closeByEsc: true,
 	      autoHide: true,
@@ -2723,33 +2374,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      offsetTop: 0,
 	      offsetLeft: -1
 	    });
-
 	    if (!BX.browser.IsFirefox()) {
 	      this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
 	    }
-
 	    this.popupMenu.popupWindow.setMaxWidth(300);
 	    let menuContainer = this.popupMenu.layout.menuContainer;
 	    BX.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
 	    this.popupMenu.show();
 	    let menuItem = this.popupMenu.menuItems[ind];
-
 	    if (menuItem && menuItem.layout) {
 	      menuContainer.scrollTop = menuItem.layout.item.offsetTop - menuItem.layout.item.offsetHeight - 36 * 3;
 	    }
-
 	    let popupMenuItems = this.popupMenu.menuItems;
-
 	    for (i = 0; i < popupMenuItems.length; i++) {
 	      if (popupMenuItems[i].layout.item) {
 	        let icon = popupMenuItems[i].layout.item.querySelector('.menu-popup-item-icon');
-
 	        if (icon) {
 	          icon.style.backgroundColor = popupMenuItems[i].color;
 	        }
 	      }
 	    }
-
 	    BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', function () {
 	      BX.PopupMenu.destroy(this.id);
 	      this.shown = false;
@@ -2758,13 +2402,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.input.select();
 	    this.shown = true;
 	  }
-
 	  closePopup() {
 	    BX.PopupMenu.destroy(this.id);
 	    this.popupMenu = null;
 	    this.shown = false;
 	  }
-
 	  onFocus() {
 	    setTimeout(function () {
 	      if (!this.shown) {
@@ -2772,7 +2414,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }.bind(this), 200);
 	  }
-
 	  onClick() {
 	    if (this.shown) {
 	      this.closePopup();
@@ -2780,19 +2421,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.showPopup();
 	    }
 	  }
-
 	  onBlur() {
 	    setTimeout(BX.delegate(this.closePopup, this), 200);
 	  }
-
 	  onKeyup() {
 	    setTimeout(BX.delegate(this.closePopup, this), 50);
 	  }
-
 	  onChange(value) {
 	    var inputValue = this.input.value;
 	    BX.onCustomEvent(this, 'onSelectInputChanged', [this, inputValue]);
-
 	    if (BX.type.isFunction(this.onChangeCallback)) {
 	      this.onChangeCallback({
 	        value: inputValue,
@@ -2800,27 +2437,22 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	  destroy() {
 	    if (this.onChangeCallback) {
 	      BX.unbind(this.input, 'change', this.onChangeCallback);
 	      BX.unbind(this.input, 'keyup', this.onChangeCallback);
 	    }
-
 	    BX.unbind(this.input, 'click', BX.proxy(this.onClick, this));
 	    BX.unbind(this.input, 'focus', BX.proxy(this.onFocus, this));
 	    BX.unbind(this.input, 'blur', BX.proxy(this.onBlur, this));
 	    BX.unbind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
-
 	    if (this.popupMenu) {
 	      this.popupMenu.close();
 	    }
-
 	    BX.PopupMenu.destroy(this.id);
 	    this.popupMenu = null;
 	    this.shown = false;
 	  }
-
 	}
 
 	class PopupDialog {
@@ -2830,7 +2462,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.DOM = {};
 	    this.title = '';
 	  }
-
 	  create() {
 	    this.dialog = new BX.PopupWindow(this.id, null, {
 	      overlay: {
@@ -2854,43 +2485,36 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      events: {}
 	    });
 	  }
-
 	  getTitle() {
 	    return this.title;
 	  }
-
 	  getContent() {
 	    this.DOM.content = BX.create('DIV');
 	    return this.DOM.content;
 	  }
-
 	  getButtons() {
 	    this.buttons = [];
 	    return this.buttons;
 	  }
-
 	  show(params) {
 	    if (!this.dialog) {
 	      this.create();
 	    }
-
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	}
 
 	let _$4 = t => t,
-	    _t$4,
-	    _t2$4,
-	    _t3$3,
-	    _t4$3,
-	    _t5$3;
+	  _t$4,
+	  _t2$4,
+	  _t3$3,
+	  _t4$3,
+	  _t5$3;
 	class ViewSelector extends main_core_events.EventEmitter {
 	  constructor(params = {}) {
 	    super();
@@ -2900,24 +2524,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.currentViewMode = null;
 	    this.DOM = {};
 	    this.setEventNamespace('BX.Calendar.Controls.ViewSelector');
-
 	    if (main_core.Type.isArray(params.views)) {
 	      this.views = params.views;
 	    }
-
 	    this.zIndex = params.zIndex || 3200;
 	    this.popupId = params.id || 'view-selector-' + Math.round(Math.random() * 10000);
 	    this.create();
-
 	    if (params.currentView) {
 	      this.setValue(params.currentView);
 	    }
-
 	    if (params.currentViewMode) {
 	      this.setViewMode(params.currentViewMode);
 	    }
 	  }
-
 	  create() {
 	    this.DOM.wrap = main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class="calendar-view-switcher-selector"></div>`));
 	    this.DOM.selectorText = main_core.Tag.render(_t2$4 || (_t2$4 = _$4`<div class="calendar-view-switcher-text"></div>`));
@@ -2928,43 +2547,35 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.DOM.viewModeTextInner = this.DOM.selectorText.appendChild(main_core.Tag.render(_t5$3 || (_t5$3 = _$4`<div class="calendar-view-switcher-text-mode-inner" style="display: none;"></div>`)));
 	    this.created = true;
 	  }
-
 	  getOuterWrap() {
 	    if (!this.created) {
 	      this.create();
 	    }
-
 	    return this.DOM.wrap;
 	  }
-
 	  setValue(value) {
 	    this.currentValue = this.views.find(function (view) {
 	      return value.name === view.name;
 	    }, this);
-
 	    if (this.currentValue) {
 	      main_core.Dom.adjust(this.DOM.selectorTextInner, {
 	        text: this.currentValue.text
 	      });
 	    }
 	  }
-
 	  setViewMode(value) {
 	    if (value) {
 	      this.currentViewMode = this.views.find(function (view) {
 	        return value === view.name && view.type === 'additional';
 	      }, this);
-
 	      if (this.currentViewMode) {
 	        main_core.Dom.adjust(this.DOM.viewModeTextInner, {
 	          text: '(' + this.currentViewMode.text + ')'
 	        });
 	      }
-
 	      this.DOM.viewModeTextInner.style.display = this.currentViewMode ? '' : 'block';
 	    }
 	  }
-
 	  getMenuItems() {
 	    let menuItems = [];
 	    this.views.forEach(function (view) {
@@ -2984,7 +2595,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        });
 	      }
 	    }, this);
-
 	    if (menuItems.length < this.views.length) {
 	      menuItems.push({
 	        html: '<span>' + main_core.Loc.getMessage('EC_VIEW_MODE_SHOW_BY') + '</span>',
@@ -3007,15 +2617,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }, this);
 	    }
-
 	    return menuItems;
 	  }
-
 	  showPopup() {
 	    if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown()) {
 	      return this.menuPopup.close();
 	    }
-
 	    this.menuPopup = main_popup.MenuManager.create(this.popupId, this.DOM.selectorText, this.getMenuItems(), {
 	      className: "calendar-view-switcher-popup",
 	      closeByEsc: true,
@@ -3028,18 +2635,22 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.menuPopup.show();
 	  }
-
 	  closePopup() {
 	    if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown()) {
 	      this.menuPopup.close();
 	    }
 	  }
-
+	  show() {
+	    this.DOM.wrap.style.display = '';
+	  }
+	  hide() {
+	    this.DOM.wrap.style.display = 'none';
+	  }
 	}
 
 	let _$5 = t => t,
-	    _t$5,
-	    _t2$5;
+	  _t$5,
+	  _t2$5;
 	class LineViewSelector extends main_core_events.EventEmitter {
 	  constructor(params = {}) {
 	    super();
@@ -3049,21 +2660,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.currentViewMode = null;
 	    this.DOM = {};
 	    this.setEventNamespace('BX.Calendar.Controls.LineViewSelector');
-
 	    if (main_core.Type.isArray(params.views)) {
 	      this.views = params.views;
 	    }
-
 	    this.viewsMap = new WeakMap();
 	    this.zIndex = params.zIndex || 3200;
 	    this.popupId = params.id || 'view-selector-' + Math.round(Math.random() * 10000);
 	    this.create();
-
 	    if (params.currentView) {
 	      this.setValue(params.currentView);
 	    }
 	  }
-
 	  create() {
 	    this.DOM.wrap = main_core.Tag.render(_t$5 || (_t$5 = _$5`<div class="calendar-view-switcher-list"></div>`));
 	    this.views.forEach(view => {
@@ -3084,39 +2691,34 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.created = true;
 	  }
-
 	  getOuterWrap() {
 	    if (!this.created) {
 	      this.create();
 	    }
-
 	    return this.DOM.wrap;
 	  }
-
 	  setValue(value) {
 	    this.currentValue = this.views.find(function (view) {
 	      return value.name === view.name;
 	    }, this);
-
 	    if (this.currentValue) {
 	      let viewData = this.viewsMap.get(this.currentValue);
 	      let currentActiveWrap = this.DOM.wrap.querySelector('.calendar-view-switcher-list-item-active');
-
 	      if (main_core.Type.isDomNode(currentActiveWrap)) {
 	        main_core.Dom.removeClass(currentActiveWrap, 'calendar-view-switcher-list-item-active');
 	      }
-
 	      if (main_core.Type.isDomNode(viewData.wrap)) {
 	        main_core.Dom.addClass(viewData.wrap, 'calendar-view-switcher-list-item-active');
 	      }
 	    }
 	  }
-
 	  setViewMode(value) {
 	    if (value) {
 	      this.currentViewMode = this.views.find(function (view) {
 	        return value === view.name && view.type === 'additional';
-	      }, this); // if (this.currentViewMode)
+	      }, this);
+
+	      // if (this.currentViewMode)
 	      // {
 	      // 	Dom.adjust(this.DOM.viewModeTextInner, {text: '(' + this.currentViewMode.text + ')'});
 	      // }
@@ -3142,7 +2744,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        });
 	      }
 	    });
-
 	    if (menuItems.length < this.views.length) {
 	      menuItems.push({
 	        html: '<span>' + main_core.Loc.getMessage('EC_VIEW_MODE_SHOW_BY') + '</span>',
@@ -3165,9 +2766,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }, this);
 	    }
-
 	    return menuItems;
-	  } // showPopup()
+	  }
+
+	  // showPopup()
 	  // {
 	  // 	this.closePopup();
 	  //
@@ -3197,8 +2799,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  // 		return this.menuPopup.close();
 	  // 	}
 	  // }
-
-
 	}
 
 	class AddButton extends main_core_events.EventEmitter {
@@ -3214,20 +2814,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.addTaskHandler = main_core.Type.isFunction(params.addTask) ? params.addTask : null;
 	    this.create();
 	  }
-
 	  create() {
 	    this.menuItems = [{
 	      text: main_core.Loc.getMessage('EC_EVENT_BUTTON'),
 	      onclick: this.addEntry.bind(this)
 	    }];
-
 	    if (this.addTaskHandler) {
 	      this.menuItems.push({
 	        text: main_core.Loc.getMessage('EC_TASK_BUTTON'),
 	        onclick: this.addTask.bind(this)
 	      });
 	    }
-
 	    if (this.menuItems.length > 1) {
 	      this.DOM.wrap = main_core.Dom.create("span", {
 	        props: {
@@ -3265,19 +2862,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      });
 	    }
-
 	    this.DOM.wrap.setAttribute('data-role', 'addButton');
 	  }
-
 	  getWrap() {
 	    return this.DOM.wrap;
 	  }
-
 	  showPopup() {
 	    if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown()) {
 	      return this.menuPopup.close();
 	    }
-
 	    this.menuPopup = BX.PopupMenu.create(this.popupId, this.DOM.addButtonExtra, this.menuItems, {
 	      closeByEsc: true,
 	      autoHide: true,
@@ -3293,27 +2886,22 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.addBtnMenu = null;
 	    }.bind(this));
 	  }
-
 	  addEntry() {
 	    if (this.addEntryHandler) {
 	      this.addEntryHandler();
 	    }
-
 	    if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown()) {
 	      this.menuPopup.close();
 	    }
 	  }
-
 	  addTask() {
 	    if (this.addTaskHandler) {
 	      this.addTaskHandler();
 	    }
-
 	    if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown()) {
 	      this.menuPopup.close();
 	    }
 	  }
-
 	}
 
 	class MeetingStatusControl extends main_core.Event.EventEmitter {
@@ -3323,23 +2911,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.DOM = {};
 	    this.setEventNamespace('BX.Calendar.Controls.MeetingStatusControl');
 	    this.BX = calendar_util.Util.getBX();
-
 	    if (params.wrap && main_core.Type.isDomNode(params.wrap)) {
 	      this.DOM.wrap = params.wrap;
 	    } else {
 	      throw new Error("The argument \"params.wrap\" must be a DOM node.");
 	    }
-
 	    this.id = params.id || 'meeting-status-control-' + Math.round(Math.random() * 10000);
 	    this.zIndex = 3100;
 	    this.create();
 	    this.status = params.currentStatus || null;
-
 	    if (this.status) {
 	      this.updateStatus();
 	    }
 	  }
-
 	  create() {
 	    this.acceptBtn = new BX.UI.Button({
 	      text: main_core.Loc.getMessage('EC_VIEW_DESIDE_BUT_Y'),
@@ -3358,7 +2942,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.declineBtn.renderTo(this.DOM.wrap);
 	  }
-
 	  updateStatus() {
 	    if (this.status === 'H') {
 	      this.acceptBtn.getContainer().style.display = 'none';
@@ -3377,22 +2960,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  accept() {
 	    this.setStatus('Y');
 	  }
-
 	  decline() {
 	    this.setStatus('N');
 	  }
-
 	  setStatus(value, emitEvent = true) {
 	    this.status = value;
-
 	    if (this.menuPopup) {
 	      this.menuPopup.close();
 	    }
-
 	    if (emitEvent) {
 	      this.emit('onSetStatus', new main_core.Event.BaseEvent({
 	        data: {
@@ -3401,7 +2979,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }));
 	    }
 	  }
-
 	}
 
 	class ConfirmStatusDialog extends main_core_events.EventEmitter {
@@ -3412,7 +2989,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.zIndex = 3200;
 	    this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show() {
 	    let content = main_core.Dom.create('DIV');
 	    this.dialog = new BX.PopupWindow(this.id, null, {
@@ -3483,22 +3059,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }).buttonNode);
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	  onDeclineHandler() {
 	    this.close();
 	    const compactForm = calendar_entry.EntryManager.getCompactViewForm();
-
 	    if (compactForm && compactForm.isShown()) {
 	      compactForm.close();
 	    }
 	  }
-
 	}
 
 	class ConfirmEditDialog extends main_core_events.EventEmitter {
@@ -3509,7 +3081,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.zIndex = 3200;
 	    this.id = 'confirm-edit-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show() {
 	    let content = main_core.Dom.create('DIV');
 	    this.dialog = new BX.PopupWindow(this.id, null, {
@@ -3581,13 +3152,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }).buttonNode);
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	}
 
 	class ConfirmDeleteDialog extends PopupDialog {
@@ -3596,7 +3165,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.title = BX.message('EC_DEL_REC_EVENT');
 	    this.entry = params.entry;
 	  }
-
 	  getContent() {
 	    this.DOM.content = BX.create('DIV');
 	    this.DOM.content.appendChild(new BX.PopupWindowButton({
@@ -3628,7 +3196,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }).buttonNode);
 	    return this.DOM.content;
 	  }
-
 	  getButtons() {
 	    return [new BX.PopupWindowButtonLink({
 	      text: BX.message('EC_SEC_SLIDER_CANCEL'),
@@ -3638,24 +3205,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    })];
 	  }
-
 	}
 
 	let _$6 = t => t,
-	    _t$6,
-	    _t2$6,
-	    _t3$4,
-	    _t4$4,
-	    _t5$4,
-	    _t6$3,
-	    _t7$3,
-	    _t8$2,
-	    _t9,
-	    _t10,
-	    _t11,
-	    _t12,
-	    _t13,
-	    _t14;
+	  _t$6,
+	  _t2$6,
+	  _t3$4,
+	  _t4$4,
+	  _t5$4,
+	  _t6$3,
+	  _t7$3,
+	  _t8$2,
+	  _t9,
+	  _t10,
+	  _t11,
+	  _t12,
+	  _t13,
+	  _t14;
 	class DateTimeControl extends main_core_events.EventEmitter {
 	  constructor(uid, options = {
 	    showTimezone: true
@@ -3677,47 +3243,37 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    };
 	    this.create();
 	  }
-
 	  create() {
 	    if (main_core.Type.isDomNode(this.DOM.outerWrap)) {
 	      if (this.inlineEditMode) {
 	        main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
 	      }
-
 	      this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$6 || (_t$6 = _$6`<div class="calendar-field-block calendar-field-block-left"></div>`)));
 	      this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t2$6 || (_t2$6 = _$6`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>
 			`), this.DATE_INPUT_WIDTH));
-
 	      if (this.inlineEditMode) {
 	        this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t3$4 || (_t3$4 = _$6`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
-
 	      this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t4$4 || (_t4$4 = _$6`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
-
 	      if (this.inlineEditMode) {
 	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$4 || (_t5$4 = _$6`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-
 	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$6`<div class="calendar-field-block calendar-field-block-between" />`)));
 	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$6`<div class="calendar-field-block calendar-field-block-right"></div>`)));
 	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$6`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
-
 	      if (this.inlineEditMode) {
 	        this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t9 || (_t9 = _$6`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-
 	      this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t10 || (_t10 = _$6`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>`), this.DATE_INPUT_WIDTH));
-
 	      if (this.inlineEditMode) {
 	        this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t11 || (_t11 = _$6`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
-
 	      this.fromTimeControl = new TimeSelector({
 	        input: this.DOM.fromTime,
 	        onChangeCallback: this.handleTimeFromChange.bind(this)
@@ -3733,15 +3289,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 				<input value="Y" type="checkbox" id="{this.UID}"/>
 			`)));
 	      fullDayWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$6`<label for="{this.UID}">${0}</label>`), main_core.Loc.getMessage('EC_ALL_DAY')));
-	    } //this.DOM.defTimezoneWrap = BX(this.UID + '_timezone_default_wrap');
+	    }
+
+	    //this.DOM.defTimezoneWrap = BX(this.UID + '_timezone_default_wrap');
 	    //this.DOM.defTimezone = BX(this.UID + '_timezone_default');
 
-
 	    if (this.showTimezone) ;
-
 	    this.bindEventHandlers();
 	  }
-
 	  setValue(value = {}) {
 	    this.DOM.fromDate.value = calendar_util.Util.formatDate(value.from);
 	    this.DOM.toDate.value = calendar_util.Util.formatDate(value.to);
@@ -3752,13 +3307,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.fromMinutes = parsedFromTime.h * 60 + parsedFromTime.m;
 	    this.toMinutes = parsedToTime.h * 60 + parsedToTime.m;
 	    this.updateTimePeriod();
-
 	    if (this.inlineEditMode) {
 	      this.DOM.fromDateText.innerHTML = calendar_util.Util.formatDateUsable(value.from, true, true);
-	      this.DOM.toDateText.innerHTML = calendar_util.Util.formatDateUsable(value.to, true, true); // Hide right part if it's the same date
+	      this.DOM.toDateText.innerHTML = calendar_util.Util.formatDateUsable(value.to, true, true);
 
+	      // Hide right part if it's the same date
 	      this.DOM.toDateText.style.display = this.DOM.fromDate.value === this.DOM.toDate.value ? 'none' : '';
-
 	      if (value.fullDay) {
 	        if (this.DOM.fromDate.value === this.DOM.toDate.value) {
 	          this.DOM.toTimeText.innerHTML = main_core.Loc.getMessage('EC_ALL_DAY');
@@ -3778,32 +3332,25 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.DOM.toTimeText.style.display = '';
 	      }
 	    }
-
 	    if (value.fullDay !== undefined) {
 	      this.DOM.fullDay.checked = value.fullDay;
 	    }
-
 	    if (this.showTimezone) {
 	      value.timezoneFrom = value.timezoneFrom || value.timezoneName;
 	      value.timezoneTo = value.timezoneTo || value.timezoneName;
-
 	      if (value.timezoneFrom !== undefined && main_core.Type.isDomNode(this.DOM.fromTz)) {
 	        this.DOM.fromTz.value = value.timezoneFrom;
 	      }
-
 	      if (value.timezoneTo !== undefined && main_core.Type.isDomNode(this.DOM.toTz)) {
 	        this.DOM.toTz.value = value.timezoneTo;
 	      }
-
 	      if (value.timezoneName !== undefined && (value.timezoneName !== value.timezoneFrom || value.timezoneName !== value.timezoneTo)) {
 	        this.switchTimezone(true);
 	      }
 	    }
-
 	    this.value = value;
 	    this.handleFullDayChange();
 	  }
-
 	  updateTimePeriod() {
 	    this.from = this.getFrom();
 	    this.to = this.getTo();
@@ -3811,25 +3358,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.toTimeControl.highlightValue(this.to);
 	    this.updateToTimeDurationHints();
 	  }
-
 	  getFrom() {
 	    return this.getDateWithTime(this.DOM.fromDate.value, this.fromMinutes);
 	  }
-
 	  getTo() {
 	    return this.getDateWithTime(this.DOM.toDate.value, this.toMinutes);
 	  }
-
 	  getDateWithTime(date, minutes) {
 	    const parsedDate = calendar_util.Util.parseDate(date);
-
 	    if (!parsedDate) {
 	      return null;
 	    }
-
 	    return new Date(parsedDate.getTime() + minutes * 60 * 1000);
 	  }
-
 	  getValue() {
 	    let value = {
 	      fullDay: this.DOM.fullDay.checked,
@@ -3841,31 +3382,25 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      timezoneTo: this.DOM.toTz ? this.DOM.toTz.value : this.value.timezoneTo || this.value.timezoneName || null
 	    };
 	    value.from = calendar_util.Util.parseDate(value.fromDate);
-
 	    if (main_core.Type.isDate(value.from)) {
 	      value.to = calendar_util.Util.parseDate(value.toDate);
-
 	      if (!main_core.Type.isDate(value.to)) {
 	        value.to = value.from;
 	      }
-
 	      if (value.fullDay) {
 	        value.from.setHours(0, 0, 0);
 	        value.to.setHours(0, 0, 0);
 	      } else {
 	        let fromTime = calendar_util.Util.parseTime(value.fromTime),
-	            toTime = calendar_util.Util.parseTime(value.toTime) || fromTime;
-
+	          toTime = calendar_util.Util.parseTime(value.toTime) || fromTime;
 	        if (fromTime && toTime) {
 	          value.from.setHours(fromTime.h, fromTime.m, 0);
 	          value.to.setHours(toTime.h, toTime.m, 0);
 	        }
 	      }
 	    }
-
 	    return value;
 	  }
-
 	  bindEventHandlers() {
 	    main_core.Event.bind(this.DOM.fromDate, 'click', DateTimeControl.showInputCalendar);
 	    main_core.Event.bind(this.DOM.fromDate, 'change', this.handleDateFromChange.bind(this));
@@ -3877,11 +3412,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.handleFullDayChange();
 	      this.handleValueChange();
 	    });
-
 	    if (this.inlineEditMode) {
 	      main_core.Event.bind(this.DOM.outerWrap, 'click', this.changeInlineEditMode.bind(this));
 	    }
-
 	    if (main_core.Type.isDomNode(this.DOM.defTimezone)) {
 	      main_core.Event.bind(this.DOM.defTimezone, 'change', BX.delegate(function () {
 	        //this.calendar.util.setUserOption('timezoneName', this.DOM.defTimezone.value);
@@ -3890,17 +3423,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }, this));
 	    }
-
 	    if (this.showTimezone) {
 	      if (main_core.Type.isDomNode(this.DOM.tzButton)) {
 	        main_core.Event.bind(this.DOM.tzButton, 'click', this.switchTimezone.bind(this));
 	      }
-
 	      main_core.Event.bind(this.DOM.fromTz, 'change', function () {
 	        if (this.bindTimezones) {
 	          this.DOM.toTz.value = this.DOM.fromTz.value;
 	        }
-
 	        this.bindFromToDefaultTimezones = false;
 	      }.bind(this));
 	      main_core.Event.bind(this.DOM.toTz, 'change', function () {
@@ -3911,13 +3441,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.bindFromToDefaultTimezones = this.bindTimezones && this.DOM.fromTz.value === this.DOM.toTz.value && this.DOM.fromTz.value === this.DOM.defTimezone.value;
 	    }
 	  }
-
 	  static showInputCalendar(e) {
 	    let target = e.target || e.srcElement;
-
 	    if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input') {
 	      const calendarControl = BX.calendar.get();
-
 	      if (calendarControl.popup) {
 	        // Workaround hack for BX.calendar - it works as singleton and we trying to reinit it
 	        calendarControl.popup.destroy();
@@ -3925,17 +3452,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        calendarControl._current_layer = null;
 	        calendarControl._layers = {};
 	      }
-
 	      if (calendarControl.popup_month) {
 	        calendarControl.popup_month.destroy();
 	        calendarControl.popup_month = null;
 	      }
-
 	      if (calendarControl.popup_year) {
 	        calendarControl.popup_year.destroy();
 	        calendarControl.popup_year = null;
 	      }
-
 	      calendarControl.Show({
 	        node: target.parentNode,
 	        field: target,
@@ -3943,40 +3467,33 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	      BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
 	      const calendarPopup = calendarControl.popup;
-
 	      if (calendarPopup) {
 	        BX.removeCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
 	        BX.addCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
 	      }
 	    }
 	  }
-
 	  static inputCalendarClosePopupHandler() {
 	    BX.onCustomEvent(window, 'onCalendarControlChildPopupClosed');
 	  }
-
 	  handleDateFromChange() {
 	    if (!this.getFrom()) {
 	      this.DOM.fromDate.value = calendar_util.Util.formatDate(this.from.getTime());
 	      return;
 	    }
-
 	    this.DOM.fromDate.value = calendar_util.Util.formatDate(this.getFrom());
 	    const difference = this.getFrom().getTime() - this.from.getTime();
 	    this.DOM.toDate.value = calendar_util.Util.formatDate(this.to.getTime() + difference);
 	    this.handleValueChange();
 	  }
-
 	  handleDateToChange() {
 	    if (!this.getTo()) {
 	      this.DOM.toDate.value = calendar_util.Util.formatDate(this.to.getTime());
 	      return;
 	    }
-
 	    this.DOM.toDate.value = calendar_util.Util.formatDate(this.getTo());
 	    const difference = Math.abs(this.to.getTime() - this.getTo().getTime());
 	    const yearDuration = 1000 * 60 * 60 * 24 * 300;
-
 	    if (difference > yearDuration) {
 	      const duration = this.to.getTime() - this.from.getTime();
 	      const toDate = calendar_util.Util.parseDate(this.DOM.toDate.value);
@@ -3984,44 +3501,35 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      const fromDate = new Date(toDate.getTime() - duration);
 	      this.DOM.fromDate.value = calendar_util.Util.formatDate(fromDate);
 	    }
-
 	    if (this.getTo() < this.getFrom()) {
 	      this.DOM.toDate.value = this.DOM.fromDate.value;
 	      this.DOM.toTime.value = this.DOM.fromTime.value;
 	      this.toMinutes = this.getMinutesFromFormattedTime(this.DOM.toTime.value);
 	    }
-
 	    this.handleValueChange();
 	  }
-
 	  handleTimeFromChange(inputValue, dataValue) {
 	    this.handleTimeChange(this.DOM.fromTime);
-
 	    if (this.isIncorrectTimeValue(this.DOM.fromTime.value)) {
 	      this.DOM.fromTime.value = calendar_util.Util.formatTime(this.from);
 	    } else {
 	      this.fromMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(this.DOM.fromTime.value);
 	      this.DOM.fromTime.value = calendar_util.Util.formatTime(this.getFrom());
 	    }
-
 	    if (this.getTo()) {
 	      const difference = this.getFrom().getTime() - this.from.getTime();
 	      this.toMinutes = this.toMinutes + difference / (60 * 1000);
 	    }
-
 	    this.handleValueChange();
 	  }
-
 	  handleTimeToChange(inputValue, dataValue) {
 	    this.handleTimeChange(this.DOM.toTime);
-
 	    if (this.isIncorrectTimeValue(this.DOM.toTime.value)) {
 	      this.DOM.toTime.value = calendar_util.Util.formatTime(this.to);
 	    } else {
 	      this.toMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(this.DOM.toTime.value);
 	      this.DOM.toTime.value = calendar_util.Util.formatTime(this.getTo());
 	    }
-
 	    if (this.getTo() < this.getFrom()) {
 	      const difference = this.getTo().getTime() - this.to.getTime();
 	      this.fromMinutes = this.fromMinutes + difference / (60 * 1000);
@@ -4029,126 +3537,95 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.DOM.fromTime.value = calendar_util.Util.formatTime(newFromDate);
 	      this.DOM.fromDate.value = calendar_util.Util.formatDate(newFromDate);
 	    }
-
 	    this.handleValueChange();
 	  }
-
 	  isIncorrectTimeValue(timeValue) {
 	    if (BX.isAmPmMode()) {
 	      return timeValue === '';
 	    }
-
 	    return timeValue === '' || timeValue[0] !== '0' && calendar_util.Util.parseTime(timeValue).h === 0;
 	  }
-
 	  handleTimeChange(timeSelector) {
 	    if (timeSelector.value === '') {
 	      return;
 	    }
-
 	    let time = this.getMaskedTime(timeSelector.value);
 	    time = this.beautifyTime(time);
-
 	    if (BX.isAmPmMode()) {
 	      var _timeSelector$value$t;
-
 	      let amPmSymbol = ((_timeSelector$value$t = timeSelector.value.toLowerCase().match(/[ap]/g)) != null ? _timeSelector$value$t : []).pop();
-
 	      if (!amPmSymbol) {
 	        const hour = parseInt(this.getMinutesAndHours(time).hours);
-
 	        if (8 <= hour && hour <= 11) {
 	          amPmSymbol = 'a';
 	        } else {
 	          amPmSymbol = 'p';
 	        }
 	      }
-
 	      if (amPmSymbol === 'a') {
 	        time += ' am';
 	      }
-
 	      if (amPmSymbol === 'p') {
 	        time += ' pm';
 	      }
 	    }
-
 	    timeSelector.value = time;
 	  }
-
 	  handleTimeInput(e) {
 	    e.target.value = this.getMaskedTime(e.target.value, e.data, e.inputType === 'deleteContentBackward');
 	  }
-
 	  getMaskedTime(value, key, backspace = false) {
 	    if (backspace) {
 	      return value;
 	    }
-
 	    let time = '';
 	    const {
 	      hours,
 	      minutes
 	    } = this.getMinutesAndHours(value, key);
-
 	    if (hours && !minutes) {
 	      time = `${hours}`;
-
 	      if (value.length - time.length === 1 || value.indexOf(':') !== -1) {
 	        time += ':';
 	      }
 	    }
-
 	    if (hours && minutes) {
 	      time = `${hours}:${minutes}`;
 	    }
-
 	    if (BX.isAmPmMode() && this.clearTimeString(time) !== '') {
 	      var _value$toLowerCase$ma;
-
 	      const amPmSymbol = ((_value$toLowerCase$ma = value.toLowerCase().match(/[ap]/g)) != null ? _value$toLowerCase$ma : []).pop();
-
 	      if (amPmSymbol === 'a') {
 	        time = this.beautifyTime(time) + ' am';
 	      }
-
 	      if (amPmSymbol === 'p') {
 	        time = this.beautifyTime(time) + ' pm';
 	      }
 	    }
-
 	    return time;
 	  }
-
 	  getMinutesAndHours(value, key) {
 	    let time = this.clearTimeString(value, key);
 	    let hours, minutes;
-
 	    if (time.indexOf(':') !== -1) {
 	      hours = time.match(/[\d]*:/g)[0].slice(0, -1);
 	      minutes = time.match(/:[\d]*/g)[0].slice(1);
 	    } else {
 	      var _time$match;
-
 	      const digits = ((_time$match = time.match(/\d/g)) != null ? _time$match : []).splice(0, 4).map(d => parseInt(d));
-
 	      if (digits.length === 4 && digits[0] > this.getMaxHours() / 10) {
 	        digits.pop();
 	      }
-
 	      if (digits.length === 1) {
 	        hours = `${digits[0]}`;
 	      }
-
 	      if (digits.length === 2) {
 	        hours = `${digits[0]}${digits[1]}`;
-
 	        if (parseInt(hours) > this.getMaxHours()) {
 	          hours = `${digits[0]}`;
 	          minutes = `${digits[1]}`;
 	        }
 	      }
-
 	      if (digits.length === 3) {
 	        if (BX.isAmPmMode()) {
 	          if (digits[0] >= 1) {
@@ -4168,97 +3645,75 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }
 	        }
 	      }
-
 	      if (digits.length === 4) {
 	        hours = `${digits[0]}${digits[1]}`;
 	        minutes = `${digits[2]}${digits[3]}`;
 	      }
 	    }
-
 	    if (hours) {
 	      hours = this.formatHours(hours);
 	    }
-
 	    if (minutes) {
 	      minutes = this.formatMinutes(minutes);
 	    }
-
 	    return {
 	      hours,
 	      minutes
 	    };
 	  }
-
 	  clearTimeString(str, key) {
 	    let validatedTime = str.replace(/[ap]/g, '').replace(/\D/g, ':'); // remove a and p and replace not digits to :
-
 	    validatedTime = validatedTime.replace(/:*/, ''); // remove everything before first digit
+
 	    // leave only first :
-
 	    const firstColonIndex = validatedTime.indexOf(':');
-	    validatedTime = validatedTime.substr(0, firstColonIndex + 1) + validatedTime.slice(firstColonIndex + 1).replaceAll(':', ''); // leave not more than 2 hour digits and 2 minute digits
+	    validatedTime = validatedTime.substr(0, firstColonIndex + 1) + validatedTime.slice(firstColonIndex + 1).replaceAll(':', '');
 
+	    // leave not more than 2 hour digits and 2 minute digits
 	    if (firstColonIndex !== -1) {
 	      const hours = this.formatHours(validatedTime.match(/[\d]*:/g)[0].slice(0, -1));
 	      const minutes = validatedTime.match(/:[\d]*/g)[0].slice(1).slice(0, 3);
-
 	      if (hours.length === 1 && minutes.length === 3 && !isNaN(parseInt(key)) && this.areTimeDigitsCorrect(`${hours}${minutes}`)) {
 	        return `${hours}${minutes}`;
 	      }
-
 	      return `${hours}:${minutes}`;
 	    }
-
 	    return validatedTime.slice(0, 4);
 	  }
-
 	  areTimeDigitsCorrect(time) {
 	    const hh = time.slice(0, 2);
 	    const mm = time.slice(2);
 	    return this.formatHours(hh) === hh && this.formatMinutes(mm) === mm;
 	  }
-
 	  formatHours(str) {
 	    const firstDigit = str[0];
-
 	    if (parseInt(firstDigit) > this.getMaxHours() / 10) {
 	      return `0${firstDigit}`;
 	    }
-
 	    if (parseInt(str) <= this.getMaxHours()) {
 	      var _str$;
-
 	      return `${firstDigit}${(_str$ = str[1]) != null ? _str$ : ''}`;
 	    }
-
 	    return `${firstDigit}`;
 	  }
-
 	  formatMinutes(str) {
 	    var _str$2;
-
 	    const firstDigit = str[0];
-
 	    if (firstDigit >= 6) {
 	      return `0${firstDigit}`;
 	    }
-
 	    return `${firstDigit}${(_str$2 = str[1]) != null ? _str$2 : ''}`;
 	  }
-
 	  beautifyTime(time) {
 	    if (this.clearTimeString(time) === '') {
 	      return '';
 	    }
-
 	    if (time.indexOf(':') === -1) {
 	      time += ':00';
 	    }
-
 	    if (time.indexOf(':') === time.length - 1) {
 	      time += '00';
 	    }
-
 	    let {
 	      hours,
 	      minutes
@@ -4267,19 +3722,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    minutes = `0${minutes}`.slice(-2);
 	    return `${hours}:${minutes}`;
 	  }
-
 	  getMaxHours() {
 	    return BX.isAmPmMode() ? 12 : 24;
 	  }
-
 	  handleFullDayChange() {
 	    let fullDay = this.getFullDayValue();
-
 	    if (fullDay) {
 	      if (main_core.Type.isDomNode(this.DOM.dateTimeWrap)) {
 	        main_core.Dom.addClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
 	      }
-
 	      if (main_core.Type.isDomNode(this.DOM.outerWrap)) {
 	        main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-options-item-datetime-hide-time');
 	      }
@@ -4287,13 +3738,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (main_core.Type.isDomNode(this.DOM.dateTimeWrap)) {
 	        main_core.Dom.removeClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
 	      }
-
 	      if (main_core.Type.isDomNode(this.DOM.outerWrap)) {
 	        main_core.Dom.removeClass(this.DOM.outerWrap, 'calendar-options-item-datetime-hide-time');
 	      }
 	    }
 	  }
-
 	  handleValueChange() {
 	    this.setValue({
 	      from: this.getFrom(),
@@ -4305,25 +3754,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }));
 	  }
-
 	  updateToTimeDurationHints() {
 	    this.toTimeControl.updateDurationHints(this.DOM.fromTime.value, this.DOM.toTime.value, this.DOM.fromDate.value, this.DOM.toDate.value);
 	  }
-
 	  getFullDayValue() {
 	    return !!this.DOM.fullDay.checked;
 	  }
-
 	  getMinutesFromFormattedTime(time) {
 	    const parsedTime = calendar_util.Util.parseTime(time);
 	    return parsedTime.h * 60 + parsedTime.m;
 	  }
-
 	  switchTimezone(showTimezone) {
 	    if (!main_core.Type.isBoolean(showTimezone)) {
 	      showTimezone = BX.hasClass(this.DOM.tzCont, 'calendar-options-timezone-collapse');
 	    }
-
 	    if (showTimezone) {
 	      main_core.Dom.addClass(this.DOM.tzCont, 'calendar-options-timezone-expand');
 	      main_core.Dom.removeClass(this.DOM.tzCont, 'calendar-options-timezone-collapse');
@@ -4332,25 +3776,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.removeClass(this.DOM.tzCont, 'calendar-options-timezone-expand');
 	    }
 	  }
-
 	  changeInlineEditMode() {
 	    if (!this.viewMode) {
 	      this.setInlineEditMode('edit');
 	    }
 	  }
-
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
-
 	    if (this.viewMode && this.currentInlineEditMode === 'edit') {
 	      this.setInlineEditMode('view');
 	    }
 	  }
-
 	  setInlineEditMode(currentInlineEditMode) {
 	    if (this.inlineEditMode) {
 	      this.currentInlineEditMode = currentInlineEditMode;
-
 	      if (this.currentInlineEditMode === 'edit') {
 	        main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-edit');
 	        main_core.Dom.removeClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
@@ -4360,7 +3799,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	}
 
 	class BusyUsersDialog extends main_core_events.EventEmitter {
@@ -4371,16 +3809,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.zIndex = 3200;
 	    this.id = 'busy-user-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show(params = {}) {
 	    this.plural = params.users.length > 1;
 	    let i,
-	        userNames = [];
-
+	      userNames = [];
 	    for (i = 0; i < params.users.length; i++) {
 	      userNames.push(params.users[i].DISPLAY_NAME);
 	    }
-
 	    userNames = userNames.join(', ');
 	    let content = BX.create('DIV', {
 	      props: {
@@ -4440,19 +3875,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }).buttonNode);
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	}
 
 	let _$7 = t => t,
-	    _t$7,
-	    _t2$7,
-	    _t3$5;
+	  _t$7,
+	  _t2$7,
+	  _t3$5;
 	class UserPlannerSelector extends main_core_events.EventEmitter {
 	  constructor(params = {}) {
 	    super();
@@ -4484,11 +3917,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      hideGuestsIcon: params.hideGuestsWrap.querySelector('.calendar-hide-members-icon-hidden')
 	    };
 	    this.refreshPlannerStateDebounce = main_core.Runtime.debounce(this.refreshPlannerState, this.REFRESH_PLANNER_DELAY, this);
-
 	    if (main_core.Type.isBoolean(params.readOnlyMode)) {
 	      this.readOnlyMode = params.readOnlyMode;
 	    }
-
 	    this.userId = params.userId;
 	    this.type = params.type;
 	    this.ownerId = params.ownerId;
@@ -4497,7 +3928,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 	    this.create();
 	  }
-
 	  create() {
 	    if (this.DOM.changeLink && !this.isReadOnly()) {
 	      main_core.Event.bind(this.DOM.changeLink, 'click', () => {
@@ -4542,15 +3972,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            }
 	          });
 	        }
-
 	        this.userSelectorDialog.show();
 	      });
 	    }
-
 	    if (this.DOM.moreLink) {
 	      main_core.Event.bind(this.DOM.moreLink, 'click', this.showMoreAttendeesPopup.bind(this));
 	    }
-
 	    this.planner = new calendar_planner.Planner({
 	      wrap: this.DOM.plannerOuterWrap,
 	      minWidth: UserPlannerSelector.PLANNER_WIDTH,
@@ -4568,14 +3995,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.emit('onDateChange', event);
 	    });
 	    this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));
-
 	    if (this.DOM.hideGuestsWrap && !this.isReadOnly()) {
 	      main_core.Event.bind(this.DOM.hideGuestsWrap, 'click', () => {
 	        this.setHideGuestsValue(!this.hideGuests);
 	      });
 	    }
 	  }
-
 	  setValue({
 	    attendeesEntityList,
 	    attendees,
@@ -4586,7 +4011,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    entry
 	  }) {
 	    var _BX, _BX$Intranet;
-
 	    this.attendeesEntityList = main_core.Type.isArray(attendeesEntityList) ? attendeesEntityList : [];
 	    this.attendeesPreselectedItems = this.attendeesEntityList.map(item => {
 	      return [item.entityId, item.id];
@@ -4596,19 +4020,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setEntityList(this.attendeesEntityList);
 	    this.setInformValue(notify);
 	    this.setLocationValue(location);
-
 	    if (main_core.Type.isArray(attendees)) {
 	      this.displayAttendees(attendees);
 	    }
-
 	    this.refreshPlannerStateDebounce();
 	    let dateTime = this.getDateTime();
-
 	    if (dateTime) {
 	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
 	    }
-
-	    if (this.entryId && this.entry && this.entry.data['PARENT_ID'] && this.entry.data['EVENT_TYPE'] === '#shared#' && this.entry.getCurrentStatus() !== false) {
+	    if (this.entryId && this.entry && this.entry.data['PARENT_ID'] && (this.entry.data['EVENT_TYPE'] === '#shared#' || this.entry.data['EVENT_TYPE'] === '#shared_crm#') && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
 	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 	      this.conferenceButton = main_core.Tag.render(_t$7 || (_t$7 = _$7`
@@ -4631,18 +4051,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        analyticsLabel: {
 	          formType: 'compact'
 	        }
-	      }); // For testing purposes
+	      });
 
+	      // For testing purposes
 	      if (main_core.Type.isElementNode(this.intranetControllButton.button)) {
 	        this.intranetControllButton.button.setAttribute('data-role', 'videocallButton');
 	      }
 	    } else if (this.DOM.videocallWrap) {
 	      main_core.Dom.addClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 	    }
-
 	    this.setHideGuestsValue(hideGuests);
 	  }
-
 	  handleUserSelectorChanges() {
 	    this.showPlanner();
 	    const dateTime = this.getDateTime();
@@ -4657,11 +4076,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.refreshPlannerStateDebounce();
 	    this.emit('onUserCodesChange');
 	  }
-
 	  getEntityList() {
 	    return this.selectorEntityList;
 	  }
-
 	  setEntityList(selectorEntityList) {
 	    if (this.type === 'user' && this.userId !== this.ownerId) {
 	      selectorEntityList.push({
@@ -4669,18 +4086,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        id: this.ownerId
 	      });
 	    }
-
 	    this.selectorEntityList = selectorEntityList;
 	  }
-
 	  isReadOnly() {
 	    return this.readOnlyMode;
 	  }
-
 	  getUserSelector() {
 	    return BX.UI.SelectorManager.instances[this.selectorId];
 	  }
-
 	  showPlanner() {
 	    if (!this.isPlannerDisplayed()) {
 	      main_core.Dom.addClass(this.DOM.outerWrap, 'user-selector-edit-mode');
@@ -4688,7 +4101,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.planner.showLoader();
 	    }
 	  }
-
 	  checkBusyTime() {
 	    const dateTime = this.getDateTime();
 	    const entityList = this.getEntityList();
@@ -4704,7 +4116,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.loadedAccessibilityData[id] = response.data.accessibility[id];
 	        }
 	      }
-
 	      if (main_core.Type.isArray(response.data.entries)) {
 	        response.data.entries.forEach(entry => {
 	          if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id))) {
@@ -4712,22 +4123,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }
 	        });
 	      }
-
 	      if (main_core.Type.isArray(response.data.accessibility[this.ownerId])) {
 	        const from = this.getDateTime().from;
 	        const to = this.getDateTime().to;
 	        const preparedData = this.preparedDataAccessibility(response.data.accessibility[this.ownerId]);
-
 	        if (!this.planner.currentFromDate) {
 	          this.planner.currentFromDate = from;
 	        }
-
 	        if (!this.planner.currentToDate) {
 	          this.planner.currentToDate = to;
 	        }
-
 	        const item = this.planner.checkTimePeriod(from, to, preparedData);
-
 	        if (main_core.Type.isObject(item) && main_core.Type.isArray(response.data.entries)) {
 	          this.showPlanner();
 	          this.planner.update(response.data.entries, response.data.accessibility);
@@ -4738,7 +4144,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    });
 	  }
-
 	  prepareAttendeesForDisplay(attendees) {
 	    return attendees.filter(item => {
 	      return item.type === 'user';
@@ -4754,7 +4159,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      };
 	    });
 	  }
-
 	  refreshPlannerState() {
 	    if (this.planner && this.planner.isShown()) {
 	      let dateTime = this.getDateTime();
@@ -4767,7 +4171,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	  loadPlannerData(params = {}) {
 	    this.planner.showLoader();
 	    return new Promise(resolve => {
@@ -4777,7 +4180,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            this.loadedAccessibilityData[id] = response.data.accessibility[id];
 	          }
 	        }
-
 	        if (main_core.Type.isArray(response.data.entries)) {
 	          response.data.entries.forEach(entry => {
 	            if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id))) {
@@ -4785,7 +4187,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            }
 	          });
 	        }
-
 	        this.planner.hideLoader();
 	        this.planner.update(response.data.entries, this.loadedAccessibilityData);
 	        resolve(response);
@@ -4794,7 +4195,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	  runPlannerDataRequest(params) {
 	    return this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 	      data: {
@@ -4812,36 +4212,29 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    });
 	  }
-
 	  setDateTime(dateTime, updatePlaner = false) {
 	    this.dateTime = dateTime;
 	    this.planner.currentFromDate = dateTime.from;
 	    this.planner.currentToDate = dateTime.to;
-
 	    if (this.planner && updatePlaner) {
 	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
 	    } else if (this.planner) {
 	      let fromHours = parseInt(dateTime.from.getHours()) + Math.floor(dateTime.from.getMinutes() / 60);
 	      let toHours = parseInt(dateTime.to.getHours()) + Math.floor(dateTime.to.getMinutes() / 60);
-
 	      if (fromHours !== 0 && fromHours <= this.planner.shownScaleTimeFrom || toHours !== 0 && toHours !== 23 && toHours + 1 >= this.planner.shownScaleTimeTo) {
 	        this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
 	      }
 	    }
 	  }
-
 	  getDateTime() {
 	    return this.dateTime;
 	  }
-
 	  setLocationValue(location) {
 	    this.location = location;
 	  }
-
 	  getLocationValue() {
 	    return this.location;
 	  }
-
 	  displayAttendees(attendees = []) {
 	    main_core.Dom.clean(this.DOM.attendeesList);
 	    this.attendeeList = calendar_controls.AttendeesList.sortAttendees(attendees);
@@ -4852,49 +4245,40 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }));
 	    const userLength = Math.min(this.attendeeList.accepted.length, UserPlannerSelector.MAX_USER_COUNT_DISPLAY);
-
 	    if (userLength > 0) {
 	      for (let i = 0; i < userLength; i++) {
 	        this.attendeeList.accepted[i].shown = true;
 	        this.DOM.attendeesList.appendChild(UserPlannerSelector.getUserAvatarNode(this.attendeeList.accepted[i]));
 	      }
 	    }
-
 	    if (userLength > 1) {
 	      this.DOM.attendeesLabel.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_LABEL_NUM')).replace('#COUNT#', `<span>(</span>${this.attendeeList.accepted.length}<span>)</span>`);
 	    } else {
 	      this.DOM.attendeesLabel.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_LABEL_ONE'));
 	    }
-
 	    if (attendees.length > 1) {
 	      this.DOM.moreLink.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 	      main_core.Dom.show(this.DOM.moreLink);
 	    } else {
 	      main_core.Dom.hide(this.DOM.moreLink);
 	    }
-
 	    if (this.hasExternalEmailUsers(attendees) && this.isPlannerDisplayed() && !this.isReadOnly()) {
 	      this.showHideGuestsOption();
 	    } else {
 	      this.hideHideGuestsOption();
 	    }
 	  }
-
 	  static getUserAvatarNode(user) {
 	    let imageNode,
-	        img = user.AVATAR || user.SMALL_AVATAR;
-
+	      img = user.AVATAR || user.SMALL_AVATAR;
 	    if (!img || img === "/bitrix/images/1.gif") {
 	      let defaultAvatarClass = 'ui-icon-common-user';
-
 	      if (user.EMAIL_USER) {
 	        defaultAvatarClass = 'ui-icon-common-user-mail';
 	      }
-
 	      if (user.SHARING_USER) {
 	        defaultAvatarClass += ' ui-icon-common-user-sharing';
 	      }
-
 	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$7`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
 	    } else {
 	      imageNode = main_core.Tag.render(_t3$5 || (_t3$5 = _$7`
@@ -4905,19 +4289,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 				src="${0}"
 			>`), main_core.Text.encode(user.DISPLAY_NAME), parseInt(user.ID), encodeURI(img));
 	    }
-
 	    return imageNode;
 	  }
-
 	  showMoreAttendeesPopup() {
 	    new calendar_controls.AttendeesList(this.DOM.moreLink, this.attendeeList).showPopup();
 	  }
-
 	  setInformValue(value) {
 	    if (main_core.Type.isBoolean(value)) {
 	      const DISABLED_CLASS = 'calendar-field-container-inform-off';
 	      this.meetingNotifyValue = value;
-
 	      if (this.meetingNotifyValue) {
 	        main_core.Dom.removeClass(this.DOM.informWrap, DISABLED_CLASS);
 	        this.DOM.informWrap.title = main_core.Loc.getMessage('EC_NOTIFY_OPTION_ON_TITLE');
@@ -4929,25 +4309,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  getInformValue(value) {
 	    return this.meetingNotifyValue;
 	  }
-
 	  setViewMode(readOnlyMode) {
 	    this.readOnlyMode = readOnlyMode;
-
 	    if (this.readOnlyMode) {
 	      main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-userselector-readonly');
 	    } else {
 	      main_core.Dom.removeClass(this.DOM.outerWrap, 'calendar-userselector-readonly');
 	    }
 	  }
-
 	  isPlannerDisplayed() {
 	    return this.planner.isShown();
 	  }
-
 	  hasExternalEmailUsers(attendees = []) {
 	    return !!attendees.find(item => {
 	      return item.EMAIL_USER;
@@ -4955,48 +4330,38 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return item.entityType === 'email';
 	    });
 	  }
-
 	  destroy() {
 	    if (this.userSelectorDialog && this.userSelectorDialog.destroy) {
 	      this.userSelectorDialog.destroy();
 	      this.userSelectorDialog = null;
 	    }
-
 	    if (this.intranetControllButton && this.intranetControllButton.destroy) {
 	      this.intranetControllButton.destroy();
 	      this.intranetControllButton = null;
 	    }
 	  }
-
 	  showHideGuestsOption() {
 	    this.DOM.hideGuestsWrap.style.display = '';
 	    calendar_util.Util.initHintNode(this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper'));
 	  }
-
 	  hideHideGuestsOption() {
 	    this.DOM.hideGuestsWrap.style.display = 'none';
 	  }
-
 	  setHideGuestsValue(hideGuests = true) {
 	    this.hideGuests = hideGuests;
-
 	    if (main_core.Type.isElementNode(this.DOM.hideGuestsIcon)) {
 	      this.DOM.hideGuestsIcon.className = this.hideGuests ? 'calendar-hide-members-icon-hidden' : 'calendar-hide-members-icon-visible';
 	    }
-
 	    const hideGuestsText = this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-text');
-
 	    if (main_core.Type.isElementNode(hideGuestsText)) {
 	      hideGuestsText.innerHTML = this.hideGuests ? main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES') : main_core.Loc.getMessage('EC_SHOW_GUEST_NAMES');
 	    }
 	  }
-
 	  preparedDataAccessibility(calendarEventsAccessibility) {
 	    return calendarEventsAccessibility.map(item => {
 	      return calendar_planner.Planner.prepareAccessibilityItem(item);
 	    });
 	  }
-
 	  clearAccessibilityData(userIdList) {
 	    if (main_core.Type.isArray(userIdList) && userIdList.length && this.prevUserList.length) {
 	      this.prevUserList = this.prevUserList.filter(userId => {
@@ -5004,11 +4369,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	  handleExpandPlannerTimeline(event) {
 	    if (event && event.getData) {
 	      let data = event.getData();
-
 	      if (data.reload) {
 	        const dateTime = this.getDateTime();
 	        this.loadPlannerData({
@@ -5021,11 +4384,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }
-
 	  handleVideoconferenceButtonClick() {
 	    this.getConferenceChatId();
 	  }
-
 	  getConferenceChatId() {
 	    return this.BX.ajax.runAction('calendar.api.calendarajax.getConferenceChatId', {
 	      data: {
@@ -5036,7 +4397,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        top.BXIM.openMessenger('chat' + parseInt(response.data.chatId));
 	        return null;
 	      }
-
 	      alert(main_core.Loc.getMessage('EC_CONFERENCE_ERROR'));
 	      return null;
 	    }, response => {
@@ -5044,7 +4404,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return null;
 	    });
 	  }
-
 	}
 	UserPlannerSelector.VIEW_MODE = 'view';
 	UserPlannerSelector.EDIT_MODE = 'edit';
@@ -5059,7 +4418,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.zIndex = 3200;
 	    this.id = 'reinvite-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show() {
 	    const content = main_core.Dom.create('DIV');
 	    this.close();
@@ -5114,17 +4472,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }).renderTo(content);
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	}
 
 	let _$8 = t => t,
-	    _t$8;
+	  _t$8;
 	class EmailSelectorControl extends main_core_events.EventEmitter {
 	  constructor(params) {
 	    super();
@@ -5138,24 +4494,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.checkValueDebounce = main_core.Runtime.debounce(this.checkValue, 50, this);
 	    this.create();
 	  }
-
 	  create() {
 	    this.setSelectValues();
 	    main_core.Event.bind(this.DOM.select, 'change', this.checkValueDebounce);
 	    main_core.Event.bind(this.DOM.select, 'click', this.checkValueDebounce);
 	  }
-
 	  checkValue() {
 	    if (this.DOM.select.value === 'add') {
 	      this.showAdd();
 	      this.setValue('');
 	    }
 	  }
-
 	  getValue() {
 	    return this.DOM.select.value;
 	  }
-
 	  setValue(value) {
 	    if (this.mailboxList.length && this.mailboxList.find(mailbox => {
 	      return mailbox.email === value;
@@ -5164,46 +4516,37 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else {
 	      this.DOM.select.value = '';
 	    }
-
 	    this.emit('onSetValue', {
 	      value: this.DOM.select.value
 	    });
 	  }
-
 	  setSelectValues() {
 	    main_core.Dom.clean(this.DOM.select);
 	    this.DOM.select.options.add(new Option(main_core.Loc.getMessage('EC_NO_VALUE'), ''));
-
 	    if (this.mailboxList.length) {
 	      this.mailboxList.forEach(value => {
 	        this.DOM.select.options.add(new Option(value.formatted, value.email));
 	      }, this);
 	    }
-
 	    if (this.allowAddNewEmail) {
 	      this.DOM.select.options.add(new Option(main_core.Loc.getMessage('EC_ADD_NEW'), 'add'));
 	    }
 	  }
-
 	  onClick(item) {
 	    this.input.value = item.sender;
 	    this.mailbox.textContent = item.sender;
 	  }
-
 	  showAdd() {
 	    if (window.BXMainMailConfirm) {
 	      window.BXMainMailConfirm.showForm(this.onAdd.bind(this));
 	    }
-
 	    const mainMailConfirmPopup = main_popup.PopupManager.getPopupById(this.CONFIRM_POPUP_ID);
-
 	    if (mainMailConfirmPopup) {
 	      mainMailConfirmPopup.subscribe('onClose', () => {
 	        this.reloadMailboxList();
 	      });
 	    }
 	  }
-
 	  onAdd(data) {
 	    this.reloadMailboxList().then(() => {
 	      setTimeout(() => {
@@ -5211,7 +4554,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }, 0);
 	    });
 	  }
-
 	  getMenuItem(item) {
 	    return {
 	      'id': item.id,
@@ -5219,7 +4561,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      'onclick': this.onClick.bind(this, item)
 	    };
 	  }
-
 	  loadMailboxData() {
 	    return new Promise(resolve => {
 	      BX.ajax.runAction('calendar.api.calendarajax.getAllowedMailboxData').then(response => {
@@ -5229,7 +4570,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	  checkBXMainMailConfirmLoaded(resolve) {
 	    if (window.BXMainMailConfirm) {
 	      this.setSelectValues();
@@ -5240,7 +4580,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }, 200);
 	    }
 	  }
-
 	  reloadMailboxList() {
 	    return new Promise(resolve => {
 	      BX.ajax.runAction('calendar.api.calendarajax.getAllowedMailboxList').then(response => {
@@ -5250,11 +4589,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    });
 	  }
-
 	}
 
 	let _$9 = t => t,
-	    _t$9;
+	  _t$9;
 	class ConfirmedEmailDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -5265,7 +4603,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setEventNamespace('BX.Calendar.Controls.ConfirmedEmailDialog');
 	    this.id = 'confirm-email-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show() {
 	    this.DOM.content = main_core.Tag.render(_t$9 || (_t$9 = _$9`<div>
 			<div class="calendar-confirm-email-text">${0}</div>
@@ -5341,13 +4678,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    main_core.Event.bind(this.DOM.helpLinlk, 'click', this.openHelpSlider.bind(this));
 	    this.dialog.show();
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	  handleSelectChanges() {
 	    if (this.DOM.select.value && this.DOM.select.value !== 'add') {
 	      main_core.Dom.removeClass(this.DOM.processButton, BX.UI.Button.State.DISABLED);
@@ -5355,7 +4690,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.addClass(this.DOM.processButton, BX.UI.Button.State.DISABLED);
 	    }
 	  }
-
 	  openHelpSlider() {
 	    if (BX.Helper) {
 	      BX.Helper.show("redirect=detail&code=12070142", {
@@ -5363,11 +4697,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }
-
 	}
 
 	let _$a = t => t,
-	    _t$a;
+	  _t$a;
 	class EmailLimitationDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -5378,11 +4711,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setEventNamespace('BX.Calendar.Controls.EmailLimitationDialog');
 	    this.id = 'email-limitation-dialog-' + Math.round(Math.random() * 10000);
 	  }
-
 	  show() {
 	    const eventsAmount = calendar_util.Util.getEventWithEmailGuestAmount();
 	    const limit = calendar_util.Util.isEventWithEmailGuestAllowed();
-
 	    if (eventsAmount === 4) {
 	      this.text = main_core.Loc.getMessage('EC_EMAIL_LIMIT_5');
 	    } else if (eventsAmount === 8) {
@@ -5390,7 +4721,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else {
 	      this.text = main_core.Loc.getMessage('EC_EMAIL_LIMIT_DENY');
 	    }
-
 	    this.subText = main_core.Loc.getMessage('EC_EMAIL_LIMIT_SUBTEXT');
 	    this.DOM.content = main_core.Tag.render(_t$a || (_t$a = _$a`<div>
 			<div class="calendar-email-limit-text">${0}</div>
@@ -5399,7 +4729,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.dialog = this.getDialogPopup();
 	    this.dialog.subscribe('onClose', () => {
 	      this.emit('onClose');
-	    }); // this.DOM.processButton = this.dialog.buttons[0].button;
+	    });
+
+	    // this.DOM.processButton = this.dialog.buttons[0].button;
 	    //
 	    // this.DOM.select = this.DOM.content.querySelector('select.calendar-field-select');
 	    // Dom.addClass(this.DOM.select, BX.UI.Button.State.CLOCKING);
@@ -5424,7 +4756,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	    this.dialog.show();
 	  }
-
 	  getDialogPopup() {
 	    return new main_popup.Popup(this.id, null, {
 	      overlay: {
@@ -5464,13 +4795,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      })]
 	    });
 	  }
-
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
-
 	}
 
 	class AttendeesList {
@@ -5478,33 +4807,27 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.attendeesList = attendeesList;
 	    this.node = node;
 	  }
-
 	  setAttendeesList(attendeesList) {
 	    this.attendeesList = attendeesList;
 	    return this;
 	  }
-
 	  showPopup() {
 	    if (this.popup) {
 	      this.popup.destroy();
 	    }
-
 	    const menuItems = this.getMenuItems();
 	    this.popup = this.getPopup(menuItems);
 	    this.popup.show();
 	    this.addAvatarToMenuItems();
 	  }
-
 	  addAvatarToMenuItems() {
 	    this.popup.menuItems.forEach(item => {
 	      const icon = item.layout.item.querySelector('.menu-popup-item-icon');
-
 	      if (main_core.Type.isPlainObject(item.dataset)) {
 	        icon.appendChild(calendar_controls.UserPlannerSelector.getUserAvatarNode(item.dataset.user));
 	      }
 	    });
 	  }
-
 	  getPopup(menuItems) {
 	    return main_popup.MenuManager.create('compact-event-form-attendees' + Math.round(Math.random() * 100000), this.node, menuItems, {
 	      closeByEsc: true,
@@ -5517,7 +4840,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      className: 'calendar-popup-user-menu'
 	    });
 	  }
-
 	  getMenuItems() {
 	    const menuItems = [];
 	    [{
@@ -5534,7 +4856,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      title: main_core.Loc.getMessage('EC_ATTENDEES_N_NUM')
 	    }].forEach(group => {
 	      let groupUsers = this.attendeesList[group.code];
-
 	      if (groupUsers.length > 0) {
 	        menuItems.push(new main_popup.MenuItem({
 	          text: group.title.replace('#COUNT#', groupUsers.length),
@@ -5544,7 +4865,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          user.toString = () => {
 	            return user.ID;
 	          };
-
 	          menuItems.push({
 	            text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
 	            dataset: {
@@ -5566,7 +4886,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    return menuItems;
 	  }
-
 	  static sortAttendees(attendees) {
 	    return {
 	      accepted: attendees.filter(user => {
@@ -5580,7 +4899,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      })
 	    };
 	  }
-
 	}
 
 	exports.Reminder = Reminder;

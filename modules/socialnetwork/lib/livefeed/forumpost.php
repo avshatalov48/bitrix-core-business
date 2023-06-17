@@ -137,7 +137,7 @@ final class ForumPost extends Provider
 			\CTextParser::clearAllTags($title)
 		);
 		$this->setSourceTitle(truncateText($title, 100));
-		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($messageId));
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 		$this->setSourceDiskObjects($this->getDiskObjects($messageId, $this->cloneDiskObjects));
 		$this->setSourceDateTime($message['POST_DATE']);
 		$this->setSourceAuthorId((int)$message['AUTHOR_ID']);

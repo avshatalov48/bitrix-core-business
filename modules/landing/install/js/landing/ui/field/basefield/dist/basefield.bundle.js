@@ -98,7 +98,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.init();
 
 	    if (_this.data.help) {
-	      BX.Dom.append(top.BX.UI.Hint.createNode(_this.data.help), _this.header);
+	      var hintNode = document.createElement('span');
+	      hintNode.setAttribute('data-hint', _this.data.help);
+	      hintNode.setAttribute('data-hint-html', 'y');
+	      top.BX.UI.Hint.initNode(hintNode);
+	      BX.Dom.append(hintNode, _this.header);
 	      top.BX.UI.Hint.init(BX.Landing.UI.Panel.StylePanel.getInstance().layout);
 	    }
 

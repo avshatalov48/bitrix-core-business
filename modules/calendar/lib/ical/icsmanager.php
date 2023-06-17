@@ -128,7 +128,7 @@ class IcsManager
 
 		if ($description = $event->getDescription())
 		{
-			$eventDescription .= $description;
+			$eventDescription .= Loc::getMessage('EC_CALENDAR_ICS_COMMENT') . ': '. $description;
 		}
 
 		return $eventDescription;

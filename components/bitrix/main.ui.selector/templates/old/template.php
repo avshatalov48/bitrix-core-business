@@ -43,9 +43,9 @@ $frame = $this->createFrame()->begin(false);
 				inputId: inputId,
 				bindId: bindId,
 				containerId: containerId,
-				tagId: BX('<?=$arParams['TAG_ID']?>'),
+				tagId: BX('<?=($arParams['TAG_ID'] ?? '')?>'),
 				openDialogWhenInit: openDialogWhenInit,
-				bindNode: BX('<?=$arParams['BIND_ID']?>'),
+				bindNode: BX('<?=($arParams['BIND_ID'] ?? '')?>'),
 				options: <?=\CUtil::phpToJSObject($arParams["OPTIONS"])?>,
 				callback : {
 					select: <?=(!empty($arParams["CALLBACK"]["select"]) ? $arParams["CALLBACK"]["select"] : 'null')?>,

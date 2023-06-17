@@ -159,6 +159,52 @@ class UrlPreview
 		return false;
 	}
 
+	public static function getImRich(array $params)
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return false;
+		}
+
+		if (!class_exists('\Bitrix\Im\V2\Entity\Url\RichData'))
+		{
+			return false;
+		}
+
+		if (isset($params['scope']))
+		{
+			\Bitrix\Landing\Site\Type::setScope(
+				$params['scope']
+			);
+		}
+
+		if (!isset($params['URL']))
+		{
+			$params['URL'] = Manager::getPublicationPath() . ($params['knowledgeCode'] ?? '');
+		}
+
+		$landingId = self::resolveLandingId($params['URL']);
+
+		if ($landingId)
+		{
+			$preview = self::getPreview($landingId);
+			if ($preview)
+			{
+				$rich = new \Bitrix\Im\V2\Entity\Url\RichData();
+				$rich
+					->setName($preview['TITLE'])
+					->setDescription($preview['DESCRIPTION'])
+					->setLink($preview['URL'])
+					->setPreviewUrl($preview['PICTURE'])
+					->setType(\Bitrix\Im\V2\Entity\Url\RichData::LANDING_TYPE)
+				;
+				return $rich;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Returns true if current user has read access to the page.
 	 * @param array $params Expected keys: siteCode[, folderCode, pageCode].

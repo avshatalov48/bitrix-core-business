@@ -30,22 +30,25 @@ class GlobalFieldEditComponent
 
 	constructor(options)
 	{
-		if (Type.isPlainObject(options))
+		if (!Type.isPlainObject(options))
 		{
-			this.oldProperty = options.property;
-			this.documentType = options.documentType;
-			this.signedDocumentType = options.signedDocumentType;
-			this.mode = options.mode;
-			this.availableTypes = options.types;
-
-			this.inputValueId = options.inputValueId;
-
-			this.multipleNode = options.multipleNode;
-			this.saveButtonNode = options.saveButtonNode;
-			this.form = options.form;
-
-			this.slider = options.slider;
+			return;
 		}
+
+		this.oldProperty = options.property;
+		this.documentType = options.documentType;
+		this.signedDocumentType = options.signedDocumentType;
+		this.mode = options.mode;
+		this.availableTypes = options.types;
+		this.visibilityNames = options.visibilityNames;
+
+		this.inputValueId = options.inputValueId;
+
+		this.multipleNode = options.multipleNode;
+		this.saveButtonNode = options.saveButtonNode;
+		this.form = options.form;
+
+		this.slider = options.slider;
 	}
 
 	init()
@@ -211,7 +214,7 @@ class GlobalFieldEditComponent
 			}
 			else
 			{
-				me.sliderDict.set(id, property);
+				me.sliderDict.set(id, {...property, VisibilityName: this.visibilityNames[property.Visibility]});
 				me.slider.close();
 			}
 		});

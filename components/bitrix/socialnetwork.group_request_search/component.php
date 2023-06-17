@@ -152,10 +152,10 @@ else
 					{
 						if ($arResult["bExtranet"])
 						{
-							if ($_POST["EMAILS"] <> '')
+							if (!empty($_POST["EMAILS"]))
 								$bAnyUser = true;
 						}
-						elseif ($_POST["users_list"] <> '')
+						elseif (!empty($_POST["users_list"]))
 							$bAnyUser = true;
 					}
 

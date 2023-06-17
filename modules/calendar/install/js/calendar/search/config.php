@@ -8,9 +8,10 @@ return [
 	'css' => 'dist/search.bundle.css',
 	'js' => 'dist/search.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
 		'calendar.util',
 		'main.core.events',
+		'main.core',
+		'main.popup',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

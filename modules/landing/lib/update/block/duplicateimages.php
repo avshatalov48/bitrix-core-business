@@ -57,67 +57,70 @@ class DuplicateImages
 	public function update(bool $needSave = false): string
 	{
 		$srcForReplace = [];
-		foreach ($this->manifest['nodes'] as $selector => $node)
+		if (isset($this->manifest['nodes']) && is_array($this->manifest['nodes']))
 		{
-			if (in_array($node['type'], self::IMG_TYPES, true))
+			foreach ($this->manifest['nodes'] as $selector => $node)
 			{
-				$nodeClass = Node\Type::getClassName($node['type']);
-				$previousValues = call_user_func([$nodeClass, 'getNode'], $this->block, $selector);
-
-				foreach ($previousValues as $previousValue)
+				if (in_array($node['type'], self::IMG_TYPES, true))
 				{
-					if (!$previousValue['id'] && !$previousValue['id2x'])
+					$nodeClass = Node\Type::getClassName($node['type']);
+					$previousValues = call_user_func([$nodeClass, 'getNode'], $this->block, $selector);
+
+					foreach ($previousValues as $previousValue)
 					{
-						continue;
-					}
-
-					if (
-						!File::getFilePath($previousValue['id'])
-						|| !File::getFilePath($previousValue['id2x'])
-					)
-					{
-						continue;
-					}
-
-					$hostUrl = '//' . Manager::getHttpHost();
-
-					$newSrc = File::getFilePath($previousValue['id']);
-					$newSrc = Manager::getUrlFromFile($newSrc);
-					$previousSrc =
-						$previousValue['isLazy'] === 'Y'
-							? $previousValue['lazyOrigSrc']
-							: $previousValue['src']
-					;
-					if ($previousSrc !== $newSrc)
-					{
-						$srcForReplace[$previousSrc] = $newSrc;
-
-						// add urls w/o host url too
-						if (strpos($newSrc, $hostUrl) === 0)
+						if (!($previousValue['id'] ?? null) && !($previousValue['id2x'] ?? null))
 						{
-							$srcForReplace[str_replace($hostUrl, '', $previousSrc)] =
-								str_replace($hostUrl, '', $newSrc);
+							continue;
 						}
-					}
 
-					if ($previousValue['id2x'])
-					{
-						$newSrc2x = File::getFilePath($previousValue['id2x']);
-						$newSrc2x = Manager::getUrlFromFile($newSrc2x);
-						$previousSrc2x =
-							$previousValue['isLazy'] === 'Y'
-								? $previousValue['lazyOrigSrc2x']
-								: $previousValue['src2x']
-						;
-						if ($previousSrc2x !== $newSrc2x)
+						if (
+							($previousValue['id'] && !File::getFilePath($previousValue['id']))
+							|| ($previousValue['id2x'] && !File::getFilePath($previousValue['id2x']))
+						)
 						{
-							$srcForReplace[$previousSrc2x] = $newSrc2x;
+							continue;
+						}
+
+						$hostUrl = '//' . Manager::getHttpHost();
+
+						$newSrc = File::getFilePath($previousValue['id']);
+						$newSrc = Manager::getUrlFromFile($newSrc);
+						$previousSrc =
+							$previousValue['isLazy'] === 'Y'
+								? $previousValue['lazyOrigSrc']
+								: $previousValue['src']
+						;
+						if ($previousSrc !== $newSrc)
+						{
+							$srcForReplace[$previousSrc] = $newSrc;
 
 							// add urls w/o host url too
-							if (strpos($newSrc2x, $hostUrl) === 0)
+							if (strpos($newSrc, $hostUrl) === 0)
 							{
-								$srcForReplace[str_replace($hostUrl, '', $previousSrc2x)] =
-									str_replace($hostUrl, '', $newSrc2x);
+								$srcForReplace[str_replace($hostUrl, '', $previousSrc)] =
+									str_replace($hostUrl, '', $newSrc);
+							}
+						}
+
+						if ($previousValue['id2x'])
+						{
+							$newSrc2x = File::getFilePath($previousValue['id2x']);
+							$newSrc2x = Manager::getUrlFromFile($newSrc2x);
+							$previousSrc2x =
+								$previousValue['isLazy'] === 'Y'
+									? $previousValue['lazyOrigSrc2x']
+									: $previousValue['src2x']
+							;
+							if ($previousSrc2x !== $newSrc2x)
+							{
+								$srcForReplace[$previousSrc2x] = $newSrc2x;
+
+								// add urls w/o host url too
+								if (strpos($newSrc2x, $hostUrl) === 0)
+								{
+									$srcForReplace[str_replace($hostUrl, '', $previousSrc2x)] =
+										str_replace($hostUrl, '', $newSrc2x);
+								}
 							}
 						}
 					}

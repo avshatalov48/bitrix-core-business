@@ -1,31 +1,31 @@
-<?
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class CIBlockPropertyHTML
 {
-	const USER_TYPE = 'HTML';
+	public const USER_TYPE = 'HTML';
 
-	public static function GetUserTypeDescription()
+	public static function GetUserTypeDescription(): array
 	{
-		return array(
+		return [
 			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_STRING,
 			"USER_TYPE" => self::USER_TYPE,
 			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_HTML_DESC"),
-			"GetPublicViewHTML" => array(__CLASS__, "GetPublicViewHTML"),
-			"GetPublicEditHTML" => array(__CLASS__, "GetPublicEditHTML"),
-			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"ConvertToDB" => array(__CLASS__, "ConvertToDB"),
-			"ConvertFromDB" => array(__CLASS__, "ConvertFromDB"),
-			"GetLength" =>array(__CLASS__, "GetLength"),
-			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
-			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
-		);
+			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
+			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
+			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
+			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
+			"ConvertToDB" => [__CLASS__, "ConvertToDB"],
+			"ConvertFromDB" => [__CLASS__, "ConvertFromDB"],
+			"GetLength" => [__CLASS__, "GetLength"],
+			"PrepareSettings" => [__CLASS__, "PrepareSettings"],
+			"GetSettingsHTML" => [__CLASS__, "GetSettingsHTML"],
+			"GetUIFilterProperty" => [__CLASS__, "GetUIFilterProperty"],
+		];
 	}
 
 	public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName)
@@ -141,14 +141,29 @@ class CIBlockPropertyHTML
 
 		ob_start();
 		?><table width="100%"><?
-		if($strHTMLControlName["MODE"]=="FORM_FILL" && COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && Loader::includeModule("fileman")):
+		if (
+			isset($strHTMLControlName['MODE'])
+			&& $strHTMLControlName['MODE'] === 'FORM_FILL'
+			&& Main\Config\Option::get('iblock', 'use_htmledit') === "Y"
+			&& Loader::includeModule('fileman')
+		):
 		?><tr>
 			<td colspan="2" align="center">
 			<input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value="">
 				<?
 				$text_name = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TEXT]");
 				$text_type = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TYPE]");
-				CFileMan::AddHTMLEditorFrame($text_name, htmlspecialcharsBx($ar["TEXT"]), $text_type, mb_strtolower($ar["TYPE"]), $settings['height'], "N", 0, "", "");
+				CFileMan::AddHTMLEditorFrame(
+					$text_name,
+					htmlspecialcharsBx($ar["TEXT"]),
+					$text_type,
+					mb_strtolower($ar["TYPE"]),
+					$settings['height'],
+					"N",
+					0,
+					"",
+					""
+				);
 				?>
 			</td>
 		</tr>
@@ -177,6 +192,7 @@ class CIBlockPropertyHTML
 		<?
 		$return = ob_get_contents();
 		ob_end_clean();
+
 		return  $return;
 	}
 
@@ -260,16 +276,7 @@ class CIBlockPropertyHTML
 		if (!is_array($value["VALUE"]))
 		{
 			$value['VALUE'] = (string)$value['VALUE'];
-			if ($value['VALUE'] === '')
-			{
-				$return = [
-					"VALUE" => [
-						'TEXT' => $value["VALUE"],
-						'TYPE' => 'TEXT',
-					]
-				];
-			}
-			else
+			if ($value['VALUE'] !== '')
 			{
 				if (CheckSerializedData($value["VALUE"]))
 				{
@@ -301,10 +308,17 @@ class CIBlockPropertyHTML
 				$value['DESCRIPTION'] = (string)$value['DESCRIPTION'];
 				if ($value['DESCRIPTION'] !== '')
 				{
+					if (!is_array($return))
+					{
+						$return = [
+							"VALUE" => null,
+						];
+					}
 					$return["DESCRIPTION"] = trim($value["DESCRIPTION"]);
 				}
 			}
 		}
+
 		return $return;
 	}
 

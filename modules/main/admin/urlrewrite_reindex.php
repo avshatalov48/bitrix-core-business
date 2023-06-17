@@ -9,22 +9,25 @@ if(!$USER->CanDoOperation('edit_php'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $res=false;
-if($Reindex <> '' && check_bitrix_sessid())
+if (!empty($_REQUEST['Reindex']) && check_bitrix_sessid())
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-	if($Next == '' || !CheckSerializedData($_REQUEST['NS']))
+	if (empty($_REQUEST['Next']) || !CheckSerializedData($_REQUEST['NS'] ?? ''))
 	{
 		$NS = array(
-			"max_execution_time" => $max_execution_time,
-			"stepped" => $stepped,
-			"max_file_size" => $max_file_size
+			"max_execution_time" => $_REQUEST['max_execution_time'] ?? '',
+			"stepped" => $_REQUEST['stepped'] ?? '',
+			"max_file_size" => $_REQUEST['max_file_size'] ?? '',
 		);
-		if($site_id!="")
+
+		if (!empty($_REQUEST['site_id']))
+		{
 			$NS["SITE_ID"] = $site_id;
+		}
 	}
 	else
-		$NS = unserialize($_REQUEST['NS'], ['allowed_classes' => false]);
+		$NS = unserialize($_REQUEST['NS'] ?? '', ['allowed_classes' => false]);
 
 	$res = \Bitrix\Main\UrlRewriter::reindexAll(($NS["stepped"]=="Y"? $NS["max_execution_time"]:0), $NS);
 
@@ -152,7 +155,7 @@ $tabControl->BeginNextTab();
 ?>
 	<tr>
 		<td width="40%"><?=GetMessage("MURL_REINDEX_SITE")?></td>
-		<td width="60%"><?echo CLang::SelectBox("LID", $str_LID, GetMessage("MURL_REINDEX_ALL"), "");?></td>
+		<td width="60%"><?echo CLang::SelectBox("LID", $str_LID ?? '', GetMessage("MURL_REINDEX_ALL"), "");?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("MURL_REINDEX_MAX_SIZE")?></td>
@@ -160,11 +163,11 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("MURL_REINDEX_STEPPED")?></td>
-		<td><input type="checkbox" name="stepped" id="stepped" value="Y" OnClick="trs.disabled=!this.checked;document.fs1.max_execution_time.disabled=!this.checked;" <?if($stepped=="Y") echo " checked"?>></td>
+		<td><input type="checkbox" name="stepped" id="stepped" value="Y" OnClick="trs.disabled=!this.checked;document.fs1.max_execution_time.disabled=!this.checked;" <?if(isset($_REQUEST['stepped']) && $_REQUEST['stepped'] === "Y") echo " checked"?>></td>
 	</tr>
-	<tr id="trs" <?if($stepped!="Y") echo " disabled"?>>
+	<tr id="trs" <?if(!isset($_REQUEST['stepped']) || $_REQUEST['stepped'] !="Y") echo " disabled"?>>
 		<td><?echo GetMessage("MURL_REINDEX_STEP")?></td>
-		<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo htmlspecialcharsbx($max_execution_time);?>"  <?if($stepped!="Y") echo " disabled"?>> <?echo GetMessage("MURL_REINDEX_STEP_sec")?></td>
+		<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo htmlspecialcharsbx($_REQUEST['max_execution_time'] ?? '');?>"  <?if(!isset($_REQUEST['stepped']) || $_REQUEST['stepped'] !="Y") echo " disabled"?>> <?echo GetMessage("MURL_REINDEX_STEP_sec")?></td>
 	</tr>
 
 <?

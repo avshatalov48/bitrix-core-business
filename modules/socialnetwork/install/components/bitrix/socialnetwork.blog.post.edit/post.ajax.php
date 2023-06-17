@@ -34,12 +34,12 @@ if (check_bitrix_sessid())
 		else
 			$nameTemplate = CSite::GetNameFormat(false);
 
-		if ($_POST['LD_SEARCH'] == 'Y')
+		if (isset($_POST['LD_SEARCH']) && $_POST['LD_SEARCH'] == 'Y')
 		{
 			CUtil::decodeURIComponent($_POST);
 
 			echo CUtil::PhpToJsObject(Array(
-				'USERS' => CSocNetLogDestination::SearchUsers($_POST['SEARCH'], $nameTemplate, false, IsModuleInstalled("extranet")), 
+				'USERS' => CSocNetLogDestination::SearchUsers($_POST['SEARCH'], $nameTemplate, false, IsModuleInstalled("extranet")),
 			));
 		}
 		elseif (
@@ -102,7 +102,7 @@ if (check_bitrix_sessid())
 
 				$listData = array();
 				$siteId = true;
-				if($_POST['siteId'])
+				if (!empty($_POST['siteId']))
 					$siteId = $_POST['siteId'];
 				$lists = CIBlock::getList(
 					array("SORT" => "ASC","NAME" => "ASC"),

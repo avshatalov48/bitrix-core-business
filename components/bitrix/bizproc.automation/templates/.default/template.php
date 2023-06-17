@@ -127,17 +127,15 @@ $menuTabs[] = [
 	'IS_ACTIVE' => true,
 ];
 
-$docType = CUtil::JSEscape(CBPDocument::signDocumentType($arResult['DOCUMENT_TYPE']));
-
 $menuTabs[] = [
 	'ID' => 'global_variables',
 	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VAR_MENU'),
-	'ON_CLICK' => "BX.Bizproc.Automation.showGlobals.showVariables('{$docType}')",
+	'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showVariables()',
 ];
 $menuTabs[] = [
 	'ID' => 'global_constants',
 	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU'),
-	'ON_CLICK' => "BX.Bizproc.Automation.showGlobals.showConstants('{$docType}')",
+	'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showConstants()',
 ];
 if ($arResult['CAN_DEBUG'])
 {
@@ -202,9 +200,9 @@ endif;
 				<div class="bizproc-automation-status-list-item">
 					<div class="bizproc-automation-status-title" data-role="automation-status-title" data-bgcolor="<?=$color?>">
 						<?=htmlspecialcharsbx(isset($status['NAME']) ? $status['NAME'] : $status['TITLE'])?>
-					</div>
-					<div class="bizproc-automation-status-bg" style="background-color: <?='#'.$color?>">
-						<span class="bizproc-automation-status-title-right" style="background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2232%22%20viewBox%3D%220%200%2013%2032%22%3E%3Cpath%20fill%3D%22%23<?=$color?>%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h3c2.8%200%204%203%204%203l6%2013-6%2013s-1.06%203-4%203H0V0z%22/%3E%3C/svg%3E); background-color: transparent !important;"></span>
+						<div class="bizproc-automation__status--bg" style="background-color: <?='#'.$color?>; border-color: <?='#'.$color?>;">
+							<span class="bizproc-automation__status--bg-arrow"></span>
+						</div>
 					</div>
 					<div style="padding-top: 12px">
 						<div class="bizproc-automation-robot-btn-block" data-role="add-button-container" data-status-id="<?=htmlspecialcharsbx($statusId)?>"></div>

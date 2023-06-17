@@ -208,7 +208,7 @@ class CComponentAjax
 	{
 		$arResult = \Bitrix\Main\UrlRewriter::getList(SITE_ID, array('QUERY' => $url));
 
-		if (is_array($arResult) && count($arResult) > 0)
+		if (is_array($arResult) && !empty($arResult))
 			return $arResult[0]['PATH'];
 		else
 			return false;
@@ -222,7 +222,7 @@ class CComponentAjax
 		if(preg_match("/^(#|mailto:|javascript:|callto:)/", $url))
 			return false;
 
-		if (mb_strpos($url, '://') !== false)
+		if (strpos($url, '://') !== false)
 			return false;
 
 		$url = preg_replace('/#.*/', '', $url);
@@ -245,7 +245,7 @@ class CComponentAjax
 		}
 		else
 		{
-			if (mb_strpos($url, '?') !== false)
+			if (strpos($url, '?') !== false)
 				$url = mb_substr($url, 0, mb_strpos($url, '?'));
 
 			if (mb_substr($url, -4) != '.php')
@@ -264,7 +264,7 @@ class CComponentAjax
 			if (($this->arParams['SEF_MODE'] ?? null) === 'Y')
 				$currentUrl = $this->__getSEFRealUrl($currentUrl);
 
-			if (mb_strpos($currentUrl, '?') !== false)
+			if (strpos($currentUrl, '?') !== false)
 				$currentUrl = mb_substr($currentUrl, 0, mb_strpos($currentUrl, '?'));
 
 			if (mb_substr($currentUrl, -4) != '.php')
@@ -385,7 +385,7 @@ class CComponentAjax
 					if ($pos !== false)
 						$real_url = mb_substr($real_url, 0, $pos);
 
-					$real_url .= mb_strpos($url, '?') === false ? '?' : '&';
+					$real_url .= strpos($url, '?') === false ? '?' : '&';
 					$real_url .= $add_param;
 
 					$url_str = CAjax::GetLinkEx($real_url, $url, $match[2], 'comp_'.$this->componentID, $strAdditional);
@@ -469,7 +469,7 @@ class CComponentAjax
 			{
 				$data = str_replace($out[0][$i], '', $data);
 
-				if ($out[1][$i] <> '' && mb_strpos($out[1][$i], 'src=') !== false)
+				if ($out[1][$i] <> '' && strpos($out[1][$i], 'src=') !== false)
 				{
 					$regexp_src = '/src="([^"]*)?"/i';
 					if (preg_match($regexp_src, $out[1][$i], $out1) != 0)
@@ -492,7 +492,7 @@ class CComponentAjax
 			}
 		}
 
-		if (count($arScripts) > 0)
+		if (!empty($arScripts))
 		{
 			$data .= "
 <script type=\"text/javascript\">

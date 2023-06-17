@@ -35,7 +35,7 @@ class Utils extends EdnaUtils
 	{
 		if ($this->optionManager->getOption('enable_templates_stub', 'N') === 'Y')
 		{
-			return $this->getMessageTemplatesStub();
+			return $this->removeUnsupportedTemplates($this->getMessageTemplatesStub());
 		}
 		
 		$subjectList = [$subject];
@@ -136,7 +136,7 @@ class Utils extends EdnaUtils
 					'keyboard' => null,
 				],
 				'category' => 'ACCOUNT_UPDATE',
-				'status' => 'APPROVED',
+				'status' => Providers\Edna\Constants\TemplateStatus::PENDING,
 				'locked' => false,
 				'type' => 'OPERATOR',
 				'createdAt' => '2021-07-15T14:16:54.417024Z',
@@ -161,7 +161,7 @@ class Utils extends EdnaUtils
 					'keyboard' => null,
 				],
 				'category' => 'ACCOUNT_UPDATE',
-				'status' => 'APPROVED',
+				'status' => Providers\Edna\Constants\TemplateStatus::APPROVED,
 				'locked' => false,
 				'type' => 'USER',
 				'createdAt' => '2021-07-20T09:21:42.444454Z',
@@ -200,7 +200,7 @@ class Utils extends EdnaUtils
 
 				],
 				'category' => 'ACCOUNT_UPDATE',
-				'status' => 'APPROVED',
+				'status' => Providers\Edna\Constants\TemplateStatus::APPROVED,
 				'locked' => false,
 				'type' => 'USER',
 				'createdAt' => '2021-07-20T09:21:42.444454Z',
@@ -233,7 +233,7 @@ class Utils extends EdnaUtils
 					],
 				],
 				'category' => 'ACCOUNT_UPDATE',
-				'status' => 'APPROVED',
+				'status' => Providers\Edna\Constants\TemplateStatus::DISABLED,
 				'locked' => false,
 				'type' => 'USER',
 				'createdAt' => '2021-07-20T09:21:42.444454Z',
@@ -273,7 +273,14 @@ class Utils extends EdnaUtils
 		return $result;
 	}
 
-
+	/**
+	 * @param array{status: string} $template
+	 * @return bool
+	 */
+	protected function checkApprovedStatus(array $template): bool
+	{
+		return isset($template['status']) && $template['status'] === Providers\Edna\Constants\TemplateStatus::APPROVED;
+	}
 	protected function checkForPlaceholders($template): bool
 	{
 		return
@@ -306,6 +313,10 @@ class Utils extends EdnaUtils
 		$filteredTemplates = [];
 		foreach ($templatesData as $template)
 		{
+			if (!$this->checkApprovedStatus($template))
+			{
+				continue;
+			}
 			if ($this->checkForPlaceholders($template))
 			{
 				continue;

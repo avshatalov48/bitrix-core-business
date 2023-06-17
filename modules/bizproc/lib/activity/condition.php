@@ -88,46 +88,46 @@ class Condition
 		switch ($this->getOperator())
 		{
 			case EmptyOperator::getCode():
-				$operator = new EmptyOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new EmptyOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case NotEmptyOperator::getCode():
-				$operator = new NotEmptyOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new NotEmptyOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case ContainOperator::getCode():
-				$operator = new ContainOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new ContainOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case NotContainOperator::getCode():
-				$operator = new NotContainOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new NotContainOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case InOperator::getCode():
-				$operator = new InOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new InOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case NotInOperator::getCode():
-				$operator = new NotInOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new NotInOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case BetweenOperator::getCode():
-				$operator = new BetweenOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new BetweenOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case GreaterThenOperator::getCode():
-				$operator = new GreaterThenOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new GreaterThenOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case GreaterThenOrEqualOperator::getCode():
-				$operator = new GreaterThenOrEqualOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new GreaterThenOrEqualOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case LessThenOperator::getCode():
-				$operator = new LessThenOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new LessThenOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case LessThenOrEqualOperator::getCode():
-				$operator = new LessThenOrEqualOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new LessThenOrEqualOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case EqualOperator::getCode():
-				$operator = new EqualOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new EqualOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			case NotEqualOperator::getCode():
-				$operator = new NotEqualOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new NotEqualOperator($valueToCheck, $this->getValue(), $fieldType);
 				break;
 			default:
-				$operator = new BaseOperator($valueToCheck, $this->value, $fieldType);
+				$operator = new BaseOperator($valueToCheck, $this->getValue(), $fieldType);
 		}
 
 		return $operator->check();

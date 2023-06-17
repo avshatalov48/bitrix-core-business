@@ -168,7 +168,7 @@ class Builder
 			$this->messageConfiguration = Message\Adapter::getInstance($postingData['MESSAGE_TYPE'])
 				->loadConfiguration($postingData['MESSAGE_ID']);
 		}
-		catch (ArgumentException)
+		catch (ArgumentException $e)
 		{
 			return true;
 		}

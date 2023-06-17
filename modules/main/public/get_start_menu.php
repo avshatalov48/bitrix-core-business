@@ -44,7 +44,7 @@ function __GetSubmenu($menu)
 				if(mb_strpos($link, "/bitrix/admin/") !== 0)
 					$link = "/bitrix/admin/".$link;
 
-				if ($_REQUEST['back_url_pub'])
+				if (!empty($_REQUEST['back_url_pub']))
 					$link .= (mb_strpos($link, '?') > 0 ? '&' : '?')."back_url_pub=".urlencode($_REQUEST["back_url_pub"]);
 
 				$aItem['LINK'] = $link;
@@ -53,7 +53,7 @@ function __GetSubmenu($menu)
 					$aItem['ONCLICK'] = 'BX.admin.startMenuRecent('.CUtil::PhpToJsObject($aItem).')';
 			}
 
-			if (isset($item["items"]) && is_array($item["items"]) && count($item["items"])>0)
+			if (isset($item["items"]) && is_array($item["items"]) && !empty($item["items"]))
 			{
 				$aItem["MENU"] = __GetSubmenu($item["items"]);
 				if (isset($item["url"]) && $item["url"] <> "" && $aUserOpt['start_menu_title'] <> 'N')
@@ -61,7 +61,7 @@ function __GetSubmenu($menu)
 			}
 			elseif (isset($item["dynamic"]) && $item["dynamic"] == true)
 			{
-				$aItem["MENU_URL"] = '/bitrix/admin/get_start_menu.php?mode=dynamic&lang='.LANGUAGE_ID.'&admin_mnu_module_id='.urlencode($item['module_id']).'&admin_mnu_menu_id='.urlencode($item['items_id']).($bSkipRecent?'&skip_recent=Y':'').($_REQUEST["back_url_pub"]<>''? '&back_url_pub='.urlencode($_REQUEST["back_url_pub"]):'').'&'.bitrix_sessid_get();
+				$aItem["MENU_URL"] = '/bitrix/admin/get_start_menu.php?mode=dynamic&lang='.LANGUAGE_ID.'&admin_mnu_module_id='.urlencode($item['module_id']).'&admin_mnu_menu_id='.urlencode($item['items_id']).($bSkipRecent?'&skip_recent=Y':'').(!empty($_REQUEST["back_url_pub"]) ? '&back_url_pub='.urlencode($_REQUEST["back_url_pub"]):'').'&'.bitrix_sessid_get();
 				$aItem['MENU_PRELOAD'] = false;
 
 				if(isset($item["url"]) && $item["url"] <> "" && $aUserOpt['start_menu_title'] <> 'N')
@@ -79,7 +79,7 @@ function __FindSubmenu($menu, $items_id)
 {
 	foreach($menu as $item)
 	{
-		if(is_array($item["items"]) && count($item["items"])>0)
+		if(isset($item["items"]) && is_array($item["items"]) && !empty($item["items"]))
 		{
 			if($item["items_id"] == $items_id)
 				return $item["items"];
@@ -92,10 +92,10 @@ function __FindSubmenu($menu, $items_id)
 
 if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_recent")
 {
-	if($_REQUEST["url"] <> "")
+	if(!empty($_REQUEST["url"]))
 	{
 		$nLinks = 5;
-		if($aUserOpt["start_menu_links"] <> "")
+		if(!empty($aUserOpt["start_menu_links"]))
 			$nLinks = intval($aUserOpt["start_menu_links"]);
 
 		$aRecent = CUserOptions::GetOption("start_menu", "recent", array());
@@ -116,10 +116,10 @@ if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_recent")
 elseif(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "dynamic")
 {
 	//admin menu - dynamic sections
-	$adminMenu->AddOpenedSections($_REQUEST["admin_mnu_menu_id"]);
-	$adminMenu->Init(array($_REQUEST["admin_mnu_module_id"]));
+	$adminMenu->AddOpenedSections($_REQUEST["admin_mnu_menu_id"] ?? '');
+	$adminMenu->Init(array($_REQUEST["admin_mnu_module_id"] ?? ''));
 
-	$aSubmenu = __FindSubmenu($adminMenu->aGlobalMenu, $_REQUEST["admin_mnu_menu_id"]);
+	$aSubmenu = __FindSubmenu($adminMenu->aGlobalMenu, $_REQUEST["admin_mnu_menu_id"] ?? '');
 
 	if(!is_array($aSubmenu) || empty($aSubmenu))
 		$aSubmenu = array(array("text"=>GetMessage("get_start_menu_no_data")));
@@ -129,11 +129,11 @@ elseif(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "dynamic")
 }
 elseif(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "chain")
 {
-	$adminMenu->AddOpenedSections($_REQUEST["admin_mnu_menu_id"]);
+	$adminMenu->AddOpenedSections($_REQUEST["admin_mnu_menu_id"] ?? '');
 	$adminPage->Init();
 	$adminMenu->Init($adminPage->aModules);
 
-	$aSubmenu = __FindSubmenu($adminMenu->aGlobalMenu, $_REQUEST["admin_mnu_menu_id"]);
+	$aSubmenu = __FindSubmenu($adminMenu->aGlobalMenu, $_REQUEST["admin_mnu_menu_id"] ?? '');
 
 	if(!is_array($aSubmenu) || empty($aSubmenu))
 		$aSubmenu = array(array("text"=>GetMessage("get_start_menu_no_data")));
@@ -168,12 +168,12 @@ else
 			array(
 				"TEXT"=>GetMessage("get_start_menu_add_fav"),
 				"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? GetMessage("get_start_menu_add_fav_title"):''),
-				"ACTION"=>"BX.admin.startMenuFavAdd(".($_REQUEST["back_url_pub"]<>''? "'".CUtil::JSEscape($_REQUEST["back_url_pub"])."'":"").");"
+				"ACTION"=>"BX.admin.startMenuFavAdd(".(!empty($_REQUEST["back_url_pub"]) ? "'".CUtil::JSEscape($_REQUEST["back_url_pub"])."'":"").");"
 			),
 			array(
 				"TEXT"=>GetMessage("get_start_menu_org_fav"),
 				"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? GetMessage("get_start_menu_org_fav_title"):''),
-				"LINK"=> BX_ROOT."/admin/favorite_list.php?lang=".LANGUAGE_ID."&back_url_pub=".urlencode($_REQUEST["back_url_pub"])
+				"LINK"=> BX_ROOT."/admin/favorite_list.php?lang=".LANGUAGE_ID."&back_url_pub=".urlencode($_REQUEST["back_url_pub"] ?? '')
 			),
 		);
 

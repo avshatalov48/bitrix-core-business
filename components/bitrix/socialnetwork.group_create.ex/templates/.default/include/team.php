@@ -120,7 +120,7 @@ $enableSelectDepartment = (isset($arResult['GROUP_PROPERTIES']['UF_SG_DEPT']) &&
 			extranetInstalled: <?= ($arResult['bExtranetInstalled'] ? 'true' : 'false') ?>,
 			allowExtranet: <?= (
 				$arResult['bExtranetInstalled']
-				&& $arResult['POST']['IS_EXTRANET_GROUP'] === 'Y'
+				&& ($arResult['POST']['IS_EXTRANET_GROUP'] ?? '') === 'Y'
 					? 'true'
 					: 'false'
 			) ?>,

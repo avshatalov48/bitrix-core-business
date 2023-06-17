@@ -140,8 +140,8 @@ class Entity
 	{
 		if (is_string($permission))
 		{
-			if (!is_array(self::$permissions[$userId]))
-				self::$permissions[$userId] = array();
+			if (!isset(self::$permissions[$userId]))
+				self::$permissions[$userId] = [];
 			self::$permissions[$userId][$this->forum["ID"]] = $permission;
 		}
 		return $this;
@@ -165,7 +165,7 @@ class Entity
 	{
 		if (!array_key_exists($userId, self::$permissions))
 		{
-			self::$permissions[$userId] = array();
+			self::$permissions[$userId] = [];
 			if (!array_key_exists($this->forum["ID"], self::$permissions[$userId]))
 			{
 				if (\CForumUser::IsAdmin($userId))

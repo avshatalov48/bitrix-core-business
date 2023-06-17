@@ -1,15 +1,14 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
 
-\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
-
-if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
-	//@TODO remake
-	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
+	die();
 }
 
-if ($arResult["FatalErrorMessage"] <> '')
+\Bitrix\Main\Loader::includeModule('ui');
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
+if (!empty($arResult["FatalErrorMessage"]))
 {
 	?>
 	<div class="bp-errortext">
@@ -19,38 +18,7 @@ if ($arResult["FatalErrorMessage"] <> '')
 }
 else
 {
-	?>
-	<div class="bp-interface-toolbar-container">
-		<div class="bp-interface-toolbar">
-			<table cellpadding="0" cellspacing="0" border="0" class="" style="width: 100%;">
-				<tbody>
-				<tr>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0">
-							<tbody>
-							<tr>
-								<?foreach ($arResult['DOCUMENT_TYPES'] as $uid => $dt):?>
-									<td>
-										<a href="<?=$APPLICATION->GetCurPage().($uid!='*'?'?type='.$uid:'')?>" hidefocus="true" class="bp-context-button <?=!empty($dt['ACTIVE'])?'active':''?>">
-											<span class="bp-context-button-text"><?=htmlspecialcharsbx($dt['NAME'])?></span>
-											<?if (!empty($dt['CNT'])):?>
-											<span class="bp-context-button-notice"><?=$dt['CNT']?></span>
-											<?endif?>
-										</a>
-									</td>
-								<?endforeach;?>
-							</tr>
-							</tbody>
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-	<?
-
-	if ($arResult["ErrorMessage"] <> '')
+	if (!empty($arResult["ErrorMessage"]))
 	{
 		?>
 		<div class="bp-errortext">
@@ -59,29 +27,16 @@ else
 		<?
 	}
 
-	$navString = '';
-	$nextNavString = $prevNavString = $innerNavString = '';
-	if($arResult['CURRENT_PAGE'] > 1)
-	{
-		$prevNavString = '<a href="' . $APPLICATION->getCurPageParam('pageNumber=' . ($arResult['CURRENT_PAGE'] - 1), array('pageNumber')) . '">' . GetMessage('BPWIT_PREV') . '</a>';
-	}
-	if($arResult['SHOW_NEXT_PAGE'])
-	{
-		$nextNavString = '<a href="' . $APPLICATION->getCurPageParam('pageNumber=' . ($arResult['CURRENT_PAGE'] + 1), array('pageNumber')) . '">' . GetMessage('BPWIT_NEXT') . '</a>';
-	}
-	if($arResult['CURRENT_PAGE'] > 1)
-	{
-		for($i = $arResult['CURRENT_PAGE'] - 2; $i < $arResult['CURRENT_PAGE']; $i++)
-			if($i > 0)
-				$innerNavString .= '<a href="' . $APPLICATION->getCurPageParam('pageNumber=' . $i, array('pageNumber')) . '">' . $i . '</a>&nbsp;';
-
-		if($arResult['CURRENT_PAGE'] > 3)
-			$innerNavString = '<a href="' . $APPLICATION->getCurPageParam('pageNumber=1', array('pageNumber')) . '">' . 1 . '</a>...&nbsp;' . $innerNavString;
-	}
-	if($prevNavString || $nextNavString)
-	{
-		$navString = GetMessage('BPWIT_PAGES') . ": {$prevNavString} {$innerNavString} <span>{$arResult['CURRENT_PAGE']}</span> {$nextNavString}";
-	}
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter([
+		"FILTER" => $arResult["FILTER"],
+		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
+		'FILTER_ID' => $arResult['FILTER_ID'],
+		'GRID_ID' => $arResult["GRID_ID"],
+		'ENABLE_LIVE_SEARCH' => false,
+		"ENABLE_LABEL" => true,
+		'RESET_TO_DEFAULT_MODE' => true,
+		'THEME' => \Bitrix\Main\UI\Filter\Theme::MUTED,
+	]);
 
 	foreach ($arResult["RECORDS"] as $key => $record)
 	{
@@ -105,24 +60,56 @@ else
 		$arResult["RECORDS"][$key] = $record;
 	}
 
-	$gridParams = array(
-		"GRID_ID"=>$arResult["GRID_ID"],
-		"HEADERS"=>$arResult["HEADERS"],
-		"SORT"=>$arResult["SORT"],
-		"ROWS"=>$arResult["RECORDS"],
-		"FOOTER"=> array(
-			array("title"=>GetMessage("BPWIT_TOTAL"), "value"=>$arResult["ROWS_COUNT"]),
-			array('custom_html' => '<td>' . $navString . '</td>'),
-		),
-		"AJAX_MODE"=>"Y",
-		"AJAX_OPTION_JUMP"=>"Y",
-		"FILTER"=>$arResult["FILTER"],
-		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
-		'ERROR_MESSAGES' => $arResult['ERRORS']
-	);
+	$gridParams = [
+		"GRID_ID" => $arResult["GRID_ID"],
+		"COLUMNS" => $arResult["HEADERS"],
+		"SORT" => $arResult["SORT"],
+		"ROWS" => $arResult["RECORDS"],
+		"AJAX_MODE" => "Y",
+		"AJAX_OPTION_JUMP" => "Y",
+		'ERROR_MESSAGES' => $arResult['ERRORS'] ?? [],
+
+		'AJAX_ID' => \CAjax::getComponentID('bitrix:bizproc.workflow.instances', '.default', ''),
+		'NAV_OBJECT' => $arResult['NAV_OBJECT'],
+		'TOTAL_ROWS_COUNT' => $arResult['NAV_OBJECT']->getRecordCount(),
+
+		'SHOW_ROW_ACTIONS_MENU' => true,
+		'SHOW_GRID_SETTINGS_MENU' => true,
+		'SHOW_NAVIGATION_PANEL' => true,
+		'SHOW_PAGINATION' => true,
+		'SHOW_SELECTED_COUNTER' => false,
+		'SHOW_TOTAL_COUNTER' => true,
+		'SHOW_PAGESIZE' => true,
+		'PAGE_SIZES' => [
+			["NAME" => "5", "VALUE" => "5"],
+			["NAME" => "10", "VALUE" => "10"],
+			["NAME" => "20", "VALUE" => "20"],
+			["NAME" => "50", "VALUE" => "50"],
+			["NAME" => "100", "VALUE" => "100"],
+		],
+		'SHOW_ACTION_PANEL' => true,
+		'ALLOW_COLUMNS_SORT' => true,
+		'ALLOW_COLUMNS_RESIZE' => true,
+		'ALLOW_HORIZONTAL_SCROLL' => true,
+		'ALLOW_SORT' => true,
+		'ALLOW_PIN_HEADER' => true,
+		'AJAX_OPTION_HISTORY' => 'N',
+	];
 
 	if ($arResult['EDITABLE'])
 	{
+		$gridParams['SHOW_ACTION_PANEL'] = true;
+		$gridParams['ACTION_PANEL'] = [
+			"GROUPS" => [
+				[
+					"ITEMS" => [
+						(new \Bitrix\Main\Grid\Panel\Snippet())->getRemoveButton(),
+					]
+				]
+			]
+		];
+
+		$gridParams['SHOW_ROW_CHECKBOXES'] = true;
 		$gridParams['EDITABLE'] = true;
 		$gridParams['ACTIONS'] = array(
 			'delete' => true,
@@ -130,9 +117,28 @@ else
 	}
 
 	$APPLICATION->IncludeComponent(
-		'bitrix:bizproc.interface.grid',
+		'bitrix:main.ui.grid',
 		"",
 		$gridParams,
 		$component
 	);
+	?>
+
+	<script>
+		BX.ready(function ()
+		{
+			var gridId = '<?= CUtil::JSEscape($arResult["GRID_ID"]) ?>';
+
+			BX.message({
+				BPWI_DELETE_BTN_LABEL: '<?= CUtil::JSEscape(getMessage('BPWI_DELETE_LABEL')) ?>',
+				BPWI_DELETE_MESS_CONFIRM: '<?= CUtil::JSEscape(getMessage('BPWI_DELETE_CONFIRM')) ?>',
+			});
+
+			BX.Bizproc.Component.WorkflowInstances.Instance = new BX.Bizproc.Component.WorkflowInstances({
+				gridId: gridId,
+			});
+		});
+	</script>
+
+<?php
 }

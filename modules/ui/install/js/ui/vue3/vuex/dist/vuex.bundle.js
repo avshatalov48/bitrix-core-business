@@ -312,32 +312,13 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	var _createStore = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createStore");
 
 	class BuilderModel$$1 {
-	  /**
-	   * Create new instance of model.
-	   *
-	   * @returns {BuilderModel}
-	   */
 	  static create() {
 	    return new this();
 	  }
-	  /**
-	   * Get name of model
-	   *
-	   * @override
-	   * @returns {String}
-	   */
-
 
 	  getName() {
 	    return '';
 	  }
-	  /**
-	   * Get default state
-	   *
-	  	 * @override
-	   * @returns {Object}
-	   */
-
 
 	  getState() {
 	    return {};
@@ -364,58 +345,26 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  getStateSaveException() {
 	    return undefined;
 	  }
-	  /**
-	   * Get getters
-	  	 * @override
-	   * @returns {Object}
-	   */
-
 
 	  getGetters() {
 	    return {};
 	  }
-	  /**
-	   * Get actions
-	   *
-	  	 * @override
-	   * @returns {Object}
-	   */
-
 
 	  getActions() {
 	    return {};
 	  }
-	  /**
-	   * Get mutations
-	   *
-	  	 * @override
-	   * @returns {Object}
-	   */
-
 
 	  getMutations() {
 	    return {};
 	  }
-	  /**
-	   * Method for validation and sanitizing input fields before save in model
-	   *
-	   * @override
-	   * @param fields {Object}
-	   * @param options {Object}
-	   * @returns {Object} - Sanitizing fields
-	   */
 
+	  getNestedModules() {
+	    return {};
+	  }
 
 	  validate(fields, options = {}) {
 	    return {};
 	  }
-	  /**
-	   * Set external variable.
-	   *
-	   * @param variables {Object}
-	   * @returns {BuilderModel}
-	   */
-
 
 	  setVariables(variables = {}) {
 	    if (!main_core.Type.isObjectLike(variables)) {
@@ -428,13 +377,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    this.variables = variables;
 	    return this;
 	  }
-	  /**
-	   *
-	   * @param name
-	   * @param defaultValue
-	   * @return {undefined|*}
-	   */
-
 
 	  getVariable(name, defaultValue = undefined) {
 	    if (!name) {
@@ -461,23 +403,10 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 
 	    return result;
 	  }
-	  /**
-	   * Get namespace
-	   *
-	   * @returns {String}
-	   */
-
 
 	  getNamespace() {
 	    return this.namespace ? this.namespace : this.getName();
 	  }
-	  /**
-	   * Set namespace
-	   *
-	   * @param name {String}
-	   * @returns {BuilderModel}
-	   */
-
 
 	  setNamespace(name) {
 	    this.namespace = name.toString();
@@ -565,12 +494,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    console.warn('BuilderModel: Method `getStore` is deprecated, please remove this call.');
 	    return this.getModule();
 	  }
-	  /**
-	   * Get Vuex module.
-	   *
-	   * @returns {Promise}
-	   */
-
 
 	  getModule() {
 	    return new Promise((resolve, reject) => {
@@ -594,12 +517,20 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      }
 	    });
 	  }
-	  /**
-	   * Get default state of Vuex module.
-	   *
-	   * @returns {Object}
-	   */
 
+	  getNestedModule(nestedModule) {
+	    const map = {
+	      'constructor': nestedModule
+	    };
+	    const instance = new map['constructor']();
+	    return {
+	      namespaced: true,
+	      state: instance.getState(),
+	      getters: instance.getGetters(),
+	      actions: instance.getActions(),
+	      mutations: instance.getMutations()
+	    };
+	  }
 
 	  getModuleWithDefaultState() {
 	    const namespace = this.namespace ? this.namespace : this.getName();
@@ -614,26 +545,10 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      module: babelHelpers.classPrivateFieldLooseBase(this, _createStore)[_createStore](this.getState())
 	    };
 	  }
-	  /**
-	   * Get timeout for save to database
-	   *
-	  	 * @override
-	   *
-	   * @returns {number}
-	   */
-
 
 	  getSaveTimeout() {
 	    return 150;
 	  }
-	  /**
-	   * Get timeout for load from database
-	   *
-	   * @override
-	   *
-	   * @returns {number|boolean}
-	   */
-
 
 	  getLoadTimeout() {
 	    return 1000;
@@ -736,12 +651,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  isSaveAvailable() {
 	    return this.db && this.databaseConfig.active;
 	  }
-	  /**
-	   *
-	   * @param payload
-	   * @return {boolean}
-	   */
-
 
 	  isSaveNeeded(payload) {
 	    if (!this.isSaveAvailable()) {
@@ -811,11 +720,20 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    return this;
 	  }
 
-	  /**
-	   * Utils. Convert Object to Array
-	   * @param object
-	   * @returns {Array}
-	   */
+	  prepareNestedModules() {
+	    const nestedModules = Object.entries(this.getNestedModules());
+
+	    if (nestedModules.length === 0) {
+	      return null;
+	    }
+
+	    const preparedNestedModules = {};
+	    nestedModules.forEach(([moduleName, module]) => {
+	      preparedNestedModules[moduleName] = this.getNestedModule(module);
+	    });
+	    return preparedNestedModules;
+	  }
+
 	  static convertToArray(object) {
 	    const result = [];
 
@@ -827,12 +745,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 
 	    return result;
 	  }
-	  /**
-	   * Clone state without observers
-	   * @param element {object}
-	   * @param exceptions {object}
-	   */
-
 
 	  cloneState(element, exceptions = undefined) {
 	    let result;
@@ -937,6 +849,11 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    actions: this.getActions(),
 	    mutations: this.getMutations()
 	  };
+	  const nestedModules = this.prepareNestedModules();
+
+	  if (nestedModules) {
+	    result.modules = nestedModules;
+	  }
 
 	  result.mutations.vuexBuilderModelClearState = state => {
 	    state = Object.assign(state, this.getState());

@@ -84,11 +84,8 @@ $tableId = 'tbl_product_subscription_list';
 $sortObject = new CAdminUiSorting($tableId, 'DATE_FROM', 'DESC');
 $listObject = new CAdminUiList($tableId, $sortObject);
 
-global $by, $order;
-if(!isset($by))
-	$by = 'DATE_FROM';
-if(!isset($order))
-	$order = 'DESC';
+$by = mb_strtoupper($sortObject->getField());
+$order = mb_strtoupper($sortObject->getOrder());
 
 $listContactTypes = array();
 $contactType = Catalog\SubscribeTable::getContactTypes();
@@ -332,7 +329,6 @@ unset($row);
 if (!empty($listUserData))
 {
 	$nameFormat = CSite::GetNameFormat();
-	$listUserId = array_keys($listUserData);
 
 	$userIterator = Main\UserTable::getList([
 		'select' => [
@@ -344,22 +340,19 @@ if (!empty($listUserData))
 			'EMAIL',
 			'TITLE',
 		],
-		'filter' => ['@ID' => $listUserId],
+		'filter' => ['@ID' => array_keys($listUserData)],
 	]);
 	while ($user = $userIterator->fetch())
 	{
-		if (empty($listUserData[$user['ID']]) || !is_array($listUserData[$user['ID']]))
-		{
-			continue;
-		}
 		$urlToUser = $selfFolderUrl . "user_edit.php?ID=" . $user["ID"] . "&lang=" . LANGUAGE_ID;
 		if ($publicMode)
 		{
 			$urlToUser = $selfFolderUrl . "sale_buyers_profile.php?USER_ID=" . $user["ID"] . "&lang=" . LANGUAGE_ID;
 			$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
 		}
-		$userString = '<a href="' . $urlToUser . '">' .
-			CUser::FormatName($nameFormat, $user, true, true)
+		$userString =
+			'<a href="' . $urlToUser . '">'
+			. CUser::FormatName($nameFormat, $user, true, true)
 			. '</a>'
 		;
 		foreach ($listUserData[$user['ID']] as $subscribeId)

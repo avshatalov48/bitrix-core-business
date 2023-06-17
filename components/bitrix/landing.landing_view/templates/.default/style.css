@@ -97,8 +97,14 @@
 
 .landing-ui-panel-top-selector {
 	padding-right: 18px;
-	width: 350px;
+	width: 320px;
 	top: -1px;
+}
+
+@media all and (min-width: 1500px) {
+	.landing-ui-panel-top-selector {
+		width: 350px;
+	}
 }
 
 /* region Popups Content */
@@ -589,6 +595,21 @@ div#landing-popup-publication-error {
 	height: 26px;
 }
 
+.landing-ui-button-label {
+	display: inline-flex;
+	align-items: center;
+	position: absolute;
+	padding: 0 6px;
+	height: 14px;
+	border-radius: 7px;
+	top: -5px;
+	background: var(--ui-color-primary);
+	font-size: 8px;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	color: #fff;
+}
+
 .landing-ui-panel-top-pub-btn {
 	padding: 0;
 	display: block;
@@ -785,7 +806,7 @@ div#landing-popup-publication-error {
 	-ms-flex-order: 1;
 	-ms-flex-pack: center;
 	height: calc(100vh - 66px);
-	background: #eef2f4;
+	background: var(--ui-color-base-40);
 	-webkit-box-ordinal-group: 2;
 	order: 1;
 	-webkit-box-flex: 5;
@@ -793,6 +814,7 @@ div#landing-popup-publication-error {
 	flex: 5;
 	-webkit-box-pack: center;
 	justify-content: center;
+	position: relative;
 }
 
 .landing-ui-view-iframe-wrapper {
@@ -800,6 +822,47 @@ div#landing-popup-publication-error {
 	height: calc(100vh - 66px);
 	box-shadow: 0 3px 26px 0 rgba(0, 0, 0, 0.25);
 	transition: width 200ms ease;
+}
+
+.landing-ui-external-left-container,
+.landing-ui-external-right-container {
+	position: absolute;
+}
+
+.landing-ui-external-left-container {
+	left: 0;
+	text-align: right;
+}
+
+.landing-ui-external-left-top-hr,
+.landing-ui-external-left-bottom-hr,
+.landing-ui-external-right-top-hr,
+.landing-ui-external-right-bottom-hr {
+	position: absolute;
+	border-top: 1px dotted #cdcdcd;
+	width: 70%;
+	height: 1px;
+	left: 0;
+}
+
+.landing-ui-external-left-bottom-hr,
+.landing-ui-external-right-bottom-hr {
+	bottom: 0;
+}
+
+.landing-ui-external-left-top-hr,
+.landing-ui-external-left-bottom-hr {
+	right: 0;
+	left: auto;
+}
+
+.landing-ui-external-left-container.hide-top .landing-ui-external-left-top-hr,
+.landing-ui-external-right-top-hr.hide-top .landing-ui-external-right-top-hr {
+	display: none;
+}
+
+.landing-ui-external-body {
+	clear: right;
 }
 
 .landing-ui-view {
@@ -1252,4 +1315,188 @@ div#landing-popup-publication-error {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.landing-ui-external-panel {
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	position: relative;
+	z-index: 10;
+}
+
+.landing-device-wrapper {
+	position: absolute;
+	z-index: 420;
+	right: 20px;
+	top: 50%;
+	margin-top: 60px;
+	transform: translate(0, -50%);
+	transition: .2s;
+}
+
+.landing-device-wrapper.landing-device-wrapper-hidden {
+	transform: translate(calc(100% + 20px), -50%);
+}
+
+.landing-device-preview {
+	display: inline-flex;
+	flex: 1;
+	/*width: 100%;*/
+	box-sizing: border-box;
+	padding: 12px;
+	border-radius: 20px;
+	background: #212223;
+	font-size: 0;
+	box-shadow: 2px 6px 10px rgb(0,0,0,.3);
+	transition: .2s;
+	transform: scale(1);
+	transform-origin: top left;
+}
+
+.landing-device-preview iframe {
+	flex: 1;
+	border-radius: 8px;
+	background: #fff;
+	border: 1px solid rgba(255,255,255,.37);
+	transition: .2s;
+}
+
+.landing-device-preview iframe::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.landing-device-preview iframe::-webkit-scrollbar-thumb {
+	background: #dde2e6;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+	opacity: .4;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.landing-device-preview iframe:hover::-webkit-scrollbar-thumb {
+	background: #d1d6da;
+}
+
+.landing-device-preview iframe:hover::-webkit-scrollbar-thumb:hover {
+	background: #c8cdd2;
+}
+
+.landing-device-name {
+	position: absolute;
+	top: -69px;
+	right: 0;
+	display: inline-flex;
+	min-height: 39px;
+	min-width: 294px;
+	padding: 0 16px 0 16px;
+	box-sizing: border-box;
+	border: 1px solid #c6cdd3;
+	border-radius: 19px;
+	background: #fff;
+	cursor: pointer;
+	align-items: center;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-size: 14px;
+	color: #333;
+	opacity: 1;
+	transition: .2s;
+}
+
+.landing-device-name:after {
+	content: '';
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	margin-left: auto;
+	border-right: 2px solid var(--ui-color-base-70);
+	border-bottom: 2px solid var(--ui-color-base-70);
+	transform: rotate(45deg);
+	transition: .2s;
+}
+
+.landing-device-name:hover:after {
+	transition: unset;
+	border-color: var(--ui-color-base-90) ;
+}
+
+.landing-device-wrapper-hidden .landing-device-name {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.landing-device-orientation {
+	margin-left: 5px;
+	color: var(--ui-color-base-40);
+}
+
+.landing-device-orientation:first-letter {
+	text-transform: uppercase;
+}
+
+.landing-device-switcher,
+.landing-device-rotate {
+	position: absolute;
+	width: 37px;
+	height: 37px;
+	top: 10px;
+	left: -50px;
+	border: 1px #757d87 solid;
+	border-radius: 100%;
+	background: #fff;
+	cursor: pointer;
+	transition: .2s;
+}
+
+.landing-device-rotate:hover,
+.landing-device-switcher:hover {
+	background: #cfd4d8;
+}
+
+.landing-device-switcher:after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -4px 0 0 -5px;
+	transform: rotate(45deg);
+	width: 8px;
+	height: 8px;
+	border-right: 2px solid #525c69;
+	border-top: 2px solid #525c69;
+	border-left: 0 solid transparent;
+	border-bottom: 0 solid transparent;
+	transition: .2s;
+}
+
+.landing-device-switcher.landing-switcher-hide:after {
+	margin: -4px 0 0 -3px;
+	border-right: 0 solid transparent;
+	border-top: 0 solid transparent;
+	border-left: 2px solid #525c69;
+	border-bottom: 2px solid #525c69;
+}
+
+.landing-device-rotate {
+	top: 58px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 1;
+}
+
+.landing-device-wrapper-hidden .landing-device-rotate {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.landing-device-rotate:before {
+	content: '';
+	width: 17px;
+	height: 19px;
+	margin-left: 1px;
+	transform: none;
+	background: url(image/landing-landing-view__icon-rotate.svg) center no-repeat;
 }

@@ -2,6 +2,8 @@
 
 class CSiteCheckerTest
 {
+	const MIN_PHP_VER = '8.0.0';
+
 	var $arTestVars;
 	var $percent;
 	var $last_function;
@@ -24,7 +26,7 @@ class CSiteCheckerTest
 		$this->cafile = $_SERVER['DOCUMENT_ROOT'].'/bitrix/tmp/cacert.pem';
 		$this->force_repair = defined('SITE_CHECKER_FORCE_REPAIR') && SITE_CHECKER_FORCE_REPAIR === true;
 
-		$this->host = $_REQUEST['HTTP_HOST'] ? $_REQUEST['HTTP_HOST'] : 'localhost';
+		$this->host = isset($_REQUEST['HTTP_HOST']) && $_REQUEST['HTTP_HOST'] ? $_REQUEST['HTTP_HOST'] : 'localhost';
 		if (!$fix_mode) // no need to know the host in fix mode
 		{
 			if (!preg_match('/^[a-z0-9\.\-]+$/i', $this->host)) // cyrillic domain hack
@@ -48,8 +50,8 @@ class CSiteCheckerTest
 				$this->host = $host;
 			}
 		}
-		$this->ssl = $_REQUEST['HTTPS'] == 'on';
-		$this->port = $_REQUEST['SERVER_PORT'] ? $_REQUEST['SERVER_PORT'] : ($this->ssl ? 443 : 80);
+		$this->ssl = isset($_REQUEST['HTTPS']) && $_REQUEST['HTTPS'] == 'on';
+		$this->port = isset($_REQUEST['SERVER_PORT']) && $_REQUEST['SERVER_PORT'] ? $_REQUEST['SERVER_PORT'] : ($this->ssl ? 443 : 80);
 
 		$arTestGroup = array();
 		$arGroupName = array();
@@ -111,7 +113,6 @@ class CSiteCheckerTest
 			array('check_dbconn' => GetMessage('SC_T_DBCONN')),
 			array('check_session_ua' => GetMessage('SC_T_SESS_UA')),
 			array('check_sites' => GetMessage('SC_T_SITES')),
-			array('check_clone' => GetMessage('SC_T_CLONE')),
 
 			array('check_pcre_recursion' => GetMessage('SC_T_RECURSION')),
 
@@ -211,8 +212,8 @@ class CSiteCheckerTest
 							$step0 -= $c;
 						else
 						{
-							$this->group_name = $arGroupName[$i];
-							$this->group_desc = $arGroupDesc[$i];
+							$this->group_name = $arGroupName[$i] ?? '';
+							$this->group_desc = $arGroupDesc[$i] ?? '';
 						}
 					}
 					$this->arTest = array_merge($this->arTest, $ar);
@@ -470,9 +471,10 @@ class CSiteCheckerTest
 	function check_php_settings()
 	{
 		$strError = '';
-		$PHP_vercheck_min = '7.3.0';
-		if (version_compare($v = phpversion(), $PHP_vercheck_min, '<'))
-			$strError = GetMessage('SC_VER_ERR', array('#CUR#' => $v, '#REQ#' => $PHP_vercheck_min))."<br>";
+		if (version_compare($v = phpversion(), self::MIN_PHP_VER, '<'))
+		{
+			$strError = GetMessage('SC_VER_ERR', array('#CUR#' => $v, '#REQ#' => self::MIN_PHP_VER))."<br>";
+		}
 
 		$arRequiredParams = array(
 			'safe_mode' => 0,
@@ -571,11 +573,11 @@ class CSiteCheckerTest
 	function check_server_vars()
 	{
 		$strError = '';
-		list($host, $port) = explode(':',$_SERVER['HTTP_HOST']);
+		list($host, $port) = explode(':',$_SERVER['HTTP_HOST'] ?? '');
 		if ($host != 'localhost' && !preg_match('#^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$#',$host))
 		{
 			if (!preg_match('#^[a-z0-9\-\.]{1,192}\.(xn--)?[a-z0-9]{2,63}$#i', $host))
-				$strError .= GetMessage("SC_TEST_DOMAIN_VALID", array('#VAL#' => htmlspecialcharsbx($_SERVER['HTTP_HOST'])))."<br>";
+				$strError .= GetMessage("SC_TEST_DOMAIN_VALID", array('#VAL#' => htmlspecialcharsbx($_SERVER['HTTP_HOST'] ?? '')))."<br>";
 		}
 		if ($strError)
 			return $this->Result(false, $strError);
@@ -655,7 +657,7 @@ class CSiteCheckerTest
 			return $this->Result(null, GetMessage("MAIN_SC_NO_SOCIAL_MODULE"));
 		$oAuthManager = new CSocServAuthManager();
 		$arActiveSocServ = $oAuthManager->GetActiveAuthServices(array());
-		if (count($arActiveSocServ))
+		if (!empty($arActiveSocServ))
 		{
 			if (is_array($arActiveSocServ['Bitrix24Net']))
 				return true;
@@ -1799,17 +1801,6 @@ class CSiteCheckerTest
 		return $this->Result(true, GetMessage("MAIN_SC_ABSENT_ALL"));
 	}
 
-	function check_clone()
-	{
-		$x = new CDatabase;
-		$x->b = 'FAIL';
-
-		$y = $x;
-		$y->b = 'SUCCESS';
-
-		return $x->b == 'SUCCESS';
-	}
-
 	function check_getimagesize()
 	{
 		$file = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/install/components/bitrix/player/mediaplayer/player';
@@ -1825,7 +1816,7 @@ class CSiteCheckerTest
 	{
 		$strSERVER = '';
 		foreach(array('SERVER_PORT', 'HTTPS', 'FCGI_ROLE', 'HTTP_HOST', 'SERVER_PROTOCOL') as $var)
-			$strSERVER .= '&'.$var.'='.urlencode($_SERVER[$var]);
+			$strSERVER .= '&'.$var.'='.urlencode($_SERVER[$var] ?? '');
 
 		if (!$this->arTestVars['last_value'])
 		{
@@ -2169,17 +2160,21 @@ class CSiteCheckerTest
 
 		if ($this->fix_mode)
 		{
-			if ($DB->Query($sql = 'ALTER DATABASE `' . $DB->DBName. '` DEFAULT CHARACTER SET ' . $character_set_connection . ' COLLATE ' . $collation_connection, true))
-				$strError = '';
-			else
-				$strError .= $sql . ' [' . $DB->db_Error . ']';
+			if (!$DB->Query($sql = 'ALTER DATABASE `' . $DB->DBName. '` DEFAULT CHARACTER SET ' . $character_set_connection . ' COLLATE ' . $collation_connection, true))
+			{
+				$strError = $sql . ' [' . $DB->db_Error . ']';
+			}
 		}
 		else
 		{
 			if ($character_set_connection != $character_set_database)
+			{
 				$strError = GetMessage('SC_DATABASE_CHARSET_DIFF', array('#VAL0#' => $character_set_connection, '#VAL1#' => $character_set_database)).fix_link();
+			}
 			elseif ($collation_database != $collation_connection)
+			{
 				$strError = GetMessage('SC_DATABASE_COLLATION_DIFF', array('#VAL0#' => $collation_connection, '#VAL1#' => $collation_database)).fix_link();
+			}
 		}
 
 		echo 'CHARSET='.$character_set_database.', COLLATION='.$collation_database;
@@ -2324,7 +2319,7 @@ class CSiteCheckerTest
 			while($f0 = $res0->Fetch())
 			{
 				$f_collation = $f0['Collation'];
-				if ($f_collation === NULL || $f_collation === "NULL")
+				if ($f_collation === null || $f_collation === "NULL")
 					continue;
 
 				$f_charset = getCharsetByCollation($f_collation);
@@ -2346,7 +2341,7 @@ class CSiteCheckerTest
 					}
 					elseif ($this->force_repair)
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' CHARACTER SET '.$charset.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
+							($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
 				}
 				elseif ($collation != $f_collation)
 				{
@@ -2362,7 +2357,7 @@ class CSiteCheckerTest
 					}
 					else
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' COLLATE '.$collation.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
+							($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
 				}
 			}
 
@@ -2762,10 +2757,22 @@ class CSiteCheckerTest
 
 	public static function CommonTest()
 	{
-		if (defined('BX_CRONTAB') || (defined('CHK_EVENT') && CHK_EVENT === true) || !$_SERVER['HTTP_HOST']) // can't get real HTTP server vars from cron
+		if (
+			defined('BX_CRONTAB')
+			|| (defined('CHK_EVENT') && CHK_EVENT === true)
+			|| (!isset($_SERVER['HTTP_HOST']) || !$_SERVER['HTTP_HOST'])
+		) // can't get real HTTP server vars from cron
+		{
 			return "CSiteCheckerTest::CommonTest();";
-		if (($ntlm_varname = COption::GetOptionString('ldap', 'ntlm_varname', 'REMOTE_USER')) && ($user = trim($_SERVER[$ntlm_varname])))
-			return "CSiteCheckerTest::CommonTest();"; // Server NTLM is enabled, no way to connect through a socket
+		}
+
+		if (
+			($ntlm_varname = COption::GetOptionString('ldap', 'ntlm_varname', 'REMOTE_USER'))
+			&& ($user = trim($_SERVER[$ntlm_varname] ?? ''))
+		)
+		{
+			return "CSiteCheckerTest::CommonTest();";
+		} // Server NTLM is enabled, no way to connect through a socket
 
 		IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/admin/site_checker.php');
 
@@ -2776,7 +2783,12 @@ class CSiteCheckerTest
 				$ar = $oTest->arTestVars;
 			$oTest = new CSiteCheckerTest($step, $fast = 1);
 			$oTest->arTestVars = $ar;
-			$oTest->ssl = $_SERVER['HTTPS'] == 'on' || $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || $_SERVER["SERVER_PORT"] == 443;
+			$oTest->ssl =
+				(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+				|| (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+				|| (isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"] == 443)
+			;
+
 			if (preg_match('#^(.+):([0-9]+)$#', $_SERVER['HTTP_HOST'], $regs))
 			{
 				$oTest->host = $regs[1];
@@ -2787,7 +2799,7 @@ class CSiteCheckerTest
 			else
 			{
 				$oTest->host = $_SERVER['HTTP_HOST'];
-				$oTest->port = $_SERVER['SERVER_PORT'] ? $_SERVER['SERVER_PORT'] : ($oTest->ssl ? 443 : 80);
+				$oTest->port = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] ? $_SERVER['SERVER_PORT'] : ($oTest->ssl ? 443 : 80);
 			}
 			$oTest->Start();
 			if ($oTest->result === false)
@@ -2829,6 +2841,27 @@ class CSiteCheckerTest
 
 		return "CSiteCheckerTest::CommonTest();";
 	}
+
+	public static function PhpTestAgent()
+	{
+		IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/admin/site_checker.php');
+
+		if (version_compare($v = phpversion(), self::MIN_PHP_VER, '<'))
+		{
+			CAdminNotify::Add([
+				'MESSAGE' => GetMessage('PHP_VER_NOTIFY', ['#CUR#' => $v, '#REQ#' => self::MIN_PHP_VER]),
+				'TAG' => 'PHP_VERSION',
+				'MODULE_ID' => 'MAIN',
+				'NOTIFY_TYPE' => CAdminNotify::TYPE_ERROR,
+			]);
+
+			return "CSiteCheckerTest::PhpTestAgent();";
+		}
+
+		CAdminNotify::DeleteByTag('PHP_VERSION');
+
+		return '';
+	}
 }
 
 class CSearchFiles
@@ -2851,7 +2884,7 @@ class CSearchFiles
 		if (time() - $this->StartTime > $this->TimeLimit)
 		{
 			$this->BreakPoint = $path;
-			return count($this->arFail) == 0;
+			return empty($this->arFail);
 		}
 
 		if (count($this->arFail) > $this->MaxFail)
@@ -2863,7 +2896,9 @@ class CSearchFiles
 				return null;
 
 			if ($this->SkipPath == $path)
-				unset($this->SkipPath);
+			{
+				$this->SkipPath = null;
+			}
 		}
 
 		if (is_dir($path))
@@ -2896,7 +2931,7 @@ class CSearchFiles
 			if (!is_readable($path) || !is_writable($path))
 				$this->arFail[] = $path;
 		}
-		return count($this->arFail) == 0;
+		return empty($this->arFail);
 	}
 }
 
@@ -2932,13 +2967,13 @@ function GetHttpResponse($res, $strRequest, &$strHeaders)
 	fputs($res, $strRequest);
 
 	$strHeaders = "";
-	$bChunked = False;
+	$bChunked = false;
 	$Content_Length = false;
 	while (!feof($res) && ($line = fgets($res, 4096)) && $line != "\r\n")
 	{
 		$strHeaders .= $line;
 		if (preg_match("/Transfer-Encoding: +chunked/i", $line))
-			$bChunked = True;
+			$bChunked = true;
 
 		if (preg_match("/Content-Length: +([0-9]+)/i", $line, $regs))
 			$Content_Length = $regs[1];
@@ -3104,7 +3139,7 @@ function TableFieldConstruct($field)
 		$tmp .= ' NOT NULL';
 	}
 
-	if ($field['Default'] === NULL)
+	if ($field['Default'] === null)
 	{
 		if ($field['Null'] == 'YES')
 		{

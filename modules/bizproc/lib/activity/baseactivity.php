@@ -322,8 +322,8 @@ abstract class BaseActivity extends \CBPActivity
 		foreach (static::getPropertiesDialogMap() as $propertyKey => $fieldProperties)
 		{
 			if(
-				\CBPHelper::getBool($fieldProperties['Required'])
-				&& \CBPHelper::isEmptyValue($testProperties[$propertyKey])
+				\CBPHelper::getBool($fieldProperties['Required'] ?? null)
+				&& \CBPHelper::isEmptyValue($testProperties[$propertyKey] ?? null)
 			)
 			{
 				$errors[] = [

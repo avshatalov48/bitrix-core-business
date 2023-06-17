@@ -1,15 +1,18 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 IncludeModuleLangFile(__FILE__);
+
+$request = Context::getCurrent()->getRequest();
 
 //Init variables
 $reloadParams = array();
@@ -142,64 +145,90 @@ $APPLICATION->SetTitle(GetMessage("IBLOCK_SECSEARCH_TITLE"));
 $entity_id = ($IBLOCK_ID > 0 ? "IBLOCK_".$IBLOCK_ID."_SECTION" : false);
 
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
-if (!isset($by))
-	$by = 'NAME';
-if (!isset($order))
-	$order = 'ASC';
-$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+$arOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$arOrder['ID'] = 'ASC';
+}
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-$arFilterFields = array(
-	"find_iblock_id",
-	"find_section_id",
-	"find_section_timestamp_1",
-	"find_section_timestamp_2",
-	"find_section_modified_by",
-	"find_section_date_create_1",
-	"find_section_date_create_2",
-	"find_section_created_by",
-	"find_section_name",
-	"find_section_active",
-	"find_section_section",
-	"find_section_code",
-	"find_section_external_id"
-);
+$userFilter = [
+	'?NAME' => 'find_section_name',
+	'SECTION_ID' => 'find_section_section',
+	'ID' => 'find_section_id',
+	'>=TIMESTAMP_X' => 'find_section_timestamp_1',
+	'<=TIMESTAMP_X' => 'find_section_timestamp_2',
+	'MODIFIED_BY' => 'find_section_modified_user_id',
+	'>=DATE_CREATE' => 'find_section_date_create_1',
+	'<=DATE_CREATE' => 'find_section_date_create_2',
+	'CREATED_BY' => 'find_section_created_user_id',
+	'ACTIVE' => 'find_section_active',
+	'CODE' => 'find_section_code',
+	'EXTERNAL_ID' => 'find_section_external_id',
+];
 
-if($entity_id)
+$arFilterFields = [
+	'find_iblock_id',
+	'find_section_id',
+	'find_section_timestamp_1',
+	'find_section_timestamp_2',
+	'find_section_modified_user_id',
+	'find_section_date_create_1',
+	'find_section_date_create_2',
+	'find_section_created_user_id',
+	'find_section_name',
+	'find_section_active',
+	'find_section_section',
+	'find_section_code',
+	'find_section_external_id',
+];
+
+if ($entity_id)
+{
 	$USER_FIELD_MANAGER->AdminListAddFilterFields($entity_id, $arFilterFields);
+}
+$currentFilter = $lAdmin->InitFilter($arFilterFields);
+foreach ($arFilterFields as $fieldName)
+{
+	$currentFilter[$fieldName] = (string)($currentFilter[$fieldName] ?? '');
+}
 
-$section_id = $find_section_section <> ''? intval($find_section_section): "";
-$lAdmin->InitFilter($arFilterFields);
-$find_section_section = $section_id;
+$directSectionId = $request->get('find_section_section');
+if (is_string($directSectionId))
+{
+	$currentFilter['find_section_section'] = $directSectionId;
+}
+unset($directSectionId);
+
+$temporarySectionId = $currentFilter['find_section_section'] !== '' ? (int)$currentFilter['find_section_section'] : '';
+$currentFilter['find_section_section'] = $temporarySectionId;
+unset($temporarySectionId);
+
+$currentSectionId = (int)$currentFilter['find_section_section'];
 
 ############################################
 
-$arFilter = array(
-	"?NAME"		=> $find_section_name,
-	"SECTION_ID"	=> $find_section_section,
-	"ID"		=> $find_section_id,
-	">=TIMESTAMP_X"	=> $find_section_timestamp_1,
-	"<=TIMESTAMP_X"	=> $find_section_timestamp_2,
-	"MODIFIED_BY"	=> $find_section_modified_user_id? $find_section_modified_user_id: $find_section_modified_by,
-	">=DATE_CREATE"	=> $find_section_date_create_1,
-	"<=DATE_CREATE"	=> $find_section_date_create_2,
-	"CREATED_BY"	=> $find_section_created_user_id? $find_section_created_user_id: $find_section_created_by,
-	"ACTIVE"	=> $find_section_active,
-	"CODE"		=> $find_section_code,
-	"EXTERNAL_ID"	=> $find_section_external_id,
-);
-if($entity_id)
+$arFilter = [];
+foreach ($userFilter as $index => $fieldName)
+{
+	if ($currentFilter[$fieldName] !== '')
+	{
+		$arFilter[$index] = $currentFilter[$fieldName];
+	}
+}
+if ($entity_id)
+{
 	$USER_FIELD_MANAGER->AdminListAddFilter($entity_id, $arFilter);
+}
 
-if($find_section_section === "" || !$useParentFilter)
-	unset($arFilter["SECTION_ID"]);
+$arFilter['IBLOCK_ID'] = ($IBLOCK_ID > 0 ? $IBLOCK_ID : -1);
 
-if($IBLOCK_ID > 0)
-	$arFilter["IBLOCK_ID"] = $IBLOCK_ID;
-else
-	$arFilter["IBLOCK_ID"] = -1;
-
-$arFilter["CHECK_PERMISSIONS"]="Y";
+$arFilter['CHECK_PERMISSIONS'] = 'Y';
+$arFilter['MIN_PERMISSION'] = 'S';
 
 // list header
 $arHeaders = array(
@@ -280,6 +309,14 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 $arVisibleColumnsMap = array();
 foreach($arVisibleColumns as $value)
 	$arVisibleColumnsMap[$value] = true;
+if (!in_array('ID', $arVisibleColumns))
+{
+	$arVisibleColumns[] = 'ID';
+}
+if ($get_xml_id && !in_array('XML_ID', $arVisibleColumns))
+{
+	$arVisibleColumns[] = 'XML_ID';
+}
 
 if(array_key_exists("ELEMENT_CNT", $arVisibleColumnsMap))
 {
@@ -299,115 +336,158 @@ $lAdmin->NavText($rsData->GetNavPrint($arIBlock["SECTIONS_NAME"]));
 $strPath = "";
 $jsPath  = "";
 $nameSeparator = "";
-if (!$simpleName && intval($find_section_section) > 0)
+if (!$simpleName && $currentSectionId > 0)
 {
 	$nameSeparator = "&nbsp;/&nbsp;";
-	$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
-	while($ar_nav = $nav->GetNext())
+	$nav = CIBlockSection::GetNavChain(
+		$IBLOCK_ID,
+		$find_section_section,
+		[
+			'ID',
+			'NAME',
+		],
+		true
+	);
+	foreach ($nav as $ar_nav)
 	{
-		$strPath .= htmlspecialcharsbx($ar_nav["~NAME"], ENT_QUOTES).$nameSeparator;
-		$jsPath .= htmlspecialcharsbx(CUtil::JSEscape($ar_nav["~NAME"]), ENT_QUOTES).$nameSeparator;
+		$strPath .= htmlspecialcharsbx($ar_nav["NAME"], ENT_QUOTES).$nameSeparator;
+		$jsPath .= htmlspecialcharsbx(CUtil::JSEscape($ar_nav["NAME"]), ENT_QUOTES).$nameSeparator;
 	}
 }
 
-$arUsersCache = array();
+$arUsersCache = [];
 
-while($arRes = $rsData->NavNext(true, "f_"))
+while ($arRes = $rsData->Fetch())
 {
-	$sec_list_url = $extReloadUrl.'&find_section_section='.$f_ID;
+	$sec_list_url = $extReloadUrl . '&find_section_section=' . $arRes['ID'];
 
-	$row =& $lAdmin->AddRow($f_ID, $arRes);
+	$row =& $lAdmin->AddRow($arRes['ID'], $arRes);
 
-	if($entity_id)
+	if ($entity_id)
+	{
 		$USER_FIELD_MANAGER->AddUserFields($entity_id, $arRes, $row);
+	}
 
-	$row->AddViewField("NAME", '<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'.$f_NAME.'</a><div style="display:none" id="name_'.$f_ID.'">'.$strPath.$f_NAME.$nameSeparator.'</div>');
+	$row->AddViewField("NAME", '<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'.htmlspecialcharsbx($arRes['NAME'], ENT_QUOTES).'</a><div style="display:none" id="name_'.$arRes['ID'].'">'.$strPath.htmlspecialcharsbx($arRes['NAME'], ENT_QUOTES).$nameSeparator.'</div>');
 
 	$row->AddCheckField("ACTIVE", false);
 
 	if(array_key_exists("ELEMENT_CNT", $arVisibleColumnsMap))
-		$row->AddViewField("ELEMENT_CNT", $f_ELEMENT_CNT.'('.intval(CIBlockSection::GetSectionElementsCount($f_ID, Array("CNT_ALL"=>"Y"))).')');
-
-	if(array_key_exists("SECTION_CNT", $arVisibleColumnsMap))
 	{
-		$arFilter = Array("IBLOCK_ID"=>$IBLOCK_ID, "SECTION_ID"=>$f_ID);
-		$row->AddViewField("SECTION_CNT", '<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'.intval(CIBlockSection::GetCount($arFilter)).'</a>');
+		$row->AddViewField(
+			"ELEMENT_CNT",
+			$arRes['ELEMENT_CNT']
+				. '('
+				. CIBlockSection::GetSectionElementsCount($arRes['ID'], ["CNT_ALL" => "Y"])
+				. ')'
+		);
 	}
 
-	if(array_key_exists("MODIFIED_BY", $arVisibleColumnsMap) && intval($f_MODIFIED_BY) > 0)
+	if (array_key_exists("SECTION_CNT", $arVisibleColumnsMap))
 	{
-		if(!array_key_exists($f_MODIFIED_BY, $arUsersCache))
+		$row->AddViewField(
+			"SECTION_CNT",
+			'<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'
+				. CIBlockSection::GetCount([
+					'IBLOCK_ID' => $IBLOCK_ID,
+					'SECTION_ID' => $arRes['ID'],
+				])
+				. '</a>'
+		);
+	}
+
+	if (array_key_exists("MODIFIED_BY", $arVisibleColumnsMap) && (int)$arRes['MODIFIED_BY'] > 0)
+	{
+		$userId = (int)$arRes['MODIFIED_BY'];
+		if (!array_key_exists($userId, $arUsersCache))
 		{
-			$rsUser = CUser::GetByID($f_MODIFIED_BY);
-			$arUsersCache[$f_MODIFIED_BY] = $rsUser->Fetch();
+			$rsUser = CUser::GetByID($userId);
+			$arUsersCache[$userId] = $rsUser->Fetch();
 		}
-		if($arUser = $arUsersCache[$f_MODIFIED_BY])
-			$row->AddViewField("MODIFIED_BY", '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$f_MODIFIED_BY.'" title="'.GetMessage("IBLOCK_SECSEARCH_USERINFO").'">'.$f_MODIFIED_BY."</a>]&nbsp;(".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($arUser["NAME"]." ".$arUser["LAST_NAME"]));
+		if($arUser = $arUsersCache[$userId])
+			$row->AddViewField("MODIFIED_BY", '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$userId.'" title="'.GetMessage("IBLOCK_SECSEARCH_USERINFO").'">'.$userId."</a>]&nbsp;(".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($arUser["NAME"]." ".$arUser["LAST_NAME"]));
 	}
 
-	if(array_key_exists("CREATED_BY", $arVisibleColumnsMap) && intval($f_CREATED_BY) > 0)
+	if(array_key_exists("CREATED_BY", $arVisibleColumnsMap) && (int)$arRes['CREATED_BY'] > 0)
 	{
-		if(!array_key_exists($f_CREATED_BY, $arUsersCache))
+		$userId = (int)$arRes['CREATED_BY'];
+		if(!array_key_exists($userId, $arUsersCache))
 		{
-			$rsUser = CUser::GetByID($f_CREATED_BY);
-			$arUsersCache[$f_CREATED_BY] = $rsUser->Fetch();
+			$rsUser = CUser::GetByID($userId);
+			$arUsersCache[$userId] = $rsUser->Fetch();
 		}
-		if($arUser = $arUsersCache[$f_MODIFIED_BY])
-			$row->AddViewField("CREATED_BY", '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$f_CREATED_BY.'" title="'.GetMessage("IBLOCK_SECSEARCH_USERINFO").'">'.$f_CREATED_BY."</a>]&nbsp;(".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($arUser["NAME"]." ".$arUser["LAST_NAME"]));
+		if($arUser = $arUsersCache[$userId])
+			$row->AddViewField("CREATED_BY", '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$userId.'" title="'.GetMessage("IBLOCK_SECSEARCH_USERINFO").'">'.$userId."</a>]&nbsp;(".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($arUser["NAME"]." ".$arUser["LAST_NAME"]));
 	}
 
-	$row->AddActions(array(
-		array(
+	$row->AddActions([
+		[
 			"DEFAULT" => "Y",
 			"TEXT" => GetMessage("IBLOCK_SECSEARCH_SELECT"),
-			"ACTION"=>"javascript:SelEl('".($get_xml_id? $f_XML_ID: $f_ID)."', '".htmlspecialcharsbx($jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES)).$nameSeparator."')",
-		),
-	));
+			"ACTION"=>"javascript:SelEl('".($get_xml_id? $arRes['XML_ID']: $arRes['ID'])."', '".htmlspecialcharsbx($jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES)).$nameSeparator."')",
+		],
+	]);
 	unset($row);
 }
 
-$lAdmin->AddFooter(
-	array(
-		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
-		array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-	)
-);
+$lAdmin->AddFooter([
+	[
+		"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
+		"value" => $rsData->SelectedRowsCount(),
+	],
+	[
+		"counter" => true,
+		"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
+		"value" => "0",
+	],
+]);
 
-if($m)
+if ($m)
 {
-	$lAdmin->AddGroupActionTable(array(
-		array(
-			"action" => "SelAll()",
-			"value" => "select",
-			"type" => "button",
-			"name" => GetMessage("IBLOCK_SECSEARCH_SELECT"),
-			)
-	), array("disable_action_target"=>true));
+	$lAdmin->AddGroupActionTable(
+		[
+			[
+				"action" => "SelAll()",
+				"value" => "select",
+				"type" => "button",
+				"name" => GetMessage("IBLOCK_SECSEARCH_SELECT"),
+			],
+		],
+		["disable_action_target" => true]
+	);
 }
 
-$lAdmin->AddAdminContextMenu(array(), false);
+$lAdmin->AddAdminContextMenu([], false);
 
 if($IBLOCK_ID > 0)
 {
 	$chain = $lAdmin->CreateChain();
-	if(intval($find_section_section)>0)
+	if ($currentSectionId > 0)
 	{
-		$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
-		while($ar_nav = $nav->GetNext())
+		$nav = CIBlockSection::GetNavChain(
+			$IBLOCK_ID,
+			$currentSectionId,
+			[
+				'ID',
+				'NAME',
+			],
+			true
+		);
+		foreach ($nav as $ar_nav)
 		{
-			if($find_section_section==$ar_nav["ID"])
+			if ((int)$ar_nav["ID"] === $currentSectionId)
 			{
-				$chain->AddItem(array(
+				$chain->AddItem([
 					"TEXT" => $ar_nav["NAME"],
-				));
+				]);
 			}
 			else
 			{
-				$chain->AddItem(array(
+				$chain->AddItem([
 					"TEXT" => $ar_nav["NAME"],
 					"LINK" => $extReloadUrl.'&find_section_section='.$ar_nav["ID"],
 					"ONCLICK" => $lAdmin->ActionRedirect($extReloadUrl.'&find_section_section='.$ar_nav["ID"]).';return false;',
-				));
+				]);
 			}
 		}
 	}
@@ -416,7 +496,10 @@ if($IBLOCK_ID > 0)
 else
 {
 	$lAdmin->BeginPrologContent();
-	$message = new CAdminMessage(array("MESSAGE"=>GetMessage("IBLOCK_SECSEARCH_CHOOSE_IBLOCK"), "TYPE"=>"OK"));
+	$message = new CAdminMessage([
+		"MESSAGE" => GetMessage("IBLOCK_SECSEARCH_CHOOSE_IBLOCK"),
+		"TYPE"=>"OK",
+	]);
 	echo $message->Show();
 	$lAdmin->EndPrologContent();
 }
@@ -429,23 +512,29 @@ $lAdmin->CheckListMode();
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 
 $chain = new CAdminChain("main_navchain");
-$chain->AddItem(array(
+$chain->AddItem([
 	"TEXT" => htmlspecialcharsbx($arIBlock["NAME"]),
 	"LINK" => $extReloadUrl.'&find_section_section=0',
 	"ONCLICK" => $lAdmin->ActionRedirect($extReloadUrl.'&find_section_section=0').';return false;',
-));
+]);
 $chain->Show();
 ?>
-<form method="GET" name="find_section_form" action="<?echo $APPLICATION->GetCurPage()?>">
-<?
-$arFindFields = array();
+<form method="GET" name="find_section_form" action="<?= $APPLICATION->GetCurPage(); ?>">
+<?php
+$arFindFields = [];
+$defaultFilterFields = [];
 if (!$iblockFix)
+{
 	$arFindFields['IBLOCK_ID'] = GetMessage('IBLOCK_SECSEARCH_IBLOCK');
+	$defaultFilterFields[] = 'IBLOCK_ID';
+}
 if ($useParentFilter)
+{
 	$arFilterFields['parent'] = GetMessage('IBLOCK_SECSEARCH_PARENT_ID');
+}
 $arFindFields = array_merge(
 	$arFindFields,
-	array(
+	[
 		"name" => GetMessage("IBLOCK_SECSEARCH_NAME"),
 		"id" => GetMessage("IBLOCK_SECSEARCH_ID"),
 		"timestamp_x" => GetMessage("IBLOCK_SECSEARCH_TIMESTAMP"),
@@ -455,11 +544,13 @@ $arFindFields = array_merge(
 		"code" => GetMessage("IBLOCK_SECSEARCH_CODE"),
 		"xml_id" => GetMessage("IBLOCK_SECSEARCH_XML_ID"),
 		"active" => GetMessage("IBLOCK_SECSEARCH_ACTIVE"),
-	)
+	]
 );
+$defaultFilterFields[] = 'NAME';
 $USER_FIELD_MANAGER->AddFindFields($entity_id, $arFindFields);
 
 $oFilter = new CAdminFilter($sTableID."_filter", $arFindFields);
+$oFilter->SetDefaultRows($defaultFilterFields);
 
 ?>
 <script type="text/javascript">
@@ -469,14 +560,14 @@ function applyFilter(el)
 {
 	if (blockedFilter)
 		return false;
-	<?=$sTableID."_filter";?>.OnSet('<?=CUtil::JSEscape($sTableID); ?>', '<?=CUtil::JSEscape($reloadUrl); ?>');
+	<?= $sTableID."_filter"; ?>.OnSet('<?= CUtil::JSEscape($sTableID); ?>', '<?= CUtil::JSEscape($reloadUrl); ?>');
 	return false;
 }
 function deleteFilter(el)
 {
 	if (blockedFilter)
 		return false;
-	<?=$sTableID."_filter"?>.OnClear('<?=CUtil::JSEscape($sTableID); ?>', '<?=CUtil::JSEscape($reloadUrl)?>');
+	<?= $sTableID."_filter"?>.OnClear('<?= CUtil::JSEscape($sTableID); ?>', '<?= CUtil::JSEscape($reloadUrl); ?>');
 	return false;
 }
 
@@ -484,44 +575,44 @@ function deleteFilter(el)
 function SelEl(id, name)
 {
 	var el;
-	<?
+	<?php
 	if ('' != $lookup)
 	{
 		if ('' != $m)
 		{
-			?>window.opener.<? echo $lookup; ?>.AddValue(id);<?
+			?>window.opener.<?= $lookup; ?>.AddValue(id);<?php
 		}
 		else
 		{
 			?>
-			window.opener.<? echo $lookup; ?>.AddValue(id);
-			window.close();<?
+			window.opener.<?= $lookup; ?>.AddValue(id);
+			window.close();<?php
 		}
 	}
 	else
 	{
 		if($m)
 		{
-			?>window.opener.InS<?echo md5($n)?>(id, name);<?
+			?>window.opener.InS<?= md5($n); ?>(id, name);<?php
 		}
 		else
 		{
-			?>el = window.opener.document.getElementById('<?echo $n?>[<?echo $k?>]');
+			?>el = window.opener.document.getElementById('<?= $n; ?>[<?= $k?>]');
 		if(!el)
-			el = window.opener.document.getElementById('<?echo $n?>');
+			el = window.opener.document.getElementById('<?= $n; ?>');
 		if(el)
 			el.value = id;
-		el = window.opener.document.getElementById('sp_<?echo md5($n)?>_<?echo $k?>');
+		el = window.opener.document.getElementById('sp_<?= md5($n); ?>_<?= $k; ?>');
 		if(!el)
-			el = window.opener.document.getElementById('sp_<?echo $n?>');
+			el = window.opener.document.getElementById('sp_<?= $n; ?>');
 		if (!el)
-			el = window.opener.document.getElementById('<?echo md5($n)?>_<?echo $k?>_link');
+			el = window.opener.document.getElementById('<?= md5($n); ?>_<?= $k; ?>_link');
 		if(!el)
-			el = window.opener.document.getElementById('<?echo $n?>_link');
+			el = window.opener.document.getElementById('<?= $n; ?>_link');
 		if(el)
 			el.innerHTML = name;
 		window.close();
-		<?
+		<?php
 		}
 	}
 	?>
@@ -529,7 +620,7 @@ function SelEl(id, name)
 
 function SelAll()
 {
-	var frm = BX('form_<?echo $sTableID?>'),
+	var frm = BX('form_<?= $sTableID; ?>'),
 		e,
 		v,
 		n,
@@ -562,7 +653,7 @@ function SelAll()
 
 function reloadFilter(el)
 {
-	var newUrl = '<? echo CUtil::JSEscape($reloadUrl); ?>',
+	var newUrl = '<?= CUtil::JSEscape($reloadUrl); ?>',
 		iblockID = 0;
 
 	if (!el)
@@ -572,7 +663,7 @@ function reloadFilter(el)
 		iblockID = parseInt(el.value, 10);
 		if (isNaN(iblockID))
 			iblockID = 0;
-		if (iblockID > 0 && iblockID != <? echo $IBLOCK_ID; ?>)
+		if (iblockID > 0 && iblockID !== <?= $IBLOCK_ID; ?>)
 		{
 			blockedFilter = true;
 			newUrl += ('&IBLOCK_ID=' + iblockID) + ('&find_iblock_id=' + iblockID) + '&set_filter=y';
@@ -581,11 +672,11 @@ function reloadFilter(el)
 	}
 }
 
-</script><?
+</script><?php
 if ($iblockFix)
 {
-	?><input type="hidden" name="IBLOCK_ID" value="<?=$IBLOCK_ID; ?>">
-	<input type="hidden" name="find_iblock_id" value="<?=$IBLOCK_ID; ?>"><?
+	?><input type="hidden" name="IBLOCK_ID" value="<?= $IBLOCK_ID; ?>">
+	<input type="hidden" name="find_iblock_id" value="<?= $IBLOCK_ID; ?>"><?php
 }
 $oFilter->Begin();
 if (!$iblockFix)
@@ -622,115 +713,132 @@ if (!$iblockFix)
 	}
 	unset($hideIblockList);
 	?><tr>
-		<td><b><?echo GetMessage("IBLOCK_SECSEARCH_IBLOCK")?></b></td>
-		<td><?echo GetIBlockDropDownListEx(
+		<td><b><?= GetMessage("IBLOCK_SECSEARCH_IBLOCK"); ?></b></td>
+		<td><?= GetIBlockDropDownListEx(
 				$IBLOCK_ID,
 				"find_type",
 				"find_iblock_id",
 				$iblockFilter,
 				'',
 				'reloadFilter(this)'
-			);?></td>
+			);
+		?></td>
 	</tr>
-	<?
+	<?php
 }
 if ($useParentFilter)
 {
 ?><tr>
-	<td><?echo GetMessage("IBLOCK_SECSEARCH_PARENT_ID")?>:</td>
+	<td><?= GetMessage("IBLOCK_SECSEARCH_PARENT_ID")?>:</td>
 	<td>
 		<select name="find_section_section" >
-			<option value=""><?echo GetMessage("IBLOCK_SECSEARCH_ALL_PARENTS")?></option>
-			<option value="0"<?if($find_section_section=="0")echo" selected"?>><?echo GetMessage("IBLOCK_SECSEARCH_ROOT_PARENT_ID")?></option>
-			<?
+			<option value=""><?= GetMessage("IBLOCK_SECSEARCH_ALL_PARENTS"); ?></option>
+			<option value="0"<?= ($currentFilter['find_section_section'] === '0'  ? ' selected' : ''); ?>><?= GetMessage("IBLOCK_SECSEARCH_ROOT_PARENT_ID"); ?></option>
+			<?php
 			$bsections = CIBlockSection::GetTreeList(array("IBLOCK_ID"=>$IBLOCK_ID), array("ID", "NAME", "DEPTH_LEVEL"));
 			while($arSection = $bsections->GetNext()):
-				?><option value="<?echo $arSection["ID"]?>"<?if($arSection["ID"]==$find_section_section)echo " selected"?>><?echo str_repeat("&nbsp;.&nbsp;", $arSection["DEPTH_LEVEL"])?><?echo $arSection["NAME"]?></option><?
+				?><option value="<?= $arSection["ID"]?>"<?= ($arSection['ID'] === $currentFilter['find_section_section'] ? ' selected' : ''); ?>><?= str_repeat("&nbsp;.&nbsp;", $arSection["DEPTH_LEVEL"]) .  $arSection["NAME"]; ?></option><?php
 			endwhile;
 			?>
 		</select>
 	</td>
-	</tr><?
+	</tr><?php
 }
 ?>
 	<tr>
-		<td><b><?echo GetMessage("IBLOCK_SECSEARCH_NAME")?>:</b></td>
-		<td><input type="text" name="find_section_name" value="<?echo htmlspecialcharsbx($find_section_name)?>" size="47">&nbsp;<?=ShowFilterLogicHelp()?></td>
+		<td><b><?= GetMessage("IBLOCK_SECSEARCH_NAME")?>:</b></td>
+		<td><input type="text" name="find_section_name" value="<?= htmlspecialcharsbx($currentFilter['find_section_name']); ?>" size="47">&nbsp;<?=ShowFilterLogicHelp()?></td>
 	</tr>
 
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_ID")?>:</td>
-		<td><input type="text" name="find_section_id" size="47" value="<?echo htmlspecialcharsbx($find_section_id)?>"></td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_ID")?>:</td>
+		<td><input type="text" name="find_section_id" size="47" value="<?= htmlspecialcharsbx($currentFilter['find_section_id']); ?>"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_TIMESTAMP").":"?></td>
-		<td><?echo CalendarPeriod("find_section_timestamp_1", htmlspecialcharsbx($find_section_timestamp_1), "find_section_timestamp_2", htmlspecialcharsbx($find_section_timestamp_2), "find_section_form","Y")?></td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_TIMESTAMP").":"?></td>
+		<td><?= CalendarPeriod(
+			"find_section_timestamp_1",
+			htmlspecialcharsbx($currentFilter['find_section_timestamp_1']),
+			"find_section_timestamp_2",
+			htmlspecialcharsbx($currentFilter['find_section_timestamp_2']),
+			"find_section_form",
+			"Y"
+			);
+		?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_MODIFIED_BY")?>:</td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_MODIFIED_BY")?>:</td>
 		<td>
-			<?echo FindUserID(
-				/*$tag_name=*/"find_section_modified_user_id",
-				/*$tag_value=*/$find_section_modified_by,
-				/*$user_name=*/"",
-				/*$form_name=*/"find_section_form",
-				/*$tag_size=*/"5",
-				/*$tag_maxlength=*/"",
-				/*$button_value=*/" ... ",
-				/*$tag_class=*/"",
-				/*$button_class=*/""
+			<?= FindUserID(
+				"find_section_modified_user_id",
+				$currentFilter['find_section_modified_user_id'],
+				"",
+				"find_section_form",
+				"5",
+				"",
+				" ... ",
+				"",
+				""
 			);?>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_DATE_CREATE").":"?></td>
-		<td><?echo CalendarPeriod("find_section_date_create_1", htmlspecialcharsbx($find_section_date_create_1), "find_section_date_create_2", htmlspecialcharsbx($find_section_date_create_2), "find_section_form")?></td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_DATE_CREATE").":"?></td>
+		<td><?= CalendarPeriod(
+			"find_section_date_create_1",
+			htmlspecialcharsbx($currentFilter['find_section_date_create_1']),
+			"find_section_date_create_2",
+			htmlspecialcharsbx($currentFilter['find_section_date_create_2']),
+			"find_section_form",
+			'Y'
+			);
+		?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_CREATED_BY")?>:</td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_CREATED_BY")?>:</td>
 		<td>
-			<?echo FindUserID(
-				/*$tag_name=*/"find_section_created_user_id",
-				/*$tag_value=*/$find_section_created_by,
-				/*$user_name=*/"",
-				/*$form_name=*/"find_section_form",
-				/*$tag_size=*/"5",
-				/*$tag_maxlength=*/"",
-				/*$button_value=*/" ... ",
-				/*$tag_class=*/"",
-				/*$button_class=*/""
+			<?= FindUserID(
+				"find_section_created_user_id",
+				$currentFilter['find_section_created_user_id'],
+				"",
+				"find_section_form",
+				"5",
+				"",
+				" ... ",
+				"",
+				""
 			);?>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_CODE")?>:</td>
-		<td><input type="text" name="find_section_code" size="47" value="<?echo htmlspecialcharsbx($find_section_code)?>"></td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_CODE")?>:</td>
+		<td><input type="text" name="find_section_code" size="47" value="<?= htmlspecialcharsbx($currentFilter['find_section_code']); ?>"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_XML_ID")?>:</td>
-		<td><input type="text" name="find_section_external_id" size="47" value="<?echo htmlspecialcharsbx($find_section_external_id)?>"></td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_XML_ID")?>:</td>
+		<td><input type="text" name="find_section_external_id" size="47" value="<?= htmlspecialcharsbx($currentFilter['find_section_external_id']); ?>"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_ACTIVE")?>:</td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_ACTIVE")?>:</td>
 		<td>
 			<select name="find_section_active" >
-				<option value=""><?=htmlspecialcharsbx(GetMessage('IBLOCK_ALL'))?></option>
-				<option value="Y"<?if($find_section_active=="Y")echo " selected"?>><?=htmlspecialcharsbx(GetMessage("IBLOCK_YES"))?></option>
-				<option value="N"<?if($find_section_active=="N")echo " selected"?>><?=htmlspecialcharsbx(GetMessage("IBLOCK_NO"))?></option>
+				<option value=""><?= htmlspecialcharsbx(GetMessage('IBLOCK_ALL')); ?></option>
+				<option value="Y"<?= ($currentFilter['find_section_active'] === 'Y' ? ' selected' : ''); ?>><?=htmlspecialcharsbx(GetMessage("IBLOCK_YES"))?></option>
+				<option value="N"<?= ($currentFilter['find_section_active'] === 'N' ? ' selected' : ''); ?>><?=htmlspecialcharsbx(GetMessage("IBLOCK_NO"))?></option>
 			</select>
 		</td>
 	</tr>
-<?
+<?php
 $USER_FIELD_MANAGER->AdminListShowFilter($entity_id);
 $oFilter->Buttons();
 ?>
-<span class="adm-btn-wrap"><input type="submit"  class="adm-btn" name="set_filter" value="<? echo GetMessage("admin_lib_filter_set_butt"); ?>" title="<? echo GetMessage("admin_lib_filter_set_butt_title"); ?>" onclick="return applyFilter(this);"></span>
-<span class="adm-btn-wrap"><input type="submit"  class="adm-btn" name="del_filter" value="<? echo GetMessage("admin_lib_filter_clear_butt"); ?>" title="<? echo GetMessage("admin_lib_filter_clear_butt_title"); ?>" onclick="return deleteFilter(this);"></span>
-<?
+<span class="adm-btn-wrap"><input type="submit"  class="adm-btn" name="set_filter" value="<?= GetMessage("admin_lib_filter_set_butt"); ?>" title="<?= GetMessage("admin_lib_filter_set_butt_title"); ?>" onclick="return applyFilter(this);"></span>
+<span class="adm-btn-wrap"><input type="submit"  class="adm-btn" name="del_filter" value="<?= GetMessage("admin_lib_filter_clear_butt"); ?>" title="<?= GetMessage("admin_lib_filter_clear_butt_title"); ?>" onclick="return deleteFilter(this);"></span>
+<?php
 $oFilter->End();
 ?>
 </form>
-<?
+<?php
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");

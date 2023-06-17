@@ -186,38 +186,41 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
-	if ($ID > 0)
-	{
-		?><tr>
-			<td width="40%">ID:</td>
-			<td width="60%"><?=$ID?></td>
-		</tr><?
-	}
-	?>
-	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("CEEN_NAME")?>:</td>
-		<td width="60%">
-			<input type="text" name="NAME" size="50" value="<? echo htmlspecialcharsbx($str_NAME); ?>">
-		</td>
-	</tr>
-	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("CEEN_PERCENTAGE")?>:</td>
-		<td width="60%">
-			<input type="text" name="PERCENTAGE" size="10" maxlength="20" value="<?=htmlspecialcharsbx($str_PERCENTAGE); ?>" />%
-		</td>
-	</tr>
-	<?
+	$disabledAttribute = $bReadOnly ? ' disabled ' : '';
 	if ($ID > 0)
 	{
 		?>
 		<tr>
-			<td width="40%"><?echo GetMessage("CEEN_RECALC")?>:</td>
+			<td width="40%">ID:</td>
+			<td width="60%"><?=$ID?></td>
+		</tr>
+		<?php
+	}
+	?>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?= GetMessage("CEEN_NAME")?>:</td>
+		<td width="60%">
+			<input type="text" name="NAME" size="50" <?= $disabledAttribute ?> value="<?= htmlspecialcharsbx($str_NAME) ?>">
+		</td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?= GetMessage("CEEN_PERCENTAGE")?>:</td>
+		<td width="60%">
+			<input type="text" name="PERCENTAGE" size="10" maxlength="20" <?=$disabledAttribute?> value="<?=(float)$str_PERCENTAGE?>" />%
+		</td>
+	</tr>
+	<?php
+	if ($ID > 0)
+	{
+		?>
+		<tr>
+			<td width="40%"><?= GetMessage("CEEN_RECALC")?>:</td>
 			<td width="60%">
 				<input type="hidden" name="RECALCULATE" value="N" />
-				<input type="checkbox" name="RECALCULATE" value="Y"<?if ($str_RECALCULATE == "Y") echo " checked"?> />
+				<input type="checkbox" name="RECALCULATE" value="Y" <?=$disabledAttribute?> <?= ($str_RECALCULATE === "Y") ? " checked" : ''?> />
 			</td>
 		</tr>
-		<?
+		<?php
 	}
 
 $tabControl->EndTab();
@@ -225,4 +228,5 @@ $tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 $tabControl->End();
 ?>
 </form>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

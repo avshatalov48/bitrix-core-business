@@ -81,7 +81,7 @@ class Counter
 					: 'CRM_**'
 			);
 		}
-		elseif($params['EXACT_EVENT_ID'] === 'blog_post')
+		elseif(($params['EXACT_EVENT_ID'] ?? '') === 'blog_post')
 		{
 			$result['COUNTER_TYPE'] = 'blog_post';
 		}

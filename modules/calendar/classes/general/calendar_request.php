@@ -1,4 +1,8 @@
 <?
+
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Main\Localization\Loc;
 
 class CCalendarRequest
@@ -14,7 +18,7 @@ class CCalendarRequest
 
 		self::$request = \Bitrix\Main\Context::getCurrent()->getRequest()->toArray();
 
-		if ($_REQUEST['skip_unescape'] !== 'Y')
+		if (($_REQUEST['skip_unescape'] ?? null) !== 'Y')
 		{
 			CUtil::decodeURIComponent(self::$request);
 			CUtil::JSPostUnEscape();
@@ -23,14 +27,14 @@ class CCalendarRequest
 		self::$calendar = $calendar;
 
 		// Export calendar
-		if ($action == 'export')
+		if ($action === 'export')
 		{
 			// We don't need to check access  couse we will check security SIGN from the URL
-			$sectId = intval($_GET['sec_id']);
-			if ($_GET['check'] == 'Y') // Just for access check from calendar interface
+			$sectId = (int)$_GET['sec_id'];
+			if (($_GET['check'] ?? null) === 'Y') // Just for access check from calendar interface
 			{
 				$APPLICATION->RestartBuffer();
-				if (CCalendarSect::CheckSign($_GET['sign'], intval($_GET['user']), $sectId > 0 ? $sectId : 'superposed_calendars'))
+				if (CCalendarSect::CheckSign($_GET['sign'], (int)$_GET['user'], $sectId > 0 ? $sectId : 'superposed_calendars'))
 				{
 					echo 'BEGIN:VCALENDAR';
 				}
@@ -38,16 +42,16 @@ class CCalendarRequest
 				die();
 			}
 
-			if (CCalendarSect::CheckAuthHash() && $sectId > 0)
+			if ($sectId > 0 && CCalendarSect::CheckAuthHash())
 			{
 				// We don't need any warning in .ics file
 				error_reporting(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE);
 				CCalendarSect::ReturnICal(array(
 					'sectId' => $sectId,
-					'userId' => intval($_GET['user']),
+					'userId' => (int)$_GET['user'],
 					'sign' => $_GET['sign'],
 					'type' => $_GET['type'],
-					'ownerId' => intval($_GET['owner'])
+					'ownerId' => (int)$_GET['owner']
 				));
 			}
 			else
@@ -58,7 +62,11 @@ class CCalendarRequest
 		else
 		{
 			// Check the access
-			if (!CCalendarType::CanDo('calendar_type_view', CCalendar::GetType()) || !check_bitrix_sessid())
+			$accessController = new TypeAccessController(CCalendar::GetUserId());
+			$typeModel = TypeModel::createFromXmlId(CCalendar::GetType());
+			$action = ActionDictionary::ACTION_TYPE_VIEW;
+
+			if (!$accessController->check($action, $typeModel) || !check_bitrix_sessid())
 			{
 				$APPLICATION->ThrowException(Loc::getMessage("EC_ACCESS_DENIED"));
 				return false;
@@ -66,7 +74,7 @@ class CCalendarRequest
 
 			$APPLICATION->ShowAjaxHead();
 			$APPLICATION->RestartBuffer();
-			self::$reqId = intval($_REQUEST['reqId']);
+			self::$reqId = (int)$_REQUEST['reqId'];
 
 			switch ($action)
 			{
@@ -102,7 +110,7 @@ class CCalendarRequest
 		}
 		if ($reqId === false)
 		{
-			$reqId = intval($_REQUEST['reqId']);
+			$reqId = (int)($_REQUEST['reqId'] ?? null);
 		}
 		if (!$reqId)
 		{
@@ -117,8 +125,8 @@ class CCalendarRequest
 	{
 		CCalendarEvent::SetMeetingStatusEx(array(
 			'attendeeId' => CCalendar::GetUserId(),
-			'eventId' => intval($_REQUEST['event_id']),
-			'parentId' => intval($_REQUEST['parent_id']),
+			'eventId' => (int)$_REQUEST['event_id'],
+			'parentId' => (int)$_REQUEST['parent_id'],
 			'status' => in_array($_REQUEST['status'], array('Q', 'Y', 'N')) ? $_REQUEST['status'] : 'Q',
 			'reccurentMode' => in_array($_REQUEST['reccurent_mode'], array('this', 'next', 'all')) ? $_REQUEST['reccurent_mode'] : false,
 			'currentDateFrom' => CCalendar::Date(CCalendar::Timestamp($_REQUEST['current_date_from']), false)
@@ -138,7 +146,7 @@ class CCalendarRequest
 
 	public static function UpdatePlanner()
 	{
-		$curEventId = intval(self::$request['cur_event_id']);
+		$curEventId = (int)self::$request['cur_event_id'];
 		$curUserId = CCalendar::GetCurUserId();
 		$codes = false;
 		if (isset(self::$request['codes']) && is_array(self::$request['codes']))
@@ -147,7 +155,9 @@ class CCalendarRequest
 			foreach(self::$request['codes'] as $code)
 			{
 				if($code)
+				{
 					$codes[] = $code;
+				}
 			}
 
 			if(self::$request['add_cur_user_to_list'] === 'Y' || count($codes) <= 0)
@@ -165,7 +175,7 @@ class CCalendarRequest
 			'date_to' => CCalendar::Date(CCalendar::Timestamp(self::$request['date_to']), false),
 			'timezone' => self::$request['timezone'],
 			'location' => trim(self::$request['location']),
-			'roomEventId' => intval(self::$request['roomEventId'])
+			'roomEventId' => (int)self::$request['roomEventId']
 		));
 
 		self::OutputJSRes(self::$reqId, $result);

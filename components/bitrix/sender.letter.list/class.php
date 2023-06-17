@@ -324,6 +324,7 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					'canStop' => $letter->getState()->canStop(),
 					'canResume' => $letter->getState()->canResume(),
 					'isSendingLimitExceeded' => $letter->getState()->isSendingLimitExceeded(),
+					'isSendingLimitTemporary' => $letter->getState()->isSendingLimitTemporary(),
 					'isSendingLimitWaiting' => $letter->getState()->isSendingLimitWaiting(),
 				);
 

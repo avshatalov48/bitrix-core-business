@@ -16,7 +16,8 @@ type FolderEditOptions = {
 	selectorPreviewSrcPicture: HTMLElement,
 	selectorPreviewPictureWrapper: HTMLElement,
 	pathToLandingEdit: string,
-	pathToLandingCreate: string
+	pathToLandingCreate: string,
+	isUseNewMarket: bool,
 };
 
 export class FolderEdit
@@ -37,6 +38,7 @@ export class FolderEdit
 	#selectorPreviewPictureWrapper: HTMLElement;
 	#pathToLandingEdit: string;
 	#pathToLandingCreate: string;
+	#isUseNewMarket: bool;
 	#linkUrlSelector: BX.Landing.UI.Field.LinkUrl;
 	#linkPictureSelector: BX.Landing.UI.Field.Image;
 	#ajaxPathLoadPreview: string = '/bitrix/services/main/ajax.php?action=landing.api.landing.getById&landingId=#id#';
@@ -59,6 +61,7 @@ export class FolderEdit
 		this.#selectorPreviewPictureWrapper = options.selectorPreviewPictureWrapper;
 		this.#pathToLandingEdit = options.pathToLandingEdit;
 		this.#pathToLandingCreate = options.pathToLandingCreate;
+		this.#isUseNewMarket = options.isUseNewMarket;
 
 		this.#initSelector();
 		this.#initPicture();
@@ -148,7 +151,8 @@ export class FolderEdit
 		}
 		const path = this.#pathToLandingEdit.replace('#landing_edit#', id);
 
-		this.#selectorPageLink.text = title;
+		this.#selectorPageLink.innerHTML =
+			`<span id="landing-folder-index-link-text" class="landing-folder-index-link-text">${title}</span>`;
 		this.#selectorPageLink.setAttribute('href', path);
 		this.#selectorFieldId.setAttribute('value', id);
 
@@ -162,15 +166,22 @@ export class FolderEdit
 
 	#onClickIndexCreate(e)
 	{
-		BX.SidePanel.Instance.open(this.#pathToLandingCreate, {
+		const options = {
 			allowChangeHistory: false,
+
 			events: {
 				onClose: function()
 				{
 					window.location.reload();
 				}
 			}
-		});
+		};
+		if (this.#isUseNewMarket)
+		{
+			options.cacheable = false;
+			options.customLeftBoundary = 0;
+		}
+		BX.SidePanel.Instance.open(this.#pathToLandingCreate, options);
 		BX.PreventDefault(e);
 	}
 

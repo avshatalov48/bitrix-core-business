@@ -26,23 +26,8 @@ $MESS['BIZPROC_JS_DEBUGGER_LOG_TRIGGER_FINISH'] = 'Выполнен';
 $MESS['BIZPROC_JS_DEBUGGER_LOG_DELAY_INTERVAL_AT_ONCE'] = 'сразу';
 $MESS['BIZPROC_JS_DEBUGGER_LOG_CONDITION'] = 'Условие истина';
 $MESS['BIZPROC_JS_DEBUGGER_LOG_CONDITION_FALSE'] = 'Условие ложь';
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_EQ"] = "равно";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_GT"] = "больше";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_GTE"] = "не меньше";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_LT"] = "меньше";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_LTE"] = "не больше";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_NE"] = "не равно";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_IN"] = "содержится в";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_IN"] = "не содержится в";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_CONTAIN"] = "содержит";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_CONTAIN"] = "не содержит";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_NOT_EMPTY"] = "заполнено";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_EMPTY"] = "не заполнено";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_AND"] = "и";
-$MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_OR"] = "или";
-
-$MESS['BIZPROC_JS_DEBUGGER_LOG_OBJECT_DOCUMENT'] = 'поле';
-
+$MESS['BIZPROC_JS_DEBUGGER_LOG_CONDITION_AND'] = 'и';
+$MESS['BIZPROC_JS_DEBUGGER_LOG_CONDITION_OR'] = 'или';
 $MESS['BIZPROC_JS_DEBUGGER_NO_TRIGGERS_TITLE'] = 'На этой стадии нет триггеров';
 $MESS['BIZPROC_JS_DEBUGGER_NO_TRIGGERS_SUBTITLE'] = 'Триггеры автоматически двигают сделку по стадиям.';
 $MESS['BIZPROC_JS_DEBUGGER_NO_ROBOTS_TITLE'] = 'На этой стадии нет роботов';
@@ -55,24 +40,18 @@ $MESS['BIZPROC_JS_DEBUGGER_AUTOMATION_SETTINGS'] = 'Настроить';
 $MESS['BIZPROC_JS_DEBUGGER_SKIP_WAITING_TITLE'] = 'Пропустить паузу';
 $MESS['BIZPROC_JS_DEBUGGER_SKIP_WAITING_SUBTITLE'] = 'Некоторые роботы настроены с заданной паузой. Чтобы не ждать, вы можете пропустить паузу';
 $MESS['BIZPROC_JS_DEBUGGER_MORE_INFORMATION'] = 'подробнее';
-
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_LOG'] = 'Логи помогут отследить действия робота в конкретный момент времени и покажут, есть ли ошибка';
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_FIELD'] = 'Выберите поля, значения которых хотите отслеживать в процессе отладки';
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_ROBOT'] = 'Роботы возьмут на себя рутинные задачи и помогут автоматизировать процесс работы с клиентами и сотрудниками';
 $MESS['BIZPROC_JS_DEBUGGER_HELPTIP_TRIGGER'] = 'Отслеживают действия со стороны клиентов и некоторые изменения в CRM. Как только сработает триггер, элемент сразу перейдет на указанную стадию';
 $MESS['BIZPROC_JS_DEBUGGER_CATEGORY_CHANGE_MSGVER_1'] = 'Смена воронки с "#SOURCE_CATEGORY#" на "#DESTINATION_CATEGORY#"';
-
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TITLE'] = 'Не переживайте, все ваши сделки на месте';
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'] = 'Сейчас активен фильтр [b]Сделки в отладке[/b]. Здесь отображаются ваши сделки для отладки роботов';
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_2'] = 'Чтобы увидеть свои сделки, измените фильтр на [b]Сделки в работе[/b] или [b]Мои сделки[/b]';
-
-$MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION'] = 'Добавить сделку в отладчик';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION_1'] = 'Добавить сделку в отладчик';
-$MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION'] = 'Убрать сделку из отладки';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION_1'] = 'Убрать сделку из отладки';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FINISH_DEBUG_ACTION'] = 'Завершить отладку';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_COUNT_ERROR_TITLE'] = 'Вы можете выбрать для отладки только одну сделку';
-
 $MESS['BIZPROC_JS_DEBUGGER_STAGE_TOUR_TITLE'] = 'Здесь будут появляться все новые сделки';
 $MESS['BIZPROC_JS_DEBUGGER_STAGE_TOUR_TEXT_LINE_1'] = 'Это могут быть заявки реальных клиентов из подключенных каналов продаж и сэмулированные вами заявки';
 $MESS['BIZPROC_JS_DEBUGGER_STAGE_TOUR_TEXT_LINE_2'] = 'Выберите одну сделку, на которой хотите провести отладку. Остальные сделки вернутся в работу менеджерам';

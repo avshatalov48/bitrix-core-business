@@ -14,11 +14,17 @@ class WidgetBlock extends LandingBlock
 {
 	public function init(array $params = [])
 	{
-		$site = Site::getList(array(
-			'filter' => array(
+		$site = Site::getList([
+			'select' => ['CODE'],
+			'filter' => [
 				'ID' => $params['site_id']
-			)
-		))->fetch();
+			]
+		])->fetch();
+		if (!$site)
+		{
+			return;
+		}
+
 		$this->params['SITE_TYPE'] = Type::getSiteTypeForms($site['CODE']);
 
 		$hooks = Site::getHooks($params['site_id']);

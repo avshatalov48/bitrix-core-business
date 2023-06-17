@@ -273,7 +273,7 @@ class UserUtils
 	public static function getDepartmentName($departmentId)
 	{
 		$result = self::getDepartmentNames(Array($departmentId));
-		return isset($result[0])? $result[0]: false;
+		return $result[0] ?? false;
 	}
 
 	/**
@@ -465,7 +465,7 @@ class UserUtils
 	{
 		global $USER_FIELD_MANAGER;
 
-		$userTypeID = isset($userField['USER_TYPE_ID']) ? $userField['USER_TYPE_ID'] : '';
+		$userTypeID = $userField['USER_TYPE_ID'] ?? '';
 		if($userTypeID === 'boolean')
 		{
 			$values = [];

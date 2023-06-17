@@ -3,7 +3,7 @@ import 'ui.design-tokens';
 import {EventEmitter} from 'main.core.events';
 import {mapState} from 'ui.vue3.vuex';
 
-import {ChatTypes, EventType, RecentSettings, OpenTarget} from 'im.v2.const';
+import {DialogType, EventType, RecentSettings, OpenTarget} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 import {RecentService} from 'im.v2.provider.service';
 import {RecentLoadingState} from 'im.v2.component.old-chat-embedding.elements';
@@ -51,7 +51,7 @@ export const RecentList = {
 	{
 		collection()
 		{
-			return this.$store.getters['recent/getCollection'];
+			return this.$store.getters['recent/getRecentCollection'];
 		},
 		sections()
 		{
@@ -66,7 +66,7 @@ export const RecentList = {
 				}
 
 				const dialog = this.$store.getters['dialogues/get'](item.dialogId, true);
-				const isUser = dialog.type === ChatTypes.user;
+				const isUser = dialog.type === DialogType.user;
 				const hasBirthday = isUser && this.showBirthdays && this.$store.getters['users/hasBirthday'](item.dialogId);
 				if (!this.showInvited && item.options.defaultUserRecord && !hasBirthday)
 				{
@@ -128,7 +128,7 @@ export const RecentList = {
 	},
 	created()
 	{
-		this.recentService = RecentService.getInstance(this.$Bitrix);
+		this.recentService = RecentService.getInstance();
 		this.contextMenuManager = new RecentMenu(this.$Bitrix);
 
 		CallManager.init(this.$Bitrix);

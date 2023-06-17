@@ -24,7 +24,7 @@
 			items: Array.apply(null, {length: 160}).map(function(item, index) {
 				return {value: index, name: index};
 			}),
-			jsDD: window.jsDD,
+			jsDD: top.window.jsDD,
 			property: "font-size",
 			onDragStart: this.onDragStart.bind(this),
 			onDragEnd: this.onDragEnd.bind(this),
@@ -64,14 +64,14 @@
 		{
 			if (property === "font-size")
 			{
-				var selection = window.getSelection();
+				var selection = this.contextDocument.defaultView.getSelection();
 				var range = selection.getRangeAt(0);
 				var editable = BX.Landing.UI.Panel.EditorPanel.getInstance().currentElement.contains(range.startContainer);
 
 				if (selection.toString() && editable)
 				{
-					document.execCommand("fontSize", false, value);
-					range = window.getSelection().getRangeAt(0);
+					this.contextDocument.execCommand("fontSize", false, value);
+					range = this.contextDocument.defaultView.getSelection().getRangeAt(0);
 					var wrapper = range.startContainer.parentNode;
 					wrapper.style.fontSize = value + "px";
 				}
@@ -104,7 +104,7 @@
 				this.adjustPosition(position);
 				BX.Landing.UI.Button.ColorAction.hideAll();
 
-				var selection = window.getSelection();
+				var selection = this.contextDocument.defaultView.getSelection();
 				var range = selection.getRangeAt(0);
 
 				var editable = BX.Landing.UI.Panel.EditorPanel.getInstance().currentElement.contains(range.startContainer);

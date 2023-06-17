@@ -1520,11 +1520,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		return $optionClassName::get('sale', 'status_on_paid', '');
 	}
 
-    /**
-     * @return mixed
-     * @throws Main\ArgumentException
-     * @throws Main\SystemException
-     */
+	/**
+	 * @return mixed
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
 	protected function getStatusOnPartialPaid()
 	{
 		$registry = Registry::getInstance(static::getRegistryType());
@@ -1898,7 +1898,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	{
 		$providerInstance = null;
 
-		if (is_array($mapping))
+		if (is_array($mapping) && isset($mapping['PROVIDER_KEY']))
 		{
 			switch ($mapping['PROVIDER_KEY'])
 			{

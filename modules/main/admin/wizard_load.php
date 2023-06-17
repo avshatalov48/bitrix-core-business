@@ -37,7 +37,7 @@ do
 	{
 		$strError .= GetMessage("MAIN_WIZARD_IMPORT_ERROR");
 		$arErrors = &$oArchiver->GetErrors();
-		if(count($arErrors)>0)
+		if(!empty($arErrors))
 		{
 			$strError .= ":<br>";
 			foreach ($arErrors as $value)

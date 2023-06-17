@@ -1,6 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
 use Bitrix\Main;
-use Bitrix\Main\Config;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 use Bitrix\Sale\Location\Admin\SiteLocationHelper as Helper;
@@ -8,24 +11,44 @@ use Bitrix\Sale\Location\Admin\SearchHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
-if($APPLICATION->GetGroupRight("sale") < "W")
+if ($APPLICATION->GetGroupRight("sale") < "W")
+{
 	$APPLICATION->AuthForm(Loc::getMessage("SALE_MODULE_ACCES_DENIED"));
+}
+
+$userIsAdmin = $APPLICATION->GetGroupRight("sale") >= "W";
+
+$request = Context::getCurrent()->getRequest();
+$actionFailureMessage = '';
+$fatalFailureMessage = '';
+
+$id = (string)($request->get('id'));
+if ($id !== '')
+{
+	$id = Helper::tryParseSiteId($id);
+}
+else
+{
+	$id = false;
+}
 
 #####################################
 #### Data prepare
 #####################################
 
+$returnUrl = trim((string)$request->get('return_url'));
+$externalReturnUrl = $returnUrl !== '';
+$nameToDisplay = '';
+
 try
 {
 	$fatalFailure = false;
-	// todo: real condition here!
-	$userIsAdmin = true; //$USER->CanDoOperation('edit_other_settings');
 
 	#####################################
 	#### ACTIONS: update
@@ -33,17 +56,20 @@ try
 
 	$actionFailure = false;
 
-	$id = $_REQUEST['id'] <> ''? Helper::tryParseSiteId($_REQUEST['id']) : false;
-
-	$actionSave = isset($_REQUEST['save']);
-	$actionApply = isset($_REQUEST['apply']);
+	$actionSave = $request->get('save') !== null;
+	$actionApply = $request->get('apply') !== null;
 	$formSubmitted = ($actionSave || $actionApply) && check_bitrix_sessid();
 
-	$returnUrl = $_REQUEST['return_url'] <> ''? $_REQUEST['return_url'] : false;
+	$element = $request->get('element');
 
-	if($userIsAdmin && !empty($_REQUEST['element']) && $formSubmitted) // form submitted, handling it
+	if(
+		$userIsAdmin
+		&& !empty($element)
+		&& is_array($element)
+		&& $formSubmitted
+	) // form submitted, handling it
 	{
-		$saveAsId = Helper::tryParseSiteId($_REQUEST['element']['ID']);
+		$saveAsId = Helper::tryParseSiteId((string)($element['ID'] ?? ''));
 
 		global $DB;
 		$redirectUrl = false;
@@ -52,44 +78,57 @@ try
 		{
 			$DB->StartTransaction();
 
-			if($saveAsId) // existed, updating
+			if ($saveAsId) // existed, updating
 			{
-				$res = Helper::update($saveAsId, $_REQUEST['element']);
-				if($res['success']) // on successfull update ...
+				$res = Helper::update($saveAsId, $element);
+				if ($res['success']) // on successfull update ...
 				{
-					if($actionSave)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getListUrl(); // go to the page of just created item
+					if ($actionSave)
+					{
+						$redirectUrl = $returnUrl ?: Helper::getListUrl(); // go to the page of just created item
+					}
 
 					// $actionApply : do nothing
 				}
 			}
 			else
+			{
 				throw new Main\SystemException(Loc::getMessage('SALE_LOCATION_E_ITEM_NOT_FOUND'));
+			}
 
 			// on failure just show sad message
-			if(!$res['success'])
+			if (!$res['success'])
+			{
 				throw new Main\SystemException(implode('<br />', $res['errors']));
+			}
 
 			$DB->Commit();
 
-			if($redirectUrl)
+			if ($redirectUrl)
+			{
 				LocalRedirect($redirectUrl);
+			}
 		}
 		catch(Main\SystemException $e)
 		{
 			$actionFailure = true;
 
 			$code = $e->getCode();
-			$message = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
+			$message = $e->getMessage() . (!empty($code) ? ' (' . $code . ')' : '');
 
-			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_UPDATE_ITEM').($message <> ''? ': <br /><br />'.$message : '');
+			$actionFailureMessage =
+				Loc::getMessage('SALE_LOCATION_E_CANNOT_UPDATE_ITEM')
+				. ($message !== '' ? ': <br /><br />' . $message : '')
+			;
 
 			$DB->Rollback();
 		}
 	}
 
-	if(!$returnUrl)
+	if (!$returnUrl)
+	{
 		$returnUrl = Helper::getListUrl(); // default return page for "cancel" action
+	}
 
 	#####################################
 	#### READ FORM DATA
@@ -98,15 +137,17 @@ try
 	if($formSubmitted && $actionFailure) // if form were submitted, but form action (add or update) failed
 	{
 		// load from request
-		$formData = $_REQUEST['element'];
+		$formData = $element;
 
-		if($id)
+		if ($id)
+		{
 			$nameToDisplay = Helper::getNameToDisplay($id);
+		}
 
 		// cleaning up empty external data
-		if(is_array($formData['LOCATION']) && !empty($formData['LOCATION']))
+		if (!empty($formData['LOCATION']) && is_array($formData['LOCATION']))
 		{
-			foreach($formData['LOCATION'] as $lId => $external)
+			foreach ($formData['LOCATION'] as $lId => $external)
 			{
 				if(!intval($external['LOCATION_ID']))
 					unset($formData['LOCATION'][$lId]);
@@ -133,32 +174,74 @@ catch(Main\SystemException $e)
 	$fatalFailure = true;
 
 	$code = $e->getCode();
-	$fatalFailureMessage = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
+	$fatalFailureMessage = $e->getMessage() . (!empty($code) ? ' (' . $code . ')' : '');
 }
 
 #####################################
 #### PAGE INTERFACE GENERATION
 #####################################
 
-if(!$fatalFailure) // no fatals like "module not installed, etc."
+if ($nameToDisplay !== '')
 {
-	$topMenu = new CAdminContextMenu(array(
-		array(
+	$pageTitle = Loc::getMessage(
+		'SALE_LOCATION_E_ITEM_EDIT',
+		[
+			'#ITEM_NAME#' => htmlspecialcharsbx($nameToDisplay),
+		]
+	);
+}
+else
+{
+	$pageTitle = Loc::getMessage('SALE_LOCATION_E_ITEM_NEW');
+}
+$APPLICATION->SetTitle($pageTitle);
+unset($pageTitle);
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+#####################################
+#### Data output
+#####################################
+
+//temporal code
+if (!CSaleLocation::locationProCheckEnabled())
+{
+	require($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/epilog_admin.php");
+}
+
+SearchHelper::checkIndexesValid();
+
+if ($fatalFailure):
+	CAdminMessage::ShowMessage([
+		'MESSAGE' => $fatalFailureMessage,
+		'type' => 'ERROR',
+	]);
+else:
+	if ($actionFailure):
+		CAdminMessage::ShowMessage([
+			'MESSAGE' => $actionFailureMessage,
+			'type' => 'ERROR',
+		]);
+	endif;
+
+	$topMenu = new CAdminContextMenu([
+		[
 			"TEXT" => GetMessage("SALE_LOCATION_E_GO_BACK"),
 			"LINK" => Helper::getListUrl(),
 			"ICON" => "btn_list",
-		)
-	));
+		]
+	]);
+	$topMenu->Show();
 
 	$tabControl = new CAdminForm(
 		"tabcntrl_zone_edit",
-		array(
-			array(
+		[
+			[
 				"DIV" => "main",
 				"TAB" => Loc::getMessage('SALE_LOCATION_E_MAIN_TAB'),
-				"TITLE" =>  Loc::getMessage('SALE_LOCATION_E_MAIN_TAB_TITLE')
-			)
-		),
+				"TITLE" =>  Loc::getMessage('SALE_LOCATION_E_MAIN_TAB_TITLE'),
+			],
+		],
 		true,
 		true
 	);
@@ -167,92 +250,68 @@ if(!$fatalFailure) // no fatals like "module not installed, etc."
 	$tabControl->EndPrologContent();
 	$tabControl->BeginEpilogContent();
 
+
+	if ($externalReturnUrl):
+		?>
+		<input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl); ?>">
+	<?php
+	endif;
 	?>
-	<? if($_REQUEST['return_url'] <> ''):?>
-	<input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl) ?>">
-<?endif?>
-	<?=bitrix_sessid_post()?>
-	<?
+	<?=bitrix_sessid_post(); ?>
+	<?php
 	$tabControl->EndEpilogContent();
-}
 
-$APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_ITEM_EDIT', array('#ITEM_NAME#' => htmlspecialcharsbx($nameToDisplay))) : Loc::getMessage('SALE_LOCATION_E_ITEM_NEW'));
-?>
-
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
-
-<?
-#####################################
-#### Data output
-#####################################
-?>
-
-<?//temporal code?>
-<?if(!CSaleLocation::locationProCheckEnabled())require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
-
-<?SearchHelper::checkIndexesValid();?>
-
-<?if($fatalFailure):?>
-
-	<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatalFailureMessage, 'type' => 'ERROR'))?>
-
-<?else:?>
-
-	<?if($actionFailure):?>
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $actionFailureMessage, 'type' => 'ERROR'))?>
-	<?endif?>
-
-	<?
-	$topMenu->Show();
-
-	$args = array();
-	if($id)
+	$args = [];
+	if ($id)
+	{
 		$args['id'] = $id;
+	}
 
-	$tabControl->Begin(array(
+	$tabControl->Begin([
 		"FORM_ACTION" => Helper::getEditUrl($args) // generally, it is not safe to leave action empty
-	));
+	]);
 	$tabControl->BeginNextFormTab();
-	?>
 
-	<?$tabControl->BeginCustomField('LOCATIONS', Loc::getMessage('SALE_LOCATION_E_HEADING_LOCATIONS'));?>
-		<tr>
+	$tabControl->BeginCustomField('LOCATIONS', Loc::getMessage('SALE_LOCATION_E_HEADING_LOCATIONS'));?>
 
 			<tr class="heading">
 				<td colspan="2">
 					<?=GetMessage('SALE_LOCATION_E_FLD_LOCATIONS')?>
 				</td>
 			</tr>
-
+		<tr>
 			<td>
 				<input type="hidden" name="element[ID]" value="<?=$id?>" />
-				<?$APPLICATION->IncludeComponent("bitrix:sale.location.selector.system", "", array(
+				<?php
+				$APPLICATION->IncludeComponent(
+					"bitrix:sale.location.selector.system",
+					"",
+					[
 						"ENTITY_PRIMARY" => $id,
 						"LINK_ENTITY_NAME" => "Bitrix\Sale\Location\SiteLocation",
 						"INPUT_NAME" => 'element[LOC]',
-						"SELECTED_IN_REQUEST" => array(
-							'L' => isset($_REQUEST['element']['LOC']['L']) ? explode(':', $_REQUEST['element']['LOC']['L']) : false,
-							'G' => isset($_REQUEST['element']['LOC']['G']) ? explode(':', $_REQUEST['element']['LOC']['G']) : false
-						)
-					),
+						"SELECTED_IN_REQUEST" => [
+							'L' => isset($element['LOC']['L']) ? explode(':', $element['LOC']['L']) : false,
+							'G' => isset($element['LOC']['G']) ? explode(':', $element['LOC']['G']) : false
+						],
+					],
 					false
 				);?>
 
 			</td>
 		</tr>
-	<?$tabControl->EndCustomField('LOCATIONS', '');?>
+	<?php
+	$tabControl->EndCustomField('LOCATIONS', '');
 
-	<?
-	$tabControl->Buttons(array(
+	$tabControl->Buttons([
 		"disabled" => !$userIsAdmin,
 		"btnApply" => true,
 		"btnCancel" => true,
 		"back_url" => $returnUrl,
-	));
+	]);
 
 	$tabControl->Show();
-	?>
 
-<?endif?>
+endif;
 
-<?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>
+require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");

@@ -24,7 +24,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 }
 
 $arResult['IS_IFRAME'] = (
-	$_REQUEST['IFRAME'] === 'Y'
+	($_REQUEST['IFRAME'] ?? '') === 'Y'
 	|| $arParams['IFRAME'] === 'Y'
 );
 
@@ -67,8 +67,8 @@ else
 	$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
 	if (
-		!$arGroup 
-		|| !is_array($arGroup) 
+		!$arGroup
+		|| !is_array($arGroup)
 		|| $arGroup['ACTIVE'] !== 'Y'
 	)
 		$arResult['FatalError'] = Loc::getMessage('SONET_P_USER_NO_GROUP');
@@ -140,14 +140,14 @@ else
 
 					if (
 						($errorMessage == '')
-						&& !CSocNetGroup::Delete($arResult["Group"]["ID"]) 
+						&& !CSocNetGroup::Delete($arResult["Group"]["ID"])
 						&& ($e = $APPLICATION->GetException())
 					)
 					{
 						$errorMessage .= $e->GetString();
 					}
 
-					if ($_REQUEST['ajax_request'] === 'Y')
+					if (isset($_REQUEST['ajax_request']) && $_REQUEST['ajax_request'] === 'Y')
 					{
 						$APPLICATION->RestartBuffer();
 						echo CUtil::PhpToJsObject(array(

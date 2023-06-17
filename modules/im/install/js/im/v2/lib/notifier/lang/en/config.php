@@ -1,0 +1,3 @@
+<?php
+$MESS["IM_LIB_NOTIFIER_NOTIFY_REPLY_PLACEHOLDER"] = "Enter reply...";
+$MESS["IM_LIB_NOTIFIER_NOTIFY_SYSTEM_TITLE"] = "System notification";

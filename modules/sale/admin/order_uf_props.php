@@ -103,7 +103,10 @@ if($lAdmin->EditAction())
 				$lAdmin->AddGroupError(GetMessage("USERTYPE_UPDATE_ERROR")." ".$e->GetString(), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -136,12 +139,15 @@ if($arID = $lAdmin->GroupAction())
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("USERTYPE_DEL_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		}
 	}
 }
-                        
+
 $rsData = CUserTypeEntity::GetList(array($by=>$order), $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
@@ -229,11 +235,11 @@ while($arRes = $rsData->NavNext(true, "f_")):
 		continue;
 
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
-	
+
 	$arUserType = $USER_FIELD_MANAGER->GetUserType($f_USER_TYPE_ID);
 	$row->AddViewField("USER_TYPE_ID", htmlspecialchars($arUserType["DESCRIPTION"]));
 	$personID = intval(mb_substr($f_ENTITY_ID, (mb_strlen("SALE_ORDER_"))));
-	
+
 	$row->AddViewField("PERSON", htmlspecialchars("[".$personID."] ".$arPerson[$personID]["NAME"]));
 	$row->AddInputField("SORT", array("size"=>5));
 	$row->AddViewField("MULTIPLE", $f_MULTIPLE=="Y"?GetMessage("MAIN_YES"):GetMessage("MAIN_NO"));
@@ -297,9 +303,9 @@ if ($saleModulePermissions == "W")
 	{
 		$arDDMenu[] = array(
 			"TEXT" => "[".$arRes["ID"]."] ".$arRes["NAME"]." (".$arRes["LID"].")",
-			"ACTION" => "window.location = 'userfield_edit.php?lang=ru&ENTITY_ID=SALE_ORDER_".$arRes["ID"]."&lang=".LANG."&back_url=%2Fbitrix%2Fadmin%2Fsale_order_uf_props.php?lang=".LANG."';"
+			"ACTION" => "window.location = 'userfield_edit.php?lang=ru&ENTITY_ID=SALE_ORDER_".$arRes["ID"]."&lang=" . LANGUAGE_ID . "&back_url=%2Fbitrix%2Fadmin%2Fsale_order_uf_props.php?lang=" . LANGUAGE_ID . "';"
 		);
-		
+
 	}
 
 	$aContext = array(

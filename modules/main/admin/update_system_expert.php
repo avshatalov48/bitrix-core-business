@@ -284,7 +284,7 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 						}
 					}
 					$selectedVersionTo = null;
-					if (count($availableVersions) > 0)
+					if (!empty($availableVersions))
 					{
 						$versionsIndex = count($availableVersions);
 						while ($versionsIndex > 0)

@@ -45,14 +45,29 @@ final class WordTable extends Entity\DataManager implements \Serializable
 	const STEP_SIZE = 					10000;
 	const MTU = 						9999;
 
-	public function serialize()
+	public function serialize(): ?string
 	{
 		return serialize($this->procData);
 	}
-	public function unserialize($data)
+
+	public function unserialize($data): void
 	{
 		$this->procData = unserialize($data, ['allowed_classes' => false]);
 		$this->initInsertHandles();
+	}
+
+	public function __serialize()
+	{
+		return $this->procData;
+	}
+
+	public function __unserialize($data): void
+	{
+		if (is_array($data))
+		{
+			$this->procData = $data;
+			$this->initInsertHandles();
+		}
 	}
 
 	public static function getFilePath()
@@ -269,7 +284,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 				'LOCATION_ID'
 			),
 			'filter' => static::getFilterForInitData(array(
-				'TYPES' => $this->procData['ALLOWED_TYPES'], 
+				'TYPES' => $this->procData['ALLOWED_TYPES'],
 				'LANGS' => $this->procData['ALLOWED_LANGS']
 			)),
 			'order' => array('LOCATION_ID' => 'asc'), // need to make same location ids stay together
@@ -376,14 +391,22 @@ final class WordTable extends Entity\DataManager implements \Serializable
 
 	public static function getIdByWord($word)
 	{
-		if($word == '')
+		$word = trim((string)$word);
+		if ($word === '')
+		{
 			return false;
+		}
 
 		$dbConnection = Main\HttpApplication::getConnection();
 
-		$item = $dbConnection->query("select ID from ".static::getTableName()." where WORD = '".$dbConnection->getSqlHelper()->forSql($word)."'")->fetch();
+		$item = $dbConnection->query(
+			"select ID from " . static::getTableName()
+			. " where WORD = '" . $dbConnection->getSqlHelper()->forSql($word) . "'"
+		)->fetch();
 
-		return intval($item['ID']) ? intval($item['ID']) : false;
+		$id = (int)($item['ID'] ?? 0);
+
+		return $id ?: false;
 	}
 
 	public static function getBoundsByWord($word)

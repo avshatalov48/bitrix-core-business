@@ -11,7 +11,7 @@ if (!$USER->IsAuthorized())
 
 $SITE_ID = isset($_GET["SITE_ID"]) ? $_GET["SITE_ID"] : SITE_ID;
 
-if ($_REQUEST["mode"] == "search")
+if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "search")
 {
 	CUtil::decodeURIComponent($_GET);
 	$APPLICATION->RestartBuffer();
@@ -36,12 +36,12 @@ if ($_REQUEST["mode"] == "search")
 		{
 			$arGroup["IS_EXTRANET"] = "Y";
 		}
-		
+
 		$arGroups[] = group2JSItem($arGroup);
 	}
 
 	if (
-		isset($_REQUEST["features_perms"]) 
+		isset($_REQUEST["features_perms"])
 		&& sizeof($_REQUEST["features_perms"]) == 2
 	)
 	{

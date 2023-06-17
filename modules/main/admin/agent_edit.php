@@ -1,10 +1,9 @@
 <?php
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -19,7 +18,18 @@ $isAdmin = $USER->CanDoOperation('edit_php');
 
 IncludeModuleLangFile(__FILE__);
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
+
+$a_LAST_EXEC = '';
+$a_NEXT_EXEC = '';
+$a_ACTIVE = '';
+$a_MODULE_ID = '';
+$a_NAME = '';
+$a_USER_ID = '';
+$a_SORT = '';
+$a_IS_PERIOD = '';
+$a_AGENT_INTERVAL = '';
+
 if($ID > 0)
 {
 	$res = CAgent::GetById($ID);
@@ -33,21 +43,21 @@ $aTabs = array(array("DIV"=>"tab1", "TAB"=>GetMessage("MAIN_AGENT_TAB"), "ICON"=
 $editTab = new CAdminTabControl("editTab", $aTabs);
 
 $APPLICATION->ResetException();
-if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && $isAdmin && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
-	$arFields = Array(
-		"NAME" => $NAME,
-		"MODULE_ID" => $MODULE_ID,
-		"ACTIVE" => $ACTIVE,
-		"SORT" => $SORT,
-		"IS_PERIOD" => $IS_PERIOD,
-		"AGENT_INTERVAL" => $AGENT_INTERVAL,
-		"NEXT_EXEC" => $NEXT_EXEC,
-		"USER_ID"	=>	false
-	);
+	$arFields = [
+		"NAME" => $_POST['NAME'] ?? '',
+		"MODULE_ID" => $_POST['MODULE_ID'] ?? '',
+		"ACTIVE" => $_POST['ACTIVE'] ?? '',
+		"SORT" => $_POST['SORT'] ?? '',
+		"IS_PERIOD" => $_POST['IS_PERIOD'] ?? '',
+		"AGENT_INTERVAL" => $_POST['AGENT_INTERVAL'] ?? '',
+		"NEXT_EXEC" => $_POST['NEXT_EXEC'] ?? '',
+		"USER_ID" => false,
+	];
 
-	if(intval($USER_ID) > 0)
-		$arFields["USER_ID"] = $USER_ID;
+	if(isset($_POST['USER_ID']) && intval($_POST['USER_ID']) > 0)
+		$arFields["USER_ID"] = $_POST['USER_ID'];
 
 	if($arFields["ACTIVE"] == "Y")
 		$arFields["RETRY_COUNT"] = 0;
@@ -62,9 +72,9 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && $isAdmin && check
 
 	if($res)
 	{
-		if($save <> '')
+		if(!empty($_POST['save']))
 			LocalRedirect("/bitrix/admin/agent_list.php");
-		elseif($apply <> '')
+		elseif(!empty($_POST['apply']))
 			LocalRedirect("/bitrix/admin/agent_edit.php?&ID=".$ID."&".$editTab->ActiveTabParam());
 	}
 }

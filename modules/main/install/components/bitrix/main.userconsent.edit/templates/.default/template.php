@@ -126,7 +126,7 @@ $formAction = (new Uri($APPLICATION->getCurPageParam()))
 		</div>
 
 		<div id="<?=$listDomIds['fieldProviderId']?>" style="<?=
-			(count($arResult['DATA_PROVIDER_LIST']) == 0 ? 'display: none;' : '')?>">
+			(empty($arResult['DATA_PROVIDER_LIST']) ? 'display: none;' : '')?>">
 			<div data-bx-data-provider="" class="main-user-consent-edit-raw" style="<?=($isCurrentSupportDataProvider ? '' : 'display: none;')?>">
 				<div class="main-user-consent-edit-title">
 					<?=Loc::getMessage('MAIN_USER_CONSENT_EDIT_TMPL_DATA_PROVIDER')?>:

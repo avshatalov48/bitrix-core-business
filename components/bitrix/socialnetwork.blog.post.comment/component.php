@@ -41,6 +41,8 @@ if (!Loader::includeModule("socialnetwork"))
 
 $currentUserId = (int)$USER->getID();
 
+$arParams["bPublicPage"] = $arParams["bPublicPage"] ?? false;
+
 $arParams['SOCNET_GROUP_ID'] = (int)$arParams['SOCNET_GROUP_ID'];
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 $arResult["bTasksAvailable"] = (
@@ -108,15 +110,12 @@ if ($arParams["COMMENT_ID_VAR"] == '')
 	$arParams["COMMENT_ID_VAR"] = "commentId";
 }
 
-$pagen = (
-(int)$_GET[$arParams["NAV_PAGE_VAR"]] > 0
-	? (int)$_REQUEST[$arParams["NAV_PAGE_VAR"]]
-	: 1
-);
+$pageVar = (int) ($_GET[$arParams["NAV_PAGE_VAR"]] ?? 0);
+$pagen = ($pageVar > 0 ? $pageVar : 1);
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 
-if ((int)$_REQUEST["LAST_LOG_TS"] > 0)
+if ((int) ($_REQUEST["LAST_LOG_TS"] ?? 0) > 0)
 {
 	$timeZoneOffset = (
 	(
@@ -144,7 +143,7 @@ if ((int)$arParams['COMMENTS_COUNT'] <= 0)
 	$arParams['COMMENTS_COUNT'] = 25;
 }
 
-if ($arParams['USE_ASC_PAGING'] !== 'Y')
+if (($arParams['USE_ASC_PAGING'] ?? null) !== 'Y')
 {
 	$arParams['USE_DESC_PAGING'] = 'Y';
 }
@@ -204,7 +203,7 @@ $arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"] = ((int)$arParams["ATTACHED_IMAGE_M
 $arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] = ((int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] > 0 ? (int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] : 1000);
 $arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] = ((int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] > 0 ? (int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] : 1000);
 
-$commentUrlId = (int)$_REQUEST[$arParams['COMMENT_ID_VAR']];
+$commentUrlId = (int) ($_REQUEST[$arParams['COMMENT_ID_VAR']] ?? 0);
 
 $arParams["NAV_TYPE_NEW"] = (isset($arParams['NAV_TYPE_NEW']) && $arParams['NAV_TYPE_NEW'] === 'Y' ? 'Y' : 'N');
 $arResult['firstPage'] = (
@@ -256,13 +255,13 @@ if ($arParams["PAGE_SIZE"] <= 0)
 
 $arParams["PAGE_SIZE_MIN"] = 3;
 
-if ($arParams['NO_URL_IN_COMMENTS'] === 'L')
+if (($arParams['NO_URL_IN_COMMENTS'] ?? null) === 'L')
 {
 	$arResult["NoCommentUrl"] = true;
 	$arResult["NoCommentReason"] = Loc::getMessage('B_B_PC_MES_NOCOMMENTREASON_L');
 }
 if (
-	$arParams['NO_URL_IN_COMMENTS'] === 'A'
+	($arParams['NO_URL_IN_COMMENTS'] ?? null) === 'A'
 	&& !$USER->IsAuthorized()
 )
 {
@@ -270,7 +269,7 @@ if (
 	$arResult['NoCommentReason'] = Loc::getMessage('B_B_PC_MES_NOCOMMENTREASON_A');
 }
 
-if (is_numeric($arParams["NO_URL_IN_COMMENTS_AUTHORITY"]))
+if (is_numeric($arParams["NO_URL_IN_COMMENTS_AUTHORITY"] ?? null))
 {
 	$arParams["NO_URL_IN_COMMENTS_AUTHORITY"] = floatVal($arParams["NO_URL_IN_COMMENTS_AUTHORITY"]);
 	$arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] = "Y";
@@ -307,8 +306,11 @@ $arResult["PostPerm"] = Permissions::DENY;
 $arResult["PermBySG"] = false;
 
 if (
-	(int)$_REQUEST['comment_post_id'] > 0
-	|| $arParams['COMPONENT_AJAX'] === 'Y'
+	(int) ($_REQUEST['comment_post_id'] ?? 0) > 0
+	|| (
+		isset($arParams['COMPONENT_AJAX'])
+		&& $arParams['COMPONENT_AJAX'] === 'Y'
+	)
 )
 {
 	if (
@@ -318,7 +320,12 @@ if (
 	{
 		$arPost = $arParams['POST_DATA'];
 
-		$arResult['PostPerm'] = CBlogPost::getSocNetPostPerms($arParams['ID']);
+		$arResult['PostPerm'] = CBlogPost::getSocNetPostPerms(
+			$arParams['ID'],
+			false,
+			$currentUserId,
+			$arPost['AUTHOR_ID']
+		);
 		if ($arResult['PostPerm'] > Permissions::DENY)
 		{
 			$this->getCommentsPerm([
@@ -371,10 +378,12 @@ if (
 	&& $arPost["ENABLE_COMMENTS"] === 'Y'
 )
 {
+	$arImages = [];
+
 	//Comment delete
 	if ($arResult['deleteCommentId'] > 0)
 	{
-		if ($_GET["success"] === "Y")
+		if (isset($_GET["success"]) && $_GET["success"] === "Y")
 		{
 			$arResult["MESSAGE"] = Loc::getMessage('B_B_PC_MES_DELED');
 		}
@@ -581,7 +590,7 @@ if (
 			$arResult["ERROR_MESSAGE"] = Loc::getMessage('B_B_PC_MES_ERROR_HIDE');
 		}
 	}
-	elseif ((int)$_GET["hidden_add_comment_id"] > 0)
+	elseif ((int) ($_GET["hidden_add_comment_id"] ?? 0) > 0)
 	{
 		$arResult["MESSAGE"] = Loc::getMessage('B_B_PC_MES_HIDDEN_ADDED');
 	}
@@ -648,7 +657,7 @@ if (
 		&& $_POST["post"] <> ''
 	)
 	{
-		if ($_POST["decode"] === "Y")
+		if (($_POST["decode"] ?? null) === "Y")
 		{
 			CUtil::JSPostUnescape();
 		}
@@ -671,7 +680,7 @@ if (
 
 			$strErrorMessage = '';
 			if (
-				($_POST["blog_upload_image_comment"] === "Y")
+				(($_POST["blog_upload_image_comment"] ?? null) === "Y")
 				&& $_FILES["BLOG_UPLOAD_FILE"]["size"] > 0
 			)
 			{
@@ -756,7 +765,7 @@ if (
 				$arFields = Array(
 					"POST_ID" => $arPost["ID"],
 					"BLOG_ID" => $arBlog["ID"],
-					"TITLE" => trim($_POST["subject"]),
+					"TITLE" => trim($_POST["subject"] ?? ''),
 					"POST_TEXT" => trim(preg_replace("/\xe2\x81\xa0/is", ' ', $_POST["comment"])), // INVISIBLE_CURSOR from editor
 					"AUTHOR_IP" => $UserIP[0],
 					"AUTHOR_IP1" => $UserIP[1],
@@ -947,8 +956,8 @@ if (
 
 							$commentUrl .= (mb_strpos($commentUrl, "?") !== false ? "&" : "?");
 							if (
-								$arFields["PUBLISH_STATUS"] <> ''
-								&& $arFields["PUBLISH_STATUS"] !== BLOG_PUBLISH_STATUS_PUBLISH
+								($arFields["PUBLISH_STATUS"] ?? null) <> ''
+								&& ($arFields["PUBLISH_STATUS"] ?? null) !== BLOG_PUBLISH_STATUS_PUBLISH
 							)
 							{
 								$commentAddedUrl = $commentUrl.$arParams["COMMENT_ID_VAR"]."=".$commentId."&hidden_add_comment_id=".$commentId;
@@ -956,8 +965,8 @@ if (
 							$commentUrl .= $arParams["COMMENT_ID_VAR"]."=".$commentId."#com".$commentId;
 
 							if (
-								$arFields["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH
-								|| (string)$arFields["PUBLISH_STATUS"] === ''
+								($arFields["PUBLISH_STATUS"] ?? null) === BLOG_PUBLISH_STATUS_PUBLISH
+								|| (string) ($arFields["PUBLISH_STATUS"] ?? null) === ''
 							)
 							{
 								if ($log_id <= 0)
@@ -1160,8 +1169,8 @@ if (
 							}
 
 							if (
-								$arFields["PUBLISH_STATUS"] <> ''
-								&& $arFields["PUBLISH_STATUS"] !== BLOG_PUBLISH_STATUS_PUBLISH
+								($arFields["PUBLISH_STATUS"] ?? null) <> ''
+								&& ($arFields["PUBLISH_STATUS"] ?? null) !== BLOG_PUBLISH_STATUS_PUBLISH
 							)
 							{
 								$arResult["MESSAGE"] = Loc::getMessage('B_B_PC_MES_HIDDEN_ADDED');
@@ -1405,7 +1414,7 @@ if (
 							$commentUrl .= (mb_strpos($commentUrl, "?") !== false ? "&" : "?");
 
 							if (
-								$arFields["PUBLISH_STATUS"] <> ''
+								($arFields["PUBLISH_STATUS"] ?? '') <> ''
 								&& $arFields["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
 							)
 							{
@@ -1495,15 +1504,20 @@ if (
 		/////////////////////////////////////////////////////////////////////////////////////
 
 		$tmp = Array();
-		$tmp["MESSAGE"] = $arResult["MESSAGE"];
-		$tmp["ERROR_MESSAGE"] = $arResult["ERROR_MESSAGE"];
-		if (($arResult["COMMENT_ERROR"] <> '' || $arResult["ERROR_MESSAGE"] <> ''))
+		$tmp["MESSAGE"] = ($arResult["MESSAGE"] ?? '');
+		$tmp["ERROR_MESSAGE"] = ($arResult["ERROR_MESSAGE"] ?? '');
+		if (
+			(
+				($arResult["COMMENT_ERROR"] ?? '') <> ''
+				|| ($arResult["ERROR_MESSAGE"] ?? '') <> ''
+			)
+		)
 		{
 			$arResult["is_ajax_post"] = "Y";
 		}
 		else
 		{
-			if ((int)$_REQUEST["new_comment_id"] > 0) // for push&pull
+			if ((int) ($_REQUEST["new_comment_id"] ?? 0) > 0) // for push&pull
 			{
 				$arResult["ajax_comment"] = (int)$_REQUEST["new_comment_id"];
 			}
@@ -1672,7 +1686,7 @@ if (
 							$arParams["PATH_TO_USER"],
 							[
 								"AVATAR_SIZE" => ($arParams["AVATAR_SIZE_COMMON"] ?? $arParams["AVATAR_SIZE"]),
-								"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"],
+								"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"] ?? null,
 							]
 						);
 
@@ -1885,7 +1899,10 @@ if (
 								}
 							}
 
-							if (is_array($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]))
+							if (
+								!empty($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
+								&& is_array($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
+							)
 							{
 								$arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]["~VALUE"] = $arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]["VALUE"];
 							}
@@ -1931,7 +1948,7 @@ if (
 								}
 
 								if (
-									$arParams["NO_URL_IN_COMMENTS"] === "L"
+									($arParams["NO_URL_IN_COMMENTS"] ?? null) === "L"
 									|| (
 										(int)$arComment["AUTHOR_ID"] <= 0
 										&& $arParams["NO_URL_IN_COMMENTS"] === "A"
@@ -1941,7 +1958,11 @@ if (
 									$arAllow["CUT_ANCHOR"] = "Y";
 								}
 
-								if ($arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] === "Y" && $arAllow["CUT_ANCHOR"] !== "Y" && (int)$arComment["AUTHOR_ID"] > 0)
+								if (
+									($arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] ?? '')=== "Y"
+									&& $arAllow["CUT_ANCHOR"] !== "Y"
+									&& (int) $arComment["AUTHOR_ID"] > 0
+								)
 								{
 									$authorityRatingId = CRatings::GetAuthorityRating();
 									$arRatingResult = CRatings::GetRatingResult($authorityRatingId, $arComment["AUTHOR_ID"]);
@@ -1951,7 +1972,10 @@ if (
 									}
 								}
 
-								if (is_array($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]))
+								if (
+									isset($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
+									&& is_array($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
+								)
 								{
 									$p->arUserfields = array("UF_BLOG_COMMENT_FILE" => array_merge($arComment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"], array("TAG" => "DOCUMENT ID")));
 								}
@@ -2068,7 +2092,10 @@ if (
 			$arResult["CaptchaCode"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 		}
 
-		if (is_array($arResult["CommentsResult"]))
+		if (
+			isset($arResult["CommentsResult"])
+			&& is_array($arResult["CommentsResult"])
+		)
 		{
 			$arResult["newCount"] = 0;
 			$arResult["newCountWOMark"] = 0;
@@ -2189,7 +2216,7 @@ if (
 					$arResult["CommentsResult"][$k1-1]["CAN_EDIT"] = "N";
 				}
 
-				if ((int)$arParams["CREATED_BY_ID"] > 0)
+				if ((int) ($arParams["CREATED_BY_ID"] ?? null) > 0)
 				{
 					if ($v1["AUTHOR_ID"] != $arParams["CREATED_BY_ID"])
 					{
@@ -2322,7 +2349,7 @@ if (
 
 	return [
 		"CanUserComment" => $arResult["CanUserComment"],
-		"newCountWOMark" => $arResult["newCountWOMark"]
+		"newCountWOMark" => $arResult["newCountWOMark"] ?? 0
 	];
 }
 

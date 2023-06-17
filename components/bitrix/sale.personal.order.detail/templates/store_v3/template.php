@@ -1,8 +1,16 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Page\Asset;
+/** @global CMain $APPLICATION */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var string $templateFolder */
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\UI\Extension::load("ui.bootstrap4");
 
@@ -32,12 +40,16 @@ if (!empty($arResult['ERRORS']['FATAL']))
 			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
 				<div class="alert alert-danger"><?=$arResult['ERRORS']['FATAL'][$component::E_NOT_AUTHORIZED]?></div>
 			</div>
-			<? $authListGetParams = array(); ?>
+			<?php
+			$authListGetParams = array();
+			?>
 			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
+				<?php
+				$APPLICATION->AuthForm('', false, false, 'N', false);
+				?>
 			</div>
 		</div>
-		<?
+		<?php
 	}
 }
 else
@@ -59,26 +71,26 @@ else
 					)) ?></h1>
 				<div class="personal-order-detail-header-info">
 					<div>
-						<?
+						<?php
 						if ($arResult['STATUS_ID'] === "F")
 						{
-							?><div class="personal-order-detail-paid-status-restricted"><?=Loc::getMessage('SPOD_TPL_ORDER_FINISHED');?></div><?
+							?><div class="personal-order-detail-paid-status-restricted"><?=Loc::getMessage('SPOD_TPL_ORDER_FINISHED');?></div><?php
 						}
 						elseif ($arResult["CANCELED"] === 'Y')
 						{
-							?><div class="personal-order-detail-order-status-canceled"><?=Loc::getMessage('SPOD_TPL_ORDER_CANCELED');?></div><?
+							?><div class="personal-order-detail-order-status-canceled"><?=Loc::getMessage('SPOD_TPL_ORDER_CANCELED');?></div><?php
 						}
 						elseif ($arResult['PAYED'] !== 'Y')
 						{
-							?><div class="personal-order-detail-paid-status-alert"><?=Loc::getMessage('SPOD_PAYMENT_UNPAID').", ".$arResult['SUM_REST_FORMATED'];?></div><?
+							?><div class="personal-order-detail-paid-status-alert"><?=Loc::getMessage('SPOD_PAYMENT_UNPAID').", ".$arResult['SUM_REST_FORMATED'];?></div><?php
 						}
 						elseif ($arResult['DEDUCTED'] === 'Y')
 						{
-							?><div class="personal-order-detail-shipment-status-success"><?=Loc::getMessage('SPOD_TPL_LOADED');?></div><?
+							?><div class="personal-order-detail-shipment-status-success"><?=Loc::getMessage('SPOD_TPL_LOADED');?></div><?php
 						}
 						else
 						{
-							?><div class="personal-order-detail-paid-status-restricted"><?=Loc::getMessage('SPOD_TPL_SHIPING_STATUS_'.$arResult['STATUS_ID']);?></div><?
+							?><div class="personal-order-detail-paid-status-restricted"><?=Loc::getMessage('SPOD_TPL_SHIPING_STATUS_'.$arResult['STATUS_ID']);?></div><?php
 						}
 						?>
 					</div>
@@ -88,17 +100,19 @@ else
 
 			<div class="personal-order-detail-info-container">
 
-				<? //region SHIPMENT PARAMETERS
+				<?php
+				//region SHIPMENT PARAMETERS
 				if (count($arResult['SHIPMENT']))
 				{
 					?>
 					<div class="personal-order-detail-info-shipment">
 						<h2 class="personal-order-detail-info-shipment-title"><?= Loc::getMessage('SPOD_ORDER_SHIPMENT') ?></h2>
-						<? foreach ($arResult['SHIPMENT'] as $shipment)
+						<?php
+						foreach ($arResult['SHIPMENT'] as $shipment)
 						{
 							?>
 							<div class="personal-order-detail-info-shipment-description">
-								<?
+								<?php
 								//change date
 								if ($shipment['PRICE_DELIVERY_FORMATED'] === '')
 								{
@@ -138,21 +152,21 @@ else
 										?>
 										<div class="personal-order-detail-info-shipment-description-btn-container">
 											<a href="" onclick="return false"
-											   class="personal-order-detail-order-btn-track"
-											   href="<?= htmlspecialcharsbx($shipment['TRACKING_URL']) ?>"><?= Loc::getMessage('SPOD_ORDER_CHECK_TRACKING') ?></a>
+												class="personal-order-detail-order-btn-track"
+												href="<?= htmlspecialcharsbx($shipment['TRACKING_URL']) ?>"><?= Loc::getMessage('SPOD_ORDER_CHECK_TRACKING') ?></a>
 										</div>
-										<?
+										<?php
 									}
 								}
 								?>
 							</div>
 
-							<?
+							<?php
 						}
 						?>
 					</div>
 
-					<?
+					<?php
 				}
 				//endregion ?>
 
@@ -173,9 +187,17 @@ else
 						{
 							echo Loc::getMessage('SPOD_ORDER_CANCELED');
 						}
-
+						$paymentData = [];
 						foreach ($arResult['PAYMENT'] as $payment)
 						{
+							$paymentData[$payment['ACCOUNT_NUMBER']] = [
+								"payment" => $payment['ACCOUNT_NUMBER'],
+								"order" => $arResult['ACCOUNT_NUMBER'],
+								"allow_inner" => $arParams['ALLOW_INNER'],
+								"only_inner_full" => $arParams['ONLY_INNER_FULL'],
+								"refresh_prices" => $arParams['REFRESH_PRICES'],
+								"path_to_payment" => $arParams['PATH_TO_PAYMENT']
+							];
 							if ($payment['PAID'] === 'Y')
 							{
 								echo "<br />".Loc::getMessage('SPOD_PAYMENT_PAID');
@@ -205,9 +227,9 @@ else
 									<?= Loc::getMessage('SPOD_ORDER_REPEAT'); ?>
 								</a>
 							</div>
-							<?
+							<?php
 						}
-						elseif  (($arResult['PAID'] !== 'Y') && ($arResult['SUM_REST']))
+						elseif (!empty($arResult["SUM_REST"]) && !empty($arResult["SUM_PAID"]))
 						{
 							?>
 							<div class="personal-order-detail-info-payment-description-btn-container">
@@ -215,7 +237,7 @@ else
 									<?= Loc::getMessage('SPOD_ORDER_PAY') ?>, <?=$arResult['SUM_REST_FORMATED']?>
 								</span>
 							</div>
-							<?
+							<?php
 						}
 
 						?>
@@ -231,7 +253,7 @@ else
 						<?= Loc::getMessage('SPOD_TPL_ORDER_CUSTOMER') ?>
 					</h2>
 					<div class="personal-order-detail-info-customer-description">
-						<?
+						<?php
 						$i = 0;
 						foreach ($arResult["ORDER_PROPS"] as $property)
 						{
@@ -267,7 +289,8 @@ else
 				</div>
 				<!--endregion -->
 
-				<? //region USER_DESCRIPTION
+				<?php
+				//region USER_DESCRIPTION
 				if($arResult["USER_DESCRIPTION"] <> '')
 				{
 					?>
@@ -275,7 +298,7 @@ else
 						<h2 class="personal-order-detail-info-products-title"><?= Loc::getMessage('SPOD_ORDER_DESC') ?></h2>
 						<div class="personal-order-detail-info-products-description"><?= nl2br(htmlspecialcharsbx($arResult["USER_DESCRIPTION"])) ?></div>
 					</div>
-					<?
+					<?php
 				}
 				//endregion
 
@@ -287,7 +310,7 @@ else
 						<h2 class="personal-order-detail-info-products-title"><?= Loc::getMessage('SPOD_ORDER_DESC') ?></h2>
 						<div class="personal-order-detail-info-products-description"><?= nl2br(htmlspecialcharsbx($arResult["COMMENTS"])) ?></div>
 					</div>
-					<?
+					<?php
 				}
 				//endregion ?>
 
@@ -299,7 +322,7 @@ else
 				<!--endregion -->
 
 				<div class="personal-order-detail-products-total-item-list" id="summaryList">
-					<?
+					<?php
 					$subtotalitems = 0;
 					foreach ($arResult['BASKET'] as $basketItem)
 					{
@@ -307,8 +330,8 @@ else
 						<div class="personal-order-detail-products-item">
 							<div>
 								<a href="<?=$basketItem['DETAIL_PAGE_URL']?>" target="_blank" class="personal-order-detail-products-item-image-link">
-									<?
-									if($basketItem['PICTURE']['SRC'] <> '')
+									<?php
+									if(is_array($basketItem['PICTURE']))
 									{
 										$imageSrc = htmlspecialcharsbx($basketItem['PICTURE']['SRC']);
 									}
@@ -328,7 +351,7 @@ else
 							<div class="personal-order-detail-products-item-quantity">
 								<strong><?=$basketItem['QUANTITY']?></strong>
 								<span>
-									<?
+									<?php
 									if($basketItem['MEASURE_NAME'] <> '')
 									{
 										echo htmlspecialcharsbx($basketItem['MEASURE_NAME']);
@@ -341,7 +364,7 @@ else
 								</span>
 							</div>
 							<div class="personal-order-detail-products-item-price-container">
-								<?
+								<?php
 								if ($basketItem['PRICE'] !== $basketItem['BASE_PRICE'])
 								{
 									?>
@@ -349,13 +372,13 @@ else
 										<div class="personal-order-detail-products-item-price-base"><?=$basketItem['BASE_PRICE_FORMATED']?></div>
 										<div class="personal-order-detail-products-item-price-discount">-<?=$basketItem['FORMATED_DISCOUNT_SUM']?></div>
 									</div>
-									<?
+									<?php
 								}
 								?>
 								<div class="personal-order-detail-products-item-price-current"><?=$basketItem['FORMATED_BASE_SUM']?></div>
 							</div>
 						</div>
-						<?
+						<?php
 
 						$subtotalitems += $basketItem['QUANTITY'];
 					}
@@ -365,29 +388,22 @@ else
 						?>
 						<div class="personal-order-detail-products-total-item">
 							<div class="personal-order-detail-products-item-name"><?=Loc::getMessage('SPOD_COMMON_SUM')?> (<?=$subtotalitems;?>)</div>
-							<?
-							if ($arResult['PRODUCT_SUM_FORMATED'] !== $arResult['PRICE_FORMATED'] && !empty($arResult['PRODUCT_SUM_FORMATED']))
-							{
-								?>
 								<div class="personal-order-detail-products-item-price-container">
-									<?
-									if ($arResult['PRODUCT_SUM'] !== $arResult['BASE_PRODUCT_SUM'])
-									{
-										?>
-										<div class="personal-order-detail-products-item-price-discount-container">
-											<div class="personal-order-detail-products-item-price-base"><?=$arResult['BASE_PRODUCT_SUM_FORMATED']?></div>
-											<div class="personal-order-detail-products-item-price-discount">-<?=$arResult['PRODUCT_SUM_DISCOUNT_FORMATED']?></div>
-										</div>
-										<?
-									}
+								<?php
+								if ($arResult['PRODUCT_SUM'] !== $arResult['BASE_PRODUCT_SUM'])
+								{
 									?>
-									<div class="personal-order-detail-products-item-price-current"><?=$arResult['PRODUCT_SUM_FORMATED']?></div>
-								</div>
-								<?
-							}
-							?>
+									<div class="personal-order-detail-products-item-price-discount-container">
+										<div class="personal-order-detail-products-item-price-base"><?=$arResult['BASE_PRODUCT_SUM_FORMATED']?></div>
+										<div class="personal-order-detail-products-item-price-discount">-<?=$arResult['PRODUCT_SUM_DISCOUNT_FORMATED']?></div>
+									</div>
+									<?php
+								}
+								?>
+								<div class="personal-order-detail-products-item-price-current"><?=$arResult['PRODUCT_SUM_FORMATED']?></div>
+							</div>
 						</div>
-						<?
+						<?php
 					}
 
 					if($arResult["PRICE_DELIVERY_FORMATED"] <> '')
@@ -399,7 +415,7 @@ else
 								<div class="personal-order-detail-products-item-price-current"><?= $arResult["PRICE_DELIVERY_FORMATED"] ?></div>
 							</div>
 						</div>
-						<?
+						<?php
 					}
 
 					if($arResult["PRODUCT_SUM_DISCOUNT_FORMATED"] <> '')
@@ -411,7 +427,7 @@ else
 								<div class="personal-order-detail-products-item-price-current">-<?= $arResult["PRODUCT_SUM_DISCOUNT_FORMATED"] ?></div>
 							</div>
 						</div>
-						<?
+						<?php
 					}
 
 					if ((float)$arResult["TAX_VALUE"] > 0)
@@ -423,7 +439,7 @@ else
 								<div class="personal-order-detail-products-item-price-current"><?= $arResult["TAX_VALUE_FORMATED"] ?></div>
 							</div>
 						</div>
-						<?
+						<?php
 					}
 					?>
 
@@ -439,11 +455,12 @@ else
 
 			<div class="personal-order-detail-footer">
 				<div class="personal-order-detail-footer-btn-container text-center">
-					<? if ($arResult["CAN_CANCEL"] === "Y")
+					<?php
+					if ($arResult["CAN_CANCEL"] === "Y")
 					{
 						?>
 						<a href="<?= htmlspecialcharsbx($arResult["URL_TO_CANCEL"]) ?>" class="btn btn-danger btn-lg rounded-pill py-1 w-100" style="max-width: 310px;"><?= Loc::getMessage('SPOD_ORDER_CANCEL') ?></a>
-						<?
+						<?php
 					}
 					?>
 				</div>
@@ -451,7 +468,7 @@ else
 
 		</div>
 	</div>
-	<?
+	<?php
 	$javascriptParams = array(
 		"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 		"templateFolder" => CUtil::JSEscape($templateFolder),
@@ -464,6 +481,6 @@ else
 	<script>
 		BX.Sale.PersonalOrderComponent.PersonalOrderDetail.init(<?=$javascriptParams?>);
 	</script>
-<?
+<?php
 }
 ?></div>

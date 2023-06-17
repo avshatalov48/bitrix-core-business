@@ -10,7 +10,7 @@ $MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_SUBMIT_BTN'] = 'Применить';
 $MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_MODE_DESCRIPTION_2'] = 'Для удаления используемого приложения необходимо выбрать один из доступных вариантов настройки вашего Битрикс24, либо выбрать в Битрикс24.Маркет новое приложение';
 $MESS['REST_CONFIGURATION_IMPORT_EASY_DELETE_APP'] = 'У вас нет доступных вариантов для изменения настроек Битрикс24, поэтому мы просто удалили приложение';
 
-$MESS['REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION'] = 'Настройки успешно импортированы';
+$MESS['REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION_MSGVER_1'] = 'Готово! Можно приступать к редактированию';
 $MESS['REST_CONFIGURATION_IMPORT_FINISH_ERROR_DESCRIPTION'] = 'Настройки импортированы, но с некоторыми ошибками.';
 $MESS['REST_CONFIGURATION_IMPORT_ERRORS_REPORT_BTN'] = 'Отчёт об ошибках';
 $MESS['REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE'] = 'Отчёт об ошибках';

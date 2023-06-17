@@ -74,7 +74,7 @@ $APPLICATION->IncludeComponent("bitrix:main.ui.grid",
 		"AJAX_OPTION_JUMP" => "N",
 		"AJAX_OPTION_STYLE" => "N",
 		"AJAX_OPTION_HISTORY" => "N",
-		"MESSAGES" => $arResult["MESSAGES"]
+		"MESSAGES" => $arResult["MESSAGES"] ?? null
 	]);
 ?>
 <script type="text/javascript">

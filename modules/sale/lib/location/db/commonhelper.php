@@ -4,7 +4,7 @@
  * @package Bitrix\Sale\Location
  * @subpackage sale
  * @copyright 2001-2015 Bitrix
- * 
+ *
  * This class is for internal use only, not a part of public API.
  * It can be changed at any time without notification.
  *
@@ -68,22 +68,35 @@ abstract class CommonHelper
 
 	protected static function prepareSql($row, $fields, $map)
 	{
-		if(!is_array($row) || empty($row) || !is_array($fields) || empty($fields) || !is_array($map) || empty($map))
+		if (!is_array($row) || empty($row) || !is_array($fields) || empty($fields) || !is_array($map) || empty($map))
+		{
 			return '';
+		}
 
-		$sql = array();
-		foreach($fields as $fld => $none)
+		$connection = Main\HttpApplication::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		unset($connection);
+
+		$sql = [];
+		foreach ($fields as $fld => $none)
 		{
 			$val = $row[$fld];
 
 			// only numeric and literal fields supported at the moment
-			if($map[$fld]['data_type'] == 'integer')
-				$sql[] = intval($val);
+			if (
+				isset($map[$fld]['data_type'])
+				&& $map[$fld]['data_type'] == 'integer'
+			)
+			{
+				$sql[] = (int)$val;
+			}
 			else
-				$sql[] = "'".Main\HttpApplication::getConnection()->getSqlHelper()->forSql($val)."'";
+			{
+				$sql[] = "'" . $sqlHelper->forSql($val) . "'";
+			}
 		}
 
-		return '('.implode(',', $sql).')';
+		return '(' . implode(',', $sql) . ')';
 	}
 
 	// makes sense only for mssql
@@ -204,6 +217,6 @@ abstract class CommonHelper
 
 	public static function needSelectFieldsInOrderByWhenDistinct()
 	{
-		return false;
+		return true;
 	}
 }

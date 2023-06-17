@@ -1,0 +1,11 @@
+.bx-messenger-call-overlay {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	background-color: transparent;
+	z-index: 500;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.bx-messenger-call-overlay.bx-messenger-call-overlay-folded {height: 60px; top: 67px; opacity: 0.85}

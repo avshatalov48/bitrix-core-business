@@ -7,7 +7,7 @@ namespace Bitrix\Sale\Exchange\Integration\Controller;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Error;
 use Bitrix\Rest\Integration\Controller\Base;
-use Bitrix\Rest\Integration\SaleViewManager;
+use Bitrix\Sale\Rest\View\SaleViewManager;
 use Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable;
 use Bitrix\Sale\Result;
 use Bitrix\Main\Engine\Response\DataType\Page;

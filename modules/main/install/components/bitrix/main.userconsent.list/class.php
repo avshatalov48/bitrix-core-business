@@ -57,18 +57,18 @@ class MainUserConsentListComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_ADD'] = isset($this->arParams['PATH_TO_ADD']) ? $this->arParams['PATH_TO_ADD'] : '';
-		$this->arParams['PATH_TO_EDIT'] = isset($this->arParams['PATH_TO_EDIT']) ? $this->arParams['PATH_TO_EDIT'] : '';
-		$this->arParams['PATH_TO_CONSENT_LIST'] = isset($this->arParams['PATH_TO_CONSENT_LIST']) ? $this->arParams['PATH_TO_CONSENT_LIST'] : '';
+		$this->arParams['PATH_TO_ADD'] = $this->arParams['PATH_TO_ADD'] ?? '';
+		$this->arParams['PATH_TO_EDIT'] = $this->arParams['PATH_TO_EDIT'] ?? '';
+		$this->arParams['PATH_TO_CONSENT_LIST'] = $this->arParams['PATH_TO_CONSENT_LIST'] ?? '';
 
-		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'MAIN_USER_CONSENT_AGREEMENT_GRID';
+		$this->arParams['GRID_ID'] = $this->arParams['GRID_ID'] ?? 'MAIN_USER_CONSENT_AGREEMENT_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['GRID_FILTER_ID'] : $this->arParams['FILTER_ID'] . '_FILTER';
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
 
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT']) ? $this->arParams['CAN_EDIT'] : false;
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT'] ?? false;
 
-		$this->arParams['ADMIN_MODE'] = isset($this->arParams['ADMIN_MODE']) ? $this->arParams['ADMIN_MODE'] : false;
+		$this->arParams['ADMIN_MODE'] = $this->arParams['ADMIN_MODE'] ?? false;
 	}
 
 	protected function processPostAction()

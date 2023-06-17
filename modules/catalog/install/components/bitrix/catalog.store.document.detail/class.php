@@ -1189,6 +1189,8 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 				$elementFields['DOC_ID'] = $this->documentId;
 			}
 
+			$elementFields['STORE_TO'] = null;
+			$elementFields['STORE_FROM'] = null;
 			switch ($this->getDocumentType())
 			{
 				case StoreDocumentTable::TYPE_ARRIVAL:
@@ -1256,6 +1258,7 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 				$barcode = $documentBarcode['BARCODE'];
 				if (
 					!empty($barcode)
+					&& isset($productBarcodes[$barcode])
 					&& $productBarcodes[$barcode] > 0
 					&& $documentBarcode['SKU_ID'] !== $productBarcodes[$barcode]
 				)

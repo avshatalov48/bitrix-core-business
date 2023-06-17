@@ -56,40 +56,6 @@ if (check_bitrix_sessid())
 		)
 		{
 			$searchResults["USERS"] = array();
-			if (
-				isset($_POST['NETWORK_SEARCH'])
-				&& $_POST['NETWORK_SEARCH'] == 'Y'
-				&& \Bitrix\Main\Loader::includeModule('socialservices')
-			)
-			{
-				$network = new \Bitrix\Socialservices\Network();
-				if ($network->isEnabled())
-				{
-					$result = $network->searchUser($search);
-					if ($result)
-					{
-						foreach ($result as $user)
-						{
-							$user = \CSocNetLogDestination::formatNetworkUser($user, array(
-								"NAME_TEMPLATE" => $nameTemplate,
-							));
-							$searchResults["USERS"][$user['id']] = $user;
-						}
-
-						$userList = \Bitrix\Main\UserTable::getList(array(
-							"select" => array("ID", "XML_ID"),
-							"filter" => array(
-								"=EXTERNAL_AUTH_ID" => "replica",
-								"=XML_ID" => array_keys($searchResults["USERS"]),
-							),
-						));
-						while ($user = $userList->fetch())
-						{
-							unset($searchResults["USERS"][$user["XML_ID"]]);
-						}
-					}
-				}
-			}
 
 			echo CUtil::PhpToJsObject($searchResults);
 			return;
@@ -622,13 +588,13 @@ if (check_bitrix_sessid())
 		}
 		echo CUtil::PhpToJsObject($searchResults);
 	}
-	elseif ($_POST['LD_DEPARTMENT_RELATION'] == 'Y')
+	elseif (isset($_POST['LD_DEPARTMENT_RELATION']) && $_POST['LD_DEPARTMENT_RELATION'] == 'Y')
 	{
 		echo CUtil::PhpToJsObject(Array(
 			'USERS' => CSocNetLogDestination::GetUsers(Array('deportament_id' => $_POST['DEPARTMENT_ID'], "NAME_TEMPLATE" => $nameTemplate)),
 		));
 	}
-	elseif ($_POST['LD_ALL'] == 'Y')
+	elseif (isset($_POST['LD_ALL']) && $_POST['LD_ALL'] == 'Y')
 	{
 		echo CUtil::PhpToJsObject(Array(
 			'USERS' => CSocNetLogDestination::GetUsers(Array('all' => 'Y', "NAME_TEMPLATE" => $nameTemplate)),

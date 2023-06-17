@@ -6,9 +6,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
-/** @var bool $backgroundForTemplate */
-/** @var int $templateId */
-/** @var string $action */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -43,20 +40,15 @@ if (
 }
 elseif (\CModule::IncludeModule('tasks'))
 {
-	$getParams = [];
-	if ($backgroundForTemplate)
-	{
-		$getParams = '?' . http_build_query(Context::getCurrent()->getRequest()->getQueryList()->toArray());
-	}
 	$componentParams = [
 		"USER_ID" => $userId,
 		"ITEMS_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
-		"PAGE_VAR" => $arResult["ALIASES"]["page"],
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"VIEW_VAR" => $arResult["ALIASES"]["view_id"],
-		"TASK_VAR" => $arResult["ALIASES"]["task_id"],
-		"TEMPLATE_VAR" => $arResult["ALIASES"]["template_id"],
-		"ACTION_VAR" => $arResult["ALIASES"]["action"],
+		"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? null,
+		"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+		"VIEW_VAR" => $arResult["ALIASES"]["view_id"] ?? null,
+		"TASK_VAR" => $arResult["ALIASES"]["task_id"] ?? null,
+		"TEMPLATE_VAR" => $arResult["ALIASES"]["template_id"] ?? null,
+		"ACTION_VAR" => $arResult["ALIASES"]["action"] ?? null,
 		"PATH_TO_USER_PROFILE" => $arResult["PATH_TO_USER"],
 		"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
 		"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
@@ -72,7 +64,7 @@ elseif (\CModule::IncludeModule('tasks'))
 		"PATH_TO_GROUP_TASKS" => $arParams["PATH_TO_GROUP_TASKS"],
 		"PATH_TO_GROUP_TASKS_TASK" => $arParams["PATH_TO_GROUP_TASKS_TASK"],
 		"PATH_TO_GROUP_TASKS_VIEW" => $arParams["PATH_TO_GROUP_TASKS_VIEW"],
-		"PATH_TO_GROUP_TASKS_REPORT" => $arParams["PATH_TO_GROUP_TASKS_REPORT"],
+		"PATH_TO_GROUP_TASKS_REPORT" => $arParams["PATH_TO_GROUP_TASKS_REPORT"] ?? null,
 		"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 		"SET_TITLE" => $arResult["SET_TITLE"],
 		"FORUM_ID" => $arParams["TASK_FORUM_ID"],
@@ -84,10 +76,6 @@ elseif (\CModule::IncludeModule('tasks'))
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"USE_THUMBNAIL_LIST" => "N",
 		"INLINE" => "Y",
-		'BACKGROUND_FOR_TEMPLATE' => $backgroundForTemplate,
-		'TEMPLATE_ID' => $templateId,
-		'TEMPLATE_ACTION' => $action,
-		'GET_PARAMS' => $getParams,
 	];
 	$APPLICATION->IncludeComponent(
 		"bitrix:ui.sidepanel.wrapper",

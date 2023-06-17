@@ -16,7 +16,11 @@ class CAllSocNetLog
 
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER;
 
-		if (!$arSiteWorkgroupsPage && IsModuleInstalled("extranet") && $arFields["ENTITY_TYPE"] === SONET_ENTITY_GROUP)
+		if (
+			!$arSiteWorkgroupsPage
+			&& IsModuleInstalled("extranet")
+			&& isset($arFields["ENTITY_TYPE"])
+			&& $arFields["ENTITY_TYPE"] === SONET_ENTITY_GROUP)
 		{
 			$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 			while($arSite = $rsSite->Fetch())
@@ -135,7 +139,10 @@ class CAllSocNetLog
 		if (is_set($arFields, "EVENT_ID"))
 		{
 			$arFields["EVENT_ID"] = mb_strtolower($arFields["EVENT_ID"]);
-			$arEvent = CSocNetLogTools::FindLogEventByID($arFields["EVENT_ID"], $arFields["ENTITY_TYPE"]);
+			$arEvent = CSocNetLogTools::FindLogEventByID(
+				$arFields["EVENT_ID"],
+				$arFields["ENTITY_TYPE"] ?? false
+			);
 			if (!$arEvent)
 			{
 				$APPLICATION->ThrowException(Loc::getMessage("SONET_GL_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE");

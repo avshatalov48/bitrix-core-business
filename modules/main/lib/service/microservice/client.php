@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Service\MicroService;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 
@@ -35,8 +36,7 @@ class Client
 		}
 		else
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-			return md5("BITRIX".\CUpdateClient::GetLicenseKey()."LICENCE");
+			return Application::getInstance()->getLicense()->getPublicHashKey();
 		}
 	}
 
@@ -71,8 +71,7 @@ class Client
 		}
 		else
 		{
-			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/license_key.php");
-			return md5($paramStr.md5($LICENSE_KEY));
+			return md5($paramStr . Application::getInstance()->getLicense()->getHashLicenseKey());
 		}
 	}
 }

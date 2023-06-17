@@ -1,3 +1,10 @@
+html, body {
+	padding: 0;
+	margin: 0;
+	min-height: 100vh;
+	background-color: #f2f6f7;
+}
+
 .calendar-sharing--public-html {
 	position: relative;
 	display: flex;
@@ -37,35 +44,15 @@
 	background-size: cover;
 }
 
-.calendar-sharing--alert {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	flex-grow: 1;
-	margin: 0;
-}
-
 .calendar-sharing-alert-container {
-	position: relative;
-	width: 351px;
-	max-width: 351px;
-	margin-bottom: 12px;
-	margin-top: 40px;
-	background-color: var(--ui-color-palette-white-base, #fff);
-	box-shadow: 0 6px 21px rgb(83 92 105 / 8%);
-	border-radius: 0 0 var(--ui-border-radius-3xl, 20px) var(--ui-border-radius-3xl, 20px);
-}
-
-.calendar-sharing-alert-container:before {
-	content: '';
-	position: absolute;
-	top: -55px;
-	left: 0;
-	width: 351px;
-	height: 56px;
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='351' height='56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M110.44 9.788c-1.576-3.958-2.363-5.937-3.335-7.008-.963-1.064-1.782-1.619-3.126-2.121-1.355-.506-3.135-.506-6.697-.506H32c-11.201 0-16.802 0-21.08 2.18a20 20 0 00-8.74 8.74C0 15.351 0 20.952 0 32.153v316c0 11.201 0 16.801 2.18 21.08a20.003 20.003 0 008.74 8.74c4.278 2.18 9.879 2.18 21.08 2.18h287c11.201 0 16.802 0 21.08-2.18a20.001 20.001 0 008.74-8.74c2.18-4.279 2.18-9.879 2.18-21.08v-316c0-11.201 0-16.802-2.18-21.08a19.998 19.998 0 00-8.74-8.74C335.802.153 330.201.153 319 .153h-65.282c-3.561 0-5.342 0-6.697.506-1.344.502-2.163 1.057-3.126 2.12-.971 1.072-1.759 3.05-3.335 7.01-10.298 25.866-35.546 44.147-65.06 44.147-29.514 0-54.762-18.28-65.06-44.148z' fill='%23FFF' fill-rule='evenodd'/%3E%3C/svg%3E");
+	display: flex;
+	width: 100%;
+	justify-content: center;
+	will-change: transform;
+	transition: .15s;
+	transform: translateX(0) translateZ(0);
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .calendar-sharing-alert-icon {
@@ -91,33 +78,66 @@
 }
 
 .calendar-sharing-alert-info {
-	padding: 16px 16px 8px 16px;
+	display: inline-flex;
+	position: relative;
+	width: 343px;
+	min-width: 343px;
+	min-height: 460px;
+	padding: 20px 28px 28px 28px;
+	box-sizing: border-box;
+	background: #fff;
+	border-radius: 6px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
 }
 
-.calendar-sharing--public-html .calendar-sharing-alert-info {
-	margin-top: 120px;
-}
-
-.calendar-sharing-alert-title,
-.calendar-sharing-alert-description {
+.calendar-sharing-alert-info-empty {
 	display: flex;
+	align-items: center;
 	justify-content: center;
-	margin-bottom: 5px;
-	text-align: center;
+	flex: 1;
+	flex-direction: column;
+	margin-bottom: 12px;
+	font-family: var(--ui-font-family-system);
+	animation: calendar-sharing__show-state .25s linear forwards;
 }
+
+.calendar-sharing-alert-info-empty:before {
+	content: '';
+	display: inline-block;
+	width: 139px;
+	height: 113px;
+	margin-bottom: 20px;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='93' height='93' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M46.5 81.645c-19.41 0-35.145-15.735-35.145-35.145 0-19.41 15.735-35.145 35.145-35.145 19.41 0 35.145 15.735 35.145 35.145 0 19.41-15.735 35.145-35.145 35.145z' fill='%23C9CCD0'/%3E%3Cpath d='M56.44 31.207l5.353 5.353L36.56 61.794l-5.352-5.353L56.44 31.207z' fill='%23fff'/%3E%3Cpath d='M61.793 56.441l-5.352 5.353L31.207 36.56l5.352-5.353 25.234 25.234z' fill='%23fff'/%3E%3C/svg%3E") center no-repeat;
+}
+
+.calendar-sharing-alert-info-empty.--icon-cross:before {
+	width: 93px;
+	height: 93px;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='93' height='93' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M46.5 81.645c-19.41 0-35.145-15.735-35.145-35.145 0-19.41 15.735-35.145 35.145-35.145 19.41 0 35.145 15.735 35.145 35.145 0 19.41-15.735 35.145-35.145 35.145z' fill='%23C9CCD0'/%3E%3Cpath d='M56.44 31.207l5.353 5.353L36.56 61.794l-5.352-5.353L56.44 31.207z' fill='%23fff'/%3E%3Cpath d='M61.793 56.441l-5.352 5.353L31.207 36.56l5.352-5.353 25.234 25.234z' fill='%23fff'/%3E%3C/svg%3E") center no-repeat;
+}
+
+/*.calendar-sharing-alert-title,*/
+/*.calendar-sharing-alert-description {*/
+/*	display: flex;*/
+/*	justify-content: center;*/
+/*	margin-bottom: 5px;*/
+/*	text-align: center;*/
+/*}*/
 
 .calendar-sharing-alert-title {
-	font: 20px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-weight: var(--ui-font-weight-semi-bold, 600);
-	color: var(--ui-color-palette-black-base, #333);
-	margin-bottom: 24px;
+	margin-bottom: 7px;
+	text-align: center;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--ui-color-text-primary);
 }
 
 .calendar-sharing-alert-description {
-	font: 18px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-weight: 400;
-	color: var(--ui-color-palette-gray-90, #525c69);
-	margin-bottom: 24px;
+	max-width: 260px;
+	text-align: center;
+	font-size: var(--ui-typography-text-md-font-size);
+	line-height: var(--ui-typography-text-md-line-height);
+	color: var(--ui-color-base-60);
 }
 
 .calendar-shared-alert_btn-box {

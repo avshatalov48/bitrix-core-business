@@ -515,7 +515,7 @@ final class PreviewManager
 
 		$size = $file['size'];
 		$restriction = $rendererClass::getSizeRestriction();
-		if ($restriction !== null && $size !== null && $size > $restriction)
+		if ($restriction !== null && $size > $restriction)
 		{
 			return true;
 		}

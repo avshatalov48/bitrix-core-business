@@ -9,26 +9,19 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	var _templateObject;
 	var ActionPagesField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(ActionPagesField, _BaseField);
-
 	  function ActionPagesField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ActionPagesField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ActionPagesField).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Field.ActionPagesField');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    _this.setLayoutClass('landing-ui-field-action-pages');
-
 	    main_core.Dom.append(_this.getSuccess(), _this.input);
 	    main_core.Dom.append(_this.getFailure(), _this.input);
 	    main_core.Event.bind(document, 'click', _this.onDocumentClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    main_core.Event.bind(window.top.document, 'click', _this.onDocumentClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ActionPagesField, [{
 	    key: "onDocumentClick",
 	    value: function onDocumentClick() {
@@ -41,7 +34,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getSuccess",
 	    value: function getSuccess() {
 	      var _this2 = this;
-
 	      return this.cache.remember('success', function () {
 	        return ActionPagesField.createPageBlock({
 	          type: 'success',
@@ -56,7 +48,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          },
 	          onInput: function onInput() {
 	            _this2.emit('onChange');
-
 	            _this2.emit('onShowSuccess', new main_core.Event.BaseEvent({
 	              data: {
 	                show: true
@@ -76,7 +67,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFailure",
 	    value: function getFailure() {
 	      var _this3 = this;
-
 	      return this.cache.remember('failure', function () {
 	        return ActionPagesField.createPageBlock({
 	          type: 'failure',
@@ -91,7 +81,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          },
 	          onInput: function onInput() {
 	            _this3.emit('onChange');
-
 	            _this3.emit('onShowFailure', new main_core.Event.BaseEvent({
 	              data: {
 	                show: true
@@ -129,47 +118,37 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "createPageBlock",
 	    value: function createPageBlock(options) {
 	      var classPrefix = 'landing-ui-field-action-pages-page';
-
 	      var onEditClick = function onEditClick(event) {
 	        event.preventDefault();
 	        event.stopPropagation();
 	        var inner = event.currentTarget.closest(".".concat(classPrefix, "-inner"));
 	        var textContainer = inner.querySelector(".".concat(classPrefix, "-text"));
 	        main_core.Dom.attr(textContainer, 'contenteditable', !textContainer.isContentEditable);
-
 	        if (main_core.Type.isFunction(options.onEditClick)) {
 	          options.onEditClick(event);
 	        }
 	      };
-
 	      var onEditorClick = function onEditorClick(event) {
 	        event.stopPropagation();
 	      };
-
 	      var onViewClick = function onViewClick(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onShowClick)) {
 	          options.onShowClick(event);
 	        }
 	      };
-
 	      var onBlur = function onBlur(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onBlur)) {
 	          options.onBlur(event);
 	        }
 	      };
-
 	      var onFocus = function onFocus(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onFocus)) {
 	          options.onFocus(event);
 	        }
 	      };
-
 	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" \n\t\t\t\t\t\tonfocus=\"", "\" onblur=\"", "\" oninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, onFocus, onBlur, options.onInput, main_core.Text.encode(options.text), classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
 	    }
 	  }]);
@@ -185,17 +164,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	var _templateObject$1, _templateObject2;
 	var RefillActionPagesField = /*#__PURE__*/function (_ActionPagesField) {
 	  babelHelpers.inherits(RefillActionPagesField, _ActionPagesField);
-
 	  function RefillActionPagesField(options) {
 	    babelHelpers.classCallCheck(this, RefillActionPagesField);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RefillActionPagesField).call(this, options));
 	  }
-
 	  babelHelpers.createClass(RefillActionPagesField, [{
 	    key: "getSuccess",
 	    value: function getSuccess() {
 	      var _this = this;
-
 	      return this.cache.remember('success', function () {
 	        return RefillActionPagesField.createPageBlock({
 	          type: 'success',
@@ -211,7 +187,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          },
 	          onInput: function onInput() {
 	            _this.emit('onChange');
-
 	            _this.emit('onShowSuccess', new main_core.Event.BaseEvent({
 	              data: {
 	                show: true
@@ -255,7 +230,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "createPageBlock",
 	    value: function createPageBlock(options) {
 	      var classPrefix = 'landing-ui-field-action-pages-page';
-
 	      var onEditClick = function onEditClick(event) {
 	        event.preventDefault();
 	        event.stopPropagation();
@@ -264,47 +238,36 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        var buttonContainer = inner.querySelector(".".concat(classPrefix, "-button"));
 	        main_core.Dom.attr(textContainer, 'contenteditable', !textContainer.isContentEditable);
 	        main_core.Dom.attr(buttonContainer, 'contenteditable', !buttonContainer.isContentEditable);
-
 	        if (main_core.Type.isFunction(options.onEditClick)) {
 	          options.onEditClick(event);
 	        }
 	      };
-
 	      var onEditorClick = function onEditorClick(event) {
 	        event.stopPropagation();
 	      };
-
 	      var onViewClick = function onViewClick(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onShowClick)) {
 	          options.onShowClick(event);
 	        }
 	      };
-
 	      var onBlur = function onBlur(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onBlur)) {
 	          options.onBlur(event);
 	        }
 	      };
-
 	      var onFocus = function onFocus(event) {
 	        event.preventDefault();
-
 	        if (main_core.Type.isFunction(options.onFocus)) {
 	          options.onFocus(event);
 	        }
 	      };
-
 	      var buttonTag = '';
-
 	      if (options.type === 'success') {
 	        var buttonCaption = main_core.Text.encode(options.buttonCaption) || landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_REFILL_CAPTION');
 	        buttonTag = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "-button\" onclick=\"", "\" \n\t\t\t\t\tonfocus=\"", "\" onblur=\"", "\" oninput=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), classPrefix, onEditorClick, onFocus, onBlur, options.onInput, buttonCaption);
 	      }
-
 	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" onfocus=\"", "\" onblur=\"", "\"  \n\t\t\t\t\t\toninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, onFocus, onBlur, options.onInput, main_core.Text.encode(options.text), buttonTag, classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
 	    }
 	  }]);
@@ -313,31 +276,22 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	var ActionsContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(ActionsContent, _ContentWrapper);
-
 	  function ActionsContent(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ActionsContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ActionsContent).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.ActionsContent');
-
 	    main_core.Dom.addClass(_this.getLayout(), 'landing-ui-actions-content-wrapper');
-
 	    _this.addItem(_this.getHeader());
-
 	    _this.addItem(_this.getTypeButtons());
-
 	    if (_this.options.form) {
 	      _this.options.form.sent = false;
 	      _this.options.form.error = false;
 	    }
-
 	    var onBlur = function onBlur() {
 	      _this.options.form.sent = false;
 	      _this.options.form.error = false;
 	    };
-
 	    var showFailure = function showFailure(event) {
 	      var show = event.data.show || null;
 	      _this.options.formOptions.result = _this.getValue().result;
@@ -345,7 +299,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      _this.options.form.sent = show === null ? !_this.options.form.sent : show;
 	      _this.options.form.error = _this.options.form.sent;
 	    };
-
 	    _this.getActionPages().subscribe('onShowSuccess', function (event) {
 	      var show = event.data.show || null;
 	      _this.options.formOptions.result = _this.getValue().result;
@@ -353,7 +306,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      _this.options.form.sent = show === null ? !_this.options.form.sent : show;
 	      _this.options.form.error = false;
 	    }).subscribe('onShowFailure', showFailure).subscribe('onBlur', onBlur);
-
 	    _this.getRefillActionPages().subscribe('onShowSuccess', function (event) {
 	      var show = event.data.show || null;
 	      _this.options.formOptions.result = _this.getValue().result;
@@ -361,15 +313,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      _this.options.form.stateButton.text = _this.options.formOptions.result.refill && _this.options.formOptions.result.refill.active ? _this.options.formOptions.result.refill.caption : '';
 	      _this.options.form.sent = show === null ? !_this.options.form.sent : show;
 	      _this.options.form.error = false;
-
 	      if (!main_core.Type.isFunction(_this.options.form.stateButton.handler)) {
 	        _this.options.form.stateButton.handler = function () {};
 	      }
 	    }).subscribe('onShowFailure', showFailure).subscribe('onBlur', onBlur);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ActionsContent, [{
 	    key: "getHeader",
 	    value: function getHeader() {
@@ -393,7 +342,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTypeButtons",
 	    value: function getTypeButtons() {
 	      var _this2 = this;
-
 	      return this.cache.remember('typeButtons', function () {
 	        return new landing_ui_field_radiobuttonfield.RadioButtonField({
 	          selectable: true,
@@ -401,11 +349,9 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            if (_this2.options.formOptions.result.refill.active) {
 	              return 'type3';
 	            }
-
 	            if (main_core.Type.isStringFilled(_this2.options.formOptions.result.success.url) || main_core.Type.isStringFilled(_this2.options.formOptions.result.failure.url)) {
 	              return 'type2';
 	            }
-
 	            return 'type1';
 	          }(),
 	          items: [{
@@ -441,15 +387,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getTypeDropdown",
 	    value: function getTypeDropdown() {
 	      var _this3 = this;
-
 	      return this.cache.remember('typeDropdown', function () {
 	        var field = new landing_ui_field_presetfield.PresetField({
 	          events: {
 	            onClick: function onClick() {
 	              _this3.clear();
-
 	              _this3.addItem(_this3.getHeader());
-
 	              _this3.addItem(_this3.getTypeButtons());
 	            }
 	          }
@@ -463,7 +406,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getSuccessLinkField",
 	    value: function getSuccessLinkField() {
 	      var _this4 = this;
-
 	      return this.cache.remember('successLinkField', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_SUCCESS_FIELD_TITLE'),
@@ -478,7 +420,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getFailureLinkField",
 	    value: function getFailureLinkField() {
 	      var _this5 = this;
-
 	      return this.cache.remember('failureLinkField', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_FAILURE_FIELD_TITLE'),
@@ -493,7 +434,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRefillCaptionField",
 	    value: function getRefillCaptionField() {
 	      var _this6 = this;
-
 	      return this.cache.remember('refillCaptionFill', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_REFILL_CAPTION_FIELD_TITLE'),
@@ -507,7 +447,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getDelayField",
 	    value: function getDelayField() {
 	      var _this7 = this;
-
 	      return this.cache.remember('delayField', function () {
 	        return new BX.Landing.UI.Field.Dropdown({
 	          selector: 'redirectDelay',
@@ -535,7 +474,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getActionPages",
 	    value: function getActionPages() {
 	      var _this8 = this;
-
 	      return this.cache.remember('actionPages', function () {
 	        return new ActionPagesField({
 	          successText: _this8.options.formOptions.result.success.text,
@@ -548,7 +486,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "getRefillActionPages",
 	    value: function getRefillActionPages() {
 	      var _this9 = this;
-
 	      return this.cache.remember('refillActionPages', function () {
 	        return new RefillActionPagesField({
 	          successText: _this9.options.formOptions.result.success.text,
@@ -568,19 +505,16 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      this.addItem(this.getMessage(data.item.id));
 	      this.addItem(typeDropdown);
 	      typeDropdown.setLinkText(data.item.title.replace(/&nbsp;/, ' '));
-
 	      if (data.item.id === 'type1') {
 	        typeDropdown.setIcon(type1Icon);
 	        this.addItem(this.getActionPages());
 	      }
-
 	      if (data.item.id === 'type2') {
 	        typeDropdown.setIcon(type2Icon);
 	        this.addItem(this.getSuccessLinkField());
 	        this.addItem(this.getFailureLinkField());
 	        this.addItem(this.getDelayField());
 	      }
-
 	      if (data.item.id === 'type3') {
 	        typeDropdown.setIcon(type3Icon);
 	        this.addItem(this.getRefillActionPages());

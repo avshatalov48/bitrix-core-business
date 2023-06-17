@@ -118,6 +118,17 @@ if ($urlBuilderId === 'INVENTORY')
 $urlBuilder->setIblockId($IBLOCK_ID);
 $urlBuilder->setUrlParams([]);
 
+// TODO: remove after realization of the new grid of products.
+if ($publicMode)
+{
+	/**
+	 * @var CMain $APPLICATION
+	 */
+
+	$bodyClass = $APPLICATION->GetPageProperty('BodyClass', '');
+	$APPLICATION->SetPageProperty('BodyClass', str_replace('no-background', '', $bodyClass));
+}
+
 $pageConfig = array(
 	'IBLOCK_EDIT' => false,
 	'CHECK_NEW_CARD' => false,
@@ -402,15 +413,9 @@ if ($boolSKU)
 }
 
 $sTableID = $pageConfig['LIST_ID_PREFIX'].md5($pageConfig['LIST_ID']);
-$oSort = new CAdminUiSorting($sTableID, "timestamp_x", "desc");
-global $by, $order;
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'asc';
-$by = mb_strtoupper($by);
-if ($by == 'CATALOG_TYPE')
-	$by = 'TYPE';
+$oSort = new CAdminUiSorting($sTableID, "ID", "DESC");
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 $lAdmin->bMultipart = true;
@@ -630,6 +635,9 @@ $filterFields = array_merge($filterFields, $propertyManager->getFilterFields());
 $lAdmin->BeginEpilogContent();
 $propertyManager->renderCustomFields($sTableID);
 $lAdmin->EndEpilogContent();
+$propertySKUFilterFields = [];
+/** @var Iblock\Helpers\Filter\PropertyManager $propertySKUManager */
+$propertySKUManager = null;
 if ($boolSKU)
 {
 	$propertySKUManager = new Iblock\Helpers\Filter\PropertyManager($arCatalog['IBLOCK_ID']);
@@ -665,9 +673,19 @@ if (isset($arFilter["SECTION_ID"]))
 }
 else
 {
-	$isDifferences = array_diff($baseFilter, array_diff($arFilter, array_map(function ($field) {
-		return $field["id"];
-	}, $filterFields)));
+	$isDifferences = array_diff(
+		$baseFilter,
+		array_diff(
+			$arFilter,
+			array_map(
+				function ($field)
+				{
+					return $field["id"];
+				},
+				$filterFields
+			)
+		)
+	);
 	if ($isDifferences)
 	{
 		$arFilter["SECTION_ID"] = $find_section_section;
@@ -1036,6 +1054,7 @@ foreach ($arProps as $arFProps)
 	];
 }
 
+$arCatExtra = [];
 if($bCatalog)
 {
 	$arHeader[] = array(
@@ -1209,7 +1228,6 @@ if($bCatalog)
 			unset($priceType);
 		}
 
-		$arCatExtra = array();
 		$db_extras = CExtra::GetList(array("ID" => "ASC"));
 		while ($extras = $db_extras->Fetch())
 			$arCatExtra[$extras['ID']] = $extras;
@@ -1409,6 +1427,7 @@ switch ($by)
 	case 'ID':
 		$arOrder = array('ID' => $order);
 		break;
+	case 'CATALOG_TYPE':
 	case 'TYPE':
 		$arOrder = array('TYPE' => $order, 'BUNDLE' => $order, 'ID' => 'ASC');
 		break;
@@ -1893,10 +1912,22 @@ if($lAdmin->EditAction())
 		{
 			$CATALOG_PRICE = $_POST["CATALOG_PRICE"];
 			$CATALOG_CURRENCY = $_POST["CATALOG_CURRENCY"];
-			$CATALOG_EXTRA = (array)($_POST["CATALOG_EXTRA"] ?? []);
+			$CATALOG_EXTRA = ($_POST["CATALOG_EXTRA"] ?? []);
+			if (!is_array($CATALOG_EXTRA))
+			{
+				$CATALOG_EXTRA = [];
+			}
 			$CATALOG_PRICE_ID = $_POST["CATALOG_PRICE_ID"];
-			$CATALOG_QUANTITY_FROM = (array)($_POST["CATALOG_QUANTITY_FROM"] ?? []);
-			$CATALOG_QUANTITY_TO = (array)($_POST["CATALOG_QUANTITY_TO"] ?? []);
+			$CATALOG_QUANTITY_FROM = ($_POST["CATALOG_QUANTITY_FROM"] ?? []);
+			if (!is_array($CATALOG_QUANTITY_FROM))
+			{
+				$CATALOG_QUANTITY_FROM = [];
+			}
+			$CATALOG_QUANTITY_TO = ($_POST["CATALOG_QUANTITY_TO"] ?? []);
+			if (!is_array($CATALOG_QUANTITY_TO))
+			{
+				$CATALOG_QUANTITY_TO = [];
+			}
 			$CATALOG_PRICE_old = $_POST["CATALOG_old_PRICE"];
 			$CATALOG_CURRENCY_old = $_POST["CATALOG_old_CURRENCY"];
 
@@ -1920,8 +1951,8 @@ if($lAdmin->EditAction())
 				}
 				if (!(
 					CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $elID, "element_edit")
-					&& CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $elID, "element_edit_price"))
-				)
+					&& CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $elID, "element_edit_price")
+				))
 				{
 					continue;
 				}
@@ -2013,8 +2044,10 @@ if($lAdmin->EditAction())
 							continue;
 						}
 
-						if ($arPrice[$arCatalogGroup["ID"]] != $CATALOG_PRICE_old[$elID][$arCatalogGroup["ID"]]
-							|| $arCurrency[$arCatalogGroup["ID"]] != $CATALOG_CURRENCY_old[$elID][$arCatalogGroup["ID"]])
+						if (
+							$arPrice[$priceTypeId] != $CATALOG_PRICE_old[$elID][$priceTypeId]
+							|| $arCurrency[$priceTypeId] != $CATALOG_CURRENCY_old[$elID][$priceTypeId]
+						)
 						{
 							if ($arCatalogGroup["BASE"] == 'Y') // if base price check extra for other prices
 							{
@@ -2427,7 +2460,10 @@ if(($arID = $lAdmin->GroupAction()))
 								|| CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit_any_wf_status")
 							)
 							{
-								if ($arRes["WF_STATUS_ID"] != $new_status)
+								if (
+									isset($arRes)
+									&& $arRes["WF_STATUS_ID"] != $new_status
+								)
 								{
 									$obE->LAST_ERROR = '';
 									$res = $obE->Update($ID, array(
@@ -2845,9 +2881,10 @@ if(($arID = $lAdmin->GroupAction()))
 		$adminSidePanelHelper->sendSuccessResponse();
 	}
 
-	if (isset($return_url) && $return_url <> '')
+	$returnUrl = trim((string)$request->get('return_url'));
+	if ($returnUrl !== '')
 	{
-		LocalRedirect($return_url);
+		LocalRedirect($returnUrl);
 	}
 }
 CJSCore::Init(array('date'));
@@ -3252,6 +3289,8 @@ foreach (array_keys($rawRows) as $rowId)
 	}
 
 	$arRes_orig = $arRes;
+
+	$lockStatus = '';
 	if($itemType=="E")
 	{
 		if($bWorkFlow)
@@ -3279,10 +3318,6 @@ foreach (array_keys($rawRows) as $rowId)
 		elseif($bBizproc)
 		{
 			$lockStatus = call_user_func(array(ENTITY, "IsDocumentLocked"), $itemId, "") ? "red" : "green";
-		}
-		else
-		{
-			$lockStatus = "";
 		}
 	}
 
@@ -4846,29 +4881,33 @@ foreach (array_keys($rawRows) as $rowId)
 			Catalog\Grid\ProductAction::CONVERT_SERVICE_TO_PRODUCT,
 		], true);
 
-		$arActions = array_filter($arActions, static function ($item) use (
-			$editActions,
-			$boolCatalogProductAdd,
-			$boolCatalogProductEdit,
-			$boolCatalogProductDelete
-		) {
-			$id = $item['ID'] ?? null;
+		$arActions = array_filter(
+			$arActions,
+			static function ($item) use (
+				$editActions,
+				$boolCatalogProductAdd,
+				$boolCatalogProductEdit,
+				$boolCatalogProductDelete
+			)
+			{
+				$id = $item['ID'] ?? null;
 
-			if ($id === 'copy')
-			{
-				return $boolCatalogProductAdd;
-			}
-			elseif ($id === 'delete')
-			{
-				return $boolCatalogProductDelete;
-			}
-			elseif (isset($editActions[$id]))
-			{
-				return $boolCatalogProductEdit;
-			}
+				if ($id === 'copy')
+				{
+					return $boolCatalogProductAdd;
+				}
+				elseif ($id === 'delete')
+				{
+					return $boolCatalogProductDelete;
+				}
+				elseif (isset($editActions[$id]))
+				{
+					return $boolCatalogProductEdit;
+				}
 
-			return true;
-		});
+				return true;
+			}
+		);
 	}
 
 	$row->AddActions($arActions);

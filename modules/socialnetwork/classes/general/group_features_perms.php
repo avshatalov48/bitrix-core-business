@@ -354,7 +354,7 @@ class CAllSocNetFeaturesPerms
 
 		if (
 			!in_array($feature, array("tasks", "files", "blog"))
-			&& is_array($arSocNetFeaturesSettings[$feature]["subscribe_events"]))
+			&& is_array($arSocNetFeaturesSettings[$feature]["subscribe_events"] ?? null))
 		{
 			$arEventsTmp = array_keys($arSocNetFeaturesSettings[$feature]["subscribe_events"]);
 			$rsLog = CSocNetLog::GetList(
@@ -594,7 +594,7 @@ class CAllSocNetFeaturesPerms
 					}
 				}
 
-				return $arReturn;
+				return $arReturn ?? false;
 			}
 
 			// not array of groups

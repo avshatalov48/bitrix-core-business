@@ -202,11 +202,12 @@ class Binder
 	{
 		try
 		{
-			if($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
+			if ($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
 			{
 				return $this->reflectionFunctionAbstract->invokeArgs($this->instance, $this->getArgs());
 			}
-			elseif ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
+
+			if ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
 			{
 				return $this->reflectionFunctionAbstract->invokeArgs($this->getArgs());
 			}
@@ -332,7 +333,20 @@ class Binder
 	private function getParameterValue(\ReflectionParameter $parameter)
 	{
 		$sourceParameters = $this->getSourcesParametersToMap();
-		if ($parameter->getClass())
+
+		$reflectionType = $parameter->getType();
+		if (
+			($reflectionType instanceof \ReflectionUnionType)
+			|| ($reflectionType instanceof \ReflectionIntersectionType)
+		)
+		{
+			throw new BinderArgumentException(
+				"Currently there is no support for union or intersection types {{$parameter->getName()}}",
+				$parameter
+			);
+		}
+
+		if (($reflectionType instanceof \ReflectionNamedType) && !$reflectionType->isBuiltin())
 		{
 			foreach ($this->getAutoWiredByClass($parameter) as $autoWireParameter)
 			{
@@ -371,8 +385,8 @@ class Binder
 				return $parameter->getDefaultValue();
 			}
 
-			$exceptionMessage = "Could not find value for parameter to build auto wired argument {{$parameter->getClass()->getName()} \${$parameter->getName()}}";
-			if ($result !== null && $result->getErrorMessages())
+			$exceptionMessage = "Could not find value for parameter to build auto wired argument {{$reflectionType->getName()} \${$parameter->getName()}}";
+			if (isset($result) && ($result instanceof Result) && $result->getErrorMessages())
 			{
 				$exceptionMessage = $result->getErrorMessages()[0];
 			}
@@ -396,10 +410,8 @@ class Binder
 				$parameter
 			);
 		}
-		elseif ($parameter->getType() instanceof \ReflectionNamedType)
+		if ($reflectionType instanceof \ReflectionNamedType)
 		{
-			/** @var \ReflectionNamedType $reflectionType */
-			$reflectionType = $parameter->getType();
 			$declarationChecker = new TypeDeclarationChecker($reflectionType, $value);
 			if (!$declarationChecker->isSatisfied())
 			{
@@ -432,7 +444,8 @@ class Binder
 			{
 				return $source[$name];
 			}
-			elseif (is_array($source) && array_key_exists($name, $source))
+
+			if (is_array($source) && array_key_exists($name, $source))
 			{
 				return $source[$name];
 			}

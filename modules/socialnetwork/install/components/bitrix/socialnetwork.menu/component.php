@@ -238,7 +238,10 @@ if(!$errorMessage && $USER->IsAuthorized() && $arResult["PERMISSION"] > "R")
 	{
 		CUtil::JSPostUnescape();		
 
-		if (intval($_REQUEST["max_items"]) > 0)
+		if (
+			isset($_REQUEST["max_items"])
+			&& intval($_REQUEST["max_items"]) > 0
+		)
 		{
 			$arUserOptions = CUserOptions::GetOption("socialnetwork", "~menu_".$arParams["ENTITY_TYPE"]."_".$arParams["ENTITY_ID"], false, 0);
 

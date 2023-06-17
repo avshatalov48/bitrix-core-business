@@ -5,6 +5,7 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariation\GridState;
 use Bitrix\Catalog\Component\GridVariation\GridStateStorage;
+use Bitrix\Catalog\Component\GridVariation\InitSkuCollectionFromParams;
 use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\StoreProductTable;
@@ -12,8 +13,6 @@ use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Catalog\v2\Sku\SkuCollection;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
-use Bitrix\Main\Application;
-use Bitrix\Main\Data\LocalStorage\SessionLocalStorage;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
@@ -35,6 +34,7 @@ class CatalogProductVariationGridComponent
 	implements Controllerable, Errorable
 {
 	use ErrorableImplementation;
+	use InitSkuCollectionFromParams;
 
 	public const HEADER_EMPTY_PROPERTY_COLUMN = 'EMPTY_PROPERTIES';
 	private const STORE_AMOUNT_POPUP_LIMIT = 4;
@@ -79,7 +79,7 @@ class CatalogProductVariationGridComponent
 	{
 		if (!isset($this->skuRepository))
 		{
-            $skuIblockId = $this->getProduct()->getIblockInfo()->getSkuIblockId();
+			$skuIblockId = $this->getProduct()->getIblockInfo()->getSkuIblockId();
 			if (!isset($skuIblockId))
 			{
 				return null;
@@ -160,15 +160,32 @@ class CatalogProductVariationGridComponent
 						->setParent($this->getProduct())
 						->add(... $skus)
 				;
-
-				return $this->preparedSkuCollection;
 			}
 		}
 
-		$this->preparedSkuCollection = $this->getProduct()->loadSkuCollection();
+		$this->preparedSkuCollection ??= $this->getProduct()->loadSkuCollection();
 		if ($this->preparedSkuCollection->isEmpty())
 		{
 			$this->preparedSkuCollection->create();
+		}
+
+		if (!empty($this->arParams['~ROWS']) && is_array($this->arParams['~ROWS']))
+		{
+			if ($this->isNewProduct())
+			{
+				$this->preparedSkuCollection->remove(
+					... $this->preparedSkuCollection
+				);
+			}
+
+			if (!empty($this->arParams['~ROWS']) && is_array($this->arParams['~ROWS']))
+			{
+				$this->initFieldsSkuCollectionItems(
+					$this->preparedSkuCollection,
+					$this->arParams['~ROWS'],
+					false
+				);
+			}
 		}
 
 		return $this->preparedSkuCollection;
@@ -489,7 +506,8 @@ class CatalogProductVariationGridComponent
 
 	protected function initializeVariantsGrid()
 	{
-		$this->getDefaultVariationRowForm();
+		$form = $this->getDefaultVariationRowForm();
+
 		$this->arResult['CAN_HAVE_SKU'] = $this->canHaveSku() && !$this->isReadOnly();
 		$this->arResult['IS_READ_ONLY'] = $this->isReadOnly();
 		$this->arResult['PROPERTY_MODIFY_LINK'] = $this->getPropertyModifyLink();
@@ -498,6 +516,7 @@ class CatalogProductVariationGridComponent
 		$this->arResult['STORE_AMOUNT'] = $this->getStoreAmount();
 		$this->arResult['IS_SHOWED_STORE_RESERVE'] = \Bitrix\Catalog\Config\State::isShowedStoreReserve();
 		$this->arResult['RESERVED_DEALS_SLIDER_LINK'] = $this->getReservedDealsSliderLink();
+		$this->arResult['SUPPORTED_AJAX_FIELDS'] = $form ? $form->getGridSupportedAjaxColumns() : [];
 	}
 
 	public function getGridId(): ?string
@@ -698,9 +717,14 @@ class CatalogProductVariationGridComponent
 			$propertyPrefix = $defaultForm::preparePropertyName();
 			$defaultSkuProperties = array_filter(
 				$editData['template_0'],
-				static function ($value, $name) use ($propertyPrefix) {
-					return mb_strpos($name, $propertyPrefix) === 0 && mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false;
-				}, ARRAY_FILTER_USE_BOTH
+				static function ($value, $name) use ($propertyPrefix)
+				{
+					return
+						mb_strpos($name, $propertyPrefix) === 0
+						&& mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false
+					;
+				},
+				ARRAY_FILTER_USE_BOTH
 			);
 		}
 
@@ -716,8 +740,12 @@ class CatalogProductVariationGridComponent
 				{
 					$productPropertiesKeys = array_filter(
 						$row['data'],
-						static function ($value, $name) use ($propertyPrefix) {
-							return mb_strpos($name, $propertyPrefix) === 0 && mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false;
+						static function ($value, $name) use ($propertyPrefix)
+						{
+							return
+								mb_strpos($name, $propertyPrefix) === 0
+								&& mb_strpos($name, $propertyPrefix.'MORE_PHOTO') === false
+							;
 						},
 						ARRAY_FILTER_USE_BOTH
 					);

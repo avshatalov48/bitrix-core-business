@@ -438,7 +438,14 @@
 					}
 					else
 					{
-						BX.debug(result.ERROR);
+						if (typeof result.ERROR !== 'undefined')
+						{
+							BX.debug(result.ERROR);
+						}
+						else
+						{
+							BX.debug('getHandlerDescription empty result error');
+						}
 					}
 				}.bind(this),
 
@@ -454,7 +461,7 @@
 					if (psMode)
 						psMode.innerHTML = '';
 
-					BX.debug("Error");
+					BX.debug("getHandlerDescription failure result");
 				}
 			});
 		},

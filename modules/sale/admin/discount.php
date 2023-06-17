@@ -258,14 +258,15 @@ if (!$readOnly && ($listID = $adminList->GroupAction()))
 	$listID = array_filter($listID);
 	if (!empty($listID))
 	{
-		switch ($_REQUEST['action'])
+		$action = $adminList->GetAction();
+		switch ($action)
 		{
 			case 'activate':
 			case 'deactivate':
-				$fields = array(
-					'ACTIVE' => ($_REQUEST['action'] == 'activate' ? 'Y' : 'N')
-				);
-				foreach ($listID as &$discountID)
+				$fields = [
+					'ACTIVE' => ($action === 'activate' ? 'Y' : 'N'),
+				];
+				foreach ($listID as $discountID)
 				{
 					$result = Sale\Internals\DiscountTable::update($discountID, $fields);
 					if (!$result->isSuccess())
@@ -275,7 +276,7 @@ if (!$readOnly && ($listID = $adminList->GroupAction()))
 				unset($discountID, $fields);
 				break;
 			case 'delete':
-				foreach ($listID as &$discountID)
+				foreach ($listID as $discountID)
 				{
 					$result = Sale\Internals\DiscountTable::delete($discountID);
 					if (!$result->isSuccess())
@@ -419,7 +420,8 @@ $headerList['USE_COUPONS'] = array(
 	'default' => true
 );
 
-if (Option::get('sale', 'use_sale_discount_only') !== 'Y')
+$saleDiscountOnly = Option::get('sale', 'use_sale_discount_only') === 'Y';
+if (!$saleDiscountOnly)
 {
 	unset($headerList['EXECUTE_MODULE']);
 }
@@ -429,6 +431,10 @@ $adminList->AddHeaders($headerList);
 $selectFields = array_fill_keys($adminList->GetVisibleHeaderColumns(), true);
 $selectFields['ID'] = true;
 $selectFieldsMap = array_fill_keys(array_keys($headerList), false);
+if (!$saleDiscountOnly)
+{
+	$selectFieldsMap['EXECUTE_MODULE'] = false;
+}
 
 $selectFieldsMap = array_merge($selectFieldsMap, $selectFields);
 $selectFields['ACTIVE'] = true;
@@ -437,7 +443,7 @@ $selectFields['ACTIONS_LIST'] = true;
 
 $usePageNavigation = true;
 $navyParams = array();
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+if ($adminList->isExportMode())
 {
 	$usePageNavigation = false;
 }
@@ -455,12 +461,19 @@ else
 	}
 }
 
-$by = $adminSort->getField();
-$order = $adminSort->getOrder();
+$by = mb_strtoupper($adminSort->getField());
+$order = mb_strtoupper($adminSort->getOrder());
+$sort = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$sort['ID'] = 'ASC';
+}
 $getListParams = array(
 	'select' => array_keys($selectFields),
 	'filter' => $filter,
-	'order' => array($by => $order)
+	'order' => $sort,
 );
 if(Option::get('sale', 'use_sale_discount_only', false) === 'Y' && Loader::includeModule('catalog'))
 {
@@ -514,7 +527,7 @@ $adminList->SetNavigationParams($discountIterator, array("BASE_LINK" => $selfFol
 
 $userList = array();
 $arUserID = array();
-$nameFormat = CSite::GetNameFormat(true);
+$nameFormat = CSite::GetNameFormat();
 
 function canShowDiscountInCatalog(array $discount): bool
 {

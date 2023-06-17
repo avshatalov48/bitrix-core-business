@@ -109,7 +109,14 @@ if(is_array($arResult["SCOPE"])):
 			<td class="content-edit-form-field-input">
 <?php
 	foreach($arResult["SCOPE"] as $scope):
-		$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_".toUpper($scope)));
+		if (mb_strtoupper($scope) === 'LOG')
+		{
+			$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_LOG_MSGVER_1"));
+		}
+		else
+		{
+			$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_".mb_strtoupper($scope)));
+		}
 		$scope = $c->encode($scope);
 
 		if($scopeName == '')

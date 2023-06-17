@@ -9,7 +9,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 	'main.parambag',
 ]);
 
-$presets = isset($arParams['~FILTER_PRESETS']) ? $arParams['~FILTER_PRESETS'] : array();
+$presets = $arParams['~FILTER_PRESETS'] ?? array();
 $savedItems = isset($arResult['OPTIONS'])
 	&& isset($arResult['OPTIONS']['filters'])
 	&& is_array($arResult['OPTIONS']['filters'])
@@ -26,17 +26,17 @@ foreach($savedItems as $itemKey => &$item)
 	if(!isset($item['name']) && isset($presets[$itemKey]))
 	{
 		$preset = $presets[$itemKey];
-		$item['name'] = isset($preset['name']) ? $preset['name'] : $itemKey;
+		$item['name'] = $preset['name'] ?? $itemKey;
 	}
 }
 unset($item);
 
-$fields = isset($arParams['FILTER']) ? $arParams['FILTER'] : array();
-$values = isset($arResult['FILTER']) ? $arResult['FILTER'] : array();
+$fields = $arParams['FILTER'] ?? array();
+$values = $arResult['FILTER'] ?? array();
 
 $infos = array();
 //Visibility for default filter
-$visibilityMap = isset($arResult['FILTER_ROWS']) ? $arResult['FILTER_ROWS'] : array();
+$visibilityMap = $arResult['FILTER_ROWS'] ?? array();
 
 $gridID = $arParams['GRID_ID'];
 $gridIDLc = mb_strtolower($gridID);
@@ -54,22 +54,22 @@ if(isset($arParams['FILTER_FIELDS']))
 	$gridContext =  array(
 		'FILTER_INFO' =>
 			array(
-				'ID' => isset($values['GRID_FILTER_ID']) ? $values['GRID_FILTER_ID'] : '',
-				'IS_APPLIED' => isset($values['GRID_FILTER_APPLIED']) ? $values['GRID_FILTER_APPLIED'] : false
+				'ID' => $values['GRID_FILTER_ID'] ?? '',
+				'IS_APPLIED' => $values['GRID_FILTER_APPLIED'] ?? false
 			)
 	);
 }
-$arParams['FILTER_INFO'] = isset($gridContext['FILTER_INFO']) ? $gridContext['FILTER_INFO'] : array();
+$arParams['FILTER_INFO'] = $gridContext['FILTER_INFO'] ?? array();
 
-$filterInfo = isset($arParams['FILTER_INFO']) ? $arParams['FILTER_INFO'] : array();
-$isFilterApplied = isset($filterInfo['IS_APPLIED']) ? $filterInfo['IS_APPLIED'] : false;
-$currentFilterID = isset($filterInfo['ID']) ? $filterInfo['ID'] : '';
+$filterInfo = $arParams['FILTER_INFO'] ?? array();
+$isFilterApplied = $filterInfo['IS_APPLIED'] ?? false;
+$currentFilterID = $filterInfo['ID'] ?? '';
 
 if($currentFilterID !== '' && isset($savedItems[$currentFilterID]))
 {
 	$currentFilter = $savedItems[$currentFilterID];
 	$filterVisibilityMap = array();
-	$filterVisibileRows = explode(',', isset($currentFilter['filter_rows']) ? $currentFilter['filter_rows'] : '');
+	$filterVisibileRows = explode(',', $currentFilter['filter_rows'] ?? '');
 	foreach($filterVisibileRows as $fieldID)
 	{
 		$fieldID = trim($fieldID);
@@ -82,7 +82,7 @@ if($currentFilterID !== '' && isset($savedItems[$currentFilterID]))
 	if(empty($filterVisibilityMap))
 	{
 		$filterVisibilityMap = array();
-		$filterFieldIDs = array_keys(isset($currentFilter['fields']) ? $currentFilter['fields'] : array());
+		$filterFieldIDs = array_keys($currentFilter['fields'] ?? array());
 		foreach($filterFieldIDs as $filterFieldID)
 		{
 			//We have to remove filter suffixes from field ID.
@@ -130,35 +130,35 @@ if(!function_exists('__InterfaceFilterRenderField'))
 
 		$infos[$fieldID] = array(
 			'id' => $fieldID,
-			'name' => isset($field['name']) ? $field['name'] : $fieldID,
-			'type' => isset($field['type']) ? $field['type'] : '',
-			'params' => isset($field['params']) ? $field['params'] : array(),
-			'isVisible' =>  isset($options['IS_VISIBLE']) ? $options['IS_VISIBLE'] : false
+			'name' => $field['name'] ?? $fieldID,
+			'type' => $field['type'] ?? '',
+			'params' => $field['params'] ?? array(),
+			'isVisible' => $options['IS_VISIBLE'] ?? false
 		);
 
 		//Setup default attributes
-		if(!is_array($field['params']))
+		if(!isset($field['params']) || !is_array($field['params']))
 		{
 			$field['params'] = array();
 		}
 
-		if($field['type'] == '' || $field['type'] == 'text')
+		if(empty($field['type']) || $field['type'] == 'text')
 		{
-			if($field['params']['size'] == '')
+			if(empty($field['params']['size']))
 			{
 				$field['params']['size'] = '30';
 			}
 		}
 		elseif($field['type'] == 'date')
 		{
-			if($field['params']['size'] == '')
+			if(empty($field['params']['size']))
 			{
 				$field['params']['size'] = '10';
 			}
 		}
 		elseif($field['type'] == 'number')
 		{
-			if($field['params']['size'] == '')
+			if(empty($field['params']['size']))
 			{
 				$field['params']['size'] = '8';
 			}
@@ -171,20 +171,20 @@ if(!function_exists('__InterfaceFilterRenderField'))
 		}
 		$params = htmlspecialcharsbx($params);
 
-		$value = isset($values[$fieldID]) ? $values[$fieldID] : '';
+		$value = $values[$fieldID] ?? '';
 
 		switch($field["type"])
 		{
 			case 'custom':
 				{
-					$enableWrapper = isset($field["enableWrapper"]) ? $field["enableWrapper"] : true;
+					$enableWrapper = $field["enableWrapper"] ?? true;
 
 					if($enableWrapper):
 						$wrapperClass = mb_strpos($fieldID, 'UF_') === 0 ? 'bx-user-field-wrap' : 'bx-input-wrap';
 						echo '<div class="', $wrapperClass, '">';
 					endif;
 
-					echo isset($field['value']) ? $field['value'] : '';
+					echo $field['value'] ?? '';
 
 					if($enableWrapper)
 						echo '</div>';
@@ -259,7 +259,7 @@ if(!function_exists('__InterfaceFilterRenderField'))
 			case 'date':
 				{
 					$dateSelectorID = "{$fieldID}_datesel";
-					$dateSelectorValue = isset($values[$dateSelectorID]) ? $values[$dateSelectorID] : '';
+					$dateSelectorValue = $values[$dateSelectorID] ?? '';
 					echo '<span class="bx-select-wrap">',
 						'<select class="bx-select bx-filter-date-interval-select" id="', htmlspecialcharsbx($dateSelectorID), '" name="', htmlspecialcharsbx($dateSelectorID),'"',
 						'>';
@@ -275,7 +275,7 @@ if(!function_exists('__InterfaceFilterRenderField'))
 					echo '</select></span>';
 
 					$dayInputID = "{$fieldID}_days";
-					$dateInputValue = isset($values[$dayInputID]) ? $values[$dayInputID] : '';
+					$dateInputValue = $values[$dayInputID] ?? '';
 					echo '<div class="bx-input-wrap bx-filter-date-days" style="display:none;">',
 						'<input type="text" class="bx-input"',
 						' name="', htmlspecialcharsbx($dayInputID), '"',
@@ -287,7 +287,7 @@ if(!function_exists('__InterfaceFilterRenderField'))
 						'</div>';
 
 					$fromInputID = "{$fieldID}_from";
-					$fromInputValue = isset($values[$fromInputID]) ? $values[$fromInputID] : '';
+					$fromInputValue = $values[$fromInputID] ?? '';
 
 					echo '<div class="bx-input-wrap bx-filter-calendar-inp bx-filter-calendar-first bx-filter-date-from" style="display:none;">',
 						'<input type="text" class="bx-input bx-input-date"',
@@ -301,7 +301,7 @@ if(!function_exists('__InterfaceFilterRenderField'))
 					echo '<span class="bx-filter-calendar-separate" style="display:none;"></span>';
 
 					$toInputID = "{$fieldID}_to";
-					$toInputValue = isset($values[$toInputID]) ? $values[$toInputID] : '';
+					$toInputValue = $values[$toInputID] ?? '';
 
 					echo '<div class="bx-input-wrap bx-filter-calendar-inp bx-filter-calendar-first bx-filter-date-to" style="display:none;">',
 						'<input type="text" class="bx-input bx-input-date"',
@@ -368,20 +368,20 @@ if(!function_exists('__InterfaceFilterRenderField'))
 	}
 }
 
-$viewID = isset($arParams['RENDER_FILTER_INTO_VIEW']) ? $arParams['RENDER_FILTER_INTO_VIEW'] : '';
+$viewID = $arParams['RENDER_FILTER_INTO_VIEW'] ?? '';
 if(is_string($viewID) && $viewID !== '')
 	$this->SetViewTarget($viewID, 100);
 
 $navigationBarID = "{$gridIDLc}_filter_bar";
 $navigationBar = isset($arParams['NAVIGATION_BAR']) && is_array($arParams['NAVIGATION_BAR']) ? $arParams['NAVIGATION_BAR'] : array();
-$navigationBarItems = isset($navigationBar['ITEMS']) ? $navigationBar['ITEMS'] : null;
+$navigationBarItems = $navigationBar['ITEMS'] ?? null;
 $navigationBarConfig = array('items' => array());
 if(isset($navigationBar['BINDING']))
 {
 	$navigationBarConfig['binding'] = $navigationBar['BINDING'];
 }
 $navigationBarOptions = CUserOptions::GetOption("main.interface.filter.navigation", $navigationBarID, array());
-$isHidden = isset($arParams['HIDE_FILTER']) ? $arParams['HIDE_FILTER'] : false;
+$isHidden = $arParams['HIDE_FILTER'] ?? false;
 ?><form name="<?=htmlspecialcharsbx($formName)?>" action="" method="GET">
 <?
 foreach($arResult["GET_VARS"] as $var=>$value):
@@ -408,9 +408,9 @@ endforeach;
 				?><div class="crm-filter-view"><?
 					foreach($navigationBarItems as &$barItem):
 						$barItemQty++;
-						$barItemID = isset($barItem['id']) ? $barItem['id'] : $barItemQty;
+						$barItemID = $barItem['id'] ?? $barItemQty;
 						$barItemElementID = mb_strtolower("{$gridID}_{$barItemID}");
-						$barItemUrl = isset($barItem['url']) ? $barItem['url'] : '';
+						$barItemUrl = $barItem['url'] ?? '';
 
 						$barItemConfig = array('id' => $barItemID, 'buttonId' => $barItemElementID, 'url' => $barItemUrl);
 						$barItemHintKey = "enable_{$barItemID}_hint";
@@ -478,9 +478,9 @@ endforeach;
 											$fieldID = $field['id'];
 											$fieldContainerID = "{$fieldContainerPrefix}{$fieldID}";
 											$delimiterContainerID = "{$fieldDelimiterContainerPrefix}{$fieldID}";
-											$isVisible = isset($visibilityMap[$fieldID]) ? $visibilityMap[$fieldID] : false;
+											$isVisible = $visibilityMap[$fieldID] ?? false;
 											?><tr class="bx-filter-item-row" id="<?=htmlspecialcharsbx($fieldContainerID)?>"<?=$isVisible ? '' : ' style="display:none;"'?>>
-												<td class="bx-filter-item-left"><?=htmlspecialcharsbx(isset($field['name']) ? $field['name'] : $fieldID)?>:</td>
+												<td class="bx-filter-item-left"><?=htmlspecialcharsbx($field['name'] ?? $fieldID)?>:</td>
 												<td class="bx-filter-item-center">
 													<div class="bx-filter-alignment">
 														<div class=" bx-filter-box-sizing"><?
@@ -490,7 +490,7 @@ endforeach;
 																$infos,
 																array(
 																	'IS_VISIBLE' => $isVisible,
-																	'DATE_FILTER' => isset($arResult['DATE_FILTER']) ? $arResult['DATE_FILTER'] : null,
+																	'DATE_FILTER' => $arResult['DATE_FILTER'] ?? null,
 																	'FORM_NAME' => $formName,
 																	'COMPONENT' => $component
 																)
@@ -536,7 +536,7 @@ if(is_string($viewID))
 	$this->EndViewTarget();
 
 //Prepare default rows
-$filterRows = isset($arResult['OPTIONS']['filter_rows']) ? $arResult['OPTIONS']['filter_rows'] : '';
+$filterRows = $arResult['OPTIONS']['filter_rows'] ?? '';
 if(!(is_string($filterRows) && $filterRows !== ''))
 {
 	$fieldIDs = array();

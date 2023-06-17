@@ -61,7 +61,17 @@
 		append(this.typeSwitcher.layout, this.searchContainer);
 		append(this.searchContainer, this.content);
 		append(this.listContainer, this.content);
-		append(this.layout, document.body);
+
+		if (BX.Landing.Main.isExternalControlsEnabled())
+		{
+			append(this.layout, parent.document.body);
+		}
+		else
+		{
+			append(this.layout, document.body);
+			this.layout.style.marginTop = 0;
+			this.overlay.style.display = 'none';
+		}
 	};
 
 

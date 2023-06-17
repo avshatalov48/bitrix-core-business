@@ -51,7 +51,7 @@ class CArchiver implements IBXArchive
 					fclose($fp);
 					if ($data == "\37\213")
 					{
-						$this->_bCompress = True;
+						$this->_bCompress = true;
 					}
 				}
 			}
@@ -59,13 +59,13 @@ class CArchiver implements IBXArchive
 			{
 				if (mb_substr($strArchiveName, -2) == 'gz')
 				{
-					$this->_bCompress = True;
+					$this->_bCompress = true;
 				}
 			}
 		}
 		else
 		{
-			$this->_bCompress = True;
+			$this->_bCompress = true;
 		}
 
 		$this->_strArchiveName = $strArchiveName;
@@ -84,11 +84,11 @@ class CArchiver implements IBXArchive
 		$this->_arErrors = array();
 		$this->startFile = $this->io->GetPhysicalName($startFile);
 
-		$bNewArchive = True;
+		$bNewArchive = true;
 		if (file_exists($this->io->GetPhysicalName($this->_strArchiveName))
 			&& is_file($this->io->GetPhysicalName($this->_strArchiveName)) && ($startFile != ""))
 		{
-			$bNewArchive = False;
+			$bNewArchive = false;
 		}
 
 		if ($bNewArchive)
@@ -109,9 +109,9 @@ class CArchiver implements IBXArchive
 		foreach ($arFileList as $fullpath)
 			$arConvertedFileList[] = $this->io->GetPhysicalName($fullpath);
 
-		unset($this->tempres);
+		$this->tempres = null;
 
-		if (is_array($arFileList) && count($arFileList)>0)
+		if (is_array($arFileList) && !empty($arFileList))
 			$res = $this->_processFiles($arConvertedFileList, $this->add_path, $this->remove_path, $this->startFile);
 
 		if ($res !== false && $res !== "continue")
@@ -202,7 +202,7 @@ class CArchiver implements IBXArchive
 			return false;
 		}
 
-		if (!is_array($arFileList) || count($arFileList)<=0)
+		if (!is_array($arFileList) || empty($arFileList))
 			return true;
 
 		$j = -1;
@@ -240,7 +240,7 @@ class CArchiver implements IBXArchive
 					else
 					{
 						//if startFile is found, continue to pack files and folders without startFile, starting from next
-						unset($this->startFile);
+						$this->startFile = null;
 						continue;
 					}
 				}
@@ -383,11 +383,11 @@ class CArchiver implements IBXArchive
 	{
 		$this->_arErrors = array();
 
-		$bNewArchive = True;
+		$bNewArchive = true;
 		if (file_exists($this->io->GetPhysicalName($this->_strArchiveName))
 			&& is_file($this->io->GetPhysicalName($this->_strArchiveName)))
 		{
-			$bNewArchive = False;
+			$bNewArchive = false;
 		}
 
 		if ($bNewArchive)
@@ -403,7 +403,7 @@ class CArchiver implements IBXArchive
 		$res = false;
 		$arFileList = &$this->_parseFileParams($vFileList);
 
-		if (is_array($arFileList) && count($arFileList)>0)
+		if (is_array($arFileList) && !empty($arFileList))
 			$res = $this->_addFileList($arFileList, $strAddPath, $strRemovePath);
 
 		if ($res)
@@ -556,7 +556,7 @@ class CArchiver implements IBXArchive
 			return false;
 		}
 
-		if (!is_array($arFileList) || count($arFileList)<=0)
+		if (!is_array($arFileList) || empty($arFileList))
 			return true;
 
 		$fileListCount = count($arFileList);
@@ -770,16 +770,13 @@ class CArchiver implements IBXArchive
 		switch ($p_mode)
 		{
 			case "complete" :
-			$v_extract_all = TRUE;
-			$v_listing = FALSE;
-			break;
+				break;
 			case "partial" :
-			$v_extract_all = FALSE;
-			$v_listing = FALSE;
-			break;
+				$v_extract_all = false;
+				break;
 			case "list" :
-			$v_extract_all = FALSE;
-			$v_listing = TRUE;
+			$v_extract_all = false;
+			$v_listing = true;
 			break;
 			default :
 			$this->_arErrors[] = array("ERR_PARAM", str_replace("#EXTRACT_MODE#", $p_mode, GetMessage("MAIN_ARCHIVE_ERR_PARAM")));
@@ -790,8 +787,7 @@ class CArchiver implements IBXArchive
 
 		while(strlen($v_binary_data = $this->_readBlock()) != 0)
 		{
-			$v_extract_file = FALSE;
-			$v_extraction_stopped = 0;
+			$v_extract_file = false;
 
 			if (!$this->_readHeader($v_binary_data, $v_header))
 				return false;
@@ -808,7 +804,6 @@ class CArchiver implements IBXArchive
 			if ((!$v_extract_all) && (is_array($p_file_list)))
 			{
 				// ----- By default no unzip if the file is not found
-				$v_extract_file = false;
 				$l = count($p_file_list);
 				for ($i = 0; $i < $l; $i++)
 				{
@@ -819,21 +814,21 @@ class CArchiver implements IBXArchive
 						if ((mb_strlen($v_header['filename']) > mb_strlen($p_file_list[$i]))
 							&& (mb_substr($v_header['filename'], 0, mb_strlen($p_file_list[$i])) == $p_file_list[$i]))
 						{
-							$v_extract_file = TRUE;
+							$v_extract_file = true;
 							break;
 						}
 					}
 					elseif ($p_file_list[$i] == $v_header['filename'])
 					{
 						// ----- It is a file, so compare the file names
-						$v_extract_file = TRUE;
+						$v_extract_file = true;
 						break;
 					}
 				}
 			}
 			else
 			{
-				$v_extract_file = TRUE;
+				$v_extract_file = true;
 			}
 
 			// ----- Look if this file need to be extracted
@@ -879,70 +874,63 @@ class CArchiver implements IBXArchive
 					return false;
 				}
 
-				if ($v_extract_file)
+				$logicalFilename = $this->io->GetLogicalName($v_header['filename']);
+
+				if ((HasScriptExtension($v_header['filename'])
+					|| IsFileUnsafe($v_header['filename'])
+					|| !$this->io->ValidatePathString($logicalFilename)
+					|| !$this->io->ValidateFilenameString(GetFileName($logicalFilename)))
+					&& $this->CheckBXPermissions == true)
 				{
-					$logicalFilename = $this->io->GetLogicalName($v_header['filename']);
-
-					if ((HasScriptExtension($v_header['filename'])
-						|| IsFileUnsafe($v_header['filename'])
-						|| !$this->io->ValidatePathString($logicalFilename)
-						|| !$this->io->ValidateFilenameString(GetFileName($logicalFilename)))
-						&& $this->CheckBXPermissions == true)
+					$this->_jumpBlock(ceil(($v_header['size']/512)));
+				}
+				//should we overwrite existent files?
+				elseif ((file_exists($v_header['filename']) && $this->ReplaceExistentFiles) || !(file_exists($v_header['filename'])))
+				{
+					if ($v_header['typeflag'] == "5")
 					{
-						$this->_jumpBlock(ceil(($v_header['size']/512)));
-					}
-					//should we overwrite existent files?
-					elseif ((file_exists($v_header['filename']) && $this->ReplaceExistentFiles) || !(file_exists($v_header['filename'])))
-					{
-						if ($v_header['typeflag'] == "5")
+						if (!@file_exists($v_header['filename']))
 						{
-							if (!@file_exists($v_header['filename']))
+							if (!@mkdir($v_header['filename'], BX_DIR_PERMISSIONS))
 							{
-								if (!@mkdir($v_header['filename'], BX_DIR_PERMISSIONS))
-								{
-									$this->_arErrors[] = array("ERR_CREATE_DIR", str_replace("#DIR_NAME#", removeDocRoot($this->io->GetLogicalName($v_header['filename'])), GetMessage("MAIN_ARCHIVE_ERR_CREATE_DIR")));
-									return false;
-								}
-							}
-						}
-						else
-						{
-							if (($v_dest_file = @fopen($v_header['filename'], "wb")) == 0)
-							{
-								$this->_arErrors[] = array("ERR_CREATE_FILE", str_replace("#FILE_NAME#", removeDocRoot($this->io->GetLogicalName($v_header['filename'])), GetMessage("MAIN_ARCHIVE_ERR_CREATE_FILE")));
-								return false;
-							}
-							else
-							{
-									$n = floor($v_header['size']/512);
-									for ($i = 0; $i < $n; $i++)
-									{
-										$v_content = $this->_readBlock();
-										fwrite($v_dest_file, $v_content, 512);
-									}
-									if (($v_header['size'] % 512) != 0)
-									{
-										$v_content = $this->_readBlock();
-										fwrite($v_dest_file, $v_content, ($v_header['size'] % 512));
-									}
-
-									@fclose($v_dest_file);
-
-									@chmod($v_header['filename'], BX_FILE_PERMISSIONS);
-									@touch($v_header['filename'], $v_header['mtime']);
-							}
-
-							clearstatcache();
-							if (filesize($v_header['filename']) != $v_header['size'])
-							{
-								$this->_arErrors[] = array("ERR_SIZE_CHECK", str_replace(array("#FILE_NAME#","#SIZE#","#EXP_SIZE#"), array(removeDocRoot($v_header['size']),filesize($v_header['filename']),$v_header['size']), GetMessage("MAIN_ARCHIVE_ERR_SIZE_CHECK")));
+								$this->_arErrors[] = array("ERR_CREATE_DIR", str_replace("#DIR_NAME#", removeDocRoot($this->io->GetLogicalName($v_header['filename'])), GetMessage("MAIN_ARCHIVE_ERR_CREATE_DIR")));
 								return false;
 							}
 						}
 					}
 					else
 					{
-						$this->_jumpBlock(ceil(($v_header['size']/512)));
+						if (($v_dest_file = @fopen($v_header['filename'], "wb")) == 0)
+						{
+							$this->_arErrors[] = array("ERR_CREATE_FILE", str_replace("#FILE_NAME#", removeDocRoot($this->io->GetLogicalName($v_header['filename'])), GetMessage("MAIN_ARCHIVE_ERR_CREATE_FILE")));
+							return false;
+						}
+						else
+						{
+								$n = floor($v_header['size']/512);
+								for ($i = 0; $i < $n; $i++)
+								{
+									$v_content = $this->_readBlock();
+									fwrite($v_dest_file, $v_content, 512);
+								}
+								if (($v_header['size'] % 512) != 0)
+								{
+									$v_content = $this->_readBlock();
+									fwrite($v_dest_file, $v_content, ($v_header['size'] % 512));
+								}
+
+								@fclose($v_dest_file);
+
+								@chmod($v_header['filename'], BX_FILE_PERMISSIONS);
+								@touch($v_header['filename'], $v_header['mtime']);
+						}
+
+						clearstatcache();
+						if (filesize($v_header['filename']) != $v_header['size'])
+						{
+							$this->_arErrors[] = array("ERR_SIZE_CHECK", str_replace(array("#FILE_NAME#","#SIZE#","#EXP_SIZE#"), array(removeDocRoot($v_header['size']),filesize($v_header['filename']),$v_header['size']), GetMessage("MAIN_ARCHIVE_ERR_SIZE_CHECK")));
+							return false;
+						}
 					}
 				}
 				else
@@ -955,7 +943,7 @@ class CArchiver implements IBXArchive
 				$this->_jumpBlock(ceil(($v_header['size']/512)));
 			}
 
-			if ($v_listing || $v_extract_file || $v_extraction_stopped)
+			if ($v_listing || $v_extract_file)
 			{
 				if (($v_file_dir = dirname($v_header['filename'])) == $v_header['filename'])
 					$v_file_dir = '';
@@ -1432,7 +1420,7 @@ class CArchiver implements IBXArchive
 		{
 			$strPath = str_replace("\\", "/", $strPath);
 
-			while(mb_strpos($strPath, ".../") !== false)
+			while(strpos($strPath, ".../") !== false)
 				$strPath = str_replace(".../", "../", $strPath);
 
 			$arPath = explode('/', $strPath);

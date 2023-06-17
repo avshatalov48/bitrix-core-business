@@ -101,7 +101,6 @@ class MessageDeal extends MessageBase
 				'code' => 'LINK_WITH_RESPONSIBLE',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_DEAL_WITH_RESPONSIBLE'),
 				'required' => false,
-				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_DEAL_WITH_RESPONSIBLE_HINT'),
 			],
 			[
 				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,

@@ -113,8 +113,8 @@ elseif (CModule::IncludeModule('tasks'))
 */
 
 				'USER_ID' => $userId,
-				'PATH_TO_GROUP' => $arResult['PATH_TO_GROUP'],
-				'PATH_TO_GROUP_CREATE' => $arParams['PATH_TO_GROUP_CREATE'],
+				'PATH_TO_GROUP' => $arResult['PATH_TO_GROUP'] ?? null,
+				'PATH_TO_GROUP_CREATE' => $arParams['PATH_TO_GROUP_CREATE'] ?? null,
 				'PATH_TO_GROUP_EDIT' => $arResult['PATH_TO_GROUP_EDIT'],
 				'PATH_TO_GROUP_DELETE' => $arResult['PATH_TO_GROUP_DELETE'],
 				'PATH_TO_GROUP_TASKS' => $arParams['PATH_TO_GROUP_TASKS'],

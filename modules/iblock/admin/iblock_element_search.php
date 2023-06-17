@@ -173,11 +173,9 @@ foreach($arProps as $prop)
 }
 
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
-if (!isset($by))
-	$by = 'NAME';
-if (!isset($order))
-	$order = 'ASC';
-$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+$arOrder = ($by === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $lAdmin->InitFilter($arFilterFields);
@@ -236,7 +234,7 @@ foreach($arProps as $prop)
 	else
 	{
 		$value = ${"find_el_property_".$prop["ID"]};
-		if(is_array($value) || mb_strlen($value))
+		if (is_array($value) || (string)$value !== '')
 		{
 			if($value === "NOT_REF")
 				$value = false;

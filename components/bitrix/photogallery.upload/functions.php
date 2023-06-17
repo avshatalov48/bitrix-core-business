@@ -209,14 +209,14 @@ class CPhotoUploader
 			return $upload["SECTION_ID"];
 		}
 
-		if ($this->post["photo_album_id"] > 0)
-		{
-			$upload["SECTION_ID"] = $this->post["photo_album_id"];
-		}
-		else
+		if ($this->post["photo_album_id"] === 'new')
 		{
 			$upload["SECTION_ID"] = $this->createAlbum($this->post["new_album_name"]);
 			$upload["NEW_SECTION_ID"] = $upload["SECTION_ID"];
+		}
+		else
+		{
+			$upload["SECTION_ID"] = $this->post["photo_album_id"];
 		}
 
 		if ($upload["SECTION_ID"] <= 0)

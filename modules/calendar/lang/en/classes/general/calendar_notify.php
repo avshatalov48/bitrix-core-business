@@ -2,6 +2,8 @@
 $MESS["EC_COMMENT_MESSAGE_ADD"] = "Commented on event \"#EVENT_TITLE#\": #COMMENT#";
 $MESS["EC_COMMENT_MESSAGE_ADD_F"] = "Commented on event \"#EVENT_TITLE#\": #COMMENT#";
 $MESS["EC_COMMENT_MESSAGE_ADD_M"] = "Commented on event \"#EVENT_TITLE#\": #COMMENT#";
+$MESS["EC_MESS_AUTO_INVITE_ACCEPT"] = "You were invited to meeting \"[B]#TITLE#[/B]\" to take place on [B]#ACTIVE_FROM#[/B].";
+$MESS["EC_MESS_AUTO_INVITE_ACCEPT_DETAILS"] = "You can view meeting details or decline invitation in [url=#LINK#]your calendar[/url].";
 $MESS["EC_MESS_FAIL_ICAL_INVITE_TITLE_CANCEL"] = "Could not send #NAME# event cancellation notification.";
 $MESS["EC_MESS_FAIL_ICAL_INVITE_TITLE_EDIT"] = "Could not notify users of updates to \"#NAME#\"";
 $MESS["EC_MESS_FAIL_ICAL_INVITE_TITLE_REQUEST"] = "Could not send invitation to \"#NAME#\".";

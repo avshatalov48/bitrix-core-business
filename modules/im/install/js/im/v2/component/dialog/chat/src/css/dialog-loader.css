@@ -1,0 +1,46 @@
+.bx-im-dialog-loader__container {
+	--im-dialog-loader__background-color_spinner: var(--im-color-palette-white-base);
+	--im-dialog-loader__font-color: rgba(var(--im-color-palette-white-base-rgb), 0.94);
+
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 32px 0;
+}
+
+.bx-im-messenger__container.--light-theme .bx-im-dialog-loader__container {
+	--im-dialog-loader__background-color_spinner: rgba(var(--im-color-palette-gray-90-rgb), 0.3);
+	--im-dialog-loader__font-color: rgba(var(--im-color-palette-gray-90-rgb), 0.3);
+}
+
+.bx-im-dialog-loader__container.--full-height {
+	flex-grow: 1;
+	height: 100%;
+	justify-content: center;
+}
+
+.bx-im-dialog-loader__spinner {
+	width: 120px;
+	height: 120px;
+	margin-bottom: 32px;
+
+	opacity: 0.5;
+	border-radius:50%;
+	border-top: 5px solid var(--im-dialog-loader__background-color_spinner);
+	border-right: 5px solid var(--im-dialog-loader__background-color_spinner);
+	border-bottom: 5px solid var(--im-dialog-loader__background-color_spinner);
+	border-left: 5px solid transparent;
+	animation: spinner-animation 1s infinite linear;
+}
+
+.bx-im-dialog-loader__text {
+	font: 26px var(--im-font-family-system);
+	color: var(--im-dialog-loader__font-color);
+}
+
+@keyframes spinner-animation {
+	to {
+		transform: rotate(1turn)
+	}
+}

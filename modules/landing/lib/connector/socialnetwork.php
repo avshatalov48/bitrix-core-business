@@ -102,15 +102,14 @@ class SocialNetwork
 		// binding exist
 		if ($bindings)
 		{
-			$link = $bindings['PUBLIC_URL'];
-			self::processTabHit($link);
+            if (self::canPerformOperation($groupId, Rights::ACCESS_TYPES['read']))
+            {
+                $link = $bindings['PUBLIC_URL'];
+                self::processTabHit($link);
+            }
 		}
 		// binding don't exist, allow to create new one
-		else if (
-			$returnCreateLink &&
-			!self::isExtranet() &&
-			self::userInGroup($groupId)
-		)
+		else if ($returnCreateLink && self::canCreateNewBinding($groupId))
 		{
 			\CJSCore::init('sidepanel');
 			$link = SITE_DIR . str_replace('#groupId#', $groupId, self::PATH_GROUP_BINDING);
@@ -149,20 +148,22 @@ class SocialNetwork
 			\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
 		)
 		{
+			$restrictedAccess = [SONET_ENTITY_GROUP => [SONET_ROLES_ALL, SONET_ROLES_AUTHORIZED]];
+
 			$socNetFeaturesSettings[self::SETTINGS_CODE] = [
 				'allowed' => [SONET_ENTITY_GROUP],
 				'title' => Loc::getMessage('LANDING_CONNECTOR_SN_TITLE'),
 				'operation_titles' => [
-					'read' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_READ'),
-					'edit' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_EDIT'),
-					'sett' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_SETT'),
-					'delete' => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_DELETE'),
+					Rights::ACCESS_TYPES['read'] => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_READ'),
+					Rights::ACCESS_TYPES['edit'] => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_EDIT'),
+					Rights::ACCESS_TYPES['sett'] => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_SETT'),
+					Rights::ACCESS_TYPES['delete'] => Loc::getMessage('LANDING_CONNECTOR_SN_PERMS_DELETE'),
 				],
 				'operations' => [
-					'read' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
-					'edit' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
-					'sett' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
-					'delete' => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+					Rights::ACCESS_TYPES['read'] => [SONET_ENTITY_GROUP => SONET_ROLES_USER],
+					Rights::ACCESS_TYPES['edit'] => [SONET_ENTITY_GROUP => SONET_ROLES_USER, 'restricted' => $restrictedAccess],
+					Rights::ACCESS_TYPES['sett'] => [SONET_ENTITY_GROUP => SONET_ROLES_USER, 'restricted' => $restrictedAccess],
+					Rights::ACCESS_TYPES['delete'] => [SONET_ENTITY_GROUP => SONET_ROLES_USER, 'restricted' => $restrictedAccess],
 				],
 				'minoperation' => ['read'],
 			];
@@ -337,17 +338,58 @@ class SocialNetwork
 	}
 
 	/**
-	 * Returns true, if current user are member of group.
+	 * Returns true, if current user is member of group.
+	 *
 	 * @param int $groupId Group id.
 	 * @return bool
 	 */
-	public static function userInGroup($groupId)
+	public static function userInGroup(int $groupId): bool
 	{
-		$groupId = (int) $groupId;
-		return \CSocNetUserToGroup::getUserRole(
-			Manager::getUserId(),
-			$groupId
-		) !== false;
+		if (\Bitrix\Main\Loader::includeModule('socialnetwork'))
+		{
+			return \CSocNetUserToGroup::getUserRole(
+				Manager::getUserId(),
+				$groupId
+			) <= SONET_ROLES_USER;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if current user for specified sonet group can perform specified operation.
+	 *
+	 * @param int $groupId Group id.
+	 * @param string $operation Operation code.
+	 * @see \Bitrix\Landing\Rights::ACCESS_TYPES
+	 * @return bool
+	 */
+	public static function canPerformOperation(int $groupId, string $operation): bool
+	{
+		if ($groupId && \Bitrix\Main\Loader::includeModule('socialnetwork'))
+		{
+			return \CSocNetFeaturesPerms::canPerformOperation(
+				Manager::getUserId(),
+				SONET_ENTITY_GROUP,
+				$groupId,
+				self::SETTINGS_CODE,
+				$operation
+			);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if current user for specified sonet group can create new binding.
+	 *
+	 * @param int $groupId Group id.
+	 * @return bool
+	 */
+	public static function canCreateNewBinding(int $groupId): bool
+	{
+		$operation = Rights::ACCESS_TYPES['edit'];
+		return self::userInGroup($groupId) && self::canPerformOperation($groupId, $operation);
 	}
 
 	/**

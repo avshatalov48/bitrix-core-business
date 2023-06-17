@@ -147,7 +147,7 @@ class LandingFilterComponent extends LandingBaseComponent
 			$gridFilter = self::getFilterPresets();
 			$search = $grid->getFilter($gridFilter);
 
-			if ($search['FILTER_APPLIED'])
+			if ($search['FILTER_APPLIED'] ?? null)
 			{
 				// if user type just in area
 				if (isset($search['FIND']) && trim($search['FIND']))

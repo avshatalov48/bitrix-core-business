@@ -20,25 +20,29 @@ $APPLICATION->IncludeComponent(
 		"MONTH" => "",
 		"DAY" => "",
 		"CATEGORY_ID" => "",
-		"BLOG_GROUP_ID" => ($_REQUEST["filter"]["BLOG_GROUP_ID"] > 0 ? $_REQUEST["filter"]["BLOG_GROUP_ID"] : $arParams["BLOG_GROUP_ID"]),
+		"BLOG_GROUP_ID" => (
+			($_REQUEST["filter"]["BLOG_GROUP_ID"] ?? null) > 0
+				? $_REQUEST["filter"]["BLOG_GROUP_ID"]
+				: $arParams["BLOG_GROUP_ID"]
+		),
 		"USER_ID" => $GLOBALS["USER"]->GetId(),
 		"SOCNET_GROUP_ID" => 0,
-		"SORT" => (!empty($_REQUEST["sort"]) ? $_REQUEST["sort"] : $arParams["BLOG_POSTS_SORT"]),
+		"SORT" => (!empty($_REQUEST["sort"]) ? $_REQUEST["sort"] : $arParams["BLOG_POSTS_SORT"] ?? null),
 		"SORT_BY1" => "",
 		"SORT_ORDER1" => "",
 		"SORT_BY2" => "",
 		"SORT_ORDER2" => "",
 		/************** Page settings **************************************/
 		"MESSAGE_COUNT" => 0,
-		"NAV_TEMPLATE" => $arParams["NAV_TEMPLATE"],
+		"NAV_TEMPLATE" => $arParams["NAV_TEMPLATE"] ?? null,
 		"PAGE_SETTINGS" => (!empty($_REQUEST["page_settings"]) ? $_REQUEST["page_settings"] : $arParams["BLOG_POSTS_PAGE_SETTINGS"]),
 		/************** URL ************************************************/
-		"BLOG_VAR" => $arResult["ALIASES"]["blog_id"],
-		"POST_VAR" => $arResult["ALIASES"]["post_id"],
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
+		"BLOG_VAR" => $arResult["ALIASES"]["blog_id"] ?? null,
+		"POST_VAR" => $arResult["ALIASES"]["post_id"] ?? null,
+		"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"] ?? null,
 		"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"],
-		"PATH_TO_BLOG_CATEGORY" => $arResult["PATH_TO_USER_BLOG_CATEGORY"],
+		"PATH_TO_BLOG_CATEGORY" => $arResult["PATH_TO_USER_BLOG_CATEGORY"] ?? null,
 		"PATH_TO_BLOG_POSTS" => $arResult["PATH_TO_USER_BLOG_POST"],
 		"PATH_TO_POST_IMPORTANT" => $arResult["PATH_TO_USER_BLOG_POST_IMPORTANT"],
 		"PATH_TO_POST" => $arResult["PATH_TO_USER_BLOG_POST"],
@@ -60,8 +64,8 @@ $APPLICATION->IncludeComponent(
 		"CACHE_TAGS" => array("IMPORTANT".$GLOBALS["USER"]->GetId()),
 		/************** Template Settings **********************************/
 		"OPTIONS" => array(array("name" => "BLOG_POST_IMPRTNT", "value" => "Y")),
-		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? null,
+		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? null,
 	),
 	$this->getComponent(),
 	array("HIDE_ICONS" => "Y")

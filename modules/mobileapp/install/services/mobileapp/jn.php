@@ -1,5 +1,7 @@
-<?
+<?php
 
+use Bitrix\Main\Engine\JsonPayload;
+use Bitrix\Main\Loader;
 use Bitrix\MobileApp\Janative\Entity\Extension;
 
 define('NOT_CHECK_PERMISSIONS', true);
@@ -8,14 +10,18 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_be
 /** @var CAllMain $APPLICATION */
 
 $types = ["component", "extension"];
-$componentName = $_GET['componentName'];
-$namespace = $_GET['namespace'];
-$version = $_REQUEST['version'];
-$type = ($_REQUEST['type'] && in_array($_REQUEST['type'], $types ) ? $_REQUEST['type'] : "component");
-if (isset($_REQUEST["reload"])) {
+$componentName = $_GET['componentName'] ?? null;
+$namespace = $_GET['namespace'] ?? null;
+$version = $_REQUEST['version'] ?? null;
+$type = $_REQUEST['type'] ?? null;
+$type = ($type && in_array($type, $types, true) ? $type : "component");
+if (isset($_REQUEST["reload"]))
+{
 	define("JN_DEV_RELOAD", true);
 }
-\Bitrix\Main\Loader::includeModule("mobileapp");
+
+Loader::includeModule("mobileapp");
+
 if ($type == "component")
 {
 	$APPLICATION->IncludeComponent('bitrix:mobileapp.jnrouter', '', [
@@ -34,10 +40,12 @@ else
 		$extension = new Extension($componentName);
 		$deps = $extension->getDependencies();
 
-		$payload = new \Bitrix\Main\Engine\JsonPayload();
-		if (!empty($payload->getRaw())) {
+		$payload = new JsonPayload();
+		if (!empty($payload->getRaw()))
+		{
 			$exclude = $payload->getData();
-			if (!empty($exclude) && is_array($exclude)) {
+			if (!empty($exclude) && is_array($exclude))
+			{
 				$deps = array_diff($deps, $exclude);
 			}
 		}
@@ -59,9 +67,7 @@ else
 		header('BX-Extension:false');
 		echo "console.error('$error')";
 	}
-
 }
-
 
 \CMain::FinalActions();
 

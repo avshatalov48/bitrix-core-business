@@ -30,7 +30,7 @@ class CBPCodeActivity
 			);
 		}
 
-		if ($arTestProperties["ExecuteCode"] == '')
+		if (empty($arTestProperties["ExecuteCode"]))
 		{
 			$arErrors[] = array(
 				"code" => "emptyCode",
@@ -56,7 +56,9 @@ class CBPCodeActivity
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 			if (is_array($arCurrentActivity["Properties"]))
-				$arCurrentValues["execute_code"] = $arCurrentActivity["Properties"]["ExecuteCode"];
+			{
+				$arCurrentValues["execute_code"] = $arCurrentActivity["Properties"]["ExecuteCode"] ?? '';
+			}
 		}
 
 		return $runtime->ExecuteResourceFile(

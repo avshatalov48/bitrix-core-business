@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 
-if (!is_array($arParams["SITE_LIST"]) || count($arParams["SITE_LIST"]) == 0 || $arParams["SITE_LIST"][0] == "*all*") 
+if (!is_array($arParams["SITE_LIST"]) || empty($arParams["SITE_LIST"]) || $arParams["SITE_LIST"][0] == "*all*")
 {
 	$bSiteAll = true;
 	$arParams["SITE_LIST"] = array();

@@ -1,4 +1,4 @@
-<?
+<?php
 /**********************************************************************/
 /**    DO NOT MODIFY THIS FILE                                       **/
 /**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
@@ -6,17 +6,6 @@
 
 if (!defined("BX_DIR_PERMISSIONS"))
 	define("BX_DIR_PERMISSIONS", 0755);
-
-if (!function_exists("file_get_contents"))
-{
-	function file_get_contents($filename)
-	{
-		$fd = fopen("$filename", "rb");
-		$content = fread($fd, filesize($filename));
-		fclose($fd);
-		return $content;
-	}
-}
 
 if (!defined("US_SHARED_KERNEL_PATH"))
 	define("US_SHARED_KERNEL_PATH", "/bitrix");
@@ -38,26 +27,25 @@ class CUpdateSystem
 		if ($lang===false)
 			$lang = LANGUAGE_ID;
 
-		if ($strError_tmp == '')
-		{
-			$GLOBALS["DB"]->GetVersion();
+		$GLOBALS["DB"]->GetVersion();
 
-			$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
-				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
-				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
-				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
-				"&SUBSCR_EMAIL=".urlencode($strEmails).
-				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
-				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
-				"&CLIENT_PHPVER=".urlencode(phpversion()).
-				"&lang=".urlencode($lang);
+		$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
+			"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
+			"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
+			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
+			"&SUBSCR_EMAIL=".urlencode($strEmails).
+			"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
+			"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
+			"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
+			"&CLIENT_PHPVER=".urlencode(phpversion()).
+			"&lang=".urlencode($lang);
 
-			$content = CUpdateSystem::getHTTPPage("bit_syssubscr.php", $strVars, $strError_tmp);
+		$content = CUpdateSystem::getHTTPPage("bit_syssubscr.php", $strVars, $strError_tmp);
 
-			if ($content == '')
-				$strError_tmp .= "[USU058] Empty server response.<br>";
-		}
+		if ($content == '')
+			$strError_tmp .= "[USU058] Empty server response.<br>";
+
+		$strError .= $strError_tmp;
 	}
 
 	/** Активирует лицензионный ключ **/
@@ -115,7 +103,7 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
 				{
@@ -136,10 +124,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUAS");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	/** Активирует лицензионный ключ **/
@@ -154,37 +142,34 @@ class CUpdateSystem
 		if ($lang===false)
 			$lang = LANGUAGE_ID;
 
-		if ($strError_tmp == '')
+		$GLOBALS["DB"]->GetVersion();
+
+		$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
+			"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
+			"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
+			"&UTYPES=".urlencode("A").
+			"&COUNT_ONLY=".urlencode("N").
+			"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
+			"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
+			"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
+			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
+			"&CLIENT_PHPVER=".urlencode(phpversion()).
+			"&stable=".urlencode($stableVersionsOnly).
+			"&lang=".urlencode($lang);
+
+		foreach ($arFields as $key => $value)
 		{
-			$GLOBALS["DB"]->GetVersion();
-
-			$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
-				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
-				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
-				"&UTYPES=".urlencode("A").
-				"&COUNT_ONLY=".urlencode("N").
-				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
-				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
-				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
-				"&CLIENT_PHPVER=".urlencode(phpversion()).
-				"&stable=".urlencode($stableVersionsOnly).
-				"&lang=".urlencode($lang);
-
-			foreach ($arFields as $key => $value)
-			{
-				$strVars .= "&".$key."=".urlencode($value);
-			}
-
-			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
-
-			$stime = CUpdateSystem::getmicrotime();
-			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME ActivateLicenseKey.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
-
-			if ($content == '')
-				$strError_tmp .= "[UALK01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
+			$strVars .= "&".$key."=".urlencode($value);
 		}
+
+		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
+
+		$stime = CUpdateSystem::getmicrotime();
+		$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
+		CUpdateSystem::AddMessage2Log("TIME ActivateLicenseKey.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+
+		if ($content == '')
+			$strError_tmp .= "[UALK01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
 
 		if ($strError_tmp == '')
 		{
@@ -196,7 +181,7 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
 				{
@@ -217,10 +202,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUALK");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	// Регистрирует копию продукта, если можно
@@ -235,33 +220,30 @@ class CUpdateSystem
 		if ($lang===false)
 			$lang = LANGUAGE_ID;
 
-		if ($strError_tmp == '')
-		{
-			$GLOBALS["DB"]->GetVersion();
+		$GLOBALS["DB"]->GetVersion();
 
-			$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
-				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
-				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
-				"&UTYPES=".urlencode("R").
-				"&COUNT_ONLY=".urlencode("F").
-				"&VERSION=".urlencode(SM_VERSION).
-				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
-				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
-				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
-				"&CLIENT_PHPVER=".urlencode(phpversion()).
-				"&stable=".urlencode($stableVersionsOnly).
-				"&lang=".urlencode($lang);
+		$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
+			"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
+			"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
+			"&UTYPES=".urlencode("R").
+			"&COUNT_ONLY=".urlencode("F").
+			"&VERSION=".urlencode(SM_VERSION).
+			"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
+			"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
+			"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
+			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
+			"&CLIENT_PHPVER=".urlencode(phpversion()).
+			"&stable=".urlencode($stableVersionsOnly).
+			"&lang=".urlencode($lang);
 
-			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
+		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
-			$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME RegisterVersion.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		$stime = CUpdateSystem::getmicrotime();
+		$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
+		CUpdateSystem::AddMessage2Log("TIME RegisterVersion.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
 
-			if ($fcontent == '')
-				$strError_tmp .= "[URV01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
-		}
+		if ($fcontent == '')
+			$strError_tmp .= "[URV01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
 
 		if ($strError_tmp == '')
 		{
@@ -314,7 +296,7 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
 				{
@@ -381,10 +363,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CURV");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -400,30 +382,27 @@ class CUpdateSystem
 
 		$stableVersionsOnly = (($stableVersionsOnly == "N") ? "N" : "Y");
 
-		if ($strError_tmp == '')
-		{
-			$GLOBALS["DB"]->GetVersion();
+		$GLOBALS["DB"]->GetVersion();
 
-			$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
-				"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
-				"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
-				"&UTYPES=".urlencode("U").
-				"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
-				"&COUNT_ONLY=".urlencode("F").
-				"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
-				"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-				"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
-				"&CLIENT_PHPVER=".urlencode(phpversion()).
-				"&stable=".urlencode($stableVersionsOnly).
-				"&lang=".urlencode($lang);
+		$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
+			"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
+			"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
+			"&UTYPES=".urlencode("U").
+			"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
+			"&COUNT_ONLY=".urlencode("F").
+			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
+			"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
+			"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
+			"&CLIENT_PHPVER=".urlencode(phpversion()).
+			"&stable=".urlencode($stableVersionsOnly).
+			"&lang=".urlencode($lang);
 
-			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
+		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
+		$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
 
-			if ($fcontent == '')
-				$strError_tmp .= "[UUU01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
-		}
+		if ($fcontent == '')
+			$strError_tmp .= "[UUU01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
 
 		if ($strError_tmp == '')
 		{
@@ -474,7 +453,7 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
 				{
@@ -513,34 +492,15 @@ class CUpdateSystem
 			$new_updatesys_version = "";
 			if (isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
-				&& count($arRes["DATA"]["#"]["UPDATE_SYSTEM"])>0
+				&& !empty($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"][0]["@"]["VERSION"]))
 			{
-				$new_updatesys_version = Trim($arRes["DATA"]["#"]["UPDATE_SYSTEM"][0]["@"]["VERSION"]);
+				$new_updatesys_version = trim($arRes["DATA"]["#"]["UPDATE_SYSTEM"][0]["@"]["VERSION"]);
 			}
 
 			if ($new_updatesys_version == '')
 				$strError_tmp .= "[UUU080] ".GetMessage("SUPP_UU_NO_NEW_VER").".<br>";
 		}
-
-		/*
-		if (strlen($strError_tmp)<=0)
-		{
-			$strUpdateContent = file_get_contents($updates_dir_full."/main/classes/general/update_update.php");
-			$strUpdateContent = "<"."?define(\"UPDATE_SYSTEM_VERSION\", \"".$new_updatesys_version."\");?".">".$strUpdateContent;
-
-			if (!($fp1 = fopen($updates_dir_full."/main/classes/general/update_update.php", "wb")))
-				$strError_tmp .= "[UUU082] "."Не могу открыть на запись временный файл \"".$updates_dir_full."/main/classes/general/update_update.php\".<br>";
-		}
-
-		if (strlen($strError_tmp)<=0)
-		{
-			if (!fwrite($fp1, $strUpdateContent))
-				$strError_tmp .= "[UUU083] "."Не могу писать во временный файл \"".$updates_dir_full."/main/classes/general/update_update.php\".<br>";
-
-			@fclose($fp1);
-		}
-		*/
 
 		if ($strError_tmp == '')
 		{
@@ -557,10 +517,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUUU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	// Закачивает исходники продукта, если можно
@@ -654,7 +614,7 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
 				{
@@ -725,10 +685,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CULS");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -790,49 +750,49 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
-				&& count($arRes["DATA"]["#"]["UPDATE_SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["UPDATE_SYSTEM"]))
 			{
 				$arResult["UPDATE_SYSTEM"] = $arRes["DATA"]["#"]["UPDATE_SYSTEM"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["MODULES"])
 				&& is_array($arRes["DATA"]["#"]["MODULES"])
-				&& count($arRes["DATA"]["#"]["MODULES"])>0)
+				&& !empty($arRes["DATA"]["#"]["MODULES"]))
 			{
 				$arResult["MODULES"] = $arRes["DATA"]["#"]["MODULES"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["LANGS"])
 				&& is_array($arRes["DATA"]["#"]["LANGS"])
-				&& count($arRes["DATA"]["#"]["LANGS"])>0)
+				&& !empty($arRes["DATA"]["#"]["LANGS"]))
 			{
 				$arResult["LANGS"] = $arRes["DATA"]["#"]["LANGS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["HELPS"])
 				&& is_array($arRes["DATA"]["#"]["HELPS"])
-				&& count($arRes["DATA"]["#"]["HELPS"])>0)
+				&& !empty($arRes["DATA"]["#"]["HELPS"]))
 			{
 				$arResult["HELPS"] = $arRes["DATA"]["#"]["HELPS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -851,7 +811,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGAUT");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -909,35 +869,35 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
-				&& count($arRes["DATA"]["#"]["UPDATE_SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["UPDATE_SYSTEM"]))
 			{
 				$arResult["UPDATE_SYSTEM"] = $arRes["DATA"]["#"]["UPDATE_SYSTEM"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["MODULES"])
 				&& is_array($arRes["DATA"]["#"]["MODULES"])
-				&& count($arRes["DATA"]["#"]["MODULES"])>0)
+				&& !empty($arRes["DATA"]["#"]["MODULES"]))
 			{
 				$arResult["MODULES"] = $arRes["DATA"]["#"]["MODULES"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -956,7 +916,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGSMU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -1014,35 +974,35 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
-				&& count($arRes["DATA"]["#"]["UPDATE_SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["UPDATE_SYSTEM"]))
 			{
 				$arResult["UPDATE_SYSTEM"] = $arRes["DATA"]["#"]["UPDATE_SYSTEM"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["LANGS"])
 				&& is_array($arRes["DATA"]["#"]["LANGS"])
-				&& count($arRes["DATA"]["#"]["LANGS"])>0)
+				&& !empty($arRes["DATA"]["#"]["LANGS"]))
 			{
 				$arResult["LANGS"] = $arRes["DATA"]["#"]["LANGS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -1061,7 +1021,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGSLU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -1119,35 +1079,35 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["UPDATE_SYSTEM"])
-				&& count($arRes["DATA"]["#"]["UPDATE_SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["UPDATE_SYSTEM"]))
 			{
 				$arResult["UPDATE_SYSTEM"] = $arRes["DATA"]["#"]["UPDATE_SYSTEM"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["HELPS"])
 				&& is_array($arRes["DATA"]["#"]["HELPS"])
-				&& count($arRes["DATA"]["#"]["HELPS"])>0)
+				&& !empty($arRes["DATA"]["#"]["HELPS"]))
 			{
 				$arResult["HELPS"] = $arRes["DATA"]["#"]["HELPS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -1166,7 +1126,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGSHU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -1198,7 +1158,7 @@ class CUpdateSystem
 				if (!array_key_exists($arModules[$i], $arClientModules))
 					$arClientModules[$arModules[$i]] = "";
 			}
-			if (!is_array($arClientModules) || count($arClientModules)<=0)
+			if (!is_array($arClientModules) || empty($arClientModules))
 			{
 				$strError_tmp .= "[ULMU02] ".GetMessage("SUPP_LMU_NO_MODS").".<br>";
 			}
@@ -1258,10 +1218,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CULMU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -1277,7 +1237,7 @@ class CUpdateSystem
 		if ($lang===false)
 			$lang = LANGUAGE_ID;
 
-		if (!is_array($arLangs) || count($arLangs)<=0)
+		if (!is_array($arLangs) || empty($arLangs))
 		{
 			$strError_tmp .= "[ULLU01] ".GetMessage("SUPP_LLU_NO_LANGS").".<br>";
 		}
@@ -1290,7 +1250,7 @@ class CUpdateSystem
 				if (!array_key_exists($arLangs[$i], $arClientLangs))
 					$arClientLangs[$arLangs[$i]] = "";
 			}
-			if (!is_array($arClientLangs) || count($arClientLangs)<=0)
+			if (!is_array($arClientLangs) || empty($arClientLangs))
 			{
 				$strError_tmp .= "[ULLU02] ".GetMessage("SUPP_LLU_NO_LANGS").".<br>";
 			}
@@ -1349,10 +1309,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CULLU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -1368,7 +1328,7 @@ class CUpdateSystem
 
 		$stableVersionsOnly = (($stableVersionsOnly == "N") ? "N" : "Y");
 
-		if (!is_array($arHelp) || count($arHelp)<=0)
+		if (!is_array($arHelp) || empty($arHelp))
 		{
 			$strError_tmp .= "[ULHU01] ".GetMessage("SUPP_LHU_NO_HELP").".<br>";
 		}
@@ -1382,7 +1342,7 @@ class CUpdateSystem
 					$arClientHelps[$arHelp[$i]] = "";
 			}
 
-			if (!is_array($arClientHelps) || count($arClientHelps)<=0)
+			if (!is_array($arClientHelps) || empty($arClientHelps))
 			{
 				$strError_tmp .= "[ULHU02] ".GetMessage("SUPP_LHU_NO_HELP").".<br>";
 			}
@@ -1439,10 +1399,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CULHU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	// Распаковывает архив файлов update_archive.gz в папкy $updates_dir
@@ -1487,14 +1447,14 @@ class CUpdateSystem
 
 		if ($strError_tmp == '')
 		{
-			$bCompressionUsed = True;
+			$bCompressionUsed = true;
 
 			$fd = fopen($archiveFileName, "rb");
 			$flabel = fread($fd, strlen("BITRIX"));
 			fclose($fd);
 
 			if ($flabel=="BITRIX")
-				$bCompressionUsed = False;
+				$bCompressionUsed = false;
 		}
 
 		if ($strError_tmp == '')
@@ -1539,7 +1499,7 @@ class CUpdateSystem
 				else
 					$add_info_size = fread($zp, 5);
 
-				$add_info_size = Trim($add_info_size);
+				$add_info_size = trim($add_info_size);
 				if (intval($add_info_size)>0
 					&& intval($add_info_size)."!"==$add_info_size."!")
 				{
@@ -1633,10 +1593,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUUGZA");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -1656,7 +1616,7 @@ class CUpdateSystem
 			$strError_tmp .= "[UCV01] ".GetMessage("SUPP_CV_ERR_ARR").".<br>";
 		}
 
-		if ($arSelectedModules!==false && (!is_array($arSelectedModules) || count($arSelectedModules)<=0))
+		if ($arSelectedModules!==false && (!is_array($arSelectedModules) || empty($arSelectedModules)))
 		{
 			$strError_tmp .= "[UCV011] ".GetMessage("SUPP_CV_NO_SELECTED").".<br>";
 		}
@@ -1665,7 +1625,7 @@ class CUpdateSystem
 		{
 			$arModulesList = $arRes["MODULES"]["#"]["MODULE"];
 
-			if (!is_array($arModulesList) || count($arModulesList)<=0)
+			if (!is_array($arModulesList) || empty($arModulesList))
 			{
 				$strError_tmp .= "[UCV02] ".GetMessage("SUPP_CV_EMPTY_MODS").".<br>";
 			}
@@ -1678,29 +1638,26 @@ class CUpdateSystem
 				if ($arSelectedModules===false || in_array($arModulesList[$i]["@"]["ID"], $arSelectedModules))
 				{
 					if (isset($arModulesList[$i]["#"]["VERSION_CONTROL"])
-						&& count($arModulesList[$i]["#"]["VERSION_CONTROL"])>0)
+						&& !empty($arModulesList[$i]["#"]["VERSION_CONTROL"]))
 					{
 						for ($j = 0, $nj = count($arModulesList[$i]["#"]["VERSION_CONTROL"]); $j < $nj; $j++)
 						{
 							$strModule_tmp = $arModulesList[$i]["#"]["VERSION_CONTROL"][$j]["@"]["MODUL"];
-							$bNeedInstall = True;
+							$bNeedInstall = true;
 
-							if ($bNeedInstall)
+							for ($k = 0, $nk = count($arModulesList); $k < $nk; $k++)
 							{
-								for ($k = 0, $nk = count($arModulesList); $k < $nk; $k++)
+								if ($arModulesList[$k]["@"]["ID"]==$strModule_tmp
+									&& ($arSelectedModules===false
+										|| in_array($arModulesList[$k]["@"]["ID"], $arSelectedModules)))
 								{
-									if ($arModulesList[$k]["@"]["ID"]==$strModule_tmp
-										&& ($arSelectedModules===false
-											|| in_array($arModulesList[$k]["@"]["ID"], $arSelectedModules)))
+									if (CUpdateSystem::CompareVersions(
+											$arModulesList[$k]["@"]["VERSION"],
+											$arModulesList[$i]["#"]["VERSION_CONTROL"][$j]["@"]["VERSION"]
+										) >= 0)
 									{
-										if (CUpdateSystem::CompareVersions(
-												$arModulesList[$k]["@"]["VERSION"],
-												$arModulesList[$i]["#"]["VERSION_CONTROL"][$j]["@"]["VERSION"]
-											) >= 0)
-										{
-											$bNeedInstall = False;
-											break;
-										}
+										$bNeedInstall = false;
+										break;
 									}
 								}
 							}
@@ -1720,7 +1677,7 @@ class CUpdateSystem
 													$arModulesList[$i]["#"]["VERSION_CONTROL"][$j]["@"]["VERSION"]
 												) >= 0)
 											{
-												$bNeedInstall = False;
+												$bNeedInstall = false;
 											}
 										}
 									}
@@ -1731,13 +1688,13 @@ class CUpdateSystem
 												$arModulesList[$i]["#"]["VERSION_CONTROL"][$j]["@"]["VERSION"]
 											) >= 0)
 										{
-											$bNeedInstall = False;
+											$bNeedInstall = false;
 										}
 									}
 								}
 								else
 								{
-									$bNeedInstall = False;
+									$bNeedInstall = false;
 								}
 							}
 
@@ -1757,10 +1714,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUCV");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -1834,10 +1791,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUCU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	public static function CheckFolderUpdatability($destFolder, $srcFolder, &$strError)
@@ -1949,10 +1906,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUCFU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -2005,28 +1962,28 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["MODULES"])
 				&& is_array($arRes["DATA"]["#"]["MODULES"])
-				&& count($arRes["DATA"]["#"]["MODULES"])>0)
+				&& !empty($arRes["DATA"]["#"]["MODULES"]))
 			{
 				$arResult["MODULES"] = $arRes["DATA"]["#"]["MODULES"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -2045,7 +2002,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGLMU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -2101,28 +2058,28 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["LANGS"])
 				&& is_array($arRes["DATA"]["#"]["LANGS"])
-				&& count($arRes["DATA"]["#"]["LANGS"])>0)
+				&& !empty($arRes["DATA"]["#"]["LANGS"]))
 			{
 				$arResult["LANGS"] = $arRes["DATA"]["#"]["LANGS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -2141,7 +2098,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGLLU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -2196,28 +2153,28 @@ class CUpdateSystem
 		{
 			if (isset($arRes["DATA"]["#"]["HELPS"])
 				&& is_array($arRes["DATA"]["#"]["HELPS"])
-				&& count($arRes["DATA"]["#"]["HELPS"])>0)
+				&& !empty($arRes["DATA"]["#"]["HELPS"]))
 			{
 				$arResult["HELPS"] = $arRes["DATA"]["#"]["HELPS"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["ERROR"])
 				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& count($arRes["DATA"]["#"]["ERROR"])>0)
+				&& !empty($arRes["DATA"]["#"]["ERROR"]))
 			{
 				$arResult["ERROR"] = $arRes["DATA"]["#"]["ERROR"];
 			}
 
 			if (isset($arRes["DATA"]["#"]["CLIENT"])
 				&& is_array($arRes["DATA"]["#"]["CLIENT"])
-				&& count($arRes["DATA"]["#"]["CLIENT"])>0)
+				&& !empty($arRes["DATA"]["#"]["CLIENT"]))
 			{
 				$arResult["CLIENT"] = $arRes["DATA"]["#"]["CLIENT"][0];
 			}
 
 			if (isset($arRes["DATA"]["#"]["SYSTEM"])
 				&& is_array($arRes["DATA"]["#"]["SYSTEM"])
-				&& count($arRes["DATA"]["#"]["SYSTEM"])>0)
+				&& !empty($arRes["DATA"]["#"]["SYSTEM"]))
 			{
 				$arResult["SYSTEM"] = $arRes["DATA"]["#"]["SYSTEM"][0];
 			}
@@ -2236,7 +2193,7 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUGLHU");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
 			return $arResult;
@@ -2258,7 +2215,7 @@ class CUpdateSystem
 			$strError_tmp .= "[UUK01] ".str_replace("#FILE#", $updates_dir_full, GetMessage("SUPP_CU_NO_TMP_CAT")).".<br>";
 		}
 
-		if (!is_array($arModules) || count($arModules)<=0)
+		if (!is_array($arModules) || empty($arModules))
 		{
 			$strError_tmp .= "[UUK02] ".GetMessage("SUPP_UK_NO_MODS").".<br>";
 		}
@@ -2332,7 +2289,7 @@ class CUpdateSystem
 										$bPostUpdater = "Y";
 										$num = substr($dir, 7, strlen($dir)-16);
 									}
-									$arUpdaters[] = array("/".$dir, Trim($num), $bPostUpdater);
+									$arUpdaters[] = array("/".$dir, trim($num), $bPostUpdater);
 								}
 								elseif (file_exists($from_dir."/".$dir."/index.php"))
 								{
@@ -2342,7 +2299,7 @@ class CUpdateSystem
 										$bPostUpdater = "Y";
 										$num = substr($dir, 7, strlen($dir)-12);
 									}
-									$arUpdaters[] = array("/".$dir."/index.php", Trim($num), $bPostUpdater);
+									$arUpdaters[] = array("/".$dir."/index.php", trim($num), $bPostUpdater);
 								}
 							}
 						}
@@ -2367,7 +2324,7 @@ class CUpdateSystem
 				{
 					if (strtolower($DB->type)=="mysql" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 					{
-						$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", True);
+						$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 					}
 				}
 
@@ -2441,10 +2398,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUUK");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -2463,7 +2420,7 @@ class CUpdateSystem
 			$strError_tmp .= "[UUL01] ".str_replace("#FILE#", $updates_dir_full, GetMessage("SUPP_CU_NO_TMP_CAT")).".<br>";
 		}
 
-		if (!is_array($arLangs) || count($arLangs)<=0)
+		if (!is_array($arLangs) || empty($arLangs))
 		{
 			$strError_tmp .= "[UUL02] ".GetMessage("SUPP_UL_NO_LANGS").".<br>";
 		}
@@ -2581,13 +2538,10 @@ class CUpdateSystem
 
 				$from_dir = $updates_dir_full."/".$arLangs[$i];
 
-				if ($strError_tmp1 == '')
+				if (!file_exists($from_dir) || !is_dir($from_dir))
 				{
-					if (!file_exists($from_dir) || !is_dir($from_dir))
-					{
-						$strError_tmp1 .= "[UUL06] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
-						$arErrorLangs[$arLangs[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUL06]. ";
-					}
+					$strError_tmp1 .= "[UUL06] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
+					$arErrorLangs[$arLangs[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUL06]. ";
 				}
 
 				if ($strError_tmp1 == '')
@@ -2651,13 +2605,10 @@ class CUpdateSystem
 
 				$from_dir = $updates_dir_full."/".$arLangs[$i];
 
-				if ($strError_tmp1 == '')
+				if (!file_exists($from_dir) || !is_dir($from_dir))
 				{
-					if (!file_exists($from_dir) || !is_dir($from_dir))
-					{
-						$strError_tmp1 .= "[UUL06] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
-						$arErrorLangs[$arLangs[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUL06]. ";
-					}
+					$strError_tmp1 .= "[UUL06] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
+					$arErrorLangs[$arLangs[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUL06]. ";
 				}
 
 				if ($strError_tmp1 == '')
@@ -2702,10 +2653,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUUL");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -2720,7 +2671,7 @@ class CUpdateSystem
 		$updates_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/".$updates_dir;
 		$help_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/help";
 
-		if (!is_array($arHelp) || count($arHelp)<=0)
+		if (!is_array($arHelp) || empty($arHelp))
 		{
 			$strError_tmp .= "[UUH00] ".GetMessage("SUPP_UH_NO_LANG").".<br>";
 		}
@@ -2758,13 +2709,10 @@ class CUpdateSystem
 
 				$from_dir = $updates_dir_full."/".$arHelp[$i];
 
-				if ($strError_tmp1 == '')
+				if (!file_exists($from_dir) || !is_dir($from_dir))
 				{
-					if (!file_exists($from_dir) || !is_dir($from_dir))
-					{
-						$strError_tmp1 .= "[UUH04] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
-						$arErrorHelp[$arHelp[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUH04]. ";
-					}
+					$strError_tmp1 .= "[UUH04] ".str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG")).".<br>";
+					$arErrorHelp[$arHelp[$i]] = str_replace("#FILE#", $from_dir, GetMessage("SUPP_UL_NO_TMP_LANG"))." [UUH04]. ";
 				}
 
 				if ($strError_tmp1 == '')
@@ -2848,17 +2796,17 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUUH");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	public static function Report2Server($arServerReport)
 	{
 		$strError_tmp = "";
 
-		if (!is_array($arServerReport) || count($arServerReport)<=0)
+		if (!is_array($arServerReport) || empty($arServerReport))
 		{
 			$strError_tmp .= "[UR2S01] Empty report.<br>";
 		}
@@ -2946,10 +2894,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUPSD");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 	/** Сравнение двух версий в формате XX.XX.XX  **/
@@ -2958,8 +2906,8 @@ class CUpdateSystem
 	/** Возвращает 0, если $strVers1 == $strVers2 **/
 	public static function CompareVersions($strVers1, $strVers2)
 	{
-		$strVers1 = Trim($strVers1);
-		$strVers2 = Trim($strVers2);
+		$strVers1 = trim($strVers1);
+		$strVers2 = trim($strVers2);
 
 		if ($strVers1==$strVers2)
 			return 0;
@@ -3004,13 +2952,13 @@ class CUpdateSystem
 					if (!($fp = @fopen($LOG_FILE, "rb")))
 					{
 						ignore_user_abort($old_abort_status);
-						return False;
+						return false;
 					}
 
 					if (!($fp1 = @fopen($LOG_FILE_TMP, "wb")))
 					{
 						ignore_user_abort($old_abort_status);
-						return False;
+						return false;
 					}
 
 					$iSeekLen = intval($log_size-$MAX_LOG_SIZE/2.0);
@@ -3177,7 +3125,7 @@ class CUpdateSystem
 				}
 			}
 
-			if ($arSelected===false && count($arClientLangs)<=0)
+			if ($arSelected===false && empty($arClientLangs))
 			{
 				CUpdateSystem::AddMessage2Log(GetMessage("SUPP_GL_NO_SITE_LANGS"), "UGL02");
 				$strError .= "[UGL02] ".GetMessage("SUPP_GL_NO_SITE_LANGS").".<br>";
@@ -3253,7 +3201,7 @@ class CUpdateSystem
 				}
 			}
 
-			if ($arSelected===false && count($arClientHelps)<=0)
+			if ($arSelected===false && empty($arClientHelps))
 			{
 				CUpdateSystem::AddMessage2Log(GetMessage("SUPP_GL_NO_SITE_LANGS"), "UGH02");
 				$strError .= "[UGH02] ".GetMessage("SUPP_GL_NO_SITE_LANGS").".<br>";
@@ -3407,14 +3355,14 @@ class CUpdateSystem
 
 			fputs($FP, $strRequest);
 
-			$bChunked = False;
+			$bChunked = false;
 			while (!feof($FP))
 			{
 				$line = fgets($FP, 4096);
 				if ($line != "\r\n")
 				{
 					if (preg_match("/Transfer-Encoding: +chunked/i", $line))
-						$bChunked = True;
+						$bChunked = true;
 				}
 				else
 				{
@@ -3501,8 +3449,8 @@ class CUpdateSystem
 	/** Проверка на установку GZip компрессии **/
 	public static function IsGzipInstalled()
 	{
-		if (function_exists("gzcompress")) return True;
-		return False;
+		if (function_exists("gzcompress")) return true;
+		return false;
 	}
 
 	/** Создание путя, если его нет, и установка прав писать **/
@@ -3659,10 +3607,10 @@ class CUpdateSystem
 		{
 			CUpdateSystem::AddMessage2Log($strError_tmp, "CUCDF");
 			$strError .= $strError_tmp;
-			return False;
+			return false;
 		}
 		else
-			return True;
+			return true;
 	}
 
 
@@ -3670,12 +3618,12 @@ class CUpdateSystem
 	public static function DeleteDirFilesEx($path)
 	{
 		if (!file_exists($path))
-			return False;
+			return false;
 
 		if (is_file($path))
 		{
 			@unlink($path);
-			return True;
+			return true;
 		}
 
 		if ($handle = @opendir($path))
@@ -3696,7 +3644,7 @@ class CUpdateSystem
 		}
 		@closedir($handle);
 		@rmdir($path);
-		return True;
+		return true;
 	}
 
 
@@ -3779,7 +3727,7 @@ class CUpdateSystem
 
 		if ($errorMessage <> '')
 			$strError .= $errorMessage;
-		if (is_array($updater->errorMessage) && count($updater->errorMessage) > 0)
+		if (is_array($updater->errorMessage) && !empty($updater->errorMessage))
 			$strError .= implode("\n", $updater->errorMessage);
 
 		unset($updater);
@@ -3819,7 +3767,7 @@ class CUpdateSystem
 	{
 		$email = trim($email);
 		if ($email == '')
-			return False;
+			return false;
 
 		if (preg_match("#^[=_.0-9a-z+~'-]+@(([-0-9a-z_]+\.)+)([a-z]{2,10})$#i", $email))
 			return true;
@@ -3933,16 +3881,18 @@ class CUpdatesXMLNode
 			default:
 				$isOneLiner = false;
 
-				if (count($this->children)==0 && ($this->content == ''))
+				if (empty($this->children) && ($this->content == ''))
 					$isOneLiner = true;
 
 				$attrStr = "";
 
-				if (count($this->attributes) > 0)
+				if (!empty($this->attributes))
+				{
 					foreach ($this->attributes as $attr)
 					{
 						$attrStr .= " ".$attr->name."=\"".$attr->content."\" ";
 					}
+				}
 
 				if ($isOneLiner)
 					$oneLinerEnd = " /";
@@ -3951,11 +3901,13 @@ class CUpdatesXMLNode
 
 				$ret = "<".$this->name.$attrStr.$oneLinerEnd.">";
 
-				if (count($this->children)>0)
+				if (!empty($this->children))
+				{
 					foreach ($this->children as $child)
 					{
 						$ret .= $child->__toString();
 					}
+				}
 
 				if (!$isOneLiner)
 				{
@@ -4037,11 +3989,13 @@ class CUpdatesXMLDocument
 			$ret .= " encoding=\"".$this->encoding."\"";
 		$ret .= "?".">";
 
-		if (count($this->children) > 0)
+		if (!empty($this->children))
+		{
 			foreach ($this->children as $child)
 			{
 				$ret .= $child->__toString();
 			}
+		}
 
 		return $ret;
 	}
@@ -4051,11 +4005,13 @@ class CUpdatesXMLDocument
 	{
 		$arRetArray = array();
 
-		if (count($this->children)>0)
+		if (!empty($this->children))
+		{
 			foreach ($this->children as $child)
 			{
 				$arRetArray[$child->name] = $child->__toArray();
 			}
+		}
 
 		return $arRetArray;
 	}
@@ -4071,22 +4027,21 @@ class CUpdatesXML
 	var $tree;
 	var $TrimWhiteSpace;
 
-	public function __construct($TrimWhiteSpace = True)
+	public function __construct($TrimWhiteSpace = true)
 	{
-		$this->TrimWhiteSpace = ($TrimWhiteSpace ? True : False);
-		$this->tree = False;
+		$this->TrimWhiteSpace = ($TrimWhiteSpace ? true : false);
+		$this->tree = false;
 	}
 
 	function Load($file)
 	{
-		unset($this->tree);
-		$this->tree = False;
+		$this->tree = false;
 
 		if (file_exists($file))
 		{
 			$content = file_get_contents($file);
 			$this->tree = &$this->__parse($content);
-			return True;
+			return true;
 		}
 
 		return false;
@@ -4094,8 +4049,7 @@ class CUpdatesXML
 
 	function LoadString($text)
 	{
-		unset($this->tree);
-		$this->tree = False;
+		$this->tree = false;
 
 		if ($text <> '')
 		{
@@ -4136,19 +4090,19 @@ class CUpdatesXML
 				if (!is_array($result->children))
 					return false;
 
-				$bFound = False;
+				$bFound = false;
 				for ($j = 0, $nj = count($result->children); $j < $nj; $j++)
 				{
 					if ($result->children[$j]->name==$tmp[$i])
 					{
 						$result = &$result->children[$j];
-						$bFound = True;
+						$bFound = true;
 						break;
 					}
 				}
 
 				if (!$bFound)
-					return False;
+					return false;
 			}
 		}
 
@@ -4443,16 +4397,18 @@ else
 				default:
 					$isOneLiner = false;
 
-					if (count($this->children)==0 && ($this->content == ''))
+					if (empty($this->children) && ($this->content == ''))
 						$isOneLiner = true;
 
 					$attrStr = "";
 
-					if (count($this->attributes) > 0)
+					if (!empty($this->attributes))
+					{
 						foreach ($this->attributes as $attr)
 						{
 							$attrStr .= " ".$attr->name."=\"".$attr->content."\" ";
 						}
+					}
 
 					if ($isOneLiner)
 						$oneLinerEnd = " /";
@@ -4461,11 +4417,13 @@ else
 
 					$ret = "<".$this->name.$attrStr.$oneLinerEnd.">";
 
-					if (count($this->children)>0)
+					if (!empty($this->children))
+					{
 						foreach ($this->children as $child)
 						{
 							$ret .= $child->__toString();
 						}
+					}
 
 					if (!$isOneLiner)
 					{
@@ -4547,11 +4505,13 @@ else
 				$ret .= " encoding=\"".$this->encoding."\"";
 			$ret .= "?".">";
 
-			if (count($this->children) > 0)
+			if (!empty($this->children))
+			{
 				foreach ($this->children as $child)
 				{
 					$ret .= $child->__toString();
 				}
+			}
 
 			return $ret;
 		}
@@ -4561,11 +4521,13 @@ else
 		{
 			$arRetArray = array();
 
-			if (count($this->children)>0)
+			if (!empty($this->children))
+			{
 				foreach ($this->children as $child)
 				{
 					$arRetArray[$child->name] = $child->__toArray();
 				}
+			}
 
 			return $arRetArray;
 		}
@@ -4581,22 +4543,21 @@ else
 		var $tree;
 		var $TrimWhiteSpace;
 
-		public function __construct($TrimWhiteSpace = True)
+		public function __construct($TrimWhiteSpace = true)
 		{
-			$this->TrimWhiteSpace = ($TrimWhiteSpace ? True : False);
-			$this->tree = False;
+			$this->TrimWhiteSpace = ($TrimWhiteSpace ? true : false);
+			$this->tree = false;
 		}
 
 		function Load($file)
 		{
-			unset($this->tree);
-			$this->tree = False;
+			$this->tree = false;
 
 			if (file_exists($file))
 			{
 				$content = file_get_contents($file);
 				$this->tree = &$this->__parse($content);
-				return True;
+				return true;
 			}
 
 			return false;
@@ -4604,8 +4565,7 @@ else
 
 		function LoadString($text)
 		{
-			unset($this->tree);
-			$this->tree = False;
+			$this->tree = false;
 
 			if ($text <> '')
 			{
@@ -4646,19 +4606,19 @@ else
 					if (!is_array($result->children))
 						return false;
 
-					$bFound = False;
+					$bFound = false;
 					for ($j = 0, $nj = count($result->children); $j < $nj; $j++)
 					{
 						if ($result->children[$j]->name==$tmp[$i])
 						{
 							$result = &$result->children[$j];
-							$bFound = True;
+							$bFound = true;
 							break;
 						}
 					}
 
 					if (!$bFound)
-						return False;
+						return false;
 				}
 			}
 
@@ -4986,12 +4946,12 @@ class CUpdater
 	function InstallComponents($arDeleteFiles = array())
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': InstallComponents()", "CRUPDICS1");
 		$errorMessage = "";
 
-		$bFlag = True;
+		$bFlag = true;
 
 		$componentsPath = $_SERVER["DOCUMENT_ROOT"].$this->curModulePath."/install/components";
 		if ($handle = @opendir($componentsPath))
@@ -5042,7 +5002,7 @@ class CUpdater
 	function InstallComponent($componentName, $arDeleteFiles = array())
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': InstallComponent(".$componentName.")", "CRUPDIC1");
 		$errorMessage = "";
@@ -5051,16 +5011,16 @@ class CUpdater
 		if ($componentPath == '')
 		{
 			CUpdateSystem::AddMessage2Log("Wrong component name", "CRUPDIC2");
-			return False;
+			return false;
 		}
 
 		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$this->curModulePath."/install/components".$componentPath))
 		{
 			CUpdateSystem::AddMessage2Log("Component is not found", "CRUPDIC3");
-			return False;
+			return false;
 		}
 
-		if (count($arDeleteFiles) > 0)
+		if (!empty($arDeleteFiles))
 		{
 			for ($i = 0, $cnt = count($arDeleteFiles); $i < $cnt; $i++)
 			{
@@ -5083,12 +5043,12 @@ class CUpdater
 	function InstallWizards($arDeleteFiles = array())
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': InstallWizards()", "CRUPDICS1");
 		$errorMessage = "";
 
-		$bFlag = True;
+		$bFlag = true;
 
 		$wizardsPath = $_SERVER["DOCUMENT_ROOT"].$this->curModulePath."/install/wizards";
 		if ($handle = @opendir($wizardsPath))
@@ -5131,7 +5091,7 @@ class CUpdater
 	function InstallWizard($wizardName, $arDeleteFiles = array())
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': InstallWizard(".$wizardName.")", "CRUPDIC1");
 		$errorMessage = "";
@@ -5140,16 +5100,16 @@ class CUpdater
 		if ($wizardPath == '')
 		{
 			CUpdateSystem::AddMessage2Log("Wrong wizard name", "CRUPDIC2");
-			return False;
+			return false;
 		}
 
 		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$this->curModulePath."/install/wizards".$wizardPath))
 		{
 			CUpdateSystem::AddMessage2Log("Wizard is not found", "CRUPDIC3");
-			return False;
+			return false;
 		}
 
-		if (count($arDeleteFiles) > 0)
+		if (!empty($arDeleteFiles))
 		{
 			for ($i = 0, $cnt = count($arDeleteFiles); $i < $cnt; $i++)
 			{
@@ -5169,7 +5129,7 @@ class CUpdater
 	function CopyFiles($fromDir, $toDir)
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': CopyFiles(".$fromDir.", ".$toDir.")", "CRUPDCF1");
 
@@ -5197,7 +5157,7 @@ class CUpdater
 	function CopyDirFiles($fromDir, $toDir)
 	{
 		if (!in_array("KERNEL", $this->callType))
-			return True;
+			return true;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': CopyDirFiles(".$fromDir.", ".$toDir.")", "CRUPDCDF1");
 		$errorMessage = "";
@@ -5222,15 +5182,16 @@ class CUpdater
 	function Query($query, $tableName = "")
 	{
 		if (!in_array("DATABASE", $this->callType))
-			return False;
+			return false;
 
-		$bCanUpdate = True;
+		$bCanUpdate = true;
 		if ($tableName <> '')
 			if (!$this->TableExists($tableName))
-				$bCanUpdate = False;
+				$bCanUpdate = false;
 
-		$result = False;
+		$result = false;
 
+		$strQuery = '';
 		if ($bCanUpdate)
 		{
 			$strQuery = "";
@@ -5252,14 +5213,14 @@ class CUpdater
 			}
 
 			if ($strQuery == '')
-				$bCanUpdate = False;
+				$bCanUpdate = false;
 		}
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': Query(".$strQuery.", ".$tableName.")", "CRUPDCDF2");
 
 		if ($bCanUpdate)
 		{
-			$result = $GLOBALS["DB"]->Query($strQuery, True);
+			$result = $GLOBALS["DB"]->Query($strQuery, true);
 
 			if (!$result)
 				$this->errorMessage[] = $GLOBALS["DB"]->db_Error;
@@ -5271,16 +5232,16 @@ class CUpdater
 	function QueryBatch($queryPath, $tableName = "")
 	{
 		if (!in_array("DATABASE", $this->callType))
-			return False;
+			return false;
 
 		CUpdateSystem::AddMessage2Log("Run updater '".$this->updater."': QueryBatch(".$queryPath.", ".$tableName.")", "CRUPDCDF3");
 
-		$bCanUpdate = True;
+		$bCanUpdate = true;
 		if ($tableName <> '')
 			if (!$this->TableExists($tableName))
-				$bCanUpdate = False;
+				$bCanUpdate = false;
 
-		$result = False;
+		$result = false;
 
 		if ($bCanUpdate)
 		{
@@ -5303,7 +5264,7 @@ class CUpdater
 			}
 
 			if ($strQueryPath == '')
-				$bCanUpdate = False;
+				$bCanUpdate = false;
 		}
 
 		if ($bCanUpdate)
@@ -5313,7 +5274,7 @@ class CUpdater
 
 			$queryPathFull = $_SERVER["DOCUMENT_ROOT"].$strQueryPath;
 
-			$arError = False;
+			$arError = false;
 			if (file_exists($queryPathFull))
 				$arError = $GLOBALS["DB"]->RunSQLBatch($queryPathFull);
 
@@ -5324,19 +5285,19 @@ class CUpdater
 			}
 		}
 
-		return ($arError ? False : True);
+		return ($arError ? false : true);
 	}
 
 	function TableExists($tableName)
 	{
 		if (!in_array("DATABASE", $this->callType))
-			return False;
+			return false;
 
 		$tableName = preg_replace("/[^A-Za-z0-9%_]+/i", "", $tableName);
-		$tableName = Trim($tableName);
+		$tableName = trim($tableName);
 
 		if ($tableName == '')
-			return False;
+			return false;
 
 		$strSql = "";
 		if ($this->dbType == "MYSQL")
@@ -5348,9 +5309,9 @@ class CUpdater
 
 		$dbResult = $GLOBALS["DB"]->Query($strSql);
 		if ($arResult = $dbResult->Fetch())
-			return True;
+			return true;
 		else
-			return False;
+			return false;
 	}
 
 	function CanUpdateDatabase()
@@ -5368,4 +5329,3 @@ class CUpdater
 		return (in_array("PERSONAL", $this->callType));
 	}
 }
-?>

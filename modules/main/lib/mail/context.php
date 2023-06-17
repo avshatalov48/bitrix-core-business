@@ -27,13 +27,15 @@ class Context
 
 	public function __construct(array $params = null)
 	{
-		if (!empty($params) && is_array($params))
+		if (!empty($params))
 		{
 			foreach ($params as $name => $value)
 			{
 				$setter = sprintf('set%s', $name);
 				if (is_callable(array($this, $setter)))
+				{
 					$this->$setter($value);
+				}
 			}
 		}
 	}

@@ -1,10 +1,15 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\Loader::includeModule('sale');
 Loc::loadMessages(__FILE__);
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $publicMode = $adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel();
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -458,6 +463,12 @@ if ($saleModulePermissions == "W")
 
 		$menu = array();
 
+		$parentId = (int)($filter["=PARENT_ID"] ?? 0);
+		if ($parentId < 0)
+		{
+			$parentId = 0;
+		}
+
 		/** @var \Bitrix\Sale\Delivery\Services\Base $class */
 
 		foreach($classNamesList as $class)
@@ -470,7 +481,10 @@ if ($saleModulePermissions == "W")
 
 			$supportedServices = $class::getSupportedServicesList();
 
+
 			$restServices = [];
+
+			/** @var string $class */
 			$isRest = ($class === "\\".\Sale\Handlers\Delivery\RestHandler::class);
 			if ($isRest)
 			{
@@ -497,9 +511,13 @@ if ($saleModulePermissions == "W")
 					{
 						if(!empty($srvParams["NAME"]))
 						{
-							$editUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".
-								(intval($filter["=PARENT_ID"]) > 0 ? $filter["=PARENT_ID"] : 0)."&CLASS_NAME=".
-								urlencode($class)."&SERVICE_TYPE=".$srvType."&back_url=".$backUrl;
+							$editUrl =
+								$selfFolderUrl . "sale_delivery_service_edit.php?lang=" . LANGUAGE_ID
+								. "&PARENT_ID=" . $parentId
+								. "&CLASS_NAME=" . urlencode($class)
+								. "&SERVICE_TYPE=" . $srvType
+								. "&back_url=" . $backUrl
+							;
 							$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
 							$menu[] = array(
 								"TEXT" => $srvParams["NAME"],

@@ -1,13 +1,15 @@
-<?
+<?php
 use Bitrix\Main\Application;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Sale\Order;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Sale\Exchange\Integration\Admin\Link,
-	\Bitrix\Sale\Exchange\Integration\Admin\Registry,
-	\Bitrix\Sale\Exchange\Integration\Admin\ModeType,
-	\Bitrix\Sale\Helpers\Admin\Blocks\FactoryMode,
-	\Bitrix\Sale\Helpers\Admin\Blocks\BlockType;
+use Bitrix\Sale\Exchange\Integration\Admin\Link;
+use Bitrix\Sale\Exchange\Integration\Admin\Registry;
+use Bitrix\Sale\Exchange\Integration\Admin\ModeType;
+use Bitrix\Sale\Helpers\Admin\Blocks\FactoryMode;
+use Bitrix\Sale\Helpers\Admin\Blocks\BlockType;
+
+/** @global CMain $APPLICATION */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
@@ -20,12 +22,12 @@ if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
-CUtil::InitJSCore();
+CJSCore::Init();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/helpers/admin/orderedit.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/helpers/admin/formrecovery.php");
 Asset::getInstance()->addCss('/bitrix/themes/.default/sale.css');
 
-/** @var null|\Bitrix\Sale\Order $saleOrder */
+/** @var null|Order $saleOrder */
 $saleOrder = null;
 $request = Application::getInstance()->getContext()->getRequest();
 $lang = Application::getInstance()->getContext()->getLanguage();
@@ -62,6 +64,8 @@ $allowView = in_array($saleOrder->getField("STATUS_ID"), $allowedOrderStatusesVi
 $payment = null;
 $errors = array();
 $fields = array();
+
+$historyContent = '';
 
 if ($paymentId > 0)
 {
@@ -159,7 +163,7 @@ if ($request->isPost() && check_bitrix_sessid() && $request->get('update'))
 {
 	if(!$allowUpdate)
 	{
-		if (isset($_POST["apply"]))
+		if ($request->getPost('apply') !== null)
 		{
 			$link
 				->create()
@@ -178,9 +182,6 @@ if ($request->isPost() && check_bitrix_sessid() && $request->get('update'))
 		}
 	}
 
-	/**
-	 * @var $result \Bitrix\Main\Entity\Result;
-	 */
 	$result = $factory::create(BlockType::PAYMENT)->updateData($saleOrder, $request->get('PAYMENT'));
 	$data = $result->getData();
 	$payment = array_shift($data['PAYMENT']);
@@ -324,11 +325,7 @@ if (!$new)
 	}
 }
 
-if($link->getType() == ModeType::APP_LAYOUT_TYPE)
-{
-	//do nothing
-}
-else
+if ($link->getType() !== ModeType::APP_LAYOUT_TYPE)
 {
 	$aMenu[] = array(
 		"TEXT" => Loc::getMessage("SOPE_PAYMENT_LIST"),
@@ -363,11 +360,11 @@ $action = $link
 	->setField('order_id', $orderId)
 	->setField('paymentId', $paymentId)
 	->setField('backurl', $backUrl)
-	->setQuery($urlForm)
+//	->setQuery($urlForm)
 	->fill()
 	->build();
 
-?><form method="POST" action="<?=$action?>" name="<?=$tableId?>_form" id="<?=$tableId?>_form"><?
+?><form method="POST" action="<?=$action?>" name="<?=$tableId?>_form" id="<?=$tableId?>_form"><?php
 
 $tabControl = new CAdminTabControlDrag($tableId, $aTabs, $moduleId, false, true);
 $tabControl->Begin();
@@ -390,7 +387,7 @@ if (empty($statusOnPaid) && (empty($statusOnAllowDelivery) || empty($statusOnPai
 	$defaultBlocksOrder[] = 'statusorder';
 
 $blocksOrder = $tabControl->getCurrentTabBlocksOrder($defaultBlocksOrder);
-\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_ajaxer.js");
+Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_ajaxer.js");
 echo $factory::create(BlockType::ADDITIONAL)->getScripts();
 echo $factory::create(BlockType::PAYMENT)->getScripts();
 echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $tableId);
@@ -399,18 +396,18 @@ echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $tableId);
 <input type="hidden" name="update" value="Y">
 <input type="hidden" name="lang" id="lang" value="<?=$lang;?>">
 <input type="hidden" name="order_id" id="order_id" value="<?=$orderId;?>">
-<?
+<?php
 	echo bitrix_sessid_post();
 	$paymentCount = 1;
 ?>
 <tr>
 	<td>
 		<div style="position: relative; vertical-align: top">
-			<?$tabControl->DraggableBlocksStart();?>
-			<?
+			<?php
+			$tabControl->DraggableBlocksStart();
 				foreach ($blocksOrder as $blockCode)
 				{
-					$tabControl->DraggableBlockBegin(GetMessage("SALE_BLOCK_TITLE_".toUpper($blockCode)), $blockCode);
+					$tabControl->DraggableBlockBegin(GetMessage("SALE_BLOCK_TITLE_".mb_strtoupper($blockCode)), $blockCode);
 
 					if(BlockType::isDefined(BlockType::resolveId($blockCode)))
 					{
@@ -423,7 +420,12 @@ echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $tableId);
 								break;
 							case BlockType::PAYMENT:
 								$index = 1;
-								echo $block::getEdit($payment, $index, $_POST['PAYMENT'][$index]);
+								$blockPayment = $request->getPost('PAYMENT');
+								if (!is_array($blockPayment))
+								{
+									$blockPayment = [];
+								}
+								echo $block::getEdit($payment, $index, $blockPayment[$index] ?? []);
 								break;
 							case BlockType::BUYER:
 								echo $block::getView($saleOrder);
@@ -446,7 +448,7 @@ echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $tableId);
 </tr>
 
 </form>
-<?
+<?php
 //--TAB order
 if ($paymentId > 0):
 	//TAB history --
@@ -455,7 +457,7 @@ if ($paymentId > 0):
 	<tr>
 		<td id="order-history"><?=$historyContent; ?></td>
 	</tr>
-<?
+<?php
 	//-- TAB history
 
 	//TAB analysis --
@@ -465,7 +467,7 @@ if ($paymentId > 0):
 	<tr>
 		<td>
 			<div style="position:relative; vertical-align:top">
-				<?
+				<?php
 
 				$orderBasket = $factory::create(BlockType::BASKET, [
 					'order'=> $saleOrder,
@@ -479,20 +481,17 @@ if ($paymentId > 0):
 			</div>
 		</td>
 	</tr>
-	<?
+	<?php
 
 	//-- TAB analysis
 
 endif;
 
-$tabControl->Buttons(
-	array(
-		"disabled" => !$allowUpdate,
-		"back_url" => $backUrl
-	)
-);
+$tabControl->Buttons([
+	"disabled" => !$allowUpdate,
+	"back_url" => $backUrl,
+]);
 
 $tabControl->End();
 
-?>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");

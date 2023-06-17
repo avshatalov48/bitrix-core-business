@@ -39,10 +39,7 @@ abstract class TypeFactory
 		}
 
 		$entity = $this->getTypeDataClass()::compileEntity($type);
-		if($entity)
-		{
-			$this->itemEntities[$typeData['ID']] = $entity;
-		}
+		$this->itemEntities[$typeData['ID']] = $entity;
 
 		return $entity;
 	}

@@ -1,4 +1,4 @@
-import {ChatTypes} from 'im.v2.const';
+import {DialogType} from 'im.v2.const';
 import {SearchUtils} from './search-utils';
 
 export class SearchRecentList
@@ -29,7 +29,7 @@ export class SearchRecentList
 	{
 		return this.store.getters['recent/getSortedCollection'].map(item => {
 			const dialog = this.store.getters['dialogues/get'](item.dialogId, true);
-			const isUser = dialog.type === ChatTypes.user;
+			const isUser = dialog.type === DialogType.user;
 
 			const recentListItem = {
 				dialogId: item.dialogId,

@@ -186,6 +186,11 @@ class Call extends Engine\Controller
 		$currentUserId = $this->getCurrentUser()->getId();
 
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 		if(!$this->checkCallAccess($call, $currentUserId))
 		{
 			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");

@@ -37,8 +37,8 @@ if (isset($arParams["MENU_TYPES"]) && is_array($arParams["MENU_TYPES"]) && !empt
 		return is_string($type) && $type !== '' ? htmlspecialcharsbx(trim($type)) : 'left';
 	}, $arParams["MENU_TYPES"]);
 
-	$arParams["ROOT_MENU_TYPE"] = isset($arParams["MENU_TYPES"][0]) ? $arParams["MENU_TYPES"][0] : 'left';
-	$arParams["CHILD_MENU_TYPE"] = isset($arParams["MENU_TYPES"][1]) ? $arParams["MENU_TYPES"][1] : 'left';
+	$arParams["ROOT_MENU_TYPE"] = $arParams["MENU_TYPES"][0] ?? 'left';
+	$arParams["CHILD_MENU_TYPE"] = $arParams["MENU_TYPES"][1] ?? 'left';
 }
 else
 {
@@ -57,7 +57,8 @@ $arParams["DELAY"] = (isset($arParams["DELAY"]) && $arParams["DELAY"] == "Y" ? "
 $arParams["ALLOW_MULTI_SELECT"] = (($arParams["ALLOW_MULTI_SELECT"] ?? '') == "Y");
 
 //Find current menu item in RecalcMenu(). Cach ID depends on this parameter too
-$arParams["CACHE_SELECTED_ITEMS"] = ($arParams["CACHE_SELECTED_ITEMS"] <> "N" && $arParams["CACHE_SELECTED_ITEMS"] !== false);
+$arParams["CACHE_SELECTED_ITEMS"] = isset($arParams["CACHE_SELECTED_ITEMS"])
+	&& ($arParams["CACHE_SELECTED_ITEMS"] !== "N" && $arParams["CACHE_SELECTED_ITEMS"] !== false);
 
 $curDir = $APPLICATION->GetCurDir();
 
@@ -213,7 +214,7 @@ if($USER->IsAuthorized())
 				"ID" => $buttonID,
 				"ICON" => "bx-panel-menu-icon",
 				"ALT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
-					.($bDefaultItem ? ' '.'"'.(isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType]:$menuType).'"' : ''),
+					.($bDefaultItem ? ' '.'"'.($arMenuTypes[$menuType] ?? $menuType).'"' : ''),
 				"TEXT" => GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
 				"MAIN_SORT"	=> "300",
 				"SORT" => 10,
@@ -227,11 +228,11 @@ if($USER->IsAuthorized())
 			$aMenuItem =  array(
 				"TEXT" => GetMessage(
 					'MAIN_MENU_TOP_PANEL_ITEM_TEXT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$menuType] ?? $menuType))
 				),
 				"TITLE" => GetMessage(
 					'MAIN_MENU_TOP_PANEL_ITEM_ALT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$menuType] ?? $menuType))
 				),
 				"SORT" => "100",
 				"ICON" => "menu-edit",
@@ -283,7 +284,7 @@ if($USER->IsAuthorized())
 				"ID" => $buttonID,
 				"ICON" => "bx-panel-menu-icon",
 				"ALT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
-					.($bDefaultItem ? ' '.'&quot;'.(isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType]:$newMenuType).'&quot;' : ''),
+					.($bDefaultItem ? ' '.'&quot;'.($arMenuTypes[$newMenuType] ?? $newMenuType).'&quot;' : ''),
 				"TEXT" => GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
 				"MAIN_SORT" => "300",
 				"SORT" => 10,
@@ -297,11 +298,11 @@ if($USER->IsAuthorized())
 			$aMenuItem =  array(
 				"TEXT" => GetMessage(
 					'MAIN_MENU_ADD_TOP_PANEL_ITEM_TEXT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType] : $newMenuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$newMenuType] ?? $newMenuType))
 				),
 				"TITLE" => GetMessage(
 					'MAIN_MENU_ADD_TOP_PANEL_ITEM_ALT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType] : $newMenuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$newMenuType] ?? $newMenuType))
 				),
 				"SORT" => "200",
 				"ICON" => "menu-add",
@@ -321,7 +322,7 @@ if($USER->IsAuthorized())
 
 	if ($bMenuDelete)
 	{
-		$menu_del_url = "if(confirm('".CUtil::JSEscape(GetMessage('menu_comp_del_conf', array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType)))).
+		$menu_del_url = "if(confirm('".CUtil::JSEscape(GetMessage('menu_comp_del_conf', array('#MENU_TITLE#' => ($arMenuTypes[$menuType] ?? $menuType)))).
 			"')) {BX.showWait(); BX.ajax.get('/bitrix/admin/public_menu_edit.php?lang=".LANGUAGE_ID.
 			"&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"]).
 			"&path=".urlencode($menuDir)."&name=".$menuType."&action=delete&".bitrix_sessid_get()."')}";
@@ -358,11 +359,11 @@ if($USER->IsAuthorized())
 			$aMenuItem =  array(
 				"TEXT" => GetMessage(
 					'MAIN_MENU_DEL_TOP_PANEL_ITEM_TEXT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$menuType] ?? $menuType))
 				),
 				"TITLE" => GetMessage(
 					'MAIN_MENU_DEL_TOP_PANEL_ITEM_ALT',
-					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
+					array('#MENU_TITLE#' => ($arMenuTypes[$menuType] ?? $menuType))
 				),
 				"SORT" => "300",
 				"ICON" => "menu-delete",

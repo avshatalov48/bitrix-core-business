@@ -59,6 +59,7 @@ static $arCounries = [
 	'DK'=>54, //Denmark
 	'DO'=>55, //Dominican Republic
 	'EG'=>56, //Egypt
+	'CD'=>57, //Congo-Kinshasa
 	'ZM'=>58, //Zambia
 	'ZW'=>59, //Zimbabwe
 	'IL'=>60, //Israel

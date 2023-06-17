@@ -165,12 +165,9 @@ this.BX = this.BX || {};
 	    userTitle: function userTitle() {
 	      if (this.isRealItem && this.rawListItem.authorId > 0) {
 	        return this.userData.name;
-	      } else if (this.isRealItem && this.rawListItem.authorId === 0) {
-	        // System notification
-	        return this.rawListItem.title;
-	      } else {
-	        return '';
 	      }
+	      var title = this.rawListItem.title;
+	      return title.length > 0 ? title : this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_ITEM_SYSTEM');
 	    },
 	    avatar: function avatar() {
 	      var avatar = '';
@@ -203,7 +200,7 @@ this.BX = this.BX || {};
 	  methods: {
 	    //events
 	    onDoubleClick: function onDoubleClick(event) {
-	      if (!this.searchMode && event.item.sectionCode === im_const.NotificationTypesCodes.simple) {
+	      if (!this.searchMode) {
 	        this.$emit('dblclick', event);
 	      }
 	    },
@@ -777,10 +774,7 @@ this.BX = this.BX || {};
 	      }, 0);
 	    },
 	    isNeedToReadAll: function isNeedToReadAll() {
-	      var confirmCounterInModel = this.notification.filter(function (notificationItem) {
-	        return notificationItem.sectionCode === im_const.NotificationTypesCodes.confirm;
-	      }).length;
-	      return confirmCounterInModel < this.unreadCounter;
+	      return this.unreadCounter > 0;
 	    },
 	    panelStyles: function panelStyles() {
 	      if (this.callViewState === BX.Call.Controller.ViewState.Folded && !this.showSearch) {
@@ -1384,7 +1378,7 @@ this.BX = this.BX || {};
 	    readNotifications: function readNotifications(notificationId) {
 	      var _this15 = this;
 	      var notification = this.$store.getters['notifications/getById'](notificationId);
-	      if (notification.unread === false || notification.sectionCode === im_const.NotificationTypesCodes.confirm) {
+	      if (notification.unread === false) {
 	        return false;
 	      }
 	      this.notificationsToRead.push(notificationId);
@@ -1502,15 +1496,6 @@ this.BX = this.BX || {};
 	        return false;
 	      }
 	      this.$store.dispatch('notifications/readAll');
-
-	      //we need to count "confirms" because its always "unread"
-	      var confirms = this.notification.filter(function (notificationItem) {
-	        return notificationItem.sectionCode === im_const.NotificationTypesCodes.confirm;
-	      });
-	      this.$store.dispatch('notifications/setCounter', {
-	        unreadTotal: confirms.length
-	      });
-	      this.updateRecentList(confirms.length);
 	      this.getRestClient().callMethod('im.notify.read', {
 	        id: 0,
 	        action: 'Y'

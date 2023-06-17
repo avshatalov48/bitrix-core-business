@@ -579,7 +579,7 @@ abstract class Field
 	{
 		$map = array_flip(static::$oldDataTypes);
 
-		return isset($map[$class]) ? $map[$class] : 'string';
+		return $map[$class] ?? 'string';
 	}
 
 	/**

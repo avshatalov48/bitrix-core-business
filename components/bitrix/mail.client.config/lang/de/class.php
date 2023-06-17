@@ -2,6 +2,7 @@
 $MESS["MAIL_CLIENT_CONFIG_ACCESS"] = "Zugriffsrechte für Mailbox";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Hinzufügen";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Geben Sie den Mitarbeitern die Zugriffsrechte für diese Mailbox, sodass sie die Nachrichten empfangen und darauf antworten können. Es ist ein einfacher Weg zu einer Plattform der gemeinsamen Arbeit für Ihre Vertriebsabteilung oder Ihr Helpdesk-Team.";
+$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT_MSGVER_1"] = "Geben Sie den Mitarbeitern die Zugriffsrechte für diese Mailbox, sodass sie die Nachrichten empfangen und darauf antworten können. Es ist ein einfacher Weg zu einer Plattform der gemeinsamen Arbeit für Ihre Vertriebsabteilung oder Ihr Helpdesk-Team.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "Details";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CANCEL"] = "Abbrechen";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CONNECT"] = "Verbinden";

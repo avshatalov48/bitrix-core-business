@@ -1,4 +1,8 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
@@ -35,35 +39,32 @@ if (!empty($arParams['TEMPLATE_THEME']))
 	}
 }
 
-$arParams['ALLOW_USER_PROFILES'] = $arParams['ALLOW_USER_PROFILES'] === 'Y' ? 'Y' : 'N';
-$arParams['SKIP_USELESS_BLOCK'] = $arParams['SKIP_USELESS_BLOCK'] === 'N' ? 'N' : 'Y';
-
-if (!isset($arParams['SHOW_ORDER_BUTTON']))
-{
-	$arParams['SHOW_ORDER_BUTTON'] = 'final_step';
-}
-
-$arParams['HIDE_ORDER_DESCRIPTION'] = isset($arParams['HIDE_ORDER_DESCRIPTION']) && $arParams['HIDE_ORDER_DESCRIPTION'] === 'Y' ? 'Y' : 'N';
-$arParams['SHOW_TOTAL_ORDER_BUTTON'] = $arParams['SHOW_TOTAL_ORDER_BUTTON'] === 'Y' ? 'Y' : 'N';
-$arParams['SHOW_PAY_SYSTEM_LIST_NAMES'] = $arParams['SHOW_PAY_SYSTEM_LIST_NAMES'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_PAY_SYSTEM_INFO_NAME'] = $arParams['SHOW_PAY_SYSTEM_INFO_NAME'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_DELIVERY_LIST_NAMES'] = $arParams['SHOW_DELIVERY_LIST_NAMES'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_DELIVERY_INFO_NAME'] = $arParams['SHOW_DELIVERY_INFO_NAME'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_DELIVERY_PARENT_NAMES'] = $arParams['SHOW_DELIVERY_PARENT_NAMES'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_STORES_IMAGES'] = $arParams['SHOW_STORES_IMAGES'] === 'N' ? 'N' : 'Y';
-
+$arParams['SHOW_ORDER_BUTTON'] = (string)($arParams['SHOW_ORDER_BUTTON'] ?? 'final_step');
+$arParams['SHOW_TOTAL_ORDER_BUTTON'] = ($arParams['SHOW_TOTAL_ORDER_BUTTON'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['SHOW_PAY_SYSTEM_LIST_NAMES'] = ($arParams['SHOW_PAY_SYSTEM_LIST_NAMES'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_PAY_SYSTEM_INFO_NAME'] = ($arParams['SHOW_PAY_SYSTEM_INFO_NAME'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_DELIVERY_LIST_NAMES'] = ($arParams['SHOW_DELIVERY_LIST_NAMES'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_DELIVERY_INFO_NAME'] = ($arParams['SHOW_DELIVERY_INFO_NAME'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_DELIVERY_PARENT_NAMES'] = ($arParams['SHOW_DELIVERY_PARENT_NAMES'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_STORES_IMAGES'] = ($arParams['SHOW_STORES_IMAGES'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SKIP_USELESS_BLOCK'] = ($arParams['SKIP_USELESS_BLOCK'] ?? 'Y') === 'N' ? 'N' : 'Y';
 if (!isset($arParams['BASKET_POSITION']) || !in_array($arParams['BASKET_POSITION'], array('before', 'after')))
 {
 	$arParams['BASKET_POSITION'] = 'after';
 }
-
-$arParams['EMPTY_BASKET_HINT_PATH'] = isset($arParams['EMPTY_BASKET_HINT_PATH']) ? (string)$arParams['EMPTY_BASKET_HINT_PATH'] : '/';
-$arParams['SHOW_BASKET_HEADERS'] = $arParams['SHOW_BASKET_HEADERS'] === 'Y' ? 'Y' : 'N';
-$arParams['HIDE_DETAIL_PAGE_URL'] = isset($arParams['HIDE_DETAIL_PAGE_URL']) && $arParams['HIDE_DETAIL_PAGE_URL'] === 'Y' ? 'Y' : 'N';
-$arParams['DELIVERY_FADE_EXTRA_SERVICES'] = $arParams['DELIVERY_FADE_EXTRA_SERVICES'] === 'Y' ? 'Y' : 'N';
-
-$arParams['SHOW_COUPONS'] = isset($arParams['SHOW_COUPONS']) && $arParams['SHOW_COUPONS'] === 'N' ? 'N' : 'Y';
-
+$arParams['SHOW_BASKET_HEADERS'] = ($arParams['SHOW_BASKET_HEADERS'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['DELIVERY_FADE_EXTRA_SERVICES'] = ($arParams['DELIVERY_FADE_EXTRA_SERVICES'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['SHOW_NEAREST_PICKUP'] = ($arParams['SHOW_NEAREST_PICKUP'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['DELIVERIES_PER_PAGE'] = (int)($arParams['DELIVERIES_PER_PAGE'] ?? 9);
+$arParams['PAY_SYSTEMS_PER_PAGE'] = (int)($arParams['PAY_SYSTEMS_PER_PAGE'] ?? 9);
+$arParams['PICKUPS_PER_PAGE'] = (int)($arParams['PICKUPS_PER_PAGE'] ?? 5);
+$arParams['SHOW_PICKUP_MAP'] = ($arParams['SHOW_PICKUP_MAP'] ?? 'Y') === 'N' ? 'N' : 'Y';
+$arParams['SHOW_MAP_IN_PROPS'] = ($arParams['SHOW_MAP_IN_PROPS'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['PICKUP_MAP_TYPE'] = (string)($arParams['PICKUP_MAP_TYPE'] ?? 'yandex');
+$arParams['HIDE_ORDER_DESCRIPTION'] = ($arParams['HIDE_ORDER_DESCRIPTION'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['ALLOW_USER_PROFILES'] = ($arParams['ALLOW_USER_PROFILES'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['ALLOW_NEW_PROFILE'] = ($arParams['ALLOW_NEW_PROFILE'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['SHOW_COUPONS'] = ($arParams['SHOW_COUPONS'] ?? 'Y') === 'N' ? 'N' : 'Y';
 if ($arParams['SHOW_COUPONS'] === 'N')
 {
 	$arParams['SHOW_COUPONS_BASKET'] = 'N';
@@ -72,21 +73,39 @@ if ($arParams['SHOW_COUPONS'] === 'N')
 }
 else
 {
-	$arParams['SHOW_COUPONS_BASKET'] = isset($arParams['SHOW_COUPONS_BASKET']) && $arParams['SHOW_COUPONS_BASKET'] === 'N' ? 'N' : 'Y';
-	$arParams['SHOW_COUPONS_DELIVERY'] = isset($arParams['SHOW_COUPONS_DELIVERY']) && $arParams['SHOW_COUPONS_DELIVERY'] === 'N' ? 'N' : 'Y';
-	$arParams['SHOW_COUPONS_PAY_SYSTEM'] = isset($arParams['SHOW_COUPONS_PAY_SYSTEM']) && $arParams['SHOW_COUPONS_PAY_SYSTEM'] === 'N' ? 'N' : 'Y';
+	$arParams['SHOW_COUPONS_BASKET'] = ($arParams['SHOW_COUPONS_BASKET'] ?? 'Y') === 'N' ? 'N' : 'Y';
+	$arParams['SHOW_COUPONS_DELIVERY'] = ($arParams['SHOW_COUPONS_DELIVERY'] ?? 'Y') === 'N' ? 'N' : 'Y';
+	$arParams['SHOW_COUPONS_PAY_SYSTEM'] = ($arParams['SHOW_COUPONS_PAY_SYSTEM'] ?? 'Y') === 'N' ? 'N' : 'Y';
 }
 
-$arParams['SHOW_NEAREST_PICKUP'] = $arParams['SHOW_NEAREST_PICKUP'] === 'Y' ? 'Y' : 'N';
-$arParams['DELIVERIES_PER_PAGE'] = isset($arParams['DELIVERIES_PER_PAGE']) ? intval($arParams['DELIVERIES_PER_PAGE']) : 9;
-$arParams['PAY_SYSTEMS_PER_PAGE'] = isset($arParams['PAY_SYSTEMS_PER_PAGE']) ? intval($arParams['PAY_SYSTEMS_PER_PAGE']) : 9;
-$arParams['PICKUPS_PER_PAGE'] = isset($arParams['PICKUPS_PER_PAGE']) ? intval($arParams['PICKUPS_PER_PAGE']) : 5;
-$arParams['SHOW_PICKUP_MAP'] = $arParams['SHOW_PICKUP_MAP'] === 'N' ? 'N' : 'Y';
-$arParams['SHOW_MAP_IN_PROPS'] = $arParams['SHOW_MAP_IN_PROPS'] === 'Y' ? 'Y' : 'N';
-$arParams['USE_YM_GOALS'] = $arParams['USE_YM_GOALS'] === 'Y' ? 'Y' : 'N';
-$arParams['USE_ENHANCED_ECOMMERCE'] = isset($arParams['USE_ENHANCED_ECOMMERCE']) && $arParams['USE_ENHANCED_ECOMMERCE'] === 'Y' ? 'Y' : 'N';
-$arParams['DATA_LAYER_NAME'] = isset($arParams['DATA_LAYER_NAME']) ? trim($arParams['DATA_LAYER_NAME']) : 'dataLayer';
-$arParams['BRAND_PROPERTY'] = isset($arParams['BRAND_PROPERTY']) ? trim($arParams['BRAND_PROPERTY']) : '';
+$arParams['USE_YM_GOALS'] = ($arParams['USE_YM_GOALS'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['YM_GOALS_COUNTER'] = (string)($arParams['YM_GOALS_COUNTER'] ?? '');
+$arParams['YM_GOALS_INITIALIZE'] = (string)($arParams['YM_GOALS_INITIALIZE'] ?? 'BX-order-init');
+$arParams['YM_GOALS_EDIT_REGION'] = (string)($arParams['YM_GOALS_EDIT_REGION'] ?? 'BX-region-edit');
+$arParams['YM_GOALS_EDIT_DELIVERY'] = (string)($arParams['YM_GOALS_EDIT_DELIVERY'] ?? 'BX-delivery-edit');
+$arParams['YM_GOALS_EDIT_PICKUP'] = (string)($arParams['YM_GOALS_EDIT_PICKUP'] ?? 'BX-pickUp-edit');
+$arParams['YM_GOALS_EDIT_PAY_SYSTEM'] = (string)($arParams['YM_GOALS_EDIT_PAY_SYSTEM'] ?? 'BX-paySystem-edit');
+$arParams['YM_GOALS_EDIT_PROPERTIES'] = (string)($arParams['YM_GOALS_EDIT_PROPERTIES'] ?? 'BX-properties-edit');
+$arParams['YM_GOALS_EDIT_BASKET'] = (string)($arParams['YM_GOALS_EDIT_BASKET'] ?? 'BX-basket-edit');
+$arParams['YM_GOALS_NEXT_REGION'] = (string)($arParams['YM_GOALS_NEXT_REGION'] ?? 'BX-region-next');
+$arParams['YM_GOALS_NEXT_DELIVERY'] = (string)($arParams['YM_GOALS_NEXT_DELIVERY'] ?? 'BX-delivery-next');
+$arParams['YM_GOALS_NEXT_PICKUP'] = (string)($arParams['YM_GOALS_NEXT_PICKUP'] ?? 'BX-pickUp-next');
+$arParams['YM_GOALS_NEXT_PAY_SYSTEM'] = (string)($arParams['YM_GOALS_NEXT_PAY_SYSTEM'] ?? 'BX-paySystem-next');
+$arParams['YM_GOALS_NEXT_PROPERTIES'] = (string)($arParams['YM_GOALS_NEXT_PROPERTIES'] ?? 'BX-properties-next');
+$arParams['YM_GOALS_NEXT_BASKET'] = (string)($arParams['YM_GOALS_NEXT_BASKET'] ?? 'BX-basket-next');
+$arParams['YM_GOALS_SAVE_ORDER'] = (string)($arParams['YM_GOALS_SAVE_ORDER'] ?? 'BX-order-save');
+
+$arParams['USE_ENHANCED_ECOMMERCE'] = ($arParams['USE_ENHANCED_ECOMMERCE'] ?? 'N') === 'Y' ? 'Y' : 'N';
+$arParams['DATA_LAYER_NAME'] = trim((string)($arParams['DATA_LAYER_NAME'] ?? 'dataLayer'));
+$arParams['BRAND_PROPERTY'] = trim((string)($arParams['BRAND_PROPERTY'] ?? ''));
+
+$arParams['SHOW_MAP_FOR_DELIVERIES'] ??= [];
+if (!is_array($arParams['SHOW_MAP_FOR_DELIVERIES']))
+{
+	$arParams['SHOW_MAP_FOR_DELIVERIES'] = [];
+}
+
+$arParams['HIDE_DETAIL_PAGE_URL'] = (string)($arParams['HIDE_DETAIL_PAGE_URL'] ?? 'N') === 'Y' ? 'Y' : 'N'; // Unknown parameter
 
 $useDefaultMessages = !isset($arParams['USE_CUSTOM_MAIN_MESSAGES']) || $arParams['USE_CUSTOM_MAIN_MESSAGES'] != 'Y';
 
@@ -309,9 +328,9 @@ $this->addExternalJs($templateFolder.'/script.js');
 	<NOSCRIPT>
 		<div style="color:red"><?=Loc::getMessage('SOA_NO_JS')?></div>
 	</NOSCRIPT>
-<?
+<?php
 
-if ($request->get('ORDER_ID') <> '')
+if ((string)$request->get('ORDER_ID') !== '')
 {
 	include(Main\Application::getDocumentRoot().$templateFolder.'/confirm.php');
 }
@@ -326,7 +345,7 @@ else
 	$hideDelivery = empty($arResult['DELIVERY']);
 	?>
 	<form action="<?=POST_FORM_ACTION_URI?>" method="POST" name="ORDER_FORM" id="bx-soa-order-form" enctype="multipart/form-data">
-		<?
+		<?php
 		echo bitrix_sessid_post();
 
 		if ($arResult['PREPAY_ADIT_FIELDS'] <> '')
@@ -357,7 +376,9 @@ else
 				<!--	DUPLICATE MOBILE ORDER SAVE BLOCK	-->
 				<div id="bx-soa-total-mobile" style="margin-bottom: 6px;"></div>
 
-				<? if ($arParams['BASKET_POSITION'] === 'before'): ?>
+				<?php
+				if ($arParams['BASKET_POSITION'] === 'before'):
+				?>
 					<!--	BASKET ITEMS BLOCK	-->
 					<div id="bx-soa-basket" data-visited="false" class="bx-soa-section bx-active">
 						<div class="bx-soa-section-title-container">
@@ -368,7 +389,9 @@ else
 						</div>
 						<div class="bx-soa-section-content container-fluid"></div>
 					</div>
-				<? endif ?>
+				<?php
+				endif;
+				?>
 
 				<!--	REGION BLOCK	-->
 				<div id="bx-soa-region" data-visited="false" class="bx-soa-section bx-active">
@@ -381,7 +404,9 @@ else
 					<div class="bx-soa-section-content container-fluid"></div>
 				</div>
 
-				<? if ($arParams['DELIVERY_TO_PAYSYSTEM'] === 'p2d'): ?>
+				<?php
+				if ($arParams['DELIVERY_TO_PAYSYSTEM'] === 'p2d'):
+				?>
 					<!--	PAY SYSTEMS BLOCK	-->
 					<div id="bx-soa-paysystem" data-visited="false" class="bx-soa-section bx-active">
 						<div class="bx-soa-section-title-container">
@@ -412,7 +437,9 @@ else
 						</div>
 						<div class="bx-soa-section-content container-fluid"></div>
 					</div>
-				<? else: ?>
+				<?php
+				else:
+				?>
 					<!--	DELIVERY BLOCK	-->
 					<div id="bx-soa-delivery" data-visited="false" class="bx-soa-section bx-active" <?=($hideDelivery ? 'style="display:none"' : '')?>>
 						<div class="bx-soa-section-title-container">
@@ -443,7 +470,9 @@ else
 						</div>
 						<div class="bx-soa-section-content container-fluid"></div>
 					</div>
-				<? endif ?>
+				<?php
+				endif;
+				?>
 				<!--	BUYER PROPS BLOCK	-->
 				<div id="bx-soa-properties" data-visited="false" class="bx-soa-section bx-active">
 					<div class="bx-soa-section-title-container">
@@ -455,7 +484,9 @@ else
 					<div class="bx-soa-section-content container-fluid"></div>
 				</div>
 
-				<? if ($arParams['BASKET_POSITION'] === 'after'): ?>
+				<?php
+				if ($arParams['BASKET_POSITION'] === 'after'):
+				?>
 					<!--	BASKET ITEMS BLOCK	-->
 					<div id="bx-soa-basket" data-visited="false" class="bx-soa-section bx-active">
 						<div class="bx-soa-section-title-container">
@@ -466,12 +497,14 @@ else
 						</div>
 						<div class="bx-soa-section-content container-fluid"></div>
 					</div>
-				<? endif ?>
+				<?php
+				endif;
+				?>
 
 				<!--	ORDER SAVE BLOCK	-->
 				<div id="bx-soa-orderSave">
 					<div class="checkbox">
-						<?
+						<?php
 						if ($arParams['USER_CONSENT'] === 'Y')
 						{
 							$APPLICATION->IncludeComponent(
@@ -484,7 +517,7 @@ else
 									'AUTO_SAVE' => 'N',
 									'SUBMIT_EVENT_NAME' => 'bx-soa-order-save',
 									'REPLACE' => array(
-										'button_caption' => isset($arParams['~MESS_ORDER']) ? $arParams['~MESS_ORDER'] : $arParams['MESS_ORDER'],
+										'button_caption' => $arParams['~MESS_ORDER'] ?? $arParams['MESS_ORDER'],
 										'fields' => $arResult['USER_CONSENT_PROPERTY_DATA']
 									)
 								)
@@ -520,7 +553,7 @@ else
 
 	<div id="bx-soa-saved-files" style="display:none"></div>
 	<div id="bx-soa-soc-auth-services" style="display:none">
-		<?
+		<?php
 		$arServices = false;
 		$arResult['ALLOW_SOCSERV_AUTHORIZATION'] = Main\Config\Option::get('main', 'allow_socserv_authorization', 'Y') != 'N' ? 'Y' : 'N';
 		$arResult['FOR_INTRANET'] = false;
@@ -532,7 +565,7 @@ else
 		{
 			$oAuthManager = new CSocServAuthManager();
 			$arServices = $oAuthManager->GetActiveAuthServices(array(
-				'BACKURL' => $this->arParams['~CURRENT_PAGE'],
+				'BACKURL' => $arParams['~CURRENT_PAGE'],
 				'FOR_INTRANET' => $arResult['FOR_INTRANET'],
 			));
 
@@ -555,7 +588,7 @@ else
 	</div>
 
 	<div style="display: none">
-		<?
+		<?php
 		// we need to have all styles for sale.location.selector.steps, but RestartBuffer() cuts off document head with styles in it
 		$APPLICATION->IncludeComponent(
 			'bitrix:sale.location.selector.steps',
@@ -571,7 +604,7 @@ else
 		);
 		?>
 	</div>
-	<?
+	<?php
 	$signer = new Main\Security\Sign\Signer;
 	$signedParams = $signer->sign(base64_encode(serialize($arParams)), 'sale.order.ajax');
 	$messages = Loc::loadLanguageFile(__FILE__);
@@ -618,24 +651,39 @@ else
 		});
 	</script>
 	<script>
-		<?
+		<?php
 		// spike: for children of cities we place this prompt
-		$city = \Bitrix\Sale\Location\TypeTable::getList(array('filter' => array('=CODE' => 'CITY'), 'select' => array('ID')))->fetch();
+		$city = \Bitrix\Sale\Location\TypeTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=CODE' => 'CITY',
+			],
+		]);
 		?>
-		BX.saleOrderAjax.init(<?=CUtil::PhpToJSObject(array(
+		BX.saleOrderAjax.init(<?=CUtil::PhpToJSObject([
 			'source' => $component->getPath().'/get.php',
-			'cityTypeId' => intval($city['ID']),
-			'messages' => array(
-				'otherLocation' => '--- '.Loc::getMessage('SOA_OTHER_LOCATION'),
-				'moreInfoLocation' => '--- '.Loc::getMessage('SOA_NOT_SELECTED_ALT'), // spike: for children of cities we place this prompt
-				'notFoundPrompt' => '<div class="-bx-popup-special-prompt">'.Loc::getMessage('SOA_LOCATION_NOT_FOUND').'.<br />'.Loc::getMessage('SOA_LOCATION_NOT_FOUND_PROMPT', array(
-						'#ANCHOR#' => '<a href="javascript:void(0)" class="-bx-popup-set-mode-add-loc">',
-						'#ANCHOR_END#' => '</a>'
-					)).'</div>'
-			)
-		))?>);
+			'cityTypeId' => (int)($city['ID'] ?? 0),
+			'messages' => [
+				'otherLocation' => '--- ' . Loc::getMessage('SOA_OTHER_LOCATION'),
+				'moreInfoLocation' => '--- ' . Loc::getMessage('SOA_NOT_SELECTED_ALT'), // spike: for children of cities we place this prompt
+				'notFoundPrompt' =>
+					'<div class="-bx-popup-special-prompt">'
+					. Loc::getMessage('SOA_LOCATION_NOT_FOUND') . '.<br />'
+					. Loc::getMessage(
+						'SOA_LOCATION_NOT_FOUND_PROMPT',
+						[
+							'#ANCHOR#' => '<a href="javascript:void(0)" class="-bx-popup-set-mode-add-loc">',
+							'#ANCHOR_END#' => '</a>',
+						]
+					)
+					. '</div>'
+				,
+			],
+		]); ?>);
 	</script>
-	<?
+	<?php
 	if ($arParams['SHOW_PICKUP_MAP'] === 'Y' || $arParams['SHOW_MAP_IN_PROPS'] === 'Y')
 	{
 		if ($arParams['PICKUP_MAP_TYPE'] === 'yandex')
@@ -652,7 +700,7 @@ else
 						setTimeout(bx_ymaps_waiter, 100);
 				})();
 			</script>
-			<?
+			<?php
 		}
 
 		if ($arParams['PICKUP_MAP_TYPE'] === 'google')
@@ -672,7 +720,7 @@ else
 						setTimeout(bx_gmaps_waiter, 100);
 				}
 			</script>
-			<?
+			<?php
 		}
 	}
 
@@ -691,6 +739,6 @@ else
 					setTimeout(function(){bx_counter_waiter(++i)}, 100);
 			})();
 		</script>
-		<?
+		<?php
 	}
 }

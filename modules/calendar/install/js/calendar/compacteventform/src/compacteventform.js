@@ -1258,16 +1258,31 @@ export class CompactEventForm extends EventEmitter
 				return false;
 			}
 
+			if (this.entry.permissions)
+			{
+				return this.entry.permissions?.['edit'];
+			}
+
 			return section.canDo('edit');
 		}
 
 		if (action === 'view')
 		{
+			if (this.entry.permissions)
+			{
+				return this.entry.permissions?.['view_time'];
+			}
+
 			return section.canDo('view_time');
 		}
 
 		if (action === 'viewFull')
 		{
+			if (this.entry.permissions)
+			{
+				return this.entry.permissions?.['view_full'];
+			}
+
 			return section.canDo('view_full');
 		}
 

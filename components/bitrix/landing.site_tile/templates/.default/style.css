@@ -929,6 +929,7 @@
 	        transform: translateX(-50%);
 }
 
+.landing-sites__popup-container.--not-published,
 .landing-sites__popup-container.--qr {
 	-webkit-transform: translateX(0);
 	    -ms-transform: translateX(0);
@@ -1821,6 +1822,7 @@
 	        box-sizing: border-box;
 	background-color: var(--white_alpha_90);
 	margin-bottom: 12px;
+	margin-right: -10px;
 }
 
 .landing-sites__grid-empty--info-block-title {

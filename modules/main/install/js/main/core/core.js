@@ -5818,29 +5818,23 @@ window._main_polyfill_core = true;
 	'use strict';
 
 	var bxTmp = window.BX;
-
 	window.BX = function (node) {
 	  if (window.BX.type.isNotEmptyString(node)) {
 	    return document.getElementById(node);
 	  }
-
 	  if (window.BX.type.isDomNode(node)) {
 	    return node;
 	  }
-
 	  if (window.BX.type.isFunction(node)) {
 	    return window.BX.ready(node);
 	  }
-
 	  return null;
 	};
-
 	if (bxTmp) {
 	  Object.keys(bxTmp).forEach(key => {
 	    window.BX[key] = bxTmp[key];
 	  });
 	}
-
 	exports = window.BX;
 
 	/**
@@ -5853,18 +5847,16 @@ window._main_polyfill_core = true;
 	}
 
 	const objectCtorString = Function.prototype.toString.call(Object);
+
 	/**
 	 * @memberOf BX
 	 */
-
 	let Type = /*#__PURE__*/function () {
 	  function Type() {
 	    babelHelpers.classCallCheck(this, Type);
 	  }
-
 	  babelHelpers.createClass(Type, null, [{
 	    key: "isString",
-
 	    /**
 	     * Checks that value is string
 	     * @param value
@@ -5878,7 +5870,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isStringFilled",
 	    value: function isStringFilled(value) {
@@ -5889,7 +5880,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isFunction",
 	    value: function isFunction(value) {
@@ -5900,7 +5890,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isObject",
 	    value: function isObject(value) {
@@ -5911,7 +5900,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isObjectLike",
 	    value: function isObjectLike(value) {
@@ -5922,20 +5910,16 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isPlainObject",
 	    value: function isPlainObject(value) {
 	      if (!Type.isObjectLike(value) || getTag(value) !== '[object Object]') {
 	        return false;
 	      }
-
 	      const proto = Object.getPrototypeOf(value);
-
 	      if (proto === null) {
 	        return true;
 	      }
-
 	      const ctor = proto.hasOwnProperty('constructor') && proto.constructor;
 	      return typeof ctor === 'function' && Function.prototype.toString.call(ctor) === objectCtorString;
 	    }
@@ -5944,7 +5928,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isBoolean",
 	    value: function isBoolean(value) {
@@ -5955,7 +5938,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isNumber",
 	    value: function isNumber(value) {
@@ -5966,7 +5948,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isInteger",
 	    value: function isInteger(value) {
@@ -5977,7 +5958,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isFloat",
 	    value: function isFloat(value) {
@@ -5988,7 +5968,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isNil",
 	    value: function isNil(value) {
@@ -5999,7 +5978,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isArray",
 	    value: function isArray(value) {
@@ -6010,7 +5988,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isArrayFilled",
 	    value: function isArrayFilled(value) {
@@ -6021,7 +5998,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isArrayLike",
 	    value: function isArrayLike(value) {
@@ -6032,7 +6008,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isDate",
 	    value: function isDate(value) {
@@ -6043,7 +6018,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isDomNode",
 	    value: function isDomNode(value) {
@@ -6054,7 +6028,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isElementNode",
 	    value: function isElementNode(value) {
@@ -6065,7 +6038,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isTextNode",
 	    value: function isTextNode(value) {
@@ -6076,7 +6048,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isMap",
 	    value: function isMap(value) {
@@ -6087,7 +6058,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isSet",
 	    value: function isSet(value) {
@@ -6098,7 +6068,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isWeakMap",
 	    value: function isWeakMap(value) {
@@ -6109,7 +6078,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isWeakSet",
 	    value: function isWeakSet(value) {
@@ -6120,7 +6088,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isPrototype",
 	    value: function isPrototype(value) {
@@ -6131,7 +6098,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isRegExp",
 	    value: function isRegExp(value) {
@@ -6142,7 +6108,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isNull",
 	    value: function isNull(value) {
@@ -6153,7 +6118,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isUndefined",
 	    value: function isUndefined(value) {
@@ -6164,7 +6128,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isArrayBuffer",
 	    value: function isArrayBuffer(value) {
@@ -6175,7 +6138,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isTypedArray",
 	    value: function isTypedArray(value) {
@@ -6187,7 +6149,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isBlob",
 	    value: function isBlob(value) {
@@ -6198,7 +6159,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isFile",
 	    value: function isFile(value) {
@@ -6209,7 +6169,6 @@ window._main_polyfill_core = true;
 	     * @param value
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isFormData",
 	    value: function isFormData(value) {
@@ -6222,15 +6181,12 @@ window._main_polyfill_core = true;
 	/**
 	 * @memberOf BX
 	 */
-
 	let Reflection = /*#__PURE__*/function () {
 	  function Reflection() {
 	    babelHelpers.classCallCheck(this, Reflection);
 	  }
-
 	  babelHelpers.createClass(Reflection, null, [{
 	    key: "getClass",
-
 	    /**
 	     * Gets link to function by function name
 	     * @param className
@@ -6241,25 +6197,19 @@ window._main_polyfill_core = true;
 	        let classFn = null;
 	        let currentNamespace = window;
 	        const namespaces = className.split('.');
-
 	        for (let i = 0; i < namespaces.length; i += 1) {
 	          const namespace = namespaces[i];
-
 	          if (!currentNamespace[namespace]) {
 	            return null;
 	          }
-
 	          currentNamespace = currentNamespace[namespace];
 	          classFn = currentNamespace;
 	        }
-
 	        return classFn;
 	      }
-
 	      if (Type.isFunction(className)) {
 	        return className;
 	      }
-
 	      return null;
 	    }
 	    /**
@@ -6267,25 +6217,20 @@ window._main_polyfill_core = true;
 	     * @param {String} namespaceName
 	     * @return {Object<string, any> | Function | null}
 	     */
-
 	  }, {
 	    key: "namespace",
 	    value: function namespace(namespaceName) {
 	      let parts = namespaceName.split('.');
 	      let parent = window.BX;
-
 	      if (parts[0] === 'BX') {
 	        parts = parts.slice(1);
 	      }
-
 	      for (let i = 0; i < parts.length; i += 1) {
 	        if (Type.isUndefined(parent[parts[i]])) {
 	          parent[parts[i]] = {};
 	        }
-
 	        parent = parent[parts[i]];
 	      }
-
 	      return parent;
 	    }
 	  }]);
@@ -6313,18 +6258,16 @@ window._main_polyfill_core = true;
 	  '&quot;': '"',
 	  '&#34;': '"'
 	};
+
 	/**
 	 * @memberOf BX
 	 */
-
 	let Text = /*#__PURE__*/function () {
 	  function Text() {
 	    babelHelpers.classCallCheck(this, Text);
 	  }
-
 	  babelHelpers.createClass(Text, null, [{
 	    key: "encode",
-
 	    /**
 	     * Encodes all unsafe entities
 	     * @param {string} value
@@ -6334,7 +6277,6 @@ window._main_polyfill_core = true;
 	      if (Type.isString(value)) {
 	        return value.replace(reEscape, item => escapeEntities[item]);
 	      }
-
 	      return value;
 	    }
 	    /**
@@ -6342,14 +6284,12 @@ window._main_polyfill_core = true;
 	     * @param {string} value
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "decode",
 	    value: function decode(value) {
 	      if (Type.isString(value)) {
 	        return value.replace(reUnescape, item => unescapeEntities[item]);
 	      }
-
 	      return value;
 	    }
 	  }, {
@@ -6362,11 +6302,9 @@ window._main_polyfill_core = true;
 	    key: "toNumber",
 	    value: function toNumber(value) {
 	      const parsedValue = Number.parseFloat(value);
-
 	      if (Type.isNumber(parsedValue)) {
 	        return parsedValue;
 	      }
-
 	      return 0;
 	    }
 	  }, {
@@ -6386,13 +6324,10 @@ window._main_polyfill_core = true;
 	      if (!Type.isStringFilled(str)) {
 	        return str;
 	      }
-
 	      const regex = /[-_\s]+(.)?/g;
-
 	      if (!regex.test(str)) {
 	        return str.match(/^[A-Z]+$/) ? str.toLowerCase() : str[0].toLowerCase() + str.slice(1);
 	      }
-
 	      str = str.toLowerCase();
 	      str = str.replace(regex, function (match, letter) {
 	        return letter ? letter.toUpperCase() : '';
@@ -6405,7 +6340,6 @@ window._main_polyfill_core = true;
 	      if (!Type.isStringFilled(str)) {
 	        return str;
 	      }
-
 	      return this.capitalize(this.toCamelCase(str));
 	    }
 	  }, {
@@ -6414,13 +6348,10 @@ window._main_polyfill_core = true;
 	      if (!Type.isStringFilled(str)) {
 	        return str;
 	      }
-
 	      const matches = str.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g);
-
 	      if (!matches) {
 	        return str;
 	      }
-
 	      return matches.map(x => x.toLowerCase()).join('-');
 	    }
 	  }, {
@@ -6429,7 +6360,6 @@ window._main_polyfill_core = true;
 	      if (!Type.isStringFilled(str)) {
 	        return str;
 	      }
-
 	      return str[0].toUpperCase() + str.substr(1);
 	    }
 	  }]);
@@ -6450,16 +6380,13 @@ window._main_polyfill_core = true;
 	    babelHelpers.classCallCheck(this, Registry);
 	    babelHelpers.defineProperty(this, "registry", new WeakMap());
 	  }
-
 	  babelHelpers.createClass(Registry, [{
 	    key: "set",
 	    value: function set(target, event, listener) {
 	      const events = this.get(target);
-
 	      if (!Type.isSet(events[event])) {
 	        events[event] = new Set();
 	      }
-
 	      events[event].add(listener);
 	      this.registry.set(target, events);
 	    }
@@ -6474,7 +6401,6 @@ window._main_polyfill_core = true;
 	      if (event && listener) {
 	        return this.registry.has(target) && this.registry.get(target)[event].has(listener);
 	      }
-
 	      return this.registry.has(target);
 	    }
 	  }, {
@@ -6483,27 +6409,20 @@ window._main_polyfill_core = true;
 	      if (!Type.isDomNode(target)) {
 	        return;
 	      }
-
 	      if (Type.isString(event) && Type.isFunction(listener)) {
 	        const events = this.registry.get(target);
-
 	        if (Type.isPlainObject(events) && Type.isSet(events[event])) {
 	          events[event].delete(listener);
 	        }
-
 	        return;
 	      }
-
 	      if (Type.isString(event)) {
 	        const events = this.registry.get(target);
-
 	        if (Type.isPlainObject(events) && Type.isSet(events[event])) {
 	          events[event] = new Set();
 	        }
-
 	        return;
 	      }
-
 	      this.registry.delete(target);
 	    }
 	  }]);
@@ -6513,32 +6432,27 @@ window._main_polyfill_core = true;
 
 	function isOptionSupported(name) {
 	  let isSupported = false;
-
 	  try {
 	    const options = Object.defineProperty({}, name, {
 	      get() {
 	        isSupported = true;
 	        return undefined;
 	      }
-
 	    });
 	    window.addEventListener('test', null, options);
-	  } // eslint-disable-next-line
+	  }
+	  // eslint-disable-next-line
 	  catch (err) {}
-
 	  return isSupported;
 	}
-
 	function fetchSupportedListenerOptions(options) {
 	  if (!Type.isPlainObject(options)) {
 	    return options;
 	  }
-
 	  return Object.keys(options).reduce((acc, name) => {
 	    if (isOptionSupported(name)) {
 	      acc[name] = options[name];
 	    }
-
 	    return acc;
 	  }, {});
 	}
@@ -6547,9 +6461,7 @@ window._main_polyfill_core = true;
 	  if (!Type.isObject(target) || !Type.isFunction(target.addEventListener)) {
 	    return;
 	  }
-
 	  const listenerOptions = fetchSupportedListenerOptions(options);
-
 	  if (eventName in aliases) {
 	    aliases[eventName].forEach(key => {
 	      target.addEventListener(key, handler, listenerOptions);
@@ -6557,7 +6469,6 @@ window._main_polyfill_core = true;
 	    });
 	    return;
 	  }
-
 	  target.addEventListener(eventName, handler, listenerOptions);
 	  registry.set(target, eventName, handler);
 	}
@@ -6566,9 +6477,7 @@ window._main_polyfill_core = true;
 	  if (!Type.isObject(target) || !Type.isFunction(target.removeEventListener)) {
 	    return;
 	  }
-
 	  const listenerOptions = fetchSupportedListenerOptions(options);
-
 	  if (eventName in aliases) {
 	    aliases[eventName].forEach(key => {
 	      target.removeEventListener(key, handler, listenerOptions);
@@ -6576,7 +6485,6 @@ window._main_polyfill_core = true;
 	    });
 	    return;
 	  }
-
 	  target.removeEventListener(eventName, handler, listenerOptions);
 	  registry.delete(target, eventName, handler);
 	}
@@ -6597,10 +6505,10 @@ window._main_polyfill_core = true;
 	    unbind(target, eventName, once, options);
 	    handler(...args);
 	  };
-
 	  bind(target, eventName, once, options);
 	}
 
+	// eslint-disable-next-line
 	let debugState = true;
 	function enableDebug() {
 	  debugState = true;
@@ -6615,12 +6523,10 @@ window._main_polyfill_core = true;
 	  if (isDebugEnabled() && Type.isObject(window.console)) {
 	    if (Type.isFunction(window.console.log)) {
 	      window.console.log('BX.debug: ', args.length > 0 ? args : args[0]);
-
 	      if (args[0] instanceof Error && args[0].stack) {
 	        window.console.log('BX.debug error stack trace', args[0].stack);
 	      }
 	    }
-
 	    if (Type.isFunction(window.console.trace)) {
 	      // eslint-disable-next-line
 	      console.trace();
@@ -6639,7 +6545,6 @@ window._main_polyfill_core = true;
 	function fetchExtensionSettings(html) {
 	  if (Type.isStringFilled(html)) {
 	    const scripts = html.match(/<script type="extension\/settings" \b[^>]*>([\s\S]*?)<\/script>/g);
-
 	    if (Type.isArrayFilled(scripts)) {
 	      return scripts.map(script => {
 	        const [, extension] = script.match(/data-extension="(.[a-z0-9_.-]+)"/);
@@ -6650,7 +6555,6 @@ window._main_polyfill_core = true;
 	      });
 	    }
 	  }
-
 	  return [];
 	}
 
@@ -6659,15 +6563,15 @@ window._main_polyfill_core = true;
 	    babelHelpers.classCallCheck(this, Extension);
 	    this.config = options.config || {};
 	    this.name = options.extension;
-	    this.state = 'scheduled'; // eslint-disable-next-line
+	    this.state = 'scheduled';
 
+	    // eslint-disable-next-line
 	    const result = BX.processHTML(options.html || '');
 	    this.inlineScripts = result.SCRIPT.reduce(inlineScripts, []);
 	    this.externalScripts = result.SCRIPT.reduce(externalScripts, []);
 	    this.externalStyles = result.STYLE.reduce(externalStyles, []);
 	    this.settingsScripts = fetchExtensionSettings(result.HTML);
 	  }
-
 	  babelHelpers.createClass(Extension, [{
 	    key: "load",
 	    value: function load() {
@@ -6675,12 +6579,10 @@ window._main_polyfill_core = true;
 	        this.loadPromise = this.loadPromise || Promise.resolve(this);
 	        console.warn('Extension', this.name, 'not found');
 	      }
-
 	      if (!this.loadPromise && this.state) {
 	        this.state = 'load';
 	        this.settingsScripts.forEach(entry => {
 	          const isLoaded = !!document.querySelector(`script[data-extension="${entry.extension}"]`);
-
 	          if (!isLoaded) {
 	            document.body.insertAdjacentHTML('beforeend', entry.script);
 	          }
@@ -6688,15 +6590,12 @@ window._main_polyfill_core = true;
 	        this.inlineScripts.forEach(BX.evalGlobal);
 	        this.loadPromise = Promise.all([loadAll(this.externalScripts), loadAll(this.externalStyles)]).then(() => {
 	          this.state = 'loaded';
-
 	          if (Type.isPlainObject(this.config) && this.config.namespace) {
 	            return Reflection.getClass(this.config.namespace);
 	          }
-
 	          return window;
 	        });
 	      }
-
 	      return this.loadPromise;
 	    }
 	  }]);
@@ -6724,10 +6623,10 @@ window._main_polyfill_core = true;
 	function mergeExports(exports) {
 	  return exports.reduce((acc, currentExports) => {
 	    if (Type.isObject(currentExports)) {
-	      return { ...currentExports
+	      return {
+	        ...currentExports
 	      };
 	    }
-
 	    return currentExports;
 	  }, {});
 	}
@@ -6735,21 +6634,18 @@ window._main_polyfill_core = true;
 	  if (item.isInternal) {
 	    acc.push(item.JS);
 	  }
-
 	  return acc;
 	}
 	function externalScripts(acc, item) {
 	  if (!item.isInternal) {
 	    acc.push(item.JS);
 	  }
-
 	  return acc;
 	}
 	function externalStyles(acc, item) {
 	  if (Type.isString(item) && item !== '') {
 	    acc.push(item);
 	  }
-
 	  return acc;
 	}
 	function request(options) {
@@ -6765,25 +6661,20 @@ window._main_polyfill_core = true;
 	    response.errors.map(console.warn);
 	    return [];
 	  }
-
 	  return response.data.map(item => {
 	    const initializedExtension = getInitialized(item.extension);
-
 	    if (initializedExtension) {
 	      return initializedExtension;
 	    }
-
 	    initialized[item.extension] = new Extension(item);
 	    return initialized[item.extension];
 	  });
 	}
 	function loadAll(items) {
 	  const itemsList = makeIterable(items);
-
 	  if (!itemsList.length) {
 	    return Promise.resolve();
 	  }
-
 	  return new Promise(resolve => {
 	    // eslint-disable-next-line
 	    BX.load(itemsList, resolve);
@@ -6798,29 +6689,24 @@ window._main_polyfill_core = true;
 	function loadExtension(extension) {
 	  const extensions = makeIterable(extension);
 	  const isAllInitialized$$1 = isAllInitialized(extensions);
-
 	  if (isAllInitialized$$1) {
 	    const initializedExtensions = extensions.map(getInitialized);
 	    return loadExtensions(initializedExtensions).then(mergeExports);
 	  }
-
 	  return request({
 	    extension: extensions
 	  }).then(prepareExtensions).then(loadExtensions).then(mergeExports);
 	}
 
 	const cloneableTags = ['[object Object]', '[object Array]', '[object RegExp]', '[object Arguments]', '[object Date]', '[object Error]', '[object Map]', '[object Set]', '[object ArrayBuffer]', '[object DataView]', '[object Float32Array]', '[object Float64Array]', '[object Int8Array]', '[object Int16Array]', '[object Int32Array]', '[object Uint8Array]', '[object Uint16Array]', '[object Uint32Array]', '[object Uint8ClampedArray]'];
-
 	function isCloneable(value) {
 	  const isCloneableValue = Type.isObjectLike(value) && cloneableTags.includes(getTag(value));
 	  return isCloneableValue || Type.isDomNode(value);
 	}
-
 	function internalClone(value, map) {
 	  if (map.has(value)) {
 	    return map.get(value);
 	  }
-
 	  if (isCloneable(value)) {
 	    if (Type.isArray(value)) {
 	      const cloned = Array.from(value);
@@ -6830,11 +6716,9 @@ window._main_polyfill_core = true;
 	      });
 	      return map.get(value);
 	    }
-
 	    if (Type.isDomNode(value)) {
 	      return value.cloneNode(true);
 	    }
-
 	    if (Type.isMap(value)) {
 	      const result = new Map();
 	      map.set(value, result);
@@ -6843,7 +6727,6 @@ window._main_polyfill_core = true;
 	      });
 	      return result;
 	    }
-
 	    if (Type.isSet(value)) {
 	      const result = new Set();
 	      map.set(value, result);
@@ -6852,24 +6735,19 @@ window._main_polyfill_core = true;
 	      });
 	      return result;
 	    }
-
 	    if (Type.isDate(value)) {
 	      return new Date(value);
 	    }
-
 	    if (Type.isRegExp(value)) {
 	      const regExpFlags = /\w*$/;
 	      const flags = regExpFlags.exec(value);
 	      let result = new RegExp(value.source);
-
 	      if (flags && Type.isArray(flags)) {
 	        result = new RegExp(value.source, flags[0]);
 	      }
-
 	      result.lastIndex = value.lastIndex;
 	      return result;
 	    }
-
 	    const proto = Object.getPrototypeOf(value);
 	    const result = Object.assign(Object.create(proto), value);
 	    map.set(value, result);
@@ -6878,15 +6756,14 @@ window._main_polyfill_core = true;
 	    });
 	    return result;
 	  }
-
 	  return value;
 	}
+
 	/**
 	 * Clones any cloneable object
 	 * @param value
 	 * @return {*}
 	 */
-
 	function clone(value) {
 	  return internalClone(value, new WeakMap());
 	}
@@ -6897,7 +6774,6 @@ window._main_polyfill_core = true;
 	      acc[key] = merge(acc[key], value);
 	      return acc;
 	    }
-
 	    acc[key] = value;
 	    return acc;
 	  }, current);
@@ -6907,27 +6783,21 @@ window._main_polyfill_core = true;
 	  return (a, b) => {
 	    const field = fields[0];
 	    const order = orders[0] || 'asc';
-
 	    if (Type.isUndefined(field)) {
 	      return 0;
 	    }
-
 	    let valueA = a[field];
 	    let valueB = b[field];
-
 	    if (Type.isString(valueA) && Type.isString(valueB)) {
 	      valueA = valueA.toLowerCase();
 	      valueB = valueB.toLowerCase();
 	    }
-
 	    if (valueA < valueB) {
 	      return order === 'asc' ? -1 : 1;
 	    }
-
 	    if (valueA > valueB) {
 	      return order === 'asc' ? 1 : -1;
 	    }
-
 	    return createComparator(fields.slice(1), orders.slice(1))(a, b);
 	  };
 	}
@@ -6935,12 +6805,10 @@ window._main_polyfill_core = true;
 	/**
 	 * @memberOf BX
 	 */
-
 	let Runtime = /*#__PURE__*/function () {
 	  function Runtime() {
 	    babelHelpers.classCallCheck(this, Runtime);
 	  }
-
 	  babelHelpers.createClass(Runtime, null, [{
 	    key: "debounce",
 	    value: function debounce(func, wait = 0, context = null) {
@@ -6949,7 +6817,6 @@ window._main_polyfill_core = true;
 	        if (Type.isNumber(timeoutId)) {
 	          clearTimeout(timeoutId);
 	        }
-
 	        timeoutId = setTimeout(() => {
 	          func.apply(context || this, args);
 	        }, wait);
@@ -6962,7 +6829,6 @@ window._main_polyfill_core = true;
 	      let invoke;
 	      return function wrapper(...args) {
 	        invoke = true;
-
 	        if (!timer) {
 	          const q = function q() {
 	            if (invoke) {
@@ -6973,7 +6839,6 @@ window._main_polyfill_core = true;
 	              timer = null;
 	            }
 	          };
-
 	          q();
 	        }
 	      };
@@ -6983,14 +6848,13 @@ window._main_polyfill_core = true;
 	    value: function html(node, _html, params = {}) {
 	      if (Type.isNil(_html) && Type.isDomNode(node)) {
 	        return node.innerHTML;
-	      } // eslint-disable-next-line
+	      }
 
-
+	      // eslint-disable-next-line
 	      const parsedHtml = BX.processHTML(_html);
 	      const externalCss = parsedHtml.STYLE.reduce(externalStyles, []);
 	      const externalJs = parsedHtml.SCRIPT.reduce(externalScripts, []);
 	      const inlineJs = parsedHtml.SCRIPT.reduce(inlineScripts, []);
-
 	      if (Type.isDomNode(node)) {
 	        if (params.htmlFirst || !externalJs.length && !externalCss.length) {
 	          if (params.useAdjacentHTML) {
@@ -7000,7 +6864,6 @@ window._main_polyfill_core = true;
 	          }
 	        }
 	      }
-
 	      return Promise.all([loadAll(externalJs), loadAll(externalCss)]).then(() => {
 	        if (Type.isDomNode(node) && (externalJs.length > 0 || externalCss.length > 0)) {
 	          if (params.useAdjacentHTML) {
@@ -7008,11 +6871,10 @@ window._main_polyfill_core = true;
 	          } else {
 	            node.innerHTML = parsedHtml.HTML;
 	          }
-	        } // eslint-disable-next-line
+	        }
 
-
+	        // eslint-disable-next-line
 	        inlineJs.forEach(script => BX.evalGlobal(script));
-
 	        if (Type.isFunction(params.callback)) {
 	          params.callback();
 	        }
@@ -7023,7 +6885,6 @@ window._main_polyfill_core = true;
 	     * @param targets
 	     * @return {any}
 	     */
-
 	  }, {
 	    key: "merge",
 	    value: function merge$$1(...targets) {
@@ -7032,7 +6893,6 @@ window._main_polyfill_core = true;
 	      } else if (Type.isObject(targets[0])) {
 	        targets.unshift({});
 	      }
-
 	      return targets.reduce((acc, item) => {
 	        return merge(acc, item);
 	      }, targets[0]);
@@ -7050,19 +6910,14 @@ window._main_polyfill_core = true;
 	        const onPropertyAccess = () => {
 	          throw new Error(errorMessage);
 	        };
-
 	        const ownProperties = Object.keys(target);
-
 	        const prototypeProperties = (() => {
 	          const targetPrototype = Object.getPrototypeOf(target);
-
 	          if (Type.isObject(targetPrototype)) {
 	            return Object.getOwnPropertyNames(targetPrototype);
 	          }
-
 	          return [];
 	        })();
-
 	        const uniquePropertiesList = [...new Set([...ownProperties, ...prototypeProperties])];
 	        uniquePropertiesList.filter(name => {
 	          const descriptor = Object.getOwnPropertyDescriptor(target, name);
@@ -7080,17 +6935,15 @@ window._main_polyfill_core = true;
 	  }]);
 	  return Runtime;
 	}();
-
 	babelHelpers.defineProperty(Runtime, "debug", debug);
 	babelHelpers.defineProperty(Runtime, "loadExtension", loadExtension);
 	babelHelpers.defineProperty(Runtime, "clone", clone);
 
 	const _isError = Symbol.for('BX.BaseError.isError');
+
 	/**
 	 * @memberOf BX
 	 */
-
-
 	let BaseError = /*#__PURE__*/function () {
 	  function BaseError(message, code, customData) {
 	    babelHelpers.classCallCheck(this, BaseError);
@@ -7102,12 +6955,11 @@ window._main_polyfill_core = true;
 	    this.setCode(code);
 	    this.setCustomData(customData);
 	  }
+
 	  /**
 	   * Returns a brief description of the error
 	   * @returns {string}
 	   */
-
-
 	  babelHelpers.createClass(BaseError, [{
 	    key: "getMessage",
 	    value: function getMessage() {
@@ -7118,21 +6970,18 @@ window._main_polyfill_core = true;
 	     * @param {string} message
 	     * @returns {this}
 	     */
-
 	  }, {
 	    key: "setMessage",
 	    value: function setMessage(message) {
 	      if (Type.isString(message)) {
 	        this.message = message;
 	      }
-
 	      return this;
 	    }
 	    /**
 	     * Returns a code of the error
 	     * @returns {?string}
 	     */
-
 	  }, {
 	    key: "getCode",
 	    value: function getCode() {
@@ -7143,21 +6992,18 @@ window._main_polyfill_core = true;
 	     * @param {string} code
 	     * @returns {this}
 	     */
-
 	  }, {
 	    key: "setCode",
 	    value: function setCode(code) {
 	      if (Type.isStringFilled(code) || code === null) {
 	        this.code = code;
 	      }
-
 	      return this;
 	    }
 	    /**
 	     * Returns custom data of the error
 	     * @returns {null|*}
 	     */
-
 	  }, {
 	    key: "getCustomData",
 	    value: function getCustomData() {
@@ -7167,14 +7013,12 @@ window._main_polyfill_core = true;
 	     * Sets custom data of the error
 	     * @returns {this}
 	     */
-
 	  }, {
 	    key: "setCustomData",
 	    value: function setCustomData(customData) {
 	      if (!Type.isUndefined(customData)) {
 	        this.customData = customData;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -7182,7 +7026,6 @@ window._main_polyfill_core = true;
 	    value: function toString() {
 	      const code = this.getCode();
 	      const message = this.getMessage();
-
 	      if (!Type.isStringFilled(code) && !Type.isStringFilled(message)) {
 	        return '';
 	      } else if (!Type.isStringFilled(code)) {
@@ -7198,7 +7041,6 @@ window._main_polyfill_core = true;
 	     * @param error
 	     * @returns {boolean}
 	     */
-
 	  }], [{
 	    key: "isError",
 	    value: function isError(error) {
@@ -7211,7 +7053,6 @@ window._main_polyfill_core = true;
 	/**
 	 * Implements base event object interface
 	 */
-
 	let BaseEvent = /*#__PURE__*/function () {
 	  function BaseEvent(options = {
 	    data: {}
@@ -7227,10 +7068,8 @@ window._main_polyfill_core = true;
 	    this.setData(options.data);
 	    this.setCompatData(options.compatData);
 	  }
-
 	  babelHelpers.createClass(BaseEvent, [{
 	    key: "getType",
-
 	    /**
 	     * Returns the name of the event
 	     * @returns {string}
@@ -7242,20 +7081,17 @@ window._main_polyfill_core = true;
 	     *
 	     * @param {string} type
 	     */
-
 	  }, {
 	    key: "setType",
 	    value: function setType(type) {
 	      if (Type.isStringFilled(type)) {
 	        this.type = type;
 	      }
-
 	      return this;
 	    }
 	    /**
 	     * Returns an event data
 	     */
-
 	  }, {
 	    key: "getData",
 	    value: function getData() {
@@ -7265,21 +7101,18 @@ window._main_polyfill_core = true;
 	     * Sets an event data
 	     * @param data
 	     */
-
 	  }, {
 	    key: "setData",
 	    value: function setData(data) {
 	      if (!Type.isUndefined(data)) {
 	        this.data = data;
 	      }
-
 	      return this;
 	    }
 	    /**
 	     * Returns arguments for BX.addCustomEvent handlers (deprecated).
 	     * @returns {array | null}
 	     */
-
 	  }, {
 	    key: "getCompatData",
 	    value: function getCompatData() {
@@ -7289,21 +7122,18 @@ window._main_polyfill_core = true;
 	     * Sets arguments for BX.addCustomEvent handlers (deprecated)
 	     * @param data
 	     */
-
 	  }, {
 	    key: "setCompatData",
 	    value: function setCompatData(data) {
 	      if (Type.isArrayLike(data)) {
 	        this.compatData = data;
 	      }
-
 	      return this;
 	    }
 	    /**
 	     * Sets a event target
 	     * @param target
 	     */
-
 	  }, {
 	    key: "setTarget",
 	    value: function setTarget(target) {
@@ -7313,7 +7143,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Returns a event target
 	     */
-
 	  }, {
 	    key: "getTarget",
 	    value: function getTarget() {
@@ -7323,7 +7152,6 @@ window._main_polyfill_core = true;
 	     * Returns an array of event errors
 	     * @returns {[]}
 	     */
-
 	  }, {
 	    key: "getErrors",
 	    value: function getErrors() {
@@ -7334,7 +7162,6 @@ window._main_polyfill_core = true;
 	     * Event listeners can prevent emitter's default action and set the reason of this behavior.
 	     * @param error
 	     */
-
 	  }, {
 	    key: "setError",
 	    value: function setError(error) {
@@ -7345,7 +7172,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Prevents default action
 	     */
-
 	  }, {
 	    key: "preventDefault",
 	    value: function preventDefault() {
@@ -7355,7 +7181,6 @@ window._main_polyfill_core = true;
 	     * Checks that is default action prevented
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isDefaultPrevented",
 	    value: function isDefaultPrevented() {
@@ -7364,7 +7189,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Stops event immediate propagation
 	     */
-
 	  }, {
 	    key: "stopImmediatePropagation",
 	    value: function stopImmediatePropagation() {
@@ -7374,7 +7198,6 @@ window._main_polyfill_core = true;
 	     * Checks that is immediate propagation stopped
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isImmediatePropagationStopped",
 	    value: function isImmediatePropagationStopped() {
@@ -7395,16 +7218,13 @@ window._main_polyfill_core = true;
 	    this.defaultMaxListeners = Type.isNumber(options.defaultMaxListeners) ? options.defaultMaxListeners : 10;
 	    this.eventStore = new WeakMap();
 	  }
-
 	  babelHelpers.createClass(EventStore, [{
 	    key: "add",
 	    value: function add(target, options = {}) {
 	      const record = this.getRecordScheme();
-
 	      if (Type.isNumber(options.maxListeners)) {
 	        record.maxListeners = options.maxListeners;
 	      }
-
 	      this.eventStore.set(target, record);
 	      return record;
 	    }
@@ -7448,27 +7268,21 @@ window._main_polyfill_core = true;
 	    this.warnings = new Map();
 	    this.printDelayed = Runtime.debounce(this.print.bind(this), 500);
 	  }
-
 	  babelHelpers.createClass(WarningStore, [{
 	    key: "add",
 	    value: function add(target, eventName, listeners) {
 	      let contextWarnings = this.warnings.get(target);
-
 	      if (!contextWarnings) {
 	        contextWarnings = Object.create(null);
 	        this.warnings.set(target, contextWarnings);
 	      }
-
 	      if (!contextWarnings[eventName]) {
 	        contextWarnings[eventName] = {};
 	      }
-
 	      contextWarnings[eventName].size = listeners.size;
-
 	      if (!Type.isArray(contextWarnings[eventName].errors)) {
 	        contextWarnings[eventName].errors = [];
 	      }
-
 	      contextWarnings[eventName].errors.push(new Error());
 	    }
 	  }, {
@@ -7502,43 +7316,40 @@ window._main_polyfill_core = true;
 	const aliasStore = new Map();
 	const globalTarget = {
 	  GLOBAL_TARGET: 'GLOBAL_TARGET' // this key only for debugging purposes
-
 	};
+
 	eventStore.add(globalTarget, {
 	  maxListeners: 25
 	});
 	const isEmitterProperty = Symbol.for('BX.Event.EventEmitter.isEmitter');
 	const namespaceProperty = Symbol('namespaceProperty');
 	const targetProperty = Symbol('targetProperty');
-
 	let EventEmitter = /*#__PURE__*/function () {
 	  /** @private */
+
 	  function EventEmitter(...args) {
 	    babelHelpers.classCallCheck(this, EventEmitter);
 	    this[targetProperty] = null;
 	    this[namespaceProperty] = null;
 	    this[isEmitterProperty] = true;
 	    let target = this;
-
-	    if (Object.getPrototypeOf(this) === EventEmitter.prototype && args.length > 0) //new EventEmitter(obj) case
+	    if (Object.getPrototypeOf(this) === EventEmitter.prototype && args.length > 0)
+	      //new EventEmitter(obj) case
 	      {
 	        if (!Type.isObject(args[0])) {
 	          throw new TypeError(`The "target" argument must be an object.`);
 	        }
-
 	        target = args[0];
 	        this.setEventNamespace(args[1]);
 	      }
-
 	    this[targetProperty] = target;
 	  }
+
 	  /**
 	   * Makes a target observable
 	   * @param {object} target
 	   * @param {string} namespace
 	   */
-
-
 	  babelHelpers.createClass(EventEmitter, [{
 	    key: "setEventNamespace",
 	    value: function setEventNamespace(namespace) {
@@ -7558,10 +7369,8 @@ window._main_polyfill_core = true;
 	     * @param {Function<BaseEvent>} listener
 	     * @param {object} options
 	     */
-
 	  }, {
 	    key: "subscribe",
-
 	    /**
 	     * Subscribes a listener on a specified event
 	     * @param {string} eventName
@@ -7578,19 +7387,16 @@ window._main_polyfill_core = true;
 	     * @param {object} [aliases]
 	     * @param {boolean} [compatMode=false]
 	     */
-
 	  }, {
 	    key: "subscribeFromOptions",
 	    value: function subscribeFromOptions(options, aliases, compatMode) {
 	      if (!Type.isPlainObject(options)) {
 	        return;
 	      }
-
 	      aliases = Type.isPlainObject(aliases) ? EventEmitter.normalizeAliases(aliases) : {};
 	      Object.keys(options).forEach(eventName => {
 	        const listener = EventEmitter.normalizeListener(options[eventName]);
 	        eventName = EventEmitter.normalizeEventName(eventName);
-
 	        if (aliases[eventName]) {
 	          const {
 	            eventName: actualName
@@ -7612,10 +7418,8 @@ window._main_polyfill_core = true;
 	     * @param {string} eventName
 	     * @param {Function<BaseEvent>} listener
 	     */
-
 	  }, {
 	    key: "subscribeOnce",
-
 	    /**
 	     * Subscribes a listener that is called at most once for a specified event.
 	     * @param {string} eventName
@@ -7633,10 +7437,8 @@ window._main_polyfill_core = true;
 	     * @param {Function<BaseEvent>} listener
 	     * @param options
 	     */
-
 	  }, {
 	    key: "unsubscribe",
-
 	    /**
 	     * Unsubscribes an event listener
 	     * @param {string} eventName
@@ -7653,10 +7455,8 @@ window._main_polyfill_core = true;
 	     * @param {string} eventName
 	     * @param options
 	     */
-
 	  }, {
 	    key: "unsubscribeAll",
-
 	    /**
 	     * Unsubscribes all event listeners
 	     * @param {string} [eventName]
@@ -7672,10 +7472,8 @@ window._main_polyfill_core = true;
 	     * @param {object} options
 	     * @returns {Array}
 	     */
-
 	  }, {
 	    key: "emit",
-
 	    /**
 	     * Emits specified event with specified event object
 	     * @param {string} eventName
@@ -7686,7 +7484,6 @@ window._main_polyfill_core = true;
 	      if (this.getEventNamespace() === null) {
 	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
 	      }
-
 	      EventEmitter.emit(this, eventName, event);
 	      return this;
 	    }
@@ -7700,10 +7497,8 @@ window._main_polyfill_core = true;
 	     * @param {BaseEvent | any} event
 	     * @return {Promise<Array>}
 	     */
-
 	  }, {
 	    key: "emitAsync",
-
 	    /**
 	     * Emits event and returns a promise that is resolved when
 	     * all promise returned from event handlers are resolved,
@@ -7717,7 +7512,6 @@ window._main_polyfill_core = true;
 	      if (this.getEventNamespace() === null) {
 	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
 	      }
-
 	      return EventEmitter.emitAsync(this, eventName, event);
 	    }
 	    /**
@@ -7727,10 +7521,8 @@ window._main_polyfill_core = true;
 	     * @param {BaseEvent|any} event
 	     * @returns {BaseEvent}
 	     */
-
 	  }, {
 	    key: "setMaxListeners",
-
 	    /**
 	     * Sets max events listeners count
 	     * this.setMaxListeners(10) - sets the default value for all events
@@ -7748,10 +7540,8 @@ window._main_polyfill_core = true;
 	     * @param {string} [eventName]
 	     * @returns {number}
 	     */
-
 	  }, {
 	    key: "getMaxListeners",
-
 	    /**
 	     * Returns max event listeners count
 	     * @param {string} [eventName]
@@ -7778,10 +7568,8 @@ window._main_polyfill_core = true;
 	     * @param args
 	     * @returns {number}
 	     */
-
 	  }, {
 	    key: "incrementMaxListeners",
-
 	    /**
 	     * Increases max listeners count
 	     * this.incrementMaxListeners() - adds one max listener for all events
@@ -7805,10 +7593,8 @@ window._main_polyfill_core = true;
 	     * Event.EventEmitter.decrementMaxListeners(obj, 'onClose') - subtracts one max listener for onClose event of 'obj' target
 	     * Event.EventEmitter.decrementMaxListeners(obj, 'onClose', 2) - subtracts two max listeners for onClose event of 'obj' target
 	     */
-
 	  }, {
 	    key: "decrementMaxListeners",
-
 	    /**
 	     * Increases max listeners count
 	     * this.decrementMaxListeners() - subtracts one max listener for all events
@@ -7824,10 +7610,8 @@ window._main_polyfill_core = true;
 	     * @param {Array} args
 	     * @returns Array
 	     */
-
 	  }, {
 	    key: "getListeners",
-
 	    /**
 	     * Gets listeners list for specified event
 	     * @param {string} eventName
@@ -7840,36 +7624,30 @@ window._main_polyfill_core = true;
 	     * @param {string} eventName
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "getFullEventName",
 	    value: function getFullEventName(eventName) {
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      return EventEmitter.makeFullEventName(this.getEventNamespace(), eventName);
 	    }
 	    /**
 	     * Registers aliases (old event names for BX.onCustomEvent)
 	     * @param aliases
 	     */
-
 	  }], [{
 	    key: "makeObservable",
 	    value: function makeObservable(target, namespace) {
 	      if (!Type.isObject(target)) {
 	        throw new TypeError('The "target" argument must be an object.');
 	      }
-
 	      if (!Type.isStringFilled(namespace)) {
 	        throw new TypeError('The "namespace" must be an non-empty string.');
 	      }
-
 	      if (EventEmitter.isEventEmitter(target)) {
 	        throw new TypeError('The "target" is an event emitter already.');
 	      }
-
 	      const targetProto = Object.getPrototypeOf(target);
 	      const emitter = new EventEmitter();
 	      emitter.setEventNamespace(namespace);
@@ -7879,7 +7657,6 @@ window._main_polyfill_core = true;
 	        if (['constructor'].includes(method)) {
 	          return;
 	        }
-
 	        emitter[method] = function (...args) {
 	          return EventEmitter.prototype[method].apply(target, args);
 	        };
@@ -7894,17 +7671,13 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      listener = this.normalizeListener(listener);
 	      options = Type.isPlainObject(options) ? options : {};
 	      const fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
@@ -7914,7 +7687,6 @@ window._main_polyfill_core = true;
 	      } = eventStore.getOrAdd(target);
 	      const onceListeners = onceMap.get(fullEventName);
 	      let listeners = eventsMap.get(fullEventName);
-
 	      if (listeners && listeners.has(listener) || onceListeners && onceListeners.has(listener)) {
 	        console.error(`You cannot subscribe the same "${fullEventName}" event listener twice.`);
 	      } else {
@@ -7933,9 +7705,7 @@ window._main_polyfill_core = true;
 	          eventsMap.set(fullEventName, listeners);
 	        }
 	      }
-
 	      const maxListeners = this.getMaxListeners(target, eventName);
-
 	      if (listeners.size > maxListeners) {
 	        warningStore.add(target, fullEventName, listeners);
 	        warningStore.printDelayed();
@@ -7949,17 +7719,13 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      listener = this.normalizeListener(listener);
 	      const fullEventName = this.resolveEventName(eventName, target);
 	      const {
@@ -7968,7 +7734,6 @@ window._main_polyfill_core = true;
 	      } = eventStore.getOrAdd(target);
 	      const listeners = eventsMap.get(fullEventName);
 	      let onceListeners = onceMap.get(fullEventName);
-
 	      if (listeners && listeners.has(listener) || onceListeners && onceListeners.has(listener)) {
 	        console.error(`You cannot subscribe the same "${fullEventName}" event listener twice.`);
 	      } else {
@@ -7977,14 +7742,12 @@ window._main_polyfill_core = true;
 	          onceListeners.delete(listener);
 	          listener(...args);
 	        };
-
 	        if (onceListeners) {
 	          onceListeners.set(listener, once);
 	        } else {
 	          onceListeners = new Map([[listener, once]]);
 	          onceMap.set(fullEventName, onceListeners);
 	        }
-
 	        this.subscribe(target, eventName, once);
 	      }
 	    }
@@ -7996,27 +7759,21 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      listener = this.normalizeListener(listener);
 	      options = Type.isPlainObject(options) ? options : {};
 	      const fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
 	      const targetInfo = eventStore.get(target);
 	      const listeners = targetInfo && targetInfo.eventsMap.get(fullEventName);
 	      const onceListeners = targetInfo && targetInfo.onceMap.get(fullEventName);
-
 	      if (listeners) {
 	        listeners.delete(listener);
 	      }
-
 	      if (onceListeners) {
 	        const once = onceListeners.get(listener);
-
 	        if (once) {
 	          onceListeners.delete(listener);
 	          listeners.delete(once);
@@ -8030,10 +7787,8 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (Type.isStringFilled(eventName)) {
 	        const targetInfo = eventStore.get(target);
-
 	        if (targetInfo) {
 	          options = Type.isPlainObject(options) ? options : {};
 	          const fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
@@ -8057,68 +7812,56 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      options = Type.isPlainObject(options) ? options : {};
 	      const fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
 	      const globalEvents = eventStore.get(this.GLOBAL_TARGET);
 	      const globalListeners = globalEvents && globalEvents.eventsMap.get(fullEventName) || new Map();
 	      let targetListeners = new Set();
-
 	      if (target !== this.GLOBAL_TARGET) {
 	        const targetEvents = eventStore.get(target);
 	        targetListeners = targetEvents && targetEvents.eventsMap.get(fullEventName) || new Map();
 	      }
-
 	      const listeners = [...globalListeners.values(), ...targetListeners.values()];
 	      listeners.sort(function (a, b) {
 	        return a.sort - b.sort;
 	      });
 	      const preparedEvent = this.prepareEvent(target, fullEventName, event);
 	      const result = [];
-
 	      for (let i = 0; i < listeners.length; i++) {
 	        if (preparedEvent.isImmediatePropagationStopped()) {
 	          break;
 	        }
-
 	        const {
 	          listener,
 	          options: listenerOptions
-	        } = listeners[i]; //A previous listener could remove a current listener.
+	        } = listeners[i];
 
+	        //A previous listener could remove a current listener.
 	        if (globalListeners.has(listener) || targetListeners.has(listener)) {
 	          let listenerResult;
-
 	          if (listenerOptions.compatMode) {
 	            let params = [];
 	            const compatData = preparedEvent.getCompatData();
-
 	            if (compatData !== null) {
 	              params = options.cloneData === true ? Runtime.clone(compatData) : compatData;
 	            } else {
 	              params = [preparedEvent];
 	            }
-
 	            const context = Type.isUndefined(options.thisArg) ? target : options.thisArg;
 	            listenerResult = listener.apply(context, params);
 	          } else {
 	            listenerResult = Type.isUndefined(options.thisArg) ? listener(preparedEvent) : listener.call(options.thisArg, preparedEvent);
 	          }
-
 	          result.push(listenerResult);
 	        }
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -8129,19 +7872,16 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      return Promise.all(this.emit(target, eventName, event));
 	    }
 	  }, {
 	    key: "prepareEvent",
 	    value: function prepareEvent(target, eventName, event) {
 	      let preparedEvent = event;
-
 	      if (!(event instanceof BaseEvent)) {
 	        preparedEvent = new BaseEvent();
 	        preparedEvent.setData(event);
 	      }
-
 	      preparedEvent.setTarget(this.isEventEmitter(target) ? target[targetProperty] : target);
 	      preparedEvent.setType(eventName);
 	      return preparedEvent;
@@ -8150,7 +7890,6 @@ window._main_polyfill_core = true;
 	     * @private
 	     * @returns {number}
 	     */
-
 	  }, {
 	    key: "getNextSequenceValue",
 	    value: function getNextSequenceValue() {
@@ -8165,14 +7904,12 @@ window._main_polyfill_core = true;
 	     * @return {void}
 	     * @param args
 	     */
-
 	  }, {
 	    key: "setMaxListeners",
 	    value: function setMaxListeners(...args) {
 	      let target = this.GLOBAL_TARGET;
 	      let eventName = null;
 	      let count = undefined;
-
 	      if (args.length === 1) {
 	        count = args[0];
 	      } else if (args.length === 2) {
@@ -8184,21 +7921,16 @@ window._main_polyfill_core = true;
 	      } else if (args.length >= 3) {
 	        [target, eventName, count] = args;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      if (eventName !== null && !Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      if (!Type.isNumber(count) || count < 0) {
 	        throw new TypeError(`The value of "count" is out of range. It must be a non-negative number. Received ${count}.`);
 	      }
-
 	      const targetInfo = eventStore.getOrAdd(target);
-
 	      if (Type.isStringFilled(eventName)) {
 	        const fullEventName = this.resolveEventName(eventName, target);
 	        targetInfo.eventsMaxListeners.set(fullEventName, count);
@@ -8215,24 +7947,18 @@ window._main_polyfill_core = true;
 	      } else if (Type.isNil(target)) {
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      const targetInfo = eventStore.get(target);
-
 	      if (targetInfo) {
 	        let maxListeners = targetInfo.maxListeners;
-
 	        if (Type.isStringFilled(eventName)) {
 	          const fullEventName = this.resolveEventName(eventName, target);
 	          maxListeners = targetInfo.eventsMaxListeners.get(fullEventName) || maxListeners;
 	        }
-
 	        return maxListeners;
 	      }
-
 	      return this.DEFAULT_MAX_LISTENERS;
 	    }
 	  }, {
@@ -8240,13 +7966,11 @@ window._main_polyfill_core = true;
 	    value: function addMaxListeners(...args) {
 	      const [target, eventName, increment] = this.destructMaxListenersArgs(...args);
 	      const maxListeners = Math.max(this.getMaxListeners(target, eventName) + increment, 0);
-
 	      if (Type.isStringFilled(eventName)) {
 	        EventEmitter.setMaxListeners(target, eventName, maxListeners);
 	      } else {
 	        EventEmitter.setMaxListeners(target, maxListeners);
 	      }
-
 	      return maxListeners;
 	    }
 	    /**
@@ -8262,7 +7986,6 @@ window._main_polyfill_core = true;
 	     * Event.EventEmitter.incrementMaxListeners(obj, 'onClose') - adds one max listener for onClose event of 'obj' target
 	     * Event.EventEmitter.incrementMaxListeners(obj, 'onClose', 2) - adds two max listeners for onClose event of 'obj' target
 	     */
-
 	  }, {
 	    key: "incrementMaxListeners",
 	    value: function incrementMaxListeners(...args) {
@@ -8281,7 +8004,6 @@ window._main_polyfill_core = true;
 	      let eventName = null;
 	      let increment = 1;
 	      let target = this.GLOBAL_TARGET;
-
 	      if (args.length === 1) {
 	        if (Type.isNumber(args[0])) {
 	          increment = args[0];
@@ -8301,19 +8023,15 @@ window._main_polyfill_core = true;
 	      } else if (args.length >= 3) {
 	        [target, eventName, increment] = args;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      if (eventName !== null && !Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      if (!Type.isNumber(increment)) {
 	        throw new TypeError(`The value of "increment" must be a number.`);
 	      }
-
 	      return [target, eventName, increment];
 	    }
 	    /**
@@ -8321,7 +8039,6 @@ window._main_polyfill_core = true;
 	     * @param {object} target
 	     * @param {string} eventName
 	     */
-
 	  }, {
 	    key: "getListeners",
 	    value: function getListeners(target, eventName) {
@@ -8329,23 +8046,17 @@ window._main_polyfill_core = true;
 	        eventName = target;
 	        target = this.GLOBAL_TARGET;
 	      }
-
 	      if (!Type.isObject(target)) {
 	        throw new TypeError(`The "target" argument must be an object.`);
 	      }
-
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        throw new TypeError(`The "eventName" argument must be a string.`);
 	      }
-
 	      const targetInfo = eventStore.get(target);
-
 	      if (!targetInfo) {
 	        return new Map();
 	      }
-
 	      const fullEventName = this.resolveEventName(eventName, target);
 	      return targetInfo.eventsMap.get(fullEventName) || new Map();
 	    }
@@ -8365,71 +8076,56 @@ window._main_polyfill_core = true;
 	     * @private
 	     * @param aliases
 	     */
-
 	  }, {
 	    key: "normalizeAliases",
 	    value: function normalizeAliases(aliases) {
 	      if (!Type.isPlainObject(aliases)) {
 	        throw new TypeError(`The "aliases" argument must be an object.`);
 	      }
-
 	      const result = Object.create(null);
-
 	      for (let alias in aliases) {
 	        if (!Type.isStringFilled(alias)) {
 	          throw new TypeError(`The alias must be an non-empty string.`);
 	        }
-
 	        const options = aliases[alias];
-
 	        if (!options || !Type.isStringFilled(options.eventName) || !Type.isStringFilled(options.namespace)) {
 	          throw new TypeError(`The alias options must set the "eventName" and the "namespace".`);
 	        }
-
 	        alias = this.normalizeEventName(alias);
 	        result[alias] = {
 	          eventName: options.eventName,
 	          namespace: options.namespace
 	        };
 	      }
-
 	      return result;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "mergeEventAliases",
 	    value: function mergeEventAliases(aliases) {
 	      const globalEvents = eventStore.get(this.GLOBAL_TARGET);
-
 	      if (!globalEvents) {
 	        return;
 	      }
-
 	      Object.keys(aliases).forEach(alias => {
 	        const options = aliases[alias];
 	        alias = this.normalizeEventName(alias);
 	        const fullEventName = this.makeFullEventName(options.namespace, options.eventName);
 	        const aliasListeners = globalEvents.eventsMap.get(alias);
-
 	        if (aliasListeners) {
 	          const listeners = globalEvents.eventsMap.get(fullEventName) || new Map();
 	          globalEvents.eventsMap.set(fullEventName, new Map([...listeners, ...aliasListeners]));
 	          globalEvents.eventsMap.delete(alias);
 	        }
-
 	        const aliasOnceListeners = globalEvents.onceMap.get(alias);
-
 	        if (aliasOnceListeners) {
 	          const onceListeners = globalEvents.onceMap.get(fullEventName) || new Map();
 	          globalEvents.onceMap.set(fullEventName, new Map([...onceListeners, ...aliasOnceListeners]));
 	          globalEvents.onceMap.delete(alias);
 	        }
-
 	        const aliasMaxListeners = globalEvents.eventsMaxListeners.get(alias);
-
 	        if (aliasMaxListeners) {
 	          const eventMaxListeners = globalEvents.eventsMaxListeners.get(fullEventName) || 0;
 	          globalEvents.eventsMaxListeners.set(fullEventName, Math.max(eventMaxListeners, aliasMaxListeners));
@@ -8442,7 +8138,6 @@ window._main_polyfill_core = true;
 	     * @param {object} target
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isEventEmitter",
 	    value: function isEventEmitter(target) {
@@ -8453,31 +8148,26 @@ window._main_polyfill_core = true;
 	     * @param {string} eventName
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "normalizeEventName",
 	    value: function normalizeEventName(eventName) {
 	      if (!Type.isStringFilled(eventName)) {
 	        return '';
 	      }
-
 	      return eventName.toLowerCase();
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "normalizeListener",
 	    value: function normalizeListener(listener) {
 	      if (Type.isString(listener)) {
 	        listener = Reflection.getClass(listener);
 	      }
-
 	      if (!Type.isFunction(listener)) {
 	        throw new TypeError(`The "listener" argument must be of type Function. Received type ${typeof listener}.`);
 	      }
-
 	      return listener;
 	    }
 	    /**
@@ -8487,21 +8177,17 @@ window._main_polyfill_core = true;
 	     * @param useGlobalNaming
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "resolveEventName",
 	    value: function resolveEventName(eventName, target, useGlobalNaming = false) {
 	      eventName = this.normalizeEventName(eventName);
-
 	      if (!Type.isStringFilled(eventName)) {
 	        return '';
 	      }
-
 	      if (this.isEventEmitter(target) && useGlobalNaming !== true) {
 	        if (target.getEventNamespace() !== null && eventName.includes('.')) {
 	          console.warn(`Possible the wrong event name "${eventName}".`);
 	        }
-
 	        eventName = target.getFullEventName(eventName);
 	      } else if (aliasStore.has(eventName)) {
 	        const {
@@ -8510,7 +8196,6 @@ window._main_polyfill_core = true;
 	        } = aliasStore.get(eventName);
 	        eventName = this.makeFullEventName(namespace, actualEventName);
 	      }
-
 	      return eventName;
 	    }
 	    /**
@@ -8519,7 +8204,6 @@ window._main_polyfill_core = true;
 	     * @param {string} eventName
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "makeFullEventName",
 	    value: function makeFullEventName(namespace, eventName) {
@@ -8529,7 +8213,6 @@ window._main_polyfill_core = true;
 	  }]);
 	  return EventEmitter;
 	}();
-
 	babelHelpers.defineProperty(EventEmitter, "GLOBAL_TARGET", globalTarget);
 	babelHelpers.defineProperty(EventEmitter, "DEFAULT_MAX_LISTENERS", eventStore.getDefaultMaxListeners());
 	babelHelpers.defineProperty(EventEmitter, "sequenceValue", 1);
@@ -8540,23 +8223,19 @@ window._main_polyfill_core = true;
 	 * @type {boolean}
 	 */
 	// eslint-disable-next-line
-
 	exports.isReady = false;
 	function ready(handler) {
 	  switch (document.readyState) {
 	    case 'loading':
 	      stack.push(handler);
 	      break;
-
 	    case 'interactive':
 	    case 'complete':
 	      if (Type.isFunction(handler)) {
 	        handler();
 	      }
-
 	      exports.isReady = true;
 	      break;
-
 	    default:
 	      break;
 	  }
@@ -8571,11 +8250,9 @@ window._main_polyfill_core = true;
 	/**
 	 * @memberOf BX
 	 */
-
 	let Event = function Event() {
 	  babelHelpers.classCallCheck(this, Event);
 	};
-
 	babelHelpers.defineProperty(Event, "bind", bind);
 	babelHelpers.defineProperty(Event, "bindOnce", bindOnce);
 	babelHelpers.defineProperty(Event, "unbind", unbind);
@@ -8588,7 +8265,6 @@ window._main_polyfill_core = true;
 	  if (Type.isPlainObject(value) || Type.isArray(value)) {
 	    return JSON.stringify(value);
 	  }
-
 	  return Text.encode(Text.decode(value));
 	}
 
@@ -8596,26 +8272,21 @@ window._main_polyfill_core = true;
 	  if (Type.isString(value)) {
 	    const decodedValue = Text.decode(value);
 	    let result;
-
 	    try {
 	      result = JSON.parse(decodedValue);
 	    } catch (e) {
 	      result = decodedValue;
 	    }
-
 	    if (result === decodedValue) {
 	      if (/^[\d.]+[.]?\d+$/.test(result)) {
 	        return Number(result);
 	      }
 	    }
-
 	    if (result === 'true' || result === 'false') {
 	      return Boolean(result);
 	    }
-
 	    return result;
 	  }
-
 	  return value;
 	}
 
@@ -8635,15 +8306,12 @@ window._main_polyfill_core = true;
 	/**
 	 * @memberOf BX
 	 */
-
 	let Dom = /*#__PURE__*/function () {
 	  function Dom() {
 	    babelHelpers.classCallCheck(this, Dom);
 	  }
-
 	  babelHelpers.createClass(Dom, null, [{
 	    key: "replace",
-
 	    /**
 	     * Replaces old html element to new html element
 	     * @param oldElement
@@ -8660,7 +8328,6 @@ window._main_polyfill_core = true;
 	     * Removes element
 	     * @param element
 	     */
-
 	  }, {
 	    key: "remove",
 	    value: function remove(element) {
@@ -8672,7 +8339,6 @@ window._main_polyfill_core = true;
 	     * Cleans element
 	     * @param element
 	     */
-
 	  }, {
 	    key: "clean",
 	    value: function clean(element) {
@@ -8680,10 +8346,8 @@ window._main_polyfill_core = true;
 	        while (element.childNodes.length > 0) {
 	          element.removeChild(element.firstChild);
 	        }
-
 	        return;
 	      }
-
 	      if (Type.isString(element)) {
 	        Dom.clean(document.getElementById(element));
 	      }
@@ -8693,7 +8357,6 @@ window._main_polyfill_core = true;
 	     * @param current
 	     * @param target
 	     */
-
 	  }, {
 	    key: "insertBefore",
 	    value: function insertBefore(current, target) {
@@ -8708,19 +8371,16 @@ window._main_polyfill_core = true;
 	     * @param current
 	     * @param target
 	     */
-
 	  }, {
 	    key: "insertAfter",
 	    value: function insertAfter(current, target) {
 	      if (Type.isDomNode(current) && Type.isDomNode(target)) {
 	        if (Type.isDomNode(target.parentNode)) {
 	          const parent = target.parentNode;
-
 	          if (Type.isDomNode(target.nextSibling)) {
 	            parent.insertBefore(current, target.nextSibling);
 	            return;
 	          }
-
 	          parent.appendChild(current);
 	        }
 	      }
@@ -8730,7 +8390,6 @@ window._main_polyfill_core = true;
 	     * @param current
 	     * @param target
 	     */
-
 	  }, {
 	    key: "append",
 	    value: function append(current, target) {
@@ -8743,7 +8402,6 @@ window._main_polyfill_core = true;
 	     * @param current
 	     * @param target
 	     */
-
 	  }, {
 	    key: "prepend",
 	    value: function prepend(current, target) {
@@ -8752,7 +8410,6 @@ window._main_polyfill_core = true;
 	          target.insertBefore(current, target.firstChild);
 	          return;
 	        }
-
 	        Dom.append(current, target);
 	      }
 	    }
@@ -8762,34 +8419,28 @@ window._main_polyfill_core = true;
 	     * @param className
 	     * @return {Boolean}
 	     */
-
 	  }, {
 	    key: "hasClass",
 	    value: function hasClass(element, className) {
 	      if (Type.isElementNode(element)) {
 	        if (Type.isString(className)) {
 	          const preparedClassName = className.trim();
-
 	          if (preparedClassName.length > 0) {
 	            if (preparedClassName.includes(' ')) {
 	              return preparedClassName.split(' ').every(name => Dom.hasClass(element, name));
 	            }
-
 	            if ('classList' in element) {
 	              return element.classList.contains(preparedClassName);
 	            }
-
 	            if (Type.isObject(element.className) && Type.isString(element.className.baseVal)) {
 	              return element.getAttribute('class').split(' ').some(name => name === preparedClassName);
 	            }
 	          }
 	        }
-
 	        if (Type.isArray(className) && className.length > 0) {
 	          return className.every(name => Dom.hasClass(element, name));
 	        }
 	      }
-
 	      return false;
 	    }
 	    /**
@@ -8797,44 +8448,36 @@ window._main_polyfill_core = true;
 	     * @param element
 	     * @param className
 	     */
-
 	  }, {
 	    key: "addClass",
 	    value: function addClass(element, className) {
 	      if (Type.isElementNode(element)) {
 	        if (Type.isString(className)) {
 	          const preparedClassName = className.trim();
-
 	          if (preparedClassName.length > 0) {
 	            if (preparedClassName.includes(' ')) {
 	              Dom.addClass(element, preparedClassName.split(' '));
 	              return;
 	            }
-
 	            if ('classList' in element) {
 	              element.classList.add(preparedClassName);
 	              return;
 	            }
-
 	            if (Type.isObject(element.className) && Type.isString(element.className.baseVal)) {
 	              if (element.className.baseVal === '') {
 	                element.className.baseVal = preparedClassName;
 	                return;
 	              }
-
 	              const names = element.className.baseVal.split(' ');
-
 	              if (!names.includes(preparedClassName)) {
 	                names.push(preparedClassName);
 	                element.className.baseVal = names.join(' ').trim();
 	                return;
 	              }
 	            }
-
 	            return;
 	          }
 	        }
-
 	        if (Type.isArray(className)) {
 	          className.forEach(name => Dom.addClass(element, name));
 	        }
@@ -8845,25 +8488,21 @@ window._main_polyfill_core = true;
 	     * @param element
 	     * @param className
 	     */
-
 	  }, {
 	    key: "removeClass",
 	    value: function removeClass(element, className) {
 	      if (Type.isElementNode(element)) {
 	        if (Type.isString(className)) {
 	          const preparedClassName = className.trim();
-
 	          if (preparedClassName.length > 0) {
 	            if (preparedClassName.includes(' ')) {
 	              Dom.removeClass(element, preparedClassName.split(' '));
 	              return;
 	            }
-
 	            if ('classList' in element) {
 	              element.classList.remove(preparedClassName);
 	              return;
 	            }
-
 	            if (Type.isObject(element.className) && Type.isString(element.className.baseVal)) {
 	              const names = element.className.baseVal.split(' ').filter(name => name !== preparedClassName);
 	              element.className.baseVal = names.join(' ');
@@ -8871,7 +8510,6 @@ window._main_polyfill_core = true;
 	            }
 	          }
 	        }
-
 	        if (Type.isArray(className)) {
 	          className.forEach(name => Dom.removeClass(element, name));
 	        }
@@ -8882,25 +8520,21 @@ window._main_polyfill_core = true;
 	     * @param element
 	     * @param className
 	     */
-
 	  }, {
 	    key: "toggleClass",
 	    value: function toggleClass(element, className) {
 	      if (Type.isElementNode(element)) {
 	        if (Type.isString(className)) {
 	          const preparedClassName = className.trim();
-
 	          if (preparedClassName.length > 0) {
 	            if (preparedClassName.includes(' ')) {
 	              Dom.toggleClass(element, preparedClassName.split(' '));
 	              return;
 	            }
-
 	            element.classList.toggle(preparedClassName);
 	            return;
 	          }
 	        }
-
 	        if (Type.isArray(className)) {
 	          className.forEach(name => Dom.toggleClass(element, name));
 	        }
@@ -8909,7 +8543,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Styles element
 	     */
-
 	  }, {
 	    key: "style",
 	    value: function style(element, prop, value) {
@@ -8918,7 +8551,6 @@ window._main_polyfill_core = true;
 	          element.removeAttribute('style');
 	          return element;
 	        }
-
 	        if (Type.isPlainObject(prop)) {
 	          Object.entries(prop).forEach(item => {
 	            const [currentKey, currentValue] = item;
@@ -8926,44 +8558,38 @@ window._main_polyfill_core = true;
 	          });
 	          return element;
 	        }
-
 	        if (Type.isString(prop)) {
 	          if (Type.isUndefined(value) && element.nodeType !== Node.DOCUMENT_NODE) {
 	            const computedStyle = getComputedStyle(element);
-
 	            if (prop in computedStyle) {
 	              return computedStyle[prop];
 	            }
-
 	            return computedStyle.getPropertyValue(prop);
 	          }
-
 	          if (Type.isNull(value) || value === '' || value === 'null') {
 	            if (String(prop).startsWith('--')) {
 	              // eslint-disable-next-line
 	              element.style.removeProperty(prop);
 	              return element;
-	            } // eslint-disable-next-line
+	            }
 
-
+	            // eslint-disable-next-line
 	            element.style[prop] = '';
 	            return element;
 	          }
-
 	          if (Type.isString(value) || Type.isNumber(value)) {
 	            if (String(prop).startsWith('--')) {
 	              // eslint-disable-next-line
 	              element.style.setProperty(prop, value);
 	              return element;
-	            } // eslint-disable-next-line
+	            }
 
-
+	            // eslint-disable-next-line
 	            element.style[prop] = value;
 	            return element;
 	          }
 	        }
 	      }
-
 	      return null;
 	    }
 	    /**
@@ -8972,87 +8598,72 @@ window._main_polyfill_core = true;
 	     * @param data
 	     * @return {*}
 	     */
-
 	  }, {
 	    key: "adjust",
 	    value: function adjust(target, data = {}) {
 	      if (!target.nodeType) {
 	        return null;
 	      }
-
 	      let element = target;
-
 	      if (target.nodeType === Node.DOCUMENT_NODE) {
 	        element = target.body;
 	      }
-
 	      if (Type.isPlainObject(data)) {
 	        if (Type.isPlainObject(data.attrs)) {
 	          Object.keys(data.attrs).forEach(key => {
 	            if (key === 'class' || key.toLowerCase() === 'classname') {
 	              element.className = data.attrs[key];
 	              return;
-	            } // eslint-disable-next-line
+	            }
 
-
+	            // eslint-disable-next-line
 	            if (data.attrs[key] == '') {
 	              element.removeAttribute(key);
 	              return;
 	            }
-
 	            element.setAttribute(key, data.attrs[key]);
 	          });
 	        }
-
 	        if (Type.isPlainObject(data.style)) {
 	          Dom.style(element, data.style);
 	        }
-
 	        if (Type.isPlainObject(data.props)) {
 	          Object.keys(data.props).forEach(key => {
 	            element[key] = data.props[key];
 	          });
 	        }
-
 	        if (Type.isPlainObject(data.events)) {
 	          Object.keys(data.events).forEach(key => {
 	            Event.bind(element, key, data.events[key]);
 	          });
 	        }
-
 	        if (Type.isPlainObject(data.dataset)) {
 	          Object.keys(data.dataset).forEach(key => {
 	            element.dataset[key] = data.dataset[key];
 	          });
 	        }
-
 	        if (Type.isString(data.children)) {
 	          data.children = [data.children];
 	        }
-
 	        if (Type.isArray(data.children) && data.children.length > 0) {
 	          data.children.forEach(item => {
 	            if (Type.isDomNode(item)) {
 	              Dom.append(item, element);
 	            }
-
 	            if (Type.isString(item)) {
 	              element.insertAdjacentHTML('beforeend', item);
 	            }
 	          });
 	          return element;
 	        }
-
 	        if ('text' in data && !Type.isNil(data.text)) {
 	          element.innerText = data.text;
 	          return element;
 	        }
-
 	        if ('html' in data && !Type.isNil(data.html)) {
 	          element.innerHTML = data.html;
 	        }
 	      }
-
 	      return element;
 	    }
 	    /**
@@ -9062,25 +8673,21 @@ window._main_polyfill_core = true;
 	     * @param context
 	     * @return {HTMLElement|HTMLBodyElement}
 	     */
-
 	  }, {
 	    key: "create",
 	    value: function create(tag, data = {}, context = document) {
 	      let tagName = tag;
 	      let options = data;
-
 	      if (Type.isObjectLike(tag)) {
 	        options = tag;
 	        tagName = tag.tag;
 	      }
-
 	      return Dom.adjust(context.createElement(tagName), options);
 	    }
 	    /**
 	     * Shows element
 	     * @param element
 	     */
-
 	  }, {
 	    key: "show",
 	    value: function show(element) {
@@ -9093,7 +8700,6 @@ window._main_polyfill_core = true;
 	     * Hides element
 	     * @param element
 	     */
-
 	  }, {
 	    key: "hide",
 	    value: function hide(element) {
@@ -9107,7 +8713,6 @@ window._main_polyfill_core = true;
 	     * @param element
 	     * @return {*|boolean}
 	     */
-
 	  }, {
 	    key: "isShown",
 	    value: function isShown(element) {
@@ -9117,7 +8722,6 @@ window._main_polyfill_core = true;
 	     * Toggles element visibility
 	     * @param element
 	     */
-
 	  }, {
 	    key: "toggle",
 	    value: function toggle(element) {
@@ -9134,7 +8738,6 @@ window._main_polyfill_core = true;
 	     * @param {HTMLElement} element
 	     * @return {DOMRect}
 	     */
-
 	  }, {
 	    key: "getPosition",
 	    value: function getPosition(element) {
@@ -9146,7 +8749,6 @@ window._main_polyfill_core = true;
 	        } = getPageScroll();
 	        return new DOMRect(elementRect.left + scrollLeft, elementRect.top + scrollTop, elementRect.width, elementRect.height);
 	      }
-
 	      return new DOMRect();
 	    }
 	    /**
@@ -9155,7 +8757,6 @@ window._main_polyfill_core = true;
 	     * @param {HTMLElement} relationElement
 	     * @return {DOMRect}
 	     */
-
 	  }, {
 	    key: "getRelativePosition",
 	    value: function getRelativePosition(element, relationElement) {
@@ -9164,7 +8765,6 @@ window._main_polyfill_core = true;
 	        const relationElementPosition = Dom.getPosition(relationElement);
 	        return new DOMRect(elementPosition.left - relationElementPosition.left, elementPosition.top - relationElementPosition.top, elementPosition.width, elementPosition.height);
 	      }
-
 	      return new DOMRect();
 	    }
 	  }, {
@@ -9175,21 +8775,17 @@ window._main_polyfill_core = true;
 	          if (!Type.isNil(value)) {
 	            return element.setAttribute(_attr, encodeAttributeValue(value));
 	          }
-
 	          if (Type.isNull(value)) {
 	            return element.removeAttribute(_attr);
 	          }
-
 	          return decodeAttributeValue(element.getAttribute(_attr));
 	        }
-
 	        if (Type.isPlainObject(_attr)) {
 	          return Object.entries(_attr).forEach(([attrKey, attrValue]) => {
 	            Dom.attr(element, attrKey, attrValue);
 	          });
 	        }
 	      }
-
 	      return null;
 	    }
 	  }]);
@@ -9197,15 +8793,14 @@ window._main_polyfill_core = true;
 	}();
 
 	const UA = navigator.userAgent.toLowerCase();
+
 	/**
 	 * @memberOf BX
 	 */
-
 	let Browser = /*#__PURE__*/function () {
 	  function Browser() {
 	    babelHelpers.classCallCheck(this, Browser);
 	  }
-
 	  babelHelpers.createClass(Browser, null, [{
 	    key: "isOpera",
 	    value: function isOpera() {
@@ -9262,9 +8857,7 @@ window._main_polyfill_core = true;
 	      if (Browser.isOpera() || Browser.isSafari() || Browser.isFirefox() || Browser.isChrome()) {
 	        return -1;
 	      }
-
 	      let rv = -1;
-
 	      if (!!window.MSStream && !window.ActiveXObject && 'ActiveXObject' in window) {
 	        rv = 11;
 	      } else if (Browser.isIE10()) {
@@ -9274,32 +8867,26 @@ window._main_polyfill_core = true;
 	      } else if (Browser.isIE()) {
 	        rv = 8;
 	      }
-
 	      if (rv === -1 || rv === 8) {
 	        if (navigator.appName === 'Microsoft Internet Explorer') {
 	          const re = new RegExp('MSIE ([0-9]+[.0-9]*)');
 	          const res = navigator.userAgent.match(re);
-
 	          if (Type.isArrayLike(res) && res.length > 0) {
 	            rv = parseFloat(res[1]);
 	          }
 	        }
-
 	        if (navigator.appName === 'Netscape') {
 	          // Alternative check for IE 11
 	          rv = 11;
 	          const re = new RegExp('Trident/.*rv:([0-9]+[.0-9]*)');
-
 	          if (re.exec(navigator.userAgent) != null) {
 	            const res = navigator.userAgent.match(re);
-
 	            if (Type.isArrayLike(res) && res.length > 0) {
 	              rv = parseFloat(res[1]);
 	            }
 	          }
 	        }
 	      }
-
 	      return rv;
 	    }
 	  }, {
@@ -9361,11 +8948,9 @@ window._main_polyfill_core = true;
 	    key: "isDoctype",
 	    value: function isDoctype(target) {
 	      const doc = target || document;
-
 	      if (doc.compatMode) {
 	        return doc.compatMode === 'CSS1Compat';
 	      }
-
 	      return doc.documentElement && doc.documentElement.clientHeight;
 	    }
 	  }, {
@@ -9384,11 +8969,9 @@ window._main_polyfill_core = true;
 	    value: function addGlobalClass(target) {
 	      let globalClass = 'bx-core';
 	      target = Type.isElementNode(target) ? target : document.documentElement;
-
 	      if (Dom.hasClass(target, globalClass)) {
 	        return;
 	      }
-
 	      if (Browser.isIOS()) {
 	        globalClass += ' bx-ios';
 	      } else if (Browser.isWin()) {
@@ -9400,10 +8983,8 @@ window._main_polyfill_core = true;
 	      } else if (Browser.isAndroid()) {
 	        globalClass += ' bx-android';
 	      }
-
 	      globalClass += Browser.isMobile() ? ' bx-touch' : ' bx-no-touch';
 	      globalClass += Browser.isRetina() ? ' bx-retina' : ' bx-no-retina';
-
 	      if (/AppleWebKit/.test(navigator.userAgent)) {
 	        globalClass += ' bx-chrome';
 	      } else if (/Opera/.test(navigator.userAgent)) {
@@ -9411,22 +8992,18 @@ window._main_polyfill_core = true;
 	      } else if (Browser.isFirefox()) {
 	        globalClass += ' bx-firefox';
 	      }
-
 	      Dom.addClass(target, globalClass);
 	    }
 	  }, {
 	    key: "detectAndroidVersion",
 	    value: function detectAndroidVersion() {
 	      const re = new RegExp('Android ([0-9]+[.0-9]*)');
-
 	      if (re.exec(navigator.userAgent) != null) {
 	        const res = navigator.userAgent.match(re);
-
 	        if (Type.isArrayLike(res) && res.length > 0) {
 	          return parseFloat(res[1]);
 	        }
 	      }
-
 	      return 0;
 	    }
 	  }, {
@@ -9435,38 +9012,30 @@ window._main_polyfill_core = true;
 	      if (jsProperty === '') {
 	        return false;
 	      }
-
 	      function getCssName(propertyName) {
 	        return propertyName.replace(/([A-Z])/g, (...args) => `-${args[1].toLowerCase()}`);
 	      }
-
 	      function getJsName(cssName) {
 	        const reg = /(\\-([a-z]))/g;
-
 	        if (reg.test(cssName)) {
 	          return cssName.replace(reg, (...args) => args[2].toUpperCase());
 	        }
-
 	        return cssName;
 	      }
-
 	      const property = jsProperty.includes('-') ? getJsName(jsProperty) : jsProperty;
 	      const bReturnCSSName = !!returnCSSName;
 	      const ucProperty = property.charAt(0).toUpperCase() + property.slice(1);
 	      const props = ['Webkit', 'Moz', 'O', 'ms'].join(`${ucProperty} `);
 	      const properties = `${property} ${props} ${ucProperty}`.split(' ');
 	      const obj = document.body || document.documentElement;
-
 	      for (let i = 0; i < properties.length; i += 1) {
 	        const prop = properties[i];
-
 	        if (obj && 'style' in obj && prop in obj.style) {
 	          const lowerProp = prop.substr(0, prop.length - property.length).toLowerCase();
 	          const prefix = prop === property ? '' : `-${lowerProp}-`;
 	          return bReturnCSSName ? prefix + getCssName(property) : prop;
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -9475,14 +9044,11 @@ window._main_polyfill_core = true;
 	      if (!Type.isArray(features)) {
 	        return;
 	      }
-
 	      const classNames = [];
-
 	      for (let i = 0; i < features.length; i += 1) {
 	        const support = !!Browser.isPropertySupported(features[i]);
 	        classNames.push(`bx-${support ? '' : 'no-'}${features[i].toLowerCase()}`);
 	      }
-
 	      Dom.addClass(document.documentElement, classNames.join(' '));
 	    }
 	  }]);
@@ -9493,10 +9059,8 @@ window._main_polyfill_core = true;
 	  function Cookie() {
 	    babelHelpers.classCallCheck(this, Cookie);
 	  }
-
 	  babelHelpers.createClass(Cookie, null, [{
 	    key: "getList",
-
 	    /**
 	     * Gets cookies list for current domain
 	     * @return {object}
@@ -9513,16 +9077,13 @@ window._main_polyfill_core = true;
 	     * @param {string} name
 	     * @return {*}
 	     */
-
 	  }, {
 	    key: "get",
 	    value: function get(name) {
 	      const cookiesList = Cookie.getList();
-
 	      if (name in cookiesList) {
 	        return cookiesList[name];
 	      }
-
 	      return undefined;
 	    }
 	    /**
@@ -9531,7 +9092,6 @@ window._main_polyfill_core = true;
 	     * @param {*} value
 	     * @param {object} [options]
 	     */
-
 	  }, {
 	    key: "set",
 	    value: function set(name, value, options = {}) {
@@ -9539,30 +9099,26 @@ window._main_polyfill_core = true;
 	        expires: '',
 	        ...options
 	      };
-
 	      if (Type.isNumber(attributes.expires)) {
 	        const now = +new Date();
 	        const days = attributes.expires;
 	        const dayInMs = 864e+5;
 	        attributes.expires = new Date(now + days * dayInMs);
 	      }
-
 	      if (Type.isDate(attributes.expires)) {
 	        attributes.expires = attributes.expires.toUTCString();
 	      }
-
 	      const safeName = decodeURIComponent(String(name)).replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent).replace(/[()]/g, escape);
 	      const safeValue = encodeURIComponent(String(value)).replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
 	      const stringifiedAttributes = Object.keys(attributes).reduce((acc, key) => {
 	        const attributeValue = attributes[key];
-
 	        if (!attributeValue) {
 	          return acc;
 	        }
-
 	        if (attributeValue === true) {
 	          return `${acc}; ${key}`;
 	        }
+
 	        /**
 	         * Considers RFC 6265 section 5.2:
 	         * ...
@@ -9571,8 +9127,6 @@ window._main_polyfill_core = true;
 	         * Consume the characters of the unparsed-attributes up to,
 	         * not including, the first %x3B (';') character.
 	         */
-
-
 	        return `${acc}; ${key}=${attributeValue.split(';')[0]}`;
 	      }, '');
 	      document.cookie = `${safeName}=${safeValue}${stringifiedAttributes}`;
@@ -9582,11 +9136,11 @@ window._main_polyfill_core = true;
 	     * @param {string} name
 	     * @param {object} [options]
 	     */
-
 	  }, {
 	    key: "remove",
 	    value: function remove(name, options = {}) {
-	      Cookie.set(name, '', { ...options,
+	      Cookie.set(name, '', {
+	        ...options,
 	        expires: -1
 	      });
 	    }
@@ -9598,7 +9152,6 @@ window._main_polyfill_core = true;
 	  if (Type.isUndefined(source)) {
 	    return formData;
 	  }
-
 	  if (Type.isNull(source)) {
 	    formData.append(pre, '');
 	  } else if (Type.isArray(source)) {
@@ -9617,20 +9170,17 @@ window._main_polyfill_core = true;
 	    Object.keys(source).forEach(property => {
 	      const value = source[property];
 	      let preparedProperty = property;
-
 	      if (Type.isArray(value)) {
 	        while (property.length > 2 && property.lastIndexOf('[]') === property.length - 2) {
 	          preparedProperty = property.substring(0, property.length - 2);
 	        }
 	      }
-
 	      const key = pre ? `${pre}[${preparedProperty}]` : preparedProperty;
 	      objectToFormData(value, formData, key);
 	    });
 	  } else {
 	    formData.append(pre, source);
 	  }
-
 	  return formData;
 	}
 
@@ -9638,10 +9188,8 @@ window._main_polyfill_core = true;
 	  function Data() {
 	    babelHelpers.classCallCheck(this, Data);
 	  }
-
 	  babelHelpers.createClass(Data, null, [{
 	    key: "convertObjectToFormData",
-
 	    /**
 	     * Converts object to FormData
 	     * @param source
@@ -9657,11 +9205,9 @@ window._main_polyfill_core = true;
 	/**
 	 * @memberOf BX
 	 */
-
 	let Http = function Http() {
 	  babelHelpers.classCallCheck(this, Http);
 	};
-
 	babelHelpers.defineProperty(Http, "Cookie", Cookie);
 	babelHelpers.defineProperty(Http, "Data", Data);
 
@@ -9672,23 +9218,19 @@ window._main_polyfill_core = true;
 	      EventEmitter.emit('onBXMessageNotFound', new BaseEvent({
 	        compatData: [value]
 	      }));
-
 	      if (Type.isNil(message[value])) {
 	        Runtime.debug(`message undefined: ${value}`);
 	        message[value] = '';
 	      }
 	    }
 	  }
-
 	  if (Type.isPlainObject(value)) {
 	    Object.keys(value).forEach(key => {
 	      message[key] = value[key];
 	    });
 	  }
-
 	  return message[value];
 	}
-
 	if (!Type.isNil(window.BX) && Type.isFunction(window.BX.message)) {
 	  Object.keys(window.BX.message).forEach(key => {
 	    message({
@@ -9701,15 +9243,12 @@ window._main_polyfill_core = true;
 	 * Implements interface for works with language messages
 	 * @memberOf BX
 	 */
-
 	let Loc = /*#__PURE__*/function () {
 	  function Loc() {
 	    babelHelpers.classCallCheck(this, Loc);
 	  }
-
 	  babelHelpers.createClass(Loc, null, [{
 	    key: "getMessage",
-
 	    /**
 	     * Gets message by id
 	     * @param {string} messageId
@@ -9718,16 +9257,15 @@ window._main_polyfill_core = true;
 	     */
 	    value: function getMessage(messageId, replacements = null) {
 	      let mess = message(messageId);
-
 	      if (Type.isString(mess) && Type.isPlainObject(replacements)) {
+	        const escape = str => String(str).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 	        Object.keys(replacements).forEach(replacement => {
-	          const globalRegexp = new RegExp(replacement, 'gi');
+	          const globalRegexp = new RegExp(escape(replacement), 'gi');
 	          mess = mess.replace(globalRegexp, () => {
 	            return Type.isNil(replacements[replacement]) ? '' : String(replacements[replacement]);
 	          });
 	        });
 	      }
-
 	      return mess;
 	    }
 	  }, {
@@ -9740,7 +9278,6 @@ window._main_polyfill_core = true;
 	     * @param {string | Object<string, string>} id
 	     * @param {string} [value]
 	     */
-
 	  }, {
 	    key: "setMessage",
 	    value: function setMessage(id, value) {
@@ -9749,7 +9286,6 @@ window._main_polyfill_core = true;
 	          [id]: value
 	        });
 	      }
-
 	      if (Type.isObject(id)) {
 	        message(id);
 	      }
@@ -9761,12 +9297,10 @@ window._main_polyfill_core = true;
 	     * @param {object} [replacements]
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getMessagePlural",
 	    value: function getMessagePlural(messageId, value, replacements = null) {
 	      let result = '';
-
 	      if (Type.isNumber(value)) {
 	        if (this.hasMessage(`${messageId}_PLURAL_${this.getPluralForm(value)}`)) {
 	          result = this.getMessage(`${messageId}_PLURAL_${this.getPluralForm(value)}`, replacements);
@@ -9776,7 +9310,6 @@ window._main_polyfill_core = true;
 	      } else {
 	        result = this.getMessage(messageId, replacements);
 	      }
-
 	      return result;
 	    }
 	    /**
@@ -9786,20 +9319,16 @@ window._main_polyfill_core = true;
 	     * @param {string} [languageId]
 	     * @return {?number}
 	     */
-
 	  }, {
 	    key: "getPluralForm",
 	    value: function getPluralForm(value, languageId) {
 	      let pluralForm;
-
 	      if (!Type.isStringFilled(languageId)) {
 	        languageId = message('LANGUAGE_ID');
 	      }
-
 	      if (value < 0) {
 	        value = -1 * value;
 	      }
-
 	      switch (languageId) {
 	        case 'ar':
 	          pluralForm = value !== 1 ? 1 : 0;
@@ -9832,15 +9361,12 @@ window._main_polyfill_core = true;
 	          					pluralForm = 5;
 	          				}
 	           */
-
 	          break;
-
 	        case 'br':
 	        case 'fr':
 	        case 'tr':
 	          pluralForm = value > 1 ? 1 : 0;
 	          break;
-
 	        case 'de':
 	        case 'en':
 	        case 'hi':
@@ -9848,7 +9374,6 @@ window._main_polyfill_core = true;
 	        case 'la':
 	          pluralForm = value !== 1 ? 1 : 0;
 	          break;
-
 	        case 'ru':
 	        case 'ua':
 	          if (value % 10 === 1 && value % 100 !== 11) {
@@ -9858,9 +9383,7 @@ window._main_polyfill_core = true;
 	          } else {
 	            pluralForm = 2;
 	          }
-
 	          break;
-
 	        case 'pl':
 	          if (value === 1) {
 	            pluralForm = 0;
@@ -9869,9 +9392,7 @@ window._main_polyfill_core = true;
 	          } else {
 	            pluralForm = 2;
 	          }
-
 	          break;
-
 	        case 'id':
 	        case 'ja':
 	        case 'ms':
@@ -9881,12 +9402,10 @@ window._main_polyfill_core = true;
 	        case 'vn':
 	          pluralForm = 0;
 	          break;
-
 	        default:
 	          pluralForm = 1;
 	          break;
 	      }
-
 	      return pluralForm;
 	    }
 	  }]);
@@ -9915,7 +9434,6 @@ window._main_polyfill_core = true;
 	    children: [],
 	    voidElement: false
 	  };
-
 	  if (tag.startsWith('<!--')) {
 	    const endIndex = tag.indexOf('-->');
 	    const openTagLength = '<!--'.length;
@@ -9924,31 +9442,24 @@ window._main_polyfill_core = true;
 	      content: endIndex !== -1 ? tag.slice(openTagLength, endIndex) : ''
 	    };
 	  }
-
 	  const tagNameMatch = tag.match(matchers.tagName);
-
 	  if (Type.isArrayFilled(tagNameMatch)) {
 	    const [, tagName] = tagNameMatch;
 	    tagResult.name = tagName;
 	    tagResult.svg = tagName === 'svg';
 	    tagResult.voidElement = isVoidElement(tagName) || tag.trim().endsWith('/>');
 	  }
-
 	  const reg = new RegExp(matchers.attributes);
-
 	  for (;;) {
 	    const result = reg.exec(tag);
-
 	    if (!Type.isNil(result)) {
 	      // Attributes with double quotes
 	      const [, attrName, attrValue] = result;
-
 	      if (!Type.isNil(attrName)) {
 	        tagResult.attrs[attrName] = Type.isStringFilled(attrValue) ? attrValue : '';
 	      } else {
 	        // Attributes with single quotes
 	        const [,,, attrName, attrValue] = result;
-
 	        if (!Type.isNil(attrName)) {
 	          tagResult.attrs[attrName] = Type.isStringFilled(attrValue) ? attrValue : '';
 	        } else {
@@ -9961,7 +9472,6 @@ window._main_polyfill_core = true;
 	      break;
 	    }
 	  }
-
 	  return tagResult;
 	}
 
@@ -9972,37 +9482,31 @@ window._main_polyfill_core = true;
 	    if (Type.isStringFilled(item)) {
 	      acc.push(...item.split(/\n/).reduce((textAcc, text) => {
 	        const preparedItemText = text.replace(/[\t\r]/g, '');
-
 	        if (Type.isStringFilled(preparedItemText)) {
 	          textAcc.push({
 	            type: 'text',
 	            content: preparedItemText
 	          });
 	        }
-
 	        return textAcc;
 	      }, []));
 	    }
-
 	    if (placeholders && placeholders[index]) {
 	      acc.push({
 	        type: 'placeholder',
 	        uid: parseInt(placeholders[index].replace(/{{uid|}}/, ''))
 	      });
 	    }
-
 	    return acc;
 	  }, []);
 	}
 
 	function parse(html, substitutions) {
 	  const result = [];
-
 	  if (html.indexOf('<') !== 0 && !html.startsWith('{{')) {
 	    const end = html.indexOf('<');
 	    result.push(...parseText(end === -1 ? html : html.slice(0, end)));
 	  }
-
 	  const commentsContent = [];
 	  let commentIndex = -1;
 	  html = html.replace(matchers.comment, tag => {
@@ -10017,70 +9521,54 @@ window._main_polyfill_core = true;
 	    const start = index + tag.length;
 	    const nextChar = html.charAt(start);
 	    let parent;
-
 	    if (tag.startsWith('<!--')) {
 	      const comment = parseTag(tag, substitutions);
 	      comment.content = commentsContent[tag.replace(/<!--{{cUid|}}-->/g, '')];
-
 	      if (level < 0) {
 	        result.push(comment);
 	        return result;
 	      }
-
 	      parent = arr[level];
 	      parent.children.push(comment);
 	      return result;
 	    }
-
 	    if (tag.startsWith('{{')) {
 	      const [placeholder] = parseText(tag);
-
 	      if (level < 0) {
 	        result.push(placeholder);
 	        return result;
 	      }
-
 	      parent = arr[level];
 	      parent.children.push(placeholder);
 	      return result;
 	    }
-
 	    if (!tag.startsWith('</')) {
 	      level++;
 	      current = parseTag(tag, substitutions);
-
 	      if (!current.voidElement && nextChar && nextChar !== '<') {
 	        current.children.push(...parseText(html.slice(start, html.indexOf('<', start))));
 	      }
-
 	      if (level === 0) {
 	        result.push(current);
 	      }
-
 	      parent = arr[level - 1];
-
 	      if (parent) {
 	        if (!current.svg) {
 	          current.svg = parent.svg;
 	        }
-
 	        parent.children.push(current);
 	      }
-
 	      arr[level] = current;
 	    }
-
 	    if (tag.startsWith('</') || current.voidElement) {
 	      if (level > -1 && (current.voidElement || current.name === tag.slice(2, -1))) {
 	        level--;
 	        current = level === -1 ? result : arr[level];
 	      }
-
 	      if (nextChar && nextChar !== '<') {
 	        parent = level === -1 ? result : arr[level].children;
 	        const end = html.indexOf('<', start);
 	        const content = html.slice(start, end === -1 ? undefined : end);
-
 	        if (end > -1 && level + parent.length >= 0 || content !== ' ') {
 	          parent.push(...parseText(content));
 	        }
@@ -10100,27 +9588,22 @@ window._main_polyfill_core = true;
 	    }
 	  }
 	};
-
 	function renderNode(options) {
 	  const {
 	    node,
 	    parentElement,
 	    substitutions
 	  } = options;
-
 	  if (node.type === 'tag') {
 	    const element = (() => {
 	      if (node.svg) {
 	        return document.createElementNS('http://www.w3.org/2000/svg', node.name);
 	      }
-
 	      return document.createElement(node.name);
 	    })();
-
 	    Object.entries(node.attrs).forEach(([key, value]) => {
 	      if (key.startsWith('on') && new RegExp(matchers.placeholder).test(value)) {
 	        const substitution = substitutions[parseInt(value.replace(/{{uid|}}/, '')) - 1];
-
 	        if (Type.isFunction(substitution)) {
 	          const bindFunctionName = key.endsWith('once') ? 'bindOnce' : 'bind';
 	          Event[bindFunctionName](element, key.replace(/^on|once$/g, ''), substitution);
@@ -10134,7 +9617,6 @@ window._main_polyfill_core = true;
 	              const substitution = substitutions[parseInt(item.replace('uid', '')) - 1];
 	              return `${acc}${substitution}`;
 	            }
-
 	            return `${acc}${item}`;
 	          }, '');
 	          element.setAttribute(key, preparedValue);
@@ -10149,7 +9631,6 @@ window._main_polyfill_core = true;
 	        parentElement: element,
 	        substitutions
 	      });
-
 	      if (Type.isArray(result)) {
 	        result.forEach(subChildElement => {
 	          appendElement(subChildElement, element);
@@ -10160,11 +9641,9 @@ window._main_polyfill_core = true;
 	    });
 	    return element;
 	  }
-
 	  if (node.type === 'comment') {
 	    return document.createComment(node.content);
 	  }
-
 	  if (node.type === 'text') {
 	    if (parentElement) {
 	      if (parentElement.nodeName !== 'TEMPLATE') {
@@ -10172,13 +9651,10 @@ window._main_polyfill_core = true;
 	      } else {
 	        parentElement.content.append(node.content);
 	      }
-
 	      return;
 	    }
-
 	    return document.createTextNode(node.content);
 	  }
-
 	  if (node.type === 'placeholder') {
 	    return substitutions[node.uid - 1];
 	  }
@@ -10188,25 +9664,20 @@ window._main_polyfill_core = true;
 	  const html = sections.reduce((acc, item, index) => {
 	    if (index > 0) {
 	      const substitution = substitutions[index - 1];
-
 	      if (Type.isString(substitution) || Type.isNumber(substitution)) {
 	        return `${acc}${substitution}${item}`;
 	      }
-
 	      return `${acc}{{uid${index}}}${item}`;
 	    }
-
 	    return acc;
 	  }, sections[0]).replace(/^[\r\n\t\s]+/gm, '').replace(/>[\n]+/g, '>').replace(/[}][\n]+/g, '}');
 	  const ast = parse(html);
-
 	  if (ast.length === 1) {
 	    return renderNode({
 	      node: ast[0],
 	      substitutions
 	    });
 	  }
-
 	  if (ast.length > 1) {
 	    return ast.map(node => {
 	      return renderNode({
@@ -10215,18 +9686,15 @@ window._main_polyfill_core = true;
 	      });
 	    });
 	  }
-
 	  return false;
 	}
 
 	function parseProps(sections, ...substitutions) {
 	  return substitutions.reduce((acc, item, index) => {
 	    const nextSectionIndex = index + 1;
-
 	    if (!Type.isPlainObject(item) && !Type.isArray(item)) {
 	      return acc + item + sections[nextSectionIndex];
 	    }
-
 	    return `${acc}__s${index}${sections[nextSectionIndex]}`;
 	  }, sections[0]).replace(/[\r\t]/gm, '').split(';\n').map(item => item.replace(/\n/, '')).reduce((acc, item) => {
 	    if (item !== '') {
@@ -10235,31 +9703,25 @@ window._main_polyfill_core = true;
 	      const key = matches[0].replace(':', '').trim();
 	      const value = splitted[1].trim();
 	      const substitutionPlaceholderExp = /^__s\d+/;
-
 	      if (substitutionPlaceholderExp.test(value)) {
 	        acc[key] = substitutions[value.replace('__s', '')];
 	        return acc;
 	      }
-
 	      acc[key] = value;
 	    }
-
 	    return acc;
 	  }, {});
 	}
+
 	/**
 	 * @memberOf BX
 	 */
-
-
 	let Tag = /*#__PURE__*/function () {
 	  function Tag() {
 	    babelHelpers.classCallCheck(this, Tag);
 	  }
-
 	  babelHelpers.createClass(Tag, null, [{
 	    key: "safe",
-
 	    /**
 	     * Encodes all substitutions
 	     * @param sections
@@ -10275,7 +9737,6 @@ window._main_polyfill_core = true;
 	     * @param substitutions
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "unsafe",
 	    value: function unsafe(sections, ...substitutions) {
@@ -10286,14 +9747,12 @@ window._main_polyfill_core = true;
 	     * @param {HTMLElement} element
 	     * @return {Function}
 	     */
-
 	  }, {
 	    key: "style",
 	    value: function style(element) {
 	      if (!Type.isDomNode(element)) {
 	        throw new Error('element is not HTMLElement');
 	      }
-
 	      return function styleTagHandler(...args) {
 	        Dom.style(element, parseProps(...args));
 	      };
@@ -10304,7 +9763,6 @@ window._main_polyfill_core = true;
 	     * @param substitutions
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "message",
 	    value: function message(sections, ...substitutions) {
@@ -10312,7 +9770,6 @@ window._main_polyfill_core = true;
 	    }
 	  }, {
 	    key: "attrs",
-
 	    /**
 	     * Adds attributes to specified element
 	     * @param element
@@ -10322,7 +9779,6 @@ window._main_polyfill_core = true;
 	      if (!Type.isDomNode(element)) {
 	        throw new Error('element is not HTMLElement');
 	      }
-
 	      return function attrsTagHandler(...args) {
 	        Dom.attr(element, parseProps(...args));
 	      };
@@ -10330,7 +9786,6 @@ window._main_polyfill_core = true;
 	  }]);
 	  return Tag;
 	}();
-
 	babelHelpers.defineProperty(Tag, "render", render);
 	babelHelpers.defineProperty(Tag, "attr", Tag.attrs);
 
@@ -10340,37 +9795,29 @@ window._main_polyfill_core = true;
 	      return (sourceKey, value, accumulator) => {
 	        const result = /\[(\w*)\]$/.exec(sourceKey);
 	        const key = sourceKey.replace(/\[\w*\]$/, '');
-
 	        if (Type.isNil(result)) {
 	          accumulator[key] = value;
 	          return;
 	        }
-
 	        if (Type.isUndefined(accumulator[key])) {
 	          accumulator[key] = {};
 	        }
-
 	        accumulator[key][result[1]] = value;
 	      };
-
 	    case 'bracket':
 	      return (sourceKey, value, accumulator) => {
 	        const result = /(\[\])$/.exec(sourceKey);
 	        const key = sourceKey.replace(/\[\]$/, '');
-
 	        if (Type.isNil(result)) {
 	          accumulator[key] = value;
 	          return;
 	        }
-
 	        if (Type.isUndefined(accumulator[key])) {
 	          accumulator[key] = [value];
 	          return;
 	        }
-
 	        accumulator[key] = [].concat(accumulator[key], value);
 	      };
-
 	    default:
 	      return (sourceKey, value, accumulator) => {
 	        const key = sourceKey.replace(/\[\]$/, '');
@@ -10378,43 +9825,41 @@ window._main_polyfill_core = true;
 	      };
 	  }
 	}
-
 	function getKeyFormat(key) {
 	  if (/^\w+\[([\w]+)\]$/.test(key)) {
 	    return 'index';
 	  }
-
 	  if (/^\w+\[\]$/.test(key)) {
 	    return 'bracket';
 	  }
-
 	  return 'default';
 	}
-
+	function isAllowedKey(key) {
+	  return !String(key).startsWith('__proto__');
+	}
 	function parseQuery(input) {
 	  if (!Type.isString(input)) {
 	    return {};
 	  }
-
 	  const url = input.trim().replace(/^[?#&]/, '');
-
 	  if (!url) {
 	    return {};
 	  }
-
-	  return url.split('&').reduce((acc, param) => {
-	    const [key, value] = param.replace(/\+/g, ' ').split('=');
-	    const keyFormat = getKeyFormat(key);
-	    const formatter = getParser(keyFormat);
-	    formatter(key, value, acc);
-	    return acc;
-	  }, {});
+	  return {
+	    ...url.split('&').reduce((acc, param) => {
+	      const [key, value] = param.replace(/\+/g, ' ').split('=');
+	      if (isAllowedKey(key)) {
+	        const keyFormat = getKeyFormat(key);
+	        const formatter = getParser(keyFormat);
+	        formatter(key, value, acc);
+	      }
+	      return acc;
+	    }, Object.create(null))
+	  };
 	}
-
 	const urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#(\w*))?/;
 	function parseUrl(url) {
 	  const result = url.match(urlExp);
-
 	  if (Type.isArray(result)) {
 	    const queryParams = parseQuery(result[14]);
 	    return {
@@ -10432,7 +9877,6 @@ window._main_polyfill_core = true;
 	      origin: result[8] || ''
 	    };
 	  }
-
 	  return {};
 	}
 
@@ -10443,24 +9887,19 @@ window._main_polyfill_core = true;
 	        acc.push(`${key}[]=${paramValue}`);
 	      }, '');
 	    }
-
 	    if (Type.isPlainObject(params[key])) {
 	      Object.keys(params[key]).forEach(paramIndex => {
 	        acc.push(`${key}[${paramIndex}]=${params[key][paramIndex]}`);
 	      }, '');
 	    }
-
 	    if (!Type.isObject(params[key]) && !Type.isArray(params[key])) {
 	      acc.push(`${key}=${params[key]}`);
 	    }
-
 	    return acc;
 	  }, []).join('&');
-
 	  if (queryString.length > 0) {
 	    return `?${queryString}`;
 	  }
-
 	  return queryString;
 	}
 
@@ -10468,21 +9907,20 @@ window._main_polyfill_core = true;
 	  if (Type.isArray(value)) {
 	    return value.map(item => String(item));
 	  }
-
 	  if (Type.isPlainObject(value)) {
-	    return { ...value
+	    return {
+	      ...value
 	    };
 	  }
-
 	  return String(value);
 	}
 
 	const map = new WeakMap();
+
 	/**
 	 * Implements interface for works with URI
 	 * @memberOf BX
 	 */
-
 	let Uri = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Uri, null, [{
 	    key: "addParam",
@@ -10496,17 +9934,15 @@ window._main_polyfill_core = true;
 	      return new Uri(url).removeQueryParam(...removableParams).toString();
 	    }
 	  }]);
-
 	  function Uri(url = '') {
 	    babelHelpers.classCallCheck(this, Uri);
 	    map.set(this, parseUrl(url));
 	  }
+
 	  /**
 	   * Gets schema
 	   * @return {?string}
 	   */
-
-
 	  babelHelpers.createClass(Uri, [{
 	    key: "getSchema",
 	    value: function getSchema() {
@@ -10517,7 +9953,6 @@ window._main_polyfill_core = true;
 	     * @param {string} schema
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setSchema",
 	    value: function setSchema(schema) {
@@ -10528,7 +9963,6 @@ window._main_polyfill_core = true;
 	     * Gets host
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getHost",
 	    value: function getHost() {
@@ -10539,7 +9973,6 @@ window._main_polyfill_core = true;
 	     * @param {string} host
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setHost",
 	    value: function setHost(host) {
@@ -10550,7 +9983,6 @@ window._main_polyfill_core = true;
 	     * Gets port
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getPort",
 	    value: function getPort() {
@@ -10561,7 +9993,6 @@ window._main_polyfill_core = true;
 	     * @param {String | Number} port
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setPort",
 	    value: function setPort(port) {
@@ -10572,7 +10003,6 @@ window._main_polyfill_core = true;
 	     * Gets path
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getPath",
 	    value: function getPath() {
@@ -10583,7 +10013,6 @@ window._main_polyfill_core = true;
 	     * @param {string} path
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setPath",
 	    value: function setPath(path) {
@@ -10591,7 +10020,6 @@ window._main_polyfill_core = true;
 	        map.get(this).path = `/${String(path)}`;
 	        return this;
 	      }
-
 	      map.get(this).path = String(path);
 	      return this;
 	    }
@@ -10599,7 +10027,6 @@ window._main_polyfill_core = true;
 	     * Gets query
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getQuery",
 	    value: function getQuery() {
@@ -10610,16 +10037,13 @@ window._main_polyfill_core = true;
 	     * @param {string} key
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getQueryParam",
 	    value: function getQueryParam(key) {
 	      const params = this.getQueryParams();
-
-	      if (key in params) {
+	      if (Object.hasOwn(params, key)) {
 	        return params[key];
 	      }
-
 	      return null;
 	    }
 	    /**
@@ -10628,7 +10052,6 @@ window._main_polyfill_core = true;
 	     * @param [value]
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setQueryParam",
 	    value: function setQueryParam(key, value = '') {
@@ -10639,11 +10062,11 @@ window._main_polyfill_core = true;
 	     * Gets query params
 	     * @return {Object<string, any>}
 	     */
-
 	  }, {
 	    key: "getQueryParams",
 	    value: function getQueryParams() {
-	      return { ...map.get(this).queryParams
+	      return {
+	        ...map.get(this).queryParams
 	      };
 	    }
 	    /**
@@ -10651,12 +10074,12 @@ window._main_polyfill_core = true;
 	     * @param {Object<string, any>} params
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setQueryParams",
 	    value: function setQueryParams(params = {}) {
 	      const currentParams = this.getQueryParams();
-	      const newParams = { ...currentParams,
+	      const newParams = {
+	        ...currentParams,
 	        ...params
 	      };
 	      Object.keys(newParams).forEach(key => {
@@ -10670,14 +10093,14 @@ window._main_polyfill_core = true;
 	     * @param keys
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "removeQueryParam",
 	    value: function removeQueryParam(...keys) {
-	      const currentParams = { ...map.get(this).queryParams
+	      const currentParams = {
+	        ...map.get(this).queryParams
 	      };
 	      keys.forEach(key => {
-	        if (key in currentParams) {
+	        if (Object.hasOwn(currentParams, key)) {
 	          delete currentParams[key];
 	        }
 	      });
@@ -10688,7 +10111,6 @@ window._main_polyfill_core = true;
 	     * Gets fragment
 	     * @return {?string}
 	     */
-
 	  }, {
 	    key: "getFragment",
 	    value: function getFragment() {
@@ -10699,7 +10121,6 @@ window._main_polyfill_core = true;
 	     * @param {string} hash
 	     * @return {Uri}
 	     */
-
 	  }, {
 	    key: "setFragment",
 	    value: function setFragment(hash) {
@@ -10710,11 +10131,11 @@ window._main_polyfill_core = true;
 	     * Serializes URI
 	     * @return {Object}
 	     */
-
 	  }, {
 	    key: "serialize",
 	    value: function serialize() {
-	      const serialized = { ...map.get(this)
+	      const serialized = {
+	        ...map.get(this)
 	      };
 	      serialized.href = this.toString();
 	      return serialized;
@@ -10723,26 +10144,22 @@ window._main_polyfill_core = true;
 	     * Gets URI string
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "toString",
 	    value: function toString() {
-	      const data = { ...map.get(this)
+	      const data = {
+	        ...map.get(this)
 	      };
 	      let protocol = data.schema ? `${data.schema}://` : '';
-
 	      if (data.useShort) {
 	        protocol = '//';
 	      }
-
 	      const port = (() => {
 	        if (Type.isString(data.port) && !['', '80'].includes(data.port)) {
 	          return `:${data.port}`;
 	        }
-
 	        return '';
 	      })();
-
 	      const host = this.getHost();
 	      const path = this.getPath();
 	      const query = buildQueryString(data.queryParams);
@@ -10760,10 +10177,8 @@ window._main_polyfill_core = true;
 	  function Validation() {
 	    babelHelpers.classCallCheck(this, Validation);
 	  }
-
 	  babelHelpers.createClass(Validation, null, [{
 	    key: "isEmail",
-
 	    /**
 	     * Checks that value is valid email
 	     * @param value
@@ -10782,10 +10197,8 @@ window._main_polyfill_core = true;
 	    babelHelpers.classCallCheck(this, BaseCache);
 	    babelHelpers.defineProperty(this, "storage", new Map());
 	  }
-
 	  babelHelpers.createClass(BaseCache, [{
 	    key: "get",
-
 	    /**
 	     * Gets cached value or default value
 	     */
@@ -10794,18 +10207,15 @@ window._main_polyfill_core = true;
 	        if (Type.isFunction(defaultValue)) {
 	          return defaultValue();
 	        }
-
 	        if (!Type.isUndefined(defaultValue)) {
 	          return defaultValue;
 	        }
 	      }
-
 	      return this.storage.get(key);
 	    }
 	    /**
 	     * Sets cache entry
 	     */
-
 	  }, {
 	    key: "set",
 	    value: function set(key, value) {
@@ -10814,7 +10224,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Deletes cache entry
 	     */
-
 	  }, {
 	    key: "delete",
 	    value: function _delete(key) {
@@ -10823,7 +10232,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Checks that storage contains entry with specified key
 	     */
-
 	  }, {
 	    key: "has",
 	    value: function has(key) {
@@ -10832,7 +10240,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Gets cached value if exists,
 	     */
-
 	  }, {
 	    key: "remember",
 	    value: function remember(key, defaultValue) {
@@ -10843,13 +10250,11 @@ window._main_polyfill_core = true;
 	          this.storage.set(key, defaultValue);
 	        }
 	      }
-
 	      return this.storage.get(key);
 	    }
 	    /**
 	     * Gets storage size
 	     */
-
 	  }, {
 	    key: "size",
 	    value: function size() {
@@ -10858,7 +10263,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Gets storage keys
 	     */
-
 	  }, {
 	    key: "keys",
 	    value: function keys() {
@@ -10867,7 +10271,6 @@ window._main_polyfill_core = true;
 	    /**
 	     * Gets storage values
 	     */
-
 	  }, {
 	    key: "values",
 	    value: function values() {
@@ -10879,16 +10282,13 @@ window._main_polyfill_core = true;
 
 	let MemoryCache = /*#__PURE__*/function (_BaseCache) {
 	  babelHelpers.inherits(MemoryCache, _BaseCache);
-
 	  function MemoryCache(...args) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, MemoryCache);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(MemoryCache).call(this, ...args));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "storage", new Map());
 	    return _this;
 	  }
-
 	  return MemoryCache;
 	}(BaseCache);
 
@@ -10898,10 +10298,8 @@ window._main_polyfill_core = true;
 	    babelHelpers.defineProperty(this, "stackKey", 'BX.Cache.Storage.LsStorage.stack');
 	    babelHelpers.defineProperty(this, "stack", null);
 	  }
-
 	  babelHelpers.createClass(LsStorage, [{
 	    key: "getStack",
-
 	    /**
 	     * @private
 	     */
@@ -10909,25 +10307,20 @@ window._main_polyfill_core = true;
 	      if (Type.isPlainObject(this.stack)) {
 	        return this.stack;
 	      }
-
 	      const stack = localStorage.getItem(this.stackKey);
-
 	      if (Type.isString(stack) && stack !== '') {
 	        const parsedStack = JSON.parse(stack);
-
 	        if (Type.isPlainObject(parsedStack)) {
 	          this.stack = parsedStack;
 	          return this.stack;
 	        }
 	      }
-
 	      this.stack = {};
 	      return this.stack;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "saveStack",
 	    value: function saveStack() {
@@ -10953,7 +10346,6 @@ window._main_polyfill_core = true;
 	    key: "delete",
 	    value: function _delete(key) {
 	      const stack = this.getStack();
-
 	      if (key in stack) {
 	        delete stack[key];
 	      }
@@ -10988,27 +10380,22 @@ window._main_polyfill_core = true;
 
 	let LocalStorageCache = /*#__PURE__*/function (_BaseCache) {
 	  babelHelpers.inherits(LocalStorageCache, _BaseCache);
-
 	  function LocalStorageCache(...args) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, LocalStorageCache);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(LocalStorageCache).call(this, ...args));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "storage", new LsStorage());
 	    return _this;
 	  }
-
 	  return LocalStorageCache;
 	}(BaseCache);
 
 	/**
 	 * @memberOf BX
 	 */
-
 	let Cache = function Cache() {
 	  babelHelpers.classCallCheck(this, Cache);
 	};
-
 	babelHelpers.defineProperty(Cache, "MemoryCache", MemoryCache);
 	babelHelpers.defineProperty(Cache, "LocalStorageCache", LocalStorageCache);
 
@@ -11023,19 +10410,16 @@ window._main_polyfill_core = true;
 	      return acc;
 	    }, []);
 	  }
-
 	  return [];
 	}
 
 	let SettingsCollection = /*#__PURE__*/function () {
 	  function SettingsCollection(options = {}) {
 	    babelHelpers.classCallCheck(this, SettingsCollection);
-
 	    if (Type.isPlainObject(options)) {
 	      Object.assign(this, options);
 	    }
 	  }
-
 	  babelHelpers.createClass(SettingsCollection, [{
 	    key: "get",
 	    value: function get(path, defaultValue = null) {
@@ -11045,10 +10429,8 @@ window._main_polyfill_core = true;
 	          if (!Type.isUndefined(acc[key])) {
 	            return acc[key];
 	          }
-
 	          return defaultValue;
 	        }
-
 	        return acc;
 	      }, this);
 	    }
@@ -11063,17 +10445,14 @@ window._main_polyfill_core = true;
 	    });
 	    return Object.freeze(target);
 	  }
-
 	  return target;
 	}
 
 	const settingsStorage = new Map();
-
 	let Extension$1 = /*#__PURE__*/function () {
 	  function Extension() {
 	    babelHelpers.classCallCheck(this, Extension);
 	  }
-
 	  babelHelpers.createClass(Extension, null, [{
 	    key: "getSettings",
 	    value: function getSettings(extensionName) {
@@ -11081,9 +10460,7 @@ window._main_polyfill_core = true;
 	        if (settingsStorage.has(extensionName)) {
 	          return settingsStorage.get(extensionName);
 	        }
-
 	        const settingsScriptNode = document.querySelector(`script[data-extension="${extensionName}"]`);
-
 	        if (Type.isDomNode(settingsScriptNode)) {
 	          const decodedSettings = (() => {
 	            try {
@@ -11092,13 +10469,11 @@ window._main_polyfill_core = true;
 	              return new SettingsCollection();
 	            }
 	          })();
-
 	          const frozenSettings = deepFreeze(decodedSettings);
 	          settingsStorage.set(extensionName, frozenSettings);
 	          return frozenSettings;
 	        }
 	      }
-
 	      return deepFreeze(new SettingsCollection());
 	    }
 	  }]);
@@ -11106,40 +10481,29 @@ window._main_polyfill_core = true;
 	}();
 
 	let _Symbol$iterator;
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _searchIndexToInsert = /*#__PURE__*/new WeakSet();
-
 	_Symbol$iterator = Symbol.iterator;
-
 	let OrderedArray = /*#__PURE__*/function () {
 	  function OrderedArray(comparator = null) {
 	    babelHelpers.classCallCheck(this, OrderedArray);
-
 	    _classPrivateMethodInitSpec(this, _searchIndexToInsert);
-
 	    babelHelpers.defineProperty(this, "comparator", null);
 	    babelHelpers.defineProperty(this, "items", []);
 	    this.comparator = Type.isFunction(comparator) ? comparator : null;
 	  }
-
 	  babelHelpers.createClass(OrderedArray, [{
 	    key: "add",
 	    value: function add(item) {
 	      let index = -1;
-
 	      if (this.comparator) {
 	        index = _classPrivateMethodGet(this, _searchIndexToInsert, _searchIndexToInsert2).call(this, item);
 	        this.items.splice(index, 0, item);
 	      } else {
 	        this.items.push(item);
 	      }
-
 	      return index;
 	    }
 	  }, {
@@ -11159,7 +10523,6 @@ window._main_polyfill_core = true;
 	        const item = this.items[index];
 	        return Type.isUndefined(item) ? null : item;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -11183,12 +10546,10 @@ window._main_polyfill_core = true;
 	    key: "delete",
 	    value: function _delete(item) {
 	      const index = this.getIndex(item);
-
 	      if (index !== -1) {
 	        this.items.splice(index, 1);
 	        return true;
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -11220,35 +10581,31 @@ window._main_polyfill_core = true;
 	    key: "sort",
 	    value: function sort() {
 	      const comparator = this.getComparator();
-
 	      if (comparator === null) {
 	        return;
 	      }
+
 	      /*
 	      Simple implementation
 	      this.items.sort((item1, item2) => {
 	      	return comparator(item1, item2);
 	      });
 	      */
+
 	      // For stable sorting https://v8.dev/features/stable-sort
-
-
 	      const length = this.items.length;
 	      const indexes = new Array(length);
-
 	      for (let i = 0; i < length; i++) {
 	        indexes[i] = i;
-	      } // If the comparator returns zero, use the original indexes
+	      }
 
-
+	      // If the comparator returns zero, use the original indexes
 	      indexes.sort((index1, index2) => {
 	        return comparator(this.items[index1], this.items[index2]) || index1 - index2;
 	      });
-
 	      for (let i = 0; i < length; i++) {
 	        indexes[i] = this.items[indexes[i]];
 	      }
-
 	      for (let i = 0; i < length; i++) {
 	        this.items[i] = indexes[i];
 	      }
@@ -11256,30 +10613,24 @@ window._main_polyfill_core = true;
 	  }]);
 	  return OrderedArray;
 	}();
-
 	function _searchIndexToInsert2(value) {
 	  let low = 0;
 	  let high = this.items.length;
-
 	  while (low < high) {
 	    const mid = Math.floor((low + high) / 2);
-
 	    if (this.comparator(this.items[mid], value) >= 0) {
 	      high = mid;
 	    } else {
 	      low = mid + 1;
 	    }
 	  }
-
 	  return low;
 	}
 
 	let ZIndexComponent = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ZIndexComponent, _EventEmitter);
-
 	  function ZIndexComponent(element, componentOptions = {}) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ZIndexComponent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ZIndexComponent).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "sort", 0);
@@ -11289,27 +10640,18 @@ window._main_polyfill_core = true;
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlay", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlayGap", -5);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "stack", null);
-
 	    _this.setEventNamespace('BX.Main.ZIndexManager.Component');
-
 	    if (!Type.isElementNode(element)) {
 	      throw new Error('ZIndexManager.Component: The argument \'element\' must be a DOM element.');
 	    }
-
 	    _this.element = element;
 	    const options = Type.isPlainObject(componentOptions) ? componentOptions : {};
-
 	    _this.setAlwaysOnTop(options.alwaysOnTop);
-
 	    _this.setOverlay(options.overlay);
-
 	    _this.setOverlayGap(options.overlayGap);
-
 	    _this.subscribeFromOptions(options.events);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ZIndexComponent, [{
 	    key: "getSort",
 	    value: function getSort() {
@@ -11319,7 +10661,6 @@ window._main_polyfill_core = true;
 	     * @internal
 	     * @param sort
 	     */
-
 	  }, {
 	    key: "setSort",
 	    value: function setSort(sort) {
@@ -11331,7 +10672,6 @@ window._main_polyfill_core = true;
 	     * @internal
 	     * @param stack
 	     */
-
 	  }, {
 	    key: "setStack",
 	    value: function setStack(stack) {
@@ -11350,18 +10690,15 @@ window._main_polyfill_core = true;
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "setZIndex",
 	    value: function setZIndex(zIndex) {
 	      const changed = this.getZIndex() !== zIndex;
 	      this.getElement().style.setProperty('z-index', zIndex, 'important');
 	      this.zIndex = zIndex;
-
 	      if (this.getOverlay() !== null) {
 	        this.getOverlay().style.setProperty('z-index', zIndex + this.getOverlayGap(), 'important');
 	      }
-
 	      if (changed) {
 	        this.emit('onZIndexChange', {
 	          component: this
@@ -11391,7 +10728,6 @@ window._main_polyfill_core = true;
 	      if (Type.isElementNode(overlay) || overlay === null) {
 	        this.overlay = overlay;
 	        this.setOverlayGap(gap);
-
 	        if (this.getStack()) {
 	          this.getStack().sort();
 	        }
@@ -11427,26 +10763,19 @@ window._main_polyfill_core = true;
 	    babelHelpers.defineProperty(this, "baseIndex", 1000);
 	    babelHelpers.defineProperty(this, "baseStep", 50);
 	    babelHelpers.defineProperty(this, "sortCount", 0);
-
 	    if (!Type.isDomNode(container)) {
 	      throw new Error('ZIndexManager.Stack: The \'container\' argument must be a DOM element.');
 	    }
-
 	    this.container = container;
-
 	    const comparator = (componentA, componentB) => {
 	      let result = (componentA.getAlwaysOnTop() || 0) - (componentB.getAlwaysOnTop() || 0);
-
 	      if (!result) {
 	        result = componentA.getSort() - componentB.getSort();
 	      }
-
 	      return result;
 	    };
-
 	    this.components = new OrderedArray(comparator);
 	  }
-
 	  babelHelpers.createClass(ZIndexStack, [{
 	    key: "getBaseIndex",
 	    value: function getBaseIndex() {
@@ -11480,7 +10809,6 @@ window._main_polyfill_core = true;
 	        console.warn('ZIndexManager: You cannot register the element twice.', element);
 	        return this.getComponent(element);
 	      }
-
 	      const component = new ZIndexComponent(element, options);
 	      component.setStack(this);
 	      component.setSort(++this.sortCount);
@@ -11527,12 +10855,10 @@ window._main_polyfill_core = true;
 	    key: "bringToFront",
 	    value: function bringToFront(element) {
 	      const component = this.getComponent(element);
-
 	      if (!component) {
 	        console.error('ZIndexManager: element was not found in the stack.', element);
 	        return null;
 	      }
-
 	      component.setSort(++this.sortCount);
 	      this.sort();
 	      return component;
@@ -11542,9 +10868,7 @@ window._main_polyfill_core = true;
 	}();
 
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
-
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-
 	/**
 	 * @memberof BX
 	 */
@@ -11552,16 +10876,13 @@ window._main_polyfill_core = true;
 	  function ZIndexManager() {
 	    babelHelpers.classCallCheck(this, ZIndexManager);
 	  }
-
 	  babelHelpers.createClass(ZIndexManager, null, [{
 	    key: "register",
 	    value: function register(element, options = {}) {
 	      const parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
-
 	      if (!parentNode) {
 	        return null;
 	      }
-
 	      const stack = this.getOrAddStack(parentNode);
 	      return stack.register(element, options);
 	    }
@@ -11569,9 +10890,7 @@ window._main_polyfill_core = true;
 	    key: "unregister",
 	    value: function unregister(element) {
 	      const parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
-
 	      const stack = this.getStack(parentNode);
-
 	      if (stack) {
 	        stack.unregister(element);
 	      }
@@ -11597,11 +10916,9 @@ window._main_polyfill_core = true;
 	    key: "getComponent",
 	    value: function getComponent(element) {
 	      const parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element, true);
-
 	      if (!parentNode) {
 	        return null;
 	      }
-
 	      const stack = this.getStack(parentNode);
 	      return stack ? stack.getComponent(element) : null;
 	    }
@@ -11609,37 +10926,29 @@ window._main_polyfill_core = true;
 	    key: "bringToFront",
 	    value: function bringToFront(element) {
 	      const parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
-
 	      const stack = this.getStack(parentNode);
-
 	      if (stack) {
 	        return stack.bringToFront(element);
 	      }
-
 	      return null;
 	    }
 	  }]);
 	  return ZIndexManager;
 	}();
-
 	function _getParentNode(element, suppressWarnings = false) {
 	  if (!Type.isElementNode(element)) {
 	    if (!suppressWarnings) {
 	      console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
 	    }
-
 	    return null;
 	  } else if (!Type.isElementNode(element.parentNode)) {
 	    if (!suppressWarnings) {
 	      console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
 	    }
-
 	    return null;
 	  }
-
 	  return element.parentNode;
 	}
-
 	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
 
 	var collections = {
@@ -11650,7 +10959,6 @@ window._main_polyfill_core = true;
 	  if (Type.isString(element)) {
 	    return document.getElementById(element);
 	  }
-
 	  return element;
 	}
 
@@ -11658,25 +10966,24 @@ window._main_polyfill_core = true;
 	  if (Type.isElementNode(element)) {
 	    return element.ownerDocument.parentWindow || element.ownerDocument.defaultView || window;
 	  }
-
 	  if (Type.isDomNode(element)) {
 	    return element.parentWindow || element.defaultView || window;
 	  }
-
 	  return window;
 	}
 
 	/* eslint-disable prefer-rest-params */
 
+	// BX.*
 	const {
 	  getClass,
 	  namespace
 	} = Reflection;
 	const message$1 = message;
+
 	/**
 	 * @memberOf BX
 	 */
-
 	const {
 	  replace,
 	  remove,
@@ -11704,27 +11011,23 @@ window._main_polyfill_core = true;
 	};
 	const cleanNode = (element, removeElement = false) => {
 	  const currentElement = getElement(element);
-
 	  if (Type.isDomNode(currentElement)) {
 	    Dom.clean(currentElement);
-
 	    if (removeElement) {
 	      Dom.remove(currentElement);
 	      return currentElement;
 	    }
 	  }
-
 	  return currentElement;
 	};
 	const getCookie = Http.Cookie.get;
 	const setCookie = (name, value, options = {}) => {
-	  const attributes = { ...options
+	  const attributes = {
+	    ...options
 	  };
-
 	  if (Type.isNumber(attributes.expires)) {
 	    attributes.expires /= 3600 * 24;
 	  }
-
 	  Http.Cookie.set(name, value, attributes);
 	};
 	const {
@@ -11752,9 +11055,11 @@ window._main_polyfill_core = true;
 	  debounce,
 	  throttle,
 	  html
-	} = Runtime; // BX.type
+	} = Runtime;
 
-	const type = { ...Object.getOwnPropertyNames(Type).filter(key => !['name', 'length', 'prototype', 'caller', 'arguments'].includes(key)).reduce((acc, key) => {
+	// BX.type
+	const type = {
+	  ...Object.getOwnPropertyNames(Type).filter(key => !['name', 'length', 'prototype', 'caller', 'arguments'].includes(key)).reduce((acc, key) => {
 	    acc[key] = Type[key];
 	    return acc;
 	  }, {}),
@@ -11765,8 +11070,9 @@ window._main_polyfill_core = true;
 	    const parsed = parseInt(value);
 	    return !Number.isNaN(parsed) ? parsed : 0;
 	  }
-	}; // BX.browser
+	};
 
+	// BX.browser
 	const browser = {
 	  IsOpera: Browser.isOpera,
 	  IsIE: Browser.isIE,
@@ -11793,8 +11099,9 @@ window._main_polyfill_core = true;
 	  DetectAndroidVersion: Browser.detectAndroidVersion,
 	  isPropertySupported: Browser.isPropertySupported,
 	  addGlobalFeatures: Browser.addGlobalFeatures
-	}; // eslint-disable-next-line
+	};
 
+	// eslint-disable-next-line
 	const ajax = window.BX ? window.BX.ajax : () => {};
 	function GetWindowScrollSize(doc = document) {
 	  return {
@@ -11817,7 +11124,8 @@ window._main_polyfill_core = true;
 	  };
 	}
 	function GetWindowSize(doc = document) {
-	  return { ...GetWindowInnerSize(doc),
+	  return {
+	    ...GetWindowInnerSize(doc),
 	    ...GetWindowScrollPos(doc),
 	    ...GetWindowScrollSize(doc)
 	  };
@@ -11829,7 +11137,6 @@ window._main_polyfill_core = true;
 	  if (!element) {
 	    return new DOMRect().toJSON();
 	  }
-
 	  if (element.ownerDocument === document && !relative) {
 	    const clientRect = element.getBoundingClientRect();
 	    const root = document.documentElement;
@@ -11845,31 +11152,27 @@ window._main_polyfill_core = true;
 	      bottom: Math.round(clientRect.bottom + (root.scrollTop || body.scrollTop))
 	    };
 	  }
-
 	  let x = 0;
 	  let y = 0;
 	  const w = element.offsetWidth;
 	  const h = element.offsetHeight;
-	  let first = true; // eslint-disable-next-line no-param-reassign
+	  let first = true;
 
+	  // eslint-disable-next-line no-param-reassign
 	  for (; element != null; element = element.offsetParent) {
 	    if (!first && relative && BX.is_relative(element)) {
 	      break;
 	    }
-
 	    x += element.offsetLeft;
 	    y += element.offsetTop;
-
 	    if (first) {
-	      first = false; // eslint-disable-next-line no-continue
-
+	      first = false;
+	      // eslint-disable-next-line no-continue
 	      continue;
 	    }
-
 	    x += Text.toNumber(Dom.style(element, 'border-left-width'));
 	    y += Text.toNumber(Dom.style(element, 'border-top-width'));
 	  }
-
 	  return new DOMRect(x, y, w, h).toJSON();
 	}
 	function addCustomEvent(eventObject, eventName, eventHandler) {
@@ -11878,26 +11181,21 @@ window._main_polyfill_core = true;
 	    eventName = eventObject;
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (eventObject === window) {
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (!Type.isObject(eventObject)) {
 	    console.error('The "eventObject" argument must be an object. Received type ' + typeof eventObject + '.');
 	    return;
 	  }
-
 	  if (!Type.isStringFilled(eventName)) {
 	    console.error('The "eventName" argument must be a string.');
 	    return;
 	  }
-
 	  if (!Type.isFunction(eventHandler)) {
 	    console.error('The "eventHandler" argument must be a function. Received type ' + typeof eventHandler + '.');
 	    return;
 	  }
-
 	  eventName = eventName.toLowerCase();
 	  EventEmitter.subscribe(eventObject, eventName, eventHandler, {
 	    compatMode: true,
@@ -11911,15 +11209,12 @@ window._main_polyfill_core = true;
 	    eventName = eventObject;
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (!Type.isObject(eventObject) || eventObject === window) {
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (!eventParams) {
 	    eventParams = [];
 	  }
-
 	  eventName = eventName.toLowerCase();
 	  const event = new BaseEvent();
 	  event.setData(eventParams);
@@ -11935,16 +11230,13 @@ window._main_polyfill_core = true;
 	    eventName = eventObject;
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (!Type.isFunction(eventHandler)) {
 	    console.error('The "eventHandler" argument must be a function. Received type ' + typeof eventHandler + '.');
 	    return;
 	  }
-
 	  if (eventObject === window) {
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  eventName = eventName.toLowerCase();
 	  EventEmitter.unsubscribe(eventObject, eventName, eventHandler, {
 	    useGlobalNaming: true
@@ -11955,11 +11247,9 @@ window._main_polyfill_core = true;
 	    eventName = eventObject;
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  if (eventObject === window) {
 	    eventObject = EventEmitter.GLOBAL_TARGET;
 	  }
-
 	  eventName = eventName.toLowerCase();
 	  EventEmitter.unsubscribeAll(eventObject, eventName, {
 	    useGlobalNaming: true
@@ -12078,13 +11368,6 @@ window._main_polyfill_core = true;
 	var lastWait = [];
 
 	var CHECK_FORM_ELEMENTS = {tagName: /^INPUT|SELECT|TEXTAREA|BUTTON$/i};
-
-	var PRELOADING = 1;
-	var PRELOADED = 2;
-	var LOADING = 3;
-	var LOADED = 4;
-	var assets = {};
-	var isAsync = null;
 
 	BX.MSLEFT = 1;
 	BX.MSMIDDLE = 2;
@@ -14431,6 +13714,10 @@ window._main_polyfill_core = true;
 		}
 	};
 
+	const LOADING = 3;
+	const LOADED = 4;
+	const assets = {};
+
 	BX.load = function(items, callback, doc)
 	{
 		if (!BX.isReady)
@@ -14439,61 +13726,44 @@ window._main_polyfill_core = true;
 			BX.ready(function() {
 				BX.load.apply(this, _args);
 			});
+
 			return null;
 		}
 
 		doc = doc || document;
-		if (isAsync === null)
-		{
-			isAsync = "async" in doc.createElement("script") || "MozAppearance" in doc.documentElement.style || window.opera;
-		}
 
-		return isAsync ? loadAsync(items, callback, doc) : loadAsyncEmulation(items, callback, doc);
+		callback = BX.Type.isFunction(callback) ? callback : () => {};
+
+		return loadAsync(items, callback, doc);
 	};
-
-	BX.convert =
-		{
-			toNumber: function(value)
-			{
-				if(BX.type.isNumber(value))
-				{
-					return value;
-				}
-
-				value = Number(value);
-				return !isNaN(value) ? value : 0;
-			},
-			nodeListToArray: function(nodes)
-			{
-				try
-				{
-					return (Array.prototype.slice.call(nodes, 0));
-				}
-				catch (ex)
-				{
-					var ary = [];
-					for(var i = 0, l = nodes.length; i < l; i++)
-					{
-						ary.push(nodes[i]);
-					}
-					return ary;
-				}
-			}
-		};
 
 	function loadAsync(items, callback, doc)
 	{
 		if (!BX.type.isArray(items))
 		{
+			callback();
+
 			return;
 		}
 
-		function allLoaded(items)
+		function onLoad()
 		{
-			items = items || assets;
-			for (var name in items)
+			const nextAsset = queue.shift();
+			if (nextAsset)
 			{
-				if (items.hasOwnProperty(name) && items[name].state !== LOADED)
+				load(nextAsset, onLoad, doc);
+			}
+			else if (allLoaded())
+			{
+				callback();
+			}
+		}
+
+		function allLoaded()
+		{
+			for (const name in assetMap)
+			{
+				if (assetMap[name].state !== LOADED)
 				{
 					return false;
 				}
@@ -14502,97 +13772,30 @@ window._main_polyfill_core = true;
 			return true;
 		}
 
-		if (!BX.type.isFunction(callback))
-		{
-			callback = null;
-		}
-
-		var itemSet = {}, item, i;
-		for (i = 0; i < items.length; i++)
-		{
-			item = items[i];
-			item = getAsset(item);
-			itemSet[item.name] = item;
-		}
-
-		var callbackWasCalled = false;
-		if (items.length > 0)
-		{
-			for (i = 0; i < items.length; i++)
+		const queue = [];
+		const assetMap = {};
+		items.forEach(item => {
+			const asset = getAsset(item);
+			if (asset && asset.state !== LOADED)
 			{
-				item = items[i];
-				item = getAsset(item);
-				load(item, function () {
-					if (allLoaded(itemSet))
-					{
-						if (!callbackWasCalled)
-						{
-							callback && callback();
-							callbackWasCalled = true;
-						}
-
-					}
-				}, doc);
+				queue.push(asset);
+				assetMap[asset.name] = asset;
 			}
+		});
+
+		if (queue.length > 0)
+		{
+			const maxParallelLoads = 6;
+			const parallelLoads = Math.min(queue.length, maxParallelLoads);
+			const firstPackage = queue.splice(0, parallelLoads);
+			firstPackage.forEach(asset => {
+				load(asset, onLoad, doc);
+			});
 		}
 		else
 		{
-			if (typeof callback === 'function')
-			{
-				callback();
-				callbackWasCalled = true;
-			}
+			callback();
 		}
-	}
-
-	function loadAsyncEmulation(items, callback, doc)
-	{
-		function onPreload(asset)
-		{
-			asset.state = PRELOADED;
-			if (BX.type.isArray(asset.onpreload) && asset.onpreload)
-			{
-				for (var i = 0; i < asset.onpreload.length; i++)
-				{
-					asset.onpreload[i].call();
-				}
-			}
-		}
-
-		function preLoad(asset)
-		{
-			if (asset.state === undefined)
-			{
-				asset.state = PRELOADING;
-				asset.onpreload = [];
-
-				loadAsset(
-					{ url: asset.url, type: "cache", ext: asset.ext},
-					function () { onPreload(asset); },
-					doc
-				);
-			}
-		}
-
-		if (!BX.type.isArray(items))
-		{
-			return;
-		}
-
-		if (!BX.type.isFunction(callback))
-		{
-			callback = null;
-		}
-
-		var rest = [].slice.call(items, 1);
-		for (var i = 0; i < rest.length; i++)
-		{
-			preLoad(getAsset(rest[i]));
-		}
-
-		load(getAsset(items[0]), items.length === 1 ? callback : function () {
-			loadAsyncEmulation.apply(null, [rest, callback, doc]);
-		}, doc);
 	}
 
 	function load(asset, callback, doc)
@@ -14602,14 +13805,6 @@ window._main_polyfill_core = true;
 		if (asset.state === LOADED)
 		{
 			callback();
-			return;
-		}
-
-		if (asset.state === PRELOADING)
-		{
-			asset.onpreload.push(function () {
-				load(asset, callback, doc);
-			});
 			return;
 		}
 
@@ -14665,8 +13860,8 @@ window._main_polyfill_core = true;
 			}
 		}
 
-		var ele;
-		var ext = BX.type.isNotEmptyString(asset.ext) ? asset.ext : BX.util.getExtension(asset.url);
+		let ele = null;
+		const ext = BX.type.isNotEmptyString(asset.ext) ? asset.ext : BX.util.getExtension(asset.url);
 
 		if (ext === "css")
 		{
@@ -14704,8 +13899,8 @@ window._main_polyfill_core = true;
 			jsList.push(normalizeMinUrl(normalizeUrl(asset.url)));
 		}
 
-		var templateLink = null;
-		var head = doc.head || doc.getElementsByTagName("head")[0];
+		let templateLink = null;
+		const head = doc.head || doc.getElementsByTagName("head")[0];
 		if (ext === "css" && (templateLink = getTemplateLink(head)) !== null)
 		{
 			templateLink.parentNode.insertBefore(ele, templateLink);
@@ -14742,6 +13937,7 @@ window._main_polyfill_core = true;
 		}
 
 		assets[asset.name] = asset;
+
 		return asset;
 	}
 
@@ -15339,6 +14535,35 @@ window._main_polyfill_core = true;
 			return e.srcElement;
 		}
 		return null;
+	};
+
+	BX.convert = {
+		toNumber: function(value)
+		{
+			if(BX.type.isNumber(value))
+			{
+				return value;
+			}
+
+			value = Number(value);
+			return !isNaN(value) ? value : 0;
+		},
+		nodeListToArray: function(nodes)
+		{
+			try
+			{
+				return (Array.prototype.slice.call(nodes, 0));
+			}
+			catch (ex)
+			{
+				var ary = [];
+				for(var i = 0, l = nodes.length; i < l; i++)
+				{
+					ary.push(nodes[i]);
+				}
+				return ary;
+			}
+		}
 	};
 
 	/******* HINT ***************/

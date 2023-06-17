@@ -169,7 +169,6 @@ class PushTable extends Main\Entity\DataManager
 	 * @param Result $result
 	 * @param mixed $primary
 	 * @param array $data
-	 * @throws Main\ArgumentException
 	 */
 	public static function checkFields(Result $result, $primary, array $data)
 	{
@@ -208,19 +207,12 @@ class PushTable extends Main\Entity\DataManager
 		$result = new Entity\EventResult;
 		$data = $event->getParameter("fields");
 
-		if(!$data["APP_ID"])
+		if(!isset($data["APP_ID"]))
 		{
-			if(defined("MOBILEAPP_DEFAULT_APP_ID"))
-			{
-				$data["APP_ID"] = MOBILEAPP_DEFAULT_APP_ID;
-			}
-			else
-			{
-				$data["APP_ID"] = "unknown";
-			}
+			$data["APP_ID"] = defined("MOBILEAPP_DEFAULT_APP_ID") ? MOBILEAPP_DEFAULT_APP_ID : "unknown";
 		}
 
-		if(!$data["DEVICE_NAME"])
+		if(!isset($data["DEVICE_NAME"]))
 		{
 			$data["DEVICE_NAME"] = $data["DEVICE_ID"];
 		}

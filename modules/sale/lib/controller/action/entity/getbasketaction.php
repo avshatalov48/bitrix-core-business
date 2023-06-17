@@ -11,7 +11,7 @@ use Bitrix\Sale;
  * @example BX.ajax.runAction("sale.entity.getBasket", { data: { fields: { siteId:'s1', fuserId:1 }}});
  * @internal
  */
-final class GetBasketAction extends BaseAction
+final class GetBasketAction extends Sale\Controller\Action\BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

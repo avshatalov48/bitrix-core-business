@@ -97,7 +97,6 @@ $MESS["INS_AP_PAP"] = "Folder access permissions";
 $MESS["INS_AP_PAP_DESCR"] = "Enter a permission setting that allows write access to server folders";
 $MESS["INS_BEFORE_USER_EXIT"] = "Attention! Closing browser window or refreshing a page can cause installation failures. Click Cancel button to continue installation.";
 $MESS["INS_CREATE_DB"] = "Database:";
-$MESS["INS_CREATE_DB_CHAR_NOTE"] = "UTF-8 charset is available for MySQL version 4.1.2 and newer";
 $MESS["INS_CREATE_DB_TYPE"] = "Database tables type:";
 $MESS["INS_CREATE_DB_TYPE_NOTE"] = "Types of tables different from the standard type are available from MySql 4.0";
 $MESS["INS_CREATE_USER"] = "Database user:";

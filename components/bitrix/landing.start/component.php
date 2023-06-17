@@ -106,7 +106,8 @@ $defaultUrlTemplates404 = array(
 	'roles' => 'roles/',
 	'notes' => 'notes/',
 	'role_edit' => 'role/edit/#role_edit#/',
-	'folder_edit' => 'folder/edit/#folder_edit#/'
+	'folder_edit' => 'folder/edit/#folder_edit#/',
+	'ai_settings' => 'ai/settings/',
 );
 $urlTpls = array(
 	'sites' => array(),
@@ -128,7 +129,8 @@ $urlTpls = array(
 	'roles' => array(),
 	'notes' => array(),
 	'role_edit' => array('role_edit'),
-	'folder_edit' => array('folder_edit')
+	'folder_edit' => array('folder_edit'),
+	'ai_settings' => array(),
 );
 
 // init vars

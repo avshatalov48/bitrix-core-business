@@ -20,7 +20,7 @@ create table if not exists b_landing
 	FOLDER_ID int(18),
 	SEARCH_CONTENT mediumtext default null,
 	VERSION int(18) not null default 1,
-    HISTORY_STEP int(18) not null,
+    HISTORY_STEP int(18) not null default 0,
 	CREATED_BY_ID int(18) not null,
 	MODIFIED_BY_ID int(18) not null,
 	DATE_CREATE timestamp null,
@@ -60,7 +60,7 @@ create table if not exists b_landing_block
 	SEARCH_CONTENT mediumtext default null,
 	ASSETS text default null,
 	FAVORITE_META text default null,
-	HISTORY_STEP_DESIGNER int(18) not null,
+	HISTORY_STEP_DESIGNER int(18) not null default 0,
 	CREATED_BY_ID int(18) not null,
 	MODIFIED_BY_ID int(18) not null,
 	DATE_CREATE timestamp null,
@@ -445,7 +445,8 @@ create table if not exists b_landing_folder
 	PRIMARY KEY(ID),
 	INDEX IX_B_FOLDER_SITE_ID (SITE_ID),
 	INDEX IX_B_FOLDER_ACTIVE (ACTIVE),
-	INDEX IX_B_FOLDER_DELETED (DELETED)
+	INDEX IX_B_FOLDER_DELETED (DELETED),
+	INDEX IX_B_FOLDER_PARENT_ID (PARENT_ID)
 );
 
 create table if not exists b_landing_urlchecker_whitelist

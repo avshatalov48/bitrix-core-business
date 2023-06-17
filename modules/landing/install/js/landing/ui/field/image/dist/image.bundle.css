@@ -31,6 +31,8 @@
 }
 
 .landing-ui-field-image--compact .landing-ui-field-image-right {
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
 	-webkit-box-orient: horizontal;
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: row;
@@ -168,6 +170,12 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-ai-button {
+	-ms-flex-preferred-size: 100%;
+	    flex-basis: 100%;
+	margin-bottom: 10px;
 }
 
 .landing-ui-field-image-dropzone {

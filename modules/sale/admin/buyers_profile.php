@@ -402,14 +402,14 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 							if ($adminSidePanelHelper->isPublicSidePanel())
 							{
 								echo "<script language=\"JavaScript\">";
-								echo "top.window.parent.location.href = '/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
+								echo "top.window.parent.location.href = '/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&lang=" . LANGUAGE_ID . "&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
 								echo "</script>";
 								exit;
 							}
 							else
 							{
 								echo "<script language=\"JavaScript\">";
-								echo "window.parent.location.href = '".$selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
+								echo "window.parent.location.href = '".$selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=" . LANGUAGE_ID . "&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
 								echo "</script>";
 								exit;
 							}
@@ -558,8 +558,10 @@ if(!empty($arUser))
 			$row->AddField("LID", "[".$arOrderMain["LID"]."] ".htmlspecialcharsbx($arSites[$arOrderMain["LID"]]["NAME"])."");
 	}
 
-	if($_REQUEST["table_id"]==$sTableID_tab1)
+	if (($_REQUEST["table_id"] ?? '') === $sTableID_tab1)
+	{
 		$lAdmin_tab1->CheckListMode();
+	}
 	//END MAIN INFO
 
 
@@ -1737,7 +1739,7 @@ if(!empty($arUser))
 			}
 			else
 			{
-				$linkOrder = 'BX.adminPanel.Redirect([], \''.$selfFolderUrl.'sale_order_create.php?USER_ID='.$ID.'&lang='.LANG.'&SITE_ID='.$arViews["SITE_ID"].'&product['.$arViews["PRODUCT_ID"].']=1\', event);';
+				$linkOrder = 'BX.adminPanel.Redirect([], \''.$selfFolderUrl.'sale_order_create.php?USER_ID='.$ID.'&lang=' . LANGUAGE_ID . '&SITE_ID='.$arViews["SITE_ID"].'&product['.$arViews["PRODUCT_ID"].']=1\', event);';
 			}
 			$linkBasket = 'fAddToBasketViewed('.$arViews["PRODUCT_ID"].', \''.$arViews["SITE_ID"].'\')';
 		endif;

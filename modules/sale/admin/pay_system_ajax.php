@@ -1,16 +1,19 @@
 <?php
 
-use Bitrix\Main\Localization\Loc;
+/** @global CMain $APPLICATION */
 use Bitrix\Main\Application;
-use Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
-use Bitrix\Sale\BusinessValue;
 use Bitrix\Main\IO;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\PaySystem\Domain\Verification;
+use Bitrix\Sale\Services\Base\RestrictionManager;
+use Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
 
-define("NO_KEEP_STATISTIC", true);
-define("NO_AGENT_STATISTIC", true);
-define("NO_AGENT_CHECK", true);
-define("NOT_CHECK_PERMISSIONS", true);
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_STATISTIC = true;
+const NO_AGENT_CHECK = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -19,14 +22,16 @@ $context = $instance->getContext();
 $request = $context->getRequest();
 
 $lang = ($request->get('lang') !== null) ? trim($request->get('lang')) : "ru";
-\Bitrix\Main\Context::getCurrent()->setLanguage($lang);
+$context->setLanguage($lang);
 
 Loc::loadMessages(__FILE__);
 
 $arResult = array("ERROR" => "");
 
 if (!\Bitrix\Main\Loader::includeModule('sale'))
+{
 	$arResult["ERROR"] = "Error! Can't include module \"Sale\"";
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/delivery/inputs.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/cashbox/inputs/file.php");
@@ -35,20 +40,27 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
 if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_sessid())
 {
-	$action = ($request->get('action') !== null) ? trim($request->get('action')): '';
+	$action = trim((string)$request->get('action'));
 
 	switch ($action)
 	{
 		case "get_restriction_params_html":
-			$className = ($request->get('className') !== null) ? trim($request->get('className')): '';
-			$params = ($request->get('params') !== null) ? $request->get('params') : array();
-			$paySystemId = ($request->get('paySystemId') !== null) ? intval($request->get('paySystemId')) : 0;
-			$sort = ($request->get('sort') !== null) ? intval($request->get('sort')) : 100;
-
-			if(!$className)
-				throw new \Bitrix\Main\ArgumentNullException("className");
-
 			Manager::getClassesList();
+			$className = trim((string)$request->get('className'));
+			$params = $request->get('params');
+			if (!is_array($params))
+			{
+				$params = [];
+			}
+			$paySystemId = (int)$request->get('paySystemId');
+			$sort = (int)($request->get('sort') ?? 100);
+
+			if (!($className && class_exists($className) && is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
+			{
+				throw new \Bitrix\Main\ArgumentNullException("className");
+			}
+
+			/** @var \Bitrix\Sale\Services\Base\Restriction $className */
 			$paramsStructure = $className::getParamsStructure($paySystemId);
 			$params = $className::prepareParamsValues($params, $paySystemId);
 
@@ -61,14 +73,16 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			{
 				$paramsField .= "<tr>".
 					"<td>".($param["LABEL"] <> '' ? $param["LABEL"].": " : "")."</td>".
-					"<td>".\Bitrix\Sale\Internals\Input\Manager::getEditHtml("RESTRICTION[".$name."]", $param, (isset($params[$name]) ? $params[$name] : null))."</td>".
+					"<td>".\Bitrix\Sale\Internals\Input\Manager::getEditHtml("RESTRICTION[".$name."]", $param, ($params[$name] ?? null))."</td>".
 					"</tr>";
 			}
 
-			$paramsField .= '<tr>'.
-				'<td>'.Loc::getMessage("SALE_PS_SORT").': </td>'.
-				'<td><input type="text" name="SORT" value="'.$sort.'"></td>'.
-				'</tr>';
+			$paramsField .=
+				'<tr>'
+				. '<td>'.Loc::getMessage("SALE_PS_SORT").': </td>'
+				. '<td><input type="text" name="SORT" value="'.$sort.'"></td>'
+				. '</tr>'
+			;
 
 			$arResult["RESTRICTION_HTML"] = $paramsField."</table>";
 			break;
@@ -76,23 +90,27 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 		case "save_restriction":
 			Manager::getClassesList();
 
-			/** @var \Bitrix\Sale\Services\Base\Restriction $className */
-			$className = ($request->get('className') !== null) ? trim($request->get('className')): '';
-			$params = ($request->get('params') !== null) ? $request->get('params') : array();
-			$sort = ($request->get('sort') !== null) ? (int)$request->get('sort') : 100;
-			$paySystemId = ($request->get('paySystemId') !== null) ? (int)$request->get('paySystemId') : 0;
-			$restrictionId = ($request->get('restrictionId') !== null) ? (int)$request->get('restrictionId') : 0;
+			$className = trim((string)$request->get('className'));
+			$params = $request->get('params');
+			if (!is_array($params))
+			{
+				$params = [];
+			}
+			$sort = (int)($request->get('sort') ?? 100);
+			$paySystemId = (int)$request->get('paySystemId');
+			$restrictionId = (int)$request->get('restrictionId');
 
-			if(!class_exists($className) || !(is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
+			if (!($className && class_exists($className) && is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
 			{
 				throw new \Bitrix\Main\ArgumentNullException("className");
 			}
 
-			if(!$paySystemId)
+			if (!$paySystemId)
 			{
-				throw new \Bitrix\Main\ArgumentNullException("paySystemId");
+				throw new \Bitrix\Main\ArgumentNullException('paySystemId');
 			}
 
+			/** @var \Bitrix\Sale\Services\Base\Restriction $className */
 			foreach ($className::getParamsStructure() as $key => $rParams)
 			{
 				$errors = \Bitrix\Sale\Internals\Input\Manager::getError($rParams, $params[$key]);
@@ -106,7 +124,7 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			{
 				$fields = array(
 					"SERVICE_ID" => $paySystemId,
-					"SERVICE_TYPE" => Manager::SERVICE_TYPE_PAYMENT,
+					"SERVICE_TYPE" => RestrictionManager::SERVICE_TYPE_PAYMENT,
 					"SORT" => $sort,
 					"PARAMS" => $params
 				);
@@ -131,8 +149,8 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 		case "delete_restriction":
 			Manager::getClassesList();
 
-			$restrictionId = ($request->get('restrictionId') !== null) ? (int)$request->get('restrictionId') : 0;
-			$paySystemId = ($request->get('paySystemId') !== null) ? (int)$request->get('paySystemId') : 0;
+			$restrictionId = (int)$request->get('restrictionId');
+			$paySystemId = (int)$request->get('paySystemId');
 
 			if(!$restrictionId)
 				throw new \Bitrix\Main\ArgumentNullException('restrictionId');
@@ -179,7 +197,12 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				{
 					if ($modeList)
 					{
-						$psMode = $psMode ?? array_shift(array_keys($modeList));
+						if ($psMode === null)
+						{
+							$modeListIds = array_keys($modeList);
+							$psMode = array_shift($modeListIds);
+							unset($modeListIds);
+						}
 						$arResult["PAYMENT_MODE"] = Bitrix\Sale\Internals\Input\Enum::getEditHtml(
 							'PS_MODE',
 							array(
@@ -191,7 +214,7 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 						);
 					}
 
-					if ($isOrderHandler)
+					if ($isOrderHandler && Loader::includeModule('crm'))
 					{
 						$arResult["PAYMENT_MODE_TITLE"] = Loc::getMessage('SALE_PS_PS_MODE_DOCUMENT_TITLE');
 
@@ -387,11 +410,20 @@ if($arResult["ERROR"] <> '')
 else
 	$arResult["RESULT"] = "OK";
 
-if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
-
-header('Content-Type: application/json');
-die(json_encode($arResult));
+$APPLICATION->RestartBuffer();
+header('Content-Type: application/json;  charset=UTF-8');
+try
+{
+	$body = \Bitrix\Main\Web\Json::encode($arResult);
+}
+catch (\Bitrix\Main\ArgumentException $e)
+{
+	$body = json_encode([
+		'RESULT' => 'ERROR',
+		'ERROR' => $e->getMessage(),
+	]);
+}
+\CMain::FinalActions($body);
 
 function getRestrictionHtml($paySystemId)
 {
@@ -410,14 +442,18 @@ function getRestrictionHtml($paySystemId)
 	return $restrictionsHtml;
 }
 
-function getPaySystemRobokassaSettingsJsData(string $className)
+function getPaySystemRobokassaSettingsJsData(string $className): array
 {
 	$handler = \Bitrix\Sale\PaySystem\Manager::getFolderFromClassName($className);
 	$service = new \Bitrix\Sale\PaySystem\Service([
 		'ACTION_FILE' => $handler,
 	]);
 
-	$arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['NEED_SETTINGS'] = strcasecmp($className, \Sale\Handlers\PaySystem\RoboxchangeHandler::class) === 0;
+	$arResult = [
+		'PAY_SYSTEM_ROBOKASSA_SETTINGS' => [
+			'NEED_SETTINGS' => strcasecmp($className, \Sale\Handlers\PaySystem\RoboxchangeHandler::class) === 0,
+		],
+	];
 	if ($arResult['PAY_SYSTEM_ROBOKASSA_SETTINGS']['NEED_SETTINGS'])
 	{
 		$shopSettings = new \Bitrix\Sale\PaySystem\Robokassa\ShopSettings();

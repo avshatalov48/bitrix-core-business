@@ -4,7 +4,7 @@
 
 		<div class="landing-block-node-date-container g-mb-40 g-mb-70--md">
 			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center"
-				 data-end-date="1681316400000"
+				 data-end-date="1712938800000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"

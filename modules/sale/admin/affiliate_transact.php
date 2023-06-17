@@ -10,7 +10,7 @@ if ($saleModulePermissions == "D")
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -81,7 +81,7 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 	$row->AddField("ID", $f_ID);
 	$row->AddField("TRANSACT_DATE", $f_TRANSACT_DATE);
 
-	$fieldValue  = "[<a href=\"/bitrix/admin/sale_affiliate_edit.php?ID=".$f_AFFILIATE_ID."&lang=".LANG."\" title=\"".GetMessage("SAT2_AFF_PROFILE")."\">".$f_AFFILIATE_ID."</a>] ";
+	$fieldValue  = "[<a href=\"/bitrix/admin/sale_affiliate_edit.php?ID=".$f_AFFILIATE_ID."&lang=" . LANGUAGE_ID . "\" title=\"".GetMessage("SAT2_AFF_PROFILE")."\">".$f_AFFILIATE_ID."</a>] ";
 	$fieldValue .= htmlspecialcharsEx($arTransact["USER_NAME"].(($arTransact["USER_NAME"] == '' || $arTransact["USER_LAST_NAME"] == '') ? "" : " ").$arTransact["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arTransact["AFFILIATE_SITE_ID"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= htmlspecialcharsEx($arTransact["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
@@ -109,7 +109,7 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 				if ($arUser = $dbUser->Fetch())
 					$LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]] = htmlspecialcharsEx($arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");
 			}
-			$fieldValue .= "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arTransact["EMPLOYEE_ID"]."&lang=".LANG."\" title=\"".GetMessage("SAT2_USER_PROFILE")."\">".$arTransact["EMPLOYEE_ID"]."</a>] ";
+			$fieldValue .= "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arTransact["EMPLOYEE_ID"]."&lang=" . LANGUAGE_ID . "\" title=\"".GetMessage("SAT2_USER_PROFILE")."\">".$arTransact["EMPLOYEE_ID"]."</a>] ";
 			$fieldValue .= $LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]];
 		}
 		$fieldValue .= "</small>";

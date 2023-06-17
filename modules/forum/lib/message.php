@@ -797,13 +797,13 @@ class Message extends Internals\Entity
 			"TOPIC_ID" => $topic->getId(),
 
 			"USE_SMILES" => $fields["USE_SMILES"],
-			"NEW_TOPIC" => ($fields["NEW_TOPIC"] === "Y" ? "Y" : "N"),
+			"NEW_TOPIC" => (isset($fields["NEW_TOPIC"]) && $fields["NEW_TOPIC"] === "Y" ? "Y" : "N"),
 			"APPROVED" => $topic["APPROVED"] === Topic::APPROVED_DISAPPROVED || $fields["APPROVED"] === Message::APPROVED_DISAPPROVED ? Message::APPROVED_DISAPPROVED : Message::APPROVED_APPROVED,
 
 			"POST_DATE" => $fields["POST_DATE"] ?: new Main\Type\DateTime(),
 			"POST_MESSAGE" => $fields["POST_MESSAGE"],
-			"ATTACH_IMG" => $fields["ATTACH_IMG"],
-			"FILES" => $fields["FILES"],
+			"ATTACH_IMG" => $fields["ATTACH_IMG"] ?? null,
+			"FILES" => $fields["FILES"] ?? [],
 
 			"AUTHOR_ID" => $fields["AUTHOR_ID"],
 			"AUTHOR_NAME" => $fields["AUTHOR_NAME"],

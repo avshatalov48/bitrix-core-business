@@ -12,6 +12,7 @@
 import "./link.css";
 import {AttachTypeImage} from "./image";
 import { AttachLinks } from "../mixin/attachLinks";
+import { Utils } from 'im.lib.utils';
 
 export const AttachTypeLink =
 {
@@ -42,6 +43,11 @@ export const AttachTypeLink =
 			{
 				return element.NAME? element.NAME: element.LINK;
 			},
+			getDescription(element)
+			{
+				const text = element.HTML? element.HTML: element.DESC;
+				return Utils.text.decode(text);
+			}
 		},
 		computed:
 		{
@@ -75,7 +81,7 @@ export const AttachTypeLink =
 						>
 							{{getLinkName(element)}}
 						</span>
-						<div v-if="element.DESC" class="bx-im-element-attach-type-link-desc">{{element.DESC}}</div>
+						<div v-if="element.DESC || element.HTML" class="bx-im-element-attach-type-link-desc" v-html="getDescription(element)"></div>
 						<div 
 							v-if="element.PREVIEW" 
 							class="bx-im-element-attach-type-link-image"

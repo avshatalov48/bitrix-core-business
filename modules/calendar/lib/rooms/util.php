@@ -2,6 +2,11 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\TypeAccessController;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Main\Access\Exception\UnknownActionException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
@@ -200,7 +205,6 @@ class Util
 		$res = $locNew['mrid'] ? $locNew['str'] : $new;
 		$settings = CCalendar::GetSettings(['request' => false]);
 		$RMiblockId = $settings['rm_iblock_id'] ?? null;
-
 		// If not allowed
 		if ($RMiblockId && $locOld['mrid'] !== false && $locOld['mrevid'] !== false) // Release MR
 		{
@@ -334,16 +338,20 @@ class Util
 	 * @param $userId
 	 *
 	 * @return bool
+	 * @throws UnknownActionException
 	 * @throws LoaderException
 	 */
 	public static function getLocationAccess($userId): bool
 	{
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+
+		$access = (new TypeAccessController($userId))->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, []);
+
 		if (Loader::includeModule('extranet'))
 		{
-			return \CCalendarType::CanDo('calendar_type_edit', 'location')
-				&& CExtranet::IsIntranetUser(SITE_ID, $userId);
+			$access = $access && CExtranet::IsIntranetUser(SITE_ID, $userId);
 		}
 
-		return \CCalendarType::CanDo('calendar_type_edit', 'location');
+		return $access;
 	}
 }

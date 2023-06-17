@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Bizproc;
 use Bitrix\Bizproc\FieldType;
 
 class CBPDocumentService extends CBPRuntimeService
@@ -53,6 +54,30 @@ class CBPDocumentService extends CBPRuntimeService
 		}
 
 		return null;
+	}
+
+	public function isDocumentExists(array $parameterDocumentId): bool
+	{
+		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
+
+		if ($moduleId)
+		{
+			CModule::IncludeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, 'isDocumentExists'))
+		{
+			return (bool)call_user_func_array([$entity, 'isDocumentExists'], [$documentId]);
+		}
+
+		//if no API
+		$document = $this->getDocument($parameterDocumentId);
+		if ($document instanceof Bizproc\Document\ValueCollection)
+		{
+			return (bool)$document['ID'];
+		}
+
+		return is_array($document) && count($document) > 0;
 	}
 
 	public function getFieldValue($parameterDocumentId, $fieldId, $parameterDocumentType = null)

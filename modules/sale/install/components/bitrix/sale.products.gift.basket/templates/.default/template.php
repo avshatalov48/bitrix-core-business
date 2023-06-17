@@ -8,6 +8,7 @@ use \Bitrix\Main\Localization\Loc;
  * @var array $arResult
  * @var CatalogSectionComponent $component
  * @var CBitrixComponentTemplate $this
+ * @var string $componentPath
  */
 
 $this->setFrameMode(true);
@@ -68,7 +69,9 @@ $arParams['~MESS_BTN_ADD_TO_BASKET'] = $arParams['~MESS_BTN_ADD_TO_BASKET'] ?: L
 $arParams['~MESS_NOT_AVAILABLE'] = $arParams['~MESS_NOT_AVAILABLE'] ?: Loc::getMessage('CT_SPGB_TPL_MESS_PRODUCT_NOT_AVAILABLE');
 $arParams['~MESS_SHOW_MAX_QUANTITY'] = $arParams['~MESS_SHOW_MAX_QUANTITY'] ?: Loc::getMessage('CT_SPGB_CATALOG_SHOW_MAX_QUANTITY');
 $arParams['~MESS_RELATIVE_QUANTITY_MANY'] = $arParams['~MESS_RELATIVE_QUANTITY_MANY'] ?: Loc::getMessage('CT_SPGB_CATALOG_RELATIVE_QUANTITY_MANY');
+$arParams['MESS_RELATIVE_QUANTITY_MANY'] = $arParams['MESS_RELATIVE_QUANTITY_MANY'] ?: Loc::getMessage('CT_SPGB_CATALOG_RELATIVE_QUANTITY_MANY');
 $arParams['~MESS_RELATIVE_QUANTITY_FEW'] = $arParams['~MESS_RELATIVE_QUANTITY_FEW'] ?: Loc::getMessage('CT_SPGB_CATALOG_RELATIVE_QUANTITY_FEW');
+$arParams['MESS_RELATIVE_QUANTITY_FEW'] = $arParams['MESS_RELATIVE_QUANTITY_FEW'] ?: Loc::getMessage('CT_SPGB_CATALOG_RELATIVE_QUANTITY_FEW');
 
 $generalParams = array(
 	'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
@@ -86,7 +89,7 @@ $generalParams = array(
 	'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
 	'SHOW_CLOSE_POPUP' => $arParams['SHOW_CLOSE_POPUP'],
 	'DISPLAY_COMPARE' => $arParams['DISPLAY_COMPARE'],
-	'COMPARE_PATH' => $arParams['COMPARE_PATH'],
+	'COMPARE_PATH' => $arParams['~COMPARE_PATH'],
 	'COMPARE_NAME' => $arParams['COMPARE_NAME'],
 	'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
 	'PRODUCT_BLOCKS_ORDER' => $arParams['PRODUCT_BLOCKS_ORDER'],
@@ -94,10 +97,11 @@ $generalParams = array(
 	'DISCOUNT_POSITION_CLASS' => $discountPositionClass,
 	'SLIDER_INTERVAL' => $arParams['SLIDER_INTERVAL'],
 	'SLIDER_PROGRESS' => $arParams['SLIDER_PROGRESS'],
-	'~ADD_URL_TEMPLATE' => $arResult['~ADD_URL_TEMPLATE'],
-	'~BUY_URL_TEMPLATE' => $arResult['~BUY_URL_TEMPLATE'],
-	'~COMPARE_URL_TEMPLATE' => $arResult['~COMPARE_URL_TEMPLATE'],
-	'~COMPARE_DELETE_URL_TEMPLATE' => $arResult['~COMPARE_DELETE_URL_TEMPLATE'],
+	'ADD_URL_TEMPLATE' => $arResult['~ADD_URL_TEMPLATE'],
+	'BUY_URL_TEMPLATE' => $arResult['~BUY_URL_TEMPLATE'],
+	'COMPARE_URL_TEMPLATE' => $arResult['~COMPARE_URL_TEMPLATE'],
+	'COMPARE_DELETE_URL_TEMPLATE' => $arResult['~COMPARE_DELETE_URL_TEMPLATE'],
+	'BASKET_URL' => $arParams['~BASKET_URL'],
 	'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
 	'USE_ENHANCED_ECOMMERCE' => $arParams['USE_ENHANCED_ECOMMERCE'],
 	'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],
@@ -714,7 +718,7 @@ $containerName = 'sale-products-gift-container';
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		deferredLoad: true,
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
-		currentProductId: <?=CUtil::JSEscape((int)$arResult['POTENTIAL_PRODUCT_TO_BUY']['ID'])?>,
+		currentProductId: <?=CUtil::JSEscape((int)($arResult['POTENTIAL_PRODUCT_TO_BUY']['ID'] ?? 0))?>,
 		template: '<?=CUtil::JSEscape($signedTemplate)?>',
 		parameters: '<?=CUtil::JSEscape($signedParams)?>',
 		container: '<?=$containerName?>'

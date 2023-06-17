@@ -1,0 +1,48 @@
+.bx-im-sidebar-header__scope {
+	--im-sidebar-header__background-color_left-border: #e6e7e9;
+	--im-sidebar-header__background-color_container: #fff;
+	--im-sidebar-header__border-color_separator: #ecedef;
+}
+
+.bx-im-sidebar-header__container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 65px;
+	width: 320px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+	border-radius: 0 8px 2px 0;
+	position: relative;
+	background-color: var(--im-sidebar-header__background-color_container);
+	border-bottom: 1px solid var(--im-sidebar-header__border-color_separator);
+}
+
+.bx-im-sidebar-header__container:before {
+	content: '';
+	position: absolute;
+	width: 1px;
+	height: 64px;
+	background-color: var(--im-sidebar-header__background-color_left-border);
+	left: -1px;
+	top: 0;
+}
+
+.bx-im-sidebar-header__title-container {
+	display: flex;
+	align-items: center;
+}
+.bx-im-sidebar-header__cross-icon {
+	margin-left: 16px;
+}
+
+.bx-im-sidebar-header__title {
+	margin-left: 12px;
+	font: var(--im-font-size-2xl)/20px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+}
+
+.bx-im-sidebar-header__context-menu-icon.bx-im-messenger__context-menu-icon {
+	width: 24px;
+	height: 24px;
+	margin-right: 14px;
+}

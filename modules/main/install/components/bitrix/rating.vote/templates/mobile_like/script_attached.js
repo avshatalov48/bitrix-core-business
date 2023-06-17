@@ -24,6 +24,9 @@ RatingLike = function(likeId, entityTypeId, entityId, available)
 		return false;
 	}
 
+	const keySigned = this.box.getAttribute('data-vote-key-signed');
+	this.keySigned = keySigned ? keySigned : '';
+
 	this.button = BX('bx-ilike-button-' + likeId);
 	if (!this.button)
 	{
@@ -179,6 +182,7 @@ RatingLike.Vote = function(likeId, voteAction)
 		data: {
 			RATING_VOTE: 'Y',
 			RATING_VOTE_TYPE_ID: BXRL[likeId].entityTypeId,
+			RATING_VOTE_KEY_SIGNED: BXRL[likeId].keySigned,
 			RATING_VOTE_ENTITY_ID: BXRL[likeId].entityId,
 			RATING_VOTE_ACTION: voteAction,
 			sessid: BX.bitrix_sessid()

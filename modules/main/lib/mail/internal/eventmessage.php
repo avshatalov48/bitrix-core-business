@@ -214,7 +214,7 @@ class EventMessageTable extends Entity\DataManager
 			}
 		}
 
-		if(count($arReplaceTagsOne)>0)
+		if(!empty($arReplaceTagsOne))
 			$strResult = str_replace(array_keys($arReplaceTagsOne), array_values($arReplaceTagsOne), $strResult);
 
 		// php parser delete newline folowing the closing tag in string passed to eval

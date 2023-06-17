@@ -553,7 +553,7 @@ class Helper
 			include($fileName);
 		}
 
-		$compile = count(array_diff(self::getCompiledOptions(), array_keys($arHTMLPagesOptions))) > 0;
+		$compile = !empty(array_diff(self::getCompiledOptions(), array_keys($arHTMLPagesOptions)));
 		$arHTMLPagesOptions = $arHTMLPagesOptions + self::getDefaultOptions();
 		if ($compile)
 		{

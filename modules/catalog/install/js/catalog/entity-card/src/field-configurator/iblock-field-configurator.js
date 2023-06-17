@@ -1,4 +1,4 @@
-import {Dom, Event, Reflection, Tag, Text, Type} from "main.core";
+import {Dom, Event, Reflection, Tag, Text, Type, Loc} from "main.core";
 import IblockDirectoryFieldItem from "./iblock-directory-field-item";
 
 export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConfigurator
@@ -16,24 +16,24 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 	}
 	layoutInternal()
 	{
-		this._wrapper.appendChild(this.getInputContainer());
+		Dom.append(this.getInputContainer(), this._wrapper);
 		if(this._typeId === "list" || this._typeId === "multilist" || this._typeId === "directory")
 		{
-			this._wrapper.appendChild(Tag.render`<hr class="ui-entity-editor-line">`);
+			Dom.append(Tag.render`<hr class="ui-entity-editor-line">`, this._wrapper);
 			if (BX.prop.get(this._field?.getSchemeElement().getData(), 'isConfigurable', null) !== false)
 			{
-				this._wrapper.appendChild(this.getEnumerationContainer());
+				Dom.append(this.getEnumerationContainer(), this._wrapper);
 			}
 		}
 
-		this._wrapper.appendChild(this.getOptionContainer());
-		this._wrapper.appendChild(this.getErrorContainer());
+		Dom.append(this.getOptionContainer(), this._wrapper);
+		Dom.append(this.getErrorContainer(), this._wrapper);
 		Dom.append(Tag.render`<hr class="ui-entity-editor-line">`, this._wrapper);
-		this._wrapper.appendChild(this.getButtonContainer());
+		Dom.append(this.getButtonContainer(), this._wrapper);
 	}
 	getOptionContainer()
 	{
-		var isNew = (this._field === null);
+		const isNew = (this._field === null);
 		this._optionWrapper = Tag.render`
 			<div class="ui-entity-editor-content-block"></div>
 		`;
@@ -57,7 +57,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 
 		//region Show Always
 		this._showAlwaysCheckBox = this.createOption({
-			caption: BX.message('UI_ENTITY_EDITOR_SHOW_ALWAYS'),
+			caption: Loc.getMessage('UI_ENTITY_EDITOR_SHOW_ALWAYS'),
 			helpUrl: 'https://helpdesk.bitrix24.ru/open/7046149/',
 			helpCode: '9627471'
 		});
@@ -115,7 +115,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		const enumWrapper = Tag.render`
 			<div class="ui-entity-editor-content-block">
 				<div class="ui-entity-editor-block-title">
-					<span class="ui-entity-editor-block-title-text">${BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")}</span>
+					<span class="ui-entity-editor-block-title-text">${Loc.getMessage("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")}</span>
 				</div>
 			</div>
 		`;
@@ -127,7 +127,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 
 		const addButton = Tag.render`
 				<div class="ui-entity-card-content-add-field">
-					${BX.message("UI_ENTITY_EDITOR_ADD")}
+					${Loc.getMessage("UI_ENTITY_EDITOR_ADD")}
 				</div>
 			`;
 		Event.bind(addButton, "click", this.onEnumerationItemAddButtonClick.bind(this));
@@ -158,6 +158,14 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		}
 
 		const lastItem = this.createEnumerationItem();
+
+		this._draggable = new BX.UI.DragAndDrop.Draggable({
+			container: this._enumItemContainer,
+			draggable: '.ui-ctl-row',
+			dragElement: '.ui-ctl-row-draggable',
+			type: BX.UI.DragAndDrop.Draggable.CLONE
+		});
+
 		lastItem.focus();
 		this.initItemClickHandlers();
 		return enumWrapper;
@@ -230,7 +238,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 
 	removeEnumerationItem(item)
 	{
-		for (var i = 0, length = this._enumItems.length; i < length; i++)
+		for (let i = 0, length = this._enumItems.length; i < length; i++)
 		{
 			if (this._enumItems[i] === item)
 			{
@@ -274,7 +282,14 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 					enumData['ID'] = Text.getRandom();
 				}
 
-				enumData['SORT'] = (params['enumeration'].length + 1) * 100;
+				let sortIndex = -1;
+				if (this._draggable)
+				{
+					sortIndex = this._draggable.getElementIndex(enumItem.getDraggableContainer());
+				}
+
+				sortIndex = (sortIndex >= 0) ? sortIndex : params['enumeration'].length;
+				enumData["SORT"] = (Text.toNumber(sortIndex) + 1) * 100;
 				params['enumeration'].push(enumData);
 			});
 		}
@@ -368,22 +383,22 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 			this._mandatoryConfigurator.close();
 		}
 
-		let params = this.prepareSaveParams();
+		const params = this.prepareSaveParams();
 
 		if (this._field instanceof BX.UI.EntityEditorCustom)
 		{
 			this._field.getSchemeElement().mergeSettings({multiple: params.multiple});
 
-			let modes = ['edit', 'view'];
+			const modes = ['edit', 'view'];
 			for (let i = 0; i < modes.length; i++)
 			{
-				let htmlListName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i] + 'List', null);
-				let htmlList = BX.prop.getObject(this._field.getModel().getData(), htmlListName, null);
+				const htmlListName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i] + 'List', null);
+				const htmlList = BX.prop.getObject(this._field.getModel().getData(), htmlListName, null);
 
 				if (htmlList !== null)
 				{
-					let newHtml = params.multiple ? htmlList.MULTIPLE : htmlList.SINGLE;
-					let htmlName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i], null);
+					const newHtml = params.multiple ? htmlList.MULTIPLE : htmlList.SINGLE;
+					const htmlName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i], null);
 
 					if (BX.prop.getString(this._field.getModel().getData(), htmlName, null) !== null)
 					{
@@ -394,11 +409,14 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 							if (newHtml === '')
 							{
 								Dom.clean(this._field.getContentWrapper());
-								this._field.getContentWrapper().appendChild(BX.create("div",
-									{
-										props: { className: "ui-entity-editor-content-block-text" },
-										text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
-									}));
+								Dom.append(
+									Tag.render`
+										<div class="ui-entity-editor-content-block-text">
+											${Loc.getMessage("UI_ENTITY_EDITOR_FIELD_EMPTY")}							
+										</div>
+									`,
+									this._field.getContentWrapper()
+								);
 							}
 							else
 							{
@@ -440,7 +458,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		}
 		else
 		{
-			checkBox = this.createOption({caption: BX.message("UI_ENTITY_EDITOR_UF_REQUIRED_FIELD")});
+			checkBox = this.createOption({caption: Loc.getMessage("UI_ENTITY_EDITOR_UF_REQUIRED_FIELD")});
 			checkBox.checked = this._field && this._field.isRequired();
 		}
 		return checkBox;
@@ -448,14 +466,14 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 
 	getIsTimeEnabledCheckBox()
 	{
-		const checkBox = this.createOption({caption: BX.message("UI_ENTITY_EDITOR_UF_ENABLE_TIME")});
+		const checkBox = this.createOption({caption:  Loc.getMessage("UI_ENTITY_EDITOR_UF_ENABLE_TIME")});
 		checkBox.checked = this._field && this._field.isTimeEnabled();
 		return checkBox;
 	}
 
 	getIsPublicCheckBox()
 	{
-		const checkBox = this.createOption({caption: BX.message("CATALOG_ENTITY_EDITOR_IS_PUBLIC_PROPERTY")});
+		const checkBox = this.createOption({caption: Loc.getMessage("CATALOG_ENTITY_EDITOR_IS_PUBLIC_PROPERTY")});
 		if (!this._field)
 		{
 			checkBox.checked = true;

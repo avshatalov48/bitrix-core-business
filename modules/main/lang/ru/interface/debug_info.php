@@ -26,7 +26,6 @@ $MESS["debug_info_comps_exec"] = "Компоненты";
 $MESS["debug_info_queries_exec"] = "Запросы";
 $MESS["debug_info_prolog"] = "Пролог";
 $MESS["debug_info_prolog_before"] = "Ядро";
-$MESS["debug_info_agents"] = "Агенты";
 $MESS["debug_info_prolog_after"] = "Шаблон";
 $MESS["debug_info_work_area"] = "Рабочая область";
 $MESS["debug_info_epilog"] = "Эпилог";

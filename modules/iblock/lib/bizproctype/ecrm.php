@@ -177,5 +177,38 @@ if (Loader::requireModule('bizproc'))
 			return parent::toSingleValue($fieldType, $value);
 		}
 
+		public static function externalizeValue(FieldType $fieldType, $context, $value)
+		{
+			return self::normalizeValue(
+				$fieldType, \CBPHelper::stringify(parent::externalizeValue($fieldType, $context, $value))
+			);
+		}
+
+		private static function isUsePrefix(FieldType $fieldType): ?bool
+		{
+			$options = $fieldType->getOptions();
+
+			if (is_array($options))
+			{
+				unset($options['VISIBLE']);
+
+				return count(array_filter($options, static fn($mark) => $mark === 'Y')) === 1;
+			}
+
+			return null;
+		}
+
+		private static function normalizeValue(FieldType $fieldType, $value)
+		{
+			$hasPrefix = strpos($value,'_') !== false;
+			$isUsePrefix = self::isUsePrefix($fieldType);
+
+			if ($hasPrefix && $isUsePrefix === false)
+			{
+				return current(array_reverse(explode('_', $value)));
+			}
+
+			return $value;
+		}
 	}
 }

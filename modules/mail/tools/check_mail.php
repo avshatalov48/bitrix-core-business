@@ -9,6 +9,7 @@ define('BX_SECURITY_SESSION_READONLY', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
 
+global $USER;
 if (!is_object($USER) || !$USER->IsAuthorized())
 {
 	return;
@@ -33,45 +34,13 @@ if (isset($_REQUEST['SITE_ID']))
 
 \Bitrix\Main\Loader::includeModule('mail');
 
-$error = false;
-$mailboxesSyncManager = new \Bitrix\Mail\Helper\Mailbox\MailboxSyncManager($userId);
-$mailboxesReadyToSync = $mailboxesSyncManager->getNeedToBeSyncedMailboxes();
-$isSuccessSync = false;
-$failedToSyncMailboxId = 0;
-if (!empty($mailboxesReadyToSync))
-{
-	$hasSuccessSync = false;
-	foreach ($mailboxesReadyToSync as $mailboxId => $lastMailCheckData)
-	{
-		$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($mailboxId, false);
-		if (!empty($mailboxHelper))
-		{
-			$result = $mailboxHelper->sync();
-			if ($result === false)
-			{
-				$failedToSyncMailboxId = $mailboxId;
-			}
-			else
-			{
-				$hasSuccessSync = true;
-			}
-			if ($mailboxHelper->getMailbox()['SYNC_LOCK'] >= 0)
-			{
-				break;
-			}
-		}
-	}
-}
-
-$unseen = max(\Bitrix\Mail\Helper\Message::getCountersForUserMailboxes($userId, true), 0);
-\CUserCounter::set($userId, 'mail_unseen', $unseen, $siteId);
+$result = \Bitrix\Mail\Integration\SyncRequest::syncMail();
 
 header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
 echo json_encode([
-	'result' => $error === false ? 'ok' : 'error',
-	'unseen' => $unseen,
-	'hasSuccessSync' => $hasSuccessSync,
-	'failedToSyncMailboxId' => $failedToSyncMailboxId,
+	'unseen' => $result['unseen'],
+	'hasSuccessSync' => $result['hasSuccessSync'],
+	'failedToSyncMailboxId' => $result['lastFailedToSyncMailboxId'],
 ]);
 
 require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_after.php';

@@ -317,22 +317,19 @@ class CBXFavAdmMenu
 				);
 			}
 
-			if(is_array($tmpMenu))
-			{
-				$tmpMenu["fav_id"] = $arItem["ID"];
-				$tmpMenu["parent_menu"] = "global_menu_desktop";
+			$tmpMenu["fav_id"] = $arItem["ID"];
+			$tmpMenu["parent_menu"] = "global_menu_desktop";
 
-				if (!isset($tmpMenu['icon']) || $tmpMenu['icon'] == '')
-					$tmpMenu['icon'] = 'fav_menu_icon';
+			if (!isset($tmpMenu['icon']) || $tmpMenu['icon'] == '')
+				$tmpMenu['icon'] = 'fav_menu_icon';
 
-				if($this->CheckItemActivity($tmpMenu))
-					$tmpMenu["_active"] = true;
+			if($this->CheckItemActivity($tmpMenu))
+				$tmpMenu["_active"] = true;
 
-				if((isset($tmpMenu["_active"]) && $tmpMenu["_active"] || $this->CheckSubItemActivity($tmpMenu)) && $favOptions["stick"] == "Y")
-					$GLOBALS["BX_FAVORITE_MENU_ACTIVE_ID"] = true;
+			if((isset($tmpMenu["_active"]) && $tmpMenu["_active"] || $this->CheckSubItemActivity($tmpMenu)) && $favOptions["stick"] == "Y")
+				$GLOBALS["BX_FAVORITE_MENU_ACTIVE_ID"] = true;
 
-				$aMenu[] = $tmpMenu;
-			}
+			$aMenu[] = $tmpMenu;
 		}
 
 		return $aMenu;
@@ -345,7 +342,7 @@ class CBXFavAdmMenu
 
 		foreach ($arMenu["items"] as $menu)
 		{
-			if(isset($menu["_active"]) && isset($menu["_active"]) == true)
+			if(isset($menu["_active"]) && $menu["_active"] == true)
 				return true;
 
 			if($this->CheckSubItemActivity($menu))
@@ -366,12 +363,12 @@ class CBXFavAdmMenu
 			return false;
 
 		$currentUrl = $APPLICATION->GetCurPageParam();
-		$menuUrl = htmlspecialcharsback($arMenu["url"]);
+		$menuUrl = htmlspecialcharsback($arMenu["url"] ?? '');
 
 		if(CBXFavUrls::Compare($menuUrl, $currentUrl))
 			return true;
 
-		$activeSectUrl = htmlspecialcharsback($adminMenu->aActiveSections["_active"]["url"]);
+		$activeSectUrl = htmlspecialcharsback($adminMenu->aActiveSections["_active"]["url"] ?? '');
 
 		if(CBXFavUrls::Compare($menuUrl, $activeSectUrl))
 			return true;

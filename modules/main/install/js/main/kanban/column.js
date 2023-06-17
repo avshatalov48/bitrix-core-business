@@ -58,6 +58,8 @@ BX.Kanban.Column = function(options)
 		title: null,
 		subTitle: null,
 		subTitleAddButton: null,
+		subTitleAddButtonText: null,
+		subTitleAddButtonTextWrapper: null,
 		total: null,
 		name: null,
 		titleArrow: null,
@@ -1140,11 +1142,15 @@ BX.Kanban.Column.prototype =
 						},
 						children: [
 							this.getGrid().getAddItemTitleText()
-							? BX.create("div", {
+							? this.subTitleAddButtonTextWrapper = BX.create("div", {
 								props: {
 									className: "main-kanban-column-add-item-button-text"
 								},
-								text: this.getGrid().getAddItemTitleText()
+								children: [
+									this.subTitleAddButtonText = BX.create("span", {
+										text: this.getGrid().getAddItemTitleText()
+									})
+								],
 							})
 							: null
 						]
@@ -1251,7 +1257,22 @@ BX.Kanban.Column.prototype =
 			children: [
 				this.getHeader(),
 				this.getBody()
-			]
+			],
+			events: {
+				mouseenter: function() {
+					if (this.subTitleAddButtonText && this.subTitleAddButtonTextWrapper)
+					{
+						this.subTitleAddButtonTextWrapper.style.width = this.subTitleAddButtonText.offsetWidth + 'px';
+					}
+				}.bind(this),
+				mouseleave: function() {
+					if (this.subTitleAddButtonText && this.subTitleAddButtonTextWrapper)
+					{
+						this.subTitleAddButtonTextWrapper.style.width = null;
+					}
+				}.bind(this)
+
+			}
 		});
 
 		this.makeDraggable();

@@ -23,7 +23,11 @@
 		{
 			this.layout.classList.add("landing-ui-button-editor-action-color");
 		}
-		this.colorPicker = new BX.Landing.UI.Tool.ColorPicker(this, this.onColorSelected.bind(this));
+		const pickerWindow = BX.Landing.UI.Panel.EditorPanel.getInstance().isOutOfFrame()
+			? window.parent
+			: window
+		;
+		this.colorPicker = new pickerWindow.BX.Landing.UI.Tool.ColorPicker(this, this.onColorSelected.bind(this));
 		BX.Landing.UI.Button.ColorAction.instances.push(this);
 	};
 
@@ -55,7 +59,6 @@
 			if (!this.colorPicker.isShown())
 			{
 				this.colorPicker.show(position);
-				BX.Landing.UI.Button.FontAction.hideAll();
 				if (BX.Landing.UI.Button.ChangeTag.menu)
 				{
 					BX.Landing.UI.Button.ChangeTag.menu.close();
@@ -82,7 +85,7 @@
 			{
 				this.applyBgInTableCells(color);
 			}
-			document.execCommand(this.id, false, color);
+			this.contextDocument.execCommand(this.id, false, color);
 		},
 
 		/**
@@ -139,6 +142,15 @@
 				this.options.table.setAttribute('bg-color', color);
 			}
 			BX.Landing.Block.Node.Text.currentNode.onChange(true);
-		}
+		},
+
+		/**
+		 * @param Document document
+		 */
+		setContextDocument: function(contextDocument)
+		{
+			BX.Landing.UI.Button.EditorAction.prototype.setContextDocument.apply(this, arguments);
+			this.colorPicker.setContextDocument(contextDocument);
+		},
 	};
 })();

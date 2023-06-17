@@ -3,22 +3,11 @@
 
 namespace Bitrix\Sale\Controller;
 
-use \Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Action;
-use Bitrix\Main\Engine\ActionFilter\ClosureWrapper;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Main\NotImplementedException;
-use Bitrix\Main\Result;
-use Bitrix\Main\SystemException;
-use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Rest\Integration\CatalogViewManager;
 use Bitrix\Rest\Integration\Controller\Base;
-use Bitrix\Rest\Integration\Internalizer;
-use Bitrix\Rest\Integration\ModificationFieldsBase;
-use Bitrix\Rest\Integration\SaleViewManager;
-use Bitrix\Rest\Integration\ViewManager;
-use Bitrix\Rest\Integration\Externalizer;
+use Bitrix\Sale\Rest\View\SaleViewManager;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
 use Bitrix\Sale\TradeBindingEntity;
 

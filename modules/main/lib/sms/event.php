@@ -156,7 +156,7 @@ class Event
 
 		$templates = $this->fetchTemplates();
 
-		if(count($templates) == 0)
+		if(empty($templates))
 		{
 			$result->addError(new Main\Error("Templates not found.", self::ERR_TEMPLATES));
 			return $result;

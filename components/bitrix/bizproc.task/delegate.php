@@ -9,45 +9,49 @@ global $APPLICATION, $USER;
 
 $SITE_ID = '';
 if (isset($_REQUEST["SITE_ID"]) && is_string($_REQUEST["SITE_ID"]))
+{
 	$SITE_ID = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["SITE_ID"]), 0, 2);
+}
 
 if ($SITE_ID != '')
+{
 	define("SITE_ID", $SITE_ID);
+}
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 \Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
 
 if (!check_bitrix_sessid() || !$USER->IsAuthorized())
+{
 	die();
+}
 
 if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'delegate')
 {
 	CModule::IncludeModule('bizproc');
 	$isAdmin = $USER->IsAdmin() || (CModule::IncludeModule('bitrix24') && CBitrix24::IsPortalAdmin($USER->GetID()));
-	$errors = array();
+	$errors = [];
 
-	$allowedDelegationType = array(CBPTaskDelegationType::AllEmployees);
+	$taskId = !empty($_REQUEST['task_id']) ? $_REQUEST['task_id'] : null;
+	$toUserId = !empty($_REQUEST['to_user_id']) ? (int)$_REQUEST['to_user_id'] : null;
+	$fromUserId = !empty($_REQUEST['from_user_id']) ? (int)$_REQUEST['from_user_id'] : null;
+
+	$allowedDelegationType = [CBPTaskDelegationType::AllEmployees];
 	if ($isAdmin)
 	{
 		$allowedDelegationType = null;
 	}
-	elseif (CBPHelper::checkUserSubordination($USER->GetID(), $_REQUEST['to_user_id']))
+	elseif (CBPHelper::checkUserSubordination($USER->GetID(), $toUserId))
 	{
 		$allowedDelegationType[] = CBPTaskDelegationType::Subordinate;
 	}
 
-	if (!empty($_REQUEST['task_id']) && !empty($_REQUEST['from_user_id']) && !empty($_REQUEST['to_user_id']))
+	if (!empty($taskId) && $fromUserId !== null && $toUserId !== null)
 	{
-		if (!CBPDocument::delegateTasks(
-			$_REQUEST['from_user_id'],
-			$_REQUEST['to_user_id'],
-			$_REQUEST['task_id'],
-			$errors,
-			$allowedDelegationType
-		))
+		if (!CBPDocument::delegateTasks($fromUserId, $toUserId, $taskId, $errors, $allowedDelegationType))
 		{
-			$errors[] = GetMessage('BPAT_DELEGATE_NOTASKS');
+			$errors[] = Bitrix\Main\Localization\Loc::getMessage('BPAT_DELEGATE_NOTASKS');
 		}
 	}
 	else
@@ -55,8 +59,15 @@ if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'delegate')
 		$errors[] = 'System error';
 	}
 
-	$message = $errors? $errors[0] : GetMessage('BPAT_DELEGATE_SUCCESS');
-	echo CUtil::PhpToJSObject(array('message' => $message, 'success' => empty($errors)));
+	$message =
+		$errors
+			? $errors[0]
+			: Bitrix\Main\Localization\Loc::getMessage(
+				'BPAT_DELEGATE_SUCCESS_1',
+				['#USER_NAME#' => CBPHelper::convertUserToPrintableForm($toUserId, '', false)]
+		)
+	;
+	echo CUtil::PhpToJSObject(['message' => $message, 'success' => empty($errors)]);
 }
 else
 {
@@ -80,4 +91,5 @@ else
 		array('HIDE_ICONS' => 'Y')
 	);
 }
+
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');

@@ -93,12 +93,12 @@ class BaseOperator
 
 	protected function normalizeZeroComparing($value, $field): array
 	{
-		if ($value === '' && $field === '0')
+		if ($value === '' && ($field === '0' || $field === 0.0))
 		{
 			return [null, null];
 		}
 
-		if ($value === '0' && $field === '')
+		if (($value === '0' || $value === 0.0) && $field === '')
 		{
 			return [null, null];
 		}

@@ -9,9 +9,18 @@
 		this.loadedEntriesIndex = {};
 		this.externalEntryIndex = {};
 		this.movedEntries = [];
+		this.sentRequests = [];
+
+		this.REQUEST_GET_LIST = 'getList';
+		this.REQUEST_MOVE_EVENT = 'moveEvent';
 	}
 
 	EntryController.prototype = {
+
+		isAwaitingAnyResponses: function()
+		{
+			return this.sentRequests.length > 0;
+		},
 
 		getList: function (params)
 		{
@@ -37,7 +46,9 @@
 		getExternalLoadedList: async function(params)
 		{
 			let entries;
+			this.sentRequests.push(this.REQUEST_GET_LIST);
 			await this.loadExternalEntries(params).then(() => {
+					this.sentRequests.pop();
 					entries = this.getEntriesFromEntriesRaw(params.viewRange);
 				});
 
@@ -47,9 +58,21 @@
 		getLoadedList: async function(params)
 		{
 			let entries;
+			this.sentRequests.push(this.REQUEST_GET_LIST);
 			await BX.Calendar.EntryManager.doDelayedActions()
 				.then(() => this.loadEntries(params))
-				.then(() => {
+				.then((responseData) => {
+					this.sentRequests.pop();
+					if (responseData.newYearFrom !== undefined && responseData.newMonthFrom !== undefined)
+					{
+						const previousStart = params.viewRange.start;
+						params.viewRange.start = new Date(responseData.newYearFrom, responseData.newMonthFrom - 1, previousStart.getDate());
+					}
+					if (responseData.newYearTo !== undefined && responseData.newMonthTo !== undefined)
+					{
+						const previousEnd = params.viewRange.end;
+						params.viewRange.end = new Date(responseData.newYearTo, responseData.newMonthTo - 1, previousEnd.getDate());
+					}
 					entries = this.getEntriesFromEntriesRaw(params.viewRange);
 				});
 
@@ -146,6 +169,7 @@
 				});
 			}
 
+			this.sentRequests.push(this.REQUEST_MOVE_EVENT);
 			return new Promise((resolve) => {
 				BX.ajax.runAction('calendar.api.calendarentryajax.moveEvent', {
 					data: {
@@ -165,6 +189,8 @@
 						requestUid: BX.Calendar.Util.registerRequestId()
 					}
 				}).then((response) => {
+					this.sentRequests.pop();
+
 					let isEntrySavedSuccessfully = true;
 					if (entry.isMeeting() && response.data.busy_warning)
 					{
@@ -352,20 +378,34 @@
 						year_to: params.finishDate ? params.finishDate.getFullYear() : '',
 						active_sect: sections.active,
 						sup_sect: sections.superposed,
-						loadNext: params.loadNext ? 'Y' : 'N',
-						loadPrevious: params.loadPrevious ? 'Y' : 'N',
-						loadLimit: params.loadLimit || 0,
-						cal_dav_data_sync: this.calendar.reloadGoogle ? 'Y' : 'N'
+						cal_dav_data_sync: this.calendar.reloadGoogle ? 'Y' : 'N',
+						direction: params.direction ?? '',
 					}
 				}).then((response) => {
 					this.appendToEntriesRaw(response.data.entries);
 					this.updateUserIndex(response.data.userIndex);
+
+					if (response.data.newYearFrom !== undefined && response.data.newMonthFrom !== undefined)
+					{
+						const previousStart = params.startDate;
+						params.startDate = new Date(response.data.newYearFrom, response.data.newMonthFrom - 1, previousStart.getDate());
+					}
+
+					if (response.data.newYearTo !== undefined && response.data.newMonthTo !== undefined)
+					{
+						const previousFinish = params.finishDate;
+						params.finishDate = new Date(response.data.newYearTo, response.data.newMonthTo - 1, previousFinish.getDate());
+					}
+
 					this.fillChunkIndex(params.startDate, params.finishDate, {
 						sections: sections.allActive
 					});
 					this.calendar.reloadGoogle = false;
-					BX.Event.EventEmitter.emit('BX.Calendar:onEntryListReload');
-					resolve();
+					BX.Event.EventEmitter.emit('BX.Calendar:onEntryListReload', {
+						isBoundaryOfPastReached: response.data.isBoundaryOfPastReached,
+						isBoundaryOfFutureReached: response.data.isBoundaryOfFutureReached,
+					});
+					resolve(response.data);
 				});
 			});
 		},
@@ -865,7 +905,7 @@
 
 		isSharingEvent: function()
 		{
-			return this.data['EVENT_TYPE'] === '#shared#';
+			return this.data['EVENT_TYPE'] === '#shared#' || this.data['EVENT_TYPE'] === '#shared_crm#';
 		},
 
 		isInvited: function()

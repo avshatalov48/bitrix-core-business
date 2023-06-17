@@ -27,51 +27,19 @@ return [
 					],
 					'TITLE' => [],
 					'BUTTON_TITLE' => [],
+					'BUTTON_CLASSES' => [
+						'hidden' => true,
+					],
 				],
 			],
 		],
-		// '.landing-block-node-text' => array(
-		// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_TEXT'),
-		// 	'type' => 'text',
-		// ),
-		// '.landing-block-node-title' => array(
-		// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_TITLE'),
-		// 	'type' => 'text',
-		// ),
-		// '.landing-block-node-button' => array(
-		// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_BTN'),
-		// 	'type' => 'link',
-		// ),
 	],
 	'style' => [
 		'block' => [
 			'type' => ['block-default', 'block-border', 'animation'],
 		],
 		'nodes' => [
-			// '.landing-block-node-container' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_CONTAINER'),
-			// 	'type' => 'align-items',
-			// ),
-			// '.landing-block-node-text-container' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_TEXT'),
-			// 	'type' => 'animation',
-			// ),
-			// '.landing-block-node-title' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_TITLE'),
-			// 	'type' => 'typo',
-			// ),
-			// '.landing-block-node-text' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_TEXT'),
-			// 	'type' => 'typo',
-			// ),
-			// '.landing-block-node-button' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_BTN'),
-			// 	'type' => array('button'),
-			// ),
-			// '.landing-block-node-button-container' => array(
-			// 	'name' => Loc::getMessage('LNDNG_BLCK_61_1_BTN'),
-			// 	'type' => array('text-align', 'animation'),
-			// ),
+
 		],
 	],
 ];

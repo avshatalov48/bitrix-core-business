@@ -1,173 +1,212 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
-$arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$arIBlock = [];
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(["SORT" => "ASC"], $iblockFilter);
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 }
 
 $arProperty_LNS = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if ($iblockExists)
 {
-	$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-	if (in_array($arr["PROPERTY_TYPE"], array("L", "N", "S")))
+	$rsProp = CIBlockProperty::GetList(
+		[
+			"SORT" => "ASC",
+			"NAME" => "ASC",
+		],
+		[
+			"ACTIVE" => "Y",
+			"IBLOCK_ID" => $arCurrentValues["IBLOCK_ID"],
+		]
+	);
+	while ($arr = $rsProp->Fetch())
 	{
-		$arProperty_LNS[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		$arProperty[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		if (in_array($arr["PROPERTY_TYPE"], ["L", "N", "S"]))
+		{
+			$arProperty_LNS[$arr["CODE"]] = "[" . $arr["CODE"] . "] " . $arr["NAME"];
+		}
 	}
 }
 
 $arSectProperty_LNS = array();
-$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arCurrentValues["IBLOCK_ID"]."_SECTION");
-foreach($arUserFields as $FIELD_NAME=>$arUserField)
-	if($arUserField["USER_TYPE"]["BASE_TYPE"]=="string")
-		$arSectProperty_LNS[$FIELD_NAME] = $arUserField["LIST_COLUMN_LABEL"]? $arUserField["LIST_COLUMN_LABEL"]: $FIELD_NAME;
+if ($iblockExists)
+{
+	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_"
+		. $arCurrentValues["IBLOCK_ID"]
+		. "_SECTION");
+	foreach ($arUserFields as $FIELD_NAME => $arUserField)
+	{
+		if ($arUserField["USER_TYPE"]["BASE_TYPE"] == "string")
+		{
+			$arSectProperty_LNS[$FIELD_NAME] = $arUserField["LIST_COLUMN_LABEL"] ?? $FIELD_NAME;
+		}
+	}
+}
 
-$arAscDesc = array(
+$arAscDesc = [
 	"asc" => GetMessage("IBLOCK_SORT_ASC"),
 	"desc" => GetMessage("IBLOCK_SORT_DESC"),
-);
+];
 
-$arUGroupsEx = Array();
+$arUGroupsEx = [];
 $dbUGroups = CGroup::GetList();
 while($arUGroups = $dbUGroups -> Fetch())
 {
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 
-$arComponentParameters = array(
-	"GROUPS" => array(
-		"RATING_SETTINGS" => array(
+$arComponentParameters = [
+	"GROUPS" => [
+		"RATING_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_RATING_SETTINGS"),
-		),
-		"REVIEW_SETTINGS" => array(
+		],
+		"REVIEW_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_REVIEW_SETTINGS"),
-		),
-		"FILTER_SETTINGS" => array(
+		],
+		"FILTER_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_FILTER_SETTINGS"),
-		),
-		"TOP_SETTINGS" => array(
+		],
+		"TOP_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_TOP_SETTINGS"),
-		),
-		"LIST_SETTINGS" => array(
+		],
+		"LIST_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_LIST_SETTINGS"),
-		),
-		"DETAIL_SETTINGS" => array(
+		],
+		"DETAIL_SETTINGS" => [
 			"NAME" => GetMessage("T_IBLOCK_DESC_DETAIL_SETTINGS"),
-		),
-	),
-	"PARAMETERS" => array(
-		"AJAX_MODE" => array(),
+		],
+	],
+	"PARAMETERS" => [
+		"AJAX_MODE" => [],
 
-		"VARIABLE_ALIASES" => Array(
-			"SECTION_ID" => Array("NAME" => GetMessage("SECTION_ID_DESC")),
-			"ELEMENT_ID" => Array("NAME" => GetMessage("ELEMENT_ID_DESC")),
-		),
-		"SEF_MODE" => Array(
-			"sections_top" => array(
+		"VARIABLE_ALIASES" => [
+			"SECTION_ID" => ["NAME" => GetMessage("SECTION_ID_DESC")],
+			"ELEMENT_ID" => ["NAME" => GetMessage("ELEMENT_ID_DESC")],
+		],
+		"SEF_MODE" => [
+			"sections_top" => [
 				"NAME" => GetMessage("SECTIONS_TOP_PAGE"),
 				"DEFAULT" => "",
-				"VARIABLES" => array(),
-			),
-			"section" => array(
+				"VARIABLES" => [],
+			],
+			"section" => [
 				"NAME" => GetMessage("SECTION_PAGE"),
 				"DEFAULT" => "#SECTION_ID#/",
-				"VARIABLES" => array("SECTION_ID"),
-			),
-			"detail" => array(
+				"VARIABLES" => ["SECTION_ID"],
+			],
+			"detail" => [
 				"NAME" => GetMessage("DETAIL_PAGE"),
 				"DEFAULT" => "#SECTION_ID#/#ELEMENT_ID#/",
-				"VARIABLES" => array("ELEMENT_ID", "SECTION_ID"),
-			),
-		),
-		"IBLOCK_TYPE" => array(
+				"VARIABLES" => ["ELEMENT_ID", "SECTION_ID"],
+			],
+		],
+		"IBLOCK_TYPE" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("IBLOCK_TYPE"),
 			"TYPE" => "LIST",
 			"VALUES" => $arIBlockType,
 			"REFRESH" => "Y",
-		),
-		"IBLOCK_ID" => array(
+		],
+		"IBLOCK_ID" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("IBLOCK_IBLOCK"),
 			"TYPE" => "LIST",
 			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arIBlock,
 			"REFRESH" => "Y",
-		),
-		"USE_RATING" => Array(
+		],
+		"USE_RATING" => [
 			"PARENT" => "RATING_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_USE_RATING"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 			"REFRESH" => "Y",
-		),
-		"USE_REVIEW" => Array(
+		],
+		"USE_REVIEW" => [
 			"PARENT" => "REVIEW_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_USE_REVIEW"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 			"REFRESH" => "Y",
-		),
-		"USE_FILTER" => Array(
+		],
+		"USE_FILTER" => [
 			"PARENT" => "FILTER_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_USE_FILTER"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 			"REFRESH" => "Y",
-		),
-		"SECTION_COUNT" => array(
+		],
+		"SECTION_COUNT" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_COUNT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "20",
-		),
-		"TOP_ELEMENT_COUNT" => array(
+		],
+		"TOP_ELEMENT_COUNT" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_TOP_ELEMENT_COUNT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "9",
-		),
-		"TOP_LINE_ELEMENT_COUNT" => array(
+		],
+		"TOP_LINE_ELEMENT_COUNT" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_TOP_LINE_ELEMENT_COUNT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "3",
-		),
-		"SECTION_SORT_FIELD" => array(
+		],
+		"SECTION_SORT_FIELD" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_SORT_FIELD"),
 			"TYPE" => "LIST",
-			"VALUES" => array(
+			"VALUES" => [
 				"sort" => GetMessage("IBLOCK_SORT_SORT"),
 				"timestamp_x" => GetMessage("IBLOCK_SORT_TIMESTAMP"),
 				"name" => GetMessage("IBLOCK_SORT_NAME"),
 				"id" => GetMessage("IBLOCK_SORT_ID"),
 				"depth_level" => GetMessage("IBLOCK_SORT_DEPTH_LEVEL"),
-			),
+			],
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "sort",
-		),
-		"SECTION_SORT_ORDER" => array(
+		],
+		"SECTION_SORT_ORDER" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_SORT_ORDER"),
 			"TYPE" => "LIST",
 			"VALUES" => $arAscDesc,
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
-		),
-		"TOP_ELEMENT_SORT_FIELD" => array(
+		],
+		"TOP_ELEMENT_SORT_FIELD" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ELEMENT_SORT_FIELD"),
 			"TYPE" => "LIST",
-			"VALUES" => array(
+			"VALUES" => [
 				"shows" => GetMessage("IBLOCK_SORT_SHOWS"),
 				"sort" => GetMessage("IBLOCK_SORT_SORT"),
 				"timestamp_x" => GetMessage("IBLOCK_SORT_TIMESTAMP"),
@@ -175,20 +214,20 @@ $arComponentParameters = array(
 				"id" => GetMessage("IBLOCK_SORT_ID"),
 				"active_from" => GetMessage("IBLOCK_SORT_ACTIVE_FROM"),
 				"active_to" => GetMessage("IBLOCK_SORT_ACTIVE_TO"),
-			),
+			],
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "sort",
-		),
-		"TOP_ELEMENT_SORT_ORDER" => array(
+		],
+		"TOP_ELEMENT_SORT_ORDER" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ELEMENT_SORT_ORDER"),
 			"TYPE" => "LIST",
 			"VALUES" => $arAscDesc,
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
-		),
+		],
 		"TOP_FIELD_CODE" => CIBlockParameters::GetFieldCode(GetMessage("IBLOCK_FIELD"), "TOP_SETTINGS"),
-		"TOP_PROPERTY_CODE" => array(
+		"TOP_PROPERTY_CODE" => [
 			"PARENT" => "TOP_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_PROPERTY"),
 			"TYPE" => "LIST",
@@ -196,24 +235,24 @@ $arComponentParameters = array(
 			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arProperty_LNS,
 			"ADDITIONAL_VALUES" => "Y",
-		),
-		"SECTION_PAGE_ELEMENT_COUNT" => array(
+		],
+		"SECTION_PAGE_ELEMENT_COUNT" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_PAGE_ELEMENT_COUNT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "20",
-		),
-		"SECTION_LINE_ELEMENT_COUNT" => array(
+		],
+		"SECTION_LINE_ELEMENT_COUNT" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_LINE_ELEMENT_COUNT"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "3",
-		),
-		"ELEMENT_SORT_FIELD" => array(
+		],
+		"ELEMENT_SORT_FIELD" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ELEMENT_SORT_FIELD"),
 			"TYPE" => "LIST",
-			"VALUES" => array(
+			"VALUES" => [
 				"shows" => GetMessage("IBLOCK_SORT_SHOWS"),
 				"sort" => GetMessage("IBLOCK_SORT_SORT"),
 				"timestamp_x" => GetMessage("IBLOCK_SORT_TIMESTAMP"),
@@ -221,20 +260,20 @@ $arComponentParameters = array(
 				"id" => GetMessage("IBLOCK_SORT_ID"),
 				"active_from" => GetMessage("IBLOCK_SORT_ACTIVE_FROM"),
 				"active_to" => GetMessage("IBLOCK_SORT_ACTIVE_TO"),
-			),
+			],
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "sort",
-		),
-		"ELEMENT_SORT_ORDER" => array(
+		],
+		"ELEMENT_SORT_ORDER" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ELEMENT_SORT_ORDER"),
 			"TYPE" => "LIST",
 			"VALUES" => $arAscDesc,
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
-		),
+		],
 		"LIST_FIELD_CODE" => CIBlockParameters::GetFieldCode(GetMessage("IBLOCK_FIELD"), "LIST_SETTINGS"),
-		"LIST_PROPERTY_CODE" => array(
+		"LIST_PROPERTY_CODE" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_PROPERTY"),
 			"TYPE" => "LIST",
@@ -242,41 +281,41 @@ $arComponentParameters = array(
 			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arProperty_LNS,
 			"ADDITIONAL_VALUES" => "Y",
-		),
-		"LIST_BROWSER_TITLE" => array(
+		],
+		"LIST_BROWSER_TITLE" => [
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("CP_BP_LIST_BROWSER_TITLE"),
 			"TYPE" => "LIST",
 			"MULTIPLE" => "N",
 			"DEFAULT" => "-",
-			"VALUES" => array_merge(Array("-"=>" ", "NAME" => GetMessage("IBLOCK_FIELD_NAME")), $arSectProperty_LNS),
-		),
-		"META_KEYWORDS" =>array(
+			"VALUES" => array_merge(["-"=>" ", "NAME" => GetMessage("IBLOCK_FIELD_NAME")], $arSectProperty_LNS),
+		],
+		"META_KEYWORDS" => [
 			"PARENT" => "DETAIL_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_KEYWORDS"),
 			"TYPE" => "LIST",
 			"MULTIPLE" => "N",
 			"DEFAULT" => "-",
-			"VALUES" => array_merge(Array("-"=>" "),$arProperty_LNS),
-		),
-		"META_DESCRIPTION" =>array(
+			"VALUES" => array_merge(["-"=>" "],$arProperty_LNS),
+		],
+		"META_DESCRIPTION" => [
 			"PARENT" => "DETAIL_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_DESCRIPTION"),
 			"TYPE" => "LIST",
 			"MULTIPLE" => "N",
 			"DEFAULT" => "-",
-			"VALUES" => array_merge(Array("-"=>" "),$arProperty_LNS),
-		),
-		"BROWSER_TITLE" => array(
+			"VALUES" => array_merge(["-"=>" "],$arProperty_LNS),
+		],
+		"BROWSER_TITLE" => [
 			"PARENT" => "DETAIL_SETTINGS",
 			"NAME" => GetMessage("CP_BP_BROWSER_TITLE"),
 			"TYPE" => "LIST",
 			"MULTIPLE" => "N",
 			"DEFAULT" => "-",
-			"VALUES" => array_merge(Array("-"=>" ", "NAME" => GetMessage("IBLOCK_FIELD_NAME")), $arProperty_LNS),
-		),
+			"VALUES" => array_merge(["-"=>" ", "NAME" => GetMessage("IBLOCK_FIELD_NAME")], $arProperty_LNS),
+		],
 		"DETAIL_FIELD_CODE" => CIBlockParameters::GetFieldCode(GetMessage("IBLOCK_FIELD"), "DETAIL_SETTINGS"),
-		"DETAIL_PROPERTY_CODE" => array(
+		"DETAIL_PROPERTY_CODE" => [
 			"PARENT" => "DETAIL_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_PROPERTY"),
 			"TYPE" => "LIST",
@@ -284,44 +323,44 @@ $arComponentParameters = array(
 			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arProperty_LNS,
 			"ADDITIONAL_VALUES" => "Y",
-		),
-		"SET_TITLE" => Array(),
-		"SET_LAST_MODIFIED" => array(
+		],
+		"SET_TITLE" => [],
+		"SET_LAST_MODIFIED" => [
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("CP_BP_SET_LAST_MODIFIED"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
-		),
-		"USE_PERMISSIONS" => Array(
+		],
+		"USE_PERMISSIONS" => [
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_USE_PERMISSIONS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 			"REFRESH" => "Y",
-		),
-		"GROUP_PERMISSIONS" => Array(
+		],
+		"GROUP_PERMISSIONS" => [
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("T_IBLOCK_DESC_GROUP_PERMISSIONS"),
 			"TYPE" => "LIST",
 			"VALUES" => $arUGroupsEx,
-			"DEFAULT" => Array(1),
+			"DEFAULT" => [1],
 			"MULTIPLE" => "Y",
-		),
-		"CACHE_TIME"  =>  Array("DEFAULT"=>36000000),
-		"CACHE_FILTER" => array(
+		],
+		"CACHE_TIME"  =>  ["DEFAULT"=>36000000],
+		"CACHE_FILTER" => [
 			"PARENT" => "CACHE_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_CACHE_FILTER"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
-		),
-		"CACHE_GROUPS" => array(
+		],
+		"CACHE_GROUPS" => [
 			"PARENT" => "CACHE_SETTINGS",
 			"NAME" => GetMessage("CP_BP_CACHE_GROUPS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
-		),
-	),
-);
+		],
+	],
+];
 
 CIBlockParameters::AddPagerSettings(
 	$arComponentParameters,
@@ -329,12 +368,12 @@ CIBlockParameters::AddPagerSettings(
 	true, //$bDescNumbering
 	true, //$bShowAllParam
 	true, //$bBaseLink
-	$arCurrentValues["PAGER_BASE_LINK_ENABLE"]==="Y" //$bBaseLinkEnabled
+	($arCurrentValues["PAGER_BASE_LINK_ENABLE"] ?? '') ==="Y" //$bBaseLinkEnabled
 );
 
 CIBlockParameters::Add404Settings($arComponentParameters, $arCurrentValues);
 
-if($arCurrentValues["USE_FILTER"]=="Y")
+if (($arCurrentValues["USE_FILTER"] ?? 'N') === "Y")
 {
 	$arComponentParameters["PARAMETERS"]["FILTER_NAME"] = array(
 		"PARENT" => "FILTER_SETTINGS",
@@ -352,9 +391,11 @@ if($arCurrentValues["USE_FILTER"]=="Y")
 		"ADDITIONAL_VALUES" => "Y",
 	);
 }
-if($arCurrentValues["USE_PERMISSIONS"]!="Y")
+if (($arCurrentValues["USE_PERMISSIONS"] ?? 'N') !== "Y")
+{
 	unset($arComponentParameters["PARAMETERS"]["GROUP_PERMISSIONS"]);
-if($arCurrentValues["USE_RATING"]=="Y")
+}
+if (($arCurrentValues["USE_RATING"] ?? 'N') === "Y")
 {
 	$arComponentParameters["PARAMETERS"]["MAX_VOTE"] = array(
 		"PARENT" => "RATING_SETTINGS",
@@ -377,7 +418,7 @@ if(!IsModuleInstalled("forum"))
 	unset($arComponentParameters["GROUPS"]["REVIEW_SETTINGS"]);
 	unset($arComponentParameters["PARAMETERS"]["USE_REVIEW"]);
 }
-elseif($arCurrentValues["USE_REVIEW"]=="Y")
+elseif(($arCurrentValues["USE_REVIEW"] ?? 'N') === "Y")
 {
 	$arForumList = array();
 	if(CModule::IncludeModule("forum"))
@@ -424,4 +465,3 @@ elseif($arCurrentValues["USE_REVIEW"]=="Y")
 		"DEFAULT" => "Y",
 	);
 }
-?>

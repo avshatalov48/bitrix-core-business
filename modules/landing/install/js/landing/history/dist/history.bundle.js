@@ -58,12 +58,29 @@ this.BX = this.BX || {};
 	 * @return {Promise}
 	 */
 
-	function sortBlock(entry) {
+	function changeNodeName(entry) {
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
+
+	    if (!block) {
+	      return Promise.reject();
+	    }
+
 	    block.forceInit();
-	    return scrollTo$1(block.node).then(highlight$1.bind(null, block.node)).then(function () {
-	      return block[entry.params.direction](true);
+	    var node = block.nodes.getBySelector(entry.selector);
+
+	    if (!node) {
+	      return Promise.reject();
+	    }
+
+	    return scrollTo$1(node.node).then(function () {
+	      return highlight$1(node.node);
+	    }).then(function () {
+	      if (node.onChangeTag) {
+	        node.onChangeTag(entry.params.value, true);
+	      }
+
+	      return true;
 	    });
 	  });
 	}
@@ -76,13 +93,31 @@ this.BX = this.BX || {};
 	 * @return {Promise}
 	 */
 
+	function sortBlock(entry) {
+	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
+	    var block = blocks.get(entry.block);
+	    block.forceInit();
+	    return scrollTo$2(block.node).then(highlight$2.bind(null, block.node)).then(function () {
+	      return block[entry.params.direction](true);
+	    });
+	  });
+	}
+
+	var _BX$Landing$Utils$3 = BX.Landing.Utils,
+	    scrollTo$3 = _BX$Landing$Utils$3.scrollTo,
+	    highlight$3 = _BX$Landing$Utils$3.highlight;
+	/**
+	 * @param {object} entry
+	 * @return {Promise}
+	 */
+
 	function addBlock(entry) {
 	  return landing_pageobject.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.params.currentBlock);
 	    return new Promise(function (resolve) {
 	      if (block) {
 	        block.forceInit();
-	        return scrollTo$2(block.node).then(highlight$2.bind(null, block.node, false, true)).then(resolve);
+	        return scrollTo$3(block.node).then(highlight$3.bind(null, block.node, false, true)).then(resolve);
 	      }
 
 	      resolve();
@@ -98,9 +133,9 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var _BX$Landing$Utils$3 = BX.Landing.Utils,
-	    scrollTo$3 = _BX$Landing$Utils$3.scrollTo,
-	    highlight$3 = _BX$Landing$Utils$3.highlight;
+	var _BX$Landing$Utils$4 = BX.Landing.Utils,
+	    scrollTo$4 = _BX$Landing$Utils$4.scrollTo,
+	    highlight$4 = _BX$Landing$Utils$4.highlight;
 	/**
 	 * @param {object} entry
 	 * @return {Promise}
@@ -110,16 +145,16 @@ this.BX = this.BX || {};
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 	    block.forceInit();
-	    return scrollTo$3(block.node).then(function () {
-	      highlight$3(block.node);
+	    return scrollTo$4(block.node).then(function () {
+	      highlight$4(block.node);
 	      return block.deleteBlock(true);
 	    });
 	  });
 	}
 
-	var _BX$Landing$Utils$4 = BX.Landing.Utils,
-	    scrollTo$4 = _BX$Landing$Utils$4.scrollTo,
-	    highlight$4 = _BX$Landing$Utils$4.highlight;
+	var _BX$Landing$Utils$5 = BX.Landing.Utils,
+	    scrollTo$5 = _BX$Landing$Utils$5.scrollTo,
+	    highlight$5 = _BX$Landing$Utils$5.highlight;
 	/**
 	 * @param {string} state
 	 * @param {object} entry
@@ -145,7 +180,7 @@ this.BX = this.BX || {};
 	      return [block, parentNode];
 	    });
 	  }).then(function (elements) {
-	    return scrollTo$4(elements[1]).then(function () {
+	    return scrollTo$5(elements[1]).then(function () {
 	      return elements;
 	    });
 	  }).then(function (elements) {
@@ -162,14 +197,14 @@ this.BX = this.BX || {};
 	        return Promise.reject();
 	      }
 
-	      return highlight$4(card.node);
+	      return highlight$5(card.node);
 	    });
 	  })["catch"](function () {});
 	}
 
-	var _BX$Landing$Utils$5 = BX.Landing.Utils,
-	    scrollTo$5 = _BX$Landing$Utils$5.scrollTo,
-	    highlight$5 = _BX$Landing$Utils$5.highlight;
+	var _BX$Landing$Utils$6 = BX.Landing.Utils,
+	    scrollTo$6 = _BX$Landing$Utils$6.scrollTo,
+	    highlight$6 = _BX$Landing$Utils$6.highlight;
 	/**
 	 * @param {string} state
 	 * @param {object} entry
@@ -185,15 +220,14 @@ this.BX = this.BX || {};
 	      return Promise.reject();
 	    }
 
-	    var relativeSelector = entry.params.selector + '@' + (entry.params.position + 1); // todo: return +1 position from back. To be more precise - not always may be +1, need evaluate this
-
+	    var relativeSelector = entry.params.selector + '@' + (entry.params.position + 1);
 	    var card = block.cards.getBySelector(relativeSelector);
 
 	    if (!card) {
 	      return Promise.reject();
 	    }
 
-	    return scrollTo$5(card.node).then(highlight$5.bind(null, card.node)).then(function () {
+	    return scrollTo$6(card.node).then(highlight$6.bind(null, card.node)).then(function () {
 	      return block.removeCard(relativeSelector, true);
 	    });
 	  });
@@ -209,7 +243,6 @@ this.BX = this.BX || {};
 
 	  // entry.block === null >> designer mode
 	  return new Promise(function (resolve, reject) {
-	    // const tags = (entry.redo || {}).tags || ((entry.undo || {}).tags || []);
 	    var tags = entry.params.tags || {};
 	    top.BX.onCustomEvent(_this, 'Landing:onHistoryAddNode', [tags]);
 	    resolve();
@@ -226,16 +259,15 @@ this.BX = this.BX || {};
 
 	  // entry.block === null >> designer mode
 	  return new Promise(function (resolve, reject) {
-	    // const tags = (entry.redo || {}).tags || ((entry.undo || {}).tags || []);
 	    var tags = entry.params.tags || {};
 	    top.BX.onCustomEvent(_this, 'Landing:onHistoryRemoveNode', [tags]);
 	    resolve();
 	  });
 	}
 
-	var _BX$Landing$Utils$6 = BX.Landing.Utils,
-	    scrollTo$6 = _BX$Landing$Utils$6.scrollTo,
-	    slice = _BX$Landing$Utils$6.slice;
+	var _BX$Landing$Utils$7 = BX.Landing.Utils,
+	    scrollTo$7 = _BX$Landing$Utils$7.scrollTo,
+	    slice = _BX$Landing$Utils$7.slice;
 	/**
 	 * @param {object} entry
 	 * @return {Promise}
@@ -253,7 +285,7 @@ this.BX = this.BX || {};
 	    block.initStyles();
 	    return block;
 	  }).then(function (block) {
-	    return scrollTo$6(block.node).then(function () {
+	    return scrollTo$7(block.node).then(function () {
 	      return block;
 	    });
 	  }).then(function (block) {
@@ -291,30 +323,15 @@ this.BX = this.BX || {};
 	    });
 
 	    if (styleNode) {
+	      if (entry.params.affect && entry.params.affect.length > 0) {
+	        styleNode.setAffects(entry.params.affect);
+	      }
+
 	      block.onStyleInputWithDebounce({
 	        node: styleNode.node,
 	        data: styleNode.getValue()
 	      }, true);
 	    }
-	  });
-	}
-
-	var _BX$Landing$Utils$7 = BX.Landing.Utils,
-	    scrollTo$7 = _BX$Landing$Utils$7.scrollTo,
-	    highlight$6 = _BX$Landing$Utils$7.highlight;
-	/**
-	 * @param {object} entry
-	 * @return {Promise}
-	 */
-
-	function updateContent(entry) {
-	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
-	    var block = blocks.get(entry.block);
-	    block.forceInit();
-	    return scrollTo$7(block.node).then(function () {
-	      void highlight$6(block.node);
-	      return block.updateContent(entry.params.content, true);
-	    });
 	  });
 	}
 
@@ -326,14 +343,32 @@ this.BX = this.BX || {};
 	 * @return {Promise}
 	 */
 
+	function updateContent(entry) {
+	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
+	    var block = blocks.get(entry.block);
+	    block.forceInit();
+	    return scrollTo$8(block.node).then(function () {
+	      void highlight$7(block.node);
+	      return block.updateContent(entry.params.content, true);
+	    });
+	  });
+	}
+
+	var _BX$Landing$Utils$9 = BX.Landing.Utils,
+	    scrollTo$9 = _BX$Landing$Utils$9.scrollTo,
+	    highlight$8 = _BX$Landing$Utils$9.highlight;
+	/**
+	 * @param {object} entry
+	 * @return {Promise}
+	 */
+
 	function multiply(entry) {
 	  var blockId = null;
 	  var updateBlockStateData = {};
 	  entry.params.forEach(function (singleAction) {
 	    if (!blockId && singleAction.params.block) {
 	      blockId = singleAction.params.block;
-	    } // todo: all types nodes
-
+	    }
 
 	    if (singleAction.command === 'editText' || singleAction.command === 'editImage' || singleAction.command === 'editEmbed' || singleAction.command === 'editMap' || singleAction.command === 'editIcon' || singleAction.command === 'editLink') {
 	      updateBlockStateData[singleAction.params.selector] = singleAction.params.value;
@@ -355,8 +390,8 @@ this.BX = this.BX || {};
 
 	    if (block) {
 	      block.forceInit();
-	      return scrollTo$8(block.node).then(function () {
-	        void highlight$7(block.node);
+	      return scrollTo$9(block.node).then(function () {
+	        void highlight$8(block.node);
 
 	        if (Object.keys(updateBlockStateData).length > 0) {
 	          block.updateBlockState(updateBlockStateData, true);
@@ -373,10 +408,7 @@ this.BX = this.BX || {};
 
 	var Command = function Command(options) {
 	  babelHelpers.classCallCheck(this, Command);
-	  this.id = main_core.Type.isStringFilled(options.id) ? options.id : '#invalidCommand'; // todo: remove undo redo
-	  // this.undo = Type.isFunction(options.undo) ? options.undo : (() => {});
-	  // this.redo = Type.isFunction(options.redo) ? options.redo : (() => {});
-
+	  this.id = main_core.Type.isStringFilled(options.id) ? options.id : '#invalidCommand';
 	  this.command = main_core.Type.isFunction(options.command) ? options.command : function () {};
 	};
 
@@ -409,6 +441,10 @@ this.BX = this.BX || {};
 	  history.registerCommand(new Command({
 	    id: 'editLink',
 	    command: editLink
+	  }));
+	  history.registerCommand(new Command({
+	    id: 'cnangeNodeName',
+	    command: changeNodeName
 	  }));
 	  history.registerCommand(new Command({
 	    id: 'sortBlock',
@@ -809,8 +845,7 @@ this.BX = this.BX || {};
 	      }
 
 	      return Promise.resolve(this);
-	    } // todo: offsetvelue if haaaaack, fuuuu
-
+	    }
 	  }, {
 	    key: "runCommand",
 	    value: function runCommand(entry, offsetValue) {

@@ -335,52 +335,52 @@ class Param
 	{
 		$parentParams = $this->getComponent()->getParent()->arParams;
 
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int)$parentParams['BLOG_IMAGE_MAX_WIDTH']);
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int)$parentParams['BLOG_IMAGE_MAX_HEIGHT']);
-		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parentParams['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD']));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int) ($parentParams['BLOG_IMAGE_MAX_WIDTH'] ?? 0));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int) ($parentParams['BLOG_IMAGE_MAX_HEIGHT'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parentParams['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD'] ?? ''));
 		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parentParams['BLOG_ALLOW_POST_CODE']));
-		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parentParams['BLOG_COMMENT_ALLOW_VIDEO']));
+		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parentParams['BLOG_COMMENT_ALLOW_VIDEO'] ?? ''));
 
-		$componentParams['BLOG_GROUP_ID'] = (int)$parentParams['BLOG_GROUP_ID'];
+		$componentParams['BLOG_GROUP_ID'] = (int) ($parentParams['BLOG_GROUP_ID'] ?? null);
 		$componentParams['BLOG_USE_CUT'] = (isset($parentParams['BLOG_USE_CUT']) ? trim($parentParams['BLOG_USE_CUT']) : (isset($componentParams['BLOG_USE_CUT']) ? trim($componentParams['BLOG_USE_CUT']) : ''));
-		$componentParams['PHOTO_USER_IBLOCK_TYPE'] = trim($parentParams['PHOTO_USER_IBLOCK_TYPE']);
-		$componentParams['PHOTO_USER_IBLOCK_ID'] = (int)$parentParams['PHOTO_USER_IBLOCK_ID'];
-		$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] = trim($parentParams['PHOTO_GROUP_IBLOCK_TYPE']);
-		$componentParams['PHOTO_GROUP_IBLOCK_ID'] = (int)$parentParams['PHOTO_GROUP_IBLOCK_ID'];
-		$componentParams['PHOTO_MAX_VOTE'] = (int)$parentParams['PHOTO_MAX_VOTE'];
-		$componentParams['PHOTO_USE_COMMENTS'] = trim($parentParams['PHOTO_USE_COMMENTS']);
-		$componentParams['PHOTO_COMMENTS_TYPE'] = trim($parentParams['PHOTO_COMMENTS_TYPE']);
-		$componentParams['PHOTO_FORUM_ID'] = (int)$parentParams['PHOTO_FORUM_ID'];
-		$componentParams['PHOTO_BLOG_URL'] = trim($parentParams['PHOTO_BLOG_URL']);
-		$componentParams['PHOTO_USE_CAPTCHA'] = trim($parentParams['PHOTO_USE_CAPTCHA']);
-		$componentParams['PHOTO_COUNT'] = (int)$parentParams['LOG_PHOTO_COUNT'];
-		$componentParams['PHOTO_THUMBNAIL_SIZE'] = (int)$parentParams['LOG_PHOTO_THUMBNAIL_SIZE'];
-		$componentParams['FORUM_ID'] = (int)$parentParams['FORUM_ID'];
+		$componentParams['PHOTO_USER_IBLOCK_TYPE'] = trim($parentParams['PHOTO_USER_IBLOCK_TYPE'] ?? '');
+		$componentParams['PHOTO_USER_IBLOCK_ID'] = (int) ($parentParams['PHOTO_USER_IBLOCK_ID'] ?? 0);
+		$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] = trim($parentParams['PHOTO_GROUP_IBLOCK_TYPE'] ?? '');
+		$componentParams['PHOTO_GROUP_IBLOCK_ID'] = (int) ($parentParams['PHOTO_GROUP_IBLOCK_ID'] ?? 0);
+		$componentParams['PHOTO_MAX_VOTE'] = (int) ($parentParams['PHOTO_MAX_VOTE'] ?? 0);
+		$componentParams['PHOTO_USE_COMMENTS'] = trim($parentParams['PHOTO_USE_COMMENTS'] ?? '');
+		$componentParams['PHOTO_COMMENTS_TYPE'] = trim($parentParams['PHOTO_COMMENTS_TYPE'] ?? '');
+		$componentParams['PHOTO_FORUM_ID'] = (int) ($parentParams['PHOTO_FORUM_ID'] ?? 0);
+		$componentParams['PHOTO_BLOG_URL'] = trim($parentParams['PHOTO_BLOG_URL'] ?? '');
+		$componentParams['PHOTO_USE_CAPTCHA'] = trim($parentParams['PHOTO_USE_CAPTCHA'] ?? '');
+		$componentParams['PHOTO_COUNT'] = (int) ($parentParams['LOG_PHOTO_COUNT'] ?? 0);
+		$componentParams['PHOTO_THUMBNAIL_SIZE'] = (int) ($parentParams['LOG_PHOTO_THUMBNAIL_SIZE'] ?? 0);
+		$componentParams['FORUM_ID'] = (int) ($parentParams['FORUM_ID'] ?? 0);
 	}
 
 	public function prepareParent2Params(&$componentParams): void
 	{
 		$parent2Params = $this->getComponent()->getParent()->getParent()->arParams;
 
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int)$parent2Params['BLOG_IMAGE_MAX_WIDTH']);
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int)$parent2Params['BLOG_IMAGE_MAX_HEIGHT']);
-		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parent2Params['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD']));
-		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parent2Params['BLOG_ALLOW_POST_CODE']));
-		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parent2Params['BLOG_COMMENT_ALLOW_VIDEO']));
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_GROUP_ID', (int)$parent2Params['BLOG_GROUP_ID']);
-		Util::checkEmptyParamString($componentParams, 'PHOTO_USER_IBLOCK_TYPE', trim($parent2Params['PHOTO_USER_IBLOCK_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_USER_IBLOCK_ID', (int)$parent2Params['PHOTO_USER_IBLOCK_ID']);
-		Util::checkEmptyParamString($componentParams, 'PHOTO_GROUP_IBLOCK_TYPE', trim($parent2Params['PHOTO_GROUP_IBLOCK_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_GROUP_IBLOCK_ID', (int)$parent2Params['PHOTO_GROUP_IBLOCK_ID']);
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_MAX_VOTE', (int)$parent2Params['PHOTO_MAX_VOTE']);
-		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_COMMENTS', trim($parent2Params['PHOTO_USE_COMMENTS']));
-		Util::checkEmptyParamString($componentParams, 'PHOTO_COMMENTS_TYPE', trim($parent2Params['PHOTO_COMMENTS_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_FORUM_ID', (int)$parent2Params['PHOTO_FORUM_ID']);
-		Util::checkEmptyParamString($componentParams, 'PHOTO_BLOG_URL', trim($parent2Params['PHOTO_BLOG_URL']));
-		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_CAPTCHA', trim($parent2Params['PHOTO_USE_CAPTCHA']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_COUNT', (int)$parent2Params['LOG_PHOTO_COUNT']);
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_THUMBNAIL_SIZE', (int)$parent2Params['LOG_PHOTO_THUMBNAIL_SIZE']);
-		Util::checkEmptyParamInteger($componentParams, 'FORUM_ID', (int)$parent2Params['FORUM_ID']);
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int) ($parent2Params['BLOG_IMAGE_MAX_WIDTH'] ?? 0));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int) ($parent2Params['BLOG_IMAGE_MAX_HEIGHT'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parent2Params['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD'] ?? ''));
+		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parent2Params['BLOG_ALLOW_POST_CODE'] ?? ''));
+		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parent2Params['BLOG_COMMENT_ALLOW_VIDEO'] ?? ''));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_GROUP_ID', (int) ($parent2Params['BLOG_GROUP_ID'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_USER_IBLOCK_TYPE', trim($parent2Params['PHOTO_USER_IBLOCK_TYPE'] ?? ''));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_USER_IBLOCK_ID', (int) ($parent2Params['PHOTO_USER_IBLOCK_ID'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_GROUP_IBLOCK_TYPE', trim($parent2Params['PHOTO_GROUP_IBLOCK_TYPE'] ?? ''));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_GROUP_IBLOCK_ID', (int) ($parent2Params['PHOTO_GROUP_IBLOCK_ID'] ?? 0));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_MAX_VOTE', (int) ($parent2Params['PHOTO_MAX_VOTE'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_COMMENTS', trim($parent2Params['PHOTO_USE_COMMENTS'] ?? ''));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_COMMENTS_TYPE', trim($parent2Params['PHOTO_COMMENTS_TYPE'] ?? ''));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_FORUM_ID', (int) ($parent2Params['PHOTO_FORUM_ID'] ?? 0));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_BLOG_URL', trim($parent2Params['PHOTO_BLOG_URL'] ?? ''));
+		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_CAPTCHA', trim($parent2Params['PHOTO_USE_CAPTCHA'] ?? ''));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_COUNT', (int) ($parent2Params['LOG_PHOTO_COUNT'] ?? 0));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_THUMBNAIL_SIZE', (int) ($parent2Params['LOG_PHOTO_THUMBNAIL_SIZE'] ?? 0));
+		Util::checkEmptyParamInteger($componentParams, 'FORUM_ID', (int) ($parent2Params['FORUM_ID'] ?? 0));
 
 		$componentParams['BLOG_USE_CUT'] = (isset($parent2Params['BLOG_USE_CUT']) ? trim($parent2Params['BLOG_USE_CUT']) : (isset($componentParams['BLOG_USE_CUT']) ? trim($componentParams['BLOG_USE_CUT']) : ''));
 	}
@@ -458,13 +458,15 @@ class Param
 					&& $componentParams['EXACT_EVENT_ID'] <> ''
 				)
 				|| (
-					!is_array($componentParams['EVENT_ID'])
+					isset($componentParams['EVENT_ID'])
+					&& !is_array($componentParams['EVENT_ID'])
 					&& $componentParams['EVENT_ID'] <> ''
 				)
 				|| $presetFilterId === 'extranet'
 				|| $componentParams['CREATED_BY_ID'] > 0
 				|| (
-					is_array($componentParams['EVENT_ID'])
+					isset($componentParams['EVENT_ID'])
+					&& is_array($componentParams['EVENT_ID'])
 					&& !in_array('all', $componentParams['EVENT_ID'], true)
 				)
 				|| (

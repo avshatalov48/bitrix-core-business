@@ -10,6 +10,7 @@
  */
 
 import "./html.css";
+import { Utils } from 'im.lib.utils';
 
 export const AttachTypeHtml =
 {
@@ -22,6 +23,14 @@ export const AttachTypeHtml =
 			config: {type: Object, default: {}},
 			color: {type: String, default: 'transparent'},
 		},
-		template: `<div class="bx-im-element-attach-type-html" v-html="config.HTML"></div>`
+		computed:
+		{
+			html()
+			{
+				const text = this.config.HTML.replace(/&nbsp;/gi, " ");
+				return Utils.text.decode(text);
+			}
+		},
+		template: `<div class="bx-im-element-attach-type-html" v-html="html"></div>`
 	},
 };

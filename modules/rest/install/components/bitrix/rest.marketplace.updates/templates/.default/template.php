@@ -75,7 +75,7 @@ if (is_array($arResult["ITEMS"]) && !empty($arResult["ITEMS"])):
 
 		if($app['CAN_INSTALL']):
 ?>
-				<a class="bt_green" href="javascript:void(0)" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_UPDATE_BUTTON")?></a>
+				<a class="bt_green" href="javascript:void(0)" onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_UPDATE_BUTTON")?></a>
 <?php
 		else:
 ?>

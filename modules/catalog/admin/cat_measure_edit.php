@@ -87,9 +87,11 @@ if($_REQUEST["OKEI"] == "Y")
 
 					$DB->Rollback();
 				}
-
-				$DB->Commit();
-				$okMessage = GetMessage("CAT_MEASURE_SUCCESS_ADD")."\n";
+				else
+				{
+					$DB->Commit();
+					$okMessage = GetMessage("CAT_MEASURE_SUCCESS_ADD")."\n";
+				}
 			}
 		}
 	}

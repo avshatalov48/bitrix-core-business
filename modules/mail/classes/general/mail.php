@@ -1806,7 +1806,8 @@ class CAllMailMessage
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{
 				/**
-				 * Create a chain of communication between the message and itself
+				 * By default, a chain is created for each new message that links the message to itself.
+				 * If the parents are not found for the message in the future, then the chain will remain like this.
 				 * */
 				$DB->query(sprintf(
 					'INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
@@ -1814,8 +1815,9 @@ class CAllMailMessage
 				));
 
 				/**
-				 * Create chains of links to parent messages based on the fact
-				 * that the given message is a response
+				 * We find the parents(in the standard case there should be one) of this message and create a chain.
+				 * If the id of the parent (IN_REPLY_TO) matches the id of the message itself(MSG_ID),
+				 * then nothing will happen(INSERT IGNORE), since such a chain was created in the step above.
 				 * */
 				if ($arFields['IN_REPLY_TO'])
 				{
@@ -1829,26 +1831,6 @@ class CAllMailMessage
 						$message_id,
 						$mailbox_id,
 						$DB->forSql($arFields['IN_REPLY_TO'])
-					));
-				}
-
-				/**
-				 * Finding and creating (if any) a chain of links to child messages based on that fact
-				 * */
-				if ($arFields['MSG_ID'])
-				{
-					$DB->query(sprintf(
-						"INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID)
-						(
-							SELECT DISTINCT C.MESSAGE_ID, P.PARENT_ID
-							FROM b_mail_message M
-								INNER JOIN b_mail_message_closure C ON M.ID = C.PARENT_ID
-								INNER JOIN b_mail_message_closure P ON P.MESSAGE_ID = %u
-							WHERE M.MAILBOX_ID = %u AND M.IN_REPLY_TO = '%s'
-						)",
-						$message_id,
-						$mailbox_id,
-						$DB->forSql($arFields['MSG_ID'])
 					));
 				}
 
@@ -1898,7 +1880,7 @@ class CAllMailMessage
 			if ($message_body_html)
 			{
 				Ini::adjustPcreBacktrackLimit(strlen($message_body_html)*2);
-				
+
 				$msg = array(
 					'html'        => $message_body_html,
 					'attachments' => array(),
@@ -2777,7 +2759,7 @@ class CAllMailUtil
 				/x', $escape, $str);
 			}
 
-			if ($result = Bitrix\Main\Text\Encoding::convertEncoding($str, $from, $to, $error))
+			if ($result = Bitrix\Main\Text\Encoding::convertEncoding($str, $from, $to))
 				$str = $result;
 			else
 				addMessage2Log(sprintf('Failed to convert email part. (%s -> %s : %s)', $from, $to, $error));

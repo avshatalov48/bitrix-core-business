@@ -149,7 +149,7 @@ abstract class AccessPermissionTable extends DataManager
 			'limit' => 1
 		])->fetchAll();
 
-		if (is_array($res) && count($res) > 0)
+		if (is_array($res) && !empty($res))
 		{
 			return false;
 		}

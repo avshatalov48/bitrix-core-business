@@ -1,6 +1,6 @@
 import {SeoAccount} from "./seoaccount";
 import {ProductSelector} from 'catalog.product-selector';
-import {Event, Loc, Tag} from "main.core";
+import {Event, Loc, Tag, Text} from "main.core";
 import {EventEmitter} from 'main.core.events';
 import { type AdBuilderOptions } from './types/adbuilderoptions';
 import { TagSelector } from 'ui.entity-selector';
@@ -585,7 +585,7 @@ export class SeoAdBuilder
 			   <div class="crm-ads-new-campaign-item-post-img" 
 					style="background-image: url(${event.data.media_url})">
 			   </div>
-			   <span class="crm-ads-new-campaign-item-post-text">${event.data.caption||''}</span>
+			   <span class="crm-ads-new-campaign-item-post-text">${Text.encode(event.data.caption||'')}</span>
 			   <span class="crm-ads-new-campaign-item-post-delete"></span>
 			</div>
 			`;
@@ -999,6 +999,7 @@ export class SeoAdBuilder
 		const selectorOptions = {
 			iblockId: this.iBlockId,
 			basePriceId: this.basePriceId,
+			fields: {NAME:''},
 			fileInputId: '',
 			config: {
 				ENABLE_SEARCH: true,

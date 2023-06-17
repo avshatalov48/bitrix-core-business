@@ -56,7 +56,7 @@ abstract class ComponentController
 
 	protected function hasErrors()
 	{
-		return count($this->errors) > 0;
+		return !empty($this->errors);
 	}
 
 	protected function check()

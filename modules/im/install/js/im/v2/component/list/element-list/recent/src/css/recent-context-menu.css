@@ -1,0 +1,25 @@
+#im-recent-context-menu.im-context-menu-dark {
+	border: 1px solid var(--im-list-recent__background-color);
+	background-color: var(--im-list-recent__background-color);
+}
+
+#im-recent-context-menu.im-context-menu-dark .popup-window-content {
+	background-color: inherit;
+}
+
+#im-recent-context-menu.im-context-menu-dark .menu-popup-item-text {
+	color: var(--im-list-recent__font-color_primary);
+}
+
+#im-recent-context-menu.im-context-menu-dark .menu-popup-item:hover {
+	background: var(--im-list-recent__background-color_hover);
+}
+
+#im-recent-context-menu.im-context-menu-dark .popup-window-delimiter {
+	background: var(--im-list-recent__background-color_separator);
+}
+
+#im-recent-context-menu.im-context-menu-dark .popup-window-angly--arrow {
+	background-color: var(--im-list-recent__background-color);
+	border: 1px solid var(--im-list-recent__background-color);
+}

@@ -672,11 +672,15 @@ $MESS["EC_ATTENDEES_EVENT_TITLE_DESCRIPTION"] = "Участники событи
 $MESS["EC_SEND_FROM_EMAIL"] = "E-mail для отправки почтовых приглашений";
 $MESS["EC_SEND_FROM_EMAIL_HELP"] = "Подробнее, для чего нужен емейл";
 $MESS["EC_SEND_FROM_EMAIL_HELP_TITLE"] = "Приглашайте партнеров и клиентов на встречи по электронной почте. Кликните на вопросик чтобы узнать подробнее";
-$MESS["EC_SEND_FROM_EMAIL_HELP_HREF"] = "https://helpdesk.bitrix24.ru/open/12070142";
 $MESS["EC_CALENDAR_IM_NOT_FOUND"] = "Модуль Веб-мессенджер (im) не установлен";
 $MESS["EC_CALENDAR_CHAT_TITLE"] = "Чат события \"#EVENT_TITLE#\"";
 $MESS["EC_CALENDAR_CHAT_FIRST_MESSAGE"] = "Чат создан из события \"#EVENT_TITLE#\" от #DATETIME_FROM#";
 $MESS["EC_CALENDAR_ERROR_CHAT_USER_NOT_FOUND"] = "Ошибка! Только участник события может создать чат";
 $MESS["EC_ICAL_NOTICE_DO_NOT_SET_EMAIL"] = "Не удалось установить адрес почтового ящика для отправки. Проверьте настройку почтового ящика у организатора события";
 $MESS["EC_CALENDAR_BITRIX24_NAME"] = "Битрикс24";
+
+$MESS['CALENDAR_SHARING_COMPONENT_OG_TITLE'] = 'Это мои свободные слоты';
+$MESS['CALENDAR_SHARING_COMPONENT_OG_DESCRIPTION'] = 'Здесь вы можете выбрать удобное время для встречи';
+$MESS['CALENDAR_SHARING_COMPONENT_CLASS_CALENDAR_TITLE'] = 'Слоты';
+$MESS['CALENDAR_SHARING_COMPONENT_CLASS_EVENT_TITLE'] = 'Встреча';
 ?>

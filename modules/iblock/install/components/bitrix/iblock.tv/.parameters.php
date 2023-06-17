@@ -1,34 +1,37 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-
-if(!CModule::IncludeModule("iblock"))
-	return;
-
-//IB types
-$arIBTypes = array(""=>" ");
-$rsIBTypes = CIBlockType::GetList(
-	array("SORT"=>"ASC")
-);
-while($IBType = $rsIBTypes->Fetch())
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 {
-	if($arIBType = CIBlockType::GetByIDLang($IBType["ID"], LANG))
-		$arIBTypes[$IBType["ID"]] = $arIBType["~NAME"];
+	die();
 }
 
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if(!Loader::includeModule("iblock"))
+{
+	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+
+//IB types
+$arIBTypes = CIBlockParameters::GetIBlockTypes();
+
 //IB
-$arIBlocks = array(""=>" ");
-$rsIBlocks = CIBlock::GetList(
-	array(
-		"SORT" => "ASC"
-	),
-	array(
-		"TYPE" => ($arCurrentValues["IBLOCK_TYPE"]!="-"
-			?$arCurrentValues["IBLOCK_TYPE"]
-			:"")
-	)
-);
+$arIBlocks = array();
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlocks = CIBlock::GetList(array("SORT" => "ASC"), $iblockFilter);
 while($Iblock = $rsIBlocks->Fetch())
+{
 	$arIBlocks[$Iblock["ID"]] = $Iblock["NAME"];
+}
 
 //Sort
 $arSortsBy = array(
@@ -148,7 +151,7 @@ $arComponentParameters = array(
 );
 
 //Additional params
-if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])>0)
+if($iblockExists)
 {
 	//IB properties
 	$arProperties = array(""=>" ");
@@ -203,7 +206,6 @@ if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])
 		"PARENT" => "PREVIEW_TV",
 		"NAME" => GetMessage("BITRIXTV_SETTING_LOGO"),
 		"TYPE" => "FILE",
-		"DEFAULT" => "",
 		"SORT" => 25,
 		"DEFAULT" => "/bitrix/components/bitrix/iblock.tv/templates/.default/images/logo.png"
 	);
@@ -287,4 +289,3 @@ if(IsModuleInstalled('statistic'))
 		);
 	}
 }
-?>

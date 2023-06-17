@@ -1,10 +1,19 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-$arParams['JS_CONTROL_GLOBAL_ID'] = 		$this->__component->tryParseStringStrict($arParams['JS_CONTROL_GLOBAL_ID']);
-$arParams['JS_CONTROL_DEFERRED_INIT'] = 	$this->__component->tryParseStringStrict($arParams['JS_CONTROL_DEFERRED_INIT']);
-$arParams['JS_CALLBACK'] = 					$this->__component->tryParseStringStrict($arParams['JS_CALLBACK']);
-$arParams['INITIALIZE_BY_GLOBAL_EVENT'] = 	$this->__component->tryParseStringStrict($arParams['INITIALIZE_BY_GLOBAL_EVENT']);
+/** @var array $arParams */
+/** @var array $arResult */
+
+$arParams['JS_CONTROL_GLOBAL_ID'] = $this->__component->tryParseStringStrict($arParams['JS_CONTROL_GLOBAL_ID']);
+$arParams['JS_CONTROL_DEFERRED_INIT'] = $this->__component->tryParseStringStrict($arParams['JS_CONTROL_DEFERRED_INIT']);
+$arParams['JS_CALLBACK'] = $this->__component->tryParseStringStrict($arParams['JS_CALLBACK']);
+$arParams['USE_JS_SPAWN'] ??= 'N';
+$arParams["USE_POPUP"] ??= null;
+$arParams['INITIALIZE_BY_GLOBAL_EVENT'] = $this->__component->tryParseStringStrict($arParams['INITIALIZE_BY_GLOBAL_EVENT']);
+$arParams['GLOBAL_EVENT_SCOPE'] ??= '';
 
 $arResult['PATH_NAMES'] = array(); // deprecated
 $arResult['KNOWN_ITEMS'] = array();
@@ -62,11 +71,11 @@ if(is_array($arResult['LOCATION']) && !empty($arResult['LOCATION']))
 }
 
 $arResult['RANDOM_TAG'] = rand(999, 99999);
-$this->arResult['ADMIN_MODE'] = defined("ADMIN_SECTION") && ADMIN_SECTION == true;
+$arResult['ADMIN_MODE'] = defined("ADMIN_SECTION") && ADMIN_SECTION == true;
 
 // modes
 $modes = array();
-if((defined("ADMIN_SECTION") && ADMIN_SECTION == true) || $arParams['ADMIN_MODE'] == 'Y')
+if((defined("ADMIN_SECTION") && ADMIN_SECTION == true) || ($arParams['ADMIN_MODE'] ?? 'N') === 'Y')
 	$modes[] = 'admin';
 
 if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)

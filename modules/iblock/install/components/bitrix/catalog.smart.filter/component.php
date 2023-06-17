@@ -906,7 +906,7 @@ foreach($arResult["ITEMS"] as $PID => $arItem)
 
 $clearURL = CHTTP::urlDeleteParams($pageURL, $paramsToDelete, array("delete_system_params" => true));
 
-if ($arResult["JS_FILTER_PARAMS"]["SEF_SET_FILTER_URL"])
+if (($arResult["JS_FILTER_PARAMS"]["SEF_SET_FILTER_URL"] ?? ''))
 {
 	$arResult["FILTER_URL"] = $arResult["JS_FILTER_PARAMS"]["SEF_SET_FILTER_URL"];
 	$arResult["FILTER_AJAX_URL"] = htmlspecialcharsbx(CHTTP::urlAddParams($arResult["FILTER_URL"], array(
@@ -934,7 +934,7 @@ else
 				elseif($_CHECK[$ar["CONTROL_NAME"]] == $ar["HTML_VALUE"])
 					$paramsToAdd[$ar["CONTROL_NAME"]] = $_CHECK[$ar["CONTROL_NAME"]];
 			}
-			elseif(isset($_CHECK[$ar["CONTROL_NAME_ALT"]]))
+			elseif(isset($ar["CONTROL_NAME_ALT"]) && isset($_CHECK[$ar["CONTROL_NAME_ALT"]]))
 			{
 				if ($_CHECK[$ar["CONTROL_NAME_ALT"]] == $ar["HTML_VALUE_ALT"])
 					$paramsToAdd[$ar["CONTROL_NAME_ALT"]] = $_CHECK[$ar["CONTROL_NAME_ALT"]];
@@ -1055,7 +1055,7 @@ if (
 	$APPLICATION->AddHeadString('<meta property="ya:interaction:url" content="'.CHTTP::urn2uri($exportUrl).'" />');
 }
 
-if ($arParams["XML_EXPORT"] === "Y" && $_REQUEST["mode"] === "xml")
+if ($arParams["XML_EXPORT"] === "Y" && ($_REQUEST["mode"] ?? '') === "xml")
 {
 	$this->setFrameMode(false);
 	ob_start();

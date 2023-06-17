@@ -64,6 +64,13 @@ class Comment extends CopyImplementer
 			$fields["TOPIC_ID"] = $container->getParentId();
 		}
 
+		$dictionary = $container->getDictionary();
+
+		if (!empty($dictionary["XML_ID"]))
+		{
+			$fields["XML_ID"] = $dictionary["XML_ID"];
+		}
+
 		return $fields;
 	}
 

@@ -1,4 +1,9 @@
-<? if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+<?php
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var array $arResult */
 /** @var array $arParams */
@@ -11,32 +16,35 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 
-CJSCore::Init(array("lists", "ui.fonts.opensans"));
+\Bitrix\Main\Loader::includeModule('ui');
+\Bitrix\Main\UI\Extension::load(["lists", "ui.fonts.opensans", 'ui.dialogs.messagebox']);
+
 Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/utils.js');
 Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/lists/css/autorun_progress_bar.css');
 Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/lists/js/autorun_progress_bar.js');
 
 if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
+{
 	\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
+}
 
 $listAction = array();
 $listActionAdd = array();
 if($arResult["CAN_ADD_ELEMENT"])
 {
 	$listActionAdd[] = array(
-		"id" => "addElement",
 		"text" => $arResult["IBLOCK"]["ELEMENT_ADD"],
-		"url" => $arResult["LIST_NEW_ELEMENT_URL"],
-		"action" => 'document.location.href="'.$arResult["LIST_NEW_ELEMENT_URL"].'"',
+		"href" => $arResult["LIST_NEW_ELEMENT_URL"],
 	);
 }
 if($arResult["CAN_EDIT_SECTIONS"])
 {
 	$listActionAdd[] = array(
-		"id" => "addSection",
 		"text" => $arResult["IBLOCK"]["SECTION_ADD"],
-		"url" => $arResult["LIST_SECTION_URL"],
-		"action" => "BX.Lists['".$arResult["JS_OBJECT"]."'].addSection();",
+		"onclick" => new \Bitrix\UI\Buttons\JsHandler(
+			"BX.Lists." . $arResult["JS_OBJECT"] . ".addSection",
+			"BX.Lists." . $arResult["JS_OBJECT"]
+		),
 	);
 }
 if($arParams["CAN_EDIT"])
@@ -44,20 +52,17 @@ if($arParams["CAN_EDIT"])
 	$listAction[] = array(
 		"text" => $arParams["IBLOCK_TYPE_ID"] == Option::get("lists", "livefeed_iblock_type_id") ?
 			Loc::getMessage("CT_BLL_TOOLBAR_PROCESS_TITLE") : Loc::getMessage("CT_BLL_TOOLBAR_LIST_TITLE"),
-		"url" => $arResult["LIST_EDIT_URL"],
-		"action" => 'document.location.href="'.$arResult["~LIST_EDIT_URL"].'"',
+		"href" => $arResult["LIST_EDIT_URL"],
 	);
 	$listAction[] = array(
 		"text" => Loc::getMessage("CT_BLL_TOOLBAR_FIELDS"),
-		"url" => $arResult["LIST_FIELDS_URL"],
-		"action" => 'document.location.href="'.$arResult["~LIST_FIELDS_URL"].'"',
+		"href" => $arResult["LIST_FIELDS_URL"],
 	);
 	if($arResult["IBLOCK"]["BIZPROC"] == "Y" && $arParams["CAN_EDIT_BIZPROC"])
 	{
 		$listAction[] = array(
 			"text" => Loc::getMessage("CT_BLL_TOOLBAR_BIZPROC_SETTINGS"),
-			"url" => $arResult["BIZPROC_WORKFLOW_ADMIN_URL"],
-			"action" => 'document.location.href="'.$arResult["~BIZPROC_WORKFLOW_ADMIN_URL"].'"',
+			"href" => $arResult["BIZPROC_WORKFLOW_ADMIN_URL"],
 		);
 	}
 }
@@ -73,11 +78,13 @@ if ($arResult["CAN_READ"])
 {
 	if ($USER->isAuthorized())
 	{
-		$listAction[] = array(
-			"id" => "showSectionGrid",
+		$listAction[] = [
 			"text" => $textForActionSectionGrid,
-			"action" => "BX.Lists['".$arResult["JS_OBJECT"]."'].toogleSectionGrid();"
-		);
+			"onclick" => new \Bitrix\UI\Buttons\JsHandler(
+				"BX.Lists." . $arResult["JS_OBJECT"] . ".toogleSectionGrid",
+				"BX.Lists." . $arResult["JS_OBJECT"]
+			),
+		];
 	}
 }
 else
@@ -92,8 +99,7 @@ if (isset($arResult['CAN_EXPORT']) && $arResult["CAN_EXPORT"])
 			$arResult["EXPORT_EXCEL_URL"] : $arResult["EXPORT_EXCEL_URL"].mb_substr($APPLICATION->GetCurPageParam(), mb_strpos($APPLICATION->GetCurPageParam(), "?")), array("ncc" => "y"));
 		$listAction[] = array(
 			"text" => Loc::getMessage("CT_BLL_EXPORT_IN_EXCEL"),
-			"url" => $url,
-			"action" => 'document.location.href="'.$url.'"',
+			"href" => $url,
 		);
 	}
 }
@@ -113,7 +119,7 @@ if(!IsModuleInstalled("bitrix24")
 			{
 				$items[] = array(
 					'text' => $link['TEXT'],
-					'action' => $link['ONCLICK'],
+					"onclick" => new \Bitrix\UI\Buttons\JsCode($link['ONCLICK']),
 				);
 			}
 			$listAction[] = array(
@@ -147,18 +153,7 @@ foreach($arResult["FILTER_CUSTOM_ENTITY"] as $fieldType => $listField)
 	}
 }
 
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-$pagetitleFlexibleSpace = "lists-pagetitle-flexible-space";
-$pagetitleAlignRightContainer = "lists-align-right-container";
-if($isBitrix24Template)
-{
-	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."pagetitle-toolbar-field-view");
-	$this->SetViewTarget("inside_pagetitle");
-	$pagetitleFlexibleSpace = "";
-	$pagetitleAlignRightContainer = "";
-}
-elseif(!IsModuleInstalled("intranet"))
+if(!IsModuleInstalled("intranet"))
 {
 	\Bitrix\Main\UI\Extension::load([
 		'ui.design-tokens',
@@ -167,48 +162,53 @@ elseif(!IsModuleInstalled("intranet"))
 
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
-?>
-<div class="pagetitle-container pagetitle-flexible-space <?=$pagetitleFlexibleSpace?>">
-	<? $APPLICATION->IncludeComponent(
-		"bitrix:main.ui.filter",
-		"",
-		array(
-			"FILTER_ID" => $arResult["FILTER_ID"],
-			"GRID_ID" => $arResult["GRID_ID"],
-			"FILTER" => $arResult["FILTER"],
-			"ENABLE_LABEL" => true,
-			"ENABLE_LIVE_SEARCH" => true
-		),
-		$component,
-		array("HIDE_ICONS" => true)
-	); ?>
-</div>
-<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<? if($arResult["SECTION_ID"]):?>
-		<a href="<?=$arResult["LIST_PARENT_URL"]?>" class="ui-btn ui-btn-link ui-btn-themes lists-list-back">
-			<?=GetMessage("CT_BLL_SECTION_RETURN")?>
-		</a>
-	<?endif;?>
-	<? if($listAction):?>
-		<span id="lists-title-action" class="ui-btn ui-btn-light-border ui-btn-dropdown ui-btn-themes">
-			<?=Loc::getMessage("CT_BLL_TOOLBAR_ACTION")?>
-		</span>
-	<?endif;?>
-	<?if($arResult["CAN_ADD_ELEMENT"] || $arResult["CAN_EDIT_SECTIONS"]):?>
-		<div class="ui-btn-split ui-btn-primary">
-			<a href="<?=$arResult["LIST_NEW_ELEMENT_URL"]?>" id="lists-title-action-add" class="ui-btn-main"><?=Loc::getMessage("CT_BLL_TOOLBAR_ADD")?></a>
-			<span id="lists-title-action-select-add" class="ui-btn-menu"></span>
-		</div>
-	<?endif?>
-</div>
-<?
-if($isBitrix24Template)
+
+
+if ($arResult["CAN_ADD_ELEMENT"] || $arResult["CAN_EDIT_SECTIONS"])
 {
-	$this->EndViewTarget();
+	$splitButton = new Bitrix\UI\Buttons\Split\CreateButton([
+		'text' => Loc::getMessage("CT_BLL_TOOLBAR_ADD"),
+		'menu' => ['items' => $listActionAdd],
+		'mainButton' => [
+			'link' => $arResult["LIST_NEW_ELEMENT_URL"],
+		],
+	]);
+
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($splitButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
 }
 
-$sectionId = $arResult["SECTION_ID"] ? $arResult["SECTION_ID"] : 0;
-$socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
+\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter([
+	"FILTER_ID" => $arResult["FILTER_ID"],
+	"GRID_ID" => $arResult["GRID_ID"],
+	"FILTER" => $arResult["FILTER"],
+	"ENABLE_LABEL" => true,
+	"ENABLE_LIVE_SEARCH" => true,
+	'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
+]);
+
+if($arResult["SECTION_ID"])
+{
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton([
+			'link' => $arResult["LIST_PARENT_URL"],
+			'color' => \Bitrix\UI\Buttons\Color::LINK,
+			'text' => GetMessage("CT_BLL_SECTION_RETURN"),
+			'classList' => ['lists-list-back'],
+		],
+		\Bitrix\UI\Toolbar\ButtonLocation::AFTER_FILTER
+	);
+}
+if ($listAction)
+{
+	$settingsButton = new Bitrix\UI\Buttons\SettingsButton([
+		'menu' => [
+			'items' => $listAction,
+		],
+	]);
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($settingsButton);
+}
+
+$sectionId = $arResult["SECTION_ID"] ?: 0;
+$socnetGroupId = $arParams["SOCNET_GROUP_ID"] ?: 0;
 $rebuildedData = Option::get("lists", "rebuild_seachable_content");
 $rebuildedData = unserialize($rebuildedData, ['allowed_classes' => false]);
 $shouldStartRebuildSeachableContent = isset($rebuildedData[$arResult["IBLOCK_ID"]]);
@@ -219,7 +219,7 @@ $dataForAjax = array(
 	"socnetGroupId" => $socnetGroupId
 );
 if($shouldStartRebuildSeachableContent):?>
-	<?
+	<?php
 		$dataForAjax["totalItems"] = CLists::getNumberOfElements($arResult["IBLOCK_ID"]);
 	?>
 	<div id="rebuildSeachableContent"></div>
@@ -246,7 +246,8 @@ if($shouldStartRebuildSeachableContent):?>
 			manager.runAfter(100);
 		});
 	</script>
-<?endif;
+<?php
+endif;
 
 if (Loader::includeModule("socialnetwork"))
 {
@@ -341,8 +342,6 @@ $APPLICATION->IncludeComponent(
 			sectionId: '<?= (int) $sectionId ?>',
 			socnetGroupId: '<?=$socnetGroupId?>',
 			jsObject: '<?= $arResult['JS_OBJECT'] ?>',
-			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,
-			listActionAdd: <?=\Bitrix\Main\Web\Json::encode($listActionAdd)?>,
 			gridId: '<?=$arResult["GRID_ID"]?>',
 			filterId: '<?=$arResult["FILTER_ID"]?>'
 		});

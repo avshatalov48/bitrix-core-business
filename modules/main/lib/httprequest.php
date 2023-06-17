@@ -557,12 +557,16 @@ class HttpRequest extends Request
 	public function isJson(): bool
 	{
 		$contentType = $this->headers->getContentType();
+		if (!$contentType)
+		{
+			return false;
+		}
 		if ($contentType === 'application/json')
 		{
 			return true;
 		}
 
-		return mb_strpos($contentType, '+json') !== false;
+		return strpos($contentType, '+json') !== false;
 	}
 
 	/**

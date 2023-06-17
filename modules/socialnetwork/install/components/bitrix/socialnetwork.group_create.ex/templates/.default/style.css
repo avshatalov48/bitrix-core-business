@@ -687,7 +687,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 }
 
 .socialnetwork-group-create-ex__background-gif.--group:after {
-	background-image: url(images/socialnetwork-group-create-ex__project-image--group.gif);
+	background-image: url(images/socialnetwork-group-create-ex__project-image--group.svg);
 }
 
 .socialnetwork-group-create-ex__background-gif.--group:before {

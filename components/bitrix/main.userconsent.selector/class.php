@@ -28,10 +28,10 @@ class MainUserConsentSelectorComponent extends CBitrixComponent
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? intval($this->arParams['ID']) : null;
 		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? (string) $this->arParams['INPUT_NAME'] : 'AGREEMENT_ID';
 
-		$this->arParams['PATH_TO_ADD'] = isset($this->arParams['PATH_TO_ADD']) ? $this->arParams['PATH_TO_ADD'] : '';
-		$this->arParams['PATH_TO_EDIT'] = isset($this->arParams['PATH_TO_EDIT']) ? $this->arParams['PATH_TO_EDIT'] : '';
-		$this->arParams['PATH_TO_CONSENT_LIST'] = isset($this->arParams['PATH_TO_CONSENT_LIST']) ? $this->arParams['PATH_TO_CONSENT_LIST'] : '';
-		$this->arParams['ACTION_REQUEST_URL'] = isset($this->arParams['ACTION_REQUEST_URL']) ? $this->arParams['ACTION_REQUEST_URL'] : '';
+		$this->arParams['PATH_TO_ADD'] = $this->arParams['PATH_TO_ADD'] ?? '';
+		$this->arParams['PATH_TO_EDIT'] = $this->arParams['PATH_TO_EDIT'] ?? '';
+		$this->arParams['PATH_TO_CONSENT_LIST'] = $this->arParams['PATH_TO_CONSENT_LIST'] ?? '';
+		$this->arParams['ACTION_REQUEST_URL'] = $this->arParams['ACTION_REQUEST_URL'] ?? '';
 	}
 
 	protected function prepareResult()

@@ -8,6 +8,9 @@ class CAllSaleAffiliatePlan
 {
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
+		/** @global CDatabase $DB */
+		global $DB;
+
 		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAP1_NO_SITE"), "EMPTY_SITE_ID");
@@ -97,6 +100,9 @@ class CAllSaleAffiliatePlan
 			}
 		}
 
+		unset($arFields['TIMESTAMP_X']);
+		$arFields['~TIMESTAMP_X'] = $DB->GetNowFunction();
+
 		return True;
 	}
 
@@ -145,7 +151,7 @@ class CAllSaleAffiliatePlan
 		}
 		else
 		{
-			$strSql = 
+			$strSql =
 				"SELECT AP.ID, AP.SITE_ID, AP.NAME, AP.DESCRIPTION, AP.ACTIVE, AP.BASE_RATE, ".
 				"	AP.BASE_RATE_TYPE, AP.BASE_RATE_CURRENCY, AP.MIN_PAY, AP.MIN_PLAN_VALUE, ".
 				"	".$DB->DateToCharFunction("AP.TIMESTAMP_X", "FULL")." as TIMESTAMP_X ".

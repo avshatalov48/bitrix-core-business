@@ -284,7 +284,7 @@ class CSaleHelper
 		return $arResult;
 	}
 
-	private static function getShopLocationParams($siteId = false)
+	private static function getShopLocationParams($siteId = false): array
 	{
 		$loc_diff = COption::GetOptionString('sale', 'ADDRESS_different_set', 'N');
 
@@ -315,18 +315,20 @@ class CSaleHelper
 			}
 		}
 
-		if((string) $locId != '')
+		if((string)$locId !== '')
 		{
 			$location = self::getLocationByIdHitCached($locId);
 
-			if(intval($location['ID']))
+			if (is_array($location) && (int)$location['ID'])
+			{
 				$locId = $location['ID'];
+			}
 		}
 
-		return array(
+		return [
 			'ID' => $locId,
-			'ZIP' => $locZip
-		);
+			'ZIP' => $locZip,
+		];
 	}
 
 	public static function getShopLocationId($siteId)
@@ -341,7 +343,7 @@ class CSaleHelper
 				$shopLocationId[$siteId] = $locParams['ID'];
 		}
 
-		return $shopLocationId[$siteId];
+		return $shopLocationId[$siteId] ?? '';
 	}
 
 	public static function getShopLocationZIP()

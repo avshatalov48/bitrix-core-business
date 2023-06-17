@@ -35,7 +35,7 @@ endforeach;
 	}));
 
 <?php
-if($arParams['INTERFACE_EVENT']):
+if(isset($arParams['INTERFACE_EVENT']) && $arParams['INTERFACE_EVENT']):
 ?>
 	BX.rest.AppLayout.initializePlacementByEvent('<?=\CUtil::JSEscape($arResult['PLACEMENT'])?>', '<?=\CUtil::JSEscape($arParams['INTERFACE_EVENT'])?>');
 <?php

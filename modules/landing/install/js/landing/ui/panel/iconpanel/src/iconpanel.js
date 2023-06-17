@@ -48,7 +48,7 @@ export class IconPanel extends Content
 			onInput: this.search,
 		});
 
-		Dom.append(this.layout, document.body);
+		Dom.append(this.layout, window.parent.document.body);
 
 		this.initDictionary();
 	}

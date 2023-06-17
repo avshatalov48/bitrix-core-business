@@ -4,6 +4,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_form_baseform,landing_ui_collection_formcollection,landing_loc,landing_ui_panel_content,main_core,landing_ui_form_cardform,ui_draganddrop_draggable,landing_pageobject,main_core_events,landing_ui_field_textfield) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var CardsForm = /*#__PURE__*/function (_BaseForm) {
 	  babelHelpers.inherits(CardsForm, _BaseForm);
 
@@ -30,9 +33,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.addButton = _this.createAddButton();
 	    _this.draggable = new ui_draganddrop_draggable.Draggable({
 	      container: _this.body,
+	      context: parent.window,
 	      draggable: '.landing-ui-form-cards-item',
 	      dragElement: '.landing-ui-form-card-item-header-drag',
-	      type: ui_draganddrop_draggable.Draggable.MOVE
+	      type: ui_draganddrop_draggable.Draggable.MOVE,
+	      offset: {
+	        y: -65
+	      }
 	    });
 
 	    _this.draggable.subscribe('end', _this.onDragEnd);
@@ -159,34 +166,34 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function showPresetsPopup() {
 	      var _this3 = this;
 
-	      if (!this.popup) {
-	        this.popup = new BX.PopupMenuWindow({
-	          id: 'catalog_blocks_list',
-	          bindElement: this.addButton.layout,
-	          items: Object.keys(this.presets).map(function (preset) {
-	            return {
-	              html: _this3.presets[preset].name,
-	              className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
-	              onclick: _this3.onPresetItemClick.bind(_this3, preset)
-	            };
-	          }),
-	          autoHide: true,
-	          maxHeight: 176,
-	          minHeight: 87
+	      if (this.popup) {
+	        CardsForm.popups.map(function (popup) {
+	          popup.popupWindow.close();
+	          popup.popupWindow.destroy();
 	        });
-	        main_core.Event.bind(this.popup.popupWindow.popupContainer, 'mouseover', this.onMouseOver.bind(this));
-	        main_core.Event.bind(this.popup.popupWindow.popupContainer, 'mouseleave', this.onMouseLeave.bind(this));
-	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
-	        main_core.Event.bind(rootWindow.document, 'click', this.onDocumentClick.bind(this));
-	        main_core.Dom.append(this.popup.popupWindow.popupContainer, this.addButton.layout.closest('.landing-ui-panel-content-body-content'));
 	      }
 
-	      if (this.popup.popupWindow.isShown()) {
-	        this.popup.popupWindow.close();
-	      } else {
-	        this.popup.popupWindow.show();
-	      }
-
+	      this.popup = new BX.PopupMenuWindow({
+	        id: 'cards_list_' + main_core.Text.getRandom(),
+	        bindElement: this.addButton.layout,
+	        items: Object.keys(this.presets).map(function (preset) {
+	          return {
+	            html: _this3.presets[preset].name,
+	            className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
+	            onclick: _this3.onPresetItemClick.bind(_this3, preset)
+	          };
+	        }),
+	        autoHide: true,
+	        maxHeight: 176,
+	        minHeight: 87
+	      });
+	      CardsForm.popups.push(this.popup);
+	      main_core.Event.bind(this.popup.popupWindow.popupContainer, 'mouseover', this.onMouseOver.bind(this));
+	      main_core.Event.bind(this.popup.popupWindow.popupContainer, 'mouseleave', this.onMouseLeave.bind(this));
+	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	      main_core.Event.bind(rootWindow.document, 'click', this.onDocumentClick.bind(this));
+	      main_core.Dom.append(this.popup.popupWindow.popupContainer, this.addButton.layout.closest('.landing-ui-panel-content-body-content'));
+	      this.popup.popupWindow.show();
 	      this.adjustPopupPosition();
 	    }
 	  }, {
@@ -221,8 +228,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }, {
 	    key: "onDocumentClick",
-	    value: function onDocumentClick() {
-	      if (this.popup.popupWindow) {
+	    value: function onDocumentClick(event) {
+	      if (this.popup.popupWindow && !main_core.Dom.hasClass(event.target, 'landing-ui-button-text') && !main_core.Dom.hasClass(event.target, 'landing-ui-card-add-button')) {
 	        this.popup.popupWindow.close();
 	      }
 	    }
@@ -305,7 +312,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getIndexesMap",
 	    value: function getIndexesMap() {
 	      return this.childForms.reduce(function (acc, form, index) {
-	        return babelHelpers.objectSpread({}, acc, babelHelpers.defineProperty({}, index, form.oldIndex));
+	        return _objectSpread(_objectSpread({}, acc), {}, babelHelpers.defineProperty({}, index, form.oldIndex));
 	      }, {});
 	    }
 	  }, {
@@ -331,6 +338,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }]);
 	  return CardsForm;
 	}(landing_ui_form_baseform.BaseForm);
+	babelHelpers.defineProperty(CardsForm, "popups", []);
 
 	exports.CardsForm = CardsForm;
 

@@ -88,7 +88,7 @@ class CSocNetTextParser
 
 			$CACHE_MANAGER->Set("b_sonet_smile", $arSmiles);
 		}
-		$this->smiles = $arSmiles[$strLang];
+		$this->smiles = $arSmiles[$strLang] ?? null;
 	}
 
 	function convert($text, $bPreview = True, $arImages = array(), $allow = array("HTML" => "N", "ANCHOR" => "Y", "BIU" => "Y", "IMG" => "Y", "QUOTE" => "Y", "CODE" => "Y", "FONT" => "Y", "LIST" => "Y", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "Y"), $type = "html")	//, "KEEP_AMP" => "N"
@@ -409,7 +409,7 @@ class CSocNetTextParser
 				}
 			}
 		}
-		if ($allow["VIDEO"] == "Y")
+		if (($allow["VIDEO"] ?? null) === "Y")
 		{
 			while (preg_match("/\[video(.+?)\](.+?)\[\/video[\s]*\]/is".BX_UTF_PCRE_MODIFIER, $text))
 			{

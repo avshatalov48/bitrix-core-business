@@ -1,4 +1,9 @@
 <?php
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 use Bitrix\Main\Web\Uri;
 
@@ -25,7 +30,7 @@ function _showTopPanelButtonsSection($arPanelButtons, $hkInstance, $section = nu
 		if ($section != null && (!isset($item['SECTION']) || $item['SECTION'] != $section))
 			continue;
 
-		$id = isset($item['ID']) ? $item['ID'] : 'bx_top_panel_button_'.RandString();
+		$id = $item['ID'] ?? 'bx_top_panel_button_'.RandString();
 		$bHasMenu = (isset($item["MENU"]) && is_array($item["MENU"]) && !empty($item["MENU"]));
 
 		if($USER->IsAuthorized())
@@ -85,7 +90,7 @@ if($USER->IsAuthorized())
 
 	//Help
 	$module = (defined("ADMIN_MODULE_NAME")? ADMIN_MODULE_NAME: "main");
-	$page = (defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') === false? HELP_FILE : basename($APPLICATION->GetCurPage()));
+	$page = (defined("HELP_FILE") && strpos(HELP_FILE, '/') === false? HELP_FILE : basename($APPLICATION->GetCurPage()));
 
 	$aActiveSection = $adminMenu->ActiveSection();
 	$section = $aActiveSection["help_section"]."/";
@@ -132,7 +137,7 @@ if (count($arLangMenu) > 1)
 $arPanelButtons[] = $arLangButton;
 
 $sPubUrl = (\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"] <> ""?
-	htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"], "?") !== false? "&amp;":"?") : '/?').
+	htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"]).(strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"], "?") !== false? "&amp;":"?") : '/?').
 	'back_url_admin='.urlencode($APPLICATION->GetCurPage().($params<>""? "?".$params:""));
 
 $aUserOptGlobal = CUserOptions::GetOption("global", "settings");
@@ -387,7 +392,7 @@ if ($USER->IsAuthorized()):
  */
 
 	$ssoSwitcher = $adminPage->getSSOSwitcherButton();
-	$bShowSSO = is_array($ssoSwitcher) && count($ssoSwitcher) > 0;
+	$bShowSSO = is_array($ssoSwitcher) && !empty($ssoSwitcher);
 
 	$userName = $USER->GetFormattedName();
 	if($bShowSSO)
@@ -440,7 +445,7 @@ if ($USER->IsAuthorized()):
 			"url" => "https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam(),
 			"user_id" => $USER->GetID(),
 			"is_admin" => $USER->IsAdmin() ? 1 : 0,
-			"help_url" => "http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page),
+			"help_url" => "http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page),
 		]);
 
 		$frameOpenUrl = (clone $helpUrl)->addParams([

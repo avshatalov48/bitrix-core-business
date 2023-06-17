@@ -110,7 +110,7 @@ class Automatic extends Base
 				{
 					continue;
 				}
-					
+
 				$handlers[$handler["SID"]] = $handler["NAME"]." [".$handler["SID"]."]";
 				$jsData[$handler["SID"]] = array(
 					htmlspecialcharsbx($handler["NAME"]),
@@ -120,7 +120,7 @@ class Automatic extends Base
 			}
 		}
 
-		if($this->handlerInitParams["SID"] == '' || $this->id <=0)
+		if (($this->handlerInitParams["SID"] ?? '') == '' || $this->id <=0)
 		{
 			$result = array(
 				"MAIN" => array(
@@ -516,21 +516,31 @@ class Automatic extends Base
 		else
 			$service["SID"] = $service["CONFIG"]["MAIN"]["SID"];
 
+		$handlerExists = isset($handlers[$service["SID"]]) && is_array($handlers[$service["SID"]]);
+
 		$service["TAX_RATE"] = $service["CONFIG"]["MAIN"]["MARGIN_VALUE"]; //todo: %, CURRENCY
 		$service["INSTALLED"] = 'Y';
 
 		$service["BASE_CURRENCY"] = $service["CURRENCY"];
-		$service["SETTINGS"] = $service["CONFIG"]["MAIN"]["OLD_SETTINGS"];
-		$service["HANDLER"] = $handlers[$service["SID"]]["HANDLER"];
+		$service["SETTINGS"] = $service["CONFIG"]["MAIN"]["OLD_SETTINGS"] ?? '';
+		$service["HANDLER"] = '';
+		if ($handlerExists)
+		{
+			$service["HANDLER"] = $handlers[$service["SID"]]["HANDLER"] ?? '';
+		}
 
-		if (intval($service["LOGOTIP"]) > 0)
+		$service['LOGOTIP'] = (int)($service['LOGOTIP'] ?? 0);
+		if ($service["LOGOTIP"] > 0)
+		{
 			$service["LOGOTIP"] = \CFile::getFileArray($service["LOGOTIP"]);
+		}
 
 		$siteId = false;
 
-		if(isset($service["ID"]) && intval($service["ID"]) > 0)
+		$serviceId = (int)($service['ID'] ?? 0);
+		if ($serviceId)
 		{
-			$restrictions = \Bitrix\Sale\Delivery\Restrictions\Manager::getRestrictionsList($service["ID"]);
+			$restrictions = \Bitrix\Sale\Delivery\Restrictions\Manager::getRestrictionsList($serviceId);
 
 			foreach($restrictions as $restriction)
 			{
@@ -554,19 +564,23 @@ class Automatic extends Base
 		if(!$siteId)
 			$siteId = Helper::getDefaultSiteId();
 
-		$service["CONFIG"] = self::createConfig($handlers[$service["SID"]], $service["SETTINGS"], $siteId);
+		$service['CONFIG'] = [];
+		if ($handlerExists)
+		{
+			$service["CONFIG"] = self::createConfig($handlers[$service["SID"]], $service["SETTINGS"], $siteId);
+		}
 		$service["SETTINGS"] = unserialize($service["SETTINGS"], ['allowed_classes' => false]);
 		$service["PROFILES"] = array();
 
-		if(isset($service["ID"]) && intval($service["ID"]) > 0)
+		if ($serviceId > 0)
 		{
-			foreach(Manager::getByParentId($service["ID"]) as $profile)
+			foreach(Manager::getByParentId($serviceId) as $profile)
 			{
 				$profileId = $profile["CONFIG"]["MAIN"]["PROFILE_ID"];
 				$profileParams = array(
 					"TITLE" => $profile["NAME"],
 					"DESCRIPTION" => $profile["DESCRIPTION"],
-					"TAX_RATE" => $service["CONFIG"]["MAIN"]["MARGIN_VALUE"],
+					"TAX_RATE" => $service["CONFIG"]["MAIN"]["MARGIN_VALUE"] ?? '',
 					"ACTIVE" =>  $profile["ACTIVE"]
 				);
 
@@ -607,10 +621,14 @@ class Automatic extends Base
 
 		unset($service["CODE"]);
 
-		if($service["SID"] <> '' && isset($handlers[$service["SID"]]))
+		if ($handlerExists)
+		{
 			$result = array_merge($handlers[$service["SID"]], $service);
+		}
 		else
+		{
 			$result = $service;
+		}
 
 		return $result;
 	}

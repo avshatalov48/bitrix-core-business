@@ -87,11 +87,13 @@ class AliasedQuery extends Query
 		elseif (is_array($field)) // TODO Field support
 		{
 			$name = '__'.$alias.'_ALIAS__';
-			if (! $field['registered'])
+			$field['registered'] ??= false;
+			if (!$field['registered'])
 			{
 				$field['registered'] = true;
 				$this->registerRuntimeField($name, $field);
 			}
+
 			return $name;
 		}
 

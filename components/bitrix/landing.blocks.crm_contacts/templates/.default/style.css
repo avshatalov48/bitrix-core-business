@@ -42,3 +42,34 @@
 {
 	color: white;
 }
+
+.bx-gray {
+	margin: 0 15px;
+}
+.bx-gray .crmcontacts-text-title.h6,
+.bx-gray .crmcontacts-text-text, .bx-gray .crmcontacts-text-text a
+{
+	color: #8d8d91;
+	font-size: 17px;
+	text-decoration: none;
+	transition: 0.2s color;
+}
+.bx-gray .crmcontacts-text-text a:hover
+{
+	color: #ffffff;
+}
+.bx-gray .crmcontacts-button-button.btn
+{
+	color: #8d8d91 !important;
+	border-color: #404247;
+	font-size: 13px;
+	border-width: 2px !important;
+	background: transparent !important;
+	text-transform: uppercase !important;
+}
+.bx-gray .crmcontacts-button-button.btn:hover
+{
+	color: rgba(255,255,255,.8) !important;
+	border-color: rgba(208,218,221,.5);
+	background: transparent;
+}

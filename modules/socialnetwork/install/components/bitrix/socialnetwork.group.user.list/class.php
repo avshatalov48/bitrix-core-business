@@ -142,7 +142,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			foreach ($result as $key => $column)
 			{
 				if (
-					!$column['default']
+					!($column['default'] ?? false)
 					&& in_array($column['id'], $defaultSelectedGridHeaders, true)
 				)
 				{
@@ -300,7 +300,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			];
 		}
 
-		if ($componentResult['GROUP_PERMS']['UserCanProcessRequestsIn'])
+		if ($componentResult['GROUP_PERMS']['UserCanProcessRequestsIn'] ?? null)
 		{
 			$result[self::PRESET_REQUESTS_IN] = [
 				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_REQUESTS_IN'),
@@ -516,7 +516,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		if (
 			!$initiatedByUser
-			&& !$componentResult['GROUP_PERMS']['UserCanProcessRequestsIn']
+			&& !($componentResult['GROUP_PERMS']['UserCanProcessRequestsIn'] ?? null)
 			&& !Helper\Workgroup::isCurrentUserModuleAdmin()
 		)
 		{
@@ -687,8 +687,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	 */
 	private function getFilter(array $gridFilter): array
 	{
-		$result = [
-		];
+		$result = [];
 
 		if (!\Bitrix\Main\Filter\UserDataProvider::getFiredAvailability())
 		{
@@ -721,12 +720,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			}
 		}
 
+		$gridFilter['DEPARTMENT'] = ($gridFilter['DEPARTMENT'] ?? '');
+
 		$integerFieldsList = [
 			[
 				'FILTER_FIELD_NAME' => 'ID',
 				'FIELD_NAME' => 'ID',
 				'OPERATION' => '=',
-				'VALUE' => $gridFilter['ID'],
+				'VALUE' => $gridFilter['ID'] ?? '',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'DEPARTMENT',
@@ -757,37 +758,37 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				'FILTER_FIELD_NAME' => 'NAME',
 				'FIELD_NAME' => 'NAME',
 				'OPERATION' => '%=',
-				'VALUE' => $gridFilter['NAME'] . '%',
+				'VALUE' => ($gridFilter['NAME'] ?? '') . '%',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'LAST_NAME',
 				'FIELD_NAME' => 'LAST_NAME',
 				'OPERATION' => '%=',
-				'VALUE' => $gridFilter['LAST_NAME'] . '%',
+				'VALUE' => ($gridFilter['LAST_NAME'] ?? '') . '%',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'EMAIL',
 				'FIELD_NAME' => 'EMAIL',
 				'OPERATION' => '%=',
-				'VALUE' => $gridFilter['EMAIL'] . '%',
+				'VALUE' => ($gridFilter['EMAIL'] ?? '') . '%',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'ROLE',
 				'FIELD_NAME' => 'ROLE',
 				'OPERATION' => '=',
-				'VALUE' => $gridFilter['ROLE'],
+				'VALUE' => ($gridFilter['ROLE'] ?? ''),
 			],
 			[
 				'FILTER_FIELD_NAME' => 'INITIATED_BY_TYPE',
 				'FIELD_NAME' => 'INITIATED_BY_TYPE',
 				'OPERATION' => '=',
-				'VALUE' => $gridFilter['INITIATED_BY_TYPE'],
+				'VALUE' => $gridFilter['INITIATED_BY_TYPE'] ?? '',
 			],
 			[
 				'FILTER_FIELD_NAME' => 'AUTO_MEMBER',
 				'FIELD_NAME' => 'AUTO_MEMBER',
 				'OPERATION' => '=',
-				'VALUE' => $gridFilter['AUTO_MEMBER'],
+				'VALUE' => $gridFilter['AUTO_MEMBER'] ?? '',
 			],
 		];
 

@@ -192,8 +192,13 @@ else
 				$errorMessage .= GetMessage("SONET_C8_ERR_NAME").".<br />";
 			if ($_POST["GROUP_DESCRIPTION"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_DESCR").".<br />";
-			if (intval($_POST["GROUP_SUBJECT_ID"]) <= 0)
+			if (
+				isset($_POST["GROUP_SUBJECT_ID"])
+				&& intval($_POST["GROUP_SUBJECT_ID"]) <= 0
+			)
+			{
 				$errorMessage .= GetMessage("SONET_C8_ERR_SUBJECT").".<br />";
+			}
 			if ($_POST["GROUP_INITIATE_PERMS"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_PERMS").".<br />";
 			if ($_POST["GROUP_SPAM_PERMS"] == '')

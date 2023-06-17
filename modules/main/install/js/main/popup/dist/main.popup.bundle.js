@@ -152,6 +152,14 @@ this.BX = this.BX || {};
 	  return PositionEvent;
 	}(main_core_events.BaseEvent);
 
+	/**
+	 * @namespace {BX.Main.Popup}
+	 */
+	var CloseIconSize = Object.freeze({
+	  LARGE: 'large',
+	  SMALL: 'small'
+	});
+
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
@@ -394,6 +402,11 @@ this.BX = this.BX || {};
 
 	    if (params.closeIcon) {
 	      var className = 'popup-window-close-icon' + (params.titleBar ? ' popup-window-titlebar-close-icon' : '');
+
+	      if (Object.values(CloseIconSize).includes(params.closeIconSize) && params.closeIconSize !== CloseIconSize.SMALL) {
+	        className += " --".concat(params.closeIconSize);
+	      }
+
 	      _this.closeIcon = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"", "\" onclick=\"", "\"></span>\n\t\t\t"])), className, _this.handleCloseIconClick.bind(babelHelpers.assertThisInitialized(_this)));
 
 	      if (main_core.Type.isPlainObject(params.closeIcon)) {
@@ -3711,13 +3724,14 @@ this.BX = this.BX || {};
 	/*
 
 	//ES6
-	import { Popup, PopupManager } from 'main.popup';
+	import { Popup, PopupManager, CloseIconSize } from 'main.popup';
 	const popup = new Popup();
 	PopupManager.create();
 
 	//ES5
 	var popup = new BX.Main.Popup();
 	BX.Main.PopupManager.create();
+	BX.Main.Popup.CloseIconSize;
 
 	//ES6
 	import { Menu, MenuItem, MenuManager } from 'main.popup';
@@ -3765,6 +3779,7 @@ this.BX = this.BX || {};
 	exports.MenuItem = MenuItem;
 	exports.PopupManager = PopupManager;
 	exports.MenuManager = MenuManager;
+	exports.CloseIconSize = CloseIconSize;
 	exports.PopupWindow = PopupWindow;
 	exports.PopupMenuWindow = PopupMenuWindow;
 	exports.PopupMenuItem = PopupMenuItem;

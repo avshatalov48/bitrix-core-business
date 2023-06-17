@@ -151,11 +151,11 @@ class ChatProvider extends BaseProvider
 			->addSelect('*')
 			->addSelect('RELATION.USER_ID', 'RELATION_USER_ID')
 			->addSelect('RELATION.NOTIFY_BLOCK', 'RELATION_NOTIFY_BLOCK')
-			->addSelect('RELATION.COUNTER', 'RELATION_COUNTER')
+			//->addSelect('RELATION.COUNTER', 'RELATION_COUNTER')
 			->addSelect('RELATION.START_COUNTER', 'RELATION_START_COUNTER')
-			->addSelect('RELATION.LAST_ID', 'RELATION_LAST_ID')
-			->addSelect('RELATION.STATUS', 'RELATION_STATUS')
-			->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
+			//->addSelect('RELATION.LAST_ID', 'RELATION_LAST_ID')
+			//->addSelect('RELATION.STATUS', 'RELATION_STATUS')
+			//->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
 			->addSelect('ALIAS.ALIAS', 'ALIAS_NAME')
 		;
 
@@ -193,7 +193,9 @@ class ChatProvider extends BaseProvider
 			$query->setLimit($options['limit']);
 		}
 
-		return $query->exec()->fetchAll();
+		$chatsRaw = $query->exec()->fetchAll();
+
+		return Chat::fillCounterData($chatsRaw);
 	}
 
 	private static function getChatIds(array $options, array $chatTypes): array
@@ -260,7 +262,11 @@ class ChatProvider extends BaseProvider
 				Query::filter()
 					->logic('and')
 					->where('TYPE', '=', Chat::TYPE_GROUP)
-					->where('ENTITY_TYPE', '!=', 'SUPPORT24_QUESTION')
+					->where(Query::filter()
+						->logic('or')
+						->where('ENTITY_TYPE', '!=', 'SUPPORT24_QUESTION')
+						->whereNull('ENTITY_TYPE')
+					)
 					->where('RELATION.USER_ID', '=', $currentUserId)
 			;
 

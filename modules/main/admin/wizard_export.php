@@ -50,7 +50,7 @@ if(is_dir($wizardPath))
 	{
 		$strError .= GetMessage("MAIN_WIZARD_EXPORT_ERROR");
 		$arErrors = &$oArchiver->GetErrors();
-		if(count($arErrors)>0)
+		if(!empty($arErrors))
 		{
 			$strError .= ":<br>";
 			foreach ($arErrors as $value)

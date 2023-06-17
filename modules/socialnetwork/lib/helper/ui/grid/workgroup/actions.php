@@ -60,7 +60,6 @@ class Actions
 				'text' => $text,
 				'title' => $title,
 				'href' => $groupUrl,
-				'default' => true
 			];
 		}
 
@@ -84,7 +83,6 @@ class Actions
 					action: "' . WorkgroupList::AJAX_ACTION_ADD_TO_FAVORITES . '",
 					groupId: "' . $group->getId() . '",
 				})',
-				'default' => true
 			];
 		}
 
@@ -108,7 +106,6 @@ class Actions
 					action: "' . WorkgroupList::AJAX_ACTION_REMOVE_FROM_FAVORITES . '",
 					groupId: "' . $group->getId() . '",
 				})',
-				'default' => true
 			];
 		}
 

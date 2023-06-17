@@ -201,7 +201,7 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 			'COMMENT' => isset($request['task_comment']) ? trim($request['task_comment']) : ''
 		];
 
-		if($request['INLINE_USER_STATUS'] === \CBPTaskUserStatus::Cancel)
+		if(isset($request['INLINE_USER_STATUS']) && $request['INLINE_USER_STATUS'] === \CBPTaskUserStatus::Cancel)
 		{
 			$request['cancel'] = true;
 		}

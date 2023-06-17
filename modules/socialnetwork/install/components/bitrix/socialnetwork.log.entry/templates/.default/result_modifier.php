@@ -9,7 +9,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var array $arResult */
 
-if (is_array($arParams['TOP_RATING_DATA']))
+if (is_array($arParams['TOP_RATING_DATA'] ?? null))
 {
 	$arResult['TOP_RATING_DATA'] = $arParams['TOP_RATING_DATA'];
 }

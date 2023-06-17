@@ -1,35 +1,50 @@
-<?
-use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
+<?php
 
+use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location\Admin\DefaultSiteHelper as Helper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
+/** @global CMain $APPLICATION */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-\Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
-if($APPLICATION->GetGroupRight("sale") < "W")
+if ($APPLICATION->GetGroupRight("sale") < "W")
+{
 	$APPLICATION->AuthForm(Loc::getMessage('SALE_MODULE_ACCES_DENIED'));
+}
 
 #####################################
 #### Data prepare
 #####################################
 
+$request = Context::getCurrent()->getRequest();
+
+$itemId = (int)$request->get('id');
+if ($itemId <= 0)
+{
+	$itemId = false;
+}
+
+$fatal = '';
+$columns = [];
+
 try
 {
-	$itemId = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
-
 	// get entity fields for columns & filter
 	$columns = Helper::getColumns('list');
 
-	$arFilterFields = array();
-	$arFilterTitles = array();
-	foreach($columns as $code => $fld)
+	$arFilterFields = [];
+	$arFilterTitles = [];
+	foreach ($columns as $code => $fld)
 	{
 		$arFilterFields[] = 'find_'.$code;
 		$arFilterTitles[] = $fld['title'];
@@ -102,33 +117,36 @@ if(empty($fatal))
 	$lAdmin->CheckListMode();
 
 } // empty($fatal)
-?>
 
-<?$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'))?>
+$APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_L_EDIT_PAGE_TITLE'));
 
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
+require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-<?
 #####################################
 #### Data output
 #####################################
+
+//temporal code
+if (!CSaleLocation::locationProCheckEnabled())
+{
+	require ($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/epilog_admin.php");
+}
+
+SearchHelper::checkIndexesValid();
+
+if ($fatal !== ''):
 ?>
-
-<?//temporal code?>
-<?if(!CSaleLocation::locationProCheckEnabled())require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
-
-<?SearchHelper::checkIndexesValid();?>
-
-<? if($fatal <> ''): ?>
-
 	<div class="error-message">
-		<? CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR')) ?>
+		<?php
+		CAdminMessage::ShowMessage([
+			'MESSAGE' => $fatal,
+			'type' => 'ERROR',
+		]);
+		?>
 	</div>
+<?php
+else:
+	$lAdmin->DisplayList();
+endif;
 
-<? else: ?>
-
-	<? $lAdmin->DisplayList(); ?>
-
-<? endif?>
-
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+require ($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/epilog_admin.php");

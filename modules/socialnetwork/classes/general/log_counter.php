@@ -29,10 +29,10 @@ class CAllSocNetLogCounter
 						? $arParams["CODE"]
 						: false
 				),
-				"DECREMENT" => (bool)$arParams["DECREMENT"],
-				"FOR_ALL_ACCESS" => (bool)($arParams["FOR_ALL_ACCESS"] ?? false),
-				"FOR_ALL_ACCESS_ONLY" => (bool)($arParams["FOR_ALL_ACCESS_ONLY"] ?? false),
-				'WORKGROUP_MODE' => (bool)($arParams['WORKGROUP_MODE'] ?? false),
+				"DECREMENT" => (bool) ($arParams["DECREMENT"] ?? false),
+				"FOR_ALL_ACCESS" => (bool) ($arParams["FOR_ALL_ACCESS"] ?? false),
+				"FOR_ALL_ACCESS_ONLY" => (bool) ($arParams["FOR_ALL_ACCESS_ONLY"] ?? false),
+				'WORKGROUP_MODE' => (bool) ($arParams['WORKGROUP_MODE'] ?? false),
 				"TAG_SET" => (
 					!empty($arParams["TAG_SET"])
 						? $arParams["TAG_SET"]

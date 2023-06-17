@@ -1,0 +1,47 @@
+.bx-im-background-select-popup__container {
+	--im-background-select-popup__background-color_selected: #00B0E8;
+	--im-background-select-popup__font-color_title: var(--im-color-palette-black-base);
+
+	min-width: 200px;
+	max-width: 396px;
+	padding: 16px;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.bx-im-background-select-popup__container * {
+	box-sizing: border-box;
+}
+
+.bx-im-background-select-popup__title {
+	margin-bottom: 13px;
+
+	font: var(--im-font-size-sm)/20px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-background-select-popup__font-color_title);
+}
+
+.bx-im-background-select-popup__close {
+	position: absolute;
+	right: 8px;
+	top: 8px;
+}
+
+.bx-im-background-select-popup__list {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	gap: 12px;
+}
+
+.bx-im-background-select-popup__item {
+	width: 82px;
+	height: 48px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.bx-im-background-select-popup__item.--active {
+	outline: 2px solid var(--im-background-select-popup__background-color_selected);
+	outline-offset: 2px;
+}

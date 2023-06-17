@@ -20,7 +20,7 @@ if (defined("EDIT_PAGE"))
 	$editPage = EDIT_PAGE;
 
 $documentType = trim($_REQUEST["document_type"]);
-$backUrl = "/".ltrim(trim($_REQUEST["back_url_list"]), "\\/");
+$backUrl = "/".ltrim(trim($_REQUEST["back_url_list"] ?? null), "\\/");
 
 if ($entity == '')
 	$fatalErrorMessage .= GetMessage("BPATT_NO_ENTITY_1").". ";

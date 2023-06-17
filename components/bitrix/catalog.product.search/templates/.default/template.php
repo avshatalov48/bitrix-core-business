@@ -19,7 +19,7 @@ use Bitrix\Main;
 use Bitrix\Catalog;
 use Bitrix\Iblock;
 
-if ($_REQUEST['public_mode'] == "Y")
+if (isset($_REQUEST['public_mode']) && $_REQUEST['public_mode'] === "Y")
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 }
@@ -59,8 +59,9 @@ function renderTree($sections, $level, $tableId): string
 
 	foreach ($sections as $section)
 	{
+		$section["active"] ??= false;
 		$bSubmenu = $section["dynamic"];
-		$bSectionActive = $section["open"];
+		$bSectionActive = $section["open"] ?? false;
 
 		$icon = isset($section["icon"]) && $section["icon"] <> ""
 			? '<span class="adm-submenu-item-link-icon ' . $section["icon"] . '"></span>' : '';
@@ -240,7 +241,17 @@ else
 	}
 	foreach ($arResult['PRODUCTS'] as $arItems)
 	{
-		$arCatalogProduct = $arItems['PRODUCT'];
+		$isSection = $arItems['TYPE'] === 'S';
+		$icon = '';
+		$arCatalogProduct = [];
+		if (!$isSection)
+		{
+			$arCatalogProduct = $arItems['PRODUCT'] ?? [];
+		}
+		if (!empty($arCatalogProduct['TYPE']))
+		{
+			$icon = $arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_SET ? 'f2' : 'f1';
+		}
 
 		$row = &$lAdmin->AddRow($arItems["ID"], $arItems);
 
@@ -249,8 +260,6 @@ else
 		$row->AddViewFileField('DETAIL_PICTURE', $viewFileParams);
 
 		$arActions = array();
-		$icon = $arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_SET ? 'f2' : 'f1';
-		$isSection = $arItems['TYPE'] === 'S';
 		$selectData = [];
 
 		if (!empty($arItems['SKU_ITEMS']) && !empty($arItems['SKU_ITEMS']["SKU_ELEMENTS"]))
@@ -309,7 +318,18 @@ else
 				if (!empty($arResult['PRICES']))
 				{
 					foreach ($arResult['PRICES'] as $price)
-						$rowSku->AddViewField("PRICE".$price['ID'], CCurrencyLang::CurrencyFormat($arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['PRICE'], $arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['CURRENCY'], true));
+					{
+						$priceValue = '';
+						if (isset($arResult['SKU_PRICES'][$price['ID']]))
+						{
+							$priceValue = CCurrencyLang::CurrencyFormat(
+								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['PRICE'],
+								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['CURRENCY'],
+								true
+							);
+						}
+						$rowSku->AddViewField("PRICE" . $price['ID'], $priceValue);
+					}
 					unset($price);
 				}
 
@@ -378,8 +398,13 @@ else
 			elseif (!empty($arCatalogProduct['IS_GROUP']))
 				$icon = 'f4';
 
-			$balance = isset($arCatalogProduct["STORE_AMOUNT"]) ? (float)$arCatalogProduct["QUANTITY"] . " / " . (float)$arCatalogProduct["STORE_AMOUNT"] : (float)$arCatalogProduct["QUANTITY"];
-			$row->AddField("BALANCE", $arItems['TYPE'] != 'S' ? $balance : '');
+			$balance = '';
+			if (!$isSection)
+			{
+				$balance = isset($arCatalogProduct["STORE_AMOUNT"]) ? (float)$arCatalogProduct["QUANTITY"] . " / " . (float)$arCatalogProduct["STORE_AMOUNT"] : (float)$arCatalogProduct["QUANTITY"];
+			}
+
+			$row->AddField("BALANCE", $balance);
 
 			if (!$isSection)
 			{
@@ -416,7 +441,18 @@ else
 			if (!empty($arResult['PRICES']))
 			{
 				foreach ($arResult['PRICES'] as $price)
-					$row->AddViewField("PRICE".$price['ID'], CCurrencyLang::CurrencyFormat($arItems['PRICES'][$price['ID']]['PRICE'], $arItems['PRICES'][$price['ID']]['CURRENCY'], true));
+				{
+					$priceValue = '';
+					if (isset($arItems['PRICES'][$price['ID']]))
+					{
+						$priceValue = CCurrencyLang::CurrencyFormat(
+							$arItems['PRICES'][$price['ID']]['PRICE'],
+							$arItems['PRICES'][$price['ID']]['CURRENCY'],
+							true
+						);
+					}
+					$row->AddViewField("PRICE" . $price['ID'], $priceValue);
+				}
 				unset($price);
 			}
 		}
@@ -636,12 +672,12 @@ else
 				<tr>
 					<td><?= GetMessage("SPS_CODE") ?>:</td>
 					<td>
-						<input type="text" name="filter_code" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_code"]) ?>">
+						<input type="text" name="filter_code" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_code"] ?? '') ?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_TIMESTAMP") ?>:</td>
-					<td><?php echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsbx($_REQUEST['filter_timestamp_from']), "filter_timestamp_to", htmlspecialcharsbx($_REQUEST['filter_timestamp_to']), "form1") ?></td>
+					<td><?php echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsbx($_REQUEST['filter_timestamp_from'] ?? ''), "filter_timestamp_to", htmlspecialcharsbx($_REQUEST['filter_timestamp_to'] ?? ''), "form1") ?></td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_ACTIVE") ?>:</td>
@@ -649,9 +685,9 @@ else
 						<select name="filter_active">
 							<option value="*"><?= htmlspecialcharsbx("(" . GetMessage("SPS_ANY") . ")") ?></option>
 							<option
-								value="Y"<?php if ($_REQUEST['filter_active'] == "Y" || empty($_REQUEST['filter_active'])) echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_YES")) ?></option>
+								value="Y"<?php if (empty($_REQUEST['filter_active']) || $_REQUEST['filter_active'] == "Y") echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_YES")) ?></option>
 							<option
-								value="N"<?php if ($_REQUEST['filter_active'] == "N") echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_NO")) ?></option>
+								value="N"<?php if (!empty($_REQUEST['filter_active']) && $_REQUEST['filter_active'] == "N") echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_NO")) ?></option>
 						</select>
 					</td>
 				</tr>
@@ -659,15 +695,15 @@ else
 				<tr>
 					<td>ID (<?= GetMessage("SPS_ID_FROM_TO") ?>):</td>
 					<td>
-						<input type="text" name="filter_id_start" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_start'])?>">
+						<input type="text" name="filter_id_start" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_start'] ?? '')?>">
 						...
-						<input type="text" name="filter_id_end" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_end'])?>">
+						<input type="text" name="filter_id_end" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_end'] ?? '')?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_XML_ID") ?>:</td>
 					<td>
-						<input type="text" name="filter_xml_id" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_xml_id'])?>">
+						<input type="text" name="filter_xml_id" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_xml_id'] ?? '')?>">
 					</td>
 				</tr>
 
@@ -687,10 +723,10 @@ else
 										array("VALUE" => 'filter_el_property_'.$arProp["ID"]),
 									));
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
-									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
+									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'N' || $arProp["PROPERTY_TYPE"] == 'E'): ?>
-									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">
+									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'L'): ?>
 									<select name="filter_el_property_<?= $arProp["ID"] ?>">
@@ -700,13 +736,13 @@ else
 										while ($arPEnum = $dbrPEnum->GetNext()):
 											?>
 											<option
-												value="<?= $arPEnum["ID"] ?>"<?php if ($_REQUEST["filter_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
+												value="<?= $arPEnum["ID"] ?>"<?php if (($_REQUEST["filter_el_property_" . $arProp["ID"]] ?? '') == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
 										<?php
 										endwhile;
 										?></select>
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'G'):
-									echo _ShowGroupPropertyFieldList('filter_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_el_property_' . $arProp["ID"]]);
+									echo _ShowGroupPropertyFieldList('filter_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_el_property_' . $arProp["ID"]] ?? '');
 								endif;
 								?>
 							</td>
@@ -731,10 +767,10 @@ else
 										array("VALUE" => "filter_sub_el_property_".$arProp["ID"]),
 									));
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
-									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
+									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'N' || $arProp["PROPERTY_TYPE"] == 'E'): ?>
-									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">
+									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'L'): ?>
 									<select name="filter_sub_el_property_<?= $arProp["ID"] ?>">
@@ -744,13 +780,13 @@ else
 										while ($arPEnum = $dbrPEnum->GetNext()):
 											?>
 											<option
-												value="<?= $arPEnum["ID"] ?>"<?php if ($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
+												value="<?= $arPEnum["ID"] ?>"<?php if (($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] ?? '') == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
 										<?php
 										endwhile;
 										?></select>
 								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'G'):
-									echo _ShowGroupPropertyFieldList('filter_sub_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_sub_el_property_' . $arProp["ID"]]);
+									echo _ShowGroupPropertyFieldList('filter_sub_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_sub_el_property_' . $arProp["ID"]] ?? '');
 								endif;
 								?>
 							</td>

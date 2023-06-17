@@ -1,0 +1,33 @@
+<?php
+
+$MESS['CALENDAR_SHARING_MY_FREE_SLOTS'] = 'Это мои свободные слоты';
+$MESS['CALENDAR_SHARING_YOU_CAN_CHOOSE_FREE_MEETING_TIME'] = 'Здесь вы можете выбрать удобное время для встречи';
+$MESS['CALENDAR_SHARING_SELECT_SLOT'] = 'Выбрать слот';
+$MESS['CALENDAR_SHARING_NAV_PREV'] = ' Предыдущий месяц';
+$MESS['CALENDAR_SHARING_NAV_NEXT'] = 'Следующий месяц';
+$MESS['CALENDAR_SHARING_SLOTS_FREE'] = 'Свободные слоты';
+$MESS['CALENDAR_SHARING_SLOTS_EMPTY'] = 'В этот день слотов нет';
+$MESS['CALENDAR_SHARING_SLOTS_EMPTY_INFO'] = 'Дни со свободными слотами выделены в сетке зеленым цветом';
+$MESS['CALENDAR_SHARING_SLOTS_ACCESS_DENIED'] = 'Доступ к календарю закрыт';
+$MESS['CALENDAR_SHARING_SLOTS_ACCESS_DENIED_INFO'] = 'Для планирования новых встреч обратитесь к владельцу календаря';
+$MESS['CALENDAR_SHARING_CREATE_MEETING'] = 'Создать встречу';
+$MESS['CALENDAR_SHARING_FORM_INPUT_NAME'] = 'Ваши имя и фамилия';
+$MESS['CALENDAR_SHARING_FORM_INPUT_INFO'] = 'Тема встречи, место, ссылки';
+$MESS['CALENDAR_SHARING_INPUT_ERROR_REQUIRED'] = 'это обязательное поле';
+$MESS['CALENDAR_SHARING_INPUT_ERROR_INCORRECT'] = 'введены некорректные данные';
+$MESS['CALENDAR_SHARING_YOR_TIME'] = 'Ваше время';
+$MESS['CALENDAR_SHARING_EVENT_NAME'] = 'Встреча: #OWNER_NAME#';
+$MESS['CALENDAR_SHARING_AUTHOR_CONTACT_DATA_PLACEHOLDER_PHONE_FEATURE_ENABLED'] = 'E-mail или номер телефона';
+$MESS['CALENDAR_SHARING_AUTHOR_CONTACT_DATA_PLACEHOLDER_PHONE_FEATURE_DISABLED'] = 'E-mail';
+$MESS['CALENDAR_SHARING_AUTHOR_CONTACT_DATA_PLACEHOLDER_MAIL_FEATURE_DISABLED'] = 'Номер телефона';
+$MESS['CALENDAR_SHARING_ADD_TO_CALENDAR'] = 'Добавить в календарь';
+$MESS['CALENDAR_SHARING_RETURN_TO_SLOT_LIST'] = 'Создать новую встречу';
+$MESS['CALENDAR_SHARING_WHO_CANCELED'] = 'Кто отменил';
+$MESS['CALENDAR_SHARING_DECLINE_MEETING'] = 'Отменить встречу';
+$MESS['CALENDAR_SHARING_MEETING_CREATED'] = 'Встреча создана';
+$MESS['CALENDAR_SHARING_MEETING_CANCELED'] = 'Встреча отменена';
+$MESS['CALENDAR_SHARING_MEETING_NOT_CREATED'] = 'Не удалось создать встречу';
+$MESS['CALENDAR_SHARING_POPUP_MEETING_CANCELED'] = 'Отменить встречу?';
+$MESS['CALENDAR_SHARING_POPUP_MEETING_CANCELED_INFO'] = 'После отмены встречи этот слот могут занять';
+$MESS['CALENDAR_SHARING_POPUP_LEAVE'] = 'Оставить';
+$MESS['CALENDAR_SHARING_POPUP_CANCEL'] = 'Да, отменить';

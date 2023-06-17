@@ -168,7 +168,7 @@ class CSiteTemplate
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_CONTENT_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_CONTENT_NA"));
 		}
-		elseif(isset($arFields["CONTENT"]) && mb_strpos($arFields["CONTENT"], "#WORK_AREA#") === false)
+		elseif(isset($arFields["CONTENT"]) && strpos($arFields["CONTENT"], "#WORK_AREA#") === false)
 		{
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_WORKAREA_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_WORKAREA_NA"));

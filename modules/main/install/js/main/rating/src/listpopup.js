@@ -314,6 +314,7 @@ export class ListPopup
 			data: {
 				params: {
 					RATING_VOTE_TYPE_ID: likeInstance.entityTypeId,
+					RATING_VOTE_KEY_SIGNED: likeInstance.keySigned,
 					RATING_VOTE_ENTITY_ID: likeInstance.entityId,
 					RATING_VOTE_LIST_PAGE: page,
 					RATING_VOTE_REACTION: (reaction === 'all' ? '' : reaction),

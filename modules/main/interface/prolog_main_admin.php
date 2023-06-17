@@ -17,6 +17,7 @@
  */
 
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Application;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
@@ -157,7 +158,7 @@ BX.adminMenu.setMinimizedState(<?=$bOptMenuMinimized ? 'true' : 'false'?>);
 BX.adminMenu.setActiveSection('<?=$openedSection?>');
 BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections());?>');
 </script>
-				<div class="adm-left-side<?=$bOptMenuMinimized ? ' adm-left-side-wrap-close' : ''?>"<?if(intval($aOptMenuPos["width"]) > 0) echo ' style="width:'.($bOptMenuMinimized ? 15 : intval($aOptMenuPos["width"])).'px" data-width="'.intval($aOptMenuPos["width"]).'"'?> id="bx_menu_panel"><div class="adm-menu-wrapper<?=$bOptMenuMinimized ? ' adm-main-menu-close' : ''?>" style="overflow:hidden; min-width:300px;">
+				<div class="adm-left-side<?=$bOptMenuMinimized ? ' adm-left-side-wrap-close' : ''?>"<?if(isset($aOptMenuPos["width"]) && intval($aOptMenuPos["width"]) > 0) echo ' style="width:'.($bOptMenuMinimized ? 15 : intval($aOptMenuPos["width"])).'px" data-width="'.intval($aOptMenuPos["width"]).'"'?> id="bx_menu_panel"><div class="adm-menu-wrapper<?=$bOptMenuMinimized ? ' adm-main-menu-close' : ''?>" style="overflow:hidden; min-width:300px;">
 						<div class="adm-main-menu">
 <?
 	$menuScripts = "";
@@ -284,7 +285,6 @@ $curPage = $APPLICATION->GetCurPage(true);
 if ($curPage != "/bitrix/admin/index.php")
 {
 	$currentFavId = null;
-	$currentItemsId = '';
 
 	if (!defined('BX_ADMIN_SECTION_404') || BX_ADMIN_SECTION_404 != 'Y')
 	{
@@ -304,7 +304,6 @@ if ($curPage != "/bitrix/admin/index.php")
 			$arLastItem = $adminChain->Show();
 
 			$currentFavId = CFavorites::GetIDByUrl($_SERVER["REQUEST_URI"]);
-			$currentItemsId = '';
 		}
 	}
 }
@@ -331,7 +330,7 @@ if ($curPage != "/bitrix/admin/index.php" && !$adminPage->isHideTitle())
 			<?$adminPage->ShowTitle()?>
 			<?if($isFavLink):?>
 			<a href="javascript:void(0)" class="adm-fav-link<?=$currentFavId>0?' adm-fav-link-active':''?>" onclick="
-				BX.adminFav.titleLinkClick(this, <?=intval($currentFavId)?>, '<?=$currentItemsId?>')" title="
+				BX.adminFav.titleLinkClick(this, <?=intval($currentFavId)?>, '')" title="
 				<?= $currentFavId ? GetMessage("MAIN_PR_ADMIN_FAV_DEL") : GetMessage("MAIN_PR_ADMIN_FAV_ADD")?>"></a>
 			<?endif;?>
 			<a id="navchain-link" href="<?echo htmlspecialcharsbx($_SERVER["REQUEST_URI"])?>" title="
@@ -343,6 +342,9 @@ if ($curPage != "/bitrix/admin/index.php" && !$adminPage->isHideTitle())
 //Content
 
 if($USER->IsAuthorized()):
+	$license = Application::getInstance()->getLicense();
+	$eulaLink = $license->getEulaLink();
+
 	if(defined("DEMO") && DEMO == "Y"):
 		$vendor = COption::GetOptionString("main", "vendor", "1c_bitrix");
 		$delta = $GLOBALS['SiteExpireDate'] - time();
@@ -396,26 +398,27 @@ if($USER->IsAuthorized()):
 	elseif(defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y"):
 
 		$delta = $GLOBALS['SiteExpireDate'] - time();
-		$daysToExpire = ceil($delta / 86400);
-		$sWarnDate = ConvertTimeStamp($GLOBALS['SiteExpireDate'], "SHORT");
+		$daysToExpire = $delta / 86400;
+		$expireDate = \Bitrix\Main\Type\Date::createFromTimestamp($GLOBALS['SiteExpireDate']);
+		$blockDate = \Bitrix\Main\Type\Date::createFromTimestamp($GLOBALS['SiteExpireDate'])->add('+15 days');
 
 		if ($daysToExpire >= 0 && $daysToExpire < 60)
 		{
 			echo BeginNote('style="position: relative; top: -15px;"');
-			echo GetMessage("prolog_main_timelimit11", array(
-				'#FINISH_DATE#' => $sWarnDate,
-				'#DAYS_AGO#' => $daysToExpire,
-				'#DAYS_AGO_TXT#' => ($daysToExpire == 0? GetMessage("prolog_main_today") : GetMessage('prolog_main_support_days', array('#N_DAYS_AGO#' => $daysToExpire))),
-			));
+			echo GetMessage('prolog_main_timelimit_almost_expire', [
+				'#FINISH_DATE#' => $expireDate,
+				'#LINK#' => $eulaLink,
+			]);
 			echo EndNote();
 		}
 		elseif ($daysToExpire < 0)
 		{
 			echo BeginNote('style="position: relative; top: -15px;"');
-			echo GetMessage("prolog_main_timelimit12", array(
-				'#FINISH_DATE#' => $sWarnDate,
-				'#DAYS_AGO#' => ((14 - abs($daysToExpire) >= 0) ? (14 - abs($daysToExpire)) : 0),
-			));
+			echo GetMessage('prolog_main_timelimit_expired', [
+				'#FINISH_DATE#' => $expireDate,
+				'#BLOCK_DATE#' => $blockDate,
+				'#LINK#' => $eulaLink,
+			]);
 			echo EndNote();
 		};
 
@@ -430,37 +433,21 @@ if($USER->IsAuthorized()):
 			{
 				$supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[0], $aSupportFinishDate[2]);
 				$supportDateDiff = ceil(($supportFinishStamp - time())/86400);
-
 				$sSupportMess = '';
-				$sSupWIT = " (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>".GetMessage("prolog_main_support_wit")."</span>)";
 
 				if($supportDateDiff >= 0 && $supportDateDiff <= 30)
 				{
-					$sSupportMess = GetMessage("prolog_main_support11_l", array(
-						'#FINISH_DATE#' => GetTime($supportFinishStamp),
-						'#DAYS_AGO#' => ($supportDateDiff == 0? GetMessage("prolog_main_today") : GetMessage('prolog_main_support_days', array('#N_DAYS_AGO#'=>$supportDateDiff))),
-						'#LICENSE_KEY#' => md5(LICENSE_KEY),
-						'#WHAT_IS_IT#' => $sSupWIT,
-						'#SUP_FINISH_DATE#' => GetTime(mktime(0,0,0, $aSupportFinishDate[1]+1, $aSupportFinishDate[0], $aSupportFinishDate[2])),
-					));
+					$sSupportMess = GetMessage(
+						'prolog_main_support_almost_expire',
+						['#FINISH_DATE#' => GetTime($supportFinishStamp)]
+					);
 				}
-				elseif($supportDateDiff < 0 && $supportDateDiff >= -30)
+				elseif($supportDateDiff < 0)
 				{
-					$sSupportMess = GetMessage("prolog_main_support21_l", array(
-						'#FINISH_DATE#' => GetTime($supportFinishStamp),
-						'#DAYS_AGO#' => (-$supportDateDiff),
-						'#LICENSE_KEY#' => md5(LICENSE_KEY),
-						'#WHAT_IS_IT#' => $sSupWIT,
-						'#SUP_FINISH_DATE#' => GetTime(mktime(0,0,0, $aSupportFinishDate[1]+1, $aSupportFinishDate[0], $aSupportFinishDate[2])),
-					));
-				}
-				elseif($supportDateDiff < -30)
-				{
-					$sSupportMess = GetMessage("prolog_main_support31_l", array(
-						'#FINISH_DATE#' => GetTime($supportFinishStamp),
-						'#LICENSE_KEY#' => md5(LICENSE_KEY),
-						'#WHAT_IS_IT#' => $sSupWIT,
-					));
+					$sSupportMess = GetMessage(
+						'prolog_main_support_expired',
+						['#FINISH_DATE#' => GetTime($supportFinishStamp)]
+					);
 				}
 
 				if($sSupportMess <> '')
@@ -468,11 +455,13 @@ if($USER->IsAuthorized()):
 					$userOption = CUserOptions::GetOption("main", "admSupInf", []);
 					if(!isset($userOption["showInformerDate"]) || time() > $userOption["showInformerDate"])
 					{
-						$prolongUrl = "/bitrix/admin/buy_support.php?lang=".LANGUAGE_ID;
-						if(!in_array(LANGUAGE_ID, array("ru", "ua")) || intval(COption::GetOptionString("main", "~PARAM_PARTNER_ID")) <= 0)
+						if (!in_array(LANGUAGE_ID, array("ru", "ua")) || $license->getPartnerId() <= 0)
 						{
-							require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-							$prolongUrl = "http://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=".md5(CUpdateClient::GetLicenseKey())."&tobasket=y&lang=".LANGUAGE_ID;
+							$prolongUrl = "https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=" . $license->getHashLicenseKey() . "&tobasket=y&lang=" . LANGUAGE_ID;
+						}
+						else
+						{
+							$prolongUrl = "/bitrix/admin/buy_support.php?lang=" . LANGUAGE_ID;
 						}
 
 						echo BeginNote('style="position: relative; top: -15px;"');
@@ -524,7 +513,7 @@ if($USER->IsAuthorized()):
 							<a href="javascript:void(0)" id="prolongmenu" onclick="showProlongMenu(this)" style="color: #716536;"><?=GetMessage("prolog_main_support_button_no_prolong2")?></a>
 						</div>
 						<?=$sSupportMess;?>
-						<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_descr2_l".(IsModuleInstalled("intranet") ? "_cp" : ""))?></div>
+						<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_description" . (IsModuleInstalled("intranet") ? "_cp" : "_bus"), ['#LINK#' => $eulaLink])?></div>
 						<?
 						echo EndNote();
 					}

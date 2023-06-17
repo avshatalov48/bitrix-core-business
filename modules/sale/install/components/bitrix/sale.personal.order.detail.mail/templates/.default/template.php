@@ -1,9 +1,25 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<p class="bx_order_list">
-	<? if($arResult["ERROR_MESSAGE"] <> ''): ?>
-		<?= ShowError($arResult["ERROR_MESSAGE"]); ?>
-	<? else: ?>
-	<? if($arParams["SHOW_ORDER_BASE"] == 'Y' || $arParams["SHOW_ORDER_USER"] == 'Y' || $arParams["SHOW_ORDER_PARAMS"] == 'Y' || $arParams["SHOW_ORDER_BUYER"] == 'Y' || $arParams["SHOW_ORDER_DELIVERY"] == 'Y' || $arParams["SHOW_ORDER_PAYMENT"] == 'Y'): ?>
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+/** @var array $arParams */
+/** @var array $arResult */
+?><p class="bx_order_list">
+	<?php
+	if ($arResult["ERROR_MESSAGE"] !== ''):
+		ShowError($arResult["ERROR_MESSAGE"]);
+	else: ?>
+	<?php
+	if (
+		$arParams["SHOW_ORDER_BASE"] === 'Y'
+		|| $arParams["SHOW_ORDER_USER"] === 'Y'
+		|| $arParams["SHOW_ORDER_PARAMS"] === 'Y'
+		|| $arParams["SHOW_ORDER_BUYER"] === 'Y'
+		|| $arParams["SHOW_ORDER_DELIVERY"] == 'Y'
+		|| $arParams["SHOW_ORDER_PAYMENT"] == 'Y'
+	):
+	?>
 	<table class="bx_order_list_table">
 		<thead>
 		<tr>
@@ -302,12 +318,10 @@
 
 <? if($arParams["SHOW_ORDER_BASKET"] == 'Y'): ?>
 	<h3><?= GetMessage('SPOD_ORDER_BASKET') ?></h3>
-<? endif ?>
-<? endif ?>
+<? endif;
+endif;
 
-
-
-<? if($arParams["SHOW_ORDER_BASKET"] == 'Y'): ?>
+if($arParams["SHOW_ORDER_BASKET"] == 'Y'): ?>
 	<table class="bx_order_list_table_order">
 		<thead>
 		<tr>
@@ -341,14 +355,13 @@
 		</tr>
 		</thead>
 		<tbody>
-		<? //echo "<pre>".print_r($arParams['CUSTOM_SELECT_PROPS'], true).print_R($arResult["BASKET"], true)."</pre>"?>
 		<?
 		foreach($arResult["BASKET"] as $prod):
 			?>
 			<tr><?
 
 			$hasLink = !empty($prod["DETAIL_PAGE_URL"]);
-			$actuallyHasProps = is_array($prod["PROPS"]) && !empty($prod["PROPS"]);
+			$actuallyHasProps = !empty($prod["PROPS"]) && is_array($prod["PROPS"]);
 
 			foreach($arParams["CUSTOM_SELECT_PROPS"] as $headerId):
 
@@ -378,7 +391,7 @@
 						?></a><?
 					endif;
 
-				elseif($headerId == "PROPS" && $arResult['HAS_PROPS'] && $actuallyHasProps):
+				elseif($headerId == "PROPS" && $actuallyHasProps):
 
 					?>
 					<table cellspacing="0" class="bx_ol_sku_prop">
@@ -421,9 +434,9 @@
 		</tbody>
 	</table>
 	<br>
-<? endif ?>
+<? endif;
 
-<? if($arParams["SHOW_ORDER_SUM"] == 'Y'): ?>
+if($arParams["SHOW_ORDER_SUM"] == 'Y'): ?>
 	<table class="bx_ordercart_order_sum">
 		<tbody>
 

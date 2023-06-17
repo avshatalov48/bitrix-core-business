@@ -1,0 +1,25 @@
+.bx-im-sidebar-date-group__scope {
+	--im-sidebar-date-group__color: #828b95;
+	--im-sidebar-date-group__background-color: #f5f7f8;
+}
+
+.bx-im-sidebar-date-group__container {
+	margin: 14px auto 21px auto;
+	max-width: 100%;
+}
+
+.bx-im-sidebar-date-group__text {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 19px;
+	padding: 0 10px;
+	border-radius: 77px;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-sidebar-date-group__color);
+	text-transform: capitalize;
+	background-color: var(--im-sidebar-date-group__background-color);
+	text-align: center;
+	user-select: none;
+}

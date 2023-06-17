@@ -246,6 +246,16 @@
 					result = [];
 					var i, name, pair, matches, pairs = BX.Type.isArray(value) ? value : value.split(',');
 
+					const isExpressionProperty = (expression, property) => {
+						return (
+							property.BaseType === 'user'
+							&& (
+								property.Expression === expression
+								|| property.SystemExpression === expression
+							)
+						);
+					};
+
 					for (i = 0; i < pairs.length; ++i)
 					{
 						pair = BX.util.trim(pairs[i]);
@@ -257,23 +267,26 @@
 						else
 						{
 							const expression = pair;
-							const field = this.getDocumentFields().find((element) => {
-								return (
-									element.BaseType === 'user'
-									&& (
-										element.Expression === expression
-										|| element.SystemExpression === expression
-									)
-								);
-							});
+
+							let field = this.getDocumentFields()
+								.find((property) => isExpressionProperty(expression, property))
+							;
 							if (!BX.Type.isNil(field))
 							{
 								result.push(field.Name || expression);
+
+								continue;
 							}
-							else
+
+							field = this.getGlobals().find((property) => isExpressionProperty(expression, property));
+							if (!BX.Type.isNil(field))
 							{
-								result.push(expression);
+								result.push(field.Name || expression);
+
+								continue;
 							}
+
+							result.push(expression);
 						}
 					}
 					result = result.join(', ');
@@ -907,8 +920,8 @@
 		},
 		getDocumentFields: function()
 		{
-			var designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
-			var component = designer && designer.component;
+			const designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
+			const component = designer && designer.component;
 			if (component)
 			{
 				return component.data['DOCUMENT_FIELDS'];
@@ -926,8 +939,19 @@
 			{
 				return BX.Bizproc.Automation.API.documentUserGroups;
 			}
+
 			return [];
-		}
+		},
+		getGlobals: function ()
+		{
+			const context = BX.Bizproc.Automation && BX.Bizproc.Automation.tryGetGlobalContext();
+
+			return (
+				context && context.automationGlobals
+					? context.automationGlobals.globalVariables.concat(context.automationGlobals.globalConstants)
+					: []
+			);
+		},
 	};
 
 	FieldType.File = {

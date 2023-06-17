@@ -12,7 +12,7 @@ use Bitrix\Catalog;
  * @example BX.ajax.runAction("sale.entity.addBasketItem", { data: { fields: { siteId:'s1', product: {..}}}});
  * @internal
  */
-final class AddBasketItemAction extends BaseAction
+final class AddBasketItemAction extends Sale\Controller\Action\BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{
@@ -154,5 +154,10 @@ final class AddBasketItemAction extends BaseAction
 		$fields['PRODUCT_PROVIDER_CLASS'] = Catalog\Product\Basket::getDefaultProviderName();
 
 		return $fields;
+	}
+
+	private function filterBasketFieldsOnAdd(array $basketFields): array
+	{
+		return (new Sale\Rest\Entity\BasketItem())->internalizeFieldsAdd($basketFields);
 	}
 }

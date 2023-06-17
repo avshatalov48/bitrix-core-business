@@ -1,0 +1,41 @@
+.bx-im-sidebar-market-preview-item__scope {
+	--im-sidebar-market-preview-item__color_item-title: #525c69;
+	--im-sidebar-market-preview-item__background-color_item-hover: #f5f7f8;
+	--im-sidebar-market-preview-item__color_icon: #fff;
+}
+
+.bx-im-sidebar-market-preview-item__container {
+	display: flex;
+	align-items: center;
+	height: 42px;
+	padding: 8px;
+	border-radius: 6px;
+	gap: 8px;
+}
+
+.bx-im-sidebar-market-preview-item__container:hover {
+	background-color: var(--im-sidebar-market-preview-item__background-color_item-hover);
+	cursor: pointer;
+}
+
+.bx-im-sidebar-market-preview-item__icon-container {
+	width: 26px;
+	height: 26px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.bx-im-sidebar-market-preview-item__icon-container i {
+	color: var(--im-sidebar-market-preview-item__color_icon);
+}
+
+.bx-im-sidebar-market-preview-item__title-container {
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-sidebar-market-preview-item__color_item-title);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}

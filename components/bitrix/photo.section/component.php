@@ -226,12 +226,22 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		$arResult["PATH"] = array();
 		if($arParams["ADD_SECTIONS_CHAIN"])
 		{
-			$rsPath = CIBlockSection::GetNavChain($arResult["IBLOCK_ID"], $arResult["ID"]);
+			$rsPath = CIBlockSection::GetNavChain(
+				$arResult["IBLOCK_ID"],
+				$arResult["ID"],
+				[
+					'ID',
+					'IBLOCK_ID',
+					'NAME',
+					'SECTION_PAGE_URL',
+				]
+			);
 			$rsPath->SetUrlTemplates("", $arParams["SECTION_URL"]);
-			while($arPath=$rsPath->GetNext())
+			while ($arPath = $rsPath->GetNext())
 			{
 				$arResult["PATH"][] = $arPath;
 			}
+			unset($arPath, $rsPath);
 		}
 
 		$arResult["USER_HAVE_ACCESS"] = $bUSER_HAVE_ACCESS;
@@ -282,8 +292,8 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 				$arResult["ID"],
 				array("SECTION_BUTTONS"=>false, "SESSID"=>false)
 			);
-			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 			if($bGetProperty)
 				$arItem["PROPERTIES"] = $obElement->GetProperties();
@@ -296,7 +306,7 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "photo_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 
@@ -313,6 +323,10 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 			}
 
 			$arResult["ITEMS"][]=$arItem;
+		}
+		if ($bGetProperty)
+		{
+			\CIBlockFormatProperties::clearCache();
 		}
 
 		foreach ($arResult["ITEMS"] as &$arItem)
@@ -425,11 +439,14 @@ if(isset($arResult["ID"]))
 
 				if($arParams["SET_TITLE"] || isset($arResult[$arParams["BROWSER_TITLE"]]))
 				{
-					$arTitleOptions = array(
-						'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_section"]["ACTION"],
-						'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_section"]["ACTION"],
-						'COMPONENT_NAME' => $this->GetName(),
-					);
+					if (isset($arButtons["submenu"]["edit_section"]))
+					{
+						$arTitleOptions = [
+							'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_section"]["ACTION"],
+							'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_section"]["ACTION"],
+							'COMPONENT_NAME' => $this->GetName(),
+						];
+					}
 				}
 			}
 		}
@@ -485,5 +502,3 @@ if(isset($arResult["ID"]))
 		Context::getCurrent()->getResponse()->setLastModified($arResult["ITEMS_TIMESTAMP_X"]);
 	}
 }
-
-?>

@@ -52,6 +52,16 @@ class PropertyValue extends PropertyValueBase
 		return $order->getTradeBindingCollection()->getTradingPlatformIdList();
 	}
 
+	protected static function extractTradingPlatformIdList(Entity $order): array
+	{
+		if (!$order instanceof Order)
+		{
+			return [];
+		}
+
+		return $order->getTradeBindingCollection()->getTradingPlatformIdList();
+	}
+
 	/**
 	 * @return Result
 	 * @throws Main\ArgumentException

@@ -10,6 +10,7 @@
 	 * @extends {BX.Landing.UI.Button.BaseButton}
 	 *
 	 * @param {?string} id - Action id for document.execCommand
+	 * @param {?Document} contextDocument - document where run document.execCommand
 	 * @param {?object} [options]
 	 * @constructor
 	 */
@@ -28,6 +29,7 @@
 		init: function()
 		{
 			this.on("click", this.onClick, this);
+			this.contextDocument = document;
 		},
 
 		onClick: function(event)
@@ -35,8 +37,20 @@
 			event.preventDefault();
 			event.stopPropagation();
 
-			document.execCommand(this.id);
+			const res = this.contextDocument.execCommand(this.id);
 			BX.Landing.UI.Tool.ColorPicker.hideAll();
-		}
+		},
+
+		/**
+		 *
+		 * @param Document document
+		 */
+		setContextDocument: function(contextDocument)
+		{
+			if (contextDocument.nodeType === Node.DOCUMENT_NODE)
+			{
+				this.contextDocument = contextDocument;
+			}
+		},
 	};
 })();

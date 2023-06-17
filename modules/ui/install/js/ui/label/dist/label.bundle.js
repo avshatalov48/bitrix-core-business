@@ -8,7 +8,6 @@ this.BX = this.BX || {};
 	var LabelColor = function LabelColor() {
 	  babelHelpers.classCallCheck(this, LabelColor);
 	};
-
 	babelHelpers.defineProperty(LabelColor, "DEFAULT", 'ui-label-default');
 	babelHelpers.defineProperty(LabelColor, "DANGER", 'ui-label-danger');
 	babelHelpers.defineProperty(LabelColor, "SUCCESS", 'ui-label-success');
@@ -30,13 +29,11 @@ this.BX = this.BX || {};
 	var LabelSize = function LabelSize() {
 	  babelHelpers.classCallCheck(this, LabelSize);
 	};
-
 	babelHelpers.defineProperty(LabelSize, "MD", 'ui-label-md');
 	babelHelpers.defineProperty(LabelSize, "SM", 'ui-label-sm');
 	babelHelpers.defineProperty(LabelSize, "LG", 'ui-label-lg');
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
-
 	var Label = /*#__PURE__*/function () {
 	  function Label(options) {
 	    babelHelpers.classCallCheck(this, Label);
@@ -53,9 +50,9 @@ this.BX = this.BX || {};
 	    this.setColor(this.color);
 	    this.setFill(this.fill);
 	    this.setCustomClass(this.customClass);
-	  } //region COLOR
+	  }
 
-
+	  //region COLOR
 	  babelHelpers.createClass(Label, [{
 	    key: "setColor",
 	    value: function setColor(color) {
@@ -68,7 +65,6 @@ this.BX = this.BX || {};
 	      return this.color;
 	    } // endregion
 	    //region FILL
-
 	  }, {
 	    key: "setFill",
 	    value: function setFill(fill) {
@@ -81,7 +77,6 @@ this.BX = this.BX || {};
 	      return this.fill;
 	    } // endregion
 	    //region SIZE
-
 	  }, {
 	    key: "setSize",
 	    value: function setSize(size) {
@@ -94,7 +89,6 @@ this.BX = this.BX || {};
 	      return this.size;
 	    } // endregion
 	    //region LINK
-
 	  }, {
 	    key: "setLink",
 	    value: function setLink(link) {
@@ -106,12 +100,10 @@ this.BX = this.BX || {};
 	      return this.link;
 	    } // endregion
 	    //region TEXT
-
 	  }, {
 	    key: "setText",
 	    value: function setText(text) {
 	      this.text = text;
-
 	      if (main_core.Type.isStringFilled(text)) {
 	        this.getTextContainer().textContent = text;
 	      }
@@ -127,11 +119,9 @@ this.BX = this.BX || {};
 	      if (!this.textContainer) {
 	        this.textContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-label-inner\">", "</span>"])), this.getText());
 	      }
-
 	      return this.textContainer;
 	    } // endregion
 	    //region CUSTOM CLASS
-
 	  }, {
 	    key: "setCustomClass",
 	    value: function setCustomClass(customClass) {
@@ -144,28 +134,22 @@ this.BX = this.BX || {};
 	      return this.customClass;
 	    } // endregion
 	    //region CLASS LIST
-
 	  }, {
 	    key: "setClassList",
 	    value: function setClassList() {
 	      this.classList = "ui-label";
-
 	      if (typeof this.getColor() != "undefined") {
 	        this.classList = this.classList + " " + this.color;
 	      }
-
 	      if (typeof this.getSize() != "undefined") {
 	        this.classList = this.classList + " " + this.size;
 	      }
-
 	      if (typeof this.getCustomClass() != "undefined") {
 	        this.classList = this.classList + " " + this.customClass;
 	      }
-
 	      if (this.fill) {
 	        this.classList = this.classList + " ui-label-fill";
 	      }
-
 	      this.updateClassList();
 	    }
 	  }, {
@@ -179,21 +163,17 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        this.getContainer();
 	      }
-
 	      this.container.setAttribute("class", this.classList);
 	    }
 	  }, {
 	    key: "getIconAction",
 	    value: function getIconAction() {
 	      this.iconNode = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-label-icon\"></div>"])));
-
 	      for (var key in this.icon) {
 	        this.iconNode.addEventListener(key, this.icon[key]);
 	      }
-
 	      return this.iconNode;
 	    } // endregion
-
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
@@ -203,12 +183,10 @@ this.BX = this.BX || {};
 	        } else {
 	          this.container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), this.getClassList(), this.getTextContainer());
 	        }
-
 	        if (babelHelpers["typeof"](this.icon) === 'object') {
 	          this.container.appendChild(this.getIconAction());
 	        }
 	      }
-
 	      return this.container;
 	    }
 	  }, {
@@ -219,7 +197,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return Label;
 	}();
-
 	babelHelpers.defineProperty(Label, "Color", LabelColor);
 	babelHelpers.defineProperty(Label, "Size", LabelSize);
 

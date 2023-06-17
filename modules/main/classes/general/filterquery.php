@@ -287,7 +287,7 @@ class CFilterQuery extends CAllFilterQuery
 					(upper($field) like upper('%".$DB->ForSqlLike($word, 2000)."%') and $field is not null)
 					";
 			}
-			elseif (mb_strpos($word, "%") !== false || mb_strpos($word, "_") !== false)
+			elseif (strpos($word, "%") !== false || strpos($word, "_") !== false)
 			{
 				$ret.= "
 					(upper($field) like upper('".$DB->ForSqlLike($word, 2000)."') and $field is not null)

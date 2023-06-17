@@ -1,0 +1,122 @@
+:root {
+	--sidebar-width: 200px; /** should be in px only to animations work properly */
+}
+
+.bx-messenger-call-sidebar-root {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+	transition: width .3s ease-out;
+	width: var(--sidebar-width);
+	z-index: 110;
+}
+
+.bx-messenger-call-sidebar-root.opening {
+	animation: sidebar-opening .3s ease-out;
+}
+
+.bx-messenger-call-sidebar-root.closing {
+	animation: sidebar-closing .3s ease-out;
+}
+
+.bx-messenger-call-sidebar-root.hidden {
+	display: none;
+}
+
+.bx-messenger-call-sidebar-content-container {
+	width: 100%;
+	height: 100%;
+}
+
+.bx-messenger-call-sidebar-labels {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 0;
+	top: 17px;
+	z-index: 1;
+	transform: translateX(-100%);
+	transition: all 300ms ease;
+}
+
+.bx-messenger-call-sidebar-label {
+	display: inline-flex;
+	min-width: 37px;
+	height: 38px;
+	padding-right: 5px;
+	margin-bottom: 10px;
+	background: rgba(47, 198, 246, 0.95);
+	border-top-left-radius: 19px;
+	border-bottom-left-radius: 19px;
+	white-space: nowrap;
+	overflow: hidden;
+	transition: top 0.3s;
+	box-shadow: inset -6px 0 8px -10px rgba(0, 0, 0, 0.95);
+	z-index: 1;
+	cursor: pointer;
+}
+
+.bx-messenger-call-sidebar-label-icon-box {
+	display: inline-block;
+	width: 34px;
+	height: 38px;
+	vertical-align: top;
+	border-radius: 19px;
+	transition: all .2s;
+}
+
+.bx-messenger-call-sidebar-label-icon {
+	position: relative;
+	width: 22px;
+	height: 22px;
+	margin-top: 6px;
+	margin-left: 7px;
+	background-color: transparent;
+	border: 2px solid transparent;
+	border-radius: 50%;
+	transition: all 300ms ease;
+	background-repeat: no-repeat;
+	background-position: center;
+	box-sizing: content-box;
+}
+
+.bx-messenger-call-sidebar-label-icon-close {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3e%3cpath fill='%23FFF' fill-rule='evenodd' d='M11.381 1.746L7.138 5.988l4.248 4.249-1.151 1.152L5.986 7.14l-4.242 4.244-1.147-1.146L4.84 5.994.592 1.747 1.744.595l4.248 4.247L10.235.6z'/%3e%3c/svg%3e");
+	opacity: 0.85;
+}
+
+.bx-messenger-call-sidebar-label:hover .bx-messenger-call-sidebar-label-icon {
+	opacity: 1;
+}
+
+.bx-messenger-call-sidebar-label:hover .bx-messenger-call-sidebar-label-icon-close:after {
+	content: '';
+	display: block;
+	width: 24px;
+	height: 24px;
+	position: absolute;
+	top: -1px;
+	left: -1px;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3e%3cpath fill='%23FFF' fill-rule='evenodd' d='M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm0 1.771C6.35 1.771 1.771 6.351 1.771 12c0 5.65 4.58 10.229 10.229 10.229 5.65 0 10.229-4.58 10.229-10.229 0-5.65-4.58-10.229-10.229-10.229z'/%3e%3c/svg%3e");
+	opacity: 0.4;
+}
+
+@keyframes sidebar-opening {
+	from {
+		transform: translateX(var(--sidebar-width));
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+@keyframes sidebar-closing {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(var(--sidebar-width));
+	}
+}

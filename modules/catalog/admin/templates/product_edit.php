@@ -2089,9 +2089,7 @@ function CloneBarcodeField()
 	}
 	else
 	{
-		?>
-		<input type="hidden" id="CAT_MEASURE_RATIO" name="CAT_MEASURE_RATIO" value="1">
-		<input type="hidden" id="CAT_MEASURE_RATIO_ID" name="CAT_MEASURE_RATIO_ID" value="<?= htmlspecialcharsbx($CAT_MEASURE_RATIO_ID); ?>"><?php
+		?><input type="hidden" id="CAT_MEASURE_RATIO" name="CAT_MEASURE_RATIO" value="1"><?php
 	}
 	if (
 		$showQuantityTrace || $showProductSubscribe

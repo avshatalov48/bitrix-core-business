@@ -9,7 +9,7 @@ abstract class CBPActivityCondition
 
 	public $condition = null;
 
-	public abstract function evaluate(CBPActivity $ownerActivity);
+	abstract public function evaluate(CBPActivity $ownerActivity);
 
 	public static function createInstance($code, $data)
 	{
@@ -98,19 +98,20 @@ abstract class CBPActivityCondition
 		return $result;
 	}
 
-	protected function getFieldTypeObject(CBPActivity $rootActivity, $property): ?\Bitrix\Bizproc\FieldType
+	protected function getFieldTypeObject(CBPActivity $rootActivity, $property): \Bitrix\Bizproc\FieldType
 	{
-		$fieldType = $rootActivity->workflow
-			->GetService('DocumentService')
-			->getFieldTypeObject($rootActivity->GetDocumentType(), $property)
-		;
+		$documentService = $rootActivity->workflow->getRuntime()->getDocumentService();
+		$documentType = $rootActivity->getDocumentType();
 
+		if (!is_array($property))
+		{
+			return $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
+		}
+
+		$fieldType = $documentService->getFieldTypeObject($documentType, $property);
 		if (!$fieldType)
 		{
-			$fieldType = $rootActivity->workflow
-				->GetService('DocumentService')
-				->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => 'string'])
-			;
+			$fieldType = $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
 		}
 
 		return $fieldType;

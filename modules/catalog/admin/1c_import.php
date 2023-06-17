@@ -1,9 +1,11 @@
-<?
-define('BX_SESSION_ID_CHANGE', false);
-define('BX_SKIP_POST_UNQUOTE', true);
-define('NO_AGENT_CHECK', true);
-define("STATISTIC_SKIP_ACTIVITY_CHECK", true);
-define("BX_FORCE_DISABLE_SEPARATED_SESSION_MODE", true);
+<?php
+const BX_SESSION_ID_CHANGE = false;
+const BX_SKIP_POST_UNQUOTE = true;
+const NO_AGENT_CHECK = true;
+const STATISTIC_SKIP_ACTIVITY_CHECK = true;
+const BX_FORCE_DISABLE_SEPARATED_SESSION_MODE = true;
+
+/** @global CMain $APPLICATION */
 
 if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "GET")
 {
@@ -17,7 +19,9 @@ if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "GET")
 	}
 }
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
+
+$type = (string)($_REQUEST['type'] ?? '');
 
 if($type=="sale")
 {
@@ -105,4 +109,4 @@ else
 	echo "Unknown command type.";
 }
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");

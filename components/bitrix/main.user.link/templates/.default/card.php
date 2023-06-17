@@ -48,7 +48,7 @@ $arUserOutFields = array();
 
 // USER FIELDS
 
-if (count($arParams["SHOW_FIELDS"]) > 0)
+if (!empty($arParams["SHOW_FIELDS"]))
 {
 	foreach ($arFieldsSorted as $userFieldName)
 	{
@@ -209,7 +209,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 }
 
 // USER PROPERIES
-if (count($arParams["USER_PROPERTY"]) > 0)
+if (!empty($arParams["USER_PROPERTY"]))
 {
 	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("USER", $arResult["User"]["ID"], LANGUAGE_ID);
 
@@ -248,7 +248,7 @@ if (count($arParams["USER_PROPERTY"]) > 0)
 			
 			if (
 				(
-					(is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) == 0)
+					(is_array($arUserField["VALUE"]) && empty($arUserField["VALUE"]))
 					|| (!is_array($arUserField["VALUE"]) && !$arUserField["VALUE"])
 				)
 				&& $arUserField["USER_TYPE_ID"] != "boolean"
@@ -328,7 +328,7 @@ foreach($arUserOutFields as $field)
 // RATING
 $strTmpUserRatings = "";
 
-if (array_key_exists("USER_RATING", $arParams) && is_array($arParams["USER_RATING"]) && count($arParams["USER_RATING"]) > 0)
+if (array_key_exists("USER_RATING", $arParams) && is_array($arParams["USER_RATING"]) && !empty($arParams["USER_RATING"]))
 {
 	$tmpVal = "";
 	foreach ($arParams["USER_RATING"] as $rating_id)
@@ -415,14 +415,14 @@ if (IsModuleInstalled('extranet') || IsModuleInstalled('mail'))
 {
 	if (
 		!is_array($arUserFields)
-		|| count($arUserFields) <= 0
+		|| empty($arUserFields)
 	)
 	{
 		$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("USER", $arResult["User"]["ID"], LANGUAGE_ID);
 	}
 
 	$bExtranetUser = (
-		(is_array($arUserFields["UF_DEPARTMENT"]["VALUE"]) && count($arUserFields["UF_DEPARTMENT"]["VALUE"]) <= 0)
+		(is_array($arUserFields["UF_DEPARTMENT"]["VALUE"]) && empty($arUserFields["UF_DEPARTMENT"]["VALUE"]))
 		|| (!is_array($arUserFields["UF_DEPARTMENT"]["VALUE"]) && intval($arUserFields["UF_DEPARTMENT"]["VALUE"]) <= 0)
 	);
 	$bEmailUser = ($arResult["User"]["EXTERNAL_AUTH_ID"] == 'email');

@@ -23,9 +23,9 @@ include('util_group_menu.php');
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
-	"PAGE_VAR" => $arResult["ALIASES"]["page"],
-	"USER_VAR" => $arResult["ALIASES"]["user_id"],
-	"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
+	"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? '',
+	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? '',
+	"GROUP_VAR" => $arResult["ALIASES"]["group_id"] ?? '',
 	"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 	"SET_TITLE" => $arResult["SET_TITLE"],
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],

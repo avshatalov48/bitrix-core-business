@@ -48,7 +48,9 @@ if (
 	Type::getCurrentScopeId() === null
 	&& $templatePage !== 'landing_view'
 	&& Loader::includeModule('crm')
+	&& CCrmSaleHelper::isShopAccess() //TODO: change this block to new shop menu component
 )
 {
 	$APPLICATION->IncludeComponent('bitrix:crm.shop.page.controller', '', []);
 }
+

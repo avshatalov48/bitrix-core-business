@@ -75,8 +75,8 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			$arParams["SECTION_ID"],
 			array("SECTION_BUTTONS"=>false, "SESSID"=>false)
 		);
-		$arResItems["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-		$arResItems["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+		$arResItems["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+		$arResItems["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 		$arResult['ITEMS'][] = $arResItems;
 		$arResult['ITEMS_ID'][] = $arResItems["ID"];

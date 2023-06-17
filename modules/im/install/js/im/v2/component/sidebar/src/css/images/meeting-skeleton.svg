@@ -1,0 +1,64 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 184"
+    preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 184px" fill="none">
+
+    <svg height="184px">
+        <defs>
+            <g id="item">
+                <path
+                d="M296 91C296 96.5228 291.523 101 286 101L22 101C16.4772 101 12 96.523 12 91.0001L12 52C12 46.4772 16.4772 42 22 42L286 41.9999C291.523 41.9999 296 46.477 296 51.9999L296 91Z"
+                fill="#F5F7F8" />
+            </g>
+        </defs>
+
+        <path
+        d="M308 176C308 180.418 304.418 184 300 184L8 184C3.58172 184 -3.21376e-08 180.419 -7.17812e-08 176L-1.57919e-06 8.00023C-1.61883e-06 3.58196 3.58172 0.000231167 8 0.000227404L300 -2.13166e-05C304.418 -2.508e-05 308 3.58169 308 7.99997L308 176Z"
+        fill="white" />
+        <use xlink:href="#item"></use>
+    </svg>
+
+    <svg height="184px" id="animated-elements">
+        <defs>
+            <g id="item--animat">
+                <path
+                d="M24 57.7C24 54.552 26.552 52 29.7 52H56.3C59.448 52 62 54.552 62 57.7V84.3C62 87.448 59.448 90 56.3 90H29.7C26.552 90 24 87.448 24 84.3V57.7Z"
+                fill="#E5E9EC" />
+                <rect x="74" y="59" width="153" height="8" rx="2" fill="#E5E9EC" />
+                <rect x="74" y="76" width="127" height="8" rx="2" fill="#E5E9EC" />
+            </g>
+        </defs>
+
+        <rect x="14" y="16" width="127" height="8" rx="2" fill="#eeeff0" />
+
+        <use xlink:href="#item--animat"></use>
+    </svg>
+
+
+    <defs>
+        <filter id="filter0_i_3005_70593" x="44" y="433" width="90%" height="1" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"/>
+            <feOffset dy="-1"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_3005_70593"/>
+        </filter>
+    </defs>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#animated-elements"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

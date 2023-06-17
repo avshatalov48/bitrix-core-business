@@ -1122,20 +1122,21 @@ BX.ImMobile.prototype.mobileActionReady = function()
 
 BX.ImMobile.prototype.insertQuoteText = function(name, date, text)
 {
-	text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, BX.delegate(function(whole, userId, text) {return text;}, this));
-	text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, BX.delegate(function(whole, imol, chatId, text) {return text;}, this));
-	text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
-	text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
-	text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
-	text = text.replace(/\[ATTACH=([0-9]{1,})\]/ig, BX.delegate(function(whole, command, text) {return command == 10000? '': '['+BX.message('IM_F_ATTACH')+'] ';}, this));
-	text = text.replace(/\[RATING\=([1-5]{1})\]/ig, BX.delegate(function(whole, rating) {return '['+BX.message('IM_F_RATING')+'] ';}, this));
-	text = text.replace(/&nbsp;/ig, " ");
+	text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/gi, BX.delegate(function(whole, userId, text) {return text;}, this));
+	text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/gi, BX.delegate(function(whole, imol, chatId, text) {return text;}, this));
+	text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/gi, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
+	text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/gi, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
+	text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/gi, BX.delegate(function(whole, command, text) {return text? text: command;}, this));
+	text = text.replace(/\[ATTACH=([0-9]{1,})\]/gi, BX.delegate(function(whole, command, text) {return command == 10000? '': '['+BX.message('IM_F_ATTACH')+'] ';}, this));
+	text = text.replace(/\[RATING\=([1-5]{1})\]/gi, BX.delegate(function(whole, rating) {return '['+BX.message('IM_F_RATING')+'] ';}, this));
+	text = text.replace(/&nbsp;/gi, " ");
+	text = text.replace(/-{54}(.*?)-{54}/gs, "["+BX.message("IM_M_QUOTE_BLOCK")+"]");
 
 	var arQuote = [];
-	arQuote.push(this.historyMessageSplit);
+	arQuote.push(this.historyMessageSplitShort);
 	arQuote.push(BX.util.htmlspecialcharsback(name)+' ['+BX.MessengerCommon.formatDate(date)+']');
 	arQuote.push(text);
-	arQuote.push(this.historyMessageSplit+"\n");
+	arQuote.push(this.historyMessageSplitShort+"\n");
 
 	return arQuote.join("\n");
 }
@@ -1707,8 +1708,8 @@ BX.ImMessengerMobile.prototype.newMessage = function()
 					messageText = '['+BX.message('IM_F_FILE')+']';
 				}
 
-				messageText = messageText.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function(whole, userId, text) {return text;});
-				messageText = messageText.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function(whole, historyId, text) {return text;});
+				messageText = messageText.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/gi, function(whole, userId, text) {return text;});
+				messageText = messageText.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, function(whole, historyId, text) {return text;});
 
 				var avatarType = 'private';
 				var avatarImage = isChat? this.chat[recipientId.substr(4)].avatar: this.users[senderId].avatar;
@@ -2667,7 +2668,15 @@ BX.ImMessengerMobile.prototype.sendMessage = function(recipientId, text)
 	}
 
 	var messageTmpIndex = this.messageTmpIndex;
-	this.message['temp'+messageTmpIndex] = {'id' : 'temp'+messageTmpIndex, chatId: chatId, 'senderId' : this.BXIM.userId, 'recipientId' : recipientId, 'date' : new Date(), 'text' : BX.MessengerCommon.prepareText(text, true) };
+	this.message['temp'+messageTmpIndex] = {
+		'id' : 'temp'+messageTmpIndex,
+		chatId: chatId,
+		'senderId' : this.BXIM.userId,
+		'recipientId' : recipientId,
+		'date' : new Date(),
+		'textOriginal': text,
+		'text' : BX.MessengerCommon.prepareText(text, true, true, true)
+	};
 	if (!this.showMessage[recipientId])
 		this.showMessage[recipientId] = [];
 	this.showMessage[recipientId].push('temp'+messageTmpIndex);
@@ -3314,7 +3323,8 @@ BX.ImDiskManagerMobile.prototype.uploadFromDisk = function(selected, text)
 		'senderId': this.BXIM.userId,
 		'recipientId': recipientId,
 		'date': new Date(),
-		'text': BX.MessengerCommon.prepareText(text, true),
+		'textOriginal': text,
+		'text': BX.MessengerCommon.prepareText(text, true, true, true),
 		'params': {'FILE_ID': paramsFileId, 'CLASS': olSilentMode == "Y"? "bx-messenger-content-item-system": ""}
 	};
 	if (!this.messenger.showMessage[recipientId])

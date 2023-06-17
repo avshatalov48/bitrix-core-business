@@ -169,8 +169,13 @@ $oFilter->Begin();
 		<td><select name="filter_type">
 			<option value="0"><?= GetMessage("USMP_TYPE_0") ?></option>
 			<?
-			foreach ($arModules['MODULES_TYPES'][0]["#"]["TYPE"] as $ct)
-				echo '<option value="'.$ct["@"]["ID"].'"'.(($filter_type == $ct["@"]["ID"]) ? ' selected' : '').'>'.$ct["@"]["NAME"].'</option>';
+			if (isset($arModules['MODULES_TYPES'][0]["#"]["TYPE"]) && is_array($arModules['MODULES_TYPES'][0]["#"]["TYPE"]))
+			{
+				foreach ($arModules['MODULES_TYPES'][0]["#"]["TYPE"] as $ct)
+				{
+					echo '<option value="'.$ct["@"]["ID"].'"'.(($filter_type == $ct["@"]["ID"]) ? ' selected' : '').'>'.$ct["@"]["NAME"].'</option>';
+				}
+			}
 			?></select></td>
 	</tr>
 

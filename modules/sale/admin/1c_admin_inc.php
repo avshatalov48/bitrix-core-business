@@ -1,8 +1,18 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-\Bitrix\Main\Loader::includeModule('sale');
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
+Loader::includeModule('sale');
 IncludeModuleLangFile(__FILE__);
+
+$request = Context::getCurrent()->getRequest();
 
 $module_id = "sale";
 $CAT_RIGHT = $APPLICATION->GetGroupRight($module_id);
@@ -88,7 +98,7 @@ $arAllOptions = array(
 
 );
 
-if($REQUEST_METHOD=="POST" && $Update <> '' && $CAT_RIGHT>="W" && check_bitrix_sessid())
+if ($request->isPost() && $request->getPost('Update') !== null && $CAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$allOptionCount = count($arAllOptions);
 	for ($i=0; $i<$allOptionCount; $i++)
@@ -111,6 +121,7 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && $CAT_RIGHT>="W" && check_bitrix_s
 foreach($arAllOptions as $Option):
 	$val = COption::GetOptionString("sale", $Option[0], $Option[2]);
 	$type = $Option[3];
+	AddMessage2Log($type);
 	$params = $Option[4];
 	?>
 	<tr>
@@ -122,7 +133,7 @@ foreach($arAllOptions as $Option):
 				<?if($type[0]=="checkbox"):?>
 					<input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>>
 				<?elseif($type[0]=="text"):?>
-					<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>">
+					<input type="text" size="<?= ($type[1] ?? ''); ?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>">
 				<?elseif($type[0]=="textarea"):?>
 					<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?echo htmlspecialcharsbx($val)?></textarea>
 				<?elseif($type[0]=="list"):?>
@@ -155,6 +166,6 @@ foreach($arAllOptions as $Option):
 		<?
 	}
 	?>
-<?endforeach;
+<?php
+endforeach;
 endif;
-?>

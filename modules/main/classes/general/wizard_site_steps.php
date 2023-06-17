@@ -569,7 +569,7 @@ class CPackageSelectStructure extends CWizardStep
 
 		foreach ($arStructure as $pageID => $arPage)
 		{
-			$pageID = (isset($arPage["ID"]) ? $arPage["ID"] : $pageID);
+			$pageID = ($arPage["ID"] ?? $pageID);
 			$isService = (isset($arPage["TYPE"]) && $arPage["TYPE"] == "SERVICE");
 			$isRoot = (!$isService && isset($arPage["CHILD"]) && is_array($arPage["CHILD"]) && !empty($arPage["CHILD"]));
 
@@ -594,7 +594,7 @@ class CPackageSelectStructure extends CWizardStep
 				foreach ($arPage["CHILD"] as $subPageID => $arSubPage)
 				{
 					$labelID++;
-					$subPageID = (isset($arSubPage["ID"]) ? $arSubPage["ID"] : $pageID."-".$subPageID);
+					$subPageID = ($arSubPage["ID"] ?? $pageID."-".$subPageID);
 					$strTree .= '<li><input id="page'.$labelID.'" type="checkbox" value="'.$subPageID.'" onclick="WizOnCheckBoxClick(this)" />';
 
 					if (isset($arSubPage["ICON"]) && mb_strlen($arSubPage["ICON"]) > 3 )

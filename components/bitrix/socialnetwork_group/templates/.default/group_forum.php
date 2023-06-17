@@ -39,7 +39,7 @@ $componentParams = [
 	"SET_TITLE" => "N",
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
-	"TMPLT_SHOW_ADDITIONAL_MARKER" => $arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"]
+	"TMPLT_SHOW_ADDITIONAL_MARKER" => $arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"] ?? ''
 ];
 
 $APPLICATION->IncludeComponent(

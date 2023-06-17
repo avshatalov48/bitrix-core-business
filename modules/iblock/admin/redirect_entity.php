@@ -1,13 +1,13 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main,
-	Bitrix\Iblock;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Iblock;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 Loader::includeModule('iblock');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/prolog.php');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/iblock/prolog.php';
 
 Loc::loadMessages(__FILE__);
 
@@ -17,22 +17,25 @@ unset($manager);
 
 $adminListTableID = 'tbl_iblock_redirect_entity';
 $adminList = new CAdminList($adminListTableID);
-$filterFields = array(
-	'ENTITY'
-);
-$adminList->InitFilter($filterFields);
+$filterFields = [
+	'ENTITY',
+	'ID',
+];
+$currentFilter = $adminList->InitFilter($filterFields);
+foreach ($filterFields as $fieldName)
+{
+	$currentFilter[$fieldName] = (string)($currentFilter[$fieldName] ?? '');
+}
 unset($filterFields);
 
-$entityList = array(
+$entityList = [
 	'ELEMENT' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_ELEMENT'),
 	'SECTION' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_SECTION'),
 	'IBLOCK' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_IBLOCK')
-);
+];
 $errors = array();
 $entityId = '';
-$entityCode = '';
-if (isset($ENTITY))
-	$entityCode = $ENTITY;
+$entityCode = $currentFilter['ENTITY'] ?? '';
 
 $request = Main\Context::getCurrent()->getRequest();
 if ($request->isPost() && check_bitrix_sessid())
@@ -40,9 +43,13 @@ if ($request->isPost() && check_bitrix_sessid())
 	$entityId = (int)$request['ID'];
 	$entityCode = (string)$request['ENTITY'];
 	if ($entityId <= 0)
+	{
 		$errors[] = Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ERR_EMPTY_ELEMENT_ID');
+	}
 	if (!isset($entityList[$entityCode]))
+	{
 		$errors[] = Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ERR_EMPTY_ENTITY');
+	}
 
 	if (empty($errors))
 	{
@@ -51,8 +58,12 @@ if ($request->isPost() && check_bitrix_sessid())
 		{
 			case 'IBLOCK':
 				$iterator = CIBlock::GetList(
-					array(),
-					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
+					[],
+					[
+						'ID' => $entityId,
+						'CHECK_PERMISSIONS' => 'Y',
+						'MIN_PERMISSION' => 'S',
+					],
 					false
 				);
 				$row = $iterator->Fetch();
@@ -73,11 +84,18 @@ if ($request->isPost() && check_bitrix_sessid())
 				break;
 			case 'SECTION':
 				$iterator = CIBlockSection::GetList(
-					array(),
-					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
+					[],
+					[
+						'ID' => $entityId,
+						'CHECK_PERMISSIONS' => 'Y',
+						'MIN_PERMISSION' => 'S',
+					],
 					false,
 					false,
-					array('ID', 'IBLOCK_ID')
+					[
+						'ID',
+						'IBLOCK_ID',
+					]
 				);
 				$row = $iterator->Fetch();
 				unset($iterator);
@@ -97,11 +115,19 @@ if ($request->isPost() && check_bitrix_sessid())
 				break;
 			case 'ELEMENT':
 				$iterator = CIBlockElement::GetList(
-					array(),
-					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
+					[],
+					[
+						'ID' => $entityId,
+						'CHECK_PERMISSIONS' => 'Y',
+						'MIN_PERMISSION' => 'S',
+					],
 					false,
 					false,
-					array('ID', 'IBLOCK_ID', 'WF_PARENT_ELEMENT_ID')
+					[
+						'ID',
+						'IBLOCK_ID',
+						'WF_PARENT_ELEMENT_ID',
+					]
 				);
 				$row = $iterator->Fetch();
 				unset($iterator);
@@ -117,7 +143,10 @@ if ($request->isPost() && check_bitrix_sessid())
 							? (int)$row['WF_PARENT_ELEMENT_ID']
 							: (int)$row['ID']
 						),
-						['find_section_section' => -1, 'WF' => 'Y']
+						[
+							'find_section_section' => -1,
+							'WF' => 'Y',
+						]
 					);
 				}
 				unset($row);
@@ -132,60 +161,64 @@ if ($request->isPost() && check_bitrix_sessid())
 
 $APPLICATION->SetTitle(Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_TITLE'));
 
-require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
 if (!empty($errors))
 {
-	$errorMessage = new CAdminMessage(
-		array(
-			'DETAILS' => implode('<br>', $errors),
-			'TYPE' => 'ERROR',
-			'HTML' => true
-		)
-	);
+	$errorMessage = new CAdminMessage([
+		'DETAILS' => implode('<br>', $errors),
+		'TYPE' => 'ERROR',
+		'HTML' => true,
+	]);
 	echo $errorMessage->Show();
 	unset($errorMessage);
 }
 
-?><form name="find_form" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?=LANGUAGE_ID;?>"><?
+?><form name="find_form" method="POST" action="<?= $APPLICATION->GetCurPage()?>?lang=<?= LANGUAGE_ID;?>"><?php
 echo bitrix_sessid_post();
 $filter = new CAdminFilter(
 	'element_redirect_filter',
-	array(
-		Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ENTITY'),
-		Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ID')
-	)
+	[
+		'ENTITY' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ENTITY'),
+		'ID' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ID'),
+	]
 );
+$filter->SetDefaultRows([
+	'ENTITY',
+	'ID',
+]);
 $filter->Begin();
 ?>
 <tr>
-	<td><?echo Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ENTITY')?></td>
-	<td><select name="ENTITY"><?
+	<td><?= Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ENTITY')?></td>
+	<td><select name="ENTITY"><?php
 		foreach ($entityList as $key => $value)
 		{
-			?><option value="<?=htmlspecialcharsbx($key); ?>"<?=($entityCode == $key ? ' selected' : ''); ?>><?=htmlspecialcharsEx($value); ?></option><?
+			?><option value="<?= htmlspecialcharsbx($key); ?>"<?= ($entityCode == $key ? ' selected' : ''); ?>><?= htmlspecialcharsEx($value); ?></option><?php
 		}
 		unset($key, $value);
 		?></select>
 	</td>
 </tr>
 <tr>
-	<td><?echo Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ID')?></td>
-	<td><input type="text" name="ID" value="<?=htmlspecialcharsbx($request['ID']); ?>"></td>
+	<td><?= Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_FILTER_ID')?></td>
+	<td><input type="text" name="ID" value="<?= htmlspecialcharsbx($request['ID']); ?>"></td>
 </tr>
-<?
+<?php
 $filter->Buttons(
-	array(
-		"table_id" => $adminListTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
+	[
+		'table_id' => $adminListTableID,
+		'url' => $APPLICATION->GetCurPage(),
+		'form' => 'find_form',
+	]
 );
 $filter->End();
-?></form><?
+?></form><?php
 
-echo BeginNote();
-echo Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_NOTE');
-echo EndNote();
+echo
+	BeginNote()
+	. Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_NOTE')
+	. EndNote()
+;
 
-require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

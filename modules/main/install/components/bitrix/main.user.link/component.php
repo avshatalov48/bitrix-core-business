@@ -154,7 +154,7 @@ $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB-
 
 $arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
 
-$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+$bUseLogin = isset($arParams['SHOW_LOGIN']) && $arParams['SHOW_LOGIN'] === "N" ? false : true;
 
 if (!array_key_exists("DO_RETURN", $arParams))
 	$arParams["DO_RETURN"] = "N";
@@ -166,10 +166,17 @@ $bNeedGetUser = false;
 
 if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 {
-	if ($bSocialNetwork && !array_key_exists("IS_ONLINE", $arParams) && $arParams["AJAX_ONLY"] != "Y" && (!array_key_exists("INLINE", $arParams) || $arParams["INLINE"] != "Y"))
+	if (
+		$bSocialNetwork
+		&& !array_key_exists("IS_ONLINE", $arParams)
+		&& (!isset($arParams["AJAX_ONLY"]) || $arParams["AJAX_ONLY"] != "Y")
+		&& (!array_key_exists("INLINE", $arParams) || $arParams["INLINE"] != "Y")
+	)
+	{
 		MULChangeOnlineStatus($arParams["ID"], $arParams["HTML_ID"]);
+	}
 
-	if ($arParams['AJAX_CALL'] == 'INFO')
+	if (isset($arParams['AJAX_CALL']) && $arParams['AJAX_CALL'] == 'INFO')
 	{
 		$bNeedGetUser = true;
 	}
@@ -212,22 +219,14 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			$arResult["USE_TOOLTIP"] = false;
 		}
 
-		if (
-			!CModule::IncludeModule("video")
-			|| !CVideo::CanUserMakeCall()
-		)
-		{
-			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
-		}
-
 		if ($arParams['AJAX_CALL'] != 'INFO' && isset($arParams["PROFILE_URL_LIST"]) && $arParams["PROFILE_URL_LIST"] <> '') // don't use PROFILE_URL in ajax call because it could be another component inclusion
 			$arResult["Urls"]["SonetProfile"] = $arParams["~PROFILE_URL_LIST"];
 		elseif ($arParams['AJAX_CALL'] != 'INFO' && isset($arParams["PROFILE_URL"]) && $arParams["PROFILE_URL"] <> '')
 			$arResult["Urls"]["SonetProfile"] = $arParams["~PROFILE_URL"];
-		elseif($arParams["PATH_TO_SONET_USER_PROFILE"] <> '')
+		elseif(isset($arParams["PATH_TO_SONET_USER_PROFILE"]) && $arParams["PATH_TO_SONET_USER_PROFILE"] <> '')
 			$arResult["Urls"]["SonetProfile"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_SONET_USER_PROFILE"], array("user_id" => $arParams["ID"], "USER_ID" => $arParams["ID"], "ID" => $arParams["ID"]));
 
-		if ($arResult["Urls"]["SonetProfile"] == '' && $bIntranet)
+		if ((!isset($arResult["Urls"]["SonetProfile"]) || $arResult["Urls"]["SonetProfile"] == '') && $bIntranet)
 		{
 			$arParams['DETAIL_URL'] = COption::GetOptionString('intranet', 'search_user_url', '/user/#ID#/');
 			$arParams['DETAIL_URL'] = str_replace(array('#ID#', '#USER_ID#'), array($arParams["ID"], $arParams["ID"]), $arParams['DETAIL_URL']);
@@ -239,10 +238,14 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 	}
 	else
 	{
-		if ($arParams["PROFILE_URL_LIST"] <> '')
+		if (isset($arParams["PROFILE_URL_LIST"]) && $arParams["PROFILE_URL_LIST"] <> '')
+		{
 			$arParams['DETAIL_URL'] = $arParams["~PROFILE_URL_LIST"];
-		elseif ($arParams["PROFILE_URL"] <> '')
+		}
+		elseif (isset($arParams["PROFILE_URL"]) && $arParams["PROFILE_URL"] <> '')
+		{
 			$arParams['DETAIL_URL'] = $arParams["~PROFILE_URL"];
+		}
 	}
 
 	$arResult["User"]["DETAIL_URL"] = $tmpUserDetailUrl = $arParams['DETAIL_URL'];
@@ -285,8 +288,8 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			}
 
 			if (
-				$arResult["FatalError"] == ''
-				&& $arParams["USE_THUMBNAIL_LIST"] == "Y" 
+				(!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
+				&& $arParams["USE_THUMBNAIL_LIST"] == "Y"
 				&& $arParams['AJAX_CALL'] != 'INFO'
 			)
 			{
@@ -326,15 +329,15 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 				}
 
 				if (
-					$bSocialNetwork 
+					$bSocialNetwork
 					&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 				)
 				{
-					if ($arParams["HREF"] <> '')
+					if (isset($arParams["HREF"]) && $arParams["HREF"] <> '')
 					{
 						$imageUrl = $arParams["HREF"];
 					}
-					elseif ($arResult["User"]["DETAIL_URL"] <> '')
+					elseif (isset($arResult["User"]["DETAIL_URL"]) && $arResult["User"]["DETAIL_URL"] <> '')
 					{
 						$imageUrl = $arResult["User"]["DETAIL_URL"];
 					}
@@ -378,14 +381,32 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 		$arResult["ajax_page"] = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 
 		if ($bSocialNetwork && CModule::IncludeModule('socialnetwork'))
-			$arResult["Urls"]["SonetMessageChat"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_SONET_MESSAGES_CHAT"], array("user_id" => $arParams["ID"], "USER_ID" => $arParams["ID"], "ID" => $arParams["ID"]));
+		{
+			$arResult["Urls"]["SonetMessageChat"] = CComponentEngine::MakePathFromTemplate(
+				$arParams["~PATH_TO_SONET_MESSAGES_CHAT"] ?? '',
+				[
+					"user_id" => $arParams["ID"],
+					"USER_ID" => $arParams["ID"],
+					"ID" => $arParams["ID"]
+				]
+			);
+		}
 
-		if(CModule::IncludeModule("video"))
-			$arResult["Urls"]["VideoCall"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_VIDEO_CALL"], array("user_id" => $arParams["ID"], "USER_ID" => $arParams["ID"], "ID" => $arParams["ID"]));
+		if (CModule::IncludeModule("video"))
+		{
+			$arResult["Urls"]["VideoCall"] = CComponentEngine::MakePathFromTemplate(
+				$arParams["~PATH_TO_VIDEO_CALL"] ?? '',
+				[
+					"user_id" => $arParams["ID"],
+					"USER_ID" => $arParams["ID"],
+					"ID" => $arParams["ID"]
+				]
+			);
+		}
 
 		if (
-			$arResult["FatalError"] == ''
-			&& $arParams['AJAX_CALL'] == 'INFO' 
+			(!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
+			&& $arParams['AJAX_CALL'] == 'INFO'
 			&& $bUseTooltip
 		)
 		{
@@ -405,7 +426,7 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			);
 
 			if ($arResult["User"]["PERSONAL_WWW"] <> '')
-				$arResult["User"]["PERSONAL_WWW"] = ((mb_strpos($arResult["User"]["PERSONAL_WWW"], "http") === false) ? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
+				$arResult["User"]["PERSONAL_WWW"] = ((strpos($arResult["User"]["PERSONAL_WWW"], "http") === false) ? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
 
 			$arMonths_r = array();
 			for ($i = 1; $i <= 12; $i++)
@@ -427,7 +448,7 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 				&& intval($_GET["entityId"]) > 0
 			)
 			{
-				$arTmpUser["DETAIL_URL"] .= (mb_strpos($arTmpUser["DETAIL_URL"], '?') === false ? '?' : '&')."entityType=".urlencode($_GET["entityType"])."&entityId=".intval($_GET["entityId"]);
+				$arTmpUser["DETAIL_URL"] .= (strpos($arTmpUser["DETAIL_URL"], '?') === false ? '?' : '&')."entityType=".urlencode($_GET["entityType"])."&entityId=".intval($_GET["entityId"]);
 			}
 
 			$rsCurrentUser = CUser::GetById($USER->GetId());
@@ -621,7 +642,7 @@ elseif($arParams['AJAX_CALL'] == 'INFO') // fatal error for ajax page
 	die();
 }
 
-if ($arParams["AJAX_ONLY"] != "Y")
+if (!isset($arParams["AJAX_ONLY"]) || $arParams["AJAX_ONLY"] != "Y")
 {
 	ob_start();
 	$this->IncludeComponentTemplate();

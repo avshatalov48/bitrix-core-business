@@ -7,14 +7,15 @@
  */
 $handlers = array();
 $arParams["UPLOADS"] = array();
-if (is_array($arParams["UPLOAD_FILE"]) && !empty($arParams["UPLOAD_FILE"]))
+if (isset($arParams["UPLOAD_FILE"]) && is_array($arParams["UPLOAD_FILE"]) && !empty($arParams["UPLOAD_FILE"]))
 {
 	if (array_key_exists("USER_TYPE_ID", $arParams["UPLOAD_FILE"]))
 	{
 		$arParams["UPLOAD_FILE"]["VALUE"] = array_merge(
-			(is_array($arParams["UPLOAD_FILE"]["INPUT_VALUE"]) ? $arParams["UPLOAD_FILE"]["INPUT_VALUE"] : array()),
-			(is_array($arParams["UPLOAD_FILE"]["VALUE"]) ? $arParams["UPLOAD_FILE"]["VALUE"] : array())
+			isset($arParams["UPLOAD_FILE"]["INPUT_VALUE"]) && is_array($arParams["UPLOAD_FILE"]["INPUT_VALUE"]) ? $arParams["UPLOAD_FILE"]["INPUT_VALUE"] : [],
+			isset($arParams["UPLOAD_FILE"]["VALUE"]) && is_array($arParams["UPLOAD_FILE"]["VALUE"]) ? $arParams["UPLOAD_FILE"]["VALUE"] : []
 		);
+
 		if (array_key_exists("FILES", $arParams) && is_array($arParams["FILES"]) && array_key_exists("POSTFIX", $arParams["FILES"]))
 			$arParams["UPLOAD_FILE"]["POSTFIX"] = $arParams["FILES"]["POSTFIX"];
 		$arParams["PROPERTIES"][] = $arParams["UPLOAD_FILE"];
@@ -27,13 +28,17 @@ if (is_array($arParams["UPLOAD_FILE"]) && !empty($arParams["UPLOAD_FILE"]))
 	}
 	unset($arParams["UPLOAD_FILE"]);
 }
-if (is_array($arParams["UPLOAD_WEBDAV_ELEMENT"]) && !empty($arParams["UPLOAD_WEBDAV_ELEMENT"]))
+if (
+	isset($arParams["UPLOAD_WEBDAV_ELEMENT"])
+	&& is_array($arParams["UPLOAD_WEBDAV_ELEMENT"])
+	&& !empty($arParams["UPLOAD_WEBDAV_ELEMENT"])
+)
 {
 	$arParams["PROPERTIES"][] = $arParams["UPLOAD_WEBDAV_ELEMENT"];
 	unset($arParams["UPLOAD_WEBDAV_ELEMENT"]);
 }
 
-if (is_array($arParams["PROPERTIES"]))
+if (isset($arParams["PROPERTIES"]) && is_array($arParams["PROPERTIES"]))
 {
 	$newParsers = [];
 	foreach ($arParams["PROPERTIES"] as $val)
@@ -53,7 +58,7 @@ if (empty($arParams["UPLOADS"]))
 	return;
 
 $bNull = null;
-__main_post_form_image_resize($bNull, $arParams["UPLOAD_FILE_PARAMS"]);
+__main_post_form_image_resize($bNull, $arParams["UPLOAD_FILE_PARAMS"] ?? null);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_REQUEST['mfi_mode'] == "upload"))
 {
@@ -66,7 +71,7 @@ foreach ($arParams["UPLOADS"] as $v)
 	{
 		$additionalParameters = [
 			'arUserField' => $v,
-			'DISABLE_CREATING_FILE_BY_CLOUD' => $arParams['DISABLE_CREATING_FILE_BY_CLOUD'] ?? $v['DISABLE_CREATING_FILE_BY_CLOUD'],
+			'DISABLE_CREATING_FILE_BY_CLOUD' => $arParams['DISABLE_CREATING_FILE_BY_CLOUD'] ?? ($v['DISABLE_CREATING_FILE_BY_CLOUD'] ?? null),
 			'DISABLE_LOCAL_EDIT' => $arParams['DISABLE_LOCAL_EDIT'] ?? $v['DISABLE_LOCAL_EDIT'] ?? '',
 			'HIDE_CHECKBOX_ALLOW_EDIT' => $arParams['HIDE_CHECKBOX_ALLOW_EDIT'] ?? $v['HIDE_CHECKBOX_ALLOW_EDIT'] ?? '',
 		];

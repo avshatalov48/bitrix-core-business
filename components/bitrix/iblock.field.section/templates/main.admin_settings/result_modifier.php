@@ -6,27 +6,31 @@ use Bitrix\Main\Loader;
 use Bitrix\Iblock\UserField\Types\SectionType;
 use Bitrix\Main\Text\HtmlFilter;
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
-	$iblockId = (int)$GLOBALS[$arResult['additionalParameters']['NAME']]['IBLOCK_ID'];
+	$iblockId = (int)($GLOBALS[$arResult['additionalParameters']['NAME']]['IBLOCK_ID'] ?? 0);
 	$activeFilter = (
-		$GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'] === 'Y' ? 'Y' : 'N'
+		isset($GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'])
+		&& $GLOBALS[$arResult['additionalParameters']['NAME']]['ACTIVE_FILTER'] === 'Y'
+			? 'Y'
+			: 'N'
 	);
-	$value = HtmlFilter::encode(
-		$GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']
-	);
-	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'];
-	$listHeight = (int)$GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'];
+	$value = HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'] ?? '');
+	$display = $GLOBALS[$arResult['additionalParameters']['NAME']]['DISPLAY'] ?? '';
+	$listHeight = (int)($GLOBALS[$arResult['additionalParameters']['NAME']]['LIST_HEIGHT'] ?? 0);
 }
-elseif(is_array($arResult['userField']))
+elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
-	$iblockId = (int)$arResult['userField']['SETTINGS']['IBLOCK_ID'];
+	$iblockId = (int)($arResult['userField']['SETTINGS']['IBLOCK_ID'] ?? 0);
 	$activeFilter =	(
-		$arResult['userField']['SETTINGS']['ACTIVE_FILTER'] === 'Y' ? 'Y' : 'N'
+		isset($arResult['userField']['SETTINGS']['ACTIVE_FILTER'])
+		&& $arResult['userField']['SETTINGS']['ACTIVE_FILTER'] === 'Y'
+			? 'Y'
+			: 'N'
 	);
-	$value = HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE']);
-	$display = $arResult['userField']['SETTINGS']['DISPLAY'];
-	$listHeight = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
+	$value = HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '');
+	$display = $arResult['userField']['SETTINGS']['DISPLAY'] ?? '';
+	$listHeight = (int)($arResult['userField']['SETTINGS']['LIST_HEIGHT'] ?? 0);
 }
 else
 {

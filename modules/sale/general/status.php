@@ -300,8 +300,8 @@ class CSaleStatus
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGS_ERROR_DELETE"), "ERROR_DELETE_STATUS_TO_ORDER");
 			return false;
-		}		
-		
+		}
+
 		if (OrderArchiveTable::getList(array(
 			'filter' => array('=STATUS_ID' => $statusId),
 			'limit' => 1
@@ -337,7 +337,7 @@ class CSaleStatus
 		{
 			$eventType->Delete("SALE_STATUS_CHANGED_".$ID);
 		}
-		
+
 		$dbSiteList = CSite::GetList();
 		while ($arSiteList = $dbSiteList->Fetch())
 		{
@@ -657,10 +657,14 @@ final class CSaleStatusAdapter implements Compatible\FetchAdapter
 
 		while ($row = $result->fetch())
 		{
-			if (! $tasks[$row['TASK']])
-				$tasks[$row['TASK']] = array();
+			if (!isset($tasks[$row['TASK']]))
+			{
+				$tasks[$row['TASK']] = [];
+			}
 			if ($row['OPERATION'])
+			{
 				$tasks[$row['TASK']][] = $row['OPERATION'];
+			}
 		}
 
 		return $tasks;

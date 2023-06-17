@@ -243,7 +243,7 @@ else: //!empty($arParams["ROWS"])
 							?>
 						</select>
 					</td>
-					<td class="bx-bizproc-right"><?=($arResult["NAV_STRING"] <> ''? $arResult["NAV_STRING"] : '&nbsp;')?></td>
+					<td class="bx-bizproc-right"><?= (!empty($arResult["NAV_STRING"]) ? $arResult["NAV_STRING"] : '&nbsp;') ?></td>
 				</tr></tbody>
 			</table>
 		</td>
@@ -287,7 +287,7 @@ endif;
 ?>
 <?
 $bShowApply = false;
-if(is_array($arParams["ACTIONS"]["list"]) && count($arParams["ACTIONS"]["list"]) > 0):
+if(!empty($arParams["ACTIONS"]["list"])):
 	$bShowApply = true;
 ?>
 	<?
@@ -306,7 +306,7 @@ if(is_array($arParams["ACTIONS"]["list"]) && count($arParams["ACTIONS"]["list"])
 		</td>
 <?endif?>
 <?
-if($arParams["~ACTIONS"]["custom_html"] <> ''):
+if(!empty($arParams["~ACTIONS"]["custom_html"])):
 	$bShowApply = true;
 ?>
 	<?if($bNeedSep):?>

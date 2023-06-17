@@ -141,7 +141,7 @@ unset($site);
 
 <form action="<?= POST_FORM_ACTION_URI;?>" method="post" class="ui-form landing-form-gray-padding" id="landing-role-edit">
 	<input type="hidden" name="fields[SAVE_FORM]" value="Y" />
-	<input type="hidden" name="data[id]" value="<?= $arParams['ROLE_ID'];?>" />
+	<input type="hidden" name="data[id]" value="<?= $arParams['ROLE_EDIT'];?>" />
 	<?= bitrix_sessid_post();?>
 
 	<div class="landing-form-role-title">

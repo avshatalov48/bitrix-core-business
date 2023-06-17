@@ -113,7 +113,7 @@ abstract class UserModel
 				'select' => ['ACCESS_CODE'],
 				'filter' => [
 					'=USER_ID' => $this->userId,
-					'!%ACCESS_CODE' => 'CHAT',
+					'!%=ACCESS_CODE' => 'CHAT%',
 				]
 			]);
 			foreach ($res as $row)

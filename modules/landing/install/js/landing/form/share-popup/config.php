@@ -16,6 +16,7 @@ return [
 		'landing.env',
 		'crm.form.embed',
 		'ui.feedback.form',
+		'bitrix24.phoneverify',
 	],
 	'skip_core' => false,
 ];

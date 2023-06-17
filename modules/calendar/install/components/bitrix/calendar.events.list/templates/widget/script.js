@@ -2,26 +2,22 @@
 	'use strict';
 
 	var _templateObject;
-
 	var NextEventList = /*#__PURE__*/function () {
 	  function NextEventList() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, NextEventList);
 	    babelHelpers.defineProperty(this, "DOM", {});
 	    this.maxEntryAmount = options.maxEntryAmount || 5;
-
 	    if (options && options.entries) {
 	      this.renderList(options.entries);
 	    } else {
 	      this.displayEventList();
 	    }
-
 	    this.displayEventListDebounce = main_core.Runtime.debounce(this.displayEventList, 3000, this);
 	    main_core.Event.bind(document, 'visibilitychange', this.checkDisplayEventList.bind(this));
 	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.checkDisplayEventList.bind(this));
 	    main_core_events.EventEmitter.subscribe('onPullEvent-calendar', this.displayEventListDebounce);
 	  }
-
 	  babelHelpers.createClass(NextEventList, [{
 	    key: "checkDisplayEventList",
 	    value: function checkDisplayEventList() {
@@ -33,12 +29,10 @@
 	    key: "displayEventList",
 	    value: function displayEventList() {
 	      var _this = this;
-
 	      if (this.isDisplayingNow()) {
 	        this.showLoader();
 	        this.getEventList().then(function (entryList) {
 	          _this.hideLoader();
-
 	          _this.renderList(entryList);
 	        });
 	      } else {
@@ -49,7 +43,6 @@
 	    key: "getEventList",
 	    value: function getEventList() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve) {
 	        BX.ajax.runAction('calendar.api.calendarentryajax.getnearestevents', {
 	          data: {
@@ -60,7 +53,6 @@
 	          }
 	        }).then(function (response) {
 	          var _response$data;
-
 	          resolve(response === null || response === void 0 ? void 0 : (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.entries);
 	        });
 	      });
@@ -92,13 +84,10 @@
 	    key: "renderList",
 	    value: function renderList() {
 	      var _this3 = this;
-
 	      var entryList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
 	      if (!main_core.Type.isArray(entryList)) {
 	        entryList = [];
 	      }
-
 	      entryList = entryList.slice(0, this.maxEntryAmount);
 	      main_core.Dom.clean(this.getEventListWrap());
 	      var wrap = this.getEventListWrap();
@@ -106,16 +95,13 @@
 	        if (i === 0) {
 	          _this3.setReloadTimeout(entry);
 	        }
-
 	        wrap.appendChild(_this3.renderEntry(entry));
 	      });
-
 	      if (entryList.length) {
 	        this.showWidget();
 	      } else {
 	        this.hideWidget();
 	      }
-
 	      this.needReload = false;
 	    }
 	  }, {
@@ -130,7 +116,6 @@
 	      if (!this.DOM.outerWrap) {
 	        this.DOM.outerWrap = document.querySelector('.sidebar-widget.sidebar-widget-calendar');
 	      }
-
 	      return this.DOM.outerWrap;
 	    }
 	  }, {
@@ -139,7 +124,6 @@
 	      if (!this.DOM.listWrap) {
 	        this.DOM.listWrap = this.getOuterWrap().querySelector('.calendar-events-wrap');
 	      }
-
 	      return this.DOM.listWrap;
 	    }
 	  }, {
@@ -149,9 +133,7 @@
 	        clearTimeout(this.reloadTimeout);
 	        this.reloadTimeout = null;
 	      }
-
 	      var finishEventDate = BX.Calendar.Util.parseDate(entry['DATE_TO']);
-
 	      if (main_core.Type.isDate(finishEventDate)) {
 	        var currentDate = new Date();
 	        var offset = Math.min(Math.max(finishEventDate.getTime() - currentDate.getTime() + 60000, 60000), 86400000);
@@ -166,7 +148,6 @@
 	  }]);
 	  return NextEventList;
 	}();
-
 	main_core.Reflection.namespace('BX.Calendar').NextEventList = NextEventList;
 
 }((this.window = this.window || {}),BX,BX.Calendar,BX.Event));

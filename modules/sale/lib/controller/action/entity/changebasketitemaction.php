@@ -13,7 +13,7 @@ use Bitrix\Catalog;
  * @example BX.ajax.runAction("sale.entity.changeBasketItem", { data: { fields: { siteId:'s1', fuserId:1, basketId:1, productId:1 }}});
  * @internal
  */
-final class ChangeBasketItemAction extends BaseAction
+final class ChangeBasketItemAction extends Sale\Controller\Action\BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

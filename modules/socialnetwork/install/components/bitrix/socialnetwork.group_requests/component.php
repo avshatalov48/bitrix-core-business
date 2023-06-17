@@ -127,7 +127,7 @@ else
 
 						if ($errorMessage == '')
 						{
-							if ($_POST["save"] <> '')
+							if (!empty($_POST["save"]))
 							{
 								if (
 									!CSocNetUserToGroup::ConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs, $bAutoSubscribe)
@@ -135,7 +135,7 @@ else
 								)
 									$errorMessage .= $e->GetString();
 							}
-							elseif ($_POST["reject"] <> '')
+							elseif (!empty($_POST["reject"]))
 							{
 								if (
 									!CSocNetUserToGroup::RejectRequestToBeMember($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs)

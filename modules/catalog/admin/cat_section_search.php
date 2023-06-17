@@ -35,6 +35,9 @@ $sTableID = 'tbl_iblock_section_search_';
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $arFilterFields = Array(
 	"find_iblock_id",
 	"find_section_id",
@@ -60,9 +63,9 @@ if($find_section_section<=0)
 	$find_section_section=-1;
 
 $IBLOCK_ID = 0;
-if (0 === $IBLOCK_ID && isset($find_iblock_id))
+if (isset($find_iblock_id))
 {
-	$IBLOCK_ID = intval($find_iblock_id);
+	$IBLOCK_ID = (int)$find_iblock_id;
 	if (0 >= $IBLOCK_ID)
 	{
 		$IBLOCK_ID = 0;
@@ -71,7 +74,7 @@ if (0 === $IBLOCK_ID && isset($find_iblock_id))
 
 if (0 === $IBLOCK_ID)
 {
-	$IBLOCK_ID = intval($_REQUEST["IBLOCK_ID"] ?? 0);
+	$IBLOCK_ID = (int)($_REQUEST["IBLOCK_ID"] ?? 0);
 	if (0 >= $IBLOCK_ID)
 	{
 		$IBLOCK_ID = 0;
@@ -222,11 +225,6 @@ $arVisibleColumnsMap = array();
 foreach($arVisibleColumns as $value)
 	$arVisibleColumnsMap[$value] = true;
 
-if (!isset($by))
-	$by = 'NAME';
-if (!isset($order))
-	$order = 'ASC';
-
 if(array_key_exists("ELEMENT_CNT", $arVisibleColumnsMap))
 {
 	$arFilter["CNT_ALL"] = "Y";
@@ -246,12 +244,21 @@ $strPath = "";
 $jsPath  = "";
 if(intval($find_section_section) > 0)
 {
-	$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
-	while($ar_nav = $nav->GetNext())
+	$nav = CIBlockSection::GetNavChain(
+		$IBLOCK_ID,
+		$find_section_section,
+		[
+			'ID',
+			'NAME',
+		],
+		true
+	);
+	foreach ($nav as $ar_nav)
 	{
-		$strPath .= htmlspecialcharsbx($ar_nav["~NAME"], ENT_QUOTES)."&nbsp;/&nbsp;";
-		$jsPath .= htmlspecialcharsbx(CUtil::JSEscape($ar_nav["~NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;";
+		$strPath .= htmlspecialcharsbx($ar_nav["NAME"], ENT_QUOTES)."&nbsp;/&nbsp;";
+		$jsPath .= htmlspecialcharsbx(CUtil::JSEscape($ar_nav["NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;";
 	}
+	unset($nav);
 }
 
 $arUsersCache = array();
@@ -335,8 +342,16 @@ if($IBLOCK_ID > 0)
 	$chain = $lAdmin->CreateChain();
 	if(intval($find_section_section)>0)
 	{
-		$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
-		while($ar_nav = $nav->GetNext())
+		$nav = CIBlockSection::GetNavChain(
+			$IBLOCK_ID,
+			$find_section_section,
+			[
+				'ID',
+				'NAME',
+			],
+			true
+		);
+		foreach ($nav as $ar_nav)
 		{
 			if($find_section_section==$ar_nav["ID"])
 			{

@@ -562,6 +562,9 @@ class CBPDocument
 
 		//Deferred deletion
 		Bizproc\Worker\Document\DeleteStepper::bindDocument($documentId);
+
+		//touch runtime
+		CBPRuntime::getRuntime()->onDocumentDelete($documentId);
 	}
 
 	public static function postTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = "")

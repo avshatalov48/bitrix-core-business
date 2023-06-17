@@ -2334,7 +2334,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		$providerInstance = null;
 
-		if (is_array($mapping))
+		if (is_array($mapping) && isset($mapping['PROVIDER_KEY']))
 		{
 			switch ($mapping['PROVIDER_KEY'])
 			{

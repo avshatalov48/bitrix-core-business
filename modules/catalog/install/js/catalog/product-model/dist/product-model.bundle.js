@@ -9,7 +9,6 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "errors", new Map());
 	    this.model = model;
 	  }
-
 	  babelHelpers.createClass(ErrorCollection, [{
 	    key: "getErrors",
 	    value: function getErrors() {
@@ -31,7 +30,6 @@ this.BX = this.BX || {};
 	      if (this.errors.has(code)) {
 	        this.errors["delete"](code);
 	      }
-
 	      this.model.onErrorCollectionChange();
 	      return this;
 	    }
@@ -52,38 +50,28 @@ this.BX = this.BX || {};
 	}();
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	var _isEnabledSaving = /*#__PURE__*/new WeakMap();
-
 	var _preview = /*#__PURE__*/new WeakMap();
-
 	var _editInput = /*#__PURE__*/new WeakMap();
-
 	var ImageCollection = /*#__PURE__*/function () {
 	  function ImageCollection() {
 	    var model = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImageCollection);
-
 	    _classPrivateFieldInitSpec(this, _isEnabledSaving, {
 	      writable: true,
 	      value: false
 	    });
-
 	    _classPrivateFieldInitSpec(this, _preview, {
 	      writable: true,
 	      value: ''
 	    });
-
 	    _classPrivateFieldInitSpec(this, _editInput, {
 	      writable: true,
 	      value: ''
 	    });
-
 	    this.model = model;
 	  }
-
 	  babelHelpers.createClass(ImageCollection, [{
 	    key: "isEnableFileSaving",
 	    value: function isEnableFileSaving() {
@@ -109,17 +97,14 @@ this.BX = this.BX || {};
 	    value: function removeMorePhotoItem(fileId) {
 	      for (var index in this.morePhoto) {
 	        var value = this.morePhoto[index];
-
 	        if (!main_core.Type.isObject(value)) {
 	          value = main_core.Text.toInteger(value);
 	        }
-
 	        if (main_core.Type.isNumber(value) && value === main_core.Text.toInteger(fileId) || main_core.Type.isObject(value) && value.fileId === fileId) {
 	          delete this.morePhoto[index];
 	          return true;
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -154,7 +139,6 @@ this.BX = this.BX || {};
 	}();
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var FieldCollection = /*#__PURE__*/function () {
 	  function FieldCollection() {
@@ -164,7 +148,6 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "fields", new Map());
 	    this.model = model;
 	  }
-
 	  babelHelpers.createClass(FieldCollection, [{
 	    key: "getFields",
 	    value: function getFields() {
@@ -180,11 +163,9 @@ this.BX = this.BX || {};
 	    value: function setField(fieldName, value) {
 	      var oldValue = this.fields.get(fieldName);
 	      this.fields.set(fieldName, value);
-
 	      if (!this.changedFields.has(fieldName) && oldValue !== value) {
 	        this.changedFields.set(fieldName, oldValue);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -196,9 +177,7 @@ this.BX = this.BX || {};
 	    key: "clearChanged",
 	    value: function clearChanged() {
 	      var _this = this;
-
 	      var savingFieldNames = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
 	      if (main_core.Type.isNil(savingFieldNames)) {
 	        this.changedFields.clear();
 	      } else {
@@ -206,7 +185,6 @@ this.BX = this.BX || {};
 	          _this.removeFromChanged(name);
 	        });
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -219,7 +197,6 @@ this.BX = this.BX || {};
 	    key: "getChangedFields",
 	    value: function getChangedFields() {
 	      var _this2 = this;
-
 	      var changedFieldValues = {};
 	      this.fields.forEach(function (value, key) {
 	        if (_this2.changedFields.has(key)) {
@@ -241,16 +218,13 @@ this.BX = this.BX || {};
 	    key: "initFields",
 	    value: function initFields(fields) {
 	      var _this3 = this;
-
 	      this.fields.clear();
 	      this.clearChanged();
-
 	      if (main_core.Type.isObject(fields)) {
 	        Object.keys(fields).forEach(function (key) {
 	          _this3.fields.set(key, fields[key]);
 	        });
 	      }
-
 	      return this;
 	    }
 	  }]);
@@ -265,49 +239,34 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(RightActionDictionary, "ACTION_PRODUCT_ADD", 'catalog_product_add');
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _map = /*#__PURE__*/new WeakMap();
-
 	var _inited = /*#__PURE__*/new WeakMap();
-
 	var _setInited = /*#__PURE__*/new WeakSet();
-
 	var StoreCollection = /*#__PURE__*/function () {
 	  function StoreCollection() {
 	    var model = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, StoreCollection);
-
 	    _classPrivateMethodInitSpec(this, _setInited);
-
 	    _classPrivateFieldInitSpec$1(this, _map, {
 	      writable: true,
 	      value: new Map()
 	    });
-
 	    _classPrivateFieldInitSpec$1(this, _inited, {
 	      writable: true,
 	      value: false
 	    });
-
 	    this.model = model;
 	  }
-
 	  babelHelpers.createClass(StoreCollection, [{
 	    key: "init",
 	    value: function init(map) {
 	      var _this = this;
-
 	      _classPrivateMethodGet(this, _setInited, _setInited2).call(this, true);
-
 	      Object.keys(map).forEach(function (key) {
 	        var item = map[key];
-
 	        if (item['STORE_ID'] > 0) {
 	          babelHelpers.classPrivateFieldGet(_this, _map).set(main_core.Text.toNumber(item['STORE_ID']), {
 	            AMOUNT: main_core.Text.toNumber(item['AMOUNT']),
@@ -322,9 +281,7 @@ this.BX = this.BX || {};
 	    key: "refresh",
 	    value: function refresh() {
 	      var _this2 = this;
-
 	      this.clear();
-
 	      if (this.model.getSkuId() > 0 && this.model.checkAccess(RightActionDictionary.ACTION_PRODUCT_VIEW)) {
 	        main_core.ajax.runAction('catalog.storeSelector.getProductStores', {
 	          json: {
@@ -332,7 +289,6 @@ this.BX = this.BX || {};
 	          }
 	        }).then(function (response) {
 	          _classPrivateMethodGet(_this2, _setInited, _setInited2).call(_this2, true);
-
 	          response.data.forEach(function (item) {
 	            if (!main_core.Type.isNil(item['STORE_ID'])) {
 	              babelHelpers.classPrivateFieldGet(_this2, _map).set(main_core.Text.toNumber(item['STORE_ID']), {
@@ -343,7 +299,6 @@ this.BX = this.BX || {};
 	              });
 	            }
 	          });
-
 	          _this2.model.onChangeStoreData();
 	        });
 	      }
@@ -352,14 +307,12 @@ this.BX = this.BX || {};
 	    key: "getStoreAmount",
 	    value: function getStoreAmount(storeId) {
 	      var _babelHelpers$classPr;
-
 	      return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _map).get(main_core.Text.toNumber(storeId))) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.AMOUNT) || 0;
 	    }
 	  }, {
 	    key: "getStoreReserved",
 	    value: function getStoreReserved(storeId) {
 	      var _babelHelpers$classPr2;
-
 	      return ((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _map).get(main_core.Text.toNumber(storeId))) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.QUANTITY_RESERVED) || 0;
 	    }
 	  }, {
@@ -390,52 +343,34 @@ this.BX = this.BX || {};
 	    key: "clear",
 	    value: function clear() {
 	      babelHelpers.classPrivateFieldGet(this, _map).clear();
-
 	      _classPrivateMethodGet(this, _setInited, _setInited2).call(this, false);
-
 	      return this;
 	    }
 	  }]);
 	  return StoreCollection;
 	}();
-
 	function _setInited2(inited) {
 	  babelHelpers.classPrivateFieldSet(this, _inited, inited);
 	}
 
 	var _templateObject;
-
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
-
 	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var instances = new Map();
-
 	var _fieldCollection = /*#__PURE__*/new WeakMap();
-
 	var _errorCollection = /*#__PURE__*/new WeakMap();
-
 	var _imageCollection = /*#__PURE__*/new WeakMap();
-
 	var _storeCollection = /*#__PURE__*/new WeakMap();
-
 	var _productRights = /*#__PURE__*/new WeakMap();
-
 	var _calculator = /*#__PURE__*/new WeakMap();
-
 	var _offerId = /*#__PURE__*/new WeakMap();
-
 	var _skuTree = /*#__PURE__*/new WeakMap();
-
 	var _getDefaultCalculationFields = /*#__PURE__*/new WeakSet();
-
+	var _isStoreCollectionEnabled = /*#__PURE__*/new WeakSet();
 	var _updateProduct = /*#__PURE__*/new WeakSet();
-
 	var _createProduct = /*#__PURE__*/new WeakSet();
-
 	var ProductModel = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ProductModel, null, [{
 	    key: "getById",
@@ -443,57 +378,45 @@ this.BX = this.BX || {};
 	      return instances.get(id) || null;
 	    }
 	  }]);
-
 	  function ProductModel() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ProductModel);
-
 	    _classPrivateMethodInitSpec$1(this, _createProduct);
-
 	    _classPrivateMethodInitSpec$1(this, _updateProduct);
-
+	    _classPrivateMethodInitSpec$1(this, _isStoreCollectionEnabled);
 	    _classPrivateMethodInitSpec$1(this, _getDefaultCalculationFields);
-
 	    _classPrivateFieldInitSpec$2(this, _fieldCollection, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _errorCollection, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _imageCollection, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _storeCollection, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _productRights, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _calculator, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _offerId, {
 	      writable: true,
 	      value: null
 	    });
-
 	    _classPrivateFieldInitSpec$2(this, _skuTree, {
 	      writable: true,
 	      value: null
 	    });
-
 	    this.options = options || {};
 	    this.id = this.options.id || main_core.Text.getRandom();
 	    babelHelpers.classPrivateFieldSet(this, _errorCollection, new ErrorCollection(this));
@@ -502,23 +425,20 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldSet(this, _storeCollection, new StoreCollection(this));
 	    var settings = main_core.Extension.getSettings('catalog.product-model');
 	    babelHelpers.classPrivateFieldSet(this, _productRights, settings.get('catalogProductRights'));
-
 	    if (main_core.Type.isObject(options.fields)) {
 	      this.initFields(options.fields, false);
 	    }
-
-	    if (main_core.Type.isNil(options.storeMap)) {
-	      babelHelpers.classPrivateFieldGet(this, _storeCollection).refresh();
-	    } else {
-	      babelHelpers.classPrivateFieldGet(this, _storeCollection).init(options.storeMap);
+	    if (_classPrivateMethodGet$1(this, _isStoreCollectionEnabled, _isStoreCollectionEnabled2).call(this)) {
+	      if (main_core.Type.isNil(options.storeMap)) {
+	        babelHelpers.classPrivateFieldGet(this, _storeCollection).refresh();
+	      } else {
+	        babelHelpers.classPrivateFieldGet(this, _storeCollection).init(options.storeMap);
+	      }
 	    }
-
 	    if (main_core.Type.isObject(options.skuTree)) {
 	      this.setSkuTree(options.skuTree);
 	    }
-
 	    if (main_core.Type.isObject(options.imageInfo)) ;
-
 	    babelHelpers.classPrivateFieldSet(this, _calculator, new catalog_productCalculator.ProductCalculator(_classPrivateMethodGet$1(this, _getDefaultCalculationFields, _getDefaultCalculationFields2).call(this), {
 	      currencyId: this.options.currency,
 	      pricePrecision: this.options.pricePrecision || 2,
@@ -527,19 +447,18 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldGet(this, _calculator).setCalculationStrategy(new catalog_productCalculator.TaxForPriceStrategy(babelHelpers.classPrivateFieldGet(this, _calculator)));
 	    instances.set(this.id, this);
 	  }
-
 	  babelHelpers.createClass(ProductModel, [{
 	    key: "checkAccess",
 	    value: function checkAccess(action) {
 	      var _babelHelpers$classPr;
-
 	      return main_core.Text.toBoolean((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _productRights)[action]) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : false);
 	    }
 	  }, {
 	    key: "getOption",
 	    value: function getOption(name) {
+	      var _this$options$name;
 	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-	      return this.options[name] || defaultValue;
+	      return (_this$options$name = this.options[name]) !== null && _this$options$name !== void 0 ? _this$options$name : defaultValue;
 	    }
 	  }, {
 	    key: "setOption",
@@ -600,22 +519,18 @@ this.BX = this.BX || {};
 	    key: "setField",
 	    value: function setField(fieldName, value) {
 	      babelHelpers.classPrivateFieldGet(this, _fieldCollection).setField(fieldName, value);
-
 	      if ((fieldName === 'SKU_ID' || fieldName === 'PRODUCT_ID') && this.getSkuId() !== babelHelpers.classPrivateFieldGet(this, _offerId)) {
 	        babelHelpers.classPrivateFieldSet(this, _offerId, this.getSkuId());
-
-	        if (babelHelpers.classPrivateFieldGet(this, _offerId) > 0) {
+	        if (babelHelpers.classPrivateFieldGet(this, _offerId) > 0 && _classPrivateMethodGet$1(this, _isStoreCollectionEnabled, _isStoreCollectionEnabled2).call(this)) {
 	          babelHelpers.classPrivateFieldGet(this, _storeCollection).refresh();
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
 	    key: "setFields",
 	    value: function setFields(fields) {
 	      var _this = this;
-
 	      Object.keys(fields).forEach(function (key) {
 	        _this.setField(key, fields[key]);
 	      });
@@ -627,11 +542,9 @@ this.BX = this.BX || {};
 	      var refreshStoreInfo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 	      babelHelpers.classPrivateFieldGet(this, _fieldCollection).initFields(fields);
 	      babelHelpers.classPrivateFieldSet(this, _offerId, this.getSkuId());
-
-	      if (refreshStoreInfo) {
+	      if (refreshStoreInfo && _classPrivateMethodGet$1(this, _isStoreCollectionEnabled, _isStoreCollectionEnabled2).call(this)) {
 	        babelHelpers.classPrivateFieldGet(this, _storeCollection).refresh();
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -712,13 +625,11 @@ this.BX = this.BX || {};
 	      if (!this.isCatalogExisted()) {
 	        return;
 	      }
-
 	      var title = options.title || '';
 	      var closeEventName = BX.UI.Notification.Event.getFullName('onClose');
 	      var cancelEventName = BX.UI.Notification.Event.getFullName('onCancel');
 	      new Promise(function (resolve) {
 	        var currentBalloon = BX.UI.Notification.Center.getBalloonByCategory(ProductModel.SAVE_NOTIFICATION_CATEGORY);
-
 	        if (currentBalloon && currentBalloon.getId() !== id) {
 	          setTimeout(function () {
 	            currentBalloon.close();
@@ -729,7 +640,6 @@ this.BX = this.BX || {};
 	        }
 	      }).then(function () {
 	        var notify = BX.UI.Notification.Center.getBalloonById(id);
-
 	        if (!notify) {
 	          var notificationOptions = {
 	            id: id,
@@ -738,7 +648,6 @@ this.BX = this.BX || {};
 	            autoHideDelay: 4000,
 	            content: main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), title)
 	          };
-
 	          if (options.disableCancel !== true) {
 	            notificationOptions.actions = [{
 	              title: options.declineCancelTitle || main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_DECLINE_SAVE'),
@@ -751,14 +660,11 @@ this.BX = this.BX || {};
 	              }
 	            }];
 	          }
-
 	          notify = BX.UI.Notification.Center.notify(notificationOptions);
 	        }
-
 	        BX.removeAllCustomEvents(notify, closeEventName);
 	        notify.addEvent('onClose', function () {
 	          var _options$events;
-
 	          if (main_core.Type.isFunction(options === null || options === void 0 ? void 0 : (_options$events = options.events) === null || _options$events === void 0 ? void 0 : _options$events.onSave)) {
 	            options.events.onSave();
 	          }
@@ -766,7 +672,6 @@ this.BX = this.BX || {};
 	        BX.removeAllCustomEvents(notify, cancelEventName);
 	        notify.addEvent('onCancel', function () {
 	          var _options$events2;
-
 	          if (main_core.Type.isFunction(options === null || options === void 0 ? void 0 : (_options$events2 = options.events) === null || _options$events2 === void 0 ? void 0 : _options$events2.onCancel)) {
 	            options.events.onCancel();
 	          }
@@ -778,20 +683,16 @@ this.BX = this.BX || {};
 	    key: "save",
 	    value: function save(savingFieldNames) {
 	      var _this2 = this;
-
 	      if (!this.isSaveable()) {
 	        return;
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        var ajaxResult;
-
 	        if (_this2.isSimple()) {
 	          ajaxResult = _classPrivateMethodGet$1(_this2, _createProduct, _createProduct2).call(_this2);
 	        } else {
 	          ajaxResult = _classPrivateMethodGet$1(_this2, _updateProduct, _updateProduct2).call(_this2, savingFieldNames);
 	        }
-
 	        ajaxResult.then(function (event) {
 	          babelHelpers.classPrivateFieldGet(_this2, _fieldCollection).clearChanged(savingFieldNames);
 	          resolve(event);
@@ -804,7 +705,6 @@ this.BX = this.BX || {};
 	      if (!this.getOption('isSaveable', true) || this.isEmpty()) {
 	        return false;
 	      }
-
 	      return this.isSimple() ? this.checkAccess(RightActionDictionary.ACTION_PRODUCT_ADD) : this.checkAccess(RightActionDictionary.ACTION_PRODUCT_EDIT);
 	    }
 	  }, {
@@ -825,7 +725,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return ProductModel;
 	}();
-
 	function _getDefaultCalculationFields2() {
 	  var defaultPrice = main_core.Text.toNumber(babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('PRICE'));
 	  var basePrice = main_core.Type.isNumber(babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('BASE_PRICE')) ? main_core.Text.toNumber(babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('BASE_PRICE')) : defaultPrice;
@@ -844,17 +743,17 @@ this.BX = this.BX || {};
 	    'CUSTOMIZED': babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('CUSTOMIZED') || 'N'
 	  };
 	}
-
+	function _isStoreCollectionEnabled2() {
+	  return this.getOption('isStoreCollectable', true);
+	}
 	function _updateProduct2(savingFieldNames) {
 	  var _this3 = this;
-
 	  if (this.getIblockId() <= 0) {
 	    return Promise.reject({
 	      status: 'error',
 	      errors: ['The iblock id is not set for the model.']
 	    });
 	  }
-
 	  if (!babelHelpers.classPrivateFieldGet(this, _fieldCollection).isChanged()) {
 	    return Promise.resolve({
 	      status: 'success',
@@ -863,9 +762,7 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-
 	  var savedFields = {};
-
 	  if (!main_core.Type.isArray(savingFieldNames) || savingFieldNames.length === 0) {
 	    savedFields = babelHelpers.classPrivateFieldGet(this, _fieldCollection).getChangedFields();
 	  } else {
@@ -884,7 +781,6 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-
 	  return main_core.ajax.runAction('catalog.productSelector.updateSku', {
 	    json: {
 	      id: this.getSkuId(),
@@ -893,38 +789,30 @@ this.BX = this.BX || {};
 	    }
 	  });
 	}
-
 	function _createProduct2() {
 	  var fields = {
 	    NAME: babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('NAME', ''),
 	    IBLOCK_ID: this.getIblockId()
 	  };
 	  var price = babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('BASE_PRICE', null);
-
 	  if (!main_core.Type.isNil(price)) {
 	    fields['PRICE'] = price;
 	  }
-
 	  var barcode = babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('BARCODE', null);
-
 	  if (!main_core.Type.isNil(barcode)) {
 	    fields['BARCODE'] = barcode;
 	  }
-
 	  fields['CURRENCY'] = this.getCurrency();
 	  var currency = babelHelpers.classPrivateFieldGet(this, _fieldCollection).getField('CURRENCY', null);
-
 	  if (main_core.Type.isStringFilled(currency)) {
 	    fields['CURRENCY'] = currency;
 	  }
-
 	  return main_core.ajax.runAction('catalog.productSelector.createProduct', {
 	    json: {
 	      fields: fields
 	    }
 	  });
 	}
-
 	babelHelpers.defineProperty(ProductModel, "SAVE_NOTIFICATION_CATEGORY", 'MODEL_SAVE');
 
 	exports.ProductModel = ProductModel;

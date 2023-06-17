@@ -135,8 +135,59 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 		if (BX.Bizproc.delegationPopup)
 		{
 			BX.Bizproc.delegationPopup.show();
+
 			return false;
 		}
+
+		if (BX.Reflection.getClass('BX.UI.EntitySelector.Dialog'))
+		{
+			BX.Bizproc.delegationSelected = null;
+			BX.Bizproc.delegationPopup = new BX.UI.EntitySelector.Dialog({
+				targetNode: scope,
+				id: "bp-task-delegation-" + Math.round(Math.random() * 100000),
+				context: 'bp-task-delegation',
+				entities: [
+					{
+						id: 'user',
+						options: {
+							intranetUsersOnly: true,
+							emailUsers: false,
+							inviteEmployeeLink: false,
+							inviteGuestLink: false,
+						},
+					},
+					{
+						id: 'department',
+						options: {
+							selectMode: 'usersOnly',
+						},
+					}
+				],
+				popupOptions: {
+					bindOptions: { forceBindPosition: true },
+				},
+				enableSearch: true,
+				events: {
+					'Item:onSelect': (event) => {
+						const item = event.getData().item;
+						const dialog = event.getTarget();
+
+						BX.Bizproc.delegationOnSelect(item);
+						BX.Bizproc.delegateTask(taskId, userId, BX.Bizproc.delegationSelected);
+
+						dialog.deselectAll();
+					},
+				},
+				hideOnSelect: true,
+				offsetTop: 3,
+				clearUnavailableItems: true,
+				multiple: false,
+			});
+			BX.Bizproc.delegationPopup.show();
+
+			return false;
+		}
+
 		BX.ajax({
 			method: 'GET',
 			dataType: 'html',
@@ -189,6 +240,7 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				BX.Bizproc.delegationPopup.show();
 			}
 		});
+
 		return false;
 	};
 

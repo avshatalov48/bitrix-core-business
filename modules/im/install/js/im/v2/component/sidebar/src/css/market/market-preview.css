@@ -1,0 +1,21 @@
+.bx-im-sidebar-market-preview__container {
+	padding: 12px 6px;
+}
+
+.bx-im-sidebar-market-preview__header_container {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+
+.bx-im-sidebar-market-preview__title {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-market-preview__title-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-meeting-preview__color_not-active-title);
+	margin: 0 3px 0 2px;
+}

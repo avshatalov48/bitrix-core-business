@@ -7,20 +7,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var DefaultValues = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(DefaultValues, _ContentWrapper);
-
 	  function DefaultValues(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DefaultValues);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultValues).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.DefaultValues');
-
 	    var header = new landing_ui_card_headercard.HeaderCard({
 	      title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_DEFAULT_VALUE_TITLE')
 	    });
@@ -41,32 +35,23 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        items: babelHelpers.toConsumableArray(_this.options.formOptions.presetFields)
 	      })]
 	    });
-
 	    if (!message.isShown()) {
 	      fieldsForm.setOffsetTop(-36);
 	    }
-
 	    message.subscribe('onClose', function () {
 	      fieldsForm.setOffsetTop(-36);
 	    });
-
 	    _this.addItem(header);
-
 	    _this.addItem(message);
-
 	    _this.addItem(fieldsForm);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DefaultValues, [{
 	    key: "getPersonalizationVariables",
 	    value: function getPersonalizationVariables() {
 	      var _this2 = this;
-
 	      return this.cache.remember('personalizationVariables', function () {
 	        var properties = _this2.options.dictionary.properties;
-
 	        if (main_core.Type.isPlainObject(properties) && main_core.Type.isArrayFilled(properties.list)) {
 	          return properties.list.map(function (item) {
 	            return {
@@ -84,7 +69,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            };
 	          }));
 	        }
-
 	        return [];
 	      });
 	    }

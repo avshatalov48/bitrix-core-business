@@ -11,7 +11,7 @@ if (file_exists(__DIR__."/deprecated.php"))
 
 $arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"), ["allowed_classes" => false]);
 $arNameStatuses = is_array($arNameStatuses) ? $arNameStatuses : array();
-$arNameStatuses[LANGUAGE_ID] = is_array($arNameStatuses[LANGUAGE_ID]) ? $arNameStatuses[LANGUAGE_ID] : array();
+$arNameStatuses[LANGUAGE_ID] = isset($arNameStatuses[LANGUAGE_ID]) && is_array($arNameStatuses[LANGUAGE_ID]) ? $arNameStatuses[LANGUAGE_ID] : array();
 $name = array("guest" => "Guest", "user" => "User", "moderator" => "Moderator", "editor" => "Editor", "administrator" => "Administrator");
 foreach ($name as $k => $v):
 	$name[$k] = trim(!empty($arMess["F_".mb_strtoupper($k)]) ? $arMess["F_".mb_strtoupper($k)] : $name[$k]);
@@ -121,7 +121,7 @@ function ForumCurrUserPermissions($FID, $arAddParams = array())
 {
 	static $arCache = array();
 	$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
-	$arAddParams["PERMISSION"] = (!!$arAddParams["PERMISSION"] ? $arAddParams["PERMISSION"] : '');
+	$arAddParams["PERMISSION"] = $arAddParams["PERMISSION"] ?? '';
 	if (! isset($arCache[$FID.$arAddParams["PERMISSION"]]))
 	{
 		if (CForumUser::IsAdmin())
@@ -130,7 +130,7 @@ function ForumCurrUserPermissions($FID, $arAddParams = array())
 		}
 		else
 		{
-			$strPerms = (!!$arAddParams["PERMISSION"] ? $arAddParams["PERMISSION"] : CForumNew::GetUserPermission($FID, $GLOBALS["USER"]->GetUserGroupArray()));
+			$strPerms = (!empty($arAddParams["PERMISSION"]) ? $arAddParams["PERMISSION"] : CForumNew::GetUserPermission($FID, $GLOBALS["USER"]->GetUserGroupArray()));
 			if ($strPerms <= "E")
 			{
 				$result = $strPerms;
@@ -415,8 +415,8 @@ function ForumAddMessage(
 		else
 		{
 			$arFieldsG["AUTHOR_ID"] = $usr->getId();
-			$arFieldsG["AUTHOR_EMAIL"] = trim($arFieldsG["AUTHOR_EMAIL"]);
-			$arFieldsG["AUTHOR_NAME"] = trim($arFieldsG["AUTHOR_NAME"]);
+			$arFieldsG["AUTHOR_EMAIL"] = trim($arFieldsG["AUTHOR_EMAIL"] ?? '');
+			$arFieldsG["AUTHOR_NAME"] = trim($arFieldsG["AUTHOR_NAME"] ?? '');
 			if ($arFieldsG["AUTHOR_NAME"] == '' && $usr->getId() > 0)
 			{
 				$arFieldsG["AUTHOR_NAME"] = $usr->getName();
@@ -1237,8 +1237,8 @@ function ForumPrintSmilesList($num_cols, $strLang = false)
 		$res_str .= "<td width=\"".intval(100/$num_cols)."%\">";
 		$strTYPING = strtok($res['TYPING'], " ");
 		$res_str .= "<img src=\"".$strPath2Icons.$res['IMAGE']."\" alt=\"".$res['NAME']."\" title=\"".$res['NAME']."\" border=\"0\"";
-		if (intval($res['IMAGE_WIDTH'])>0) $res_str .= " width=\"".$res['IMAGE_WIDTH']."\"";
-		if (intval($res['IMAGE_HEIGHT'])>0) $res_str .= " height=\"".$res['IMAGE_HEIGHT']."\"";
+		if (!empty($res['IMAGE_WIDTH'])) $res_str .= " width=\"".intval($res['IMAGE_WIDTH'])."\"";
+		if (!empty($res['IMAGE_HEIGHT'])) $res_str .= " height=\"".intval($res['IMAGE_HEIGHT'])."\"";
 		$res_str .= " class=\"smiles-list\" alt=\"smile".$strTYPING."\" onclick=\"if(emoticon){emoticon('".$strTYPING."');}\" name=\"smile\"  id='".$strTYPING."' ";
 		$res_str .= "/>&nbsp;</td>\n";
 		$ind++;

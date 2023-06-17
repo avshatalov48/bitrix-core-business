@@ -1,0 +1,33 @@
+.bx-im-messenger__context-menu-icon {
+	cursor: pointer;
+	border: none;
+	width: 18px;
+	height: 18px;
+	background: url('./images/three-dots.svg') no-repeat center;
+	opacity: 0.4;
+}
+
+.bx-im-messenger__context-menu-icon:hover {
+	opacity: 0.8;
+}
+
+.bx-im-messenger__cross-icon {
+	cursor: pointer;
+	border: none;
+	width: 24px;
+	height: 24px;
+	background: url('data:image/svg+xml,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M7.66225%206.00031L11.5529%209.89098C11.7872%2010.1253%2011.7872%2010.5052%2011.5529%2010.7395L10.7385%2011.5539C10.5042%2011.7882%2010.1243%2011.7882%209.89%2011.5539L5.99933%207.66323L2.10867%2011.5539C1.87435%2011.7882%201.49445%2011.7882%201.26014%2011.5539L0.445749%2010.7395C0.211434%2010.5052%200.211434%2010.1253%200.445749%209.89098L4.33641%206.00031L0.445748%202.10964C0.211434%201.87533%200.211434%201.49543%200.445749%201.26112L1.26014%200.446725C1.49445%200.21241%201.87435%200.212411%202.10867%200.446725L5.99933%204.33739L9.89%200.446725C10.1243%200.212411%2010.5042%200.212411%2010.7385%200.446725L11.5529%201.26112C11.7872%201.49543%2011.7872%201.87533%2011.5529%202.10964L7.66225%206.00031Z%22%20fill%3D%22%23525C69%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+	opacity: 0.35;
+}
+
+.bx-im-messenger__cross-icon:hover {
+	opacity: 0.7;
+}
+
+
+/*Todo: remove*/
+.bx-im-messenger__online-status-icon {
+	width: 13px;
+	height: 13px;
+	background: url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%20fill%3D%22white%22%2F%3E%0A%3Ccircle%20cx%3D%2212%22%20cy%3D%2212.0003%22%20r%3D%226.22829%22%20fill%3D%22%239DCF00%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+}

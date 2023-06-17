@@ -16,6 +16,12 @@ $arActivityDescription = [
 	'CATEGORY' => [
 		'ID' => 'document',
 	],
+	'RETURN' => [
+		'ErrorMessage' => [
+			'NAME' => Loc::getMessage('BPSFA_DESCR_ERROR_MESSAGE'),
+			'TYPE' => 'string',
+		],
+	],
 	'FILTER' => [
 		'EXCLUDE' => [
 			['tasks'],

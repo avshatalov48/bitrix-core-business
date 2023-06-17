@@ -33,9 +33,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
 $sTableID = "tbl_catalog_product_search";
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
-
+$oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $IBLOCK_ID = (int)($IBLOCK_ID ?? 0);
 

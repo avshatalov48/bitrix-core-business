@@ -10,7 +10,7 @@ export const InviteManager = {
 			params: {userId}
 		};
 		Ajax.runAction(resendAction, {data}).then(() => {
-			this.showNotification(Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_RESEND_DONE'), 2000);
+			this.showNotification(Loc.getMessage('IM_LIB_MENU_INVITE_RESEND_DONE'), 2000);
 		}, (error) => {
 			this.handleActionError(error);
 		});
@@ -22,7 +22,7 @@ export const InviteManager = {
 			params: {userId}
 		};
 		Ajax.runAction(cancelAction, {data}).then(() => {
-			this.showNotification(Loc.getMessage('IM_RECENT_CONTEXT_MENU_INVITE_CANCEL_DONE'), 2000);
+			this.showNotification(Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL_DONE'), 2000);
 		}, (error) => {
 			this.handleActionError(error);
 		});
@@ -48,6 +48,6 @@ export const InviteManager = {
 			return true;
 		}
 
-		this.showNotification(Loc.getMessage('IM_RECENT_CONNECT_ERROR'));
+		this.showNotification(Loc.getMessage('IM_LIST_RECENT_CONNECT_ERROR'));
 	}
 };

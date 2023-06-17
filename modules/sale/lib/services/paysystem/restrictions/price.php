@@ -96,6 +96,11 @@ class Price extends Base\Restriction
 		return Loc::getMessage('SALE_PS_RESTRICTIONS_BY_PRICE_DESC');
 	}
 
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_PS_RESTRICTIONS_BY_PRICE_ON_APPLY_ERROR_MSG');
+	}
+
 	/**
 	 * @param $entityId
 	 * @return array

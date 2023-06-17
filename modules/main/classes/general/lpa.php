@@ -110,7 +110,7 @@ class LPA
 							"\t".'"'.EscapePHPString($comp_name).'",'.$br.
 							"\t".'"'.EscapePHPString($template_name).'",'.$br;
 						// If exist at least one parameter with php code inside
-						if (count($arParams) > 0)
+						if (!empty($arParams))
 						{
 							// Get array with description of component params
 							$arCompParams = CComponentUtil::GetComponentProps($comp_name);
@@ -126,7 +126,7 @@ class LPA
 							for ($e = 0; $e < $len; $e++)
 							{
 								$par_name = $arPHPparams[$e];
-								$arParams[$par_name] = isset($arParameters[$par_name]['DEFAULT']) ? $arParameters[$par_name]['DEFAULT'] : '';
+								$arParams[$par_name] = $arParameters[$par_name]['DEFAULT'] ?? '';
 							}
 
 							//ReturnPHPStr
@@ -140,7 +140,7 @@ class LPA
 						$parent_comp = $arRes['PARENT_COMP'];
 						$arExParams_ = $arRes['FUNCTION_PARAMS'];
 
-						$bEx = isset($arExParams_) && is_array($arExParams_) && count($arExParams_) > 0;
+						$bEx = isset($arExParams_) && is_array($arExParams_) && !empty($arExParams_);
 
 						if (!$parent_comp || mb_strtolower($parent_comp) == 'false')
 							$parent_comp = false;
@@ -181,7 +181,7 @@ class LPA
 			$filesrc = self::EncodePHPTags($filesrc);
 		}
 
-		if (mb_strpos($filesrc, '#PHP') !== false && $old_filesrc !== false) // We have to handle php fragments
+		if (strpos($filesrc, '#PHP') !== false && $old_filesrc !== false) // We have to handle php fragments
 		{
 			// Get array of PHP scripts from old saved file
 			$arPHP = PHPParser::ParseFile($old_filesrc);

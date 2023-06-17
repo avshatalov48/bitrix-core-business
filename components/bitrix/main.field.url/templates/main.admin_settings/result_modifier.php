@@ -8,31 +8,31 @@ use Bitrix\Main\Text\HtmlFilter;
  * @var array $arResult
  */
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if(isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$arResult['values']['popup'] =
-		($GLOBALS[$arResult['additionalParameters']['NAME']]['POPUP'] === 'N' ? 'N' : 'Y');
+		(isset($GLOBALS[$arResult['additionalParameters']['NAME']]['POPUP']) && $GLOBALS[$arResult['additionalParameters']['NAME']]['POPUP'] === 'N' ? 'N' : 'Y');
 	$arResult['values']['default_value'] =
-		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']);
+		HtmlFilter::encode($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'] ?? '');
 	$arResult['values']['size'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['SIZE'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['SIZE'] ?? 0);
 	$arResult['values']['min_length'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['MIN_LENGTH'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['MIN_LENGTH'] ?? 0);
 	$arResult['values']['max_length'] =
-		(int)$GLOBALS[$arResult['additionalParameters']['NAME']]['MAX_LENGTH'];
+		(int)($GLOBALS[$arResult['additionalParameters']['NAME']]['MAX_LENGTH'] ?? 0);
 }
-elseif(is_array($arResult['userField']))
+elseif(isset($arResult['userField']) && is_array($arResult['userField']))
 {
 	$arResult['values']['popup'] =
-		($arResult['userField']['SETTINGS']['POPUP'] === 'N' ? 'N' : 'Y');
+		(isset($arResult['userField']['SETTINGS']['POPUP']) && $arResult['userField']['SETTINGS']['POPUP'] === 'N' ? 'N' : 'Y');
 	$arResult['values']['default_value'] =
-		HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE']);
+		HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? '');
 	$arResult['values']['size'] =
-		(int)$arResult['userField']['SETTINGS']['SIZE'];
+		(int)($arResult['userField']['SETTINGS']['SIZE'] ?? 0);
 	$arResult['values']['min_length'] =
-		(int)$arResult['userField']['SETTINGS']['MIN_LENGTH'];
+		(int)($arResult['userField']['SETTINGS']['MIN_LENGTH'] ?? 0);
 	$arResult['values']['max_length'] =
-		(int)$arResult['userField']['SETTINGS']['MAX_LENGTH'];
+		(int)($arResult['userField']['SETTINGS']['MAX_LENGTH'] ?? 0);
 }
 else
 {

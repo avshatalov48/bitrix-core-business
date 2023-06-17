@@ -9,7 +9,7 @@ if ($saleModulePermissions == "D")
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {
-	require($DOCUMENT_ROOT."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("SALE_FEATURE_NOT_ALLOW"));
 
@@ -46,12 +46,12 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
+		$DB->StartTransaction();
 		if (!CSaleAffiliatePlan::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -61,8 +61,10 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -97,8 +99,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SAP1_ERROR_DELETE_PLAN"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 
@@ -161,14 +165,14 @@ $arBaseLangCurrencies = array();
 
 while ($arPlan = $dbResultList->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arPlan, "sale_affiliate_plan_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_"), GetMessage("SAP1_UPDATE_PLAN"));
+	$row =& $lAdmin->AddRow($f_ID, $arPlan, "sale_affiliate_plan_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_"), GetMessage("SAP1_UPDATE_PLAN"));
 
 	$row->AddField("ID", $f_ID);
 	$row->AddSelectField("SITE_ID", $arSites, array());
 	$row->AddCheckField("ACTIVE");
 	$row->AddInputField("NAME", array("size" => "20"));
 
-	
+
 	if ($f_BASE_RATE_TYPE == "P")
 		$fieldValue = $f_BASE_RATE."%";
 	else
@@ -222,7 +226,7 @@ while ($arPlan = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("MIN_PLAN_VALUE", $fieldValue, $fieldEdit);
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAP1_UPDATE"), "ACTION"=>$lAdmin->ActionRedirect("sale_affiliate_plan_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAP1_UPDATE"), "ACTION"=>$lAdmin->ActionRedirect("sale_affiliate_plan_edit.php?ID=".$f_ID."&lang=" . LANGUAGE_ID . GetFilterParams("filter_").""), "DEFAULT"=>true);
 	if ($saleModulePermissions >= "W")
 	{
 		$arActions[] = array("SEPARATOR" => true);

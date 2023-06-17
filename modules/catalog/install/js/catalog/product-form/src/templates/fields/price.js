@@ -92,6 +92,8 @@ Vue.component(config.templateFieldPrice,
 					v-model.lazy="price"
 					@input="onInputPriceHandler"
 					:disabled="!editable"
+					data-name="price"
+					:data-value="price"
 			>
 			<div class="catalog-pf-product-input-info" v-html="currencySymbol"></div>
 		</div>

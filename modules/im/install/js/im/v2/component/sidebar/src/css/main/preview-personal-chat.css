@@ -1,0 +1,62 @@
+.bx-im-sidebar-main-preview__scope {
+	--im-sidebar-main-preview__color_position: #828b95;
+}
+
+.bx-im-sidebar-main-preview-personal-chat__avatar-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 172px;
+	padding: 25px 16px 4px 16px;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-main-preview-personal-chat__invite-button-container {
+	display: flex;
+	justify-content: center;
+	height: 36px;
+	padding: 9px 16px;
+	overflow: hidden;
+}
+
+
+.bx-im-sidebar-main-preview-personal-chat__user-name {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 275px;
+}
+
+.bx-im-sidebar-main-preview-personal-chat__user-name .bx-im-chat-title__text {
+	font: var(--im-font-size-xl)/20px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+}
+
+.bx-im-sidebar-main-preview-personal-chat__user-name .bx-im-chat-title__text.--self {
+	font-style: italic;
+}
+
+.bx-im-sidebar-main-preview-personal-chat__user-position {
+	font: var(--im-font-size-sm)/20px var(--im-font-family-system);
+	color: var(--im-sidebar-main-preview__color_position);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	padding: 0 15px;
+	max-width: 278px;
+}
+
+.bx-im-sidebar-main-preview-personal-chat__avatar-skeleton {
+	height: 172px;
+	background: url('../images/main-personal-chat-avatar-skeleton.svg');
+}
+
+.bx-im-sidebar-main-preview-personal-chat__invite-button-skeleton {
+	height: 36px;
+	background: url('../images/main-personal-chat-invite-button-skeleton.svg');
+}
+
+.bx-im-sidebar-main-preview-personal-chat__avatar {
+	margin-bottom: 9px;
+	flex-shrink: 0;
+}

@@ -56,11 +56,14 @@
 				function () {
 					if (this.enablePhoneVerification)
 					{
-						BX.Bitrix24.PhoneVerify.showSlider((verified) => {
-							if (verified)
-							{
-								this.send('test', this.result, this.button);
-							}
+						BX.Bitrix24.PhoneVerify.getInstance().startVerify({
+							callback: (verified) => {
+								if (verified)
+								{
+									this.send('test', this.result, this.button);
+								}
+							},
+							mandatory: false,
 						});
 					}
 					else
@@ -79,11 +82,13 @@
 				function () {
 					if (this.enablePhoneVerification)
 					{
-						BX.Bitrix24.PhoneVerify.showSlider((verified) => {
-							if (verified)
-							{
-								this.send('consent', this.result, this.buttonValidation);
-							}
+						BX.Bitrix24.PhoneVerify.getInstance().startVerify({
+							callback: (verified) => {
+								if (verified)
+								{
+									this.send('consent', this.result, this.buttonValidation);
+								}
+							},
 						});
 					}
 					else

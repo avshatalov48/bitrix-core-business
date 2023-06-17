@@ -90,26 +90,27 @@ class CTimeZone
 		/** @global CMain $APPLICATION */
 		global $APPLICATION, $USER;
 
-		$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-		if (self::IsAutoTimeZone(trim($USER->GetParam("AUTO_TIME_ZONE"))))
+		$cookiePrefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+		$autoTimeZone = $USER->GetParam("AUTO_TIME_ZONE") ?: '';
+		if (self::IsAutoTimeZone(trim($autoTimeZone)))
 		{
 			$cookieDate = (new \Bitrix\Main\Type\DateTime())->add("12M");
 			$cookieDate->setDate((int)$cookieDate->format('Y'), (int)$cookieDate->format('m'), 1);
 			$cookieDate->setTime(0,	0);
 
 			$APPLICATION->AddHeadString(
-				'<script type="text/javascript">if (Intl && Intl.DateTimeFormat) document.cookie="'.$cookie_prefix.'_TZ="+Intl.DateTimeFormat().resolvedOptions().timeZone+"; path=/; expires='.$cookieDate->format("r").'";</script>', true
+				'<script type="text/javascript">if (Intl && Intl.DateTimeFormat) document.cookie="'.$cookiePrefix.'_TZ="+Intl.DateTimeFormat().resolvedOptions().timeZone+"; path=/; expires='.$cookieDate->format("r").'";</script>', true
 			);
 		}
-		elseif (isset($_COOKIE[$cookie_prefix."_TZ"]))
+		elseif (isset($_COOKIE[$cookiePrefix."_TZ"]))
 		{
-			setcookie($cookie_prefix."_TZ", "", time()-3600, "/");
+			setcookie($cookiePrefix."_TZ", "", time()-3600, "/");
 		}
 
-		if (isset($_COOKIE[$cookie_prefix."_TIME_ZONE"]))
+		if (isset($_COOKIE[$cookiePrefix."_TIME_ZONE"]))
 		{
 			// delete deprecated cookie
-			setcookie($cookie_prefix."_TIME_ZONE", "", time()-3600, "/");
+			setcookie($cookiePrefix."_TIME_ZONE", "", time()-3600, "/");
 		}
 	}
 
@@ -125,19 +126,21 @@ class CTimeZone
 
 	public static function IsAutoTimeZone($autoTimeZone)
 	{
-		if($autoTimeZone == "Y")
+		if ($autoTimeZone === "Y")
 		{
 			return true;
 		}
-		if($autoTimeZone == '')
+		if (empty($autoTimeZone))
 		{
 			static $defAutoZone = null;
-			if($defAutoZone === null)
+			if ($defAutoZone === null)
 			{
 				$defAutoZone = (COption::GetOptionString("main", "auto_time_zone", "N") == "Y");
 			}
+
 			return $defAutoZone;
 		}
+
 		return false;
 	}
 
@@ -222,7 +225,8 @@ class CTimeZone
 			elseif (is_object($USER))
 			{
 				// current user
-				if (self::IsAutoTimeZone(trim($USER->GetParam("AUTO_TIME_ZONE"))))
+				$autoTimeZone = $USER->GetParam("AUTO_TIME_ZONE") ?: '';
+				if (self::IsAutoTimeZone(trim($autoTimeZone)))
 				{
 					if (($cookie = static::getTzCookie()) !== null)
 					{
@@ -261,7 +265,7 @@ class CTimeZone
 				return $userOffset - $localOffset;
 			}
 		}
-		catch(Exception $e)
+		catch (Throwable $e)
 		{
 		}
 

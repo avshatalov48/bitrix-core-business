@@ -1,6 +1,7 @@
 <?php
 $MESS['SALE_PS_RESTRICTIONS_BY_PRICE'] = 'по цене';
 $MESS['SALE_PS_RESTRICTIONS_BY_PRICE_DESC'] = '';
+$MESS['SALE_PS_RESTRICTIONS_BY_PRICE_ON_APPLY_ERROR_MSG'] = 'Во время применения ограничения по цене произошла ошибка';
 $MESS['SALE_PS_RESTRICTIONS_BY_PRICE_TYPE_MORE'] = 'Сумма оплаты от';
 $MESS['SALE_PS_RESTRICTIONS_BY_PRICE_TYPE_LESS'] = 'Сумма оплаты до';
 $MESS['SALE_PS_RESTRICTIONS_BY_PRICE_VALUE'] = 'Значение';

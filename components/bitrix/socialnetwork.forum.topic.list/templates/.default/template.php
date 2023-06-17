@@ -15,7 +15,7 @@ $GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/f
 /***************** BASE ********************************************/
 $arParams["PATH_TO_ICON"] = (empty($arParams["PATH_TO_ICON"]) ? $templateFolder."/images/icon/" : $arParams["PATH_TO_ICON"]);
 $arParams["PATH_TO_ICON"] = str_replace("//", "/", $arParams["PATH_TO_ICON"]."/");
-$arParams["SHOW_AUTHOR_COLUMN"] = ($arParams["SHOW_AUTHOR_COLUMN"] == "Y" ? "Y" : "N");
+$arParams["SHOW_AUTHOR_COLUMN"] = (($arParams["SHOW_AUTHOR_COLUMN"] ?? '') === "Y" ? "Y" : "N");
 /*$arParams["SHOW_RSS"] = ($arParams["SHOW_RSS"] == "N" ? "N" : "Y");
 if ($arParams["SHOW_RSS"] == "Y"):
 	$arParams["SHOW_RSS"] = (!$USER->IsAuthorized() ? "Y" : (CForumNew::GetUserPermission($arParams["FID"], array(2)) > "A" ? "Y" : "N"));
@@ -349,7 +349,7 @@ endif;
 		<?=$arResult["NAV_STRING"]?>
 	</div>
 <?
-if ($arResult["USER"]["RIGHTS"]["CAN_ADD_TOPIC"] == "Y"):
+if (isset($arResult["USER"]) && $arResult["USER"]["RIGHTS"]["CAN_ADD_TOPIC"] == "Y"):
 ?>
 	<div class="forum-new-post">
 		<a href="<?=$arResult["URL"]["TOPIC_NEW"]?>" title="<?=GetMessage("F_NEW_TOPIC_TITLE")?>"><span><?=GetMessage("F_NEW_TOPIC")?></span></a>
@@ -385,7 +385,7 @@ oText['empty_topics'] = '<?=GetMessageJS("JS_NO_TOPICS")?>';
 oText['del_topics'] = '<?=GetMessage("JS_DEL_TOPICS")?>';
 </script>
 
-<?if($arResult["EMAIL_INTEGRATION"] || is_array($arResult["MAILBOXES"])):?>
+<?if ($arResult["EMAIL_INTEGRATION"] || is_array($arResult["MAILBOXES"] ?? null)):?>
 <?echo GetMessage("FTL_EMAIL_INTEGRATION")?> 
 <?if($arResult["EMAIL_INTEGRATION"] && $arResult["EMAIL_INTEGRATION"]["EMAIL_FORUM_ACTIVE"]=="Y"):?>
 <a href="mailto:<?=urlencode($arResult["EMAIL_INTEGRATION"]["EMAIL"])?>" title="<?echo GetMessage("FTL_EMAIL_MAIL_TITLE")?>"><?=$arResult["EMAIL_INTEGRATION"]["EMAIL"]?></a>
@@ -429,7 +429,15 @@ if(!is_array($arWRes))
 <table>
 <tr valign="top">
 	<td align="right"><label for="EMAIL_FORUM_ACTIVE"><?echo GetMessage("FTL_EMAIL_ACTIVE_CHECKBOX")?></label></td>
-	<td><input type="checkbox" name="EMAIL_FORUM_ACTIVE" id="EMAIL_FORUM_ACTIVE" onclick="ChActMBx(this)" value="Y"<?if($arWRes['EMAIL_FORUM_ACTIVE']=='Y')echo ' checked'?>></td>
+	<td>
+		<input
+			type="checkbox"
+			name="EMAIL_FORUM_ACTIVE"
+			id="EMAIL_FORUM_ACTIVE"
+			onclick="ChActMBx(this)"
+			value="Y"<? if (($arWRes['EMAIL_FORUM_ACTIVE'] ?? '') === 'Y') echo ' checked'?>
+		>
+	</td>
 </tr>
 <tr valign="top">
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_MAILBOX_HINT"))?> <?echo GetMessage("FTL_EMAIL_MAILBOX")?></td>
@@ -474,8 +482,12 @@ if(!is_array($arWRes))
 	<td><input type="checkbox" name="EMAIL_FORUM_MAILBOX_DELETE_MESSAGES" value="Y" id="EI_21" checked></td>
 </tr>
 <?
-$email = $arWRes["EMAIL"];
-if($arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type']=='smtp' && count($arMBoxes[$arWRes['MAIL_FILTER_ID']]['domains'])>0)
+$email = $arWRes["EMAIL"] ?? '';
+if (
+	isset($arWRes['MAIL_FILTER_ID'])
+	&& $arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type'] === 'smtp'
+	&& count($arMBoxes[$arWRes['MAIL_FILTER_ID']]['domains']) > 0
+)
 {
 	$tmp = explode("@", $email);
 	$email = $tmp[0];
@@ -486,7 +498,11 @@ if($arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type']=='smtp' && count($arMBoxe
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_FROM_HINT"));?> <span class="required">*</span><?echo GetMessage("FTL_EMAIL_FROM")?></td>
 	<td valign="top" nowrap>
 		<input type="text" size="50" name="EMAIL" value="<?=$email?>" onchange="OnChEM(this)" id="EI_15"><span id="EMD">@<select name="EMAIL_DOMAIN" id="EI_22">
-		<?if($arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type']=='smtp' && count($arMBoxes[$arWRes['MAIL_FILTER_ID']]['domains'])>0):
+		<? if (
+			isset($arWRes['MAIL_FILTER_ID'])
+			&& $arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type'] === 'smtp'
+			&& count($arMBoxes[$arWRes['MAIL_FILTER_ID']]['domains']) > 0
+		):
 			foreach($arMBoxes[$arWRes['MAIL_FILTER_ID']]['domains'] as $d):
 			?><option value="<?=$d?>"<?if($d==$domain)echo ' selected'?>><?=$d?></option>
 			<?endforeach;
@@ -497,33 +513,83 @@ if($arMBoxes[$arWRes['MAIL_FILTER_ID']]['server_type']=='smtp' && count($arMBoxe
 <tr valign="top"  id="EI_6">
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_SHOW_EMAIL_HINT"));?> <label for="WUSE_EMAIL"><?echo GetMessage("FTL_EMAIL_SHOW_EMAIL")?></label></td>
 	<td valign="top">
-		<input type="checkbox" name="USE_EMAIL" value="Y" <?if($arWRes["USE_EMAIL"]=="Y") echo "checked"?> id="WUSE_EMAIL" id="EI_15">
+		<input
+			type="checkbox"
+			name="USE_EMAIL"
+			value="Y" <?if (($arWRes["USE_EMAIL"] ?? '') === "Y") echo "checked"?>
+			id="WUSE_EMAIL"
+			id="EI_15"
+		>
 	</td>
 </tr>
 <tr valign="top" id="EI_7">
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_FILTER_HINT"))?> <?echo GetMessage("FTL_EMAIL_FILTER")?></td>
 	<td valign="top" nowrap>
 		<span id="W_EMAIL_GROUPT">
-			<input type="checkbox" onclick="ChEMGR(this)"<?if($arWRes["EMAIL_GROUP"]!='' || !is_array($arResult['EMAIL_INTEGRATION']))echo ' checked';?> id="EI_16">
+			<input
+				type="checkbox"
+				onclick="ChEMGR(this)"
+				<? if (
+					($arWRes["EMAIL_GROUP"] ?? '') !== ''
+					|| !is_array($arResult['EMAIL_INTEGRATION'])
+				) echo ' checked';?>
+				id="EI_16"
+			>
 			<label for="EI_16"><?echo GetMessage("FTL_EMAIL_FILTER_EMAIL")?></label> 
-			<input type="text" name="EMAIL_GROUP" id="W_EMAIL_GROUP" value="<?=$arWRes["EMAIL_GROUP"]?>"<?if($arWRes["EMAIL_GROUP"]=='' && is_array($arResult['EMAIL_INTEGRATION']))echo ' disabled';?>><br>
+			<input
+				type="text"
+				name="EMAIL_GROUP"
+				id="W_EMAIL_GROUP"
+				value="<?=$arWRes["EMAIL_GROUP"] ?? ''?>"
+				<? if (
+					($arWRes["EMAIL_GROUP"] ?? '') === ''
+					&& is_array($arResult['EMAIL_INTEGRATION'])
+				) echo ' disabled'; ?>
+			><br>
 		</span>
-		<input type="checkbox" onclick="ChSSU(this)" <?if($arWRes["SUBJECT_SUF"]!='')echo ' checked';?>  id="EI_17">
+		<input
+			type="checkbox"
+			onclick="ChSSU(this)"
+			<?if (($arWRes["SUBJECT_SUF"] ?? '') !== '') echo ' checked';?>
+			id="EI_17"
+		>
 		<label for="EI_17"><?echo GetMessage("FTL_EMAIL_FILTER_SUBJECT")?></label> 
-		<input type="text" name="SUBJECT_SUF" value="<?=$arWRes["SUBJECT_SUF"]?>"<?if($arWRes["SUBJECT_SUF"]=='')echo ' disabled';?> id="W_SUBJECT_SUF">
+		<input
+			type="text"
+			name="SUBJECT_SUF"
+			value="<?=$arWRes["SUBJECT_SUF"] ?? ''?>"
+			<?if (($arWRes["SUBJECT_SUF"] ?? '') === '') echo ' disabled';?>
+			id="W_SUBJECT_SUF"
+		>
 	</td>
 </tr>
 <tr valign="top" id="EI_8">
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_GROUP"))?> <label for="EI_18"><?echo GetMessage("FTL_EMAIL_GROUP_NAME")?></label></td>
 	<td valign="top">
-		<input type="checkbox" name="USE_SUBJECT" value="Y" <?if($arWRes["USE_SUBJECT"]=="Y" || !is_array($arResult['EMAIL_INTEGRATION'])) echo "checked"?> 
-		onclick="ChWUSES(this)" id="EI_18">
+		<input
+			type="checkbox"
+			name="USE_SUBJECT"
+			value="Y"
+			<? if(
+				($arWRes["USE_SUBJECT"] ?? '') === "Y"
+				|| !is_array($arResult['EMAIL_INTEGRATION'])
+			) echo "checked"?>
+			onclick="ChWUSES(this)"
+			id="EI_18"
+		>
 	</td>
 </tr>
 <tr valign="top" id="EI_19">
 	<td align="right"><?ShowJSHint(GetMessage("FTL_EMAIL_PUBLIC_HINT"))?> <label for="WNOT_MEMBER_POST"><?echo GetMessage("FTL_EMAIL_PUBLIC")?></label></td>
 	<td valign="top">
-		<input type="checkbox" name="NOT_MEMBER_POST" value="Y" <?if($arWRes["NOT_MEMBER_POST"]=="Y") echo "checked"?> id="WNOT_MEMBER_POST" id="EI_20">
+		<input
+			type="checkbox"
+			name="NOT_MEMBER_POST"
+			value="Y"
+			<?if (($arWRes["NOT_MEMBER_POST"] ?? '') === "Y") echo "checked"?>
+			id="WNOT_MEMBER_POST"
+			id="EI_20"
+		>
 	</td>
 </tr>
 </table>

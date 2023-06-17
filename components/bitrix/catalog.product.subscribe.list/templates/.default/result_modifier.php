@@ -4,12 +4,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
-if (!isset($arParams['LINE_ELEMENT_COUNT']))
-	$arParams['LINE_ELEMENT_COUNT'] = 3;
-$arParams['LINE_ELEMENT_COUNT'] = intval($arParams['LINE_ELEMENT_COUNT']);
-if (2 > $arParams['LINE_ELEMENT_COUNT'] || 5 < $arParams['LINE_ELEMENT_COUNT'])
-	$arParams['LINE_ELEMENT_COUNT'] = 3;
-
 $arParams['TEMPLATE_THEME'] = (string)($arParams['TEMPLATE_THEME']);
 if ('' != $arParams['TEMPLATE_THEME'])
 {
@@ -261,7 +255,11 @@ if (!empty($arResult['ITEMS']))
 				$arOffer['CATALOG_TYPE'] = CCatalogProduct::TYPE_OFFER;
 				CIBlockPriceTools::setRatioMinPrice($arOffer);
 
-				$offerPictures = CIBlockPriceTools::getDoublePicturesForItem($arOffer, $arParams['ADDITIONAL_PICT_PROP'][$arOffer['IBLOCK_ID']]);
+				$additionalPictureCode = (string)($arParams['ADDITIONAL_PICT_PROP'][$arOffer['IBLOCK_ID']] ?? '');
+				$offerPictures = CIBlockPriceTools::getDoublePicturesForItem(
+					$arOffer,
+					$additionalPictureCode
+				);
 				$arOffer['OWNER_PICT'] = empty($offerPictures['PICT']);
 				$arOffer['PREVIEW_PICTURE'] = false;
 				$arOffer['PREVIEW_PICTURE_SECOND'] = false;
@@ -273,8 +271,8 @@ if (!empty($arResult['ITEMS']))
 					$arOffer['PREVIEW_PICTURE'] = $offerPictures['PICT'];
 					$arOffer['PREVIEW_PICTURE_SECOND'] = $offerPictures['SECOND_PICT'];
 				}
-				if ('' != $arParams['OFFER_ADD_PICT_PROP'] && isset($arOffer['DISPLAY_PROPERTIES'][$arParams['OFFER_ADD_PICT_PROP']]))
-					unset($arOffer['DISPLAY_PROPERTIES'][$arParams['OFFER_ADD_PICT_PROP']]);
+				if ($additionalPictureCode && isset($arOffer['DISPLAY_PROPERTIES'][$additionalPictureCode]))
+					unset($arOffer['DISPLAY_PROPERTIES'][$additionalPictureCode]);
 				$arNewOffers[$keyOffer] = $arOffer;
 			}
 			$arItem['OFFERS'] = $arNewOffers;

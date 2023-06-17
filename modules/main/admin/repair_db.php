@@ -79,7 +79,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 				unset($arTables[$TableName]);
 			}
 
-			if(count($arTables) > 0)
+			if(!empty($arTables))
 			{
 				$arTable = array_shift($arTables);
 
@@ -117,7 +117,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 						)),
 					));
 				}
-				elseif(count($arTables) > 0)
+				elseif(!empty($arTables))
 				{
 					if($check_time < 5)
 					{
@@ -219,7 +219,7 @@ else
 	require_once(__DIR__."/../include/prolog_admin_after.php");
 	if($DB->type == "MYSQL")
 	{
-		if($_REQUEST["check_tables"]=="Y" && check_bitrix_sessid())
+		if (isset($_REQUEST["check_tables"]) && $_REQUEST["check_tables"]=="Y" && check_bitrix_sessid())
 		{
 			$start = microtime(true);
 			$result = $DB->Query('show table status');
@@ -324,7 +324,7 @@ else
 			</table>
 			<?
 		}
-		elseif($_REQUEST["optimize_tables"]=="Y")
+		elseif(isset($_REQUEST["optimize_tables"]) && $_REQUEST["optimize_tables"]=="Y")
 		{
 			?>
 			<?echo BeginNote(), GetMessage("RDB_OPTIMIZE_TIP"), EndNote();?>

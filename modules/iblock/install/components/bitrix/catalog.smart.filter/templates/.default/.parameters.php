@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arCurrentValues */
 
 $arThemes = array();
 if (IsModuleInstalled('bitrix.eshop'))
@@ -49,7 +55,7 @@ $arTemplateParameters['FILTER_VIEW_MODE'] = array(
 	'REFRESH' => "Y"
 );
 
-if ($arCurrentValues["FILTER_VIEW_MODE"] == "vertical")
+if (($arCurrentValues["FILTER_VIEW_MODE"] ?? '') === "vertical")
 {
 	$arPopupPosition = array(
 		"left" => GetMessage("CP_BCT_TPL_POPUP_POSITION_LEFT"),
@@ -71,4 +77,3 @@ $arTemplateParameters['DISPLAY_ELEMENT_COUNT'] = array(
 	'TYPE' => 'CHECKBOX',
 	'DEFAULT' => 'Y',
 );
-?>

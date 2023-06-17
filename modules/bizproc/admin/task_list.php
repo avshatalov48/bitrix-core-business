@@ -271,12 +271,12 @@ $oFilter = new CAdminFilter(
 $oFilter->SetDefaultRows(Array("filter_modified_1", 'filter_name'));
 $oFilter->AddPreset(array(
 	"ID" => "filter_running",
-	"NAME" => GetMessage("BPATL_FILTER_STATUS_RUNNING"),
+	"NAME" => GetMessage("BPATL_FILTER_STATUS_RUNNING_1"),
 	"FIELDS" => array("filter_status" => 0),
 ));
 $oFilter->AddPreset(array(
 	"ID" => "filter_complete",
-	"NAME" => GetMessage("BPATL_FILTER_STATUS_COMPLETE"),
+	"NAME" => GetMessage("BPATL_FILTER_STATUS_COMPLETE_1"),
 	"FIELDS" => array("filter_status" => 1),
 ));
 $oFilter->AddPreset(array(
@@ -305,8 +305,8 @@ $oFilter->Begin();
 		<td><?=GetMessage("BPATL_FILTER_STATUS")?>:</td>
 		<td>
 			<select name="filter_status" >
-				<option value="0"<?if($filter_status=="0")echo" selected"?>><?echo GetMessage("BPATL_FILTER_STATUS_RUNNING")?></option>
-				<option value="1"<?if($filter_status=="1")echo" selected"?>><?echo GetMessage("BPATL_FILTER_STATUS_COMPLETE")?></option>
+				<option value="0"<?if($filter_status=="0")echo" selected"?>><?echo GetMessage("BPATL_FILTER_STATUS_RUNNING_1")?></option>
+				<option value="1"<?if($filter_status=="1")echo" selected"?>><?echo GetMessage("BPATL_FILTER_STATUS_COMPLETE_1")?></option>
 				<option value="2"<?if($filter_status=="2")echo" selected"?>><?echo GetMessage("BPATL_FILTER_STATUS_ALL")?></option>
 			</select>
 		</td>

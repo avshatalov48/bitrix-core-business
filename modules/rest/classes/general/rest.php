@@ -151,7 +151,7 @@ class CRestServer
 		{
 			$this->error = $e;
 
-			if(!is_a($this->error, "\\Bitrix\\Rest\\RestException"))
+			if(!is_a($this->error, \Bitrix\Rest\RestException::class))
 			{
 				$this->error = RestException::initFromException($this->error);
 			}
@@ -718,7 +718,7 @@ class CRestServer
 
 			Header('X-Bitrix-Rest-Time: '.number_format($this->timeProcessFinish - $this->timeProcessStart, 10, '.', ''));
 
-			if(function_exists('getrusage'))
+			if($this->usage && function_exists('getrusage'))
 			{
 				$usage = getrusage();
 
@@ -909,11 +909,28 @@ class IRestService
 	{
 		if (is_array($dbRes))
 		{
-			if($dbRes["offset"] + count($result) < $dbRes["count"])
+			// backward compatibility moment...
+			if ($result instanceof Countable || is_array($result))
 			{
-				$result['next'] = $dbRes["offset"] + count($result);
+				$count = count($result);
 			}
-			$result['total'] = $dbRes["count"];
+			elseif (is_null($result))
+			{
+				$count = 0;
+			}
+			else
+			{
+				$count = 1;
+			}
+
+			if($dbRes["offset"] + $count < $dbRes["count"])
+			{
+				$result['next'] = $dbRes["offset"] + $count;
+			}
+			if (!is_scalar($result))
+			{
+				$result['total'] = $dbRes["count"];
+			}
 		}
 		else
 		{

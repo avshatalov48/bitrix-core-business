@@ -216,7 +216,7 @@ abstract class Base
 	public function register(array $data, array $additionalOptions = [], int $userId = 0, string $appCode = '', bool $byAgent = true): array
 	{
 		$result = static::checkRegister($data);
-		if ($result['error'])
+		if (!empty($result['error']))
 		{
 			return $result;
 		}

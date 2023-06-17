@@ -1,0 +1,5 @@
+<?php
+$MESS["IM_MESSAGE_CHAT_CREATION_BUTTON_INVITE_USERS"] = "Invite users";
+$MESS["IM_MESSAGE_CHAT_CREATION_BUTTON_VIDEOCALL"] = "Video call";
+$MESS["IM_MESSAGE_CHAT_CREATION_DESCRIPTION"] = "Communicate, share files and post comments.";
+$MESS["IM_MESSAGE_CHAT_CREATION_TITLE_V2"] = "Group chat";

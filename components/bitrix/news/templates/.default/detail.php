@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -11,11 +15,11 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
-?>
-<?$ElementID = $APPLICATION->IncludeComponent(
+
+$ElementID = $APPLICATION->IncludeComponent(
 	"bitrix:news.detail",
 	"",
-	Array(
+	[
 		"DISPLAY_DATE" => $arParams["DISPLAY_DATE"],
 		"DISPLAY_NAME" => $arParams["DISPLAY_NAME"],
 		"DISPLAY_PICTURE" => $arParams["DISPLAY_PICTURE"],
@@ -30,7 +34,6 @@ $this->setFrameMode(true);
 		"META_DESCRIPTION" => $arParams["META_DESCRIPTION"],
 		"BROWSER_TITLE" => $arParams["BROWSER_TITLE"],
 		"SET_CANONICAL_URL" => $arParams["DETAIL_SET_CANONICAL_URL"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"SET_LAST_MODIFIED" => $arParams["SET_LAST_MODIFIED"],
 		"SET_TITLE" => $arParams["SET_TITLE"],
 		"MESSAGE_404" => $arParams["MESSAGE_404"],
@@ -63,17 +66,18 @@ $this->setFrameMode(true);
 		"SHARE_HANDLERS" => $arParams["SHARE_HANDLERS"],
 		"SHARE_SHORTEN_URL_LOGIN" => $arParams["SHARE_SHORTEN_URL_LOGIN"],
 		"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
-		"ADD_ELEMENT_CHAIN" => (isset($arParams["ADD_ELEMENT_CHAIN"]) ? $arParams["ADD_ELEMENT_CHAIN"] : ''),
-		'STRICT_SECTION_CHECK' => (isset($arParams['STRICT_SECTION_CHECK']) ? $arParams['STRICT_SECTION_CHECK'] : ''),
-	),
-	$component
+		"ADD_ELEMENT_CHAIN" => $arParams["ADD_ELEMENT_CHAIN"],
+		'STRICT_SECTION_CHECK' => $arParams['STRICT_SECTION_CHECK'],
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
 );?>
 <p><a href="<?=$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["news"]?>"><?=GetMessage("T_NEWS_DETAIL_BACK")?></a></p>
 <?if($arParams["USE_RATING"]=="Y" && $ElementID):?>
 <?$APPLICATION->IncludeComponent(
 	"bitrix:iblock.vote",
 	"",
-	Array(
+	[
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"ELEMENT_ID" => $ElementID,
@@ -81,8 +85,9 @@ $this->setFrameMode(true);
 		"VOTE_NAMES" => $arParams["VOTE_NAMES"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
-	),
-	$component
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
 );?>
 <?endif?>
 <?if($arParams["USE_CATEGORIES"]=="Y" && $ElementID):
@@ -115,7 +120,7 @@ $this->setFrameMode(true);
 	{
 		$arCategoryFilter = $obCache->GetVars();
 	}
-	if(count($arCategoryFilter)>0):
+	if(!empty($arCategoryFilter)):
 		$arCategoryFilter = array(
 			"PROPERTY_".$arParams["CATEGORY_CODE"] => array_keys($arCategoryFilter),
 			"!"."ID" => $ElementID,
@@ -126,7 +131,7 @@ $this->setFrameMode(true);
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:news.list",
 				$arParams["CATEGORY_THEME_".$iblock_id],
-				Array(
+				[
 					"IBLOCK_ID" => $iblock_id,
 					"NEWS_COUNT" => $arParams["CATEGORY_ITEMS_COUNT"],
 					"SET_TITLE" => "N",
@@ -138,8 +143,9 @@ $this->setFrameMode(true);
 					"CACHE_FILTER" => "Y",
 					"DISPLAY_TOP_PAGER" => "N",
 					"DISPLAY_BOTTOM_PAGER" => "N",
-				),
-				$component
+				],
+				$component,
+				['HIDE_ICONS' => 'Y']
 			);?>
 		<?endforeach?>
 	<?endif?>
@@ -149,7 +155,7 @@ $this->setFrameMode(true);
 <?$APPLICATION->IncludeComponent(
 	"bitrix:forum.topic.reviews",
 	"",
-	Array(
+	[
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"MESSAGES_PER_PAGE" => $arParams["MESSAGES_PER_PAGE"],
@@ -163,7 +169,8 @@ $this->setFrameMode(true);
 		"AJAX_POST" => $arParams["REVIEW_AJAX_POST"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"URL_TEMPLATES_DETAIL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["detail"],
-	),
-	$component
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
 );?>
-<?endif?>
+<?endif;

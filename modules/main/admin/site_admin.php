@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -22,28 +21,33 @@ $sTableID = "tbl_site";
 $oSort = new CAdminSorting($sTableID, "SORT", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-if($lAdmin->EditAction() && $isAdmin)
+if ($lAdmin->EditAction() && $isAdmin)
 {
-	foreach($FIELDS as $ID=>$arFields)
+	foreach ($FIELDS as $ID=>$arFields)
 	{
+		if (!$lAdmin->IsUpdated($ID))
+		{
+			continue;
+		}
+
 		$DB->StartTransaction();
 
-		if(!$lAdmin->IsUpdated($ID))
-			continue;
-
 		$ob = new CLang;
-		if(!$ob->Update($ID, $arFields))
+		if ($ob->Update($ID, $arFields))
+		{
+			$DB->Commit();
+		}
+		else
 		{
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$ob->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
 	}
 }
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CLang::GetList('', '', Array());
@@ -62,7 +66,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 			@set_time_limit(0);
 			$ob = new CLang;
 			$DB->StartTransaction();
-			if(!$ob->Delete($ID))
+			if (!$ob->Delete($ID))
 			{
 				$DB->Rollback();
 				if($ex = $APPLICATION->GetException())
@@ -72,7 +76,10 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 				$lAdmin->AddGroupError($er, $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "activate":
 		case "deactivate":

@@ -1,8 +1,7 @@
 <?php
 namespace Bitrix\Main\Data;
 
-class CacheEngineNone
-	implements ICacheEngine, ICacheEngineStat
+class CacheEngineNone implements ICacheEngine, ICacheEngineStat
 {
 	public function getReadBytes()
 	{
@@ -29,12 +28,12 @@ class CacheEngineNone
 		return true;
 	}
 
-	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$vars, $baseDir, $initDir, $filename, $ttl)
 	{
 		return false;
 	}
 
-	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($vars, $baseDir, $initDir, $filename, $ttl)
 	{
 	}
 

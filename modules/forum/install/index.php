@@ -323,7 +323,7 @@ class forum extends CModule
 		}
 
 		UnRegisterModuleDependences("main", "OnAfterRegisterModule", "main", "forum", "InstallUserFields", "/modules/forum/install/index.php");
-		UnRegisterModuleDependences("iblock", "OnIBlockPropertyBuildList", "main", "CIBlockPropertyTopicID", "GetUserTypeDescription");
+		UnRegisterModuleDependences("iblock", "OnIBlockPropertyBuildList", "main", "CIBlockPropertyTopicID", "GetUserTypeDescription", "/modules/forum/tools/prop_topicid.php");
 		UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementDelete", "forum", "CForumTopic", "OnBeforeIBlockElementDelete");
 		UnRegisterModuleDependences("main", "OnUserDelete", "forum", "CForumUser", "OnUserDelete");
 		UnRegisterModuleDependences("main", "OnFileDelete", "forum", "CForumFiles", "OnFileDelete");
@@ -334,6 +334,9 @@ class forum extends CModule
 		UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "forum", "CForumEventLog", "GetAuditTypes");
 		UnRegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "forum", "CEventForum", "MakeForumObject");
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "forum", "CForumUser", "OnSocNetGroupDelete");
+		UnRegisterModuleDependences("socialnetwork", "OnSocNetLogFormatEvent", "forum", "CForumMessage", "OnSocNetLogFormatEvent");
+
+		UnRegisterModuleDependences('mail', 'OnGetFilterList', 'forum', 'CForumEMail', 'OnGetSocNetFilterList');
 
 		UnRegisterModuleDependences("main", "OnAfterAddRating",    "forum", "CRatingsComponentsForum", "OnAfterAddRating");
 		UnRegisterModuleDependences("main", "OnAfterUpdateRating", "forum", "CRatingsComponentsForum", "OnAfterUpdateRating");

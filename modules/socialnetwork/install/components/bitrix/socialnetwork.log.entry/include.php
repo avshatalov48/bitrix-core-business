@@ -38,16 +38,20 @@ if (!function_exists('__SLEGetTransport'))
 	{
 		$arTransport = array();
 
-		if (array_key_exists($arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_".$arFields["EVENT_ID"]."_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
-			$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_".$arFields["EVENT_ID"]."_N_N"];
+		$entityType = ($arFields["ENTITY_TYPE"] ?? '');
+		$entityId = ($arFields["ENTITY_ID"] ?? '');
+		$eventId = ($arFields["EVENT_ID"] ?? '');
 
-		if (array_key_exists($arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_all_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
-			$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_all_N_N"];
+		if (array_key_exists($entityType."_".$entityId."_".$eventId."_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
+			$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_".$entityId."_".$eventId."_N_N"];
 
-		$bHasLogEventCreatedBy = CSocNetLogTools::HasLogEventCreatedBy($arFields["EVENT_ID"]);
+		if (array_key_exists($entityType."_".$entityId."_all_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
+			$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_".$entityId."_all_N_N"];
+
+		$bHasLogEventCreatedBy = CSocNetLogTools::HasLogEventCreatedBy($eventId);
 		if ($bHasLogEventCreatedBy)
 		{
-			if ($arFields["EVENT_ID"])
+			if ($eventId)
 			{
 				if (array_key_exists("U_".$arFields["USER_ID"]."_all_N_Y", $arCurrentUserSubscribe["TRANSPORT"]))
 					$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"]["U_".$arFields["USER_ID"]."_all_N_Y"];
@@ -57,13 +61,13 @@ if (!function_exists('__SLEGetTransport'))
 		}
 
 		if (
-			!array_key_exists($arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_".$arFields["EVENT_ID"]."_N_N", $arCurrentUserSubscribe["TRANSPORT"])
-			&& !array_key_exists($arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]."_all_N_N", $arCurrentUserSubscribe["TRANSPORT"])
+			!array_key_exists($entityType."_".$entityId."_".$eventId."_N_N", $arCurrentUserSubscribe["TRANSPORT"])
+			&& !array_key_exists($entityType."_".$entityId."_all_N_N", $arCurrentUserSubscribe["TRANSPORT"])
 			)
 		{
-			if (array_key_exists($arFields["ENTITY_TYPE"]."_0_".$arFields["EVENT_ID"]."_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
-				$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_0_".$arFields["EVENT_ID"]."_N_N"];
-			elseif (array_key_exists($arFields["ENTITY_TYPE"]."_0_all_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
+			if (array_key_exists($entityType."_0_".$eventId."_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
+				$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_0_".$eventId."_N_N"];
+			elseif (array_key_exists($entityType."_0_all_N_N", $arCurrentUserSubscribe["TRANSPORT"]))
 				$arTransport[] = $arCurrentUserSubscribe["TRANSPORT"][$arFields["ENTITY_TYPE"]."_0_all_N_N"];
 			else
 				$arTransport[] = "N";
@@ -808,18 +812,18 @@ if (!function_exists('__SLEGetLogRecord'))
 			$arEvent['FIELDS_FORMATTED']['CAN_ADD_COMMENTS'] = 'N';
 		}
 
-		$arEvent["FIELDS_FORMATTED"]["FAVORITES"] = $arParams["EVENT"]["FAVORITES"];
+		$arEvent["FIELDS_FORMATTED"]["FAVORITES"] = $arParams["EVENT"]["FAVORITES"] ?? null;
 		$arEvent["FIELDS_FORMATTED"]["PINNED"] = $arParams["EVENT"]["PINNED"];
 
 		if ($arParams['USE_FOLLOW'] === 'Y')
 		{
 			$arEvent["FIELDS_FORMATTED"]["EVENT"]["FOLLOW"] = $arParams["EVENT"]["FOLLOW"];
-			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW_X1"] = $arParams["EVENT"]["DATE_FOLLOW_X1"];
+			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW_X1"] = ($arParams["EVENT"]["DATE_FOLLOW_X1"] ?? '');
 			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW"] = $arParams["EVENT"]["DATE_FOLLOW"];
 		}
 
 		if (
-			$arParams['CHECK_PERMISSIONS_DEST'] === 'N'
+			($arParams['CHECK_PERMISSIONS_DEST'] ?? null) === 'N'
 			&& !$bCurrentUserIsAdmin
 			&& is_object($GLOBALS["USER"])
 			&& is_array($arEvent["FIELDS_FORMATTED"]["EVENT_FORMATTED"])

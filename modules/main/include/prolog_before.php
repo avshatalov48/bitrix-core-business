@@ -1,5 +1,10 @@
-<?
-define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
+<?php
+
+if (!defined('START_EXEC_PROLOG_BEFORE_1'))
+{
+	define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
+}
+
 $GLOBALS["BX_STATE"] = "PB";
 if(isset($_REQUEST["BX_STATE"])) unset($_REQUEST["BX_STATE"]);
 if(isset($_GET["BX_STATE"])) unset($_GET["BX_STATE"]);
@@ -14,4 +19,5 @@ if(!isset($DB)) {global $DB;}
 require_once(__DIR__."/../include.php");
 
 CMain::PrologActions();
-?>
+
+define("START_EXEC_PROLOG_BEFORE_2", microtime(true));

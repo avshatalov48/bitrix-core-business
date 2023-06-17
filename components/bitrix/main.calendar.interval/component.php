@@ -24,7 +24,7 @@ $arResult["INTERVALS"] = array(
 	"interval"=>GetMessage("inerface_grid_interval"),
 );
 
-if(is_array($arParams['INTERVALS']))
+if (isset($arParams['INTERVALS']) && is_array($arParams['INTERVALS']))
 {
 	$arInt = array();
 	foreach($arParams['INTERVALS'] as $int)

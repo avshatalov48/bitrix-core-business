@@ -271,7 +271,6 @@ export class SettingsInterface
 		if(this.DOM.accessMessageWrap)
 		{
 			this.DOM.accessMessageWrap.appendChild(this.message.getLayout());
-			this.DOM.accessMessageWrap.firstChild.childNodes[1].remove();
 			if(!this.calendarContext.util.config.hideSettingsHintLocation)
 			{
 				this.showMessage();

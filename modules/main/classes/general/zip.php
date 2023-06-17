@@ -105,7 +105,7 @@ class CZip implements IBXArchive
 
 		//starting measuring start time from here (only packing time)
 		define("ZIP_START_TIME", microtime(true));
-		unset($this->tempres);
+		$this->tempres = null;
 
 		$arFileList = &$this->_parseFileParams($arFileList);
 
@@ -114,7 +114,7 @@ class CZip implements IBXArchive
 			$arConvertedFileList[] = $this->io->GetPhysicalName($fullpath);
 
 		$packRes = null;
-		if (is_array($arFileList) && count($arFileList)>0)
+		if (is_array($arFileList) && !empty($arFileList))
 			$packRes = $this->_processFiles($arConvertedFileList, $this->add_path, $this->remove_path);
 
 		if ($isNewArchive)
@@ -145,7 +145,7 @@ class CZip implements IBXArchive
 			//make central dir footer
 			if (($res = $this->_writeCentralHeader($counter, $size, $offset, $zip_comment)) != 1)
 			{
-				unset($this->arHeaders);
+				$this->arHeaders = null;
 				return $res;
 			}
 
@@ -194,7 +194,7 @@ class CZip implements IBXArchive
 			if (($res = $this->_writeCentralHeader($counter + $arCentralDirInfo['entries'], $size, $offset, $zip_comment)) != 1)
 			{
 				//clear file list
-				unset($this->arHeaders);
+				$this->arHeaders = null;
 				return $res;
 			}
 
@@ -254,7 +254,7 @@ class CZip implements IBXArchive
 			return false;
 		}
 
-		if (!is_array($arFileList) || count($arFileList)<=0)
+		if (!is_array($arFileList) || empty($arFileList))
 			return true;
 
 		$j = -1;
@@ -292,7 +292,7 @@ class CZip implements IBXArchive
 					else
 					{
 						//if startFile is found, continue to pack files and folders without startFile, starting from next
-						unset($this->startFile);
+						$this->startFile = null;
 						continue;
 					}
 				}
@@ -699,8 +699,6 @@ class CZip implements IBXArchive
 
 	private function _checkFormat()
 	{
-		$res = true;
-
 		$this->_errorReset();
 
 		if (!is_file($this->io->GetPhysicalName($this->zipname)))
@@ -716,7 +714,7 @@ class CZip implements IBXArchive
 		}
 
 		//possible checks: magic code, central header, each file header
-		return $res;
+		return true;
 	}
 
 	private function _createArchive($arFilesList, &$arResultList, &$arParams)
@@ -2464,7 +2462,7 @@ class CZip implements IBXArchive
 			}
 
 			//compare items
-			if (($arTmpDirList[$i] != $arTmpPathList[$j]) && ($arTmpDirList[$i] != '') && ( $arTmpPathList[$j] != ''))
+			if ($arTmpDirList[$i] != $arTmpPathList[$j])
 			{
 				$res = 0;
 			}

@@ -112,7 +112,7 @@ class SiteSpeed
 
 	public static function canGatherStat()
 	{
-		$enabled = (defined("LICENSE_KEY") && LICENSE_KEY !== "DEMO");
+		$enabled = !Application::getInstance()->getLicense()->isDemoKey();
 		if($enabled)
 		{
 			$settings = Configuration::getValue("analytics_counter");

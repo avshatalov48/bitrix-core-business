@@ -183,7 +183,7 @@ abstract class BaseServiceHandler
 	 */
 	protected function getBusinessValue(Payment $payment = null, $code)
 	{
-		$value = BusinessValue::getValueFromProvider($payment, $code, $this->service->getConsumerName());
+		$value = BusinessValue::get($code, $this->service->getConsumerName(), $payment);
 		if (is_string($value))
 		{
 			$value = trim($value);
@@ -217,7 +217,8 @@ abstract class BaseServiceHandler
 
 		return array_filter(
 			$codes,
-			static function ($code, $key) use ($psMode) {
+			static function ($code, $key) use ($psMode)
+			{
 				if (!isset($code['HANDLER_MODE']))
 				{
 					return true;

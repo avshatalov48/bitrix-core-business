@@ -213,6 +213,12 @@ class State
 
 		$message = $this->letter->getMessage();
 		$limiter = $message->getTransport()->getExceededLimiter($message);
+		
+		if (!$limiter)
+		{
+			return false;
+		}
+		
 		return $limiter->getParameter('temporaryLimit') === true;
 	}
 

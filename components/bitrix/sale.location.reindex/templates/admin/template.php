@@ -1,33 +1,48 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
-global $APPLICATION;
-?>
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-<?
+/** @global CMain $APPLICATION */
+/** @var CBitrixSaleLocationImportComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+
+global $APPLICATION;
+
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
-?>
 
-<?if(!empty($arResult['ERRORS']['FATAL'])):?>
 
-	<?CAdminMessage::ShowMessage(array('MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['FATAL'])), 'type' => 'ERROR'))?>
+if (!empty($arResult['ERRORS']['FATAL'])):
+	CAdminMessage::ShowMessage([
+		'MESSAGE' => htmlspecialcharsbx(implode(
+			', ',
+			$arResult['ERRORS']['FATAL']
+		)),
+		'type' => 'ERROR',
+	]);
+else:
+	if (!empty($arResult['ERRORS']['NONFATAL'])):
+		CAdminMessage::ShowMessage([
+			'MESSAGE' => htmlspecialcharsbx(implode(
+				', ',
+				$arResult['ERRORS']['NONFATAL']
+			)),
+			'type' => 'ERROR',
+		]);
+	endif;
 
-<?else:?>
-
-	<?if(!empty($arResult['ERRORS']['NONFATAL'])):?>
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => htmlspecialcharsbx(implode(', ', $arResult['ERRORS']['NONFATAL'])), 'type' => 'ERROR'))?>
-	<?endif?>
-
-	<?
-	$aTabs = array(
-		array(
+	$aTabs = [
+		[
 			"DIV" => "tab_reindex",
 			"TAB" => Loc::getMessage("SALE_SLRI_TAB_REINDEX_TITLE"), "ICON" => "sale",
 			"TITLE" => Loc::getMessage("SALE_SLRI_TAB_REINDEX_TITLE_SETTINGS"),
-			"ONSELECT" => "BX.locationReindexInstance.setTab('tab_reindex')"
-		)
-	);
+			"ONSELECT" => "BX.locationReindexInstance.setTab('tab_reindex')",
+		],
+	];
 
 	$tabControl = new CAdminTabControl("tabctrl_reindex", $aTabs, true, true);
 
@@ -41,20 +56,20 @@ Loc::loadMessages(__FILE__);
 	<div id="location-reindex">
 
 		<div class="bx-ui-loc-ri-progressbar">
-			<?
-			CAdminMessage::ShowMessage(array(
+			<?php
+			CAdminMessage::ShowMessage([
 				"TYPE" => "PROGRESS",
 				"DETAILS" => '#PROGRESS_BAR#'.
 					'<div class="adm-loc-ri-statusbar">'.Loc::getMessage('SALE_SLRI_STATUS').': <span class="bx-ui-loc-ri-loader"></span>&nbsp;<span class="bx-ui-loc-ri-status-text">'.Loc::getMessage('SALE_SLRI_STAGE_INITIAL').'</span></div>',
 				"HTML" => true,
 				"PROGRESS_TOTAL" => 100,
 				"PROGRESS_VALUE" => 0,
-				"PROGRESS_TEMPLATE" => '<span class="bx-ui-loc-ri-percents">#PROGRESS_VALUE#</span>%'
-			));
+				"PROGRESS_TEMPLATE" => '<span class="bx-ui-loc-ri-percents">#PROGRESS_VALUE#</span>%',
+			]);
 			?>
 		</div>
 
-		<?
+		<?php
 		$tabControl->Begin();
 		$tabControl->BeginNextTab();
 		?>
@@ -70,9 +85,13 @@ Loc::loadMessages(__FILE__);
 				<td>
 					<select multiple class="bx-ui-loc-ri-option" name="TYPES">
 						<option value=""<?=($arResult['TYPES_UNSELECTED'] ? ' selected' : '')?>>- <?=Loc::getMessage('SALE_SLRI_ALL_TYPES_2')?></option>
-						<?foreach($arResult['TYPES'] as $id => $type):?>
+						<?php
+						foreach($arResult['TYPES'] as $id => $type):
+							?>
 							<option value="<?=intval($id)?>"<?=($type['SELECTED'] ? ' selected' : '')?>><?=htmlspecialcharsbx($type['NAME'])?></option>
-						<?endforeach?>
+							<?php
+						endforeach;
+						?>
 					</select>
 				</td>
 			</tr>
@@ -84,9 +103,13 @@ Loc::loadMessages(__FILE__);
 				<td>
 					<select multiple class="bx-ui-loc-ri-option" name="LANG">
 						<option value=""<?=($arResult['LANGS_UNSELECTED'] ? ' selected' : '')?>>- <?=Loc::getMessage('SALE_SLRI_ALL_LANGS_2')?></option>
-						<?foreach($arResult['LANGS'] as $id => $lang):?>
+						<?php
+						foreach($arResult['LANGS'] as $id => $lang):
+							?>
 							<option value="<?=htmlspecialcharsbx($id)?>"<?=($lang['SELECTED'] ? ' selected' : '')?>><?=htmlspecialcharsbx($lang['NAME'])?></option>
-						<?endforeach?>
+							<?php
+						endforeach;
+						?>
 					</select>
 				</td>
 			</tr>
@@ -100,31 +123,11 @@ Loc::loadMessages(__FILE__);
 				</td>
 			</tr>
 
-			<?/*
-			<tr class="heading">
-				<td colspan="2"><?=Loc::getMessage('SALE_SLRI_JOB2DO')?></td>
-			</tr>
-
-			<tr>
-				<td></td>
-				<td>
-					<label><input type="checkbox" name="JOB[DICTIONARY]" value="1" checked class="bx-ui-loc-ri-option" />&nbsp;<?=Loc::getMessage('SALE_SLRI_JOB_DICTIONARY')?></label><br />
-				</td>
-			</tr>
-
-			<tr>
-				<td></td>
-				<td>
-					<label><input type="checkbox" name="JOB[SITE]" value="1" checked class="bx-ui-loc-ri-option" />&nbsp;<?=Loc::getMessage('SALE_SLRI_JOB_SITE')?></label></label>
-				</td>
-			</tr>
-			*/?>
-
-		<?
+		<?php
 		$tabControl->Buttons();
 		?>
 			<input type="submit" class="adm-btn-save bx-ui-loc-ri-button-start" value="<?=Loc::getMessage('SALE_SLRI_START')?>">
-		<?
+		<?php
 		$tabControl->End();
 		?>
 
@@ -168,4 +171,5 @@ Loc::loadMessages(__FILE__);
 		), false, false, true)?>);
 	</script>
 
-<?endif?>
+<?php
+endif;

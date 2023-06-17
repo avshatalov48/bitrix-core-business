@@ -2,9 +2,12 @@
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
+use Bitrix\Iblock\Component\Property\ComponentLinksBuilder;
 use Bitrix\Main\Loader,
 	Bitrix\Main,
 	Bitrix\Iblock;
+use Bitrix\Main\ModuleManager;
+use Bitrix\UI\Admin\Page\StubProcessor;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 Loader::includeModule('iblock');
@@ -26,11 +29,38 @@ if(!is_array($arIBlock))
 if(!CIBlockRights::UserHasRightTo($arIBlock["ID"], $arIBlock["ID"], "iblock_edit"))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+/*
+ * @todo uncomment after release `ui` module.
+ *
+if (!$publicMode && ModuleManager::isModuleInstalled('intranet'))
+{
+	$stubController = new StubProcessor();
+	if ($stubController->isShowStub())
+	{
+		$APPLICATION->SetTitle(
+			GetMessage("IBP_ADM_TITLE", array("#IBLOCK_NAME#" => htmlspecialcharsex($arIBlock["NAME"])))
+		);
+
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+		$stubController->showStub(
+			GetMessage("IBP_ADM_STUB_TITLE"),
+			(new ComponentLinksBuilder)->getListUrl($arIBlock['ID'])
+		);
+
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+		die();
+	}
+}
+*/
+
 $simpleTypeList = array_fill_keys(Iblock\Helpers\Admin\Property::getBaseTypeList(false), true);
 
 $sTableID = "tbl_iblock_property_admin_".$arIBlock["ID"];
 $oSort = new CAdminUiSorting($sTableID, 'SORT', 'ASC');
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $arPropType = Iblock\Helpers\Admin\Property::getBaseTypeList(true);
 $arUserTypeList = CIBlockProperty::GetUserType();
@@ -134,7 +164,6 @@ if($lAdmin->EditAction())
 {
 	foreach($_REQUEST['FIELDS'] as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = (int)$ID;
 
 		if(!$lAdmin->IsUpdated($ID))
@@ -147,13 +176,18 @@ if($lAdmin->EditAction())
 				[$arFields["PROPERTY_TYPE"], $arFields["USER_TYPE"]] = explode(':', $arFields["PROPERTY_TYPE"], 2);
 		}
 
+		$DB->StartTransaction();
+
 		$ibp = new CIBlockProperty;
 		if(!$ibp->Update($ID, $arFields))
 		{
 			$lAdmin->AddUpdateError(GetMessage("IBP_ADM_SAVE_ERROR", array("#ID#"=>$ID, "#ERROR_TEXT#"=>$ibp->LAST_ERROR)), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -302,12 +336,6 @@ $lAdmin->AddHeaders($arHeader);
 $selectFields = array_fill_keys($lAdmin->GetVisibleHeaderColumns(), true);
 $selectFields['ID'] = true;
 $selectFieldsMap = $selectFields;
-
-global $by, $order;
-if (!isset($by))
-	$by = 'SORT';
-if (!isset($order))
-	$order = 'ASC';
 
 $propertyOrder = array();
 if ($by == 'PROPERTY_TYPE')

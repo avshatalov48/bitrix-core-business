@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sharing;
 
 use Bitrix\Calendar\Core\Event\Event;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Sharing\Link\EventLink;
 use Bitrix\Calendar\Sharing\Link\EventLinkMapper;
@@ -90,26 +91,44 @@ class SharingConference
 
 	private function createConference()
 	{
-		/** @var Event $event */
-		$event = (new Mappers\Event())->getById($this->eventLink->getObjectId());
-		if (!$event)
+		$event = \CCalendarEvent::GetList([
+			'arFilter' => [
+				'ID' => $this->eventLink->getObjectId(),
+			],
+			'fetchAttendees' => true,
+			'checkPermissions' => false,
+		]);
+
+		$event = $event[0] ?? false;
+		if (
+			!$event
+			|| !in_array(
+				$event['EVENT_TYPE'] ?? null,
+				[Dictionary::EVENT_TYPE['shared_crm'], Dictionary::EVENT_TYPE['shared']],
+				true
+			)
+		)
 		{
-			return null;
+			return false;
 		}
 
 		$attendeesId = [];
-		$attendeesCodes = $event->getAttendeesCollection()->getAttendeesCodes();
+		$attendeesCodes = $event['ATTENDEE_LIST'] ?? [];
 		foreach ($attendeesCodes as $attendee)
 		{
-			if (mb_strpos($attendee, 'U') === 0)
+			if (
+				isset($attendee['id'])
+				&& in_array($attendee['status'] ?? null, Dictionary::MEETING_STATUS, true)
+				&& $attendee['status'] !== Dictionary::MEETING_STATUS['Host']
+			)
 			{
-				$attendeesId[] = mb_substr($attendee, 1);
+				$attendeesId[] = $attendee['id'];
 			}
 		}
 
 		$conference = \Bitrix\Im\Call\Conference::add([
 			'USERS' => $attendeesId,
-			'TITLE' => $event->getName(),
+			'TITLE' => $event['NAME'],
 		]);
 
 		if ($conference->getErrors())

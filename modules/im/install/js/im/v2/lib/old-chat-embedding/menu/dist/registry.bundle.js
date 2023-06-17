@@ -370,8 +370,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getMuteItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
-	    const isAnnouncement = dialog.type === im_v2_const.ChatTypes.announcement;
+	    const isUser = dialog.type === im_v2_const.DialogType.user;
+	    const isAnnouncement = dialog.type === im_v2_const.DialogType.announcement;
 	    if (!dialog || isUser || isAnnouncement) {
 	      return null;
 	    }
@@ -397,14 +397,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!dialog) {
 	      return null;
 	    }
-	    const isChat = dialog.type !== im_v2_const.ChatTypes.user;
+	    const isChat = dialog.type !== im_v2_const.DialogType.user;
 	    const callAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, im_v2_const.ChatOption.call);
 	    if (isChat && !callAllowed) {
 	      return null;
 	    }
 	    const callSupport = this.callHelper.checkCallSupport(this.context.dialogId);
-	    const isAnnouncement = dialog.type === im_v2_const.ChatTypes.announcement;
-	    const isExternalTelephonyCall = dialog.type === im_v2_const.ChatTypes.call;
+	    const isAnnouncement = dialog.type === im_v2_const.DialogType.announcement;
+	    const isExternalTelephonyCall = dialog.type === im_v2_const.DialogType.call;
 	    const hasActiveCall = this.callHelper.hasActiveCall();
 	    if (!callSupport || isAnnouncement || isExternalTelephonyCall || hasActiveCall) {
 	      return null;
@@ -419,7 +419,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getHistoryItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
+	    const isUser = dialog.type === im_v2_const.DialogType.user;
 	    if (isUser) {
 	      return null;
 	    }
@@ -439,7 +439,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getOpenProfileItem() {
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
+	    const isUser = dialog.type === im_v2_const.DialogType.user;
 	    if (!isUser) {
 	      return null;
 	    }
@@ -473,7 +473,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!dialog) {
 	      return null;
 	    }
-	    const isUser = dialog.type === im_v2_const.ChatTypes.user;
+	    const isUser = dialog.type === im_v2_const.DialogType.user;
 	    if (isUser) {
 	      return null;
 	    }
@@ -482,7 +482,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      optionToCheck = im_v2_const.ChatOption.leaveOwner;
 	    }
 	    const leaveAllowed = this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
-	    const isExternalTelephonyCall = dialog.type === im_v2_const.ChatTypes.call;
+	    const isExternalTelephonyCall = dialog.type === im_v2_const.DialogType.call;
 	    if (isExternalTelephonyCall || !leaveAllowed) {
 	      return null;
 	    }

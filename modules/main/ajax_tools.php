@@ -117,7 +117,7 @@ class CAjax
 		if ($url_anchor !== false)
 			$url = mb_substr($url, 0, -mb_strlen($url_anchor));
 
-		$url .= mb_strpos($url, "?") === false ? '?' : '&';
+		$url .= strpos($url, "?") === false ? '?' : '&';
 		$url .= CAjax::GetSessionParam($ajax_id);
 
 		if (is_set($_REQUEST['AJAX_CALL'])) $url .= '&AJAX_CALL=Y';

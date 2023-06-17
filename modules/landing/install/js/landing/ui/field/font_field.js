@@ -67,7 +67,14 @@
 
 		if (this.frame)
 		{
-			this.element = this.frame.document.querySelectorAll(this.selector)[0];
+			if (data.styleNode.currentTarget)
+			{
+				this.element = data.styleNode.currentTarget;
+			}
+			else
+			{
+				this.element = this.frame.document.querySelectorAll(this.selector)[0];
+			}
 
 			if (this.element)
 			{

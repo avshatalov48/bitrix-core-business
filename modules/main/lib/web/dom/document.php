@@ -230,7 +230,7 @@ class Document extends Node
 	public function getElementById($id)
 	{
 		$resultList = $this->getElementsByAttr('id', $id, 1);
-		return (count($resultList) > 0) ? current($resultList) : null;
+		return (!empty($resultList)) ? current($resultList) : null;
 	}
 
 	/*
@@ -239,7 +239,7 @@ class Document extends Node
 	public function getElementByClassName($className)
 	{
 		$resultList = $this->getElementsByClassName($className, 1);
-		return (count($resultList) > 0) ? current($resultList) : null;
+		return (!empty($resultList)) ? current($resultList) : null;
 	}
 
 	/*

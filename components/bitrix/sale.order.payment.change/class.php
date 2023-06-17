@@ -1,17 +1,16 @@
 <?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main,
-	Bitrix\Sale,
-	Bitrix\Currency,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Sale\PaySystem,
-	Bitrix\Main\Application;
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Sale;
+use Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
-
 
 /**
  * Class SaleAccountPay
@@ -23,7 +22,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 
 	/** @var \Bitrix\Sale\Order $order */
 	protected $order = null;
-	protected $isRefreshPrice = false;
+	protected bool $isRefreshPrice = false;
 
 	/**
 	 * Function checks and prepares all the parameters passed. Everything about $arParam modification is here.
@@ -34,19 +33,53 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 	{
 		$this->errorCollection = new Main\ErrorCollection();
 
-		if (!isset($params["ELIMINATED_PAY_SYSTEMS"]) && !is_array($params["ELIMINATED_PAY_SYSTEMS"]))
+		$params['PATH_TO_PAYMENT'] = trim((string)($params['PATH_TO_PAYMENT'] ?? ''));
+		if ($params['PATH_TO_PAYMENT'] === '')
+		{
+			$params['PATH_TO_PAYMENT'] = '/personal/order/payment/';
+		}
+		elseif (mb_substr($params['PATH_TO_PAYMENT'], -1) !== '/')
+		{
+			$params['PATH_TO_PAYMENT'] .= '/';
+		}
+
+		$params['SET_TITLE'] = (string)($params['SET_TITLE'] ?? 'Y');
+
+		if (!isset($params["ELIMINATED_PAY_SYSTEMS"]) || !is_array($params["ELIMINATED_PAY_SYSTEMS"]))
 		{
 			$params["ELIMINATED_PAY_SYSTEMS"] = array();
 		}
 
+		$params['REFRESH_PRICES'] = (string)($params['REFRESH_PRICES'] ?? 'N');
+		if ($params['REFRESH_PRICES'] === 'Y')
+		{
+			$this->isRefreshPrice = true;
+		}
+		else
+		{
+			$params['REFRESH_PRICES'] = 'N';
+		}
+
+		$params['ALLOW_INNER'] = (string)($params['ALLOW_INNER'] ?? 'N');
+		if ($params['ALLOW_INNER'] !== 'Y')
+		{
+			$params['ALLOW_INNER'] = 'N';
+		}
+		$params['ONLY_INNER_FULL'] = (string)($params['ONLY_INNER_FULL'] ?? 'N');
+		if ($params['ONLY_INNER_FULL'] !== 'Y')
+		{
+			$params['ONLY_INNER_FULL'] = 'N';
+		}
+		if (!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
+		{
+			$params['ALLOW_INNER'] = 'N';
+			$params['ONLY_INNER_FULL'] = 'N';
+		}
+
+		// region Hidden parameters
 		$params['NAME_CONFIRM_TEMPLATE'] = 'confirm_template';
 
-		$params["TEMPLATE_PATH"] = $this->getTemplateName();
-
-		if (empty($params['NAME_CONFIRM_TEMPLATE']))
-		{
-			$params['NAME_CONFIRM_TEMPLATE'] = "confirm_template";
-		}
+		$params['TEMPLATE_PATH'] = $this->getTemplateName();
 
 		if (empty($params['ACCOUNT_NUMBER']))
 		{
@@ -58,38 +91,11 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 			$this->errorCollection->setError(new Main\Error(Loc::getMessage("SOPC_ERROR_PAYMENT_NOT_EXISTS")));
 		}
 
-		if ($params["PATH_TO_PAYMENT"] == '')
-		{
-			$params["PATH_TO_PAYMENT"] = "/personal/order/payment/";
-		}
-		else
-		{
-			$params["PATH_TO_PAYMENT"] = trim($params["PATH_TO_PAYMENT"]);
-		}
-
-		if (empty($params['ALLOW_INNER']))
-		{
-			$params['ALLOW_INNER'] = "N";
-		}
-
-		if (empty($params['ONLY_INNER_FULL']))
-		{
-			$params['ONLY_INNER_FULL'] = "Y";
-		}
-
-		if (!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
-		{
-			$params['ALLOW_INNER'] = "N";
-		}
-
-		if ($params['REFRESH_PRICES'] === "Y")
-		{
-			$this->isRefreshPrice = true;
-		}
-		else
-		{
-			$params['REFRESH_PRICES'] = "N";
-		}
+		$params['INNER_PAYMENT_SUM'] = (float)($params['INNER_PAYMENT_SUM'] ?? 0);
+		$params['AJAX_DISPLAY'] = (string)($params['AJAX_DISPLAY'] ?? 'N');
+		$params['NEW_PAY_SYSTEM_ID'] = (int)($params['NEW_PAY_SYSTEM_ID'] ?? 0);
+		$params['RETURN_URL'] = trim((string)($params['RETURN_URL'] ?? ''));
+		// endregion
 
 		return $params;
 	}
@@ -221,10 +227,11 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 						&& $this->arParams['ALLOW_INNER'] === 'Y'
 						&& $this->arResult['IS_ALLOW_PAY'] === 'Y')
 					{
-						$this->arResult['SHOW_INNER_TEMPLATE'] = "Y";
+						$this->arResult['SHOW_INNER_TEMPLATE'] = 'Y';
 					}
 					else
 					{
+						$this->arResult['SHOW_INNER_TEMPLATE'] = 'N';
 						$this->orderPayment();
 					}
 
@@ -272,7 +279,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 	 */
 	protected function prepareData()
 	{
-		if ($this->arParams['ACCOUNT_NUMBER'] == '')
+		if ($this->arParams['ACCOUNT_NUMBER'] === '')
 		{
 			return;
 		}
@@ -346,7 +353,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 		}
 		else
 		{
-			$paymentSum = $paymentSum >= $budget ? $budget : $paymentSum;
+			$paymentSum = min($paymentSum, $budget);
 
 			if ($this->arParams['ONLY_INNER_FULL'] === 'Y' && $paymentSum < $sum)
 			{
@@ -377,9 +384,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 
 		$this->order->save();
 
-		$result = $paySystemObject->initiatePay($payment, null, PaySystem\BaseServiceHandler::STRING);
-
-		return $result;
+		return $paySystemObject->initiatePay($payment, null, PaySystem\BaseServiceHandler::STRING);
 	}
 
 	/**
@@ -463,7 +468,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 		if ($this->isRefreshPrice)
 		{
 			$oldOrderPrice = $this->order->getPrice();
-			$this->order->refreshData(array('PRICE', 'PRICE_DELIVERY'));
+			$this->order->refreshData();
 			if (count($this->order->getPaymentCollection()) > 1)
 			{
 				$newOrderPrice = $this->order->getPrice();
@@ -481,20 +486,15 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 			if ($this->arResult['IS_ALLOW_PAY'] == 'Y')
 			{
 
-				$this->arResult = array(
-					"ORDER_ID" => $this->order->getField("ACCOUNT_NUMBER"),
-					"ORDER_DATE" => $this->order->getDateInsert()->toString(),
-					"PAYMENT_ID" => $payment->getField("ACCOUNT_NUMBER"),
-					"PAY_SYSTEM_NAME" => $payment->getField("PAY_SYSTEM_NAME"),
-					"IS_CASH" => $paySystemObject->isCash() || $paySystemObject->getField("ACTION_FILE") === 'cash',
-					"NAME_CONFIRM_TEMPLATE" => $this->arParams['NAME_CONFIRM_TEMPLATE']
-				);
+				$this->arResult['ORDER_ID'] = $this->order->getField("ACCOUNT_NUMBER");
+				$this->arResult['ORDER_DATE'] = $this->order->getDateInsert()->toString();
+				$this->arResult['PAYMENT_ID'] = $payment->getField("ACCOUNT_NUMBER");
+				$this->arResult['PAY_SYSTEM_NAME'] = $payment->getField("PAY_SYSTEM_NAME");
+				$this->arResult['IS_CASH'] = $paySystemObject->isCash() || $paySystemObject->getField("ACTION_FILE") === 'cash';
+				$this->arResult['NAME_CONFIRM_TEMPLATE'] = $this->arParams['NAME_CONFIRM_TEMPLATE'];
 
 				if ($paySystemObject->getField('NEW_WINDOW') === 'Y')
 				{
-					if (mb_substr($this->arParams['PATH_TO_PAYMENT'], -1) !== '/')
-						$this->arParams['PATH_TO_PAYMENT'] .= '/';
-
 					$this->arResult["PAYMENT_LINK"] = $this->arParams['PATH_TO_PAYMENT'] . "?ORDER_ID=" . $this->order->getField("ACCOUNT_NUMBER") . "&PAYMENT_ID=" . $payment->getField('ACCOUNT_NUMBER');
 				}
 				else

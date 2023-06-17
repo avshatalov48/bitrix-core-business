@@ -3,13 +3,14 @@ import { EventEmitter } from "main.core.events";
 
 export default class NavigationItem
 {
-	constructor({ id, title, active, events, link })
+	constructor({ id, title, active, events, link, locked })
 	{
 		this.id = id ? id : null;
 		this.title = Type.isString(title) ? title : null;
 		this.active = Type.isBoolean(active) ? active : false;
 		this.events = events ? events : null;
 		this.link = link ? link : null;
+		this.locked = Type.isBoolean(locked) ? locked : false;
 
 		this.linkContainer = null;
 
@@ -40,6 +41,7 @@ export default class NavigationItem
 			`;
 
 			this.active ? this.activate() : this.inactivate();
+			this.locked ? this.lock() : this.unLock();
 
 			this.setEvents();
 		}
@@ -55,6 +57,23 @@ export default class NavigationItem
 				this.inactivate();
 			}
 		});
+	}
+
+	isLocked()
+	{
+		return this.locked;
+	}
+
+	lock()
+	{
+		this.locked = true;
+		this.getContainer().classList.add('--locked');
+	}
+
+	unLock()
+	{
+		this.locked = false;
+		this.getContainer().classList.remove('--locked');
 	}
 
 	setEvents()

@@ -46,13 +46,16 @@ class ProductModel
 			this.initFields(options.fields, false);
 		}
 
-		if (Type.isNil(options.storeMap))
+		if (this.#isStoreCollectionEnabled())
 		{
-			this.#storeCollection.refresh();
-		}
-		else
-		{
-			this.#storeCollection.init(options.storeMap);
+			if (Type.isNil(options.storeMap))
+			{
+				this.#storeCollection.refresh();
+			}
+			else
+			{
+				this.#storeCollection.init(options.storeMap);
+			}
 		}
 
 		if (Type.isObject(options.skuTree))
@@ -105,7 +108,7 @@ class ProductModel
 
 	getOption(name: string, defaultValue: any = null): any
 	{
-		return this.options[name] || defaultValue
+		return this.options[name] ?? defaultValue
 	}
 
 	setOption(name: string, value: any = null): this
@@ -176,7 +179,7 @@ class ProductModel
 		)
 		{
 			this.#offerId = this.getSkuId();
-			if (this.#offerId > 0)
+			if (this.#offerId > 0 && this.#isStoreCollectionEnabled())
 			{
 				this.#storeCollection.refresh();
 			}
@@ -198,7 +201,7 @@ class ProductModel
 	{
 		this.#fieldCollection.initFields(fields);
 		this.#offerId = this.getSkuId();
-		if (refreshStoreInfo)
+		if (refreshStoreInfo && this.#isStoreCollectionEnabled())
 		{
 			this.#storeCollection.refresh();
 		}
@@ -221,6 +224,11 @@ class ProductModel
 	isNew(): boolean
 	{
 		return this.getOption('isNew', false);
+	}
+	
+	#isStoreCollectionEnabled(): boolean
+	{
+		return this.getOption('isStoreCollectable', true);
 	}
 
 	getSkuId(): ?number

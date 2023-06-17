@@ -23,16 +23,24 @@ function CheckFilterDates($date1, $date2, &$date1_wrong, &$date2_wrong, &$date2_
 function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLogic="FILTER_logic")
 {
 	$sessAdmin = Application::getInstance()->getSession()["SESS_ADMIN"];
-	if ($session && is_array($sessAdmin[$varName]))
+	if ($session && isset($sessAdmin[$varName]) && is_array($sessAdmin[$varName]))
+	{
 		$FILTER = $sessAdmin[$varName];
+	}
 	else
-		$FILTER = Array();
+	{
+		$FILTER = [];
+	}
 
 	global $$FilterLogic;
 	if ($action=="set")
+	{
 		$FILTER[$FilterLogic] = $$FilterLogic;
+	}
 	else
-		$$FilterLogic = $FILTER[$FilterLogic];
+	{
+		$$FilterLogic = ($FILTER[$FilterLogic] ?? '');
+	}
 
 	for($i=0, $n=count($arName); $i < $n; $i++)
 	{
@@ -62,7 +70,7 @@ function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLo
 		}
 		else
 		{
-			$$name = isset($FILTER[$name])? $FILTER[$name]: null;
+			$$name = $FILTER[$name] ?? null;
 			if(isset($$period) || isset($FILTER[$period]))
 				$$period = $FILTER[$period];
 
@@ -141,23 +149,32 @@ function DelFilter($arName)
 
 function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "set_filter" => "Y"))
 {
+	$res = '';
 	// если поступил не массив имен переменных то
+	$arrVars = [];
 	if (!is_array($var))
 	{
 		// получим имена переменных фильтра по префиксу
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
-		if (is_array($arKeys) && count($arKeys)>0)
+		if (is_array($arKeys) && !empty($arKeys))
 		{
 			$len = mb_strlen($var);
 			foreach (array_unique($arKeys) as $key)
+			{
 				if (mb_substr($key, 0, $len) == $var)
+				{
 					$arrVars[] = $key;
+				}
+			}
 		}
 	}
-	else $arrVars = $var;
+	else
+	{
+		$arrVars = $var;
+	}
 
 	// если получили массив переменных фильтра то
-	if (is_array($arrVars) && count($arrVars)>0)
+	if (is_array($arrVars) && !empty($arrVars))
 	{
 		// соберем строку из URL параметров
 		foreach ($arrVars as $var_name)
@@ -203,7 +220,7 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 	{
 		// получим имена переменных фильтра по префиксу
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
-		if(is_array($arKeys) && count($arKeys)>0)
+		if(is_array($arKeys) && !empty($arKeys))
 		{
 			$len = mb_strlen($var);
 			foreach (array_unique($arKeys) as $key)
@@ -215,7 +232,7 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 		$arrVars = $var;
 
 	// если получили массив переменных фильтра то
-	if(is_array($arrVars) && count($arrVars)>0)
+	if(is_array($arrVars) && !empty($arrVars))
 	{
 		// соберем строку из URL параметров
 		foreach($arrVars as $var_name)
@@ -262,7 +279,7 @@ function GetFilterStr($arr, $button="set_filter")
 		$value = $$var;
 		if (is_array($value))
 		{
-			if (count($value)>0)
+			if (!empty($value))
 			{
 				foreach($value as $v)
 				{
@@ -393,7 +410,7 @@ function GetFilterSqlSearch($arSqlSearch=array(), $FilterLogic="FILTER_logic")
 		$strSqlSearch = "1=2";
 	else
 		$strSqlSearch = "1=1";
-	if (is_array($arSqlSearch) && count($arSqlSearch)>0)
+	if (is_array($arSqlSearch) && !empty($arSqlSearch))
 	{
 		foreach ($arSqlSearch as $condition)
 		{

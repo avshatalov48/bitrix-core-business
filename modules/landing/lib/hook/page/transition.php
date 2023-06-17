@@ -70,7 +70,7 @@ class Transition extends Hook\Page
 	protected function setTransition($color): void
 	{
 		Asset::getInstance()->addString(
-			'<style type="text/css">
+			'<style>
 					body.landing-page-transition::after {
 						background: ' . $color . ';
 					}

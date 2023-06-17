@@ -177,6 +177,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			$arFilter["FIRST_USER_IS_ACTIVE"] = "Y";
 			$arFilter["SECOND_USER_IS_ACTIVE"] = "Y";
 		}
+
+		$arSqls2 = null;
 		
 		if (
 			(

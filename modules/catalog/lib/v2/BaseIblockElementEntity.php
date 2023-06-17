@@ -238,6 +238,16 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 		);
 	}
 
+	public function allowConvertToSku(): bool
+	{
+		$type = $this->getType();
+
+		return (
+			$type === ProductTable::TYPE_PRODUCT
+			|| $type === ProductTable::TYPE_EMPTY_SKU
+		);
+	}
+
 	public function setActive(bool $active): BaseEntity
 	{
 		return $this->setField('ACTIVE', $active ? 'Y' : 'N');

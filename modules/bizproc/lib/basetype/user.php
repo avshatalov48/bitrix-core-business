@@ -412,7 +412,7 @@ HTML;
 		$value = parent::validateValueMultiple($value, $fieldType);
 		$value = array_filter($value, fn($v) => (!is_null($v)));
 
-		return array_unique($value);
+		return array_values(array_unique($value));
 	}
 
 	private static function isRawValue($value): bool

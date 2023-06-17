@@ -1,8 +1,11 @@
-<?
+<?php
 //**********************************************************************/
 //**    DO NOT MODIFY THIS FILE                                       **/
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
+
+use Bitrix\Main\Application;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 
@@ -13,27 +16,38 @@ ignore_user_abort(true);
 IncludeModuleLangFile(__FILE__);
 
 if(!$USER->CanDoOperation('install_updates'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-
-$errorMessage = "";
-$myaddmodule = "";
-
-if(is_array($_REQUEST["addmodule"]))
 {
-	foreach($_REQUEST["addmodule"] as $val)
-		$myaddmodule .= preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $val).",";
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
-else
-	$myaddmodule = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_REQUEST["addmodule"]);
-
-$stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "Y");
-$bLockUpdateSystemKernel = false;//CUpdateSystemPartner::IsInCommonKernel();
-$arRequestedModules = CUpdateClientPartner::GetRequestedModules($myaddmodule);
 
 $strTitle = GetMessage("SUP_TITLE_BASE");
 $APPLICATION->SetTitle($strTitle);
 $APPLICATION->SetAdditionalCSS("/bitrix/themes/".ADMIN_THEME_ID."/sysupdate.css");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+if (COption::GetOptionString("main", "~disable_3d_party_install", "N") === "Y")
+{
+	CAdminMessage::ShowMessage(Array("DETAILS" => GetMessage('main_update_partner_block'), "TYPE" => "ERROR", "MESSAGE" => GetMessage("SUP_ERROR"), "HTML" => true));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+}
+
+$errorMessage = "";
+$myaddmodule = "";
+
+if(isset($_REQUEST["addmodule"]) && is_array($_REQUEST["addmodule"]))
+{
+	foreach($_REQUEST["addmodule"] as $val)
+	{
+		$myaddmodule .= preg_replace("#[^a-z0-9.,_-]#i", "", $val).",";
+	}
+}
+else
+{
+	$myaddmodule = preg_replace("#[^a-z0-9.,_-]#i", "", $_REQUEST["addmodule"] ?? '');
+}
+
+$stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "Y");
+$arRequestedModules = CUpdateClientPartner::GetRequestedModules($myaddmodule);
 
 $arMenu = array(
 	array(
@@ -51,36 +65,36 @@ $arMenu = array(
 $context = new CAdminContextMenu($arMenu);
 $context->Show();
 
-if (!$bLockUpdateSystemKernel)
+if (!$arUpdateList = CUpdateClientPartner::GetUpdatesList($errorMessage, LANG, $stableVersionsOnly, $arRequestedModules))
 {
-	if (!$arUpdateList = CUpdateClientPartner::GetUpdatesList($errorMessage, LANG, $stableVersionsOnly, $arRequestedModules))
-		$errorMessage .= "<br>".GetMessage("SUP_CANT_CONNECT").". ";
-}
-else
-{
-	$errorMessage .= "<br>".GetMessage("SUP_CANT_CONTRUPDATE").". ";
+	$errorMessage .= "<br>".GetMessage("SUP_CANT_CONNECT").". ";
 }
 
 $strError_tmp = "";
 $arClientModules = CUpdateClientPartner::GetCurrentModules($strError_tmp);
 if ($strError_tmp <> '')
+{
 	$errorMessage .= $strError_tmp;
+}
 
 if ($arUpdateList)
 {
 	if (isset($arUpdateList["ERROR"]))
 	{
 		for ($i = 0, $cnt = count($arUpdateList["ERROR"]); $i < $cnt; $i++)
+		{
 			$errorMessage .= "[".$arUpdateList["ERROR"][$i]["@"]["TYPE"]."] ".$arUpdateList["ERROR"][$i]["#"];
+		}
 	}
 }
 
 if ($errorMessage <> '')
-	echo CAdminMessage::ShowMessage(Array("DETAILS" => $errorMessage, "TYPE" => "ERROR", "MESSAGE" => GetMessage("SUP_ERROR"), "HTML" => true));
+{
+	CAdminMessage::ShowMessage(Array("DETAILS" => $errorMessage, "TYPE" => "ERROR", "MESSAGE" => GetMessage("SUP_ERROR"), "HTML" => true));
+}
 
 ?>
 <script language="JavaScript">
-<!--
 	var updRand = 0;
 
 	function PrepareString(str)
@@ -90,7 +104,6 @@ if ($errorMessage <> '')
 			str = str.substring(1);
 		return str;
 	}
-//-->
 </script>
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1">
 <input type="hidden" name="lang" value="<?echo LANG ?>">
@@ -140,14 +153,12 @@ $tabControl->BeginNextTab();
 			<?
 			$countModuleUpdates = 0;
 			$countTotalImportantUpdates = 0;
-			$bLockControls = False;
 
 			if ($arUpdateList)
 			{
-				if (isset($arUpdateList["MODULE"]) && is_array($arUpdateList["MODULE"]) && is_array($arUpdateList["MODULE"]))
+				if (isset($arUpdateList["MODULE"]) && is_array($arUpdateList["MODULE"]))
 					$countModuleUpdates = count($arUpdateList["MODULE"]);
 
-				$countTotalImportantUpdates = 0;
 				if ($countModuleUpdates > 0)
 				{
 					for ($i = 0, $cnt = count($arUpdateList["MODULE"]); $i < $cnt; $i++)
@@ -183,7 +194,7 @@ $tabControl->BeginNextTab();
 				</div>
 
 				<?
-				if ($arUpdateList !== false && isset($arUpdateList["REG"]) && count($arUpdateList["REG"]) > 0)
+				if (!empty($arUpdateList["REG"]))
 				{
 					?>
 					<div id="upd_register_div">
@@ -216,7 +227,6 @@ $tabControl->BeginNextTab();
 						<br>
 					</div>
 					<SCRIPT LANGUAGE="JavaScript">
-					<!--
 					function RegisterSystem()
 					{
 						ShowWaitWindow();
@@ -241,7 +251,6 @@ $tabControl->BeginNextTab();
 						updRand++;
 						CHttpRequest.Send('/bitrix/admin/update_system_partner_act.php?query_type=register&<?= bitrix_sessid_get() ?>&updRand=' + updRand);
 					}
-					//-->
 					</SCRIPT>
 					<?
 				}
@@ -294,17 +303,17 @@ $tabControl->BeginNextTab();
 											<td>
 								<b><?= GetMessage("SUP_SU_RECOMEND") ?>:</b>
 								<?
-								$bComma = False;
+								$bComma = false;
 								if ($countModuleUpdates > 0)
 								{
 									echo str_replace("#NUM#", $countModuleUpdates, GetMessage("SUP_SU_RECOMEND_MOD"));
-									$bComma = True;
+									$bComma = true;
 								}
 								if ($countModuleUpdates <= 0)
 									echo GetMessage("SUP_SU_RECOMEND_NO");
 								?>
 								<br><br>
-								<input TYPE="button" ID="install_updates_button" NAME="install_updates"<?= (($countModuleUpdates <= 0 || $bLockControls) ? " disabled" : "") ?> value="<?= GetMessage("SUP_SU_UPD_BUTTON") ?>" onclick="InstallUpdates()">
+								<input TYPE="button" ID="install_updates_button" NAME="install_updates"<?= (($countModuleUpdates <= 0) ? " disabled" : "") ?> value="<?= GetMessage("SUP_SU_UPD_BUTTON") ?>" onclick="InstallUpdates()">
 								<br><br>
 								<span id="id_view_updates_list_span"><a id="id_view_updates_list" href="javascript:tabControl.SelectTab('tab2');"><?= GetMessage("SUP_SU_UPD_VIEW") ?></a></span>
 								<br><br>
@@ -325,7 +334,6 @@ $tabControl->BeginNextTab();
 				</div>
 
 				<script language="JavaScript">
-				<!--
 				var updSelectDiv = document.getElementById("upd_select_div");
 				var updInstallDiv = document.getElementById("upd_install_div");
 				var updSuccessDiv = document.getElementById("upd_success_div");
@@ -555,7 +563,6 @@ $tabControl->BeginNextTab();
 					document.getElementById("id_stop_updates").disabled = true;
 					ShowWaitWindow();
 				}
-				//-->
 				</script>
 				<?
 			}
@@ -586,7 +593,7 @@ $tabControl->BeginNextTab();
 
 											<tr>
 												<td><b><?= GetMessage("SUP_LICENSE_KEY_MD5") ?>:&nbsp;&nbsp;</b></td>
-												<td><b><?= md5("BITRIX".CUpdateClientPartner::GetLicenseKey()."LICENCE"); ?></b></td>
+												<td><b><?= Application::getInstance()->getLicense()->getPublicHashKey(); ?></b></td>
 											</tr>
 											<tr>
 												<td><?echo GetMessage("SUP_ACTIVE")?>&nbsp;&nbsp;</td>
@@ -665,11 +672,11 @@ $tabControl->BeginNextTab();
 							$arModuleTmp["@"]["ID"] = preg_replace("#[^A-Za-z0-9._-]#", "", $arModuleTmp["@"]["ID"]);
 							if($myaddmodule <> '')
 							{
-								if(strtolower($myaddmodule) != strtolower($arModuleTmp["@"]["ID"]) && mb_strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) === false)
+								if(strtolower($myaddmodule) != strtolower($arModuleTmp["@"]["ID"]) && strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) === false)
 									$checked = "";
 							}
 							$strTitleTmp = $arModuleTmp["@"]["NAME"]." (".$arModuleTmp["@"]["ID"].")\n".$arModuleTmp["@"]["DESCRIPTION"]."\n";
-							if (is_array($arModuleTmp["#"]) && array_key_exists("VERSION", $arModuleTmp["#"]) && count($arModuleTmp["#"]["VERSION"]) > 0)
+							if (is_array($arModuleTmp["#"]) && array_key_exists("VERSION", $arModuleTmp["#"]) && !empty($arModuleTmp["#"]["VERSION"]))
 								for ($j = 0, $cntj = count($arModuleTmp["#"]["VERSION"]); $j < $cntj; $j++)
 									$strTitleTmp .= str_replace("#VER#", $arModuleTmp["#"]["VERSION"][$j]["@"]["ID"], GetMessage("SUP_SULL_VERSION"))."\n".$arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"]."\n";
 							$strTitleTmp = htmlspecialcharsbx(preg_replace("/<.+?>/i", "", $strTitleTmp));
@@ -696,7 +703,7 @@ $tabControl->BeginNextTab();
 									else
 									{
 										echo GetMessage("SUP_SULL_REF_N");
-										if(strtolower($myaddmodule) == strtolower($arModuleTmp["@"]["ID"]) || mb_strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) !== false)
+										if(strtolower($myaddmodule) == strtolower($arModuleTmp["@"]["ID"]) || strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) !== false)
 										{
 											?>
 											<script>
@@ -721,7 +728,6 @@ $tabControl->BeginNextTab();
 					?>
 				</table>
 				<SCRIPT LANGUAGE="JavaScript">
-				<!--
 					var arModuleUpdatesDescr = {<?
 					if (isset($arUpdateList["MODULE"]))
 					{
@@ -783,7 +789,7 @@ $tabControl->BeginNextTab();
 							if ($i > 0)
 								echo ", ";
 							echo "\"".$arUpdateList["MODULE"][$i]["@"]["ID"]."\" : [";
-							$bFlagTmp = False;
+							$bFlagTmp = false;
 							if (isset($arUpdateList["MODULE"][$i]["#"]["VERSION"])
 								&& is_array($arUpdateList["MODULE"][$i]["#"]["VERSION"]))
 							{
@@ -1077,7 +1083,7 @@ $tabControl->BeginNextTab();
 								agrDialog.DIV.parentNode.removeChild(agrDialog.DIV);
 							agrDialog = null;
 						}
-						
+
 						var name = '';
 						var freeModule = 'Y';
 						NeedAgree = true;
@@ -1156,7 +1162,6 @@ $tabControl->BeginNextTab();
 								agrDialog.Close();
 						}
 					}
-				//-->
 				</SCRIPT>
 				<?
 			}
@@ -1172,10 +1177,6 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 
-			<?
-			if (!$bLockUpdateSystemKernel)
-			{
-				?>
 				<div id="upd_add_coupon_div">
 					<table cellpadding="0" cellspacing="0">
 						<tr>
@@ -1190,7 +1191,6 @@ $tabControl->BeginNextTab();
 					</table>
 				</div>
 				<SCRIPT LANGUAGE="JavaScript">
-				<!--
 				function ActivateCoupon()
 				{
 					document.getElementById("id_coupon_btn").disabled = true;
@@ -1226,11 +1226,7 @@ $tabControl->BeginNextTab();
 						alert("<?= GetMessageJS("SUP_SUAC_NO_COUP") ?>");
 					}
 				}
-				//-->
 				</SCRIPT>
-				<?
-			}
-			?>
 		</td>
 	</tr>
 
@@ -1238,15 +1234,6 @@ $tabControl->BeginNextTab();
 $tabControl->EndTab();
 $tabControl->End();
 ?>
-
-<SCRIPT LANGUAGE="JavaScript">
-<!--
-	<?
-	if ($bLockControls)
-		echo "LockControls();";
-	?>
-//-->
-</SCRIPT>
 
 </form>
 
@@ -1259,4 +1246,3 @@ $tabControl->End();
 COption::SetOptionString("main", "update_system_check", Date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

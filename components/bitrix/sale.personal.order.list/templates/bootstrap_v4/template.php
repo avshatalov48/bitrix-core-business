@@ -1,10 +1,17 @@
-<?
+<?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Page\Asset;
+/** @var CBitrixPersonalOrderListComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 
 Asset::getInstance()->addJs("/bitrix/components/bitrix/sale.order.payment.change/templates/bootstrap_v4/script.js");
 Asset::getInstance()->addCss("/bitrix/components/bitrix/sale.order.payment.change/templates/bootstrap_v4/style.css");
@@ -38,6 +45,9 @@ if (!empty($arResult['ERRORS']['FATAL']))
 }
 else
 {
+	$filterHistory = ($_REQUEST['filter_history'] ?? '');
+	$filterShowCanceled = ($_REQUEST["show_canceled"] ?? '');
+
 	if (!empty($arResult['ERRORS']['NONFATAL']))
 	{
 		foreach($arResult['ERRORS']['NONFATAL'] as $error)
@@ -45,11 +55,11 @@ else
 			ShowError($error);
 		}
 	}
-	if (!count($arResult['ORDERS']))
+	if (empty($arResult['ORDERS']))
 	{
-		if ($_REQUEST["filter_history"] == 'Y')
+		if ($filterHistory === 'Y')
 		{
-			if ($_REQUEST["show_canceled"] == 'Y')
+			if ($filterShowCanceled === 'Y')
 			{
 				?>
 				<h3><?= Loc::getMessage('SPOL_TPL_EMPTY_CANCELED_ORDER')?></h3>
@@ -76,18 +86,18 @@ else
 			$nothing = !isset($_REQUEST["filter_history"]) && !isset($_REQUEST["show_all"]);
 			$clearFromLink = array("filter_history","filter_status","show_all", "show_canceled");
 
-			if ($nothing || $_REQUEST["filter_history"] == 'N')
+			if ($nothing || $filterHistory === 'N')
 			{
 				?>
 				<a class="mr-4" href="<?=$APPLICATION->GetCurPageParam("filter_history=Y", $clearFromLink, false)?>"><?echo Loc::getMessage("SPOL_TPL_VIEW_ORDERS_HISTORY")?></a>
 				<?
 			}
-			if ($_REQUEST["filter_history"] == 'Y')
+			if ($filterHistory === 'Y')
 			{
 				?>
 				<a class="mr-4" href="<?=$APPLICATION->GetCurPageParam("", $clearFromLink, false)?>"><?echo Loc::getMessage("SPOL_TPL_CUR_ORDERS")?></a>
 				<?
-				if ($_REQUEST["show_canceled"] == 'Y')
+				if ($filterShowCanceled === 'Y')
 				{
 					?>
 					<a class="mr-4" href="<?=$APPLICATION->GetCurPageParam("filter_history=Y", $clearFromLink, false)?>"><?echo Loc::getMessage("SPOL_TPL_VIEW_ORDERS_HISTORY")?></a>
@@ -104,7 +114,7 @@ else
 		</div>
 	</div>
 	<?
-	if (!count($arResult['ORDERS']))
+	if (empty($arResult['ORDERS']))
 	{
 		?>
 		<div class="row mb-3">
@@ -115,7 +125,7 @@ else
 		<?
 	}
 
-	if ($_REQUEST["filter_history"] !== 'Y')
+	if ($filterHistory !== 'Y')
 	{
 		$paymentChangeData = array();
 		$orderHeaderStatus = null;
@@ -465,7 +475,7 @@ else
 	{
 		$orderHeaderStatus = null;
 
-		if ($_REQUEST["show_canceled"] === 'Y' && count($arResult['ORDERS']))
+		if ($filterShowCanceled === 'Y' && !empty($arResult['ORDERS']))
 		{
 			?>
 			<div class="row mb-3">
@@ -478,7 +488,7 @@ else
 
 		foreach ($arResult['ORDERS'] as $key => $order)
 		{
-			if ($orderHeaderStatus !== $order['ORDER']['STATUS_ID'] && $_REQUEST["show_canceled"] !== 'Y')
+			if ($orderHeaderStatus !== $order['ORDER']['STATUS_ID'] && $filterShowCanceled !== 'Y')
 			{
 				$orderHeaderStatus = $order['ORDER']['STATUS_ID'];
 				?>
@@ -516,7 +526,7 @@ else
 				</h3>
 				<div class="col-sm-auto">
 					<?
-					if ($_REQUEST["show_canceled"] !== 'Y')
+					if ($filterShowCanceled !== 'Y')
 					{
 						?>
 						<span class="sale-order-list-accomplished-date">
@@ -555,7 +565,7 @@ else
 
 	echo $arResult["NAV_STRING"];
 
-	if ($_REQUEST["filter_history"] !== 'Y')
+	if ($filterHistory !== 'Y')
 	{
 		$javascriptParams = array(
 			"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
@@ -572,4 +582,3 @@ else
 		<?
 	}
 }
-?>

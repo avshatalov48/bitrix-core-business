@@ -20,6 +20,11 @@ import 'ui.hint';
 export const hint = {
 	beforeMount(element: HTMLElement, bindings): void
 	{
+		if (!bindings.value)
+		{
+			return;
+		}
+
 		Event.bind(element, 'mouseenter', () => Tooltip.show(element, bindings));
 		Event.bind(element, 'mouseleave', () => Tooltip.hide());
 	}

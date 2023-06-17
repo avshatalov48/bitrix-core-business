@@ -1,7 +1,7 @@
 <?php
 /**
- * @global CUser $USER
- * @global CMain $APPLICATION
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
  */
 
 function sendResponse(array $answer, string $httpCode = '200 OK')

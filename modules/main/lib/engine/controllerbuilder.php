@@ -26,6 +26,7 @@ final class ControllerBuilder
 
 			/** @var Controller $controller */
 			/** @see \Bitrix\Main\Engine\Controller::__construct */
+			/** @see \Bitrix\Main\Engine\Controller::forward */
 			$controller = $reflectionClass->newInstance();
 			$controller->setScope($scope);
 			$controller->setCurrentUser($currentUser);

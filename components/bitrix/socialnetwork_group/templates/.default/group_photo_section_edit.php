@@ -39,7 +39,7 @@ endif;
 
 		"ONLY_ONE_GALLERY" => $arParams["PHOTO"]["ALL"]["ONLY_ONE_GALLERY"],
 		"GALLERY_GROUPS" => $arParams["PHOTO"]["ALL"]["GALLERY_GROUPS"],
-		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"],
+		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"] ?? null,
 
 		"SET_NAV_CHAIN" => "N",
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
@@ -63,7 +63,7 @@ endif;
 		"IS_SOCNET" => "Y",
 		"PERMISSION" => $arResult["VARIABLES"]["PERMISSION"],
 		"SECTION_ID" => $arResult["VARIABLES"]["SECTION_ID"],
-		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"],
+		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"] ?? null,
 
 		"ACTION" => $arResult["VARIABLES"]["ACTION"],
 

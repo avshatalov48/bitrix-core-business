@@ -12,7 +12,7 @@
 	background: #242424;
 	-ms-flex-wrap: wrap;
 	    flex-wrap: wrap;
-	padding: 14px 0;
+	padding: 16px 0 20px;
 	-ms-flex-negative: 0;
 	    flex-shrink: 0;
 }
@@ -30,9 +30,9 @@ a.bitrix-footer-link,
 a.bitrix-footer-link:visited,
 .bitrix-footer-text {
 	color: #919191;
-	margin: 0 3px;
 	font: 12px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
+	text-align: center;
 }
 
 a.bitrix-footer-link,
@@ -48,6 +48,35 @@ a.bitrix-footer-link:hover{
 	color:#fff;
 	border-bottom-color:#fff;
 	text-decoration: none;
+}
+
+.bitrix-footer-seo {
+	margin-bottom: 10px !important;
+}
+
+.bitrix-footer-terms {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+}
+.bitrix-footer-link-report {
+	margin: auto 10px auto auto;
+}
+.bitrix-footer-hint {
+	margin-right: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+.bitrix-footer-hint .ui-hint-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='13' height='13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12.833 6.5a6.333 6.333 0 11-12.666 0 6.333 6.333 0 0112.666 0zm-7.13 2.08v1.431H7.16v-1.43H5.703zm-.13-3.064H4.207c.006-.335.064-.641.172-.92.108-.279.26-.52.455-.725a2.05 2.05 0 01.706-.478c.276-.115.584-.172.924-.172.44 0 .807.06 1.101.181.294.121.531.271.71.45a1.669 1.669 0 01.502 1.161c0 .298-.038.543-.116.735a1.812 1.812 0 01-.668.84 8.79 8.79 0 00-.395.288 1.846 1.846 0 00-.33.33.947.947 0 00-.181.465v.353H5.833v-.418c.018-.267.07-.49.153-.67.084-.179.181-.332.293-.459.111-.127.229-.237.353-.33.123-.093.238-.186.343-.278.106-.093.19-.196.256-.307a.762.762 0 00.088-.418c0-.285-.07-.495-.209-.632-.14-.136-.333-.204-.58-.204a.899.899 0 00-.432.098.861.861 0 00-.298.26 1.128 1.128 0 00-.172.38 1.892 1.892 0 00-.055.47z' fill='%23fff' opacity='.4'/%3E%3C/svg%3E");
+}
+.bitrix-footer-hint.ui-hint {
+	line-height: 13px;
+	width: 13px;
+	height: 13px;
+}
+.bitrix-footer-hint.ui-hint .ui-hint-icon {
+	margin: 0 !important;
 }
 
 body {

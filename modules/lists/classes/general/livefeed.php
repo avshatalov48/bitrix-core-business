@@ -629,7 +629,8 @@ class CListsLiveFeed
 		}
 
 		if(
-			$fields['ENTITY_TYPE_ID'] == 'FORUM_POST'
+			isset($fields['ENTITY_TYPE_ID'])
+			&& $fields['ENTITY_TYPE_ID'] == 'FORUM_POST'
 			&& intval($fields['PARAM1']) == $bizprocForumId
 			&& !empty($fields['PARAM2'])
 			&& !empty($bxSocNetSearch->_params["PATH_TO_WORKFLOW"])

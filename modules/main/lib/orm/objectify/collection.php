@@ -1026,4 +1026,35 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	{
 		return count($this->_objects);
 	}
+
+	/**
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
+	public function merge(?self $collection): self
+	{
+		if (is_null($collection))
+		{
+			return $this;
+		}
+
+		if (get_class($this) !== get_class($collection))
+		{
+			throw new ArgumentException(
+				'Invalid object class ' . get_class($collection) . ' for merge, ' . get_class($this) . ' expected .'
+			);
+		}
+
+		foreach ($collection as $item)
+		{
+			$this->add($item);
+		}
+
+		return $this;
+	}
+
+	public function isEmpty(): bool
+	{
+		return $this->count() === 0;
+	}
 }

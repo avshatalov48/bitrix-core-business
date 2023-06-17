@@ -38,6 +38,7 @@ use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
 use Bitrix\Catalog\v2\Barcode\Barcode;
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Iblock\Component\Property\ComponentLinksBuilder;
 use Bitrix\Main\Web\Uri;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -59,11 +60,11 @@ class CatalogProductDetailsComponent
 
 	/** @var ProductForm|ServiceForm */
 	private $form;
-	/** @var \Bitrix\Catalog\Component\StoreAmount */
+	/** @var StoreAmount */
 	private $storeAmount;
-	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
+	/** @var BaseProduct */
 	private $product;
-	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
+	/** @var BaseProduct */
 	private $copyProduct;
 
 	public function __construct($component = null)
@@ -654,6 +655,9 @@ class CatalogProductDetailsComponent
 
 	protected function createProduct(): ?BaseProduct
 	{
+		$isCopy = $this->isCopy();
+		$existsProductType = !$isCopy && $this->hasProductTypeid();
+
 		$product = null;
 		$productFactory = ServiceContainer::getProductFactory($this->getIblockId());
 
@@ -664,6 +668,10 @@ class CatalogProductDetailsComponent
 				->createEntity()
 				->setActive(true)
 			;
+			if ($existsProductType)
+			{
+				$product->setType($this->getProductTypeId());
+			}
 		}
 
 		if ($product === null)
@@ -678,16 +686,14 @@ class CatalogProductDetailsComponent
 			$product->setField('UF_PRODUCT_MAPPING', []);
 		}
 
-		$productTypeId = $this->getProductTypeId();
-		if ($productTypeId === 0)
+		if (!$existsProductType)
 		{
 			$skuRepository = ServiceContainer::getSkuRepository($this->getIblockId());
 			$productTypeId = $skuRepository ? ProductTable::TYPE_SKU : ProductTable::TYPE_PRODUCT;
 			$this->setProductTypeId($productTypeId);
 		}
-		$product->setType($productTypeId);
 
-		if ($this->isCopy())
+		if ($isCopy)
 		{
 			$copyProductId = $this->getCopyProductId();
 			$this->copyProduct = $this->loadProduct($copyProductId);
@@ -696,7 +702,6 @@ class CatalogProductDetailsComponent
 				$fields = $this->copyProduct->getFields();
 				unset(
 					$fields['ID'],
-					$fields['TYPE'], // TODO: this code blocked copy service
 					$fields['IBLOCK_ID'],
 					$fields['XML_ID'],
 					$fields['PREVIEW_PICTURE'],
@@ -704,6 +709,10 @@ class CatalogProductDetailsComponent
 					$fields['QUANTITY'],
 					$fields['QUANTITY_RESERVED']
 				);
+				if ($fields['TYPE'] === ProductTable::TYPE_EMPTY_SKU)
+				{
+					unset($fields['TYPE']);
+				}
 				$product->setFields($fields);
 				$product->getSectionCollection()->setValues(
 					$this->copyProduct->getSectionCollection()->getValues()
@@ -995,7 +1004,12 @@ class CatalogProductDetailsComponent
 
 	protected function getCreationPropertyUrl(): string
 	{
-		return "/shop/settings/iblock_edit_property/?lang=".LANGUAGE_ID."&IBLOCK_ID=".urlencode($this->getIblockId())."&ID=n0&publicSidePanel=Y&newProductCard=Y";
+		if (Loader::includeModule('iblock'))
+		{
+			return (new ComponentLinksBuilder)->getActionCreateUrl($this->getIblockId());
+		}
+
+		return '';
 	}
 
 	protected function getCreationSkuPropertyLink()
@@ -1005,6 +1019,25 @@ class CatalogProductDetailsComponent
 			$this->getForm()->getVariationIblockId(),
 			$this->arParams['PATH_TO']['PROPERTY_CREATOR']
 		);
+	}
+
+	private static function isNumericId($id): bool
+	{
+		if (is_int($id))
+		{
+			return true;
+		}
+
+		if (is_string($id))
+		{
+			$typedId = (int)$id;
+			if ((string)$typedId === $id)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private function parseIsSkuProduct(array $fields, BaseProduct $product): bool
@@ -1019,12 +1052,13 @@ class CatalogProductDetailsComponent
 
 		foreach ($skuFields as $id => $sku)
 		{
-			if (is_numeric($id) && $this->getProductId() !== $id)
+			$isNumeric = static::isNumericId($id);
+			if ($isNumeric && $this->getProductId() !== $id)
 			{
 				return true;
 			}
 
-			if (!is_numeric($id) && !$product->isNew())
+			if (!$isNumeric && !$product->isNew())
 			{
 				return true;
 			}
@@ -1081,7 +1115,7 @@ class CatalogProductDetailsComponent
 					}
 
 					$propertyId = (int)mb_substr($originalName, $propertyPrefixLength);
-					if (is_numeric($propertyId))
+					if ($propertyId > 0)
 					{
 						$propertySettings = CIBlockProperty::GetByID($propertyId)->Fetch();
 
@@ -1109,7 +1143,7 @@ class CatalogProductDetailsComponent
 								continue;
 							}
 
-							if (is_numeric($id) && !$gridImages)
+							if (static::isNumericId($id) && !$gridImages)
 							{
 								$prefix = BaseForm::GRID_FIELD_PREFIX . BaseForm::PROPERTY_FIELD_PREFIX . $propertyId;
 								$controlId = $prefix . '_uploader_' . $id;
@@ -1420,6 +1454,23 @@ class CatalogProductDetailsComponent
 		if ($this->form->isQuantityTraceSettingDisabled())
 		{
 			unset($fields['QUANTITY_TRACE']);
+		}
+	}
+
+	private function prepareDateFields(&$fields): void
+	{
+		if (isset($fields['ACTIVE_FROM']) && $fields['ACTIVE_FROM'] !== '')
+		{
+			$date = \Bitrix\Main\Type\DateTime::createFromUserTime($fields['ACTIVE_FROM']);
+			$date->disableUserTime();
+			$fields['ACTIVE_FROM'] = $date;
+		}
+
+		if (isset($fields['ACTIVE_TO']) && $fields['ACTIVE_TO'] !== '')
+		{
+			$date = \Bitrix\Main\Type\DateTime::createFromUserTime($fields['ACTIVE_TO']);
+			$date->disableUserTime();
+			$fields['ACTIVE_TO'] = $date;
 		}
 	}
 
@@ -1743,7 +1794,7 @@ class CatalogProductDetailsComponent
 		$sectionFields = $this->parseSectionFields($fields);
 
 		$convertedSku = null;
-		if ($isSkuProduct && $product->isSimple())
+		if ($isSkuProduct && $product->allowConvertToSku())
 		{
 			$convertedSku = $this->convertSimpleProductToSku($product);
 		}
@@ -1751,6 +1802,7 @@ class CatalogProductDetailsComponent
 		$this->prepareDescriptionFields($fields);
 		$this->preparePictureFields($fields);
 		$this->prepareCatalogFields($fields);
+		$this->prepareDateFields($fields);
 
 		if ($product->isNew())
 		{
@@ -1784,7 +1836,7 @@ class CatalogProductDetailsComponent
 			{
 				$sku = null;
 
-				if (is_numeric($skuId))
+				if (static::isNumericId($skuId))
 				{
 					$skuId = (int)$skuId;
 
@@ -2527,10 +2579,15 @@ class CatalogProductDetailsComponent
 			]
 		);
 		$chunks = array_map(
-			static function ($string) {
-				return mb_strtoupper(mb_substr($string, 0, 1)).mb_substr($string, 1);
+			static function ($string)
+			{
+				return mb_strtoupper(mb_substr($string, 0, 1)) . mb_substr($string, 1);
 			},
-			['Property', $translitName, $tableId]
+			[
+				'Property',
+				$translitName,
+				$tableId,
+			]
 		);
 		$dictionaryName = implode('', $chunks);
 		$tableName = CIBlockPropertyDirectory::createHighloadTableName($tableId);
@@ -2736,7 +2793,7 @@ class CatalogProductDetailsComponent
 	{
 		if ($this->storeAmount === null)
 		{
-			$this->storeAmount = new \Bitrix\Catalog\Component\StoreAmount($this->getProductId());
+			$this->storeAmount = new StoreAmount($this->getProductId());
 		}
 		return $this->storeAmount;
 	}

@@ -9,7 +9,7 @@ use Bitrix\Sale\Internals\Entity;
 
 Loc::getMessage(__FILE__);
 
-abstract class ProductCategoryRestriction extends Base
+abstract class ProductCategoryRestriction extends Restriction
 {
 	/**
 	 * Return js object name that must have 'addRestrictionProductSection(id, name, nodeId)'
@@ -70,6 +70,11 @@ abstract class ProductCategoryRestriction extends Base
 	public static function getClassTitle() : string
 	{
 		return Loc::getMessage('SALE_BASE_RESTRICTION_BY_CATEGORY');
+	}
+
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_BASE_RESTRICTION_BY_CATEGORY_ON_APPLY_ERROR_MSG');
 	}
 
 	/**

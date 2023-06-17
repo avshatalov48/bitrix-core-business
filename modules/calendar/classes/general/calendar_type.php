@@ -1,4 +1,8 @@
 <?
+
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\UserTable;
@@ -131,22 +135,32 @@ class CCalendarType
 			$arPerm = self::GetArrayPermissions($arTypeXmlIds);
 			$res = array();
 			$arAccessCodes = array();
+			$accessController = new TypeAccessController(CCalendar::GetCurUserId());
+
 			if (is_array($result))
 			{
 				foreach($result as $type)
 				{
 					$typeXmlId = $type['XML_ID'];
-					if (self::CanDo('calendar_type_view', $typeXmlId))
-					{
-						$type['PERM'] = array(
-							'view' => true,
-							'add' => self::CanDo('calendar_type_add', $typeXmlId),
-							'edit' => self::CanDo('calendar_type_edit', $typeXmlId),
-							'edit_section' => self::CanDo('calendar_type_edit_section', $typeXmlId),
-							'access' => self::CanDo('calendar_type_edit_access', $typeXmlId)
-						);
+					$typeModel = TypeModel::createFromXmlId($typeXmlId);
+					$request = [
+						ActionDictionary::ACTION_TYPE_VIEW => [],
+						ActionDictionary::ACTION_TYPE_EDIT => [],
+						ActionDictionary::ACTION_TYPE_ACCESS => [],
+					];
 
-						if (self::CanDo('calendar_type_edit_access', $typeXmlId))
+					$result = $accessController->batchCheck($request, $typeModel);
+					if ($result[ActionDictionary::ACTION_TYPE_VIEW])
+					{
+						$type['PERM'] = [
+							'view' => true,
+							'add' => $result[ActionDictionary::ACTION_TYPE_EDIT],
+							'edit' => $result[ActionDictionary::ACTION_TYPE_EDIT],
+							'edit_section' => $result[ActionDictionary::ACTION_TYPE_EDIT],
+							'access' => $result[ActionDictionary::ACTION_TYPE_ACCESS],
+						];
+
+						if ($result[ActionDictionary::ACTION_TYPE_ACCESS])
 						{
 							$type['ACCESS'] = array();
 							if (count($arPerm[$typeXmlId]) > 0)
@@ -209,7 +223,10 @@ class CCalendarType
 		}
 
 		//SaveAccess
-		if (self::CanDo('calendar_type_edit_access', $XML_ID) && is_array($access))
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$typeModel = TypeModel::createFromXmlId($arFields['XML_ID']);
+
+		if ($accessController->check(ActionDictionary::ACTION_TYPE_ACCESS, $typeModel) && is_array($access))
 		{
 			self::SavePermissions($XML_ID, $access);
 		}
@@ -250,7 +267,7 @@ class CCalendarType
 				{
 					$accessCode = self::prepareGroupCode($accessCode);
 				}
-				
+
 				$insert = $DB->PrepareInsert(
 					"b_calendar_access",
 					[
@@ -259,26 +276,26 @@ class CCalendarType
 						"SECT_ID" => $type
 					]
 				);
-				
+
 				$strSql = "INSERT INTO b_calendar_access(" . $insert[0] . ") VALUES(" . $insert[1] . ")";
 				$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
 			}
 		}
 	}
-	
+
 	private static function prepareGroupCode($code)
 	{
 		$parsedCode = explode('_', $code);
-		
+
 		if (count($parsedCode) === 1)
 		{
 			$code .= '_K';
 		}
-		
+
 		return $code;
 	}
-	
-	
+
+
 	public static function GetArrayPermissions($arTypes = array())
 	{
 		global $DB;

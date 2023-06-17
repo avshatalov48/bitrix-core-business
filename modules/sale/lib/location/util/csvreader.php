@@ -4,7 +4,7 @@
  * It can be changed at any time without notification.
  *
  * The class is used when reading csv files doing location import.
- * 
+ *
  * @access private
  */
 
@@ -106,9 +106,12 @@ final class CSVReader extends \CCSVData
 			$result = array_merge_recursive($result, $resLine);
 		}
 
-		if(is_callable($this->callbacks['AFTER_ASSOC_LINE_READ']))
+		if (is_callable($this->callbacks['AFTER_ASSOC_LINE_READ'] ?? ''))
 		{
-			call_user_func_array($this->callbacks['AFTER_ASSOC_LINE_READ'], array(&$result));
+			call_user_func_array(
+				$this->callbacks['AFTER_ASSOC_LINE_READ'],
+				[&$result]
+			);
 		}
 
 		// character conversion

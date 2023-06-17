@@ -124,9 +124,9 @@ class Access
 				if ($maxCount >= 0)
 				{
 					$appInfo = AppTable::getByClientId($entity);
-					if ($appInfo['STATUS'] !== AppTable::STATUS_LOCAL)
+					if (!isset($appInfo['STATUS']) || $appInfo['STATUS'] !== AppTable::STATUS_LOCAL)
 					{
-						if ($appInfo['CODE'])
+						if (isset($appInfo['CODE']) && $appInfo['CODE'])
 						{
 							$entity = $appInfo['CODE'];
 						}
@@ -312,6 +312,15 @@ class Access
 		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
 		$isSubscriptionAvailable = Client::isSubscriptionAvailable();
 		$canBuySubscription = Client::canBuySubscription();
+		$isDemoSubscription = Client::isSubscriptionDemo();
+		$isCanInstallInDemo = true;
+		if (
+			!empty($entityData['HOLD_INSTALL_BY_TRIAL'])
+			&& $entityData['HOLD_INSTALL_BY_TRIAL'] === 'Y'
+		)
+		{
+			$isCanInstallInDemo = false;
+		}
 
 		$license = $isB24 ? \CBitrix24::getLicenseFamily() : '';
 		$isDemo = $license === 'demo';
@@ -348,7 +357,7 @@ class Access
 		{
 			if (
 				$entityData['ID'] > 0
-				&& $entityData['ACTIVE']
+				&& (isset($entityData['ACTIVE']) && $entityData['ACTIVE'])
 				&& (
 					$entityData['STATUS'] === AppTable::STATUS_FREE
 					|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
@@ -358,7 +367,10 @@ class Access
 				$isFreeEntity = true;
 			}
 			elseif (
-				!$entityData['ACTIVE']
+				(
+				!isset($entityData['ACTIVE'])
+				|| !$entityData['ACTIVE']
+				)
 				&& !(
 					$entityData['BY_SUBSCRIPTION'] === 'Y'
 					|| ($entityData['FREE'] === 'N' && !empty($entityData['PRICE']))
@@ -432,7 +444,7 @@ class Access
 				elseif (!$isB24)
 				{
 					// choose subscription
-					$code = 'limit_subscription_market_marketpaid_trialend';
+					$code = 'plus_need_trial';
 				}
 				else
 				{
@@ -478,7 +490,7 @@ class Access
 			elseif (!$isB24 && $isSubscriptionAccess)
 			{
 				// choose subscription
-				$code = 'limit_subscription_market_marketpaid_trialend';
+				$code = 'plus_need_trial';
 			}
 		}
 		elseif ($isB24 && !$isDemo && $isMaxApplication && $isFreeEntity && !$isMaxLicense)
@@ -503,13 +515,14 @@ class Access
 		}
 		elseif (
 			$isSubscriptionDemoAvailable
+			&& $isCanInstallInDemo
 			&& ($hasPaidApplication || $isMaxApplication || !$isFreeEntity)
 		)
 		{
 			if (!$isFreeEntity)
 			{
 				// activate demo subscription
-				$code = 'limit_subscription_market_access';
+				$code = 'limit_subscription_market_access_buy_marketplus';
 			}
 			elseif ($isB24 && $isDemo)
 			{
@@ -522,17 +535,22 @@ class Access
 				$code = 'limit_subscription_market_marketpaid';
 			}
 		}
+		elseif ($isDemoSubscription && !$isCanInstallInDemo)
+		{
+			// only paid subscription app
+			$code = 'subscription_market_paid_access';
+		}
 		elseif ($canBuySubscription)
 		{
 			if ($isSubscriptionFinished)
 			{
 				// choose subscription
-				$code = 'limit_subscription_market_marketpaid_trialend';
+				$code = 'limit_subscription_market_access_buy_marketplus';
 			}
 			else
 			{
 				// choose new subscription
-				$code = 'limit_subscription_market_marketpaid_trialend';
+				$code = 'plus_need_trial';
 			}
 		}
 		elseif ($isB24 && $isDemo)

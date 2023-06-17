@@ -20,6 +20,7 @@ $bodyClasses = 'pagetitle-toolbar-field-view no-hidden no-background no-all-padd
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, $bodyClasses)));
 
 \Bitrix\Main\UI\Extension::load([
+	'market.application',
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'ui.alerts',
@@ -208,7 +209,7 @@ if (!$arResult['SLIDER'])
 											<button
 												class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
 												<? if ($app['REST_ACCESS']):?>
-													onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+													onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 												<? else:?>
 													onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 												<? endif;?>
@@ -223,7 +224,7 @@ if (!$arResult['SLIDER'])
 												<button
 													class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
 													<? if ($app['REST_ACCESS']):?>
-														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+														onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 													<? else:?>
 														onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 													<? endif?>
@@ -234,7 +235,7 @@ if (!$arResult['SLIDER'])
 												<button
 													class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
 													<? if ($app['REST_ACCESS']):?>
-														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+														onclick="BX.Market.Application.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 													<? else:?>
 														onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 													<? endif;?>
@@ -250,7 +251,7 @@ if (!$arResult['SLIDER'])
 										<button
 											class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
 											<? if ($app['REST_ACCESS']):?>
-												onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
+												onclick="BX.Market.Application.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
 											<? else:?>
 												onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 											<? endif;?>
@@ -266,7 +267,7 @@ if (!$arResult['SLIDER'])
 									<button
 										class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
 										<? if ($app['REST_ACCESS']):?>
-											onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
+											onclick="BX.Market.Application.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
 										<? else:?>
 											onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 										<? endif;?>

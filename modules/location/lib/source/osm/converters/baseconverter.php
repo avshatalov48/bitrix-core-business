@@ -38,23 +38,10 @@ abstract class BaseConverter
 	 * @param string $languageId
 	 * @param array $details
 	 * @return Location|null
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function convert(string $languageId, array $details): ?Location
 	{
 		$this->details = $details;
-
-		/**
-		 * Remove non-address items
-		 */
-		$this->addressComponents = array_filter(
-			$this->details['address'],
-			function (array $addressComponent)
-			{
-				return $addressComponent['isaddress'];
-			}
-		);
 
 		if (!$this->isDetailsValid())
 		{
@@ -133,6 +120,22 @@ abstract class BaseConverter
 			return false;
 		}
 
+		/**
+		 * Remove non-address items
+		 */
+		$this->addressComponents = array_filter(
+			$this->details['address'],
+			static function (array $addressComponent)
+			{
+				if (!isset($addressComponent['isaddress']))
+				{
+					return false;
+				}
+
+				return (bool)$addressComponent['isaddress'];
+			}
+		);
+
 		if (empty($this->details['address']))
 		{
 			return false;
@@ -159,7 +162,6 @@ abstract class BaseConverter
 	/**
 	 * @param string $languageId
 	 * @return Address\FieldCollection
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function makeAddressFieldCollection(string $languageId): Address\FieldCollection
 	{

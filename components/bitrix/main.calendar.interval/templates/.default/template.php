@@ -7,7 +7,7 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)
  * @var array $arResult
  * @global CMain $APPLICATION
  */
-if(count($arResult["INTERVALS"]) > 0):
+if(!empty($arResult["INTERVALS"])):
 ?>
 <select name="<?=$arParams["SELECT_NAME"]?>" onchange="bxCalendarInterval.OnDateChange(this)">
 <?

@@ -129,15 +129,23 @@ class CRatings extends CAllRatings
 
 					$sRatingNormalizationType = COption::GetOptionString("main", "rating_normalization_type", "auto");
 					if ($sRatingNormalizationType == 'manual')
+					{
 						$ratingNormalization = COption::GetOptionString("main", "rating_normalization", 1000);
+					}
 					else
 					{
 						if ($communitySize <= 10)
+						{
 							$ratingNormalization = 10;
-						else if ($communitySize > 10 && $communitySize <= 1000)
+						}
+						elseif ($communitySize <= 1000)
+						{
 							$ratingNormalization = 100;
-						else if ($communitySize > 1000)
+						}
+						else
+						{
 							$ratingNormalization = 1000;
+						}
 						COption::SetOptionString("main", "rating_normalization", $ratingNormalization);
 					}
 
@@ -410,6 +418,7 @@ class CRatings extends CAllRatings
 //		$DB->Query("TRUNCATE TABLE b_rating_prepare");
 		$DB->Query("DELETE FROM b_rating_prepare");
 
+		$strSql = '';
 		if ($bAllGroups || empty($arGroups))
 		{
 			$strSql .= "

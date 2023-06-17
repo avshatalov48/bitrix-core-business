@@ -4,13 +4,17 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
-{
-	//@TODO remake
-	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
-}
 
-\Bitrix\Main\UI\Extension::load(["ui.viewer", "ui.fonts.opensans", 'ui.buttons.icons']);
+\Bitrix\Main\UI\Extension::load([
+	'ui',
+	'ui.buttons',
+	'ui.icons',
+	'ui.alerts',
+	"ui.viewer",
+	"ui.fonts.opensans",
+	'ui.buttons.icons',
+	'ui.entity-selector',
+]);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
 
@@ -30,43 +34,6 @@ if ($arResult["FatalErrorMessage"] <> '')
 }
 else
 {
-	if (empty($arParams['SHOW_DOCUMENT_TYPES_TOOLBAR']) || $arParams['SHOW_DOCUMENT_TYPES_TOOLBAR'] !== 'N'):
-	?>
-	<div class="bp-interface-toolbar-container">
-		<div class="bp-interface-toolbar">
-			<table cellpadding="0" cellspacing="0" border="0" class="" style="width: 100%;">
-				<tbody>
-				<tr>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0">
-							<tbody>
-							<tr>
-								<?foreach ($arResult['DOCUMENT_TYPES'] as $uid => $dt):?>
-								<td>
-									<a href="<?=$APPLICATION->GetCurPage().($uid!='*'?'?type='.$uid:'')?>" hidefocus="true" class="bp-context-button <?=!empty($dt['ACTIVE'])?'active':''?>">
-										<span class="bp-context-button-text"><?=htmlspecialcharsbx($dt['NAME'])?></span>
-										<?if (empty($dt['FILTER']) && !empty($arResult["COUNTERS"]['*'])):?>
-										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"]['*']?></span>
-										<?elseif (!empty($dt['FILTER']['ENTITY']) && !empty($arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']][$dt['FILTER']['ENTITY']])):?>
-										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']][$dt['FILTER']['ENTITY']]?></span>
-										<?elseif (empty($dt['FILTER']['ENTITY']) && isset($dt['FILTER']) && !empty($arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']]['*'])):?>
-										<span class="bp-context-button-notice"><?=$arResult["COUNTERS"][$dt['FILTER']['MODULE_ID']]['*']?></span>
-										<?endif?>
-									</a>
-								</td>
-								<?endforeach;?>
-							</tr>
-							</tbody>
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-	<?
-	endif;
-
 	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
@@ -86,7 +53,7 @@ else
 				|| $record['data']['MODULE_ID'] == 'rpa'
 			);
 
-			$popupJs = 'return BX.Bizproc.showTaskPopup('.$record['data']['ID'].', function(){window[\'bxGrid_'.$arResult["GRID_ID"].'\'].Reload()}, '.(int)$arResult['TARGET_USER_ID'].', this)';
+			$popupJs = 'return BX.Bizproc.showTaskPopup('.$record['data']['ID'].', () => BX.Bizproc.Component.TaskList.Instance.reloadGrid(), '.(int)$arResult['TARGET_USER_ID'].', this)';
 			$taskHref = $record['data']['URL']['TASK'];
 
 			$attrs = 'href="#" onclick="'.$popupJs.'"';
@@ -138,11 +105,12 @@ else
 							$control['NAME'] => $control['VALUE']
 						));
 
+						$safeGridId = htmlspecialcharsbx(CUtil::JSEscape($arResult['GRID_ID']));
 						$arResult["RECORDS"][$key]['data']["NAME"] .= '<a href="#" onclick="return BX.Bizproc.doInlineTask('
 							. $props
-							. ', function(){window[\'bxGrid_'
-							. $arResult["GRID_ID"]
-							. '\'].Reload()}, this)" class="ui-btn ui-btn-' . $class . ' ui-btn-icon-' . $icon
+							. ', function(){'
+							. "BX.Main.gridManager.reload('${safeGridId}');"
+							. '}, this)" class="ui-btn ui-btn-' . $class . ' ui-btn-icon-' . $icon
 							. '">'
 							. $control['TEXT']
 							. '</a>';
@@ -205,65 +173,138 @@ else
 		$actionList['set_status_'.CBPTaskUserStatus::Ok] = GetMessage("BPATL_GROUP_ACTION_OK");
 	}
 	if ($showActions && $arResult['USE_SUBORDINATION'] && empty($arResult['IS_COMPLETED']))
+	{
 		$actionList['delegate_to'] = GetMessage("BPATL_GROUP_ACTION_DELEGATE");
+	}
 
 	if (isset($actionList['delegate_to']))
 	{
-		ob_start();
-		CBPViewHelper::RenderUserSearch(
-			"ACTION_DELEGATE_TO",
-			"ACTION_DELEGATE_TO_SEARCH",
-			"ACTION_DELEGATE_TO_ID",
-			"ACTION_DELEGATE_TO",
-			SITE_ID,
-			$arParams['~NAME_TEMPLATE'] ?? '',
-			500
-		);
-		$actionHtml .= '<div id="ACTION_DELEGATE_TO_WRAPPER" style="display:none;">'.ob_get_clean().'</div>';
-
-		$actionHtml .= '
-		<script type="text/javascript">
-			BX.ready(
-				function(){
-				var select = BX.findChild(BX.findPreviousSibling(BX.findParent(BX("ACTION_DELEGATE_TO_WRAPPER"), { "tagName":"td" })), { "tagName":"select" });
-				BX.bind(
-					select,
-					"change",
-					function(e){
-						BX("ACTION_DELEGATE_TO_WRAPPER").style.display = select.value === "delegate_to" ? "" : "none";
-					}
-				)
-			}
-		);
-		</script>';
+		$actionHtml .= '<div id="ACTION_DELEGATE_TO_WRAPPER" style="display:none;"></div>';
 	}
 
-	$gridParams = array(
-		"GRID_ID"=>$arResult["GRID_ID"],
-		"HEADERS"=>$arResult["HEADERS"],
-		"SORT"=>$arResult["SORT"],
-		"ROWS"=>$arResult["RECORDS"],
-		"FOOTER"=>array(array("title"=>GetMessage("BPWC_WLCT_TOTAL"), "value"=>$arResult["ROWS_COUNT"])),
-		"NAV_OBJECT"=>$arResult["NAV_RESULT"],
-		"AJAX_MODE"=>"Y",
-		"AJAX_OPTION_JUMP"=>"Y",
-		"FILTER"=>$arResult["FILTER"],
-		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
-		'ERROR_MESSAGES' => $arResult['ERRORS']
-	);
+	$addToolbar = function() use ($arResult)
+	{
+		$filterParams = [
+			'FILTER_ID' => $arResult['FILTER_ID'],
+			'GRID_ID' => $arResult['GRID_ID'],
+			'FILTER' => $arResult['FILTER'],
+			'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
+			'ENABLE_LABEL' => true,
+			'ENABLE_LIVE_SEARCH' => true,
+			'RESET_TO_DEFAULT_MODE' => true,
+			'THEME' => \Bitrix\Main\UI\Filter\Theme::MUTED,
+		];
+
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterParams);
+	};
+
+	$addToolbar();
+	$gridParams = [
+		'GRID_ID' => $arResult['GRID_ID'],
+		'COLUMNS' => $arResult['COLUMNS'],
+		'NAV_OBJECT' => $arResult['NAV_RESULT'],
+		'SORT' => $arResult['SORT'],
+		'ROWS' => $arResult['RECORDS'],
+		'TOTAL_ROWS_COUNT' => $arResult['ROWS_COUNT'],
+		'AJAX_MODE' => 'Y',
+		'AJAX_OPTION_JUMP' => 'N',
+		'AJAX_OPTION_HISTORY' => 'N',
+		'SHOW_ROW_CHECKBOXES' => true,
+		'SHOW_ROW_ACTIONS_MENU' => true,
+		'SHOW_GRID_SETTINGS_MENU' => true,
+		'SHOW_NAVIGATION_PANEL' => true,
+		'SHOW_PAGINATION' => true,
+		'SHOW_SELECTED_COUNTER' => false,
+		'SHOW_TOTAL_COUNTER' => true,
+		'SHOW_PAGESIZE' => true,
+		'ALLOW_COLUMNS_SORT' => true,
+		'ALLOW_COLUMNS_RESIZE' => true,
+		'ALLOW_HORIZONTAL_SCROLL' => true,
+		'ALLOW_INLINE_EDIT' => true,
+		'ALLOW_SORT' => true,
+		'ALLOW_PIN_HEADER' => true,
+		'HANDLE_RESPONSE_ERROR' => true,
+		'MESSAGES' => array_map(
+			fn ($message) => [
+				'TEXT' => $message,
+				'TYPE' => 'error',
+			],
+			$arResult['ERRORS'] ?? [],
+		),
+	];
 
 	if ($actionList)
 	{
-		$gridParams['ACTIONS'] = array(
-			"list"=> $actionList,
-			'custom_html' => $actionHtml
-		);
-		$gridParams['ACTION_ALL_ROWS'] = true;
+		$snippet = new \Bitrix\Main\Grid\Panel\Snippet();
+
+		$dropdownButtonItems = [];
+		foreach ($actionList as $value => $name)
+		{
+			$action = '';
+			if ($value === 'delegate_to')
+			{
+				$action = 'BX("ACTION_DELEGATE_TO_WRAPPER").style.display = ""';
+			}
+			else
+			{
+				$action = 'BX("ACTION_DELEGATE_TO_WRAPPER").style.display = "none"';
+			}
+
+			$dropdownButtonItems[] = [
+				'NAME' => $name,
+				'VALUE' => $value,
+				'ONCHANGE' => [
+					[
+						'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+						'DATA' => [
+							[
+								'JS' => $action,
+							],
+						],
+					]
+				],
+			];
+		}
+
+		$gridParams['SHOW_ACTION_PANEL'] = true;
+		$gridParams['ACTION_PANEL'] = [
+			'GROUPS' => [
+				[
+					'ITEMS' => [
+						$snippet->getForAllCheckbox(),
+						[
+							'TYPE' => \Bitrix\Main\Grid\Panel\Types::DROPDOWN,
+							'NAME' => 'action_button_' . $arResult['GRID_ID'],
+							'MULTIPLE' => 'N',
+							'ITEMS' => $dropdownButtonItems,
+						],
+						[
+							'TYPE' => \Bitrix\Main\Grid\Panel\Types::CUSTOM,
+							'NAME' => 'ACTION_DELEGATE_TO_ID',
+							'VALUE' => $actionHtml,
+						],
+						$snippet->getApplyButton([
+							'ONCHANGE' => [
+								[
+									'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+									'DATA' => [
+										[
+											'JS' => 'BX.Bizproc.Component.TaskList.Instance.applyActionPanelValues()',
+										],
+									],
+								]
+							],
+						]),
+					],
+				],
+			],
+		];
+
 		$gridParams['EDITABLE'] = true;
 	}
 
 	$APPLICATION->IncludeComponent(
-		'bitrix:bizproc.interface.grid',
+		'bitrix:main.ui.grid',
 		"",
 		$gridParams,
 		$component
@@ -318,5 +359,14 @@ else
 					}
 				]
 		});
+
+		const gridId = '<?=CUtil::JSEscape($arResult['GRID_ID'])?>';
+
+		BX.Bizproc.Component.TaskList.Instance = new BX.Bizproc.Component.TaskList({
+			gridId: gridId,
+		});
+
+		BX.Bizproc.Component.TaskList.Instance.init();
+		BX.addCustomEvent('Grid::updated', () => BX.Bizproc.Component.TaskList.Instance.init());
 	});
 </script>

@@ -39,7 +39,10 @@ if ($arResult['ERRORS'])
 
 // load extensions
 $extensions = ['ui.fonts.opensans'];
-$extensions[] = 'ui.entity-selector';
+if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP')
+{
+	$extensions[] = 'ui.entity-selector';
+}
 if (
 	$arParams['SHOW_EDIT_PANEL'] == 'Y' ||
 	!$landing->getDomainId()// wiki mode
@@ -53,6 +56,7 @@ if ($b24Installed)
 	$extensions[] = 'landing.metrika';
 }
 $extensions[] = 'sidepanel';
+$extensions[] = 'ui.hint';
 
 Extension::load($extensions);
 
@@ -235,9 +239,10 @@ $assets->addAsset(
 		'landing_public',
 		Assets\Location::LOCATION_AFTER_TEMPLATE
 );
+$viewMode = $component->isPreviewMode() ? 'preview' : 'view';
 $publicModeInit = '
 	BX.namespace("BX.Landing");
-	BX.Landing.getMode = () => "view";
+	BX.Landing.getMode = () => "' . $viewMode . '";
 ';
 $assets->addString(
 	"<script>{$publicModeInit}</script>",
@@ -248,6 +253,23 @@ $assets->addAsset(
 );
 $assets->addAsset('landing_critical_grid', Assets\Location::LOCATION_BEFORE_ALL);
 ?>
+<?php if ($viewMode === 'preview' && $component->request('scrollTo')):?>
+<script>
+	const scrollToElementId = '<?= CUtil::JSEscape(htmlspecialcharsbx($component->request('scrollTo')))?>';
+	const scrollToElement = document.getElementById(scrollToElementId);
+
+	if (scrollToElement)
+	{
+		scrollToElement.scrollIntoView();
+	}
+</script>
+<?php elseif ($viewMode === 'preview'):?>
+<style>
+	[data-b24-crm-hello-cont] {
+		display: none;
+	}
+</style>
+<?php endif;?>
 
 <?php if ($b24Installed):?>
 <script>
@@ -261,15 +283,17 @@ $assets->addAsset('landing_critical_grid', Assets\Location::LOCATION_BEFORE_ALL)
 <script>
 	BX.ready(function() {
 		void new BX.Landing.Pub.PageTransition();
+		BX.UI.Hint.init(BX('bitrix-footer-terms'));
 	});
 </script>
 
 <?php
 $hooksSite = Hook::getForSite($landing->getSiteId());
-if (!$masterFrame && !$formEditor && (isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled()))
+if (!$masterFrame && !$formEditor && isset($hooksSite['COPYRIGHT']))
 {
 	$lang = $landing->getMeta()['SITE_LANG'];
 	$hooksSite['COPYRIGHT']->setLang($lang);
+	$hooksSite['COPYRIGHT']->setSiteId($landing->getSiteId());
 	Manager::setPageView('BeforeBodyClose', $hooksSite['COPYRIGHT']->view());
 }
 ?>

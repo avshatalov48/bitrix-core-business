@@ -1,15 +1,16 @@
-<?
+<?php
 
-use Bitrix\Main,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController,
-	Bitrix\Main\Localization,
-	Bitrix\Main\Loader,
-	Bitrix\Catalog,
-	Bitrix\Crm\Order;
+use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Crm\Order;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/catalog/prolog.php');
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_group_admin.php?lang=".LANGUAGE_ID;
@@ -25,14 +26,17 @@ if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $access
 
 $bReadOnly = !$accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT);
 
-if ($ex = $APPLICATION->GetException())
+$request = Context::getCurrent()->getRequest();
+
+$ex = $APPLICATION->GetException();
+if ($ex)
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php');
 
 	$strError = $ex->GetString();
 	ShowError($strError);
 
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
@@ -95,7 +99,12 @@ else
 	unset($row, $iterator);
 }
 
-if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $apply <> '') && check_bitrix_sessid())
+if (
+	!$bReadOnly
+	&& 'POST' == $_SERVER['REQUEST_METHOD']
+	&& ($request->getPost('save') !== null || $request->getPost('apply') !== null)
+	&& check_bitrix_sessid()
+)
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -195,12 +204,12 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 		}
 		else
 		{
-			if ($save <> '')
+			if ($request->getPost('save') !== null)
 			{
 				$adminSidePanelHelper->localRedirect($listUrl);
 				LocalRedirect($listUrl);
 			}
-			elseif ($apply <> '')
+			elseif ($request->getPost('apply') !== null)
 			{
 				$applyUrl = $selfFolderUrl."cat_group_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
@@ -210,10 +219,15 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 	}
 	else
 	{
-		if ($ex = $APPLICATION->GetException())
-			$strError = $ex->GetString()."<br>";
+		$ex = $APPLICATION->GetException();
+		if ($ex)
+		{
+			$strError = $ex->GetString() . "<br>";
+		}
 		else
-			$strError = (0 < $ID ? GetMessage("ERROR_UPDATING_TYPE") : GetMessage("ERROR_ADDING_TYPE"))."<br>";
+		{
+			$strError = (0 < $ID ? GetMessage("ERROR_UPDATING_TYPE") : GetMessage("ERROR_ADDING_TYPE")) . "<br>";
+		}
 
 		$DB->Rollback();
 
@@ -466,5 +480,5 @@ $tabControl->End();
 </form>
 <?
 Catalog\Config\Feature::initUiHelpScope();
-?>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CBXPunycode
 {
 	const PREFIX = 'xn--';
@@ -10,8 +11,8 @@ class CBXPunycode
 	private static $punycodePrefixUcs4 = null;
 	private static $punycodePrefixLength = null;
 
-	private $encoding = null;
-	private $arErrors = array();
+	private $encoding;
+	private $arErrors = [];
 
 	/** @var CBXPunycode */
 	private static $instance;
@@ -43,7 +44,7 @@ class CBXPunycode
 	 */
 	public static function ToASCII($domainName, &$arErrors)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		$converter = self::GetConverter();
 		$result = $converter->Encode($domainName);
@@ -64,7 +65,7 @@ class CBXPunycode
 	 */
 	public static function ToUnicode($domainName, &$arErrors)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		$converter = self::GetConverter();
 		$result = $converter->Decode($domainName);
@@ -96,7 +97,7 @@ class CBXPunycode
 		if (self::$punycodePrefix === null)
 		{
 			self::$punycodePrefix = "xn--";
-			self::$punycodePrefixLength = self::ByteLength(self::$punycodePrefix);
+			self::$punycodePrefixLength = strlen(self::$punycodePrefix);
 			self::$punycodePrefixUcs4 = $this->Utf8ToUcs4(self::$punycodePrefix);
 		}
 
@@ -143,7 +144,7 @@ class CBXPunycode
 
 		$arDomainNameUcs4 = $this->ExplodeDomainName($domainNameUcs4);
 
-		foreach ($arDomainNameUcs4 as $key => $value)
+		foreach ($arDomainNameUcs4 as $value)
 		{
 			$checked = array_slice($value, 0, self::$punycodePrefixLength);
 			if (self::$punycodePrefixUcs4 == $checked)
@@ -157,7 +158,7 @@ class CBXPunycode
 	 * Decode the given string
 	 *
 	 * @param   string  $domainName String to be decoded
-	 * @return  string              Decoded form the the given string
+	 * @return  string              Decoded form of the given string
 	 */
 	public function Decode($domainName)
 	{
@@ -195,7 +196,7 @@ class CBXPunycode
 			if (self::$punycodePrefixUcs4 != $checked)
 				continue;
 
-			$arDomainNameUcs4[$key] = $this->DoDecodeUcs4($arDomainNameUcs4[$key]);
+			$arDomainNameUcs4[$key] = $this->DoDecodeUcs4($value);
 		}
 
 		$domainNameUcs4 = $this->ImplodeDomainName($arDomainNameUcs4);
@@ -248,7 +249,7 @@ class CBXPunycode
 			if (self::$punycodePrefixUcs4 == $checked)
 				continue;
 
-			$arDomainNameUcs4[$key] = $this->NamePrepUcs4($arDomainNameUcs4[$key]);
+			$arDomainNameUcs4[$key] = $this->NamePrepUcs4($value);
 			if (!$arDomainNameUcs4[$key] || !is_array($arDomainNameUcs4[$key]))
 				return false;
 
@@ -269,7 +270,7 @@ class CBXPunycode
 
 	private function DoDecodeUcs4($input)
 	{
-		$result = array();
+		$result = [];
 
 		$input = array_slice($input, self::$punycodePrefixLength);
 		$delimiterPosition = false;
@@ -331,7 +332,7 @@ class CBXPunycode
 			return false;
 
 		$codeCount = 0;
-		$result = array();
+		$result = [];
 
 		for ($i = 0; $i < $inputLength; $i++)
 		{
@@ -380,7 +381,7 @@ class CBXPunycode
 						$t = ($k <= $bias) ? 1 : (($k >= $bias + 26) ? 26 : $k - $bias);
 						if ($q < $t)
 							break;
-						$d = intval($t + (($q - $t) % (36 - $t)));
+						$d = $t + (($q - $t) % (36 - $t));
 						$result[] = $d + 22 + 75 * ($d < 26);
 						$q = (int) (($q - $t) / (36 - $t));
 					}
@@ -408,7 +409,7 @@ class CBXPunycode
 
 	private function NamePrepUcs4($input)
 	{
-		$output = array();
+		$output = [];
 
 		foreach ($input as $v)
 		{
@@ -448,7 +449,7 @@ class CBXPunycode
 		$outputLength = count($output);
 		for ($i = 0; $i < $outputLength; $i++)
 		{
-			$class = isset(self::$rfc3454Table['CombiningClass'][$output[$i]]) ? self::$rfc3454Table['CombiningClass'][$output[$i]] : 0;
+			$class = self::$rfc3454Table['CombiningClass'][$output[$i]] ?? 0;
 			if ((!$lastClass || $lastClass > $class) && $class)
 			{
 				$sequenceLength = $i - $lastStarter;
@@ -456,7 +457,7 @@ class CBXPunycode
 				if ($out)
 				{
 					$output[$lastStarter] = $out;
-					if (count($out) != $sequenceLength)
+					if (count($output) != $sequenceLength)
 					{
 						for ($j = $i + 1; $j < $outputLength; $j++)
 							$output[$j - 1] = $output[$j];
@@ -470,7 +471,7 @@ class CBXPunycode
 					}
 					else
 					{
-						$lastClass = isset(self::$rfc3454Table['CombiningClass'][$output[$i - 1]]) ? self::$rfc3454Table['CombiningClass'][$output[$i - 1]] : 0;
+						$lastClass = self::$rfc3454Table['CombiningClass'][$output[$i - 1]] ?? 0;
 					}
 					continue;
 				}
@@ -516,10 +517,10 @@ class CBXPunycode
 		$ix = (int) $char - 0xAC00;
 		if ($ix < 0 || $ix >= 11172)
 			return array($char);
-		$result = array();
-		$result[] = (int) 0x1100 + $ix / 588;
-		$result[] = (int) 0x1161 + ($ix % 588) / 28;
-		$t = intval(0x11A7 + $ix % 28);
+		$result = [];
+		$result[] = (int) (0x1100 + $ix / 588);
+		$result[] = (int) (0x1161 + ($ix % 588) / 28);
+		$t = 0x11A7 + $ix % 28;
 		if ($t != 0x11A7)
 			$result[] = $t;
 		return $result;
@@ -529,9 +530,9 @@ class CBXPunycode
 	{
 		$inputLength = count($input);
 		if (!$inputLength)
-			return array();
+			return [];
 
-		$result = array();
+		$result = [];
 		$last = (int) $input[0];
 		$result[] = $last;
 
@@ -565,11 +566,14 @@ class CBXPunycode
 
 	private function Utf8ToUcs4($input)
 	{
-		$output = array();
+		$output = [];
 		$outputLength = 0;
-		$inputLength = self::ByteLength($input);
+		$inputLength = strlen($input);
 		$mode = 'next';
 		$test = 'none';
+		$startByte = 0;
+		$nextByte = 0;
+
 		for ($i = 0; $i < $inputLength; $i++)
 		{
 			$v = ord($input[$i]);
@@ -619,12 +623,10 @@ class CBXPunycode
 					$this->AddError("UTF-8 / UCS-4 conversion failed: byte ".$i);
 					return false;
 				}
-				if ($mode == 'add')
-				{
-					$output[$outputLength] = (int) $v;
-					$outputLength++;
-					continue;
-				}
+
+				$output[$outputLength] = $v;
+				$outputLength++;
+				continue;
 			}
 			if ($mode == 'add')
 			{
@@ -687,29 +689,17 @@ class CBXPunycode
 		return $output;
 	}
 
-	private static function ByteLength($string)
-	{
-		return (function_exists('mb_strlen')? mb_strlen($string, 'latin1') : mb_strlen($string));
-
-		/*
-		if (self::$utfMode)
-			return mb_strlen($string, '8bit');
-
-		return strlen((binary) $string);
-		*/
-	}
-
 	private function ExplodeDomainName($domainNameUcs4)
 	{
-		$arResult = array();
+		$arResult = [];
 
-		$ar = array();
+		$ar = [];
 		foreach ($domainNameUcs4 as $value)
 		{
 			if ($value == 0x2E)
 			{
 				$arResult[] = $ar;
-				$ar = array();
+				$ar = [];
 			}
 			else
 			{
@@ -723,11 +713,11 @@ class CBXPunycode
 
 	private function ImplodeDomainName($arDomainNameUcs4)
 	{
-		$result = array();
+		$result = [];
 
 		foreach ($arDomainNameUcs4 as $value)
 		{
-			if (count($result) > 0)
+			if (!empty($result))
 				$result[] = 0x2E;
 			$result = array_merge($result, $value);
 		}
@@ -737,12 +727,12 @@ class CBXPunycode
 
 	private function ClearErrors()
 	{
-		$this->arErrors = array();
+		$this->arErrors = [];
 	}
 
-	private function AddError($error, $errorCode = null)
+	private function AddError($error)
 	{
-		$this->arErrors[] = (!is_null($errorCode) ? "[".$errorCode."] " : "").$error;
+		$this->arErrors[] = $error;
 	}
 
 	public function GetErrors()
@@ -1322,4 +1312,3 @@ class CBXPunycode
 		)
 	);
 }
-?>

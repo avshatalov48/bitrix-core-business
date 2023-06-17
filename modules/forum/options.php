@@ -8,8 +8,9 @@ if (! ($FORUM_RIGHT >= "R"))
 
 ClearVars();
 CModule::IncludeModule("forum");
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && $FORUM_RIGHT > "R" && $_REQUEST["RestoreDefaults"] <> '' && check_bitrix_sessid())
+if ($request->isPost() !== true && $FORUM_RIGHT > "R" && $request->getQuery('RestoreDefaults') !== null && check_bitrix_sessid())
 {
 	COption::RemoveOption("forum");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -42,8 +43,7 @@ GetMessage("FR_ADMINISTRATOR");
 */
 		$arMess = IncludeModuleLangFile(__FILE__, $res["LID"], true);
 		foreach ($name as $k => $v):
-			$mess = $arMess["FR_".mb_strtoupper($k)];
-			$name[$k] = (!empty($mess) ? $mess : $name[$k]);
+			$name[$k] = $arMess["FR_".mb_strtoupper($k)] ?? $v;
 		endforeach;
 		$arNameStatusesDefault[$res["LID"]] = $name;
 

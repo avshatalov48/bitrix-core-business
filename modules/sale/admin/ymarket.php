@@ -1,5 +1,8 @@
-<?
+<?php
 
+/** @global CMain $APPLICATION */
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use \Bitrix\Sale\Services\PaySystem\Restrictions;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -9,7 +12,10 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-CModule::IncludeModule("sale");
+Loader::includeModule("sale");
+
+$request = Context::getCurrent()->getRequest();
+
 $bSaved = false;
 
 if(isset($_POST["YANDEX_MARKET_ON"]))
@@ -55,7 +61,7 @@ if (isset($_REQUEST["https_check"]) && $_REQUEST["https_check"] == "Y" && check_
 	echo CUtil::PhpToJSObject(array("status" => $res, "text" => $text));
 	die();
 }
-else if($REQUEST_METHOD == "POST" && check_bitrix_sessid())
+elseif ($request->isPost() && check_bitrix_sessid())
 {
 	$site = !empty($_POST["SITE_ID_INITIAL"]) && $SITE_ID == $_POST["SITE_ID_INITIAL"] ? $SITE_ID : $_POST["SITE_ID_INITIAL"];
 
@@ -153,7 +159,7 @@ $requiredOrderProperties = array(
 	"ADDRESS"
 );
 
-require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
+require_once ($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 if($bSaved)
 	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("SALE_YM_SETTINGS_SAVED"), "TYPE"=>"OK"));
@@ -638,4 +644,3 @@ function getSelectHtml($name, array $data, $selected = "", $bShowNotUse = true)
 
 	return $result;
 }
-?>

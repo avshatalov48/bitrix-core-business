@@ -6,7 +6,7 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-if ($arResult['FatalError'] <> '')
+if (!empty($arResult['FatalError']))
 {
 	$APPLICATION->IncludeComponent(
 		'bitrix:ui.sidepanel.wrapper',
@@ -22,7 +22,7 @@ if ($arResult['FatalError'] <> '')
 }
 else
 {
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -49,9 +49,9 @@ else
 		|| $USER->isAdmin()
 		|| CSocNetUser::isCurrentUserModuleAdmin()
 	);
-	
+
 	$arDesktopParams = array(
-			"MODE" => "SG",	
+			"MODE" => "SG",
 			"ID" => "sonet_group".$sSiteID."_".$arResult["Group"]["ID"],
 			"DEFAULT_ID" => "sonet_group".$sSiteID,
 			"SOCNET_GROUP_ID" => $arParams["GROUP_ID"],
@@ -61,7 +61,7 @@ else
 			"PATH_TO_VIDEO_CALL" => $arParams["~PATH_TO_VIDEO_CALL"],
 			"PATH_TO_USER" => $arParams["~PATH_TO_USER"],
 			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-			"SHOW_YEAR" => $arParams["SHOW_YEAR"],			
+			"SHOW_YEAR" => $arParams["SHOW_YEAR"],
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
@@ -76,7 +76,7 @@ else
 			"GADGETS_FIXED" => array(
 				0 => "SONET_GROUP_LINKS",
 				1 => "SONET_GROUP_DESC",
-			),			
+			),
 			"G_SONET_GROUP_DESC_ID" => $arResult["Group"]["ID"],
 			"G_SONET_GROUP_DESC_NAME" => $arResult["Group"]["~NAME"],
 			"G_SONET_GROUP_DESC_DESCRIPTION" => $arResult["Group"]["~DESCRIPTION"],
@@ -118,17 +118,17 @@ else
 			"G_SONET_GROUP_LINKS_URL_SUBSCRIBE" => htmlspecialcharsback($arResult["Urls"]["Subscribe"]),
 			"G_SONET_GROUP_LINKS_OPENED" => $arResult["Group"]["OPENED"],
 			"G_SONET_GROUP_LINKS_USE_BAN" => $arParams["GROUP_USE_BAN"],
-			
+
 			"G_SONET_GROUP_MODS_MODERATORS_LIST" => $arResult["Moderators"]["List"],
 			"G_SONET_GROUP_MODS_CACHE_TYPE" => $arParams["CACHE_TYPE"],
 			"G_SONET_GROUP_MODS_CACHE_TIME" => $arParams["CACHE_TIME"],
-			
-			"G_SONET_GROUP_USERS_MEMBERS_LIST" => $arResult["Members"]["List"],			
+
+			"G_SONET_GROUP_USERS_MEMBERS_LIST" => $arResult["Members"]["List"],
 			"G_SONET_GROUP_USERS_CACHE_TYPE" => $arParams["CACHE_TYPE"],
 			"G_SONET_GROUP_USERS_CACHE_TIME" => $arParams["CACHE_TIME"],
 			"G_SONET_GROUP_USERS_URL_GROUP_USERS" => htmlspecialcharsback($arResult["Urls"]["GroupUsers"]),
 			"G_SONET_GROUP_USERS_NUMBER_OF_MEMBERS" => $arResult["Group"]["NUMBER_OF_MEMBERS"],
-			
+
 			"G_UPDATES_ENTITY_TEMPLATE_NAME" => ".default",
 			"G_UPDATES_ENTITY_GROUP_ID" => $arParams["GROUP_ID"],
 			"G_UPDATES_ENTITY_USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"],
@@ -142,10 +142,10 @@ else
 			"G_UPDATES_ENTITY_SUBSCRIBE_ONLY" => $arParams["LOG_SUBSCRIBE_ONLY"],
 			"G_UPDATES_ENTITY_PATH_TO_USER_BLOG_POST" => $arParams["PATH_TO_POST"],
 			"G_UPDATES_ENTITY_PATH_TO_USER_BLOG_POST_EDIT" => $arParams["PATH_TO_POST_EDIT"],
-			
+
 			"G_SONET_GROUP_TAGS_PAGE_ELEMENTS" => $arParams["SEARCH_TAGS_PAGE_ELEMENTS"],
 			"G_SONET_GROUP_TAGS_PERIOD" => $arParams["SEARCH_TAGS_PERIOD"],
-			"G_SONET_GROUP_TAGS_GROUP_ID" => $arParams["GROUP_ID"],	
+			"G_SONET_GROUP_TAGS_GROUP_ID" => $arParams["GROUP_ID"],
 			"G_SONET_GROUP_TAGS_PATH_TO_GROUP_CONTENT_SEARCH" => $arParams["~PATH_TO_GROUP_CONTENT_SEARCH"],
 			"G_SONET_GROUP_TAGS_FONT_MAX" => $arParams["SEARCH_TAGS_FONT_MAX"],
 			"G_SONET_GROUP_TAGS_FONT_MIN" => $arParams["SEARCH_TAGS_FONT_MIN"],
@@ -153,7 +153,7 @@ else
 			"G_SONET_GROUP_TAGS_COLOR_OLD" => $arParams["SEARCH_TAGS_COLOR_OLD"],
 		);
 
-						
+
 	if(!empty($arResult["BLOG"]["SHOW"]))
 	{
 		$arDesktopParams["G_SONET_BLOG_TITLE"] = $arResult["ActiveFeatures"]["blog"];
@@ -179,11 +179,11 @@ else
 		$arDesktopParams["G_SONET_BLOG_ALLOW_POST_CODE"] = $arParams["BLOG_ALLOW_POST_CODE"];
 	}
 	else
-		$arDesktopParams["G_SONET_BLOG_SHOW"] = "N";		
+		$arDesktopParams["G_SONET_BLOG_SHOW"] = "N";
 
 	if(!empty($arResult["forum"]["SHOW"]))
 	{
-		$arDesktopParams["G_SONET_FORUM_TITLE"] = $arResult["ActiveFeatures"]["forum"];	
+		$arDesktopParams["G_SONET_FORUM_TITLE"] = $arResult["ActiveFeatures"]["forum"];
 		$arDesktopParams["G_SONET_FORUM_SHOW"] = "Y";
 		$arDesktopParams["G_SONET_FORUM_FID"] = $arParams["FORUM_ID"];
 		$arDesktopParams["G_SONET_FORUM_URL_TEMPLATES_MESSAGE"] = $arParams["~PATH_TO_GROUP_FORUM_MESSAGE"];
@@ -195,11 +195,11 @@ else
 		$arDesktopParams["G_SONET_FORUM_SOCNET_GROUP_ID"] = $arParams["GROUP_ID"];
 	}
 	else
-		$arDesktopParams["G_SONET_FORUM_SHOW"] = "N";		
+		$arDesktopParams["G_SONET_FORUM_SHOW"] = "N";
 
 	if(!empty($arResult["tasks"]["SHOW"]))
 	{
-		$arDesktopParams["G_TASKS_TITLE"] = $arResult["ActiveFeatures"]["tasks"];		
+		$arDesktopParams["G_TASKS_TITLE"] = $arResult["ActiveFeatures"]["tasks"];
 		$arDesktopParams["G_TASKS_SHOW"] = "Y";
 		$arDesktopParams["G_TASKS_SHOW_TITLE"] = "N";
 		$arDesktopParams["G_TASKS_SHOW_FOOTER"] = "N";
@@ -218,11 +218,11 @@ else
 		$arDesktopParams["G_TASKS_FORUM_ID"] = $arParams["TASK_FORUM_ID"];
 	}
 	else
-		$arDesktopParams["G_TASKS_SHOW"] = "N";		
+		$arDesktopParams["G_TASKS_SHOW"] = "N";
 
 	if ($this->__component->__parent && $this->__component->__parent->arResult && is_array($this->__component->__parent->arResult))
 		$arDesktopParams["PARENT_COMPONENT_RESULT"] = $this->__component->__parent->arResult;
-	
+
 	?>
 	<div><?$APPLICATION->IncludeComponent(
 		"bitrix:desktop",
@@ -230,7 +230,7 @@ else
 		$arDesktopParams,
 		false,
 		array("HIDE_ICONS" => "Y")
-	);?></div>	
+	);?></div>
 	<?
 }
 ?>

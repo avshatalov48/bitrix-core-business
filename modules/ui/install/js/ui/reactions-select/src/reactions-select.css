@@ -1,0 +1,91 @@
+.reactions-popup-show,
+.reactions-popup-close {
+	animation-duration: 0.2s;
+	animation-name: reactions-popup-show;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in-out;
+}
+
+.reactions-popup-show {
+	animation-direction: normal;
+}
+
+.reactions-popup-close {
+	animation-direction: reverse;
+}
+
+@keyframes reactions-popup-show {
+	0% {
+		opacity: 0;
+		transform: scale(0.96) translateY(6px);
+		transform-origin: center center;
+	}
+
+	90% {
+		opacity: 1;
+	}
+
+	100% {
+		transform: scale(1) translateY(0);
+	}
+}
+
+.reaction-select_container {
+	--reaction-select-hover-area-vertical-padding: 0px;
+	--reaction-hover-shift: -4px;
+	--reaction-hover-scale: 1.1;
+	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.136322);
+	border-radius: 25px;
+}
+
+.reaction-select_container.--mobile {
+	--reaction-hover-shift: -15px;
+	--reaction-hover-scale: 1.8;
+	--reaction-select-hover-area-vertical-padding: 200px;
+}
+
+.reaction-select_reaction-icon-item {
+	position: relative;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.reaction-select_reaction-icon {
+	width: 34px;
+	height: 34px;
+	transition: 0.2s transform ease-in-out;
+}
+
+.reaction-select_reaction-icon svg,
+.reaction-select_reaction-icon svg g {
+	overflow: visible;
+	-webkit-clip-path: none;
+	clip-path: none;
+}
+
+.reaction-select_list {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 9px 4px;
+}
+
+.reaction-select_reaction-hover-area {
+	position: absolute;
+	top: calc(var(--reaction-select-hover-area-vertical-padding) * -1);
+	left: 0;
+	width: 100%;
+	height: calc(100% + var(--reaction-select-hover-area-vertical-padding) * 2);
+	cursor: pointer;
+	z-index: 9999;
+}
+
+.reaction-select_reaction-hover-area:hover + .reaction-select_reaction-icon,
+.reaction-select_container.--mobile .reaction-select_reaction-hover-area:hover.--hover + .reaction-select_reaction-icon,
+.reaction-select_container.--mobile .reaction-select_reaction-hover-area.--hover + .reaction-select_reaction-icon {
+	transform: scale(var(--reaction-hover-scale)) translateY(var(--reaction-hover-shift));
+}
+
+.reaction-select_container.--mobile .reaction-select_reaction-hover-area:hover + .reaction-select_reaction-icon {
+	transform: translateY(0);
+}

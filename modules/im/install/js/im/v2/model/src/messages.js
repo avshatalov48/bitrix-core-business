@@ -1,17 +1,40 @@
-import {nextTick} from 'ui.vue3';
+import {Type} from 'main.core';
 import {BuilderModel} from 'ui.vue3.vuex';
-import {MutationType, StorageLimit, EventType} from 'im.v2.const';
+
+import {Core} from 'im.v2.application.core';
 import {Utils} from 'im.v2.lib.utils';
 import {Logger} from 'im.v2.lib.logger';
+import {MessageComponent, MessageType} from 'im.v2.const';
 
-import {EventEmitter} from 'main.core.events';
+import {PinModel} from './messages/pin';
+import {ReactionsModel} from './messages/reactions';
 
-const IntersectionType = {
-	empty: 'empty',
-	equal: 'equal',
-	none: 'none',
-	found: 'found',
-	foundReverse: 'foundReverse',
+import type {ImModelMessage, ImModelFile} from 'im.v2.model';
+import type {AttachConfig} from 'im.v2.const';
+
+type MessagesState = {
+	collection: {
+		[messageId: string]: ImModelMessage
+	},
+	chatCollection: {
+		[chatId: string]: Set
+	}
+};
+
+type RawMessageParams = {
+	COMPONENT_ID?: string,
+	FILE_ID?: number[],
+	IS_EDITED?: 'Y' | 'N',
+	IS_DELETED?: 'Y' | 'N',
+	ATTACH?: AttachConfig[]
+};
+
+type PreparedMessageParams = {
+	componentId: string,
+	files: number[],
+	isEdited: boolean,
+	isDeleted: boolean,
+	attach: AttachConfig[]
 };
 
 export class MessagesModel extends BuilderModel
@@ -21,1813 +44,688 @@ export class MessagesModel extends BuilderModel
 		return 'messages';
 	}
 
+	getNestedModules(): { [moduleName: string]: BuilderModel }
+	{
+		return {
+			pin: PinModel,
+			reactions: ReactionsModel
+		};
+	}
+
 	getState()
 	{
 		return {
-			created: 0,
 			collection: {},
-			mutationType: {},
-			saveMessageList: {},
-			saveFileList: {},
-			saveUserList: {},
+			chatCollection: {}
 		};
 	}
 
 	getElementState()
 	{
 		return {
-			templateId: 0,
-			templateType: 'message',
-			placeholderType: 0,
-
 			id: 0,
 			chatId: 0,
 			authorId: 0,
 			date: new Date(),
 			text: '',
-			textConverted: '',
-			params: {
-				TYPE: 'default',
-				COMPONENT_ID: 'bx-im-view-message',
-			},
-
-			push: false,
+			replaces: [],
+			files: [],
+			attach: [],
 			unread: false,
+			viewed: true,
+			viewedByOthers: false,
 			sending: false,
 			error: false,
 			retry: false,
-			blink: false,
+			componentId: MessageComponent.base,
+			isEdited: false,
+			isDeleted: false,
+			removeLinks: false
 		};
 	}
 
 	getGetters()
 	{
 		return {
-
-			getMutationType: state => chatId =>
+			get: (state: MessagesState) => chatId =>
 			{
-				if (!state.mutationType[chatId])
-				{
-					return {initialType: MutationType.none, appliedType: MutationType.none};
-				}
-
-				return state.mutationType[chatId];
-			},
-			getLastId: state => chatId =>
-			{
-				if (!state.collection[chatId] || state.collection[chatId].length <= 0)
-				{
-					return null;
-				}
-
-				let lastId = 0;
-
-				for (let i = 0; i < state.collection[chatId].length; i++)
-				{
-					let element = state.collection[chatId][i];
-					if (
-						element.push
-						|| element.sending
-						|| element.id.toString().startsWith('temporary')
-					)
-					{
-						continue;
-					}
-
-					if (lastId < element.id)
-					{
-						lastId = element.id;
-					}
-				}
-
-				return lastId? lastId: null;
-			},
-			getMessage: state => (chatId, messageId) =>
-			{
-				if (!state.collection[chatId] || state.collection[chatId].length <= 0)
-				{
-					return null;
-				}
-
-				for (let index = state.collection[chatId].length-1; index >= 0; index--)
-				{
-					if (state.collection[chatId][index].id === messageId)
-					{
-						return state.collection[chatId][index];
-					}
-				}
-
-				return null;
-			},
-			get: state => chatId =>
-			{
-				if (!state.collection[chatId] || state.collection[chatId].length <= 0)
+				if (!state.chatCollection[chatId])
 				{
 					return [];
 				}
 
-				return state.collection[chatId];
+				return [...state.chatCollection[chatId]].map(messageId => {
+					return state.collection[messageId];
+				}).sort((a, b) => {
+					return a.id - b.id;
+				});
 			},
-			getBlank: state => params =>
+			getById: (state: MessagesState) => (id: number): ?ImModelMessage =>
 			{
-				return this.getElementState();
+				return state.collection[id];
 			},
-			getSaveFileList: state => params =>
+			getByIdList: (state: MessagesState) => (idList: number[]): ImModelMessage[] =>
 			{
-				return state.saveFileList;
+				const result = [];
+				idList.forEach(id => {
+					if (state.collection[id])
+					{
+						result.push(state.collection[id]);
+					}
+				});
+
+				return result;
 			},
-			getSaveUserList: state => params =>
+			hasMessage: (state: MessagesState) => ({chatId, messageId}) =>
 			{
-				return state.saveUserList;
+				if (!state.chatCollection[chatId])
+				{
+					return false;
+				}
+
+				return state.chatCollection[chatId].has(messageId);
 			},
-		}
+			isInChatCollection: (state: MessagesState) => (payload: {messageId: number}): boolean =>
+			{
+				const {messageId} = payload;
+				const message = state.collection[messageId];
+				if (!message)
+				{
+					return false;
+				}
+				const {chatId} = message;
+
+				return state.chatCollection[chatId]?.has(messageId);
+			},
+			getFirstId: (state: MessagesState) => chatId =>
+			{
+				if (!state.chatCollection[chatId])
+				{
+					return;
+				}
+
+				return this.#findLowestMessageId(state, chatId);
+			},
+			getLastId: (state: MessagesState) => chatId =>
+			{
+				if (!state.chatCollection[chatId])
+				{
+					return;
+				}
+
+				return this.#findMaxMessageId(state, chatId);
+			},
+			getLastOwnMessageId: (state: MessagesState) => (chatId): number =>
+			{
+				if (!state.chatCollection[chatId])
+				{
+					return 0;
+				}
+
+				return this.#findLastOwnMessageId(state, chatId);
+			},
+			getFirstUnread: (state: MessagesState) => (chatId: number): number =>
+			{
+				if (!state.chatCollection[chatId])
+				{
+					return 0;
+				}
+
+				return this.#findFirstUnread(state, chatId);
+			},
+			getChatUnreadMessages: (state: MessagesState) => (chatId: number): ImModelMessage[] =>
+			{
+				if (!state.chatCollection[chatId])
+				{
+					return [];
+				}
+
+				const messages = [...state.chatCollection[chatId]].map(messageId => {
+					return state.collection[messageId];
+				});
+
+				return messages.filter((message: ImModelMessage) => {
+					return message.unread === true;
+				});
+			},
+			getMessageFiles: (state: MessagesState) => (payload: number): ImModelFile[] =>
+			{
+				const messageId = payload;
+				if (!state.collection[messageId])
+				{
+					return [];
+				}
+
+				return state.collection[messageId].files.map(fileId => {
+					return this.store.getters['files/get'](fileId, true);
+				});
+			},
+			getMessageType: (state: MessagesState) => (payload: number): ?$Values<typeof MessageType> =>
+			{
+				const message = state.collection[payload];
+				if (!message)
+				{
+					return;
+				}
+
+				const currentUserId = Core.getUserId();
+				if (message.authorId === 0)
+				{
+					return MessageType.system;
+				}
+				else if (message.authorId === currentUserId)
+				{
+					return MessageType.self;
+				}
+
+				return MessageType.opponent;
+			}
+		};
 	}
 
 	getActions()
 	{
 		return {
-			add: (store, payload) =>
+			setChatCollection: (store, payload: {messages: Array, clearCollection: boolean}) =>
 			{
-				let result = this.validate(Object.assign({}, payload));
-				result.params = Object.assign({}, this.getElementState().params, result.params);
-				if (payload.id)
+				let {messages, clearCollection} = payload;
+				clearCollection = clearCollection ?? false;
+				if (!Array.isArray(messages) && Type.isPlainObject(messages))
 				{
-					if (store.state.collection[payload.chatId])
-					{
-						const countMessages = store.state.collection[payload.chatId].length-1;
-						for (let index = countMessages; index >= 0; index--)
-						{
-							const message = store.state.collection[payload.chatId][index];
-							if (message.templateId === payload.id)
-							{
-								return;
-							}
-						}
-					}
-
-					result.id = payload.id;
-				}
-				else
-				{
-					result.id = 'temporary' + (new Date).getTime() + store.state.created;
-				}
-				result.templateId = result.id;
-				result.unread = false;
-
-				store.commit('add', Object.assign({}, this.getElementState(), result));
-
-				if (payload.sending !== false)
-				{
-					store.dispatch('actionStart', {
-						id: result.id,
-						chatId: result.chatId,
-					});
+					messages = [messages];
 				}
 
-				return result.id;
-			},
-			actionStart: (store, payload) =>
-			{
-				if (/^\d+$/.test(payload.id))
-				{
-					payload.id = parseInt(payload.id);
-				}
-
-				payload.chatId = parseInt(payload.chatId);
-
-				nextTick(() => {
-					store.commit('update', {
-						id : payload.id ,
-						chatId : payload.chatId,
-						fields : {sending: true}
-					});
-				});
-			},
-			actionError: (store, payload) =>
-			{
-				if (/^\d+$/.test(payload.id))
-				{
-					payload.id = parseInt(payload.id);
-				}
-				payload.chatId = parseInt(payload.chatId);
-
-				nextTick(() => {
-					store.commit('update', {
-						id : payload.id ,
-						chatId : payload.chatId,
-						fields : {sending: false, error: true, retry: payload.retry !== false}
-					});
-				});
-			},
-			actionFinish: (store, payload) =>
-			{
-				if (/^\d+$/.test(payload.id))
-				{
-					payload.id = parseInt(payload.id);
-				}
-				payload.chatId = parseInt(payload.chatId);
-
-				nextTick(() => {
-					store.commit('update', {
-						id : payload.id ,
-						chatId : payload.chatId,
-						fields : {sending: false, error: false, retry: false}
-					});
-				});
-			},
-			set: (store, payload) =>
-			{
-				if (payload instanceof Array)
-				{
-					payload = payload.map(message => this.prepareMessage(message));
-				}
-				else
-				{
-					let result = this.prepareMessage(payload);
-					(payload = []).push(result);
-				}
-
-				store.commit('set', {
-					insertType : MutationType.set,
-					data : payload
+				messages = messages.map(message => {
+					return {...this.getElementState(), ...this.validate(message)};
 				});
 
-				return 'set is done';
+				const chatId = messages[0]?.chatId;
+				if (chatId && clearCollection)
+				{
+					store.commit('clearCollection', {chatId});
+				}
+
+				store.commit('store', {messages});
+				store.commit('setChatCollection', {messages});
 			},
-			addPlaceholders: (store, payload) =>
+			store: (store, payload: Object | Object[]) =>
 			{
-				if (payload.placeholders instanceof Array)
+				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
-					payload.placeholders = payload.placeholders.map(message => this.prepareMessage(message));
-				}
-				else
-				{
-					return false;
+					payload = [payload];
 				}
 
-				const insertType = payload.requestMode === 'history'? MutationType.setBefore : MutationType.setAfter;
-				if (insertType === MutationType.setBefore)
-				{
-					payload.placeholders = payload.placeholders.reverse();
-				}
-
-				store.commit('set', {
-					insertType,
-					data : payload.placeholders
+				payload = payload.map(message => {
+					return {...this.getElementState(), ...this.validate(message)};
 				});
 
-				return payload.placeholders[0].id;
-			},
-			clearPlaceholders: (store, payload) =>
-			{
-				store.commit('clearPlaceholders', payload);
-			},
-			updatePlaceholders: (store, payload) =>
-			{
-				if (payload.data instanceof Array)
+				if (payload.length === 0)
 				{
-					payload.data = payload.data.map(message => this.prepareMessage(message));
-				}
-				else
-				{
-					return false;
+					return;
 				}
 
-				store.commit('updatePlaceholders', payload);
-
-				return true;
-			},
-			setAfter: (store, payload) =>
-			{
-				if (payload instanceof Array)
-				{
-					payload = payload.map(message => this.prepareMessage(message));
-				}
-				else
-				{
-					let result = this.prepareMessage(payload);
-					(payload = []).push(result);
-				}
-
-				store.commit('set', {
-					insertType : MutationType.setAfter,
-					data : payload
+				store.commit('store', {
+					messages: payload
 				});
 			},
-			setBefore: (store, payload) =>
+			add: (store, payload: Object) =>
 			{
-				if (payload instanceof Array)
+				const message = {
+					...this.getElementState(),
+					...this.validate(payload),
+				};
+				store.commit('store', {
+					messages: [message]
+				});
+				store.commit('setChatCollection', {
+					messages: [message]
+				});
+
+				return message.id;
+			},
+			updateWithId: (store, payload: {id: string | number, fields: Object}) =>
+			{
+				const {id, fields} = payload;
+				if (!store.state.collection[id])
 				{
-					payload = payload.map(message => this.prepareMessage(message));
-				}
-				else
-				{
-					let result = this.prepareMessage(payload);
-					(payload = []).push(result);
+					return;
 				}
 
-				store.commit('set', {
-					insertType : MutationType.setBefore,
-					data : payload
+				store.commit('updateWithId', {
+					id,
+					fields: this.validate(fields)
 				});
 			},
-			update: (store, payload) =>
+			update: (store, payload: {id: string | number, fields: Object}) =>
 			{
-				if (/^\d+$/.test(payload.id))
+				const {id, fields} = payload;
+				const currentMessage = store.state.collection[id];
+				if (!currentMessage)
 				{
-					payload.id = parseInt(payload.id);
-				}
-				if (/^\d+$/.test(payload.chatId))
-				{
-					payload.chatId = parseInt(payload.chatId);
-				}
-
-				store.commit('initCollection', {chatId: payload.chatId});
-
-				if (!store.state.collection[payload.chatId])
-				{
-					return false;
-				}
-
-				let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-				if (index < 0)
-				{
-					return false;
-				}
-
-				let result = this.validate(Object.assign({}, payload.fields));
-
-				if (result.params)
-				{
-					result.params = Object.assign(
-						{},
-						this.getElementState().params,
-						store.state.collection[payload.chatId][index].params,
-						result.params
-					);
+					return;
 				}
 
 				store.commit('update', {
-					id : payload.id,
-					chatId : payload.chatId,
-					index : index,
-					fields : result
+					id,
+					fields: {...currentMessage, ...this.validate(fields)}
+				});
+			},
+			readMessages: (store, payload: {chatId: number, messageIds: number[]}): number =>
+			{
+				const {chatId, messageIds} = payload;
+				if (!store.state.chatCollection[chatId])
+				{
+					return 0;
+				}
+
+				const chatMessages = [...store.state.chatCollection[chatId]].map((messageId: number) => {
+					return store.state.collection[messageId];
 				});
 
-				if (payload.fields.blink)
-				{
-					setTimeout(() => {
-						store.commit('update', {
-							id : payload.id ,
-							chatId : payload.chatId,
-							fields : {blink: false}
-						});
-					}, 1000);
-				}
-
-				return true;
-			},
-			delete: (store, payload) =>
-			{
-				if (!(payload.id instanceof Array))
-				{
-					payload.id = [payload.id];
-				}
-
-				payload.id = payload.id.map(id => {
-					if (/^\d+$/.test(id))
+				let messagesToReadCount = 0;
+				const maxMessageId = this.#getMaxMessageId(messageIds);
+				const messageIdsToView = messageIds;
+				const messageIdsToRead = [];
+				chatMessages.forEach((chatMessage: ImModelMessage) => {
+					if (!chatMessage.unread)
 					{
-						id = parseInt(id);
+						return;
 					}
-					return id;
-				});
 
-				store.commit('delete', {
-					chatId : payload.chatId,
-					elements : payload.id,
-				});
-
-				return true;
-			},
-			clear: (store, payload) =>
-			{
-				payload.chatId = parseInt(payload.chatId);
-
-				if (payload.keepPlaceholders)
-				{
-					store.commit('clearMessages', {
-						chatId : payload.chatId
-					});
-				}
-				else
-				{
-					store.commit('clear', {
-						chatId : payload.chatId
-					});
-				}
-
-				return true;
-			},
-			applyMutationType: (store, payload) =>
-			{
-				payload.chatId = parseInt(payload.chatId);
-
-				store.commit('applyMutationType', {
-					chatId : payload.chatId
-				});
-
-				return true;
-			},
-			readMessages: (store, payload) =>
-			{
-				payload.readId = parseInt(payload.readId) || 0;
-				payload.chatId = parseInt(payload.chatId);
-
-				if (typeof store.state.collection[payload.chatId] === 'undefined')
-				{
-					return {count: 0}
-				}
-
-				let count = 0;
-				for (let index = store.state.collection[payload.chatId].length-1; index >= 0; index--)
-				{
-					let element = store.state.collection[payload.chatId][index];
-					if (!element.unread)
-						continue;
-
-					if (payload.readId === 0 || element.id <= payload.readId)
+					if (chatMessage.id <= maxMessageId)
 					{
-						count++;
+						messagesToReadCount++;
+						messageIdsToRead.push(chatMessage.id);
 					}
-				}
+				});
 
 				store.commit('readMessages', {
-					chatId: payload.chatId,
-					readId: payload.readId,
+					messageIdsToRead,
+					messageIdsToView
 				});
 
-				return {count};
+				return messagesToReadCount;
 			},
-			unreadMessages: (store, payload) =>
+			setViewedByOthers: (store, payload: {ids: number[]}): number =>
 			{
-				payload.unreadId = parseInt(payload.unreadId) || 0;
-				payload.chatId = parseInt(payload.chatId);
-
-				if (typeof store.state.collection[payload.chatId] === 'undefined' || !payload.unreadId)
-				{
-					return {count: 0}
-				}
-
-				let count = 0;
-				for (let index = store.state.collection[payload.chatId].length-1; index >= 0; index--)
-				{
-					let element = store.state.collection[payload.chatId][index];
-					if (element.unread)
-						continue;
-
-					if (element.id >= payload.unreadId)
-					{
-						count++;
-					}
-				}
-
-				store.commit('unreadMessages', {
-					chatId: payload.chatId,
-					unreadId: payload.unreadId,
+				const {ids} = payload;
+				store.commit('setViewedByOthers', {
+					ids
 				});
-
-				return {count};
 			},
-		}
+			delete: (store, payload: {id: string | number}) =>
+			{
+				const {id} = payload;
+				if (!store.state.collection[id])
+				{
+					return;
+				}
+
+				store.commit('delete', {id});
+			},
+			clearChatCollection: (store, payload: {chatId: number}) =>
+			{
+				const {chatId} = payload;
+				store.commit('clearCollection', {chatId});
+			},
+		};
 	}
 
 	getMutations()
 	{
 		return {
-			initCollection: (state, payload) =>
+			setChatCollection: (state: MessagesState, payload: {messages: ImModelMessage[]}) =>
 			{
-				return this.initCollection(state, payload);
-			},
-			add: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				state.collection[payload.chatId].push(payload);
-				state.saveMessageList[payload.chatId].push(payload.id);
-
-				state.created += 1;
-
-				state.collection[payload.chatId].sort((a, b) => a.id - b.id);
-				this.saveState(state, payload.chatId);
-				Logger.warn('Messages model: saving state after add');
-			},
-			clearPlaceholders: (state, payload) =>
-			{
-				if (!state.collection[payload.chatId])
-				{
-					return false;
-				}
-
-				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
-					return !element.id.toString().startsWith('placeholder');
+				Logger.warn('Messages model: setChatCollection mutation', payload);
+				payload.messages.forEach(message => {
+					if (!state.chatCollection[message.chatId])
+					{
+						state.chatCollection[message.chatId] = new Set();
+					}
+					state.chatCollection[message.chatId].add(message.id);
 				});
 			},
-			updatePlaceholders: (state, payload) =>
+			store: (state: MessagesState, payload: {messages: ImModelMessage[]}) =>
 			{
-				const firstPlaceholderId = `placeholder${payload.firstMessage}`;
-				const firstPlaceholderIndex = state.collection[payload.chatId].findIndex((message) => {
-					return message.id === firstPlaceholderId;
+				Logger.warn('Messages model: store mutation', payload);
+				payload.messages.forEach(message => {
+					state.collection[message.id] = message;
 				});
-				// Logger.warn('firstPlaceholderIndex', firstPlaceholderIndex);
-				if (firstPlaceholderIndex >= 0)
-				{
-					// Logger.warn('before delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
-					state.collection[payload.chatId].splice(firstPlaceholderIndex, payload.amount);
-					// Logger.warn('after delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
-					state.collection[payload.chatId].splice(firstPlaceholderIndex, 0, ...payload.data);
-					// Logger.warn('after add', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
-				}
-
-				state.collection[payload.chatId].sort((a, b) => a.id - b.id);
-				Logger.warn('Messages model: saving state after updating placeholders');
-				this.saveState(state, payload.chatId);
 			},
-			set: (state, payload) =>
+			updateWithId: (state: MessagesState, payload: {id: number | string, fields: Object}) =>
 			{
-				Logger.warn('Messages model: set mutation', payload);
-				let chats = [];
-				let chatsSave = [];
-				let isPush = false;
+				Logger.warn('Messages model: updateWithId mutation', payload);
+				const {id, fields} = payload;
+				const currentMessage = {...state.collection[id]};
 
-				payload.data = MessagesModel.getPayloadWithTempMessages(state, payload);
+				delete state.collection[id];
+				state.collection[fields.id] = {...currentMessage, ...fields, sending: false};
 
-				const initialType = payload.insertType;
-
-				if (payload.insertType === MutationType.set)
+				if (state.chatCollection[currentMessage.chatId].has(id))
 				{
-					payload.insertType = MutationType.setAfter;
-
-					let elements = {};
-					payload.data.forEach(element => {
-						if (!elements[element.chatId])
-						{
-							elements[element.chatId] = [];
-						}
-						elements[element.chatId].push(element.id);
-					});
-
-					for (let chatId in elements)
-					{
-						if (!elements.hasOwnProperty(chatId))
-							continue;
-
-						this.initCollection(state, {chatId});
-						Logger.warn('Messages model: messages before adding from request - ', state.collection[chatId].length);
-
-						if (
-							state.saveMessageList[chatId].length > elements[chatId].length
-							|| elements[chatId].length < StorageLimit.messages
-						)
-						{
-							state.collection[chatId] = state.collection[chatId].filter(element => elements[chatId].includes(element.id));
-							state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => elements[chatId].includes(id));
-						}
-
-						Logger.warn('Messages model: cache length', state.saveMessageList[chatId].length);
-						let intersection = this.manageCacheBeforeSet(
-							[...state.saveMessageList[chatId].reverse()],
-							elements[chatId]
-						);
-						Logger.warn('Messages model: set intersection with cache', intersection);
-
-						if (intersection.type === IntersectionType.none)
-						{
-							if (intersection.foundElements.length > 0)
-							{
-								state.collection[chatId] = state.collection[chatId].filter(element => !intersection.foundElements.includes(element.id));
-								state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !intersection.foundElements.includes(id));
-							}
-
-							Logger.warn('Messages model: no intersection - removing cache');
-							this.removeIntersectionCacheElements = state.collection[chatId].map(element => element.id);
-
-							state.collection[chatId] = state.collection[chatId].filter(element => !this.removeIntersectionCacheElements.includes(element.id));
-							state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !this.removeIntersectionCacheElements.includes(id));
-							this.removeIntersectionCacheElements = [];
-						}
-						else if (intersection.type === IntersectionType.foundReverse)
-						{
-							Logger.warn('Messages model: found reverse intersection');
-							payload.insertType = MutationType.setBefore;
-							payload.data = payload.data.reverse();
-						}
-					}
+					state.chatCollection[currentMessage.chatId].delete(id);
+					state.chatCollection[currentMessage.chatId].add(fields.id);
 				}
-
-				Logger.warn('Messages model: adding messages to model', payload.data);
-				for (let element of payload.data)
-				{
-					this.initCollection(state, {chatId: element.chatId});
-
-					let index = state.collection[element.chatId].findIndex(localMessage => {
-						if (MessagesModel.isTemporaryMessage(localMessage))
-						{
-							return localMessage.templateId === element.templateId;
-						}
-
-						return localMessage.id === element.id;
-					});
-					if (index > -1)
+			},
+			update: (state: MessagesState, payload: {id: number | string, fields: Object}) =>
+			{
+				Logger.warn('Messages model: update mutation', payload);
+				const {id, fields} = payload;
+				state.collection[id] = {...state.collection[id], ...fields};
+			},
+			delete: (state: MessagesState, payload: {id: number | string}) =>
+			{
+				Logger.warn('Messages model: delete mutation', payload);
+				const {id} = payload;
+				const {chatId} = state.collection[id];
+				state.chatCollection[chatId].delete(id);
+				delete state.collection[id];
+			},
+			clearCollection: (state: MessagesState, payload: {chatId: number}) =>
+			{
+				Logger.warn('Messages model: clear collection mutation', payload.chatId);
+				state.chatCollection[payload.chatId] = new Set();
+			},
+			readMessages: (state: MessagesState, payload: {messageIdsToRead: number[], messageIdsToView: number[]}) =>
+			{
+				const {messageIdsToRead, messageIdsToView} = payload;
+				messageIdsToRead.forEach(messageId => {
+					const message = state.collection[messageId];
+					if (!message)
 					{
-						state.collection[element.chatId][index] = Object.assign(
-							state.collection[element.chatId][index],
-							element
-						);
-					}
-					else if (payload.insertType === MutationType.setBefore)
-					{
-						state.collection[element.chatId].unshift(element);
-					}
-					else if (payload.insertType === MutationType.setAfter)
-					{
-						state.collection[element.chatId].push(element);
+						return;
 					}
 
-					chats.push(element.chatId);
-
-					if (this.store.getters['dialogues/canSaveChat'] && this.store.getters['dialogues/canSaveChat'](element.chatId))
-					{
-						chatsSave.push(element.chatId);
-					}
-				}
-
-				chats = [...new Set(chats)];
-				chatsSave = [...new Set(chatsSave)];
-
-				isPush = payload.data.every(element => element.push === true);
-				Logger.warn('Is it fake push message?', isPush);
-				chats.forEach(chatId => {
-					state.collection[chatId].sort((a, b) => a.id - b.id);
-
-					if (!isPush)
-					{
-						//send event that messages are ready and we can start reading etc
-						Logger.warn('setting messagesSet = true for chatId = ', chatId);
-						setTimeout(() => {
-							EventEmitter.emit(EventType.dialog.messagesSet, {chatId});
-							EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId});
-						}, 100);
-					}
+					message.unread = false;
 				});
-
-				if (initialType !== MutationType.setBefore)
-				{
-					chatsSave.forEach(chatId => {
-						Logger.warn('Messages model: saving state after set');
-						this.saveState(state, chatId);
-					});
-				}
-			},
-			update: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				let index = -1;
-				if (typeof payload.index !== 'undefined' && state.collection[payload.chatId][payload.index])
-				{
-					index = payload.index;
-				}
-				else
-				{
-					index = state.collection[payload.chatId].findIndex(el => el.id === payload.id);
-				}
-
-				if (index >= 0)
-				{
-					let isSaveState = (
-						state.saveMessageList[payload.chatId].includes(state.collection[payload.chatId][index].id)
-						|| payload.fields.id && !payload.fields.id.toString().startsWith('temporary') && state.collection[payload.chatId][index].id.toString().startsWith('temporary')
-					);
-
-					state.collection[payload.chatId][index] = Object.assign(
-						state.collection[payload.chatId][index],
-						payload.fields
-					);
-
-					if (isSaveState)
+				messageIdsToView.forEach(messageId => {
+					const message = state.collection[messageId];
+					if (!message)
 					{
-						Logger.warn('Messages model: saving state after update');
-						this.saveState(state, payload.chatId);
+						return;
 					}
-				}
-			},
-			delete: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
 
-				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => !payload.elements.includes(element.id));
-
-				if (state.saveMessageList[payload.chatId].length > 0)
-				{
-					for (let id of payload.elements)
-					{
-						if (state.saveMessageList[payload.chatId].includes(id))
-						{
-							Logger.warn('Messages model: saving state after delete');
-							this.saveState(state, payload.chatId);
-
-							break;
-						}
-					}
-				}
-			},
-			clear: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				state.collection[payload.chatId] = [];
-				state.saveMessageList[payload.chatId] = [];
-			},
-			clearMessages: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
-					return element.id.toString().startsWith('placeholder');
+					message.viewed = true;
 				});
-				state.saveMessageList[payload.chatId] = [];
 			},
-			applyMutationType: (state, payload) =>
+			setViewedByOthers: (state: MessagesState, payload: {ids: number[]}) =>
 			{
-				if (typeof state.mutationType[payload.chatId] === 'undefined')
-				{
-					state.mutationType[payload.chatId] = {applied: false, initialType: MutationType.none, appliedType: MutationType.none, scrollStickToTop: 0, scrollMessageId: 0};
-				}
-
-				state.mutationType[payload.chatId].applied = true;
-			},
-			readMessages: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				let saveNeeded = false;
-				for (let index = state.collection[payload.chatId].length-1; index >= 0; index--)
-				{
-					let element = state.collection[payload.chatId][index];
-					if (!element.unread)
-						continue;
-
-					if (payload.readId === 0 || element.id <= payload.readId)
+				const {ids} = payload;
+				ids.forEach(id => {
+					const message = state.collection[id];
+					if (!message)
 					{
-						state.collection[payload.chatId][index] = Object.assign(
-							state.collection[payload.chatId][index],
-							{unread: false}
-						);
-						saveNeeded = true;
+						return;
 					}
-				}
-				if (saveNeeded)
-				{
-					Logger.warn('Messages model: saving state after reading');
-					this.saveState(state, payload.chatId);
-				}
-			},
-			unreadMessages: (state, payload) =>
-			{
-				this.initCollection(state, {chatId: payload.chatId});
-
-				let saveNeeded = false;
-				for (let index = state.collection[payload.chatId].length-1; index >= 0; index--)
-				{
-					let element = state.collection[payload.chatId][index];
-					if (element.unread)
-						continue;
-
-					if (element.id >= payload.unreadId)
+					const isOwnMessage = message.authorId === Core.getUserId();
+					if (!isOwnMessage || message.viewedByOthers)
 					{
-						state.collection[payload.chatId][index] = Object.assign(
-							state.collection[payload.chatId][index],
-							{unread: true}
-						);
-						saveNeeded = true;
+						return;
 					}
-				}
-				if (saveNeeded)
-				{
-					Logger.warn('Messages model: saving state after unreading');
-					this.saveState(state, payload.chatId);
-					this.updateSubordinateStates();
-				}
-			},
+
+					message.viewedByOthers = true;
+				});
+			}
 		};
 	}
 
-	initCollection(state, payload)
+	validate(fields: Object): Object
 	{
-		if (typeof payload.chatId === 'undefined')
-		{
-			return false;
-		}
+		let result = {};
 
-		if (
-			typeof payload.chatId === 'undefined'
-			|| typeof state.collection[payload.chatId] !== 'undefined'
-		)
-		{
-			return true;
-		}
-
-		state.collection[payload.chatId] = payload.messages? [...payload.messages]: [];
-		state.saveMessageList[payload.chatId] = [];
-		state.saveFileList[payload.chatId] = [];
-		state.saveUserList[payload.chatId] = [];
-
-		return true;
-	}
-
-	prepareMessage(message, options = {})
-	{
-		let result = this.validate(Object.assign({}, message), options);
-
-		result.params = Object.assign({}, this.getElementState().params, result.params);
-		if (!result.templateId)
-		{
-			result.templateId = result.id;
-		}
-
-		return Object.assign({}, this.getElementState(), result);
-	}
-
-	manageCacheBeforeSet(cache, elements, recursive = false)
-	{
-		Logger.warn('manageCacheBeforeSet', cache, elements);
-		let result = {
-			type: IntersectionType.empty,
-			foundElements: [],
-			noneElements: []
-		};
-
-		if (!cache || cache.length <= 0)
-		{
-			return result;
-		}
-
-		for (let id of elements)
-		{
-			if (cache.includes(id))
-			{
-				if (result.type === IntersectionType.empty)
-				{
-					result.type = IntersectionType.found;
-				}
-				result.foundElements.push(id);
-			}
-			else
-			{
-				if (result.type === IntersectionType.empty)
-				{
-					result.type = IntersectionType.none;
-				}
-				result.noneElements.push(id);
-			}
-		}
-
-		if (
-			result.type === IntersectionType.found
-			&& cache.length === elements.length
-			&& result.foundElements.length === elements.length
-		)
-		{
-			result.type = IntersectionType.equal;
-		}
-		else if (
-			result.type === IntersectionType.none
-			&& !recursive
-			&& result.foundElements.length > 0
-		)
-		{
-			let reverseResult = this.manageCacheBeforeSet(cache.reverse(), elements.reverse(), true);
-			if (reverseResult.type === IntersectionType.found)
-			{
-				reverseResult.type = IntersectionType.foundReverse;
-				return reverseResult;
-			}
-		}
-
-		return result;
-	}
-
-	updateSaveLists(state, chatId)
-	{
-		if (!this.isSaveAvailable())
-		{
-			return true;
-		}
-
-		if (
-			!chatId
-			|| !this.store.getters['dialogues/canSaveChat']
-			|| !this.store.getters['dialogues/canSaveChat'](chatId)
-		)
-		{
-			return false;
-		}
-
-		this.initCollection(state, {chatId: chatId});
-
-		let count = 0;
-		let saveMessageList = [];
-		let saveFileList = [];
-		let saveUserList = [];
-
-		let dialog = this.store.getters['dialogues/getByChatId'](chatId);
-		if (dialog && dialog.type === 'private')
-		{
-			saveUserList.push(parseInt(dialog.dialogId));
-		}
-
-		let readCounter = 0;
-		for (let index = state.collection[chatId].length-1; index >= 0; index--)
-		{
-			if (state.collection[chatId][index].id.toString().startsWith('temporary'))
-			{
-				continue;
-			}
-
-			if (!state.collection[chatId][index].unread)
-			{
-				readCounter++;
-			}
-
-			if (count >= StorageLimit.messages && readCounter >= 50)
-			{
-				break;
-			}
-
-			saveMessageList.unshift(state.collection[chatId][index].id);
-
-			count++;
-		}
-
-		saveMessageList = saveMessageList.slice(0, StorageLimit.messages);
-
-		state.collection[chatId].filter(element => saveMessageList.includes(element.id)).forEach(element =>
-		{
-			if (element.authorId > 0)
-			{
-				saveUserList.push(element.authorId);
-			}
-
-			if (element.params.FILE_ID instanceof Array)
-			{
-				saveFileList = element.params.FILE_ID.concat(saveFileList);
-			}
-		});
-
-		state.saveMessageList[chatId] = saveMessageList;
-		state.saveFileList[chatId] = [...new Set(saveFileList)];
-		state.saveUserList[chatId] = [...new Set(saveUserList)];
-
-		return true;
-	}
-
-	getSaveTimeout()
-	{
-		return 150;
-	}
-
-	saveState(state, chatId)
-	{
-		if (!this.updateSaveLists(state, chatId))
-		{
-			return false;
-		}
-
-		super.saveState(() =>
-		{
-			let storedState = {
-				collection: {},
-				saveMessageList: {},
-				saveUserList: {},
-				saveFileList: {},
-			};
-
-			for (let chatId in state.saveMessageList)
-			{
-				if (!state.saveMessageList.hasOwnProperty(chatId))
-				{
-					continue;
-				}
-
-				if (!state.collection[chatId])
-				{
-					continue;
-				}
-
-				if (!storedState.collection[chatId])
-				{
-					storedState.collection[chatId] = [];
-				}
-
-				state.collection[chatId]
-					.filter(element => state.saveMessageList[chatId].includes(element.id))
-					.forEach(element => {
-						if (element.templateType !== 'placeholder')
-						{
-							storedState.collection[chatId].push(element);
-						}
-					});
-				Logger.warn('Cache after updating', storedState.collection[chatId]);
-
-				storedState.saveMessageList[chatId] = state.saveMessageList[chatId];
-				storedState.saveFileList[chatId] = state.saveFileList[chatId];
-				storedState.saveUserList[chatId] = state.saveUserList[chatId];
-			}
-
-			return storedState;
-		});
-	}
-
-	updateSubordinateStates()
-	{
-		this.store.dispatch('users/saveState');
-		this.store.dispatch('files/saveState');
-	}
-
-	validate(fields, options)
-	{
-		const result = {};
-
-		if (typeof fields.id === "number")
+		if (Type.isNumber(fields.id))
 		{
 			result.id = fields.id;
 		}
-		else if (typeof fields.id === "string")
+		else if (Utils.text.isUuidV4(fields.temporaryId))
 		{
-			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || Utils.text.isUuidV4(fields.id))
-			{
-				result.id = fields.id;
-			}
-			else
-			{
-				result.id = parseInt(fields.id);
-			}
+			result.id = fields.temporaryId;
 		}
 
-		if (typeof fields.uuid === "string")
-		{
-			result.templateId = fields.uuid;
-		}
-		else if (typeof fields.templateId === "number")
-		{
-			result.templateId = fields.templateId;
-		}
-		else if (typeof fields.templateId === "string")
-		{
-			if (fields.templateId.startsWith('temporary') || Utils.text.isUuidV4(fields.templateId))
-			{
-				result.templateId = fields.templateId;
-			}
-			else
-			{
-				result.templateId = parseInt(fields.templateId);
-			}
-		}
-
-		if (typeof fields.templateType === "string")
-		{
-			result.templateType = fields.templateType;
-		}
-
-		if (typeof fields.placeholderType === "number")
-		{
-			result.placeholderType = fields.placeholderType;
-		}
-
-		if (typeof fields.chat_id !== 'undefined')
+		if (!Type.isUndefined(fields.chat_id))
 		{
 			fields.chatId = fields.chat_id;
 		}
-		if (typeof fields.chatId === "number" || typeof fields.chatId === "string")
+		if (Type.isNumber(fields.chatId) || Type.isStringFilled(fields.chatId))
 		{
-			result.chatId = parseInt(fields.chatId);
+			result.chatId = Number.parseInt(fields.chatId, 10);
 		}
-		if (typeof fields.date !== "undefined")
+
+		if (Type.isStringFilled(fields.date))
 		{
 			result.date = Utils.date.cast(fields.date);
 		}
 
-		// previous P&P format
-		if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number")
+		if (Type.isNumber(fields.text) || Type.isString(fields.text))
 		{
-			result.text = fields.textOriginal.toString();
-
-			if (typeof fields.text === "string" || typeof fields.text === "number")
-			{
-				result.textConverted = this.convertToHtml({
-					text: fields.text.toString(),
-					isConverted: true
-				});
-			}
-		}
-		else // modern format
-		{
-			if (typeof fields.text_converted !== 'undefined')
-			{
-				fields.textConverted = fields.text_converted;
-			}
-			if (typeof fields.textConverted === "string" || typeof fields.textConverted === "number")
-			{
-				result.textConverted = fields.textConverted.toString();
-			}
-			if (typeof fields.text === "string" || typeof fields.text === "number")
-			{
-				result.text = fields.text.toString();
-
-				let isConverted = typeof result.textConverted !== 'undefined';
-
-				result.textConverted = this.convertToHtml({
-					text: isConverted? result.textConverted: result.text,
-					isConverted
-				});
-			}
+			result.text = fields.text.toString();
 		}
 
-		if (typeof fields.senderId !== 'undefined')
+		if (Type.isStringFilled(fields.system))
+		{
+			fields.isSystem = fields.system === 'Y';
+		}
+
+		if (!Type.isUndefined(fields.senderId))
 		{
 			fields.authorId = fields.senderId;
 		}
-		else if (typeof fields.author_id !== 'undefined')
+		else if (!Type.isUndefined(fields.author_id))
 		{
 			fields.authorId = fields.author_id;
 		}
-		if (typeof fields.authorId === "number" || typeof fields.authorId === "string")
+		if (Type.isNumber(fields.authorId) || Type.isStringFilled(fields.authorId))
 		{
-			if (fields.system === true || fields.system === 'Y')
-			{
-				result.authorId = 0;
-			}
-			else
-			{
-				result.authorId = parseInt(fields.authorId);
-			}
+			result.authorId = Number.parseInt(fields.authorId, 10);
 		}
 
-		if (typeof fields.params === "object" && fields.params !== null)
+		if (fields.isSystem === true)
 		{
-			const params = this.validateParams(fields.params, options);
-			if (params)
-			{
-				result.params = params;
-			}
+			result.authorId = 0;
 		}
 
-		if (typeof fields.push === "boolean")
+		if (Type.isArray(fields.replaces))
 		{
-			result.push = fields.push;
+			result.replaces = fields.replaces;
 		}
 
-		if (typeof fields.sending === "boolean")
+		if (Type.isBoolean(fields.sending))
 		{
 			result.sending = fields.sending;
 		}
 
-		if (typeof fields.unread === "boolean")
+		if (Type.isBoolean(fields.unread))
 		{
 			result.unread = fields.unread;
 		}
 
-		if (typeof fields.blink === "boolean")
+		if (Type.isBoolean(fields.viewed))
 		{
-			result.blink = fields.blink;
+			result.viewed = fields.viewed;
 		}
 
-		if (typeof fields.error === "boolean" || typeof fields.error === "string")
+		if (Type.isBoolean(fields.viewedByOthers))
+		{
+			result.viewedByOthers = fields.viewedByOthers;
+		}
+
+		if (Type.isBoolean(fields.error))
 		{
 			result.error = fields.error;
 		}
 
-		if (typeof fields.retry === "boolean")
+		if (Type.isBoolean(fields.retry))
 		{
 			result.retry = fields.retry;
+		}
+
+		if (Type.isString(fields.componentId))
+		{
+			result.componentId = fields.componentId;
+		}
+
+		if (Type.isArray(fields.files))
+		{
+			result.files = fields.files;
+		}
+
+		if (Type.isArray(fields.attach))
+		{
+			result.attach = fields.attach;
+		}
+
+		if (Type.isBoolean(fields.isEdited))
+		{
+			result.isEdited = fields.isEdited;
+		}
+
+		if (Type.isBoolean(fields.isDeleted))
+		{
+			result.isDeleted = fields.isDeleted;
+		}
+
+		if (Type.isBoolean(fields.removeLinks))
+		{
+			result.removeLinks = fields.removeLinks;
+		}
+
+		if (Type.isPlainObject(fields.params))
+		{
+			const preparedParams = this.prepareParams(fields.params);
+			result = {...result, ...preparedParams};
 		}
 
 		return result;
 	}
 
-	validateParams(params, options)
+	prepareParams(rawParams: RawMessageParams): PreparedMessageParams
 	{
 		const result = {};
-		try
-		{
-			for (let field in params)
+
+		Object.entries(rawParams).forEach(([key, value]) => {
+			if (key === 'COMPONENT_ID' && Type.isStringFilled(value))
 			{
-				if (!params.hasOwnProperty(field))
-				{
-					continue;
-				}
-
-				if (field === 'COMPONENT_ID')
-				{
-					if (typeof params[field] === "string" && BX.Vue.isComponent(params[field]))
-					{
-						result[field] = params[field];
-					}
-				}
-				else if (field === 'LIKE')
-				{
-					if (params[field] instanceof Array)
-					{
-						result['REACTION'] = {like: params[field].map(element => parseInt(element))};
-					}
-				}
-				else if (field === 'CHAT_LAST_DATE')
-				{
-					result[field] = Utils.date.cast(params[field]);
-				}
-				else if (field === 'AVATAR')
-				{
-					if (params[field])
-					{
-						result[field] = params[field].startsWith('http') ? params[field] : options.host + params[field];
-					}
-				}
-				else if (field === 'NAME')
-				{
-					if (params[field])
-					{
-						result[field] = params[field];
-					}
-				}
-				else if (field === 'LINK_ACTIVE')
-				{
-					if (params[field])
-					{
-						result[field] = params[field].map(function(userId) {
-							return parseInt(userId)
-						});
-					}
-				}
-				else if (field === 'ATTACH')
-				{
-					result[field] = this.decodeAttach(params[field]);
-				}
-				else
-				{
-					result[field] = params[field];
-				}
+				result.componentId = value;
 			}
-		}
-		catch (e) {}
+			else if (key === 'FILE_ID' && Type.isArray(value))
+			{
+				result.files = value;
+			}
+			else if (key === 'IS_EDITED' && Type.isStringFilled(value))
+			{
+				result.isEdited = value === 'Y';
+			}
+			else if (key === 'IS_DELETED' && Type.isStringFilled(value))
+			{
+				result.isDeleted = value === 'Y';
+			}
+			else if (key === 'ATTACH' && (Type.isArray(value) || Type.isBoolean(value) || Type.isString(value)))
+			{
+				result.attach = value;
+			}
+			else if (key === 'LINK_ACTIVE' && Type.isArrayFilled(value))
+			{
+				result.removeLinks = value.includes(Core.getUserId());
+			}
+		});
 
-		let hasResultElements = false;
-		for (let field in result)
+		return result;
+	}
+
+	#getMaxMessageId(messageIds: number[]): number
+	{
+		let maxMessageId = 0;
+		messageIds.forEach(messageId => {
+			if (maxMessageId < messageId)
+			{
+				maxMessageId = messageId;
+			}
+		});
+
+		return maxMessageId;
+	}
+
+	#findLowestMessageId(state: MessagesState, chatId: number): number
+	{
+		let firstId = null;
+		const messages = [...state.chatCollection[chatId]];
+		for (const messageId of messages)
 		{
-			if (!result.hasOwnProperty(field))
+			const element = state.collection[messageId];
+			if (!firstId)
+			{
+				firstId = element.id;
+			}
+			if (Utils.text.isTempMessage(element.id))
 			{
 				continue;
 			}
 
-			hasResultElements = true;
-			break
+			if (element.id < firstId)
+			{
+				firstId = element.id;
+			}
 		}
 
-		return hasResultElements? result: null;
+		return firstId;
 	}
 
-	convertToHtml(params = {})
+	#findMaxMessageId(state: MessagesState, chatId: number): number
 	{
-		let {
-			quote = true,
-			image = true,
-			text = '',
-			isConverted = false,
-			enableBigSmile = true
-		} = params;
-
-		text = text.trim();
-
-		if (!isConverted)
+		let lastId = 0;
+		const messages = [...state.chatCollection[chatId]];
+		for (const messageId of messages)
 		{
-			text = text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-		}
-
-		if (text.startsWith('/me'))
-		{
-			text = `<i>${text.substr(4)}</i>`;
-		}
-		else if (text.startsWith('/loud'))
-		{
-			text = `<b>${text.substr(6)}</b>`;
-		}
-
-		const quoteSign = "&gt;&gt;";
-		if (quote && text.indexOf(quoteSign) >= 0)
-		{
-			let textPrepareFlag = false;
-			let textPrepare = text.split(isConverted? "<br />": "\n");
-			for (let i = 0; i < textPrepare.length; i++)
+			const element = state.collection[messageId];
+			if (Utils.text.isTempMessage(element.id))
 			{
-				if (textPrepare[i].startsWith(quoteSign))
-				{
-					textPrepare[i] = textPrepare[i].replace(quoteSign, '<div class="bx-im-message-content-quote"><div class="bx-im-message-content-quote-wrap">');
-					while (++i < textPrepare.length && textPrepare[i].startsWith(quoteSign))
-					{
-						textPrepare[i] = textPrepare[i].replace(quoteSign, '');
-					}
-					textPrepare[i - 1] += '</div></div><br>';
-					textPrepareFlag = true;
-				}
+				continue;
 			}
-			text = textPrepare.join("<br />");
-		}
 
-		text = text.replace(/\n/gi, '<br />');
-
-		text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
-
-		text = this.decodeBbCode(text, false, enableBigSmile);
-
-		if (quote)
-		{
-			text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\]<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
-				return (offset > 0? '<br>': '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\"><div class=\"bx-im-message-content-quote-name\"><span class=\"bx-im-message-content-quote-name-text\">" + p1 + "</span><span class=\"bx-im-message-content-quote-name-time\">" + p2 + "</span></div>" + p3 + "</div></div><br />";
-			});
-			text = text.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, offset) {
-				return (offset > 0? '<br>': '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\">" + p1 + "</div></div><br />";
-			});
-		}
-
-		if (image)
-		{
-			let changed = false;
-			text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function(whole, aInner, text, offset)
+			if (element.id > lastId)
 			{
-				if(!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0)
-				{
-					return whole;
-				}
-				else
-				{
-					changed = true;
-					return (offset > 0? '<br />':'')+'<a' +aInner+ ' target="_blank" class="bx-im-element-file-image"><img src="'+text+'" class="bx-im-element-file-image-source-text" onerror="BX.Messenger.Model.MessagesModel.hideErrorImage(this)"></a></span>';
-				}
-			});
-			if (changed)
-			{
-				text = text.replace(/<\/span>(\n?)<br(\s\/?)>/ig, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/ig, '<br /><span');
+				lastId = element.id;
 			}
 		}
 
-		if (enableBigSmile)
-		{
-			text = text.replace(
-				/^(\s*<img\s+src=[^>]+?data-code=[^>]+?data-definition="UHD"[^>]+?style="width:)(\d+)(px[^>]+?height:)(\d+)(px[^>]+?class="bx-smile"\s*\/?>\s*)$/,
-				function doubleSmileSize(match, start, width, middle, height, end) {
-					return start + (parseInt(width, 10) * 1.7) + middle + (parseInt(height, 10) * 1.7) + end;
-				}
-			);
-		}
-
-		if (text.substr(-6) == '<br />')
-		{
-			text = text.substr(0, text.length - 6);
-		}
-		text = text.replace(/<br><br \/>/ig, '<br />');
-		text = text.replace(/<br \/><br>/ig, '<br />');
-
-		return text;
-	};
-
-	decodeBbCode(text, textOnly = false, enableBigSmile = true)
-	{
-		return MessagesModel.decodeBbCode({text, textOnly, enableBigSmile})
+		return lastId;
 	}
 
-	decodeAttach(item)
+	#findLastOwnMessageId(state: MessagesState, chatId: number): number
 	{
-		if (Array.isArray(item))
+		let lastOwnMessageId = 0;
+		const messages = [...state.chatCollection[chatId]].sort((a, z) => z - a);
+		for (const messageId of messages)
 		{
-			item.forEach(arrayElement => {
-				arrayElement = this.decodeAttach(arrayElement);
-			});
-		}
-		else if (typeof item === 'object' && item !== null)
-		{
-			for (const prop in item)
+			const element = state.collection[messageId];
+			if (Utils.text.isTempMessage(element.id))
 			{
-				if (item.hasOwnProperty(prop))
-				{
-					item[prop] = this.decodeAttach(item[prop]);
-				}
+				continue;
 			}
-		}
-		else
-		{
-			if (typeof item === 'string')
+
+			if (element.authorId === Core.getUserId())
 			{
-				item = Utils.text.htmlspecialcharsback(item);
+				lastOwnMessageId = element.id;
+				break;
 			}
 		}
 
-		return item;
+		return lastOwnMessageId;
 	}
 
-	static decodeBbCode(params = {})
+	#findFirstUnread(state: MessagesState, chatId: number): number
 	{
-		let {text, textOnly = false, enableBigSmile = true} = params;
-
-		let putReplacement = [];
-		text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function(whole)
+		let resultId = 0;
+		for (const messageId of state.chatCollection[chatId])
 		{
-			var id = putReplacement.length;
-			putReplacement.push(whole);
-			return '####REPLACEMENT_PUT_'+id+'####';
-		});
-
-		let sendReplacement = [];
-		text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function(whole)
-		{
-			var id = sendReplacement.length;
-			sendReplacement.push(whole);
-			return '####REPLACEMENT_SEND_'+id+'####';
-		});
-
-		let codeReplacement = [];
-		text = text.replace(/\[CODE\]\n?(.*?)\[\/CODE\]/sig, function(whole, text) {
-			let id = codeReplacement.length;
-			codeReplacement.push(text);
-			return '####REPLACEMENT_CODE_'+id+'####';
-		});
-
-		text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
-		{
-			let tag = document.createElement('a');
-			tag.href = Utils.text.htmlspecialcharsback(link);
-			tag.target = '_blank';
-			tag.text = Utils.text.htmlspecialcharsback(text);
-
-			let allowList = [
-				"http:",
-				"https:",
-				"ftp:",
-				"file:",
-				"tel:",
-				"callto:",
-				"mailto:",
-				"skype:",
-				"viber:",
-			];
-			if (allowList.indexOf(tag.protocol) <= -1)
+			const message: ImModelMessage = state.collection[messageId];
+			if (message.unread)
 			{
-				return whole;
+				resultId = messageId;
+				break;
 			}
-
-			return tag.outerHTML;
-		});
-
-		text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function(whole, link)
-		{
-			link = Utils.text.htmlspecialcharsback(link);
-
-			let tag = document.createElement('a');
-			tag.href = link;
-			tag.target = '_blank';
-			tag.text = link;
-
-			let allowList = [
-				"http:",
-				"https:",
-				"ftp:",
-				"file:",
-				"tel:",
-				"callto:",
-				"mailto:",
-				"skype:",
-				"viber:",
-			];
-			if (allowList.indexOf(tag.protocol) <= -1)
-			{
-				return whole;
-			}
-
-			return tag.outerHTML;
-		});
-
-		text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-		text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
-
-		text = text.replace(/\[BR\]/ig, '<br/>');
-		text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, (whole, open, inner, close) => '<'+open+'>'+inner+'<'+close+'>'); // TODO tag USER
-
-		// this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
-		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => openlines? inner: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+inner+'</span>'); // TODO tag CHAT
-
-		if (false && Utils.device.isMobile())
-		{
-			let replacements = [];
-			text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => {
-				let index = replacements.length;
-				replacements.push({number, text});
-				return `####REPLACEMENT_MARK_${index}####`;
-			});
-
-			text = text.replace(/[+]{0,1}(?:[-\/. ()\[\]~;#,]*[0-9]){10,}[^\n\r<][-\/. ()\[\]~;#,0-9^]*/g, (number) => {
-				let pureNumber = number.replace(/\D/g, '');
-				return `[CALL=${pureNumber}]${number}[/CALL]`;
-			});
-
-			replacements.forEach((item, index) => {
-				text = text.replace(`####REPLACEMENT_MARK_${index}####`, `[CALL=${item.number}]${item.text}[/CALL]`)
-			});
 		}
 
-		text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="'+Utils.text.htmlspecialchars(number)+'">'+text+'</span>'); // TODO tag CHAT
-
-		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text); // TODO tag PCH
-
-		let textElementSize = 0;
-		if (enableBigSmile)
-		{
-			textElementSize = text.replace(/\[icon\=([^\]]*)\]/ig, '').trim().length;
-		}
-
-		text = text.replace(/\[icon\=([^\]]*)\]/ig, (whole) =>
-		{
-			let url = whole.match(/icon\=(\S+[^\s.,> )\];\'\"!?])/i);
-			if (url && url[1])
-			{
-				url = url[1];
-			}
-			else
-			{
-				return '';
-			}
-
-			let attrs = {'src': url, 'border': 0};
-
-			let size = whole.match(/size\=(\d+)/i);
-			if (size && size[1])
-			{
-				attrs['width'] = size[1];
-				attrs['height'] = size[1];
-			}
-			else
-			{
-				let width = whole.match(/width\=(\d+)/i);
-				if (width && width[1])
-				{
-					attrs['width'] = width[1];
-				}
-
-				let height = whole.match(/height\=(\d+)/i);
-				if (height && height[1])
-				{
-					attrs['height'] = height[1];
-				}
-
-				if (attrs['width'] && !attrs['height'])
-				{
-					attrs['height'] = attrs['width'];
-				}
-				else if (attrs['height'] && !attrs['width'])
-				{
-					attrs['width'] = attrs['height'];
-				}
-				else if (attrs['height'] && attrs['width'])
-				{}
-				else
-				{
-					attrs['width'] = 20;
-					attrs['height'] = 20;
-				}
-			}
-
-			attrs['width'] = attrs['width']>100? 100: attrs['width'];
-			attrs['height'] = attrs['height']>100? 100: attrs['height'];
-
-			if (enableBigSmile && textElementSize === 0 && attrs['width'] === attrs['height'] && attrs['width'] === 20)
-			{
-				attrs['width'] = 40;
-				attrs['height'] = 40;
-			}
-
-			let title = whole.match(/title\=(.*[^\s\]])/i);
-			if (title && title[1])
-			{
-				title = title[1];
-				if (title.indexOf('width=') > -1)
-				{
-					title = title.substr(0, title.indexOf('width='))
-				}
-				if (title.indexOf('height=') > -1)
-				{
-					title = title.substr(0, title.indexOf('height='))
-				}
-				if (title.indexOf('size=') > -1)
-				{
-					title = title.substr(0, title.indexOf('size='))
-				}
-				if (title)
-				{
-					attrs['title'] = Utils.text.htmlspecialchars(title).trim();
-					attrs['alt'] = attrs['title'];
-				}
-			}
-
-			let attributes = '';
-			for (let name in attrs)
-			{
-				if (attrs.hasOwnProperty(name))
-				{
-					attributes += name+'="'+attrs[name]+'" ';
-				}
-			}
-
-
-			return '<img class="bx-smile bx-icon" '+attributes+'>';
-		});
-
-		sendReplacement.forEach((value, index) => {
-			text = text.replace('####REPLACEMENT_SEND_'+index+'####', value);
-		});
-
-		text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, (match) =>
-		{
-			return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, (whole, command, text) =>
-			{
-				let html = '';
-
-				text = text? text: command;
-				command = (command? command: text).replace('<br />', '\n');
-
-				if (!textOnly && text)
-				{
-					text = text.replace(/<([\w]+)[^>]*>(.*?)<\\1>/i, "$2", text);
-					text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-
-					command = command.split('####REPLACEMENT_PUT_').join('####REPLACEMENT_SP_');
-
-					html = '<!--IM_COMMAND_START-->' +
-						'<span class="bx-im-message-command-wrap">'+
-							'<span class="bx-im-message-command" data-entity="send">'+text+'</span>'+
-							'<span class="bx-im-message-command-data">'+command+'</span>'+
-						'</span>'+
-					'<!--IM_COMMAND_END-->';
-				}
-				else
-				{
-					html = text;
-				}
-
-				return html;
-			});
-		});
-
-		putReplacement.forEach((value, index) => {
-			text = text.replace('####REPLACEMENT_PUT_'+index+'####', value);
-		});
-
-		text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, (match) =>
-		{
-			return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, (whole, command, text) =>
-			{
-				let html = '';
-
-				text = text? text: command;
-				command = (command? command: text).replace('<br />', '\n');
-
-				if (!textOnly && text)
-				{
-					text = text.replace(/<([\w]+)[^>]*>(.*?)<\/\1>/i, "$2", text);
-					text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-
-					html = '<!--IM_COMMAND_START-->' +
-						'<span class="bx-im-message-command-wrap">'+
-							'<span class="bx-im-message-command" data-entity="put">'+text+'</span>'+
-							'<span class="bx-im-message-command-data">'+command+'</span>'+
-						'</span>'+
-					'<!--IM_COMMAND_END-->';
-				}
-				else
-				{
-					html = text;
-				}
-
-				return html;
-			});
-		});
-
-		codeReplacement.forEach((code, index) => {
-			text = text.replace('####REPLACEMENT_CODE_'+index+'####',
-				!textOnly? '<div class="bx-im-message-content-code">'+code+'</div>': code
-			)
-		});
-
-		if (sendReplacement.length > 0)
-		{
-			do
-			{
-				sendReplacement.forEach((value, index) => {
-					text = text.replace('####REPLACEMENT_SEND_'+index+'####', value);
-				});
-			}
-			while (text.includes('####REPLACEMENT_SEND_'));
-		}
-
-		text = text.split('####REPLACEMENT_SP_').join('####REPLACEMENT_PUT_');
-
-		if (putReplacement.length > 0)
-		{
-			do
-			{
-				putReplacement.forEach((value, index) => {
-					text = text.replace('####REPLACEMENT_PUT_'+index+'####', value);
-				});
-			}
-			while (text.includes('####REPLACEMENT_PUT_'));
-		}
-
-		return text;
-	}
-
-	static hideErrorImage(element)
-	{
-		if (element.parentNode && element.parentNode)
-		{
-			element.parentNode.innerHTML = '<a href="'+element.src+'" target="_blank">'+element.src+'</a>';
-		}
-		return true;
-	};
-
-	static isTemporaryMessage(element)
-	{
-		return element.id
-			&& (Utils.text.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
-	}
-
-	static getPayloadWithTempMessages(state, payload)
-	{
-		const payloadData = [...payload.data];
-
-		if (!Utils.platform.isBitrixMobile())
-		{
-			return payloadData;
-		}
-
-		if (!payload.data || payload.data.length <= 0)
-		{
-			return payloadData;
-		}
-
-		// consider that in the payload we have messages only for one chat, so we get the value from the first message.
-		const payloadChatId = payload.data[0].chatId;
-		if (!state.collection[payloadChatId])
-		{
-			return payloadData;
-		}
-
-		state.collection[payloadChatId].forEach(message => {
-			if (
-				MessagesModel.isTemporaryMessage(message)
-				&& !MessagesModel.existsInPayload(payload, message.templateId)
-				&& MessagesModel.doesTaskExist(message)
-			)
-			{
-				payloadData.push(message);
-			}
-		});
-
-		return payloadData;
-	}
-
-	static existsInPayload(payload, templateId)
-	{
-		return payload.data.find(payloadMessage => payloadMessage.templateId === templateId);
-	}
-
-	static doesTaskExist(message)
-	{
-		if (Array.isArray(message.params.FILE_ID))
-		{
-			let foundUploadTasks = false;
-			message.params.FILE_ID.forEach(fileId => {
-				if (!foundUploadTasks)
-				{
-					foundUploadTasks = window.imDialogUploadTasks.find(task => task.taskId.split('|')[1] === fileId);
-				}
-			})
-
-			return !!foundUploadTasks;
-		}
-
-		if (message.templateId)
-		{
-			const foundMessageTask = window.imDialogMessagesTasks.find(task => task.taskId.split('|')[1] === message.templateId);
-
-			return !!foundMessageTask;
-		}
-
-		return false;
+		return resultId;
 	}
 }

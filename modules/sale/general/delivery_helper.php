@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Sale\Location;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
@@ -16,60 +19,82 @@ class CSaleDeliveryHelper
 		static $arRegions = array();
 		$flipIndex = intval($bFlip);
 
+		$countryId = (int)$countryId;
+
 		if(isset($arRegions[$countryId][$flipIndex]))
 			return $arRegions[$countryId][$flipIndex];
 
 		if(CSaleLocation::isLocationProMigrated())
 		{
-			$types = array();
-			$res = \Bitrix\Sale\Location\TypeTable::getList(array(
-				'select' => array('ID', 'CODE')
-			));
+			$types = [];
+			$res = Location\TypeTable::getList([
+				'select' => [
+					'ID',
+					'CODE',
+				]
+			]);
 			while($item = $res->fetch())
-				$types[$item['CODE']] = $item['ID'];
-
-			$filter = array(
-				array(
-					'LOGIC' => 'OR',
-					array(
-						'=TYPE_ID' => $types['CITY'], 
-						'=NAME.LANGUAGE_ID' => LANGUAGE_ID,
-						array(
-							'LOGIC' => 'OR',
-							array(
-								'=PARENT.TYPE_ID' => $types['COUNTRY']
-							),
-							array(
-								'=PARENT.TYPE_ID' => $types['COUNTRY_DISTRICT']
-							),
-							array(
-								'=PARENT_ID' => '0'
-							)
-						)
-					),
-					array(
-						'=TYPE_ID' => $types['REGION'],
-					)
-				)
-			);
-
-			if(intval($countryId))
 			{
-				$filter['=PARENTS.TYPE_ID'] = $types['COUNTRY'];
+				$types[$item['CODE']] = $item['ID'];
+			}
+			unset($item, $res);
+
+			if (empty($types))
+			{
+				return [];
+			}
+
+			$filter = [
+				[
+					'LOGIC' => 'OR',
+					[
+						'=TYPE_ID' => $types['CITY'] ?? null,
+						'=NAME.LANGUAGE_ID' => LANGUAGE_ID,
+						[
+							'LOGIC' => 'OR',
+							[
+								'=PARENT.TYPE_ID' => $types['COUNTRY'] ?? null
+							],
+							[
+								'=PARENT.TYPE_ID' => $types['COUNTRY_DISTRICT'] ?? null
+							],
+							[
+								'=PARENT_ID' => '0'
+							]
+						]
+					],
+					[
+						'=TYPE_ID' => $types['REGION'] ?? null,
+					]
+				]
+			];
+
+			if ($countryId > 0)
+			{
+				$filter['=PARENTS.TYPE_ID'] = $types['COUNTRY'] ?? null;
 				$filter['=PARENTS.ID'] = $countryId;
 			}
 
-			$dbRegionList = \Bitrix\Sale\Location\LocationTable::getList(array(
+			$dbRegionList = Location\LocationTable::getList([
 				'filter' => $filter,
-				'select' => array('ID', 'CODE', 'NAME_LANG' => 'NAME.NAME'),
-				'order' => array('NAME.NAME' => 'asc')
-			));
+				'select' => [
+					'ID',
+					'CODE',
+					'NAME_LANG' => 'NAME.NAME',
+				],
+				'order' => [
+					'NAME_LANG' => 'ASC',
+				],
+			]);
+
 		}
 		else
 		{
-			$arFilterRegion = array();
-			if (intval($countryId) > 0)
+			$arFilterRegion = [];
+			if ($countryId > 0)
+			{
 				$arFilterRegion["COUNTRY_ID"] = $countryId;
+			}
 
 			$dbRegionList = CSaleLocation::GetRegionList(array("NAME_LANG"=>"ASC"), $arFilterRegion, LANGUAGE_ID);
 		}
@@ -92,7 +117,7 @@ class CSaleDeliveryHelper
 			$arRegions[$countryId][1][$arRegionList["NAME_LANG"]] = $arRegionList[$key]; // $bFlip == true
 		}
 
-		return isset($arRegions[$countryId][$flipIndex]) ? $arRegions[$countryId][$flipIndex] : array();
+		return $arRegions[$countryId][$flipIndex] ?? [];
 	}
 
 	public static function getDeliverySIDAndProfile($deliveryId)
@@ -609,4 +634,3 @@ class CSaleDeliveryHelper
 		return $arResult;
 	}
 }
-?>

@@ -100,8 +100,10 @@
 }
 
 .bizproc-automation-status-title {
+	--automation-height: 32px;
+	--automation-border-radius: 3px;
 	display: block;
-	height: 32px;
+	height: var(--automation-height);
 	position: relative;
 	overflow: hidden;
 	padding: 0 17px;
@@ -118,22 +120,41 @@
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	-wenkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
+	-wenkit-border-radius: var(--automation-border-radius);
+	-moz-border-radius: var(--automation-border-radius);
+	border-radius: var(--automation-border-radius);
 }
 
-.bizproc-automation-status-bg {
+.bizproc-automation__status--bg {
+	width: calc(100% - 6px);
+	height: var(--automation-height);
+	border-radius: var(--automation-border-radius);
 	position: absolute;
-	width: calc(100% - 13px);
-	z-index: 9;
-	height: 32px;
 	top: 0;
-	right: 4px;
 	left: 0;
-	-wenkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
+	background: transparent;
+	z-index: -1;
+	pointer-events: none;
+}
+
+.bizproc-automation__status--bg-arrow {
+	width: 0;
+	height: 0;
+	border-top: calc(var(--automation-height) / 2 - (var(--automation-border-radius) - 1px)) solid transparent;
+	border-bottom: calc(var(--automation-height) / 2 - (var(--automation-border-radius) - 1px)) solid transparent;
+	border-left: 6px solid transparent;
+	border-left-color: inherit;
+	position: absolute;
+	left: 100%;
+	top: calc(var(--automation-border-radius) - 1px);
+}
+
+.bizproc-automation-status-list-item:nth-last-child(2) .bizproc-automation__status--bg {
+	width: 100%;
+}
+
+.bizproc-automation-status-list-item:nth-last-child(2) .bizproc-automation__status--bg-arrow {
+	display: none;
 }
 
 .bizproc-automation-status-name {
@@ -205,24 +226,6 @@
 .bizproc-automation-status-help-right {
 	float: right;
 	margin: 15px 0 0 7px;
-}
-
-.bizproc-automation-status-title-right {
-	content: '';
-	width: 13px;
-	height: 32px;
-	position: absolute;
-	right: -10px;
-	top: 0;
-	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2232%22%20viewBox%3D%220%200%2013%2032%22%3E%3Cpath%20fill%3D%22%23AEF2F9%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h3c2.8%200%204%203%204%203l6%2013-6%2013s-1.06%203-4%203H0V0z%22/%3E%3C/svg%3E)
-}
-
-.bizproc-automation-status-list-item:nth-last-child(2) .bizproc-automation-status-title-right {
-	display: none;
-}
-
-.bizproc-automation-status-list-item:nth-last-child(2) .bizproc-automation-status-bg {
-	right: 24px;
 }
 
 .bizproc-automation-status-list-item:nth-last-child(2) .bizproc-automation-status-title {
@@ -1396,13 +1399,18 @@
 	font-size: 13px;
 	font-weight: var(--ui-font-weight-bold);
 	color: #0b66c3;
-	border-bottom: 1px dashed #0b66c3;
+	border-bottom: 1px dashed rgba(11,102,195,.4);
 	line-height: normal;
 	text-decoration: none;
 	cursor: pointer;
 	-webkit-transition: .1s;
 	-moz-transition: .1s;
 	transition: .1s;
+}
+
+.bizproc-automation-popup-settings-link:hover,
+.bizproc-automation-popup-settings-button:hover {
+	border-bottom-color: rgba(11,102,195,1);
 }
 
 .bizproc-automation-popup-settings-link-light {

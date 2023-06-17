@@ -86,8 +86,16 @@ if (isset($arResult['ITEM']))
 
 	foreach ($item['MORE_PHOTO'] as $morePhoto)
 	{
+		if ($morePhoto['ID'] === 0)
+		{
+			$photoFile = $morePhoto;
+		}
+		else
+		{
+			$photoFile = $morePhoto['ID'];
+		}
 		$xResizedImage = \CFile::ResizeImageGet(
-			$morePhoto['ID'],
+			$photoFile,
 			[
 				'width' => 410,
 				'height' => 410,
@@ -97,7 +105,7 @@ if (isset($arResult['ITEM']))
 		);
 
 		$x2ResizedImage = \CFile::ResizeImageGet(
-			$morePhoto['ID'],
+			$photoFile,
 			[
 				'width' => 820,
 				'height' => 820,
@@ -144,7 +152,6 @@ if (isset($arResult['ITEM']))
 		'PRODUCT_DISPLAY_MODE' => $arParams['PRODUCT_DISPLAY_MODE'],
 		'USE_OFFER_NAME' => $arParams['USE_OFFER_NAME'] === 'Y',
 		'BIG_DATA' => $item['BIG_DATA'],
-		'VIEW_MODE' => $arResult['TYPE'],
 		'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
 		'USE_ENHANCED_ECOMMERCE' => $arParams['USE_ENHANCED_ECOMMERCE'],
 		'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],

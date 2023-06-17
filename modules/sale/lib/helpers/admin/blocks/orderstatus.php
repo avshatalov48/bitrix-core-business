@@ -36,7 +36,7 @@ class OrderStatus
 			}
 		}
 
-
+		$orderSiteId = $order->getSiteId();
 		$result = '
 			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="adm-detail-content-table edit-table">
 				<tbody>
@@ -44,7 +44,7 @@ class OrderStatus
 						<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage("SALE_ORDER_STATUS_CREATED").':</td>
 						<td class="adm-detail-content-cell-r">
 							<div>'.
-								 $data["DATE_INSERT"].
+								$data["DATE_INSERT"].
 								'&nbsp;'.static::renderCreatorLink($data).'
 							</div>
 						</td>
@@ -57,7 +57,7 @@ class OrderStatus
 						<td class="adm-detail-content-cell-l">'.Loc::getMessage("SALE_ORDER_STATUS_SITE").':</td>
 						<td class="adm-detail-content-cell-r"><div>'.
 								htmlspecialcharsbx(
-									\Bitrix\Sale\Helpers\Admin\OrderEdit::getSiteName($order->getSiteId())
+									\Bitrix\Sale\Helpers\Admin\OrderEdit::getSiteName($orderSiteId)
 								).
 							'</div></td>
 					</tr>';
@@ -102,7 +102,7 @@ class OrderStatus
 								\Bitrix\Sale\Helpers\Admin\OrderEdit::makeSelectHtml(
 								"STATUS_ID",
 								self::getStatusesList($user->GetID(), $data["STATUS_ID"]),
-								 $data["STATUS_ID"],
+								$data["STATUS_ID"],
 								false,
 								$attr
 							);
@@ -152,7 +152,7 @@ class OrderStatus
 
 	protected static function getCancelBlockHtml(Order $order, array $data, $orderLocked = false)
 	{
-		$isCanceled = ($order->getField('CANCELED') == "Y" ? true : false);
+		$isCanceled = $order->getField('CANCELED') === "Y";
 
 		if($isCanceled)
 		{
@@ -178,8 +178,8 @@ class OrderStatus
 				</div>';
 		}
 
-		$reasonCanceled = trim($order->getField("REASON_CANCELED"));
-		
+		$reasonCanceled = trim((string)$order->getField("REASON_CANCELED"));
+
 		if(!\CSaleYMHandler::isOrderFromYandex($order->getId()))
 		{
 			$reasonHtml = '
@@ -391,7 +391,7 @@ class OrderStatus
 				</tbody>
 			</table>';
 	}
-	
+
 	protected static function renderCreatorLink($data)
 	{
 		return '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='. $data["CREATOR_USER_ID"].'">'.htmlspecialcharsbx($data["CREATOR_USER_NAME"]).'</a>';

@@ -209,9 +209,9 @@ if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]=
 			$arSection["ID"],
 			array("SESSID"=>false)
 		);
-		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"];
-		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"];
-		$arSection["ADD_ELEMENT_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"];
+		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"] ?? '';
+		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"] ?? '';
+		$arSection["ADD_ELEMENT_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"] ?? '';
 
 		$arSection["ITEMS"] = array();
 
@@ -231,8 +231,8 @@ if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]=
 				$arSection["ID"],
 				array("SECTION_BUTTONS"=>false, "SESSID"=>false)
 			);
-			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 			if($bGetProperty)
 				$arItem["PROPERTIES"] = $obElement->GetProperties();
@@ -245,7 +245,7 @@ if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]=
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "photo_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 
@@ -256,6 +256,10 @@ if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]=
 		$arResult["SECTIONS"][]=$arSection;
 		if(count($arResult["SECTIONS"])>=$arParams["SECTION_COUNT"])
 			break;
+	}
+	if ($bGetProperty)
+	{
+		\CIBlockFormatProperties::clearCache();
 	}
 
 	foreach ($arResult["SECTIONS"] as &$arSection)
@@ -281,8 +285,7 @@ if ($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]=
 	}
 	unset($arSection);
 
-	$this->SetResultCacheKeys(array(
-	));
+	$this->SetResultCacheKeys([]);
 	$this->IncludeComponentTemplate();
 }
 

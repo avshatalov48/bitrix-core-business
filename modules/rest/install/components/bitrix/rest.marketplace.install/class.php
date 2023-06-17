@@ -60,11 +60,16 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 		);
 		$app = $res->fetch();
 
+		$checkHash = $this->arParams['CHECK_HASH'] ?? null;
+		$installHash = $this->arParams['INSTALL_HASH'] ?? null;
+		$version = $this->arParams['VER'] ?? null;
+		$appCode = $this->arParams['APP_CODE'] ?? null;
+
 		$appExternal = Client::getApp(
-			$this->arParams['APP_CODE'],
-			$this->arParams['VER'],
-			$this->arParams['CHECK_HASH'],
-			$this->arParams['INSTALL_HASH']
+			$appCode,
+			$version,
+			$checkHash,
+			$installHash
 		);
 
 		if ($appExternal)
@@ -129,9 +134,19 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 		{
 			foreach ($result['APP']['RIGHTS'] as $key => $scope)
 			{
+				if (mb_strtoupper($key) === 'LOG')
+				{
+					$title = Loc::getMessage('REST_SCOPE_LOG_MSGVER_1') ?: $scope;
+					$description = Loc::getMessage("REST_SCOPE_LOG_DESCRIPTION_MSGVER_1");
+				}
+				else
+				{
+					$title = Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)) ?: $scope;
+					$description = Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)."_DESCRIPTION");
+				}
 				$result['APP']['RIGHTS'][$key] = [
-					'TITLE' => Loc::getMessage('REST_SCOPE_'.mb_strtoupper($key)) ?: $scope,
-					'DESCRIPTION' => Loc::getMessage('REST_SCOPE_'.mb_strtoupper($key).'_DESCRIPTION')
+					'TITLE' => $title,
+					'DESCRIPTION' => $description
 				];
 				if (!in_array($key, $scopeList, true))
 				{

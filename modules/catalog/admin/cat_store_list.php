@@ -89,6 +89,9 @@ $entityId = Catalog\StoreTable::getUfId();
 $oSort = new CAdminUiSorting($sTableID, "SORT", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+
 $bExport = $lAdmin->isExportMode();
 
 $listSite = array();
@@ -523,12 +526,6 @@ if ($allowedShippingCenter)
 {
 	$arSelect[] = "SHIPPING_CENTER";
 }
-
-global $by, $order;
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
 
 $dbResultList = CCatalogStore::GetList(array($by => $order), $filter, false, false, $arSelect);
 

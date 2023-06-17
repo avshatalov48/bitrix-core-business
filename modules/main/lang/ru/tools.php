@@ -280,6 +280,7 @@ $MESS["expire_mess1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">
 		Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expiried\">www.1c-bitrix.ru</a>.
 		</font></font>";
 $MESS["expire_mess2"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>. <a href=\"/bitrix/coupon_activation.php?lang=ru\">Регистрация</a>.";
+$MESS["expire_mess3"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>.";
 $MESS["main_tools_menu_left"] = "Меню раздела";
 $MESS["main_tools_menu_top"] = "Главное меню";
 $MESS["MONTH_1"] = "Январь";
@@ -310,7 +311,7 @@ $MESS["MON_1"] = "янв";
 $MESS["MON_2"] = "фев";
 $MESS["MON_3"] = "мар";
 $MESS["MON_4"] = "апр";
-$MESS["MON_5"] = "май";
+$MESS["MON_5"] = "мая";
 $MESS["MON_6"] = "июн";
 $MESS["MON_7"] = "июл";
 $MESS["MON_8"] = "авг";

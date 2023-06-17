@@ -10,12 +10,18 @@ export class QrAuthorization
 {
 	title;
 	content;
+	bottomText;
+	qr;
+	popupParam;
 
 	constructor(options = {})
 	{
 		this.title = options.title || null;
 		this.content = options.content || null;
+		this.bottomText = options.bottomText || Loc.getMessage('UI_QR_AUTHORIZE_TAKE_CODE');
 		this.helpLink = options.helpLink || null;
+		this.qr = options.qr || null;
+		this.popupParam = options.popupParam || null;
 		this.popup = null;
 		this.loader = null;
 
@@ -24,13 +30,26 @@ export class QrAuthorization
 		this.loadingNode = null;
 
 		this.isSubscribe = false;
+		
 	}
 
 	createQrCodeImage()
 	{
 		Dom.clean(this.getQrNode())
-		this.loading();
 
+		if (Type.isString(this.qr))
+		{
+			this.clean();
+			new QRCode(this.getQrNode(), {
+				text: this.qr,
+				width: 180,
+				height: 180
+			});
+
+			return;
+		}
+
+		this.loading();
 		Ajax.runAction(
 			'mobile.deeplink.get', {
 				data: {
@@ -87,33 +106,41 @@ export class QrAuthorization
 	{
 		if(!this.popup)
 		{
+			const title = Type.isObject(this.title) ? this.title?.text : this.title;
+			const titleSize = Type.isObject(this.title) ? this.title?.size : '';
+			const bottomText = Type.isObject(this.bottomText) ? this.bottomText?.text : this.bottomText;
+			const bottomTextSize = Type.isObject(this.bottomText) ? this.bottomText?.size : '';
+
 			let container = `
 				<div class="ui-qr-authorization__popup-wrapper">
-					<div class="ui-qr-authorization__popup-top">
-						<div class="ui-qr-authorization__popup-left ${!this.title ? '--flex' : ''}"">
-							${this.title
-								? '<div class="ui-qr-authorization__popup-title">' + this.title + '</div>'
+					<div class="ui-qr-authorization__popup-top ${!this.content ? '--direction-column' : ''}">
+						<div class="ui-qr-authorization__popup-left ${!title ? '--flex' : ''}"">
+							${title
+								? `<div class="ui-qr-authorization__popup-title --${titleSize}">${title}</div>`
 								: ''}
 							${this.content
-								? '<div class="ui-qr-authorization__popup-text">' + this.content + '</div>'
+								? `<div class="ui-qr-authorization__popup-text">${this.content}</div>`
 								: ''}
 						</div>
 						<div class="ui-qr-authorization__popup-right ${!this.title ? '--no-margin' : ''}" data-role="ui-qr-authorization__qr-node"></div>
 					</div>
 					<div class="ui-qr-authorization__popup-bottom">
-						<div class="ui-qr-authorization__popup-bottom--title">${Loc.getMessage('UI_QR_AUTHORIZE_TAKE_CODE')}</div>
+						<div class="ui-qr-authorization__popup-bottom--title ${bottomTextSize ? '--' + bottomTextSize : ''}">${bottomText}</div>
 						${this.helpLink
-							? '<a href="' + this.helpLink + '" class="ui-qr-authorization__popup-bottom--link">' + Loc.getMessage('UI_QR_AUTHORIZE_HELP') + '</a>'
+							? `<a href="${this.helpLink}" class="ui-qr-authorization__popup-bottom--link">${Loc.getMessage('UI_QR_AUTHORIZE_HELP')}</a>`
 							: ''}
 					</div>
 				</div>
 			`;
 
-			this.popup = new Popup({
-				className: 'ui-qr-authorization__popup ui-qr-authorization__popup-scope',
-				width: this.title && this.content ? 710 : null,
+			let popupWidth = this.content ? 710 : 405;
+			let popupParam = {
+				className: this.popupParam?.className ? this.popupParam?.className : 'ui-qr-authorization__popup ui-qr-authorization__popup-scope',
+				width: this.popupParam?.width ? this.popupParam?.width : popupWidth,
 				content: container,
-				closeByEsc: true,
+				closeByEsc: this.popupParam?.closeByEsc ? this.popupParam?.className : true,
+				overlay: this.popupParam?.overlay ? this.popupParam?.overlay : false,
+				autoHide: this.popupParam?.autoHide ? this.popupParam?.autoHide : true,
 				closeIcon: {
 					top: '14px',
 					right: '15px'
@@ -131,7 +158,9 @@ export class QrAuthorization
 				},
 				padding: 0,
 				animation: 'fading-slide'
-			});
+			}
+
+			this.popup = new Popup(popupParam);
 		}
 
 		return this.popup;

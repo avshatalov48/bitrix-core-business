@@ -195,7 +195,7 @@ class CUserTypeManager
 			$result = $this->arFieldsCache[$cacheId];
 		}
 
-		if (count($result) > 0 && $value_id > 0)
+		if (!empty($result) && $value_id > 0)
 		{
 			$valuesGottenByEvent = $this->getUserFieldValuesByEvent($result, $entity_id, $value_id);
 
@@ -521,7 +521,7 @@ class CUserTypeManager
 		}
 
 		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID);
-		if(count($arUserFields) > 0)
+		if(!empty($arUserFields))
 		{
 			foreach($arUserFields as $FIELD_NAME => $arUserField)
 			{
@@ -543,7 +543,7 @@ class CUserTypeManager
 			$arFields = array();
 		}
 
-		$files = isset($options['FILES']) ? $options['FILES'] : $_FILES;
+		$files = $options['FILES'] ?? $_FILES;
 		$form = isset($options['FORM']) && is_array($options['FORM']) ? $options['FORM'] : $GLOBALS;
 
 		$arUserFields = $this->GetUserFields($entity_id);
@@ -748,7 +748,7 @@ class CUserTypeManager
 			}
 			else
 			{
-				$value = $GLOBALS['find_' . $fieldName];
+				$value = $GLOBALS['find_' . $fieldName] ?? null;
 			}
 			if(
 				$arUserField['SHOW_FILTER'] != 'N'
@@ -782,8 +782,8 @@ class CUserTypeManager
 		{
 			if($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime')
 			{
-				$value1 = $filterData[$fieldName . '_from'];
-				$value2 = $filterData[$fieldName . '_to'];
+				$value1 = $filterData[$fieldName . '_from'] ?? '';
+				$value2 = $filterData[$fieldName . '_to'] ?? '';
 				if($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
 				{
 					$date = new \Bitrix\Main\Type\Date($value1);
@@ -805,19 +805,22 @@ class CUserTypeManager
 				switch($arUserField['USER_TYPE_ID'])
 				{
 					case 'boolean':
-						if($filterData[$fieldName] === 'Y')
+						if(isset($filterData[$fieldName]) && $filterData[$fieldName] === 'Y')
 							$filterData[$fieldName] = 1;
-						if($filterData[$fieldName] === 'N')
+						if(isset($filterData[$fieldName]) && $filterData[$fieldName] === 'N')
 							$filterData[$fieldName] = 0;
-						$value = $filterData[$fieldName];
+						$value = $filterData[$fieldName] ?? null;
 						break;
 					default:
-						$value = $filterData[$fieldName];
+						$value = $filterData[$fieldName] ?? null;
 				}
 			}
 			else
 			{
-				$value = $filterData[$fieldName];
+				if (array_key_exists($fieldName, $filterData))
+				{
+					$value = $filterData[$fieldName];
+				}
 			}
 			if(
 				$arUserField['SHOW_FILTER'] != 'N'
@@ -1392,21 +1395,21 @@ class CUserTypeManager
 		{
 			//All done
 		}
-		elseif($arUserField["VIEW_CALLBACK"] && is_callable($arUserField['VIEW_CALLBACK']))
+		elseif(isset($arUserField["VIEW_CALLBACK"]) && is_callable($arUserField['VIEW_CALLBACK']))
 		{
 			$html = call_user_func_array($arUserField["VIEW_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif($arType && $arType["VIEW_CALLBACK"] && is_callable($arType['VIEW_CALLBACK']))
+		elseif($arType && isset($arType["VIEW_CALLBACK"]) && is_callable($arType['VIEW_CALLBACK']))
 		{
 			$html = call_user_func_array($arType["VIEW_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif($arUserField["VIEW_COMPONENT_NAME"])
+		elseif(isset($arUserField["VIEW_COMPONENT_NAME"]))
 		{
 			$html = $this->CallUserTypeComponent(
 				$arUserField["VIEW_COMPONENT_NAME"],
@@ -1415,7 +1418,7 @@ class CUserTypeManager
 				$arAdditionalParameters
 			);
 		}
-		elseif($arType && $arType["VIEW_COMPONENT_NAME"])
+		elseif($arType && isset($arType["VIEW_COMPONENT_NAME"]))
 		{
 			$html = $this->CallUserTypeComponent(
 				$arType["VIEW_COMPONENT_NAME"],
@@ -1475,21 +1478,21 @@ class CUserTypeManager
 		{
 			//All done
 		}
-		elseif($arUserField["EDIT_CALLBACK"] && is_callable($arUserField['EDIT_CALLBACK']))
+		elseif(isset($arUserField["EDIT_CALLBACK"]) && is_callable($arUserField['EDIT_CALLBACK']))
 		{
 			$html = call_user_func_array($arUserField["EDIT_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif($arType && $arType["EDIT_CALLBACK"] && is_callable($arType['EDIT_CALLBACK']))
+		elseif($arType && isset($arType["EDIT_CALLBACK"]) && is_callable($arType['EDIT_CALLBACK']))
 		{
 			$html = call_user_func_array($arType["EDIT_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif($arUserField["EDIT_COMPONENT_NAME"])
+		elseif(isset($arUserField["EDIT_COMPONENT_NAME"]))
 		{
 			$html = $this->CallUserTypeComponent(
 				$arUserField["EDIT_COMPONENT_NAME"],
@@ -1498,7 +1501,7 @@ class CUserTypeManager
 				$arAdditionalParameters
 			);
 		}
-		elseif($arType && $arType["EDIT_COMPONENT_NAME"])
+		elseif($arType && isset($arType["EDIT_COMPONENT_NAME"]))
 		{
 			$html = $this->CallUserTypeComponent(
 				$arType["EDIT_COMPONENT_NAME"],
@@ -2001,8 +2004,6 @@ class CUserTypeManager
 			return $result;
 		}
 
-		$result = false;
-
 		$arUpdate = array();
 		$arBinds = array();
 		$arInsert = array();
@@ -2089,12 +2090,17 @@ class CUserTypeManager
 		$lower_entity_id = mb_strtolower($entity_id);
 
 		if(!empty($arUpdate))
+		{
 			$strUpdate = $DB->PrepareUpdate("b_uts_" . $lower_entity_id, $arUpdate);
+		}
 		else
-			return $result;
+		{
+			return false;
+		}
 
 		$DB->StartTransaction();
 
+		$result = false;
 		if($strUpdate <> '')
 		{
 			$result = true;

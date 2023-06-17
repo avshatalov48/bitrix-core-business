@@ -54,8 +54,11 @@ if($ex = $APPLICATION->GetException())
 
 $sTableID = "b_catalog_store_docs";
 
-$oSort = new CAdminUiSorting($sTableID, "ID", "DESC");
+$oSort = new CAdminUiSorting($sTableID, "DATE_MODIFY", "DESC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
 $errorMessage = "";
 
@@ -242,19 +245,6 @@ if (isset($arFilter['STATUS']))
 	unset($statusFilter);
 }
 
-global $by, $order;
-if (!isset($by))
-{
-	$by = 'DATE_MODIFY';
-}
-$by = mb_strtoupper($by);
-
-if (!isset($order))
-{
-	$order = 'DESC';
-}
-$order = mb_strtoupper($order);
-
 switch ($by)
 {
 	case 'STATUS':
@@ -284,7 +274,6 @@ if ($arID = $lAdmin->GroupAction())
 		}
 		$query = Catalog\StoreDocumentTable::query()
 			->setFilter($arFilter)
-			->setOrder($docsOrder)
 			->setSelect(['ID']);
 		if ($filteredProduct > 0)
 		{
@@ -638,6 +627,7 @@ $dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 $lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."cat_store_document_list.php"));
 
+$arUserID = [];
 while($arRes = $dbResultList->Fetch())
 {
 	$arRes['ID'] = (int)$arRes['ID'];

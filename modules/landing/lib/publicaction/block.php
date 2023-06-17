@@ -196,15 +196,18 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param array $data Array with selector and value.
+	 * @param bool $preventHistory True if no need save history
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function changeNodeName($lid, $block, array $data)
+	public static function changeNodeName($lid, $block, array $data, bool $preventHistory = false)
 	{
 		$error = new \Bitrix\Landing\Error;
 		$result = new PublicActionResult();
 
 		$content = array();
 		Landing::setEditMode();
+
+		$preventHistory ? History::deactivate() : History::activate();
 
 		// collect selectors in right array
 		foreach ($data as $selector => $value)
@@ -492,6 +495,13 @@ class Block
 							$blocks[$block]->updateNodes($components, $additional);
 						}
 					}
+					$blocks[$block]->saveContent(
+						str_replace(
+							'contenteditable="true"',
+							'',
+							$blocks[$block]->getContent()
+						)
+					);
 					$result->setResult($blocks[$block]->save());
 					$result->setError($blocks[$block]->getError());
 					if ($blocks[$block]->getError()->isEmpty())
@@ -1102,49 +1112,5 @@ class Block
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Returns the username.
-	 * @param int $userId.
-	 * @return PublicActionResult
-	 */
-	public static function getUserNameById(int $userId): PublicActionResult
-	{
-		$res = \Bitrix\Main\UserTable::getList([
-			'select' => [
-				'NAME',
-				'LAST_NAME'
-			],
-			'filter' => [
-				'ID' => $userId
-			]]);
-		$row = $res->fetch();
-		$result = new PublicActionResult();
-		$result->setResult([
-			'NAME' => \CUser::formatName(
-				\CSite::getNameFormat(false),
-				$row, true, false
-			)
-		]);
-		return $result;
-	}
-
-	public static function getPersonalPhotoById(int $userId): ?int
-	{
-		$res = \Bitrix\Main\UserTable::getList([
-			'select' => [
-				'PERSONAL_PHOTO',
-			],
-			'filter' => [
-				'ID' => $userId
-			]
-		]);
-		$row = $res->fetch();
-		if ($row['PERSONAL_PHOTO'])
-		{
-			return $row['PERSONAL_PHOTO'];
-		}
-		return null;
 	}
 }

@@ -10,3 +10,4 @@ $MESS["BX_CATALOG_PRODUCT_ACTION_ERR_SECTION_SERVICES_CONVERT"] = "При кон
 $MESS['BX_CATALOG_PRODUCT_ACTION_ERR_SELECTED_NOT_SIMPLE_PRODUCT'] = "Товары #NAMES# не являются простыми, поэтому не могут быть конвертированы в услуги.";
 $MESS['BX_CATALOG_PRODUCT_ACTION_ERR_SELECTED_NOT_SERVICE'] = "Позиции #NAMES# уже являются товарами. Для них конвертация не будет выполняться.";
 $MESS['BX_CATALOG_PRODUCT_ACTION_ERR_SELECTED_INVENTORY_PRODUCTS'] = "Товары #NAMES# невозможно конвертировать в услуги, так как они присутствует в проведённых складских документах.";
+$MESS['BX_CATALOG_PRODUCT_ACTION_ERR_CANNOT_SET_FIELD_BY_TYPE'] = "Нельзя устанавливать выбранные параметры товарам #NAMES#";

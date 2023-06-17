@@ -2,10 +2,17 @@
 
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\SectionAccessController;
+use Bitrix\Calendar\Access\TypeAccessController;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\Controller;
+use CCalendar;
 
 Loc::loadMessages(__FILE__);
 
@@ -27,8 +34,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -70,8 +79,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -113,8 +124,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -160,7 +173,9 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -183,7 +198,9 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -242,13 +259,13 @@ class LocationAjax extends Controller
 		$params['current_event_date_to'] = $request->getPost('current_event_date_to');
 		$params['owner_id'] = (int)$request->getPost('owner_id');
 
-		if (
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT_ACCESS)
-			|| !Rooms\PermissionManager::checkSectionPermission(
-					\CCalendarSect::OPERATION_EDIT_ACCESS,
-					$params['section_id'],
-				)
-		)
+		/** @var SectionModel $sectionModel */
+		$sectionModel =
+			SectionModel::createFromId($params['section_id'])
+				->setType(Dictionary::CALENDAR_TYPE['location'])
+		;
+		$accessController = new SectionAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_SECTION_ACCESS, $sectionModel, []))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -276,8 +293,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -310,8 +329,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if(
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -344,8 +365,10 @@ class LocationAjax extends Controller
 			return [];
 		}
 
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		if (
-			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -378,7 +401,9 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
@@ -396,12 +421,6 @@ class LocationAjax extends Controller
 		{
 			return [];
 		}
-
-		// if (!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
-		// {
-		// 	$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
-		// 	return [];
-		// }
 
 		$categoryManagerData = [];
 		$categoryManagerData['permissions'] = Rooms\PermissionManager::getAvailableOperations() ?? [];

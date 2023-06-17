@@ -167,7 +167,7 @@ final class SypexGeo extends Base
 	public function createConfigField(array $postFields)
 	{
 		return array(
-			'KEY' => isset($postFields['KEY']) ? $postFields['KEY'] : ''
+			'KEY' => $postFields['KEY'] ?? ''
 		);
 	}
 

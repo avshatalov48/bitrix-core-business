@@ -28,7 +28,7 @@ class Manager
 	/**
 	 * Path, where user can buy upgrade.
 	 */
-	const BUY_LICENSE_PATH = '/settings/license_all.php';
+	const BUY_LICENSE_PATH = '/bitrix/tools/landing/ajax.php?redirect=upgrade';
 
 	/**
 	 * Features codes for backward compatibility.
@@ -673,6 +673,15 @@ class Manager
 					? intval($params['resize_type'])
 					: BX_RESIZE_IMAGE_PROPORTIONAL);
 			}
+			// if duplicate change size little (bug #167903)
+			if ($isImage && self::isDuplicateExistsInAnotherModule($file['tmp_name'], $file['size']))
+			{
+				[$width, $height] = getimagesize($file['tmp_name']) ?: [0, 0];
+				if ($width && $height)
+				{
+					\CFile::resizeImage($file, ['width' => $width-1, 'height' => $height-1]);
+				}
+			}
 			// save
 			$module = 'landing';
 			$file['name'] = File::sanitizeFileName($file['name']);
@@ -694,6 +703,53 @@ class Manager
 		}
 
 		return false;
+	}
+
+	/**
+	 * Detects file duplicates by file path.
+	 * @param string $filePath Full path to the file.
+	 * @param int $size Size of the file.
+	 * @return bool
+	 */
+	private static function isDuplicateExistsInAnotherModule(string $filePath, int $size): bool
+	{
+		$hash = self::calculateHash($filePath, $size);
+		if (!$hash)
+		{
+			return false;
+		}
+
+		$original = \CFile::findDuplicate($size, $hash);
+		if ($original === null)
+		{
+			return false;
+		}
+
+		// we allow duplicate only within from current module
+		return $original->getFile()->getModuleId() !== 'landing';
+	}
+
+	/**
+	 * Calculates a hash of the file.
+	 * @see \CFile::CalculateHash
+	 * @param string $filePath Full path to the file.
+	 * @param int $size Size of the file.
+	 * @return string
+	 */
+	private static function calculateHash(string $filePath, int $size): string
+	{
+		$hash = '';
+
+		if ($size > 0 && Option::get('main', 'control_file_duplicates', 'N') === 'Y')
+		{
+			$maxSize = (int)Option::get('main', 'duplicates_max_size', '100') * 1024 * 1024; //Mbytes
+			if ($size <= $maxSize || $maxSize === 0)
+			{
+				$hash = hash_file('md5', $filePath);
+			}
+		}
+
+		return $hash;
 	}
 
 	/**

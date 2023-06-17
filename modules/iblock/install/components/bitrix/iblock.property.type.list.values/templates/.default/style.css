@@ -1,0 +1,26 @@
+.iblock-property-type-list-values-buttons
+{
+	background: #fff;
+	margin-bottom: 4px;
+	height: 57px;
+	padding: 0 9px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	border-radius: var(--ui-border-radius-md);
+}
+
+.iblock-property-type-list-values-errors-container
+{
+	margin: 0;
+	border-radius: 0;
+	overflow: hidden;
+	max-height: 150px;
+	justify-content: center;
+}

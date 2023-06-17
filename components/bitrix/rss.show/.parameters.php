@@ -1,22 +1,37 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-
-if(!CModule::IncludeModule("iblock"))
-	return;
-
-if($arCurrentValues["SITE"] <> '')
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 {
-	$url_default = "http://".$arCurrentValues["SITE"];
+	die();
+}
 
-	$port = intval($arCurrentValues["PORT"]);
-	if($port > 0 && $port != 80)
-		$url_default .= ":".$port;
+/** @var array $arCurrentValues */
 
-	if($arCurrentValues["PATH"] <> '')
-		$url_default .= "/".ltrim($arCurrentValues["PATH"], "/");
+use Bitrix\Main\Loader;
 
-	if($arCurrentValues["QUERY_STR"] <> '')
-		$url_default .= "?".ltrim($arCurrentValues["QUERY_STR"], "?");
+if (!Loader::includeModule('iblock'))
+{
+	return;
+}
+
+if (($arCurrentValues["SITE"] ?? '') !== '')
+{
+	$url_default = "http://" . $arCurrentValues["SITE"];
+
+	$port = (int)($arCurrentValues["PORT"] ?? 0);
+	if ($port > 0 && $port !== 80)
+	{
+		$url_default .= ":" . $port;
+	}
+
+	if (($arCurrentValues["PATH"] ?? '') !== '')
+	{
+		$url_default .= "/" . ltrim((string)$arCurrentValues["PATH"], "/");
+	}
+
+	if (($arCurrentValues["QUERY_STR"] ?? '') !== '')
+	{
+		$url_default .= "?" . ltrim((string)$arCurrentValues["QUERY_STR"], "?");
+	}
 }
 else
 {
@@ -24,40 +39,38 @@ else
 }
 
 
-$arComponentParameters = array(
-	"GROUPS" => array(
-	),
-	"PARAMETERS" => array(
-		"URL" => Array(
+$arComponentParameters = [
+	"GROUPS" => [],
+	"PARAMETERS" => [
+		"URL" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("CP_BRS_URL"),
 			"TYPE" => "STRING",
 			"DEFAULT" => $url_default,
-		),
-		"OUT_CHANNEL" => Array(
+		],
+		"OUT_CHANNEL" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_OUT_CHANNEL"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
-		),
-		"NUM_NEWS" => Array(
+		],
+		"NUM_NEWS" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_NUM_NEWS"),
 			"TYPE" => "STRING",
 			"DEFAULT" => '10',
-		),
-		"PROCESS" => Array(
+		],
+		"PROCESS" => [
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("CP_BRS_PROCESS"),
 			"TYPE" => "LIST",
 			"DEFAULT" => "NONE",
-			"VALUES" => array(
+			"VALUES" => [
 				"NONE" => GetMessage("CP_BRS_PROCESS_NONE"),
 				"TEXT" => GetMessage("CP_BRS_PROCESS_TEXT"),
 				"QUOTE" => GetMessage("CP_BRS_PROCESS_QUOTE"),
-			),
-		),
-		"CACHE_TIME"  =>  Array("DEFAULT"=>3600),
-	),
-);
-?>
+			],
+		],
+		"CACHE_TIME"  =>  ["DEFAULT"=>3600],
+	],
+];

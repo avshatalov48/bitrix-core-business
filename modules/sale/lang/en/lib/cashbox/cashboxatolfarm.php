@@ -1,7 +1,7 @@
 <?php
 $MESS["SALE_CASHBOX_ATOL_CHECK_REG_ERROR"] = "Error registering receipt";
-$MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_PHONE_EMAIL"] = "ATOL.Online: incorrect data. No customer phone or email were specified.";
-$MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_TAX"] = "ATOL.Online: incorrect tax rate parameters";
+$MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_PHONE_EMAIL"] = "Incorrect data. No customer phone or email were specified.";
+$MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_TAX"] = "Incorrect tax rate parameters";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_AUTH"] = "Authentication settings";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_AUTH_LOGIN_LABEL"] = "Login";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_AUTH_PASS_LABEL"] = "Password";

@@ -82,7 +82,7 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 			$result['ONLY_ACTIVE'] = 'Y';
 		}
 
-		if (is_array($params['SHOW_FILTER_SUB_ENTITY_TYPE']))
+		if (isset($params['SHOW_FILTER_SUB_ENTITY_TYPE']) && is_array($params['SHOW_FILTER_SUB_ENTITY_TYPE']))
 		{
 			$result['SHOW_FILTER_SUB_ENTITY_TYPE'] = $params['SHOW_FILTER_SUB_ENTITY_TYPE'];
 		}
@@ -98,7 +98,7 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 			];
 		}
 
-		if ($params['MAX_SECOND_RANGE_DATE_FILTER'] > 0)
+		if (isset($params['MAX_SECOND_RANGE_DATE_FILTER']) && $params['MAX_SECOND_RANGE_DATE_FILTER'] > 0)
 		{
 			$result['MAX_SECOND_RANGE_DATE_FILTER'] = $params['MAX_SECOND_RANGE_DATE_FILTER'];
 		}
@@ -117,8 +117,8 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 		}
 
 		$result['MAX_DAYS_RANGE_DATE_FILTER'] = $result['MAX_SECOND_RANGE_DATE_FILTER'] / 86400;
-		$result['APP_ID'] = intVal($params['APP_ID']);
-		$result['PASSWORD_ID'] = intVal($params['PASSWORD_ID']);
+		$result['APP_ID'] = intVal($params['APP_ID'] ?? null);
+		$result['PASSWORD_ID'] = intVal($params['PASSWORD_ID'] ?? null);
 		$result['ONE_APP_MODE'] = ($result['APP_ID'] > 0 || $result['PASSWORD_ID'] > 0);
 		$result['SET_TITLE'] = isset($result['SET_TITLE']) ? $result['SET_TITLE'] === 'Y' : true;
 
@@ -329,12 +329,12 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 			$filter = [];
 		}
 
-		if ($filter['ENTITY_DATA_SUB_ENTITY_NAME'])
+		if (isset($filter['ENTITY_DATA_SUB_ENTITY_NAME']) && $filter['ENTITY_DATA_SUB_ENTITY_NAME'])
 		{
 			$result['=ENTITY_DATA_SUB_ENTITY_NAME'] = $filter['ENTITY_DATA_SUB_ENTITY_NAME'];
 		}
 
-		if ($filter['ENTITY_DATA_SUB_ENTITY_TYPE'])
+		if (isset($filter['ENTITY_DATA_SUB_ENTITY_TYPE']) && $filter['ENTITY_DATA_SUB_ENTITY_TYPE'])
 		{
 			$result['=ENTITY_DATA_SUB_ENTITY_TYPE'] = $filter['ENTITY_DATA_SUB_ENTITY_TYPE'];
 		}

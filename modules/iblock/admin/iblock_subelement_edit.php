@@ -562,7 +562,7 @@ do{ //one iteration loop
 			{
 				$PROP[$k1][$prop_value_id] = CIBlock::makeFilePropArray(
 					$PROP[$k1][$prop_value_id],
-					$PROP_del[$k1][$prop_value_id] === "Y",
+					($PROP_del[$k1][$prop_value_id] ?? 'N') === "Y",
 					$_POST["DESCRIPTION_PROP"][$k1][$prop_value_id] ?? $_POST["PROP_descr"][$k1][$prop_value_id]
 				);
 			}

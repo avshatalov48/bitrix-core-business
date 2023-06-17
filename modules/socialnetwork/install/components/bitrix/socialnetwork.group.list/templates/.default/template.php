@@ -53,10 +53,12 @@ $classList = [];
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->setPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : ''));
 
-if (
+$isTasksScope = (
 	in_array($arParams['MODE'], [ WorkgroupList::MODE_TASKS_PROJECT, WorkgroupList::MODE_TASKS_SCRUM ], true)
 	&& Loader::includeModule('tasks')
-)
+);
+
+if ($isTasksScope)
 {
 	$scope = (
 		$arParams['MODE'] === WorkgroupList::MODE_TASKS_SCRUM
@@ -71,20 +73,20 @@ if (
 			'USER_ID' => $arParams['USER_ID'],
 			'SECTION_URL_PREFIX' => '',
 
-			'MARK_SECTION_PROJECTS_LIST' => $arParams['MARK_SECTION_PROJECTS_LIST'],
-			'MARK_SECTION_SCRUM_LIST' => $arParams['MARK_SECTION_SCRUM_LIST'],
+			'MARK_SECTION_PROJECTS_LIST' => $arParams['MARK_SECTION_PROJECTS_LIST'] ?? '',
+			'MARK_SECTION_SCRUM_LIST' => $arParams['MARK_SECTION_SCRUM_LIST'] ?? '',
 			'USE_AJAX_ROLE_FILTER' => 'N',
 
-			'PATH_TO_GROUP_TASKS' => $arParams['PATH_TO_GROUP_TASKS'],
-			'PATH_TO_GROUP_TASKS_TASK' => $arParams['PATH_TO_GROUP_TASKS_TASK'],
-			'PATH_TO_GROUP_TASKS_VIEW' => $arParams['PATH_TO_GROUP_TASKS_VIEW'],
-			'PATH_TO_GROUP_TASKS_REPORT' => $arParams['PATH_TO_GROUP_TASKS_REPORT'],
+			'PATH_TO_GROUP_TASKS' => $arParams['PATH_TO_GROUP_TASKS'] ?? '',
+			'PATH_TO_GROUP_TASKS_TASK' => $arParams['PATH_TO_GROUP_TASKS_TASK'] ?? '',
+			'PATH_TO_GROUP_TASKS_VIEW' => $arParams['PATH_TO_GROUP_TASKS_VIEW'] ?? '',
+			'PATH_TO_GROUP_TASKS_REPORT' => $arParams['PATH_TO_GROUP_TASKS_REPORT'] ?? '',
 
-			'PATH_TO_USER_TASKS' => $arParams['PATH_TO_USER_TASKS'],
-			'PATH_TO_USER_TASKS_TASK' => $arParams['PATH_TO_USER_TASKS_TASK'],
-			'PATH_TO_USER_TASKS_VIEW' => $arParams['PATH_TO_USER_TASKS_VIEW'],
-			'PATH_TO_USER_TASKS_REPORT' => $arParams['PATH_TO_USER_TASKS_REPORT'],
-			'PATH_TO_USER_TASKS_TEMPLATES' => $arParams['PATH_TO_USER_TASKS_TEMPLATES'],
+			'PATH_TO_USER_TASKS' => $arParams['PATH_TO_USER_TASKS'] ?? '',
+			'PATH_TO_USER_TASKS_TASK' => $arParams['PATH_TO_USER_TASKS_TASK'] ?? '',
+			'PATH_TO_USER_TASKS_VIEW' => $arParams['PATH_TO_USER_TASKS_VIEW'] ?? '',
+			'PATH_TO_USER_TASKS_REPORT' => $arParams['PATH_TO_USER_TASKS_REPORT'] ?? '',
+			'PATH_TO_USER_TASKS_TEMPLATES' => $arParams['PATH_TO_USER_TASKS_TEMPLATES'] ?? '',
 
 			'SCOPE' => $scope,
 		],
@@ -119,7 +121,7 @@ Toolbar::addFilter([
 	],
 ]);
 
-if ($arResult['HAS_ACCESS_TO_TASKS_COUNTERS'] === true)
+if ($isTasksScope)
 {
 	$APPLICATION->IncludeComponent(
 		'bitrix:tasks.interface.toolbar',
@@ -196,7 +198,7 @@ if (!empty($arResult['TOOLBAR_BUTTONS']))
 			'link' => $buttonData['LINK'],
 			'color' => Buttons\Color::SUCCESS,
 			'text' => $buttonData['TITLE'],
-			'click' => $buttonData['CLICK'],
+			'click' => ($buttonData['CLICK'] ?? ''),
 			'icon' => ($buttonData['ICON'] ?? ''),
 		]);
 
@@ -347,6 +349,7 @@ $removeButton = [
 					: '.sonet-interface-toolbar'
 			),
 			'TOP_ACTION_PANEL_PINNED_MODE' => false,
+			'CURRENT_PAGE' => $arResult['CURRENT_PAGE'],
 		],
 		$component
 	);

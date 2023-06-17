@@ -1,5 +1,6 @@
 this.BX = this.BX || {};
-(function (exports,im_lib_clipboard,im_lib_timer,im_lib_uploader,im_lib_utils,main_core,main_core_events,im_const,im_lib_logger) {
+this.BX.Messenger = this.BX.Messenger || {};
+(function (exports,im_lib_clipboard,im_lib_timer,im_lib_uploader,im_lib_utils,main_core_events,im_const,im_lib_logger,main_core) {
 	'use strict';
 
 	var SendMessageHandler = /*#__PURE__*/function () {
@@ -1294,6 +1295,14 @@ this.BX = this.BX || {};
 	  return DialogActionHandler;
 	}();
 
+	// fix for compatible with mobile, bug #169468
+	var namespace = main_core.Reflection.getClass('BX.Messenger');
+	if (namespace) {
+	  namespace.ReadingHandler = ReadingHandler;
+	  namespace.ReactionHandler = ReactionHandler;
+	  namespace.QuoteHandler = QuoteHandler;
+	}
+
 	exports.TextareaHandler = TextareaHandler;
 	exports.TextareaDragHandler = TextareaDragHandler;
 	exports.TextareaUploadHandler = TextareaUploadHandler;
@@ -1303,5 +1312,5 @@ this.BX = this.BX || {};
 	exports.QuoteHandler = QuoteHandler;
 	exports.DialogActionHandler = DialogActionHandler;
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX.Event,BX.Messenger.Const,BX.Messenger.Lib));
+}((this.BX.Messenger.EventHandler = this.BX.Messenger.EventHandler || {}),BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Event,BX.Messenger.Const,BX.Messenger.Lib,BX));
 //# sourceMappingURL=event-handler.bundle.js.map

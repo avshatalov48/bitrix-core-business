@@ -54,7 +54,7 @@ if (!function_exists('GetTreeRecursive'))
 
 		$map = array();
 
-		if(is_array($arrMenu) && count($arrMenu)>0)
+		if(is_array($arrMenu) && !empty($arrMenu))
 		{
 			foreach($arrMenu as $mmenu)
 			{
@@ -192,7 +192,7 @@ if (!function_exists('CreateMapStructure'))
 			$arMapItem["STRUCT_KEY"] = $key;
 
 			$arReturn[] = $arMapItem;
-			if (is_array($arChildrenItems) && count($arChildrenItems) > 0)
+			if (is_array($arChildrenItems) && !empty($arChildrenItems))
 			{
 				$arChildren = CreateMapStructure($arChildrenItems);
 				$arReturn = array_merge($arReturn, $arChildren);

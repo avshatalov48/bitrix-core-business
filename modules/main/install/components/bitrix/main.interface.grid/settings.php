@@ -17,59 +17,64 @@ define("NO_AGENT_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-if($USER->IsAuthorized() && check_bitrix_sessid() && $_REQUEST["GRID_ID"] <> '')
+if($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST["GRID_ID"]) && $_REQUEST["GRID_ID"] <> '')
 {
 	//get saved columns and sorting from user settings
 	$gridOptions = new CGridOptions($_REQUEST["GRID_ID"]);
-	
-	if($_REQUEST["action"] == "showcolumns")
+
+	$_REQUEST["action"] = $_REQUEST["action"] ?? null;
+	if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "showcolumns")
 	{
 		$gridOptions->SetColumns($_REQUEST["columns"]);
 	}
-	elseif($_REQUEST["action"] == "settheme")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "settheme")
 	{
 		$gridOptions->SetTheme($_REQUEST["theme"]);
 	}
-	elseif($_REQUEST["action"] == "savesettings")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savesettings")
 	{
 		CUtil::decodeURIComponent($_POST);
 		$gridOptions->SetViewSettings($_POST['view_id'], $_POST);
 
-		if($_REQUEST["set_default_settings"] == "Y" && $USER->CanDoOperation('edit_other_settings'))
+		if(
+			isset($_REQUEST["set_default_settings"])
+			&& $_REQUEST["set_default_settings"] == "Y"
+			&& $USER->CanDoOperation('edit_other_settings')
+		)
 		{
 			$gridOptions->SetDefaultView($_POST);
-			if($_REQUEST["delete_users_settings"] == "Y")
+			if (isset($_REQUEST["delete_users_settings"]) && $_REQUEST["delete_users_settings"] == "Y")
 			{
 				$gridOptions->ResetDefaultView();
 			}
 		}
 	}
-	elseif($_REQUEST["action"] == "delview")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "delview")
 	{
 		$gridOptions->DeleteView($_REQUEST['view_id']);
 	}
-	elseif($_REQUEST["action"] == "setview")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "setview")
 	{
 		$gridOptions->SetView($_REQUEST["view_id"]);
 	}
-	elseif($_REQUEST["action"] == "filterrows")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "filterrows")
 	{
 		$gridOptions->SetFilterRows($_REQUEST["rows"], $_REQUEST['filter_id']);
 	}
-	elseif($_REQUEST["action"] == "savefilter")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savefilter")
 	{
 		CUtil::decodeURIComponent($_POST);
 		$gridOptions->SetFilterSettings($_POST['filter_id'], $_POST);
 	}
-	elseif($_REQUEST["action"] == "delfilter")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "delfilter")
 	{
 		$gridOptions->DeleteFilter($_REQUEST['filter_id']);
 	}
-	elseif($_REQUEST["action"] == "filterswitch")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "filterswitch")
 	{
 		$gridOptions->SetFilterSwitch($_REQUEST["show"]);
 	}
-	elseif($_REQUEST["action"] == "savesort")
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savesort")
 	{
 		$gridOptions->SetSorting($_REQUEST["by"], $_REQUEST["order"]);
 	}

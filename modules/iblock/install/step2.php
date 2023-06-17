@@ -1,17 +1,30 @@
-<?
-if(!check_bitrix_sessid()) return;
+<?php
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\Loader;
+
+if (!check_bitrix_sessid())
+{
+	return;
+}
 
 global $obModule;
-if(!is_object($obModule)) return;
+if (!isset($obModule) || !is_object($obModule))
+{
+	return;
+}
 
 IncludeModuleLangFile(__FILE__);
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/include.php");
+if (!Loader::includeModule('iblock'))
+{
+	return;
+}
 
 global $MESS;
 
-$bReWriteAdditionalFiles_n = (($public_rewrite_n == "Y") ? True : False);
-$bReWriteAdditionalFiles_c = (($public_rewrite_c == "Y") ? True : False);
+$bReWriteAdditionalFiles_n = ($_REQUEST['public_rewrite_n'] ?? '') === 'Y';
+$bReWriteAdditionalFiles_c = ($_REQUEST['public_rewrite_c'] ?? '') === 'Y';
 
 function CheckIBlockType($ID, $SECTIONS = "Y")
 {
@@ -46,9 +59,14 @@ function CheckIBlockType($ID, $SECTIONS = "Y")
 	}
 }
 
+$createNews = ($_REQUEST['news'] ?? '') === 'Y';
+$news_dir = trim((string)$_REQUEST['news_dir'] ?? 'news');
+$createCatalog = ($_REQUEST['catalog'] ?? '') === 'Y';
+$catalog_dir = trim((string)($_REQUEST['catalog_dir'] ?? 'catalog'));
+
 if($obModule->errors===false)
 {
-	if(($news == "Y") && CheckIBlockType("news", "N"))
+	if ($createNews && CheckIBlockType("news", "N"))
 	{
 		//This makes translation checker happy
 		//$MY_MESS['IBLOCK_INSTALL_NEWS_NAME']
@@ -71,7 +89,7 @@ if($obModule->errors===false)
 				"DETAIL_PAGE_URL" => "#SITE_DIR#/".$news_dir."/index.php?news=#ID#",
 				"ELEMENTS_NAME" => $MY_MESS["IBLOCK_INSTALL_NEWS_ELEMENTS_NAME"],
 				"ELEMENT_NAME" => $MY_MESS["IBLOCK_INSTALL_NEWS_ELEMENT_NAME"],
-				"GROUP_ID" => array("2"=>"R"),
+				"GROUP_ID" => CIBlock::getDefaultRights(),
 			);
 			if($id = $obBlock->Add($arFields))
 			{
@@ -85,7 +103,7 @@ if($obModule->errors===false)
 				$obBlockProperty->Add($arFields);
 			}
 
-			if($news_dir <> '')
+			if($news_dir !== '')
 			{
 				$source = $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/public/news/";
 				$target = $site['ABS_DOC_ROOT'].$site["DIR"].$news_dir."/";
@@ -126,7 +144,7 @@ if($obModule->errors===false)
 		}
 	}
 
-	if(($catalog == "Y") && CheckIBlockType("catalog", "Y"))
+	if ($createCatalog && CheckIBlockType("catalog", "Y"))
 	{
 		//This makes translation checker happy
 		//$MY_MESS['IBLOCK_INSTALL_CATALOG_NAME']
@@ -151,7 +169,7 @@ if($obModule->errors===false)
 				"ELEMENT_NAME" => $MY_MESS["IBLOCK_INSTALL_CATALOG_ELEMENT_NAME"],
 				"SECTIONS_NAME" => $MY_MESS["IBLOCK_INSTALL_CATALOG_SECTIONS_NAME"],
 				"SECTION_NAME" => $MY_MESS["IBLOCK_INSTALL_CATALOG_SECTION_NAME"],
-				"GROUP_ID" => array("2"=>"R"),
+				"GROUP_ID" => CIBlock::getDefaultRights(),
 			);
 			if($id = $obBlock->Add($arFields))
 			{
@@ -167,7 +185,7 @@ if($obModule->errors===false)
 				$obBlockProperty->Add($arFields);
 			}
 
-			if($catalog_dir <> '')
+			if ($catalog_dir !== '')
 			{
 				$source = $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/public/catalog/";
 				$target = $site['ABS_DOC_ROOT'].$site["DIR"].$catalog_dir."/";
@@ -210,7 +228,7 @@ if($obModule->errors===false)
 
 }
 
-if(is_array($obModule->errors) && count($obModule->errors)):
+if(!empty($obModule->errors) && is_array($obModule->errors)):
 	CAdminMessage::ShowMessage(array(
 		"TYPE"=>"ERROR",
 		"MESSAGE" =>GetMessage("MOD_INST_ERR"),
@@ -221,7 +239,7 @@ else:
 	CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 endif;
 
-if($obModule->errors===false && $news == "Y" && $news_dir <> ''):
+if($obModule->errors===false && $createNews && $news_dir !== ''):
 ?>
 <p><?=GetMessage("IBLOCK_DEMO_DIR")?></p>
 <table border="0" cellspacing="0" cellpadding="3">
@@ -229,7 +247,7 @@ if($obModule->errors===false && $news == "Y" && $news_dir <> ''):
 		<td align="center"><p><b><?=GetMessage("IBLOCK_SITE")?></b></p></td>
 		<td align="center"><p><b><?=GetMessage("IBLOCK_LINK")?></b></p></td>
 	</tr>
-	<?
+	<?php
 	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
@@ -239,17 +257,17 @@ if($obModule->errors===false && $news == "Y" && $news_dir <> ''):
 		$url = $site["DIR"].$news_dir.'/';
 		?>
 		<tr>
-			<td width="0%"><p>[<?=$site["ID"]?>] <?echo htmlspecialcharsbx($site["NAME"]);?></p></td>
-			<td width="0%"><p><a href="<?echo htmlspecialcharsbx($server.$url);?>"><?echo htmlspecialcharsEx($url);?></a></p></td>
+			<td width="0%"><p>[<?=$site["ID"]?>] <?= htmlspecialcharsbx($site["NAME"]);?></p></td>
+			<td width="0%"><p><a href="<?= htmlspecialcharsbx($server.$url);?>"><?= htmlspecialcharsEx($url);?></a></p></td>
 		</tr>
-		<?
+		<?php
 	}
 	?>
 </table>
-<?
+<?php
 endif;
 
-if($obModule->errors===false && $catalog == "Y" && $catalog_dir <> ''):
+if($obModule->errors===false && $createCatalog && $catalog_dir !== ''):
 ?>
 <p><?=GetMessage("IBLOCK_DEMO_DIR")?></p>
 <table border="0" cellspacing="0" cellpadding="3">
@@ -257,25 +275,25 @@ if($obModule->errors===false && $catalog == "Y" && $catalog_dir <> ''):
 		<td align="center"><p><b><?=GetMessage("IBLOCK_SITE")?></b></p></td>
 		<td align="center"><p><b><?=GetMessage("IBLOCK_LINK")?></b></p></td>
 	</tr>
-	<?
+	<?php
 	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
 		?>
 		<tr>
 			<td width="0%"><p>[<?=$site["ID"]?>] <?=htmlspecialcharsbx($site["NAME"])?></p></td>
-			<td width="0%"><p><a href="<?if($site["SERVER_NAME"] <> '') echo "http://".$site["SERVER_NAME"];?><?=$site["DIR"].$catalog_dir?>/"><?=$site["DIR"].$catalog_dir?>/</a></p></td>
+			<td width="0%"><p><a href="<?= ($site["SERVER_NAME"] !== '' ? "http://" . $site["SERVER_NAME"] : '');?><?=$site["DIR"].$catalog_dir?>/"><?=$site["DIR"].$catalog_dir?>/</a></p></td>
 		</tr>
-		<?
+		<?php
 	}
 	?>
 </table>
-<?
+<?php
 endif;
 ?>
-<form action="<?echo $APPLICATION->GetCurPage()?>">
+<form action="<?= $APPLICATION->GetCurPage()?>">
 <p>
-	<input type="hidden" name="lang" value="<?echo LANG?>">
-	<input type="submit" name="" value="<?echo GetMessage("MOD_BACK")?>">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID; ?>">
+	<input type="submit" name="" value="<?= htmlspecialcharsbx(GetMessage("MOD_BACK"))?>">
 </p>
 <form>

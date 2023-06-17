@@ -9,6 +9,7 @@ $id = $arParams['id'];
 $event = $arParams['event'];
 $isSocialnetworkEnabled = $arParams['bSocNet'];
 $isCrmEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('crm');
+$hiddenFields = $arParams['hiddenFields'] ?? [];
 
 $fieldsList = [
 	'description' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_DESCRIPTION_COLUMN')],
@@ -37,7 +38,8 @@ $showAdditionalBlock = false;
 foreach ($fieldsList as $k => $field)
 {
 	$fieldsList[$k]['pinned'] = in_array($k, $arResult['FORM_USER_SETTINGS']['pinnedFields']);
-	if(!$fieldsList[$k]['pinned'])
+	$fieldsList[$k]['hidden'] = in_array($k, $hiddenFields);
+	if(!$fieldsList[$k]['pinned'] && !$fieldsList[$k]['hidden'])
 	{
 		$showAdditionalBlock = true;
 	}
@@ -339,7 +341,7 @@ $arParams['UF'] = $UF;
 						<!--region RRule-->
 						<?$field = "rrule";?>
 						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
-						<?if (!$fieldsList[$field]["pinned"])
+						<?if (!$fieldsList[$field]["pinned"] || $fieldsList[$field]['hidden'])
 						{
 							ob_start();
 						}?>
@@ -466,9 +468,12 @@ $arParams['UF'] = $UF;
 							</div>
 							<span data-bx-fixfield="<?= $field?>" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
 						</div>
-						<?if (!$fieldsList[$field]["pinned"])
+						<?if (!$fieldsList[$field]["pinned"] || $fieldsList[$field]['hidden'])
 						{
-							$fieldsList[$field]["html"] = ob_get_contents();
+							if (!$fieldsList[$field]['hidden'])
+							{
+								$fieldsList[$field]["html"] = ob_get_contents();
+							}
 							ob_end_clean();
 						}?>
 						</div>
@@ -663,7 +668,7 @@ $arParams['UF'] = $UF;
 
 						<!--region accessibility-->
 						<? $field = "accessibility";
-							if (isset($fieldsList[$field]))
+							if (isset($fieldsList[$field]) && !$fieldsList[$field]['hidden'])
 							{
 							?>
 							<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
@@ -711,7 +716,7 @@ $arParams['UF'] = $UF;
 							$crmUF = $UF['UF_CRM_CAL_EVENT'];
 						?>
 						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
-							<?if (!$fieldsList[$field]["pinned"])
+							<?if (!$fieldsList[$field]["pinned"] || $fieldsList[$field]['hidden'])
 							{
 								ob_start();
 							}?>
@@ -736,9 +741,12 @@ $arParams['UF'] = $UF;
 								</div>
 								<span data-bx-fixfield="<?= $field?>" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
 							</div>
-							<?if (!$fieldsList[$field]["pinned"])
+							<?if (!$fieldsList[$field]["pinned"] || $fieldsList[$field]['hidden'])
 							{
-								$fieldsList[$field]["html"] = ob_get_contents();
+								if (!$fieldsList[$field]['hidden'])
+								{
+									$fieldsList[$field]["html"] = ob_get_contents();
+								}
 								ob_end_clean();
 							}?>
 						</div>
@@ -752,7 +760,7 @@ $arParams['UF'] = $UF;
 							<div id="<?=$id?>_additional_pinned_names" class="calendar-additional-alt-promo">
 								<?foreach ($fieldsList as $fieldId => $field)
 								{
-									if(!$field["pinned"])
+									if(!$field["pinned"] && !$field['hidden'])
 									{
 										?>
 										<span class="calendar-additional-alt-promo-text"><?= $field["title"]?></span>
@@ -848,7 +856,7 @@ $arParams['UF'] = $UF;
 									?>
 									<div data-bx-block-placeholer="<?= $fieldId ?>"
 										 class="calendar-field-additional-placeholder"><?
-									if(!$field["pinned"] && $field["html"])
+									if(!$field["pinned"] && !$field['hidden'] && ($field["html"] ?? null))
 									{
 										echo $field["html"];
 									}

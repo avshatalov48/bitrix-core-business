@@ -43,7 +43,7 @@ class Collection
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if ($offset === null)
 		{
@@ -59,7 +59,7 @@ class Collection
 	 * @param mixed $offset
 	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->items[$offset]);
 	}
@@ -67,7 +67,7 @@ class Collection
 	/**
 	 * @param mixed $offset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->items[$offset]);
 	}
@@ -76,6 +76,7 @@ class Collection
 	 * @param mixed $offset
 	 * @return mixed|null
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return isset($this->items[$offset]) ? $this->items[$offset] : null;
@@ -84,12 +85,12 @@ class Collection
 	/**
 	 * @return int
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->items);
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		reset($this->items);
 	}
@@ -97,6 +98,7 @@ class Collection
 	/**
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return current($this->items);
@@ -105,12 +107,13 @@ class Collection
 	/**
 	 * @return int
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->items);
 	}
 
-	public function next()
+	public function next(): void
 	{
 		next($this->items);
 	}
@@ -118,7 +121,7 @@ class Collection
 	/**
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->current() !== false && isset($this->items[$this->key()]);
 	}

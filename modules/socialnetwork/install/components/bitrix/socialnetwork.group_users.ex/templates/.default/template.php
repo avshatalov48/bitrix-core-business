@@ -18,7 +18,7 @@ use Bitrix\Main\Web\Uri;
 
 UI\Extension::load(["socialnetwork.common", "ui.icons.b24", "ui.buttons.icons", "ui.alerts", "ui.tooltip"]);
 
-if($arResult["FatalError"] <> '')
+if(!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?php
 }
@@ -26,7 +26,7 @@ else
 {
 	CUtil::InitJSCore(array("popup", "sidepanel"));
 
-	if ($arResult["ErrorMessage"] <> '')
+	if (!empty($arResult["ErrorMessage"]))
 	{
 		?><span class="errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?php
 	}
@@ -146,7 +146,7 @@ else
 			echo \Bitrix\Main\Update\Stepper::getHtml(array('socialnetwork' => array("Bitrix\Socialnetwork\Update\WorkgroupDeptSync")), Loc::getMessage('SONET_GUE_T_STEPPER_TITLE'));
 		}
 
-		?><div id="sonet_group_users_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?php
+		?><div id="sonet_group_users_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?php
 
 		if (!empty($arResult["Owner"]))
 		{

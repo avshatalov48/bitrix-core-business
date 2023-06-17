@@ -56,7 +56,7 @@
 	display: block;
 	box-sizing: border-box;
 	height: 40px;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-2xs, 2px);
 	border: 1px solid #c6cdd3;
 }
 
@@ -112,7 +112,9 @@
 /* Select popup */
 
 .catalog-productcard-popup-select {
+	border-radius: var(--ui-border-radius-md, 10px);
 	background: #fff;
+	padding-top: 8px;
 }
 
 .catalog-productcard-popup-select-inner {
@@ -130,16 +132,19 @@
 	transition: background .2s linear;
 }
 
+.catalog-productcard-popup-list .menu-popup-items::-webkit-scrollbar-track,
 .catalog-productcard-popup-select-inner::-webkit-scrollbar-track {
 	background: #fff;
 }
 
+.catalog-productcard-popup-list .menu-popup-items::-webkit-scrollbar,
 .catalog-productcard-popup-select-inner::-webkit-scrollbar {
 	width: 4px;
 	background: #525C69;
 	border-radius: 15px;
 }
 
+.catalog-productcard-popup-list .menu-popup-items::-webkit-scrollbar-thumb,
 .catalog-productcard-popup-select-inner::-webkit-scrollbar-thumb {
 	border: none;
 	border-radius: 15px;
@@ -229,6 +234,7 @@
 	left: 0;
 	right: 0;
 	background: #e8f9fe;
+	border-radius: 0 0 var(--ui-border-radius-md, 10px) var(--ui-border-radius-md, 10px);
 }
 
 .catalog-productcard-popup-select-item-new:hover {

@@ -49,9 +49,14 @@ class UserLinkMapper extends LinkMapper
 		return $options;
 	}
 
+	protected function getSpecificFields($entity): array
+	{
+		return [];
+	}
+
 	protected function getEntityClass(): string
 	{
-		return EventLink::class;
+		return UserLink::class;
 	}
 
 	protected function getEntityName(): string

@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 		die();
 	}
 
-	if($_POST['checkSubscribe'] == 'Y')
+	if (($_POST['checkSubscribe'] ?? null) === 'Y')
 	{
 		if(!empty($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID']))
 		{

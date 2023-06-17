@@ -101,7 +101,7 @@ abstract class TypeBase
 						{
 							$value = $full
 								? str_replace(" 00:00:00", "", \CDatabase::formatDate($arUserField["SETTINGS"]["DEFAULT_VALUE"]["VALUE"], "YYYY-MM-DD HH:MI:SS", \CLang::getDateFormat("FULL")))
-								: \CDatabase::formatDate($arUserField["SETTINGS"]["DEFAULT_VALUE"]["VALUE"], $full ? '' : "YYYY-MM-DD", \CLang::getDateFormat('SHORT'));
+								: \CDatabase::formatDate($arUserField["SETTINGS"]["DEFAULT_VALUE"]["VALUE"], "YYYY-MM-DD", \CLang::getDateFormat('SHORT'));
 						}
 
 						break;

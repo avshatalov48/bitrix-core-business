@@ -170,7 +170,7 @@ a:hover {
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.25);
 	box-shadow: 0 1px 2px rgba(0,0,0,.25);
 	color: #fff;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-left: -6px;
 	margin-right: -2px;
 	text-shadow: 0 1px rgba(0,0,0,.2);
@@ -203,7 +203,7 @@ a:hover {
 .inst-title {
 	color: #000;
 	font-size: 25px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-bottom: 30px;
 }
 
@@ -217,7 +217,7 @@ a:hover {
 	box-shadow: inset 0 1px 0 #fff;
 	color: #000;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	line-height: 37px;
 	height: 37px;
 	padding: 0 17px;
@@ -242,7 +242,7 @@ a:hover {
 .inst-cont-text-title {
 	color: #000;
 	font-size: 18px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	padding: 35px 0 25px;
 }
 
@@ -287,9 +287,9 @@ a:hover {
 	display: inline-block;
 	color: #505d67;
 	cursor: pointer;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 15px;
-	font-weight : var(--ui-font-weight-bold);
+	font-weight : bold;
 	line-height: 36px;
 	min-width: 133px;
 	margin:0 12px 0 0;
@@ -327,9 +327,9 @@ a:hover {
 	color: #fff;
 	cursor: pointer;
 	display: inline-block;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 15px;
-	font-weight : var(--ui-font-weight-bold);
+	font-weight : bold;
 	line-height: 34px;
 	min-width: 133px;
 	height: 36px;
@@ -365,11 +365,11 @@ a:hover {
 .instal-btn:active,
 .instal-btn-inp:active {
 	background:url("ni/instal-sprite.png") no-repeat 10px -114px #b7c4c9;
-	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -webkit-linear-gradient(top, #acbbc0, #c2cfd2) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -moz-linear-gradient(top, #acbbc0, #c2cfd2) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -ms-linear-gradient(top, #acbbc0, #c2cfd2) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -o-linear-gradient(top, #acbbc0, #c2cfd2) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat 10px -114px, linear-gradient(to bottom, #acbbc0, #c2cfd2) 0 0;
+	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -webkit-linear-gradient(top, #acbbc0, #c2cfd2);
+	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -moz-linear-gradient(top, #acbbc0, #c2cfd2);
+	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -ms-linear-gradient(top, #acbbc0, #c2cfd2);
+	background:url("ni/instal-sprite.png") no-repeat 10px -114px, -o-linear-gradient(top, #acbbc0, #c2cfd2);
+	background:url("ni/instal-sprite.png") no-repeat 10px -114px, linear-gradient(to bottom, #acbbc0, #c2cfd2);
 	border: 1px solid;
 	border-color: #767e8a #88919b #b0bcc1;
 	border-radius: 3px;
@@ -391,20 +391,20 @@ a:hover {
 
 .wizard-next-button:hover {
 	background:url("ni/instal-sprite.png") no-repeat right -286px #9cc60f;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -webkit-linear-gradient(top, #abce11, #88ba0d) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -moz-linear-gradient(top, #abce11, #88ba0d) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -ms-linear-gradient(top, #abce11, #88ba0d) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -o-linear-gradient(top, #abce11, #88ba0d) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, linear-gradient(to bottom, #abce11, #88ba0d) 0 0;
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -webkit-linear-gradient(top, #abce11, #88ba0d);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -moz-linear-gradient(top, #abce11, #88ba0d);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -ms-linear-gradient(top, #abce11, #88ba0d);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -o-linear-gradient(top, #abce11, #88ba0d);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, linear-gradient(to bottom, #abce11, #88ba0d);
 }
 
 .wizard-next-button:active {
 	background:url("ni/instal-sprite.png") no-repeat right -286px #6e910c;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -webkit-linear-gradient(top, #698f00, #698f00) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -moz-linear-gradient(top, #698f00, #698f00) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -ms-linear-gradient(top, #698f00, #698f00) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, -o-linear-gradient(top, #698f00, #698f00) 0 0;
-	background:url("ni/instal-sprite.png") no-repeat right -286px, linear-gradient(to bottom, #698f00, #698f00) 0 0;
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -webkit-linear-gradient(top, #698f00, #698f00);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -moz-linear-gradient(top, #698f00, #698f00);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -ms-linear-gradient(top, #698f00, #698f00);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, -o-linear-gradient(top, #698f00, #698f00);
+	background:url("ni/instal-sprite.png") no-repeat right -286px, linear-gradient(to bottom, #698f00, #698f00);
 	border-color: #4d650c #628503 #698f00;
 	-webkit-box-shadow: inset 0 1px 1px #547009;
 	box-shadow: inset 0 1px 0 #547009, inset 0 2px 0 #628503;
@@ -416,7 +416,7 @@ a:hover {
 .installer-footer {
 	color: #a1a4a8;
 	font-size: 12px;
-	font-weight : var(--ui-font-weight-bold);
+	font-weight : bold;
 	padding: 22px 25px 0;
 	text-align: left;
 }
@@ -456,7 +456,7 @@ a:hover {
 	color: #316f8e;
 	display: inline-block;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-right: 25px;
 	padding-top: 7px;
 	vertical-align: top;
@@ -472,7 +472,7 @@ a:hover {
 	-webkit-box-shadow: inset 0 1px 4px rgba(0,0,0,.15);
 	box-shadow: inset 0 1px 4px rgba(0,0,0,.15);
 	font-size: 15px;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	height: 33px;
 	outline: none;
 	padding: 0 5px;
@@ -551,7 +551,7 @@ a:hover {
 .inst-module-title {
 	color: #1f67b0;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	line-height: 16px;
 	height: 38px;
 	overflow: hidden;
@@ -661,7 +661,7 @@ a:hover {
 	color: #545454;
 	display: inline-block;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	max-width: 440px;
 	vertical-align: middle;
 }
@@ -726,9 +726,9 @@ a:hover {
 	-webkit-box-shadow: inset 0 1px 3px rgba(0,0,1,.18);
 	box-shadow: inset 0 1px 3px rgba(0,0,1,.18);
 	border-radius: 3px;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	height: 41px;
 	outline: none;
 	padding: 0 15px;
@@ -750,7 +750,7 @@ textarea.wizard-field {
 	border-bottom: 1px solid #e0e2e4;
 	color: #0d7db4;
 	font-size: 20px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-bottom: 21px;
 	padding-bottom: 13px;
 }
@@ -771,7 +771,7 @@ textarea.wizard-field {
 	border-bottom: 1px solid #e5e5e5;
 	color: #6e7480;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-bottom: 16px;
 	padding:0 0 13px 2px;
 }
@@ -796,7 +796,7 @@ textarea.wizard-field {
 .wizard-catalog-form-item label {
 	color: #333e53;
 	font-size: 16px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 }
 
 .wizard-catalog-form-item p {
@@ -850,7 +850,7 @@ textarea.wizard-field {
 	color: #333e53;
 	display: inline-block;
 	font-size: 18px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	vertical-align: middle;
 }
 
@@ -909,7 +909,7 @@ textarea.wizard-field {
 
 .wizard-completion-cell {
 	color: #0d7db4;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	font-size: 22px;
 	height: 250px;
 	text-align: center;
@@ -941,7 +941,7 @@ textarea.wizard-field {
 	box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.3), 0 1px 0 #eaeded;
 	color: #000;
 	font-size: 14px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	line-height: 39px;
 	height: 39px;
 	margin: 0 -1px 16px;
@@ -993,7 +993,7 @@ textarea.wizard-field {
 }
 
 .inst-note-block-label {
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	float: left;
 	text-shadow: 0 1px rgba(255,255,255,.8);
 }
@@ -1001,7 +1001,7 @@ textarea.wizard-field {
 .inst-note-block-text {
 	text-shadow: 0 1px rgba(255,255,255,.8);
 	overflow: hidden;
-/*	padding-left: 9px;*/
+	/*	padding-left: 9px;*/
 }
 
 .inst-note-block-icon {
@@ -1081,7 +1081,7 @@ textarea.wizard-field {
 	box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.3), 0 1px 0 #eaeded;
 	color: #000;
 	font-size: 14px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	line-height: 39px;
 	margin: 0 -1px 16px;
 	overflow: hidden;
@@ -1124,7 +1124,7 @@ textarea.wizard-field {
 	-webkit-box-shadow: inset 0 1px 0 #edf0f1, inset 0 2px 0 #f9fafb;
 	box-shadow: inset 0 1px 0 #edf0f1, inset 0 2px 0 #f9fafb;
 	font-size: 14px;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	height: 29px;
 	outline: none;
 	padding: 0 5px;
@@ -1133,7 +1133,7 @@ textarea.wizard-field {
 
 .data-table select {
 	font-size: 14px;
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	height: 29px;
 	outline: none;
 	padding: 5px 3px;
@@ -1169,7 +1169,7 @@ textarea.wizard-field {
 	border-bottom: 1px solid #e6eaeb;
 	color: #000;
 	font-size: 18px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	margin-bottom: 19px;
 	padding:0 0 15px 3px;
 }
@@ -1197,7 +1197,7 @@ textarea.wizard-field {
 	text-shadow: 0 1px rgba(255,255,255,0.85);
 	font-size: 18px;
 	line-height: 35px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 }
 
 .instal-progress-bar-alignment {
@@ -1227,7 +1227,7 @@ textarea.wizard-field {
 	text-shadow: 0 1px rgba(0,0,0,0.2);
 	font-size: 18px;
 	line-height: 32px;
-	font-weight: var(--ui-font-weight-bold);
+	font-weight: bold;
 	text-align: center;
 	position: absolute;
 	left: -2px;

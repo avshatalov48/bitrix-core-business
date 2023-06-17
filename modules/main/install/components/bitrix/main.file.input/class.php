@@ -60,7 +60,7 @@ class MFIComponent extends \CBitrixComponent
 				)
 			);
 
-			$value = $this->arParams['INPUT_VALUE'];
+			$value = $this->arParams['INPUT_VALUE'] ?? '';
 			if (is_array($value) && implode(",", $value) <> '')
 			{
 				$dbRes = CFile::GetList(array(), array("@ID" => implode(",", $value)));
@@ -111,12 +111,15 @@ class MFIComponent extends \CBitrixComponent
 	{
 		$arParams = &$this->arParams;
 		$arResult = &$this->arResult;
-		$arParams['MAX_FILE_SIZE'] = intval($arParams['MAX_FILE_SIZE']);
-		$arParams['MODULE_ID'] = $arParams['MODULE_ID'] && IsModuleInstalled($arParams['MODULE_ID']) ? $arParams['MODULE_ID'] : "main";
-		$arParams['FORCE_MD5'] = ($arParams['FORCE_MD5'] === true);
-		$arParams['CONTROL_ID'] = preg_match('/^[a-zA-Z0-9_\\-]+$/', $arParams['CONTROL_ID']) ? $arParams['CONTROL_ID'] : '';
+		$arParams['MAX_FILE_SIZE'] = isset($arParams['MAX_FILE_SIZE']) ? intval($arParams['MAX_FILE_SIZE']) : 0;
+		$arParams['MODULE_ID'] = isset($arParams['MODULE_ID']) && IsModuleInstalled($arParams['MODULE_ID']) ? $arParams['MODULE_ID'] : "main";
+		$arParams['FORCE_MD5'] = isset($arParams['FORCE_MD5']) && $arParams['FORCE_MD5'] === true;
+		$arParams['CONTROL_ID'] = isset($arParams['CONTROL_ID']) && preg_match('/^[a-zA-Z0-9_\\-]+$/', $arParams['CONTROL_ID']) ? $arParams['CONTROL_ID'] : '';
 // ALLOW_UPLOAD = 'A'll files | 'I'mages | 'F'iles with selected extensions | 'N'one
 // ALLOW_UPLOAD_EXT = comma-separated list of allowed file extensions (ALLOW_UPLOAD='F')
+
+		$arParams['ALLOW_UPLOAD'] = $arParams['ALLOW_UPLOAD'] ?? null;
+		$arParams['ALLOW_UPLOAD_EXT'] = $arParams['ALLOW_UPLOAD_EXT'] ?? '';
 		if ($arParams['ALLOW_UPLOAD'] == 'N' || $arParams['ALLOW_UPLOAD'] === false)
 		{
 			$arParams['ALLOW_UPLOAD'] = 'N';
@@ -132,19 +135,25 @@ class MFIComponent extends \CBitrixComponent
 		}
 
 		if (mb_substr($arParams['INPUT_NAME'], -2) == '[]')
+		{
 			$arParams['INPUT_NAME'] = mb_substr($arParams['INPUT_NAME'], 0, -2);
+		}
 		if (mb_substr($arParams['INPUT_NAME_UNSAVED'], -2) == '[]')
+		{
 			$arParams['INPUT_NAME_UNSAVED'] = mb_substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
+		}
 		if (!is_array($arParams['INPUT_VALUE']) && intval($arParams['INPUT_VALUE']) > 0)
-			$arParams['INPUT_VALUE'] = array($arParams['INPUT_VALUE']);
+		{
+			$arParams['INPUT_VALUE'] = [$arParams['INPUT_VALUE']];
+		}
 
-		$arResult['CONTROL_ID'] = $arParams['CONTROL_ID'] = ($arParams['CONTROL_ID'] != '' ? $arParams['CONTROL_ID'] : 'mfi'.$arParams['INPUT_NAME']);
+		$arResult['CONTROL_ID'] = $arParams['CONTROL_ID'] = (isset($arParams['CONTROL_ID']) && $arParams['CONTROL_ID'] != '' ? $arParams['CONTROL_ID'] : 'mfi'.$arParams['INPUT_NAME']);
 
-		$arParams['INPUT_NAME'] = trim($arParams['INPUT_NAME']);
+		$arParams['INPUT_NAME'] = trim($arParams['INPUT_NAME'] ?? '');
 		if (!preg_match('/^[a-zA-Z0-9_]+$/', $arParams['INPUT_NAME']))
 			throw new \Bitrix\Main\ArgumentException(GetMessage('MFI_ERR_NO_INPUT_NAME'));
 
-		$arParams['MULTIPLE'] = $arParams['MULTIPLE'] == 'N' ? 'N' : 'Y';
+		$arParams['MULTIPLE'] = isset($arParams['MULTIPLE']) && $arParams['MULTIPLE'] == 'N' ? 'N' : 'Y';
 
 		$arResult['FILES'] = array();
 	}

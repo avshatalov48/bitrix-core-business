@@ -125,7 +125,7 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			0,
 			array("SECTION_BUTTONS"=>false, "SESSID"=>false)
 		);
-		$arIBlock["ADD_ELEMENT_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"];
+		$arIBlock["ADD_ELEMENT_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"] ?? '';
 
 		$arIBlock["~LIST_PAGE_URL"] = str_replace(
 			array("#SERVER_NAME#", "#SITE_DIR#", "#IBLOCK_TYPE_ID#", "#IBLOCK_ID#", "#IBLOCK_CODE#", "#IBLOCK_EXTERNAL_ID#", "#CODE#"),
@@ -149,8 +149,8 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 				0,
 				array("SECTION_BUTTONS"=>false, "SESSID"=>false)
 			);
-			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
-			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"] ?? '';
+			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"] ?? '';
 
 			if($arItem["ACTIVE_FROM"] <> '')
 				$arItem["DISPLAY_ACTIVE_FROM"] = CIBlockFormatProperties::DateFormat($arParams["ACTIVE_DATE_FORMAT"], MakeTimeStamp($arItem["ACTIVE_FROM"], CSite::GetDateFormat()));
@@ -172,13 +172,17 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "news_out");
+					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop);
 				}
 			}
 
 			$arIBlock["ITEMS"][] = $arItem;
 		}
 		$arResult["IBLOCKS"][]=$arIBlock;
+	}
+	if ($bGetProperty)
+	{
+		\CIBlockFormatProperties::clearCache();
 	}
 
 	foreach ($arResult["IBLOCKS"] as &$arIBlock)

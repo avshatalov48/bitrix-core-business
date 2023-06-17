@@ -444,11 +444,11 @@ class LandingEditComponent extends LandingBaseFormComponent
 	{
 		$colors = Theme::getColorCodes();
 		$value = $params['value'];
-		if ($params['theme'])
+		if ($params['theme'] ?? null)
 		{
-			$value = $colors[$params['theme']]['color'];
+			$value = $colors[$params['theme']]['color'] ?? '';
 		}
-		if ($params['value'][0] !== '#')
+		if ($value && $params['value'][0] !== '#')
 		{
 			$value = '#'.$params['value'];
 		}
@@ -511,7 +511,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			{
 				$prepareColors['allColors'][] = $colorItem['color'];
 			}
-			if (isset($colorItem['base']) && $colorItem['base'] === true && $colorItem['baseInSettings'] !== false)
+			if (isset($colorItem['base']) && $colorItem['base'] === true && ($colorItem['baseInSettings'] ?? null) !== false)
 			{
 				$prepareColors['startColors'][] = $colorItem['color'];
 			}

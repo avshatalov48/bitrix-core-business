@@ -1146,18 +1146,6 @@ export class MessagesModel extends VuexBuilderModel
 				result.text = fields.text;
 			}
 		}
-		else if (typeof fields.textOriginal === "string" || typeof fields.textOriginal === "number")
-		{
-			result.text = fields.textOriginal.toString();
-
-			if (typeof fields.text === "string" || typeof fields.text === "number")
-			{
-				result.textConverted = this.convertToHtml({
-					text: fields.text.toString(),
-					isConverted: true
-				});
-			}
-		}
 		else // modern format
 		{
 			if (typeof fields.text_converted !== 'undefined')
@@ -1298,7 +1286,7 @@ export class MessagesModel extends VuexBuilderModel
 				}
 				else if (field === 'ATTACH')
 				{
-					result[field] = this.decodeAttach(params[field]);
+					result[field] = params[field];
 				}
 				else
 				{
@@ -1374,22 +1362,23 @@ export class MessagesModel extends VuexBuilderModel
 
 		text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
 
-		text = this.decodeBbCode(text, false, enableBigSmile);
+		//text = this.decodeBbCode(text, false, enableBigSmile);
+		text = Utils.text.decodeBbCode(text, enableBigSmile);
 
 		if (quote)
 		{
-			text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\]<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
+			text = text.replace(/------------------------------------------------------<br \/>(.*?)\[(.*?)\](?: #(?:(?:chat)?\d+|\d+:\d+)\/\d+)?<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, p4, offset) {
 				return (offset > 0? '<br>': '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\"><div class=\"bx-im-message-content-quote-name\"><span class=\"bx-im-message-content-quote-name-text\">" + p1 + "</span><span class=\"bx-im-message-content-quote-name-time\">" + p2 + "</span></div>" + p3 + "</div></div><br />";
 			});
 			text = text.replace(/------------------------------------------------------<br \/>(.*?)------------------------------------------------------(<br \/>)?/g, function (whole, p1, p2, p3, offset) {
 				return (offset > 0? '<br>': '') + "<div class=\"bx-im-message-content-quote\"><div class=\"bx-im-message-content-quote-wrap\">" + p1 + "</div></div><br />";
 			});
-		}xx
+		}
 
 		if (image)
 		{
 			let changed = false;
-			text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function(whole, aInner, text, offset)
+			text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/gi, function(whole, aInner, text, offset)
 			{
 				if(!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0)
 				{
@@ -1403,7 +1392,7 @@ export class MessagesModel extends VuexBuilderModel
 			});
 			if (changed)
 			{
-				text = text.replace(/<\/span>(\n?)<br(\s\/?)>/ig, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/ig, '<br /><span');
+				text = text.replace(/<\/span>(\n?)<br(\s\/?)>/gi, '</span>').replace(/<br(\s\/?)>(\n?)<br(\s\/?)>(\n?)<span/gi, '<br /><span');
 			}
 		}
 
@@ -1421,8 +1410,8 @@ export class MessagesModel extends VuexBuilderModel
 		{
 			text = text.substr(0, text.length - 6);
 		}
-		text = text.replace(/<br><br \/>/ig, '<br />');
-		text = text.replace(/<br \/><br>/ig, '<br />');
+		text = text.replace(/<br><br \/>/gi, '<br />');
+		text = text.replace(/<br \/><br>/gi, '<br />');
 
 		return text;
 	};
@@ -1466,7 +1455,7 @@ export class MessagesModel extends VuexBuilderModel
 		let {text, textOnly = false, enableBigSmile = true} = params;
 
 		let putReplacement = [];
-		text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function(whole)
+		text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/gi, function(whole)
 		{
 			var id = putReplacement.length;
 			putReplacement.push(whole);
@@ -1474,7 +1463,7 @@ export class MessagesModel extends VuexBuilderModel
 		});
 
 		let sendReplacement = [];
-		text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function(whole)
+		text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/gi, function(whole)
 		{
 			var id = sendReplacement.length;
 			sendReplacement.push(whole);
@@ -1488,7 +1477,7 @@ export class MessagesModel extends VuexBuilderModel
 			return '####REPLACEMENT_CODE_'+id+'####';
 		});
 
-		text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
+		text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/gis, function(whole, link, text)
 		{
 			let tag = document.createElement('a');
 			tag.href = Utils.text.htmlspecialcharsback(link);
@@ -1514,7 +1503,7 @@ export class MessagesModel extends VuexBuilderModel
 			return tag.outerHTML;
 		});
 
-		text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function(whole, link)
+		text = text.replace(/\[url\]([^\]]+)\[\/url\]/gis, function(whole, link)
 		{
 			link = Utils.text.htmlspecialcharsback(link);
 
@@ -1542,20 +1531,19 @@ export class MessagesModel extends VuexBuilderModel
 			return tag.outerHTML;
 		});
 
-		text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-		text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
+		text = text.replace(/\[LIKE\]/gi, '<span class="bx-smile bx-im-smile-like"></span>');
+		text = text.replace(/\[DISLIKE\]/gi, '<span class="bx-smile bx-im-smile-dislike"></span>');
 
-		text = text.replace(/\[BR\]/ig, '<br/>');
-		text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, (whole, open, inner, close) => '<'+open+'>'+inner+'<'+close+'>'); // TODO tag USER
+		text = text.replace(/\[BR\]/gi, '<br/>');
+		text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/gi, (whole, open, inner, close) => '<'+open+'>'+inner+'<'+close+'>'); // TODO tag USER
 
 		// this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
-		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => openlines? inner: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+inner+'</span>'); // TODO tag CHAT
-		text = text.replace(/\[dialog=(chat\d+|\d+)(?: message=(\d+))?](.*?)\[\/dialog]/gi, (whole, dialogId, messageId, message) => message);
+		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/gi, (whole, openlines, chatId, inner) => openlines? inner: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+inner+'</span>'); // TODO tag CHAT
 
 		if (false && Utils.device.isMobile())
 		{
 			let replacements = [];
-			text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => {
+			text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/gi, (whole, number, text) => {
 				let index = replacements.length;
 				replacements.push({number, text});
 				return `####REPLACEMENT_MARK_${index}####`;
@@ -1571,17 +1559,17 @@ export class MessagesModel extends VuexBuilderModel
 			});
 		}
 
-		text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="'+Utils.text.htmlspecialchars(number)+'">'+text+'</span>'); // TODO tag CHAT
+		text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/gi, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="'+Utils.text.htmlspecialchars(number)+'">'+text+'</span>'); // TODO tag CHAT
 
-		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text); // TODO tag PCH
+		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/gi, (whole, historyId, text) => text); // TODO tag PCH
 
 		let textElementSize = 0;
 		if (enableBigSmile)
 		{
-			textElementSize = text.replace(/\[icon\=([^\]]*)\]/ig, '').trim().length;
+			textElementSize = text.replace(/\[icon\=([^\]]*)\]/gi, '').trim().length;
 		}
 
-		text = text.replace(/\[icon\=([^\]]*)\]/ig, (whole) =>
+		text = text.replace(/\[icon\=([^\]]*)\]/gi, (whole) =>
 		{
 			let url = whole.match(/icon\=(\S+[^\s.,> )\];\'\"!?])/i);
 			if (url && url[1])
@@ -1681,9 +1669,9 @@ export class MessagesModel extends VuexBuilderModel
 			text = text.replace('####REPLACEMENT_SEND_'+index+'####', value);
 		});
 
-		text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, (match) =>
+		text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/gi, (match) =>
 		{
-			return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, (whole, command, text) =>
+			return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/gi, (whole, command, text) =>
 			{
 				let html = '';
 
@@ -1717,9 +1705,9 @@ export class MessagesModel extends VuexBuilderModel
 			text = text.replace('####REPLACEMENT_PUT_'+index+'####', value);
 		});
 
-		text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, (match) =>
+		text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/gi, (match) =>
 		{
-			return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, (whole, command, text) =>
+			return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/gi, (whole, command, text) =>
 			{
 				let html = '';
 

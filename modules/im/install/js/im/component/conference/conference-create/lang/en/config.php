@@ -4,6 +4,7 @@ $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BROADCAST_MODE"] = "Broadcasting mode";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BROADCAST_MODE_HINT"] = "In Broadcasting mode, you can allow only the selected speakers to broadcast video and sound. Other participants (attendees) can watch the stream and communicate in the chat.";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_CANCEL"] = "Cancel";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_CLOSE"] = "Close";
+$MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_OPEN_CHAT"] = "Open chat";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_SAVE"] = "Save and copy link";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_START"] = "Start conference";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_COPY_CONFIRMATION"] = "Link copied";

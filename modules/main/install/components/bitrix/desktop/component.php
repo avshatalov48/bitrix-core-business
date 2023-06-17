@@ -760,7 +760,7 @@ foreach($arGadgets as $gadget)
 $arResult["GROUPS"] = Array();
 foreach($arGroups as $arGroup)
 {
-	if(count($arGroup['GADGETS'])>0)
+	if(!empty($arGroup['GADGETS']))
 	{
 		$arResult['GROUPS'][] = $arGroup;
 	}

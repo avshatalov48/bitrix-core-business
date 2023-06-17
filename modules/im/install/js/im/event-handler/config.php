@@ -12,10 +12,10 @@ return [
 		'im.lib.timer',
 		'im.lib.uploader',
 		'im.lib.utils',
-		'main.core',
 		'main.core.events',
 		'im.const',
 		'im.lib.logger',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

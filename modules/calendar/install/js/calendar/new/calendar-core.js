@@ -53,6 +53,7 @@
 		BX.Calendar.Util.setGoogleConnectionStatus(config.isGoogleConnected);
 		BX.Calendar.Util.setIsSharingFeatureEnabled(config.isSharingFeatureEnabled);
 		BX.Calendar.Util.setSharingConfig(config.sharing);
+		this.payAttentionToNewSharingFeature = config.payAttentionToNewSharingFeature;
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -179,7 +180,7 @@
 					}
 				}
 
-				if (this.util.userIsOwner())
+				if (this.util.userIsOwner() && !this.util.isExtranetUser())
 				{
 					this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
 						wrapper: document.getElementById(this.id + '-sync-container'),
@@ -199,6 +200,7 @@
 					this.sharingInterface = new BX.Calendar.Sharing.Interface({
 						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
 						userId: this.currentUser.id,
+						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())
@@ -249,6 +251,12 @@
 						if (BX.Type.isObjectLike(data.counters) && this.counters && this.util.getCounters())
 						{
 							this.counters.setCountersValue(data.counters);
+						}
+
+						if (data.status === 'Y')
+						{
+							const section = this.sectionManager.getSection(data.entry.sectionId);
+							section.show();
 						}
 
 						this.reload();
@@ -564,11 +572,12 @@
 						this.rightBlock.style.display = '';
 					}
 
+					const dayLength = 24 * 60 * 60 * 1000;
 					if (view === 'day')
 					{
 						params.animation = params.animation
 							&& this.getDisplayedViewRange().start.getTime() <= params.newViewDate.getTime()
-							&& params.newViewDate.getTime() <= this.getDisplayedViewRange().end.getTime();
+							&& params.newViewDate.getTime() <= this.getDisplayedViewRange().end.getTime() + dayLength;
 					}
 
 					if (params.animation)
@@ -1181,28 +1190,29 @@
 		{
 			if (this.viewsCont)
 			{
-				if (this.entryLoaderNode)
+				if (this.entryLoader)
 				{
-					BX.remove(this.entryLoaderNode);
+					this.entryLoader.destroy();
 				}
-				this.entryLoaderNode = this.viewsCont.appendChild(BX.adjust(
-					this.util.getLoader(200), {
-						props: { className: 'calendar-entry-loader' },
-					}));
+
+				this.entryLoader = new BX.Loader({
+					target: this.viewsCont,
+				});
+				this.entryLoader.layout.style.zIndex = 1000;
+				this.entryLoader.show();
+
+				this.mainCont.style.opacity = '0.5';
 			}
 		},
 
 		hideLoader: function()
 		{
-
-			if (this.entryLoaderNode)
+			if (this.entryLoader)
 			{
-				BX.addClass(this.entryLoaderNode, 'hide');
-				setTimeout(BX.delegate(function()
-				{
-					BX.remove(this.entryLoaderNode);
-				}, this), 300);
+				this.entryLoader.destroy();
 			}
+
+			this.mainCont.style.opacity = '';
 		},
 
 		getCurrentViewName: function()

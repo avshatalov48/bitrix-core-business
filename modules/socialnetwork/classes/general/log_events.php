@@ -124,8 +124,14 @@ class CAllSocNetLogEvents
 			}
 		}
 
-		if ((is_set($arFields, "MAIL_EVENT") || $ACTION=="ADD") && $arFields["MAIL_EVENT"] != "Y" && $arFields["MAIL_EVENT"] != "N")
+		if (
+			(is_set($arFields, "MAIL_EVENT") || $ACTION=="ADD")
+			&& ($arFields["MAIL_EVENT"] ?? null) != "Y"
+			&& ($arFields["MAIL_EVENT"] ?? null) != "N"
+		)
+		{
 			$arFields["MAIL_EVENT"] = "N";
+		}
 
 		if (is_set($arFields, "MAIL_EVENT") && $arFields["MAIL_EVENT"] == "Y")
 			$arFields["TRANSPORT"] = "M";

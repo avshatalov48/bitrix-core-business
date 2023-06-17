@@ -1,7 +1,10 @@
-<?
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('NOT_CHECK_PERMISSIONS', true);
+<?php
+
+/** @global CMain $APPLICATION */
+
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 use Bitrix\Main\Loader;
 
@@ -24,7 +27,7 @@ if (isset($_REQUEST['site_template_id']) && is_string($_REQUEST['site_template_i
 	}
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
 
 $request = Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
@@ -36,6 +39,7 @@ if (!Loader::includeModule('sale') || !Loader::includeModule('catalog'))
 	return;
 
 $params = array();
+$template = '';
 
 if ($request->get('via_ajax') === 'Y')
 {

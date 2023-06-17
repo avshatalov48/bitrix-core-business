@@ -64,10 +64,9 @@ export const AttachTypeFile =
 			fileSize(element)
 			{
 				let size = element.SIZE;
-
-				if (size <= 0)
+				if (!size || size <= 0)
 				{
-					return '';
+					size = 0;
 				}
 
 				let sizes = ["BYTE", "KB", "MB", "GB", "TB"];

@@ -181,8 +181,12 @@ endif;
 /********************************************************************
 				Actions
 ********************************************************************/
-$ACTION = mb_strtoupper(is_set($_REQUEST, "form_action")? $_REQUEST["form_action"] : $_REQUEST["ACTION"]);
-if ($_REQUEST["topic_edit"] == "Y")
+$ACTION = mb_strtoupper(
+	is_set($_REQUEST, "form_action")
+		? $_REQUEST["form_action"]
+		: ($_REQUEST["ACTION"] ?? '')
+);
+if (($_REQUEST["topic_edit"] ?? '') === "Y")
 {
 	$strErrorMessage = ""; $strOkMessage = ""; 
 	$result = false; 
@@ -617,21 +621,27 @@ while ($res = $db_res->GetNext())
 
 	$res["numMessages"] = $res["POSTS"];
 	/*******************************************************************/
-	if($arParams["PERMISSION"] >= "Q"):
+	if ($arParams["PERMISSION"] >= "Q")
+	{
 		$res["LAST_POSTER_ID"] = $res["ABS_LAST_POSTER_ID"];
 		$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
 		$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
 		$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
 		$res["mCnt"] = intval($res["POSTS_UNAPPROVED"]);
 		$res["numMessages"] += $res["mCnt"];
-		$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"];
-	endif;
+		$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"] ?? '';
+	}
+
 	/*******************************************************************/
 	$res["numMessages"]++;
 	/*******************************************************************/
 	/*******************************************************************/
-	$res["pages"] = ForumShowTopicPages($res["numMessages"], $res["URL"]["READ"], 
-		"PAGEN_".$arParams["PAGEN"], intval($arParams["MESSAGES_PER_PAGE"]));
+	$res["pages"] = ForumShowTopicPages(
+		$res["numMessages"],
+		$res["URL"]["READ"] ?? '',
+		"PAGEN_".$arParams["PAGEN"],
+		intval($arParams["MESSAGES_PER_PAGE"])
+	);
 	$res["PAGES_COUNT"] = intval(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
 /*******************************************************************/
 	$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);

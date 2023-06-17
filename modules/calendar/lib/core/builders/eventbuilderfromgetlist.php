@@ -116,8 +116,8 @@ class EventBuilderFromGetList extends EventBuilderFromArray
 			Util::getDateObject((is_object($this->fields['DATE_TO'])
 				? $this->fields['DATE_TO']->format('d.m.y H:i:s')
 				: $this->fields['DATE_TO']),
-				$this->fields['DT_SKIP_TIME'] === 'Y',
-				$this->fields['TZ_TO'])
+			$this->fields['DT_SKIP_TIME'] === 'Y',
+			$this->fields['TZ_TO'] ?? null)
 		);
 	}
 

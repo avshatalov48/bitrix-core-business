@@ -123,12 +123,12 @@ class Storage implements Storable
 		else
 		{
 			$buff = 4096;
-			if (($fsrc = fopen($chunk['tmp_name'], 'r')) && $fsrc)
+			if (($fsrc = fopen($chunk['tmp_name'], 'r')))
 			{
 				fseek($fdst, $chunk["start"], SEEK_SET);
 				while(!feof($fsrc) && ($data = fread($fsrc, $buff)))
 				{
-					if ($data !== '' && $data !== false)
+					if ($data !== '')
 					{
 						fwrite($fdst, $data);
 					}
@@ -187,7 +187,7 @@ class CloudStorage extends Storage implements Storable
 	private function findBucket($file)
 	{
 
-		$bucket = \CCloudStorage::findBucketForFile(array('FILE_SIZE' => $file['size'], 'MODULE_ID' => $this->moduleId), $file["name"]);
+		$bucket = \CCloudStorage::findBucketForFile(array('FILE_SIZE' => $file['size'], 'MODULE_ID' => $this->moduleId), $file["name"] ?? '');
 		if(!$bucket || !$bucket->init())
 		{
 			return null;

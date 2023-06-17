@@ -85,6 +85,7 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 			'fieldTypes' => $this->getFieldsTypes(),
 			'fieldInfo' => $this->getFieldInfo(),
 			'visibilityTypes' => $this->getVisibilityTypes(),
+			'visibilityNames' => $this->getVisibilityFullNames(),
 			'disabled' => $this->arParams['FIELD_ID'] ? 'disabled' : '',
 			'mode' => $this->mode,
 		];
@@ -174,7 +175,6 @@ HTML;
 		{
 			return Bizproc\Workflow\Type\GlobalVar::getVisibilityShortNames($documentType);
 		}
-
 		if ($this->mode === self::CONST_MODE)
 		{
 			return Bizproc\Workflow\Type\GlobalConst::getVisibilityShortNames($documentType);
@@ -235,5 +235,20 @@ HTML;
 		return [];
 	}
 
+	private function getVisibilityFullNames(): array
+	{
+		$documentType = $this->arParams['DOCUMENT_TYPE'];
+
+		if ($this->mode === self::VAR_MODE)
+		{
+			return Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+		}
+		if ($this->mode === self::CONST_MODE)
+		{
+			return Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
+		}
+
+		return [];
+	}
 }
 

@@ -145,7 +145,6 @@ class ProductAction
 			return $result;
 		}
 
-		$filter = [];
 		$allowedTypes = static::getAllowedProductTypes($catalog, $fields);
 		if (empty($allowedTypes))
 		{
@@ -154,25 +153,22 @@ class ProductAction
 			));
 			return $result;
 		}
-		$filter['@TYPE'] = $allowedTypes;
-		unset($allowedTypes);
 
-		$products = [];
-		foreach (array_chunk($elementIds, 500) as $pageIds)
+		$productResult = self::getProductListByTypeForModify($elementIds, $allowedTypes);
+		$data = $productResult->getData();
+		$newProducts = $data['NEW_PRODUCT_IDS'] ?? [];
+		$existProducts = $data['EXIST_PRODUCT_IDS'] ?? [];
+		unset($data);
+		if (!$productResult->isSuccess())
 		{
-			$filter['@ID'] = $pageIds;
-			$iterator = Catalog\Model\Product::getList([
-				'select' => ['ID'],
-				'filter' => $filter,
-			]);
-			while ($row = $iterator->fetch())
-			{
-				$row['ID'] = (int)$row['ID'];
-				$products[$row['ID']] = $row;
-			}
-			unset($row, $iterator);
+			$result->addErrors($productResult->getErrors());
 		}
-		unset($pageIds);
+		unset($productResult);
+
+		if (empty($newProducts) && empty($existProducts))
+		{
+			return $result;
+		}
 
 		$data = [
 			'fields' => $fields,
@@ -180,19 +176,9 @@ class ProductAction
 				'IBLOCK_ID' => $iblockId
 			]
 		];
-		$newData = $data;
-
-		foreach ($elementIds as $id)
+		foreach ($existProducts as $id)
 		{
-			if (!isset($products[$id]))
-			{
-				$newData['fields']['ID'] = $id;
-				$elementResult = Catalog\Model\Product::add($newData);
-			}
-			else
-			{
-				$elementResult = Catalog\Model\Product::update($id, $data);
-			}
+			$elementResult = Catalog\Model\Product::update($id, $data);
 			if (!$elementResult->isSuccess())
 			{
 				$result->addError(new Main\Error(
@@ -201,8 +187,20 @@ class ProductAction
 				));
 			}
 		}
-		unset($elementResult, $id);
-		unset($newData, $data);
+		foreach ($newProducts as $id)
+		{
+			$data['fields']['ID'] = $id;
+			$elementResult = Catalog\Model\Product::add($data);
+			if (!$elementResult->isSuccess())
+			{
+				$result->addError(new Main\Error(
+					implode('; ', $elementResult->getErrorMessages()),
+					$id
+				));
+			}
+		}
+		unset($elementResult, $id, $data);
+		unset($newProducts, $existProducts);
 		unset($blackList, $catalog);
 
 		return $result;
@@ -517,7 +515,7 @@ class ProductAction
 			return $result;
 		}
 
-		$productResult = self::getProductListByType($elementIds, $type);
+		$productResult = self::getProductListByTypeForConversion($elementIds, $type);
 		$data = $productResult->getData();
 		$products = $data['PRODUCT_IDS'] ?? [];
 		unset($data);
@@ -559,7 +557,83 @@ class ProductAction
 		return $result;
 	}
 
-	private static function getProductListByType(array $elementIds, int $type): Main\Result
+	private static function getProductListByTypeForModify(array $elementIds, array $types): Main\Result
+	{
+		$result = new Main\Result();
+
+		$types = array_fill_keys($types, true);
+
+		$existList = [];
+		$newList = array_fill_keys($elementIds, true);
+		$errorList = [];
+
+		foreach (array_chunk($elementIds, 500) as $pageIds)
+		{
+			$iterator = Catalog\ProductTable::getList([
+				'select' => [
+					'ID',
+					'TYPE',
+				],
+				'filter' => [
+					'@ID' => $pageIds,
+				]
+			]);
+			while ($row = $iterator->fetch())
+			{
+				$row['ID'] = (int)$row['ID'];
+				$row['TYPE'] = (int)$row['TYPE'];
+				unset($newList[$row['ID']]);
+				if (isset($types[$row['TYPE']]))
+				{
+					$existList[] = $row['ID'];
+				}
+				else
+				{
+					$errorList[] = $row['ID'];
+				}
+			}
+			unset($row, $iterator);
+		}
+
+		$result->setData([
+			'EXIST_PRODUCT_IDS' => $existList,
+			'NEW_PRODUCT_IDS' => array_values($newList),
+		]);
+		unset($existList, $newList);
+
+		if (!empty($errorList))
+		{
+			$names = [];
+			$iterator = Iblock\ElementTable::getList([
+				'select' => [
+					'ID',
+					'NAME',
+				],
+				'filter' => [
+					'@ID' => $errorList,
+				],
+			]);
+			while ($row = $iterator->fetch())
+			{
+				$names[] = '[' . $row['ID'] . '] ' . $row['NAME'];
+			}
+			unset($row, $iterator);
+			$result->addError(new Main\Error(
+				Loc::getMessage(
+					'BX_CATALOG_PRODUCT_ACTION_ERR_CANNOT_SET_FIELD_BY_TYPE',
+					[
+						'#NAMES#' => implode(', ', $names),
+					]
+				)
+			));
+			unset($names);
+		}
+		unset($errorList);
+
+		return $result;
+	}
+
+	private static function getProductListByTypeForConversion(array $elementIds, int $type): Main\Result
 	{
 		$result = new Main\Result();
 

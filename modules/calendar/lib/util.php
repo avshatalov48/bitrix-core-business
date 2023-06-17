@@ -684,4 +684,22 @@ class Util
 			'minutes' => (int)$min
 		];
 	}
+
+	public static function getDateTimestamp(?string $dateFrom, ?string $timezone): ?int
+	{
+		if (!$dateFrom || !$timezone)
+		{
+			return null;
+		}
+
+		$date =  new \Bitrix\Calendar\Core\Base\Date(
+			Util::getDateObject(
+				$dateFrom,
+				false,
+				$timezone
+			)
+		);
+
+		return $date->getTimestamp();
+	}
 }

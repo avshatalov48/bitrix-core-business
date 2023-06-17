@@ -1,6 +1,9 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
@@ -18,6 +21,7 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Managers\NotificationManager;
+use CCalendar;
 use CUserOptions;
 use Exception;
 
@@ -236,8 +240,9 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
 		}
-
-		if (!\CCalendarType::CanDo('calendar_type_edit', $params['ENTITY_TYPE']))
+		$typeModel = TypeModel::createFromXmlId($params['ENTITY_TYPE']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, []))
 		{
 			$this->addError(new Error('Access Denied'));
 

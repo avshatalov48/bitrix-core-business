@@ -1,4 +1,4 @@
-import {AvatarSize} from 'im.v2.const';
+import {AvatarSize} from 'im.v2.component.old-chat-embedding.elements';
 import {SearchItem} from '../search-item';
 import {Extension} from 'main.core';
 import 'ui.fonts.opensans';

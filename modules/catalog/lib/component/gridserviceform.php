@@ -68,7 +68,7 @@ class GridServiceForm extends GridVariationForm
 			$this->getProductFieldHeaders(
 				[
 					'VAT_ID', 'VAT_INCLUDED',
-					'SHOW_COUNTER', 'CODE', 'TIMESTAMP_X', 'USER_NAME',
+					'SHOW_COUNTER', 'CODE', 'TIMESTAMP_X', 'MODIFIED_BY',
 					'DATE_CREATE', 'XML_ID',
 				],
 				$defaultWidth

@@ -2,10 +2,13 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Url\InventoryManagementSourceBuilder;
 use Bitrix\Main;
 use \Bitrix\Catalog\Component\Preset;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loc::loadLanguageFile(__FILE__);
 
@@ -55,6 +58,7 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 		$this->arResult['IS_PLAN_RESTRICTED'] = \Bitrix\Catalog\Component\UseStore::isPlanRestricted();
 		$this->arResult['IS_USED'] = \Bitrix\Catalog\Component\UseStore::isUsed();
 		$this->arResult['IS_EMPTY'] = \Bitrix\Catalog\Component\UseStore::isEmpty();
+		$this->arResult['IS_RESTRICTED_ACCESS'] = !$this->checkRights();
 		$this->arResult['MODE'] = $this->arParams['MODE'];
 		$this->arResult['PRESET_LIST'] = $this->getPresetList();
 		$this->arResult['PREVIEW_LANG'] = $this->getPortalZone();
@@ -105,6 +109,11 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 
 	protected function presetIsAvailable(): string
 	{
+		if (!$this->checkRights())
+		{
+			return 'N';
+		}
+
 		if ($this->arParams['MODE'] == self::MODE_EDIT)
 		{
 			$result = 'Y';
@@ -215,6 +224,11 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 			}
 		}
 		return true;
+	}
+
+	protected function checkRights()
+	{
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
 	}
 
 	/**

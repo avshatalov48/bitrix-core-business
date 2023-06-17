@@ -1,10 +1,9 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2010 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
@@ -23,7 +22,7 @@ function CheckFilter()
 {
 	global $FilterArr, $lAdmin;
 	foreach ($FilterArr as $f) global $$f;
-	return count($lAdmin->arFilterErrors)==0;
+	return empty($lAdmin->arFilterErrors);
 }
 
 $FilterArr = Array(
@@ -65,7 +64,7 @@ if($lAdmin->EditAction())
 
 if(($arID = $lAdmin->GroupAction()))
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CRatings::GetList(array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -99,7 +98,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage("RATING_LIST_NAV")));
 $aHeaders = array(
 	array("id"=>"ID", "content"=>"ID", "sort"=>"id", "default"=>true),
 	array("id"=>"NAME", "content"=>GetMessage("RATING_NAME"), "sort"=>"name", "default"=>true),
-	array("id"=>"ACTIVE", "content"=>GetMessage("RATING_ACTIVE"), "sort"=>"active", "default"=>true),	
+	array("id"=>"ACTIVE", "content"=>GetMessage("RATING_ACTIVE"), "sort"=>"active", "default"=>true),
 	array("id"=>"CREATED", "content"=>GetMessage("RATING_CREATED"), "sort"=>"created", "default"=>false),
 	array("id"=>"LAST_MODIFIED", "content"=>GetMessage("RATING_LAST_MODIFIED"), "sort"=>"last_modified", "default"=>true),
 	array("id"=>"LAST_CALCULATED", "content"=>GetMessage("RATING_LAST_CALCULATED"), "sort"=>"last_calculated", "default"=>true),

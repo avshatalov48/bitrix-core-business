@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arYesNo = Array(
@@ -88,7 +88,7 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("SPOL_NAV_TEMPLATE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "",
-		),	
+		),
 
 		"CACHE_TIME"  =>  Array("DEFAULT"=>3600),
 		"CACHE_GROUPS" => array(
@@ -152,7 +152,7 @@ if(CModule::IncludeModule("sale"))
 		"DEFAULT" => "STATUS",
 		"PARENT" => "ORDER",
 	);
-	
+
 	if (CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 	{
 		$arComponentParameters['PARAMETERS']['ALLOW_INNER'] = array(
@@ -169,9 +169,8 @@ if(CModule::IncludeModule("sale"))
 			"PARENT" => "ORDER",
 		);
 	}
-	
+
 }
 
 if(CModule::IncludeModule("iblock"))
 	$arComponentParameters["PARAMETERS"]["ACTIVE_DATE_FORMAT"] = CIBlockParameters::GetDateFormat(GetMessage("SPOL_ACTIVE_DATE_FORMAT"), "VISUAL");
-?>

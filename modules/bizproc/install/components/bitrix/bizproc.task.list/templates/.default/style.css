@@ -117,40 +117,6 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	height: 40px;
 }
 
-.bp-folder-title:after, .bp-folder-title-link:after,
-.bp-folder-title:after, .bp-task a:after {
-	content: '';
-	position: absolute;
-	right: 0;
-	top: 15px;
-	height: 16px;
-	width: 40px;
-	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#fff), color-stop(50%, #fff));
-	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
-	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
-	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
-	background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
-}
-
-.bx-bizproc-table-body.selected .bp-folder-title:after,
-.bx-bizproc-table-body.selected .bp-folder-title-link:after,
-.bx-bizproc-table-body.selected:hover .bp-folder-title:after,
-.bx-bizproc-table-body.selected:hover .bp-folder-title-link:after,
-.bx-bizproc-table-body.selected .bp-task a:after,
-.bx-bizproc-table-body.selected:hover .bp-task a:after {
-	content: '';
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	height: 16px;
-	width: 40px;
-	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#f5fcde), color-stop(50%, #f5fcde));
-	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
-	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
-	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
-	background: linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
-}
-
 .bx-bizproc-table-body:hover .bp-folder-title:after, .bx-bizproc-table-body:hover .bp-folder-title-link:after, .bx-bizproc-table-body:hover .bp-task a:after {
 	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#f5f5f5), color-stop(50%, #f5f5f5));
 	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);

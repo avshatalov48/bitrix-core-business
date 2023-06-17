@@ -2,7 +2,9 @@
 
 namespace Bitrix\Catalog\Integration\Report\Handler\StoreSale;
 
-use \Bitrix\Catalog\Integration\Report\Handler\BaseHandler;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Integration\Report\Handler\BaseHandler;
 
 class GridHandler extends BaseHandler
 {
@@ -12,11 +14,18 @@ class GridHandler extends BaseHandler
 			'filter' => $this->getFilterParameters(),
 		];
 
-		$storeTotals = $this->getStoreTotals();
-		if (!empty($storeTotals))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW))
 		{
-			$reportData['items'] = $storeTotals;
-			$reportData['overall'] = $this->prepareOverallTotals($storeTotals);
+			$reportData['stub'] = static::getNoAccessToStoresStub();
+		}
+		else
+		{
+			$storeTotals = $this->getStoreTotals();
+			if (!empty($storeTotals))
+			{
+				$reportData['items'] = $storeTotals;
+				$reportData['overall'] = $this->prepareOverallTotals($storeTotals);
+			}
 		}
 
 		return $reportData;

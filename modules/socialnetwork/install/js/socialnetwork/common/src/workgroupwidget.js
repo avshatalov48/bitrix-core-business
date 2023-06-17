@@ -78,7 +78,7 @@ export class WorkgroupWidget extends Widget
 		let avatar = '<i></i>';
 		if (Type.isStringFilled(this.avatarPath))
 		{
-			avatar = `<i style="background: #fff url('${this.avatarPath}') no-repeat; background-size: cover;"></i>`;
+			avatar = `<i style="background: #fff url('${encodeURI(this.avatarPath)}') no-repeat; background-size: cover;"></i>`;
 		}
 
 		let title = '';

@@ -2,7 +2,7 @@
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$value = isset($GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'])
 		? (int)$GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']
@@ -21,7 +21,7 @@ if($arResult['additionalParameters']['bVarsFromForm'])
 		: 0
 	;
 }
-elseif(is_array($arResult['userField']))
+elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
 	$value = isset($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 		? (int)$arResult['userField']['SETTINGS']['DEFAULT_VALUE']

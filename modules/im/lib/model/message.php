@@ -4,6 +4,7 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Text;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
 
 Loc::loadMessages(__FILE__);
@@ -359,5 +360,32 @@ class MessageTable extends Main\Entity\DataManager
 			$connection = Main\Application::getConnection();
 			$connection->queryExecute("DELETE FROM {$tableName} WHERE {$whereSql}");
 		}
+	}
+
+	public static function withUnreadOnly(Query $query): void
+	{
+		$unreadSubQuery = MessageUnreadTable::query()
+			->setSelect(['ID'])
+			->where('MESSAGE_ID', new \Bitrix\Main\DB\SqlExpression('%s'))
+		;
+		$query->whereExpr("EXISTS ({$unreadSubQuery->getQuery()})", ['ID']);
+	}
+
+	public static function withViewedOnly(Query $query): void
+	{
+		$viewedSubQuery = MessageViewedTable::query()
+			->setSelect(['ID'])
+			->where('MESSAGE_ID', new \Bitrix\Main\DB\SqlExpression('%s'))
+		;
+		$query->whereExpr("EXISTS ({$viewedSubQuery->getQuery()})", ['ID']);
+	}
+
+	public static function withReadOnly(Query $query): void
+	{
+		$unreadSubQuery = MessageUnreadTable::query()
+			->setSelect(['ID'])
+			->where('MESSAGE_ID', new \Bitrix\Main\DB\SqlExpression('%s'))
+		;
+		$query->whereExpr("NOT EXISTS ({$unreadSubQuery->getQuery()})", ['ID']);
 	}
 }

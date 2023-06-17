@@ -19,9 +19,11 @@ BitrixVue.component('sale-payment_pay-components-payment_system-reset_panel', {
 			<div class="order-basket-section-description py-3">
 				{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_6 }}
 			</div>
-			<sale-payment_pay-components-payment_system-button @click="reset()">
-				{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_7 }}
-			</sale-payment_pay-components-payment_system-button>
+			<div class="order-basket-section-another-payment-button">
+				<sale-payment_pay-components-payment_system-button @click="reset()">
+					{{ localize.PAYMENT_PAY_PAYMENT_SYSTEM_COMPONENTS_7 }}
+				</sale-payment_pay-components-payment_system-button>
+			</div>
 		</div>	
 	`,
 });

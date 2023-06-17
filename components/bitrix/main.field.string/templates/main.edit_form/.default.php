@@ -17,6 +17,10 @@ $component = $this->getComponent();
 	<?php
 	foreach($arResult['value'] as $value)
 	{
+		if (!is_array($value))
+		{
+			continue;
+		}
 		?>
 		<tr>
 			<td>

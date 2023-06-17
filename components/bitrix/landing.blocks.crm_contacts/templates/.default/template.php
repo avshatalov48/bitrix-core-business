@@ -2,6 +2,8 @@
 
 use Bitrix\Main\Text\HtmlFilter;
 
+/** @var array $arParams */
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -35,41 +37,53 @@ $alerts = '';
 if (!empty($arResult['ALERTS']))
 {
 	$alerts = '<div class="crmcontacts-alert"><div class="g-landing-alert-v3">';
-	foreach ($arResult['ALERTS'] as $alert)
-	{
-		$alerts .= $alert;
-	}
+	$alerts .= implode('', $arResult['ALERTS']);
 	$alerts .= '</div></div>';
 }
 
 $arResult['CONTACTS']['phones'][0] = HtmlFilter::encode($arResult['CONTACTS']['phones'][0]);
 $textAlign = $arParams['BUTTON_POSITION'] === 'right' ? 'text-left' : 'text-right';
+$titleBlock = $arParams['TITLE'] ? "<h6 class=\"crmcontacts-text-title h6\">{$arParams['TITLE']}</h6>" : '';
 $textBlock = <<<HTML
-		<div class="crmcontacts-text-block {$textAlign} col-8">
-			<h6 class="crmcontacts-text-title h6">
-				{$arParams['TITLE']}
-			</h6>
-				<div class="crmcontacts-text-text">
-				<a href="tel:{$arResult['CONTACTS']['phones'][0]}">
-					{$arResult['CONTACTS']['phones'][0]}
-				</a>
-			</div>
+	<div class="crmcontacts-text-block {$textAlign} col-8">
+		{$titleBlock}
+		<div class="crmcontacts-text-text">
+			<a href="tel:{$arResult['CONTACTS']['phones'][0]}">
+				{$arResult['CONTACTS']['phones'][0]}
+			</a>
 		</div>
+	</div>
 HTML;
 
 $buttonAlign = $arParams['BUTTON_POSITION'] === 'right' ? 'text-right d-flex justify-content-end' : 'text-left';
+$buttonClasses =
+	$arParams['BUTTON_CLASSES']
+	?: 'btn g-color-white g-rounded-50 g-btn-px-m g-btn-size-md g-theme-bitrix-btn-v6'
+;
 $buttonBlock = <<<HTML
-		<div class="crmcontacts-button-block {$buttonAlign} col-4">
-			<a class="crmcontacts-button-button btn g-color-white g-rounded-50 g-btn-px-m g-btn-size-md g-theme-bitrix-btn-v6"
-				href="tel:{$arResult['CONTACTS']['phones'][0]}">
-				{$arParams['BUTTON_TITLE']}
-			</a>
-		</div>
+	<div class="crmcontacts-button-block {$buttonAlign} col-4">
+		<a class="crmcontacts-button-button {$buttonClasses}"
+			href="tel:{$arResult['CONTACTS']['phones'][0]}">
+			{$arParams['BUTTON_TITLE']}
+		</a>
+	</div>
 HTML;
 ?>
 
-<div class="<?= (($arParams['TEMPLATE_MODE'] === 'darkmode') ? 'bx-dark' : '') ?>">
-	<div class="row g-flex-centered align-items-end">
+<?php
+	$modeClass = '';
+	if ($arParams['TEMPLATE_MODE'] === 'darkmode')
+	{
+		$modeClass = 'bx-dark';
+	}
+	if ($arParams['TEMPLATE_MODE'] === 'graymode')
+	{
+		$modeClass = 'bx-gray';
+	}
+?>
+
+<div class="<?= $modeClass ?>">
+	<div class="row g-flex-centered <?= $arParams['TITLE'] ? 'align-items-end' : 'align-items-center' ?>">
 		<?php
 		if ($arParams['BUTTON_POSITION'] === 'right')
 		{

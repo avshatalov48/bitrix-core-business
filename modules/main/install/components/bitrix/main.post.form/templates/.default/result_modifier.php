@@ -36,12 +36,12 @@ $arParams["LHE"] = (is_array($arParams['~LHE']) ? $arParams['~LHE'] : array());
 $arParams["LHE"]["id"] = (empty($arParams["LHE"]["id"]) ? "idLHE_".$arParams["FORM_ID"] : $arParams["LHE"]["id"]);
 $arParams["LHE"]["jsObjName"] = trim($arParams["LHE"]["jsObjName"] ?? '');
 $arParams["divId"] = (empty($arParams["LHE"]["jsObjName"]) ? $arParams["LHE"]["id"] : $arParams["LHE"]["jsObjName"]);
-$arParams["LHE"]["bInitByJS"] = empty($arParams["TEXT"]["VALUE"]) && $arParams["LHE"]["bInitByJS"] === true;
+$arParams["LHE"]["bInitByJS"] = empty($arParams["TEXT"]["VALUE"]) && isset($arParams["LHE"]["bInitByJS"]) && $arParams["LHE"]["bInitByJS"] === true;
 $arParams["LHE"]["lazyLoad"] = (
 	empty($arParams["TEXT"]["VALUE"])
 	&& (
-		$arParams["LHE"]["bInitByJS"] === true
-		|| $arParams["LHE"]["lazyLoad"] === true
+		(isset($arParams["LHE"]["bInitByJS"]) && $arParams["LHE"]["bInitByJS"] === true)
+		|| (isset($arParams["LHE"]["lazyLoad"]) && $arParams["LHE"]["lazyLoad"] === true)
 	)
 );
 
@@ -66,7 +66,7 @@ if(isset($userOption["showBBCode"]) && $userOption["showBBCode"] == "Y")
 	$arParams["TEXT"]["SHOW"] = "Y";
 $arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
 
-$arParams["ADDITIONAL"] = isset($arParams["~ADDITIONAL"]) ? $arParams["~ADDITIONAL"] : [];
+$arParams["ADDITIONAL"] = $arParams["~ADDITIONAL"] ?? [];
 $arParams["ADDITIONAL_TYPE"] = 'html';
 if (is_array($arParams["ADDITIONAL"]))
 {
@@ -77,7 +77,7 @@ if (is_array($arParams["ADDITIONAL"]))
 			$arParams["ADDITIONAL_TYPE"] =  'popup';
 		}
 	}
-	if ($arParams["TEXT"]["SHOW"] !== "N")
+	if (!isset($arParams["TEXT"]["SHOW"]) || $arParams["TEXT"]["SHOW"] !== "N")
 	{
 		if ($arParams["ADDITIONAL_TYPE"] === 'html')
 		{

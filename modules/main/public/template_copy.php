@@ -141,7 +141,7 @@ if($strWarning == "")
 
 		if (CComponentUtil::CopyTemplate($arComponent["DATA"]["COMPONENT_NAME"], $arComponent["DATA"]["TEMPLATE_NAME"], (($templateSiteTemplate <> '') ? $templateSiteTemplate : false), $_POST["SITE_TEMPLATE"], $sTemplateName, false))
 		{
-			if ($_POST["USE_TEMPLATE"] == "Y")
+			if (isset($_POST["USE_TEMPLATE"]) && $_POST["USE_TEMPLATE"] == "Y")
 			{
 				$code = ($arComponent["DATA"]["VARIABLE"]?$arComponent["DATA"]["VARIABLE"]."=":"").
 					"\$APPLICATION->IncludeComponent(\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", ".
@@ -161,7 +161,7 @@ if($strWarning == "")
 			{
 				$strJSText = 'window.location = window.location.href;';
 
-				if ($_POST["EDIT_TEMPLATE"] == "Y")
+				if (isset($_POST["EDIT_TEMPLATE"]) && $_POST["EDIT_TEMPLATE"] == "Y")
 				{
 					$component = new CBitrixComponent();
 					if ($component->InitComponent($arComponent["DATA"]["COMPONENT_NAME"], $_POST["TEMPLATE_NAME"]))
@@ -223,7 +223,7 @@ $obJSPopup->StartDescription($sIcon);
 <?endif;?>
 <p class="note" title="<?echo GetMessage("comp_prop_path")?>"><a href="/bitrix/admin/fileman_admin.php?lang=<?echo LANGUAGE_ID?>&amp;path=<?echo urlencode($localPath)?>"><?echo htmlspecialcharsbx($_GET["component_name"])?></a></p>
 <?
-if($_GET['system_template'] == 'Y')
+if (isset($_GET['system_template']) && $_GET['system_template'] == 'Y')
 	ShowNote(GetMessage("copy_comp_sys_templ"));
 
 if($strWarning <> "")

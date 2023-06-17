@@ -1,0 +1,37 @@
+.bx-im-media-file__scope {
+	--im-media-file__font-color_file-size: #717171;
+}
+
+.bx-im-media-file__container {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	margin-left: -4px;
+	cursor: pointer;
+	min-width: 135px;
+}
+
+.bx-im-media-file__container + .bx-im-media-file__container {
+	margin-top: 9px;
+}
+
+.bx-im-media-file__icon {
+	display: flex;
+	flex-shrink: 0;
+	padding-right: 7px;
+}
+
+.bx-im-media-file__right {
+	overflow: hidden;
+}
+
+.bx-im-media-file__name {
+	display: flex;
+	flex-wrap: nowrap;
+	margin-bottom: 3px;
+}
+
+.bx-im-media-file__size {
+	color: var(--im-media-file__font-color_file-size);
+	font-size: var(--im-font-size-xs);
+}

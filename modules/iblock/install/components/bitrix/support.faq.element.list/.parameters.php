@@ -1,35 +1,55 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if(!CModule::IncludeModule("iblock"))
+/** @var array $arCurrentValues */
+
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('iblock'))
+{
 	return;
+}
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 //ib types
-$arTypesEx = Array("-"=>" ");
-$db_iblock_type = CIBlockType::GetList(Array("SORT"=>"ASC"));
+$arTypesEx = ["-"=>" "];
+$db_iblock_type = CIBlockType::GetList(["SORT"=>"ASC"]);
 while($arRes = $db_iblock_type->Fetch())
 	if($arIBType = CIBlockType::GetByIDLang($arRes["ID"], LANG))
 		$arTypesEx[$arRes["ID"]] = $arIBType["NAME"];
 
 //ib
-$arIBlocks = Array("-"=>" ");
-$db_iblock = CIBlock::GetList(Array("SORT"=>"ASC"), Array("TYPE" => ($arCurrentValues["IBLOCK_TYPE"]!="-"?$arCurrentValues["IBLOCK_TYPE"]:"")));
-while($arRes = $db_iblock->Fetch())
-	$arIBlocks[$arRes["ID"]] = $arRes["NAME"];
+$arIBlocks = ["-"=>" "];
+$iblockFilter = [
+	'ACTIVE' => 'Y',
+];
+if (!empty($arCurrentValues['IBLOCK_TYPE']))
+{
+	$iblockFilter['TYPE'] = $arCurrentValues['IBLOCK_TYPE'];
+}
+$rsIBlock = CIBlock::GetList(["SORT" => "ASC"], $iblockFilter);
+while($arr=$rsIBlock->Fetch())
+{
+	$arIBlocks[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
+}
 
-$arComponentParameters = array(
-	"GROUPS" => array(
-		"SETTINGS" => array(
+$arComponentParameters = [
+	"GROUPS" => [
+		"SETTINGS" => [
 			"NAME" => GetMessage("SUPPORT_FAQ_EL_GROUP_SETTINGS"),
 			"SORT" => 10,
-		),
-		"RATING_SETTINGS" => array(
+		],
+		"RATING_SETTINGS" => [
 			"NAME" => GetMessage("SUPPORT_RATING_SETTINGS"),
 			"SORT" => 20,
-		),
-	),
-	"PARAMETERS" => array(
-		"IBLOCK_TYPE" => Array(
+		],
+	],
+	"PARAMETERS" => [
+		"IBLOCK_TYPE" => [
 			"PARENT" => "SETTINGS",
 			"NAME" => GetMessage("SUPPORT_FAQ_EL_SETTING_IBTYPES"),
 			"TYPE" => "LIST",
@@ -37,8 +57,8 @@ $arComponentParameters = array(
 			"DEFAULT" => "-",
 			"REFRESH" => "Y",
 			"SORT" => 10,
-		),
-		"IBLOCK_ID" => Array(
+		],
+		"IBLOCK_ID" => [
 			"PARENT" => "SETTINGS",
 			"NAME" => GetMessage("SUPPORT_FAQ_EL_SETTING_IBLIST"),
 			"TYPE" => "LIST",
@@ -46,73 +66,59 @@ $arComponentParameters = array(
 			"DEFAULT" => "-",
 			"REFRESH" => "Y",
 			"SORT" => 20,
-		),
-		"SHOW_RATING" => array(
+		],
+		"SHOW_RATING" => [
 			"NAME" => GetMessage("SHOW_RATING"),
 			"TYPE" => "LIST",
-			"VALUES" => Array(
+			"VALUES" => [
 				"" => GetMessage("SHOW_RATING_CONFIG"),
 				"Y" => GetMessage("MAIN_YES"),
 				"N" => GetMessage("MAIN_NO"),
-			),
+			],
 			"MULTIPLE" => "N",
 			"DEFAULT" => "",
 			"PARENT" => "RATING_SETTINGS",
-		),
-		"RATING_TYPE" => Array(
+		],
+		"RATING_TYPE" => [
 			"NAME" => GetMessage("RATING_TYPE"),
 			"TYPE" => "LIST",
-			"VALUES" => Array(
+			"VALUES" => [
 				"" => GetMessage("RATING_TYPE_CONFIG"),
 				"like" => GetMessage("RATING_TYPE_LIKE_TEXT"),
 				"like_graphic" => GetMessage("RATING_TYPE_LIKE_GRAPHIC"),
 				"standart_text" => GetMessage("RATING_TYPE_STANDART_TEXT"),
 				"standart" => GetMessage("RATING_TYPE_STANDART_GRAPHIC"),
-			),
+			],
 			"MULTIPLE" => "N",
 			"DEFAULT" => "",
 			"PARENT" => "RATING_SETTINGS",
-		),
-		"PATH_TO_USER" => Array(
+		],
+		"PATH_TO_USER" => [
 			"NAME" => GetMessage("PATH_TO_USER"),
 			"TYPE" => "STRING",
 			"MULTIPLE" => "N",
 			"DEFAULT" => "",
 			"COLS" => 50,
 			"PARENT" => "RATING_SETTINGS",
-		),
-		"CACHE_TIME"  =>  Array("DEFAULT" => 36000000),
-		"CACHE_GROUPS" => array(
+		],
+		"CACHE_TIME"  =>  ["DEFAULT" => 36000000],
+		"CACHE_GROUPS" => [
 			"PARENT" => "CACHE_SETTINGS",
 			"NAME" => GetMessage("CP_BSFEL_CACHE_GROUPS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
-		),
-		"AJAX_MODE" => array(),
-	),
-);
+		],
+		"AJAX_MODE" => [],
+	],
+];
 
-if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])>0)
+if ($iblockExists)
 {
-	$arListSections = Array('-'=>'');
-	$arFilter = Array(
-		'IBLOCK_ID' => intval($arCurrentValues["IBLOCK_ID"]),
-		'GLOBAL_ACTIVE'=>'Y',
-		'IBLOCK_ACTIVE'=>'Y',
-	);
-	if(isset($arCurrentValues["IBLOCK_TYPE"]) && $arCurrentValues["IBLOCK_TYPE"]!='')
-		$arFilter['IBLOCK_TYPE'] = $arCurrentValues["IBLOCK_TYPE"];
-
-	$arSec = CIBlockSection::GetList(Array('LEFT_MARGIN'=>'ASC'), $arFilter, false, array("ID", "DEPTH_LEVEL", "NAME"));
-	while($arRes = $arSec->Fetch())
-		$arListSections[$arRes['ID']] = str_repeat(".", $arRes['DEPTH_LEVEL']).$arRes['NAME'];
-
-	$arComponentParameters["PARAMETERS"]["SECTION_ID"] = Array(
+	$arComponentParameters["PARAMETERS"]["SECTION_ID"] = [
 		"PARENT" => "SETTINGS",
 		"NAME" => GetMessage("SUPPORT_FAQ_EL_SETTING_SECTIONS_LIST"),
 		"TYPE" => "STRING",
 		"DEFAULT" => '={$_REQUEST["SECTION_ID"]}',
 		"SORT" => 30,
-	);
+	];
 }
-?>

@@ -1,6 +1,10 @@
-<?
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 use Bitrix\Main\ModuleManager;
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 
 $arThemes = array();
 if (ModuleManager::isModuleInstalled('bitrix.eshop'))
@@ -35,4 +39,3 @@ $arTemplateParameters['TEMPLATE_THEME'] = array(
 	'DEFAULT' => 'blue',
 	'ADDITIONAL_VALUES' => 'Y'
 );
-?>

@@ -139,6 +139,7 @@ Vue.component(config.templateRowName,
 							iblockId: Text.toNumber(this.options.iblockId),
 							basePriceId: Text.toNumber(this.options.basePriceId),
 							currency: this.options.currency,
+							isStoreCollectable: false,
 							isSimpleModel: (
 								Type.isStringFilled(this.basketItem.fields?.name)
 								&& productId <= 0
@@ -198,6 +199,7 @@ Vue.component(config.templateRowName,
 						properties: modelFields.PROPERTIES || {},
 						brands: modelFields.BRANDS || [],
 						taxId: modelFields.TAX_ID,
+						type: modelFields.TYPE,
 						morePhoto: modelFields.MORE_PHOTO,
 					};
 				},
@@ -433,40 +435,69 @@ Vue.component(config.templateRowName,
 				{
 					return Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code)
 				},
+				isCompilationMode(): boolean
+				{
+					return this.mode === FormMode.COMPILATION_READ_ONLY || this.mode === FormMode.COMPILATION;
+				},
 				getPriceValue()
 				{
-					return this.isEditableField(this.blocks.price)
-						? this.basketItem.fields.basePrice
-						: this.basketItem.catalogPrice
-					;
+					if (this.isCompilationMode())
+					{
+						return this.isEditableField(this.blocks.price)
+							? this.basketItem.fields.basePrice
+							: this.basketItem.catalogPrice
+						;
+					}
+
+					return this.basketItem.fields.basePrice;
 				},
 				getQuantityValue()
 				{
-					return this.isEditableField(this.blocks.quantity)
-						? this.basketItem.fields.quantity
-						: 1
-					;
+					if ((this.isCompilationMode()))
+					{
+						return this.isEditableField(this.blocks.quantity)
+							? this.basketItem.fields.quantity
+							: 1
+						;
+					}
+
+					return this.basketItem.fields.quantity;
 				},
 				getSumValue()
 				{
-					return this.isEditableField(this.blocks.result)
-						? this.basketItem.sum
-						: this.basketItem.catalogPrice
-					;
+					if ((this.isCompilationMode()))
+					{
+						return this.isEditableField(this.blocks.result)
+							? this.basketItem.sum
+							: this.basketItem.catalogPrice
+						;
+					}
+
+					return this.basketItem.sum;
 				},
 				getDiscountValue()
 				{
-					return this.isEditableField(this.blocks.discount)
-						? this.basketItem.fields.discount
-						: 0
-					;
+					if ((this.isCompilationMode()))
+					{
+						return this.isEditableField(this.blocks.discount)
+							? this.basketItem.fields.discount
+							: 0
+						;
+					}
+
+					return this.basketItem.fields.discount;
 				},
 				getDiscountRateValue()
 				{
-					return this.isEditableField(this.blocks.discount)
-						? this.basketItem.fields.discountRate
-						: 0
-					;
+					if ((this.isCompilationMode()))
+					{
+						return this.isEditableField(this.blocks.discount)
+							? this.basketItem.fields.discountRate
+							: 0
+						;
+					}
+
+					return this.basketItem.fields.discountRate;
 				},
 				hasError(code): boolean
 				{
@@ -669,7 +700,7 @@ Vue.component(config.templateRowName,
 					<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 				</div>
 				<div class="catalog-pf-product-item--left">
-					<div v-if="isVisibleBlock(blocks.productSelector)">
+					<div v-if="isVisibleBlock(blocks.productSelector)" class="catalog-pf-product-item-inline-selector">
 						<div v-if="!this.isReadOnly" class="catalog-pf-product-item-section">
 							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
 						</div>

@@ -6,6 +6,7 @@ $MESS["IM_APPS_SALESCENTER_BUTTON"] = "Start selling";
 $MESS["IM_AV_NEXT_VERSION"] = "This option will be available in the future versions.";
 $MESS["IM_BB_PUT"] = "Click to insert message in the text field";
 $MESS["IM_BB_SEND"] = "Click to perform action";
+$MESS["IM_BETA"] = "This and other new features are available in the beta version of the new chat. You can enable the new chat now in the chat settings.";
 $MESS["IM_BLOCK_BTN_ANSWER"] = "Reply";
 $MESS["IM_BLOCK_BTN_BLOCK"] = "Ban";
 $MESS["IM_BLOCK_BTN_UNBLOCK"] = "Unban";

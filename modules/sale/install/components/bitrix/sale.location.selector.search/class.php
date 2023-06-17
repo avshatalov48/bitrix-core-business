@@ -96,28 +96,24 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	 */
 	public function onPrepareComponentParams($arParams)
 	{
-		self::tryParseInt($arParams['ID']);
+		if (!is_array($arParams))
+		{
+			$arParams = [];
+		}
+
+		$arParams['ID'] = (int)($arParams['ID'] ?? 0);
+
 		self::tryParseString($arParams['CODE']);
 		self::tryParseString($arParams['INPUT_NAME'], 'LOCATION');
 		self::tryParseWhiteList($arParams['PROVIDE_LINK_BY'], array('id', 'code'));
-		self::tryParseInt($arParams['CACHE_TIME'], false, true);
+		$arParams['CACHE_TIME'] = (int)($arParams['CACHE_TIME'] ?? 0);
 
 		// filter
-		self::tryParseInt($arParams['EXCLUDE_SUBTREE']);
-		self::tryParseBoolean($arParams['SEARCH_BY_PRIMARY']);
+		$arParams['EXCLUDE_SUBTREE'] = (int)($arParams['EXCLUDE_SUBTREE'] ?? 0); // hidden parameter (from child components)
+		$arParams['SEARCH_BY_PRIMARY'] = ($arParams['SEARCH_BY_PRIMARY'] ?? 'N') === 'Y'; // hidden parameter
 
 		// which site it is
-		if(empty($arParams['FILTER_SITE_ID']) || !is_string($arParams['FILTER_SITE_ID']) || $arParams['FILTER_SITE_ID'] === 'current')
-		{
-			$arParams['FILTER_SITE_ID'] = SITE_ID; //todo: it looks like a bug for admin pages, where SITE_ID == 'ru'.
-		}
-		else
-		{
-			$arParams['FILTER_SITE_ID'] = mb_substr(self::tryParseStringStrict($arParams['FILTER_SITE_ID']), 0, 2);
-		}
-
-		self::tryParseBoolean($arParams['FILTER_BY_SITE']);
-		self::tryParseBoolean($arParams['SHOW_DEFAULT_LOCATIONS']);
+		$arParams = $this->prepareSiteFilterParams($arParams);
 
 		// the code below should not be here, is should belong to a template
 		self::tryParseString($arParams['RANDOM_TAG']);
@@ -126,6 +122,53 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		self::tryParseStringStrict($arParams['JS_CALLBACK']);
 
 		return $arParams;
+	}
+
+	protected function prepareSiteFilterParams(array $params): array
+	{
+		$request = Main\Context::getCurrent()->getRequest();
+		$adminSection = $request->isAdminSection();
+
+		if ($adminSection)
+		{
+			$params['FILTER_BY_SITE'] ??= 'N';
+			$params['FILTER_SITE_ID'] ??= '';
+			if ($params['FILTER_SITE_ID'] === 'current')
+			{
+				$params['FILTER_SITE_ID'] = '';
+			}
+
+			if ($params['FILTER_SITE_ID'] === '')
+			{
+				$params['FILTER_BY_SITE'] = 'N';
+			}
+		}
+
+		$params['FILTER_BY_SITE'] = ($params['FILTER_BY_SITE'] ?? 'N') === 'Y';
+		$params['FILTER_SITE_ID'] = (string)($params['FILTER_SITE_ID'] ?? '');
+		if ($params['FILTER_BY_SITE'])
+		{
+			if (empty($params['FILTER_SITE_ID']) || $params['FILTER_SITE_ID'] === 'current')
+			{
+				$params['FILTER_SITE_ID'] = SITE_ID; // not for admin page
+			}
+			else
+			{
+				$params['FILTER_SITE_ID'] = mb_substr(
+					self::tryParseStringStrict($params['FILTER_SITE_ID']),
+					0,
+					2
+				);
+			}
+		}
+		else
+		{
+			$params['FILTER_SITE_ID'] = '';
+		}
+
+		$params['SHOW_DEFAULT_LOCATIONS'] = ($params['SHOW_DEFAULT_LOCATIONS'] ?? 'N') === 'Y';
+
+		return $params;
 	}
 
 	/**
@@ -138,7 +181,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	protected function checkParameters()
 	{
-		if($this->arParams['FILTER_BY_SITE'])
+		if ($this->arParams['FILTER_BY_SITE'])
 		{
 			$g = Location\SiteLocationTable::checkLinkUsage($this->arParams['FILTER_SITE_ID'], Location\Connector::DB_LOCATION_FLAG);
 			$l = Location\SiteLocationTable::checkLinkUsage($this->arParams['FILTER_SITE_ID'], Location\Connector::DB_GROUP_FLAG);
@@ -152,9 +195,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function forces 'Y'/'N' value to boolean
 	 * @param mixed $fld Field value
-	 * @param string $default Default value
 	 * @return string parsed value
 	 */
 	public static function tryParseBoolean(&$fld)
@@ -164,9 +208,11 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function processes parameter value by white list, if gets null, passes the first value in white list
 	 * @param mixed $fld Field value
-	 * @param string $default Default value
+	 * @param array $list Whitelist
 	 * @return string parsed value
 	 */
 	public static function tryParseWhiteList(&$fld, $list = array())
@@ -178,6 +224,8 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function reduces input value to integer type, and, if gets null, passes the default value
 	 * @param mixed $fld Field value
 	 * @param int $default Default value
@@ -194,6 +242,8 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function processes string value and, if gets null, passes the default value to it
 	 * @param mixed $fld Field value
 	 * @param string $default Default value
@@ -211,6 +261,8 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
+	 *
 	 * Function processes string value and, if gets null, passes the default value to it
 	 * @param mixed $fld Field value
 	 * @param string $default Default value
@@ -349,13 +401,28 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	protected function obtainDataLocationTypes(&$cachedData)
 	{
-		$res = Location\TypeTable::getList(array('select' => array('ID', 'CODE'), 'order' => array('SORT' => 'asc')));
+		$result = [];
+		$res = Location\TypeTable::getList([
+			'select' => [
+				'ID',
+				'CODE',
+				'SORT',
+			],
+			'order' => [
+				'SORT' => 'ASC',
+				'ID' => 'ASC',
+			],
+		]);
 		while($item = $res->fetch())
 		{
-			$id = $item['ID'];
-			unset($item['ID']);
-			$cachedData['TYPES'][$id] = $item;
+			$id = (int)$item['ID'];
+			$result[$id] = [
+				'CODE' => $item['CODE'],
+			];
 		}
+		unset($item, $res);
+
+		$cachedData['TYPES'] = $result;
 	}
 
 	protected function obtainDataConnectLocations(&$cachedData)
@@ -443,14 +510,26 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	protected function obtainDataAdditional()
 	{
-		if($this->filterBySite && $this->dbResult['LOCATION']['ID'])
+		if ($this->filterBySite && !empty($this->dbResult['LOCATION']['ID']))
 		{
-			$linkTypeMap = Location\SiteLocationTable::getLinkStatusForMultipleNodes(array($this->dbResult['LOCATION']), $this->arParams['FILTER_SITE_ID'], $this->dbResult['TEMP']['CONNECTORS']);
+			$linkTypeMap = Location\SiteLocationTable::getLinkStatusForMultipleNodes(
+				[
+					$this->dbResult['LOCATION'],
+				],
+				$this->arParams['FILTER_SITE_ID'],
+				$this->dbResult['TEMP']['CONNECTORS']
+			);
 
-			if(!in_array($linkTypeMap[$this->dbResult['LOCATION']['ID']], array(Location\Connector::LSTAT_IS_CONNECTOR, Location\Connector::LSTAT_BELOW_CONNECTOR)))
+			if (!in_array(
+				$linkTypeMap[$this->dbResult['LOCATION']['ID']],
+				[
+					Location\Connector::LSTAT_IS_CONNECTOR,
+					Location\Connector::LSTAT_BELOW_CONNECTOR,
+				]
+			))
 			{
-				$this->dbResult['PATH'] = array();
-				$this->dbResult['LOCATION'] = array();
+				$this->dbResult['PATH'] = [];
+				$this->dbResult['LOCATION'] = [];
 				$this->errors['NONFATAL'][] = Loc::getMessage('SALE_SLS_SELECTED_NODE_NOT_FOUND');
 			}
 		}
@@ -458,7 +537,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	protected function getCacheDependences()
 	{
-		return	array(
+		return array(
 					static::getClassName().
 					self::getStrForVariable($this->arParams['FILTER_BY_SITE']), // $this->filterBySite ???
 					self::getStrForVariable($this->arParams['FILTER_SITE_ID']),
@@ -606,6 +685,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		{
 			$parameters['filter'] = [];
 		}
+		if(!isset($parameters['additionals']))
+		{
+			$parameters['additionals'] = [];
+		}
 
 		// check select
 		if(!is_array($parameters['select']))
@@ -696,42 +779,54 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		// drop data that should not go to find()
 		$clean = $parameters;
 
-		// dont get NAME if there is PATH, kz we`ll get NAMES after all
-		if(is_array($clean['select']) && is_array($parameters['additionals']) && in_array('PATH', $parameters['additionals']))
+		// don't get NAME if there is PATH, kz we`ll get NAMES after all
+		if (
+			isset($clean['select'])
+			&& is_array($clean['select'])
+			&& isset($parameters['additionals'])
+			&& is_array($parameters['additionals'])
+			&& in_array('PATH', $parameters['additionals'])
+		)
 		{
 			//unset($clean['filter']['=NAME.LANGUAGE_ID']);
 			//unset($clean['filter']['NAME.LANGUAGE_ID']);
 
-			foreach($clean['select'] as $alias => $field)
+			foreach ($clean['select'] as $alias => $field)
 			{
-				if($field == 'NAME.NAME')
+				if ($field === 'NAME.NAME')
 				{
 					unset($clean['select'][$alias]);
 				}
 			}
 		}
 
-		if(intval($clean['filter']['=GROUPLOCATION.LOCATION_GROUP_ID']))
+		if (
+			isset($clean['filter']['=GROUPLOCATION.LOCATION_GROUP_ID'])
+			&& (int)$clean['filter']['=GROUPLOCATION.LOCATION_GROUP_ID'] > 0
+		)
 		{
-			$clean['runtime']['GROUPLOCATION'] = array(
+			$clean['runtime'] ??= [];
+			$clean['runtime']['GROUPLOCATION'] = [
 				'data_type' => 'Bitrix\Sale\Location\GroupLocationTable',
-				'reference' => array(
-					'=this.ID' => 'ref.LOCATION_ID'
-				)
-			);
+				'reference' => [
+					'=this.ID' => 'ref.LOCATION_ID',
+				],
+			];
 		}
 
 		unset($clean['additionals']);
 
+		$clean['select'] ??= [];
 		$clean['select'][] = 'LEFT_MARGIN';
 		$clean['select'][] = 'RIGHT_MARGIN';
 		$clean['select'][] = 'ID';
+
 		return $clean;
 	}
 
 	protected static function processSearchRequestV2GetFinderBehaviour()
 	{
-		return array();
+		return [];
 	}
 
 	public static function processSearchRequestV2($parameters)
@@ -740,9 +835,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		$parameters = static::processSearchRequestV2CheckQuery($parameters);
 
 		// map page & page_size => limit & offset
-		if($pageSize = intval($parameters['PAGE_SIZE']))
+		$pageSize = (int)($parameters['PAGE_SIZE'] ?? null);
+		if ($pageSize > 0)
 		{
-			$page = intval($parameters['PAGE']);
+			$page = (int)($parameters['PAGE'] ?? null);
 
 			$parameters['limit'] = $pageSize;
 			$parameters['offset'] = ($page ? $page * $pageSize : 0);
@@ -759,7 +855,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 			'ETC' => array()
 		);
 
-		$result = Location\Search\Finder::find(static::processSearchRequestV2ModifyParameters($parameters), static::processSearchRequestV2GetFinderBehaviour());
+		$result = Location\Search\Finder::find(
+			static::processSearchRequestV2ModifyParameters($parameters),
+			static::processSearchRequestV2GetFinderBehaviour()
+		);
 
 		while($item = $result->fetch())
 		{
@@ -767,8 +866,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 			if(!isset($item['ID']))
 				$item['ID'] = $item['VALUE'];
 
-			if(intval($item['CHILD_CNT']) > 0)
+			if ((int)($item['CHILD_CNT'] ?? 0) > 0)
+			{
 				$item['IS_PARENT'] = true;
+			}
 
 			unset($item['CHILD_CNT']);
 			$data['ITEMS'][] = $item;
@@ -1014,7 +1115,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		$cacheId['LANGUAGE_ID'] = LANGUAGE_ID;
 
 		// if there are two or more caches with the same id, but with different cache_time, make them separate
-		$cacheId['CACHE_TIME'] = intval($this->arResult['CACHE_TIME']);
+		$cacheId['CACHE_TIME'] = (int)$this->arParams['CACHE_TIME'];
 
 		if(defined("SITE_TEMPLATE_ID"))
 			$cacheId['SITE_TEMPLATE_ID'] = SITE_TEMPLATE_ID;

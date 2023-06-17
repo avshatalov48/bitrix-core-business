@@ -299,7 +299,7 @@ class CUtil
 				$token = mb_substr($data, 1, $end_pos - 1);
 
 				$arTokens = array();
-				if (count($arCommaPos) > 0)
+				if (!empty($arCommaPos))
 				{
 					$prev_index = 0;
 					foreach ($arCommaPos as $pos)
@@ -319,9 +319,11 @@ class CUtil
 					$arTokenData = explode(":", $token, 2);
 
 					$q = mb_substr($arTokenData[0], 0, 1);
-					if ($q == '"' || $q == '"')
+					if ($q == '"')
+					{
 						$arTokenData[0] = mb_substr($arTokenData[0], 1, -1);
-					$arResult[CUtil::JsObjectToPhp($arTokenData[0], true)] = CUtil::JsObjectToPhp($arTokenData[1], true);
+					}
+					$arResult[CUtil::JsObjectToPhp($arTokenData[0], true)] = CUtil::JsObjectToPhp($arTokenData[1] ?? null, true);
 				}
 			}
 			elseif (mb_substr($data, 0, 1) == '[') // array
@@ -381,7 +383,7 @@ class CUtil
 
 				$token = mb_substr($data, 1, $end_pos - 1);
 
-				if (count($arCommaPos) > 0)
+				if (!empty($arCommaPos))
 				{
 					$prev_index = 0;
 					foreach ($arCommaPos as $pos)
@@ -411,7 +413,7 @@ class CUtil
 					$data = mb_substr($data, 1, -1);
 
 				//\u0412\u0430\u0434\u0438\u043c
-				if(mb_strpos($data, '\u') !== false)
+				if(strpos($data, '\u') !== false)
 					$data = preg_replace_callback("/\\\u([0-9A-F]{2})([0-9A-F]{2})/i", array('CUtil', 'DecodeUtf16'), $data);
 
 				$arResult = $data;
@@ -429,12 +431,13 @@ class CUtil
 
 	public static function JSPostUnescape()
 	{
-	    if(!static::$alreadyDecodedRequest)
-	    {
-		    static::$alreadyDecodedRequest = true;
-		    CUtil::decodeURIComponent($_POST);
-		    CUtil::decodeURIComponent($_REQUEST);
-	    }
+		if (!static::$alreadyDecodedRequest)
+		{
+			static::$alreadyDecodedRequest = true;
+			CUtil::decodeURIComponent($_POST);
+			CUtil::decodeURIComponent($_REQUEST);
+			CUtil::decodeURIComponent($_FILES);
+		}
 	}
 
 	public static function decodeURIComponent(&$item)

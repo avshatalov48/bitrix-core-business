@@ -41,13 +41,14 @@ final class LazySessionStart implements \ArrayAccess
 		Application::getInstance()->getSession()->start();
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		$this->start();
 
 		return isset($_SESSION[$offset]);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function &offsetGet($offset)
 	{
 		$this->start();
@@ -55,14 +56,14 @@ final class LazySessionStart implements \ArrayAccess
 		return $_SESSION[$offset];
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->start();
 
 		$_SESSION[$offset] = $value;
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		$this->start();
 

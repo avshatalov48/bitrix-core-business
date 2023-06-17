@@ -138,12 +138,19 @@ if($strWarning == "")
 			unset($aPostValues["bxpiwidth"]);
 
 			CComponentUtil::PrepareVariables($aPostValues);
-			foreach($aPostValues as $name => $value)
+			foreach ($aPostValues as $name => $value)
 			{
-				if(is_array($value) && count($value) == 1 && isset($value[0]) && $value[0] == "")
-					$aPostValues[$name] = array();
-				elseif($bLimitPhpAccess && mb_substr($value, 0, 2) == '={' && mb_substr($value, -1) == '}')
+				if (is_array($value))
+				{
+					if (count($value) == 1 && isset($value[0]) && $value[0] == "")
+					{
+						$aPostValues[$name] = [];
+					}
+				}
+				elseif ($bLimitPhpAccess && mb_substr($value, 0, 2) == '={' && mb_substr($value, -1) == '}')
+				{
 					$aPostValues[$name] = $arValues[$name];
+				}
 			}
 
 			//check template name

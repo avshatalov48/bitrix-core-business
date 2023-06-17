@@ -13,7 +13,7 @@ class SystemException extends \Exception
 	 * @param int $code
 	 * @param string $file
 	 * @param int $line
-	 * @param \Exception $previous
+	 * @param \Exception | null $previous
 	 */
 	public function __construct($message = "", $code = 0, $file = "", $line = 0, \Exception $previous = null)
 	{
@@ -74,7 +74,7 @@ class ArgumentOutOfRangeException extends ArgumentException
 	 * @param string $parameter Argument that generates exception
 	 * @param null $lowerLimit Either lower limit of the allowable range of values or an array of allowable values
 	 * @param null $upperLimit Upper limit of the allowable values
-	 * @param \Exception $previous
+	 * @param \Exception | null $previous
 	 */
 	public function __construct($parameter, $lowerLimit = null, $upperLimit = null, \Exception $previous = null)
 	{
@@ -108,7 +108,7 @@ class ArgumentOutOfRangeException extends ArgumentException
 
 
 /**
- * Exception is thrown when the type of an argument is not accepted by function.
+ * Exception is thrown when the type of argument is not accepted by function.
  */
 class ArgumentTypeException	extends ArgumentException
 {
@@ -119,7 +119,7 @@ class ArgumentTypeException	extends ArgumentException
 	 *
 	 * @param string $parameter Argument that generates exception
 	 * @param string $requiredType Required type
-	 * @param \Exception $previous
+	 * @param \Exception | null $previous
 	 */
 	public function __construct($parameter, $requiredType = "", \Exception $previous = null)
 	{

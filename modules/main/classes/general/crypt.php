@@ -118,7 +118,7 @@ class CCrypt
 		if (empty($text))
 		{
 			$this->errorMessage = "Empty source text";
-			return False;
+			return false;
 		}
 
 		$cipher = false;
@@ -145,7 +145,7 @@ class CCrypt
 		if (empty($cipher))
 		{
 			$this->errorMessage = "Empty cipher text";
-			return False;
+			return false;
 		}
 
 		$text = false;
@@ -440,7 +440,7 @@ class CSteganos
 			if ($this->level < 1 || $this->level > 4)
 			{
 				$this->errorMessage = "The encryption level is out of range";
-				return False;
+				return false;
 			}
 
 			$containerSize = filesize($this->containerFile);
@@ -449,10 +449,10 @@ class CSteganos
 			if (($containerSize - 55) < $totalSize)
 			{
 				$this->errorMessage = "The bitmap file '".$this->containerFile."' is too small to carry the input data";
-				return False;
+				return false;
 			}
 		}
-		return True;
+		return true;
 	}
 
 	function __OpenContainer()
@@ -704,7 +704,7 @@ class CSteganos
 			$this->dataSize = mb_strlen($this->containerData) - mb_strlen($endStr) - 32 - $this->offset;
 		}
 
-		return True;
+		return true;
 	}
 
 	function __ConvertBitStringToBinary($bitStr)

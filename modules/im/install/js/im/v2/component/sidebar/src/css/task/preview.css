@@ -1,0 +1,54 @@
+.bx-im-sidebar-task-preview__scope {
+	--im-sidebar-task-preview__background_skeleton: url('../images/task-skeleton.svg');
+	--im-sidebar-task-preview__color_not-active-title: #959ca4;
+}
+
+.bx-im-sidebar-task-preview__container {
+	display: flex;
+	flex-direction: column;
+	height: 118px;
+	padding: 10px 12px 16px 12px;
+}
+
+.bx-im-sidebar-task-preview__title {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-task-preview__skeleton {
+	height: 118px;
+	background: var(--im-sidebar-task-preview__background_skeleton)
+}
+
+.bx-im-sidebar-task-preview__header_container {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.bx-im-sidebar-task-preview__header_container.--active {
+	cursor: pointer;
+}
+
+.bx-im-sidebar-task-preview__title-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-task-preview__color_not-active-title);
+	margin: 0 3px 0 2px;
+}
+
+.bx-im-sidebar-task-preview__header_container.--active .bx-im-sidebar-task-preview__title-text {
+	color: inherit;
+}
+
+.bx-im-sidebar-task-preview__header_container:hover .bx-im-sidebar__forward-icon {
+	opacity: 0.7;
+}
+
+.bx-im-sidebar-task-preview__title-button {
+	margin-right: 2px;
+}
+
+.bx-im-sidebar-task-preview__container .bx-im-sidebar-detail-empty-state__container {
+	margin-top: 7px;
+}

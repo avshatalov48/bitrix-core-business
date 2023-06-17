@@ -184,30 +184,13 @@
 	      return this.formatDate(this.message.date);
 	    },
 	    messageText: function messageText() {
-	      var _this2 = this;
 	      if (this.isDeleted) {
 	        return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_DELETED');
 	      }
-	      var message = this.message.textConverted;
+	      var message = this.message.textConverted ? this.message.textConverted : im_lib_utils.Utils.text.decode(this.message.text);
 	      var messageParams = this.message.params;
-	      var replacement = [];
-	      message = message.replace(/<!--IM_COMMAND_START-->([\0-\uFFFF]+?)<!--IM_COMMAND_END-->/ig, function (whole, text) {
-	        var id = replacement.length;
-	        replacement.push(text);
-	        return '####REPLACEMENT_' + id + '####';
-	      });
-	      message = message.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
-	        if (!userName) {
-	          var user = _this2.$store.getters['users/get'](userId);
-	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : 'User ' + userId;
-	        }
-	        return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
-	      });
-	      replacement.forEach(function (value, index) {
-	        message = message.replace('####REPLACEMENT_' + index + '####', value);
-	      });
 	      if (typeof messageParams.LINK_ACTIVE !== 'undefined' && messageParams.LINK_ACTIVE.length > 0 && !messageParams.LINK_ACTIVE.includes(this.userId)) {
-	        message = message.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/ig, '$2');
+	        message = message.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/gi, '$2');
 	      }
 	      return message;
 	    },
@@ -234,7 +217,7 @@
 	      return this.$store.getters['users/get'](this.message.authorId, true);
 	    },
 	    filesData: function filesData() {
-	      var _this3 = this;
+	      var _this2 = this;
 	      var files = [];
 	      if (!this.message.params.FILE_ID || this.message.params.FILE_ID.length <= 0) {
 	        return files;
@@ -243,15 +226,15 @@
 	        if (!fileId) {
 	          return false;
 	        }
-	        var file = _this3.$store.getters['files/get'](_this3.chatId, fileId, true);
+	        var file = _this2.$store.getters['files/get'](_this2.chatId, fileId, true);
 	        if (!file) {
-	          _this3.$store.commit('files/set', {
-	            data: [_this3.$store.getters['files/getBlank']({
+	          _this2.$store.commit('files/set', {
+	            data: [_this2.$store.getters['files/getBlank']({
 	              id: fileId,
-	              chatId: _this3.chatId
+	              chatId: _this2.chatId
 	            })]
 	          });
-	          file = _this3.$store.getters['files/get'](_this3.chatId, fileId, true);
+	          file = _this2.$store.getters['files/get'](_this2.chatId, fileId, true);
 	        }
 	        if (file) {
 	          files.push(file);

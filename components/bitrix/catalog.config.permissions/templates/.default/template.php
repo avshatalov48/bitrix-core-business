@@ -120,11 +120,13 @@ $APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 	});
 
 	AccessRights.draw();
-	setTimeout(function() {
+	
+	BX.ready(function() {
+		setTimeout(function() {
 			BX.onCustomEvent('<?= $initPopupEvent ?>', [{
 				openDialogWhenInit: false,
 				multiple: true
 			}]);
-		},
-	200);
+		});
+	});
 </script>

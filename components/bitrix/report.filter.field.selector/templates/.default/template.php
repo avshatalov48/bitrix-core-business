@@ -35,14 +35,9 @@ foreach ($arResult['SELECTOR_ITEMS'] as $selectorConfig)
 					\Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/crm/css/crm.css');
 					\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/crm.js');
 				}
-
-				$selectorConfig['MESSAGES'] = array(
+				$selectorConfig['MESSAGES'] = is_array($selectorConfig['MESSAGES']) ? $selectorConfig['MESSAGES'] : [];
+				$selectorConfig['MESSAGES'] += [
 					'choise' => GetMessage('CRM_FF_CHOISE'),
-					'lead' => GetMessage('CRM_FF_LEAD'),
-					'contact' => GetMessage('CRM_FF_CONTACT'),
-					'company' => GetMessage('CRM_FF_COMPANY'),
-					'deal' => GetMessage('CRM_FF_DEAL'),
-					'quote' => GetMessage('CRM_FF_QUOTE'),
 					'ok' => GetMessage('CRM_FF_OK'),
 					'cancel' => GetMessage('CRM_FF_CANCEL'),
 					'close' => GetMessage('CRM_FF_CLOSE'),
@@ -52,7 +47,7 @@ foreach ($arResult['SELECTOR_ITEMS'] as $selectorConfig)
 					'edit' => GetMessage('CRM_FF_CHANGE'),
 					'search' => GetMessage('CRM_FF_SEARCH'),
 					'last' => GetMessage('CRM_FF_LAST')
-				);
+				];
 ?>
 		BX.Report.FilterFieldSelectorManager.addSelector(<?=CUtil::PhpToJSObject($selectorConfig)?>);
 <?php

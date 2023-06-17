@@ -1,15 +1,24 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\ExtraServices;
 use Bitrix\Sale\Delivery\ExtraServices\Base;
 
 Loc::loadMessages(__FILE__);
-Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
+
+$request = Main\Context::getCurrent()->getRequest();
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
-$backUrl = isset($_GET["back_url"]) ? $_GET["back_url"] : $selfFolderUrl."sale_delivery_service_list.php?lang=".LANGUAGE_ID;
+$backUrl = trim((string)($request->get('back_url') ?? $selfFolderUrl . 'sale_delivery_service_list.php?lang=' . LANGUAGE_ID));
 $backUrl = $adminSidePanelHelper->editUrlToPublicPage($backUrl);
 
 /** @var  CMain $APPLICATION */
@@ -20,14 +29,14 @@ if ($saleModulePermissions < "W")
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = isset($_REQUEST["ID"]) ? intval($_REQUEST["ID"]) : 0;
-$strError = "";
-$fields = array(
-	"RIGHTS" => "YYY"
-);
-$tabControlName = "tabControl";
-$isItSavingProcess = ($_SERVER['REQUEST_METHOD'] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '')) ? true : false;
-$isFormReloading = $_SERVER['REQUEST_METHOD'] == "POST" && !$isItSavingProcess;
+$ID = (int)$request->get('ID');
+$strError = '';
+$fields = [
+	'RIGHTS' => 'YYY',
+];
+$tabControlName = 'tabControl';
+$isItSavingProcess = $request->isPost() && ($request->getPost('save') !== null || $request->getPost('apply') !== null);
+$isFormReloading = $request->isPost() && !$isItSavingProcess;
 
 if($saleModulePermissions == "W" && check_bitrix_sessid())
 {
@@ -113,13 +122,13 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 			if($strError == '')
 			{
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-				if ($_POST["apply"] <> '')
+				if ($request->getPost('apply') !== null)
 				{
 					$applyUrl = $APPLICATION->GetCurPageParam("ID=".$ID, array('ID'));
 					$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 					LocalRedirect($applyUrl);
 				}
-				elseif($_POST["save"] <> '')
+				elseif($request->getPost('save') !== null)
 				{
 					$adminSidePanelHelper->localRedirect($backUrl);
 					LocalRedirect($backUrl);
@@ -187,7 +196,7 @@ if($deliveryService && $ID <= 0)
 				$fields["RIGHTS"] = "NYY";
 		}
 	}
-	elseif(isset($_REQUEST["CLASS_NAME"]) && $_REQUEST["CLASS_NAME"] <> '')
+	elseif(isset($_REQUEST["CLASS_NAME"]) && is_string($_REQUEST["CLASS_NAME"]) && $_REQUEST["CLASS_NAME"] !== '')
 	{
 		if(!is_subclass_of($_REQUEST["CLASS_NAME"], Base::class))
 		{
@@ -197,11 +206,14 @@ if($deliveryService && $ID <= 0)
 		}
 
 		$fields["CLASS_NAME"] = $_REQUEST["CLASS_NAME"];
-		$fields["ID"] = strval(time());
+		$fields["ID"] = (string)time();
 		$fields["RIGHTS"] = "YYY";
 		$fields["ACTIVE"] = "Y";
 	}
 }
+
+$fields['NAME'] ??= '';
+$fields['DESCRIPTION'] ??= '';
 
 $aTabs = array(
 	array(

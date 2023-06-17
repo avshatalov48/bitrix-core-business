@@ -15,27 +15,20 @@ this.BX = this.BX || {};
 	    this.countersWrap = options.countersWrap;
 	    this.bindEvents();
 	  }
-
 	  bindEvents() {
 	    main_core_events.EventEmitter.subscribe('BX.UI.CounterPanel.Item:activate', this.onActivateItem.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.UI.CounterPanel.Item:deactivate', this.onDeactivateItem.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApply.bind(this));
 	  }
-
 	  onActivateItem(event) {
 	    const item = event.getData();
-
 	    if (item.id === 'invitation') {
-	      this.search.filterApi.setFilter({
-	        preset_id: "filter_calendar_meeting_status_q"
-	      });
+	      this.search.setPresetInvitation();
 	    }
 	  }
-
 	  onDeactivateItem(event) {
-	    this.search.resetFilter();
+	    this.search.resetPreset();
 	  }
-
 	  recalculateCounters() {
 	    Object.entries(this.counters).forEach(([code, data]) => {
 	      const item = this.getItemById(code);
@@ -43,27 +36,22 @@ this.BX = this.BX || {};
 	      item.updateColor(data.color);
 	    });
 	  }
-
 	  markCounters() {
 	    Object.entries(this.counters).forEach(([code, data]) => {
 	      const item = this.getItemById(code);
-
 	      if (item.id === 'invitation') {
 	        this.fields['MEETING_STATUS'] === 'Q' ? item.activate(false) : item.deactivate(false);
 	      }
 	    });
 	  }
-
 	  setCountersValue(counters) {
 	    this.counters = counters;
 	    this.recalculateCounters();
 	  }
-
 	  onFilterApply() {
 	    this.fields = this.search.filter.getFilterFieldsValues();
 	    this.markCounters();
 	  }
-
 	  static getCountersValue(counters) {
 	    return Object.entries(counters).map(([code, item]) => {
 	      return {
@@ -74,13 +62,11 @@ this.BX = this.BX || {};
 	      };
 	    });
 	  }
-
 	  static getCountersName(type) {
 	    if (type === 'invitation') {
 	      return main_core.Loc.getMessage('EC_COUNTER_INVITATION');
 	    }
 	  }
-
 	}
 
 	exports.Counters = Counters;

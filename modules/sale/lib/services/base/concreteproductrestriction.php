@@ -14,7 +14,7 @@ Loc::loadMessages(__FILE__);
  * Abstract restriction by concrete products
  * @package Bitrix\Sale\Services\Base
  */
-abstract class ConcreteProductRestriction extends Base
+abstract class ConcreteProductRestriction extends Restriction
 {
 	/**
 	 * Return js object name that must have 'addRestrictionByConcreteProduct(nodeId, id, name)'
@@ -63,6 +63,11 @@ abstract class ConcreteProductRestriction extends Base
 	public static function getClassTitle() : string
 	{
 		return Loc::getMessage("SALE_BASE_RESTRICTION_BY_PRODUCT");
+	}
+
+	public static function getOnApplyErrorMessage(): string
+	{
+		return Loc::getMessage('SALE_BASE_RESTRICTION_BY_PRODUCT_ON_APPLY_ERROR_MSG');
 	}
 
 	/**

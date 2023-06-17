@@ -6,6 +6,7 @@
  * @copyright  2001-2020 Bitrix
  */
 
+use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\AutoWire\Parameter;
@@ -20,7 +21,7 @@ use Bitrix\Main\SystemException;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/start.php");
 
-$application = \Bitrix\Main\Application::getInstance();
+$application = Main\Application::getInstance();
 $application->initializeExtendedKernel(array(
 	"get" => $_GET,
 	"post" => $_POST,
@@ -30,10 +31,8 @@ $application->initializeExtendedKernel(array(
 	"env" => $_ENV
 ));
 
-$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-
-$routes = new RoutingConfigurator;
-$router = new Router;
+$routes = new RoutingConfigurator();
+$router = new Router();
 $routes->setRouter($router);
 $application->setRouter($router);
 
@@ -41,7 +40,7 @@ $application->setRouter($router);
 $files = [];
 
 // user files
-$routingConfig = \Bitrix\Main\Config\Configuration::getInstance()->get('routing');
+$routingConfig = Main\Config\Configuration::getInstance()->get('routing');
 if (!empty($routingConfig['config']))
 {
 	$fileNames = $routingConfig['config'];
@@ -79,7 +78,7 @@ CompileCache::handle($files, $router);
 $request = Context::getCurrent()->getRequest();
 $route = $router->match($request);
 
-if (!empty($route))
+if ($route !== null)
 {
 	$application->setCurrentRoute($route);
 
@@ -90,11 +89,10 @@ if (!empty($route))
 		{
 			$_GET[$name] = $value;
 			$_REQUEST[$name] = $value;
-			$request->set($name, $value);
-			$request->getQueryList()->set($name, $value);
 		}
 	}
 
+	$_SERVER["REAL_FILE_PATH"] = '/bitrix/routing_index.php';
 	$controller = $route->getController();
 
 	if ($controller instanceof PublicPageController)
@@ -103,31 +101,28 @@ if (!empty($route))
 		$io = CBXVirtualIo::GetInstance();
 
 		$_SERVER["REAL_FILE_PATH"] = $controller->getPath();
-		Context::getCurrent()->getServer()->set('REAL_FILE_PATH', $controller->getPath());
 
 		include_once($io->GetPhysicalName($_SERVER['DOCUMENT_ROOT'].$controller->getPath()));
 		die;
 	}
 	elseif ($controller instanceof \Closure)
 	{
-		$b = \Bitrix\Main\Engine\AutoWire\Binder::buildForFunction($controller);
+		$binder = Main\Engine\AutoWire\Binder::buildForFunction($controller);
 
 		// pass current route
-		$b->appendAutoWiredParameter(new Parameter(
-			\Bitrix\Main\Routing\Route::class, function () use ($route) {
-				return $route;
-			}
+		$binder->appendAutoWiredParameter(new Parameter(
+			Main\Routing\Route::class,
+			fn () => $route
 		));
 
 		// pass request
-		$b->appendAutoWiredParameter(new Parameter(
-			\Bitrix\Main\HttpRequest::class, function () use ($request) {
-			return $request;
-		}
+		$binder->appendAutoWiredParameter(new Parameter(
+			Main\HttpRequest::class,
+			fn () => Context::getCurrent()->getRequest()
 		));
 
 		// pass named parameters
-		$b->setSourcesParametersToMap([
+		$binder->setSourcesParametersToMap([
 			$route->getParametersValues()->getValues()
 		]);
 
@@ -135,12 +130,12 @@ if (!empty($route))
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 		// call
-		$result = $b->invoke();
+		$result = $binder->invoke();
 
 		// send response
 		if ($result !== null)
 		{
-			if ($result instanceof \Bitrix\Main\HttpResponse)
+			if ($result instanceof Main\HttpResponse)
 			{
 				// ready response
 				$response = $result;
@@ -153,7 +148,7 @@ if (!empty($route))
 			else
 			{
 				// string
-				$response = new \Bitrix\Main\HttpResponse;
+				$response = new Main\HttpResponse;
 				$response->setContent($result);
 			}
 
@@ -169,18 +164,18 @@ if (!empty($route))
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 		// classic controller
-		list($controllerClass, $actionName) = $controller;
+		[$controllerClass, $actionName] = $controller;
 		Loader::requireClass($controllerClass);
 
-		if (is_subclass_of($controllerClass, \Bitrix\Main\Engine\Controller::class))
+		if (is_subclass_of($controllerClass, Main\Engine\Controller::class))
 		{
-			if (substr($actionName, -6) == 'Action')
+			if (substr($actionName, -6) === 'Action')
 			{
 				$actionName = substr($actionName, 0, -6);
 			}
 
-			/** @var \Bitrix\Main\HttpApplication $app */
-			$app = \Bitrix\Main\Application::getInstance();
+			/** @var Main\HttpApplication $app */
+			$app = Main\Application::getInstance();
 			$app->runController($controllerClass, $actionName);
 		}
 	}
@@ -202,8 +197,8 @@ if (!empty($route))
 				$controllerClass = $actionClass::getControllerClass();
 				$actionName = $actionClass::getDefaultName();
 
-				/** @var \Bitrix\Main\HttpApplication $app */
-				$app = \Bitrix\Main\Application::getInstance();
+				/** @var Main\HttpApplication $app */
+				$app = Main\Application::getInstance();
 				$app->runController($controllerClass, $actionName);
 			}
 			else
@@ -220,7 +215,5 @@ if (!empty($route))
 		'Unknown controller `%s`', $controller
 	));
 }
-else
-{
-	require_once __DIR__.'/urlrewrite.php';
-}
+
+require_once __DIR__.'/urlrewrite.php';

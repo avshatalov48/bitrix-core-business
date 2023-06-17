@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -11,32 +15,34 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
-?>
 
-<?if($arParams["USE_RSS"]=="Y"):?>
-	<?
+if($arParams["USE_RSS"]=="Y"):
 	if(method_exists($APPLICATION, 'addheadstring'))
 		$APPLICATION->AddHeadString('<link rel="alternate" type="application/rss+xml" title="'.$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["rss"].'" href="'.$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["rss"].'" />');
 	?>
 	<a href="<?=$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["rss"]?>" title="rss" target="_self"><img alt="RSS" src="<?=$templateFolder?>/images/gif-light/feed-icon-16x16.gif" border="0" align="right" /></a>
-<?endif?>
+<?
+endif;
 
-<?if($arParams["USE_SEARCH"]=="Y"):?>
-<?=GetMessage("SEARCH_LABEL")?><?$APPLICATION->IncludeComponent(
+if($arParams["USE_SEARCH"]=="Y"):?>
+<?=GetMessage("SEARCH_LABEL")?><?php
+	$APPLICATION->IncludeComponent(
 	"bitrix:search.form",
 	"flat",
-	Array(
+	[
 		"PAGE" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["search"]
-	),
-	$component
+	],
+	$component,
+		['HIDE_ICONS' => 'Y']
 );?>
 <br />
-<?endif?>
-<?if($arParams["USE_FILTER"]=="Y"):?>
-<?$APPLICATION->IncludeComponent(
+<?php
+endif;
+if($arParams["USE_FILTER"]=="Y"):
+$APPLICATION->IncludeComponent(
 	"bitrix:catalog.filter",
 	"",
-	Array(
+	[
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
@@ -46,16 +52,18 @@ $this->setFrameMode(true);
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
 		"PAGER_PARAMS_NAME" => $arParams["PAGER_PARAMS_NAME"],
-	),
-	$component
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
 );
 ?>
 <br />
-<?endif?>
-<?$APPLICATION->IncludeComponent(
+<?php
+endif;
+$APPLICATION->IncludeComponent(
 	"bitrix:news.list",
 	"",
-	Array(
+	[
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"NEWS_COUNT" => $arParams["NEWS_COUNT"],
@@ -68,7 +76,6 @@ $this->setFrameMode(true);
 		"DETAIL_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["detail"],
 		"SECTION_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["section"],
 		"IBLOCK_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["news"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"SET_TITLE" => $arParams["SET_TITLE"],
 		"SET_LAST_MODIFIED" => $arParams["SET_LAST_MODIFIED"],
 		"MESSAGE_404" => $arParams["MESSAGE_404"],
@@ -102,6 +109,7 @@ $this->setFrameMode(true);
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
 		"HIDE_LINK_WHEN_NO_DETAIL" => $arParams["HIDE_LINK_WHEN_NO_DETAIL"],
 		"CHECK_DATES" => $arParams["CHECK_DATES"],
-	),
-	$component
-);?>
+	],
+	$component,
+	['HIDE_ICONS' => 'Y']
+);

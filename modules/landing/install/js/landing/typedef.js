@@ -9,6 +9,7 @@
  * @property {string} access
  * @property {number} siteId
  * @property {number} lid
+ * @property {string} sections
  * @property {?object} requiredUserAction
  * @property {string|number} anchor
  * @property {?object} dynamicParams

@@ -33,7 +33,7 @@ class Notification
 		'rest_buy' => 'REST_BUY',
 		'limit_subscription_market_demomarket_end' => 'SUBSCRIPTION_MARKET_DEMO_END',
 		'limit_subscription_market_tarifwithmarket' => 'SUBSCRIPTION_MARKET_TARIFF_MARKET',
-		'limit_subscription_market_marketpaid_trialend' => 'SUBSCRIPTION_MARKET_TRIAL_END',
+		'plus_need_trial' => 'SUBSCRIPTION_MARKET_TRIAL_END',
 	];
 
 	/**

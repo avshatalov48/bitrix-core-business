@@ -61,6 +61,16 @@ export const AttachTypeGrid =
 				return element.WIDTH? element.WIDTH+'px': '';
 			},
 
+			getValueColor(element)
+			{
+				if (!element.COLOR)
+				{
+					return false;
+				}
+
+				return element.COLOR;
+			},
+
 			getValue(element)
 			{
 				if (!element.VALUE)
@@ -68,15 +78,7 @@ export const AttachTypeGrid =
 					return '';
 				}
 
-				let text = Utils.text.htmlspecialchars(element.VALUE);
-
-				text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, userName) => {
-					const user = this.$store.getters['users/get'](userId);
-					userName = user? Utils.text.htmlspecialchars(user.name): userName;
-					return '<span class="bx-im-mention" data-type="USER" data-value="'+userId+'">'+userName+'</span>'
-				});
-
-				return MessagesModel.decodeBbCode({text});
+				return Utils.text.decode(element.VALUE);
 			},
 		},
 		//language=Vue
@@ -87,14 +89,12 @@ export const AttachTypeGrid =
 						<div class="bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-block" :style="{width: getWidth(element)}">
 							<div class="bx-im-element-attach-type-grid-element-name">{{element.NAME}}</div>
 							<template v-if="element.LINK">
-								<div
-									class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link"
-								>
-									<a :href="element.LINK" target="_blank" @click="openLink({element: element, event: $event})" v-html="getValue(element)"></a>
+								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link">
+									<a :href="element.LINK" target="_blank" @click="openLink({element: element, event: $event})" :style="{color: getValueColor(element)}" v-html="getValue(element)"></a>
 								</div>
 							</template>
 							<template v-else>
-								<div class="bx-im-element-attach-type-grid-element-value" v-html="getValue(element)"></div>
+								<div class="bx-im-element-attach-type-grid-element-value" :style="{color: getValueColor(element)}" v-html="getValue(element)"></div>
 							</template>
 						</div>
 					</template>

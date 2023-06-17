@@ -4,8 +4,9 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use	Bitrix\Sale\Internals\Input;
+use Bitrix\Sale\Internals\Input;
 use Bitrix\Sale\Internals\OrderPropsTable;
+use Bitrix\Sale\Internals\OrderPropsRelationTable;
 
 $saleModulePermissions = $APPLICATION->GetGroupRight('sale');
 if ($saleModulePermissions < 'W')
@@ -104,7 +105,7 @@ else
 
 // 4. check requested person type
 if (! $personType = $personTypes[$personTypeId])
-	LocalRedirect('sale_order_props.php?lang='.LANG.GetFilterParams('filter_', false));
+	LocalRedirect('sale_order_props.php?lang=' . LANGUAGE_ID . GetFilterParams('filter_', false));
 
 // SETTINGS ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -171,7 +172,7 @@ while ($row = $result->Fetch())
 
 $commonSettings = array(
 	'PERSON_TYPE_ID' => array('TYPE' => 'NUMBER', 'LABEL' => Loc::getMessage('SALE_PERS_TYPE'  ), 'MIN' => 0, 'STEP' => 1, 'HIDDEN' => 'Y', 'REQUIRED' => 'Y', 'RLABEL' => "[$personTypeId] {$personType['NAME']} ({$personType['LID']})"),
-	'PROPS_GROUP_ID' => array('TYPE' => 'ENUM'  , 'LABEL' => Loc::getMessage('F_PROPS_GROUP_ID'), 'OPTIONS' => $groupOptions, 'RLABEL' => '&nbsp;&nbsp;<a href="sale_order_props_group.php?lang='.LANG.'" target="_blank">'.Loc::getMessage('SALE_PROPS_GROUP').'</a>'),
+	'PROPS_GROUP_ID' => array('TYPE' => 'ENUM'  , 'LABEL' => Loc::getMessage('F_PROPS_GROUP_ID'), 'OPTIONS' => $groupOptions, 'RLABEL' => '&nbsp;&nbsp;<a href="sale_order_props_group.php?lang=' . LANGUAGE_ID . '" target="_blank">'.Loc::getMessage('SALE_PROPS_GROUP').'</a>'),
 	'NAME'           => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('F_NAME'          ), 'MAXLENGTH' => 255, 'REQUIRED' => 'Y'),
 	'CODE'           => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('F_CODE'          ), 'MAXLENGTH' => 50),
 	'ACTIVE'         => array('TYPE' => 'Y/N'   , 'LABEL' => Loc::getMessage('F_ACTIVE'        ), 'VALUE' => 'Y'),
@@ -323,10 +324,10 @@ foreach(\Bitrix\Sale\Delivery\Services\Manager::getActiveList(true) as $delivery
 	$deliveryOptions[$deliveryId] = $name;
 }
 
-$relationsSettings = array(
-	'P' => array('TYPE' => 'ENUM', 'LABEL' => Loc::getMessage('SALE_PROPERTY_PAYSYSTEM'), 'OPTIONS' => $paymentOptions , 'MULTIPLE' => 'Y', 'SIZE' => '5'),
-	'D' => array('TYPE' => 'ENUM', 'LABEL' => Loc::getMessage('SALE_PROPERTY_DELIVERY' ), 'OPTIONS' => $deliveryOptions, 'MULTIPLE' => 'Y', 'SIZE' => '5'),
-);
+$relationsSettings = [
+	OrderPropsRelationTable::ENTITY_TYPE_PAY_SYSTEM => ['TYPE' => 'ENUM', 'LABEL' => Loc::getMessage('SALE_PROPERTY_PAYSYSTEM'), 'OPTIONS' => $paymentOptions , 'MULTIPLE' => 'Y', 'SIZE' => '5'],
+	OrderPropsRelationTable::ENTITY_TYPE_DELIVERY => ['TYPE' => 'ENUM', 'LABEL' => Loc::getMessage('SALE_PROPERTY_DELIVERY' ), 'OPTIONS' => $deliveryOptions, 'MULTIPLE' => 'Y', 'SIZE' => '5'],
+];
 
 $landingOptions = [];
 $dbRes = Bitrix\Sale\TradingPlatform\Manager::getList(
@@ -345,7 +346,39 @@ foreach ($dbRes as $item)
 
 if ($landingOptions)
 {
-	$relationsSettings['L'] = ['TYPE' => 'ENUM', 'LABEL' => Loc::getMessage('SALE_PROPERTY_TP_LANDING'), 'OPTIONS' => $landingOptions, 'MULTIPLE' => 'Y', 'SIZE' => '5'];
+	$relationsSettings[OrderPropsRelationTable::ENTITY_TYPE_LANDING] = [
+		'TYPE' => 'ENUM',
+		'LABEL' => Loc::getMessage('SALE_PROPERTY_TP_LANDING'),
+		'OPTIONS' => $landingOptions,
+		'MULTIPLE' => 'Y',
+		'SIZE' => '5'
+	];
+}
+
+$tradingPlatformOptions = [];
+$dbRes = Bitrix\Sale\TradingPlatform\Manager::getList(
+	[
+		'select' => ['ID', 'NAME'],
+		'filter' => [
+			'=ACTIVE' => 'Y',
+			'!%CODE' => Bitrix\Sale\TradingPlatform\Landing\Landing::TRADING_PLATFORM_CODE,
+		]
+	]
+);
+foreach ($dbRes as $item)
+{
+	$tradingPlatformOptions[$item['ID']] = "{$item['NAME']} [{$item['ID']}]";
+}
+
+if ($tradingPlatformOptions)
+{
+	$relationsSettings[OrderPropsRelationTable::ENTITY_TYPE_TRADING_PLATFORM] = [
+		'TYPE' => 'ENUM',
+		'LABEL' => Loc::getMessage('SALE_PROPERTY_TP'),
+		'OPTIONS' => $tradingPlatformOptions,
+		'MULTIPLE' => 'Y',
+		'SIZE' => '5'
+	];
 }
 
 // VALIDATE AND SAVE POST //////////////////////////////////////////////////////////////////////////////////////////////
@@ -611,10 +644,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 		}
 
 		if ($request->getPost('save') !== null && !$errors)
-			LocalRedirect("sale_order_props.php?lang=".LANG.GetFilterParams("filter_", false));
+			LocalRedirect("sale_order_props.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_", false));
 
 		if ($request->getPost('apply') !== null && ! $errors)
-			LocalRedirect("sale_order_props_edit.php?lang=".LANG."&ID=".$propertyId.GetFilterParams("filter_", false));
+			LocalRedirect("sale_order_props_edit.php?lang=" . LANGUAGE_ID . "&ID=".$propertyId.GetFilterParams("filter_", false));
 	}
 }
 // RENDER VIEW /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -629,7 +662,7 @@ $aMenu = array(
 	array(
 		"TEXT" => Loc::getMessage('SOPEN_2FLIST'),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/sale_order_props.php?lang=".LANG.GetFilterParams("filter_")
+		"LINK" => "/bitrix/admin/sale_order_props.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 	)
 );
 
@@ -647,7 +680,7 @@ if ($propertyId && $saleModulePermissions >= "W")
 	foreach($personTypes as $row)
 		$arDDMenu[] = array(
 			'TEXT' => "[{$row['ID']}] {$row['NAME']} ({$row['LID']})",
-			'ACTION' => "window.location = 'sale_order_props_edit.php?lang=".LANG."&PERSON_TYPE_ID={$row['ID']}';"
+			'ACTION' => "window.location = 'sale_order_props_edit.php?lang=" . LANGUAGE_ID . "&PERSON_TYPE_ID={$row['ID']}';"
 		);
 
 	$aMenu[] = array(
@@ -658,7 +691,7 @@ if ($propertyId && $saleModulePermissions >= "W")
 
 	$aMenu[] = array(
 		"TEXT" => Loc::getMessage('SOPEN_DELETE_PROPS'),
-		"LINK" => "javascript:if(confirm('".Loc::getMessage('SOPEN_DELETE_PROPS_CONFIRM')."')) window.location='/bitrix/admin/sale_order_props.php?action=delete&ID[]=".$propertyId."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+		"LINK" => "javascript:if(confirm('".Loc::getMessage('SOPEN_DELETE_PROPS_CONFIRM')."')) window.location='/bitrix/admin/sale_order_props.php?action=delete&ID[]=".$propertyId."&lang=" . LANGUAGE_ID . "&".bitrix_sessid_get()."#tb';",
 		"ICON" => "btn_delete",
 	);
 }
@@ -806,7 +839,7 @@ if ($errors)
 	$tabControl->EndTab();
 	$tabControl->Buttons(array(
 		'disabled' => ($saleModulePermissions < 'W'),
-		'back_url' => '/bitrix/admin/sale_order_props.php?lang='.LANG.GetFilterParams('filter_'),
+		'back_url' => '/bitrix/admin/sale_order_props.php?lang=' . LANGUAGE_ID . GetFilterParams('filter_'),
 	));
 	$tabControl->End();
 	?>

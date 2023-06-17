@@ -170,15 +170,15 @@ if ($catalogIncluded)
 	}
 }
 
+$oSort = new CAdminUiSorting($sTableID, "timestamp_x", "desc");
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 if ($useTree)
 {
 	$by = "left_margin";
 	$order = "asc";
 }
-
-$oSort = new CAdminUiSorting($sTableID, "timestamp_x", "desc");
-global $by, $order;
-$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$arOrder = ($by === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 $lAdmin->setPublicModeState($pageConfig['PUBLIC_MODE']);
 
@@ -313,9 +313,19 @@ if (isset($arFilter["SECTION_ID"]))
 }
 else
 {
-	$isDifferences = array_diff($baseFilter, array_diff($arFilter, array_map(function ($field) {
-		return $field["id"];
-	}, $filterFields)));
+	$isDifferences = array_diff(
+		$baseFilter,
+		array_diff(
+			$arFilter,
+			array_map(
+				function ($field)
+				{
+					return $field["id"];
+				},
+				$filterFields
+			)
+		)
+	);
 	if ($isDifferences)
 	{
 		$arFilter["SECTION_ID"] = $find_section_section;

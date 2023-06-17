@@ -15,7 +15,7 @@ foreach($arResult['value'] as $item)
 	?>
 	<span class="fields integer field-item">
   	<?php
-		if($item['tag'] === 'a')
+		if (isset($item['tag']) && $item['tag'] === 'a')
 		{
 			print "<a href=\"{$item['href']}\">{$item['value']}</a>";
 		}

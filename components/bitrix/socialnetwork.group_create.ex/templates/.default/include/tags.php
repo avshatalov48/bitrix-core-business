@@ -34,7 +34,12 @@ if ($arParams["USE_KEYWORDS"] === "Y")
 	?><div class="socialnetwork-group-create-ex__content-block --space-bottom">
 		<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_KEYWORDS')) ?></div>
 		<div id="group-tags-bind-node"></div>
-		<input type="hidden" name="GROUP_KEYWORDS" id="GROUP_KEYWORDS" value="<?= htmlspecialcharsbx($arResult['POST']['KEYWORDS']) ?>">
+		<input
+			type="hidden"
+			name="GROUP_KEYWORDS"
+			id="GROUP_KEYWORDS"
+			value="<?= htmlspecialcharsbx($arResult['POST']['KEYWORDS'] ?? '') ?>"
+		>
 	</div><?php
 
 

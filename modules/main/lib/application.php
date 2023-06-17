@@ -201,6 +201,11 @@ abstract class Application
 		return $this->currentRoute;
 	}
 
+	public function hasCurrentRoute(): bool
+	{
+		return isset($this->currentRoute);
+	}
+
 	/**
 	 * @param Route $currentRoute
 	 */

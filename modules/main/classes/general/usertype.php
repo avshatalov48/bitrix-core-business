@@ -258,7 +258,7 @@ class CAllUserTypeEntity extends CDBResult
 					break;
 			}
 		}
-		if(count($arOrder) == 0)
+		if(empty($arOrder))
 		{
 			$arOrder[] = "UF.SORT asc";
 			$arOrder[] = "UF.ID asc";
@@ -266,7 +266,7 @@ class CAllUserTypeEntity extends CDBResult
 		DelDuplicateSort($arOrder);
 		$sOrder = "\nORDER BY " . implode(", ", $arOrder);
 
-		if(count($arFilter) == 0)
+		if(empty($arFilter))
 			$sFilter = "";
 		else
 			$sFilter = "\nWHERE " . implode("\nAND ", $arFilter);
@@ -459,20 +459,20 @@ class CAllUserTypeEntity extends CDBResult
 		}
 
 		unset($arFields["ID"]);
-		if(intval($arFields["SORT"]) <= 0)
+		if(!isset($arFields["SORT"]) || intval($arFields["SORT"]) <= 0)
 			$arFields["SORT"] = 100;
-		if($arFields["MULTIPLE"] !== "Y")
+		if(!isset($arFields["MULTIPLE"]) || $arFields["MULTIPLE"] !== "Y")
 			$arFields["MULTIPLE"] = "N";
-		if($arFields["MANDATORY"] !== "Y")
+		if(!isset($arFields["MANDATORY"]) || $arFields["MANDATORY"] !== "Y")
 			$arFields["MANDATORY"] = "N";
-		$arFields["SHOW_FILTER"] = mb_substr($arFields["SHOW_FILTER"], 0, 1);
+		$arFields["SHOW_FILTER"] = mb_substr($arFields["SHOW_FILTER"] ?? '', 0, 1);
 		if($arFields["SHOW_FILTER"] == '' || mb_strpos("NIES", $arFields["SHOW_FILTER"]) === false)
 			$arFields["SHOW_FILTER"] = "N";
-		if($arFields["SHOW_IN_LIST"] !== "N")
+		if(!isset($arFields["SHOW_IN_LIST"]) || $arFields["SHOW_IN_LIST"] !== "N")
 			$arFields["SHOW_IN_LIST"] = "Y";
-		if($arFields["EDIT_IN_LIST"] !== "N")
+		if(!isset($arFields["EDIT_IN_LIST"]) || $arFields["EDIT_IN_LIST"] !== "N")
 			$arFields["EDIT_IN_LIST"] = "Y";
-		if($arFields["IS_SEARCHABLE"] !== "Y")
+		if(!isset($arFields["IS_SEARCHABLE"]) || $arFields["IS_SEARCHABLE"] !== "Y")
 			$arFields["IS_SEARCHABLE"] = "N";
 
 		if(!array_key_exists("SETTINGS", $arFields))

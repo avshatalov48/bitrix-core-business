@@ -1,10 +1,15 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var array $arParams
  * @var array $templateData
  * @var string $templateFolder
  * @var CatalogSectionComponent $component
+ * @global CMain $APPLICATION
  */
 
 global $APPLICATION;
@@ -31,7 +36,7 @@ if (!empty($templateData['TEMPLATE_LIBRARY']))
 		<script>
 		  BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
 		</script>
-		<?
+		<?php
 	}
 }
 
@@ -43,12 +48,13 @@ if ($request->isAjaxRequest() && ($request->get('action') === 'showMore' || $req
 	ob_end_clean();
 
 	list(, $itemsContainer) = explode('<!-- items-container -->', $content);
-	list(, $paginationContainer) = explode('<!-- pagination-container -->', $content);
+	//list(, $paginationContainer) = explode('<!-- pagination-container -->', $content);
+	$paginationContainer = '';
 
-	if ($arParams['AJAX_MODE'] === 'Y')
+	/*if ($arParams['AJAX_MODE'] === 'Y')
 	{
 		$component->prepareLinks($paginationContainer);
-	}
+	} */
 
 	$component::sendJsonAnswer(array(
 		'items' => $itemsContainer,

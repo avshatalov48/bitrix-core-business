@@ -11,7 +11,7 @@ $path = str_replace(array("\\", "//"), "/", __DIR__."/lang/".LANGUAGE_ID."/set_m
 
 if (CModule::IncludeModule("socialnetwork"))
 {
-	$userID = intval($_REQUEST["user_id"]);
+	$userID = intval($_REQUEST["user_id"] ?? 0);
 
 	if (!$GLOBALS["USER"]->IsAuthorized())
 	{
@@ -25,11 +25,16 @@ if (CModule::IncludeModule("socialnetwork"))
 		}
 		else
 		{
-			if ($_REQUEST["EventType"] == "FriendRequest" && intval($_REQUEST["eventID"]) > 0)
+			if (
+				isset($_REQUEST["EventType"])
+				&& $_REQUEST["EventType"] == "FriendRequest"
+				&& isset($_REQUEST["eventID"])
+				&& intval($_REQUEST["eventID"]) > 0
+			)
 			{
 				$errorMessage = "";
 
-				if ($_REQUEST["action"] == "add")
+				if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "add")
 				{
 					if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 					{
@@ -37,7 +42,7 @@ if (CModule::IncludeModule("socialnetwork"))
 							$errorMessage .= $e->GetString();
 					}
 				}
-				elseif ($_REQUEST["action"] == "reject")
+				elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "reject")
 				{
 					if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 					{
@@ -49,11 +54,16 @@ if (CModule::IncludeModule("socialnetwork"))
 				if ($errorMessage <> '')
 					echo $errorMessage;
 			}
-			elseif ($_REQUEST["EventType"] == "GroupRequest" && intval($_REQUEST["eventID"]) > 0)
+			elseif (
+				isset($_REQUEST["EventType"])
+				&& $_REQUEST["EventType"] == "GroupRequest"
+				&& isset($_REQUEST["eventID"])
+				&& intval($_REQUEST["eventID"]) > 0
+			)
 			{
 				$errorMessage = "";
 
-				if ($_REQUEST["action"] == "add")
+				if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "add")
 				{
 					if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 					{
@@ -61,7 +71,7 @@ if (CModule::IncludeModule("socialnetwork"))
 							$errorMessage .= $e->GetString();
 					}
 				}
-				elseif ($_REQUEST["action"] == "reject")
+				elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "reject")
 				{
 					if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 					{
@@ -73,11 +83,16 @@ if (CModule::IncludeModule("socialnetwork"))
 				if ($errorMessage <> '')
 					echo $errorMessage;
 			}
-			elseif ($_REQUEST["EventType"] == "Message" && intval($_REQUEST["eventID"]) > 0)
+			elseif (
+				isset($_REQUEST["EventType"])
+				&& $_REQUEST["EventType"] == "Message"
+				&& isset($_REQUEST["eventID"])
+				&& intval($_REQUEST["eventID"]) > 0
+			)
 			{
 				$errorMessage = "";
 
-				if ($_REQUEST["action"] == "close")
+				if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "close")
 				{
 					if (!CSocNetMessages::MarkMessageRead($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 					{
@@ -92,11 +107,16 @@ if (CModule::IncludeModule("socialnetwork"))
 				if ($errorMessage <> '')
 					echo $errorMessage;
 			}
-			elseif ($_REQUEST["EventType"] == "Message" && intval($_REQUEST["userID"]) > 0)
+			elseif (
+				isset($_REQUEST["EventType"])
+				&& $_REQUEST["EventType"] == "Message"
+				&& isset($_REQUEST["userID"])
+				&& intval($_REQUEST["userID"]) > 0
+			)
 			{
 				$errorMessage = "";
 
-				if ($_REQUEST["action"] == "ban")
+				if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "ban")
 				{
 					if (!CSocNetUserRelations::BanUser($GLOBALS["USER"]->GetID(), intval($_REQUEST["userID"])))
 					{

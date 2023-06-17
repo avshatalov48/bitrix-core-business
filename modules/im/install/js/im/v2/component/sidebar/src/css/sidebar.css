@@ -1,0 +1,69 @@
+.bx-im-sidebar__scope {
+	--im-sidebar__width_container: 320px;
+	--im-sidebar__background-color_box: var(--im-color-palette-white-base);
+	--im-sidebar__background-color_detail-content: #fff;
+	--im-sidebar__background-color_add-button: #e5f9ff;
+	--im-sidebar__color_add-button-text: #11a9d9;
+}
+
+.bx-im-sidebar__container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 0 6px 6px;
+	width: var(--im-messenger__sidebar_width);
+	height: calc(100% - 64px);
+	overflow-y: scroll;
+	overflow-x: hidden;
+	scrollbar-width: thin;
+}
+
+.bx-im-sidebar__box {
+	width: 100%;
+	background-color: var(--im-sidebar__background-color_box);
+	margin-bottom: 6px;
+	border-radius: 8px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.bx-im-sidebar__box:last-child {
+	margin-bottom: 0;
+}
+
+.bx-im-sidebar__detail_container {
+	position: absolute;
+	top: 0;
+	left: -1px;
+	width: var(--im-messenger__sidebar_width);
+	min-width: var(--im-messenger__sidebar_width);
+	height: 100%;
+	z-index: 10;
+	background-color: var(--im-sidebar__background-color_detail-content);
+	overflow: hidden;
+	border-left: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Animation */
+.right-panel-detail-transition-enter-active,
+.right-panel-detail-transition-leave-active {
+	transition: var(--im-messenger__sidebar_transition);
+}
+
+.right-panel-detail-transition-enter-from,
+.right-panel-detail-transition-leave-to {
+	transform: translateX(var(--im-messenger__sidebar_width));
+}
+
+.right-panel-detail-transition-enter-to,
+.right-panel-detail-transition-leave-from {
+	transform: translateX(0);
+}
+
+.add-button-enter-active, .add-button-leave-active {
+	transition: opacity .3s ease;
+}
+
+.add-button-enter-from, .add-button-leave-to {
+	opacity: 0;
+}
+/* Animation */

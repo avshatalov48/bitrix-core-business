@@ -8,6 +8,8 @@ use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Type\Date;
+use Bitrix\Market\Subscription;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Bitrix24\Feature;
@@ -324,8 +326,8 @@ class Client
 	 */
 	public static function getSiteList(array $query = [])
 	{
-		$query['onPageSize'] = (int)$query['pageSize'] ?: 50;
-		$query['page'] = (int)$query['page'] ?: 1;
+		$query['onPageSize'] = (int)($query['pageSize'] ?? 50);
+		$query['page'] = (int)($query['page'] ?? 1);
 
 		return Transport::instance()->call(
 			Transport::METHOD_GET_SITE_LIST,
@@ -465,7 +467,7 @@ class Client
 		{
 			$updateList = static::getUpdates($appCodes);
 
-			if (is_array($updateList))
+			if (is_array($updateList) && isset($updateList['ITEMS']))
 			{
 				self::setAvailableUpdate($updateList['ITEMS']);
 			}
@@ -505,13 +507,6 @@ class Client
 
 		$tag[] = $placement;
 
-		return $tag;
-	}
-
-	public static function getTagByAppType($type)
-	{
-		$tag = [];
-		$tag[] = $type;
 		return $tag;
 	}
 
@@ -561,27 +556,55 @@ class Client
 		return $result;
 	}
 
-	/**
-	 * @return \Bitrix\Main\Type\Date
-	 */
-	public static function getSubscriptionFinalDate()
+	public static function isStartDemoSubscription(): bool
 	{
-		$result = false;
 		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			$timestamp = Option::get('bitrix24', '~mp24_paid_date');
+			return Option::get('bitrix24', '~mp24_paid', 'N') === 'T'
+				&& Option::get('bitrix24', '~mp24_used_trial', 'N') === 'Y';
+		}
+
+		return false;
+	}
+
+	public static function getSubscriptionFinalDate(): ?Date
+	{
+		$result = null;
+
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$timestamp = (int)Option::get('bitrix24', '~mp24_paid_date');
 		}
 		else
 		{
-			$timestamp = Option::get('main', '~mp24_paid_date');
+			$timestamp = (int)Option::get('main', '~mp24_paid_date');
 		}
 
 		if ($timestamp > 0)
 		{
-			$result = \Bitrix\Main\Type\Date::createFromTimestamp($timestamp);
+			$result = Date::createFromTimestamp($timestamp);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Checks subscriptions demo status
+	 *
+	 * @return bool
+	 */
+	public static function isSubscriptionDemo(): bool
+	{
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$status = Option::get('bitrix24', '~mp24_paid', 'N');
+		}
+		else
+		{
+			$status = Option::get('main', '~mp24_paid', 'N');
+		}
+
+		return $status === 'T';
 	}
 
 	private static function checkSubscriptionAccessStart($region): bool
@@ -685,10 +708,21 @@ class Client
 	{
 		if (static::isSubscriptionAvailable())
 		{
+			if (self::isStartDemoSubscription())
+			{
+				$eventDemo = new Event(
+					'rest',
+					'onSubscriptionIsDemo',
+				);
+
+				$eventDemo->send();
+			}
+
 			$event = new Event(
 				'rest',
 				'onSubscriptionRenew',
 			);
+
 			EventManager::getInstance()->send($event);
 		}
 	}

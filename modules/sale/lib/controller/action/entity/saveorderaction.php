@@ -12,7 +12,7 @@ use Bitrix\Crm\Order\Manager;
  * @example BX.ajax.runAction("sale.entity.saveOrder", { data: { fields: { siteId:'s1', [userId:1, personTypeId:1] properties: {...}}}});
  * @internal
  */
-final class SaveOrderAction extends BaseAction
+final class SaveOrderAction extends Sale\Controller\Action\BaseAction
 {
 	private ?int $compilationDealId;
 

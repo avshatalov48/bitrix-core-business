@@ -3,10 +3,17 @@ define('BX_PUBLIC_MODE', 0);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-$addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
+$addUrl = 'lang='.LANGUAGE_ID.(isset($logical) && $logical == "Y"?'&logical=Y':'');
 $useEditor3 = COption::GetOptionString('fileman', "use_editor_3", "N") == "Y";
-$bFromComponent = $_REQUEST['from'] == 'main.include' || $_REQUEST['from'] == 'includefile' || $_REQUEST['from'] == 'includecomponent';
-$bDisableEditor = !CModule::IncludeModule('fileman') || ($_REQUEST['noeditor'] == 'Y');
+$bFromComponent =
+	isset($_REQUEST['from']) &&
+	(
+		$_REQUEST['from'] == 'main.include'
+		|| $_REQUEST['from'] == 'includefile'
+		|| $_REQUEST['from'] == 'includecomponent'
+	)
+;
+$bDisableEditor = !CModule::IncludeModule('fileman') || (isset($_REQUEST['noeditor']) && $_REQUEST['noeditor'] == 'Y');
 
 if (!($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files')))
 {
@@ -18,11 +25,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/admin/fileman_html_edit.php");
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/public/file_edit.php");
 
-$obJSPopup = new CJSPopup("lang=".urlencode($_GET["lang"])."&site=".urlencode($_GET["site"])."&back_url=".urlencode($_GET["back_url"])."&path=".urlencode($_GET["path"])."&name=".urlencode($_GET["name"]), array("SUFFIX"=>($_REQUEST['subdialog'] == 'Y'? 'editor':'')));
+$obJSPopup = new CJSPopup("lang=".urlencode($_GET["lang"] ?? '')."&site=".urlencode($_GET["site"] ?? '')."&back_url=".urlencode($_GET["back_url"] ?? '')."&path=".urlencode($_GET["path"] ?? '')."&name=".urlencode($_GET["name"] ?? ''), array("SUFFIX"=>(isset($_REQUEST['subdialog']) && $_REQUEST['subdialog'] == 'Y'? 'editor':'')));
 
 $strWarning = "";
 $site_template = false;
-$rsSiteTemplates = CSite::GetTemplateList($site);
+$rsSiteTemplates = CSite::GetTemplateList($site ?? '');
 while($arSiteTemplate = $rsSiteTemplates->Fetch())
 {
 	if($arSiteTemplate["CONDITION"] == '')
@@ -36,9 +43,9 @@ $io = CBXVirtualIo::GetInstance();
 
 $bVarsFromForm = false;	// if 'true' - we will get content  and variables from form, if 'false' - from saved file
 $bSessIDRefresh = false;	// флаг, указывающий, нужно ли обновлять ид сессии на клиенте
-$editor_name = (isset($_REQUEST['editor_name'])? $_REQUEST['editor_name'] : 'filesrc_pub');
+$editor_name = ($_REQUEST['editor_name'] ?? 'filesrc_pub');
 
-if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
+if (!empty($filename) && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
 	$filename2 = $filename;
 	$filename = '';
@@ -46,7 +53,7 @@ if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 	$bVarsFromForm = true;
 }
 
-$path = urldecode($path);
+$path = urldecode($path ?? '');
 $path = $io->CombinePath("/", $path);
 
 $site = CFileMan::__CheckSite($site);
@@ -83,9 +90,9 @@ if (CAutoSave::Allowed())
 
 $imgName = $filename;
 if ($filename == '')
+{
 	$imgName = $io->ExtractNameFromPath($path);
-else
-	$imgName = $filename;
+}
 $imgName = GetFileNameWithoutExtension($imgName).'-img';
 
 //Check access to file
@@ -162,7 +169,7 @@ if($strWarning == '')
 	else
 	{
 		$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
-		if($template <> '')
+		if(!empty($template))
 		{
 			foreach ($arTemplates as $arTemplate)
 			{
@@ -179,7 +186,7 @@ if($strWarning == '')
 		}
 	}
 
-	if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST['save'] == 'Y')
+	if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST['save']) && $_REQUEST['save'] == 'Y')
 	{
 		$filesrc = $filesrc_pub;
 		if(!check_bitrix_sessid())
@@ -213,18 +220,18 @@ if($strWarning == '')
 			$prolog = CFileman::SetTitle($res["PROLOG"], $title);
 			for ($i = 0; $i<=$maxind; $i++)
 			{
-				if(Trim($_POST["CODE_".$i]) <> '')
+				if(trim($_POST["CODE_".$i]) <> '')
 				{
 					if($_POST["CODE_".$i] != $_POST["H_CODE_".$i])
 					{
-						$prolog = CFileman::SetProperty($prolog, Trim($_POST["H_CODE_".$i]), "");
-						$prolog = CFileman::SetProperty($prolog, Trim($_POST["CODE_".$i]), Trim($_POST["VALUE_".$i]));
+						$prolog = CFileman::SetProperty($prolog, trim($_POST["H_CODE_".$i]), "");
+						$prolog = CFileman::SetProperty($prolog, trim($_POST["CODE_".$i]), trim($_POST["VALUE_".$i]));
 					}
 					else
-						$prolog = CFileman::SetProperty($prolog, Trim($_POST["CODE_".$i]), Trim($_POST["VALUE_".$i]));
+						$prolog = CFileman::SetProperty($prolog, trim($_POST["CODE_".$i]), trim($_POST["VALUE_".$i]));
 				}
 				else
-					$prolog = CFileman::SetProperty($prolog, Trim($_POST["H_CODE_".$i]), "");
+					$prolog = CFileman::SetProperty($prolog, trim($_POST["H_CODE_".$i]), "");
 			}
 			$epilog = $res["EPILOG"];
 			$filesrc_for_save = $prolog.$filesrc.$epilog;
@@ -289,7 +296,7 @@ if($strWarning == '')
 						"main",
 						"",
 						serialize($res_log),
-						$_REQUEST["site"]
+						$_REQUEST["site"] ?? ''
 					);
 				}
 
@@ -306,8 +313,8 @@ if($strWarning == '')
 ?>
 <script>
 <?
-if($_REQUEST['subdialog'] != 'Y'):
-	$url = $_REQUEST["back_url"];
+if(!isset($_REQUEST['subdialog']) || $_REQUEST['subdialog'] != 'Y'):
+	$url = $_REQUEST["back_url"] ?? '';
 	if(mb_substr($url, 0, 1) != "/" || mb_substr($url, 1, 1) == "/")
 	{
 		//only local /url is allowed
@@ -317,7 +324,7 @@ if($_REQUEST['subdialog'] != 'Y'):
 	top.BX.reload('<?=CUtil::JSEscape($url)?>', true);
 <?else:?>
 	if (null != top.structReload)
-		top.structReload('<?=urlencode($_REQUEST["path"])?>');
+		top.structReload('<?=urlencode($_REQUEST["path"] ?? '')?>');
 <?endif;?>
 	top.<?=$obJSPopup->jsPopup?>.Close();
 </script>
@@ -428,13 +435,13 @@ if (CAutoSave::Allowed())
 <input type="hidden" name="save" id="save" value="Y" />
 <input type="hidden" name="site" id="site" value="<?=htmlspecialcharsbx($site)?>" />
 <input type="hidden" name="template" id="template" value="<?echo htmlspecialcharsbx($template)?>" />
-<input type="hidden" name="templateID" id="templateID" value="<?echo htmlspecialcharsbx($_REQUEST['templateID'])?>" />
-<input type="hidden" name="subdialog" value="<?echo htmlspecialcharsbx($_REQUEST['subdialog'])?>" />
+<input type="hidden" name="templateID" id="templateID" value="<?echo htmlspecialcharsbx($_REQUEST['templateID'] ?? '')?>" />
+<input type="hidden" name="subdialog" value="<?echo htmlspecialcharsbx($_REQUEST['subdialog'] ?? '')?>" />
 <?if (is_set($_REQUEST, 'back_url')):?>
-	<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($_REQUEST['back_url'])?>" />
+	<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($_REQUEST['back_url'] ?? '')?>" />
 <?endif;?>
 <?if (is_set($_REQUEST, 'edit_new_file_undo')):?>
-	<input type="hidden" name="edit_new_file_undo" value="<?=htmlspecialcharsbx($_REQUEST['edit_new_file_undo'])?>" />
+	<input type="hidden" name="edit_new_file_undo" value="<?=htmlspecialcharsbx($_REQUEST['edit_new_file_undo'] ?? '')?>" />
 <?endif;?>
 <?if(!$bEdit):?>
 	<input type="hidden" name="new" id="new" value="Y" />
@@ -478,7 +485,7 @@ if (!$bDisableEditor)
 			"limitPhpAccess" => $limit_php_access,
 			"site" => $site,
 			"relPath" => $relPath,
-			"templateId" => $_REQUEST['templateID'],
+			"templateId" => $_REQUEST['templateID'] ?? '',
 		));
 
 		?>
@@ -604,7 +611,7 @@ if (!$bDisableEditor)
 		/* ************* OLD HTML EDITOR ************* */
 		CFileman::ShowHTMLEditControl($editor_name, $filesrc, Array(
 			"site" => $site,
-			"templateID" => $_REQUEST['templateID'],
+			"templateID" => $_REQUEST['templateID'] ?? '',
 			"bUseOnlyDefinedStyles" => COption::GetOptionString("fileman", "show_untitled_styles", "N")!="Y",
 			"bWithoutPHP" => (!$USER->CanDoOperation('edit_php')),
 			"toolbarConfig" => CFileman::GetEditorToolbarConfig($editor_name),

@@ -59,7 +59,7 @@ export const AttachTypeRich =
 							<component :is="imageComponentName" :config="getImageConfig(element)" :color="color"/>
 						</div>
 						<div class="bx-im-element-attach-type-rich-name" @click="openLink({element: element, event: $event})">{{element.NAME}}</div>
-						<div v-if="element.DESC" class="bx-im-element-attach-type-rich-desc">{{element.DESC}}</div>
+						<div v-if="element.HTML || element.DESC" class="bx-im-element-attach-type-rich-desc">{{element.HTML || element.DESC}}</div>
 					</div>
 				</template>
 			</div>

@@ -1,0 +1,51 @@
+:root {
+	--im-notification-item-separator-color: #a8adb4;
+	--im-notification-item-unread-background-color: #fefcee;
+	--im-notification-item-hovered-background-color: #f5f7f8;
+	--im-notification-item-separator-opacity: 0.08;
+}
+
+.bx-im-content-notification-item__container {
+	padding: 10px 15px 16px 15px;
+	display: flex;
+	position: relative;
+	border-radius: 8px;
+}
+
+.bx-im-content-notification-item__container:before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	width: calc(100% - 91px);
+	left: 71px;
+	height: 1px;
+	background-color: var(--im-notification-item-separator-color);
+	opacity: var(--im-notification-item-separator-opacity);
+}
+
+.bx-im-content-notification-item__container:hover {
+	background-color: var(--im-notification-item-hovered-background-color);
+}
+
+.bx-im-content-notification-item__container.--unread {
+	background-color: var(--im-notification-item-unread-background-color);
+	transition: background-color 2s;
+}
+
+.bx-im-content-notification-item__content-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	overflow: hidden;
+}
+
+.bx-im-content-notification-item__container.--unread:has(+ .--unread) {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.bx-im-content-notification-item__container.--unread + .--unread,
+.bx-im-content-notification-item__container.--unread:first-child {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}

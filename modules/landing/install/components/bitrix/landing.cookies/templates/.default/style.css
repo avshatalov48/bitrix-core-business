@@ -73,6 +73,7 @@
 }
 
 .bx-landing-cookies-popup-content {
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	max-height: 460px;
 	overflow-y: auto;
 	padding: 0 18px 25px 0;

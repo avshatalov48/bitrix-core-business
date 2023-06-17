@@ -27,8 +27,8 @@ class CMainUiFilter extends CBitrixComponent
 	protected $defaultHeaderSectionId = '';
 	protected function prepareResult()
 	{
-		$this->arResult["FILTER_ID"] = $this->arParams["FILTER_ID"];
-		$this->arResult["GRID_ID"] = $this->arParams["GRID_ID"];
+		$this->arResult["FILTER_ID"] = $this->arParams["FILTER_ID"] ?? '';
+		$this->arResult["GRID_ID"] = $this->arParams["GRID_ID"] ?? '';
 		$this->arResult["FIELDS"] = $this->prepareFields();
 		$this->arResult["PRESETS"] = $this->preparePresets();
 		$this->arResult["TARGET_VIEW_ID"] = $this->getViewId();
@@ -100,7 +100,7 @@ class CMainUiFilter extends CBitrixComponent
 			foreach ($this->arParams["MESSAGES"] as $key => $message)
 			{
 				if (
-					mb_strpos($key, "MAIN_UI_FILTER__") !== false
+					strpos($key, "MAIN_UI_FILTER__") !== false
 					&& isset($this->arResult[$key])
 				)
 				{
@@ -209,7 +209,7 @@ class CMainUiFilter extends CBitrixComponent
 	{
 		$this->arResult["ENABLE_LABEL"] = false;
 
-		if (is_bool($this->arParams["ENABLE_LABEL"]) && $this->arParams["ENABLE_LABEL"] === true)
+		if (isset($this->arParams["ENABLE_LABEL"]) && $this->arParams["ENABLE_LABEL"] === true)
 		{
 			$this->arResult["ENABLE_LABEL"] = true;
 		}
@@ -272,7 +272,7 @@ class CMainUiFilter extends CBitrixComponent
 
 	public function getFilter()
 	{
-		return $this->getUserOptions()->getFilter($this->arParams["FILTER"]);
+		return $this->getUserOptions()->getFilter($this->arParams["FILTER"] ?? []);
 	}
 
 	protected function prepareParams()
@@ -627,7 +627,7 @@ class CMainUiFilter extends CBitrixComponent
 						case Type::DATE :
 						{
 							$presetFields[$field["NAME"]."_datesel"] = self::compatibleDateselValue(
-								$presetFields[$field["NAME"]."_datesel"]
+								$presetFields[$field["NAME"]."_datesel"] ?? ''
 							);
 							$field["SUB_TYPE"] = self::prepareSubtype($field, $presetFields, "_datesel");
 							$field["VALUES"] = self::prepareValue($field, $presetFields, "_datesel");
@@ -698,7 +698,7 @@ class CMainUiFilter extends CBitrixComponent
 						$field["VALUES"] = self::prepareEntitySelectorValue($field, $presetFields);
 						break;
 					}
-					
+
 					case Type::DEST_SELECTOR :
 						{
 							$field["VALUES"] = self::prepareDestSelectorValue($field, $presetFields, $this->arParams['FILTER']);
@@ -727,7 +727,7 @@ class CMainUiFilter extends CBitrixComponent
 		$arOptions = $options->getOptions();
 		$optionsPresets = $arOptions["filters"];
 		$defaultPresets = $this->preparePresets();
-		$arFilter = $options->getFilter($this->arParams["FILTER"]);
+		$arFilter = $options->getFilter($this->arParams["FILTER"] ?? []);
 
 		if (!empty($optionsPresets) && is_array($optionsPresets))
 		{
@@ -847,13 +847,13 @@ class CMainUiFilter extends CBitrixComponent
 			);
 		}
 
-		return $this->arResult["CURRENT_PRESET"];
+		return $this->arResult["CURRENT_PRESET"] ?? [];
 	}
 
 	protected function prepareFieldsCount()
 	{
 		$options = $this->getUserOptions();
-		$filter = $options->getFilter($this->arParams["FILTER"]);
+		$filter = $options->getFilter($this->arParams["FILTER"] ?? []);
 		$arOptions = $options->getOptions();
 		$count = 0;
 
@@ -861,7 +861,7 @@ class CMainUiFilter extends CBitrixComponent
 		{
 			$preset = $arOptions["filters"][$filter["PRESET_ID"]];
 			$fields = $preset["fields"];
-			$rows = explode(",", $preset["filter_rows"]);
+			$rows = explode(",", $preset["filter_rows"] ?? '');
 
 			foreach ($rows as $key => $row)
 			{
@@ -965,7 +965,7 @@ class CMainUiFilter extends CBitrixComponent
 					$preset["FIELDS"] = $this->preparePresetFields($rows, $presetFields["fields"]);
 					$preset["IS_DEFAULT"] = true;
 					$preset["FOR_ALL"] = !isset($presetFields["disallow_for_all"]) || !$presetFields["disallow_for_all"];
-					$preset["IS_PINNED"] = $presetFields["default"] == true;
+					$preset["IS_PINNED"] = isset($presetFields["default"]) && $presetFields["default"] == true;
 
 					$presets[] = $preset;
 					$sort++;
@@ -1098,7 +1098,7 @@ class CMainUiFilter extends CBitrixComponent
 		if (!isset($this->arResult["FIELDS"]) || !is_array($this->arResult["FIELDS"]))
 		{
 			$this->arResult["FIELDS"] = array();
-			$sourceFields = $this->arParams["FILTER"];
+			$sourceFields = $this->arParams["FILTER"] ?? [];
 
 			if (is_array($sourceFields) && !empty($sourceFields))
 			{
@@ -1153,7 +1153,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'js' && !(mb_strpos($file, 'map.js') !== false || mb_strpos($file, 'min.js') !== false))
+					if ($ext === 'js' && !(strpos($file, 'map.js') !== false || strpos($file, 'min.js') !== false))
 					{
 						$tmpl->addExternalJs($relPath.$file);
 					}
@@ -1180,7 +1180,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'css' && !(mb_strpos($file, 'map.css') !== false || mb_strpos($file, 'min.css') !== false))
+					if ($ext === 'css' && !(strpos($file, 'map.css') !== false || strpos($file, 'min.css') !== false))
 					{
 						$tmpl->addExternalCss($relPath.$file);
 					}
@@ -1224,7 +1224,7 @@ class CMainUiFilter extends CBitrixComponent
 		if (!$USER->CanDoOperation("edit_other_settings"))
 		{
 			$commonOptions = $this->getCommonOptions();
-			$filters = $commonOptions["filters"];
+			$filters = $commonOptions["filters"] ?? [];
 
 			if (!empty($filters) && is_array($filters))
 			{
@@ -1249,7 +1249,7 @@ class CMainUiFilter extends CBitrixComponent
 
 			foreach ($this->arParams["FILTER"] as $key => $field)
 			{
-				if (!$allowValueRequiredParam && $field["required"] === true)
+				if (!$allowValueRequiredParam && isset($field["required"]) && $field["required"] === true)
 				{
 					$allowValueRequiredParam = true;
 				}

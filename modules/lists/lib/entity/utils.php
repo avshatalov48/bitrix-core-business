@@ -49,7 +49,7 @@ class Utils
 			$queryObject = \CIBlockElement::getList([], [
 				"IBLOCK_ID" => Utils::getIblockId($params),
 				"CHECK_PERMISSIONS" => "N",
-				"CODE" => $params["ELEMENT_CODE"]
+				"=CODE" => $params["ELEMENT_CODE"],
 			], false, false, ["ID"]);
 			if ($element = $queryObject->fetch())
 			{

@@ -37,7 +37,7 @@ $arParams["PATH_TO_USER_FRIENDS_DELETE"] = trim($arParams["PATH_TO_USER_FRIENDS_
 if($arParams["PATH_TO_USER_FRIENDS_DELETE"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_DELETE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_delete&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
+$arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"] ?? '');
 if($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
@@ -45,7 +45,7 @@ $arParams["PATH_TO_USER_GROUPS"] = trim($arParams["PATH_TO_USER_GROUPS"]);
 if($arParams["PATH_TO_USER_GROUPS"] == '')
 	$arParams["PATH_TO_USER_GROUPS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_groups&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_GROUPS_ADD"] = trim($arParams["PATH_TO_USER_GROUPS_ADD"]);
+$arParams["PATH_TO_USER_GROUPS_ADD"] = trim($arParams["PATH_TO_USER_GROUPS_ADD"] ?? '');
 if($arParams["PATH_TO_USER_GROUPS_ADD"] == '')
 	$arParams["PATH_TO_USER_GROUPS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_groups_add&".$arParams["USER_VAR"]."=#user_id#");
 
@@ -65,7 +65,7 @@ $arParams["PATH_TO_USER_BLOG"] = trim($arParams["PATH_TO_USER_BLOG"]);
 if($arParams["PATH_TO_USER_BLOG"] == '')
 	$arParams["PATH_TO_USER_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_blog&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_USER_MICROBLOG"] = trim($arParams["PATH_TO_USER_MICROBLOG"]);
+$arParams["PATH_TO_USER_MICROBLOG"] = trim($arParams["PATH_TO_USER_MICROBLOG"] ?? '');
 if($arParams["PATH_TO_USER_MICROBLOG"] == '')
 	$arParams["PATH_TO_USER_MICROBLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_microblog&".$arParams["USER_VAR"]."=#user_id#");
 
@@ -304,7 +304,7 @@ else
 		$arResult["CAN_VIDEO_CALL"] = (
 			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"]) 
 			&& ($arResult["User"]["ACTIVE"] != "N")
-			&& $arResult["CurrentUserPerms"]["Operations"]["videocall"]
+			&& ($arResult["CurrentUserPerms"]["Operations"]["videocall"] ?? false)
 		);
 	}
 

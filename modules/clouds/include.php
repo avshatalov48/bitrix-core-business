@@ -1,21 +1,19 @@
 <?php
+
 /*.require_module 'standard';.*/
 /*.require_module 'bitrix_main';.*/
-/**
- * @global CDatabase $DB
- */
 if(!defined("CACHED_b_clouds_file_bucket")) define("CACHED_b_clouds_file_bucket", 360000);
 if(!defined("CACHED_clouds_file_resize")) define("CACHED_clouds_file_resize", 360000);
 if(!defined("BX_S3_MIN_UPLOAD_PART_SIZE")) define("BX_S3_MIN_UPLOAD_PART_SIZE", 5242880); //5MB
 //if (defined("BX24_IS_STAGE") && BX24_IS_STAGE === true) define("BX_CLOUDS_COUNTERS_DEBUG", "#^/([^/]+/)?(tmp/BXTEMP-|export/|BXTEMP-[0-9-]+/)#");
-$db_type = mb_strtolower($DB->type);
+
 CModule::AddAutoloadClasses(
 	"clouds",
 	array(
 		"clouds" =>  "install/index.php",
 		"CCloudUtil" =>  "classes/general/util.php",
 		"CCloudStorage" =>  "classes/general/storage.php",
-		"CAllCloudStorageBucket" =>  "classes/".$db_type."/storage_bucket.php",
+		"CAllCloudStorageBucket" =>  "classes/mysql/storage_bucket.php",
 		"CCloudStorageBucket" =>  "classes/general/storage_bucket.php",
 		"CCloudStorageUpload" => "classes/general/storage_upload.php",
 		"CCloudTempFile" => "classes/general/temp_file.php",
@@ -42,7 +40,9 @@ class CCloudsDebug
 	public static function getInstance($action = "counters")
 	{
 		if (!isset(static::$instances[$action]))
+		{
 			static::$instances[$action] = new static($action);
+		}
 		return static::$instances[$action];
 	}
 

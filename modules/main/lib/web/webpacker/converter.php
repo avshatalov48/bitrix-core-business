@@ -81,7 +81,7 @@ EOD;
 			if ($module->getProfile())
 			{
 				$properties = $module->getProfile()->getProperties();
-				if (count($properties) > 0)
+				if (!empty($properties))
 				{
 					$properties = Json::encode($properties);
 					$content .= "module.setProperties($properties);" . self::getEol(1);
@@ -176,7 +176,7 @@ EOD;
 								{
 									$messList = Resource\LangAsset::toCamelCase($messList);
 								}
-								if (!is_array($messages[$messLanguage]))
+								if (!isset($messages[$messLanguage]) || !is_array($messages[$messLanguage]))
 								{
 									$messages[$messLanguage] = [];
 								}

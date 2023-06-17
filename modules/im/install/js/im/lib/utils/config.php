@@ -9,9 +9,9 @@ return [
 		'./dist/utils.bundle.js',
 	],
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
 		'im.const',
 		'main.date',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

@@ -34,19 +34,19 @@ abstract class SenderInvitation implements Serializable
 	/**
 	 * @var int
 	 */
-	protected $counterInvitations = 0;
+	protected int $counterInvitations = 0;
 	/**
-	 * @var array
+	 * @var array|null
 	 */
-	protected $event;
+	protected ?array $event = null;
 	/**
-	 * @var Context
+	 * @var Context|null
 	 */
-	protected $context;
+	protected ?Context $context = null;
 	/**
 	 * @var string|null
 	 */
-	protected $uid = '';
+	protected ?string $uid = '';
 
 	abstract public function executeAfterSuccessfulInvitation();
 	abstract protected function getContent();
@@ -70,7 +70,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	public function send(): bool
 	{
-		if ($this->event === null)
+		if ($this->event === null || $this->context === null)
 		{
 			return false;
 		}
@@ -168,7 +168,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function checkAddresserEmail(): void
 	{
-		if (isset($this->context) && Loader::includeModule('mail') && empty($this->context->getAddresser()->getMailto()))
+		if ($this->context && Loader::includeModule('mail') && empty($this->context->getAddresser()->getMailto()))
 		{
 			$boxes = Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
 			if (!empty($boxes) && is_array($boxes))
@@ -326,20 +326,17 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function checkEventOrganizer(): void
 	{
-		if (empty($this->event['ICAL_ORGANIZER']))
+		if (empty($this->event['ICAL_ORGANIZER']) && $user = Helper::getUserById($this->event['MEETING_HOST'] ?? null))
 		{
-			if ($user = Helper::getUserById($this->event['MEETING_HOST'] ?? null))
-			{
-				$this->event['ICAL_ORGANIZER'] = Attendee::createInstance(
-					$user['EMAIL'],
-					$user['NAME'],
-					$user['LAST_NAME'],
-					null,
-					null,
-					null,
-					$user['EMAIL']
-				);
-			}
+			$this->event['ICAL_ORGANIZER'] = Attendee::createInstance(
+				$user['EMAIL'],
+				$user['NAME'],
+				$user['LAST_NAME'],
+				null,
+				null,
+				null,
+				$user['EMAIL']
+			);
 		}
 	}
 }

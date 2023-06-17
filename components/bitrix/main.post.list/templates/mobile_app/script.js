@@ -970,7 +970,7 @@
 				)
 				{
 					menuItems.push({
-						title: BX.message('BPC_MES_RESULT'),
+						title: BX.message('BPC_MES_RESULT_V2'),
 						callback: function() {
 							BX.Tasks.ResultAction.getInstance().createFromComment(id);
 						}

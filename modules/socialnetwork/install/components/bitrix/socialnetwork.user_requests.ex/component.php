@@ -75,19 +75,19 @@ $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
+$arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"] ?? '');
 if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"] ?? 0);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
-$arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"]);
+$arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"] ?? 0);
 if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
 	$arParams["THUMBNAIL_LIST_SIZE"] = 30;
 
-$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"] ?? '');
 
 $arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ? $arParams['NAME_TEMPLATE'] : CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
@@ -109,7 +109,7 @@ else
 		&& check_bitrix_sessid()
 	)
 	{
-		if ($_POST["ajax_request"] === "Y")
+		if (($_POST["ajax_request"] ?? null) === "Y")
 		{
 			CUtil::JSPostUnescape();
 		}
@@ -122,7 +122,7 @@ else
 		{
 			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
-				if ($_POST["checked_".$i] === "Y")
+				if (($_POST["checked_".$i] ?? null) === "Y")
 				{
 					if ($_POST["type_".$i] === "INVITE_GROUP")
 					{
@@ -272,7 +272,7 @@ else
 			}
 		}
 
-		if ($_POST["ajax_request"] === "Y")
+		if (($_POST["ajax_request"] ?? null) === "Y")
 		{
 			$APPLICATION->RestartBuffer();
 			echo CUtil::PhpToJsObject(array(
@@ -747,8 +747,8 @@ else
 	else
 		$arResult["FatalError"] = GetMessage("SONET_URE_NO_USER");
 
-	$arResult["InfoMessage"] = $infoMessage;
-	$arResult["ErrorMessage"] = $errorMessage;
+	$arResult["InfoMessage"] = $infoMessage ?? '';
+	$arResult["ErrorMessage"] = $errorMessage ?? '';
 }
 
 $this->IncludeComponentTemplate();

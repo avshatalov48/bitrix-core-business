@@ -19,48 +19,81 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-if(!is_array($arParams["HEADERS"]))
-	$arParams["HEADERS"] = array();
+if (!isset($arParams["HEADERS"]) || !is_array($arParams["HEADERS"]))
+{
+	$arParams["HEADERS"] = [];
+}
 
-if(!is_array($arParams["FOOTER"]))
-	$arParams["FOOTER"] = array();
+if (!isset($arParams["FOOTER"]) || !is_array($arParams["FOOTER"]))
+{
+	$arParams["FOOTER"] = [];
+}
 
-if(!is_array($arParams["FILTER"]))
-	$arParams["FILTER"] = array();
+if (!isset($arParams["FILTER"]) || !is_array($arParams["FILTER"]))
+{
+	$arParams["FILTER"] = [];
+}
 
-if(!is_array($arParams["SORT"]))
-	$arParams["SORT"] = array();
+if (!isset($arParams["SORT"]) || !is_array($arParams["SORT"]))
+{
+	$arParams["SORT"] = [];
+}
 
-if(!is_array($arParams["SORT_VARS"]))
-	$arParams["SORT_VARS"] = array();
-if(!isset($arParams["SORT_VARS"]["by"]))
+if (!isset($arParams["SORT_VARS"]) || !is_array($arParams["SORT_VARS"]))
+{
+	$arParams["SORT_VARS"] = [];
+}
+if (!isset($arParams["SORT_VARS"]["by"]))
+{
 	$arParams["SORT_VARS"]["by"] = "by";
-if(!isset($arParams["SORT_VARS"]["order"]))
+}
+if (!isset($arParams["SORT_VARS"]["order"]))
+{
 	$arParams["SORT_VARS"]["order"] = "order";
+}
 
-if($arParams["SHOW_FORM_TAG"] !== 'N' && $arParams["SHOW_FORM_TAG"] !== false)
+if (isset($arParams["SHOW_FORM_TAG"]) && ($arParams["SHOW_FORM_TAG"] === 'N' || $arParams["SHOW_FORM_TAG"] === false))
+{
+	$arParams["SHOW_FORM_TAG"] = false;
+}
+else
+{
 	$arParams["SHOW_FORM_TAG"] = true;
-else
-	$arParams["SHOW_FORM_TAG"] = false;	
-	
-if($arParams["ACTION_ALL_ROWS"] === "Y" || $arParams["ACTION_ALL_ROWS"] === true)
+}
+
+if (isset($arParams["ACTION_ALL_ROWS"]) && ($arParams["ACTION_ALL_ROWS"] === "Y" || $arParams["ACTION_ALL_ROWS"] === true))
+{
 	$arParams["ACTION_ALL_ROWS"] = true;
+}
 else
+{
 	$arParams["ACTION_ALL_ROWS"] = false;
+}
 
-if($arParams["EDITABLE"] === "N" || $arParams["EDITABLE"] === false)
+if (isset($arParams["EDITABLE"]) && ($arParams["EDITABLE"] === "N" || $arParams["EDITABLE"] === false))
+{
 	$arParams["EDITABLE"] = false;
+}
 else
+{
 	$arParams["EDITABLE"] = true;
+}
 
-if($arParams["USE_THEMES"] !== 'N' && $arParams["USE_THEMES"] !== false && CPageOption::GetOptionString("main.interface", "use_themes", "Y") !== "N")
-	$arParams["USE_THEMES"] = true;
-else
+if (
+	(isset($arParams["USE_THEMES"]) && ($arParams["USE_THEMES"] === 'N' || $arParams["USE_THEMES"] === false))
+	|| CPageOption::GetOptionString("main.interface", "use_themes", "Y") === "N"
+)
+{
 	$arParams["USE_THEMES"] = false;
+}
+else
+{
+	$arParams["USE_THEMES"] = true;
+}
 
-$arParams["GRID_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["GRID_ID"]);
+$arParams["GRID_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["GRID_ID"] ?? '');
 
-if(!is_array($arParams["~NAV_PARAMS"]))
+if(!isset($arParams["~NAV_PARAMS"]) || !is_array($arParams["~NAV_PARAMS"]))
 {
 	$arParams["~NAV_PARAMS"] = array();
 }
@@ -89,11 +122,18 @@ $arResult["GLOBAL_OPTIONS"] = CUserOptions::GetOption("main.interface", "global"
 
 if($arParams["USE_THEMES"])
 {
-	if($arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID] <> '')
+	if (
+		isset($arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID])
+		&& $arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID] <> ''
+	)
+	{
 		$arResult["GLOBAL_OPTIONS"]["theme"] = $arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID];
+	}
 
-	if($arResult["OPTIONS"]["theme"] == '')
+	if (!isset($arResult["OPTIONS"]["theme"]) || $arResult["OPTIONS"]["theme"] == '')
+	{
 		$arResult["OPTIONS"]["theme"] = $arResult["GLOBAL_OPTIONS"]["theme"];
+	}
 
 	$arResult["OPTIONS"]["theme"] = preg_replace("/[^a-z0-9_.-]/i", "", $arResult["OPTIONS"]["theme"]);
 }
@@ -109,13 +149,15 @@ $arResult["IS_ADMIN"] = $USER->CanDoOperation('edit_other_settings');
 // Filter
 //*********************
 
-if(is_array($arParams["FILTER_PRESETS"]) && !empty($arParams["FILTER_PRESETS"]))
+if (isset($arParams["FILTER_PRESETS"]) && is_array($arParams["FILTER_PRESETS"]) && !empty($arParams["FILTER_PRESETS"]))
+{
 	$arResult["OPTIONS"]["filters"] = array_merge($arParams["FILTER_PRESETS"], $aOptions["filters"]);
+}
 
 $arResult["FILTER"] = $grid_options->GetFilter($arParams["FILTER"]);
 
 $aVisRows = array();
-$aFilterTmp = explode(",", $aOptions["filter_rows"]);
+$aFilterTmp = explode(",", $aOptions["filter_rows"] ?? '');
 foreach($aFilterTmp as $field)
 {
 	if(($f = trim($field)) <> "")
@@ -125,7 +167,7 @@ foreach($aFilterTmp as $field)
 $arResult["FILTER_ROWS"] = array();
 foreach($arParams["FILTER"] as $field)
 {
-	if($field["filtered"] == true)
+	if(isset($field["filtered"]) && $field["filtered"] == true)
 	{
 		$arResult["FILTER_ROWS"][$field["id"]] = true;
 		continue;
@@ -136,14 +178,14 @@ foreach($arParams["FILTER"] as $field)
 	elseif(isset($arResult["FILTER"][$field["id"]."_to"]))
 		$flt = $arResult["FILTER"][$field["id"]."_to"];
 	else
-		$flt = $arResult["FILTER"][$field["id"]];
-	
+		$flt = $arResult["FILTER"][$field["id"]] ?? '';
+
 	if(is_array($flt) && !empty($flt) || !is_array($flt) && $flt <> '')
 		$arResult["FILTER_ROWS"][$field["id"]] = true;
 	elseif(array_key_exists($field["id"], $aVisRows))
 		$arResult["FILTER_ROWS"][$field["id"]] = true;
 	elseif(!isset($aOptions["filter_rows"]))
-		$arResult["FILTER_ROWS"][$field["id"]] = ($field["default"] == true);
+		$arResult["FILTER_ROWS"][$field["id"]] = isset($field["default"]) && $field["default"] == true;
 	else
 		$arResult["FILTER_ROWS"][$field["id"]] = false;
 }
@@ -187,8 +229,13 @@ foreach($aColsTmp as $col)
 $bEmptyCols = empty($aCols);
 foreach($arParams["HEADERS"] as $param)
 {
-	if(($bEmptyCols && $param["default"]==true) || in_array($param["id"], $aCols))
+	if (
+		($bEmptyCols && isset($param["default"]) && $param["default"] == true)
+		|| (isset($param["id"]) && in_array($param["id"], $aCols))
+	)
+	{
 		$arResult["HEADERS"][$param["id"]] = $param;
+	}
 }
 
 if(!$bEmptyCols)
@@ -216,21 +263,21 @@ $uri = new \Bitrix\Main\Web\Uri($this->request->getRequestUri());
 $uri->deleteParams(\Bitrix\Main\HttpRequest::getSystemParameters());
 $uri->deleteParams(array("bxajaxid", "AJAX_CALL", $arParams["SORT_VARS"]["by"], $arParams["SORT_VARS"]["order"]));
 
-if($arParams["FORM_ID"] <> '' && $arParams["TAB_ID"] <> '')
+if(!empty($arParams["FORM_ID"]) && !empty($arParams["TAB_ID"]))
 {
 	$uri->addParams(array($arParams["FORM_ID"].'_active_tab' => $arParams["TAB_ID"]));
 }
 
 $arResult["CURRENT_URL"] = $uri->getUri();
 
-$sep = (mb_strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
+$sep = (strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
 
 $sortBy = key($arParams["SORT"]);
 $sortOrder = current($arParams["SORT"]);
 
 foreach($arResult["HEADERS"] as $id=>$header)
 {
-	if($header["sort"] <> '')
+	if(isset($header["sort"]) && $header["sort"] <> '')
 	{
 		$arResult["HEADERS"][$id]["sort_state"] = "";
 		if(mb_strtolower($header["sort"]) == mb_strtolower($sortBy))
@@ -241,7 +288,7 @@ foreach($arResult["HEADERS"] as $id=>$header)
 				$arResult["HEADERS"][$id]["sort_state"] = "asc";
 		}
 		$arResult["HEADERS"][$id]["sort_url"] = htmlspecialcharsbx($arResult["CURRENT_URL"].$sep.$arParams["SORT_VARS"]["by"]."=".$header["sort"]."&".$arParams["SORT_VARS"]["order"]."=");
-		$arResult["HEADERS"][$id]["order"] = ($header["order"] == 'desc'? 'desc':'asc');
+		$arResult["HEADERS"][$id]["order"] = (isset($header["order"]) && $header["order"] == 'desc'? 'desc':'asc');
 	}
 }
 
@@ -264,13 +311,18 @@ foreach($arResult["HEADERS"] as $header)
 			$arResult["EDIT_DATE"] = true;
 	}
 
-	$arResult["COLS_EDIT_META"][$header["id"]] = array(
-			"editable" => (isset($header["editable"]) && $header["editable"] !== false),
-			"type"=>($header["type"] <> ''? $header["type"] : "text"),
-	);
-	if($arParams["EDITABLE"] && is_array($header["editable"]))
-		foreach($header["editable"] as $attr => $val)
+	$arResult["COLS_EDIT_META"][$header["id"]] = [
+		"editable" => (isset($header["editable"]) && $header["editable"] !== false),
+		"type" => isset($header["type"]) && $header["type"] <> '' ? $header["type"] : "text",
+	];
+
+	if ($arParams["EDITABLE"] && isset($header["editable"]) && is_array($header["editable"]))
+	{
+		foreach ($header["editable"] as $attr => $val)
+		{
 			$arResult["COLS_EDIT_META"][$header["id"]][$attr] = $val;
+		}
+	}
 }
 
 //*********************
@@ -301,18 +353,26 @@ if($arResult["ALLOW_EDIT"])
 	}
 }
 
-if($arParams["EDITABLE"] && is_array($arParams["ACTIONS"]) && count($arParams["ACTIONS"]) > 0)
+if (
+	isset($arParams["EDITABLE"])
+	&& $arParams["EDITABLE"]
+	&& isset($arParams["ACTIONS"])
+	&& is_array($arParams["ACTIONS"])
+	&& !empty($arParams["ACTIONS"])
+)
+{
 	$arResult["ALLOW_EDIT"] = true;
+}
 
 //*********************
 // Navigation
 //*********************
 
-if($arParams["NAV_STRING"] <> '')
+if(isset($arParams["NAV_STRING"]) && $arParams["NAV_STRING"] <> '')
 {
 	$arResult["NAV_STRING"] = $arParams["~NAV_STRING"];
 }
-elseif(is_object($arParams["NAV_OBJECT"]))
+elseif(isset($arParams["NAV_OBJECT"]) && is_object($arParams["NAV_OBJECT"]))
 {
 	if(($nav = $arParams["NAV_OBJECT"]) instanceof \Bitrix\Main\UI\PageNavigation)
 	{
@@ -345,7 +405,7 @@ elseif(is_object($arParams["NAV_OBJECT"]))
 		$nav = $arParams["NAV_OBJECT"];
 		$nav->nPageWindow = 5;
 		//dirty hack
-		if($arParams["FORM_ID"] <> '' && $arParams["TAB_ID"] <> '')
+		if(!empty($arParams["FORM_ID"]) && !empty($arParams["TAB_ID"]))
 			$_GET[$arParams["FORM_ID"].'_active_tab'] = $arParams["TAB_ID"];
 		$arResult["NAV_STRING"] = $nav->GetPageNavStringEx($dummy, "", "modern", true, null, $arParams["~NAV_PARAMS"]);
 	}

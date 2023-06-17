@@ -1,0 +1,173 @@
+html, body {
+	padding: 0;
+	margin: 0;
+	/*min-height: 100vh;*/
+	background:
+		url(images/calendar-pub-bg-build.svg) center bottom no-repeat,
+		url(images/calendar-pub-bg-clouds.svg) center top -15px no-repeat;
+	background-color: #f2f6f7;
+	overscroll-behavior: none;
+}
+
+.calendar-pub__wrapper {
+	margin-top: auto;
+}
+
+@media (max-width: 1070px) {
+	.calendar-pub__wrapper {
+		margin-top: auto;
+
+	}
+	/*.calendar-pub__wrapper.--hide {*/
+	/*	margin-top: 60px;*/
+	/*}*/
+}
+
+.calendar-pub-body {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	overflow: hidden;
+}
+
+.calendar-pub-body-inner {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow-x: hidden;
+}
+
+@media (max-width: 1070px) {
+	.calendar-pub-body-inner {
+		padding-top: 20px;
+		justify-content: unset;
+	}
+}
+
+.calendar-pub-footer {
+	margin-top: auto;
+	order: 2;
+}
+
+.calendar-pub-footer {
+	padding-bottom: 17px;
+	text-align: center;
+	font-family: var(--ui-font-family-system);
+	font-weight: 400;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--ui-color-base-50);
+}
+
+.calendar-pub-footer-top {
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+@media (max-width: 1070px) {
+	.calendar-pub-footer {
+		margin: auto 0 0 0;
+		padding: 0 10px 17px 10px;
+		font-size: 14px;
+	}
+
+	.calendar-pub-footer-bottom {
+		margin: 0 30px;
+	}
+
+	.calendar-pub-footer__link {
+		margin-top: 5px;
+	}
+}
+
+.calendar-pub-footer__link {
+	display: inline-block;
+	border-bottom: 1px dashed var(--ui-color-base-30);
+	cursor: pointer;
+	transition: .1s;
+	color: var(--ui-color-base-50);
+	text-decoration: none;
+}
+
+.calendar-pub-footer__link.--no-link,
+.calendar-pub-footer__link.--no-link:hover {
+	border: none;
+	cursor: text;
+}
+
+.calendar-pub-footer__link.--hover,
+.calendar-pub-footer__link:hover {
+	border-bottom: 1px dashed var(--ui-color-base-40);
+	transition: unset;
+}
+
+.calendar-pub-footer__link.--active,
+.calendar-pub-footer__link:active {
+	border-bottom: 1px dashed var(--ui-color-base-50);
+	transition: unset;
+}
+
+.calendar-pub-footer__logo-b24 {
+	display: inline-block;
+	width: 68px;
+	height: 14px;
+	background: url(images/calendar-pub-logo-b24-en.svg) center no-repeat;
+}
+
+.calendar-pub-footer__logo-b24.--ru {
+	vertical-align: middle;
+	width: 87px;
+	height: 16px;
+	background: url(images/calendar-pub-logo-b24-ru.svg) center no-repeat;
+}
+
+.calendar-pub__cookies {
+	position: fixed;
+	width: 340px;
+	padding: 22px 25px;
+	right: 20px;
+	bottom: 20px;
+	z-index: 1;
+	background: #fff;
+	border-radius: 6px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+	opacity: 0;
+	transform: translateY(15px);
+	transition: .2s;
+}
+
+.calendar-pub__cookies.--show {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.calendar-pub__cookies-title {
+	font-family: var(--ui-font-family-system);
+	font-size: 18px;
+	line-height: 20px;
+	color: #303030;
+	font-weight: 600;
+	margin-bottom: 10px;
+}
+
+.calendar-pub__cookies-info {
+	margin-bottom: 20px;
+	font-family: var(--ui-font-family-system);
+	font-size: 14px;
+	line-height: 20px;
+	color: #303030;
+}
+
+.calendar-pub__cookies-buttons {
+	display: flex;
+}
+
+.calendar-pub__cookies-buttons.--flex-end {
+	justify-content: flex-end;
+}
+
+.calendar-pub__cookies-buttons.--center {
+	justify-content: center;
+}

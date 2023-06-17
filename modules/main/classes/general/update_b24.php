@@ -222,7 +222,7 @@ class CB24Updater
 				$arVersions = array();
 		}
 
-		if (count($arVersions) <= 0)
+		if (empty($arVersions))
 		{
 			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
 
@@ -287,7 +287,7 @@ class CB24Updater
 	public function CheckUpdates()
 	{
 		$arDBVersions = self::GetDatabaseVersions();
-		if (count($arDBVersions) <= 0)
+		if (empty($arDBVersions))
 		{
 			$this->CollectDatabaseVersions("ALL");
 			$arDBVersions = self::GetDatabaseVersions();
@@ -367,7 +367,7 @@ class CB24Updater
 								$num = substr($dir, 7, strlen($dir) - 16);
 							}
 
-							$arUpdaters[] = array("/".$dir, Trim($num));
+							$arUpdaters[] = array("/".$dir, trim($num));
 						}
 						elseif (file_exists($this->updatersDir.$moduleId."/".$dir."/index.php"))
 						{
@@ -377,7 +377,7 @@ class CB24Updater
 								$num = substr($dir, 7, strlen($dir) - 12);
 							}
 
-							$arUpdaters[] = array("/".$dir."/index.php", Trim($num));
+							$arUpdaters[] = array("/".$dir."/index.php", trim($num));
 						}
 					}
 				}

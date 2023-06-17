@@ -8,6 +8,7 @@ export type GroupData = {
 	adviceTitle?: string,
 	adviceAvatar?: string,
 	customData?: {},
+	deselectable?: boolean,
 	selected?: boolean,
 	disabled?: boolean,
 	compare?: (ItemData, ItemData) => number,

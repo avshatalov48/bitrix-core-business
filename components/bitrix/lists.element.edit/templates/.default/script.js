@@ -13,7 +13,6 @@ BX.Lists.ListsElementEditClass = (function ()
 		this.jsClass = 'ListsElementEditClass_'+parameters.randomString;
 		this.elementUrl = parameters.elementUrl;
 		this.sectionUrl = parameters.sectionUrl;
-		this.listAction = parameters.listAction;
 		this.isConstantsTuned = parameters.isConstantsTuned;
 		this.lockStatus = parameters.lockStatus;
 
@@ -23,59 +22,7 @@ BX.Lists.ListsElementEditClass = (function ()
 	ListsElementEditClass.prototype.init = function ()
 	{
 		this.ajaxUrl = '/bitrix/components/bitrix/lists.element.edit/ajax.php';
-
-		this.actionButton = BX('lists-title-action');
-		this.actionPopupItems = [];
-		this.actionPopupObject = null;
-		this.actionPopupId = 'lists-title-action';
-		BX.bind(this.actionButton, 'click', BX.delegate(this.showListAction, this));
-
 		if(this.isConstantsTuned) this.setConstants();
-	};
-
-	ListsElementEditClass.prototype.showListAction = function ()
-	{
-		if(!this.actionPopupItems.length)
-		{
-			for(var k = 0; k < this.listAction.length; k++)
-			{
-				var item = {
-					text : this.listAction[k].text
-				};
-				if (this.listAction[k].hasOwnProperty("url"))
-				{
-					item.href = this.listAction[k].url;
-				}
-				else
-				{
-					item.onclick = this.listAction[k].action;
-				}
-				this.actionPopupItems.push(item);
-			}
-		}
-		if(!BX.PopupMenu.getMenuById(this.actionPopupId))
-		{
-			var buttonRect = this.actionButton.getBoundingClientRect();
-			this.actionPopupObject = BX.PopupMenu.create(
-				this.actionPopupId,
-				this.actionButton,
-				this.actionPopupItems,
-				{
-					closeByEsc : true,
-					angle: true,
-					offsetLeft: buttonRect.width/2,
-					events: {
-						onPopupShow: BX.proxy(function () {
-							BX.addClass(this.actionButton, 'webform-button-active');
-						}, this),
-						onPopupClose: BX.proxy(function () {
-							BX.removeClass(this.actionButton, 'webform-button-active');
-						}, this)
-					}
-				}
-			);
-		}
-		if(this.actionPopupObject) this.actionPopupObject.popupWindow.show();
 	};
 
 	ListsElementEditClass.prototype.completeWorkflow = function(workflowId, action)
@@ -468,48 +415,18 @@ BX.Lists.ListsElementEditClass = (function ()
 		var _flag = document.getElementById('action');
 		if(_form && _flag)
 		{
-			BX.Lists.modalWindow({
-				modalId: 'bx-lists-migrate-list',
-				title: BX.message('CT_BLEE_DELETE_POPUP_TITLE'),
-				contentClassName: '',
-				draggable: true,
-				contentStyle: {
-					width: '400px',
-					padding: '20px 20px 20px 20px'
+			BX.UI.Dialogs.MessageBox.confirm(
+				message,
+				BX.Loc.getMessage('CT_BLEE_DELETE_POPUP_TITLE'),
+				() =>
+				{
+					_flag.value = 'delete';
+					_form.submit();
+
+					return true;
 				},
-				events: {
-					onPopupClose : function() {
-						this.destroy();
-					}
-				},
-				content: message,
-				buttons: [
-					BX.create('span', {
-						text : BX.message("CT_BLEE_DELETE_POPUP_ACCEPT_BUTTON"),
-						props: {
-							className: 'webform-small-button webform-small-button-accept'
-						},
-						events : {
-							click : BX.delegate(function() {
-								BX.PopupWindowManager.getCurrentPopup().close();
-								_flag.value = 'delete';
-								_form.submit();
-							}, this)
-						}
-					}),
-					BX.create('span', {
-						text : BX.message("CT_BLEE_DELETE_POPUP_CANCEL_BUTTON"),
-						props: {
-							className: 'popup-window-button popup-window-button-link popup-window-button-link-cancel'
-						},
-						events : {
-							click : BX.delegate(function() {
-								BX.PopupWindowManager.getCurrentPopup().close();
-							}, this)
-						}
-					})
-				]
-			});
+				BX.Loc.getMessage("CT_BLEE_DELETE_POPUP_ACCEPT_BUTTON"),
+			);
 		}
 	};
 

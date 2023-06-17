@@ -98,7 +98,7 @@ class CUndo
 		global $DB;
 
 		$arFilter = $Params['arFilter'];
-		$arOrder = isset($Params['arOrder'])? $Params['arOrder']: array('ID' => 'asc');
+		$arOrder = $Params['arOrder'] ?? array('ID' => 'asc');
 
 		$arFields = array(
 			"ID" => array("FIELD_NAME" => "U.ID", "FIELD_TYPE" => "string"),

@@ -202,8 +202,12 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, ($arParams["CACH
 					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
-					$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop, "photo_out");
+					$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop);
 				}
+			}
+			if ($bGetProperty)
+			{
+				\CIBlockFormatProperties::clearCache();
 			}
 
 			if($arParams["SECTION_ID"])
@@ -260,12 +264,22 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, ($arParams["CACH
 			if($arResult["SECTION"] = $rsSection->GetNext())
 			{
 				$arResult["SECTION"]["PATH"] = array();
-				$rsPath = CIBlockSection::GetNavChain($arResult["SECTION"]["IBLOCK_ID"], $arResult["SECTION"]["ID"]);
+				$rsPath = CIBlockSection::GetNavChain(
+					$arResult["SECTION"]["IBLOCK_ID"],
+					$arResult["SECTION"]["ID"],
+					[
+						'ID',
+						'IBLOCK_ID',
+						'NAME',
+						'SECTION_PAGE_URL',
+					]
+				);
 				$rsPath->SetUrlTemplates("", $arParams["SECTION_URL"]);
-				while($arPath=$rsPath->GetNext())
+				while ($arPath = $rsPath->GetNext())
 				{
 					$arResult["SECTION"]["PATH"][] = $arPath;
 				}
+				unset($arPath, $rsPath);
 			}
 		}
 	}
@@ -405,11 +419,14 @@ if(isset($arResult["ID"]))
 
 				if($arParams["SET_TITLE"] || isset($arResult[$arParams["BROWSER_TITLE"]]))
 				{
-					$arTitleOptions = array(
-						'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_element"]["ACTION"],
-						'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_element"]["ACTION"],
-						'COMPONENT_NAME' => $this->GetName(),
-					);
+					if (isset($arButtons["submenu"]["edit_element"]))
+					{
+						$arTitleOptions = [
+							'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_element"]["ACTION"],
+							'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_element"]["ACTION"],
+							'COMPONENT_NAME' => $this->GetName(),
+						];
+					}
 				}
 			}
 		}
@@ -466,4 +483,3 @@ if(isset($arResult["ID"]))
 
 	return $arResult["ID"];
 }
-?>

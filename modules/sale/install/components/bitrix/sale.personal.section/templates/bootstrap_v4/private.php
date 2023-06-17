@@ -1,5 +1,14 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @var PersonalOrderSection $component */
+/** @var array $arParams */
+/** @var array $arResult */
 
 use Bitrix\Main\Localization\Loc;
 
@@ -8,7 +17,7 @@ if ($arParams['SHOW_PRIVATE_PAGE'] !== 'Y' && $arParams['USE_PRIVATE_PAGE_TO_AUT
 	LocalRedirect($arParams['SEF_FOLDER']);
 }
 
-if ($arParams["MAIN_CHAIN_NAME"] <> '')
+if ($arParams["MAIN_CHAIN_NAME"] !== '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }

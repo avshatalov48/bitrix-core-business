@@ -62,6 +62,7 @@
 						? params.langId
 						: '';
 		this.folderId = params.folderId || 0;
+		this.urlPreview = params.urlPreview || '';
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
 		this.onCancelButtonClick = proxy(this.onCancelButtonClick, this);
@@ -123,6 +124,12 @@
 			this.setBaseUrl();
 			this.setDefaultColor();
 			this.showPreview();
+			this.buildHeader();
+
+			if (BX.SidePanel.Instance.isReload === true)
+			{
+				this.createButton.click();
+			}
 		},
 
 		setBaseUrl: function(url) {
@@ -225,6 +232,65 @@
 				.then(this.hideLoader());
 		},
 
+		buildHeader: function() {
+			var qrContainer = BX.create('div');
+			new QRCode(qrContainer, {
+				text: this.urlPreview,
+				width: 156,
+				height: 156,
+				colorLight: "transparent"
+			});
+
+			this.showPopupButton = document.querySelector(".mobile-view");
+			if (this.showPopupButton)
+			{
+				var popupPreview = BX.PopupWindowManager.create(
+					'landing-popup-preview',
+					this.showPopupButton,
+					{
+					content: BX.create('div', {
+						props: { className: 'landing-popup-preview-content' },
+						children: [
+							BX.create('div', {
+								props: { className: 'landing-popup-preview-title' },
+								text: this.messages.LANDING_TPL_POPUP_TITLE
+							}),
+							BX.create('div', {
+								props: { className: 'landing-popup-preview-qr' },
+								children: [
+									qrContainer
+								],
+							}),
+							BX.create('div', {
+								props: { className: 'landing-popup-preview-text' },
+								text: this.messages.LANDING_TPL_POPUP_TEXT
+							}),
+						]
+					}),
+					closeIcon : true,
+					closeByEsc : true,
+					noAllPaddings : true,
+					autoHide: true,
+					animation: 'fading-slide',
+					angle: {
+						position: "top",
+						offset: 75
+					},
+					minWidth: 375,
+					maxWidth: 375,
+					contentBackground: "transparent",
+				}
+				);
+
+				this.showPopupButton.addEventListener(
+					'click',
+					function()
+					{
+						popupPreview.toggle();
+					});
+			}
+		},
+
 		/**
 		 * Creates frame if needed
 		 * @return {Function}
@@ -249,13 +315,9 @@
 
 						if (!this.previewFrame.style.width)
 						{
-							var containerWidth = this.imageContainer.clientWidth;
-
 							void style(this.previewFrame, {
-								"width": "1000px",
-								"height": "calc((100vh - 140px) * (100 / "+((containerWidth/1000)*100)+"))",
-								"transform": "scale("+(containerWidth/1000)+") translateZ(0)",
-								"transform-origin": "top left",
+								"width": "100%",
+								"height": "calc(100vh - 69px)",
 								"border": "none"
 							});
 						}
@@ -402,6 +464,27 @@
 		{
 			event.preventDefault();
 
+			if (BX.Dom.hasClass(this.createButton.parentNode, 'needed-market-subscription'))
+			{
+				top.BX.UI.InfoHelper.show('limit_subscription_market_templates');
+				const promise = new Promise(function(resolve) {
+					setInterval(
+						() => {
+							if (BX.Dom.hasClass(this.createButton, 'ui-btn-clock'))
+							{
+								resolve();
+							}
+						},
+						500
+					);
+				}.bind(this));
+				promise.then(() => {
+					BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
+					BX.Dom.attr(this.createButton, 'style', '');
+				});
+				return;
+			}
+
 			const metrika = new BX.Landing.Metrika(true);
 			metrika.sendLabel(
 				null,
@@ -530,17 +613,71 @@
 
 				if (typeof top.BX.SidePanel !== 'undefined')
 				{
-					top.BX.SidePanel.Instance.open(
-						addQueryParams(this.zipInstallPath, add),
-						{
-							cacheable: false,
-							allowChangeHistory: false,
-							width: 491,
-							data: {
-								rightBoundary: 0,
-							},
+					const popupImport = document.querySelector(".landing-popup-import");
+					const popupImportLoaderContainer = document.querySelector(".landing-popup-import-loader");
+					const previewFrame = document.querySelector(".preview-left");
+					if (previewFrame && popupImportLoaderContainer)
+					{
+						this.loader.show(popupImportLoaderContainer);
+						BX.Dom.addClass(previewFrame, 'landing-import-start');
+					}
+					add['inSlider'] = 'N';
+					if (this.siteId !== 0)
+					{
+						add['createType'] = 'PAGE';
+					}
+					let interval;
+					BX.ajax({
+						method: 'POST',
+						dataType: 'html',
+						url: addQueryParams(this.zipInstallPath, add),
+						onsuccess: data => {
+							const promise = new Promise((resolve, reject) => {
+								const result = BX.Dom.create('div', {html: data});
+								BX.Dom.style(result, 'display', 'none');
+								popupImport.append(result);
+								let restImportElement;
+								let count = 0;
+								interval = setInterval(
+									() => {
+										if (count > 100)
+										{
+											reject(new Error('Time is up'));
+										}
+										restImportElement = result.querySelector('.rest-configuration-wrapper');
+										if (restImportElement !== null)
+										{
+											resolve(restImportElement);
+										}
+										count++;
+									},
+									300
+								);
+							});
+							promise.then(
+								result => {
+									clearInterval(interval);
+									if (BX.Dom.hasClass(result, 'rest-configuration-wrapper'))
+									{
+										const importTitle = result.querySelector('.rest-configuration-title');
+										const importIconContainer = result.querySelector('.rest-configuration-start-icon-main-container');
+										if (importTitle && importIconContainer)
+										{
+											BX.Dom.remove(importTitle);
+											BX.Dom.insertBefore(importTitle, importIconContainer.nextSibling);
+										}
+										this.loader.hide();
+										BX.Dom.append(result, popupImport);
+										BX.Dom.style(popupImportLoaderContainer, 'display', 'none');
+									}
+								},
+								error => {
+									clearInterval(interval);
+									this.addRepeatCreateButton();
+								}
+							);
 						}
-					);
+					});
 				}
 			}
 			else if (this.disableStoreRedirect)
@@ -564,6 +701,34 @@
 			else
 			{
 				window.location = url;
+			}
+		},
+
+		addRepeatCreateButton: function()
+		{
+			const popupImportError = document.querySelector(".landing-popup-import-repeat");
+			if (popupImportError)
+			{
+				BX.Dom.removeClass(popupImportError, 'hide');
+			}
+			const repeatButton = document.querySelector(".landing-popup-import-repeat-button");
+			if (repeatButton)
+			{
+				bind(repeatButton, "click", this.onRepeatButtonClick);
+			}
+		},
+
+		onRepeatButtonClick: function()
+		{
+			const popupImportError = document.querySelector(".landing-popup-import-repeat");
+			if (popupImportError)
+			{
+				BX.Dom.addClass(popupImportError, 'hide');
+			}
+			const createButton = document.querySelector(".landing-template-preview-create");
+			if (createButton)
+			{
+				createButton.click();
 			}
 		},
 

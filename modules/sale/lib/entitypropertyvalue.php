@@ -64,6 +64,11 @@ abstract class EntityPropertyValue extends CollectableEntity
 		return [];
 	}
 
+	protected static function extractTradingPlatformIdList(Entity $entity): array
+	{
+		return [];
+	}
+
 	/**
 	 * @param Entity $entity
 	 * @return array
@@ -220,7 +225,27 @@ abstract class EntityPropertyValue extends CollectableEntity
 			$dbRes = Internals\OrderPropsRelationTable::getList([
 				'filter' => [
 					'@ENTITY_ID' => $tpLandingList,
-					'=ENTITY_TYPE' => 'L'
+					'=ENTITY_TYPE' => OrderPropsRelationTable::ENTITY_TYPE_LANDING,
+				],
+				'limit' => 1
+			]);
+
+			return (bool)$dbRes->fetch();
+		}
+
+		return false;
+	}
+
+	protected static function hasPresetFotTradingPlatform(Entity $entity): bool
+	{
+		$tpList = static::extractTradingPlatformIdList($entity);
+
+		if ($tpList)
+		{
+			$dbRes = Internals\OrderPropsRelationTable::getList([
+				'filter' => [
+					'@ENTITY_ID' => $tpList,
+					'=ENTITY_TYPE' => OrderPropsRelationTable::ENTITY_TYPE_TRADING_PLATFORM
 				],
 				'limit' => 1
 			]);
@@ -280,6 +305,29 @@ abstract class EntityPropertyValue extends CollectableEntity
 			];
 		}
 
+		if (self::hasPresetFotTradingPlatform($entity))
+		{
+			$result[] = [
+				'LOGIC' => 'OR',
+				'!RELATION_PS.ENTITY_ID' => null,
+				'!RELATION_DLV.ENTITY_ID' => null,
+				'!RELATION_TP_LANDING.ENTITY_ID' => null,
+			];
+
+			$result = [
+				'LOGIC' => 'OR',
+				'@RELATION_TP.ENTITY_ID' => static::extractTradingPlatformIdList($entity),
+				$result,
+			];
+		}
+		else
+		{
+			$result = [
+				'=RELATION_TP.ENTITY_ID' => null,
+				$result,
+			];
+		}
+
 		return $result;
 	}
 
@@ -291,7 +339,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'\Bitrix\Sale\Internals\OrderPropsRelation',
 				[
 					'=this.ID' => 'ref.PROPERTY_ID',
-					'ref.ENTITY_TYPE' => new SqlExpression('?', 'P')
+					'ref.ENTITY_TYPE' => new SqlExpression('?', OrderPropsRelationTable::ENTITY_TYPE_PAY_SYSTEM)
 				],
 				'left_join'
 			),
@@ -300,7 +348,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'\Bitrix\Sale\Internals\OrderPropsRelation',
 				[
 					'=this.ID' => 'ref.PROPERTY_ID',
-					'ref.ENTITY_TYPE' => new SqlExpression('?', 'D')
+					'ref.ENTITY_TYPE' => new SqlExpression('?', OrderPropsRelationTable::ENTITY_TYPE_DELIVERY)
 				],
 				'left_join'
 			),
@@ -309,10 +357,19 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'\Bitrix\Sale\Internals\OrderPropsRelation',
 				[
 					'=this.ID' => 'ref.PROPERTY_ID',
-					'ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', 'L')
+					'ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', OrderPropsRelationTable::ENTITY_TYPE_LANDING)
 				],
 				'left_join'
-			)
+			),
+			new Main\Entity\ReferenceField(
+				'RELATION_TP',
+				'\Bitrix\Sale\Internals\OrderPropsRelation',
+				[
+					'=this.ID' => 'ref.PROPERTY_ID',
+					'ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', OrderPropsRelationTable::ENTITY_TYPE_TRADING_PLATFORM)
+				],
+				'left_join'
+			),
 		];
 	}
 
@@ -423,10 +480,10 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'UTIL' => null,
 				'INPUT_FIELD_LOCATION' => null,
 				'MULTIPLE' => null,
-				'ENTITY_TYPE' => null,
 			];
 		}
 
+		$property['ENTITY_TYPE'] = static::getEntityType();
 
 		$propertyClassName = static::getPropertyClassName();
 
@@ -883,7 +940,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 	 */
 	public function setValue($value)
 	{
-		$this->setField('VALUE', $value);
+		return $this->setField('VALUE', $value);
 	}
 
 	/**

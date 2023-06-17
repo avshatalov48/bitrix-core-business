@@ -1,0 +1,28 @@
+.bx-im-attach__scope {
+	--im-attach__font_primary: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-helvetica);
+}
+
+.bx-im-attach__container {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	flex-direction: row;
+	margin-top: 2px;
+	font: var(--im-attach__font_primary);
+	position: relative;
+	max-width: 100%;
+}
+
+.bx-im-attach__border {
+	flex-shrink: 0;
+	display: inline-block;
+	margin-right: 10px;
+	border-left: 3px solid transparent;
+	border-radius: var(--im-border-radius-2xs)/var(--im-border-radius-xs);
+}
+
+.bx-im-attach__content {
+	flex-grow: 1;
+	display: inline-block;
+    width: calc(100% - 14px);
+}

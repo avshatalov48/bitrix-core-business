@@ -216,57 +216,112 @@ class ElementType extends EnumType
 			return false;
 		}
 
-		$currentCache = \Bitrix\Main\Data\Cache::createInstance();
-
 		$cacheTtl = 86400;
-		$cacheId = md5('CIBlockElementEnum::getTreeList_' . $iblockId . '_' . $activeFilter);
-		$cacheDir = '/iblock/elementtype/' . $iblockId;
 
-		if($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
+		$iblock = Iblock\IblockTable::getRow([
+			'select' => [
+				'ID',
+				'RIGHTS_MODE',
+			],
+			'filter' => [
+				'=ID' => $iblockId
+			],
+			'cache' => [
+				'ttl' => $cacheTtl,
+			],
+		]);
+		if ($iblock === null)
 		{
-			$result = $currentCache->getVars();
+			return false;
+		}
+
+		if ($iblock['RIGHTS_MODE'] === Iblock\IblockTable::RIGHTS_SIMPLE)
+		{
+			$currentCache = \Bitrix\Main\Data\Cache::createInstance();
+
+			$cacheId = md5('CIBlockElementEnum::getTreeList_' . $iblockId . '_' . $activeFilter);
+			$cacheDir = '/iblock/elementtype/' . $iblockId;
+
+			if ($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
+			{
+				$result = $currentCache->getVars();
+			}
+			else
+			{
+				$currentCache->startDataCache();
+
+				$taggedCache = Application::getInstance()->getTaggedCache();
+				$taggedCache->startTagCache($cacheDir);
+
+				$filter = ['IBLOCK_ID' => $iblockId];
+				if($activeFilter === 'Y')
+				{
+					$filter['=ACTIVE'] = 'Y';
+				}
+
+				$result = [];
+				$elements = \Bitrix\Iblock\ElementTable::getList([
+					'select' => [
+						'ID',
+						'NAME',
+					],
+					'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
+					'order' => [
+						'NAME' => 'ASC',
+						'ID' => 'ASC',
+					],
+				]);
+
+				while($element = $elements->fetch())
+				{
+					$result[$element['ID']] = $element['NAME'];
+				}
+				unset($elements);
+
+				$taggedCache->registerTag('iblock_id_' . $iblockId);
+				$taggedCache->endTagCache();
+
+				if (empty($result))
+				{
+					$result = false;
+				}
+
+				$currentCache->endDataCache($result);
+			}
+			unset($currentCache);
 		}
 		else
 		{
-			$currentCache->startDataCache();
-
-			$taggedCache = Application::getInstance()->getTaggedCache();
-			$taggedCache->startTagCache($cacheDir);
-
-			$filter = ['IBLOCK_ID' => $iblockId];
-			if($activeFilter === 'Y')
+			$filter = [
+				'IBLOCK_ID' => $iblockId,
+				'CHECK_PERMISSIONS' => 'Y',
+				'MIN_PERMISSION' => \CIBlockRights::PUBLIC_READ,
+			];
+			if ($activeFilter === 'Y')
 			{
 				$filter['ACTIVE'] = 'Y';
 			}
 
 			$result = [];
-			$elements = \Bitrix\Iblock\ElementTable::getList([
-				'select' => [
-					'ID',
-					'NAME',
-				],
-				'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
-				'order' => [
+			$iterator = \CIBlockElement::GetList(
+				[
 					'NAME' => 'ASC',
 					'ID' => 'ASC',
 				],
-			]);
+				$filter,
+				false,
+				false,
+				[
+					'ID',
+					'NAME',
+				]
+			);
 
-			while($element = $elements->fetch())
+			while ($element = $iterator->Fetch())
 			{
 				$result[$element['ID']] = $element['NAME'];
 			}
-			unset($elements);
-
-			$taggedCache->registerTag('iblock_id_' . $iblockId);
-			$taggedCache->endTagCache();
-
-			if (empty($result))
-			{
-				$result = false;
-			}
-
-			$currentCache->endDataCache($result);
+			unset($iterator);
 		}
 
 		return $result;

@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
@@ -830,6 +831,7 @@ if ($arResult["PROCESSES"])
 }
 
 $isBizprocActive = $arResult["BIZPROC"] == "Y";
+$isBizprocVisible = empty($grid_columns) || in_array('BIZPROC', $grid_columns);
 $userId = $USER->GetID();
 
 $n = 0;
@@ -865,25 +867,14 @@ while ($obElement = $rsElements->GetNextElement())
 			]
 		);
 
-		if (method_exists('CBPDocument', 'getActiveStates'))
+		$documentStates = CBPDocument::getActiveStates($documentComplexId, 5);
+		if (empty($documentStates))
 		{
-			$documentStates = CBPDocument::getActiveStates($documentComplexId, 5);
-			if (empty($documentStates))
+			$workflowIds = CBPStateService::getIdsByDocument($documentComplexId, 1);
+			if ($workflowIds)
 			{
-				$workflowIds = CBPStateService::getIdsByDocument($documentComplexId);
-				if ($workflowIds)
-				{
-					if (count($workflowIds) > 1)
-					{
-						$workflowIds = array_slice($workflowIds, 0, 1);
-					}
-					$documentStates = CBPStateService::getDocumentStates($documentComplexId, $workflowIds);
-				}
+				$documentStates = CBPStateService::getDocumentStates($documentComplexId, $workflowIds);
 			}
-		}
-		else
-		{
-			$documentStates = CBPDocument::getDocumentStates($documentComplexType, $documentComplexId);
 		}
 	}
 
@@ -1196,7 +1187,7 @@ while ($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Tasks workflow */
-				if($documentState["ID"] <> '' && $documentState['WORKFLOW_STATUS'])
+				if($isBizprocVisible && $documentState["ID"] && $documentState['WORKFLOW_STATUS'])
 				{
 					$tasks = CBPDocument::getUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $documentState["ID"]);
 					if(!empty($tasks))

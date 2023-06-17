@@ -10,8 +10,90 @@ class Text
 	private static $replacements = Array();
 	private static $parsers = Array();
 
+	private static $emojiList = [
+		"file" => ':f09f938e:',
+		"image" => ':f09f96bc:',
+		"audio" => ':f09f9488:',
+		"video" => ':f09f93ba:',
+		"code" => ':f09f9384:',
+		"call" => ':f09f939e:',
+		"attach" => ':f09fa7a9:',
+		"quote" => ':f09f92ac:',
+	];
+
 	public static function parse($text, $params = Array())
 	{
+		$linkParam = $params['LINK'] ?? null;
+		$smilesParam = $params['SMILES'] ?? null;
+		$linkLimitParam = $params['LINK_LIMIT'] ?? null;
+		$textLimitParam = $params['TEXT_LIMIT'] ?? null;
+		$cutStrikeParam = $params['CUT_STRIKE'] ?? null;
+
+		$parseId = md5($linkParam.$smilesParam.$linkLimitParam.$textLimitParam);
+		if (isset(self::$parsers[$parseId]))
+		{
+			$parser = self::$parsers[$parseId];
+		}
+		else
+		{
+			$parser = new \CTextParser();
+			$parser->serverName = Common::getPublicDomain();
+			$parser->maxStringLen = intval($textLimitParam);
+
+			$parser->anchorType = 'bbcode';
+			$parser->maxAnchorLength = intval($linkLimitParam)? $linkLimitParam: 55;
+
+			foreach ($parser->allow as $tag => $value)
+			{
+				$parser->allow[$tag] = 'N';
+			}
+			$parser->allow['EMOJI'] = 'Y';
+			$parser->allow['HTML'] = 'Y';
+			$parser->allow['ANCHOR'] = 'Y';
+			$parser->allow['TEXT_ANCHOR'] = 'Y';
+
+			self::$parsers[$parseId] = $parser;
+		}
+
+		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
+		$text = preg_replace_callback("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
+		$text = preg_replace_callback("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
+		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
+
+		if ($cutStrikeParam === 'Y')
+		{
+			$text = preg_replace("/\[s\].*?\[\/s\]/i", "", $text);
+		}
+
+		$text = $parser->convertText($text);
+
+		$text = str_replace(['<br />', '#BR#', '[br]'], "\n", $text);
+		$text = str_replace(["&#169;", "&#153;", "&#174;"], ["(c)", "(tm)", "(r)"], $text);
+		$text = str_replace("&nbsp;", " ", $text);
+		$text = str_replace("&quot;", "\"", $text);
+		$text = str_replace("&#092;", "\\", $text);
+		$text = str_replace("&#036;", "\$", $text);
+		$text = str_replace("&#33;", "!", $text);
+		$text = str_replace("&#91;", "[", $text);
+		$text = str_replace("&#93;", "]", $text);
+		$text = str_replace("&#39;", "'", $text);
+		$text = str_replace("&lt;", "<", $text);
+		$text = str_replace("&gt;", ">", $text);
+		$text = str_replace("&#124;", '|', $text);
+		$text = str_replace("&amp;", "&", $text);
+
+		$text = self::recoverReplacements($text);
+
+		return $text;
+	}
+
+	public static function parseLegacyFormat($text, $params = Array())
+	{
+		if (!$text)
+		{
+			return '';
+		}
+
 		$safeParam = $params['SAFE'] ?? null;
 		$linkParam = $params['LINK'] ?? null;
 		$fontParam = $params['FONT'] ?? null;
@@ -49,7 +131,7 @@ class Text
 			'TEXT_ANCHOR' => $textAnchorParam === 'N' ? 'N' : 'Y',
 		];
 
-		$parseId = md5($linkParam.$smilesParam.$linkLimitParam.$textLimitParam);
+		$parseId = md5('legacy'.$linkParam.$smilesParam.$linkLimitParam.$textLimitParam.$linkTargetSelfParam);
 		if (isset(self::$parsers[$parseId]))
 		{
 			$parser = self::$parsers[$parseId];
@@ -69,7 +151,6 @@ class Text
 			self::$parsers[$parseId] = $parser;
 		}
 
-
 		$text = preg_replace_callback("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
@@ -87,6 +168,44 @@ class Text
 		$text = self::recoverReplacements($text);
 
 		return $text;
+	}
+
+	public static function getReplaceMap($text)
+	{
+		$replaces = [];
+
+		$dates = self::getDateConverterParams($text);
+		foreach ($dates as $result)
+		{
+			$replaces[] = [
+				'TYPE' => 'DATE',
+				'TEXT' => $result->getText(),
+				'VALUE' => $result->getDate(),
+				'START' => $result->getTextPosition(),
+				'END' => $result->getTextPosition()+$result->getTextLength(),
+			];
+		}
+
+		return self::resolveIntersect($replaces);
+	}
+
+	private static function resolveIntersect(array $segments): array
+	{
+		usort($segments, fn(array $segmentA, array $segmentB) => $segmentA['START'] <=> $segmentB['START']);
+
+		$result = [];
+		$maxEnd = -1;
+
+		foreach ($segments as $segment)
+		{
+			if ($segment['START'] > $maxEnd)
+			{
+				$result[] = $segment;
+				$maxEnd = $segment['END'];
+			}
+		}
+
+		return array_reverse($result);
 	}
 
 	/**
@@ -170,11 +289,23 @@ class Text
 	{
 		$userId = $matches[1];
 		$userName = \Bitrix\Im\User::getInstance($userId)->getFullName(false);
-		return '[USER='.$userId.']'.$userName.'[/USER]';
+		return '[USER='.$userId.' REPLACE]'.$userName.'[/USER]';
 	}
 
-	public static function removeBbCodes($text, $withFile = false, $withAttach = false)
+	public static function removeBbCodes($text, $withFile = false, $attachValue = false)
 	{
+		if ($attachValue)
+		{
+			if ($attachValue === true || preg_match('/^(\d+)$/', $attachValue))
+			{
+				$text .= " [".Loc::getMessage('IM_MESSAGE_ATTACH')."]";
+			}
+			else
+			{
+				$text .= ' '. $attachValue;
+			}
+		}
+
 		$text = preg_replace("/\[s\](.*?)\[\/s\]/i", "", $text);
 		$text = preg_replace("/\[[buis]\](.*?)\[\/[buis]\]/i", "$1", $text);
 		$text = preg_replace("/\[url\](.*?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER, "$1", $text);
@@ -182,13 +313,17 @@ class Text
 		$text = preg_replace("/\[RATING=([1-5]{1})\]/i", " [".Loc::getMessage('IM_MESSAGE_RATING')."] ", $text);
 		$text = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".Loc::getMessage('IM_MESSAGE_ATTACH')."] ", $text);
 		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
-		$text = preg_replace("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", "$2", $text);
+		$text = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", "$3", $text);
+		$text = preg_replace("/\[dialog=(chat\d+|\d+:\d)(?: message=(\d+))?](.*?)\[\/dialog]/i", "$3", $text);
+		$text = preg_replace("/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/i", "$3", $text);
 		$text = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $text);
 		$text = preg_replace("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", "$2", $text);
 		$text = preg_replace("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", "$2", $text);
 		$text = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $text);
 		$text = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $text);
-		$text = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $text);
+		$text = preg_replace("/\[size=(\d+)](.*?)\[\/size]/i", "$2", $text);
+		$text = preg_replace("/\[color=#([0-9a-f]{3}|[0-9a-f]{6})](.*?)\[\/color]/i", "$2", $text);
+		$text = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array('\Bitrix\Im\Text', 'modifyIcon'), $text);
 		$text = preg_replace('#\-{54}.+?\-{54}#s', " [".Loc::getMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $text));
 		$text = trim($text);
 
@@ -196,15 +331,8 @@ class Text
 		{
 			$text .= " [".Loc::getMessage('IM_MESSAGE_FILE')."]";
 		}
-		if ($withAttach)
-		{
-			$text .= " [".Loc::getMessage('IM_MESSAGE_ATTACH')."]";
-		}
 
-		if ($withFile || $withAttach)
-		{
-			$text = trim($text);
-		}
+		$text = trim($text);
 
 		if ($text == '')
 		{
@@ -231,5 +359,141 @@ class Text
 	public static function decodeEmoji($text)
 	{
 		return \Bitrix\Main\Text\Emoji::decode($text);
+	}
+
+	public static function getEmoji($code, $fallbackText = '')
+	{
+		if (!\Bitrix\Main\Application::isUtfMode())
+		{
+			return $fallbackText;
+		}
+
+		if (!isset(self::$emojiList[$code]))
+		{
+			return $fallbackText;
+		}
+
+		return self::decodeEmoji(self::$emojiList[$code]);
+	}
+
+	public static function getEmojiList(): ?array
+	{
+		if (!\Bitrix\Main\Application::isUtfMode())
+		{
+			return null;
+		}
+
+		return array_map(fn ($element) => self::decodeEmoji($element), self::$emojiList);
+	}
+
+	public static function convertHtmlToBbCode($html)
+	{
+		if (!is_string($html))
+		{
+			return $html;
+		}
+
+		$html = str_replace('&nbsp;', ' ', $html);
+		$html = str_replace('<hr>', '------[BR]', $html);
+		$html = str_replace('#BR#', '[BR]', $html);
+
+		$replaced = 0;
+		do
+		{
+			$html = preg_replace(
+				"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/is".BX_UTF_PCRE_MODIFIER,
+				"[\\1]\\2[/\\1]",
+				$html, -1, $replaced
+			);
+		}
+		while($replaced > 0);
+
+		$html = preg_replace("/\\<br\s*\\/*\\>/is".BX_UTF_PCRE_MODIFIER,"[br]", $html);
+		$html = preg_replace(
+			[
+				"#<a[^>]+href\\s*=\\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
+				"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER
+			],
+			"[url=\\2]\\3[/url]", $html
+		);
+		$html = preg_replace(
+			["/<font[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/font[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["[color=#\\1]\\2[/color]"],
+			$html
+		);
+		$html = preg_replace(
+			["/<span[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/span[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["[color=#\\1]\\2[/color]"],
+			$html
+		);
+		$html = preg_replace(
+			["/<font[^>]+size\s*=[\s'\"]*(\d+)[\s'\"]*>(.+?)<\/font[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["[size=\\1]\\2[/size]"],
+			$html
+		);
+
+		$replaced = 0;
+		do
+		{
+			$html = preg_replace(
+				"/<div(?:.*?)>(.*?)<\/div>/i".BX_UTF_PCRE_MODIFIER,
+				"\\1",
+				$html, -1, $replaced
+			);
+		}
+		while($replaced > 0);
+
+		$replaced = 0;
+		do
+		{
+			$html = preg_replace(
+				"/<span(?:.*?)>(.*?)<\/span>/i".BX_UTF_PCRE_MODIFIER,
+				"\\1",
+				$html, -1, $replaced
+			);
+		}
+		while($replaced > 0);
+
+		$html = preg_replace(
+			"/<font(?:.*?)>(.*?)<\/font>/i".BX_UTF_PCRE_MODIFIER,
+			"\\1",
+			$html
+		);
+
+		return $html;
+	}
+
+	public static function modifyIcon($params)
+	{
+		$text = $params[1];
+
+		$title = Loc::getMessage('IM_MESSAGE_ICON');
+
+		preg_match('/title\=(.*[^\s\]])/i', $text, $match);
+		if ($match)
+		{
+			$title = $match[1];
+			if (mb_strpos($title, 'width=') !== false)
+			{
+				$title = mb_substr($title, 0, mb_strpos($title, 'width='));
+			}
+			if (mb_strpos($title, 'height=') !== false)
+			{
+				$title = mb_substr($title, 0, mb_strpos($title, 'height='));
+			}
+			if (mb_strpos($title, 'size=') !== false)
+			{
+				$title = mb_substr($title, 0, mb_strpos($title, 'size='));
+			}
+			$title = trim($title);
+		}
+
+		return '('.$title.')';
+	}
+
+	public static function modifySendPut($params)
+	{
+		$code = mb_strpos(mb_strtoupper($params[0]), '[SEND') === 0? 'SEND': 'PUT';
+		return preg_replace("/\[$code(?:=(.+))?\](.+?)?\[\/$code\]/i", "$2", $params[0]);
 	}
 }

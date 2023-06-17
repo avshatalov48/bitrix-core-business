@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['PROFILE_DATA_SAVED'] = "Изменения сохранены";
 $MESS['LAST_UPDATE'] = "Дата обновления:";
 $MESS['ACTIVE'] = "Активен:";
@@ -14,3 +14,4 @@ $MESS['SAVE'] = "Сохранить изменения";
 $MESS['RESET'] = "Сбросить";
 $MESS['LAST_LOGIN'] = "Последняя авторизация:";
 $MESS['NEW_PASSWORD_REQ'] = "Новый пароль:";
+$MESS['MAIN_PROFILE_TITLE'] = "Обращение:";

@@ -1,500 +1,103 @@
 <?php
 namespace Bitrix\Main\Data;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\Config;
-use Bitrix\Main\Data\LocalStorage;
-
-class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat, LocalStorage\Storage\CacheEngineInterface
+class CacheEngineMemcache extends CacheEngine
 {
-	public const SESSION_MEMCACHE_CONNECTION = 'cache.memcache';
-
-	/** @var \Memcache $memcache */
-	protected static $memcache = null;
-	private static $isConnected = false;
-
-	private static $baseDirVersion = array();
-	protected $sid = "BX";
-	//cache stats
-	private $written = false;
-	private $read = false;
-	// unfortunately is not available for memcache...
-
-	protected $useLock = false;
-	protected $ttlMultiplier = 2;
-	protected static $locks = array();
-	protected $old = false;
-
-	/**
-	 * Engine constructor.
-	 * @param array $options Cache options.
-	 */
-	function __construct($options = [])
+	public function getConnectionName() : string
 	{
-		$config = Config\Configuration::getValue("cache");
+		return 'cache.memcache';
+	}
 
-		if (self::$memcache == null)
+	public static function getConnectionClass()
+	{
+		return MemcacheConnection::class;
+	}
+
+	protected static function getExpire($ttl)
+	{
+		$ttl = (int) $ttl;
+		if ($ttl > 2592000)
 		{
-			self::$memcache = new \Memcache;
-			$v = (isset($config["memcache"]))? $config["memcache"]: null;
-
-			if ($v != null && isset($v["host"]) && $v["host"] != "")
-			{
-				if ($v != null && isset($v["port"]))
-				{
-					$port = intval($v["port"]);
-				}
-				else
-				{
-					$port = 11211;
-				}
-
-				$connectionPool = Application::getInstance()->getConnectionPool();
-				$connectionPool->setConnectionParameters(self::SESSION_MEMCACHE_CONNECTION, [
-					'className' => MemcacheConnection::class,
-					'host' => $v['host'],
-					'port' => $port,
-				]);
-
-				/** @var MemcacheConnection $memcacheConnection */
-				$memcacheConnection = $connectionPool->getConnection(self::SESSION_MEMCACHE_CONNECTION);
-				self::$memcache = $memcacheConnection->getResource();
-				self::$isConnected = $memcacheConnection->isConnected();
-			}
+			$ttl = microtime(1) + $ttl;
 		}
 
-		if ($config && is_array($config))
+		return $ttl;
+	}
+
+	public function set($key, $ttl, $value)
+	{
+		$ttl = self::getExpire($ttl);
+		return self::$engine->set($key, $value, 0, $ttl);
+	}
+
+	public function get($key)
+	{
+		return self::$engine->get($key);
+	}
+
+	public function del($key)
+	{
+		if (is_array($key))
 		{
-			if (isset($config["use_lock"]))
+			foreach ($key as $item)
 			{
-				$this->useLock = !((bool)$config["use_lock"]);
+				self::$engine->delete($item);
 			}
-
-			if (isset($config["sid"]) && ($config["sid"] != ""))
-			{
-				$this->sid = $config["sid"];
-			}
-
-			if (isset($config["ttl_multiplier"]) && $this->useLock)
-			{
-				$this->ttlMultiplier = (integer)$config["ttl_multiplier"];
-			}
-		}
-
-		if (!empty($options) && isset($options['actual_data']))
-		{
-			$this->useLock = !((bool)$options['actual_data']);
-		}
-
-		if ($this->useLock)
-		{
-			$this->sid .= 2;
 		}
 		else
 		{
-			$this->sid .= 3;
-			$this->ttlMultiplier = 1;
+			self::$engine->delete($key);
 		}
 	}
 
-	/**
-	 * Closes opened connection.
-	 *
-	 * @return void
-	 */
-	function close()
+	public function setNotExists($key, $ttl, $value)
 	{
-		if (self::$memcache != null)
+		$ttl = self::getExpire($ttl);
+		return self::$engine->add($key, $value, 0, $ttl);
+	}
+
+	public function addToSet($key, $value)
+	{
+		$list = self::$engine->get($key);
+		if (!is_array($list))
 		{
-			self::$memcache->close();
-			self::$memcache = null;
+			$list = [];
 		}
+		$list[$value] = 1;
+
+		$this->set($key, 0, $list);
 	}
 
-	/**
-	 * Returns number of bytes read from memcache or false if there was no read operation.
-	 * Stub function always returns false.
-	 *
-	 * @return integer|false
-	 */
-	public function getReadBytes()
+	public function getSet($key) : array
 	{
-		return $this->read;
-	}
-
-	/**
-	 * Returns number of bytes written to memcache or false if there was no write operation.
-	 * Stub function always returns false.
-	 *
-	 * @return integer|false
-	 */
-	public function getWrittenBytes()
-	{
-		return $this->written;
-	}
-
-	/**
-	 * Returns physical file path after read or write operation.
-	 * Stub function always returns '' (empty string).
-	 *
-	 * @return string
-	 */
-	public function getCachePath()
-	{
-		return "";
-	}
-
-	/**
-	 * Returns true if cache can be read or written.
-	 *
-	 * @return bool
-	 */
-	function isAvailable()
-	{
-		return self::$isConnected;
-	}
-
-	/**
-	 * Tries to put non blocking exclusive lock on the cache entry.
-	 * Returns true on success.
-	 *
-	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param string $initDir Directory within base.
-	 * @param string $key Calculated cache key.
-	 * @param integer $TTL Expiration period in seconds.
-	 *
-	 * @return boolean
-	 */
-	protected function lock($baseDir, $initDir, $key, $TTL)
-	{
-		if (
-			isset(self::$locks[$baseDir])
-			&& isset(self::$locks[$baseDir][$initDir])
-			&& isset(self::$locks[$baseDir][$initDir][$key])
-		)
+		$list = self::$engine->get($key);
+		if (!is_array($list) || empty($list))
 		{
-			return true;
-		}
-		elseif (self::$memcache->add($key, 1, 0, intval($TTL)))
-		{
-			self::$locks[$baseDir][$initDir][$key] = true;
-			return true;
-		}
-		elseif (!self::$memcache->get($key))
-		{
-			self::$locks[$baseDir][$initDir][$key] = true;
-			self::$memcache->replace($key, 1, 0, $TTL);
-			return true;
+			return [];
 		}
 
-		return false;
+		return array_keys($list);
 	}
 
-	/**
-	 * Releases the lock obtained by lock method.
-	 *
-	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param string $initDir Directory within base.
-	 * @param string $key Calculated cache key.
-	 * @param integer $TTL Expiration period in seconds.
-	 *
-	 * @return void
-	 */
-	protected function unlock($baseDir, $initDir = false, $key = false, $TTL = 0)
+	public function delFromSet($key, $member)
 	{
-		if ($key !== false)
+		$list = self::$engine->get($key);
+
+		if (is_array($list) && !empty($list))
 		{
-			if ($TTL > 0)
+			if (is_array($member))
 			{
-				self::$memcache->set($key, 1, 0, time() + intval($TTL));
+				foreach ($member as $keyID)
+				{
+					unset($list[$keyID]);
+				}
 			}
 			else
 			{
-				self::$memcache->replace($key, "", 0, 1);
+				unset($list[$member]);
 			}
 
-			unset(self::$locks[$baseDir][$initDir][$key]);
-		}
-		elseif ($initDir !== false)
-		{
-			if (isset(self::$locks[$baseDir][$initDir]))
-			{
-				foreach (self::$locks[$baseDir][$initDir] as $subKey)
-				{
-					$this->unlock($baseDir, $initDir, $subKey, $TTL);
-				}
-				unset(self::$locks[$baseDir][$initDir]);
-			}
-		}
-		elseif ($baseDir !== false)
-		{
-			if (isset(self::$locks[$baseDir]))
-			{
-				foreach (self::$locks[$baseDir] as $subInitDir)
-				{
-					$this->unlock($baseDir, $subInitDir, false, $TTL);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Cleans (removes) cache directory or file.
-	 *
-	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param string $initDir Directory within base.
-	 * @param string $filename File name.
-	 *
-	 * @return void
-	 */
-	function clean($baseDir, $initDir = false, $filename = false)
-	{
-		$key = false;
-		if (is_object(self::$memcache))
-		{
-			if($filename <> '')
-			{
-				$this->getBaseDirVersion($baseDir, true);
-				if(self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
-				{
-					return;
-				}
-
-				$initDirVersion = $this->getInitDirVersion($baseDir, $initDir, true);
-
-				$key = self::$baseDirVersion[$baseDir]."|".$initDirVersion."|".$filename;
-				$cachedData = self::$memcache->get($key);
-				if(is_array($cachedData))
-				{
-					self::$memcache->set($key.'|old', $cachedData, 0, 1);
-				}
-				self::$memcache->replace($key, "", 0, 1);
-			}
-			else
-			{
-				if($initDir <> '')
-				{
-					$this->getBaseDirVersion($baseDir, true);
-
-					if(self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
-					{
-						return;
-					}
-
-					$initDirKey = self::$baseDirVersion[$baseDir]."|".$initDir;
-					$initDirVersion = self::$memcache->get($initDirKey);
-					if($initDirVersion === false || $initDirVersion === '')
-					{
-						self::$memcache->set($initDirKey.'|old', $initDirVersion, 0, 1);
-					}
-					self::$memcache->replace($initDirKey, "", 0, 1);
-				}
-				else
-				{
-					$this->getBaseDirVersion($baseDir, true);
-					if(isset(self::$baseDirVersion[$baseDir]))
-					{
-						self::$memcache->set($this->sid.$baseDir.'|old', self::$baseDirVersion[$baseDir], 0, 1);
-						unset(self::$baseDirVersion[$baseDir]);
-					}
-
-					self::$memcache->replace($this->sid.$baseDir, "", 0, 1);
-				}
-			}
-		}
-		$this->unlock($baseDir, $initDir, $key."~");
-	}
-
-	/**
-	 * Reads cache from the memcache. Returns true if key value exists, not expired, and successfully read.
-	 *
-	 * @param mixed &$allVars Cached result.
-	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param string $initDir Directory within base.
-	 * @param string $filename File name.
-	 * @param integer $TTL Expiration period in seconds.
-	 *
-	 * @return boolean
-	 */
-	function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
-	{
-		$this->getBaseDirVersion($baseDir);
-
-		if (self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
-		{
-			return false;
-		}
-
-		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
-
-		$key = self::$baseDirVersion[$baseDir]."|".$initDirVersion."|".$filename;
-		if ($this->useLock)
-		{
-			$cachedData = self::$memcache->get($key);
-
-			if (!is_array($cachedData))
-			{
-				$cachedData = self::$memcache->get($key.'|old');
-				if (is_array($cachedData))
-				{
-					$this->old = true;
-				}
-			}
-
-			if (!is_array($cachedData))
-			{
-				return false;
-			}
-
-			if ($this->lock($baseDir, $initDir, $key."~", $TTL))
-			{
-				if ($this->old || $cachedData["datecreate"] < (time() - $TTL))
-				{
-					return false;
-				}
-			}
-
-			$allVars = $cachedData["content"];
-		}
-		else
-		{
-			$allVars = self::$memcache->get($key);
-		}
-
-		if ($allVars === false || $allVars === '')
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Puts cache into the memcache.
-	 *
-	 * @param mixed $allVars Cached result.
-	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param string $initDir Directory within base.
-	 * @param string $filename File name.
-	 * @param integer $TTL Expiration period in seconds.
-	 *
-	 * @return void
-	 */
-	function write($allVars, $baseDir, $initDir, $filename, $TTL)
-	{
-		if (!isset(self::$baseDirVersion[$baseDir]))
-			self::$baseDirVersion[$baseDir] = self::$memcache->get($this->sid.$baseDir);
-
-		if (self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
-		{
-			self::$baseDirVersion[$baseDir] = $this->sid.md5(mt_rand());
-			self::$memcache->set($this->sid.$baseDir, self::$baseDirVersion[$baseDir]);
-		}
-
-		if ($initDir !== false)
-		{
-			$initDirVersion = self::$memcache->get(self::$baseDirVersion[$baseDir]."|".$initDir);
-			if ($initDirVersion === false || $initDirVersion === '')
-			{
-				$initDirVersion = $this->sid.md5(mt_rand());
-				self::$memcache->set(self::$baseDirVersion[$baseDir]."|".$initDir, $initDirVersion);
-			}
-		}
-		else
-		{
-			$initDirVersion = "";
-		}
-
-		$key = self::$baseDirVersion[$baseDir]."|".$initDirVersion."|".$filename;
-		$time = time();
-		$exp = $this->ttlMultiplier > 0? $time + intval($TTL) * $this->ttlMultiplier: 0;
-
-		if ($this->useLock)
-		{
-			self::$memcache->set($key, array("datecreate" => $time, "content" => $allVars), 0, $exp);
-			self::$memcache->delete($key.'|old');
-			$this->unlock($baseDir, $initDir, $key."~", $TTL);
-		}
-		else
-		{
-			self::$memcache->set($key, $allVars, 0, $exp);
-		}
-	}
-
-	/**
-	 * Returns true if cache has been expired.
-	 * Stub function always returns true.
-	 *
-	 * @param string $path Absolute physical path.
-	 *
-	 * @return boolean
-	 */
-	function isCacheExpired($path)
-	{
-		return false;
-	}
-
-	/**
-	 * Return InitDirVersion
-	 * @param bool|string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param bool|string $initDir Directory within base.
-	 * @param bool $skipOld Return cleaned value.
-	 * @return array|bool|string
-	 */
-	function getInitDirVersion($baseDir, $initDir = false, $skipOld = false)
-	{
-		if ($initDir !== false)
-		{
-			$old = false;
-			$initDirKey = self::$baseDirVersion[$baseDir]."|".$initDir;
-			$initDirVersion = self::$memcache->get($initDirKey);
-
-			if (($initDirVersion === false || $initDirVersion === '') && !$skipOld)
-			{
-				$initDirVersion = self::$memcache->get($initDirKey.'|old');
-				$old = true;
-			}
-
-			if ($initDirVersion === false || $initDirVersion === '')
-			{
-				return false;
-			}
-
-			if ($old)
-			{
-				$this->old = true;
-			}
-
-			return $initDirVersion;
-		}
-		else
-		{
-			return '';
-		}
-	}
-
-	/**
-	 * Return BaseDirVersion
-	 * @param bool|string $baseDir Base cache directory (usually /bitrix/cache).
-	 * @param bool $skipOld Return cleaned value.
-	 *
-	 * @return void
-	 */
-	function getBaseDirVersion($baseDir, $skipOld = false)
-	{
-		$baseDirKey = $this->sid.$baseDir;
-		if (!isset(self::$baseDirVersion[$baseDir]))
-		{
-			self::$baseDirVersion[$baseDir] = self::$memcache->get($baseDirKey);
-		}
-
-		if ((self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '') && !$skipOld)
-		{
-			self::$baseDirVersion[$baseDir] = self::$memcache->get($baseDirKey.'|old');
-			if (isset(self::$baseDirVersion[$baseDir]))
-			{
-				$this->old = true;
-			}
+			$this->set($key, 0, $list);
 		}
 	}
 }

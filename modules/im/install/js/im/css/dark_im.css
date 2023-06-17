@@ -2,6 +2,16 @@
 	overflow: hidden!important;
 }
 
+.bx-messenger-content-item-system .bx-messenger-content-item-beta>beta {
+	background-color: #f4f0f0;
+	color: #5f5d5d;
+}
+.bx-messenger-content-item-beta>beta,
+.bx-messenger-content-item-1 .bx-messenger-content-item-beta>beta {
+	background-color: #bfbdbd;
+	color: #5f5d5d;
+}
+
 .bx-messenger-dark .im-desktop {
 	background-color: #313131 !important;
 	border-bottom: none;

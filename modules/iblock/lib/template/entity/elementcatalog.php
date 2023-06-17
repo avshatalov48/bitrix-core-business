@@ -6,6 +6,8 @@
  */
 namespace Bitrix\Iblock\Template\Entity;
 
+use Bitrix\Catalog;
+
 class ElementCatalog extends Base
 {
 	protected $price = null;
@@ -30,7 +32,7 @@ class ElementCatalog extends Base
 	 *
 	 * @param string $entity What to find.
 	 *
-	 * @return \Bitrix\Iblock\Template\Entity\Base
+	 * @return Base
 	 */
 	public function resolve($entity)
 	{
@@ -96,19 +98,28 @@ class ElementCatalog extends Base
 	{
 		if (!isset($this->fields))
 		{
-			$this->fields =\CCatalogProduct::getByID($this->id);
+			$this->fields =Catalog\ProductTable::getRow([
+				'filter' => [
+					'=ID' => $this->id,
+				],
+			]);
 			if (is_array($this->fields))
 			{
-				if ($this->fields["MEASURE"] > 0)
-					$this->fields["MEASURE"] = new ElementCatalogMeasure($this->fields["MEASURE"]);
-				$this->fields["STORE"] = new ElementCatalogStoreList(0);
+				if ($this->fields['MEASURE'] > 0)
+				{
+					$this->fields['MEASURE'] = new ElementCatalogMeasure($this->fields['MEASURE']);
+				}
+				$this->fields['STORE'] = new ElementCatalogStoreList(0);
 			}
 			else
 			{
-				$this->fields["STORE"] = new ElementCatalogStoreList(0);
+				$this->fields = [
+					'STORE' => new ElementCatalogStoreList(0),
+				];
 			}
 		}
-		return is_array($this->fields);
+
+		return true;
 	}
 }
 

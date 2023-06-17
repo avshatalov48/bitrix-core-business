@@ -1,0 +1,19 @@
+.bx-im-media-video__container {
+	overflow: hidden;
+	border-radius: 12px;
+	max-width: 280px;
+	height: 162px;
+}
+
+.bx-im-media-video__container .ui-vue-socialvideo-timers-container {
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.bx-im-media-video__container .ui-vue-socialvideo-image-source,
+.bx-im-media-video__container .ui-vue-socialvideo-source {
+	max-width: 100%;
+}
+
+.bx-im-media-video__container .ui-vue-socialvideo-info-container {
+	padding-top: 40px;
+}

@@ -15,7 +15,7 @@ $colorSchemes = array(
 	"red" => "bx-red",
 	"blue" => "bx-blue",
 );
-if(isset($colorSchemes[$arParams["TEMPLATE_THEME"]]))
+if(isset($colorSchemes[$arParams["TEMPLATE_THEME"] ?? null]))
 {
 	$colorScheme = $colorSchemes[$arParams["TEMPLATE_THEME"]];
 }

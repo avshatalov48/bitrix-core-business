@@ -4,6 +4,7 @@ import editMap from '../action/edit-map';
 import editImage from '../action/edit-image';
 import editIcon from '../action/edit-icon';
 import editLink from '../action/edit-link';
+import changeNodeName from '../action/change-node-name';
 import sortBlock from '../action/sort-block';
 import addBlock from '../action/add-block';
 import removeBlock from '../action/remove-block';
@@ -65,6 +66,13 @@ export default function registerBaseCommands(history: History)
 		new Command({
 			id: 'editLink',
 			command: editLink,
+		}),
+	);
+
+	history.registerCommand(
+		new Command({
+			id: 'cnangeNodeName',
+			command: changeNodeName,
 		}),
 	);
 

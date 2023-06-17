@@ -22,7 +22,7 @@ global $APPLICATION;
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."grid-mode");
 
-if ($arParams['FLEXIBLE_LAYOUT'])
+if (isset($arParams['FLEXIBLE_LAYOUT']) && $arParams['FLEXIBLE_LAYOUT'])
 {
 	$bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 	$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'flexible-layout')));
@@ -50,7 +50,7 @@ $displayedCount = count(
 		$arParams["ROWS"],
 		function($val)
 		{
-			return $val["not_count"] !== true;
+			return !isset($val["not_count"]) || $val["not_count"] !== true;
 		}
 	)
 );
@@ -66,7 +66,7 @@ if ($navigationData['hasNextPage'])
 {
 	$uri = new \Bitrix\Main\Web\Uri(\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestUri());
 	$uri->deleteParams(\Bitrix\Main\HttpRequest::getSystemParameters());
-	$navigation->addParams($uri, $this->arParams["SEF_MODE"], $navigation->getCurrentPage() + 1);
+	$navigation->addParams($uri, $arParams["SEF_MODE"] ?? null, $navigation->getCurrentPage() + 1);
 	$navigationData['urlNextPage'] = $uri->getUri();
 }
 
@@ -99,7 +99,7 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 				},
 				renderTo: document.querySelector("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
 				groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>,
-				maxHeight: <?= (int)$arParams['ACTION_PANEL_OPTIONS']['MAX_HEIGHT']?>
+				maxHeight: <?= (int)($arParams['ACTION_PANEL_OPTIONS']['MAX_HEIGHT'] ?? null)?>
 			});
 			actionPanel.draw();
 		<? endif; ?>
@@ -116,7 +116,7 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 				userOptionsActions: <?=\Bitrix\Main\Web\Json::encode($arResult['OPTIONS_ACTIONS'])?>,
 				userOptionsHandlerUrl: '<?=$arResult['OPTIONS_HANDLER_URL']?>',
 				navigation: <?= \Bitrix\Main\Web\Json::encode($navigationData) ?>,
-				generatorEmptyBlock: <?= isset($arParams['~JS_TILE_GRID_GENERATOR_EMPTY_BLOCK'])? $arParams['~JS_TILE_GRID_GENERATOR_EMPTY_BLOCK'] : 'null' ?>
+				generatorEmptyBlock: <?= $arParams['~JS_TILE_GRID_GENERATOR_EMPTY_BLOCK'] ?? 'null' ?>
 			}
 		);
 		BX.Main.tileGridManager.push('<?= $arParams['GRID_ID'] ?>', gridTile);

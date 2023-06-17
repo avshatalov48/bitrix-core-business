@@ -12,6 +12,9 @@
  * @global CMain $APPLICATION
  * @global CDatabase $DB
  */
+
+use Bitrix\Main\Application;
+
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 define("HELP_FILE", "settings/module_admin.php");
@@ -23,16 +26,16 @@ $isAdmin = $USER->CanDoOperation('edit_other_settings');
 
 IncludeModuleLangFile(__FILE__);
 
-$id = $_REQUEST["id"];
-$mod = $_REQUEST["mod"];
-$resultMod = $_REQUEST["result"];
+$id = $_REQUEST["id"] ?? null;
+$mod = $_REQUEST["mod"] ?? null;
+$resultMod = $_REQUEST["result"] ?? null;
 
-if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' && check_bitrix_sessid())
+if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["module"]) && check_bitrix_sessid())
 {
-	$moduleId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["module"]);
+	$moduleId = preg_replace("#[^a-z0-9.,_-]#i", "", $_POST["module"]);
 	if($moduleId <> '')
 	{
-		if($_POST["act"] == "unnotify")
+		if(isset($_POST["act"]) && $_POST["act"] == "unnotify")
 		{
 			$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 			if($cModules <> '')
@@ -44,18 +47,18 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' &&
 					if($val["ID"] == $moduleId)
 						unset($arModules[$id]);
 				}
-				if(count($arModules) > 0)
+				if(!empty($arModules))
 					COption::SetOptionString("main", "mp_modules_date", serialize($arModules));
 				else
 					COption::RemoveOption("main", "mp_modules_date");
 			}
 			die();
 		}
-		elseif($_POST["act"] == "add_opinion")
+		elseif(isset($_POST["act"]) && $_POST["act"] == "add_opinion")
 		{
 			$arF = Array(
 					"comments" => $GLOBALS["APPLICATION"]->ConvertCharset($_POST["comments"], SITE_CHARSET, "windows-1251"),
-					"lkey" => md5("BITRIX".CUpdateClientPartner::GetLicenseKey()."LICENCE"),
+					"lkey" => Application::getInstance()->getLicense()->getPublicHashKey(),
 					"act" => "add_delete_comment",
 					"name" => $GLOBALS["APPLICATION"]->ConvertCharset($USER->GetFullName(), SITE_CHARSET, "windows-1251"),
 					"email" => $USER->GetEmail(),
@@ -66,10 +69,10 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' &&
 			$ht->Post("https://marketplace.1c-bitrix.ru/solutions/".$moduleId."/", $arF);
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&result=OPAD");
 		}
-		elseif($_POST["act"] == "unnotify_mp")
+		elseif(isset($_POST["act"]) && $_POST["act"] == "unnotify_mp")
 		{
-			$arrayId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["array_id"]);
-			$moduleId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["module"]);
+			$arrayId = preg_replace("#[^a-z0-9.,_-]#i", "", $_POST["array_id"]);
+			$moduleId = preg_replace("#[^a-z0-9.,_-]#i", "", $_POST["module"]);
 			$cMpModulesResult = COption::GetOptionString("main", "last_mp_modules_result", "");
 			if ($cMpModulesResult <> '')
 			{
@@ -116,7 +119,7 @@ function OnModuleInstalledEvent($id, $installed, $Module)
 			if($val["ID"] == $id)
 				unset($arModules[$arid]);
 		}
-		if(count($arModules) > 0)
+		if(!empty($arModules))
 			COption::SetOptionString("main", "mp_modules_date", serialize($arModules));
 		else
 			COption::RemoveOption("main", "mp_modules_date");
@@ -138,7 +141,7 @@ foreach($folders as $folder)
 		{
 			while (false !== ($dir = readdir($handle)))
 			{
-				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && mb_strpos($dir, ".") !== false)
+				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && strpos($dir, ".") !== false)
 				{
 					$module_dir = $_SERVER["DOCUMENT_ROOT"].$folder."/".$dir;
 					if($info = CModule::CreateModuleObject($dir))
@@ -187,13 +190,12 @@ $arUpdateList = CUpdateClientPartner::GetUpdatesList($errorMessage, LANG, $stabl
 $strError_tmp = "";
 $arClientModules = CUpdateClientPartner::GetCurrentModules($strError_tmp);
 
-
 $linkToBuy = false;
 $linkToBuyUpdate = false;
 if(LANGUAGE_ID == "ru")
 {
 	$linkToBuy = "https://marketplace.1c-bitrix.ru"."/tobasket.php?ID=#CODE#";
-	$linkToBuyUpdate = "https://marketplace.1c-bitrix.ru"."/tobasket.php?ID=#CODE#&lckey=".md5("BITRIX".CUpdateClientPartner::GetLicenseKey()."LICENCE");
+	$linkToBuyUpdate = "https://marketplace.1c-bitrix.ru"."/tobasket.php?ID=#CODE#&lckey=" . Application::getInstance()->getLicense()->getPublicHashKey();
 }
 
 $bHaveNew = false;
@@ -233,12 +235,12 @@ if(!empty($arUpdateList["MODULE"]))
 $errorMessage = "";
 $errorMessageFull = "";
 $fb = ($id == 'fileman' && !$USER->CanDoOperation('fileman_install_control'));
-if(($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '' || $_REQUEST["clear"] <> '') && $isAdmin && !$fb && check_bitrix_sessid())
+if((!empty($_REQUEST["uninstall"]) || !empty($_REQUEST["install"]) || !empty($_REQUEST["clear"])) && $isAdmin && !$fb && check_bitrix_sessid())
 {
 	$id = str_replace("\\", "", str_replace("/", "", $id));
 	if($Module = CModule::CreateModuleObject($id))
 	{
-		if($Module->IsInstalled() && $_REQUEST["uninstall"] <> '')
+		if($Module->IsInstalled() && !empty($_REQUEST["uninstall"]))
 		{
 			OnModuleInstalledEvent($id, 'N', $Module);
 			if(COption::GetOptionString("main", "event_log_marketplace", "Y") === "Y")
@@ -256,7 +258,7 @@ if(($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '' || $_REQUEST["cle
 			}
 
 		}
-		elseif(!$Module->IsInstalled() && $_REQUEST["install"] <> '')
+		elseif(!$Module->IsInstalled() && !empty($_REQUEST["install"]))
 		{
 			if ($DB->type == "MYSQL" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 			{
@@ -279,7 +281,7 @@ if(($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '' || $_REQUEST["cle
 			}
 
 		}
-	elseif(!$Module->IsInstalled() && $_REQUEST["clear"] <> '')
+	elseif(!$Module->IsInstalled() && !empty($_REQUEST["clear"]))
 		{
 			if($Module->MODULE_ID <> '' && ($mdir = getLocalPath("modules/".$Module->MODULE_ID)) !== false)
 			{

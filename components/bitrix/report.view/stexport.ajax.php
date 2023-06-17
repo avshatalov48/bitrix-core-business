@@ -11,11 +11,15 @@ define('DisableEventsCheck', true);
 /** @var array $requiredModules */
 if (!is_array($requiredModules))
 {
-	$requiredModules = array();
+	$requiredModules = [];
 }
 
-$params = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
-$siteId = (is_array($params) && isset($params['SITE_ID']))? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $params['SITE_ID']), 0, 2) : '';
+$params = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : [];
+$siteId =
+	(is_array($params) && isset($params['SITE_ID']))
+		? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $params['SITE_ID']), 0, 2)
+		: ''
+;
 if($siteId !== '')
 {
 	define('SITE_ID', $siteId);
@@ -25,7 +29,12 @@ $action = isset($_REQUEST['ACTION']) ? $_REQUEST['ACTION'] : '';
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
+use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Sign\BadSignatureException;
+use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\Web\Json;
 
 CUtil::JSPostUnescape();
 
@@ -117,9 +126,27 @@ if ($action === 'STEXPORT')
 
 	$cParams = is_array($params['COMPONENT_PARAMS']) ? $params['COMPONENT_PARAMS'] : array();
 
-	$progressData = CUserOptions::GetOption('report', 'report_stexport', '');
+	$application = Application::getInstance();
+	$localStorage = $application->getLocalSession('report_stexport');
+	$progressData = $localStorage->getData();
+	$progressData = $progressData["progressData"] ?? [];
+
+	if ($progressData)
+	{
+		try
+		{
+			$progressData = Json::decode((new Signer())->unsign($progressData));
+		}
+		catch (BadSignatureException|ArgumentException $exception)
+		{
+			$progressData = [];
+		}
+	}
+
 	if (!is_array($progressData))
-		$progressData = array();
+	{
+		$progressData = [];
+	}
 
 	$lastToken = isset($progressData['PROCESS_TOKEN']) ? $progressData['PROCESS_TOKEN'] : '';
 	$isNewToken = ($processToken !== $lastToken);
@@ -156,7 +183,7 @@ if ($action === 'STEXPORT')
 	{
 		if (!$isNewToken)
 		{
-			CUserOptions::DeleteOption('report', 'report_stexport');
+			$localStorage->clear();
 			$processedItems = 0;
 			$totalItems = 0;
 			$blockSize = $defaultBlockSize;
@@ -185,7 +212,8 @@ if ($action === 'STEXPORT')
 			'PROCESSED_ITEMS' => $processedItems,
 			'TOTAL_ITEMS' => $totalItems
 		);
-		CUserOptions::SetOption('report', 'report_stexport', $progressData);
+		$progressData = ['progressData' => (new Signer())->sign(Json::encode($progressData))];
+		$localStorage->setData($progressData);
 	}
 
 	do
@@ -300,7 +328,8 @@ if ($action === 'STEXPORT')
 			'PROCESSED_ITEMS' => $processedItems,
 			'TOTAL_ITEMS' => $totalItems
 		);
-		CUserOptions::SetOption('report', 'report_stexport', $progressData);
+		$progressData = ['progressData' => (new Signer())->sign(Json::encode($progressData))];
+		$localStorage->setData($progressData);
 
 		$stepTime = time() - $stepStartTime;
 		$timeExceeded = ($stepTime < 0 || $stepTime >= $stepTimeInterval);

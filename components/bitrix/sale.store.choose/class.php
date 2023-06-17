@@ -92,20 +92,27 @@ class CSaleStoreChooseComponent extends CBitrixComponent
 			return;
 		}
 
-		$stores = array();
-		$arStoreLocation = array();
+		$stores = [];
+		$arStoreLocation = [];
 		$scaleMapParamName = $this->getMapParamScaleName();
 
-		if($scaleMapParamName <> '')
-			$arStoreLocation = array($scaleMapParamName => 11, "PLACEMARKS" => array());
+		if ($scaleMapParamName !== '')
+		{
+			$arStoreLocation = [
+				$scaleMapParamName => 11,
+				'PLACEMARKS' => [],
+			];
+		}
 
 		foreach($this->arParams["STORES_LIST"] as $storeId => $storeParams)
 		{
 			$stores[$storeParams["ID"]] = $storeParams;
 
-			if (intval($storeParams["IMAGE_ID"]) > 0)
+			$imageId = (int)($storeParams['IMAGE_ID'] ?? 0);
+			$stores[$storeParams['ID']]['IMAGE_ID'] = $imageId;
+			if ($imageId > 0)
 			{
-				$arImage = CFile::GetFileArray($storeParams["IMAGE_ID"]);
+				$arImage = CFile::GetFileArray($imageId);
 				$imgValue = CFile::ShowImage($arImage, 115, 115, "border=0", "", false);
 				$stores[$storeParams["ID"]]["IMAGE"] = $imgValue;
 				$stores[$storeParams["ID"]]["IMAGE_URL"] = $arImage["SRC"];
@@ -113,19 +120,31 @@ class CSaleStoreChooseComponent extends CBitrixComponent
 
 			$stores[$storeParams["ID"]]["ADDRESS"] = TruncateText($storeParams["ADDRESS"], 150);
 
-			if(!empty($arStoreLocation))
+			if (!empty($arStoreLocation))
 			{
 				$latMapParamName = self::getMapParamLatName();
 				$lonMapParamName = self::getMapParamLonName();
 
-				if (floatval($arStoreLocation[$latMapParamName]) <= 0)
-					$arStoreLocation[$latMapParamName] = $storeParams["GPS_N"];
+				if ($latMapParamName !== '')
+				{
+					$arStoreLocation[$latMapParamName] ??= '';
+					if ((float)$arStoreLocation[$latMapParamName] <= 0)
+					{
+						$arStoreLocation[$latMapParamName] = (string)($storeParams["GPS_N"] ?? '');
+					}
+				}
 
-				if (floatval($arStoreLocation[$lonMapParamName]) <= 0)
-					$arStoreLocation[$lonMapParamName] = $storeParams["GPS_S"];
+				if ($lonMapParamName !== '')
+				{
+					$arStoreLocation[$lonMapParamName] ??= '';
+					if ((float)$arStoreLocation[$lonMapParamName] <= 0)
+					{
+						$arStoreLocation[$lonMapParamName] = (string)($storeParams["GPS_S"] ?? '');
+					}
+				}
 
 
-				$arLocationTmp = array();
+				$arLocationTmp = [];
 				$arLocationTmp["ID"] = $storeParams["ID"];
 				if ($storeParams["GPS_N"] <> '')
 					$arLocationTmp["LAT"] = $storeParams["GPS_N"];

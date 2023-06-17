@@ -280,13 +280,13 @@ class PermissionConfig
 			PermissionDictionary::CATALOG_VAT_MODIFY,
 			PermissionDictionary::CATALOG_MEASURE_MODIFY,
 			PermissionDictionary::CATALOG_PRICE_GROUP_MODIFY,
+			PermissionDictionary::CATALOG_PRODUCT_PRICE_EXTRA_EDIT,
 		];
 
 		$onlyBox = !ModuleManager::isModuleInstalled('bitrix24');
 		if ($onlyBox)
 		{
 			array_push($result, ...[
-				PermissionDictionary::CATALOG_PRODUCT_PRICE_EXTRA_EDIT,
 				PermissionDictionary::CATALOG_IMPORT_EDIT,
 				PermissionDictionary::CATALOG_EXPORT_EDIT,
 			]);

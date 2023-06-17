@@ -23,7 +23,7 @@ foreach ($this->basketItems as $row)
 	$rowData = array(
 		'ID' => $row['ID'],
 		'PRODUCT_ID' => $row['PRODUCT_ID'],
-		'NAME' => isset($row['~NAME']) ? $row['~NAME'] : $row['NAME'],
+		'NAME' => $row['~NAME'] ?? $row['NAME'],
 		'QUANTITY' => $row['QUANTITY'],
 		'PROPS' => $row['PROPS'],
 		'PROPS_ALL' => $row['PROPS_ALL'],
@@ -46,10 +46,10 @@ foreach ($this->basketItems as $row)
 		'SUM_FULL_PRICE_FORMATED' => $row['SUM_FULL_PRICE_FORMATED'],
 		'SUM_DISCOUNT_PRICE' => $row['SUM_DISCOUNT_PRICE'],
 		'SUM_DISCOUNT_PRICE_FORMATED' => $row['SUM_DISCOUNT_PRICE_FORMATED'],
-		'MEASURE_RATIO' => isset($row['MEASURE_RATIO']) ? $row['MEASURE_RATIO'] : 1,
+		'MEASURE_RATIO' => $row['MEASURE_RATIO'] ?? 1,
 		'MEASURE_TEXT' => $row['MEASURE_TEXT'],
-		'AVAILABLE_QUANTITY' => $row['AVAILABLE_QUANTITY'],
-		'CHECK_MAX_QUANTITY' => $row['CHECK_MAX_QUANTITY'],
+		'AVAILABLE_QUANTITY' => $row['AVAILABLE_QUANTITY'] ?? 0,
+		'CHECK_MAX_QUANTITY' => $row['CHECK_MAX_QUANTITY'] ?? 'N',
 		'MODULE' => $row['MODULE'],
 		'PRODUCT_PROVIDER_CLASS' => $row['PRODUCT_PROVIDER_CLASS'],
 		'NOT_AVAILABLE' => isset($row['NOT_AVAILABLE']) && $row['NOT_AVAILABLE'] === true,
@@ -58,9 +58,7 @@ foreach ($this->basketItems as $row)
 		'COLUMN_LIST' => array(),
 		'SHOW_LABEL' => false,
 		'LABEL_VALUES' => array(),
-		'BRAND' => isset($row[$this->arParams['BRAND_PROPERTY'].'_VALUE'])
-			? $row[$this->arParams['BRAND_PROPERTY'].'_VALUE']
-			: '',
+		'BRAND' => $row[$this->arParams['BRAND_PROPERTY'] . '_VALUE'] ?? '',
 	);
 
 	// show price including ratio
@@ -276,7 +274,7 @@ foreach ($this->basketItems as $row)
 					$rowData['COLUMN_LIST'][] = array(
 						'CODE' => $value['id'],
 						'NAME' => $value['name'],
-						'VALUE' => isset($row['~NOTES']) ? $row['~NOTES'] : $row['NOTES'],
+						'VALUE' => $row['~NOTES'] ?? $row['NOTES'],
 						'IS_TEXT' => true,
 						'HIDE_MOBILE' => !isset($mobileColumns[$value['id']])
 					);
@@ -361,10 +359,11 @@ foreach ($this->basketItems as $row)
 			}
 			elseif (!empty($row[$value['id']]))
 			{
+				$rawValue = $row['~' . $value['id']] ?? $row[$value['id']];
 				$rowData['COLUMN_LIST'][] = array(
 					'CODE' => $value['id'],
 					'NAME' => $value['name'],
-					'VALUE' => $row[$value['id']],
+					'VALUE' => $rawValue,
 					'IS_TEXT' => true,
 					'HIDE_MOBILE' => !isset($mobileColumns[$value['id']])
 				);

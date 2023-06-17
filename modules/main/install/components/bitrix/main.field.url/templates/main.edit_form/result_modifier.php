@@ -10,7 +10,7 @@ use Bitrix\Main\Text\HtmlFilter;
 
 $component = $this->getComponent();
 
-if($arResult['userField']['MULTIPLE'] === 'Y')
+if(isset($arResult['userField']['MULTIPLE']) && $arResult['userField']['MULTIPLE'] === 'Y')
 {
 	$arResult['additionalParameters']['VALIGN'] = 'top';
 }
@@ -38,7 +38,7 @@ $attrList['size'] = (int)$arResult['userField']['SETTINGS']['SIZE'];
 foreach($arResult['value'] as $key => $value)
 {
 	if(
-		$arResult['userField']['ENTITY_VALUE_ID'] < 1
+		(!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] < 1)
 		&&
 		mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 	)

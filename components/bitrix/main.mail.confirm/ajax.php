@@ -27,7 +27,7 @@ class MainMailConfirmAjax
 
 		if ($error === false)
 		{
-			$act = isset($_REQUEST['act']) ? $_REQUEST['act'] : null;
+			$act = $_REQUEST['act'] ?? null;
 
 			switch ($act)
 			{

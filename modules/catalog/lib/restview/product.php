@@ -561,7 +561,7 @@ final class Product extends Base
 	 */
 	private function getFieldsCatalogProductByTypeSKU(): array
 	{
-		return [
+		$fieldList = [
 			'AVAILABLE' => [
 				'TYPE' => DataType::TYPE_CHAR,
 				'ATTRIBUTES' => [
@@ -569,6 +569,8 @@ final class Product extends Base
 				],
 			],
 		];
+
+		return $this->fillFieldNames($fieldList);
 	}
 
 	/**
@@ -766,10 +768,11 @@ final class Product extends Base
 			'E:EAutocomplete',
 			'E:SKU',
 			'S:ElementXmlID',
+			'G:SectionAuto',
+			'S:directory',
+			'S:UserID',
 			//TODO: support types
 			//'S:video',
-			//'S:UserID',
-			//'G:SectionAuto',
 			//'S:TopicID',
 			//'S:FileMan',
 			//'S:DiskFile',

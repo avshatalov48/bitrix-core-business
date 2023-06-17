@@ -1,4 +1,4 @@
-import {ChatTypes, RecentSettings} from 'im.v2.const';
+import {DialogType, RecentSettings} from 'im.v2.const';
 
 import './chat-title.css';
 import {BitrixVue} from 'ui.vue3';
@@ -48,7 +48,7 @@ export const ChatTitle = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === ChatTypes.user;
+			return this.dialog.type === DialogType.user;
 		},
 		isSelfChat(): boolean
 		{
@@ -62,7 +62,7 @@ export const ChatTitle = {
 				{
 					return DialogSpecialType.extranet;
 				}
-				else if ([ChatTypes.support24.notifier, ChatTypes.support24.question].includes(this.dialog.type))
+				else if ([DialogType.support24Notifier, DialogType.support24Question].includes(this.dialog.type))
 				{
 					return DialogSpecialType.support24;
 				}

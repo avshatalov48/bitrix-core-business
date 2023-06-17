@@ -130,7 +130,7 @@ if($bFound)
 ?>
 	<table class="adm-search-result">
 		<?foreach($arResult["CATEGORIES"] as $category_id => $arCategory):
-			if(count($arCategory["ITEMS"])==0)
+			if(empty($arCategory["ITEMS"]))
 				continue;
 			?>
 			<?foreach($arCategory["ITEMS"] as $i => $arItem):

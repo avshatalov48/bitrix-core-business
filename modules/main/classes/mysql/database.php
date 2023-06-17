@@ -293,18 +293,18 @@ abstract class CDatabaseMysql extends CAllDatabase
 
 		$format = str_replace($search, $replace, $format);
 
-		if (mb_strpos($format, '%H') === false)
+		if (strpos($format, '%H') === false)
 		{
 			$format = str_replace("H", "%h", $format);
 		}
 
-		if (mb_strpos($format, '%M') === false)
+		if (strpos($format, '%M') === false)
 		{
 			$format = str_replace("M", "%b", $format);
 		}
 
 		$lowerAmPm = false;
-		if(mb_strpos($format, 'T') !== false)
+		if(strpos($format, 'T') !== false)
 		{
 			//lowercase am/pm
 			$lowerAmPm = true;
@@ -747,10 +747,11 @@ abstract class CDatabaseMysql extends CAllDatabase
 
 	public function Concat()
 	{
-		$str = "";
-		$ar = func_get_args();
-		if (is_array($ar)) $str .= implode(" , ", $ar);
-		if ($str <> '') $str = "concat(".$str.")";
+		$str = implode(" , ", func_get_args());
+		if ($str != '')
+		{
+			$str = "concat(" . $str . ")";
+		}
 		return $str;
 	}
 
@@ -772,21 +773,21 @@ abstract class CDatabaseMysql extends CAllDatabase
 	public function TableExists($tableName)
 	{
 		$tableName = preg_replace("/[^A-Za-z0-9%_]+/i", "", $tableName);
-		$tableName = Trim($tableName);
+		$tableName = trim($tableName);
 
 		if ($tableName == '')
-			return False;
+			return false;
 
 		$dbResult = $this->Query("SHOW TABLES LIKE '".$this->ForSql($tableName)."'", false, '', array("fixed_connection"=>true));
 		if ($arResult = $dbResult->Fetch())
-			return True;
+			return true;
 		else
-			return False;
+			return false;
 	}
 
 	public function GetIndexName($tableName, $arColumns, $bStrict = false)
 	{
-		if(!is_array($arColumns) || count($arColumns) <= 0)
+		if(!is_array($arColumns) || empty($arColumns))
 			return "";
 
 		$rs = $this->Query("SHOW INDEX FROM `".$this->ForSql($tableName)."`", true, '', array("fixed_connection"=>true));
@@ -839,9 +840,7 @@ abstract class CDBResultMysql extends CAllDBResult
 	}
 
 	/**
-	 * Returns next row of the select result in form of associated array
-	 *
-	 * @return array
+	 * @inheritdoc
 	 */
 	function Fetch()
 	{
@@ -911,10 +910,7 @@ abstract class CDBResultMysql extends CAllDBResult
 			return null;
 		}
 
-		if(isset($arNavStartParams["bDescPageNumbering"]))
-			$bDescPageNumbering = $arNavStartParams["bDescPageNumbering"];
-		else
-			$bDescPageNumbering = false;
+		$bDescPageNumbering = $arNavStartParams["bDescPageNumbering"] ?? false;
 
 		$this->InitNavStartVars($arNavStartParams);
 		$this->NavRecordCount = $cnt;

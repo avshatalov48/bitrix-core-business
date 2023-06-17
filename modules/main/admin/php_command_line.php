@@ -414,11 +414,8 @@ $editTab->Begin();
 for ($i = 1; $i <= $query_count - ($remove? 1: 0); $i++)
 {
 	$index = $remove? ($i >= $remove? $i + 1: $i): $i;
-	if (isset($_REQUEST['query'.$index]))
-		$query = $_REQUEST['query'.$index];
-	else
-		$query = CUserOptions::GetOption("php_command_line", "query".$index, '');
-	
+	$query = $_REQUEST['query'.$index] ?? CUserOptions::GetOption("php_command_line", "query".$index, '');
+
 	$editTab->BeginNextTab();
 	?>
 	<tr valign="top">

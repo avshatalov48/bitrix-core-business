@@ -31,7 +31,7 @@ if($arResult["SHOW_SMS_FIELD"] == true)
 
 <?else:?>
 <?
-if (count($arResult["ERRORS"]) > 0):
+if (!empty($arResult["ERRORS"])):
 	foreach ($arResult["ERRORS"] as $key => $error)
 		if (intval($key) == 0 && $key !== 0) 
 			$arResult["ERRORS"][$key] = str_replace("#FIELD_NAME#", "&quot;".GetMessage("REGISTER_FIELD_".$key)."&quot;", $error);

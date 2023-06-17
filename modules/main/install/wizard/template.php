@@ -1,4 +1,5 @@
 <?php
+
 class WizardTemplate extends CWizardTemplate
 {
 	function GetLayout()
@@ -15,7 +16,7 @@ class WizardTemplate extends CWizardTemplate
 		$obStep =& $wizard->GetCurrentStep();
 		$arErrors = $obStep->GetErrors();
 		$strError = "";
-		if (count($arErrors) > 0)
+		if (!empty($arErrors))
 		{
 			foreach ($arErrors as $arError)
 				$strError .= $arError[0]."<br />";
@@ -47,11 +48,8 @@ class WizardTemplate extends CWizardTemplate
 			}
 		}
 
-		if(isset($bxProductConfig["product_wizard"]["product_name"]))
-			$title = $bxProductConfig["product_wizard"]["product_name"];
-		else
-			$title = (isset($arWizardConfig["productName"]) ? $arWizardConfig["productName"] : InstallGetMessage("INS_TITLE3"));
-		
+		$title = $bxProductConfig["product_wizard"]["product_name"] ?? $arWizardConfig["productName"] ?? InstallGetMessage("INS_TITLE3");
+
 		$titleSub = "";
 		if($title == InstallGetMessage("INS_TITLE3"))
 			$titleSub = '<div class="inst-title-label">'.InstallGetMessage("INS_TITLE2").'</div>';
@@ -69,10 +67,7 @@ class WizardTemplate extends CWizardTemplate
 		}
 		$copyright = str_replace("#CURRENT_YEAR#", date("Y") , $copyright);
 
-		if(isset($bxProductConfig["product_wizard"]["links"]))
-			$support = $bxProductConfig["product_wizard"]["links"];
-		else
-			$support = (isset($arWizardConfig["supportText"]) ? $arWizardConfig["supportText"] : InstallGetMessage("SUPPORT"));
+		$support = $bxProductConfig["product_wizard"]["links"] ?? $arWizardConfig["supportText"] ?? InstallGetMessage("SUPPORT");
 
 		if(file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.php") || file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.html"))
 			$support = InstallGetMessage("SUPPORT_README").$support;
@@ -105,16 +100,12 @@ class WizardTemplate extends CWizardTemplate
 		{
 			if (isset($arWizardConfig["imageBoxSrc"]) && file_exists($_SERVER["DOCUMENT_ROOT"].$arWizardConfig["imageBoxSrc"]))
 				$boxImage = '<img src="'.$arWizardConfig["imageBoxSrc"].'" alt="" />';
-			elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/images/install/".LANGUAGE_ID."/box-new.jpg"))
-				$boxImage = '<img src="/bitrix/images/install/'.LANGUAGE_ID.'/box-new.jpg" alt="" />';
 			elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/images/install/".LANGUAGE_ID."/box.jpg"))
 				$boxImage = '<img src="/bitrix/images/install/'.LANGUAGE_ID.'/box.jpg" alt="" />';
 			elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/images/install/en/box.jpg"))
 				$boxImage = '<img src="/bitrix/images/install/en/box.jpg" alt="" />';
 		}
 
-		$strErrorMessage = "";
-		$strWarningMessage = "";
 		$strNavigation = "";
 
 		$arSteps = $wizard->GetWizardSteps();
@@ -286,4 +277,3 @@ class WizardTemplate extends CWizardTemplate
 HTML;
 	}
 }
-?>

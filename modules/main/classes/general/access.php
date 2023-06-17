@@ -331,8 +331,14 @@ class CAccess
 			if(is_callable(array($cl, "GetFormHtml")))
 			{
 				$res = call_user_func_array(array($cl, "GetFormHtml"), array($this->arParams));
-				if($res !== false)
-					$arHtml[$provider["ID"]] = array("NAME"=>$provider["NAME"], "HTML"=>$res["HTML"], "SELECTED"=>$res["SELECTED"]);
+				if ($res !== false)
+				{
+					$arHtml[$provider["ID"]] = [
+						"NAME" => $provider["NAME"],
+						"HTML" => $res["HTML"],
+						"SELECTED" => $res["SELECTED"] ?? false,
+					];
+				}
 			}
 		}
 		return $arHtml;
@@ -398,8 +404,8 @@ class CAccess
 		foreach(static::$arAuthProviders as $ID=>$provider)
 		{
 			$arResult[$ID] = array(
-				"name" => (isset($provider["PROVIDER_NAME"])? $provider["PROVIDER_NAME"] : $ID),
-				"prefixes" => (isset($provider["PREFIXES"])? $provider["PREFIXES"] : array()),
+				"name" => ($provider["PROVIDER_NAME"] ?? $ID),
+				"prefixes" => ($provider["PREFIXES"] ?? array()),
 			);
 		}
 		return $arResult;

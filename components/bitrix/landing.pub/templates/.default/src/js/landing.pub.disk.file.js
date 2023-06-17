@@ -18,40 +18,54 @@ export class DiskFile
 	onClick(event)
 	{
 		let target = event.target;
-
-		if (target.nodeName === 'A')
+		let href = target.getAttribute('href') || (target.getAttribute('data-pseudo-url') && JSON.parse(target.getAttribute('data-pseudo-url')).href);
+		if (!href)
 		{
-			if (target.getAttribute('data-viewer-type'))
+			const parentNode = target.parentNode;
+			if (parentNode.nodeName === 'A')
 			{
-				return;
+				href = parentNode.getAttribute('href');
+				target = parentNode;
 			}
-
-			let href = target.getAttribute('href');
-			if (href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0)
+			else
 			{
-				BX.ajax.get(href.replace('landing.api.diskFile.download', 'landing.api.diskFile.view'), function(data)
+				const grandParentNode = parentNode.parentNode;
+				if (grandParentNode.nodeName === 'A')
 				{
-					if (typeof data === 'string')
-					{
-						data = JSON.parse(data);
-					}
+					href = grandParentNode.getAttribute('href');
+					target = grandParentNode;
+				}
+			}
+		}
 
-					if (!data.data)
-					{
-						return;
-					}
+		if (target.getAttribute('data-viewer-type')) {
+			return;
+		}
 
-					Object.keys(data.data).map(key => {
-						target.setAttribute(key, data.data[key]);
-					});
+		if (href && href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0)
+		{
+			BX.ajax.get(href.replace('landing.api.diskFile.download', 'landing.api.diskFile.view'), function(data)
+			{
+				if (typeof data === 'string')
+				{
+					data = JSON.parse(data);
+				}
 
-					target.click();
+				if (!data.data)
+				{
+					return;
+				}
+
+				Object.keys(data.data).map(key => {
+					target.setAttribute(key, data.data[key]);
 				});
 
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			}
+				target.click();
+			});
+
+			event.preventDefault();
+			event.stopPropagation();
+			return false;
 		}
 	}
 }

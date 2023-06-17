@@ -819,7 +819,7 @@ class Entity
 			}
 
 			// glue module name
-			if (count($class_path))
+			if (!empty($class_path))
 			{
 				$this->code = join('_', $class_path).'_';
 			}
@@ -1318,9 +1318,17 @@ class Entity
 			$cacheDir = $this->getCacheDir();
 
 			$count = null;
-			if($countTotal && $cache->read($ttl, $cacheId.".total", $cacheDir))
+			if($countTotal)
 			{
-				$count = $cache->get($cacheId.".total");
+				if ($cache->read($ttl, $cacheId.".total", $cacheDir))
+				{
+					$count = $cache->get($cacheId.".total");
+				}
+				else
+				{
+					// invalidate cache
+					return null;
+				}
 			}
 			if($cache->read($ttl, $cacheId, $cacheDir))
 			{

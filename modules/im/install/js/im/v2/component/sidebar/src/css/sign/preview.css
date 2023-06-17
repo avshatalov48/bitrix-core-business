@@ -1,0 +1,15 @@
+.bx-im-sidebar-sign-preview__scope {
+	--im-sidebar-sign-preview__background_skeleton: url('../images/sign-skeleton.svg');
+}
+
+.bx-im-sidebar-sign-preview__container {
+	display: flex;
+	flex-direction: column;
+	height: 174px;
+	padding: 10px 12px 13px 14px;
+}
+
+.bx-im-sidebar-sign-preview__skeleton {
+	height: 174px;
+	background: var(--im-sidebar-sign-preview__background_skeleton)
+}

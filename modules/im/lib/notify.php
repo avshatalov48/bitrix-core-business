@@ -1,10 +1,20 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Main\Type\DateTime;
 
 class Notify
 {
+	public const
+		EVENT_DEFAULT = 'default',
+		EVENT_SYSTEM = 'system',
+		EVENT_GROUP = 'group',
+		EVENT_PRIVATE = 'private',
+		EVENT_PRIVATE_SYSTEM = 'private_system'
+	;
+
 	private const CONFIRM_TYPE = 1;
 	private const SIMPLE_TYPE = 3;
 	private const ALL_TYPES = 4;
@@ -112,7 +122,7 @@ class Notify
 			return false;
 		}
 
-		if ($isReal)
+		/*if ($isReal)
 		{
 			$query = "
 				SELECT CHAT_ID, COUNT(1) COUNTER
@@ -125,16 +135,26 @@ class Notify
 		else
 		{
 			$query = "
-				SELECT CHAT_ID, COUNTER 
+				SELECT CHAT_ID, COUNTER
 				FROM b_im_relation
 				WHERE CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])."
 			";
-		}
+		}*/
 
-		$orm = \Bitrix\Main\Application::getInstance()->getConnection()->query($query);
+		/*$orm = \Bitrix\Main\Application::getInstance()->getConnection()->query($query);
 		while($row = $orm->fetch())
 		{
 			$result[$row['CHAT_ID']] = (int)$row['COUNTER'];
+		}*/
+
+		if ($isMulti)
+		{
+			$result = (new CounterService(Common::getUserId()))->getForNotifyChats($chatList);
+		}
+		else
+		{
+			$counter = (new CounterService(Common::getUserId()))->getByChat($chatList[0]);
+			$result[$chatList[0]] = $counter;
 		}
 
 		return $result;
@@ -144,7 +164,10 @@ class Notify
 	{
 		if (!$this->chatId || !$this->totalCount)
 		{
-			return [];
+			return [
+				'notifications' => [],
+				'users' => [],
+			];
 		}
 		// fetching confirm notifications
 		$confirmCollection = $this->fetchConfirms();
@@ -154,7 +177,7 @@ class Notify
 		$simpleCollection = $this->fetchSimple($offset);
 		$notifications = array_merge($confirmCollection, $simpleCollection);
 
-		$unreadCount = \Bitrix\Im\Model\MessageTable::getList(
+		/*$unreadCount = \Bitrix\Im\Model\MessageTable::getList(
 			[
 				'select' => ['CNT'],
 				'filter' => [
@@ -165,11 +188,13 @@ class Notify
 					new \Bitrix\Main\ORM\Fields\ExpressionField('CNT', 'COUNT(*)')
 				]
 			]
-		)->fetch();
+		)->fetch();*/
+
+		$unreadCount = (new CounterService(\Bitrix\Im\Common::getUserId()))->getByChat($this->chatId);
 
 		$result = [
 			'TOTAL_COUNT' => $this->totalCount,
-			'TOTAL_UNREAD_COUNT' => (int)$unreadCount['CNT'],
+			'TOTAL_UNREAD_COUNT' => (int)$unreadCount,
 			'CHAT_ID' => $this->chatId,
 			'NOTIFICATIONS' => $notifications,
 			'USERS' => $this->users,
@@ -210,7 +235,7 @@ class Notify
 
 		foreach ($ormResult as $notifyItem)
 		{
-			if ($notifyItem['NOTIFY_EVENT'] === 'private_system')
+			if ($notifyItem['NOTIFY_EVENT'] === self::EVENT_PRIVATE_SYSTEM)
 			{
 				$notifyItem['AUTHOR_ID'] = 0;
 			}
@@ -219,7 +244,6 @@ class Notify
 				'ID' => (int)$notifyItem['ID'],
 				'CHAT_ID' => $this->chatId,
 				'AUTHOR_ID' => (int)$notifyItem['AUTHOR_ID'],
-				'TEXT' => $this->convertHtmlToBbCode((string)$notifyItem['MESSAGE']),
 				'DATE' => $notifyItem['DATE_CREATE'],
 				'NOTIFY_TYPE' => (int)$notifyItem['NOTIFY_TYPE'],
 				'NOTIFY_MODULE' => $notifyItem['NOTIFY_MODULE'],
@@ -227,9 +251,13 @@ class Notify
 				'NOTIFY_TAG' => $notifyItem['NOTIFY_TAG'],
 				'NOTIFY_SUB_TAG' => $notifyItem['NOTIFY_SUB_TAG'],
 				'NOTIFY_TITLE' => $notifyItem['NOTIFY_TITLE'],
-				'NOTIFY_READ' => $notifyItem['NOTIFY_READ'],
+				//'NOTIFY_READ' => $notifyItem['NOTIFY_READ'],
 				'SETTING_NAME' => $notifyItem['NOTIFY_MODULE'].'|'.$notifyItem['NOTIFY_EVENT'],
 			];
+			$collection[$notifyItem['ID']]['TEXT'] = \Bitrix\Im\Text::parse(
+				\Bitrix\Im\Text::convertHtmlToBbCode($notifyItem['MESSAGE']),
+				['LINK_TARGET_SELF' => 'Y']
+			);
 			if ($notifyItem['AUTHOR_ID'] && !isset($this->users[$notifyItem['AUTHOR_ID']]))
 			{
 				$user = User::getInstance($notifyItem['AUTHOR_ID'])->getArray([
@@ -254,18 +282,6 @@ class Notify
 				$user['idle'] = $notifyItem['USER_IDLE'] ?: false;
 
 				$this->users[$notifyItem['AUTHOR_ID']] = $user;
-			}
-			if ($this->convertText)
-			{
-				$collection[$notifyItem['ID']]['TEXT_CONVERTED'] = \Bitrix\Im\Text::parse(
-					$notifyItem['MESSAGE'],
-					[
-						'LINK' => 'Y',
-						'LINK_TARGET_SELF' => 'Y',
-						'SAFE' => 'N',
-						'FONT' => 'Y',
-					]
-				);
 			}
 
 			//keyboard creation
@@ -299,6 +315,8 @@ class Notify
 			{
 				$collection[$notificationId]['PARAMS'] = empty($param) ? null : $param;
 			}
+
+			$collection = $this->fillReadStatuses($collection);
 		}
 
 		return $collection;
@@ -396,7 +414,7 @@ class Notify
 
 		$batches = [];
 		$result = \Bitrix\Im\Model\MessageTable::getList([
-			'select' => ['ID', 'CHAT_ID', 'NOTIFY_READ', 'RELATION_ID' => 'RELATION.ID'],
+			'select' => ['ID'],
 			'filter' => [
 				'=NOTIFY_TYPE' => [IM_NOTIFY_CONFIRM, IM_NOTIFY_FROM, IM_NOTIFY_SYSTEM],
 				'<DATE_CREATE' => ConvertTimeStamp((time() - 86400 * $dayCount), 'FULL')
@@ -404,28 +422,18 @@ class Notify
 			'limit' => $limit
 		]);
 
-		$relationIdToCounters = [];
 		$batch = [];
 		$i = 0;
 
 		while ($row = $result->fetch())
 		{
-			if ($row['NOTIFY_READ'] === 'N')
-			{
-				$relationId = (int)$row['RELATION_ID'];
-				if (!isset($relationIdToCounters[$relationId]))
-				{
-					$relationIdToCounters[$relationId] = 0;
-				}
-				$relationIdToCounters[$relationId]++;
-			}
-
 			if ($i++ === $step)
 			{
 				$i = 0;
 				$batches[] = $batch;
 				$batch = [];
 			}
+
 			$batch[] = (int)$row['ID'];
 		}
 		if (!empty($batch))
@@ -433,6 +441,7 @@ class Notify
 			$batches[] = $batch;
 		}
 
+		$counterService = new CounterService();
 		foreach ($batches as $batch)
 		{
 			\Bitrix\Im\Model\MessageTable::deleteBatch([
@@ -441,27 +450,11 @@ class Notify
 			\Bitrix\Im\Model\MessageParamTable::deleteBatch([
 				'=MESSAGE_ID' => $batch
 			]);
+			$counterService->deleteByMessageIdsForAll($batch);
 		}
 
-		$countersToRelationIds = [];
-		foreach ($relationIdToCounters as $relationId => $unreadCounter)
-		{
-			$countersToRelationIds[$unreadCounter][] = $relationId;
-		}
 
-		$needToCleanCountersCache = false;
-		$connection = \Bitrix\Main\Application::getConnection();
-		foreach ($countersToRelationIds as $counter => $relationIds)
-		{
-			$needToCleanCountersCache = true;
-			$relationIds = '(' . implode(',', $relationIds) . ')';
-			$sql = "UPDATE b_im_relation SET COUNTER = IF(COUNTER > {$counter}, COUNTER - {$counter}, 0) WHERE ID IN {$relationIds};";
-			$connection->queryExecute($sql);
-		}
-		if ($needToCleanCountersCache)
-		{
-			\Bitrix\Im\Counter::clearCache();
-		}
+		//\Bitrix\Im\Counter::clearCache();
 
 		return '\Bitrix\Im\Notify::cleanNotifyAgent();';
 	}
@@ -613,7 +606,7 @@ class Notify
 				'NOTIFY_TAG',
 				'NOTIFY_SUB_TAG',
 				'NOTIFY_TITLE',
-				'NOTIFY_READ',
+				//'NOTIFY_READ',
 				'NOTIFY_BUTTONS',
 				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
 				'USER_IDLE' => 'STATUS.IDLE',
@@ -653,70 +646,17 @@ class Notify
 		return null;
 	}
 
-	/**
-	 * Cleans html from all the tags, except some which we accept in notifications.
-	 *
-	 * @param string $html String with HTML code.
-	 *
-	 * @return string
-	 */
-	private function cleanHtml(string $html): string
+	private function fillReadStatuses(array $notifications): array
 	{
-		$sanitizer = new \CBXSanitizer();
-		$sanitizer->AddTags([
-			'a' => array('href'),
-			'b' => array(),
-			'u' => array(),
-			'i' => array(),
-			's' => array(),
-			'br' => array(),
-			'font' => array('color')
-		]);
-		$sanitizer->ApplyDoubleEncode(false);
-		$html = $sanitizer->SanitizeHtml($html);
+		$messageIds = array_keys($notifications);
 
-		return htmlspecialcharsback($html);
-	}
+		$readStatuses = (new ReadService(\Bitrix\Im\Common::getUserId()))->getReadStatusesByMessageIds($messageIds);
 
-	/**
-	 * Converts some html tags to BB codes.
-	 *
-	 * @param string $html String with HTML code.
-	 *
-	 * @return string
-	 */
-	public function convertHtmlToBbCode(string $html): string
-	{
-		$html = $this->cleanHtml($html);
-
-		$replaced = 0;
-		do
+		foreach ($notifications as $id => $notification)
 		{
-			$html = preg_replace(
-				"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/is".BX_UTF_PCRE_MODIFIER,
-				"[\\1]\\2[/\\1]",
-				$html, -1, $replaced);
+			$notifications[$id]['NOTIFY_READ'] = $readStatuses[$id] ? 'Y' : 'N';
 		}
-		while($replaced > 0);
 
-		$html = preg_replace("/\\<br\s*\\/*\\>/is".BX_UTF_PCRE_MODIFIER,"[br]", $html);
-		$html = preg_replace(
-			[
-				"#<a[^>]+href\\s*=\\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
-				"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER
-			],
-			"[url=\\2]\\3[/url]", $html
-		);
-		$html = preg_replace(
-			[
-				"/\\<font[^>]+color\\s*=[\\s'\"]*(\\#[a-f0-9]{6})[^>]*\\>(.+?)\\<\\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER
-			],
-			[
-				"[color=\\1]\\2[/color]",
-			],
-			$html
-		);
-
-		return $html;
+		return $notifications;
 	}
 }

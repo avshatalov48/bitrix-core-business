@@ -2561,7 +2561,7 @@ class CAllSocNetUserToGroup
 
 		$notificationParams = array(
 			"TYPE" => "owner",
-			"RELATION_ID" => $existingRelationFields["ID"],
+			"RELATION_ID" => $existingRelationFields["ID"] ?? null,
 			"USER_ID" => $userId,
 			"GROUP_ID" => $groupId,
 			"GROUP_NAME" => htmlspecialcharsbx($groupFields["NAME"]),
@@ -2688,7 +2688,7 @@ class CAllSocNetUserToGroup
 		$groupInitiatePerms = Trim($groupFields["INITIATE_PERMS"]);
 		$groupVisible = Trim($groupFields["VISIBLE"]);
 		$groupOpened = Trim($groupFields["OPENED"]);
-		$groupSpamPerms = Trim($groupFields["SPAM_PERMS"]);
+		$groupSpamPerms = Trim(($groupFields["SPAM_PERMS"] ?? ''));
 
 		if ($groupId <= 0 || $groupOwnerId <= 0 || !in_array($groupInitiatePerms, $arSocNetAllowedInitiatePerms))
 		{
@@ -3146,7 +3146,7 @@ class CAllSocNetUserToGroup
 			if (
 				$to_user_id === (int)$fromUserId
 				|| (
-					is_array($arNotifyParams["EXCLUDE_USERS"])
+					is_array($arNotifyParams["EXCLUDE_USERS"] ?? null)
 					&& in_array($to_user_id, $arNotifyParams["EXCLUDE_USERS"])
 				)
 			)

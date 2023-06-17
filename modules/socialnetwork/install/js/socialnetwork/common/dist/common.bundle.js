@@ -891,7 +891,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var avatar = '<i></i>';
 
 	      if (main_core.Type.isStringFilled(this.avatarPath)) {
-	        avatar = "<i style=\"background: #fff url('".concat(this.avatarPath, "') no-repeat; background-size: cover;\"></i>");
+	        avatar = "<i style=\"background: #fff url('".concat(encodeURI(this.avatarPath), "') no-repeat; background-size: cover;\"></i>");
 	      }
 
 	      var title = '';

@@ -7,10 +7,12 @@ use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Component\VariationForm;
 use Bitrix\Catalog\Component\StoreAmount;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
+use Bitrix\Iblock\Component\Property\ComponentLinksBuilder;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Errorable;
@@ -175,6 +177,23 @@ class CatalogProductVariationDetailsComponent
 		if ($this->form->isQuantityTraceSettingDisabled())
 		{
 			unset($fields['QUANTITY_TRACE']);
+		}
+	}
+
+	private function prepareDateFields(&$fields): void
+	{
+		if (isset($fields['ACTIVE_FROM']) && $fields['ACTIVE_FROM'] !== '')
+		{
+			$date = \Bitrix\Main\Type\DateTime::createFromUserTime($fields['ACTIVE_FROM']);
+			$date->disableUserTime();
+			$fields['ACTIVE_FROM'] = $date;
+		}
+
+		if (isset($fields['ACTIVE_TO']) && $fields['ACTIVE_TO'] !== '')
+		{
+			$date = \Bitrix\Main\Type\DateTime::createFromUserTime($fields['ACTIVE_TO']);
+			$date->disableUserTime();
+			$fields['ACTIVE_TO'] = $date;
 		}
 	}
 
@@ -569,6 +588,11 @@ class CatalogProductVariationDetailsComponent
 			unset($fields['VAT_ID'], $fields['VAT_INCLUDED'], $fields['PURCHASING_PRICE']);
 		}
 
+		if (State::isUsedInventoryManagement() || !$this->getForm()->isPurchasingPriceAllowed())
+		{
+			unset($fields['PURCHASING_PRICE']);
+		}
+
 		foreach ($fields as $name => $field)
 		{
 			if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
@@ -653,6 +677,7 @@ class CatalogProductVariationDetailsComponent
 					$this->prepareDescriptionFields($fields);
 					$this->preparePictureFields($fields);
 					$this->prepareCatalogFields($fields);
+					$this->prepareDateFields($fields);
 
 					if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
 					{
@@ -1206,11 +1231,9 @@ class CatalogProductVariationDetailsComponent
 	{
 		$iblockInfo = ServiceContainer::getIblockInfo($this->getIblockId());
 
-		if ($iblockInfo)
+		if ($iblockInfo && Loader::includeModule('iblock'))
 		{
-			return "/shop/settings/iblock_edit_property/?lang=".LANGUAGE_ID
-				."&IBLOCK_ID=".urlencode($iblockInfo->getSkuIblockId())
-				."&ID=n0&publicSidePanel=Y&newProductCard=Y";
+			return (new ComponentLinksBuilder)->getActionCreateUrl($iblockInfo->getSkuIblockId());
 		}
 
 		return '';

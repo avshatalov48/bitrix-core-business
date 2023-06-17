@@ -1,7 +1,8 @@
 <?php
 namespace Bitrix\Landing\External;
 
-use \Bitrix\Main\SystemException;
+use Bitrix\Main\Application;
+use Bitrix\Main\SystemException;
 
 class Site24
 {
@@ -109,9 +110,9 @@ class Site24
 	{
 		$params['operation'] = $operation;
 
-		require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/update_client.php');
-		$params['key'] = md5('BITRIX'  .\CUpdateClient::GetLicenseKey() . 'LICENCE');
-		$params['keysign'] = md5(\CUpdateClient::GetLicenseKey());
+		$license = Application::getInstance()->getLicense();
+		$params['key'] = $license->getPublicHashKey();
+		$params['keysign'] = $license->getHashLicenseKey();
 		$params['host']= \Bitrix\Main\Config\Option::get('intranet', 'portal_url', null);
 
 		if (!$params['host'])

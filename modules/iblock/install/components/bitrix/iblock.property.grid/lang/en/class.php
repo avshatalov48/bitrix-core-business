@@ -1,0 +1,5 @@
+<?php
+$MESS["IBLOCK_PROPERTY_LIST_BUTTON_CREATE"] = "Create";
+$MESS["IBLOCK_PROPERTY_LIST_ERROR_DELETE_PROPERTY"] = "Cannot delete property  ##ID#: #ERROR#";
+$MESS["IBLOCK_PROPERTY_LIST_ERROR_NOT_FOUND_IBLOCK"] = "Information block was not found.";
+$MESS["IBLOCK_PROPERTY_LIST_ERROR_SAVE_PROPERTY"] = "Cannot save property ##ID#: #ERROR#";

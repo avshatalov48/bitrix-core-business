@@ -29,26 +29,26 @@ $menuBlockId = "catalog_menu_".$this->randString();
 		<?foreach($arResult["MENU_STRUCTURE"] as $itemID => $arColumns):?>     <!-- first level-->
 			<?$existPictureDescColomn = ($arResult["ALL_ITEMS"][$itemID]["PARAMS"]["picture_src"] || $arResult["ALL_ITEMS"][$itemID]["PARAMS"]["description"]) ? true : false;?>
 			<li
-				class="bx-nav-1-lvl bx-nav-list-<?=($existPictureDescColomn) ? count($arColumns)+1 : count($arColumns)?>-col <?if($arResult["ALL_ITEMS"][$itemID]["SELECTED"]):?>bx-active<?endif?><?if (is_array($arColumns) && count($arColumns) > 0):?> bx-nav-parent<?endif?>"
+				class="bx-nav-1-lvl bx-nav-list-<?=($existPictureDescColomn) ? count($arColumns)+1 : count($arColumns)?>-col <?if($arResult["ALL_ITEMS"][$itemID]["SELECTED"]):?>bx-active<?endif?><?if (is_array($arColumns) && !empty($arColumns)):?> bx-nav-parent<?endif?>"
 				onmouseover="BX.CatalogMenu.itemOver(this);"
 				onmouseout="BX.CatalogMenu.itemOut(this)"
-				<?if (is_array($arColumns) && count($arColumns) > 0):?>
+				<?if (is_array($arColumns) && !empty($arColumns)):?>
 					data-role="bx-menu-item"
 				<?endif?>
 				onclick="if (BX.hasClass(document.documentElement, 'bx-touch')) obj_<?=$menuBlockId?>.clickInMobile(this, event);"
 			>
 				<a
 					href="<?=$arResult["ALL_ITEMS"][$itemID]["LINK"]?>"
-					<?if (is_array($arColumns) && count($arColumns) > 0 && $existPictureDescColomn):?>
+					<?if (is_array($arColumns) && !empty($arColumns) && $existPictureDescColomn):?>
 						onmouseover="window.obj_<?=$menuBlockId?> && obj_<?=$menuBlockId?>.changeSectionPicure(this, '<?=$itemID?>');"
 					<?endif?>
 				>
 					<span>
 						<?=$arResult["ALL_ITEMS"][$itemID]["TEXT"]?>
-						<?if (is_array($arColumns) && count($arColumns) > 0):?><i class="fa fa-angle-down"></i><?endif?>
+						<?if (is_array($arColumns) && !empty($arColumns)):?><i class="fa fa-angle-down"></i><?endif?>
 					</span>
 				</a>
-			<?if (is_array($arColumns) && count($arColumns) > 0):?>
+			<?if (is_array($arColumns) && !empty($arColumns)):?>
 				<span class="bx-nav-parent-arrow" onclick="obj_<?=$menuBlockId?>.toggleInMobile(this)"><i class="fa fa-angle-left"></i></span> <!-- for mobile -->
 				<div class="bx-nav-2-lvl-container">
 					<?foreach($arColumns as $key=>$arRow):?>
@@ -65,7 +65,7 @@ $menuBlockId = "catalog_menu_".$this->randString();
 								>
 									<span><?=$arResult["ALL_ITEMS"][$itemIdLevel_2]["TEXT"]?></span>
 								</a>
-							<?if (is_array($arLevel_3) && count($arLevel_3) > 0):?>
+							<?if (is_array($arLevel_3) && !empty($arLevel_3)):?>
 								<ul class="bx-nav-list-3-lvl">
 								<?foreach($arLevel_3 as $itemIdLevel_3):?>	<!-- third level-->
 									<li class="bx-nav-3-lvl">

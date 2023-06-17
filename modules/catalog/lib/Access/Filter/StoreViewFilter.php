@@ -10,7 +10,10 @@ use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Access\Filter\AbstractAccessFilter;
 use Bitrix\Main\Access\Filter\UnknownEntityException;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\SystemException;
+use Bitrix\Sale\Internals\ShipmentItemStoreTable;
+use Bitrix\Sale\Internals\ShipmentTable;
 
 /**
  * Access filter for `Store` entity.
@@ -52,6 +55,14 @@ class StoreViewFilter extends AbstractAccessFilter
 			return $this->getProductFilter($action);
 		}
 
+		if (Loader::includeModule('sale'))
+		{
+			if ($entity === ShipmentTable::class)
+			{
+				return $this->getSaleShipmentFilter($action);
+			}
+		}
+
 		throw new UnknownEntityException($entity, $this);
 	}
 
@@ -69,6 +80,8 @@ class StoreViewFilter extends AbstractAccessFilter
 			StoreTable::class,
 			StoreProductTable::class,
 			StoreDocumentTable::class,
+			// sale
+			ShipmentTable::class,
 		];
 
 		if (!in_array($entity, $available, true))
@@ -179,6 +192,49 @@ class StoreViewFilter extends AbstractAccessFilter
 
 		return [
 			'=STORE_ID' => $allowedStores,
+		];
+	}
+
+	/**
+	 * Filter for sale shipments (aka 'catalog realizations')
+	 *
+	 * @param string $action
+	 *
+	 * @return array
+	 */
+	private function getSaleShipmentFilter(string $action): array
+	{
+		$allowedStores = $this->controller->getPermissionValue($action);
+		if (empty($allowedStores))
+		{
+			return [
+				'=ID' => null,
+			];
+		}
+
+		if (in_array(PermissionDictionary::VALUE_VARIATION_ALL, $allowedStores, true))
+		{
+			return [];
+		}
+
+		$allowedStores[] = null;
+		$storeFilter = [
+			'=STORE_ID' => $allowedStores,
+		];
+
+		$query =
+			ShipmentItemStoreTable::query()
+				->setSelect(['ORDER_DELIVERY_BASKET_ID'])
+				->setFilter($storeFilter)
+				->getQuery()
+		;
+
+		return [
+			[
+				'LOGIC' => 'OR',
+				'=SHIPMENT_ITEM.ID' => null,
+				'@SHIPMENT_ITEM.ID' => new SqlExpression($query),
+			]
 		];
 	}
 }

@@ -20,7 +20,7 @@ class CMenuCustom
 
 	public function AddItem($type="left", $arItem=array())
 	{
-		if (count($arItem) <= 0)
+		if (empty($arItem))
 			return;
 
 		if (!array_key_exists("TEXT", $arItem) || trim($arItem["TEXT"]) == '')

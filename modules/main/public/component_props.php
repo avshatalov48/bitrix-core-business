@@ -204,10 +204,10 @@ switch(mb_strtoupper($prop["TYPE"]))
 
 		$tmp = '';
 		$bFound = false;
-		foreach($prop["VALUES"] as $v_id => $v_name)
+		foreach ($prop["VALUES"] as $v_id => $v_name)
 		{
 			$key = array_search($v_id, $val);
-			if($key === FALSE || $key === NULL)
+			if ($key === false)
 			{
 				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'">'.htmlspecialcharsbx($v_name).'</option>';
 			}
@@ -272,11 +272,11 @@ switch(mb_strtoupper($prop["TYPE"]))
 				$res .= '<br>';
 				if($prop['ROWS'] > 1)
 				{
-					$res .= '<textarea name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(count($val) > 0? $val[0] : '').'</textarea>';
+					$res .= '<textarea name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(!empty($val)? $val[0] : '').'</textarea>';
 				}
 				else
 				{
-					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(count($val) > 0? $val[0] : '').'">';
+					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(!empty($val)? $val[0] : '').'">';
 				}
 			}
 		}

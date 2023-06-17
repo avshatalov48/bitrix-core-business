@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_backend,landing_env,landing_imagecompressor,landing_loc,landing_main,landing_screenshoter,landing_ui_card_messagecard,landing_ui_field_textfield,landing_ui_panel_content,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-create-page-fail\">\n\t\t\t\t\t<div class=\"landing-ui-panel-create-page-fail-header\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -35,7 +27,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    babelHelpers.classCallCheck(this, SaveBlock);
 	    data = data || {};
-	    data.title = landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_TITLE');
+	    data.title = landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_TITLE_MSGVER_1');
 	    data.showFromRight = true;
 
 	    if (!data.block) {
@@ -48,12 +40,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "previewFileIds", []);
 	    _this.block = data.block;
 	    _this.mainInstance = landing_main.Main.getInstance();
-	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-create-page');
-	    main_core.Dom.addClass(_this.overlay, 'landing-ui-panel-create-page');
+	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-save-block');
+	    main_core.Dom.addClass(_this.overlay, 'landing-ui-panel-save-block');
 
 	    _this.setButtons();
 
-	    _this.renderTo(document.body);
+	    _this.renderTo(window.parent.document.body);
 
 	    return _this;
 	  }
@@ -149,8 +141,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('message', function () {
 	        return new landing_ui_card_messagecard.MessageCard({
 	          id: 'fieldsMessage',
-	          header: landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TITLE'),
-	          description: landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TEXT'),
+	          header: landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TITLE_MSGVER_1'),
+	          description: landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_MESSAGE_TEXT_MSGVER_1'),
 	          //icon: messageIcon,
 	          restoreState: true
 	        });
@@ -211,7 +203,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getFailMessage",
 	    value: function getFailMessage() {
 	      return this.cache.remember('failMessage', function () {
-	        return main_core.Tag.render(_templateObject(), landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_FAIL_MESSAGE_TITLE'));
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-save-block-fail\">\n\t\t\t\t\t<div class=\"landing-ui-panel-save-block-fail-header\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_FAIL_MESSAGE_TITLE'));
 	      });
 	    }
 	  }, {

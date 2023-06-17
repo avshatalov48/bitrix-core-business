@@ -8,8 +8,20 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 	{
 		global $DB;
 
-		if (count($arSelectFields) <= 0)
-			$arSelectFields = array("ID", "AFFILIATE_ID", "TIMESTAMP_X", "TRANSACT_DATE", "AMOUNT", "CURRENCY", "DEBIT", "DESCRIPTION", "EMPLOYEE_ID");
+		if (empty($arSelectFields))
+		{
+			$arSelectFields = [
+				'ID',
+				'AFFILIATE_ID',
+				'TIMESTAMP_X',
+				'TRANSACT_DATE',
+				'AMOUNT',
+				'CURRENCY',
+				'DEBIT',
+				'DESCRIPTION',
+				'EMPLOYEE_ID',
+			];
+		}
 
 		// FIELDS -->
 		$arFields = array(
@@ -41,7 +53,7 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
 
-		if (is_array($arGroupBy) && count($arGroupBy)==0)
+		if (empty($arGroupBy) && is_array($arGroupBy))
 		{
 			$strSql =
 				"SELECT ".$arSqls["SELECT"]." ".
@@ -52,8 +64,6 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
@@ -61,7 +71,7 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 				return False;
 		}
 
-		$strSql = 
+		$strSql =
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sale_affiliate_transact AT ".
 			"	".$arSqls["FROM"]." ";
@@ -72,7 +82,14 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
+		$topCount = 0;
+		$useNavParams = is_array($arNavStartParams);
+		if ($useNavParams && isset($arNavStartParams['nTopCount']))
+		{
+			$topCount = (int)$arNavStartParams['nTopCount'];
+		}
+
+		if ($useNavParams && $topCount <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
@@ -82,8 +99,6 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-
-			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -100,16 +115,14 @@ class CSaleAffiliateTransact extends CAllSaleAffiliateTransact
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
-
-			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
+			if ($useNavParams && $topCount > 0)
+			{
+				$strSql .= 'LIMIT ' . $topCount;
+			}
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

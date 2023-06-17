@@ -48,7 +48,7 @@ $controlId = htmlspecialcharsbx($arParams["divId"]);
 		<div class="feed-add-post-text">
 <script type="text/javascript">
 <?
-if (is_array($GLOBALS["arExtranetGroupID"]))
+if (isset($GLOBALS["arExtranetGroupID"]) && is_array($GLOBALS["arExtranetGroupID"]))
 {
 	?>
 	if (typeof window['arExtranetGroupID'] == 'undefined')
@@ -70,15 +70,15 @@ BX.ready(function()
 		},
 		<?=CUtil::PhpToJSObject([
 			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'] ?? '',
-			'showPanelEditor' => ($arParams["TEXT"]["SHOW"] == "Y"),
+			'showPanelEditor' => isset($arParams["TEXT"]["SHOW"]) && $arParams["TEXT"]["SHOW"] === "Y",
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
-			'urlPreviewId' => $arParams['urlPreviewId'],
+			'urlPreviewId' => $arParams['urlPreviewId'] ?? '',
 			'parsers' => $arParams["PARSER"],
 			'tasksLimitExceeded' => !!$arResult['tasksLimitExceeded'],
 		]);?>,
 		<?=CUtil::PhpToJSObject(
 			array(
-				"arSize" => $arParams["UPLOAD_FILE_PARAMS"],
+				"arSize" => $arParams["UPLOAD_FILE_PARAMS"] ?? null,
 				"CID" => $arParams["UPLOADS_CID"],
 			));?>
 	);
@@ -140,7 +140,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 		?></div>
 	</div><?php
 
-	echo $arParams["~HTML_AFTER_TEXTAREA"];
+	echo $arParams["~HTML_AFTER_TEXTAREA"] ?? '';
 
 	if (isset($visibleButtons['MentionUser']))
 	{
@@ -264,8 +264,8 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 		echo $APPLICATION->GetViewContent("mpl_input_additional");
 	}
 
-	echo $arParams["~AT_THE_END_HTML"];
-	echo $arParams["URL_PREVIEW_HTML"];
+	echo $arParams["~AT_THE_END_HTML"] ?? '';
+	echo $arParams["URL_PREVIEW_HTML"] ?? '';
 
 	if (isset($arParams["IMPORTANT"]) && isset($arParams["IMPORTANT"]["INPUT_NAME"]))
 	{

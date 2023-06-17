@@ -35,12 +35,12 @@ class RedisSessionHandler extends AbstractSessionHandler
 		]);
 	}
 
-	public function open($savePath, $sessionName)
+	public function open($savePath, $sessionName): bool
 	{
 		return $this->createConnection();
 	}
 
-	public function close()
+	public function close(): bool
 	{
 		parent::close();
 		$this->closeConnection();
@@ -87,9 +87,9 @@ class RedisSessionHandler extends AbstractSessionHandler
 		return true;
 	}
 
-	public function gc($maxLifeTime)
+	public function gc($maxLifeTime): int
 	{
-		return true;
+		return 0;
 	}
 
 	protected function isConnected(): bool
@@ -122,7 +122,7 @@ class RedisSessionHandler extends AbstractSessionHandler
 		$this->connection = null;
 	}
 
-	public function updateTimestamp($sessionId, $sessionData)
+	public function updateTimestamp($sessionId, $sessionData): bool
 	{
 		return $this->write($sessionId, $sessionData);
 	}

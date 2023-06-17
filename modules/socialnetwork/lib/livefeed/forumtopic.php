@@ -133,7 +133,7 @@ final class ForumTopic extends Provider
 
 						}
 						$this->setSourceTitle(truncateText($title, 100));
-						$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($messageId));
+						$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 						$this->setSourceDiskObjects($this->getDiskObjects($messageId, $this->cloneDiskObjects));
 					}
 				}

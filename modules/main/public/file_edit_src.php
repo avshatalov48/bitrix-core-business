@@ -147,10 +147,12 @@ if($strWarning == '')
 
 			if(!$APPLICATION->SaveFileContent($abs_path, $filesrc_for_save))
 			{
-				if($str_err = $APPLICATION->GetException())
+				if (($str_err = $APPLICATION->GetException()))
 				{
-					if ($str_err && ($err = $str_err->GetString()))
+					if (($err = $str_err->GetString()))
+					{
 						$strWarning = $err;
+					}
 
 					$bVarsFromForm = true;
 				}

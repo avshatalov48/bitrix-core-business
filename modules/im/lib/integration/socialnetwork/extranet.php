@@ -36,6 +36,8 @@ class Extranet
 			return $cache->getVars();
 		}
 
+		$cache->startDataCache();
+
 		$taggedCache->startTagCache($cachePath);
 
 		$db = \CSocNetUserToGroup::GetList(
@@ -72,6 +74,8 @@ class Extranet
 			return false;
 		}
 
+		$taggedCache->registerTag('sonet_user2group');
+
 		$taggedCache->endTagCache();
 
 		$db = \CSocNetUserToGroup::GetList(
@@ -94,7 +98,6 @@ class Extranet
 			$groups['SG'.$row['GROUP_ID']]['USERS'][] = $row["USER_ID"];
 		}
 
-		$cache->startDataCache();
 		$cache->endDataCache($groups);
 
 		return $groups;

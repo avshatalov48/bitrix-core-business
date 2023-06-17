@@ -78,7 +78,7 @@ final class LogComment extends Provider
 					$CBXSanitizer->delAllTags();
 					$title = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $CBXSanitizer->sanitizeHtml($title));
 					$this->setSourceTitle(truncateText($title, 100));
-					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($commentId));
+					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 					$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
 					$this->setSourceOriginalText($logComentFields['MESSAGE']);
 					$this->setSourceAuxData($logComentFields);

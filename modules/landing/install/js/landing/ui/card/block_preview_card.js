@@ -95,32 +95,33 @@
 				: false;
 			if (blockId && this.favoriteMy)
 			{
-				BX.Runtime.loadExtension('ui.dialogs.messagebox');
-				var deleteMyButton = this.getRemoveButton();
-				deleteMyButton.onclick = function (event)
-				{
-					event.stopPropagation();
-					BX.UI.Dialogs.MessageBox.show({
-						message: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"),
-						buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
-						onYes: function ()
-						{
-							return BX.Landing.Backend.getInstance().action(
-								"Landing::unFavoriteBlock",
-								{blockId: blockId}
-							).then(function() {
-								var mainInstance = BX.Landing.Main.getInstance();
-								mainInstance.removeBlockFromList(this.code);
-								return true;
-							}.bind(this))
-								.catch(function(error) {
-									console.log("error", error);
-									return false;
-								});
-						}.bind(this),
-					});
-				}.bind(this);
-				BX.append(deleteMyButton, this.getBody());
+				BX.Runtime.loadExtension('ui.dialogs.messagebox').then(() => {
+					const deleteMyButton = this.getRemoveButton();
+					deleteMyButton.onclick = event => {
+						event.stopPropagation();
+						BX.UI.Dialogs.MessageBox.show({
+							message: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"),
+							buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
+							onYes: () => {
+								return BX.Landing.Backend.getInstance()
+									.action(
+										"Landing::unFavoriteBlock",
+										{blockId: blockId}
+									)
+									.then(() => {
+										const mainInstance = BX.Landing.Main.getInstance();
+										mainInstance.removeBlockFromList(this.code);
+										return true;
+									})
+									.catch(function(error) {
+										console.log("error", error);
+										return false;
+									});
+							},
+						});
+					};
+					BX.append(deleteMyButton, this.getBody());
+				});
 			}
 		}
 

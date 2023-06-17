@@ -289,15 +289,19 @@ if (isset($arResult['ITEM']))
 			$arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED']
 		;
 
+
 		$templateData = array(
 			'JS_OBJ' => $obName,
 			'ITEM' => array(
 				'ID' => $item['ID'],
 				'IBLOCK_ID' => $item['IBLOCK_ID'],
-				'OFFERS_SELECTED' => $item['OFFERS_SELECTED'],
-				'JS_OFFERS' => $item['JS_OFFERS']
-			)
+			),
 		);
+		if ($haveOffers)
+		{
+			$templateData['ITEM']['OFFERS_SELECTED'] = $item['OFFERS_SELECTED'];
+			$templateData['ITEM']['JS_OFFERS'] = $item['JS_OFFERS'];
+		}
 		?>
 		<script>
 			var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);

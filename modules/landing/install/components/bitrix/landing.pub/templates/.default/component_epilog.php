@@ -36,7 +36,7 @@ Manager::setPageView(
 
 Manager::setPageView(
 	'BeforeHeadClose',
-	'<link rel="icon" type="image/x-icon" href="' . $arResult['SITE_RELATIVE_URL'] . 'favicon.ico">'
+	'<link rel="icon" type="image/x-icon" href="' . ($arResult['SITE_RELATIVE_URL'] ?: '/').'favicon.ico">'
 );
 
 // we set canonical, only if user no setup it before

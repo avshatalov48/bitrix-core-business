@@ -326,7 +326,7 @@ class DateTimeType extends DateType
 			}
 			else
 			{
-				$value = $userField['VALUE'];
+				$value = $userField['VALUE'] ?? null;
 			}
 		}
 		elseif(isset($additionalParameters['VALUE']))

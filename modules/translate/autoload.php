@@ -69,7 +69,6 @@ const IGNORE_BX_NAMES = array(
 	'/bitrix/css',
 	'/bitrix/fonts',
 	'/bitrix/images',
-	'/bitrix/js',
 	'/bitrix/routes',
 	'/bitrix/sounds',
 	'/upload',

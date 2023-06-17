@@ -1,0 +1,57 @@
+.bx-messenger-call-float { background-color: #292a2b; height: 320px; width: 240px; opacity: 0.95; text-align: center; position: relative}
+.bx-messenger-call-float-video {display: inline-block; width: 100%; position: relative; z-index: 1; opacity: 1; transition: opacity 0.4s; }
+
+.bx-messenger-call-float-audio-unfold {display: none; line-height: 34px; opacity: 0.9; cursor: pointer; }
+.bx-messenger-call-float-audio-unfold:hover {opacity: 1}
+.bx-messenger-call-float-audio-unfold:hover .bx-messenger-call-float-button-text {opacity: 0.9}
+.bx-messenger-call-float-audio .bx-messenger-call-float-audio-unfold {display: block;}
+
+.bx-messenger-call-float-buttons{
+	width: 320px; height: 34px; opacity: .7; position: absolute; z-index:2; bottom: 0px; transition: top 0.4s;
+	-moz-user-select:none; -khtml-user-select:none; -o-user-select:none; -webkit-user-select:none; user-select:none;
+	background-color: rgba(0, 0, 0, 0.25);
+}
+.bx-messenger-call-float-button { display: inline-block; height: 34px; border-left: 1px solid rgba(255,255,255, 0.2);  cursor: pointer; line-height: 34px; }
+.bx-messenger-call-float-button:hover { background-color: rgba(0, 0, 0, 0.4); }
+.bx-messenger-call-float-button:first-child { border-left: 0; }
+.bx-messenger-call-float-button-icon { display: inline-block; height: 34px;  margin-right: 3px; background: url(./../images/im-sprite-v37.png) 0 0; }
+.bx-messenger-call-float-button-decline { width: 139px; }
+.bx-messenger-call-float-button-decline .bx-messenger-call-float-button-icon { width: 27px; background-position: -102px -42px; }
+.bx-messenger-call-float-button-mic { width: 179px; }
+.bx-messenger-call-float-button-mic .bx-messenger-call-float-button-icon { width: 24px; background-position: -133px -42px; }
+.bx-messenger-call-float-button-mic-disabled .bx-messenger-call-float-button-icon { width: 24px; background-position: -166px -42px; }
+.bx-messenger-call-float-button-text { display: inline-block; height: 34px; font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #ffffff; font-size: 13px; vertical-align: top; overflow: hidden; cursor: pointer; opacity: 0.7; }
+
+.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-buttons { width: 180px; height: 73px; top:320px; }
+.bx-messenger-call-overlay-aspect-vertical.bx-messenger-call-float:hover .bx-messenger-call-float-buttons { top: 247px; }
+.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-button { display: block; width: 180px; border-left: 0; border-top: 1px solid rgba(255,255,255, 0.2); height: 38px; }
+.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-button:first-child { border-top: 0; }
+
+.bx-messenger-call-float-avatars {
+	display: flex;
+	flex-direction: row;
+	align-content: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	padding-top: 10px;
+	cursor: pointer;
+}
+
+.bx-messenger-call-float-avatar {
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.385268%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.50781%2051.1133C9.51562%2047.957%2013.9766%2045.5898%2018.1016%2043.7578C19.1406%2043.2969%2019.7969%2042.9219%2020.4297%2042.5469C21.1367%2042.1328%2021.8203%2041.7227%2022.9883%2041.1953C23.0664%2040.7969%2023.1133%2040.3945%2023.1328%2039.9883C23.1445%2039.7734%2023.1445%2039.5586%2023.1367%2039.3438L25.0156%2039.1133C25.0156%2039.1133%2025.2656%2039.5781%2024.8672%2036.8477C24.8672%2036.8477%2022.7539%2036.2852%2022.6562%2031.9375C22.6562%2031.9375%2021.0664%2032.4844%2020.9688%2029.8477C20.9023%2028.0664%2019.5469%2026.5156%2021.4961%2025.2344L20.5039%2022.5039C20.5039%2022.5039%2019.4609%2011.9492%2024.0352%2012.8047C22.1797%209.76562%2037.832%207.24219%2038.8711%2016.543C38.9883%2017.3555%2039.0742%2018.1719%2039.125%2018.9922C39.2461%2020.9961%2039.1641%2023.0078%2038.8711%2024.9961C38.8711%2024.9961%2039.5352%2024.918%2039.9219%2025.5391C40.2578%2026.082%2040.3789%2027.1641%2039.6484%2029.3125C39.6484%2029.3125%2039.2773%2030.7344%2038.6484%2031.5039C38.3203%2031.9062%2037.9219%2032.1289%2037.4688%2031.875C37.4688%2031.875%2037.6836%2036.0508%2035.6055%2036.7578C35.6055%2036.7578%2035.7539%2038.9844%2035.7539%2039.1328L37.4883%2039.4023C37.4883%2039.4023%2037.4375%2041.2578%2037.7852%2041.457C39.3672%2042.5156%2041.1055%2043.3164%2042.9336%2043.832C48.3242%2045.2461%2051.0664%2047.6719%2051.0664%2049.7969C51.0664%2049.7969%2051.2266%2050.3984%2051.4766%2051.3906C56.9023%2045.9414%2060.2578%2038.4258%2060.2578%2030.1289C60.2578%2013.4883%2046.7695%200%2030.1289%200C13.4883%200%200%2013.4883%200%2030.1289C0%2038.2852%203.24219%2045.6875%208.50781%2051.1133Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20fill%3D%22%23D8D8D8%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M30.1285%2060.2571C46.7681%2060.2571%2060.2571%2046.7681%2060.2571%2030.1285C60.2571%2013.489%2046.7681%200%2030.1285%200C13.489%200%200%2013.489%200%2030.1285C0%2046.7681%2013.489%2060.2571%2030.1285%2060.2571Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20stroke%3D%22%23999CA2%22%20stroke-width%3D%223%22/%3E%0A%3C/svg%3E%0A) no-repeat center;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	border: rgba(59,200,245,.2) 1px solid;
+
+	padding: 6px;
+	margin: 5px;
+	background-size: 50px;
+	background-clip: content-box;
+}
+
+.bx-messenger-call-float-avatar.talking {
+	border: rgba(59,200,245,.6) 1px solid;
+}
+
+.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-video-main-block { height: 100%!important; width: auto!important; }

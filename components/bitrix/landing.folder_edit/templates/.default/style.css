@@ -34,6 +34,22 @@
 	flex: 1;
 }
 
+#landing-folder-index-link {
+	max-width: calc(100% - 170px);
+	display: inline-flex;
+}
+
+#landing-folder-index-link.--link-icon:empty {
+	display: none;
+}
+
+
+#landing-folder-index-link .landing-folder-index-link-text {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .landing-folder-edit__section--text {
 	margin-right: 5px;
 	font-size: 14px;

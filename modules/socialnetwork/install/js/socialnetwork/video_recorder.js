@@ -43,10 +43,6 @@ BX.VideoRecorder = {
 	{
 		return document.documentElement.clientHeight;
 	},
-	isPermissionsAsked: function()
-	{
-		return BX.VideoRecorder.popupPermissionsShown;
-	},
 	isAvailable: function(report)
 	{
 		report = report === true;
@@ -124,7 +120,7 @@ BX.VideoRecorder = {
 					BX.VideoRecorder.outputVideo = BX.create('video', {props: {className: 'bx-videomessage-video', width: BX.VideoRecorder.getScreenWidth(), loop: false}, events: {
 						'playing': function()
 						{
-							if(BX.VideoRecorder.state === 'idle')
+							if (BX.VideoRecorder.state === 'idle')
 							{
 								BX.VideoRecorder.resize();
 								BX.VideoRecorder.beforeRecord();
@@ -442,30 +438,58 @@ BX.VideoRecorder = {
 				BX.message('BLOG_VIDEO_RECORD_REQUIREMENTS_TITLE')
 			);
 		}
-		else if(BX.VideoRecorder.isPermissionsAsked())
-		{
-			BX.VideoRecorder.askDevicePermission();
-			BX.VideoRecorder.showLayout();
-		}
 		else
 		{
-			BX.VideoRecorder.showMessage(BX.message('BLOG_VIDEO_RECORD_ASK_PERMISSIONS'), [
-				new BX.PopupWindowButton({
-					text : BX.message('BLOG_VIDEO_RECORD_AGREE'),
-					className : "popup-window-button-blue",
-					events : { click : function()
+			this.askBaseDevicePermission()
+				.then(function(isAccess) {
+					if (isAccess === false)
 					{
-						BX.VideoRecorder.popupPermissionsShown = true;
-						BX.VideoRecorder.askDevicePermission();
-						BX.VideoRecorder.showLayout();
-					}}
-				}),
-				new BX.PopupWindowButtonLink({
-					text : BX.message('BLOG_VIDEO_RECORD_CLOSE'),
-					className : "popup-window-button-decline",
-					events : { click : function() { this.popupWindow.close(); } }
+						throw new Error(BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR'));
+					}
+
+					navigator.mediaDevices.enumerateDevices().then(function (mediaDevices) {
+						var videoDevices = this.getVideoDevices(mediaDevices);
+
+						var content = BX.message('BLOG_VIDEO_RECORD_ASK_PERMISSIONS');
+						if (videoDevices.length > 1)
+						{
+							content = this.createContentForMessage(videoDevices);
+
+							if (videoDevices[0].deviceId)
+							{
+								BX.VideoRecorder.constraints.video.deviceId = {
+									exact: videoDevices[0].deviceId
+								};
+							}
+						}
+
+						BX.VideoRecorder.showMessage(content, [
+							new BX.PopupWindowButton({
+								text : BX.message('BLOG_VIDEO_RECORD_AGREE'),
+								className : "popup-window-button-blue",
+								events : { click : function()
+									{
+										BX.VideoRecorder.askDevicePermission();
+										BX.VideoRecorder.showLayout();
+									}}
+							}),
+							new BX.PopupWindowButtonLink({
+								text : BX.message('BLOG_VIDEO_RECORD_CLOSE'),
+								className : "popup-window-button-decline",
+								events : { click : function() { this.popupWindow.close(); } }
+							})
+						], BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_TITLE'));
+					}.bind(this));
+				}.bind(this))
+				.catch(function(error) {
+					BX.VideoRecorder.showMessage(
+						BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR'),
+						[],
+						BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE')
+					);
+					console.log(error);
 				})
-			], BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_TITLE'));
+			;
 		}
 	},
 	askDevicePermission: function()
@@ -487,10 +511,127 @@ BX.VideoRecorder = {
 		}).catch(function(error)
 		{
 			BX.VideoRecorder.hideLayout();
-			BX.VideoRecorder.showMessage(BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR'), [], BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE'));
-			BX.VideoRecorder.popupPermissionsShown = false;
+			BX.VideoRecorder.showMessage(
+				BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR'),
+				[],
+				BX.message('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE')
+			);
 			console.log(error);
 		});
+	},
+	askBaseDevicePermission: function()
+	{
+		return navigator.mediaDevices.getUserMedia({
+			audio: {},
+			video: { width: 1280, height: 720, facingMode: 'user' }
+		})
+			.then(function() {
+				return true;
+			}).catch(function() {
+				return false;
+			})
+		;
+	},
+	getVideoDevices: function(mediaDevices)
+	{
+		var devices = [];
+
+		mediaDevices.forEach(function (mediaDevice) {
+			if (mediaDevice.kind === 'videoinput')
+			{
+				devices.push(mediaDevice);
+			}
+		});
+
+		return devices;
+	},
+	createContentForMessage: function(videoDevices)
+	{
+		var selectWrap = BX.create(
+			'div',
+			{
+				props: {
+					className: 'ui-ctl ui-ctl-after-icon ui-ctl-dropdown'
+				},
+				children: [
+					BX.create(
+						'div',
+						{
+							props: {
+								className: 'ui-ctl-after ui-ctl-icon-angle'
+							},
+						}
+					)
+				]
+			}
+		);
+		var selectOptions = [], count = 1;
+		for (var key in videoDevices)
+		{
+			var videoDevice = videoDevices[key];
+
+			selectOptions.push(
+				BX.create(
+					'option',
+					{
+						props: {
+							value: videoDevice.deviceId,
+							selected: selectOptions.length === 0,
+						},
+						text: (
+							videoDevice.label
+							|| BX.message('BLOG_VIDEO_RECORD_DEFAULT_CAMERA_NAME') + ` ${count++}`
+						)
+					}
+				)
+			);
+		}
+		var select = BX.create(
+			'select',
+			{
+				props: {
+					className: 'ui-ctl-element'
+				},
+				children : selectOptions,
+				events: {
+					change : function(event) {
+						var element = event.srcElement || event.target;
+						if (element.value !== '')
+						{
+							BX.VideoRecorder.constraints.video.deviceId = {
+								exact: element.value
+							};
+						}
+					}
+				}
+			}
+		);
+		selectWrap.appendChild(select);
+
+		var content = BX.create(
+			'div',
+			{
+				children: [
+					BX.create(
+						'div',
+						{
+							props: {
+								className: 'ui-text-1',
+							},
+							children: [selectWrap]
+						}
+					),
+					BX.create(
+						'div',
+						{
+							text: BX.message('BLOG_VIDEO_RECORD_ASK_PERMISSIONS')
+						}
+					)
+				]
+			}
+		);
+
+		return content;
 	},
 	showMessage: function(content, buttons, title)
 	{

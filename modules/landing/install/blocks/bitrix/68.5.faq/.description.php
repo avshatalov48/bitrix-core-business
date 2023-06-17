@@ -33,7 +33,7 @@ return [
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default'],
+			'type' => ['block-default', 'container'],
 		],
 		'nodes' => [
 			'.landing-block-title' => [

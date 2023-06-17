@@ -347,15 +347,17 @@ class RestClient
 
 		$data = "";
 
-		if(!$reset)
+		if (!$reset)
 		{
 			$alreadySetted = true;
 			$last = static::getLastUnSuccessCallInfo();
 
-			$data = serialize(array(
-					'COUNT' => intval($last['COUNT']) > 0 ? intval($last['COUNT'])+1 : 1,
-					'TIMESTAMP' => time()
-			));
+			$lastCount = (int)($last['COUNT'] ?? 0);
+
+			$data = serialize([
+				'COUNT' => $lastCount > 0 ? $lastCount + 1 : 1,
+				'TIMESTAMP' => time()
+			]);
 		}
 
 		Option::set('sale', static::UNSUCCESSFUL_CALL_OPTION, $data);

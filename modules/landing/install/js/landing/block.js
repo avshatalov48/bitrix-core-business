@@ -304,6 +304,7 @@
 		this.savedAnchor = options.anchor;
 		this.requiredUserActionOptions = options.requiredUserAction;
 		this.dynamicParams = options.dynamicParams || {};
+		this.sections = options.sections ? options.sections.split(',') : [];
 
 		// Make entities collections
 		this.nodes = new NodeCollection();
@@ -829,6 +830,24 @@
 			}
 		},
 
+		showFeedbackForm: function() {
+			BX.Landing.Main.getInstance().showSliderFeedbackForm({
+				blockName: this.manifest.block.name,
+				blockCode: this.manifest.code,
+				blockSection: this.manifest.block.section,
+				landingId: BX.Landing.Main.getInstance().id,
+				target: "blockActions"
+			});
+			if (this.blockActionsMenu)
+			{
+				this.blockActionsMenu.close();
+			}
+			if (this.sidebarActionsMenu)
+			{
+				this.sidebarActionsMenu.close();
+			}
+		},
+
 		onShowSidebarActionsClick: function(event)
 		{
 			var bindElement = (
@@ -887,7 +906,7 @@
 								return new BX.Main.MenuItem({
 									id: "designblock",
 									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
-									className: (this.access < ACCESS_W || this.php || this.isCrmFormBlock()) ? "landing-ui-disabled" : "",
+									className: !this.isDesignBlockAllowed() ? "landing-ui-disabled" : "",
 									onclick: function() {
 										this.onDesignerBlockClick();
 										this.sidebarActionsMenu.close();
@@ -990,7 +1009,7 @@
 						new BX.Main.MenuItem({
 							id: "show_hide",
 							text: BX.Landing.Loc.getMessage(this.isEnabled() ? "ACTION_BUTTON_HIDE" : "ACTION_BUTTON_SHOW"),
-							className: this.access < ACCESS_W ? "landing-ui-disabled" : "",
+							className: !this.isChangeStateBlockAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.onStateChange();
 								this.sidebarActionsMenu.close();
@@ -1001,7 +1020,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_CUT"),
-							className: this.access < ACCESS_X ? "landing-ui-disabled" : "",
+							className: !this.isRemoveBlockAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								BX.Landing.Main.getInstance().onCutBlock.bind(BX.Landing.Main.getInstance(), this)();
 								this.sidebarActionsMenu.close();
@@ -1018,7 +1037,7 @@
 							id: "block_paste",
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_PASTE"),
 							title: window.localStorage.landingBlockName,
-							className: window.localStorage.landingBlockId ? "": "landing-ui-disabled",
+							className: this.isPasteBlockAllowed() ? "": "landing-ui-disabled",
 							onclick: function() {
 								BX.Landing.Main.getInstance().onPasteBlock.bind(BX.Landing.Main.getInstance(), this)();
 								this.sidebarActionsMenu.close();
@@ -1029,19 +1048,11 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: function() {
-								BX.Landing.Main.getInstance().showSliderFeedbackForm({
-									blockName: this.manifest.block.name,
-									blockCode: this.manifest.code,
-									blockSection: this.manifest.block.section,
-									landingId: BX.Landing.Main.getInstance().id,
-									target: "blockActions"
-								});
-								this.sidebarActionsMenu.close();
-							}.bind(this)
+							onclick: this.showFeedbackForm.bind(this)
 						}),
 						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"),
+							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.saveBlock();
 								this.sidebarActionsMenu.close();
@@ -1057,7 +1068,7 @@
 								this.deleteBlock();
 								this.sidebarActionsMenu.close();
 							}.bind(this),
-							className: this.access < ACCESS_X ? "landing-ui-disabled" : ""
+							className: !this.isRemoveBlockAllowed() ? "landing-ui-disabled" : ""
 						})
 					]
 				});
@@ -1113,7 +1124,7 @@
 							new ActionButton("designblock", {
 								text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
 								onClick: this.onDesignerBlockClick.bind(this),
-								disabled: this.access < ACCESS_W || this.php || (this.isCrmFormPage() && this.isCrmFormBlock()),
+								disabled: !this.isDesignBlockAllowed(),
 								attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") },
 								separate: true,
 							})
@@ -1123,7 +1134,7 @@
 							new ActionButton("style", {
 								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_STYLE"),
 								onClick: this.onStyleShow.bind(this),
-								disabled: this.access < ACCESS_V || isEmpty(this.manifest.style),
+								disabled: !this.isStyleModifyAllowed(),
 								attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_DESIGN")},
 								separate: true,
 							})
@@ -1280,7 +1291,7 @@
 				blockPanel.addButton(
 					new ActionButton("remove", {
 						html: BX.Landing.Loc.getMessage("ACTION_BUTTON_REMOVE"),
-						disabled: this.access < ACCESS_X || (this.isCrmFormBlock() && this.isDefaultCrmFormBlock()),
+						disabled: !this.isRemoveBlockAllowed(),
 						onClick: this.deleteBlock.bind(this),
 						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_REMOVE")}
 					})
@@ -1411,7 +1422,8 @@
 				.replace("__site_show__", this.siteId)
 				.replace("__landing_edit__", this.lid)
 				+ "&code=" + this.manifest.code
-				+ "&designed=" + (this.designed ? "Y" : "N");
+				+ "&designed=" + (this.designed ? "Y" : "N")
+				+ "&deviceCode=" + BX.Landing.Main.getInstance().getDeviceCode();
 			BX.SidePanel.Instance.open(
 				sliderUrl,
 				{
@@ -1435,7 +1447,10 @@
 									if (oldContent !== newContent)
 									{
 										BX.Landing.History.getInstance().push();
-										void this.reload();
+										this.reload().then(function()
+										{
+											fireCustomEvent("BX.Landing.Block:onDesignerBlockSave", [this.id]);
+										}.bind(this));
 										// analytic label on close
 										var metrika = new BX.Landing.Metrika(true);
 										metrika.sendLabel(
@@ -1456,6 +1471,41 @@
 			{
 				this.blockPlacementsActionsMenu.close();
 			}
+		},
+
+		isDesignBlockAllowed: function()
+		{
+			return !(this.access < ACCESS_W || this.php || (this.isCrmFormPage() && this.isCrmFormBlock()));
+		},
+
+		isStyleModifyAllowed:function()
+		{
+			return !(this.access < ACCESS_V || isEmpty(this.manifest.style));
+		},
+
+		isEditBlockAllowed: function()
+		{
+			return this.access >= ACCESS_W;
+		},
+
+		isRemoveBlockAllowed: function()
+		{
+			return !(this.access < ACCESS_X || (this.isCrmFormBlock() && this.isDefaultCrmFormBlock()));
+		},
+
+		isPasteBlockAllowed: function()
+		{
+			return window.localStorage.landingBlockId && !this.isDefaultCrmFormBlock();
+		},
+
+		isSaveBlockInLibraryAllowed: function()
+		{
+			return !this.isDefaultCrmFormBlock();
+		},
+
+		isChangeStateBlockAllowed: function()
+		{
+			return !((this.access < ACCESS_W) || this.isDefaultCrmFormBlock());
 		},
 
 		saveBlock: function()
@@ -1650,7 +1700,7 @@
 						new BX.Main.MenuItem({
 							id: "show_hide",
 							text: BX.Landing.Loc.getMessage(this.isEnabled() ? "ACTION_BUTTON_HIDE" : "ACTION_BUTTON_SHOW"),
-							className: (this.access < ACCESS_W) || this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
+							className: !this.isChangeStateBlockAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.onStateChange();
 								this.blockActionsMenu.close();
@@ -1658,7 +1708,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_CUT"),
-							className: (this.access < ACCESS_X) || this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
+							className: !this.isRemoveBlockAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								landing.onCutBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1676,7 +1726,7 @@
 							id: "block_paste",
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_PASTE"),
 							title: window.localStorage.landingBlockName,
-							className: window.localStorage.landingBlockId && !this.isDefaultCrmFormBlock() ? "": "landing-ui-disabled",
+							className: this.isPasteBlockAllowed() ? "": "landing-ui-disabled",
 							onclick: function() {
 								landing.onPasteBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1684,23 +1734,14 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: function() {
-								BX.Landing.Main.getInstance().showSliderFeedbackForm({
-									blockName: this.manifest.block.name,
-									blockCode: this.manifest.code,
-									blockSection: this.manifest.block.section,
-									landingId: BX.Landing.Main.getInstance().id,
-									target: "blockActions"
-								});
-								this.blockActionsMenu.close();
-							}.bind(this)
+							onclick: this.showFeedbackForm.bind(this)
 						}),
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
 						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"),
-							className: this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
+							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.saveBlock();
 								this.blockActionsMenu.close();
@@ -1804,7 +1845,15 @@
 
 				if (!target)
 				{
-					append(panel.layout, this.node);
+					if (panel.id === 'content_edit' && window.parent)
+					{
+						let topWindow = BX.Landing.PageObject.getRootWindow();
+						append(panel.layout, topWindow.document.body);
+					}
+					else
+					{
+						append(panel.layout, this.node);
+					}
 				}
 				else
 				{
@@ -2022,8 +2071,14 @@
 			this.active = true;
 			removeClass(this.node, "landing-block-disabled");
 
-			var menu = (this.blockActionsMenu || this.sidebarActionsMenu);
-			setTextContent(menu.getMenuItem("show_hide").getLayout().text, BX.Landing.Loc.getMessage("ACTION_BUTTON_HIDE"));
+			let menu = (this.blockActionsMenu || this.sidebarActionsMenu);
+			if (menu)
+			{
+				setTextContent(menu.getMenuItem("show_hide").getLayout().text, BX.Landing.Loc.getMessage("ACTION_BUTTON_HIDE"));
+			}
+
+			fireCustomEvent("BX.Landing.Block:changeState", [this.id, true]);
+
 			BX.Landing.Backend.getInstance().action(
 				"Landing::showBlock",
 				{block: this.id, lid: this.lid, siteId: this.siteId},
@@ -2039,8 +2094,15 @@
 		{
 			this.active = false;
 			addClass(this.node, "landing-block-disabled");
-			var menu = (this.blockActionsMenu || this.sidebarActionsMenu);
-			setTextContent(menu.getMenuItem("show_hide").getLayout().text, BX.Landing.Loc.getMessage("ACTION_BUTTON_SHOW"));
+
+			let menu = (this.blockActionsMenu || this.sidebarActionsMenu);
+			if (menu)
+			{
+				setTextContent(menu.getMenuItem("show_hide").getLayout().text, BX.Landing.Loc.getMessage("ACTION_BUTTON_SHOW"));
+			}
+
+			fireCustomEvent("BX.Landing.Block:changeState", [this.id, false]);
+
 			BX.Landing.Backend.getInstance().action(
 				"Landing::hideBlock",
 				{block: this.id, lid: this.lid, siteId: this.siteId},
@@ -2536,6 +2598,8 @@
 					var presetNode = element.closest('[data-card-preset]');
 					var manifest = clone(this.manifest.nodes[selector]);
 					var disallowField = false;
+
+					manifest.sections = this.sections;
 
 					if (presetNode)
 					{
@@ -3331,6 +3395,7 @@
 			var formMode = (
 				FormSettingsPanel
 				&& FormSettingsPanel.getInstance().isShown()
+				|| BX.Landing.Main.getInstance().isControlsExternal()
 			);
 			var isBlock = this.isBlockSelector(selector);
 			var options = this.getStyleOptions(selector);
@@ -4786,6 +4851,7 @@
 
 				this.fetchRequestData(contentPanel)
 					.then(function(requestData) {
+						fireCustomEvent("BX.Landing.Block:onContentSave", [this.id]);
 						return Object.assign(
 							{},
 							requestData,
@@ -4793,7 +4859,7 @@
 								cardsFirst: true
 							}
 						);
-					})
+					}.bind(this))
 					.then(this.updateBlockState.bind(this));
 			}
 		},

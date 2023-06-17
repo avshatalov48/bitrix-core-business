@@ -263,7 +263,7 @@ class CAdminSubList extends CAdminList
 		foreach ($aParams as $param)
 		{
 			$param["__sort"] = -1;
-			$param['default'] = $param['default'] ?? false;
+			$param['default'] ??= false;
 			if (!isset($hiddenColumns[$param["id"]]))
 			{
 				$this->aHeaders[$param["id"]] = $param;
@@ -413,6 +413,16 @@ class CAdminSubList extends CAdminList
 		foreach(GetModuleEvents("main", "OnAdminSubListDisplay", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$this));
 
+		// Check after event handlers
+		if (!is_array($this->arActions))
+		{
+			$this->arActions = [];
+		}
+		if (!is_array($this->arActionsParams))
+		{
+			$this->arActionsParams = [];
+		}
+
 		echo '<div id="form_'.$this->table_id.'" class="adm-sublist">';
 
 		if($this->bEditMode && !$this->bCanBeEdited)
@@ -450,7 +460,7 @@ class CAdminSubList extends CAdminList
 
 		if($this->sContent===false)
 		{
-			echo '<div class="adm-list-table-wrap'.($this->context ? '' : ' adm-list-table-without-header').(count($this->arActions)<=0 && !$this->bCanBeEdited ? ' adm-list-table-without-footer' : '').'">';
+			echo '<div class="adm-list-table-wrap'.($this->context ? '' : ' adm-list-table-without-header').(empty($this->arActions) && !$this->bCanBeEdited ? ' adm-list-table-without-footer' : '').'">';
 		}
 
 		if ($this->context)
@@ -465,7 +475,7 @@ class CAdminSubList extends CAdminList
 			return;
 		}
 
-		$bShowSelectAll = (count($this->arActions)>0 || $this->bCanBeEdited);
+		$bShowSelectAll = (!empty($this->arActions) || $this->bCanBeEdited);
 
 		$this->bShowActions = false;
 		foreach($this->aRows as $row)
@@ -1119,7 +1129,7 @@ class CAdminSubListRow extends CAdminListRow
 <tr class="adm-list-table-row<?=(isset($this->aFeatures["footer"]) && $this->aFeatures["footer"] == true? ' footer':'')?><?=$this->bEditMode?' adm-table-row-active' : ''?>"<?=($sMenuItems <> "" ? ' oncontextmenu="return '.$sMenuItems.';"':'');?><?=($sDefAction <> ""? ' ondblclick="'.$sDefAction.'"'.(!empty($sDefTitle)? ' title="'.GetMessage("admin_lib_list_double_click").' '.$sDefTitle.'"':''):'')?>>
 <?
 
-		if(count($this->pList->arActions)>0 || $this->pList->bCanBeEdited):
+		if (!empty($this->pList->arActions) || $this->pList->bCanBeEdited):
 			$check_id = RandString(5);
 ?>
 	<td class="adm-list-table-cell adm-list-table-checkbox adm-list-table-checkbox-hover<?=$this->bReadOnly? ' adm-list-table-checkbox-disabled':''?>"><input type="checkbox" class="adm-checkbox adm-designed-checkbox" name="SUB_ID[]" id="<?=$this->table_id."_".$this->id."_".$check_id;?>" value="<?=$this->id?>" autocomplete="off" title="<?=GetMessage("admin_lib_list_check")?>"<?=$this->bReadOnly? ' disabled="disabled"':''?><?=$this->bEditMode ? ' checked="checked" disabled="disabled"' : ''?> /><label class="adm-designed-checkbox-label adm-checkbox" for="<?=$this->table_id."_".$this->id."_".$check_id;?>"></label></td>

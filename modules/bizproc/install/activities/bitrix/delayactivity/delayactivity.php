@@ -88,11 +88,14 @@ class CBPDelayActivity extends CBPActivity implements
 			$expiresAt = $nowTime;
 		}
 
-		$this->writeToTrackingService(
-			$this->getDelayAutomationTrack($delayIntervalProperties),
-			0,
-			CBPTrackingType::DebugAutomation
-		);
+		if ($this->workflow->isDebug())
+		{
+			$this->writeToTrackingService(
+				$this->getDelayAutomationTrack($delayIntervalProperties),
+				0,
+				CBPTrackingType::DebugAutomation
+			);
+		}
 
 		if ($eventHandler === $this && $expiresAt <= $nowTime + 1) //now + 1 second
 		{
@@ -428,6 +431,17 @@ class CBPDelayActivity extends CBPActivity implements
 	{
 		$delayInterval = \Bitrix\Bizproc\Automation\Engine\DelayInterval::createFromActivityProperties($delayIntervalProperties);
 		$parsed = static::parseExpression($delayInterval->getBasis());
+		if (!$parsed)
+		{
+			return [
+				$delayInterval->toArray(),
+				[
+					'fieldName' => null,
+					'fieldValue' => '',
+				]
+			];
+		}
+
 		[$fieldProperty, $fieldValue] = $this->getRuntimeProperty($parsed['object'], $parsed['field'], $this);
 		if ($parsed['object'] !== \Bitrix\Bizproc\Workflow\Template\SourceType::System)
 		{

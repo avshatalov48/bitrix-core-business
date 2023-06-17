@@ -1,0 +1,10 @@
+.bx-im-sidebar-wrapper__scope {
+	--im-sidebar-chat__background-color_container: #f2f9fc;
+}
+
+.bx-im-sidebar-wrapper__container {
+	height: 100%;
+	background-color: var(--im-sidebar-chat__background-color_container);
+	position: relative;
+	border-left: 1px solid rgba(0,0,0,0.06);
+}

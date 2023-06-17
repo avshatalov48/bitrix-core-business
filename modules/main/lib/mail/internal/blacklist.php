@@ -118,7 +118,7 @@ class BlacklistTable extends Entity\DataManager
 				$values[] = "$dateNow, \"$code\"";
 			}
 
-			if (count($values) === 0)
+			if (empty($values))
 			{
 				return;
 			}

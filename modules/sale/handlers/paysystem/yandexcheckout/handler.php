@@ -23,10 +23,10 @@ Localization\Loc::loadMessages(__FILE__);
 class YandexCheckoutHandler
 	extends PaySystem\ServiceHandler
 	implements
-		PaySystem\IRefund,
-		PaySystem\IPartialHold,
-		PaySystem\Domain\Verification\IVerificationable,
-		PaySystem\IRecurring
+	PaySystem\IRefund,
+	PaySystem\IPartialHold,
+	PaySystem\Domain\Verification\IVerificationable,
+	PaySystem\IRecurring
 {
 	const CMS_NAME = 'api_1c-bitrix';
 
@@ -167,9 +167,18 @@ class YandexCheckoutHandler
 			$result->addErrors($showTemplateResult->getErrors());
 		}
 
-		if ($isNeedCreate && $yandexPaymentData['confirmation']['confirmation_url'])
+		if ($isNeedCreate && !empty($yandexPaymentData['confirmation']['confirmation_url']))
 		{
 			$result->setPaymentUrl($yandexPaymentData['confirmation']['confirmation_url']);
+		}
+
+		if (!empty($yandexPaymentData['confirmation']['confirmation_data']) && $this->isQrPaymentType())
+		{
+			$qrCode = self::generateQrCode($yandexPaymentData['confirmation']['confirmation_data']);
+			if ($qrCode)
+			{
+				$result->setQr(base64_encode($qrCode));
+			}
 		}
 
 		return $result;
@@ -183,7 +192,7 @@ class YandexCheckoutHandler
 	 */
 	protected function needCreateYandexPayment(Payment $payment, Request $request, $additionalParams = []): bool
 	{
-		if (isset($additionalParams) && $additionalParams["status"] === self::PAYMENT_STATUS_SUCCEEDED)
+		if (($additionalParams['status'] ?? '') === self::PAYMENT_STATUS_SUCCEEDED)
 		{
 			return false;
 		}
@@ -381,7 +390,7 @@ class YandexCheckoutHandler
 		if ($response['status'] === static::PAYMENT_STATUS_CANCELED)
 		{
 			$error = Localization\Loc::getMessage(
-				'SALE_HPS_YANDEX_CHECKOUT_RESPONSE_ERROR_' .strtoupper($response['cancellation_details']['reason'])
+				'SALE_HPS_YANDEX_CHECKOUT_RESPONSE_ERROR_' . mb_strtoupper($response['cancellation_details']['reason'])
 			);
 			if ($error)
 			{
@@ -456,11 +465,20 @@ class YandexCheckoutHandler
 		if ($response === false)
 		{
 			$errors = $httpClient->getError();
-			foreach ($errors as $code => $message)
+			if ($errors)
 			{
-				$result->addError(new Main\Error($message, $code));
+				$errorMessages = [];
+				foreach ($errors as $code => $message)
+				{
+					$errorMessages[] = "{$code}={$message}";
+				}
+
+				PaySystem\Logger::addDebugInfo(
+					__CLASS__ . ': response error: ' . implode(', ', $errorMessages)
+				);
 			}
 
+			$result->addError(new Main\Error(Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_QUERY')));
 			return $result;
 		}
 
@@ -737,12 +755,12 @@ class YandexCheckoutHandler
 	 * @param Payment $payment
 	 * @return string
 	 */
-	private function getBasicAuthString(Payment $payment)
+	private function getBasicAuthString(Payment $payment): string
 	{
 		return base64_encode(
-			trim($this->getBusinessValue($payment, 'YANDEX_CHECKOUT_SHOP_ID')).
-			':'.
-			trim($this->getBusinessValue($payment, 'YANDEX_CHECKOUT_SECRET_KEY'))
+			trim((string)$this->getBusinessValue($payment, 'YANDEX_CHECKOUT_SHOP_ID'))
+			. ':'
+			. trim((string)$this->getBusinessValue($payment, 'YANDEX_CHECKOUT_SECRET_KEY'))
 		);
 	}
 
@@ -784,8 +802,6 @@ class YandexCheckoutHandler
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ObjectException
-	 * @throws \Exception
 	 */
 	public function processRequest(Payment $payment, Request $request)
 	{
@@ -806,43 +822,14 @@ class YandexCheckoutHandler
 			$response = $data['object'];
 			if ($response['status'] === static::PAYMENT_STATUS_SUCCEEDED)
 			{
-				$description = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TRANSACTION').$response['id'];
-				$fields = array(
-					'PS_INVOICE_ID' => $response['id'],
-					"PS_STATUS_CODE" => mb_substr($response['status'], 0, 5),
-					"PS_STATUS_DESCRIPTION" => $description,
-					"PS_SUM" => $response['amount']['value'],
-					"PS_STATUS" => 'N',
-					"PS_CURRENCY" => $response['amount']['currency'],
-					"PS_RESPONSE_DATE" => new Main\Type\DateTime()
-				);
-
-				if ($response['payment_method']['saved'])
-				{
-					$fields['PS_RECURRING_TOKEN'] = $response['payment_method']['id'];
-				}
-
-				if ($this->isSumCorrect($payment, $response))
-				{
-					$fields["PS_STATUS"] = 'Y';
-
-					PaySystem\Logger::addDebugInfo(
-						__CLASS__.': PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
-					);
-
-					if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
-					{
-						$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
-					}
-				}
-				else
-				{
-					$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_SUM');
-					$fields['PS_STATUS_DESCRIPTION'] .= ' '.$error;
-					$result->addError(PaySystem\Error::create($error));
-				}
-
-				$result->setPsData($fields);
+				$this->processSuccessRequest($payment, $response, $result);
+			}
+			elseif (
+				$response['status'] === static::PAYMENT_STATUS_CANCELED
+				&& $payment->getField('PS_INVOICE_ID') === $response['id']
+			)
+			{
+				$this->processCancelRequest($response, $result);
 			}
 		}
 		else
@@ -851,6 +838,99 @@ class YandexCheckoutHandler
 		}
 
 		return $result;
+	}
+
+	private function processSuccessRequest(Payment $payment, array $response, PaySystem\ServiceResult $result): void
+	{
+		$description = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TRANSACTION') . $response['id'];
+		$fields = [
+			'PS_INVOICE_ID' => $response['id'],
+			'PS_STATUS_CODE' => $response['status'],
+			'PS_STATUS_DESCRIPTION' => $description,
+			'PS_SUM' => $response['amount']['value'],
+			'PS_STATUS' => 'N',
+			'PS_CURRENCY' => $response['amount']['currency'],
+			'PS_RESPONSE_DATE' => new Main\Type\DateTime()
+		];
+
+		if ($response['payment_method']['saved'])
+		{
+			$fields['PS_RECURRING_TOKEN'] = $response['payment_method']['id'];
+		}
+
+		if ($this->isSumCorrect($payment, $response))
+		{
+			$fields["PS_STATUS"] = 'Y';
+
+			PaySystem\Logger::addDebugInfo(
+				__CLASS__ . ': PS_CHANGE_STATUS_PAY=' . $this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
+			);
+
+			if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
+			{
+				$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
+			}
+		}
+		else
+		{
+			$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_SUM');
+			$fields['PS_STATUS_DESCRIPTION'] .= ' ' . $error;
+			$result->addError(PaySystem\Error::create($error));
+		}
+
+		$result->setPsData($fields);
+	}
+
+	private function processCancelRequest(array $response, PaySystem\ServiceResult $result): void
+	{
+		$cancellationParty = $response['cancellation_details']['party'];
+		$cancellationReason = $response['cancellation_details']['reason'];
+
+		$party = Localization\Loc::getMessage(
+			'SALE_HPS_YANDEX_CHECKOUT_REQUEST_CANCEL_PARTY_' . mb_strtoupper($cancellationParty)
+		);
+		if (!$party)
+		{
+			$party = $cancellationParty;
+		}
+
+		$reason = Localization\Loc::getMessage(
+			'SALE_HPS_YANDEX_CHECKOUT_REQUEST_CANCEL_REASON_' . mb_strtoupper($cancellationReason)
+		);
+		if (!$reason)
+		{
+			$reason = $cancellationReason;
+		}
+
+		$description = implode(
+			'. ',
+			[
+				Localization\Loc::getMessage(
+					'SALE_HPS_YANDEX_CHECKOUT_REQUEST_CANCEL_PARTY',
+					[
+						'#PARTY#' => $party,
+					]
+				),
+				Localization\Loc::getMessage(
+					'SALE_HPS_YANDEX_CHECKOUT_REQUEST_CANCEL_REASON',
+					[
+						'#REASON#' => $reason,
+					]
+				)
+			]
+		);
+
+		$fields = [
+			'PS_STATUS_CODE' => $response['status'],
+			'PS_STATUS' => 'N',
+			'PS_RESPONSE_DATE' => new Main\Type\DateTime(),
+			'PS_STATUS_DESCRIPTION' => $description,
+		];
+
+		$result->setPsData($fields);
+		$result->addError(
+			PaySystem\Error::create(Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_PAYMENT_CANCELED'))
+		);
 	}
 
 	/**

@@ -47,7 +47,7 @@ foreach($arResult["TABS"] as $tab):
 	$bSelected = ($tab["id"] == $arResult["SELECTED_TAB"]);
 
 	$callback = '';
-	if($tab['onselect_callback'] <> '')
+	if(isset($tab['onselect_callback']) && $tab['onselect_callback'] <> '')
 	{
 		$callback = trim($tab['onselect_callback']);
 		if(!preg_match('#^[a-z0-9-_\.]+$#i', $callback))
@@ -56,7 +56,7 @@ foreach($arResult["TABS"] as $tab):
 		}
 	}
 ?>
-					<td title="<?=htmlspecialcharsbx($tab["title"])?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="<? if($callback <> ''):?><?= $callback ?>('<?=$tab["id"]?>');<?endif?>bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
+					<td title="<?=htmlspecialcharsbx($tab["title"] ?? '')?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="<? if($callback <> ''):?><?= $callback ?>('<?=$tab["id"]?>');<?endif?>bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
 						<table cellspacing="0">
 							<tr>
 								<td class="bx-tab-left<?=($bSelected? "-selected":"")?>" id="tab_left_<?=$tab["id"]?>"><div class="empty"></div></td>
@@ -87,7 +87,7 @@ foreach($arResult["TABS"] as $tab):
 ?>
 <div id="inner_tab_<?=$tab["id"]?>" class="bx-edit-tab-inner"<?if($tab["id"] <> $arResult["SELECTED_TAB"]) echo ' style="display:none;"'?>>
 <div style="height: 100%;">
-<?if($tab["title"] <> ''):?>
+<?if(isset($tab["title"]) && $tab["title"] <> ''):?>
 	<div class="bx-edit-tab-title">
 	<table cellpadding="0" cellspacing="0" border="0" class="bx-edit-tab-title">
 		<tr>
@@ -132,62 +132,74 @@ foreach($tab["fields"] as $field):
 	if($prevType == 'section')
 		$className[] = 'bx-after-heading';
 
-	if($field['class'] <> '')
+	if(isset($field['class']) && $field['class'] <> '')
 	{
 		$className[] = $field['class'];
 	}
 ?>
 	<tr<?if(!empty($className)):?> class="<?=implode(' ', $className)?>"<?endif?><?if(!empty($style)):?> style="<?= $style ?>"<?endif?>>
 <?
-if($field["type"] == 'section'):
+if(isset($field["type"]) && $field["type"] == 'section'):
 ?>
 		<td colspan="2" class="bx-heading"><?=htmlspecialcharsbx($field["name"])?></td>
 <?
 else:
-	$val = (isset($field["value"])? $field["value"] : $arParams["~DATA"][$field["id"]]);
+	$val = $field["value"] ?? ($arParams["~DATA"][$field["id"]] ?? null);
 	$valEncoded = '';
 	if(!is_array($val))
 		$valEncoded = htmlspecialcharsbx(htmlspecialcharsback($val));
 
 	//default attributes
-	if(!is_array($field["params"]))
-		$field["params"] = array();
-	if($field["type"] == '' || $field["type"] == 'text')
+	if (!isset($field["params"]) || !is_array($field["params"]))
 	{
-		if($field["params"]["size"] == '')
+		$field["params"] = [];
+	}
+
+	if (!isset($field["type"]) || $field["type"] == '' || $field["type"] == 'text')
+	{
+		if (!isset($field["params"]["size"]) || $field["params"]["size"] == '')
+		{
 			$field["params"]["size"] = "30";
+		}
 	}
 	elseif($field["type"] == 'textarea')
 	{
-		if($field["params"]["cols"] == '')
+		if (!isset($field["params"]["cols"]) || $field["params"]["cols"] == '')
+		{
 			$field["params"]["cols"] = "40";
-		if($field["params"]["rows"] == '')
+		}
+		if (!isset($field["params"]["rows"]) || $field["params"]["rows"] == '')
+		{
 			$field["params"]["rows"] = "3";
+		}
 	}
 	elseif($field["type"] == 'date')
 	{
-		if($field["params"]["size"] == '')
+		if (!isset($field["params"]["size"]) || $field["params"]["size"] == '')
+		{
 			$field["params"]["size"] = "10";
+		}
 	}
 
 	$params = '';
-	if(is_array($field["params"]) && $field["type"] <> 'file')
+	if(isset($field["params"]) && is_array($field["params"]) && (!isset($field["type"]) || $field["type"] <> 'file'))
 	{
 		foreach($field["params"] as $p=>$v)
 			$params .= ' '.$p.'="'.$v.'"';
 	}
 
-	if($field["colspan"] <> true):
-		if($field["required"])
+	if(!isset($field["colspan"]) || $field["colspan"] <> true):
+		if(isset($field["required"]) && $field["required"])
 			$bWasRequired = true;
 ?>
-		<td class="bx-field-name<?if($field["type"] <> 'label') echo' bx-padding'?>"<?if($field["title"] <> '') echo ' title="'.htmlspecialcharsEx($field["title"]).'"'?>><?=($field["required"]? '<span class="required">*</span>':'')?><? if($field["name"] <> ''):?><?= htmlspecialcharsEx($field["name"]) ?>:<?endif?></td>
+		<td class="bx-field-name<?if(!isset($field["type"]) || $field["type"] <> 'label') echo' bx-padding'?>"<?if(isset($field["title"]) && $field["title"] <> '') echo ' title="'.htmlspecialcharsEx($field["title"]).'"'?>><?=(isset($field["required"]) && $field["required"]? '<span class="required">*</span>':'')?><? if(isset($field["name"]) && $field["name"] <> ''):?><?= htmlspecialcharsEx($field["name"]) ?>:<?endif?></td>
 <?
 	endif
 ?>
-		<td class="bx-field-value"<?=($field["colspan"]? ' colspan="2"':'')?>>
+		<td class="bx-field-value"<?=(isset($field["colspan"]) && $field["colspan"]? ' colspan="2"':'')?>>
 <?
-	switch($field["type"]):
+	$type = $field["type"] ?? null;
+	switch($type):
 		case 'label':
 		case 'custom':
 			echo $val;
@@ -261,7 +273,7 @@ else:
 <?endif?>
 	</tr>
 <?
-	$prevType = $field["type"];
+	$prevType = $field["type"] ?? null;
 endforeach;
 ?>
 </table>
@@ -278,7 +290,7 @@ endforeach;
 if(isset($arParams["BUTTONS"])):
 ?>
 			<div class="bx-buttons">
-<?if($arParams["~BUTTONS"]["standard_buttons"] !== false):?>
+<?if(!isset($arParams["~BUTTONS"]["standard_buttons"]) || $arParams["~BUTTONS"]["standard_buttons"] !== false):?>
 	<?if($arParams["BUTTONS"]["back_url"] <> ''):?>
 	<input type="submit" name="save" value="<?echo GetMessage("interface_form_save")?>" title="<?echo GetMessage("interface_form_save_title")?>" />
 	<?endif?>
@@ -388,8 +400,8 @@ $variables = array(
 		"sectSettingsName"=>GetMessage("intarface_form_sect_name"),
 	),
 	"ajax"=>array(
-		"AJAX_ID"=>$arParams["AJAX_ID"],
-		"AJAX_OPTION_SHADOW"=>($arParams["AJAX_OPTION_SHADOW"] == "Y"),
+		"AJAX_ID"=> $arParams["AJAX_ID"] ?? null,
+		"AJAX_OPTION_SHADOW"=> isset($arParams["AJAX_OPTION_SHADOW"]) && $arParams["AJAX_OPTION_SHADOW"] === "Y",
 	),
 	"settingWndSize"=>CUtil::GetPopupSize("InterfaceFormSettingWnd"),
 	"tabSettingWndSize"=>CUtil::GetPopupSize("InterfaceFormTabSettingWnd", array('width'=>400, 'height'=>200)),
@@ -470,7 +482,7 @@ if(!empty($arThemes))
 ?>
 bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu = <?=CUtil::PhpToJsObject($settingsMenu)?>;
 
-<?if($arResult["OPTIONS"]["expand_tabs"] == "Y"):?>
+<?if(isset($arResult["OPTIONS"]["expand_tabs"]) && $arResult["OPTIONS"]["expand_tabs"] == "Y"):?>
 BX.ready(function(){bxForm_<?=$arParams["FORM_ID"]?>.ToggleTabs(true);});
 <?endif?>
 </script>

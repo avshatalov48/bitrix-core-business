@@ -4,6 +4,13 @@ if(!\Bitrix\Main\Loader::includeModule('rest') || !\Bitrix\Main\Loader::includeM
 	return;
 }
 
+use Bitrix\Calendar\Access\ActionDictionary;
+use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\SectionAccessController;
+use Bitrix\Calendar\Access\TypeAccessController;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Main\Loader;
 use Bitrix\Rest\RestException;
 use Bitrix\Calendar\Internals;
 use Bitrix\Main\Localization\Loc;
@@ -181,7 +188,7 @@ final class CCalendarRestService extends IRestService
 			}
 		}
 
-		if (CCalendar::IsExtranetUser($userId))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -232,11 +239,15 @@ final class CCalendarRestService extends IRestService
 
 		if (isset($params['section']))
 		{
-			if (!is_array($params['section']) && $params['section'] > 0)
+			if (!is_array($params['section']) && (int)$params['section'] > 0)
 			{
-				$params['section'] = [$params['section']];
+				$params['section'] = [(int)$params['section']];
 			}
-			$arSectionIds = array_intersect($arSectionIds, $params['section']);
+
+			if (is_array($params['section']))
+			{
+				$arSectionIds = array_intersect($arSectionIds, $params['section']);
+			}
 		}
 
 		$params = [
@@ -281,7 +292,7 @@ final class CCalendarRestService extends IRestService
 			]));
 		}
 
-		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -418,7 +429,7 @@ final class CCalendarRestService extends IRestService
 
 		if ($res && is_array($res) && isset($res[0]))
 		{
-			if (!$res[0]['PERM']['add'])
+			if (!$res[0]['PERM']['edit'])
 			{
 				throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 			}
@@ -996,7 +1007,7 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'ownerId')));
 		}
 
-		if (CCalendar::IsExtranetUser($userId))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1108,14 +1119,7 @@ final class CCalendarRestService extends IRestService
 			'setProperties' => false
 		]);
 
-		if ($type === 'group' || $type === 'user')
-		{
-			if (!$perm['section_edit'])
-			{
-				throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
-			}
-		}
-		else if (!CCalendarType::CanDo('calendar_type_edit_section')) // other types
+		if (!$perm['section_edit'])
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1251,10 +1255,13 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_SECT_ID_EXCEPTION'));
 		}
 
-		if (
-			!CCalendar::IsPersonal($type, $ownerId, $userId)
-			&& !CCalendarSect::CanDo('calendar_edit_section', $id, $userId)
-		)
+		$accessController = new SectionAccessController($userId);
+		$sectionModel =
+			SectionModel::createFromId($id)
+				->setType($type)
+				->setOwnerId($ownerId)
+		;
+		if (!$accessController->check(ActionDictionary::ACTION_SECTION_EDIT, $sectionModel))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1362,7 +1369,13 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_SECT_ID_EXCEPTION'));
 		}
 
-		if (!CCalendar::IsPersonal($type, $ownerId, $userId) && !CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+		$accessController = new SectionAccessController($userId);
+		$sectionModel =
+			SectionModel::createFromId($id)
+				->setType($type)
+				->setOwnerId($ownerId)
+		;
+		if (!$accessController->check(ActionDictionary::ACTION_SECTION_EDIT, $sectionModel))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1503,8 +1516,12 @@ final class CCalendarRestService extends IRestService
 	 */
 	public static function MeetingAccessibilityGet($params = [], $nav = null, $server = null)
 	{
-		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.accessibility.get";
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		$necessaryParams = array('from', 'to', 'users');
 		foreach ($necessaryParams as $param)
@@ -1539,7 +1556,7 @@ final class CCalendarRestService extends IRestService
 	 */
 	public static function SettingsGet($params = [], $nav = null, $server = null)
 	{
-		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
 			return [
 				'work_time_start' => 9,
@@ -1608,7 +1625,6 @@ final class CCalendarRestService extends IRestService
 	public static function SettingsClear()
 	{
 		global $USER;
-		$methodName = "calendar.settings.clear";
 
 		if (!$USER->CanDoOperation('bitrix24_config') && !$USER->CanDoOperation('edit_php'))
 		{
@@ -1630,7 +1646,6 @@ final class CCalendarRestService extends IRestService
 	public static function UserSettingsGet($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
-		$methodName = "calendar.user.settings.get";
 
 		return CCalendar::GetUserSettings($userId);
 	}
@@ -1683,7 +1698,11 @@ final class CCalendarRestService extends IRestService
 	 */
 	public static function ResourceList()
 	{
-		$methodName = "calendar.resource.list";
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
+
 		$resources = [];
 
 		$resourceList = Internals\SectionTable::getList(
@@ -1730,7 +1749,15 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'name')));
 		}
 
-		if (!CCalendarType::CanDo('calendar_type_edit_section'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
+
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$typeModel = TypeModel::createFromXmlId($type);
+
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1775,6 +1802,11 @@ final class CCalendarRestService extends IRestService
 		$methodName = "calendar.resource.update";
 		$type = 'resource';
 
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
+
 		if (isset($params['resourceId']) && (int)$params['resourceId'] > 0)
 		{
 			$id = (int)$params['resourceId'];
@@ -1789,7 +1821,10 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'name')));
 		}
 
-		if (!CCalendarType::CanDo('calendar_type_edit_section'))
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$typeModel = TypeModel::createFromXmlId($type);
+
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1842,7 +1877,15 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'resourceId')));
 		}
 
-		if (!CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
+
+		$accessController = new TypeAccessController($userId);
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['resource']);
+
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
@@ -1893,6 +1936,11 @@ final class CCalendarRestService extends IRestService
 		$methodName = "calendar.resource.booking.list";
 
 		$userId = CCalendar::GetCurUserId();
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		$idList = $params['filter']['resourceIdList'];
 		if (isset($idList))
@@ -2248,7 +2296,6 @@ final class CCalendarRestService extends IRestService
 	public static function UserSettingsClear($params = [], $nav = null, $server = null)
 	{
 		$userId = CCalendar::GetCurUserId();
-		$methodName = "calendar.user.settings.clear";
 		\Bitrix\Calendar\UserSettings::set(false, $userId);
 		return true;
 	}

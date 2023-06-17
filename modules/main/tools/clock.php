@@ -11,11 +11,16 @@ class CClock
 			$arParams['inputName'] = $arParams['inputId'];
 		if (!isset($arParams['step']))
 			$arParams['step'] = 5;
-		if ($arParams['view'] == 'select' && $arParams['step'] < 30)
-			$arParams['step'] = 30;
 
-		if ($arParams['view'] != 'inline')
+		if (isset($arParams['view']) && $arParams['view'] == 'select' && $arParams['step'] < 30)
+		{
+			$arParams['step'] = 30;
+		}
+
+		if (!isset($arParams['view']) || $arParams['view'] != 'inline')
+		{
 			$arParams['view'] = 'input';
+		}
 	}
 
 	public static function Show($arParams)
@@ -25,10 +30,10 @@ class CClock
 		CClock::Init($arParams);
 		$APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
 
-		$inputId = htmlspecialcharsbx($arParams['inputId']);
-		$inputName = htmlspecialcharsbx($arParams['inputName']);
-		$initTime = htmlspecialcharsbx($arParams['initTime']);
-		$inputTitle = htmlspecialcharsbx($arParams['inputTitle']);
+		$inputId = htmlspecialcharsbx($arParams['inputId'] ?? '');
+		$inputName = htmlspecialcharsbx($arParams['inputName'] ?? '');
+		$initTime = htmlspecialcharsbx($arParams['initTime'] ?? '');
+		$inputTitle = htmlspecialcharsbx($arParams['inputTitle'] ?? '');
 
 		$jsInputId = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $arParams['inputId']);
 
@@ -74,11 +79,11 @@ class CClock
 				<?
 				break;
 			default: //input
-				?><input id="<?=$inputId?>" <?=($arParams['inputName']? 'name="'.$inputName.'"' : '')?> type="text" value="<?=$initTime?>" size="<?=IsAmPmMode() ? 6 : 4?>" <?=($arParams['inputTitle']? 'title="'.$inputTitle.'"' : '')?> <?=($arParams['inputClass']? 'class="'.$arParams['inputClass'].'"' : '')?> autocomplete="off"/><?
+				?><input id="<?=$inputId?>" <?=($arParams['inputName']? 'name="'.$inputName.'"' : '')?> type="text" value="<?=$initTime?>" size="<?=IsAmPmMode() ? 6 : 4?>" <?=(isset($arParams['inputTitle'])? 'title="'.$inputTitle.'"' : '')?> <?=(isset($arParams['inputClass'])? 'class="'.$arParams['inputClass'].'"' : '')?> autocomplete="off"/><?
 				break;
 		}
 		// Show icon
-		if ($arParams['showIcon'] !== false)
+		if (!isset($arParams['showIcon']) || $arParams['showIcon'] !== false)
 		{
 			?><a href="javascript:void(0);" onclick="bxShowClock_<?=$jsInputId?>()" title="<?=GetMessage('BX_CLOCK_TITLE')?>" onmouseover="this.className='bxc-icon-hover';" onmouseout="this.className='';"><img id="<?=$inputId?>_icon" src="/bitrix/images/1.gif" class="bx-clock-icon bxc-iconkit-c"></a><?
 		}
@@ -87,7 +92,7 @@ class CClock
 		?><script>
 		function bxLoadClock_<?=$jsInputId?>(callback)
 		{
-			<?if($arParams['view'] != 'inline'):?>
+			<?if(!isset($arParams['view']) || $arParams['view'] != 'inline'):?>
 			if (!window.JCClock && !window.jsUtils)
 			{
 				return setTimeout(function(){bxLoadClock_<?=$jsInputId?>(callback);}, 50);
@@ -118,13 +123,13 @@ class CClock
 			var obId = 'bxClock_<?=$jsInputId?>';
 
 			window[obId] = new JCClock({
-				step: <?=intval($arParams['step'])?>,
-				initTime: '<?=CUtil::JSEscape($arParams['initTime'])?>',
-				showIcon: <? echo $arParams['showIcon'] ? 'true' : 'false';?>,
-				inputId: '<?=CUtil::JSEscape($arParams['inputId'])?>',
-				iconId: '<?=CUtil::JSEscape($arParams['inputId']).'_icon'?>',
+				step: <?=intval($arParams['step'] ?? 0)?>,
+				initTime: '<?=CUtil::JSEscape($arParams['initTime'] ?? '')?>',
+				showIcon: <?= (isset($arParams['showIcon']) && $arParams['showIcon'] ? 'true' : 'false')?>,
+				inputId: '<?=CUtil::JSEscape($arParams['inputId'] ?? '')?>',
+				iconId: '<?=CUtil::JSEscape($arParams['inputId'] ?? '').'_icon'?>',
 				zIndex: <?= isset($arParams['zIndex']) ? intval($arParams['zIndex']) : 0 ?>,
-				AmPmMode: <? echo $arParams['am_pm_mode'] ? 'true' : 'false';?>,
+				AmPmMode: <?=(isset($arParams['am_pm_mode']) && $arParams['am_pm_mode'] ? 'true' : 'false')?>,
 				MESS: {
 					Insert: '<?=GetMessageJS('BX_CLOCK_INSERT')?>',
 					Close: '<?=GetMessageJS('BX_CLOCK_CLOSE')?>',

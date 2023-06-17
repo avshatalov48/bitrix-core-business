@@ -1,6 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+
 $this->IncludeComponentLang("files.php");
 include_once __DIR__."/base.php";
+
 class CCommentFiles extends CCommentBase
 {
 	var $imageSize = 100;
@@ -26,7 +29,7 @@ class CCommentFiles extends CCommentBase
 			]
 		];
 
-		$_REQUEST["FILE_NEW"] = is_array($_REQUEST["FILE_NEW"]) ? $_REQUEST["FILE_NEW"] : array();
+		$_REQUEST["FILE_NEW"] = isset($_REQUEST["FILE_NEW"]) && is_array($_REQUEST["FILE_NEW"]) ? $_REQUEST["FILE_NEW"] : [];
 
 		if (isset($arParams['IMAGE_SIZE']) && (intval($arParams['IMAGE_SIZE']) > 0 || $arParams['IMAGE_SIZE']===0))
 			$this->imageSize = intval($arParams['IMAGE_SIZE']);

@@ -464,14 +464,14 @@ class CAllSocNetFeatures
 				$res = CSocNetFeatures::getList(
 					[],
 					[
-						'ENTITY_ID' => $arGroupToGet,
+						'@ENTITY_ID' => $arGroupToGet,
 						'ENTITY_TYPE' => $type,
 					],
 					false,
 					false,
 					[ 'ENTITY_ID', 'FEATURE', 'ACTIVE', 'FEATURE_NAME' ]
 				);
-				while ($featureFields = $res->getNext())
+				while ($featureFields = $res->getNext(true, false))
 				{
 					$arFeatures[$featureFields['ENTITY_ID']][$featureFields['FEATURE']] = [
 						'ACTIVE' => $featureFields['ACTIVE'],
@@ -497,12 +497,12 @@ class CAllSocNetFeatures
 						$GLOBALS['SONET_FEATURES_CACHE'][$type] = [];
 					}
 
-					$GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id] = $arFeatures[$group_id];
-
 					if (!isset($arFeatures[$group_id]))
 					{
 						$arFeatures[$group_id] = Array();
 					}
+
+					$GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id] = $arFeatures[$group_id];
 
 					if (!array_key_exists($feature, $arFeatures[$group_id]))
 					{
@@ -759,7 +759,7 @@ class CAllSocNetFeatures
 				continue;
 			}
 
-			$arReturn[$feature] = $arFeatures[$feature]["FEATURE_NAME"];
+			$arReturn[$feature] = $arFeatures[$feature]["FEATURE_NAME"] ?? null;
 		}
 
 		return $arReturn;

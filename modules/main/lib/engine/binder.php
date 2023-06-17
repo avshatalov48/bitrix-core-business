@@ -48,7 +48,7 @@ class Binder
 		$this->method = $method;
 		$this->listSourceParameters = $listSourceParameters;
 
-		$this->registerDefaultAutoWirings();
+		self::registerDefaultAutoWirings();
 		//self::$autoWiredHandlers = $this->collectAutoWiredClasses();
 
 		if ($instance === null)
@@ -233,11 +233,11 @@ class Binder
 	{
 		try
 		{
-			if($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
+			if ($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
 			{
 				return $this->reflectionFunctionAbstract->invokeArgs($this->instance, $this->getArgs());
 			}
-			elseif ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
+			if ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
 			{
 				return $this->reflectionFunctionAbstract->invokeArgs($this->getArgs());
 			}
@@ -287,12 +287,31 @@ class Binder
 		return null;
 	}
 
+	private function buildReflectionClass(\ReflectionParameter $parameter): ?\ReflectionClass
+	{
+		$namedType = $parameter->getType();
+		if (!($namedType instanceof \ReflectionNamedType))
+		{
+			return null;
+		}
+		if ($namedType->isBuiltin())
+		{
+			return null;
+		}
+
+		return new \ReflectionClass($namedType->getName());
+	}
+
 	private function getParameterValue(\ReflectionParameter $parameter)
 	{
-		$reflectionClass = $parameter->getClass();
-		$autoWiredHandler = $reflectionClass? $this->getAutoWiredHandler($reflectionClass) : null;
+		$autoWiredHandler = null;
+		$reflectionClass = $this->buildReflectionClass($parameter);
+		if ($reflectionClass)
+		{
+			$autoWiredHandler = $this->getAutoWiredHandler($reflectionClass);
+		}
 
-		if ($autoWiredHandler)
+		if ($autoWiredHandler && $reflectionClass)
 		{
 			$primaryId = null;
 			if($autoWiredHandler['onConstructIdParameterName'] !== self::ANY_PARAMETER_NAME)
@@ -307,7 +326,7 @@ class Binder
 					}
 
 					throw new ArgumentException(
-						"Could not find value for parameter {{$parameterName}} to build auto wired argument {{$parameter->getClass()->name} {$parameter->getName()}}",
+						"Could not find value for parameter {{$parameterName}} to build auto wired argument {{$reflectionClass->name} {$parameter->getName()}}",
 						$parameter
 					);
 				}
@@ -364,16 +383,16 @@ class Binder
 				return $source[$name];
 			}
 
-			if ($source instanceof \ArrayAccess && $source->offsetExists($name))
+			if (($source instanceof \ArrayAccess) && $source->offsetExists($name))
 			{
 				return $source[$name];
 			}
-			elseif (is_array($source) && array_key_exists($name, $source))
+			if (is_array($source) && array_key_exists($name, $source))
 			{
 				return $source[$name];
 			}
 		}
-		unset($source);
+
 		$status = self::STATUS_NOT_FOUND;
 
 		return null;

@@ -47,7 +47,7 @@ $sliderComponentParamsList = [
 
 		"ONLY_ONE_GALLERY" => $arParams["PHOTO"]["ALL"]["ONLY_ONE_GALLERY"],
 		"GALLERY_GROUPS" => $arParams["PHOTO"]["ALL"]["GALLERY_GROUPS"],
-		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"],
+		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"] ?? null,
 
 		"SET_NAV_CHAIN" => "N",
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
@@ -73,8 +73,8 @@ if ($arParams['FATAL_ERROR'] !== 'Y')
 		"IS_SOCNET" => "Y",
 		"PERMISSION" => $arResult["VARIABLES"]["PERMISSION"],
 		"SECTION_ID" => $arResult["VARIABLES"]["SECTION_ID"],
-		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"],
-		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"],
+		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"] ?? null,
+		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"] ?? null,
 
 		"SECTIONS_TOP_URL" => "",
 		"GALLERY_URL" => $arResult["~PATH_TO_GROUP_PHOTO"],
@@ -84,16 +84,16 @@ if ($arParams['FATAL_ERROR'] !== 'Y')
 		"DETAIL_EDIT_URL" => $arResult["~PATH_TO_GROUP_PHOTO_ELEMENT_EDIT"],
 
 		"UPLOADER_TYPE" => $arParams["PHOTO_UPLOADER_TYPE"],
-		"APPLET_LAYOUT" => $arParams["PHOTO_APPLET_LAYOUT"],
+		"APPLET_LAYOUT" => $arParams["PHOTO_APPLET_LAYOUT"] ?? null,
 		"UPLOAD_MAX_FILE" => $arParams["PHOTO"]["ALL"]["UPLOAD_MAX_FILE"],
 		"UPLOAD_MAX_FILE_SIZE" => $arParams["PHOTO"]["ALL"]["UPLOAD_MAX_FILE_SIZE"],
-		"ADDITIONAL_SIGHTS" => $arParams["PHOTO"]["ALL"]["~ADDITIONAL_SIGHTS"],
+		"ADDITIONAL_SIGHTS" => $arParams["PHOTO"]["ALL"]["~ADDITIONAL_SIGHTS"] ?? null,
 		"MODERATION" => $arParams["PHOTO"]["ALL"]["MODERATION"],
 		"PUBLIC_BY_DEFAULT" => "Y",
 		"APPROVE_BY_DEFAULT" => "Y",
 
 		"USE_WATERMARK" => "Y",
-		"SHOW_WATERMARK" => $arParams["PHOTO_SHOW_WATERMARK"],
+		"SHOW_WATERMARK" => $arParams["PHOTO_SHOW_WATERMARK"] ?? null,
 		"WATERMARK_RULES" => $arParams["PHOTO"]["ALL"]["WATERMARK_RULES"],
 		"WATERMARK_TYPE" => $arParams["PHOTO"]["ALL"]["WATERMARK_TYPE"],
 		"WATERMARK_TEXT" => $arParams["PHOTO"]["ALL"]["WATERMARK_TEXT"],

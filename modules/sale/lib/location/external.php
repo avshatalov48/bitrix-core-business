@@ -84,38 +84,51 @@ class ExternalTable extends Entity\DataManager
 
 		foreach($external as $id => $data)
 		{
-			$serivceId = intval($data['SERVICE_ID']);
-			$id = intval($id);
+			$data['REMOVE'] ??= false;
+			$data['SERVICE_ID'] ??= 0;
+			$data['XML_ID'] = (string)($data['XML_ID'] ?? '');
 
-			if(isset($existed[$id]))
+			$serivceId = (int)$data['SERVICE_ID'];
+			$id = (int)$id;
+
+			if (isset($existed[$id]))
 			{
-				if(!mb_strlen($data['XML_ID']) || !$serivceId || $data['REMOVE']) // field either empty or prepared to remove
+				if ($data['XML_ID'] === '' || !$serivceId || $data['REMOVE'])
+				{
+					// field either empty or prepared to remove
 					self::delete($id);
+				}
 				else
 				{
-					$res = self::update($id, array(
-						'SERVICE_ID' => $serivceId,
-						'XML_ID' => $data['XML_ID']
-					));
-					if(!$res->isSuccess())
+					$res = self::update(
+						$id,
+						[
+							'SERVICE_ID' => $serivceId,
+							'XML_ID' => $data['XML_ID'],
+						]
+					);
+					if (!$res->isSuccess())
+					{
 						throw new Main\SystemException(Loc::getMessage('SALE_LOCATION_EXTERNAL_ENTITY_CANNOT_UPDATE_DATA_EXCEPTION'));
+					}
 				}
 			}
 			else
 			{
-				if($serivceId && mb_strlen($data['XML_ID']))
+				if ($serivceId && $data['XML_ID'] !== '')
 				{
-					$res = self::add(array(
+					$res = self::add([
 						'SERVICE_ID' => $serivceId,
 						'XML_ID' => $data['XML_ID'],
-						'LOCATION_ID' => $primaryOwner
-					));
-					if(!$res->isSuccess())
+						'LOCATION_ID' => $primaryOwner,
+					]);
+					if (!$res->isSuccess())
+					{
 						throw new Main\SystemException(Loc::getMessage('SALE_LOCATION_EXTERNAL_ENTITY_CANNOT_ADD_DATA_EXCEPTION'));
+					}
 				}
 			}
 		}
-	
 	}
 
 	public static function deleteMultipleForOwner($primaryOwner)
@@ -136,7 +149,7 @@ class ExternalTable extends Entity\DataManager
 
 	/**
 	 * This method is for internal use only. It may be changed without any notification further, or even mystically disappear.
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function deleteMultipleByParentRangeSql($sql)

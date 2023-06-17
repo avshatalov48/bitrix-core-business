@@ -259,10 +259,12 @@ if ($arResult["MODE"] === "AJAX")
 
 if ($arParams["USE_TARGET"] !== "N")
 {
+	$pageTitle = $arParams["PAGETITLE_TARGET"] ?? '';
+	$targetId = $arParams["TARGET_ID"] ?? '';
 	$this->SetViewTarget((
 			SITE_TEMPLATE_ID === "bitrix24"
-			? ($arParams["PAGETITLE_TARGET"] <> '' ? $arParams["PAGETITLE_TARGET"] : "pagetitle")
-			: ($arParams["TARGET_ID"] <> '' ? $arParams["TARGET_ID"] : "sonet_blog_form")
+			? ($pageTitle <> '' ? $pageTitle : "pagetitle")
+			: ($targetId <> '' ? $targetId : "sonet_blog_form")
 		),
 		50
 	);

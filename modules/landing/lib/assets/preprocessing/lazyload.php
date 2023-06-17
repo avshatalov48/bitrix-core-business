@@ -163,11 +163,11 @@ class Lazyload
 		DOM\StyleInliner::setStyle($node, array_merge($styles, ['background-image' => ["url({$lazySrc})"]]));
 		if ($origSrc = self::getSrcByBgStyle($origBg))
 		{
-			if ($origSrc['src'])
+			if (isset($origSrc['src']))
 			{
 				$node->setAttribute('data-src', $origSrc['src']);
 			}
-			if ($origSrc['src2x'])
+			if (isset($origSrc['src2x']))
 			{
 				$node->setAttribute('data-src2x', $origSrc['src2x']);
 			}
@@ -254,7 +254,7 @@ class Lazyload
 			$result = [];
 			for ($i = 0, $c = count($matches[1]); $i < $c; $i++)
 			{
-				if ($matches[2][$i] == 2)
+				if ($matches[2][$i] == '2x')
 				{
 					$result['src2x'] = $matches[1][$i];
 				}

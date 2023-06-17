@@ -5,6 +5,7 @@ import { EventEmitter, BaseEvent } from 'main.core.events';
 import { type PopupOptions, type PopupTarget, type PopupAnimationOptions } from './popup-types';
 import { ZIndexManager, ZIndexComponent } from 'main.core.z-index-manager';
 import PositionEvent from './position-event';
+import CloseIconSize from './popup-close-icon-size';
 
 declare type TargetPosition = {
 	left: number,
@@ -239,10 +240,18 @@ export default class Popup extends EventEmitter
 
 		if (params.closeIcon)
 		{
-			const className = 'popup-window-close-icon' + (params.titleBar ? ' popup-window-titlebar-close-icon' : '');
+			let className = 'popup-window-close-icon'
+				+ (params.titleBar ? ' popup-window-titlebar-close-icon' : '');
+			if (Object.values(CloseIconSize).includes(params.closeIconSize) && params.closeIconSize !== CloseIconSize.SMALL)
+			{
+				className += ` --${params.closeIconSize}`;
+			}
+
 			this.closeIcon = Tag.render`
 				<span class="${className}" onclick="${this.handleCloseIconClick.bind(this)}"></span>
 			`;
+
+
 
 			if (Type.isPlainObject(params.closeIcon))
 			{

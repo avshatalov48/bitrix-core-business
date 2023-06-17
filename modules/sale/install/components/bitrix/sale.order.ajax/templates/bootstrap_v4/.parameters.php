@@ -108,14 +108,12 @@ $arTemplateParameters = array(
 	"DELIVERY_FADE_EXTRA_SERVICES" => array(
 		"NAME" => GetMessage("DELIVERY_FADE_EXTRA_SERVICES"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
 		"DEFAULT" => "N",
 		"PARENT" => "VISUAL",
 	),
 	"SHOW_NEAREST_PICKUP" => array(
 		"NAME" => GetMessage("SHOW_NEAREST_PICKUP"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
 		"DEFAULT" => "N",
 		"PARENT" => "VISUAL",
 	),
@@ -143,7 +141,6 @@ $arTemplateParameters = array(
 	"SHOW_PICKUP_MAP" => array(
 		"NAME" => GetMessage("SHOW_PICKUP_MAP"),
 		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
 		"DEFAULT" => "Y",
 		"PARENT" => "VISUAL",
 	),

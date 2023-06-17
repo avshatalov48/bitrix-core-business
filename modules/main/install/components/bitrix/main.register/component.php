@@ -143,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 			$arResult["ERRORS"][] = GetMessage("REGISTER_WRONG_CAPTCHA");
 	}
 
-	if(count($arResult["ERRORS"]) > 0)
+	if(!empty($arResult["ERRORS"]))
 	{
 		if(COption::GetOptionString("main", "event_log_register_fail", "N") === "Y")
 		{
@@ -251,7 +251,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 			$arResult["ERRORS"][] = $user->LAST_ERROR;
 		}
 
-		if(count($arResult["ERRORS"]) <= 0)
+		if(empty($arResult["ERRORS"]))
 		{
 			if(COption::GetOptionString("main", "event_log_register", "N") === "Y")
 				CEventLog::Log("SECURITY", "USER_REGISTER", "main", $ID);
@@ -271,7 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 // verify phone code
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '' && !$USER->IsAuthorized())
 {
-	if($_REQUEST["SIGNED_DATA"] <> '')
+	if (!empty($_REQUEST["SIGNED_DATA"]))
 	{
 		if(($params = \Bitrix\Main\Controller\PhoneAuth::extractData($_REQUEST["SIGNED_DATA"])) !== false)
 		{
@@ -333,7 +333,7 @@ if (in_array("PERSONAL_BIRTHDAY", $arResult["SHOW_FIELDS"]))
 // ********************* User properties ***************************************************
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 $arUserFields = $USER_FIELD_MANAGER->GetUserFields("USER", 0, LANGUAGE_ID);
-if (is_array($arUserFields) && count($arUserFields) > 0)
+if (is_array($arUserFields) && !empty($arUserFields))
 {
 	if (!is_array($arParams["USER_PROPERTY"]))
 		$arParams["USER_PROPERTY"] = array($arParams["USER_PROPERTY"]);
@@ -352,7 +352,7 @@ if (is_array($arUserFields) && count($arUserFields) > 0)
 if (!empty($arResult["USER_PROPERTIES"]["DATA"]))
 {
 	$arResult["USER_PROPERTIES"]["SHOW"] = "Y";
-	$arResult["bVarsFromForm"] = (count($arResult['ERRORS']) <= 0) ? false : true;
+	$arResult["bVarsFromForm"] = (empty($arResult['ERRORS'])) ? false : true;
 }
 // ******************** /User properties ***************************************************
 

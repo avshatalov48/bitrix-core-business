@@ -13,6 +13,31 @@
 	line-height: var(--ui-font-line-height-2xs, 19px);
 	color: #a8a9ab;
 }
+.bx-messenger-content-item-beta {
+	margin-left: 8px;
+	cursor: help;
+	position: relative;
+	width: 12px;
+	display: inline-block;
+	height: 12px;
+}
+.bx-messenger-content-item-beta>beta {
+	background-color: #daf3ff;
+	color: #0ba1ec;
+	border-radius: 50%;
+	padding: 0 5px;
+	display: inline-block;
+	position: absolute;
+	margin-top: -2px;
+}
+.bx-messenger-content-item-system .bx-messenger-content-item-beta>beta {
+	background-color: #f4f0f0;
+	color: #5f5d5d;
+}
+.bx-messenger-content-item-1 .bx-messenger-content-item-beta>beta {
+	background-color: #ffffff;
+	color: #00a9ff;
+}
 
 /* CL */
 .bx-messenger-input-wrap-active .bx-messenger-input-close { opacity: 1 }

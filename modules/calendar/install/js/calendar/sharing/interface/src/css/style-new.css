@@ -1,0 +1,182 @@
+.calendar-sharing__dialog-wrapper {
+	padding: var(--ui-space-inset-md) var(--ui-space-inset-xl);
+}
+
+.calendar-sharing__dialog-top {
+	position: relative;
+	margin-bottom: 17px;
+}
+
+.calendar-sharing__dialog-top:last-child {
+	margin-bottom: unset;
+}
+
+.calendar-sharing__dialog-title {
+	display: flex;
+	align-items: center;
+	margin-bottom: 5px;
+	font: var(--ui-typography-heading-h4-font-size)/var(--ui-typography-heading-h4-line-height) var(--ui-font-family-system);
+	color: var(--ui-color-base-solid);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.calendar-sharing__dialog-title-help {
+	display: inline-flex;
+	width: 30px;
+	height: 30px;
+	margin: -4px 0;
+	background: url(../image/calendar-sharing-dialog-help.svg) center no-repeat;
+	opacity: .5;
+	transition: .1s;
+	cursor: pointer;
+}
+
+.calendar-sharing__dialog-title-help.--hover,
+.calendar-sharing__dialog-title-help:hover {
+	opacity: .6;
+	transition: unset;
+}
+
+.calendar-sharing__dialog-title-help.--active,
+.calendar-sharing__dialog-title-help:active {
+	opacity: .7;
+	transition: unset;
+}
+
+.calendar-sharing__dialog-info {
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	color: var(--ui-color-base-90);
+}
+
+.calendar-sharing__dialog-info span {
+	font-weight: 500;
+	border-bottom: 1px dashed var(--ui-color-base-90);
+	cursor: pointer;
+}
+
+.calendar-sharing__dialog-info_more {
+	font-weight: 400 !important;
+	color: var(--ui-color-base-50) !important;
+	border-bottom: 1px dashed var(--ui-color-base-50) !important;
+	cursor: pointer;
+}
+
+.calendar-sharing__dialog-body {
+	display: flex;
+	margin-bottom: 20px;
+	padding-bottom: 27px;
+	border-bottom: 1px solid var(--ui-color-base-05);
+}
+
+.calendar-sharing__dialog-body:last-child {
+	margin-bottom: unset;
+}
+
+.calendar-sharing__dialog-userpic {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin: 3px 17px 0 0;
+	background: url(../image/calendar-sharing-userpic-natasha.png) center no-repeat;
+	background-size: contain;
+}
+
+.calendar-sharing__dialog-notify {
+	flex: 1;
+	position: relative;
+	padding: 10px 15px;
+	background: var(--ui-color-background-info);
+	/*border: 1px solid var(--ui-color-primary);*/
+	border-radius: 12px;
+}
+
+.calendar-sharing__dialog-notify:before {
+	content: '';
+	position: absolute;
+	top: 7px;
+	left: -7px;
+	width: 15px;
+	height: 14px;
+	background: url(../image/calendar-sharing-dialog-angle.svg) center no-repeat;
+}
+
+.calendar-sharing__dialog-notify_content {
+	position: relative;
+	z-index: 1;
+}
+
+.calendar-sharing__dialog-notify_content {
+	font: var(--ui-typography-text-md-font-size)/18px var(--ui-font-family-system);
+	color: var(--ui-color-base-default);
+}
+
+.calendar-sharing__dialog-notify_content span {
+	color: var(--ui-color-link-primary-base);
+	border-bottom: 1px solid transparent;
+	cursor: pointer;
+	transition: .1s;
+}
+
+.calendar-sharing__dialog-notify_content span:hover {
+	border-color: rgba(var(--ui-color-link-primary-base-rgb), .7);
+}
+
+.calendar-sharing__dialog-link {
+	display: inline-block;
+	font: 13px\16px var(--ui-font-family-helvetica);
+	color: var(--ui-color-base-70);
+	border-top: 1px solid transparent;
+	border-bottom: 1px dashed rgba(var(--ui-color-base-70-rgb), .4);
+	transition: .1s;
+	cursor: pointer;
+}
+
+.calendar-sharing__dialog-link.--hover,
+.calendar-sharing__dialog-link:hover {
+	color: var(--ui-color-base-80);
+	border-bottom-color: rgba(var(--ui-color-base-70-rgb), .7);
+	transition: unset;
+}
+
+.calendar-sharing__dialog-bottom .calendar-sharing__dialog-link {
+	margin-left: 20px;
+}
+
+.calendar-sharing__qr-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: var(--ui-space-inset-lg) var(--ui-space-inset-xl);
+}
+
+.calendar-sharing__qr-title {
+	margin-bottom: 10px;
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-base-90);
+}
+
+.calendar-sharing__qr-block {
+	margin-bottom: 5px;
+}
+
+.calendar-sharing__qr-info {
+	margin-bottom: 7px;
+	font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-system);
+	color: var(--ui-color-base-50);
+}
+
+.calendar-sharing__qr-block {
+	display: inline-block;
+	position: relative;
+	width: 95px;
+	height: 95px;
+	margin-bottom: 7px;
+}
+
+.calendar-sharing__qr-block > * {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}

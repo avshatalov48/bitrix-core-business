@@ -1133,6 +1133,7 @@ class CIBlockElement extends CAllIBlockElement
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
 			{
+				$arFields["PREVIEW_PICTURE"]["copy"] ??= null;
 				if(
 					$arFields["PREVIEW_PICTURE"]["tmp_name"] <> ''
 					&& (
@@ -1164,6 +1165,7 @@ class CIBlockElement extends CAllIBlockElement
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
 			{
+				$arFields["PREVIEW_PICTURE"]["copy"] ??= null;
 				if(
 					$arFields["PREVIEW_PICTURE"]["tmp_name"] <> ''
 					&& (
@@ -1217,6 +1219,7 @@ class CIBlockElement extends CAllIBlockElement
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
 			{
+				$arFields["DETAIL_PICTURE"]["copy"] ??= null;
 				if(
 					$arFields["DETAIL_PICTURE"]["tmp_name"] <> ''
 					&& (
@@ -1248,6 +1251,7 @@ class CIBlockElement extends CAllIBlockElement
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
 			{
+				$arFields["DETAIL_PICTURE"]["copy"] ??= null;
 				if(
 					$arFields["DETAIL_PICTURE"]["tmp_name"] <> ''
 					&& (
@@ -1896,12 +1900,11 @@ class CIBlockElement extends CAllIBlockElement
 							"ID" => $ELEMENT_ID.":".$property_id,
 							"IBLOCK_PROPERTY_ID" => $property_id,
 							"VALUE" => $ar["PROPERTY_".$property_id],
-							"DESCRIPTION" => $ar["DESCRIPTION_".$property_id],
+							"DESCRIPTION" => $ar["DESCRIPTION_".$property_id] ?? '',
 						);
 					}
 				}
-				if (isset($property))
-					unset($property);
+				unset($property);
 			}
 			else
 			{

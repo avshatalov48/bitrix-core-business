@@ -1,0 +1,16 @@
+<?php
+$MESS["IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2"] = "Group chat";
+$MESS["IM_SEARCH_RESULT_NOT_FOUND"] = "No entries have been found.";
+$MESS["IM_SEARCH_RESULT_NOT_FOUND_DESCRIPTION"] = "Try a different search phrase.";
+$MESS["IM_SEARCH_RESULT_NOT_FOUND_INVITE_BUTTON"] = "Invite members";
+$MESS["IM_SEARCH_SECTION_CHAT_PARTICIPANTS"] = "Chat members";
+$MESS["IM_SEARCH_SECTION_CHAT_USERS"] = "Chats with user";
+$MESS["IM_SEARCH_SECTION_DEPARTMENTS"] = "Departments";
+$MESS["IM_SEARCH_SECTION_NETWORK"] = "External Open Channels";
+$MESS["IM_SEARCH_SECTION_NETWORK_BUTTON"] = "Search Bitrix24.Network";
+$MESS["IM_SEARCH_SECTION_OPENLINES"] = "Open Channels";
+$MESS["IM_SEARCH_SECTION_RECENT"] = "Recent search";
+$MESS["IM_SEARCH_SECTION_RECENT_CHATS"] = "Recent chats";
+$MESS["IM_SEARCH_SECTION_TITLE_SHOW_LESS"] = "Show less";
+$MESS["IM_SEARCH_SECTION_TITLE_SHOW_MORE"] = "Show more";
+$MESS["IM_SEARCH_SECTION_USERS_AND_CHATS"] = "Users and chats";

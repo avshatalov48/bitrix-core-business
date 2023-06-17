@@ -1,0 +1,16 @@
+.bx-im-smile-popup__scope {
+	--im-textarea-smile-popup__border-bottom-color_container: #e4eaed;
+}
+
+.bx-im-smile-popup__container {
+	overflow: hidden;
+	width: 320px;
+	height: 380px;
+}
+
+.bx-im-smile-popup__tabs-container {
+	height: 48px;
+	border-radius: 10px 10px 0 0;
+	border-bottom: 1px solid var(--im-textarea-smile-popup__border-bottom-color_container);
+	overflow: hidden;
+}

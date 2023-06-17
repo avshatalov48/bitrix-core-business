@@ -32,9 +32,13 @@ $component = $this->getComponent();
 	}
 
 	if(
-		$arResult['userField']['MULTIPLE'] === 'Y'
+		isset($arResult['userField']['MULTIPLE'])
+		&& $arResult['userField']['MULTIPLE'] === 'Y'
 		&&
-		$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+		(
+			!isset($arResult['additionalParameters']['SHOW_BUTTON'])
+			|| $arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+		)
 	)
 	{
 		print $component->getHtmlBuilder()->getCloneButton($arResult['fieldName']);

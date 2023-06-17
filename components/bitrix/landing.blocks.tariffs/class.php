@@ -4,12 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Config\Option;
-use \Bitrix\Main\Loader;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 
-class LandingBlocksTariffsComponent extends \CBitrixComponent
+class LandingBlocksTariffsComponent extends CBitrixComponent
 {
 	/**
 	 * Base executable method.
@@ -17,7 +17,7 @@ class LandingBlocksTariffsComponent extends \CBitrixComponent
 	 */
 	public function executeComponent(): void
 	{
-		if (!\Bitrix\Main\Loader::includeModule('landing'))
+		if (!Loader::includeModule('landing'))
 		{
 			return;
 		}
@@ -46,7 +46,7 @@ class LandingBlocksTariffsComponent extends \CBitrixComponent
 		}
 		else
 		{
-			$partnerId = (int)COption::GetOptionString("main", "~PARAM_PARTNER_ID");
+			$partnerId = Application::getInstance()->getLicense()->getPartnerId();
 		}
 
 		$this->arParams['OPTION'] = [
@@ -78,7 +78,7 @@ class LandingBlocksTariffsComponent extends \CBitrixComponent
 	{
 		if (Loader::includeModule('bitrix24'))
 		{
-			$zone = \CBitrix24::getPortalZone();
+			$zone = CBitrix24::getPortalZone();
 		}
 		if (!isset($zone) || !$zone)
 		{

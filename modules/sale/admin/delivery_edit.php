@@ -194,7 +194,7 @@ if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $sale
 	else
 	{
 		if ($apply <> '')
-			LocalRedirect("sale_delivery_edit.php?ID=".$ID."&lang=".LANG."&".$tabControl->ActiveTabParam());
+			LocalRedirect("sale_delivery_edit.php?ID=".$ID."&lang=" . LANGUAGE_ID . "&".$tabControl->ActiveTabParam());
 		else
 			LocalRedirect("sale_delivery.php?lang=".LANG);
 	}
@@ -563,4 +563,4 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

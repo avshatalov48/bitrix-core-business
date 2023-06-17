@@ -238,7 +238,7 @@ class HtmlParser extends Parser
 		if ($text !== "")
 		{
 			preg_match_all("/(?'name'[\w\-_:?&]+)(?'eq'\s*=\s*)?(?(eq)([\"'])(?'val'.*?)\g{-2})/s", $text, $attrTmp);
-			if(mb_strpos($text, "&") === false)
+			if(strpos($text, "&") === false)
 			{
 				foreach($attrTmp['name'] as $i => $attrName)
 				{
@@ -426,7 +426,6 @@ class HtmlParser extends Parser
 				// empty tag
 				$cleaned = mb_substr($tag, 1, -2);
 				$bxNodeWithCloseTag = false;
-				$isSingleTag = true;
 			}
 			else
 			{

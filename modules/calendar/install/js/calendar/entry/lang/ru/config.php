@@ -25,4 +25,5 @@ $MESS["CALENDAR_DELETE_EVENT_NOTIFICATION"] = "Событие удалено";
 $MESS["CALENDAR_UPDATE"] = "Обновление";
 $MESS["CALENDAR_UPDATE_PROGRESS"] = "Выполняется обновление";
 $MESS["CALENDAR_RELEASE_LOCATION_NOTIFICATION"] = "Бронь на переговорную комнату успешно отменена";
-$MESS["CALENDAR_EVENT_DURATION_CHANGE"] = "Длительность события изменена";
+$MESS["CALENDAR_EVENT_DURATION_CHANGE"] = "Длительность события изменена: #DURATION#";
+$MESS['CALENDAR_EVENT_DURATION_CHANGE_NEW'] = 'Длительность события изменена: #DURATION#';

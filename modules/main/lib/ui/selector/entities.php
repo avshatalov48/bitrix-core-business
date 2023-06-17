@@ -63,16 +63,15 @@ class Entities
 
 	public static function getEntityType($params)
 	{
-		$result = false;
-
 		if (
 			empty($params)
 			|| empty($params['itemCode'])
 		)
 		{
-			return $result;
+			return false;
 		}
 
+		$result = false;
 		$itemCode = $params['itemCode'];
 
 		if (preg_match(self::CODE_USER_REGEX, $itemCode, $matches))
@@ -304,9 +303,7 @@ class Entities
 		);
 
 		$codeFilter = (
-			isset($params["CODE_FILTER"])
-				? $params["CODE_FILTER"]
-				: false
+			$params["CODE_FILTER"] ?? false
 		);
 
 		if (
@@ -339,8 +336,8 @@ class Entities
 		if($cache->initCache($cacheTtl, $cacheId, $cacheDir))
 		{
 			$cacheData = $cache->GetVars();
-			$destAll = isset($cacheData['DEST_ALL']) ? $cacheData['DEST_ALL'] : array();
-			$dataAdditionalUsers = isset($cacheData['DATA_ADDITIONAL_USERS']) ? $cacheData['DATA_ADDITIONAL_USERS'] : array();
+			$destAll = $cacheData['DEST_ALL'] ?? array();
+			$dataAdditionalUsers = $cacheData['DATA_ADDITIONAL_USERS'] ?? array();
 		}
 		else
 		{

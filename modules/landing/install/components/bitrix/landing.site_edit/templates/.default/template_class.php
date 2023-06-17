@@ -83,9 +83,9 @@ class Template
 		$readonly = $params['readonly'] ?? false;
 		$needWrapper = $params['needWrapper'] ?? false;
 
-		$isTitle = (bool)$params['title'];
+		$isTitle = (bool)($params['title'] ?? null);
 		$title = $field->getLabel();
-		if (is_string($params['title']) && $params['title'])
+		if (is_string($params['title'] ?? null) && $params['title'])
 		{
 			$title = $params['title'];
 		}
@@ -174,11 +174,11 @@ class Template
 			$isLocked = $hooks[$code]->isLocked();
 			$isLockedRowHide = $isLocked && $useField->getValue() !== 'Y';
 			$useTitle = true;
-			if ($params['useTitle'] && is_string($params['useTitle']))
+			if (($params['useTitle'] ?? null) && is_string($params['useTitle']))
 			{
 				$useTitle = $params['useTitle'];
 			}
-			if ($params['restrictionCode'] && is_string($params['restrictionCode']))
+			if (($params['restrictionCode'] ?? null) && is_string($params['restrictionCode']))
 			{
 				$restrictionCode = $params['restrictionCode'];
 			}
@@ -259,6 +259,7 @@ class Template
 						id: '<?= $this->getFieldId($code, true) ?>',
 						disableLink: true,
                         disableAltField: true,
+						compactMode: true,
                         allowClear: true
 						<?php if ($imgId):?>
 						,content: {

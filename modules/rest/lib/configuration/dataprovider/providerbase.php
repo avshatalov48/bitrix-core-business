@@ -26,12 +26,12 @@ abstract class ProviderBase
 	 */
 	public function __construct(array $setting)
 	{
-		if ($setting['CONTEXT'])
+		if (!empty($setting['CONTEXT']))
 		{
 			$this->context = $setting['CONTEXT'];
 		}
 
-		if ($setting['CONTEXT_USER'])
+		if (!empty($setting['CONTEXT_USER']))
 		{
 			$this->contextUser = $setting['CONTEXT_USER'];
 		}
@@ -127,7 +127,7 @@ abstract class ProviderBase
 				);
 			}
 
-			if ((int)$content['COUNT'] > 0)
+			if (!empty($content['COUNT']) && (int)$content['COUNT'] > 0)
 			{
 				$result['COUNT'] = (int)$content['COUNT'];
 			}

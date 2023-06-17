@@ -20,7 +20,11 @@ class IblockElementXmlProvider extends IblockElementProvider
 			$filter = $this->getQueryFilter($query);
 		}
 
-		$elements = $this->getElements($filter);
+		$elements = $this->getElements($filter, self::ELEMENTS_LIMIT);
+		if (count($elements) === self::ELEMENTS_LIMIT)
+		{
+			$searchQuery->setCacheable(false);
+		}
 		foreach ($elements as $element)
 		{
 			$dialog->addItem(

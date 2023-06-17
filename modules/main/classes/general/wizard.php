@@ -473,7 +473,7 @@ class CWizardBase
 			if (method_exists($oCurrentStep, "OnPostForm"))
 			{
 				$oCurrentStep->OnPostForm();
-				if (count($oCurrentStep->stepErrors)>0)
+				if (!empty($oCurrentStep->stepErrors))
 					$currentStep = $_REQUEST[$this->currentStepHiddenID];
 			}
 		}
@@ -1288,7 +1288,7 @@ STYLES;
 
 		$arErrors = $obStep->GetErrors();
 		$strError = "";
-		if (count($arErrors) > 0)
+		if (!empty($arErrors))
 		{
 			foreach ($arErrors as $arError)
 				$strError .= $arError[0]."<br />";
@@ -1467,7 +1467,7 @@ class CWizardAdminTemplate extends CWizardTemplate
 		$obStep = $wizard->GetCurrentStep();
 		$arErrors = $obStep->GetErrors();
 		$strError = $strJsError = "";
-		if (count($arErrors) > 0)
+		if (!empty($arErrors))
 		{
 			foreach ($arErrors as $arError)
 			{

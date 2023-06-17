@@ -89,7 +89,7 @@ class ForumIndexComponent extends \CBitrixComponent
 		$this->arParams["DATE_TIME_FORMAT"] = trim(empty($this->arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(\CSite::GetDateFormat("FULL")) : $this->arParams["DATE_TIME_FORMAT"]);
 		$this->arParams["NAME_TEMPLATE"] = (!empty($this->arParams["NAME_TEMPLATE"]) ? $this->arParams["NAME_TEMPLATE"] : false);
 		$this->arParams["WORD_LENGTH"] = array_key_exists("WORD_LENGTH", $this->arParams) ? intval($this->arParams["WORD_LENGTH"]) : null;
-		$this->arParams["USE_DESC_PAGE"] = ($this->arParams["USE_DESC_PAGE"] != "Y" ? "N" : "Y");
+		$this->arParams["USE_DESC_PAGE"] = ($this->arParams["USE_DESC_PAGE"] ?? 'Y');
 
 		$this->arParams["SHOW_FORUM_ANOTHER_SITE"] = ($this->arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 		$this->arParams["SHOW_FORUMS_LIST"] = ($this->arParams["SHOW_FORUMS_LIST"] == "Y" ? "Y" : "N");
@@ -116,8 +116,9 @@ class ForumIndexComponent extends \CBitrixComponent
 		{
 			$res = \CUserOptions::GetOption("forum", "user_info", "");
 			$res = (CheckSerializedData($res) ? @unserialize($res, ["allowed_classes" => false]) : []);
-			$this->arResult["USER"]["HIDDEN_GROUPS"] = (is_array($res["groups"]) ? $res["groups"] : array());
-			$this->arResult["USER"]["HIDDEN_FORUMS"] = (is_array($res["forums"]) ? $res["forums"] : array());
+			$res = is_array($res) ? $res : [];
+			$this->arResult["USER"]["HIDDEN_GROUPS"] = $res["groups"] ?? [];
+			$this->arResult["USER"]["HIDDEN_FORUMS"] = $res["forums"] ?? [];
 		}
 
 		$this->arResult["URL"] = array(
@@ -368,7 +369,7 @@ class ForumIndexComponent extends \CBitrixComponent
 		$dropIds = [];
 		foreach ($treeGroup as $id => $group)
 		{
-			if ($group["LEFT_MARGIN"] >= 1)
+			if (!empty($group["LEFT_MARGIN"]))
 			{
 				$parentId = intval($group["PARENT_ID"]);
 				$treeGroup[$parentId]["GROUPS"][$id] = &$treeGroup[$id];

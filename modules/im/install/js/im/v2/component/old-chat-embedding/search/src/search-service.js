@@ -1,6 +1,6 @@
 import {ajax as Ajax} from 'main.core';
 import {Logger} from 'im.v2.lib.logger';
-import {ChatTypes, EventType, RestMethod} from 'im.v2.const';
+import {DialogType, EventType, RestMethod} from 'im.v2.const';
 import {EventEmitter} from 'main.core.events';
 import {SearchCache} from './search-cache';
 import {EntityIdTypes, ImSearchItem} from './types/search-item';
@@ -236,7 +236,7 @@ export class SearchService
 			avatar: user.avatar,
 			color: user.color,
 			name: user.name,
-			type: ChatTypes.user
+			type: DialogType.user
 		};
 	}
 
@@ -507,7 +507,7 @@ export class SearchService
 					avatar: preparedUser.avatar,
 					color: preparedUser.color,
 					name: preparedUser.name,
-					type: ChatTypes.user,
+					type: DialogType.user,
 					dialogId: item.getId()
 				});
 			}

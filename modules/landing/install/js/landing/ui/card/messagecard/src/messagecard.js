@@ -119,7 +119,7 @@ export class MessageCard extends BaseCard
 				<div 
 					class="landing-ui-card-message-close-button" 
 					onclick="${this.onCloseClick}"
-					title="${Loc.getMessage('LANDING_MESSAGE_CARD_HIDE')}"
+					title="${Loc.getMessage('LANDING_MESSAGE_CARD_HIDE_MSGVER_1')}"
 				></div>
 			`;
 		});
@@ -150,7 +150,7 @@ export class MessageCard extends BaseCard
 		return this.cache.remember('closeLink', () => {
 			return Tag.render`
 				<span class="ui-link ui-link-secondary ui-link-dashed landing-ui-card-message-close-link" onclick="${this.onCloseClick}">
-					${Loc.getMessage('LANDING_MESSAGE_CARD_HIDE')}
+					${Loc.getMessage('LANDING_MESSAGE_CARD_HIDE_MSGVER_1')}
 				</span>
 			`;
 		});

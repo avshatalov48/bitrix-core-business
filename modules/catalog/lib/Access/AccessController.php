@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage catalog
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Catalog\Access;
@@ -195,5 +195,28 @@ class AccessController extends BaseAccessController
 		}
 
 		return $rule->execute();
+	}
+
+	/**
+	 * Returns true if user have full access to right <b>$action</b> or false otherwise
+	 *
+	 * @param string $action
+	 * @return bool
+	 */
+	public function checkCompleteRight(string $action): bool
+	{
+		$permissionValue = $this->getPermissionValue($action);
+
+		if ($permissionValue === null)
+		{
+			return false;
+		}
+
+		if (is_array($permissionValue))
+		{
+			return in_array(PermissionDictionary::VALUE_VARIATION_ALL, $permissionValue, true);
+		}
+
+		return $this->check($action);
 	}
 }

@@ -139,7 +139,7 @@ class CTempFile
 				//Clean whole temporary directory from CTempFile::GetFileName('');
 				elseif(
 					mb_substr($temp_path, -1) == '/'
-					&& mb_strpos($temp_path, "BXTEMP") === false
+					&& strpos($temp_path, "BXTEMP") === false
 					&& is_dir($temp_path)
 				)
 				{

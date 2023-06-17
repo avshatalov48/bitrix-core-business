@@ -344,6 +344,7 @@ if (empty($arRunErrors))
 		$bNeedProducts = false; // product properties need?
 		$bNeedProps = false; // element props need?
 		$arGroupProps = array(); // section fields array (no user props)
+		$allSectionFields = []; // section fields for select
 		$arElementProps = array(); // element props
 		$arCatalogGroups = array(); // prices
 		$bNeedCounts = false; // price ranges
@@ -430,6 +431,7 @@ if (empty($arRunErrors))
 						);
 						$bNeedGroups = true;
 						$arGroupProps[$i][] = $strKey;
+						$allSectionFields[] = $arAvailGroupFields_names[$strKey]['field'];
 					}
 					$intCount++;
 				}
@@ -439,6 +441,11 @@ if (empty($arRunErrors))
 					$arGroupProps[$i] = array_values(array_unique($arGroupProps[$i]));
 			}
 			unset($arAvailGroupFieldsList);
+		}
+		if (!empty($allSectionFields))
+		{
+			$allSectionFields[] = 'ID';
+			$allSectionFields = array_values(array_unique($allSectionFields));
 		}
 
 		if ($boolCatalog)
@@ -738,8 +745,13 @@ if (empty($arRunErrors))
 						{
 							$arPath = array();
 							$j = 0;
-							$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $arSection["ID"]);
-							while ($arPathSection = $rsPath->Fetch())
+							$rsPath = CIBlockSection::GetNavChain(
+								$IBLOCK_ID,
+								$arSection["ID"],
+								$allSectionFields,
+								true
+							);
+							foreach ($rsPath as $arPathSection)
 							{
 								if (!empty($arGroupProps[$j]))
 								{
@@ -775,6 +787,7 @@ if (empty($arRunErrors))
 								}
 								$j++;
 							}
+							unset($arPathSection, $rsPath);
 						}
 
 						$arPath = array();

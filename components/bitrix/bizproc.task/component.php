@@ -212,7 +212,10 @@ if (intval($arState["STARTED_BY"]) > 0)
 			\BX_RESIZE_IMAGE_EXACT,
 			false
 		);
-		$arResult["TASK"]['STARTED_BY_PHOTO_SRC'] = $arFileTmp['src'];
+		if (is_array($arFileTmp))
+		{
+			$arResult["TASK"]['STARTED_BY_PHOTO_SRC'] = $arFileTmp['src'];
+		}
 	}
 }
 $arResult['WORKFLOW_TEMPLATE_NAME'] = $arState["TEMPLATE_NAME"];
@@ -235,7 +238,7 @@ if ($arResult["ShowMode"] != "Success" && !$arResult['ReadOnly'])
 		$documentType = $documentService->GetDocumentType($arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"]);
 
 		// deprecated old style
-		list($arResult["TaskForm"], $arResult["TaskFormButtons"]) = CBPDocument::ShowTaskForm(
+		[$arResult["TaskForm"], $arResult["TaskFormButtons"]] = CBPDocument::ShowTaskForm(
 			$arResult["TASK"],
 			$arParams["USER_ID"],
 			"",

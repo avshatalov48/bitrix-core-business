@@ -28,6 +28,10 @@ export class DraftManager
 
 	initDraftHistory()
 	{
+		if (!BX.MessengerProxy)
+		{
+			return false;
+		}
 		const history = BX.MessengerProxy.getTextareaHistory();
 		Object.entries(history).forEach(([dialogId, text]) => {
 			this.setDraftMessage(dialogId, text);

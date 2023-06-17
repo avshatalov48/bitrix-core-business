@@ -28,7 +28,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    isExtranet() {
 	      return this.user.user.extranet;
 	    },
-	    AvatarSize: () => im_v2_const.AvatarSize
+	    AvatarSize: () => im_v2_component_oldChatEmbedding_elements.AvatarSize
 	  },
 	  created() {
 	    this.contextMenuManager = new SearchContextMenu(this.$Bitrix);
@@ -538,7 +538,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    size: {
 	      type: String,
-	      default: im_v2_const.AvatarSize.M
+	      default: im_v2_component_oldChatEmbedding_elements.AvatarSize.M
 	    }
 	  },
 	  computed: {
@@ -748,7 +748,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return !this.isUser;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.ChatTypes.user;
+	      return this.dialog.type === im_v2_const.DialogType.user;
 	    },
 	    userItemText() {
 	      if (!this.isUser) {
@@ -764,7 +764,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (this.isUser) {
 	        return '';
 	      }
-	      if (this.dialog.type === im_v2_const.ChatTypes.open) {
+	      if (this.dialog.type === im_v2_const.DialogType.open) {
 	        return this.$Bitrix.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_OPEN');
 	      }
 	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_GROUP');
@@ -781,7 +781,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      return Number.parseInt(this.dialogId, 10);
 	    },
-	    AvatarSize: () => im_v2_const.AvatarSize
+	    AvatarSize: () => im_v2_component_oldChatEmbedding_elements.AvatarSize
 	  },
 	  methods: {
 	    onClick(event) {
@@ -1115,7 +1115,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getRecentListItems() {
 	    return this.store.getters['recent/getSortedCollection'].map(item => {
 	      const dialog = this.store.getters['dialogues/get'](item.dialogId, true);
-	      const isUser = dialog.type === im_v2_const.ChatTypes.user;
+	      const isUser = dialog.type === im_v2_const.DialogType.user;
 	      const recentListItem = {
 	        dialogId: item.dialogId,
 	        dialog: dialog
@@ -1338,7 +1338,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      avatar: user.avatar,
 	      color: user.color,
 	      name: user.name,
-	      type: im_v2_const.ChatTypes.user
+	      type: im_v2_const.DialogType.user
 	    };
 	  }
 	  getDataRequestQuery(code) {
@@ -1540,7 +1540,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          avatar: preparedUser.avatar,
 	          color: preparedUser.color,
 	          name: preparedUser.name,
-	          type: im_v2_const.ChatTypes.user,
+	          type: im_v2_const.DialogType.user,
 	          dialogId: item.getId()
 	        });
 	      }

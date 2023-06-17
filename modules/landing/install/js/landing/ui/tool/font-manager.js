@@ -54,6 +54,7 @@
 	 */
 	function makeFontFamily(family, category)
 	{
+		family = family.replaceAll("+", ' ');
 		var fallbackMap = {
 			"serif": "\"#font#\", serif",
 			"sans-serif": "\"#font#\", sans-serif",

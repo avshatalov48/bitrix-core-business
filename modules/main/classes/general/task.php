@@ -55,7 +55,7 @@ class CAllTask
 			$arFields['LETTER'] = '';
 		}
 
-		if(count($arMsg)>0)
+		if(!empty($arMsg))
 		{
 			$e = new CAdminException($arMsg);
 			$APPLICATION->ThrowException($e);
@@ -124,7 +124,7 @@ class CAllTask
 			if ($g > 0)
 				$arGroups[] = $g;
 		}
-		if (count($arGroups) == 0)
+		if (empty($arGroups))
 			return false;
 
 		$str_groups = implode(',', $arGroups);
@@ -329,7 +329,7 @@ class CAllTask
 		$sql_str = 'DELETE FROM b_task_operation WHERE TASK_ID='.$ID;
 		$DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		if(is_array($arr) && count($arr)>0)
+		if(is_array($arr) && !empty($arr))
 		{
 			if($bOpNames)
 			{

@@ -492,20 +492,6 @@ final class BusinessValueControl
 								<?
 							}
 
-//							$mappings = array(
-//								'EXACT' => isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId])
-//									? $consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]
-//									: array(),
-//								'COMMON' => BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_COMMON, $consumerCodePersonMapping) ?? array(),
-//								'DEFAULT' => is_array($code['DEFAULT']) ? $code['DEFAULT'] : array(),
-//							);
-
-//							$mappings = array(
-//								'EXACT'   => BusinessValue::correctMapping(BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_EXACT  , $consumerCodePersonMapping), $personTypeId),
-//								'COMMON'  => BusinessValue::correctMapping(BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_COMMON , $consumerCodePersonMapping), $personTypeId),
-//								'DEFAULT' => BusinessValue::correctMapping(BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, BusinessValue::MATCH_DEFAULT, $consumerCodePersonMapping), $personTypeId),
-//							);
-
 							$o = array(
 								'consumerCodePersonMapping' => $consumerCodePersonMapping,
 								'GET_VALUE' => array('PROPERTY' => 'BY_ID'),
@@ -521,8 +507,6 @@ final class BusinessValueControl
 								.($consumerKey ?: BusinessValueTable::COMMON_CONSUMER_KEY).']['
 								.$codeKey.']['
 								.($personTypeId ?: BusinessValueTable::COMMON_PERSON_TYPE_ID).']';
-
-							$hideCode = false;
 
 							ob_start(); // $columnsHTML
 
@@ -807,28 +791,6 @@ final class BusinessValueControl
 
 		?>
 		<script>
-
-			function bizvalChangeConsumer(keyElement)
-			{
-				'use strict';
-
-				var	consumerKey = keyElement.options[keyElement.selectedIndex].value,
-					wrapElement = keyElement.parentNode.nextSibling,
-					name = wrapElement.firstChild.name,
-					consumerCodeInput = <?=
-
-						\CUtil::PhpToJSObject(
-							array_map(
-								function ($i) {return Input\Manager::getEditHtml('', $i);},
-								self::$consumerCodeInput
-							)
-						)
-
-					?>;
-
-				wrapElement.innerHTML = consumerCodeInput[consumerKey];
-				wrapElement.firstChild.name = name;
-			}
 
 			function bizvalChangeProvider(keyElement, personTypeId, filterMode)
 			{
@@ -1248,7 +1210,6 @@ final class BusinessValueControl
 		$consumerInput = array(
 			'TYPE'     => 'ENUM',
 			'REQUIRED' => true,
-			//'ONCHANGE' => 'bizvalChangeConsumer(this)',
 		);
 
 		$consumerCodeInput = array();

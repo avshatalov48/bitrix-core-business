@@ -16,7 +16,7 @@ class CBPMixedCondition extends CBPActivityCondition
 		$this->condition = $condition;
 	}
 
-	public function Evaluate(CBPActivity $ownerActivity)
+	public function evaluate(CBPActivity $ownerActivity)
 	{
 		if (!$this->isConditionGroupExist())
 		{
@@ -33,14 +33,14 @@ class CBPMixedCondition extends CBPActivityCondition
 			[$property, $value] = $ownerActivity->getRuntimeProperty($cond['object'], $cond['field'], $rootActivity);
 			$fieldTypeObject = $this->getFieldTypeObject($rootActivity, $property);
 
-			$conditionValue = ($property && $cond['value']) ? self::additionalExtractValue($fieldTypeObject, $cond['value']) : $cond['value'];
+			$conditionValue = self::additionalExtractValue($fieldTypeObject, $cond['value']);
 
 			$items[] = [
 				'joiner' => $this->getJoiner($cond),
 				'operator' => $cond['operator'],
 				'valueToCheck' => $value,
 				'fieldType' => $fieldTypeObject,
-				'value' => $property ? $rootActivity->ParseValue($conditionValue, $property['Type']) : null,
+				'value' => $property ? $rootActivity->parseValue($conditionValue, $property['Type']) : null,
 				'fieldName' => $property['Name'] ?? $cond['field'],
 			];
 		}
@@ -51,7 +51,10 @@ class CBPMixedCondition extends CBPActivityCondition
 		]);
 
 		$result = $conditionGroup->evaluate();
-		$this->writeAutomationConditionLog($items, $conditionGroup->getEvaluateResults(), $result, $ownerActivity);
+		if ($ownerActivity->workflow->isDebug())
+		{
+			$this->writeAutomationConditionLog($items, $conditionGroup->getEvaluateResults(), $result, $ownerActivity);
+		}
 
 		return $result;
 	}

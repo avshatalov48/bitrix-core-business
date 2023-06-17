@@ -94,7 +94,7 @@ class CComponentEngine
 	 */
 	public function hasNoVariables($pageTemplate)
 	{
-		return mb_strpos($pageTemplate, "#") === false;
+		return strpos($pageTemplate, "#") === false;
 	}
 	/**
 	 * Checks if page template.has greedy templates it it.

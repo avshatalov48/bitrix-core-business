@@ -1,7 +1,6 @@
 import { Type, Runtime } from "main.core";
 import { BaseContext } from "./base-context";
-import { Document, UserOptions, Tracker } from "bizproc.automation";
-
+import {Document, UserOptions, Tracker, AutomationGlobals} from "bizproc.automation";
 export class Context extends BaseContext
 {
 	constructor(props: {
@@ -118,5 +117,10 @@ export class Context extends BaseContext
 	getAvailableTrigger(code: string): ?Object
 	{
 		return this.availableTriggers.find(trigger => trigger['CODE'] === code);
+	}
+
+	get automationGlobals(): ?AutomationGlobals
+	{
+		return this.get('automationGlobals');
 	}
 }

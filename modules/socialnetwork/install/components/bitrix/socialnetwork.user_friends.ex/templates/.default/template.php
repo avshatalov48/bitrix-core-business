@@ -10,7 +10,7 @@ use Bitrix\Main\UI;
 
 UI\Extension::load("ui.tooltip");
 
-if($arResult["FatalError"] <> '')
+if(!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -18,7 +18,7 @@ else
 {
 	CUtil::InitJSCore(array("popup"));
 
-	if($arResult["ErrorMessage"] <> '')
+	if(!empty($arResult["ErrorMessage"]))
 	{
 		?><span class="errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}

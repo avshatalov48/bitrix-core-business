@@ -46,7 +46,7 @@ class CacheTracker
 		$found = -1;
 		foreach (Helper::getBackTrace(8) as $tr)
 		{
-			$func = $tr["class"].$tr["type"].$tr["function"];
+			$func = ($tr["class"] ?? '') . ($tr["type"] ?? '') . ($tr["function"] ?? '');
 
 			if ($found < 0 && !isset(self::$skipUntil[mb_strtolower($func)]))
 			{
@@ -74,7 +74,7 @@ class CacheTracker
 				if (count(self::$arCacheDebug[$found]["TRACE"]) < 8)
 				{
 					$args = array();
-					if (is_array($tr["args"]))
+					if (isset($tr["args"]) && is_array($tr["args"]))
 					{
 						foreach ($tr["args"] as $k1 => $v1)
 						{
@@ -105,8 +105,8 @@ class CacheTracker
 					self::$arCacheDebug[$found]["TRACE"][] = array(
 						"func" => $func,
 						"args" => $args,
-						"file" => $tr["file"],
-						"line" => $tr["line"],
+						"file" => $tr["file"] ?? '',
+						"line" => $tr["line"] ?? '',
 					);
 				}
 				else

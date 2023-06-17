@@ -45,20 +45,6 @@ $num_rows_writed = 0;
 
 /////////////////////////////////////////////////////////////////////
 
-function GetValueByCodeTmp($code): int
-{
-	global $NUM_FIELDS;
-	for ($i = 0; $i < $NUM_FIELDS; $i++)
-	{
-		if ($GLOBALS["field_" . $i] === $code)
-		{
-			return $i;
-		}
-	}
-
-	return -1;
-}
-
 /*
 This function takes an array (arTuple) which is mix of scalar values and arrays
 and return "rectangular" array of arrays.
@@ -110,8 +96,20 @@ function ArrayMultiply(&$arResult, $arTuple, $arTemp = array())
 }
 /////////////////////////////////////////////////////////////////////
 
+$delimiterList = [
+	'TZP' => GetMessage('IBLOCK_ADM_EXP_DELIM_TZP'),
+	'ZPT' => GetMessage('IBLOCK_ADM_EXP_DELIM_ZPT'),
+	'TAB' => GetMessage('IBLOCK_ADM_EXP_DELIM_TAB'),
+	'SPS' => GetMessage('IBLOCK_ADM_EXP_DELIM_SPS'),
+	'OTR' => GetMessage('IBLOCK_ADM_EXP_DELIM_OTR'),
+];
+
 $fields_type = (string)$request->getPost('fields_type');
 $delimiter_r = (string)$request->getPost('delimiter_r');
+if (!isset($delimiterList[$delimiter_r]))
+{
+	$delimiter_r = 'TZP';
+}
 $delimiter_other_r = (string)$request->getPost('delimiter_other_r');
 $first_line_names = (string)$request->getPost('first_line_names');
 $field_needed = $request->getPost('field_needed') ?? [];
@@ -389,11 +387,20 @@ if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 					{
 
 						$arPath = array();
-						$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $arElement["IBLOCK_SECTION_ID"], array("NAME"));
-						while($arPathSection = $rsPath->Fetch())
+						$rsPath = CIBlockSection::GetNavChain(
+							$IBLOCK_ID,
+							$arElement["IBLOCK_SECTION_ID"],
+							[
+								'ID',
+								'NAME',
+							],
+							true
+						);
+						foreach ($rsPath as $arPathSection)
 						{
 							$arPath[] = $arPathSection["NAME"];
 						}
+						unset($arPathSection, $rsPath);
 						$arResSections[$arElement["IBLOCK_SECTION_ID"]] = $arPath;
 					}
 
@@ -401,7 +408,7 @@ if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 					$rsSections = CIBlockElement::GetElementGroups($arElement["ID"], true, array("ID"));
 					while($arSection = $rsSections->Fetch())
 					{
-						$arSections[] = intval($arSection["ID"]);
+						$arSections[] = (int)$arSection["ID"];
 					}
 					sort($arSections);
 
@@ -410,11 +417,20 @@ if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 						if (!isset($arResSections[$sectionId]))
 						{
 							$arPath = array();
-							$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $sectionId, array("NAME"));
-							while($arPathSection = $rsPath->Fetch())
+							$rsPath = CIBlockSection::GetNavChain(
+								$IBLOCK_ID,
+								$sectionId,
+								[
+									'ID',
+									'NAME',
+								],
+								true
+							);
+							foreach ($rsPath as $arPathSection)
 							{
 								$arPath[] = $arPathSection["NAME"];
 							}
+							unset($arPathSection, $rsPath);
 							$arResSections[$sectionId] = $arPath;
 						}
 					}
@@ -593,12 +609,18 @@ if ($STEP == 2)
 	</tr>
 	<tr>
 		<td width="40%" class="adm-detail-valign-top"><?= GetMessage("IBLOCK_ADM_EXP_DELIMITER") ?>:</td>
-		<td width="60%">
-			<input type="radio" name="delimiter_r" id="delimiter_TZP" value="TZP"<?= ($delimiter_r === "TZP" || $delimiter_r === '' ? ' checked' : ''); ?>><label for="delimiter_TZP"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_TZP") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_ZPT" value="ZPT"<?= ($delimiter_r === "ZPT" ? ' checked' : ''); ?>><label for="delimiter_ZPT"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_ZPT") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_TAB" value="TAB"<?= ($delimiter_r === "TAB" ? ' checked' : ''); ?>><label for="delimiter_TAB"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_TAB") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_SPS" value="SPS"<?= ($delimiter_r === "SPS" ? ' checked' : ''); ?>><label for="delimiter_SPS"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_SPS") ?></label><br>
-			<input type="radio" name="delimiter_r" id="delimiter_OTR" value="OTR"<?= ($delimiter_r === "OTR" ? ' checked' : ''); ?>><label for="delimiter_OTR"><?= GetMessage("IBLOCK_ADM_EXP_DELIM_OTR") ?></label>
+		<td width="60%"><?php
+			foreach ($delimiterList as $value => $message)
+			{
+				$safeValueId = htmlspecialcharsbx('delimiter_' . $value);
+				?>
+				<input
+					type="radio" name="delimiter_r" id="<?=$safeValueId; ?>"
+					value="<?=htmlspecialcharsbx($value);?>"<?=($delimiter_r === $value ? ' checked' : '');?>
+				><label for="<?=$safeValueId; ?>"><?= htmlspecialcharsbx($message); ?></label><br>
+				<?php
+			}
+			?>
 			<input type="text" name="delimiter_other_r" size="3" value="<?= htmlspecialcharsbx($delimiter_other_r) ?>">
 		</td>
 	</tr>
@@ -664,7 +686,7 @@ if ($STEP == 2)
 				}
 			?><table width="100%" border="0" cellspacing="0" cellpadding="0" class="internal">
 				<tr class="heading">
-					<td style="text-align: left !important;"><input type="checkbox" name="field_needed_all" id="field_needed_all" value="Y" onclick="checkAll(this,<?= $intCountFields; ?>);"<?= ($intCountChecked == $intCountFields ? ' checked' : ''); ?>>&nbsp;<?= GetMessage("IBLOCK_ADM_EXP_IS_FIELD_NEEDED") ?></td>
+					<td style="text-align: left !important;"><input type="checkbox" name="field_needed_all" id="field_needed_all" value="Y" onclick="checkAll(this,<?= $intCountFields; ?>);"<?= ($intCountChecked === $intCountFields ? ' checked' : ''); ?>>&nbsp;<?= GetMessage("IBLOCK_ADM_EXP_IS_FIELD_NEEDED") ?></td>
 					<td><?= GetMessage("IBLOCK_ADM_EXP_FIELD_NAME") ?></td>
 					<td><?= GetMessage("IBLOCK_ADM_EXP_FIELD_SORT") ?></td>
 				</tr><?php

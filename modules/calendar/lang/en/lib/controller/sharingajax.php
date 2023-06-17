@@ -1,6 +1,8 @@
 <?php
+$MESS["EC_SHARINGAJAX_ACTIVITY_SUBJECT"] = "Meeting with customer";
 $MESS["EC_SHARINGAJAX_EVENT_ACCESS_DENIED"] = "Insufficient permissions.";
 $MESS["EC_SHARINGAJAX_EVENT_DELETE_ERROR"] = "Error deleting event.";
+$MESS["EC_SHARINGAJAX_EVENT_NAME"] = "Meeting";
 $MESS["EC_SHARINGAJAX_EVENT_NOT_FOUND"] = "Event was not found.";
 $MESS["EC_SHARINGAJAX_EVENT_SAVE_ERROR"] = "Error saving event.";
 $MESS["EC_SHARINGAJAX_ICS_FILE_GET_ERROR"] = "Error uploading ICS file.";

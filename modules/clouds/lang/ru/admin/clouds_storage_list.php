@@ -24,6 +24,7 @@ $MESS["CLO_STORAGE_LIST_ACTIVATE"] = "Активировать";
 $MESS["CLO_STORAGE_LIST_DELETE"] = "Удалить";
 $MESS["CLO_STORAGE_LIST_DELETE_CONF"] = "Удалить подключение к облачному хранилищу?";
 $MESS["CLO_STORAGE_LIST_CANNOT_DELETE"] = "Ошибка удаления: #error_msg#.";
+$MESS["CLO_STORAGE_LIST_NOT_EMPTY"] = "в хранилище есть файлы";
 $MESS["CLO_STORAGE_LIST_TITLE"] = "Облачные хранилища";
 $MESS["CLO_STORAGE_LIST_MOVE_IN_PROGRESS"] = "Идет перенос файлов в облачное хранилище.";
 $MESS["CLO_STORAGE_LIST_MOVE_DONE"] = "Перенос файлов в облачное хранилище завершен.";

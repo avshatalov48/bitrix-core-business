@@ -4,20 +4,19 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\UserField\Types\DateType;
 
-if($arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
-	$type = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['TYPE'];
-	$value = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['VALUE'];
+	$type = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['TYPE'] ?? '';
+	$value = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE']['VALUE'] ?? '';
 }
-elseif(
-	is_array($arResult['userField'])
-	&&
-	is_array($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+elseif (
+	isset($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+	&& is_array($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 )
 {
-	$type = $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'];
+	$type = $arResult['userField']['SETTINGS']['DEFAULT_VALUE']['TYPE'] ?? '';
 	$value = CDatabase::FormatDate(
-		$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['VALUE'],
+		$arResult['userField']['SETTINGS']['DEFAULT_VALUE']['VALUE'] ?? '',
 		'YYYY-MM-DD',
 		CLang::GetDateFormat(DateType::FORMAT_TYPE_SHORT)
 	);

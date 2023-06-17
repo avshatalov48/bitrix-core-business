@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\ActionUuid;
+
 class Common
 {
 	public static function getPublicDomain()
@@ -125,7 +127,7 @@ class Common
 
 	public static function getPullExtra()
 	{
-		return [
+		$extra = [
 			'revision_im_web' => \Bitrix\Im\Revision::getWeb(),
 			'revision_im_mobile' => \Bitrix\Im\Revision::getMobile(),
 			'revision_im_rest' => \Bitrix\Im\Revision::getRest(),
@@ -133,6 +135,13 @@ class Common
 			'im_revision' => \Bitrix\Im\Revision::getWeb(),
 			'im_revision_mobile' => \Bitrix\Im\Revision::getMobile(),
 		];
+
+		if (ActionUuid::getInstance()->getValue() !== null)
+		{
+			$extra['action_uuid'] = ActionUuid::getInstance()->getValue();
+		}
+
+		return $extra;
 	}
 }
 

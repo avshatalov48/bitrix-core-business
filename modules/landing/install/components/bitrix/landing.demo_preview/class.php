@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Landing\Hook;
 use Bitrix\Landing\Hook\Page\Theme;
 use Bitrix\Landing\Site\Type;
+use Bitrix\Landing\Rights;
 use Bitrix\Main\Config\Option;
 use \Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
@@ -45,6 +46,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$this->checkParam('TYPE', '');
 			$this->checkParam('SITE_WORK_MODE', 'N');
 			$this->checkParam('DONT_LEAVE_FRAME', 'N');
+			$this->checkParam('DISABLE_REDIRECT', 'N');
 			$this->checkParam('BINDING_TYPE', '');
 			$this->checkParam('BINDING_ID', '');
 			$this->checkParam('ACTION_FOLDER', 'folderId');
@@ -61,6 +63,16 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 			if (isset($demo[$code]))
 			{
+				$this->arResult['SITE_GROUP'] = [];
+
+				if (isset($demo[$code]['LABELS']))
+				{
+					$labels = $demo[$code]['LABELS'];
+					$bySubscription = array_reduce($labels, static function($lastRes, $label) {
+						return $lastRes || $label['CODE'] === 'subscription';
+					}, false);
+				}
+
 				// check if SITE GROUP
 				if (
 					isset($demo[$code]['DATA']['site_group']) &&
@@ -94,6 +106,10 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				$this->arResult['TEMPLATE']['URL_PREVIEW'] = $this->getUrlPreview($code, $demo[$code]);
 				// first color by default
 				$this->arResult['THEME_CURRENT'] = $demo[$code]['THEME_COLOR'] ?? null;
+				$this->arResult['RIGHTS_CREATE'] = Rights::hasAdditionalRight(
+					Rights::ADDITIONAL_RIGHTS['create']
+				);
+				$this->arResult['NEEDED_SUBSCRIPTION'] = $bySubscription ?? false;
 
 				// check external import (additional step after submit create)
 				$event = new Event('landing', 'onBuildTemplateCreateUrl', array(

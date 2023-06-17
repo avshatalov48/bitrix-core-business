@@ -19,7 +19,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 }
 
 $arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
-$arResult["IS_IFRAME"] = $_REQUEST["IFRAME"] == "Y";
+$arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] ?? null) == "Y";
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -58,9 +58,9 @@ else
 	$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
 	if (
-		!$arGroup 
-		|| !is_array($arGroup) 
-		|| $arGroup["ACTIVE"] != "Y" 
+		!$arGroup
+		|| !is_array($arGroup)
+		|| $arGroup["ACTIVE"] != "Y"
 	)
 	{
 		$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP").". ";
@@ -186,7 +186,7 @@ else
 								"SECOND_NAME" => $arUserRequests["INITIATED_BY_USER_SECOND_NAME"],
 								"LOGIN" => $arUserRequests["INITIATED_BY_USER_LOGIN"],
 							);
-							$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);	
+							$strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 
 							$arEventTmp["Event"] = array(
 								"ID" => $arUserRequests["ID"],
@@ -195,7 +195,7 @@ else
 								"USER_LAST_NAME" => $arUserRequests["INITIATED_BY_USER_LAST_NAME"],
 								"USER_SECOND_NAME" => $arUserRequests["INITIATED_BY_USER_SECOND_NAME"],
 								"USER_LOGIN" => $arUserRequests["INITIATED_BY_USER_LOGIN"],
-								"USER_NAME_FORMATTED" => $strNameFormatted,			
+								"USER_NAME_FORMATTED" => $strNameFormatted,
 								"USER_PERSONAL_PHOTO" => $arUserRequests["INITIATED_BY_USER_PHOTO"],
 								"USER_PERSONAL_PHOTO_FILE" => $arImage["FILE"],
 								"USER_PERSONAL_PHOTO_IMG" => $arImage["IMG"],
@@ -242,12 +242,12 @@ else
 					$errorMessage = "";
 
 					if (
-						$_REQUEST["EventType"] == "GroupRequest"
+						($_REQUEST["EventType"] ?? null) == "GroupRequest"
 						&& check_bitrix_sessid()
 						&& intval($_REQUEST["eventID"]) > 0
 					)
 					{
-						if ($_REQUEST["action"] == "add")
+						if (isset($_REQUEST["action"]) && $_REQUEST["action"] == "add")
 						{
 							if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($USER->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 							{
@@ -257,7 +257,7 @@ else
 							else
 								$arResult["Success"] = "Added";
 						}
-						elseif ($_REQUEST["action"] == "reject")
+						elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "reject")
 						{
 							if (!CSocNetUserToGroup::UserRejectRequestToBeMember($USER->GetID(), intval($_REQUEST["eventID"])))
 							{
@@ -300,7 +300,7 @@ else
 								$arResult["ShowForm"] = "Confirm";
 							}
 
-							if ($_REQUEST["ajax_request"] == "Y")
+							if (isset($_REQUEST["ajax_request"]) && $_REQUEST["ajax_request"] == "Y")
 							{
 								$APPLICATION->RestartBuffer();
 								echo CUtil::PhpToJsObject(array(
@@ -322,7 +322,7 @@ else
 							&& check_bitrix_sessid()
 						)
 						{
-							if ($_POST["ajax_request"] == "Y")
+							if (isset($_POST["ajax_request"]) && $_POST["ajax_request"] == "Y")
 							{
 								CUtil::JSPostUnescape();
 							}
@@ -355,7 +355,7 @@ else
 								$arResult["ShowForm"] = "Confirm";
 							}
 
-							if ($_REQUEST["ajax_request"] == "Y")
+							if (isset($_REQUEST["ajax_request"]) && $_REQUEST["ajax_request"] == "Y")
 							{
 								$APPLICATION->RestartBuffer();
 								echo CUtil::PhpToJsObject(array(

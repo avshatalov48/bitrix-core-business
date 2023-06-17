@@ -1,30 +1,30 @@
-<?
-use Bitrix\Main;
+<?php
+
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location\Admin\Helper;
 
-define("NO_AGENT_CHECK", true);
-define("NO_KEEP_STATISTIC", true);
+/** @global CMain $APPLICATION */
 
-$initialTime = time();
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
+const NO_AGENT_CHECK = true;
+const NO_KEEP_STATISTIC = true;
 
-Loc::loadMessages(__FILE__);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/prolog.php';
 
 $APPLICATION->SetTitle(Loc::getMessage('SALE_LOCATION_REINDEX_TITLE'));
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
 $APPLICATION->IncludeComponent(
 	'bitrix:sale.location.reindex',
 	'admin',
-	array(
-		'PATH_TO_REINDEX' => Bitrix\Main\Loader::includeModule("sale") ? Helper::getReindexUrl() : "",
-		'INITIAL_TIME' => $INITIAL_TIME
-	),
-	false
+	[
+		'PATH_TO_REINDEX' => Loader::includeModule('sale') ? Helper::getReindexUrl() : '',
+		'INITIAL_TIME' => time(),
+	],
+	false,
+	['HIDE_ICONS' => 'Y']
 );
-?>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

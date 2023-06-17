@@ -11,7 +11,7 @@ global $USER, $APPLICATION;
 if(!$USER->IsAuthorized() || !check_bitrix_sessid())
 	die();
 
-if($_REQUEST['action'] === 'attachUrlPreview')
+if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'attachUrlPreview')
 {
 	session_write_close();
 

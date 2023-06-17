@@ -1,12 +1,9 @@
 <?
-/*
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
-*/
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -92,11 +89,12 @@ if($lAdmin->EditAction() && $USER->CanDoOperation('edit_groups'))
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
+
+		$DB->StartTransaction();
 
 		$ob = new CGroup();
 		if(!$ob->Update($ID, $arFields))
@@ -104,14 +102,17 @@ if($lAdmin->EditAction() && $USER->CanDoOperation('edit_groups'))
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$ob->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 // обработка действий групповых и одиночных
 if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_groups'))
 {
-	if($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
 		$rsData = CGroup::GetList();
@@ -137,10 +138,15 @@ if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_groups'))
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			}
 			else
+			{
 				$lAdmin->AddGroupError(GetMessage("MAIN_ERROR_GROUP").$ID.GetMessage("MAIN_ERROR_GROUP_DELETE"));
+			}
 			break;
 		case "activate":
 		case "deactivate":
@@ -208,7 +214,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 
 	if ($f_ID!=2)
-		$row->AddViewField("USERS", "<a href='user_admin.php?lang=".LANGUAGE_ID."&GROUPS_ID[]=".$f_ID."&apply_filter=Y' title='".GetMessage("USERS_OF_GROUP")."'>".$f_USERS."</a>");
+		$row->AddViewField("USERS", "<a href='user_admin.php?lang=".LANGUAGE_ID."&GROUPS_ID[]=".$f_ID."&apply_filter=Y' title='".GetMessage("USERS_OF_GROUP")."'>".($f_USERS ?? '')."</a>");
 
 	$arActions = Array();
 

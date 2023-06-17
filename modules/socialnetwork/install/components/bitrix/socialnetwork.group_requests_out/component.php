@@ -130,7 +130,7 @@ else
 
 						if ($errorMessage == '')
 						{
-							if ($_POST["reject"] <> '')
+							if (!empty($_POST["reject"]))
 							{
 								$errorMessage = "";
 								foreach($arIDs as $relation_id)

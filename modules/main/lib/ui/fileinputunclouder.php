@@ -97,13 +97,17 @@ class FileInputUnclouder
 		$res = $this->check($params);
 		if ($this->check($params))
 		{
-			$this->file = \CFile::getByID($this->id)->fetch();
-			if ($mode == "resize" && ($file = \CFile::ResizeImageGet($this->id, $params, BX_RESIZE_IMAGE_PROPORTIONAL, true, false, true)) && $file)
+			$this->file = \CFile::getFileArray($this->id);
+			if ($mode == "resize")
 			{
-				$this->file["SRC"] = $file["src"];
-				$this->file["WIDTH"] = $file["width"];
-				$this->file["HEIGHT"] = $file["height"];
-				$this->file["FILE_SIZE"] = $file["size"];
+				$file = \CFile::ResizeImageGet($this->file, $params, BX_RESIZE_IMAGE_PROPORTIONAL, true, false, true);
+				if ($file)
+				{
+					$this->file["SRC"] = $file["src"];
+					$this->file["WIDTH"] = $file["width"];
+					$this->file["HEIGHT"] = $file["height"];
+					$this->file["FILE_SIZE"] = $file["size"];
+				}
 			}
 			\CFile::ViewByUser($this->file, array("force_download" => false, "cache_time" => 0));
 		}

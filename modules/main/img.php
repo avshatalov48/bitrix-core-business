@@ -202,8 +202,8 @@ function GetArrayX($arrX, &$MinX, &$MaxX, $max_grid=15, $min_grid=10)
 {
 	$h = 2;
 
-	$MinX = (count($arrX)>0) ? min($arrX) : 0;
-	$MaxX = (count($arrX)>0) ? max($arrX) : 0;
+	$MinX = (!empty($arrX)) ? min($arrX) : 0;
+	$MaxX = (!empty($arrX)) ? max($arrX) : 0;
 	$period_days = (($MaxX-$MinX)/86400)+1;
 	if ($period_days>$min_grid)
 	{
@@ -293,9 +293,9 @@ function GetArrayY($arrY, &$MinY, &$MaxY, $max_grid=15, $first_null="Y", $intege
 				$shiftY = 1;
 			}
 		}
-		$i = $MinY;
 		if ($shiftY>0)
 		{
+			$i = $MinY;
 			while ($i<$MaxY+$shiftY+$shiftY)
 			{
 				$arrayY[] = $i;
@@ -381,8 +381,10 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 		$ttf_font_y = $_SERVER["DOCUMENT_ROOT"].$arrTTF_FONT["Y"]["FONT_PATH"];
 		$ttf_size_y = $arrTTF_FONT["Y"]["FONT_SIZE"];
 		$ttf_shift_y = $arrTTF_FONT["Y"]["FONT_SHIFT"];
-		$ttf_base_y = 0;
-		if (isset($arrTTF_FONT["Y"]["FONT_BASE"])) $ttf_base_y = $arrTTF_FONT["Y"]["FONT_BASE"];
+		if (isset($arrTTF_FONT["Y"]["FONT_BASE"]))
+		{
+			$ttf_base_y = $arrTTF_FONT["Y"]["FONT_BASE"];
+		}
 		$dlataX = 0;
 		foreach($arrayY as $value)
 		{
@@ -752,7 +754,7 @@ function Circular_Diagram($ImageHandle, $arr, $background_color, $diameter, $cen
 	$arr2 = array();
 	$diameterX = $diameter;
 	$diameterY = intval($diameter*0.6);
-	if(count($arr)>0)
+	if(!empty($arr))
 	{
 		$sum = 0;
 		foreach($arr as $sector)
@@ -787,7 +789,7 @@ function Circular_Diagram($ImageHandle, $arr, $background_color, $diameter, $cen
 				$degree1 = $degree2;
 			}
 		}
-		if(count($arr2)>0)
+		if(!empty($arr2))
 		{
 			$h = 15;
 			if($antialiase)

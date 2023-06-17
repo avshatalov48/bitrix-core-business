@@ -57,6 +57,24 @@
 		return modules[id].exports;
 	};
 
+	let moduleUsage = () => {
+		let defined =  Object.keys(modules)
+		let definedCount = defined.length
+		let used = defined.filter( id => typeof modules[id].factory == "undefined" )
+		let usedCount = used.length
+		let emptyUsage = defined.filter( id => !used.includes(id))
+
+		return {
+			defined,
+			definedCount,
+			used,
+			usedCount,
+			emptyUsage
+		}
+	}
+
+
+
 	/**
 	 *
 	 * @param {String} id
@@ -118,7 +136,7 @@
 			this.loadedExtensions.forEach( ext => { loadedExtensions[ext] = true } )
 		}
 		return new Promise( (resolve, reject) => {
-			if (Application.getApiVersion() < 44) {
+			if (Application.getApiVersion() < 45) {
 				reject({error: "API_VERSION is lower then 45"})
 				return;
 			}
@@ -164,7 +182,7 @@
 	}
 
 	this.jn = {
-		define, require, export: jnexport, import: jnImport
+		moduleUsage, define, require, export: jnexport, import: jnImport
 	}
 
 })();

@@ -1,0 +1,1 @@
+.bx-im-list-openline__content{position:absolute;top:var(--im-messenger__search-input_height);width:100%;height:calc(100% - var(--im-messenger__search-input_height));padding:20px;overflow:hidden;overflow-y:auto;box-sizing:border-box}.bx-im-list-openline__item{padding:5px 0;cursor:pointer;color:#333}.bx-im-list-openline__item:hover{color:#888}

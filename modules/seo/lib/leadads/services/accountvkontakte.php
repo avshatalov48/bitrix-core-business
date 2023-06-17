@@ -2,11 +2,11 @@
 
 namespace Bitrix\Seo\LeadAds\Services;
 
-use Bitrix\Crm\Ads\Internals\AdsFormLinkTable;
+use Bitrix\Main\Application;
+use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Security\Random;
-use Bitrix\Main\SystemException;
 use Bitrix\Seo\WebHook;
 use Bitrix\Seo\LeadAds;
 use Bitrix\Seo\LeadAds\Account;
@@ -100,6 +100,9 @@ class AccountVkontakte extends Account
 			];
 
 			$result['LINK'] = 'https://ads.vk.com/hq/leadforms/';
+			$result['PICTURE'] = (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')
+				. '://'
+				.  Context::getCurrent()->getServer()->getHttpHost() . '/bitrix/images/seo/integration/vklogo.svg';
 
 			return $result;
 		}

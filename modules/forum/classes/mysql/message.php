@@ -14,8 +14,9 @@ class CForumMessage extends CAllForumMessage
 			return false;
 
 		$arForum = CForumNew::GetByID($arFields["FORUM_ID"]);
-		$arParams["SKIP_STATISTIC"] = ($arParams["SKIP_STATISTIC"] == "Y" ? "Y" : "N");
-		$arParams["SKIP_INDEXING"] = ($arParams["SKIP_INDEXING"] == "Y" || $arForum["INDEXATION"] != "Y" ? "Y" : "N");
+		$arParams["SKIP_STATISTIC"] = (isset($arParams["SKIP_STATISTIC"]) && $arParams["SKIP_STATISTIC"] == "Y" ? "Y" : "N");
+		$arParams["SKIP_INDEXING"] = $arParams["SKIP_INDEXING"] ?? 'N';
+		$arParams["SKIP_INDEXING"] = ($arParams["SKIP_INDEXING"] == "Y" || $arForum["INDEXATION"] != "Y"     ? "Y" : "N");
 
 		$POST_MESSAGE = $arFields["POST_MESSAGE"];
 		$parser = new forumTextParser(LANGUAGE_ID);
@@ -28,10 +29,10 @@ class CForumMessage extends CAllForumMessage
 		}
 /***************** Attach ******************************************/
 		$arFiles = array();
-		if (is_array($arFields["ATTACH_IMG"]))
+		if (isset($arFields["ATTACH_IMG"]) && is_array($arFields["ATTACH_IMG"]))
 			$arFields["FILES"] = array($arFields["ATTACH_IMG"]);
 		unset($arFields["ATTACH_IMG"]);
-		if (is_array($arFields["FILES"]) && !empty($arFields["FILES"]))
+		if (!empty($arFields["FILES"]) && is_array($arFields["FILES"]))
 		{
 			$res = array("FORUM_ID" => $arFields["FORUM_ID"], "USER_ID" => $arFields["AUTHOR_ID"], "upload_dir" => $strUploadDir);
 			$arFiles = CForumFiles::Save($arFields["FILES"], $res, false);
@@ -198,9 +199,10 @@ class CForumMessage extends CAllForumMessage
 		$strSqlOrder = "";
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
+		$arAddParams['nTopCount'] = ($arAddParams['nTopCount'] ?? 0);
 		$obUserFieldsSql = new CUserTypeSQL;
 		$obUserFieldsSql->SetEntity("FORUM_MESSAGE", "FM.ID");
-		$obUserFieldsSql->SetSelect($arAddParams["SELECT"]);
+		$obUserFieldsSql->SetSelect($arAddParams["SELECT"] ?? null);
 		$obUserFieldsSql->SetFilter($arFilter);
 		$obUserFieldsSql->SetOrder($arOrder);
 
@@ -302,7 +304,7 @@ class CForumMessage extends CAllForumMessage
 		if (!empty($arSqlSearch))
 			$strSqlSearch = " AND (".implode(") AND (", $arSqlSearch).") ";
 
-		if ($bCount || (is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0)))
+		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && $arAddParams["nTopCount"] <= 0))
 		{
 			$strFrom = "FROM b_forum_message FM\n".$obUserFieldsSql->GetJoin("FM.ID")."\nWHERE 1 = 1 ".$strSqlSearch;
 			if($obUserFieldsSql->GetDistinct())
@@ -465,13 +467,12 @@ class CForumMessage extends CAllForumMessage
 			WHERE 1 = 1 " . $strSqlSearch . "
 			" . $strSqlOrder;
 
-		$iNum = intval($iNum);
-		if (($iNum>0) || (is_array($arAddParams) && (intval($arAddParams["nTopCount"])>0)))
+		$limit = intval($iNum ?? $arAddParams["nTopCount"]);
+		if ($limit > 0)
 		{
-			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
-			$strSql .= " LIMIT 0,".$iNum;
+			$strSql .= " LIMIT 0,".$limit;
 		}
-		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0))
+		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && $arAddParams["nTopCount"] <= 0)
 		{
 			$db_res =  new CDBResult();
 			$db_res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("FORUM_MESSAGE"));
@@ -886,7 +887,7 @@ class CForumFiles extends CAllForumFiles
 		$iNum = intval($iNum);
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
-		if (intval($arAddParams["nTopCount"]) > 0)
+		if (isset($arAddParams["nTopCount"]) && intval($arAddParams["nTopCount"]) > 0)
 			unset($arAddParams["bDescPageNumbering"]);
 
 		foreach ($arFilter as $key => $val)
@@ -1063,7 +1064,7 @@ class CForumFiles extends CAllForumFiles
 			WHERE 1 = 1
 			".$strSqlSearch."
 			".$strSqlOrder;
-		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0)
+		if ($iNum > 0 || (isset($arAddParams["nTopCount"]) && intval($arAddParams["nTopCount"]) > 0))
 		{
 			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
 			$strSql = "SELECT * FROM(".$strSql.") WHERE ROWNUM<=".$iNum;

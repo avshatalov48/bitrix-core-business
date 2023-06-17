@@ -34,7 +34,7 @@ class MainUfDetailComponent extends ConfigComponent implements Engine\Contract\C
 			return;
 		}
 
-		$fieldId = (int) ($this->arParams['fieldId'] ?: Application::getInstance()->getContext()->getRequest()->get('fieldId'));
+		$fieldId = (int) (!empty($this->arParams['fieldId']) ? $this->arParams['fieldId'] : Application::getInstance()->getContext()->getRequest()->get('fieldId'));
 		if($fieldId > 0)
 		{
 			if(!$this->access->canRead($fieldId))
@@ -50,7 +50,7 @@ class MainUfDetailComponent extends ConfigComponent implements Engine\Contract\C
 		}
 		else
 		{
-			$this->entityId = $this->arParams['entityId'] ?: Application::getInstance()->getContext()->getRequest()->get('entityId');
+			$this->entityId = !empty($this->arParams['entityId']) ? $this->arParams['entityId'] : Application::getInstance()->getContext()->getRequest()->get('entityId');
 			if(empty($this->entityId))
 			{
 				$this->errorCollection[] = new Error(Loc::getMessage('MAIN_FIELD_CONFIG_DETAIL_NO_ENTITY_ID_ERROR'));
@@ -102,6 +102,7 @@ class MainUfDetailComponent extends ConfigComponent implements Engine\Contract\C
 		}
 
 		return [
+			'ID' => 0,
 			'MANDATORY' => 'N',
 			'MULTIPLE' => 'N',
 			'SHOW_FILTER' => 'E',

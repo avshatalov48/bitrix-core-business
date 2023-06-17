@@ -26,7 +26,7 @@ foreach ($arResult["VALUE"] as $res):
 	?>
 	<div class="fields files">
 		<input type="hidden" name="<?=$arParams["arUserField"]["~FIELD_NAME"]?>_old_id<?=$postFix?>" value="<?=$res?>" />
-		<?=CFile::InputFile($arParams["arUserField"]["FIELD_NAME"], 0, $res, false, 0, "", "", 0, "", ' value="'.$res.'"', true, isset($arParams['SHOW_FILE_PATH']) ? $arParams['SHOW_FILE_PATH'] : true);?>
+		<?=CFile::InputFile($arParams["arUserField"]["FIELD_NAME"], 0, $res, false, 0, "", "", 0, "", ' value="'.$res.'"', true, $arParams['SHOW_FILE_PATH'] ?? true);?>
 		<br>
 <?
 $arFile = CFile::GetFileArray($res);

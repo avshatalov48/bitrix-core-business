@@ -39,7 +39,7 @@ if (
 
 $arParams["GROUP_ID"] = (int)$arParams["GROUP_ID"];
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = (isset($arParams["SET_NAV_CHAIN"]) && $arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["GROUP_VAR"] == '')
 {
@@ -99,7 +99,7 @@ if( $arParams["PATH_TO_GROUP_BLOG"] === '')
 	$arParams["PATH_TO_GROUP_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_blog&".$arParams["GROUP_VAR"]."=#group_id#");
 }
 
-$arParams["PATH_TO_GROUP_MICROBLOG"] = trim($arParams["PATH_TO_GROUP_MICROBLOG"]);
+$arParams["PATH_TO_GROUP_MICROBLOG"] = trim(($arParams["PATH_TO_GROUP_MICROBLOG"] ?? ''));
 if ($arParams["PATH_TO_GROUP_MICROBLOG"] === '')
 {
 	$arParams["PATH_TO_GROUP_MICROBLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_microblog&".$arParams["GROUP_VAR"]."=#group_id#");
@@ -173,6 +173,10 @@ if (
 		{
 			$arResult["Group"]["IS_EXTRANET"] = "Y";
 		}
+		else
+		{
+			$arResult["Group"]["IS_EXTRANET"] = "N";
+		}
 
 		if (
 			$arResult["Group"]["CLOSED"] === "Y"
@@ -180,6 +184,10 @@ if (
 		)
 		{
 			$arResult["HideArchiveLinks"] = true;
+		}
+		else
+		{
+			$arResult["HideArchiveLinks"] = false;
 		}
 
 		$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
@@ -199,7 +207,7 @@ if (
 
 			$arResult["Urls"]["Edit"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["View"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
-			$arResult["Urls"]["UserRequestGroup"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_REQUEST_GROUP"], array("group_id" => $arResult["Group"]["ID"], "user_id" => $USER->GetID()));
+			$arResult["Urls"]["UserRequestGroup"] = CComponentEngine::MakePathFromTemplate(($arParams["PATH_TO_USER_REQUEST_GROUP"] ?? ''), array("group_id" => $arResult["Group"]["ID"], "user_id" => $USER->GetID()));
 			$arResult["Urls"]["GroupRequestSearch"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_REQUEST_SEARCH"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupRequests"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_REQUESTS"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupMods"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_MODS"], array("group_id" => $arResult["Group"]["ID"]));
@@ -356,10 +364,10 @@ if (
 	}
 }
 
-$arReturn = array(
-	"GROUP" => $arResult["Group"],
-	"CURRENT_USER_PERMS" => $arResult["CurrentUserPerms"],
-	"IS_SUBSCRIBED" => $arResult["bSubscribed"]
-);
+$arReturn = [
+	"GROUP" => $arResult["Group"] ?? null,
+	"CURRENT_USER_PERMS" => $arResult["CurrentUserPerms"] ?? null,
+	"IS_SUBSCRIBED" => $arResult["bSubscribed"] ?? null,
+];
 
 return $arReturn;

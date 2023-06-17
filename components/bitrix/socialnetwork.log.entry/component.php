@@ -87,11 +87,11 @@ $bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 $arParams["COMMENT_ID"] = (int)$arParams["COMMENT_ID"];
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
-$arResult['LAST_LOG_TS'] = (int)$arParams['LAST_LOG_TS'];
-$arResult["COUNTER_TYPE"] = $arParams["COUNTER_TYPE"];
-$arResult["AJAX_CALL"] = $arParams["AJAX_CALL"];
-$arResult["bReload"] = $arParams["bReload"];
-$arResult["bGetComments"] = $arParams["bGetComments"];
+$arResult['LAST_LOG_TS'] = (int) ($arParams['LAST_LOG_TS'] ?? null);
+$arResult["COUNTER_TYPE"] = $arParams["COUNTER_TYPE"] ?? null;
+$arResult["AJAX_CALL"] = $arParams["AJAX_CALL"] ?? null;
+$arResult["bReload"] = $arParams["bReload"] ?? null;
+$arResult["bGetComments"] = $arParams["bGetComments"] ?? null;
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 
 $currentUserId = (int)$USER->getId();
@@ -186,7 +186,7 @@ if (
 		'nTopCount' => $nTopCount,
 		'timeZoneOffzet' => $arResult['TZ_OFFSET'],
 		'commentEvent' => $commentEvent,
-		'commentProvider' => $commentProvider
+		'commentProvider' => $commentProvider ?? null
 	], $arResult);
 
 	$arCommentsFullListCut = array();
@@ -257,7 +257,7 @@ if (
 				&& $event_date_log_ts >= $arResult['LAST_LOG_TS']
 				&& (int)$arCommentTmp['EVENT']['USER_ID'] !== $currentUserId
 				&& (
-					!is_array($arParams['UNREAD_COMMENTS_ID_LIST'])
+					!is_array($arParams['UNREAD_COMMENTS_ID_LIST'] ?? null)
 					|| in_array($arCommentTmp['EVENT']['ID'], $arParams['UNREAD_COMMENTS_ID_LIST'])
 				)
 			)
@@ -310,8 +310,8 @@ if (
 }
 
 $liveFeedEntity = Livefeed\Provider::init(array(
-	'ENTITY_TYPE' => $contentId['ENTITY_TYPE'],
-	'ENTITY_ID' => $contentId['ENTITY_ID'],
+	'ENTITY_TYPE' => $contentId['ENTITY_TYPE'] ?? null,
+	'ENTITY_ID' => $contentId['ENTITY_ID'] ?? null,
 	'LOG_ID' => $arEvent["EVENT"]["ID"]
 ));
 

@@ -34,10 +34,10 @@ class DateConverter
 		$text = mb_strtolower($text);
 
 		$workTimeStart = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_start', '9'));
-		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1]), 2, "0", STR_PAD_LEFT);
+		$timeOfStartDate = str_pad(intval($workTimeStart[0] ?? 0), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1] ?? 0), 2, "0", STR_PAD_LEFT);
 
 		$workTimeEnd = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_end', '18'));
-		$timeOfEndDate = str_pad(intval($workTimeEnd[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1]), 2, "0", STR_PAD_LEFT);
+		$timeOfEndDate = str_pad(intval($workTimeEnd[0] ?? 0), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1] ?? 0), 2, "0", STR_PAD_LEFT);
 
 		$defaultPregExceptionSearch =  Array('.', '/', '-', ':');
 		$defaultPregExceptionReplace = Array('\.', '\/', '\-', '\:');
@@ -59,33 +59,28 @@ class DateConverter
 				{
 					case $pattern[1]:
 						$matchType = 'DAYAFTERTOMORROW';
-					break;
+						break;
 					case $pattern[2]:
 						$matchType = 'TOMORROW';
-					break;
+						break;
 					case $pattern[3]:
 						$matchType = 'TODAY';
-					break;
+						break;
 					case $pattern[4]:
 						$matchType = 'YESTERDAY';
-					break;
+						break;
 					case $pattern[5]:
 						$matchType = 'DAYBEFOREYESTERDAY';
-					break;
-					case $pattern[6]:
-					case $pattern[7]:
-					case $pattern[8]:
-						$matchType = '';
-					break;
+						break;
 					case $pattern[9]:
 						$matchType = 'WEEK';
-					break;
+						break;
 					case $pattern[10]:
 						$matchType = 'WEEKEND';
-					break;
+						break;
 					case $pattern[11]:
 						$matchType = 'MONTH';
-					break;
+						break;
 				}
 				if ($matchType <> '')
 				{
@@ -131,7 +126,7 @@ class DateConverter
 									if ($matchPattern[1] < $metric['POSITION'] && $matchPattern[1] + mb_strlen($matchWord) >= $metric['POSITION'] + $metric['COUNT'])
 									{
 										unset($metrics[1][$key]);
-										if (count($metrics[1]) == 0)
+										if (empty($metrics[1]))
 										{
 											unset($metrics[1]);
 										}
@@ -424,7 +419,7 @@ class DateConverter
 		$countOfMetrics = 0;
 		foreach ($metrics as $values)
 		{
-			if (count($values) > 0)
+			if (!empty($values))
 			{
 				$countOfMetrics++;
 			}
@@ -501,7 +496,7 @@ class DateConverter
 
 		if ($useDefault)
 		{
-			$modificators = isset($metrics[3])? $metrics[3]: array();
+			$modificators = $metrics[3] ?? array();
 			if (isset($metrics[4]) && count($metrics[4]))
 			{
 				foreach ($metrics[4] as $metric)
@@ -570,10 +565,10 @@ class DateConverter
 		$metricModificator = is_array($metricModificator)? $metricModificator: array();
 
 		$workTimeStart = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_start', '9'));
-		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1]), 2, "0", STR_PAD_LEFT);
+		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1] ?? 0), 2, "0", STR_PAD_LEFT);
 
 		$workTimeEnd = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_end', '18'));
-		$timeOfEndDate = str_pad(intval($workTimeEnd[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1]), 2, "0", STR_PAD_LEFT);
+		$timeOfEndDate = str_pad(intval($workTimeEnd[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1] ?? 0), 2, "0", STR_PAD_LEFT);
 
 		$result = null;
 		switch($type)
@@ -768,7 +763,7 @@ class DateConverter
 								$metricDate->add($plus.' DAY');
 							}
 						}
-						else if ($numberOfMonth >= 10 && $numberOfMonth <= 15)
+						elseif ($numberOfMonth >= 10)
 						{
 							$plus = 20-$numberOfMonth;
 							$metricDate->add($plus.' DAY');

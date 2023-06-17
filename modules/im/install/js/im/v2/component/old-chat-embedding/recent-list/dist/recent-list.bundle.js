@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_oldChatEmbedding_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
+(function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_oldChatEmbedding_menu,main_date,im_v2_lib_parser,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
 	// @vue/component
@@ -86,7 +86,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_const.AvatarSize,
+	    AvatarSize: () => im_v2_component_oldChatEmbedding_elements.AvatarSize,
 	    formattedDate() {
 	      if (this.needsBirthdayPlaceholder) {
 	        return this.$Bitrix.Loc.getMessage('IM_RECENT_BIRTHDAY_DATE');
@@ -94,16 +94,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.formatDate(this.item.message.date);
 	    },
 	    messageText() {
-	      if (!this.item.message || !this.item.message.text) {
+	      const formattedText = im_v2_lib_parser.Parser.purifyRecent(this.item);
+	      if (!formattedText) {
 	        return this.isUser ? this.$store.getters['users/getPosition'](this.item.dialogId) : this.hiddenMessageText;
 	      }
-	      return this.$store.getters['recent/getItemText'](this.item.dialogId);
+	      return formattedText;
+	    },
+	    formattedMessageText() {
+	      const SPLIT_INDEX = 24;
+	      return im_v2_lib_utils.Utils.text.insertUnseenWhitespace(this.messageText, SPLIT_INDEX);
 	    },
 	    hiddenMessageText() {
 	      if (this.isUser) {
 	        return this.$store.getters['users/getPosition'](this.item.dialogId);
 	      }
-	      if (this.dialog.type === im_v2_const.ChatTypes.open) {
+	      if (this.dialog.type === im_v2_const.DialogType.open) {
 	        return this.$Bitrix.Loc.getMessage('IM_RECENT_CHAT_TYPE_OPEN');
 	      }
 	      return this.$Bitrix.Loc.getMessage('IM_RECENT_CHAT_TYPE_GROUP');
@@ -139,7 +144,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.state.application.common.userId;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.ChatTypes.user;
+	      return this.dialog.type === im_v2_const.DialogType.user;
 	    },
 	    isChat() {
 	      return !this.isUser;
@@ -298,7 +303,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 									<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-recent-last-message-author-icon-user"></span>
 									<span v-else class="bx-im-recent-last-message-author-icon-user bx-im-recent-last-message-author-icon-user-default"></span>
 								</template>
-								<span>{{ messageText }}</span>
+								<span>{{ formattedMessageText }}</span>
 							</template>
 						</span>
 						<!-- End message text -->
@@ -353,7 +358,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  emits: ['click', 'contextmenu'],
 	  computed: {
 	    RecentCallStatus: () => im_v2_const.RecentCallStatus,
-	    AvatarSize: () => im_v2_const.AvatarSize,
+	    AvatarSize: () => im_v2_component_oldChatEmbedding_elements.AvatarSize,
 	    chatData() {
 	      return this.item.call.associatedEntity;
 	    },
@@ -692,6 +697,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.setDraftMessage, this.onSetDraftHandler);
 	  }
 	  initDraftHistory() {
+	    if (!BX.MessengerProxy) {
+	      return false;
+	    }
 	    const history = BX.MessengerProxy.getTextareaHistory();
 	    Object.entries(history).forEach(([dialogId, text]) => {
 	      this.setDraftMessage(dialogId, text);
@@ -892,7 +900,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  computed: {
 	    collection() {
-	      return this.$store.getters['recent/getCollection'];
+	      return this.$store.getters['recent/getRecentCollection'];
 	    },
 	    sections() {
 	      return [this.pinnedItems, this.generalItems];
@@ -903,7 +911,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        const dialog = this.$store.getters['dialogues/get'](item.dialogId, true);
-	        const isUser = dialog.type === im_v2_const.ChatTypes.user;
+	        const isUser = dialog.type === im_v2_const.DialogType.user;
 	        const hasBirthday = isUser && this.showBirthdays && this.$store.getters['users/hasBirthday'](item.dialogId);
 	        if (!this.showInvited && item.options.defaultUserRecord && !hasBirthday) {
 	          return false;
@@ -950,7 +958,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    })
 	  },
 	  created() {
-	    this.recentService = im_v2_provider_service.RecentService.getInstance(this.$Bitrix);
+	    this.recentService = im_v2_provider_service.RecentService.getInstance();
 	    this.contextMenuManager = new im_v2_lib_oldChatEmbedding_menu.RecentMenu(this.$Bitrix);
 	    CallManager.init(this.$Bitrix);
 	    EventHandler.init(this.$Bitrix);
@@ -1117,5 +1125,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.LibLegacy,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.LibLegacy,BX.Main,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

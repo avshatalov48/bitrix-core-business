@@ -178,7 +178,7 @@ class ChatConfigConnectionsRestorer extends Stepper
 		$generalDefaultSettings = General::getDefaultSettings();
 		General::setSettings($defaultGroupId, $generalDefaultSettings);
 
-		$notifySettings = Manager::getSimpleNotifySettings($generalDefaultSettings);
+		$notifySettings = Notification::getSimpleNotifySettings($generalDefaultSettings);
 		Notification::setSettings($defaultGroupId, $notifySettings);
 
 		if (Loader::includeModule('intranet'))

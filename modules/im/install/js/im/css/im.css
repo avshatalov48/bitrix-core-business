@@ -2483,7 +2483,8 @@
 
 .bx-messenger-content-item-progress {
 	display: none;
-	background: url(./../images/loading-19px.svg);
+	background: url(./../images/loading.gif);
+	background-size: cover;
 	width: 19px;
 	height: 19px;
 	position: relative;
@@ -2491,6 +2492,10 @@
 	border-radius: 50%;
 	margin-top: -1px;
 }
+.bx-messenger-chat-lines .bx-messenger-content-item-progress {
+	display: block;
+}
+
 .bx-messenger-content-item-progress-with-text { display:inline-block; height: 19px; width: auto; padding-left: 13px; color: #989898; vertical-align: top; line-height: 20px;}
 .bx-messenger-content-item-error { display: inline-block;  width: 30px; height: 30px; margin-left: -15px; margin-top: -7px;
 	background-color: #f3f4f4;
@@ -2535,10 +2540,13 @@
 .bx-messenger-content-item-system .bx-messenger-content-item-liked .bx-messenger-content-like-digit { color: #378ad1;}
 .bx-messenger-content-item-system .bx-messenger-content-like-button {color: #c6c8cb;}
 .bx-messenger-content-item-text { float: left;}
-.bx-messenger-history-item-text .bx-smile { vertical-align: text-bottom; }
-.bx-messenger-content-item-text-center .bx-smile { vertical-align: bottom; }
+.bx-messenger-history-item-text .bx-smile,
+.bx-messenger-history-item-text .bx-im-message-base__text_smile { vertical-align: text-bottom; }
+.bx-messenger-content-item-text-center .bx-smile,
+.bx-messenger-content-item-text-center .bx-im-message-base__text_smile { vertical-align: bottom; }
 .bx-messenger-content-item-text-wrap-append { -webkit-animation: imOpacityFrom05To1 2s 1; animation: imOpacityTo1 2s 1;  }
-.bx-notifier-item-text .bx-smile { vertical-align: text-bottom; }
+.bx-notifier-item-text .bx-smile,
+.bx-notifier-item-text .bx-im-message-base__text_smile { vertical-align: text-bottom; }
 
 .bx-messenger-content-item-text-center {
 	padding: 7px 0 7px;
@@ -2657,6 +2665,10 @@
 .bx-messenger-content-item-system .bx-messenger-ajax {
 	color: #fff;
 	border-color: #fff;
+}
+.bx-messenger-content-item-system .bx-messenger-ajax-self {
+	color: #4b4b4b;
+	border-color: #ccc;
 }
 .bx-messenger-content-item-system .bx-messenger-content-quote-wrap { color: #fff; border-color: #fff }
 .bx-messenger-content-item-system .bx-messenger-content-quote-name { color: #fff; font-weight: var(--ui-font-weight-bold); }
@@ -2784,9 +2796,6 @@
 	opacity: .5;
 }
 .bx-messenger-history-item .bx-messenger-message-edited:before { left: 11px; }
-.bx-messenger-file-image {
-	margin: -10px -13px 7px -13px;
-}
 .bx-messenger-file-image-src {
 	background-color: #fff;
  }
@@ -4092,735 +4101,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	margin-top: 2px;
 }
 
-/* CALLS */
-.bx-messenger-call-overlay {
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	overflow: hidden;
-	background-color: transparent;
-	z-index: 500;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-.bx-messenger-call-overlay.bx-messenger-call-overlay-folded {height: 60px; top: 67px; opacity: 0.85}
-
-.bx-messenger-call-float { background-color: #292a2b; height: 320px; width: 240px; opacity: 0.95; text-align: center; position: relative}
-.bx-messenger-call-float-video {display: inline-block; width: 100%; position: relative; z-index: 1; opacity: 1; transition: opacity 0.4s; }
-
-.bx-messenger-call-float-audio-unfold {display: none; line-height: 34px; opacity: 0.9; cursor: pointer; }
-.bx-messenger-call-float-audio-unfold:hover {opacity: 1}
-.bx-messenger-call-float-audio-unfold:hover .bx-messenger-call-float-button-text {opacity: 0.9}
-.bx-messenger-call-float-audio .bx-messenger-call-float-audio-unfold {display: block;}
-
-.bx-messenger-call-float-buttons{
-	width: 320px; height: 34px; opacity: .7; position: absolute; z-index:2; bottom: 0px; transition: top 0.4s;
-	-moz-user-select:none; -khtml-user-select:none; -o-user-select:none; -webkit-user-select:none; user-select:none;
-	background-color: rgba(0, 0, 0, 0.25);
-}
-.bx-messenger-call-float-button { display: inline-block; height: 34px; border-left: 1px solid rgba(255,255,255, 0.2);  cursor: pointer; line-height: 34px; }
-.bx-messenger-call-float-button:hover { background-color: rgba(0, 0, 0, 0.4); }
-.bx-messenger-call-float-button:first-child { border-left: 0; }
-.bx-messenger-call-float-button-icon { display: inline-block; height: 34px;  margin-right: 3px; background: url(./../images/im-sprite-v37.png) 0 0; }
-.bx-messenger-call-float-button-decline { width: 139px; }
-.bx-messenger-call-float-button-decline .bx-messenger-call-float-button-icon { width: 27px; background-position: -102px -42px; }
-.bx-messenger-call-float-button-mic { width: 179px; }
-.bx-messenger-call-float-button-mic .bx-messenger-call-float-button-icon { width: 24px; background-position: -133px -42px; }
-.bx-messenger-call-float-button-mic-disabled .bx-messenger-call-float-button-icon { width: 24px; background-position: -166px -42px; }
-.bx-messenger-call-float-button-text { display: inline-block; height: 34px; font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #ffffff; font-size: 13px; vertical-align: top; overflow: hidden; cursor: pointer; opacity: 0.7; }
-
-.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-buttons { width: 180px; height: 73px; top:320px; }
-.bx-messenger-call-overlay-aspect-vertical.bx-messenger-call-float:hover .bx-messenger-call-float-buttons { top: 247px; }
-.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-button { display: block; width: 180px; border-left: 0; border-top: 1px solid rgba(255,255,255, 0.2); height: 38px; }
-.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-float-button:first-child { border-top: 0; }
-
-.bx-messenger-call-float-avatars {
-	display: flex;
-	flex-direction: row;
-	align-content: center;
-	justify-content: center;
-	flex-wrap: wrap;
-	padding-top: 10px;
-	cursor: pointer;
-}
-
-.bx-messenger-call-float-avatar {
-	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.385268%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.50781%2051.1133C9.51562%2047.957%2013.9766%2045.5898%2018.1016%2043.7578C19.1406%2043.2969%2019.7969%2042.9219%2020.4297%2042.5469C21.1367%2042.1328%2021.8203%2041.7227%2022.9883%2041.1953C23.0664%2040.7969%2023.1133%2040.3945%2023.1328%2039.9883C23.1445%2039.7734%2023.1445%2039.5586%2023.1367%2039.3438L25.0156%2039.1133C25.0156%2039.1133%2025.2656%2039.5781%2024.8672%2036.8477C24.8672%2036.8477%2022.7539%2036.2852%2022.6562%2031.9375C22.6562%2031.9375%2021.0664%2032.4844%2020.9688%2029.8477C20.9023%2028.0664%2019.5469%2026.5156%2021.4961%2025.2344L20.5039%2022.5039C20.5039%2022.5039%2019.4609%2011.9492%2024.0352%2012.8047C22.1797%209.76562%2037.832%207.24219%2038.8711%2016.543C38.9883%2017.3555%2039.0742%2018.1719%2039.125%2018.9922C39.2461%2020.9961%2039.1641%2023.0078%2038.8711%2024.9961C38.8711%2024.9961%2039.5352%2024.918%2039.9219%2025.5391C40.2578%2026.082%2040.3789%2027.1641%2039.6484%2029.3125C39.6484%2029.3125%2039.2773%2030.7344%2038.6484%2031.5039C38.3203%2031.9062%2037.9219%2032.1289%2037.4688%2031.875C37.4688%2031.875%2037.6836%2036.0508%2035.6055%2036.7578C35.6055%2036.7578%2035.7539%2038.9844%2035.7539%2039.1328L37.4883%2039.4023C37.4883%2039.4023%2037.4375%2041.2578%2037.7852%2041.457C39.3672%2042.5156%2041.1055%2043.3164%2042.9336%2043.832C48.3242%2045.2461%2051.0664%2047.6719%2051.0664%2049.7969C51.0664%2049.7969%2051.2266%2050.3984%2051.4766%2051.3906C56.9023%2045.9414%2060.2578%2038.4258%2060.2578%2030.1289C60.2578%2013.4883%2046.7695%200%2030.1289%200C13.4883%200%200%2013.4883%200%2030.1289C0%2038.2852%203.24219%2045.6875%208.50781%2051.1133Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20fill%3D%22%23D8D8D8%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M30.1285%2060.2571C46.7681%2060.2571%2060.2571%2046.7681%2060.2571%2030.1285C60.2571%2013.489%2046.7681%200%2030.1285%200C13.489%200%200%2013.489%200%2030.1285C0%2046.7681%2013.489%2060.2571%2030.1285%2060.2571Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20stroke%3D%22%23999CA2%22%20stroke-width%3D%223%22/%3E%0A%3C/svg%3E%0A) no-repeat center;
-	width: 50px;
-	height: 50px;
-	border-radius: 50%;
-	border: rgba(59,200,245,.2) 1px solid;
-
-	padding: 6px;
-	margin: 5px;
-	background-size: 50px;
-	background-clip: content-box;
-}
-
-.bx-messenger-call-float-avatar.talking {
-	border: rgba(59,200,245,.6) 1px solid;
-}
-
-.bx-messenger-call-floating-screenshare {
-	overflow: hidden;
-}
-
-.bx-messenger-call-floating-screenshare-wrap {
-	display: flex;
-	flex-direction: column;
-}
-
-.bx-messenger-call-floating-screenshare-top {
-	display: flex;
-	align-items: center;
-	height: 31px;
-	background: #3785D4;
-}
-
-.bx-messenger-call-floating-screenshare-top-icon {
-	width: 14px;
-	min-width: 14px;
-	height: 12px;
-	min-height: 12px;
-	margin-left: 10px;
-	margin-right: 8px;
-	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6.875.078v1.771H1.933V9.1h10.2l-.001-1.414h1.934v2.403c0%20.432-.35.782-.783.782H9.725l.607.66c.05.054.083.12.096.192l.007.073a.391.391%200%2001-.32.385l-.071.006H4.178a.391.391%200%2001-.348-.57l.038-.06.529-.686H.783A.783.783%200%20010%2010.088V.86C0%20.429.35.078.783.078h6.092zm6.408%200c.433%200%20.783.35.783.783v4.637h-1.803V2.905L9.502%205.666A.783.783%200%20118.395%204.56l2.761-2.76.059-.053H8.989V.078h4.294z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
-	background-repeat: no-repeat;
-	background-position: center;
-}
-
-.bx-messenger-call-floating-screenshare-top-text {
-	color: #fff;
-	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-weight: var(--ui-font-weight-semi-bold, 600);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	margin-right: 10px;
-	cursor: pointer;
-}
-
-.bx-messenger-call-floating-screenshare-bottom {
-	display: flex;
-	align-items: center;
-	height: 50px;
-	padding: 10px 22px;
-	box-sizing: border-box;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom {
-	background: #313131;
-}
-
-
-.bx-messenger-call-floating-screenshare-bottom-left,
-.bx-messenger-call-floating-screenshare-bottom-center,
-.bx-messenger-call-floating-screenshare-bottom-right {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	cursor: pointer;
-}
-
-.bx-messenger-call-floating-screenshare-bottom-left,
-.bx-messenger-call-floating-screenshare-bottom-center {
-	margin-right: 22px;
-}
-
-
-.bx-messenger-call-floating-screenshare-bottom-left:hover .bx-messenger-call-floating-screenshare-back-icon,
-.bx-messenger-call-floating-screenshare-bottom-center:hover .bx-messenger-call-floating-screenshare-change-screen-icon,
-.bx-messenger-call-floating-screenshare-bottom-right:hover .bx-messenger-call-floating-screenshare-stop-icon {
-	opacity: 1;
-}
-
-.bx-messenger-call-floating-screenshare-back-icon {
-	width: 16px;
-	min-width: 16px;
-	height: 14px;
-	min-height: 14px;
-	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.51%2010.679L3.67%206.934H14V5.066H3.67L7.51%201.32%206.156%200%200%206l6.155%206z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
-	background-repeat: no-repeat;
-	margin-right: 5px;
-	margin-bottom: 6px;
-	opacity: 0.7;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-back-icon {
-	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.51%2010.679L3.67%206.934H14V5.066H3.67L7.51%201.32%206.156%200%200%206l6.155%206z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
-}
-
-.bx-messenger-call-floating-screenshare-change-screen-icon {
-	width: 16px;
-	min-width: 16px;
-	height: 14px;
-	min-height: 14px;
-	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2214%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.555%200h12.89C15.304%200%2016%20.708%2016%201.582v10.836c0%20.874-.696%201.582-1.555%201.582H1.555C.696%2014%200%2013.292%200%2012.418V1.582C0%20.708.696%200%201.555%200zM2%204v8h12V4H2zm1-1a1%201%200%20100-2%201%201%200%20000%202zm3%200a1%201%200%20100-2%201%201%200%20000%202z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
-	background-repeat: no-repeat;
-	margin-right: 5px;
-	margin-bottom: 7px;
-	opacity: 0.7;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-change-screen-icon {
-	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2214%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.555%200h12.89C15.304%200%2016%20.708%2016%201.582v10.836c0%20.874-.696%201.582-1.555%201.582H1.555C.696%2014%200%2013.292%200%2012.418V1.582C0%20.708.696%200%201.555%200zM2%204v8h12V4H2zm1-1a1%201%200%20100-2%201%201%200%20000%202zm3%200a1%201%200%20100-2%201%201%200%20000%202z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
-}
-
-.bx-messenger-call-floating-screenshare-stop-icon {
-	width: 16px;
-	min-width: 16px;
-	height: 14px;
-	min-height: 14px;
-	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20x%3D%2230%22%20width%3D%2213%22%20height%3D%2213%22%20rx%3D%221%22%20transform%3D%22translate%28-30%29%22%20fill%3D%22%23FF5752%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
-	background-repeat: no-repeat;
-	background-position: center;
-	margin-right: 5px;
-	margin-bottom: 7px;
-	opacity: 0.7;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-stop-icon {
-	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20x%3D%2230%22%20width%3D%2213%22%20height%3D%2213%22%20rx%3D%221%22%20transform%3D%22translate%28-30%29%22%20fill%3D%22%23FF5752%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
-}
-
-.bx-messenger-call-floating-screenshare-back-text,
-.bx-messenger-call-floating-screenshare-change-screen-text,
-.bx-messenger-call-floating-screenshare-stop-text {
-	cursor: pointer;
-	color: #525C69;
-	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
-	font-weight: var(--ui-font-weight-semi-bold, 600);
-	line-height: 13px;
-	white-space: nowrap;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-back-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-change-screen-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-stop-text {
-	color: #FFF;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-left .bx-messenger-call-floating-screenshare-back-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-center .bx-messenger-call-floating-screenshare-change-screen-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-right .bx-messenger-call-floating-screenshare-stop-text {
-	opacity: 0.7;
-}
-
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-left:hover .bx-messenger-call-floating-screenshare-back-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-center:hover .bx-messenger-call-floating-screenshare-change-screen-text,
-.bx-messenger-call-floating-screenshare-wrap.dark-mode .bx-messenger-call-floating-screenshare-bottom-right:hover .bx-messenger-call-floating-screenshare-stop-text {
-	opacity: 1;
-}
-
-.bx-messenger-call-floating-screenshare .bx-messenger-dark.bx-messenger-mark {
-	border: none;
-}
-
-/*
-#bx-messenger-call-notify { -webkit-animation: imScaleTo .4s 1; animation: imScaleTo .4s 1; }
-#bx-messenger-call-access { -webkit-animation: imAccessPopup .8s 1; animation: imAccessPopup .8s 1; border-radius: 8px; overflow: hidden; }
-.bx-messenger-popup-window-transparent { background-color: transparent!important; position: relative; box-shadow: 0 19px 24px rgba(88, 112, 118, .74)!important; }
-
-
-.bx-messenger-call-overlay {position: absolute; z-index: 500; vertical-align:top; opacity: 0; overflow: hidden; transition: all .5s; }
-.bx-messenger-call-overlay-show { opacity: 1; transition: height 0.5s, margin-left .5s;}
-.bx-messenger-call-overlay-hide { opacity: 0; transition: opacity 0.3s ease-in-out, margin-left .5s;}
-.bx-messenger-call-overlay-lvl-1 { position: absolute;  z-index: 50; display: inline-block; background-color: #343940; height: 100%; width: 100%; opacity: 0.93; text-align: center; }
-.bx-messenger-call-overlay-lvl-2 { display: block; height: 100%; width: 100%; }
-.bx-messenger-call-overlay-body {  position: absolute; z-index: 100; height: 100%; width: 100%; }
-.bx-messenger-call-overlay-line-maxi { display: none }
-.bx-messenger-call-overlay-title { height: 25.05643340857788%; width: 90%; display: table; margin: 0 auto; z-index:200; position: relative;}
-.bx-messenger-call-overlay-title-block { font: 19px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #fff;
-	display: table-cell; vertical-align: middle; text-align: center; }
-.bx-messenger-call-overlay-title-company-phone { font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #afb0b1;
-	display: inline-block; vertical-align: middle; margin-left: 10px;  margin-top: -2px; }
-.bx-messenger-call-overlay-photo { height: 25.05643340857788%; display: table; margin: 0 auto; z-index:100; }
-.bx-messenger-call-overlay-photo-left { height: 125px; width: 125px; color: #fff;  display: table-cell; vertical-align: middle; text-align: center; opacity: 1; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1; }
-.bx-messenger-call-overlay-photo-progress { width: 176px; color: #fff;  display: table-cell; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1; text-align: center;  vertical-align: middle;}
-.bx-messenger-call-overlay-photo-right { height: 125px; width: 125px; color: #fff; display: table-cell; vertical-align: middle; text-align: center; opacity: 1; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1;}
-.bx-messenger-call-overlay-photo-block { width: inherit; height: inherit;
-	margin: 0 auto;
-	border-radius: 50%;
-	overflow: hidden;
-}
-.bx-messenger-call-overlay-photo-img { width: 100%; height: 100%; }
-.bx-messenger-call-overlay-photo-text { display: inline-block; margin-top: -14px; padding: 1px 5px; width: calc(100% - 10px); font-size: 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background-color: rgba(0, 0, 0, 0.30); color: #fff }
-.bx-messenger-call-overlay-status { height: 26.18510158013544%; width: 84%; display: table; margin: 0 auto; z-index:50; position: relative; }
-.bx-messenger-call-overlay-status-block { font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #fff!important;
-	display: table-cell; vertical-align: middle; text-align: center; }
-.bx-messenger-call-overlay-status-block a { font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #fff!important; text-decoration: underline }
-.bx-messenger-call-overlay-buttons { height: 45px; width: 84%; display: block; text-align: center; margin: 0 auto; z-index:200; white-space:nowrap; position: relative; }
-.bx-messenger-call-overlay-buttons-block {
-	display: inline-block;
-	height: 40px;
-	border-radius: 3px;
-	background-color: rgba(0, 0, 0, 0.20);
-	overflow: hidden;
-}
-.bx-messenger-call-overlay-button { display: inline-block; height: 30px; padding-left: 17px; padding-right: 17px;  vertical-align: top;
-	border-left: 1px solid rgba(52, 57, 64, 0.47); cursor: pointer;
-	padding-bottom: 5px;
-	padding-top: 5px;
-}
-.bx-messenger-call-overlay-button:hover { background: rgba(0, 0, 0, 0.25); }
-.bx-messenger-call-overlay-button:first-child { border: 0}
-.bx-messenger-call-overlay-button-disabled { background: none!important; cursor: default!important }
-.bx-messenger-call-overlay-button-text { font: 14px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #fff;
-	vertical-align: top; display: inline-block; }
-.bx-messenger-call-overlay-button-sub .bx-messenger-call-overlay-button-text { line-height: 20px;}
-.bx-messenger-call-overlay-button-text-sub { font: 10px/7px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #a29d9d; text-align: center;}
-.bx-messenger-call-overlay-button-answer { display: inline-block; height: 30px; width: 27px; margin-left: -6px; background: url(./../images/im-sprite-v37.png) -71px -45px;  }
-.bx-messenger-call-overlay-button-hangup { display: inline-block; height: 30px; width: 32px; margin-left: -3px; margin-right: 3px; background: url(./../images/im-sprite-v37.png) -102px -45px;  }
-.bx-messenger-call-overlay-button-plus { display: inline-block; height: 30px; width: 30px; margin-left: -9px; margin-right: -11px; background: url(./../images/im-sprite-v37.png) -100px -207px;  }
-.bx-messenger-call-overlay-button-mic { display: inline-block; height: 30px; width: 21px; margin-left: -4px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") -133px -44px;  }
-.bx-messenger-call-overlay-button-mic-off { display: inline-block; height: 30px; width: 21px; margin-left: -4px; margin-right: -4px; background: url(./../images/im-sprite-v37.png) -166px -44px;  }
-.bx-messenger-call-overlay-button-screen { display: inline-block; height: 30px; width: 21px; margin-left: -4px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") repeat scroll -133px -204px;  }
-.bx-messenger-call-overlay-button-screen-off { display: inline-block; height: 30px; width: 21px; margin-left: -4px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") repeat scroll -163px -204px;  }
-.bx-messenger-call-overlay-button-toggle-video { display: inline-block; height: 30px; width: 21px; margin-left: -4px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") repeat scroll -167px -1275px;  }
-.bx-messenger-call-overlay-button-hold { display: inline-block; height: 30px; width: 21px; margin-left: -3px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") -126px -1133px;  }
-.bx-messenger-call-overlay-button-hold-on { display: inline-block; height: 30px; width: 21px; margin-left: -3px; margin-right: -4px; background: url(./../images/im-sprite-v37.png) -96px -1133px;  }
-.bx-messenger-call-overlay-button-transfer { display: inline-block; height: 30px; width: 21px; margin-left: -3px; margin-right: -4px; background: url("./../images/im-sprite-v37.png") repeat scroll -126px -1101px;  }
-.bx-messenger-call-overlay-button-transfer-on { display: inline-block; height: 30px; width: 21px; margin-left: -3px; margin-right: 4px; background: url("./../images/im-sprite-v37.png") repeat scroll -96px -1101px;  }
-.bx-messenger-call-overlay-button-chat { display: inline-block; height: 30px; width: 32px; margin-left: -3px; margin-right: 3px; background: url(./../images/im-sprite-v37.png) -102px -129px;  }
-.bx-messenger-call-overlay-button-chat2 { display: inline-block; height: 30px; width: 23px; margin-left: -6px; margin-right: -4px; background: url(./../images/im-sprite-v37.png) -102px -129px;  }
-.bx-messenger-call-overlay-button-recall { display: inline-block; height: 30px; width: 33px; margin-left: -3px; background: url(./../images/im-sprite-v37.png) -134px -128px;  }
-.bx-messenger-call-overlay-button-close { display: inline-block; height: 30px; width: 26px; margin-left: -3px;  background: url(./../images/im-sprite-v37.png) -166px -128px;  }
-.bx-messenger-call-overlay-button-download { display: inline-block; height: 30px; width: 25px; margin-left: -3px; margin-right: 3px; background: url(./../images/im-sprite-v37.png) -102px -169px;  }
-.bx-messenger-call-overlay-button-history { display: inline-block; height: 30px; width: 25px; margin-left: -3px; margin-right: 3px; background: url(./../images/im-sprite-v37.png) -68px -170px;  }
-.bx-messenger-call-overlay-button-history2 { display: inline-block; height: 30px; width: 20px; margin-left: -6px; margin-right: -5px; background: url(./../images/im-sprite-v37.png) -68px -170px;  }
-.bx-messenger-call-overlay-button-keypad { display: inline-block; height: 30px; width: 20px; margin-left: -6px; margin-right: -5px; background: url("./../images/im-sprite-v37.png") -111px -341px;  }
-.bx-messenger-call-overlay-button-maxi { display: inline-block; height: 30px; width: 20px; margin-left: -7px; margin-right: -8px; background: url(./../images/im-sprite-v37.png) -134px -169px;  }
-.bx-messenger-call-overlay-button-full { display: inline-block; height: 30px; width: 20px; margin-left: -7px; margin-right: -8px; background: url("./../images/im-sprite-v37.png") repeat scroll -66px -127px;  }
-.bx-messenger-call-overlay-alfa { width: 84%; display: block; text-align: center; margin: 0 auto; opacity: 0.25; font: 12px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #fff; text-shadow: rgba(0,0,0, 0.75) 1px 1px 1px;  }
-.bx-messenger-call-overlay-webrtc { width: 20px; height: 25px; background: url(./../images/im-sprite-v37.png) -122px -815px; display: inline-block; margin: 0 4px; vertical-align: middle; border: 0}
-
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-meter { display: block; }
-.bx-messenger-call-overlay-meter {width: 20px; height: 16px; border: 1px solid #5e6368; display: none; font-size: 11px; margin-top: 5px; position: absolute;right: 0;color: transparent;line-height: 17px;margin-right: 6px;text-align: center;border-radius: 2px;}
-.bx-messenger-call-overlay-meter-grade-1 { border-color: #9a2522;}
-.bx-messenger-call-overlay-meter-grade-2 { border-color: #9a2522;}
-.bx-messenger-call-overlay-meter-grade-3 { border-color: #826b31;}
-.bx-messenger-call-overlay-meter-grade {width: 20px; height: 16px; position: absolute; background: url(./../images/im-sprite-v37.png) -86px -350px; margin-left: 2px;  z-index: 2;}
-.bx-messenger-call-overlay-meter-percent {width: 20px; height: 16px; color: transparent; line-height: 17px; font-size: 11px; position: absolute; z-index: 10;}
-.bx-messenger-call-overlay-meter-grade-1 .bx-messenger-call-overlay-meter-grade {width: 3px; height: 16px; background-position: -71px -350px;}
-.bx-messenger-call-overlay-meter-grade-2 .bx-messenger-call-overlay-meter-grade {width: 7px; height: 16px; background-position: -71px -350px;}
-.bx-messenger-call-overlay-meter-grade-3 .bx-messenger-call-overlay-meter-grade {width: 9px; height: 16px; background-position: -77px -350px;}
-.bx-messenger-call-overlay-meter-grade-4 .bx-messenger-call-overlay-meter-grade {width: 12px; height: 16px; background-position: -86px -350px;}
-.bx-messenger-call-overlay-meter-grade-5 .bx-messenger-call-overlay-meter-grade {width: 15px; height: 16px; background-position: -86px -350px;}
-
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-photo { display: none; }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-photo-left { width: 200px; height: 200px; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1; }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-photo-right { width: 0;   }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-photo-right .bx-messenger-call-overlay-photo-block { display: none  }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-photo-progress { width: 0; }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-progress { display: none }
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-title { height: 10%;}
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-status { height: 10%;overflow: hidden;}
-.bx-messenger-call-overlay-crm.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-crm-block { display: block;
-	height: 65%;
-	margin: 0 auto;
-	width: 82%;
-	padding: 2px 19px;
-}
-
-.bx-messenger-call-overlay-crm-block { display: none;
-	height: 153px;
-	overflow: hidden;
-	background-color: rgba(0, 0, 0, 0.25);
-	border-radius: 3px;
-}
-.bx-messenger-call-overlay-crm-block-wrap {
-	height: 100%;
-	overflow: hidden;
-	width: 100%;
-}
-.bx-messenger-call-crm-about {
-	height: 18%;
-	overflow: hidden;
-	vertical-align: middle;
-
-}
-.bx-messenger-call-crm-about-block {
-	display: inline-block;
-	vertical-align: top;
-}
-.bx-messenger-call-crm-about-link {
-	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #e7e7e7!important;
-	text-decoration: none;
-}
-.bx-messenger-call-crm-about-link:hover {text-decoration: underline;}
-.bx-messenger-call-crm-about-contact { width: calc(60% - 38px); padding-left: 38px; }
-.bx-messenger-call-crm-about-company { width: 40%; }
-.bx-messenger-call-crm-about-block-header {
-	color: #979899;
-	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	padding-bottom: 5px;
-}
-.bx-messenger-call-crm-about-contact .bx-messenger-call-crm-about-block-header { margin-left: -38px; }
-
-.bx-messenger-call-crm-about-block-avatar {
-	position: absolute; margin-left: -38px;
-	background: url("./../images/im-sprite-v37.png") no-repeat scroll -41px -1904px;
-	border-radius: 50%;
-	display: inline-block; width: 32px; height: 32px; vertical-align: middle;
-	overflow: hidden;  }
-.bx-messenger-call-crm-about-block-avatar-img { display: inline-block; width: inherit; height: inherit; border: 0; background-color: #fff;}
-
-.bx-messenger-call-crm-about-block-line-1 {
-	color: #fff;
-	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.bx-messenger-call-crm-about-block-line-2 {
-	color: #b4b6b7;
-	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.bx-messenger-call-crm-activities {
-	height: 29%;
-	overflow: hidden;
-}
-.bx-messenger-call-crm-activities-header {
-	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #94aa59;
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	padding-top: 12px;
-}
-.bx-messenger-call-crm-activities-items {
-}
-.bx-messenger-call-crm-activities-item {
-	padding-top: 3px;
-}
-.bx-messenger-call-crm-activities-name {
-	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #e7e7e7!important;
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	display: inline-block;
-	width: calc(75% - 10px);
-}
-.bx-messenger-call-crm-activities-status {
-	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #afb0b1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	display: inline-block;
-	text-align: right;
-	width: 25%;
-}
-.bx-messenger-call-crm-activities-dot { width: 11px; height: 11px; background: url("./../images/im-sprite-v37.png") repeat-x scroll -172px -274px;
-	display: inline-block;
-	padding-right: 2px;
-}
-.bx-messenger-call-crm-space { height: 4.3%; }
-.bx-messenger-call-crm-deals {
-	height: 30%;
-	overflow: hidden;
-}
-.bx-messenger-call-crm-deals-header {
-	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #94aa59;
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	padding-top: 8px;
-}
-.bx-messenger-call-crm-deals-items {
-
-}
-.bx-messenger-call-crm-deals-item {
-	padding-top: 3px;
-}
-.bx-messenger-call-crm-deals-name {
-	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #e7e7e7!important;
-	overflow: hidden;
-	padding-right: 10px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	display: inline-block;
-	width: calc(68% - 10px);
-}
-.bx-messenger-call-crm-deals-status {
-	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #afb0b1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	display: inline-block;
-	text-align: right;
-	width: 32%;
-}
-.bx-messenger-call-crm-buttons {
-	padding-top: 0;
-	height: 12%;
-	overflow: hidden;
-}
-.bx-messenger-call-crm-button {
-	font: 13px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #ffffff !important;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	padding: 0 13px;
-	background-color: rgba(255, 255, 255, 0.14);
-	border-radius: 2px;
-	display: inline-block;
-	vertical-align: bottom;
-	margin-right: 4px;
-	text-decoration: none !important;
-	outline: none;
-}
-.bx-messenger-call-crm-button:hover {background-color: rgba(255, 255, 255, 0.24);}
-.bx-messenger-call-crm-link {
-	font: 12px/23px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	color: #ffffff !important;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	float: right;
-	text-decoration: underline;
-}
-
-.bx-messenger-call-crm-phone-space { height: calc(38% - 40px); }
-.bx-messenger-call-crm-phone-icon { height: 80px; text-align: center; }
-.bx-messenger-call-crm-phone-icon-block { width: 89px; height: 81px; background: url("./../images/im-sprite-v37.png") 0 -1790px; display: inline-block;  margin: auto;  }
-.bx-messenger-call-crm-buttons-center { text-align: center; }
-
-.bx-messenger-call-overlay-crm-short.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-title { height: 20%; }
-.bx-messenger-call-overlay-crm-short.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-status { height: 17%; }
-.bx-messenger-call-overlay-crm-short.bx-messenger-call-overlay-maxi .bx-messenger-call-overlay-crm-block {  height: 45%;}
-.bx-messenger-call-overlay-crm-short .bx-messenger-call-crm-about {  height: 31%;}
-
-.bx-messenger-call-video-main { display: none; }
-.bx-messenger-call-video-main-wrap { display: table; margin: 0 auto; overflow: hidden; height: 100%;  width: 100%; }
-.bx-messenger-call-video-main-cell { display: table-cell; text-align: center; vertical-align: middle;  }
-.bx-messenger-call-video-main-bg { display: inline-block;
-	width: 100%; overflow: hidden; }
-.bx-messenger-call-video-main-bg-start {border: 0!important; height: 0; width: 0; background-color: #ffffff; -webkit-animation: imVideoSwitchOff 1.3s 1 linear; animation: imVideoSwitchOff 1.3s 1 linear; }
-.bx-messenger-call-video-main-bg-start .bx-messenger-call-video-main-block { margin-top: -40%; opacity: 0; -webkit-animation: imVideoSwitchOff2 1.3s 1 linear;animation: imVideoSwitchOff2 1.3s 1 linear; }
-.bx-messenger-call-video-main-block {display: inline-block;	position: relative; z-index: 1; opacity: 1; transition: opacity 0.4s; width: 100%;}
-.bx-messenger-call-video-main-block-animation { opacity: 0.15; }
-.bx-messenger-call-video-main-watermark {display: none; width: 100%; position: absolute; z-index: 10; text-align: right; }
-.bx-messenger-call-video-main-watermark-img {margin-right: 19px;margin-top: 5px;display: inline-block; margin-left: 16px;}
-.bx-messenger-call-overlay-group .bx-messenger-call-video-main-watermark { text-align: left; }
-
-
-
-.bx-messenger-call-overlay-group .bx-messenger-call-overlay-photo-left {padding-right: 4px; padding-left: 4px;}
-.bx-messenger-call-overlay-group .bx-messenger-call-overlay-photo-progress-group { height: 10%; text-align: center;  display: table; margin: 0 auto; width: 84%;}
-.bx-messenger-call-overlay-group .bx-messenger-call-overlay-photo-progress { vertical-align: bottom; }
-.bx-messenger-call-overlay-group .bx-messenger-call-overlay-photo-progress .bx-messenger-call-overlay-progress { display: inline-block; }
-.bx-messenger-call-overlay-group .bx-messenger-call-overlay-status { height: 16.1851%; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-left { height: 125px; width: 125px; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-progress-group { margin-top: -40px; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-photo-progress-group { display: none }
-
-.bx-messenger-call-video-mini { display: none; }
-.bx-messenger-call-video-mini-block { display:none; }
-
-.bx-messenger-call-overlay-maxi { height: 100%;}
-.bx-messenger-call-overlay-mini { height: 120px!important; transition: height 0.5s, margin-left .5s; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-block { display: block; width: 88px; height: 88px;
-}
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-left { display: block; margin: 8px auto 0; opacity: 1; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo0 0s 1;}
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-progress {display: none; opacity: 0; -webkit-animation: imOpacityTo0 0s 1; animation: imOpacityTo0 0s 1;}
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-right { display: none; opacity: 0; -webkit-animation: imOpacityTo0 0s 1; animation: imOpacityTo0 0s 1; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-alfa { display: none; }
-.bx-messenger-call-video-mini .bx-messenger-call-video-users {display: none}
-.bx-messenger-call-video-line .bx-messenger-call-video-users {display: none}
-
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-title { width: calc(100% - 163px); margin: 4px 0 0 135px; position: relative; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-title-block { text-align: left; font-size: 15px; line-height: 15px; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-status { width: calc(100% - 163px); margin: -3px 0 3px 135px; position: relative; height: 31%; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-status-block { text-align: left; color: #98999b; font-size: 12px; line-height: 10px; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-buttons { width: auto; margin: 0 0 0 134px; height: auto; text-align: left; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo { position: absolute; top: 0; }
-
-.bx-messenger-call-overlay-float #bx-messenger-call-overlay-button-full { display: none!important; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-left {display: none}
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-left:first-child {display: block}
-
-.bx-no-doctype .bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main-bg { display: none!important }
-
-.bx-messenger-call-overlay-progress {
-	background-color: #696f79;
-	border-radius: 1px;
-	height: 3px;
-	overflow: hidden;
-	position: relative;
-	width: 79px;
-	margin: 0 auto;
-	!*display: inline-block;*!
-}
-.bx-messenger-call-overlay-progress-online { overflow: visible }
-.bx-messenger-call-overlay-progress-offline { width: 78px; height: 17px; background: url(./../images/im-sprite-v37.png) 0 -1282px no-repeat; margin: 0 auto; }
-.bx-messenger-call-overlay-progress-wait { width: 78px; height: 18px; background: url(./../images/im-sprite-v37.png) 0 -1303px no-repeat; margin: 0 auto; }
-
-.bx-messenger-call-overlay-progress-status {background-color: rgba(255,255,255,.6);	border-radius: 3px;box-shadow: 0 0 3px 1px rgba(255,255,255,.6);height: 3px;top: 0;	opacity: 0;	position: absolute;width: 15px;}
-
-.bx-messenger-call-overlay-progress-status-anim-1 { -webkit-animation: imCallAnimation1 2s infinite linear; animation: imCallAnimation1 2s infinite linear; }
-.bx-messenger-call-overlay-progress-status-anim-2 { -webkit-animation: imCallAnimation1 2s infinite linear 1s; animation: imCallAnimation1 2s infinite linear 1s; }
-.bx-messenger-call-overlay-progress-status-anim-3 { width: 79px; opacity: 1; left: 0; -webkit-animation: imCallAnimation3 8s infinite linear; animation: imCallAnimation3 8s infinite linear;}
-
-.bx-messenger-call-overlay-photo-progress-incoming .bx-messenger-call-overlay-progress-status-anim-1 { -webkit-animation: imCallAnimation2 2s infinite linear; animation: imCallAnimation2 2s infinite linear; }
-.bx-messenger-call-overlay-photo-progress-incoming .bx-messenger-call-overlay-progress-status-anim-2 { -webkit-animation: imCallAnimation2 2s infinite linear 1s; animation: imCallAnimation2 2s infinite linear 1s; }
-
-.bx-messenger-call-overlay-float { position: relative; margin: -10px!important; border-radius: 7px; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-mini { width: 470px; height: 120px; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-maxi { width: 600px; height: 500px; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-title-company-phone { display: block; margin-left: 0; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-title { margin-top: 7px; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-buttons { margin-top: -4px; }
-.bx-messenger-call-overlay-float.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo { top: 9px; left: 4px; }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-title-block {  display: block;  height: 31px;  overflow: hidden;  }
-.bx-messenger-call-overlay-mini .bx-messenger-call-overlay-photo-progress-group { display:none; }
-.bx-messenger-call-overlay-float .bx-messenger-call-overlay-lvl-1 { border-radius: 7px;}
-.bx-messenger-call-overlay-float .bx-messenger-call-overlay-lvl-2 { border-radius: 7px; height: calc(100% - 6px); width: calc(100% - 6px);margin: 3px;}
-.im-desktop-call {background-color: #000!important;}
-.im-desktop-call .bx-messenger-call-overlay-float { margin: 0!important; border-radius: 0!important; }
-.im-desktop-call .bx-messenger-call-overlay-float .bx-messenger-call-overlay-lvl-1 { border-radius: 0!important; }
-.im-desktop-call .bx-messenger-call-overlay-float .bx-messenger-call-overlay-lvl-2 { border-radius: 0!important; }
-
-.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-bg { width: auto!important; height: auto!important; }
-.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-block { width: 100%!important; height: 100%!important; }
-
-.bx-messenger-call-overlay-line { height: 48px!important; margin-top: 66px; transition: margin-left .5s; cursor: pointer}
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-lvl-2 { margin: 3px; height: calc(100% - 6px); width: calc(100% - 6px); }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-photo { display: none!important }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-photo { display: none!important }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-buttons { display: none }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-title { display: block; margin: 4px 0 0 5px; width: 90%; height: 35%; overflow: hidden; white-space: nowrap; }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-photo-progress-group { display: none; }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-status { display: table-cell;width: 90%; font-size: 11px; height: 21px;padding-left: 5px;vertical-align: middle;}
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-status-block { font-size: 11px; }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-line-maxi { display: block; float: right; width: 30px; height: 37px; }
-.bx-messenger-call-overlay-line-maxi:hover { background: radial-gradient(66% 70%, rgba(255, 255, 255, 0.25), transparent); }
-.bx-messenger-call-overlay-line .bx-messenger-call-overlay-line-maxi-block { display: block; background: url(./../images/im-sprite-v37.png) -130px -165px; width: inherit; height: inherit; }
-
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini {
-	display: block; width: 125px; height: 125px;
-	float: right;
-	position: relative;
-	z-index: 100;
-}
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-buttons { width: calc(100% - 10px);  margin: 0; padding: 0 0 0 15px; text-align: left; -webkit-animation: imCallButtons 0.5s 1 linear; animation: imCallButtons 0.5s 1 linear; position: relative;}
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-buttons { width: calc(100% - 10px);  margin: 0; padding: 0 0 0 15px; text-align: left; -webkit-animation: imCallButtons 0.5s 1 linear; animation: imCallButtons 0.5s 1 linear; position: relative;}
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo { height: 48.05643340857788%; }
-
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-left { width: 200px; height: 200px; -webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1; }
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-right { width: 0;   }
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-right .bx-messenger-call-overlay-photo-block { display: none  }
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo-progress { width: 0; }
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-progress { display: none }
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-title { height: 15.05643340857788%;}
-.bx-messenger-call-overlay-call .bx-messenger-call-overlay-status { height: 18.785%; }
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-status { width: 52%; }
-.bx-messenger-call-overlay-ready.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-status { width: 40%; }
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-alfa { width: 95%; margin: 0; padding-left: 68px; text-align: left;position: relative;z-index: 100;}
-
-.bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-photo { float: right; width: 125px; height: 125px;
-	margin-left: 15px;
-	margin-right: 29px;
-	margin-top: -60px;
-	-webkit-animation: imOpacityTo1 1s 1; animation: imOpacityTo1 1s 1;
-	border-radius: 50%;
-	overflow: hidden;
-	box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.25);
-}
-.bx-messenger-call-video-mini-photo-img {  width: inherit; height: inherit; }
-
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main-watermark,
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-watermark { display: block; }
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-buttons-block,
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-buttons-block { background-color: rgba(0, 0, 0, 0.45) }
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-button:hover,
-.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-button:hover { background-color: rgba(0, 0, 0, 0.4)}
-.bx-messenger-call-overlay-online.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-status,
-.bx-messenger-call-overlay-online.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-status { opacity: 0; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-status,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-status { padding-bottom: 8px; margin: 0; width: 70%; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-status-block,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-status-block { vertical-align: bottom; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-title,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-title { opacity: 0; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-photo,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-photo { opacity: 0; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-lvl-1,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-maxi.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-lvl-1 { opacity: 1; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main { display: block; height: 100%; width: 100%; z-index: 1; overflow: hidden; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main { display: block; width: 116px;  overflow: visible; margin-left: 13px;}
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-line.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-line.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main { display: none; }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main-block,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-block { width: 100% }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main-wrap,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-wrap { overflow: visible }
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-video-main-bg,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-video-main-bg {box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.25);height: auto;}
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-photo-left,
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-screen-sharing .bx-messenger-call-overlay-photo-left { opacity: 0 }
-
-.bx-messenger-call-overlay-ready.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-block {
-	position: absolute;
-	height: auto;
-	margin-left: -53px;
-	margin-top: -54px;
-	width: 172px;
-	display: block;
-	background-color: rgba(0, 0, 0, 0.4);
-	max-height: 97px;
-	box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.25);
-	transform: matrix(-1,0,0,1,0,0);
-}
-.bx-messenger-call-overlay-screen-sharing-self.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-block
-{
-	transform: none;
-}
-.bx-messenger-call-overlay-ready.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-photo { position: relative; width: 160px; opacity: 0; -webkit-animation: none; animation: none;}
-.bx-messenger-call-overlay-call-active.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-photo-left { display: none }
-
-.bx-messenger-call-dialog-allow { padding: 15px 0;}
-.bx-messenger-call-dialog-allow-image-block { position: absolute; width: 120px;
-	margin-top: -5px;
-}
-.bx-messenger-call-dialog-allow-center { text-align: center;}
-.bx-messenger-call-dialog-allow-arrow {
-	-webkit-animation: imArrowAnimation 4s infinite; animation: imArrowAnimation 4s infinite;
-	display: inline-block; width: 26px; height: 66px; background: url("./../images/im-sprite-v37.png") no-repeat scroll -77px -649px transparent;
-}
-.bx-messenger-call-dialog-allow-button {
-	font-weight: var(--ui-font-weight-bold); font-size: 13px; display: inline-block;
-	padding: 6px 12px;  border-radius: 2px;
-	background: #ebeef0;
-	background-image: linear-gradient(to bottom, #ebeef0, #dcdfe2);
-	margin-top: 7px;
-}
-.bx-messenger-call-dialog-allow-text {
-	margin-left: 128px;
-	width: 198px;
-	font-size: 13px;
-	padding-top: 0;
-	line-height: 20px;
-	padding-right: 9px;
-	min-height: 100px;
-}*/
-
 .bx-messenger-box:hover .bx-messenger-resize,
 .bx-messenger-textarea-place:hover .bx-messenger-textarea-resize { opacity: 1; }
 .bx-messenger-box-create .bx-messenger-textarea-resize { background: none; cursor: default; }
@@ -4973,15 +4253,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-panel-create-input .bx-messenger-input-dest-empty { width: 95%; }
 
 .bx-messenger-fullscreen {position: relative!important; margin: 0!important; width: 100%!important; height: 100%!important; background-color: #fff;}
-/*
-.bx-messenger-fullscreen .bx-messenger-call-overlay {margin: 0!important; width: 100%!important; }
-.bx-messenger-fullscreen .bx-messenger-call-overlay-maxi {height: 100%!important;}
-.bx-messenger-fullscreen #bx-messenger-call-overlay-button-transfer {display: none!important}
-.bx-messenger-fullscreen #bx-messenger-call-overlay-button-plus {display: none!important}
-.bx-messenger-fullscreen .bx-messenger-call-overlay-button-full { background-position: -67px -208px;  }
-.bx-messenger-fullscreen .bx-messenger-call-overlay-maxi .bx-messenger-call-video-main-block { width: auto; height: 100%; margin: 0 auto; background-color: #000;}
-.bx-messenger-fullscreen .bx-messenger-call-overlay-call .bx-messenger-call-overlay-photo { height: 56.05643340857788%; }
-*/
 .bx-messenger-fullscreen .bx-messenger-box-dialog {  height: 100%;  }
 .bx-messenger-fullscreen .bx-messenger-textarea-send { margin-top: 73px; }
 .bx-messenger-fullscreen .bx-messenger-textarea-resize { display:none; }
@@ -4992,24 +4263,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-fullscreen .bx-messenger-call-overlay-call.bx-messenger-call-overlay-call-video .bx-messenger-call-overlay-alfa { padding-left: 21px;}
 .bx-messenger-fullscreen-chrome-hack .bx-messenger-call-video-main-block { width: 100%; }
 .bx-messenger-fullscreen-chrome-hack .bx-messenger-textarea-place { width: 100%; }
-
-/*
-.bx-messenger-call-video-users { position: absolute; right: 0; z-index: 300; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini { height: 108px; display: block }
-.bx-messenger-call-overlay-mini.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini { display: none }
-.bx-messenger-call-overlay-line.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini { display: none }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-photo { height: 100px; width: 100px; margin-top: -24px; }
-.bx-chrome .bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-mini-block { margin-top: -27px; }
-
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-users .bx-messenger-call-video-mini { float: none; cursor: pointer; }
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-users .bx-messenger-call-video-mini-photo { margin-top: 10px;}
-.bx-messenger-call-overlay-group.bx-messenger-call-overlay-call-video .bx-messenger-call-video-users .bx-messenger-call-video-mini-block { margin-top: 6px!important;}
-
-.bx-messenger-call-video-hide {cursor: default!important}
-.bx-messenger-call-video-hide .bx-messenger-call-video-mini-block { display: none!important }
-.bx-messenger-call-video-hide .bx-messenger-call-video-mini-photo { opacity: 1!important; }
-.bx-messenger-call-video-block-hide { display: none!important }
-*/
 
 #bx-messenger-popup-keypad { opacity: 0.97; -webkit-animation: imOpacityFrom05To1 .4s 1; animation: imOpacityTo1 .4s 1; }
 .bx-messenger-calc-wrap {font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));padding: 4px 0 14px 4px;width: 196px;}
@@ -5053,8 +4306,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-call-btn-2:hover {background-color: #5d6064;background-image: -webkit-linear-gradient(to bottom, #5d6064, #4c4e52);background-image:    -moz-linear-gradient(top, #5d6064, #4c4e52);background-image:     -ms-linear-gradient(top, #5d6064, #4c4e52);background-image:      -o-linear-gradient(top, #5d6064, #4c4e52);background-image:         linear-gradient(to bottom,#5d6064, #4c4e52);	border-radius: 4px;}
 .bx-messenger-call-btn-2:active {background-color: #5d6064;background-image: -webkit-linear-gradient(to bottom, #52565a, #5b5d62);background-image:    -moz-linear-gradient(top,#52565a, #5b5d62);background-image:     -ms-linear-gradient(top, #52565a, #5b5d62);background-image:      -o-linear-gradient(top, #52565a, #5b5d62);background-image:         linear-gradient(to bottom, #52565a, #5b5d62);}
 .bx-messenger-call-btn-2-icon{ background: url("./../images/im-sprite-v37.png") no-repeat scroll -138px -133px;height: 20px;left: 11px;position: absolute;top: 7px;width: 16px;}
-
-.bx-messenger-call-overlay-aspect-vertical .bx-messenger-call-video-main-block { height: 100%!important; width: auto!important; }
 
 .bx-messenger-message-edited .bx-messenger-content-item-date { padding-left: 23px; }
 .bx-messenger-history-item .bx-messenger-message-edited { }
@@ -5181,7 +4432,7 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-update-box-btn { width: 600px; margin: 0 auto; padding-top: 43px; text-shadow: 0 1px rgba(255,255,255, 0.5);   text-align: center; }
 
 /* SETTINGS */
-.bx-messenger-settings { display: inline-block; width: 580px; padding: 7px 5px 1px; font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
+.bx-messenger-settings { display: inline-block; width: 680px; padding: 7px 5px 1px; font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 .bx-messenger-settings .popup-window-buttons { padding: 10px 0 10px; }
 #bx-messenger-popup-settings .popup-window-hr {display:none;}
 #bx-messenger-popup-settings .popup-window-titlebar-text { line-height: 38px }
@@ -5367,6 +4618,119 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	text-transform: uppercase;
 	padding: 5px 10px 4px;
 	font-size: 11px;
+}
+
+#bx-messenger-settings-content-v2 {
+	padding: 20px 0;
+}
+
+.bx-messenger-settings-v2-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.bx-messenger-settings-v2-container * {
+	box-sizing: border-box;
+}
+
+.bx-messenger-settings-v2-content {
+	width: 586px;
+	height: 478px;
+	background-image: url('./../images/im-v2-preview-background.png');
+	background-repeat: no-repeat;
+}
+
+.popup-window-dark .bx-messenger-settings-v2-content {
+	background-image: url('./../images/im-v2-preview-background-dark.png');
+}
+
+.bx-messenger-settings-v2-accent-button-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 93px;
+	margin-left: 245px;
+	margin-bottom: 46px;
+	width: 318px;
+	height: 105px;
+	background: #2FC6F6;
+	border-radius: 63px;
+	border: 2px solid #7FDEFC;
+	box-shadow: 0 6px 18px rgba(3, 84, 109, 0.1);
+
+	text-align: center;
+	font: 34px/36px var(--ui-font-family-primary);
+	font-weight: 600;
+	color: #fff;
+}
+
+.bx-messenger-settings-v2-accent-button {
+	max-width: 85%;
+	max-height: 100%;
+	display: -webkit-box;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	word-break: break-word;
+}
+
+.bx-messenger-settings-v2-title {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 90%;
+	margin-right: auto;
+	margin-left: auto;
+	margin-bottom: 27px;
+	text-align: center;
+	font: 20px/24px var(--ui-font-family-primary);
+	font-weight: 500;
+	color: #333;
+}
+
+.popup-window-dark .bx-messenger-settings-v2-title {
+	color: #fff;
+}
+
+.bx-messenger-settings-v2-subtitle {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 90%;
+	margin-right: auto;
+	margin-left: auto;
+	margin-bottom: 23px;
+	text-align: center;
+	font: 14px/19px var(--ui-font-family-primary);
+	color: #525c69;
+}
+
+.popup-window-dark .bx-messenger-settings-v2-subtitle {
+	color: #edeef0;
+}
+
+.bx-messenger-settings-v2-link-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 30px;
+}
+
+.bx-messenger-settings-v2-link {
+	border-bottom: 1px dashed rgba(32, 102, 176, 0.4);
+	cursor: pointer;
+}
+
+.popup-window-dark .bx-messenger-settings-v2-link {
+	border-bottom: 1px dashed #8bb3dd;
+}
+
+.bx-messenger-settings-v2-button-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 /* OPEN CHATS */
@@ -5856,16 +5220,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-panel-call-services,
 .bx-messenger-panel-call-services .bx-messenger-panel-call-menu {
 	display: block;
-}
-
-.bx-messenger-videocall-panel-item-hotkey-hint .ui-hint-content {
-	margin: 0;
-}
-
-.bx-messenger-videocall-panel-item-hotkey-hint {
-	text-align: center;
-	padding: 5px 8px;
-	opacity: 0.7;
 }
 
 .bx-messenger-welcome {

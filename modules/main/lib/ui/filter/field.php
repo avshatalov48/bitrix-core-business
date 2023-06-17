@@ -654,7 +654,7 @@ class Field
 				'multiple' => ($multiple ? 'Y' : 'N'),
 				'eventInit' => 'BX.Filter.DestinationSelector:openInit',
 				'eventOpen' => 'BX.Filter.DestinationSelector:open',
-				'context' => (isset($params['context']) ? $params['context'] : 'FILTER_'.$name),
+				'context' => ($params['context'] ?? 'FILTER_'.$name),
 				'popupAutoHide' => 'N',
 				'useSearch' => 'N',
 				'userNameTemplate' => \CUtil::jSEscape(\CSite::getNameFormat()),
@@ -702,7 +702,7 @@ class Field
 					'ID' => $name,
 					'ITEMS_SELECTED' => array(),
 					'CALLBACK' => array(
-						'select' => 'BX.Filter.DestinationSelectorManager.onSelect.bind(null, \''.(isset($params['isNumeric']) && $params['isNumeric'] == 'Y' ? 'Y' : 'N').'\', \''.(isset($params['prefix']) ? $params['prefix'] : '').'\')',
+						'select' => 'BX.Filter.DestinationSelectorManager.onSelect.bind(null, \''.(isset($params['isNumeric']) && $params['isNumeric'] == 'Y' ? 'Y' : 'N').'\', \''.($params['prefix'] ?? '').'\')',
 						'unSelect' => '',
 						'openDialog' => 'BX.Filter.DestinationSelectorManager.onDialogOpen',
 						'closeDialog' => 'BX.Filter.DestinationSelectorManager.onDialogClose',

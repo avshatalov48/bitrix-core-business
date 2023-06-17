@@ -286,7 +286,7 @@
 	max-width: 100%;
 	line-height: 49px;
 	overflow: hidden;
-	padding: 0 30px 0 10px;
+	padding: 0 30px 0 4px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -348,8 +348,8 @@
 	outline: none;
 	opacity: 0.5;
 	position: absolute;
-	right: 0;
-	top: 0;
+	right: 3px;
+	top: 5px;
 	width: 27px;
 	-webkit-transition: opacity 0.2s linear;
 	transition: opacity 0.2s linear;
@@ -369,9 +369,21 @@
 	content: "";
 }
 
-.popup-window-titlebar-close-icon {
-	top: 12px;
+.popup-window-close-icon.--large:after {
+	width: 12px;
+	height: 12px;
+	background-image: url(images/close-icon-large.svg);
+}
+
+.popup-window-close-icon.--large {
+	top: 10px;
 	right: 10px;
+}
+
+.popup-window-close-icon.popup-window-titlebar-close-icon.--large,
+.popup-window-titlebar-close-icon {
+	top: 10px;
+	right: 7px;
 }
 
 .popup-window-close-icon:hover {
@@ -688,6 +700,10 @@
 
 .popup-window-dark .popup-window-close-icon:after {
 	background-image: url(images/close-icon-dark.svg);
+}
+
+.popup-window-dark .popup-window-close-icon.--large:after {
+	background-image: url(images/close-icon-large-dark.svg);
 }
 
 /*===========TABS==========*/

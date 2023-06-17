@@ -166,12 +166,12 @@ class Cache extends \Bitrix\Location\Common\Cache
 
 			if(isset($this->externalIdMap[$tmpIndex]))
 			{
-				unset($this->externalIdMap[$tmpIndex]);
-
 				if($index === null)
 				{
 					$index = $this->externalIdMap[$tmpIndex];
 				}
+
+				unset($this->externalIdMap[$tmpIndex]);
 			}
 		}
 

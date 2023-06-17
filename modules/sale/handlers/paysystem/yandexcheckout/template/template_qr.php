@@ -4,13 +4,22 @@ Loc::loadMessages(__FILE__);
 
 $sum = round($params['SUM'], 2);
 ?>
-<div class="mb-4">
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION') . ' ' . SaleFormatCurrency($sum, $params['CURRENCY']) ?></p>
-	<div class="mb-4" id="qr-code-hint" style="display: none;">
+
+<style>
+	<?php
+		require 'style.css';
+	?>
+</style>
+<div class="mb-4 widget-payment-checkout">
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_MSGVER_1') ?></div>
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION_SUM', ['#SUM#' => SaleFormatCurrency($sum, $params['CURRENCY'])]) ?></div>
+	<div class="qr-code-hint mb-4" id="qr-code-hint" style="display: none;">
 		<?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_QR_CODE_HINT') ?>
 	</div>
-	<div class="mb-4">
-		<img style="width: 350px" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
+	<div class="mb-4 qr-code-container">
+		<div class="qr-code">
+			<img style="width: 160px" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
+		</div>
 	</div>
 	<div id="button-container" style="display: none;">
 		<div class="d-flex align-items-center mb-3">

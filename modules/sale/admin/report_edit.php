@@ -58,13 +58,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"
 	foreach($arFieldsShop as $key => $val)
 	{
 		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => ($_POST["TYPE_".$key] <> '' ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
-	}	
-	
+	}
+
 	foreach($arFieldsBuyer as $key => $val)
 	{
 		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => ($_POST["TYPE_".$key] <> '' ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
 	}
-	
+
 	$serResult = serialize($arOpt);
 	$lenght = mb_strlen($serResult);
 	if(intval($lenght) > 2000)
@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"
 			COption::SetOptionString("sale", "reports".$i, mb_substr($serResult, ($i - 1) * 2000, $i * 2000));
 		}
 		COption::SetOptionInt("sale", "reports_count", $i);
-	
+
 	}
 	else
 	{
@@ -96,7 +96,7 @@ if($serCount > 0)
 }
 else
 	$report = COption::GetOptionString("sale", "reports");
-		
+
 $arOptions = unserialize($report, ['allowed_classes' => false]);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
@@ -127,7 +127,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 		var oType = document.getElementById("TYPE_" + pkey);
 		var oValue = document.getElementById("VALUE_" + pkey);
 		var oValue2 = document.getElementById("VALUE2_" + pkey);
-			
+
 		var value_length = oValue.length;
 		while (value_length > 0)
 		{
@@ -294,7 +294,7 @@ $tabControl->BeginNextTab();
 						<td>
 							<select name="VALUE_<?=$key?>" id="VALUE_<?=$key?>" style="display:none;">
 								<option value="">--</option>
-							</select>					
+							</select>
 							<input type="text" name="VALUE2_<?=$key?>" id="VALUE2_<?=$key?>" value="<?if($val["TYPE"] == '') echo htmlspecialcharsbx($val["VALUE"])?>"  size="40">
 							<?if($val["VALUE"] <> '' && $val["TYPE"] <> '')
 							{
@@ -334,7 +334,7 @@ $tabControl->BeginNextTab();
 						<td>
 							<select name="VALUE_<?=$key?>" id="VALUE_<?=$key?>" style="display:none;">
 								<option value="">--</option>
-							</select>					
+							</select>
 							<input type="text" name="VALUE2_<?=$key?>" id="VALUE2_<?=$key?>" value=""  size="40">
 							<?if($val["VALUE"] <> '')
 							{
@@ -353,7 +353,7 @@ $tabControl->BeginNextTab();
 			</table>
 		</td>
 	</tr>
-	
+
 
 <?
 $tabControl->EndTab();
@@ -363,7 +363,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 		array(
 				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_pay_system.php?lang=".LANG.GetFilterParams("filter_")
+				"back_url" => "/bitrix/admin/sale_pay_system.php?lang=" . LANGUAGE_ID . GetFilterParams("filter_")
 			)
 	);
 ?>
@@ -373,4 +373,4 @@ $tabControl->End();
 ?>
 
 </form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

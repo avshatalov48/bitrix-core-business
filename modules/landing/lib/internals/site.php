@@ -147,7 +147,8 @@ class SiteTable extends Entity\DataManager
 				'default_value' => 'N'
 			)),
 			'VERSION' => new Entity\IntegerField('VERSION', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_VERSION')
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_VERSION'),
+				'default_value' => 2
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
@@ -237,6 +238,21 @@ class SiteTable extends Entity\DataManager
 			$message,
 			'CONTROLLER_ERROR_' . $code
 		);
+	}
+
+	/**
+	 * On controller must save only correctly (existing) languages
+	 * @param string $lang
+	 * @return string
+	 */
+	protected static function prepareLangForController(string $lang): string
+	{
+		$replaces = [
+			'in' => 'en',
+			'hi' => 'en',
+		];
+
+		return in_array($lang, array_keys($replaces)) ? $replaces[$lang] : $lang;
 	}
 
 	/**
@@ -1017,7 +1033,8 @@ class SiteTable extends Entity\DataManager
 												$domainName,
 												$publicUrl,
 												'N',
-												$row['TYPE']
+												$row['TYPE'],
+												self::prepareLangForController(Manager::getZone())
 											);
 										}
 										else
@@ -1025,7 +1042,7 @@ class SiteTable extends Entity\DataManager
 											$domainName = $siteController::addRandomDomain(
 												$publicUrl,
 												$row['TYPE'],
-												Manager::getZone()
+												self::prepareLangForController(Manager::getZone())
 											);
 										}
 									}
@@ -1165,7 +1182,7 @@ class SiteTable extends Entity\DataManager
 						Manager::getPublicationPath($domains[$i == 0 ? 1 : 0]['ID']),
 						'Y',
 						($domains[$i]['TYPE'] == 'STORE') ? 'shop' : $domains[$i]['TYPE'],
-						$domains[$i]['LANG']
+						self::prepareLangForController($domains[$i]['LANG'] ?? Manager::getZone())
 					);
 				}
 			}
@@ -1203,7 +1220,7 @@ class SiteTable extends Entity\DataManager
 				$domainName = $siteController::addRandomDomain(
 					$publicUrl,
 					($row['TYPE'] == 'STORE') ? 'shop' : $row['TYPE'],
-					Manager::getZone()
+					self::prepareLangForController(Manager::getZone())
 				);
 				if ($domainName)
 				{
@@ -1401,7 +1418,7 @@ class SiteTable extends Entity\DataManager
 						$siteController::activateDomain(
 							$row['DOMAIN_NAME'],
 							'Y',
-							$row['LANG']
+							self::prepareLangForController($row['LANG'] ?? Manager::getZone())
 						);
 					}
 					catch (\Bitrix\Main\SystemException $ex) {}
@@ -1589,6 +1606,14 @@ class SiteTable extends Entity\DataManager
 			\Bitrix\Landing\Folder::deleteForSite($primary['ID']);
 			\Bitrix\Landing\Site\Cookies::removeAgreementsForSite($primary['ID']);
 			BindingTable::siteClear($primary['ID']);
+
+			if (\Bitrix\Main\Loader::includeModule('ai'))
+			{
+				\Bitrix\AI\Context::clearContext([
+					"image_site_{$primary['ID']}",
+					"text_site_{$primary['ID']}",
+				]);
+			}
 
 			Rights::setOn();
 		}

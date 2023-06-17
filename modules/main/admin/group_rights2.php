@@ -1,4 +1,10 @@
 <?
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ * @global \CDatabase $DB
+ */
+
 if (!$USER->IsAdmin())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
@@ -64,7 +70,7 @@ if ($GROUP_DEFAULT_TASK == '')
 $arUsedGroups = array();
 $arTaskInModule = CGroup::GetTasksForModule($module_id);
 foreach($arGROUPS as $value):
-	$v = (isset($arTaskInModule[$value["ID"]]['ID'])? $arTaskInModule[$value["ID"]]['ID'] : false);
+	$v = ($arTaskInModule[$value["ID"]]['ID'] ?? false);
 	if($v):
 		$arUsedGroups[$value["ID"]] = true;
 ?>

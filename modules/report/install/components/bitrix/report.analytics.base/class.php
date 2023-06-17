@@ -1,6 +1,9 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
 class ReportAnalyticsBase extends CBitrixComponent
 {
 
@@ -10,7 +13,8 @@ class ReportAnalyticsBase extends CBitrixComponent
 	{
 		if (!\Bitrix\Main\Loader::includeModule('report'))
 		{
-			$this->showError('Module report isn\'t installed');
+			$this->showError(Loc::getMessage('RAB_MODULE_NOT_FOUND'));
+
 			return;
 		}
 
@@ -26,7 +30,8 @@ class ReportAnalyticsBase extends CBitrixComponent
 		$currentAnalyticBoard = $this->getAnalyticBoardByKey($currentAnalyticBoardKey);
 		if(!$currentAnalyticBoard)
 		{
-			$this->showError("Report board is not found");
+			$this->showError(Loc::getMessage('RAB_REPORT_NOT_FOUND'));
+
 			return;
 		}
 
@@ -39,12 +44,16 @@ class ReportAnalyticsBase extends CBitrixComponent
 
 	private function showError($message)
 	{
-		echo <<<HTML
-            <div class="ui-alert ui-alert-danger ui-alert-icon-danger">
-                <span class="ui-alert-message">{$message}</span>
-            </div>
-HTML;
-		return;
+		Toolbar::deleteFavoriteStar();
+
+		global $APPLICATION;
+		$APPLICATION->IncludeComponent(
+			"bitrix:ui.info.error",
+			"",
+			[
+				'TITLE' => $message,
+			]
+		);
 	}
 	/**
 	 * @param string $firstBoardBatch

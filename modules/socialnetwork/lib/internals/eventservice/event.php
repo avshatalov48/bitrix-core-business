@@ -64,7 +64,7 @@ class Event
 			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
 			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
 			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$userId = (int)$this->data['USER_ID'];
+				$userId = (int) ($this->data['USER_ID'] ?? 0);
 				break;
 		}
 
@@ -87,7 +87,7 @@ class Event
 			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
 			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
 			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$groupId = (int)$this->data['GROUP_ID'];
+				$groupId = (int) ($this->data['GROUP_ID'] ?? 0);
 				break;
 		}
 
@@ -125,7 +125,7 @@ class Event
 			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
 			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
 			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$result = $this->data['GROUP_ID'] . '_'. $this->data['USER_ID'];
+				$result = ($this->data['GROUP_ID'] ?? 0) . '_'. ($this->data['USER_ID'] ?? 0);
 				break;
 		}
 

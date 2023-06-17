@@ -290,7 +290,11 @@ class Notification extends Base
 		$defaultSettings = self::encodeSettings(self::getDefaultSettings());
 
 		$cachedPreset = Configuration::getUserPresetFromCache($userId);
-		if (!empty($cachedPreset))
+		if (
+			!empty($cachedPreset)
+			&& isset($cachedPreset[Configuration::NOTIFY_GROUP])
+			&& is_array($cachedPreset[Configuration::NOTIFY_GROUP])
+		)
 		{
 			$notifySettings = $cachedPreset[Configuration::NOTIFY_GROUP]['settings'];
 
@@ -395,6 +399,40 @@ class Notification extends Base
 		}
 
 		return self::$defaultSettings;
+	}
+
+	public static function getSimpleNotifySettings(array $generalSettings): array
+	{
+		$defaultGeneralSettings = General::getDefaultSettings();
+
+		$send['SITE'] = $generalSettings['notifySchemeSendSite'] ?? $defaultGeneralSettings['notifySchemeSendSite'];
+		$send['MAIL'] = $generalSettings['notifySchemeSendEmail'] ?? $defaultGeneralSettings['notifySchemeSendEmail'];
+		$send['XMPP'] = $generalSettings['notifySchemeSendXmpp'] ?? $defaultGeneralSettings['notifySchemeSendXmpp'];
+		$send['PUSH'] = $generalSettings['notifySchemeSendPush'] ?? $defaultGeneralSettings['notifySchemeSendPush'];
+
+		$notifySettings = Notification::getDefaultSettings();
+
+		foreach ($notifySettings as $moduleId => $moduleSchema)
+		{
+			foreach ($moduleSchema['NOTIFY'] as $eventName => $eventSchema)
+			{
+				foreach (['SITE', 'MAIL', 'XMPP', 'PUSH'] as $type)
+				{
+					if ($eventSchema['DISABLED'][$type])
+					{
+						continue;
+					}
+
+					$notifySettings[$moduleId]['NOTIFY'][$eventName][$type] =
+						!$send[$type]
+							? false
+							: $eventSchema[$type]
+					;
+				}
+			}
+		}
+
+		return $notifySettings;
 	}
 
 	/**
@@ -561,9 +599,9 @@ class Notification extends Base
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	public static function setSettings(int $groupId, array $settings): void
+	public static function setSettings(int $groupId, array $settings = [], bool $forInitialize = false): void
 	{
-		if (empty($settings))
+		if (empty($settings) && !$forInitialize)
 		{
 			return;
 		}
@@ -581,6 +619,7 @@ class Notification extends Base
 		}
 		$defaultSettings = self::encodeSettings(self::getDefaultSettings());
 		$encodedSettings = self::encodeSettings($settings);
+		$encodedSettings = array_merge($defaultSettings, $encodedSettings);
 
 		$rows = [];
 		foreach ($encodedSettings as $name => $value)

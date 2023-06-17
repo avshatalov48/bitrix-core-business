@@ -71,12 +71,18 @@ class ScopeManager
 
 					if (!empty($controllersConfig['controllers']['restIntegration']['enabled']))
 					{
-						if (!$controllersConfig['controllers']['restIntegration']['hideModuleScope'])
+						if (
+							!isset($controllersConfig['controllers']['restIntegration']['hideModuleScope'])
+							|| !$controllersConfig['controllers']['restIntegration']['hideModuleScope']
+						)
 						{
 							$this->scopeList[$moduleId] = $moduleId;
 						}
 
-						if (is_array($controllersConfig['controllers']['restIntegration']['scopes']))
+						if (
+							isset($controllersConfig['controllers']['restIntegration']['scopes'])
+							&& is_array($controllersConfig['controllers']['restIntegration']['scopes'])
+						)
 						{
 							$this->scopeList = array_merge(
 								$this->scopeList,
@@ -134,11 +140,21 @@ class ScopeManager
 		foreach ($this->listScope() as $code)
 		{
 			$key = mb_strtoupper($code);
-			$name = Loc::getMessage('REST_SCOPE_' . $key);
+			if (mb_strtoupper($key) === 'LOG')
+			{
+				$name = Loc::getMessage('REST_SCOPE_LOG_MSGVER_1');
+				$description = Loc::getMessage('REST_SCOPE_LOG_DESCRIPTION_MSGVER_1');
+			}
+			else
+			{
+				$name = Loc::getMessage('REST_SCOPE_' . $key);
+				$description = Loc::getMessage('REST_SCOPE_' . $key . '_DESCRIPTION');
+			}
+
 			$result[$code] = [
 				'code' => $code,
 				'title' => ($name) ? $name . ' (' . $code . ')' : $code,
-				'description' => Loc::getMessage('REST_SCOPE_' . $key . '_DESCRIPTION')
+				'description' => $description
 			];
 		}
 

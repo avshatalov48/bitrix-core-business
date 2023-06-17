@@ -112,10 +112,7 @@ class UserSessionTable extends Entity\DataManager
 		$connection = static::getEntity()->getConnection();
 		if ($connection instanceof MysqlCommonConnection)
 		{
-			$lock = $connection->queryScalar(
-				sprintf('SELECT GET_LOCK("%s", %d)', md5($id), (int) $timeout)
-			);
-			$result = $lock != '0';
+			$result = $connection->lock($id, (int)$timeout);
 		}
 		else
 		{
@@ -141,9 +138,7 @@ class UserSessionTable extends Entity\DataManager
 		$connection = static::getEntity()->getConnection();
 		if ($connection instanceof MysqlCommonConnection)
 		{
-			$connection->queryExecute(
-				sprintf('DO RELEASE_LOCK("%s")', md5($id))
-			);
+			$connection->unlock($id);
 		}
 		else
 		{

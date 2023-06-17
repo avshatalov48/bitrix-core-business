@@ -17,7 +17,12 @@ IncludeModuleLangFile(__FILE__);
 
 CModule::IncludeModule('socialnetwork');
 
-if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $SONET_RIGHT=="W" && check_bitrix_sessid())
+if (
+	$REQUEST_METHOD=="GET"
+	&& ($RestoreDefaults ?? null) <> ''
+	&& $SONET_RIGHT=="W"
+	&& check_bitrix_sessid()
+)
 {
 	COption::RemoveOption("socialnetwork");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -388,7 +393,7 @@ if (
 	for ($i = 0; $i < $tmp_count; $i++)
 	{
 		$name = $arAllOptionsCommon[$i][0];
-		$val = ${$name};
+		$val = ${$name} ?? null;
 		if ($arAllOptionsCommon[$i][3][0] == "checkbox" && $val != "Y")
 			$val = "N";
 		elseif ($name == "livefeed_toall_rights")
@@ -472,7 +477,7 @@ if (
 		for ($i = 0; $i < $tmp_count; $i++)
 		{
 			$name = $arAllOptions[$i][0]."_".$arSite["ID"];
-			$val = ${$name};
+			$val = ${$name} ?? null;
 			if ($arAllOptions[$i][3][0] == "checkbox" && $val != "Y")
 				$val = "N";
 
@@ -501,7 +506,7 @@ if (
 		for ($i = 0; $i < $tmp_count; $i++)
 		{
 			$name = $arAllOptionsUsers[$i][0]."_".$arSite["ID"];
-			$val = ${$name};
+			$val = ${$name} ?? null;
 			if ($arAllOptionsUsers[$i][3][0] == "checkbox" && $val != "Y")
 				$val = "N";
 			COption::SetOptionString("socialnetwork", $arAllOptionsUsers[$i][0], $val, $arAllOptionsUsers[$i][1], $arSite["ID"]);
@@ -574,7 +579,7 @@ if (
 				$name = $arAllOptionsUsersGender[$gender][$i][0]."_".$arSite["ID"];
 
 				$arPICTURE = $_FILES[$name];
-				$arPICTURE["del"] = ${$name."_del"};
+				$arPICTURE["del"] = ${$name."_del"} ?? null;
 				$arPICTURE["MODULE_ID"] = "socialnetwork";
 
 				if ($old_fid = COption::GetOptionInt("socialnetwork", $arAllOptionsUsersGender[$gender][$i][0], false, $arSite["ID"]))
@@ -599,7 +604,7 @@ if (
 		for ($i = 0; $i < $tmp_count; $i++)
 		{
 			$name = $arAllOptionsGroups[$i][0]."_".$arSite["ID"];
-			$val = ${$name};
+			$val = ${$name} ?? null;
 			if (
 				$arAllOptionsGroups[$i][3][0] == "checkbox"
 				&& $val != "Y"
@@ -647,7 +652,7 @@ if (
 			$name = $arAllOptionsGroupsGender[$i][0]."_".$arSite["ID"];
 
 			$arPICTURE = $_FILES[$name];
-			$arPICTURE["del"] = ${$name."_del"};
+			$arPICTURE["del"] = ${$name."_del"} ?? null;
 			$arPICTURE["MODULE_ID"] = "socialnetwork";
 
 			if ($old_fid = COption::GetOptionInt("socialnetwork", $arAllOptionsGroupsGender[$i][0], false, $arSite["ID"]))
@@ -928,7 +933,7 @@ $tabControl->BeginNextTab();
 			if ($type[0] != "hidden")
 			{
 				?><tr id="<?=htmlspecialcharsbx($Option[0])?>_tr" style="display: <?=($Option[0] != "default_livefeed_toall" || COption::GetOptionString("socialnetwork", "allow_livefeed_toall", "Y") == "Y" ? "table-row" : "none")?>;">
-					<td <?=set_valign($type[0], $type[1])?> width="40%"><?
+					<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%"><?
 
 						if ($type[0] == "checkbox")
 							echo "<label for=\"".htmlspecialcharsbx($Option[0])."\">".$Option[1]."</label>";
@@ -1136,7 +1141,7 @@ $tabControl->BeginNextTab();
 					$val = ($type[1] == true ? unserialize($val, [ 'allowed_classes' => false ]) : array($val)); // multiple select
 				}
 				?><tr>
-					<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+					<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 						if ($type[0]=="checkbox")
 						{
 							echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
@@ -1186,7 +1191,7 @@ $tabControl->BeginNextTab();
 				$val = COption::GetOptionString("socialnetwork", $Option[0], $Option[2], $siteList[$j]["ID"]);
 				$type = $Option[3];
 				?><tr>
-					<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+					<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 						if ($type[0]=="checkbox")
 						{
 							echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
@@ -1257,7 +1262,7 @@ $tabControl->BeginNextTab();
 							$type = $Option[3];
 							?>
 							<tr>
-								<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+								<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 									if ($type[0]=="checkbox")
 										echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
 									else
@@ -1334,7 +1339,7 @@ $tabControl->BeginNextTab();
 							$val = COption::GetOptionString("socialnetwork", $Option[0], $Option[2], $siteList[$j]["ID"]);
 							$type = $Option[3];
 							?><tr>
-								<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+								<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 									echo $Option[1];
 								?>:</td>
 								<td width="60%">
@@ -1362,7 +1367,7 @@ $tabControl->BeginNextTab();
 				$val = COption::GetOptionString("socialnetwork", $Option[0], $Option[2], $siteList[$j]["ID"]);
 				$type = $Option[3];
 				?><tr>
-				<td <?=set_valign($type[0], $type[1])?> width="40%"><?
+				<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%"><?
 					if ($type[0]=="checkbox")
 					{
 						echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
@@ -1404,7 +1409,7 @@ $tabControl->BeginNextTab();
 							$val = COption::GetOptionString("socialnetwork", $Option[0], $Option[2], $siteList[$j]["ID"]);
 							$type = $Option[3];
 							?><tr>
-								<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+								<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 									if ($type[0]=="checkbox")
 										echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
 									else
@@ -1451,7 +1456,7 @@ $tabControl->BeginNextTab();
 				$val = COption::GetOptionString("socialnetwork", $Option[0], $Option[2], $siteList[$j]["ID"]);
 				$type = $Option[3];
 				?><tr>
-					<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?
+					<td <?=set_valign($type[0], ($type[1] ?? null))?> width="40%" align="right"><?
 						if ($type[0]=="checkbox")
 							echo "<label for=\"".htmlspecialcharsbx($Option[0]."_".$siteList[$j]["ID"])."\">".$Option[1]."</label>";
 						else

@@ -50,7 +50,7 @@ $lheStyle = '
 	}
 	.bx-button-add-template {
 		border-bottom: 1px dashed #2067B0;
-	    text-decoration: none;
+		text-decoration: none;
 		color: #2067B0;
 		cursor: pointer;
 	}
@@ -384,7 +384,7 @@ if ($server->getRequestMethod() == "POST"
 					$applyRestrictionsResult = Restrictions\Manager::setupDefaultRestrictions($service);
 					if (!$applyRestrictionsResult->isSuccess())
 					{
-						$rstrApplyErrorMessages = [Loc::getMessage('SALE_PSE_ERROR_DEFAULT_RSRT_APPLY')];
+						$rstrApplyErrorMessages = [Loc::getMessage('SALE_PSE_ERROR_DEFAULT_RSRT_APPLY_MSGVER_1')];
 
 						// TODO: Add public messages of errors while applied concrete restrictions
 

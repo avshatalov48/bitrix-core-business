@@ -425,7 +425,7 @@ abstract class ProviderBuilderBase
 	 */
 	protected function clearProviderName($providerName)
 	{
-		if (mb_substr($providerName, 0, 1) == "\\")
+		if (is_string($providerName) && mb_substr($providerName, 0, 1) == "\\")
 		{
 			$providerName = mb_substr($providerName, 1);
 		}

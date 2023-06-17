@@ -105,7 +105,15 @@ if(is_array($arResult["SCOPE"])):
 			<td class="content-edit-form-field-input">
 <?php
 	foreach($arResult["SCOPE"] as $scope):
-		$scopeName = GetMessage("REST_SCOPE_".toUpper($scope));
+		if (mb_strtoupper($scope) === 'LOG')
+		{
+			$scopeName = GetMessage("REST_SCOPE_LOG_MSGVER_1");
+		}
+		else
+		{
+			$scopeName = GetMessage("REST_SCOPE_".mb_strtoupper($scope));
+		}
+
 		if($scopeName == '')
 		{
 			$scopeName = $scope;

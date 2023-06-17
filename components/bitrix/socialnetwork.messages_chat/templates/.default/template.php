@@ -13,7 +13,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 	</div>
 <?
 }
-elseif ($arResult["FatalError"] <> '')
+elseif (!empty($arResult["FatalError"]))
 {
 	?>
 	<div class="socnet-chat-warning">
@@ -23,7 +23,7 @@ elseif ($arResult["FatalError"] <> '')
 }
 else
 {
-	if ($arResult["ErrorMessage"] <> '')
+	if (!empty($arResult["ErrorMessage"]))
 	{
 		?>
 		<div class="socnet-chat-warning">

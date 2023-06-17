@@ -12,18 +12,18 @@ use \Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Rights;
-use Bitrix\Landing\Update\Block\DuplicateImages;
 use Bitrix\Main\Event;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Source\Selector;
 use \Bitrix\Landing\PublicAction\Demos;
-use \Bitrix\Main\UI\Extension;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
 class LandingViewComponent extends LandingBaseComponent
 {
+	private const PHONE_VERIFY_ENTITY_FORM = 'crm_webform';
+
 	/**
 	 * Total this type sites count.
 	 * @deprecated since 19.0.0
@@ -37,6 +37,39 @@ class LandingViewComponent extends LandingBaseComponent
 	 * @var int
 	 */
 	protected $pagesCount;
+
+	/**
+	 * Returns Landing preview url for device.
+	 * @param int $id Landing id.
+	 * @return string|null
+	 */
+	protected function getDevicePreview(int $id): ?string
+	{
+		\Bitrix\Landing\Landing::setPreviewMode(true);
+
+		$url = null;
+		$landing = Landing::createInstance($id, [
+			'skip_blocks' => true
+		]);
+
+		if ($landing->exist())
+		{
+			if (
+				$landing->getSmnSiteId() &&
+				Manager::isExtendedSMN() &&
+				$this->arParams['DRAFT_MODE'] != 'Y'
+			)
+			{
+				Manager::forceB24disable(true);
+			}
+
+			$url = $landing->getPublicUrl(false, true, true);
+		}
+
+		\Bitrix\Landing\Landing::setPreviewMode(false);
+
+		return $url;
+	}
 
 	/**
 	 * Just redirect to the landing preview page.
@@ -160,6 +193,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$landing
 			),
 			'sliderConditions' => $this->getSliderConditions(),
+			'sliderFullConditions' => $this->getSliderFullConditions(),
 			'rights' => [
 				'settings' => in_array(
 					Rights::ACCESS_TYPES['sett'],
@@ -583,54 +617,14 @@ class LandingViewComponent extends LandingBaseComponent
 		return 'last';
 	}
 
-	protected function getCrmFormEditorData(): ?array
+	protected function getCrmFormEditorData(int $formId): ?array
 	{
 		static $formEditorData = null;
-
-		if (!is_array($formEditorData) && \Bitrix\Main\Loader::includeModule('crm'))
+		if (!is_array($formEditorData))
 		{
-			$landing = $this->arResult['LANDING'];
-			$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
-				'select' => [
-					'FORM_ID'
-				],
-				'filter' => [
-					'LANDING_ID' => $landing->getId()
-				]
-			]);
-			if ($row = $res->fetch())
-			{
-				$formEditorData = \Bitrix\Landing\PublicAction\Form::getEditorData(
-					$row['FORM_ID']
-				)->getResult();
-			}
-			else
-			{
-				$formEditorData = [];
-			}
+			$formEditorData = \Bitrix\Landing\PublicAction\Form::getEditorData($formId)->getResult();
 		}
-
 		return $formEditorData;
-	}
-
-	/**
-	 * Handler on view block
-	 * @return void
-	 */
-	protected function onBlockEditView(): void
-	{
-		$eventManager = EventManager::getInstance();
-		$eventManager->addEventHandler('landing', 'onBlockEditView',
-			function(Event $event)
-			{
-				$blockUpdater = new DuplicateImages(null, [
-					'block' => $event->getParameter('block'),
-					'content' => $event->getParameter('outputContent'),
-				]);
-
-				return $blockUpdater->update(false);
-			}
-		);
 	}
 
 	/**
@@ -656,6 +650,8 @@ class LandingViewComponent extends LandingBaseComponent
 				$meta = $landing->getMeta();
 				$options['url'] = $arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl();
 				$options['allow_svg'] = Manager::getOption('allow_svg_content') === 'Y';
+				$options['allow_ai_text'] = $arResult['ALLOW_AI_TEXT'];
+				$options['allow_ai_image'] = $arResult['ALLOW_AI_IMAGE'];
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
@@ -670,7 +666,8 @@ class LandingViewComponent extends LandingBaseComponent
 					\Bitrix\Main\Loader::includeModule('crm')
 				)
 				{
-					$options['formEditorData'] = $this->getCrmFormEditorData();
+					$formId = $this->getFormIdByLandingId($landing->getId());
+					$options['formEditorData'] = $formId ? $this->getCrmFormEditorData($formId) : [];
 				}
 				if ($options['params']['draftMode'])
 				{
@@ -695,12 +692,8 @@ class LandingViewComponent extends LandingBaseComponent
 				];
 				// features
 				$options['features'] = [];
-				if (
-					($type === 'KNOWLEDGE' || $type === 'GROUP') &&
-					\Bitrix\Main\Loader::includeModule('disk')
-				)
+				if (($type === 'KNOWLEDGE' || $type === 'GROUP'))
 				{
-					Extension::load('file_dialog');
 					$options['features'][] = 'diskFile';
 				}
 				// rights
@@ -898,14 +891,14 @@ class LandingViewComponent extends LandingBaseComponent
 							unset($section['items'][$code]);
 						}
 						if (
-							$block['type'] == 'store' &&
+							($block['type'] ?? null) === 'store' &&
 							!$isStore
 						)
 						{
 							unset($section['items'][$code]);
 						}
 						if (
-							$block['version'] &&
+							($block['version'] ?? null) &&
 							version_compare($options['version'], $block['version']) < 0
 						)
 						{
@@ -1001,6 +994,7 @@ class LandingViewComponent extends LandingBaseComponent
 					'ID' => $landing->getSiteId()
 				]
 			]);
+			$site = array_shift($site);
 		}
 
 		$replaceParamUrl = function($sefCode) use($landing)
@@ -1071,6 +1065,9 @@ class LandingViewComponent extends LandingBaseComponent
 			$urls[$code] = $uri;
 		}
 
+		$urls['preview_device'] = new \Bitrix\Main\Web\Uri(
+			$this->getDevicePreview($landing->getId())
+		);
 		$urls['landings'] = new \Bitrix\Main\Web\Uri(
 			$replaceParamUrl('site_show')
 		);
@@ -1121,7 +1118,7 @@ class LandingViewComponent extends LandingBaseComponent
 	 * Gets conditions for slider init.
 	 * @return array
 	 */
-	protected function getSliderConditions()
+	protected function getSliderConditions(): array
 	{
 		$sliderConditions = [];
 
@@ -1164,6 +1161,19 @@ class LandingViewComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Gets conditions for slider init, open in fullscrean
+	 * @return array
+	 */
+	public function getSliderFullConditions(): array
+	{
+		$conditions = [
+			$this->getUrlAddSidepanelCondition(false),
+		];
+
+		return $conditions;
+	}
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
@@ -1185,6 +1195,7 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->checkParam('PANEL_LIGHT_MODE', 'N');
 			$this->checkParam('DONT_LEAVE_AFTER_PUBLICATION', 'N');
 			$this->checkParam('DRAFT_MODE', 'N');
+			$this->checkParam('LANDING_TPL_PREVIEW_EXIT', '');
 			$this->checkParam('PARAMS', array());
 
 			$this->forceUpdateNewFolders($this->arParams['SITE_ID']);
@@ -1196,6 +1207,9 @@ class LandingViewComponent extends LandingBaseComponent
 			Hook::setEditMode();
 			Landing::setEditMode();
 			$landing = Landing::createInstance($this->arParams['LANDING_ID']);
+
+			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
+			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
 
 			$this->arResult['AUTO_PUBLICATION_ENABLED'] = \CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y';
 			$this->arResult['SUCCESS_SAVE'] = $this->request('success') === 'Y';
@@ -1313,9 +1327,13 @@ class LandingViewComponent extends LandingBaseComponent
 					$this->arResult['LICENSE'] = \CBitrix24::getLicenseType();
 				}
 
+				$formId = $this->getFormIdByLandingId($landing->getId());
+				$this->arResult['FORM_VERIFICATION_REQUIRED'] = $formId && !self::isFormVerified($formId);
+				$this->arResult['VERIFY_FORM_ID'] = $formId;
+
 				if ($this->arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS)
 				{
-					$crmFormEditorData = $this->getCrmFormEditorData();
+					$crmFormEditorData = $formId ? $this->getCrmFormEditorData($formId) : [];
 					if (
 						isset($crmFormEditorData['formOptions'])
 						&& is_array($crmFormEditorData['formOptions'])
@@ -1326,7 +1344,6 @@ class LandingViewComponent extends LandingBaseComponent
 					}
 				}
 
-				$this->onBlockEditView();
 				$this->onLandingView();
 				$this->onEpilog();
 			}
@@ -1343,5 +1360,50 @@ class LandingViewComponent extends LandingBaseComponent
 		}
 
 		parent::executeComponent();
+	}
+
+	private static function isFormVerified(int $formId): bool
+	{
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		{
+			$validatedLicenseType = [
+				'project',
+				'demo'
+			];
+
+			if (in_array(\CBitrix24::getLicenseType(), $validatedLicenseType, true))
+			{
+				return (new \Bitrix\Bitrix24\PhoneVerify(
+					self::PHONE_VERIFY_ENTITY_FORM,
+					$formId
+				))->isVerified();
+			}
+		}
+
+		return true;
+	}
+
+	private function getFormIdByLandingId(int $landingId): ?int
+	{
+		static $formId = null;
+
+		if ($formId === null && \Bitrix\Main\Loader::includeModule('crm'))
+		{
+			$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
+				'select' => [
+					'FORM_ID'
+				],
+				'filter' => [
+					'LANDING_ID' => $landingId,
+				]
+			]);
+
+			if ($row = $res->fetch())
+			{
+				$formId = (int)$row['FORM_ID'];
+			}
+		}
+
+		return $formId;
 	}
 }

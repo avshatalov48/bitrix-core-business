@@ -82,7 +82,7 @@ class Common extends Parser
 		}
 
 		preg_match('/<title>(.+?)<\/title>/mis', $document->getHtml(), $matches);
-		return (isset($matches[1]) ? $matches[1] : null);
+		return ($matches[1] ?? null);
 	}
 
 	/**
@@ -166,17 +166,17 @@ class Common extends Parser
 		$uri = new Uri('/');
 		$document = new HtmlDocument($html, $uri);
 		$videoElements = $document->extractElementAttributes('video');
-		foreach($videoElements as $videoElement)
+		foreach ($videoElements as $videoElement)
 		{
-			if(!isset($videoElement['src']))
+			if (!isset($videoElement['src']))
 			{
 				$sourceElements = $document->extractElementAttributes('source');
-				foreach($sourceElements as $sourceElement)
+				foreach ($sourceElements as $sourceElement)
 				{
-					if(
-						(isset($sourceElement['type']) &&
-						$this->isValidVideoMimeType($sourceElement['type'])) ||
-						!isset($videoElement['src']))
+					if (
+						isset($sourceElement['type'])
+						&& $this->isValidVideoMimeType($sourceElement['type'])
+					)
 					{
 						$videoElement['src'] = $sourceElement['src'];
 						$videoElement['type'] = $sourceElement['type'];
@@ -184,9 +184,9 @@ class Common extends Parser
 					}
 				}
 			}
-			if(isset($videoElement['src']))
+			if (isset($videoElement['src']))
 			{
-				if(
+				if (
 					(isset($videoElement['width']) &&
 					isset($videoElement['height']) &&
 					(int)$videoElement['width'] * (int)$videoElement['height'] > $maxWeight) ||

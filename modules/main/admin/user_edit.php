@@ -11,7 +11,8 @@
  * @global CUserTypeManager $USER_FIELD_MANAGER
  */
 
-use \Bitrix\Main\Authentication\Policy;
+use Bitrix\Main\Application;
+use Bitrix\Main\Authentication\Policy;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
@@ -26,8 +27,8 @@ $canViewUserList = ($USER->CanDoOperation('view_subordinate_users') || $USER->Ca
 if(!($USER->CanDoOperation('view_own_profile') || $USER->CanDoOperation('edit_own_profile') || $canViewUserList))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intval($_REQUEST["ID"]);
-$COPY_ID = intval($_REQUEST["COPY_ID"]);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$COPY_ID = intval($_REQUEST["COPY_ID"] ?? 0);
 
 $uid = $USER->GetID();
 
@@ -70,7 +71,7 @@ if($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('ed
 	}
 	$arUserSubordinateGroups = array_unique($arUserSubordinateGroups);
 
-	if (count(array_diff($arUserGroups, $arUserSubordinateGroups)) > 0 && !$selfEdit)
+	if (!empty(array_diff($arUserGroups, $arUserSubordinateGroups)) && !$selfEdit)
 		LocalRedirect(BX_ROOT."/admin/user_admin.php?lang=".LANG);
 }
 
@@ -81,7 +82,7 @@ $editable = ($USER->IsAdmin() ||
 );
 
 //authorize as user
-if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
 	$USER->Logout();
 	$USER->Authorize(intval($_REQUEST["ID"]), false, true, null, false);
@@ -130,7 +131,7 @@ if(($editable && $ID!=$USER->GetID()) || $USER->IsAdmin())
 
 //Add user fields tab only when there is fields defined or user has rights for adding new field
 if(
-	(count($USER_FIELD_MANAGER->GetUserFields($PROPERTY_ID)) > 0) ||
+	(!empty($USER_FIELD_MANAGER->GetUserFields($PROPERTY_ID))) ||
 	($USER_FIELD_MANAGER->GetRights($PROPERTY_ID) >= "W")
 )
 {
@@ -142,10 +143,10 @@ $tabControl = new CAdminForm("user_edit", $aTabs);
 if(
 	$_SERVER["REQUEST_METHOD"]=="POST"
 	&& (
-		$_REQUEST["save"]<>''
-		|| $_REQUEST["apply"]<>''
-		|| $_REQUEST["Update"]=="Y"
-		|| $_REQUEST["save_and_add"]<>''
+		!empty($_REQUEST["save"])
+		|| !empty($_REQUEST["apply"])
+		|| (isset($_REQUEST["Update"]) && $_REQUEST["Update"]=="Y")
+		|| !empty($_REQUEST["save_and_add"])
 	)
 	&& $editable
 	&& check_bitrix_sessid()
@@ -168,6 +169,7 @@ if(
 		}
 	}
 
+	$new = null;
 	if($strError == '')
 	{
 		$user = new CUser;
@@ -185,56 +187,60 @@ if(
 		if($arUser)
 		{
 			$arPERSONAL_PHOTO["old_file"] = $arUser["PERSONAL_PHOTO"];
-			$arPERSONAL_PHOTO["del"] = $_POST["PERSONAL_PHOTO_del"];
+			$arPERSONAL_PHOTO["del"] = $_POST["PERSONAL_PHOTO_del"] ?? '';
 
 			$arWORK_LOGO["old_file"] = $arUser["WORK_LOGO"];
-			$arWORK_LOGO["del"] = $_POST["WORK_LOGO_del"];
+			$arWORK_LOGO["del"] = $_POST["WORK_LOGO_del"] ?? '';
 		}
 
 		$arFields = array(
-			"TITLE" => $_POST["TITLE"],
-			"NAME" => $_POST["NAME"],
-			"LAST_NAME" => $_POST["LAST_NAME"],
-			"SECOND_NAME" => $_POST["SECOND_NAME"],
-			"EMAIL" => $_POST["EMAIL"],
-			"LOGIN" => $_POST["LOGIN"],
-			"PERSONAL_PROFESSION" => $_POST["PERSONAL_PROFESSION"],
-			"PERSONAL_WWW" => $_POST["PERSONAL_WWW"],
-			"PERSONAL_ICQ" => $_POST["PERSONAL_ICQ"],
-			"PERSONAL_GENDER" => $_POST["PERSONAL_GENDER"],
-			"PERSONAL_BIRTHDAY" => $_POST["PERSONAL_BIRTHDAY"],
+			"TITLE" => $_POST["TITLE"] ?? '',
+			"NAME" => $_POST["NAME"] ?? '',
+			"LAST_NAME" => $_POST["LAST_NAME"] ?? '',
+			"SECOND_NAME" => $_POST["SECOND_NAME"] ?? '',
+			"EMAIL" => $_POST["EMAIL"] ?? '',
+			"LOGIN" => $_POST["LOGIN"] ?? '',
+			"PERSONAL_PROFESSION" => $_POST["PERSONAL_PROFESSION"] ?? '',
+			"PERSONAL_WWW" => $_POST["PERSONAL_WWW"] ?? '',
+			"PERSONAL_ICQ" => $_POST["PERSONAL_ICQ"] ?? '',
+			"PERSONAL_GENDER" => $_POST["PERSONAL_GENDER"] ?? '',
+			"PERSONAL_BIRTHDAY" => $_POST["PERSONAL_BIRTHDAY"] ?? '',
 			"PERSONAL_PHOTO" => $arPERSONAL_PHOTO,
-			"PERSONAL_PHONE" => $_POST["PERSONAL_PHONE"],
-			"PERSONAL_FAX" => $_POST["PERSONAL_FAX"],
-			"PERSONAL_MOBILE" => $_POST["PERSONAL_MOBILE"],
-			"PERSONAL_PAGER" => $_POST["PERSONAL_PAGER"],
-			"PERSONAL_STREET" => $_POST["PERSONAL_STREET"],
-			"PERSONAL_MAILBOX" => $_POST["PERSONAL_MAILBOX"],
-			"PERSONAL_CITY" => $_POST["PERSONAL_CITY"],
-			"PERSONAL_STATE" => $_POST["PERSONAL_STATE"],
-			"PERSONAL_ZIP" => $_POST["PERSONAL_ZIP"],
-			"PERSONAL_COUNTRY" => $_POST["PERSONAL_COUNTRY"],
-			"PERSONAL_NOTES" => $_POST["PERSONAL_NOTES"],
-			"WORK_COMPANY" => $_POST["WORK_COMPANY"],
-			"WORK_DEPARTMENT" => $_POST["WORK_DEPARTMENT"],
-			"WORK_POSITION" => $_POST["WORK_POSITION"],
-			"WORK_WWW" => $_POST["WORK_WWW"],
-			"WORK_PHONE" => $_POST["WORK_PHONE"],
-			"WORK_FAX" => $_POST["WORK_FAX"],
-			"WORK_PAGER" => $_POST["WORK_PAGER"],
-			"WORK_STREET" => $_POST["WORK_STREET"],
-			"WORK_MAILBOX" => $_POST["WORK_MAILBOX"],
-			"WORK_CITY" => $_POST["WORK_CITY"],
-			"WORK_STATE" => $_POST["WORK_STATE"],
-			"WORK_ZIP" => $_POST["WORK_ZIP"],
-			"WORK_COUNTRY" => $_POST["WORK_COUNTRY"],
-			"WORK_PROFILE" => $_POST["WORK_PROFILE"],
+			"PERSONAL_PHONE" => $_POST["PERSONAL_PHONE"] ?? '',
+			"PERSONAL_FAX" => $_POST["PERSONAL_FAX"] ?? '',
+			"PERSONAL_MOBILE" => $_POST["PERSONAL_MOBILE"] ?? '',
+			"PERSONAL_PAGER" => $_POST["PERSONAL_PAGER"] ?? '',
+			"PERSONAL_STREET" => $_POST["PERSONAL_STREET"] ?? '',
+			"PERSONAL_MAILBOX" => $_POST["PERSONAL_MAILBOX"] ?? '',
+			"PERSONAL_CITY" => $_POST["PERSONAL_CITY"] ?? '',
+			"PERSONAL_STATE" => $_POST["PERSONAL_STATE"] ?? '',
+			"PERSONAL_ZIP" => $_POST["PERSONAL_ZIP"] ?? '',
+			"PERSONAL_COUNTRY" => $_POST["PERSONAL_COUNTRY"] ?? '',
+			"PERSONAL_NOTES" => $_POST["PERSONAL_NOTES"] ?? '',
+			"WORK_COMPANY" => $_POST["WORK_COMPANY"] ?? '',
+			"WORK_DEPARTMENT" => $_POST["WORK_DEPARTMENT"] ?? '',
+			"WORK_POSITION" => $_POST["WORK_POSITION"] ?? '',
+			"WORK_WWW" => $_POST["WORK_WWW"] ?? '',
+			"WORK_PHONE" => $_POST["WORK_PHONE"] ?? '',
+			"WORK_FAX" => $_POST["WORK_FAX"] ?? '',
+			"WORK_PAGER" => $_POST["WORK_PAGER"] ?? '',
+			"WORK_STREET" => $_POST["WORK_STREET"] ?? '',
+			"WORK_MAILBOX" => $_POST["WORK_MAILBOX"] ?? '',
+			"WORK_CITY" => $_POST["WORK_CITY"] ?? '',
+			"WORK_STATE" => $_POST["WORK_STATE"] ?? '',
+			"WORK_ZIP" => $_POST["WORK_ZIP"] ?? '',
+			"WORK_COUNTRY" => $_POST["WORK_COUNTRY"] ?? '',
+			"WORK_PROFILE" => $_POST["WORK_PROFILE"] ?? '',
 			"WORK_LOGO" => $arWORK_LOGO,
-			"WORK_NOTES" => $_POST["WORK_NOTES"],
-			"AUTO_TIME_ZONE" => ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N"? $_POST["AUTO_TIME_ZONE"] : ""),
-			"XML_ID" => $_POST["XML_ID"],
-			"PHONE_NUMBER" => $_POST["PHONE_NUMBER"],
-			"PASSWORD_EXPIRED" => $_POST["PASSWORD_EXPIRED"],
+			"WORK_NOTES" => $_POST["WORK_NOTES"] ?? '',
+			"AUTO_TIME_ZONE" => (
+				isset($_POST["AUTO_TIME_ZONE"]) && ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N")
+					? $_POST["AUTO_TIME_ZONE"]
+					: ""
+			),
+			"XML_ID" => $_POST["XML_ID"] ?? '',
+			"PHONE_NUMBER" => $_POST["PHONE_NUMBER"] ?? '',
+			"PASSWORD_EXPIRED" => $_POST["PASSWORD_EXPIRED"] ?? '',
 		);
 
 		if(isset($_POST["TIME_ZONE"]))
@@ -242,7 +248,7 @@ if(
 
 		if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users'))
 		{
-			if($_POST["LID"] <> '')
+			if (!empty($_POST["LID"]))
 				$arFields["LID"] = $_POST["LID"];
 
 			if(isset($_POST["LANGUAGE_ID"]))
@@ -258,8 +264,8 @@ if(
 			}
 			else
 			{
-				$arFields["ACTIVE"] = $_POST["ACTIVE"];
-				$arFields["BLOCKED"] = $_POST["BLOCKED"];
+				$arFields["ACTIVE"] = $_POST["ACTIVE"] ?? null;
+				$arFields["BLOCKED"] = $_POST["BLOCKED"] ?? null;
 			}
 
 			if($showGroupTabs && isset($_REQUEST["GROUP_ID_NUMBER"]))
@@ -269,9 +275,9 @@ if(
 				$ind = -1;
 				for ($i = 0; $i <= $GROUP_ID_NUMBER; $i++)
 				{
-					if (${"GROUP_ID_ACT_".$i} == "Y")
+					if (isset(${"GROUP_ID_ACT_".$i}) && ${"GROUP_ID_ACT_".$i} == "Y")
 					{
-						$gr_id = intval(${"GROUP_ID_".$i});
+						$gr_id = intval(${"GROUP_ID_".$i} ?? 0);
 
 						if($gr_id == 1 && !$USER->IsAdmin())
 							continue;
@@ -297,14 +303,16 @@ if(
 				$arFields["GROUP_ID"]=$GROUP_ID;
 			}
 
-			if (($editable && $ID!=$USER->GetID()) || $USER->IsAdmin())
-				$arFields["ADMIN_NOTES"] = $_POST["ADMIN_NOTES"];
+			if ($ID != $USER->GetID() || $USER->IsAdmin())
+			{
+				$arFields["ADMIN_NOTES"] = $_POST["ADMIN_NOTES"] ?? '';
+			}
 		}
 
-		if($_POST["NEW_PASSWORD"] <> '')
+		if (!empty($_POST["NEW_PASSWORD"]))
 		{
 			$arFields["PASSWORD"] = $_POST["NEW_PASSWORD"];
-			$arFields["CONFIRM_PASSWORD"] = $_POST["NEW_PASSWORD_CONFIRM"];
+			$arFields["CONFIRM_PASSWORD"] = $_POST["NEW_PASSWORD_CONFIRM"] ?? '';
 		}
 
 		$USER_FIELD_MANAGER->EditFormAddFields($PROPERTY_ID, $arFields);
@@ -318,12 +326,12 @@ if(
 			$res = ($ID > 0);
 			if(COption::GetOptionString("main", "event_log_register", "N") === "Y" && $res)
 			{
-				$res_log["user"] = ($_POST["NAME"] != "" || $_POST["LAST_NAME"] != "") ? trim($_POST["NAME"]." ".$_POST["LAST_NAME"]) : $_POST["LOGIN"];
+				$res_log["user"] = (!empty($_POST["NAME"]) || !empty($_POST["LAST_NAME"])) ? trim(($_POST["NAME"] ?? '')." ".($_POST["LAST_NAME"] ?? '')) : ($_POST["LOGIN"] ?? '');
 				CEventLog::Log("SECURITY", "USER_REGISTER", "main", $ID, serialize($res_log));
 			}
 			$new = "Y";
 		}
-		if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$USER->GetID()) && is_array($_POST['RATING_BONUS']))
+		if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$USER->GetID()) && is_array($_POST['RATING_BONUS'] ?? null))
 		{
 			foreach ($_POST['RATING_BONUS'] as $ratingId => $ratingBonus)
 			{
@@ -352,7 +360,7 @@ if(
 
 	if($strError == '' && $ID>0)
 	{
-		if(is_array($_REQUEST["profile_module_id"]) && count($_REQUEST["profile_module_id"])>0)
+		if (isset($_REQUEST["profile_module_id"]) && is_array($_REQUEST["profile_module_id"]) && !empty($_REQUEST["profile_module_id"]))
 		{
 			$db_opt_res = CModule::GetList();
 			while ($opt_res = $db_opt_res->Fetch())
@@ -393,10 +401,10 @@ if(
 
 		if($strError == '' && $res)
 		{
-			if($_POST["user_info_event"] == "Y")
+			if (isset($_POST["user_info_event"]) && $_POST["user_info_event"] == "Y")
 			{
 				$arMess = false;
-				$res_site = CSite::GetByID($_POST["LID"]);
+				$res_site = CSite::GetByID($_POST["LID"] ?? '');
 				if($res_site_arr = $res_site->Fetch())
 					$arMess = IncludeModuleLangFile(__FILE__, $res_site_arr["LANGUAGE_ID"], true);
 
@@ -408,7 +416,7 @@ if(
 				{
 					$text = ($arMess !== false? $arMess["ACCOUNT_UPDATE"] : GetMessage("ACCOUNT_UPDATE"));
 				}
-				CUser::SendUserInfo($ID, $_POST["LID"], $text, true);
+				CUser::SendUserInfo($ID, $_POST["LID"] ?? '', $text, true);
 			}
 
 			if ($adminSidePanelHelper->isAjaxRequest())
@@ -419,11 +427,11 @@ if(
 			{
 				if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users') || ($USER->CanDoOperation('edit_own_profile') && $ID==$uid))
 				{
-					if($_POST["save"] <> '')
+					if (!empty($_POST["save"]))
 						LocalRedirect($strRedirect_admin);
-					elseif($_POST["apply"] <> '')
+					elseif (!empty($_POST["apply"]))
 						LocalRedirect($strRedirect."&ID=".$ID."&".$tabControl->ActiveTabParam());
-					elseif($_POST["save_and_add"] <> '')
+					elseif (!empty($_POST["save_and_add"]))
 						LocalRedirect($strRedirect."&ID=0&".$tabControl->ActiveTabParam());
 				}
 				elseif($new=="Y")
@@ -436,8 +444,57 @@ if(
 		$adminSidePanelHelper->sendJsonErrorResponse($strError);
 }
 
-$str_GROUP_ID = array();
-$str_PHONE_NUMBER = "";
+$str_TITLE = '';
+$str_NAME = '';
+$str_LAST_NAME = '';
+$str_SECOND_NAME = '';
+$str_EMAIL = '';
+$str_LOGIN = '';
+$str_DATE_REGISTER = '';
+$str_TIMESTAMP_X = '';
+$str_LAST_LOGIN = '';
+$str_PHONE_NUMBER = '';
+$str_PASSWORD_EXPIRED = '';
+$str_EXTERNAL_AUTH_ID = '';
+$str_PERSONAL_PROFESSION = '';
+$str_PERSONAL_WWW = '';
+$str_PERSONAL_ICQ = '';
+$str_PERSONAL_GENDER = '';
+$str_PERSONAL_BIRTHDAY = '';
+$str_PERSONAL_PHOTO = '';
+$str_PERSONAL_PHONE = '';
+$str_PERSONAL_FAX = '';
+$str_PERSONAL_MOBILE = '';
+$str_PERSONAL_PAGER = '';
+$str_PERSONAL_COUNTRY = '';
+$str_PERSONAL_STATE = '';
+$str_PERSONAL_CITY = '';
+$str_PERSONAL_ZIP = '';
+$str_PERSONAL_STREET = '';
+$str_PERSONAL_MAILBOX = '';
+$str_PERSONAL_NOTES = '';
+$str_WORK_COMPANY = '';
+$str_WORK_WWW = '';
+$str_WORK_DEPARTMENT = '';
+$str_WORK_POSITION = '';
+$str_WORK_PROFILE = '';
+$str_WORK_LOGO = '';
+$str_WORK_PHONE = '';
+$str_WORK_FAX = '';
+$str_WORK_PAGER = '';
+$str_WORK_COUNTRY = '';
+$str_WORK_STATE = '';
+$str_WORK_CITY = '';
+$str_WORK_ZIP = '';
+$str_WORK_STREET = '';
+$str_WORK_MAILBOX = '';
+$str_WORK_NOTES = '';
+$str_GROUP_ID = [];
+$str_XML_ID = '';
+$str_LANGUAGE_ID = '';
+$str_AUTO_TIME_ZONE = '';
+$str_TIME_ZONE = '';
+$str_ADMIN_NOTES = '';
 
 $user = CUser::GetByID($ID);
 if(!$user->ExtractFields("str_"))
@@ -478,13 +535,13 @@ if($strError <> '' || !$res)
 	$str_PERSONAL_PHOTO = $save_PERSONAL_PHOTO;
 	$str_WORK_LOGO = $save_WORK_LOGO;
 
-	$str_PHONE_NUMBER = htmlspecialcharsbx($_POST["PHONE_NUMBER"]);
+	$str_PHONE_NUMBER = htmlspecialcharsbx($_POST["PHONE_NUMBER"] ?? '');
 
-	$GROUP_ID_NUMBER = intval($_REQUEST["GROUP_ID_NUMBER"]);
+	$GROUP_ID_NUMBER = intval($_REQUEST["GROUP_ID_NUMBER"] ?? 0);
 	$str_GROUP_ID = array();
 	for ($i = 0; $i <= $GROUP_ID_NUMBER; $i++)
 	{
-		if (${"GROUP_ID_ACT_".$i} == "Y")
+		if (isset(${"GROUP_ID_ACT_".$i}) && ${"GROUP_ID_ACT_".$i} == "Y")
 		{
 			$str_GROUP_ID[intval(${"GROUP_ID_".$i})]["DATE_ACTIVE_FROM"] = ${"GROUP_ID_FROM_".$i};
 			$str_GROUP_ID[intval(${"GROUP_ID_".$i})]["DATE_ACTIVE_TO"] = ${"GROUP_ID_TO_".$i};
@@ -595,11 +652,13 @@ $tabControl->BeginEpilogContent();
 <?
 $tabControl->EndEpilogContent();
 
-$limitUsersCount = $users_cnt = 0;
+$limitUsersCount = 0;
+$users_cnt = 0;
 if($ID <= 0)
 {
-	$users_cnt = CUser::GetActiveUsersCount();
-	$limitUsersCount = intval(COption::GetOptionInt("main", "PARAM_MAX_USERS", 0));
+	$license = Application::getInstance()->getLicense();
+	$users_cnt = $license->getActiveUsersCount();
+	$limitUsersCount = $license->getMaxUsers();
 }
 
 $tabControl->Begin(array(
@@ -675,7 +734,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 ?>
 	<tr id="bx_pass_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
 		<td><?echo GetMessage('NEW_PASSWORD_REQ')?>:</td>
-		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD) ?>" autocomplete="new-password" style="vertical-align:middle;">
+		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD ?? '') ?>" autocomplete="new-password" style="vertical-align:middle;">
 <?if($bSecure):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -693,7 +752,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	</tr>
 	<tr id="bx_pass_confirm_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
 		<td><?echo GetMessage('NEW_PASSWORD_CONFIRM')?></td>
-		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD_CONFIRM) ?>" autocomplete="new-password"></td>
+		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD_CONFIRM ?? '') ?>" autocomplete="new-password"></td>
 	</tr>
 <?
 $tabControl->EndCustomField("PASSWORD");
@@ -746,7 +805,13 @@ if($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('vie
 ?>
 	<tr>
 		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
-		<?if(!$canSelfEdit) $dis = " disabled"?>
+		<?
+		$dis = '';
+		if (!$canSelfEdit)
+		{
+			$dis = " disabled";
+		}
+		?>
 		<td><?=CSite::SelectBox("LID", $str_LID, "", "", "style=\"width:220px\"".$dis);?></td>
 	</tr>
 <?
@@ -765,7 +830,15 @@ if($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('vie
 	{
 		$params[] = "disabled";
 	}
-	$tabControl->AddCheckBoxField("user_info_event", GetMessage('INFO_FOR_USER'), false, "Y", ($_REQUEST["user_info_event"]=="Y"), $params);
+
+	$tabControl->AddCheckBoxField(
+		"user_info_event",
+		GetMessage('INFO_FOR_USER'),
+		false,
+		"Y",
+		(isset($_REQUEST["user_info_event"]) && $_REQUEST["user_info_event"] == "Y"),
+		$params
+	);
 endif;
 
 if(CTimeZone::Enabled())
@@ -967,10 +1040,10 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 							array(
 								"RESULT_TYPE" 			=> 'POSITION',
 								"SHOW_RATING_NAME"		=> 'N',
-								"RATING_ID" 			=> $arRatingResult['RATING_ID'],
-								"ENTITY_ID" 			=> $arRatingResult['ENTITY_ID'],
-								"CURRENT_POSITION" 		=> $arRatingResult['CURRENT_POSITION'],
-								"PREVIOUS_POSITION" 	=> $arRatingResult['PREVIOUS_POSITION'],
+								"RATING_ID" 			=> $arRatingResult['RATING_ID'] ?? null,
+								"ENTITY_ID" 			=> $arRatingResult['ENTITY_ID'] ?? null,
+								"CURRENT_POSITION" 		=> $arRatingResult['CURRENT_POSITION'] ?? null,
+								"PREVIOUS_POSITION" 	=> $arRatingResult['PREVIOUS_POSITION'] ?? null,
 							),
 							null,
 							array("HIDE_ICONS" => "Y")
@@ -979,11 +1052,11 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 					</tr>
 					<tr>
 						<td class="field-name" width="40%"><?=GetMessage('RATING_CURRENT_VALUE')?>:</td>
-						<td><?=floatval($arRatingResult['CURRENT_VALUE']);?></td>
+						<td><?=floatval($arRatingResult['CURRENT_VALUE'] ?? 0);?></td>
 					</tr>
 					<tr>
 						<td class="field-name" width="40%"><?=GetMessage('RATING_PREVIOUS_VALUE')?>:</td>
-						<td><?=floatval($arRatingResult['PREVIOUS_VALUE']);?></td>
+						<td><?=floatval($arRatingResult['PREVIOUS_VALUE'] ?? 0);?></td>
 					</tr>
 					<?
 						if ($arRating['AUTHORITY'] == 'Y')
@@ -994,7 +1067,7 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 								$voteWeightUser = $voteWeight>0? round(floatval($arAuthorityUserProp['VOTE_WEIGHT']/$voteWeight), 4): 0;
 								$communitySize = COption::GetOptionString("main", "rating_community_size", 1);
 								$communityAuthority = COption::GetOptionString("main", "rating_community_authority", 1);
-								$normVoteCount = $voteWeight>0?floor(floatval($arRatingResult['CURRENT_VALUE'])/$voteWeight): 0;
+								$normVoteCount = $voteWeight>0?floor(floatval($arRatingResult['CURRENT_VALUE'] ?? 0)/$voteWeight): 0;
 								$sRatingAuthorityWeight = COption::GetOptionString("main", "rating_authority_weight_formula", 'Y');
 								if ($sRatingAuthorityWeight == 'Y')
 									$voteWeightAuthority = $communityAuthority > 0? round($communitySize*$voteWeightUser/$communityAuthority,4): 0;
@@ -1073,7 +1146,7 @@ endif;
 
 //Add user fields tab only when there is fields defined or user has rights for adding new field
 if(
-	(count($USER_FIELD_MANAGER->GetUserFields($PROPERTY_ID)) > 0) ||
+	(!empty($USER_FIELD_MANAGER->GetUserFields($PROPERTY_ID))) ||
 	($USER_FIELD_MANAGER->GetRights($PROPERTY_ID) >= "W")
 )
 {

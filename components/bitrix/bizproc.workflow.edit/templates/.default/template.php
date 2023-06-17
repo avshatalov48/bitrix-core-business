@@ -273,7 +273,7 @@ $aMenu[] = [
 }
 ?>
 <div style="background-color: #FFFFFF;<?php if($isAdminSection): ?>padding: 10px<?php endif;?>">
-	<? if ($arParams['SHOW_TOOLBAR'] == 'Y')
+	<?php if (isset($arParams['SHOW_TOOLBAR']) && $arParams['SHOW_TOOLBAR'] == 'Y')
 	{
 		$APPLICATION->IncludeComponent(
 			"bitrix:main.interface.toolbar",

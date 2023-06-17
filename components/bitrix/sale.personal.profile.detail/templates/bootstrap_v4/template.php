@@ -73,7 +73,7 @@ if($arResult["ID"] <> '')
 					{
 						$key = (int)$property["ID"];
 						$name = "ORDER_PROP_".$key;
-						$currentValue = $arResult["ORDER_PROPS_VALUES"][$name];
+						$currentValue = $arResult["ORDER_PROPS_VALUES"][$name] ?? '';
 						$alignTop = ($property["TYPE"] === "LOCATION" && $arParams['USE_AJAX_LOCATIONS'] === 'Y') ? "vertical-align-top" : "";
 						?>
 							<?
@@ -269,10 +269,10 @@ if($arResult["ID"] <> '')
 													);
 												}
 												?><span class="btn btn-primary btn-md input-add-multiple"
-													  data-add-type="<?=$property["TYPE"]?>"
-													  data-add-name="<?=$name?>"
-													  data-add-last-key="<?=$code?>"
-													  data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span><?
+													data-add-type="<?=$property["TYPE"]?>"
+													data-add-name="<?=$name?>"
+													data-add-last-key="<?=$code?>"
+													data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span><?
 										}
 										else
 										{

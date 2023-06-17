@@ -5,8 +5,9 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intval($ID);
+$ID = intval($_REQUEST['ID'] ?? 0);
 $arError = $arSmileSet = $arFields = $arLang = array();
+$message = null;
 
 /* LANGS */
 $arLangTitle = array("reference_id" => array(), "reference" => array());
@@ -22,7 +23,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> ''))
+if ($REQUEST_METHOD == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -72,7 +73,7 @@ if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> ''))
 		else
 		{
 			LocalRedirect(
-				($save <> '' ?
+				(!empty($_POST['save']) ?
 					"smile_gallery.php?lang=".LANG."&".GetFilterParams("filter_", false) :
 					"smile_gallery_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false)));
 		}
@@ -91,14 +92,14 @@ if ($bInitVars && !empty($arFields))
 	$arSmileSet = array(
 		"SORT" => isset($arFields['SORT'])? intval($arFields['SORT']): 300,
 		"STRING_ID" => isset($arFields['STRING_ID'])? htmlspecialcharsbx($arFields['STRING_ID']): "",
-		"NAME" => isset($arFields['NAME'])? $arFields['NAME']: array()
+		"NAME" => $arFields['NAME'] ?? array()
 	);
 }
 elseif ($ID > 0)
 {
 	$arSmileSet = CSmileGallery::getById($ID, CSmileSet::GET_ALL_LANGUAGE);
 }
-else 
+else
 {
 	if (isset($_REQUEST['NAME']))
 		foreach ($_REQUEST['NAME'] as $key => $value)
@@ -107,7 +108,7 @@ else
 	$arSmileSet = array(
 		"SORT" => isset($_REQUEST['SORT'])? intval($_REQUEST['SORT']): 300,
 		"STRING_ID" => isset($_REQUEST['STRING_ID'])? htmlspecialcharsbx($_REQUEST['STRING_ID']): "",
-		"NAME" => isset($_REQUEST['NAME'])? $_REQUEST['NAME']: array()
+		"NAME" => $_REQUEST['NAME'] ?? array()
 	);
 }
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -165,7 +166,7 @@ $tabControl->BeginNextTab();
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
 		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
-		<td><input type="text" name="NAME[<?=$key?>]" value="<?=$arSmileSet["NAME"][$key]?>" size="40" /></td>
+		<td><input type="text" name="NAME[<?=$key?>]" value="<?=($arSmileSet["NAME"][$key] ?? '')?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>
 	<tr class="heading">
@@ -199,7 +200,7 @@ $tabControl->BeginNextTab();
 	{
 		$arSmiles = Array();
 	}
-	if (count($arSmiles) > 0):?>
+	if (!empty($arSmiles)):?>
 	<tr>
 		<td><?=GetMessage("SMILE_SMILE_EXAMPLE")?>:</td>
 		<td>
@@ -220,4 +221,4 @@ $tabControl->Buttons(array(
 $tabControl->End();
 $tabControl->ShowWarnings("smile_gallery_edit", $message);
 ?>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>

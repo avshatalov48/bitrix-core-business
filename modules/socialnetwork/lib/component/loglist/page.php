@@ -257,6 +257,7 @@ class Page
 			$result['dateLastPageTS'] = $result['LAST_ENTRY_DATE_TS'];
 		}
 
+		$dateLastPage = null;
 		if (!empty($result['dateLastPageTS']))
 		{
 			$dateLastPage = convertTimeStamp($result['dateLastPageTS'], 'FULL');

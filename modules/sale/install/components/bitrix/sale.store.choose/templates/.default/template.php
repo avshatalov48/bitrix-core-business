@@ -1,8 +1,16 @@
-<?
-	use Bitrix\Main\Localization\Loc;
-	/** @var CMain $APPLICATION */
+<?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true){
+	die();
+}
+
+/** @var CMain $APPLICATION */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var string $templateFolder */
+
+use Bitrix\Main\Localization\Loc;
+
 $rnd = "or".randString(4);
 $mapTypesMenu = array();
 
@@ -76,7 +84,9 @@ foreach($arResult['MAP_TYPES_LIST'] as $type => $name)
 					<?
 					$i = 1;
 					$countCount = count($arResult["STORES"]);
-					$arDefaultStore = array_shift(array_values($arResult["STORES"]));
+					$list = array_values($arResult["STORES"]);
+					$arDefaultStore = array_shift($list);
+					unset($list);
 
 					foreach ($arResult["STORES"] as $val)
 					{
@@ -85,7 +95,7 @@ foreach($arResult['MAP_TYPES_LIST'] as $type => $name)
 						?>
 						<tr class="store_row" id="row<?=$arParams["INDEX"]?>_<?=$val["ID"]?>" <?=$checked?>>
 							<?
-							if ($showImages)
+							if ($arResult["SHOW_IMAGES"])
 							{
 								?>
 								<td class="image_cell">
@@ -109,8 +119,14 @@ foreach($arResult['MAP_TYPES_LIST'] as $type => $name)
 							<td class="<?=($countCount != $i)?"lilne":"last"?>">
 								<label for="store<?=$arParams["INDEX"]?>_<?=$val["ID"]?>">
 									<div class="adres"><?=htmlspecialcharsbx($val["ADDRESS"])?></div>
-									<div class="phone"><?=htmlspecialcharsbx($val["PHONE"])?></div>
-									<?
+									<?php
+									$phone = trim((string)($val['PHONE'] ?? ''));
+									if ($phone !== '')
+									{
+										?>
+										<div class="phone"><?= htmlspecialcharsbx($phone); ?></div>
+										<?php
+									}
 										$result .= '<span class="adres"><b>'.htmlspecialcharsbx($val["TITLE"]).':</b> '.htmlspecialcharsbx($val["ADDRESS"]).'</span>';
 										$menu[] = array(
 											'HTML' => $result,
@@ -119,9 +135,29 @@ foreach($arResult['MAP_TYPES_LIST'] as $type => $name)
 									?>
 									<div class="full_store_info" id="full_store_info" onclick="BX.Sale.Store.Choose.showFullInfo(this);"><?=Loc::getMessage('SALE_SSC_ADD_INFO')?></div>
 									<div style="display: none;">
-										<div class="email"><a href="mailto:<?=htmlspecialcharsbx($val["EMAIL"])?>"><?=htmlspecialcharsbx($val["EMAIL"])?></a></div>
-										<div class="shud"><?=htmlspecialcharsbx($val["SCHEDULE"])?></div>
-										<div class="desc"><?=GetMessage('SALE_SSC_DESC');?>: <?=htmlspecialcharsbx($val["DESCRIPTION"])?></div>
+										<?php
+										$email = trim((string)($val['EMAIL'] ?? ''));
+										if ($email !== '')
+										{
+											?>
+											<div class="email"><a href="mailto:<?= htmlspecialcharsbx($email); ?>"><?= htmlspecialcharsbx($email); ?></a></div>
+											<?php
+										}
+										$schedule = trim((string)($val['SCHEDULE'] ?? ''));
+										if ($schedule !== '')
+										{
+											?>
+											<div class="shud"><?= htmlspecialcharsbx($schedule); ?></div>
+											<?php
+										}
+										$description = trim((string)($val['DESCRIPTION'] ?? ''));
+										if ($description !== '')
+										{
+											?>
+											<div class="desc"><?=GetMessage('SALE_SSC_DESC');?>: <?= htmlspecialcharsbx($description); ?></div>
+											<?php
+										}
+										?>
 									</div>
 								</label>
 							</td>

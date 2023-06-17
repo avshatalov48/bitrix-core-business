@@ -301,6 +301,8 @@ if(is_array($arID))
 						foreach ($filesToUpdate as $updatedFileId)
 						{
 							CFile::CleanCache($updatedFileId);
+							$cache = new CPHPCache;
+							$cache->CleanDir('clouds');
 						}
 						$_done += $updateCount;
 						$_size += doubleval($arFile["FILE_SIZE"]) * $updateCount;
@@ -393,7 +395,7 @@ if(is_array($arID))
 			{
 				$pageSize = 1000;
 				$hasFinished = null;
-				$lastKey = (string)$_REQUEST['lastKey'];
+				$lastKey = (string)($_REQUEST['lastKey'] ?? '');
 
 				$result = $ob->ListFiles('/', true, $pageSize, $lastKey);
 				$isOk = is_array($result);
@@ -534,6 +536,7 @@ while(is_array($arRes = $rsData->Fetch()))
 	$row =& $lAdmin->AddRow($arRes["ID"], $arRes);
 
 	$row->AddViewField("ID", '<a href="clouds_storage_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["ID"].'">'.$arRes["ID"].'</a>');
+	$row->AddViewField("FILE_COUNT", '<a href="clouds_file_list.php?lang='.LANGUAGE_ID.'&bucket='.$arRes["ID"].'&path=%2F">'.$arRes["ID"].'</a>');
 
 	if($arRes["ACTIVE"] === "Y")
 		$html = '<div class="lamp-green"></div>';
@@ -601,12 +604,14 @@ while(is_array($arRes = $rsData->Fetch()))
 		);
 	}
 
-	if(intval($arRes["B_FILE_COUNT"]) > 0)
+	if(intval($arRes["FILE_COUNT"]) > 0)
 	{
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TEXT"=>GetMessage("CLO_STORAGE_LIST_DELETE"),
-			"ACTION"=>"alert('".GetMessage("CLO_STORAGE_LIST_CANNOT_DELETE")."')"
+			"ACTION"=>"alert('".GetMessage("CLO_STORAGE_LIST_CANNOT_DELETE", [
+				'#error_msg#' => GetMessage("CLO_STORAGE_LIST_NOT_EMPTY")
+			])."')"
 		);
 	}
 	else

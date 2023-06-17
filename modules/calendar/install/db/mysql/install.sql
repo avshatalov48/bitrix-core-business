@@ -277,7 +277,15 @@ CREATE TABLE b_calendar_sharing_link (
 	OPTIONS text NULL,
 	ACTIVE char(1) NOT NULL DEFAULT 'Y',
 	DATE_CREATE datetime NOT NULL,
+	DATE_EXPIRE datetime DEFAULT NULL,
+	HOST_ID int DEFAULT NULL,
+	OWNER_ID int DEFAULT NULL,
+	CONFERENCE_ID char(64) DEFAULT NULL,
+	PARENT_LINK_HASH char(64) DEFAULT NULL,
+	CONTACT_ID int DEFAULT NULL,
+	CONTACT_TYPE int DEFAULT NULL,
 	PRIMARY KEY (ID),
 	INDEX ix_calendar_sharing_link_hash(HASH),
-	INDEX ix_calendar_sharing_link_object_id(OBJECT_ID)
+	INDEX ix_calendar_sharing_link_object_id(OBJECT_ID),
+	INDEX ix_calendar_sharing_link_contact_id_contact_type(CONTACT_ID, CONTACT_TYPE)
 );

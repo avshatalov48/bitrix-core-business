@@ -56,7 +56,7 @@
 						File: '".__CIBlockTV::Prepare($ValElement['FILE'])."',
 						Size: '".$ValElement['FILE_SIZE']."',
 						Type: '".$ValElement['TYPE']."',
-						Action: '".CUtil::JSEscape($arButtons["edit"]["edit_element"]["ACTION"])."'
+						Action: '".CUtil::JSEscape($arButtons["edit"]["edit_element"]["ACTION"] ?? '')."'
 					}".((++$j<count($valSection['ELEMENTS']))?',':'');
 		}
 		$strPlayList .='

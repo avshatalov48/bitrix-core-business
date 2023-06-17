@@ -55,7 +55,7 @@ class Manifest
 					'CODE' => $manifest['CODE'],
 					'MANIFEST' => $manifest,
 					'TYPE' => $params['TYPE'],
-					'CONTEXT' => $params['CONTEXT'] ? : false,
+					'CONTEXT' => $params['CONTEXT'] ?? false,
 					'CONTEXT_USER' => $params['CONTEXT_USER'],
 					'STEP' => $step,
 					'NEXT' => isset($params['NEXT']) ? $params['NEXT'] : null,
@@ -76,8 +76,8 @@ class Manifest
 
 				$result[] = [
 					'NEXT' => isset($parameters['NEXT']) ? $parameters['NEXT'] : false,
-					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-					'ERROR_ACTION' => $parameters['ERROR_ACTION']
+					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'] ?? null,
+					'ERROR_ACTION' => $parameters['ERROR_ACTION'] ?? null
 				];
 			}
 		}

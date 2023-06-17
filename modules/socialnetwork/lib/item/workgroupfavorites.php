@@ -39,7 +39,14 @@ class WorkgroupFavorites
 			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUPFAVORITES_ERROR_NO_DATA'));
 		}
 
-		if (!(\CSocNetGroup::getById($groupId, true)))
+		$workgroupsCount = WorkgroupFavoritesTable::getCount([
+			'GROUP_ID' => $groupId,
+			'USER_ID' => $userId,
+		]);
+		$userHasFavoriteGroup = $workgroupsCount > 0;
+		$isUnset = $value === 'N';
+
+		if (!(\CSocNetGroup::getById($groupId, true)) && !($isUnset && $userHasFavoriteGroup))
 		{
 			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUPFAVORITES_ERROR_NO_ACCESS'));
 		}

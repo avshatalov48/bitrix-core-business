@@ -66,9 +66,8 @@ if (isset($templateData['TEMPLATE_THEME']))
 						?>
 
 						<div class="<?if ($arParams["FILTER_VIEW_MODE"] == "HORIZONTAL"):?>col-sm-6 col-md-4<?else:?>col-12<?endif?> mb-2 smart-filter-parameters-box bx-active">
-							<span class="smart-filter-container-modef"></span>
-
 							<div class="smart-filter-parameters-box-title" onclick="smartFilter.hideFilterProps(this)">
+								<span class="smart-filter-container-modef"></span>
 								<span class="smart-filter-parameters-box-title-text"><?=$arItem["NAME"]?></span>
 								<span data-role="prop_angle" class="smart-filter-angle smart-filter-angle-up">
 									<span  class="smart-filter-angles"></span>
@@ -173,9 +172,8 @@ if (isset($templateData['TEMPLATE_THEME']))
 					?>
 
 					<div class="<?if ($arParams["FILTER_VIEW_MODE"] == "HORIZONTAL"):?>col-sm-6 col-md-4<?else:?>col-lg-12<?endif?> mb-2 smart-filter-parameters-box <?if ($arItem["DISPLAY_EXPANDED"]== "Y"):?>bx-active<?endif?>">
-						<span class="smart-filter-container-modef"></span>
-
 						<div class="smart-filter-parameters-box-title" onclick="smartFilter.hideFilterProps(this)">
+							<span class="smart-filter-container-modef"></span>
 
 							<span class="smart-filter-parameters-box-title-text"><?=$arItem["NAME"]?></span>
 
@@ -358,9 +356,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 													$class.= " disabled";
 											?>
 											<label for="<?=$ar["CONTROL_ID"]?>"
-												   data-role="label_<?=$ar["CONTROL_ID"]?>"
-												   class="smart-filter-checkbox-label<?=$class?>"
-												   onclick="smartFilter.keyup(BX('<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')); BX.toggleClass(this, 'bx-active');">
+													data-role="label_<?=$ar["CONTROL_ID"]?>"
+													class="smart-filter-checkbox-label<?=$class?>"
+													onclick="smartFilter.keyup(BX('<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')); BX.toggleClass(this, 'bx-active');">
 												<span class="smart-filter-checkbox-btn bx-color-sl">
 													<?if (isset($ar["FILE"]) && !empty($ar["FILE"]["SRC"])):?>
 														<span class="smart-filter-checkbox-btn-image" style="background-image: url('<?=$ar["FILE"]["SRC"]?>');"></span>
@@ -395,9 +393,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 												$class.= " disabled";
 										?>
 										<label for="<?=$ar["CONTROL_ID"]?>"
-											   data-role="label_<?=$ar["CONTROL_ID"]?>"
-											   class="smart-filter-checkbox-label<?=$class?>"
-											   onclick="smartFilter.keyup(BX('<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')); BX.toggleClass(this, 'bx-active');">
+												data-role="label_<?=$ar["CONTROL_ID"]?>"
+												class="smart-filter-checkbox-label<?=$class?>"
+												onclick="smartFilter.keyup(BX('<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')); BX.toggleClass(this, 'bx-active');">
 											<span class="smart-filter-checkbox-btn">
 												<?if (isset($ar["FILE"]) && !empty($ar["FILE"]["SRC"])):?>
 													<span class="smart-filter-checkbox-btn-image" style="background-image:url('<?=$ar["FILE"]["SRC"]?>');"></span>
@@ -460,9 +458,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 												<ul>
 													<li>
 														<label for="<?="all_".$arCur["CONTROL_ID"]?>"
-															   class="smart-filter-dropdown-label"
-															   data-role="label_<?="all_".$arCur["CONTROL_ID"]?>"
-															   onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape("all_".$arCur["CONTROL_ID"])?>')">
+																class="smart-filter-dropdown-label"
+																data-role="label_<?="all_".$arCur["CONTROL_ID"]?>"
+																onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape("all_".$arCur["CONTROL_ID"])?>')">
 															<?=GetMessage("CT_BCSF_FILTER_ALL"); ?>
 														</label>
 													</li>
@@ -475,9 +473,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 													?>
 														<li>
 															<label for="<?=$ar["CONTROL_ID"]?>"
-																   class="smart-filter-dropdown-label<?=$class?>"
-																   data-role="label_<?=$ar["CONTROL_ID"]?>"
-																   onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')">
+																	class="smart-filter-dropdown-label<?=$class?>"
+																	data-role="label_<?=$ar["CONTROL_ID"]?>"
+																	onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')">
 																<?=$ar["VALUE"]?>
 															</label>
 														</li>
@@ -544,9 +542,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 													<ul>
 														<li style="border-bottom: 1px solid #e5e5e5;padding-bottom: 5px;margin-bottom: 5px;">
 															<label for="<?="all_".$arCur["CONTROL_ID"]?>"
-																   class="smart-filter-param-label"
-																   data-role="label_<?="all_".$arCur["CONTROL_ID"]?>"
-																   onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape("all_".$arCur["CONTROL_ID"])?>')">
+																	class="smart-filter-param-label"
+																	data-role="label_<?="all_".$arCur["CONTROL_ID"]?>"
+																	onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape("all_".$arCur["CONTROL_ID"])?>')">
 																<span class="smart-filter-checkbox-btn-image all"></span>
 																<span class="smart-filter-dropdown-text"><?=GetMessage("CT_BCSF_FILTER_ALL"); ?></span>
 															</label>
@@ -561,9 +559,9 @@ if (isset($templateData['TEMPLATE_THEME']))
 													?>
 														<li>
 															<label for="<?=$ar["CONTROL_ID"]?>"
-																   data-role="label_<?=$ar["CONTROL_ID"]?>"
-																   class="smart-filter-param-label<?=$class?>"
-																   onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')">
+																	data-role="label_<?=$ar["CONTROL_ID"]?>"
+																	class="smart-filter-param-label<?=$class?>"
+																	onclick="smartFilter.selectDropDownItem(this, '<?=CUtil::JSEscape($ar["CONTROL_ID"])?>')">
 																<?if (isset($ar["FILE"]) && !empty($ar["FILE"]["SRC"])):?>
 																	<span class="smart-filter-checkbox-btn-image" style="background-image:url('<?=$ar["FILE"]["SRC"]?>');"></span>
 																<?endif?>

@@ -9,20 +9,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	var headerAndButtonsIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/content/header-and-button/dist/images/header-and-buttons-message-icon.svg";
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var HeaderAndButtonContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(HeaderAndButtonContent, _ContentWrapper);
-
 	  function HeaderAndButtonContent(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, HeaderAndButtonContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(HeaderAndButtonContent).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.HeaderAndButtonContent');
-
 	    var header = new landing_ui_card_headercard.HeaderCard({
 	      title: main_core.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_TITLE')
 	    });
@@ -34,7 +28,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      restoreState: true,
 	      more: function more() {
 	        var helper$$1 = main_core.Reflection.getClass('top.BX.Helper');
-
 	        if (helper$$1) {
 	          BX.Helper.show('redirect=detail&code=12802786');
 	        }
@@ -60,11 +53,13 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        items: [{
 	          value: 'hideDesc',
 	          name: main_core.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_HIDE_SUBHEADER_FIELD_TITLE')
-	        } // {
+	        }
+	        // {
 	        // 	value: 'hideSeparator',
 	        // 	name: Loc.getMessage('LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_HIDE_SEPARATOR_FIELD_TITLE'),
 	        // },
 	        ],
+
 	        compact: true
 	      })]
 	    });
@@ -78,23 +73,16 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        content: _this.options.formOptions.data.buttonCaption
 	      })]
 	    });
-
 	    _this.addItem(header);
-
 	    _this.addItem(message);
-
 	    _this.addItem(headersForm);
-
 	    _this.addItem(buttonsForm);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(HeaderAndButtonContent, [{
 	    key: "getPersonalizationVariables",
 	    value: function getPersonalizationVariables() {
 	      var _this2 = this;
-
 	      return this.cache.remember('personalizationVariables', function () {
 	        return _this2.options.dictionary.personalization.list.map(function (item) {
 	          return {
@@ -104,35 +92,28 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        });
 	      });
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "valueReducer",
 	    value: function valueReducer(sourceValue) {
 	      var value = Object.entries(sourceValue).reduce(function (acc, _ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            key = _ref2[0],
-	            value = _ref2[1];
-
+	          key = _ref2[0],
+	          value = _ref2[1];
 	        if (key === 'hideDesc') {
 	          if (value.includes(key)) {
 	            acc.desc = '';
 	          }
-
 	          delete acc.hideDesc;
 	        }
-
 	        if (key === 'useSign') {
 	          acc.useSign = value.includes('useSign');
 	        }
-
 	        return acc;
 	      }, _objectSpread({}, sourceValue));
-
 	      if (!this.items[2].getSwitch().getValue()) {
 	        value.title = '';
 	        value.desc = '';
 	      }
-
 	      return value;
 	    }
 	  }, {

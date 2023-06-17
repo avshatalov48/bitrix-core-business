@@ -994,7 +994,11 @@ class OrderBasket
 			if(!empty($iblockPropsUsed) && !array_key_exists($arProp['ID'], $iblockPropsUsed))
 				continue;
 
-			if ($arProp['PROPERTY_TYPE'] == 'L' || $arProp['PROPERTY_TYPE'] == 'E' || ($arProp['PROPERTY_TYPE'] == 'S' && $arProp['USER_TYPE'] == 'directory'))
+			if (
+				$arProp['PROPERTY_TYPE'] == 'L'
+				|| $arProp['PROPERTY_TYPE'] == 'E'
+				|| ($arProp['PROPERTY_TYPE'] == 'S' && $arProp['USER_TYPE'] == 'directory')
+			)
 			{
 				if ($arProp['XML_ID'] == 'CML2_LINK')
 					continue;
@@ -1117,15 +1121,28 @@ class OrderBasket
 
 			if (
 				$arProp['PROPERTY_TYPE'] == "S"
+				&& $arProp['USER_TYPE'] == 'directory'
 				&& isset($arRes[$arProp['ID']]['VALUES'])
 				&& is_array($arRes[$arProp['ID']]['VALUES'])
 			)
 			{
 				foreach($arRes[$arProp['ID']]['VALUES'] as $id => $value)
 				{
-					$arTmpFile = \CFile::getFileArray($value["FILE"]);
-					$tmpImg = \CFile::resizeImageGet($arTmpFile, array('width'=>20, 'height'=>20), BX_RESIZE_IMAGE_PROPORTIONAL, false, false);
-					$arRes[$arProp['ID']]['VALUES'][$id]['PICT'] = $tmpImg['src'];
+					if (isset($value["FILE"]))
+					{
+						$arTmpFile = \CFile::getFileArray($value["FILE"]);
+						$tmpImg = \CFile::resizeImageGet(
+							$arTmpFile,
+							[
+								'width' => 20,
+								'height' => 20,
+							],
+							BX_RESIZE_IMAGE_PROPORTIONAL,
+							false,
+							false
+						);
+						$arRes[$arProp['ID']]['VALUES'][$id]['PICT'] = $tmpImg['src'];
+					}
 				}
 			}
 		}
@@ -1601,8 +1618,18 @@ class OrderBasket
 		}
 
 		$arSelect = array_merge(
-				array("ID", "NAME", "IBLOCK_ID", "IBLOCK_SECTION_ID", "DETAIL_PICTURE", "PREVIEW_PICTURE", "XML_ID", "IBLOCK_EXTERNAL_ID"),
-				$arUserColumns
+			[
+				"ID",
+				"NAME",
+				"IBLOCK_ID",
+				"IBLOCK_SECTION_ID",
+				"DETAIL_PICTURE",
+				"PREVIEW_PICTURE",
+				"XML_ID",
+				"IBLOCK_EXTERNAL_ID",
+				"DETAIL_PAGE_URL",
+			],
+			$arUserColumns
 		);
 
 		$proxyProductDataKey = md5(join('|', $arElementId)."_".join('|', $arSelect));
@@ -2081,7 +2108,7 @@ class OrderBasket
 					}
 				}
 
-				if(is_array($params["SET_ITEMS"]) && !empty($params["SET_ITEMS"]))
+				if (!empty($params["SET_ITEMS"]) && is_array($params["SET_ITEMS"]))
 				{
 					$offerToIdx = array();
 
@@ -2140,7 +2167,7 @@ class OrderBasket
 					}
 				}
 
-				$params["IS_ENABLED"] = ($params['CAN_BUY'] === 'N') ? 'N' : 'Y';
+				$params["IS_ENABLED"] = (($params['CAN_BUY'] ?? null) === 'N') ? 'N' : 'Y';
 
 				$result["ITEMS"][$basketCode] = $params;
 			}
@@ -2229,7 +2256,7 @@ class OrderBasket
 			$params["OFFER_ID"] = $productId;
 
 		$params["PRODUCT_PROVIDER_CLASS"] = $item->getProvider();
-		$id = $params["PRODUCT_ID"];
+		$id = $params["PRODUCT_ID"] ?? 0;
 		$params = array_merge($params, $item->getFieldValues(), array("PRODUCT_ID" => $id));
 
 		//If product became bundle, but in saved order it is a simple product.
@@ -2269,7 +2296,7 @@ class OrderBasket
 				$params["PROVIDER_DATA"] = serialize($providerData);
 		}
 
-		if(is_array($params["SET_ITEMS"]) && !empty($params["SET_ITEMS"]))
+		if (!empty($params["SET_ITEMS"]) && is_array($params["SET_ITEMS"]))
 		{
 			$offerToIdx = array();
 			$items = [];

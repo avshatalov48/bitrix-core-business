@@ -1,12 +1,14 @@
 <?php
 
 $MESS['BP_SERVICE_USER_DEPARTMENT'] = 'Подразделение (список ID)';
+$MESS['BP_SERVICE_USER_DEPARTMENT_PRINTABLE'] = 'Подразделение (названия)';
 $MESS['BP_SERVICE_USER_IS_ABSENT'] = 'Отсутствует (по графику отсутствий)';
 $MESS['BP_SERVICE_USER_TIMEMAN_STATUS'] = 'Статус рабочего дня';
 $MESS['BP_SERVICE_USER_TIMEMAN_STATUS_EXPIRED'] = 'Не закрыт';
 $MESS['BP_SERVICE_USER_TIMEMAN_STATUS_OPENED'] = 'Работает';
 $MESS['BP_SERVICE_USER_TIMEMAN_STATUS_PAUSED'] = 'Перерыв';
 $MESS['BP_SERVICE_USER_TIMEMAN_STATUS_CLOSED'] = 'Завершён';
+$MESS['BP_SERVICE_USER_HEAD'] = 'Руководитель';
 
 $MESS["BP_SERVICE_USER_EMAIL"] = "E-mail";
 $MESS["BP_SERVICE_USER_WORK_PHONE"] = "Рабочий телефон";

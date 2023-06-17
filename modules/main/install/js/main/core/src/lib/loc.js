@@ -13,13 +13,14 @@ export default class Loc
 	 * @param {object} replacements
 	 * @return {?string}
 	 */
-	static getMessage(messageId: string, replacements:? {[key: string]: string} = null): ?string
+	static getMessage(messageId: string, replacements: {[key: string]: string} = null): ?string
 	{
 		let mess = message(messageId);
 		if (Type.isString(mess) && Type.isPlainObject(replacements))
 		{
+			const escape: string = (str: string): string => String(str).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 			Object.keys(replacements).forEach((replacement: string) => {
-				const globalRegexp = new RegExp(replacement, 'gi');
+				const globalRegexp = new RegExp(escape(replacement), 'gi');
 				mess = mess.replace(
 					globalRegexp,
 					() => {

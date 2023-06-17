@@ -61,9 +61,9 @@ define('DOCUMENT_ROOT', rtrim(str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']),'/
 $arAllBucket = CBackup::GetBucketList();
 $status_title = "";
 
-if ($_REQUEST['ajax_mode'] == 'Y')
+if (isset($_REQUEST['ajax_mode']) && $_REQUEST['ajax_mode'] == 'Y')
 {
-	if ($_REQUEST['action'] == 'get_table_size')
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'get_table_size')
 	{
 		?>
 		<script>
@@ -76,18 +76,18 @@ if ($_REQUEST['ajax_mode'] == 'Y')
 		die();
 	}
 }
-elseif($_REQUEST['process'] == "Y")
+elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 {
 	if (!check_bitrix_sessid())
 		RaiseErrorAndDie(GetMessage("DUMP_MAIN_SESISON_ERROR"));
 
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 	$NS =& \Bitrix\Main\Application::getInstance()->getSession()['BX_DUMP_STATE'];
-	if($_REQUEST['action'] == 'start')
+	if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'start')
 	{
 		define('NO_TIME', true);
 
-		$bFull = $_REQUEST['dump_all'] == 'Y';
+		$bFull = isset($_REQUEST['dump_all']) && $_REQUEST['dump_all'] == 'Y';
 
 		if(!file_exists(DOCUMENT_ROOT.BX_ROOT."/backup"))
 			mkdir(DOCUMENT_ROOT.BX_ROOT."/backup", BX_DIR_PERMISSIONS);
@@ -107,10 +107,10 @@ elseif($_REQUEST['process'] == "Y")
 		$NS = Array();
 		$NS['finished_steps'] = 0;
 		$NS['dump_state'] = '';
-		$NS['BUCKET_ID'] = intval($_REQUEST['dump_bucket_id']);
+		$NS['BUCKET_ID'] = intval($_REQUEST['dump_bucket_id'] ?? 0);
 		COption::SetOptionInt("main", "dump_bucket_id", $NS['BUCKET_ID']);
 
-		if ($encrypt && $_REQUEST['dump_encrypt_key'])
+		if ($encrypt && !empty($_REQUEST['dump_encrypt_key']))
 		{
 			$NS['dump_encrypt_key'] =  $_REQUEST['dump_encrypt_key'];
 //			if (!defined('BX_UTF') || !BX_UTF)
@@ -124,7 +124,7 @@ elseif($_REQUEST['process'] == "Y")
 			RaiseErrorAndDie(GetMessage('MAIN_DUMP_BXCLOUD_ENC'));
 
 
-		$bUseCompression = $bGzip && ($_REQUEST['dump_disable_gzip'] != 'Y' || $bFull);
+		$bUseCompression = $bGzip && (!isset($_REQUEST['dump_disable_gzip']) || $_REQUEST['dump_disable_gzip'] != 'Y' || $bFull);
 		COption::SetOptionInt("main", "dump_use_compression", $bUseCompression);
 
 		if ($bFull)
@@ -157,31 +157,31 @@ elseif($_REQUEST['process'] == "Y")
 		}
 		else
 		{
-			COption::SetOptionInt("main", "dump_max_exec_time", intval($_REQUEST['dump_max_exec_time']) < 5 ? 5 : $_REQUEST['dump_max_exec_time']);
-			COption::SetOptionInt("main", "dump_max_exec_time_sleep", $_REQUEST['dump_max_exec_time_sleep']);
-			$dump_archive_size_limit = intval($_REQUEST['dump_archive_size_limit']);
+			COption::SetOptionInt("main", "dump_max_exec_time", max(intval($_REQUEST['dump_max_exec_time'] ?? 0), 5));
+			COption::SetOptionInt("main", "dump_max_exec_time_sleep", $_REQUEST['dump_max_exec_time_sleep'] ?? 0);
+			$dump_archive_size_limit = intval($_REQUEST['dump_archive_size_limit'] ?? 0);
 			if ($dump_archive_size_limit > 2047 || $dump_archive_size_limit <= 10)
 				$dump_archive_size_limit = 100;
 			COption::SetOptionInt("main", "dump_archive_size_limit", $dump_archive_size_limit * 1024 * 1024);
-			COption::SetOptionInt("main", "dump_max_file_size", $_REQUEST['max_file_size']);
+			COption::SetOptionInt("main", "dump_max_file_size", $_REQUEST['max_file_size'] ?? 0);
 
 			$NS['total_steps'] = 0;
-			if ($r = $_REQUEST['dump_file_public'] == 'Y')
+			if ($r = (isset($_REQUEST['dump_file_public']) && $_REQUEST['dump_file_public'] == 'Y'))
 				$NS['total_steps'] = 1;
 			COption::SetOptionInt("main", "dump_file_public", $r);
 
-			if ($r = $_REQUEST['dump_file_kernel'] == 'Y')
+			if ($r = (isset($_REQUEST['dump_file_kernel']) && $_REQUEST['dump_file_kernel'] == 'Y'))
 				$NS['total_steps'] = 1;
 			COption::SetOptionInt("main", "dump_file_kernel", $r);
 
-			if ($r = $DB->type == 'MYSQL' ? ($_REQUEST['dump_base'] == 'Y') : 0)
+			if ($r = $DB->type == 'MYSQL' ? (isset($_REQUEST['dump_base']) && $_REQUEST['dump_base'] == 'Y') : 0)
 				$NS['total_steps'] += 2;
 			COption::SetOptionInt("main", "dump_base", $r);
-			COption::SetOptionInt("main", "dump_base_skip_stat", $_REQUEST['dump_base_skip_stat'] == 'Y');
-			COption::SetOptionInt("main", "dump_base_skip_search", $_REQUEST['dump_base_skip_search'] == 'Y');
-			COption::SetOptionInt("main", "dump_base_skip_log", $_REQUEST['dump_base_skip_log'] == 'Y');
+			COption::SetOptionInt("main", "dump_base_skip_stat", isset($_REQUEST['dump_base_skip_stat']) && $_REQUEST['dump_base_skip_stat'] == 'Y');
+			COption::SetOptionInt("main", "dump_base_skip_search", isset($_REQUEST['dump_base_skip_search']) && $_REQUEST['dump_base_skip_search'] == 'Y');
+			COption::SetOptionInt("main", "dump_base_skip_log", isset($_REQUEST['dump_base_skip_log']) && $_REQUEST['dump_base_skip_log'] == 'Y');
 
-			if ($r = $_REQUEST['dump_integrity_check'] == 'Y')
+			if ($r = (isset($_REQUEST['dump_integrity_check']) && $_REQUEST['dump_integrity_check'] == 'Y'))
 				$NS['total_steps']++;
 			COption::SetOptionInt("main", "dump_integrity_check", $r);
 
@@ -190,7 +190,7 @@ elseif($_REQUEST['process'] == "Y")
 			{
 				foreach($arAllBucket as $arBucket)
 				{
-					if ($res = $_REQUEST['dump_cloud'][$arBucket['ID']] == 'Y')
+					if ($res = (isset($_REQUEST['dump_cloud'][$arBucket['ID']]) && $_REQUEST['dump_cloud'][$arBucket['ID']] == 'Y'))
 						$bDumpCloud = true;
 					COption::SetOptionInt('main', 'dump_cloud_'.$arBucket['ID'], $res);
 				}
@@ -199,11 +199,11 @@ elseif($_REQUEST['process'] == "Y")
 			}
 			COption::SetOptionInt("main", "dump_do_clouds", $bDumpCloud);
 
-			$skip_mask = $_REQUEST['skip_mask'] == 'Y';
+			$skip_mask = isset($_REQUEST['skip_mask']) && $_REQUEST['skip_mask'] == 'Y';
 			COption::SetOptionInt("main", "skip_mask", $skip_mask);
 
 			$skip_mask_array = array();
-			if ($skip_mask && is_array($_REQUEST['arMask']))
+			if ($skip_mask && isset($_REQUEST['arMask']) && is_array($_REQUEST['arMask']))
 			{
 				$arMask = array_unique($_REQUEST['arMask']);
 				foreach($arMask as $mask)
@@ -221,7 +221,7 @@ elseif($_REQUEST['process'] == "Y")
 		if ($NS['BUCKET_ID']) // send to the [bitrix]cloud
 			$NS['total_steps']++;
 
-		$NS['dump_site_id'] = $_REQUEST['dump_site_id'];
+		$NS['dump_site_id'] = $_REQUEST['dump_site_id'] ?? '';
 		if (!is_array($NS['dump_site_id']))
 			$NS['dump_site_id'] = array();
 		COption::SetOptionString("main", "dump_site_id", serialize($NS['dump_site_id']));
@@ -246,34 +246,34 @@ elseif($_REQUEST['process'] == "Y")
 
 			$arc_name = CBackup::GetArcName(preg_match('#^[a-z0-9\.\-]+$#i', $prefix) ? substr($prefix, 0, 20).'_' : '');
 			$NS['dump_name'] = $arc_name.".sql";
-			$NS['arc_name'] = $arc_name.($NS['dump_encrypt_key'] ? ".enc" : ".tar").($bUseCompression ? ".gz" : '');
+			$NS['arc_name'] = $arc_name.(!empty($NS['dump_encrypt_key']) ? ".enc" : ".tar").($bUseCompression ? ".gz" : '');
 		}
 	}
-	elseif($_REQUEST['action'] == 'cloud_send')
+	elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'cloud_send')
 	{
 		define('NO_TIME', true);
 		$NS = Array();
 		$NS['finished_steps'] = 0;
 		$NS['total_steps'] = 1;
 		$NS['cloud_send'] = 1;
-		$NS['dump_encrypt_key'] = $_REQUEST['dump_encrypt_key'];
-		$NS['arc_name'] = $name = DOCUMENT_ROOT.BX_ROOT.'/backup/'.str_replace(array('..','/','\\'),'',$_REQUEST['f_id']);
+		$NS['dump_encrypt_key'] = $_REQUEST['dump_encrypt_key'] ?? '';
+		$NS['arc_name'] = $name = DOCUMENT_ROOT.BX_ROOT.'/backup/'.str_replace(array('..','/','\\'),'',$_REQUEST['f_id'] ?? '');
 		$NS['arc_size'] = filesize($NS['arc_name']);
-		$NS['BUCKET_ID'] = intval($_REQUEST['dump_bucket_id']);
+		$NS['BUCKET_ID'] = intval($_REQUEST['dump_bucket_id'] ?? 0);
 		$tar = new CTar;
 		while(file_exists($name = $tar->getNextName($name)))
 			$NS['arc_size'] += filesize($name);
 		$NS['step'] = 6;
 	}
-	elseif($_REQUEST['action'] == 'check_archive')
+	elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'check_archive')
 	{
 		define('NO_TIME', true);
 		$NS = Array();
 		$NS['finished_steps'] = 0;
 		$NS['total_steps'] = 1;
-		$NS['arc_name'] = $name = DOCUMENT_ROOT.BX_ROOT.'/backup/'.str_replace(array('..','/','\\'),'',$_REQUEST['f_id']);
+		$NS['arc_name'] = $name = DOCUMENT_ROOT.BX_ROOT.'/backup/'.str_replace(array('..','/','\\'),'',$_REQUEST['f_id'] ?? '');
 		$NS['step'] = 5;
-		$NS['dump_encrypt_key'] = $_REQUEST['dump_encrypt_key'];
+		$NS['dump_encrypt_key'] = $_REQUEST['dump_encrypt_key'] ?? '';
 		$NS['check_archive'] = true;
 		$tar = new CTar;
 		$NS['data_size'] = $tar->getDataSize($name);
@@ -305,9 +305,8 @@ elseif($_REQUEST['process'] == "Y")
 			$status_details = GetMessage("MAIN_DUMP_TABLE_FINISH")." <b>".(intval($FinishedTables))."</b> ".GetMessage('MAIN_DUMP_FROM').' <b>'.$TotalTables.'</b>';
 			$step_done = $FinishedTables / $TotalTables;
 
-			if ($NS['dump_state']['end'])
+			if (!empty($NS['dump_state']['end']))
 			{
-
 				$rs = $DB->Query('SHOW VARIABLES LIKE "character_set_results"');
 				if (($f = $rs->Fetch()) && array_key_exists ('Value', $f))
 					file_put_contents($after_file, "SET NAMES '".$f['Value']."';\n");
@@ -315,7 +314,7 @@ elseif($_REQUEST['process'] == "Y")
 				$rs = $DB->Query('SHOW VARIABLES LIKE "collation_database"');
 				if (($f = $rs->Fetch()) && array_key_exists ('Value', $f))
 					file_put_contents($after_file, "ALTER DATABASE `<DATABASE>` COLLATE ".$f['Value'].";\n",8);
-				
+
 				clearstatcache();
 				$NS["step"]++;
 				$NS['finished_steps']++;
@@ -334,11 +333,11 @@ elseif($_REQUEST['process'] == "Y")
 			if (haveTime())
 			{
 				$tar = new CTar;
-				$tar->EncryptKey = $NS['dump_encrypt_key'];
+				$tar->EncryptKey = $NS['dump_encrypt_key'] ?? '';
 				$tar->ArchiveSizeLimit = IntOption('dump_archive_size_limit');
 				$tar->gzip = IntOption('dump_use_compression');
 				$tar->path = DOCUMENT_ROOT;
-				$tar->ReadBlockCurrent = intval($NS['ReadBlockCurrent']);
+				$tar->ReadBlockCurrent = intval($NS['ReadBlockCurrent'] ?? 0);
 
 				if (!$tar->openWrite($NS["arc_name"]))
 				{
@@ -351,6 +350,12 @@ elseif($_REQUEST['process'] == "Y")
 				$Block = $tar->Block;
 				$r = null;
 				while(haveTime() && ($r = $tar->addFile($NS['dump_name'])) && $tar->ReadBlockCurrent > 0);
+
+				if (!isset($NS["data_size"]))
+				{
+					$NS["data_size"] = 0;
+				}
+
 				$NS["data_size"] += 512 * ($tar->Block - $Block);
 
 				if ($r === false)
@@ -358,7 +363,7 @@ elseif($_REQUEST['process'] == "Y")
 
 				$NS["ReadBlockCurrent"] = $tar->ReadBlockCurrent;
 
-				if (!$NS['dump_size'])
+				if (empty($NS['dump_size']))
 				{
 					$next_part = $NS['dump_name'];
 					$NS['dump_size'] = filesize($next_part);
@@ -420,11 +425,11 @@ elseif($_REQUEST['process'] == "Y")
 				$res = null;
 				foreach($arDumpClouds as $id)
 				{
-					if ($NS['bucket_finished_'.$id])
+					if (!empty($NS['bucket_finished_'.$id]))
 						continue;
 
 					$obCloud = new CloudDownload($id);
-					$obCloud->last_bucket_path = $NS['last_bucket_path'];
+					$obCloud->last_bucket_path = $NS['last_bucket_path'] ?? '';
 					if ($res = $obCloud->Scan(''))
 					{
 						$NS['bucket_finished_'.$id] = true;
@@ -441,7 +446,7 @@ elseif($_REQUEST['process'] == "Y")
 				}
 
 				$status_title = GetMessage("MAIN_DUMP_CLOUDS_DOWNLOAD");
-				$status_details = GetMessage("MAIN_DUMP_FILES_DOWNLOADED").': <b>'.intval($NS["download_cnt"]).'</b>';
+				$status_details = GetMessage("MAIN_DUMP_FILES_DOWNLOADED").': <b>'.intval($NS["download_cnt"] ?? 0).'</b>';
 //				if ($NS['download_skipped'])
 //					$status_title .= GetMessage("MAIN_DUMP_DOWN_ERR_CNT").': <b>'.$NS['download_skipped'].'</b><br>';
 
@@ -475,7 +480,7 @@ elseif($_REQUEST['process'] == "Y")
 					if ($f = $rs->Fetch())
 					{
 						$DOCUMENT_ROOT_SITE = rtrim(str_replace('\\','/',$f['ABS_DOC_ROOT']),'/');
-						if ($NS['multisite'])
+						if (!empty($NS['multisite']))
 						{
 							$tar->prefix = 'bitrix/backup/sites/'.$f['LID'].'/';
 							$DirScan->arSkip[$DOCUMENT_ROOT_SITE.'/bitrix'] = true;
@@ -487,21 +492,21 @@ elseif($_REQUEST['process'] == "Y")
 				CBackup::$DOCUMENT_ROOT_SITE = $DOCUMENT_ROOT_SITE;
 				CBackup::$REAL_DOCUMENT_ROOT_SITE = realpath($DOCUMENT_ROOT_SITE);
 
-				$tar->EncryptKey = $NS['dump_encrypt_key'];
+				$tar->EncryptKey = $NS['dump_encrypt_key'] ?? '';
 				$tar->ArchiveSizeLimit = IntOption('dump_archive_size_limit');
 				$tar->gzip = IntOption('dump_use_compression');
 				$tar->path = $DOCUMENT_ROOT_SITE;
-				$tar->ReadBlockCurrent = intval($NS['ReadBlockCurrent']);
-				$tar->ReadFileSize = intval($NS['ReadFileSize']);
+				$tar->ReadBlockCurrent = intval($NS['ReadBlockCurrent'] ?? 0);
+				$tar->ReadFileSize = intval($NS['ReadFileSize'] ?? 0);
 
-				if (!$tar->openWrite($NS["arc_name"]))
+				if (!$tar->openWrite($NS["arc_name"] ?? ''))
 				{
 					RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS'));
 				}
 
 				$Block = $tar->Block;
 
-				if (!$NS['startPath'])
+				if (empty($NS['startPath']))
 				{
 					if (!IntOption('dump_base') && file_exists($f = DOCUMENT_ROOT.BX_ROOT.'/.config.php'))
 						$tar->addFile($f);
@@ -519,6 +524,12 @@ elseif($_REQUEST['process'] == "Y")
 				$NS["ReadBlockCurrent"] = $tar->ReadBlockCurrent;
 				$NS["ReadFileSize"] = $tar->ReadFileSize;
 				$NS["startPath"] = $DirScan->nextPath;
+
+				if (!isset($NS["cnt"]))
+				{
+					$NS["cnt"] = 0;
+				}
+
 				$NS["cnt"] += $DirScan->FileCount;
 
 				$status_title = GetMessage("MAIN_DUMP_SITE_PROC");
@@ -570,13 +581,13 @@ elseif($_REQUEST['process'] == "Y")
 			if (haveTime())
 			{
 				$tar = new CTarCheck;
-				$tar->EncryptKey = $NS['dump_encrypt_key'];
+				$tar->EncryptKey = $NS['dump_encrypt_key'] ?? '';
 
-				if (!$tar->openRead($NS["arc_name"]))
+				if (!$tar->openRead($NS["arc_name"] ?? ''))
 					RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS_READ').'<br>'.implode('<br>',$tar->err));
 				else
 				{
-					if(($Block = intval($NS['Block'])) && !$tar->SkipTo($Block))
+					if(($Block = intval($NS['Block'] ?? 0)) && !$tar->SkipTo($Block))
 						RaiseErrorAndDie(implode('<br>',$tar->err));
 					while(($r = $tar->extractFile()) && haveTime());
 
@@ -699,7 +710,11 @@ elseif($_REQUEST['process'] == "Y")
 						if($res = $obUpload->Next($part, $obBucket))
 							break;
 						elseif (++$fails >= 10)
-							RaiseErrorAndDie('Internal Error: could not init upload for '.$fails.' times');
+						{
+							$e = $APPLICATION->GetException();
+							$strError = $e ? '. ' . $e->GetString() : '';
+							RaiseErrorAndDie('Internal Error: could not init upload for ' . $fails . ' times' . $strError);
+						}
 					}
 
 					if ($res)
@@ -746,7 +761,9 @@ elseif($_REQUEST['process'] == "Y")
 							{
 								$obUpload->Delete();
 								unset($NS['obBucket']);
-								RaiseErrorAndDie(GetMessage("MAIN_DUMP_ERR_FILE_SEND").basename($NS['arc_name']),true);
+								$e = $APPLICATION->GetException();
+								$strError = $e ? '. ' . $e->GetString() : '';
+								RaiseErrorAndDie(GetMessage('MAIN_DUMP_ERR_FILE_SEND') . basename($NS['arc_name']) . $strError,true);
 							}
 						}
 
@@ -761,7 +778,9 @@ elseif($_REQUEST['process'] == "Y")
 					{
 						$obUpload->Delete();
 						unset($NS['obBucket']);
-						RaiseErrorAndDie(GetMessage("MAIN_DUMP_ERR_FILE_SEND").basename($NS['arc_name']),true);
+						$e = $APPLICATION->GetException();
+						$strError = $e ? '. ' . $e->GetString() : '';
+						RaiseErrorAndDie(GetMessage('MAIN_DUMP_ERR_FILE_SEND') . basename($NS['arc_name']) . $strError, true);
 					}
 				}
 				else
@@ -775,6 +794,10 @@ elseif($_REQUEST['process'] == "Y")
 			$NS["step"]++;
 	}
 
+	if (!isset($NS["time"]))
+	{
+		$NS["time"] = 0;
+	}
 
 	$NS["time"] += workTime();
 
@@ -798,10 +821,10 @@ elseif($_REQUEST['process'] == "Y")
 	}
 	else // Finish
 	{
-		$title = ($NS['cloud_send'] ? GetMessage("MAIN_DUMP_SUCCESS_SENT") : GetMessage("MAIN_DUMP_FILE_FINISH")).'<br><br>';
+		$title = (!empty($NS['cloud_send']) ? GetMessage("MAIN_DUMP_SUCCESS_SENT") : GetMessage("MAIN_DUMP_FILE_FINISH")).'<br><br>';
 		$status_msg = '';
 
-		if ($NS["arc_size"])
+		if (!empty($NS["arc_size"]))
 		{
 			$status_msg .= GetMessage("MAIN_DUMP_ARC_NAME").": <b>".basename(CTar::getFirstName($NS["arc_name"]))."</b><br>";
 			$status_msg .= GetMessage("MAIN_DUMP_ARC_SIZE")." <b>".CFile::FormatSize($NS["arc_size"])."</b><br>";
@@ -818,14 +841,14 @@ elseif($_REQUEST['process'] == "Y")
 
 		if ($FinishedTables)
 			$status_msg .= GetMessage("MAIN_DUMP_TABLE_FINISH")." <b>".$FinishedTables."</b><br>";
-		if ($NS["cnt"])
+		if (!empty($NS["cnt"]))
 		{
 			$status_msg .= GetMessage("MAIN_DUMP_FILE_CNT")." <b>".$NS["cnt"]."</b><br>";
 			if (IntOption("dump_file_public") && IntOption("dump_file_kernel"))
 				COption::SetOptionInt("main", "last_files_count", $NS['cnt']);
 		}
 
-		if ($NS["data_size"])
+		if (!empty($NS["data_size"]))
 			$status_msg .= GetMessage("MAIN_DUMP_FILE_SIZE")." <b>".CFile::FormatSize($NS["data_size"])."</b><br>";
 
 		$status_msg .= GetMessage('TIME_SPENT').' <b>'.HumanTime($NS["time"]).'</b>';
@@ -1050,12 +1073,12 @@ BX.ready(
 	{
 		CheckExpert();
 		<?
-			if ($_REQUEST['from'] == 'bitrixcloud')
+			if (isset($_REQUEST['from']) && $_REQUEST['from'] == 'bitrixcloud')
 				echo 'StartDump();';
-			elseif ($_REQUEST['action'] == 'cloud_send' && check_bitrix_sessid())
-				echo "AjaxSend('?process=Y&action=cloud_send&f_id=".CUtil::JSEscape($_REQUEST['f_id'])."&dump_encrypt_key=".CUtil::JSEscape($_REQUEST['dump_encrypt_key'])."&dump_bucket_id=".CUtil::JSEscape($_REQUEST['dump_bucket_id'])."&".bitrix_sessid_get()."');";
-			elseif ($_REQUEST['action'] == 'check_archive' && check_bitrix_sessid())
-				echo "AjaxSend('?process=Y&action=check_archive&f_id=".CUtil::JSEscape($_REQUEST['f_id'])."&dump_encrypt_key=".CUtil::JSEscape($_REQUEST['dump_encrypt_key'])."&".bitrix_sessid_get()."');";
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'cloud_send' && check_bitrix_sessid())
+				echo "AjaxSend('?process=Y&action=cloud_send&f_id=".CUtil::JSEscape($_REQUEST['f_id'] ?? '')."&dump_encrypt_key=".CUtil::JSEscape($_REQUEST['dump_encrypt_key'] ?? '')."&dump_bucket_id=".CUtil::JSEscape($_REQUEST['dump_bucket_id'] ?? '')."&".bitrix_sessid_get()."');";
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'check_archive' && check_bitrix_sessid())
+				echo "AjaxSend('?process=Y&action=check_archive&f_id=".CUtil::JSEscape($_REQUEST['f_id'] ?? '')."&dump_encrypt_key=".CUtil::JSEscape($_REQUEST['dump_encrypt_key'] ?? '')."&".bitrix_sessid_get()."');";
 		?>
 	}
 );
@@ -1517,7 +1540,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.ph
 function IntOption($name, $def = 0)
 {
 	static $CACHE;
-	if (!$CACHE[$name])
+	if (!isset($CACHE[$name]))
 		$CACHE[$name] = COption::GetOptionInt("main", $name, $def);
 	return $CACHE[$name];
 }

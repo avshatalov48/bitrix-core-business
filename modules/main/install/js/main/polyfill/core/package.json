@@ -12,6 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^3.19.2",
-    "core-js-compat": "^3.19.2"
+    "core-js-compat": "^3.31.0"
   }
 }
